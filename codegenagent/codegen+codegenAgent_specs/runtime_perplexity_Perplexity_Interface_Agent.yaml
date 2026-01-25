@@ -1,0 +1,45 @@
+# ============================================================
+# Perplexity_Interface_Agent.py
+# ============================================================
+
+filename: runtime/perplexity/Perplexity_Interface_Agent.py
+type: search_gateway_agent
+language: python
+description: |
+  Sends prompts to Perplexity enterprise endpoint and collects structured replies.
+  Handles retries, prompt chunking, and reply normalization.
+
+wiring:
+  inputs:
+    - path: outbox/perplexity/prompts/*.json
+  outputs:
+    - path: inbox/perplexity/replies/*.json
+  triggers:
+    - new_prompt_file
+    - manual_trigger
+
+code: |
+  import os, json, requests
+
+  def send_to_perplexity(prompt_file):
+      with open(prompt_file) as f:
+          prompt = json.load(f)
+
+      payload = {
+          "query": prompt["construct"],
+          "instructions": prompt["intent"],
+          "context": prompt["context"],
+          "format": prompt["return_format"]
+      }
+
+      headers = {"Authorization": "Bearer ENTERPRISE_KEY"}
+      r = requests.post("https://api.perplexity.ai/superprompt", json=payload, headers=headers)
+
+      reply_path = prompt_file.replace("outbox", "inbox").replace("prompts", "replies")
+      os.makedirs(os.path.dirname(reply_path), exist_ok=True)
+      with open(reply_path, 'w') as f:
+          json.dump(r.json(), f, indent=2)
+
+  if __name__ == "__main__":
+      for file in os.listdir("outbox/perplexity/prompts/"):
+          send_to_perplexity(f"outbox/perplexity/prompts/{file}")

@@ -1,0 +1,27 @@
+# ===============================================
+# Patch: UnifiedController ↔ SubstrateGraphState
+# ===============================================
+
+filename: orchestration/unified_controller_patch.py
+type: orchestration_patch
+language: python
+
+description: |
+  Enables UnifiedController to route decisions using SubstrateGraphState,
+  bringing in memory-diff, semantic DAG, and tool state into orchestration.
+
+wiring:
+  inputs:
+    - semantic_dag.json
+    - orchestrator_registry.yaml
+  integration:
+    - SubstrateRetriever
+    - TaskRouter
+    - MemoryTensorTrace
+
+code: |
+  def route_task_with_memory(task_id):
+      from memory.substrate import SubstrateGraphState
+      graph = SubstrateGraphState().load()
+      decision = graph.decide(task_id)
+      return decision

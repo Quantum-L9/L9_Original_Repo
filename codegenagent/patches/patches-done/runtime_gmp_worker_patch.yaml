@@ -1,0 +1,27 @@
+# ========================================
+# Patch: GMPWorker ↔ PlanExecutor Runtime
+# ========================================
+
+filename: runtime/gmp_worker_patch.py
+type: runtime_patch
+language: python
+
+description: |
+  Enables GMPWorker to execute CodeGenAgent-generated prompts
+  as runtime planning chains. Connects to PlanExecutor via IR stream.
+
+wiring:
+  source: GMPWorker
+  patch_target: PlanExecutor
+  triggers: /runtime/gmp/plan
+  integration:
+    - memory substrate
+    - GMP capsule schema
+    - reasoning flow
+
+code: |
+  def execute_gmp_plan(capsule_path):
+      from execution.plan_executor import PlanExecutor
+      from gmp.loader import load_gmp_capsule
+      capsule = load_gmp_capsule(capsule_path)
+      PlanExecutor().run_ir_chain(capsule["steps"])

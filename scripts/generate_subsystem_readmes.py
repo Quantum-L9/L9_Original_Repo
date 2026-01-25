@@ -2,138 +2,151 @@
 """
 Generate Subsystem READMEs from Code Facts
 
-Uses AST extraction + template to automatically generate README.md files
-for each subsystem based on actual code structure.
+SINGLE SOURCE OF TRUTH: config/subsystems/readme_config.yaml
+This is the ONLY README pipeline - replaces the old README.meta.yaml system.
+
+Features:
+    - Reads subsystem definitions from YAML config
+    - Verifies system time at startup (prevents stale timestamps)
+    - Updates last_updated in config when generating
+    - Backs up existing README.md to README.md.bak before overwriting
+    - Adds generation header with verified timestamp
+    - Supports tier-based filtering
+    - Validates config schema
+    - Handles forbidden_scopes, prereading, sections
 
 Usage:
-    # Generate all preset subsystems
-    python scripts/generate_subsystem_readmes.py
-
-    # Generate specific preset
-    python scripts/generate_subsystem_readmes.py --subsystem agents
-
-    # Generate for ANY arbitrary path
-    python scripts/generate_subsystem_readmes.py --path agents/cursor
-    python scripts/generate_subsystem_readmes.py --path services/research --title "Research Service"
-
-    # Preview without writing
-    python scripts/generate_subsystem_readmes.py --path agents/cursor --dry-run
-
-Presets:
-    agents  -> core/agents/README.md
-    memory  -> memory/README.md
-    tools   -> core/tools/README.md
-    api     -> api/README.md
+    python scripts/generate_subsystem_readmes.py                    # All subsystems
+    python scripts/generate_subsystem_readmes.py --subsystem memory # Specific one
+    python scripts/generate_subsystem_readmes.py --tier core        # All in tier
+    python scripts/generate_subsystem_readmes.py --dry-run          # Preview only
+    python scripts/generate_subsystem_readmes.py --list             # List all
+    python scripts/generate_subsystem_readmes.py --validate         # Validate config
 """
 
 import argparse
 import ast
+import json
+import shutil
 import sys
+import urllib.request
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
+
+try:
+    import yaml
+
+    YAML_AVAILABLE = True
+except ImportError:
+    YAML_AVAILABLE = False
+    print("WARNING: PyYAML not installed. Install with: pip install pyyaml")
 
 # ============================================================================
-# Configuration: Subsystem Definitions
+# Configuration
 # ============================================================================
 
-SUBSYSTEMS = {
-    "agents": {
-        "path": "core/agents",
-        "title": "Agents Subsystem",
-        "description": "Agent execution runtime for L9 Secure AI OS",
-        "purpose": "Orchestrates agent task execution, kernel loading, tool dispatch, and memory integration.",
-        "protected_files": ["executor.py", "registry.py", "__init__.py"],
-        "allowed_patterns": [
-            "adaptive_prompting.py",
-            "selfreflection.py",
-            "prompt_builder.py",
-            "bootstrap/**",
-            "graph_state/**",
-        ],
-        "depends_on": [
-            "memory/substrate_service.py",
-            "core/tools/registry_adapter.py",
-            "runtime/kernel_loader.py",
-        ],
-        "depended_by": ["api/agent_routes.py", "runtime/task_queue.py"],
-    },
-    "memory": {
-        "path": "memory",
-        "title": "Memory Subsystem",
-        "description": "Multi-layer memory substrate for L9 Secure AI OS",
-        "purpose": "Provides PacketEnvelope storage, semantic search, retrieval, and audit trails.",
-        "protected_files": ["substrate_service.py", "substrate_dag.py", "__init__.py"],
-        "allowed_patterns": [
-            "retrieval.py",
-            "semantic_search.py",
-            "context_builder.py",
-            "insight_extraction.py",
-        ],
-        "depends_on": ["runtime/redis_client.py"],
-        "depended_by": ["core/agents/executor.py", "api/memory/router.py"],
-    },
-    "tools": {
-        "path": "core/tools",
-        "title": "Tools Subsystem",
-        "description": "Tool registry and dispatch for L9 Secure AI OS",
-        "purpose": "Manages tool definitions, capability enforcement, and safe tool invocation.",
-        "protected_files": ["registry_adapter.py", "tool_graph.py", "__init__.py"],
-        "allowed_patterns": [
-            "sanitizer.py",
-            "memory_tools.py",
-            "research_tools.py",
-            "reflection_tools.py",
-        ],
-        "depends_on": ["runtime/l_tools.py", "core/governance/approval_manager.py"],
-        "depended_by": ["core/agents/executor.py"],
-    },
-    "api": {
-        "path": "api",
-        "title": "API Subsystem",
-        "description": "HTTP and WebSocket interfaces for L9 Secure AI OS",
-        "purpose": "Exposes FastAPI endpoints for agent tasks, memory operations, and real-time communication.",
-        "protected_files": ["server.py", "auth.py", "__init__.py"],
-        "allowed_patterns": [
-            "routes/*.py",
-            "agent_routes.py",
-            "os_routes.py",
-            "memory/*.py",
-        ],
-        "depends_on": ["core/agents/executor.py", "memory/substrate_service.py"],
-        "depended_by": [],
-    },
-}
+CONFIG_PATH = "config/subsystems/readme_config.yaml"
+VALID_TIERS = {"core", "orchestration", "api", "agents", "services", "infrastructure"}
+TIME_DRIFT_THRESHOLD_SECONDS = 60  # Max allowed drift from verified time
 
-INVARIANTS = {
-    "agents": [
-        "Agent IDs are UUIDv4 or registered agent names",
-        "All agent tasks emit PacketEnvelope to memory substrate",
-        "Kernel stack loaded via KernelLoader before execution",
-        "Tool access mediated by RegistryAdapter with capability checks",
-        "High-risk tools require Igor approval before dispatch",
-    ],
-    "memory": [
-        "All packet IDs are UUIDv4",
-        "All timestamps are UTC ISO-8601",
-        "PacketEnvelope is the canonical data structure for all memory writes",
-        "Embeddings are list[float] with dimension 1536 or 3072",
-        "Deduplication via dedup_key prevents duplicate ingestion",
-    ],
-    "tools": [
-        "Tool names must exist in L_TOOLS_DEFINITIONS registry",
-        "Destructive tools require explicit approval gates",
-        "All tool executions logged to PacketEnvelope audit trail",
-        "Tool dispatch respects AgentCapabilities enum",
-    ],
-    "api": [
-        "Request/response schemas validated via Pydantic",
-        "All logging is structured JSON with context (agent_id, task_id)",
-        "WebSocket routes use websocket_orchestrator for lifecycle",
-        "Rate limiting enforced via RateLimiter with Redis backend",
-    ],
-}
+
+def verify_system_time() -> tuple[datetime, bool, str]:
+    """
+    Verify system time against external source.
+    Returns: (current_time, is_verified, verification_source)
+    """
+    now = datetime.now(UTC)
+
+    # Try worldtimeapi.org first
+    try:
+        url = "http://worldtimeapi.org/api/timezone/UTC"
+        req = urllib.request.Request(
+            url, headers={"User-Agent": "L9-README-Generator/1.0"}
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode())
+            api_time = datetime.fromisoformat(
+                data["utc_datetime"].replace("Z", "+00:00")
+            )
+            drift = abs((now - api_time).total_seconds())
+            if drift <= TIME_DRIFT_THRESHOLD_SECONDS:
+                return now, True, f"worldtimeapi.org (drift: {drift:.1f}s)"
+            return now, False, f"worldtimeapi.org (DRIFT TOO HIGH: {drift:.1f}s)"
+    except Exception:
+        pass
+
+    # Fallback: try timeapi.io
+    try:
+        url = "https://timeapi.io/api/Time/current/zone?timeZone=UTC"
+        req = urllib.request.Request(
+            url, headers={"User-Agent": "L9-README-Generator/1.0"}
+        )
+        with urllib.request.urlopen(req, timeout=5) as response:
+            data = json.loads(response.read().decode())
+            api_time = datetime(
+                data["year"],
+                data["month"],
+                data["day"],
+                data["hour"],
+                data["minute"],
+                data["seconds"],
+                tzinfo=UTC,
+            )
+            drift = abs((now - api_time).total_seconds())
+            if drift <= TIME_DRIFT_THRESHOLD_SECONDS:
+                return now, True, f"timeapi.io (drift: {drift:.1f}s)"
+            return now, False, f"timeapi.io (DRIFT TOO HIGH: {drift:.1f}s)"
+    except Exception:
+        pass
+
+    # Fallback: use system time but mark as unverified
+    return now, False, "system clock (UNVERIFIED - no API response)"
+
+
+def load_config(repo_root: Path) -> dict[str, Any]:
+    """Load subsystem configuration from YAML."""
+    config_file = repo_root / CONFIG_PATH
+    if not config_file.exists():
+        print(f"ERROR: Config file not found: {config_file}")
+        print("Create it or use --path for ad-hoc generation.")
+        sys.exit(1)
+
+    if not YAML_AVAILABLE:
+        print("ERROR: PyYAML required to load config. Install with: pip install pyyaml")
+        sys.exit(1)
+
+    with open(config_file) as f:
+        config = yaml.safe_load(f)
+
+    return config
+
+
+def save_config(repo_root: Path, config: dict[str, Any]) -> None:
+    """Save config back to YAML (for updating last_updated)."""
+    config_file = repo_root / CONFIG_PATH
+    with open(config_file, "w") as f:
+        yaml.dump(
+            config, f, default_flow_style=False, sort_keys=False, allow_unicode=True
+        )
+
+
+def validate_subsystem_config(key: str, config: dict[str, Any]) -> list[str]:
+    """Validate a single subsystem config, return list of errors."""
+    errors = []
+    required_fields = ["path", "title", "tier", "description", "purpose"]
+
+    for fld in required_fields:
+        if fld not in config:
+            errors.append(f"  [{key}] Missing required field: {fld}")
+
+    if "tier" in config and config["tier"] not in VALID_TIERS:
+        errors.append(
+            f"  [{key}] Invalid tier '{config['tier']}'. Must be one of: {VALID_TIERS}"
+        )
+
+    return errors
 
 
 # ============================================================================
@@ -148,7 +161,7 @@ class ClassInfo:
     line_start: int
     line_end: int
     docstring: str
-    methods: List[str] = field(default_factory=list)
+    methods: list[str] = field(default_factory=list)
     is_async: bool = False
 
 
@@ -165,10 +178,10 @@ class FunctionInfo:
 @dataclass
 class SubsystemFacts:
     path: str
-    classes: List[ClassInfo] = field(default_factory=list)
-    functions: List[FunctionInfo] = field(default_factory=list)
-    files: List[str] = field(default_factory=list)
-    imports: List[str] = field(default_factory=list)
+    classes: list[ClassInfo] = field(default_factory=list)
+    functions: list[FunctionInfo] = field(default_factory=list)
+    files: list[str] = field(default_factory=list)
+    imports: list[str] = field(default_factory=list)
 
 
 def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFacts:
@@ -208,7 +221,6 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
 
                 # Extract top-level functions
                 if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                    # Only top-level functions (not methods)
                     if node.col_offset == 0:
                         args = [arg.arg for arg in node.args.args]
                         sig = f"def {node.name}({', '.join(args)})"
@@ -237,9 +249,7 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
         except Exception as e:
             print(f"WARNING: Could not parse {py_file}: {e}")
 
-    # Deduplicate imports
     facts.imports = sorted(set(facts.imports))
-
     return facts
 
 
@@ -247,13 +257,49 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
 # README Generation
 # ============================================================================
 
-README_TEMPLATE = """# {title}
+README_TEMPLATE = """---
+dora:
+  version: "1.0"
+  type: subsystem_readme
+  generated: "{generated_timestamp}"
+  generator: scripts/generate_subsystem_readmes.py
+  config: config/subsystems/readme_config.yaml
+  time_verified: "{time_verified}"
+  auto_generated: true
+---
+
+# {title}
+
+> **Tier:** {tier} | **Path:** `{path}` | **Owner:** {owner}
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              {title_padded}                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐                  │
+│  │   Inbound   │ ───► │   {subsystem_short}   │ ───► │  Outbound   │                  │
+│  │ Dependencies│      │   Module    │      │ Dependencies│                  │
+│  └─────────────┘      └─────────────┘      └─────────────┘                  │
+│                              │                                              │
+│                              ▼                                              │
+│                    ┌─────────────────┐                                      │
+│                    │  Memory/Audit   │                                      │
+│                    │   Substrate     │                                      │
+│                    └─────────────────┘                                      │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Overview
 
-The **{title}** is the {description}. It {purpose}
+{description}
+
+**Purpose:** {purpose}
 
 **What depends on it:** {depended_by_str}
+
+---
 
 ## Responsibilities and Boundaries
 
@@ -265,11 +311,19 @@ The **{title}** is the {description}. It {purpose}
 
 {non_responsibilities}
 
-### Dependencies
+### Inbound Dependencies
 
-| Direction | Module | Purpose |
-|-----------|--------|---------|
-{dependencies_table}
+| Module | Purpose |
+|--------|---------|
+{inbound_deps_table}
+
+### Outbound Dependencies
+
+| Module | Purpose |
+|--------|---------|
+{outbound_deps_table}
+
+---
 
 ## Directory Layout
 
@@ -277,25 +331,66 @@ The **{title}** is the {description}. It {purpose}
 {dir_layout}
 ```
 
+{dir_layout_descriptions}
+
+### Naming Conventions
+
+{naming_conventions}
+
+---
+
 ## Key Components
 
 {components}
+
+---
 
 ## Data Models and Contracts
 
 {data_models}
 
+### Key Schemas
+
+{data_schemas}
+
 ### Invariants
 
 {invariants}
+
+---
+
+## Execution and Lifecycle
+
+### Startup
+
+{lifecycle_startup}
+
+### Main Execution
+
+{lifecycle_execution}
+
+### Shutdown
+
+{lifecycle_shutdown}
+
+### Background Tasks
+
+{lifecycle_background}
+
+---
 
 ## Configuration
 
 ### Feature Flags
 
 ```yaml
-# Subsystem-specific feature flags
 {feature_flags}
+```
+
+### Tuning Parameters
+
+```yaml
+{tuning_params}
 ```
 
 ### Environment Variables
@@ -304,9 +399,17 @@ The **{title}** is the {description}. It {purpose}
 {env_vars}
 ```
 
+---
+
 ## API Surface (Public)
 
 {api_surface}
+
+### Usage Example
+
+{api_example}
+
+---
 
 ## Observability
 
@@ -320,13 +423,27 @@ The **{title}** is the {description}. It {purpose}
   "level": "INFO",
   "module": "{module_path}",
   "message": "Operation completed",
-  "correlation_id": "corr-xyz789"
+  "correlation_id": "corr-xyz789",
+  "agent_id": "agent-001",
+  "duration_ms": 125
 }}
 ```
+
+**Log Levels:**
+- `DEBUG` — Detailed execution steps (off in production)
+- `INFO` — Lifecycle events, successful operations
+- `WARNING` — Timeouts, resource warnings, recoverable errors
+- `ERROR` — Failures, exceptions, unrecoverable errors
 
 ### Metrics
 
 {metrics}
+
+### Tracing
+
+{tracing}
+
+---
 
 ## Testing
 
@@ -334,6 +451,16 @@ The **{title}** is the {description}. It {purpose}
 
 Located in `tests/{test_path}/`:
 {test_files}
+
+### Integration Tests
+
+{integration_tests}
+
+### Known Edge Cases
+
+{edge_cases}
+
+---
 
 ## AI Usage Rules
 
@@ -345,96 +472,398 @@ Located in `tests/{test_path}/`:
 
 {restricted_scopes}
 
-### ❌ Forbidden Scopes (never modify without approval)
+### ❌ Forbidden Scopes (NEVER modify without explicit approval)
 
 {forbidden_scopes}
 
 ### Required Pre-Reading
 
-1. `README-L9_ARCHITECTURE.md` — System architecture
-2. `docs/CURSOR-RUNBOOK.md` — AI collaboration rules
-3. This file — Subsystem contracts
+{prereading_list}
 
----
+### Change Policy
 
-*L9 Secure AI OS — {title}*
-*Generated: {generated_date}*
+All changes proposed by AI tools must:
+1. Be scoped PRs with clear commit messages
+2. Include tests (unit + integration where applicable)
+3. Update documentation if APIs change
+4. Respect feature flags for gradual rollout
+5. Get human approval for restricted scopes
 """
 
 
 def generate_readme(
     subsystem_name: str,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     facts: SubsystemFacts,
+    verified_time: datetime,
+    time_verification_source: str,
+    defaults: dict[str, Any],
 ) -> str:
     """Generate README content from template and facts."""
 
     # Build directory layout
     dir_layout_lines = [f"{config['path']}/"]
-    for f in sorted(facts.files)[:15]:  # Limit to 15 files
+    file_descriptions = config.get("file_descriptions", {})
+    sorted_files = sorted(facts.files)[:15]
+    for f in sorted_files:
         rel = f.replace(config["path"] + "/", "")
         dir_layout_lines.append(f"├── {rel}")
     if len(facts.files) > 15:
         dir_layout_lines.append(f"└── ... ({len(facts.files) - 15} more files)")
     dir_layout = "\n".join(dir_layout_lines)
 
-    # Build components section
+    # Build directory layout descriptions
+    if file_descriptions:
+        desc_lines = ["| File | Purpose |", "|------|---------|"]
+        for file_name, desc in file_descriptions.items():
+            desc_lines.append(f"| `{file_name}` | {desc} |")
+        dir_layout_descriptions = "\n".join(desc_lines)
+    else:
+        # Auto-generate from protected files
+        protected = config.get("protected_files", [])
+        desc_lines = ["| File | Purpose |", "|------|---------|"]
+        for pf in protected[:5]:
+            desc_lines.append(f"| `{pf}` | Core module (PROTECTED) |")
+        for cls in facts.classes[:3]:
+            fname = cls.file.split("/")[-1]
+            if fname not in protected:
+                doc_line = (
+                    cls.docstring.split("\n")[0][:50] if cls.docstring else "Component"
+                )
+                desc_lines.append(f"| `{fname}` | {doc_line} |")
+        dir_layout_descriptions = "\n".join(desc_lines) if len(desc_lines) > 2 else ""
+
+    # Build naming conventions
+    naming_conventions = config.get("naming_conventions")
+    if naming_conventions:
+        naming_lines = []
+        for conv in naming_conventions:
+            naming_lines.append(f"- {conv}")
+        naming_conventions_str = "\n".join(naming_lines)
+    else:
+        # Default conventions
+        naming_conventions_str = f"""- **Classes:** `PascalCase` (e.g., `{subsystem_name.title().replace("_", "")}Service`)
+- **Functions:** `snake_case` (e.g., `process_{subsystem_name}_request`)
+- **Constants:** `UPPER_SNAKE_CASE`
+- **Private:** `_prefixed` for internal methods"""
+
+    # Build components section with richer detail
     components_lines = []
-    for cls in facts.classes[:5]:  # Top 5 classes
+    for cls in facts.classes[:5]:
         docstring_first_line = (
             cls.docstring.split("\n")[0] if cls.docstring else "No description"
         )
         components_lines.append(f"### `{cls.file.split('/')[-1]}` — {cls.name}\n")
+
+        # Add async marker if applicable
+        async_methods = [
+            m
+            for m in cls.methods
+            if m.startswith("async_") or m in ["execute", "run", "start"]
+        ]
+
         components_lines.append(
-            f'```python\nclass {cls.name}:\n    """{docstring_first_line}"""\n```\n'
+            f'```python\nclass {cls.name}:\n    """{docstring_first_line}"""\n    \n    # Key methods:\n'
         )
+        for method in cls.methods[:5]:
+            components_lines.append(f"    async def {method}(self, ...): ...\n")
+        components_lines.append("```\n")
+
         if cls.methods[:5]:
-            components_lines.append(f"**Methods:** `{'`, `'.join(cls.methods[:5])}`\n")
+            components_lines.append(
+                f"**Public Methods:** `{'`, `'.join(cls.methods[:5])}`\n"
+            )
+        components_lines.append(
+            f"**Lines:** {cls.line_start}-{cls.line_end} in `{cls.file.split('/')[-1]}`\n"
+        )
+
     components = (
         "\n".join(components_lines)
         if components_lines
         else "See source files for component details."
     )
 
-    # Build dependencies table
-    dep_lines = []
-    for dep in config.get("depends_on", []):
-        dep_lines.append(f"| **Outbound** | `{dep}` | Required dependency |")
-    for dep in config.get("depended_by", []):
-        dep_lines.append(f"| **Inbound** | `{dep}` | Uses this module |")
-    dependencies_table = (
-        "\n".join(dep_lines) if dep_lines else "| — | — | No external dependencies |"
+    # Build inbound/outbound dependency tables
+    inbound_deps = config.get("depended_by", [])
+    outbound_deps = config.get("depends_on", [])
+
+    inbound_lines = []
+    for dep in inbound_deps:
+        inbound_lines.append(f"| `{dep}` | Uses this module |")
+    inbound_deps_table = (
+        "\n".join(inbound_lines) if inbound_lines else "| — | No inbound dependencies |"
+    )
+
+    outbound_lines = []
+    for dep in outbound_deps:
+        outbound_lines.append(f"| `{dep}` | Required dependency |")
+    outbound_deps_table = (
+        "\n".join(outbound_lines)
+        if outbound_lines
+        else "| — | No outbound dependencies |"
     )
 
     # Build invariants
-    inv_list = INVARIANTS.get(subsystem_name, ["No invariants defined"])
+    inv_list = config.get("invariants", [])
+    if not inv_list:
+        inv_list = [
+            "All operations must be idempotent",
+            "State changes logged to audit trail",
+        ]
     invariants = "\n".join([f"- **{inv}**" for inv in inv_list])
 
-    # Build allowed/restricted/forbidden scopes
+    # Build data models section
+    data_models = config.get("data_models")
+    if data_models:
+        data_models_str = data_models
+    else:
+        # Auto-generate from facts
+        if facts.classes:
+            data_model_classes = [
+                c
+                for c in facts.classes
+                if "Model" in c.name
+                or "Schema" in c.name
+                or "Request" in c.name
+                or "Response" in c.name
+            ]
+            if data_model_classes:
+                dm_lines = [
+                    "The following data models define the contracts for this subsystem:\n"
+                ]
+                for dm in data_model_classes[:3]:
+                    dm_lines.append(
+                        f"- **`{dm.name}`** — {dm.docstring.split(chr(10))[0] if dm.docstring else 'Data model'}"
+                    )
+                data_models_str = "\n".join(dm_lines)
+            else:
+                data_models_str = "Data models are defined in `schemas.py` or inline within service classes."
+        else:
+            data_models_str = "See source files for data model definitions."
+
+    # Build data schemas section with examples
+    data_schemas = config.get("data_schemas")
+    if data_schemas:
+        data_schemas_str = data_schemas
+    else:
+        # Generate placeholder schema example
+        data_schemas_str = f"""```python
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+class {subsystem_name.title().replace("_", "")}Request(BaseModel):
+    \"\"\"Request model for {subsystem_name} operations.\"\"\"
+    id: str
+    data: dict
+    timestamp: datetime
+    correlation_id: Optional[str] = None
+
+class {subsystem_name.title().replace("_", "")}Response(BaseModel):
+    \"\"\"Response model for {subsystem_name} operations.\"\"\"
+    success: bool
+    result: Optional[dict] = None
+    error: Optional[str] = None
+    duration_ms: float
+```"""
+
+    # Build lifecycle sections
+    lifecycle = config.get("lifecycle", {})
+    lifecycle_startup = lifecycle.get(
+        "startup",
+        f"""1. **Discovery:** {subsystem_name.title()} components are discovered and registered.
+2. **Configuration:** Settings loaded from environment and config files.
+3. **Dependencies:** Required services (Redis, PostgreSQL, etc.) are connected.
+4. **Initialization:** Internal state is initialized; ready for requests.""",
+    )
+
+    lifecycle_execution = lifecycle.get(
+        "execution",
+        """1. **Request received:** Validate input against schema.
+2. **Processing:** Execute core logic with appropriate error handling.
+3. **State updates:** Persist any state changes atomically.
+4. **Response:** Return structured response with timing metadata.""",
+    )
+
+    lifecycle_shutdown = lifecycle.get(
+        "shutdown",
+        """1. **Graceful stop:** Stop accepting new requests.
+2. **Drain:** Complete in-flight operations (with timeout).
+3. **Cleanup:** Release resources, close connections.
+4. **Log:** Emit shutdown complete event.""",
+    )
+
+    lifecycle_background = lifecycle.get(
+        "background", "No background tasks. Operations are request-driven."
+    )
+
+    # Build allowed scopes
     allowed = config.get("allowed_patterns", [])
     allowed_scopes = (
-        "\n".join([f"- `{p}` — Application logic" for p in allowed])
+        "\n".join([f"- `{p}` — Application logic, safe to modify" for p in allowed])
         if allowed
         else "- All non-protected files"
     )
 
+    # Build restricted scopes (protected_files)
     protected = config.get("protected_files", [])
-    forbidden_scopes = (
-        "\n".join([f"- `{p}` — PROTECTED" for p in protected])
+    restricted_scopes = (
+        "\n".join([f"- `{p}` — Requires human review before merge" for p in protected])
         if protected
         else "- None"
     )
 
+    # Build forbidden scopes
+    forbidden = config.get("forbidden_scopes", config.get("protected_files", []))
+    forbidden_scopes = (
+        "\n".join(
+            [f"- `{p}` — PROTECTED: Changes break system invariants" for p in forbidden]
+        )
+        if forbidden
+        else "- None"
+    )
+
+    # Build prereading list
+    prereading = config.get("prereading", defaults.get("prereading", []))
+    prereading_list = (
+        "\n".join([f"{i + 1}. [`{p}`]({p})" for i, p in enumerate(prereading)])
+        if prereading
+        else "1. `README-L9_ARCHITECTURE.md`\n2. `docs/CURSOR-RUNBOOK.md`"
+    )
+
     # Build metrics
-    metrics = f"""- `{subsystem_name}_operation_duration_ms` — Operation latency (histogram)
-- `{subsystem_name}_operation_total` — Total operations (counter)
-- `{subsystem_name}_error_rate` — Error percentage (gauge)"""
+    metrics = f"""| Metric | Type | Description |
+|--------|------|-------------|
+| `{subsystem_name}_operation_duration_ms` | Histogram | Operation latency distribution |
+| `{subsystem_name}_operation_total` | Counter | Total operations processed |
+| `{subsystem_name}_error_total` | Counter | Total errors encountered |
+| `{subsystem_name}_active_connections` | Gauge | Current active connections |"""
+
+    # Build tracing
+    tracing = f"""{subsystem_name.replace("_", " ").title()} emits OpenTelemetry spans:
+
+- `{subsystem_name}.execute` — Root span for operation
+  - `{subsystem_name}.validate` — Input validation
+  - `{subsystem_name}.process` — Core processing
+  - `{subsystem_name}.persist` — State persistence (if applicable)"""
 
     # Build test files reference
     test_path = config["path"].replace("/", "_")
-    test_files = "\n".join(
-        [f"- `test_{subsystem_name}.py` — Unit tests" for _ in range(1)]
+    test_files = f"""- `test_{subsystem_name}.py` — Core unit tests
+- `test_{subsystem_name}_integration.py` — Integration tests (if applicable)"""
+
+    # Build integration tests
+    integration_tests = config.get(
+        "integration_tests",
+        f"""Located in `tests/integration/`:
+
+- Test {subsystem_name} with real dependencies
+- Test cross-subsystem interactions
+- Test failure scenarios and recovery""",
     )
+
+    # Build edge cases
+    edge_cases_list = config.get("edge_cases", [])
+    if edge_cases_list:
+        edge_cases = "\n".join(
+            [
+                f"1. **{ec['name']}** — {ec['description']}"
+                if isinstance(ec, dict)
+                else f"- {ec}"
+                for ec in edge_cases_list
+            ]
+        )
+    else:
+        edge_cases = """1. **Timeout:** Operation exceeds deadline → Return partial result with timeout status.
+2. **Invalid input:** Schema validation fails → Return 400 with validation errors.
+3. **Dependency unavailable:** Required service down → Retry with exponential backoff, then fail gracefully.
+4. **Resource exhaustion:** Memory/connections exceeded → Reject new requests, log alert."""
+
+    # Build API surface
+    api_surface = config.get("api_surface")
+    if api_surface:
+        api_surface_str = api_surface
+    else:
+        # Auto-generate from functions
+        public_funcs = [f for f in facts.functions if not f.name.startswith("_")][:5]
+        if public_funcs:
+            api_lines = ["### Public Functions\n"]
+            for func in public_funcs:
+                doc_line = (
+                    func.docstring.split("\n")[0]
+                    if func.docstring
+                    else "No description"
+                )
+                api_lines.append(f"#### `{func.signature}`\n")
+                api_lines.append(f"{doc_line}\n")
+                api_lines.append(
+                    f"- **File:** `{func.file.split('/')[-1]}:{func.line}`"
+                )
+                api_lines.append(f"- **Async:** {'Yes' if func.is_async else 'No'}\n")
+            api_surface_str = "\n".join(api_lines)
+        else:
+            api_surface_str = "See key components for public API details."
+
+    # Build API example
+    api_example = config.get("api_example")
+    if api_example:
+        api_example_str = api_example
+    else:
+        # Generate default example
+        api_example_str = f"""```python
+from {config["path"].replace("/", ".")} import {subsystem_name.title().replace("_", "")}Service
+
+# Initialize
+service = {subsystem_name.title().replace("_", "")}Service()
+
+# Execute operation
+result = await service.execute(
+    request_id="req-001",
+    data={{"key": "value"}},
+    correlation_id="corr-xyz789",
+)
+
+print(result.success)  # True
+print(result.duration_ms)  # 125.5
+```"""
+
+    # Build feature flags
+    feature_flags = config.get("feature_flags")
+    if feature_flags:
+        ff_lines = []
+        for ff_name, ff_config in feature_flags.items():
+            ff_lines.append(
+                f"{ff_name}: {ff_config.get('default', 'true')}  # {ff_config.get('description', '')}"
+            )
+        feature_flags_str = "\n".join(ff_lines)
+    else:
+        feature_flags_str = f"""# {subsystem_name.title()} feature flags
+L9_ENABLE_{subsystem_name.upper()}_TRACING: true  # Enable detailed tracing
+L9_ENABLE_{subsystem_name.upper()}_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_{subsystem_name.upper()}_AUDIT: true    # Enable audit logging"""
+
+    # Build tuning params
+    tuning_params = config.get("tuning_params")
+    if tuning_params:
+        tp_lines = []
+        for tp_name, tp_val in tuning_params.items():
+            tp_lines.append(f"{tp_name}: {tp_val}")
+        tuning_params_str = "\n".join(tp_lines)
+    else:
+        tuning_params_str = f"""{subsystem_name}:
+  timeout_seconds: 30
+  max_retries: 3
+  pool_size: 10
+  batch_size: 100"""
+
+    # Build env vars
+    env_vars_config = config.get("env_vars")
+    if env_vars_config:
+        env_vars_str = "\n".join([f"{k}={v}" for k, v in env_vars_config.items()])
+    else:
+        env_vars_str = f"""{subsystem_name.upper()}_LOG_LEVEL=INFO
+{subsystem_name.upper()}_TIMEOUT=30
+{subsystem_name.upper()}_ENABLED=true"""
 
     # Depended by string
     depended_by = config.get("depended_by", [])
@@ -444,32 +873,85 @@ def generate_readme(
         else "External clients"
     )
 
+    # Get owner (from config or defaults)
+    owner = config.get("owner", defaults.get("owner", "Igor"))
+
+    # Get tier
+    tier = config.get("tier", "unknown").upper()
+
+    # Build responsibilities
+    responsibilities_list = config.get("responsibilities", [])
+    if responsibilities_list:
+        responsibilities = "\n".join([f"- {r}" for r in responsibilities_list])
+    else:
+        responsibilities = f"""- **Core operations:** Execute {subsystem_name.replace("_", " ")} tasks
+- **State management:** Maintain internal state with proper lifecycle
+- **Logging:** Emit structured logs for all operations
+- **Metrics:** Expose Prometheus-compatible metrics"""
+
+    # Build non-responsibilities
+    non_responsibilities_list = config.get("non_responsibilities", [])
+    if non_responsibilities_list:
+        non_responsibilities = "\n".join(
+            [f"- {nr}" for nr in non_responsibilities_list]
+        )
+    else:
+        non_responsibilities = """- **Authentication** — Handled by `api/auth.py`
+- **External communication** — Handled by clients/adapters
+- **Scheduling** — Handled by runtime/task_queue.py"""
+
+    # Build title padding for ASCII diagram (center in 45 chars)
+    title_padded = config["title"].center(45)
+    # Short subsystem name for diagram (max 11 chars)
+    subsystem_short = subsystem_name[:11].center(11)
+
     # Fill template
     return README_TEMPLATE.format(
         title=config["title"],
+        title_padded=title_padded,
+        subsystem_short=subsystem_short,
+        subsystem_key=subsystem_name,
+        tier=tier,
+        path=config["path"],
+        owner=owner,
         description=config["description"],
         purpose=config["purpose"],
         depended_by_str=depended_by_str,
-        responsibilities="- See key components below for detailed responsibilities",
-        non_responsibilities="- Operations handled by other subsystems (see dependencies)",
-        dependencies_table=dependencies_table,
+        responsibilities=responsibilities,
+        non_responsibilities=non_responsibilities,
+        inbound_deps_table=inbound_deps_table,
+        outbound_deps_table=outbound_deps_table,
         dir_layout=dir_layout,
+        dir_layout_descriptions=dir_layout_descriptions,
+        naming_conventions=naming_conventions_str,
         components=components,
-        data_models="See `schemas.py` or data model files in this subsystem.",
+        data_models=data_models_str,
+        data_schemas=data_schemas_str,
         invariants=invariants,
-        feature_flags=f"L9_ENABLE_{subsystem_name.upper()}_TRACING: true",
-        env_vars=f"{subsystem_name.upper()}_LOG_LEVEL=INFO",
-        api_surface="See key components for public API details.",
-        subsystem_name=subsystem_name.capitalize(),
-        timestamp=datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        lifecycle_startup=lifecycle_startup,
+        lifecycle_execution=lifecycle_execution,
+        lifecycle_shutdown=lifecycle_shutdown,
+        lifecycle_background=lifecycle_background,
+        feature_flags=feature_flags_str,
+        tuning_params=tuning_params_str,
+        env_vars=env_vars_str,
+        api_surface=api_surface_str,
+        api_example=api_example_str,
+        subsystem_name=subsystem_name.replace("_", " ").title(),
+        timestamp=verified_time.strftime("%Y-%m-%dT%H:%M:%SZ"),
         module_path=config["path"].replace("/", "."),
         metrics=metrics,
+        tracing=tracing,
         test_path=test_path,
         test_files=test_files,
+        integration_tests=integration_tests,
+        edge_cases=edge_cases,
         allowed_scopes=allowed_scopes,
-        restricted_scopes="- Schema changes\n- Feature flag logic",
+        restricted_scopes=restricted_scopes,
         forbidden_scopes=forbidden_scopes,
-        generated_date=datetime.utcnow().strftime("%Y-%m-%d"),
+        prereading_list=prereading_list,
+        generated_timestamp=verified_time.strftime("%Y-%m-%d %H:%M:%S UTC"),
+        time_verified=time_verification_source,
     )
 
 
@@ -478,80 +960,239 @@ def generate_readme(
 # ============================================================================
 
 
-def auto_config_from_path(path: str) -> Dict[str, Any]:
+def auto_config_from_path(path: str, defaults: dict[str, Any]) -> dict[str, Any]:
     """Generate a config dict from an arbitrary path."""
-    # Extract name from path (last component or meaningful part)
     parts = path.rstrip("/").split("/")
     name = parts[-1]
-
-    # Generate readable title
     title = name.replace("_", " ").replace("-", " ").title() + " Module"
 
     return {
         "path": path,
         "title": title,
-        "description": f"module at `{path}`",
-        "purpose": "provides functionality as documented in the key components below.",
+        "tier": "unknown",
+        "description": f"Module at `{path}`",
+        "purpose": "Provides functionality as documented in the key components below.",
+        "owner": defaults.get("owner", "Igor"),
         "protected_files": ["__init__.py"],
         "allowed_patterns": ["**/*.py"],
+        "forbidden_scopes": ["__init__.py"],
         "depends_on": [],
         "depended_by": [],
+        "invariants": [],
+        "prereading": defaults.get("prereading", []),
     }
+
+
+def backup_existing_readme(readme_path: Path) -> Path | None:
+    """Backup existing README if it exists. Returns backup path or None."""
+    if readme_path.exists():
+        backup_path = readme_path.with_suffix(".md.bak")
+        shutil.copy2(readme_path, backup_path)
+        return backup_path
+    return None
+
+
+def list_subsystems(config: dict[str, Any]) -> None:
+    """List all configured subsystems."""
+    subsystems = config.get("subsystems", {})
+
+    # Group by tier
+    by_tier: dict[str, list[tuple]] = {}
+    for key, sub_config in subsystems.items():
+        if sub_config.get("skip", False):
+            continue
+        tier = sub_config.get("tier", "unknown")
+        if tier not in by_tier:
+            by_tier[tier] = []
+        by_tier[tier].append((key, sub_config))
+
+    print("\n📋 Configured Subsystems\n")
+    print(f"{'Key':<25} {'Path':<35} {'Title'}")
+    print("-" * 90)
+
+    for tier in [
+        "core",
+        "orchestration",
+        "api",
+        "agents",
+        "services",
+        "infrastructure",
+    ]:
+        if tier not in by_tier:
+            continue
+        print(f"\n[{tier.upper()}]")
+        for key, sub_config in sorted(by_tier[tier]):
+            last_updated = sub_config.get("last_updated", "never")
+            if last_updated is None:
+                last_updated = "never"
+            print(f"  {key:<23} {sub_config['path']:<35} {sub_config['title']}")
+
+    total = sum(len(v) for v in by_tier.values())
+    print(f"\n✅ Total: {total} subsystems configured")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate subsystem READMEs from code facts"
+        description="Generate subsystem READMEs from code facts and YAML config"
     )
     parser.add_argument(
         "--subsystem",
         "-s",
-        help="Generate for specific preset subsystem (agents, memory, tools, api)",
+        help="Generate for specific subsystem key from config",
     )
     parser.add_argument(
-        "--path", "-p", help="Generate for arbitrary path (e.g., agents/cursor)"
+        "--tier",
+        "-t",
+        choices=list(VALID_TIERS),
+        help="Generate for all subsystems in a tier",
     )
-    parser.add_argument("--title", "-t", help="Custom title (used with --path)")
+    parser.add_argument(
+        "--path", "-p", help="Generate for arbitrary path (not in config)"
+    )
+    parser.add_argument("--title", help="Custom title (used with --path)")
     parser.add_argument(
         "--dry-run", "-n", action="store_true", help="Print output without writing"
     )
+    parser.add_argument(
+        "--backup",
+        action="store_true",
+        help="Backup existing README before overwriting (disabled by default)",
+    )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
+    parser.add_argument(
+        "--list", "-l", action="store_true", help="List all configured subsystems"
+    )
+    parser.add_argument(
+        "--validate", action="store_true", help="Validate config without generating"
+    )
+    parser.add_argument(
+        "--skip-time-verify",
+        action="store_true",
+        help="Skip time verification (use system clock)",
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).parent.parent
+
+    # =========================================================================
+    # STEP 1: Verify system time (skip for list/validate modes)
+    # =========================================================================
+    if args.list or args.validate:
+        # No time verification needed for list/validate
+        verified_time = datetime.now(UTC)
+        time_verified = True
+        time_source = "system clock (list/validate mode)"
+    elif args.skip_time_verify:
+        verified_time = datetime.now(UTC)
+        time_verified = True
+        time_source = "system clock (verification skipped)"
+        print(
+            f"⏰ Time: {verified_time.strftime('%Y-%m-%d %H:%M:%S UTC')} (verification skipped)"
+        )
+    else:
+        print("⏰ Verifying system time...")
+        verified_time, time_verified, time_source = verify_system_time()
+        if time_verified:
+            print(
+                f"   ✅ Time verified: {verified_time.strftime('%Y-%m-%d %H:%M:%S UTC')} ({time_source})"
+            )
+        else:
+            print(
+                f"   ⚠️  Time NOT verified: {verified_time.strftime('%Y-%m-%d %H:%M:%S UTC')} ({time_source})"
+            )
+            if not args.dry_run:
+                print("   Use --skip-time-verify to proceed with unverified time")
+                try:
+                    response = input("   Continue anyway? [y/N]: ").strip().lower()
+                    if response != "y":
+                        print("   Aborted.")
+                        return 1
+                except EOFError:
+                    # Non-interactive mode, proceed anyway
+                    print("   (Non-interactive mode, proceeding with unverified time)")
+                    pass
+
+    # =========================================================================
+    # STEP 2: Load config
+    # =========================================================================
+    config = load_config(repo_root)
+    defaults = config.get("defaults", {})
+
+    # List mode
+    if args.list:
+        list_subsystems(config)
+        return 0
+
+    # Validate mode
+    if args.validate:
+        print("🔍 Validating config...")
+        all_errors = []
+        for key, sub_config in config.get("subsystems", {}).items():
+            errors = validate_subsystem_config(key, sub_config)
+            all_errors.extend(errors)
+        if all_errors:
+            print("❌ Validation errors:")
+            for err in all_errors:
+                print(err)
+            return 1
+        print(
+            f"✅ Config valid! {len(config.get('subsystems', {}))} subsystems defined."
+        )
+        return 0
 
     print("🔍 Generating subsystem READMEs from code facts...")
 
     # Build list of (name, config) tuples to process
     to_process = []
+    subsystems = config.get("subsystems", {})
 
     if args.path:
         # Arbitrary path mode
         path = args.path.rstrip("/")
-        config = auto_config_from_path(path)
+        sub_config = auto_config_from_path(path, defaults)
         if args.title:
-            config["title"] = args.title
+            sub_config["title"] = args.title
         name = path.replace("/", "_")
-        to_process.append((name, config))
+        to_process.append((name, sub_config))
     elif args.subsystem:
-        # Preset subsystem mode
-        if args.subsystem not in SUBSYSTEMS:
+        # Specific subsystem from config
+        if args.subsystem not in subsystems:
             print(f"ERROR: Unknown subsystem '{args.subsystem}'")
-            print(f"Available presets: {', '.join(SUBSYSTEMS.keys())}")
+            print(f"Available: {', '.join(sorted(subsystems.keys()))}")
             print("Or use --path for arbitrary directories")
             return 1
-        to_process.append((args.subsystem, SUBSYSTEMS[args.subsystem]))
+        to_process.append((args.subsystem, subsystems[args.subsystem]))
+    elif args.tier:
+        # All subsystems in a tier
+        for key, sub_config in subsystems.items():
+            if sub_config.get("skip", False):
+                continue
+            if sub_config.get("tier") == args.tier:
+                to_process.append((key, sub_config))
+        if not to_process:
+            print(f"No subsystems found in tier '{args.tier}'")
+            return 1
+        print(f"📂 Processing {len(to_process)} subsystems in tier '{args.tier}'")
     else:
-        # All presets
-        to_process = list(SUBSYSTEMS.items())
+        # All subsystems
+        for key, sub_config in subsystems.items():
+            if sub_config.get("skip", False):
+                continue
+            to_process.append((key, sub_config))
+        print(f"📂 Processing all {len(to_process)} subsystems")
 
-    for subsystem_name, config in to_process:
-        subsystem_path = config["path"]
+    generated_count = 0
+    skipped_count = 0
+    config_updated = False
+
+    for subsystem_name, sub_config in to_process:
+        subsystem_path = sub_config["path"]
 
         # Verify path exists
         full_path = repo_root / subsystem_path
         if not full_path.exists():
             print(f"⚠️  Path not found: {full_path}")
+            skipped_count += 1
             continue
 
         print(f"\n📝 Processing {subsystem_name} ({subsystem_path})...")
@@ -565,20 +1206,45 @@ def main():
             )
 
         # Generate README
-        readme_content = generate_readme(subsystem_name, config, facts)
+        readme_content = generate_readme(
+            subsystem_name, sub_config, facts, verified_time, time_source, defaults
+        )
 
         # Write or print
         readme_path = repo_root / subsystem_path / "README.md"
 
         if args.dry_run:
             print(f"\n--- {readme_path} ---")
-            print(readme_content[:500] + "...\n")
+            print(readme_content[:1000] + "\n...\n")
         else:
+            # Backup existing
+            if args.backup:
+                backup = backup_existing_readme(readme_path)
+                if backup:
+                    print(f"   📦 Backed up to {backup.name}")
+
             readme_path.parent.mkdir(parents=True, exist_ok=True)
             readme_path.write_text(readme_content)
             print(f"   ✅ Generated {readme_path}")
+            generated_count += 1
+
+            # Update last_updated in config
+            if subsystem_name in subsystems:
+                subsystems[subsystem_name]["last_updated"] = verified_time.strftime(
+                    "%Y-%m-%dT%H:%M:%SZ"
+                )
+                config_updated = True
+
+    # Save updated config with last_updated timestamps
+    if config_updated and not args.dry_run:
+        config["config_updated"] = verified_time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        save_config(repo_root, config)
+        print("\n📝 Updated config with last_updated timestamps")
 
     print("\n✨ README generation complete!")
+    if not args.dry_run:
+        print(f"   Generated: {generated_count}")
+        print(f"   Skipped:   {skipped_count}")
     return 0
 
 

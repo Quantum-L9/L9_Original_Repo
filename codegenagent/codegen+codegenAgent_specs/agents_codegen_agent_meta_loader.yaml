@@ -1,0 +1,23 @@
+# =============================
+# CodeGenAgent Meta Loader
+# =============================
+
+filename: agents/codegen_agent/meta_loader.py
+type: codegen_module
+language: python
+
+description: |
+  Loads and parses meta.yaml, validates schema and returns normalized dict.
+
+wiring:
+  schema: MetaContract (via ir_engine.meta_ir)
+  input: meta.yaml
+
+code: |
+  import yaml
+  from ir_engine.meta_ir import MetaContract
+
+  def load_meta(path="meta.yaml") -> MetaContract:
+      with open(path) as f:
+          raw = yaml.safe_load(f)
+      return MetaContract(**raw)

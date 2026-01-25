@@ -1,0 +1,36 @@
+# ==============================
+# L9 Codegen Spec: API Endpoint
+# ==============================
+
+filename: api/routes/mainagent.py
+type: api_route
+language: python
+
+description: |
+  FastAPI route for L9 MainAgent v6 orchestration.
+  Accepts packets, applies multimodal reasoning, emits structured results.
+
+wiring:
+  route: POST /api/mainagent/v6/packet
+  dependencies:
+    - FastAPI
+    - PacketEnvelope
+    - MainAgentV6
+  # === PATCH: router registration ===
+  router_registration:
+    add_to: api/server.py
+    import_statement: from api.routes import mainagent as mainagent_router
+    include_call: app.include_router(mainagent_router.router)
+
+code: |
+  from fastapi import APIRouter, Request
+  from agents.mainagent_v6.mainagent import MainAgentV6
+  from core.schemas.packet_envelope import PacketEnvelope
+
+  router = APIRouter()
+  agent = MainAgentV6(...)
+
+  @router.post("/api/mainagent/v6/packet")
+  async def process(packet: PacketEnvelope, request: Request):
+      result = await agent.handle_packet(packet)
+      return {"result": result}

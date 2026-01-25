@@ -1,0 +1,36 @@
+# ============================================
+# Agent Tool Registry Enhancer (Spec)
+# ============================================
+
+filename: registry/agent_tool_registry_enhancer.py
+type: module_spec
+language: python
+status: pending_implementation
+
+description: |
+  Enhances the agent tool registry with approval states, sandboxing,
+  and capability elevation pipelines. Validates tool compatibility
+  and enforces governance policies.
+
+wiring:
+  reads:
+    - agent_registry.yaml
+    - tool_catalog.yaml
+  emits:
+    - validated_toolmap.json
+    - sandboxed_tool_report.yaml
+  triggers:
+    - tool_load
+    - agent_init
+
+code: |
+  def validate_agent_tools(agent_id):
+      import yaml
+      registry = yaml.safe_load(open("agent_registry.yaml"))
+      toolset = registry[agent_id].get("tools", [])
+      validated = []
+      for tool in toolset:
+          if tool.startswith("sandbox.") or tool in ["patch_tool", "diff_tool"]:
+              validated.append({"tool": tool, "status": "approved"})
+      yaml.dump(validated, open(f"validated_tools/{agent_id}.yaml", "w"))
+

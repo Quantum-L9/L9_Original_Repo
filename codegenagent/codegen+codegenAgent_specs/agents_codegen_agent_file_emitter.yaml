@@ -1,0 +1,34 @@
+# ==========================
+# CodeGenAgent File Emitter
+# ==========================
+
+filename: agents/codegen_agent/file_emitter.py
+type: file_writer
+language: python
+
+description: |
+  Emits generated files from code blocks into repo. Supports dry-run and diff modes.
+
+wiring:
+  mode: write, dry-run, return-packet
+  return: Dict[filename, code]
+  # === PATCH: rollback_hook integration ===
+  rollback_support:
+    hook: agents/codegen_agent/rollback_hook.py
+    triggers: on_success
+    action: register_snapshot
+    dependencies:
+      - rollback_system.register_snapshot
+
+code: |
+  import os
+
+  def emit_files(blocks, root="/l9/", mode="write"):
+      results = {}
+      for path, code in blocks.items():
+          full_path = os.path.join(root, path)
+          os.makedirs(os.path.dirname(full_path), exist_ok=True)
+          with open(full_path, "w") as f:
+              f.write(code)
+          results[path] = code
+      return results

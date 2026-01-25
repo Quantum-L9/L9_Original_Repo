@@ -1,0 +1,26 @@
+# ============================================================
+# 2. CGA CONSTRUCT UPGRADE – Expanded Capabilities Block
+# Filename: constructs/CodeGenAgent.yaml
+# ============================================================
+
+filename: constructs/CodeGenAgent.yaml
+patch_type: capabilities_injection
+language: yaml
+
+patch:
+  capabilities:
+    self_patch: true
+    prompt_evolve: true
+    gmp_emit: true
+    schema_trace_repair: true
+    external_search_delegate: true
+
+  triggers_enabled:
+    - meta_loop
+    - patch_all
+    - perplexity_prompt
+
+  permissions:
+    exec_patch_all: true
+    emit_gmp: true
+    override_self_construct: true

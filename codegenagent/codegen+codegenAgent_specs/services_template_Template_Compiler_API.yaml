@@ -1,0 +1,40 @@
+# ============================================================
+# Template_Compiler_API.py
+# ============================================================
+
+filename: services/template/Template_Compiler_API.py
+type: rest_api_service
+language: python
+description: |
+  REST API to compile schema template packs into agent/module scaffolds.
+  Accepts `project_template_pack.yaml`, `module_template_pack.yaml`, etc.
+  Emits live code, memory bindings, and orchestrator stubs to `/l9/`.
+
+wiring:
+  inputs:
+    - endpoint: /compile_template
+    - body: { template_type, template_yaml }
+  outputs:
+    - path: compiled_output/{agent, module, layer}/
+    - status: {"success": true, "path": "..."}
+  triggers:
+    - HTTP POST to /compile_template
+
+code: |
+  from flask import Flask, request, jsonify
+  import yaml, os
+  from utils.template_compiler import compile_template_pack
+
+  app = Flask(__name__)
+
+  @app.route('/compile_template', methods=['POST'])
+  def compile_template():
+      data = request.get_json()
+      template_yaml = yaml.safe_load(data["template_yaml"])
+      template_type = data["template_type"]
+
+      output_path = compile_template_pack(template_yaml, template_type)
+      return jsonify({"success": True, "path": output_path})
+
+  if __name__ == "__main__":
+      app.run(port=9090)

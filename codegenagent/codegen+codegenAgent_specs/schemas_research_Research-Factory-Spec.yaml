@@ -1,0 +1,23 @@
+# ============================================================
+# PATCH — Research-Factory-Spec.yaml
+# Purpose: Enable superprompt triggers and auto-execution mapping
+# ============================================================
+
+filename: schemas/research/Research-Factory-Spec.yaml
+patch_type: factory_extender
+language: yaml
+
+patch:
+  triggers:
+    enable_gmp_prompt_repair: true
+    activate_on_blank_output_contracts: true
+    auto_execute_on_trace_failure: true
+
+  meta_capsules:
+    - GMP-CGA-PERP-RESEARCH-PATCH
+    - GMP-CGA-ALL-PATCH-APPLY
+
+  tracing:
+    log_research_replies: true
+    inject_summary_to_manifest: true
+    feedback_self_loop_enabled: true

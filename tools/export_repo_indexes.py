@@ -46,7 +46,7 @@ logger = structlog.get_logger(__name__)
 # Use L9_REPO_ROOT env var if set, otherwise fall back to default paths
 _REPO_ROOT = os.getenv("L9_REPO_ROOT", "/Users/ib-mac/Projects/L9")
 REPO_DIR = _REPO_ROOT
-REPO_INDEX_DIR = os.path.join(_REPO_ROOT, "readme/repo-index")
+REPO_INDEX_DIR = os.path.join(_REPO_ROOT, "reports/repo-index")
 DROPBOX_EXPORT_DIR = os.getenv(
     "L9_DROPBOX_EXPORT_DIR", "/Users/ib-mac/Dropbox/Repo_Dropbox_IB/L9-index-export"
 )
@@ -79,7 +79,7 @@ def load_gitignore_patterns():
     if not os.path.exists(gitignore_path):
         return patterns
     try:
-        with open(gitignore_path, "r", encoding="utf-8") as f:
+        with open(gitignore_path, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()
                 if not line or line.startswith("#") or line.startswith("!"):
@@ -184,7 +184,7 @@ def generate_api_surfaces():
                 if fname.endswith(".py"):
                     fpath = os.path.join(root, fname)
                     try:
-                        with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                        with open(fpath, encoding="utf-8", errors="ignore") as f:
                             content = f.read()
                             routers = router_pattern.findall(content)
                             if routers:
@@ -245,7 +245,7 @@ def generate_entrypoints():
             if "test" in fname.lower() or "tests" in root:
                 continue
             try:
-                with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                with open(fpath, encoding="utf-8", errors="ignore") as f:
                     content = f.read()
                     entry_info = {
                         "path": rel_path,
@@ -334,7 +334,7 @@ def generate_env_refs():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         content = f.read()
                         env_vars.update(getenv_pattern.findall(content))
                         env_vars.update(environ_pattern.findall(content))
@@ -343,7 +343,7 @@ def generate_env_refs():
             elif fname.startswith(".env"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         content = f.read()
                         env_vars.update(dotenv_pattern.findall(content))
                 except Exception:
@@ -363,7 +363,7 @@ def generate_imports():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         content = f.read()
                         matches = import_pattern.findall(content)
                         for match in matches:
@@ -387,7 +387,7 @@ def generate_dependencies():
     req_file = os.path.join(REPO_DIR, "requirements.txt")
     if os.path.exists(req_file):
         try:
-            with open(req_file, "r") as f:
+            with open(req_file) as f:
                 for line in f:
                     line = line.strip()
                     if line and not line.startswith("#"):
@@ -406,7 +406,7 @@ def generate_class_definitions():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         tree = ast.parse(f.read())
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         for node in ast.walk(tree):
@@ -430,7 +430,7 @@ def generate_function_signatures():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         tree = ast.parse(f.read())
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         for node in ast.walk(tree):
@@ -488,7 +488,7 @@ def generate_module_architecture():
                 continue
             init_file = os.path.join(root, "__init__.py")
             try:
-                with open(init_file, "r", encoding="utf-8", errors="ignore") as f:
+                with open(init_file, encoding="utf-8", errors="ignore") as f:
                     docstring = f.read(500)
                     docstring = (
                         docstring.split('"""')[1]
@@ -619,7 +619,7 @@ def generate_agent_catalog():
             if fname.endswith(".py") and not fname.startswith("__"):
                 fpath = os.path.join(agents_dir, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         content = f.read(2000)
                         class_match = re.search(
                             r'class\s+(\w+).*?(?:"""(.*?)"""|\'\'\'(.*?)\'\'\')',
@@ -649,7 +649,7 @@ def generate_agent_catalog():
             if fname.endswith((".yaml", ".yml")):
                 fpath = os.path.join(config_agents_dir, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8") as f:
+                    with open(fpath, encoding="utf-8") as f:
                         import yaml
 
                         data = yaml.safe_load(f)
@@ -709,7 +709,7 @@ def generate_kernel_catalog():
             if fname.endswith((".yaml", ".yml")) and not fname.startswith("_"):
                 fpath = os.path.join(kernel_dir, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8") as f:
+                    with open(fpath, encoding="utf-8") as f:
                         import yaml
 
                         data = yaml.safe_load(f)
@@ -1138,7 +1138,7 @@ def generate_migration_catalog():
             if fname.endswith(".sql"):
                 fpath = os.path.join(migrations_dir, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8") as f:
+                    with open(fpath, encoding="utf-8") as f:
                         first_lines = f.read(500)
                         # Extract comment if exists
                         comment_match = re.search(r"--\s*(.+)", first_lines)
@@ -1200,7 +1200,7 @@ def generate_feature_flags():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         content = f.read()
                         matches = flag_pattern.findall(content)
                         for match in matches:
@@ -1281,7 +1281,7 @@ def generate_test_catalog():
                         fpath = os.path.join(root, fname)
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         try:
-                            with open(fpath, "r", encoding="utf-8") as f:
+                            with open(fpath, encoding="utf-8") as f:
                                 content = f.read()
                                 test_count = len(re.findall(r"def test_\w+", content))
                                 total_tests += test_count
@@ -1444,7 +1444,7 @@ def generate_inheritance_graph():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         tree = ast.parse(f.read())
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         for node in ast.walk(tree):
@@ -1489,7 +1489,7 @@ def generate_method_catalog():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         tree = ast.parse(f.read())
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         for node in ast.walk(tree):
@@ -1554,7 +1554,7 @@ def generate_route_handlers():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         content = f.read()
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         # Find all route decorators
@@ -1599,7 +1599,7 @@ def generate_file_metrics():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         content = f.read()
                         tree = ast.parse(content)
                         rel_path = os.path.relpath(fpath, REPO_DIR)
@@ -1657,7 +1657,7 @@ def generate_pydantic_models():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         tree = ast.parse(f.read())
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         for node in ast.walk(tree):
@@ -1730,7 +1730,7 @@ def generate_dynamic_tool_catalog():
                         fpath = os.path.join(root, fname)
                         try:
                             with open(
-                                fpath, "r", encoding="utf-8", errors="ignore"
+                                fpath, encoding="utf-8", errors="ignore"
                             ) as f:
                                 content = f.read()
                                 rel_path = os.path.relpath(fpath, REPO_DIR)
@@ -1798,7 +1798,7 @@ def generate_async_function_map():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         tree = ast.parse(f.read())
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         for node in ast.walk(tree):
@@ -1840,7 +1840,7 @@ def generate_decorator_catalog():
             if fname.endswith(".py"):
                 fpath = os.path.join(root, fname)
                 try:
-                    with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
                         tree = ast.parse(f.read())
                         rel_path = os.path.relpath(fpath, REPO_DIR)
                         for node in ast.walk(tree):
@@ -1902,7 +1902,7 @@ def generate_adr_catalog():
         if fname.endswith(".md") and fname[0].isdigit():
             fpath = os.path.join(adr_dir, fname)
             try:
-                with open(fpath, "r", encoding="utf-8") as f:
+                with open(fpath, encoding="utf-8") as f:
                     content = f.read()
 
                     # Extract ADR number from filename (e.g., "0024" from "0024-resilience-mixin-pattern.md")
@@ -1988,6 +1988,150 @@ def generate_adr_catalog():
 
         for adr_num, rule in unique_rules:
             lines.append(f"# {rule} (ADR-{adr_num})")
+
+    return "\n".join(lines)
+
+
+def generate_readme_manifest():
+    """Generate manifest of all README.md files with descriptions for AI reference."""
+    from datetime import datetime
+
+    lines = [
+        "# L9 README File Manifest",
+        f"# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+        "#",
+        "# AI Reference: Quick lookup for module documentation",
+        "# Each entry shows: PATH | TITLE | DESCRIPTION",
+        "# " + "=" * 76,
+        "",
+    ]
+
+    gitignore_patterns = load_gitignore_patterns()
+    readmes = []
+
+    for root, dirs, files in os.walk(REPO_DIR):
+        # Skip ignored directories
+        dirs[:] = [
+            d
+            for d in dirs
+            if d not in SKIP_DIRS
+            and not is_ignored(
+                os.path.relpath(os.path.join(root, d), REPO_DIR),
+                gitignore_patterns,
+                is_dir=True,
+            )
+        ]
+
+        for fname in files:
+            if fname.lower() == "readme.md":
+                fpath = os.path.join(root, fname)
+                rel_path = os.path.relpath(fpath, REPO_DIR)
+
+                if is_ignored(rel_path, gitignore_patterns):
+                    continue
+
+                try:
+                    with open(fpath, encoding="utf-8") as f:
+                        content = f.read(4096)  # Read first 4KB for speed
+
+                    # Extract title (first # heading)
+                    title = "Untitled"
+                    title_match = re.search(r"^#\s+(.+)$", content, re.MULTILINE)
+                    if title_match:
+                        title = title_match.group(1).strip()
+                        # Clean up common prefixes
+                        title = re.sub(r"^(README[:\s-]*)", "", title, flags=re.I)
+                        if not title:
+                            title = "Untitled"
+
+                    # Extract description (first paragraph after title)
+                    description = ""
+                    # Find first non-heading, non-empty paragraph
+                    paragraphs = re.split(r"\n\s*\n", content)
+                    for para in paragraphs:
+                        para = para.strip()
+                        # Skip headings, badges, empty lines, YAML frontmatter
+                        if (
+                            para
+                            and not para.startswith("#")
+                            and not para.startswith("![")
+                            and not para.startswith("[![")
+                            and not para.startswith("---")
+                            and not para.startswith("|")
+                            and not para.startswith("```")
+                            and len(para) > 20
+                        ):
+                            # Clean and truncate
+                            description = para.replace("\n", " ").strip()
+                            description = re.sub(r"\s+", " ", description)
+                            if len(description) > 150:
+                                description = description[:147] + "..."
+                            break
+
+                    if not description:
+                        description = "(No description)"
+
+                    # Get top-level directory for grouping
+                    parts = rel_path.split(os.sep)
+                    top_dir = parts[0] if len(parts) > 1 else "root"
+
+                    readmes.append((top_dir, rel_path, title, description))
+
+                except Exception:
+                    pass
+
+    # Sort by path
+    readmes.sort(key=lambda x: x[1])
+
+    # Group by top-level directory
+    grouped = defaultdict(list)
+    for top_dir, rel_path, title, desc in readmes:
+        grouped[top_dir].append((rel_path, title, desc))
+
+    # Add summary
+    lines.append(
+        f"# Total: {len(readmes)} README files across {len(grouped)} directories"
+    )
+    lines.append("")
+
+    # Output grouped
+    for top_dir in sorted(grouped.keys()):
+        items = grouped[top_dir]
+        lines.append("# " + "=" * 76)
+        lines.append(f"# {top_dir.upper()} ({len(items)} files)")
+        lines.append("# " + "=" * 76)
+        lines.append("")
+
+        for rel_path, title, desc in items:
+            lines.append(f"PATH: {rel_path}")
+            lines.append(f"TITLE: {title}")
+            lines.append(f"DESC: {desc}")
+            lines.append("")
+
+    # Add AI quick reference section
+    lines.append("# " + "=" * 76)
+    lines.append("# AI QUICK REFERENCE - KEY MODULES")
+    lines.append("# " + "=" * 76)
+    lines.append("")
+
+    # Highlight critical READMEs
+    critical_patterns = [
+        ("core/", "Core L9 runtime and abstractions"),
+        ("memory/", "Memory substrate and packet storage"),
+        ("api/", "FastAPI routes and endpoints"),
+        ("agents/", "Agent definitions and capabilities"),
+        ("orchestration/", "Task routing and orchestration"),
+        ("deploy/", "Deployment configurations"),
+        ("config/", "YAML configurations and DI"),
+    ]
+
+    for pattern, purpose in critical_patterns:
+        matches = [r for r in readmes if r[1].startswith(pattern)]
+        if matches:
+            lines.append(f"# {pattern} - {purpose}")
+            for _, path, title, _ in matches[:3]:  # Top 3 per category
+                lines.append(f"#   {path}: {title}")
+            lines.append("")
 
     return "\n".join(lines)
 
@@ -2108,6 +2252,7 @@ def main():
         ),
         "decorator_catalog.txt": ("🏷️  Decorator catalog", generate_decorator_catalog),
         "adr_catalog.txt": ("📜 ADR catalog", generate_adr_catalog),
+        "readme_manifest.txt": ("📖 README manifest", generate_readme_manifest),
     }
 
     logger.info("\n📝 Generating indexes...\n")

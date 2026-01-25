@@ -1,0 +1,38 @@
+# ==========================================
+# L9 Codegen Spec: MainAgent LangGraph DAG
+# ==========================================
+
+filename: orchestration/dags/mainagent_dag.py
+type: orchestrator_dag
+language: python
+
+description: |
+  LangGraph DAG defining MainAgent's packet reasoning flow:
+  - Intake → Enrichment → Tensor signal → Reason → Governance → Output
+
+wiring:
+  used_by: MainAgentV6
+  interfaces:
+    - enrich_context
+    - infer_tensor
+    - symbolic_reason
+    - check_governance
+    - emit_response
+  langgraph:
+    style: chain
+    supports_async: true
+
+code: |
+  from langgraph.graph import StateGraph
+
+  def build_mainagent_dag():
+      builder = StateGraph()
+      builder.add_node("enrich", enrich_context)
+      builder.add_node("tensor", infer_tensor)
+      builder.add_node("reason", symbolic_reason)
+      builder.add_node("governance", check_governance)
+      builder.add_node("emit", emit_response)
+
+      builder.set_entry_point("enrich")
+      builder.chain("enrich", "tensor", "reason", "governance", "emit")
+      return builder.build()

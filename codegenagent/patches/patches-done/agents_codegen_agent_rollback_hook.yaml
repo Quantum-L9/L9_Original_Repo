@@ -1,0 +1,22 @@
+# ===============================
+# CodeGenAgent Rollback Support
+# ===============================
+
+filename: agents/codegen_agent/rollback_hook.py
+type: fail_safety
+language: python
+
+description: |
+  Integrates with L9 rollback system to register file writes,
+  enabling reversion if generation fails or violates governance.
+
+wiring:
+  dependencies: rollback_system.register_snapshot
+  triggers: on file_emitter success
+
+code: |
+  from agents.rollback_system import register_snapshot
+
+  def setup_reversion(files: dict):
+      snapshot = {name: code for name, code in files.items()}
+      register_snapshot(agent="CodeGenAgent", files=snapshot)

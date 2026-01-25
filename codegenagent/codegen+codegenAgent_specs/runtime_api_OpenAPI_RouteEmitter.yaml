@@ -1,0 +1,48 @@
+# ============================================================
+# OpenAPI_RouteEmitter.py
+# ============================================================
+
+filename: runtime/api/OpenAPI_RouteEmitter.py
+type: construct_runtime_tool
+language: python
+description: |
+  Emits route handlers and OpenAPI docs from construct schemas.
+  Automatically generates FastAPI-compatible endpoints and docs.
+
+wiring:
+  inputs:
+    - schema: construct_features.bind_openapi_routes = true
+    - path: schemas/agents/*.yaml
+  outputs:
+    - path: routes/generated/*.py
+    - path: routes/openapi_specs/*.json
+  triggers:
+    - construct_emitted
+    - route_autogen_flag
+
+code: |
+  import os, yaml, json
+  from utils.openapi_emitter import build_route_file, generate_openapi_spec
+
+  def emit_routes():
+      in_dir = 'schemas/agents/'
+      out_dir = 'routes/generated/'
+      api_dir = 'routes/openapi_specs/'
+      os.makedirs(out_dir, exist_ok=True)
+      os.makedirs(api_dir, exist_ok=True)
+
+      for schema_file in os.listdir(in_dir):
+          if schema_file.endswith('.yaml'):
+              with open(os.path.join(in_dir, schema_file)) as f:
+                  schema = yaml.safe_load(f)
+              route_code = build_route_file(schema)
+              openapi = generate_openapi_spec(schema)
+
+              name = schema['name']
+              with open(f'{out_dir}/{name}_routes.py', 'w') as r:
+                  r.write(route_code)
+              with open(f'{api_dir}/{name}_openapi.json', 'w') as j:
+                  json.dump(openapi, j, indent=2)
+
+  if __name__ == "__main__":
+      emit_routes()

@@ -12,6 +12,16 @@
 # type: "utility"
 # status: "active"
 # ============================================================================
+#
+# ENVIRONMENT SETUP:
+#   1. Copy template:  cp .env.docker .env
+#   2. Edit .env and replace placeholder values (YOUR_*_HERE)
+#   3. Or run:         make docker-setup
+#   4. Or interactive: ./scripts/setup-docker-env.sh
+#
+# Quick start:        See DOCKER_QUICK_START.md
+# Troubleshooting:    See CONTAINER_LOADING_DIAGNOSIS.md
+# ============================================================================
 
 services:
   # ===========================================================================

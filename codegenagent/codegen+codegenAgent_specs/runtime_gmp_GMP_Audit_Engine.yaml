@@ -1,0 +1,23 @@
+# ============================================================
+# 5. GMP-AUDIT HOOKS FOR META TRIGGERS
+# Filename: runtime/gmp/GMP_Audit_Engine.py
+# ============================================================
+
+filename: runtime/gmp/GMP_Audit_Engine.py
+patch_type: hook_block_injection
+language: python
+
+patch:
+  hook_points:
+    - trigger: "meta_loop"
+      log_event: "📌 Meta loop triggered"
+      audit_trace: true
+      action: "emit_feedback_GMP"
+    - trigger: "patch_all"
+      log_event: "🔧 Patch all execution registered"
+      audit_trace: true
+      action: "register_global_patch_job"
+    - trigger: "perplexity_prompt"
+      log_event: "🔍 External reasoning engaged"
+      audit_trace: true
+      action: "log_to_hypergraph_and_mark_completion"

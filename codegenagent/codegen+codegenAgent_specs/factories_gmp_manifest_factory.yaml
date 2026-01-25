@@ -1,0 +1,45 @@
+# =====================================
+# GMP Manifest Factory (Autogenerator)
+# =====================================
+
+filename: factories/gmp_manifest_factory.py
+type: gmp_generator
+language: python
+
+description: |
+  Automatically generates GMP specs and Cursor-compatible prompt manifests
+  from structured meta.yaml or capsule.json schemas.
+
+wiring:
+  inputs:
+    - meta.yaml
+    - manifest_template.yaml
+  outputs:
+    - gmp_manifest.yaml
+    - gmp_prompt.md
+  consumers:
+    - CodeGenAgent
+    - ResearchSwarmLoader
+    - AI-CTO
+    - ReflectionAgent
+
+code: |
+  import yaml
+  import os
+
+  def build_gmp_manifest(meta_path: str, output_dir: str):
+      with open(meta_path) as f:
+          meta = yaml.safe_load(f)
+
+      manifest = {
+          "agent_name": meta["name"],
+          "goals": meta.get("responsibilities", []),
+          "inputs": meta.get("inputs", []),
+          "expected_outputs": meta.get("outputs", []),
+          "style": "AI-CTO",
+          "capsule_type": "GMP"
+      }
+
+      os.makedirs(output_dir, exist_ok=True)
+      with open(os.path.join(output_dir, "gmp_manifest.yaml"), "w") as f:
+          yaml.dump(manifest, f)

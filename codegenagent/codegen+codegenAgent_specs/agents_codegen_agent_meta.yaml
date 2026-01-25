@@ -1,0 +1,43 @@
+# ===============================
+# MetaContract: CodeGenAgent
+# ===============================
+
+filename: agents/codegen_agent/meta.yaml
+type: meta_contract
+language: yaml
+
+description: |
+  Self-declared responsibilities and interface for CodeGenAgent v1.0
+
+code: |
+  name: CodeGenAgent
+  version: 1.0.0
+  description: >
+    Agent that expands meta.yaml specifications into executable L9 modules.
+    Supports end-to-end validation, extraction, emission, telemetry, and rollback.
+
+  inputs:
+    - meta.yaml
+  outputs:
+    - Generated files
+    - PacketEnvelope (success/error)
+    - Rollback registration
+    - Telemetry stats
+
+  responsibilities:
+    - Interpret meta.yaml schema
+    - Validate structure and expectations
+    - Expand embedded code via CGMP
+    - Emit structured files
+    - Register with CI and governance
+    - Recover or rollback on violation
+
+  # === PATCH: batch_spec_generator integration ===
+  batch_generation:
+    hook: codegen/batch_spec_generator_patch.py
+    inputs:
+      - meta.yaml
+      - capsule_template.yaml
+    outputs:
+      - batch_spec_manifest.yaml
+      - generated_specs/*.yaml

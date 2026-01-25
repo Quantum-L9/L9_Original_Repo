@@ -1,0 +1,46 @@
+# ============================================================
+# WorldModel_HookEmitter.py
+# ============================================================
+
+filename: runtime/worldmodel/WorldModel_HookEmitter.py
+type: construct_runtime_tool
+language: python
+description: |
+  Hooks constructs into the active L9 WorldModel representation.
+  Binds schema outputs and impact metadata into reasoning graph.
+
+wiring:
+  inputs:
+    - schema: construct_features.include_world_model_hooks = true
+    - path: schemas/agents/*.yaml
+    - path: worldmodel/current.json
+  outputs:
+    - path: worldmodel/linked_facts.json
+    - path: worldmodel/construct_impacts.yaml
+  triggers:
+    - new_construct_emitted
+    - schema_patch_applied
+
+code: |
+  import os, yaml, json
+  from utils.worldmodel_linker import map_schema_to_worldmodel
+
+  def link_to_worldmodel():
+      with open('worldmodel/current.json') as f:
+          world = json.load(f)
+      linked = []
+
+      for file in os.listdir('schemas/agents/'):
+          if file.endswith('.yaml'):
+              with open(f'schemas/agents/{file}') as f:
+                  schema = yaml.safe_load(f)
+              impact = map_schema_to_worldmodel(schema, world)
+              linked.append(impact)
+
+      with open('worldmodel/linked_facts.json', 'w') as j:
+          json.dump(linked, j, indent=2)
+      with open('worldmodel/construct_impacts.yaml', 'w') as y:
+          yaml.dump(linked, y)
+
+  if __name__ == "__main__":
+      link_to_worldmodel()

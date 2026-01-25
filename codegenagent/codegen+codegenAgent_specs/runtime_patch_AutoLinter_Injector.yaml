@@ -1,0 +1,48 @@
+# ============================================================
+# AutoLinter_Injector (Spec)
+# ============================================================
+
+filename: runtime/patch/AutoLinter_Injector.py
+type: module_spec
+language: python
+status: pending_implementation
+
+description: |
+  Automatically injects linting policies and CI checks into any
+  construct emitted by CGA. Reads construct_features to determine
+  which policies to enforce. Emits annotated linter file + CI status.
+
+wiring:
+  inputs:
+    - path: agents/generated/*.py
+    - schema: construct_features.enable_auto_linter = true
+  outputs:
+    - path: audit/linter_results/*.json
+    - path: agents/linter_policy_injected/*.py
+  triggers:
+    - construct_emitted
+    - manual_lint_flag
+
+code: |
+  import os, json
+  from utils.linter import run_linter, inject_policy_annotations
+
+  def lint_constructs():
+      src_folder = 'agents/generated/'
+      dst_folder = 'agents/linter_policy_injected/'
+      os.makedirs(dst_folder, exist_ok=True)
+
+      for file in os.listdir(src_folder):
+          if file.endswith('.py'):
+              path = os.path.join(src_folder, file)
+              lint_result = run_linter(path)
+              annotated = inject_policy_annotations(path, lint_result)
+
+              with open(os.path.join(dst_folder, file), 'w') as f:
+                  f.write(annotated)
+              with open(f'audit/linter_results/{file}.json', 'w') as r:
+                  json.dump(lint_result, r)
+
+  if __name__ == "__main__":
+      lint_constructs()
+

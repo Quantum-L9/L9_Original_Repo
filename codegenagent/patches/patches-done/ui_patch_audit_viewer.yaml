@@ -1,0 +1,36 @@
+# ============================
+# Patch Audit Viewer (UI API)
+# ============================
+
+filename: ui/patch_audit_viewer.py
+type: ui_module
+language: python
+
+description: |
+  Displays all recent patches, prompt diffs, kernel overrides, and rollback states.
+  Can be queried via API or used as a frontend module in L9’s cockpit.
+
+wiring:
+  source: patch_audit_log.yaml
+  routes:
+    - GET /api/patches
+    - GET /api/patch/{agent_id}
+  outputs:
+    - JSON audit feeds
+    - diff previews
+
+code: |
+  from fastapi import APIRouter
+
+  router = APIRouter()
+
+  @router.get("/api/patches")
+  def list_patches():
+      import os
+      return os.listdir("patch_audit/")
+
+  @router.get("/api/patch/{agent_id}")
+  def get_patch(agent_id: str):
+      path = f"patch_audit/{agent_id}_patch.yaml"
+      with open(path) as f:
+          return {"patch": f.read()}

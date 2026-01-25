@@ -1,0 +1,10 @@
+# =========================================
+# Cursor GodMode Prompt (C-GMP) Expander
+# =========================================
+
+filename: agents/codegen_agent/c_gmp_engine.py
+type: code_expander
+language: python
+
+description: |
+  Extracts

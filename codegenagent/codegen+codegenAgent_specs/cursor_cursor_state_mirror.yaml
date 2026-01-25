@@ -1,0 +1,29 @@
+# ======================================
+# Cursor State Mirror (Session Reflector)
+# ======================================
+
+filename: cursor/cursor_state_mirror.py
+type: session_bridge
+language: python
+
+description: |
+  Continuously syncs Cursor-visible session state into L9 memory. 
+  Enables prompt replay, patch recall, capsule projection, and orchestrator-aware diff tracking.
+
+wiring:
+  reads:
+    - cursor_context_stack.json
+  writes:
+    - memory_session_state.yaml
+    - replay_trace.json
+  triggers:
+    - session_start
+    - agent_update
+
+code: |
+  import json
+  import yaml
+
+  def sync_cursor_state():
+      stack = json.load(open("cursor_context_stack.json"))
+      yaml.dump({"session_trace": stack}, open("memory_session_state.yaml", "w"))

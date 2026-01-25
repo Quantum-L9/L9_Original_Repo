@@ -29,3 +29,22 @@ with traversal, absolute path, and symlink escapes rejected.
   the root will resolve to the symlink target; ensure the root is trusted.
 - Sandboxing guards path resolution, not arbitrary file content; apply
   additional validation for schema contents where needed.
+## Governance Superpack
+
+The L9 authority model and governance policy enforcement are defined in the **Governance & Authority Superpack**:
+
+- **File:** `reports/governance_superpack.md`
+- **Authority Roles:** L=CTO (strategic), Cursor=IDE (code gen), Igor=Boss (ops)
+- **Protected Invariants:**
+  - PacketEnvelope schema changes require ADR-0066 approval
+  - Governance policy checks cannot be bypassed
+  - Authority role reassignments require L-CTO approval
+
+**Before making changes to `core/governance/` or `core/packet_envelope/`:**
+1. Read `reports/governance_superpack.md`
+2. Verify no protected invariants are violated
+3. If schema changes are needed, follow ADR-0066 process
+4. Update governance enforcement tests
+
+See also: `architecture_decisions.md` (ADR-0066)
+

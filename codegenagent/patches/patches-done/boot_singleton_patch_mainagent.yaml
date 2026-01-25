@@ -1,0 +1,27 @@
+# ========================================
+# L9 Codegen Spec: Singleton Injection Hook
+# ========================================
+
+filename: boot/singleton_patch_mainagent.py
+type: singleton_wiring
+language: python
+
+description: |
+  Injects runtime dependencies (memory, worldmodel, governance) into MainAgent.
+
+wiring:
+  inject_into: MainAgentV6 constructor
+  sources:
+    - memory: redis, postgres, neo4j
+    - wm: world_model_engine
+    - governance: kernel_policies
+
+code: |
+  from registry import memory_substrate, world_model_engine, governance_policy
+
+  def init_mainagent():
+      return MainAgentV6(
+          memory=memory_substrate,
+          wm=world_model_engine,
+          governance=governance_policy
+      )

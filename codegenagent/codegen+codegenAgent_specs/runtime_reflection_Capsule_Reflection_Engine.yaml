@@ -1,0 +1,39 @@
+# ============================================================
+# Capsule_Reflection_Engine.py
+# ============================================================
+
+filename: runtime/reflection/Capsule_Reflection_Engine.py
+type: audit_engine
+language: python
+description: |
+  Observes capsule patch history and infers evolution vectors.
+  Flags regressions, prompts refactor candidates, and prepares diffs for GMP regeneration.
+
+wiring:
+  inputs:
+    - path: audit/patch_history.json
+    - path: manifests/live_manifest.json
+  outputs:
+    - path: audit/reflection_report.yaml
+    - path: gmp/candidates/refactor_prompts.yaml
+  triggers:
+    - scheduled_interval
+    - capsule_regression_alert
+
+code: |
+  import json, yaml
+  from utils.diff_analyzer import analyze_patch_trajectory
+  from utils.reflection_emitter import build_refactor_prompt
+
+  def run_reflection():
+      with open('audit/patch_history.json') as f:
+          patch_data = json.load(f)
+      report = analyze_patch_trajectory(patch_data)
+      with open('audit/reflection_report.yaml', 'w') as f:
+          yaml.dump(report, f)
+      prompt = build_refactor_prompt(report)
+      with open('gmp/candidates/refactor_prompts.yaml', 'w') as f:
+          yaml.dump(prompt, f)
+
+  if __name__ == "__main__":
+      run_reflection()

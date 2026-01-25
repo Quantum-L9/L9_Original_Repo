@@ -1,0 +1,48 @@
+# ============================
+# L9 Codegen Spec: Agent Readme
+# ============================
+
+filename: agents/mainagent_v6/README.md
+type: documentation
+language: markdown
+
+description: |
+  Describes MainAgent v6 architecture, responsibilities, reasoning flow,
+  and integration points across L9 substrate.
+
+wiring:
+  linked_to:
+    - mainagent.py
+    - packet_envelope.py
+    - memory_interface.py
+    - world_model.py
+
+code: |
+  ## MainAgent V6 - L9 OS
+
+  **Responsibilities**
+  - Packet enrichment
+  - Tensor interpretation
+  - Symbolic reasoning
+  - Escalation detection
+  - World model updates
+
+  **Interfaces**
+  - `/api/mainagent/v6/packet` : Packet orchestration entrypoint
+
+  **Governance**
+  - Escalation policies from Kernel 08_safety
+  - Audit trails to `reasoning_traces` table
+
+  **Memory Layers**
+  - Redis (working memory)
+  - pgvector (episodic memory)
+  - Neo4j (causal memory)
+
+  **Execution Flow**
+  1. Accept Packet
+  2. Enrich from memory
+  3. Coordinate tensor signals
+  4. Reason through packet
+  5. Escalate or resolve
+  6. Emit result + update world model

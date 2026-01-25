@@ -1,0 +1,23 @@
+# ====================================
+# L9 Codegen Spec: Tensor Bridge Logic
+# ====================================
+
+filename: agents/mainagent_v6/tensor_bridge.py
+type: tensor_interface
+language: python
+
+description: |
+  Interfaces with TensorAIOS layer to convert packets into embeddings,
+  retrieve latent vector alignments, and build signal for subsymbolic context.
+
+wiring:
+  uses:
+    - sentence_transformers
+    - vector_db.search
+    - signal_summarizer
+
+code: |
+  def infer_tensor(packet):
+      embedding = tensor_model.encode(packet["content"])
+      neighbors = vector_db.search(embedding)
+      return summarize_tensor(neighbors)

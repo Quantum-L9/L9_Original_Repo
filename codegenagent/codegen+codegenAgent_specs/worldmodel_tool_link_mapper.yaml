@@ -1,0 +1,28 @@
+# ============================================
+# WorldModel Tool Relationship Linker
+# ============================================
+
+filename: worldmodel/tool_link_mapper.py
+type: semantic_linker
+language: python
+
+description: |
+  Links tools, agents, and outcomes via causal edges in the WorldModel.
+  Allows insight mining and auto-discovery of agent-tool-performance relationships.
+
+wiring:
+  reads:
+    - tool_usage_logs/
+    - agent_registry.yaml
+  emits:
+    - causal_links.json
+    - insights.yaml
+
+code: |
+  def map_tool_links():
+      import json, yaml
+      logs = [json.load(open(f"tool_usage_logs/{f}")) for f in os.listdir("tool_usage_logs")]
+      links = []
+      for log in logs:
+          links.append({"from": log["tool"], "to": log["agent"], "reason": "used-in-execution"})
+      json.dump(links, open("causal_links.json", "w"))

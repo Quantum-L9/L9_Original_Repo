@@ -1,0 +1,24 @@
+# ================================
+# CodeGenAgent Pipeline Validator
+# ================================
+
+filename: agents/codegen_agent/pipeline_validator.py
+type: validation_module
+language: python
+
+description: |
+  Validates that meta.yaml contains all required fields before generation.
+
+wiring:
+  required_fields:
+    - name
+    - inputs
+    - outputs
+    - responsibilities
+    - required_tests
+
+code: |
+  def validate_meta(meta):
+      missing = [f for f in ["name", "inputs", "outputs", "responsibilities"] if f not in meta.dict()]
+      if missing:
+          raise ValueError(f"Missing required meta fields: {missing}")

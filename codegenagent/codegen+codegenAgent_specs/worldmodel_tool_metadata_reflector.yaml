@@ -1,0 +1,33 @@
+# =====================================
+# Tool Metadata Reflection Ingestor
+# =====================================
+
+filename: worldmodel/tool_metadata_reflector.py
+type: worldmodel_ingestor
+language: python
+
+description: |
+  Extracts and reflects tool metadata into WorldModel memory.
+  Enables learning from usage patterns, success rates, and inter-agent utility.
+
+wiring:
+  reads:
+    - tool_catalog.yaml
+    - tool_usage_logs/
+  writes:
+    - reflected_tools.json
+    - tool_insight_links.yaml
+
+code: |
+  def reflect_tool_metadata():
+      import yaml, json
+      tools = yaml.safe_load(open("tool_catalog.yaml"))
+      usage = [json.load(open(f"tool_usage_logs/{f}")) for f in os.listdir("tool_usage_logs")]
+      summary = {t["id"]: {"success": 0, "fail": 0} for t in tools}
+      for u in usage:
+          tid = u["tool"]
+          if u["success"]:
+              summary[tid]["success"] += 1
+          else:
+              summary[tid]["fail"] += 1
+      json.dump(summary, open("reflected_tools.json", "w"), indent=2)

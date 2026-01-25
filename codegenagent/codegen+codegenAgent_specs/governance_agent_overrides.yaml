@@ -1,0 +1,27 @@
+# ======================================
+# AI-CTO / ReflectionAgent Override Mesh
+# ======================================
+
+filename: governance/agent_overrides.py
+type: governance_hooks
+language: python
+
+description: |
+  Provides override + feedback infrastructure between CGA, ReflectionAgent, and AI-CTO.
+  Enables patch escalation, feedback injection, and temporary suppressions.
+
+wiring:
+  listeners:
+    - CodeGenAgent.audit_result
+    - ReflectionAgent.kernel_trace
+    - AI-CTO.prompt_override
+  emits:
+    - override_notice.yaml
+    - prompt_patch.yaml
+
+code: |
+  def handle_override(agent_id, override_payload):
+      path = f"overrides/{agent_id}_prompt_patch.yaml"
+      with open(path, "w") as f:
+          f.write(override_payload)
+      return {"override_written": path}

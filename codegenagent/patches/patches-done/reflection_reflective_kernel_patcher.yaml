@@ -1,0 +1,26 @@
+# =============================================
+# Reflective Kernel Patcher
+# =============================================
+
+filename: reflection/reflective_kernel_patcher.py
+type: meta_reflector
+language: python
+
+description: |
+  Agents use reflection scores and policy gaps to suggest self-improving kernel patches.
+  Promotes a live feedback loop between execution → audit → kernel improvement.
+
+wiring:
+  reads:
+    - reflection_trace.yaml
+    - kernel_policy.yaml
+  emits:
+    - patch_proposal.yaml
+    - override_recommendation.json
+
+code: |
+  def suggest_kernel_patch(reflection_path):
+      trace = open(reflection_path).read()
+      if "underperform" in trace:
+          patch = {"type": "kernel", "proposal": "optimize branching logic"}
+          open("patch_proposals/patch.yaml", "w").write(str(patch))

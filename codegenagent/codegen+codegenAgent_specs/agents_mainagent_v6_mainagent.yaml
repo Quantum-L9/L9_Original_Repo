@@ -1,0 +1,52 @@
+# ===============================
+# L9 Codegen Spec: MainAgent v6
+# ===============================
+
+filename: agents/mainagent_v6/mainagent.py
+type: codegen_agent
+language: python
+
+description: |
+  MainAgent v6 is the L9 platform’s multimodal orchestration brain.
+  Integrates symbolic reasoning, tensor context, memory enrichment,
+  governance review, and dynamic packet flow coordination.
+
+wiring:
+  input: PacketEnvelope
+  outputs:
+    - ReasoningResult
+    - WorldModelDelta
+    - EscalationNotice
+  integrations:
+    - Memory substrate (Postgres, Redis, Neo4j)
+    - WorldModel DAG
+    - GovernanceAgent (via PacketEnvelope)
+  tools:
+    - langgraph
+    - semantic_compiler
+    - memory_retriever
+    - governance_checker
+  # === PATCH: singleton injection ===
+  singleton_wiring:
+    boot_file: boot/singleton_patch_mainagent.py
+    inject_into: MainAgentV6.__init__
+    sources:
+      memory: [redis, postgres, neo4j]
+      wm: world_model_engine
+      governance: kernel_policies
+
+code: |
+  class MainAgentV6:
+      def __init__(self, memory, wm, governance):
+          self.memory = memory
+          self.world_model = wm
+          self.governance = governance
+
+      async def handle_packet(self, packet):
+          context = self.memory.enrich(packet)
+          tensor_signals = await self.memory.get_tensor_embedding(packet)
+          result = self.reason_through(context, tensor_signals)
+          if self.governance.requires_override(result):
+              return self.governance.escalate(result)
+          self.world_model.update(result)
+          return result

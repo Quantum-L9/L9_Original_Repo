@@ -205,6 +205,17 @@ class IntegrationSettings(BaseSettings):
         description="TTL in seconds for cached tool discoveries (multi-turn, default: 300s/5min).",
     )
 
+    # ------------------------------------------------------------------
+    # Tool Feedback Learning (GMP-TFL-001)
+    # ------------------------------------------------------------------
+    l9_tool_feedback_enabled: bool = True
+    l9_tool_exploration_rate: float = 0.1
+    l9_tool_feedback_buffer_size: int = 50
+    l9_tool_feedback_lookback_days: int = 30
+    l9_tool_success_neutral_prior: float = 0.5
+    l9_tool_alert_success_threshold: float = 0.5
+    l9_tool_learning_daily_hour_utc: int = 2
+    l9_tool_learning_daily_minute_utc: int = 0
     # ==========================================================================
     # Secrets Provider Configuration (GMP-122)
     # ==========================================================================

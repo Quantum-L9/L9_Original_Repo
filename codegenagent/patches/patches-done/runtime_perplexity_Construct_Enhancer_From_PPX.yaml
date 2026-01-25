@@ -1,0 +1,46 @@
+# ============================================================
+# Construct_Enhancer_From_PPX.py
+# ============================================================
+
+filename: runtime/perplexity/Construct_Enhancer_From_PPX.py
+type: construct_patch_injector
+language: python
+description: |
+  Parses Perplexity reply and applies structured upgrades to construct schemas.
+  Emits enhanced versions into enriched folder.
+
+wiring:
+  inputs:
+    - path: inbox/perplexity/replies/*.json
+  outputs:
+    - path: schemas/enriched/*.yaml
+  triggers:
+    - new_reply_available
+
+code: |
+  import os, json, yaml
+  from utils.schema_tools import apply_yaml_diff
+
+  def enhance_construct(reply_path):
+      with open(reply_path) as f:
+          reply = json.load(f)
+
+      construct_id = os.path.basename(reply_path).split(".")[0]
+      original_path = f'schemas/agents/{construct_id}.yaml'
+      with open(original_path) as f:
+          original = yaml.safe_load(f)
+
+      if 'yaml_patch' in reply:
+          enhanced = apply_yaml_diff(original, reply['yaml_patch'])
+      else:
+          print(f"No patch found for {construct_id}, skipping.")
+          return
+
+      enriched_path = f'schemas/enriched/{construct_id}.yaml'
+      os.makedirs(os.path.dirname(enriched_path), exist_ok=True)
+      with open(enriched_path, 'w') as f:
+          yaml.dump(enhanced, f)
+
+  if __name__ == "__main__":
+      for r in os.listdir("inbox/perplexity/replies/"):
+          enhance_construct(f"inbox/perplexity/replies/{r}")

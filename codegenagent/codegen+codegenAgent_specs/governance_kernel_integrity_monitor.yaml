@@ -1,0 +1,40 @@
+# ============================================
+# Kernel Integrity Monitor (Spec)
+# ============================================
+
+filename: governance/kernel_integrity_monitor.py
+type: module_spec
+language: python
+status: pending_implementation
+
+description: |
+  Continuously monitors YAML kernel files for unauthorized changes.
+  Computes file hashes and validates them against the approved manifest.
+  Can escalate rollback, audit, or reflection triggers upon deviation.
+
+wiring:
+  reads:
+    - kernel_manifest.yaml
+    - kernels/*.yaml
+  emits:
+    - kernel_integrity_report.json
+    - rollback_plan.yaml
+  triggers:
+    - on_patch_applied
+    - nightly_integrity_check
+
+code: |
+  import hashlib
+  import json
+  import os
+
+  def verify_kernel_integrity():
+      manifest = json.load(open("kernel_manifest.yaml"))
+      reports = {}
+      for fname, expected_hash in manifest.items():
+          with open(fname, "rb") as f:
+              file_hash = hashlib.sha256(f.read()).hexdigest()
+          if file_hash != expected_hash:
+              reports[fname] = {"expected": expected_hash, "found": file_hash}
+      json.dump(reports, open("kernel_integrity_report.json", "w"))
+

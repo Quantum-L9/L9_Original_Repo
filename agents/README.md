@@ -1,218 +1,431 @@
-# Agents Module
-
-**Path:** `agents/`  
-**Purpose:** Agent implementations and agent-related infrastructure for the L9 platform  
-**Files:** 34 Python files  
-**Last Updated:** 2026-01-18
-
 ---
+dora:
+  version: "1.0"
+  type: subsystem_readme
+  generated: "2026-01-25 19:42:30 UTC"
+  generator: scripts/generate_subsystem_readmes.py
+  config: config/subsystems/readme_config.yaml
+  time_verified: "system clock (UNVERIFIED - no API response)"
+  auto_generated: true
+---
+
+# Agent Modules
+
+> **Tier:** AGENTS | **Path:** `agents` | **Owner:** Igor
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                              Agent Modules                                              │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐                  │
+│  │   Inbound   │ ───► │      agents     │ ───► │  Outbound   │                  │
+│  │ Dependencies│      │   Module    │      │ Dependencies│                  │
+│  └─────────────┘      └─────────────┘      └─────────────┘                  │
+│                              │                                              │
+│                              ▼                                              │
+│                    ┌─────────────────┐                                      │
+│                    │  Memory/Audit   │                                      │
+│                    │   Substrate     │                                      │
+│                    └─────────────────┘                                      │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Overview
 
-The `agents` module contains the core agent implementations and supporting infrastructure for the L9 Agentic Intelligence Platform. All agents in L9 must inherit from `BaseAgent` and operate under kernel governance.
+Collection of specialized agents for different domains
 
-## Architecture
+**Purpose:** Houses domain-specific agents (cursor, research, architect, coder) that extend L9 capabilities.
 
-### Core Components
-
-- **`base_agent.py`** - Abstract base class for all L9 agents. Provides kernel integration, LLM calling, and governance hooks.
-- **`agent_registry.py`** - Central registry for agent discovery and instantiation
-- **`l_cto.py`** - L-CTO (Chief Technology Officer) agent implementation
-- **`research_agent.py`** - Research and information gathering agent
-
-### Subdirectories
-
-| Directory | Purpose |
-|---|---|
-| `cursor/` | Cursor IDE integration and GMP (Guided Meta-Programming) system |
-| `research_agent/` | Research agent implementation and facade |
-| `email_agent/` | Email processing and interaction agent |
-| `mac_agent/` | macOS-specific agent functionality |
-
-## Key Concepts
-
-### BaseAgent
-
-All agents must inherit from `BaseAgent` which provides:
-
-- **Kernel Awareness** - Integration with L9 kernel governance
-- **LLM Integration** - Standardized LLM calling with retries and error handling
-- **Memory Access** - Unified memory substrate integration
-- **Tool Execution** - Kernel-governed tool invocation
-- **Logging** - Structured logging with agent context
-
-### Agent Lifecycle
-
-```python
-from agents.base_agent import BaseAgent
-
-class MyAgent(BaseAgent):
-    def __init__(self, kernel, ...):
-        super().__init__(kernel)
-        # Agent-specific initialization
-    
-    async def execute(self, task):
-        # Agent logic here
-        result = await self._make_llm_call(prompt)
-        return result
-```
-
-### Kernel Governance
-
-All agent actions are subject to kernel governance:
-
-- **Policy Enforcement** - Agents cannot bypass kernel policies
-- **Resource Limits** - Memory, compute, and API usage are governed
-- **Audit Trail** - All agent actions are logged for compliance
-- **Fail-Closed** - Agents fail safely if kernel is unavailable
-
-## Usage
-
-### Registering an Agent
-
-```python
-from agents.agent_registry import register_agent
-
-# Register agent class using decorator
-@register_agent(name="my_agent", role="custom", category="implementation")
-class MyAgent(BaseAgent):
-    pass
-
-# Or get all registered agents
-from agents.agent_registry import get_all_agents
-
-agents = get_all_agents()
-my_agent_cls = agents.get("my_agent")
-agent = my_agent_cls(kernel)
-```
-
-### Executing Agent Tasks
-
-```python
-# Via kernel
-result = await kernel.execute_agent_task(
-    agent_name="l_cto",
-    task="Analyze system architecture"
-)
-
-# Direct invocation
-from agents.l_cto import LCTOAgent
-
-agent = LCTOAgent(kernel)
-result = await agent.execute(task)
-```
-
-## Development Guidelines
-
-### Creating a New Agent
-
-1. **Inherit from BaseAgent**
-   ```python
-   from agents.base_agent import BaseAgent
-   
-   class NewAgent(BaseAgent):
-       def __init__(self, kernel, ...):
-           super().__init__(kernel)
-   ```
-
-2. **Implement Required Methods**
-   - `execute()` - Main agent logic
-   - `validate_input()` - Input validation
-   - `format_output()` - Output formatting
-
-3. **Register the Agent**
-   ```python
-   from agents.agent_registry import register_agent
-   
-   @register_agent(name="new_agent", role="custom")
-   class NewAgent(BaseAgent):
-       pass
-   ```
-
-4. **Add Tests**
-   - Create `tests/agents/test_new_agent.py`
-   - Test kernel integration
-   - Test error handling
-
-### Best Practices
-
-✅ **DO:**
-- Always call `super().__init__(kernel)` in agent constructors
-- Use `self._make_llm_call()` for LLM interactions
-- Log all significant agent actions
-- Handle errors gracefully with proper exceptions
-- Write comprehensive docstrings
-
-❌ **DON'T:**
-- Bypass kernel governance
-- Hardcode API keys or secrets
-- Make blocking I/O calls in async functions
-- Ignore error handling
-- Create agents without tests
-
-## Testing
-
-```bash
-# Run all agent tests
-pytest tests/agents/
-
-# Run specific agent tests
-pytest tests/agents/test_l_cto.py
-
-# Run with coverage
-pytest tests/agents/ --cov=agents --cov-report=html
-```
-
-## Related Modules
-
-- **`core/agents/`** - Core agent infrastructure (executor, prompt builder)
-- **`runtime/`** - Agent runtime and task queue
-- **`memory/`** - Memory substrate for agent state
-- **`orchestration/`** - Multi-agent orchestration
-
-## Configuration
-
-Agent configuration is managed through:
-
-- **`config/boot_overlay.yaml`** - Runtime configuration overrides
-- **Environment Variables** - API keys and secrets
-- **Kernel Policies** - Governance and resource limits
-
-## Troubleshooting
-
-### Common Issues
-
-**Agent not found in registry:**
-```python
-# Ensure agent is registered
-from agents.agent_registry import agent_registry, get_all_agents
-print(agent_registry.list_ids())  # List all registered agent IDs
-print(get_all_agents())  # Get dict of all agents
-```
-
-**Kernel governance errors:**
-- Check kernel activation state
-- Verify agent has required permissions
-- Review kernel logs for policy violations
-
-**LLM call failures:**
-- Check API key configuration
-- Verify rate limits
-- Review error logs for specific issues
-
-## Contributing
-
-See the main [CONTRIBUTING.md](../CONTRIBUTING.md) for contribution guidelines.
-
-### Agent-Specific Guidelines
-
-- All new agents must have corresponding tests
-- Agents must be documented with clear purpose and usage
-- Breaking changes to `BaseAgent` require RFC process
-- Performance-critical agents should include benchmarks
+**What depends on it:** External clients
 
 ---
 
-**Module Maintainer:** L-CTO Agent  
-**Last Audit:** 2026-01-18  
-**Status:** Production
+## Responsibilities and Boundaries
+
+### What This Module Owns
+
+- **Core operations:** Execute agents tasks
+- **State management:** Maintain internal state with proper lifecycle
+- **Logging:** Emit structured logs for all operations
+- **Metrics:** Expose Prometheus-compatible metrics
+
+### What This Module Does NOT Do
+
+- **Authentication** — Handled by `api/auth.py`
+- **External communication** — Handled by clients/adapters
+- **Scheduling** — Handled by runtime/task_queue.py
+
+### Inbound Dependencies
+
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
+
+### Outbound Dependencies
+
+| Module | Purpose |
+|--------|---------|
+| `core/agents/executor.py` | Required dependency |
+| `memory/substrate_service.py` | Required dependency |
+
+---
+
+## Directory Layout
+
+```
+agents/
+├── __init__.py
+├── agent_registry.py
+├── architect_agent/__init__.py
+├── architect_agent/architect_agent_a.py
+├── architect_agent/architect_agent_b.py
+├── base_agent.py
+├── codegenagent/CodeGenAgent Engine.py
+├── codegenagent/__init__.py
+├── codegenagent/__main__.py
+├── codegenagent/ap_generator.py
+├── codegenagent/c_gmp_engine.py
+├── codegenagent/codegen_agent.py
+├── codegenagent/compliance_auditor.py
+├── codegenagent/cursor_context_sync_engine.py
+├── codegenagent/cursor_sync.py
+└── ... (35 more files)
+```
+
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `research_agent_impl.py` | Represents a single prompt variation for multi-per |
+| `research_agent_impl.py` | Structured response from Perplexity API. |
+| `research_agent_impl.py` | Result from fast synthesis (Super-Prompt Pack styl |
+
+### Naming Conventions
+
+- **Classes:** `PascalCase` (e.g., `AgentsService`)
+- **Functions:** `snake_case` (e.g., `process_agents_request`)
+- **Constants:** `UPPER_SNAKE_CASE`
+- **Private:** `_prefixed` for internal methods
+
+---
+
+## Key Components
+
+### `research_agent_impl.py` — PromptVariation
+
+```python
+class PromptVariation:
+    """Represents a single prompt variation for multi-perspective synthesis."""
+    
+    # Key methods:
+
+```
+
+**Lines:** 77-85 in `research_agent_impl.py`
+
+### `research_agent_impl.py` — ResearchResponse
+
+```python
+class ResearchResponse:
+    """Structured response from Perplexity API."""
+    
+    # Key methods:
+
+```
+
+**Lines:** 89-97 in `research_agent_impl.py`
+
+### `research_agent_impl.py` — SynthesisResult
+
+```python
+class SynthesisResult:
+    """Result from fast synthesis (Super-Prompt Pack style)."""
+    
+    # Key methods:
+
+```
+
+**Lines:** 101-110 in `research_agent_impl.py`
+
+### `research_agent_impl.py` — DiscoveryResult
+
+```python
+class DiscoveryResult:
+    """Result from deep research (Deep Workflows style)."""
+    
+    # Key methods:
+
+```
+
+**Lines:** 114-124 in `research_agent_impl.py`
+
+### `research_agent_impl.py` — ResearchTask
+
+```python
+class ResearchTask:
+    """Research task specification."""
+    
+    # Key methods:
+
+```
+
+**Lines:** 128-143 in `research_agent_impl.py`
+
+
+---
+
+## Data Models and Contracts
+
+The following data models define the contracts for this subsystem:
+
+- **`ResearchResponse`** — Structured response from Perplexity API.
+- **`ResponseProcessor`** — Extracts structured insights from Perplexity responses.
+- **`AgentResponse`** — Response from an agent.
+
+### Key Schemas
+
+```python
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+class AgentsRequest(BaseModel):
+    """Request model for agents operations."""
+    id: str
+    data: dict
+    timestamp: datetime
+    correlation_id: Optional[str] = None
+
+class AgentsResponse(BaseModel):
+    """Response model for agents operations."""
+    success: bool
+    result: Optional[dict] = None
+    error: Optional[str] = None
+    duration_ms: float
+```
+
+### Invariants
+
+- **All agents follow AgentInstance lifecycle**
+- **Agent outputs stored as PacketEnvelope**
+
+---
+
+## Execution and Lifecycle
+
+### Startup
+
+1. **Discovery:** Agents components are discovered and registered.
+2. **Configuration:** Settings loaded from environment and config files.
+3. **Dependencies:** Required services (Redis, PostgreSQL, etc.) are connected.
+4. **Initialization:** Internal state is initialized; ready for requests.
+
+### Main Execution
+
+1. **Request received:** Validate input against schema.
+2. **Processing:** Execute core logic with appropriate error handling.
+3. **State updates:** Persist any state changes atomically.
+4. **Response:** Return structured response with timing metadata.
+
+### Shutdown
+
+1. **Graceful stop:** Stop accepting new requests.
+2. **Drain:** Complete in-flight operations (with timeout).
+3. **Cleanup:** Release resources, close connections.
+4. **Log:** Emit shutdown complete event.
+
+### Background Tasks
+
+No background tasks. Operations are request-driven.
+
+---
+
+## Configuration
+
+### Feature Flags
+
+```yaml
+# Agents feature flags
+L9_ENABLE_AGENTS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_AGENTS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_AGENTS_AUDIT: true    # Enable audit logging
+```
+
+### Tuning Parameters
+
+```yaml
+agents:
+  timeout_seconds: 30
+  max_retries: 3
+  pool_size: 10
+  batch_size: 100
+```
+
+### Environment Variables
+
+```bash
+AGENTS_LOG_LEVEL=INFO
+AGENTS_TIMEOUT=30
+AGENTS_ENABLED=true
+```
+
+---
+
+## API Surface (Public)
+
+### Public Functions
+
+#### `async def main()`
+
+CLI entry point.
+
+- **File:** `research_agent_impl.py:1070`
+- **Async:** Yes
+
+#### `def create_research_agent(api_key, prompt_variations)`
+
+Factory function to create a ResearchAgent instance.
+
+- **File:** `research_agent_impl.py:1112`
+- **Async:** No
+
+#### `def register_agent(name, role, category, priority)`
+
+Decorator to register an agent class for auto-discovery.
+
+- **File:** `agent_registry.py:63`
+- **Async:** No
+
+#### `def discover_agents(package)`
+
+Automatically discover all agents in the specified package.
+
+- **File:** `agent_registry.py:115`
+- **Async:** No
+
+#### `def get_all_agents()`
+
+Get all registered agent classes as a dictionary.
+
+- **File:** `agent_registry.py:131`
+- **Async:** No
+
+
+### Usage Example
+
+```python
+from agents import AgentsService
+
+# Initialize
+service = AgentsService()
+
+# Execute operation
+result = await service.execute(
+    request_id="req-001",
+    data={"key": "value"},
+    correlation_id="corr-xyz789",
+)
+
+print(result.success)  # True
+print(result.duration_ms)  # 125.5
+```
+
+---
+
+## Observability
+
+### Logging
+
+Agents operations emit structured JSON logs:
+
+```json
+{
+  "timestamp": "2026-01-25T19:42:30Z",
+  "level": "INFO",
+  "module": "agents",
+  "message": "Operation completed",
+  "correlation_id": "corr-xyz789",
+  "agent_id": "agent-001",
+  "duration_ms": 125
+}
+```
+
+**Log Levels:**
+- `DEBUG` — Detailed execution steps (off in production)
+- `INFO` — Lifecycle events, successful operations
+- `WARNING` — Timeouts, resource warnings, recoverable errors
+- `ERROR` — Failures, exceptions, unrecoverable errors
+
+### Metrics
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `agents_operation_duration_ms` | Histogram | Operation latency distribution |
+| `agents_operation_total` | Counter | Total operations processed |
+| `agents_error_total` | Counter | Total errors encountered |
+| `agents_active_connections` | Gauge | Current active connections |
+
+### Tracing
+
+Agents emits OpenTelemetry spans:
+
+- `agents.execute` — Root span for operation
+  - `agents.validate` — Input validation
+  - `agents.process` — Core processing
+  - `agents.persist` — State persistence (if applicable)
+
+---
+
+## Testing
+
+### Unit Tests
+
+Located in `tests/agents/`:
+- `test_agents.py` — Core unit tests
+- `test_agents_integration.py` — Integration tests (if applicable)
+
+### Integration Tests
+
+Located in `tests/integration/`:
+
+- Test agents with real dependencies
+- Test cross-subsystem interactions
+- Test failure scenarios and recovery
+
+### Known Edge Cases
+
+1. **Timeout:** Operation exceeds deadline → Return partial result with timeout status.
+2. **Invalid input:** Schema validation fails → Return 400 with validation errors.
+3. **Dependency unavailable:** Required service down → Retry with exponential backoff, then fail gracefully.
+4. **Resource exhaustion:** Memory/connections exceeded → Reject new requests, log alert.
+
+---
+
+## AI Usage Rules
+
+### ✅ Allowed Scopes (AI can modify freely)
+
+- `**/*.py` — Application logic, safe to modify
+
+### ⚠️ Restricted Scopes (requires human review)
+
+- `__init__.py` — Requires human review before merge
+
+### ❌ Forbidden Scopes (NEVER modify without explicit approval)
+
+- `__init__.py` — PROTECTED: Changes break system invariants
+
+### Required Pre-Reading
+
+1. [`README-L9_ARCHITECTURE.md`](README-L9_ARCHITECTURE.md)
+2. [`docs/CURSOR-RUNBOOK.md`](docs/CURSOR-RUNBOOK.md)
+
+### Change Policy
+
+All changes proposed by AI tools must:
+1. Be scoped PRs with clear commit messages
+2. Include tests (unit + integration where applicable)
+3. Update documentation if APIs change
+4. Respect feature flags for gradual rollout
+5. Get human approval for restricted scopes

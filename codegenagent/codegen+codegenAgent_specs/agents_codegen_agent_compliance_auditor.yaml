@@ -1,0 +1,32 @@
+# =================================
+# Compliance Auditor for GMP Output
+# =================================
+
+filename: agents/codegen_agent/compliance_auditor.py
+type: audit_module
+language: python
+
+description: |
+  Audits emitted GMP code blocks for:
+  - Required policy zone inclusion
+  - Patch registration
+  - Trace hook presence
+  - Memory recovery fallback
+
+wiring:
+  checks:
+    - mainagent_policy.yaml
+    - patch_injection
+    - rollback presence
+  escalates_if: missing_compliance_fields
+
+code: |
+  def audit_compliance(meta, files):
+      errors = []
+      for name, code in files.items():
+          if "rollback" not in code:
+              errors.append(f"{name} missing rollback handler")
+          if "policy" not in code:
+              errors.append(f"{name} missing policy zone")
+      if errors:
+          raise Exception("Compliance errors: " + str(errors))

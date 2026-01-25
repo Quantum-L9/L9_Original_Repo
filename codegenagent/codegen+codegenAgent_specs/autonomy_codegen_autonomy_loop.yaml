@@ -1,0 +1,30 @@
+# ===========================================
+# CodeGen Autonomy Loop v2 (Self-Healing Flow)
+# ===========================================
+
+filename: autonomy/codegen_autonomy_loop.py
+type: autonomy_pipeline
+language: python
+
+description: |
+  Establishes a closed loop from memory → prompt → codegen → audit → patch.
+  Enables agents to self-heal or evolve based on runtime memory feedback and audit outcomes.
+
+wiring:
+  triggers:
+    - telemetry drift
+    - audit policy_violation
+    - reasoning feedback loop closure
+  reads:
+    - memory_trace.yaml
+    - agent_diff.yaml
+  emits:
+    - regenerated_module.py
+    - patch_summary.yaml
+
+code: |
+  def trigger_autonomy_loop(agent_id):
+      from agents.codegen_agent.codegen_agent import CodeGenAgent
+      memory_diff = open(f"memory_trace/{agent_id}_diff.yaml").read()
+      regenerated = CodeGenAgent().generate_from_meta(f"meta/{agent_id}.yaml")
+      open(f"regenerated/{agent_id}_regenerated.py", "w").write(str(regenerated))

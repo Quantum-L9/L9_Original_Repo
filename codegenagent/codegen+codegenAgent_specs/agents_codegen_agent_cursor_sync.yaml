@@ -1,0 +1,26 @@
+# ============================
+# Cursor Context Sync Engine
+# ============================
+
+filename: agents/codegen_agent/cursor_sync.py
+type: state_bridge
+language: python
+
+description: |
+  Bi-directional sync between CodeGenAgent memory state
+  and Cursor-visible session history or instruction stack.
+
+wiring:
+  reads: redis/session_state
+  writes: cursor_context_envelope.json
+  watch: YAML blocks + prompt stack
+
+code: |
+  def sync_with_cursor(meta, output_files):
+      from memory.cursor_sync import update_cursor_state
+      capsule = {
+          "module": meta["name"],
+          "files": list(output_files.keys()),
+          "summary": meta.get("description", "")
+      }
+      update_cursor_state(meta["name"], capsule)

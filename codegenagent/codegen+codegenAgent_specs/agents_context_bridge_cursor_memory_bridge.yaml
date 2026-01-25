@@ -1,0 +1,57 @@
+# ====================================================
+# Cursor ↔︎ Memory Context Bridge (Standalone Service)
+# ====================================================
+
+filename: agents/context_bridge/cursor_memory_bridge.py
+type: sync_service
+language: python
+
+description: |
+  Synchronizes state, memory, and session intent between:
+  - Cursor: prompt stack, capsules, directive history
+  - Memory Layer: L9 agent memory substrate, execution logs, meta context
+
+  Enables:
+  - Bi-directional memory update
+  - Patch diffs between memory and active cursor context
+  - Context bridging for CGA, ReflectionAgent, GovernanceAgent
+  - Storage of session reasoning capsules and prompt logs
+  - God Mode Prompt replay reconstruction
+
+wiring:
+  inputs:
+    - cursor_context_stack.json
+    - memory_context.yaml
+    - current_gmp_capsule.yaml
+  outputs:
+    - sync_diff.patch.yaml
+    - cursor_replay_patch.json
+    - audit_context_snapshot.yaml
+  triggers:
+    - on_codegen_emit
+    - on_cursor_capsule_save
+    - ReflectionAgent.sync_context()
+
+code: |
+  import os
+  import json
+  import yaml
+  from memory.agent_state import load_context_state, store_patch
+  from utils.diff import generate_context_patch
+
+  def bridge_context(agent_id: str):
+      memory = load_context_state(agent_id)
+      with open("cursor_context_stack.json") as f:
+          cursor_stack = json.load(f)
+
+      with open("memory_context.yaml") as f:
+          memory_yaml = yaml.safe_load(f)
+
+      patch = generate_context_patch(memory_yaml, cursor_stack)
+
+      output_path = f"sync_diffs/{agent_id}_sync_diff.yaml"
+      with open(output_path, "w") as f:
+          f.write(patch)
+
+      store_patch(agent_id, patch)
+      return patch

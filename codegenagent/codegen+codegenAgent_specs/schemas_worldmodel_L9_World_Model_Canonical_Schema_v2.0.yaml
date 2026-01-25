@@ -1,0 +1,22 @@
+# ============================================================
+# PATCH — L9_World_Model_Canonical_Schema_v2.0.yaml
+# Purpose: Add construct impact mappings and traceability fields
+# ============================================================
+
+filename: schemas/worldmodel/L9_World_Model_Canonical_Schema_v2.0.yaml
+patch_type: trace_overlay
+language: yaml
+description: |
+  Adds support for reasoning impact mapping, output traceability,
+  and runtime loop closure fields to worldmodel schema.
+
+patch:
+  impact_hooks:
+    - construct_id
+    - output_slots
+    - reasoning_tags
+    - memory_update_paths
+    - patch_history_log
+    - sub-agent_suggestions
+    - reroute_trace_links
+    - world_facts_asserted

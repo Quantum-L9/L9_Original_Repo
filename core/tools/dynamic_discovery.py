@@ -41,6 +41,10 @@ import structlog
 
 from config.settings import get_integration_settings
 from core.tools.discovery_tracing import DiscoveryPhase, DiscoveryTrace, DiscoveryTracer
+from memory.substrate_service import (
+    get_memory_substrate_service,
+)  # if such helper exists
+from services.tool_feedback_service import get_tool_feedback_service
 
 logger = structlog.get_logger(__name__)
 
@@ -84,6 +88,23 @@ class DiscoveryResult:
 # =============================================================================
 # Main Discovery Functions
 # =============================================================================
+
+
+def _infer_task_type(task_payload: str) -> str:
+    """
+    Very lightweight heuristic to tag tasks for feedback bucketing.
+
+    This keeps the interface simple and backwards compatible. You can
+    refine this over time without affecting stored data.
+    """
+    text = task_payload.lower()
+    if "memory" in text:
+        return "memory"
+    if "search" in text:
+        return "search"
+    if "code" in text or "python" in text:
+        return "code"
+    return "generic"
 
 
 async def discover_tools_for_task(
@@ -151,6 +172,40 @@ async def discover_tools_for_task(
                 task_preview=task_payload[:100],
             )
             return []
+
+        # --------------------------------------------------------------
+        # NEW: Feedback-aware re-ranking before formatting
+        # --------------------------------------------------------------
+        settings = get_integration_settings()
+        if settings.l9_tool_feedback_enabled:
+            try:
+                # If you have a central substrate accessor, use that here
+                substrate_service = get_memory_substrate_service()  # or pass in
+                feedback_service = get_tool_feedback_service(substrate_service)
+
+                task_type = _infer_task_type(task_payload)
+                tool_names = [r.tool_name for r in results]
+                success_rates = await feedback_service.get_success_rates(
+                    tool_names=tool_names,
+                    task_type=task_type,
+                )
+
+                # Apply a simple multiplicative boost based on success_rate
+                alpha = 0.5
+                for r in results:
+                    rate = success_rates.get(r.tool_name)
+                    if rate is not None:
+                        r.similarity_score *= 1.0 + alpha * rate
+
+                # Sort by adjusted similarity_score
+                results.sort(
+                    key=lambda r: getattr(r, "similarity_score", 0.0),
+                    reverse=True,
+                )
+
+            except Exception as e:
+                logger.debug("Feedback-aware re-ranking failed", error=str(e))
+        # --------------------------------------------------------------
 
         # Convert to OpenAI format with token budget enforcement
         tools = await _format_and_filter_tools(results, max_tokens)

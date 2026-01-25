@@ -1,0 +1,31 @@
+# ==============================
+# CGA Generation Telemetry Pack
+# ==============================
+
+filename: agents/codegen_agent/telemetry_codegen.py
+type: telemetry
+language: python
+
+description: |
+  Emits telemetry from each CGA run:
+  - File count
+  - Line count
+  - Time-to-generate
+  - Failure conditions
+
+wiring:
+  output: Prometheus
+  fields:
+    - files_generated
+    - generation_latency_ms
+    - failure_type
+
+code: |
+  import time
+  from metrics import emit
+
+  def record_generation(meta, files):
+      emit("files_generated", len(files))
+      line_count = sum(code.count("\\n") for code in files.values())
+      emit("lines_emitted", line_count)
+      emit("last_generated_module", meta.name)

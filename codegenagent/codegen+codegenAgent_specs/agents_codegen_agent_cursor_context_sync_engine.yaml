@@ -1,0 +1,47 @@
+# =============================================
+# Cursor Context Sync Engine (Bi-Directional Sync)
+# =============================================
+
+filename: agents/codegen_agent/cursor_context_sync_engine.py
+type: sync_bridge
+language: python
+
+description: |
+  Bi-directional synchronization between CodeGenAgent's generation memory
+  and Cursor's visible prompt stack and YAML capsule context.
+
+  Enables GPT-CTO, ReflectionAgent, and CodeGenAgent to share realtime insight
+  into prompt state, active capsule, module diff, and audit summary.
+
+wiring:
+  reads:
+    - redis/agent_session/
+    - cursor_context_stack.json
+  writes:
+    - memory_context.yaml
+    - cursor_replay.json
+    - sync_diff.patch.yaml
+  triggers:
+    - on_codegen_emit
+    - cursor_session_start
+    - packet_audit_loop
+
+code: |
+  import json
+  import os
+  from memory.session import get_agent_state, update_cursor_sync
+  from utils.diff import generate_patch
+
+  def sync_cursor_context(agent_id: str, generated_files: dict):
+      agent_mem = get_agent_state(agent_id)
+      cursor_stack = json.load(open("cursor_context_stack.json"))
+
+      patch = generate_patch(agent_mem, cursor_stack)
+      update_cursor_sync(agent_id, {
+          "patch": patch,
+          "emitted_files": list(generated_files.keys())
+      })
+
+      with open(f"sync_out/{agent_id}_patch.yaml", "w") as f:
+          f.write(patch)
+      return patch

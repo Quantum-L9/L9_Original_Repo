@@ -1,0 +1,29 @@
+# ===================================
+# L9 Codegen Spec: Agent Registration
+# ===================================
+
+filename: config/agent_catalog.yaml
+type: registry_patch
+language: yaml
+
+description: |
+  Registers MainAgentV6 with the L9 Agent Catalog for runtime invocation.
+
+wiring:
+  triggers:
+    - POST /api/mainagent/v6/packet
+    - orchestrator:meta -> audit
+  scope: reasoning
+  memory: required
+  policy_zone: safety
+
+code: |
+  MainAgentV6:
+    path: agents.mainagent_v6.mainagent.MainAgentV6
+    route: /api/mainagent/v6/packet
+    purpose: Symbolic + subsymbolic cognition orchestrator
+    kernel_policy: 08_safety
+    runtime: langgraph
+    memory: true
+    tensors: true
+    governance: required

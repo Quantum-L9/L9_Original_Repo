@@ -1,0 +1,23 @@
+# ======================================
+# L9 Codegen Spec: Memory Fusion Module
+# ======================================
+
+filename: agents/mainagent_v6/memory_enricher.py
+type: memory_adapter
+language: python
+
+description: |
+  Pulls and merges semantic, episodic, and causal memory fragments to enrich packets.
+
+wiring:
+  sources:
+    - Redis (working)
+    - pgvector (episodic)
+    - Neo4j (causal)
+
+code: |
+  def enrich_context(packet):
+      semantic = memory.redis.lookup(packet)
+      episodic = memory.pgvector.embed_and_search(packet)
+      causal = memory.neo4j.query_relations(packet)
+      return {**semantic, **episodic, **causal}

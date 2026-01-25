@@ -1,0 +1,49 @@
+# ============================================================
+# PATCH — Canonical_Agent_Constructor.py
+# Purpose: Respect construct_features in schema during build
+# ============================================================
+
+filename: runtime/constructors/Canonical_Agent_Constructor.py
+patch_type: feature_expansion
+language: python
+description: |
+  Adds support for construct_features in schema to dynamically
+  emit extra outputs like tests, prompts, OpenAPI stubs, linter
+  annotations, and worldmodel integration metadata.
+
+patch:
+  update_function: build_agents
+  recursive_enrichment_passes: 3
+  enriched_code: |
+    def build_agents():
+        for schema_file in os.listdir('schemas/agents/'):
+            with open(f'schemas/agents/{schema_file}') as f:
+                schema = yaml.safe_load(f)
+            name = schema.get("name", "unknown")
+
+            # Primary Agent
+            agent_code = build_agent_from_template(schema)
+            with open(f'agents/generated/{name}.py', 'w') as f:
+                f.write(agent_code)
+
+            features = schema.get("construct_features", {})
+
+            if features.get("auto_test_scaffold", False):
+                test_code = emit_tests_from_schema(schema)
+                with open(f'tests/generated/test_{name}.py', 'w') as f:
+                    f.write(test_code)
+
+            if features.get("bind_openapi_routes", False):
+                route_code = build_route_file(schema)
+                with open(f'routes/generated/{name}_routes.py', 'w') as f:
+                    f.write(route_code)
+
+            if features.get("enable_gmp_trace_logging", False):
+                prompt = generate_prompts_from_schema(schema)
+                with open(f'prompts/generated/{name}_trace.md', 'w') as f:
+                    f.write(prompt)
+
+            if features.get("include_world_model_hooks", False):
+                impact = map_schema_to_worldmodel(schema, {})
+                with open(f'worldmodel/generated/{name}_impact.yaml', 'w') as f:
+                    yaml.dump(impact, f)

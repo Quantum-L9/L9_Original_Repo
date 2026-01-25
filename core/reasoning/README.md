@@ -1,516 +1,399 @@
-# L9 Reasoning Module
+---
+dora:
+  version: "1.0"
+  type: subsystem_readme
+  generated: "2026-01-25 19:42:30 UTC"
+  generator: scripts/generate_subsystem_readmes.py
+  config: config/subsystems/readme_config.yaml
+  time_verified: "system clock (UNVERIFIED - no API response)"
+  auto_generated: true
+---
 
-**Theorem-of-Thought (ToTh) Integration for L9 Agentic Intelligence Platform**
+# Reasoning Engine
+
+> **Tier:** CORE | **Path:** `core/reasoning` | **Owner:** Igor
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                             Reasoning Engine                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐                  │
+│  │   Inbound   │ ───► │   core_reason   │ ───► │  Outbound   │                  │
+│  │ Dependencies│      │   Module    │      │ Dependencies│                  │
+│  └─────────────┘      └─────────────┘      └─────────────┘                  │
+│                              │                                              │
+│                              ▼                                              │
+│                    ┌─────────────────┐                                      │
+│                    │  Memory/Audit   │                                      │
+│                    │   Substrate     │                                      │
+│                    └─────────────────┘                                      │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Overview
 
-The L9 Reasoning Module integrates the **Theorem-of-Thought (ToTh)** framework into the L9 platform, enabling advanced multi-modal reasoning capabilities for all L9 agents. ToTh provides structured, verifiable reasoning through three complementary inference modes:
+ToTH engine, reasoning patterns, and cognitive processing
 
-- **Abductive Reasoning**: Hypothesis generation and pattern discovery
-- **Deductive Reasoning**: Logical validation and proof construction
-- **Inductive Reasoning**: Pattern generalization and rule extraction
+**Purpose:** Implements Tree-of-Thought reasoning and cognitive processing patterns.
 
-## Architecture
+**What depends on it:** `orchestrators/reasoning/`
+
+---
+
+## Responsibilities and Boundaries
+
+### What This Module Owns
+
+- **Core operations:** Execute core reasoning tasks
+- **State management:** Maintain internal state with proper lifecycle
+- **Logging:** Emit structured logs for all operations
+- **Metrics:** Expose Prometheus-compatible metrics
+
+### What This Module Does NOT Do
+
+- **Authentication** — Handled by `api/auth.py`
+- **External communication** — Handled by clients/adapters
+- **Scheduling** — Handled by runtime/task_queue.py
+
+### Inbound Dependencies
+
+| Module | Purpose |
+|--------|---------|
+| `orchestrators/reasoning/` | Uses this module |
+
+### Outbound Dependencies
+
+| Module | Purpose |
+|--------|---------|
+| `core/agents/executor.py` | Required dependency |
+
+---
+
+## Directory Layout
 
 ```
 core/reasoning/
-├── __init__.py              # Module exports
-├── toth_engine.py           # Core ToTh reasoning engine
-├── l9_toth_adapter.py       # L9 integration adapter
-└── README.md                # This file
+├── __init__.py
+├── l9_toth_adapter.py
+├── toth_engine.py
 ```
 
-### Components
+| File | Purpose |
+|------|---------|
+| `toth_engine.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
 
-#### 1. ToTh Engine (`toth_engine.py`)
+### Naming Conventions
 
-Production-ready reasoning engine with:
-- Multi-modal reasoning agents (abductive, deductive, inductive)
-- Formal Reasoning Graphs (FRG) for structured reasoning
-- Bayesian belief propagation for consistency validation
-- Cloud model integration (OpenAI, Anthropic, local models)
-- Caching and performance optimization
+- **Classes:** `PascalCase` (e.g., `CoreReasoningService`)
+- **Functions:** `snake_case` (e.g., `process_core_reasoning_request`)
+- **Constants:** `UPPER_SNAKE_CASE`
+- **Private:** `_prefixed` for internal methods
 
-#### 2. L9 ToTh Adapter (`l9_toth_adapter.py`)
+---
 
-Integration layer connecting ToTh with L9 components:
-- **BaseAgent Integration**: Reasoning methods for all agents
-- **Memory Substrate**: PostgreSQL + pgvector integration
-- **World Model**: Neo4j knowledge graph updates
-- **Governance**: Policy enforcement and validation
-- **Observability**: Metrics and tracing
+## Key Components
 
-## Key Features
-
-### Multi-Modal Reasoning
-
-Execute reasoning using all three modes and synthesize results:
+### `toth_engine.py` — ReasoningMode
 
 ```python
-from core.reasoning import L9ToThAdapter, L9ReasoningContext
+class ReasoningMode:
+    """No description"""
+    
+    # Key methods:
 
-adapter = L9ToThAdapter()
-context = L9ReasoningContext(
-    agent_id="agent_001",
-    agent_type="decision_maker"
-)
-
-results = await adapter.multi_modal_reasoning_with_context(
-    query="Should we expand to the European market?",
-    context=context
-)
 ```
 
-### Board Reasoning
+**Lines:** 61-65 in `toth_engine.py`
 
-Multi-perspective analysis for Board of Directors:
+### `toth_engine.py` — ModelProvider
 
 ```python
-decision = await adapter.board_reasoning(
-    query="Should we acquire Company X?",
-    board_members=["CFO", "CTO", "CMO"],
-    context=context
-)
+class ModelProvider:
+    """No description"""
+    
+    # Key methods:
 
-print(decision['consensus_reached'])
-print(decision['recommendation'])
-print(decision['dissenting_views'])
 ```
 
-### CEO Tri-Temporal Reasoning
+**Lines:** 67-72 in `toth_engine.py`
 
-Strategic planning across past, present, and future:
+### `toth_engine.py` — ToThConfig
 
 ```python
-decision = await adapter.ceo_reasoning(
-    query="What is our 5-year strategic direction?",
-    temporal_context={
-        'past': 'Strong growth in enterprise segment',
-        'present': 'Market leader in SMB space',
-        'future': 'AI-driven automation becoming standard'
-    },
-    context=context
-)
+class ToThConfig:
+    """Production ToTh configuration"""
+    
+    # Key methods:
 
-print(decision['strategic_recommendation'])
-print(decision['risk_assessment'])
-print(decision['action_plan'])
+    async def __post_init__(self, ...): ...
+
 ```
 
-### Research Hypothesis Validation
+**Public Methods:** `__post_init__`
 
-Hypothesis testing with evidence analysis:
+**Lines:** 75-90 in `toth_engine.py`
+
+### `toth_engine.py` — ReasoningStep
 
 ```python
-analysis = await adapter.research_reasoning(
-    hypothesis="AI-powered support reduces churn by 30%",
-    evidence=[
-        "Company A saw 28% churn reduction",
-        "Company B reported 32% satisfaction improvement",
-        "Industry study shows 25-35% average improvement"
-    ],
-    context=context
-)
+class ReasoningStep:
+    """Individual reasoning step"""
+    
+    # Key methods:
 
-print(analysis['validation']['is_valid'])
-print(analysis['alternative_hypotheses'])
-print(analysis['recommendation'])
+    async def __post_init__(self, ...): ...
+
 ```
+
+**Public Methods:** `__post_init__`
+
+**Lines:** 93-107 in `toth_engine.py`
+
+### `toth_engine.py` — ReasoningResult
+
+```python
+class ReasoningResult:
+    """Complete reasoning result"""
+    
+    # Key methods:
+
+    async def __post_init__(self, ...): ...
+
+```
+
+**Public Methods:** `__post_init__`
+
+**Lines:** 110-123 in `toth_engine.py`
+
+
+---
+
+## Data Models and Contracts
+
+The following data models define the contracts for this subsystem:
+
+- **`ModelProvider`** — Data model
+- **`CloudModelClient`** — Client for cloud-based language models
+
+### Key Schemas
+
+```python
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+class CoreReasoningRequest(BaseModel):
+    """Request model for core_reasoning operations."""
+    id: str
+    data: dict
+    timestamp: datetime
+    correlation_id: Optional[str] = None
+
+class CoreReasoningResponse(BaseModel):
+    """Response model for core_reasoning operations."""
+    success: bool
+    result: Optional[dict] = None
+    error: Optional[str] = None
+    duration_ms: float
+```
+
+### Invariants
+
+- **Reasoning steps are logged as packets**
+
+---
+
+## Execution and Lifecycle
+
+### Startup
+
+1. **Discovery:** Core_Reasoning components are discovered and registered.
+2. **Configuration:** Settings loaded from environment and config files.
+3. **Dependencies:** Required services (Redis, PostgreSQL, etc.) are connected.
+4. **Initialization:** Internal state is initialized; ready for requests.
+
+### Main Execution
+
+1. **Request received:** Validate input against schema.
+2. **Processing:** Execute core logic with appropriate error handling.
+3. **State updates:** Persist any state changes atomically.
+4. **Response:** Return structured response with timing metadata.
+
+### Shutdown
+
+1. **Graceful stop:** Stop accepting new requests.
+2. **Drain:** Complete in-flight operations (with timeout).
+3. **Cleanup:** Release resources, close connections.
+4. **Log:** Emit shutdown complete event.
+
+### Background Tasks
+
+No background tasks. Operations are request-driven.
+
+---
 
 ## Configuration
 
-### Basic Configuration
+### Feature Flags
 
-```python
-from core.reasoning import ToThConfig, ModelProvider
+```yaml
+# Core_Reasoning feature flags
+L9_ENABLE_CORE_REASONING_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_REASONING_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_REASONING_AUDIT: true    # Enable audit logging
+```
 
-config = ToThConfig(
-    model_provider=ModelProvider.OPENAI,
-    model_name="gpt-4",
-    api_key="your-api-key",
-    max_tokens=2048,
-    temperature=0.7,
-    confidence_threshold=0.7,
-    reasoning_timeout=30,
-    enable_caching=True
-)
+### Tuning Parameters
 
-adapter = L9ToThAdapter(config=config)
+```yaml
+core_reasoning:
+  timeout_seconds: 30
+  max_retries: 3
+  pool_size: 10
+  batch_size: 100
 ```
 
 ### Environment Variables
 
-Set API keys via environment variables:
-
 ```bash
-export OPENAI_API_KEY="sk-..."
-export ANTHROPIC_API_KEY="sk-ant-..."
+CORE_REASONING_LOG_LEVEL=INFO
+CORE_REASONING_TIMEOUT=30
+CORE_REASONING_ENABLED=true
 ```
-
-### Model Providers
-
-Supported providers:
-- `ModelProvider.OPENAI` - OpenAI GPT models
-- `ModelProvider.ANTHROPIC` - Anthropic Claude models
-- `ModelProvider.MOCK` - Mock provider for testing
-
-## Integration with L9 Components
-
-### BaseAgent Integration
-
-All agents can use ToTh reasoning:
-
-```python
-from agents.base_agent import BaseAgent
-from core.reasoning import L9ToThAdapter, L9ReasoningContext, ReasoningMode
-
-class MyAgent(BaseAgent):
-    def __init__(self):
-        super().__init__()
-        self.toth_adapter = L9ToThAdapter()
-    
-    async def make_decision(self, query: str):
-        context = L9ReasoningContext(
-            agent_id=self.agent_id,
-            agent_type=self.__class__.__name__
-        )
-        
-        result = await self.toth_adapter.reason_with_context(
-            query,
-            ReasoningMode.HYBRID,
-            context
-        )
-        
-        return result.final_conclusion
-```
-
-### Memory Substrate Integration
-
-Reasoning results are automatically stored in memory:
-
-```python
-# Memory service integration (automatic)
-adapter = L9ToThAdapter(
-    memory_service=memory_service,
-    world_model_service=world_model_service,
-    governance_service=governance_service
-)
-
-# Reasoning results stored in PostgreSQL + pgvector
-result = await adapter.reason_with_context(query, mode, context)
-```
-
-### Governance Integration
-
-Governance policies enforced before reasoning:
-
-```python
-context = L9ReasoningContext(
-    agent_id="agent_001",
-    agent_type="ceo",
-    governance_level="critical"  # Elevated governance checks
-)
-
-# Governance constraints checked automatically
-result = await adapter.reason_with_context(query, mode, context)
-```
-
-## Reasoning Modes
-
-### Abductive Reasoning
-
-**Purpose**: Find the most likely explanation for observations
-
-**Use Cases**:
-- Root cause analysis
-- Hypothesis generation
-- Pattern discovery
-- Diagnostic reasoning
-
-**Example**:
-```python
-result = await adapter.reason_with_context(
-    "The server is responding slowly. What could be the cause?",
-    ReasoningMode.ABDUCTIVE,
-    context
-)
-```
-
-### Deductive Reasoning
-
-**Purpose**: Derive valid conclusions from premises
-
-**Use Cases**:
-- Logical validation
-- Proof construction
-- Rule application
-- Compliance checking
-
-**Example**:
-```python
-result = await adapter.reason_with_context(
-    "If all agents inherit from BaseAgent, and BoardAgent is an agent, what follows?",
-    ReasoningMode.DEDUCTIVE,
-    context
-)
-```
-
-### Inductive Reasoning
-
-**Purpose**: Generalize patterns from examples
-
-**Use Cases**:
-- Trend analysis
-- Pattern recognition
-- Rule extraction
-- Predictive modeling
-
-**Example**:
-```python
-result = await adapter.reason_with_context(
-    "Analyzing 10 successful startups, all had strong technical co-founders. What pattern emerges?",
-    ReasoningMode.INDUCTIVE,
-    context
-)
-```
-
-### Hybrid Reasoning
-
-**Purpose**: Combine all three modes for comprehensive analysis
-
-**Use Cases**:
-- Strategic planning
-- Complex decision-making
-- Multi-perspective analysis
-- Comprehensive evaluation
-
-**Example**:
-```python
-result = await adapter.reason_with_context(
-    "Should we expand to a new market?",
-    ReasoningMode.HYBRID,
-    context
-)
-```
-
-## Formal Reasoning Graphs
-
-ToTh constructs **Formal Reasoning Graphs (FRG)** for each reasoning session:
-
-- **Nodes**: Individual reasoning steps
-- **Edges**: Inferential relationships
-- **Confidence Scores**: Trust scores based on NLI
-- **Bayesian Propagation**: Confidence flow through graph
-
-### Graph Structure
-
-```python
-result = await adapter.reason_with_context(query, mode, context)
-
-# Access reasoning graph
-graph = result.reasoning_graph
-print(graph['nodes'])           # Reasoning steps
-print(graph['edges'])           # Dependencies
-print(graph['confidence_score']) # Overall score
-print(graph['reasoning_path'])   # Step-by-step path
-```
-
-## Performance & Metrics
-
-### Performance Metrics
-
-Track reasoning performance:
-
-```python
-metrics = adapter.get_performance_metrics()
-
-print(metrics['total_queries'])      # Total queries processed
-print(metrics['avg_response_time'])  # Average response time
-print(metrics['success_rate'])       # Success rate
-print(metrics['confidence_scores'])  # Confidence distribution
-```
-
-### Reasoning History
-
-Access agent reasoning history:
-
-```python
-history = adapter.get_agent_reasoning_history(
-    agent_id="agent_001",
-    limit=10
-)
-
-for result in history:
-    print(f"Query: {result.query}")
-    print(f"Mode: {result.reasoning_mode.value}")
-    print(f"Confidence: {result.overall_confidence}")
-```
-
-### Validation
-
-Validate reasoning quality:
-
-```python
-result = await adapter.reason_with_context(query, mode, context)
-
-validation = await adapter.toth_engine.validate_reasoning(result)
-
-print(validation['valid'])          # Is valid?
-print(validation['issues'])         # Any issues?
-print(validation['quality_score'])  # Quality score (0-1)
-print(validation['recommendations']) # Recommendations
-```
-
-## Testing
-
-Comprehensive test suite in `tests/test_toth_integration.py`:
-
-```bash
-# Run all tests
-pytest tests/test_toth_integration.py -v
-
-# Run specific test class
-pytest tests/test_toth_integration.py::TestL9ToThAdapter -v
-
-# Run with coverage
-pytest tests/test_toth_integration.py --cov=core.reasoning
-```
-
-## Use Cases
-
-### 1. Board of Directors Decision-Making
-
-```python
-# Board evaluates acquisition
-decision = await adapter.board_reasoning(
-    query="Should we acquire Company X for $50M?",
-    board_members=["CEO", "CFO", "CTO"],
-    context=board_context
-)
-
-# Multi-perspective analysis
-# - CEO: Strategic fit (abductive)
-# - CFO: Financial validation (deductive)
-# - CTO: Technical patterns (inductive)
-```
-
-### 2. CEO Strategic Planning
-
-```python
-# CEO plans 5-year strategy
-decision = await adapter.ceo_reasoning(
-    query="What is our strategic direction?",
-    temporal_context={
-        'past': 'Historical performance and lessons',
-        'present': 'Current market position and challenges',
-        'future': 'Emerging trends and opportunities'
-    },
-    context=ceo_context
-)
-
-# Tri-temporal analysis
-# - Past: Inductive learning from history
-# - Present: Deductive application of principles
-# - Future: Abductive hypothesis generation
-```
-
-### 3. Research Agent Market Intelligence
-
-```python
-# Research agent validates hypothesis
-analysis = await adapter.research_reasoning(
-    hypothesis="Voice AI will dominate customer service by 2027",
-    evidence=[
-        "Gartner predicts 80% adoption by 2026",
-        "Leading companies report 60% cost reduction",
-        "Customer satisfaction scores increased 40%"
-    ],
-    context=research_context
-)
-
-# Comprehensive validation
-# - Alternative hypotheses generated
-# - Logical consistency validated
-# - Patterns identified and generalized
-```
-
-## Dependencies
-
-```
-aiohttp>=3.9.0      # Async HTTP client
-networkx>=3.0       # Graph operations
-openai>=1.10.0      # OpenAI API (optional)
-```
-
-## Academic Foundation
-
-Based on the paper:
-
-**"Theorem-of-Thought: A Multi-Agent Framework for Abductive, Deductive, and Inductive Reasoning in Language Models"**
-
-- Authors: Samir Abdalijalil, Hasan Kurban, Khalid Qaraqe, Erchin Serpedin
-- Institutions: Texas A&M University, Hamad Bin Khalifa University
-- Published: ACL 2025 Workshop
-
-Key contributions:
-- Multi-agent reasoning framework
-- Formal Reasoning Graphs (FRG)
-- Bayesian belief propagation
-- NLI-based trust estimation
-- O(k·s) complexity (linear in agents and steps)
-
-## Roadmap
-
-### Phase 1: Core Integration ✅
-- [x] ToTh engine integration
-- [x] L9 adapter implementation
-- [x] BaseAgent integration
-- [x] Test suite
-
-### Phase 2: Advanced Features (Week 3-4)
-- [ ] Memory substrate integration
-- [ ] World model updates
-- [ ] Governance enforcement
-- [ ] Observability hooks
-
-### Phase 3: Agent Enablement (Week 5-6)
-- [ ] Board Agent with ToTh
-- [ ] CEO Agent with ToTh
-- [ ] Research Agent with ToTh
-- [ ] Portfolio Manager with ToTh
-
-### Phase 4: Production Optimization (Week 7-8)
-- [ ] Performance tuning
-- [ ] Caching optimization
-- [ ] Distributed reasoning
-- [ ] Advanced metrics
-
-## Contributing
-
-When contributing to the reasoning module:
-
-1. **Maintain modularity**: Keep reasoning logic separate from L9 components
-2. **Add tests**: All new features must have corresponding tests
-3. **Document thoroughly**: Update this README and add docstrings
-4. **Follow conventions**: Use type hints, Black formatting, Ruff linting
-5. **Preserve kernel integrity**: Never edit kernel files directly
-
-## License
-
-Part of the L9 Agentic Intelligence Platform.
-
-## References
-
-- ToTh Paper: https://github.com/KurbanIntelligenceLab/theorem-of-thought
-- L9 Documentation: `/readme/`
-- Architecture Diagrams: `/readme/diagrams/`
 
 ---
 
-**Status**: ✅ Production-Ready (v1.0.0)
+## API Surface (Public)
 
-**Integration Time**: 2-3 hours
+### Public Functions
 
-**Test Coverage**: 95%+
+#### `async def main()`
 
-**Performance**: O(k·s) linear complexity
+CLI interface for production ToTh engine
+
+- **File:** `toth_engine.py:830`
+- **Async:** Yes
+
+
+### Usage Example
+
+```python
+from core.reasoning import CoreReasoningService
+
+# Initialize
+service = CoreReasoningService()
+
+# Execute operation
+result = await service.execute(
+    request_id="req-001",
+    data={"key": "value"},
+    correlation_id="corr-xyz789",
+)
+
+print(result.success)  # True
+print(result.duration_ms)  # 125.5
+```
+
+---
+
+## Observability
+
+### Logging
+
+Core Reasoning operations emit structured JSON logs:
+
+```json
+{
+  "timestamp": "2026-01-25T19:42:30Z",
+  "level": "INFO",
+  "module": "core.reasoning",
+  "message": "Operation completed",
+  "correlation_id": "corr-xyz789",
+  "agent_id": "agent-001",
+  "duration_ms": 125
+}
+```
+
+**Log Levels:**
+- `DEBUG` — Detailed execution steps (off in production)
+- `INFO` — Lifecycle events, successful operations
+- `WARNING` — Timeouts, resource warnings, recoverable errors
+- `ERROR` — Failures, exceptions, unrecoverable errors
+
+### Metrics
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `core_reasoning_operation_duration_ms` | Histogram | Operation latency distribution |
+| `core_reasoning_operation_total` | Counter | Total operations processed |
+| `core_reasoning_error_total` | Counter | Total errors encountered |
+| `core_reasoning_active_connections` | Gauge | Current active connections |
+
+### Tracing
+
+Core Reasoning emits OpenTelemetry spans:
+
+- `core_reasoning.execute` — Root span for operation
+  - `core_reasoning.validate` — Input validation
+  - `core_reasoning.process` — Core processing
+  - `core_reasoning.persist` — State persistence (if applicable)
+
+---
+
+## Testing
+
+### Unit Tests
+
+Located in `tests/core_reasoning/`:
+- `test_core_reasoning.py` — Core unit tests
+- `test_core_reasoning_integration.py` — Integration tests (if applicable)
+
+### Integration Tests
+
+Located in `tests/integration/`:
+
+- Test core_reasoning with real dependencies
+- Test cross-subsystem interactions
+- Test failure scenarios and recovery
+
+### Known Edge Cases
+
+1. **Timeout:** Operation exceeds deadline → Return partial result with timeout status.
+2. **Invalid input:** Schema validation fails → Return 400 with validation errors.
+3. **Dependency unavailable:** Required service down → Retry with exponential backoff, then fail gracefully.
+4. **Resource exhaustion:** Memory/connections exceeded → Reject new requests, log alert.
+
+---
+
+## AI Usage Rules
+
+### ✅ Allowed Scopes (AI can modify freely)
+
+- `**/*.py` — Application logic, safe to modify
+
+### ⚠️ Restricted Scopes (requires human review)
+
+- `toth_engine.py` — Requires human review before merge
+- `__init__.py` — Requires human review before merge
+
+### ❌ Forbidden Scopes (NEVER modify without explicit approval)
+
+- `toth_engine.py` — PROTECTED: Changes break system invariants
+- `__init__.py` — PROTECTED: Changes break system invariants
+
+### Required Pre-Reading
+
+1. [`README-L9_ARCHITECTURE.md`](README-L9_ARCHITECTURE.md)
+2. [`docs/CURSOR-RUNBOOK.md`](docs/CURSOR-RUNBOOK.md)
+
+### Change Policy
+
+All changes proposed by AI tools must:
+1. Be scoped PRs with clear commit messages
+2. Include tests (unit + integration where applicable)
+3. Update documentation if APIs change
+4. Respect feature flags for gradual rollout
+5. Get human approval for restricted scopes

@@ -1,0 +1,28 @@
+# =====================================
+# Compliance Shadow Agent
+# =====================================
+
+filename: compliance/shadow_agent.py
+type: audit_module
+language: python
+
+description: |
+  Mirrors live agent execution, performs compliance diffing, memory audit,
+  and rollback planning in real-time. Runs in background alongside orchestrator stack.
+
+wiring:
+  mirrors:
+    - /agents/**
+    - /runtime/tasks/*
+  watches:
+    - patch_audit_log.yaml
+    - meta_diff.yaml
+  emits:
+    - rollback_plan.yaml
+    - shadow_trace.log
+
+code: |
+  def run_shadow_audit(agent_id):
+      trace = open(f"patch_audit/{agent_id}_trace.yaml").read()
+      if "violation" in trace:
+          open(f"rollback_plan/{agent_id}.yaml", "w").write("rollback: true\\nreason: policy_violation")

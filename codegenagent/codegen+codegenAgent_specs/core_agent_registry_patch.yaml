@@ -1,0 +1,35 @@
+# =====================================
+# GMP Agent Auto-Register (Spec)
+# =====================================
+
+filename: core/agent_registry_patch.py
+type: module_spec
+language: python
+status: pending_implementation
+
+description: |
+  Allows GMP-defined agents to self-register on instantiation.
+  Uses HandshakeResponse and AgentCapabilities to bind capabilities.
+
+wiring:
+  triggers:
+    - meta.yaml ingestion
+    - gmp_manifest.yaml
+  binds:
+    - tool capabilities
+    - governance policy zone
+    - audit feedback
+
+code: |
+  def register_gmp_agent(meta_path):
+      import yaml
+      meta = yaml.safe_load(open(meta_path))
+      entry = {
+          "agent_id": meta["name"],
+          "tools": meta.get("tools", []),
+          "governance_zone": meta.get("zone", "gmp"),
+          "registered_by": "CodeGenAgent"
+      }
+      with open("config/agent_registry.yaml", "a") as f:
+          yaml.dump([entry], f)
+

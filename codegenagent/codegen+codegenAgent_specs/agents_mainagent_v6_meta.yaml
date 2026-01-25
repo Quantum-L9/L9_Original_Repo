@@ -1,0 +1,51 @@
+# ==================================
+# MetaContract: MainAgent v6.0 (L9)
+# ==================================
+
+filename: agents/mainagent_v6/meta.yaml
+type: meta_contract
+version: 0.1.0
+
+name: MainAgentV6
+description: >
+  Central multimodal orchestration agent for the L9 platform. Handles symbolic reasoning, tensor coordination,
+  memory enrichment, world model updates, and governance-bound inference tasks.
+
+inputs:
+  - PacketEnvelope (raw)
+  - MemorySnapshot
+  - TensorSummary
+outputs:
+  - ReasoningResult
+  - GovernanceEscalation
+  - WorldModelDelta
+
+responsibilities:
+  - Enrich packets with semantic context and tensor signals
+  - Route through appropriate reasoning modules
+  - Detect errors, inconsistencies, or governance violations
+  - Escalate complex tasks or audit cases to L or GovernanceAgent
+  - Output coherent reasoning trace and packet response
+
+guarantees:
+  - Idempotent response for identical packet inputs
+  - Governance fallback with override gate
+  - Drift-safe model memory projection
+  - Reversible memory mutations via snapshot tagging
+
+required_docs:
+  - README.md (contract + agent lifecycle)
+  - mainagent_api.md (input/output schema examples)
+  - reasoning_trace_sample.json
+
+required_tests:
+  - test_reasoning_trace_integrity.py
+  - test_packet_roundtrip_governance.py
+  - test_tensor_context_bridge.py
+
+# === PATCH: agent_catalog registration ===
+catalog_entry:
+  triggers:
+    - POST /api/mainagent/v6/packet
+    - orchestrator:meta -> audit
+  registered_in: config/agent_catalog.yaml

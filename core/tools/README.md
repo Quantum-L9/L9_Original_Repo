@@ -1,279 +1,482 @@
-# Tools Subsystem
+---
+dora:
+  version: "1.0"
+  type: subsystem_readme
+  generated: "2026-01-25 19:42:30 UTC"
+  generator: scripts/generate_subsystem_readmes.py
+  config: config/subsystems/readme_config.yaml
+  time_verified: "system clock (UNVERIFIED - no API response)"
+  auto_generated: true
+---
+
+# Tool Registry & Dispatch
+
+> **Tier:** CORE | **Path:** `core/tools` | **Owner:** Igor
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                         Tool Registry & Dispatch                                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐                  │
+│  │   Inbound   │ ───► │    core_tools   │ ───► │  Outbound   │                  │
+│  │ Dependencies│      │   Module    │      │ Dependencies│                  │
+│  └─────────────┘      └─────────────┘      └─────────────┘                  │
+│                              │                                              │
+│                              ▼                                              │
+│                    ┌─────────────────┐                                      │
+│                    │  Memory/Audit   │                                      │
+│                    │   Substrate     │                                      │
+│                    └─────────────────┘                                      │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Overview
 
-The **Tools Subsystem** is the Tool registry, discovery, and dispatch for L9 Secure AI OS. It manages tool definitions, capability enforcement, semantic discovery, and safe tool invocation.
+Tool definitions, capability enforcement, and safe tool invocation
 
-**What depends on it:** `core/agents/executor.py`, `core/agents/agent_instance.py`
+**Purpose:** Manages tool definitions, capability enforcement, approval gates, and safe tool invocation.
 
-## Tool Access Methods
+**What depends on it:** `core/agents/executor.py`
 
-### Dynamic Tool Discovery (PREFERRED - GMP-78)
+---
 
-**Status: ACTIVE (v2.0.0+)**
+## Responsibilities and Boundaries
 
-Dynamic discovery uses semantic search to find relevant tools per-task, reducing context overhead by 40-70%.
+### What This Module Owns
 
-```python
-from core.tools import discover_tools_for_task, is_dynamic_discovery_enabled
+- Tool manifest registry and discovery
+- Capability enforcement per agent
+- Approval gates for high-risk tools
+- Tool input sanitization and validation
+- Audit logging of all tool executions
 
-# Check if enabled (default: true)
-if is_dynamic_discovery_enabled():
-    # Discover tools semantically relevant to task
-    tools = await discover_tools_for_task(
-        "search memory for user preferences",
-        top_k=5,
-        min_similarity=0.3,
-        max_tokens=2000,
-    )
-    # Returns OpenAI function calling format
-```
+### What This Module Does NOT Do
 
-**Configuration:**
-```bash
-L9_DYNAMIC_TOOL_DISCOVERY=true      # Feature flag (default: true)
-L9_TOOL_DISCOVERY_TOP_K=5           # Max tools per task
-L9_TOOL_DISCOVERY_MIN_SIMILARITY=0.3 # Cosine similarity threshold
-L9_TOOL_DISCOVERY_MAX_TOKENS=2000   # Token budget for tools
-```
+- Actual tool implementation (tools are self-contained)
+- Agent execution logic (owned by core/agents)
+- Memory operations (owned by memory/)
 
-**How It Works:**
-1. At startup, `sync_all_tool_embeddings()` embeds all tools to pgvector
-2. At task execution, `AgentInstance.prepare_dynamic_tools()` is called
-3. Semantic search finds relevant tools for the task payload
-4. Tools are formatted in OpenAI function calling format
-5. Token budget is enforced to prevent context bloat
+### Inbound Dependencies
 
-### Static Tool Binding (DEPRECATED)
+| Module | Purpose |
+|--------|---------|
+| `core/agents/executor.py` | Uses this module |
 
-**Status: DEPRECATED (emits DeprecationWarning)**
+### Outbound Dependencies
 
-Static binding loads all configured tools into context regardless of task. This is legacy behavior.
+| Module | Purpose |
+|--------|---------|
+| `runtime/l_tools.py` | Required dependency |
+| `core/governance/approval_manager.py` | Required dependency |
 
-```python
-# DEPRECATED - will emit DeprecationWarning
-from core.tools import L9_TOOLS  # Static list - AVOID
-
-# This happens automatically if dynamic discovery is disabled or fails
-tools = agent_instance.get_tool_definitions()  # Falls back to static
-```
-
-**To disable deprecation warnings (temporary):**
-```bash
-L9_DYNAMIC_TOOL_DISCOVERY=false  # Revert to static binding
-```
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    STARTUP (api/server.py)                           │
-├─────────────────────────────────────────────────────────────────────┤
-│  sync_all_tool_embeddings()                                          │
-│    → Reads L_INTERNAL_TOOLS + L9_TOOLS                              │
-│    → Generates OpenAI embeddings                                    │
-│    → Stores in pgvector tool_embeddings table                       │
-└────────────────────────────┬────────────────────────────────────────┘
-                             ↓
-┌─────────────────────────────────────────────────────────────────────┐
-│              EXECUTION (executor.py)                                 │
-├─────────────────────────────────────────────────────────────────────┤
-│  await instance.prepare_dynamic_tools()                             │
-│    → discover_tools_for_task(task_payload)                          │
-│    → find_relevant_tools() via pgvector                             │
-│    → Cache in instance._discovered_tools                            │
-└────────────────────────────┬────────────────────────────────────────┘
-                             ↓
-┌─────────────────────────────────────────────────────────────────────┐
-│              CONTEXT ASSEMBLY                                        │
-├─────────────────────────────────────────────────────────────────────┤
-│  instance.get_tool_definitions()                                     │
-│    → Returns cached discovered tools (preferred)                    │
-│    → OR static binding with DeprecationWarning (fallback)           │
-└─────────────────────────────────────────────────────────────────────┘
-```
+---
 
 ## Directory Layout
 
 ```
 core/tools/
-├── __init__.py              # Exports (v2.0.0 - dynamic discovery)
-├── dynamic_discovery.py     # GMP-78 Phase 2 - semantic discovery
-├── tool_embeddings.py       # GMP-78 Phase 1 - pgvector storage
-├── base_registry.py         # In-memory tool registry
-├── registry_adapter.py      # PROTECTED - executor adapter
-├── tool_graph.py            # PROTECTED - Neo4j dependency graph
-├── sanitizer.py             # Input sanitization
-├── tool_audit.py            # Audit logging
-├── memory_tools.py          # Memory tool implementations
-├── research_tools.py        # Research tool implementations
-└── reflection_tools.py      # Reflection tool implementations
+├── __init__.py
+├── agent_self_modify.py
+├── base_registry.py
+├── discovery_tracing.py
+├── dynamic_discovery.py
+├── memory_tools.py
+├── prompt_caching.py
+├── reflection_tools.py
+├── registry_adapter.py
+├── registry_cache.py
+├── research_tools.py
+├── sanitizer.py
+├── semantic_discovery.py
+├── semantic_tool_search.py
+├── symbolic_tool.py
+└── ... (3 more files)
 ```
+
+| File | Purpose |
+|------|---------|
+| `registry_adapter.py` | RegistryAdapter for tool discovery and dispatch (PROTECTED) |
+| `tool_graph.py` | Tool definitions and L_TOOLS_DEFINITIONS registry (PROTECTED) |
+| `sanitizer.py` | Input sanitization and validation for tool arguments |
+| `memory_tools.py` | Memory-related tools (search, write, retrieve) |
+| `research_tools.py` | Research and web search tools |
+| `reflection_tools.py` | Self-reflection and metacognition tools |
+| `tool_embeddings.py` | Semantic tool discovery via embeddings |
+
+### Naming Conventions
+
+- **Tool definitions:** UPPER_SNAKE_CASE in L_TOOLS_DEFINITIONS
+- **Tool wrappers:** `<name>_tool` function
+- **Tool classes:** `<Name>Tool` (if class-based)
+
+---
 
 ## Key Components
 
-### `dynamic_discovery.py` — Dynamic Tool Discovery (GMP-78 Phase 2)
+### `tool_embeddings.py` — ToolEmbeddingResult
 
 ```python
-async def discover_tools_for_task(
-    task_payload: str,
-    top_k: int = 5,
-    min_similarity: float = 0.3,
-    max_tokens: int = 2000,
-) -> list[dict[str, Any]]:
-    """Semantic search → OpenAI tool format."""
+class ToolEmbeddingResult:
+    """Result from tool embedding search."""
+    
+    # Key methods:
 
-def is_dynamic_discovery_enabled() -> bool:
-    """Check feature flag."""
-
-async def get_discovery_stats() -> dict[str, Any]:
-    """Health metrics for monitoring."""
 ```
 
-### `tool_embeddings.py` — Tool Embedding Storage (GMP-78 Phase 1)
+**Lines:** 70-78 in `tool_embeddings.py`
+
+### `prompt_caching.py` — CacheMetrics
 
 ```python
-async def sync_all_tool_embeddings() -> int:
-    """Sync all tools to pgvector (called at startup)."""
+class CacheMetrics:
+    """Metrics for prompt caching."""
+    
+    # Key methods:
 
-async def find_relevant_tools(
-    query: str,
-    top_k: int = 5,
-    min_similarity: float = 0.3,
-) -> list[ToolEmbeddingResult]:
-    """Semantic search for tools."""
+    async def hit_rate(self, ...): ...
+
 ```
 
-### `tool_graph.py` — Tool Dependency Graph
+**Public Methods:** `hit_rate`
+
+**Lines:** 28-42 in `prompt_caching.py`
+
+### `prompt_caching.py` — PromptCachingStrategy
 
 ```python
-class ToolDefinition:
-    """Definition of a tool for graph registration."""
-    name: str
-    description: str
-    category: str
-    risk_level: str  # "low" | "medium" | "high"
-    requires_igor_approval: bool
-    negative_constraints: list[str]  # When NOT to use
+class PromptCachingStrategy:
+    """Two-tier prompt caching strategy for tool-heavy agents."""
+    
+    # Key methods:
 
-L9_TOOLS: list[ToolDefinition]  # DEPRECATED - use dynamic discovery
-L_INTERNAL_TOOLS: list[ToolDefinition]  # Internal tools for L agent
+    async def __init__(self, ...): ...
+
+    async def build_cached_system_prompt(self, ...): ...
+
+    async def build_dynamic_tool_context(self, ...): ...
+
+    async def build_full_prompt(self, ...): ...
+
+    async def estimate_token_savings(self, ...): ...
+
 ```
 
-### `sanitizer.py` — Input Sanitization
+**Public Methods:** `__init__`, `build_cached_system_prompt`, `build_dynamic_tool_context`, `build_full_prompt`, `estimate_token_savings`
+
+**Lines:** 45-217 in `prompt_caching.py`
+
+### `prompt_caching.py` — CachingMetricsCollector
 
 ```python
-class ToolInputSanitizer:
-    """Centralized input sanitization for tool arguments."""
-    def sanitize(self, value: Any) -> Any: ...
+class CachingMetricsCollector:
+    """Collect and report caching metrics for observability."""
+    
+    # Key methods:
+
+    async def __init__(self, ...): ...
+
+    async def record_cache_hit(self, ...): ...
+
+    async def record_cache_miss(self, ...): ...
+
+    async def record_latency(self, ...): ...
+
+    async def get_metrics(self, ...): ...
+
 ```
 
-## Health Monitoring
+**Public Methods:** `__init__`, `record_cache_hit`, `record_cache_miss`, `record_latency`, `get_metrics`
 
-```bash
-GET /health/services
+**Lines:** 220-260 in `prompt_caching.py`
+
+### `sanitizer.py` — ToolInputSanitizationError
+
+```python
+class ToolInputSanitizationError:
+    """Raised when tool input cannot be sanitized/validated."""
+    
+    # Key methods:
+
+    async def __init__(self, ...): ...
+
 ```
 
-```json
-{
-  "dynamic_tool_discovery": {
-    "synced": true,
-    "tool_count": 45,
-    "enabled": true,
-    "top_k": 5
-  }
-}
+**Public Methods:** `__init__`
+
+**Lines:** 61-67 in `sanitizer.py`
+
+
+---
+
+## Data Models and Contracts
+
+The following data models define the contracts for this subsystem:
+
+- **`ToolSchema`** — JSON Schema for tool parameters (OpenAI function calling compatible).
+
+### Key Schemas
+
+```python
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+class CoreToolsRequest(BaseModel):
+    """Request model for core_tools operations."""
+    id: str
+    data: dict
+    timestamp: datetime
+    correlation_id: Optional[str] = None
+
+class CoreToolsResponse(BaseModel):
+    """Response model for core_tools operations."""
+    success: bool
+    result: Optional[dict] = None
+    error: Optional[str] = None
+    duration_ms: float
 ```
 
-## Invariants
+### Invariants
 
-- **Dynamic discovery is default**: Set `L9_DYNAMIC_TOOL_DISCOVERY=false` to revert
-- **Tool names must match OpenAI pattern**: `^[a-zA-Z0-9_-]+$`
-- **Destructive tools require approval gates**
+- **Tool names must exist in L_TOOLS_DEFINITIONS registry**
+- **Destructive tools require explicit approval gates**
 - **All tool executions logged to PacketEnvelope audit trail**
 - **Tool dispatch respects AgentCapabilities enum**
-- **Token budget enforced**: Tools stop loading at `max_tokens` limit
+
+---
+
+## Execution and Lifecycle
+
+### Startup
+
+1. **Discovery:** Core_Tools components are discovered and registered.
+2. **Configuration:** Settings loaded from environment and config files.
+3. **Dependencies:** Required services (Redis, PostgreSQL, etc.) are connected.
+4. **Initialization:** Internal state is initialized; ready for requests.
+
+### Main Execution
+
+1. **Request received:** Validate input against schema.
+2. **Processing:** Execute core logic with appropriate error handling.
+3. **State updates:** Persist any state changes atomically.
+4. **Response:** Return structured response with timing metadata.
+
+### Shutdown
+
+1. **Graceful stop:** Stop accepting new requests.
+2. **Drain:** Complete in-flight operations (with timeout).
+3. **Cleanup:** Release resources, close connections.
+4. **Log:** Emit shutdown complete event.
+
+### Background Tasks
+
+No background tasks. Operations are request-driven.
+
+---
 
 ## Configuration
 
 ### Feature Flags
 
 ```yaml
-L9_DYNAMIC_TOOL_DISCOVERY: true  # Enable semantic discovery (default)
-L9_ENABLE_TOOLS_TRACING: true    # Enable detailed tracing
+# Core_Tools feature flags
+L9_ENABLE_CORE_TOOLS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_TOOLS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_TOOLS_AUDIT: true    # Enable audit logging
+```
+
+### Tuning Parameters
+
+```yaml
+core_tools:
+  timeout_seconds: 30
+  max_retries: 3
+  pool_size: 10
+  batch_size: 100
 ```
 
 ### Environment Variables
 
 ```bash
-# Dynamic Discovery (GMP-78)
-L9_DYNAMIC_TOOL_DISCOVERY=true
-L9_TOOL_DISCOVERY_TOP_K=5
-L9_TOOL_DISCOVERY_MIN_SIMILARITY=0.3
-L9_TOOL_DISCOVERY_MAX_TOKENS=2000
-
-# General
-TOOLS_LOG_LEVEL=INFO
+CORE_TOOLS_LOG_LEVEL=INFO
+CORE_TOOLS_TIMEOUT=30
+CORE_TOOLS_ENABLED=true
 ```
+
+---
+
+## API Surface (Public)
+
+### Public Functions
+
+#### `async def embed_tool_description(description)`
+
+Generate embedding vector for a tool description.
+
+- **File:** `tool_embeddings.py:102`
+- **Async:** Yes
+
+#### `async def store_tool_embedding(tool_name, description, category, negative_constraints, metadata)`
+
+Store a tool's embedding in the database.
+
+- **File:** `tool_embeddings.py:125`
+- **Async:** Yes
+
+#### `async def find_relevant_tools(query, top_k, exclude_categories, min_similarity)`
+
+Find tools relevant to a query using semantic search.
+
+- **File:** `tool_embeddings.py:181`
+- **Async:** Yes
+
+#### `async def find_tools_keyword(query, top_k, min_rank)`
+
+Find tools using BM25 keyword search (PostgreSQL full-text).
+
+- **File:** `tool_embeddings.py:255`
+- **Async:** Yes
+
+#### `async def find_tools_hybrid(query, top_k, semantic_weight, keyword_weight, min_similarity)`
+
+Hybrid tool discovery combining semantic + keyword (BM25) search.
+
+- **File:** `tool_embeddings.py:321`
+- **Async:** Yes
+
+
+### Usage Example
+
+```python
+from core.tools import RegistryAdapter, AgentCapabilities
+
+adapter = RegistryAdapter()
+
+# Get available tools for agent
+tools = adapter.get_tools_for_capabilities(
+    AgentCapabilities.RESEARCH | AgentCapabilities.MEMORY_READ
+)
+
+# Invoke a tool
+result = await adapter.invoke_tool(
+    tool_name="search_web",
+    arguments={"query": "AI breakthroughs 2025"},
+    agent_id="researcher-001",
+    correlation_id="corr-xyz789",
+)
+
+print(result.success)  # True
+print(result.output)   # Search results
+```
+
+
+---
 
 ## Observability
 
 ### Logging
 
+Core Tools operations emit structured JSON logs:
+
 ```json
 {
-  "event": "Dynamic tool discovery complete",
-  "task_preview": "search memory for...",
-  "tools_discovered": 3,
-  "top_k": 5
+  "timestamp": "2026-01-25T19:42:30Z",
+  "level": "INFO",
+  "module": "core.tools",
+  "message": "Operation completed",
+  "correlation_id": "corr-xyz789",
+  "agent_id": "agent-001",
+  "duration_ms": 125
 }
 ```
 
+**Log Levels:**
+- `DEBUG` — Detailed execution steps (off in production)
+- `INFO` — Lifecycle events, successful operations
+- `WARNING` — Timeouts, resource warnings, recoverable errors
+- `ERROR` — Failures, exceptions, unrecoverable errors
+
 ### Metrics
 
-- `tools_discovery_duration_ms` — Discovery latency (histogram)
-- `tools_discovered_count` — Tools per task (histogram)
-- `tools_static_fallback_total` — Static binding fallbacks (counter)
+| Metric | Type | Description |
+|--------|------|-------------|
+| `core_tools_operation_duration_ms` | Histogram | Operation latency distribution |
+| `core_tools_operation_total` | Counter | Total operations processed |
+| `core_tools_error_total` | Counter | Total errors encountered |
+| `core_tools_active_connections` | Gauge | Current active connections |
+
+### Tracing
+
+Core Tools emits OpenTelemetry spans:
+
+- `core_tools.execute` — Root span for operation
+  - `core_tools.validate` — Input validation
+  - `core_tools.process` — Core processing
+  - `core_tools.persist` — State persistence (if applicable)
+
+---
 
 ## Testing
 
 ### Unit Tests
 
-Located in `tests/unit/`:
-- `test_dynamic_tool_discovery.py` — Dynamic discovery tests
-- `tests/core/tools/test_tool_graph_unified.py` — Tool graph tests
+Located in `tests/core_tools/`:
+- `test_core_tools.py` — Core unit tests
+- `test_core_tools_integration.py` — Integration tests (if applicable)
+
+### Integration Tests
+
+Located in `tests/integration/`:
+
+- Test core_tools with real dependencies
+- Test cross-subsystem interactions
+- Test failure scenarios and recovery
+
+### Known Edge Cases
+
+1. **Tool not found** — Requested tool name not in registry → raise ToolNotFoundError
+1. **Capability denied** — Agent lacks capability for tool → log warning, return capability error
+1. **Approval required** — High-risk tool needs Igor approval → block until approved or timeout
+1. **Input validation failure** — Tool arguments fail schema validation → return validation error
+
+---
 
 ## AI Usage Rules
 
 ### ✅ Allowed Scopes (AI can modify freely)
 
-- `dynamic_discovery.py` — Discovery logic
-- `sanitizer.py` — Input validation
-- `memory_tools.py` — Memory tool implementations
-- `research_tools.py` — Research tool implementations
-- `reflection_tools.py` — Reflection tool implementations
+- `sanitizer.py` — Application logic, safe to modify
+- `memory_tools.py` — Application logic, safe to modify
+- `research_tools.py` — Application logic, safe to modify
+- `reflection_tools.py` — Application logic, safe to modify
+- `tool_embeddings.py` — Application logic, safe to modify
+- `tests/**` — Application logic, safe to modify
+- `docs/**` — Application logic, safe to modify
 
 ### ⚠️ Restricted Scopes (requires human review)
 
-- `tool_embeddings.py` — Embedding sync logic
-- Schema changes
-- Feature flag logic
+- `registry_adapter.py` — Requires human review before merge
+- `tool_graph.py` — Requires human review before merge
 
-### ❌ Forbidden Scopes (never modify without approval)
+### ❌ Forbidden Scopes (NEVER modify without explicit approval)
 
-- `registry_adapter.py` — PROTECTED (executor wiring)
-- `tool_graph.py` — PROTECTED (L9_TOOLS definitions)
-- `__init__.py` — PROTECTED (exports)
+- `registry_adapter.py` — PROTECTED: Changes break system invariants
+- `tool_graph.py` — PROTECTED: Changes break system invariants
+- `__init__.py` — PROTECTED: Changes break system invariants
 
-## Related
+### Required Pre-Reading
 
-- ADR-0064: Dynamic Tool Discovery
-- `config/settings.py` — Feature flag definitions
-- `api/server.py` — Startup sync
-- `core/agents/executor.py` — Execution wiring
+1. [`README-L9_ARCHITECTURE.md`](README-L9_ARCHITECTURE.md)
+2. [`docs/CURSOR-RUNBOOK.md`](docs/CURSOR-RUNBOOK.md)
+3. [`core/tools/README.md`](core/tools/README.md)
 
----
+### Change Policy
 
-*L9 Secure AI OS — Tools Subsystem*
-*Version: 2.0.0 (GMP-78 Dynamic Tool Discovery)*
-*Updated: 2026-01-25*
+All changes proposed by AI tools must:
+1. Be scoped PRs with clear commit messages
+2. Include tests (unit + integration where applicable)
+3. Update documentation if APIs change
+4. Respect feature flags for gradual rollout
+5. Get human approval for restricted scopes

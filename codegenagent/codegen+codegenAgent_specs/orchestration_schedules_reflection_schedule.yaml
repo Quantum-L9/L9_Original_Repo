@@ -1,0 +1,30 @@
+# =========================================
+# L9 Codegen Spec: Reflection Scheduling
+# =========================================
+
+filename: orchestration/schedules/reflection_schedule.yaml
+type: orchestrator_schedule
+language: yaml
+
+description: |
+  Schedules automated review of MainAgent outputs by ReflectionAgent.
+
+wiring:
+  trigger:
+    agent: ReflectionAgent
+    target: MainAgentV6
+    frequency: weekly
+    event: audit_packet_flow
+    criteria:
+      - confidence < 0.6
+      - override_triggered: true
+
+code: |
+  weekly_mainagent_audit:
+    interval: "0 9 * * 1"  # Every Monday 9am UTC
+    agent: ReflectionAgent
+    call: audit_packet_flow
+    target: MainAgentV6
+    conditions:
+      - low_confidence_response
+      - governance_override_used

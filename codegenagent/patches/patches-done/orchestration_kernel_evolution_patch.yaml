@@ -1,0 +1,29 @@
+# =======================================
+# Patch: Meta-Kernel Evolution via GMP-L
+# =======================================
+
+filename: orchestration/kernel_evolution_patch.py
+type: kernel_upgrade
+language: python
+
+description: |
+  Enables orchestrators to evolve their kernels in real-time
+  using tracked GMP loops. Auto-generates new kernel modules
+  and integrates into ApplyEngine.
+
+wiring:
+  hooks:
+    - KernelStack.inject_kernel
+    - GMP-L.kernel-evolution-via-gmp-meta-loop.md
+  triggers:
+    - loop_trace_complete
+    - GPT_self_review
+  emits:
+    - evolved_kernel.py
+    - patch_summary.yaml
+
+code: |
+  def evolve_kernel_from_gmp(trace_path):
+      trace = open(trace_path).read()
+      new_kernel = f"# evolved from GMP\\n{trace}"
+      open("evolved_kernels/kernel_v2.py", "w").write(new_kernel)

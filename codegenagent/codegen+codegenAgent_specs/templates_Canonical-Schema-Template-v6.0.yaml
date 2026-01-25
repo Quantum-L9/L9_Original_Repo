@@ -1,0 +1,31 @@
+# ============================================================
+# 1. FORMAL TRIGGER DEFINITIONS – Canonical Schema Extension
+# Filename: canonical_schema_triggers_patch.yaml
+# ============================================================
+
+filename: templates/Canonical-Schema-Template-v6.0.yaml
+patch_type: schema_extension
+language: yaml
+
+patch:
+  triggers:
+    meta_loop:
+      type: recursive_pass
+      enabled: true
+      max_passes: 5
+      evolve_prompt: true
+      target: kernel_memory
+
+    patch_all:
+      type: global_patch_trigger
+      enabled: true
+      permissions_required: "L9_CORE"
+      audit_required: true
+
+    perplexity_prompt:
+      type: external_search
+      enabled: true
+      provider: perplexity
+      templates:
+        - SUPER_PROMPT_TEMPLATE
+      output_map: hypergraph.update

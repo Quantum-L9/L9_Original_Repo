@@ -1,0 +1,30 @@
+# ==========================================
+# Multi-Agent Code Swarm Orchestrator
+# ==========================================
+
+filename: orchestration/multi_agent_code_swarm.py
+type: swarm_orchestrator
+language: python
+
+description: |
+  Launches parallel agent modules with shared memory and capsule flow.
+  Useful for burst-agent codegen tasks, multi-surface pipelines, or semantic fusion.
+
+wiring:
+  inputs:
+    - swarm.yaml
+    - capsule_template.md
+  outputs:
+    - swarm_packet_trace.json
+    - generated_modules/
+
+code: |
+  import yaml
+  from agents.codegen_agent.codegen_agent import CodeGenAgent
+
+  def execute_code_swarm(swarm_path="swarm.yaml"):
+      with open(swarm_path) as f:
+          swarm = yaml.safe_load(f)
+      agent = CodeGenAgent()
+      for meta in swarm["modules"]:
+          agent.generate_from_meta(meta["meta_path"])

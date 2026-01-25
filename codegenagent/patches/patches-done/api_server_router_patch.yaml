@@ -1,0 +1,18 @@
+# =====================================
+# L9 Codegen Spec: Route Integration
+# =====================================
+
+filename: api/server_router_patch.py
+type: router_patch
+language: python
+
+description: |
+  Adds MainAgent route module to FastAPI main router.
+
+wiring:
+  add_to: api/server.py or api/api_router_registry.py
+  imported_from: api.routes.mainagent
+
+code: |
+  from api.routes import mainagent as mainagent_router
+  app.include_router(mainagent_router.router)

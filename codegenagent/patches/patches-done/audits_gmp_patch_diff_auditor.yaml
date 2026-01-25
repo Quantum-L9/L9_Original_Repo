@@ -1,0 +1,32 @@
+# =======================================
+# GMP Patch Diff Auditor
+# =======================================
+
+filename: audits/gmp_patch_diff_auditor.py
+type: patch_auditor
+language: python
+
+description: |
+  Compares pre/post GMP patches for deltas, triggers rollback if
+  patch is unauthorized or major category is violated (e.g. kernel mutation).
+
+wiring:
+  inputs:
+    - patch_pre.yaml
+    - patch_post.yaml
+  emits:
+    - patch_diff_report.yaml
+    - auto_rollback_notice.yaml
+  consumers:
+    - ComplianceAgent
+    - ReflectionAgent
+
+code: |
+  def audit_patch_diff(pre_path, post_path):
+      import yaml
+      pre = yaml.safe_load(open(pre_path))
+      post = yaml.safe_load(open(post_path))
+      diffs = {k: post[k] for k in post if post[k] != pre.get(k)}
+      yaml.dump(diffs, open("patch_diff_report.yaml", "w"))
+      if "kernel" in diffs:
+          open("auto_rollback_notice.yaml", "w").write("rollback: true\\nreason: kernel changed")

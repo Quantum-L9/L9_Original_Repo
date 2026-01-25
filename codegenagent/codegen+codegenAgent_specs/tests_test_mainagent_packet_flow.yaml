@@ -1,0 +1,24 @@
+# ========================================
+# L9 Codegen Spec: Packet Flow Test Suite
+# ========================================
+
+filename: tests/test_mainagent_packet_flow.py
+type: test_spec
+language: python
+
+description: |
+  Tests MainAgent's ability to enrich, reason, and govern over packets.
+  Ensures traceability and safe fallback on escalation.
+
+wiring:
+  fixtures:
+    - mock_packet
+    - mock_memory
+    - mock_governance
+
+code: |
+  def test_mainagent_flow(mock_packet, mock_memory, mock_governance):
+      agent = MainAgentV6(mock_memory, ..., mock_governance)
+      result = agent.handle_packet(mock_packet)
+      assert result is not None
+      assert "confidence" in result

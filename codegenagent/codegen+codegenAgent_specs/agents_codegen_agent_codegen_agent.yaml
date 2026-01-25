@@ -1,0 +1,45 @@
+# ===================================
+# L9 CodegenAgent Core Orchestrator
+# ===================================
+
+filename: agents/codegen_agent/codegen_agent.py
+type: codegen_agent
+language: python
+
+description: |
+  CodeGenAgent orchestrates meta-to-code workflows across L9. 
+  Supports validation, expansion, emission, monitoring, and rollback.
+
+wiring:
+  depends_on:
+    - meta_loader
+    - c_gmp_engine
+    - pipeline_validator
+    - file_emitter
+    - rollback_hook
+    - telemetry_codegen
+  triggers:
+    - /api/codegen/meta
+    - CTOAgent.build_request
+    - ReflectionAgent.regenerate_module
+  outputs:
+    - PacketEnvelope (kind=RESULT or kind=ERROR)
+    - code artifacts on FS
+
+code: |
+  from agents.codegen_agent.meta_loader import load_meta
+  from agents.codegen_agent.c_gmp_engine import expand_code_blocks
+  from agents.codegen_agent.pipeline_validator import validate_meta
+  from agents.codegen_agent.file_emitter import emit_files
+  from agents.codegen_agent.rollback_hook import setup_reversion
+  from agents.codegen_agent.telemetry_codegen import record_generation
+
+  class CodeGenAgent:
+      async def generate_from_meta(self, meta_path: str):
+          meta = load_meta(meta_path)
+          validate_meta(meta)
+          blocks = expand_code_blocks(meta)
+          files = emit_files(blocks)
+          setup_reversion(files)
+          record_generation(meta, files)
+          return {"status": "success", "files": list(files.keys())}

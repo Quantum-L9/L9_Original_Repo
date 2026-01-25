@@ -1,0 +1,33 @@
+# ================================
+# L9 CodeGen Spec: Meta IR Schema
+# ================================
+
+filename: ir_engine/meta_ir.py
+type: codegen_module
+language: python
+
+description: |
+  Canonical IR class for representing a meta contract in structured form.
+  Used as the foundation for all meta-driven codegen across L9.
+
+wiring:
+  imports:
+    - from pydantic import BaseModel
+    - from typing import List
+  usage:
+    - Used by compile_meta_to_ir
+    - Consumed by CodegenAgent to emit module components
+
+code: |
+  from pydantic import BaseModel
+  from typing import List
+
+  class MetaContract(BaseModel):
+      name: str
+      description: str
+      inputs: List[str]
+      outputs: List[str]
+      responsibilities: List[str]
+      guarantees: List[str]
+      required_docs: List[str]
+      required_tests: List[str]

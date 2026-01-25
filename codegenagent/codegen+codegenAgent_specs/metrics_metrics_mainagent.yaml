@@ -1,0 +1,33 @@
+# ==========================================
+# L9 Codegen Spec: MainAgent Telemetry Pack
+# ==========================================
+
+filename: metrics/metrics_mainagent.py
+type: telemetry_module
+language: python
+
+description: |
+  Emits metrics from MainAgent runs including:
+  - Packet throughput
+  - Confidence distribution
+  - Escalation frequency
+  - Processing latency
+
+wiring:
+  output: Prometheus
+  fields:
+    - packets_received
+    - mean_confidence
+    - escalation_count
+    - processing_latency_ms
+
+code: |
+  from metrics import emit
+
+  def track_metrics(packet, result, start_time):
+      emit("packets_received", 1)
+      emit("mean_confidence", result.get("confidence", 1.0))
+      if result.get("kind") == "OVERRIDE_TRIGGERED":
+          emit("escalation_count", 1)
+      latency = (time.time() - start_time) * 1000
+      emit("processing_latency_ms", latency)

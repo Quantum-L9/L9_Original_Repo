@@ -1,0 +1,42 @@
+# ============================
+# L9 CodeGen Spec: CI Workflow
+# ============================
+
+filename: .github/workflows/l9_ci.yml
+type: ci_config
+language: yaml
+
+description: |
+  GitHub CI runner for validating meta contracts in all modules.
+  Calls ci_meta_checker.py and fails build on any missing contract fields.
+
+wiring:
+  triggers:
+    - push
+    - pull_request
+  runs:
+    - ci/ci_meta_checker.py
+    - pytest (optional, after meta pass)
+
+code: |
+  name: L9 CI
+
+  on:
+    push:
+      branches: [main]
+    pull_request:
+      branches: [main]
+
+  jobs:
+    meta-validate:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: 3.10
+        - name: Install deps
+          run: pip install pyyaml
+        - name: Run meta contract check
+          run: python ci/ci_meta_checker.py meta.yaml

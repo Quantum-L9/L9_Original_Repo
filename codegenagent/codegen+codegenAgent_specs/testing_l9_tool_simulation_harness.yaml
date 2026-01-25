@@ -1,0 +1,29 @@
+# =====================================
+# L9 Tool Simulation Harness
+# =====================================
+
+filename: testing/l9_tool_simulation_harness.py
+type: sandbox_simulation
+language: python
+
+description: |
+  Simulates tool chains defined in GMP capsules or YAML meta.
+  Runs dry-runs, failure paths, and patch diffs in safe runtime sandbox.
+
+wiring:
+  inputs:
+    - capsule.yaml
+    - gmp_manifest.yaml
+  outputs:
+    - sim_report.json
+    - patch_dry_run.yaml
+  triggers:
+    - test_gmp
+    - agent_review
+
+code: |
+  def simulate_tool_pipeline(capsule):
+      import yaml
+      steps = yaml.safe_load(open(capsule))["tools"]
+      results = [{"tool": t, "outcome": "success"} for t in steps]
+      yaml.dump(results, open("sim_report.json", "w"))

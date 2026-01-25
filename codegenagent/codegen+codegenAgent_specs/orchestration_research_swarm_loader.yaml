@@ -1,0 +1,26 @@
+# ===================================
+# Research Swarm Loader
+# ===================================
+
+filename: orchestration/research_swarm_loader.py
+type: swarm_orchestrator
+language: python
+
+description: |
+  Loads a swarm.yaml capsule containing multiple meta.yaml contracts
+  and triggers CodeGenAgent to build them sequentially or in parallel.
+
+wiring:
+  input: swarm.yaml (capsule pack)
+  trigger: CodeGenAgent.generate_from_meta()
+  supports: parallel, audit_after, rollback_on_fail
+
+code: |
+  def load_swarm(capsule_path):
+      import yaml
+      with open(capsule_path) as f:
+          swarm = yaml.safe_load(f)
+      from agents.codegen_agent.codegen_agent import CodeGenAgent
+      agent = CodeGenAgent()
+      for meta in swarm["modules"]:
+          agent.generate_from_meta(meta["path"])

@@ -1,0 +1,26 @@
+# =============================================
+# Memory-Aware Auto-Orchestrator
+# =============================================
+
+filename: orchestration/memory_aware_auto_orchestrator.py
+type: orchestration_runtime
+language: python
+
+description: |
+  Dynamically rebuilds orchestrator DAGs based on real-time memory insights,
+  previous task outcomes, and current agent status.
+
+wiring:
+  inputs:
+    - semantic_memory.yaml
+    - orchestrator_registry.yaml
+  emits:
+    - dag_patch.yaml
+    - execution_plan.yaml
+
+code: |
+  def rebuild_orchestrator():
+      import yaml
+      memory = yaml.safe_load(open("semantic_memory.yaml"))
+      new_dag = {"nodes": [m["topic"] for m in memory["nodes"]]}
+      yaml.dump(new_dag, open("dag_patch.yaml", "w"))

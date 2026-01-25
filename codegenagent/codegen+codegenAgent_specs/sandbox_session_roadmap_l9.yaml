@@ -1,0 +1,89 @@
+# ====================================================
+# L9 SYSTEM: LIVE SESSION ROADMAP (v2.5.1 SYNCED)
+# ====================================================
+
+filename: sandbox/session_roadmap_l9.yaml
+type: execution_roadmap
+language: yaml
+
+description: |
+  Authoritative, continuously updated roadmap for L9 Autonomous Architecture.
+  Tracks agent/tool/module/capsule synthesis points, CGA evolution, and runtime
+  system integration across all architectural layers.
+
+# === ✅ Completed or Live ===
+completed:
+  - CodeGenAgent v1 (GMP→spec pipeline, patch loop, swarm hooks)
+  - Compliance Auditor (policy trigger, rollback emitter, capsule diff)
+  - Meta-Kernel Evolution Hooks (loop tracker + patch injector)
+  - Swarm Orchestrator (multi-agent GMP schema loader)
+  - GMP Capsule Schema Loader
+  - Cursor ↔︎ Memory Bridge (bi-directional substrate sync)
+  - Memory Lattice Enhancer (tensor-tag enrichment)
+  - Runtime Patch Stack (hot-patch support, evolution readiness)
+  - Patch Audit Viewer (compliance console)
+  - Roadmap Tracker (this file)
+  - CGA_Autogen_Orchestrator (dynamic DAGs from agent specs)
+  - Live_Manifest_Builder (tracks CGA-generated assets and manifests)
+  - Test_Harness_Autowire (test emitter for all CGA modules)
+  - Capsule_Reflection_Engine (tracks patch history + triggers regen)
+  - Knowledge_Model_Integrator (injects agent/task data into world model)
+
+# === 🔄 In Progress ===
+in_progress:
+  - CodeGenAgent v2 (full autonomy, GMP evolution support)
+  - Orchestration Sync Engine (cross-orchestrator DAG diff)
+  - Cursor Context Sync Enhancer (prompt ↔︎ memory overlay)
+  - Meta-Prompt Generator++ (capsule builder from GPT)
+  - GMP Loop Executor v1 (replay, test, audit feedback)
+  - GMP Evolutionary Loop Engine (patch quality tracker + regen)
+  - CGA-driven codegen manifest processor
+  - Canonical SuperPrompt Pipeline (L9 standard prompt stack)
+  - Self-Repair Agent Kernel (patch response to performance feedback)
+
+# === ⏳ Unbuilt but Unlocked ===
+ready_to_build:
+  - Kernel Integrity Monitor (hash audit + policy triggers)
+  - Agent Tool Registry Enhancer (governance approval layer)
+  - GMP Patch Diff Auditor (semantic diff + rollback diffclass)
+  - Tool Metadata Reflection Ingestor (tool usage analysis)
+  - Tool Simulation Harness (GMP replay + patch validation)
+  - WorldModel Tool Link Mapper (agent→tool→impact DAG)
+  - Memory-Aware Auto-Orchestrator (semantic routing DAG)
+  - Reflective Kernel Patcher (runtime feedback→patch proposal)
+  - Capsule-to-Deployment Factory (meta→code→endpoint emitter)
+  - Governance Feedback Engine (audit cascade, compliance kernel)
+  - Performance Drift Analyzer (runtime score + trend alert)
+  - Meta-Planner Agent (task routing & intent manager)
+  - Perceptual Sync Layer (real-time attention + context overlay)
+  - Prompt-Defined Roadmap Tracker (intent-linked capsule planner)
+  - Agent Pack Autowirer (tool binding via GMP manifest)
+  - Autonomous Agent Compiler & Deployer (meta→build pipeline)
+
+# === 🧠 GMP-Ready Strategy Modules ===
+strategic_targets:
+  - ReflectionAgent Autonomy Loop
+  - WorldModel-Backed Memory Ingestor
+  - Orchestrator Emergence Planner
+  - GMP Loop Profiler (self-assessment and patch trigger)
+  - Meta-Heuristics Feedback Capsule
+  - Multi-agent GMP Capsule Relay Engine
+  - Manifest-Aware Self-Recompiler (auto-regenerates code on spec change)
+  - Real-time Kernel Patch Monitor + Self-Diff Auditor
+  - Prompt Scaffolding Simulator (predictive patch effectiveness)
+  - AI-First Strategy Agent Constructor (from Canonical Prompt Sets)
+  - Prompt Strategy Executor (Execution-Timeline agent runtime)
+  - CGA Evolution Kernel v3.0 (multi-stage prompt→capsule→audit engine)
+  - Universal Schema Runtime Glue (schema→repo→test path contracts)
+  - Multi-Agent Delegation Templates (spawn interlinked agent clusters)
+  - Canonical Template Compiler (autonomous memory-aware capsule builder)
+  - Prompt-Capsule Feedback Mesh (closed loop for QFP prompt testing + fix)
+
+# === ⚠️ Pending / Blocked ===
+blocked:
+  - DAG Memory Tracer Layer (needs full historical replay tracer)
+  - Autonomous Research Planner UI (multi-agent orchestration trace)
+  - Live Capsule Testbed Environment (simulation harness + memory overlay)
+  - Meta-DAG Diff Visualizer (requires memory schema overlay)
+  - Human-LCTO Override Layer (for final patch approvals)
+  - Swarm-to-Canonical-Prompt Mapper (GPT planning + mapping layer)

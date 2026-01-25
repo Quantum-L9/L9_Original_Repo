@@ -11,7 +11,7 @@
 #   make rollback      - Rollback to previous version
 # =============================================================================
 
-.PHONY: help dev test smoke lint deploy rollback logs clean ci-validate ci-spec ci-code
+.PHONY: help dev test smoke lint deploy rollback logs clean ci-validate ci-spec ci-code docker-setup
 
 # Configuration
 VPS_HOST := 157.180.73.53
@@ -40,6 +40,7 @@ help:
 	@echo "  make typecheck     Run mypy type checking"
 	@echo ""
 	@echo "$(YELLOW)Docker:$(NC)"
+	@echo "  make docker-setup  Setup Docker environment (.env from template)"
 	@echo "  make smoke         Run Docker smoke test (pre-commit)"
 	@echo "  make docker-up     Start Docker stack locally"
 	@echo "  make docker-down   Stop Docker stack"
@@ -125,6 +126,18 @@ typecheck:
 smoke:
 	@echo "$(GREEN)Running Docker smoke test...$(NC)"
 	@./scripts/precommit_docker_smoke.sh
+
+docker-setup:
+	@echo "$(GREEN)Setting up Docker environment...$(NC)"
+	@if [ ! -f .env ]; then \
+		echo "$(YELLOW)Creating .env from .env.docker template...$(NC)"; \
+		cp .env.docker .env; \
+		echo "$(RED)IMPORTANT: Edit .env and replace placeholder values!$(NC)"; \
+	else \
+		echo "$(YELLOW).env already exists. To reset: rm .env && make docker-setup$(NC)"; \
+	fi
+	@chmod +x scripts/setup-docker-env.sh 2>/dev/null || true
+	@echo "$(GREEN)Run ./scripts/setup-docker-env.sh for interactive setup$(NC)"
 
 docker-up:
 	@echo "$(GREEN)Starting Docker stack...$(NC)"

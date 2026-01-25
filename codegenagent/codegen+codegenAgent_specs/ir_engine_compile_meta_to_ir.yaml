@@ -1,0 +1,35 @@
+# =====================================
+# L9 CodeGen Spec: Meta Compiler Script
+# =====================================
+
+filename: ir_engine/compile_meta_to_ir.py
+type: codegen_tool
+language: python
+
+description: |
+  CLI-compatible utility that parses meta.yaml files and converts them into MetaContract IRs.
+  Optionally emits meta-gaps.yaml if required fields or docs are missing.
+
+wiring:
+  inputs:
+    - meta.yaml
+  outputs:
+    - MetaContract object (parsed IR)
+    - meta-gaps.yaml
+  dependencies:
+    - PyYAML
+    - MetaContract class from meta_ir.py
+
+code: |
+  import yaml
+  from ir_engine.meta_ir import MetaContract
+
+  def compile_meta(path="meta.yaml") -> MetaContract:
+      with open(path, "r") as f:
+          raw = yaml.safe_load(f)
+      return MetaContract(**raw)
+
+  if __name__ == "__main__":
+      import sys, json
+      obj = compile_meta(sys.argv[1] if len(sys.argv) > 1 else "meta.yaml")
+      print(json.dumps(obj.dict(), indent=2))

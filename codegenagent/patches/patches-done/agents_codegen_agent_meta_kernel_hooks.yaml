@@ -1,0 +1,24 @@
+# =========================================
+# Meta-Kernel Evolution Hooks
+# =========================================
+
+filename: agents/codegen_agent/meta_kernel_hooks.py
+type: governance_patch
+language: python
+
+description: |
+  Inserts tracking logic into emitted codegen modules.
+  Enables kernel loop detection, audit trails, escalation triggers.
+
+wiring:
+  patches: reasoning_trace.yaml
+  escalates_to: GovernanceAgent, CTOAgent
+  tracks: kernel_delta, policy_drift, patch_applied
+
+code: |
+  def hook_meta_kernel(meta, files):
+      for name, content in files.items():
+          if "def" in content:
+              patched = f"# [kernel_evolution_hook] for {meta['name']}\\n" + content
+              files[name] = patched
+      return files

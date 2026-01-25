@@ -1,371 +1,440 @@
-# Symbolic Computation Module
+---
+dora:
+  version: "1.0"
+  type: subsystem_readme
+  generated: "2026-01-25 19:42:30 UTC"
+  generator: scripts/generate_subsystem_readmes.py
+  config: config/subsystems/readme_config.yaml
+  time_verified: "system clock (UNVERIFIED - no API response)"
+  auto_generated: true
+---
 
-Production-ready SymPy utilities integration for AIOS semi-autonomous agents.
+# Symbolic Computation Service
+
+> **Tier:** SERVICES | **Path:** `services/symbolic_computation` | **Owner:** Igor
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                       Symbolic Computation Service                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐                  │
+│  │   Inbound   │ ───► │   services_sy   │ ───► │  Outbound   │                  │
+│  │ Dependencies│      │   Module    │      │ Dependencies│                  │
+│  └─────────────┘      └─────────────┘      └─────────────┘                  │
+│                              │                                              │
+│                              ▼                                              │
+│                    ┌─────────────────┐                                      │
+│                    │  Memory/Audit   │                                      │
+│                    │   Substrate     │                                      │
+│                    └─────────────────┘                                      │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
 ## Overview
 
-This module provides high-performance symbolic-to-numeric conversion, code generation, and mathematical computation capabilities for AI agents. It leverages SymPy's powerful utilities to enable agents to work with symbolic mathematics efficiently.
+SymPy-based symbolic math computation engine
 
-## Features
+**Purpose:** Provides symbolic mathematics computation, simplification, and code generation.
 
-- **Fast Numerical Evaluation**: Convert symbolic expressions to optimized numerical functions using `lambdify`
-- **Code Generation**: Generate compilable C, Fortran, Python, or Cython code from expressions
-- **Automatic Compilation**: Use `autowrap` to compile and import generated code automatically  
-- **Expression Caching**: LRU caching for repeated evaluations
-- **Async/Await Support**: Full async support for non-blocking operations
-- **Type Safety**: Pydantic models for strict input/output validation
-- **Structured Logging**: JSON-formatted logs for production monitoring
-- **Production-Ready**: Error handling, health checks, metrics, and graceful shutdown
+**What depends on it:** `core/tools/`
 
-## Quick Start
+---
 
-### Installation
+## Responsibilities and Boundaries
 
-```bash
-pip install -r requirements.txt
+### What This Module Owns
+
+- **Core operations:** Execute services symbolic tasks
+- **State management:** Maintain internal state with proper lifecycle
+- **Logging:** Emit structured logs for all operations
+- **Metrics:** Expose Prometheus-compatible metrics
+
+### What This Module Does NOT Do
+
+- **Authentication** — Handled by `api/auth.py`
+- **External communication** — Handled by clients/adapters
+- **Scheduling** — Handled by runtime/task_queue.py
+
+### Inbound Dependencies
+
+| Module | Purpose |
+|--------|---------|
+| `core/tools/` | Uses this module |
+
+### Outbound Dependencies
+
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
+
+---
+
+## Directory Layout
+
+```
+services/symbolic_computation/
+├── __init__.py
+├── api/__init__.py
+├── api/routes.py
+├── computation.py
+├── config.py
+├── core/__init__.py
+├── core/cache_manager.py
+├── core/code_generator.py
+├── core/expression_evaluator.py
+├── core/metrics.py
+├── core/models.py
+├── core/optimizer.py
+├── core/validator.py
+├── exceptions.py
+├── health_check.py
+└── ... (6 more files)
 ```
 
-### Basic Usage
+| File | Purpose |
+|------|---------|
+| `computation.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `config.py` | Configuration settings for symbolic computation. |
+| `models.py` | Supported computational backends. |
+| `models.py` | Supported code generation languages. |
+
+### Naming Conventions
+
+- **Classes:** `PascalCase` (e.g., `ServicesSymbolicService`)
+- **Functions:** `snake_case` (e.g., `process_services_symbolic_request`)
+- **Constants:** `UPPER_SNAKE_CASE`
+- **Private:** `_prefixed` for internal methods
+
+---
+
+## Key Components
+
+### `config.py` — SymbolicComputationConfig
 
 ```python
-from symbolic_computation import SymbolicComputation
+class SymbolicComputationConfig:
+    """Configuration settings for symbolic computation."""
+    
+    # Key methods:
 
-# Initialize engine
-engine = SymbolicComputation()
-
-# Evaluate expression
-result = await engine.compute(
-    expression="x**2 + sin(y)",
-    variables={"x": 2.0, "y": 3.14},
-    backend="numpy"
-)
-
-print(result.result)  # Numerical result
-print(result.execution_time_ms)  # Performance metrics
 ```
 
-### Code Generation
+**Lines:** 47-111 in `config.py`
+
+### `models.py` — BackendType
 
 ```python
-# Generate C code
-code_result = await engine.generate_code(
-    expression="sqrt(x**2 + y**2)",
-    variables=["x", "y"],
-    language="C",
-    function_name="distance"
-)
+class BackendType:
+    """Supported computational backends."""
+    
+    # Key methods:
 
-print(code_result.source_code)
 ```
+
+**Lines:** 34-42 in `models.py`
+
+### `models.py` — CodeLanguage
+
+```python
+class CodeLanguage:
+    """Supported code generation languages."""
+    
+    # Key methods:
+
+```
+
+**Lines:** 45-51 in `models.py`
+
+### `models.py` — ComputationRequest
+
+```python
+class ComputationRequest:
+    """Request model for symbolic computation."""
+    
+    # Key methods:
+
+    async def validate_expression(self, ...): ...
+
+    async def validate_variables(self, ...): ...
+
+```
+
+**Public Methods:** `validate_expression`, `validate_variables`
+
+**Lines:** 54-85 in `models.py`
+
+### `models.py` — ComputationResult
+
+```python
+class ComputationResult:
+    """Result model for symbolic computation."""
+    
+    # Key methods:
+
+```
+
+**Lines:** 88-105 in `models.py`
+
+
+---
+
+## Data Models and Contracts
+
+The following data models define the contracts for this subsystem:
+
+- **`ComputationRequest`** — Request model for symbolic computation.
+- **`CodeGenRequest`** — Request model for code generation.
+- **`TestModels`** — Test Pydantic models.
+
+### Key Schemas
+
+```python
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+class ServicesSymbolicRequest(BaseModel):
+    """Request model for services_symbolic operations."""
+    id: str
+    data: dict
+    timestamp: datetime
+    correlation_id: Optional[str] = None
+
+class ServicesSymbolicResponse(BaseModel):
+    """Response model for services_symbolic operations."""
+    success: bool
+    result: Optional[dict] = None
+    error: Optional[str] = None
+    duration_ms: float
+```
+
+### Invariants
+
+- **Expressions validated before evaluation**
+
+---
+
+## Execution and Lifecycle
+
+### Startup
+
+1. **Discovery:** Services_Symbolic components are discovered and registered.
+2. **Configuration:** Settings loaded from environment and config files.
+3. **Dependencies:** Required services (Redis, PostgreSQL, etc.) are connected.
+4. **Initialization:** Internal state is initialized; ready for requests.
+
+### Main Execution
+
+1. **Request received:** Validate input against schema.
+2. **Processing:** Execute core logic with appropriate error handling.
+3. **State updates:** Persist any state changes atomically.
+4. **Response:** Return structured response with timing metadata.
+
+### Shutdown
+
+1. **Graceful stop:** Stop accepting new requests.
+2. **Drain:** Complete in-flight operations (with timeout).
+3. **Cleanup:** Release resources, close connections.
+4. **Log:** Emit shutdown complete event.
+
+### Background Tasks
+
+No background tasks. Operations are request-driven.
+
+---
 
 ## Configuration
 
-Configuration is managed through environment variables. Create a `.env` file:
+### Feature Flags
+
+```yaml
+# Services_Symbolic feature flags
+L9_ENABLE_SERVICES_SYMBOLIC_TRACING: true  # Enable detailed tracing
+L9_ENABLE_SERVICES_SYMBOLIC_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_SERVICES_SYMBOLIC_AUDIT: true    # Enable audit logging
+```
+
+### Tuning Parameters
+
+```yaml
+services_symbolic:
+  timeout_seconds: 30
+  max_retries: 3
+  pool_size: 10
+  batch_size: 100
+```
+
+### Environment Variables
 
 ```bash
-# Cache settings
-SYMBOLIC_CACHE_ENABLED=true
-SYMBOLIC_CACHE_SIZE=128
-
-# Performance
-SYMBOLIC_DEFAULT_BACKEND=numpy
-SYMBOLIC_ENABLE_METRICS=true
-
-# Code generation
-SYMBOLIC_CODEGEN_TEMP_DIR=/tmp/sympy_codegen
-SYMBOLIC_DEFAULT_LANGUAGE=C
-
-# Logging
-SYMBOLIC_LOG_LEVEL=INFO
-SYMBOLIC_ENABLE_STRUCTURED_LOGGING=true
-
-# Security
-SYMBOLIC_MAX_EXPRESSION_LENGTH=10000
-SYMBOLIC_ALLOW_DANGEROUS_FUNCTIONS=false
+SERVICES_SYMBOLIC_LOG_LEVEL=INFO
+SERVICES_SYMBOLIC_TIMEOUT=30
+SERVICES_SYMBOLIC_ENABLED=true
 ```
 
-## API Reference
+---
 
-### SymbolicComputation
+## API Surface (Public)
 
-Main interface for symbolic operations.
+### Public Functions
 
-#### Methods
+#### `def get_config()`
 
-**`async compute(expression, variables, backend="numpy")`**
+Get configuration instance.
 
-Evaluate symbolic expression numerically.
+- **File:** `config.py:118`
+- **Async:** No
 
-- **Parameters:**
-  - `expression` (str): Mathematical expression
-  - `variables` (dict): Variable values
-  - `backend` (str): Numerical backend ('numpy', 'math', 'mpmath')
-- **Returns:** `ComputationResult`
+#### `def reload_config()`
 
-**`async generate_code(expression, variables, language="C", ...)`**
+Reload configuration from environment.
 
-Generate code from symbolic expression.
+- **File:** `config.py:128`
+- **Async:** No
 
-- **Parameters:**
-  - `expression` (str): Mathematical expression
-  - `variables` (list): Variable names
-  - `language` (str): Target language ('C', 'Fortran', 'Python', 'Cython')
-  - `function_name` (str): Generated function name
-  - `compile` (bool): Whether to compile code
-- **Returns:** `CodeGenResult`
+#### `def get_logger(name)`
 
-**`async health_check()`**
+Get or create logger instance.
 
-Perform system health check.
+- **File:** `logger.py:73`
+- **Async:** No
 
-- **Returns:** Health status dictionary
+#### `def validate_expression(expression)`
 
-### ExpressionEvaluator
+Validate SymPy expression syntax.
 
-High-performance expression evaluator with caching.
+- **File:** `utils.py:32`
+- **Async:** No
+
+#### `def extract_variables(expression)`
+
+Extract variable names from expression.
+
+- **File:** `utils.py:49`
+- **Async:** No
+
+
+### Usage Example
 
 ```python
-from symbolic_computation.core import ExpressionEvaluator
-from symbolic_computation.models import ComputationRequest, BackendType
+from services.symbolic_computation import ServicesSymbolicService
 
-evaluator = ExpressionEvaluator(cache_size=128)
+# Initialize
+service = ServicesSymbolicService()
 
-request = ComputationRequest(
-    expression="x**2 + y**2",
-    variables=["x", "y"],
-    backend=BackendType.NUMPY,
-    values={"x": 3.0, "y": 4.0}
+# Execute operation
+result = await service.execute(
+    request_id="req-001",
+    data={"key": "value"},
+    correlation_id="corr-xyz789",
 )
 
-result = await evaluator.evaluate(request)
+print(result.success)  # True
+print(result.duration_ms)  # 125.5
 ```
 
-### CodeGenerator
+---
 
-Multi-language code generator.
+## Observability
 
-```python
-from symbolic_computation.core import CodeGenerator
-from symbolic_computation.models import CodeGenRequest, CodeLanguage
+### Logging
 
-codegen = CodeGenerator()
+Services Symbolic operations emit structured JSON logs:
 
-request = CodeGenRequest(
-    expression="a*x**2 + b*x + c",
-    variables=["x", "a", "b", "c"],
-    language=CodeLanguage.C,
-    function_name="quadratic"
-)
-
-result = await codegen.generate(request)
+```json
+{
+  "timestamp": "2026-01-25T19:42:30Z",
+  "level": "INFO",
+  "module": "services.symbolic_computation",
+  "message": "Operation completed",
+  "correlation_id": "corr-xyz789",
+  "agent_id": "agent-001",
+  "duration_ms": 125
+}
 ```
 
-## Database Integration
+**Log Levels:**
+- `DEBUG` — Detailed execution steps (off in production)
+- `INFO` — Lifecycle events, successful operations
+- `WARNING` — Timeouts, resource warnings, recoverable errors
+- `ERROR` — Failures, exceptions, unrecoverable errors
 
-While this module focuses on symbolic computation, it can be integrated with PostgreSQL and Neo4j:
+### Metrics
 
-### PostgreSQL for Results Storage
+| Metric | Type | Description |
+|--------|------|-------------|
+| `services_symbolic_operation_duration_ms` | Histogram | Operation latency distribution |
+| `services_symbolic_operation_total` | Counter | Total operations processed |
+| `services_symbolic_error_total` | Counter | Total errors encountered |
+| `services_symbolic_active_connections` | Gauge | Current active connections |
 
-```python
-import asyncpg
+### Tracing
 
-# Store computation results
-async with pool.acquire() as conn:
-    await conn.execute("""
-        INSERT INTO computations (expression, result, execution_time)
-        VALUES ($1, $2, $3)
-    """, result.expression_str, result.result, result.execution_time_ms)
-```
+Services Symbolic emits OpenTelemetry spans:
 
-### Neo4j for Expression Graph
+- `services_symbolic.execute` — Root span for operation
+  - `services_symbolic.validate` — Input validation
+  - `services_symbolic.process` — Core processing
+  - `services_symbolic.persist` — State persistence (if applicable)
 
-```python
-from neo4j import AsyncGraphDatabase
-
-# Store expression dependency graph
-async with driver.session() as session:
-    await session.run("""
-        CREATE (e:Expression {text: $expr, variables: $vars})
-    """, expr=expression, vars=variables)
-```
-
-## SymPy Utilities Used
-
-This module leverages the following SymPy utilities:
-
-1. **`sympy.utilities.lambdify`**
-   - Fast numerical evaluation
-   - Multi-backend support (NumPy, math, mpmath)
-   - Array broadcasting with NumPy
-
-2. **`sympy.utilities.autowrap`**
-   - Automatic code compilation
-   - Cython/F2PY backends
-   - Binary Python extension generation
-
-3. **`sympy.utilities.codegen`**
-   - Multi-language code generation
-   - C, Fortran, Python output
-   - Header file generation
-
-4. **`sympy.utilities.iterables`**
-   - Flattening nested structures
-   - Variations and permutations
-   - Iterator utilities
-
-5. **`sympy.utilities.memoization`**
-   - Recurrence memoization
-   - Performance optimization
-   - Caching decorators
-
-6. **`sympy.utilities.decorator`**
-   - Function decoration
-   - Vectorization support
+---
 
 ## Testing
 
-Run tests with pytest:
+### Unit Tests
 
-```bash
-# Run all tests
-pytest
+Located in `tests/services_symbolic_computation/`:
+- `test_services_symbolic.py` — Core unit tests
+- `test_services_symbolic_integration.py` — Integration tests (if applicable)
 
-# Run with coverage
-pytest --cov=symbolic_computation --cov-report=html
+### Integration Tests
 
-# Run specific test class
-pytest tests/test_symbolic_computation.py::TestExpressionEvaluator
-```
+Located in `tests/integration/`:
 
-Coverage target: **>80%**
+- Test services_symbolic with real dependencies
+- Test cross-subsystem interactions
+- Test failure scenarios and recovery
 
-## Deployment
+### Known Edge Cases
 
-### Docker
+1. **Timeout:** Operation exceeds deadline → Return partial result with timeout status.
+2. **Invalid input:** Schema validation fails → Return 400 with validation errors.
+3. **Dependency unavailable:** Required service down → Retry with exponential backoff, then fail gracefully.
+4. **Resource exhaustion:** Memory/connections exceeded → Reject new requests, log alert.
 
-```bash
-# Build image
-docker-compose build
+---
 
-# Run container
-docker-compose up
+## AI Usage Rules
 
-# Run tests in container
-docker-compose run app pytest
-```
+### ✅ Allowed Scopes (AI can modify freely)
 
-### Production Deployment
+- `core/**` — Application logic, safe to modify
+- `tools/**` — Application logic, safe to modify
+- `api/**` — Application logic, safe to modify
 
-1. Set environment variables
-2. Configure logging aggregation
-3. Enable health check endpoint
-4. Set up monitoring for metrics
-5. Configure rate limiting if exposed as API
+### ⚠️ Restricted Scopes (requires human review)
 
-## Performance Considerations
+- `computation.py` — Requires human review before merge
+- `__init__.py` — Requires human review before merge
 
-### Caching
+### ❌ Forbidden Scopes (NEVER modify without explicit approval)
 
-The module uses LRU caching for lambdified expressions:
+- `computation.py` — PROTECTED: Changes break system invariants
+- `__init__.py` — PROTECTED: Changes break system invariants
 
-```python
-# First call: compiles expression
-result1 = await engine.compute("x**2", {"x": 2.0})
+### Required Pre-Reading
 
-# Second call: uses cached function (faster)
-result2 = await engine.compute("x**2", {"x": 3.0})
-```
+1. [`README-L9_ARCHITECTURE.md`](README-L9_ARCHITECTURE.md)
+2. [`docs/CURSOR-RUNBOOK.md`](docs/CURSOR-RUNBOOK.md)
 
-### Backend Selection
+### Change Policy
 
-- **NumPy**: Best for array operations and vectorization
-- **Math**: Fastest for scalar operations
-- **Mpmath**: For arbitrary precision
-- **SymPy**: For symbolic results
-
-### Optimization
-
-Use common subexpression elimination:
-
-```python
-from symbolic_computation.utils import optimize_expression
-
-optimized = optimize_expression("x**2 + 2*x**2 + x**2")
-# Result: Eliminates redundant x**2 computations
-```
-
-## Integration with Your AIOS Repo
-
-### Step 1: Add to Your Agent
-
-```python
-from symbolic_computation import SymbolicComputation
-
-class YourAgent:
-    def __init__(self):
-        self.symbolic = SymbolicComputation()
-
-    async def process_mathematical_task(self, expression, values):
-        result = await self.symbolic.compute(expression, values)
-        return result.result
-```
-
-### Step 2: Use in Tool Registry
-
-```python
-# In your tool_registry.py
-from symbolic_computation import SymbolicComputation
-
-class MathTool:
-    def __init__(self):
-        self.engine = SymbolicComputation()
-
-    async def evaluate(self, expr: str, vars: dict):
-        return await self.engine.compute(expr, vars)
-```
-
-### Step 3: Generate Agent Code
-
-```python
-# Generate optimized code for agent execution
-code_result = await engine.generate_code(
-    expression="complex_agent_logic",
-    variables=["state", "input", "context"],
-    language="Cython",
-    compile=True
-)
-
-# Use compiled code in agent
-compiled_func = code_result.compiled_function
-result = compiled_func(state, input, context)
-```
-
-## Examples
-
-See `examples/` directory for:
-
-- Basic evaluation
-- Multi-variable expressions
-- Code generation workflows
-- Caching demonstrations
-- Integration patterns
-
-## Contributing
-
-1. Follow PEP 8 style guidelines
-2. Add type hints to all functions
-3. Write tests for new features (maintain >80% coverage)
-4. Update documentation
-5. Use structured logging
-
-## License
-
-MIT License - see LICENSE file
-
-## References
-
-- [SymPy Documentation](https://docs.sympy.org/)
-- [SymPy Utilities Module](https://docs.sympy.org/latest/modules/utilities/index.html)
-- [SymPy Code Generation](https://docs.sympy.org/latest/modules/codegen.html)
-- [Lambdify Function](https://docs.sympy.org/latest/modules/utilities/lambdify.html)
-- [Autowrap Module](https://docs.sympy.org/latest/modules/utilities/autowrap.html)
+All changes proposed by AI tools must:
+1. Be scoped PRs with clear commit messages
+2. Include tests (unit + integration where applicable)
+3. Update documentation if APIs change
+4. Respect feature flags for gradual rollout
+5. Get human approval for restricted scopes

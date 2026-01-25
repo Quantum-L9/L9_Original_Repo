@@ -2,10 +2,10 @@
 # DORA META - AUTO-GENERATED
 # ============================================================================
 # component_name: "Docs-Code-Sync"
-# module_version: "1.0.0"
+# module_version: "2.0.0"
 # created_by: "L9_Codegen_Engine"
 # created_at: "2026-01-18T02:07:37Z"
-# updated_at: "2026-01-18T02:07:37Z"
+# updated_at: "2026-01-25T16:30:00Z"
 # layer: "operations"
 # domain: ".dora"
 # file_name: "docs-code-sync"
@@ -14,7 +14,7 @@
 # ============================================================================
 
 name: "Docs-Code Sync Validator"
-description: "Automated consistency checks between CODE-MAP.yaml, README.meta.yaml, and source code"
+description: "Automated consistency checks between CODE-MAP.yaml, readme_config.yaml, and source code"
 
 on:
   pull_request:
@@ -24,9 +24,7 @@ on:
       - 'api/**/*.py'
       - 'runtime/**/*.py'
       - 'docs/CODE-MAP.yaml'
-      - 'core/**/README.meta.yaml'
-      - 'memory/README.meta.yaml'
-      - 'api/README.meta.yaml'
+      - 'config/subsystems/readme_config.yaml'  # Single source of truth
       - '.github/workflows/docs-code-sync.yml'
 
 jobs:
@@ -46,33 +44,16 @@ jobs:
         run: |
           pip install pyyaml
 
-      - name: "Run extract_code_facts.py"
+      - name: "Validate readme_config.yaml exists and is valid"
         run: |
-          python scripts/extract_code_facts.py
-        id: extract
-
-      - name: "Check CODE-MAP.yaml freshness"
-        run: |
-          # If CODE-MAP.yaml was modified, fail the check
-          if git diff --name-only | grep -q "docs/CODE-MAP.yaml"; then
-            echo "❌ CODE-MAP.yaml is stale. Run: python scripts/extract_code_facts.py"
-            echo "Then commit the changes."
+          if [ ! -f "config/subsystems/readme_config.yaml" ]; then
+            echo "❌ Missing: config/subsystems/readme_config.yaml"
             exit 1
           fi
-          echo "✅ CODE-MAP.yaml is fresh"
+          python scripts/generate_subsystem_readmes.py --validate
+          echo "✅ readme_config.yaml is valid"
 
-      - name: "Validate README.meta.yaml files exist"
-        run: |
-          # Check subsystem-specific paths
-          for path in core/agents memory core/tools api; do
-            if [ ! -f "$path/README.meta.yaml" ]; then
-              echo "❌ Missing: $path/README.meta.yaml"
-              exit 1
-            fi
-          done
-          echo "✅ All README.meta.yaml files present"
-
-      - name: "Validate README.md sections match metadata"
+      - name: "Validate README.md files exist for configured subsystems"
         run: |
           python .github/scripts/validate-readme-sections.py
         continue-on-error: false
@@ -101,8 +82,8 @@ jobs:
               body: '## 📋 Docs-Code Sync Report\n\n' + report
             });
 
-  test-code-facts:
-    name: "Test code extraction"
+  test-readme-generation:
+    name: "Test README generation"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -111,12 +92,22 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
       - run: pip install pyyaml pytest
-      - run: pytest tests/test_code_facts_extraction.py -v
+      - name: "Validate config"
+        run: python scripts/generate_subsystem_readmes.py --validate
+      - name: "Dry run generation"
+        run: python scripts/generate_subsystem_readmes.py --subsystem core_agents --dry-run --skip-time-verify
+      - name: "Run tests"
+        run: pytest tests/test_code_facts_extraction.py -v
 
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================
+# MIGRATION NOTE (2026-01-25):
+# - Replaced per-subsystem README.meta.yaml with centralized config/subsystems/readme_config.yaml
+# - All 35 subsystems now defined in single config file
+# - Old README.meta.yaml files deprecated (can be deleted after migration)
+# ============================================================================
 # tags: [".dora", "agent-config", "api-config", "operations", "tool-config", "utility", "workflow"]
 # keywords: ["code", "description", "docs", "jobs", "name", "sync"]
-# last_modified: "2026-01-18T02:07:37Z"
+# last_modified: "2026-01-25T16:30:00Z"
 # ============================================================================

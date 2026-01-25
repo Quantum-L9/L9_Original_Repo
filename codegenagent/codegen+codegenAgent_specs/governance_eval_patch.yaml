@@ -1,0 +1,31 @@
+# ======================================
+# GMP Compliance Evaluator (Spec)
+# ======================================
+
+filename: governance/eval_patch.py
+type: module_spec
+language: python
+status: pending_implementation
+
+description: |
+  Integrates GMP patch compliance checks into GovernanceEngine.
+  Enforces rollback triggers, logs patch deltas, and validates against
+  approval policies before deployment.
+
+wiring:
+  policy_loader: governance/policy.yaml
+  validates:
+    - patch_audit_log.yaml
+    - capsule_diff.yaml
+  triggers:
+    - GPT override
+    - audit flag
+    - LCTO alert
+
+code: |
+  def enforce_compliance(patch_path):
+      from utils.audit import check_patch_compliance
+      status = check_patch_compliance(patch_path)
+      if not status["pass"]:
+          raise Exception(f"Policy Violation: {status['errors']}")
+

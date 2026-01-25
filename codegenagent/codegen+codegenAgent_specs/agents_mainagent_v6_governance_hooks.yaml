@@ -1,0 +1,33 @@
+# ========================================
+# L9 Codegen Spec: Governance Escalation
+# ========================================
+
+filename: agents/mainagent_v6/governance_hooks.py
+type: kernel_policy_logic
+language: python
+
+description: |
+  Provides policy zone validation and override escalation logic
+  for the 08_safety kernel zone.
+
+wiring:
+  policy_zone: 08_safety
+  trigger_on:
+    - risky_response
+    - packet_intent_conflict
+    - model_drift_detected
+
+code: |
+  def requires_override(result):
+      if result.get("confidence", 1.0) < 0.6:
+          return True
+      if result.get("intent") in ["modify_world", "delete_agent"]:
+          return True
+      return False
+
+  def escalate(result):
+      return {
+          "kind": "OVERRIDE_TRIGGERED",
+          "origin": "MainAgentV6",
+          "payload": result
+      }

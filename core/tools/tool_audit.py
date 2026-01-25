@@ -33,7 +33,7 @@ import json
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
@@ -42,6 +42,10 @@ if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
 
 from core.decorators import must_stay_async
+from services.tool_feedback_service import (
+    ToolFeedbackEntry,
+    get_tool_feedback_service,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -57,9 +61,9 @@ class ToolAuditEntry:
     duration_ms: float
     tokens_used: int = 0
     cost_usd: float = 0.0
-    error: Optional[str] = None
-    timestamp: Optional[str] = None
-    request_id: Optional[str] = None
+    error: str | None = None
+    timestamp: str | None = None
+    request_id: str | None = None
 
     def __post_init__(self):
         if not self.timestamp:
@@ -99,14 +103,14 @@ class ToolAuditService:
 
     def __init__(
         self,
-        substrate_service: "MemorySubstrateService",
+        substrate_service: MemorySubstrateService,
         buffer_size: int = 100,
     ):
         self.substrate = substrate_service
         self.buffer_size = buffer_size
-        self.local_buffer: List[ToolAuditEntry] = []
+        self.local_buffer: list[ToolAuditEntry] = []
         self.cost_estimator = ToolCostEstimator()
-        self._flush_task: Optional[asyncio.Task] = None
+        self._flush_task: asyncio.Task | None = None
 
     @must_stay_async("callers use await")
     async def start(self) -> None:
@@ -191,7 +195,7 @@ class ToolAuditService:
 
     async def get_tool_metrics(
         self,
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
         period: str = "24h",
     ) -> dict:
         """Get tool usage metrics"""
@@ -268,6 +272,7 @@ async def execute_tool_with_audit(
     input_data: dict,
     executor: Any,
     audit_service: ToolAuditService,
+    substrate_service: MemorySubstrateService,  # NEW
 ) -> Any:
     """Execute tool with automatic audit logging"""
 
@@ -298,6 +303,45 @@ async def execute_tool_with_audit(
         )
 
         await audit_service.log_execution(entry)
+
+        # --------------------------------------------------------------
+        # NEW: Record feedback for learning
+        # --------------------------------------------------------------
+        try:
+            feedback_service = get_tool_feedback_service(substrate_service)
+
+            # Optional context hints from input_data, preserved if present
+            task_query = input_data.get("_task_query", "")
+            task_type = input_data.get("_task_type")
+            session_id = input_data.get("_session_id")
+            confidence_score = input_data.get("_tool_confidence")
+            discovery_rank = input_data.get("_tool_rank")
+
+            # Embedding is resolved in the discovery path; for audit-only calls we can
+            # store an empty vector (or let discovery skip feedback).
+            # Here we bootstrap with an empty list, and rely on discovery-aware calls
+            # to populate task_embedding properly.
+            task_embedding = input_data.get("_task_embedding", [])
+
+            feedback_entry = ToolFeedbackEntry(
+                task_query=task_query or tool_name,
+                task_embedding=task_embedding,
+                task_type=task_type,
+                session_id=session_id,
+                tool_name=tool_name,
+                success=True,
+                execution_time_ms=duration_ms,
+                error_type=None,
+                agent_id=agent_id,
+                confidence_score=confidence_score,
+                discovery_rank=discovery_rank,
+                request_id=request_id,
+            )
+            await feedback_service.record_outcome(feedback_entry)
+        except Exception as e:
+            logger.debug("Tool feedback recording failed (success path)", error=str(e))
+        # --------------------------------------------------------------
+
         return output
 
     except Exception as e:
@@ -315,6 +359,39 @@ async def execute_tool_with_audit(
         )
 
         await audit_service.log_execution(entry)
+
+        # --------------------------------------------------------------
+        # NEW: Record failed feedback for learning
+        # --------------------------------------------------------------
+        try:
+            feedback_service = get_tool_feedback_service(substrate_service)
+
+            task_query = input_data.get("_task_query", "")
+            task_type = input_data.get("_task_type")
+            session_id = input_data.get("_session_id")
+            confidence_score = input_data.get("_tool_confidence")
+            discovery_rank = input_data.get("_tool_rank")
+            task_embedding = input_data.get("_task_embedding", [])
+
+            feedback_entry = ToolFeedbackEntry(
+                task_query=task_query or tool_name,
+                task_embedding=task_embedding,
+                task_type=task_type,
+                session_id=session_id,
+                tool_name=tool_name,
+                success=False,
+                execution_time_ms=duration_ms,
+                error_type=type(e).__name__,
+                agent_id=agent_id,
+                confidence_score=confidence_score,
+                discovery_rank=discovery_rank,
+                request_id=request_id,
+            )
+            await feedback_service.record_outcome(feedback_entry)
+        except Exception as fe:
+            logger.debug("Tool feedback recording failed (error path)", error=str(fe))
+        # --------------------------------------------------------------
+
         raise
 
 

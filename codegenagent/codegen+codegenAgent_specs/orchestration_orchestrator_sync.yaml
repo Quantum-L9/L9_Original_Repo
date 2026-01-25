@@ -1,0 +1,38 @@
+# ============================
+# Orchestration Engine Syncer
+# ============================
+
+filename: orchestration/orchestrator_sync.py
+type: orchestrator_module
+language: python
+
+description: |
+  Reconciles orchestrator definitions with:
+  - Active LangGraph DAGs
+  - Meta-contract changes
+  - Runtime patch applications
+
+wiring:
+  watches:
+    - orchestration/dags/*
+    - agents/**/meta.yaml
+  emits:
+    - orchestrator_diff.yaml
+    - sync_report.json
+  # === PATCH: memory_diff_sync integration ===
+  memory_diff_sync:
+    reads:
+      - orchestrator_registry.yaml
+      - agents/**/meta.yaml
+    computes:
+      - memory_state_hash
+      - orchestrator_state_hash
+    emits:
+      - memory_diff_report.yaml
+
+code: |
+  def sync_orchestrators():
+      from utils.diff import compare_yaml_files
+      dags = load_dags_from("orchestration/dags/")
+      metas = load_meta_contracts("agents/**/meta.yaml")
+      return compare_yaml_files(dags, metas)

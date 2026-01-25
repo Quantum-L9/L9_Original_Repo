@@ -1,0 +1,28 @@
+# =====================================
+# Patch: SubstrateService + ReasoningCapsule
+# =====================================
+
+filename: memory/substrate_patch.py
+type: memory_patch
+language: python
+
+description: |
+  Enhances MemorySubstrateService with GPT-traceable reasoning capsules.
+  Integrates PacketEnvelopeIn as default reasoning unit with embedded agent diffs.
+
+wiring:
+  capsule_format: PacketEnvelopeIn
+  logs:
+    - capsule.audit
+    - capsule.source
+    - capsule.intent
+
+code: |
+  def ingest_reasoning_capsule(packet):
+      trace = {
+          "source": packet["agent"],
+          "reasoning": packet["payload"],
+          "intent": packet.get("intent")
+      }
+      with open("capsules/reasoning_trace.yaml", "a") as f:
+          f.write(str(trace) + "\\n")

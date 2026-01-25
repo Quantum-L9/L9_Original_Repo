@@ -51,7 +51,7 @@
   - Mypy config (`.refactor-config/pyproject.toml`)
   - Docker images (`python:3.12-slim`)
   - Fixed `memory/retention_engine.py` UTC import
-- ✅ **Local Mac Python 3.12** — Installed via Homebrew, added to PATH
+- ✅ **Local Mac Python 3.12** — Installed via Homebrew, symlinked as default (`python3 --version` = 3.12.12)
 
 **PENDING (GMP-79 Scope Lock):**
 - Multi-turn tool caching (Redis) — Awaiting CONFIRM
@@ -68,6 +68,7 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-25] **✅ GMP-125 Complete** — Status: PASS. Report: `reports/GMP-Report-125-*.md`
 - [2026-01-25] **✅ GMP-124 Complete** — Status: PASS. Report: `reports/GMP-Report-124-*.md`
 - [2026-01-25] **Cursor Memory Kernel** — Created `agents/cursor/cursor_memory_kernel.yaml` — formalizes memory stack hierarchy (MCP→Redis→Neo4j→file), session lifecycle, write/read rules, 5-layer context injection, and degraded mode. Registered as required startup file.
 - [2026-01-25] **GMP-123: AWS Secrets Manager Comprehensive Setup** — Extended AWS Secrets Manager coverage from 9 to 21 secrets. Added MCP_API_KEY, MEMORY_DSN, SLACK_VERIFICATION_TOKEN, TWILIO_ACCOUNT_SID, and updated s
@@ -115,7 +116,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **S3 Buckets**: `l9-backups` (c1/), `l9-blobs` (>512KB), `l9-files` (Slack), `l9-audit` (logs)
 
 ---
-*Last updated: 2026-01-25 (Cursor Memory Kernel + GMP-S3-INFRASTRUCTURE + GMP-78 Dynamic Tool Discovery)*
+*Last updated: 2026-01-25 (Local Python 3.12 verified + Cursor Memory Kernel + GMP-S3-INFRASTRUCTURE + GMP-78 Dynamic Tool Discovery)*
 
 ## Next Steps (Current Session)
 
@@ -148,3 +149,34 @@ PR #51 (Spring Cleaning) — MERGED ✅
 - ✅ 2026-01-23: PR Cleanup (#41, #42, #44), Tenant ID standardization
 - ✅ 2026-01-21: PRs #28-30 Analysis (now merged)
 - ✅ 2026-01-20: World Model Pipeline Unification, GMP-106 PR #22
+
+---
+
+## Superpack Adoption (2026-01-25)
+
+**Status:** Phase 2-6 Implementation Complete
+
+**Adoption Milestones:**
+- [x] Phase 0: Scope lock (9 superpacks, non-CI scope)
+- [x] Phase 1: Baseline confirmed (L9 repo structure verified)
+- [x] Phase 2: Implement all superpack docs (45.2 KB)
+- [x] Phase 3: Add invariant tests (governance checks, dependency graphs)
+- [x] Phase 4: Validate module coverage (100% mapped)
+- [x] Phase 5: Verify CI/PR integration (pre-merge gates for T3 changes)
+- [x] Phase 6: Deliver clean markdown artifacts
+
+**Superpack Files:**
+- Index: `reports/superpack_index.md`
+- Tier 1: Governance & Authority, Core & Memory, Orchestration
+- Tier 2: API & Clients, Telemetry
+- Tier 3: Deployment, Simulation, Tools, Prompts & Docs
+
+**Next Steps:**
+- Integrate superpack review into `pr.md` checklist
+- Wire pre-merge gates for T3 changes in CI
+- Train team on superpack navigation
+
+**Owner:** Superpack Initiative (GMP-SUPERPACK)
+
+---
+*Last updated: 2026-01-25*

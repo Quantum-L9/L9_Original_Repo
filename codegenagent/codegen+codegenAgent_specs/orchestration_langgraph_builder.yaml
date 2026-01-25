@@ -1,0 +1,42 @@
+# ===================================
+# LangGraph Agent Mesh Generator
+# ===================================
+
+filename: orchestration/langgraph_builder.py
+type: graph_generator
+language: python
+
+description: |
+  Builds LangGraph DAGs from swarm.yaml agent specs.
+  Supports memory-bound reasoning flows, runtime injection, and GMP tracking.
+
+wiring:
+  inputs:
+    - swarm.yaml
+    - meta.yaml[]
+  emits:
+    - langgraph.dag.yaml
+    - orchestration_plan.md
+
+code: |
+  import yaml
+
+  def build_dag(swarm_path):
+      with open(swarm_path) as f:
+          swarm = yaml.safe_load(f)
+
+      nodes = []
+      for agent in swarm["modules"]:
+          nodes.append({
+              "id": agent["name"],
+              "type": "gmp_agent_node",
+              "inputs": agent.get("inputs", []),
+              "outputs": agent.get("outputs", [])
+          })
+
+      return {
+          "langgraph_dag": {
+              "nodes": nodes,
+              "edges": [{"from": n["id"], "to": "ReflectionAgent"} for n in nodes]
+          }
+      }

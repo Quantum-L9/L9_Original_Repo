@@ -1,0 +1,39 @@
+# ============================================================
+# 3. PATCH EXECUTOR CLASS
+# Filename: runtime/agents/autonomous-research-agent.py
+# ============================================================
+
+filename: runtime/agents/autonomous-research-agent.py
+patch_type: class_injection
+language: python
+
+patch:
+  class: PatchExecutor
+  code: |
+    class PatchExecutor:
+        def __init__(self, registry, triggers):
+            self.registry = registry
+            self.triggers = triggers
+
+        def execute_patch_all(self):
+            print("[⚙️] Running patch_all sequence...")
+            for patch_file in self.registry.get("global_patches"):
+                os.system(f"python3 runtime/patches/{patch_file}")
+
+        def run_meta_loop(self, construct, max_passes=5):
+            for i in range(max_passes):
+                print(f"[🔁] Meta loop pass {i+1}")
+                result = self.enrich_prompt(construct)
+                if self.evaluate_sufficiency(result):
+                    break
+                construct.update(result)
+
+        def enrich_prompt(self, construct):
+            # placeholder: uses PromptBuilder internally
+            return construct
+
+        def evaluate_sufficiency(self, updated_construct):
+            return "missing_fields" not in updated_construct
+
+        def delegate_search(self, schema_block):
+            os.system(f"python3 runtime/perplexity/Perplexity_Interface_Agent.py {schema_block}")

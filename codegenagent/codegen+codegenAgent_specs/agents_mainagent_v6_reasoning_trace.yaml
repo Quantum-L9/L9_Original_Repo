@@ -1,0 +1,33 @@
+# ========================================
+# L9 Codegen Spec: MainAgent Trace Logger
+# ========================================
+
+filename: agents/mainagent_v6/reasoning_trace.py
+type: reasoning_trace
+language: python
+
+description: |
+  Captures and emits full trace of each MainAgent reasoning pass,
+  including inputs, memory, tensor output, decision rationale, and escalations.
+
+wiring:
+  emits:
+    - reasoning_traces table (Postgres)
+    - trace_packet.json (debug artifacts)
+    - audit logs (ReflectionAgent)
+  # === PATCH: meta_kernel_hooks integration ===
+  kernel_evolution:
+    hook: agents/codegen_agent/meta_kernel_hooks.py
+    escalates_to: [GovernanceAgent, CTOAgent]
+    tracks: [kernel_delta, policy_drift, patch_applied]
+
+code: |
+  def log_trace(packet_id, stage, content, agent="MainAgentV6"):
+      from db import log_trace_record
+      record = {
+          "packet_id": packet_id,
+          "stage": stage,
+          "agent": agent,
+          "content": content
+      }
+      log_trace_record(record)

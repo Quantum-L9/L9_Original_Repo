@@ -1,0 +1,50 @@
+# ============================================================
+# SuperPrompt_Emitter.py
+# ============================================================
+
+filename: runtime/perplexity/SuperPrompt_Emitter.py
+type: construct_prompt_emitter
+language: python
+description: |
+  Formats a full Construct SuperPrompt from incomplete schema or agent blueprint.
+  Uses reasoning templates from labs_superprompt pack. Ready for Perplexity or other LLMs.
+
+wiring:
+  inputs:
+    - path: schemas/agents/*.yaml
+    - construct_features.enable_perplexity_feedback = true
+  outputs:
+    - path: outbox/perplexity/prompts/{construct_id}.json
+  triggers:
+    - incomplete_field_detected
+    - enrich_with_perplexity flag
+
+code: |
+  import os, yaml, json
+  from utils.schema_tools import detect_gaps, summarize_features
+
+  def build_superprompt(schema_path):
+      with open(schema_path) as f:
+          schema = yaml.safe_load(f)
+      gaps = detect_gaps(schema)
+      features = summarize_features(schema)
+
+      prompt = {
+          "construct": schema,
+          "intent": "Audit + Suggest Improvements + Fill in blanks",
+          "context": {
+              "construct_features": features,
+              "missing_fields": gaps,
+              "style_guide": "labs_superprompt"
+          },
+          "return_format": "Annotated YAML patches or improvement notes"
+      }
+
+      out_file = f"outbox/perplexity/prompts/{schema['name']}.json"
+      os.makedirs(os.path.dirname(out_file), exist_ok=True)
+      with open(out_file, 'w') as f:
+          json.dump(prompt, f, indent=2)
+
+  if __name__ == "__main__":
+      for f in os.listdir('schemas/agents/'):
+          build_superprompt(f'schemas/agents/{f}')

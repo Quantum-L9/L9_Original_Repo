@@ -1,0 +1,30 @@
+# ===========================================
+# Patch: BatchSpecGenerator → GMP Capsule Flow
+# ===========================================
+
+filename: codegen/batch_spec_generator_patch.py
+type: schema_generator
+language: python
+
+description: |
+  Enhances BatchSpecGenerator to interpret GMP-style schema capsules
+  and emit full agent modules and orchestration patches.
+
+wiring:
+  inputs:
+    - meta.yaml
+    - capsule_template.yaml
+  outputs:
+    - agent_spec.py
+    - capsule_patch.yaml
+  consumers:
+    - CodeGenAgent
+    - CapsuleOrchestrator
+
+code: |
+  def generate_spec_from_capsule(capsule_path):
+      import yaml
+      capsule = yaml.safe_load(open(capsule_path))
+      module_code = f"# Auto-generated for {capsule['agent_name']}\\n{capsule['code']}"
+      with open(f"agents/{capsule['agent_name']}.py", "w") as f:
+          f.write(module_code)

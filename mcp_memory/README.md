@@ -1,79 +1,474 @@
+---
+dora:
+  version: "1.0"
+  type: subsystem_readme
+  generated: "2026-01-25 19:42:30 UTC"
+  generator: scripts/generate_subsystem_readmes.py
+  config: config/subsystems/readme_config.yaml
+  time_verified: "system clock (UNVERIFIED - no API response)"
+  auto_generated: true
+---
+
 # MCP Memory Server
 
-**Updated:** 2026-01-16 | **URL:** `https://157.180.73.53:9001`
-
-Unified memory substrate: PostgreSQL `packet_store` + pgvector `memory_embeddings`
-
-## Governance
-
-| Caller | API Key | Read | Write/Delete |
-|--------|---------|------|--------------|
-| L | `MCP_API_KEY_L` | All | All |
-| Cursor | `MCP_API_KEY_C` | All | Own only |
-
-`metadata.creator` enforced server-side. Cursor writes tagged `Cursor-IDE`.
-
-## Architecture
+> **Tier:** API | **Path:** `mcp_memory` | **Owner:** Igor
 
 ```
-MacBook → HTTPS → Cloudflare → VPS Caddy (:443, :9001) → l9-api:8000 → PostgreSQL
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                            MCP Memory Server                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐      ┌─────────────┐      ┌─────────────┐                  │
+│  │   Inbound   │ ───► │    mcp_memory   │ ───► │  Outbound   │                  │
+│  │ Dependencies│      │   Module    │      │ Dependencies│                  │
+│  └─────────────┘      └─────────────┘      └─────────────┘                  │
+│                              │                                              │
+│                              ▼                                              │
+│                    ┌─────────────────┐                                      │
+│                    │  Memory/Audit   │                                      │
+│                    │   Substrate     │                                      │
+│                    └─────────────────┘                                      │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-Runs inside `l9-api` Docker container. No separate service.
+## Overview
 
-## CLI Usage
+Model Context Protocol server for memory operations
+
+**Purpose:** Provides MCP-compliant interface for memory read/write operations from external clients.
+
+**What depends on it:** External clients
+
+---
+
+## Responsibilities and Boundaries
+
+### What This Module Owns
+
+- **Core operations:** Execute mcp memory tasks
+- **State management:** Maintain internal state with proper lifecycle
+- **Logging:** Emit structured logs for all operations
+- **Metrics:** Expose Prometheus-compatible metrics
+
+### What This Module Does NOT Do
+
+- **Authentication** — Handled by `api/auth.py`
+- **External communication** — Handled by clients/adapters
+- **Scheduling** — Handled by runtime/task_queue.py
+
+### Inbound Dependencies
+
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
+
+### Outbound Dependencies
+
+| Module | Purpose |
+|--------|---------|
+| `memory/substrate_service.py` | Required dependency |
+
+---
+
+## Directory Layout
+
+```
+mcp_memory/
+├── src/__init__.py
+├── src/audit.py
+├── src/config.py
+├── src/control_plane/__init__.py
+├── src/control_plane/config.py
+├── src/db.py
+├── src/embeddings.py
+├── src/kernel/__init__.py
+├── src/kernel/protocol.py
+├── src/main.py
+├── src/mcp_server.py
+├── src/memory_substrate/__init__.py
+├── src/memory_substrate/service.py
+├── src/models.py
+├── src/observability/__init__.py
+└── ... (20 more files)
+```
+
+| File | Purpose |
+|------|---------|
+| `src/server.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `test_all_layers.py` | Tests for Redis connection and operations. |
+| `test_all_layers.py` | Tests for PostgreSQL connection and operations. |
+| `test_all_layers.py` | Tests for Neo4j connection and operations. |
+
+### Naming Conventions
+
+- **Classes:** `PascalCase` (e.g., `McpMemoryService`)
+- **Functions:** `snake_case` (e.g., `process_mcp_memory_request`)
+- **Constants:** `UPPER_SNAKE_CASE`
+- **Private:** `_prefixed` for internal methods
+
+---
+
+## Key Components
+
+### `test_all_layers.py` — TestRedisLayer
+
+```python
+class TestRedisLayer:
+    """Tests for Redis connection and operations."""
+    
+    # Key methods:
+
+    async def redis_client(self, ...): ...
+
+    async def test_redis_connection(self, ...): ...
+
+    async def test_redis_set_get(self, ...): ...
+
+    async def test_redis_rate_limiting(self, ...): ...
+
+    async def test_redis_task_queue(self, ...): ...
+
+```
+
+**Public Methods:** `redis_client`, `test_redis_connection`, `test_redis_set_get`, `test_redis_rate_limiting`, `test_redis_task_queue`
+
+**Lines:** 64-148 in `test_all_layers.py`
+
+### `test_all_layers.py` — TestPostgresLayer
+
+```python
+class TestPostgresLayer:
+    """Tests for PostgreSQL connection and operations."""
+    
+    # Key methods:
+
+    async def pg_pool(self, ...): ...
+
+    async def test_postgres_connection(self, ...): ...
+
+    async def test_postgres_version(self, ...): ...
+
+    async def test_pgvector_extension(self, ...): ...
+
+    async def test_postgres_packet_store_table(self, ...): ...
+
+```
+
+**Public Methods:** `pg_pool`, `test_postgres_connection`, `test_postgres_version`, `test_pgvector_extension`, `test_postgres_packet_store_table`
+
+**Lines:** 156-279 in `test_all_layers.py`
+
+### `test_all_layers.py` — TestNeo4jLayer
+
+```python
+class TestNeo4jLayer:
+    """Tests for Neo4j connection and operations."""
+    
+    # Key methods:
+
+    async def neo4j_client(self, ...): ...
+
+    async def test_neo4j_connection(self, ...): ...
+
+    async def test_neo4j_simple_query(self, ...): ...
+
+    async def test_neo4j_create_and_query_node(self, ...): ...
+
+    async def test_neo4j_relationship(self, ...): ...
+
+```
+
+**Public Methods:** `neo4j_client`, `test_neo4j_connection`, `test_neo4j_simple_query`, `test_neo4j_create_and_query_node`, `test_neo4j_relationship`
+
+**Lines:** 287-387 in `test_all_layers.py`
+
+### `test_all_layers.py` — TestAllLayersIntegration
+
+```python
+class TestAllLayersIntegration:
+    """Integration tests that span multiple layers."""
+    
+    # Key methods:
+
+    async def test_all_layers_available(self, ...): ...
+
+```
+
+**Public Methods:** `test_all_layers_available`
+
+**Lines:** 395-451 in `test_all_layers.py`
+
+### `verify_main_pipeline_e2e.py` — Config
+
+```python
+class Config:
+    """Configuration from environment."""
+    
+    # Key methods:
+
+```
+
+**Lines:** 57-76 in `verify_main_pipeline_e2e.py`
+
+
+---
+
+## Data Models and Contracts
+
+The following data models define the contracts for this subsystem:
+
+- **`TestRateLimitHTTPResponses`** — Test HTTP response behavior when rate limited.
+- **`SaveMemoryRequest`** — Data model
+- **`MemoryResponse`** — Data model
+
+### Key Schemas
+
+```python
+from pydantic import BaseModel
+from typing import Optional
+from datetime import datetime
+
+class McpMemoryRequest(BaseModel):
+    """Request model for mcp_memory operations."""
+    id: str
+    data: dict
+    timestamp: datetime
+    correlation_id: Optional[str] = None
+
+class McpMemoryResponse(BaseModel):
+    """Response model for mcp_memory operations."""
+    success: bool
+    result: Optional[dict] = None
+    error: Optional[str] = None
+    duration_ms: float
+```
+
+### Invariants
+
+- **MCP protocol compliance**
+- **All operations logged**
+
+---
+
+## Execution and Lifecycle
+
+### Startup
+
+1. **Discovery:** Mcp_Memory components are discovered and registered.
+2. **Configuration:** Settings loaded from environment and config files.
+3. **Dependencies:** Required services (Redis, PostgreSQL, etc.) are connected.
+4. **Initialization:** Internal state is initialized; ready for requests.
+
+### Main Execution
+
+1. **Request received:** Validate input against schema.
+2. **Processing:** Execute core logic with appropriate error handling.
+3. **State updates:** Persist any state changes atomically.
+4. **Response:** Return structured response with timing metadata.
+
+### Shutdown
+
+1. **Graceful stop:** Stop accepting new requests.
+2. **Drain:** Complete in-flight operations (with timeout).
+3. **Cleanup:** Release resources, close connections.
+4. **Log:** Emit shutdown complete event.
+
+### Background Tasks
+
+No background tasks. Operations are request-driven.
+
+---
+
+## Configuration
+
+### Feature Flags
+
+```yaml
+# Mcp_Memory feature flags
+L9_ENABLE_MCP_MEMORY_TRACING: true  # Enable detailed tracing
+L9_ENABLE_MCP_MEMORY_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_MCP_MEMORY_AUDIT: true    # Enable audit logging
+```
+
+### Tuning Parameters
+
+```yaml
+mcp_memory:
+  timeout_seconds: 30
+  max_retries: 3
+  pool_size: 10
+  batch_size: 100
+```
+
+### Environment Variables
 
 ```bash
-python3 agents/cursor/cursor_memory_client.py write "content" --kind fact
-python3 agents/cursor/cursor_memory_client.py search "query"
-python3 agents/cursor/cursor_memory_client.py health
-python3 agents/cursor/cursor_memory_client.py stats
+MCP_MEMORY_LOG_LEVEL=INFO
+MCP_MEMORY_TIMEOUT=30
+MCP_MEMORY_ENABLED=true
 ```
 
-## MCP Tools
+---
 
-**Core:** `save_memory`, `search_memory`, `get_memory_stats`, `delete_expired_memories`  
-**Graph:** `graph_query`, `graph_get_entity`, `graph_get_context`  
-**Cognitive:** `get_context_injection`, `extract_session_learnings`, `query_temporal`
+## API Surface (Public)
 
-## Env Vars
+### Public Functions
 
-**Required (VPS):**
-- `OPENAI_API_KEY` - embeddings
-- `MEMORY_DSN` - PostgreSQL connection
-- `MCP_API_KEY_L`, `MCP_API_KEY_C` - auth
+#### `async def test_save_memory_uses_main_pipeline_when_service_available()`
 
-**Local .env:**
-```bash
-L9_API_URL=https://157.180.73.53:9001
-L9_EXECUTOR_API_KEY=<MCP_API_KEY_C value>
+Test that save_memory_handler uses main pipeline when substrate_service is provided.
+
+- **File:** `test_main_pipeline_integration.py:25`
+- **Async:** Yes
+
+#### `async def test_save_memory_falls_back_to_direct_db_when_service_unavailable()`
+
+Test that save_memory_handler falls back to direct DB when substrate_service is None.
+
+- **File:** `test_main_pipeline_integration.py:77`
+- **Async:** Yes
+
+#### `async def test_save_via_main_pipeline_creates_correct_packet_envelope()`
+
+Test that _save_via_main_pipeline creates PacketEnvelopeIn with correct structure.
+
+- **File:** `test_main_pipeline_integration.py:129`
+- **Async:** Yes
+
+#### `async def test_save_via_main_pipeline_handles_ttl_correctly()`
+
+Test that _save_via_main_pipeline calculates TTL based on duration.
+
+- **File:** `test_main_pipeline_integration.py:188`
+- **Async:** Yes
+
+#### `async def test_save_via_main_pipeline_handles_errors_gracefully()`
+
+Test that _save_via_main_pipeline raises HTTPException on write failure.
+
+- **File:** `test_main_pipeline_integration.py:230`
+- **Async:** Yes
+
+
+### Usage Example
+
+```python
+from mcp_memory import McpMemoryService
+
+# Initialize
+service = McpMemoryService()
+
+# Execute operation
+result = await service.execute(
+    request_id="req-001",
+    data={"key": "value"},
+    correlation_id="corr-xyz789",
+)
+
+print(result.success)  # True
+print(result.duration_ms)  # 125.5
 ```
 
-## Key Files
+---
 
-- `src/mcp_server.py` - MCP tool definitions
-- `src/routes/memory_unified.py` - handlers
-- `api/routes/mcp.py` - `/mcp/call` endpoint (governance context here)
-- `memory/governance_gate.py` - ContextVar enforcement
+## Observability
 
-## Deploy (VPS)
+### Logging
 
-```bash
-cd /opt/l9
-git pull && docker-compose build --no-cache l9-api && docker-compose up -d l9-api
+Mcp Memory operations emit structured JSON logs:
+
+```json
+{
+  "timestamp": "2026-01-25T19:42:30Z",
+  "level": "INFO",
+  "module": "mcp_memory",
+  "message": "Operation completed",
+  "correlation_id": "corr-xyz789",
+  "agent_id": "agent-001",
+  "duration_ms": 125
+}
 ```
 
-Or: `bash scripts/deployment/10X_Deploy_Script.sh --quick --skip-mri --skip-e2e`
+**Log Levels:**
+- `DEBUG` — Detailed execution steps (off in production)
+- `INFO` — Lifecycle events, successful operations
+- `WARNING` — Timeouts, resource warnings, recoverable errors
+- `ERROR` — Failures, exceptions, unrecoverable errors
 
-## Troubleshooting
+### Metrics
 
-| Issue | Fix |
-|-------|-----|
-| Governance context error | Rebuild container on VPS |
-| 401 Unauthorized | Check `L9_EXECUTOR_API_KEY` in local `.env` |
-| Connection timeout | Check `docker ps`, Caddy status |
-| Logs | `docker logs l9-api --tail 50` |
+| Metric | Type | Description |
+|--------|------|-------------|
+| `mcp_memory_operation_duration_ms` | Histogram | Operation latency distribution |
+| `mcp_memory_operation_total` | Counter | Total operations processed |
+| `mcp_memory_error_total` | Counter | Total errors encountered |
+| `mcp_memory_active_connections` | Gauge | Current active connections |
 
-## Recent Fix (GMP-68)
+### Tracing
 
-`api/routes/mcp.py` now wraps tool calls in `async with governance_context(gov_ctx)` - fixes "Governance context required" error.
+Mcp Memory emits OpenTelemetry spans:
+
+- `mcp_memory.execute` — Root span for operation
+  - `mcp_memory.validate` — Input validation
+  - `mcp_memory.process` — Core processing
+  - `mcp_memory.persist` — State persistence (if applicable)
+
+---
+
+## Testing
+
+### Unit Tests
+
+Located in `tests/mcp_memory/`:
+- `test_mcp_memory.py` — Core unit tests
+- `test_mcp_memory_integration.py` — Integration tests (if applicable)
+
+### Integration Tests
+
+Located in `tests/integration/`:
+
+- Test mcp_memory with real dependencies
+- Test cross-subsystem interactions
+- Test failure scenarios and recovery
+
+### Known Edge Cases
+
+1. **Timeout:** Operation exceeds deadline → Return partial result with timeout status.
+2. **Invalid input:** Schema validation fails → Return 400 with validation errors.
+3. **Dependency unavailable:** Required service down → Retry with exponential backoff, then fail gracefully.
+4. **Resource exhaustion:** Memory/connections exceeded → Reject new requests, log alert.
+
+---
+
+## AI Usage Rules
+
+### ✅ Allowed Scopes (AI can modify freely)
+
+- `src/handlers/**` — Application logic, safe to modify
+- `src/tools/**` — Application logic, safe to modify
+
+### ⚠️ Restricted Scopes (requires human review)
+
+- `src/server.py` — Requires human review before merge
+- `__init__.py` — Requires human review before merge
+
+### ❌ Forbidden Scopes (NEVER modify without explicit approval)
+
+- `src/server.py` — PROTECTED: Changes break system invariants
+- `__init__.py` — PROTECTED: Changes break system invariants
+
+### Required Pre-Reading
+
+1. [`README-L9_ARCHITECTURE.md`](README-L9_ARCHITECTURE.md)
+2. [`docs/CURSOR-RUNBOOK.md`](docs/CURSOR-RUNBOOK.md)
+
+### Change Policy
+
+All changes proposed by AI tools must:
+1. Be scoped PRs with clear commit messages
+2. Include tests (unit + integration where applicable)
+3. Update documentation if APIs change
+4. Respect feature flags for gradual rollout
+5. Get human approval for restricted scopes

@@ -1,0 +1,95 @@
+# ======================================================
+# CodeGenAgent Evolution & Activation Plan (CGA-X v1.0)
+# ======================================================
+
+filename: docs/codegen_agent_evolution_plan.yaml
+type: agent_upgrade_manifest
+language: yaml
+
+description: |
+  Blueprint to evolve CodeGenAgent into a fully weaponized
+  runtime orchestrator with embedded GMP logic, memory routing,
+  patch deployment, cursor sync, and agent swarm coordination.
+
+# --------------------------------------
+# 1. Purpose & Strategic Evolution Path
+# --------------------------------------
+
+objectives:
+  - Embed CGMP into CodeGenAgent pipeline
+  - Elevate CGA into L9-compliant multi-agent synthesizer
+  - Enable GMP prompt orchestration and Cursor sync
+  - Deploy compliance, rollback, and telemetry hooks
+  - Scale for ResearchSwarm orchestration and self-auditing
+
+# --------------------------------------
+# 2. Core Modules To Promote & Activate
+# --------------------------------------
+
+activate_modules:
+  - agents/mainagent_v6/mainagent.py
+  - agents/codegen_agent/codegen_agent.py
+  - agents/codegen_agent/c_gmp_engine.py
+  - agents/codegen_agent/telemetry_codegen.py
+  - agents/rollback_system.py
+  - diagnostics/workspace_doctor.py
+  - orchestration_engine.py
+  - pipeline_validate.py
+  - api/routes/codegen.py
+
+# --------------------------------------
+# 3. Powers to Weaponize Now
+# --------------------------------------
+
+capabilities:
+  - CGMP (Cursor God Mode Prompt)
+  - MetaContract → YAML → Code pipeline
+  - Schema-driven patch emitter
+  - FastAPI + PacketEnvelope interface
+  - Rollback support for all writes
+  - Runtime GMP audit feedback
+  - Orchestration-aware prompt injectors
+  - Multi-agent generation via swarm loader
+  - Cursor Sync: memory ↔️ runtime ↔️ orchestrator
+  - Learning System Block: metrics-to-feedback
+
+# --------------------------------------
+# 4. Execution Paths
+# --------------------------------------
+
+execution_plan:
+  - Patch agent_catalog.yaml with CodeGenAgent
+  - Deploy api/routes/codegen.py
+  - Register CI hooks with pipeline_validate.py
+  - Schedule weekly audits via ReflectionAgent
+  - Route all meta.yaml drops through CodeGenAgent
+  - Enable GPT-accessible endpoints for prompt scaffolding
+  - Emit swarm.yaml manifest for multi-agent factory loads
+
+# --------------------------------------
+# 5. Snap-In Instructions
+# --------------------------------------
+
+repo_integration:
+  root: /l9/
+  place:
+    - codegen_agent → agents/codegen_agent/
+    - orchestration → orchestration/
+    - diagnostics → diagnostics/
+    - rollback → agents/
+    - docs → docs/
+  auto_generate:
+    - README.md
+    - meta.yaml
+    - test_codegen_agent.py
+
+# --------------------------------------
+# 6. Next Steps
+# --------------------------------------
+
+next:
+  - Emit swarm_loader.py to batch-generate agents from QPF pack
+  - Connect CGA to OrchestrationEngine memory sync
+  - Add CGA to runtime audit DAG via ReflectionAgent
+  - Expose `/codegen/meta/preview` for dry-run feedback
+  - Extend CGA to write `reasoning_trace.yaml` per module

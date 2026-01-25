@@ -1,0 +1,40 @@
+# ===============================
+# L9 CodeGen Spec: Codegen Agent
+# ===============================
+
+filename: agents/codegen_agent.py
+type: codegen_agent
+language: python
+
+description: |
+  L9 autonomous Codegen Agent that consumes MetaContract IR and emits full module scaffolds.
+  Supports override-aware templates and returns generation packets for downstream agents.
+
+wiring:
+  input: MetaContract
+  outputs:
+    - routes/
+    - schemas/
+    - logic/
+    - tests/
+    - README.md
+    - ci.yaml
+  triggers:
+    - /api/codegen/meta route
+    - ReflectionAgent / QAAgent audits
+  tools:
+    - jinja2 templating engine
+    - PacketEnvelope for result emission
+
+code: |
+  from ir_engine.meta_ir import MetaContract
+  from templates.generator import generate_from_meta
+
+  class CodegenAgent:
+      def __init__(self):
+          ...
+
+      async def generate(self, meta: MetaContract):
+          files = generate_from_meta(meta)
+          # Emit via PacketEnvelope or write to FS
+          return files

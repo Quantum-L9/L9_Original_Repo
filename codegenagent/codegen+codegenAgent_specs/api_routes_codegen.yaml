@@ -1,0 +1,32 @@
+# ===============================
+# L9 CodeGen Spec: API Generator
+# ===============================
+
+filename: api/routes/codegen.py
+type: api_route
+language: python
+
+description: |
+  FastAPI endpoint that accepts a meta.yaml payload and triggers the CodegenAgent.
+  Returns scaffolded files or emits results to orchestrators via PacketEnvelope.
+
+wiring:
+  route: POST /api/codegen/meta
+  dependencies:
+    - FastAPI
+    - MetaContract from ir_engine.meta_ir
+    - CodegenAgent
+  output: JSON payload with generated file summaries or error traces
+
+code: |
+  from fastapi import APIRouter, Request
+  from ir_engine.meta_ir import MetaContract
+  from agents.codegen_agent import CodegenAgent
+
+  router = APIRouter()
+  agent = CodegenAgent()
+
+  @router.post("/api/codegen/meta")
+  async def generate_from_meta(meta: MetaContract, request: Request):
+      result = await agent.generate(meta)
+      return {"status": "ok", "files": list(result.keys())}

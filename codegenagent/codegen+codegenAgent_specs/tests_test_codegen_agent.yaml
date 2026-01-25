@@ -1,0 +1,24 @@
+# ===============================
+# CodeGenAgent Integration Tests
+# ===============================
+
+filename: tests/test_codegen_agent.py
+type: test_spec
+language: python
+
+description: |
+  Tests end-to-end generation from meta.yaml through CGA.
+
+wiring:
+  fixtures:
+    - meta.yaml sample
+    - mock_emit_dir
+
+code: |
+  def test_codegen_from_meta(tmp_path):
+      from agents.codegen_agent.codegen_agent import CodeGenAgent
+      meta_path = "samples/meta/mainagent_meta.yaml"
+      agent = CodeGenAgent()
+      result = agent.generate_from_meta(meta_path)
+      assert result["status"] == "success"
+      assert "mainagent.py" in result["files"]

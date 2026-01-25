@@ -1,0 +1,33 @@
+# =======================================
+# L9 Codegen Spec: Reasoning Manifest v6
+# =======================================
+
+filename: agents/mainagent_v6/reasoning_manifest.yaml
+type: module_manifest
+language: yaml
+
+description: |
+  Declares all modules MainAgentV6 depends on at runtime for reasoning:
+  memory fusion, tensor inference, logic layer, escalation, and audit.
+
+wiring:
+  required:
+    - memory_enricher
+    - tensor_bridge
+    - symbolic_reasoner
+    - governance_hooks
+    - world_model_adapter
+    - reasoning_trace
+    - reflection_schedule
+    - metrics_mainagent
+
+code: |
+  modules:
+    - agents.mainagent_v6.memory_enricher
+    - agents.mainagent_v6.tensor_bridge
+    - agents.mainagent_v6.reasoning_trace
+    - agents.mainagent_v6.governance_hooks
+    - agents.mainagent_v6.mainagent
+    - metrics.metrics_mainagent
+    - kernel_policy.mainagent_policy
+    - orchestration.schedules.reflection_schedule

@@ -1,0 +1,34 @@
+# ============================================
+# AP Generator++ | Advanced GMP Prompt Synthesizer
+# ============================================
+
+filename: agents/codegen_agent/ap_generator.py
+type: generation_module
+language: python
+
+description: |
+  Generates GMP-ready prompts based on meta.yaml or schema contracts.
+  Injects AI-CTO styles, capsule continuity, cursor-marked anchor prompts.
+
+wiring:
+  source: meta_contract.yaml
+  styles: [ai_cto, capsule_continuity, godmode_feedback]
+  output: GMPPromptBlock[]
+  consumers:
+    - cursor-agent
+    - CodeGenAgent
+    - ReflectionAgent
+
+code: |
+  def generate_prompt(meta):
+      base = f"[AP Request] for {meta['name']}:\n"
+      inputs = "\\n".join(f"- {i}" for i in meta.get("inputs", []))
+      goals = "\\n".join(f"🎯 {g}" for g in meta.get("responsibilities", []))
+      return f\"\"\"### GMP Prompt
+  {base}
+  🧩 Inputs:
+  {inputs}
+  🧠 Responsibilities:
+  {goals}
+  💡 Output: AI-CTO build capsule
+  \"\"\"

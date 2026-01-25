@@ -1,0 +1,35 @@
+# ======================================
+# L9 Codegen Spec: MainAgent Policy Zone
+# ======================================
+
+filename: kernel_policy/mainagent_policy.yaml
+type: kernel_policy
+language: yaml
+
+description: |
+  Defines the kernel-level safety and escalation boundaries for MainAgent's runtime.
+  Binds agent to Zone 08_safety with audit, fallback, and override rules.
+
+wiring:
+  kernel_zone: 08_safety
+  fallback_to: CTOAgent
+  audits_by: ReflectionAgent
+  # === PATCH: kernel_evolution hooks ===
+  evolution_hooks:
+    hook_module: orchestration/kernel_evolution_patch.py
+    injects:
+      - KernelStack.inject_kernel
+    triggers:
+      - GMP-L.kernel-evolution-via-gmp-meta-loop.md
+
+code: |
+  zone: 08_safety
+  applies_to: MainAgentV6
+  audit_every: 7d
+  fallback_trigger:
+    - confidence < 0.6
+    - unresolved_intent
+    - long_execution > 10s
+  override_approved_by:
+    - L
+    - CTOAgent

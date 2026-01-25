@@ -1,0 +1,28 @@
+# ==========================================
+# Memory Lattice Enhancer (Semantic DAG Upgrader)
+# ==========================================
+
+filename: memory/memory_lattice_enhancer.py
+type: memory_patch
+language: python
+
+description: |
+  Upgrades memory DAGs using semantic similarity between nodes and their tensor tags.
+  Enhances traceability, retrieval fidelity, and compression of agent session memory.
+
+wiring:
+  reads:
+    - memory/dag.json
+    - tensor_map.json
+  emits:
+    - enriched_memory_graph.json
+
+code: |
+  import json
+
+  def enhance_memory_graph():
+      dag = json.load(open("memory/dag.json"))
+      tensor_map = json.load(open("memory/tensor_map.json"))
+      for node in dag["nodes"]:
+          node["tags"] += tensor_map.get(node["id"], [])
+      json.dump(dag, open("memory/enriched_graph.json", "w"), indent=2)
