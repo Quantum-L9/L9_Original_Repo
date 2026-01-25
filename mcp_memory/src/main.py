@@ -140,7 +140,6 @@ async def lifespan(app: FastAPI):
                     "Migration errors occurred",
                     error_details=migration_result["error_details"],
                 )
-                print("DEBUG: Migration errors logged, continuing...", flush=True)
         except Exception as e:
             logger.error(
                 "Failed to run migrations",
@@ -154,22 +153,12 @@ async def lifespan(app: FastAPI):
             "Set MEMORY_DSN to enable automatic migrations."
         )
 
-    # DEBUG: Immediate checkpoint after migrations
-    import sys
-
-    print("DEBUG: Migrations block complete, proceeding to substrate init", flush=True)
-    sys.stdout.flush()
-    sys.stderr.flush()
-
     # =========================================================================
     # Initialize L9 Memory Substrate Service (uses same pipeline as L agent)
     # GMP-MEM-FIX: Added DB readiness check + timeout wrapper to prevent hang
     # =========================================================================
-    print("DEBUG: About to set substrate_init_timeout", flush=True)
-    substrate_init_timeout = int(os.getenv("substrate_init_timeout", "30"))
-    skip_substrate_init = os.getenv("skip_substrate_init", "false").lower() == "true"
-    print(f"DEBUG: substrate_init_timeout={substrate_init_timeout}", flush=True)
-    print(f"DEBUG: skip_substrate_init={skip_substrate_init}", flush=True)
+    substrate_init_timeout = int(os.getenv("SUBSTRATE_INIT_TIMEOUT", "30"))
+    skip_substrate_init = os.getenv("SKIP_SUBSTRATE_INIT", "false").lower() == "true"
 
     async def _check_db_ready(url: str, max_retries: int = 5) -> bool:
         """Check if PostgreSQL is accepting connections before init_service."""
@@ -202,30 +191,12 @@ async def lifespan(app: FastAPI):
                 await asyncio.sleep(2**attempt)  # Exponential backoff: 1, 2, 4, 8s
         return False
 
-    # Flush logs before potential hang point (debugging aid)
-    import sys
-
-    sys.stdout.flush()
-    sys.stderr.flush()
-
-    print(
-        "DEBUG: About to log 'Initializing L9 Memory Substrate Service...'", flush=True
-    )
     logger.info("Initializing L9 Memory Substrate Service...")
-    print("DEBUG: logger.info call complete", flush=True)
-    sys.stdout.flush()  # Ensure this log appears before potential hang
 
     try:
-        print("DEBUG: Importing init_service...", flush=True)
         from memory.substrate_service import init_service
 
-        print("DEBUG: init_service imported successfully", flush=True)
-
-        print(f"DEBUG: database_url={'SET' if database_url else 'NONE'}", flush=True)
-
-        # TEMPORARY: Skip substrate init to allow health checks to pass
         if skip_substrate_init:
-            print("DEBUG: skip_substrate_init=true, skipping init_service", flush=True)
             logger.warning(
                 "Substrate init skipped (skip_substrate_init=true). "
                 "MCP memory will operate in limited mode."
@@ -239,9 +210,7 @@ async def lifespan(app: FastAPI):
             app.state.substrate_service = None
         else:
             # Check DB readiness before attempting init_service
-            print("DEBUG: Calling _check_db_ready...", flush=True)
             db_ready = await _check_db_ready(database_url)
-            print(f"DEBUG: _check_db_ready returned {db_ready}", flush=True)
             if not db_ready:
                 logger.error(
                     "Database not ready after retries - skipping substrate init",
@@ -252,18 +221,9 @@ async def lifespan(app: FastAPI):
                 # CRITICAL: Use SAME embedding model for write AND search
                 # Search uses settings.OPENAI_EMBED_MODEL (in embeddings.py)
                 try:
-                    # Extract config vars for line length compliance
                     embed_provider = os.getenv("EMBEDDING_PROVIDER", "openai")
                     embed_model = settings.OPENAI_EMBED_MODEL
                     api_key = settings.OPENAI_API_KEY or os.getenv("OPENAI_API_KEY")
-
-                    print(f"DEBUG: embed_provider={embed_provider}", flush=True)
-                    print(f"DEBUG: embed_model={embed_model}", flush=True)
-                    print(f"DEBUG: api_key={'SET' if api_key else 'NONE'}", flush=True)
-                    print(
-                        f"DEBUG: Calling init_service with {substrate_init_timeout}s timeout...",
-                        flush=True,
-                    )
 
                     substrate_service = await asyncio.wait_for(
                         init_service(
@@ -274,34 +234,17 @@ async def lifespan(app: FastAPI):
                         ),
                         timeout=substrate_init_timeout,
                     )
-                    print("DEBUG: init_service completed successfully!", flush=True)
-                    # Store in app state for route handlers
                     app.state.substrate_service = substrate_service
                     logger.info(
-                        "✓ Memory Substrate Service initialized (DAG pipeline enabled)"
+                        "Memory Substrate Service initialized (DAG pipeline enabled)"
                     )
                 except TimeoutError:
-                    print(
-                        "DEBUG: init_service TIMED OUT (asyncio.TimeoutError)!",
-                        flush=True,
-                    )
                     logger.error(
                         "Memory Substrate Service initialization timed out",
                         timeout=substrate_init_timeout,
                     )
                     app.state.substrate_service = None
-                except TimeoutError:
-                    print("DEBUG: init_service TIMED OUT (TimeoutError)!", flush=True)
-                    logger.error(
-                        "Memory Substrate Service initialization timed out (TE)",
-                        timeout=substrate_init_timeout,
-                    )
-                    app.state.substrate_service = None
                 except Exception as inner_e:
-                    print(
-                        f"DEBUG: init_service EXCEPTION: {type(inner_e).__name__}: {inner_e}",
-                        flush=True,
-                    )
                     logger.error(
                         "Memory Substrate Service initialization failed",
                         error=str(inner_e),

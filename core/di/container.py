@@ -612,10 +612,9 @@ class MemorySubstrateContainer:
     - DAG: Singleton (depends on repository + semantic service)
     - Service: Singleton (depends on all above)
 
-    **Thread Safety:** All getters use locks for safe concurrent access.
+    **Thread Safety:** Async code is single-threaded; no locks needed.
 
-    Version: 1.0.0
-    Created: 2026-01-24
+    Version: 1.1.0 (GMP-MEM-FIX: removed locks, simplified to 2 dependencies)
     """
 
     def __init__(self, config: dict[str, Any]):
@@ -636,11 +635,9 @@ class MemorySubstrateContainer:
         # Double-checked locking isn't needed; await is a natural yield point
         self._lock = None  # Keep attribute for compatibility but don't use
 
-        # Singleton instances
+        # Singleton instances (semantic_service and dag created internally by service)
         self._repository: Any | None = None  # SubstrateRepositoryProtocol
         self._embedding_provider: Any | None = None  # EmbeddingProviderProtocol
-        self._semantic_service: Any | None = None  # SemanticServiceProtocol
-        self._dag: Any | None = None  # DAGProtocol
         self._service: Any | None = None  # MemorySubstrateService
 
         logger.info(
@@ -662,18 +659,14 @@ class MemorySubstrateContainer:
         if self._repository is None:
             # No lock needed - async code is single-threaded
             try:
-                print("DEBUG: DI - Importing SubstrateRepository...", flush=True)
                 from memory.substrate_repository import SubstrateRepository
 
-                print("DEBUG: DI - Creating SubstrateRepository instance...", flush=True)
                 self._repository = SubstrateRepository(
                     database_url=self._config["database_url"],
                     pool_size=self._config.get("db_pool_size", 5),
                     max_overflow=self._config.get("db_max_overflow", 10),
                 )
-                print("DEBUG: DI - Calling repository.connect()...", flush=True)
                 await self._repository.connect()
-                print("DEBUG: DI - repository.connect() complete!", flush=True)
 
                 logger.info(
                     "MemorySubstrateContainer.repository_initialized",
@@ -702,7 +695,6 @@ class MemorySubstrateContainer:
         """
         if self._embedding_provider is None:
             try:
-                print("DEBUG: DI - Creating embedding provider...", flush=True)
                 from memory.substrate_semantic import create_embedding_provider
 
                 provider_type = self._config.get(
@@ -734,74 +726,6 @@ class MemorySubstrateContainer:
                 ) from e
 
         return self._embedding_provider
-
-    async def get_semantic_service(self) -> Any:  # Returns SemanticServiceProtocol
-        """
-        Get or create singleton semantic service instance.
-
-        Returns:
-            SemanticServiceProtocol implementation (SemanticService)
-
-        Raises:
-            DIContainerError: If semantic service initialization fails
-        """
-        if self._semantic_service is None:
-            try:
-                from memory.substrate_semantic import SemanticService
-
-                repository = await self.get_repository()
-                embedding_provider = await self.get_embedding_provider()
-
-                self._semantic_service = SemanticService(
-                    embedding_provider=embedding_provider,
-                    repository=repository,
-                )
-
-                logger.info(
-                    "MemorySubstrateContainer.semantic_service_initialized"
-                )
-            except Exception as e:
-                logger.error(
-                    "MemorySubstrateContainer.semantic_service_failed",
-                    error=str(e),
-                )
-                raise DIContainerError(
-                    f"Failed to initialize semantic service: {e}"
-                ) from e
-
-        return self._semantic_service
-
-    async def get_dag(self) -> Any:  # Returns DAGProtocol
-        """
-        Get or create singleton DAG instance.
-
-        Returns:
-            DAGProtocol implementation (SubstrateDAG)
-
-        Raises:
-            DIContainerError: If DAG initialization fails
-        """
-        if self._dag is None:
-            try:
-                from memory.substrate_dag import SubstrateDAG
-
-                repository = await self.get_repository()
-                semantic_service = await self.get_semantic_service()
-
-                self._dag = SubstrateDAG(
-                    repository=repository,
-                    semantic_service=semantic_service,
-                )
-
-                logger.info("MemorySubstrateContainer.dag_initialized")
-            except Exception as e:
-                logger.error(
-                    "MemorySubstrateContainer.dag_failed",
-                    error=str(e),
-                )
-                raise DIContainerError(f"Failed to initialize DAG: {e}") from e
-
-        return self._dag
 
     async def get_service(self) -> Any:  # Returns MemorySubstrateService
         """
@@ -844,14 +768,7 @@ class MemorySubstrateContainer:
 
     async def close(self) -> None:
         """
-        Graceful shutdown of all components.
-
-        Closes connections and releases resources in reverse dependency order:
-        1. Service (no resources to close)
-        2. DAG (no resources to close)
-        3. Semantic Service (no resources to close)
-        4. Embedding Provider (no resources to close)
-        5. Repository (closes database connection pool)
+        Graceful shutdown: close repository connection pool and clear references.
         """
         try:
             if self._repository:
@@ -860,8 +777,6 @@ class MemorySubstrateContainer:
 
             # Clear all references
             self._service = None
-            self._dag = None
-            self._semantic_service = None
             self._embedding_provider = None
             self._repository = None
 
