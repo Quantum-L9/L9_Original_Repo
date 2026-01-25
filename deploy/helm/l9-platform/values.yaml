@@ -1,0 +1,355 @@
+# =============================================================================
+# L9 Platform Helm Chart - Default Values
+# =============================================================================
+# This file contains default values for the L9 Platform Helm chart.
+# Override these values in environment-specific files:
+#   - values-dev.yaml
+#   - values-staging.yaml
+#   - values-production.yaml
+# =============================================================================
+
+# Global configuration
+global:
+  environment: production
+  domain: l9.example.com
+  imagePullSecrets: []
+  storageClass: standard
+
+# =============================================================================
+# L9 API Service
+# =============================================================================
+api:
+  enabled: true
+  replicaCount: 2
+  
+  image:
+    repository: ghcr.io/cryptoxdog/l9-api
+    tag: "3.0.0"
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 8000
+    targetPort: 8000
+    annotations: {}
+  
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    hosts:
+      - host: api.l9.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: l9-api-tls
+        hosts:
+          - api.l9.example.com
+  
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 1
+  
+  env:
+    LOG_LEVEL: INFO
+    API_HOST: "0.0.0.0"
+    API_PORT: "8000"
+    L9_USE_KERNELS: "true"
+    L9_ENABLE_LEGACY_CHAT: "false"
+    L9_ENABLE_LEGACY_SLACK_ROUTER: "false"
+    EMBEDDING_PROVIDER: "openai"
+    EMBEDDING_MODEL: "text-embedding-3-large"
+  
+  secrets:
+    # These should be provided via external secrets or sealed secrets
+    OPENAI_API_KEY: ""
+    L9_API_KEY: ""
+    L9_EXECUTOR_API_KEY: ""
+
+# =============================================================================
+# MCP Memory Service
+# =============================================================================
+mcpMemory:
+  enabled: true
+  replicaCount: 1
+  
+  image:
+    repository: ghcr.io/cryptoxdog/l9-mcp-memory
+    tag: "3.0.0"
+    pullPolicy: IfNotPresent
+  
+  service:
+    type: ClusterIP
+    port: 9002
+    targetPort: 9002
+  
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  
+  env:
+    MCP_HOST: "0.0.0.0"
+    MCP_PORT: "9002"
+    MCP_ENV: "production"
+    OPENAI_EMBED_MODEL: "text-embedding-3-small"
+    GOVERNANCE_HARDENING_ENABLED: "True"
+    GOVERNANCE_ENFORCEMENT_MODE: "enforce"
+
+# =============================================================================
+# PostgreSQL (Memory Substrate)
+# =============================================================================
+postgresql:
+  enabled: true
+  
+  image:
+    repository: pgvector/pgvector
+    tag: pg16
+    pullPolicy: IfNotPresent
+  
+  auth:
+    username: l9_user
+    password: ""  # Provide via secrets
+    database: l9_memory
+  
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+      storageClass: ""
+    
+    resources:
+      requests:
+        memory: "1Gi"
+        cpu: "500m"
+      limits:
+        memory: "2Gi"
+        cpu: "2000m"
+  
+  service:
+    type: ClusterIP
+    port: 5432
+
+# =============================================================================
+# Redis (Task Queue, Caching)
+# =============================================================================
+redis:
+  enabled: true
+  
+  image:
+    repository: redis
+    tag: 7-alpine
+    pullPolicy: IfNotPresent
+  
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+    
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  
+  service:
+    type: ClusterIP
+    port: 6379
+
+# =============================================================================
+# Neo4j (Knowledge Graph)
+# =============================================================================
+neo4j:
+  enabled: true
+  
+  image:
+    repository: neo4j
+    tag: 5-community
+    pullPolicy: IfNotPresent
+  
+  auth:
+    username: neo4j
+    password: ""  # Provide via secrets
+  
+  persistence:
+    enabled: true
+    size: 20Gi
+  
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  
+  service:
+    type: ClusterIP
+    http:
+      port: 7474
+    bolt:
+      port: 7687
+
+# =============================================================================
+# Monitoring Stack
+# =============================================================================
+monitoring:
+  enabled: true
+  
+  prometheus:
+    enabled: true
+    
+    image:
+      repository: prom/prometheus
+      tag: v2.48.0
+    
+    persistence:
+      enabled: true
+      size: 10Gi
+    
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+    
+    service:
+      type: ClusterIP
+      port: 9090
+    
+    retention: 30d
+  
+  grafana:
+    enabled: true
+    
+    image:
+      repository: grafana/grafana
+      tag: 10.2.0
+    
+    admin:
+      user: admin
+      password: ""  # Provide via secrets
+    
+    persistence:
+      enabled: true
+      size: 5Gi
+    
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+    
+    service:
+      type: ClusterIP
+      port: 3000
+    
+    ingress:
+      enabled: true
+      className: nginx
+      hosts:
+        - host: grafana.l9.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: grafana-tls
+          hosts:
+            - grafana.l9.example.com
+  
+  jaeger:
+    enabled: true
+    
+    image:
+      repository: jaegertracing/all-in-one
+      tag: "1.52"
+    
+    persistence:
+      enabled: true
+      size: 5Gi
+    
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+    
+    service:
+      type: ClusterIP
+      ui:
+        port: 16686
+      collector:
+        port: 14268
+
+# =============================================================================
+# Security
+# =============================================================================
+security:
+  podSecurityPolicy:
+    enabled: false
+  
+  networkPolicy:
+    enabled: true
+    policyTypes:
+      - Ingress
+      - Egress
+  
+  serviceAccount:
+    create: true
+    name: l9-service-account
+    annotations: {}
+  
+  rbac:
+    create: true
+
+# =============================================================================
+# Backup Configuration
+# =============================================================================
+backup:
+  enabled: false
+  schedule: "0 2 * * *"  # 2 AM daily
+  retention: 7  # days
+  
+  postgresql:
+    enabled: true
+  
+  neo4j:
+    enabled: true
+
+# =============================================================================
+# Additional Configuration
+# =============================================================================
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

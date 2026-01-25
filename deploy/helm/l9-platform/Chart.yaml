@@ -1,0 +1,27 @@
+apiVersion: v2
+name: l9-platform
+description: L9 Agentic Intelligence Platform - Complete deployment
+type: application
+version: 3.0.0
+appVersion: "3.0.0"
+
+keywords:
+  - l9
+  - ai
+  - agent
+  - platform
+  - intelligence
+
+home: https://github.com/cryptoxdog/L9
+sources:
+  - https://github.com/cryptoxdog/L9
+
+maintainers:
+  - name: L9 Team
+    email: team@l9.ai
+
+dependencies: []
+
+annotations:
+  category: AI/ML
+  licenses: MIT
