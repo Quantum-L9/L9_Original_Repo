@@ -287,7 +287,7 @@ def l9_traced(
     *,
     task_name: Optional[str] = None,
     patterns: Optional[List[str]] = None,
-    update_source: bool = False,
+    update_source: bool = True,
     source_file: Optional[Union[str, Path]] = None,
 ) -> Union[F, Callable[[F], F]]:
     """
@@ -451,6 +451,7 @@ async def emit_executor_trace(
     duration_ms: int,
     errors: Optional[List[str]] = None,
     patterns: Optional[List[str]] = None,
+    source_file: Optional[Union[str, Path]] = None,
 ) -> DoraTraceBlock:
     """
     Create and emit a DORA trace from the executor.
@@ -468,6 +469,7 @@ async def emit_executor_trace(
         duration_ms: Execution duration in milliseconds
         errors: List of error messages (if any)
         patterns: Patterns/strategies used during execution
+        source_file: Optional path to source file to update DORA block
 
     Returns:
         The created DoraTraceBlock
@@ -492,6 +494,10 @@ async def emit_executor_trace(
         duration_ms=duration_ms,
         status="error" if errors else "success",
     )
+
+    # Update source file if provided
+    if source_file:
+        update_dora_block_in_file(source_file, trace)
 
     return trace
 
