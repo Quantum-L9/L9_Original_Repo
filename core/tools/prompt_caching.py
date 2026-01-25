@@ -1,28 +1,71 @@
-import logging
+"""
+L9 Core Tools - Prompt Caching Strategy
+========================================
+
+GMP-TD-WIRE: Two-tier prompt caching for tool-heavy agents.
+
+This module provides:
+- PromptCachingStrategy: Build cached system prompts + dynamic tool context
+- CachingMetricsCollector: Track cache hits, token savings, latency
+
+Design:
+- Tier 1 (Cached): System prompt, instructions, tool discovery mechanism
+- Tier 2 (Dynamic): Tool definitions, task context, conversation history
+"""
+
+from __future__ import annotations
+
+import time
+from dataclasses import dataclass, field
 from typing import Any
 
-import anthropic
+import structlog
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
+
+
+@dataclass
+class CacheMetrics:
+    """Metrics for prompt caching."""
+
+    cache_hits: int = 0
+    cache_misses: int = 0
+    tokens_saved: int = 0
+    total_requests: int = 0
+    avg_latency_ms: float = 0.0
+
+    @property
+    def hit_rate(self) -> float:
+        """Cache hit rate percentage."""
+        if self.total_requests == 0:
+            return 0.0
+        return (self.cache_hits / self.total_requests) * 100
 
 
 class PromptCachingStrategy:
     """
-    Two-tier prompt caching strategy for tool-heavy agents
+    Two-tier prompt caching strategy for tool-heavy agents.
 
     Tier 1 (Cached): System prompt, tool discovery mechanism, instructions
     Tier 2 (Dynamic): Tool definitions, task, conversation history
+
+    This reduces token cost by caching the static system prompt while
+    dynamically adding task-specific tool definitions.
     """
 
-    def __init__(self, client: anthropic.Anthropic):
-        self.client = client
+    def __init__(self):
+        self._cached_system_prompt: str | None = None
+        self._system_prompt_tokens: int = 0
 
     def build_cached_system_prompt(self) -> str:
         """
-        Static system prompt that gets cached (one-time token cost)
-        Reused across all queries in the session
+        Static system prompt that gets cached (one-time token cost).
+        Reused across all queries in the session.
         """
-        return """You are L9, an autonomous agent OS architect and expert system engineer.
+        if self._cached_system_prompt:
+            return self._cached_system_prompt
+
+        self._cached_system_prompt = """You are L9, an autonomous agent OS architect and expert system engineer.
 
 ## Your Capabilities
 You have access to a dynamic tool discovery system. When you need capabilities:
@@ -34,18 +77,18 @@ You have access to a dynamic tool discovery system. When you need capabilities:
 
 ## Tool Search Mechanism
 Use the tool_search() function to discover tools:
-- Semantic search across 1000+ available tools
-- Returns top-5 most relevant tools
+- Semantic search across available tools using pgvector
+- Returns top-k most relevant tools by similarity
 - Automatic filtering for availability and permissions
 - Token-efficient: only loads tools you actually need
 
 ## Task Execution Pattern
 For any task:
 1. Analyze requirements and identify tool gaps
-2. Execute: results = tool_search(query="<describe what you need>")
-3. Load tools: load_tools(tool_ids=results.top_tools)
+2. Search: results = tool_search(query="<describe what you need>")
+3. Review: examine discovered tools and their capabilities
 4. Execute: use loaded tools to accomplish task
-5. Iterate if new tool requirements discovered
+5. Iterate: discover additional tools if new requirements emerge
 
 ## Output Format
 - Always explain your reasoning before tool calls
@@ -59,6 +102,15 @@ For any task:
 - Log all tool invocations for audit
 - Ask for clarification if task is ambiguous
 """
+        # Estimate tokens (rough: 4 chars per token)
+        self._system_prompt_tokens = len(self._cached_system_prompt) // 4
+
+        logger.info(
+            "prompt_caching.system_prompt_cached",
+            estimated_tokens=self._system_prompt_tokens,
+        )
+
+        return self._cached_system_prompt
 
     def build_dynamic_tool_context(
         self,
@@ -67,8 +119,16 @@ For any task:
         conversation_history: list[dict[str, str]] | None = None,
     ) -> str:
         """
-        Dynamic context that varies per query (NOT cached)
-        Includes task-specific tools and conversation state
+        Dynamic context that varies per query (NOT cached).
+        Includes task-specific tools and conversation state.
+
+        Args:
+            discovered_tools: Tools discovered for this task
+            task: Current task description
+            conversation_history: Previous messages (optional)
+
+        Returns:
+            Dynamic context string to append to cached prompt
         """
         context_parts = []
 
@@ -76,159 +136,132 @@ For any task:
         if discovered_tools:
             context_parts.append("## Available Tools for This Task\n")
             for tool in discovered_tools:
-                context_parts.append(f"\n### {tool['name']}")
-                context_parts.append(f"\n{tool['description']}\n")
+                func = tool.get("function", tool)
+                name = func.get("name", "unknown")
+                desc = func.get("description", "")
+                context_parts.append(f"\n### {name}")
+                context_parts.append(f"\n{desc}\n")
 
-                if "parameters" in tool:
-                    context_parts.append("Parameters:\n")
-                    for param in tool["parameters"]:
-                        context_parts.append(f"- {param}\n")
+                # Parameters
+                params = func.get("parameters", {})
+                if params and params.get("properties"):
+                    context_parts.append("**Parameters:**\n")
+                    for param_name, param_spec in params.get("properties", {}).items():
+                        param_type = param_spec.get("type", "any")
+                        param_desc = param_spec.get("description", "")
+                        context_parts.append(f"- `{param_name}` ({param_type}): {param_desc}\n")
 
-        # Task section
+        # Current task
         context_parts.append(f"\n## Current Task\n{task}\n")
 
-        # Conversation history (if multi-turn)
+        # Conversation history (if provided)
         if conversation_history:
             context_parts.append("\n## Conversation History\n")
-            for msg in conversation_history[-5:]:  # Last 5 messages only
-                context_parts.append(f"\n**{msg['role'].title()}**: {msg['content']}\n")
+            for msg in conversation_history[-5:]:  # Last 5 messages
+                role = msg.get("role", "user")
+                content = msg.get("content", "")[:200]  # Truncate
+                context_parts.append(f"**{role}**: {content}\n")
 
         return "".join(context_parts)
 
-    def create_cached_message(
+    def build_full_prompt(
         self,
-        task: str,
         discovered_tools: list[dict[str, Any]],
+        task: str,
         conversation_history: list[dict[str, str]] | None = None,
-        model: str = "claude-opus-4-20250804",
-        max_tokens: int = 4096,
-    ) -> dict[str, Any]:
+    ) -> tuple[str, str]:
         """
-        Create message with prompt caching
-        Caches system prompt, reduces cost for subsequent calls
+        Build complete prompt with cached + dynamic parts.
+
+        Returns:
+            Tuple of (cached_system_prompt, dynamic_context)
         """
-
-        # Tier 1: Cached system prompt (one-time cost)
-        system_prompt = self.build_cached_system_prompt()
-
-        # Tier 2: Dynamic tool context (per-query cost)
-        tool_context = self.build_dynamic_tool_context(
-            discovered_tools, task, conversation_history
+        cached = self.build_cached_system_prompt()
+        dynamic = self.build_dynamic_tool_context(
+            discovered_tools=discovered_tools,
+            task=task,
+            conversation_history=conversation_history,
         )
 
-        # Build messages with caching
-        messages = [{"role": "user", "content": tool_context}]
+        return cached, dynamic
 
-        # Create message with cache control
-        response = self.client.messages.create(
-            model=model,
-            max_tokens=max_tokens,
-            system=[
-                {
-                    "type": "text",
-                    "text": system_prompt,
-                    "cache_control": {"type": "ephemeral"},  # Cache this tier
-                }
-            ],
-            messages=messages,
-            # Tool context NOT cached (varies per query)
-        )
+    def estimate_token_savings(
+        self,
+        num_requests: int,
+    ) -> dict[str, int]:
+        """
+        Estimate token savings from caching.
 
-        # Extract usage info
-        usage_data = {
-            "input_tokens": response.usage.input_tokens,
-            "output_tokens": response.usage.output_tokens,
-            "cache_creation_input_tokens": getattr(
-                response.usage, "cache_creation_input_tokens", 0
-            ),
-            "cache_read_input_tokens": getattr(
-                response.usage, "cache_read_input_tokens", 0
-            ),
-            "total_cost_estimate": self._estimate_cost(response.usage, model),
+        Args:
+            num_requests: Number of requests in session
+
+        Returns:
+            Dict with token savings info
+        """
+        if num_requests <= 1:
+            return {
+                "cached_tokens": self._system_prompt_tokens,
+                "without_caching": self._system_prompt_tokens,
+                "with_caching": self._system_prompt_tokens,
+                "tokens_saved": 0,
+            }
+
+        without_caching = self._system_prompt_tokens * num_requests
+        with_caching = self._system_prompt_tokens  # Only counted once
+
+        return {
+            "cached_tokens": self._system_prompt_tokens,
+            "without_caching": without_caching,
+            "with_caching": with_caching,
+            "tokens_saved": without_caching - with_caching,
         }
-
-        logger.info("Message created with caching")
-        logger.info(f"  Input tokens: {usage_data['input_tokens']}")
-        logger.info(f"  Cache read tokens: {usage_data['cache_read_input_tokens']}")
-        logger.info(f"  Estimated cost: ${usage_data['total_cost_estimate']:.4f}")
-
-        return {"response": response, "usage": usage_data}
-
-    @staticmethod
-    def _estimate_cost(usage, model: str) -> float:
-        """Rough cost estimation based on token usage"""
-        # Anthropic pricing (as of Jan 2026)
-        pricing = {
-            "claude-opus-4-20250804": {
-                "input": 0.015 / 1000,  # $15 per 1M tokens
-                "output": 0.030 / 1000,  # $30 per 1M tokens
-                "cache_read": 0.003 / 1000,  # $3 per 1M cached tokens
-            },
-            "claude-sonnet-4-20250514": {
-                "input": 0.003 / 1000,
-                "output": 0.015 / 1000,
-                "cache_read": 0.0003 / 1000,
-            },
-        }
-
-        rates = pricing.get(model, pricing["claude-sonnet-4-20250514"])
-
-        input_cost = usage.input_tokens * rates["input"]
-        output_cost = usage.output_tokens * rates["output"]
-        cache_cost = getattr(usage, "cache_read_input_tokens", 0) * rates["cache_read"]
-
-        return input_cost + output_cost + cache_cost
 
 
 class CachingMetricsCollector:
-    """Track caching effectiveness and cost savings"""
+    """
+    Collect and report caching metrics for observability.
+    """
 
     def __init__(self):
-        self.metrics = {
-            "total_queries": 0,
-            "total_input_tokens": 0,
-            "total_cache_reads": 0,
-            "total_cost": 0.0,
-            "cost_without_caching": 0.0,
-            "cost_savings_pct": 0.0,
-        }
+        self.metrics = CacheMetrics()
+        self._latencies: list[float] = []
 
-    def record_query(self, usage: dict[str, Any]):
-        """Record metrics from a single query"""
-        self.metrics["total_queries"] += 1
-        self.metrics["total_input_tokens"] += usage["input_tokens"]
-        self.metrics["total_cache_reads"] += usage["cache_read_input_tokens"]
-        self.metrics["total_cost"] += usage["total_cost_estimate"]
+    def record_cache_hit(self, tokens_saved: int = 0) -> None:
+        """Record a cache hit."""
+        self.metrics.cache_hits += 1
+        self.metrics.total_requests += 1
+        self.metrics.tokens_saved += tokens_saved
 
-        # Estimate what cost would be without caching
-        cost_without_cache = (
-            usage["input_tokens"] * 0.003 / 1000  # All input tokens billed
-            + usage["output_tokens"] * 0.015 / 1000
-        )
-        self.metrics["cost_without_caching"] += cost_without_cache
+    def record_cache_miss(self) -> None:
+        """Record a cache miss."""
+        self.metrics.cache_misses += 1
+        self.metrics.total_requests += 1
 
-        # Calculate savings percentage
-        if self.metrics["cost_without_caching"] > 0:
-            self.metrics["cost_savings_pct"] = (
-                (self.metrics["cost_without_caching"] - self.metrics["total_cost"])
-                / self.metrics["cost_without_caching"]
-                * 100
-            )
+    def record_latency(self, latency_ms: float) -> None:
+        """Record request latency."""
+        self._latencies.append(latency_ms)
+        if self._latencies:
+            self.metrics.avg_latency_ms = sum(self._latencies) / len(self._latencies)
 
-    def get_summary(self) -> dict[str, Any]:
-        """Get summary of caching metrics"""
+    def get_metrics(self) -> dict[str, Any]:
+        """Get all metrics as dict."""
         return {
-            **self.metrics,
-            "avg_cost_per_query": (
-                self.metrics["total_cost"] / self.metrics["total_queries"]
-                if self.metrics["total_queries"] > 0
-                else 0
-            ),
-            "avg_cache_hit_pct": (
-                self.metrics["total_cache_reads"]
-                / self.metrics["total_input_tokens"]
-                * 100
-                if self.metrics["total_input_tokens"] > 0
-                else 0
-            ),
+            "cache_hits": self.metrics.cache_hits,
+            "cache_misses": self.metrics.cache_misses,
+            "hit_rate": self.metrics.hit_rate,
+            "tokens_saved": self.metrics.tokens_saved,
+            "total_requests": self.metrics.total_requests,
+            "avg_latency_ms": self.metrics.avg_latency_ms,
         }
+
+    def reset(self) -> None:
+        """Reset all metrics."""
+        self.metrics = CacheMetrics()
+        self._latencies = []
+
+
+__all__ = [
+    "CacheMetrics",
+    "CachingMetricsCollector",
+    "PromptCachingStrategy",
+]

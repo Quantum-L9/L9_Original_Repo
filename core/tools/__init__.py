@@ -22,15 +22,11 @@ Breaking Changes (v2.0.0):
 # GMP-78 Phase 2: Dynamic Tool Discovery (PREFERRED)
 # GMP-79: Multi-Turn Tool Caching (Redis)
 # GMP-TD: Advanced Tool Discovery (Harvested 2026-01-25)
-# NOTE: anthropic_tool_search requires optional 'anthropic' SDK
-try:
-    from core.tools.anthropic_tool_search import (
-        AnthropicToolSearchAdapter,
-        ToolSearchOptimizer,
-    )
-except ImportError:
-    AnthropicToolSearchAdapter = None  # type: ignore[assignment,misc]
-    ToolSearchOptimizer = None  # type: ignore[assignment,misc]
+from core.tools.semantic_tool_search import (
+    SemanticToolSearchAdapter,
+    ToolSearchOptimizer,
+    ToolSearchResult,
+)
 
 # GMP-TD-WIRE: Discovery tracing/observability
 from core.tools.discovery_tracing import (
@@ -51,16 +47,11 @@ from core.tools.dynamic_discovery import (
     invalidate_tool_cache,
     is_dynamic_discovery_enabled,
 )
-# NOTE: prompt_caching is optional (for reference patterns)
-try:
-    from core.tools.prompt_caching import (
-        CachingMetricsCollector,
-        PromptCachingStrategy,
-    )
-except ImportError:
-    CachingMetricsCollector = None  # type: ignore[assignment,misc]
-    PromptCachingStrategy = None  # type: ignore[assignment,misc]
-
+from core.tools.prompt_caching import (
+    CachingMetricsCollector,
+    PromptCachingStrategy,
+)
+from core.tools.prompt_caching import CacheMetrics as PromptCacheMetrics  # noqa: F401
 from core.tools.registry_adapter import (
     ExecutorToolRegistry,
     create_executor_tool_registry,
@@ -74,17 +65,12 @@ from core.tools.registry_cache import (
     ToolRegistryCache,
 )
 
-# NOTE: semantic_discovery requires optional dependencies (qdrant, sentence_transformers)
-try:
-    from core.tools.semantic_discovery import (
-        DynamicToolDiscoveryService,
-        ToolContextFormatter,
-        ToolStatus,
-    )
-except ImportError:
-    DynamicToolDiscoveryService = None  # type: ignore[assignment,misc]
-    ToolContextFormatter = None  # type: ignore[assignment,misc]
-    ToolStatus = None  # type: ignore[assignment,misc]
+# GMP-TD: Semantic Discovery (uses pgvector, NOT qdrant)
+from core.tools.semantic_discovery import (
+    DynamicToolDiscoveryService,
+    ToolContextFormatter,
+    ToolStatus,
+)
 
 # GMP-78 Phase 1: Tool Embeddings (Foundation)
 # GMP-TD-WIRE: Added hybrid search (semantic + BM25)
@@ -128,12 +114,15 @@ __all__ = [
     "DiscoveryTrace",
     "DiscoveryTracer",
     "get_discovery_tracer",
-    # Advanced Tool Discovery (GMP-TD Harvested)
-    "AnthropicToolSearchAdapter",
-    "CachingMetricsCollector",
-    "DynamicToolDiscoveryService",
-    "PromptCachingStrategy",
-    "ToolContextFormatter",
+    # Semantic Tool Search (GMP-TD-WIRE)
+    "SemanticToolSearchAdapter",
     "ToolSearchOptimizer",
+    "ToolSearchResult",
+    # Prompt Caching
+    "CachingMetricsCollector",
+    "PromptCachingStrategy",
+    # Dynamic Discovery Service
+    "DynamicToolDiscoveryService",
+    "ToolContextFormatter",
     "ToolStatus",
 ]
