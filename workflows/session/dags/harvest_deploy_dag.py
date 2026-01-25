@@ -73,12 +73,12 @@ CRITICAL RULES:
 1. Identify CREATES (new files):
    - Source line ranges in markdown
    - Target file paths
-   
+
 2. Identify INJECTS (diffs):
    - Source line ranges in markdown
    - Target files and injection points
    - after_line or after_pattern
-   
+
 3. Identify REPLACES (replacements):
    - Source line ranges
    - Target file ranges to replace
@@ -156,10 +156,10 @@ CRITICAL:
 
 1. Check it exists and has content:
    ls -la {extracted_files}
-   
+
 2. For Python files, validate syntax:
    python3 -m py_compile {file.py}
-   
+
 3. For SQL files, basic structure check:
    head -5 {file.sql}
 
@@ -277,7 +277,7 @@ All must pass.""",
 ### Syntax Check
 {syntax_results}
 
-### Import Check  
+### Import Check
 {import_results}
 
 ### Lint Check
@@ -344,7 +344,7 @@ Options:
             node_type=NodeType.COMMIT,
             description="Git commit if user approves",
             action="""git add {files}
-            
+
 git commit -m "$(cat <<'EOF'
 feat(harvest): deploy {module_name}
 

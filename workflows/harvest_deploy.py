@@ -243,9 +243,7 @@ async def run_harvest_deploy(
     graph = create_harvest_deploy_graph()
 
     # Run the graph
-    final_state = await graph.ainvoke(initial_state)
-
-    return final_state
+    return await graph.ainvoke(initial_state)
 
 
 # =============================================================================
@@ -253,24 +251,32 @@ async def run_harvest_deploy(
 # =============================================================================
 
 
-async def main():
-    """CLI entry point for running harvest-deploy workflow."""
+def _parse_args():
+    """Parse CLI arguments."""
     import argparse
-
-    import yaml
 
     parser = argparse.ArgumentParser(description="Run Harvest-Deploy Workflow")
     parser.add_argument("--config", "-c", type=Path, help="YAML config file")
     parser.add_argument("--source", "-s", help="Source document path")
     parser.add_argument("--harvest-dir", "-o", help="Harvest directory")
     parser.add_argument("--working-dir", "-w", type=Path, help="Working directory")
+    return parser.parse_args(), parser
 
-    args = parser.parse_args()
 
+async def main():
+    """CLI entry point for running harvest-deploy workflow."""
+    import sys
+
+    import yaml
+
+    args, parser = _parse_args()
+
+    config: dict = {}
     if args.config:
-        with open(args.config) as f:
-            config = yaml.safe_load(f)
+        # Read config file synchronously before async context
+        config = yaml.safe_load(args.config.read_text())
 
+    if config:
         result = await run_harvest_deploy(
             source_document=config.get("source_document", args.source),
             harvest_directory=config.get("harvest_directory", args.harvest_dir),
@@ -293,8 +299,6 @@ async def main():
         )
 
     # Exit with appropriate code
-    import sys
-
     success = result.get("validation_passed", False) and not result.get("error")
     sys.exit(0 if success else 1)
 

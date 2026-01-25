@@ -71,7 +71,7 @@ async def validate_node(state: WorkflowState) -> dict:
             py_files = [f for f in files if f.endswith(".py")]
             if py_files:
                 cmd = f"python3 -m py_compile {' '.join(py_files)}"
-                code, stdout, stderr = await _run_shell(cmd, working_dir)
+                code, _, stderr = await _run_shell(cmd, working_dir)
 
                 if code != 0:
                     errors.append(f"py_compile failed: {stderr}")
@@ -112,7 +112,7 @@ async def validate_node(state: WorkflowState) -> dict:
         elif check_type == "shell":
             # Custom shell command
             command = check.get("command", "")
-            code, stdout, stderr = await _run_shell(command, working_dir)
+            code, _, stderr = await _run_shell(command, working_dir)
 
             if code != 0:
                 errors.append(
@@ -132,7 +132,7 @@ async def validate_node(state: WorkflowState) -> dict:
                     # Convert path to module: services/foo.py → services.foo
                     module = f.replace("/", ".").replace(".py", "")
                     cmd = f'python3 -c "import {module}"'
-                    code, stdout, stderr = await _run_shell(cmd, working_dir)
+                    code, _stdout, stderr = await _run_shell(cmd, working_dir)
 
                     if code != 0:
                         errors.append(f"Import failed: {module}: {stderr}")

@@ -174,7 +174,7 @@ class StepExecutor:
     def _run_shell(self, cmd: str, capture: bool = True) -> tuple[int, str, str]:
         """Run a shell command."""
         cmd = self._resolve_vars(cmd)
-        result = subprocess.run(
+        result = subprocess.run(  # noqa: S602 - shell=True is intentional for DAG runner
             cmd,
             shell=True,
             cwd=self.working_dir,
@@ -261,7 +261,7 @@ class StepExecutor:
             dst_path.parent.mkdir(parents=True, exist_ok=True)
 
             cmd = f'cp "{src}" "{dst}"'
-            code, stdout, stderr = self._run_shell(cmd)
+            code, _stdout, stderr = self._run_shell(cmd)
             if code != 0:
                 return StepResult(
                     success=False,
@@ -298,7 +298,7 @@ class StepExecutor:
                     error=f"Inject requires 'after_line' or 'after_pattern': {dst}",
                 )
 
-            code, stdout, stderr = self._run_shell(cmd)
+            code, _stdout, stderr = self._run_shell(cmd)
             if code != 0:
                 return StepResult(
                     success=False,
@@ -365,7 +365,7 @@ class StepExecutor:
 
             if check_type == "py_compile":
                 cmd = f"python3 -m py_compile {' '.join(files)}"
-                code, stdout, stderr = self._run_shell(cmd)
+                code, _, stderr = self._run_shell(cmd)
                 if code != 0:
                     return StepResult(
                         success=False,
@@ -400,7 +400,7 @@ class StepExecutor:
 
             elif check_type == "shell":
                 cmd = check.get("command", "")
-                code, stdout, stderr = self._run_shell(cmd)
+                code, _stdout, stderr = self._run_shell(cmd)
                 if code != 0:
                     return StepResult(
                         success=False,
@@ -434,7 +434,7 @@ class StepExecutor:
         context = {"variables": self.variables, "working_dir": self.working_dir}
 
         try:
-            exec(code_str, context)
+            exec(code_str, context)  # noqa: S102 - exec is intentional for Python step type
             return StepResult(
                 success=True,
                 output=context.get("output", "Python executed successfully"),

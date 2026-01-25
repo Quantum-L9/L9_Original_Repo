@@ -91,7 +91,7 @@ async def inject_files_node(state: WorkflowState) -> dict:
                 )
                 continue
 
-            code, stdout, stderr = await _run_shell(cmd, working_dir)
+            code, _stdout, stderr = await _run_shell(cmd, working_dir)
 
             if code != 0:
                 errors.append(f"Inject failed: {source} → {destination}: {stderr}")

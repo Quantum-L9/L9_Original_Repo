@@ -80,7 +80,7 @@ async def extract_files_node(state: WorkflowState) -> dict:
         else:
             cmd = f'sed -n \'{start_line},{end_line}p\' "{source}" > "{output_path}"'
 
-        code, stdout, stderr = await _run_shell(cmd, working_dir)
+        code, _stdout, stderr = await _run_shell(cmd, working_dir)
 
         if code != 0:
             errors.append(f"Extract failed for {output_file}: {stderr}")
