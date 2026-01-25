@@ -1,0 +1,121 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Policy"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2025-12-20T18:07:27Z"
+# updated_at: "2026-01-20T23:43:16Z"
+# layer: "foundation"
+# domain: "current_work"
+# file_name: "policy"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+schema_id: policy
+schema_version: "1.0"
+description: >
+  Defines conditional routing rules and escalation logic.
+  Policies determine what happens based on context and conditions.
+
+required_fields:
+  - policy_id
+  - condition
+  - action
+
+optional_fields:
+  - name
+  - description
+  - priority
+  - scope
+  - exceptions
+
+field_definitions:
+  policy_id:
+    type: string
+    pattern: "^POL-[A-Z]+-[0-9]{3}$"
+    description: "Unique identifier (e.g., POL-CONF-001)"
+  
+  name:
+    type: string
+    description: "Human-readable policy name"
+  
+  condition:
+    type: object
+    description: "The if condition that triggers this policy"
+    properties:
+      field:
+        type: string
+      operator:
+        type: enum
+        values: [lt, gt, eq, ne, contains]
+      value:
+        type: any
+  
+  action:
+    type: object
+    description: "What to do when condition is met"
+    properties:
+      type:
+        type: enum
+        values: [escalate, route, block, log]
+      target:
+        type: string
+      parameters:
+        type: object
+  
+  description:
+    type: string
+    description: "What this policy accomplishes"
+  
+  priority:
+    type: integer
+    description: "Execution order (lower = higher priority)"
+    default: 100
+  
+  scope:
+    type: enum
+    values: [global, module, agent]
+    default: global
+  
+  exceptions:
+    type: array
+    description: "Conditions where this policy does not apply"
+
+classification_hints:
+  keywords:
+    - policy
+    - if
+    - then
+    - when
+    - escalate
+    - route
+    - conditional
+
+runtime_behavior:
+  effect: "conditional_routing"
+  enforcement: "runtime evaluation"
+  failure_action: "execute action"
+
+examples:
+  - policy_id: POL-CONF-001
+    name: "Low Confidence Escalation"
+    condition:
+      field: confidence
+      operator: lt
+      value: 0.85
+    action:
+      type: escalate
+      target: L
+      parameters:
+        reason: "confidence_below_threshold"
+    description: "Escalate to L when confidence is too low"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "current-work", "foundation", "schema", "utility"]
+# keywords: ["classification_hints", "description", "examples", "field_definitions", "optional_fields", "policy"]
+# last_modified: "2026-01-20T23:43:16Z"
+# ============================================================================

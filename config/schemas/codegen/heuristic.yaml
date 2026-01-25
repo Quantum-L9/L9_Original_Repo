@@ -1,0 +1,118 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Heuristic"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2025-12-20T18:07:27Z"
+# updated_at: "2026-01-20T23:43:16Z"
+# layer: "foundation"
+# domain: "current_work"
+# file_name: "heuristic"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+schema_id: heuristic
+schema_version: "1.0"
+description: >
+  Defines judgment rules and best practices that guide decision-making.
+  Heuristics are softer than constraints but still enforced.
+
+required_fields:
+  - heuristic_id
+  - rule
+  - rationale
+
+optional_fields:
+  - why
+  - violation_signals
+  - auto_fixes
+  - severity
+  - examples
+
+field_definitions:
+  heuristic_id:
+    type: string
+    pattern: "^H-[A-Z]+-[0-9]{3}$"
+    description: "Unique identifier (e.g., H-EXC-001)"
+  
+  rule:
+    type: string
+    description: "The heuristic rule in plain English"
+    examples:
+      - "never_swallow_exceptions"
+      - "prefer_idempotent_operations"
+  
+  rationale:
+    type: string
+    description: "Why this heuristic exists"
+  
+  why:
+    type: string
+    description: "Deeper explanation of the reasoning"
+  
+  violation_signals:
+    type: array
+    description: "Code patterns that indicate a violation"
+    examples:
+      - "except: pass"
+      - "bare except clause"
+  
+  auto_fixes:
+    type: array
+    description: "Automatic corrections that can be applied"
+  
+  severity:
+    type: enum
+    values: [critical, warning, info]
+    default: warning
+    description: "How important this heuristic is"
+  
+  examples:
+    type: object
+    properties:
+      bad:
+        type: array
+        description: "Examples of violations"
+      good:
+        type: array
+        description: "Examples of correct usage"
+
+classification_hints:
+  keywords:
+    - heuristic
+    - judgment
+    - guideline
+    - best practice
+    - prefer
+    - avoid
+    - never
+    - always
+
+runtime_behavior:
+  effect: "subtle_guardrails"
+  enforcement: "pattern detection"
+  failure_action: "warn and suggest fix"
+
+examples:
+  - heuristic_id: H-EXC-001
+    rule: "never_swallow_exceptions"
+    rationale: "Silent failures hide bugs and make debugging impossible"
+    severity: critical
+    violation_signals:
+      - "except: pass"
+      - "except Exception: pass"
+    examples:
+      bad:
+        - "try: risky_op() except: pass"
+      good:
+        - "try: risky_op() except SpecificError as e: logger.error(e)"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["current-work", "foundation", "schema", "utility"]
+# keywords: ["classification_hints", "description", "examples", "field_definitions", "heuristic", "optional_fields"]
+# last_modified: "2026-01-20T23:43:16Z"
+# ============================================================================

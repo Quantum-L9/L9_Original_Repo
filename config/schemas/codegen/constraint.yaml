@@ -1,0 +1,102 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Constraint"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2025-12-20T18:07:27Z"
+# updated_at: "2026-01-20T23:43:16Z"
+# layer: "foundation"
+# domain: "current_work"
+# file_name: "constraint"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+schema_id: constraint
+schema_version: "1.0"
+description: >
+  Defines hard limits and blocking rules that prevent certain actions.
+  Constraints are enforced at runtime and cause execution to halt if violated.
+
+required_fields:
+  - constraint_id
+  - rule
+  - scope
+  - severity
+
+optional_fields:
+  - rationale
+  - examples
+  - violation_message
+  - auto_fix
+
+field_definitions:
+  constraint_id:
+    type: string
+    pattern: "^C-[A-Z]+-[0-9]{3}$"
+    description: "Unique identifier (e.g., C-FILES-001)"
+  
+  rule:
+    type: string
+    description: "The constraint rule in plain English"
+    examples:
+      - "files_must_be_edited_not_recreated"
+      - "tests_required_for_public_interfaces"
+  
+  scope:
+    type: enum
+    values: [code, infra, data, all]
+    description: "What domain this constraint applies to"
+  
+  severity:
+    type: enum
+    values: [blocking, warning, info]
+    description: "How strictly this constraint is enforced"
+  
+  rationale:
+    type: string
+    description: "Why this constraint exists"
+  
+  examples:
+    type: array
+    description: "Examples of violations and correct behavior"
+  
+  violation_message:
+    type: string
+    description: "Error message shown when constraint is violated"
+  
+  auto_fix:
+    type: boolean
+    description: "Whether an automatic fix is available"
+
+classification_hints:
+  keywords:
+    - constraint
+    - must
+    - forbidden
+    - required
+    - blocking
+    - prohibited
+    - disallowed
+
+runtime_behavior:
+  effect: "hard_block"
+  enforcement: "pre-execution validation"
+  failure_action: "halt and report"
+
+examples:
+  - constraint_id: C-FILES-001
+    rule: "files_must_be_edited_not_recreated"
+    scope: code
+    severity: blocking
+    rationale: "Prevents accidental deletion of git history and context"
+    violation_message: "Cannot recreate existing file. Use edit/patch instead."
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["current-work", "foundation", "schema", "utility"]
+# keywords: ["classification_hints", "constraint", "description", "examples", "field_definitions", "optional_fields"]
+# last_modified: "2026-01-20T23:43:16Z"
+# ============================================================================

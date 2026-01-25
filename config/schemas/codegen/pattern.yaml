@@ -1,0 +1,115 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Pattern"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2025-12-20T18:07:27Z"
+# updated_at: "2026-01-20T23:43:16Z"
+# layer: "foundation"
+# domain: "current_work"
+# file_name: "pattern"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+schema_id: pattern
+schema_version: "1.0"
+description: >
+  Defines approved architectural and design patterns.
+  Patterns provide structural guidance and shape enforcement.
+
+required_fields:
+  - pattern_id
+  - name
+  - intent
+
+optional_fields:
+  - applicability
+  - when_to_use
+  - when_not_to_use
+  - constraints
+  - failure_modes
+  - remediation
+  - related_patterns
+
+field_definitions:
+  pattern_id:
+    type: string
+    pattern: "^[A-Z_]+$"
+    description: "Unique identifier (e.g., MVC, CQRS, HEXAGONAL)"
+  
+  name:
+    type: string
+    description: "Full pattern name"
+    examples:
+      - "Model-View-Controller"
+      - "Command Query Responsibility Segregation"
+  
+  intent:
+    type: string
+    description: "What problem this pattern solves"
+  
+  applicability:
+    type: string
+    description: "What situations this pattern applies to"
+  
+  when_to_use:
+    type: array
+    description: "Conditions that indicate this pattern is appropriate"
+  
+  when_not_to_use:
+    type: array
+    description: "Conditions that indicate this pattern should be avoided"
+  
+  constraints:
+    type: array
+    description: "Rules that must be followed when using this pattern"
+  
+  failure_modes:
+    type: array
+    description: "Common ways this pattern can be misapplied"
+  
+  remediation:
+    type: string
+    description: "How to fix violations of this pattern"
+  
+  related_patterns:
+    type: array
+    description: "Other patterns that work well with this one"
+
+classification_hints:
+  keywords:
+    - pattern
+    - architecture
+    - design
+    - structure
+    - approach
+    - style
+
+runtime_behavior:
+  effect: "shape_enforcement"
+  enforcement: "design validation"
+  failure_action: "suggest correction"
+
+examples:
+  - pattern_id: MVC
+    name: "Model-View-Controller"
+    intent: "Separate business logic from presentation"
+    when_to_use:
+      - "Building web applications"
+      - "Need clear separation of concerns"
+    constraints:
+      - "no_business_logic_in_views"
+      - "models_are_data_only"
+    failure_modes:
+      - "Fat controllers"
+      - "Business logic in templates"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["current-work", "foundation", "model-config", "schema", "utility"]
+# keywords: ["classification_hints", "description", "examples", "field_definitions", "optional_fields", "pattern"]
+# last_modified: "2026-01-20T23:43:16Z"
+# ============================================================================

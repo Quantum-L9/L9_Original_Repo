@@ -1,0 +1,110 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Protocol"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2025-12-20T18:07:27Z"
+# updated_at: "2026-01-20T23:43:16Z"
+# layer: "foundation"
+# domain: "current_work"
+# file_name: "protocol"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+schema_id: protocol
+schema_version: "1.0"
+description: >
+  Defines required sequences and workflows that must be followed.
+  Protocols enforce order and completeness of operations.
+
+required_fields:
+  - protocol_id
+  - name
+  - steps
+
+optional_fields:
+  - description
+  - enforcement
+  - preconditions
+  - postconditions
+  - failure_handling
+
+field_definitions:
+  protocol_id:
+    type: string
+    pattern: "^P-[A-Z]+-[0-9]{3}$"
+    description: "Unique identifier (e.g., P-CODE-001)"
+  
+  name:
+    type: string
+    description: "Human-readable protocol name"
+    examples:
+      - "Code Change Protocol"
+      - "Research Synthesis Protocol"
+  
+  steps:
+    type: array
+    description: "Ordered list of required steps"
+    item_type: string
+    min_items: 2
+  
+  description:
+    type: string
+    description: "What this protocol accomplishes"
+  
+  enforcement:
+    type: enum
+    values: [required, recommended, optional]
+    default: required
+    description: "How strictly this protocol must be followed"
+  
+  preconditions:
+    type: array
+    description: "Conditions that must be true before starting"
+  
+  postconditions:
+    type: array
+    description: "Conditions that must be true after completion"
+  
+  failure_handling:
+    type: string
+    description: "What to do if a step fails"
+
+classification_hints:
+  keywords:
+    - protocol
+    - workflow
+    - sequence
+    - steps
+    - process
+    - procedure
+    - pipeline
+
+runtime_behavior:
+  effect: "required_sequence"
+  enforcement: "step validation"
+  failure_action: "escalate or retry"
+
+examples:
+  - protocol_id: P-CODE-001
+    name: "Code Change Protocol"
+    steps:
+      - "plan"
+      - "diff"
+      - "verify"
+      - "report"
+    enforcement: required
+    description: "Standard workflow for all code modifications"
+    postconditions:
+      - "diff is valid"
+      - "report includes confidence score"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["current-work", "foundation", "pipeline", "schema", "utility", "workflow"]
+# keywords: ["classification_hints", "description", "examples", "field_definitions", "optional_fields", "protocol"]
+# last_modified: "2026-01-20T23:43:16Z"
+# ============================================================================
