@@ -1,0 +1,115 @@
+# =============================================================================
+# L9 Platform Helm Chart - Development Environment
+# =============================================================================
+# Usage:
+#   helm install l9-dev ./l9-platform -f values-dev.yaml
+# =============================================================================
+
+global:
+  environment: development
+  domain: l9-dev.local
+
+api:
+  replicaCount: 1
+  
+  image:
+    tag: "latest"
+    pullPolicy: Always
+  
+  ingress:
+    enabled: false
+  
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+  
+  autoscaling:
+    enabled: false
+  
+  podDisruptionBudget:
+    enabled: false
+  
+  env:
+    LOG_LEVEL: DEBUG
+
+mcpMemory:
+  replicaCount: 1
+  
+  image:
+    tag: "latest"
+    pullPolicy: Always
+  
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+postgresql:
+  primary:
+    persistence:
+      size: 5Gi
+    
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "250m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+
+redis:
+  master:
+    persistence:
+      size: 2Gi
+    
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "50m"
+      limits:
+        memory: "256Mi"
+        cpu: "250m"
+
+neo4j:
+  persistence:
+    size: 5Gi
+  
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+
+monitoring:
+  prometheus:
+    persistence:
+      size: 5Gi
+    
+    retention: 7d
+  
+  grafana:
+    persistence:
+      size: 2Gi
+    
+    ingress:
+      enabled: false
+  
+  jaeger:
+    persistence:
+      size: 2Gi
+
+security:
+  networkPolicy:
+    enabled: false
+
+backup:
+  enabled: false
