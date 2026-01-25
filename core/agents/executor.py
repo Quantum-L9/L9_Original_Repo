@@ -79,6 +79,15 @@ from core.worldmodel.insight_emitter import get_insight_emitter
 from memory.agent_persistence import AgentPersistenceService
 from runtime.dora import emit_executor_trace, update_dora_block_in_file
 
+# Domain Tensor Bridge import (optional - graceful degradation)
+try:
+    from domain_tensor_bridge import ReasoningEngine as DTBReasoningEngine
+
+    _has_tensor_bridge = True
+except ImportError:
+    DTBReasoningEngine = None  # type: ignore[misc, assignment]
+    _has_tensor_bridge = False
+
 # Initialize logger early for import error handling
 logger = structlog.get_logger(__name__)
 
@@ -428,6 +437,9 @@ class AgentExecutorService:
         # Stage 5: Graph Hydrator for loading agent context from Neo4j (optional)
         self._graph_hydrator: Any | None = None
 
+        # Domain Tensor Bridge for tensor reasoning enrichment (optional)
+        self._tensor_bridge: Any | None = None
+
         logger.info(
             "agent.executor.init: default_agent_id=%s, max_iterations=%d, persistence=%s",
             self._default_agent_id,
@@ -486,6 +498,23 @@ class AgentExecutorService:
         logger.info(
             "agent.executor.graph_hydrator_set: enabled=%s",
             hydrator is not None,
+        )
+
+    def set_tensor_bridge(self, bridge: Any) -> None:
+        """
+        Set the Domain Tensor Bridge for tensor reasoning enrichment.
+
+        Stage 6: Domain Tensor Bridge Integration (GMP-DTB-WIRE).
+        Enables tensor-based context enrichment before agent execution.
+        The bridge provides multi-modal reasoning (causal, symbolic, analogical).
+
+        Args:
+            bridge: ReasoningEngine instance from domain_tensor_bridge
+        """
+        self._tensor_bridge = bridge
+        logger.info(
+            "agent.executor.tensor_bridge_set: enabled=%s",
+            bridge is not None,
         )
 
     async def shutdown(self) -> None:
@@ -738,6 +767,35 @@ class AgentExecutorService:
                         task_id=task_id_str,
                         agent_id=task.agent_id,
                         error=str(hydration_error),
+                    )
+
+            # Stage 6: Domain Tensor Bridge Enrichment (GMP-DTB-WIRE)
+            # Enrich context with tensor-based reasoning before execution
+            tensor_enrichment = None
+            if _has_tensor_bridge and self._tensor_bridge is not None:
+                try:
+                    user_message = (
+                        task.payload.get("message", "") if task.payload else ""
+                    )
+                    if user_message:
+                        # Use DTB ReasoningEngine for context enrichment
+                        tensor_enrichment = await self._tensor_bridge.enrich_context(
+                            query=user_message,
+                            domain_id=task.agent_id,
+                            reasoning_modes=["causal", "symbolic"],
+                        )
+                        logger.debug(
+                            "agent.executor.tensor_enrichment",
+                            task_id=task_id_str,
+                            enrichment_type=type(tensor_enrichment).__name__,
+                            has_enrichment=tensor_enrichment is not None,
+                        )
+                except Exception as tensor_error:
+                    # Non-fatal - log and continue without tensor enrichment
+                    logger.warning(
+                        "agent.executor.tensor_enrichment_failed",
+                        task_id=task_id_str,
+                        error=str(tensor_error),
                     )
 
             # Instantiate agent

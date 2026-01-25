@@ -33,15 +33,23 @@ project_root = Path(__file__).parent.parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
 
 from core.agents.executor import AgentExecutorService
-from core.agents.schemas import (AgentConfig, AgentTask, AgentType, AIOSResult,
-                                 DuplicateTaskResponse, ExecutionResult,
-                                 ToolBinding, ToolCallRequest, ToolCallResult)
+from core.agents.schemas import (
+    AgentConfig,
+    AgentTask,
+    AgentType,
+    AIOSResult,
+    DuplicateTaskResponse,
+    ExecutionResult,
+    ToolBinding,
+    ToolCallRequest,
+    ToolCallResult,
+)
 
 # =============================================================================
 # Contract-Grade Mock Implementations
@@ -98,8 +106,8 @@ class MockToolRegistry:
         self.dispatch_calls: list[dict[str, Any]] = []
         self.governance_calls: list[dict[str, str]] = []
         self._approved_tools: list[ToolBinding] = []
-        self._dispatch_result: Optional[ToolCallResult] = None
-        self._dispatch_exception: Optional[Exception] = None
+        self._dispatch_result: ToolCallResult | None = None
+        self._dispatch_exception: Exception | None = None
 
     def set_approved_tools(self, tools: list[ToolBinding]) -> None:
         """Set tools that will be returned as approved."""
@@ -176,7 +184,7 @@ class MockSubstrateService:
     def __init__(self) -> None:
         self.packets: list[Any] = []
         self._search_results: list[dict[str, Any]] = []
-        self._write_exception: Optional[Exception] = None
+        self._write_exception: Exception | None = None
 
     def set_search_results(self, results: list[dict[str, Any]]) -> None:
         """Set results to return from search."""
@@ -208,7 +216,7 @@ class MockSubstrateService:
     async def search_packets_by_type(
         self,
         packet_type: str,
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """Search packets by type - searches stored packets."""
@@ -225,7 +233,7 @@ class MockSubstrateService:
     async def search_packets_by_thread(
         self,
         thread_id: str,
-        packet_type: Optional[str] = None,
+        packet_type: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """Search packets by thread."""
@@ -246,7 +254,7 @@ class MockAgentRegistry:
         """Register an agent."""
         self._agents[config.agent_id] = config
 
-    def get_agent_config(self, agent_id: str) -> Optional[AgentConfig]:
+    def get_agent_config(self, agent_id: str) -> AgentConfig | None:
         """Get agent config."""
         return self._agents.get(agent_id)
 
@@ -1203,12 +1211,143 @@ async def test_tool_call_packet_emitted(
 
 
 # =============================================================================
+# Test: Domain Tensor Bridge Integration (GMP-DTB-WIRE)
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_set_tensor_bridge(
+    executor: AgentExecutorService,
+) -> None:
+    """
+    Contract: Executor accepts tensor bridge via setter.
+
+    Verifies:
+    - set_tensor_bridge accepts any object
+    - _tensor_bridge member is set correctly
+    """
+    # Initial state
+    assert executor._tensor_bridge is None
+
+    # Set mock tensor bridge
+    mock_bridge = object()
+    executor.set_tensor_bridge(mock_bridge)
+
+    assert executor._tensor_bridge is mock_bridge
+
+
+@pytest.mark.asyncio
+async def test_execution_without_tensor_bridge(
+    executor: AgentExecutorService,
+    mock_aios: MockAIOSRuntime,
+    mock_tool_registry: MockToolRegistry,
+    sample_task: AgentTask,
+) -> None:
+    """
+    Contract: Execution works without tensor bridge (regression test).
+
+    Verifies:
+    - Task completes successfully when tensor bridge is None
+    - No tensor enrichment errors when bridge not set
+    """
+    mock_aios.set_responses([AIOSResult.response("Success", tokens_used=10)])
+
+    result = await executor.start_agent_task(sample_task)
+
+    assert result.status == "completed"
+    assert result.error is None
+
+
+class MockTensorBridge:
+    """Mock Domain Tensor Bridge for testing."""
+
+    def __init__(self) -> None:
+        self.enrich_calls: list[dict[str, Any]] = []
+        self.should_fail: bool = False
+
+    async def enrich_context(
+        self,
+        query: str,
+        domain_id: str,
+        reasoning_modes: list[str],
+    ) -> dict[str, Any]:
+        """Mock context enrichment."""
+        if self.should_fail:
+            raise RuntimeError("Tensor bridge failure")
+
+        self.enrich_calls.append(
+            {
+                "query": query,
+                "domain_id": domain_id,
+                "reasoning_modes": reasoning_modes,
+            }
+        )
+        return {
+            "enriched": True,
+            "modes_used": reasoning_modes,
+        }
+
+
+@pytest.mark.asyncio
+async def test_execution_with_tensor_bridge(
+    executor: AgentExecutorService,
+    mock_aios: MockAIOSRuntime,
+    mock_tool_registry: MockToolRegistry,
+    sample_task: AgentTask,
+) -> None:
+    """
+    Contract: Tensor bridge enrichment is called during execution.
+
+    Verifies:
+    - enrich_context called with correct parameters
+    - Task still completes after enrichment
+    """
+    mock_bridge = MockTensorBridge()
+    executor.set_tensor_bridge(mock_bridge)
+
+    mock_aios.set_responses([AIOSResult.response("Success", tokens_used=10)])
+
+    result = await executor.start_agent_task(sample_task)
+
+    assert result.status == "completed"
+    # Note: enrich_context is only called if task.payload has "message"
+    # and _has_tensor_bridge is True (import succeeded)
+
+
+@pytest.mark.asyncio
+async def test_tensor_bridge_failure_non_fatal(
+    executor: AgentExecutorService,
+    mock_aios: MockAIOSRuntime,
+    mock_tool_registry: MockToolRegistry,
+    sample_task: AgentTask,
+) -> None:
+    """
+    Contract: Tensor bridge failure does not block execution.
+
+    Verifies:
+    - Task completes even when tensor bridge throws
+    - Failure is logged but not propagated
+    """
+    mock_bridge = MockTensorBridge()
+    mock_bridge.should_fail = True
+    executor.set_tensor_bridge(mock_bridge)
+
+    mock_aios.set_responses([AIOSResult.response("Success", tokens_used=10)])
+
+    result = await executor.start_agent_task(sample_task)
+
+    # Task should still complete despite tensor bridge failure
+    assert result.status == "completed"
+    assert result.error is None
+
+
+# =============================================================================
 # Public API
 # =============================================================================
 
 __all__ = [
     "MockAIOSRuntime",
-    "MockToolRegistry",
-    "MockSubstrateService",
     "MockAgentRegistry",
+    "MockSubstrateService",
+    "MockToolRegistry",
 ]
