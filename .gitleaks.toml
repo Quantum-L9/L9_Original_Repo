@@ -67,11 +67,12 @@ paths = [
     '''tests/''',
 ]
 
-# Ignore specific file patterns
+# Ignore specific file patterns (ONLY truly safe patterns)
+# NOTE: DO NOT ignore .yaml - secrets often leak there!
 regexTarget = "match"
 regexes = [
-    '''\.example$''',
-    '''\.md$''',
-    '''\.yaml$''',
-    '''\.txt$''',
+    '''\.example$''',      # Example files by definition don't have real secrets
+    '''\.template$''',     # Template files use placeholders
+    '''_example\.''',      # Example suffix variations
+    '''\.sample$''',       # Sample files
 ]

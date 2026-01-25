@@ -1,13 +1,14 @@
 # ADR 0012: Memory DAG Pipeline
 
 ## Status
-Accepted
+Accepted (Revised 2026-01-25 — GMP-125)
 
 ## Pattern
-All packets processed through SubstrateDAG with ordered nodes; each node transforms/enriches data.
+All packets processed through SubstrateDAG with ordered nodes; each node transforms/enriches data. EnrichmentDAG provides 3-tier fallback for resilient writes.
 
 ## Files
-- `memory/substrate_dag.py` - DAG implementation
+- `memory/substrate_dag.py` - Primary DAG implementation
+- `memory/enrichment_dag.py` - 3-tier fallback enrichment (GMP-125)
 - `memory/substrate_service.py` - `write_packet()` entry point
 - `memory/ingestion.py` - `ingest_packet()` convenience function
 
@@ -56,6 +57,82 @@ PacketEnvelopeIn
 PacketWriteResult(status, packet_id, written_tables)
 ```
 
+## 3-Tier Fallback Pattern (GMP-125)
+
+EnrichmentDAG implements automatic degradation when enrichment fails:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  EnrichmentDAG.run(envelope)                                    │
+│                                                                 │
+│  Circuit Breaker Check ─────► If OPEN, skip to Tier 2           │
+│         │                                                       │
+│         ▼                                                       │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ TIER 1: Full Enrichment                                 │   │
+│  │ • Semantic embedding + search                           │   │
+│  │ • Entity extraction → knowledge_facts                   │   │
+│  │ • Graph enrichment via SagaExecutor                     │   │
+│  │ • Write packet to repository                            │   │
+│  │                                                         │   │
+│  │ written_tables: [packets, knowledge_facts, relationships]│   │
+│  └─────────────────────┬───────────────────────────────────┘   │
+│                        │                                        │
+│              On failure/timeout                                 │
+│                        ▼                                        │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ TIER 2: Core Only                                       │   │
+│  │ • Skip semantic, entity extraction, graph               │   │
+│  │ • Write packet to repository only                       │   │
+│  │                                                         │   │
+│  │ written_tables: [packets]                               │   │
+│  └─────────────────────┬───────────────────────────────────┘   │
+│                        │                                        │
+│              On failure/timeout                                 │
+│                        ▼                                        │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ TIER 3: Direct DB                                       │   │
+│  │ • Raw INSERT bypassing ORM                              │   │
+│  │ • Emergency fallback for maximum reliability            │   │
+│  │                                                         │   │
+│  │ written_tables: [packets]                               │   │
+│  └─────────────────────┬───────────────────────────────────┘   │
+│                        │                                        │
+│              On failure                                         │
+│                        ▼                                        │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │ DEAD-LETTER QUEUE                                       │   │
+│  │ • Push failed packet to DLQ for later reprocessing      │   │
+│  │ • Return error result                                   │   │
+│  └─────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## EnrichmentDAG Usage
+```python
+from memory.enrichment_dag import EnrichmentDAG, EnrichmentConfig
+
+# Initialize with dependencies
+dag = EnrichmentDAG(
+    repository=substrate_repository,
+    semantic_service=semantic_service,
+    saga_executor=saga_executor,  # Optional
+    config=EnrichmentConfig(
+        enable_semantic_enrichment=True,
+        enable_entity_extraction=True,
+        enable_graph_enrichment=True,
+        enable_fallback_tiers=True,  # Enable 3-tier fallback
+        enable_dlq=True,
+        cb_failure_threshold=5,
+        cb_window_seconds=60,
+    ),
+)
+
+# Run enrichment
+result = await dag.run(envelope)
+# Returns: PacketWriteResult with enrichment_status, write_tier_used
+```
+
 ## Node Responsibilities
 | Node | Input | Output | Side Effect |
 |------|-------|--------|-------------|
@@ -68,12 +145,22 @@ PacketWriteResult(status, packet_id, written_tables)
 | world_model_trigger | Envelope | Update result | World model update |
 | checkpoint | Envelope | Checkpoint ID | State snapshot |
 
+## Enrichment Tiers
+| Tier | Name | Written Tables | When Used |
+|------|------|----------------|-----------|
+| 1 | Full | packets, knowledge_facts, relationships | Normal operation |
+| 2 | Core Only | packets | Tier 1 fails/times out |
+| 3 | Direct DB | packets | Tier 2 fails, emergency |
+| DLQ | Dead-Letter | none | All tiers failed |
+
 ## Rules
 1. Packets MUST flow through full DAG
 2. Node failure emits error packet, continues to next
 3. Circuit breaker wraps entire DAG execution
 4. Each node logs start/end with timing
 5. Written tables tracked in result
+6. **3-tier fallback ensures packet persistence** (GMP-125)
+7. **DLQ captures failures for reprocessing** (GMP-125)
 
 ## Validation Enforcement
 
@@ -100,6 +187,8 @@ This ensures single enforcement point, no duplicate paths, consistent audit trai
 - Return proper result from each node
 - Log node execution metrics
 - Use `ingest_packet()` for ALL packet writes
+- Use `EnrichmentDAG` for writes needing resilience (GMP-125)
+- Configure fallback tiers based on criticality (GMP-125)
 
 **DO NOT:**
 - Bypass DAG for "fast" writes
@@ -108,3 +197,4 @@ This ensures single enforcement point, no duplicate paths, consistent audit trai
 - Catch exceptions silently in nodes
 - Duplicate validation outside `intake_node`
 - Create parallel validation pipelines
+- Disable fallback tiers in production (GMP-125)

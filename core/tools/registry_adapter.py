@@ -116,12 +116,16 @@ __dora_meta__ = {
 
 import asyncio
 import time
-from typing import TYPE_CHECKING, Any, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import uuid4
 
 import structlog
 
 from core.agents.schemas import ToolBinding, ToolCallResult
+
+# GMP-124: Tool registry caching layer
+from core.tools.registry_cache import CacheConfig, ToolRegistryCache
+
 # GMP-45: Tool argument sanitization gate
 from core.tools.sanitizer import ToolInputSanitizationError, ToolInputSanitizer
 
@@ -133,6 +137,9 @@ if TYPE_CHECKING:
     from core.governance.engine import GovernanceEngineService
 
 from core.decorators import must_stay_async
+
+# GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
+from core.governance.tool_risk_policy import get_high_risk_tools, get_side_effect_tools
 
 logger = structlog.get_logger(__name__)
 
@@ -202,10 +209,6 @@ class RiskLevel:
     HIGH = "high"
 
 
-# GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
-from core.governance.tool_risk_policy import (get_high_risk_tools,
-                                              get_side_effect_tools)
-
 SIDE_EFFECT_TOOLS = get_side_effect_tools()
 HIGH_RISK_TOOLS = get_high_risk_tools()
 
@@ -232,9 +235,10 @@ class ExecutorToolRegistry:
 
     def __init__(
         self,
-        base_registry: Optional[Any] = None,
+        base_registry: Any | None = None,
         governance_enabled: bool = True,
-        governance_engine: Optional["GovernanceEngineService"] = None,
+        governance_engine: GovernanceEngineService | None = None,
+        cache_config: CacheConfig | None = None,
     ):
         """
         Initialize the adapter.
@@ -243,6 +247,7 @@ class ExecutorToolRegistry:
             base_registry: Existing ToolRegistry (auto-creates if None)
             governance_enabled: Whether to enforce governance (legacy flag)
             governance_engine: GovernanceEngineService for policy evaluation
+            cache_config: Optional cache configuration (creates default if None)
         """
         # Get or create base registry
         if base_registry is None:
@@ -261,18 +266,22 @@ class ExecutorToolRegistry:
 
         self._governance_enabled = governance_enabled
         self._governance_engine = governance_engine
-        self._approved_overrides: dict[str, set[str]] = (
-            {}
-        )  # agent_id -> approved tool IDs
+        self._approved_overrides: dict[
+            str, set[str]
+        ] = {}  # agent_id -> approved tool IDs
+
+        # GMP-124: Initialize tool metadata cache
+        self._cache = ToolRegistryCache(cache_config or CacheConfig())
 
         logger.info(
-            "ExecutorToolRegistry initialized: governance=%s, engine=%s, tools=%d",
+            "ExecutorToolRegistry initialized: governance=%s, engine=%s, tools=%d, cache=%s",
             governance_enabled,
             "attached" if governance_engine else "none",
             len(self._registry.list_all()) if self._registry else 0,
+            "enabled",
         )
 
-    def set_governance_engine(self, engine: "GovernanceEngineService") -> None:
+    def set_governance_engine(self, engine: GovernanceEngineService) -> None:
         """Attach a governance engine for policy evaluation."""
         self._governance_engine = engine
         logger.info("Governance engine attached to tool registry")
@@ -333,14 +342,13 @@ class ExecutorToolRegistry:
                     continue
             elif self._governance_enabled:
                 # Fallback to hardcoded rules
-                if tool_meta.id in SIDE_EFFECT_TOOLS:
-                    if not self._is_approved(agent_id, tool_meta.id):
-                        logger.debug(
-                            "Tool %s denied for agent %s (side-effect, not approved)",
-                            tool_meta.id,
-                            agent_id,
-                        )
-                        continue
+                if tool_meta.id in SIDE_EFFECT_TOOLS and not self._is_approved(agent_id, tool_meta.id):
+                    logger.debug(
+                        "Tool %s denied for agent %s (side-effect, not approved)",
+                        tool_meta.id,
+                        agent_id,
+                    )
+                    continue
 
                 if tool_meta.id in HIGH_RISK_TOOLS:
                     logger.debug(
@@ -451,9 +459,8 @@ class ExecutorToolRegistry:
                 if not allowed:
                     continue
             elif self._governance_enabled:
-                if tool_meta.id in SIDE_EFFECT_TOOLS:
-                    if not self._is_approved(agent_id, tool_meta.id):
-                        continue
+                if tool_meta.id in SIDE_EFFECT_TOOLS and not self._is_approved(agent_id, tool_meta.id):
+                    continue
                 if tool_meta.id in HIGH_RISK_TOOLS:
                     continue
 
@@ -545,7 +552,15 @@ class ExecutorToolRegistry:
                     error="Tool registry not available",
                 )
 
-            tool_meta = self._registry.get(tool_id)
+            # GMP-124: Check cache first, then fall back to registry
+            tool_meta = self._cache.get(tool_id)
+            if tool_meta is None:
+                # Cache miss - fetch from registry
+                tool_meta = self._registry.get(tool_id)
+                if tool_meta is not None:
+                    # Cache the result for future lookups
+                    self._cache.set(tool_id, tool_meta)
+
             if tool_meta is None:
                 duration_ms = int((time.monotonic() - start_time) * 1000)
                 await log_tool_invocation(
@@ -611,24 +626,23 @@ class ExecutorToolRegistry:
                     )
             elif self._governance_enabled:
                 # Fallback to hardcoded rules
-                if tool_id in SIDE_EFFECT_TOOLS:
-                    if not self._is_approved(agent_id, tool_id):
-                        duration_ms = int((time.monotonic() - start_time) * 1000)
-                        await log_tool_invocation(
-                            call_id=call_id,
-                            tool_id=tool_id,
-                            agent_id=agent_id,
-                            task_id=task_id,
-                            status="denied",
-                            duration_ms=duration_ms,
-                            error=f"Tool {tool_id} requires governance approval",
-                        )
-                        return ToolCallResult(
-                            call_id=call_id,
-                            tool_id=tool_id,
-                            success=False,
-                            error=f"Tool {tool_id} requires governance approval",
-                        )
+                if tool_id in SIDE_EFFECT_TOOLS and not self._is_approved(agent_id, tool_id):
+                    duration_ms = int((time.monotonic() - start_time) * 1000)
+                    await log_tool_invocation(
+                        call_id=call_id,
+                        tool_id=tool_id,
+                        agent_id=agent_id,
+                        task_id=task_id,
+                        status="denied",
+                        duration_ms=duration_ms,
+                        error=f"Tool {tool_id} requires governance approval",
+                    )
+                    return ToolCallResult(
+                        call_id=call_id,
+                        tool_id=tool_id,
+                        success=False,
+                        error=f"Tool {tool_id} requires governance approval",
+                    )
 
             # Use registry's execute_tool if available (handles timeout)
             if hasattr(self._registry, "execute_tool"):
@@ -696,24 +710,23 @@ class ExecutorToolRegistry:
                         result=result["result"],
                         duration_ms=result["duration_ms"],
                     )
-                else:
-                    await log_tool_invocation(
-                        call_id=call_id,
-                        tool_id=tool_id,
-                        agent_id=agent_id,
-                        task_id=task_id,
-                        status="failure",
-                        duration_ms=duration_ms,
-                        error=result["error"],
-                        arguments=sanitized_arguments,
-                    )
-                    return ToolCallResult(
-                        call_id=call_id,
-                        tool_id=tool_id,
-                        success=False,
-                        error=result["error"],
-                        duration_ms=result.get("duration_ms", 0),
-                    )
+                await log_tool_invocation(
+                    call_id=call_id,
+                    tool_id=tool_id,
+                    agent_id=agent_id,
+                    task_id=task_id,
+                    status="failure",
+                    duration_ms=duration_ms,
+                    error=result["error"],
+                    arguments=sanitized_arguments,
+                )
+                return ToolCallResult(
+                    call_id=call_id,
+                    tool_id=tool_id,
+                    success=False,
+                    error=result["error"],
+                    duration_ms=result.get("duration_ms", 0),
+                )
 
             # Fallback: direct execution (legacy path)
             executor = self._registry.get_executor(tool_id)
@@ -866,8 +879,8 @@ class ExecutorToolRegistry:
         agent: Any,
         tool_id: str,
         arguments: dict[str, Any],
-        context: Optional[dict[str, Any]] = None,
-        principal_id: Optional[str] = None,
+        context: dict[str, Any] | None = None,
+        principal_id: str | None = None,
     ) -> ToolCallResult:
         """
         Execute a tool call with kernel enforcement.
@@ -1105,9 +1118,9 @@ class ExecutorToolRegistry:
 
             tool_audit_module = importlib.import_module("memory.tool_audit")
             log_tool_invocation = tool_audit_module.log_tool_invocation
-            ToolAuditEntry = tool_audit_module.ToolAuditEntry
+            tool_audit_entry_class = tool_audit_module.ToolAuditEntry
 
-            audit_entry = ToolAuditEntry(
+            _audit_entry = tool_audit_entry_class(
                 tool_name=tool_id,
                 agent_id=agent_id,
                 input_data={
@@ -1959,6 +1972,10 @@ class ExecutorToolRegistry:
             )
             self._registry.register(metadata, executor)
 
+            # GMP-124: Invalidate cache entry for this tool
+            self._cache.invalidate(tool_id)
+            logger.debug("tool_cache.invalidated_on_register", tool_id=tool_id)
+
         except ImportError:
             logger.error("Cannot register tool: tool_registry not available")
 
@@ -1978,6 +1995,29 @@ class ExecutorToolRegistry:
             for t in self._registry.list_all()
         ]
 
+    def get_cache_metrics(self) -> dict[str, Any]:
+        """
+        Get tool registry cache metrics.
+
+        Returns:
+            Dict with cache hit/miss rates, size, evictions, etc.
+        """
+        return self._cache.get_metrics().to_dict()
+
+    def invalidate_cache(self, tool_id: str | None = None) -> int:
+        """
+        Invalidate cache entries.
+
+        Args:
+            tool_id: Specific tool to invalidate (None = all)
+
+        Returns:
+            Number of entries invalidated
+        """
+        if tool_id is not None:
+            return 1 if self._cache.invalidate(tool_id) else 0
+        return self._cache.invalidate_all()
+
 
 # =============================================================================
 # Factory Function
@@ -1986,8 +2026,9 @@ class ExecutorToolRegistry:
 
 def create_executor_tool_registry(
     governance_enabled: bool = True,
-    base_registry: Optional[Any] = None,
-    governance_engine: Optional["GovernanceEngineService"] = None,
+    base_registry: Any | None = None,
+    governance_engine: GovernanceEngineService | None = None,
+    cache_config: CacheConfig | None = None,
 ) -> ExecutorToolRegistry:
     """
     Factory function to create an ExecutorToolRegistry.
@@ -1996,6 +2037,7 @@ def create_executor_tool_registry(
         governance_enabled: Whether to enforce governance (legacy)
         base_registry: Optional base registry to wrap
         governance_engine: Optional GovernanceEngineService for policy evaluation
+        cache_config: Optional cache configuration
 
     Returns:
         Configured ExecutorToolRegistry
@@ -2004,6 +2046,7 @@ def create_executor_tool_registry(
         base_registry=base_registry,
         governance_enabled=governance_enabled,
         governance_engine=governance_engine,
+        cache_config=cache_config,
     )
 
 
@@ -2021,11 +2064,13 @@ def get_tool_registry_adapter() -> ExecutorToolRegistry:
 # =============================================================================
 
 __all__ = [
+    "CacheConfig",
     "ExecutorToolRegistry",
-    "create_executor_tool_registry",
+    "HIGH_RISK_TOOLS",
     "RiskLevel",
     "SIDE_EFFECT_TOOLS",
-    "HIGH_RISK_TOOLS",
+    "ToolRegistryCache",
+    "create_executor_tool_registry",
     "register_l_tools",
 ]
 
@@ -2772,8 +2817,7 @@ async def register_l_tools() -> int:
     Raises:
         Exception: If registration fails
     """
-    from core.tools.base_registry import (ToolMetadata, ToolType,
-                                          get_tool_registry)
+    from core.tools.base_registry import ToolMetadata, ToolType, get_tool_registry
     from core.tools.tool_graph import ToolDefinition, ToolGraph
     from runtime.l_tools import TOOL_EXECUTORS
 

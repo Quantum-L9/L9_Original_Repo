@@ -80,23 +80,33 @@ echo -e "${GREEN}✓ Branch protection verified (main branch bypass impossible)$
 CHECKS_PASSED=$((CHECKS_PASSED + 1))
 
 # ============================================
-# PHASE 1: SECRET SCANNING
+# PHASE 1: SECRET SCANNING (ALL FILE TYPES)
 # ============================================
 
 echo -e "\n${YELLOW}[GATE 1/9]${NC} SECRET SCANNING"
 
-if [ -z "$STAGED_PY_FILES" ]; then
-    echo -e "${GREEN}✓ No Python files staged, skipping secret scan${NC}"
+# Get ALL staged files (not just Python) - secrets can be anywhere
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM || true)
+
+if [ -z "$STAGED_FILES" ]; then
+    echo -e "${GREEN}✓ No files staged, skipping secret scan${NC}"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
 else
     if command -v gitleaks &> /dev/null; then
-        if gitleaks git --staged --no-banner 2>/dev/null; then
-            echo -e "${GREEN}✓ No secrets detected${NC}"
+        # Use --config if .gitleaks.toml exists
+        GITLEAKS_CONFIG=""
+        if [ -f "$REPO_ROOT/.gitleaks.toml" ]; then
+            GITLEAKS_CONFIG="--config=$REPO_ROOT/.gitleaks.toml"
+        fi
+        
+        if gitleaks protect --staged --no-banner $GITLEAKS_CONFIG 2>/dev/null; then
+            echo -e "${GREEN}✓ No secrets detected ($(echo $STAGED_FILES | wc -w | tr -d ' ') files scanned)${NC}"
             CHECKS_PASSED=$((CHECKS_PASSED + 1))
         else
             GITLEAKS_EXIT=$?
             if [ $GITLEAKS_EXIT -eq 1 ]; then
                 echo -e "${RED}❌ SECRETS DETECTED IN STAGED FILES${NC}"
+                echo -e "${RED}   Run: gitleaks protect --staged -v for details${NC}"
                 echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"secrets_detected\",\"branch\":\"$BRANCH\",\"user\":\"$USER\",\"severity\":\"CRITICAL\"}" >> "$HOOK_AUDIT_LOG"
                 exit 1
             fi

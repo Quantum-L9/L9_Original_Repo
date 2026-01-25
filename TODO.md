@@ -21,10 +21,11 @@
   - `_resolve_duplicate_pair()` method uses `MergeStrategy` from engine
   - Exported in `memory/__init__.py`
   
-- [ ] **Wire `RegistryCache`** into `core/tools/registry_adapter.py`
-  - File exists: `core/tools/registry_cache.py` (572 lines)
-  - Current: No caching in registry_adapter.py
-  - TODO: Import and integrate ToolRegistryCache
+- [x] **Wire `RegistryCache`** into `core/tools/registry_adapter.py` ✅ COMPLETE
+  - `_cache: ToolRegistryCache` instance in `ExecutorToolRegistry.__init__`
+  - Cache lookup in `dispatch_tool_call()` before registry.get()
+  - `get_cache_metrics()` and `invalidate_cache()` methods
+  - Exported in `core/tools/__init__.py`
   
 - [ ] Add tracing decorators to high-traffic routes
 

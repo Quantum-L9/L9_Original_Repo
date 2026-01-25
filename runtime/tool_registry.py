@@ -35,13 +35,17 @@ __dora_meta__ = {
 # ============================================================================
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, ParamSpec, TypeVar
 
 import structlog
 
 from core.auto_registry import AutoRegistry
 
 logger = structlog.get_logger(__name__)
+
+# Type variables for decorator type preservation
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 # =============================================================================
@@ -65,7 +69,7 @@ def register_tool(
     category: str | None = None,
     priority: int = 0,
     **metadata: Any,
-):
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Decorator to register a tool executor function for auto-wiring.
 
@@ -90,7 +94,7 @@ def register_tool(
             return {"status": "ok"}
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
         # Register the function directly (not as a factory)
         tool_name = name or func.__name__
         tool_executor_registry.register_instance(

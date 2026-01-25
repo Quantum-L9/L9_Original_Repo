@@ -1,0 +1,507 @@
+# ============================================================================
+# CURSOR MEMORY KERNEL — BINDING CONTRACT
+# ============================================================================
+# This kernel governs Cursor agent memory utilization. Treat as LAW.
+# Any repo. Any session. Load at startup. Enforce always.
+# ============================================================================
+
+id: cursor_memory_kernel
+name: Cursor Memory Kernel
+version: "1.0.0"
+type: kernel
+status: active
+scope: cursor_agent
+owner: Igor
+author: L
+
+description: >
+  Governs Cursor agent memory utilization: when to read, when to write,
+  what to store, session management, and memory-aware decision making.
+  This is a BINDING CONTRACT — load at session startup and enforce throughout.
+
+# ============================================================================
+# INITIALIZATION
+# ============================================================================
+init:
+  on_load:
+    print_confirmation: false
+    adopt_behavior_immediately: true
+    lock_in_for_session: true
+  required_health_check:
+    endpoint: mcp
+    command: "python3 agents/cursor/cursor_memory_client.py health"
+    fallback_on_failure: degraded_mode
+
+# ============================================================================
+# MEMORY STACK HIERARCHY
+# ============================================================================
+memory_stack:
+  primary:
+    name: mcp_memory
+    description: "PacketStore + pgvector on C1 via MCP tools"
+    use_for:
+      - persistent_lessons
+      - preferences
+      - error_patterns
+      - insights
+      - audit_trail
+    tools:
+      - save_memory
+      - search_memory
+      - get_memory_stats
+
+  secondary:
+    name: redis_cache
+    description: "Session context and fast key-value on C1"
+    use_for:
+      - session_state
+      - recent_todo_items
+      - working_context
+      - temporary_flags
+    api_path: "/api/v1/memory/cache/*"
+
+  tertiary:
+    name: neo4j_graph
+    description: "Knowledge graph and repo structure on C1"
+    use_for:
+      - entity_relationships
+      - file_locations
+      - inheritance_chains
+      - import_graphs
+    api_path: "/api/v1/memory/graph/*"
+
+  local:
+    name: file_based
+    description: "workflow_state.md and local context files"
+    use_for:
+      - session_handoff
+      - todo_persistence
+      - phase_tracking
+    files:
+      - workflow_state.md
+      - .cursor-commands/learning/failures/repeated-mistakes.md
+
+# ============================================================================
+# SESSION LIFECYCLE
+# ============================================================================
+session:
+  startup:
+    required_actions:
+      - check_mcp_health
+      - load_preferences
+      - load_recent_lessons
+      - resume_session_context
+    inject_layers:
+      - preferences
+      - lessons
+      - domain_context
+      - temporal_context
+      - warnings
+
+  during:
+    write_triggers:
+      - user_correction_detected
+      - lesson_learned
+      - error_pattern_found
+      - preference_expressed
+      - insight_discovered
+    read_triggers:
+      - before_major_decision
+      - encountering_error
+      - starting_new_task
+      - uncertain_about_approach
+
+  shutdown:
+    required_actions:
+      - save_session_summary
+      - create_embedding_anchor
+      - update_workflow_state
+    command: "python3 agents/cursor/cursor_memory_client.py session-close"
+
+# ============================================================================
+# MEMORY WRITE RULES (BINDING)
+# ============================================================================
+write_rules:
+  always_write:
+    - kind: preference
+      trigger: "User corrects agent behavior"
+      duration: long
+      scope: developer
+      example: "Igor prefers surgical edits, not full file rewrites"
+
+    - kind: lesson
+      trigger: "Mistake made and corrected"
+      duration: long
+      scope: developer
+      example: "Always check MCP health before assuming memory operations work"
+
+    - kind: error
+      trigger: "Error pattern discovered with fix"
+      duration: medium
+      scope: developer
+      example: "ConnectionRefused on port 5432 → check docker-compose postgres"
+
+    - kind: insight
+      trigger: "Strategic decision with rationale"
+      duration: long
+      scope: developer
+      example: "Chose async over sync for tool dispatch due to IO patterns"
+
+  never_write:
+    - trivial_facts_easily_searchable
+    - content_already_in_codebase
+    - sensitive_credentials_or_secrets
+    - duplicate_of_existing_memory
+
+  before_writing:
+    dedupe_check: true
+    min_content_length: 20
+    max_content_length: 2000
+    require_kind: true
+    command: "python3 agents/cursor/cursor_memory_client.py dedupe-check \"<content>\""
+
+# ============================================================================
+# MEMORY READ PATTERNS (BINDING)
+# ============================================================================
+read_patterns:
+  session_start:
+    queries:
+      - "Igor preferences patterns coding style"
+      - "lessons errors cursor"
+      - "recent session work"
+    command: "python3 agents/cursor/cursor_memory_client.py inject"
+
+  before_task:
+    queries:
+      - "patterns for <task_domain>"
+      - "warnings errors <task_type>"
+    command: "python3 agents/cursor/cursor_memory_client.py warn \"<task>\""
+
+  on_error:
+    queries:
+      - "error fix solution <error_message>"
+      - "lesson <error_type>"
+    command: "python3 agents/cursor/cursor_memory_client.py fix-error \"<error>\""
+
+  when_uncertain:
+    queries:
+      - "pattern workflow <context>"
+      - "previous approach <similar_task>"
+    command: "python3 agents/cursor/cursor_memory_client.py search \"<query>\""
+
+# ============================================================================
+# CONTEXT INJECTION LAYERS
+# ============================================================================
+injection_layers:
+  layer_1_preferences:
+    description: "Igor's coding style, patterns, and explicit preferences"
+    priority: highest
+    max_items: 5
+    kinds: [preference]
+    refresh_frequency: session_start
+
+  layer_2_lessons:
+    description: "Past mistakes and corrections to avoid repeating"
+    priority: high
+    max_items: 5
+    kinds: [lesson]
+    refresh_frequency: session_start
+
+  layer_3_domain:
+    description: "Context specific to current task domain"
+    priority: medium
+    max_items: 5
+    kinds: [insight, note, context]
+    refresh_frequency: task_change
+
+  layer_4_temporal:
+    description: "Recent session activity and continuity"
+    priority: medium
+    max_items: 3
+    refresh_frequency: continuous
+
+  layer_5_warnings:
+    description: "Anti-patterns and things to avoid for current task"
+    priority: high
+    max_items: 3
+    kinds: [error, lesson]
+    refresh_frequency: task_change
+
+# ============================================================================
+# MEMORY-AWARE DECISION LOGIC (BINDING)
+# ============================================================================
+decision_logic:
+  before_code_generation:
+    - search_for_similar_past_work
+    - check_for_known_anti_patterns
+    - load_relevant_preferences
+
+  before_file_modification:
+    - check_protected_file_warnings
+    - load_file_specific_lessons
+    - verify_no_repeated_mistakes
+
+  before_destructive_operation:
+    - search_past_failures_with_operation
+    - load_rollback_patterns
+    - require_explicit_approval
+
+  on_user_correction:
+    - extract_preference_or_lesson
+    - dedupe_check_before_write
+    - write_to_memory_immediately
+    - acknowledge_learning
+
+# ============================================================================
+# MEMORY KINDS AND DURATIONS
+# ============================================================================
+packet_taxonomy:
+  kinds:
+    preference:
+      description: "User's explicit preferences and style choices"
+      duration: long
+      examples:
+        - "Igor prefers surgical edits over full rewrites"
+        - "Always use $HOME, never hardcoded paths"
+        - "Run commands proactively, don't show them"
+
+    lesson:
+      description: "Learned from mistakes, corrections, or experience"
+      duration: long
+      examples:
+        - "GlobalCommands is in Dropbox, NOT Library"
+        - "Always check MCP health before memory operations"
+        - "Union type aliases are useless for protocol groups"
+
+    error:
+      description: "Error patterns with their fixes"
+      duration: medium
+      examples:
+        - "ConnectionRefused 5432 → check postgres container"
+        - "MCP 404 → server unavailable, NOT local fallback"
+
+    insight:
+      description: "Strategic observations and architectural decisions"
+      duration: long
+      examples:
+        - "Factory pattern accepted in L9 for configured instances"
+        - "Modern str|None syntax preferred on VPS (Python 3.12)"
+
+    note:
+      description: "General observations, context, temporary notes"
+      duration: medium
+      examples:
+        - "Working on memory kernel refactor"
+        - "Session focus: GMP-31 completion"
+
+    context:
+      description: "Session anchors and continuity markers"
+      duration: long
+      examples:
+        - "SESSION 2026-01-25: 15 packets, key work on memory"
+
+  durations:
+    short:
+      ttl: "24h"
+      use_for: [test_data, temporary_markers]
+
+    medium:
+      ttl: "30d"
+      use_for: [notes, errors, session_context]
+
+    long:
+      ttl: "permanent"
+      use_for: [preferences, lessons, insights]
+
+# ============================================================================
+# SEARCH OPTIMIZATION
+# ============================================================================
+search_optimization:
+  default_params:
+    limit: 10
+    min_confidence: 0.0
+    scopes: [developer, global]
+
+  confidence_filtering:
+    high_confidence_threshold: 0.7
+    medium_confidence_threshold: 0.3
+    use_for_critical_decisions: high_confidence_threshold
+
+  sorting:
+    default: relevance
+    for_recent_context: recency
+    for_important_lessons: importance
+
+  query_patterns:
+    exact_concept: "\"<exact phrase>\""
+    domain_scoped: "<domain> <concept> patterns"
+    error_lookup: "error fix solution <error_keywords>"
+    preference_lookup: "Igor prefers <topic>"
+    lesson_lookup: "lesson <topic> cursor"
+
+# ============================================================================
+# ANTI-PATTERN PREVENTION
+# ============================================================================
+anti_patterns:
+  prevent:
+    - name: memory_without_health_check
+      description: "Using memory ops without verifying MCP is healthy"
+      prevention: "Always run health check at session start"
+
+    - name: duplicate_writes
+      description: "Writing same content multiple times"
+      prevention: "Always dedupe-check before write"
+
+    - name: forgotten_context
+      description: "Starting task without loading relevant memories"
+      prevention: "Run inject command at session start and task change"
+
+    - name: silent_learning
+      description: "User corrects but agent doesn't persist lesson"
+      prevention: "Always write preference/lesson on correction"
+
+    - name: stale_session_context
+      description: "Not closing session properly"
+      prevention: "Run session-close at end, session-resume at start"
+
+    - name: over_reliance_on_memory
+      description: "Trusting memory over explicit user input"
+      prevention: "User's current input always takes precedence"
+
+# ============================================================================
+# HOOKS
+# ============================================================================
+hooks:
+  - name: session_start_injection
+    condition: session_start
+    action:
+      - run_health_check
+      - inject_preferences
+      - inject_lessons
+      - resume_session_context
+
+  - name: task_change_injection
+    condition: task_context_change
+    action:
+      - inject_domain_context
+      - warn_for_task
+      - load_task_specific_patterns
+
+  - name: error_encounter_lookup
+    condition: error_detected
+    action:
+      - search_similar_errors
+      - load_known_fixes
+      - suggest_remediation
+
+  - name: user_correction_capture
+    condition: user_corrects_behavior
+    action:
+      - extract_lesson_or_preference
+      - dedupe_check
+      - write_to_memory
+      - acknowledge_learning
+
+  - name: session_end_persistence
+    condition: session_ending
+    action:
+      - summarize_session
+      - create_embedding_anchor
+      - save_session_context
+      - update_workflow_state
+
+# ============================================================================
+# CLI COMMAND REFERENCE
+# ============================================================================
+cli_commands:
+  health:
+    command: "python3 agents/cursor/cursor_memory_client.py health"
+    use_when: "Session start, before any memory operations"
+    frequency: session_start
+
+  inject:
+    command: "python3 agents/cursor/cursor_memory_client.py inject \"<task>\""
+    use_when: "Starting new task, need full context"
+    frequency: task_change
+
+  search:
+    command: "python3 agents/cursor/cursor_memory_client.py search \"<query>\""
+    use_when: "Need specific information from memory"
+    frequency: as_needed
+
+  write:
+    command: "python3 agents/cursor/cursor_memory_client.py write \"<content>\" --kind <kind>"
+    use_when: "New lesson, preference, or insight to persist"
+    frequency: on_discovery
+
+  warn:
+    command: "python3 agents/cursor/cursor_memory_client.py warn \"<task>\""
+    use_when: "Starting risky or familiar task"
+    frequency: before_risky_tasks
+
+  fix_error:
+    command: "python3 agents/cursor/cursor_memory_client.py fix-error \"<error>\""
+    use_when: "Encountering an error"
+    frequency: on_error
+
+  dedupe_check:
+    command: "python3 agents/cursor/cursor_memory_client.py dedupe-check \"<content>\""
+    use_when: "Before writing new content"
+    frequency: before_write
+
+  session_close:
+    command: "python3 agents/cursor/cursor_memory_client.py session-close"
+    use_when: "Ending work session"
+    frequency: session_end
+
+  session_resume:
+    command: "python3 agents/cursor/cursor_memory_client.py session-resume --task \"<task>\""
+    use_when: "Resuming from previous session"
+    frequency: session_start
+
+  temporal:
+    command: "python3 agents/cursor/cursor_memory_client.py temporal \"<query>\" --since <window>"
+    use_when: "Need time-scoped results"
+    frequency: as_needed
+
+# ============================================================================
+# ENFORCEMENT CHECKLIST
+# ============================================================================
+enforcement:
+  session_start:
+    - "[ ] MCP health checked"
+    - "[ ] Preferences loaded"
+    - "[ ] Recent lessons loaded"
+    - "[ ] Session context resumed"
+
+  before_task:
+    - "[ ] Domain context injected"
+    - "[ ] Warnings checked"
+    - "[ ] Similar past work searched"
+
+  on_learning:
+    - "[ ] Dedupe check passed"
+    - "[ ] Written with correct kind"
+    - "[ ] Acknowledged to user"
+
+  session_end:
+    - "[ ] Session summarized"
+    - "[ ] Embedding anchor created"
+    - "[ ] Workflow state updated"
+
+# ============================================================================
+# DEGRADED MODE (When MCP Unavailable)
+# ============================================================================
+degraded_mode:
+  enabled_on: mcp_health_failure
+  behavior:
+    - use_file_based_context_only
+    - rely_on_workflow_state_md
+    - read_repeated_mistakes_file
+    - skip_memory_writes
+    - notify_user_of_degraded_state
+  warning_message: >
+    ⚠️ MCP Memory unavailable. Operating in degraded mode:
+    - Using file-based context only (workflow_state.md)
+    - Memory writes disabled until MCP restored
+    - Run `python3 agents/cursor/cursor_memory_client.py health` to check status

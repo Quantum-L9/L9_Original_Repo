@@ -58,7 +58,8 @@ def main():
         print("\n📋 KEY FILES TO CHECK:")
         print("  1. workflow_state.md — current phase, next steps")
         print("  2. .cursor-commands/learning/failures/repeated-mistakes.md")
-        print("  3. agents/cursor/cursor_workflow_kernel.yaml — binding contract")
+        print("  3. agents/cursor/cursor_workflow_kernel.yaml — workflow contract")
+        print("  4. agents/cursor/cursor_memory_kernel.yaml — memory contract")
     
     print("\n" + "=" * 60)
     

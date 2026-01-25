@@ -27,6 +27,8 @@
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
 **COMPLETED THIS SESSION (2026-01-25)**:
+- ✅ **Cursor Memory Kernel** — Created `agents/cursor/cursor_memory_kernel.yaml` (508 lines) — binding contract for memory utilization. Registered in `session_startup.py` as `CURSOR-KERNEL-002`. Kernel check now validates both workflow + memory kernels.
+- ✅ **GMP-123: AWS Secrets Manager Comprehensive Setup** — setup_secrets_manager.sh, 0067-aws-secrets-manager-integration.md. Report: `GMP-Report-123-Aws-Secrets-Manager-Comprehensive-Setup.md`
 - ✅ **GMP-S3-INFRASTRUCTURE** — S3 Storage Architecture for C1 Backup & Blob Offload:
   - `scripts/backup/backup_c1_memory.sh` — C1 PostgreSQL/Neo4j backup (every 12h)
   - `scripts/backup/enable_s3_versioning.sh` — S3 versioning, encryption, lifecycle
@@ -66,6 +68,9 @@
 ## Recent Changes (digest)
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-25] **✅ GMP-124 Complete** — Status: PASS. Report: `reports/GMP-Report-124-*.md`
+- [2026-01-25] **Cursor Memory Kernel** — Created `agents/cursor/cursor_memory_kernel.yaml` — formalizes memory stack hierarchy (MCP→Redis→Neo4j→file), session lifecycle, write/read rules, 5-layer context injection, and degraded mode. Registered as required startup file.
+- [2026-01-25] **GMP-123: AWS Secrets Manager Comprehensive Setup** — Extended AWS Secrets Manager coverage from 9 to 21 secrets. Added MCP_API_KEY, MEMORY_DSN, SLACK_VERIFICATION_TOKEN, TWILIO_ACCOUNT_SID, and updated s
 - [2026-01-25] **✅ GMP-122 Complete** — Status: PASS. Report: `reports/GMP-Report-122-*.md`
 - [2026-01-24] **✅ GMP-123 Complete** — Status: PASS. Report: `reports/GMP-Report-123-*.md`
 - [2026-01-24] **GMP-123 Started** — MCP tools migration from l_tools.py
@@ -103,13 +108,14 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **Domain**: `l9.quantumaipartners.com` (Cloudflare proxied)
 - **Ports**: 8000=l9-api (unified)
 - **Memory Client**: `agents/cursor/cursor_memory_client.py` — **THE ONLY METHOD** for Cursor ↔ L9 memory
+- **Cursor Kernels**: `cursor_workflow_kernel.yaml` (workflow), `cursor_memory_kernel.yaml` (memory) — binding contracts
 - **Memory API Keys**: `MCP_API_KEY_C` for Cursor, `MCP_API_KEY_L` for L-CTO
 - **Memory scopes**: `developer` (L+C collab), `global` (cross-project), `l-private` (L only)
 - **Embedding Dimensions**: ALL systems aligned at **1536**
 - **S3 Buckets**: `l9-backups` (c1/), `l9-blobs` (>512KB), `l9-files` (Slack), `l9-audit` (logs)
 
 ---
-*Last updated: 2026-01-25 (GMP-S3-INFRASTRUCTURE + GMP-78 Dynamic Tool Discovery + Python 3.12)*
+*Last updated: 2026-01-25 (Cursor Memory Kernel + GMP-S3-INFRASTRUCTURE + GMP-78 Dynamic Tool Discovery)*
 
 ## Next Steps (Current Session)
 
@@ -134,6 +140,7 @@ PRs #36, #46, #48, #49, #50, #53, #54 — All CLOSED (superseded or abandoned)
 PR #51 (Spring Cleaning) — MERGED ✅
 
 **Recent Sessions (7-day window):**
+- 2026-01-25: **Cursor Memory Kernel** — `cursor_memory_kernel.yaml` created + registered in session_startup.py
 - 2026-01-25: **GMP-S3-INFRASTRUCTURE COMPLETE** — C1 backup scripts, S3 blob store, Slack S3 backend (`8cec1524`)
 - ✅ 2026-01-25: **GMP-78 Phase 2 COMPLETE** — Dynamic Tool Discovery wired, Python 3.12 standardization, ADR-0064 updated
 - ✅ 2026-01-25: PR status audit — PRs #28-30 confirmed MERGED, wiring tasks identified

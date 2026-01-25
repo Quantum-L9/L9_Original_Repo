@@ -7,7 +7,8 @@
 
 id: cursor_workflow_kernel
 name: Cursor Workflow Kernel
-version: "1.0.0"
+version: "1.1.0"
+schema: config/schemas/cursor_kernel.schema.yaml  # T5: Schema validation
 type: kernel
 status: active
 scope: cursor_agent
@@ -28,26 +29,98 @@ init:
     adopt_behavior_immediately: true
     lock_in_for_session: true
   required_context:
-    - workflow_state.md
-    - .cursor-commands/learning/failures/repeated-mistakes.md
+    # T4: Loading mechanism with fallbacks
+    - path: workflow_state.md
+      load_method: file_read
+      optional: false
+      cache_duration: session
+    - path: .cursor-commands/learning/failures/repeated-mistakes.md
+      load_method: file_read
+      optional: true
+      fallback: search_memory_for_lessons
 
 # ============================================================================
-# MEMORY OPERATIONS
+# MEMORY OPERATIONS (T1: MCP Tool Mapping)
 # ============================================================================
 memory_ops:
+  # MCP tools via /mcp/call endpoint
+  mcp_endpoint: /mcp/call
+  user_id: l9-shared  # Shared namespace for L + Cursor
+  
   read:
-    - session_state
-    - prior_instructions
-    - workflow_state
-    - mistake_patterns
+    session_state:
+      tool: search_memory
+      query: "session {today} context state"
+      scopes: [developer, global]
+      top_k: 5
+    prior_instructions:
+      tool: search_memory
+      query: "Igor instructions preferences"
+      scopes: [developer, global]
+      kinds: [preference]
+      top_k: 10
+    workflow_state:
+      tool: file_read  # Local file, not MCP
+      path: workflow_state.md
+    mistake_patterns:
+      tool: search_memory
+      query: "lesson error mistake pattern"
+      scopes: [developer, global]
+      kinds: [lesson, error]
+      top_k: 10
+  
   write:
-    - derived_specifications
-    - execution_flows
-    - lessons_learned
+    derived_specifications:
+      tool: save_memory
+      kind: insight
+      scope: developer
+      duration: long
+    execution_flows:
+      tool: save_memory
+      kind: context
+      scope: developer
+      duration: medium
+    lessons_learned:
+      tool: save_memory
+      kind: lesson
+      scope: developer
+      duration: long
+  
   persistence_rules:
     - prefer_structured_state
     - no_overwriting_without_versioning
     - maintain_semantic_consistency
+    - dedupe_before_write  # Check similarity > 0.8 before saving
+
+# ============================================================================
+# ERROR RECOVERY (T2: Resilience for VPS downtime)
+# ============================================================================
+error_recovery:
+  memory_unavailable:
+    behavior: continue_with_warning
+    log_level: warning
+    fallback: local_context_only
+    message: "⚠️ Memory unavailable - proceeding with local context"
+  
+  mcp_timeout:
+    timeout_ms: 5000
+    retry_count: 2
+    retry_delay_ms: 500
+    on_exhaust: proceed_without_memory
+  
+  search_empty:
+    behavior: continue
+    fallback: use_default_patterns
+  
+  write_failed:
+    behavior: warn_and_continue
+    retry_once: true
+    log_for_later_sync: true
+  
+  confidence_when_degraded:
+    reduce_by_percent: 20
+    min_confidence: 0.50
+    require_extra_validation: true
 
 # ============================================================================
 # TODO TRACKING
@@ -139,23 +212,42 @@ introspection:
         - emit_summary
 
 # ============================================================================
-# HOOKS
+# HOOKS (T3: Implementation paths)
 # ============================================================================
 hooks:
   - name: todo_injection
     condition: before_output
+    implementation: cursor_memory_kernel.should_display_todos
+    fallback_if_unavailable: skip
     action:
       - inject_todo_snapshot_if_due
+  
   - name: roadmap_milestone_scan
     condition: after_user_prompt
+    implementation: cursor_memory_kernel.extract_milestone_tags
+    fallback_if_unavailable: skip
     action:
       - extract_milestone_tags_from_prompt
       - associate_with_relevant_todo
+  
   - name: mistake_check
     condition: before_code_generation
+    implementation: cursor_memory_client.cmd_warn
+    fallback_if_unavailable: warn_only
+    mcp_tool: search_memory
+    mcp_query: "error mistake {task_description}"
     action:
       - check_against_repeated_mistakes
       - warn_if_pattern_detected
+  
+  - name: context_injection
+    condition: session_start
+    implementation: cursor_memory_client.cmd_inject
+    fallback_if_unavailable: use_local_files
+    action:
+      - load_preferences
+      - load_lessons
+      - load_domain_context
 
 # ============================================================================
 # AGENT SETTINGS TRACKING

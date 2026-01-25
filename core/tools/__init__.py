@@ -34,6 +34,14 @@ from core.tools.registry_adapter import (
     create_executor_tool_registry,
 )
 
+# GMP-124: Tool Registry Cache
+from core.tools.registry_cache import (
+    CacheConfig,
+    CacheMetrics,
+    CacheStrategy,
+    ToolRegistryCache,
+)
+
 # GMP-78 Phase 1: Tool Embeddings (Foundation)
 from core.tools.tool_embeddings import (
     find_relevant_tools,
@@ -42,23 +50,22 @@ from core.tools.tool_embeddings import (
 from core.tools.tool_graph import L9_TOOLS, ToolDefinition, ToolGraph, register_l9_tools
 
 __all__ = [
-    # Registry (used by executor)
+    "CacheConfig",
+    "CacheMetrics",
+    "CacheStrategy",
     "ExecutorToolRegistry",
-    "create_executor_tool_registry",
-    # Tool Graph (Neo4j dependency tracking)
+    "L9_TOOLS",
     "ToolDefinition",
     "ToolGraph",
-    "L9_TOOLS",  # DEPRECATED: Use discover_tools_for_task() instead
-    "register_l9_tools",
-    # Dynamic Discovery (PREFERRED - GMP-78 Phase 2)
-    "discover_tools_for_task",
-    "is_dynamic_discovery_enabled",
-    "get_discovery_stats",
-    # Multi-Turn Caching (GMP-79)
-    "get_cached_tools",
+    "ToolRegistryCache",
     "cache_tools",
-    "invalidate_tool_cache",
-    # Tool Embeddings (Foundation - GMP-78 Phase 1)
-    "sync_all_tool_embeddings",
+    "create_executor_tool_registry",
+    "discover_tools_for_task",
     "find_relevant_tools",
+    "get_cached_tools",
+    "get_discovery_stats",
+    "invalidate_tool_cache",
+    "is_dynamic_discovery_enabled",
+    "register_l9_tools",
+    "sync_all_tool_embeddings",
 ]

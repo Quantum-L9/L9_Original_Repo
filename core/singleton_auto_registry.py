@@ -34,8 +34,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, ParamSpec, TypeVar
 
 import structlog
 
@@ -43,6 +44,10 @@ from core.auto_registry import AutoRegistry
 from core.singleton_registry import SingletonLifecycle
 
 logger = structlog.get_logger(__name__)
+
+# Type variables for decorator type preservation
+P = ParamSpec("P")
+R = TypeVar("R")
 
 
 # =============================================================================
@@ -57,9 +62,9 @@ class SingletonServiceConfig:
     name: str
     module_path: str
     getter: Callable
-    closer: Optional[Callable] = None
+    closer: Callable | None = None
     lifecycle: SingletonLifecycle = SingletonLifecycle.LAZY
-    dependencies: List[str] = None
+    dependencies: list[str] = None
     description: str = ""
     category: str = "general"
 
@@ -67,7 +72,7 @@ class SingletonServiceConfig:
         if self.dependencies is None:
             self.dependencies = []
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for registration."""
         return {
             "name": self.name,
@@ -106,9 +111,9 @@ def register_singleton_service(
     name: str,
     module_path: str,
     getter: Callable,
-    closer: Optional[Callable] = None,
-    lifecycle: Union[str, SingletonLifecycle] = SingletonLifecycle.LAZY,
-    dependencies: Optional[List[str]] = None,
+    closer: Callable | None = None,
+    lifecycle: str | SingletonLifecycle = SingletonLifecycle.LAZY,
+    dependencies: list[str] | None = None,
     description: str = "",
     category: str = "general",
     priority: int = 0,
@@ -171,13 +176,13 @@ def register_singleton_service(
 
 
 def register_singleton(
-    name: Optional[str] = None,
-    lifecycle: Union[str, SingletonLifecycle] = SingletonLifecycle.LAZY,
-    dependencies: Optional[List[str]] = None,
+    name: str | None = None,
+    lifecycle: str | SingletonLifecycle = SingletonLifecycle.LAZY,
+    dependencies: list[str] | None = None,
     description: str = "",
     category: str = "general",
     priority: int = 0,
-):
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Decorator to register a singleton service getter function.
 
@@ -210,7 +215,7 @@ def register_singleton(
             pass
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
         # Determine singleton name
         singleton_name = name
         if not singleton_name:
@@ -242,7 +247,9 @@ def register_singleton(
     return decorator
 
 
-def register_singleton_closer(singleton_name: str):
+def register_singleton_closer(
+    singleton_name: str,
+) -> Callable[[Callable[P, R]], Callable[P, R]]:
     """
     Decorator to register a closer function for a singleton.
 
@@ -259,7 +266,7 @@ def register_singleton_closer(singleton_name: str):
             pass
     """
 
-    def decorator(func: Callable) -> Callable:
+    def decorator(func: Callable[P, R]) -> Callable[P, R]:
         # Find the singleton config
         config = singleton_service_registry.get(singleton_name)
         if config:
@@ -296,7 +303,7 @@ def discover_singleton_services(package: str = "runtime") -> int:
     return count
 
 
-def get_all_singleton_services() -> Dict[str, SingletonServiceConfig]:
+def get_all_singleton_services() -> dict[str, SingletonServiceConfig]:
     """
     Get all registered singleton service configurations.
 
@@ -310,7 +317,7 @@ def get_all_singleton_services() -> Dict[str, SingletonServiceConfig]:
     """
     singleton_service_registry.initialize_factories()
 
-    services: Dict[str, SingletonServiceConfig] = {}
+    services: dict[str, SingletonServiceConfig] = {}
 
     for service_id in singleton_service_registry.list_ids():
         config = singleton_service_registry.get(service_id)
@@ -323,7 +330,7 @@ def get_all_singleton_services() -> Dict[str, SingletonServiceConfig]:
 
 def get_singleton_services_by_category(
     category: str,
-) -> Dict[str, SingletonServiceConfig]:
+) -> dict[str, SingletonServiceConfig]:
     """
     Get all singleton services in a specific category.
 
@@ -336,7 +343,7 @@ def get_singleton_services_by_category(
     singleton_service_registry.initialize_factories()
 
     configs = singleton_service_registry.get_all(tags=[category])
-    services: Dict[str, SingletonServiceConfig] = {}
+    services: dict[str, SingletonServiceConfig] = {}
 
     for config in configs:
         services[config.name] = config
@@ -346,7 +353,7 @@ def get_singleton_services_by_category(
 
 def get_singleton_services_by_lifecycle(
     lifecycle: SingletonLifecycle,
-) -> Dict[str, SingletonServiceConfig]:
+) -> dict[str, SingletonServiceConfig]:
     """
     Get all singleton services with a specific lifecycle.
 
@@ -359,7 +366,7 @@ def get_singleton_services_by_lifecycle(
     singleton_service_registry.initialize_factories()
 
     configs = singleton_service_registry.get_all(tags=[lifecycle.value])
-    services: Dict[str, SingletonServiceConfig] = {}
+    services: dict[str, SingletonServiceConfig] = {}
 
     for config in configs:
         services[config.name] = config
