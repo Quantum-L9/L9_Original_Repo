@@ -3341,14 +3341,9 @@ except Exception as e:
 
 # NOTE: mac_agent_router now auto-wired via router_registry — see api/webhook_mac_agent.py
 
-# WABA (WhatsApp Business Account - native Meta) (legacy)
-if _has_waba:
-    try:
-        from api.webhook_waba import router as waba_router
-
-        app.include_router(waba_router)
-    except Exception as e:
-        logger.warning(f"Failed to load WABA router: {e}")
+# WABA (WhatsApp Business Account) — NOT IN USE
+# Legacy Meta WhatsApp integration disabled. Router exists at api/webhook_waba.py
+# but requires WABA env vars and is not actively used.
 
 # NOTE: email_agent_router now auto-wired via router_registry — see email_agent/router.py
 
