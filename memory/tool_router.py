@@ -2,6 +2,16 @@
 L9 Memory - Semantic Tool Router
 ================================
 
+.. deprecated:: 2026-01-25
+    This module is DEPRECATED. Use `core.tools.tool_embeddings` instead.
+
+    The active tool discovery pipeline is:
+    - `core.tools.dynamic_discovery.discover_tools_for_task()`
+    - `core.tools.tool_embeddings.find_tools_hybrid()` (semantic + BM25)
+
+    This module remains for backwards compatibility but will be removed
+    in a future release. See GMP-TD-WIRE for migration details.
+
 pgvector-backed semantic search for dynamic tool discovery.
 
 Instead of injecting all 50+ tools into every prompt, agents can search
@@ -17,7 +27,7 @@ Benefits:
 - Enables dynamic tool discovery
 - Tools can be added/updated without code changes
 
-Version: 1.0.0
+Version: 1.0.0 (DEPRECATED - use core.tools.tool_embeddings)
 """
 
 from __future__ import annotations
@@ -47,7 +57,7 @@ import asyncio
 import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -78,8 +88,8 @@ class ToolEmbedding:
     external_apis: list[str] = field(default_factory=list)
 
     # Embedding state
-    embedded_at: Optional[datetime] = None
-    content_hash: Optional[str] = None
+    embedded_at: datetime | None = None
+    content_hash: str | None = None
 
     def to_searchable_text(self) -> str:
         """Generate text for embedding."""
@@ -170,8 +180,8 @@ class ToolRouter:
 
     def __init__(
         self,
-        embedding_provider: Optional[Any] = None,
-        repository: Optional[Any] = None,
+        embedding_provider: Any | None = None,
+        repository: Any | None = None,
         cache_embeddings: bool = True,
     ):
         """
@@ -197,7 +207,7 @@ class ToolRouter:
 
         logger.info("ToolRouter initialized", cache_enabled=cache_embeddings)
 
-    async def embed_tool(self, tool: Any) -> Optional[ToolEmbedding]:
+    async def embed_tool(self, tool: Any) -> ToolEmbedding | None:
         """
         Embed a single tool definition.
 
@@ -321,7 +331,7 @@ class ToolRouter:
         query: str,
         limit: int = 5,
         min_similarity: float = 0.3,
-        category_filter: Optional[str] = None,
+        category_filter: str | None = None,
     ) -> ToolSearchResult:
         """
         Find tools most relevant to a query.
@@ -402,7 +412,7 @@ class ToolRouter:
         query: str,
         limit: int,
         min_similarity: float,
-        category_filter: Optional[str],
+        category_filter: str | None,
     ) -> list[ToolMatch]:
         """Search in-memory cache (fallback)."""
         tool_cache, embedding_cache, _, _ = await self._snapshot_cache()
@@ -461,7 +471,7 @@ class ToolRouter:
         tool_cache: dict[str, ToolEmbedding],
         query: str,
         limit: int,
-        category_filter: Optional[str],
+        category_filter: str | None,
     ) -> list[ToolMatch]:
         """Simple text matching fallback."""
         query_lower = query.lower()
@@ -600,13 +610,13 @@ class ToolRouter:
 # =============================================================================
 
 
-_router: Optional[ToolRouter] = None
+_router: ToolRouter | None = None
 
 
 @must_stay_async("callers use await")
 async def get_tool_router(
-    embedding_provider: Optional[Any] = None,
-    repository: Optional[Any] = None,
+    embedding_provider: Any | None = None,
+    repository: Any | None = None,
 ) -> ToolRouter:
     """Get or create singleton tool router."""
     global _router
@@ -622,8 +632,8 @@ async def get_tool_router(
 
 async def init_tool_router(
     tools: list[Any],
-    embedding_provider: Optional[Any] = None,
-    repository: Optional[Any] = None,
+    embedding_provider: Any | None = None,
+    repository: Any | None = None,
 ) -> ToolRouter:
     """
     Initialize tool router with tools.
@@ -642,8 +652,20 @@ async def find_tools(
     """
     Convenience function to find relevant tools.
 
+    .. deprecated:: 2026-01-25
+        Use `core.tools.tool_embeddings.find_tools_hybrid()` instead.
+
     Uses singleton router (must be initialized first).
     """
+    import warnings
+
+    warnings.warn(
+        "memory.find_tools() is deprecated. "
+        "Use core.tools.tool_embeddings.find_tools_hybrid() for "
+        "hybrid semantic + BM25 search.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     router = await get_tool_router()
     return await router.find_relevant_tools(query, limit=limit)
 

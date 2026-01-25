@@ -41,7 +41,7 @@ from typing import Any
 import structlog
 
 from core.decorators import must_stay_async
-from runtime.tool_registry import register_tool
+from runtime.tool_registry import get_tool_executors, register_tool
 
 # Lazy import for symbolic tools (requires sympy)
 symbolic_compute = None
@@ -2793,6 +2793,8 @@ async def kernel_read(
 # TOOL REGISTRY
 
 # Map tool names to executor functions
+# CRITICAL: Populated dynamically by auto-registration in runtime/tool_registry.py
+TOOL_EXECUTORS = get_tool_executors()
 
 
 def get_tool_executor(tool_name: str) -> Any | None:

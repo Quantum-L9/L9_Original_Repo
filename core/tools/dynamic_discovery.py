@@ -2,40 +2,88 @@
 L9 Core Tools - Dynamic Tool Discovery Integration
 ===================================================
 
-GMP-78 Phase 2: Wires semantic tool discovery into agent execution.
+GMP-78 Phase 2 + GMP-TD-WIRE: Wires semantic + hybrid tool discovery into agent execution.
 
 Instead of statically binding all tools to agents, this module enables
 dynamic discovery: given a task, find the most relevant tools via
-semantic search and return them in OpenAI function calling format.
+semantic search (pgvector) + keyword search (BM25) and return them
+in OpenAI function calling format.
 
 Key Functions:
-- discover_tools_for_task(): Semantic search → OpenAI tool format
+- discover_tools_for_task(): Hybrid search → OpenAI tool format
 - format_tools_for_openai(): Convert ToolEmbeddingResult → OpenAI schema
 - enforce_token_budget(): Ensure tool context doesn't exceed budget
 
 Architecture:
-- Uses tool_embeddings.py::find_relevant_tools() (pgvector search)
+- Uses tool_embeddings.py::find_tools_hybrid() (pgvector + BM25)
 - Pulls full tool schemas from registry_adapter.py
 - Enforces token budget to prevent context bloat
 
 Benefits:
 - 40-70% token reduction vs static tool binding
 - Task-relevant tools loaded on-demand
+- Hybrid search: conceptual (semantic) + exact (keyword) matching
 - Backwards compatible (feature flag controlled)
 
-Version: 1.0.0
+Version: 2.0.0 (GMP-TD-WIRE)
 Created: 2026-01-25
 """
 
 from __future__ import annotations
 
+import time
+import uuid
+from dataclasses import dataclass
+from enum import Enum
 from typing import Any
 
 import structlog
 
 from config.settings import get_integration_settings
+from core.tools.discovery_tracing import DiscoveryPhase, DiscoveryTrace, DiscoveryTracer
 
 logger = structlog.get_logger(__name__)
+
+# Module-level tracer for discovery observability
+_discovery_tracer = DiscoveryTracer()
+
+
+def get_discovery_tracer() -> DiscoveryTracer:
+    """Get the module-level discovery tracer for stats/monitoring."""
+    return _discovery_tracer
+
+
+# =============================================================================
+# Discovery Result Types (Adapted from harvested 1_semantic_discovery.py)
+# =============================================================================
+
+
+class DiscoveryMethod(str, Enum):
+    """Method used for tool discovery"""
+
+    SEMANTIC = "semantic"
+    KEYWORD = "keyword"
+    HYBRID = "hybrid"
+
+
+@dataclass
+class DiscoveryResult:
+    """Tool discovery result with confidence scores"""
+
+    tool_id: str
+    tool_name: str
+    description: str
+    similarity_score: float  # 0.0 to 1.0
+    rank: int
+    discovery_method: DiscoveryMethod
+    token_estimate: int
+    is_available: bool = True
+    category: str = ""
+
+
+# =============================================================================
+# Main Discovery Functions
+# =============================================================================
 
 
 async def discover_tools_for_task(
@@ -43,20 +91,26 @@ async def discover_tools_for_task(
     top_k: int | None = None,
     min_similarity: float | None = None,
     max_tokens: int | None = None,
+    use_hybrid: bool = True,
+    task_id: str | None = None,
 ) -> list[dict[str, Any]]:
     """
-    Discover relevant tools for a task using semantic search.
+    Discover relevant tools for a task using hybrid (semantic + keyword) search.
 
     Args:
         task_payload: Natural language description of the task
         top_k: Maximum tools to return (default from settings)
         min_similarity: Minimum similarity threshold (default from settings)
         max_tokens: Maximum tokens for tool definitions (default from settings)
+        use_hybrid: Use hybrid search (default True). Falls back to semantic-only if BM25 unavailable.
+        task_id: Optional task ID for tracing (auto-generated if not provided)
 
     Returns:
         List of tool definitions in OpenAI function calling format
     """
     settings = get_integration_settings()
+    task_id = task_id or str(uuid.uuid4())[:8]
+    start_time = time.perf_counter()
 
     # Use settings defaults if not specified
     top_k = top_k or settings.l9_tool_discovery_top_k
@@ -67,15 +121,29 @@ async def discover_tools_for_task(
         logger.debug("Empty task payload, returning empty tool list")
         return []
 
-    try:
-        from core.tools.tool_embeddings import find_relevant_tools
+    results = []
+    tools = []
+    error_msg = None
 
-        # Semantic search for relevant tools
-        results = await find_relevant_tools(
-            query=task_payload,
-            top_k=top_k * 2,  # Fetch extra for filtering
-            min_similarity=min_similarity,
-        )
+    try:
+        if use_hybrid:
+            from core.tools.tool_embeddings import find_tools_hybrid
+
+            # Hybrid search: semantic + keyword (BM25)
+            results = await find_tools_hybrid(
+                query=task_payload,
+                top_k=top_k * 2,  # Fetch extra for filtering
+                min_similarity=min_similarity,
+            )
+        else:
+            from core.tools.tool_embeddings import find_relevant_tools
+
+            # Semantic-only search
+            results = await find_relevant_tools(
+                query=task_payload,
+                top_k=top_k * 2,
+                min_similarity=min_similarity,
+            )
 
         if not results:
             logger.debug(
@@ -92,16 +160,36 @@ async def discover_tools_for_task(
             task_preview=task_payload[:50],
             tools_discovered=len(tools),
             top_k=top_k,
+            method="hybrid" if use_hybrid else "semantic",
         )
 
         return tools
 
     except ImportError as e:
-        logger.warning(f"Tool embeddings not available: {e}")
+        error_msg = f"Tool embeddings not available: {e}"
+        logger.warning(error_msg)
         return []
     except Exception as e:
-        logger.error(f"Dynamic tool discovery failed: {e}")
+        error_msg = f"Dynamic tool discovery failed: {e}"
+        logger.error(error_msg)
         return []
+    finally:
+        # Record trace for observability
+        latency_ms = (time.perf_counter() - start_time) * 1000
+        tokens_used = sum(t.get("_token_estimate", 0) for t in tools) if tools else 0
+
+        trace = DiscoveryTrace(
+            task_id=task_id,
+            phase=DiscoveryPhase.DISCOVERY,
+            query=task_payload[:200],
+            num_results=len(results),
+            num_selected=len(tools),
+            tokens_used=tokens_used,
+            latency_ms=latency_ms,
+            success=error_msg is None,
+            error=error_msg,
+        )
+        _discovery_tracer.trace_discovery(trace)
 
 
 async def _format_and_filter_tools(

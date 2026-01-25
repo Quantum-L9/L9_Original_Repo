@@ -30,7 +30,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -56,12 +56,27 @@ class ToolDefinition:
     is_destructive: bool = False
 
 
-async def get_agent_capabilities(agent_id: str) -> List[ToolDefinition]:
+async def get_agent_capabilities(agent_id: str) -> list[ToolDefinition]:
     """
     Get tool definitions available to this agent.
 
+    .. deprecated:: 2026-01-25
+        Use `core.tools.dynamic_discovery.discover_tools_for_task()` instead.
+        This static binding approach is replaced by dynamic semantic search.
+        See GMP-TD-WIRE for migration details.
+
     This loads from the tool registry or returns default tools.
     """
+    import warnings
+
+    warnings.warn(
+        "get_agent_capabilities() is deprecated. "
+        "Use core.tools.dynamic_discovery.discover_tools_for_task() for "
+        "dynamic tool discovery via semantic + BM25 hybrid search.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     try:
         from core.tools.registry_adapter import get_tools_for_agent
 
@@ -108,8 +123,8 @@ async def get_agent_capabilities(agent_id: str) -> List[ToolDefinition]:
 
 
 async def bind_tools_and_capabilities(
-    instance: "BootstrapInstanceData",
-    substrate_service: "MemorySubstrateService",
+    instance: BootstrapInstanceData,
+    substrate_service: MemorySubstrateService,
 ) -> None:
     """
     Load tool definitions and bind to agent.

@@ -252,6 +252,149 @@ async def find_relevant_tools(
         raise
 
 
+async def find_tools_keyword(
+    query: str,
+    top_k: int = 10,
+    min_rank: float = 0.0,
+) -> list[ToolEmbeddingResult]:
+    """
+    Find tools using BM25 keyword search (PostgreSQL full-text).
+
+    Adapted from: Tool Discovery research (harvested 1_semantic_discovery.py)
+
+    Args:
+        query: Search query (keywords)
+        top_k: Maximum results
+        min_rank: Minimum ts_rank threshold
+
+    Returns:
+        List of ToolEmbeddingResult ordered by BM25 rank
+    """
+    pool = await _get_db_pool()
+
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT 
+                    tool_name,
+                    description,
+                    category,
+                    ts_rank(
+                        search_vector,
+                        plainto_tsquery('english', $1)
+                    ) as rank,
+                    negative_constraints,
+                    metadata
+                FROM tool_embeddings
+                WHERE search_vector @@ plainto_tsquery('english', $1)
+                ORDER BY rank DESC
+                LIMIT $2
+                """,
+                query,
+                top_k,
+            )
+
+        results = []
+        for row in rows:
+            rank = float(row["rank"])
+            if rank >= min_rank:
+                results.append(
+                    ToolEmbeddingResult(
+                        tool_name=row["tool_name"],
+                        description=row["description"],
+                        category=row["category"],
+                        similarity=rank,  # Use rank as similarity proxy
+                        negative_constraints=row["negative_constraints"] or [],
+                        metadata=row["metadata"] or {},
+                    )
+                )
+
+        logger.debug(f"Keyword search for '{query}': {len(results)} tools")
+        return results
+
+    except Exception as e:
+        logger.warning(f"Keyword search failed (may need migration 0026): {e}")
+        return []  # Graceful fallback
+
+
+async def find_tools_hybrid(
+    query: str,
+    top_k: int = 5,
+    semantic_weight: float = 0.6,
+    keyword_weight: float = 0.4,
+    min_similarity: float = 0.3,
+) -> list[ToolEmbeddingResult]:
+    """
+    Hybrid tool discovery combining semantic + keyword (BM25) search.
+
+    Adapted from: Tool Discovery research (harvested 1_semantic_discovery.py)
+
+    Uses weighted combination of:
+    - Semantic search (pgvector cosine similarity)
+    - Keyword search (PostgreSQL BM25 full-text)
+
+    Args:
+        query: Search query
+        top_k: Maximum results
+        semantic_weight: Weight for semantic scores (default 0.6)
+        keyword_weight: Weight for keyword scores (default 0.4)
+        min_similarity: Minimum combined score threshold
+
+    Returns:
+        List of ToolEmbeddingResult with hybrid ranking
+    """
+    # Semantic search
+    semantic_results = await find_relevant_tools(
+        query, top_k=top_k * 2, min_similarity=0.1
+    )
+    semantic_scores = {r.tool_name: r.similarity for r in semantic_results}
+
+    # Keyword search (BM25)
+    keyword_results = await find_tools_keyword(query, top_k=top_k * 2)
+    # Normalize BM25 ranks to 0-1 range
+    max_rank = max((r.similarity for r in keyword_results), default=1.0) or 1.0
+    keyword_scores = {r.tool_name: r.similarity / max_rank for r in keyword_results}
+
+    # Hybrid fusion
+    all_tools = set(semantic_scores.keys()) | set(keyword_scores.keys())
+
+    hybrid_scores = {}
+    for tool_name in all_tools:
+        sem_score = semantic_scores.get(tool_name, 0.0)
+        kw_score = keyword_scores.get(tool_name, 0.0)
+        hybrid_scores[tool_name] = (
+            semantic_weight * sem_score + keyword_weight * kw_score
+        )
+
+    # Sort by hybrid score
+    sorted_tools = sorted(hybrid_scores.items(), key=lambda x: x[1], reverse=True)
+
+    # Build results from semantic_results (has full data)
+    tool_data = {r.tool_name: r for r in semantic_results}
+    tool_data.update({r.tool_name: r for r in keyword_results})
+
+    results = []
+    for tool_name, score in sorted_tools[:top_k]:
+        if score < min_similarity:
+            continue
+        if tool_name in tool_data:
+            base = tool_data[tool_name]
+            results.append(
+                ToolEmbeddingResult(
+                    tool_name=base.tool_name,
+                    description=base.description,
+                    category=base.category,
+                    similarity=score,
+                    negative_constraints=base.negative_constraints,
+                    metadata={**base.metadata, "discovery_method": "hybrid"},
+                )
+            )
+
+    logger.info(f"Hybrid search for '{query[:50]}': {len(results)} tools")
+    return results
+
+
 async def sync_all_tool_embeddings() -> int:
     """
     Sync all tool definitions to the embeddings table.
@@ -376,15 +519,15 @@ async def delete_tool_embedding(tool_name: str) -> bool:
 
 
 __all__ = [
-    "EMBEDDING_MODEL",
     "EMBEDDING_DIMENSION",
+    "EMBEDDING_MODEL",
     "ToolEmbeddingResult",
-    "embed_tool_description",
-    "store_tool_embedding",
-    "find_relevant_tools",
-    "sync_all_tool_embeddings",
-    "get_tool_embedding",
     "delete_tool_embedding",
+    "embed_tool_description",
+    "find_relevant_tools",
+    "get_tool_embedding",
+    "store_tool_embedding",
+    "sync_all_tool_embeddings",
 ]
 
 # ============================================================================
