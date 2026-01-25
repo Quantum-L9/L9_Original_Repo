@@ -1,0 +1,3 @@
+{"id": "golden_001", "prompt": "What is 2 + 2?", "expected_output": "4", "rubric": "exact_match"}
+{"id": "golden_002", "prompt": "Summarize the benefits of machine learning in healthcare.", "expected_output": "improved diagnostics, personalized treatment, drug discovery", "rubric": "semantic_match"}
+{"id": "golden_003", "prompt": "Explain the concept of a neural network in simple terms.", "expected_output": "interconnected nodes, layers, weights, activation functions", "rubric": "semantic_match"}

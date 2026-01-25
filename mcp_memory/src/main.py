@@ -22,6 +22,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import sys
 import time
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -44,6 +45,8 @@ from src.routes import memory_unified as memory
 
 # Configure structlog
 # Use structlog log levels (no need for logging module)
+import logging
+
 log_level_map = {
     "DEBUG": 10,
     "INFO": 20,
@@ -52,6 +55,14 @@ log_level_map = {
     "CRITICAL": 50,
 }
 log_level = log_level_map.get(settings.LOG_LEVEL.upper(), 20)  # Default to INFO (20)
+
+# Configure Python logging to output to stdout (required for structlog.stdlib)
+logging.basicConfig(
+    format="%(message)s",
+    stream=sys.stdout,
+    level=log_level,
+)
+
 structlog.configure(
     wrapper_class=structlog.make_filtering_bound_logger(log_level),
     processors=[
