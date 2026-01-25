@@ -108,7 +108,7 @@ services:
       L9_USE_KERNELS: ${L9_USE_KERNELS:-true}
 
       # Mac Agent
-      MAC_AGENT_ENABLED: ${MAC_AGENT_ENABLED:-true}
+      MAC_AGENT_ENABLED: ${MAC_AGENT_ENABLED:-false}
 
       # Redis (task queues, rate limiting)
       REDIS_HOST: ${REDIS_HOST:-redis}
@@ -131,7 +131,7 @@ services:
       SLACK_CLIENT_ID: ${SLACK_CLIENT_ID:-}
       SLACK_BOT_TOKEN: ${SLACK_BOT_TOKEN:-}
       SLACK_VERIFICATION_TOKEN: ${SLACK_VERIFICATION_TOKEN:-}
-      SLACK_APP_ENABLED: ${SLACK_APP_ENABLED:-true}
+      SLACK_APP_ENABLED: ${SLACK_APP_ENABLED:-false}
       SLACK_BOT_USER_ID: ${SLACK_BOT_USER_ID:-}
 
       # Feature Flags
