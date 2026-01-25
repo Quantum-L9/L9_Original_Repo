@@ -1,0 +1,126 @@
+# =============================================================================
+# L9 Docker Requirements (Optimized for Container Builds)
+# =============================================================================
+# component_name: "Docker Requirements"
+# module_version: "1.0.0"
+# created_by: "Manus AI"
+# created_at: "2026-01-25T12:00:00Z"
+# layer: "dependencies"
+# domain: "docker"
+# type: "requirements"
+# status: "active"
+# =============================================================================
+#
+# This file is identical to requirements.txt EXCEPT:
+# - playwright is EXCLUDED (only needed for local Mac Agent, not Docker)
+# - Reduces image size by ~500MB
+# - Reduces build time by 5-10 minutes
+#
+# Usage:
+#   In Dockerfile: pip install --no-cache-dir -r requirements-docker.txt
+#
+# =============================================================================
+
+# L9 Core Dependencies
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+python-dotenv>=1.0.0
+
+# Pydantic Settings (separate package in v2)
+pydantic-settings>=2.1.0
+
+# Database
+psycopg[binary]>=3.1.14
+sqlalchemy>=2.0.23
+asyncpg>=0.29.0
+pgvector>=0.2.4
+
+# Redis
+redis>=5.0.0
+
+# Neo4j
+neo4j>=5.14.0
+
+# HTTP Client
+httpx>=0.26.0
+
+# OpenAI / LLM
+openai>=1.10.0
+
+# LangGraph / LangChain
+langgraph>=0.0.40
+langchain-core>=0.1.20
+
+# Logging
+structlog>=24.1.0
+
+# Async utilities
+anyio>=4.2.0
+aiofiles>=23.2.0
+
+# Typing extensions
+typing-extensions>=4.9.0
+
+# Twilio (SMS/Voice)
+twilio>=8.10.0
+
+# Templates
+Jinja2>=3.1.2
+
+# YAML
+PyYAML>=6.0.1
+
+# Cryptography (signature verification)
+cryptography>=41.0.0
+
+# Symbolic Computation (Quantum AI Factory)
+sympy>=1.12
+numpy>=1.24.0
+
+# Cross-encoder reranking for hybrid retrieval
+sentence-transformers>=2.2.0
+
+# ❌ EXCLUDED: playwright>=1.40.0
+# Reason: Browser automation only needed for Mac Agent (local only, not Docker)
+# Savings: ~500MB image size, 5-10 min build time
+
+# MCP (Model Context Protocol) - for mcp_memory server
+mcp>=1.0.0
+
+# Observability
+prometheus_client>=0.19.0
+
+# OpenTelemetry (Jaeger tracing)
+opentelemetry-api>=1.21.0
+opentelemetry-sdk>=1.21.0
+opentelemetry-exporter-otlp-proto-http>=1.21.0
+
+# Testing & Linting (optional, for dev)
+pytest>=7.4.0
+pytest-asyncio>=0.23.0
+ruff>=0.4.0
+vulture>=2.11
+mypy>=1.10.0
+python-multipart
+
+# Pin urllib3 to avoid LibreSSL warning on macOS
+urllib3<3
+
+# Mutation Testing
+mutmut>=2.4.5
+
+# ToTh Reasoning Engine
+aiohttp>=3.9.0
+networkx>=3.0
+
+# Caching (for query result caching)
+cachetools>=5.3.0
+
+# =============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# =============================================================================
+# tags: ["dependencies", "docker", "requirements"]
+# keywords: ["docker", "fastapi", "openai", "playwright", "requirements"]
+# last_modified: "2026-01-25T12:00:00Z"
+# =============================================================================
