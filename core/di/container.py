@@ -632,9 +632,9 @@ class MemorySubstrateContainer:
                 - openai_api_key (str, optional): OpenAI API key (required if type=openai)
         """
         self._config = config
-        # GMP-MEM-FIX: Use asyncio.Lock() instead of threading.Lock()
-        # threading.Lock() blocks the event loop when awaiting inside the lock
-        self._lock = asyncio.Lock()
+        # GMP-MEM-FIX: Removed lock - async code is single-threaded
+        # Double-checked locking isn't needed; await is a natural yield point
+        self._lock = None  # Keep attribute for compatibility but don't use
 
         # Singleton instances
         self._repository: Any | None = None  # SubstrateRepositoryProtocol
@@ -660,36 +660,33 @@ class MemorySubstrateContainer:
             DIContainerError: If repository initialization fails
         """
         if self._repository is None:
-            print("DEBUG: DI - Acquiring lock for repository...", flush=True)
-            async with self._lock:
-                print("DEBUG: DI - Lock acquired for repository", flush=True)
-                if self._repository is None:  # Double-checked locking
-                    try:
-                        print("DEBUG: DI - Importing SubstrateRepository...", flush=True)
-                        from memory.substrate_repository import SubstrateRepository
+            # No lock needed - async code is single-threaded
+            try:
+                print("DEBUG: DI - Importing SubstrateRepository...", flush=True)
+                from memory.substrate_repository import SubstrateRepository
 
-                        print("DEBUG: DI - Creating SubstrateRepository instance...", flush=True)
-                        self._repository = SubstrateRepository(
-                            database_url=self._config["database_url"],
-                            pool_size=self._config.get("db_pool_size", 5),
-                            max_overflow=self._config.get("db_max_overflow", 10),
-                        )
-                        print("DEBUG: DI - Calling repository.connect()...", flush=True)
-                        await self._repository.connect()
-                        print("DEBUG: DI - repository.connect() complete!", flush=True)
+                print("DEBUG: DI - Creating SubstrateRepository instance...", flush=True)
+                self._repository = SubstrateRepository(
+                    database_url=self._config["database_url"],
+                    pool_size=self._config.get("db_pool_size", 5),
+                    max_overflow=self._config.get("db_max_overflow", 10),
+                )
+                print("DEBUG: DI - Calling repository.connect()...", flush=True)
+                await self._repository.connect()
+                print("DEBUG: DI - repository.connect() complete!", flush=True)
 
-                        logger.info(
-                            "MemorySubstrateContainer.repository_initialized",
-                            pool_size=self._config.get("db_pool_size", 5),
-                        )
-                    except Exception as e:
-                        logger.error(
-                            "MemorySubstrateContainer.repository_failed",
-                            error=str(e),
-                        )
-                        raise DIContainerError(
-                            f"Failed to initialize repository: {e}"
-                        ) from e
+                logger.info(
+                    "MemorySubstrateContainer.repository_initialized",
+                    pool_size=self._config.get("db_pool_size", 5),
+                )
+            except Exception as e:
+                logger.error(
+                    "MemorySubstrateContainer.repository_failed",
+                    error=str(e),
+                )
+                raise DIContainerError(
+                    f"Failed to initialize repository: {e}"
+                ) from e
 
         return self._repository
 
@@ -704,41 +701,37 @@ class MemorySubstrateContainer:
             DIContainerError: If embedding provider initialization fails
         """
         if self._embedding_provider is None:
-            print("DEBUG: DI - Acquiring lock for embedding_provider...", flush=True)
-            async with self._lock:
-                print("DEBUG: DI - Lock acquired for embedding_provider", flush=True)
-                if self._embedding_provider is None:  # Double-checked locking
-                    try:
-                        print("DEBUG: DI - Creating embedding provider...", flush=True)
-                        from memory.substrate_semantic import create_embedding_provider
+            try:
+                print("DEBUG: DI - Creating embedding provider...", flush=True)
+                from memory.substrate_semantic import create_embedding_provider
 
-                        provider_type = self._config.get(
-                            "embedding_provider_type", "openai"
-                        )
-                        model = self._config.get(
-                            "embedding_model", "text-embedding-3-large"
-                        )
-                        api_key = self._config.get("openai_api_key")
+                provider_type = self._config.get(
+                    "embedding_provider_type", "openai"
+                )
+                model = self._config.get(
+                    "embedding_model", "text-embedding-3-large"
+                )
+                api_key = self._config.get("openai_api_key")
 
-                        self._embedding_provider = create_embedding_provider(
-                            provider_type=provider_type,
-                            model=model,
-                            api_key=api_key,
-                        )
+                self._embedding_provider = create_embedding_provider(
+                    provider_type=provider_type,
+                    model=model,
+                    api_key=api_key,
+                )
 
-                        logger.info(
-                            "MemorySubstrateContainer.embedding_provider_initialized",
-                            provider_type=provider_type,
-                            model=model,
-                        )
-                    except Exception as e:
-                        logger.error(
-                            "MemorySubstrateContainer.embedding_provider_failed",
-                            error=str(e),
-                        )
-                        raise DIContainerError(
-                            f"Failed to initialize embedding provider: {e}"
-                        ) from e
+                logger.info(
+                    "MemorySubstrateContainer.embedding_provider_initialized",
+                    provider_type=provider_type,
+                    model=model,
+                )
+            except Exception as e:
+                logger.error(
+                    "MemorySubstrateContainer.embedding_provider_failed",
+                    error=str(e),
+                )
+                raise DIContainerError(
+                    f"Failed to initialize embedding provider: {e}"
+                ) from e
 
         return self._embedding_provider
 
@@ -753,30 +746,28 @@ class MemorySubstrateContainer:
             DIContainerError: If semantic service initialization fails
         """
         if self._semantic_service is None:
-            async with self._lock:
-                if self._semantic_service is None:  # Double-checked locking
-                    try:
-                        from memory.substrate_semantic import SemanticService
+            try:
+                from memory.substrate_semantic import SemanticService
 
-                        repository = await self.get_repository()
-                        embedding_provider = await self.get_embedding_provider()
+                repository = await self.get_repository()
+                embedding_provider = await self.get_embedding_provider()
 
-                        self._semantic_service = SemanticService(
-                            embedding_provider=embedding_provider,
-                            repository=repository,
-                        )
+                self._semantic_service = SemanticService(
+                    embedding_provider=embedding_provider,
+                    repository=repository,
+                )
 
-                        logger.info(
-                            "MemorySubstrateContainer.semantic_service_initialized"
-                        )
-                    except Exception as e:
-                        logger.error(
-                            "MemorySubstrateContainer.semantic_service_failed",
-                            error=str(e),
-                        )
-                        raise DIContainerError(
-                            f"Failed to initialize semantic service: {e}"
-                        ) from e
+                logger.info(
+                    "MemorySubstrateContainer.semantic_service_initialized"
+                )
+            except Exception as e:
+                logger.error(
+                    "MemorySubstrateContainer.semantic_service_failed",
+                    error=str(e),
+                )
+                raise DIContainerError(
+                    f"Failed to initialize semantic service: {e}"
+                ) from e
 
         return self._semantic_service
 
@@ -791,26 +782,24 @@ class MemorySubstrateContainer:
             DIContainerError: If DAG initialization fails
         """
         if self._dag is None:
-            async with self._lock:
-                if self._dag is None:  # Double-checked locking
-                    try:
-                        from memory.substrate_dag import SubstrateDAG
+            try:
+                from memory.substrate_dag import SubstrateDAG
 
-                        repository = await self.get_repository()
-                        semantic_service = await self.get_semantic_service()
+                repository = await self.get_repository()
+                semantic_service = await self.get_semantic_service()
 
-                        self._dag = SubstrateDAG(
-                            repository=repository,
-                            semantic_service=semantic_service,
-                        )
+                self._dag = SubstrateDAG(
+                    repository=repository,
+                    semantic_service=semantic_service,
+                )
 
-                        logger.info("MemorySubstrateContainer.dag_initialized")
-                    except Exception as e:
-                        logger.error(
-                            "MemorySubstrateContainer.dag_failed",
-                            error=str(e),
-                        )
-                        raise DIContainerError(f"Failed to initialize DAG: {e}") from e
+                logger.info("MemorySubstrateContainer.dag_initialized")
+            except Exception as e:
+                logger.error(
+                    "MemorySubstrateContainer.dag_failed",
+                    error=str(e),
+                )
+                raise DIContainerError(f"Failed to initialize DAG: {e}") from e
 
         return self._dag
 
@@ -828,32 +817,30 @@ class MemorySubstrateContainer:
             DIContainerError: If service initialization fails
         """
         if self._service is None:
-            async with self._lock:
-                if self._service is None:  # Double-checked locking
-                    try:
-                        from memory.substrate_service import MemorySubstrateService
+            try:
+                from memory.substrate_service import MemorySubstrateService
 
-                        repository = await self.get_repository()
-                        embedding_provider = await self.get_embedding_provider()
-                        semantic_service = await self.get_semantic_service()
-                        dag = await self.get_dag()
+                repository = await self.get_repository()
+                embedding_provider = await self.get_embedding_provider()
+                semantic_service = await self.get_semantic_service()
+                dag = await self.get_dag()
 
-                        self._service = MemorySubstrateService(
-                            repository=repository,
-                            embedding_provider=embedding_provider,
-                            semantic_service=semantic_service,
-                            dag=dag,
-                        )
+                self._service = MemorySubstrateService(
+                    repository=repository,
+                    embedding_provider=embedding_provider,
+                    semantic_service=semantic_service,
+                    dag=dag,
+                )
 
-                        logger.info("MemorySubstrateContainer.service_initialized")
-                    except Exception as e:
-                        logger.error(
-                            "MemorySubstrateContainer.service_failed",
-                            error=str(e),
-                        )
-                        raise DIContainerError(
-                            f"Failed to initialize service: {e}"
-                        ) from e
+                logger.info("MemorySubstrateContainer.service_initialized")
+            except Exception as e:
+                logger.error(
+                    "MemorySubstrateContainer.service_failed",
+                    error=str(e),
+                )
+                raise DIContainerError(
+                    f"Failed to initialize service: {e}"
+                ) from e
 
         return self._service
 

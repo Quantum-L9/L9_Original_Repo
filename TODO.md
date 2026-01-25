@@ -14,12 +14,12 @@
 | #29 | Observability Infrastructure | ✅ MERGED |
 | #30 | Memory & Governance | ✅ MERGED |
 
-### Post-Merge Wiring Tasks (NOW ACTIVE)
+### Post-Merge Wiring Tasks
 
-- [ ] **Wire `DeduplicationEngine`** into `memory/consolidation.py` `_run_deduplication()`
-  - File exists: `memory/deduplication.py` (529 lines)
-  - Current: Raw SQL in consolidation.py
-  - TODO: Import and use DeduplicationEngine class
+- [x] **Wire `DeduplicationEngine`** into `memory/consolidation.py` `_run_deduplication()` ✅ COMPLETE
+  - `_dedup_engine` instance created in `ConsolidationPipeline.__init__`
+  - `_resolve_duplicate_pair()` method uses `MergeStrategy` from engine
+  - Exported in `memory/__init__.py`
   
 - [ ] **Wire `RegistryCache`** into `core/tools/registry_adapter.py`
   - File exists: `core/tools/registry_cache.py` (572 lines)
