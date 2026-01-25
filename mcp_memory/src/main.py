@@ -166,7 +166,9 @@ async def lifespan(app: FastAPI):
     # GMP-MEM-FIX: Added DB readiness check + timeout wrapper to prevent hang
     # =========================================================================
     print("DEBUG: About to set SUBSTRATE_INIT_TIMEOUT", flush=True)
-    SUBSTRATE_INIT_TIMEOUT = int(os.getenv("SUBSTRATE_INIT_TIMEOUT", "30"))
+    SUBSTRATE_INIT_TIMEOUT = int(
+        os.getenv("SUBSTRATE_INIT_TIMEOUT", "15")
+    )  # DEBUG: reduced from 30
     print(f"DEBUG: SUBSTRATE_INIT_TIMEOUT={SUBSTRATE_INIT_TIMEOUT}", flush=True)
 
     async def _check_db_ready(url: str, max_retries: int = 5) -> bool:
@@ -270,10 +272,31 @@ async def lifespan(app: FastAPI):
                         "✓ Memory Substrate Service initialized (DAG pipeline enabled)"
                     )
                 except TimeoutError:
-                    print("DEBUG: init_service TIMED OUT!", flush=True)
+                    print(
+                        "DEBUG: init_service TIMED OUT (asyncio.TimeoutError)!",
+                        flush=True,
+                    )
                     logger.error(
                         "Memory Substrate Service initialization timed out",
                         timeout=SUBSTRATE_INIT_TIMEOUT,
+                    )
+                    app.state.substrate_service = None
+                except TimeoutError:
+                    print("DEBUG: init_service TIMED OUT (TimeoutError)!", flush=True)
+                    logger.error(
+                        "Memory Substrate Service initialization timed out (TE)",
+                        timeout=SUBSTRATE_INIT_TIMEOUT,
+                    )
+                    app.state.substrate_service = None
+                except Exception as inner_e:
+                    print(
+                        f"DEBUG: init_service EXCEPTION: {type(inner_e).__name__}: {inner_e}",
+                        flush=True,
+                    )
+                    logger.error(
+                        "Memory Substrate Service initialization failed",
+                        error=str(inner_e),
+                        error_type=type(inner_e).__name__,
                     )
                     app.state.substrate_service = None
     except Exception as e:
