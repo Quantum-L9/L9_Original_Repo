@@ -822,14 +822,12 @@ class MemorySubstrateContainer:
 
                 repository = await self.get_repository()
                 embedding_provider = await self.get_embedding_provider()
-                semantic_service = await self.get_semantic_service()
-                dag = await self.get_dag()
 
+                # MemorySubstrateService only takes repository and embedding_provider
+                # semantic_service and dag are created internally or not needed
                 self._service = MemorySubstrateService(
                     repository=repository,
                     embedding_provider=embedding_provider,
-                    semantic_service=semantic_service,
-                    dag=dag,
                 )
 
                 logger.info("MemorySubstrateContainer.service_initialized")
