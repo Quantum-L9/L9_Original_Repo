@@ -1,15 +1,37 @@
 """
 ADR Enforcement Validator - Comprehensive ADR compliance checking
 
-Enforces key Accepted ADRs across the L9 codebase by detecting violations in:
+Enforces Accepted ADRs 0001-0026 + 0055 across the L9 codebase.
+
+CRITICAL (blocking):
 - ADR-0001: Path safety
 - ADR-0002: Circular imports
-- ADR-0003: Documentation standards
 - ADR-0006: PacketEnvelope audit trails
-- ADR-0010: Async patterns
-- ADR-0022: Registry patterns
-- ADR-0026: Protocol-based abstractions
 - ADR-0055: Fail-loudly enforcement
+
+HIGH (should fix):
+- ADR-0003: Documentation standards
+- ADR-0010: Async patterns (must_stay_async)
+- ADR-0019: structlog logging standard
+- ADR-0022: Registry patterns
+
+MEDIUM (recommended):
+- ADR-0004: Singleton auto-registry
+- ADR-0008: Feature flag gating
+- ADR-0014: DORA metadata block
+- ADR-0017: Tool definition schema
+- ADR-0026: Protocol-based abstractions
+
+LOW (advisory):
+- ADR-0005: RLS shared tenant model
+- ADR-0007: 7-phase bootstrap ceremony
+- ADR-0009: Circuit breaker resilience
+- ADR-0011: Lazy initialization pattern
+- ADR-0012: Memory DAG pipeline
+- ADR-0013: Governance authority hierarchy
+- ADR-0015: Migration sequential apply
+- ADR-0016: TypedDict vs Pydantic boundary
+- ADR-0020: Test fixture hierarchy
 """
 
 from __future__ import annotations
@@ -105,14 +127,32 @@ class ADREnforcementValidator:
     """Enforces L9 ADR compliance across the codebase."""
 
     ADR_SEVERITY = {
+        # Critical - Must fix before merge
         "ADR-0001": "CRITICAL",  # Path safety
         "ADR-0002": "CRITICAL",  # Circular imports
-        "ADR-0003": "HIGH",  # Documentation
         "ADR-0006": "CRITICAL",  # PacketEnvelope audit
-        "ADR-0010": "HIGH",  # Async patterns
-        "ADR-0022": "HIGH",  # Registry pattern
-        "ADR-0026": "MEDIUM",  # Protocol-based abstractions
         "ADR-0055": "CRITICAL",  # Fail-loudly
+        # High - Should fix
+        "ADR-0010": "HIGH",  # Async patterns
+        "ADR-0019": "HIGH",  # structlog (stdlib logging=HIGH, print=MEDIUM)
+        "ADR-0022": "HIGH",  # Registry pattern
+        # Medium - Recommended
+        "ADR-0004": "MEDIUM",  # Singleton auto-registry
+        "ADR-0008": "MEDIUM",  # Feature flag gating
+        "ADR-0014": "MEDIUM",  # DORA metadata block
+        "ADR-0017": "MEDIUM",  # Tool definition schema
+        "ADR-0026": "MEDIUM",  # Protocol-based abstractions
+        # Low - Advisory
+        "ADR-0003": "LOW",  # Documentation (docstrings)
+        "ADR-0005": "LOW",  # RLS shared tenant
+        "ADR-0007": "LOW",  # 7-phase bootstrap
+        "ADR-0009": "LOW",  # Circuit breaker
+        "ADR-0011": "LOW",  # Lazy initialization
+        "ADR-0012": "LOW",  # Memory DAG pipeline
+        "ADR-0013": "LOW",  # Governance hierarchy
+        "ADR-0015": "LOW",  # Migration sequential
+        "ADR-0016": "LOW",  # TypedDict vs Pydantic
+        "ADR-0020": "LOW",  # Test fixture hierarchy
     }
 
     SKIP_PARTS = {
@@ -120,6 +160,8 @@ class ADREnforcementValidator:
         ".git",
         ".idea",
         ".vscode",
+        ".cursor",
+        ".github",
         # Python artifacts
         "__pycache__",
         ".pytest_cache",
@@ -137,6 +179,7 @@ class ADREnforcementValidator:
         "igor",
         "codegen",
         ".dora",
+        ".backup",
         # Self-exclusion (checker contains patterns it checks for)
         "adr",
     }
@@ -680,6 +723,536 @@ class ADREnforcementValidator:
 
         return violations
 
+    # ===== ADR-0004: Singleton Auto-Registry Pattern =====
+
+    def check_adr_0004(self, path: Path) -> list[Violation]:
+        """Check for manual singleton patterns instead of @register_singleton."""
+        violations: list[Violation] = []
+        text = self._read(path)
+        lines = text.splitlines()
+
+        # Skip if file uses @register_singleton (compliant)
+        if "@register_singleton" in text:
+            return violations
+
+        # Check for manual singleton patterns
+        for lineno, line in enumerate(lines, start=1):
+            # Pattern: _instance: Optional[SomeClass] = None (manual singleton)
+            if re.match(r"^_\w+\s*:\s*Optional\[.+\]\s*=\s*None", line.strip()):
+                violations.append(
+                    Violation(
+                        adr="ADR-0004",
+                        severity="MEDIUM",
+                        file=str(path),
+                        line=lineno,
+                        issue="Manual singleton pattern detected.",
+                        fix="Use @register_singleton decorator for auto-discovery.",
+                        code_snippet=line.strip(),
+                    )
+                )
+            # Pattern: _instance = None (bare assignment)
+            if re.match(r"^_instance\s*=\s*None\s*$", line.strip()):
+                violations.append(
+                    Violation(
+                        adr="ADR-0004",
+                        severity="MEDIUM",
+                        file=str(path),
+                        line=lineno,
+                        issue="Manual singleton _instance pattern.",
+                        fix="Use @register_singleton for service registration.",
+                        code_snippet=line.strip(),
+                    )
+                )
+
+        return violations
+
+    # ===== ADR-0005: RLS Shared Tenant Model =====
+
+    def check_adr_0005(self, path: Path) -> list[Violation]:
+        """Check for hardcoded tenant/org/user UUIDs (should use config)."""
+        violations: list[Violation] = []
+        text = self._read(path)
+        lines = text.splitlines()
+
+        # L9 canonical UUIDs that should come from config, not hardcoded
+        hardcoded_uuids = {
+            "73350468-3158-5d0f-9b8c-9b193d96fc4b": "tenant_id",
+            "14910cef-fea1-51d7-9a28-05579e6c0c18": "org_id",
+            "2f00c090-3816-51a0-806c-34d32522a070": "user_id",
+        }
+
+        for lineno, line in enumerate(lines, start=1):
+            for uuid, name in hardcoded_uuids.items():
+                if uuid in line:
+                    # Skip config files and documentation
+                    if "rls_config" in str(path) or "README" in str(path):
+                        continue
+                    violations.append(
+                        Violation(
+                            adr="ADR-0005",
+                            severity="LOW",
+                            file=str(path),
+                            line=lineno,
+                            issue=f"Hardcoded {name} UUID.",
+                            fix="Use get_rls_config() from config/rls_config.py.",
+                            code_snippet=line.strip()[:80],
+                        )
+                    )
+
+        return violations
+
+    # ===== ADR-0007: 7-Phase Bootstrap Ceremony =====
+
+    def check_adr_0007(self, path: Path) -> list[Violation]:
+        """Check for legacy agent initialization patterns."""
+        violations: list[Violation] = []
+        text = self._read(path)
+
+        # Skip bootstrap directory (it implements the pattern)
+        if "bootstrap" in str(path):
+            return violations
+
+        # Look for legacy agent creation without bootstrap
+        if "create_agent_legacy" in text or "AgentInstance(" in text:
+            # Check if also using bootstrap (OK) or only legacy (BAD)
+            if "bootstrap_agent" not in text:
+                try:
+                    tree = ast.parse(text)
+                    for node in ast.walk(tree):
+                        if isinstance(node, ast.Call):
+                            name = self._call_name(node)
+                            if name in ("create_agent_legacy", "AgentInstance"):
+                                violations.append(
+                                    Violation(
+                                        adr="ADR-0007",
+                                        severity="LOW",
+                                        file=str(path),
+                                        line=node.lineno,
+                                        issue=f"Direct {name}() call bypasses 7-phase bootstrap.",
+                                        fix="Use bootstrap_agent() for proper initialization.",
+                                    )
+                                )
+                except SyntaxError:
+                    pass
+
+        return violations
+
+    # ===== ADR-0008: Feature Flag Gating Pattern =====
+
+    def check_adr_0008(self, path: Path) -> list[Violation]:
+        """Check for os.getenv() usage instead of settings.FLAG_NAME."""
+        violations: list[Violation] = []
+        text = self._read(path)
+
+        # Skip settings.py itself (it defines the flags)
+        if "settings.py" in str(path):
+            return violations
+
+        # Look for os.getenv with L9_ prefix (should use settings)
+        pattern = r'os\.getenv\s*\(\s*["\']L9_'
+        for match in re.finditer(pattern, text):
+            lineno = text[: match.start()].count("\n") + 1
+            line = (
+                text.splitlines()[lineno - 1]
+                if lineno <= len(text.splitlines())
+                else ""
+            )
+            violations.append(
+                Violation(
+                    adr="ADR-0008",
+                    severity="MEDIUM",
+                    file=str(path),
+                    line=lineno,
+                    issue="os.getenv() for L9_ flag instead of settings.",
+                    fix="Use settings.FLAG_NAME from config/settings.py.",
+                    code_snippet=line.strip()[:80],
+                )
+            )
+
+        return violations
+
+    # ===== ADR-0009: Circuit Breaker Resilience =====
+
+    def check_adr_0009(self, path: Path) -> list[Violation]:
+        """Advisory: Check for external calls without circuit breaker."""
+        violations: list[Violation] = []
+        text = self._read(path)
+
+        # Skip if file uses CircuitBreaker (compliant)
+        if "CircuitBreaker" in text:
+            return violations
+
+        # Check for httpx/aiohttp calls without circuit breaker
+        external_patterns = [
+            (r"httpx\.(get|post|put|delete|patch)\s*\(", "httpx HTTP call"),
+            (r"aiohttp\.(get|post|put|delete)\s*\(", "aiohttp HTTP call"),
+        ]
+
+        for pattern, desc in external_patterns:
+            for match in re.finditer(pattern, text, re.IGNORECASE):
+                lineno = text[: match.start()].count("\n") + 1
+                violations.append(
+                    Violation(
+                        adr="ADR-0009",
+                        severity="LOW",
+                        file=str(path),
+                        line=lineno,
+                        issue=f"{desc} without circuit breaker.",
+                        fix="Wrap external calls with CircuitBreaker from core/observability/circuit_breaker.py.",
+                    )
+                )
+
+        return violations
+
+    # ===== ADR-0011: Lazy Initialization Pattern =====
+
+    def check_adr_0011(self, path: Path) -> list[Violation]:
+        """Check for eager initialization instead of lazy get_*() pattern."""
+        violations: list[Violation] = []
+        text = self._read(path)
+
+        # Check for module-level service instantiation (eager init)
+        # Pattern: service = SomeService() at module level (not in function)
+        try:
+            tree = ast.parse(text)
+            for node in tree.body:
+                if isinstance(node, ast.Assign):
+                    for target in node.targets:
+                        if isinstance(target, ast.Name) and target.id.endswith(
+                            "_service"
+                        ):
+                            if isinstance(node.value, ast.Call):
+                                violations.append(
+                                    Violation(
+                                        adr="ADR-0011",
+                                        severity="LOW",
+                                        file=str(path),
+                                        line=node.lineno,
+                                        issue=f"Eager service instantiation: {target.id}.",
+                                        fix="Use lazy get_*() function with module-level _instance cache.",
+                                    )
+                                )
+        except SyntaxError:
+            pass
+
+        return violations
+
+    # ===== ADR-0012: Memory DAG Pipeline =====
+
+    def check_adr_0012(self, path: Path) -> list[Violation]:
+        """Check for direct memory writes bypassing DAG."""
+        violations: list[Violation] = []
+        text = self._read(path)
+
+        # Skip DAG implementation files
+        if "dag" in str(path).lower() or "ingestion" in str(path):
+            return violations
+
+        # Look for direct repository writes (should use ingest_packet)
+        if "repository.write_packet" in text or "repo.write_packet" in text:
+            for match in re.finditer(r"(repository|repo)\.write_packet\s*\(", text):
+                lineno = text[: match.start()].count("\n") + 1
+                violations.append(
+                    Violation(
+                        adr="ADR-0012",
+                        severity="LOW",
+                        file=str(path),
+                        line=lineno,
+                        issue="Direct repository.write_packet() bypasses DAG.",
+                        fix="Use ingest_packet() to flow through SubstrateDAG pipeline.",
+                    )
+                )
+
+        return violations
+
+    # ===== ADR-0013: Governance Authority Hierarchy =====
+
+    def check_adr_0013(self, path: Path) -> list[Violation]:
+        """Check for missing approval checks on high-risk operations."""
+        violations: list[Violation] = []
+        text = self._read(path)
+
+        # High-risk operations that should check requires_approval()
+        high_risk_ops = [
+            "git_commit",
+            "git_push",
+            "file_delete",
+            "deploy",
+            "mac_agent_exec",
+        ]
+
+        for op in high_risk_ops:
+            if f'"{op}"' in text or f"'{op}'" in text:
+                if "requires_approval" not in text and "approval_manager" not in text:
+                    for match in re.finditer(rf'["\']({op})["\']', text):
+                        lineno = text[: match.start()].count("\n") + 1
+                        violations.append(
+                            Violation(
+                                adr="ADR-0013",
+                                severity="LOW",
+                                file=str(path),
+                                line=lineno,
+                                issue=f"High-risk operation '{op}' without approval check.",
+                                fix="Use ApprovalManager.requires_approval() before execution.",
+                            )
+                        )
+                    break  # One warning per file
+
+        return violations
+
+    # ===== ADR-0014: DORA Metadata Block Pattern =====
+
+    def check_adr_0014(self, path: Path) -> list[Violation]:
+        """Check for missing __dora_meta__ in Python modules."""
+        violations: list[Violation] = []
+        text = self._read(path)
+
+        # Skip __init__.py, conftest.py, and small files
+        if path.name in ("__init__.py", "conftest.py"):
+            return violations
+        if len(text.splitlines()) < 20:
+            return violations
+
+        # Check for __dora_meta__
+        if "__dora_meta__" not in text:
+            violations.append(
+                Violation(
+                    adr="ADR-0014",
+                    severity="MEDIUM",
+                    file=str(path),
+                    line=1,
+                    issue="Missing __dora_meta__ metadata block.",
+                    fix="Add __dora_meta__ dict after module docstring (run scripts/audit/inject_dora_complete.py).",
+                )
+            )
+
+        return violations
+
+    # ===== ADR-0015: Migration Sequential Apply Pattern =====
+
+    def check_adr_0015(self) -> list[Violation]:
+        """Check migration file naming and numbering."""
+        violations: list[Violation] = []
+        migrations_dir = self.repo_root / "migrations"
+
+        if not migrations_dir.exists():
+            return violations
+
+        sql_files = sorted(migrations_dir.glob("*.sql"))
+        expected_num = 1
+
+        for sql_file in sql_files:
+            name = sql_file.name
+            # Check naming pattern: NNNN_description.sql
+            match = re.match(r"^(\d{4})_(.+)\.sql$", name)
+            if not match:
+                # Also allow YYYYMMDD_ format
+                if not re.match(r"^\d{8}_", name):
+                    violations.append(
+                        Violation(
+                            adr="ADR-0015",
+                            severity="LOW",
+                            file=str(sql_file),
+                            line=1,
+                            issue=f"Invalid migration filename: {name}",
+                            fix="Use format: NNNN_description.sql (e.g., 0025_new_feature.sql).",
+                        )
+                    )
+            else:
+                num = int(match.group(1))
+                if num != expected_num and num < 1000:  # Skip date-based migrations
+                    violations.append(
+                        Violation(
+                            adr="ADR-0015",
+                            severity="LOW",
+                            file=str(sql_file),
+                            line=1,
+                            issue=f"Migration sequence gap: expected {expected_num:04d}, got {num:04d}.",
+                            fix="Migrations must be sequential (no gaps).",
+                        )
+                    )
+                expected_num = num + 1
+
+        return violations
+
+    # ===== ADR-0016: TypedDict vs Pydantic Boundary =====
+
+    def check_adr_0016(self, path: Path) -> list[Violation]:
+        """Check for Pydantic BaseModel in LangGraph contexts."""
+        violations: list[Violation] = []
+        text = self._read(path)
+
+        # Only check files that use langgraph
+        if "langgraph" not in text.lower() and "graph_state" not in text.lower():
+            return violations
+
+        # Check for Pydantic BaseModel in graph state classes
+        try:
+            tree = ast.parse(text)
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef):
+                    # Check if class has "State" in name and inherits from BaseModel
+                    if "state" in node.name.lower():
+                        for base in node.bases:
+                            base_name = ""
+                            if isinstance(base, ast.Name):
+                                base_name = base.id
+                            elif isinstance(base, ast.Attribute):
+                                base_name = base.attr
+                            if base_name == "BaseModel":
+                                violations.append(
+                                    Violation(
+                                        adr="ADR-0016",
+                                        severity="LOW",
+                                        file=str(path),
+                                        line=node.lineno,
+                                        issue=f"LangGraph state class '{node.name}' uses Pydantic.",
+                                        fix="Use TypedDict for LangGraph state schemas.",
+                                    )
+                                )
+        except SyntaxError:
+            pass
+
+        return violations
+
+    # ===== ADR-0017: Tool Definition Schema =====
+
+    def check_adr_0017(self, path: Path) -> list[Violation]:
+        """Check tool_id patterns for OpenAI compatibility."""
+        violations: list[Violation] = []
+        text = self._read(path)
+
+        # Only check files with ToolDefinition
+        if "ToolDefinition" not in text:
+            return violations
+
+        # Find tool_id values and validate pattern
+        # Pattern: tool_id="..." or tool_id='...'
+        for match in re.finditer(r'tool_id\s*=\s*["\']([^"\']+)["\']', text):
+            tool_id = match.group(1)
+            lineno = text[: match.start()].count("\n") + 1
+
+            # Validate: must match ^[a-zA-Z0-9_-]+$
+            if not re.match(r"^[a-zA-Z0-9_-]+$", tool_id):
+                violations.append(
+                    Violation(
+                        adr="ADR-0017",
+                        severity="MEDIUM",
+                        file=str(path),
+                        line=lineno,
+                        issue=f"Invalid tool_id: '{tool_id}' (contains invalid chars).",
+                        fix="Tool IDs must match ^[a-zA-Z0-9_-]+$ (no dots, spaces, special chars).",
+                        code_snippet=f'tool_id="{tool_id}"',
+                    )
+                )
+
+        return violations
+
+    # ===== ADR-0019: structlog Logging Standard =====
+
+    # Directories where print() is legitimate (CLI/scripts)
+    PRINT_ALLOWED_DIRS = {
+        "scripts",
+        "ci",
+        "dev",
+        "tools",
+        "ops",
+        "mac_agent",  # CLI runner
+    }
+
+    def check_adr_0019(self, path: Path) -> list[Violation]:
+        """Check for print() and stdlib logging instead of structlog.
+
+        Note: print() is allowed in scripts/, ci/, dev/, tools/ directories
+        where CLI output is expected. Only production code in core/, api/,
+        memory/, etc. should use structlog exclusively.
+        """
+        violations: list[Violation] = []
+        text = self._read(path)
+        lines = text.splitlines()
+
+        # Check if print() is allowed in this directory
+        path_parts = set(path.parts)
+        print_allowed = bool(path_parts & self.PRINT_ALLOWED_DIRS)
+
+        if not print_allowed:
+            for lineno, line in enumerate(lines, start=1):
+                stripped = line.strip()
+
+                # Check for print() calls (excluding comments and strings in same line)
+                if re.match(r"^print\s*\(", stripped):
+                    violations.append(
+                        Violation(
+                            adr="ADR-0019",
+                            severity="MEDIUM",  # Lowered from HIGH - often legitimate
+                            file=str(path),
+                            line=lineno,
+                            issue="Using print() instead of structlog.",
+                            fix="Use structlog.get_logger(__name__).info() for logging.",
+                            code_snippet=stripped[:60],
+                        )
+                    )
+
+        # Check for stdlib logging import (not just structlog)
+        if re.search(r"^import logging\s*$", text, re.MULTILINE):
+            if "structlog" not in text:
+                for lineno, line in enumerate(lines, start=1):
+                    if re.match(r"^import logging\s*$", line.strip()):
+                        violations.append(
+                            Violation(
+                                adr="ADR-0019",
+                                severity="HIGH",
+                                file=str(path),
+                                line=lineno,
+                                issue="Using stdlib logging instead of structlog.",
+                                fix="Use structlog.get_logger(__name__) for all logging.",
+                            )
+                        )
+                        break
+
+        return violations
+
+    # ===== ADR-0020: Test Fixture Hierarchy =====
+
+    def check_adr_0020(self, path: Path) -> list[Violation]:
+        """Check for network calls in unit tests."""
+        violations: list[Violation] = []
+        text = self._read(path)
+
+        # Only check test files
+        if not path.name.startswith("test_") and "tests/" not in str(path):
+            return violations
+
+        # Skip integration tests (network allowed)
+        if "integration" in str(path):
+            return violations
+
+        # Check for real network calls
+        network_patterns = [
+            (r'httpx\.(get|post|put|delete)\s*\(["\']https?://', "httpx network call"),
+            (
+                r'requests\.(get|post|put|delete)\s*\(["\']https?://',
+                "requests network call",
+            ),
+            (r"aiohttp\.ClientSession\(\)", "aiohttp session in test"),
+        ]
+
+        for pattern, desc in network_patterns:
+            for match in re.finditer(pattern, text, re.IGNORECASE):
+                lineno = text[: match.start()].count("\n") + 1
+                violations.append(
+                    Violation(
+                        adr="ADR-0020",
+                        severity="LOW",
+                        file=str(path),
+                        line=lineno,
+                        issue=f"{desc} in unit test.",
+                        fix="Use fixtures from tests/conftest.py instead of real network.",
+                    )
+                )
+
+        return violations
+
     # ===== ADR-0055: Fail-loudly vs silent failures =====
 
     def check_adr_0055(self, path: Path) -> list[Violation]:
@@ -723,13 +1296,30 @@ class ADREnforcementValidator:
             return []
 
         violations: list[Violation] = []
+        # Critical
         violations.extend(self.check_adr_0001(path))
-        violations.extend(self.check_adr_0003(path))
         violations.extend(self.check_adr_0006(path))
-        violations.extend(self.check_adr_0010(path))
-        violations.extend(self.check_adr_0022(path))
-        violations.extend(self.check_adr_0026(path))
         violations.extend(self.check_adr_0055(path))
+        # High
+        violations.extend(self.check_adr_0003(path))
+        violations.extend(self.check_adr_0010(path))
+        violations.extend(self.check_adr_0019(path))
+        violations.extend(self.check_adr_0022(path))
+        # Medium
+        violations.extend(self.check_adr_0004(path))
+        violations.extend(self.check_adr_0008(path))
+        violations.extend(self.check_adr_0014(path))
+        violations.extend(self.check_adr_0017(path))
+        violations.extend(self.check_adr_0026(path))
+        # Low (advisory)
+        violations.extend(self.check_adr_0005(path))
+        violations.extend(self.check_adr_0007(path))
+        violations.extend(self.check_adr_0009(path))
+        violations.extend(self.check_adr_0011(path))
+        violations.extend(self.check_adr_0012(path))
+        violations.extend(self.check_adr_0013(path))
+        violations.extend(self.check_adr_0016(path))
+        violations.extend(self.check_adr_0020(path))
         return violations
 
     def scan_repo(self) -> ValidationReport:
@@ -745,7 +1335,9 @@ class ADREnforcementValidator:
             files_scanned += 1
             all_violations.extend(self.scan_file(py))
 
+        # Repo-wide checks (not per-file)
         all_violations.extend(self.check_adr_0002())
+        all_violations.extend(self.check_adr_0015())
 
         return self._build_report(all_violations, files_scanned)
 
