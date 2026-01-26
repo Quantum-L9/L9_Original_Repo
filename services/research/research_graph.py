@@ -41,10 +41,10 @@ from typing import Any, Literal
 from uuid import uuid4
 
 import structlog
+from langgraph.graph import END, START, StateGraph
 
 # Memory client for substrate writes
 from clients.memory_client import PacketWriteResult, get_memory_client
-from langgraph.graph import END, START, StateGraph
 from services.research.agents import CriticAgent, PlannerAgent, ResearcherAgent
 from services.research.graph_persistence import get_graph_persistence
 from services.research.graph_state import (

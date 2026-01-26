@@ -127,8 +127,9 @@ def test_langgraph_not_shadowed() -> tuple[bool, str]:
     """Test that langgraph library is not shadowed by local package."""
     try:
         # Verify it's the actual library, not our local shim
-        import langgraph
         from langgraph.graph import END, StateGraph
+
+        import langgraph
 
         # langgraph is a namespace package, so __file__ may be None
         # Instead, check that we can access the graph module

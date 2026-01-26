@@ -18,9 +18,9 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import pytest
+from langgraph.graph import END, StateGraph
 
 from core.schemas import PacketEnvelope
-from langgraph.graph import END, StateGraph
 
 # Import from substrate_dag
 from memory.substrate_dag import (

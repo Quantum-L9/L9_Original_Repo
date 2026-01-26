@@ -54,10 +54,10 @@ from uuid import UUID, uuid4
 
 import structlog
 from langchain_core.runnables import RunnableConfig
+from langgraph.graph import END, StateGraph
 
 from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope, PacketWriteResult
-from langgraph.graph import END, StateGraph
 from memory.graph_client import get_neo4j_client
 from memory.substrate_models import (
     EnrichmentResult,
