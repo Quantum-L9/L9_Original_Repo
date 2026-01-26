@@ -45,6 +45,7 @@ __dora_meta__ = {
 import os
 from typing import Any, Dict, Optional
 
+import aiofiles
 import httpx
 import structlog
 
@@ -211,8 +212,8 @@ class SlackAPIClient:
             filename = os.path.basename(file_path)
 
         # Read file content
-        with open(file_path, "rb") as f:
-            file_content = f.read()
+        async with aiofiles.open(file_path, "rb") as f:
+            file_content = await f.read()
 
         # Prepare multipart form data
         files = {

@@ -361,28 +361,62 @@ class ReasoningReplayPipeline:
             logger.error("Lineage integrity check failed", error=str(e), exc_info=True)
             return False
 
-    @must_stay_async("future await planned")
     async def detect_orphaned_packets(self, agent_id: str) -> List[UUID]:
         """
-        Detect orphaned packets (packets with no valid lineage).
+        Detect orphaned packets (packets with broken lineage references).
+
+        Finds packets where:
+        - Packet belongs to agent (via provenance.agent_id)
+        - Packet has parent_ids that reference non-existent packets
 
         Args:
             agent_id: Agent ID to check
 
         Returns:
-            List of orphaned packet UUIDs
+            List of orphaned packet UUIDs (packets with invalid parent references)
         """
         if self._repository is None:
             raise RuntimeError("Repository not set")
 
-        # Get all packets for agent
-        # Note: This is a simplified implementation
-        # In production, would query packetstore with agent_id filter
-        orphaned = []
+        orphaned: List[UUID] = []
 
-        # TODO(GMP-119): Implement actual orphan detection query
-        # For now, return empty list
-        logger.warning("Orphan detection not fully implemented", agent_id=agent_id)
+        try:
+            async with self._repository.acquire() as conn:
+                # Query packets for this agent that have parent_ids referencing
+                # packets that don't exist in the database
+                rows = await conn.fetch(
+                    """
+                    SELECT p.packet_id
+                    FROM packet_store p
+                    WHERE p.provenance->>'agent_id' = $1
+                      AND p.parent_ids IS NOT NULL
+                      AND array_length(p.parent_ids, 1) > 0
+                      AND EXISTS (
+                          SELECT 1 
+                          FROM unnest(p.parent_ids) AS parent_id
+                          WHERE parent_id NOT IN (
+                              SELECT packet_id FROM packet_store
+                          )
+                      )
+                    """,
+                    agent_id,
+                )
+
+                orphaned = [UUID(str(row["packet_id"])) for row in rows]
+
+                logger.info(
+                    "Orphan detection complete",
+                    agent_id=agent_id,
+                    orphaned_count=len(orphaned),
+                )
+
+        except Exception as e:
+            logger.error(
+                "Orphan detection failed",
+                agent_id=agent_id,
+                error=str(e),
+                exc_info=True,
+            )
 
         return orphaned
 

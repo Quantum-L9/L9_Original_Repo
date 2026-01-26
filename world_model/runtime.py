@@ -66,6 +66,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Callable, Optional
 from uuid import UUID, uuid4
 
+import aiofiles
 import structlog
 
 from world_model.causal_graph import CausalGraph
@@ -615,8 +616,8 @@ class WorldModelRuntime:
         try:
             import yaml
 
-            with open(reflection_file, "r", encoding="utf-8") as f:
-                data = yaml.safe_load(f)
+            async with aiofiles.open(reflection_file, "r", encoding="utf-8") as f:
+                data = yaml.safe_load(await f.read())
 
             if not data:
                 return 0
@@ -870,8 +871,7 @@ class WorldModelRuntime:
 
                 # Initialize ingestor if needed
                 if not self._ingestor:
-                    from world_model.knowledge_ingestor import \
-                        KnowledgeIngestor
+                    from world_model.knowledge_ingestor import KnowledgeIngestor
 
                     self._ingestor = KnowledgeIngestor(state=self._state)
                     # Wire DB sync if service available
@@ -1216,9 +1216,11 @@ class WorldModelRuntime:
         try:
             # Initialize simulation engine if needed
             if not self._simulation_engine:
-                from simulation.simulation_engine import (SimulationConfig,
-                                                          SimulationEngine,
-                                                          SimulationMode)
+                from simulation.simulation_engine import (
+                    SimulationConfig,
+                    SimulationEngine,
+                    SimulationMode,
+                )
 
                 mode_map = {
                     "fast": SimulationMode.FAST,
@@ -1252,7 +1254,9 @@ class WorldModelRuntime:
                     result=(
                         "success"
                         if run.score > 0.7
-                        else "partial" if run.score > 0.4 else "failure"
+                        else "partial"
+                        if run.score > 0.4
+                        else "failure"
                     ),
                     metrics={
                         "score": run.score,

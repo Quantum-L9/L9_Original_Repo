@@ -45,15 +45,19 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import NAMESPACE_DNS, uuid5
 
+import aiofiles
 import structlog
 from pydantic import BaseModel, Field
 
 # MCP Memory integration
 from clients.memory_client import get_memory_client
 from core.decorators import must_stay_async
-from workers.violation_patterns import (ViolationMatch, ViolationPatterns,
-                                        ViolationPatternsRequest,
-                                        ViolationSeverity)
+from workers.violation_patterns import (
+    ViolationMatch,
+    ViolationPatterns,
+    ViolationPatternsRequest,
+    ViolationSeverity,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -383,8 +387,8 @@ class ViolationTrackerService:
         }
 
         try:
-            with open(self._audit_log_path, "a") as f:
-                f.write(json.dumps(entry) + "\n")
+            async with aiofiles.open(self._audit_log_path, "a") as f:
+                await f.write(json.dumps(entry) + "\n")
         except Exception as e:
             logger.error("audit_log_write_failed", error=str(e))
 
@@ -404,8 +408,8 @@ class ViolationTrackerService:
         }
 
         try:
-            with open(self._violations_log_path, "a") as f:
-                f.write(json.dumps(entry) + "\n")
+            async with aiofiles.open(self._violations_log_path, "a") as f:
+                await f.write(json.dumps(entry) + "\n")
         except Exception as e:
             logger.error("violations_log_write_failed", error=str(e))
 
@@ -477,8 +481,8 @@ class ViolationTrackerService:
         }
 
         try:
-            with open(self._audit_log_path, "a") as f:
-                f.write(json.dumps(entry) + "\n")
+            async with aiofiles.open(self._audit_log_path, "a") as f:
+                await f.write(json.dumps(entry) + "\n")
         except Exception as e:
             logger.error("escalation_log_failed", error=str(e))
 
@@ -489,8 +493,8 @@ class ViolationTrackerService:
             return
 
         try:
-            with open(self._violations_log_path, "r") as f:
-                for line in f:
+            async with aiofiles.open(self._violations_log_path, "r") as f:
+                async for line in f:
                     try:
                         entry = json.loads(line.strip())
                         lesson_id = entry.get("lesson_id")

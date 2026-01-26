@@ -1,0 +1,308 @@
+{
+  "total_files_scanned": 608,
+  "total_findings": 30,
+  "findings": [
+    {
+      "file": "core/observability/failures.py",
+      "line": 81,
+      "symbol": "RecoveryExecutor",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'RecoveryExecutor' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "memory/strategymemory.py",
+      "line": 192,
+      "symbol": "StrategyMemoryService",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'StrategyMemoryService' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "memory/checkpoint_manager.py",
+      "line": 16,
+      "symbol": "CheckpointManager",
+      "symbol_type": "unwired_service",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Service 'CheckpointManager' defined but no instantiation found",
+      "context": "May be wired via dependency injection or dynamic loading"
+    },
+    {
+      "file": "api/world_model_api.py",
+      "line": 98,
+      "symbol": "InsightInput",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.6,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'InsightInput' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments (may be internal tool schema)"
+    },
+    {
+      "file": "api/routes/pattern.py",
+      "line": 82,
+      "symbol": "PatternConfigResponse",
+      "symbol_type": "unwired_pydantic",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "Pydantic model 'PatternConfigResponse' defined but never used in routes",
+      "context": "Check route parameter types and response_model= arguments (may be internal tool schema)"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 70,
+      "symbol": "get_agent_executor",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.4,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_agent_executor' defined but never used with Depends()",
+      "context": "LIKELY SCAFFOLDING: Future route integration (dependencies.py pattern)"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 89,
+      "symbol": "get_governance_engine",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.4,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_governance_engine' defined but never used with Depends()",
+      "context": "LIKELY SCAFFOLDING: Future route integration (dependencies.py pattern)"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 184,
+      "symbol": "get_observability_service",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.4,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_observability_service' defined but never used with Depends()",
+      "context": "LIKELY SCAFFOLDING: Future route integration (dependencies.py pattern)"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 209,
+      "symbol": "get_world_model_service",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.4,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_world_model_service' defined but never used with Depends()",
+      "context": "LIKELY SCAFFOLDING: Future route integration (dependencies.py pattern)"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 228,
+      "symbol": "get_timeline_service",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.4,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_timeline_service' defined but never used with Depends()",
+      "context": "LIKELY SCAFFOLDING: Future route integration (dependencies.py pattern)"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 240,
+      "symbol": "get_memory_state_manager",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.4,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_memory_state_manager' defined but never used with Depends()",
+      "context": "LIKELY SCAFFOLDING: Future route integration (dependencies.py pattern)"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 252,
+      "symbol": "get_consolidation_service",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.4,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_consolidation_service' defined but never used with Depends()",
+      "context": "LIKELY SCAFFOLDING: Future route integration (dependencies.py pattern)"
+    },
+    {
+      "file": "api/dependencies.py",
+      "line": 269,
+      "symbol": "get_aios_runtime",
+      "symbol_type": "unwired_dependency",
+      "confidence": 0.4,
+      "source": "wiring_scan",
+      "message": "Dependency 'get_aios_runtime' defined but never used with Depends()",
+      "context": "LIKELY SCAFFOLDING: Future route integration (dependencies.py pattern)"
+    },
+    {
+      "file": "api/server.py",
+      "line": 764,
+      "symbol": "app.state.housekeeping_engine",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.housekeeping_engine assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "api/server.py",
+      "line": 963,
+      "symbol": "app.state.action_tool_orchestrator",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.action_tool_orchestrator assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "api/server.py",
+      "line": 1421,
+      "symbol": "app.state.l_cto_startup",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.l_cto_startup assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "api/server.py",
+      "line": 1456,
+      "symbol": "app.state.l_agent_instance",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.l_agent_instance assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "api/server.py",
+      "line": 1577,
+      "symbol": "app.state.memory_tools_registered",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.memory_tools_registered assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "api/server.py",
+      "line": 1656,
+      "symbol": "app.state.virtual_context_manager",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.virtual_context_manager assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "api/server.py",
+      "line": 1858,
+      "symbol": "app.state.agent_graph_loader",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.agent_graph_loader assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "api/server.py",
+      "line": 1859,
+      "symbol": "app.state.graph_hydrator",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.graph_hydrator assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "api/server.py",
+      "line": 1860,
+      "symbol": "app.state.agent_self_modify_tool",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.agent_self_modify_tool assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "api/server.py",
+      "line": 1969,
+      "symbol": "app.state.wm_graph_sync",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.wm_graph_sync assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "api/server.py",
+      "line": 2084,
+      "symbol": "app.state.gmp_learning_engine",
+      "symbol_type": "unwired_app_state",
+      "confidence": 0.8,
+      "source": "wiring_scan",
+      "message": "app.state.gmp_learning_engine assigned but never accessed elsewhere",
+      "context": "Check for app.state.X or request.app.state.X usage in routes/dependencies"
+    },
+    {
+      "file": "config/agents/reflection-agent-v1.yaml",
+      "line": 1,
+      "symbol": "reflection-agent-v1",
+      "symbol_type": "unwired_agent",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Agent config 'reflection-agent-v1' never referenced",
+      "context": "May be loaded dynamically or via environment config"
+    },
+    {
+      "file": "config/agents/L-CTO-Research-Overlay.yaml",
+      "line": 1,
+      "symbol": "L-CTO-Research-Overlay",
+      "symbol_type": "unwired_agent",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Agent config 'L-CTO-Research-Overlay' never referenced",
+      "context": "May be loaded dynamically or via environment config"
+    },
+    {
+      "file": "config/agents/L-CTO-Agent.yaml",
+      "line": 1,
+      "symbol": "L-CTO-Agent",
+      "symbol_type": "unwired_agent",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Agent config 'L-CTO-Agent' never referenced",
+      "context": "May be loaded dynamically or via environment config"
+    },
+    {
+      "file": "orchestrators/meta/orchestrator.py",
+      "line": 26,
+      "symbol": "MetaOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'MetaOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/world_model/orchestrator.py",
+      "line": 26,
+      "symbol": "WorldModelOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'WorldModelOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    },
+    {
+      "file": "orchestrators/evolution/orchestrator.py",
+      "line": 27,
+      "symbol": "EvolutionOrchestrator",
+      "symbol_type": "unwired_orchestrator",
+      "confidence": 0.7,
+      "source": "wiring_scan",
+      "message": "Orchestrator 'EvolutionOrchestrator' defined but never instantiated",
+      "context": "May be wired via factory or dependency injection"
+    }
+  ],
+  "dataclass_fields_analyzed": 0,
+  "errors": []
+}

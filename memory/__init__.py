@@ -58,15 +58,6 @@ from memory.checkpoint_validator import CheckpointValidator, SchemaVersion
 # Consolidation Pipeline (GMP-85 + Stage 2)
 from memory.consolidation import ConsolidationPipeline, ConsolidationReport
 
-# Deduplication Engine (GMP-125: Wired into ConsolidationPipeline)
-from memory.deduplication import (
-    DeduplicationEngine,
-    DeduplicationReport as DeduplicationEngineReport,
-    DuplicateGroup,
-    MergeStrategy,
-    SimilarityMethod,
-)
-
 # Cypher Templates (GMP-55: Parameterized queries)
 from memory.cypher_templates import (
     CypherTemplate,
@@ -74,6 +65,26 @@ from memory.cypher_templates import (
     CypherTemplateLibrary,
     execute_template,
     get_template_library,
+)
+
+# Deduplication Engine (GMP-125: Wired into ConsolidationPipeline)
+from memory.deduplication import (
+    DeduplicationEngine,
+    DuplicateGroup,
+    MergeStrategy,
+    SimilarityMethod,
+)
+from memory.deduplication import (
+    DeduplicationReport as DeduplicationEngineReport,
+)
+
+# Enrichment DAG (SUPERPROMPTPACK: Multi-tier fallback pipeline)
+from memory.enrichment_dag import (
+    EnrichmentConfig,
+    EnrichmentDAG,
+    EnrichmentResult,
+    EnrichmentStatus,
+    EnrichmentTier,
 )
 from memory.gap_detector import GapDetector
 
@@ -406,6 +417,12 @@ __all__ = [
     # Consolidation Pipeline (GMP-85 + Stage 2)
     "ConsolidationPipeline",
     "ConsolidationReport",
+    # Enrichment DAG (SUPERPROMPTPACK: Multi-tier fallback)
+    "EnrichmentDAG",
+    "EnrichmentConfig",
+    "EnrichmentResult",
+    "EnrichmentStatus",
+    "EnrichmentTier",
     # Hierarchical Summarizer (Stage 2)
     "HierarchicalSummarizer",
     "SummaryTier",

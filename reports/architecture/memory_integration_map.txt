@@ -1,0 +1,358 @@
+# L9 MEMORY INTEGRATION MAP
+# Auto-generated from AST scan
+
+## Module Dependencies
+
+memory.__init__
+  ← core.schemas
+  ← memory
+  ← memory.active_encoder
+  ← memory.audit_utils
+  ← memory.checkpoint_metrics
+  ← memory.checkpoint_validator
+  ← memory.consolidation
+  ← memory.cypher_templates
+  ← memory.deduplication
+  ← memory.gap_detector
+  ← memory.governance_gate
+  ← memory.graph_memory
+  ← memory.hierarchical_summarizer
+  ← memory.housekeeping
+  ← memory.hybrid_rag
+  ← memory.importance_manager
+  ← memory.ingestion
+  ← memory.insight_extraction
+  ← memory.neo4j_strategy_memory
+  ← memory.neural_decay_scheduler
+  ← memory.predictive_cache
+  ← memory.retention_engine
+  ← memory.retrieval
+  ← memory.saga
+  ← memory.saga_patterns
+  ← memory.schema_introspection
+  ← memory.strategymemory
+  ← memory.substrate_alignment
+  ← memory.substrate_models
+  ← memory.tool_router
+  ← memory.warming_models
+  ← memory.warming_service
+
+memory.agent_persistence
+  ← core.schemas
+  ← memory.checkpoint_metrics
+  ← memory.checkpoint_validator
+  ← memory.substrate_repository
+
+memory.audit_utils
+  ← core.schemas
+
+memory.checkpoint.__init__
+  ← memory.checkpoint.cursor_checkpoint_manager
+  ← memory.checkpoint.postgres_saver
+
+memory.checkpoint.cursor_checkpoint_manager
+  ← memory.checkpoint.postgres_saver
+
+memory.checkpoint.postgres_saver
+  ← core.decorators
+  ← memory.substrate_repository
+
+memory.checkpoint_manager
+  ← memory.substrate_service
+
+memory.consolidation
+  ← memory.deduplication
+  ← memory.substrate_repository
+
+memory.dead_letter_queue
+  ← core.schemas
+
+memory.enrichment_dag
+  ← core.observability.circuit_breaker
+  ← core.schemas
+
+memory.extractor.__init__
+  ← memory_extractor
+
+memory.gap_detector
+  ← core.decorators
+  ← memory.warming_models
+
+memory.governance_gate
+  ← core.decorators
+
+memory.graph_client
+  ← core.decorators
+  ← core.singleton_auto_registry
+
+memory.graph_memory
+  ← core.decorators
+
+memory.graph_search_cache
+  ← memory.graph_client
+
+memory.housekeeping
+  ← core.singleton_auto_registry
+
+memory.hybrid_rag
+  ← core.decorators
+
+memory.index_syncer
+  ← memory.substrate_repository
+
+memory.ingestion
+  ← core.decorators
+  ← core.governance.rate_limit_policy
+  ← core.schemas
+  ← core.singleton_auto_registry
+  ← memory.audit_utils
+  ← memory.governance_gate
+  ← memory.graph_client
+  ← memory.substrate_service
+  ← memory.validators.packet_validator
+
+memory.insight_extraction
+  ← core.schemas
+  ← core.singleton_auto_registry
+  ← memory.substrate_models
+
+memory.neo4j_strategy_memory
+  ← core.decorators
+  ← memory.strategymemory
+
+memory.packet_serializer
+  ← core.schemas
+
+memory.predictive_cache
+  ← core.decorators
+  ← memory.warming_models
+
+memory.reasoning_replay
+  ← core.decorators
+  ← memory.substrate_repository
+
+memory.retention_engine
+  ← core.decorators
+
+memory.retrieval
+  ← core.schemas
+  ← core.singleton_auto_registry
+  ← memory.cross_encoder_reranker
+  ← memory.governance_gate
+  ← memory.substrate_models
+
+memory.saga
+  ← core.decorators
+
+memory.saga_patterns
+  ← core.decorators
+  ← memory.saga
+
+memory.schema_introspection
+  ← core.decorators
+
+memory.semantic_search
+  ← core.schemas
+  ← memory.substrate_service
+
+memory.service_adapter
+  ← core.protocols
+  ← core.schemas
+
+memory.slack_ingest
+  ← core.schemas
+  ← memory.substrate_service
+  ← orchestration.input_segmenter
+
+memory.smoke_test
+  ← core.schemas
+  ← memory.ingestion
+  ← memory.substrate_service
+
+memory.state_manager
+  ← core.decorators
+  ← core.schemas
+  ← memory.substrate_service
+
+memory.strategymemory
+  ← core.decorators
+
+memory.substrate_alignment
+  ← core.decorators
+
+memory.substrate_dag
+  ← core.decorators
+  ← core.schemas
+  ← memory.graph_client
+  ← memory.substrate_models
+
+memory.substrate_dag_wrapper
+  ← core.schemas
+  ← memory.substrate_dag
+
+memory.substrate_repository
+  ← core.schemas
+  ← core.singleton_auto_registry
+  ← memory.governance_gate
+  ← memory.substrate_models
+  ← memory.vector_search_config
+
+memory.substrate_repository_cached
+  ← core.schemas
+  ← memory.query_cache
+  ← memory.substrate_models
+  ← memory.substrate_repository
+
+memory.substrate_semantic
+  ← core.decorators
+
+memory.substrate_service
+  ← core.decorators
+  ← core.observability.circuit_breaker
+  ← core.schemas
+  ← core.singleton_auto_registry
+  ← memory.agent_persistence
+  ← memory.audit_utils
+  ← memory.consolidation
+  ← memory.governance_gate
+  ← memory.query_classifier
+  ← memory.reasoning_replay
+  ← memory.retention_engine
+  ← memory.saga
+  ← memory.saga_patterns
+  ← memory.substrate_dag
+  ← memory.substrate_repository
+  ← memory.substrate_semantic
+  ← memory.validators.packet_validator
+
+memory.timeline_service
+  ← memory.substrate_models
+  ← memory.substrate_repository
+
+memory.tool_audit
+  ← core.decorators
+  ← core.schemas
+  ← memory.substrate_models
+
+memory.tool_router
+  ← core.decorators
+
+memory.validators.__init__
+  ← memory.validators.packet_validator
+
+memory.validators.packet_validator
+  ← core.schemas
+  ← memory.audit_utils
+
+memory.warming_service
+  ← memory.gap_detector
+  ← memory.predictive_cache
+  ← memory.warming_models
+
+world_model.__init__
+  ← world_model.causal_graph
+  ← world_model.causal_mapper
+  ← world_model.engine
+  ← world_model.interfaces
+  ← world_model.knowledge_ingestor
+  ← world_model.loader
+  ← world_model.nodes
+  ← world_model.query_engine
+  ← world_model.reflection_memory
+  ← world_model.registry
+  ← world_model.repository
+  ← world_model.runtime
+  ← world_model.service
+  ← world_model.state
+  ← world_model.updater
+  ← world_model.world_model_service
+
+world_model._pack_staging.loader
+  ← world_model.interfaces
+  ← world_model.registry
+  ← world_model.state
+
+world_model._pack_staging.neo4j_substrate
+  ← world_model.interfaces
+  ← world_model.state
+
+world_model._pack_staging.orchestrator
+  ← world_model.interfaces
+  ← world_model.neo4j_substrate
+  ← world_model.postgres_substrate
+  ← world_model.redis_substrate
+  ← world_model.state
+
+world_model._pack_staging.postgres_substrate
+  ← world_model.interfaces
+  ← world_model.state
+
+world_model._pack_staging.query_engine
+  ← world_model.interfaces
+  ← world_model.registry
+  ← world_model.state
+
+world_model._pack_staging.redis_substrate
+  ← world_model.interfaces
+  ← world_model.state
+
+world_model._pack_staging.registry
+  ← world_model.interfaces
+
+world_model._pack_staging.state
+  ← world_model.interfaces
+
+world_model._pack_staging.test_integration
+  ← world_model.interfaces
+  ← world_model.loader
+  ← world_model.orchestrator
+  ← world_model.query_engine
+  ← world_model.state
+  ← world_model.updater
+
+world_model._pack_staging.updater
+  ← world_model.interfaces
+  ← world_model.registry
+  ← world_model.state
+
+world_model.engine
+  ← core.decorators
+  ← core.singleton_auto_registry
+  ← world_model.causal_graph
+  ← world_model.loader
+  ← world_model.registry
+  ← world_model.state
+  ← world_model.updater
+
+world_model.knowledge_ingestor
+  ← world_model.state
+
+world_model.nodes.__init__
+  ← world_model.nodes.service_nodes
+  ← world_model.nodes.update_world_model_node
+
+world_model.nodes.update_world_model_node
+  ← core.decorators
+  ← world_model.engine
+
+world_model.repository
+  ← core.singleton_auto_registry
+
+world_model.runtime
+  ← core.decorators
+  ← world_model.causal_graph
+  ← world_model.registry
+  ← world_model.state
+
+world_model.seed_loader
+  ← core.schemas
+  ← memory.substrate_service
+  ← world_model.knowledge_ingestor
+  ← world_model.state
+
+world_model.service
+  ← core.singleton_auto_registry
+  ← world_model.repository
+
+---
+Auto-generated by tools/superpack_reports/

@@ -70,13 +70,13 @@ class PacketValidator:
     Validates PacketEnvelope structures.
 
     Validation rules:
-    - Required fields present (source_id, kind, payload)
+    - Required fields present (packet_type, payload)
     - Field types correct
     - Payload structure matches expected format
     - Security constraints met
     """
 
-    REQUIRED_FIELDS = ["source_id", "kind", "payload"]
+    REQUIRED_FIELDS = ["packet_type", "payload"]
     MAX_PAYLOAD_SIZE = 1024 * 1024  # 1MB
 
     def __init__(self, strict_mode: bool = True):
@@ -110,10 +110,10 @@ class PacketValidator:
             if not self._validate_source_id(packet.source_id):
                 errors.append(f"Invalid source_id format: {packet.source_id}")
 
-        # Validate kind
-        if hasattr(packet, "kind") and packet.kind:
-            if not self._validate_kind(packet.kind):
-                errors.append(f"Invalid packet kind: {packet.kind}")
+        # Validate packet_type
+        if hasattr(packet, "packet_type") and packet.packet_type:
+            if not self._validate_packet_type(packet.packet_type):
+                errors.append(f"Invalid packet_type: {packet.packet_type}")
 
         # Validate payload
         if hasattr(packet, "payload") and packet.payload:
@@ -150,13 +150,15 @@ class PacketValidator:
         )
         return all(c in allowed for c in source_id)
 
-    def _validate_kind(self, kind: Any) -> bool:
-        """Validate packet kind."""
-        if isinstance(kind, PacketKind):
+    def _validate_packet_type(self, packet_type: Any) -> bool:
+        """Validate packet_type field."""
+        if isinstance(packet_type, PacketKind):
             return True
-        if isinstance(kind, str):
+        if isinstance(packet_type, str):
+            # Accept PacketKind enum values and any non-empty string
+            # (custom packet types are allowed)
             valid_kinds = [k.value for k in PacketKind]
-            return kind in valid_kinds
+            return packet_type in valid_kinds or len(packet_type) > 0
         return False
 
     def _validate_payload(self, payload: Any) -> Dict[str, List[str]]:

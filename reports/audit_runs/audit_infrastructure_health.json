@@ -1,0 +1,61 @@
+{
+  "timestamp": "2026-01-07T00:41:25.343723",
+  "overall_status": "unhealthy",
+  "probe_results": [
+    {
+      "service": "postgres",
+      "status": "HealthStatus.UNHEALTHY",
+      "response_time_ms": 230.24702072143555,
+      "error_message": "Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 5432), [Errno 61] Connect call failed ('::1', 5432, 0, 0)",
+      "timestamp": "2026-01-07 00:41:25.342425",
+      "details": {}
+    },
+    {
+      "service": "redis",
+      "status": "HealthStatus.UNHEALTHY",
+      "response_time_ms": 227.2319793701172,
+      "error_message": "Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 6379), [Errno 61] Connect call failed ('::1', 6379, 0, 0)",
+      "timestamp": "2026-01-07 00:41:25.339719",
+      "details": {}
+    },
+    {
+      "service": "neo4j",
+      "status": "HealthStatus.UNHEALTHY",
+      "response_time_ms": 230.01790046691895,
+      "error_message": "Multiple exceptions: [Errno 61] Connect call failed ('127.0.0.1', 7687), [Errno 61] Connect call failed ('::1', 7687, 0, 0)",
+      "timestamp": "2026-01-07 00:41:25.342489",
+      "details": {}
+    },
+    {
+      "service": "qdrant",
+      "status": "HealthStatus.UNHEALTHY",
+      "response_time_ms": 227.82588005065918,
+      "error_message": "All connection attempts failed",
+      "timestamp": "2026-01-07 00:41:25.340368",
+      "details": {}
+    }
+  ],
+  "config_errors": [],
+  "dependency_violations": [
+    "postgres is CRITICAL but UNHEALTHY",
+    "redis is CRITICAL but UNHEALTHY",
+    "memory_substrate depends on postgres, but postgres is UNHEALTHY",
+    "memory_substrate depends on qdrant, but qdrant is UNHEALTHY",
+    "tool_graph depends on neo4j, but neo4j is UNHEALTHY",
+    "world_model depends on neo4j, but neo4j is UNHEALTHY",
+    "world_model depends on redis, but redis is UNHEALTHY"
+  ],
+  "startup_order": [
+    "postgres",
+    "redis",
+    "neo4j",
+    "qdrant",
+    "memory_substrate",
+    "tool_graph",
+    "world_model",
+    "l9_kernel"
+  ],
+  "recommendations": [
+    "Investigate slow probe times for: postgres, redis, neo4j, qdrant"
+  ]
+}

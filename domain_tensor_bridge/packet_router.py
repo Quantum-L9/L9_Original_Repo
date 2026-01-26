@@ -168,8 +168,8 @@ class PacketRouter:
         if not hasattr(packet, "source_id") or not packet.source_id:
             errors.append("Missing source_id")
 
-        if not hasattr(packet, "kind"):
-            errors.append("Missing kind")
+        if not hasattr(packet, "packet_type"):
+            errors.append("Missing packet_type")
 
         return ValidationResult(valid=len(errors) == 0, errors=errors)
 

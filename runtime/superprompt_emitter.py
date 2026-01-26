@@ -43,6 +43,7 @@ import os
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+import aiofiles
 import structlog
 import yaml
 
@@ -622,8 +623,8 @@ async def enrich_spec(spec_path: str) -> Dict[str, Any]:
     Returns:
         Enriched specification
     """
-    with open(spec_path, "r") as f:
-        spec = yaml.safe_load(f)
+    async with aiofiles.open(spec_path, "r") as f:
+        spec = yaml.safe_load(await f.read())
 
     emitter = SuperPromptEmitter()
     superprompt = emitter.emit_from_spec(spec)

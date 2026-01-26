@@ -5,26 +5,52 @@ import pytest
 from services.tool_learning_engine import ToolLearningEngine
 
 
-class DummyPool:
-    def __init__(self, rows=None) -> None:
+class DummyConnection:
+    """Mock database connection with async methods."""
+
+    def __init__(self, rows=None, on_execute=None):
         self.rows = rows or []
         self.calls = []
+        self.on_execute = on_execute
 
-    async def acquire(self):
-        return self
+    async def execute(self, query, *args):
+        self.calls.append(("execute", query, args))
+        if self.on_execute:
+            await self.on_execute(query, *args)
+
+    async def fetch(self, query, *args):
+        self.calls.append(("fetch", query, args))
+        return self.rows
+
+
+class DummyPool:
+    """Mock asyncpg pool that returns an async context manager."""
+
+    def __init__(self, rows=None, on_execute=None):
+        self.rows = rows or []
+        self.calls = []
+        self.on_execute = on_execute
+
+    def acquire(self):
+        """Return an async context manager (not a coroutine)."""
+        return DummyAcquireContext(self.rows, self.calls, self.on_execute)
+
+
+class DummyAcquireContext:
+    """Async context manager returned by pool.acquire()."""
+
+    def __init__(self, rows, calls, on_execute=None):
+        self.rows = rows
+        self.calls = calls
+        self.on_execute = on_execute
+        self.conn = None
 
     async def __aenter__(self):
-        return self
+        self.conn = DummyConnection(self.rows, self.on_execute)
+        return self.conn
 
     async def __aexit__(self, exc_type, exc, tb):
         return False
-
-    async def execute(self, query):
-        self.calls.append(("execute", query))
-
-    async def fetch(self, query):
-        self.calls.append(("fetch", query))
-        return self.rows
 
 
 @pytest.mark.asyncio
@@ -56,26 +82,17 @@ async def test_daily_analysis_creates_alerts(monkeypatch):
         },
     ]
 
-    pool = DummyPool(rows=rows)
     inserted = []
 
-    async def fake_execute_insert(query, *args):
-        inserted.append(args)
+    async def capture_execute(query, *args):
+        if "INSERT" in query.upper():
+            inserted.append(args)
 
-    async def fake_acquire():
-        return SimpleNamespace(
-            __aenter__=lambda self: self,
-            __aexit__=lambda self, exc_type, exc, tb: False,
-            execute=fake_execute_insert,
-            fetch=pool.fetch,
-        )
-
-    pool.acquire = fake_acquire  # type: ignore[assignment]
-
+    pool = DummyPool(rows=rows, on_execute=capture_execute)
     substrate = SimpleNamespace(postgres_pool=pool)
     engine = ToolLearningEngine(substrate)
 
     await engine.daily_analysis()
 
-    # At least one alert for degraded tool
-    assert any("memory_search" in args for args in inserted)
+    # At least one alert for degraded tool (success_rate=0.3 < threshold)
+    assert any("memory_search" in str(args) for args in inserted)

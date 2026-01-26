@@ -212,6 +212,29 @@ if PROMETHEUS_AVAILABLE:
         ["segment"],
     )
 
+    # ==========================================================================
+    # Enrichment DAG Metrics (SUPERPROMPTPACK)
+    # ==========================================================================
+
+    MEMORY_ENRICHMENT_TOTAL = Counter(
+        "l9_memory_enrichment_total",
+        "Total number of enrichment operations by status and tier",
+        ["status", "tier"],
+    )
+
+    MEMORY_ENRICHMENT_DURATION = Histogram(
+        "l9_memory_enrichment_duration_ms",
+        "Duration of enrichment operations in milliseconds",
+        ["tier"],
+        buckets=(10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 15000),
+    )
+
+    MEMORY_ENRICHMENT_FACTS = Histogram(
+        "l9_memory_enrichment_facts_count",
+        "Number of facts extracted during enrichment",
+        buckets=(0, 1, 2, 5, 10, 20, 50),
+    )
+
     # Tool Feedback Learning Metrics (GMP-TFL-001)
 from prometheus_client import Counter, Gauge, Histogram
 
@@ -450,6 +473,48 @@ def update_vector_index_size(segment: str, count: int) -> None:
 
 
 # =============================================================================
+# Enrichment DAG Recording Functions (SUPERPROMPTPACK)
+# =============================================================================
+
+
+def record_memory_enrichment(
+    status: str,
+    tier: str,
+    facts_count: int = 0,
+    duration_ms: float = 0.0,
+) -> None:
+    """
+    Record an enrichment DAG operation.
+
+    Called by EnrichmentDAG after each write attempt to track:
+    - Success/failure rates by tier (full, core_only, direct_db, all_failed)
+    - Latency distribution by tier
+    - Facts extraction counts
+
+    Args:
+        status: Enrichment status (success, failed, timeout, skipped, disabled)
+        tier: Write tier used (full, core_only, direct_db, all_failed)
+        facts_count: Number of facts extracted during enrichment
+        duration_ms: Duration of enrichment operation in milliseconds
+    """
+    if not PROMETHEUS_AVAILABLE:
+        return
+
+    try:
+        MEMORY_ENRICHMENT_TOTAL.labels(status=status, tier=tier).inc()
+        MEMORY_ENRICHMENT_DURATION.labels(tier=tier).observe(duration_ms)
+        if facts_count > 0:
+            MEMORY_ENRICHMENT_FACTS.observe(facts_count)
+    except Exception as e:
+        logger.warning(
+            "Failed to record memory enrichment metric",
+            error=str(e),
+            status=status,
+            tier=tier,
+        )
+
+
+# =============================================================================
 # Initialization
 # =============================================================================
 
@@ -493,6 +558,8 @@ __all__ = [
     "record_retrieval_quality",
     "record_latency",
     "update_vector_index_size",
+    # Enrichment DAG metrics (SUPERPROMPTPACK)
+    "record_memory_enrichment",
 ]
 
 # ============================================================================

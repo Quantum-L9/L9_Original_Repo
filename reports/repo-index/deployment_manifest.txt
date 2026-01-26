@@ -1,0 +1,47 @@
+# L9 Deployment Manifest
+# ========================
+# Docker services, ports, VPS configuration.
+
+## Docker Services
+
+| Service | Image | Port | Purpose |
+|---------|-------|------|---------|
+| `l9-api` | L9 FastAPI | 8000 | Main API server |
+| `l9-postgres` | postgres:15-alpine | 5432 | PostgreSQL + pgvector |
+| `l9-neo4j` | neo4j:5.14 | 7474, 7687 | Graph database |
+| `redis` | redis:7-alpine | 6379 | Cache, task queue |
+| `mcp-memory` | MCP Memory | 9001 | Cursor memory server |
+
+## VPS Configuration
+
+| Setting | Value |
+|---------|-------|
+| VPS IP | `157.180.73.53` |
+| User | `root` |
+| L9 Directory | `/opt/l9` |
+| Domain | `l9.quantumaipartners.com` |
+
+## Cloudflare + Caddy Routing
+
+```
+Internet → Cloudflare (HTTPS) → VPS:443
+    │
+    └→ Caddy reverse proxy
+        ├─ /api/*    → l9-api:8000
+        ├─ /slack/*  → l9-api:8000
+        ├─ /mcp/*    → mcp-memory:9001
+        └─ /metrics  → l9-api:8000
+```
+
+## Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | PostgreSQL connection |
+| `MEMORY_DSN` | Memory substrate connection |
+| `NEO4J_URI` | Neo4j Bolt URI |
+| `NEO4J_PASSWORD` | Neo4j password |
+| `REDIS_URL` | Redis connection |
+| `OPENAI_API_KEY` | OpenAI API key |
+| `SLACK_BOT_TOKEN` | Slack bot token |
+| `L9_NEW_AGENT_INIT` | Enable 7-phase bootstrap |

@@ -1,0 +1,23 @@
+# L9 TELEMETRY SIGNAL MAP
+# Emitter → dashboard graph
+
+## Core Signals
+orchestrator.session.created    → grafana/orchestration.json
+orchestrator.session.completed  → grafana/orchestration.json
+memory.write_packet             → grafana/memory.json
+memory.query                    → grafana/memory.json
+governance.policy_check         → grafana/governance.json
+api.request                     → grafana/api.json
+
+## Emitters (telemetry/)
+telemetry/emitters/orchestration_emitter.py
+telemetry/emitters/memory_emitter.py
+telemetry/emitters/governance_emitter.py
+telemetry/emitters/api_emitter.py
+
+## Collection
+Prometheus scrapes /metrics endpoint
+Grafana dashboards in grafana/provisioning/
+
+---
+Generated: 2026-01-25 | GMP-SUPERPACK

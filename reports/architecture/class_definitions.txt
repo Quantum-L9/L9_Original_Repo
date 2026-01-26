@@ -1,0 +1,2097 @@
+module: api.agent_routes
+  class ExecuteTaskRequest (BaseModel)
+  class ExecuteTaskResponse (BaseModel)
+  class SegmentPreviewRequest (BaseModel)
+  class SegmentPreviewResponse (BaseModel)
+  class SegmentResult (BaseModel)
+
+module: api.auth
+  class CallerIdentity (object)
+
+module: api.e2e_slack_audit
+  class AuditResult (object)
+
+module: api.memory.cache
+  class CacheResponse (BaseModel)
+  class CacheSetRequest (BaseModel)
+  class SessionContextRequest (BaseModel)
+
+module: api.memory.graph
+  class EntityRequest (BaseModel)
+  class GraphResponse (BaseModel)
+  class QueryRequest (BaseModel)
+  class RelationshipRequest (BaseModel)
+
+module: api.memory.router
+  class BatchRequest (BaseModel)
+  class BatchResponse (BaseModel)
+  class CompactResponse (BaseModel)
+  class ConsolidationRequest (BaseModel)
+  class ConsolidationResponse (BaseModel)
+  class CorrelateTimelineRequest (BaseModel)
+  class EnrichEntitiesRequest (BaseModel)
+  class FetchAndEnrichRequest (BaseModel)
+  class PacketRequest (BaseModel)
+  class PacketResponse (BaseModel)
+  class ReasoningReplayRequest (BaseModel)
+  class ReasoningReplayResponse (BaseModel)
+  class SagaResponse (BaseModel)
+  class WarmRequest (BaseModel)
+  class WarmResponse (BaseModel)
+
+module: api.middleware.websocket_tracing
+  class TraceContext (object)
+  class WebSocketTracingMiddleware (object)
+
+module: api.routes.commands
+  class ApprovalFeedbackRequest (BaseModel)
+  class ApprovalFeedbackResponse (BaseModel)
+  class CommandExecuteRequest (BaseModel)
+  class CommandExecuteResponse (BaseModel)
+  class IntentExtractResponse (BaseModel)
+
+module: api.routes.compliance
+  class AuditLogExportResponse (BaseModel)
+  class ComplianceReportResponse (BaseModel)
+
+module: api.routes.cursor
+  class CursorResumeRequest (BaseModel)
+  class CursorTaskRequest (BaseModel)
+  class CursorTaskResponse (BaseModel)
+
+module: api.routes.factory
+  class ExtractRequest (BaseModel)
+  class ExtractResponse (BaseModel)
+  class HealthResponse (BaseModel)
+  class PathSafetyConfig (BaseModel)
+  class TemplateInfo (BaseModel)
+  class TemplatesResponse (BaseModel)
+  class ValidateRequest (BaseModel)
+  class ValidateResponse (BaseModel)
+
+module: api.routes.gmp_learning
+  class AnalyticsResponse (BaseModel)
+  class AutonomyLevelResponse (BaseModel)
+  class GraduationStatusResponse (BaseModel)
+  class HeuristicsResponse (BaseModel)
+
+module: api.routes.observability
+  class CircuitBreakerStatus (BaseModel)
+  class CircuitBreakersResponse (BaseModel)
+  class FailureResponse (BaseModel)
+  class FailuresListResponse (BaseModel)
+  class HealthResponse (BaseModel)
+  class SREMetricsResponse (BaseModel)
+  class SpanSummary (BaseModel)
+  class SpansListResponse (BaseModel)
+
+module: api.routes.pattern
+  class MasterExecuteRequest (BaseModel)
+  class MasterExecuteResponse (BaseModel)
+  class NodeResultResponse (BaseModel)
+  class PatternConfigResponse (BaseModel)
+  class PatternExecuteRequest (BaseModel)
+  class PatternExecuteResponse (BaseModel)
+
+module: api.routes.reasoning
+  class ReasoningExecuteRequest (BaseModel)
+  class ReasoningExecuteResponse (BaseModel)
+
+module: api.routes.reflection_agent
+  class AnalyzeFailureRequest (BaseModel)
+  class AnalyzeFailureResponse (BaseModel)
+  class CompareApproachesRequest (BaseModel)
+  class CompareApproachesResponse (BaseModel)
+  class ExtractPatternsRequest (BaseModel)
+  class ExtractPatternsResponse (BaseModel)
+  class GenerateImprovementsRequest (BaseModel)
+  class GenerateImprovementsResponse (BaseModel)
+  class LessonsLearnedResponse (BaseModel)
+  class ReflectRequest (BaseModel)
+  class ReflectResponse (BaseModel)
+
+module: api.routes.registry
+  @dataclass class RouterDefinition (object)
+  class RouterRegistry (object)
+
+module: api.routes.research
+  class ResearchExecuteRequest (BaseModel)
+  class ResearchExecuteResponse (BaseModel)
+
+module: api.routes.research_agent
+  class DiscoverRequest (BaseModel)
+  class DiscoverResponse (BaseModel)
+  class GenerateSpecRequest (BaseModel)
+  class GenerateSpecResponse (BaseModel)
+  class ResearchToCodeRequest (BaseModel)
+  class ResearchToCodeResponse (BaseModel)
+  class SynthesizeRequest (BaseModel)
+  class SynthesizeResponse (BaseModel)
+
+module: api.routes.simulation
+  class SimulationMetricsResponse (BaseModel)
+  class SimulationRequest (BaseModel)
+  class SimulationResponse (BaseModel)
+
+module: api.routes.workers
+  class AnomalyProcessRequest (BaseModel)
+  class AnomalyProcessResponse (BaseModel)
+  class ViolationCountsResponse (BaseModel)
+  class ViolationScanRequest (BaseModel)
+  class ViolationScanResponse (BaseModel)
+  class WorkersHealthResponse (BaseModel)
+
+module: api.server
+  class ChatRequest (BaseModel)
+  class ChatResponse (BaseModel)
+  class KernelReloadRequest (BaseModel)
+  class KernelReloadResponse (BaseModel)
+  class LChatRequest (BaseModel)
+  class LChatResponse (BaseModel)
+
+module: api.server_memory
+  class ChatRequest (BaseModel)
+  class ChatResponse (BaseModel)
+
+module: api.slack_adapter
+  class SlackRequestNormalizer (object)
+  class SlackRequestValidator (object)
+  class SlackSignatureVerificationError (Exception)
+
+module: api.slack_client
+  class SlackAPIClient (object)
+  class SlackClientError (Exception)
+
+module: api.tools.router
+  class ToolExecuteRequest (BaseModel)
+  class ToolExecuteResponse (BaseModel)
+
+module: api.vps_executor
+  class CompositeTask (BaseModel)
+  class MemoryHealthTask (BaseModel)
+  class ShellTask (BaseModel)
+
+module: api.webhook_mac_agent
+  class TaskResultRequest (BaseModel)
+
+module: api.world_model_api
+  class EntityListResponse (BaseModel)
+  class EntityResponse (BaseModel)
+  class InsightInput (BaseModel)
+  class InsightsRequest (BaseModel)
+  class InsightsResponse (BaseModel)
+  class RestoreRequest (BaseModel)
+  class RestoreResponse (BaseModel)
+  class SnapshotRequest (BaseModel)
+  class SnapshotResponse (BaseModel)
+  class StateVersionResponse (BaseModel)
+  class UpdateRecord (BaseModel)
+  class UpdatesListResponse (BaseModel)
+
+module: core.agents.agent_instance
+  class AgentInstance (object)
+
+module: core.agents.bootstrap.bootstrap_metrics
+  class BootstrapMetrics (object)
+
+module: core.agents.bootstrap.orchestrator
+  class AgentBootstrapOrchestrator (object)
+
+module: core.agents.bootstrap.phase_1_load_kernels
+  @dataclass class KernelParsed (object)
+
+module: core.agents.bootstrap.phase_2_instantiate
+  @dataclass class BootstrapInstanceData (object)
+
+module: core.agents.bootstrap.phase_5_bind_tools
+  @dataclass class ToolDefinition (object)
+
+module: core.agents.executor
+  class AIOSRuntime (Protocol)
+  class AgentExecutorService (object)
+  class AgentRegistryProtocol (Protocol)
+  class SubstrateServiceProtocol (Protocol)
+  class ToolRegistryProtocol (Protocol)
+
+module: core.agents.executor_composer
+  @dataclass class ExecutorConfig (object)
+  @dataclass class ExecutorDeps (object)
+  class ExecutorComposer (object)
+
+module: core.agents.graph_state.agent_graph_loader
+  @dataclass class AgentDirective (object)
+  @dataclass class AgentGraphState (object)
+  @dataclass class AgentResponsibility (object)
+  @dataclass class AgentSOP (object)
+  @dataclass class AgentTool (object)
+  class AgentGraphLoader (object)
+
+module: core.agents.graph_state.graph_hydrator
+  @dataclass class HydratedAgentContext (object)
+  class GraphHydrator (object)
+
+module: core.agents.kernel_registry
+  class KernelAwareAgentRegistry (object)
+
+module: core.agents.kernelevolution
+  @dataclass class EvolutionPlan (object)
+  @dataclass class KernelUpdateProposal (object)
+
+module: core.agents.prompt_builder
+  class KernelAwareAgent (Protocol)
+
+module: core.agents.prompt_defense
+  @dataclass class InjectionDetectionResult (object)
+  class InjectionSeverity (str, Enum)
+
+module: core.agents.registry
+  class AgentRegistry (object)
+
+module: core.agents.schemas
+  class AIOSResult (BaseModel)
+  class AIOSResultType (str, Enum)
+  class AgentConfig (BaseModel)
+  class AgentTask (BaseModel)
+  class AgentType (str, Enum)
+  class DuplicateTaskResponse (BaseModel)
+  class ExecutionResult (BaseModel)
+  class ExecutorState (str, Enum)
+  class TaskKind (str, Enum)
+  class ToolBinding (BaseModel)
+  class ToolCallRequest (BaseModel)
+  class ToolCallResult (BaseModel)
+
+module: core.agents.selfreflection
+  @dataclass class BehaviorGap (object)
+  @dataclass class ReflectionResult (object)
+  @dataclass class TaskExecutionContext (object)
+  class ExcessiveIterationPattern (GapDetectionPattern)
+  class GapDetectionPattern (object)
+  class GovernanceBlockPattern (GapDetectionPattern)
+  class RepeatedToolFailurePattern (GapDetectionPattern)
+  class TokenOverusePattern (GapDetectionPattern)
+  class UserCorrectionPattern (GapDetectionPattern)
+
+module: core.aios.runtime
+  class AIOSRuntime (object)
+
+module: core.auto_registry
+  class AutoRegistry (Generic[T])
+  class ComponentNotFoundError (RegistryError)
+  class DuplicateRegistrationError (RegistryError)
+  class RegistryError (Exception)
+  class ValidationError (RegistryError)
+
+module: core.boundary.enforcer
+  class BoundaryEnforcer (object)
+  class BoundarySpec (object)
+
+module: core.codegen.compiler.module_compiler
+  class CompilationResult (BaseModel)
+  class ModuleCompiler (object)
+
+module: core.codegen.compiler.module_compiler_v2
+  @dataclass class CompilerOutput (object)
+  class ModuleCompilerV2 (object)
+
+module: core.codegen.gatekeeper.codegen_gatekeeper
+  class BlindSpot (BaseModel)
+  class CodeGenGatekeeperAgent (BaseAgent)
+  class CodeGenOutput (BaseModel)
+  class ContractType (str, Enum)
+  class NormalizedSpec (BaseModel)
+  class ResearchFinding (BaseModel)
+
+module: core.codegen.gatekeeper.codegen_gatekeeper_v2
+  @dataclass class BlindSpot (object)
+  @dataclass class NormalizedSpec (object)
+  @dataclass class ResearchFinding (object)
+  class CodeGenGatekeeperAgent (BaseAgent)
+  class ContractType (str, Enum)
+
+module: core.codegen.utilities
+  class CodeValidator (object)
+  class DORABlock (BaseModel)
+  class DORABlockGenerator (object)
+  class GitSafetyManager (object)
+  class ValidationGate (BaseModel)
+  class ValidationReport (BaseModel)
+
+module: core.commands.executor
+  class CommandExecutor (object)
+
+module: core.commands.schemas
+  class Command (BaseModel)
+  class CommandResult (BaseModel)
+  class CommandType (str, Enum)
+  class ConfirmationResult (BaseModel)
+  class IntentModel (BaseModel)
+  class IntentType (str, Enum)
+  class NLPPrompt (BaseModel)
+  class RiskLevel (str, Enum)
+
+module: core.compliance.audit_log
+  class AuditLogger (object)
+
+module: core.compliance.audit_reporter
+  @dataclass class ComplianceReport (object)
+  class ComplianceReporter (object)
+
+module: core.coordination.agent_mediator
+  @dataclass class Message (object)
+  @dataclass class MessageDeliveryStatus (object)
+  class AgentMediator (object)
+
+module: core.coordination.event_queue
+  @dataclass class Event (object)
+  class EventKind (Enum)
+  class EventQueue (object)
+  class EventRouter (object)
+
+module: core.di.container
+  class BindingNotFoundError (DIContainerError)
+  class CircularDependencyError (DIContainerError)
+  class DIContainer (object)
+  class DIContainerError (Exception)
+  class MemorySubstrateContainer (object)
+  class ResolutionError (DIContainerError)
+
+module: core.evaluation.evaluator
+  @dataclass class EvaluationExample (object)
+  @dataclass class EvaluationResult (object)
+  @dataclass class EvaluationSet (object)
+  class Evaluator (object)
+  class RegressionError (Exception)
+
+module: core.event_type_registry
+  @dataclass class EventTypeConfig (object)
+
+module: core.facade.l9_facade
+  class L9Facade (object)
+
+module: core.governance.approval_gate
+  @dataclass class EscalationResult (object)
+
+module: core.governance.approval_manager
+  @dataclass class ApprovalDecision (object)
+  @dataclass class ApprovalRequest (object)
+  class ApprovalManager (object)
+  class ApprovalStatus (Enum)
+
+module: core.governance.approvals
+  class ApprovalManager (object)
+
+module: core.governance.cmts
+  class CMTSService (object)
+  class FileSnapshot (BaseModel)
+  class MutationQuery (BaseModel)
+  class MutationRecord (BaseModel)
+  class MutationStatus (str, Enum)
+
+module: core.governance.credentials_policy
+  @dataclass class CredentialRecord (object)
+  @dataclass class SecretPattern (object)
+  @dataclass class SecretViolation (object)
+  class CredentialRotationPolicy (object)
+  class CredentialsPolicy (object)
+  class RotationStatus (Enum)
+  class SecretType (Enum)
+
+module: core.governance.engine
+  class GovernanceEngineService (object)
+  class SubstrateProtocol (Protocol)
+
+module: core.governance.loader
+  class InvalidPolicyError (PolicyLoadError)
+  class PolicyLoadError (Exception)
+  class PolicyLoader (object)
+
+module: core.governance.mistake_prevention
+  @dataclass class MistakeRule (object)
+  @dataclass class Violation (object)
+  class MistakePrevention (object)
+  class Severity (Enum)
+
+module: core.governance.policy_generator
+  @dataclass class PolicyFileSpec (object)
+  @dataclass class PolicySpec (object)
+  @dataclass class ScopeAccessSpec (object)
+  class PolicyGenerator (object)
+
+module: core.governance.policy_registry
+  @dataclass class PolicySource (object)
+
+module: core.governance.quick_fixes
+  @dataclass class FixResult (object)
+  @dataclass class QuickFix (object)
+  class QuickFixEngine (object)
+
+module: core.governance.rate_limit_policy
+  @dataclass class RateLimitConfig (object)
+  @dataclass class RateLimitResult (object)
+  @dataclass class RateLimitSettings (object)
+  class RateLimitDep (object)
+  class RateLimitExceeded (Exception)
+  class RateLimitPolicy (object)
+  class _StubRateLimiter (object)
+
+module: core.governance.schemas
+  class Condition (BaseModel)
+  class ConditionOperator (str, Enum)
+  class EvaluationRequest (BaseModel)
+  class EvaluationResult (BaseModel)
+  class Policy (BaseModel)
+  class PolicyEffect (str, Enum)
+
+module: core.governance.security_policy
+  @dataclass class SecurityScanResult (object)
+  @dataclass class SecurityViolation (object)
+  class SecurityAction (Enum)
+  class SecurityPolicyService (object)
+  class VulnerabilitySeverity (Enum)
+
+module: core.governance.session_startup
+  @dataclass class ADRLoadResult (object)
+  @dataclass class KernelReadinessResult (object)
+  @dataclass class PreflightResult (object)
+  @dataclass class StartupFile (object)
+  @dataclass class StartupResult (object)
+  class SessionStartup (object)
+
+module: core.integration.graph_to_wm_sync
+  class GraphToWorldModelSync (object)
+
+module: core.integration.tool_pattern_extractor
+  class ToolPatternExtractor (object)
+
+module: core.integration.wm_to_graph_sync
+  class WMToGraphSync (object)
+
+module: core.kernels.integrity
+  class IntegrityChange (object)
+
+module: core.kernels.kernelloader
+  class KernelAwareAgent (Protocol)
+  class KernelReloadResult (object)
+
+module: core.kernels.schemas
+  class BehavioralKernelData (FlexibleModel)
+  class CognitiveKernelData (FlexibleModel)
+  class DeveloperKernelData (FlexibleModel)
+  class ExecutionKernelData (FlexibleModel)
+  class FlexibleModel (BaseModel)
+  class GuardrailConfig (FlexibleModel)
+  class IdentityConfig (FlexibleModel)
+  class IdentityKernelData (FlexibleModel)
+  class KernelActivationResult (FlexibleModel)
+  class KernelInfo (FlexibleModel)
+  class KernelManifest (FlexibleModel)
+  class KernelMeta (FlexibleModel)
+  class KernelRule (FlexibleModel)
+  class KernelState (str, Enum)
+  class KernelType (str, Enum)
+  class KernelValidationResult (FlexibleModel)
+  class LoadSequenceEntry (FlexibleModel)
+  class MasterKernelData (FlexibleModel)
+  class MemoryKernelData (FlexibleModel)
+  class ModeConfig (FlexibleModel)
+  class PacketProtocolKernelData (FlexibleModel)
+  class Prohibition (FlexibleModel)
+  class RuleType (str, Enum)
+  class SafetyKernelData (FlexibleModel)
+  class SovereigntyConfig (FlexibleModel)
+  class StateMachineConfig (FlexibleModel)
+  class StyleConfig (FlexibleModel)
+  class TaskSizingConfig (FlexibleModel)
+  class ThresholdsConfig (FlexibleModel)
+  class ValidationError (FlexibleModel)
+  class WorldModelKernelData (FlexibleModel)
+
+module: core.llm.llm_service
+  class MockLLMService (object)
+  class OpenAILLMService (object)
+
+module: core.memory.runtime
+  class KernelEvolutionEvent (object)
+
+module: core.memory.virtual_context
+  @dataclass class Context (object)
+  @dataclass class Memory (object)
+  class MemoryConsolidationService (object)
+  class MemoryTier (Enum)
+  class VirtualContextManager (object)
+
+module: core.models.l9_base_model
+  class L9BaseModel (BaseModel)
+
+module: core.moduleregistry
+  class ModuleDefinition (object)
+  class ModuleRegistry (object)
+  class ModuleStatus (object)
+
+module: core.observability.aggregation
+  class KPITracker (object)
+  class MetricsAggregator (object)
+
+module: core.observability.circuit_breaker
+  @dataclass class CircuitBreakerConfig (object)
+  class CircuitBreaker (object)
+  class CircuitBreakerState (str, Enum)
+  class CircuitOpenError (Exception)
+
+module: core.observability.config
+  class ObservabilitySettings (BaseSettings)
+
+module: core.observability.context_strategies
+  class AdaptiveStrategySelector (object)
+  class ContextStrategy (ABC)
+  class HierarchicalSummarizationStrategy (ContextStrategy)
+  class HybridStrategy (ContextStrategy)
+  class NaiveTruncationStrategy (ContextStrategy)
+  class RAGStrategy (ContextStrategy)
+  class RecencyBiasedWindowStrategy (ContextStrategy)
+
+module: core.observability.exporters
+  class AsyncSpanExporter (ABC)
+  class CompositeExporter (object)
+  class ConsoleExporter (SpanExporter)
+  class JSONFileExporter (SpanExporter)
+  class SpanExporter (ABC)
+  class SubstrateExporter (AsyncSpanExporter)
+
+module: core.observability.failures
+  class FailureDetector (object)
+  class RecoveryAction (str, Enum)
+  class RecoveryExecutor (object)
+
+module: core.observability.jaeger_exporter
+  class JaegerExporter (object)
+
+module: core.observability.models
+  class AgentKPI (BaseModel)
+  class AgentTrajectorySpan (Span)
+  class ContextAssemblySpan (Span)
+  class FailureClass (str, Enum)
+  class FailureSignal (BaseModel)
+  class GovernanceCheckSpan (Span)
+  class KernelLifecycleSpan (Span)
+  class LLMGenerationSpan (Span)
+  class RAGRetrievalSpan (Span)
+  class RemediationAction (BaseModel)
+  class SREMetric (BaseModel)
+  class Span (BaseModel)
+  class SpanKind (str, Enum)
+  class SpanStatus (str, Enum)
+  class ToolCallSpan (Span)
+  class TraceContext (BaseModel)
+
+module: core.observability.prometheus_exporter
+  class ObservabilityPrometheusExporter (object)
+
+module: core.observability.security_alerts
+  @dataclass class SecurityAlert (object)
+  class AlertChannel (Enum)
+  class AlertSeverity (Enum)
+  class SecurityAlertService (object)
+
+module: core.observability.security_metrics
+  @dataclass class SecurityMetric (object)
+  class MetricType (Enum)
+  class SecurityMetricsCollector (object)
+
+module: core.observability.service
+  class ObservabilityService (object)
+
+module: core.packet_envelope.config
+  @dataclass class BatchIngestionConfig (object)
+  @dataclass class CloudEventsConfig (object)
+  @dataclass class EventStoreConfig (object)
+  @dataclass class GDPRConfig (object)
+  @dataclass class GovernancePhaseConfig (object)
+  @dataclass class JaegerConfig (object)
+  @dataclass class ObservabilityPhaseConfig (object)
+  @dataclass class PacketEnvelopeUpgradeConfig (object)
+  @dataclass class PrometheusConfig (object)
+  @dataclass class RetentionConfig (object)
+  @dataclass class ScalabilityPhaseConfig (object)
+
+module: core.packet_envelope.governance
+  @dataclass class AnonymizationRule (object)
+  @dataclass class ComplianceEvent (object)
+  @dataclass class ComplianceReport (object)
+  @dataclass class DataRetentionConfig (object)
+  @dataclass class DeletionProof (object)
+  @dataclass class DeletionRequest (object)
+  class AnonymizationEngine (object)
+  class AnonymizationStrategy (Enum)
+  class ComplianceAuditLog (object)
+  class ComplianceExporter (object)
+  class ErasureEngine (object)
+  class RetentionManager (object)
+  class RetentionPolicy (Enum)
+
+module: core.packet_envelope.integration
+  @dataclass class UpgradeState (object)
+  class PacketEnvelopeAdapter (object)
+  class PacketEnvelopeUpgradeEngine (object)
+  class PacketEnvelopeUpgradePhase (Enum)
+
+module: core.packet_envelope.observability
+  @dataclass class ObservabilityConfig (object)
+  @dataclass class StructuredLogEvent (object)
+  class PacketEnvelopeObservability (object)
+  class WebSocketTracePropagator (object)
+
+module: core.packet_envelope.scalability
+  @dataclass class BatchIngestRequest (object)
+  @dataclass class BatchIngestResult (object)
+  @dataclass class Command (object)
+  @dataclass class Event (object)
+  @dataclass class Snapshot (object)
+  class BatchIngestionEngine (object)
+  class CommandHandler (object)
+  class CommandType (Enum)
+  class EventStore (object)
+  class ReadModel (object)
+  class StreamConsumer (object)
+
+module: core.packet_envelope.standardization
+  @dataclass class CloudEvent (object)
+  @dataclass class CloudEventBatch (object)
+  @dataclass class EventSchema (object)
+  class ContentMode (Enum)
+  class EventType (Enum)
+  class HTTPBinaryBinding (ProtocolBinding)
+  class HTTPStructuredBinding (ProtocolBinding)
+  class ProtocolBinding (ABC)
+  class SchemaRegistry (object)
+
+module: core.protocols.agent_protocols
+  class ActivatableAgent (Protocol)
+  class AgentContext (Protocol)
+  class AgentOrchestrator (Protocol)
+  class AgentRegistry (Protocol)
+  class AgentState (str, Enum)
+  class StateManager (Protocol)
+  class ToolExecutor (Protocol)
+
+module: core.protocols.connection_protocols
+  @dataclass class PooledConnection (object)
+  class ConnectionPoolProtocol (Protocol)
+  class ConnectionProtocol (Protocol)
+  class ConnectionState (Enum)
+  class StandardConnectionPool (object)
+
+module: core.protocols.error_handling_protocols
+  class ErrorCategory (Enum)
+  class ErrorContext (object)
+  class ErrorHandlingProtocol (Protocol)
+  class ErrorSeverity (Enum)
+  class StandardErrorHandler (object)
+
+module: core.protocols.kernel_protocols
+  class IntegrityVerifier (Protocol)
+  class KernelActivator (Protocol)
+  class KernelAwareAgent (Protocol)
+  class KernelDiscovery (Protocol)
+  class KernelStateManager (Protocol)
+  class KernelValidator (Protocol)
+
+module: core.protocols.memory_protocols
+  class CacheClient (Protocol)
+  class GraphClient (Protocol)
+  class IngestionPipeline (Protocol)
+  class MemoryRepository (Protocol)
+  class RetrievalStrategy (Protocol)
+  class VectorStore (Protocol)
+
+module: core.protocols.observability_protocols
+  class HealthChecker (Protocol)
+  class LogExporter (Protocol)
+  class MetricsCollector (Protocol)
+  class ObservabilityService (Protocol)
+  class SpanEmitter (Protocol)
+  class SpanKind (str, Enum)
+  class SpanStatus (str, Enum)
+  class TraceContext (Protocol)
+
+module: core.protocols.rate_limiting_protocols
+  @dataclass class RateLimitPolicy (object)
+  class RateLimitExceededError (Exception)
+  class RateLimitStrategy (str, Enum)
+  class RateLimitingProtocol (Protocol)
+  class StandardRateLimiter (object)
+
+module: core.protocols.retry_protocols
+  @dataclass class RetryPolicy (object)
+  class BackoffStrategy (str, Enum)
+  class RetryProtocol (Protocol)
+  class StandardRetryHandler (object)
+
+module: core.protocols.secrets_protocols
+  class SecretsClient (Protocol)
+  class SecretsError (Exception)
+
+module: core.protocols.service_protocols
+  class GovernanceService (Protocol)
+  class LLMService (Protocol)
+  class MemoryService (Protocol)
+
+module: core.protocols.substrate_protocols
+  class DAGProtocol (Protocol)
+  class EmbeddingProviderProtocol (Protocol)
+  class SemanticServiceProtocol (Protocol)
+  class SubstrateRepositoryProtocol (Protocol)
+
+module: core.protocols.validation_protocols
+  @dataclass class ValidationError (object)
+  @dataclass class ValidationResult (object)
+  class StandardValidator (object)
+  class ValidationProtocol (Protocol)
+  class ValidationSeverity (Enum)
+
+module: core.reasoning.l9_toth_adapter
+  @dataclass class L9ReasoningContext (object)
+  class L9ToThAdapter (object)
+
+module: core.reasoning.toth_engine
+  @dataclass class ReasoningResult (object)
+  @dataclass class ReasoningStep (object)
+  @dataclass class ToThConfig (object)
+  class CloudModelClient (object)
+  class FormalReasoningGraph (object)
+  class L9ToThIntegration (object)
+  class ModelProvider (Enum)
+  class ProductionToThEngine (object)
+  class ReasoningMode (Enum)
+  class ReasoningStepParser (object)
+
+module: core.resilience.mixin
+  class ResilienceMixin (object)
+
+module: core.resilience.protocols
+  class ResilientService (Protocol)
+
+module: core.resilience.retry
+  @dataclass class AsyncRetryConfig (object)
+  class RetryExhaustedError (Exception)
+
+module: core.retrievers.substrate_retriever
+  class SubstrateRetriever (BaseRetriever)
+
+module: core.runtimes.react_runtime
+  class ReActRuntime (object)
+  class ReActStep (object)
+
+module: core.schemas.capabilities
+  class AgentCapabilities (BaseModel)
+  class Capability (BaseModel)
+  class ToolName (str, Enum)
+
+module: core.schemas.event_stream
+  class AgentHandshake (BaseModel)
+  class CapabilityViolation (BaseModel)
+  class HandshakeResponse (BaseModel)
+  class HandshakeStatus (str, Enum)
+  class SecurityEvent (BaseModel)
+  class SecurityEventType (str, Enum)
+
+module: core.schemas.l_tools
+  class GMPRunInput (BaseModel)
+  class GitCommitInput (BaseModel)
+  class KernelReadInput (BaseModel)
+  class MCPCallToolInput (BaseModel)
+  class MacAgentExecInput (BaseModel)
+  class MemorySearchInput (BaseModel)
+  class MemoryWriteInput (BaseModel)
+  class WorldModelQueryInput (BaseModel)
+
+module: core.schemas.packet_envelope
+  class PacketConfidence (BaseModel)
+  class PacketEnvelope (BaseModel)
+  class PacketEnvelopeIn (BaseModel)
+  class PacketKind (str, Enum)
+  class PacketMetadata (BaseModel)
+  class PacketProvenance (BaseModel)
+  class PacketWriteResult (BaseModel)
+  class SemanticHit (BaseModel)
+  class SemanticSearchRequest (BaseModel)
+  class SemanticSearchResult (BaseModel)
+  class SimpleContent (BaseModel)
+  class StructuredReasoningBlock (BaseModel)
+  class TokenUsage (BaseModel)
+
+module: core.schemas.packet_envelope_v2
+  class DerivationType (str, Enum)
+  class DeriveType (str, Enum)
+  class PacketConfidence (BaseModel)
+  class PacketEnvelope (BaseModel)
+  class PacketEnvelopeIn (BaseModel)
+  class PacketKind (str, Enum)
+  class PacketLineage (BaseModel)
+  class PacketMetadata (BaseModel)
+  class PacketProvenance (BaseModel)
+  class PacketWriteResult (BaseModel)
+  class SemanticHit (BaseModel)
+  class SemanticSearchRequest (BaseModel)
+  class SemanticSearchResult (BaseModel)
+
+module: core.schemas.research_factory_models
+  class IntegrationResult (BaseModel)
+  class ParsedObject (BaseModel)
+  class Query (BaseModel)
+  class QueryPlan (BaseModel)
+  class ResearchJobSpec (BaseModel)
+  class ResearchMetrics (BaseModel)
+  class RetrievalBatch (BaseModel)
+  class Superprompt (BaseModel)
+  class ValidationStatus (str, Enum)
+
+module: core.schemas.research_factory_state
+  class PassMetadata (BaseModel)
+  class PassStatus (str, Enum)
+  class ResearchState (BaseModel)
+
+module: core.schemas.schema_registry
+  class InvalidSchemaVersionError (Exception)
+  class UpcasterNotFoundError (Exception)
+  class _SchemaRegistry (object)
+
+module: core.schemas.tasks
+  class AgentTask (BaseModel)
+  class TaskBatch (BaseModel)
+  class TaskEnvelope (BaseModel)
+  class TaskGraph (BaseModel)
+  class TaskKind (str, Enum)
+  class TaskResult (BaseModel)
+  class TaskStatus (str, Enum)
+
+module: core.schemas.tests.test_discriminators
+  class TestMetadataExtras (object)
+  class TestPacketEnvelopeInValidation (object)
+  class TestPacketTypeValidation (object)
+  class TestPayloadValidation (object)
+  class TestSemanticSearchValidation (object)
+  class TestValidationStatusEnum (object)
+
+module: core.schemas.tests.test_packet_envelope
+  class TestConfidenceValidation (object)
+  class TestPacketEnvelopeImmutability (object)
+  class TestPacketEnvelopeIn (object)
+  class TestPacketEnvelopeOptional (object)
+  class TestPacketEnvelopeRequired (object)
+  class TestPacketWriteResult (object)
+  class TestSemanticSearch (object)
+
+module: core.schemas.tests.test_research_factory
+  class TestIntegrationResult (object)
+  class TestParsedObject (object)
+  class TestQueryPlan (object)
+  class TestResearchFactoryNodes (object)
+  class TestResearchJobSpec (object)
+  class TestResearchMetrics (object)
+  class TestResearchState (object)
+
+module: core.schemas.upcaster_registry
+  @dataclass class UpcasterConfig (object)
+
+module: core.schemas.ws_event_stream
+  class AgentHeartbeat (BaseModel)
+  class ErrorEvent (BaseModel)
+  class EventMessage (BaseModel)
+  class EventType (str, Enum)
+
+module: core.secrets.aws_secrets_client
+  class AwsSecretsClient (object)
+
+module: core.secrets.env_secrets_client
+  class EnvSecretsClient (object)
+
+module: core.security.path_safety
+  @dataclass class PathSafetyError (ValueError)
+
+module: core.security.permission_graph
+  class PermissionGraph (object)
+
+module: core.singleton_auto_registry
+  @dataclass class SingletonServiceConfig (object)
+
+module: core.singleton_registry
+  @dataclass class SingletonEntry (object)
+  class SingletonLifecycle (str, Enum)
+  class SingletonRegistry (object)
+
+module: core.testing.test_agent
+  @dataclass class TestAgentResult (object)
+  class TestAgent (object)
+
+module: core.testing.test_executor
+  @dataclass class TestResult (object)
+  @dataclass class TestResults (object)
+  class TestExecutor (object)
+
+module: core.testing.test_generator
+  class TestGenerator (object)
+
+module: core.tools.agent_self_modify
+  class AgentSelfModifyTool (object)
+
+module: core.tools.base_registry
+  class RateLimitWindow (object)
+  class ToolMetadata (BaseModel)
+  class ToolRegistry (object)
+  class ToolSchema (BaseModel)
+  class ToolType (str, Enum)
+
+module: core.tools.discovery_tracing
+  @dataclass class DiscoveryTrace (object)
+  class DiscoveryPhase (Enum)
+  class DiscoveryTracer (object)
+
+module: core.tools.dynamic_discovery
+  @dataclass class DiscoveryResult (object)
+  class DiscoveryMethod (str, Enum)
+
+module: core.tools.memory_tools
+  @dataclass class MemorySearchResult (object)
+  @dataclass class MemoryWriteResult (object)
+  class MemorySegment (Enum)
+
+module: core.tools.prompt_caching
+  @dataclass class CacheMetrics (object)
+  class CachingMetricsCollector (object)
+  class PromptCachingStrategy (object)
+
+module: core.tools.registry_adapter
+  class ExecutorToolRegistry (object)
+  class RiskLevel (object)
+  class ToolExecutor (Protocol)
+
+module: core.tools.registry_cache
+  @dataclass class CacheConfig (object)
+  @dataclass class CacheEntry (object)
+  @dataclass class CacheMetrics (object)
+  class CacheStrategy (str, Enum)
+  class CachedToolRegistry (object)
+  class ToolRegistryCache (object)
+
+module: core.tools.sanitizer
+  class ToolInputSanitizationError (ValueError)
+  class ToolInputSanitizer (object)
+  class ToolInputSanitizerConfig (object)
+
+module: core.tools.semantic_discovery
+  @dataclass class ToolDefinition (object)
+  class DynamicToolDiscoveryService (object)
+  class ToolContextFormatter (object)
+  class ToolStatus (Enum)
+
+module: core.tools.semantic_tool_search
+  @dataclass class ToolSearchResult (object)
+  class SemanticToolSearchAdapter (object)
+  class ToolSearchOptimizer (object)
+
+module: core.tools.symbolic_tool
+  class SymbolicComputationTool (object)
+
+module: core.tools.tool_audit
+  @dataclass class ToolAuditEntry (object)
+  class ToolAuditService (object)
+  class ToolCostEstimator (object)
+
+module: core.tools.tool_embeddings
+  @dataclass class ToolEmbeddingResult (object)
+
+module: core.tools.tool_graph
+  @dataclass class ToolDefinition (object)
+  class ToolGraph (object)
+
+module: core.worldmodel.insight_emitter
+  class Insight (BaseModel)
+  class InsightEmitter (object)
+
+module: core.worldmodel.l9_schema
+  class ConnectionStatus (str, Enum)
+  class EntityType (str, Enum)
+  class InfrastructureType (str, Enum)
+  class L9Agent (BaseModel)
+  class L9ExternalSystem (BaseModel)
+  class L9Infrastructure (BaseModel)
+  class L9MemorySegment (BaseModel)
+  class L9Relationship (BaseModel)
+  class L9RelationshipType (str, Enum)
+  class L9Repository (BaseModel)
+  class L9Tool (BaseModel)
+  class ToolCategory (str, Enum)
+  class ToolRiskLevel (str, Enum)
+
+module: core.worldmodel.service
+  class WorldModelService (object)
+
+module: domain_tensor_bridge.agent_controller
+  class AgentController (object)
+
+module: domain_tensor_bridge.analogical_reasoner
+  @dataclass class Analogy (object)
+  class AnalogicalReasoner (object)
+
+module: domain_tensor_bridge.anomaly_handler
+  @dataclass class AnomalyFlag (object)
+  @dataclass class AnomalyResponse (object)
+  class AnomalyHandler (object)
+  class AnomalySeverity (str, Enum)
+
+module: domain_tensor_bridge.causal_reasoner
+  @dataclass class CausalResult (object)
+  class CausalReasoner (object)
+
+module: domain_tensor_bridge.compliance_checker
+  @dataclass class ComplianceResult (object)
+  @dataclass class Rule (object)
+  class ComplianceChecker (object)
+
+module: domain_tensor_bridge.context_enricher
+  @dataclass class EnrichedContext (object)
+  class ContextEnricher (object)
+
+module: domain_tensor_bridge.decision_synthesizer
+  @dataclass class Decision (object)
+  class DecisionSynthesizer (object)
+
+module: domain_tensor_bridge.domain_context_builder
+  @dataclass class DomainContext (object)
+  class DomainContextBuilder (object)
+
+module: domain_tensor_bridge.domain_packet_handler
+  class DomainPacketHandler (object)
+
+module: domain_tensor_bridge.embedding_processor
+  @dataclass class ProcessedEmbedding (object)
+  class EmbeddingProcessor (object)
+
+module: domain_tensor_bridge.escalation_handler
+  @dataclass class EscalationResult (object)
+  @dataclass class EscalationTrigger (object)
+  class EscalationHandler (object)
+  class EscalationTriggerType (str, Enum)
+
+module: domain_tensor_bridge.governance_bridge
+  @dataclass class EscalationResult (object)
+  @dataclass class GovernanceResult (object)
+  class EscalationLevel (str, Enum)
+  class GovernanceBridge (object)
+  class GovernanceDecision (str, Enum)
+
+module: domain_tensor_bridge.memory_bridge
+  @dataclass class EpisodicEvent (object)
+  @dataclass class Node (object)
+  class MemoryBridge (object)
+
+module: domain_tensor_bridge.packet_formatter
+  class PacketFormatter (object)
+
+module: domain_tensor_bridge.packet_router
+  @dataclass class RoutingResult (object)
+  class PacketRouter (object)
+
+module: domain_tensor_bridge.packet_validator
+  @dataclass class ValidationResult (object)
+  class PacketValidator (object)
+
+module: domain_tensor_bridge.reasoning_engine
+  @dataclass class ReasoningResult (object)
+  class ReasoningEngine (object)
+
+module: domain_tensor_bridge.reflective_auditor
+  @dataclass class AuditResult (object)
+  class ReflectiveAuditor (object)
+
+module: domain_tensor_bridge.symbolic_reasoner
+  @dataclass class RuleResult (object)
+  class SymbolicReasoner (object)
+
+module: domain_tensor_bridge.tensor_coordinator
+  @dataclass class TensorResult (object)
+  class TensorCoordinator (object)
+
+module: domain_tensor_bridge.tensoraios_bridge
+  class TensorAIOSBridge (object)
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_api_surfaces
+  class TestProcessPacketEndpoint (object)
+  class TestStatusEndpoint (object)
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_bridge_controller
+  class TestAgentController (object)
+  class TestProcessPacketFunction (object)
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_context_enrichment
+  class TestContextBuilding (object)
+  class TestWorldModelQuery (object)
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_governance_integration
+  class TestAuditLogging (object)
+  class TestEscalationTriggers (object)
+  class TestOverrides (object)
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_memory_integration
+  class TestHyperGraphDBQuery (object)
+  class TestNeo4jQuery (object)
+  class TestPostgresQuery (object)
+  class TestRedisReadWrite (object)
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_packet_routing
+  class TestRouteByDomain (object)
+  class TestRouteByType (object)
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_reasoning_engine
+  class TestConfidenceThresholds (object)
+  class TestErrorPaths (object)
+  class TestReasoningModes (object)
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_tensor_coordination
+  class TestBatchTensorCalls (object)
+  class TestTimeoutHandling (object)
+
+module: domain_tensor_bridge.world_model_bridge
+  @dataclass class CausalFactor (object)
+  @dataclass class Pattern (object)
+  class WorldModelBridge (object)
+
+module: graph_adapter.packet_node_adapter
+  class PacketNodeAdapter (object)
+
+module: ir_engine.compile_meta_to_ir
+  @dataclass class DependencyEdge (object)
+  @dataclass class GenerationTarget (object)
+  @dataclass class ModuleIR (object)
+  @dataclass class PacketSpec (object)
+  @dataclass class TestSpec (object)
+  @dataclass class WiringSpec (object)
+  class MetaToIRCompiler (object)
+
+module: ir_engine.constraint_challenger
+  class ChallengeResult (object)
+  class ConstraintChallenger (object)
+
+module: ir_engine.deliberation_cell
+  @dataclass class DeliberationResult (object)
+  @dataclass class DeliberationRound (object)
+  class DeliberationCell (object)
+
+module: ir_engine.ir_generator
+  class IRGenerator (object)
+
+module: ir_engine.ir_schema
+  class ActionNode (IRNodeBase)
+  class ActionType (str, Enum)
+  class ConstraintNode (IRNodeBase)
+  class ConstraintStatus (str, Enum)
+  class ConstraintType (str, Enum)
+  class IRGraph (BaseModel)
+  class IRMetadata (BaseModel)
+  class IRNodeBase (BaseModel)
+  class IRStatus (str, Enum)
+  class IRValidationResult (BaseModel)
+  class IntentNode (IRNodeBase)
+  class IntentType (str, Enum)
+  class NodePriority (str, Enum)
+  class ValidationError (BaseModel)
+
+module: ir_engine.ir_to_plan_adapter
+  @dataclass class ExecutionPlan (object)
+  @dataclass class ExecutionStep (object)
+  class IRToPlanAdapter (object)
+
+module: ir_engine.ir_to_python
+  class IRToPythonCompiler (object)
+
+module: ir_engine.ir_validator
+  class IRValidator (object)
+
+module: ir_engine.meta_ir
+  class AIOSCall (BaseModel)
+  class AcceptanceCriterion (BaseModel)
+  class AcceptanceSpec (BaseModel)
+  class AlertLevel (str, Enum)
+  class AuthType (str, Enum)
+  class BootImpact (BaseModel)
+  class BootImpactLevel (str, Enum)
+  class CallableFrom (str, Enum)
+  class ContextRead (BaseModel)
+  class DependencySpec (BaseModel)
+  class EnvVar (BaseModel)
+  class EnvironmentSpec (BaseModel)
+  class ErrorCategory (BaseModel)
+  class ErrorPolicy (BaseModel)
+  class ErrorStrategy (str, Enum)
+  class EscalationConfig (BaseModel)
+  class ExternalSurface (BaseModel)
+  class GlobalInvariantsAck (BaseModel)
+  class GoalsSpec (BaseModel)
+  class HttpClientStandard (BaseModel)
+  class IdempotencyDurability (str, Enum)
+  class IdempotencyPattern (str, Enum)
+  class IdempotencySource (str, Enum)
+  class IdempotencySpec (BaseModel)
+  class IdentityStandard (BaseModel)
+  class InboundInterface (BaseModel)
+  class InterfaceType (str, Enum)
+  class InterfacesSpec (BaseModel)
+  class LogLevel (str, Enum)
+  class LoggingStandard (BaseModel)
+  class LogsConfig (BaseModel)
+  class MetaContract (BaseModel)
+  class MetaContractValidationError (BaseModel)
+  class MetaContractValidationResult (BaseModel)
+  class MetricsConfig (BaseModel)
+  class ModuleMetadata (BaseModel)
+  class ModuleTier (str, Enum)
+  class ObservabilitySpec (BaseModel)
+  class OrchestrationSpec (BaseModel)
+  class OutboundCall (BaseModel)
+  class OutboundInterface (BaseModel)
+  class OwnershipSpec (BaseModel)
+  class OwnershipTeam (str, Enum)
+  class PacketContract (BaseModel)
+  class RepoSpec (BaseModel)
+  class RetryConfig (BaseModel)
+  class RuntimeTouchpoints (BaseModel)
+  class RuntimeWiringSpec (BaseModel)
+  class ServiceType (str, Enum)
+  class SideEffect (BaseModel)
+  class SpecConfidence (BaseModel)
+  class SpecConfidenceLevel (str, Enum)
+  class StandardsSpec (BaseModel)
+  class StartupPhase (str, Enum)
+  class TestScope (BaseModel)
+  class TracesConfig (BaseModel)
+
+module: ir_engine.schema_validator
+  class SchemaValidationError (Exception)
+  class SchemaValidator (object)
+
+module: ir_engine.semantic_compiler
+  class SemanticCompiler (object)
+
+module: ir_engine.simulation_router
+  @dataclass class RankedCandidate (object)
+  @dataclass class SimulationRequest (object)
+  @dataclass class SimulationResult (object)
+  class SimulationRouter (object)
+
+module: memory.active_encoder
+  @dataclass class EncodingResult (object)
+  @dataclass class ExtractedLearning (object)
+  @dataclass class TaskOutcome (object)
+  class ActiveMemoryEncoder (object)
+  class LearningExtractor (object)
+
+module: memory.agent_persistence
+  class AgentPersistenceService (object)
+  class Checkpoint (object)
+
+module: memory.audit_utils
+  @dataclass class AuditReport (object)
+
+module: memory.blob_store
+  @dataclass class BlobMetadata (object)
+  @dataclass class BlobStore (object)
+
+module: memory.checkpoint.cursor_checkpoint_manager
+  class CursorCheckpointManager (object)
+
+module: memory.checkpoint.postgres_saver
+  class L9PostgresSaver (BaseCheckpointSaver)
+  class L9RetryablePostgresSaver (L9PostgresSaver)
+
+module: memory.checkpoint_manager
+  class CheckpointManager (object)
+
+module: memory.checkpoint_metrics
+  class CheckpointMetrics (object)
+
+module: memory.checkpoint_validator
+  class CheckpointValidator (object)
+  class SchemaVersion (Enum)
+
+module: memory.consolidation
+  class ConsolidationPipeline (object)
+  class ConsolidationReport (object)
+
+module: memory.context_builder
+  @dataclass class ContextSection (object)
+  class HierarchicalContextBuilder (object)
+  class MemoryTier (str, Enum)
+
+module: memory.cross_encoder_reranker
+  @dataclass class RerankingResult (object)
+  class CrossEncoderConfig (object)
+  class CrossEncoderReranker (object)
+
+module: memory.cypher_templates
+  @dataclass class CypherTemplate (object)
+  class CypherTemplateCategory (str, Enum)
+  class CypherTemplateLibrary (object)
+
+module: memory.dead_letter
+  @dataclass class DeadLetterEntry (object)
+  class DeadLetterQueue (object)
+
+module: memory.dead_letter_queue
+  @dataclass class DLQEntry (object)
+  class DeadLetterQueue (object)
+
+module: memory.deduplication
+  @dataclass class DeduplicationReport (object)
+  @dataclass class DuplicateGroup (object)
+  class DeduplicationEngine (object)
+  class MergeStrategy (str, Enum)
+  class SimilarityMethod (str, Enum)
+
+module: memory.enrichment_dag
+  @dataclass class EnrichmentConfig (object)
+  @dataclass class EnrichmentResult (object)
+  class EnrichmentDAG (object)
+  class EnrichmentStatus (str, Enum)
+  class EnrichmentTier (str, Enum)
+
+module: memory.execution_plan_snapshot
+  @dataclass class ExecutionPlanSnapshot (object)
+  @dataclass class ExecutionStepSnapshot (object)
+  class ExecutionPlanSnapshotManager (object)
+  class PlanStatus (str, Enum)
+  class StepStatus (str, Enum)
+
+module: memory.extractor.agent_config_extractor
+  class AgentConfigExtractor (BaseExtractor)
+
+module: memory.extractor.base_extractor
+  class BaseExtractor (ABC)
+
+module: memory.extractor.code_extractor
+  class CodeExtractor (BaseExtractor)
+
+module: memory.extractor.memory_extractor
+  class MemoryExtractor (BaseExtractor)
+
+module: memory.extractor.module_schema_extractor
+  class ModuleSchemaExtractor (BaseExtractor)
+
+module: memory.gap_detector
+  class GapDetector (object)
+
+module: memory.governance_gate
+  class MemoryGovernanceContext (object)
+
+module: memory.governance_hooks
+  @dataclass class HookContext (object)
+  @dataclass class HookResult (object)
+  class AuditLoggingHook (GovernanceHook)
+  class GovernanceHook (ABC)
+  class GovernanceHookRegistry (object)
+  class HookPriority (int, Enum)
+  class HookType (str, Enum)
+  class RateLimitingHook (GovernanceHook)
+  class SchemaValidationHook (GovernanceHook)
+  class ScopeAuthorizationHook (GovernanceHook)
+
+module: memory.governance_patterns
+  class DecisionType (str, Enum)
+  class GovernancePattern (BaseModel)
+
+module: memory.graph_client
+  class Neo4jClient (object)
+
+module: memory.graph_memory
+  @dataclass class ConversationContext (object)
+  @dataclass class GraphMessage (object)
+  @dataclass class GraphSession (object)
+  class ConversationGraphMemory (object)
+  class MessageRole (str, Enum)
+  class RelationshipType (str, Enum)
+  class TopicExtractor (object)
+
+module: memory.graph_search_cache
+  class GraphSearchContext (BaseModel)
+  class GraphSearchResult (BaseModel)
+
+module: memory.hierarchical_summarizer
+  @dataclass class SummaryConfig (object)
+  @dataclass class SummaryResult (object)
+  class HierarchicalSummarizer (object)
+  class SummaryTier (str, Enum)
+
+module: memory.housekeeping
+  class HousekeepingEngine (object)
+
+module: memory.hybrid_rag
+  @dataclass class GraphEnrichment (object)
+  @dataclass class HybridResult (object)
+  @dataclass class HybridSearchResult (object)
+  @dataclass class VectorHit (object)
+  class EnrichmentStrategy (str, Enum)
+  class EntityExtractor (object)
+  class GraphEnricher (object)
+  class HybridRAGPipeline (object)
+
+module: memory.identity_tier
+  @dataclass class IdentityFact (object)
+  class IdentityFactCategory (str, Enum)
+  class IdentityFactSource (str, Enum)
+  class IdentityTierService (object)
+
+module: memory.importance_manager
+  @dataclass class AccessRecord (object)
+  @dataclass class ImportanceUpdate (object)
+  class ImportanceConfig (object)
+  class ImportanceManager (object)
+
+module: memory.index_syncer
+  class IndexSyncer (object)
+
+module: memory.ingestion
+  class IngestionPipeline (object)
+
+module: memory.insight_extraction
+  class InsightExtractionPipeline (object)
+
+module: memory.migration_runner
+  class MigrationRunner (object)
+
+module: memory.neo4j_strategy_memory
+  class Neo4jStrategyMemoryService (IStrategyMemoryService)
+  class StrategyMemoryConfig (object)
+
+module: memory.neural_decay_scheduler
+  @dataclass class DecayConfig (object)
+  @dataclass class DecayResult (object)
+  class NeuralDecayScheduler (object)
+
+module: memory.predictive_cache
+  class PredictiveCache (object)
+
+module: memory.query_cache
+  class QueryCache (object)
+
+module: memory.query_classifier
+  class QueryClassifier (object)
+
+module: memory.reasoning_replay
+  class ReasoningChain (object)
+  class ReasoningReplayPipeline (object)
+
+module: memory.retention_engine
+  @dataclass class RetentionPolicy (object)
+  @dataclass class RetentionResult (object)
+  class RetentionEngine (object)
+
+module: memory.retrieval
+  class RetrievalPipeline (object)
+
+module: memory.retrieval_ranking
+  @dataclass class RankingItem (object)
+  class MultiFactorRanker (object)
+  class RankingWeights (object)
+
+module: memory.retrieval_strategy
+  @dataclass class StrategyContext (object)
+  @dataclass class StrategyResult (object)
+  class RetrievalStrategy (str, Enum)
+  class StrategyBasedRetriever (object)
+  class StrategyDeterminer (object)
+
+module: memory.saga
+  @dataclass class SagaContext (object)
+  @dataclass class SagaResult (object)
+  @dataclass class SagaStep (object)
+  @dataclass class SagaStepResult (object)
+  class DatabaseType (str, Enum)
+  class Saga (object)
+  class SagaBuilder (object)
+  class SagaExecutor (object)
+  class SagaStatus (str, Enum)
+  class SagaStepStatus (str, Enum)
+
+module: memory.saga_patterns
+  class SagaPatterns (object)
+
+module: memory.schema_introspection
+  @dataclass class ColumnInfo (object)
+  @dataclass class IndexInfo (object)
+  @dataclass class Neo4jLabelInfo (object)
+  @dataclass class Neo4jRelationshipInfo (object)
+  @dataclass class SchemaSnapshot (object)
+  @dataclass class TableInfo (object)
+  class Neo4jIntrospector (object)
+  class PostgresIntrospector (object)
+  class SchemaIntrospector (object)
+
+module: memory.semantic_search
+  class SearchHit (BaseModel)
+
+module: memory.service_adapter
+  class MemoryServiceAdapter (object)
+
+module: memory.state_manager
+  class MemoryStateManager (object)
+
+module: memory.strategymemory
+  class IStrategyMemoryService (ABC)
+  class StrategyCandidate (BaseModel)
+  class StrategyFeedback (BaseModel)
+  class StrategyMemoryService (IStrategyMemoryService)
+  class StrategyRetrievalRequest (BaseModel)
+
+module: memory.substrate_alignment
+  @dataclass class AlignmentReport (object)
+  class SubstrateAlignmentChecker (object)
+
+module: memory.substrate_dag
+  class SubstrateDAG (object)
+  class SubstrateGraphState (TypedDict)
+
+module: memory.substrate_dag_wrapper
+  @dataclass class RetryPolicy (object)
+  class SubstrateDagOrchestrator (object)
+
+module: memory.substrate_models
+  class AgentMemoryEventRow (BaseModel)
+  class EnrichmentResult (BaseModel)
+  class EpisodicEventRow (BaseModel)
+  class EpisodicSemanticLinkRow (BaseModel)
+  class ExtractedInsight (BaseModel)
+  class GraphCheckpointRow (BaseModel)
+  class KnowledgeFact (BaseModel)
+  class KnowledgeFactRow (BaseModel)
+  class MemorySegment (str, Enum)
+  class PacketStoreRow (BaseModel)
+  class ReasoningTraceRow (BaseModel)
+  class SemanticFactRow (BaseModel)
+  class SemanticMemoryRow (BaseModel)
+  class StructuredReasoningBlock (BaseModel)
+  class SubstrateState (BaseModel)
+
+module: memory.substrate_repository
+  class SubstrateRepository (object)
+
+module: memory.substrate_repository_batch_helpers
+  class BatchQueryHelpers (object)
+
+module: memory.substrate_repository_cached
+  class CachedSubstrateRepository (object)
+
+module: memory.substrate_semantic
+  class EmbeddingProvider (ABC)
+  class OpenAIEmbeddingProvider (EmbeddingProvider)
+  class SemanticService (object)
+  class StubEmbeddingProvider (EmbeddingProvider)
+
+module: memory.substrate_service
+  class MemorySubstrateService (object)
+
+module: memory.timeline_service
+  class TimelineService (object)
+
+module: memory.tool_router
+  @dataclass class ToolEmbedding (object)
+  @dataclass class ToolMatch (object)
+  @dataclass class ToolSearchResult (object)
+  class ToolRouter (object)
+
+module: memory.validators.packet_validator
+  class PacketValidationError (Exception)
+  class PacketValidator (object)
+
+module: memory.vector_search_config
+  class VectorSearchConfig (object)
+
+module: memory.warming_models
+  @dataclass class ActionProposal (object)
+  @dataclass class KnowledgeGap (object)
+  @dataclass class MemoryContext (object)
+  @dataclass class ThinkingOutput (object)
+  class AttentionConfig (BaseModel)
+  class CacheMetrics (BaseModel)
+  class GapSeverity (str, Enum)
+  class PredictiveCacheConfig (BaseModel)
+  class ReasoningPhase (str, Enum)
+  class SubgraphEntry (BaseModel)
+
+module: memory.warming_service
+  class MemoryWarmingService (object)
+
+module: orchestrators.action_tool.interface
+  class ActionToolRequest (BaseModel)
+  class ActionToolResponse (BaseModel)
+  class IActionToolOrchestrator (Protocol)
+  class ToolSafetyLevel (str, Enum)
+
+module: orchestrators.action_tool.orchestrator
+  class ActionToolOrchestrator (IActionToolOrchestrator)
+
+module: orchestrators.action_tool.validator
+  class ValidationResult (object)
+  class Validator (object)
+
+module: orchestrators.agent_execution.interface
+  class AgentExecutionRequest (BaseModel)
+  class AgentExecutionResponse (BaseModel)
+  class IAgentExecutionOrchestrator (Protocol)
+  class TaskExecutionStatus (str, Enum)
+
+module: orchestrators.agent_execution.orchestrator
+  class AgentExecutionOrchestrator (IAgentExecutionOrchestrator)
+
+module: orchestrators.agent_execution.task_queue
+  @dataclass class MacTask (object)
+
+module: orchestrators.evolution.apply_engine
+  class ApplyEngine (object)
+
+module: orchestrators.evolution.interface
+  class EvolutionOrchestratorRequest (BaseModel)
+  class EvolutionOrchestratorResponse (BaseModel)
+  class IEvolutionOrchestrator (Protocol)
+  class Upgrade (BaseModel)
+  class UpgradeExecution (BaseModel)
+  class UpgradeStatus (str, Enum)
+  class UpgradeType (str, Enum)
+  class UpgradeValidation (BaseModel)
+
+module: orchestrators.evolution.orchestrator
+  class EvolutionOrchestrator (IEvolutionOrchestrator)
+
+module: orchestrators.memory.housekeeping
+  class Housekeeping (object)
+
+module: orchestrators.memory.interface
+  class IMemoryOrchestrator (Protocol)
+  class MemoryOperation (str, Enum)
+  class MemoryRequest (BaseModel)
+  class MemoryResponse (BaseModel)
+
+module: orchestrators.memory.orchestrator
+  class MemoryOrchestrator (IMemoryOrchestrator)
+
+module: orchestrators.meta.adapter
+  class BlueprintAdapter (object)
+
+module: orchestrators.meta.interface
+  class Blueprint (BaseModel)
+  class BlueprintEvaluation (BaseModel)
+  class BlueprintScore (BaseModel)
+  class BlueprintType (str, Enum)
+  class EvaluationCriteria (BaseModel)
+  class IMetaOrchestrator (Protocol)
+  class MetaOrchestratorRequest (BaseModel)
+  class MetaOrchestratorResponse (BaseModel)
+
+module: orchestrators.meta.orchestrator
+  class MetaOrchestrator (IMetaOrchestrator)
+
+module: orchestrators.pattern.cell_adapter
+  class CellAgentAdapter (object)
+  class DirectLLMAgent (object)
+
+module: orchestrators.pattern.interface
+  class ApprovalLevel (BaseModel)
+  class ApprovalModel (BaseModel)
+  class InputField (BaseModel)
+  class LImprovementLoopConfig (BaseModel)
+  class MemoryModel (BaseModel)
+  class MemorySegment (BaseModel)
+  class NodeDefinition (BaseModel)
+  class NodeKind (str, Enum)
+  class NodeResult (BaseModel)
+  class NodeStatus (str, Enum)
+  class ObservabilityConfig (BaseModel)
+  class OutputContract (BaseModel)
+  class PatternConfig (BaseModel)
+  class PipelineConfig (BaseModel)
+  class PipelineRequest (BaseModel)
+  class PipelineResult (BaseModel)
+  class PipelineStage (BaseModel)
+  class PipelineStatus (str, Enum)
+  class RiskModel (BaseModel)
+  class SubsystemConfig (BaseModel)
+  class SubsystemMetadata (BaseModel)
+
+module: orchestrators.pattern.master_orchestrator
+  class MasterConfig (BaseModel)
+  class MasterExecutionResult (BaseModel)
+  class MasterOrchestrator (object)
+  class SubsystemEntry (BaseModel)
+
+module: orchestrators.pattern.metrics
+  class PatternMetrics (object)
+
+module: orchestrators.pattern.orchestrator
+  class AgentProtocol (Protocol)
+  class PatternOrchestrator (object)
+  class StubAgent (object)
+
+module: orchestrators.reasoning.adapter_node
+  class ReasoningAdapterNode (object)
+  class ReasoningNodeState (TypedDict)
+
+module: orchestrators.reasoning.interface
+  class IReasoningOrchestrator (Protocol)
+  class ReasoningMode (str, Enum)
+  class ReasoningRequest (BaseModel)
+  class ReasoningResponse (BaseModel)
+
+module: orchestrators.reasoning.orchestrator
+  class ReasoningOrchestrator (IReasoningOrchestrator)
+
+module: orchestrators.research_swarm.convergence
+  class Convergence (object)
+
+module: orchestrators.research_swarm.interface
+  class IResearchSwarmOrchestrator (Protocol)
+  class ResearchSwarmRequest (BaseModel)
+  class ResearchSwarmResponse (BaseModel)
+
+module: orchestrators.research_swarm.orchestrator
+  class ResearchSwarmOrchestrator (IResearchSwarmOrchestrator)
+
+module: orchestrators.world_model.interface
+  class IWorldModelOrchestrator (Protocol)
+  class WorldModelOperation (str, Enum)
+  class WorldModelRequest (BaseModel)
+  class WorldModelResponse (BaseModel)
+
+module: orchestrators.world_model.orchestrator
+  class WorldModelOrchestrator (IWorldModelOrchestrator)
+
+module: orchestrators.world_model.scheduler
+  class WorldModelScheduler (object)
+
+module: orchestrators.ws_bridge
+  class WSBridgeConfig (object)
+  class WSEventRouter (object)
+
+module: services.mac_tasks
+  @dataclass class MacTask (object)
+
+module: services.research.agents.base_agent
+  class BaseAgent (ABC)
+
+module: services.research.agents.critic_agent
+  class CriticAgent (BaseAgent)
+
+module: services.research.agents.planner_agent
+  class PlannerAgent (BaseAgent)
+
+module: services.research.agents.researcher_agent
+  class ResearcherAgent (BaseAgent)
+
+module: services.research.graph_persistence
+  class FindingType (str, Enum)
+  class GraphPersistenceConfig (object)
+  class ResearchFinding (TypedDict)
+  class ResearchGraphPersistence (object)
+
+module: services.research.graph_runtime
+  class ResearchGraphRuntime (object)
+
+module: services.research.graph_state
+  class Evidence (TypedDict)
+  class ResearchGraphState (TypedDict)
+  class ResearchStep (TypedDict)
+
+module: services.research.insight_extractor
+  class InsightExtractorAgent (object)
+
+module: services.research.memory_adapter
+  class ResearchMemoryAdapter (object)
+
+module: services.research.research_api
+  class ResearchRequest (BaseModel)
+  class ResearchResponse (BaseModel)
+  class ResearchStatusResponse (BaseModel)
+
+module: services.research.tools.perplexity_client
+  @dataclass class PerplexityRequest (object)
+  @dataclass class PerplexityResponse (object)
+  class PerplexityClient (object)
+  class PerplexityModel (str, Enum)
+  class SearchContextSize (str, Enum)
+
+module: services.research.tools.tool_resolver
+  class ToolResolver (object)
+
+module: services.research.tools.tool_wrappers
+  class BaseTool (ABC)
+  class HTTPTool (BaseTool)
+  class MockSearchTool (BaseTool)
+  class PerplexityTool (BaseTool)
+
+module: services.symbolic_computation.api.routes
+  class EvaluateRequest (BaseModel)
+  class OptimizeRequest (BaseModel)
+  class OptimizeResponse (BaseModel)
+  class ValidateRequest (BaseModel)
+
+module: services.symbolic_computation.computation
+  class CodeGenerator (object)
+  class ExpressionCache (object)
+  class ExpressionEvaluator (object)
+  class SymbolicComputation (object)
+
+module: services.symbolic_computation.config
+  class SymbolicComputationConfig (BaseSettings)
+
+module: services.symbolic_computation.core.cache_manager
+  class CacheManager (object)
+
+module: services.symbolic_computation.core.code_generator
+  class CodeGenerator (object)
+
+module: services.symbolic_computation.core.expression_evaluator
+  class ExpressionEvaluator (object)
+
+module: services.symbolic_computation.core.metrics
+  class MetricsCollector (object)
+
+module: services.symbolic_computation.core.models
+  class BackendType (str, Enum)
+  class CodeGenRequest (BaseModel)
+  class CodeGenResult (BaseModel)
+  class CodeLanguage (str, Enum)
+  class ComputationRequest (BaseModel)
+  class ComputationResult (BaseModel)
+  class HealthStatus (BaseModel)
+  class MetricsSummary (BaseModel)
+  class ValidationResult (BaseModel)
+
+module: services.symbolic_computation.core.optimizer
+  class Optimizer (object)
+
+module: services.symbolic_computation.core.validator
+  class ExpressionValidator (object)
+
+module: services.symbolic_computation.exceptions
+  class CacheError (SymbolicComputationError)
+  class CodeGenerationError (SymbolicComputationError)
+  class EvaluationError (SymbolicComputationError)
+  class SymbolicComputationError (Exception)
+  class ValidationError (SymbolicComputationError)
+
+module: services.symbolic_computation.logger
+  class StructuredLogger (Logger)
+
+module: services.symbolic_computation.models
+  class BackendType (str, Enum)
+  class CodeGenRequest (BaseModel)
+  class CodeGenResult (BaseModel)
+  class CodeLanguage (str, Enum)
+  class ComputationRequest (BaseModel)
+  class ComputationResult (BaseModel)
+
+module: services.symbolic_computation.test_symbolic_computation
+  class TestCodeGenerator (object)
+  class TestExpressionEvaluator (object)
+  class TestIntegration (object)
+  class TestModels (object)
+  class TestPerformance (object)
+  class TestSymbolicComputation (object)
+  class TestUtilities (object)
+
+module: services.symbolic_computation.tools.symbolic_tool
+  class SymPyTool (object)
+
+module: services.symbolic_computation.utils
+  class ExpressionOptimizer (object)
+
+module: services.tool_feedback_service
+  @dataclass class ToolFeedbackEntry (object)
+  class ToolFeedbackService (object)
+
+module: services.tool_learning_engine
+  @dataclass class ToolHealthSnapshot (object)
+  class ToolLearningEngine (object)
+
+module: workers.anomaly_classifier
+  @dataclass class ClassificationRule (object)
+  class AnomalyClassifier (object)
+  class AnomalyClassifierRequest (BaseModel)
+  class AnomalyClassifierResponse (BaseModel)
+  class AnomalySeverity (str, Enum)
+  class AnomalyType (str, Enum)
+  class ClassificationResult (BaseModel)
+
+module: workers.anomaly_response_monitor
+  class AnomalyResponseMonitor (object)
+  class AnomalyResponseMonitorRequest (BaseModel)
+  class AnomalyResponseMonitorResponse (BaseModel)
+  class ProcessedAnomaly (BaseModel)
+  class TelemetryEvent (BaseModel)
+
+module: workers.remediation_engine
+  class RemediationAction (str, Enum)
+  class RemediationEngine (object)
+  class RemediationEngineRequest (BaseModel)
+  class RemediationEngineResponse (BaseModel)
+  class RemediationResult (BaseModel)
+  class RemediationStatus (str, Enum)
+
+module: workers.violation_patterns
+  @dataclass class ViolationPattern (object)
+  class ViolationMatch (BaseModel)
+  class ViolationPatterns (object)
+  class ViolationPatternsRequest (BaseModel)
+  class ViolationPatternsResponse (BaseModel)
+  class ViolationSeverity (str, Enum)
+
+module: workers.violation_tracker_service
+  class ViolationRecord (BaseModel)
+  class ViolationTrackerService (object)
+  class ViolationTrackerServiceRequest (BaseModel)
+  class ViolationTrackerServiceResponse (BaseModel)
+
+module: world_model._pack_staging.loader
+  class WorldModelLoader (IWorldModelLoader)
+
+module: world_model._pack_staging.neo4j_substrate
+  @dataclass class Neo4jConfig (object)
+  class Neo4jSubstrate (object)
+
+module: world_model._pack_staging.orchestrator
+  class ConsistencyMode (Enum)
+  class SubstrateOrchestrator (object)
+
+module: world_model._pack_staging.postgres_substrate
+  @dataclass class PostgresConfig (object)
+  class PostgresSubstrate (object)
+
+module: world_model._pack_staging.query_engine
+  @dataclass class QueryContext (object)
+  class QueryEngine (object)
+
+module: world_model._pack_staging.redis_substrate
+  @dataclass class RedisConfig (object)
+  class RedisSubstrate (object)
+
+module: world_model._pack_staging.registry
+  @dataclass class WorldModelRegistry (IWorldModelRegistry)
+
+module: world_model._pack_staging.state
+  @dataclass class WorldModelState (IWorldModelState)
+
+module: world_model._pack_staging.test_integration
+  class TestIntegration (TestCase)
+  class TestOrchestration (TestCase)
+  class TestQueries (TestCase)
+  class TestStateUpdates (TestCase)
+  class TestYAMLLoading (TestCase)
+
+module: world_model._pack_staging.updater
+  @dataclass class UpdateOperation (object)
+  @dataclass class UpdateResult (object)
+  class WorldModelUpdater (IWorldModelUpdater)
+
+module: world_model.causal_graph
+  @dataclass class CausalEdge (object)
+  @dataclass class CausalNode (object)
+  class CausalGraph (object)
+
+module: world_model.causal_mapper
+  @dataclass class CausalEdge (object)
+  @dataclass class CausalLink (object)
+  @dataclass class CausalNode (object)
+  @dataclass class CausalPath (object)
+  @dataclass class CausalQuery (object)
+  @dataclass class CausalQueryResult (object)
+  @dataclass class Decision (object)
+  @dataclass class Outcome (object)
+  class CausalMapper (object)
+  class CausalRelationType (str, Enum)
+  class CausalStrength (str, Enum)
+
+module: world_model.engine
+  class WorldModelEngine (object)
+
+module: world_model.interfaces
+  class ICausalGraph (Protocol)
+  class IWorldModelEngine (Protocol)
+  class IWorldModelLoader (Protocol)
+  class IWorldModelState (Protocol)
+  class IWorldModelUpdater (Protocol)
+
+module: world_model.knowledge_ingestor
+  @dataclass class ExtractedFact (object)
+  @dataclass class IngestResult (object)
+  @dataclass class IngestorConfig (object)
+  @dataclass class NormalizedHeuristic (object)
+  @dataclass class NormalizedPattern (object)
+  class KnowledgeIngestor (object)
+  class SourceType (str, Enum)
+
+module: world_model.loader
+  class WorldModelLoader (object)
+
+module: world_model.nodes.service_nodes
+  class WorldModelGraphState (TypedDict)
+
+module: world_model.nodes.update_world_model_node
+  class WorldModelNodeState (TypedDict)
+
+module: world_model.query_engine
+  @dataclass class QueryContext (object)
+  class QueryEngine (object)
+
+module: world_model.reflection_memory
+  @dataclass class Improvement (object)
+  @dataclass class Pattern (object)
+  @dataclass class Reflection (object)
+  @dataclass class TaskReflection (object)
+  class ReflectionMemory (object)
+  class ReflectionPriority (str, Enum)
+  class ReflectionType (str, Enum)
+
+module: world_model.registry
+  @dataclass class EntityTypeSchema (object)
+  @dataclass class RelationTypeSchema (object)
+  class WorldModelRegistry (object)
+
+module: world_model.repository
+  class WorldModelEntityRow (object)
+  class WorldModelRepository (object)
+  class WorldModelSnapshotRow (object)
+  class WorldModelUpdateRow (object)
+
+module: world_model.runtime
+  @dataclass class MemorySubstratePacketSource (PacketSource)
+  @dataclass class PacketSource (object)
+  @dataclass class QueryPattern (object)
+  @dataclass class RuntimeConfig (object)
+  @dataclass class RuntimeStats (object)
+  @dataclass class SimulationVariant (object)
+  @dataclass class UpdateRecord (object)
+  class RuntimeMode (str, Enum)
+  class WorldModelRuntime (object)
+
+module: world_model.seed_loader
+  class SeedLoader (object)
+
+module: world_model.service
+  class WorldModelService (object)
+
+module: world_model.state
+  @dataclass class Entity (object)
+  @dataclass class Relation (object)
+  class WorldModelState (object)
+
+module: world_model.updater
+  @dataclass class UpdateOperation (object)
+  @dataclass class UpdateResult (object)
+  class WorldModelUpdater (object)
+
+module: world_model.world_model_service
+  @dataclass class ConstraintSet (object)
+  @dataclass class HeuristicMatch (object)
+  @dataclass class PatternMatch (object)
+  @dataclass class WorldContext (object)
+  class WorldModelServiceAPI (object)
+

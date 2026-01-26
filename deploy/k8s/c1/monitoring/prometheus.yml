@@ -1,0 +1,54 @@
+# =============================================================================
+# Prometheus Configuration for L9 Stack
+# =============================================================================
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'l9-monitor'
+    environment: 'c1'
+
+rule_files:
+  # - "alerts/*.yml"
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # L9 API
+  - job_name: 'l9-api'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['l9-api:8000']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'l9-api'
+
+  # MCP Memory Server
+  - job_name: 'l9-mcp-memory'
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['mcp-memory:9000']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        replacement: 'l9-mcp-memory'
+
+  # PostgreSQL (via postgres_exporter if deployed)
+  # - job_name: 'postgres'
+  #   static_configs:
+  #     - targets: ['postgres-exporter:9187']
+
+  # Redis (via redis_exporter if deployed)
+  # - job_name: 'redis'
+  #   static_configs:
+  #     - targets: ['redis-exporter:9121']
+
+  # Neo4j metrics
+  # - job_name: 'neo4j'
+  #   metrics_path: /metrics
+  #   static_configs:
+  #     - targets: ['neo4j:2004']

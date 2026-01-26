@@ -75,9 +75,17 @@ opentelemetry-api>=1.21.0
 opentelemetry-sdk>=1.21.0
 opentelemetry-exporter-otlp-proto-http>=1.21.0
 
+# JSON Schema Validation (used in event_type_registry, pattern orchestrator)
+jsonschema>=4.21.0
+
+# Retry Logic
+tenacity>=8.2.3
+
 # Testing & Linting (optional, for dev)
 pytest>=7.4.0
 pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
 ruff>=0.4.0
 vulture>=2.11
 mypy>=1.10.0

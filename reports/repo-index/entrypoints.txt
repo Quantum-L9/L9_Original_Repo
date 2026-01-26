@@ -1,0 +1,416 @@
+# Entry Points
+
+.github/scripts/generate-ai-collab-report.py
+  Type: Script
+  Has __main__ block: Yes
+.github/scripts/validate-protected-files.py
+  Type: Script
+  Has __main__ block: Yes
+.github/scripts/validate-readme-sections.py
+  Type: Script
+  Has __main__ block: Yes
+agents/cursor/cursor_memory_client.py
+  Type: Script
+  Has __main__ block: Yes
+agents/cursor/cursor_memory_kernel.py
+  Type: Script
+  Has __main__ block: Yes
+agents/cursor/cursor_neo4j_query.py
+  Type: Script
+  Has __main__ block: Yes
+agents/cursor/gmp_meta_learning.py
+  Type: Script
+  Has __main__ block: Yes
+agents/cursor/scripts/cursor_check_mistakes.py
+  Type: Script
+  Has __main__ block: Yes
+agents/research_agent/research_facade.py
+  Type: Script
+  Has __main__ block: Yes
+agents/research_agent_impl.py
+  Type: Script
+  Has __main__ block: Yes
+api/e2e_slack_audit.py
+  Type: Script
+  Has __main__ block: Yes
+api/middleware/websocket_tracing.py
+  Type: FastAPI
+  Routes (1):
+    - WEBSOCKET /ws
+api/server.py
+  Type: FastAPI
+  Routes (10):
+    - GET /
+    - GET /health
+    - GET /health/startup
+    - POST /kernels/reload
+    - GET /health/neo4j
+    - GET /health/services
+    - GET /health/checkpoint
+    - POST /lchat
+    - WEBSOCKET /ws/agent
+    - WEBSOCKET /lws
+api/server_memory.py
+  Type: FastAPI
+  Title: L9 Phase 2 Secure AI OS
+  Routes (4):
+    - GET /
+    - GET /health
+    - POST /chat
+    - ROUTER /memory/*
+api/vps_executor.py
+  Type: FastAPI
+  Title: L9 CTO Agent
+  Address: 127.0.0.1:8100
+  Routes (2):
+    - GET /agent/health
+    - POST /agent/exec
+ci/ai_guardrails/runner.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_dependency_patterns.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_no_deprecated_services.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_schema_deprecation.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_substrate_api.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_syntax.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_tool_naming.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_tool_wiring.py
+  Type: Script
+  Has __main__ block: Yes
+ci/dora_compliance_check.py
+  Type: Script
+  Has __main__ block: Yes
+ci/lint_forbidden_imports.py
+  Type: Script
+  Has __main__ block: Yes
+ci/validate_codegen.py
+  Type: Script
+  Has __main__ block: Yes
+ci/validate_spec_v25.py
+  Type: Script
+  Has __main__ block: Yes
+codegenagent/extract_yaml_specs.py
+  Type: Script
+  Has __main__ block: Yes
+config/di_async_config.py
+  Type: FastAPI
+  Routes (1):
+    - GET /data
+core/fastapi_lifespan.py
+  Type: FastAPI
+core/governance/policy_generator.py
+  Type: Script
+  Has __main__ block: Yes
+core/governance/subsystem_detector.py
+  Type: Script
+  Has __main__ block: Yes
+core/reasoning/toth_engine.py
+  Type: Script
+  Has __main__ block: Yes
+dev/tools/global_state_audit.py
+  Type: Script
+  Has __main__ block: Yes
+email_agent/oauth_server.py
+  Type: Script
+  Has __main__ block: Yes
+examples/fastapi_lifespan_di_bootstrap.py
+  Type: FastAPI
+  Title: L9 Agent Control Plane
+  Address: 0.0.0.0:8000
+  Routes (3):
+    - GET /health
+    - GET /executor/info
+    - GET /di/services
+local_dashboard/app.py
+  Type: FastAPI
+  Title: L9 Local Dashboard
+  Routes (3):
+    - GET /
+    - POST /api/chat
+    - GET /api/health
+mac_agent/runner.py
+  Type: Script
+  Has __main__ block: Yes
+mac_agent/websocket_client.py
+  Type: Script
+  Has __main__ block: Yes
+mcp_memory/src/main.py
+  Type: FastAPI
+  Title: L9 MCP Memory Server
+  Routes (6):
+    - GET /
+    - GET /health
+    - GET /mcp/tools
+    - POST /mcp/call
+    - ROUTER /memory/*
+    - ROUTER /api/v1/memory/*
+orchestrators/agent_execution/orchestrator.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/agents/neo4j_merge_agent_nodes.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/agents/neo4j_unify_relationships.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/agents/run_bootstrap_l_graph.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/agents/verify_agent_executor.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/audit_api_signatures.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/categorize_dead_code.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/cleanup_audit_reports.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/ensure_logger_instantiated.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/find_dead_code.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/generate_gmp_todos.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/inject_dora_complete.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/inject_dora_multiformat_complete.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/migrate_dora_legacy.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/resolve_dead_code_refs.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/run_all.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/run_dead_code_audit.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/tier1/audit_capability_inventory.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/tier1/audit_code_integrity.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/tier1/audit_infrastructure_health.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/validate_dora_complete.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/verify_memory_spec_v3.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/audit/verify_wiring_alignment.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/batch/batch_generate_specs.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/benchmark_caching_and_vector.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/benchmark_performance.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/check_n_plus_1.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/diagnose_memory_search.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/extract_code_facts.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/fix_async_decorators.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/fix_untyped_decorators.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/generate_gmp_report.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/generate_readme_superprompt.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/generate_subsystem_readmes.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/gmp-validate-stage.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/audit_graphs.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/audit_graphs_vps.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/bootstrap_neo4j_schema.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/check_embeddings_via_api.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/cleanup_trash_embeddings.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/cleanup_trash_embeddings_via_api.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/delete_trash_embeddings.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/delete_trash_via_service.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/execute_cleanup_and_reindex.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/generate_delete_sql.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/index_architecture.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/index_error_patterns.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/index_gmp_reports.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/index_preferences.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/index_tool_usage.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/inspect_embeddings.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/load_gmp_reports_to_graph.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/load_indexes_to_neo4j.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/load_indexes_to_neo4j_vps.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/migrate_kernels_to_graph.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/seed_golden_strategies.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/migrate_substrate_models.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/pr_review/gemini_auto_editor.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/pr_review/perplexity_reviewer.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/refactoring/aios_validate.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/refactoring/bootstrap_refactor.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/research/delegate_deep_research.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/research/extract_perplexity_pack.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/research/factory_extract.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/research/send_perplexity_spec_request.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/run_pattern.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/setup_gmail_accounts.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/validate_gmp_report.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/workflow/generate_gmp_report.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/workflow/update_workflow_state.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/workspace/init_workspace.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/workspace/init_workspace_NEW.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/workspace/rename_l_to_l_cto.py
+  Type: Script
+  Has __main__ block: Yes
+services/symbolic_computation/health_check.py
+  Type: Script
+  Has __main__ block: Yes
+tools/adr/adr_cli.py
+  Type: Script
+  Has __main__ block: Yes
+tools/adr/adr_compliance_check_enhanced.py
+  Type: Script
+  Has __main__ block: Yes
+tools/adr/adr_enforcer.py
+  Type: Script
+  Has __main__ block: Yes
+tools/adr/adr_scanner.py
+  Type: Script
+  Has __main__ block: Yes
+tools/architecture_reports/main.py
+  Type: Script
+  Has __main__ block: Yes
+tools/export_repo_indexes.py
+  Type: Script
+  Has __main__ block: Yes
+tools/l9_cli.py
+  Type: Script
+  Has __main__ block: Yes
+tools/superpack_reports/main.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/harvest_deploy.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/runner.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/session/dags/harvest_deploy_dag.py
+  Type: Script
+  Has __main__ block: Yes
+world_model/seed_loader.py
+  Type: Script
+  Has __main__ block: Yes

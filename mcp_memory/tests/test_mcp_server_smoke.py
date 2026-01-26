@@ -85,7 +85,6 @@ async def test_mcp_call_search_memory(client, mock_env):
             "src.routes.memory_unified.fetch_all", new_callable=AsyncMock
         ) as mock_fetch,
     ):
-
         # Mock embedding
         mock_embed.return_value = [0.1] * 1536
 
@@ -131,7 +130,6 @@ async def test_mcp_call_save_memory(client, mock_env):
             "src.routes.memory_unified.fetch_one", new_callable=AsyncMock
         ) as mock_fetch,
     ):
-
         # Mock embedding
         mock_embed.return_value = [0.1] * 1536
 
@@ -139,7 +137,7 @@ async def test_mcp_call_save_memory(client, mock_env):
         mock_execute.return_value = None
         mock_fetch.return_value = {
             "packet_id": "test-id",
-            "envelope": {"kind": "MEMORY"},
+            "envelope": {"packet_type": "memory_write"},
             "timestamp": "2026-01-09T00:00:00Z",
         }
 
@@ -180,7 +178,6 @@ async def test_mcp_call_context_injection(client, mock_env):
             "src.routes.memory_unified.fetch_all", new_callable=AsyncMock
         ) as mock_fetch,
     ):
-
         # Mock embedding
         mock_embed.return_value = [0.1] * 1536
 

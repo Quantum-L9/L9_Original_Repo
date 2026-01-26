@@ -37,12 +37,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Dict, Optional
 
+import aiofiles
 import structlog
 from src.config import settings
 
 from core.decorators import must_stay_async
-from core.observability.circuit_breaker import (CircuitBreaker,
-                                                CircuitBreakerConfig)
+from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 
 logger = structlog.get_logger(__name__)
 
@@ -176,8 +176,8 @@ class AuditLogger:
 
         # Fallback: Write to local JSONL file
         try:
-            with open(self.fallback_path, "a") as f:
-                f.write(json.dumps(event) + "\n")
+            async with aiofiles.open(self.fallback_path, "a") as f:
+                await f.write(json.dumps(event) + "\n")
 
             logger.warning(
                 "Audit written to fallback file",

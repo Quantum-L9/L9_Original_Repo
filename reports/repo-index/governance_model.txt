@@ -1,0 +1,81 @@
+# L9 Governance Model
+# ====================
+# Approval gates, authority hierarchy, and high-risk tool constraints.
+
+## Authority Hierarchy
+
+```
+IGOR (Human) ──────────────────────────────────
+    │  FULL authority. Can approve/reject all.
+    │  Only IGOR can:
+    │    - Approve high-risk tools
+    │    - Grant permanent approvals
+    │    - Override safety constraints
+    ▼
+L (CTO Agent) ────────────────────────────────
+    │  Autonomous within safety envelope.
+    │  Must request approval for high-risk ops.
+    ▼
+Research/Coder Agents ────────────────────────
+    │  Limited scope. Cannot execute high-risk.
+    ▼
+Mac Agent ────────────────────────────────────
+       Lowest authority. Shell execution only with approval.
+```
+
+## HIGH_RISK_TOOLS
+
+These tools ALWAYS require Igor approval:
+
+| Tool | Risk Description |
+|------|------------------|
+| `gmp_run` | Execute GMP protocol (code changes) |
+| `git_commit` | Commit changes to git repository |
+| `git_push` | Push changes to remote repository |
+| `file_delete` | Delete files from filesystem |
+| `database_write` | Write to production database |
+| `deploy` | Deploy to production environment |
+| `mac_agent_exec` | Execute commands on Mac agent |
+
+## Approval Flow
+
+```
+Agent requests high-risk tool
+    │
+    ▼
+ApprovalManager.requires_approval(tool_id)
+    │
+    ├── NO → Execute immediately
+    │
+    └── YES → request_approval()
+              │
+              ├── Store approval_request packet
+              ├── Notify Igor via Slack
+              └── Wait for approve_task() or reject_task()
+```
+
+## Igor Commands (@L syntax)
+
+| Command | Description |
+|---------|-------------|
+| `@L propose_gmp <description>` | Propose a GMP |
+| `@L analyze <scope>` | Analyze code/files |
+| `@L approve <task_id>` | Approve pending task |
+| `@L reject <task_id> <reason>` | Reject with reason |
+| `@L rollback <task_id>` | Rollback a change |
+| `@L status` | Get current status |
+| `@L help` | Show available commands |
+
+## Governance Pattern Learning
+
+Every approval/rejection creates a `GovernancePattern` for closed-loop learning:
+
+```python
+GovernancePattern(
+    task_id=...,
+    tool_name=...,
+    decision=APPROVED | REJECTED,
+    reason=...,
+    conditions=[...],  # Extracted from reason
+)
+```

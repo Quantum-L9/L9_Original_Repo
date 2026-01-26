@@ -57,6 +57,7 @@ from enum import Enum
 from typing import Any, Optional
 from uuid import uuid4
 
+import aiofiles
 import structlog
 from pydantic import BaseModel, Field
 
@@ -426,8 +427,8 @@ class CMTSService:
             return FileSnapshot(path=path, exists=False)
 
         try:
-            with open(path, "rb") as f:
-                content = f.read()
+            async with aiofiles.open(path, "rb") as f:
+                content = await f.read()
             content_hash = hashlib.sha256(content).hexdigest()
             line_count = content.count(b"\n")
             return FileSnapshot(

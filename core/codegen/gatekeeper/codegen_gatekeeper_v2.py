@@ -16,6 +16,8 @@ deterministic codegen specs with L9 integration.
 Version: 2.0.0 (L9-Aligned)
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "CodeGen Gatekeeper V2",
@@ -36,8 +38,6 @@ __dora_meta__ = {
     },
 }
 # ============================================================================
-
-from __future__ import annotations
 
 import os
 import json
@@ -278,7 +278,14 @@ before code generation. Be thorough and precise.
             )
 
             # Write to memory substrate
-            await self.memory.write_packet(packet)
+            await self.memory.write_packet(
+                packet_type=packet.packet_type,
+                payload=packet.payload,
+                metadata=packet.metadata.model_dump() if packet.metadata else None,
+                provenance=packet.provenance.model_dump()
+                if packet.provenance
+                else None,
+            )
 
             logger.info(
                 "CodeGenGatekeeperAgent task completed",
@@ -425,7 +432,7 @@ before code generation. Be thorough and precise.
         return blind_spots
 
     @rate_limit("external.perplexity")
-    @async_retry(AsyncRetryConfig(max_retries=3, backoff_factor=2.0))
+    @async_retry(AsyncRetryConfig(max_retries=3, base_backoff=2.0))
     async def _research_blind_spots(
         self, blind_spots: list[BlindSpot]
     ) -> list[ResearchFinding]:

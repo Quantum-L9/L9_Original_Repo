@@ -1,0 +1,64 @@
+# L9 Memory Architecture
+# =======================
+# Multi-layer memory substrate with semantic search, graph relations, and caching.
+
+## Memory Segments (MemorySegment Enum)
+
+| Segment | Purpose | Storage |
+|---------|---------|---------|
+| `PACKETS` | All incoming packets | PostgreSQL packet_store |
+| `REASONING` | Reasoning traces | PostgreSQL reasoning_traces |
+| `SEMANTIC` | Vector embeddings | PostgreSQL semantic_memory (pgvector) |
+| `FACTS` | Extracted facts | PostgreSQL knowledge_facts |
+| `INSIGHTS` | High-level insights | PostgreSQL knowledge_facts |
+| `WORLD_MODEL` | Entity graph | Neo4j + PostgreSQL |
+| `TOOL_AUDIT` | Tool invocation logs | PostgreSQL tool_audit_log |
+| `GOVERNANCE` | Approval patterns | PostgreSQL + Neo4j |
+
+## Memory DAG Pipeline
+
+```
+ingest_packet(PacketEnvelopeIn)
+    │
+    ├─→ intake_node()        → Validate & normalize
+    ├─→ reasoning_node()     → Extract reasoning traces
+    ├─→ memory_write_node()  → Write to packet_store
+    ├─→ semantic_embed_node()→ Generate embeddings (pgvector)
+    ├─→ extract_insights()   → LLM insight extraction
+    ├─→ store_insights()     → Write to knowledge_facts
+    ├─→ world_model_trigger()→ Update entity graph
+    └─→ checkpoint_node()    → Persist DAG state
+```
+
+## Memory Tools
+
+| Tool | Function | Description |
+|------|----------|-------------|
+| `memory_search` | `execute_memory_search()` | Hybrid semantic + keyword search |
+| `memory_write` | `execute_memory_write()` | Write packet to substrate |
+
+## Memory API Endpoints
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/memory/ingest` | POST | Ingest new packet |
+| `/memory/search` | POST | Semantic search |
+| `/memory/packet/{id}` | GET | Get specific packet |
+| `/memory/thread/{id}` | GET | Get thread packets |
+| `/memory/facts` | GET | Get knowledge facts |
+| `/memory/insights` | GET | Get insights |
+| `/memory/gc/run` | POST | Run garbage collection |
+
+## PostgreSQL Tables
+
+| Table | Purpose |
+|-------|---------|
+| `packet_store` | All packets with JSON payload |
+| `reasoning_traces` | Structured reasoning |
+| `semantic_memory` | Vector embeddings (pgvector) |
+| `knowledge_facts` | Extracted facts |
+| `agent_memory_events` | Agent activity log |
+| `tool_audit_log` | Tool invocation audit |
+| `tasks` | Task queue persistence |
+| `feedback_events` | Feedback for learning |
+| `reflection_store` | Reflections with effectiveness |

@@ -1,0 +1,30 @@
+# L9 EXPERIMENTS INVENTORY
+# File-level experiment catalog
+
+## Simulation (simulation/)
+simulation/scenarios/       - Runnable simulation contexts
+simulation/fixtures/        - Test data, mock responses
+simulation/README.md        - Scenario documentation
+
+## Examples (examples/)
+examples/api_integration.py - HTTP client example
+examples/memory_query.py    - Memory query example
+examples/tool_discovery.py  - Tool discovery example
+
+## Current Work (current_work/)
+current_work/               - WIP branches (max 2 weeks)
+
+## Archived (_archived/)
+_archived/                  - Deprecated implementations
+                            - NEVER imported by production
+
+## Running Simulations
+pytest tests/simulation/ -v
+
+## Invariants
+✗ No production imports from _archived/
+✗ Simulation outputs not fed to production
+✗ Examples clean up after themselves
+
+---
+Generated: 2026-01-25 | GMP-SUPERPACK

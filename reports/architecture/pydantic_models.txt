@@ -1,0 +1,514 @@
+module: api.agent_routes
+  BaseModel: ExecuteTaskRequest
+  BaseModel: ExecuteTaskResponse
+  BaseModel: SegmentPreviewRequest
+  BaseModel: SegmentPreviewResponse
+  BaseModel: SegmentResult
+
+module: api.memory.cache
+  BaseModel: CacheResponse
+  BaseModel: CacheSetRequest
+  BaseModel: SessionContextRequest
+
+module: api.memory.graph
+  BaseModel: EntityRequest
+  BaseModel: GraphResponse
+  BaseModel: QueryRequest
+  BaseModel: RelationshipRequest
+
+module: api.memory.router
+  BaseModel: BatchRequest
+  BaseModel: BatchResponse
+  BaseModel: CompactResponse
+  BaseModel: ConsolidationRequest
+  BaseModel: ConsolidationResponse
+  BaseModel: CorrelateTimelineRequest
+  BaseModel: EnrichEntitiesRequest
+  BaseModel: FetchAndEnrichRequest
+  BaseModel: PacketRequest
+  BaseModel: PacketResponse
+  BaseModel: ReasoningReplayRequest
+  BaseModel: ReasoningReplayResponse
+  BaseModel: SagaResponse
+  BaseModel: WarmRequest
+  BaseModel: WarmResponse
+
+module: api.routes.commands
+  BaseModel: ApprovalFeedbackRequest
+  BaseModel: ApprovalFeedbackResponse
+  BaseModel: CommandExecuteRequest
+  BaseModel: CommandExecuteResponse
+  BaseModel: IntentExtractResponse
+
+module: api.routes.compliance
+  BaseModel: AuditLogExportResponse
+  BaseModel: ComplianceReportResponse
+
+module: api.routes.cursor
+  BaseModel: CursorResumeRequest
+  BaseModel: CursorTaskRequest
+  BaseModel: CursorTaskResponse
+
+module: api.routes.factory
+  BaseModel: ExtractRequest
+  BaseModel: ExtractResponse
+  BaseModel: HealthResponse
+  BaseModel: PathSafetyConfig
+  BaseModel: TemplateInfo
+  BaseModel: TemplatesResponse
+  BaseModel: ValidateRequest
+  BaseModel: ValidateResponse
+
+module: api.routes.gmp_learning
+  BaseModel: AnalyticsResponse
+  BaseModel: AutonomyLevelResponse
+  BaseModel: GraduationStatusResponse
+  BaseModel: HeuristicsResponse
+
+module: api.routes.observability
+  BaseModel: CircuitBreakerStatus
+  BaseModel: CircuitBreakersResponse
+  BaseModel: FailureResponse
+  BaseModel: FailuresListResponse
+  BaseModel: HealthResponse
+  BaseModel: SREMetricsResponse
+  BaseModel: SpanSummary
+  BaseModel: SpansListResponse
+
+module: api.routes.pattern
+  BaseModel: MasterExecuteRequest
+  BaseModel: MasterExecuteResponse
+  BaseModel: NodeResultResponse
+  BaseModel: PatternConfigResponse
+  BaseModel: PatternExecuteRequest
+  BaseModel: PatternExecuteResponse
+
+module: api.routes.reasoning
+  BaseModel: ReasoningExecuteRequest
+  BaseModel: ReasoningExecuteResponse
+
+module: api.routes.reflection_agent
+  BaseModel: AnalyzeFailureRequest
+  BaseModel: AnalyzeFailureResponse
+  BaseModel: CompareApproachesRequest
+  BaseModel: CompareApproachesResponse
+  BaseModel: ExtractPatternsRequest
+  BaseModel: ExtractPatternsResponse
+  BaseModel: GenerateImprovementsRequest
+  BaseModel: GenerateImprovementsResponse
+  BaseModel: LessonsLearnedResponse
+  BaseModel: ReflectRequest
+  BaseModel: ReflectResponse
+
+module: api.routes.research
+  BaseModel: ResearchExecuteRequest
+  BaseModel: ResearchExecuteResponse
+
+module: api.routes.research_agent
+  BaseModel: DiscoverRequest
+  BaseModel: DiscoverResponse
+  BaseModel: GenerateSpecRequest
+  BaseModel: GenerateSpecResponse
+  BaseModel: ResearchToCodeRequest
+  BaseModel: ResearchToCodeResponse
+  BaseModel: SynthesizeRequest
+  BaseModel: SynthesizeResponse
+
+module: api.routes.simulation
+  BaseModel: SimulationMetricsResponse
+  BaseModel: SimulationRequest
+  BaseModel: SimulationResponse
+
+module: api.routes.workers
+  BaseModel: AnomalyProcessRequest
+  BaseModel: AnomalyProcessResponse
+  BaseModel: ViolationCountsResponse
+  BaseModel: ViolationScanRequest
+  BaseModel: ViolationScanResponse
+  BaseModel: WorkersHealthResponse
+
+module: api.server
+  BaseModel: ChatRequest
+  BaseModel: ChatResponse
+  BaseModel: KernelReloadRequest
+  BaseModel: KernelReloadResponse
+  BaseModel: LChatRequest
+  BaseModel: LChatResponse
+
+module: api.server_memory
+  BaseModel: ChatRequest
+  BaseModel: ChatResponse
+
+module: api.tools.router
+  BaseModel: ToolExecuteRequest
+  BaseModel: ToolExecuteResponse
+
+module: api.vps_executor
+  BaseModel: CompositeTask
+  BaseModel: MemoryHealthTask
+  BaseModel: ShellTask
+
+module: api.webhook_mac_agent
+  BaseModel: TaskResultRequest
+
+module: api.world_model_api
+  BaseModel: EntityListResponse
+  BaseModel: EntityResponse
+  BaseModel: InsightInput
+  BaseModel: InsightsRequest
+  BaseModel: InsightsResponse
+  BaseModel: RestoreRequest
+  BaseModel: RestoreResponse
+  BaseModel: SnapshotRequest
+  BaseModel: SnapshotResponse
+  BaseModel: StateVersionResponse
+  BaseModel: UpdateRecord
+  BaseModel: UpdatesListResponse
+
+module: core.agents.schemas
+  BaseModel: AIOSResult
+  BaseModel: AgentConfig
+  BaseModel: AgentTask
+  BaseModel: DuplicateTaskResponse
+  BaseModel: ExecutionResult
+  BaseModel: ToolBinding
+  BaseModel: ToolCallRequest
+  BaseModel: ToolCallResult
+
+module: core.codegen.compiler.module_compiler
+  BaseModel: CompilationResult
+
+module: core.codegen.gatekeeper.codegen_gatekeeper
+  BaseModel: BlindSpot
+  BaseModel: CodeGenOutput
+  BaseModel: NormalizedSpec
+  BaseModel: ResearchFinding
+
+module: core.codegen.utilities
+  BaseModel: DORABlock
+  BaseModel: ValidationGate
+  BaseModel: ValidationReport
+
+module: core.commands.schemas
+  BaseModel: Command
+  BaseModel: CommandResult
+  BaseModel: ConfirmationResult
+  BaseModel: IntentModel
+  BaseModel: NLPPrompt
+
+module: core.governance.cmts
+  BaseModel: FileSnapshot
+  BaseModel: MutationQuery
+  BaseModel: MutationRecord
+
+module: core.governance.schemas
+  BaseModel: Condition
+  BaseModel: EvaluationRequest
+  BaseModel: EvaluationResult
+  BaseModel: Policy
+
+module: core.kernels.schemas
+  BaseModel: FlexibleModel
+
+module: core.models.l9_base_model
+  BaseModel: L9BaseModel
+
+module: core.observability.models
+  BaseModel: AgentKPI
+  BaseModel: FailureSignal
+  BaseModel: RemediationAction
+  BaseModel: SREMetric
+  BaseModel: Span
+  BaseModel: TraceContext
+
+module: core.schemas.capabilities
+  BaseModel: AgentCapabilities
+  BaseModel: Capability
+
+module: core.schemas.event_stream
+  BaseModel: AgentHandshake
+  BaseModel: CapabilityViolation
+  BaseModel: HandshakeResponse
+  BaseModel: SecurityEvent
+
+module: core.schemas.l_tools
+  BaseModel: GMPRunInput
+  BaseModel: GitCommitInput
+  BaseModel: KernelReadInput
+  BaseModel: MCPCallToolInput
+  BaseModel: MacAgentExecInput
+  BaseModel: MemorySearchInput
+  BaseModel: MemoryWriteInput
+  BaseModel: WorldModelQueryInput
+
+module: core.schemas.packet_envelope
+  BaseModel: PacketConfidence
+  BaseModel: PacketEnvelope
+  BaseModel: PacketEnvelopeIn
+  BaseModel: PacketMetadata
+  BaseModel: PacketProvenance
+  BaseModel: PacketWriteResult
+  BaseModel: SemanticHit
+  BaseModel: SemanticSearchRequest
+  BaseModel: SemanticSearchResult
+  BaseModel: SimpleContent
+  BaseModel: StructuredReasoningBlock
+  BaseModel: TokenUsage
+
+module: core.schemas.packet_envelope_v2
+  BaseModel: PacketConfidence
+  BaseModel: PacketEnvelope
+  BaseModel: PacketEnvelopeIn
+  BaseModel: PacketLineage
+  BaseModel: PacketMetadata
+  BaseModel: PacketProvenance
+  BaseModel: PacketWriteResult
+  BaseModel: SemanticHit
+  BaseModel: SemanticSearchRequest
+  BaseModel: SemanticSearchResult
+
+module: core.schemas.research_factory_models
+  BaseModel: IntegrationResult
+  BaseModel: ParsedObject
+  BaseModel: Query
+  BaseModel: QueryPlan
+  BaseModel: ResearchJobSpec
+  BaseModel: ResearchMetrics
+  BaseModel: RetrievalBatch
+  BaseModel: Superprompt
+
+module: core.schemas.research_factory_state
+  BaseModel: PassMetadata
+  BaseModel: ResearchState
+
+module: core.schemas.tasks
+  BaseModel: AgentTask
+  BaseModel: TaskBatch
+  BaseModel: TaskEnvelope
+  BaseModel: TaskGraph
+  BaseModel: TaskResult
+
+module: core.schemas.ws_event_stream
+  BaseModel: AgentHeartbeat
+  BaseModel: ErrorEvent
+  BaseModel: EventMessage
+
+module: core.tools.base_registry
+  BaseModel: ToolMetadata
+  BaseModel: ToolSchema
+
+module: core.worldmodel.insight_emitter
+  BaseModel: Insight
+
+module: core.worldmodel.l9_schema
+  BaseModel: L9Agent
+  BaseModel: L9ExternalSystem
+  BaseModel: L9Infrastructure
+  BaseModel: L9MemorySegment
+  BaseModel: L9Relationship
+  BaseModel: L9Repository
+  BaseModel: L9Tool
+
+module: ir_engine.ir_schema
+  BaseModel: IRGraph
+  BaseModel: IRMetadata
+  BaseModel: IRNodeBase
+  BaseModel: IRValidationResult
+  BaseModel: ValidationError
+
+module: ir_engine.meta_ir
+  BaseModel: AIOSCall
+  BaseModel: AcceptanceCriterion
+  BaseModel: AcceptanceSpec
+  BaseModel: BootImpact
+  BaseModel: ContextRead
+  BaseModel: DependencySpec
+  BaseModel: EnvVar
+  BaseModel: EnvironmentSpec
+  BaseModel: ErrorCategory
+  BaseModel: ErrorPolicy
+  BaseModel: EscalationConfig
+  BaseModel: ExternalSurface
+  BaseModel: GlobalInvariantsAck
+  BaseModel: GoalsSpec
+  BaseModel: HttpClientStandard
+  BaseModel: IdempotencySpec
+  BaseModel: IdentityStandard
+  BaseModel: InboundInterface
+  BaseModel: InterfacesSpec
+  BaseModel: LoggingStandard
+  BaseModel: LogsConfig
+  BaseModel: MetaContract
+  BaseModel: MetaContractValidationError
+  BaseModel: MetaContractValidationResult
+  BaseModel: MetricsConfig
+  BaseModel: ModuleMetadata
+  BaseModel: ObservabilitySpec
+  BaseModel: OrchestrationSpec
+  BaseModel: OutboundCall
+  BaseModel: OutboundInterface
+  BaseModel: OwnershipSpec
+  BaseModel: PacketContract
+  BaseModel: RepoSpec
+  BaseModel: RetryConfig
+  BaseModel: RuntimeTouchpoints
+  BaseModel: RuntimeWiringSpec
+  BaseModel: SideEffect
+  BaseModel: SpecConfidence
+  BaseModel: StandardsSpec
+  BaseModel: TestScope
+  BaseModel: TracesConfig
+
+module: memory.governance_patterns
+  BaseModel: GovernancePattern
+
+module: memory.graph_search_cache
+  BaseModel: GraphSearchContext
+  BaseModel: GraphSearchResult
+
+module: memory.semantic_search
+  BaseModel: SearchHit
+
+module: memory.strategymemory
+  BaseModel: StrategyCandidate
+  BaseModel: StrategyFeedback
+  BaseModel: StrategyRetrievalRequest
+
+module: memory.substrate_models
+  BaseModel: AgentMemoryEventRow
+  BaseModel: EnrichmentResult
+  BaseModel: EpisodicEventRow
+  BaseModel: EpisodicSemanticLinkRow
+  BaseModel: ExtractedInsight
+  BaseModel: GraphCheckpointRow
+  BaseModel: KnowledgeFact
+  BaseModel: KnowledgeFactRow
+  BaseModel: PacketStoreRow
+  BaseModel: ReasoningTraceRow
+  BaseModel: SemanticFactRow
+  BaseModel: SemanticMemoryRow
+  BaseModel: StructuredReasoningBlock
+  BaseModel: SubstrateState
+
+module: memory.warming_models
+  BaseModel: AttentionConfig
+  BaseModel: CacheMetrics
+  BaseModel: PredictiveCacheConfig
+  BaseModel: SubgraphEntry
+
+module: orchestrators.action_tool.interface
+  BaseModel: ActionToolRequest
+  BaseModel: ActionToolResponse
+
+module: orchestrators.agent_execution.interface
+  BaseModel: AgentExecutionRequest
+  BaseModel: AgentExecutionResponse
+
+module: orchestrators.evolution.interface
+  BaseModel: EvolutionOrchestratorRequest
+  BaseModel: EvolutionOrchestratorResponse
+  BaseModel: Upgrade
+  BaseModel: UpgradeExecution
+  BaseModel: UpgradeValidation
+
+module: orchestrators.memory.interface
+  BaseModel: MemoryRequest
+  BaseModel: MemoryResponse
+
+module: orchestrators.meta.interface
+  BaseModel: Blueprint
+  BaseModel: BlueprintEvaluation
+  BaseModel: BlueprintScore
+  BaseModel: EvaluationCriteria
+  BaseModel: MetaOrchestratorRequest
+  BaseModel: MetaOrchestratorResponse
+
+module: orchestrators.pattern.interface
+  BaseModel: ApprovalLevel
+  BaseModel: ApprovalModel
+  BaseModel: InputField
+  BaseModel: LImprovementLoopConfig
+  BaseModel: MemoryModel
+  BaseModel: MemorySegment
+  BaseModel: NodeDefinition
+  BaseModel: NodeResult
+  BaseModel: ObservabilityConfig
+  BaseModel: OutputContract
+  BaseModel: PatternConfig
+  BaseModel: PipelineConfig
+  BaseModel: PipelineRequest
+  BaseModel: PipelineResult
+  BaseModel: PipelineStage
+  BaseModel: RiskModel
+  BaseModel: SubsystemConfig
+  BaseModel: SubsystemMetadata
+
+module: orchestrators.pattern.master_orchestrator
+  BaseModel: MasterConfig
+  BaseModel: MasterExecutionResult
+  BaseModel: SubsystemEntry
+
+module: orchestrators.reasoning.interface
+  BaseModel: ReasoningRequest
+  BaseModel: ReasoningResponse
+
+module: orchestrators.research_swarm.interface
+  BaseModel: ResearchSwarmRequest
+  BaseModel: ResearchSwarmResponse
+
+module: orchestrators.world_model.interface
+  BaseModel: WorldModelRequest
+  BaseModel: WorldModelResponse
+
+module: services.research.research_api
+  BaseModel: ResearchRequest
+  BaseModel: ResearchResponse
+  BaseModel: ResearchStatusResponse
+
+module: services.symbolic_computation.api.routes
+  BaseModel: EvaluateRequest
+  BaseModel: OptimizeRequest
+  BaseModel: OptimizeResponse
+  BaseModel: ValidateRequest
+
+module: services.symbolic_computation.core.models
+  BaseModel: CodeGenRequest
+  BaseModel: CodeGenResult
+  BaseModel: ComputationRequest
+  BaseModel: ComputationResult
+  BaseModel: HealthStatus
+  BaseModel: MetricsSummary
+  BaseModel: ValidationResult
+
+module: services.symbolic_computation.models
+  BaseModel: CodeGenRequest
+  BaseModel: CodeGenResult
+  BaseModel: ComputationRequest
+  BaseModel: ComputationResult
+
+module: workers.anomaly_classifier
+  BaseModel: AnomalyClassifierRequest
+  BaseModel: AnomalyClassifierResponse
+  BaseModel: ClassificationResult
+
+module: workers.anomaly_response_monitor
+  BaseModel: AnomalyResponseMonitorRequest
+  BaseModel: AnomalyResponseMonitorResponse
+  BaseModel: ProcessedAnomaly
+  BaseModel: TelemetryEvent
+
+module: workers.remediation_engine
+  BaseModel: RemediationEngineRequest
+  BaseModel: RemediationEngineResponse
+  BaseModel: RemediationResult
+
+module: workers.violation_patterns
+  BaseModel: ViolationMatch
+  BaseModel: ViolationPatternsRequest
+  BaseModel: ViolationPatternsResponse
+
+module: workers.violation_tracker_service
+  BaseModel: ViolationRecord
+  BaseModel: ViolationTrackerServiceRequest
+  BaseModel: ViolationTrackerServiceResponse
+

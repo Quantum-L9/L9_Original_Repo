@@ -394,7 +394,7 @@ class SubstrateRepository:
                 )
                 rows = await conn.fetch(
                     f"""
-                    SELECT * FROM packet_store 
+                    SELECT * FROM packet_store
                     WHERE thread_id = $1 AND packet_type = $2
                     {filter_clause}
                     ORDER BY timestamp ASC
@@ -412,7 +412,7 @@ class SubstrateRepository:
                 )
                 rows = await conn.fetch(
                     f"""
-                    SELECT * FROM packet_store 
+                    SELECT * FROM packet_store
                     WHERE thread_id = $1
                     {filter_clause}
                     ORDER BY timestamp ASC
@@ -474,7 +474,7 @@ class SubstrateRepository:
             params.append(limit)
 
             query = f"""
-                SELECT * FROM packet_store 
+                SELECT * FROM packet_store
                 WHERE {" AND ".join(conditions)}
                 ORDER BY timestamp DESC
                 LIMIT ${param_idx}
@@ -594,7 +594,7 @@ class SubstrateRepository:
             if event_type:
                 rows = await conn.fetch(
                     """
-                    SELECT * FROM agent_memory_events 
+                    SELECT * FROM agent_memory_events
                     WHERE agent_id = $1 AND event_type = $2
                     ORDER BY timestamp DESC LIMIT $3
                     """,
@@ -605,7 +605,7 @@ class SubstrateRepository:
             else:
                 rows = await conn.fetch(
                     """
-                    SELECT * FROM agent_memory_events 
+                    SELECT * FROM agent_memory_events
                     WHERE agent_id = $1
                     ORDER BY timestamp DESC LIMIT $2
                     """,
@@ -659,7 +659,7 @@ class SubstrateRepository:
             """
             INSERT INTO reasoning_traces (
                 trace_id, agent_id, packet_id, steps, extracted_features,
-                inference_steps, reasoning_tokens, decision_tokens, 
+                inference_steps, reasoning_tokens, decision_tokens,
                 confidence_scores, created_at
             )
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -840,9 +840,9 @@ class SubstrateRepository:
             INSERT INTO knowledge_facts (
                 fact_id, subject, predicate, object, confidence, source_packet, created_at
             ) VALUES ($1, $2, $3, $4::jsonb, $5, $6, $7)
-            ON CONFLICT (source_packet, subject, predicate) 
+            ON CONFLICT (source_packet, subject, predicate)
             WHERE source_packet IS NOT NULL
-            DO UPDATE SET 
+            DO UPDATE SET
                 object = EXCLUDED.object,
                 confidence = EXCLUDED.confidence
             RETURNING fact_id, subject, predicate, object, confidence, source_packet, created_at
@@ -1023,8 +1023,8 @@ class SubstrateRepository:
             if agent_id:
                 rows = await conn.fetch(
                     """
-                    SELECT 
-                        embedding_id, 
+                    SELECT
+                        embedding_id,
                         payload,
                         1 - (vector <=> $1::vector) as score
                     FROM semantic_memory
@@ -1039,8 +1039,8 @@ class SubstrateRepository:
             else:
                 rows = await conn.fetch(
                     """
-                    SELECT 
-                        embedding_id, 
+                    SELECT
+                        embedding_id,
                         payload,
                         1 - (vector <=> $1::vector) as score
                     FROM semantic_memory
@@ -1339,7 +1339,7 @@ class SubstrateRepository:
                 if predicate:
                     rows = await conn.fetch(
                         """
-                        SELECT * FROM knowledge_facts 
+                        SELECT * FROM knowledge_facts
                         WHERE predicate = $1
                         ORDER BY created_at DESC LIMIT $2
                         """,
@@ -1349,7 +1349,7 @@ class SubstrateRepository:
                 else:
                     rows = await conn.fetch(
                         """
-                        SELECT * FROM knowledge_facts 
+                        SELECT * FROM knowledge_facts
                         ORDER BY created_at DESC LIMIT $1
                         """,
                         limit,
@@ -1357,7 +1357,7 @@ class SubstrateRepository:
             elif predicate:
                 rows = await conn.fetch(
                     """
-                    SELECT * FROM knowledge_facts 
+                    SELECT * FROM knowledge_facts
                     WHERE subject = $1 AND predicate = $2
                     ORDER BY created_at DESC LIMIT $3
                     """,
@@ -1368,7 +1368,7 @@ class SubstrateRepository:
             else:
                 rows = await conn.fetch(
                     """
-                    SELECT * FROM knowledge_facts 
+                    SELECT * FROM knowledge_facts
                     WHERE subject = $1
                     ORDER BY created_at DESC LIMIT $2
                     """,
@@ -1410,7 +1410,7 @@ class SubstrateRepository:
         async with self.acquire() as conn:
             rows = await conn.fetch(
                 """
-                SELECT * FROM knowledge_facts 
+                SELECT * FROM knowledge_facts
                 WHERE source_packet = $1
                 ORDER BY created_at DESC LIMIT $2
                 """,
@@ -1515,8 +1515,8 @@ class SubstrateRepository:
         async with self.acquire() as conn:
             rows = await conn.fetch(
                 """
-                SELECT * FROM knowledge_facts 
-                WHERE subject = $1 
+                SELECT * FROM knowledge_facts
+                WHERE subject = $1
                   AND deprecated = FALSE
                   AND confidence >= $2
                 ORDER BY confidence DESC, created_at DESC

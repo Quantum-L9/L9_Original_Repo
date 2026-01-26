@@ -57,8 +57,8 @@ load_dotenv()
 
 logger = structlog.get_logger(__name__)
 
-# Configuration
-REPO_DIR = Path("/Users/ib-mac/Projects/L9")
+# Configuration - use relative path from script location
+REPO_DIR = Path(__file__).parent.parent.parent
 INDEX_DIR = REPO_DIR / "readme" / "repo-index"
 
 # VPS Configuration

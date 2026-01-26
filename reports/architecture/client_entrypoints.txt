@@ -1,0 +1,21 @@
+# L9 CLIENT ENTRYPOINTS
+# Client libraries & agent entry points
+
+## Client Libraries (clients/)
+clients/python_sdk.py       - Official Python client
+clients/javascript_sdk.js   - Browser/Node.js client (future)
+clients/curl_examples.sh    - Example curl commands
+
+## Agent Entry Points
+email_agent/                - Email-based automation
+mac_agent/                  - macOS system integration
+local_dashboard/            - Local web UI
+agents/cursor/              - Cursor IDE integration
+
+## Adapter Protocols (adapters/)
+adapters/llm_adapter.py     - LLM service interface
+adapters/memory_adapter.py  - Memory substrate interface
+adapters/tool_adapter.py    - Tool registry interface
+
+---
+Generated: 2026-01-25 | GMP-SUPERPACK

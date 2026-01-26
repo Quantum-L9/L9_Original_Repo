@@ -512,6 +512,43 @@ gate_14_anti_patterns() {
 }
 
 # =============================================================================
+# GATE 15: PACKET TYPE NAMING CHECK
+# =============================================================================
+
+gate_15_packet_type_naming() {
+    local files=("$@")
+    
+    log_header "GATE 15: PACKET TYPE NAMING CHECK"
+    
+    if [ ! -f "$SCRIPT_DIR/check_packet_type_naming.py" ]; then
+        log_warn "Packet type naming checker not found, skipping"
+        return 0
+    fi
+    
+    log_info "Checking for 'kind' vs 'packet_type' naming violations..."
+    log_info "PacketEnvelope uses 'packet_type', not 'kind'"
+    
+    # If specific files provided, check only those
+    if [ ${#files[@]} -gt 0 ]; then
+        if ! python3 "$SCRIPT_DIR/check_packet_type_naming.py" "${files[@]}"; then
+            log_error "PACKET TYPE NAMING CHECK FAILED"
+            log_error "Use packet_type instead of kind for PacketEnvelope fields"
+            return 1
+        fi
+    else
+        # Check all Python files in the repo
+        if ! python3 "$SCRIPT_DIR/check_packet_type_naming.py"; then
+            log_error "PACKET TYPE NAMING CHECK FAILED"
+            log_error "Use packet_type instead of kind for PacketEnvelope fields"
+            return 1
+        fi
+    fi
+    
+    log_info "✅ Packet type naming check passed"
+    return 0
+}
+
+# =============================================================================
 # MAIN
 # =============================================================================
 
@@ -566,6 +603,7 @@ main() {
     gate_12_wiring_alignment || exit 1
     gate_13_substrate_api "${files[@]}" || exit 1
     gate_14_anti_patterns || exit 1
+    gate_15_packet_type_naming "${files[@]}" || exit 1
     run_test_presence_check "$spec_file" "${files[@]}" || exit 1
     
     log_header "🎉 ALL CI GATES PASSED"

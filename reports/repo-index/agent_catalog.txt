@@ -1,0 +1,63 @@
+# L9 Agent Catalog
+# =================
+# All agents with their roles, models, and tool bindings.
+
+## Core Agents (agents/)
+
+- **for** (`base_agent.py`)
+  - from __future__ import annotations
+
+- **LCTOAgent** (`l_cto.py`)
+  - L - The CTO Agent for Igor.
+
+- **QAAgent** (`qa_agent.py`)
+  - Quality assurance agent.
+
+- **ReflectionAgent** (`reflection_agent.py`)
+  - Meta-reasoning agent for self-improvement.
+
+
+## Configured Agents (config/agents/)
+
+- **L-CTO Agent** (id: `l-cto`)
+  - Model: {'provider': 'anthropic', 'name': 'claude-3-5-sonnet-20241022', 'temperature': 0.7, 'max_tokens': 16000, 'timeout_seconds': 120}
+  - Tools: 28
+
+- **L-CTO Research Agent** (id: `l-cto-research`)
+  - Model: {'provider': 'anthropic', 'name': 'claude-3-5-sonnet-20241022', 'temperature': 0.8, 'max_tokens': 16000, 'timeout_seconds': 180}
+  - Tools: 17
+
+- **L9 Standard Agent** (id: `l9-standard-v1`)
+  - Model: gpt-4o
+  - Tools: 3
+
+- **L9 Reflection Agent** (id: `reflection-agent-v1`)
+  - Model: gpt-4o
+  - Tools: 3
+
+- **L9 Research Agent** (id: `research-agent-v1`)
+  - Model: sonar-reasoning
+  - Tools: 0
+
+
+## Agent Layers
+
+```
+                    ┌─────────────┐
+                    │   IGOR      │  (Human authority)
+                    └──────┬──────┘
+                           │ escalation
+                    ┌──────▼──────┐
+                    │   L (CTO)   │  (AI OS core agent)
+                    └──────┬──────┘
+            ┌──────────────┼──────────────┐
+            ▼              ▼              ▼
+     ┌────────────┐ ┌────────────┐ ┌────────────┐
+     │ Research   │ │ Architect  │ │ Coder      │
+     │ Agents     │ │ Agents     │ │ Agents     │
+     └────────────┘ └────────────┘ └────────────┘
+```
+
+## Authority Hierarchy
+
+Igor > L (CTO) > Research agents > Mac agent

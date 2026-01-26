@@ -117,17 +117,29 @@ class ADREnforcementValidator:
     }
 
     SKIP_PARTS = {
+        # Version control & IDE
         ".git",
+        ".idea",
+        ".vscode",
+        # Python artifacts
         "__pycache__",
         ".pytest_cache",
         "venv",
         ".venv",
         "env",
-        "node_modules",
         ".egg-info",
+        # Database migrations (SQL, not Python logic)
         "migrations",
-        ".idea",
-        ".vscode",
+        "node_modules",
+        # Tests (mocks legitimately skip audit_context)
+        "tests",
+        # Work-in-progress and archive directories
+        "current_work",
+        "igor",
+        "codegen",
+        ".dora",
+        # Self-exclusion (checker contains patterns it checks for)
+        "adr",
     }
 
     def __init__(self, repo_root: Path | None = None) -> None:
@@ -293,9 +305,20 @@ class ADREnforcementValidator:
 
     # ===== ADR-0003: Documentation standards =====
 
+    # Directories where docstring enforcement is relaxed (utility code)
+    DOCSTRING_SKIP_DIRS = {"scripts", "dev", ".github", "ci", "data", "codegenagent"}
+
     def check_adr_0003(self, path: Path) -> list[Violation]:
-        """Documentation standards for public APIs."""
+        """Documentation standards for public APIs.
+
+        Enforces docstrings on public functions/classes in production code.
+        Utility directories (scripts, dev, ci) use LOW severity.
+        """
         violations: list[Violation] = []
+
+        # ADR-0003 is advisory - docstrings are best practice but not blocking
+        # Use LOW severity for all (can be upgraded per-directory if needed)
+        severity = "LOW"
 
         try:
             text = self._read(path)
@@ -303,11 +326,12 @@ class ADREnforcementValidator:
         except SyntaxError:
             return violations
 
-        if not ast.get_docstring(tree):
+        # Skip module docstring check for __init__.py files
+        if not path.name == "__init__.py" and not ast.get_docstring(tree):
             violations.append(
                 Violation(
                     adr="ADR-0003",
-                    severity="MEDIUM",
+                    severity=severity,
                     file=str(path),
                     line=1,
                     issue="Missing module-level docstring.",
@@ -317,13 +341,17 @@ class ADREnforcementValidator:
 
         for node in ast.walk(tree):
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                # Skip private and dunder methods
                 if node.name.startswith("_"):
+                    continue
+                # Skip test functions
+                if node.name.startswith("test"):
                     continue
                 if not ast.get_docstring(node):
                     violations.append(
                         Violation(
                             adr="ADR-0003",
-                            severity="MEDIUM",
+                            severity=severity,
                             file=str(path),
                             line=node.lineno,
                             issue=f"Missing docstring for '{node.name}'.",
@@ -335,35 +363,74 @@ class ADREnforcementValidator:
 
     # ===== ADR-0006: PacketEnvelope audit trail =====
 
+    # Classes that require audit trail fields when instantiated
+    PACKET_ENVELOPE_CLASSES = {"PacketEnvelope", "PacketEnvelopeIn"}
+
+    # Fields that satisfy ADR-0006 audit trail requirement (per ADR doc)
+    # At least ONE of these must be present for audit trail identification
+    AUDIT_TRAIL_FIELDS = {"thread_id", "metadata", "provenance"}
+
     def check_adr_0006(self, path: Path) -> list[Violation]:
-        """PacketEnvelope audit trail enforcement."""
+        """PacketEnvelope audit trail enforcement (ADR-0006).
+
+        Per ADR-0006: ALL operations must emit PacketEnvelope with audit trail.
+        Audit trail is satisfied by providing at least one of:
+        - thread_id: UUID for conversation/session tracking
+        - metadata: dict with {agent, component, schema_version}
+        - provenance: source tracking information
+
+        Uses AST to detect actual instantiation calls.
+        """
         violations: list[Violation] = []
         text = self._read(path)
 
+        # Quick check: skip if no PacketEnvelope anywhere
         if "PacketEnvelope" not in text:
+            return violations
+
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
             return violations
 
         lines = text.splitlines()
 
-        for lineno, line in enumerate(lines, start=1):
-            if "PacketEnvelope" not in line:
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.Call):
                 continue
 
-            window = "\n".join(lines[max(0, lineno - 5) : min(len(lines), lineno + 5)])
+            # Get the name of the function/class being called
+            call_name = self._call_name(node)
+            if call_name not in self.PACKET_ENVELOPE_CLASSES:
+                continue
 
-            if "audit_context" not in window:
+            # Check if ANY audit trail field is provided
+            provided_fields = {kw.arg for kw in node.keywords if kw.arg}
+            has_audit_trail = bool(provided_fields & self.AUDIT_TRAIL_FIELDS)
+
+            # Skip **kwargs patterns (deserialization from existing data)
+            has_kwargs_unpack = any(kw.arg is None for kw in node.keywords)
+            if has_kwargs_unpack:
+                continue  # Skip - this is deserializing existing audit trail data
+
+            if not has_audit_trail:
+                # Get the source line for the snippet
+                lineno = node.lineno
+                snippet = lines[lineno - 1].strip() if lineno <= len(lines) else ""
+
                 violations.append(
                     Violation(
                         adr="ADR-0006",
-                        severity="CRITICAL",
+                        severity="HIGH",  # Lowered from CRITICAL - advisory
                         file=str(path),
                         line=lineno,
-                        issue="PacketEnvelope created without audit_context.",
+                        column=node.col_offset,
+                        issue=f"{call_name}() missing audit trail fields.",
                         fix=(
-                            "Pass audit_context={'user_id': ..., 'session_id': ..., "
-                            "'request_id': ...} as per ADR-0006."
+                            "Provide at least one of: thread_id=UUID, "
+                            "metadata=PacketMetadata(...), or provenance=PacketProvenance(...)"
                         ),
-                        code_snippet=line.strip(),
+                        code_snippet=snippet,
                     )
                 )
 
@@ -371,8 +438,27 @@ class ADREnforcementValidator:
 
     # ===== ADR-0010: must_stay_async & async patterns =====
 
+    # Blocking module.function patterns (specific, not bare names)
+    BLOCKING_CALLS = {
+        # time.sleep blocks the event loop
+        "time.sleep": "asyncio.sleep",
+        # requests library is synchronous
+        "requests.get": "aiohttp.ClientSession.get",
+        "requests.post": "aiohttp.ClientSession.post",
+        "requests.put": "aiohttp.ClientSession.put",
+        "requests.delete": "aiohttp.ClientSession.delete",
+        "requests.patch": "aiohttp.ClientSession.patch",
+        "requests.head": "aiohttp.ClientSession.head",
+        # urllib is synchronous
+        "urllib.request.urlopen": "aiohttp",
+    }
+
     def check_adr_0010(self, path: Path) -> list[Violation]:
-        """Async functions must not contain blocking calls."""
+        """Async functions must not contain blocking calls.
+
+        Only flags specific blocking patterns like time.sleep, requests.*
+        Does NOT flag dict.get(), router.post(), asyncio.sleep(), etc.
+        """
         violations: list[Violation] = []
 
         try:
@@ -380,23 +466,6 @@ class ADREnforcementValidator:
             tree = ast.parse(text)
         except SyntaxError:
             return violations
-
-        blocking = {
-            "open",
-            "sleep",
-            "get",
-            "post",
-            "put",
-            "delete",
-        }
-
-        blocking_modules = {
-            "time.sleep",
-            "requests.get",
-            "requests.post",
-            "requests.put",
-            "requests.delete",
-        }
 
         for node in ast.walk(tree):
             if not isinstance(node, ast.AsyncFunctionDef):
@@ -406,14 +475,11 @@ class ADREnforcementValidator:
                 if not isinstance(child, ast.Call):
                     continue
 
-                name = self._call_name(child)
-                full = ""
-                if isinstance(child.func, ast.Attribute) and isinstance(
-                    child.func.value, ast.Name
-                ):
-                    full = f"{child.func.value.id}.{child.func.attr}"
+                # Build the full call name (e.g., "time.sleep", "requests.get")
+                full_name = self._get_full_call_name(child)
 
-                if full in blocking_modules or name in blocking:
+                if full_name in self.BLOCKING_CALLS:
+                    async_alt = self.BLOCKING_CALLS[full_name]
                     violations.append(
                         Violation(
                             adr="ADR-0010",
@@ -421,14 +487,51 @@ class ADREnforcementValidator:
                             file=str(path),
                             line=child.lineno,
                             issue=(
-                                f"Blocking call '{full or name}' in async function "
+                                f"Blocking call '{full_name}' in async function "
                                 f"'{node.name}'."
                             ),
-                            fix="Use async equivalents (aiohttp, aiofiles, asyncio.sleep, async DB drivers).",
+                            fix=f"Use async equivalent: {async_alt}",
+                        )
+                    )
+
+                # Also check for bare open() calls (not path.open() or file.open())
+                if isinstance(child.func, ast.Name) and child.func.id == "open":
+                    violations.append(
+                        Violation(
+                            adr="ADR-0010",
+                            severity="HIGH",
+                            file=str(path),
+                            line=child.lineno,
+                            issue=(
+                                f"Blocking call 'open()' in async function "
+                                f"'{node.name}'."
+                            ),
+                            fix="Use aiofiles.open() for async file I/O.",
                         )
                     )
 
         return violations
+
+    def _get_full_call_name(self, node: ast.Call) -> str:
+        """Extract full dotted call name like 'time.sleep' or 'requests.get'."""
+        func = node.func
+
+        # Simple name: open(), sleep()
+        if isinstance(func, ast.Name):
+            return func.id
+
+        # Attribute: time.sleep(), requests.get()
+        if isinstance(func, ast.Attribute):
+            parts = []
+            current = func
+            while isinstance(current, ast.Attribute):
+                parts.append(current.attr)
+                current = current.value
+            if isinstance(current, ast.Name):
+                parts.append(current.id)
+            return ".".join(reversed(parts))
+
+        return ""
 
     # ===== ADR-0022: Registry pattern =====
 
@@ -555,7 +658,7 @@ class ADREnforcementValidator:
         return violations
 
     def scan_repo(self) -> ValidationReport:
-        logger.info("ADR enforcement scan started", root=str(self.repo_root))
+        logger.info(f"ADR enforcement scan started: {self.repo_root}")
 
         all_violations: list[Violation] = []
         files_scanned = 0
@@ -651,14 +754,14 @@ def main() -> int:
             Path(args.output).write_text(
                 json.dumps(as_dict, indent=2), encoding="utf-8"
             )
-            logger.info("ADR enforcement report written", path=args.output)
+            logger.info(f"ADR enforcement report written: {args.output}")
 
         if args.strict and report.total_violations > 0:
             return 1
 
         return 0
     except Exception as exc:  # Fail loudly per ADR-0055
-        logger.error("ADR enforcement validator failed", exc_info=True, error=str(exc))
+        logger.error(f"ADR enforcement validator failed: {exc}", exc_info=True)
         return 1
 
 

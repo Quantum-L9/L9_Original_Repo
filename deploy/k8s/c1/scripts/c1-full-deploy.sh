@@ -335,19 +335,32 @@ REMOTE_SCRIPT
 }
 
 # =============================================================================
-# PHASE 7: INSTALL K3S
+# PHASE 7: INSTALL K3S + DOCKER
 # =============================================================================
 install_k3s() {
-    log_step "PHASE 7: INSTALL K3S"
+    log_step "PHASE 7: INSTALL K3S + DOCKER"
     
-    log_info "Installing k3s on C1..."
+    log_info "Installing k3s and Docker on C1..."
     
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
 set -e
 
 echo "Updating system..."
 apt-get update -qq
-apt-get install -y -qq curl wget git htop jq
+apt-get install -y -qq curl wget git htop jq ca-certificates gnupg
+
+echo "Installing Docker..."
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+apt-get update -qq
+apt-get install -y -qq docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 echo "Installing k3s..."
 curl -sfL https://get.k3s.io | sh -
@@ -359,26 +372,218 @@ echo "Verifying k3s..."
 kubectl get nodes
 kubectl get pods -A
 
-echo "k3s installed successfully"
+echo "k3s and Docker installed successfully"
 REMOTE_SCRIPT
     
-    log_success "k3s installed"
+    log_success "k3s and Docker installed"
 }
 
 # =============================================================================
-# PHASE 8: DEPLOY K8S MANIFESTS
+# PHASE 8: SYNC ENV FILES TO VPS
+# =============================================================================
+sync_env_files() {
+    log_step "PHASE 8: SYNC ENV FILES TO VPS"
+    
+    log_info "Syncing local .env files to C1..."
+    
+    # Create directories on VPS
+    ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
+mkdir -p /opt/l9/mcp_memory
+mkdir -p /opt/l9/services/symbolic_computation
+mkdir -p /opt/l9/config
+chmod 700 /opt/l9
+REMOTE_SCRIPT
+    
+    # Define env file mappings (local:remote)
+    declare -a ENV_FILES=(
+        "$HOME/Projects/L9/.env:/opt/l9/.env.production"
+        "$HOME/Projects/L9/.env.docker:/opt/l9/.env.docker"
+        "$HOME/Projects/L9/.env.vps:/opt/l9/.env.vps"
+        "$HOME/Projects/L9/mcp_memory/.env:/opt/l9/mcp_memory/.env"
+    )
+    
+    local synced=0
+    local skipped=0
+    
+    for mapping in "${ENV_FILES[@]}"; do
+        local local_path="${mapping%%:*}"
+        local remote_path="${mapping##*:}"
+        
+        if [[ -f "$local_path" ]]; then
+            log_info "Syncing: $(basename "$local_path") → $remote_path"
+            scp -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" \
+                "$local_path" "root@$C1_IP:$remote_path"
+            # Secure permissions
+            ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" \
+                "chmod 600 '$remote_path'"
+            ((synced++))
+        else
+            log_warn "Skipping: $local_path (not found)"
+            ((skipped++))
+        fi
+    done
+    
+    # Create .env symlink for docker-compose
+    ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
+if [[ -f /opt/l9/.env.production ]]; then
+    ln -sf /opt/l9/.env.production /opt/l9/.env
+    echo "Created symlink: /opt/l9/.env → .env.production"
+fi
+REMOTE_SCRIPT
+    
+    # Validate required variables
+    log_info "Validating required variables..."
+    ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
+REQUIRED_VARS="OPENAI_API_KEY DATABASE_URL REDIS_URL NEO4J_URL"
+MISSING=""
+
+for var in $REQUIRED_VARS; do
+    if ! grep -q "^${var}=" /opt/l9/.env.production 2>/dev/null; then
+        MISSING="$MISSING $var"
+    fi
+done
+
+if [[ -n "$MISSING" ]]; then
+    echo "⚠️  Missing required variables:$MISSING"
+    echo "Add these to your local .env before deploying!"
+else
+    echo "✅ All required variables present"
+fi
+
+echo ""
+echo "=== ENV FILES ON VPS ==="
+find /opt/l9 -name ".env*" -type f 2>/dev/null
+REMOTE_SCRIPT
+    
+    log_success "Env files synced: $synced synced, $skipped skipped"
+}
+
+# =============================================================================
+# PHASE 9: BUILD DOCKER IMAGES ON C1
+# =============================================================================
+build_docker_images() {
+    log_step "PHASE 9: BUILD DOCKER IMAGES ON C1"
+    
+    log_info "Cloning L9 repo and building images with all requirements..."
+    
+    ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
+set -e
+
+echo "=== Setting up build environment ==="
+mkdir -p /opt/l9-build
+cd /opt/l9-build
+
+# Clone or update L9 repo
+if [[ -d "L9" ]]; then
+    echo "Updating existing L9 repo..."
+    cd L9
+    git fetch origin
+    git reset --hard origin/main
+else
+    echo "Cloning L9 repo..."
+    git clone https://github.com/cryptoxdog/L9.git L9
+    cd L9
+fi
+
+echo "=== Copying env files into build context ==="
+# Copy synced env files from /opt/l9 to build context
+if [[ -f /opt/l9/.env.production ]]; then
+    cp /opt/l9/.env.production .env
+    echo "Copied .env.production → .env"
+fi
+
+if [[ -f /opt/l9/mcp_memory/.env ]]; then
+    mkdir -p mcp_memory
+    cp /opt/l9/mcp_memory/.env mcp_memory/.env
+    echo "Copied mcp_memory/.env"
+fi
+
+# List env files in build context
+echo "Env files in build context:"
+find . -name ".env*" -type f 2>/dev/null | head -10
+
+echo "=== Building L9 API image ==="
+docker build \
+    -f deploy/k8s/c1/Dockerfile \
+    --build-arg BUILD_DATE="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    --build-arg VCS_REF="$(git rev-parse --short HEAD)" \
+    --build-arg VERSION="2.0.0" \
+    -t ghcr.io/igor-beylin/l9-api:latest \
+    -t l9-api:latest \
+    .
+
+echo "=== Verifying image has all dependencies ==="
+docker run --rm l9-api:latest python -c "
+import sys
+try:
+    import fastapi
+    import pydantic
+    import asyncpg
+    import neo4j
+    import redis
+    import structlog
+    import langchain_core
+    import langgraph
+    import prometheus_client
+    import jsonschema
+    import tenacity
+    import opentelemetry
+    import sentence_transformers
+    print('✅ All production dependencies verified')
+except ImportError as e:
+    print(f'❌ Missing dependency: {e}')
+    sys.exit(1)
+"
+
+echo "=== Building MCP Memory image ==="
+# Create MCP Memory Dockerfile if needed
+cat > /tmp/Dockerfile.mcp-memory << 'DOCKERFILE'
+FROM python:3.12-slim
+RUN groupadd -r l9 -g 1000 && useradd -r -u 1000 -g l9 -m l9
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+COPY deploy/k8s/c1/requirements-production.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+COPY --chown=l9:l9 mcp_memory/ ./mcp_memory/
+COPY --chown=l9:l9 memory/ ./memory/
+COPY --chown=l9:l9 core/ ./core/
+COPY --chown=l9:l9 config/ ./config/
+COPY --chown=l9:l9 migrations/ ./migrations/
+RUN mkdir -p /app/logs && chown -R l9:l9 /app
+USER l9
+ENV PYTHONPATH=/app PYTHONUNBUFFERED=1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 CMD curl -f http://localhost:9000/health || exit 1
+EXPOSE 9000
+CMD ["python", "-m", "mcp_memory.server", "--host", "0.0.0.0", "--port", "9000"]
+DOCKERFILE
+
+docker build \
+    -f /tmp/Dockerfile.mcp-memory \
+    -t ghcr.io/igor-beylin/l9-mcp-memory:latest \
+    -t l9-mcp-memory:latest \
+    .
+
+echo "=== Docker images built ==="
+docker images | grep -E "(l9-api|l9-mcp)" | head -10
+REMOTE_SCRIPT
+    
+    log_success "Docker images built on C1"
+}
+
+# =============================================================================
+# PHASE 10: DEPLOY K8S MANIFESTS
 # =============================================================================
 deploy_manifests() {
-    log_step "PHASE 8: DEPLOY K8S MANIFESTS"
+    log_step "PHASE 10: DEPLOY K8S MANIFESTS"
     
     log_info "Copying manifests to C1..."
     
     # Create directory on C1
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" "mkdir -p /opt/l9-k8s"
     
-    # Copy manifest files
+    # Copy manifest files from the manifests directory
     scp -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" \
-        "$SCRIPT_DIR"/c1-*.yaml \
+        "$SCRIPT_DIR"/../manifests/*.yaml \
         root@"$C1_IP":/opt/l9-k8s/
     
     log_info "Applying manifests..."
@@ -427,10 +632,10 @@ REMOTE_SCRIPT
 }
 
 # =============================================================================
-# PHASE 9: WAIT FOR PODS
+# PHASE 11: WAIT FOR PODS
 # =============================================================================
 wait_for_pods() {
-    log_step "PHASE 9: WAIT FOR PODS"
+    log_step "PHASE 11: WAIT FOR PODS"
     
     log_info "Waiting for pods to be ready..."
     
@@ -467,10 +672,10 @@ REMOTE_SCRIPT
 }
 
 # =============================================================================
-# PHASE 10: FINAL VERIFICATION
+# PHASE 12: FINAL VERIFICATION
 # =============================================================================
 final_verification() {
-    log_step "PHASE 10: FINAL VERIFICATION"
+    log_step "PHASE 12: FINAL VERIFICATION"
     
     log_info "Running final checks..."
     
@@ -539,6 +744,8 @@ main() {
     wait_for_ssh
     verify_system
     install_k3s
+    sync_env_files
+    build_docker_images
     deploy_manifests
     wait_for_pods
     final_verification

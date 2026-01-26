@@ -1,0 +1,30 @@
+# L9 Tool Catalog
+# ================
+# All tools with category, scope, risk level, and approval requirements.
+
+## High-Risk Tools (Require Igor Approval)
+
+| Tool | Description |
+|------|-------------|
+| `gmp_run` | Execute GMP protocol (code changes) |
+| `git_commit` | Commit changes to git repository |
+| `git_push` | Push changes to remote repository |
+| `file_delete` | Delete files from filesystem |
+| `database_write` | Write to production database |
+| `deploy` | Deploy to production environment |
+| `mac_agent_exec` | Execute commands on Mac agent |
+
+## Memory Tools (Registered in Phase 5)
+
+| Tool | Purpose |
+|------|---------|
+| `memory_search` | Search memory substrate (semantic + keyword) |
+| `memory_write` | Write packets to memory substrate |
+
+## Tool Scopes
+
+| Scope | Description |
+|-------|-------------|
+| `internal` | L9-internal operations, no external calls |
+| `external` | Calls external APIs (GitHub, Notion, etc.) |
+| `requires_igor_approval` | High-risk, needs explicit Igor approval |

@@ -57,14 +57,8 @@ except ImportError:
     SagaExecutor = None  # type: ignore
     SagaResult = None  # type: ignore
 
-
-# Stub telemetry functions (to be implemented in telemetry/memory_metrics.py)
-def record_memory_enrichment(
-    status: str, tier: str, facts_count: int, duration_ms: float
-) -> None:
-    """Stub for enrichment telemetry - implement in telemetry/memory_metrics.py."""
-    pass
-
+# Telemetry import (SUPERPROMPTPACK: now implemented)
+from telemetry.memory_metrics import record_memory_enrichment
 
 logger = structlog.get_logger(__name__)
 

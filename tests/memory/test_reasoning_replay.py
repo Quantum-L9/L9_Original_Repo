@@ -12,8 +12,7 @@ import pytest
 
 from core.schemas import PacketEnvelopeIn
 from memory.reasoning_replay import ReasoningReplayPipeline
-from memory.substrate_service import (MemorySubstrateService, close_service,
-                                      init_service)
+from memory.substrate_service import MemorySubstrateService, close_service, init_service
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
@@ -257,14 +256,42 @@ async def test_verify_lineage_integrity_valid(
 
 
 @pytest.mark.asyncio
-async def test_detect_orphaned_packets(
+async def test_detect_orphaned_packets_no_orphans(
     reasoning_replay_pipeline,
+    memory_substrate_service: MemorySubstrateService,
 ):
-    """Test detect_orphaned_packets returns list."""
-    # This is a stub implementation, so just verify it returns a list
-    orphaned = await reasoning_replay_pipeline.detect_orphaned_packets("test_agent")
+    """Test detect_orphaned_packets returns empty list when no orphans exist."""
+    # Create a valid packet (no parent references)
+    packet_in = PacketEnvelopeIn(
+        packet_type="test_event",
+        payload={"action": "test"},
+        agent_id="test_agent_orphan_check",
+    )
+
+    result = await memory_substrate_service.write_packet(packet_in)
+    assert result.status == "ok"
+
+    # Should return empty list (no orphaned references)
+    orphaned = await reasoning_replay_pipeline.detect_orphaned_packets(
+        "test_agent_orphan_check"
+    )
 
     assert isinstance(orphaned, list)
+    # Packet has no parent_ids, so should not be detected as orphaned
+    assert result.packet_id not in orphaned
+
+
+@pytest.mark.asyncio
+async def test_detect_orphaned_packets_returns_list(
+    reasoning_replay_pipeline,
+):
+    """Test detect_orphaned_packets returns list even for non-existent agent."""
+    orphaned = await reasoning_replay_pipeline.detect_orphaned_packets(
+        "nonexistent_agent_12345"
+    )
+
+    assert isinstance(orphaned, list)
+    assert len(orphaned) == 0
 
 
 @pytest.mark.asyncio

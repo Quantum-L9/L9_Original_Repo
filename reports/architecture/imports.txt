@@ -1,0 +1,3938 @@
+api.agent_routes imports:
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - orchestration.input_segmenter
+  - pydantic
+  - structlog
+  - typing
+
+api.auth imports:
+  - collections.abc
+  - dataclasses
+  - fastapi
+  - os
+  - runtime.auth_rate_limiter
+
+api.db imports:
+  - os
+  - psycopg
+
+api.dependencies imports:
+  - api.auth
+  - fastapi
+  - structlog
+  - typing
+
+api.e2e_slack_audit imports:
+  - asyncio
+  - core.decorators
+  - datetime
+  - hashlib
+  - hmac
+  - os
+  - structlog
+  - sys
+  - time
+  - typing
+
+api.llm imports:
+  - openai
+  - os
+  - structlog
+  - typing
+
+api.memory.cache imports:
+  - api.auth
+  - api.routes.registry
+  - fastapi
+  - json
+  - pydantic
+  - structlog
+  - typing
+
+api.memory.graph imports:
+  - api.auth
+  - api.routes.registry
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.memory.router imports:
+  - api.auth
+  - api.routes.registry
+  - collections.abc
+  - core.decorators
+  - core.observability.circuit_breaker
+  - core.schemas
+  - fastapi
+  - json
+  - memory.governance_gate
+  - memory.housekeeping
+  - memory.ingestion
+  - memory.retrieval
+  - memory.saga
+  - memory.substrate_service
+  - orchestrators.memory.interface
+  - orchestrators.memory.orchestrator
+  - os
+  - pydantic
+  - structlog
+  - uuid
+
+api.middleware.websocket_tracing imports:
+  - __future__
+  - fastapi
+  - starlette.types
+  - structlog
+  - typing
+  - uuid
+
+api.openapi_config imports:
+  - typing
+
+api.os_routes imports:
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+
+api.routes.commands imports:
+  - __future__
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.compliance imports:
+  - api.dependencies
+  - api.routes.registry
+  - core.compliance.audit_reporter
+  - datetime
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.cursor imports:
+  - __future__
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.factory imports:
+  - __future__
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.gmp_learning imports:
+  - agents.cursor.gmp_meta_learning
+  - api.routes.registry
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.mcp imports:
+  - api.routes.registry
+  - fastapi
+  - os
+  - pydantic
+  - structlog
+
+api.routes.modules imports:
+  - __future__
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+
+api.routes.observability imports:
+  - api.routes.registry
+  - core.decorators
+  - datetime
+  - fastapi
+  - pydantic
+  - typing
+
+api.routes.pattern imports:
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.reasoning imports:
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - orchestrators.reasoning.interface
+  - orchestrators.reasoning.orchestrator
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.reflection_agent imports:
+  - __future__
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.registry imports:
+  - dataclasses
+  - fastapi
+  - structlog
+  - typing
+
+api.routes.research imports:
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - orchestrators.research_swarm.interface
+  - orchestrators.research_swarm.orchestrator
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.research_agent imports:
+  - __future__
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.simulation imports:
+  - __future__
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+
+api.routes.slack imports:
+  - api.routes.registry
+  - api.slack_adapter
+  - core.decorators
+  - fastapi
+  - json
+  - memory.slack_ingest
+  - structlog
+  - time
+  - typing
+
+api.routes.upgrades imports:
+  - api.routes.registry
+  - core.decorators
+  - core.packet_envelope
+  - fastapi
+  - functools
+  - structlog
+  - typing
+
+api.routes.workers imports:
+  - api.dependencies
+  - api.routes.registry
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.routes.worldmodel imports:
+  - __future__
+  - api.auth
+  - api.routes.registry
+  - fastapi
+  - structlog
+  - typing
+
+api.server imports:
+  - api.agent_routes
+  - api.auth
+  - api.db
+  - api.openapi_config
+  - api.routes.registry
+  - config.settings
+  - contextlib
+  - core.decorators
+  - core.event_type_registry
+  - core.schemas.event_stream
+  - core.singleton_auto_registry
+  - core.singleton_registry
+  - datetime
+  - fastapi
+  - fastapi.responses
+  - memory.agent_persistence
+  - memory.migration_runner
+  - memory.state_manager
+  - memory.substrate_service
+  - memory.timeline_service
+  - openai
+  - os
+  - pydantic
+  - runtime.background_tasks
+  - runtime.mcp_server_registry
+  - runtime.tool_registry
+  - runtime.websocket_orchestrator
+  - structlog
+  - typing
+
+api.server_memory imports:
+  - api.auth
+  - api.db
+  - api.memory.router
+  - config.settings
+  - fastapi
+  - openai
+  - os
+  - pydantic
+  - structlog
+
+api.slack_adapter imports:
+  - hashlib
+  - hmac
+  - structlog
+  - time
+  - typing
+  - uuid
+
+api.slack_client imports:
+  - httpx
+  - os
+  - structlog
+  - typing
+
+api.tools.__init__ imports:
+  - api.tools.router
+
+api.tools.router imports:
+  - api.auth
+  - api.routes.registry
+  - core.decorators
+  - core.tools.registry_adapter
+  - datetime
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+
+api.vps_executor imports:
+  - fastapi
+  - httpx
+  - os
+  - pydantic
+  - requests
+  - subprocess
+  - typing
+  - uvicorn
+
+api.webhook_mac_agent imports:
+  - api.routes.registry
+  - fastapi
+  - orchestrators.agent_execution.task_queue
+  - pydantic
+  - structlog
+
+api.webhook_twilio imports:
+  - base64
+  - fastapi
+  - fastapi.responses
+  - hashlib
+  - hmac
+  - httpx
+  - os
+
+api.webhook_waba imports:
+  - core.decorators
+  - fastapi
+  - fastapi.responses
+  - hashlib
+  - hmac
+  - httpx
+  - os
+  - structlog
+
+api.whatsapp imports:
+  - os
+  - twilio.rest
+  - typing
+
+api.world_model_api imports:
+  - __future__
+  - api.routes.registry
+  - fastapi
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+
+core.agents.__init__ imports:
+  - core.agents.agent_instance
+  - core.agents.schemas
+
+core.agents.adaptive_prompting imports:
+  - __future__
+  - structlog
+  - typing
+
+core.agents.agent_instance imports:
+  - __future__
+  - core.agents.schemas
+  - datetime
+  - hashlib
+  - re
+  - structlog
+  - typing
+  - uuid
+
+core.agents.bootstrap.__init__ imports:
+  - __future__
+  - bootstrap_metrics
+  - orchestrator
+  - phase_0_validate
+  - phase_1_load_kernels
+  - phase_2_instantiate
+  - phase_3_bind_kernels
+  - phase_4_load_identity
+  - phase_5_bind_tools
+  - phase_6_wire_governance
+  - phase_7_verify_and_lock
+
+core.agents.bootstrap.bootstrap_metrics imports:
+  - __future__
+  - contextlib
+  - structlog
+  - time
+  - typing
+
+core.agents.bootstrap.orchestrator imports:
+  - __future__
+  - bootstrap_metrics
+  - core.agents.agent_instance
+  - structlog
+  - typing
+
+core.agents.bootstrap.phase_0_validate imports:
+  - __future__
+  - pathlib
+  - structlog
+  - typing
+
+core.agents.bootstrap.phase_1_load_kernels imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - hashlib
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+core.agents.bootstrap.phase_2_instantiate imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - json
+  - structlog
+  - typing
+  - uuid
+
+core.agents.bootstrap.phase_3_bind_kernels imports:
+  - __future__
+  - datetime
+  - structlog
+  - typing
+
+core.agents.bootstrap.phase_4_load_identity imports:
+  - __future__
+  - datetime
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+core.agents.bootstrap.phase_5_bind_tools imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - structlog
+  - typing
+
+core.agents.bootstrap.phase_6_wire_governance imports:
+  - __future__
+  - datetime
+  - structlog
+  - typing
+
+core.agents.bootstrap.phase_7_verify_and_lock imports:
+  - __future__
+  - datetime
+  - hashlib
+  - structlog
+  - typing
+
+core.agents.executor imports:
+  - __future__
+  - core.agents.agent_instance
+  - core.agents.schemas
+  - core.decorators
+  - core.governance.approvals
+  - core.observability.circuit_breaker
+  - core.schemas
+  - core.tools.tool_graph
+  - core.worldmodel.insight_emitter
+  - datetime
+  - json
+  - memory.agent_persistence
+  - os
+  - runtime.dora
+  - structlog
+  - typing
+  - uuid
+
+core.agents.executor_composer imports:
+  - __future__
+  - dataclasses
+  - os
+  - structlog
+  - typing
+  - uuid
+
+core.agents.graph_state.__init__ imports:
+  - agent_graph_loader
+  - bootstrap_l_graph
+  - graph_hydrator
+  - schema
+
+core.agents.graph_state.agent_graph_loader imports:
+  - __future__
+  - dataclasses
+  - schema
+  - structlog
+  - typing
+
+core.agents.graph_state.bootstrap_l_graph imports:
+  - __future__
+  - schema
+  - structlog
+  - typing
+
+core.agents.graph_state.graph_hydrator imports:
+  - __future__
+  - agent_graph_loader
+  - dataclasses
+  - structlog
+  - typing
+
+core.agents.kernel_registry imports:
+  - __future__
+  - core.agents.schemas
+  - core.kernels.schemas
+  - core.schemas.capabilities
+  - os
+  - structlog
+  - typing
+
+core.agents.kernelevolution imports:
+  - __future__
+  - core.agents.selfreflection
+  - dataclasses
+  - datetime
+  - structlog
+  - typing
+  - uuid
+
+core.agents.prompt_builder imports:
+  - __future__
+  - structlog
+  - typing
+
+core.agents.prompt_defense imports:
+  - __future__
+  - dataclasses
+  - enum
+  - re
+  - structlog
+  - typing
+
+core.agents.registry imports:
+  - __future__
+  - core.agents.schemas
+  - core.decorators
+  - os
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+core.agents.schemas imports:
+  - __future__
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+core.agents.selfreflection imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - datetime
+  - os
+  - structlog
+  - typing
+  - uuid
+
+core.aios.__init__ imports:
+  - core.aios.runtime
+
+core.aios.runtime imports:
+  - __future__
+  - core.agents.schemas
+  - datetime
+  - json
+  - openai
+  - os
+  - structlog
+  - typing
+  - uuid
+
+core.auto_registry imports:
+  - __future__
+  - importlib
+  - inspect
+  - pkgutil
+  - structlog
+  - typing
+
+core.boundary.__init__ imports:
+  - core.boundary.enforcer
+
+core.boundary.enforcer imports:
+  - __future__
+  - pathlib
+  - re
+  - structlog
+  - typing
+
+core.codegen.__init__ imports:
+  - compiler.module_compiler
+  - gatekeeper.codegen_gatekeeper
+
+core.codegen.cli imports:
+  - asyncio
+  - click
+  - gatekeeper.codegen_gatekeeper
+  - pathlib
+  - sys
+  - typing
+
+core.codegen.compiler.module_compiler imports:
+  - asyncio
+  - core.logger
+  - datetime
+  - jinja2
+  - os
+  - pathlib
+  - pydantic
+  - typing
+
+core.codegen.compiler.module_compiler_v2 imports:
+  - dataclasses
+  - datetime
+  - jinja2
+  - os
+  - pathlib
+  - structlog
+  - typing
+
+core.codegen.gatekeeper.codegen_gatekeeper imports:
+  - asyncio
+  - core.agents.base_agent
+  - core.tools.registry_adapter
+  - datetime
+  - enum
+  - httpx
+  - json
+  - os
+  - pathlib
+  - pydantic
+  - typing
+  - uuid
+
+core.codegen.gatekeeper.codegen_gatekeeper_v2 imports:
+  - __future__
+  - agents.base_agent
+  - clients.memory_client
+  - core.codegen.compiler.module_compiler_v2
+  - core.decorators
+  - core.governance.rate_limit_policy
+  - core.resilience.retry
+  - core.schemas
+  - dataclasses
+  - datetime
+  - enum
+  - json
+  - os
+  - pathlib
+  - structlog
+  - typing
+  - uuid
+
+core.codegen.utilities imports:
+  - asyncio
+  - datetime
+  - hashlib
+  - json
+  - os
+  - pathlib
+  - pydantic
+  - subprocess
+  - typing
+
+core.commands.__init__ imports:
+  - core.commands.schemas
+
+core.commands.executor imports:
+  - __future__
+  - core.commands.schemas
+  - core.decorators
+  - datetime
+  - structlog
+  - typing
+
+core.commands.intent_extractor imports:
+  - __future__
+  - core.commands.schemas
+  - datetime
+  - json
+  - openai
+  - structlog
+  - typing
+
+core.commands.parser imports:
+  - __future__
+  - core.commands.schemas
+  - structlog
+  - typing
+
+core.commands.schemas imports:
+  - __future__
+  - enum
+  - pydantic
+  - re
+  - typing
+  - uuid
+
+core.compliance.__init__ imports:
+  - core.compliance.audit_log
+
+core.compliance.audit_log imports:
+  - __future__
+  - datetime
+  - structlog
+  - typing
+
+core.compliance.audit_reporter imports:
+  - __future__
+  - core.governance.tool_risk_policy
+  - dataclasses
+  - datetime
+  - structlog
+  - typing
+  - uuid
+
+core.coordination.__init__ imports:
+  - __future__
+  - event_queue
+
+core.coordination.agent_mediator imports:
+  - __future__
+  - asyncio
+  - collections
+  - collections.abc
+  - core.singleton_auto_registry
+  - core.singleton_registry
+  - dataclasses
+  - datetime
+  - structlog
+  - typing
+  - uuid
+
+core.coordination.event_queue imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+core.decorators imports:
+  - typing
+
+core.di.__init__ imports:
+  - core.di.container
+
+core.di.bootstrap imports:
+  - __future__
+  - structlog
+  - typing
+
+core.di.bootstrap_integration imports:
+  - asyncio
+  - core.di.container
+  - core.protocols
+  - structlog
+  - typing
+
+core.di.container imports:
+  - __future__
+  - asyncio
+  - collections.abc
+  - inspect
+  - structlog
+  - threading
+  - typing
+
+core.error_tracking imports:
+  - __future__
+  - datetime
+  - structlog
+  - traceback
+  - typing
+  - uuid
+
+core.evaluation.__init__ imports:
+  - __future__
+  - evaluator
+
+core.evaluation.evaluator imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - datetime
+  - statistics
+  - structlog
+  - time
+  - typing
+
+core.event_type_registry imports:
+  - __future__
+  - core.auto_registry
+  - dataclasses
+  - enum
+  - structlog
+  - typing
+
+core.facade.__init__ imports:
+  - core.facade.l9_facade
+
+core.facade.l9_facade imports:
+  - __future__
+  - asyncio
+  - core.singleton_auto_registry
+  - core.singleton_registry
+  - structlog
+  - typing
+
+core.fastapi_lifespan imports:
+  - __future__
+  - config.di_async_config
+
+core.governance.__init__ imports:
+  - __future__
+  - approval_manager
+  - cmts
+  - credentials_policy
+  - mistake_prevention
+  - policy_generator
+  - quick_fixes
+  - rate_limit_policy
+  - subsystem_detector
+
+core.governance.approval_gate imports:
+  - __future__
+  - core.governance.approval_manager
+  - core.schemas
+  - core.schemas.capabilities
+  - dataclasses
+  - structlog
+  - typing
+
+core.governance.approval_manager imports:
+  - __future__
+  - core.decorators
+  - core.governance.tool_risk_policy
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+core.governance.approvals imports:
+  - __future__
+  - core.governance.tool_risk_policy
+  - core.schemas
+  - datetime
+  - memory.governance_patterns
+  - structlog
+  - typing
+
+core.governance.cmts imports:
+  - __future__
+  - datetime
+  - enum
+  - hashlib
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+
+core.governance.credentials_policy imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - re
+  - structlog
+  - typing
+
+core.governance.engine imports:
+  - __future__
+  - core.decorators
+  - core.governance.loader
+  - core.governance.schemas
+  - datetime
+  - os
+  - structlog
+  - typing
+
+core.governance.loader imports:
+  - __future__
+  - core.governance.schemas
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+core.governance.mistake_prevention imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - pathlib
+  - re
+  - structlog
+  - typing
+
+core.governance.policy_generator imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+core.governance.policy_registry imports:
+  - __future__
+  - core.auto_registry
+  - core.governance.schemas
+  - dataclasses
+  - pathlib
+  - structlog
+  - typing
+
+core.governance.protected_files_policy imports:
+  - __future__
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+core.governance.quick_fixes imports:
+  - __future__
+  - collections.abc
+  - dataclasses
+  - pathlib
+  - re
+  - structlog
+  - typing
+
+core.governance.rate_limit_policy imports:
+  - __future__
+  - contextlib
+  - dataclasses
+  - fastapi
+  - functools
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+core.governance.schemas imports:
+  - __future__
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+core.governance.security_policy imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - logging
+  - os
+  - pathlib
+  - typing
+  - yaml
+
+core.governance.session_startup imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - pathlib
+  - structlog
+  - typing
+
+core.governance.subsystem_detector imports:
+  - __future__
+  - pathlib
+  - re
+  - structlog
+  - typing
+  - yaml
+
+core.governance.tool_risk_policy imports:
+  - __future__
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+core.governance.validation imports:
+  - __future__
+  - collections
+  - datetime
+  - structlog
+  - typing
+
+core.graph.query.graph_search_query_builder imports:
+  - __future__
+  - hashlib
+  - json
+  - structlog
+  - typing
+
+core.instrumentation.decorators imports:
+  - __future__
+  - contextvars
+  - functools
+  - inspect
+  - structlog
+  - time
+  - typing
+  - uuid
+
+core.integration.__init__ imports:
+  - graph_to_wm_sync
+  - tool_pattern_extractor
+  - wm_to_graph_sync
+
+core.integration.graph_to_wm_sync imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - datetime
+  - os
+  - structlog
+  - typing
+
+core.integration.tool_pattern_extractor imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - datetime
+  - os
+  - structlog
+  - typing
+
+core.integration.wm_to_graph_sync imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - datetime
+  - os
+  - structlog
+  - typing
+
+core.kernels.__init__ imports:
+  - core.kernels.integrity
+  - runtime.kernel_loader
+  - warnings
+
+core.kernels.integrity imports:
+  - __future__
+  - datetime
+  - functools
+  - hashlib
+  - json
+  - pathlib
+  - structlog
+  - typing
+
+core.kernels.kernelloader imports:
+  - __future__
+  - core.kernels.schemas
+  - hashlib
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+core.kernels.prompt_builder imports:
+  - __future__
+  - functools
+  - runtime.kernel_loader
+  - structlog
+  - typing
+
+core.kernels.schemas imports:
+  - __future__
+  - datetime
+  - enum
+  - pydantic
+  - typing
+
+core.llm.__init__ imports:
+  - core.llm.llm_service
+
+core.llm.llm_service imports:
+  - __future__
+  - core.protocols
+  - os
+  - structlog
+  - typing
+
+core.memory.runtime imports:
+  - __future__
+  - datetime
+  - structlog
+  - typing
+  - uuid
+
+core.memory.virtual_context imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+
+core.models.__init__ imports:
+  - core.models.l9_base_model
+
+core.models.l9_base_model imports:
+  - hashlib
+  - json
+  - pydantic
+  - structlog
+  - typing
+
+core.moduleregistry imports:
+  - __future__
+  - dataclasses
+  - structlog
+  - typing
+
+core.observability.__init__ imports:
+  - aggregation
+  - circuit_breaker
+  - config
+  - context_strategies
+  - exporters
+  - failures
+  - instrumentation
+  - jaeger_exporter
+  - l9_integration
+  - models
+  - observability_context
+  - prometheus_exporter
+  - service
+
+core.observability.aggregation imports:
+  - datetime
+  - models
+  - statistics
+  - structlog
+  - typing
+
+core.observability.circuit_breaker imports:
+  - dataclasses
+  - enum
+  - structlog
+  - time
+  - typing
+
+core.observability.config imports:
+  - pydantic
+  - pydantic_settings
+  - typing
+
+core.observability.context_strategies imports:
+  - abc
+  - core.decorators
+  - structlog
+  - typing
+
+core.observability.exporters imports:
+  - abc
+  - core.decorators
+  - core.schemas
+  - models
+  - structlog
+  - typing
+
+core.observability.failures imports:
+  - asyncio
+  - core.decorators
+  - enum
+  - models
+  - structlog
+  - typing
+
+core.observability.instrumentation imports:
+  - asyncio
+  - functools
+  - models
+  - structlog
+  - typing
+
+core.observability.jaeger_exporter imports:
+  - core.decorators
+  - structlog
+  - typing
+
+core.observability.l9_integration imports:
+  - instrumentation
+  - models
+  - structlog
+  - typing
+
+core.observability.models imports:
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+core.observability.observability_context imports:
+  - contextlib
+  - contextvars
+  - structlog
+  - typing
+  - uuid
+
+core.observability.prometheus_exporter imports:
+  - __future__
+  - structlog
+  - typing
+
+core.observability.security_alerts imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - json
+  - logging
+  - os
+  - typing
+
+core.observability.security_metrics imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - logging
+  - time
+  - typing
+
+core.observability.service imports:
+  - asyncio
+  - collections
+  - config
+  - core.decorators
+  - datetime
+  - models
+  - structlog
+  - typing
+
+core.packet_envelope.__init__ imports:
+  - core.packet_envelope.integration
+
+core.packet_envelope.config imports:
+  - dataclasses
+  - os
+
+core.packet_envelope.governance imports:
+  - core.decorators
+  - dataclasses
+  - datetime
+  - enum
+  - hashlib
+  - json
+  - logging
+  - typing
+
+core.packet_envelope.integration imports:
+  - core.decorators
+  - core.packet_envelope.governance
+  - core.packet_envelope.observability
+  - core.packet_envelope.scalability
+  - core.packet_envelope.standardization
+  - dataclasses
+  - datetime
+  - enum
+  - logging
+  - typing
+
+core.packet_envelope.observability imports:
+  - asyncio
+  - dataclasses
+  - datetime
+  - functools
+  - json
+  - logging
+  - time
+  - typing
+
+core.packet_envelope.scalability imports:
+  - asyncio
+  - core.decorators
+  - dataclasses
+  - datetime
+  - enum
+  - logging
+  - typing
+
+core.packet_envelope.standardization imports:
+  - abc
+  - dataclasses
+  - datetime
+  - enum
+  - json
+  - logging
+  - typing
+  - uuid
+
+core.protocols.__init__ imports:
+  - __future__
+  - core.protocols.agent_protocols
+  - core.protocols.connection_protocols
+  - core.protocols.error_handling_protocols
+  - core.protocols.kernel_protocols
+  - core.protocols.memory_protocols
+  - core.protocols.observability_protocols
+  - core.protocols.rate_limiting_protocols
+  - core.protocols.retry_protocols
+  - core.protocols.service_protocols
+  - core.protocols.substrate_protocols
+  - core.protocols.validation_protocols
+
+core.protocols.agent_protocols imports:
+  - __future__
+  - enum
+  - typing
+
+core.protocols.connection_protocols imports:
+  - asyncio
+  - collections.abc
+  - contextlib
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - time
+  - typing
+
+core.protocols.error_handling_protocols imports:
+  - __future__
+  - asyncio
+  - contextlib
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - traceback
+  - typing
+  - uuid
+
+core.protocols.kernel_protocols imports:
+  - __future__
+  - core.kernels.schemas
+  - pathlib
+  - typing
+
+core.protocols.memory_protocols imports:
+  - __future__
+  - typing
+
+core.protocols.observability_protocols imports:
+  - __future__
+  - enum
+  - typing
+
+core.protocols.rate_limiting_protocols imports:
+  - asyncio
+  - collections
+  - collections.abc
+  - dataclasses
+  - datetime
+  - enum
+  - functools
+  - structlog
+  - time
+  - typing
+
+core.protocols.retry_protocols imports:
+  - asyncio
+  - collections.abc
+  - dataclasses
+  - enum
+  - structlog
+  - typing
+
+core.protocols.secrets_protocols imports:
+  - __future__
+  - structlog
+  - typing
+
+core.protocols.service_protocols imports:
+  - __future__
+  - typing
+
+core.protocols.substrate_protocols imports:
+  - __future__
+  - typing
+  - uuid
+
+core.protocols.validation_protocols imports:
+  - __future__
+  - collections.abc
+  - dataclasses
+  - enum
+  - functools
+  - inspect
+  - structlog
+  - typing
+
+core.reasoning.__init__ imports:
+  - core.reasoning.l9_toth_adapter
+  - core.reasoning.toth_engine
+
+core.reasoning.l9_toth_adapter imports:
+  - asyncio
+  - core.reasoning.toth_engine
+  - dataclasses
+  - datetime
+  - logging
+  - typing
+
+core.reasoning.toth_engine imports:
+  - asyncio
+  - dataclasses
+  - datetime
+  - enum
+  - json
+  - logging
+  - networkx
+  - os
+  - pathlib
+  - sys
+  - time
+  - typing
+
+core.resilience.__init__ imports:
+  - core.resilience.mixin
+  - core.resilience.protocols
+  - core.resilience.retry
+
+core.resilience.mixin imports:
+  - __future__
+  - asyncio
+  - core.observability.circuit_breaker
+  - structlog
+  - typing
+
+core.resilience.protocols imports:
+  - __future__
+  - typing
+
+core.resilience.retry imports:
+  - __future__
+  - asyncio
+  - dataclasses
+  - random
+  - structlog
+  - typing
+
+core.retrievers.__init__ imports:
+  - core.retrievers.substrate_retriever
+
+core.retrievers.substrate_retriever imports:
+  - __future__
+  - core.schemas
+  - langchain_core.documents
+  - langchain_core.retrievers
+  - memory.substrate_service
+  - typing
+
+core.runtimes.__init__ imports:
+  - core.runtimes.react_runtime
+
+core.runtimes.react_runtime imports:
+  - __future__
+  - core.agents.schemas
+  - core.aios.runtime
+  - datetime
+  - structlog
+  - typing
+
+core.schemas.__init__ imports:
+  - core.schemas.capabilities
+  - core.schemas.event_stream
+  - core.schemas.packet_envelope_v2
+  - core.schemas.research_factory_models
+  - core.schemas.research_factory_nodes
+  - core.schemas.research_factory_state
+  - core.schemas.tasks
+  - core.schemas.ws_event_stream
+
+core.schemas.capabilities imports:
+  - __future__
+  - enum
+  - pydantic
+  - typing
+
+core.schemas.event_stream imports:
+  - __future__
+  - core.schemas.capabilities
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+core.schemas.l_tools imports:
+  - pydantic
+  - typing
+
+core.schemas.packet_envelope imports:
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+  - warnings
+
+core.schemas.packet_envelope_v2 imports:
+  - datetime
+  - enum
+  - hashlib
+  - json
+  - pydantic
+  - typing
+  - uuid
+
+core.schemas.research_factory_models imports:
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+core.schemas.research_factory_nodes imports:
+  - core.decorators
+  - core.schemas.research_factory_models
+  - core.schemas.research_factory_state
+  - datetime
+  - structlog
+  - typing
+
+core.schemas.research_factory_state imports:
+  - core.schemas.research_factory_models
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+core.schemas.schema_registry imports:
+  - copy
+  - core.schemas
+  - datetime
+  - functools
+  - hashlib
+  - json
+  - structlog
+  - typing
+  - uuid
+
+core.schemas.tasks imports:
+  - __future__
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+core.schemas.tests.test_discriminators imports:
+  - core.schemas.packet_envelope
+  - core.schemas.research_factory_models
+  - pytest
+  - uuid
+
+core.schemas.tests.test_packet_envelope imports:
+  - core.schemas.packet_envelope
+  - datetime
+  - pytest
+  - uuid
+
+core.schemas.tests.test_research_factory imports:
+  - core.schemas.research_factory_models
+  - core.schemas.research_factory_state
+  - pytest
+  - uuid
+
+core.schemas.universal_schema imports:
+  - core.schemas
+  - core.schemas.research_factory_models
+  - core.schemas.research_factory_nodes
+  - core.schemas.research_factory_state
+
+core.schemas.upcaster_registry imports:
+  - __future__
+  - core.auto_registry
+  - dataclasses
+  - structlog
+  - typing
+
+core.schemas.ws_event_stream imports:
+  - __future__
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+core.secrets.__init__ imports:
+  - __future__
+  - core.protocols.secrets_protocols
+  - core.secrets.aws_secrets_client
+  - core.secrets.env_secrets_client
+  - os
+  - structlog
+  - typing
+
+core.secrets.aws_secrets_client imports:
+  - __future__
+  - core.protocols.secrets_protocols
+  - datetime
+  - os
+  - structlog
+  - typing
+
+core.secrets.env_secrets_client imports:
+  - __future__
+  - os
+  - structlog
+
+core.security.__init__ imports:
+  - path_safety
+  - permission_graph
+
+core.security.path_safety imports:
+  - __future__
+  - contextlib
+  - core.decorators
+  - dataclasses
+  - os
+  - pathlib
+  - re
+  - stat
+  - typing
+  - unicodedata
+  - urllib.parse
+
+core.security.permission_graph imports:
+  - __future__
+  - datetime
+  - structlog
+  - typing
+
+core.singleton_auto_registry imports:
+  - __future__
+  - collections.abc
+  - core.auto_registry
+  - core.singleton_registry
+  - dataclasses
+  - structlog
+  - typing
+
+core.singleton_registry imports:
+  - __future__
+  - asyncio
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+
+core.testing.__init__ imports:
+  - core.testing.test_executor
+  - core.testing.test_generator
+
+core.testing.test_agent imports:
+  - __future__
+  - core.testing.test_executor
+  - core.testing.test_generator
+  - dataclasses
+  - datetime
+  - structlog
+  - typing
+  - uuid
+
+core.testing.test_executor imports:
+  - __future__
+  - asyncio
+  - dataclasses
+  - datetime
+  - os
+  - pathlib
+  - structlog
+  - tempfile
+  - typing
+  - uuid
+
+core.testing.test_generator imports:
+  - __future__
+  - ast
+  - structlog
+  - typing
+
+core.tools.__init__ imports:
+  - core.tools.discovery_tracing
+  - core.tools.dynamic_discovery
+  - core.tools.prompt_caching
+  - core.tools.registry_adapter
+  - core.tools.registry_cache
+  - core.tools.semantic_discovery
+  - core.tools.semantic_tool_search
+  - core.tools.tool_embeddings
+  - core.tools.tool_graph
+
+core.tools.agent_self_modify imports:
+  - __future__
+  - datetime
+  - structlog
+  - typing
+
+core.tools.base_registry imports:
+  - __future__
+  - asyncio
+  - collections
+  - core.singleton_auto_registry
+  - datetime
+  - enum
+  - pydantic
+  - runtime.tool_registry
+  - structlog
+  - typing
+
+core.tools.discovery_tracing imports:
+  - dataclasses
+  - enum
+  - json
+  - logging
+  - typing
+
+core.tools.dynamic_discovery imports:
+  - __future__
+  - config.settings
+  - core.tools.discovery_tracing
+  - dataclasses
+  - enum
+  - memory.substrate_service
+  - services.tool_feedback_service
+  - structlog
+  - time
+  - typing
+  - uuid
+
+core.tools.memory_tools imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - re
+  - structlog
+  - typing
+
+core.tools.prompt_caching imports:
+  - __future__
+  - dataclasses
+  - structlog
+  - time
+  - typing
+
+core.tools.reflection_tools imports:
+  - __future__
+  - runtime.tool_registry
+  - structlog
+  - typing
+
+core.tools.registry_adapter imports:
+  - __future__
+  - asyncio
+  - core.agents.schemas
+  - core.decorators
+  - core.governance.tool_risk_policy
+  - core.tools.registry_cache
+  - core.tools.sanitizer
+  - structlog
+  - time
+  - typing
+  - uuid
+
+core.tools.registry_cache imports:
+  - __future__
+  - collections
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+core.tools.research_tools imports:
+  - __future__
+  - runtime.tool_registry
+  - structlog
+  - typing
+
+core.tools.sanitizer imports:
+  - __future__
+  - dataclasses
+  - json
+  - re
+  - typing
+
+core.tools.semantic_discovery imports:
+  - __future__
+  - dataclasses
+  - enum
+  - structlog
+  - typing
+
+core.tools.semantic_tool_search imports:
+  - __future__
+  - dataclasses
+  - logging
+  - structlog
+  - typing
+
+core.tools.symbolic_tool imports:
+  - __future__
+  - runtime.tool_registry
+  - services.symbolic_computation
+  - structlog
+  - typing
+
+core.tools.tool_audit imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - dataclasses
+  - datetime
+  - json
+  - services.tool_feedback_service
+  - structlog
+  - time
+  - typing
+  - uuid
+
+core.tools.tool_embeddings imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - os
+  - structlog
+  - typing
+
+core.tools.tool_graph imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - os
+  - re
+  - structlog
+  - typing
+
+core.worldmodel.__init__ imports:
+  - core.worldmodel.insight_emitter
+  - core.worldmodel.l9_schema
+  - core.worldmodel.service
+
+core.worldmodel.insight_emitter imports:
+  - __future__
+  - datetime
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+
+core.worldmodel.l9_schema imports:
+  - __future__
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+core.worldmodel.service imports:
+  - __future__
+  - core.decorators
+  - core.worldmodel.l9_schema
+  - datetime
+  - pathlib
+  - structlog
+  - typing
+  - uuid
+
+domain_tensor_bridge.__init__ imports:
+  - agent_controller
+  - decision_synthesizer
+  - governance_bridge
+  - memory_bridge
+  - packet_router
+  - reasoning_engine
+
+domain_tensor_bridge.agent_controller imports:
+  - asyncio
+  - core.schemas
+  - structlog
+  - typing
+
+domain_tensor_bridge.analogical_reasoner imports:
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.anomaly_handler imports:
+  - dataclasses
+  - enum
+  - structlog
+  - typing
+
+domain_tensor_bridge.causal_reasoner imports:
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.compliance_checker imports:
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.context_enricher imports:
+  - core.schemas
+  - dataclasses
+  - httpx
+  - structlog
+  - typing
+
+domain_tensor_bridge.decision_synthesizer imports:
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.domain_context_builder imports:
+  - core.schemas
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.domain_packet_handler imports:
+  - core.schemas
+  - structlog
+  - typing
+
+domain_tensor_bridge.embedding_processor imports:
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.escalation_handler imports:
+  - dataclasses
+  - enum
+  - structlog
+  - typing
+
+domain_tensor_bridge.governance_bridge imports:
+  - core.governance
+  - dataclasses
+  - enum
+  - structlog
+  - typing
+
+domain_tensor_bridge.memory_bridge imports:
+  - dataclasses
+  - memory.substrate_service
+  - os
+  - structlog
+  - typing
+
+domain_tensor_bridge.packet_formatter imports:
+  - core.schemas
+  - structlog
+  - typing
+
+domain_tensor_bridge.packet_router imports:
+  - core.schemas
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.packet_validator imports:
+  - core.schemas
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.reasoning_engine imports:
+  - asyncio
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.reflective_auditor imports:
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.symbolic_reasoner imports:
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.tensor_coordinator imports:
+  - asyncio
+  - dataclasses
+  - structlog
+  - typing
+
+domain_tensor_bridge.tensoraios_bridge imports:
+  - httpx
+  - structlog
+  - typing
+
+domain_tensor_bridge.tests.domain_tensor_bridge.test_api_surfaces imports:
+  - core.schemas
+  - domain_tensor_bridge.agent_controller
+  - pytest
+  - unittest.mock
+
+domain_tensor_bridge.tests.domain_tensor_bridge.test_bridge_controller imports:
+  - core.schemas
+  - domain_tensor_bridge.agent_controller
+  - pytest
+  - unittest.mock
+
+domain_tensor_bridge.tests.domain_tensor_bridge.test_context_enrichment imports:
+  - core.schemas
+  - domain_tensor_bridge.context_enricher
+  - domain_tensor_bridge.memory_bridge
+  - domain_tensor_bridge.world_model_bridge
+  - pytest
+  - unittest.mock
+
+domain_tensor_bridge.tests.domain_tensor_bridge.test_governance_integration imports:
+  - domain_tensor_bridge.governance_bridge
+  - pytest
+  - unittest.mock
+
+domain_tensor_bridge.tests.domain_tensor_bridge.test_memory_integration imports:
+  - domain_tensor_bridge.memory_bridge
+  - pytest
+  - unittest.mock
+
+domain_tensor_bridge.tests.domain_tensor_bridge.test_packet_routing imports:
+  - core.schemas
+  - domain_tensor_bridge.packet_router
+  - pytest
+  - unittest.mock
+
+domain_tensor_bridge.tests.domain_tensor_bridge.test_reasoning_engine imports:
+  - domain_tensor_bridge.reasoning_engine
+  - pytest
+  - unittest.mock
+
+domain_tensor_bridge.tests.domain_tensor_bridge.test_tensor_coordination imports:
+  - domain_tensor_bridge.tensor_coordinator
+  - pytest
+  - unittest.mock
+
+domain_tensor_bridge.world_model_bridge imports:
+  - dataclasses
+  - httpx
+  - structlog
+  - typing
+
+graph_adapter.__init__ imports:
+  - graph_adapter.packet_node_adapter
+
+graph_adapter.packet_node_adapter imports:
+  - __future__
+  - core.schemas
+  - typing
+
+ir_engine.__init__ imports:
+  - ir_engine.compile_meta_to_ir
+  - ir_engine.constraint_challenger
+  - ir_engine.deliberation_cell
+  - ir_engine.ir_generator
+  - ir_engine.ir_schema
+  - ir_engine.ir_to_plan_adapter
+  - ir_engine.ir_to_python
+  - ir_engine.ir_validator
+  - ir_engine.meta_ir
+  - ir_engine.schema_validator
+  - ir_engine.semantic_compiler
+  - ir_engine.simulation_router
+
+ir_engine.compile_meta_to_ir imports:
+  - __future__
+  - dataclasses
+  - ir_engine.meta_ir
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+ir_engine.constraint_challenger imports:
+  - __future__
+  - ir_engine.ir_schema
+  - json
+  - openai
+  - structlog
+  - typing
+  - uuid
+
+ir_engine.deliberation_cell imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - ir_engine.ir_schema
+  - ir_engine.ir_validator
+  - ir_engine.semantic_compiler
+  - json
+  - openai
+  - structlog
+  - typing
+  - uuid
+
+ir_engine.ir_generator imports:
+  - __future__
+  - datetime
+  - ir_engine.ir_schema
+  - json
+  - structlog
+  - typing
+  - uuid
+
+ir_engine.ir_schema imports:
+  - __future__
+  - datetime
+  - enum
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+
+ir_engine.ir_to_plan_adapter imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - ir_engine.ir_generator
+  - ir_engine.ir_schema
+  - structlog
+  - typing
+  - uuid
+
+ir_engine.ir_to_python imports:
+  - __future__
+  - ir_engine.compile_meta_to_ir
+  - pathlib
+  - structlog
+  - typing
+
+ir_engine.ir_validator imports:
+  - __future__
+  - ir_engine.ir_schema
+  - structlog
+  - uuid
+
+ir_engine.meta_ir imports:
+  - __future__
+  - enum
+  - pydantic
+  - structlog
+  - typing
+
+ir_engine.schema_validator imports:
+  - __future__
+  - ir_engine.meta_ir
+  - pathlib
+  - pydantic
+  - structlog
+  - typing
+  - yaml
+
+ir_engine.semantic_compiler imports:
+  - __future__
+  - ir_engine.ir_schema
+  - json
+  - openai
+  - structlog
+  - typing
+  - uuid
+
+ir_engine.simulation_router imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - ir_engine.ir_schema
+  - structlog
+  - typing
+  - uuid
+
+memory.__init__ imports:
+  - core.schemas
+  - memory
+  - memory.active_encoder
+  - memory.audit_utils
+  - memory.checkpoint_metrics
+  - memory.checkpoint_validator
+  - memory.consolidation
+  - memory.cypher_templates
+  - memory.deduplication
+  - memory.gap_detector
+  - memory.governance_gate
+  - memory.graph_memory
+  - memory.hierarchical_summarizer
+  - memory.housekeeping
+  - memory.hybrid_rag
+  - memory.importance_manager
+  - memory.ingestion
+  - memory.insight_extraction
+  - memory.neo4j_strategy_memory
+  - memory.neural_decay_scheduler
+  - memory.predictive_cache
+  - memory.retention_engine
+  - memory.retrieval
+  - memory.saga
+  - memory.saga_patterns
+  - memory.schema_introspection
+  - memory.strategymemory
+  - memory.substrate_alignment
+  - memory.substrate_models
+  - memory.tool_router
+  - memory.warming_models
+  - memory.warming_service
+
+memory.active_encoder imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - structlog
+  - typing
+  - uuid
+
+memory.agent_persistence imports:
+  - __future__
+  - core.schemas
+  - datetime
+  - json
+  - memory.checkpoint_metrics
+  - memory.checkpoint_validator
+  - memory.substrate_repository
+  - structlog
+  - typing
+  - uuid
+
+memory.audit_utils imports:
+  - __future__
+  - core.schemas
+  - dataclasses
+  - datetime
+  - hashlib
+  - json
+  - re
+  - structlog
+  - typing
+  - unicodedata
+  - uuid
+
+memory.blob_store imports:
+  - __future__
+  - dataclasses
+  - hashlib
+  - os
+  - structlog
+  - typing
+
+memory.checkpoint.__init__ imports:
+  - memory.checkpoint.cursor_checkpoint_manager
+  - memory.checkpoint.postgres_saver
+
+memory.checkpoint.cursor_checkpoint_manager imports:
+  - __future__
+  - agents.cursor.integrations.cursor_gateway
+  - agents.cursor.integrations.cursor_langgraph
+  - memory.checkpoint.postgres_saver
+  - structlog
+  - typing
+
+memory.checkpoint.postgres_saver imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - datetime
+  - memory.substrate_repository
+  - structlog
+  - typing
+
+memory.checkpoint_manager imports:
+  - __future__
+  - memory.substrate_service
+  - typing
+
+memory.checkpoint_metrics imports:
+  - __future__
+  - contextlib
+  - structlog
+  - time
+  - typing
+
+memory.checkpoint_validator imports:
+  - __future__
+  - datetime
+  - enum
+  - hashlib
+  - json
+  - structlog
+  - typing
+
+memory.consolidation imports:
+  - __future__
+  - asyncio
+  - datetime
+  - memory.deduplication
+  - memory.substrate_repository
+  - re
+  - structlog
+  - typing
+  - uuid
+
+memory.context_builder imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+memory.cross_encoder_reranker imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - structlog
+  - typing
+
+memory.cypher_templates imports:
+  - __future__
+  - dataclasses
+  - enum
+  - functools
+  - structlog
+  - typing
+
+memory.dead_letter imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - json
+  - structlog
+  - typing
+
+memory.dead_letter_queue imports:
+  - __future__
+  - core.schemas
+  - dataclasses
+  - datetime
+  - json
+  - structlog
+  - typing
+
+memory.deduplication imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - hashlib
+  - structlog
+  - typing
+  - uuid
+
+memory.enrichment_dag imports:
+  - asyncio
+  - core.observability.circuit_breaker
+  - core.schemas
+  - dataclasses
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+memory.execution_plan_snapshot imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+memory.extractor.__init__ imports:
+  - agent_config_extractor
+  - code_extractor
+  - memory_extractor
+  - module_schema_extractor
+
+memory.extractor.agent_config_extractor imports:
+  - base_extractor
+  - datetime
+  - pathlib
+  - re
+  - typing
+  - yaml
+
+memory.extractor.base_extractor imports:
+  - abc
+  - logging
+  - pathlib
+  - typing
+
+memory.extractor.code_extractor imports:
+  - base_extractor
+  - pathlib
+  - re
+  - typing
+
+memory.extractor.memory_extractor imports:
+  - base_extractor
+  - json
+  - pathlib
+  - re
+  - typing
+
+memory.extractor.module_schema_extractor imports:
+  - base_extractor
+  - pathlib
+  - typing
+  - yaml
+
+memory.gap_detector imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - memory.warming_models
+  - structlog
+  - time
+  - uuid
+
+memory.governance_gate imports:
+  - __future__
+  - config.rls_config
+  - contextlib
+  - contextvars
+  - core.decorators
+  - dataclasses
+  - os
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+memory.governance_hooks imports:
+  - __future__
+  - abc
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+memory.governance_patterns imports:
+  - __future__
+  - datetime
+  - enum
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+
+memory.graph_client imports:
+  - __future__
+  - core.decorators
+  - core.singleton_auto_registry
+  - os
+  - structlog
+  - typing
+
+memory.graph_memory imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - datetime
+  - enum
+  - re
+  - structlog
+  - typing
+  - uuid
+
+memory.graph_search_cache imports:
+  - __future__
+  - datetime
+  - hashlib
+  - json
+  - memory.graph_client
+  - pydantic
+  - random
+  - runtime.redis_client
+  - structlog
+  - typing
+
+memory.hierarchical_summarizer imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+memory.housekeeping imports:
+  - __future__
+  - core.singleton_auto_registry
+  - datetime
+  - functools
+  - structlog
+  - typing
+
+memory.hybrid_rag imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+memory.identity_tier imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+memory.importance_manager imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - math
+  - structlog
+  - typing
+  - uuid
+
+memory.index_syncer imports:
+  - __future__
+  - memory.substrate_repository
+  - structlog
+
+memory.ingestion imports:
+  - __future__
+  - core.decorators
+  - core.governance.rate_limit_policy
+  - core.schemas
+  - core.singleton_auto_registry
+  - functools
+  - memory.audit_utils
+  - memory.governance_gate
+  - memory.graph_client
+  - memory.substrate_service
+  - memory.validators.packet_validator
+  - structlog
+  - typing
+  - uuid
+
+memory.insight_extraction imports:
+  - __future__
+  - core.schemas
+  - core.singleton_auto_registry
+  - functools
+  - memory.substrate_models
+  - re
+  - structlog
+  - typing
+  - uuid
+
+memory.migration_runner imports:
+  - asyncpg
+  - json
+  - os
+  - pathlib
+  - structlog
+  - typing
+
+memory.neo4j_strategy_memory imports:
+  - __future__
+  - core.decorators
+  - datetime
+  - hashlib
+  - json
+  - memory.strategymemory
+  - structlog
+  - typing
+  - uuid
+
+memory.neural_decay_scheduler imports:
+  - __future__
+  - asyncio
+  - dataclasses
+  - datetime
+  - math
+  - structlog
+  - typing
+  - uuid
+
+memory.packet_serializer imports:
+  - __future__
+  - core.schemas
+  - datetime
+  - json
+  - typing
+
+memory.predictive_cache imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - memory.warming_models
+  - structlog
+  - time
+  - typing
+
+memory.query_cache imports:
+  - asyncio
+  - cachetools
+  - datetime
+  - functools
+  - hashlib
+  - json
+  - structlog
+  - typing
+
+memory.query_classifier imports:
+  - __future__
+  - functools
+  - re
+  - structlog
+
+memory.reasoning_replay imports:
+  - __future__
+  - core.decorators
+  - datetime
+  - memory.substrate_repository
+  - structlog
+  - typing
+  - uuid
+
+memory.retention_engine imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - dataclasses
+  - datetime
+  - structlog
+  - typing
+
+memory.retrieval imports:
+  - __future__
+  - core.schemas
+  - core.singleton_auto_registry
+  - datetime
+  - functools
+  - math
+  - memory.cross_encoder_reranker
+  - memory.governance_gate
+  - memory.substrate_models
+  - structlog
+  - typing
+  - uuid
+
+memory.retrieval_ranking imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - math
+  - structlog
+  - typing
+
+memory.retrieval_strategy imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+memory.saga imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+memory.saga_patterns imports:
+  - __future__
+  - core.decorators
+  - memory.saga
+  - structlog
+  - typing
+
+memory.schema_introspection imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - datetime
+  - structlog
+  - typing
+
+memory.semantic_search imports:
+  - __future__
+  - core.schemas
+  - memory.substrate_service
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+
+memory.service_adapter imports:
+  - __future__
+  - core.protocols
+  - core.schemas
+  - structlog
+  - typing
+  - uuid
+
+memory.slack_ingest imports:
+  - api.slack_adapter
+  - api.slack_client
+  - config.settings
+  - core.schemas
+  - httpx
+  - memory.substrate_service
+  - orchestration.input_segmenter
+  - structlog
+  - time
+  - typing
+
+memory.smoke_test imports:
+  - asyncio
+  - core.schemas
+  - memory.ingestion
+  - memory.substrate_service
+  - os
+  - structlog
+  - sys
+  - uuid
+
+memory.state_manager imports:
+  - __future__
+  - core.decorators
+  - core.schemas
+  - datetime
+  - memory.substrate_service
+  - structlog
+  - typing
+  - uuid
+
+memory.strategymemory imports:
+  - __future__
+  - abc
+  - core.decorators
+  - pydantic
+  - structlog
+  - typing
+
+memory.substrate_alignment imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - structlog
+  - typing
+  - uuid
+
+memory.substrate_dag imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - core.schemas
+  - datetime
+  - langchain_core.runnables
+  - langgraph.graph
+  - memory.graph_client
+  - memory.substrate_models
+  - structlog
+  - typing
+  - uuid
+
+memory.substrate_dag_wrapper imports:
+  - __future__
+  - asyncio
+  - core.schemas
+  - dataclasses
+  - memory.substrate_dag
+  - random
+  - structlog
+  - typing
+
+memory.substrate_models imports:
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+memory.substrate_repository imports:
+  - __future__
+  - asyncpg
+  - collections.abc
+  - contextlib
+  - contextvars
+  - core.schemas
+  - core.singleton_auto_registry
+  - datetime
+  - json
+  - memory.governance_gate
+  - memory.substrate_models
+  - memory.vector_search_config
+  - structlog
+  - typing
+  - uuid
+
+memory.substrate_repository_batch_helpers imports:
+  - json
+  - structlog
+  - typing
+  - uuid
+
+memory.substrate_repository_cached imports:
+  - core.schemas
+  - datetime
+  - memory.query_cache
+  - memory.substrate_models
+  - memory.substrate_repository
+  - structlog
+  - typing
+  - uuid
+
+memory.substrate_semantic imports:
+  - abc
+  - asyncio
+  - core.decorators
+  - random
+  - structlog
+  - typing
+
+memory.substrate_service imports:
+  - core.decorators
+  - core.observability.circuit_breaker
+  - core.schemas
+  - core.singleton_auto_registry
+  - datetime
+  - memory.agent_persistence
+  - memory.audit_utils
+  - memory.consolidation
+  - memory.governance_gate
+  - memory.query_classifier
+  - memory.reasoning_replay
+  - memory.retention_engine
+  - memory.saga
+  - memory.saga_patterns
+  - memory.substrate_dag
+  - memory.substrate_repository
+  - memory.substrate_semantic
+  - memory.validators.packet_validator
+  - structlog
+  - telemetry.memory_metrics
+  - typing
+
+memory.timeline_service imports:
+  - __future__
+  - memory.substrate_models
+  - memory.substrate_repository
+  - typing
+
+memory.tool_audit imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - core.schemas
+  - datetime
+  - memory.substrate_models
+  - structlog
+  - telemetry.memory_metrics
+  - typing
+  - uuid
+
+memory.tool_router imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - dataclasses
+  - datetime
+  - hashlib
+  - structlog
+  - typing
+  - uuid
+
+memory.validators.__init__ imports:
+  - memory.validators.packet_validator
+
+memory.validators.packet_validator imports:
+  - __future__
+  - core.schemas
+  - datetime
+  - memory.audit_utils
+  - pydantic
+  - structlog
+  - typing
+
+memory.vector_search_config imports:
+  - structlog
+  - typing
+
+memory.warming_models imports:
+  - __future__
+  - dataclasses
+  - enum
+  - pydantic
+  - typing
+
+memory.warming_service imports:
+  - __future__
+  - memory.gap_detector
+  - memory.predictive_cache
+  - memory.warming_models
+  - structlog
+  - time
+  - typing
+
+orchestrators.__init__ imports:
+  - action_tool.orchestrator
+  - evolution.orchestrator
+  - memory.orchestrator
+  - meta.orchestrator
+  - reasoning.orchestrator
+  - research_swarm.orchestrator
+  - world_model.orchestrator
+  - ws_bridge
+
+orchestrators.action_tool.__init__ imports:
+  - interface
+  - orchestrator
+  - validator
+
+orchestrators.action_tool.interface imports:
+  - core.decorators
+  - enum
+  - pydantic
+  - typing
+
+orchestrators.action_tool.orchestrator imports:
+  - asyncio
+  - core.decorators
+  - interface
+  - structlog
+  - typing
+  - validator
+
+orchestrators.action_tool.validator imports:
+  - core.decorators
+  - core.governance.tool_risk_policy
+  - structlog
+  - typing
+
+orchestrators.agent_execution.__init__ imports:
+  - interface
+  - orchestrator
+  - task_queue
+
+orchestrators.agent_execution.interface imports:
+  - core.decorators
+  - enum
+  - pydantic
+  - typing
+
+orchestrators.agent_execution.orchestrator imports:
+  - asyncio
+  - datetime
+  - interface
+  - json
+  - os
+  - pathlib
+  - structlog
+  - sys
+  - task_queue
+  - time
+
+orchestrators.agent_execution.task_queue imports:
+  - dataclasses
+  - datetime
+  - json
+  - os
+  - pathlib
+  - shutil
+  - structlog
+  - threading
+  - typing
+  - uuid
+
+orchestrators.evolution.__init__ imports:
+  - apply_engine
+  - interface
+  - orchestrator
+
+orchestrators.evolution.apply_engine imports:
+  - asyncio
+  - core.decorators
+  - interface
+  - structlog
+  - typing
+
+orchestrators.evolution.interface imports:
+  - core.decorators
+  - datetime
+  - enum
+  - pydantic
+  - typing
+
+orchestrators.evolution.orchestrator imports:
+  - apply_engine
+  - core.decorators
+  - datetime
+  - interface
+  - structlog
+  - typing
+
+orchestrators.memory.__init__ imports:
+  - housekeeping
+  - interface
+  - orchestrator
+
+orchestrators.memory.housekeeping imports:
+  - datetime
+  - memory.consolidation
+  - structlog
+  - typing
+
+orchestrators.memory.interface imports:
+  - core.decorators
+  - enum
+  - pydantic
+  - typing
+
+orchestrators.memory.orchestrator imports:
+  - datetime
+  - housekeeping
+  - interface
+  - structlog
+  - typing
+
+orchestrators.meta.__init__ imports:
+  - adapter
+  - interface
+  - orchestrator
+
+orchestrators.meta.adapter imports:
+  - interface
+  - openai
+  - structlog
+  - typing
+
+orchestrators.meta.interface imports:
+  - core.decorators
+  - enum
+  - pydantic
+  - structlog
+  - typing
+
+orchestrators.meta.orchestrator imports:
+  - adapter
+  - core.decorators
+  - interface
+  - structlog
+  - typing
+
+orchestrators.orchestrator_registry imports:
+  - __future__
+  - core.auto_registry
+  - structlog
+  - typing
+
+orchestrators.pattern.__init__ imports:
+  - orchestrators.pattern.cell_adapter
+  - orchestrators.pattern.interface
+  - orchestrators.pattern.master_orchestrator
+  - orchestrators.pattern.orchestrator
+
+orchestrators.pattern.cell_adapter imports:
+  - __future__
+  - collaborative_cells.base_cell
+  - json
+  - structlog
+  - typing
+
+orchestrators.pattern.interface imports:
+  - __future__
+  - datetime
+  - enum
+  - pydantic
+  - typing
+  - uuid
+
+orchestrators.pattern.master_orchestrator imports:
+  - __future__
+  - asyncio
+  - datetime
+  - orchestrators.pattern.cell_adapter
+  - orchestrators.pattern.interface
+  - orchestrators.pattern.orchestrator
+  - pathlib
+  - pydantic
+  - structlog
+  - time
+  - typing
+  - uuid
+  - yaml
+
+orchestrators.pattern.metrics imports:
+  - __future__
+  - contextlib
+  - structlog
+  - time
+  - typing
+
+orchestrators.pattern.orchestrator imports:
+  - __future__
+  - core.decorators
+  - datetime
+  - jsonschema
+  - orchestrators.pattern.interface
+  - orchestrators.pattern.metrics
+  - pathlib
+  - structlog
+  - time
+  - typing
+  - uuid
+  - yaml
+
+orchestrators.reasoning.__init__ imports:
+  - adapter_node
+  - interface
+  - orchestrator
+
+orchestrators.reasoning.adapter_node imports:
+  - __future__
+  - interface
+  - orchestrator
+  - structlog
+  - typing
+
+orchestrators.reasoning.interface imports:
+  - core.decorators
+  - enum
+  - pydantic
+  - typing
+
+orchestrators.reasoning.orchestrator imports:
+  - __future__
+  - core.decorators
+  - interface
+  - structlog
+
+orchestrators.research_swarm.__init__ imports:
+  - convergence
+  - interface
+  - orchestrator
+
+orchestrators.research_swarm.convergence imports:
+  - core.decorators
+  - structlog
+
+orchestrators.research_swarm.interface imports:
+  - core.decorators
+  - pydantic
+  - typing
+
+orchestrators.research_swarm.orchestrator imports:
+  - asyncio
+  - core.decorators
+  - interface
+  - structlog
+  - typing
+  - uuid
+
+orchestrators.world_model.__init__ imports:
+  - interface
+  - orchestrator
+  - scheduler
+
+orchestrators.world_model.interface imports:
+  - core.decorators
+  - enum
+  - pydantic
+  - typing
+
+orchestrators.world_model.orchestrator imports:
+  - core.decorators
+  - datetime
+  - interface
+  - scheduler
+  - structlog
+  - typing
+  - uuid
+
+orchestrators.world_model.scheduler imports:
+  - core.decorators
+  - datetime
+  - structlog
+  - typing
+
+orchestrators.ws_bridge imports:
+  - __future__
+  - core.schemas.tasks
+  - core.schemas.ws_event_stream
+  - structlog
+  - typing
+
+services.mac_tasks imports:
+  - dataclasses
+  - datetime
+  - json
+  - os
+  - pathlib
+  - shutil
+  - structlog
+  - threading
+  - typing
+  - uuid
+
+services.ocr_engine imports:
+  - pathlib
+  - structlog
+  - typing
+
+services.pdf_engine imports:
+  - os
+  - structlog
+  - typing
+
+services.research.__init__ imports:
+  - services.research.graph_persistence
+  - services.research.graph_runtime
+  - services.research.graph_state
+  - services.research.memory_adapter
+  - services.research.research_api
+  - services.research.research_graph
+
+services.research.agents.__init__ imports:
+  - services.research.agents.base_agent
+  - services.research.agents.critic_agent
+  - services.research.agents.planner_agent
+  - services.research.agents.researcher_agent
+
+services.research.agents.base_agent imports:
+  - abc
+  - config.research_settings
+  - core.decorators
+  - json
+  - openai
+  - structlog
+  - typing
+
+services.research.agents.critic_agent imports:
+  - services.research.agents.base_agent
+  - services.research.graph_state
+  - structlog
+  - typing
+
+services.research.agents.planner_agent imports:
+  - services.research.agents.base_agent
+  - services.research.graph_state
+  - structlog
+  - typing
+
+services.research.agents.researcher_agent imports:
+  - datetime
+  - services.research.agents.base_agent
+  - services.research.graph_state
+  - structlog
+  - typing
+
+services.research.graph_persistence imports:
+  - __future__
+  - core.decorators
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+services.research.graph_runtime imports:
+  - core.singleton_auto_registry
+  - memory.substrate_repository
+  - services.research.memory_adapter
+  - services.research.research_graph
+  - structlog
+  - typing
+  - uuid
+
+services.research.graph_state imports:
+  - datetime
+  - typing
+
+services.research.insight_extractor imports:
+  - core.decorators
+  - structlog
+  - typing
+
+services.research.memory_adapter imports:
+  - core.schemas
+  - core.singleton_auto_registry
+  - datetime
+  - memory.substrate_models
+  - memory.substrate_repository
+  - services.research.graph_state
+  - structlog
+  - typing
+  - uuid
+
+services.research.research_api imports:
+  - api.routes.registry
+  - fastapi
+  - pydantic
+  - services.research.graph_runtime
+  - structlog
+  - uuid
+
+services.research.research_graph imports:
+  - clients.memory_client
+  - datetime
+  - langgraph.graph
+  - services.research.agents
+  - services.research.graph_persistence
+  - services.research.graph_state
+  - services.research.insight_extractor
+  - services.research.memory_adapter
+  - services.research.tools
+  - structlog
+  - typing
+  - uuid
+
+services.research.tools.__init__ imports:
+  - core.tools.base_registry
+  - services.research.tools.perplexity_client
+  - services.research.tools.tool_resolver
+  - services.research.tools.tool_wrappers
+
+services.research.tools.perplexity_client imports:
+  - core.decorators
+  - core.governance.rate_limit_policy
+  - core.resilience.retry
+  - dataclasses
+  - enum
+  - httpx
+  - structlog
+  - typing
+
+services.research.tools.tool_resolver imports:
+  - core.singleton_auto_registry
+  - core.tools.base_registry
+  - structlog
+  - typing
+
+services.research.tools.tool_wrappers imports:
+  - abc
+  - core.decorators
+  - httpx
+  - services.research.tools.perplexity_client
+  - structlog
+  - typing
+
+services.slack_files imports:
+  - datetime
+  - hashlib
+  - httpx
+  - os
+  - pathlib
+  - structlog
+  - typing
+
+services.symbolic_computation.__init__ imports:
+  - computation
+  - exceptions
+  - models
+
+services.symbolic_computation.api.__init__ imports:
+  - services.symbolic_computation.api.routes
+
+services.symbolic_computation.api.routes imports:
+  - __future__
+  - api.routes.registry
+  - core.decorators
+  - fastapi
+  - pydantic
+  - services.symbolic_computation.config
+  - services.symbolic_computation.core.cache_manager
+  - services.symbolic_computation.core.code_generator
+  - services.symbolic_computation.core.expression_evaluator
+  - services.symbolic_computation.core.metrics
+  - services.symbolic_computation.core.models
+  - services.symbolic_computation.core.optimizer
+  - services.symbolic_computation.core.validator
+  - structlog
+  - typing
+
+services.symbolic_computation.computation imports:
+  - asyncio
+  - exceptions
+  - functools
+  - logger
+  - models
+  - structlog
+  - sympy
+  - sympy.utilities.autowrap
+  - sympy.utilities.codegen
+  - sympy.utilities.lambdify
+  - time
+  - typing
+
+services.symbolic_computation.config imports:
+  - dotenv
+  - pydantic
+  - pydantic_settings
+
+services.symbolic_computation.core.__init__ imports:
+  - services.symbolic_computation.core.cache_manager
+  - services.symbolic_computation.core.code_generator
+  - services.symbolic_computation.core.expression_evaluator
+  - services.symbolic_computation.core.metrics
+  - services.symbolic_computation.core.models
+  - services.symbolic_computation.core.optimizer
+  - services.symbolic_computation.core.validator
+
+services.symbolic_computation.core.cache_manager imports:
+  - __future__
+  - core.decorators
+  - hashlib
+  - pickle
+  - services.symbolic_computation.config
+  - structlog
+  - typing
+
+services.symbolic_computation.core.code_generator imports:
+  - __future__
+  - services.symbolic_computation.config
+  - services.symbolic_computation.core.models
+  - structlog
+  - subprocess
+  - sympy
+  - time
+  - typing
+
+services.symbolic_computation.core.expression_evaluator imports:
+  - __future__
+  - hashlib
+  - services.symbolic_computation.config
+  - services.symbolic_computation.core.models
+  - structlog
+  - sympy
+  - sympy.utilities.lambdify
+  - time
+  - typing
+
+services.symbolic_computation.core.metrics imports:
+  - __future__
+  - datetime
+  - services.symbolic_computation.config
+  - services.symbolic_computation.core.models
+  - structlog
+  - typing
+
+services.symbolic_computation.core.models imports:
+  - __future__
+  - datetime
+  - enum
+  - pydantic
+  - typing
+
+services.symbolic_computation.core.optimizer imports:
+  - __future__
+  - services.symbolic_computation.config
+  - structlog
+  - sympy
+  - sympy.simplify.cse_main
+  - typing
+
+services.symbolic_computation.core.validator imports:
+  - __future__
+  - re
+  - services.symbolic_computation.config
+  - services.symbolic_computation.core.models
+  - structlog
+  - sympy
+  - typing
+
+services.symbolic_computation.health_check imports:
+  - asyncio
+  - structlog
+  - symbolic_computation
+  - typing
+
+services.symbolic_computation.logger imports:
+  - logging
+  - typing
+
+services.symbolic_computation.models imports:
+  - enum
+  - pydantic
+  - typing
+
+services.symbolic_computation.test_symbolic_computation imports:
+  - pytest
+  - symbolic_computation.core
+  - symbolic_computation.models
+  - symbolic_computation.utils
+
+services.symbolic_computation.tools.__init__ imports:
+  - services.symbolic_computation.tools.symbolic_tool
+
+services.symbolic_computation.tools.symbolic_tool imports:
+  - __future__
+  - services.symbolic_computation.config
+  - services.symbolic_computation.core.cache_manager
+  - services.symbolic_computation.core.code_generator
+  - services.symbolic_computation.core.expression_evaluator
+  - services.symbolic_computation.core.metrics
+  - services.symbolic_computation.core.optimizer
+  - services.symbolic_computation.core.validator
+  - structlog
+  - typing
+
+services.symbolic_computation.utils imports:
+  - sympy
+  - sympy.utilities.memoization
+  - typing
+
+services.tool_feedback_service imports:
+  - __future__
+  - collections.abc
+  - config.settings
+  - dataclasses
+  - structlog
+
+services.tool_learning_engine imports:
+  - __future__
+  - config.settings
+  - dataclasses
+  - structlog
+
+services.tool_learning_scheduler imports:
+  - __future__
+  - config.settings
+  - memory.substrate_service
+  - services.tool_learning_engine
+  - structlog
+
+workers.__init__ imports:
+  - workers.anomaly_classifier
+  - workers.anomaly_response_monitor
+  - workers.remediation_engine
+  - workers.violation_patterns
+  - workers.violation_tracker_service
+
+workers.anomaly_classifier imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - datetime
+  - enum
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+
+workers.anomaly_response_monitor imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - datetime
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+  - workers.anomaly_classifier
+  - workers.remediation_engine
+
+workers.remediation_engine imports:
+  - __future__
+  - core.decorators
+  - datetime
+  - enum
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+
+workers.violation_patterns imports:
+  - __future__
+  - core.decorators
+  - dataclasses
+  - datetime
+  - enum
+  - pydantic
+  - re
+  - structlog
+  - typing
+  - uuid
+
+workers.violation_tracker_service imports:
+  - __future__
+  - clients.memory_client
+  - core.decorators
+  - datetime
+  - json
+  - pathlib
+  - pydantic
+  - structlog
+  - typing
+  - uuid
+  - workers.violation_patterns
+
+world_model.__init__ imports:
+  - world_model.causal_graph
+  - world_model.causal_mapper
+  - world_model.engine
+  - world_model.interfaces
+  - world_model.knowledge_ingestor
+  - world_model.loader
+  - world_model.nodes
+  - world_model.query_engine
+  - world_model.reflection_memory
+  - world_model.registry
+  - world_model.repository
+  - world_model.runtime
+  - world_model.service
+  - world_model.state
+  - world_model.updater
+  - world_model.world_model_service
+
+world_model._pack_staging.loader imports:
+  - pathlib
+  - typing
+  - world_model.interfaces
+  - world_model.registry
+  - world_model.state
+  - yaml
+
+world_model._pack_staging.neo4j_substrate imports:
+  - dataclasses
+  - logging
+  - typing
+  - world_model.interfaces
+  - world_model.state
+
+world_model._pack_staging.orchestrator imports:
+  - enum
+  - logging
+  - typing
+  - world_model.interfaces
+  - world_model.neo4j_substrate
+  - world_model.postgres_substrate
+  - world_model.redis_substrate
+  - world_model.state
+
+world_model._pack_staging.postgres_substrate imports:
+  - dataclasses
+  - json
+  - logging
+  - typing
+  - world_model.interfaces
+  - world_model.state
+
+world_model._pack_staging.query_engine imports:
+  - dataclasses
+  - typing
+  - world_model.interfaces
+  - world_model.registry
+  - world_model.state
+
+world_model._pack_staging.redis_substrate imports:
+  - dataclasses
+  - json
+  - logging
+  - typing
+  - world_model.interfaces
+  - world_model.state
+
+world_model._pack_staging.registry imports:
+  - dataclasses
+  - typing
+  - world_model.interfaces
+
+world_model._pack_staging.state imports:
+  - dataclasses
+  - datetime
+  - typing
+  - world_model.interfaces
+
+world_model._pack_staging.test_integration imports:
+  - unittest
+  - world_model.interfaces
+  - world_model.loader
+  - world_model.orchestrator
+  - world_model.query_engine
+  - world_model.state
+  - world_model.updater
+
+world_model._pack_staging.updater imports:
+  - dataclasses
+  - typing
+  - world_model.interfaces
+  - world_model.registry
+  - world_model.state
+
+world_model.causal_graph imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - typing
+
+world_model.causal_mapper imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+world_model.engine imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - core.singleton_auto_registry
+  - datetime
+  - structlog
+  - typing
+  - uuid
+  - world_model.causal_graph
+  - world_model.loader
+  - world_model.registry
+  - world_model.state
+  - world_model.updater
+
+world_model.interfaces imports:
+  - typing
+
+world_model.knowledge_ingestor imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - hashlib
+  - json
+  - pathlib
+  - structlog
+  - typing
+  - uuid
+  - world_model.state
+
+world_model.loader imports:
+  - __future__
+  - pathlib
+  - structlog
+  - typing
+  - yaml
+
+world_model.nodes.__init__ imports:
+  - world_model.nodes.service_nodes
+  - world_model.nodes.update_world_model_node
+
+world_model.nodes.service_nodes imports:
+  - __future__
+  - datetime
+  - structlog
+  - typing
+  - uuid
+
+world_model.nodes.update_world_model_node imports:
+  - __future__
+  - core.decorators
+  - structlog
+  - typing
+  - world_model.engine
+
+world_model.query_engine imports:
+  - __future__
+  - dataclasses
+  - typing
+
+world_model.reflection_memory imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - enum
+  - structlog
+  - typing
+  - uuid
+
+world_model.registry imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - typing
+
+world_model.repository imports:
+  - __future__
+  - asyncpg
+  - core.singleton_auto_registry
+  - datetime
+  - json
+  - os
+  - structlog
+  - typing
+  - uuid
+
+world_model.runtime imports:
+  - __future__
+  - asyncio
+  - core.decorators
+  - dataclasses
+  - datetime
+  - enum
+  - fnmatch
+  - pathlib
+  - re
+  - structlog
+  - typing
+  - uuid
+  - world_model.causal_graph
+  - world_model.registry
+  - world_model.state
+
+world_model.seed_loader imports:
+  - __future__
+  - asyncio
+  - core.schemas
+  - datetime
+  - logging
+  - memory.substrate_service
+  - pathlib
+  - structlog
+  - typing
+  - uuid
+  - world_model.knowledge_ingestor
+  - world_model.state
+  - yaml
+
+world_model.service imports:
+  - __future__
+  - core.singleton_auto_registry
+  - datetime
+  - structlog
+  - typing
+  - uuid
+  - world_model.repository
+
+world_model.state imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - typing
+
+world_model.updater imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - typing
+
+world_model.world_model_service imports:
+  - __future__
+  - dataclasses
+  - datetime
+  - structlog
+  - typing
+  - uuid
+

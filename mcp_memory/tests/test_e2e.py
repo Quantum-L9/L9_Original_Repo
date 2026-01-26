@@ -66,7 +66,6 @@ async def test_e2e_save_memory(mock_caller_c):
             "src.routes.memory_unified.fetch_one", new_callable=AsyncMock
         ) as mock_fetch,
     ):
-
         # Mock embedding generation
         mock_embed.return_value = [0.1] * 1536
 
@@ -76,7 +75,7 @@ async def test_e2e_save_memory(mock_caller_c):
         # Mock fetch_one for packet retrieval
         mock_fetch.return_value = {
             "packet_id": "test-packet-id",
-            "envelope": {"kind": "MEMORY"},
+            "envelope": {"packet_type": "memory_write"},
             "created_at": "2026-01-09T00:00:00Z",
         }
 
@@ -119,7 +118,6 @@ async def test_e2e_search_memory(mock_caller_c):
             "src.routes.memory_unified.fetch_all", new_callable=AsyncMock
         ) as mock_fetch,
     ):
-
         # Mock embedding generation
         mock_embed.return_value = [0.1] * 1536
 
@@ -188,7 +186,6 @@ async def test_e2e_governance_l_can_write_l_private(mock_caller_l):
             "src.routes.memory_unified.fetch_one", new_callable=AsyncMock
         ) as mock_fetch,
     ):
-
         mock_embed.return_value = [0.1] * 1536
         mock_execute.return_value = None
         mock_fetch.return_value = {"packet_id": "test-id"}
@@ -315,7 +312,6 @@ async def test_e2e_audit_logging_tool_call_logged(mock_caller_c):
         ) as mock_stats,
         patch("src.mcp_server.execute", new_callable=AsyncMock) as mock_audit,
     ):
-
         mock_stats.return_value = {"total_count": 100}
         mock_audit.return_value = None
 

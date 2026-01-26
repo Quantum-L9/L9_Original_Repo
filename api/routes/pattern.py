@@ -35,6 +35,7 @@ __dora_meta__ = {
 
 from typing import Any
 
+import aiofiles
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
@@ -329,11 +330,11 @@ async def validate_pattern_config(
     try:
         import yaml
 
-        with open(pattern_path) as f:
-            pattern_config = yaml.safe_load(f)
+        async with aiofiles.open(pattern_path) as f:
+            pattern_config = yaml.safe_load(await f.read())
 
-        with open(subsystem_path) as f:
-            subsystem_config = yaml.safe_load(f)
+        async with aiofiles.open(subsystem_path) as f:
+            subsystem_config = yaml.safe_load(await f.read())
 
         return {
             "valid": True,

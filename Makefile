@@ -11,7 +11,7 @@
 #   make rollback      - Rollback to previous version
 # =============================================================================
 
-.PHONY: help dev test smoke lint deploy rollback logs clean ci-validate ci-spec ci-code docker-setup
+.PHONY: help dev test smoke lint deploy rollback logs clean ci-validate ci-spec ci-code docker-setup architecture-reports
 
 # Configuration
 VPS_HOST := 157.180.73.53
@@ -66,6 +66,9 @@ help:
 	@echo ""
 	@echo "$(YELLOW)Cursor:$(NC)"
 	@echo "  make cursor-start  Run Cursor session startup"
+	@echo ""
+	@echo "$(YELLOW)Reports:$(NC)"
+	@echo "  make architecture-reports  Generate all architecture reports"
 	@echo ""
 	@echo "$(YELLOW)Utilities:$(NC)"
 	@echo "  make clean         Clean Python cache and build artifacts"
@@ -218,6 +221,15 @@ clean:
 env-check:
 	@echo "$(GREEN)Checking environment variables...$(NC)"
 	@./scripts/check_env.sh
+
+# =============================================================================
+# Architecture Reports
+# =============================================================================
+
+architecture-reports:
+	@echo "$(GREEN)Generating architecture reports...$(NC)"
+	@python3 -m tools.architecture_reports.main
+	@echo "$(GREEN)Reports generated in reports/architecture/$(NC)"
 
 # =============================================================================
 # Cursor

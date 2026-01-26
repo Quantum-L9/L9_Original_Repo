@@ -35,6 +35,7 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import aiofiles
 import structlog
 
 logging.basicConfig(
@@ -166,8 +167,10 @@ async def poll_and_execute():
 
     from api.slack_client import post_result_async
     from mac_agent.executor import AutomationExecutor
-    from orchestrators.agent_execution.task_queue import (get_next_task,
-                                                          mark_task_completed)
+    from orchestrators.agent_execution.task_queue import (
+        get_next_task,
+        mark_task_completed,
+    )
 
     # Import pyautogui for desktop screenshots on failure
     try:
@@ -348,9 +351,11 @@ async def poll_and_execute():
                                 f"~/.l9/mac_tasks/completed/{task_id}.json"
                             )
                         )
-                        with open(completed_file, "w") as f:
-                            json.dump(
-                                {"task": task, "result": failure_result}, f, indent=2
+                        async with aiofiles.open(completed_file, "w") as f:
+                            await f.write(
+                                json.dumps(
+                                    {"task": task, "result": failure_result}, indent=2
+                                )
                             )
                     except Exception:
                         pass

@@ -64,7 +64,7 @@ async def delete_trash_embeddings():
 
         try:
             # Read embedding IDs from SQL file
-            sql_file = Path("/tmp/delete_trash.sql")
+            sql_file = Path(__file__).parent / "delete_trash.sql"
             if not sql_file.exists():
                 logger.error("SQL file not found. Run generate_delete_sql.py first")
                 return False

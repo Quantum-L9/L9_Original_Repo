@@ -13,41 +13,88 @@ Source schemas:
 All models are Pydantic v2 compliant with strict validation.
 """
 
+# L9 Unified Base Model (DORA compliance, content hashing, streaming)
+from core.models.l9_base_model import L9BaseModel
+
 # Security Schemas
-from core.schemas.capabilities import (DEFAULT_ARCHITECT_CAPABILITIES,
-                                       DEFAULT_CODER_CAPABILITIES,
-                                       DEFAULT_READER_CAPABILITIES,
-                                       AgentCapabilities, Capability, ToolName)
-from core.schemas.event_stream import (AgentHandshake, CapabilityViolation,
-                                       HandshakeResponse, HandshakeStatus,
-                                       SecurityEvent, SecurityEventType,
-                                       create_handshake_event,
-                                       create_violation_event)
+from core.schemas.capabilities import (
+    DEFAULT_ARCHITECT_CAPABILITIES,
+    DEFAULT_CODER_CAPABILITIES,
+    DEFAULT_READER_CAPABILITIES,
+    AgentCapabilities,
+    Capability,
+    ToolName,
+)
+from core.schemas.event_stream import (
+    AgentHandshake,
+    CapabilityViolation,
+    HandshakeResponse,
+    HandshakeStatus,
+    SecurityEvent,
+    SecurityEventType,
+    create_handshake_event,
+    create_violation_event,
+)
 from core.schemas.packet_envelope_v2 import (  # Core Packet Models; Packet Components; Enums; Search Models; Schema Version Constants
-    SCHEMA_VERSION, SUPPORTED_VERSIONS, VALID_DERIVE_TYPES, DerivationType,
-    DeriveType, PacketConfidence, PacketEnvelope, PacketEnvelopeIn, PacketKind,
-    PacketLineage, PacketMetadata, PacketProvenance, PacketWriteResult,
-    SemanticHit, SemanticSearchRequest, SemanticSearchResult)
-from core.schemas.research_factory_models import (IntegrationResult,
-                                                  ParsedObject, Query,
-                                                  QueryPlan, ResearchJobSpec,
-                                                  ResearchMetrics,
-                                                  RetrievalBatch, Superprompt,
-                                                  ValidationStatus)
-from core.schemas.research_factory_nodes import (pass_1_plan_queries,
-                                                 pass_2_build_superprompts,
-                                                 pass_3_execute_retrieval,
-                                                 pass_4_extract_results,
-                                                 pass_5_integrate_results)
+    SCHEMA_VERSION,
+    SUPPORTED_VERSIONS,
+    VALID_DERIVE_TYPES,
+    DerivationType,
+    DeriveType,
+    PacketConfidence,
+    PacketEnvelope,
+    PacketEnvelopeIn,
+    PacketKind,
+    PacketLineage,
+    PacketMetadata,
+    PacketProvenance,
+    PacketWriteResult,
+    SemanticHit,
+    SemanticSearchRequest,
+    SemanticSearchResult,
+)
+from core.schemas.research_factory_models import (
+    IntegrationResult,
+    ParsedObject,
+    Query,
+    QueryPlan,
+    ResearchJobSpec,
+    ResearchMetrics,
+    RetrievalBatch,
+    Superprompt,
+    ValidationStatus,
+)
+from core.schemas.research_factory_nodes import (
+    pass_1_plan_queries,
+    pass_2_build_superprompts,
+    pass_3_execute_retrieval,
+    pass_4_extract_results,
+    pass_5_integrate_results,
+)
 from core.schemas.research_factory_state import PassStatus, ResearchState
+
 # Task Types (Phase 2.5)
-from core.schemas.tasks import (AgentTask, TaskBatch, TaskEnvelope, TaskGraph,
-                                TaskKind, TaskResult, TaskStatus)
+from core.schemas.tasks import (
+    AgentTask,
+    TaskBatch,
+    TaskEnvelope,
+    TaskGraph,
+    TaskKind,
+    TaskResult,
+    TaskStatus,
+)
+
 # WebSocket Event Stream
-from core.schemas.ws_event_stream import (AgentHeartbeat, ErrorEvent,
-                                          EventMessage, EventType)
+from core.schemas.ws_event_stream import (
+    AgentHeartbeat,
+    ErrorEvent,
+    EventMessage,
+    EventType,
+)
 
 __all__ = [
+    # L9 Unified Base Model
+    "L9BaseModel",
     # Packet Envelope (Memory.yaml v1.0.1) - CANONICAL IMPORTS
     "PacketEnvelope",
     "PacketEnvelopeIn",

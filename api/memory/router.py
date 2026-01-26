@@ -61,6 +61,10 @@ from pydantic import BaseModel
 from api.auth import verify_api_key
 from api.routes.registry import router_registry
 from core.decorators import must_stay_async
+from core.observability import (
+    observability_context,
+    set_trace_context_from_headers,
+)
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 from core.schemas import PacketEnvelopeIn, SemanticSearchRequest
 from memory.governance_gate import build_governance_context, governance_context
@@ -163,6 +167,7 @@ async def memory_test(
 
 @router.post("/packet", response_model=PacketResponse)
 async def create_packet(
+    http_request: Request,
     request: PacketRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -173,71 +178,90 @@ async def create_packet(
     This is the canonical entrypoint for all packet ingestion.
     All packets pass through ingest_packet() which runs the full DAG pipeline.
     """
-    try:
-        # Convert thread_id string to UUID if provided
-        thread_uuid = None
-        if request.thread_id:
-            from uuid import UUID as UUIDType
+    # Extract W3C trace context from headers for distributed tracing
+    set_trace_context_from_headers(dict(http_request.headers))
 
-            try:
-                thread_uuid = UUIDType(request.thread_id)
-            except ValueError:
-                raise HTTPException(
-                    status_code=400, detail=f"Invalid thread_id: {request.thread_id}"
-                )
+    async with observability_context(
+        "memory_packet_ingest",
+        packet_type=request.packet_type,
+    ):
+        try:
+            # Convert thread_id string to UUID if provided
+            thread_uuid = None
+            if request.thread_id:
+                from uuid import UUID as UUIDType
 
-        # Convert request to PacketEnvelopeIn (v2.0 compatible)
-        packet_in = PacketEnvelopeIn(
-            packet_type=request.packet_type,
-            payload=request.payload,
-            metadata=request.metadata,
-            provenance=request.provenance,
-            confidence=request.confidence,
-            thread_id=thread_uuid,
-            tags=request.tags,
-            ttl=request.ttl,
-        )
+                try:
+                    thread_uuid = UUIDType(request.thread_id)
+                except ValueError:
+                    raise HTTPException(
+                        status_code=400,
+                        detail=f"Invalid thread_id: {request.thread_id}",
+                    )
 
-        # Canonical ingestion entrypoint
-        result = await ingest_packet(packet_in)
+            # Convert request to PacketEnvelopeIn (v2.0 compatible)
+            packet_in = PacketEnvelopeIn(
+                packet_type=request.packet_type,
+                payload=request.payload,
+                metadata=request.metadata,
+                provenance=request.provenance,
+                confidence=request.confidence,
+                thread_id=thread_uuid,
+                tags=request.tags,
+                ttl=request.ttl,
+            )
 
-        return PacketResponse(
-            packet_id=str(result.packet_id),
-            status=result.status,
-            written_tables=result.written_tables,
-            error_message=result.error_message,
-        )
-    except RuntimeError as e:
-        # Memory system not initialized
-        logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(
-            status_code=503,
-            detail="Memory system not available. Check server logs for initialization errors.",
-        )
-    except Exception as e:
-        logger.error(f"Packet ingestion failed: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Packet ingestion failed: {e!s}"
-        )
+            # Canonical ingestion entrypoint
+            result = await ingest_packet(packet_in)
+
+            return PacketResponse(
+                packet_id=str(result.packet_id),
+                status=result.status,
+                written_tables=result.written_tables,
+                error_message=result.error_message,
+            )
+        except RuntimeError as e:
+            # Memory system not initialized
+            logger.error(f"Memory system not initialized: {e}")
+            raise HTTPException(
+                status_code=503,
+                detail="Memory system not available. Check server logs for initialization errors.",
+            )
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Packet ingestion failed: {e}", exc_info=True)
+            raise HTTPException(
+                status_code=500, detail=f"Packet ingestion failed: {e!s}"
+            )
 
 
 @router.post("/semantic/search")
 async def semantic_search(
+    http_request: Request,
     request: SemanticSearchRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
 ):
     """Perform semantic search on memory substrate."""
-    try:
-        service = await get_service()
-        result = await service.semantic_search(request)
-        return result.model_dump(mode="json")
-    except RuntimeError as e:
-        logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
-    except Exception as e:
-        logger.error(f"Semantic search failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Search failed: {e!s}")
+    # Extract W3C trace context from headers for distributed tracing
+    set_trace_context_from_headers(dict(http_request.headers))
+
+    async with observability_context(
+        "memory_semantic_search",
+        query_length=len(request.query) if request.query else 0,
+        top_k=request.top_k,
+    ):
+        try:
+            service = await get_service()
+            result = await service.semantic_search(request)
+            return result.model_dump(mode="json")
+        except RuntimeError as e:
+            logger.error(f"Memory system not initialized: {e}")
+            raise HTTPException(status_code=503, detail="Memory system not available.")
+        except Exception as e:
+            logger.error(f"Semantic search failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Search failed: {e!s}")
 
 
 @router.get("/stats")
@@ -361,7 +385,7 @@ async def get_lineage(
 
 @router.post("/hybrid/search")
 async def hybrid_search(
-    request: Request,
+    http_request: Request,
     query: str = Query(..., min_length=1),
     top_k: int = Query(10, ge=1, le=100),
     min_score: float = Query(0.5, ge=0.0, le=1.0),
@@ -374,36 +398,45 @@ async def hybrid_search(
 
     Client sends query params (query, top_k, agent_id, min_score) AND JSON body for filters.
     """
-    try:
-        # Read filters from request body (client sends filters as JSON body)
-        filters = {}
+    # Extract W3C trace context from headers for distributed tracing
+    set_trace_context_from_headers(dict(http_request.headers))
+
+    async with observability_context(
+        "memory_hybrid_search",
+        query_length=len(query),
+        top_k=top_k,
+        agent_id=agent_id,
+    ):
         try:
-            body = await request.json()
-            if isinstance(body, dict):
-                filters = body
-        except (json.JSONDecodeError, ValueError):
-            # No body or invalid JSON - use empty filters
-            pass
+            # Read filters from request body (client sends filters as JSON body)
+            filters = {}
+            try:
+                body = await http_request.json()
+                if isinstance(body, dict):
+                    filters = body
+            except (json.JSONDecodeError, ValueError):
+                # No body or invalid JSON - use empty filters
+                pass
 
-        pipeline = get_retrieval_pipeline()
-        service = await get_service()
-        pipeline.set_repository(service._repository)
-        pipeline.set_semantic_service(service._semantic_service)
+            pipeline = get_retrieval_pipeline()
+            service = await get_service()
+            pipeline.set_repository(service._repository)
+            pipeline.set_semantic_service(service._semantic_service)
 
-        result = await pipeline.hybrid_search(
-            query=query,
-            top_k=top_k,
-            filters=filters,
-            agent_id=agent_id,
-            min_score=min_score,
-        )
-        return result
-    except RuntimeError as e:
-        logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
-    except Exception as e:
-        logger.error(f"Hybrid search failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Hybrid search failed: {e!s}")
+            result = await pipeline.hybrid_search(
+                query=query,
+                top_k=top_k,
+                filters=filters,
+                agent_id=agent_id,
+                min_score=min_score,
+            )
+            return result
+        except RuntimeError as e:
+            logger.error(f"Memory system not initialized: {e}")
+            raise HTTPException(status_code=503, detail="Memory system not available.")
+        except Exception as e:
+            logger.error(f"Hybrid search failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Hybrid search failed: {e!s}")
 
 
 @router.get("/facts")
@@ -571,6 +604,7 @@ class CompactResponse(BaseModel):
 
 @router.post("/batch", response_model=BatchResponse)
 async def batch_write(
+    http_request: Request,
     request: BatchRequest,
     authorization: str = Header(None),
     _: bool = Depends(verify_api_key),
@@ -581,46 +615,56 @@ async def batch_write(
 
     This endpoint processes packets in batches for efficient bulk ingestion.
     """
-    if _batch_circuit_breaker.is_open():
-        cb_stats = _batch_circuit_breaker.get_stats()
-        logger.warning(
-            "batch_circuit_breaker_open",
-            failures_in_window=cb_stats["failures_in_window"],
-        )
-        raise HTTPException(
-            status_code=503,
-            detail=(
-                "Circuit breaker open: "
-                f"{cb_stats['failures_in_window']} failures in "
-                f"{cb_stats['window_seconds']}s"
-            ),
-        )
+    # Extract W3C trace context from headers for distributed tracing
+    set_trace_context_from_headers(dict(http_request.headers))
 
-    try:
-        logger.info(
-            "Batch write request",
-            packet_count=len(request.packets),
-            batch_size=request.batch_size,
-        )
+    async with observability_context(
+        "memory_batch_write",
+        packet_count=len(request.packets),
+        batch_size=request.batch_size,
+    ):
+        if _batch_circuit_breaker.is_open():
+            cb_stats = _batch_circuit_breaker.get_stats()
+            logger.warning(
+                "batch_circuit_breaker_open",
+                failures_in_window=cb_stats["failures_in_window"],
+            )
+            raise HTTPException(
+                status_code=503,
+                detail=(
+                    "Circuit breaker open: "
+                    f"{cb_stats['failures_in_window']} failures in "
+                    f"{cb_stats['window_seconds']}s"
+                ),
+            )
 
-        mem_request = MemoryRequest(
-            operation=MemoryOperation.BATCH_WRITE,
-            packets=request.packets,
-        )
+        try:
+            logger.info(
+                "Batch write request",
+                packet_count=len(request.packets),
+                batch_size=request.batch_size,
+            )
 
-        result = await orchestrator.execute(mem_request)
+            mem_request = MemoryRequest(
+                operation=MemoryOperation.BATCH_WRITE,
+                packets=request.packets,
+            )
 
-        _batch_circuit_breaker.record_success()
+            result = await orchestrator.execute(mem_request)
 
-        return BatchResponse(
-            success=result.success,
-            processed_count=result.processed_count,
-            errors=result.errors,
-        )
-    except Exception as e:
-        _batch_circuit_breaker.record_failure(str(e))
-        logger.error(f"Batch write failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Batch write failed: {e!s}")
+            _batch_circuit_breaker.record_success()
+
+            return BatchResponse(
+                success=result.success,
+                processed_count=result.processed_count,
+                errors=result.errors,
+            )
+        except HTTPException:
+            raise
+        except Exception as e:
+            _batch_circuit_breaker.record_failure(str(e))
+            logger.error(f"Batch write failed: {e}", exc_info=True)
+            raise HTTPException(status_code=500, detail=f"Batch write failed: {e!s}")
 
 
 @router.post("/compact", response_model=CompactResponse)
@@ -720,9 +764,7 @@ async def reasoning_replay(
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         logger.error(f"Reasoning replay failed: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500, detail=f"Reasoning replay failed: {e!s}"
-        )
+        raise HTTPException(status_code=500, detail=f"Reasoning replay failed: {e!s}")
 
 
 class ConsolidationRequest(BaseModel):

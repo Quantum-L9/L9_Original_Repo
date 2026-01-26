@@ -30,8 +30,8 @@ from uuid import uuid4
 import hashlib
 from pydantic import BaseModel, Field, validator
 
-from L9.core.eos.schemas import ActionEnvelope, EpistemicObject, EpistemicObjectType
-from L9.core.memory.packet import PacketEnvelope
+from core.eos.schemas import ActionEnvelope, EpistemicObject, EpistemicObjectType
+from core.schemas.packet_envelope import PacketEnvelope
 
 
 # ─────────────────────────────────────────────────────────────────

@@ -39,7 +39,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -56,6 +56,7 @@ from core.singleton_auto_registry import register_singleton, register_singleton_
 from memory.agent_persistence import AgentPersistenceService
 from memory.audit_utils import prepare_packet_for_ingest
 from memory.consolidation import ConsolidationPipeline
+from memory.enrichment_dag import EnrichmentDAG
 from memory.governance_gate import (
     enforce_packet_governance,
     ensure_governance_context,
@@ -67,7 +68,6 @@ from memory.reasoning_replay import ReasoningReplayPipeline
 from memory.retention_engine import RetentionEngine
 from memory.saga import SagaExecutor, SagaResult
 from memory.saga_patterns import SagaPatterns
-from memory.substrate_dag import SubstrateDAG
 from memory.substrate_repository import SubstrateRepository
 from memory.substrate_semantic import (
     EmbeddingProvider,
@@ -100,7 +100,7 @@ class MemorySubstrateService:
     def __init__(
         self,
         repository: SubstrateRepository,
-        embedding_provider: Optional[EmbeddingProvider] = None,
+        embedding_provider: EmbeddingProvider | None = None,
     ):
         """
         Initialize the substrate service.
@@ -131,10 +131,11 @@ class MemorySubstrateService:
             repository=repository,
         )
 
-        # Initialize DAG
-        self._dag = SubstrateDAG(
+        # Initialize DAG (EnrichmentDAG with multi-tier fallback)
+        self._dag = EnrichmentDAG(
             repository=repository,
             semantic_service=self._semantic_service,
+            saga_executor=None,  # Lazy-initialized via _get_saga_executor()
         )
 
         # Initialize circuit breaker for DAG operations
@@ -148,18 +149,18 @@ class MemorySubstrateService:
         )
 
         # Initialize v3.1 modules (lazy initialization)
-        self._query_classifier: Optional[QueryClassifier] = None
-        self._reasoning_replay: Optional[ReasoningReplayPipeline] = None
-        self._consolidation: Optional[ConsolidationPipeline] = None
-        self._agent_persistence: Optional[AgentPersistenceService] = None
-        self._retention_engine: Optional[RetentionEngine] = None
+        self._query_classifier: QueryClassifier | None = None
+        self._reasoning_replay: ReasoningReplayPipeline | None = None
+        self._consolidation: ConsolidationPipeline | None = None
+        self._agent_persistence: AgentPersistenceService | None = None
+        self._retention_engine: RetentionEngine | None = None
 
         # Initialize saga pattern (lazy initialization)
-        self._saga_executor: Optional[SagaExecutor] = None
-        self._saga_patterns: Optional[SagaPatterns] = None
+        self._saga_executor: SagaExecutor | None = None
+        self._saga_patterns: SagaPatterns | None = None
 
         # Initialize Dead-Letter Queue (lazy initialization)
-        self._dlq: Optional[Any] = None
+        self._dlq: Any | None = None
 
         logger.info("MemorySubstrateService initialized")
 
@@ -227,9 +228,9 @@ class MemorySubstrateService:
     async def write_packet(
         self,
         packet_in: PacketEnvelopeIn,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
         audit_mode: bool = True,
     ) -> PacketWriteResult:
@@ -377,7 +378,7 @@ class MemorySubstrateService:
 
         return result
 
-    async def get_packet(self, packet_id: str) -> Optional[dict[str, Any]]:
+    async def get_packet(self, packet_id: str) -> dict[str, Any] | None:
         """
         Retrieve a packet by ID.
 
@@ -408,7 +409,7 @@ class MemorySubstrateService:
     async def search_packets_by_thread(
         self,
         thread_id: str,
-        packet_type: Optional[str] = None,
+        packet_type: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """
@@ -454,7 +455,7 @@ class MemorySubstrateService:
     async def search_packets_by_type(
         self,
         packet_type: str,
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """
@@ -497,13 +498,13 @@ class MemorySubstrateService:
 
     async def query_packets(
         self,
-        packet_types: Optional[list[str]] = None,
+        packet_types: list[str] | None = None,
         limit: int = 50,
-        since: Optional[datetime] = None,
-        agent_id: Optional[str] = None,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        since: datetime | None = None,
+        agent_id: str | None = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> dict[str, Any]:
         """
@@ -652,7 +653,7 @@ class MemorySubstrateService:
         )
 
     async def embed_text(
-        self, text: str, payload: dict[str, Any], agent_id: Optional[str] = None
+        self, text: str, payload: dict[str, Any], agent_id: str | None = None
     ) -> str:
         """
         Directly embed and store text in semantic memory.
@@ -679,7 +680,7 @@ class MemorySubstrateService:
     async def get_memory_events(
         self,
         agent_id: str,
-        event_type: Optional[str] = None,
+        event_type: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """
@@ -706,8 +707,8 @@ class MemorySubstrateService:
 
     async def get_reasoning_traces(
         self,
-        agent_id: Optional[str] = None,
-        packet_id: Optional[str] = None,
+        agent_id: str | None = None,
+        packet_id: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """
@@ -736,7 +737,7 @@ class MemorySubstrateService:
     # Checkpoint Operations
     # =========================================================================
 
-    async def get_checkpoint(self, agent_id: str) -> Optional[dict[str, Any]]:
+    async def get_checkpoint(self, agent_id: str) -> dict[str, Any] | None:
         """
         Retrieve the latest checkpoint for an agent.
 
@@ -793,9 +794,9 @@ class MemorySubstrateService:
     async def trigger_world_model_update(
         self,
         insights: list[dict[str, Any]],
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> dict[str, Any]:
         """
@@ -868,8 +869,8 @@ class MemorySubstrateService:
 
     async def get_facts_by_subject(
         self,
-        subject: Optional[str],
-        predicate: Optional[str] = None,
+        subject: str | None,
+        predicate: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """
@@ -1161,9 +1162,9 @@ class MemorySubstrateService:
 
     async def correlate_timeline(
         self,
-        start_time: Optional[str] = None,
-        end_time: Optional[str] = None,
-        event_type: Optional[str] = None,
+        start_time: str | None = None,
+        end_time: str | None = None,
+        event_type: str | None = None,
         limit: int = 50,
     ) -> SagaResult:
         """
@@ -1195,7 +1196,7 @@ class MemorySubstrateService:
 
 
 async def create_substrate_service(
-    database_url: str,
+    database_url: str | None = None,
     embedding_provider_type: str = "openai",
     **kwargs,
 ) -> MemorySubstrateService:
@@ -1206,7 +1207,7 @@ async def create_substrate_service(
     which handles lazy initialization, dependency wiring, and lifecycle management.
 
     Args:
-        database_url: PostgreSQL connection URL
+        database_url: PostgreSQL connection URL (defaults to DATABASE_URL env var)
         embedding_provider_type: Type of embedding provider ("openai", "cohere", etc.)
         **kwargs: Additional configuration options passed to container:
             - embedding_model: Model name (e.g., "text-embedding-3-large")
@@ -1248,7 +1249,13 @@ async def create_substrate_service(
         await container.close()
         ```
     """
+    import os
+
     from core.di.container import MemorySubstrateContainer
+
+    # Get database_url from env if not provided
+    if database_url is None:
+        database_url = os.environ.get("DATABASE_URL")
 
     # Build config from parameters
     config = {
@@ -1281,7 +1288,7 @@ async def create_substrate_service(
 
 
 # Singleton instance
-_service: Optional[MemorySubstrateService] = None
+_service: MemorySubstrateService | None = None
 
 
 @must_stay_async("callers use await")
@@ -1291,10 +1298,58 @@ _service: Optional[MemorySubstrateService] = None
     description="Memory substrate service orchestrating repository, semantic, and graph layers",
 )
 async def get_service() -> MemorySubstrateService:
-    """Get service singleton (must be initialized first)."""
+    """
+    Get memory substrate service singleton (must be initialized first).
+
+    CANONICAL NAME: This is the preferred function name as of v1.0.0.
+    LEGACY ALIAS: get_memory_substrate_service() available for backward compatibility.
+
+    Returns:
+        MemorySubstrateService: Initialized singleton instance
+
+    Raises:
+        RuntimeError: If service not initialized. Call init_service() first.
+
+    Example:
+        ```python
+        from memory.substrate_service import get_service
+
+        service = await get_service()
+        await service.write_packet(packet)
+        ```
+    """
     if _service is None:
         raise RuntimeError("Service not initialized. Call init_service() first.")
     return _service
+
+
+@must_stay_async("backward compatibility wrapper")
+async def get_memory_substrate_service() -> MemorySubstrateService:
+    """
+    DEPRECATED: Get memory substrate service singleton.
+
+    This function is deprecated as of v1.0.0. Use get_service() instead.
+    Maintained for backward compatibility only. Will be removed in v2.0.0.
+
+    Migration:
+        OLD: from memory.substrate_service import get_memory_substrate_service
+        NEW: from memory.substrate_service import get_service
+
+    Returns:
+        MemorySubstrateService: Same instance as get_service()
+
+    Raises:
+        RuntimeError: If service not initialized
+    """
+    import warnings
+
+    warnings.warn(
+        "get_memory_substrate_service() is deprecated and will be removed in v2.0.0. "
+        "Use get_service() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return await get_service()
 
 
 async def init_service(

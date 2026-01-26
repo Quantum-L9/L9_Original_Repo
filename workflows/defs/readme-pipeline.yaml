@@ -1,0 +1,197 @@
+# README Pipeline Workflow Definition
+# ===================================
+# Systematic generation and validation of subsystem READMEs
+#
+# Usage:
+#   Invoke via: /readme-gen or SessionRunner.run("readme-pipeline-v1")
+#
+# Version: 1.0.0
+# Created: 2026-01-25
+
+id: readme-pipeline-v1
+name: README Generation Pipeline
+version: 1.0.0
+description: |
+  Systematic workflow for generating and validating subsystem READMEs.
+  
+  Phases:
+  1. Gap Analysis - identify missing subsystems
+  2. Config Enrichment - add missing entries
+  3. Template Update - enhance template if needed
+  4. Generate - run generator script
+  5. Validate - verify output
+  6. Report - summarize results
+
+tags:
+  - readme
+  - documentation
+  - generation
+  - subsystems
+  - dora
+
+# Key files this workflow operates on
+artifacts:
+  config: config/subsystems/readme_config.yaml
+  generator: scripts/generate_subsystem_readmes.py
+  output_pattern: "*/README.md"
+
+# DAG definition
+nodes:
+  - id: start
+    type: START
+    name: Start
+    
+  - id: gap_analysis
+    type: ANALYZE
+    name: Gap Analysis
+    description: Identify missing subsystems in config
+    commands:
+      - python scripts/generate_subsystem_readmes.py --list
+      - python scripts/generate_subsystem_readmes.py --validate
+    outputs:
+      - gaps
+      - stale_entries
+      
+  - id: gate_gaps
+    type: GATE
+    name: Gaps Found?
+    condition: "len(gaps) > 0"
+    
+  - id: enrich_config
+    type: TRANSFORM
+    name: Enrich Config
+    description: Add missing subsystems to readme_config.yaml
+    file: config/subsystems/readme_config.yaml
+    outputs:
+      - config_updated
+      
+  - id: gate_template
+    type: GATE
+    name: Template Update Needed?
+    gate_type: HUMAN_APPROVAL
+    
+  - id: update_template
+    type: TRANSFORM
+    name: Update Template
+    description: Enhance README_TEMPLATE in generator script
+    file: scripts/generate_subsystem_readmes.py
+    outputs:
+      - template_updated
+      
+  - id: generate
+    type: EXECUTE
+    name: Generate READMEs
+    description: Run the generator script
+    commands:
+      - python scripts/generate_subsystem_readmes.py --skip-time-verify
+    outputs:
+      - generated_count
+      - skipped_count
+      
+  - id: validate
+    type: VALIDATE
+    name: Validate Output
+    description: Verify READMEs were generated correctly
+    commands:
+      - python scripts/generate_subsystem_readmes.py --validate
+      - head -10 memory/README.md
+    outputs:
+      - validation_passed
+      - validation_errors
+      
+  - id: gate_validation
+    type: GATE
+    name: Validation Passed?
+    condition: "validation_passed == True"
+    
+  - id: report
+    type: REPORT
+    name: Generate Report
+    description: Summarize pipeline results
+    template: |
+      ## README Pipeline Report
+      
+      | Metric | Value |
+      |--------|-------|
+      | Subsystems in config | {{ config_count }} |
+      | READMEs generated | {{ generated_count }} |
+      | Gaps identified | {{ len(gaps) }} |
+      | Validation | {{ 'PASSED' if validation_passed else 'FAILED' }} |
+      
+  - id: end
+    type: END
+    name: End
+
+edges:
+  # Main flow
+  - from: start
+    to: gap_analysis
+    
+  - from: gap_analysis
+    to: gate_gaps
+    
+  # Conditional: gaps found
+  - from: gate_gaps
+    to: enrich_config
+    condition: gaps_exist
+    label: "Gaps found"
+    
+  - from: gate_gaps
+    to: gate_template
+    condition: no_gaps
+    label: "No gaps"
+    
+  - from: enrich_config
+    to: gate_template
+    
+  # Conditional: template update
+  - from: gate_template
+    to: update_template
+    condition: template_update_requested
+    label: "Update needed"
+    
+  - from: gate_template
+    to: generate
+    condition: no_template_update
+    label: "Skip template"
+    
+  - from: update_template
+    to: generate
+    
+  # Generate → Validate → Report
+  - from: generate
+    to: validate
+    
+  - from: validate
+    to: gate_validation
+    
+  # Conditional: validation
+  - from: gate_validation
+    to: report
+    condition: validation_passed
+    label: "Passed"
+    
+  - from: gate_validation
+    to: enrich_config
+    condition: validation_failed
+    label: "Fix issues"
+    
+  - from: report
+    to: end
+
+# Visual representation (mermaid)
+diagram: |
+  graph TD
+    start([Start]) --> gap_analysis[Gap Analysis]
+    gap_analysis --> gate_gaps{Gaps Found?}
+    gate_gaps -->|Yes| enrich_config[Enrich Config]
+    gate_gaps -->|No| gate_template{Template Update?}
+    enrich_config --> gate_template
+    gate_template -->|Yes| update_template[Update Template]
+    gate_template -->|No| generate[Generate READMEs]
+    update_template --> generate
+    generate --> validate[Validate Output]
+    validate --> gate_validation{Passed?}
+    gate_validation -->|Yes| report[Generate Report]
+    gate_validation -->|No| enrich_config
+    report --> end_node([End])

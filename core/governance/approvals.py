@@ -55,7 +55,7 @@ from typing import Any
 
 import structlog
 
-from core.schemas import PacketEnvelopeIn
+from core.schemas import PacketEnvelopeIn, PacketMetadata
 from memory.governance_patterns import (
     DecisionType,
     GovernancePattern,
@@ -151,6 +151,7 @@ class ApprovalManager:
                     "status": "pending",
                     "created_at": datetime.utcnow().isoformat(),
                 },
+                metadata=PacketMetadata(agent="approval_manager"),
             )
         )
 
@@ -249,6 +250,7 @@ class ApprovalManager:
                     "approved_by": approved_by,
                     "timestamp": datetime.utcnow().isoformat(),
                 },
+                metadata=PacketMetadata(agent="approval_manager"),
             )
         )
 
@@ -294,6 +296,7 @@ class ApprovalManager:
                     "timestamp": datetime.utcnow().isoformat(),
                     "reason": reason or "",
                 },
+                metadata=PacketMetadata(agent="approval_manager"),
             )
         )
 
@@ -349,6 +352,7 @@ class ApprovalManager:
                     "timestamp": datetime.utcnow().isoformat(),
                     "reason": reason,
                 },
+                metadata=PacketMetadata(agent="approval_manager"),
             )
         )
 

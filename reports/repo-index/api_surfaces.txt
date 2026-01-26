@@ -1,0 +1,26 @@
+
+# API Surface:
+  api/agent_routes.py::router
+  api/memory/cache.py::router
+  api/memory/graph.py::router
+  api/memory/router.py::router
+  api/os_routes.py::router
+  api/routes/commands.py::router
+  api/routes/compliance.py::router
+  api/routes/cursor.py::router
+  api/routes/factory.py::router
+  api/routes/gmp_learning.py::router
+  api/routes/mcp.py::router
+  api/routes/modules.py::router
+  api/routes/observability.py::router
+  api/routes/pattern.py::router
+  api/routes/reasoning.py::router
+  api/routes/reflection_agent.py::router
+  api/routes/registry.py::router
+  api/routes/research.py::router
+  api/routes/research_agent.py::router
+  api/routes/simulation.py::router
+
+# SERVICES Surface:
+  services/research/research_api.py::router
+  services/symbolic_computation/api/routes.py::router

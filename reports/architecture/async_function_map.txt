@@ -1,0 +1,1846 @@
+async function: api.agent_routes.agent_health
+  calls: (none detected)
+
+async function: api.agent_routes.agent_status
+  calls: (none detected)
+
+async function: api.agent_routes.execute_task
+  calls:
+    - start_agent_task
+
+async function: api.agent_routes.segment_preview
+  calls: (none detected)
+
+async function: api.agent_routes.shutdown
+  calls: (none detected)
+
+async function: api.agent_routes.startup
+  calls: (none detected)
+
+async function: api.agent_routes.submit_task
+  calls:
+    - ingest_packet
+
+async function: api.auth.verify_api_key_with_rate_limit
+  calls:
+    - check_allowed
+    - record_failure
+    - record_success
+
+async function: api.e2e_slack_audit.audit_slack_configuration
+  calls: (none detected)
+
+async function: api.e2e_slack_audit.audit_slack_e2e_flow
+  calls: (none detected)
+
+async function: api.e2e_slack_audit.audit_slack_memory_integration
+  calls: (none detected)
+
+async function: api.e2e_slack_audit.audit_slack_rate_limiting
+  calls:
+    - get_redis_client
+
+async function: api.e2e_slack_audit.audit_slack_routing
+  calls: (none detected)
+
+async function: api.e2e_slack_audit.audit_slack_security
+  calls: (none detected)
+
+async function: api.e2e_slack_audit.audit_slack_telemetry
+  calls: (none detected)
+
+async function: api.e2e_slack_audit.main
+  calls:
+    - run_full_audit
+
+async function: api.e2e_slack_audit.run_full_audit
+  calls:
+    - audit_func
+
+async function: api.memory.cache.cache_delete
+  calls:
+    - delete
+    - get_redis
+
+async function: api.memory.cache.cache_get
+  calls:
+    - get
+    - get_redis
+
+async function: api.memory.cache.cache_health
+  calls:
+    - get_redis
+
+async function: api.memory.cache.cache_keys
+  calls:
+    - get_redis
+    - keys
+
+async function: api.memory.cache.cache_set
+  calls:
+    - get_redis
+    - set
+
+async function: api.memory.cache.get_rate_limit
+  calls:
+    - get_rate_limit
+    - get_redis
+
+async function: api.memory.cache.get_redis
+  calls:
+    - get_redis_client
+
+async function: api.memory.cache.get_session_context
+  calls:
+    - get
+    - get_redis
+
+async function: api.memory.cache.get_task_context
+  calls:
+    - get_redis
+    - get_task_context
+
+async function: api.memory.cache.increment_rate_limit
+  calls:
+    - get_redis
+    - increment_rate_limit
+
+async function: api.memory.cache.list_sessions
+  calls:
+    - get_redis
+    - keys
+
+async function: api.memory.cache.set_session_context
+  calls:
+    - get_redis
+    - set
+
+async function: api.memory.cache.set_task_context
+  calls:
+    - get_redis
+    - set_task_context
+
+async function: api.memory.graph.create_entity
+  calls:
+    - create_entity
+    - get_neo4j
+
+async function: api.memory.graph.create_relationship
+  calls:
+    - create_relationship
+    - get_neo4j
+
+async function: api.memory.graph.delete_entity
+  calls:
+    - delete_entity
+    - get_neo4j
+
+async function: api.memory.graph.get_domain_context
+  calls:
+    - get_neo4j
+    - run_query
+
+async function: api.memory.graph.get_entity
+  calls:
+    - get_entity
+    - get_neo4j
+
+async function: api.memory.graph.get_neo4j
+  calls:
+    - get_neo4j_client
+
+async function: api.memory.graph.get_relationships
+  calls:
+    - get_neo4j
+    - get_relationships
+
+async function: api.memory.graph.get_session_graph
+  calls:
+    - get_neo4j
+    - run_query
+
+async function: api.memory.graph.graph_health
+  calls:
+    - get_neo4j
+
+async function: api.memory.graph.run_query
+  calls:
+    - get_neo4j
+    - run_query
+
+async function: api.memory.router.batch_write
+  calls:
+    - execute
+
+async function: api.memory.router.compact_storage
+  calls:
+    - execute
+
+async function: api.memory.router.create_packet
+  calls:
+    - ingest_packet
+
+async function: api.memory.router.get_facts
+  calls:
+    - get_facts_by_packet
+    - get_facts_by_subject
+    - get_service
+
+async function: api.memory.router.get_gc_stats
+  calls:
+    - get_gc_stats
+    - get_service
+
+async function: api.memory.router.get_insights
+  calls:
+    - fetch_insights
+    - get_service
+
+async function: api.memory.router.get_lineage
+  calls:
+    - fetch_lineage
+    - get_service
+
+async function: api.memory.router.get_packet
+  calls:
+    - get_packet
+    - get_service
+
+async function: api.memory.router.get_stats
+  calls:
+    - fetchval
+    - get_service
+    - health_check
+
+async function: api.memory.router.get_thread
+  calls:
+    - fetch_thread
+    - get_service
+
+async function: api.memory.router.get_warming_metrics
+  calls: (none detected)
+
+async function: api.memory.router.health_check
+  calls:
+    - get_service
+    - health_check
+
+async function: api.memory.router.hybrid_search
+  calls:
+    - get_service
+    - hybrid_search
+    - json
+
+async function: api.memory.router.memory_governance_context_dependency
+  calls: (none detected)
+
+async function: api.memory.router.memory_test
+  calls: (none detected)
+
+async function: api.memory.router.reasoning_replay
+  calls:
+    - explain_decision
+    - get_service
+    - reconstruct_chain
+
+async function: api.memory.router.run_consolidation
+  calls:
+    - get_service
+    - run_consolidation
+
+async function: api.memory.router.run_gc
+  calls:
+    - get_service
+    - run_full_gc
+
+async function: api.memory.router.saga_correlate_timeline
+  calls:
+    - correlate_timeline
+    - get_service
+
+async function: api.memory.router.saga_enrich_entities
+  calls:
+    - enrich_entities
+    - get_service
+
+async function: api.memory.router.saga_fetch_and_enrich
+  calls:
+    - fetch_and_enrich
+    - get_service
+
+async function: api.memory.router.semantic_search
+  calls:
+    - get_service
+    - semantic_search
+
+async function: api.memory.router.warm_memory_for_query
+  calls:
+    - warm_for_query
+
+async function: api.os_routes.os_health
+  calls: (none detected)
+
+async function: api.os_routes.os_status
+  calls: (none detected)
+
+async function: api.routes.commands.execute_command
+  calls:
+    - confirm_intent
+    - execute_command
+    - extract_intent
+    - start_agent_task
+
+async function: api.routes.commands.extract_intent_endpoint
+  calls:
+    - extract_intent
+
+async function: api.routes.commands.get_help
+  calls: (none detected)
+
+async function: api.routes.commands.parse_command_endpoint
+  calls: (none detected)
+
+async function: api.routes.commands.record_approval_feedback
+  calls:
+    - approve_task
+    - reject_task
+
+async function: api.routes.compliance.export_audit_log
+  calls:
+    - export_audit_log
+
+async function: api.routes.compliance.get_compliance_report
+  calls:
+    - generate_report
+
+async function: api.routes.compliance.get_daily_compliance_report
+  calls:
+    - generate_daily_report
+
+async function: api.routes.cursor.cursor_resume
+  calls:
+    - resume_thread
+
+async function: api.routes.cursor.cursor_task
+  calls:
+    - run_task
+
+async function: api.routes.cursor.cursor_test
+  calls: (none detected)
+
+async function: api.routes.factory.extract_agent
+  calls:
+    - extract
+
+async function: api.routes.factory.extract_agent_file
+  calls:
+    - extract
+    - read
+
+async function: api.routes.factory.factory_health
+  calls: (none detected)
+
+async function: api.routes.factory.get_template
+  calls: (none detected)
+
+async function: api.routes.factory.list_templates
+  calls: (none detected)
+
+async function: api.routes.factory.shutdown
+  calls: (none detected)
+
+async function: api.routes.factory.startup
+  calls: (none detected)
+
+async function: api.routes.factory.validate_schema
+  calls: (none detected)
+
+async function: api.routes.gmp_learning.get_analytics
+  calls:
+    - analyze_execution_patterns
+
+async function: api.routes.gmp_learning.get_autonomy_level
+  calls:
+    - get_current_autonomy_level
+
+async function: api.routes.gmp_learning.get_graduation_status
+  calls:
+    - can_graduate_to_next_level
+    - get_current_autonomy_level
+
+async function: api.routes.gmp_learning.get_heuristics
+  calls:
+    - get_active_heuristics
+
+async function: api.routes.gmp_learning.graduate_to_next_level
+  calls:
+    - get_current_autonomy_level
+    - graduate_to_next_level
+
+async function: api.routes.gmp_learning.log_execution
+  calls:
+    - log_execution
+    - update_autonomy_metrics
+
+async function: api.routes.gmp_learning.trigger_heuristic_generation
+  calls:
+    - generate_heuristics
+
+async function: api.routes.mcp.call_tool
+  calls:
+    - _verify_api_key_dep
+    - get_service
+    - handle_tool_call
+    - json
+
+async function: api.routes.mcp.list_tools
+  calls:
+    - _verify_api_key_dep
+
+async function: api.routes.mcp.mcp_health_check
+  calls:
+    - health_check
+
+async function: api.routes.modules.get_modules_status
+  calls: (none detected)
+
+async function: api.routes.observability.get_circuit_breakers
+  calls: (none detected)
+
+async function: api.routes.observability.get_failures
+  calls:
+    - detect_failures
+
+async function: api.routes.observability.get_health
+  calls: (none detected)
+
+async function: api.routes.observability.get_metrics
+  calls:
+    - compute_metrics
+
+async function: api.routes.observability.get_spans
+  calls: (none detected)
+
+async function: api.routes.pattern.execute_all_subsystems
+  calls:
+    - execute_all
+
+async function: api.routes.pattern.execute_pattern
+  calls:
+    - execute
+
+async function: api.routes.pattern.get_pattern_config
+  calls: (none detected)
+
+async function: api.routes.pattern.pattern_test
+  calls: (none detected)
+
+async function: api.routes.pattern.validate_pattern_config
+  calls: (none detected)
+
+async function: api.routes.reasoning.execute_reasoning
+  calls:
+    - execute
+
+async function: api.routes.reasoning.get_reasoning_modes
+  calls: (none detected)
+
+async function: api.routes.reasoning.reasoning_test
+  calls: (none detected)
+
+async function: api.routes.reflection_agent.analyze_failure
+  calls:
+    - analyze_failure
+
+async function: api.routes.reflection_agent.clear_lessons_learned
+  calls: (none detected)
+
+async function: api.routes.reflection_agent.compare_approaches
+  calls:
+    - compare_approaches
+
+async function: api.routes.reflection_agent.extract_patterns
+  calls:
+    - extract_patterns
+
+async function: api.routes.reflection_agent.generate_improvements
+  calls:
+    - generate_improvements
+
+async function: api.routes.reflection_agent.get_lessons_learned
+  calls: (none detected)
+
+async function: api.routes.reflection_agent.reflect
+  calls:
+    - run
+
+async function: api.routes.reflection_agent.reflection_agent_status
+  calls: (none detected)
+
+async function: api.routes.research.execute_research
+  calls:
+    - execute
+
+async function: api.routes.research.research_status
+  calls: (none detected)
+
+async function: api.routes.research.research_test
+  calls: (none detected)
+
+async function: api.routes.research_agent.discover
+  calls:
+    - discover
+
+async function: api.routes.research_agent.generate_spec
+  calls:
+    - generate_spec
+    - synthesize
+
+async function: api.routes.research_agent.research_agent_status
+  calls: (none detected)
+
+async function: api.routes.research_agent.research_to_code
+  calls:
+    - research_to_code
+
+async function: api.routes.research_agent.synthesize
+  calls:
+    - synthesize
+
+async function: api.routes.simulation.get_runs_for_graph
+  calls: (none detected)
+
+async function: api.routes.simulation.get_simulation_run
+  calls: (none detected)
+
+async function: api.routes.simulation.run_simulation
+  calls:
+    - simulate
+
+async function: api.routes.simulation.simulation_health
+  calls: (none detected)
+
+async function: api.routes.slack.get_slack_validator
+  calls: (none detected)
+
+async function: api.routes.slack.slack_commands
+  calls:
+    - body
+    - check_and_increment
+    - form
+    - handle_slack_commands
+
+async function: api.routes.slack.slack_events
+  calls:
+    - body
+    - check_and_increment
+    - create_event
+    - handle_slack_events
+    - has_permission
+
+async function: api.routes.upgrades.activate_all_phases
+  calls:
+    - activate_all_phases
+
+async function: api.routes.upgrades.activate_phase_2
+  calls:
+    - activate_phase_2
+
+async function: api.routes.upgrades.activate_phase_3
+  calls:
+    - activate_phase_3
+
+async function: api.routes.upgrades.activate_phase_4
+  calls:
+    - activate_phase_4
+
+async function: api.routes.upgrades.activate_phase_5
+  calls:
+    - activate_phase_5
+
+async function: api.routes.upgrades.get_enabled_features
+  calls: (none detected)
+
+async function: api.routes.upgrades.get_upgrade_status
+  calls: (none detected)
+
+async function: api.routes.upgrades.upgrade_health
+  calls: (none detected)
+
+async function: api.routes.upgrades.validate_upgrade_deployment
+  calls:
+    - validate_deployment
+
+async function: api.routes.workers.get_anomaly_monitor
+  calls:
+    - startup
+
+async function: api.routes.workers.get_violation_counts
+  calls:
+    - get_violation_tracker
+
+async function: api.routes.workers.get_violation_tracker
+  calls:
+    - startup
+
+async function: api.routes.workers.get_workers_health
+  calls:
+    - get_anomaly_monitor
+    - get_violation_tracker
+    - health_check
+
+async function: api.routes.workers.process_anomalies
+  calls:
+    - get_anomaly_monitor
+    - process
+
+async function: api.routes.workers.reset_violation_count
+  calls:
+    - get_violation_tracker
+
+async function: api.routes.workers.scan_for_violations
+  calls:
+    - get_violation_tracker
+    - process
+
+async function: api.routes.workers.shutdown_workers
+  calls:
+    - shutdown
+
+async function: api.routes.worldmodel.get_agent_capabilities
+  calls:
+    - get_agent_capabilities
+    - initialize
+
+async function: api.routes.worldmodel.get_approvals_summary
+  calls:
+    - get_approvals_summary
+    - initialize
+
+async function: api.routes.worldmodel.get_infrastructure_status
+  calls:
+    - get_infrastructure_status
+    - initialize
+
+async function: api.routes.worldmodel.get_integrations
+  calls:
+    - get_integrations
+    - initialize
+
+async function: api.routes.worldmodel.get_world_model_context
+  calls:
+    - get_world_model_context
+
+async function: api.server.agent_ws_endpoint
+  calls:
+    - accept
+    - close
+    - handle_incoming
+    - ingest_packet
+    - receive_json
+    - register
+    - unregister
+    - verify_ws_token
+
+async function: api.server.checkpoint_health
+  calls: (none detected)
+
+async function: api.server.global_exception_handler
+  calls: (none detected)
+
+async function: api.server.health
+  calls: (none detected)
+
+async function: api.server.l_ws
+  calls:
+    - accept
+    - close
+    - handle_incoming
+    - receive_json
+    - register
+    - unregister
+    - verify_ws_token
+
+async function: api.server.lchat
+  calls:
+    - start_agent_task
+
+async function: api.server.lifespan
+  calls:
+    - aclose
+    - bootstrap_agent
+    - bootstrap_l_governance
+    - close_neo4j_client
+    - close_redis_client
+    - close_service
+    - close_world_model_service
+    - compute_metrics
+    - consolidate_graph_state
+    - create_checkpoint
+    - create_runtime_with_substrate
+    - create_tables
+    - create_warming_service
+    - execute
+    - exists
+    - get_neo4j_client
+    - get_redis_client
+    - init_event_driven_coordination
+    - init_runtime
+    - init_service
+    - initialize_observability
+    - instrument_agent_executor
+    - instrument_governance_engine
+    - instrument_memory_substrate
+    - instrument_tool_registry
+    - mcp_close_db
+    - mcp_init_db
+    - register_l9_tools
+    - register_l_tools
+    - register_memory_tools
+    - restore_checkpoint
+    - run_cascade
+    - run_decay_pass
+    - run_migrations
+    - shutdown
+    - shutdown_all
+    - shutdown_runtime
+    - sleep
+    - start
+    - start_gmp_worker
+    - start_graph_wm_sync
+    - start_tool_pattern_extraction
+    - start_wm_graph_sync
+    - stop
+    - stop_gmp_worker
+    - stop_graph_wm_sync
+    - stop_tool_pattern_extraction
+    - sync_all_tool_embeddings
+    - update_agent_kpis
+
+async function: api.server.neo4j_health
+  calls:
+    - run_query
+
+async function: api.server.on_shutdown
+  calls:
+    - shutdown
+
+async function: api.server.on_startup
+  calls:
+    - startup
+
+async function: api.server.reload_kernels_endpoint
+  calls:
+    - log_kernel_evolution
+
+async function: api.server.services_health
+  calls: (none detected)
+
+async function: api.server.startup_health
+  calls: (none detected)
+
+async function: api.server_memory.chat
+  calls:
+    - ingest_packet
+
+async function: api.slack_client.post_result_async
+  calls:
+    - post_message
+    - upload_file
+
+async function: api.tools.router.execute_tool
+  calls:
+    - dispatch_tool_call
+
+async function: api.tools.router.tool_graph_health
+  calls: (none detected)
+
+async function: api.tools.router.tools_test
+  calls: (none detected)
+
+async function: api.vps_executor.send_mac_task
+  calls:
+    - post
+
+async function: api.webhook_mac_agent.submit_task_result
+  calls:
+    - aclose
+    - ingest_packet
+    - post_message
+
+async function: api.webhook_twilio.twilio_webhook
+  calls:
+    - form
+    - post
+
+async function: api.webhook_waba.download_media
+  calls:
+    - get
+
+async function: api.webhook_waba.send_waba_message
+  calls:
+    - post
+
+async function: api.webhook_waba.verify_waba_webhook
+  calls: (none detected)
+
+async function: api.webhook_waba.waba_webhook
+  calls:
+    - body
+    - download_media
+    - json
+    - post
+    - send_waba_message
+
+async function: api.world_model_api.create_snapshot
+  calls:
+    - create_snapshot
+
+async function: api.world_model_api.get_entity
+  calls:
+    - get_entity
+
+async function: api.world_model_api.get_state_version
+  calls:
+    - get_entity_count
+    - get_state_version
+
+async function: api.world_model_api.list_entities
+  calls:
+    - list_entities
+
+async function: api.world_model_api.list_snapshots
+  calls:
+    - list_snapshots
+
+async function: api.world_model_api.list_updates
+  calls:
+    - list_updates
+
+async function: api.world_model_api.restore_from_snapshot
+  calls:
+    - restore_from_snapshot
+
+async function: api.world_model_api.submit_insights
+  calls:
+    - update_from_insights
+
+async function: api.world_model_api.world_model_health
+  calls:
+    - get_entity_count
+    - get_state_version
+
+async function: core.agents.adaptive_prompting.get_adaptive_context_for_tool
+  calls:
+    - get_governance_patterns
+
+async function: core.agents.adaptive_prompting.get_combined_adaptive_context
+  calls:
+    - get_adaptive_context_for_tool
+    - get_world_model_context_for_agent
+
+async function: core.agents.adaptive_prompting.get_test_failure_context
+  calls:
+    - get_test_results_for_task
+
+async function: core.agents.adaptive_prompting.get_world_model_context_for_agent
+  calls:
+    - get_world_model_context
+
+async function: core.agents.bootstrap.orchestrator.bootstrap_agent
+  calls:
+    - bootstrap_agent
+
+async function: core.agents.bootstrap.phase_0_validate.validate_agent_blueprint
+  calls:
+    - execute
+    - get_neo4j_client
+    - run
+
+async function: core.agents.bootstrap.phase_1_load_kernels.load_and_parse_kernels
+  calls: (none detected)
+
+async function: core.agents.bootstrap.phase_2_instantiate._init_redis_working_memory
+  calls:
+    - get_redis_client
+    - set
+
+async function: core.agents.bootstrap.phase_2_instantiate.instantiate_agent
+  calls:
+    - _init_redis_working_memory
+    - get_neo4j_client
+    - run
+
+async function: core.agents.bootstrap.phase_3_bind_kernels.bind_kernels_to_agent
+  calls:
+    - get_neo4j_client
+    - run
+    - single
+
+async function: core.agents.bootstrap.phase_4_load_identity.load_identity_persona
+  calls:
+    - get_neo4j_client
+    - run
+    - write_packet
+
+async function: core.agents.bootstrap.phase_5_bind_tools.bind_tools_and_capabilities
+  calls:
+    - get_agent_capabilities
+    - get_neo4j_client
+    - run
+
+async function: core.agents.bootstrap.phase_5_bind_tools.get_agent_capabilities
+  calls:
+    - get_tools_for_agent
+
+async function: core.agents.bootstrap.phase_6_wire_governance.wire_governance_gates
+  calls:
+    - get_neo4j_client
+    - run
+
+async function: core.agents.bootstrap.phase_7_verify_and_lock.verify_and_lock
+  calls:
+    - get_neo4j_client
+    - run
+    - single
+    - write_packet
+
+async function: core.agents.executor._generate_tasks_from_query
+  calls: (none detected)
+
+async function: core.agents.graph_state.bootstrap_l_graph.bootstrap_l_graph
+  calls:
+    - consume
+    - run
+
+async function: core.agents.graph_state.bootstrap_l_graph.verify_l_graph
+  calls:
+    - run
+    - single
+
+async function: core.agents.kernelevolution.create_evolution_plan
+  calls:
+    - write_packet
+
+async function: core.agents.selfreflection.analyze_task_execution
+  calls: (none detected)
+
+async function: core.commands.__init__.confirm_intent
+  calls:
+    - _confirm
+
+async function: core.commands.__init__.execute_command
+  calls:
+    - _execute
+
+async function: core.commands.__init__.extract_intent
+  calls:
+    - _extract
+
+async function: core.commands.executor.execute_command
+  calls:
+    - execute_command
+
+async function: core.commands.intent_extractor.confirm_intent
+  calls:
+    - send_message
+
+async function: core.commands.intent_extractor.extract_intent
+  calls:
+    - create
+
+async function: core.compliance.audit_log.log_command_to_audit
+  calls:
+    - log_command
+
+async function: core.coordination.agent_mediator.close_agent_mediator
+  calls:
+    - close
+
+async function: core.coordination.agent_mediator.get_agent_mediator
+  calls: (none detected)
+
+async function: core.coordination.event_queue.event_queue_health
+  calls: (none detected)
+
+async function: core.coordination.event_queue.init_event_driven_coordination
+  calls: (none detected)
+
+async function: core.di.bootstrap_integration._register_cache_services
+  calls: (none detected)
+
+async function: core.di.bootstrap_integration._register_governance_services
+  calls: (none detected)
+
+async function: core.di.bootstrap_integration._register_llm_services
+  calls: (none detected)
+
+async function: core.di.bootstrap_integration._register_memory_services
+  calls: (none detected)
+
+async function: core.di.bootstrap_integration._register_tool_services
+  calls: (none detected)
+
+async function: core.di.bootstrap_integration._register_world_model_services
+  calls: (none detected)
+
+async function: core.di.bootstrap_integration.bootstrap_di_container
+  calls:
+    - _register_cache_services
+    - _register_governance_services
+    - _register_llm_services
+    - _register_memory_services
+    - _register_tool_services
+    - _register_world_model_services
+
+async function: core.di.bootstrap_integration.shutdown_di_container
+  calls: (none detected)
+
+async function: core.error_tracking.get_error_chain
+  calls:
+    - get_neo4j_client
+    - run_query
+
+async function: core.error_tracking.get_error_stats
+  calls:
+    - get_neo4j_client
+    - run_query
+
+async function: core.error_tracking.get_errors_by_type
+  calls:
+    - get_neo4j_client
+    - run_query
+
+async function: core.error_tracking.log_error_to_graph
+  calls:
+    - create_entity
+    - create_event
+    - create_relationship
+    - get_neo4j_client
+
+async function: core.evaluation.evaluator.ci_eval_gate
+  calls:
+    - compare_to_baseline
+    - run_eval
+
+async function: core.facade.l9_facade.close_l9_facade
+  calls:
+    - shutdown
+
+async function: core.facade.l9_facade.execute_tool
+  calls:
+    - execute_tool
+    - get_l9_facade
+    - initialize
+
+async function: core.facade.l9_facade.get_l9_facade
+  calls: (none detected)
+
+async function: core.facade.l9_facade.query_memory
+  calls:
+    - get_l9_facade
+    - initialize
+    - query_memory
+
+async function: core.facade.l9_facade.run_task
+  calls:
+    - get_l9_facade
+    - initialize
+    - run_task
+
+async function: core.governance.approval_gate.escalate_to_igor
+  calls:
+    - request_approval
+
+async function: core.governance.rate_limit_policy.check_rate_limit
+  calls:
+    - check
+
+async function: core.governance.rate_limit_policy.rate_limit_context
+  calls:
+    - check_and_increment
+
+async function: core.integration.graph_to_wm_sync.start_graph_wm_sync
+  calls:
+    - start
+
+async function: core.integration.graph_to_wm_sync.stop_graph_wm_sync
+  calls:
+    - stop
+
+async function: core.integration.tool_pattern_extractor.start_tool_pattern_extraction
+  calls:
+    - start
+
+async function: core.integration.tool_pattern_extractor.stop_tool_pattern_extraction
+  calls:
+    - stop
+
+async function: core.integration.wm_to_graph_sync.start_wm_graph_sync
+  calls:
+    - start
+
+async function: core.integration.wm_to_graph_sync.stop_wm_graph_sync
+  calls:
+    - stop
+
+async function: core.memory.runtime.get_kernel_evolution_history
+  calls:
+    - get_service
+    - search_packets
+
+async function: core.memory.runtime.log_kernel_evolution
+  calls:
+    - get_service
+    - ingest_packet
+
+async function: core.observability.l9_integration.instrument_agent_executor
+  calls:
+    - _start_task
+    - original_start_task
+
+async function: core.observability.l9_integration.instrument_aios_runtime
+  calls:
+    - _execute_reasoning
+    - original_execute_reasoning
+
+async function: core.observability.l9_integration.instrument_governance_engine
+  calls:
+    - _evaluate
+    - original_evaluate
+
+async function: core.observability.l9_integration.instrument_memory_substrate
+  calls:
+    - _get_packet
+    - _query_packets
+    - _semantic_search
+    - _write_packet
+    - original_get_packet
+    - original_query_packets
+    - original_semantic_search
+    - original_write_packet
+
+async function: core.observability.l9_integration.instrument_tool_registry
+  calls:
+    - _dispatch
+    - original_dispatch
+
+async function: core.observability.observability_context.observability_context
+  calls: (none detected)
+
+async function: core.observability.observability_context.span
+  calls: (none detected)
+
+async function: core.observability.service.initialize_observability
+  calls:
+    - initialize_exporters
+
+async function: core.packet_envelope.integration.validate_deployment
+  calls: (none detected)
+
+async function: core.protocols.error_handling_protocols.with_error_handling
+  calls:
+    - handle_error
+    - sleep
+
+async function: core.reasoning.toth_engine.main
+  calls:
+    - reason
+
+async function: core.resilience.retry.async_retry
+  calls:
+    - coro_func
+    - sleep
+
+async function: core.schemas.research_factory_nodes.pass_1_plan_queries
+  calls: (none detected)
+
+async function: core.schemas.research_factory_nodes.pass_2_build_superprompts
+  calls: (none detected)
+
+async function: core.schemas.research_factory_nodes.pass_3_execute_retrieval
+  calls: (none detected)
+
+async function: core.schemas.research_factory_nodes.pass_4_extract_results
+  calls: (none detected)
+
+async function: core.schemas.research_factory_nodes.pass_5_integrate_results
+  calls: (none detected)
+
+async function: core.security.path_safety.safe_resolve_path_async
+  calls: (none detected)
+
+async function: core.security.permission_graph.can_access
+  calls:
+    - can_access
+
+async function: core.security.permission_graph.get_user_permissions
+  calls:
+    - get_user_permissions
+
+async function: core.security.permission_graph.grant_permission
+  calls:
+    - grant_permission_to_role
+
+async function: core.security.permission_graph.grant_role
+  calls:
+    - grant_role
+
+async function: core.security.permission_graph.revoke_role
+  calls:
+    - revoke_role
+
+async function: core.testing.test_agent.spawn_test_agent
+  calls:
+    - validate_proposal
+
+async function: core.testing.test_executor.run_tests_in_sandbox
+  calls:
+    - run_tests
+
+async function: core.tools.base_registry.recall_task_history
+  calls:
+    - get_service
+    - search_packets_by_type
+
+async function: core.tools.base_registry.saga_enrich_entities
+  calls:
+    - get_related_entities
+
+async function: core.tools.base_registry.saga_execute_custom
+  calls:
+    - tool_func
+
+async function: core.tools.base_registry.saga_fetch_and_enrich
+  calls:
+    - get_related_entities
+    - get_service
+    - search_semantic
+
+async function: core.tools.base_registry.saga_timeline_correlation
+  calls:
+    - get_related_entities
+    - get_service
+    - search_packets_by_type
+
+async function: core.tools.base_registry.tool_router_find
+  calls:
+    - find_relevant_tools
+
+async function: core.tools.dynamic_discovery._format_and_filter_tools
+  calls:
+    - _get_tool_schemas
+
+async function: core.tools.dynamic_discovery._get_tool_schemas
+  calls: (none detected)
+
+async function: core.tools.dynamic_discovery.cache_tools
+  calls:
+    - get_redis_client
+    - set
+
+async function: core.tools.dynamic_discovery.discover_tools_for_task
+  calls:
+    - _format_and_filter_tools
+    - find_relevant_tools
+    - find_tools_hybrid
+    - get_success_rates
+
+async function: core.tools.dynamic_discovery.get_cached_tools
+  calls:
+    - get
+    - get_redis_client
+
+async function: core.tools.dynamic_discovery.get_discovery_stats
+  calls:
+    - find_relevant_tools
+
+async function: core.tools.dynamic_discovery.invalidate_tool_cache
+  calls:
+    - delete
+    - get_redis_client
+
+async function: core.tools.memory_tools.memory_search
+  calls:
+    - search
+    - semantic_search
+
+async function: core.tools.memory_tools.memory_write
+  calls:
+    - ingest
+    - write_packet
+
+async function: core.tools.memory_tools.register_memory_tools
+  calls:
+    - memory_search
+    - memory_write
+    - register
+    - register_tool
+
+async function: core.tools.reflection_tools.reflection_agent_analyze_failure_executor
+  calls:
+    - reflection_agent_analyze_failure
+
+async function: core.tools.reflection_tools.reflection_agent_compare_approaches_executor
+  calls:
+    - reflection_agent_compare_approaches
+
+async function: core.tools.reflection_tools.reflection_agent_extract_patterns_executor
+  calls:
+    - reflection_agent_extract_patterns
+
+async function: core.tools.reflection_tools.reflection_agent_generate_improvements_executor
+  calls:
+    - reflection_agent_generate_improvements
+
+async function: core.tools.reflection_tools.reflection_agent_reflect_executor
+  calls:
+    - reflection_agent_reflect
+
+async function: core.tools.registry_adapter.register_l_tools
+  calls:
+    - register_tool
+
+async function: core.tools.research_tools.research_agent_discover
+  calls:
+    - discover
+
+async function: core.tools.research_tools.research_agent_generate_spec
+  calls:
+    - generate_spec
+    - synthesize
+
+async function: core.tools.research_tools.research_agent_synthesize
+  calls:
+    - synthesize
+
+async function: core.tools.research_tools.run_research_query
+  calls:
+    - run_research
+
+async function: core.tools.symbolic_tool.symbolic_codegen
+  calls:
+    - generate_code
+
+async function: core.tools.symbolic_tool.symbolic_compute
+  calls:
+    - compute
+
+async function: core.tools.tool_audit.execute_tool_with_audit
+  calls:
+    - call
+    - log_execution
+    - record_outcome
+
+async function: core.tools.tool_embeddings._get_db_pool
+  calls:
+    - get_pool
+
+async function: core.tools.tool_embeddings._get_openai_client
+  calls: (none detected)
+
+async function: core.tools.tool_embeddings.delete_tool_embedding
+  calls:
+    - _get_db_pool
+    - execute
+
+async function: core.tools.tool_embeddings.embed_tool_description
+  calls:
+    - _get_openai_client
+    - create
+
+async function: core.tools.tool_embeddings.find_relevant_tools
+  calls:
+    - _get_db_pool
+    - embed_tool_description
+    - fetch
+
+async function: core.tools.tool_embeddings.find_tools_hybrid
+  calls:
+    - find_relevant_tools
+    - find_tools_keyword
+
+async function: core.tools.tool_embeddings.find_tools_keyword
+  calls:
+    - _get_db_pool
+    - fetch
+
+async function: core.tools.tool_embeddings.get_tool_embedding
+  calls:
+    - _get_db_pool
+    - fetchrow
+
+async function: core.tools.tool_embeddings.store_tool_embedding
+  calls:
+    - _get_db_pool
+    - embed_tool_description
+    - execute
+
+async function: core.tools.tool_embeddings.sync_all_tool_embeddings
+  calls:
+    - store_tool_embedding
+
+async function: core.tools.tool_graph.register_l9_tools
+  calls:
+    - register_tool
+
+async function: core.tools.tool_graph.register_l_tools
+  calls:
+    - register_tool
+
+async function: core.tools.tool_graph.register_tool_with_metadata
+  calls:
+    - register_tool
+
+async function: domain_tensor_bridge.agent_controller.process_packet
+  calls:
+    - initialize
+    - process_packet
+
+async function: memory.cypher_templates.execute_template
+  calls:
+    - execute
+
+async function: memory.governance_gate.ensure_governance_context
+  calls: (none detected)
+
+async function: memory.governance_gate.governance_context
+  calls: (none detected)
+
+async function: memory.graph_client.close_neo4j_client
+  calls:
+    - disconnect
+
+async function: memory.graph_client.get_neo4j_client
+  calls:
+    - connect
+
+async function: memory.graph_memory.get_graph_memory
+  calls: (none detected)
+
+async function: memory.graph_memory.query_history
+  calls:
+    - get_graph_memory
+    - query_user_history
+
+async function: memory.graph_memory.store_message
+  calls:
+    - get_graph_memory
+    - store_message
+
+async function: memory.graph_search_cache.cached_graph_search
+  calls:
+    - close
+    - get
+    - get_neo4j_client
+    - run
+    - set
+
+async function: memory.hybrid_rag.get_hybrid_rag_pipeline
+  calls: (none detected)
+
+async function: memory.hybrid_rag.hybrid_search
+  calls:
+    - get_hybrid_rag_pipeline
+    - search
+
+async function: memory.ingestion.ingest_packet
+  calls:
+    - get_service
+    - write_packet
+
+async function: memory.ingestion.on_task_completion
+  calls:
+    - embed_text
+    - get_neo4j_client
+    - get_service
+    - is_available
+    - on_task_completion
+    - record_new_strategy
+
+async function: memory.migration_runner._init_json_codecs
+  calls:
+    - set_type_codec
+
+async function: memory.migration_runner.run_migrations
+  calls:
+    - disconnect
+    - run_all
+
+async function: memory.retrieval.get_governance_patterns
+  calls:
+    - fetch
+
+async function: memory.saga.get_saga_executor
+  calls: (none detected)
+
+async function: memory.saga_patterns._assemble_result_step
+  calls: (none detected)
+
+async function: memory.saga_patterns._extract_entities_step
+  calls: (none detected)
+
+async function: memory.saga_patterns._fetch_events_step
+  calls:
+    - run_query
+
+async function: memory.saga_patterns._graph_enrich_step
+  calls:
+    - run_query
+
+async function: memory.saga_patterns._trace_causal_chain_step
+  calls:
+    - run_query
+
+async function: memory.saga_patterns._vector_search_step
+  calls:
+    - search
+
+async function: memory.saga_patterns.fetch_and_enrich
+  calls:
+    - fetch_and_enrich
+    - get_saga_patterns
+
+async function: memory.saga_patterns.get_saga_patterns
+  calls:
+    - get_saga_executor
+
+async function: memory.schema_introspection.get_schema_introspector
+  calls: (none detected)
+
+async function: memory.semantic_search.semantic_search
+  calls:
+    - semantic_search
+
+async function: memory.slack_ingest._check_duplicate
+  calls:
+    - fetchrow
+
+async function: memory.slack_ingest._handle_mac_command
+  calls:
+    - post_message
+
+async function: memory.slack_ingest._index_slack_conversation
+  calls:
+    - embed_text
+    - insert_knowledge_fact
+
+async function: memory.slack_ingest._process_file_attachments
+  calls:
+    - process_file_attachments
+
+async function: memory.slack_ingest._retrieve_semantic_hits
+  calls:
+    - semantic_search
+
+async function: memory.slack_ingest._retrieve_thread_context
+  calls:
+    - search_packets_by_thread
+
+async function: memory.slack_ingest._route_to_email_task
+  calls:
+    - post_message
+
+async function: memory.slack_ingest._route_to_mac_task
+  calls:
+    - post_message
+
+async function: memory.slack_ingest.handle_slack_commands
+  calls:
+    - post
+    - write_packet
+
+async function: memory.slack_ingest.handle_slack_events
+  calls:
+    - _check_duplicate
+    - _handle_mac_command
+    - _index_slack_conversation
+    - _process_file_attachments
+    - _retrieve_semantic_hits
+    - _retrieve_thread_context
+    - _route_to_email_task
+    - _route_to_mac_task
+    - execute_command
+    - extract_intent
+    - handle_slack_with_l_agent
+    - post
+    - post_message
+    - write_packet
+
+async function: memory.slack_ingest.handle_slack_with_l_agent
+  calls:
+    - start_agent_task
+
+async function: memory.smoke_test.main
+  calls:
+    - smoke_test
+
+async function: memory.smoke_test.smoke_test
+  calls:
+    - get_packet
+    - get_service
+    - health_check
+    - ingest_packet
+
+async function: memory.substrate_dag.checkpoint_node
+  calls:
+    - save_checkpoint
+
+async function: memory.substrate_dag.extract_insights_node
+  calls: (none detected)
+
+async function: memory.substrate_dag.graph_sync_node
+  calls:
+    - create_entity
+    - create_event
+    - create_relationship
+    - get_neo4j_client
+
+async function: memory.substrate_dag.intake_node
+  calls:
+    - check_packet_exists
+
+async function: memory.substrate_dag.memory_write_node
+  calls:
+    - insert_memory_event
+    - insert_packet
+    - insert_reasoning_block
+
+async function: memory.substrate_dag.reasoning_node
+  calls: (none detected)
+
+async function: memory.substrate_dag.semantic_embed_node
+  calls:
+    - embed_and_store
+
+async function: memory.substrate_dag.store_insights_node
+  calls:
+    - insert_knowledge_fact
+
+async function: memory.substrate_dag.world_model_trigger_node
+  calls:
+    - update_from_insights
+
+async function: memory.substrate_repository._init_json_codecs
+  calls:
+    - set_type_codec
+
+async function: memory.substrate_repository.close_repository
+  calls:
+    - disconnect
+
+async function: memory.substrate_repository.init_repository
+  calls:
+    - connect
+
+async function: memory.substrate_repository_batch_helpers.get_packets_with_metadata
+  calls:
+    - get_packets_with_metadata_batch
+
+async function: memory.substrate_semantic.embed_text
+  calls:
+    - embed_text
+
+async function: memory.substrate_service.close_service
+  calls:
+    - disconnect
+
+async function: memory.substrate_service.create_substrate_service
+  calls:
+    - get_service
+
+async function: memory.substrate_service.get_memory_substrate_service
+  calls:
+    - get_service
+
+async function: memory.substrate_service.get_service
+  calls: (none detected)
+
+async function: memory.substrate_service.init_service
+  calls:
+    - create_substrate_service
+
+async function: memory.tool_audit._ingest_audit_packet
+  calls:
+    - ingest_packet
+
+async function: memory.tool_audit._write_to_audit_table
+  calls:
+    - close
+    - connect
+    - execute
+
+async function: memory.tool_audit.log_tool_invocation
+  calls: (none detected)
+
+async function: memory.tool_router.find_tools
+  calls:
+    - find_relevant_tools
+    - get_tool_router
+
+async function: memory.tool_router.get_tool_router
+  calls: (none detected)
+
+async function: memory.tool_router.init_tool_router
+  calls:
+    - embed_tools
+    - get_tool_router
+
+async function: memory.warming_service.create_warming_service
+  calls:
+    - initialize
+
+async function: orchestrators.agent_execution.orchestrator.main
+  calls:
+    - poll_and_execute
+
+async function: orchestrators.ws_bridge.enqueue_ws_event
+  calls:
+    - enqueue
+
+async function: services.research.graph_runtime.init_runtime
+  calls:
+    - initialize
+
+async function: services.research.graph_runtime.shutdown_runtime
+  calls:
+    - shutdown
+
+async function: services.research.research_api.get_research_status
+  calls:
+    - get_status
+
+async function: services.research.research_api.research
+  calls:
+    - execute
+
+async function: services.research.research_api.resume_research
+  calls:
+    - resume
+
+async function: services.research.research_graph.critic_node
+  calls:
+    - log_memory_event
+    - run
+
+async function: services.research.research_graph.finalize_node
+  calls:
+    - save_checkpoint
+    - save_state_as_packet
+
+async function: services.research.research_graph.merge_node
+  calls:
+    - synthesize_evidence
+
+async function: services.research.research_graph.planning_node
+  calls:
+    - log_memory_event
+    - refine_goal
+    - run
+
+async function: services.research.research_graph.research_node
+  calls:
+    - log_memory_event
+    - run
+
+async function: services.research.research_graph.run_research
+  calls:
+    - ainvoke
+
+async function: services.research.research_graph.store_insights_node
+  calls:
+    - extract_insights
+    - write_packet
+
+async function: services.slack_files.get_file_info
+  calls:
+    - aclose
+    - get_file_info
+
+async function: services.slack_files.process_file_attachments
+  calls:
+    - get_file_info
+
+async function: services.symbolic_computation.api.routes.clear_cache
+  calls: (none detected)
+
+async function: services.symbolic_computation.api.routes.evaluate_expression
+  calls:
+    - evaluate_expression
+
+async function: services.symbolic_computation.api.routes.generate_code
+  calls:
+    - generate_code
+
+async function: services.symbolic_computation.api.routes.get_cache_stats
+  calls: (none detected)
+
+async function: services.symbolic_computation.api.routes.get_metrics_summary
+  calls:
+    - get_metrics_summary
+
+async function: services.symbolic_computation.api.routes.health_check
+  calls: (none detected)
+
+async function: services.symbolic_computation.api.routes.optimize_expression
+  calls: (none detected)
+
+async function: services.symbolic_computation.api.routes.validate_expression
+  calls: (none detected)
+
+async function: services.symbolic_computation.health_check.perform_health_check
+  calls:
+    - compute
+    - health_check
+
+async function: services.tool_learning_scheduler.register_tool_learning_jobs
+  calls: (none detected)
+
+async function: world_model.engine.init_world_model_engine
+  calls:
+    - initialize_state
+
+async function: world_model.nodes.service_nodes.world_model_query_node
+  calls:
+    - get_entity
+    - list_entities
+
+async function: world_model.nodes.service_nodes.world_model_service_update_node
+  calls:
+    - update_from_insights
+
+async function: world_model.nodes.service_nodes.world_model_snapshot_node
+  calls:
+    - create_snapshot
+
+async function: world_model.nodes.update_world_model_node.update_world_model_node
+  calls: (none detected)
+
+async function: world_model.repository._init_json_codecs
+  calls:
+    - set_type_codec
+
+async function: world_model.repository.close_pool
+  calls:
+    - close
+
+async function: world_model.repository.get_pool
+  calls:
+    - create_pool
+
+async function: world_model.runtime.create_runtime_with_substrate
+  calls:
+    - initialize_state
+
+async function: world_model.runtime.get_or_create_runtime
+  calls:
+    - create_runtime_with_substrate
+
+async function: world_model.seed_loader.run_seed_loader
+  calls:
+    - run
+
+async function: world_model.service.close_world_model_service
+  calls:
+    - close_pool
+

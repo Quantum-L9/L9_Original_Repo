@@ -1,0 +1,62 @@
+# L9 Agent Bootstrap Phases
+# ==========================
+# 7-phase atomic agent initialization ceremony.
+# All phases must succeed or entire initialization rolls back.
+
+## Feature Flag
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `L9_NEW_AGENT_INIT` | Enable 7-phase bootstrap | `true` |
+
+## Phase Breakdown
+
+| Phase | File | Function | Purpose |
+|-------|------|----------|---------|
+| 0 | phase_0_validate.py | `validate_agent_blueprint()` | Validate config schema, check agent_id uniqueness |
+| 1 | phase_1_load_kernels.py | `load_and_parse_kernels()` | Load 10 governance YAML kernels |
+| 2 | phase_2_instantiate.py | `instantiate_agent()` | Create AgentInstance, register in Neo4j |
+| 3 | phase_3_bind_kernels.py | `bind_kernels_to_agent()` | Attach kernels via GOVERNED_BY edges |
+| 4 | phase_4_load_identity.py | `load_identity_persona()` | Load L identity from 02-identity kernel |
+| 5 | phase_5_bind_tools.py | `bind_tools_and_capabilities()` | Wire tools + memory_search + memory_write |
+| 6 | phase_6_wire_governance.py | `wire_governance_gates()` | Apply approval gates from safety kernel |
+| 7 | phase_7_verify_and_lock.py | `verify_and_lock()` | Verify all phases, generate init signature |
+
+## Directory Structure
+
+```
+core/agents/bootstrap/
+├── __init__.py
+├── orchestrator.py         # AgentBootstrapOrchestrator
+├── phase_0_validate.py
+├── phase_1_load_kernels.py
+├── phase_2_instantiate.py
+├── phase_3_bind_kernels.py
+├── phase_4_load_identity.py
+├── phase_5_bind_tools.py
+├── phase_6_wire_governance.py
+└── phase_7_verify_and_lock.py
+```
+
+## AgentInstance Schema
+
+```python
+@dataclass
+class AgentInstance:
+    instance_id: str      # UUID
+    agent_id: str         # e.g., 'l-cto'
+    config: AgentConfig
+    identity: dict        # From 02-identity kernel
+    tools: List[str]      # Bound tool IDs
+    kernels: List[str]    # Bound kernel IDs
+    init_signature: str   # SHA256 of init state
+    status: str           # 'INITIALIZING' | 'READY' | 'ERROR'
+    created_at: datetime
+```
+
+## Rollback on Failure
+
+If any phase fails:
+1. Error logged with phase number
+2. Agent node deleted from Neo4j (CASCADE deletes relationships)
+3. RuntimeError raised to caller

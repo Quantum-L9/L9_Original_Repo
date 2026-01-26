@@ -1,0 +1,75 @@
+# =============================================================================
+# L9 MCP Memory Server Dockerfile
+# =============================================================================
+# Version: 2.0.0 - Production-ready with all dependencies
+#
+# Build from repo root:
+#   docker build -f deploy/k8s/c1/Dockerfile.mcp-memory -t l9-mcp-memory:latest .
+# =============================================================================
+
+# =============================================================================
+# Stage 1: Builder
+# =============================================================================
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc g++ make curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy production requirements
+COPY deploy/k8s/c1/requirements-production.txt requirements.txt
+
+# Install dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --prefix=/install --no-warn-script-location -r requirements.txt
+
+# =============================================================================
+# Stage 2: Runtime
+# =============================================================================
+FROM python:3.12-slim
+
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION=2.0.0
+
+LABEL org.opencontainers.image.title="L9 MCP Memory" \
+      org.opencontainers.image.version="${VERSION}"
+
+# Create non-root user
+RUN groupadd -r l9 -g 1000 && useradd -r -u 1000 -g l9 -m -s /bin/bash l9
+
+WORKDIR /app
+
+# Install runtime deps
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy Python packages from builder
+COPY --from=builder /install /usr/local
+
+# Copy application code
+COPY --chown=l9:l9 mcp_memory/ ./mcp_memory/
+COPY --chown=l9:l9 memory/ ./memory/
+COPY --chown=l9:l9 core/ ./core/
+COPY --chown=l9:l9 config/ ./config/
+COPY --chown=l9:l9 telemetry/ ./telemetry/
+COPY --chown=l9:l9 migrations/ ./migrations/
+
+# Create directories
+RUN mkdir -p /app/logs /app/data && chown -R l9:l9 /app
+
+USER l9
+
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    LOG_LEVEL=INFO
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:9000/health || exit 1
+
+EXPOSE 9000
+
+CMD ["python", "-m", "mcp_memory.server", "--host", "0.0.0.0", "--port", "9000"]

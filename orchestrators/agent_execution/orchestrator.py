@@ -35,10 +35,15 @@ import time
 from datetime import datetime
 from pathlib import Path
 
+import aiofiles
 import structlog
 
-from .interface import (AgentExecutionRequest, AgentExecutionResponse,
-                        IAgentExecutionOrchestrator, TaskExecutionStatus)
+from .interface import (
+    AgentExecutionRequest,
+    AgentExecutionResponse,
+    IAgentExecutionOrchestrator,
+    TaskExecutionStatus,
+)
 from .task_queue import get_next_task, mark_task_completed
 
 logger = structlog.get_logger(__name__)
@@ -320,11 +325,12 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                     f"~/.l9/mac_tasks/completed/{task_id}.json"
                                 )
                             )
-                            with open(completed_file, "w") as f:
-                                json.dump(
-                                    {"task": task, "result": failure_result},
-                                    f,
-                                    indent=2,
+                            async with aiofiles.open(completed_file, "w") as f:
+                                await f.write(
+                                    json.dumps(
+                                        {"task": task, "result": failure_result},
+                                        indent=2,
+                                    )
                                 )
                         except Exception:
                             pass

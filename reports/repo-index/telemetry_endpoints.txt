@@ -1,0 +1,48 @@
+# L9 Telemetry & Observability
+# ==============================
+# Prometheus metrics, Grafana dashboards, and observability endpoints.
+
+## Prometheus Metrics
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `l9_tool_invocations_total` | Counter | Total tool invocations |
+| `l9_tool_latency_seconds` | Histogram | Tool execution latency |
+| `l9_tool_errors_total` | Counter | Tool execution errors |
+| `l9_memory_writes_total` | Counter | Memory write operations |
+| `l9_memory_searches_total` | Counter | Memory search operations |
+| `l9_memory_substrate_health` | Gauge | Memory substrate health (0/1) |
+
+## Endpoints
+
+| Endpoint | Purpose |
+|----------|---------|
+| `/metrics` | Prometheus scrape endpoint |
+| `/os/health` | Health check (liveness) |
+| `/os/readiness` | Readiness check |
+
+## Grafana Dashboards
+
+| Dashboard | Panels |
+|-----------|--------|
+| `l9-tool-observability.json` | Invocation rate, latency p50/p95/p99, error rate, memory writes |
+
+## Tool Audit Log
+
+Every tool invocation logged to `tool_audit_log` table:
+
+```sql
+CREATE TABLE tool_audit_log (
+    id SERIAL PRIMARY KEY,
+    tool_name VARCHAR(100) NOT NULL,
+    agent_id VARCHAR(100),
+    task_id VARCHAR(100),
+    invocation_id UUID,
+    parameters JSONB,
+    result_status VARCHAR(20),
+    error_message TEXT,
+    latency_ms INTEGER,
+    cost_usd DECIMAL(10, 6),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```

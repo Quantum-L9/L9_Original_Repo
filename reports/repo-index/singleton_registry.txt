@@ -1,0 +1,28 @@
+# L9 Singleton Registry
+# ======================
+# Key singleton instances and their modules.
+
+## Core Singletons
+
+| Singleton | Module | Purpose | Init |
+|-----------|--------|---------|------|
+| `ws_orchestrator` | runtime.websocket_orchestrator | WebSocket connection manager | Startup |
+| `_service` | memory.substrate_service | Memory substrate singleton | Lazy |
+| `_repository` | memory.substrate_repository | PostgreSQL connection pool | Lazy |
+| `_world_model_engine` | world_model.engine | World model singleton | Lazy |
+| `_neo4j_client` | memory.graph_client | Neo4j graph database client | Lazy |
+| `_redis_client` | runtime.redis_client | Redis cache/queue client | Lazy |
+
+## Lifecycle
+
+1. **Startup** (`lifespan()` in api/server.py):
+   - `run_migrations()` - Apply SQL migrations
+   - `init_service()` - Initialize memory substrate
+   - `get_neo4j_client()` - Connect to Neo4j
+   - `get_redis_client()` - Connect to Redis
+   - `bootstrap_agent()` - Run 7-phase agent init
+
+2. **Shutdown** (`lifespan()` exit):
+   - `close_service()` - Close memory substrate
+   - `close_neo4j_client()` - Close Neo4j
+   - `close_redis_client()` - Close Redis

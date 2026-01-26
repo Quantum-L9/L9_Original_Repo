@@ -32,6 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
+import aiofiles
 import structlog
 import yaml
 
@@ -84,8 +85,8 @@ async def load_identity_persona(
         return
 
     try:
-        with open(identity_path, "r") as f:
-            identity_data = yaml.safe_load(f)
+        async with aiofiles.open(identity_path, "r") as f:
+            identity_data = yaml.safe_load(await f.read())
 
         # Create identity memory chunk
         identity_chunk = {

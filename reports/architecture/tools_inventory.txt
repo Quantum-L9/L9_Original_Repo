@@ -1,0 +1,810 @@
+# L9 TOOLS INVENTORY
+# Auto-generated from AST scan
+
+scripts/__init__.py
+
+scripts/agents/neo4j_merge_agent_nodes.py
+  async def get_neo4j_driver()
+  async def find_duplicate_agents()
+  async def get_all_agents()
+  async def merge_agent_nodes()
+  async def verify_single_nodes()
+  async def run_migration()
+  async def main()
+
+scripts/agents/neo4j_unify_relationships.py
+  async def get_neo4j_driver()
+  async def count_relationships()
+  async def get_legacy_relationships()
+  async def migrate_relationship()
+  async def delete_legacy_relationships()
+  async def verify_migration()
+  async def run_migration()
+  async def main()
+
+scripts/agents/run_bootstrap_l_graph.py
+  async def main()
+
+scripts/agents/verify_agent_executor.py
+  def print_section()
+  def check_imports()
+  def check_kernel_files()
+  def check_agent_registry()
+  def check_executor_service()
+  def check_health_checks()
+  def main()
+
+scripts/audit/audit_api_signatures.py
+  class SeverityLevel
+  class SignatureMismatch
+  class AuditResult
+  class SignatureAnalyzer
+  def analyze_file()
+  def find_value_on_get_state()
+  def find_httpx_app_param()
+  def run_api_signature_audit()
+  def auto_fix_mismatches()
+  def print_report()
+  def main()
+
+scripts/audit/audit_shared_core.py
+  class CacheEntry
+  class CacheManager
+  class CallGraphEdge
+  class CallGraphBuilder
+  class Reporter
+  class GMPTODOItem
+  class GMPIntegration
+  class ValidationRule
+  class ConfigValidator
+  class ObservabilityHooks
+  def setup_logger()
+
+scripts/audit/categorize_dead_code.py
+  class RiskLevel
+  class FixAction
+  class CategorizedFinding
+  class CategorizationResult
+  def categorize_finding()
+  def categorize_dead_code()
+  def generate_markdown_report()
+  def main()
+
+scripts/audit/cleanup_audit_reports.py
+  def matches_protected()
+  def get_report_type()
+  def get_audit_files_by_type()
+  def get_audit_files()
+  def get_file_age_days()
+  def format_file_info()
+  def list_files()
+  def archive_files()
+  def delete_files()
+  def main()
+
+scripts/audit/ensure_logger_instantiated.py
+  class FileAnalysis
+  def should_skip_file()
+  def is_logger_in_code()
+  def analyze_file()
+  def find_insertion_point()
+  def fix_file()
+  def scan_directory()
+  def main()
+
+scripts/audit/find_dead_code.py
+  class DeadCodeFinding
+  class DataclassFieldInfo
+  class AuditResult
+  class DataclassFieldVisitor
+  def run_vulture()
+  def run_ruff()
+  def extract_dataclass_fields()
+  def find_field_usages()
+  def analyze_dataclass_fields()
+  def find_unwired_routers()
+  def find_unwired_services()
+  def find_unwired_tools()
+  def find_unwired_pydantic_models()
+  def find_unwired_dependencies()
+  def find_unwired_app_state()
+  def find_unwired_kernels()
+  def find_unwired_agents()
+  def find_unwired_orchestrators()
+  def find_unwired_event_handlers()
+  def find_unwired_background_tasks()
+  def find_unwired_middleware()
+  def find_unwired_websocket_routes()
+  def scan_file_for_dataclass_fields()
+  def get_python_files()
+  def run_dead_code_audit()
+  def generate_sarif_output()
+  def get_confidence_tier()
+  def print_findings_by_confidence_tier()
+  def main()
+
+scripts/audit/generate_gmp_todos.py
+  class FixResult
+  class GMPReport
+  def is_false_positive()
+  def should_autofix()
+  def run_ruff_fix()
+  def validate_file()
+  def auto_fix_dead_code()
+  def main()
+
+scripts/audit/inject_dora_complete.py
+  class ClassInfo
+  class HeaderMeta
+  class FooterMeta
+  class DoraTraceBlock
+  class DoraCompleteInjector
+  def main()
+
+scripts/audit/inject_dora_multiformat_complete.py
+  class HeaderMeta
+  class FooterMeta
+  class DoraTraceBlock
+  class DoraMultiFormatInjector
+  def main()
+
+scripts/audit/migrate_dora_legacy.py
+  class DoraLegacyMigrator
+  class DoraMultiFormatMigrator
+  def main()
+
+scripts/audit/resolve_dead_code_refs.py
+  class ResolvedFinding
+  class ResolutionResult
+  class FalsePositiveDetector
+  def resolve_dead_code_refs()
+  def main()
+
+scripts/audit/run_all.py
+  class AuditType
+  class AuditResult
+  class AuditRun
+  class AuditOrchestrator
+  def validate_no_deprecated_paths()
+  def main()
+
+scripts/audit/run_dead_code_audit.py
+  def run_phase()
+  def main()
+
+scripts/audit/tier1/audit_capability_inventory.py
+  class Impact
+  class Risk
+  class ParameterSchema
+  class MCPSchema
+  class CapabilityMethod
+  class CapabilityMatrix
+  class CapabilityReport
+  def extract_type_hint()
+  def build_parameters_from_signature()
+  def generate_mcp_schema()
+  def get_exposed_tools()
+  def get_async_methods()
+  def assess_capability()
+  def main()
+
+scripts/audit/tier1/audit_code_integrity.py
+  class FileHashEntry
+  class CallGraphEdge
+  class UncalledFunction
+  class OrphanClass
+  class CircularImport
+  class AuditReport
+  class CallGraphBuilder
+  class StubDetector
+  class CacheManager
+  def should_skip_file()
+  def find_python_files()
+  def analyze_file_for_uncalled()
+  def analyze_file_for_orphans()
+  def detect_circular_imports()
+  def generate_html_report()
+  async def main()
+
+scripts/audit/tier1/audit_infrastructure_health.py
+  class HealthStatus
+  class HealthCheck
+  class ConfigValidation
+  class DependencyCheck
+  class StartupSequence
+  class InfrastructureReport
+  class HealthProbe
+  class TCPHealthProbe
+  class HTTPHealthProbe
+  class PythonModuleHealthProbe
+  def validate_config()
+  def verify_dependency_dag()
+  def compute_startup_order()
+  async def run_all_health_checks()
+  def generate_report()
+  async def main()
+
+scripts/audit/validate_dora_complete.py
+  class ValidationResult
+  class DoraCompleteValidator
+  def main()
+
+scripts/audit/verify_memory_spec_v3.py
+  def load_spec()
+  def check_no_duplicate_specs()
+  def check_required_modules()
+  def extract_class_methods()
+  def extract_function_names()
+  def parse_method_signature()
+  def check_required_methods()
+  def check_feature_flags()
+  def check_contracts()
+  def run_verification()
+  def main()
+
+scripts/audit/verify_wiring_alignment.py
+  class PathReference
+  class VerificationResult
+  def should_skip()
+  def extract_paths_from_file()
+  def verify_canonical_files()
+  def scan_repository()
+  def print_summary()
+  def print_json()
+  def main()
+
+scripts/batch/batch_generate_specs.py
+  class BatchConfig
+  class TokenBucketLimiter
+  class PerplexityBatchClient
+  class BatchSpecGenerator
+  def parse_modules_file()
+  async def main()
+
+scripts/benchmark_caching_and_vector.py
+  class MockDatabase
+  async def benchmark_query_caching()
+  async def benchmark_vector_search()
+  async def benchmark_combined_impact()
+  async def main()
+
+scripts/benchmark_performance.py
+  async def benchmark_batch_insert()
+  async def benchmark_kernel_loading()
+  async def main()
+
+scripts/benchmark_standalone.py
+
+scripts/check_n_plus_1.py
+  class N1DetectorVisitor
+  def check_file_ast()
+  def check_file_regex()
+  def get_changed_files()
+  def get_all_python_files()
+  def format_issue()
+  def main()
+
+scripts/diagnose_memory_search.py
+  def mcp_call()
+  def main()
+
+scripts/extract_code_facts.py
+  class CodeFactExtractor
+  def generate_code_map()
+  def generate_meta_yaml()
+  def main()
+
+scripts/fix_async_decorators.py
+  def extract_reason()
+  def has_import()
+  def find_import_insert_position()
+  def process_file()
+  def main()
+
+scripts/fix_untyped_decorators.py
+  class DecoratorIssue
+  class DecoratorFix
+  def scan_for_untyped_decorators()
+  def analyze_file_decorators()
+  def check_decorator_typing()
+  def generate_fix_for_file()
+  def generate_single_fix()
+  def find_function_end()
+  def fix_with_paramspec()
+  def fix_add_return_type()
+  def check_and_add_imports()
+  def add_paramspec_definitions()
+  def apply_fixes()
+  def run_mypy_check()
+  def main()
+
+scripts/generate_gmp_report.py
+  class TodoItem
+  class ChangeItem
+  class ValidationResult
+  class PhaseStatus
+  class GMPReportData
+  class GMPReportGenerator
+  def parse_todo()
+  def parse_change()
+  def parse_validation()
+  def interactive_mode()
+  def from_json_file()
+  def run_verification()
+  def main()
+
+scripts/generate_readme_superprompt.py
+  class TypeInfo
+  class FieldInfo
+  class ClassInfo
+  class FunctionInfo
+  class RouteInfo
+  class SubsystemFacts
+  def extract_type_annotation()
+  def extract_decorator_name()
+  def extract_route_info()
+  def extract_class_fields()
+  def extract_subsystem_facts()
+  def format_class_info()
+  def format_function_info()
+  def format_route_info()
+  def generate_superprompt()
+  def main()
+
+scripts/generate_subsystem_readmes.py
+  class ClassInfo
+  class FunctionInfo
+  class SubsystemFacts
+  def verify_system_time()
+  def load_config()
+  def save_config()
+  def validate_subsystem_config()
+  def extract_subsystem_facts()
+  def generate_readme()
+  def auto_config_from_path()
+  def backup_existing_readme()
+  def list_subsystems()
+  def main()
+
+scripts/gmp-validate-stage.py
+  class ValidationResult
+  class GMPStageValidator
+  def main()
+
+scripts/memory/__init__.py
+
+scripts/memory/audit_graphs.py
+  async def audit_postgresql_graphs()
+  async def audit_neo4j_graphs()
+  async def audit_world_model()
+  async def run_full_audit()
+  def print_audit_report()
+  async def main()
+
+scripts/memory/audit_graphs_vps.py
+  async def api_request()
+  async def audit_memory_stats()
+  async def audit_packets()
+  async def audit_facts()
+  async def audit_neo4j_via_api()
+  async def run_audit()
+  def print_report()
+  async def main()
+
+scripts/memory/bootstrap_neo4j_schema.py
+  async def create_schema_constraints()
+  async def create_governance_entities()
+  async def create_kernel_entities()
+  async def create_tool_safety_guards()
+  async def create_agent_hierarchy()
+  async def create_agent_collaborations()
+  async def bootstrap_l_governance()
+  async def main()
+
+scripts/memory/check_embeddings_via_api.py
+  async def check_embeddings_via_search()
+
+scripts/memory/cleanup_trash_embeddings.py
+  def is_trash_embedding()
+  async def cleanup_trash_embeddings()
+  async def main()
+
+scripts/memory/cleanup_trash_embeddings_via_api.py
+  def is_trash_embedding()
+  async def find_trash_embeddings_via_search()
+  async def main()
+
+scripts/memory/delete_trash_embeddings.py
+  async def delete_trash_embeddings()
+  async def main()
+
+scripts/memory/delete_trash_via_service.py
+  async def delete_trash_embeddings()
+  async def main()
+
+scripts/memory/execute_cleanup_and_reindex.py
+  async def delete_trash_embeddings_from_sql()
+  async def reindex_content()
+  async def main()
+
+scripts/memory/generate_delete_sql.py
+  def is_trash()
+  async def find_trash_ids()
+  async def main()
+
+scripts/memory/index_architecture.py
+  def extract_architecture_from_code()
+  def extract_architecture_from_gmp_reports()
+  async def api_request()
+  async def execute_cypher()
+  async def index_architecture_decisions()
+  async def main()
+
+scripts/memory/index_error_patterns.py
+  def extract_error_type()
+  async def query_failure_packets()
+  async def index_error_patterns()
+  async def main()
+
+scripts/memory/index_gmp_reports.py
+  def parse_gmp_report()
+  async def index_gmp_report()
+  async def main()
+
+scripts/memory/index_preferences.py
+  async def query_preference_packets()
+  async def index_preferences()
+  async def main()
+
+scripts/memory/index_tool_usage.py
+  async def query_tool_usage_stats()
+  async def api_request()
+  async def execute_cypher()
+  async def index_tool_usage_to_neo4j()
+  async def main()
+
+scripts/memory/inspect_embeddings.py
+  async def inspect_embeddings()
+  async def main()
+
+scripts/memory/load_gmp_reports_to_graph.py
+  def parse_gmp_report()
+  async def create_gmp_nodes()
+  async def create_gmp_schema()
+  async def load_gmp_reports()
+  async def main()
+
+scripts/memory/load_indexes_to_neo4j.py
+  class RepoGraphLoader
+  def main()
+
+scripts/memory/load_indexes_to_neo4j_vps.py
+  class VPSRepoGraphLoader
+  async def main()
+
+scripts/memory/migrate_kernels_to_graph.py
+  async def run_migration()
+  async def verify_migration()
+  async def main()
+
+scripts/memory/seed_golden_strategies.py
+  async def seed_golden_strategies()
+  async def list_strategies()
+  async def delete_all_strategies()
+  async def main()
+
+scripts/memory/test_all_graphs_access.py
+  async def test_all_graphs()
+
+scripts/migrate_substrate_models.py
+  def should_skip()
+  def find_files_to_migrate()
+  def parse_imports()
+  def generate_new_imports()
+  def migrate_file()
+  def main()
+
+scripts/pr_review/gemini_auto_editor.py
+  class GeminiAutoEditor
+
+scripts/pr_review/perplexity_reviewer.py
+  class PerplexityAuditor
+
+scripts/refactoring/__init__.py
+
+scripts/refactoring/aios_validate.py
+  class AOISCompliance
+  def should_skip()
+  def scan_directory()
+  def main()
+
+scripts/refactoring/bootstrap_refactor.py
+  class Language
+  class ToolConfig
+  class RefactoringBootstrap
+  def main()
+
+scripts/research/delegate_deep_research.py
+  def extract_prompt_from_payload()
+  async def call_deep_research()
+  def extract_yaml_from_response()
+  async def process_module()
+  async def main()
+
+scripts/research/extract_perplexity_pack.py
+  def extract_files()
+  def write_files()
+  def main()
+
+scripts/research/factory_extract.py
+  def print_validation_result()
+  def print_extraction_result()
+  async def main()
+
+scripts/research/run_single_deep_research.py
+  def get_api_key()
+
+scripts/research/send_perplexity_spec_request.py
+  def load_env()
+  def load_file()
+  def main()
+
+scripts/research/test_research_factory.py
+  async def test_research_endpoint()
+  async def main()
+
+scripts/run_pattern.py
+  def parse_args()
+  def create_agent()
+  async def run_pattern()
+  def print_result()
+  def main()
+
+scripts/setup_gmail_accounts.py
+  def setup_account()
+  def main()
+
+scripts/validate_gmp_report.py
+  class ValidationIssue
+  class ValidationResult
+  class GMPReportValidator
+  def load_contract()
+  def print_result()
+  def main()
+
+scripts/workflow/generate_gmp_report.py
+  def get_next_gmp_number()
+  def generate_pr_report()
+  def generate_task_report()
+  def main()
+
+scripts/workflow/update_workflow_state.py
+  def get_current_date()
+  def read_workflow_state()
+  def write_workflow_state()
+  def inject_recent_change()
+  def inject_next_steps_pr()
+  def inject_recent_session()
+  def mark_session_complete()
+  def cmd_pr_start()
+  def cmd_pr_complete()
+  def cmd_gmp_start()
+  def cmd_gmp_complete()
+  def main()
+
+scripts/workspace/init_workspace.py
+  class InitResult
+  def init_workspace()
+  def print_banner()
+  def main()
+
+scripts/workspace/init_workspace_NEW.py
+  def ensure_cursor_commands_symlink()
+  def run_env_manager()
+  def run_setup_new_workspace_yaml()
+  def start_new_workspace()
+  def main()
+
+scripts/workspace/rename_l_to_l_cto.py
+  def should_skip_file()
+  def replace_in_file()
+  def process_directory()
+  def main()
+
+tools/__init__.py
+
+tools/adr/__init__.py
+
+tools/adr/adr_cli.py
+  def get_adr_dir()
+  def get_index_path()
+  def load_index()
+  def cmd_new()
+  def cmd_list()
+  def cmd_show()
+  def cmd_update_status()
+  def cmd_deprecate()
+  def cmd_search()
+  def cmd_validate()
+  def cmd_reindex()
+  def main()
+
+tools/adr/adr_compliance_check_enhanced.py
+  class ADRViolation
+  class ADRComplianceChecker
+  def main()
+
+tools/adr/adr_enforcer.py
+  class Violation
+  class ValidationReport
+  class ADREnforcementValidator
+  def main()
+
+tools/adr/adr_generator.py
+  def slugify()
+  def generate_adr()
+  def generate_adr_from_pr()
+
+tools/adr/adr_indexer.py
+  def extract_adr_metadata()
+  def build_index()
+  def get_next_adr_number()
+  def update_index_entry()
+
+tools/adr/adr_scanner.py
+  def main()
+
+tools/adr/adr_validator.py
+  def validate_adr()
+  def validate_all_adrs()
+  def check_t3_approval()
+
+tools/architecture_reports/__init__.py
+
+tools/architecture_reports/architecture_report.py
+  def generate_architecture()
+
+tools/architecture_reports/async_function_map_report.py
+  class AsyncCallVisitor
+  def generate_async_function_map()
+
+tools/architecture_reports/class_definitions_report.py
+  def generate_class_definitions()
+
+tools/architecture_reports/config.py
+  class RepoLayout
+  def detect_root()
+  def default_layout()
+  def iter_python_files()
+
+tools/architecture_reports/config_files_report.py
+  def generate_config_files()
+
+tools/architecture_reports/file_metrics_report.py
+  class FileMetrics
+  def generate_file_metrics()
+
+tools/architecture_reports/filesystem.py
+  def ensure_reports_dir()
+  def open_report()
+
+tools/architecture_reports/function_signatures_report.py
+  def generate_function_signatures()
+
+tools/architecture_reports/imports_report.py
+  def generate_imports()
+
+tools/architecture_reports/inheritance_graph_report.py
+  def generate_inheritance_graph()
+
+tools/architecture_reports/main.py
+  def generate_all_reports()
+  def main()
+
+tools/architecture_reports/pydantic_models_report.py
+  def generate_pydantic_models()
+
+tools/architecture_reports/route_handlers_report.py
+  def generate_route_handlers()
+
+tools/export_repo_indexes.py
+  def load_gitignore_patterns()
+  def is_ignored()
+  def generate_tree()
+  def generate_api_surfaces()
+  def generate_entrypoints()
+  def generate_env_refs()
+  def generate_imports()
+  def generate_dependencies()
+  def generate_class_definitions()
+  def generate_function_signatures()
+  def generate_config_files()
+  def generate_module_architecture()
+  def generate_wiring_map()
+  def generate_agent_catalog()
+  def generate_kernel_catalog()
+  def generate_tool_catalog()
+  def generate_orchestrator_catalog()
+  def generate_event_types()
+  def generate_singleton_registry()
+  def generate_bootstrap_phases()
+  def generate_memory_architecture()
+  def generate_governance_model()
+  def generate_migration_catalog()
+  def generate_feature_flags()
+  def generate_test_catalog()
+  def generate_telemetry_endpoints()
+  def generate_deployment_manifest()
+  def generate_inheritance_graph()
+  def generate_method_catalog()
+  def generate_route_handlers()
+  def generate_file_metrics()
+  def generate_pydantic_models()
+  def generate_dynamic_tool_catalog()
+  def generate_async_function_map()
+  def generate_decorator_catalog()
+  def generate_adr_catalog()
+  def main()
+
+tools/l9_cli.py
+  def cli()
+  def scan_secrets()
+  def scan_quality()
+  def manage_debt()
+
+tools/mac_protocol.py
+  class MacMessage
+  class MacResponse
+  def parse_mac_message()
+  def create_mac_response()
+
+tools/superpack_reports/__init__.py
+
+tools/superpack_reports/api_report.py
+  def generate_api_superpack()
+  def generate_api_route_inventory()
+
+tools/superpack_reports/ast_scanner.py
+  class ModuleInfo
+  class ClassInfo
+  class FunctionInfo
+  def scan_module()
+  def scan_directories()
+
+tools/superpack_reports/config.py
+  class SuperpackLayout
+  def detect_root()
+  def default_layout()
+  def iter_python_files()
+
+tools/superpack_reports/filesystem.py
+  def ensure_reports_dir()
+  def open_report()
+  def write_markdown_header()
+  def write_markdown_footer()
+
+tools/superpack_reports/governance_report.py
+  def generate_governance_superpack()
+  def generate_governance_invariants()
+
+tools/superpack_reports/index_report.py
+  def generate_superpack_index()
+
+tools/superpack_reports/main.py
+  def generate_all_superpacks()
+  def main()
+
+tools/superpack_reports/memory_report.py
+  def generate_memory_superpack()
+  def generate_memory_integration_map()
+
+tools/superpack_reports/tools_report.py
+  def generate_tools_superpack()
+  def generate_tools_inventory()
+
+tools/superpack_reports/workers_report.py
+  def generate_orchestration_superpack()
+  def generate_worker_inventory()
+
+---
+Auto-generated by tools/superpack_reports/

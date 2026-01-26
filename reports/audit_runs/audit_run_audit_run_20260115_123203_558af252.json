@@ -1,0 +1,113 @@
+{
+  "run_id": "audit_run_20260115_123203_558af252",
+  "results": {
+    "infrastructure_health": {
+      "audit_type": "infrastructure_health",
+      "status": "failure",
+      "duration_ms": 0.04673004150390625,
+      "items_found": 0,
+      "items_critical": 0,
+      "items_high": 0,
+      "items_medium": 0,
+      "items_low": 0,
+      "errors": [
+        "__init__() got an unexpected keyword argument 'name'"
+      ],
+      "data": {},
+      "file_outputs": {}
+    },
+    "capability_inventory": {
+      "audit_type": "capability_inventory",
+      "status": "failure",
+      "duration_ms": 46.5090274810791,
+      "items_found": 0,
+      "items_critical": 0,
+      "items_high": 0,
+      "items_medium": 0,
+      "items_low": 0,
+      "errors": [
+        "unsupported operand type(s) for /: 'str' and 'float'"
+      ],
+      "data": {},
+      "file_outputs": {}
+    },
+    "dead_code": {
+      "audit_type": "dead_code",
+      "status": "failure",
+      "duration_ms": 77.8660774230957,
+      "items_found": 0,
+      "items_critical": 0,
+      "items_high": 0,
+      "items_medium": 0,
+      "items_low": 0,
+      "errors": [
+        "cannot import name 'generate_gmp_todos' from 'generate_gmp_todos' (/Users/ib-mac/Projects/l9/scripts/audit/generate_gmp_todos.py)"
+      ],
+      "data": {},
+      "file_outputs": {}
+    },
+    "wiring_alignment": {
+      "audit_type": "wiring_alignment",
+      "status": "success",
+      "duration_ms": 97.75280952453613,
+      "items_found": 9,
+      "items_critical": 0,
+      "items_high": 0,
+      "items_medium": 0,
+      "items_low": 0,
+      "errors": [],
+      "data": {
+        "verified_paths": 9,
+        "broken_docs": 0,
+        "deprecated_refs": 0,
+        "missing_canonical": 0,
+        "files_scanned": 37,
+        "is_green": true
+      },
+      "file_outputs": {}
+    },
+    "memory_spec": {
+      "audit_type": "memory_spec",
+      "status": "success",
+      "duration_ms": 220.74604034423828,
+      "items_found": 5,
+      "items_critical": 0,
+      "items_high": 0,
+      "items_medium": 0,
+      "items_low": 5,
+      "errors": [],
+      "data": {
+        "exit_code": 0,
+        "checks_passed": 5,
+        "checks_failed": 0,
+        "checks_warned": 0,
+        "output": "============================================================\nMemory Spec v3.0 Verification\n============================================================\nSpec file: memory/memory_spec_v3.0.yaml\n\n\u25b6 Check 1: No Duplicate Specs\n  \u2705 PASS - No deprecated specs found\n\n\u25b6 Check 2: Required Modules Exist\n  \u2705 PASS - All modules exist\n\n\u25b6 Check 3: Required Methods Implemented\n  \u2705 PASS - All required methods found\n\n\u25b6 Check 4: Feature Flags (Informational)\n  \u2139\ufe0f  INFO - Feature flag check complete\n\n\u25b6 Check 5: Contract Validation\n  \u2705 PASS - Contracts validated\n\n============================================================\n\u2705 VERIFICATION PASSED\n   memory_spec_v3.0.yaml is the sole active spec\n============================================================\n"
+      },
+      "file_outputs": {}
+    },
+    "code_integrity": {
+      "audit_type": "code_integrity",
+      "status": "failure",
+      "duration_ms": 175366.74618721008,
+      "items_found": 0,
+      "items_critical": 0,
+      "items_high": 0,
+      "items_medium": 0,
+      "items_low": 0,
+      "errors": [
+        "[Errno 21] Is a directory: '/Users/ib-mac/Projects/l9/current_work/DONE/agent_persistence.py'"
+      ],
+      "data": {},
+      "file_outputs": {}
+    }
+  },
+  "summary": {
+    "run_id": "audit_run_20260115_123203_558af252",
+    "total_audits": 6,
+    "total_items": 14,
+    "critical": 0,
+    "high": 0,
+    "succeeded": 2,
+    "failed": 0
+  }
+}

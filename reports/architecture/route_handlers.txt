@@ -1,0 +1,7 @@
+GET / -> api.server.root
+GET / -> api.server_memory.root
+POST /agent/exec -> api.vps_executor.agent_exec
+GET /agent/health -> api.vps_executor.agent_health
+GET /health -> api.server_memory.health
+GET /tasks -> api.webhook_mac_agent.list_mac_tasks
+GET /tasks/next -> api.webhook_mac_agent.get_next_mac_task

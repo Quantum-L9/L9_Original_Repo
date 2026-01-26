@@ -1,0 +1,24 @@
+# L9 RUNTIME ENTRYPOINTS
+# CLI & bootstrap entry points
+
+## Primary Entrypoints
+api.server:app              - FastAPI/Uvicorn (HTTP/WebSocket)
+orchestrators.*:main        - Background orchestrators
+workers.*:run               - Individual workers
+
+## Bootstrap Sequence (7-Phase)
+Phase 1: config/settings.py          - Load config/credentials
+Phase 2: memory/__init__.py          - Initialize substrates
+Phase 3: core/runtime/__init__.py    - Wire kernel runtime
+Phase 4: core/governance/__init__.py - Load governance
+Phase 5: core/tools/dynamic_discovery.py - Load tools
+Phase 6: orchestrators/__init__.py   - Bind orchestrators
+Phase 7: api.server:main()           - Start listener
+
+## CLI Tools
+tools/l9_cli.py             - Main CLI
+tools/adr/adr_cli.py        - ADR management
+scripts/                    - Utility scripts
+
+---
+Generated: 2026-01-25 | GMP-SUPERPACK

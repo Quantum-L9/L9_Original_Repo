@@ -45,14 +45,19 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+import aiofiles
 import structlog
 import yaml
 
 from ir_engine.meta_ir import MetaContract, MetaContractValidationResult
 from ir_engine.schema_validator import SchemaValidator
-from runtime.superprompt_emitter import (GapAnalysis, GapDetector,
-                                         PerplexityEnricher, SpecPatcher,
-                                         SuperPromptEmitter)
+from runtime.superprompt_emitter import (
+    GapAnalysis,
+    GapDetector,
+    PerplexityEnricher,
+    SpecPatcher,
+    SuperPromptEmitter,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -263,8 +268,8 @@ class ConstructEnhancer:
         Returns:
             EnhancementResult
         """
-        with open(yaml_path, "r", encoding="utf-8") as f:
-            spec = yaml.safe_load(f)
+        async with aiofiles.open(yaml_path, "r", encoding="utf-8") as f:
+            spec = yaml.safe_load(await f.read())
 
         return await self.enhance_spec(spec)
 
@@ -401,8 +406,8 @@ class BatchEnhancer:
 
         for yaml_file in yaml_files:
             try:
-                with open(yaml_file, "r") as f:
-                    spec = yaml.safe_load(f)
+                async with aiofiles.open(yaml_file, "r") as f:
+                    spec = yaml.safe_load(await f.read())
 
                 # Check if already valid
                 if skip_valid:

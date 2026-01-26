@@ -30,16 +30,16 @@ import hashlib
 from typing import Optional, List, Tuple
 from datetime import datetime
 
-from L9.core.eos import AccountabilityEngine
-from L9.core.eos.schemas import (
+from core.eos import AccountabilityEngine
+from core.eos.schemas import (
     ActionEnvelope,
     ActionType,
     RiskClass,
     Environment,
     Verdict,
 )
-from L9.core.memory.substrate_service import MemorySubstrateService
-from L9.core.boundary_enforcer import BoundaryEnforcer
+from memory.substrate_service import MemorySubstrateService
+from core.boundary.enforcer import BoundaryEnforcer
 
 from .schemas import TensorRequest, TensorResponse, TensorResponsePacket, AnomalySignal
 from .security import SignatureVerifier

@@ -59,7 +59,7 @@ class PerplexityAuditor:
         try:
             with open(filepath, "r", encoding="utf-8") as f:
                 return f.read()
-        except:
+        except (OSError, IOError):
             return ""
 
     def audit_with_perplexity(self, diff: str, files: List[str]) -> Dict[str, Any]:
@@ -140,7 +140,7 @@ Return ONLY valid JSON.
 
         try:
             return json.loads(content)
-        except:
+        except (json.JSONDecodeError, ValueError):
             return {"security_findings": [], "summary": content}
 
     def apply_auto_fixes(self, fixes: List[Dict]) -> int:

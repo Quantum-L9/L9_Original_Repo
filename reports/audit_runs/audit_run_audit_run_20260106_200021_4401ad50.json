@@ -1,0 +1,64 @@
+{
+  "run_id": "audit_run_20260106_200021_4401ad50",
+  "results": {
+    "infrastructure_health": {
+      "audit_type": "infrastructure_health",
+      "status": "failure",
+      "duration_ms": 0.1277923583984375,
+      "items_found": 0,
+      "items_critical": 0,
+      "items_high": 0,
+      "items_medium": 0,
+      "items_low": 0,
+      "errors": [
+        "__init__() got an unexpected keyword argument 'name'"
+      ],
+      "data": {},
+      "file_outputs": {}
+    },
+    "capability_inventory": {
+      "audit_type": "capability_inventory",
+      "status": "success",
+      "duration_ms": 32.762765884399414,
+      "items_found": 0,
+      "items_critical": 0,
+      "items_high": 0,
+      "items_medium": 0,
+      "items_low": 0,
+      "errors": [],
+      "data": {
+        "exposed_tools": 69,
+        "hidden_capabilities": 0,
+        "internal_excluded": 61,
+        "exposure_recommended": 0
+      },
+      "file_outputs": {}
+    },
+    "code_integrity": {
+      "audit_type": "code_integrity",
+      "status": "success",
+      "duration_ms": 963323.8852024078,
+      "items_found": 36,
+      "items_critical": 0,
+      "items_high": 7,
+      "items_medium": 29,
+      "items_low": 0,
+      "errors": [],
+      "data": {
+        "uncalled_functions": 0,
+        "orphan_classes": 36,
+        "circular_imports": 0
+      },
+      "file_outputs": {}
+    }
+  },
+  "summary": {
+    "run_id": "audit_run_20260106_200021_4401ad50",
+    "total_audits": 3,
+    "total_items": 36,
+    "critical": 0,
+    "high": 7,
+    "succeeded": 2,
+    "failed": 0
+  }
+}

@@ -1,0 +1,74 @@
+# L9 Kernel Catalog
+# ==================
+# 10 governance/identity/behavior kernels that define L's identity and constraints.
+
+## Kernel Stack (private/kernels/00_system/)
+
+### 01_master_kernel.yaml
+- **ID**: 01_master_kernel
+- **Name**: 01_master_kernel
+- **Version**: 1.0.0
+- **Purpose**: 
+
+### 02_identity_kernel.yaml
+- **ID**: 02_identity_kernel
+- **Name**: 02_identity_kernel
+- **Version**: 1.0.0
+- **Purpose**: 
+
+### 03_cognitive_kernel.yaml
+- **ID**: 03_cognitive_kernel
+- **Name**: 03_cognitive_kernel
+- **Version**: 1.0.0
+- **Purpose**: 
+
+### 04_behavioral_kernel.yaml
+- **ID**: 04_behavioral_kernel
+- **Name**: 04_behavioral_kernel
+- **Version**: 1.0.0
+- **Purpose**: 
+
+### 05_memory_kernel.yaml
+- **ID**: 05_memory_kernel
+- **Name**: 05_memory_kernel
+- **Version**: 1.0.0
+- **Purpose**: 
+
+### 06_worldmodel_kernel.yaml
+- **ID**: 06_worldmodel_kernel
+- **Name**: 06_worldmodel_kernel
+- **Version**: 1.0.0
+- **Purpose**: 
+
+### 07_execution_kernel.yaml
+- **ID**: 07_execution_kernel
+- **Name**: 07_execution_kernel
+- **Version**: 1.0.0
+- **Purpose**: Governs deterministic execution flow for L9. Converts user intent into validated steps, planned acti
+
+### 08_safety_kernel.yaml
+- **ID**: 08_safety_kernel
+- **Name**: 08_safety_kernel
+- **Version**: 1.0.0
+- **Purpose**: Provides engineering safety, not generic AI policy. Scans all code, commands, SQL, migrations, Docke
+
+### 09_developer_kernel.yaml
+- **ID**: 09_developer_kernel
+- **Name**: 09_developer_kernel
+- **Version**: 1.0.0
+- **Purpose**: Governs engineering-grade execution for AI/agent development: spec-first, schema-first, test-bound, 
+
+### 10_packet_protocol_kernel.yaml
+- **ID**: 10_packet_protocol_kernel
+- **Name**: 10_packet_protocol_kernel
+- **Version**: 1.0.0
+- **Purpose**: 
+
+
+## Kernel Loading (7-Phase Bootstrap)
+
+| Phase | Function | Purpose |
+|-------|----------|---------|
+| 1 | load_and_parse_kernels() | Load all 10 YAML kernels |
+| 3 | bind_kernels_to_agent() | Attach kernels to AgentInstance |
+| 6 | wire_governance_gates() | Apply safety constraints |

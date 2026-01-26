@@ -1,0 +1,856 @@
+module: api.auth
+  def verify_api_key(authorization=...)
+
+module: api.db
+  def init_db()
+  def insert_embedding(source, content, vector=...)
+
+module: api.dependencies
+  def get_agent_executor(request)
+  def get_aios_runtime(request)
+  def get_consolidation_service(request)
+  def get_evaluator(request)
+  def get_governance_engine(request)
+  def get_housekeeping_engine(request)
+  def get_memory_orchestrator(request)
+  def get_memory_state_manager(request)
+  def get_neo4j_client(request)
+  def get_observability_service(request)
+  def get_redis_client(request)
+  def get_substrate_service(request)
+  def get_timeline_service(request)
+  def get_tool_registry(request)
+  def get_virtual_context_manager(request)
+  def get_world_model_service(request)
+
+module: api.llm
+  def chat_with_l9(user_message)
+  def get_client()
+  def get_system_prompt()
+
+module: api.memory.router
+  def get_memory_orchestrator(request)
+
+module: api.middleware.websocket_tracing
+  def get_trace_context(websocket)
+  def inject_trace_into_packet(packet_dict, trace_context=...)
+
+module: api.openapi_config
+  def get_openapi_config()
+  def get_security_schemes()
+
+module: api.routes.cursor
+  def get_cursor_executor(request)
+
+module: api.routes.gmp_learning
+  def get_gmp_engine()
+
+module: api.routes.mcp
+  def get_verify_api_key()
+
+module: api.routes.pattern
+  def get_pattern_orchestrator(request)
+
+module: api.routes.reasoning
+  def get_reasoning_orchestrator(request)
+
+module: api.routes.reflection_agent
+  def get_reflection_agent(request)
+
+module: api.routes.registry
+  def discover_routers()
+  def get_router_registry()
+
+module: api.routes.research
+  def get_research_swarm_orchestrator(request)
+
+module: api.routes.research_agent
+  def get_research_agent(request)
+
+module: api.routes.upgrades
+  def get_upgrade_engine()
+
+module: api.routes.worldmodel
+  def get_world_model_service(request)
+
+module: api.server
+  def custom_openapi()
+  def root()
+
+module: api.server_memory
+  def health()
+  def root()
+
+module: api.tools.router
+  def get_tool_registry(request)
+
+module: api.vps_executor
+  def agent_exec(task, authorization=...)
+  def agent_health()
+  def check_auth(authorization=...)
+  def is_allowed_command(cmd)
+  def memory_health()
+  def run_shell(command, cwd=...)
+
+module: api.webhook_mac_agent
+  def get_next_mac_task()
+  def list_mac_tasks()
+
+module: api.webhook_twilio
+  def verify_twilio_signature(url, params, signature, auth_token)
+
+module: api.webhook_waba
+  def verify_webhook_signature(request_body, x_hub_signature)
+
+module: api.whatsapp
+  def load_twilio_client()
+  def send_whatsapp_message(body, to=...)
+
+module: core.agents.adaptive_prompting
+  def generate_adaptive_context(patterns)
+
+module: core.agents.bootstrap.bootstrap_metrics
+  def get_bootstrap_metrics(agent_id)
+
+module: core.agents.kernel_registry
+  def create_kernel_aware_registry()
+
+module: core.agents.kernelevolution
+  def generate_gmp_spec_from_plan(plan)
+  def generate_proposal_from_gap(gap)
+  def generate_proposals_from_reflection(reflection)
+
+module: core.agents.prompt_builder
+  def build_kernel_system_prompt(agent, include_safety_prefix=..., include_identity=..., include_safety=..., include_behavioral=..., include_execution=...)
+  def build_runtime_prompt(task_payload, memory_context=..., channel=...)
+  def get_safety_prefix()
+
+module: core.agents.prompt_defense
+  def detect_prompt_injection(user_input, context=...)
+  def get_blocked_response(detection_result)
+  def should_block_request(detection_result)
+
+module: core.agents.registry
+  def create_agent_registry(config_dir=...)
+  def create_default_registry()
+
+module: core.agents.selfreflection
+  def detect_behavior_gaps(context, patterns=...)
+
+module: core.aios.runtime
+  def create_aios_runtime(api_key=..., model=..., **kwargs)
+
+module: core.boundary.enforcer
+  def enforce_boundary(prompt, context=...)
+  def enforce_payload_boundary(payload, protected_fields=...)
+  def enforce_response_boundary(response, context=...)
+  def get_default_enforcer()
+  def load_boundary_spec(boundary_file=...)
+  def parse_boundary_spec(content)
+
+module: core.codegen.cli
+  def cli()
+  def generate(input, type, output, research, min_confidence)
+  def research(query)
+  def validate(files)
+
+module: core.commands.__init__
+  def is_l_command(text)
+  def parse_command(text)
+
+module: core.commands.intent_extractor
+  def extract_intent_sync(nlp_prompt, openai_client=...)
+
+module: core.commands.parser
+  def is_l_command(text)
+  def parse_command(text)
+
+module: core.decorators
+  def must_stay_async(reason)
+  def must_stay_async_interface(func)
+  def must_stay_async_protocol(func)
+  def must_stay_async_route(func)
+
+module: core.di.bootstrap
+  def bootstrap_di_container(container)
+
+module: core.di.bootstrap_integration
+  def get_container()
+
+module: core.di.container
+  def get_di_container()
+  def reset_di_container()
+
+module: core.event_type_registry
+  def create_dynamic_event_enum(category=...)
+  def discover_event_types(package=...)
+  def get_all_event_types()
+  def get_event_categories()
+  def get_event_type_snapshot()
+  def get_event_types_by_category(category)
+  def is_event_type_registered(event_name)
+  def register_core_event_types()
+  def register_event_category(category_name, event_names, **metadata)
+  def register_event_type(name, category, description=..., schema=..., priority=..., **metadata)
+  def validate_event_payload(event_name, payload)
+
+module: core.governance.approval_gate
+  def handle_governance_result(escalation_result, state)
+  def is_high_impact_decision(decision)
+
+module: core.governance.cmts
+  def get_cmts_service()
+
+module: core.governance.credentials_policy
+  def create_credentials_policy()
+  def create_rotation_policy()
+
+module: core.governance.engine
+  def create_governance_engine(policy_dir=..., substrate_service=...)
+
+module: core.governance.loader
+  def load_policies_from_directory(directory)
+
+module: core.governance.mistake_prevention
+  def create_mistake_prevention()
+
+module: core.governance.policy_generator
+  def main()
+
+module: core.governance.policy_registry
+  def discover_policy_sources()
+  def get_all_policy_sources()
+  def get_policy_source_snapshot()
+  def load_policies_from_sources()
+  def register_default_policy_sources()
+  def register_policy_source(name, path, description=..., enabled=..., priority=...)
+
+module: core.governance.protected_files_policy
+  def get_all_protected_files()
+  def get_file_subsystem(file_path)
+  def get_lcto_controlled_files()
+  def get_subsystem_protected_files()
+  def is_lcto_controlled(file_path)
+  def is_protected(file_path)
+
+module: core.governance.quick_fixes
+  def create_quick_fix_engine()
+
+module: core.governance.rate_limit_policy
+  def get_rate_limit_policy()
+  def rate_limit(policy_key, unique_key_extractor=...)
+
+module: core.governance.security_policy
+  def audit_security_decision(decision, scan_result, context=...)
+  def evaluate_security_scan(scan_result)
+  def get_security_policy_service()
+  def is_vulnerability_allowed(violation)
+
+module: core.governance.session_startup
+  def create_session_startup(workspace_root=...)
+
+module: core.governance.subsystem_detector
+  def detect_subsystem(files=..., prompt=..., explicit=...)
+  def get_approval_requirements(subsystem)
+  def get_high_risk_triggers(subsystem)
+  def get_subsystem_config_path(subsystem)
+  def get_subsystem_context(files=..., prompt=..., explicit=...)
+  def get_subsystem_policy(subsystem)
+  def requires_human_approval(subsystem)
+
+module: core.governance.tool_risk_policy
+  def get_high_risk_tools()
+  def get_high_risk_tools_list()
+  def get_high_risk_tools_with_descriptions()
+  def get_igor_approval_tools()
+  def get_safe_tools()
+  def get_side_effect_tools()
+  def is_high_risk(tool_id)
+  def is_safe(tool_id)
+  def requires_igor_approval(tool_id)
+
+module: core.governance.validation
+  def audit_log(agent_id, action, success, metadata=...)
+  def detect_drift(agent_id, action, success, threshold=...)
+  def get_audit_trail(agent_id=..., limit=...)
+  def validate_authority(action, agent_id)
+  def validate_safety(action, payload=...)
+
+module: core.graph.query.graph_search_query_builder
+  def build_cypher_from_intent(query_intent, params)
+  def compute_graph_schema_hash()
+
+module: core.instrumentation.decorators
+  def capture_source_location(frame=...)
+  def get_current_correlation_id()
+  def get_current_trace_id()
+  def logged(func=..., level=..., log_args=..., log_result=...)
+  def set_correlation_id(correlation_id)
+  def set_trace_id(trace_id)
+  def timed(func=..., log_threshold_ms=...)
+  def traced(func=..., trace_id=..., correlation_id=..., log_entry=..., log_exit=...)
+  def with_source_location(func)
+
+module: core.integration.graph_to_wm_sync
+  def get_graph_wm_sync(neo4j_driver)
+
+module: core.integration.tool_pattern_extractor
+  def get_tool_pattern_extractor()
+
+module: core.integration.wm_to_graph_sync
+  def get_wm_graph_sync(neo4j_driver, causal_mapper)
+
+module: core.kernel_wiring.behavioral_wiring
+  def get_output_verbosity()
+  def is_topic_blocked(topic)
+
+module: core.kernel_wiring.cognitive_wiring
+  def get_reasoning_mode()
+  def should_enable_meta_cognition()
+
+module: core.kernel_wiring.developer_wiring
+  def get_dev_policies()
+
+module: core.kernel_wiring.execution_wiring
+  def get_allowed_transitions(state)
+  def get_execution_state_machine()
+
+module: core.kernel_wiring.identity_wiring
+  def apply_identity_to_response(text)
+  def get_identity_profile()
+
+module: core.kernel_wiring.master_wiring
+  def get_active_mode()
+
+module: core.kernel_wiring.memory_wiring
+  def get_memory_layers_config()
+  def should_checkpoint_now(event_type)
+
+module: core.kernel_wiring.packet_protocol_wiring
+  def get_allowed_event_types()
+  def get_default_channel()
+  def get_packet_protocol()
+
+module: core.kernel_wiring.safety_wiring
+  def get_safety_policies()
+  def is_destructive_action(action)
+
+module: core.kernel_wiring.worldmodel_wiring
+  def get_worldmodel_schema()
+
+module: core.kernels.integrity
+  def check_kernel_integrity(base_path=..., auto_update=...)
+  def compute_kernel_hashes(base_path=...)
+  def get_detailed_changes(base_path=...)
+  def hash_file(path)
+  def initialize_kernel_hashes(base_path=..., force=...)
+  def load_kernel_hashes(hash_file=...)
+  def save_kernel_hashes(hashes, hash_file=...)
+  def verify_specific_file(file_path)
+
+module: core.kernels.kernelloader
+  def activate_kernels_phase2(agent, kernels_by_path, hashes, trace_context=...)
+  def load_kernels(agent, base_path=..., validate_schema=..., verify_integrity=...)
+  def load_kernels_phase1(base_path=..., validate_schema=..., verify_integrity=..., trace_context=...)
+  def reload_kernels(agent, base_path=..., force=...)
+  def require_kernel_activation(agent)
+  def verify_kernel_activation(agent)
+  def verify_kernel_integrity(agent, base_path=...)
+
+module: core.kernels.prompt_builder
+  def build_behavioral_section(behavioral_kernel)
+  def build_cognitive_section(cognitive_kernel)
+  def build_execution_section(execution_kernel)
+  def build_identity_section(identity_kernel)
+  def build_safety_section(safety_kernel)
+  def build_system_prompt_from_kernels()
+  def get_fallback_prompt()
+  def get_kernel_stack()
+
+module: core.llm.llm_service
+  def create_llm_service(provider=..., api_key=..., **kwargs)
+  def get_default_model()
+
+module: core.observability.config
+  def load_config()
+
+module: core.observability.failures
+  def get_recovery_actions(failure_class)
+
+module: core.observability.instrumentation
+  def trace_governance_check(policy_name)
+  def trace_llm_call(model=...)
+  def trace_span(name, kind=..., **default_attributes)
+  def trace_tool_call(tool_name)
+
+module: core.observability.jaeger_exporter
+  def get_jaeger_exporter()
+  def initialize_jaeger_exporter(jaeger_endpoint=..., service_name=...)
+
+module: core.observability.observability_context
+  def get_correlation_id()
+  def get_request_id()
+  def get_span_id()
+  def get_trace_context()
+  def get_trace_id()
+  def get_user_id()
+  def set_correlation_id(correlation_id)
+  def set_request_id(request_id)
+  def set_span_id(span_id)
+  def set_trace_context_from_headers(headers)
+  def set_trace_id(trace_id)
+  def set_user_id(user_id)
+
+module: core.observability.prometheus_exporter
+  def get_exporter()
+  def initialize_exporter()
+
+module: core.observability.security_alerts
+  def get_security_alert_service()
+  def send_policy_violation_alert(policy_type, action, details)
+  def send_secret_detected_alert(secret_type, location, details)
+  def send_vulnerability_alert(scan_type, severity, count, details)
+
+module: core.observability.security_metrics
+  def calculate_security_score(scan_results)
+  def get_grafana_dashboard_json()
+  def get_security_metrics_collector()
+  def record_policy_violation(policy_type, action)
+  def record_scan_duration(scan_type, severity, duration)
+  def record_secret_detected(secret_type, location)
+  def record_vulnerabilities(scan_type, severity, count, status=...)
+  def update_security_score(environment, score)
+
+module: core.observability.service
+  def get_observability_service()
+
+module: core.packet_envelope.config
+  def get_config()
+  def reload_config()
+
+module: core.packet_envelope.observability
+  def create_observability(enabled=...)
+
+module: core.packet_envelope.standardization
+  def create_packet_ingested_event(packet_id, source, packet_data, trace_id=..., user_id=...)
+
+module: core.protocols.rate_limiting_protocols
+  def rate_limited(key_func, policy)
+
+module: core.protocols.retry_protocols
+  def with_retry(policy)
+
+module: core.protocols.validation_protocols
+  def validate_input(schema=..., validator=...)
+
+module: core.runtimes.react_runtime
+  def create_react_runtime(aios_runtime, tool_registry, **kwargs)
+
+module: core.schemas.event_stream
+  def create_handshake_event(handshake)
+  def create_violation_event(violation)
+
+module: core.schemas.research_factory_nodes
+  def build_research_graph()
+
+module: core.schemas.schema_registry
+  def detect_version(raw)
+  def read_packet(raw)
+  def read_packets(raws)
+  def upcast(raw, target_version=...)
+  def write_packet(packet)
+
+module: core.schemas.universal_schema
+  def get_schema_info()
+
+module: core.schemas.upcaster_registry
+  def discover_upcasters(package=...)
+  def get_all_upcasters()
+  def get_upcaster(from_version, to_version)
+  def get_upcaster_snapshot()
+  def register_upcaster(from_version, to_version, description=..., priority=...)
+  def wire_upcasters_to_schema_registry(schema_registry)
+
+module: core.secrets.__init__
+  def get_secret(key)
+  def get_secret_or_env(key, default=...)
+  def get_secrets_client()
+  def reset_secrets_client()
+
+module: core.security.path_safety
+  def resolve_base_dir(env_var=..., fallback_subdir=...)
+  def safe_resolve_path(root, user_path, follow_symlinks=..., allow_abs=..., max_length=..., max_parts=...)
+  def validate_filename(name, max_length=..., allow_dotfiles=...)
+
+module: core.singleton_auto_registry
+  def discover_singleton_services(package=...)
+  def get_all_singleton_services()
+  def get_singleton_service_snapshot()
+  def get_singleton_services_by_category(category)
+  def get_singleton_services_by_lifecycle(lifecycle)
+  def register_singleton(name=..., lifecycle=..., dependencies=..., description=..., category=..., priority=...)
+  def register_singleton_closer(singleton_name)
+  def register_singleton_service(name, module_path, getter, closer=..., lifecycle=..., dependencies=..., description=..., category=..., priority=...)
+  def wire_singletons_to_registry(registry)
+
+module: core.singleton_registry
+  def get_singleton_registry()
+
+module: core.testing.test_generator
+  def generate_integration_tests(code_proposal, dependencies, module_name=...)
+  def generate_unit_tests(code_proposal, module_name=...)
+
+module: core.tools.agent_self_modify
+  def create_self_modify_tool(neo4j_driver, substrate_service=...)
+
+module: core.tools.base_registry
+  def get_tool_registry()
+
+module: core.tools.dynamic_discovery
+  def get_discovery_tracer()
+  def is_dynamic_discovery_enabled()
+
+module: core.tools.registry_adapter
+  def create_executor_tool_registry(governance_enabled=..., base_registry=..., governance_engine=..., cache_config=...)
+  def get_tool_registry_adapter()
+
+module: core.tools.symbolic_tool
+  def get_symbolic_engine()
+  def symbolic_optimize(expression, strategies=..., **kwargs)
+
+module: core.tools.tool_graph
+  def create_tool_definition(name, description=..., category=..., scope=..., risk_level=..., is_destructive=..., requires_confirmation=..., external_apis=..., internal_dependencies=..., agent_id=...)
+
+module: core.worldmodel.insight_emitter
+  def get_insight_emitter(substrate_service=...)
+
+module: core.worldmodel.service
+  def get_world_model_service(substrate_service=...)
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_api_surfaces
+  def controller()
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_bridge_controller
+  def controller()
+  def mock_packet()
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_context_enrichment
+  def enricher()
+  def mock_packet()
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_governance_integration
+  def governance()
+  def governance_with_igor()
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_memory_integration
+  def memory_bridge()
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_packet_routing
+  def mock_packet()
+  def router()
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_reasoning_engine
+  def engine()
+
+module: domain_tensor_bridge.tests.domain_tensor_bridge.test_tensor_coordination
+  def coordinator()
+
+module: ir_engine.compile_meta_to_ir
+  def compile_contract_to_ir(contract)
+  def compile_meta_to_ir(yaml_path)
+
+module: ir_engine.ir_to_python
+  def compile_ir_to_python(ir)
+  def compile_ir_to_single(ir, target_type)
+
+module: ir_engine.schema_validator
+  def validate_and_parse(yaml_path, strict=...)
+  def validate_schema(yaml_path, strict=...)
+
+module: memory.active_encoder
+  def get_active_encoder()
+  def init_active_encoder(repository, consolidation_pipeline=...)
+
+module: memory.audit_utils
+  def compute_content_hash(payload, metadata_projection)
+  def detect_injection_markers(text)
+  def detect_pii_types(payload)
+  def extract_strings(payload)
+  def has_injection_markers(packet)
+  def normalize_payload(value)
+  def normalize_text(text)
+  def prepare_packet_for_ingest(packet, deep_scan=..., redact_pii_enabled=..., normalize_enabled=...)
+  def redact_pii(payload)
+
+module: memory.blob_store
+  def build_blob_reference(metadata)
+  def compute_content_hash(content)
+  def get_blob_store()
+
+module: memory.checkpoint_metrics
+  def get_metrics(agent_id)
+  def get_pool_stats_dict()
+  def record_pool_stats(pool_size=..., pool_available=..., requests_waiting=...)
+
+module: memory.context_builder
+  def get_context_builder()
+  def init_context_builder(repository, identity_service=...)
+
+module: memory.cross_encoder_reranker
+  def create_reranker_with_model(model_preset)
+  def get_cross_encoder_reranker()
+  def is_cross_encoder_available()
+
+module: memory.cypher_templates
+  def get_template_cached(name)
+  def get_template_library()
+
+module: memory.enrichment_dag
+  def record_memory_enrichment(status, tier, facts_count, duration_ms)
+
+module: memory.execution_plan_snapshot
+  def get_snapshot_manager()
+
+module: memory.governance_gate
+  def build_governance_context(caller_id=..., role=..., scope=..., project_id=..., allowed_scopes=..., tenant_id=..., org_id=..., user_id=..., creator=..., source=...)
+  def build_scope_project_filter(ctx, param_idx=..., table_alias=..., envelope_column=...)
+  def enforce_packet_governance(packet_in, ctx)
+  def is_scope_allowed_for_caller(caller_id, scope)
+  def require_governance_context(operation)
+  def reset_governance_context(token)
+  def set_governance_context(ctx)
+  def validate_caller_scope_access(caller_id, allowed_scopes)
+
+module: memory.governance_hooks
+  def get_hook_registry()
+
+module: memory.governance_patterns
+  def extract_conditions_from_reason(reason)
+
+module: memory.graph_search_cache
+  def compute_graph_schema_version()
+
+module: memory.housekeeping
+  def get_housekeeping_engine()
+  def init_housekeeping_engine(repository)
+
+module: memory.identity_tier
+  def get_identity_tier_service()
+  def init_identity_tier_service(repository)
+
+module: memory.importance_manager
+  def get_importance_manager()
+  def init_importance_manager(repository, config=...)
+
+module: memory.ingestion
+  def get_ingestion_pipeline()
+  def init_ingestion_pipeline(repository, semantic_service=...)
+
+module: memory.insight_extraction
+  def get_insight_pipeline()
+  def init_insight_pipeline(repository)
+
+module: memory.neo4j_strategy_memory
+  def create_neo4j_strategy_memory(neo4j_client, semantic_service=...)
+
+module: memory.packet_serializer
+  def envelope_from_dict(data)
+  def envelope_from_json(payload)
+  def envelope_to_dict(envelope)
+  def envelope_to_json(envelope)
+  def packet_in_from_dict(data)
+
+module: memory.query_cache
+  def get_cache()
+  def reset_cache()
+
+module: memory.query_classifier
+  def get_query_classifier()
+
+module: memory.retrieval
+  def apply_temporal_decay(score, timestamp, half_life_days=..., reference_time=...)
+  def get_retrieval_pipeline()
+  def init_retrieval_pipeline(repository, semantic_service=...)
+  def reciprocal_rank_fusion(rankings, k=...)
+
+module: memory.retrieval_ranking
+  def create_ranker_with_preset(preset_name)
+  def get_multi_factor_ranker()
+
+module: memory.retrieval_strategy
+  def get_strategy_retriever()
+  def init_strategy_retriever(repository, identity_service=...)
+
+module: memory.saga_patterns
+  def create_entity_enrichment_saga()
+  def create_fetch_and_enrich_saga()
+  def create_timeline_correlation_saga()
+
+module: memory.substrate_dag
+  def build_enrichment_graph()
+  def build_substrate_graph()
+  def route_after_memory_write(state)
+
+module: memory.substrate_repository
+  def get_repository()
+  def get_substrate_repository(database_url=...)
+
+module: memory.substrate_semantic
+  def create_embedding_provider(provider_type=..., model=..., dimensions=..., api_key=...)
+
+module: memory.vector_search_config
+  def get_vector_config()
+  def set_vector_config(config)
+
+module: orchestrators.agent_execution.task_queue
+  def complete_task(task_id, result, status=..., screenshot_path=..., logs=...)
+  def enqueue_mac_task(source, channel, user, command=..., steps=..., attachments=...)
+  def enqueue_mac_task_dict(task_dict)
+  def enqueue_task(task_dict)
+  def get_next_task()
+  def list_tasks()
+  def mark_task_completed(task_id)
+
+module: orchestrators.orchestrator_registry
+  def build_orchestrator_exports()
+  def discover_orchestrators(package=...)
+  def get_all_orchestrators()
+  def get_orchestrator_snapshot()
+  def get_orchestrators_by_category(category)
+  def get_orchestrators_by_domain(domain)
+  def register_legacy_orchestrators()
+  def register_orchestrator(name=..., domain=..., category=..., priority=..., **metadata)
+
+module: orchestrators.pattern.cell_adapter
+  def create_cell_adapter(api_key=..., model=..., max_rounds=..., consensus_threshold=...)
+  def create_direct_agent(api_key=..., model=...)
+
+module: orchestrators.pattern.master_orchestrator
+  def create_master_orchestrator(master_config_path=..., pattern_path=...)
+
+module: orchestrators.pattern.orchestrator
+  def create_pattern_orchestrator(pattern_path, subsystem_config_path, agent=...)
+
+module: orchestrators.reasoning.adapter_node
+  def create_reasoning_node(orchestrator=...)
+
+module: orchestrators.ws_bridge
+  def event_to_task(event)
+  def handle_ws_event(event)
+
+module: services.mac_tasks
+  def complete_task(task_id, result, status=..., screenshot_path=..., logs=...)
+  def enqueue_mac_task(source, channel, user, command=..., steps=..., attachments=...)
+  def enqueue_task(task_dict)
+  def get_next_task()
+  def list_tasks()
+  def mark_task_completed(task_id)
+
+module: services.ocr_engine
+  def ocr_image(path)
+  def ocr_pdf_first_page(path)
+
+module: services.pdf_engine
+  def extract_pdf(path, summarize=...)
+
+module: services.research.graph_persistence
+  def create_graph_persistence(neo4j_client, config=...)
+  def get_graph_persistence()
+  def init_graph_persistence(neo4j_client, config=...)
+
+module: services.research.graph_runtime
+  def get_runtime()
+
+module: services.research.graph_state
+  def create_initial_state(query, thread_id, request_id, user_id=...)
+
+module: services.research.memory_adapter
+  def get_memory_adapter()
+  def init_memory_adapter(repository)
+
+module: services.research.research_api
+  def get_research_runtime()
+
+module: services.research.research_graph
+  def build_research_graph()
+  def should_retry(state)
+
+module: services.research.tools.perplexity_client
+  def get_perplexity_client()
+
+module: services.research.tools.tool_resolver
+  def get_tool_resolver()
+
+module: services.slack_files
+  def build_artifact_record(file_id, filename, storage_result, mimetype, slack_url_private=..., size_bytes=..., additional_metadata=...)
+  def build_artifact_record_legacy(file_id, filename, file_path, mimetype, slack_url_private=..., size_bytes=..., additional_metadata=...)
+  def download_file(file_id, file_url_private, filename, mimetype=...)
+  def get_s3_presigned_url(s3_key, expires_in=...)
+  def process_slack_file(file_id, file_info)
+  def save_file(file_bytes, file_id, filename, mimetype=..., created_timestamp=...)
+  def save_to_disk(file_bytes, file_id, filename, mimetype=..., created_timestamp=...)
+  def save_to_s3(file_bytes, file_id, filename, mimetype=..., created_timestamp=...)
+
+module: services.symbolic_computation.api.routes
+  def get_evaluator()
+  def get_generator()
+  def get_metrics()
+  def get_optimizer()
+  def get_validator()
+
+module: services.symbolic_computation.config
+  def get_config()
+  def reload_config()
+
+module: services.symbolic_computation.logger
+  def get_logger(name)
+
+module: services.symbolic_computation.tools.symbolic_tool
+  def create_sympy_tool(redis_client=..., postgres_client=...)
+
+module: services.symbolic_computation.utils
+  def extract_variables(expression)
+  def fibonacci(n)
+  def generate_test_cases(variables, num_cases=...)
+  def optimize_expression(expression)
+  def simplify_expression(expression)
+  def validate_expression(expression)
+
+module: services.tool_feedback_service
+  def get_tool_feedback_service(substrate_service)
+
+module: workers.anomaly_classifier
+  def create_anomaly_classifier(custom_rules=...)
+
+module: workers.anomaly_response_monitor
+  def create_anomaly_response_monitor(classifier=..., remediation_engine=..., poll_interval_seconds=...)
+
+module: workers.remediation_engine
+  def create_remediation_engine(rollback_endpoint=..., escalation_endpoint=...)
+
+module: workers.violation_patterns
+  def create_violation_patterns(custom_patterns=...)
+
+module: workers.violation_tracker_service
+  def create_violation_tracker_service(pattern_matcher=..., mcp_enabled=...)
+
+module: world_model.engine
+  def get_world_model_engine()
+  def reset_world_model_engine()
+
+module: world_model.nodes.service_nodes
+  def create_insights_from_facts(facts, packet_id=...)
+
+module: world_model.nodes.update_world_model_node
+  def create_world_model_packets_from_insights(insights)
+
+module: world_model.repository
+  def get_world_model_repository()
+
+module: world_model.service
+  def get_world_model_service()
+
+module: world_model.world_model_service
+  def get_world_model_service_api(engine=..., runtime=...)
+  def reset_world_model_service_api()
+
