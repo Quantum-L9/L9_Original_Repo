@@ -183,6 +183,9 @@ class AsyncDIContainer:
         self._cache_client: Any | None = None
         self._neo4j_client: Any | None = None
         self._memory_substrate: Any | None = None
+        self._eos_hypergraph_client: Any | None = None
+        self._eos_ledger_writer: Any | None = None
+        self._accountability_engine: Any | None = None
         self._initialized = False
 
         logger.debug("AsyncDIContainer initialized")
@@ -221,6 +224,31 @@ class AsyncDIContainer:
             self._memory_substrate = await get_service()
             logger.info("Memory substrate initialized")
 
+            # Initialize EOS Hypergraph Client (wraps Neo4j)
+            from core.eos.hypergraph_client import EOSHypergraphClient
+
+            self._eos_hypergraph_client = EOSHypergraphClient(
+                neo4j_client=self._neo4j_client
+            )
+            logger.info("EOS hypergraph client initialized")
+
+            # Initialize EOS Ledger Writer (wraps PacketStore)
+            from core.eos.ledger_writer import EOSLedgerWriter
+
+            self._eos_ledger_writer = EOSLedgerWriter(
+                substrate_service=self._memory_substrate
+            )
+            logger.info("EOS ledger writer initialized")
+
+            # Initialize Accountability Engine (wired with EOS clients)
+            from core.eos.accountability_engine import AccountabilityEngine
+
+            self._accountability_engine = AccountabilityEngine(
+                hypergraph_client=self._eos_hypergraph_client,
+                ledger_writer=self._eos_ledger_writer,
+            )
+            logger.info("Accountability engine initialized with EOS clients")
+
             self._initialized = True
             logger.info("Async DI container initialized successfully")
 
@@ -240,7 +268,14 @@ class AsyncDIContainer:
 
         logger.info("Shutting down async DI container...")
 
-        # Shutdown in reverse order
+        # Shutdown in reverse order (EOS clients don't need explicit shutdown)
+        # AccountabilityEngine, EOSHypergraphClient, EOSLedgerWriter are lightweight
+        # wrappers that don't hold resources directly - their backends are shut down below
+        self._accountability_engine = None
+        self._eos_ledger_writer = None
+        self._eos_hypergraph_client = None
+        logger.debug("EOS clients cleared")
+
         for name, resource in [
             ("memory_substrate", self._memory_substrate),
             ("neo4j_client", self._neo4j_client),
@@ -288,6 +323,30 @@ class AsyncDIContainer:
                 "Async DI container not initialized; call await container.initialize()"
             )
         return self._memory_substrate
+
+    async def get_eos_hypergraph_client(self) -> Any:
+        """Get EOS hypergraph client for constraint checking."""
+        if not self._initialized or self._eos_hypergraph_client is None:
+            raise RuntimeError(
+                "Async DI container not initialized; call await container.initialize()"
+            )
+        return self._eos_hypergraph_client
+
+    async def get_eos_ledger_writer(self) -> Any:
+        """Get EOS ledger writer for immutable audit trail."""
+        if not self._initialized or self._eos_ledger_writer is None:
+            raise RuntimeError(
+                "Async DI container not initialized; call await container.initialize()"
+            )
+        return self._eos_ledger_writer
+
+    async def get_accountability_engine(self) -> Any:
+        """Get accountability engine with wired EOS clients."""
+        if not self._initialized or self._accountability_engine is None:
+            raise RuntimeError(
+                "Async DI container not initialized; call await container.initialize()"
+            )
+        return self._accountability_engine
 
     @property
     def is_initialized(self) -> bool:
@@ -410,6 +469,9 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [
+        "core.eos.accountability_engine",
+        "core.eos.hypergraph_client",
+        "core.eos.ledger_writer",
         "memory.graph_client",
         "memory.substrate_service",
         "runtime.redis_client",
