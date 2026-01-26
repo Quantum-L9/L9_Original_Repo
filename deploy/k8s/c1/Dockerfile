@@ -96,14 +96,14 @@ COPY --chown=l9:l9 clients/ ./clients/
 COPY --chown=l9:l9 adapters/ ./adapters/
 COPY --chown=l9:l9 simulation/ ./simulation/
 
-# Copy private configs if they exist (will fail silently if not present)
-COPY --chown=l9:l9 private/ ./private/ 2>/dev/null || true
+# Copy private configs
+COPY --chown=l9:l9 private/ ./private/
 
 # Copy SQL migrations for memory substrate initialization
 COPY --chown=l9:l9 migrations/ ./migrations/
 
 # Copy prompts and kernels
-COPY --chown=l9:l9 prompts/ ./prompts/ 2>/dev/null || true
+COPY --chown=l9:l9 prompts/ ./prompts/
 
 # Create necessary directories
 RUN mkdir -p /app/logs /app/data /app/data/.l9 && \
