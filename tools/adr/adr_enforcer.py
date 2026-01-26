@@ -180,6 +180,10 @@ class ADREnforcementValidator:
         "codegen",
         ".dora",
         ".backup",
+        # Documentation (not production code)
+        "readme",
+        "docs",
+        "reports",
         # Self-exclusion (checker contains patterns it checks for)
         "adr",
     }

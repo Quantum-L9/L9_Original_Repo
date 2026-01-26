@@ -6,6 +6,11 @@ exclude = [
     ".git", ".venv", "venv", "__pycache__", ".pytest_cache",
     ".ruff_cache", "build", "dist", ".mypy_cache", "_pack_staging",
     ".backup",
+    # Documentation and working directories (not production code)
+    "current_work",
+    "readme",
+    "docs",
+    "reports",
     # Archived folders (anywhere in tree)
     "_archived",
     "**/_archived",

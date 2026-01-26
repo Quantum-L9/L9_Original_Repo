@@ -11,19 +11,19 @@ Tests:
 - Round-trip serialization
 """
 
-import pytest
 import json
 import tempfile
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
+import pytest
 
 from core.codegen.spec import (
-    SpecNormalizer,
     NormalizedSpec,
+    SpecNormalizer,
     SpecParseError,
     SpecValidationError,
 )
-
 
 # =============================================================================
 # FIXTURES
@@ -202,7 +202,9 @@ async def test_normalize_valid_dict(normalizer, valid_spec_dict):
 
     assert isinstance(result, NormalizedSpec)
     assert result.module_name == "My Test Agent"
-    assert result.module_description == "This is a test agent for unit testing purposes."
+    assert (
+        result.module_description == "This is a test agent for unit testing purposes."
+    )
     assert result.module_version == "1.0.0"
     assert result.tier == 2
     assert result.escalation_path == "Igor"
@@ -220,7 +222,9 @@ async def test_normalize_minimal_dict(normalizer, minimal_spec_dict):
     assert isinstance(result, NormalizedSpec)
     # Required fields
     assert result.module_name == "Simple Agent"
-    assert result.module_description == "A simple test agent with minimal configuration."
+    assert (
+        result.module_description == "A simple test agent with minimal configuration."
+    )
     # Defaults
     assert result.module_version == "1.0.0"
     assert result.tier == 2
@@ -482,7 +486,7 @@ async def test_normalizer_with_compiler_flow(normalizer, valid_spec_dict):
 async def test_error_handling_parse_error_message(normalizer):
     """Test that SpecParseError has clear message"""
     try:
-        await normalizer.normalize_from_yaml("invalid: yaml: {") 
+        await normalizer.normalize_from_yaml("invalid: yaml: {")
     except SpecParseError as e:
         assert "Invalid YAML" in str(e)
 
