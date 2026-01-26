@@ -131,10 +131,10 @@ async def load_and_parse_kernels(
             logger.error(
                 "Invalid YAML in kernel", kernel_file=kernel_file, error=str(e)
             )
-            raise ValueError(f"{kernel_file}: Invalid YAML: {e}")
+            raise ValueError(f"{kernel_file}: Invalid YAML: {e}") from e
         except Exception as e:
             logger.error("Failed to load kernel", kernel_file=kernel_file, error=str(e))
-            raise RuntimeError(f"{kernel_file}: Failed to load: {e}")
+            raise RuntimeError(f"{kernel_file}: Failed to load: {e}") from e
 
     logger.info("All kernels loaded and parsed", kernel_count=len(kernels))
     return kernels

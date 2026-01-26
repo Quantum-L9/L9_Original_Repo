@@ -355,7 +355,7 @@ class CellAgentAdapter:
             cell_class = getattr(module, class_name)
             return cell_class
         except (ImportError, AttributeError) as e:
-            raise ValueError(f"Failed to import cell class {class_path}: {e}")
+            raise ValueError(f"Failed to import cell class {class_path}: {e}") from e
 
     def _build_task(
         self,
@@ -567,7 +567,7 @@ class DirectLLMAgent:
 
         except json.JSONDecodeError as e:
             logger.error("Failed to parse LLM response as JSON", error=str(e))
-            raise RuntimeError(f"LLM response was not valid JSON: {e}")
+            raise RuntimeError(f"LLM response was not valid JSON: {e}") from e
         except Exception as e:
             logger.error("LLM invocation failed", role=role, error=str(e))
             raise

@@ -366,7 +366,7 @@ async def increment_rate_limit(
         return {"key": key, "count": count, "ttl": ttl}
     except Exception as e:
         logger.error(f"Increment rate limit failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # ============================================================================

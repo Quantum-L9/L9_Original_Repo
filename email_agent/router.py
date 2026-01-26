@@ -191,7 +191,7 @@ async def ingest_email_event(
         raise HTTPException(
             status_code=500,
             detail=f"Memory ingestion failed for {action} ({phase}): {e!s}. trace_id={trace_id}",
-        )
+        ) from e
 
 
 def generate_trace_id() -> str:
@@ -281,7 +281,7 @@ async def query_emails(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email query failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})") from e
 
 
 @router.post("/{account}/get")
@@ -362,7 +362,7 @@ async def get_email(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email get failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})") from e
 
 
 @router.post("/{account}/draft")
@@ -448,7 +448,7 @@ async def draft_email(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email draft failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})") from e
 
 
 @router.post("/{account}/send")
@@ -549,7 +549,7 @@ async def send_email(
                 raise HTTPException(
                     status_code=500,
                     detail=f"Failed to send draft: {e!s} (trace_id={trace_id})",
-                )
+                ) from e
         else:
             # Send directly
             if not all([request.to, request.subject, request.body]):
@@ -623,7 +623,7 @@ async def send_email(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email send failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})") from e
 
 
 @router.post("/{account}/reply")
@@ -714,7 +714,7 @@ async def reply_email(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email reply failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})") from e
 
 
 @router.post("/{account}/forward")
@@ -808,7 +808,7 @@ async def forward_email(
             error=str(e),
         )
         logger.error(f"[{trace_id}] Email forward failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})")
+        raise HTTPException(status_code=500, detail=f"{e!s} (trace_id={trace_id})") from e
 
 
 # ============================================================================

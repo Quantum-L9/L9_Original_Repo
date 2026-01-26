@@ -178,7 +178,7 @@ async def execute_tool(
         )
     except Exception as e:
         logger.error(f"Tool execution failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Tool execution failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Tool execution failed: {e!s}") from e
 
 
 @router.get("/health")

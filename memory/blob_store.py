@@ -124,7 +124,7 @@ class BlobStore:
                 )
             except ImportError:
                 logger.error("boto3 not installed - blob store unavailable")
-                raise RuntimeError("boto3 required for S3 blob storage")
+                raise RuntimeError("boto3 required for S3 blob storage") from None
         return self._client
 
     def _compute_blob_id(self, content: bytes) -> str:

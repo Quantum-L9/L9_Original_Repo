@@ -112,7 +112,7 @@ async def get_daily_compliance_report(
             raise HTTPException(
                 status_code=400,
                 detail="Invalid date format. Use YYYY-MM-DD.",
-            )
+            ) from None
 
     reporter = ComplianceReporter(substrate_service=substrate_service)
 
@@ -135,7 +135,7 @@ async def get_daily_compliance_report(
         raise HTTPException(
             status_code=500,
             detail=f"Failed to generate report: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/report", response_model=ComplianceReportResponse)
@@ -170,7 +170,7 @@ async def get_compliance_report(
         raise HTTPException(
             status_code=400,
             detail="Invalid date format. Use YYYY-MM-DD.",
-        )
+        ) from None
 
     if from_dt >= to_dt:
         raise HTTPException(
@@ -200,7 +200,7 @@ async def get_compliance_report(
         raise HTTPException(
             status_code=500,
             detail=f"Failed to generate report: {str(e)}",
-        )
+        ) from e
 
 
 @router.get("/audit-log", response_model=AuditLogExportResponse)
@@ -241,7 +241,7 @@ async def export_audit_log(
         raise HTTPException(
             status_code=400,
             detail="Invalid date format. Use YYYY-MM-DD.",
-        )
+        ) from None
 
     if format not in ["json"]:
         raise HTTPException(
@@ -276,7 +276,7 @@ async def export_audit_log(
         raise HTTPException(
             status_code=500,
             detail=f"Failed to export audit log: {str(e)}",
-        )
+        ) from e
 
 
 # =============================================================================

@@ -284,7 +284,7 @@ async def execute_pattern(
         raise HTTPException(
             status_code=400,
             detail=f"Configuration file not found: {e!s}",
-        )
+        ) from e
     except HTTPException:
         raise
     except Exception as e:
@@ -292,7 +292,7 @@ async def execute_pattern(
         raise HTTPException(
             status_code=500,
             detail=f"Pattern execution failed: {e!s}",
-        )
+        ) from e
 
 
 @router.post("/validate")
@@ -458,13 +458,13 @@ async def execute_all_subsystems(
         raise HTTPException(
             status_code=400,
             detail=f"Configuration file not found: {e!s}",
-        )
+        ) from e
     except Exception as e:
         logger.error(f"Master execution failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Master execution failed: {e!s}",
-        )
+        ) from e
 
 
 # ============================================================================

@@ -79,7 +79,7 @@ def simplify_expression(expression: str) -> str:
         simplified = sp.simplify(expr)
         return str(simplified)
     except Exception as e:
-        raise ValueError(f"Failed to simplify expression: {str(e)}")
+        raise ValueError(f"Failed to simplify expression: {str(e)}") from e
 
 
 def optimize_expression(expression: str) -> str:
@@ -107,7 +107,7 @@ def optimize_expression(expression: str) -> str:
         return str(reduced[0] if reduced else expr)
 
     except Exception as e:
-        raise ValueError(f"Failed to optimize expression: {str(e)}")
+        raise ValueError(f"Failed to optimize expression: {str(e)}") from e
 
 
 @recurrence_memo([1, 1])

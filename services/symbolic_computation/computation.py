@@ -87,7 +87,7 @@ class ExpressionCache:
 
         except Exception as e:
             logger.error(f"Failed to lambdify expression: {str(e)}")
-            raise EvaluationError(f"Lambdify failed: {str(e)}")
+            raise EvaluationError(f"Lambdify failed: {str(e)}") from e
 
 
 class ExpressionEvaluator:

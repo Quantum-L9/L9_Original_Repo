@@ -94,9 +94,9 @@ class RedisSubstrate:
             )
 
         except ImportError:
-            raise ImportError("redis package required for Redis substrate")
+            raise ImportError("redis package required for Redis substrate") from None
         except Exception as e:
-            raise ConnectionError(f"Failed to connect to Redis: {e}")
+            raise ConnectionError(f"Failed to connect to Redis: {e}") from e
 
     def disconnect(self) -> None:
         """Close Redis connection."""

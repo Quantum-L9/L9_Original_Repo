@@ -3302,7 +3302,7 @@ async def lchat(
         result = await agent_executor.start_agent_task(task)
     except Exception as e:
         logger.exception("lchat: execution failed: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Agent execution error: {e}")
+        raise HTTPException(status_code=500, detail=f"Agent execution error: {e}") from e
 
     # Handle duplicate detection
     if isinstance(result, DuplicateTaskResponse):

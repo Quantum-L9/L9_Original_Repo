@@ -169,14 +169,14 @@ async def slack_events(
     except Exception as e:
         logger.error("slack_signature_verification_error", error=str(e))
         record_signature_verification(valid=False, reason="exception")
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="Unauthorized") from e
 
     # Parse JSON payload
     try:
         payload = json.loads(request_body)
     except json.JSONDecodeError as e:
         logger.warning("slack_invalid_json", error=str(e))
-        raise HTTPException(status_code=400, detail="Invalid JSON")
+        raise HTTPException(status_code=400, detail="Invalid JSON") from e
 
     # Validate Slack event schema
     VALID_SLACK_EVENT_TYPES = {"url_verification", "event_callback", "app_rate_limited"}
@@ -358,7 +358,7 @@ async def slack_commands(
     except Exception as e:
         logger.error("slack_signature_verification_error", error=str(e))
         record_signature_verification(valid=False, reason="exception")
-        raise HTTPException(status_code=401, detail="Unauthorized")
+        raise HTTPException(status_code=401, detail="Unauthorized") from e
 
     # Parse form-encoded payload
     try:
@@ -366,7 +366,7 @@ async def slack_commands(
         payload = {k: v for k, v in form_data.items()}
     except Exception as e:
         logger.warning("slack_invalid_form_data", error=str(e))
-        raise HTTPException(status_code=400, detail="Invalid form data")
+        raise HTTPException(status_code=400, detail="Invalid form data") from e
 
     # Rate limit check (50 commands per minute per user)
     rate_limiter = getattr(request.app.state, "rate_limiter", None)

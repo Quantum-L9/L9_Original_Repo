@@ -172,13 +172,13 @@ class SlackAPIClient:
             return response_data
 
         except httpx.TimeoutException:
-            raise SlackClientError("Slack API request timed out (10s)")
+            raise SlackClientError("Slack API request timed out (10s)") from None
         except httpx.HTTPStatusError as e:
             raise SlackClientError(
                 f"Slack API HTTP error {e.response.status_code}: {e}"
-            )
+            ) from e
         except Exception as e:
-            raise SlackClientError(f"HTTP error posting to Slack: {e}")
+            raise SlackClientError(f"HTTP error posting to Slack: {e}") from e
 
     async def upload_file(
         self,
@@ -255,13 +255,13 @@ class SlackAPIClient:
             return response_data
 
         except httpx.TimeoutException:
-            raise SlackClientError("Slack API request timed out (30s)")
+            raise SlackClientError("Slack API request timed out (30s)") from None
         except httpx.HTTPStatusError as e:
             raise SlackClientError(
                 f"Slack API HTTP error {e.response.status_code}: {e}"
-            )
+            ) from e
         except Exception as e:
-            raise SlackClientError(f"HTTP error uploading file to Slack: {e}")
+            raise SlackClientError(f"HTTP error uploading file to Slack: {e}") from e
 
     async def get_file_info(self, file_id: str) -> Dict[str, Any]:
         """
@@ -316,13 +316,13 @@ class SlackAPIClient:
             return response_data
 
         except httpx.TimeoutException:
-            raise SlackClientError("Slack API request timed out (10s)")
+            raise SlackClientError("Slack API request timed out (10s)") from None
         except httpx.HTTPStatusError as e:
             raise SlackClientError(
                 f"Slack API HTTP error {e.response.status_code}: {e}"
-            )
+            ) from e
         except Exception as e:
-            raise SlackClientError(f"HTTP error getting file info from Slack: {e}")
+            raise SlackClientError(f"HTTP error getting file info from Slack: {e}") from e
 
 
 async def post_result_async(

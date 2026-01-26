@@ -195,7 +195,7 @@ async def run_simulation(
 
     except Exception as e:
         logger.error(f"Simulation failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/{run_id}")
@@ -222,7 +222,7 @@ async def get_simulation_run(
         raise
     except Exception as e:
         logger.error(f"Get run failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/graph/{graph_id}")
@@ -244,7 +244,7 @@ async def get_runs_for_graph(
 
     except Exception as e:
         logger.error(f"Get runs for graph failed: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/health")

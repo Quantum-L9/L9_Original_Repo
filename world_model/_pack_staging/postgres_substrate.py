@@ -96,9 +96,9 @@ class PostgresSubstrate:
             )
 
         except ImportError:
-            raise ImportError("psycopg2 required for PostgreSQL substrate")
+            raise ImportError("psycopg2 required for PostgreSQL substrate") from None
         except Exception as e:
-            raise ConnectionError(f"Failed to connect to PostgreSQL: {e}")
+            raise ConnectionError(f"Failed to connect to PostgreSQL: {e}") from e
 
     def disconnect(self) -> None:
         """Close all connections in pool."""
@@ -192,7 +192,7 @@ class PostgresSubstrate:
 
         except Exception as e:
             conn.rollback()
-            raise RuntimeError(f"Failed to create schema: {e}")
+            raise RuntimeError(f"Failed to create schema: {e}") from e
         finally:
             self.return_connection(conn)
 
@@ -213,7 +213,7 @@ class PostgresSubstrate:
 
         except Exception as e:
             conn.rollback()
-            raise RuntimeError(f"Failed to drop schema: {e}")
+            raise RuntimeError(f"Failed to drop schema: {e}") from e
         finally:
             self.return_connection(conn)
 
@@ -252,7 +252,7 @@ class PostgresSubstrate:
 
         except Exception as e:
             conn.rollback()
-            raise RuntimeError(f"Failed to store entity type {type_name}: {e}")
+            raise RuntimeError(f"Failed to store entity type {type_name}: {e}") from e
         finally:
             self.return_connection(conn)
 
@@ -289,7 +289,7 @@ class PostgresSubstrate:
 
         except Exception as e:
             conn.rollback()
-            raise RuntimeError(f"Failed to store relation type {type_name}: {e}")
+            raise RuntimeError(f"Failed to store relation type {type_name}: {e}") from e
         finally:
             self.return_connection(conn)
 
@@ -324,7 +324,7 @@ class PostgresSubstrate:
 
         except Exception as e:
             conn.rollback()
-            raise RuntimeError(f"Failed to store entity {entity.id}: {e}")
+            raise RuntimeError(f"Failed to store entity {entity.id}: {e}") from e
         finally:
             self.return_connection(conn)
 
@@ -415,7 +415,7 @@ class PostgresSubstrate:
 
         except Exception as e:
             conn.rollback()
-            raise RuntimeError(f"Failed to delete entity {entity_id}: {e}")
+            raise RuntimeError(f"Failed to delete entity {entity_id}: {e}") from e
         finally:
             self.return_connection(conn)
 
@@ -452,7 +452,7 @@ class PostgresSubstrate:
 
         except Exception as e:
             conn.rollback()
-            raise RuntimeError(f"Failed to store relation {relation.id}: {e}")
+            raise RuntimeError(f"Failed to store relation {relation.id}: {e}") from e
         finally:
             self.return_connection(conn)
 
@@ -547,7 +547,7 @@ class PostgresSubstrate:
 
         except Exception as e:
             conn.rollback()
-            raise RuntimeError(f"Failed to delete relation {relation_id}: {e}")
+            raise RuntimeError(f"Failed to delete relation {relation_id}: {e}") from e
         finally:
             self.return_connection(conn)
 

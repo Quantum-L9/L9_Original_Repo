@@ -115,7 +115,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
                 raise ImportError(
                     "openai package required for OpenAI embeddings. "
                     "Install with: pip install openai"
-                )
+                ) from None
         return self._client
 
     async def _with_retries(self, coro_func, *, operation: str):

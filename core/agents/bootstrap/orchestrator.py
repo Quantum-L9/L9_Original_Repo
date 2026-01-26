@@ -212,7 +212,7 @@ class AgentBootstrapOrchestrator:
                     except Exception as rollback_error:
                         logger.error("Rollback failed", error=str(rollback_error))
 
-                raise RuntimeError(f"Agent bootstrap failed: {e}")
+                raise RuntimeError(f"Agent bootstrap failed: {e}") from rollback_error
 
 
 # Convenience function for direct use

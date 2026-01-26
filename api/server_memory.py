@@ -132,7 +132,7 @@ async def chat(
 
         return ChatResponse(reply=reply)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Chat backend error: {e}")
+        raise HTTPException(status_code=500, detail=f"Chat backend error: {e}") from e
 
 
 # Mount memory router with prefix

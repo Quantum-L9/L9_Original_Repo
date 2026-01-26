@@ -402,7 +402,7 @@ async def execute_task(
         raise HTTPException(
             status_code=500,
             detail=f"Task execution failed: {e!s}",
-        )
+        ) from e
 
 
 # =============================================================================

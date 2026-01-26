@@ -210,7 +210,7 @@ async def bind_tools_and_capabilities(
 
     except Exception as e:
         logger.error("Failed to bind tools", error=str(e))
-        raise RuntimeError(f"Tool binding failed: {e}")
+        raise RuntimeError(f"Tool binding failed: {e}") from e
 
 
 # ============================================================================

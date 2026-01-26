@@ -256,7 +256,7 @@ async def validate_schema(body: ValidateRequest) -> ValidateResponse:
 
     except Exception as e:
         logger.exception("Validation failed: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Validation failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Validation failed: {e}") from e
 
 
 @router.post("/extract", response_model=ExtractResponse)
@@ -311,7 +311,7 @@ async def extract_agent(body: ExtractRequest) -> ExtractResponse:
         raise
     except Exception as e:
         logger.exception("Extraction failed: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Extraction failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Extraction failed: {e}") from e
 
 
 @router.post("/extract-file", response_model=ExtractResponse)
@@ -388,7 +388,7 @@ async def extract_agent_file(
         raise
     except Exception as e:
         logger.exception("File extraction failed: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Extraction failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Extraction failed: {e}") from e
 
 
 @router.get("/templates", response_model=TemplatesResponse)
@@ -429,7 +429,7 @@ async def list_templates() -> TemplatesResponse:
 
     except Exception as e:
         logger.exception("Failed to list templates: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Failed to list templates: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to list templates: {e}") from e
 
 
 @router.get("/templates/{template_name}")
@@ -465,7 +465,7 @@ async def get_template(template_name: str) -> dict[str, Any]:
         raise
     except Exception as e:
         logger.exception("Failed to get template: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Failed to get template: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to get template: {e}") from e
 
 
 # =============================================================================

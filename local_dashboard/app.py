@@ -597,13 +597,13 @@ async def chat(request: Request):
     except httpx.ConnectError:
         raise HTTPException(
             status_code=503, detail="Cannot connect to L9 API. Is Docker running?"
-        )
+        ) from None
     except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="L9 API request timed out")
+        raise HTTPException(status_code=504, detail="L9 API request timed out") from None
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/api/health")

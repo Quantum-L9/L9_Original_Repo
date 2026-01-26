@@ -67,7 +67,7 @@ class WorldModelLoader(IWorldModelLoader):
             with open(path, "r", encoding="utf-8") as f:
                 return yaml.safe_load(f) or {}
         except yaml.YAMLError as e:
-            raise yaml.YAMLError(f"Failed to parse YAML {path}: {e}")
+            raise yaml.YAMLError(f"Failed to parse YAML {path}: {e}") from e
 
     @staticmethod
     def load_multiple_yaml(paths: List[str]) -> Dict[str, Any]:
@@ -141,7 +141,7 @@ class WorldModelLoader(IWorldModelLoader):
                 schema = EntityTypeSchema(**schema_data)
                 registry.register_entity_type(type_name, schema)
             except Exception as e:
-                raise ValueError(f"Failed to register entity type {type_name}: {e}")
+                raise ValueError(f"Failed to register entity type {type_name}: {e}") from e
 
         return registry
 
@@ -176,7 +176,7 @@ class WorldModelLoader(IWorldModelLoader):
                 schema = RelationTypeSchema(**schema_data)
                 registry.register_relation_type(type_name, schema)
             except Exception as e:
-                raise ValueError(f"Failed to register relation type {type_name}: {e}")
+                raise ValueError(f"Failed to register relation type {type_name}: {e}") from e
 
         return registry
 
@@ -217,7 +217,7 @@ class WorldModelLoader(IWorldModelLoader):
                 entity = Entity(**entity_data)
                 state.add_entity(entity)
             except Exception as e:
-                raise ValueError(f"Failed to load entity {entity_id}: {e}")
+                raise ValueError(f"Failed to load entity {entity_id}: {e}") from e
 
         # Load seed relations
         relations = data.get("relations", {})
@@ -236,7 +236,7 @@ class WorldModelLoader(IWorldModelLoader):
                 relation = Relation(**relation_data)
                 state.add_relation(relation)
             except Exception as e:
-                raise ValueError(f"Failed to load relation {relation_id}: {e}")
+                raise ValueError(f"Failed to load relation {relation_id}: {e}") from e
 
         return state
 
@@ -277,7 +277,7 @@ class WorldModelLoader(IWorldModelLoader):
                 node = CausalNode(**node_data)
                 graph.add_node(node)
             except Exception as e:
-                raise ValueError(f"Failed to load causal node {node_id}: {e}")
+                raise ValueError(f"Failed to load causal node {node_id}: {e}") from e
 
         # Load edges
         edges = causal_data.get("edges", {})
@@ -292,7 +292,7 @@ class WorldModelLoader(IWorldModelLoader):
                 edge = CausalEdge(**edge_data)
                 graph.add_edge(edge)
             except Exception as e:
-                raise ValueError(f"Failed to load causal edge {edge_id}: {e}")
+                raise ValueError(f"Failed to load causal edge {edge_id}: {e}") from e
 
         return graph
 

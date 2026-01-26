@@ -234,7 +234,7 @@ class MCPServerProcess:
 
         except TimeoutError:
             self._pending_requests.pop(request_id, None)
-            raise Exception(f"MCP request timed out: {method}")
+            raise Exception(f"MCP request timed out: {method}") from None
         except Exception:
             self._pending_requests.pop(request_id, None)
             raise

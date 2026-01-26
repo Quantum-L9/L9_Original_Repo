@@ -189,15 +189,15 @@ async def create_packet(
             # Convert thread_id string to UUID if provided
             thread_uuid = None
             if request.thread_id:
-                from uuid import UUID as UUIDType
+                from uuid import UUID
 
                 try:
-                    thread_uuid = UUIDType(request.thread_id)
+                    thread_uuid = UUID(request.thread_id)
                 except ValueError:
                     raise HTTPException(
                         status_code=400,
                         detail=f"Invalid thread_id: {request.thread_id}",
-                    )
+                    ) from None
 
             # Convert request to PacketEnvelopeIn (v2.0 compatible)
             packet_in = PacketEnvelopeIn(
@@ -226,14 +226,14 @@ async def create_packet(
             raise HTTPException(
                 status_code=503,
                 detail="Memory system not available. Check server logs for initialization errors.",
-            )
+            ) from e
         except HTTPException:
             raise
         except Exception as e:
             logger.error(f"Packet ingestion failed: {e}", exc_info=True)
             raise HTTPException(
                 status_code=500, detail=f"Packet ingestion failed: {e!s}"
-            )
+            ) from e
 
 
 @router.post("/semantic/search")
@@ -258,10 +258,10 @@ async def semantic_search(
             return result.model_dump(mode="json")
         except RuntimeError as e:
             logger.error(f"Memory system not initialized: {e}")
-            raise HTTPException(status_code=503, detail="Memory system not available.")
+            raise HTTPException(status_code=503, detail="Memory system not available.") from e
         except Exception as e:
             logger.error(f"Semantic search failed: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Search failed: {e!s}")
+            raise HTTPException(status_code=500, detail=f"Search failed: {e!s}") from e
 
 
 @router.get("/stats")
@@ -299,7 +299,7 @@ async def get_stats(
         }
     except Exception as e:
         logger.error(f"Stats retrieval failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Stats failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Stats failed: {e!s}") from e
 
 
 @router.get("/packet/{packet_id}")
@@ -319,10 +319,10 @@ async def get_packet(
         raise
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
+        raise HTTPException(status_code=503, detail="Memory system not available.") from e
     except Exception as e:
         logger.error(f"Get packet failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get packet failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Get packet failed: {e!s}") from e
 
 
 @router.get("/thread/{thread_id}")
@@ -344,13 +344,13 @@ async def get_thread(
         packets = await pipeline.fetch_thread(thread_uuid, limit=limit, order=order)
         return {"thread_id": thread_id, "packets": packets, "count": len(packets)}
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid thread_id: {e!s}")
+        raise HTTPException(status_code=400, detail=f"Invalid thread_id: {e!s}") from e
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
+        raise HTTPException(status_code=503, detail="Memory system not available.") from e
     except Exception as e:
         logger.error(f"Get thread failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get thread failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Get thread failed: {e!s}") from e
 
 
 @router.get("/lineage/{packet_id}")
@@ -374,13 +374,13 @@ async def get_lineage(
         )
         return lineage
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {e!s}")
+        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {e!s}") from e
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
+        raise HTTPException(status_code=503, detail="Memory system not available.") from e
     except Exception as e:
         logger.error(f"Get lineage failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get lineage failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Get lineage failed: {e!s}") from e
 
 
 @router.post("/hybrid/search")
@@ -433,10 +433,10 @@ async def hybrid_search(
             return result
         except RuntimeError as e:
             logger.error(f"Memory system not initialized: {e}")
-            raise HTTPException(status_code=503, detail="Memory system not available.")
+            raise HTTPException(status_code=503, detail="Memory system not available.") from e
         except Exception as e:
             logger.error(f"Hybrid search failed: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Hybrid search failed: {e!s}")
+            raise HTTPException(status_code=500, detail=f"Hybrid search failed: {e!s}") from e
 
 
 @router.get("/facts")
@@ -472,10 +472,10 @@ async def get_facts(
         return {"facts": facts, "count": len(facts)}
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
+        raise HTTPException(status_code=503, detail="Memory system not available.") from e
     except Exception as e:
         logger.error(f"Get facts failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get facts failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Get facts failed: {e!s}") from e
 
 
 @router.get("/insights")
@@ -501,13 +501,13 @@ async def get_insights(
         )
         return {"insights": insights, "count": len(insights)}
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {e!s}")
+        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {e!s}") from e
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
+        raise HTTPException(status_code=503, detail="Memory system not available.") from e
     except Exception as e:
         logger.error(f"Get insights failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get insights failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Get insights failed: {e!s}") from e
 
 
 @router.post("/gc/run")
@@ -525,10 +525,10 @@ async def run_gc(
         return result
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
+        raise HTTPException(status_code=503, detail="Memory system not available.") from e
     except Exception as e:
         logger.error(f"GC run failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"GC run failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"GC run failed: {e!s}") from e
 
 
 @router.get("/gc/stats")
@@ -546,10 +546,10 @@ async def get_gc_stats(
         return stats
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
+        raise HTTPException(status_code=503, detail="Memory system not available.") from e
     except Exception as e:
         logger.error(f"Get GC stats failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Get GC stats failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Get GC stats failed: {e!s}") from e
 
 
 @router.get("/health")
@@ -664,7 +664,7 @@ async def batch_write(
         except Exception as e:
             _batch_circuit_breaker.record_failure(str(e))
             logger.error(f"Batch write failed: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Batch write failed: {e!s}")
+            raise HTTPException(status_code=500, detail=f"Batch write failed: {e!s}") from e
 
 
 @router.post("/compact", response_model=CompactResponse)
@@ -693,7 +693,7 @@ async def compact_storage(
         )
     except Exception as e:
         logger.error(f"Compact failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Compact failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Compact failed: {e!s}") from e
 
 
 # ============================================================================
@@ -759,12 +759,12 @@ async def reasoning_replay(
             format=request.format,
         )
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {e!s}")
+        raise HTTPException(status_code=400, detail=f"Invalid packet_id: {e!s}") from e
     except RuntimeError as e:
-        raise HTTPException(status_code=503, detail=str(e))
+        raise HTTPException(status_code=503, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Reasoning replay failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Reasoning replay failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Reasoning replay failed: {e!s}") from e
 
 
 class ConsolidationRequest(BaseModel):
@@ -830,10 +830,10 @@ async def run_consolidation(
             message=f"Consolidation complete: {report.deduplication_count} dedup, {report.archived_count} archived, {report.summarized_count} summarized, {report.expired_count} expired",
         )
     except RuntimeError as e:
-        raise HTTPException(status_code=503, detail=str(e))
+        raise HTTPException(status_code=503, detail=str(e)) from e
     except Exception as e:
         logger.error(f"Consolidation failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Consolidation failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Consolidation failed: {e!s}") from e
 
 
 # ============================================================================
@@ -923,10 +923,10 @@ async def saga_fetch_and_enrich(
         return _saga_result_to_response(result)
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
+        raise HTTPException(status_code=503, detail="Memory system not available.") from e
     except Exception as e:
         logger.error(f"Fetch and enrich saga failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Saga failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Saga failed: {e!s}") from e
 
 
 @router.post("/saga/enrich-entities", response_model=SagaResponse)
@@ -952,10 +952,10 @@ async def saga_enrich_entities(
         return _saga_result_to_response(result)
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
+        raise HTTPException(status_code=503, detail="Memory system not available.") from e
     except Exception as e:
         logger.error(f"Entity enrichment saga failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Saga failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Saga failed: {e!s}") from e
 
 
 @router.post("/saga/correlate-timeline", response_model=SagaResponse)
@@ -983,10 +983,10 @@ async def saga_correlate_timeline(
         return _saga_result_to_response(result)
     except RuntimeError as e:
         logger.error(f"Memory system not initialized: {e}")
-        raise HTTPException(status_code=503, detail="Memory system not available.")
+        raise HTTPException(status_code=503, detail="Memory system not available.") from e
     except Exception as e:
         logger.error(f"Timeline correlation saga failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Saga failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Saga failed: {e!s}") from e
 
 
 # =============================================================================
@@ -1064,7 +1064,7 @@ async def warm_memory_for_query(
 
     except Exception as e:
         logger.error(f"Memory warming failed: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Memory warming failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Memory warming failed: {e!s}") from e
 
 
 @router.get("/warm/metrics")
@@ -1096,7 +1096,7 @@ async def get_warming_metrics(
         return metrics
     except Exception as e:
         logger.error(f"Failed to get warming metrics: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Failed to get metrics: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Failed to get metrics: {e!s}") from e
 
 
 # ============================================================================

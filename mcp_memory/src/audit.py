@@ -202,7 +202,7 @@ class AuditLogger:
                 f"Audit logging required but unavailable. "
                 f"DB circuit: {self.circuit_breaker.get_state()}, "
                 f"Fallback error: {fallback_error}"
-            )
+            ) from fallback_error
 
     @must_stay_async("callers use await")
     async def _alert_audit_fallback(self, event: Dict[str, Any]) -> None:

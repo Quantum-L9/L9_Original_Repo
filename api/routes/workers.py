@@ -192,7 +192,7 @@ async def scan_for_violations(
 
     except Exception as e:
         logger.exception("violation_scan_failed", error=str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/violations/counts", response_model=ViolationCountsResponse)
@@ -217,7 +217,7 @@ async def get_violation_counts(
 
     except Exception as e:
         logger.exception("get_violation_counts_failed", error=str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/violations/reset/{lesson_id}")
@@ -238,7 +238,7 @@ async def reset_violation_count(
 
     except Exception as e:
         logger.exception("reset_violation_count_failed", error=str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # =============================================================================
@@ -293,7 +293,7 @@ async def process_anomalies(
 
     except Exception as e:
         logger.exception("anomaly_process_failed", error=str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # =============================================================================
@@ -341,7 +341,7 @@ async def get_workers_health(
 
     except Exception as e:
         logger.exception("workers_health_check_failed", error=str(e))
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # =============================================================================

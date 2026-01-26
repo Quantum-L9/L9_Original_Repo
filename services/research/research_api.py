@@ -194,7 +194,7 @@ async def research(
         logger.error(f"Research failed: {e}")
         raise HTTPException(
             status_code=500, detail=f"Research execution failed: {e!s}"
-        )
+        ) from e
 
 
 @router.get(
@@ -263,7 +263,7 @@ async def resume_research(
         raise
     except Exception as e:
         logger.error(f"Resume failed: {e}")
-        raise HTTPException(status_code=500, detail=f"Resume failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Resume failed: {e!s}") from e
 
 
 # ============================================================================

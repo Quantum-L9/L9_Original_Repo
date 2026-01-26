@@ -87,9 +87,9 @@ def compute_graph_schema_version() -> str:
     try:
         # Try to import graph query builder
         from core.graph.query.graph_search_query_builder import \
-            GRAPH_CACHE_SCHEMA_VERSION as query_builder_version
+            GRAPH_CACHE_SCHEMA_VERSION
 
-        query_hash = query_builder_version
+        query_hash = GRAPH_CACHE_SCHEMA_VERSION
     except ImportError:
         # Fallback: hash DSL structure
         dsl_structure = {
@@ -103,9 +103,9 @@ def compute_graph_schema_version() -> str:
     try:
         # Try to import world model schema version
         from core.worldmodel.l9schema import \
-            WORLD_MODEL_SCHEMA_VERSION as world_model_version
+            WORLD_MODEL_SCHEMA_VERSION
 
-        world_model_hash = world_model_version
+        world_model_hash = WORLD_MODEL_SCHEMA_VERSION
     except (ImportError, AttributeError):
         # Fallback: use default
         world_model_hash = "1.0"

@@ -316,7 +316,7 @@ class WorldModelRegistry(IWorldModelRegistry):
                 schema = EntityTypeSchema(**schema_data)
                 registry.register_entity_type(type_name, schema)
             except Exception as e:
-                raise ValueError(f"Failed to restore entity type {type_name}: {e}")
+                raise ValueError(f"Failed to restore entity type {type_name}: {e}") from e
 
         # Restore relation types
         for type_name, schema_data in data.get("relation_types", {}).items():
@@ -324,7 +324,7 @@ class WorldModelRegistry(IWorldModelRegistry):
                 schema = RelationTypeSchema(**schema_data)
                 registry.register_relation_type(type_name, schema)
             except Exception as e:
-                raise ValueError(f"Failed to restore relation type {type_name}: {e}")
+                raise ValueError(f"Failed to restore relation type {type_name}: {e}") from e
 
         # Restore type hierarchy
         for parent, children in data.get("type_hierarchy", {}).items():

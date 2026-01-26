@@ -70,7 +70,7 @@ class TestToolPackagesRegistry:
         """register_tool_package() must not add duplicates."""
         from runtime.tool_packages import TOOL_PACKAGES, register_tool_package
 
-        existing_pkg = TOOL_PACKAGES[^0]
+        existing_pkg = TOOL_PACKAGES[0]
         original_len = len(TOOL_PACKAGES)
 
         register_tool_package(existing_pkg)

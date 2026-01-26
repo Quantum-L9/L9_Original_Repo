@@ -105,7 +105,7 @@ async def twilio_webhook(
                 headers={"Authorization": f"Bearer {EXECUTOR_API_KEY}"},
             )
         except Exception as e:
-            raise HTTPException(status_code=502, detail=f"Chat call failed: {e}")
+            raise HTTPException(status_code=502, detail=f"Chat call failed: {e}") from e
 
     if resp.status_code != 200:
         raise HTTPException(status_code=resp.status_code, detail=resp.text)

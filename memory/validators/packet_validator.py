@@ -234,7 +234,7 @@ class PacketValidator:
                         field="provenance.source_timestamp",
                         value=source_timestamp,
                         error_code="INVALID_SOURCE_TIMESTAMP_FORMAT",
-                    )
+                    ) from None
 
             if source_timestamp > datetime.utcnow():
                 raise PacketValidationError(

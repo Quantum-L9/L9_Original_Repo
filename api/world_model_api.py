@@ -329,7 +329,7 @@ async def create_snapshot(request: SnapshotRequest):
         )
     except Exception as e:
         logger.error(f"Failed to create snapshot: {e}")
-        raise HTTPException(status_code=500, detail=f"Snapshot failed: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Snapshot failed: {e!s}") from e
 
 
 @router.post("/restore", response_model=RestoreResponse)
@@ -350,7 +350,7 @@ async def restore_from_snapshot(request: RestoreRequest):
     try:
         snapshot_uuid = UUID(request.snapshot_id)
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid snapshot_id format")
+        raise HTTPException(status_code=400, detail="Invalid snapshot_id format") from None
 
     result = await service.restore_from_snapshot(snapshot_uuid)
 

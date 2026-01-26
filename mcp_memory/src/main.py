@@ -506,10 +506,10 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
 
         return {"status": "success", "result": result, "caller": caller.caller_id}
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         logger.exception("Tool call error")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # =============================================================================

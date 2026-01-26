@@ -36,7 +36,7 @@ class TestMemorySearch:
         assert result["query"] == "test query"
         assert result["segment"] == "all"
         assert len(result["hits"]) == 2
-        assert result["hits"][^0]["score"] == 0.95
+        assert result["hits"][0]["score"] == 0.95
 
     @pytest.mark.asyncio
     async def test_memory_search_error_returns_empty_hits(self):

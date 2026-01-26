@@ -228,7 +228,7 @@ class TensorGlobeBridgeAdapter:
                 signing_key_id="tensorglobe_key_001",
             )
         except asyncio.TimeoutError:
-            raise ValueError("TensorGlobe timeout (5s exceeded)")
+            raise ValueError("TensorGlobe timeout (5s exceeded)") from e
 
     def _validate_response_schema(self, response: TensorResponse) -> bool:
         """Validate response schema"""

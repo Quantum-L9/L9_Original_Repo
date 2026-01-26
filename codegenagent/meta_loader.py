@@ -124,10 +124,10 @@ class MetaLoader:
 
         except yaml.YAMLError as e:
             logger.error("meta_yaml_error", path=path, error=str(e))
-            raise MetaLoaderError(f"YAML parse error: {e}")
+            raise MetaLoaderError(f"YAML parse error: {e}") from e
         except Exception as e:
             logger.error("meta_load_error", path=path, error=str(e))
-            raise MetaLoaderError(f"Failed to load meta: {e}")
+            raise MetaLoaderError(f"Failed to load meta: {e}") from e
 
     def load_as_contract(self, path: str) -> MetaContract:
         """
@@ -161,7 +161,7 @@ class MetaLoader:
                 for err in e.errors()
             ]
             logger.error("meta_contract_validation_failed", path=path, errors=errors)
-            raise MetaLoaderError(f"Contract validation failed: {'; '.join(errors)}")
+            raise MetaLoaderError(f"Contract validation failed: {'; '.join(errors)}") from e
 
     def validate_meta(self, path: str) -> MetaContractValidationResult:
         """

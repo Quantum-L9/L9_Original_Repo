@@ -187,7 +187,7 @@ class ToolResolver:
             return result
         except Exception as e:
             logger.error(f"Tool execution failed: {tool_id}: {e}")
-            raise RuntimeError(f"Tool execution failed: {e}")
+            raise RuntimeError(f"Tool execution failed: {e}") from e
 
 
 # Singleton instance

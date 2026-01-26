@@ -183,7 +183,7 @@ async def execute_research(
         logger.error(f"Research swarm execution failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"Research execution failed: {str(e)}"
-        )
+        ) from e
 
 
 # ============================================================================

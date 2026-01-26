@@ -301,7 +301,7 @@ class WorldModelUpdater(IWorldModelUpdater):
         try:
             return Entity(**entity_data)
         except Exception as e:
-            raise ValueError(f"Failed to create entity: {e}")
+            raise ValueError(f"Failed to create entity: {e}") from e
 
     def update_entity(self, entity_id: str, updates: Dict[str, Any]) -> Entity:
         """Update existing entity.
@@ -350,7 +350,7 @@ class WorldModelUpdater(IWorldModelUpdater):
         try:
             return Relation(**relation_data)
         except Exception as e:
-            raise ValueError(f"Failed to create relation: {e}")
+            raise ValueError(f"Failed to create relation: {e}") from e
 
     def delete_relation(self, relation_id: str) -> None:
         """Delete relation from state.

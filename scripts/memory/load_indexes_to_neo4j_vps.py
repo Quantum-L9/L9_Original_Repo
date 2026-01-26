@@ -46,6 +46,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+import aiofiles
 import httpx
 import structlog
 from dotenv import load_dotenv
@@ -201,8 +202,8 @@ class VPSRepoGraphLoader:
             return
 
         files = []
-        with open(file_path, "r") as f:
-            for line in f:
+        async with aiofiles.open(file_path, "r") as f:
+            async for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
@@ -257,8 +258,8 @@ class VPSRepoGraphLoader:
             return
 
         classes = []
-        with open(file_path, "r") as f:
-            for line in f:
+        async with aiofiles.open(file_path, "r") as f:
+            async for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
@@ -333,8 +334,8 @@ class VPSRepoGraphLoader:
             return
 
         relationships = []
-        with open(file_path, "r") as f:
-            for line in f:
+        async with aiofiles.open(file_path, "r") as f:
+            async for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue
@@ -378,8 +379,8 @@ class VPSRepoGraphLoader:
             return
 
         routes = []
-        with open(file_path, "r") as f:
-            for line in f:
+        async with aiofiles.open(file_path, "r") as f:
+            async for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
                     continue

@@ -131,7 +131,7 @@ def memory_health() -> dict:
             timeout=10,
         )
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Memory health call failed: {e}")
+        raise HTTPException(status_code=502, detail=f"Memory health call failed: {e}") from e
 
     return {
         "status_code": resp.status_code,

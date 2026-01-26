@@ -225,6 +225,12 @@ class ADREnforcementValidator:
     # ===== ADR-0002: Circular imports =====
 
     def _build_import_graph(self) -> dict[str, set[str]]:
+        """Build import graph from MODULE-LEVEL imports only.
+
+        Lazy imports inside functions/methods are excluded because they don't
+        cause runtime circular import errors - they're deferred until the
+        function is called, by which time the importing module is fully loaded.
+        """
         graph: dict[str, set[str]] = {}
 
         for py_file in self.repo_root.rglob("*.py"):
@@ -241,14 +247,38 @@ class ADREnforcementValidator:
             except SyntaxError:
                 continue
 
-            for node in ast.walk(tree):
+            # Only check TOP-LEVEL imports (not inside functions/classes)
+            for node in tree.body:
                 if isinstance(node, ast.Import):
                     for alias in node.names:
                         graph[module].add(alias.name)
                 elif isinstance(node, ast.ImportFrom) and node.module:
                     graph[module].add(node.module)
+                # Handle TYPE_CHECKING blocks at module level
+                elif isinstance(node, ast.If):
+                    # Check if this is a TYPE_CHECKING guard
+                    if self._is_type_checking_guard(node):
+                        continue  # Skip TYPE_CHECKING imports
+                    # Otherwise check imports in the if body
+                    for child in node.body:
+                        if isinstance(child, ast.Import):
+                            for alias in child.names:
+                                graph[module].add(alias.name)
+                        elif isinstance(child, ast.ImportFrom) and child.module:
+                            graph[module].add(child.module)
 
         return graph
+
+    def _is_type_checking_guard(self, node: ast.If) -> bool:
+        """Check if an If node is a TYPE_CHECKING guard."""
+        test = node.test
+        # Handle: if TYPE_CHECKING:
+        if isinstance(test, ast.Name) and test.id == "TYPE_CHECKING":
+            return True
+        # Handle: if typing.TYPE_CHECKING:
+        if isinstance(test, ast.Attribute) and test.attr == "TYPE_CHECKING":
+            return True
+        return False
 
     def _detect_cycles(self, graph: dict[str, set[str]]) -> list[list[str]]:
         visited: set[str] = set()

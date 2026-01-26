@@ -507,7 +507,7 @@ async def record_approval_feedback(
         raise HTTPException(
             status_code=500,
             detail=f"Failed to record feedback: {str(e)}",
-        )
+        ) from e
 
 
 __all__ = ["router"]

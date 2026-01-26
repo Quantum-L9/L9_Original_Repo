@@ -71,7 +71,7 @@ class MemoryOrchestrator(IMemoryOrchestrator):
                 self._substrate_service = await get_substrate_service()
             except ImportError:
                 logger.error("MemorySubstrateService not available")
-                raise RuntimeError("MemorySubstrateService not available")
+                raise RuntimeError("MemorySubstrateService not available") from None
         return self._substrate_service
 
     async def execute(self, request: MemoryRequest) -> MemoryResponse:

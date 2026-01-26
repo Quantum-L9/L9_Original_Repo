@@ -193,7 +193,7 @@ async def save_memory_handler(
         raise HTTPException(
             status_code=500,
             detail=f"Memory ingestion failed: {e!s}",
-        )
+        ) from e
 
 
 async def _save_via_main_pipeline(
@@ -456,7 +456,7 @@ async def search_memory_handler(
 
     except Exception as e:
         logger.exception("Error searching unified substrate")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # =============================================================================
@@ -646,12 +646,12 @@ async def get_memory_stats(
         logger.error(
             "Database error getting stats", error=str(e), error_code=error_code
         )
-        raise HTTPException(status_code=500, detail=f"Database error: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Database error: {e!s}") from e
     except Exception as e:
         logger.exception(
             "Unexpected error getting stats from unified substrate", error=str(e)
         )
-        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}") from e
 
 
 async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
@@ -690,7 +690,7 @@ async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
         }
     except Exception as e:
         logger.exception("Error deleting expired memories")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def compound_similar_memories(
@@ -830,7 +830,7 @@ async def compound_similar_memories(
 
     except Exception as e:
         logger.exception("Error compounding memories")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
@@ -882,10 +882,10 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
         logger.error(
             "Database error applying decay", error=str(e), error_code=error_code
         )
-        raise HTTPException(status_code=500, detail=f"Database error: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Database error: {e!s}") from e
     except Exception as e:
         logger.exception("Unexpected error applying importance decay", error=str(e))
-        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}")
+        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}") from e
 
 
 async def cleanup_task():
@@ -1018,7 +1018,7 @@ async def get_context_injection(
         }
     except Exception as e:
         logger.exception("Error in context injection")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def extract_session_learnings(
@@ -1125,7 +1125,7 @@ async def extract_session_learnings(
         }
     except Exception as e:
         logger.exception("Error extracting session learnings")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def get_proactive_suggestions(
@@ -1211,7 +1211,7 @@ async def get_proactive_suggestions(
         }
     except Exception as e:
         logger.exception("Error in proactive suggestions")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def query_temporal(
@@ -1369,7 +1369,7 @@ async def query_temporal(
         }
     except Exception as e:
         logger.exception("Error in temporal query")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def save_memory_with_confidence(
@@ -1442,7 +1442,7 @@ async def save_memory_with_confidence(
         return result
     except Exception as e:
         logger.exception("Error saving memory with confidence")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # ============================================================================

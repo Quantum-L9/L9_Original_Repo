@@ -835,7 +835,7 @@ async def ingest_packet(
         except RuntimeError:
             raise RuntimeError(
                 "Memory system not initialized. Call memory.init_service() at startup."
-            )
+            ) from None
 
     # FULL DAG PATH: Route through write_packet() for complete enrichment
     # This includes: validation, reasoning, embedding (GMP-42 filtered),

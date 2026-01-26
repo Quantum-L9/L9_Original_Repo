@@ -177,7 +177,7 @@ async def cursor_task(
         )
     except Exception as e:
         logger.exception("Cursor task execution failed", error=str(e))
-        raise HTTPException(status_code=500, detail=f"Task execution error: {e}")
+        raise HTTPException(status_code=500, detail=f"Task execution error: {e}") from e
 
 
 @router.post("/resume", response_model=CursorTaskResponse)
@@ -225,10 +225,10 @@ async def cursor_resume(
             thread_id=request.thread_id,
             error=str(e),
         )
-        raise HTTPException(status_code=404, detail=f"Thread not found: {e}")
+        raise HTTPException(status_code=404, detail=f"Thread not found: {e}") from e
     except Exception as e:
         logger.exception("Cursor resume execution failed", error=str(e))
-        raise HTTPException(status_code=500, detail=f"Resume execution error: {e}")
+        raise HTTPException(status_code=500, detail=f"Resume execution error: {e}") from e
 
 
 # ============================================================================

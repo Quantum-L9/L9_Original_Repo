@@ -91,7 +91,7 @@ def _get_s3_client():
             )
         except ImportError:
             logger.error("boto3 not installed - S3 storage unavailable")
-            raise RuntimeError("boto3 required for S3 storage")
+            raise RuntimeError("boto3 required for S3 storage") from None
     return _s3_client
 
 

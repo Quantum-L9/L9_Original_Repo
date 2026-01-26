@@ -86,9 +86,9 @@ class Neo4jSubstrate:
             self.logger.info(f"Connected to Neo4j {self.config.uri}")
 
         except ImportError:
-            raise ImportError("neo4j package required for Neo4j substrate")
+            raise ImportError("neo4j package required for Neo4j substrate") from None
         except Exception as e:
-            raise ConnectionError(f"Failed to connect to Neo4j: {e}")
+            raise ConnectionError(f"Failed to connect to Neo4j: {e}") from e
 
     def disconnect(self) -> None:
         """Close Neo4j driver."""

@@ -174,7 +174,7 @@ async def save_memory_handler(
         return result
     except Exception as e:
         logger.exception("Error saving memory")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/search", response_model=SearchMemoryResponse)
@@ -279,7 +279,7 @@ async def search_memory_handler(
         }
     except Exception as e:
         logger.exception("Error searching memory")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/stats", response_model=MemoryStatsResponse)
@@ -329,7 +329,7 @@ async def get_memory_stats(
         )
     except Exception as e:
         logger.exception("Error getting stats")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
@@ -585,7 +585,7 @@ async def get_context_injection(
         }
     except Exception as e:
         logger.exception("Error in context injection")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def extract_session_learnings(
@@ -691,7 +691,7 @@ async def extract_session_learnings(
         }
     except Exception as e:
         logger.exception("Error extracting session learnings")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def get_proactive_suggestions(
@@ -799,7 +799,7 @@ async def get_proactive_suggestions(
         }
     except Exception as e:
         logger.exception("Error in proactive suggestions")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def query_temporal(
@@ -895,7 +895,7 @@ async def query_temporal(
         }
     except Exception as e:
         logger.exception("Error in temporal query")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 async def save_memory_with_confidence(
@@ -970,7 +970,7 @@ async def save_memory_with_confidence(
         return result
     except Exception as e:
         logger.exception("Error saving memory with confidence")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 # ============================================================================

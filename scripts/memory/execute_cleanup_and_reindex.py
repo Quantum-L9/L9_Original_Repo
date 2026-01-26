@@ -32,6 +32,7 @@ import os
 import sys
 from pathlib import Path
 
+import aiofiles
 import structlog
 from dotenv import load_dotenv
 
@@ -169,8 +170,8 @@ async def main():
     )
 
     if result.returncode == 0:
-        with open("/tmp/delete_trash.sql", "w") as f:
-            f.write(result.stdout)
+        async with aiofiles.open("/tmp/delete_trash.sql", "w") as f:
+            await f.write(result.stdout)
         print("  ✅ SQL generated")
     else:
         print(f"  ❌ Failed to generate SQL: {result.stderr[:200]}")

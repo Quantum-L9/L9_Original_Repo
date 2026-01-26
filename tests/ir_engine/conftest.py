@@ -425,4 +425,4 @@ def assert_json_serializable(data: Any) -> str:
     try:
         return json.dumps(data, default=str)
     except (TypeError, ValueError) as e:
-        raise AssertionError(f"Data is not JSON serializable: {e}")
+        raise AssertionError(f"Data is not JSON serializable: {e}") from e

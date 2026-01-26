@@ -130,7 +130,7 @@ async def bind_kernels_to_agent(
 
     except Exception as e:
         logger.error("Failed to bind kernels", error=str(e))
-        raise RuntimeError(f"Kernel binding failed: {e}")
+        raise RuntimeError(f"Kernel binding failed: {e}") from e
 
 
 # ============================================================================

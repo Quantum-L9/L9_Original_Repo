@@ -39,6 +39,8 @@ __dora_meta__ = {
 
 import asyncio
 import json
+
+import aiofiles
 import os
 import sys
 from datetime import datetime
@@ -556,8 +558,8 @@ async def main():
             / f"graph_audit_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         )
         output_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_file, "w") as f:
-            json.dump(results, f, indent=2, default=str)
+        async with aiofiles.open(output_file, "w") as f:
+            await f.write(json.dumps(results, indent=2, default=str))
         print(f"\n📄 Full report saved to: {output_file}")
 
     except Exception as e:

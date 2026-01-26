@@ -174,7 +174,7 @@ async def execute_reasoning(
                 status_code=400,
                 detail=f"Invalid reasoning mode: {request.mode}. "
                 f"Valid modes: chain_of_thought, tree_of_thought, forest_of_thought, beam_search",
-            )
+            ) from None
 
         logger.info(
             "Reasoning execution request",
@@ -214,7 +214,7 @@ async def execute_reasoning(
         logger.error(f"Reasoning execution failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"Reasoning execution failed: {str(e)}"
-        )
+        ) from e
 
 
 # ============================================================================

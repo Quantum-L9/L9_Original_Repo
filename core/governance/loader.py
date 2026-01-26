@@ -184,7 +184,7 @@ class PolicyLoader:
                 str(file_path),
                 str(e),
             )
-            raise InvalidPolicyError(str(file_path), f"Invalid YAML: {e}")
+            raise InvalidPolicyError(str(file_path), f"Invalid YAML: {e}") from e
 
         if data is None:
             logger.warning(
@@ -263,11 +263,11 @@ class PolicyLoader:
             self._policies.append(policy)
 
         except KeyError as e:
-            raise InvalidPolicyError(str(source), f"Missing required field: {e}")
+            raise InvalidPolicyError(str(source), f"Missing required field: {e}") from e
         except ValueError as e:
-            raise InvalidPolicyError(str(source), f"Invalid value: {e}")
+            raise InvalidPolicyError(str(source), f"Invalid value: {e}") from e
         except Exception as e:
-            raise InvalidPolicyError(str(source), f"Parse error: {e}")
+            raise InvalidPolicyError(str(source), f"Parse error: {e}") from e
 
     def get_policies_for_action(self, action: str) -> list[Policy]:
         """

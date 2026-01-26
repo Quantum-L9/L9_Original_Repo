@@ -39,7 +39,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -53,8 +53,10 @@ from core.schemas import (
     SemanticSearchResult,
 )
 from core.singleton_auto_registry import register_singleton, register_singleton_closer
-from memory.agent_persistence import AgentPersistenceService
 from memory.audit_utils import prepare_packet_for_ingest
+
+if TYPE_CHECKING:
+    from memory.agent_persistence import AgentPersistenceService
 from memory.consolidation import ConsolidationPipeline
 from memory.enrichment_dag import EnrichmentDAG
 from memory.governance_gate import (
@@ -1004,6 +1006,9 @@ class MemorySubstrateService:
             return self._agent_persistence
 
         logger.info("Initializing agent_persistence...")
+        # Lazy import to break circular dependency
+        from memory.agent_persistence import AgentPersistenceService
+
         self._agent_persistence = AgentPersistenceService(
             service=self,
             repository=self._repository,
