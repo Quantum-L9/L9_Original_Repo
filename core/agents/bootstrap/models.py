@@ -75,9 +75,7 @@ class PhaseResult:
     def __post_init__(self) -> None:
         if not self.success and self.error and not self.error_code:
             # Auto-generate error code if missing
-            self.error_code = (
-                f"BOOTSTRAP_PHASE{self.phase}_{self.name.upper()}_FAILED"
-            )
+            self.error_code = f"BOOTSTRAP_PHASE{self.phase}_{self.name.upper()}_FAILED"
 
 
 # =============================================================================
@@ -122,8 +120,10 @@ class AgentBootstrapContext:
         config_dict = {}
         if hasattr(self.config, "__dict__"):
             config_dict = {
-                k: v for k, v in self.config.__dict__.items()
-                if not k.startswith("_") and isinstance(v, (str, int, float, bool, list, dict, type(None)))
+                k: v
+                for k, v in self.config.__dict__.items()
+                if not k.startswith("_")
+                and isinstance(v, (str, int, float, bool, list, dict, type(None)))
             }
         elif isinstance(self.config, dict):
             config_dict = self.config

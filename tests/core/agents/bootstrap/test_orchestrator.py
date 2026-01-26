@@ -141,7 +141,11 @@ async def test_orchestrator_all_phases_success(
             phase=7,
             name="verify_and_lock",
             success=True,
-            context_delta={"verified": True},
+            context_delta={
+                "verified": True,
+                "init_signature": "abc123def456789012345678901234567890123456789012345678901234",
+                "status": "READY",
+            },
         )
     )
 
@@ -221,9 +225,7 @@ async def test_orchestrator_phase_failure_triggers_rollback(
 
 
 @pytest.mark.asyncio
-async def test_orchestrator_rollback_deletes_agent_node(
-    orchestrator, mock_services
-):
+async def test_orchestrator_rollback_deletes_agent_node(orchestrator, mock_services):
     """Test that rollback deletes agent from Neo4j with CASCADE."""
     mock_services["world_model"].agent_exists = AsyncMock(return_value=True)
     mock_services["world_model"].delete_agent_node_cascade = AsyncMock()

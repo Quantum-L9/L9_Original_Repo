@@ -121,8 +121,10 @@ async def test_bootstrap_agent_from_query_orchestrator_failure(executor):
 def test_executor_parse_bootstrap_query():
     """Test query parsing for agent blueprint extraction."""
     executor = MagicMock(spec=AgentExecutorService)
-    executor._parse_bootstrap_query = AgentExecutorService._parse_bootstrap_query.__get__(
-        executor, AgentExecutorService
+    executor._parse_bootstrap_query = (
+        AgentExecutorService._parse_bootstrap_query.__get__(
+            executor, AgentExecutorService
+        )
     )
 
     # Test code review extraction

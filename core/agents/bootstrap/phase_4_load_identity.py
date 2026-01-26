@@ -224,7 +224,9 @@ async def load_identity_persona_view(
         if not metadata:
             metadata = {
                 "display_name": identity_kernel.get("designation", agent_id),
-                "short_name": identity_kernel.get("designation", agent_id)[:2] if identity_kernel.get("designation") else agent_id[:2],
+                "short_name": identity_kernel.get("designation", agent_id)[:2]
+                if identity_kernel.get("designation")
+                else agent_id[:2],
                 "description": identity_kernel.get("mission", ""),
                 "default_tone": "neutral",
                 "tags": [],

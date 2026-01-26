@@ -255,12 +255,15 @@ class AgentBootstrapOrchestrator:
                     init_signature=None,
                 ) from e
 
-        # All phases succeeded
+        # All phases succeeded - mark agent as READY
+        ctx.status = "READY"
+
         logger.info(
             "agent.bootstrap.orchestrator.all_phases_complete",
             agent_id=agent_id,
             total_phases=len(phases),
             init_signature=ctx.init_signature[:16] if ctx.init_signature else None,
+            status=ctx.status,
         )
 
         return ctx
@@ -313,7 +316,11 @@ class AgentBootstrapOrchestrator:
             if kernel_paths:
                 # kernel_paths is dict of {kernel_name: path}
                 # Existing function expects a directory path
-                kernel_dir = list(kernel_paths.values())[0].rsplit("/", 1)[0] if kernel_paths else "private/kernels/00_system"
+                kernel_dir = (
+                    list(kernel_paths.values())[0].rsplit("/", 1)[0]
+                    if kernel_paths
+                    else "private/kernels/00_system"
+                )
             else:
                 kernel_dir = "private/kernels/00_system"
 
@@ -321,7 +328,9 @@ class AgentBootstrapOrchestrator:
             duration = (datetime.utcnow() - start).total_seconds() * 1000
 
             # Convert kernels to dict format for context
-            kernels_dict = {k.name: {"content": k.raw_yaml} for k in kernels} if kernels else {}
+            kernels_dict = (
+                {k.name: {"content": k.raw_yaml} for k in kernels} if kernels else {}
+            )
 
             return PhaseResult(
                 phase=1,
@@ -519,7 +528,9 @@ class AgentBootstrapOrchestrator:
                     break
 
             await phase_6_wire_governance.wire_governance_gates(
-                instance, self._memory_substrate, []  # kernels list
+                instance,
+                self._memory_substrate,
+                [],  # kernels list
             )
             duration = (datetime.utcnow() - start).total_seconds() * 1000
 
@@ -553,12 +564,11 @@ class AgentBootstrapOrchestrator:
         try:
             # Verify all previous phases succeeded
             if any(not result.success for result in ctx.phase_results):
-                raise RuntimeError(
-                    "Cannot proceed to Phase 7: prior phase(s) failed"
-                )
+                raise RuntimeError("Cannot proceed to Phase 7: prior phase(s) failed")
 
             # Compute deterministic init signature
             init_signature = ctx.compute_init_signature()
+            ctx.init_signature = init_signature  # Set directly on context
 
             # Get instance for legacy function
             instance = None
@@ -593,7 +603,9 @@ class AgentBootstrapOrchestrator:
 
             # Fallback to legacy function
             await phase_7_verify_and_lock.verify_and_lock(
-                instance, self._memory_substrate, []  # kernels list
+                instance,
+                self._memory_substrate,
+                [],  # kernels list
             )
             duration = (datetime.utcnow() - start).total_seconds() * 1000
 
