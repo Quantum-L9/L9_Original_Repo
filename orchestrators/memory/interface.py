@@ -30,7 +30,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import Any, Dict, List, Protocol
+from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
 
@@ -52,15 +52,19 @@ class MemoryRequest(BaseModel):
     operation: MemoryOperation = Field(
         default=MemoryOperation.BATCH_WRITE, description="Operation type"
     )
-    packets: List[Dict[str, Any]] = Field(
+    packets: list[dict[str, Any]] = Field(
         default_factory=list, description="Packets to process"
     )
     gc_threshold_days: int = Field(default=30, description="GC threshold in days")
 
-    # Multi-tenant RLS context (required for all operations)
-    tenant_id: str = Field(..., description="Tenant UUID for RLS isolation")
-    org_id: str = Field(..., description="Organization UUID for RLS isolation")
-    user_id: str = Field(..., description="User UUID for RLS isolation")
+    # Multi-tenant RLS context (default to system context if not provided)
+    tenant_id: str = Field(
+        default="system", description="Tenant UUID for RLS isolation"
+    )
+    org_id: str = Field(
+        default="system", description="Organization UUID for RLS isolation"
+    )
+    user_id: str = Field(default="system", description="User UUID for RLS isolation")
     role: str = Field(
         default="end_user",
         description="User role: platform_admin, tenant_admin, org_admin, end_user",
@@ -73,7 +77,7 @@ class MemoryResponse(BaseModel):
     success: bool = Field(..., description="Whether operation succeeded")
     message: str = Field(..., description="Result message")
     processed_count: int = Field(default=0, description="Number of items processed")
-    errors: List[str] = Field(
+    errors: list[str] = Field(
         default_factory=list, description="Any errors encountered"
     )
 

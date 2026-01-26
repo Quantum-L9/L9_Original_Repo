@@ -51,19 +51,23 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
 from core.schemas import PacketEnvelopeIn
-from memory.governance_patterns import (DecisionType, GovernancePattern,
-                                        extract_conditions_from_reason)
+from memory.governance_patterns import (
+    DecisionType,
+    GovernancePattern,
+    extract_conditions_from_reason,
+)
 
 logger = structlog.get_logger(__name__)
 
 # GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
-from core.governance.tool_risk_policy import \
-    get_high_risk_tools_with_descriptions  # noqa: E402
+from core.governance.tool_risk_policy import (
+    get_high_risk_tools_with_descriptions,
+)
 
 HIGH_RISK_TOOLS = get_high_risk_tools_with_descriptions()
 
@@ -71,12 +75,14 @@ HIGH_RISK_TOOLS = get_high_risk_tools_with_descriptions()
 class ApprovalManager:
     """Manages approval of high-risk tasks."""
 
-    def __init__(self, substrate_service, slack_client=None, notification_channel=None):
+    def __init__(
+        self, substrate_service=None, slack_client=None, notification_channel=None
+    ):
         """
         Initialize ApprovalManager.
 
         Args:
-            substrate_service: Memory substrate service for storing approval records
+            substrate_service: Optional memory substrate service for storing approval records
             slack_client: Optional Slack client for notifications
             notification_channel: Slack channel for approval requests
         """
@@ -85,7 +91,7 @@ class ApprovalManager:
         self._notification_channel = notification_channel
 
         # Cache of permanent approvals (tool_id -> True)
-        self._permanent_approvals: Dict[str, bool] = {}
+        self._permanent_approvals: dict[str, bool] = {}
 
     def requires_approval(self, tool_id: str) -> bool:
         """
@@ -99,7 +105,7 @@ class ApprovalManager:
         """
         return tool_id in HIGH_RISK_TOOLS
 
-    def get_high_risk_tools(self) -> List[str]:
+    def get_high_risk_tools(self) -> list[str]:
         """Get list of high-risk tool IDs"""
         return list(HIGH_RISK_TOOLS.keys())
 
@@ -108,8 +114,8 @@ class ApprovalManager:
         tool_id: str,
         task_id: str,
         agent_id: str,
-        arguments: Dict[str, Any],
-        operation_summary: Optional[str] = None,
+        arguments: dict[str, Any],
+        operation_summary: str | None = None,
     ) -> str:
         """
         Create an approval request for a high-risk operation.
@@ -253,10 +259,10 @@ class ApprovalManager:
         self,
         task_id: str,
         approved_by: str,
-        reason: Optional[str] = None,
-        tool_name: Optional[str] = None,
-        task_type: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None,
+        reason: str | None = None,
+        tool_name: str | None = None,
+        task_type: str | None = None,
+        context: dict[str, Any] | None = None,
     ) -> bool:
         """
         Approve a task. Only Igor can approve.
@@ -309,9 +315,9 @@ class ApprovalManager:
         task_id: str,
         rejected_by: str,
         reason: str,
-        tool_name: Optional[str] = None,
-        task_type: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None,
+        tool_name: str | None = None,
+        task_type: str | None = None,
+        context: dict[str, Any] | None = None,
     ) -> bool:
         """
         Reject a task. Only Igor can reject.
@@ -379,7 +385,7 @@ class ApprovalManager:
                 return True
         return False
 
-    async def get_test_results_summary(self, task_id: str) -> Optional[Dict[str, Any]]:
+    async def get_test_results_summary(self, task_id: str) -> dict[str, Any] | None:
         """
         Get test results summary for a task to include in approval decision.
 
@@ -417,7 +423,7 @@ class ApprovalManager:
         self,
         task_id: str,
         proposal_summary: str,
-        test_summary: Optional[Dict[str, Any]],
+        test_summary: dict[str, Any] | None,
     ) -> str:
         """
         Format an approval request message including test results.
@@ -467,7 +473,7 @@ class ApprovalManager:
         reason: str,
         tool_name: str,
         task_type: str,
-        context: Dict[str, Any],
+        context: dict[str, Any],
     ) -> None:
         """
         Write a governance pattern to memory for closed-loop learning.

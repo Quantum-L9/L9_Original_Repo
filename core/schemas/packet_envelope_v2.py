@@ -48,7 +48,7 @@ import hashlib
 import json
 from datetime import datetime
 from enum import Enum
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -110,12 +110,10 @@ VALID_DERIVE_TYPES: set[str] = {dt.value for dt in DeriveType}
 class PacketConfidence(BaseModel):
     """Confidence score and rationale for a packet."""
 
-    score: Optional[float] = Field(
+    score: float | None = Field(
         None, ge=0.0, le=1.0, description="Confidence score 0-1"
     )
-    rationale: Optional[str] = Field(
-        None, description="Explanation of confidence level"
-    )
+    rationale: str | None = Field(None, description="Explanation of confidence level")
 
     model_config = {"frozen": True}
 
@@ -124,27 +122,27 @@ class PacketProvenance(BaseModel):
     """Provenance information for packet traceability."""
 
     # Existing fields (v1.0.1 compatible)
-    parent_packet: Optional[UUID] = Field(
+    parent_packet: UUID | None = Field(
         None, description="DEPRECATED: Use lineage.parent_ids instead"
     )
-    source: Optional[str] = Field(
+    source: str | None = Field(
         None, description="Source system identifier (e.g., 'slack', 'api', 'agent')"
     )
-    source_agent: Optional[str] = Field(
+    source_agent: str | None = Field(
         None, description="Source agent identifier (v1.0.1 compat)"
     )
-    tool: Optional[str] = Field(None, description="Tool that generated this packet")
+    tool: str | None = Field(None, description="Tool that generated this packet")
 
     # v2.0.0 fields (all optional for backward compatibility)
-    extraction_path: Optional[str] = Field(
+    extraction_path: str | None = Field(
         None,
         description="Processing pipeline path (e.g., 'slack.in → extractor → insight')",
     )
-    derive_type: Optional[str] = Field(
+    derive_type: str | None = Field(
         None,
         description="How info was obtained: 'direct', 'inferred', 'synthesized'. None = direct",
     )
-    source_timestamp: Optional[datetime] = Field(
+    source_timestamp: datetime | None = Field(
         None,
         description="Original capture time (if different from packet timestamp)",
     )
@@ -163,12 +161,12 @@ class PacketLineage(BaseModel):
     parent_ids: list[UUID] = Field(
         default_factory=list, description="Parent packet IDs (multi-parent DAG)"
     )
-    derivation_type: Optional[str] = Field(
+    derivation_type: str | None = Field(
         None,
         description="How derived: 'mutation', 'split', 'merge', 'transform', 'inference'",
     )
     generation: int = Field(default=0, description="Generation number in lineage chain")
-    root_packet_id: Optional[UUID] = Field(
+    root_packet_id: UUID | None = Field(
         None, description="Original root packet if known"
     )
 
@@ -179,9 +177,9 @@ class PacketMetadata(BaseModel):
     """Metadata attached to a packet envelope."""
 
     schema_version: str = Field(SCHEMA_VERSION, description="Schema version")
-    reasoning_mode: Optional[str] = Field(None, description="Reasoning mode used")
-    agent: Optional[str] = Field(None, description="Agent identifier")
-    domain: Optional[str] = Field("l9", description="Domain context")
+    reasoning_mode: str | None = Field(None, description="Reasoning mode used")
+    agent: str | None = Field(None, description="Agent identifier")
+    domain: str | None = Field("l9", description="Domain context")
 
     model_config = {"frozen": True, "extra": "allow"}
 
@@ -226,44 +224,43 @@ class PacketEnvelope(BaseModel):
     )
 
     # Optional Fields (v1.0.1 compatible)
-    metadata: Optional[PacketMetadata] = Field(default_factory=PacketMetadata)
-    provenance: Optional[PacketProvenance] = Field(None)
-    confidence: Optional[PacketConfidence] = Field(None)
-    reasoning_block: Optional[dict[str, Any]] = Field(
+    metadata: PacketMetadata | None = Field(default_factory=PacketMetadata)
+    provenance: PacketProvenance | None = Field(None)
+    confidence: PacketConfidence | None = Field(None)
+    reasoning_block: dict[str, Any] | None = Field(
         None, description="Optional StructuredReasoningBlock inline"
     )
 
     # v1.1.0+ Fields (backward compatible - all optional)
-    thread_id: Optional[UUID] = Field(
+    thread_id: UUID | None = Field(
         None, description="Logical conversation/task thread identifier"
     )
-    lineage: Optional[PacketLineage] = Field(
+    lineage: PacketLineage | None = Field(
         None, description="Lineage metadata for DAG-style derivation tracking"
     )
     tags: list[str] = Field(
         default_factory=list,
         description="Lightweight labels for filtering and retrieval",
     )
-    ttl: Optional[datetime] = Field(
+    ttl: datetime | None = Field(
         None, description="Optional expiry timestamp for memory hygiene/GC"
     )
 
     # v2.0.1+ Tracing Fields (Phase 0 Plan 2 - Observability)
-    trace_id: Optional[str] = Field(
+    trace_id: str | None = Field(
         None,
-        description="Distributed trace ID (UUID format) for request chain tracing (OpenTelemetry compatible)"
+        description="Distributed trace ID (UUID format) for request chain tracing (OpenTelemetry compatible)",
     )
-    correlation_id: Optional[str] = Field(
-        None,
-        description="Groups related packets in same task/batch for correlation"
+    correlation_id: str | None = Field(
+        None, description="Groups related packets in same task/batch for correlation"
     )
-    source_location: Optional[dict[str, Any]] = Field(
+    source_location: dict[str, Any] | None = Field(
         None,
-        description="Source code location where packet was created: {file, line, function}"
+        description="Source code location where packet was created: {file, line, function}",
     )
 
     # v2.0.0 Fields
-    content_hash: Optional[str] = Field(
+    content_hash: str | None = Field(
         None, description="SHA-256 hash of payload+metadata for integrity verification"
     )
 
@@ -390,26 +387,24 @@ class PacketEnvelopeIn(BaseModel):
     Allows partial fields - packet_id and timestamp auto-generated if omitted.
     """
 
-    packet_id: Optional[UUID] = Field(
-        None, description="UUID (auto-generated if omitted)"
-    )
+    packet_id: UUID | None = Field(None, description="UUID (auto-generated if omitted)")
     packet_type: str = Field(
         ..., min_length=1, description="Semantic category of the packet"
     )
     payload: dict[str, Any] = Field(..., description="Flexible JSON payload")
-    timestamp: Optional[datetime] = Field(
+    timestamp: datetime | None = Field(
         None, description="UTC timestamp (auto-generated)"
     )
-    metadata: Optional[dict[str, Any]] = Field(None)
-    provenance: Optional[dict[str, Any]] = Field(None)
-    confidence: Optional[dict[str, Any]] = Field(None)
-    reasoning_block: Optional[dict[str, Any]] = Field(None)
+    metadata: dict[str, Any] | None = Field(None)
+    provenance: dict[str, Any] | None = Field(None)
+    confidence: dict[str, Any] | None = Field(None)
+    reasoning_block: dict[str, Any] | None = Field(None)
 
     # v1.1.0+ fields
-    thread_id: Optional[UUID] = Field(None)
-    lineage: Optional[dict[str, Any]] = Field(None)
-    tags: Optional[list[str]] = Field(None)
-    ttl: Optional[datetime] = Field(None)
+    thread_id: UUID | None = Field(None)
+    lineage: dict[str, Any] | None = Field(None)
+    tags: list[str] | None = Field(None)
+    ttl: datetime | None = Field(None)
 
     def to_envelope(self) -> PacketEnvelope:
         """Convert input to full PacketEnvelope with defaults."""
@@ -449,7 +444,7 @@ class PacketWriteResult(BaseModel):
     written_tables: list[str] = Field(
         default_factory=list, description="Tables updated"
     )
-    error_message: Optional[str] = Field(
+    error_message: str | None = Field(
         None, description="Error details if status='error'"
     )
 
@@ -460,7 +455,7 @@ class PacketWriteResult(BaseModel):
             description="DAG enrichment outcome: not_attempted (default), success, failed, disabled",
         )
     )
-    enrichment_error: Optional[str] = Field(
+    enrichment_error: str | None = Field(
         None, description="Enrichment error message if enrichment_status='failed'"
     )
     enrichment_facts_count: int = Field(
@@ -488,7 +483,10 @@ class SemanticSearchRequest(BaseModel):
 
     query: str = Field(..., min_length=1, description="Natural language query")
     top_k: int = Field(10, ge=1, le=100, description="Number of neighbors to return")
-    agent_id: Optional[str] = Field(None, description="Filter by agent ID")
+    agent_id: str | None = Field(None, description="Filter by agent ID")
+    min_score: float = Field(
+        0.0, ge=0.0, le=1.0, description="Minimum similarity score threshold"
+    )
 
 
 class SemanticHit(BaseModel):

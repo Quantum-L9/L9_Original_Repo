@@ -44,7 +44,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Callable, Dict, Optional
+from collections.abc import Callable
 
 import structlog
 
@@ -81,8 +81,8 @@ class RouterConfig:
 
 def route_event_to_task(
     event: EventMessage,
-    config: Optional[RouterConfig] = None,
-) -> Optional[TaskEnvelope]:
+    config: RouterConfig | None = None,
+) -> TaskEnvelope | None:
     """
     Convert inbound WebSocket EventMessages into actionable tasks.
 
@@ -116,28 +116,27 @@ def route_event_to_task(
     if event.type == EventType.TASK_RESULT:
         return _route_task_result(event, config)
 
-    elif event.type == EventType.ERROR:
+    if event.type == EventType.ERROR:
         return _route_error_event(event, config)
 
-    elif event.type == EventType.HEARTBEAT:
+    if event.type == EventType.HEARTBEAT:
         # Heartbeats don't generate tasks
         return None
 
-    elif event.type == EventType.HANDSHAKE:
+    if event.type == EventType.HANDSHAKE:
         # Handshakes are handled separately by security layer
         return None
 
-    elif event.type == EventType.CONTROL:
+    if event.type == EventType.CONTROL:
         # Phase 3: Route to control handler
         return _route_control_event(event, config)
 
-    elif event.type == EventType.LOG:
+    if event.type == EventType.LOG:
         # Phase 3: Route to logging pipeline
         return None
 
-    else:
-        logger.warning(f"Unknown event type: {event.type}")
-        return None
+    logger.warning(f"Unknown event type: {event.type}")
+    return None
 
 
 # =============================================================================
@@ -219,7 +218,7 @@ def _route_error_event(
 def _route_control_event(
     event: EventMessage,
     config: RouterConfig,
-) -> Optional[TaskEnvelope]:
+) -> TaskEnvelope | None:
     """
     Phase 3 Stub: Route CONTROL events.
 
@@ -273,11 +272,11 @@ class WSTaskRouter:
         envelope = router.route(event)
     """
 
-    def __init__(self, config: Optional[RouterConfig] = None):
+    def __init__(self, config: RouterConfig | None = None):
         """Initialize the router with optional configuration."""
         self._config = config or RouterConfig()
-        self._handlers: Dict[
-            EventType, Callable[[EventMessage], Optional[TaskEnvelope]]
+        self._handlers: dict[
+            EventType, Callable[[EventMessage], TaskEnvelope | None]
         ] = {}
         self._default_handlers_registered = False
 
@@ -302,7 +301,7 @@ class WSTaskRouter:
     def register_handler(
         self,
         event_type: EventType,
-        handler: Callable[[EventMessage], Optional[TaskEnvelope]],
+        handler: Callable[[EventMessage], TaskEnvelope | None],
     ) -> None:
         """
         Register a custom event handler.
@@ -330,7 +329,7 @@ class WSTaskRouter:
             return True
         return False
 
-    def route(self, event: EventMessage) -> Optional[TaskEnvelope]:
+    def route(self, event: EventMessage) -> TaskEnvelope | None:
         """
         Route an event to a task envelope.
 
@@ -371,19 +370,19 @@ except ImportError:
         "LangGraph not installed. LangGraphRouter will use fallback routing."
     )
 
-from typing import Any, List, TypedDict
+from typing import Any, TypedDict
 
 
 class RouterState(TypedDict):
     """State for the routing graph."""
 
-    event: Dict[str, Any]
+    event: dict[str, Any]
     event_type: str
-    context: Dict[str, Any]
-    world_model_context: Dict[str, Any]
+    context: dict[str, Any]
+    world_model_context: dict[str, Any]
     classification: str
-    task_envelope: Optional[Dict[str, Any]]
-    errors: List[str]
+    task_envelope: dict[str, Any] | None
+    errors: list[str]
 
 
 class LangGraphRouter:
@@ -397,7 +396,7 @@ class LangGraphRouter:
     - Enriched task envelopes
     """
 
-    def __init__(self, world_model_runtime: Optional[Any] = None):
+    def __init__(self, world_model_runtime: Any | None = None):
         """
         Initialize LangGraph router.
 
@@ -503,9 +502,11 @@ class LangGraphRouter:
         # Create EventMessage from event dict
         try:
             event_msg = EventMessage(
-                event_type=EventType(state.get("event_type", "TASK_RESULT")),
-                session_id=event.get("session_id", ""),
-                payload=event.get("payload", {}),
+                type=EventType(state.get("event_type", "TASK_RESULT")),
+                payload={
+                    **event.get("payload", {}),
+                    "session_id": event.get("session_id", ""),
+                },
             )
 
             # Use base routing to create task
@@ -545,8 +546,8 @@ class LangGraphRouter:
         }
 
     async def route(
-        self, event: EventMessage, context: Dict[str, Any]
-    ) -> Optional[TaskEnvelope]:
+        self, event: EventMessage, context: dict[str, Any]
+    ) -> TaskEnvelope | None:
         """
         Route event using LangGraph state machine.
 
@@ -608,10 +609,10 @@ class LangGraphRouter:
 # =============================================================================
 
 __all__ = [
-    "route_event_to_task",
+    "LangGraphRouter",  # Phase 3 stub
     "RouterConfig",
     "WSTaskRouter",
-    "LangGraphRouter",  # Phase 3 stub
+    "route_event_to_task",
 ]
 
 # ============================================================================

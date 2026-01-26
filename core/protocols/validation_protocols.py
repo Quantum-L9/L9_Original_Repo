@@ -253,7 +253,7 @@ class StandardValidator:
         errors: list[ValidationError] = []
         warnings: list[ValidationError] = []
 
-        self.logger.info(
+        self.logger.info(  # type: ignore[call-arg]
             "validation_started",
             schema_keys=list(schema.keys()) if schema else None,
         )
@@ -286,7 +286,7 @@ class StandardValidator:
             warnings=warnings,
         )
 
-        self.logger.info(
+        self.logger.info(  # type: ignore[call-arg]
             "validation_completed",
             valid=valid,
             error_count=len(result.errors),
@@ -439,7 +439,7 @@ class StandardValidator:
 
         valid = len([e for e in errors if e.severity == ValidationSeverity.ERROR]) == 0
 
-        self.logger.info(
+        self.logger.info(  # type: ignore[call-arg]
             "field_validation_completed",
             field_name=field_name,
             valid=valid,
@@ -477,7 +477,7 @@ class StandardValidator:
                     )
                 )
 
-                self.logger.warning(
+                self.logger.warning(  # type: ignore[call-arg]
                     "required_field_missing",
                     field_name=field_name,
                 )

@@ -33,7 +33,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -68,16 +68,16 @@ router_registry.register(
 class PatternExecuteRequest(BaseModel):
     """Request model for pattern execution."""
 
-    user_prompts: List[str] = Field(
+    user_prompts: list[str] = Field(
         ...,
         min_length=1,
         description="User prompts/requirements to process through pipeline",
     )
-    pattern_config: Optional[str] = Field(
+    pattern_config: str | None = Field(
         default=None,
         description="Path to pattern config YAML (uses default if not provided)",
     )
-    subsystem_config: Optional[str] = Field(
+    subsystem_config: str | None = Field(
         default=None,
         description="Path to subsystem config YAML (uses default if not provided)",
     )
@@ -85,7 +85,7 @@ class PatternExecuteRequest(BaseModel):
         default=False,
         description="If true, validate without executing agents",
     )
-    trace_id: Optional[str] = Field(
+    trace_id: str | None = Field(
         default=None,
         description="Optional trace ID for distributed tracing",
     )
@@ -96,9 +96,9 @@ class NodeResultResponse(BaseModel):
 
     node_id: str
     status: str
-    output: Dict[str, Any] = Field(default_factory=dict)
+    output: dict[str, Any] = Field(default_factory=dict)
     duration_ms: int = 0
-    errors: List[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
 
 
 class PatternExecuteResponse(BaseModel):
@@ -108,16 +108,16 @@ class PatternExecuteResponse(BaseModel):
     pipeline_id: str = Field(..., description="Pipeline execution ID")
     status: str = Field(..., description="Pipeline status")
     nodes_executed: int = Field(default=0, description="Number of nodes executed")
-    node_results: List[NodeResultResponse] = Field(
+    node_results: list[NodeResultResponse] = Field(
         default_factory=list,
         description="Results from each node",
     )
-    final_output: Dict[str, Any] = Field(
+    final_output: dict[str, Any] = Field(
         default_factory=dict,
         description="Final pipeline output",
     )
     duration_ms: int = Field(default=0, description="Total duration in milliseconds")
-    errors: List[str] = Field(default_factory=list, description="Any errors")
+    errors: list[str] = Field(default_factory=list, description="Any errors")
 
 
 class PatternConfigResponse(BaseModel):
@@ -125,8 +125,8 @@ class PatternConfigResponse(BaseModel):
 
     pattern_name: str
     pattern_version: str
-    nodes: List[Dict[str, Any]]
-    observability: Dict[str, Any]
+    nodes: list[dict[str, Any]]
+    observability: dict[str, Any]
 
 
 # ============================================================================
@@ -216,8 +216,7 @@ async def execute_pattern(
 
         if orchestrator is None:
             # Create on-demand with defaults or provided configs
-            from orchestrators.pattern import (CellAgentAdapter,
-                                               PatternOrchestrator)
+            from orchestrators.pattern import CellAgentAdapter, PatternOrchestrator
 
             pattern_path = request.pattern_config or "config/patterns/pipeline_v1.yaml"
             subsystem_path = (
@@ -240,7 +239,7 @@ async def execute_pattern(
         result = await orchestrator.execute(
             user_prompts=request.user_prompts,
             dry_run=request.dry_run,
-            trace_id=request.trace_id,
+            context={"trace_id": request.trace_id} if request.trace_id else None,
         )
 
         # Convert node results
@@ -283,7 +282,7 @@ async def execute_pattern(
         logger.error(f"Config file not found: {e}")
         raise HTTPException(
             status_code=400,
-            detail=f"Configuration file not found: {str(e)}",
+            detail=f"Configuration file not found: {e!s}",
         )
     except HTTPException:
         raise
@@ -291,7 +290,7 @@ async def execute_pattern(
         logger.error(f"Pattern execution failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Pattern execution failed: {str(e)}",
+            detail=f"Pattern execution failed: {e!s}",
         )
 
 
@@ -353,7 +352,7 @@ async def validate_pattern_config(
     except Exception as e:
         return {
             "valid": False,
-            "errors": [f"Failed to parse config: {str(e)}"],
+            "errors": [f"Failed to parse config: {e!s}"],
         }
 
 
@@ -365,12 +364,12 @@ async def validate_pattern_config(
 class MasterExecuteRequest(BaseModel):
     """Request model for multi-subsystem execution."""
 
-    user_prompts: List[str] = Field(
+    user_prompts: list[str] = Field(
         ...,
         min_length=1,
         description="User prompts/requirements to process through all pipelines",
     )
-    subsystems: Optional[List[str]] = Field(
+    subsystems: list[str] | None = Field(
         default=None,
         description="Specific subsystems to run (defaults to all enabled)",
     )
@@ -392,11 +391,11 @@ class MasterExecuteResponse(BaseModel):
     subsystems_failed: int = Field(
         default=0, description="Number of subsystems that failed"
     )
-    results: Dict[str, Any] = Field(
+    results: dict[str, Any] = Field(
         default_factory=dict, description="Per-subsystem results"
     )
     duration_ms: int = Field(default=0, description="Total duration in milliseconds")
-    errors: List[str] = Field(
+    errors: list[str] = Field(
         default_factory=list, description="Any errors encountered"
     )
 
@@ -457,13 +456,13 @@ async def execute_all_subsystems(
         logger.error(f"Config file not found: {e}")
         raise HTTPException(
             status_code=400,
-            detail=f"Configuration file not found: {str(e)}",
+            detail=f"Configuration file not found: {e!s}",
         )
     except Exception as e:
         logger.error(f"Master execution failed: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Master execution failed: {str(e)}",
+            detail=f"Master execution failed: {e!s}",
         )
 
 

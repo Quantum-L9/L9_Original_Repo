@@ -753,12 +753,12 @@ class SubstrateRepository:
 
     async def insert_knowledge_fact(
         self,
-        fact_id: UUID,
         subject: str,
         predicate: str,
         object_value: Any,
         confidence: float,
         source_packet: UUID | None,
+        fact_id: UUID | None = None,
     ) -> KnowledgeFactRow:
         """
         Insert or update knowledge fact (idempotent via UPSERT).
@@ -782,6 +782,10 @@ class SubstrateRepository:
         Raises:
             Exception: DB error (caller decides whether to propagate or log)
         """
+        # Generate fact_id if not provided
+        if fact_id is None:
+            fact_id = uuid4()
+
         created_at = datetime.utcnow()
 
         # Serialize object_value to JSON (always required for JSONB column)

@@ -35,7 +35,7 @@ __dora_meta__ = {
 import asyncio
 import random
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -93,7 +93,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         self,
         model: str = "text-embedding-3-large",
         dimensions: int = 1536,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         max_retries: int = 3,
         base_backoff: float = 0.5,
     ):
@@ -237,24 +237,24 @@ class SemanticService:
 
     def __init__(
         self,
-        embedding_provider: EmbeddingProvider,
-        repository: Any,  # SubstrateRepository
+        embedding_provider: EmbeddingProvider | None = None,
+        repository: Any | None = None,  # SubstrateRepository
     ):
         """
         Initialize semantic service.
 
         Args:
-            embedding_provider: Provider for generating embeddings
-            repository: SubstrateRepository instance for DB access
+            embedding_provider: Provider for generating embeddings (uses stub if not provided)
+            repository: SubstrateRepository instance for DB access (optional)
         """
-        self._provider = embedding_provider
+        self._provider = embedding_provider or StubEmbeddingProvider()
         self._repository = repository
 
     async def embed_and_store(
         self,
         text: str,
         payload: dict[str, Any],
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
         scope: str = "shared",  # RLS scope for row-level security
     ) -> str:
         """
@@ -296,8 +296,8 @@ class SemanticService:
         self,
         text: str,
         payload: dict[str, Any],
-        agent_id: Optional[str] = None,
-    ) -> tuple[list[float], dict[str, Any], Optional[str]]:
+        agent_id: str | None = None,
+    ) -> tuple[list[float], dict[str, Any], str | None]:
         """
         Generate an embedding and return vector + enriched payload.
 
@@ -315,7 +315,7 @@ class SemanticService:
         self,
         query: str,
         top_k: int = 10,
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
     ) -> list[dict[str, Any]]:
         """
         Search semantic memory for similar content.
@@ -347,7 +347,7 @@ class SemanticService:
         self,
         items: list[dict[str, Any]],
         text_key: str = "text",
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
     ) -> list[str]:
         """
         Embed and store multiple items.
@@ -422,7 +422,7 @@ class SemanticService:
         self,
         query_vector: list[float],
         top_k: int = 10,
-        embedding_type: Optional[str] = None,
+        embedding_type: str | None = None,
     ) -> list[dict[str, Any]]:
         """
         Recall similar embeddings by vector similarity.
@@ -490,7 +490,7 @@ class SemanticService:
     async def hybrid_search(
         self,
         query: str,
-        filters: Optional[dict[str, Any]] = None,
+        filters: dict[str, Any] | None = None,
         top_k: int = 10,
     ) -> list[dict[str, Any]]:
         """
@@ -603,7 +603,7 @@ def create_embedding_provider(
     provider_type: str = "openai",
     model: str = "text-embedding-3-large",
     dimensions: int = 1536,
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
 ) -> EmbeddingProvider:
     """
     Factory function to create embedding provider.
@@ -619,23 +619,22 @@ def create_embedding_provider(
     """
     if provider_type == "stub":
         raise RuntimeError("Stub embedding provider is not allowed in enforcement mode")
-    elif provider_type == "openai":
+    if provider_type == "openai":
         logger.info(f"Using OpenAI embedding provider: {model}")
         return OpenAIEmbeddingProvider(
             model=model,
             dimensions=dimensions,
             api_key=api_key,
         )
-    else:
-        raise ValueError(f"Unknown provider type: {provider_type}")
+    raise ValueError(f"Unknown provider type: {provider_type}")
 
 
 # Convenience function for direct use
 async def embed_text(
     text: str,
-    provider: Optional[EmbeddingProvider] = None,
+    provider: EmbeddingProvider | None = None,
     model: str = "text-embedding-3-large",
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
 ) -> list[float]:
     """
     Standalone function to embed text.

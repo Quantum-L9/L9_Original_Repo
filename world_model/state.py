@@ -57,7 +57,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from world_model.causal_graph import CausalGraph
@@ -77,6 +77,7 @@ class Entity:
     created_at: datetime = field(default_factory=datetime.utcnow)
     updated_at: datetime = field(default_factory=datetime.utcnow)
     version: int = 1
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -127,7 +128,7 @@ class WorldModelState:
         self._entities: dict[str, Entity] = {}
         self._relations: dict[str, Relation] = {}
         self._entity_relations: dict[str, list[str]] = {}
-        self._causal_graph: Optional[CausalGraph] = None
+        self._causal_graph: CausalGraph | None = None
         self._version: int = 0
         self._created_at: datetime = datetime.utcnow()
         self._updated_at: datetime = datetime.utcnow()
@@ -136,7 +137,7 @@ class WorldModelState:
     # Entity Operations
     # =========================================================================
 
-    def get_entity(self, entity_id: str) -> Optional[Entity]:
+    def get_entity(self, entity_id: str) -> Entity | None:
         """
         Retrieve entity by ID.
 
@@ -166,9 +167,7 @@ class WorldModelState:
         self._version += 1
         self._updated_at = datetime.utcnow()
 
-    def update_entity(
-        self, entity_id: str, updates: dict[str, Any]
-    ) -> Optional[Entity]:
+    def update_entity(self, entity_id: str, updates: dict[str, Any]) -> Entity | None:
         """
         Update entity attributes.
 
@@ -239,7 +238,7 @@ class WorldModelState:
 
         return True
 
-    def list_entities(self, entity_type: Optional[str] = None) -> list[Entity]:
+    def list_entities(self, entity_type: str | None = None) -> list[Entity]:
         """
         List entities, optionally filtered by type.
 
@@ -346,7 +345,7 @@ class WorldModelState:
         self._version += 1
         self._updated_at = datetime.utcnow()
 
-    def get_causal_graph(self) -> Optional[CausalGraph]:
+    def get_causal_graph(self) -> CausalGraph | None:
         """
         Get causal graph reference.
 
@@ -488,7 +487,7 @@ class WorldModelState:
         """
         return list(self._relations.values())
 
-    def get_relation(self, relation_id: str) -> Optional[Relation]:
+    def get_relation(self, relation_id: str) -> Relation | None:
         """
         Retrieve relation by ID.
 

@@ -46,7 +46,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -101,7 +101,7 @@ class ReflectRequest(BaseModel):
     focus: str = Field(
         default="general", description="Focus area (general, failures, patterns)"
     )
-    goals: Optional[list[str]] = Field(
+    goals: list[str] | None = Field(
         default=None, description="Goals to evaluate against"
     )
 
@@ -110,7 +110,7 @@ class ReflectResponse(BaseModel):
     """Response model for reflection result."""
 
     success: bool = Field(..., description="Whether operation succeeded")
-    analysis: Optional[dict[str, Any]] = Field(
+    analysis: dict[str, Any] | None = Field(
         default=None, description="Analysis of successes, failures, patterns"
     )
     insights: list[dict[str, Any]] = Field(
@@ -129,7 +129,7 @@ class ReflectResponse(BaseModel):
         default_factory=list, description="Meta-level observations"
     )
     summary: str = Field(default="", description="Summary of reflection")
-    error: Optional[str] = Field(default=None, description="Error message if failed")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 class AnalyzeFailureRequest(BaseModel):
@@ -137,14 +137,14 @@ class AnalyzeFailureRequest(BaseModel):
 
     failure_context: dict[str, Any] = Field(..., description="Context of the failure")
     error: str = Field(..., min_length=1, description="Error message")
-    stack_trace: Optional[str] = Field(default=None, description="Optional stack trace")
+    stack_trace: str | None = Field(default=None, description="Optional stack trace")
 
 
 class AnalyzeFailureResponse(BaseModel):
     """Response model for failure analysis."""
 
     success: bool = Field(..., description="Whether operation succeeded")
-    root_cause_analysis: Optional[dict[str, Any]] = Field(
+    root_cause_analysis: dict[str, Any] | None = Field(
         default=None, description="Root cause analysis"
     )
     similar_past_failures: list[str] = Field(
@@ -163,7 +163,7 @@ class AnalyzeFailureResponse(BaseModel):
         default_factory=list, description="Broader systemic changes"
     )
     lessons: list[str] = Field(default_factory=list, description="Key lessons")
-    error: Optional[str] = Field(default=None, description="Error message if failed")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 class CompareApproachesRequest(BaseModel):
@@ -181,7 +181,7 @@ class CompareApproachesResponse(BaseModel):
     comparison: list[dict[str, Any]] = Field(
         default_factory=list, description="Per-criterion comparison"
     )
-    overall_scores: Optional[dict[str, float]] = Field(
+    overall_scores: dict[str, float] | None = Field(
         default=None, description="Overall scores for each approach"
     )
     recommendation: str = Field(
@@ -195,7 +195,7 @@ class CompareApproachesResponse(BaseModel):
         default_factory=list, description="When each is better"
     )
     reasoning: str = Field(default="", description="Reasoning behind recommendation")
-    error: Optional[str] = Field(default=None, description="Error message if failed")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 class ExtractPatternsRequest(BaseModel):
@@ -226,7 +226,7 @@ class ExtractPatternsResponse(BaseModel):
         default_factory=list, description="Broader rules derived"
     )
     confidence: float = Field(default=0.0, description="Confidence in patterns")
-    error: Optional[str] = Field(default=None, description="Error message if failed")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 class GenerateImprovementsRequest(BaseModel):
@@ -242,7 +242,7 @@ class GenerateImprovementsResponse(BaseModel):
     """Response model for improvement generation."""
 
     success: bool = Field(..., description="Whether operation succeeded")
-    gap_analysis: Optional[dict[str, Any]] = Field(
+    gap_analysis: dict[str, Any] | None = Field(
         default=None, description="Current vs goal gap analysis"
     )
     improvement_plan: list[dict[str, Any]] = Field(
@@ -256,7 +256,7 @@ class GenerateImprovementsResponse(BaseModel):
     )
     risks: list[str] = Field(default_factory=list, description="Potential risks")
     measurement_plan: str = Field(default="", description="How to track progress")
-    error: Optional[str] = Field(default=None, description="Error message if failed")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 class LessonsLearnedResponse(BaseModel):
@@ -267,6 +267,7 @@ class LessonsLearnedResponse(BaseModel):
         default_factory=list, description="Accumulated lessons"
     )
     count: int = Field(default=0, description="Number of lessons")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 # ============================================================================
@@ -336,11 +337,10 @@ async def reflect(
                 meta_observations=output.get("meta_observations", []),
                 summary=output.get("summary", ""),
             )
-        else:
-            return ReflectResponse(
-                success=False,
-                error=response.content or "Reflection failed",
-            )
+        return ReflectResponse(
+            success=False,
+            error=response.content or "Reflection failed",
+        )
     except Exception as e:
         logger.error("reflection_agent.reflect failed", error=str(e), exc_info=True)
         return ReflectResponse(success=False, error=str(e))
@@ -383,11 +383,10 @@ async def analyze_failure(
                 systemic_changes=result.get("systemic_changes", []),
                 lessons=result.get("lessons", []),
             )
-        else:
-            return AnalyzeFailureResponse(
-                success=False,
-                error="Failure analysis returned empty result",
-            )
+        return AnalyzeFailureResponse(
+            success=False,
+            error="Failure analysis returned empty result",
+        )
     except Exception as e:
         logger.error(
             "reflection_agent.analyze_failure failed", error=str(e), exc_info=True
@@ -431,11 +430,10 @@ async def compare_approaches(
                 context_dependencies=result.get("context_dependencies", []),
                 reasoning=result.get("reasoning", ""),
             )
-        else:
-            return CompareApproachesResponse(
-                success=False,
-                error="Comparison returned empty result",
-            )
+        return CompareApproachesResponse(
+            success=False,
+            error="Comparison returned empty result",
+        )
     except Exception as e:
         logger.error(
             "reflection_agent.compare_approaches failed", error=str(e), exc_info=True
@@ -474,11 +472,10 @@ async def extract_patterns(
                 generalizations=result.get("generalizations", []),
                 confidence=result.get("confidence", 0.0),
             )
-        else:
-            return ExtractPatternsResponse(
-                success=False,
-                error="Pattern extraction returned empty result",
-            )
+        return ExtractPatternsResponse(
+            success=False,
+            error="Pattern extraction returned empty result",
+        )
     except Exception as e:
         logger.error(
             "reflection_agent.extract_patterns failed", error=str(e), exc_info=True
@@ -520,11 +517,10 @@ async def generate_improvements(
                 risks=result.get("risks", []),
                 measurement_plan=result.get("measurement_plan", ""),
             )
-        else:
-            return GenerateImprovementsResponse(
-                success=False,
-                error="Improvement generation returned empty result",
-            )
+        return GenerateImprovementsResponse(
+            success=False,
+            error="Improvement generation returned empty result",
+        )
     except Exception as e:
         logger.error(
             "reflection_agent.generate_improvements failed", error=str(e), exc_info=True

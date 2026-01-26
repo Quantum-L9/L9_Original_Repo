@@ -137,11 +137,14 @@ async def memory_search(
     try:
         # Use substrate semantic search
         if hasattr(substrate_service, "semantic_search"):
-            results = await substrate_service.semantic_search(
+            from core.schemas import SemanticSearchRequest
+
+            request = SemanticSearchRequest(
                 query=query,
                 agent_id=agent_id,
-                limit=limit,
+                top_k=limit,
             )
+            results = await substrate_service.semantic_search(request)
         elif hasattr(substrate_service, "search"):
             results = await substrate_service.search(
                 query=query,
