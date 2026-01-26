@@ -9,6 +9,7 @@ select = [
 ]
 ignore = [
     "E501",    # Line too long (formatter handles)
+    "E402",    # Module level import not at top (DORA metadata pattern - ADR-0014)
     "B008",    # Function call in defaults (FastAPI Depends)
     "N802",    # Function name lowercase (LangGraph)
     "S101",    # Assert in tests

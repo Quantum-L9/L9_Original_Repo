@@ -31,7 +31,7 @@ __dora_meta__ = {
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -69,9 +69,9 @@ class Context:
 
     agent_id: str
     task_id: str
-    main_context: List[Memory]
-    working_memory: List[Memory]
-    archival_memory: Optional[List[Memory]] = None
+    main_context: list[Memory]
+    working_memory: list[Memory]
+    archival_memory: list[Memory] | None = None
 
 
 class VirtualContextManager:
@@ -79,7 +79,7 @@ class VirtualContextManager:
 
     def __init__(
         self,
-        substrate_service: "MemorySubstrateService",
+        substrate_service: MemorySubstrateService,
         llm_service: Any = None,
         neo4j_driver: Any = None,
         main_context_size: int = 4096,
@@ -146,7 +146,7 @@ class VirtualContextManager:
         agent_id: str,
         query: str,
         limit: int = 10,
-    ) -> List[Memory]:
+    ) -> list[Memory]:
         """Retrieve from archival when agent needs it (like OS page fault)"""
 
         try:
@@ -180,7 +180,9 @@ class VirtualContextManager:
         """Move old memories to archival tier"""
 
         try:
-            if strategy == "lru":
+            if strategy == "semantic" and self.llm is not None:
+                await self._evict_semantic(context)
+            else:
                 await self._evict_lru(context)
 
             self.metrics["evictions"] += 1
@@ -209,13 +211,80 @@ class VirtualContextManager:
 
         logger.info("LRU eviction complete", archived=len(to_archive))
 
+    async def _evict_semantic(self, context: Context) -> None:
+        """
+        LLM-driven semantic eviction: keep most relevant memories.
+
+        Uses LLM to score each memory's importance and relevance,
+        archiving the lowest-scored 50% instead of purely oldest.
+        """
+        if not context.main_context:
+            return
+
+        # Build memory summaries for LLM
+        memory_summaries = []
+        for i, mem in enumerate(context.main_context):
+            summary = f"[{i}] ({mem.created_at}): {mem.content[:200]}..."
+            memory_summaries.append(summary)
+
+        eviction_prompt = f"""You are a memory management system. Given these memories, identify which should be ARCHIVED (less important) vs KEPT (more important).
+
+Consider:
+- Recency: Recent memories are usually more relevant
+- Importance: Facts, decisions, user preferences are important
+- Redundancy: Duplicate information can be archived
+- Actionability: Task-related memories should stay
+
+MEMORIES:
+{chr(10).join(memory_summaries)}
+
+Return a comma-separated list of memory indices to ARCHIVE (the less important half).
+Example response: 0, 3, 5, 7
+
+Respond with ONLY the indices to archive:"""
+
+        try:
+            response = await self.llm.complete(eviction_prompt)
+            # Parse indices from response
+            indices_text = response.strip()
+            indices_to_archive = [
+                int(idx.strip())
+                for idx in indices_text.split(",")
+                if idx.strip().isdigit()
+            ]
+
+            # Archive selected memories
+            archived_count = 0
+            for idx in indices_to_archive:
+                if 0 <= idx < len(context.main_context):
+                    memory = context.main_context[idx]
+                    if hasattr(self.substrate, "update_memory_tier"):
+                        await self.substrate.update_memory_tier(
+                            memory_id=memory.id,
+                            new_tier=MemoryTier.ARCHIVAL_MEMORY,
+                        )
+                        archived_count += 1
+
+            logger.info(
+                "Semantic eviction complete",
+                archived=archived_count,
+                total=len(context.main_context),
+            )
+
+        except Exception as e:
+            logger.warning(
+                "Semantic eviction failed, falling back to LRU",
+                error=str(e),
+            )
+            await self._evict_lru(context)
+
     async def _load_tier(
         self,
         agent_id: str,
         tier: MemoryTier,
         limit: int,
-        task_id: Optional[str] = None,
-    ) -> List[Memory]:
+        task_id: str | None = None,
+    ) -> list[Memory]:
         """Load memories from specific tier"""
 
         try:
@@ -241,7 +310,7 @@ class MemoryConsolidationService:
 
     def __init__(
         self,
-        substrate_service: "MemorySubstrateService",
+        substrate_service: MemorySubstrateService,
         llm_service: Any = None,
         neo4j_driver: Any = None,
     ):
@@ -261,8 +330,8 @@ class MemoryConsolidationService:
         """Extract and consolidate memories from conversation"""
 
         try:
-            # Simple extraction without LLM for now
-            facts = self._simple_extract(conversation_text)
+            # LLM-driven extraction with heuristic fallback
+            facts = await self._extract_facts(conversation_text)
             self.metrics["facts_extracted"] += len(facts)
 
             # Store facts
@@ -279,8 +348,52 @@ class MemoryConsolidationService:
         except Exception as e:
             logger.error("Consolidation error", error=str(e))
 
-    def _simple_extract(self, text: str) -> List[str]:
-        """Simple fact extraction (sentences with key patterns)"""
+    async def _extract_facts(self, text: str) -> list[str]:
+        """
+        Extract facts from conversation using LLM or fallback heuristics.
+
+        LLM-driven extraction identifies:
+        - User preferences and corrections
+        - Important decisions and learnings
+        - Factual statements worth preserving
+        """
+        if self.llm is not None:
+            return await self._llm_extract_facts(text)
+        return self._simple_extract(text)
+
+    async def _llm_extract_facts(self, text: str) -> list[str]:
+        """LLM-driven fact extraction for high-quality consolidation."""
+        extraction_prompt = f"""Extract the most important FACTS from this conversation that should be remembered long-term.
+
+Focus on:
+1. User preferences (e.g., "I prefer X over Y")
+2. Corrections (e.g., "Actually, the correct way is...")
+3. Important decisions (e.g., "We decided to use X")
+4. Learnings (e.g., "I learned that X")
+5. Key facts (e.g., "The API endpoint is X")
+
+CONVERSATION:
+{text[:4000]}  # Limit to avoid token overflow
+
+Return each fact on a new line. Maximum 10 facts.
+Facts only, no explanations or numbering."""
+
+        try:
+            response = await self.llm.complete(extraction_prompt)
+            facts = [
+                line.strip()
+                for line in response.strip().split("\n")
+                if line.strip() and len(line.strip()) > 10
+            ]
+            logger.info("LLM fact extraction complete", facts=len(facts))
+            return facts[:10]
+
+        except Exception as e:
+            logger.warning("LLM extraction failed, using heuristic", error=str(e))
+            return self._simple_extract(text)
+
+    def _simple_extract(self, text: str) -> list[str]:
+        """Fallback: Simple fact extraction using heuristics."""
         sentences = text.split(".")
         facts = []
 

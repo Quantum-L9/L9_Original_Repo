@@ -334,6 +334,14 @@ try:
 except ImportError:
     _has_observability_router = False
 
+# Optional: Evaluation Router (GMP-WIRE-VC-EQ)
+try:
+    from api.routes.evaluation import router as evaluation_router
+
+    _has_evaluation_router = True
+except ImportError:
+    _has_evaluation_router = False
+
 # Optional: Kernel-Aware Agent Registry (v2.5+)
 try:
     from core.agents.kernel_registry import (
@@ -454,7 +462,7 @@ except ImportError:
 
 # Optional: Evaluator (v3.1+ Stage 3)
 try:
-    from core.evaluation.evaluator import Evaluator
+    from core.evaluation import Evaluator, load_default_eval_sets
 
     _has_evaluator = True
 except ImportError:
@@ -2046,11 +2054,18 @@ async def lifespan(app: FastAPI):
         # 4. Evaluator (LLM-as-judge + CI/CD gates)
         if _has_evaluator and substrate:
             try:
+                llm_for_eval = getattr(app.state, "llm_service", None)
                 evaluator = Evaluator(
                     substrate_service=substrate,
+                    llm_service=llm_for_eval,
                 )
+                # Load default evaluation sets
+                load_default_eval_sets(evaluator)
                 app.state.evaluator = evaluator
-                logger.info("✓ Evaluator initialized (LLM-as-judge)")
+                logger.info(
+                    "✓ Evaluator initialized (LLM-as-judge, %d eval sets)",
+                    len(evaluator.eval_sets),
+                )
             except Exception as e:
                 logger.error(f"❌ Evaluator init failed: {e}", exc_info=True)
                 app.state.evaluator = None
@@ -2058,6 +2073,27 @@ async def lifespan(app: FastAPI):
             app.state.evaluator = None
             if not _has_evaluator:
                 logger.debug("Evaluator module not available")
+
+        # Wire Stage 3 services to AgentExecutor
+        agent_executor = getattr(app.state, "agent_executor", None)
+        if agent_executor is not None:
+            # Wire ToolAuditService for execution tracking
+            tool_audit = getattr(app.state, "tool_audit_service", None)
+            if tool_audit is not None:
+                agent_executor.set_tool_audit_service(tool_audit)
+                logger.info("✓ ToolAuditService wired to AgentExecutor")
+
+            # Wire VirtualContextManager for tiered memory
+            virtual_ctx = getattr(app.state, "virtual_context_manager", None)
+            if virtual_ctx is not None:
+                agent_executor.set_virtual_context_manager(virtual_ctx)
+                logger.info("✓ VirtualContextManager wired to AgentExecutor")
+
+            # Wire EventQueue for async coordination
+            event_queue = getattr(app.state, "event_queue", None)
+            if event_queue is not None:
+                agent_executor.set_event_queue(event_queue)
+                logger.info("✓ EventQueue wired to AgentExecutor")
 
         logger.info("Stage 3 module wiring complete")
     else:
@@ -2758,6 +2794,18 @@ app = FastAPI(
     **get_openapi_config(),
     lifespan=lifespan,
 )
+
+# =============================================================================
+# ROUTE REGISTRATION
+# =============================================================================
+
+# Register Observability Router (GMP-91)
+if _has_observability_router:
+    app.include_router(observability_router, prefix="/api")
+
+# Register Evaluation Router (GMP-WIRE-VC-EQ)
+if _has_evaluation_router:
+    app.include_router(evaluation_router, prefix="/api")
 
 
 # Add security schemes to OpenAPI schema

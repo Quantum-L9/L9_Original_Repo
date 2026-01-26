@@ -29,10 +29,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -52,6 +53,11 @@ class EventKind(Enum):
     ERROR = "error"
     STATUS_UPDATE = "status_update"
     HEARTBEAT = "heartbeat"
+    # Task lifecycle events (Stage 7: GMP-WIRE-VC-EQ)
+    TASK_CREATED = "task_created"
+    TASK_STARTED = "task_started"
+    TASK_COMPLETED = "task_completed"
+    TASK_FAILED = "task_failed"
 
 
 @dataclass
@@ -62,8 +68,8 @@ class Event:
     source_agent: str
     target_agent: str
     payload: dict
-    request_id: Optional[str] = None
-    timestamp: Optional[str] = None
+    request_id: str | None = None
+    timestamp: str | None = None
 
     def __post_init__(self):
         if not self.request_id:
@@ -77,7 +83,7 @@ class EventQueue:
 
     def __init__(self, max_size: int = 10000, backpressure_enabled: bool = True):
         self.queue: asyncio.Queue = asyncio.Queue(maxsize=max_size)
-        self.subscribers: Dict[str, List[Callable]] = {}  # agent_id → handlers
+        self.subscribers: dict[str, list[Callable]] = {}  # agent_id → handlers
         self.backpressure_enabled = backpressure_enabled
         self.metrics = {
             "events_published": 0,
@@ -101,7 +107,7 @@ class EventQueue:
                 # Wait for space (upstream agent pauses)
                 try:
                     await asyncio.wait_for(self.queue.put(event), timeout=5.0)
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     self.metrics["events_dropped"] += 1
                     logger.error("Event timeout (backpressure)", kind=event.kind.value)
                     return False
@@ -169,7 +175,7 @@ class EventQueue:
                     self.metrics["events_processed"] += 1
                     self.queue.task_done()
 
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     # No events in last 60s, continue
                     continue
 
@@ -195,7 +201,7 @@ class EventRouter:
 
     def __init__(self, event_queue: EventQueue):
         self.queue = event_queue
-        self.routes: Dict[EventKind, List[Callable]] = {}
+        self.routes: dict[EventKind, list[Callable]] = {}
 
     @must_stay_async("callers use await")
     async def register_route(self, event_kind: EventKind, handler: Callable) -> None:

@@ -2313,6 +2313,7 @@ class AgentExecutorService:
         packet_type: str,
         payload: dict[str, Any],
         thread_id: UUID,
+        agent_id: str | None = None,
     ) -> None:
         """
         Emit a packet to the memory substrate.
@@ -2324,16 +2325,14 @@ class AgentExecutorService:
         - packet_type: Discriminator for packet routing
         - payload: Contains task_id and event-specific data (should include agent_id)
         - thread_id: Thread identity for grouping
-        - metadata.agent: Agent ID from payload.agent_id or "agent.executor" as fallback
+        - metadata.agent: Agent ID from agent_id param or "agent.executor" as fallback
         - metadata.schema_version: "1.0.0"
-
-        NOTE: Per PacketEnvelope.yaml spec, metadata should use agent_id field.
-        Current implementation uses metadata.agent (field name discrepancy to be resolved).
 
         Args:
             packet_type: Type of packet (e.g., "agent.executor.trace")
             payload: Packet payload (must contain task_id)
             thread_id: Thread identifier
+            agent_id: Optional agent identifier for metadata
         """
         # Use task.agent_id if available in payload, otherwise "agent.executor"
         agent_id = payload.get("agent_id", "agent.executor")

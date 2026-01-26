@@ -32,7 +32,7 @@ import statistics
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -49,10 +49,10 @@ class EvaluationExample:
     """Single evaluation case"""
 
     input_text: str
-    expected_output: Optional[str] = None
-    expected_tools: Optional[List[str]] = None
-    task_type: Optional[str] = None
-    success_criteria: Optional[str] = None
+    expected_output: dict[str, Any] | str | None = None
+    expected_tools: list[str] | None = None
+    task_type: str | None = None
+    success_criteria: str | None = None
 
 
 @dataclass
@@ -60,7 +60,7 @@ class EvaluationSet:
     """Collection of evaluation examples"""
 
     name: str
-    examples: List[EvaluationExample]
+    examples: list[EvaluationExample]
     description: str = ""
 
 
@@ -94,19 +94,19 @@ class Evaluator:
 
     def __init__(
         self,
-        substrate_service: "MemorySubstrateService",
+        substrate_service: MemorySubstrateService,
         llm_service: Any = None,
         agent_service: Any = None,
     ):
         self.substrate = substrate_service
         self.llm = llm_service
         self.agent_service = agent_service
-        self.eval_sets: Dict[str, EvaluationSet] = {}
+        self.eval_sets: dict[str, EvaluationSet] = {}
 
     def define_eval_set(
         self,
         name: str,
-        examples: List[EvaluationExample],
+        examples: list[EvaluationExample],
         description: str = "",
     ) -> None:
         """Define evaluation set"""
@@ -172,8 +172,12 @@ class Evaluator:
                     )
                     tool_accuracy_scores.append(tool_acc)
 
-                # Simple scoring without LLM judge
-                judge_score = 0.8 if output.get("text") else 0.0
+                # LLM-as-judge scoring
+                judge_score = await self._judge_output(
+                    example.input_text,
+                    example.expected_output,
+                    output,
+                )
                 llm_judge_scores.append(judge_score)
 
                 if judge_score > 0.7:
@@ -226,8 +230,8 @@ class Evaluator:
 
     def _compute_tool_accuracy(
         self,
-        tools_used: List[str],
-        expected_tools: List[str],
+        tools_used: list[str],
+        expected_tools: list[str],
     ) -> float:
         """Jaccard similarity: intersection / union"""
 
@@ -240,18 +244,210 @@ class Evaluator:
         return intersection / union if union > 0 else 0.0
 
     @must_stay_async("callers use await")
+    async def _judge_output(
+        self,
+        input_text: str,
+        expected: dict[str, Any],
+        actual: dict[str, Any],
+    ) -> float:
+        """
+        LLM-as-judge: Score output quality 0-1.
+
+        Uses LLM to compare expected vs actual output and provide
+        a quality score based on semantic similarity, completeness,
+        and correctness.
+        """
+        if self.llm is None:
+            # Fallback: simple heuristic if no LLM configured
+            if not actual.get("text"):
+                return 0.0
+            if expected.get("text") and expected["text"] in str(actual.get("text", "")):
+                return 1.0
+            return 0.5
+
+        judge_prompt = f"""You are an evaluation judge. Score the agent's output quality from 0.0 to 1.0.
+
+INPUT: {input_text}
+
+EXPECTED OUTPUT: {expected}
+
+ACTUAL OUTPUT: {actual}
+
+Scoring criteria:
+- 1.0: Perfect match or semantically equivalent
+- 0.8-0.9: Correct with minor differences
+- 0.5-0.7: Partially correct
+- 0.2-0.4: Some relevant content but mostly wrong
+- 0.0-0.1: Completely wrong or no output
+
+Respond with ONLY a single decimal number between 0.0 and 1.0."""
+
+        try:
+            response = await self.llm.complete(judge_prompt)
+            # Parse score from response
+            score_text = response.strip()
+            score = float(score_text)
+            return max(0.0, min(1.0, score))  # Clamp to [0, 1]
+
+        except (ValueError, AttributeError) as e:
+            logger.warning("LLM judge parse error, using fallback", error=str(e))
+            return 0.5 if actual.get("text") else 0.0
+
+    @must_stay_async("callers use await")
+    async def store_eval_result(self, result: EvaluationResult) -> bool:
+        """
+        Store evaluation result to PostgreSQL for baseline tracking.
+
+        Creates record in eval_results table for regression detection.
+        """
+        if not hasattr(self.substrate, "execute_sql"):
+            logger.warning("Substrate doesn't support SQL, skipping store")
+            return False
+
+        try:
+            await self.substrate.execute_sql(
+                """
+                INSERT INTO eval_results (
+                    eval_set_name, agent_id, version, success_rate,
+                    avg_latency_ms, tool_accuracy, llm_judge_score, created_at
+                ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+                """,
+                result.eval_set_name,
+                result.agent_id,
+                result.version,
+                result.task_success_rate,
+                result.avg_latency_ms,
+                result.tool_accuracy,
+                result.llm_as_judge_score,
+            )
+            logger.info(
+                "Stored eval result",
+                eval_set=result.eval_set_name,
+                agent=result.agent_id,
+                success_rate=f"{result.task_success_rate:.1%}",
+            )
+            return True
+
+        except Exception as e:
+            logger.error("Failed to store eval result", error=str(e))
+            return False
+
+    @must_stay_async("callers use await")
+    async def get_baseline(
+        self,
+        agent_id: str,
+        eval_set_name: str,
+        version: str = "latest",
+    ) -> EvaluationResult | None:
+        """
+        Retrieve baseline evaluation result from PostgreSQL.
+
+        Args:
+            agent_id: Agent to get baseline for
+            eval_set_name: Evaluation set name
+            version: Specific version or "latest" for most recent
+
+        Returns:
+            EvaluationResult or None if no baseline exists
+        """
+        if not hasattr(self.substrate, "fetch_one"):
+            logger.warning("Substrate doesn't support fetch, no baseline available")
+            return None
+
+        try:
+            if version == "latest":
+                row = await self.substrate.fetch_one(
+                    """
+                    SELECT eval_set_name, agent_id, version, success_rate,
+                           avg_latency_ms, tool_accuracy, llm_judge_score, created_at
+                    FROM eval_results
+                    WHERE agent_id = $1 AND eval_set_name = $2
+                    ORDER BY created_at DESC
+                    LIMIT 1
+                    """,
+                    agent_id,
+                    eval_set_name,
+                )
+            else:
+                row = await self.substrate.fetch_one(
+                    """
+                    SELECT eval_set_name, agent_id, version, success_rate,
+                           avg_latency_ms, tool_accuracy, llm_judge_score, created_at
+                    FROM eval_results
+                    WHERE agent_id = $1 AND eval_set_name = $2 AND version = $3
+                    ORDER BY created_at DESC
+                    LIMIT 1
+                    """,
+                    agent_id,
+                    eval_set_name,
+                    version,
+                )
+
+            if not row:
+                return None
+
+            return EvaluationResult(
+                agent_id=row["agent_id"],
+                eval_set_name=row["eval_set_name"],
+                timestamp=str(row["created_at"]),
+                version=row["version"],
+                examples_run=0,  # Not stored, used for delta calculation only
+                examples_passed=0,
+                avg_latency_ms=row["avg_latency_ms"],
+                max_latency_ms=0,
+                min_latency_ms=0,
+                p95_latency_ms=0,
+                tool_accuracy=row["tool_accuracy"],
+                llm_as_judge_score=row["llm_judge_score"],
+            )
+
+        except Exception as e:
+            logger.error("Failed to get baseline", error=str(e))
+            return None
+
+    @must_stay_async("callers use await")
     async def compare_to_baseline(
         self,
         current: EvaluationResult,
         baseline_version: str = "latest",
-    ) -> Dict[str, float]:
-        """Compare current results to baseline"""
+    ) -> dict[str, float]:
+        """
+        Compare current results to baseline from database.
 
-        # For now, return empty delta (baseline not implemented)
+        Returns deltas for all key metrics. Positive delta = improvement,
+        negative delta = regression.
+        """
+        baseline = await self.get_baseline(
+            current.agent_id,
+            current.eval_set_name,
+            baseline_version,
+        )
+
+        if baseline is None:
+            logger.info(
+                "No baseline found, storing current as baseline",
+                agent=current.agent_id,
+                eval_set=current.eval_set_name,
+            )
+            await self.store_eval_result(current)
+            return {
+                "task_success_rate_delta": 0.0,
+                "latency_delta_ms": 0.0,
+                "tool_accuracy_delta": 0.0,
+                "llm_judge_delta": 0.0,
+                "is_first_baseline": True,
+            }
+
+        # Calculate deltas (positive = improvement)
         return {
-            "task_success_rate_delta": 0.0,
-            "latency_delta_ms": 0.0,
-            "tool_accuracy_delta": 0.0,
+            "task_success_rate_delta": current.task_success_rate
+            - baseline.task_success_rate,
+            "latency_delta_ms": baseline.avg_latency_ms
+            - current.avg_latency_ms,  # Lower is better
+            "tool_accuracy_delta": current.tool_accuracy - baseline.tool_accuracy,
+            "llm_judge_delta": current.llm_as_judge_score - baseline.llm_as_judge_score,
+            "baseline_version": baseline.version,
+            "is_first_baseline": False,
         }
 
 
@@ -265,7 +461,7 @@ async def ci_eval_gate(
     agent_id: str,
     eval_set_name: str,
     evaluator: Evaluator,
-    thresholds: Optional[Dict[str, float]] = None,
+    thresholds: dict[str, float] | None = None,
 ) -> None:
     """Block PRs that regress eval scores"""
 
