@@ -6,6 +6,8 @@ Orchestrating service that coordinates repository, semantic, and graph layers.
 Provides a unified interface for substrate operations.
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Service Layer",
