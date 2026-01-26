@@ -23,6 +23,13 @@ ignore_missing_imports = true
 warn_return_any = false
 warn_unused_ignores = false
 python_version = "3.12"
+# Pydantic plugin - CRITICAL for understanding Field() defaults
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
 
 # Temporarily relax checking for legacy modules with pre-existing failures
 # This prevents pre-commit from blocking unrelated changes while we gradually improve typing

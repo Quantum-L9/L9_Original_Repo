@@ -43,7 +43,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Literal, Optional
+from typing import TYPE_CHECKING, Literal
 
 import structlog
 
@@ -66,8 +66,8 @@ class AgentSelfModifyTool:
 
     def __init__(
         self,
-        neo4j_driver: "AsyncDriver",
-        substrate_service: Optional["MemorySubstrateService"] = None,
+        neo4j_driver: AsyncDriver,
+        substrate_service: MemorySubstrateService | None = None,
     ):
         self.neo4j = neo4j_driver
         self.substrate = substrate_service
@@ -334,21 +334,18 @@ class AgentSelfModifyTool:
             return
 
         try:
-            from core.schemas import PacketEnvelopeIn, PacketMetadata
+            from core.schemas import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
                 packet_type="agent_self_modify",
-                agent_id=agent_id,
-                source_id=f"agent_self_modify:{agent_id}",
                 payload={
                     "action": action,
                     "details": details,
                     "timestamp": datetime.utcnow().isoformat(),
                 },
-                metadata=PacketMetadata(
-                    agent=agent_id,
-                    tags=["self_modify", action],
-                ),
+                provenance={"source": f"agent_self_modify:{agent_id}"},
+                metadata={"agent": agent_id},
+                tags=["self_modify", action],
             )
 
             await self.substrate.write_packet(packet)
@@ -423,8 +420,8 @@ AGENT_SELF_MODIFY_TOOL_DEFINITIONS = [
 
 
 def create_self_modify_tool(
-    neo4j_driver: "AsyncDriver",
-    substrate_service: Optional["MemorySubstrateService"] = None,
+    neo4j_driver: AsyncDriver,
+    substrate_service: MemorySubstrateService | None = None,
 ) -> AgentSelfModifyTool:
     """
     Factory function to create AgentSelfModifyTool.

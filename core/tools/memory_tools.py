@@ -32,7 +32,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -81,8 +81,8 @@ class MemorySearchResult:
     content: str
     segment: str
     relevance_score: float
-    created_at: Optional[datetime] = None
-    metadata: Optional[Dict[str, Any]] = None
+    created_at: datetime | None = None
+    metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -90,17 +90,17 @@ class MemoryWriteResult:
     """Result from memory write"""
 
     success: bool
-    chunk_id: Optional[str] = None
-    error: Optional[str] = None
+    chunk_id: str | None = None
+    error: str | None = None
 
 
 async def memory_search(
     agent_id: str,
     query: str,
-    segment: Optional[str] = None,
+    segment: str | None = None,
     limit: int = 10,
-    substrate_service: Optional["MemorySubstrateService"] = None,
-) -> List[MemorySearchResult]:
+    substrate_service: MemorySubstrateService | None = None,
+) -> list[MemorySearchResult]:
     """
     Search agent memory for relevant information.
 
@@ -206,8 +206,8 @@ async def memory_write(
     agent_id: str,
     content: str,
     segment: str = "session_context",
-    metadata: Optional[Dict[str, Any]] = None,
-    substrate_service: Optional["MemorySubstrateService"] = None,
+    metadata: dict[str, Any] | None = None,
+    substrate_service: MemorySubstrateService | None = None,
 ) -> MemoryWriteResult:
     """
     Write to agent memory.
@@ -247,12 +247,12 @@ async def memory_write(
 
         # Write via substrate
         if hasattr(substrate_service, "write_packet"):
-            from core.schemas import PacketEnvelope, PacketKind
+            from core.schemas import PacketEnvelope
 
             packet = PacketEnvelope(
-                kind=PacketKind.MEMORY_WRITE,
-                agent_id=agent_id,
+                packet_type="memory_write",
                 payload=payload,
+                metadata={"agent": agent_id},
             )
 
             result = await substrate_service.write_packet(packet)
@@ -267,14 +267,13 @@ async def memory_write(
 
             return MemoryWriteResult(success=True, chunk_id=chunk_id)
 
-        elif hasattr(substrate_service, "ingest"):
+        if hasattr(substrate_service, "ingest"):
             result = await substrate_service.ingest(payload)
             chunk_id = getattr(result, "id", None)
             return MemoryWriteResult(success=True, chunk_id=chunk_id)
 
-        else:
-            logger.warning("memory_write: no write method available")
-            return MemoryWriteResult(success=False, error="No write method available")
+        logger.warning("memory_write: no write method available")
+        return MemoryWriteResult(success=False, error="No write method available")
 
     except Exception as e:
         logger.error("memory_write failed", error=str(e))
@@ -362,7 +361,7 @@ async def register_memory_tools(
     # Create executor closures that capture the substrate_service
     async def memory_search_executor(
         agent_id: str, **kwargs
-    ) -> List[MemorySearchResult]:
+    ) -> list[MemorySearchResult]:
         return await memory_search(
             agent_id=agent_id,
             query=kwargs.get("query", ""),

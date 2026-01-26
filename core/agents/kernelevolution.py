@@ -36,8 +36,8 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -65,14 +65,14 @@ class KernelUpdateProposal:
     title: str
     description: str
     rationale: str
-    gaps_addressed: List[str]  # gap_ids
-    proposed_changes: List[Dict[str, Any]]
+    gaps_addressed: list[str]  # gap_ids
+    proposed_changes: list[dict[str, Any]]
     requires_igor_approval: bool
     confidence: float
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "proposal_id": self.proposal_id,
@@ -131,11 +131,11 @@ class EvolutionPlan:
     plan_id: str
     reflection_id: str
     agent_id: str
-    proposals: List[KernelUpdateProposal]
+    proposals: list[KernelUpdateProposal]
     total_gaps_addressed: int
     requires_igor_approval: bool
     estimated_impact: str  # LOW, MEDIUM, HIGH
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 # =============================================================================
@@ -165,18 +165,18 @@ def _determine_update_type(gap: BehaviorGap) -> str:
     """Determine the type of kernel update needed."""
     if gap.gap_type == "CAPABILITY":
         return "ADD_RULE"
-    elif gap.gap_type == "CONSTRAINT":
+    if gap.gap_type == "CONSTRAINT":
         return "ADD_CONSTRAINT"
-    elif gap.gap_type == "POLICY":
+    if gap.gap_type == "POLICY":
         return "MODIFY_RULE"
-    elif gap.gap_type == "PERFORMANCE":
+    if gap.gap_type == "PERFORMANCE":
         return "MODIFY_CONSTRAINT"
-    elif gap.gap_type == "SAFETY":
+    if gap.gap_type == "SAFETY":
         return "ADD_CONSTRAINT"
     return "MODIFY_RULE"
 
 
-def _generate_proposed_changes(gap: BehaviorGap) -> List[Dict[str, Any]]:
+def _generate_proposed_changes(gap: BehaviorGap) -> list[dict[str, Any]]:
     """Generate specific proposed changes for a gap."""
     changes = []
 
@@ -291,7 +291,7 @@ def generate_proposal_from_gap(gap: BehaviorGap) -> KernelUpdateProposal:
 
 def generate_proposals_from_reflection(
     reflection: ReflectionResult,
-) -> List[KernelUpdateProposal]:
+) -> list[KernelUpdateProposal]:
     """
     Generate kernel update proposals from a reflection result.
 
@@ -318,7 +318,7 @@ def generate_proposals_from_reflection(
 
 async def create_evolution_plan(
     reflection: ReflectionResult,
-    substrate_service: Optional[Any] = None,
+    substrate_service: Any | None = None,
 ) -> EvolutionPlan:
     """
     Create a comprehensive evolution plan from a reflection result.
@@ -371,7 +371,6 @@ async def create_evolution_plan(
 
             plan_packet = PacketEnvelopeIn(
                 packet_type="kernel.evolution.plan",
-                agent_id=reflection.agent_id,
                 payload={
                     "plan_id": plan.plan_id,
                     "reflection_id": plan.reflection_id,
@@ -394,8 +393,9 @@ async def create_evolution_plan(
                     "gmp_spec": generate_gmp_spec_from_plan(plan),
                 },
                 metadata={
+                    "agent": reflection.agent_id,
                     "source": "kernel_evolution",
-                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "created_at": datetime.now(UTC).isoformat(),
                 },
             )
             await substrate_service.write_packet(plan_packet)

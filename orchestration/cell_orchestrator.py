@@ -46,7 +46,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, Type
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -90,13 +90,13 @@ class CellStep:
 
     step_id: UUID = field(default_factory=uuid4)
     cell_type: str = ""
-    cell_instance: Optional[Any] = None  # BaseCell instance
+    cell_instance: Any | None = None  # BaseCell instance
     input_mapping: dict[str, str] = field(default_factory=dict)
     output_key: str = ""
     status: str = "pending"
-    result: Optional[Any] = None  # CellResult
+    result: Any | None = None  # CellResult
     duration_ms: int = 0
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass
@@ -111,8 +111,8 @@ class CellWorkflow:
     results: dict[str, Any] = field(default_factory=dict)
     current_step: int = 0
     created_at: datetime = field(default_factory=datetime.utcnow)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -194,7 +194,7 @@ class CellOrchestrator:
         result = await orchestrator.execute_workflow(workflow.workflow_id)
     """
 
-    def __init__(self, config: Optional[dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """
         Initialize the cell orchestrator.
 
@@ -207,11 +207,11 @@ class CellOrchestrator:
         """
         self._config = config or {}
         self._workflows: dict[UUID, CellWorkflow] = {}
-        self._cell_registry: dict[str, Type] = {}
+        self._cell_registry: dict[str, type] = {}
         self._cell_instances: dict[str, Any] = {}
 
         # Memory client (optional)
-        self._memory_client: Optional[Any] = None
+        self._memory_client: Any | None = None
 
         # Register default cells
         self._register_default_cells()
@@ -251,7 +251,7 @@ class CellOrchestrator:
     # Cell Registration
     # =========================================================================
 
-    def register_cell(self, name: str, cell_class: Type) -> None:
+    def register_cell(self, name: str, cell_class: type) -> None:
         """
         Register a cell type.
 
@@ -262,7 +262,7 @@ class CellOrchestrator:
         self._cell_registry[name] = cell_class
         logger.debug(f"Registered cell type: {name}")
 
-    def get_cell_class(self, name: str) -> Optional[Type]:
+    def get_cell_class(self, name: str) -> type | None:
         """Get a registered cell class by name."""
         return self._cell_registry.get(name)
 
@@ -295,7 +295,7 @@ class CellOrchestrator:
     async def run_architect_cell(
         self,
         ir_graph: Any,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Run the ArchitectCell to design architecture from IR graph.
@@ -344,7 +344,7 @@ class CellOrchestrator:
     async def run_coder_cell(
         self,
         plan: Any,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Run the CoderCell to implement code from execution plan.
@@ -392,7 +392,7 @@ class CellOrchestrator:
     async def run_reviewer_cell(
         self,
         code: dict[str, str],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Run the ReviewerCell to review code.
@@ -434,7 +434,7 @@ class CellOrchestrator:
     async def run_reflection_cell(
         self,
         history: list[dict[str, Any]],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Run the ReflectionCell for meta-analysis and learning.
@@ -514,7 +514,7 @@ class CellOrchestrator:
         self,
         name: str,
         steps: list[dict[str, Any]],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> CellWorkflow:
         """
         Create a cell workflow.
@@ -565,7 +565,7 @@ class CellOrchestrator:
     def create_design_to_code_workflow(
         self,
         requirements: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> CellWorkflow:
         """
         Create a design-to-code workflow.
@@ -615,7 +615,7 @@ class CellOrchestrator:
     def create_review_and_improve_workflow(
         self,
         code: dict[str, str],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> CellWorkflow:
         """
         Create a review and improvement workflow.
@@ -665,7 +665,7 @@ class CellOrchestrator:
     def create_full_pipeline_workflow(
         self,
         requirements: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> CellWorkflow:
         """
         Create a full pipeline workflow with all cells.
@@ -904,8 +904,7 @@ class CellOrchestrator:
             from core.schemas import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
-                source="cell_orchestrator",
-                kind="cell_execution",
+                packet_type="cell_execution",
                 payload={
                     "cell_type": cell_type,
                     "success": result.success,
@@ -915,6 +914,7 @@ class CellOrchestrator:
                     "duration_ms": result.duration_ms,
                     "error_count": len(result.errors),
                 },
+                provenance={"source": "cell_orchestrator"},
             )
 
             write_result = await self._memory_client.write_packet(packet)
@@ -928,7 +928,7 @@ class CellOrchestrator:
     # Workflow Management
     # =========================================================================
 
-    def get_workflow(self, workflow_id: UUID) -> Optional[CellWorkflow]:
+    def get_workflow(self, workflow_id: UUID) -> CellWorkflow | None:
         """Get a workflow by ID."""
         return self._workflows.get(workflow_id)
 

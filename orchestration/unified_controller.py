@@ -69,12 +69,13 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
 
 from core.decorators import must_stay_async
+
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import SegmentResult, get_segmenter
 
@@ -136,7 +137,7 @@ class ControllerConfig:
     min_simulation_score: float = 0.6
 
     # API
-    api_key: Optional[str] = None
+    api_key: str | None = None
     model: str = "gpt-4o"
 
     # Memory
@@ -157,14 +158,14 @@ class ControllerState:
     """Current state of the controller."""
 
     phase: ControllerPhase = ControllerPhase.IDLE
-    current_graph: Optional[Any] = None  # IRGraph
-    current_plan: Optional[Any] = None  # ExecutionPlan
-    routing_decision: Optional[Any] = None  # RoutingDecision
+    current_graph: Any | None = None  # IRGraph
+    current_plan: Any | None = None  # ExecutionPlan
+    routing_decision: Any | None = None  # RoutingDecision
     execution_history: list[dict[str, Any]] = field(default_factory=list)
     correction_count: int = 0
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
-    started_at: Optional[datetime] = None
+    started_at: datetime | None = None
     phase_times: dict[str, int] = field(default_factory=dict)
 
 
@@ -182,14 +183,14 @@ class ControllerResult:
     phase_reached: ControllerPhase = ControllerPhase.IDLE
 
     # Pipeline outputs
-    graph: Optional[Any] = None
-    plan: Optional[Any] = None
+    graph: Any | None = None
+    plan: Any | None = None
 
     # Routing info
-    task_type: Optional[str] = None
-    complexity: Optional[str] = None
-    risk: Optional[str] = None
-    route_target: Optional[str] = None
+    task_type: str | None = None
+    complexity: str | None = None
+    risk: str | None = None
+    route_target: str | None = None
 
     # Scores
     simulation_score: float = 0.0
@@ -269,7 +270,7 @@ class UnifiedController:
             logger.info(f"Artifacts: {result.artifacts}")
     """
 
-    def __init__(self, config: Optional[ControllerConfig] = None):
+    def __init__(self, config: ControllerConfig | None = None):
         """
         Initialize the unified controller.
 
@@ -280,23 +281,23 @@ class UnifiedController:
         self._state = ControllerState()
 
         # Sub-components (lazy-loaded)
-        self._router: Optional[Any] = None
-        self._kernel: Optional[Any] = None
-        self._cell_orchestrator: Optional[Any] = None
-        self._plan_executor: Optional[Any] = None
+        self._router: Any | None = None
+        self._kernel: Any | None = None
+        self._cell_orchestrator: Any | None = None
+        self._plan_executor: Any | None = None
 
         # IR Engine components
-        self._compiler: Optional[Any] = None
-        self._validator: Optional[Any] = None
-        self._challenger: Optional[Any] = None
-        self._deliberation: Optional[Any] = None
-        self._simulation_router: Optional[Any] = None
-        self._plan_adapter: Optional[Any] = None
+        self._compiler: Any | None = None
+        self._validator: Any | None = None
+        self._challenger: Any | None = None
+        self._deliberation: Any | None = None
+        self._simulation_router: Any | None = None
+        self._plan_adapter: Any | None = None
 
         # External services
-        self._memory_client: Optional[Any] = None
-        self._world_model: Optional[Any] = None
-        self._strategy_memory: Optional[Any] = None
+        self._memory_client: Any | None = None
+        self._world_model: Any | None = None
+        self._strategy_memory: Any | None = None
 
         logger.info(f"UnifiedController initialized in {self._config.mode.value} mode")
 
@@ -311,8 +312,7 @@ class UnifiedController:
 
         # Orchestration components
         from orchestration.cell_orchestrator import CellOrchestrator
-        from orchestration.orchestrator_kernel import (KernelConfig,
-                                                       OrchestratorKernel)
+        from orchestration.orchestrator_kernel import KernelConfig, OrchestratorKernel
         from orchestration.plan_executor import ExecutorConfig, PlanExecutor
         from orchestration.task_router import TaskRouter
 
@@ -438,7 +438,7 @@ class UnifiedController:
     async def handle_request(
         self,
         text: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> ControllerResult:
         """
         Handle a request through the full L9 pipeline.
@@ -540,8 +540,8 @@ class UnifiedController:
     async def handle_multi_request(
         self,
         text: str,
-        context: Optional[dict[str, Any]] = None,
-    ) -> List[ControllerResult]:
+        context: dict[str, Any] | None = None,
+    ) -> list[ControllerResult]:
         """
         Handle a multi-part request by segmenting and processing each part.
 
@@ -572,7 +572,7 @@ class UnifiedController:
             segments=segment_result.segments,
         )
 
-        results: List[ControllerResult] = []
+        results: list[ControllerResult] = []
         base_context = context or {}
 
         for i, segment in enumerate(segment_result.segments):
@@ -880,8 +880,7 @@ class UnifiedController:
                 from core.schemas import PacketEnvelopeIn
 
                 packet = PacketEnvelopeIn(
-                    source=self._config.packet_source,
-                    kind="controller_execution",
+                    packet_type="controller_execution",
                     payload={
                         "result_id": str(result.result_id),
                         "success": result.success,
@@ -896,7 +895,8 @@ class UnifiedController:
                             else 0
                         ),
                     },
-                    session_id=context.get("session_id"),
+                    provenance={"source": self._config.packet_source},
+                    metadata={"session_id": context.get("session_id")},
                 )
 
                 write_result = await self._memory_client.write_packet(packet)
@@ -931,7 +931,7 @@ class UnifiedController:
     async def _attempt_self_correction(
         self,
         text: str,
-        context: Optional[dict[str, Any]],
+        context: dict[str, Any] | None,
         error: Exception,
         result: ControllerResult,
     ) -> None:
@@ -984,7 +984,7 @@ class UnifiedController:
     async def _handle_low_simulation_score(
         self,
         text: str,
-        context: Optional[dict[str, Any]],
+        context: dict[str, Any] | None,
         result: ControllerResult,
     ) -> None:
         """Handle low simulation score by re-deliberating."""
@@ -1144,7 +1144,7 @@ class UnifiedController:
     async def compile_only(
         self,
         text: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> Any:
         """
         Compile task to IR without full execution.
@@ -1171,7 +1171,7 @@ class UnifiedController:
     async def plan_only(
         self,
         text: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> Any:
         """
         Generate plan without execution.
@@ -1201,7 +1201,7 @@ class UnifiedController:
     async def execute(
         self,
         task: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> ControllerResult:
         """
         Alias for handle_request for backwards compatibility.
@@ -1226,7 +1226,7 @@ if TYPE_CHECKING:
     from runtime.websocket_orchestrator import WebSocketOrchestrator
 
 
-def get_ws_orchestrator() -> "WebSocketOrchestrator":
+def get_ws_orchestrator() -> WebSocketOrchestrator:
     """
     Get the shared WebSocket orchestrator singleton.
 
@@ -1240,7 +1240,7 @@ def get_ws_orchestrator() -> "WebSocketOrchestrator":
     return ws_orchestrator
 
 
-def set_ws_orchestrator(orchestrator: "WebSocketOrchestrator") -> None:
+def set_ws_orchestrator(orchestrator: WebSocketOrchestrator) -> None:
     """
     Deprecated: The orchestrator is now a module-level singleton.
 
@@ -1261,7 +1261,7 @@ async def dispatch_task_to_agent(
     task_payload: dict[str, Any],
     task_type: str = "command",
     priority: int = 5,
-    trace_id: Optional[str] = None,
+    trace_id: str | None = None,
 ) -> None:
     """
     Convert controller task payload → EventMessage → WS outbound.
@@ -1314,7 +1314,7 @@ async def dispatch_task_to_agent(
 async def broadcast_task(
     task_payload: dict[str, Any],
     task_type: str = "broadcast",
-    exclude_agents: Optional[set[str]] = None,
+    exclude_agents: set[str] | None = None,
 ) -> int:
     """
     Broadcast a task to all connected agents.

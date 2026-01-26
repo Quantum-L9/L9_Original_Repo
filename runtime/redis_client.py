@@ -407,14 +407,21 @@ class RedisClient:
             logger.error(f"Redis set_task_context failed: {e}")
             return False
 
-    async def decrement_rate_limit(self, key: str) -> int:
-        """Decrement rate limit counter."""
+    async def decrement_rate_limit(self, key: str, amount: int = 1) -> int:
+        """Decrement rate limit counter.
+
+        Args:
+            key: Rate limit key
+            amount: Amount to decrement (default: 1)
+        """
         if not self.is_available():
             return 0
 
         try:
             prefixed = self._prefixed_key(key)
-            return await self._client.decr(prefixed)
+            if amount == 1:
+                return await self._client.decr(prefixed)
+            return await self._client.decrby(prefixed, amount)
         except Exception as e:
             logger.error(f"Redis decrement_rate_limit failed: {e}")
             return 0
@@ -442,7 +449,12 @@ class RedisClient:
             return None
 
     async def set(
-        self, key: str, value: str, ttl: int | None = None, raw: bool = False
+        self,
+        key: str,
+        value: str,
+        ttl: int | None = None,
+        ex: int | None = None,
+        raw: bool = False,
     ) -> bool:
         """
         Set key-value with optional TTL.
@@ -451,8 +463,11 @@ class RedisClient:
             key: Key to set
             value: Value to set
             ttl: Optional TTL in seconds
+            ex: Alias for ttl (Redis-compatible naming)
             raw: If True, use key as-is (no tenant prefix)
         """
+        # Support both 'ttl' and 'ex' (Redis-style alias)
+        ttl = ttl or ex
         if not self.is_available():
             return False
 

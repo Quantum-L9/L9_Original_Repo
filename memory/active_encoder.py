@@ -45,7 +45,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -84,15 +84,15 @@ class TaskOutcome:
 
     # Impact scoring
     impact_score: float = 0.5  # 0.0-1.0
-    user_satisfaction: Optional[float] = None  # 0.0-1.0 if available
+    user_satisfaction: float | None = None  # 0.0-1.0 if available
 
     # Context
-    agent_id: Optional[str] = None
-    project_id: Optional[str] = None
-    session_id: Optional[UUID] = None
+    agent_id: str | None = None
+    project_id: str | None = None
+    session_id: UUID | None = None
 
     # Timestamps
-    started_at: Optional[datetime] = None
+    started_at: datetime | None = None
     completed_at: datetime = field(default_factory=datetime.utcnow)
 
     # Metadata
@@ -147,7 +147,7 @@ class ExtractedLearning:
     importance: float = 0.5
 
     # Context
-    source_task_id: Optional[UUID] = None
+    source_task_id: UUID | None = None
     entities: list[str] = field(default_factory=list)
     tags: list[str] = field(default_factory=list)
 
@@ -353,9 +353,9 @@ class ActiveMemoryEncoder:
 
     def __init__(
         self,
-        repository: Optional["SubstrateRepository"] = None,
-        learning_extractor: Optional[LearningExtractor] = None,
-        consolidation_pipeline: Optional["ConsolidationPipeline"] = None,
+        repository: SubstrateRepository | None = None,
+        learning_extractor: LearningExtractor | None = None,
+        consolidation_pipeline: ConsolidationPipeline | None = None,
     ):
         """
         Initialize ActiveMemoryEncoder.
@@ -370,11 +370,11 @@ class ActiveMemoryEncoder:
         self._consolidation = consolidation_pipeline
         logger.info("ActiveMemoryEncoder initialized")
 
-    def set_repository(self, repository: "SubstrateRepository") -> None:
+    def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update repository reference."""
         self._repository = repository
 
-    def set_consolidation_pipeline(self, pipeline: "ConsolidationPipeline") -> None:
+    def set_consolidation_pipeline(self, pipeline: ConsolidationPipeline) -> None:
         """Set or update consolidation pipeline reference."""
         self._consolidation = pipeline
 
@@ -481,7 +481,7 @@ class ActiveMemoryEncoder:
     async def _find_similar_fact(
         self,
         fact_text: str,
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Find existing similar fact via semantic similarity."""
         if not self._repository:
             return None
@@ -534,7 +534,7 @@ class ActiveMemoryEncoder:
         try:
             await self._repository.update_fact_importance(
                 fact_id=existing["fact_id"],
-                importance=new_importance,
+                new_importance=new_importance,
             )
             logger.debug(
                 "Updated fact importance",
@@ -548,7 +548,7 @@ class ActiveMemoryEncoder:
     async def _create_new_fact(
         self,
         learning: ExtractedLearning,
-    ) -> Optional[UUID]:
+    ) -> UUID | None:
         """Create a new semantic fact from learning."""
         if not self._repository:
             return None
@@ -585,7 +585,7 @@ class ActiveMemoryEncoder:
         self,
         outcome: TaskOutcome,
         result: EncodingResult,
-    ) -> Optional[UUID]:
+    ) -> UUID | None:
         """Create episodic record for the task."""
         if not self._repository:
             return None
@@ -673,7 +673,7 @@ class ActiveMemoryEncoder:
 # =============================================================================
 
 
-_encoder: Optional[ActiveMemoryEncoder] = None
+_encoder: ActiveMemoryEncoder | None = None
 
 
 def get_active_encoder() -> ActiveMemoryEncoder:

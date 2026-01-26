@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Agent Controller
@@ -48,12 +47,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncio
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
-from core.schemas import PacketEnvelope, PacketKind
+from core.schemas import PacketEnvelope
 
 logger = structlog.get_logger(__name__)
 
@@ -74,9 +72,9 @@ class AgentController:
 
     def __init__(
         self,
-        reasoning_engine: Optional[Any] = None,
-        packet_router: Optional[Any] = None,
-        governance_bridge: Optional[Any] = None,
+        reasoning_engine: Any | None = None,
+        packet_router: Any | None = None,
+        governance_bridge: Any | None = None,
     ):
         self.reasoning_engine = reasoning_engine
         self.packet_router = packet_router
@@ -170,13 +168,13 @@ class AgentController:
     def _create_success_response(
         self,
         original_packet: PacketEnvelope,
-        result: Dict[str, Any],
+        result: dict[str, Any],
     ) -> PacketEnvelope:
         """Create successful response packet."""
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
-            kind=PacketKind.DECISION,
+            packet_type="decision",
             payload={"result": result, "status": "success"},
+            provenance={"source": "domain_tensor_bridge"},
             metadata={"original_packet_id": getattr(original_packet, "id", None)},
         )
 
@@ -187,9 +185,9 @@ class AgentController:
     ) -> PacketEnvelope:
         """Create governance-blocked response packet."""
         return PacketEnvelope(
-            source_id="domain_tensor_bridge",
-            kind=PacketKind.DECISION,
+            packet_type="decision",
             payload={"status": "blocked", "reason": reason},
+            provenance={"source": "domain_tensor_bridge"},
             metadata={
                 "original_packet_id": getattr(original_packet, "id", None),
                 "governance_blocked": True,
@@ -239,9 +237,9 @@ __footer_meta__ = {
 
 __all__ = [
     "AgentController",
-    "process_packet",
     "__footer_meta__",
     "__l9_trace__",
+    "process_packet",
 ]
 
 # ============================================================================

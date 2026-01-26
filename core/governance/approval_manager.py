@@ -51,7 +51,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
@@ -60,8 +60,7 @@ if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
 
 from core.decorators import must_stay_async
-from core.governance.tool_risk_policy import \
-    get_high_risk_tools_with_descriptions
+from core.governance.tool_risk_policy import get_high_risk_tools_with_descriptions
 
 logger = structlog.get_logger(__name__)
 
@@ -85,9 +84,9 @@ class ApprovalRequest:
     task_id: str
     operation_summary: str
     risk_level: str
-    arguments: Dict[str, Any]
+    arguments: dict[str, Any]
     created_at: datetime = field(default_factory=datetime.utcnow)
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     status: ApprovalStatus = ApprovalStatus.PENDING
 
     def __post_init__(self):
@@ -105,9 +104,9 @@ class ApprovalDecision:
 
     request_id: str
     status: ApprovalStatus
-    approved_by: Optional[str] = None
-    approved_at: Optional[datetime] = None
-    rejection_reason: Optional[str] = None
+    approved_by: str | None = None
+    approved_at: datetime | None = None
+    rejection_reason: str | None = None
     scope: str = "single"  # single, session, permanent
 
     @property
@@ -132,20 +131,20 @@ class ApprovalManager:
 
     def __init__(
         self,
-        substrate_service: Optional["MemorySubstrateService"] = None,
-        slack_client: Optional[Any] = None,
-        notification_channel: Optional[str] = None,
+        substrate_service: MemorySubstrateService | None = None,
+        slack_client: Any | None = None,
+        notification_channel: str | None = None,
     ):
         self.substrate = substrate_service
         self.slack_client = slack_client
         self.notification_channel = notification_channel
 
         # In-memory cache of pending approvals (for fast lookup)
-        self._pending: Dict[str, ApprovalRequest] = {}
-        self._decisions: Dict[str, ApprovalDecision] = {}
+        self._pending: dict[str, ApprovalRequest] = {}
+        self._decisions: dict[str, ApprovalDecision] = {}
 
         # Cache of permanent approvals (tool_id -> approval)
-        self._permanent_approvals: Dict[str, ApprovalDecision] = {}
+        self._permanent_approvals: dict[str, ApprovalDecision] = {}
 
     def requires_approval(self, tool_id: str) -> bool:
         """Check if tool requires Igor approval"""
@@ -156,8 +155,8 @@ class ApprovalManager:
         tool_id: str,
         agent_id: str,
         task_id: str,
-        arguments: Dict[str, Any],
-        operation_summary: Optional[str] = None,
+        arguments: dict[str, Any],
+        operation_summary: str | None = None,
     ) -> ApprovalRequest:
         """
         Create approval request for high-risk operation.
@@ -186,11 +185,10 @@ class ApprovalManager:
         # Persist to memory substrate if available
         if self.substrate and hasattr(self.substrate, "write_packet"):
             try:
-                from core.schemas import PacketEnvelope, PacketKind
+                from core.schemas import PacketEnvelope
 
                 packet = PacketEnvelope(
-                    kind=PacketKind.MEMORY_WRITE,
-                    agent_id=agent_id,
+                    packet_type="memory_write",
                     payload={
                         "chunk_type": "approval_request",
                         "request_id": request_id,
@@ -201,6 +199,7 @@ class ApprovalManager:
                         "created_at": request.created_at.isoformat(),
                         "expires_at": request.expires_at.isoformat(),
                     },
+                    metadata={"agent": agent_id},
                 )
                 await self.substrate.write_packet(packet)
             except Exception as e:
@@ -226,7 +225,7 @@ class ApprovalManager:
     async def check_approval(
         self,
         request_id: str,
-    ) -> Optional[ApprovalDecision]:
+    ) -> ApprovalDecision | None:
         """
         Check if approval request has been decided.
 
@@ -259,7 +258,7 @@ class ApprovalManager:
         self,
         tool_id: str,
         task_id: str,
-    ) -> Optional[ApprovalDecision]:
+    ) -> ApprovalDecision | None:
         """
         Check if a tool execution is approved for a task.
 
@@ -410,7 +409,7 @@ class ApprovalManager:
         self,
         request_id: str,
         rejected_by: str = "igor",
-        reason: Optional[str] = None,
+        reason: str | None = None,
     ) -> ApprovalDecision:
         """
         Reject a pending request.

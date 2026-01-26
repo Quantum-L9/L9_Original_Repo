@@ -46,10 +46,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -118,11 +119,11 @@ class ChainStep:
 
     step_id: UUID = field(default_factory=uuid4)
     name: str = ""
-    handler: Optional[str] = None
+    handler: str | None = None
     parameters: dict[str, Any] = field(default_factory=dict)
     status: str = "pending"
-    result: Optional[dict[str, Any]] = None
-    error: Optional[str] = None
+    result: dict[str, Any] | None = None
+    error: str | None = None
     duration_ms: int = 0
 
 
@@ -137,8 +138,8 @@ class ExecutionChain:
     current_step: int = 0
     context: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.utcnow)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -170,7 +171,7 @@ class KernelConfig:
     emit_packets: bool = True
     packet_source: str = "orchestrator_kernel"
     # API options
-    api_key: Optional[str] = None
+    api_key: str | None = None
     model: str = "gpt-4o"
 
 
@@ -200,8 +201,8 @@ class IRPipelineResult:
     success: bool = False
 
     # Phase outputs
-    graph: Optional[Any] = None  # IRGraph
-    plan: Optional[Any] = None  # ExecutionPlan
+    graph: Any | None = None  # IRGraph
+    plan: Any | None = None  # ExecutionPlan
     simulation_score: float = 0.0
     simulation_metrics: dict[str, Any] = field(default_factory=dict)
 
@@ -268,7 +269,7 @@ class OrchestratorKernel:
         )
     """
 
-    def __init__(self, config: Optional[KernelConfig] = None):
+    def __init__(self, config: KernelConfig | None = None):
         """
         Initialize the kernel.
 
@@ -280,14 +281,14 @@ class OrchestratorKernel:
         self._handlers: dict[str, Callable] = {}
 
         # IR Engine components (lazy-loaded)
-        self._compiler: Optional[Any] = None
-        self._validator: Optional[Any] = None
-        self._challenger: Optional[Any] = None
-        self._simulation_router: Optional[Any] = None
-        self._plan_adapter: Optional[Any] = None
+        self._compiler: Any | None = None
+        self._validator: Any | None = None
+        self._challenger: Any | None = None
+        self._simulation_router: Any | None = None
+        self._plan_adapter: Any | None = None
 
         # Memory substrate client (optional)
-        self._memory_client: Optional[Any] = None
+        self._memory_client: Any | None = None
 
         # Callbacks
         self._phase_callbacks: list[Callable[[KernelPhase, dict[str, Any]], None]] = []
@@ -357,7 +358,7 @@ class OrchestratorKernel:
     def _transition_phase(
         self,
         new_phase: KernelPhase,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> bool:
         """
         Attempt to transition to a new phase.
@@ -410,7 +411,7 @@ class OrchestratorKernel:
     async def run_pipeline(
         self,
         task: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
         skip_simulation: bool = False,
     ) -> IRPipelineResult:
         """
@@ -777,8 +778,7 @@ class OrchestratorKernel:
                 from core.schemas import PacketEnvelopeIn
 
                 packet = PacketEnvelopeIn(
-                    source=self._config.packet_source,
-                    kind="ir_pipeline_result",
+                    packet_type="ir_pipeline_result",
                     payload={
                         "result_id": str(result.result_id),
                         "success": result.success,
@@ -791,8 +791,11 @@ class OrchestratorKernel:
                         "duration_ms": result.total_duration_ms,
                         "phase_times": result.phase_times,
                     },
-                    session_id=context.get("session_id"),
-                    agent_id=context.get("agent_id"),
+                    provenance={"source": self._config.packet_source},
+                    metadata={
+                        "agent": context.get("agent_id"),
+                        "session_id": context.get("session_id"),
+                    },
                 )
 
                 write_result = await self._memory_client.write_packet(packet)
@@ -825,7 +828,7 @@ class OrchestratorKernel:
         self._handlers[name] = handler
         logger.debug(f"Registered handler: {name}")
 
-    def get_handler(self, name: str) -> Optional[Callable]:
+    def get_handler(self, name: str) -> Callable | None:
         """Get a registered handler."""
         return self._handlers.get(name)
 
@@ -833,7 +836,7 @@ class OrchestratorKernel:
         self,
         name: str,
         steps: list[dict[str, Any]],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> ExecutionChain:
         """
         Create an execution chain.
@@ -994,7 +997,7 @@ class OrchestratorKernel:
     # State Access
     # =========================================================================
 
-    def get_chain(self, chain_id: UUID) -> Optional[ExecutionChain]:
+    def get_chain(self, chain_id: UUID) -> ExecutionChain | None:
         """Get a chain by ID."""
         return self._state.active_chains.get(chain_id)
 

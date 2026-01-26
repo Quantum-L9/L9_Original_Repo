@@ -32,8 +32,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -53,17 +53,17 @@ class KernelEvolutionEvent:
         self,
         event_type: str,  # RELOAD, MODIFY, EVOLVE, ROLLBACK
         agent_id: str,
-        kernel_ids: List[str],
-        previous_hashes: Dict[str, str],
-        new_hashes: Dict[str, str],
-        modified_kernels: List[str],
+        kernel_ids: list[str],
+        previous_hashes: dict[str, str],
+        new_hashes: dict[str, str],
+        modified_kernels: list[str],
         trigger: str,  # manual, auto, gmp, self_reflection
         success: bool,
-        errors: Optional[List[str]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        errors: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
     ):
         self.event_id = str(uuid4())
-        self.timestamp = datetime.now(timezone.utc)
+        self.timestamp = datetime.now(UTC)
         self.event_type = event_type
         self.agent_id = agent_id
         self.kernel_ids = kernel_ids
@@ -75,7 +75,7 @@ class KernelEvolutionEvent:
         self.errors = errors or []
         self.metadata = metadata or {}
 
-    def to_packet_payload(self) -> Dict[str, Any]:
+    def to_packet_payload(self) -> dict[str, Any]:
         """Convert to PacketEnvelope payload format."""
         return {
             "event_id": self.event_id,
@@ -101,15 +101,15 @@ class KernelEvolutionEvent:
 async def log_kernel_evolution(
     event_type: str,
     agent_id: str,
-    kernel_ids: List[str],
-    previous_hashes: Dict[str, str],
-    new_hashes: Dict[str, str],
-    modified_kernels: List[str],
+    kernel_ids: list[str],
+    previous_hashes: dict[str, str],
+    new_hashes: dict[str, str],
+    modified_kernels: list[str],
     trigger: str = "manual",
     success: bool = True,
-    errors: Optional[List[str]] = None,
-    metadata: Optional[Dict[str, Any]] = None,
-) -> Optional[str]:
+    errors: list[str] | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> str | None:
     """
     Log a kernel evolution event to the memory substrate.
 
@@ -166,21 +166,21 @@ async def log_kernel_evolution(
             return event.event_id  # Return ID even if not persisted
 
         # Build packet envelope
-        from core.schemas import PacketEnvelope, PacketKind
+        from core.schemas import PacketEnvelope
 
         packet = PacketEnvelope(
-            source_id="kernel_loader",
-            agent_id=agent_id,
-            thread_id=f"kernel_evolution_{event.event_id}",
-            kind=PacketKind.SYSTEM,
+            packet_type="system",
             payload=event.to_packet_payload(),
+            provenance={"source": "kernel_loader"},
             metadata={
+                "agent": agent_id,
                 "event_type": "KERNEL_EVOLUTION",
                 "trigger": trigger,
                 "success": success,
                 "modified_count": len(modified_kernels),
+                "thread_id": f"kernel_evolution_{event.event_id}",
             },
-            confidence=1.0,  # System events have full confidence
+            confidence={"score": 1.0},  # System events have full confidence
         )
 
         # Ingest packet
@@ -192,13 +192,12 @@ async def log_kernel_evolution(
                 packet_id=result.packet_id,
             )
             return event.event_id
-        else:
-            logger.warning(
-                "kernel_evolution.ingest_failed",
-                event_id=event.event_id,
-                error=result.error if result else "unknown",
-            )
-            return event.event_id
+        logger.warning(
+            "kernel_evolution.ingest_failed",
+            event_id=event.event_id,
+            error=result.error if result else "unknown",
+        )
+        return event.event_id
 
     except ImportError as e:
         logger.debug(
@@ -219,10 +218,10 @@ async def log_kernel_evolution(
 
 
 async def get_kernel_evolution_history(
-    agent_id: Optional[str] = None,
-    event_type: Optional[str] = None,
+    agent_id: str | None = None,
+    event_type: str | None = None,
     limit: int = 50,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Retrieve kernel evolution history from the memory substrate.
 
@@ -278,8 +277,8 @@ async def get_kernel_evolution_history(
 
 __all__ = [
     "KernelEvolutionEvent",
-    "log_kernel_evolution",
     "get_kernel_evolution_history",
+    "log_kernel_evolution",
 ]
 
 # ============================================================================

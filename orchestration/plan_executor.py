@@ -1087,8 +1087,7 @@ class PlanExecutor:
             from core.schemas import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
-                source=self._config.packet_source,
-                kind="execution_start",
+                packet_type="execution_start",
                 payload={
                     "execution_id": str(result.execution_id),
                     "plan_id": str(plan.plan_id),
@@ -1096,6 +1095,7 @@ class PlanExecutor:
                     "step_types": list(set(s.action_type for s in plan.steps)),
                     "dry_run": self._config.dry_run,
                 },
+                provenance={"source": self._config.packet_source},
             )
 
             write_result = await self._memory_client.write_packet(packet)
@@ -1118,8 +1118,7 @@ class PlanExecutor:
             from core.schemas import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
-                source=self._config.packet_source,
-                kind="step_complete",
+                packet_type="step_complete",
                 payload={
                     "execution_id": str(execution_result.execution_id),
                     "step_id": str(step_result.step_id),
@@ -1130,6 +1129,7 @@ class PlanExecutor:
                     "retries": step_result.retries,
                     "has_error": step_result.error is not None,
                 },
+                provenance={"source": self._config.packet_source},
             )
 
             write_result = await self._memory_client.write_packet(packet)
@@ -1151,8 +1151,7 @@ class PlanExecutor:
             from core.schemas import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
-                source=self._config.packet_source,
-                kind="execution_complete",
+                packet_type="execution_complete",
                 payload={
                     "execution_id": str(result.execution_id),
                     "plan_id": str(result.plan_id),
@@ -1163,6 +1162,7 @@ class PlanExecutor:
                     "duration_ms": result.duration_ms,
                     "error_count": len(result.errors),
                 },
+                provenance={"source": self._config.packet_source},
             )
 
             write_result = await self._memory_client.write_packet(packet)

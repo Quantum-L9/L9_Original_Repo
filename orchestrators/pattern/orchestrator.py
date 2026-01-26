@@ -48,10 +48,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
-from typing import TYPE_CHECKING, Any, Optional, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 from uuid import uuid4
 
 import structlog
@@ -59,10 +59,16 @@ import yaml
 from jsonschema import ValidationError as JsonSchemaError
 from jsonschema import validate as json_validate
 
-from orchestrators.pattern.interface import (InputField, NodeDefinition,
-                                             NodeResult, NodeStatus,
-                                             PatternConfig, PipelineResult,
-                                             PipelineStatus, SubsystemConfig)
+from orchestrators.pattern.interface import (
+    InputField,
+    NodeDefinition,
+    NodeResult,
+    NodeStatus,
+    PatternConfig,
+    PipelineResult,
+    PipelineStatus,
+    SubsystemConfig,
+)
 from orchestrators.pattern.metrics import PatternMetrics
 
 if TYPE_CHECKING:
@@ -151,8 +157,8 @@ class PatternOrchestrator:
         self,
         pattern_path: str,
         subsystem_config_path: str,
-        agent: Optional[AgentProtocol] = None,
-        memory_service: Optional["MemorySubstrateService"] = None,
+        agent: AgentProtocol | None = None,
+        memory_service: MemorySubstrateService | None = None,
         prompt_templates_dir: str = "prompts/pipeline",
     ):
         """
@@ -224,8 +230,8 @@ class PatternOrchestrator:
 
     async def execute(
         self,
-        user_prompts: Optional[list[str]] = None,
-        context: Optional[dict[str, Any]] = None,
+        user_prompts: list[str] | None = None,
+        context: dict[str, Any] | None = None,
         dry_run: bool = False,
     ) -> PipelineResult:
         """
@@ -240,7 +246,7 @@ class PatternOrchestrator:
             PipelineResult with execution details and artifacts
         """
         trace_id = uuid4()
-        started_at = datetime.now(timezone.utc)
+        started_at = datetime.now(UTC)
         start_time = perf_counter()
 
         # Initialize execution context
@@ -254,8 +260,8 @@ class PatternOrchestrator:
         }
 
         node_results: list[NodeResult] = []
-        failed_node: Optional[str] = None
-        error_message: Optional[str] = None
+        failed_node: str | None = None
+        error_message: str | None = None
 
         logger.info(
             "Starting pipeline execution",
@@ -305,7 +311,7 @@ class PatternOrchestrator:
                 status = PipelineStatus.FAILURE
                 error_message = str(e)
 
-        completed_at = datetime.now(timezone.utc)
+        completed_at = datetime.now(UTC)
         total_duration_ms = (perf_counter() - start_time) * 1000
 
         # Record final metrics
@@ -352,7 +358,7 @@ class PatternOrchestrator:
         Returns:
             NodeResult with execution details
         """
-        started_at = datetime.now(timezone.utc)
+        started_at = datetime.now(UTC)
         start_time = perf_counter()
 
         logger.debug(
@@ -400,7 +406,7 @@ class PatternOrchestrator:
                     output=output,
                     duration_ms=duration_ms,
                     started_at=started_at,
-                    completed_at=datetime.now(timezone.utc),
+                    completed_at=datetime.now(UTC),
                 )
 
         except JsonSchemaError as e:
@@ -414,7 +420,7 @@ class PatternOrchestrator:
                 error=f"Schema validation failed: {e.message}",
                 duration_ms=duration_ms,
                 started_at=started_at,
-                completed_at=datetime.now(timezone.utc),
+                completed_at=datetime.now(UTC),
             )
 
         except Exception as e:
@@ -428,7 +434,7 @@ class PatternOrchestrator:
                 error=str(e),
                 duration_ms=duration_ms,
                 started_at=started_at,
-                completed_at=datetime.now(timezone.utc),
+                completed_at=datetime.now(UTC),
             )
 
     def _assemble_input(
@@ -541,19 +547,19 @@ class PatternOrchestrator:
             from core.schemas import PacketEnvelopeIn
 
             packet = PacketEnvelopeIn(
-                source_id="pattern_orchestrator",
-                agent_id=f"pattern.{node.role}",
-                thread_id=context.get("trace_id", ""),
-                kind=(
+                packet_type=(
                     node.output_contract.packet_type
                     if node.output_contract
                     else "artifact"
                 ),
                 payload=output,
+                provenance={"source": "pattern_orchestrator"},
                 metadata={
+                    "agent": f"pattern.{node.role}",
                     "node_id": node.id,
                     "subsystem": context.get("subsystem"),
                     "memory_segment": node.memory_segment,
+                    "trace_id": context.get("trace_id"),
                 },
             )
 
@@ -582,7 +588,7 @@ class PatternOrchestrator:
 def create_pattern_orchestrator(
     pattern_path: str,
     subsystem_config_path: str,
-    agent: Optional[AgentProtocol] = None,
+    agent: AgentProtocol | None = None,
 ) -> PatternOrchestrator:
     """
     Factory function to create a PatternOrchestrator.

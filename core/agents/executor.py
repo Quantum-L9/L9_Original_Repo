@@ -79,6 +79,35 @@ from core.worldmodel.insight_emitter import get_insight_emitter
 from memory.agent_persistence import AgentPersistenceService
 from runtime.dora import emit_executor_trace, update_dora_block_in_file
 
+# Virtual Context Manager import (optional - graceful degradation)
+try:
+    from core.memory.virtual_context import VirtualContextManager
+
+    _has_virtual_context = True
+except ImportError:
+    _has_virtual_context = False
+    VirtualContextManager = None  # type: ignore
+
+# Event Queue import (optional - graceful degradation)
+try:
+    from core.coordination.event_queue import Event, EventKind, EventQueue
+
+    _has_event_queue = True
+except ImportError:
+    _has_event_queue = False
+    EventQueue = None  # type: ignore
+    Event = None  # type: ignore
+    EventKind = None  # type: ignore
+
+# Tool Audit import (optional - graceful degradation)
+try:
+    from core.tools.tool_audit import ToolAuditService
+
+    _has_tool_audit = True
+except ImportError:
+    _has_tool_audit = False
+    ToolAuditService = None  # type: ignore
+
 # Domain Tensor Bridge import (optional - graceful degradation)
 try:
     from domain_tensor_bridge import ReasoningEngine as DTBReasoningEngine
@@ -440,6 +469,15 @@ class AgentExecutorService:
         # Domain Tensor Bridge for tensor reasoning enrichment (optional)
         self._tensor_bridge: Any | None = None
 
+        # Stage 7: Virtual Context Manager for tiered memory (optional)
+        self._virtual_context_manager: Any | None = None
+
+        # Stage 7: Event Queue for async coordination (optional)
+        self._event_queue: Any | None = None
+
+        # Stage 7: Tool Audit Service for execution tracking (optional)
+        self._tool_audit_service: Any | None = None
+
         logger.info(
             "agent.executor.init: default_agent_id=%s, max_iterations=%d, persistence=%s",
             self._default_agent_id,
@@ -515,6 +553,57 @@ class AgentExecutorService:
         logger.info(
             "agent.executor.tensor_bridge_set: enabled=%s",
             bridge is not None,
+        )
+
+    def set_virtual_context_manager(self, manager: Any) -> None:
+        """
+        Set the Virtual Context Manager for tiered memory operations.
+
+        Stage 7: Virtual Context Management (GMP-WIRE-VC-EQ).
+        Enables tiered memory (main/working/archival) with LLM-driven
+        eviction and page fault handling for long conversations.
+
+        Args:
+            manager: VirtualContextManager instance from core.memory.virtual_context
+        """
+        self._virtual_context_manager = manager
+        logger.info(
+            "agent.executor.virtual_context_set: enabled=%s",
+            manager is not None,
+        )
+
+    def set_event_queue(self, queue: Any) -> None:
+        """
+        Set the Event Queue for async agent coordination.
+
+        Stage 7: Event-Driven Coordination (GMP-WIRE-VC-EQ).
+        Enables publish/subscribe pattern for decoupled agent communication.
+        Replaces synchronous supervisor calls with async event publishing.
+
+        Args:
+            queue: EventQueue instance from core.coordination.event_queue
+        """
+        self._event_queue = queue
+        logger.info(
+            "agent.executor.event_queue_set: enabled=%s",
+            queue is not None,
+        )
+
+    def set_tool_audit_service(self, service: Any) -> None:
+        """
+        Set the Tool Audit Service for execution tracking.
+
+        Stage 7: Tool Audit Trail (GMP-WIRE-VC-EQ).
+        Enables automatic audit logging of all tool executions with
+        cost estimation, latency tracking, and error recording.
+
+        Args:
+            service: ToolAuditService instance from core.tools.tool_audit
+        """
+        self._tool_audit_service = service
+        logger.info(
+            "agent.executor.tool_audit_set: enabled=%s",
+            service is not None,
         )
 
     async def shutdown(self) -> None:
@@ -798,6 +887,39 @@ class AgentExecutorService:
                         error=str(tensor_error),
                     )
 
+            # Stage 7: Virtual Context Loading (GMP-WIRE-VC-EQ)
+            # Load tiered memory context (main + working) before execution
+            virtual_context = None
+            if _has_virtual_context and self._virtual_context_manager is not None:
+                try:
+                    virtual_context = await self._virtual_context_manager.load_context(
+                        agent_id=task.agent_id,
+                        task_id=task_id_str,
+                    )
+                    logger.debug(
+                        "agent.executor.virtual_context_loaded",
+                        task_id=task_id_str,
+                        agent_id=task.agent_id,
+                        main_context_count=(
+                            len(virtual_context.main_context)
+                            if virtual_context and virtual_context.main_context
+                            else 0
+                        ),
+                        working_memory_count=(
+                            len(virtual_context.working_memory)
+                            if virtual_context and virtual_context.working_memory
+                            else 0
+                        ),
+                    )
+                except Exception as context_error:
+                    # Non-fatal - log and continue without virtual context
+                    logger.warning(
+                        "agent.executor.virtual_context_load_failed",
+                        task_id=task_id_str,
+                        agent_id=task.agent_id,
+                        error=str(context_error),
+                    )
+
             # Instantiate agent
             instance = await self._instantiate_agent(task)
             if instance is None:
@@ -820,6 +942,32 @@ class AgentExecutorService:
                 thread_id=task.get_thread_id(),
             )
 
+            # Stage 7: Event Queue - Publish task start (GMP-WIRE-VC-EQ)
+            if _has_event_queue and self._event_queue is not None:
+                try:
+                    await self._event_queue.publish(
+                        Event(
+                            kind=EventKind.TASK_STARTED,
+                            source_agent=task.agent_id,
+                            target_agent="*",  # Broadcast to all subscribers
+                            payload={
+                                "task_id": task_id_str,
+                                "agent_id": task.agent_id,
+                                "task_kind": task.kind.value
+                                if task.kind
+                                else "unknown",
+                            },
+                        )
+                    )
+                except Exception as event_error:
+                    # Non-fatal - log and continue
+                    logger.warning(
+                        "agent.executor.event_publish_failed",
+                        task_id=task_id_str,
+                        event_kind="TASK_STARTED",
+                        error=str(event_error),
+                    )
+
             # Run execution loop
             result = await self._run_execution_loop(instance)
 
@@ -839,6 +987,38 @@ class AgentExecutorService:
                 },
                 thread_id=task.get_thread_id(),
             )
+
+            # Stage 7: Event Queue - Publish task completion (GMP-WIRE-VC-EQ)
+            if _has_event_queue and self._event_queue is not None:
+                try:
+                    event_kind = (
+                        EventKind.TASK_COMPLETED
+                        if result.status == "completed"
+                        else EventKind.TASK_FAILED
+                    )
+                    await self._event_queue.publish(
+                        Event(
+                            kind=event_kind,
+                            source_agent=task.agent_id,
+                            target_agent="*",  # Broadcast to all subscribers
+                            payload={
+                                "task_id": task_id_str,
+                                "agent_id": task.agent_id,
+                                "status": result.status,
+                                "iterations": result.iterations,
+                                "duration_ms": result.duration_ms,
+                                "error": result.error,
+                            },
+                        )
+                    )
+                except Exception as event_error:
+                    # Non-fatal - log and continue
+                    logger.warning(
+                        "agent.executor.event_publish_failed",
+                        task_id=task_id_str,
+                        event_kind=str(event_kind),
+                        error=str(event_error),
+                    )
 
             # Log completion
             log_level = "info" if result.status == "completed" else "error"
@@ -1014,7 +1194,6 @@ class AgentExecutorService:
             # Write task result packet
             packet = PacketEnvelopeIn(
                 packet_type="task_execution_result",
-                agent_id=result.get("agent_id", "L"),
                 payload={
                     "task_id": task_id,
                     "status": result.get("status", "unknown"),
@@ -1023,6 +1202,7 @@ class AgentExecutorService:
                     "error": result.get("error"),
                     "completed_at": result.get("completed_at"),
                 },
+                metadata={"agent": result.get("agent_id", "L")},
             )
 
             write_result = await self._substrate_service.write_packet(packet)
@@ -2334,10 +2514,7 @@ class AgentExecutorService:
 
                     reflection_packet = PacketEnvelopeIn(
                         packet_type="agent.reflection.result",
-                        agent_id=task.agent_id,
-                        thread_id=(
-                            str(task.get_thread_id()) if task.get_thread_id() else None
-                        ),
+                        thread_id=task.get_thread_id(),
                         payload={
                             "reflection_id": reflection_result.reflection_id,
                             "task_id": str(task.id),
@@ -2363,6 +2540,7 @@ class AgentExecutorService:
                             "confidence": reflection_result.confidence,
                         },
                         metadata={
+                            "agent": task.agent_id,
                             "source": "self_reflection",
                             "execution_status": result.status,
                         },

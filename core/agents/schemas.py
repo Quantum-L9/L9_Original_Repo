@@ -55,10 +55,10 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Annotated, Any, List, Optional
+from typing import Any
 from uuid import NAMESPACE_DNS, UUID, uuid4, uuid5
 
-from pydantic import BaseModel, Field, conlist
+from pydantic import BaseModel, Field
 
 # =============================================================================
 # Constants
@@ -157,7 +157,7 @@ class AgentTask(BaseModel):
     source_id: str = Field(
         default="system", description="Source that created this task"
     )
-    thread_identifier: Optional[str] = Field(
+    thread_identifier: str | None = Field(
         None, description="Thread identifier for grouping"
     )
     payload: dict[str, Any] = Field(
@@ -177,42 +177,31 @@ class AgentTask(BaseModel):
     )
 
     # === FUTURE-PROOF FIELDS (enterprise multi-agent architecture) ===
-    # Using Pydantic v2 Annotated pattern for richer validation metadata
     agent_type: AgentType = Field(
         default=AgentType.ASSISTANT,
         description="FUTURE-PROOF: Enterprise agent classification for routing and policy enforcement",
     )
-    target_domain: Annotated[
-        str,
-        Field(
-            default="l9",
-            pattern=r"^(l9|l10|external|sandbox)$",
-            description="FUTURE-PROOF: Target domainOS - validated against known domains",
-        ),
-    ]
-    priority: Annotated[
-        int,
-        Field(
-            default=5,
-            ge=1,
-            le=10,
-            description="FUTURE-PROOF: Task urgency (1=critical/blocking, 5=normal, 10=background/batch)",
-        ),
-    ]
-    delegation_chain: Annotated[
-        conlist(str, max_length=50),
-        Field(
-            default_factory=list,
-            description="FUTURE-PROOF: Agent IDs that have handled this task (audit trail, max 50 hops)",
-        ),
-    ]
-    capability_requirements: Annotated[
-        conlist(str, max_length=20),
-        Field(
-            default_factory=list,
-            description="FUTURE-PROOF: Required capabilities ('shell_access', 'neo4j', 'memory_write', 'external_api')",
-        ),
-    ]
+    target_domain: str = Field(
+        default="l9",
+        pattern=r"^(l9|l10|external|sandbox)$",
+        description="FUTURE-PROOF: Target domainOS - validated against known domains",
+    )
+    priority: int = Field(
+        default=5,
+        ge=1,
+        le=10,
+        description="FUTURE-PROOF: Task urgency (1=critical/blocking, 5=normal, 10=background/batch)",
+    )
+    delegation_chain: list[str] = Field(
+        default_factory=list,
+        max_length=50,
+        description="FUTURE-PROOF: Agent IDs that have handled this task (audit trail, max 50 hops)",
+    )
+    capability_requirements: list[str] = Field(
+        default_factory=list,
+        max_length=20,
+        description="FUTURE-PROOF: Required capabilities ('shell_access', 'neo4j', 'memory_write', 'external_api')",
+    )
 
     model_config = {"extra": "forbid"}
 
@@ -247,10 +236,10 @@ class ToolBinding(BaseModel):
     tool_id: str = Field(
         ..., description="Canonical tool identity (used for all lookups/dispatch)"
     )
-    display_name: Optional[str] = Field(
+    display_name: str | None = Field(
         None, description="Human-readable name for UI/logs only"
     )
-    description: Optional[str] = Field(None, description="Tool description")
+    description: str | None = Field(None, description="Tool description")
     input_schema: dict[str, Any] = Field(
         default_factory=dict, description="JSON Schema for tool input parameters"
     )
@@ -291,7 +280,7 @@ class AgentConfig(BaseModel):
         default=4000, ge=100, le=128000, description="Max response tokens"
     )
     tools: list[ToolBinding] = Field(default_factory=list, description="Bound tools")
-    system_prompt: Optional[str] = Field(None, description="System prompt override")
+    system_prompt: str | None = Field(None, description="System prompt override")
     kernel_refs: list[str] = Field(
         default_factory=list, description="Kernel YAML files for bootstrap ceremony"
     )
@@ -342,7 +331,7 @@ class ToolCallResult(BaseModel):
     )
     success: bool = Field(..., description="Whether call succeeded")
     result: Any = Field(None, description="Tool result if successful")
-    error: Optional[str] = Field(None, description="Error message if failed")
+    error: str | None = Field(None, description="Error message if failed")
     duration_ms: int = Field(default=0, ge=0, description="Execution duration")
 
     model_config = {"extra": "forbid"}
@@ -377,18 +366,18 @@ class AIOSResult(BaseModel):
     """
 
     result_type: AIOSResultType = Field(..., description="Type of result")
-    content: Optional[str] = Field(None, description="Response content")
-    tool_call: Optional[ToolCallRequest] = Field(
+    content: str | None = Field(None, description="Response content")
+    tool_call: ToolCallRequest | None = Field(
         None, description="Tool call if requested"
     )
-    error: Optional[str] = Field(None, description="Error message")
+    error: str | None = Field(None, description="Error message")
     tokens_used: int = Field(default=0, ge=0, description="Tokens used")
-    finish_reason: Optional[str] = Field(None, description="LLM finish reason")
+    finish_reason: str | None = Field(None, description="LLM finish reason")
 
     model_config = {"extra": "forbid"}
 
     @classmethod
-    def response(cls, content: str, tokens_used: int = 0) -> "AIOSResult":
+    def response(cls, content: str, tokens_used: int = 0) -> AIOSResult:
         """Create a response result."""
         return cls(
             result_type=AIOSResultType.RESPONSE,
@@ -400,7 +389,7 @@ class AIOSResult(BaseModel):
     @classmethod
     def tool_request(
         cls, tool_call: ToolCallRequest, tokens_used: int = 0
-    ) -> "AIOSResult":
+    ) -> AIOSResult:
         """Create a tool call result."""
         return cls(
             result_type=AIOSResultType.TOOL_CALL,
@@ -410,7 +399,7 @@ class AIOSResult(BaseModel):
         )
 
     @classmethod
-    def error_result(cls, error: str) -> "AIOSResult":
+    def error_result(cls, error: str) -> AIOSResult:
         """Create an error result."""
         return cls(
             result_type=AIOSResultType.ERROR,
@@ -441,22 +430,22 @@ class ExecutionResult(BaseModel):
 
     task_id: UUID = Field(..., description="Task ID")
     status: str = Field(..., description="Final status: completed, failed, terminated")
-    result: Optional[str] = Field(None, description="Final response content")
+    result: str | None = Field(None, description="Final response content")
     iterations: int = Field(default=0, ge=0, description="Total iterations")
     duration_ms: int = Field(default=0, ge=0, description="Total duration")
-    error: Optional[str] = Field(None, description="Error message if failed")
-    trace_id: Optional[UUID] = Field(None, description="Trace ID")
-    tool_calls: Optional[List["ToolCallResult"]] = Field(
+    error: str | None = Field(None, description="Error message if failed")
+    trace_id: UUID | None = Field(None, description="Trace ID")
+    tool_calls: list[ToolCallResult] | None = Field(
         None, description="List of tool calls made during execution"
     )
-    tokens_used: Optional[int] = Field(
+    tokens_used: int | None = Field(
         None, ge=0, description="Total tokens consumed across all LLM calls"
     )
-    governance_blocks: Optional[List[dict[str, Any]]] = Field(
+    governance_blocks: list[dict[str, Any]] | None = Field(
         None,
         description="Governance blocks that occurred during execution (authority, safety, tool approval)",
     )
-    user_corrections: Optional[List[dict[str, Any]]] = Field(
+    user_corrections: list[dict[str, Any]] | None = Field(
         None,
         description="User corrections provided during execution for behavioral gap analysis",
     )

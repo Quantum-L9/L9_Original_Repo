@@ -748,13 +748,13 @@ async def gmp_run(
 
         # Enqueue GMP task
         task_id = await task_queue.enqueue(
-            {
-                "kind": "gmp_run",
+            name="gmp_run",
+            payload={
                 "gmp_id": gmp_id,
                 "params": params,
-                "agent_id": kwargs.get("agent_id", "L"),
                 "queued_at": datetime.utcnow().isoformat(),
-            }
+            },
+            agent_id=kwargs.get("agent_id", "L"),
         )
 
         logger.info(f"GMP run queued: gmp_id={gmp_id} task_id={task_id}")
@@ -803,13 +803,13 @@ async def git_commit(
 
         # Enqueue git commit task
         task_id = await task_queue.enqueue(
-            {
-                "kind": "git_commit",
+            name="git_commit",
+            payload={
                 "message": message,
                 "files": files,
-                "agent_id": kwargs.get("agent_id", "L"),
                 "queued_at": datetime.utcnow().isoformat(),
-            }
+            },
+            agent_id=kwargs.get("agent_id", "L"),
         )
 
         logger.info(f"Git commit queued: files={len(files)} msg='{message[:50]}...'")
