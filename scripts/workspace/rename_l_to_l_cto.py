@@ -35,7 +35,6 @@ __dora_meta__ = {
 import os
 import re
 from pathlib import Path
-from typing import List, Tuple
 
 import structlog
 
@@ -111,7 +110,7 @@ def should_skip_file(filepath: Path) -> bool:
 
 def replace_in_file(
     filepath: Path, dry_run: bool = False
-) -> List[Tuple[int, str, str]]:
+) -> list[tuple[int, str, str]]:
     """
     Replace patterns in a single file.
 
@@ -119,7 +118,7 @@ def replace_in_file(
         List of (line_number, old_line, new_line) tuples
     """
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             lines = f.readlines()
     except (UnicodeDecodeError, PermissionError) as e:
         logger.info(f"  ⚠️  Skipping {filepath}: {e}")
@@ -133,12 +132,12 @@ def replace_in_file(
         new_line = line
 
         # Apply all replacements
-        for pattern, replacement, desc in REPLACEMENTS:
+        for pattern, replacement, _desc in REPLACEMENTS:
             if re.search(pattern, new_line):
                 new_line = re.sub(pattern, replacement, new_line)
 
         # Apply contextual replacements
-        for pattern, replacement, desc in CONTEXTUAL_REPLACEMENTS:
+        for pattern, replacement, _desc in CONTEXTUAL_REPLACEMENTS:
             if re.search(pattern, new_line):
                 new_line = re.sub(pattern, replacement, new_line)
 

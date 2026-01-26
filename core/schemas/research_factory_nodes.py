@@ -38,17 +38,22 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from collections.abc import Callable
 from datetime import datetime
-from typing import Any, Callable, Optional
+from typing import Any
 
 import structlog
 
 from core.decorators import must_stay_async
-from core.schemas.research_factory_models import (IntegrationResult,
-                                                  ParsedObject, Query,
-                                                  QueryPlan, RetrievalBatch,
-                                                  Superprompt,
-                                                  ValidationStatus)
+from core.schemas.research_factory_models import (
+    IntegrationResult,
+    ParsedObject,
+    Query,
+    QueryPlan,
+    RetrievalBatch,
+    Superprompt,
+    ValidationStatus,
+)
 from core.schemas.research_factory_state import ResearchState
 
 logger = structlog.get_logger(__name__)
@@ -215,7 +220,7 @@ Format: JSON with keys [results, metadata, sources]
 
 @must_stay_async("callers use await")
 async def pass_3_execute_retrieval(
-    state: ResearchState, retrieval_backend: Optional[RetrievalBackend] = None
+    state: ResearchState, retrieval_backend: RetrievalBackend | None = None
 ) -> ResearchState:
     """
     Pass 3 — Call research backend(s) with superprompts.
@@ -283,7 +288,7 @@ async def pass_3_execute_retrieval(
 
 @must_stay_async("callers use await")
 async def pass_4_extract_results(
-    state: ResearchState, extraction_backend: Optional[ExtractionBackend] = None
+    state: ResearchState, extraction_backend: ExtractionBackend | None = None
 ) -> ResearchState:
     """
     Pass 4 — Transform raw JSON into validated objects.
@@ -392,11 +397,11 @@ async def pass_5_integrate_results(state: ResearchState) -> ResearchState:
                 valid_count / len(state.parsed_objects) if state.parsed_objects else 0.0
             ),
             "sources_used": list(
-                set(
+                {
                     batch.sources[0]
                     for batch in state.retrieval_batches
                     if batch.sources
-                )
+                }
             ),
             "integration_targets": ["hypergraph", "world_model"],
             "integration_status": "completed",

@@ -40,7 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Optional, Protocol
+from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
     from core.observability.circuit_breaker import CircuitBreaker
@@ -65,9 +65,9 @@ class ResilientService(Protocol):
                 self._retry_policy = retry_policy or RetryPolicy()
     """
 
-    _circuit_breaker: Optional["CircuitBreaker"]
-    _dlq: Optional["DeadLetterQueue"]
-    _retry_policy: Optional["RetryPolicy"]
+    _circuit_breaker: CircuitBreaker | None
+    _dlq: DeadLetterQueue | None
+    _retry_policy: RetryPolicy | None
 
 
 # ============================================================================

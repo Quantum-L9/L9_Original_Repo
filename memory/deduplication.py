@@ -49,12 +49,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-import structlog
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, List, Dict, Optional, Tuple
+from typing import Any
 from uuid import uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -102,13 +103,13 @@ class DuplicateGroup:
     """
 
     group_id: str
-    packet_ids: List[str]
+    packet_ids: list[str]
     similarity_score: float
     method: SimilarityMethod
-    merged_packet_id: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    merged_packet_id: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export as dict for logging."""
         return {
             "group_id": self.group_id,
@@ -141,9 +142,9 @@ class DeduplicationReport:
     packets_merged: int = 0
     space_saved_bytes: int = 0
     execution_time_seconds: float = 0.0
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export as dict."""
         return {
             "total_packets_analyzed": self.total_packets_analyzed,
@@ -199,8 +200,8 @@ class DeduplicationEngine:
 
     async def deduplicate_packets(
         self,
-        packets: List[Dict[str, Any]],
-    ) -> Tuple[List[DuplicateGroup], DeduplicationReport]:
+        packets: list[dict[str, Any]],
+    ) -> tuple[list[DuplicateGroup], DeduplicationReport]:
         """
         Deduplicate a batch of packets.
 
@@ -250,7 +251,7 @@ class DeduplicationEngine:
                         ) * avg_packet_size
 
                 except Exception as e:
-                    error_msg = f"Failed to merge group {group.group_id}: {str(e)}"
+                    error_msg = f"Failed to merge group {group.group_id}: {e!s}"
                     report.errors.append(error_msg)
                     logger.error("deduplication.merge_error", error=error_msg)
 
@@ -265,7 +266,7 @@ class DeduplicationEngine:
             return duplicate_groups, report
 
         except Exception as e:
-            error_msg = f"Deduplication failed: {str(e)}"
+            error_msg = f"Deduplication failed: {e!s}"
             report.errors.append(error_msg)
             logger.error("deduplication.error", error=error_msg)
 
@@ -276,8 +277,8 @@ class DeduplicationEngine:
 
     async def _detect_duplicates(
         self,
-        packets: List[Dict[str, Any]],
-    ) -> List[DuplicateGroup]:
+        packets: list[dict[str, Any]],
+    ) -> list[DuplicateGroup]:
         """
         Detect duplicate packets using configured method.
 
@@ -289,23 +290,22 @@ class DeduplicationEngine:
         """
         if self.similarity_method == SimilarityMethod.EXACT_HASH:
             return await self._detect_exact_duplicates(packets)
-        elif self.similarity_method == SimilarityMethod.SEMANTIC_EMBEDDING:
+        if self.similarity_method == SimilarityMethod.SEMANTIC_EMBEDDING:
             return await self._detect_semantic_duplicates(packets)
-        elif self.similarity_method == SimilarityMethod.FUZZY_TEXT:
+        if self.similarity_method == SimilarityMethod.FUZZY_TEXT:
             return await self._detect_fuzzy_duplicates(packets)
-        elif self.similarity_method == SimilarityMethod.HYBRID:
+        if self.similarity_method == SimilarityMethod.HYBRID:
             return await self._detect_hybrid_duplicates(packets)
-        else:
-            logger.warning(
-                "deduplication.unknown_method",
-                method=self.similarity_method,
-            )
-            return []
+        logger.warning(
+            "deduplication.unknown_method",
+            method=self.similarity_method,
+        )
+        return []
 
     async def _detect_exact_duplicates(
         self,
-        packets: List[Dict[str, Any]],
-    ) -> List[DuplicateGroup]:
+        packets: list[dict[str, Any]],
+    ) -> list[DuplicateGroup]:
         """
         Detect exact duplicates using content hash.
 
@@ -315,7 +315,7 @@ class DeduplicationEngine:
         Returns:
             List of duplicate groups
         """
-        hash_to_packets: Dict[str, List[str]] = {}
+        hash_to_packets: dict[str, list[str]] = {}
 
         for packet in packets:
             content_hash = self._compute_content_hash(packet)
@@ -342,8 +342,8 @@ class DeduplicationEngine:
 
     async def _detect_semantic_duplicates(
         self,
-        packets: List[Dict[str, Any]],
-    ) -> List[DuplicateGroup]:
+        packets: list[dict[str, Any]],
+    ) -> list[DuplicateGroup]:
         """
         Detect semantic duplicates using embeddings.
 
@@ -365,7 +365,7 @@ class DeduplicationEngine:
 
             similar_packets = [packet_a["packet_id"]]
 
-            for j, packet_b in enumerate(packets[i + 1 :], start=i + 1):
+            for _j, packet_b in enumerate(packets[i + 1 :], start=i + 1):
                 if packet_b["packet_id"] in processed_ids:
                     continue
 
@@ -390,8 +390,8 @@ class DeduplicationEngine:
 
     async def _detect_fuzzy_duplicates(
         self,
-        packets: List[Dict[str, Any]],
-    ) -> List[DuplicateGroup]:
+        packets: list[dict[str, Any]],
+    ) -> list[DuplicateGroup]:
         """
         Detect fuzzy duplicates using text similarity.
 
@@ -406,8 +406,8 @@ class DeduplicationEngine:
 
     async def _detect_hybrid_duplicates(
         self,
-        packets: List[Dict[str, Any]],
-    ) -> List[DuplicateGroup]:
+        packets: list[dict[str, Any]],
+    ) -> list[DuplicateGroup]:
         """
         Detect duplicates using hybrid approach (exact + semantic).
 
@@ -434,8 +434,8 @@ class DeduplicationEngine:
     async def _merge_duplicate_group(
         self,
         group: DuplicateGroup,
-        packets: List[Dict[str, Any]],
-    ) -> Optional[Dict[str, Any]]:
+        packets: list[dict[str, Any]],
+    ) -> dict[str, Any] | None:
         """
         Merge a group of duplicate packets.
 
@@ -454,19 +454,18 @@ class DeduplicationEngine:
 
         if self.merge_strategy == MergeStrategy.KEEP_HIGHEST_CONFIDENCE:
             return self._merge_keep_highest_confidence(group_packets)
-        elif self.merge_strategy == MergeStrategy.KEEP_MOST_RECENT:
+        if self.merge_strategy == MergeStrategy.KEEP_MOST_RECENT:
             return self._merge_keep_most_recent(group_packets)
-        elif self.merge_strategy == MergeStrategy.MERGE_METADATA:
+        if self.merge_strategy == MergeStrategy.MERGE_METADATA:
             return self._merge_metadata(group_packets)
-        elif self.merge_strategy == MergeStrategy.KEEP_FIRST:
+        if self.merge_strategy == MergeStrategy.KEEP_FIRST:
             return group_packets[0]
-        else:
-            return group_packets[0]
+        return group_packets[0]
 
     def _merge_keep_highest_confidence(
         self,
-        packets: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        packets: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """Keep packet with highest confidence score."""
         return max(
             packets,
@@ -475,8 +474,8 @@ class DeduplicationEngine:
 
     def _merge_keep_most_recent(
         self,
-        packets: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        packets: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """Keep most recently created packet."""
         return max(
             packets,
@@ -485,8 +484,8 @@ class DeduplicationEngine:
 
     def _merge_metadata(
         self,
-        packets: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        packets: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """Merge metadata from all packets."""
         # Start with most recent packet
         merged = self._merge_keep_most_recent(packets)
@@ -503,7 +502,7 @@ class DeduplicationEngine:
 
         return merged
 
-    def _compute_content_hash(self, packet: Dict[str, Any]) -> str:
+    def _compute_content_hash(self, packet: dict[str, Any]) -> str:
         """
         Compute content hash for packet.
 
@@ -525,8 +524,8 @@ class DeduplicationEngine:
 
     def _compute_semantic_similarity(
         self,
-        packet_a: Dict[str, Any],
-        packet_b: Dict[str, Any],
+        packet_a: dict[str, Any],
+        packet_b: dict[str, Any],
     ) -> float:
         """
         Compute semantic similarity between packets.
@@ -568,11 +567,11 @@ class DeduplicationEngine:
 # =============================================================================
 
 __all__ = [
+    "DeduplicationEngine",
+    "DeduplicationReport",
+    "DuplicateGroup",
     "MergeStrategy",
     "SimilarityMethod",
-    "DuplicateGroup",
-    "DeduplicationReport",
-    "DeduplicationEngine",
 ]
 
 # ============================================================================

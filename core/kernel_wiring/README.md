@@ -59,14 +59,14 @@ Kernel configuration and wiring utilities
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                     | Purpose          |
+| -------------------------- | ---------------- |
 | `runtime/kernel_loader.py` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module          | Purpose             |
+| --------------- | ------------------- |
 | `core/kernels/` | Required dependency |
 
 ---
@@ -88,8 +88,8 @@ core/kernel_wiring/
 ├── worldmodel_wiring.py
 ```
 
-| File | Purpose |
-|------|---------|
+| File          | Purpose                 |
+| ------------- | ----------------------- |
 | `__init__.py` | Core module (PROTECTED) |
 
 ### Naming Conventions
@@ -174,9 +174,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Kernel_Wiring feature flags
-L9_ENABLE_CORE_KERNEL_WIRING_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_KERNEL_WIRING_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_KERNEL_WIRING_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_KERNEL_WIRING_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_KERNEL_WIRING_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_KERNEL_WIRING_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -238,7 +238,6 @@ No description
 - **File:** `packet_protocol_wiring.py:52`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -279,6 +278,7 @@ Core Kernel Wiring operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -286,12 +286,12 @@ Core Kernel Wiring operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                     | Type      | Description                    |
+| ------------------------------------------ | --------- | ------------------------------ |
 | `core_kernel_wiring_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_kernel_wiring_operation_total` | Counter | Total operations processed |
-| `core_kernel_wiring_error_total` | Counter | Total errors encountered |
-| `core_kernel_wiring_active_connections` | Gauge | Current active connections |
+| `core_kernel_wiring_operation_total`       | Counter   | Total operations processed     |
+| `core_kernel_wiring_error_total`           | Counter   | Total errors encountered       |
+| `core_kernel_wiring_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -309,6 +309,7 @@ Core Kernel Wiring emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_kernel_wiring/`:
+
 - `test_core_kernel_wiring.py` — Core unit tests
 - `test_core_kernel_wiring_integration.py` — Integration tests (if applicable)
 
@@ -351,6 +352,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

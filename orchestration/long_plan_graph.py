@@ -344,7 +344,7 @@ async def hydrate_memory_node(state: LongPlanState) -> LongPlanState:
         logger.error(f"hydrate_memory_node failed: {e}", exc_info=True)
         return {
             **state,
-            "errors": state.get("errors", []) + [f"hydrate_memory_node error: {e!s}"],
+            "errors": [*state.get("errors", []), f"hydrate_memory_node error: {e!s}"],
         }
 
 
@@ -424,7 +424,7 @@ async def gather_context_node(state: LongPlanState) -> LongPlanState:
         logger.error(f"gather_context_node failed: {e}", exc_info=True)
         return {
             **state,
-            "errors": state.get("errors", []) + [f"gather_context_node error: {e!s}"],
+            "errors": [*state.get("errors", []), f"gather_context_node error: {e!s}"],
         }
 
 
@@ -508,7 +508,7 @@ async def draft_work_node(state: LongPlanState) -> LongPlanState:
         logger.error(f"draft_work_node failed: {e}", exc_info=True)
         return {
             **state,
-            "errors": state.get("errors", []) + [f"draft_work_node error: {e!s}"],
+            "errors": [*state.get("errors", []), f"draft_work_node error: {e!s}"],
         }
 
 
@@ -584,7 +584,7 @@ async def prepare_changes_node(state: LongPlanState) -> LongPlanState:
         logger.error(f"prepare_changes_node failed: {e}", exc_info=True)
         return {
             **state,
-            "errors": state.get("errors", []) + [f"prepare_changes_node error: {e!s}"],
+            "errors": [*state.get("errors", []), f"prepare_changes_node error: {e!s}"],
         }
 
 
@@ -632,7 +632,7 @@ Review the pending actions and approve them to proceed with execution.
         logger.error(f"final_review_node failed: {e}", exc_info=True)
         return {
             **state,
-            "errors": state.get("errors", []) + [f"final_review_node error: {e!s}"],
+            "errors": [*state.get("errors", []), f"final_review_node error: {e!s}"],
             "phase": "HALT",
         }
 

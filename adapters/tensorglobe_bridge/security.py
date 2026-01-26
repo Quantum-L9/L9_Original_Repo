@@ -31,8 +31,7 @@ __dora_meta__ = {
 import hashlib
 import hmac
 import logging
-from typing import Optional
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -49,8 +48,8 @@ class SignatureVerifier:
 
     def __init__(
         self,
-        l9_public_keys: Optional[dict] = None,
-        tensorglobe_public_keys: Optional[dict] = None,
+        l9_public_keys: dict | None = None,
+        tensorglobe_public_keys: dict | None = None,
         signature_algorithm: str = "sha256",
         max_signature_age_seconds: int = 300,
     ):
@@ -128,19 +127,19 @@ class SignatureVerifier:
 
             # Verify signature
             # TODO: Implement actual cryptographic verification
-            self.logger.debug(f"Response signature verification: PLACEHOLDER_PASS")
+            self.logger.debug("Response signature verification: PLACEHOLDER_PASS")
             return True
 
         except Exception as e:
             self.logger.error(f"Response signature verification failed: {e}")
             return False
 
-    def _get_l9_public_key(self, agent_id: str, key_id: str) -> Optional[bytes]:
+    def _get_l9_public_key(self, agent_id: str, key_id: str) -> bytes | None:
         """Fetch L9 agent public key from registry"""
         key_lookup = f"{agent_id}:{key_id}"
         return self.l9_public_keys.get(key_lookup)
 
-    def _get_tensorglobe_public_key(self, key_id: str) -> Optional[bytes]:
+    def _get_tensorglobe_public_key(self, key_id: str) -> bytes | None:
         """Fetch TensorGlobe provider public key"""
         return self.tensorglobe_public_keys.get(key_id)
 

@@ -8,24 +8,22 @@
 
 ## TODO Plan (Executed)
 
-| T# | File | Lines | Action | Description |
-|----|------|-------|--------|-------------|
-| T1 | `~/.l9/logs` | — | Create | Audit log directory (user-writable) |
-| T2 | `.git/hooks/pre-commit` | — | Replace | Restore shell hook as primary |
-| T3 | `scripts/hooks/pre-commit` | 26-32 | Replace | Use ~/.l9/logs for audit logs |
-| T4 | `scripts/hooks/pre-commit` | 162-192 | Replace | Make mypy non-blocking (warn only) |
-
+| T#  | File                       | Lines   | Action  | Description                         |
+| --- | -------------------------- | ------- | ------- | ----------------------------------- |
+| T1  | `~/.l9/logs`               | —       | Create  | Audit log directory (user-writable) |
+| T2  | `.git/hooks/pre-commit`    | —       | Replace | Restore shell hook as primary       |
+| T3  | `scripts/hooks/pre-commit` | 26-32   | Replace | Use ~/.l9/logs for audit logs       |
+| T4  | `scripts/hooks/pre-commit` | 162-192 | Replace | Make mypy non-blocking (warn only)  |
 
 ---
 
 ## Validation Results
 
-| Check | Result |
-|-------|--------|
-| bash_syntax | ✅ |
-| hook_installed | ✅ |
-| logs_dir | ✅ |
-
+| Check          | Result |
+| -------------- | ------ |
+| bash_syntax    | ✅     |
+| hook_installed | ✅     |
+| logs_dir       | ✅     |
 
 ---
 

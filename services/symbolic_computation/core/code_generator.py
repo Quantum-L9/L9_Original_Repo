@@ -37,14 +37,13 @@ __dora_meta__ = {
 
 import subprocess
 import time
-from typing import Callable, List, Optional
+from collections.abc import Callable
 
 import structlog
 import sympy
 from sympy import sympify
 
-from services.symbolic_computation.config import (SymbolicComputationConfig,
-                                                  get_config)
+from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 from services.symbolic_computation.core.models import CodeGenResult
 
 logger = structlog.get_logger(__name__)
@@ -75,8 +74,8 @@ class CodeGenerator:
 
     def __init__(
         self,
-        config: Optional[SymbolicComputationConfig] = None,
-        metrics_collector: Optional[any] = None,
+        config: SymbolicComputationConfig | None = None,
+        metrics_collector: any | None = None,
     ):
         """
         Initialize the code generator.
@@ -103,7 +102,7 @@ class CodeGenerator:
     async def generate_code(
         self,
         expr: str,
-        variables: List[str],
+        variables: list[str],
         language: str = "C",
         function_name: str = "evaluate",
     ) -> CodeGenResult:
@@ -201,7 +200,7 @@ class CodeGenerator:
     def _generate_compiled_code(
         self,
         expr: sympy.Expr,
-        var_symbols: List[sympy.Symbol],
+        var_symbols: list[sympy.Symbol],
         function_name: str,
         language: str,
     ) -> str:
@@ -209,7 +208,7 @@ class CodeGenerator:
         from sympy.utilities.codegen import CCodeGen, FCodeGen, Routine
 
         # Create routine
-        routine = Routine(function_name, expr, argument_sequence=var_symbols)
+        Routine(function_name, expr, argument_sequence=var_symbols)
 
         # Select code generator
         if language.upper() == "C":
@@ -239,7 +238,7 @@ class CodeGenerator:
     def _fallback_codegen(
         self,
         expr: sympy.Expr,
-        var_symbols: List[sympy.Symbol],
+        var_symbols: list[sympy.Symbol],
         function_name: str,
         language: str,
     ) -> str:
@@ -255,7 +254,7 @@ double {function_name}({args}) {{
     return {expr_str};
 }}
 """
-        elif language.upper() == "FORTRAN":
+        if language.upper() == "FORTRAN":
             args = ", ".join(var_names)
             decl = "\n".join([f"    REAL*8 {v}" for v in var_names])
             return f"""FUNCTION {function_name.upper()}({args})
@@ -264,13 +263,12 @@ double {function_name}({args}) {{
     {function_name.upper()} = {expr_str}
 END FUNCTION
 """
-        else:
-            return self._generate_python_code(expr, var_symbols, function_name)
+        return self._generate_python_code(expr, var_symbols, function_name)
 
     def _generate_python_code(
         self,
         expr: sympy.Expr,
-        var_symbols: List[sympy.Symbol],
+        var_symbols: list[sympy.Symbol],
         function_name: str,
     ) -> str:
         """Generate Python code from expression."""
@@ -292,7 +290,7 @@ def {function_name}({args}):
         source_code: str,
         language: str,
         output_name: str = "compiled_fn",
-    ) -> Optional[Callable]:
+    ) -> Callable | None:
         """
         Compile generated code to executable function.
 
@@ -330,15 +328,14 @@ def {function_name}({args}):
                         return obj
                 return None
 
-            elif language.upper() == "C":
+            if language.upper() == "C":
                 return self._compile_c_code(source_code, output_name)
 
-            else:
-                self.logger.warning(
-                    "unsupported_compilation_language",
-                    language=language,
-                )
-                return None
+            self.logger.warning(
+                "unsupported_compilation_language",
+                language=language,
+            )
+            return None
 
         except Exception as e:
             self.logger.error(
@@ -352,7 +349,7 @@ def {function_name}({args}):
         self,
         source_code: str,
         output_name: str,
-    ) -> Optional[Callable]:
+    ) -> Callable | None:
         """Compile C code to shared library and load."""
         import ctypes
 

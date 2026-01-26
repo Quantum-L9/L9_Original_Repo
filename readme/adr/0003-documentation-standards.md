@@ -1,32 +1,36 @@
 # ADR 0003: Documentation Standards for AI-Readable Codebase
 
 ## Status
+
 Accepted
 
 ## Context
+
 L9 is maintained and extended by both human developers and AI agents (Cursor, L-CTO,
 CodeGenAgent). Code must be unambiguous, self-documenting, and machine-parseable to
 enable reliable automated analysis, code generation, and refactoring.
 
 Current challenges:
+
 - AI agents may misinterpret patterns without explicit documentation
 - Type hints alone don't convey architectural intent
 - Scattered documentation makes it hard to understand design decisions
 - Different documentation styles across modules create inconsistency
 
 ## Decision
+
 Adopt a **multi-method documentation strategy** that combines five complementary
 approaches for maximum clarity and coverage:
 
 ### Documentation Methods (All Required for New Code)
 
-| Method | Location | Purpose | Audience |
-|--------|----------|---------|----------|
-| **A: Module Docstring** | Top of file | Full architectural context, patterns used, references | Developers, AI agents reading source |
-| **B: Inline Comment** | At import/critical code | Why this specific code exists | AI reviewers, code auditors |
-| **C: Type Hints + Annotated** | Parameters, returns | Per-element context with metadata | IDE users, type checkers, AI |
-| **D: ADR Document** | `readme/adr/` | Formal decision record | Architecture reviews, onboarding |
-| **E: DORA Metadata** | `__dora_meta__` block | Machine-readable patterns | Automated tooling, L9 system |
+| Method                        | Location                | Purpose                                               | Audience                             |
+| ----------------------------- | ----------------------- | ----------------------------------------------------- | ------------------------------------ |
+| **A: Module Docstring**       | Top of file             | Full architectural context, patterns used, references | Developers, AI agents reading source |
+| **B: Inline Comment**         | At import/critical code | Why this specific code exists                         | AI reviewers, code auditors          |
+| **C: Type Hints + Annotated** | Parameters, returns     | Per-element context with metadata                     | IDE users, type checkers, AI         |
+| **D: ADR Document**           | `readme/adr/`           | Formal decision record                                | Architecture reviews, onboarding     |
+| **E: DORA Metadata**          | `__dora_meta__` block   | Machine-readable patterns                             | Automated tooling, L9 system         |
 
 ### Method A: Module Docstring Template
 
@@ -150,14 +154,14 @@ __dora_meta__ = {
     "module_name": "Python module name",
     "type": "service|dataclass|router|...",
     "status": "active|deprecated|experimental",
-    
+
     # REQUIRED for AI comprehension
     "architecture_patterns": [
         "Pattern name (ADR-XXXX)",
         ...
     ],
     "pep_compliance": ["PEP 563", "PEP 544", ...],
-    
+
     "integrates_with": {
         "api_endpoints": [...],
         "datasources": [...],
@@ -198,6 +202,7 @@ When reviewing code, AI agents MUST:
 ## Consequences
 
 ### Positive
+
 - Unambiguous code that AI agents can reliably parse
 - Self-documenting architecture decisions
 - Consistent documentation style across codebase
@@ -205,11 +210,13 @@ When reviewing code, AI agents MUST:
 - Better onboarding for new contributors (human and AI)
 
 ### Neutral
+
 - Increased initial documentation effort
 - Larger file sizes due to comprehensive documentation
 - Requires discipline to maintain
 
 ### Negative
+
 - Technical debt if not enforced consistently
 - May slow down rapid prototyping (acceptable trade-off for production code)
 

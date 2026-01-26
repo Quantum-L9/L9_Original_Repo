@@ -37,7 +37,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -50,7 +50,7 @@ logger = structlog.get_logger(__name__)
 # Tool Authorization Matrix (default, can be overridden by boot_overlay)
 # =============================================================================
 
-DEFAULT_TOOL_AUTHORIZATION: Dict[str, Dict[str, Any]] = {
+DEFAULT_TOOL_AUTHORIZATION: dict[str, dict[str, Any]] = {
     # HIGH_TRUST: Auto-execute, no confirmation needed
     "memory_search": {"class": "HIGH_TRUST", "requires_confirmation": False},
     "memory_hybrid_search": {"class": "HIGH_TRUST", "requires_confirmation": False},
@@ -109,7 +109,7 @@ DEFAULT_TOOL_AUTHORIZATION: Dict[str, Dict[str, Any]] = {
 # Safety Patterns (from safety_kernel)
 # =============================================================================
 
-FORBIDDEN_PATTERNS: Dict[str, List[str]] = {
+FORBIDDEN_PATTERNS: dict[str, list[str]] = {
     "shell": [
         "rm -rf",
         "rm -r /",
@@ -149,10 +149,10 @@ FORBIDDEN_PATTERNS: Dict[str, List[str]] = {
 def guarded_execute(
     agent: Any,
     tool_id: str,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     action_description: str = "",
     confidence: float = 0.95,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     GODMODE Part 2: Guarded Execute Contract.
 
@@ -183,7 +183,7 @@ def guarded_execute(
     """
 
     # Step 1: Kernel activation check
-    kernel_state: Optional[KernelState] = getattr(agent, "kernel_state", None)
+    kernel_state: KernelState | None = getattr(agent, "kernel_state", None)
     if kernel_state is None or not kernel_state.initialized:
         raise RuntimeError(
             "CRITICAL: Kernel set not active. Execution denied.\n"
@@ -307,7 +307,7 @@ def guarded_execute(
         # Log failure and escalate
         kernel_state.log_escalation(
             category="TOOL_FAILURE",
-            issue=f"Tool {tool_id} failed: {str(e)}",
+            issue=f"Tool {tool_id} failed: {e!s}",
             severity="HIGH",
             trigger="execution_exception",
             action="ESCALATE_TO_IGOR",
@@ -330,7 +330,7 @@ def guarded_execute(
         }
 
 
-def _get_tool_authorization(agent: Any, tool_id: str) -> Optional[Dict[str, Any]]:
+def _get_tool_authorization(agent: Any, tool_id: str) -> dict[str, Any] | None:
     """
     Get tool authorization from boot_overlay or defaults.
 
@@ -354,8 +354,8 @@ def _get_tool_authorization(agent: Any, tool_id: str) -> Optional[Dict[str, Any]
 
 def _run_safety_scan(
     tool_id: str,
-    params: Dict[str, Any],
-) -> Dict[str, Any]:
+    params: dict[str, Any],
+) -> dict[str, Any]:
     """
     Pre-execution safety scan (GODMODE Part 3).
 
@@ -382,7 +382,7 @@ def _run_safety_scan(
     return {"blocked": False}
 
 
-def _execute_tool(agent: Any, tool_id: str, params: Dict[str, Any]) -> Any:
+def _execute_tool(agent: Any, tool_id: str, params: dict[str, Any]) -> Any:
     """
     Execute the tool through the agent's tool registry.
 
@@ -450,8 +450,8 @@ def escalate_to_igor(
     kernel_state: Any,
     issue: str,
     confidence: float,
-    options: List[str],
-    context: Dict[str, Any],
+    options: list[str],
+    context: dict[str, Any],
 ) -> str:
     """
     Format and route escalation to Igor.
@@ -508,10 +508,9 @@ def select_mode_based_on_confidence(confidence: float) -> str:
     """
     if confidence >= 0.80:
         return "executive"  # Act without asking
-    elif confidence >= 0.70:
+    if confidence >= 0.70:
         return "developer"  # Explain thinking, await confirmation
-    else:
-        return "ask"  # Escalate to Igor
+    return "ask"  # Escalate to Igor
 
 
 # =============================================================================
@@ -519,12 +518,12 @@ def select_mode_based_on_confidence(confidence: float) -> str:
 # =============================================================================
 
 __all__ = [
-    "guarded_execute",
-    "should_escalate_on_confidence",
-    "escalate_to_igor",
-    "select_mode_based_on_confidence",
     "DEFAULT_TOOL_AUTHORIZATION",
     "FORBIDDEN_PATTERNS",
+    "escalate_to_igor",
+    "guarded_execute",
+    "select_mode_based_on_confidence",
+    "should_escalate_on_confidence",
 ]
 
 # ============================================================================

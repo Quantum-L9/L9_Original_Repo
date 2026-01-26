@@ -16,10 +16,10 @@
 # =============================================================================
 # L9 Security Kernel
 # =============================================================================
-# 
+#
 # Defines security rules enforced by the L9 orchestration layer.
 # Loaded at startup by private_loader.py.
-# 
+#
 # Priority: 20 (loaded early, high precedence)
 # Version: 1.0.0
 # =============================================================================
@@ -31,7 +31,7 @@ kernel:
   description: |
     Core security kernel for L9 orchestration.
     Enforces capability sandboxing, recursion limits, and integrity checks.
-    
+
   rules:
     # -------------------------------------------------------------------------
     # Capability Enforcement
@@ -40,12 +40,12 @@ kernel:
       type: capability
       description: "Only whitelisted tools may be invoked by each agent."
       enabled: true
-      enforcement: strict  # strict | warn | log
+      enforcement: strict # strict | warn | log
       config:
         default_deny: true
         allow_override: false
         audit_all_checks: true
-    
+
     # -------------------------------------------------------------------------
     # Recursion Safety
     # -------------------------------------------------------------------------
@@ -56,8 +56,8 @@ kernel:
       params:
         max_depth: 3
         warn_at_depth: 2
-        action_on_exceed: reject  # reject | truncate
-    
+        action_on_exceed: reject # reject | truncate
+
     # -------------------------------------------------------------------------
     # Network Safety
     # -------------------------------------------------------------------------
@@ -72,9 +72,9 @@ kernel:
           - "127.0.0.1"
           - "*.local"
         blocked_ports:
-          - 22    # SSH
-          - 3389  # RDP
-    
+          - 22 # SSH
+          - 3389 # RDP
+
     # -------------------------------------------------------------------------
     # Kernel Integrity
     # -------------------------------------------------------------------------
@@ -85,10 +85,10 @@ kernel:
       params:
         hash_algorithm: sha256
         hash_file: private/kernel_hashes.json
-        action_on_tamper: warn  # warn | block | alert
+        action_on_tamper: warn # warn | block | alert
         verify_on_load: true
         auto_update_hashes: true
-    
+
     # -------------------------------------------------------------------------
     # Session Security
     # -------------------------------------------------------------------------
@@ -100,7 +100,7 @@ kernel:
         idle_timeout_seconds: 3600
         max_session_duration_seconds: 86400
         require_reauth_on_capability_change: true
-    
+
     # -------------------------------------------------------------------------
     # Audit Logging
     # -------------------------------------------------------------------------
@@ -122,7 +122,7 @@ metadata:
   created_at: "2024-12-08T00:00:00Z"
   created_by: "l9-security-upgrade"
   last_modified: "2024-12-08T00:00:00Z"
-  checksum: null  # Will be computed on first load
+  checksum: null # Will be computed on first load
 
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED

@@ -41,85 +41,85 @@ spec:
         app: l9-mcp-memory
     spec:
       containers:
-      - name: mcp-memory
-        image: ghcr.io/igor-beylin/l9-mcp-memory:latest
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 9002
-          name: http
-        env:
-        # Python path for imports
-        - name: PYTHONPATH
-          value: "/app:/app/mcp_memory"
-        
-        # Database (shared with l9-api)
-        - name: POSTGRES_USER
-          valueFrom:
-            secretKeyRef:
-              name: l9-secrets
-              key: postgres-user
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: l9-secrets
-              key: postgres-password
-        # MEMORY_DSN constructed from secrets
-        - name: MEMORY_DSN
-          value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@l9-postgres:5432/l9_memory"
-        
-        # MCP Server Config
-        - name: MCP_HOST
-          value: "0.0.0.0"
-        - name: MCP_PORT
-          value: "9002"
-        - name: MCP_ENV
-          value: "production"
-        
-        # API Keys
-        - name: MCP_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: l9-secrets
-              key: mcp-api-key
-              optional: true
-        
-        # OpenAI Embeddings
-        - name: OPENAI_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: l9-secrets
-              key: openai-api-key
-              optional: true
-        - name: OPENAI_EMBED_MODEL
-          value: "text-embedding-3-small"
-        
-        # Governance
-        - name: GOVERNANCE_HARDENING_ENABLED
-          value: "false"
-        - name: GOVERNANCE_ENFORCEMENT_MODE
-          value: "log_only"
-        
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 9002
-          initialDelaySeconds: 20
-          periodSeconds: 15
-          timeoutSeconds: 5
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 9002
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 3
+        - name: mcp-memory
+          image: ghcr.io/igor-beylin/l9-mcp-memory:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9002
+              name: http
+          env:
+            # Python path for imports
+            - name: PYTHONPATH
+              value: "/app:/app/mcp_memory"
+
+            # Database (shared with l9-api)
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: l9-secrets
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: l9-secrets
+                  key: postgres-password
+            # MEMORY_DSN constructed from secrets
+            - name: MEMORY_DSN
+              value: "postgresql://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@l9-postgres:5432/l9_memory"
+
+            # MCP Server Config
+            - name: MCP_HOST
+              value: "0.0.0.0"
+            - name: MCP_PORT
+              value: "9002"
+            - name: MCP_ENV
+              value: "production"
+
+            # API Keys
+            - name: MCP_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: l9-secrets
+                  key: mcp-api-key
+                  optional: true
+
+            # OpenAI Embeddings
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: l9-secrets
+                  key: openai-api-key
+                  optional: true
+            - name: OPENAI_EMBED_MODEL
+              value: "text-embedding-3-small"
+
+            # Governance
+            - name: GOVERNANCE_HARDENING_ENABLED
+              value: "false"
+            - name: GOVERNANCE_ENFORCEMENT_MODE
+              value: "log_only"
+
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 9002
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 9002
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
       restartPolicy: Always
 ---
 apiVersion: v1
@@ -134,10 +134,9 @@ spec:
   selector:
     app: l9-mcp-memory
   ports:
-  - port: 9002
-    targetPort: 9002
-    name: http
-
+    - port: 9002
+      targetPort: 9002
+      name: http
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

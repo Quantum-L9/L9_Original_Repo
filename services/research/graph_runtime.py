@@ -31,15 +31,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
 
 from core.singleton_auto_registry import register_singleton
 from memory.substrate_repository import close_repository, init_repository
-from services.research.memory_adapter import (get_memory_adapter,
-                                              init_memory_adapter)
+from services.research.memory_adapter import get_memory_adapter, init_memory_adapter
 from services.research.research_graph import build_research_graph, run_research
 
 logger = structlog.get_logger(__name__)
@@ -93,7 +92,7 @@ class ResearchGraphRuntime:
         self,
         query: str,
         user_id: str = "anonymous",
-        thread_id: Optional[str] = None,
+        thread_id: str | None = None,
     ) -> dict[str, Any]:
         """
         Execute research graph.
@@ -113,18 +112,17 @@ class ResearchGraphRuntime:
 
         logger.info(f"Executing research: query={query[:50]}..., thread={thread_id}")
 
-        result = await run_research(
+        return await run_research(
             query=query,
             user_id=user_id,
             thread_id=thread_id,
         )
 
-        return result
 
     async def resume(
         self,
         thread_id: str,
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Resume research from checkpoint.
 
@@ -151,7 +149,7 @@ class ResearchGraphRuntime:
 
         return result.get("final_output", {})
 
-    async def get_status(self, thread_id: str) -> Optional[dict[str, Any]]:
+    async def get_status(self, thread_id: str) -> dict[str, Any] | None:
         """
         Get status of a research thread.
 
@@ -183,7 +181,7 @@ class ResearchGraphRuntime:
 
 
 # Singleton runtime instance
-_runtime: Optional[ResearchGraphRuntime] = None
+_runtime: ResearchGraphRuntime | None = None
 
 
 @register_singleton(

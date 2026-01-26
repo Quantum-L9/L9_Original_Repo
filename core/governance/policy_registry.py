@@ -35,7 +35,6 @@ __dora_meta__ = {
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List
 
 import structlog
 
@@ -60,7 +59,7 @@ class PolicySource:
     enabled: bool = True
     priority: int = 0
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary."""
         return {
             "name": self.name,
@@ -129,7 +128,7 @@ def register_policy_source(
     logger.info("policy_source_registry.registered", name=name, path=str(path))
 
 
-def discover_policy_sources() -> List[PolicySource]:
+def discover_policy_sources() -> list[PolicySource]:
     """
     Get all registered policy sources, sorted by priority.
 
@@ -138,7 +137,7 @@ def discover_policy_sources() -> List[PolicySource]:
     """
     policy_source_registry.initialize_factories()
 
-    sources: List[PolicySource] = []
+    sources: list[PolicySource] = []
 
     for source_id in policy_source_registry.list_ids():
         source = policy_source_registry.get(source_id)
@@ -152,7 +151,7 @@ def discover_policy_sources() -> List[PolicySource]:
     return sources
 
 
-def get_all_policy_sources() -> Dict[str, PolicySource]:
+def get_all_policy_sources() -> dict[str, PolicySource]:
     """
     Get all registered policy sources as a dictionary.
 
@@ -161,7 +160,7 @@ def get_all_policy_sources() -> Dict[str, PolicySource]:
     """
     policy_source_registry.initialize_factories()
 
-    sources: Dict[str, PolicySource] = {}
+    sources: dict[str, PolicySource] = {}
 
     for source_id in policy_source_registry.list_ids():
         source = policy_source_registry.get(source_id)
@@ -171,7 +170,7 @@ def get_all_policy_sources() -> Dict[str, PolicySource]:
     return sources
 
 
-def load_policies_from_sources() -> List[Policy]:
+def load_policies_from_sources() -> list[Policy]:
     """
     Load all policies from registered sources.
 
@@ -194,7 +193,7 @@ def load_policies_from_sources() -> List[Policy]:
     from core.governance.loader import PolicyLoader
 
     sources = discover_policy_sources()
-    all_policies: List[Policy] = []
+    all_policies: list[Policy] = []
 
     for source in sources:
         logger.info(

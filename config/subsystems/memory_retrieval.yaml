@@ -19,46 +19,91 @@ subsystem_config_v1:
     domain: memory_query_and_retrieval
     criticality: high
     agents_involved: [ArchitectAgent, MemoryAgent, QAAgent]
-  
+
   goals:
     - "Provide fast, accurate memory retrieval via hybrid search"
     - "Support semantic, keyword, and graph-based queries"
     - "Implement temporal decay and importance weighting"
     - "Enable cross-encoder re-ranking for precision"
-  
+
   constraints:
     - "All queries must respect RLS tenant isolation"
     - "Query latency must be under 500ms P95"
     - "No retrieval of expired or garbage-collected facts"
     - "Memory access must be audited"
-  
+
   pipeline:
     stages:
-      - {name: "Requirements", description: "Define retrieval requirements and SLAs"}
-      - {name: "Architecture", description: "Design query pipeline and ranking strategy"}
-      - {name: "Frontier Review", description: "Compare against RAG and retrieval best practices"}
-      - {name: "TODO Plan", description: "Implementation plan for retrieval changes"}
-      - {name: "Architect Approval", description: "Review retrieval architecture"}
-      - {name: "L Improvement Loop", description: "Optimize retrieval performance"}
-      - {name: "ME Approval", description: "Final approval for retrieval changes"}
-      - {name: "Implementation", description: "Implement retrieval pipeline changes"}
-      - {name: "Test Validation", description: "Performance testing, relevance evaluation"}
-      - {name: "Mutation & Tracking", description: "Deploy retrieval changes"}
-      - {name: "Final Validation", description: "Verify retrieval accuracy and latency"}
-  
+      - {
+          name: "Requirements",
+          description: "Define retrieval requirements and SLAs",
+        }
+      - {
+          name: "Architecture",
+          description: "Design query pipeline and ranking strategy",
+        }
+      - {
+          name: "Frontier Review",
+          description: "Compare against RAG and retrieval best practices",
+        }
+      - {
+          name: "TODO Plan",
+          description: "Implementation plan for retrieval changes",
+        }
+      - {
+          name: "Architect Approval",
+          description: "Review retrieval architecture",
+        }
+      - {
+          name: "L Improvement Loop",
+          description: "Optimize retrieval performance",
+        }
+      - {
+          name: "ME Approval",
+          description: "Final approval for retrieval changes",
+        }
+      - {
+          name: "Implementation",
+          description: "Implement retrieval pipeline changes",
+        }
+      - {
+          name: "Test Validation",
+          description: "Performance testing, relevance evaluation",
+        }
+      - { name: "Mutation & Tracking", description: "Deploy retrieval changes" }
+      - {
+          name: "Final Validation",
+          description: "Verify retrieval accuracy and latency",
+        }
+
   approval_model:
     levels:
-      - {name: "auto_qa", criteria: ["latency_p95 <= 500ms", "relevance_score >= 0.8"], sla_minutes: 0}
-      - {name: "auto_architect", criteria: ["test_coverage_pct >= 80", "risk_score <= 25"], sla_minutes: 5}
-      - {name: "manual_human", criteria: ["risk_score > 25", "schema_change"], sla_minutes: 60}
-  
+      - {
+          name: "auto_qa",
+          criteria: ["latency_p95 <= 500ms", "relevance_score >= 0.8"],
+          sla_minutes: 0,
+        }
+      - {
+          name: "auto_architect",
+          criteria: ["test_coverage_pct >= 80", "risk_score <= 25"],
+          sla_minutes: 5,
+        }
+      - {
+          name: "manual_human",
+          criteria: ["risk_score > 25", "schema_change"],
+          sla_minutes: 60,
+        }
+
   memory_model:
     segments:
-      - {name: "retrieval_designs", writes: ["N1", "N2", "N6"]}
-      - {name: "query_logs", writes: ["N8"]}
-      - {name: "performance_artifacts", writes: ["N7", "N9"]}
-      - {name: "approval_artifacts", writes: ["N5", "N5_L_IMPROVEMENT_LOOP", "N5_ME_APPROVAL"]}
-  
+      - { name: "retrieval_designs", writes: ["N1", "N2", "N6"] }
+      - { name: "query_logs", writes: ["N8"] }
+      - { name: "performance_artifacts", writes: ["N7", "N9"] }
+      - {
+          name: "approval_artifacts",
+          writes: ["N5", "N5_L_IMPROVEMENT_LOOP", "N5_ME_APPROVAL"],
+        }
+
   risk_model:
     assessment_dimensions: [query_complexity, index_impact, data_freshness]
     high_risk_triggers:
@@ -66,7 +111,6 @@ subsystem_config_v1:
       - "Index schema modifications"
       - "Ranking algorithm changes"
       - "RLS policy modifications"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

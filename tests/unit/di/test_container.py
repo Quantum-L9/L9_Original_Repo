@@ -27,9 +27,13 @@ from typing import Protocol, runtime_checkable
 
 import pytest
 
-from core.di.container import (BindingNotFoundError, DIContainer,
-                               ResolutionError, get_di_container,
-                               reset_di_container)
+from core.di.container import (
+    BindingNotFoundError,
+    DIContainer,
+    ResolutionError,
+    get_di_container,
+    reset_di_container,
+)
 
 
 # Test protocols and implementations
@@ -94,7 +98,7 @@ class MockService:
 class CircularA:
     """Test class for circular dependency detection."""
 
-    def __init__(self, b: "CircularB"):
+    def __init__(self, b: CircularB):
         self.b = b
 
 
@@ -240,7 +244,7 @@ class TestCircularDependencyDetection:
         """Test that self-referential dependencies are detected."""
 
         class SelfRef:
-            def __init__(self, self_ref: "SelfRef"):
+            def __init__(self, self_ref: SelfRef):
                 self.self_ref = self_ref
 
         container.bind_singleton(SelfRef, SelfRef)

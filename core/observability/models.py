@@ -32,7 +32,7 @@ __dora_meta__ = {
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -85,11 +85,11 @@ class TraceContext(BaseModel):
     span_id: str = Field(
         default_factory=lambda: str(uuid.uuid4()).replace("-", "")[:16]
     )
-    parent_span_id: Optional[str] = None
+    parent_span_id: str | None = None
     is_sampled: bool = True
-    user_id: Optional[str] = None
-    task_id: Optional[str] = None
-    agent_id: Optional[str] = None
+    user_id: str | None = None
+    task_id: str | None = None
+    agent_id: str | None = None
 
     def child_context(self) -> "TraceContext":
         """Create a child context with new span_id."""
@@ -102,7 +102,7 @@ class TraceContext(BaseModel):
             agent_id=self.agent_id,
         )
 
-    def to_headers(self) -> Dict[str, str]:
+    def to_headers(self) -> dict[str, str]:
         """Convert to W3C traceparent header."""
         version = "00"
         trace_flags = "01" if self.is_sampled else "00"
@@ -116,18 +116,18 @@ class Span(BaseModel):
 
     trace_id: str
     span_id: str
-    parent_span_id: Optional[str] = None
+    parent_span_id: str | None = None
     name: str
     kind: SpanKind = SpanKind.INTERNAL
     start_time: datetime
-    end_time: Optional[datetime] = None
-    duration_ms: Optional[float] = None
+    end_time: datetime | None = None
+    duration_ms: float | None = None
     status: SpanStatus = SpanStatus.UNSET
-    error: Optional[str] = None
-    attributes: Dict[str, Any] = Field(default_factory=dict)
+    error: str | None = None
+    attributes: dict[str, Any] = Field(default_factory=dict)
 
     def finish(
-        self, status: SpanStatus = SpanStatus.OK, error: Optional[str] = None
+        self, status: SpanStatus = SpanStatus.OK, error: str | None = None
     ) -> None:
         """Mark span as finished."""
         self.end_time = datetime.utcnow()
@@ -140,7 +140,7 @@ class Span(BaseModel):
         cls,
         name: str,
         trace_id: str,
-        parent_span_id: Optional[str] = None,
+        parent_span_id: str | None = None,
         kind: SpanKind = SpanKind.INTERNAL,
         **attributes: Any,
     ) -> "Span":
@@ -152,7 +152,7 @@ class Span(BaseModel):
         span_id = str(uuid.uuid4()).replace("-", "")[:16]
 
         # Build base kwargs
-        kwargs: Dict[str, Any] = {
+        kwargs: dict[str, Any] = {
             "trace_id": trace_id,
             "span_id": span_id,
             "parent_span_id": parent_span_id,
@@ -201,16 +201,16 @@ class LLMGenerationSpan(Span):
     completion_tokens: int = 0
     total_tokens: int = 0
     cost_usd: float = 0.0
-    temperature: Optional[float] = None
+    temperature: float | None = None
 
 
 class ToolCallSpan(Span):
     """Span for tool invocation."""
 
     tool_name: str
-    tool_input: Dict[str, Any] = Field(default_factory=dict)
-    tool_output: Optional[Any] = None
-    tool_error: Optional[str] = None
+    tool_input: dict[str, Any] = Field(default_factory=dict)
+    tool_output: Any | None = None
+    tool_error: str | None = None
 
 
 class ContextAssemblySpan(Span):
@@ -229,7 +229,7 @@ class RAGRetrievalSpan(Span):
     query: str
     top_k: int = 5
     chunks_retrieved: int = 0
-    relevance_scores: List[float] = Field(default_factory=list)
+    relevance_scores: list[float] = Field(default_factory=list)
 
 
 class GovernanceCheckSpan(Span):
@@ -237,7 +237,7 @@ class GovernanceCheckSpan(Span):
 
     policy_name: str
     policy_result: str = "allow"  # allow, deny, review
-    policy_reason: Optional[str] = None
+    policy_reason: str | None = None
 
 
 class AgentTrajectorySpan(Span):
@@ -247,20 +247,20 @@ class AgentTrajectorySpan(Span):
     task_kind: str
     max_iterations: int = 10
     current_iteration: int = 0
-    success: Optional[bool] = None
-    final_result: Optional[Any] = None
+    success: bool | None = None
+    final_result: Any | None = None
 
 
 class KernelLifecycleSpan(Span):
     """Span for kernel lifecycle events (v3.4+ / GMP-KERNEL-BOOT)."""
 
     kernel_id: str
-    kernel_version: Optional[str] = None
-    kernel_hash: Optional[str] = None
+    kernel_version: str | None = None
+    kernel_hash: str | None = None
     phase: str = "load"  # load, validate, activate, reload, evolve
-    integrity_status: Optional[str] = None  # NEW, MODIFIED, UNCHANGED, DELETED
+    integrity_status: str | None = None  # NEW, MODIFIED, UNCHANGED, DELETED
     rules_count: int = 0
-    agent_id: Optional[str] = None
+    agent_id: str | None = None
     kernel_count: int = 0
 
     @classmethod
@@ -269,7 +269,7 @@ class KernelLifecycleSpan(Span):
         name: str,
         trace_id: str,
         kernel_id: str,
-        parent_span_id: Optional[str] = None,
+        parent_span_id: str | None = None,
         kind: SpanKind = SpanKind.KERNEL_LOAD,
         **kwargs: Any,
     ) -> "KernelLifecycleSpan":
@@ -294,19 +294,19 @@ class FailureSignal(BaseModel):
     span_id: str
     trace_id: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    context: Dict[str, Any] = Field(default_factory=dict)
+    context: dict[str, Any] = Field(default_factory=dict)
     auto_recovery_applied: bool = False
-    recovery_action: Optional[str] = None
+    recovery_action: str | None = None
 
 
 class RemediationAction(BaseModel):
     """Action to remediate a failure."""
 
     action_type: str  # retry, fallback, summarize, degrade, escalate, etc.
-    target: Optional[str] = None  # what to act on (tool name, model, etc.)
-    parameters: Dict[str, Any] = Field(default_factory=dict)
+    target: str | None = None  # what to act on (tool name, model, etc.)
+    parameters: dict[str, Any] = Field(default_factory=dict)
     applied: bool = False
-    result: Optional[str] = None
+    result: str | None = None
 
 
 class SREMetric(BaseModel):
@@ -316,7 +316,7 @@ class SREMetric(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     value: float
     unit: str = ""
-    dimensions: Dict[str, str] = Field(default_factory=dict)
+    dimensions: dict[str, str] = Field(default_factory=dict)
 
 
 class AgentKPI(BaseModel):

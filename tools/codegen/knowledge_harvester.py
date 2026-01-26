@@ -226,7 +226,7 @@ class ConceptExtractor:
                         timeout=30,
                     )
                     return result.stdout
-                except:
+                except Exception:
                     return None
 
             elif file_path.suffix == ".docx":
@@ -236,7 +236,7 @@ class ConceptExtractor:
 
                     doc = docx.Document(file_path)
                     return "\n".join([para.text for para in doc.paragraphs])
-                except:
+                except Exception:
                     return None
 
             return None
@@ -371,7 +371,7 @@ class ConceptExtractor:
                     )
                 )
 
-        except:
+        except Exception:
             pass
 
         return concepts

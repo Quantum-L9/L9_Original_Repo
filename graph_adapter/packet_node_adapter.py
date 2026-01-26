@@ -30,7 +30,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING, Any
 
 from core.schemas import PacketEnvelopeIn
 
@@ -46,7 +47,7 @@ def _get_memory_service():
     return MemorySubstrateService
 
 
-GraphState = Dict[str, Any]
+GraphState = dict[str, Any]
 NodeFn = Callable[[GraphState], Awaitable[GraphState]]
 
 

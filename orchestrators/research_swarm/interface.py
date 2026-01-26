@@ -26,7 +26,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
 
@@ -46,10 +46,10 @@ class ResearchSwarmResponse(BaseModel):
 
     success: bool = Field(..., description="Whether operation succeeded")
     message: str = Field(..., description="Result message")
-    results: List[Dict[str, Any]] = Field(
+    results: list[dict[str, Any]] = Field(
         default_factory=list, description="Agent results"
     )
-    consensus: Optional[str] = Field(default=None, description="Converged consensus")
+    consensus: str | None = Field(default=None, description="Converged consensus")
 
 
 class IResearchSwarmOrchestrator(Protocol):

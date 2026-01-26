@@ -10,20 +10,20 @@ No ledger entry → no verdict.
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
+from typing import Any
 from uuid import uuid4
 
 from .schemas import (
     ActionEnvelope,
-    Verdict,
-    VerdictDecision,
     Condition,
     ConditionType,
+    Environment,
     Evidence,
     LedgerEntry,
     RiskClass,
-    Environment,
+    Verdict,
+    VerdictDecision,
 )
 
 logger = logging.getLogger(__name__)
@@ -45,9 +45,9 @@ class AccountabilityEngine:
 
     def __init__(
         self,
-        hypergraph_client: Optional[Any] = None,
-        ledger_writer: Optional[Any] = None,
-        signature_verifier: Optional[Any] = None,
+        hypergraph_client: Any | None = None,
+        ledger_writer: Any | None = None,
+        signature_verifier: Any | None = None,
     ):
         """
         Initialize the Accountability Engine.
@@ -63,14 +63,14 @@ class AccountabilityEngine:
         self.logger = logger.getChild(self.__class__.__name__)
 
         # In-memory verdict cache (production: use Redis)
-        self._verdict_cache: Dict[str, Verdict] = {}
-        self._evidence_store: Dict[str, Evidence] = {}
+        self._verdict_cache: dict[str, Verdict] = {}
+        self._evidence_store: dict[str, Evidence] = {}
 
     async def evaluate_action(
         self,
         action_envelope: ActionEnvelope,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> Tuple[Verdict, List[str]]:
+        context: dict[str, Any] | None = None,
+    ) -> tuple[Verdict, list[str]]:
         """
         Evaluate an action envelope and produce a verdict.
 
@@ -84,8 +84,8 @@ class AccountabilityEngine:
             Tuple of (Verdict, list of violation messages)
         """
         context = context or {}
-        violations: List[str] = []
-        conditions: List[Condition] = []
+        violations: list[str] = []
+        conditions: list[Condition] = []
 
         self.logger.info(
             f"Evaluating action {action_envelope.action_id} "
@@ -187,7 +187,7 @@ class AccountabilityEngine:
     async def _check_authority(
         self,
         action_envelope: ActionEnvelope,
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Check if claimed authority is sufficient for action."""
         # TODO: Query authority hierarchy from hypergraph
         # For now, basic checks based on action type and risk
@@ -205,8 +205,8 @@ class AccountabilityEngine:
     async def _check_constraints(
         self,
         action_envelope: ActionEnvelope,
-        context: Dict[str, Any],
-    ) -> List[str]:
+        context: dict[str, Any],
+    ) -> list[str]:
         """Query hypergraph for constraint violations."""
         violations = []
 
@@ -227,7 +227,7 @@ class AccountabilityEngine:
     async def _check_evidence(
         self,
         action_envelope: ActionEnvelope,
-    ) -> Tuple[bool, List[Condition]]:
+    ) -> tuple[bool, list[Condition]]:
         """Check if required evidence is provided."""
         conditions = []
 
@@ -247,7 +247,7 @@ class AccountabilityEngine:
     async def _check_production_requirements(
         self,
         action_envelope: ActionEnvelope,
-    ) -> List[str]:
+    ) -> list[str]:
         """Additional checks for production environment."""
         violations = []
 
@@ -263,8 +263,8 @@ class AccountabilityEngine:
         self,
         action_envelope: ActionEnvelope,
         decision: VerdictDecision,
-        conditions: Optional[List[Condition]] = None,
-        violations: Optional[List[str]] = None,
+        conditions: list[Condition] | None = None,
+        violations: list[str] | None = None,
     ) -> Verdict:
         """Create a verdict object."""
         verdict = Verdict(
@@ -285,7 +285,7 @@ class AccountabilityEngine:
         self,
         action_envelope: ActionEnvelope,
         verdict: Verdict,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Write entry to immutable ledger."""
         import hashlib
 
@@ -316,7 +316,7 @@ class AccountabilityEngine:
 
         return None
 
-    async def get_verdict(self, verdict_id: str) -> Optional[Verdict]:
+    async def get_verdict(self, verdict_id: str) -> Verdict | None:
         """Retrieve a cached verdict by ID."""
         return self._verdict_cache.get(verdict_id)
 
@@ -325,7 +325,7 @@ class AccountabilityEngine:
         self._evidence_store[evidence.id] = evidence
         return evidence.id
 
-    async def get_evidence(self, evidence_id: str) -> Optional[Evidence]:
+    async def get_evidence(self, evidence_id: str) -> Evidence | None:
         """Retrieve evidence by ID."""
         return self._evidence_store.get(evidence_id)
 

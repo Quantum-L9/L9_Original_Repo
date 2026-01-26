@@ -36,14 +36,14 @@ field_definitions:
     type: string
     pattern: "^I-[A-Z_]+-[0-9]{3}$"
     description: "Unique identifier (e.g., I-CA_OUTPUT-001)"
-  
+
   name:
     type: string
     description: "Human-readable interface name"
     examples:
       - "CA Output Contract"
       - "Verification Report Schema"
-  
+
   fields:
     type: array
     description: "List of fields in this interface"
@@ -58,24 +58,24 @@ field_definitions:
           type: boolean
         description:
           type: string
-  
+
   description:
     type: string
     description: "What this interface is for"
-  
+
   version:
     type: string
     pattern: "^\\d+\\.\\d+\\.\\d+$"
     description: "Semantic version"
-  
+
   required_fields:
     type: array
     description: "Fields that must be present"
-  
+
   optional_fields:
     type: array
     description: "Fields that may be present"
-  
+
   validation_rules:
     type: array
     description: "Additional validation logic"
@@ -113,7 +113,6 @@ examples:
         type: float
         required: true
         description: "Confidence score 0.0-1.0"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -22,9 +22,18 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from ir_engine.ir_schema import (ActionNode, ActionType, ConstraintNode,
-                                 ConstraintType, IntentNode, IntentType,
-                                 IRGraph, IRMetadata, IRStatus, NodePriority)
+from ir_engine.ir_schema import (
+    ActionNode,
+    ActionType,
+    ConstraintNode,
+    ConstraintType,
+    IntentNode,
+    IntentType,
+    IRGraph,
+    IRMetadata,
+    IRStatus,
+    NodePriority,
+)
 
 # =============================================================================
 # LLM Response Stubs
@@ -260,7 +269,7 @@ def graph_with_circular_dependency() -> IRGraph:
         description="Test circular deps",
         target="test",
     )
-    intent_id = graph.add_intent(intent)
+    graph.add_intent(intent)
 
     # Create actions with circular dependency
     action1_id = uuid4()

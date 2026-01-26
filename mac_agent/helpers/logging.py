@@ -27,7 +27,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 
 def ts() -> str:
@@ -36,7 +36,7 @@ def ts() -> str:
 
 
 def log_step(
-    log_list: List[Dict[str, Any]],
+    log_list: list[dict[str, Any]],
     step_num: int,
     action: str,
     status: str,

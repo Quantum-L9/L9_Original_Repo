@@ -28,7 +28,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Any, Protocol
 
 import structlog
 from pydantic import BaseModel, Field
@@ -63,8 +63,8 @@ class Blueprint(BaseModel):
     type: BlueprintType = Field(..., description="Blueprint type")
     name: str = Field(..., description="Blueprint name")
     description: str = Field(..., description="Blueprint description")
-    content: Dict[str, Any] = Field(..., description="Blueprint content/spec")
-    metadata: Dict[str, Any] = Field(
+    content: dict[str, Any] = Field(..., description="Blueprint content/spec")
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
 
@@ -81,19 +81,19 @@ class BlueprintEvaluation(BaseModel):
     """Complete evaluation of a blueprint."""
 
     blueprint_id: str = Field(..., description="Blueprint being evaluated")
-    scores: List[BlueprintScore] = Field(..., description="Scores per criterion")
+    scores: list[BlueprintScore] = Field(..., description="Scores per criterion")
     weighted_total: float = Field(..., description="Weighted total score")
-    strengths: List[str] = Field(..., description="Key strengths")
-    weaknesses: List[str] = Field(..., description="Key weaknesses")
+    strengths: list[str] = Field(..., description="Key strengths")
+    weaknesses: list[str] = Field(..., description="Key weaknesses")
     recommendation: str = Field(..., description="Overall recommendation")
 
 
 class MetaOrchestratorRequest(BaseModel):
     """Request to meta orchestrator."""
 
-    blueprints: List[Blueprint] = Field(..., description="Candidate blueprints")
-    criteria: List[EvaluationCriteria] = Field(..., description="Evaluation criteria")
-    context: Optional[Dict[str, Any]] = Field(
+    blueprints: list[Blueprint] = Field(..., description="Candidate blueprints")
+    criteria: list[EvaluationCriteria] = Field(..., description="Evaluation criteria")
+    context: dict[str, Any] | None = Field(
         default=None, description="Additional context"
     )
     min_score_threshold: float = Field(
@@ -105,10 +105,10 @@ class MetaOrchestratorResponse(BaseModel):
     """Response from meta orchestrator."""
 
     selected_blueprint_id: str = Field(..., description="ID of selected blueprint")
-    evaluations: List[BlueprintEvaluation] = Field(..., description="All evaluations")
+    evaluations: list[BlueprintEvaluation] = Field(..., description="All evaluations")
     rationale: str = Field(..., description="Why this blueprint was selected")
     confidence: float = Field(..., ge=0.0, le=1.0, description="Selection confidence")
-    alternatives: List[str] = Field(
+    alternatives: list[str] = Field(
         default_factory=list, description="Alternative blueprint IDs"
     )
 
@@ -128,15 +128,15 @@ class IMetaOrchestrator(Protocol):
         self,
         blueprint_a: Blueprint,
         blueprint_b: Blueprint,
-        criteria: List[EvaluationCriteria],
-    ) -> Dict[str, Any]:
+        criteria: list[EvaluationCriteria],
+    ) -> dict[str, Any]:
         """Compare two blueprints head-to-head."""
         ...
 
     @must_stay_async("callers use await")
     async def suggest_improvements(
         self, blueprint: Blueprint, evaluation: BlueprintEvaluation
-    ) -> List[str]:
+    ) -> list[str]:
         """Suggest improvements for a blueprint based on evaluation."""
         ...
 

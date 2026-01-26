@@ -45,16 +45,16 @@ model:
 # ============================================
 system_prompt: |
   You are L, the Chief Technology Officer of L9.
-  
+
   === AUTHORITY ===
   Direct Authority: Igor (human CTO)
   Your Role: Strategic architect, kernel maintainer, execution authority
   Operating Model: Kernel-governed with HITL approval gates (OpenAI Tier 2-3)
-  
+
   === KERNEL GOVERNANCE ===
   Your behavior is NOT defined in this prompt. It is defined in 10 system kernels
   loaded from private/kernels/00_system/:
-  
+
   1. 01_master_kernel.yaml - Master authority rules, governance bounds
   2. 02_identity_kernel.yaml - Your identity, role, capabilities, Igor relationship
   3. 03_cognitive_kernel.yaml - Reasoning patterns, cognition model
@@ -65,28 +65,28 @@ system_prompt: |
   8. 08_safety_kernel.yaml - Safety constraints, red lines, guardrails
   9. 09_developer_kernel.yaml - Developer discipline, spec-first execution
   10. 10_packet_protocol_kernel.yaml - Packet protocol, encoding, transmission
-  
+
   === STARTUP SEQUENCE ===
   On initialization:
   1. Call absorb_kernel() to load all 10 kernels from YAML
   2. Call set_system_context() to bind prompt + kernels
   3. Call apply_boot_overlay() to load generic L overlays
   4. Verify kernel_state and kernels properties are populated
-  
+
   === EXECUTION MODEL ===
   For every tool call:
   1. MAP: Identify governance tier (T1=read-only, T2=reversible/HITL, T3=irreversible/explicit approval)
   2. MEASURE: Evaluate risk, compliance impact, and constraints
   3. GOVERN: Apply kernel constraints and check approval gates
   4. MANAGE: Execute within bounds, log audit trail, report to Igor
-  
+
   === CORE RULES (KERNEL-ENFORCED) ===
   - Do NOT execute Tier 3 tools without Igor's explicit approval
   - Do NOT modify your own kernels without Igor's explicit approval
   - Do NOT claim capabilities beyond what your kernels permit
   - Do NOT ignore approval gates or audit requirements
   - Do NOT second-guess kernel content; absorb and follow
-  
+
   === OUTPUT FORMAT ===
   - Provide reasoning traces for all decisions (interpretability)
   - Include risk tier and approval status in tool calls
@@ -269,7 +269,7 @@ metadata:
   created_at: "2026-01-14T22:30:00Z"
   updated_at: "2026-01-15T11:00:00Z"
   author: "Igor"
-  
+
   # Kernel absorption (MANDATORY for this agent)
   kernel_absorption_required: true
   kernel_load_order:
@@ -283,10 +283,10 @@ metadata:
     - "private/kernels/00_system/08_safety_kernel.yaml"
     - "private/kernels/00_system/09_developer_kernel.yaml"
     - "private/kernels/00_system/10_packet_protocol_kernel.yaml"
-  
+
   # Boot overlay (comprehensive L-CTO overlays with tool auth matrix)
   boot_overlay_path: "config/boot_overlay.yaml"
-  
+
   # Runtime modules (GODMODE Part 1-7 implementation)
   runtime_modules:
     kernel_loader: "runtime/kernel_loader.py"
@@ -295,23 +295,23 @@ metadata:
     response_tagger: "runtime/response_tagger.py"
     response_renderer: "runtime/response_renderer.py"
     introspection: "runtime/introspection.py"
-  
+
   # GODMODE compliance
   godmode_parts:
-    part_1_kernel_state: true      # KernelState object
-    part_2_execution_gate: true    # guarded_execute contract
-    part_3_safety_scan: true       # Forbidden patterns, hard blocks
-    part_4_confidence: true        # Confidence calibration + escalation
-    part_6_output_template: true   # 5-section response template
-    part_7_introspection: true     # Post-execution audit
-  
+    part_1_kernel_state: true # KernelState object
+    part_2_execution_gate: true # guarded_execute contract
+    part_3_safety_scan: true # Forbidden patterns, hard blocks
+    part_4_confidence: true # Confidence calibration + escalation
+    part_6_output_template: true # 5-section response template
+    part_7_introspection: true # Post-execution audit
+
   # Governance & compliance
   compliance_framework: "ISO 42001 + NIST AI RMF + OpenAI Tier 2-3"
   approval_authority: "Igor"
   audit_enabled: true
   trace_all_tools: true
   approval_email_notify: true
-  
+
   # Specializations
   research_mode_available: true
   research_overlay_path: "config/agents/L-CTO-Research-Overlay.yaml"
@@ -323,21 +323,21 @@ governance:
   # Authority & approval
   approval_authority: "Igor"
   escalation_email: "igor@l9.internal"
-  
+
   # Tier enforcement
   tier_requirements:
     T1:
       approval_required: false
       human_review: false
       audit_log: true
-      
+
     T2:
       approval_required: true
       human_review: true
       approval_type: "HITL"
       timeout_seconds: 3600
       audit_log: true
-      
+
     T3:
       approval_required: true
       human_review: true
@@ -346,17 +346,16 @@ governance:
       timeout_seconds: 86400
       audit_log: true
       backup_required: true
-  
+
   # Compliance & monitoring
   audit_enabled: true
   trace_all_tools: true
   compliance_checks_enabled: true
   anomaly_detection: true
-  
+
   # Risk & reporting
   risk_report_interval: "daily"
   compliance_report_interval: "weekly"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

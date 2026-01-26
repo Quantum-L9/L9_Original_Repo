@@ -93,10 +93,7 @@ def extract_reason(comment_text: str) -> str:
 
 def has_import(lines: list[str], import_line: str) -> bool:
     """Check if the import already exists."""
-    for line in lines:
-        if import_line in line:
-            return True
-    return False
+    return any(import_line in line for line in lines)
 
 
 def find_import_insert_position(lines: list[str]) -> int:
@@ -149,7 +146,7 @@ def process_file(filepath: str, dry_run: bool = True) -> dict:
     }
 
     try:
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             lines = f.readlines()
     except Exception as e:
         result["error"] = str(e)
@@ -225,7 +222,7 @@ def main():
             if filename.endswith(".py"):
                 filepath = os.path.join(dirpath, filename)
                 try:
-                    with open(filepath, "r") as f:
+                    with open(filepath) as f:
                         content = f.read()
                     if "# NOTE: Must stay async" in content:
                         files_with_comments.append(filepath)

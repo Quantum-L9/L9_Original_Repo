@@ -100,7 +100,7 @@ async def find_duplicate_agents(driver) -> list[dict]:
             MATCH (a:Agent)
             WITH coalesce(a.agent_id, a.id) as logical_id, collect(a) as agents
             WHERE size(agents) > 1
-            RETURN logical_id, 
+            RETURN logical_id,
                    [a in agents | {
                        id: id(a),
                        agent_id: a.agent_id,
@@ -112,8 +112,7 @@ async def find_duplicate_agents(driver) -> list[dict]:
                    }] as duplicates
         """)
 
-        records = await result.data()
-        return records
+        return await result.data()
 
 
 async def get_all_agents(driver) -> list[dict]:

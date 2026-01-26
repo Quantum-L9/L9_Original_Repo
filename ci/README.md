@@ -59,15 +59,15 @@ Continuous integration scripts and guardrails
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -91,12 +91,12 @@ ci/
 ├── validate_spec_v25.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
+| File                          | Purpose                               |
+| ----------------------------- | ------------------------------------- |
+| `__init__.py`                 | Core module (PROTECTED)               |
 | `check_schema_deprecation.py` | A single deprecated import violation. |
-| `check_substrate_api.py` | Result of linting a file. |
-| `validate_codegen.py` | Accumulates code validation errors. |
+| `check_substrate_api.py`      | Result of linting a file.             |
+| `validate_codegen.py`         | Accumulates code validation errors.   |
 
 ### Naming Conventions
 
@@ -114,7 +114,7 @@ ci/
 ```python
 class Violation:
     """A single deprecated import violation."""
-    
+
     # Key methods:
 
 ```
@@ -126,7 +126,7 @@ class Violation:
 ```python
 class LintResult:
     """Result of linting a file."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -146,7 +146,7 @@ class LintResult:
 ```python
 class CodeValidationResult:
     """Accumulates code validation errors."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -170,7 +170,7 @@ class CodeValidationResult:
 ```python
 class SpecValidationError:
     """Raised when spec validation fails."""
-    
+
     # Key methods:
 
 ```
@@ -182,7 +182,7 @@ class SpecValidationError:
 ```python
 class ValidationResult:
     """Accumulates validation errors."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -200,7 +200,6 @@ class ValidationResult:
 **Public Methods:** `__init__`, `add_error`, `add_warning`, `is_valid`, `_get_schema_version`
 
 **Lines:** 183-229 in `validate_spec_v25.py`
-
 
 ---
 
@@ -272,9 +271,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Ci feature flags
-L9_ENABLE_CI_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CI_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CI_AUDIT: true    # Enable audit logging
+L9_ENABLE_CI_TRACING: true # Enable detailed tracing
+L9_ENABLE_CI_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CI_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -336,7 +335,6 @@ Determine current enforcement phase based on date.
 - **File:** `check_schema_deprecation.py:143`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -377,6 +375,7 @@ Ci operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -384,12 +383,12 @@ Ci operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                     | Type      | Description                    |
+| -------------------------- | --------- | ------------------------------ |
 | `ci_operation_duration_ms` | Histogram | Operation latency distribution |
-| `ci_operation_total` | Counter | Total operations processed |
-| `ci_error_total` | Counter | Total errors encountered |
-| `ci_active_connections` | Gauge | Current active connections |
+| `ci_operation_total`       | Counter   | Total operations processed     |
+| `ci_error_total`           | Counter   | Total errors encountered       |
+| `ci_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -407,6 +406,7 @@ Ci emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/ci/`:
+
 - `test_ci.py` — Core unit tests
 - `test_ci_integration.py` — Integration tests (if applicable)
 
@@ -449,6 +449,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

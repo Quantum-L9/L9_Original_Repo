@@ -57,7 +57,7 @@ class TestMCPArchitectureCompliance:
             "memory_unified.py",
         )
 
-        with open(mcp_unified_path, "r") as f:
+        with open(mcp_unified_path) as f:
             source = f.read()
 
         # MCP should NOT import or use SubstrateDAG
@@ -80,7 +80,7 @@ class TestMCPArchitectureCompliance:
             "memory_unified.py",
         )
 
-        with open(mcp_unified_path, "r") as f:
+        with open(mcp_unified_path) as f:
             source = f.read()
 
         # MCP should use direct execute() calls
@@ -114,7 +114,7 @@ class TestMCPSkipsReasoningTraces:
             "memory_unified.py",
         )
 
-        with open(mcp_unified_path, "r") as f:
+        with open(mcp_unified_path) as f:
             source = f.read()
 
         # MCP should NOT insert into reasoning_traces
@@ -137,7 +137,7 @@ class TestMCPSkipsReasoningTraces:
             "memory_unified.py",
         )
 
-        with open(mcp_unified_path, "r") as f:
+        with open(mcp_unified_path) as f:
             source = f.read()
 
         # MCP should NOT call reasoning_node
@@ -171,7 +171,7 @@ class TestMCPAuditLogging:
             os.path.dirname(__file__), "..", "..", "mcp_memory", "src", "audit.py"
         )
 
-        with open(audit_path, "r") as f:
+        with open(audit_path) as f:
             source = f.read()
 
         # AuditLogger class should exist
@@ -190,7 +190,7 @@ class TestMCPAuditLogging:
             os.path.dirname(__file__), "..", "..", "mcp_memory", "src", "mcp_server.py"
         )
 
-        with open(mcp_server_path, "r") as f:
+        with open(mcp_server_path) as f:
             source = f.read()
 
         # MCP server should import audit functionality
@@ -219,7 +219,7 @@ class TestMCPPacketEnvelopeCompliance:
             "memory_unified.py",
         )
 
-        with open(mcp_unified_path, "r") as f:
+        with open(mcp_unified_path) as f:
             source = f.read()
 
         # Should write to envelope column
@@ -239,7 +239,7 @@ class TestMCPPacketEnvelopeCompliance:
             "memory_unified.py",
         )
 
-        with open(mcp_unified_path, "r") as f:
+        with open(mcp_unified_path) as f:
             source = f.read()
 
         # Should include creator metadata
@@ -259,7 +259,7 @@ class TestMCPPacketEnvelopeCompliance:
             "memory_unified.py",
         )
 
-        with open(mcp_unified_path, "r") as f:
+        with open(mcp_unified_path) as f:
             source = f.read()
 
         # Should write to memory_embeddings
@@ -284,7 +284,7 @@ class TestMCPL9PipelineSeparation:
             os.path.dirname(__file__), "..", "..", "memory", "ingestion.py"
         )
 
-        with open(ingestion_path, "r") as f:
+        with open(ingestion_path) as f:
             source = f.read()
 
         # L9 core should use SubstrateDAG
@@ -302,7 +302,7 @@ class TestMCPL9PipelineSeparation:
                 os.path.dirname(__file__), "..", "..", "memory", filename
             )
             if os.path.exists(dag_path):
-                with open(dag_path, "r") as f:
+                with open(dag_path) as f:
                     source = f.read()
 
                 # DAG should have reasoning trace functionality
@@ -313,7 +313,7 @@ class TestMCPL9PipelineSeparation:
         ingestion_path = os.path.join(
             os.path.dirname(__file__), "..", "..", "memory", "ingestion.py"
         )
-        with open(ingestion_path, "r") as f:
+        with open(ingestion_path) as f:
             source = f.read()
 
         assert "reasoning" in source.lower(), "L9 core should support reasoning traces"

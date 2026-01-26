@@ -92,4 +92,3 @@ else
     echo -e "${GREEN}✓ All environment variables OK${NC}"
     exit 0
 fi
-

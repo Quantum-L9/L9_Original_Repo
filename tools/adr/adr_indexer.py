@@ -10,10 +10,9 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
 
 
-def extract_adr_metadata(adr_file: Path) -> Optional[Dict]:
+def extract_adr_metadata(adr_file: Path) -> dict | None:
     """
     Extract metadata from an ADR file.
 
@@ -26,7 +25,7 @@ def extract_adr_metadata(adr_file: Path) -> Optional[Dict]:
     if not adr_file.exists():
         return None
 
-    with open(adr_file, "r") as f:
+    with open(adr_file) as f:
         content = f.read()
 
     # Extract ADR number from filename
@@ -107,7 +106,7 @@ def extract_adr_metadata(adr_file: Path) -> Optional[Dict]:
     }
 
 
-def build_index(adr_dir: Path) -> Dict:
+def build_index(adr_dir: Path) -> dict:
     """
     Build the ADR index from all ADR files.
 
@@ -170,7 +169,7 @@ def get_next_adr_number(adr_dir: Path) -> str:
     return f"{next_number:04d}"
 
 
-def update_index_entry(index_path: Path, adr_id: str, updates: Dict) -> bool:
+def update_index_entry(index_path: Path, adr_id: str, updates: dict) -> bool:
     """
     Update a single ADR entry in the index.
 
@@ -185,7 +184,7 @@ def update_index_entry(index_path: Path, adr_id: str, updates: Dict) -> bool:
     if not index_path.exists():
         return False
 
-    with open(index_path, "r") as f:
+    with open(index_path) as f:
         index = json.load(f)
 
     # Find ADR entry

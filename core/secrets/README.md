@@ -59,15 +59,15 @@ Secure secrets handling and storage
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module           | Purpose          |
+| ---------------- | ---------------- |
 | `core/security/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -80,10 +80,10 @@ core/secrets/
 ├── env_secrets_client.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `vault.py` | Core module (PROTECTED) |
+| File                    | Purpose                                            |
+| ----------------------- | -------------------------------------------------- |
+| `__init__.py`           | Core module (PROTECTED)                            |
+| `vault.py`              | Core module (PROTECTED)                            |
 | `aws_secrets_client.py` | AWS Secrets Manager client with caching and env fa |
 | `env_secrets_client.py` | Secrets client that reads from environment variabl |
 
@@ -103,7 +103,7 @@ core/secrets/
 ```python
 class AwsSecretsClient:
     """AWS Secrets Manager client with caching and env fallback."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -127,7 +127,7 @@ class AwsSecretsClient:
 ```python
 class EnvSecretsClient:
     """Secrets client that reads from environment variables."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -145,7 +145,6 @@ class EnvSecretsClient:
 **Public Methods:** `__init__`, `provider_name`, `_build_env_key`, `get_secret`, `set_secret`
 
 **Lines:** 49-159 in `env_secrets_client.py`
-
 
 ---
 
@@ -217,9 +216,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Secrets feature flags
-L9_ENABLE_CORE_SECRETS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_SECRETS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_SECRETS_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_SECRETS_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_SECRETS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_SECRETS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -274,7 +273,6 @@ Get secret from configured provider, with explicit env fallback.
 - **File:** `__init__.py:168`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -315,6 +313,7 @@ Core Secrets operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -322,12 +321,12 @@ Core Secrets operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                               | Type      | Description                    |
+| ------------------------------------ | --------- | ------------------------------ |
 | `core_secrets_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_secrets_operation_total` | Counter | Total operations processed |
-| `core_secrets_error_total` | Counter | Total errors encountered |
-| `core_secrets_active_connections` | Gauge | Current active connections |
+| `core_secrets_operation_total`       | Counter   | Total operations processed     |
+| `core_secrets_error_total`           | Counter   | Total errors encountered       |
+| `core_secrets_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -345,6 +344,7 @@ Core Secrets emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_secrets/`:
+
 - `test_core_secrets.py` — Core unit tests
 - `test_core_secrets_integration.py` — Integration tests (if applicable)
 
@@ -389,6 +389,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -35,7 +35,7 @@ import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 from dotenv import load_dotenv
@@ -55,9 +55,9 @@ DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
 async def inspect_embeddings(
     database_url: str,
     limit: int = 50,
-    agent_id: Optional[str] = None,
+    agent_id: str | None = None,
     sample: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Inspect semantic_memory table to see what embeddings contain.
 
@@ -85,7 +85,7 @@ async def inspect_embeddings(
             # Get sample embeddings with payloads
             if agent_id:
                 query = """
-                    SELECT 
+                    SELECT
                         embedding_id,
                         agent_id,
                         payload::text as payload_json,
@@ -100,7 +100,7 @@ async def inspect_embeddings(
                 if sample:
                     # Random sample
                     query = """
-                        SELECT 
+                        SELECT
                             embedding_id,
                             agent_id,
                             payload::text as payload_json,
@@ -112,7 +112,7 @@ async def inspect_embeddings(
                 else:
                     # Most recent
                     query = """
-                        SELECT 
+                        SELECT
                             embedding_id,
                             agent_id,
                             payload::text as payload_json,
@@ -217,7 +217,7 @@ async def inspect_embeddings(
         return {"error": str(e)}
 
 
-async def main(limit: int = 50, agent_id: Optional[str] = None, sample: bool = False):
+async def main(limit: int = 50, agent_id: str | None = None, sample: bool = False):
     """Main inspection function."""
     if not DATABASE_URL:
         logger.error("DATABASE_URL or TEST_DATABASE_URL not set")

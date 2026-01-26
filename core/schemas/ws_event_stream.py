@@ -51,7 +51,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -113,14 +113,12 @@ class EventMessage(BaseModel):
         default_factory=datetime.utcnow, description="Event creation timestamp"
     )
     channel: str = Field(default="agent", description="Logical message bus")
-    agent_id: Optional[str] = Field(None, description="Related agent identifier")
-    payload: Dict[str, Any] = Field(
+    agent_id: str | None = Field(None, description="Related agent identifier")
+    payload: dict[str, Any] = Field(
         default_factory=dict, description="Event-specific data"
     )
-    trace_id: Optional[str] = Field(None, description="Distributed trace ID")
-    correlation_id: Optional[str] = Field(
-        None, description="Request/response correlation"
-    )
+    trace_id: str | None = Field(None, description="Distributed trace ID")
+    correlation_id: str | None = Field(None, description="Request/response correlation")
 
     model_config = {"extra": "allow"}
 
@@ -157,12 +155,10 @@ class AgentHeartbeat(BaseModel):
     timestamp: datetime = Field(
         default_factory=datetime.utcnow, description="Heartbeat timestamp"
     )
-    load_avg: Optional[float] = Field(None, ge=0, description="System load average")
+    load_avg: float | None = Field(None, ge=0, description="System load average")
     running_tasks: int = Field(default=0, ge=0, description="Active task count")
-    memory_usage_mb: Optional[float] = Field(
-        None, ge=0, description="Memory usage (MB)"
-    )
-    cpu_percent: Optional[float] = Field(
+    memory_usage_mb: float | None = Field(None, ge=0, description="Memory usage (MB)")
+    cpu_percent: float | None = Field(
         None, ge=0, le=100, description="CPU utilization %"
     )
 
@@ -198,10 +194,10 @@ class ErrorEvent(BaseModel):
         )
     """
 
-    agent_id: Optional[str] = Field(None, description="Agent reporting error")
+    agent_id: str | None = Field(None, description="Agent reporting error")
     code: str = Field(..., min_length=1, description="Error code")
     message: str = Field(..., description="Human-readable error message")
-    details: Dict[str, Any] = Field(
+    details: dict[str, Any] = Field(
         default_factory=dict, description="Additional error context"
     )
     timestamp: datetime = Field(
@@ -217,10 +213,10 @@ class ErrorEvent(BaseModel):
 # =============================================================================
 
 __all__ = [
-    "EventType",
-    "EventMessage",
     "AgentHeartbeat",
     "ErrorEvent",
+    "EventMessage",
+    "EventType",
 ]
 
 # ============================================================================

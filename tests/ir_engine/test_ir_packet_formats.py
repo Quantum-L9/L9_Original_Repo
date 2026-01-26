@@ -31,8 +31,14 @@ import json
 import pytest
 
 from ir_engine.ir_generator import IRGenerator
-from ir_engine.ir_schema import (ActionNode, ActionType, IntentNode,
-                                 IntentType, IRGraph, IRMetadata)
+from ir_engine.ir_schema import (
+    ActionNode,
+    ActionType,
+    IntentNode,
+    IntentType,
+    IRGraph,
+    IRMetadata,
+)
 from ir_engine.ir_to_plan_adapter import IRToPlanAdapter
 from tests.ir_engine.conftest import assert_json_serializable
 

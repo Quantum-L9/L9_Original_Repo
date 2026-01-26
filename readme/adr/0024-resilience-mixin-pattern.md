@@ -1,17 +1,21 @@
 # ADR 0024: Resilience Mixin Pattern
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Protocol + Mixin for adding Circuit Breaker, Dead Letter Queue, and Retry to components via Dependency Inversion Principle (DIP).
 
 ## Context
+
 L9 has resilience infrastructure (`CircuitBreaker`, `DeadLetterQueue`, `RetryPolicy`) but only `SubstrateDagOrchestrator` uses all three. Other components need the same pattern. Manually adding ~40 lines of retry/CB/DLQ logic to each component is error-prone and violates DRY.
 
 Using DIP via Protocol + Mixin reduces boilerplate from ~40 lines to ~5 lines per component.
 
 ## Files
+
 - `core/resilience/protocols.py` - ResilientService protocol
 - `core/resilience/mixin.py` - ResilienceMixin class
 - `core/resilience/__init__.py` - Exports
@@ -61,12 +65,12 @@ class IngestionPipeline(ResilienceMixin):
 
 ## Components to Apply
 
-| Component | File | Priority |
-|-----------|------|----------|
-| IngestionPipeline | `memory/ingestion.py` | HIGH |
-| WebSocketOrchestrator | `orchestration/unified_controller.py` | HIGH |
-| SemanticService | `memory/substrate_semantic.py` | MEDIUM |
-| GraphAdapter | `graph_adapter/graph_runtime.py` | MEDIUM |
+| Component             | File                                  | Priority |
+| --------------------- | ------------------------------------- | -------- |
+| IngestionPipeline     | `memory/ingestion.py`                 | HIGH     |
+| WebSocketOrchestrator | `orchestration/unified_controller.py` | HIGH     |
+| SemanticService       | `memory/substrate_semantic.py`        | MEDIUM   |
+| GraphAdapter          | `graph_adapter/graph_runtime.py`      | MEDIUM   |
 
 ## Rules
 
@@ -79,12 +83,14 @@ class IngestionPipeline(ResilienceMixin):
 ## AI Guidance
 
 **DO:**
+
 - Inherit `ResilienceMixin` for services needing resilience
 - Pass dependencies via constructor (DI)
 - Use descriptive `operation_name` for metrics/logging
 - Test with mocked `_circuit_breaker` and `_dlq`
 
 **DO NOT:**
+
 - Implement retry/CB/DLQ logic manually in components
 - Skip DLQ for "non-critical" operations (all failures need audit)
 - Share single circuit breaker across unrelated operations

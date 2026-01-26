@@ -11,6 +11,7 @@ Use a **builder pattern** to compose `AgentExecutorService` with configurable st
 ## Context
 
 L9's `AgentExecutorService` constructor directly instantiates its dependencies and stages. This makes it difficult to:
+
 - Create different executor configurations for testing vs production
 - Swap policies (prompt defense, reflection) per deployment
 - Compose different stage pipelines for different use cases
@@ -58,17 +59,17 @@ import os
 class ExecutorConfig:
     """
     Environment-driven configuration for executor.
-    
+
     Separates config reading from executor logic.
     """
-    
+
     default_agent_id: str
     max_iterations: int
     enable_memory_warming: bool
     enable_graph_hydration: bool
     enable_reflection: bool
     fallback_agent_id: str = "l9-standard-v1"
-    
+
     @classmethod
     def from_env(cls) -> "ExecutorConfig":
         """Load config from environment variables."""
@@ -99,85 +100,85 @@ logger = logging.getLogger(__name__)
 class ExecutorBuilder:
     """
     Builder for composing AgentExecutorService.
-    
+
     Separates assembly logic from execution logic.
     Enables different configurations for different profiles.
     """
-    
+
     def __init__(self):
         self._config: Optional[ExecutorConfig] = None
         self._stages: List[LoopStage] = []
         self._policies: dict = {}
         self._deps: dict = {}
-    
+
     def with_config(self, config: ExecutorConfig) -> "ExecutorBuilder":
         """Set executor configuration."""
         self._config = config
         return self
-    
+
     def with_stage(self, stage: LoopStage) -> "ExecutorBuilder":
         """Add a loop stage."""
         self._stages.append(stage)
         return self
-    
+
     def with_stages(self, stages: List[LoopStage]) -> "ExecutorBuilder":
         """Add multiple loop stages."""
         self._stages.extend(stages)
         return self
-    
+
     def with_prompt_defense(self, policy) -> "ExecutorBuilder":
         """Add prompt defense policy."""
         self._policies["prompt_defense"] = policy
         return self
-    
+
     def with_memory_warming(self, policy) -> "ExecutorBuilder":
         """Add memory warming policy."""
         self._policies["memory_warming"] = policy
         return self
-    
+
     def with_graph_hydration(self, policy) -> "ExecutorBuilder":
         """Add graph hydration policy."""
         self._policies["graph_hydration"] = policy
         return self
-    
+
     def with_reflection(self, policy) -> "ExecutorBuilder":
         """Add reflection policy."""
         self._policies["reflection"] = policy
         return self
-    
+
     def with_dependency(self, name: str, dep) -> "ExecutorBuilder":
         """Add a named dependency."""
         self._deps[name] = dep
         return self
-    
+
     def build(self) -> AgentExecutorService:
         """
         Build the configured AgentExecutorService.
-        
+
         Returns:
             Fully configured executor instance.
-            
+
         Raises:
             ValueError: If required config/deps missing.
         """
         if self._config is None:
             raise ValueError("Config required. Call with_config() first.")
-        
+
         if not self._stages:
             raise ValueError("At least one stage required. Call with_stage() first.")
-        
+
         executor = AgentExecutorService(
             config=self._config,
             stages=self._stages,
             policies=self._policies,
             **self._deps,
         )
-        
+
         logger.info(
             f"Executor built: {len(self._stages)} stages, "
             f"{len(self._policies)} policies"
         )
-        
+
         return executor
 
 
@@ -193,9 +194,9 @@ def build_default_executor() -> AgentExecutorService:
         TerminationGuardStage,
         GovernanceAuditStage,
     )
-    
+
     config = ExecutorConfig.from_env()
-    
+
     return (
         ExecutorBuilder()
         .with_config(config)
@@ -223,7 +224,7 @@ from core.agents.executor_config import ExecutorConfig
 async def lifespan(app: FastAPI):
     # Build executor with production profile
     config = ExecutorConfig.from_env()
-    
+
     executor = (
         ExecutorBuilder()
         .with_config(config)
@@ -240,7 +241,7 @@ async def lifespan(app: FastAPI):
         .with_reflection(ReflectionPolicy())
         .build()
     )
-    
+
     app.state.executor = executor
     yield
 
@@ -254,14 +255,14 @@ def test_executor_with_mock_stages():
         enable_graph_hydration=False,
         enable_reflection=False,
     )
-    
+
     executor = (
         ExecutorBuilder()
         .with_config(config)
         .with_stage(MockStage())  # Single mock stage
         .build()
     )
-    
+
     # Test with minimal executor
 ```
 
@@ -273,7 +274,7 @@ class AgentExecutorService:
     def __init__(self):
         self._default_agent_id = os.getenv("DEFAULT_AGENT_ID", "l-cto")
         self._max_iterations = int(os.getenv("AGENT_MAX_ITERATIONS", "10"))
-        
+
         # Hard-coded stage instantiation
         self._governance = GovernanceService()
         self._tool_registry = ToolRegistry()

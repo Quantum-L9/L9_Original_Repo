@@ -9,10 +9,10 @@ Called at Phase 6 of GMP execution to produce production-quality reports.
 Usage:
     # Interactive mode (prompts for data)
     python scripts/generate_gmp_report.py
-    
+
     # From JSON file (for automation)
     python scripts/generate_gmp_report.py --from-json gmp_data.json
-    
+
     # With inline parameters
     python scripts/generate_gmp_report.py \
         --task "Add resilience to checkpoint" \
@@ -56,7 +56,6 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List
 from zoneinfo import ZoneInfo
 
 # ============================================================================
@@ -123,10 +122,10 @@ class GMPReportData:
 
     task: str
     tier: str
-    todos: List[TodoItem] = field(default_factory=list)
-    changes: List[ChangeItem] = field(default_factory=list)
-    validations: List[ValidationResult] = field(default_factory=list)
-    phases: List[PhaseStatus] = field(default_factory=list)
+    todos: list[TodoItem] = field(default_factory=list)
+    changes: list[ChangeItem] = field(default_factory=list)
+    validations: list[ValidationResult] = field(default_factory=list)
+    phases: list[PhaseStatus] = field(default_factory=list)
     summary: str = ""
     root_cause: str = ""
     breaking_changes: str = ""
@@ -271,7 +270,7 @@ class GMPReportGenerator:
         lines.append("")
 
         # Hash
-        key_files = ", ".join(set(t.file.split("/")[-1] for t in data.todos[:3]))
+        key_files = ", ".join({t.file.split("/")[-1] for t in data.todos[:3]})
         lines.append(f"**Hash:** `{len(data.todos)} TODOs | {key_files}`")
         lines.append("")
         lines.append("---")
@@ -371,7 +370,7 @@ class GMPReportGenerator:
             # Create entry for Recent Changes section
             date_str = datetime.now().strftime("%Y-%m-%d")
             files_summary = ", ".join(
-                set(t.file.split("/")[-1] for t in data.todos[:3])
+                {t.file.split("/")[-1] for t in data.todos[:3]}
             )
 
             new_entry = f"- [{date_str}] **GMP-{data.gmp_id:03d}: {data.task}** — "
@@ -538,7 +537,7 @@ def interactive_mode() -> GMPReportData:
 
 def from_json_file(path: str) -> GMPReportData:
     """Load GMP data from a JSON file."""
-    with open(path, "r") as f:
+    with open(path) as f:
         raw = json.load(f)
 
     data = GMPReportData(
@@ -610,14 +609,13 @@ def run_verification(filepath: Path, quiet: bool = False) -> bool:
             if not quiet:
                 print("   ✅ Verification: PASSED")
             return True
-        else:
-            if not quiet:
-                print("   ❌ Verification: FAILED")
-                # Show errors from validator output
-                for line in result.stdout.split("\n"):
-                    if "ERROR" in line or "🔴" in line:
-                        print(f"      {line.strip()}")
-            return False
+        if not quiet:
+            print("   ❌ Verification: FAILED")
+            # Show errors from validator output
+            for line in result.stdout.split("\n"):
+                if "ERROR" in line or "🔴" in line:
+                    print(f"      {line.strip()}")
+        return False
 
     except subprocess.TimeoutExpired:
         if not quiet:

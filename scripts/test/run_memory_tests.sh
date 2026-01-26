@@ -45,11 +45,11 @@ for test_file in "${TEST_FILES[@]}"; do
         ((SKIPPED++))
         continue
     fi
-    
+
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "Running: $test_file"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
     if python3 -m pytest "$test_file" -v --tb=short; then
         echo -e "${GREEN}✓${NC} $test_file passed"
         ((PASSED++))
@@ -86,4 +86,3 @@ else
     echo -e "${RED}╚══════════════════════════════════════════════════════════════╝${NC}"
     exit 1
 fi
-

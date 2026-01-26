@@ -16,7 +16,7 @@
 # =============================================================================
 # L9 Kernel Discovery Configuration
 # =============================================================================
-# 
+#
 # This file externalizes kernel loading configuration from runtime/kernel_loader.py
 # to enable environment-specific kernel management without code changes.
 #
@@ -67,13 +67,13 @@ minimum_kernel_count: 4
 validation:
   # Enable SHA256 integrity verification
   enable_integrity_check: true
-  
+
   # Fail loudly if required kernels are missing
   strict_required_kernels: true
-  
+
   # Fail if kernel count < minimum_kernel_count
   enforce_minimum_count: true
-  
+
   # Log kernel loading details
   verbose_logging: true
 
@@ -81,15 +81,15 @@ validation:
 discovery:
   # Base path for kernel files (relative to repo root)
   base_path: "private/kernels"
-  
+
   # Kernel file extensions to search for
   extensions:
     - ".yaml"
     - ".yml"
-  
+
   # Enable automatic kernel discovery (in addition to kernel_order)
   auto_discovery: false
-  
+
   # Layers to search for kernels (if auto_discovery enabled)
   layers:
     - "00_system"
@@ -108,52 +108,52 @@ environments:
       - private/kernels/00_system/02_identity_kernel.yaml
       - private/kernels/00_system/08_safety_kernel.yaml
       - private/kernels/00_system/07_execution_kernel.yaml
-    
+
     minimum_kernel_count: 4
-    
+
     validation:
-      enable_integrity_check: false  # Faster loading in dev
+      enable_integrity_check: false # Faster loading in dev
       strict_required_kernels: true
       enforce_minimum_count: true
       verbose_logging: true
-  
+
   # Test environment (minimal kernel set for unit tests)
   test:
     kernel_order:
       - private/kernels/00_system/01_master_kernel.yaml
       - private/kernels/00_system/02_identity_kernel.yaml
-    
+
     minimum_kernel_count: 2
-    
+
     required_kernels:
       master: "01_master_kernel"
       identity: "02_identity_kernel"
-    
+
     validation:
-      enable_integrity_check: false  # Faster test execution
-      strict_required_kernels: false  # Allow partial kernel loading
+      enable_integrity_check: false # Faster test execution
+      strict_required_kernels: false # Allow partial kernel loading
       enforce_minimum_count: false
       verbose_logging: false
-  
+
   # Staging environment (full kernel set, relaxed validation)
   staging:
     # Inherits production kernel_order
-    
+
     validation:
       enable_integrity_check: true
       strict_required_kernels: true
       enforce_minimum_count: true
       verbose_logging: true
-  
+
   # Production environment (full kernel set, strict validation)
   production:
     # Inherits production kernel_order
-    
+
     validation:
       enable_integrity_check: true
       strict_required_kernels: true
       enforce_minimum_count: true
-      verbose_logging: false  # Reduce log noise in prod
+      verbose_logging: false # Reduce log noise in prod
 
 # =============================================================================
 # Feature Flags (for gradual rollout)
@@ -163,10 +163,10 @@ feature_flags:
   # Enable externalized config loading (vs hard-coded)
   # Set to false to rollback to hard-coded KERNEL_ORDER
   enable_config_loading: true
-  
+
   # Enable environment-specific overrides
   enable_env_overrides: true
-  
+
   # Enable kernel discovery (auto-find kernels in base_path)
   enable_auto_discovery: false
 
@@ -177,17 +177,17 @@ feature_flags:
 monitoring:
   # Emit metrics for kernel loading
   enable_metrics: true
-  
+
   # Metric names
   metrics:
     kernel_load_duration: "l9.kernel.load_duration_seconds"
     kernel_load_success: "l9.kernel.load_success_total"
     kernel_load_failure: "l9.kernel.load_failure_total"
     kernel_count: "l9.kernel.count"
-  
+
   # Emit traces for kernel loading
   enable_tracing: true
-  
+
   # Trace span names
   traces:
     kernel_load: "kernel.load"
@@ -202,7 +202,7 @@ backward_compatibility:
   # Support old hard-coded KERNEL_ORDER for 2 weeks
   # After 2026-02-03, this will be removed
   fallback_to_hardcoded: true
-  
+
   # Deprecation warning
   deprecation_warning: |
     WARNING: Hard-coded KERNEL_ORDER is deprecated and will be removed on 2026-02-03.

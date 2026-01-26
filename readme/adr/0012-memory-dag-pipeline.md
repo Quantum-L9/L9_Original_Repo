@@ -1,18 +1,22 @@
 # ADR 0012: Memory DAG Pipeline
 
 ## Status
+
 Accepted (Revised 2026-01-25 — GMP-125)
 
 ## Pattern
+
 All packets processed through SubstrateDAG with ordered nodes; each node transforms/enriches data. EnrichmentDAG provides 3-tier fallback for resilient writes.
 
 ## Files
+
 - `memory/substrate_dag.py` - Primary DAG implementation
 - `memory/enrichment_dag.py` - 3-tier fallback enrichment (GMP-125)
 - `memory/substrate_service.py` - `write_packet()` entry point
 - `memory/ingestion.py` - `ingest_packet()` convenience function
 
 ## Pipeline Flow
+
 ```
 PacketEnvelopeIn
        │
@@ -109,6 +113,7 @@ EnrichmentDAG implements automatic degradation when enrichment fails:
 ```
 
 ## EnrichmentDAG Usage
+
 ```python
 from memory.enrichment_dag import EnrichmentDAG, EnrichmentConfig
 
@@ -134,26 +139,29 @@ result = await dag.run(envelope)
 ```
 
 ## Node Responsibilities
-| Node | Input | Output | Side Effect |
-|------|-------|--------|-------------|
-| intake | PacketEnvelope | Validated envelope | Dedup check |
-| reasoning | Envelope | Reasoning blocks | None |
-| memory_write | Envelope | Write result | PostgreSQL write |
-| semantic_embed | Envelope | Embedding ID | pgvector insert |
-| extract_insights | Envelope | Insights list | None |
-| store_insights | Insights | Store result | PostgreSQL write |
-| world_model_trigger | Envelope | Update result | World model update |
-| checkpoint | Envelope | Checkpoint ID | State snapshot |
+
+| Node                | Input          | Output             | Side Effect        |
+| ------------------- | -------------- | ------------------ | ------------------ |
+| intake              | PacketEnvelope | Validated envelope | Dedup check        |
+| reasoning           | Envelope       | Reasoning blocks   | None               |
+| memory_write        | Envelope       | Write result       | PostgreSQL write   |
+| semantic_embed      | Envelope       | Embedding ID       | pgvector insert    |
+| extract_insights    | Envelope       | Insights list      | None               |
+| store_insights      | Insights       | Store result       | PostgreSQL write   |
+| world_model_trigger | Envelope       | Update result      | World model update |
+| checkpoint          | Envelope       | Checkpoint ID      | State snapshot     |
 
 ## Enrichment Tiers
-| Tier | Name | Written Tables | When Used |
-|------|------|----------------|-----------|
-| 1 | Full | packets, knowledge_facts, relationships | Normal operation |
-| 2 | Core Only | packets | Tier 1 fails/times out |
-| 3 | Direct DB | packets | Tier 2 fails, emergency |
-| DLQ | Dead-Letter | none | All tiers failed |
+
+| Tier | Name        | Written Tables                          | When Used               |
+| ---- | ----------- | --------------------------------------- | ----------------------- |
+| 1    | Full        | packets, knowledge_facts, relationships | Normal operation        |
+| 2    | Core Only   | packets                                 | Tier 1 fails/times out  |
+| 3    | Direct DB   | packets                                 | Tier 2 fails, emergency |
+| DLQ  | Dead-Letter | none                                    | All tiers failed        |
 
 ## Rules
+
 1. Packets MUST flow through full DAG
 2. Node failure emits error packet, continues to next
 3. Circuit breaker wraps entire DAG execution
@@ -167,11 +175,13 @@ result = await dag.run(envelope)
 Packet validation occurs in `intake_node` via `PacketValidator.validate()`.
 
 **Canonical Validation Location:**
+
 - File: `memory/substrate_dag.py` → `intake_node()`
 - Validator: `memory/validators/packet_validator.py` → `PacketValidator`
 - Schema: `core/schemas/packet_envelope_v2.py` → `PacketEnvelopeIn`
 
 **DO NOT duplicate validation elsewhere:**
+
 - Extractors do NOT validate packets (they may not emit packets at all)
 - API routes do NOT validate packets (they pass to ingestion)
 - Services do NOT validate packets (they call `ingest_packet()`)
@@ -181,7 +191,9 @@ All packets flow through `ingest_packet()` → `SubstrateDAG.run()` → `intake_
 This ensures single enforcement point, no duplicate paths, consistent audit trail.
 
 ## AI Guidance
+
 **DO:**
+
 - Add new processing as a new node
 - Maintain node execution order
 - Return proper result from each node
@@ -191,6 +203,7 @@ This ensures single enforcement point, no duplicate paths, consistent audit trai
 - Configure fallback tiers based on criticality (GMP-125)
 
 **DO NOT:**
+
 - Bypass DAG for "fast" writes
 - Skip nodes for "simple" packets
 - Modify node order without analysis

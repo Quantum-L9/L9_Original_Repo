@@ -14,12 +14,14 @@ from uuid import uuid4
 
 import pytest
 
-from memory.hierarchical_summarizer import (DEFAULT_TIER_CONFIGS,
-                                            HierarchicalSummarizer,
-                                            SummaryConfig, SummaryResult,
-                                            SummaryTier)
-from memory.neural_decay_scheduler import (DecayConfig, DecayResult,
-                                           NeuralDecayScheduler)
+from memory.hierarchical_summarizer import (
+    DEFAULT_TIER_CONFIGS,
+    HierarchicalSummarizer,
+    SummaryConfig,
+    SummaryResult,
+    SummaryTier,
+)
+from memory.neural_decay_scheduler import DecayConfig, DecayResult, NeuralDecayScheduler
 
 # =============================================================================
 # HierarchicalSummarizer Tests

@@ -4,11 +4,11 @@
 
 You already have a **complete open source observability stack**:
 
-| Tool | Purpose | Status | Port |
-|------|---------|--------|------|
-| **Prometheus** | Metrics collection | ✅ Running | 9090 |
-| **Grafana** | Visualization & dashboards | ✅ Running | 3000 |
-| **Jaeger** | Distributed tracing | ✅ Running | 16686 |
+| Tool           | Purpose                    | Status     | Port  |
+| -------------- | -------------------------- | ---------- | ----- |
+| **Prometheus** | Metrics collection         | ✅ Running | 9090  |
+| **Grafana**    | Visualization & dashboards | ✅ Running | 3000  |
+| **Jaeger**     | Distributed tracing        | ✅ Running | 16686 |
 
 This is the **Grafana Stack** - fully open source and production-ready!
 
@@ -19,6 +19,7 @@ This is the **Grafana Stack** - fully open source and production-ready!
 **What it is:** Open source APM + metrics + logs in one platform
 
 **Features:**
+
 - Distributed tracing (like Datadog APM)
 - Metrics (like Datadog Metrics)
 - Logs (like Datadog Logs)
@@ -27,6 +28,7 @@ This is the **Grafana Stack** - fully open source and production-ready!
 - **100% open source** (Apache 2.0)
 
 **Installation:**
+
 ```bash
 # On VPS
 git clone https://github.com/SigNoz/signoz.git
@@ -45,12 +47,14 @@ docker-compose up -d
 **What it is:** Open source APM focused on performance monitoring
 
 **Features:**
+
 - Distributed tracing
 - Metrics
 - Service maps
 - **Very lightweight** (Go-based)
 
 **Installation:**
+
 ```bash
 docker run -d \
   --name uptrace \
@@ -66,6 +70,7 @@ docker run -d \
 ### 3. **Grafana Stack** (What You Already Have!)
 
 **Components:**
+
 - **Prometheus** - Metrics
 - **Grafana** - Visualization
 - **Jaeger** - Tracing
@@ -81,6 +86,7 @@ docker run -d \
 **What it is:** Open standard for observability (not a tool itself)
 
 **Use it to:**
+
 - Export to ANY backend (Grafana, SigNoz, Uptrace, etc.)
 - Standardize your instrumentation
 - Switch backends without code changes
@@ -91,17 +97,17 @@ docker run -d \
 
 ## Comparison
 
-| Feature | Datadog | Honeycomb | SigNoz | Grafana Stack | Uptrace |
-|---------|---------|-----------|--------|---------------|---------|
-| **Open Source** | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **Cost** | $$$ | $$$ | Free | Free | Free |
-| **Metrics** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Tracing** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Logs** | ✅ | ✅ | ✅ | ✅ (Loki) | ❌ |
-| **APM** | ✅ | ✅ | ✅ | ✅ (Jaeger) | ✅ |
-| **Service Maps** | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **Alerts** | ✅ | ✅ | ✅ | ✅ | ❌ |
-| **Self-Hosted** | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Feature          | Datadog | Honeycomb | SigNoz | Grafana Stack | Uptrace |
+| ---------------- | ------- | --------- | ------ | ------------- | ------- |
+| **Open Source**  | ❌      | ❌        | ✅     | ✅            | ✅      |
+| **Cost**         | $$$     | $$$       | Free   | Free          | Free    |
+| **Metrics**      | ✅      | ✅        | ✅     | ✅            | ✅      |
+| **Tracing**      | ✅      | ✅        | ✅     | ✅            | ✅      |
+| **Logs**         | ✅      | ✅        | ✅     | ✅ (Loki)     | ❌      |
+| **APM**          | ✅      | ✅        | ✅     | ✅ (Jaeger)   | ✅      |
+| **Service Maps** | ✅      | ✅        | ✅     | ✅            | ✅      |
+| **Alerts**       | ✅      | ✅        | ✅     | ✅            | ❌      |
+| **Self-Hosted**  | ❌      | ❌        | ✅     | ✅            | ✅      |
 
 ---
 
@@ -110,8 +116,8 @@ docker run -d \
 **Use what you have (Grafana Stack)** - it's already running and fully open source!
 
 Just need to:
+
 1. Expose Grafana/Prometheus on VPS (with auth)
 2. Or use SSH port forwarding to access from your Mac
 
 See `VPS_ACCESS.md` for setup instructions.
-

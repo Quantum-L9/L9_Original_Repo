@@ -13,21 +13,25 @@ until consensus is reached.
 """
 
 from collaborative_cells.architect_cell import ArchitectCell
-from collaborative_cells.base_cell import (BaseCell, CellConfig, CellResult,
-                                           ConsensusStrategy)
+from collaborative_cells.base_cell import (
+    BaseCell,
+    CellConfig,
+    CellResult,
+    ConsensusStrategy,
+)
 from collaborative_cells.coder_cell import CoderCell
 from collaborative_cells.reflection_cell import ReflectionCell
 from collaborative_cells.reviewer_cell import ReviewerCell
 
 __all__ = [
+    # Specialized Cells
+    "ArchitectCell",
     # Base
     "BaseCell",
     "CellConfig",
     "CellResult",
-    "ConsensusStrategy",
-    # Specialized Cells
-    "ArchitectCell",
     "CoderCell",
-    "ReviewerCell",
+    "ConsensusStrategy",
     "ReflectionCell",
+    "ReviewerCell",
 ]

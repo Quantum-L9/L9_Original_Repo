@@ -19,27 +19,27 @@ refactoring_policy:
     - name: "Immutability First"
       description: "Pydantic models remain frozen; no mutable state after __init__"
       enforcement: "Code review + mypy check"
-      
+
     - name: "Async Everything"
       description: "No blocking I/O in async functions; use asyncio for concurrency"
       enforcement: "Pre-commit hook detects blocking calls"
-      
+
     - name: "Structured Logging"
       description: "All logs use json-logger; include context (task_id, module)"
       enforcement: "Test suite checks log format"
-      
+
     - name: "Explicit Error Handling"
       description: "No bare except; all exceptions typed, include context"
       enforcement: "Pylint rule + code review"
-      
+
     - name: "Zero Performance Regression"
       description: "Refactoring must not degrade any P50/P99/P999 latencies"
       enforcement: "Benchmark tests in CI"
-      
+
     - name: "100% Type Coverage"
       description: "All module I/O typed; mypy strict mode passes"
       enforcement: "mypy --strict on all touched files"
-      
+
     - name: "Mutation Score > 85%"
       description: "Tests must catch at least 85% of code mutations"
       enforcement: "mutmut run; fail if score < 85%"
@@ -53,16 +53,15 @@ refactoring_policy:
   approval_requirements:
     - type: "Technical Lead"
       description: "Reviews all multi-file changes"
-      
+
     - type: "Test Coverage Review"
       description: "Ensures mutation score > 85%"
-      
+
     - type: "Performance Review"
       description: "Verifies no latency regression (p99 within ±20%)"
-      
+
     - type: "Security Review"
       description: "For governance/auth changes only"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

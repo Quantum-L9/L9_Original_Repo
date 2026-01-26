@@ -38,23 +38,34 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from core.decorators import must_stay_async
-from core.packet_envelope.governance import (AnonymizationEngine,
-                                             ComplianceAuditLog,
-                                             ComplianceExporter, ErasureEngine,
-                                             RetentionManager)
-from core.packet_envelope.observability import (ObservabilityConfig,
-                                                PacketEnvelopeObservability,
-                                                WebSocketTracePropagator)
-from core.packet_envelope.scalability import (BatchIngestionEngine,
-                                              CommandHandler, EventStore,
-                                              ReadModel)
-from core.packet_envelope.standardization import (CloudEvent, EventType,
-                                                  HTTPBinaryBinding,
-                                                  HTTPStructuredBinding,
-                                                  SchemaRegistry)
+from core.packet_envelope.governance import (
+    AnonymizationEngine,
+    ComplianceAuditLog,
+    ComplianceExporter,
+    ErasureEngine,
+    RetentionManager,
+)
+from core.packet_envelope.observability import (
+    ObservabilityConfig,
+    PacketEnvelopeObservability,
+    WebSocketTracePropagator,
+)
+from core.packet_envelope.scalability import (
+    BatchIngestionEngine,
+    CommandHandler,
+    EventStore,
+    ReadModel,
+)
+from core.packet_envelope.standardization import (
+    CloudEvent,
+    EventType,
+    HTTPBinaryBinding,
+    HTTPStructuredBinding,
+    SchemaRegistry,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -78,8 +89,8 @@ class UpgradeState:
     """Tracks upgrade progress"""
 
     current_phase: PacketEnvelopeUpgradePhase
-    completed_phases: List[int]
-    enabled_features: Dict[str, bool]
+    completed_phases: list[int]
+    enabled_features: dict[str, bool]
     backward_compatible: bool = True
     rollback_available: bool = True
 
@@ -117,7 +128,7 @@ class PacketEnvelopeUpgradeEngine:
         self.trace_propagator = None
 
     @must_stay_async("callers use await")
-    async def activate_phase_2(self) -> Dict[str, Any]:
+    async def activate_phase_2(self) -> dict[str, Any]:
         """Activate Phase 2: Observability"""
         self.logger.info("Activating Phase 2: Observability")
 
@@ -150,7 +161,7 @@ class PacketEnvelopeUpgradeEngine:
             return {"status": "error", "phase": 2, "error": str(e)}
 
     @must_stay_async("callers use await")
-    async def activate_phase_3(self) -> Dict[str, Any]:
+    async def activate_phase_3(self) -> dict[str, Any]:
         """Activate Phase 3: Standardization"""
         self.logger.info("Activating Phase 3: Standardization")
 
@@ -191,7 +202,7 @@ class PacketEnvelopeUpgradeEngine:
             return {"status": "error", "phase": 3, "error": str(e)}
 
     @must_stay_async("callers use await")
-    async def activate_phase_4(self) -> Dict[str, Any]:
+    async def activate_phase_4(self) -> dict[str, Any]:
         """Activate Phase 4: Scalability"""
         self.logger.info("Activating Phase 4: Scalability")
 
@@ -232,7 +243,7 @@ class PacketEnvelopeUpgradeEngine:
             return {"status": "error", "phase": 4, "error": str(e)}
 
     @must_stay_async("callers use await")
-    async def activate_phase_5(self) -> Dict[str, Any]:
+    async def activate_phase_5(self) -> dict[str, Any]:
         """Activate Phase 5: Governance"""
         self.logger.info("Activating Phase 5: Governance")
 
@@ -275,7 +286,7 @@ class PacketEnvelopeUpgradeEngine:
             self.logger.error(f"Phase 5 activation failed: {e}", exc_info=True)
             return {"status": "error", "phase": 5, "error": str(e)}
 
-    async def activate_all_phases(self) -> Dict[str, Any]:
+    async def activate_all_phases(self) -> dict[str, Any]:
         """Activate phases 2-5 sequentially"""
         results = {
             "phases": [],
@@ -320,7 +331,7 @@ class PacketEnvelopeUpgradeEngine:
             },
         )
 
-    def get_upgrade_status(self) -> Dict[str, Any]:
+    def get_upgrade_status(self) -> dict[str, Any]:
         """Get current upgrade status"""
         return {
             "current_phase": self.state.current_phase.value,
@@ -347,7 +358,7 @@ class PacketEnvelopeAdapter:
         self.upgrade_engine = upgrade_engine
         self.logger = logger
 
-    async def ingest_packet_legacy(self, packet_data: Dict[str, Any]) -> str:
+    async def ingest_packet_legacy(self, packet_data: dict[str, Any]) -> str:
         """
         Ingest packet using legacy API
         Internally uses new batch ingestion if available
@@ -370,7 +381,7 @@ class PacketEnvelopeAdapter:
         return str(result.successful_packets > 0)
 
     @must_stay_async("callers use await")
-    async def get_packet_as_cloudevent(self, packet_id: str) -> Optional[CloudEvent]:
+    async def get_packet_as_cloudevent(self, packet_id: str) -> CloudEvent | None:
         """
         Retrieve packet as CloudEvent
         Automatically wraps if Phase 3 enabled
@@ -380,14 +391,13 @@ class PacketEnvelopeAdapter:
             return None
 
         # Simulate fetching packet
-        event = CloudEvent(
+        return CloudEvent(
             type=EventType.PACKET_INGESTED.value,
             source="l9/packet-envelope",
             packet_id=packet_id,
             data={"packet_id": packet_id, "legacy": True},
         )
 
-        return event
 
 
 # ============================================================================
@@ -396,11 +406,11 @@ class PacketEnvelopeAdapter:
 
 
 @must_stay_async("callers use await")
-async def validate_deployment() -> Dict[str, Any]:
+async def validate_deployment() -> dict[str, Any]:
     """
     Validate deployment readiness for phases 2-5
     """
-    validation_results = {
+    return {
         "phase_2": {
             "opentelemetry": "installed",
             "jaeger": "configured",
@@ -423,7 +433,6 @@ async def validate_deployment() -> Dict[str, Any]:
         },
     }
 
-    return validation_results
 
 
 # ============================================================================

@@ -116,10 +116,7 @@ def scan_for_untyped_decorators(
 
     issues: list[DecoratorIssue] = []
 
-    if single_file:
-        files_to_check = [single_file]
-    else:
-        files_to_check = list(root_path.rglob("*.py"))
+    files_to_check = [single_file] if single_file else list(root_path.rglob("*.py"))
 
     for py_file in files_to_check:
         # Skip excluded directories
@@ -331,13 +328,12 @@ def fix_with_paramspec(code: str, func_name: str) -> str:
         code,
     )
 
-    code = re.sub(
+    return re.sub(
         r"->\s*Callable\[\.\.\.,\s*Any\]",
         "-> Callable[P, R]",
         code,
     )
 
-    return code
 
 
 def fix_add_return_type(code: str, func_name: str) -> str:
@@ -359,13 +355,12 @@ def fix_add_return_type(code: str, func_name: str) -> str:
     )
 
     # Handle case where inner decorator has no type hints
-    code = re.sub(
+    return re.sub(
         r"def\s+(decorator|wrapper|_decorator|_wrapper)\s*\(\s*func\s*\)\s*:",
         r"def \1(func: Callable[P, R]) -> Callable[P, R]:",
         code,
     )
 
-    return code
 
 
 def check_and_add_imports(file_path: Path, imports_needed: set[str]) -> str | None:
@@ -639,6 +634,7 @@ def main():
                     print(f"  {line}")
 
         return error_count
+    return None
 
 
 if __name__ == "__main__":

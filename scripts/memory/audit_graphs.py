@@ -39,13 +39,13 @@ __dora_meta__ = {
 
 import asyncio
 import json
-
-import aiofiles
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
+
+import aiofiles
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -63,7 +63,7 @@ load_dotenv()
 # =============================================================================
 
 
-async def audit_postgresql_graphs() -> Dict[str, Any]:
+async def audit_postgresql_graphs() -> dict[str, Any]:
     """Audit PostgreSQL-based graphs."""
     try:
         from memory.substrate_repository import SubstrateRepository
@@ -80,7 +80,7 @@ async def audit_postgresql_graphs() -> Dict[str, Any]:
         # 1. Packet Store Audit
         print("\n📦 Auditing Packet Store...")
         packet_stats = await repo._execute_query("""
-            SELECT 
+            SELECT
                 COUNT(*) as total_packets,
                 COUNT(DISTINCT thread_id) as total_threads,
                 COUNT(DISTINCT packet_type) as packet_types,
@@ -118,7 +118,7 @@ async def audit_postgresql_graphs() -> Dict[str, Any]:
         # 2. Semantic Memory Audit
         print("🔍 Auditing Semantic Memory (pgvector)...")
         semantic_stats = await repo._execute_query("""
-            SELECT 
+            SELECT
                 COUNT(*) as total_embeddings,
                 COUNT(DISTINCT agent_id) as unique_agents,
                 COUNT(DISTINCT packet_id) as unique_packets,
@@ -143,7 +143,7 @@ async def audit_postgresql_graphs() -> Dict[str, Any]:
         # 3. Knowledge Facts Audit
         print("📚 Auditing Knowledge Facts...")
         facts_stats = await repo._execute_query("""
-            SELECT 
+            SELECT
                 COUNT(*) as total_facts,
                 COUNT(DISTINCT subject) as unique_subjects,
                 COUNT(DISTINCT predicate) as unique_predicates,
@@ -181,7 +181,7 @@ async def audit_postgresql_graphs() -> Dict[str, Any]:
         # 4. Thread Lineage Audit
         print("🧵 Auditing Thread Lineage...")
         thread_stats = await repo._execute_query("""
-            SELECT 
+            SELECT
                 thread_id,
                 COUNT(*) as packet_count,
                 COUNT(*) FILTER (WHERE parent_ids IS NOT NULL AND array_length(parent_ids, 1) > 0) as packets_with_parents,
@@ -212,7 +212,7 @@ async def audit_postgresql_graphs() -> Dict[str, Any]:
 # =============================================================================
 
 
-async def audit_neo4j_graphs() -> Dict[str, Any]:
+async def audit_neo4j_graphs() -> dict[str, Any]:
     """Audit Neo4j-based graphs."""
     try:
         from memory.graph_client import get_neo4j_client
@@ -339,7 +339,7 @@ async def audit_neo4j_graphs() -> Dict[str, Any]:
 # =============================================================================
 
 
-async def audit_world_model() -> Dict[str, Any]:
+async def audit_world_model() -> dict[str, Any]:
     """Audit World Model entities."""
     try:
         import asyncpg
@@ -355,7 +355,7 @@ async def audit_world_model() -> Dict[str, Any]:
         # World Model Entities
         print("\n🌍 Auditing World Model...")
         entity_stats = await conn.fetch("""
-            SELECT 
+            SELECT
                 COUNT(*) as total_entities,
                 COUNT(DISTINCT entity_type) as entity_types,
                 AVG(confidence) as avg_confidence,
@@ -379,7 +379,7 @@ async def audit_world_model() -> Dict[str, Any]:
 
         # World Model Updates
         update_stats = await conn.fetch("""
-            SELECT 
+            SELECT
                 COUNT(*) as total_updates,
                 COUNT(DISTINCT insight_type) as insight_types,
                 MAX(state_version_after) as current_state_version,
@@ -402,7 +402,7 @@ async def audit_world_model() -> Dict[str, Any]:
 
         # Snapshots
         snapshot_stats = await conn.fetch("""
-            SELECT 
+            SELECT
                 COUNT(*) as total_snapshots,
                 MAX(state_version) as max_snapshot_version,
                 MIN(created_at) as earliest_snapshot,
@@ -428,7 +428,7 @@ async def audit_world_model() -> Dict[str, Any]:
 # =============================================================================
 
 
-async def run_full_audit() -> Dict[str, Any]:
+async def run_full_audit() -> dict[str, Any]:
     """Run comprehensive audit of all graphs."""
     print("=" * 80)
     print("L9 GRAPH AUDIT - Full System Scan")
@@ -464,7 +464,7 @@ async def run_full_audit() -> Dict[str, Any]:
     return audit_results
 
 
-def print_audit_report(results: Dict[str, Any]):
+def print_audit_report(results: dict[str, Any]):
     """Print formatted audit report."""
     print("\n" + "=" * 80)
     print("AUDIT REPORT SUMMARY")

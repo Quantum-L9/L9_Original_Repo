@@ -510,7 +510,7 @@ class ToolRouter:
         """Compute cosine similarity between vectors."""
         import math
 
-        dot_product = sum(x * y for x, y in zip(a, b))
+        dot_product = sum(x * y for x, y in zip(a, b, strict=False))
         norm_a = math.sqrt(sum(x * x for x in a))
         norm_b = math.sqrt(sum(y * y for y in b))
 
@@ -674,13 +674,13 @@ __all__ = [
     # Data classes
     "ToolEmbedding",
     "ToolMatch",
-    "ToolSearchResult",
     # Main class
     "ToolRouter",
+    "ToolSearchResult",
+    "find_tools",
     # Factory functions
     "get_tool_router",
     "init_tool_router",
-    "find_tools",
 ]
 
 # ============================================================================

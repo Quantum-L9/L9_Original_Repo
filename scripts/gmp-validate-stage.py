@@ -36,7 +36,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, List
+from typing import Any
 
 
 @dataclass
@@ -75,7 +75,7 @@ class GMPStageValidator:
         self.stage_id = stage_id
         self.report_path = report_path
         self.config_path = config_path
-        self.results: List[ValidationResult] = []
+        self.results: list[ValidationResult] = []
 
         with open(config_path) as f:
             import yaml
@@ -234,7 +234,7 @@ class GMPStageValidator:
         threshold = 85.0
 
         try:
-            result = subprocess.run(
+            subprocess.run(
                 ["pytest", "--cov=memory/consolidation", "--cov-report=json"],
                 capture_output=True,
                 text=True,
@@ -303,9 +303,8 @@ class GMPStageValidator:
         if passed_count == total_count:
             print("✅ STAGE VALIDATION: PASSED")
             return True
-        else:
-            print("❌ STAGE VALIDATION: FAILED")
-            return False
+        print("❌ STAGE VALIDATION: FAILED")
+        return False
 
 
 def main():

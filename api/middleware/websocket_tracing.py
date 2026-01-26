@@ -47,9 +47,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from typing import Any, Callable, Optional
+from typing import Any
 from uuid import uuid4
+
+import structlog
 from fastapi import WebSocket
 from starlette.types import ASGIApp, Receive, Scope, Send
 
@@ -73,9 +74,9 @@ class TraceContext:
 
     def __init__(
         self,
-        trace_id: Optional[str] = None,
-        correlation_id: Optional[str] = None,
-        connection_id: Optional[str] = None,
+        trace_id: str | None = None,
+        correlation_id: str | None = None,
+        connection_id: str | None = None,
     ):
         self.trace_id = trace_id or str(uuid4())
         self.correlation_id = correlation_id or self.trace_id
@@ -252,7 +253,7 @@ class WebSocketTracingMiddleware:
 # =============================================================================
 
 
-def get_trace_context(websocket: WebSocket) -> Optional[TraceContext]:
+def get_trace_context(websocket: WebSocket) -> TraceContext | None:
     """
     Extract trace context from WebSocket connection.
 
@@ -279,7 +280,7 @@ def get_trace_context(websocket: WebSocket) -> Optional[TraceContext]:
 
 def inject_trace_into_packet(
     packet_dict: dict[str, Any],
-    trace_context: Optional[TraceContext] = None,
+    trace_context: TraceContext | None = None,
 ) -> dict[str, Any]:
     """
     Inject trace context into packet dictionary.
@@ -313,8 +314,8 @@ def inject_trace_into_packet(
 # =============================================================================
 
 __all__ = [
-    "WebSocketTracingMiddleware",
     "TraceContext",
+    "WebSocketTracingMiddleware",
     "get_trace_context",
     "inject_trace_into_packet",
 ]

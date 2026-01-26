@@ -14,9 +14,11 @@ from uuid import uuid4
 
 import pytest
 
-from core.observability.circuit_breaker import (CircuitBreaker,
-                                                CircuitBreakerConfig,
-                                                CircuitOpenError)
+from core.observability.circuit_breaker import (
+    CircuitBreaker,
+    CircuitBreakerConfig,
+    CircuitOpenError,
+)
 from core.resilience.mixin import ResilienceMixin
 from memory.substrate_dag_wrapper import RetryPolicy
 

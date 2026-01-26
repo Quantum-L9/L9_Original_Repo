@@ -27,7 +27,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from statistics import mean
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -40,7 +40,7 @@ class MetricsAggregator:
     """Aggregates spans into SRE metrics and KPIs."""
 
     @staticmethod
-    def compute_sre_metrics(spans: List[Span]) -> Dict[str, Any]:
+    def compute_sre_metrics(spans: list[Span]) -> dict[str, Any]:
         """Compute SRE-level metrics from spans."""
         if not spans:
             return {
@@ -85,10 +85,10 @@ class MetricsAggregator:
 
     @staticmethod
     def compute_agent_kpis(
-        spans: List[Span],
+        spans: list[Span],
         agent_name: str,
         period: str = "1h",
-    ) -> Dict[str, float]:
+    ) -> dict[str, float]:
         """Compute agent-specific KPIs."""
         if not spans:
             return {}
@@ -126,10 +126,10 @@ class MetricsAggregator:
 
     @staticmethod
     def detect_regressions(
-        current_metrics: Dict[str, Any],
-        baseline_metrics: Dict[str, Any],
+        current_metrics: dict[str, Any],
+        baseline_metrics: dict[str, Any],
         threshold_percent: float = 20.0,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Detect metric regressions vs baseline.
 
         Returns list of regressions (metric name, baseline, current, change_percent).
@@ -176,7 +176,7 @@ class MetricsAggregator:
         return regressions
 
     @staticmethod
-    def compute_cost_breakdown(spans: List[Span]) -> Dict[str, float]:
+    def compute_cost_breakdown(spans: list[Span]) -> dict[str, float]:
         """Compute cost breakdown by service."""
         costs = {}
 
@@ -198,7 +198,7 @@ class KPITracker:
             window_size: Number of data points to keep in memory.
         """
         self.window_size = window_size
-        self.history: Dict[str, List[Dict[str, Any]]] = {}
+        self.history: dict[str, list[dict[str, Any]]] = {}
 
     def record_kpi(self, kpi: AgentKPI) -> None:
         """Record a KPI measurement."""
@@ -217,7 +217,7 @@ class KPITracker:
         if len(self.history[key]) > self.window_size:
             self.history[key] = self.history[key][-self.window_size :]
 
-    def get_trend(self, kpi_name: str) -> Optional[str]:
+    def get_trend(self, kpi_name: str) -> str | None:
         """Get trend (up, down, stable) for a KPI."""
         if kpi_name not in self.history or len(self.history[kpi_name]) < 2:
             return None
@@ -232,12 +232,11 @@ class KPITracker:
 
         if change_percent < 5:
             return "stable"
-        elif avg_recent > avg_previous:
+        if avg_recent > avg_previous:
             return "up"
-        else:
-            return "down"
+        return "down"
 
-    def get_alerts(self, thresholds: Dict[str, float]) -> List[Dict[str, Any]]:
+    def get_alerts(self, thresholds: dict[str, float]) -> list[dict[str, Any]]:
         """Get alerts for KPIs exceeding thresholds."""
         alerts = []
 

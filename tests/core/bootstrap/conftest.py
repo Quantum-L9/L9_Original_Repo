@@ -16,13 +16,13 @@ import importlib.util
 try:
     spec = importlib.util.find_spec("memory.graph_client")
     if spec:
-        import memory.graph_client  # noqa: F401
+        import memory.graph_client
 except Exception:
     pass  # Ignore if unavailable - tests will fail gracefully
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -54,7 +54,7 @@ class MockNeo4jSession:
     def __init__(self):
         self.queries_run = []
 
-    async def run(self, query: str, params: Optional[Dict] = None):
+    async def run(self, query: str, params: dict | None = None):
         """Record query and return mock result."""
         self.queries_run.append({"query": query, "params": params})
         return MockNeo4jResult()
@@ -69,7 +69,7 @@ class MockNeo4jSession:
 class MockNeo4jResult:
     """Mock Neo4j query result."""
 
-    def __init__(self, records: Optional[list] = None):
+    def __init__(self, records: list | None = None):
         self._records = records or []
         self._index = 0
 

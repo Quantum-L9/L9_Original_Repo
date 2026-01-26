@@ -28,7 +28,7 @@ This document contains the changes to be applied to `.github/workflows/ci.yml` t
   sast:
     name: Security Scan (SAST)
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -63,7 +63,7 @@ This document contains the changes to be applied to `.github/workflows/ci.yml` t
   code-quality:
     name: Code Quality Analysis
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

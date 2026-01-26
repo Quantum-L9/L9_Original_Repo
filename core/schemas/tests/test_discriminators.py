@@ -11,9 +11,12 @@ from uuid import uuid4
 
 import pytest
 
-from core.schemas.packet_envelope import (PacketEnvelope, PacketEnvelopeIn,
-                                          PacketMetadata,
-                                          SemanticSearchRequest)
+from core.schemas.packet_envelope import (
+    PacketEnvelope,
+    PacketEnvelopeIn,
+    PacketMetadata,
+    SemanticSearchRequest,
+)
 from core.schemas.research_factory_models import ParsedObject, ValidationStatus
 
 

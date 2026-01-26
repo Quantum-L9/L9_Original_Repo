@@ -43,7 +43,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -90,7 +90,7 @@ class CrossEncoderConfig:
     max_candidates: int = 100
 
     # Device for inference (None = auto-detect)
-    device: Optional[str] = None
+    device: str | None = None
 
 
 # Default configuration
@@ -126,7 +126,7 @@ class RerankingResult:
 
     # Status
     reranker_used: bool = False
-    fallback_reason: Optional[str] = None
+    fallback_reason: str | None = None
 
 
 # =============================================================================
@@ -148,7 +148,7 @@ class CrossEncoderReranker:
     - Batch processing for efficiency
     """
 
-    def __init__(self, config: Optional[CrossEncoderConfig] = None):
+    def __init__(self, config: CrossEncoderConfig | None = None):
         """
         Initialize cross-encoder reranker.
 
@@ -199,9 +199,9 @@ class CrossEncoderReranker:
         self,
         query: str,
         candidates: list[dict[str, Any]],
-        top_k: Optional[int] = None,
+        top_k: int | None = None,
         text_key: str = "fact_text",
-        fallback_text_keys: Optional[list[str]] = None,
+        fallback_text_keys: list[str] | None = None,
     ) -> RerankingResult:
         """
         Re-rank candidates using cross-encoder scoring.
@@ -288,7 +288,7 @@ class CrossEncoderReranker:
 
         except Exception as e:
             logger.error(f"Cross-encoder prediction failed: {e}")
-            result.fallback_reason = f"Prediction error: {str(e)}"
+            result.fallback_reason = f"Prediction error: {e!s}"
 
         # Apply top_k limit
         result.results = candidates_to_rank[:top_k] if top_k else candidates_to_rank
@@ -342,7 +342,7 @@ class CrossEncoderReranker:
 # =============================================================================
 
 
-_reranker: Optional[CrossEncoderReranker] = None
+_reranker: CrossEncoderReranker | None = None
 
 
 def get_cross_encoder_reranker() -> CrossEncoderReranker:

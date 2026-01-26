@@ -64,7 +64,6 @@ catalog_entry:
     - POST /api/mainagent/v6/packet
     - orchestrator:meta -> audit
   registered_in: config/agent_catalog.yaml
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

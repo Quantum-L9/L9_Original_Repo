@@ -6,26 +6,26 @@ Apply these rules via Hetzner Console → Firewalls → firewall-1 (or create ne
 
 ### Inbound Rules
 
-| Description | Protocol | Port | Source | Priority |
-|-------------|----------|------|--------|----------|
-| SSH | TCP | 22 | Any IPv4/IPv6 | 1 |
-| ICMP (ping) | ICMP | - | Any IPv4/IPv6 | 2 |
-| HTTP | TCP | 80 | Any IPv4/IPv6 | 3 |
-| HTTPS | TCP | 443 | Any IPv4/IPv6 | 4 |
-| L9 API | TCP | 30080 | Any IPv4/IPv6 | 5 |
-| MCP Memory | TCP | 30902 | Any IPv4/IPv6 | 6 |
-| PostgreSQL | TCP | 30432 | Admin IPs only | 7 |
-| Grafana | TCP | 30300 | Any IPv4/IPv6 | 8 |
-| Neo4j Browser | TCP | 30474 | Any IPv4/IPv6 | 9 |
-| Neo4j Bolt | TCP | 30687 | Any IPv4/IPv6 | 10 |
-| Prometheus | TCP | 30909 | Any IPv4/IPv6 | 11 |
-| Kubernetes API | TCP | 6443 | Admin IPs only | 12 |
+| Description    | Protocol | Port  | Source         | Priority |
+| -------------- | -------- | ----- | -------------- | -------- |
+| SSH            | TCP      | 22    | Any IPv4/IPv6  | 1        |
+| ICMP (ping)    | ICMP     | -     | Any IPv4/IPv6  | 2        |
+| HTTP           | TCP      | 80    | Any IPv4/IPv6  | 3        |
+| HTTPS          | TCP      | 443   | Any IPv4/IPv6  | 4        |
+| L9 API         | TCP      | 30080 | Any IPv4/IPv6  | 5        |
+| MCP Memory     | TCP      | 30902 | Any IPv4/IPv6  | 6        |
+| PostgreSQL     | TCP      | 30432 | Admin IPs only | 7        |
+| Grafana        | TCP      | 30300 | Any IPv4/IPv6  | 8        |
+| Neo4j Browser  | TCP      | 30474 | Any IPv4/IPv6  | 9        |
+| Neo4j Bolt     | TCP      | 30687 | Any IPv4/IPv6  | 10       |
+| Prometheus     | TCP      | 30909 | Any IPv4/IPv6  | 11       |
+| Kubernetes API | TCP      | 6443  | Admin IPs only | 12       |
 
 ### Outbound Rules
 
-| Description | Protocol | Port | Destination |
-|-------------|----------|------|-------------|
-| All outbound | All | All | Any | (default allow)
+| Description  | Protocol | Port | Destination |
+| ------------ | -------- | ---- | ----------- | --------------- |
+| All outbound | All      | All  | Any         | (default allow) |
 
 ---
 
@@ -89,12 +89,14 @@ Source: 10.8.0.0/24  # WireGuard/OpenVPN subnet
 ## Quick Commands
 
 ### Check current firewall on server:
+
 ```bash
 ssh root@46.62.243.82
 iptables -L -n
 ```
 
 ### Test port accessibility:
+
 ```bash
 # From your local machine
 nc -zv 46.62.243.82 30080  # L9 API
@@ -111,6 +113,7 @@ nc -zv 46.62.243.82 30909  # Prometheus
 ## Current firewall-1 Rules (L9 Server)
 
 From screenshots, existing rules on firewall-1:
+
 - TCP 22 (SSH)
 - ICMP
 - TCP 80 (HTTP)

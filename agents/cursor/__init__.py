@@ -11,34 +11,42 @@ Includes:
 """
 
 from agents.cursor.cursor_client import CursorClient
-from agents.cursor.cursor_memory_kernel import (CursorMemoryKernel, Lesson,
-                                                SessionState, TodoItem,
-                                                activate_session,
-                                                create_cursor_memory_kernel,
-                                                get_active_kernel)
+from agents.cursor.cursor_memory_kernel import (
+    CursorMemoryKernel,
+    Lesson,
+    SessionState,
+    TodoItem,
+    activate_session,
+    create_cursor_memory_kernel,
+    get_active_kernel,
+)
+
 # GMP v2.0 Meta-Learning (Cursor-specific)
-from agents.cursor.gmp_meta_learning import (AutonomyController,
-                                             AutonomyGraduationMetrics,
-                                             AutonomyLevel, GMPExecutionResult,
-                                             GMPMetaLearningEngine,
-                                             LearnedHeuristic)
+from agents.cursor.gmp_meta_learning import (
+    AutonomyController,
+    AutonomyGraduationMetrics,
+    AutonomyLevel,
+    GMPExecutionResult,
+    GMPMetaLearningEngine,
+    LearnedHeuristic,
+)
 
 __all__ = [
-    # Kernel
-    "CursorMemoryKernel",
-    "create_cursor_memory_kernel",
-    "activate_session",
-    "get_active_kernel",
-    "SessionState",
-    "Lesson",
-    "TodoItem",
+    "AutonomyController",
+    "AutonomyGraduationMetrics",
+    "AutonomyLevel",
     # Client
     "CursorClient",
+    # Kernel
+    "CursorMemoryKernel",
+    "GMPExecutionResult",
     # GMP Meta-Learning
     "GMPMetaLearningEngine",
-    "AutonomyController",
-    "AutonomyLevel",
-    "GMPExecutionResult",
     "LearnedHeuristic",
-    "AutonomyGraduationMetrics",
+    "Lesson",
+    "SessionState",
+    "TodoItem",
+    "activate_session",
+    "create_cursor_memory_kernel",
+    "get_active_kernel",
 ]

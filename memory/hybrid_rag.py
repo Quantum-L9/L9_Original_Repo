@@ -42,7 +42,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 import structlog
@@ -74,9 +74,9 @@ class VectorHit:
     packet_id: UUID
     content: str
     similarity: float
-    kind: Optional[str] = None
-    source_id: Optional[str] = None
-    thread_id: Optional[str] = None
+    kind: str | None = None
+    source_id: str | None = None
+    thread_id: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
     # Extracted entities (populated by entity extractor)
@@ -111,7 +111,7 @@ class HybridResult:
     vector_hit: VectorHit
 
     # Graph enrichment
-    enrichment: Optional[GraphEnrichment] = None
+    enrichment: GraphEnrichment | None = None
 
     # Combined relevance score (vector similarity + graph centrality)
     combined_score: float = 0.0
@@ -152,7 +152,7 @@ class EntityExtractor:
     Uses simple heuristics + optional LLM for entity extraction.
     """
 
-    def __init__(self, use_llm: bool = False, llm_client: Optional[Any] = None):
+    def __init__(self, use_llm: bool = False, llm_client: Any | None = None):
         """
         Initialize entity extractor.
 
@@ -166,7 +166,7 @@ class EntityExtractor:
     async def extract_entities(
         self,
         text: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         """
         Extract entity references from text.
@@ -446,7 +446,7 @@ class GraphEnricher:
 
         query = f"""
         MATCH (n:`{safe_type}` {{id: $entity_id}})-[r]-(neighbor)
-        RETURN DISTINCT 
+        RETURN DISTINCT
             neighbor.id as id,
             labels(neighbor)[0] as type,
             neighbor.name as name,
@@ -486,7 +486,7 @@ class GraphEnricher:
         query = f"""
         MATCH (n:`{safe_type}` {{id: $entity_id}})-[*2]-(neighbor)
         WHERE neighbor.id <> $entity_id
-        RETURN DISTINCT 
+        RETURN DISTINCT
             neighbor.id as id,
             labels(neighbor)[0] as type,
             neighbor.name as name
@@ -517,7 +517,7 @@ class GraphEnricher:
         query = """
         MATCH (root:Event {id: $event_id})
         MATCH path = (root)-[:TRIGGERED*0..5]->(descendant:Event)
-        RETURN 
+        RETURN
             descendant.id as id,
             descendant.event_type as event_type,
             descendant.timestamp as timestamp,
@@ -575,8 +575,8 @@ class HybridRAGPipeline:
         self,
         semantic_service: Any,  # SemanticService from memory.substrate_semantic
         neo4j_client: Any,  # Neo4jClient from memory.graph_client
-        entity_extractor: Optional[EntityExtractor] = None,
-        graph_enricher: Optional[GraphEnricher] = None,
+        entity_extractor: EntityExtractor | None = None,
+        graph_enricher: GraphEnricher | None = None,
     ):
         """
         Initialize hybrid RAG pipeline.
@@ -732,7 +732,7 @@ class HybridRAGPipeline:
     def _calculate_combined_score(
         self,
         hit: VectorHit,
-        enrichment: Optional[GraphEnrichment],
+        enrichment: GraphEnrichment | None,
     ) -> tuple[float, dict[str, float]]:
         """
         Calculate combined relevance score.
@@ -758,7 +758,7 @@ class HybridRAGPipeline:
             # Entity diversity: variety of entity types
             if enrichment.related_entities:
                 unique_types = len(
-                    set(e.get("type") for e in enrichment.related_entities)
+                    {e.get("type") for e in enrichment.related_entities}
                 )
                 factors["entity_diversity"] = min(
                     unique_types / 5, 1.0
@@ -781,7 +781,7 @@ class HybridRAGPipeline:
 # =============================================================================
 
 
-_pipeline: Optional[HybridRAGPipeline] = None
+_pipeline: HybridRAGPipeline | None = None
 
 
 @must_stay_async("callers use await")
@@ -833,13 +833,13 @@ async def hybrid_search(
 
 __all__ = [
     "EnrichmentStrategy",
-    "VectorHit",
-    "GraphEnrichment",
-    "HybridResult",
-    "HybridSearchResult",
     "EntityExtractor",
     "GraphEnricher",
+    "GraphEnrichment",
     "HybridRAGPipeline",
+    "HybridResult",
+    "HybridSearchResult",
+    "VectorHit",
     "get_hybrid_rag_pipeline",
     "hybrid_search",
 ]

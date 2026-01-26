@@ -49,9 +49,9 @@ capabilities:
     description: Execute reflection task on execution history
     method: run(task, context)
     task_fields:
-      - history    # List of execution events
-      - focus      # Focus area (general, failures, patterns, etc.)
-      - goals      # List of goals to evaluate against
+      - history # List of execution events
+      - focus # Focus area (general, failures, patterns, etc.)
+      - goals # List of goals to evaluate against
     returns:
       - analysis.successes
       - analysis.failures
@@ -142,15 +142,15 @@ system_prompt: |
 # Environment Requirements
 environment:
   required:
-    - OPENAI_API_KEY  # Required for LLM calls
+    - OPENAI_API_KEY # Required for LLM calls
   optional:
-    - L9_EXECUTOR_API_KEY  # For authenticated API access
+    - L9_EXECUTOR_API_KEY # For authenticated API access
 
 # Tools available to this agent
 tools:
-  - memory_search     # Search L9 memory for relevant history
-  - neo4j_query       # Query knowledge graph for patterns
-  - web_search        # Research best practices
+  - memory_search # Search L9 memory for relevant history
+  - neo4j_query # Query knowledge graph for patterns
+  - web_search # Research best practices
 
 # Metadata
 version: "1.0.0"
@@ -163,7 +163,6 @@ tags:
   - failure-analysis
   - pattern-extraction
   - lessons-learned
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

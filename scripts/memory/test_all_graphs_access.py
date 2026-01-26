@@ -33,7 +33,6 @@ async def test_all_graphs():
     results = {}
 
     async with httpx.AsyncClient(verify=False, timeout=60.0) as client:
-
         # =====================================================================
         # 1. PostgreSQL Packet Store
         # =====================================================================

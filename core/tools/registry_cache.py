@@ -47,13 +47,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from collections import OrderedDict
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Callable
-from uuid import uuid4
+from typing import Any
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -116,7 +117,7 @@ class CacheEntry:
     created_at: datetime = field(default_factory=datetime.utcnow)
     last_accessed_at: datetime = field(default_factory=datetime.utcnow)
     access_count: int = 0
-    ttl_expires_at: Optional[datetime] = None
+    ttl_expires_at: datetime | None = None
 
     def is_expired(self) -> bool:
         """Check if entry is expired (TTL)."""
@@ -161,7 +162,7 @@ class CacheMetrics:
             return 0.0
         return self.hits / total
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export as dict."""
         return {
             "hits": self.hits,
@@ -186,7 +187,7 @@ class ToolRegistryCache:
     eviction strategies and metrics.
     """
 
-    def __init__(self, config: Optional[CacheConfig] = None):
+    def __init__(self, config: CacheConfig | None = None):
         """
         Initialize tool registry cache.
 
@@ -208,7 +209,7 @@ class ToolRegistryCache:
             ttl_seconds=self.config.ttl_seconds,
         )
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """
         Get value from cache.
 
@@ -387,7 +388,7 @@ class ToolRegistryCache:
         self._metrics.size = len(self._cache)
         return self._metrics
 
-    def warm_cache(self, loader: Callable[[], Dict[str, Any]]) -> int:
+    def warm_cache(self, loader: Callable[[], dict[str, Any]]) -> int:
         """
         Warm cache with initial data.
 
@@ -435,7 +436,7 @@ class CachedToolRegistry:
     def __init__(
         self,
         registry: Any,  # ToolRegistry instance
-        cache_config: Optional[CacheConfig] = None,
+        cache_config: CacheConfig | None = None,
     ):
         """
         Initialize cached tool registry.
@@ -453,7 +454,7 @@ class CachedToolRegistry:
 
         logger.info("CachedToolRegistry initialized")
 
-    def get_tool(self, tool_id: str) -> Optional[Dict[str, Any]]:
+    def get_tool(self, tool_id: str) -> dict[str, Any] | None:
         """
         Get tool definition with caching.
 
@@ -477,7 +478,7 @@ class CachedToolRegistry:
 
         return tool
 
-    def list_tools(self) -> List[Dict[str, Any]]:
+    def list_tools(self) -> list[dict[str, Any]]:
         """
         List all tools.
 
@@ -488,7 +489,7 @@ class CachedToolRegistry:
         """
         return self._registry.list_tools()
 
-    def register_tool(self, tool_id: str, tool_def: Dict[str, Any]) -> None:
+    def register_tool(self, tool_id: str, tool_def: dict[str, Any]) -> None:
         """
         Register tool and invalidate cache.
 
@@ -522,7 +523,7 @@ class CachedToolRegistry:
 
         return result
 
-    def invalidate_cache(self, tool_id: Optional[str] = None) -> int:
+    def invalidate_cache(self, tool_id: str | None = None) -> int:
         """
         Invalidate cache entries.
 
@@ -534,10 +535,9 @@ class CachedToolRegistry:
         """
         if tool_id is not None:
             return 1 if self._cache.invalidate(tool_id) else 0
-        else:
-            return self._cache.invalidate_all()
+        return self._cache.invalidate_all()
 
-    def get_cache_metrics(self) -> Dict[str, Any]:
+    def get_cache_metrics(self) -> dict[str, Any]:
         """
         Get cache metrics.
 
@@ -549,7 +549,7 @@ class CachedToolRegistry:
     def _warm_cache(self) -> None:
         """Warm cache with all tools from registry."""
 
-        def loader() -> Dict[str, Any]:
+        def loader() -> dict[str, Any]:
             tools = self._registry.list_tools()
             return {tool["tool_id"]: tool for tool in tools}
 
@@ -561,12 +561,12 @@ class CachedToolRegistry:
 # =============================================================================
 
 __all__ = [
-    "CacheStrategy",
     "CacheConfig",
     "CacheEntry",
     "CacheMetrics",
-    "ToolRegistryCache",
+    "CacheStrategy",
     "CachedToolRegistry",
+    "ToolRegistryCache",
 ]
 
 # ============================================================================

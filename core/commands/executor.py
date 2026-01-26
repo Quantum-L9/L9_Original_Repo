@@ -40,7 +40,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -60,10 +60,10 @@ class CommandExecutor:
 
     def __init__(
         self,
-        agent_executor: Optional[Any] = None,
-        approval_manager: Optional[Any] = None,
-        substrate_service: Optional[Any] = None,
-        audit_logger: Optional[Any] = None,
+        agent_executor: Any | None = None,
+        approval_manager: Any | None = None,
+        substrate_service: Any | None = None,
+        audit_logger: Any | None = None,
     ):
         """
         Initialize CommandExecutor.
@@ -83,7 +83,7 @@ class CommandExecutor:
         self,
         command: Command,
         user_id: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> CommandResult:
         """
         Execute a structured command.
@@ -121,7 +121,7 @@ class CommandExecutor:
             error_result = CommandResult(
                 success=False,
                 command_id=command.id,
-                message=f"Execution failed: {str(e)}",
+                message=f"Execution failed: {e!s}",
             )
             await self._log_command(command, user_id, "failed", error=str(e))
             return error_result
@@ -188,7 +188,7 @@ class CommandExecutor:
                 },
             )
 
-            result = await self._agent_executor.start_agent_task(task)
+            await self._agent_executor.start_agent_task(task)
 
             return CommandResult(
                 success=True,
@@ -207,7 +207,7 @@ class CommandExecutor:
             return CommandResult(
                 success=False,
                 command_id=command.id,
-                message=f"Failed to create GMP task: {str(e)}",
+                message=f"Failed to create GMP task: {e!s}",
             )
 
     async def _handle_analyze(
@@ -272,7 +272,7 @@ class CommandExecutor:
                     },
                 )
 
-                result = await self._agent_executor.start_agent_task(task)
+                await self._agent_executor.start_agent_task(task)
 
                 return CommandResult(
                     success=True,
@@ -335,19 +335,18 @@ class CommandExecutor:
                         message=f"Task {task_id} approved",
                         data={"task_id": task_id, "approved_by": user_id},
                     )
-                else:
-                    return CommandResult(
-                        success=False,
-                        command_id=command.id,
-                        message=f"Failed to approve task {task_id}",
-                    )
+                return CommandResult(
+                    success=False,
+                    command_id=command.id,
+                    message=f"Failed to approve task {task_id}",
+                )
 
             except Exception as e:
                 logger.error("Approval failed", error=str(e))
                 return CommandResult(
                     success=False,
                     command_id=command.id,
-                    message=f"Approval error: {str(e)}",
+                    message=f"Approval error: {e!s}",
                 )
 
         return CommandResult(
@@ -401,7 +400,7 @@ class CommandExecutor:
                     },
                 )
 
-                result = await self._agent_executor.start_agent_task(task)
+                await self._agent_executor.start_agent_task(task)
 
                 return CommandResult(
                     success=True,
@@ -420,7 +419,7 @@ class CommandExecutor:
                 return CommandResult(
                     success=False,
                     command_id=command.id,
-                    message=f"Failed to create rollback task: {str(e)}",
+                    message=f"Failed to create rollback task: {e!s}",
                 )
 
         return CommandResult(
@@ -447,18 +446,17 @@ class CommandExecutor:
                 message=f"Status for task {task_id}: (not implemented)",
                 data={"task_id": task_id},
             )
-        else:
-            # Return system status
-            return CommandResult(
-                success=True,
-                command_id=command.id,
-                message="L9 System Status: Operational",
-                data={
-                    "agent_executor": self._agent_executor is not None,
-                    "substrate_service": self._substrate is not None,
-                    "approval_manager": self._approval_manager is not None,
-                },
-            )
+        # Return system status
+        return CommandResult(
+            success=True,
+            command_id=command.id,
+            message="L9 System Status: Operational",
+            data={
+                "agent_executor": self._agent_executor is not None,
+                "substrate_service": self._substrate is not None,
+                "approval_manager": self._approval_manager is not None,
+            },
+        )
 
     @must_stay_async("callers use await")
     async def _handle_help(
@@ -518,7 +516,7 @@ Natural language:
                 },
             )
 
-            result = await self._agent_executor.start_agent_task(task)
+            await self._agent_executor.start_agent_task(task)
 
             return CommandResult(
                 success=True,
@@ -533,7 +531,7 @@ Natural language:
             return CommandResult(
                 success=False,
                 command_id=command.id,
-                message=f"Failed to forward query: {str(e)}",
+                message=f"Failed to forward query: {e!s}",
             )
 
     async def _log_command(
@@ -541,8 +539,8 @@ Natural language:
         command: Command,
         user_id: str,
         action: str,
-        result: Optional[CommandResult] = None,
-        error: Optional[str] = None,
+        result: CommandResult | None = None,
+        error: str | None = None,
     ) -> None:
         """Log command to audit trail."""
         if self._audit is not None:
@@ -565,10 +563,10 @@ Natural language:
 async def execute_command(
     command: Command,
     user_id: str,
-    context: Optional[dict[str, Any]] = None,
-    agent_executor: Optional[Any] = None,
-    approval_manager: Optional[Any] = None,
-    substrate_service: Optional[Any] = None,
+    context: dict[str, Any] | None = None,
+    agent_executor: Any | None = None,
+    approval_manager: Any | None = None,
+    substrate_service: Any | None = None,
 ) -> CommandResult:
     """
     Convenience function to execute a command.
@@ -596,8 +594,8 @@ async def execute_command(
 
 __all__ = [
     "CommandExecutor",
-    "execute_command",
     "CommandResult",
+    "execute_command",
 ]
 
 # ============================================================================

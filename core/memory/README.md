@@ -59,15 +59,15 @@ Memory abstractions and utilities
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module    | Purpose          |
+| --------- | ---------------- |
 | `memory/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -80,12 +80,12 @@ core/memory/
 ├── virtual_context.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `runtime.py` | Represents a kernel evolution event for logging. |
+| File                 | Purpose                                            |
+| -------------------- | -------------------------------------------------- |
+| `__init__.py`        | Core module (PROTECTED)                            |
+| `runtime.py`         | Represents a kernel evolution event for logging.   |
 | `virtual_context.py` | Memory organization tiers (like OS virtual memory) |
-| `virtual_context.py` | Single memory chunk |
+| `virtual_context.py` | Single memory chunk                                |
 
 ### Naming Conventions
 
@@ -103,7 +103,7 @@ core/memory/
 ```python
 class KernelEvolutionEvent:
     """Represents a kernel evolution event for logging."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -121,7 +121,7 @@ class KernelEvolutionEvent:
 ```python
 class MemoryTier:
     """Memory organization tiers (like OS virtual memory)"""
-    
+
     # Key methods:
 
 ```
@@ -133,7 +133,7 @@ class MemoryTier:
 ```python
 class Memory:
     """Single memory chunk"""
-    
+
     # Key methods:
 
 ```
@@ -145,7 +145,7 @@ class Memory:
 ```python
 class Context:
     """Agent execution context (main + working loaded, archival on-demand)"""
-    
+
     # Key methods:
 
 ```
@@ -157,7 +157,7 @@ class Context:
 ```python
 class VirtualContextManager:
     """MemGPT-style virtual context with automatic tier management"""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -175,7 +175,6 @@ class VirtualContextManager:
 **Public Methods:** `__init__`, `load_context`, `page_fault_handler`, `evict_to_archival`, `_evict_lru`
 
 **Lines:** 77-236 in `virtual_context.py`
-
 
 ---
 
@@ -247,9 +246,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Memory feature flags
-L9_ENABLE_CORE_MEMORY_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_MEMORY_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_MEMORY_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_MEMORY_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_MEMORY_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_MEMORY_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -289,7 +288,6 @@ Retrieve kernel evolution history from the memory substrate.
 
 - **File:** `runtime.py:221`
 - **Async:** Yes
-
 
 ### Usage Example
 
@@ -331,6 +329,7 @@ Core Memory operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -338,12 +337,12 @@ Core Memory operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                              | Type      | Description                    |
+| ----------------------------------- | --------- | ------------------------------ |
 | `core_memory_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_memory_operation_total` | Counter | Total operations processed |
-| `core_memory_error_total` | Counter | Total errors encountered |
-| `core_memory_active_connections` | Gauge | Current active connections |
+| `core_memory_operation_total`       | Counter   | Total operations processed     |
+| `core_memory_error_total`           | Counter   | Total errors encountered       |
+| `core_memory_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -361,6 +360,7 @@ Core Memory emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_memory/`:
+
 - `test_core_memory.py` — Core unit tests
 - `test_core_memory_integration.py` — Integration tests (if applicable)
 
@@ -403,6 +403,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

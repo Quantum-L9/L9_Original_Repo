@@ -59,15 +59,15 @@ Causal graph, knowledge engine, and world state management
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                       | Purpose          |
+| ---------------------------- | ---------------- |
 | `orchestrators/world_model/` | Uses this module |
-| `core/agents/` | Uses this module |
+| `core/agents/`               | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                        | Purpose             |
+| ----------------------------- | ------------------- |
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -94,14 +94,14 @@ world_model/
 └── ... (15 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `engine.py` | Core module (PROTECTED) |
-| `service.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
+| File            | Purpose                                     |
+| --------------- | ------------------------------------------- |
+| `engine.py`     | Core module (PROTECTED)                     |
+| `service.py`    | Core module (PROTECTED)                     |
+| `__init__.py`   | Core module (PROTECTED)                     |
 | `interfaces.py` | Interface for World Model State management. |
-| `interfaces.py` | Interface for World Model Engine. |
-| `interfaces.py` | Interface for World Model Updater. |
+| `interfaces.py` | Interface for World Model Engine.           |
+| `interfaces.py` | Interface for World Model Updater.          |
 
 ### Naming Conventions
 
@@ -119,7 +119,7 @@ world_model/
 ```python
 class IWorldModelState:
     """Interface for World Model State management."""
-    
+
     # Key methods:
 
     async def get_entity(self, ...): ...
@@ -141,7 +141,7 @@ class IWorldModelState:
 ```python
 class IWorldModelEngine:
     """Interface for World Model Engine."""
-    
+
     # Key methods:
 
     async def load_specs(self, ...): ...
@@ -165,7 +165,7 @@ class IWorldModelEngine:
 ```python
 class IWorldModelUpdater:
     """Interface for World Model Updater."""
-    
+
     # Key methods:
 
     async def validate_update(self, ...): ...
@@ -183,7 +183,7 @@ class IWorldModelUpdater:
 ```python
 class ICausalGraph:
     """Interface for Causal Graph operations."""
-    
+
     # Key methods:
 
     async def get_causes(self, ...): ...
@@ -203,7 +203,7 @@ class ICausalGraph:
 ```python
 class IWorldModelLoader:
     """Interface for World Model Loader."""
-    
+
     # Key methods:
 
     async def load_yaml(self, ...): ...
@@ -219,7 +219,6 @@ class IWorldModelLoader:
 **Public Methods:** `load_yaml`, `load_entity_schemas`, `load_relation_schemas`, `load_causal_structure`
 
 **Lines:** 222-253 in `interfaces.py`
-
 
 ---
 
@@ -295,9 +294,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # World_Model feature flags
-L9_ENABLE_WORLD_MODEL_TRACING: true  # Enable detailed tracing
-L9_ENABLE_WORLD_MODEL_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_WORLD_MODEL_AUDIT: true    # Enable audit logging
+L9_ENABLE_WORLD_MODEL_TRACING: true # Enable detailed tracing
+L9_ENABLE_WORLD_MODEL_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_WORLD_MODEL_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -359,7 +358,6 @@ Create a WorldModelRuntime wired to the Memory Substrate.
 - **File:** `runtime.py:1943`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -400,6 +398,7 @@ World Model operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -407,12 +406,12 @@ World Model operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                              | Type      | Description                    |
+| ----------------------------------- | --------- | ------------------------------ |
 | `world_model_operation_duration_ms` | Histogram | Operation latency distribution |
-| `world_model_operation_total` | Counter | Total operations processed |
-| `world_model_error_total` | Counter | Total errors encountered |
-| `world_model_active_connections` | Gauge | Current active connections |
+| `world_model_operation_total`       | Counter   | Total operations processed     |
+| `world_model_error_total`           | Counter   | Total errors encountered       |
+| `world_model_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -430,6 +429,7 @@ World Model emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/world_model/`:
+
 - `test_world_model.py` — Core unit tests
 - `test_world_model_integration.py` — Integration tests (if applicable)
 
@@ -480,6 +480,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

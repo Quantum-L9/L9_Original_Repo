@@ -4,10 +4,10 @@
 
 L9 Slack integration consists of two core modules with distinct responsibilities:
 
-| Module | Role | Location |
-|--------|------|----------|
-| **Configuration** | Credentials & feature flags | `config/settings.py` |
-| **Adapter** | Security verification & request parsing | `api/slack_adapter.py` |
+| Module            | Role                                    | Location               |
+| ----------------- | --------------------------------------- | ---------------------- |
+| **Configuration** | Credentials & feature flags             | `config/settings.py`   |
+| **Adapter**       | Security verification & request parsing | `api/slack_adapter.py` |
 
 ---
 
@@ -19,26 +19,26 @@ Pydantic model `IntegrationSettings` loads all Slack configuration from environm
 
 #### Feature Flags
 
-| Setting | Env Var | Default | Description |
-|---------|---------|---------|-------------|
-| `slack_app_enabled` | `SLACK_APP_ENABLED` | `True` | Enable/disable Slack integration |
+| Setting                         | Env Var                         | Default | Description                          |
+| ------------------------------- | ------------------------------- | ------- | ------------------------------------ |
+| `slack_app_enabled`             | `SLACK_APP_ENABLED`             | `True`  | Enable/disable Slack integration     |
 | `l9_enable_legacy_slack_router` | `L9_ENABLE_LEGACY_SLACK_ROUTER` | `False` | Use legacy AIOS routing vs AgentTask |
 
 #### Credentials
 
-| Setting | Env Var | Description |
-|---------|---------|-------------|
-| `slack_signing_secret` | `SLACK_SIGNING_SECRET` | HMAC verification secret (required) |
-| `slack_bot_token` | `SLACK_BOT_TOKEN` | Bot OAuth token `xoxb-...` (required) |
-| `slack_app_id` | `SLACK_APP_ID` | App ID from Slack dashboard |
-| `slack_client_id` | `SLACK_CLIENT_ID` | OAuth client ID (future) |
-| `slack_client_secret` | `SLACK_CLIENT_SECRET` | OAuth client secret (future) |
-| `slack_verification_token` | `SLACK_VERIFICATION_TOKEN` | Legacy token (deprecated) |
+| Setting                    | Env Var                    | Description                           |
+| -------------------------- | -------------------------- | ------------------------------------- |
+| `slack_signing_secret`     | `SLACK_SIGNING_SECRET`     | HMAC verification secret (required)   |
+| `slack_bot_token`          | `SLACK_BOT_TOKEN`          | Bot OAuth token `xoxb-...` (required) |
+| `slack_app_id`             | `SLACK_APP_ID`             | App ID from Slack dashboard           |
+| `slack_client_id`          | `SLACK_CLIENT_ID`          | OAuth client ID (future)              |
+| `slack_client_secret`      | `SLACK_CLIENT_SECRET`      | OAuth client secret (future)          |
+| `slack_verification_token` | `SLACK_VERIFICATION_TOKEN` | Legacy token (deprecated)             |
 
 #### Storage
 
-| Setting | Env Var | Description |
-|---------|---------|-------------|
+| Setting           | Env Var           | Description                                                    |
+| ----------------- | ----------------- | -------------------------------------------------------------- |
 | `slack_files_dir` | `SLACK_FILES_DIR` | Directory for downloaded files (default: `~/.l9/slack_files/`) |
 
 #### Usage
@@ -76,6 +76,7 @@ if not is_valid:
 ```
 
 **Security Features:**
+
 - HMAC-SHA256 with Slack signing secret
 - 300-second timestamp tolerance (replay attack prevention)
 - Constant-time comparison (timing attack prevention)
@@ -98,6 +99,7 @@ normalized = SlackRequestNormalizer.parse_command(payload)
 ```
 
 **Normalization Features:**
+
 - Extracts common fields from different event types
 - Generates deterministic UUID v5 for threads (`thread_uuid`)
 - Detects channel type (public/private/DM) from prefix
@@ -136,13 +138,13 @@ Slack Event/Command
 
 ## Related Modules
 
-| Module | Purpose |
-|--------|---------|
-| `api/routes/slack.py` | FastAPI route handlers |
-| `api/slack_client.py` | Outbound Slack API client |
-| `memory/slack_ingest.py` | Event handler orchestration, memory integration |
-| `orchestration/slack_task_router.py` | LLM-based task classification |
-| `telemetry/slack_metrics.py` | Prometheus metrics |
+| Module                               | Purpose                                         |
+| ------------------------------------ | ----------------------------------------------- |
+| `api/routes/slack.py`                | FastAPI route handlers                          |
+| `api/slack_client.py`                | Outbound Slack API client                       |
+| `memory/slack_ingest.py`             | Event handler orchestration, memory integration |
+| `orchestration/slack_task_router.py` | LLM-based task classification                   |
+| `telemetry/slack_metrics.py`         | Prometheus metrics                              |
 
 ---
 
@@ -191,14 +193,14 @@ Slack threads are identified by a deterministic UUID v5:
 
 thread_uuid = SlackRequestNormalizer._generate_thread_uuid(
     team_id="T123",
-    channel_id="C456", 
+    channel_id="C456",
     thread_ts="1234567890.123456"
 )
 # → "408e0483-..."  (same every time for same inputs)
 ```
 
 This enables:
+
 - Deduplication of duplicate events
 - Thread context retrieval from memory
 - Consistent lineage tracking
-

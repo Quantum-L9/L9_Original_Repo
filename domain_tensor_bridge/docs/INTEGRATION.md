@@ -66,5 +66,3 @@ if not result.approved:
     # Handle escalation
     pass
 ```
-
-

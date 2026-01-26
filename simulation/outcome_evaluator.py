@@ -37,7 +37,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -232,7 +232,7 @@ class OutcomeEvaluator:
     def evaluate(
         self,
         run: SimulationRun,
-        criteria: Optional[list[EvaluationCriteria]] = None,
+        criteria: list[EvaluationCriteria] | None = None,
     ) -> EvaluationResult:
         """
         Evaluate a simulation run.
@@ -306,7 +306,7 @@ class OutcomeEvaluator:
                 return 1.0
             return metrics.successful_steps / metrics.total_steps
 
-        elif criterion.name == "No Critical Failures":
+        if criterion.name == "No Critical Failures":
             # Count critical failures
             critical = sum(
                 1
@@ -315,13 +315,13 @@ class OutcomeEvaluator:
             )
             return float(critical)
 
-        elif criterion.name == "Parallelism Factor":
+        if criterion.name == "Parallelism Factor":
             return metrics.parallelism_factor
 
-        elif criterion.name == "Bottleneck Count":
+        if criterion.name == "Bottleneck Count":
             return float(len(metrics.bottlenecks))
 
-        elif criterion.name == "Duration":
+        if criterion.name == "Duration":
             return float(metrics.total_duration_ms)
 
         # Default to simulation score
@@ -338,10 +338,9 @@ class OutcomeEvaluator:
 
         if result.overall_score >= self._pass_threshold:
             return EvaluationVerdict.PASS
-        elif result.overall_score >= self._conditional_threshold:
+        if result.overall_score >= self._conditional_threshold:
             return EvaluationVerdict.CONDITIONAL_PASS
-        else:
-            return EvaluationVerdict.FAIL
+        return EvaluationVerdict.FAIL
 
     def _generate_feedback(
         self,
@@ -354,8 +353,7 @@ class OutcomeEvaluator:
             return (
                 f"{criterion.name}: {value:.2f} meets threshold {criterion.threshold}"
             )
-        else:
-            return f"{criterion.name}: {value:.2f} does not meet threshold {criterion.threshold}"
+        return f"{criterion.name}: {value:.2f} does not meet threshold {criterion.threshold}"
 
     def _generate_recommendations(
         self,
@@ -395,7 +393,7 @@ class OutcomeEvaluator:
     def evaluate_multiple(
         self,
         runs: list[SimulationRun],
-        criteria: Optional[list[EvaluationCriteria]] = None,
+        criteria: list[EvaluationCriteria] | None = None,
     ) -> list[EvaluationResult]:
         """
         Evaluate multiple simulation runs.
@@ -412,7 +410,7 @@ class OutcomeEvaluator:
     def rank_runs(
         self,
         runs: list[SimulationRun],
-        criteria: Optional[list[EvaluationCriteria]] = None,
+        criteria: list[EvaluationCriteria] | None = None,
     ) -> list[tuple[SimulationRun, EvaluationResult]]:
         """
         Rank runs by evaluation score.

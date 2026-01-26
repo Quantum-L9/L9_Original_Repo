@@ -33,7 +33,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -51,8 +51,8 @@ async def git_commit_tool(
     repo_root: str,
     files: list[str] | None = None,
     caller: str = "L",
-    metadata: Dict[str, Any] | None = None,
-) -> Dict[str, Any]:
+    metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Git commit tool implementation.
 
@@ -102,7 +102,7 @@ async def git_commit_tool(
     # Create task and enqueue as pending
     try:
         task_id = str(uuid4())
-        task = QueuedTask(
+        QueuedTask(
             task_id=task_id,
             name="Git Commit",
             payload=payload,
@@ -186,7 +186,7 @@ async def git_commit_tool(
         return {
             "task_id": None,
             "status": "error",
-            "message": f"Failed to create git commit task: {str(e)}",
+            "message": f"Failed to create git commit task: {e!s}",
             "error": str(e),
         }
 

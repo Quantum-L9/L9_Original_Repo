@@ -27,7 +27,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -82,7 +82,7 @@ class ResearcherAgent(BaseAgent):
     async def run(
         self,
         step: ResearchStep,
-        previous_evidence: list[Evidence] = None,
+        previous_evidence: list[Evidence] | None = None,
     ) -> Evidence:
         """
         Execute a research step and gather evidence.
@@ -172,7 +172,7 @@ class ResearcherAgent(BaseAgent):
         )
         return evidence
 
-    async def _execute_tool(self, tool_name: str, query: str) -> Optional[str]:
+    async def _execute_tool(self, tool_name: str, query: str) -> str | None:
         """
         Execute a tool and return results.
 

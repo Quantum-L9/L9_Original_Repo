@@ -46,6 +46,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import contextlib
 import json
 import logging
 import os
@@ -590,10 +591,8 @@ class TaskExecutor:
         except Exception as e:
             return {"status": "error", "error": str(e), "output": "", "exit_code": -1}
         finally:
-            try:
+            with contextlib.suppress(Exception):
                 os_module.unlink(temp_path)
-            except Exception:
-                pass
 
 
 # =============================================================================
@@ -785,10 +784,8 @@ class MacAgentClient:
                 # Cancel the other task
                 for task in pending:
                     task.cancel()
-                    try:
+                    with contextlib.suppress(asyncio.CancelledError):
                         await task
-                    except asyncio.CancelledError:
-                        pass
 
                 # Re-raise any exception from completed task
                 for task in done:

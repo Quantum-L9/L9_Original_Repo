@@ -12,11 +12,15 @@ from uuid import uuid4
 
 import pytest
 
-from core.schemas.research_factory_models import (IntegrationResult,
-                                                  ParsedObject, Query,
-                                                  QueryPlan, ResearchJobSpec,
-                                                  ResearchMetrics,
-                                                  ValidationStatus)
+from core.schemas.research_factory_models import (
+    IntegrationResult,
+    ParsedObject,
+    Query,
+    QueryPlan,
+    ResearchJobSpec,
+    ResearchMetrics,
+    ValidationStatus,
+)
 from core.schemas.research_factory_state import PassStatus, ResearchState
 
 
@@ -291,7 +295,9 @@ class TestResearchFactoryNodes:
     async def test_pass_2_build_superprompts(self):
         """Test pass_2_build_superprompts node."""
         from core.schemas.research_factory_nodes import (
-            pass_1_plan_queries, pass_2_build_superprompts)
+            pass_1_plan_queries,
+            pass_2_build_superprompts,
+        )
 
         job_spec = ResearchJobSpec(domain="plastics", polymer="HDPE", regions=["US"])
 
@@ -305,9 +311,12 @@ class TestResearchFactoryNodes:
     async def test_full_pipeline(self):
         """Test full 5-pass pipeline execution."""
         from core.schemas.research_factory_nodes import (
-            pass_1_plan_queries, pass_2_build_superprompts,
-            pass_3_execute_retrieval, pass_4_extract_results,
-            pass_5_integrate_results)
+            pass_1_plan_queries,
+            pass_2_build_superprompts,
+            pass_3_execute_retrieval,
+            pass_4_extract_results,
+            pass_5_integrate_results,
+        )
 
         job_spec = ResearchJobSpec(domain="plastics", polymer="HDPE", regions=["US"])
 

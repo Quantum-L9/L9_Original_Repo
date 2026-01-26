@@ -19,24 +19,24 @@ Add an A/B testing framework to Strategy Memory that enables comparing different
 
 This was identified during GMP-103 (Strategy Memory Final Gaps) as requiring **significant new infrastructure** beyond the scope of small fixes:
 
-| What GMP-103 Covers | What A/B Testing Needs |
-|---------------------|------------------------|
-| ~20 lines for pruning | New data models |
-| ~20 lines for drift callback | New database schema |
-| Test file creation | New service layer |
-| Config additions | API endpoints |
-| | Statistical analysis |
-| | Experiment lifecycle |
+| What GMP-103 Covers          | What A/B Testing Needs |
+| ---------------------------- | ---------------------- |
+| ~20 lines for pruning        | New data models        |
+| ~20 lines for drift callback | New database schema    |
+| Test file creation           | New service layer      |
+| Config additions             | API endpoints          |
+|                              | Statistical analysis   |
+|                              | Experiment lifecycle   |
 
 ---
 
 ## Existing Infrastructure to Use
 
-| Component | Location | Purpose |
-|-----------|----------|---------|
+| Component                      | Location                          | Purpose                            |
+| ------------------------------ | --------------------------------- | ---------------------------------- |
 | **Neo4jStrategyMemoryService** | `memory/neo4j_strategy_memory.py` | Strategy retrieval + feedback loop |
-| **StrategyCandidate** | `memory/strategymemory.py` | Data model for strategies |
-| **PlanExecutor** | `orchestration/plan_executor.py` | Integrates strategy selection |
+| **StrategyCandidate**          | `memory/strategymemory.py`        | Data model for strategies          |
+| **PlanExecutor**               | `orchestration/plan_executor.py`  | Integrates strategy selection      |
 
 ---
 
@@ -86,7 +86,7 @@ class Experiment(BaseModel):
     started_at: Optional[datetime]
     concluded_at: Optional[datetime]
     min_sample_size: int = 100    # Before concluding
-    
+
 class ExperimentAssignment(BaseModel):
     """Record of which arm a task was assigned to."""
     experiment_id: str
@@ -94,7 +94,7 @@ class ExperimentAssignment(BaseModel):
     arm: Literal["control", "treatment"]
     strategy_id: str
     assigned_at: datetime
-    
+
 class ExperimentResults(BaseModel):
     """Aggregated experiment results."""
     experiment_id: str
@@ -112,11 +112,13 @@ class ExperimentResults(BaseModel):
 ## Implementation Plan
 
 ### Phase 1: Data Model & Schema (1.5 hrs)
+
 - [ ] Create `memory/experiment.py` with Pydantic models
 - [ ] Create `migrations/0025_experiment_schema.cypher` for Neo4j
 - [ ] Add `:Experiment`, `:ExperimentAssignment` nodes
 
 ### Phase 2: Experiment Service (2 hrs)
+
 - [ ] Create `memory/experiment_service.py`
 - [ ] Implement CRUD operations
 - [ ] Implement hash-based assignment logic:
@@ -129,16 +131,19 @@ class ExperimentResults(BaseModel):
   ```
 
 ### Phase 3: Integration with Retrieval (1 hr)
+
 - [ ] Add `active_experiment_id` parameter to `retrieve_strategies()`
 - [ ] Wire assignment into `PlanExecutor._retrieve_best_strategy()`
 - [ ] Record assignments to Neo4j
 
 ### Phase 4: Metrics Collection (1.5 hrs)
+
 - [ ] Extend `update_strategy_outcome()` to tag experiment arm
 - [ ] Add aggregation query for experiment results
 - [ ] Implement `get_experiment_results()`
 
 ### Phase 5: API Endpoints (1 hr)
+
 - [ ] `POST /experiments` - create experiment
 - [ ] `GET /experiments/{id}` - get experiment details
 - [ ] `POST /experiments/{id}/start` - start experiment
@@ -146,6 +151,7 @@ class ExperimentResults(BaseModel):
 - [ ] `GET /experiments/{id}/results` - get results
 
 ### Phase 6: Basic Tests (1 hr)
+
 - [ ] Test assignment determinism (same task_id → same arm)
 - [ ] Test metrics aggregation
 - [ ] Test lifecycle transitions
@@ -154,14 +160,14 @@ class ExperimentResults(BaseModel):
 
 ## Production-Grade Additions (Future)
 
-| Feature | Effort | Description |
-|---------|--------|-------------|
-| **Statistical testing** | 4 hrs | p-values, confidence intervals, significance |
-| **Power analysis** | 2 hrs | Calculate required sample size |
-| **Auto-stop guardrails** | 2 hrs | Stop if treatment significantly worse |
-| **Multi-armed bandit** | 4 hrs | Dynamic allocation based on performance |
-| **Dashboard** | 8 hrs | Visualization of experiment progress |
-| **Audit trail** | 2 hrs | Full history of experiment changes |
+| Feature                  | Effort | Description                                  |
+| ------------------------ | ------ | -------------------------------------------- |
+| **Statistical testing**  | 4 hrs  | p-values, confidence intervals, significance |
+| **Power analysis**       | 2 hrs  | Calculate required sample size               |
+| **Auto-stop guardrails** | 2 hrs  | Stop if treatment significantly worse        |
+| **Multi-armed bandit**   | 4 hrs  | Dynamic allocation based on performance      |
+| **Dashboard**            | 8 hrs  | Visualization of experiment progress         |
+| **Audit trail**          | 2 hrs  | Full history of experiment changes           |
 
 ---
 
@@ -178,14 +184,14 @@ class ExperimentResults(BaseModel):
 
 This TODO was created during gap analysis of Strategy Memory spec:
 
-| Feature | Status |
-|---------|--------|
-| pgvector integration | ✅ Fully implemented |
-| Graph edit distance | ✅ Design decision (hash-based) |
-| Strategy pruning | ⚠️ GMP-103 (small task) |
-| Drift detection | ⚠️ GMP-103 (small task) |
-| Perturbation tests | ⚠️ GMP-103 (small task) |
-| **A/B testing** | 📋 This TODO (deferred) |
+| Feature              | Status                          |
+| -------------------- | ------------------------------- |
+| pgvector integration | ✅ Fully implemented            |
+| Graph edit distance  | ✅ Design decision (hash-based) |
+| Strategy pruning     | ⚠️ GMP-103 (small task)         |
+| Drift detection      | ⚠️ GMP-103 (small task)         |
+| Perturbation tests   | ⚠️ GMP-103 (small task)         |
+| **A/B testing**      | 📋 This TODO (deferred)         |
 
 ---
 

@@ -31,7 +31,7 @@ for df in "${DOCKERFILES[@]}"; do
     if [ -f "$df" ]; then
         echo "✅ $df found"
         FOUND_ANY=1
-        
+
         # Check for Python version
         if grep -q "FROM python:3.12" "$df"; then
             echo "   ✅ Uses Python 3.12"
@@ -53,7 +53,7 @@ if [ ! -f "docker-compose.yml" ]; then
     ERRORS=$((ERRORS + 1))
 else
     echo "✅ docker-compose.yml found"
-    
+
     # Check for required services
     for svc in "l9-api" "postgres" "neo4j" "redis"; do
         if grep -q "$svc:" docker-compose.yml; then
@@ -62,7 +62,7 @@ else
             echo "⚠️  Service '$svc' not found (may be optional)"
         fi
     done
-    
+
     # Check for hardcoded secrets
     if grep -E "(password|secret|key):\s*['\"]?[^$\{]" docker-compose.yml | grep -v "NEO4J_AUTH=none" > /dev/null 2>&1; then
         echo "⚠️  Potential hardcoded secrets in docker-compose.yml"

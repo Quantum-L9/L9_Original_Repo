@@ -48,7 +48,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 from pydantic import BaseModel, Field
@@ -76,7 +76,7 @@ class StrategyCandidate(BaseModel):
     score: float = Field(
         ..., ge=0.0, le=1.0, description="Composite match score (0.0-1.0)"
     )
-    plan_payload: Dict[str, Any] = Field(
+    plan_payload: dict[str, Any] = Field(
         default_factory=dict,
         description="Serialized plan / ExecutionPlan structure",
     )
@@ -85,7 +85,7 @@ class StrategyCandidate(BaseModel):
         default=0.0, ge=0.0, le=1.0, description="Historical performance score"
     )
     usage_count: int = Field(default=0, ge=0, description="Number of times used")
-    tags: List[str] = Field(default_factory=list, description="Strategy tags")
+    tags: list[str] = Field(default_factory=list, description="Strategy tags")
 
 
 class StrategyRetrievalRequest(BaseModel):
@@ -94,11 +94,11 @@ class StrategyRetrievalRequest(BaseModel):
     task_id: str = Field(..., description="ID of the current task")
     task_kind: str = Field(..., description="Type/kind of task")
     goal_description: str = Field(..., description="Natural language goal description")
-    context_embedding: List[float] = Field(
+    context_embedding: list[float] = Field(
         default_factory=list,
         description="1536-dim embedding vector (text-embedding-3-large)",
     )
-    tags: List[str] = Field(default_factory=list, description="Preferred strategy tags")
+    tags: list[str] = Field(default_factory=list, description="Preferred strategy tags")
     # Retrieval parameters
     min_confidence: float = Field(
         default=0.6, ge=0.0, le=1.0, description="Minimum confidence threshold"
@@ -121,12 +121,12 @@ class StrategyFeedback(BaseModel):
     resource_cost: float = Field(
         default=0.0, ge=0.0, description="Resource cost estimate"
     )
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional feedback metadata"
     )
     # Phase 2 additions
     was_adapted: bool = Field(default=False, description="Whether strategy was adapted")
-    adaptation_distance: Optional[int] = Field(
+    adaptation_distance: int | None = Field(
         default=None, description="Graph edit distance if adapted"
     )
 
@@ -154,7 +154,7 @@ class IStrategyMemoryService(ABC):
         self,
         request: StrategyRetrievalRequest,
         limit: int = 3,
-    ) -> List[StrategyCandidate]:
+    ) -> list[StrategyCandidate]:
         """
         Retrieve matching strategies for a given task.
 
@@ -173,9 +173,9 @@ class IStrategyMemoryService(ABC):
         self,
         task_id: str,
         description: str,
-        plan_payload: Dict[str, Any],
-        context_embedding: List[float],
-        tags: Optional[List[str]] = None,
+        plan_payload: dict[str, Any],
+        context_embedding: list[float],
+        tags: list[str] | None = None,
     ) -> str:
         """
         Record a new successful strategy.
@@ -227,7 +227,7 @@ class StrategyMemoryService(IStrategyMemoryService):
 
     def __init__(self) -> None:
         """Initialize the stub service."""
-        self._strategies: Dict[str, StrategyCandidate] = {}
+        self._strategies: dict[str, StrategyCandidate] = {}
         logger.info("StrategyMemoryService initialized (stub mode)")
 
     @must_stay_async("callers use await")
@@ -235,7 +235,7 @@ class StrategyMemoryService(IStrategyMemoryService):
         self,
         request: StrategyRetrievalRequest,
         limit: int = 3,
-    ) -> List[StrategyCandidate]:
+    ) -> list[StrategyCandidate]:
         """
         Retrieve strategies (stub returns empty list).
 
@@ -280,9 +280,9 @@ class StrategyMemoryService(IStrategyMemoryService):
         self,
         task_id: str,
         description: str,
-        plan_payload: Dict[str, Any],
-        context_embedding: List[float],
-        tags: Optional[List[str]] = None,
+        plan_payload: dict[str, Any],
+        context_embedding: list[float],
+        tags: list[str] | None = None,
     ) -> str:
         """
         Record a new strategy (stub stores in memory).

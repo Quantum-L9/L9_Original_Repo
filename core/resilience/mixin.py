@@ -49,7 +49,8 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from typing import TYPE_CHECKING, Any, Awaitable, Callable, Optional, Union
+from collections.abc import Awaitable, Callable
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -94,14 +95,14 @@ class ResilienceMixin:
     """
 
     # Type hints for required attributes (set by subclass)
-    _circuit_breaker: Optional["CircuitBreaker"]
-    _dlq: Optional["DeadLetterQueue"]
-    _retry_policy: Optional["RetryPolicy"]
+    _circuit_breaker: CircuitBreaker | None
+    _dlq: DeadLetterQueue | None
+    _retry_policy: RetryPolicy | None
 
     async def with_resilience(
         self,
         operation: Callable[[], Awaitable[Any]],
-        envelope: Union[dict, Any],
+        envelope: dict | Any,
         operation_name: str,
     ) -> Any:
         """
@@ -161,7 +162,7 @@ class ResilienceMixin:
         policy = self._retry_policy or RetryPolicy()
 
         # Retry loop
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
         max_attempts = policy.max_retries + 1
 
         for attempt in range(max_attempts):

@@ -25,9 +25,10 @@ import httpx
 import pytest
 
 # Import auto-detection from conftest
-from .conftest import \
-    MEMORY_API_BASE_URL  # DEPRECATED alias for MCP_MEMORY_URL
-from .conftest import API_BASE_URL
+from .conftest import (
+    API_BASE_URL,
+    MEMORY_API_BASE_URL,  # DEPRECATED alias for MCP_MEMORY_URL
+)
 
 # =============================================================================
 # Configuration (Auto-detected)

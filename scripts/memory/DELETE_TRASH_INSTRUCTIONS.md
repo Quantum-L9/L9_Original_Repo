@@ -54,6 +54,7 @@ python3 scripts/check_embeddings_via_api.py
 ## What Gets Deleted
 
 The SQL deletes 52 embeddings containing:
+
 - "Sorry, I encountered a temporary error. Please try again."
 - "Sorry, I encountered an error processing your command."
 - "No response generated."
@@ -62,11 +63,11 @@ The SQL deletes 52 embeddings containing:
 ## Re-indexing Status
 
 ✅ All re-indexing scripts have been run:
+
 - GMP Reports indexed
-- Error Patterns indexed  
+- Error Patterns indexed
 - Architecture indexed
 - Preferences indexed
 - Tool Usage indexed
 
 High-value content is now in the memory graphs!
-

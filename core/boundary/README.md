@@ -59,15 +59,15 @@ Module boundary and interface enforcement
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -79,10 +79,10 @@ core/boundary/
 ├── enforcer.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `enforcer.py` | Parsed PRIVATE_BOUNDARY specification. |
+| File          | Purpose                                            |
+| ------------- | -------------------------------------------------- |
+| `__init__.py` | Core module (PROTECTED)                            |
+| `enforcer.py` | Parsed PRIVATE_BOUNDARY specification.             |
 | `enforcer.py` | Stateful boundary enforcer with caching and config |
 
 ### Naming Conventions
@@ -101,7 +101,7 @@ core/boundary/
 ```python
 class BoundarySpec:
     """Parsed PRIVATE_BOUNDARY specification."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -119,7 +119,7 @@ class BoundarySpec:
 ```python
 class BoundaryEnforcer:
     """Stateful boundary enforcer with caching and configuration."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -137,7 +137,6 @@ class BoundaryEnforcer:
 **Public Methods:** `__init__`, `_load_spec`, `reload_spec`, `enforce`, `enforce_dict`
 
 **Lines:** 266-381 in `enforcer.py`
-
 
 ---
 
@@ -208,9 +207,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Boundary feature flags
-L9_ENABLE_CORE_BOUNDARY_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_BOUNDARY_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_BOUNDARY_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_BOUNDARY_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_BOUNDARY_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_BOUNDARY_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -272,7 +271,6 @@ Apply PRIVATE_BOUNDARY enforcement to a payload dict.
 - **File:** `enforcer.py:231`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -313,6 +311,7 @@ Core Boundary operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -320,12 +319,12 @@ Core Boundary operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                | Type      | Description                    |
+| ------------------------------------- | --------- | ------------------------------ |
 | `core_boundary_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_boundary_operation_total` | Counter | Total operations processed |
-| `core_boundary_error_total` | Counter | Total errors encountered |
-| `core_boundary_active_connections` | Gauge | Current active connections |
+| `core_boundary_operation_total`       | Counter   | Total operations processed     |
+| `core_boundary_error_total`           | Counter   | Total errors encountered       |
+| `core_boundary_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -343,6 +342,7 @@ Core Boundary emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_boundary/`:
+
 - `test_core_boundary.py` — Core unit tests
 - `test_core_boundary_integration.py` — Integration tests (if applicable)
 
@@ -385,6 +385,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

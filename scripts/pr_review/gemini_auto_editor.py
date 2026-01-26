@@ -25,13 +25,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
-import sys
 import json
-import requests
+import os
 import subprocess
-from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
+
+import requests
 
 PROTECTED_FILES = {
     "api/websocket_orchestrator.py",
@@ -45,7 +44,7 @@ PROTECTED_FILES = {
 class GeminiAutoEditor:
     def __init__(self):
         self.api_key = os.getenv("GEMINI_API_KEY")
-        self.base_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent"
+        self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent"
 
     def is_protected_file(self, filepath: str) -> bool:
         """Check if file is protected"""
@@ -63,7 +62,7 @@ class GeminiAutoEditor:
         result = subprocess.run(cmd.split(), capture_output=True, text=True)
         return result.stdout
 
-    def get_changed_files(self) -> List[str]:
+    def get_changed_files(self) -> list[str]:
         """Get list of changed files"""
         base_sha = os.getenv("BASE_SHA")
         head_sha = os.getenv("HEAD_SHA")
@@ -72,7 +71,7 @@ class GeminiAutoEditor:
         result = subprocess.run(cmd.split(), capture_output=True, text=True)
         return [f.strip() for f in result.stdout.split("\n") if f.strip()]
 
-    def call_gemini_api(self, diff: str, files: List[str]) -> Dict[str, Any]:
+    def call_gemini_api(self, diff: str, files: list[str]) -> dict[str, Any]:
         """Call Gemini API for code improvements"""
 
         prompt = f"""You are reviewing a pull request for the L9 AI agent system.
@@ -146,7 +145,7 @@ Return ONLY valid JSON.
             print(f"❌ Failed to parse Gemini response: {e}")
             return {"improvements": [], "summary": "Parse error"}
 
-    def apply_improvements(self, improvements: List[Dict]) -> int:
+    def apply_improvements(self, improvements: list[dict]) -> int:
         """Apply code improvements to files"""
         applied = 0
 
@@ -162,7 +161,7 @@ Return ONLY valid JSON.
                 continue
 
             try:
-                with open(filepath, "r", encoding="utf-8") as f:
+                with open(filepath, encoding="utf-8") as f:
                     content = f.read()
 
                 original = imp["original_code"]

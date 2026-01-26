@@ -11,6 +11,7 @@ Add an **in-memory TTL cache** for tool definitions in the ToolRegistry. Cache h
 ## Context
 
 L9's ToolRegistry queries the database on every `get_tool()` call. During plan execution with many tool calls, this creates significant overhead. A TTL-based cache:
+
 - Reduces database load
 - Speeds up tool lookups
 - Provides cache metrics for monitoring
@@ -54,12 +55,12 @@ logger = logging.getLogger(__name__)
 
 class CacheEntry:
     """Single cache entry with TTL."""
-    
+
     def __init__(self, value: Any, ttl_seconds: float):
         self.value = value
         self.created_at = time.time()
         self.ttl_seconds = ttl_seconds
-    
+
     def is_expired(self) -> bool:
         """Check if entry has expired."""
         return (time.time() - self.created_at) > self.ttl_seconds
@@ -68,36 +69,36 @@ class CacheEntry:
 class ToolRegistryCache:
     """
     In-memory TTL cache for tool definitions.
-    
+
     Features:
     - Thread-safe operations
     - Configurable TTL (default 5 minutes)
     - Manual and automatic invalidation
     - Cache metrics (hit rate, evictions)
-    
+
     Pattern: Frontend cache with DB fallback
     """
-    
+
     def __init__(self, ttl_seconds: float = 300):
         """
         Initialize cache.
-        
+
         Args:
             ttl_seconds: Cache TTL (default 5 minutes)
         """
         self._cache: Dict[str, CacheEntry] = {}
         self._ttl_seconds = ttl_seconds
         self._lock = threading.RLock()
-        
+
         # Metrics
         self._hits = 0
         self._misses = 0
         self._evictions = 0
-    
+
     def get(self, tool_name: str) -> Optional[Any]:
         """
         Get cached tool definition.
-        
+
         Returns:
             Tool definition or None if miss/expired
         """
@@ -106,24 +107,24 @@ class ToolRegistryCache:
                 self._misses += 1
                 logger.debug(f"Cache miss: {tool_name}")
                 return None
-            
+
             entry = self._cache[tool_name]
-            
+
             if entry.is_expired():
                 del self._cache[tool_name]
                 self._evictions += 1
                 self._misses += 1
                 logger.debug(f"Cache expired: {tool_name}")
                 return None
-            
+
             self._hits += 1
             logger.debug(f"Cache hit: {tool_name}")
             return entry.value
-    
+
     def put(self, tool_name: str, tool_definition: Any) -> None:
         """
         Store tool definition in cache.
-        
+
         Args:
             tool_name: Cache key
             tool_definition: Tool definition to cache
@@ -134,14 +135,14 @@ class ToolRegistryCache:
                 ttl_seconds=self._ttl_seconds,
             )
             logger.debug(f"Cached: {tool_name} (ttl={self._ttl_seconds}s)")
-    
+
     def invalidate(self, tool_name: Optional[str] = None) -> int:
         """
         Invalidate cache entry or entire cache.
-        
+
         Args:
             tool_name: Specific tool to invalidate, or None for all
-            
+
         Returns:
             Number of entries invalidated
         """
@@ -151,25 +152,25 @@ class ToolRegistryCache:
                 self._cache.clear()
                 logger.info(f"Cache cleared: {count} entries")
                 return count
-            
+
             if tool_name in self._cache:
                 del self._cache[tool_name]
                 logger.info(f"Cache invalidated: {tool_name}")
                 return 1
-            
+
             return 0
-    
+
     def get_metrics(self) -> Dict[str, Any]:
         """
         Get cache metrics.
-        
+
         Returns:
             Dict with hit_rate, hits, misses, evictions, cache_size
         """
         with self._lock:
             total = self._hits + self._misses
             hit_rate = (self._hits / total * 100) if total > 0 else 0.0
-            
+
             return {
                 "hit_rate_percent": round(hit_rate, 2),
                 "hits": self._hits,
@@ -178,11 +179,11 @@ class ToolRegistryCache:
                 "cache_size": len(self._cache),
                 "ttl_seconds": self._ttl_seconds,
             }
-    
+
     def cleanup_expired(self) -> int:
         """
         Remove all expired entries.
-        
+
         Returns:
             Number of entries removed
         """
@@ -191,15 +192,15 @@ class ToolRegistryCache:
                 name for name, entry in self._cache.items()
                 if entry.is_expired()
             ]
-            
+
             for name in expired:
                 del self._cache[name]
-            
+
             self._evictions += len(expired)
-            
+
             if expired:
                 logger.info(f"Cleaned up {len(expired)} expired entries")
-            
+
             return len(expired)
 
 
@@ -225,29 +226,29 @@ from core.tools.registry_cache import get_tool_cache
 
 class ToolRegistry:
     """Tool registry with caching."""
-    
+
     def __init__(self, db_client, cache_ttl: float = 300):
         self._db = db_client
         self._cache = get_tool_cache(ttl_seconds=cache_ttl)
-    
+
     async def get_tool(self, tool_name: str):
         """Get tool definition with cache."""
-        
+
         # 1. Check cache first
         cached = self._cache.get(tool_name)
         if cached is not None:
             return cached
-        
+
         # 2. Cache miss — query database
         tool = await self._db.fetch_one(
             "SELECT * FROM tools WHERE name = $1",
             tool_name,
         )
-        
+
         # 3. Populate cache
         if tool:
             self._cache.put(tool_name, tool)
-        
+
         return tool
 
 
@@ -303,7 +304,7 @@ class ToolRegistry:
         cached = self._cache.get(tool_name)
         if cached:
             return cached  # Fast!
-        
+
         tool = await self._db.fetch_one(...)
         self._cache.put(tool_name, tool)
         return tool

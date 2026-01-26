@@ -37,15 +37,15 @@ Five-Tier Observability Spans
 
 ### What Gets Exported Where
 
-| Data Type | Prometheus | Jaeger | Grafana |
-|-----------|------------|--------|---------|
-| **Span counts** | ✅ Counter | ✅ Spans | ✅ Dashboard |
-| **Span latency** | ✅ Histogram | ✅ Duration | ✅ Dashboard |
-| **Errors** | ✅ Counter | ✅ Status | ✅ Dashboard |
-| **LLM calls** | ✅ Metrics | ✅ Spans | ✅ Dashboard |
-| **Tool calls** | ✅ Metrics | ✅ Spans | ✅ Dashboard |
-| **Trace context** | ❌ | ✅ Full traces | ✅ (via Jaeger) |
-| **Span relationships** | ❌ | ✅ Parent/child | ✅ (via Jaeger) |
+| Data Type              | Prometheus   | Jaeger          | Grafana         |
+| ---------------------- | ------------ | --------------- | --------------- |
+| **Span counts**        | ✅ Counter   | ✅ Spans        | ✅ Dashboard    |
+| **Span latency**       | ✅ Histogram | ✅ Duration     | ✅ Dashboard    |
+| **Errors**             | ✅ Counter   | ✅ Status       | ✅ Dashboard    |
+| **LLM calls**          | ✅ Metrics   | ✅ Spans        | ✅ Dashboard    |
+| **Tool calls**         | ✅ Metrics   | ✅ Spans        | ✅ Dashboard    |
+| **Trace context**      | ❌           | ✅ Full traces  | ✅ (via Jaeger) |
+| **Span relationships** | ❌           | ✅ Parent/child | ✅ (via Jaeger) |
 
 ## Configuration
 
@@ -72,11 +72,11 @@ Jaeger is already configured in `docker-compose.yml`:
 jaeger:
   image: jaegertracing/all-in-one:1.52
   environment:
-    COLLECTOR_OTLP_ENABLED: "true"  # ← OTLP enabled!
+    COLLECTOR_OTLP_ENABLED: "true" # ← OTLP enabled!
   ports:
-    - "127.0.0.1:16686:16686"      # Jaeger UI
-    - "127.0.0.1:14268:14268"      # Collector HTTP
-    - "127.0.0.1:6831:6831/udp"     # Agent UDP
+    - "127.0.0.1:16686:16686" # Jaeger UI
+    - "127.0.0.1:14268:14268" # Collector HTTP
+    - "127.0.0.1:6831:6831/udp" # Agent UDP
 ```
 
 ## Accessing Jaeger UI
@@ -123,13 +123,14 @@ Each span exported includes:
 
 You now have a **complete open source observability stack**:
 
-| Tool | Purpose | Access |
-|------|---------|--------|
-| **Prometheus** | Metrics collection | `http://localhost:9090` |
-| **Grafana** | Metrics visualization | `http://localhost:3000` |
-| **Jaeger** | Distributed tracing | `http://localhost:16686` |
+| Tool           | Purpose               | Access                   |
+| -------------- | --------------------- | ------------------------ |
+| **Prometheus** | Metrics collection    | `http://localhost:9090`  |
+| **Grafana**    | Metrics visualization | `http://localhost:3000`  |
+| **Jaeger**     | Distributed tracing   | `http://localhost:16686` |
 
 All three work together:
+
 - **Prometheus** collects metrics from spans
 - **Grafana** visualizes metrics in dashboards
 - **Jaeger** shows full trace context and relationships
@@ -137,6 +138,7 @@ All three work together:
 ## Dependencies
 
 Jaeger exporter requires:
+
 ```bash
 pip install opentelemetry-api opentelemetry-sdk opentelemetry-exporter-otlp-proto-http
 ```
@@ -150,10 +152,10 @@ These are optional - if not installed, Jaeger export is gracefully disabled.
 3. **Jaeger** - Full trace context, debugging, service dependencies
 
 Together, they provide:
+
 - ✅ Metrics (Prometheus)
 - ✅ Visualization (Grafana)
 - ✅ Tracing (Jaeger)
 - ✅ All open source
 - ✅ All self-hosted
 - ✅ All integrated with Five-Tier Observability
-

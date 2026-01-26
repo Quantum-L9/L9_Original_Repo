@@ -29,7 +29,6 @@ __dora_meta__ = {
 import json
 import re
 from pathlib import Path
-from typing import Dict, List
 
 from .base_extractor import BaseExtractor
 
@@ -54,7 +53,7 @@ class MemoryExtractor(BaseExtractor):
         "agent_plan",
     ]
 
-    def extract(self, input_path: Path, output_root: Path) -> Dict:
+    def extract(self, input_path: Path, output_root: Path) -> dict:
         """Extract memory entries from input."""
         self.logger.info(f"MemoryExtractor: Processing {input_path.name}")
 
@@ -89,7 +88,7 @@ class MemoryExtractor(BaseExtractor):
             "errors": [],
         }
 
-    def extract_memory_entries(self, content: str) -> List[Dict]:
+    def extract_memory_entries(self, content: str) -> list[dict]:
         """Extract memory entries from content."""
         entries = []
 
@@ -100,7 +99,7 @@ class MemoryExtractor(BaseExtractor):
 
         return entries
 
-    def extract_lessons(self, content: str) -> List[Dict]:
+    def extract_lessons(self, content: str) -> list[dict]:
         """Extract LESSON: markers."""
         lessons = []
         pattern = r"LESSON:\s*(.+?)(?=\n\n|\nLESSON:|\Z)"
@@ -118,7 +117,7 @@ class MemoryExtractor(BaseExtractor):
 
         return lessons
 
-    def extract_directives(self, content: str) -> List[Dict]:
+    def extract_directives(self, content: str) -> list[dict]:
         """Extract Directive: markers."""
         directives = []
         pattern = r"Directive:\s*(.+?)(?=\n(?:Scope|Tags|$))"
@@ -144,7 +143,7 @@ class MemoryExtractor(BaseExtractor):
 
         return directives
 
-    def extract_sops(self, content: str) -> List[Dict]:
+    def extract_sops(self, content: str) -> list[dict]:
         """Extract SOP: markers."""
         sops = []
         pattern = r"SOP:\s*(.+?)(?=\n\n|\nSOP:|\Z)"

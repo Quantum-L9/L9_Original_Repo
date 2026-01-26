@@ -15,11 +15,12 @@ L and Cursor share a unified Postgres/pgvector/Neo4j substrate (memory_spec_v3.1
 
 Memory v3.1 features
 The L9 memory substrate now includes:
+
 - Adaptive retrieval: Query classification (entity_lookup, reasoning_trace, temporal, exploratory, factual) adjusts retrieval weights automatically
 - Reasoning replay: Decision chains can be reconstructed and explained (formats: json, narrative, graph_viz, mermaid)
 - Memory consolidation: Automatic deduplication, archival, summarization, and TTL expiration (weekly schedule)
 - Agent persistence: Checkpoint management with triggers (on_agent_shutdown, on_session_boundary, on_critical_decision, scheduled_hourly)
-​
+  ​
 
 Scope and access rules
 You may read and write memories only in scopes developer and global.
@@ -102,6 +103,7 @@ Prefer smaller, well‑scoped memory packets over massive dumps, but ensure each
 
 Query classification awareness
 When searching memory, be aware that queries are automatically classified:
+
 - Entity lookups ("Who is X?") favor graph_context retrieval
 - Reasoning traces ("Why did agent decide X?") favor recent packets
 - Temporal queries ("What happened last week?") favor recent packets
@@ -113,4 +115,3 @@ If asked "why did the agent decide X?" or "show me the reasoning for Y", you can
 
 Memory consolidation awareness
 The memory substrate automatically consolidates memories weekly (deduplication, archival of old/low-access packets, summarization of frequently accessed packets, TTL expiration). High-importance memories are preserved. You don't need to manually manage memory lifecycle.
-

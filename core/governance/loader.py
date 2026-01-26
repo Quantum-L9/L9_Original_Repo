@@ -46,8 +46,7 @@ from typing import Any
 import structlog
 import yaml
 
-from core.governance.schemas import (Condition, ConditionOperator, Policy,
-                                     PolicyEffect)
+from core.governance.schemas import Condition, ConditionOperator, Policy, PolicyEffect
 
 logger = structlog.get_logger(__name__)
 
@@ -176,7 +175,7 @@ class PolicyLoader:
             raise PolicyLoadError(str(file_path), "File does not exist")
 
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 data = yaml.safe_load(f)
         except yaml.YAMLError as e:
             logger.critical(
@@ -298,9 +297,7 @@ class PolicyLoader:
             return True
         if pattern.endswith("*") and action.startswith(pattern[:-1]):
             return True
-        if pattern.startswith("*") and action.endswith(pattern[1:]):
-            return True
-        return False
+        return bool(pattern.startswith("*") and action.endswith(pattern[1:]))
 
     def clear(self) -> None:
         """Clear all loaded policies."""
@@ -336,9 +333,9 @@ def load_policies_from_directory(directory: str | Path) -> PolicyLoader:
 # =============================================================================
 
 __all__ = [
-    "PolicyLoader",
-    "PolicyLoadError",
     "InvalidPolicyError",
+    "PolicyLoadError",
+    "PolicyLoader",
     "load_policies_from_directory",
 ]
 

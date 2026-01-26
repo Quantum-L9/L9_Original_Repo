@@ -53,17 +53,23 @@ __dora_meta__ = {
 
 import hashlib
 import json
+from collections.abc import Callable
 from copy import deepcopy
 from datetime import datetime
 from functools import lru_cache
-from typing import Callable
 from uuid import UUID
 
 import structlog
 
-from core.schemas import (SCHEMA_VERSION, SUPPORTED_VERSIONS, PacketConfidence,
-                          PacketEnvelope, PacketLineage, PacketMetadata,
-                          PacketProvenance)
+from core.schemas import (
+    SCHEMA_VERSION,
+    SUPPORTED_VERSIONS,
+    PacketConfidence,
+    PacketEnvelope,
+    PacketLineage,
+    PacketMetadata,
+    PacketProvenance,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -232,9 +238,9 @@ class _SchemaRegistry:
         # Infer version from field presence
         if "content_hash" in raw:
             return "2.0.0"
-        elif "thread_id" in raw or "lineage" in raw or "tags" in raw or "ttl" in raw:
+        if "thread_id" in raw or "lineage" in raw or "tags" in raw or "ttl" in raw:
             return "1.1.0"
-        elif "provenance" in raw and raw.get("provenance"):
+        if "provenance" in raw and raw.get("provenance"):
             prov = raw["provenance"]
             if isinstance(prov, dict) and "source_agent" in prov:
                 return "1.0.1"
@@ -273,11 +279,11 @@ class _SchemaRegistry:
 
             for next_version in self._migration_graph.get(current, []):
                 if next_version == to_version:
-                    return tuple(path + [next_version])
+                    return (*path, next_version)
 
                 if next_version not in visited:
                     visited.add(next_version)
-                    queue.append((next_version, path + [next_version]))
+                    queue.append((next_version, [*path, next_version]))
 
         raise UpcasterNotFoundError(
             f"No migration path found from {from_version} to {to_version}. "

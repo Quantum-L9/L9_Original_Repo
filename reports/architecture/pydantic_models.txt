@@ -511,4 +511,3 @@ module: workers.violation_tracker_service
   BaseModel: ViolationRecord
   BaseModel: ViolationTrackerServiceRequest
   BaseModel: ViolationTrackerServiceResponse
-

@@ -268,8 +268,7 @@ async def audit_slack_routing() -> AuditResult:
     result = AuditResult("Slack Routing")
 
     try:
-        from memory.slack_ingest import (L9_ENABLE_LEGACY_SLACK_ROUTER,
-                                         _is_email_command)
+        from memory.slack_ingest import L9_ENABLE_LEGACY_SLACK_ROUTER, _is_email_command
 
         # Check 1: Feature flag status
         result.add_check(
@@ -433,11 +432,13 @@ async def audit_slack_telemetry() -> AuditResult:
         )
 
         if PROMETHEUS_AVAILABLE:
-            from telemetry.slack_metrics import (SLACK_AIOS_CALL_DURATION,
-                                                 SLACK_IDEMPOTENT_HITS,
-                                                 SLACK_PROCESSING_DURATION,
-                                                 SLACK_REQUESTS_TOTAL,
-                                                 SLACK_SIGNATURE_FAILURES)
+            from telemetry.slack_metrics import (
+                SLACK_AIOS_CALL_DURATION,
+                SLACK_IDEMPOTENT_HITS,
+                SLACK_PROCESSING_DURATION,
+                SLACK_REQUESTS_TOTAL,
+                SLACK_SIGNATURE_FAILURES,
+            )
 
             # Check 2: Metrics defined
             metrics_defined = [

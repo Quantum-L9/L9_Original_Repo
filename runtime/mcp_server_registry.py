@@ -34,7 +34,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 import yaml
@@ -55,8 +55,8 @@ class MCPServerConfig:
     def __init__(
         self,
         server_id: str,
-        command: List[str],
-        env: Optional[Dict[str, str]] = None,
+        command: list[str],
+        env: dict[str, str] | None = None,
         enabled: bool = True,
         priority: int = 0,
         **metadata: Any,
@@ -68,7 +68,7 @@ class MCPServerConfig:
         self.priority = priority
         self.metadata = metadata
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "server_id": self.server_id,
@@ -98,8 +98,8 @@ mcp_server_registry = AutoRegistry[MCPServerConfig](
 
 def register_mcp_server(
     server_id: str,
-    command: List[str],
-    env: Optional[Dict[str, str]] = None,
+    command: list[str],
+    env: dict[str, str] | None = None,
     enabled: bool = True,
     priority: int = 0,
     **metadata: Any,
@@ -185,7 +185,7 @@ def load_mcp_servers_from_yaml(yaml_path: str | Path) -> int:
         return 0
 
     try:
-        with open(yaml_path, "r") as f:
+        with open(yaml_path) as f:
             config = yaml.safe_load(f)
 
         if not config or "servers" not in config:
@@ -238,7 +238,7 @@ def load_mcp_servers_from_yaml(yaml_path: str | Path) -> int:
         return 0
 
 
-def get_all_mcp_servers() -> Dict[str, MCPServerConfig]:
+def get_all_mcp_servers() -> dict[str, MCPServerConfig]:
     """
     Get all registered MCP server configurations.
 
@@ -252,7 +252,7 @@ def get_all_mcp_servers() -> Dict[str, MCPServerConfig]:
     """
     mcp_server_registry.initialize_factories()
 
-    servers: Dict[str, MCPServerConfig] = {}
+    servers: dict[str, MCPServerConfig] = {}
 
     for server_id in mcp_server_registry.list_ids():
         config = mcp_server_registry.get(server_id)
@@ -263,7 +263,7 @@ def get_all_mcp_servers() -> Dict[str, MCPServerConfig]:
     return servers
 
 
-def get_mcp_servers_by_category(category: str) -> Dict[str, MCPServerConfig]:
+def get_mcp_servers_by_category(category: str) -> dict[str, MCPServerConfig]:
     """
     Get all MCP servers in a specific category.
 
@@ -276,7 +276,7 @@ def get_mcp_servers_by_category(category: str) -> Dict[str, MCPServerConfig]:
     mcp_server_registry.initialize_factories()
 
     configs = mcp_server_registry.get_all(tags=[category])
-    servers: Dict[str, MCPServerConfig] = {}
+    servers: dict[str, MCPServerConfig] = {}
 
     for config in configs:
         if config.enabled:

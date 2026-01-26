@@ -153,12 +153,11 @@ def get_current_phase() -> int:
 
     if now >= READ_BLOCK_DATE:
         return 4
-    elif now >= WRITE_BLOCK_DATE:
+    if now >= WRITE_BLOCK_DATE:
         return 3
-    elif now >= SUNSET_WARNING_DATE:
+    if now >= SUNSET_WARNING_DATE:
         return 2
-    else:
-        return 1
+    return 1
 
 
 def get_phase_description(phase: int) -> str:
@@ -354,17 +353,16 @@ def main() -> int:
         logger.info(f"Sunset deadline: {READ_BLOCK_DATE.strftime('%Y-%m-%d')}")
         logger.info("")
         return 1
-    elif violations:
+    if violations:
         logger.warning("⚠️  WARNINGS: Deprecated imports found (not blocking yet)")
         logger.error(
             f"   These will become errors on {WRITE_BLOCK_DATE.strftime('%Y-%m-%d')}"
         )
         logger.info("")
         return 0
-    else:
-        if not args.quiet:
-            logger.info("✅ CI GATE PASSED")
-        return 0
+    if not args.quiet:
+        logger.info("✅ CI GATE PASSED")
+    return 0
 
 
 if __name__ == "__main__":

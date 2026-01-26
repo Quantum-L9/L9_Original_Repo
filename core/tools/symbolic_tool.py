@@ -31,18 +31,21 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import structlog
 
 from runtime.tool_registry import register_tool
-from services.symbolic_computation import (CodeGenResult, ComputationResult,
-                                           SymbolicComputation)
+from services.symbolic_computation import (
+    CodeGenResult,
+    ComputationResult,
+    SymbolicComputation,
+)
 
 logger = structlog.get_logger(__name__)
 
 # Global singleton instance
-_symbolic_engine: Optional[SymbolicComputation] = None
+_symbolic_engine: SymbolicComputation | None = None
 
 
 def get_symbolic_engine() -> SymbolicComputation:
@@ -76,10 +79,10 @@ class SymbolicComputationTool:
     async def compute(
         self,
         expression: str,
-        variables: Dict[str, Union[float, List[float]]],
+        variables: dict[str, float | list[float]],
         backend: str = "numpy",
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Compute a symbolic expression with given variable values.
 
@@ -125,12 +128,12 @@ class SymbolicComputationTool:
     async def generate_code(
         self,
         expression: str,
-        variables: List[str],
+        variables: list[str],
         language: str = "C",
         function_name: str = "generated_func",
         compile: bool = False,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate code from a symbolic expression.
 
@@ -178,7 +181,7 @@ class SymbolicComputationTool:
                 "error": str(e),
             }
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """
         Check health of symbolic computation engine.
 
@@ -190,9 +193,9 @@ class SymbolicComputationTool:
     def optimize(
         self,
         expression: str,
-        strategies: Optional[List[str]] = None,
+        strategies: list[str] | None = None,
         **kwargs: Any,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Optimize a symbolic expression for faster evaluation.
 
@@ -221,7 +224,7 @@ class SymbolicComputationTool:
                     optimized = factor(optimized)
                 elif strategy == "cse":
                     # Common subexpression elimination returns (replacements, reduced)
-                    replacements, reduced = cse(optimized)
+                    _replacements, reduced = cse(optimized)
                     if reduced:
                         optimized = reduced[0]
 
@@ -256,10 +259,10 @@ class SymbolicComputationTool:
 @register_tool(category="symbolic", priority=10, description="symbolic_compute tool")
 async def symbolic_compute(
     expression: str,
-    variables: Dict[str, Union[float, List[float]]],
+    variables: dict[str, float | list[float]],
     backend: str = "numpy",
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Compute a symbolic expression with given variable values.
 
@@ -286,12 +289,12 @@ async def symbolic_compute(
 @register_tool(category="symbolic", priority=10, description="symbolic_codegen tool")
 async def symbolic_codegen(
     expression: str,
-    variables: List[str],
+    variables: list[str],
     language: str = "C",
     function_name: str = "generated_func",
     compile: bool = False,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Generate code from a symbolic expression.
 
@@ -320,9 +323,9 @@ async def symbolic_codegen(
 
 def symbolic_optimize(
     expression: str,
-    strategies: Optional[List[str]] = None,
+    strategies: list[str] | None = None,
     **kwargs: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Optimize a symbolic expression for faster evaluation.
 

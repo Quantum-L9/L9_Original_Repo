@@ -17,7 +17,7 @@ from memory.substrate_service import MemorySubstrateService, close_service, init
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def memory_substrate_service():
     """Provide a memory substrate service for testing."""
     if not TEST_DB_URL:
@@ -32,8 +32,7 @@ async def memory_substrate_service():
 @pytest.fixture
 def reasoning_replay_pipeline(memory_substrate_service):
     """Provide a ReasoningReplayPipeline instance."""
-    pipeline = ReasoningReplayPipeline(repository=memory_substrate_service._repository)
-    return pipeline
+    return ReasoningReplayPipeline(repository=memory_substrate_service._repository)
 
 
 @pytest.mark.asyncio

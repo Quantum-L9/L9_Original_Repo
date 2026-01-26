@@ -32,22 +32,22 @@ WHERE envelope->'metadata'->>'project_id' IS NULL
 -- =============================================================================
 -- STEP 2: Create index on project_id for efficient filtering
 -- =============================================================================
-CREATE INDEX IF NOT EXISTS idx_packet_project_id 
+CREATE INDEX IF NOT EXISTS idx_packet_project_id
   ON packet_store((envelope->'metadata'->>'project_id'));
 
 -- Combined index for scope + project_id queries
-CREATE INDEX IF NOT EXISTS idx_packet_scope_project 
+CREATE INDEX IF NOT EXISTS idx_packet_scope_project
   ON packet_store(scope, (envelope->'metadata'->>'project_id'));
 
 -- =============================================================================
 -- STEP 3: Add NOT NULL constraint via CHECK (JSONB doesn't support direct NOT NULL)
 -- This prevents new packets without project_id
 -- =============================================================================
-ALTER TABLE packet_store 
+ALTER TABLE packet_store
   DROP CONSTRAINT IF EXISTS packet_store_project_id_not_null;
 
-ALTER TABLE packet_store 
-  ADD CONSTRAINT packet_store_project_id_not_null 
+ALTER TABLE packet_store
+  ADD CONSTRAINT packet_store_project_id_not_null
   CHECK (envelope->'metadata'->>'project_id' IS NOT NULL);
 
 -- =============================================================================
@@ -59,21 +59,21 @@ DECLARE
     l9_project_count INT;
     total_count INT;
 BEGIN
-    SELECT COUNT(*) INTO null_project_count 
-    FROM packet_store 
+    SELECT COUNT(*) INTO null_project_count
+    FROM packet_store
     WHERE envelope->'metadata'->>'project_id' IS NULL;
-    
-    SELECT COUNT(*) INTO l9_project_count 
-    FROM packet_store 
+
+    SELECT COUNT(*) INTO l9_project_count
+    FROM packet_store
     WHERE envelope->'metadata'->>'project_id' = 'l9';
-    
+
     SELECT COUNT(*) INTO total_count FROM packet_store;
-    
+
     RAISE NOTICE '=== Migration 0017 Project ID Isolation ===';
     RAISE NOTICE 'Total packets: %', total_count;
     RAISE NOTICE 'Packets with project_id=l9: %', l9_project_count;
     RAISE NOTICE 'Packets with NULL project_id: % (should be 0)', null_project_count;
-    
+
     IF null_project_count = 0 THEN
         RAISE NOTICE '✅ Migration 0017 completed successfully';
         RAISE NOTICE '   - All packets have project_id';

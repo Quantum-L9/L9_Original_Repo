@@ -49,4 +49,3 @@ COMMENT ON COLUMN packet_store.ttl IS 'Optional expiration timestamp for memory 
 -- =============================================================================
 -- End Migration 0002
 -- =============================================================================
-

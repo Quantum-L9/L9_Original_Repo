@@ -1,7 +1,7 @@
 # L9 Agent Checkpoint Operations Runbook
 
-**Version:** 1.0.0  
-**Last Updated:** 2026-01-14  
+**Version:** 1.0.0
+**Last Updated:** 2026-01-14
 **Maintainer:** L9 Engineering Team
 
 ---
@@ -9,6 +9,7 @@
 ## Overview
 
 This runbook covers operational procedures for the L9 agent checkpoint system, which provides:
+
 - Agent state persistence across restarts
 - Checkpoint integrity validation (SHA-256 checksums)
 - Retention policy enforcement
@@ -20,14 +21,14 @@ This runbook covers operational procedures for the L9 agent checkpoint system, w
 
 ### Key Metrics to Watch
 
-| Metric | Description | Alert Threshold |
-|--------|-------------|-----------------|
-| `l9_checkpoint_create_latency_seconds` | Time to create checkpoint | p99 > 2s |
-| `l9_checkpoint_restore_latency_seconds` | Time to restore checkpoint | p99 > 1s |
-| `l9_checkpoint_corruption_detected_total` | Corrupted checkpoints detected | Any > 0 |
-| `l9_checkpoint_validation_total{status="invalid"}` | Failed validations | Any > 0 |
-| `l9_checkpoint_size_bytes` | Checkpoint state size | p99 > 500KB |
-| `l9_active_checkpoints` | Active checkpoints per agent | > 20 per agent |
+| Metric                                             | Description                    | Alert Threshold |
+| -------------------------------------------------- | ------------------------------ | --------------- |
+| `l9_checkpoint_create_latency_seconds`             | Time to create checkpoint      | p99 > 2s        |
+| `l9_checkpoint_restore_latency_seconds`            | Time to restore checkpoint     | p99 > 1s        |
+| `l9_checkpoint_corruption_detected_total`          | Corrupted checkpoints detected | Any > 0         |
+| `l9_checkpoint_validation_total{status="invalid"}` | Failed validations             | Any > 0         |
+| `l9_checkpoint_size_bytes`                         | Checkpoint state size          | p99 > 500KB     |
+| `l9_active_checkpoints`                            | Active checkpoints per agent   | > 20 per agent  |
 
 ### Prometheus Queries
 
@@ -56,23 +57,27 @@ Import the checkpoint dashboard from: `grafana/dashboards/l9-checkpoint-ops.json
 ### Issue: Checkpoint Restore Fails with Integrity Error
 
 **Symptoms:**
+
 - `ValueError: Checkpoint integrity validation failed` in logs
 - `l9_checkpoint_corruption_detected_total` counter incremented
 
 **Diagnosis:**
+
 ```bash
 # Check logs for the specific checkpoint
 docker logs l9-api 2>&1 | grep "integrity validation FAILED"
 
 # Query database for checkpoint state
 docker exec -it l9-postgres psql -U postgres -d l9_memory -c \
-  "SELECT checkpoint_id, agent_id, graph_state->>'_checksum' as checksum 
-   FROM graph_checkpoints 
+  "SELECT checkpoint_id, agent_id, graph_state->>'_checksum' as checksum
+   FROM graph_checkpoints
    WHERE agent_id = 'YOUR_AGENT_ID';"
 ```
 
 **Resolution:**
+
 1. **If single checkpoint corrupted:** Delete and let agent create new one
+
    ```sql
    DELETE FROM graph_checkpoints WHERE checkpoint_id = 'CORRUPTED_UUID';
    ```
@@ -88,19 +93,22 @@ docker exec -it l9-postgres psql -U postgres -d l9_memory -c \
 ### Issue: Checkpoint Creation Taking Too Long
 
 **Symptoms:**
+
 - `l9_checkpoint_create_latency_seconds` p99 > 2s
 - Agent shutdown delays
 
 **Diagnosis:**
+
 ```bash
 # Check checkpoint sizes
 docker exec -it l9-postgres psql -U postgres -d l9_memory -c \
-  "SELECT agent_id, pg_size_pretty(length(graph_state::text)::bigint) as size 
-   FROM graph_checkpoints 
+  "SELECT agent_id, pg_size_pretty(length(graph_state::text)::bigint) as size
+   FROM graph_checkpoints
    ORDER BY length(graph_state::text) DESC LIMIT 10;"
 ```
 
 **Resolution:**
+
 1. **Large state objects:** Review what's being stored, reduce unnecessary data
 2. **Database performance:** Check PostgreSQL connection pool, indexes
 3. **Network latency:** Check connection to database server
@@ -108,20 +116,24 @@ docker exec -it l9-postgres psql -U postgres -d l9_memory -c \
 ### Issue: Too Many Checkpoints Accumulating
 
 **Symptoms:**
+
 - `l9_active_checkpoints` gauge increasing
 - Disk usage growing
 
 **Diagnosis:**
+
 ```sql
 -- Count checkpoints per agent
-SELECT agent_id, COUNT(*) as checkpoint_count 
-FROM graph_checkpoints 
-GROUP BY agent_id 
+SELECT agent_id, COUNT(*) as checkpoint_count
+FROM graph_checkpoints
+GROUP BY agent_id
 ORDER BY checkpoint_count DESC;
 ```
 
 **Resolution:**
+
 1. **Manual cleanup:**
+
    ```python
    # Delete old checkpoints, keep last 5
    await persistence.delete_old_checkpoints(agent_id, keep_last=5)
@@ -139,14 +151,15 @@ ORDER BY checkpoint_count DESC;
 ### Checkpoint Storage Sizing
 
 | Agent Count | Avg Checkpoint Size | Est. Daily Storage | Monthly Storage |
-|-------------|--------------------|--------------------|-----------------|
-| 10 | 10 KB | 2.4 MB | 72 MB |
-| 100 | 10 KB | 24 MB | 720 MB |
-| 1000 | 10 KB | 240 MB | 7.2 GB |
+| ----------- | ------------------- | ------------------ | --------------- |
+| 10          | 10 KB               | 2.4 MB             | 72 MB           |
+| 100         | 10 KB               | 24 MB              | 720 MB          |
+| 1000        | 10 KB               | 240 MB             | 7.2 GB          |
 
 ### Retention Policy Tuning
 
 Default retention policy:
+
 ```python
 retention_policy = {
     "keep_last_n": 10,           # Always keep 10 most recent
@@ -192,6 +205,7 @@ docker-compose start l9-api
 ### Emergency Recovery (No Backup Available)
 
 If checkpoints are lost:
+
 1. Agents will start with empty state
 2. State will rebuild as agents process tasks
 3. Monitor for any initialization errors
@@ -203,18 +217,20 @@ If checkpoints are lost:
 ### Database Indexes
 
 Ensure these indexes exist (created by migration 0014):
+
 ```sql
-CREATE INDEX IF NOT EXISTS idx_graph_checkpoints_agent_updated 
+CREATE INDEX IF NOT EXISTS idx_graph_checkpoints_agent_updated
   ON graph_checkpoints (agent_id, updated_at DESC);
-CREATE INDEX IF NOT EXISTS idx_graph_checkpoints_reason 
+CREATE INDEX IF NOT EXISTS idx_graph_checkpoints_reason
   ON graph_checkpoints (reason, updated_at DESC);
-CREATE INDEX IF NOT EXISTS idx_graph_checkpoints_agent_number 
+CREATE INDEX IF NOT EXISTS idx_graph_checkpoints_agent_number
   ON graph_checkpoints (agent_id, checkpoint_number DESC);
 ```
 
 ### Connection Pool Settings
 
 In `memory/substrate_repository.py`:
+
 ```python
 # Recommended pool settings
 pool = await asyncpg.create_pool(
@@ -229,6 +245,7 @@ pool = await asyncpg.create_pool(
 ### Checkpoint Size Optimization
 
 Best practices:
+
 - Store only essential agent state (not full conversation history)
 - Use references (IDs) instead of embedding large objects
 - Compress large payloads if needed
@@ -246,6 +263,7 @@ Best practices:
 ### Encryption (Future)
 
 Encryption at rest is planned for v2.0:
+
 - KMS/Vault integration for key management
 - AES-256-GCM encryption of state payload
 - Key rotation support
@@ -314,6 +332,7 @@ asyncio.run(validate_all())
 ### Migration Script (Optional)
 
 To add checksums to existing checkpoints:
+
 ```python
 # scripts/migrate_checkpoint_checksums.py
 async def migrate():
@@ -338,4 +357,4 @@ async def migrate():
 
 ---
 
-*Last reviewed: 2026-01-14*
+_Last reviewed: 2026-01-14_

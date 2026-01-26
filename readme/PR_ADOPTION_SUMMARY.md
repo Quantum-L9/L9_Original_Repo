@@ -10,12 +10,12 @@ This document tracks PR adoption decisions for the L9 codebase. Several PRs were
 
 ## ✅ MERGED (Full Adoption)
 
-| PR | Title | Files | Notes |
-|----|-------|-------|-------|
-| #62 | setup-python v4/v5 → v6 | 4 workflows | Dependabot |
-| #63 | codecov-action v3 → v5 | 1 workflow | Dependabot |
-| #64 | github-script v6/v7 → v8 | 2 workflows | Dependabot |
-| #66 | urllib3 <2 → <3 | requirements.txt | Dependabot |
+| PR  | Title                    | Files            | Notes      |
+| --- | ------------------------ | ---------------- | ---------- |
+| #62 | setup-python v4/v5 → v6  | 4 workflows      | Dependabot |
+| #63 | codecov-action v3 → v5   | 1 workflow       | Dependabot |
+| #64 | github-script v6/v7 → v8 | 2 workflows      | Dependabot |
+| #66 | urllib3 <2 → <3          | requirements.txt | Dependabot |
 
 ---
 
@@ -24,6 +24,7 @@ This document tracks PR adoption decisions for the L9 codebase. Several PRs were
 ### PR #58: CI/CD Enhancement
 
 **Adopted:**
+
 - `codecov.yml` — Coverage config (75% floor)
 - `coderabbit.yaml` — AI code review config
 - `sonar-project.properties` — SonarCloud config (kept for future)
@@ -31,6 +32,7 @@ This document tracks PR adoption decisions for the L9 codebase. Several PRs were
 - `tests/test_ci_configuration.py` — 20 CI validation tests
 
 **Skipped:**
+
 - `pyproject.toml` stricter Ruff/MyPy — Breaking changes, documented in ADR-0062
 
 **Decision:** ADR-0062 created for deferred strict linting adoption path.
@@ -40,6 +42,7 @@ This document tracks PR adoption decisions for the L9 codebase. Several PRs were
 ### PR #60: Gemini-Perplexity AI PR Review Pipeline
 
 **Adopted (9 files):**
+
 - `.gemini/styleguide.md` — L9 patterns for Gemini Code Assist
 - `.github/pr_review_config.yaml` — PR review pipeline config
 - `scripts/pr_review/gemini_auto_editor.py` — Gemini API integration
@@ -60,11 +63,13 @@ All files adding `@singleton` decorator from `core.patterns.singleton`
 ### PR #61: DI Container Bootstrap with Tiered Initialization
 
 **Adopted (3 files):**
+
 - `examples/fastapi_lifespan_di_bootstrap.py` — FastAPI lifespan DI example
 - `readme/DI_BOOTSTRAP_GUIDE.md` — DI bootstrap documentation
 - `tests/unit/test_di_bootstrap.py` — DI bootstrap tests
 
 **Skipped:**
+
 - `core/di/container.py` — PR version (229 lines) conflicts with existing repo version (886 lines)
 - 40+ `@singleton` changes — Same issue as PR #60
 - 9 files already adopted from PR #60
@@ -81,10 +86,10 @@ All files adding `@singleton` decorator from `core.patterns.singleton`
 
 ## ❌ CLOSED WITHOUT ADOPTION
 
-| PR | Title | Reason |
-|----|-------|--------|
+| PR  | Title                              | Reason                                  |
+| --- | ---------------------------------- | --------------------------------------- |
 | #57 | @singleton decorator to 40 classes | `core.patterns.singleton` doesn't exist |
-| #59 | ADR Enforcement Validator | Files already exist in repo |
+| #59 | ADR Enforcement Validator          | Files already exist in repo             |
 
 ---
 
@@ -102,6 +107,7 @@ class MyService:
 ```
 
 **L9's actual singleton pattern:**
+
 ```python
 # ✅ CORRECT - Use existing L9 pattern
 from core.singleton_auto_registry import register_singleton
@@ -118,6 +124,7 @@ async def get_my_service() -> MyService:
 ### 2. Direct DI Container Replacement
 
 L9 has a comprehensive DI system at `core/di/`:
+
 - `container.py` (886 lines) — Full DI container
 - `bootstrap.py` (343 lines) — Service registration
 - `bootstrap_integration.py` (315 lines) — Integration layer
@@ -153,6 +160,7 @@ tests/unit/test_di_bootstrap.py
 ## 🔧 Workflows Updated
 
 All GitHub Actions workflows updated to:
+
 - `actions/checkout@v6`
 - `actions/setup-python@v6`
 - `codecov/codecov-action@v5`

@@ -2,8 +2,8 @@
 
 **Purpose:** Help AI systems (including Manus, Claude, and future agents) understand your L9 architecture so they DON'T misinterpret your design patterns.
 
-**Last Updated:** January 17, 2026  
-**Audience:** All AI systems analyzing L9 codebase  
+**Last Updated:** January 17, 2026
+**Audience:** All AI systems analyzing L9 codebase
 **Authority:** L (CTO) - Architecture Owner
 
 ---
@@ -21,17 +21,20 @@ Runtime State → Kernel Loader (kernel_loader.py) → Agent State
 ```
 
 **What this means:**
+
 - `kernel_loader.py` is THE ONLY way kernels enter the L9 system
 - Direct imports of kernels from other modules = **architecturally correct** (not a violation)
 - If your audit tool flags "kernel_loader.py imports from xyz" → **that's expected**
 
 **Why:** Centralized kernel entry ensures:
+
 - Singular point of control (L controls what kernels are valid)
 - Complete audit trail of kernel lifecycle
 - Prevention of rogue kernel injection
 - Kernel integrity verification before activation
 
 **Example (NOT A BUG):**
+
 ```python
 # In core/agents/executor.py
 from runtime.kernel_loader import load_kernels  # ✅ CORRECT
@@ -47,6 +50,7 @@ from private.kernels import *  # ✅ CORRECT (this is the choke point)
 Your system has **two completely separate execution contexts** that MUST NOT cross-contaminate:
 
 #### **L's Namespace (L-CTO)**
+
 - Tenant ID: `'l-cto'`
 - Uses: Neo4j for tool graphs
 - Uses: Redis for session memory
@@ -54,6 +58,7 @@ Your system has **two completely separate execution contexts** that MUST NOT cro
 - Files: `runtime/l_tools.py`, `core/agents/executor.py`
 
 #### **Cursor's Namespace (Cursor-IDE)**
+
 - Tenant ID: `'cursor'`
 - Uses: PostgreSQL for lessons/TODOs (Docker-based)
 - Does NOT use: Neo4j (Cursor doesn't need tool graph)
@@ -61,11 +66,13 @@ Your system has **two completely separate execution contexts** that MUST NOT cro
 - Files: `agents/cursor/cursor_memory_kernel.py`
 
 **What NOT to flag as bugs:**
+
 - Cursor accessing Postgres while L accesses Redis ✅
 - Cursor ignoring Neo4j while L uses it ✅
 - Separate `CURSOR_TENANT_ID` vs `L9_TENANT_ID` env variables ✅
 
 **What WOULD be a bug:**
+
 - Cursor reading L's session state from Redis ❌
 - L reading Cursor's lessons from Postgres without tenant filter ❌
 - Cross-tenant data flow without explicit isolation ❌
@@ -101,6 +108,7 @@ Your system has **three orthogonal memory layers**, each with a specific purpose
 ```
 
 **What NOT to flag:**
+
 - Cursor writes to PostgreSQL but not Neo4j ✅
 - L reads from Neo4j but Cursor doesn't ✅
 - Different TTL policies for different layers ✅
@@ -127,12 +135,14 @@ PacketEnvelope = {
 ```
 
 **Why this matters for AI comprehension:**
+
 - Every memory write includes tenant information
 - Audit tools should EXPECT this structure
 - Agents reading packets must filter by tenant
 - Cross-tenant packet reading = architectural violation (not a code quality issue)
 
 **Example (CORRECT):**
+
 ```python
 # In cursor_memory_kernel.py
 envelope = {
@@ -162,11 +172,13 @@ def _get_rls_prefix() -> str:
 ```
 
 **What this prevents:**
+
 - Cross-tenant data leakage at database level
 - Unauthorized agent access to other agent's memories
 - SQL injection attacks bypassing authorization
 
 **Not a code smell:**
+
 - Having RLS prefix in every query ✅
 - Setting user_id to agent identifier ✅
 - Role-based filtering in SQL ✅
@@ -200,11 +212,13 @@ REQUIRED_KERNELS = {
 ```
 
 **What NOT to flag:**
+
 - Hardcoded kernel order in `kernel_loader.py` ✅
 - Missing kernel X causing runtime failure ✅
 - Boot sequence depending on kernel Y ✅
 
 **What WOULD be a bug:**
+
 - Loading kernels out of order ❌
 - Skipping a required kernel ❌
 - Loading kernels from untrusted sources ❌
@@ -226,6 +240,7 @@ core/authority_model.py        ← L's authority boundaries
 **Why:** Any change here impacts the entire system's integrity.
 
 **Tell Manus (or any audit tool):**
+
 > "Do NOT suggest modifications to protected surfaces. Propose alternatives and let the CTO decide."
 
 ---
@@ -296,8 +311,8 @@ If YES to any of these → **probably not a bug, ask the CTO first**.
 "Line 42 in cursor_memory_kernel.py violates the authority model"
 
 ✅ CORRECT:
-"Line 42 in cursor_memory_kernel.py has a hardcoded password. 
-This violates the principle of secrets management. 
+"Line 42 in cursor_memory_kernel.py has a hardcoded password.
+This violates the principle of secrets management.
 Recommendation: Move to environment variable.
 Reason: Prevents credential exposure in version control.
 Risk if not fixed: Unauthorized Neo4j access."
@@ -318,6 +333,7 @@ curl -X POST https://audit-api.example.com/analyze \
 ```
 
 **In audit requests, always include:**
+
 - This architecture document
 - Link to `kernel_loader.py` (the choke point)
 - Link to `cursor_memory_kernel.py` (tenant isolation example)
@@ -332,6 +348,7 @@ When asking me to analyze L9:
 Before analyzing, read: L9_ARCHITECTURE_FOR_AI.md
 
 Key points to remember:
+
 1. kernel_loader.py is the choke point (intentional)
 2. Cursor (tenant: cursor) and L (tenant: l-cto) are separate contexts
 3. RLS on every query is intentional security, not a code smell
@@ -339,6 +356,7 @@ Key points to remember:
 5. Packet envelope wraps all messages with metadata
 
 Don't flag these as bugs:
+
 - Separate database access patterns
 - RLS context on queries
 - Hardcoded kernel paths
@@ -349,14 +367,14 @@ Don't flag these as bugs:
 
 ## 🎓 REFERENCE MATERIALS
 
-| Document | Purpose |
-|----------|---------|
-| `runtime/kernel_loader.py` | The choke point - start here |
-| `agents/cursor/cursor_memory_kernel.py` | Example of tenant isolation |
-| `core/packet_envelope/` | PacketEnvelope implementation |
-| `memory/substrate_repository.py` | Memory abstraction layer |
-| `core/authority_model.py` | How L maintains control |
-| `architecture_decisions.md` | Design decisions (check this!) |
+| Document                                | Purpose                        |
+| --------------------------------------- | ------------------------------ |
+| `runtime/kernel_loader.py`              | The choke point - start here   |
+| `agents/cursor/cursor_memory_kernel.py` | Example of tenant isolation    |
+| `core/packet_envelope/`                 | PacketEnvelope implementation  |
+| `memory/substrate_repository.py`        | Memory abstraction layer       |
+| `core/authority_model.py`               | How L maintains control        |
+| `architecture_decisions.md`             | Design decisions (check this!) |
 
 ---
 
@@ -376,6 +394,7 @@ Before submitting to any audit tool:
 **TL;DR for Audit Tools:**
 
 Your system is **intentionally architected** with:
+
 1. **Single kernel entry point** (kernel_loader.py)
 2. **Tenant isolation** (L vs Cursor completely separate)
 3. **Multi-layer memory** (Postgres + Neo4j + Redis)
@@ -386,7 +405,6 @@ If an audit tool flags these patterns as bugs → **it misunderstands your archi
 
 ---
 
-**Created:** 2026-01-17  
-**Authority:** L (CTO)  
+**Created:** 2026-01-17
+**Authority:** L (CTO)
 **Next Review:** After P0-P1 security fixes are deployed
-

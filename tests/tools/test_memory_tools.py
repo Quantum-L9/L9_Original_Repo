@@ -43,7 +43,9 @@ class TestMemorySearch:
         """memory_search returns error with empty hits on failure."""
         from memory.tools import memory_search
 
-        with patch("memory.tools.get_memory_client", side_effect=Exception("Connection failed")):
+        with patch(
+            "memory.tools.get_memory_client", side_effect=Exception("Connection failed")
+        ):
             result = await memory_search(query="test", segment="all", limit=10)
 
         assert "error" in result
@@ -80,7 +82,9 @@ class TestMemoryWrite:
         """memory_write returns error status on failure."""
         from memory.tools import memory_write
 
-        with patch("memory.tools.get_memory_client", side_effect=Exception("Write failed")):
+        with patch(
+            "memory.tools.get_memory_client", side_effect=Exception("Write failed")
+        ):
             result = await memory_write(packet={}, segment="test")
 
         assert result["status"] == "error"
@@ -97,7 +101,9 @@ class TestMemoryGetPacket:
 
         mock_substrate = MagicMock()
         mock_packet = MagicMock()
-        mock_packet.model_dump = MagicMock(return_value={"id": "uuid-123", "data": "test"})
+        mock_packet.model_dump = MagicMock(
+            return_value={"id": "uuid-123", "data": "test"}
+        )
         mock_substrate.get_packet = AsyncMock(return_value=mock_packet)
 
         with patch("memory.tools.get_substrate_service", return_value=mock_substrate):

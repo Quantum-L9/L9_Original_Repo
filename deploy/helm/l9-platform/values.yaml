@@ -36,18 +36,18 @@ global:
 api:
   enabled: true
   replicaCount: 2
-  
+
   image:
     repository: ghcr.io/cryptoxdog/l9-api
     tag: "3.0.0"
     pullPolicy: IfNotPresent
-  
+
   service:
     type: ClusterIP
     port: 8000
     targetPort: 8000
     annotations: {}
-  
+
   ingress:
     enabled: true
     className: nginx
@@ -63,7 +63,7 @@ api:
       - secretName: l9-api-tls
         hosts:
           - api.l9.example.com
-  
+
   resources:
     requests:
       memory: "1Gi"
@@ -71,18 +71,18 @@ api:
     limits:
       memory: "2Gi"
       cpu: "2000m"
-  
+
   autoscaling:
     enabled: true
     minReplicas: 2
     maxReplicas: 10
     targetCPUUtilizationPercentage: 70
     targetMemoryUtilizationPercentage: 80
-  
+
   podDisruptionBudget:
     enabled: true
     minAvailable: 1
-  
+
   env:
     LOG_LEVEL: INFO
     API_HOST: "0.0.0.0"
@@ -92,7 +92,7 @@ api:
     L9_ENABLE_LEGACY_SLACK_ROUTER: "false"
     EMBEDDING_PROVIDER: "openai"
     EMBEDDING_MODEL: "text-embedding-3-large"
-  
+
   secrets:
     # These should be provided via external secrets or sealed secrets
     OPENAI_API_KEY: ""
@@ -105,17 +105,17 @@ api:
 mcpMemory:
   enabled: true
   replicaCount: 1
-  
+
   image:
     repository: ghcr.io/cryptoxdog/l9-mcp-memory
     tag: "3.0.0"
     pullPolicy: IfNotPresent
-  
+
   service:
     type: ClusterIP
     port: 9002
     targetPort: 9002
-  
+
   resources:
     requests:
       memory: "512Mi"
@@ -123,7 +123,7 @@ mcpMemory:
     limits:
       memory: "1Gi"
       cpu: "1000m"
-  
+
   env:
     MCP_HOST: "0.0.0.0"
     MCP_PORT: "9002"
@@ -137,23 +137,23 @@ mcpMemory:
 # =============================================================================
 postgresql:
   enabled: true
-  
+
   image:
     repository: pgvector/pgvector
     tag: pg16
     pullPolicy: IfNotPresent
-  
+
   auth:
     username: l9_user
-    password: ""  # Provide via secrets
+    password: "" # Provide via secrets
     database: l9_memory
-  
+
   primary:
     persistence:
       enabled: true
       size: 20Gi
       storageClass: ""
-    
+
     resources:
       requests:
         memory: "1Gi"
@@ -161,7 +161,7 @@ postgresql:
       limits:
         memory: "2Gi"
         cpu: "2000m"
-  
+
   service:
     type: ClusterIP
     port: 5432
@@ -171,17 +171,17 @@ postgresql:
 # =============================================================================
 redis:
   enabled: true
-  
+
   image:
     repository: redis
     tag: 7-alpine
     pullPolicy: IfNotPresent
-  
+
   master:
     persistence:
       enabled: true
       size: 8Gi
-    
+
     resources:
       requests:
         memory: "256Mi"
@@ -189,7 +189,7 @@ redis:
       limits:
         memory: "512Mi"
         cpu: "500m"
-  
+
   service:
     type: ClusterIP
     port: 6379
@@ -199,20 +199,20 @@ redis:
 # =============================================================================
 neo4j:
   enabled: true
-  
+
   image:
     repository: neo4j
     tag: 5-community
     pullPolicy: IfNotPresent
-  
+
   auth:
     username: neo4j
-    password: ""  # Provide via secrets
-  
+    password: "" # Provide via secrets
+
   persistence:
     enabled: true
     size: 20Gi
-  
+
   resources:
     requests:
       memory: "1Gi"
@@ -220,7 +220,7 @@ neo4j:
     limits:
       memory: "2Gi"
       cpu: "1000m"
-  
+
   service:
     type: ClusterIP
     http:
@@ -233,18 +233,18 @@ neo4j:
 # =============================================================================
 monitoring:
   enabled: true
-  
+
   prometheus:
     enabled: true
-    
+
     image:
       repository: prom/prometheus
       tag: v2.48.0
-    
+
     persistence:
       enabled: true
       size: 10Gi
-    
+
     resources:
       requests:
         memory: "256Mi"
@@ -252,28 +252,28 @@ monitoring:
       limits:
         memory: "512Mi"
         cpu: "500m"
-    
+
     service:
       type: ClusterIP
       port: 9090
-    
+
     retention: 30d
-  
+
   grafana:
     enabled: true
-    
+
     image:
       repository: grafana/grafana
       tag: 10.2.0
-    
+
     admin:
       user: admin
-      password: ""  # Provide via secrets
-    
+      password: "" # Provide via secrets
+
     persistence:
       enabled: true
       size: 5Gi
-    
+
     resources:
       requests:
         memory: "256Mi"
@@ -281,11 +281,11 @@ monitoring:
       limits:
         memory: "512Mi"
         cpu: "500m"
-    
+
     service:
       type: ClusterIP
       port: 3000
-    
+
     ingress:
       enabled: true
       className: nginx
@@ -298,18 +298,18 @@ monitoring:
         - secretName: grafana-tls
           hosts:
             - grafana.l9.example.com
-  
+
   jaeger:
     enabled: true
-    
+
     image:
       repository: jaegertracing/all-in-one
       tag: "1.52"
-    
+
     persistence:
       enabled: true
       size: 5Gi
-    
+
     resources:
       requests:
         memory: "256Mi"
@@ -317,7 +317,7 @@ monitoring:
       limits:
         memory: "512Mi"
         cpu: "500m"
-    
+
     service:
       type: ClusterIP
       ui:
@@ -331,18 +331,18 @@ monitoring:
 security:
   podSecurityPolicy:
     enabled: false
-  
+
   networkPolicy:
     enabled: true
     policyTypes:
       - Ingress
       - Egress
-  
+
   serviceAccount:
     create: true
     name: l9-service-account
     annotations: {}
-  
+
   rbac:
     create: true
 
@@ -351,12 +351,12 @@ security:
 # =============================================================================
 backup:
   enabled: false
-  schedule: "0 2 * * *"  # 2 AM daily
-  retention: 7  # days
-  
+  schedule: "0 2 * * *" # 2 AM daily
+  retention: 7 # days
+
   postgresql:
     enabled: true
-  
+
   neo4j:
     enabled: true
 
@@ -368,7 +368,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 
 class MockRedis:
@@ -43,7 +43,7 @@ class MockRedis:
         self._data: dict[str, Any] = {}
         self._expiry: dict[str, datetime] = {}
 
-    async def get(self, key: str) -> Optional[str]:
+    async def get(self, key: str) -> str | None:
         """
         Get a value by key.
 
@@ -63,8 +63,8 @@ class MockRedis:
         self,
         key: str,
         value: Any,
-        ex: Optional[int] = None,
-        px: Optional[int] = None,
+        ex: int | None = None,
+        px: int | None = None,
     ) -> bool:
         """
         Set a key-value pair.
@@ -174,7 +174,7 @@ class MockRedis:
         if pattern == "*":
             return list(self._data.keys())
 
-        return [k for k in self._data.keys() if fnmatch.fnmatch(k, pattern)]
+        return [k for k in self._data if fnmatch.fnmatch(k, pattern)]
 
     async def hset(self, name: str, key: str, value: Any) -> int:
         """Set hash field."""
@@ -183,7 +183,7 @@ class MockRedis:
         self._data[name][key] = value
         return 1
 
-    async def hget(self, name: str, key: str) -> Optional[str]:
+    async def hget(self, name: str, key: str) -> str | None:
         """Get hash field."""
         if name not in self._data:
             return None
@@ -195,10 +195,9 @@ class MockRedis:
 
     def _check_expiry(self, key: str) -> None:
         """Check and remove expired keys."""
-        if key in self._expiry:
-            if datetime.utcnow() > self._expiry[key]:
-                del self._data[key]
-                del self._expiry[key]
+        if key in self._expiry and datetime.utcnow() > self._expiry[key]:
+            del self._data[key]
+            del self._expiry[key]
 
 
 class MockToolRegistry:
@@ -208,7 +207,7 @@ class MockToolRegistry:
     Simulates tool registration and rate limit tracking.
     """
 
-    def __init__(self, redis: Optional[MockRedis] = None):
+    def __init__(self, redis: MockRedis | None = None):
         self._redis = redis or MockRedis()
         self._tools: dict[str, dict[str, Any]] = {}
         self._usage: dict[str, int] = {}
@@ -233,7 +232,7 @@ class MockToolRegistry:
             "registered_at": datetime.utcnow().isoformat(),
         }
 
-    def get_tool(self, name: str) -> Optional[dict[str, Any]]:
+    def get_tool(self, name: str) -> dict[str, Any] | None:
         """Get tool by name."""
         return self._tools.get(name)
 

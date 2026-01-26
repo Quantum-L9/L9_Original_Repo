@@ -13,8 +13,12 @@ pytest.skip(
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
-from services.research.graph_state import (Evidence, ResearchGraphState,
-                                           ResearchStep, create_initial_state)
+from services.research.graph_state import (
+    Evidence,
+    ResearchGraphState,
+    ResearchStep,
+    create_initial_state,
+)
 
 
 class TestResearchGraphState:

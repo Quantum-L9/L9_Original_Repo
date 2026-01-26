@@ -60,9 +60,7 @@ class ResearchRequest(BaseModel):
 
     query: str = Field(..., min_length=1, max_length=5000, description="Research query")
     user_id: str = Field(default="anonymous", description="User identifier")
-    thread_id: str | None = Field(
-        None, description="Optional thread ID for tracking"
-    )
+    thread_id: str | None = Field(None, description="Optional thread ID for tracking")
 
     class Config:
         json_schema_extra = {

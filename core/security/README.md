@@ -59,15 +59,15 @@ Authentication, authorization, secrets management, and security policies
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `api/auth.py` | Uses this module |
+| Module            | Purpose          |
+| ----------------- | ---------------- |
+| `api/auth.py`     | Uses this module |
 | `api/middleware/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                      | Purpose             |
+| --------------------------- | ------------------- |
 | `config/policies/security/` | Required dependency |
 
 ---
@@ -81,13 +81,13 @@ core/security/
 ├── permission_graph.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `auth_service.py` | Core module (PROTECTED) |
-| `secrets_manager.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
-| `permission_graph.py` | RBAC permission graph backed by Neo4j. |
-| `path_safety.py` | Raised when a user-controlled path fails safety va |
+| File                  | Purpose                                            |
+| --------------------- | -------------------------------------------------- |
+| `auth_service.py`     | Core module (PROTECTED)                            |
+| `secrets_manager.py`  | Core module (PROTECTED)                            |
+| `__init__.py`         | Core module (PROTECTED)                            |
+| `permission_graph.py` | RBAC permission graph backed by Neo4j.             |
+| `path_safety.py`      | Raised when a user-controlled path fails safety va |
 
 ### Naming Conventions
 
@@ -105,7 +105,7 @@ core/security/
 ```python
 class PermissionGraph:
     """RBAC permission graph backed by Neo4j."""
-    
+
     # Key methods:
 
     async def _get_neo4j(self, ...): ...
@@ -129,7 +129,7 @@ class PermissionGraph:
 ```python
 class PathSafetyError:
     """Raised when a user-controlled path fails safety validation."""
-    
+
     # Key methods:
 
     async def __str__(self, ...): ...
@@ -139,7 +139,6 @@ class PathSafetyError:
 **Public Methods:** `__str__`
 
 **Lines:** 52-59 in `path_safety.py`
-
 
 ---
 
@@ -212,9 +211,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Security feature flags
-L9_ENABLE_CORE_SECURITY_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_SECURITY_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_SECURITY_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_SECURITY_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_SECURITY_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_SECURITY_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -276,7 +275,6 @@ Get all permissions for a user.
 - **File:** `permission_graph.py:376`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -317,6 +315,7 @@ Core Security operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -324,12 +323,12 @@ Core Security operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                | Type      | Description                    |
+| ------------------------------------- | --------- | ------------------------------ |
 | `core_security_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_security_operation_total` | Counter | Total operations processed |
-| `core_security_error_total` | Counter | Total errors encountered |
-| `core_security_active_connections` | Gauge | Current active connections |
+| `core_security_operation_total`       | Counter   | Total operations processed     |
+| `core_security_error_total`           | Counter   | Total errors encountered       |
+| `core_security_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -347,6 +346,7 @@ Core Security emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_security/`:
+
 - `test_core_security.py` — Core unit tests
 - `test_core_security_integration.py` — Integration tests (if applicable)
 
@@ -393,6 +393,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

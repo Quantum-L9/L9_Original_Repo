@@ -30,13 +30,17 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import yaml
 
-from world_model.interfaces import (Entity, EntityTypeSchema,
-                                    IWorldModelLoader, Relation,
-                                    RelationTypeSchema)
+from world_model.interfaces import (
+    Entity,
+    EntityTypeSchema,
+    IWorldModelLoader,
+    Relation,
+    RelationTypeSchema,
+)
 from world_model.registry import WorldModelRegistry
 from world_model.state import WorldModelState
 
@@ -47,7 +51,7 @@ class WorldModelLoader(IWorldModelLoader):
     # ========== YAML LOADING ==========
 
     @staticmethod
-    def load_yaml(path: str) -> Dict[str, Any]:
+    def load_yaml(path: str) -> dict[str, Any]:
         """Load single YAML file.
 
         Args:
@@ -64,13 +68,13 @@ class WorldModelLoader(IWorldModelLoader):
             raise FileNotFoundError(f"YAML file not found: {path}")
 
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 return yaml.safe_load(f) or {}
         except yaml.YAMLError as e:
             raise yaml.YAMLError(f"Failed to parse YAML {path}: {e}") from e
 
     @staticmethod
-    def load_multiple_yaml(paths: List[str]) -> Dict[str, Any]:
+    def load_multiple_yaml(paths: list[str]) -> dict[str, Any]:
         """Load and merge multiple YAML files (deep merge).
 
         Args:
@@ -90,7 +94,7 @@ class WorldModelLoader(IWorldModelLoader):
         return merged
 
     @staticmethod
-    def _deep_merge(base: Dict[str, Any], overlay: Dict[str, Any]) -> Dict[str, Any]:
+    def _deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
         """Deep merge two dicts (overlay overwrites base).
 
         Args:
@@ -115,7 +119,7 @@ class WorldModelLoader(IWorldModelLoader):
     # ========== SCHEMA LOADING ==========
 
     @staticmethod
-    def load_entity_schemas(data: Dict[str, Any]) -> WorldModelRegistry:
+    def load_entity_schemas(data: dict[str, Any]) -> WorldModelRegistry:
         """Load entity type schemas from YAML.
 
         Args:
@@ -141,13 +145,15 @@ class WorldModelLoader(IWorldModelLoader):
                 schema = EntityTypeSchema(**schema_data)
                 registry.register_entity_type(type_name, schema)
             except Exception as e:
-                raise ValueError(f"Failed to register entity type {type_name}: {e}") from e
+                raise ValueError(
+                    f"Failed to register entity type {type_name}: {e}"
+                ) from e
 
         return registry
 
     @staticmethod
     def load_relation_schemas(
-        data: Dict[str, Any], registry: Optional[WorldModelRegistry] = None
+        data: dict[str, Any], registry: WorldModelRegistry | None = None
     ) -> WorldModelRegistry:
         """Load relation type schemas from YAML.
 
@@ -176,7 +182,9 @@ class WorldModelLoader(IWorldModelLoader):
                 schema = RelationTypeSchema(**schema_data)
                 registry.register_relation_type(type_name, schema)
             except Exception as e:
-                raise ValueError(f"Failed to register relation type {type_name}: {e}") from e
+                raise ValueError(
+                    f"Failed to register relation type {type_name}: {e}"
+                ) from e
 
         return registry
 
@@ -184,7 +192,7 @@ class WorldModelLoader(IWorldModelLoader):
 
     @staticmethod
     def load_initial_state(
-        data: Dict[str, Any], registry: Optional[WorldModelRegistry] = None
+        data: dict[str, Any], registry: WorldModelRegistry | None = None
     ) -> WorldModelState:
         """Load initial seed entities and relations from YAML.
 
@@ -243,7 +251,7 @@ class WorldModelLoader(IWorldModelLoader):
     # ========== CAUSAL STRUCTURE LOADING ==========
 
     @staticmethod
-    def load_causal_structure(data: Dict[str, Any]) -> Any:
+    def load_causal_structure(data: dict[str, Any]) -> Any:
         """Load causal graph structure from YAML.
 
         Args:
@@ -255,8 +263,7 @@ class WorldModelLoader(IWorldModelLoader):
         Raises:
             ValueError: If causal structure invalid
         """
-        from world_model.causal_graph import (CausalEdge, CausalGraph,
-                                              CausalNode)
+        from world_model.causal_graph import CausalEdge, CausalGraph, CausalNode
 
         graph = CausalGraph()
 
@@ -310,8 +317,7 @@ class WorldModelLoader(IWorldModelLoader):
         """
         data = WorldModelLoader.load_yaml(path)
         registry = WorldModelLoader.load_entity_schemas(data)
-        registry = WorldModelLoader.load_relation_schemas(data, registry)
-        return registry
+        return WorldModelLoader.load_relation_schemas(data, registry)
 
     @staticmethod
     def load_causal_graph(path: str) -> Any:
@@ -342,7 +348,7 @@ class WorldModelLoader(IWorldModelLoader):
     @staticmethod
     def load_domain_blueprint(
         path: str,
-    ) -> Tuple[WorldModelRegistry, WorldModelState, Any]:
+    ) -> tuple[WorldModelRegistry, WorldModelState, Any]:
         """Load complete domain blueprint from WorldModelOS.yaml.
 
         Args:
@@ -373,7 +379,7 @@ class WorldModelLoader(IWorldModelLoader):
         return registry, state, graph
 
     @staticmethod
-    def validate_spec(data: Dict[str, Any]) -> bool:
+    def validate_spec(data: dict[str, Any]) -> bool:
         """Validate WorldModelOS.yaml structure.
 
         Args:

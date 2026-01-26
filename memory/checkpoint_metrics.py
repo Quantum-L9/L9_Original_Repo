@@ -36,8 +36,8 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
 
 import structlog
 
@@ -430,24 +430,24 @@ def get_metrics(agent_id: str) -> CheckpointMetrics:
 # =============================================================================
 
 __all__ = [
+    "ACTIVE_CHECKPOINTS",
+    "CHECKPOINT_CORRUPTION_DETECTED",
+    "CHECKPOINT_CREATE_LATENCY",
+    "CHECKPOINT_CREATE_TOTAL",
+    "CHECKPOINT_DELETE_TOTAL",
+    "CHECKPOINT_POOL_AVAILABLE",
+    "CHECKPOINT_POOL_SIZE",
+    "CHECKPOINT_POOL_WAITING",
+    "CHECKPOINT_RESTORE_LATENCY",
+    "CHECKPOINT_RESTORE_TOTAL",
+    "CHECKPOINT_SIZE_BYTES",
+    "CHECKPOINT_VALIDATE_LATENCY",
+    "CHECKPOINT_VALIDATION_TOTAL",
+    "PROMETHEUS_AVAILABLE",
     "CheckpointMetrics",
     "get_metrics",
-    "record_pool_stats",
     "get_pool_stats_dict",
-    "CHECKPOINT_CREATE_LATENCY",
-    "CHECKPOINT_RESTORE_LATENCY",
-    "CHECKPOINT_VALIDATE_LATENCY",
-    "CHECKPOINT_CREATE_TOTAL",
-    "CHECKPOINT_RESTORE_TOTAL",
-    "CHECKPOINT_DELETE_TOTAL",
-    "CHECKPOINT_VALIDATION_TOTAL",
-    "CHECKPOINT_CORRUPTION_DETECTED",
-    "CHECKPOINT_SIZE_BYTES",
-    "ACTIVE_CHECKPOINTS",
-    "CHECKPOINT_POOL_SIZE",
-    "CHECKPOINT_POOL_AVAILABLE",
-    "CHECKPOINT_POOL_WAITING",
-    "PROMETHEUS_AVAILABLE",
+    "record_pool_stats",
 ]
 
 # ============================================================================

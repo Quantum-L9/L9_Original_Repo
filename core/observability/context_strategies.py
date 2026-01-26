@@ -26,7 +26,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -42,8 +42,8 @@ class ContextStrategy(ABC):
     @must_stay_async("callers use await")
     async def assemble(
         self,
-        conversation: List[Dict[str, str]],
-        knowledge_base: Optional[Any] = None,
+        conversation: list[dict[str, str]],
+        knowledge_base: Any | None = None,
         max_tokens: int = 8000,
     ) -> str:
         """Assemble context for LLM input."""
@@ -56,8 +56,8 @@ class NaiveTruncationStrategy(ContextStrategy):
     @must_stay_async("callers use await")
     async def assemble(
         self,
-        conversation: List[Dict[str, str]],
-        knowledge_base: Optional[Any] = None,
+        conversation: list[dict[str, str]],
+        knowledge_base: Any | None = None,
         max_tokens: int = 8000,
     ) -> str:
         """Assemble context by naive truncation."""
@@ -91,8 +91,8 @@ class RecencyBiasedWindowStrategy(ContextStrategy):
     @must_stay_async("callers use await")
     async def assemble(
         self,
-        conversation: List[Dict[str, str]],
-        knowledge_base: Optional[Any] = None,
+        conversation: list[dict[str, str]],
+        knowledge_base: Any | None = None,
         max_tokens: int = 8000,
     ) -> str:
         """Assemble context with recency bias."""
@@ -150,8 +150,8 @@ class HierarchicalSummarizationStrategy(ContextStrategy):
     @must_stay_async("callers use await")
     async def assemble(
         self,
-        conversation: List[Dict[str, str]],
-        knowledge_base: Optional[Any] = None,
+        conversation: list[dict[str, str]],
+        knowledge_base: Any | None = None,
         max_tokens: int = 8000,
     ) -> str:
         """Assemble context with summarization of history."""
@@ -204,8 +204,8 @@ class RAGStrategy(ContextStrategy):
 
     async def assemble(
         self,
-        conversation: List[Dict[str, str]],
-        knowledge_base: Optional[Any] = None,
+        conversation: list[dict[str, str]],
+        knowledge_base: Any | None = None,
         max_tokens: int = 8000,
     ) -> str:
         """Assemble context with RAG retrieval."""
@@ -262,8 +262,8 @@ class HybridStrategy(ContextStrategy):
 
     async def assemble(
         self,
-        conversation: List[Dict[str, str]],
-        knowledge_base: Optional[Any] = None,
+        conversation: list[dict[str, str]],
+        knowledge_base: Any | None = None,
         max_tokens: int = 8000,
     ) -> str:
         """Assemble context using all three strategies."""
@@ -312,19 +312,18 @@ class AdaptiveStrategySelector:
     @must_stay_async("callers use await")
     async def select_strategy(
         self,
-        conversation: List[Dict[str, str]],
-        task_type: Optional[str] = None,
+        conversation: list[dict[str, str]],
+        task_type: str | None = None,
         knowledge_base_available: bool = False,
     ) -> ContextStrategy:
         """Select best strategy for this task."""
         if task_type == "knowledge_query" and knowledge_base_available:
             return HybridStrategy()
-        elif task_type == "long_research":
+        if task_type == "long_research":
             return HierarchicalSummarizationStrategy()
-        elif knowledge_base_available:
+        if knowledge_base_available:
             return HybridStrategy()
-        else:
-            return RecencyBiasedWindowStrategy()
+        return RecencyBiasedWindowStrategy()
 
 
 # ============================================================================

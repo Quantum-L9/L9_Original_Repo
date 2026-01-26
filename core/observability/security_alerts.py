@@ -30,13 +30,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
 import logging
-import json
-from typing import Dict, List, Optional, Any
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -69,15 +68,15 @@ class SecurityAlert:
     severity: AlertSeverity
     title: str
     message: str
-    details: Dict[str, Any]
-    channels: List[AlertChannel]
+    details: dict[str, Any]
+    channels: list[AlertChannel]
     timestamp: datetime = None
 
     def __post_init__(self):
         if self.timestamp is None:
             self.timestamp = datetime.utcnow()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "alert_id": self.alert_id,
@@ -103,7 +102,7 @@ class SecurityAlertService:
 
     def __init__(self):
         """Initialize security alert service."""
-        self.alert_history: List[SecurityAlert] = []
+        self.alert_history: list[SecurityAlert] = []
         self.dedup_window = timedelta(minutes=15)  # Deduplicate alerts within 15 min
 
         # Load configuration from environment
@@ -127,7 +126,7 @@ class SecurityAlertService:
         # Check for duplicate alerts
         if self._is_duplicate(alert):
             logger.info(
-                f"Duplicate alert suppressed",
+                "Duplicate alert suppressed",
                 extra={
                     "alert_id": alert.alert_id,
                     "alert_type": alert.alert_type,
@@ -230,7 +229,7 @@ class SecurityAlertService:
 
         # Send to Slack (would use requests in production)
         logger.info(
-            f"Slack alert sent",
+            "Slack alert sent",
             extra={
                 "alert_id": alert.alert_id,
                 "webhook_url": self.slack_webhook_url[:30] + "...",
@@ -271,7 +270,7 @@ Details:
         body += "\n---\nL9 Security System\n"
 
         logger.info(
-            f"Email alert sent",
+            "Email alert sent",
             extra={
                 "alert_id": alert.alert_id,
                 "subject": subject,
@@ -303,7 +302,7 @@ Details:
         }
 
         logger.info(
-            f"PagerDuty alert sent",
+            "PagerDuty alert sent",
             extra={
                 "alert_id": alert.alert_id,
                 "event": pd_event,
@@ -324,7 +323,7 @@ Details:
 
         # Send alert as JSON
         logger.info(
-            f"Webhook alert sent",
+            "Webhook alert sent",
             extra={
                 "alert_id": alert.alert_id,
                 "webhook_url": webhook_url,
@@ -348,7 +347,7 @@ Details:
         return colors.get(severity, "#808080")
 
     def create_vulnerability_alert(
-        self, scan_type: str, severity: str, count: int, details: Dict[str, Any]
+        self, scan_type: str, severity: str, count: int, details: dict[str, Any]
     ) -> SecurityAlert:
         """
         Create alert for vulnerability detection.
@@ -373,7 +372,7 @@ Details:
         else:
             channels = [AlertChannel.SLACK]
 
-        alert = SecurityAlert(
+        return SecurityAlert(
             alert_id=f"{scan_type}_{severity}_{int(datetime.utcnow().timestamp())}",
             alert_type=f"{scan_type}_vulnerability",
             severity=alert_severity,
@@ -383,10 +382,9 @@ Details:
             channels=channels,
         )
 
-        return alert
 
     def create_secret_detected_alert(
-        self, secret_type: str, location: str, details: Dict[str, Any]
+        self, secret_type: str, location: str, details: dict[str, Any]
     ) -> SecurityAlert:
         """
         Create alert for secret detection.
@@ -399,7 +397,7 @@ Details:
         Returns:
             SecurityAlert instance
         """
-        alert = SecurityAlert(
+        return SecurityAlert(
             alert_id=f"secret_{secret_type}_{int(datetime.utcnow().timestamp())}",
             alert_type="secret_detected",
             severity=AlertSeverity.CRITICAL,
@@ -409,10 +407,9 @@ Details:
             channels=[AlertChannel.SLACK, AlertChannel.EMAIL, AlertChannel.PAGERDUTY],
         )
 
-        return alert
 
     def create_policy_violation_alert(
-        self, policy_type: str, action: str, details: Dict[str, Any]
+        self, policy_type: str, action: str, details: dict[str, Any]
     ) -> SecurityAlert:
         """
         Create alert for policy violation.
@@ -427,7 +424,7 @@ Details:
         """
         severity = AlertSeverity.HIGH if action == "block" else AlertSeverity.MEDIUM
 
-        alert = SecurityAlert(
+        return SecurityAlert(
             alert_id=f"policy_{policy_type}_{int(datetime.utcnow().timestamp())}",
             alert_type="policy_violation",
             severity=severity,
@@ -437,13 +434,12 @@ Details:
             channels=[AlertChannel.SLACK],
         )
 
-        return alert
 
 
 # =============================================================================
 # Singleton instance
 # =============================================================================
-_security_alert_service: Optional[SecurityAlertService] = None
+_security_alert_service: SecurityAlertService | None = None
 
 
 def get_security_alert_service() -> SecurityAlertService:
@@ -462,7 +458,7 @@ def get_security_alert_service() -> SecurityAlertService:
 
 
 def send_vulnerability_alert(
-    scan_type: str, severity: str, count: int, details: Dict[str, Any]
+    scan_type: str, severity: str, count: int, details: dict[str, Any]
 ) -> bool:
     """Send alert for vulnerability detection."""
     service = get_security_alert_service()
@@ -471,7 +467,7 @@ def send_vulnerability_alert(
 
 
 def send_secret_detected_alert(
-    secret_type: str, location: str, details: Dict[str, Any]
+    secret_type: str, location: str, details: dict[str, Any]
 ) -> bool:
     """Send alert for secret detection."""
     service = get_security_alert_service()
@@ -480,7 +476,7 @@ def send_secret_detected_alert(
 
 
 def send_policy_violation_alert(
-    policy_type: str, action: str, details: Dict[str, Any]
+    policy_type: str, action: str, details: dict[str, Any]
 ) -> bool:
     """Send alert for policy violation."""
     service = get_security_alert_service()

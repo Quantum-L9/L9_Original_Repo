@@ -39,7 +39,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 import structlog
@@ -89,7 +89,7 @@ class CursorMemoryGateway:
         self._substrate_service = substrate_service
         logger.info("CursorMemoryGateway initialized with MemorySubstrateService")
 
-    def _validate_scope(self, scope: str | List[str]) -> None:
+    def _validate_scope(self, scope: str | list[str]) -> None:
         """
         Validate scope is within Cursor's allowed range.
 
@@ -99,10 +99,7 @@ class CursorMemoryGateway:
         Raises:
             CursorScopeViolationError: If scope is not allowed
         """
-        if isinstance(scope, str):
-            scopes = [scope]
-        else:
-            scopes = scope
+        scopes = [scope] if isinstance(scope, str) else scope
 
         for s in scopes:
             if s not in self.ALLOWED_SCOPES:
@@ -226,10 +223,10 @@ class CursorMemoryGateway:
     async def search_memory(
         self,
         query: str,
-        scope: List[str],
+        scope: list[str],
         project_id: str,
         limit: int = 10,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Search memory substrate using semantic search.
 
@@ -350,7 +347,7 @@ class CursorMemoryGateway:
     async def load_checkpoint(
         self,
         thread_id: str,
-    ) -> Optional[Any]:  # Optional[CursorAgentState]
+    ) -> Any | None:  # Optional[CursorAgentState]
         """
         Load checkpoint from memory substrate (fallback for dual checkpoint).
 
@@ -388,8 +385,7 @@ class CursorMemoryGateway:
                 return None
 
             # Import here to avoid circular dependency
-            from agents.cursor.integrations.cursor_langgraph import \
-                CursorAgentState
+            from agents.cursor.integrations.cursor_langgraph import CursorAgentState
 
             # Reconstruct CursorAgentState
             state = CursorAgentState(**state_dict)

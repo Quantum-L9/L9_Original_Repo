@@ -142,7 +142,6 @@ integration:
     - accountability_ledger
     - world_model.state_updates
     - governance.violation_log
-
 # ─────────────────────────────────────────────────────────────────────────
 # END KERNEL
 # ─────────────────────────────────────────────────────────────────────────

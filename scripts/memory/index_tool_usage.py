@@ -45,7 +45,7 @@ import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 import structlog
@@ -66,7 +66,7 @@ API_KEY = os.getenv("L9_EXECUTOR_API_KEY")
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
 
 
-async def query_tool_usage_stats(database_url: str) -> List[Dict[str, Any]]:
+async def query_tool_usage_stats(database_url: str) -> list[dict[str, Any]]:
     """
     Query tool_audit_log table for tool usage statistics.
 
@@ -80,7 +80,7 @@ async def query_tool_usage_stats(database_url: str) -> List[Dict[str, Any]]:
         try:
             # Aggregate tool usage by tool_name and agent_id
             rows = await conn.fetch("""
-                SELECT 
+                SELECT
                     tool_name,
                     agent_id,
                     COUNT(*) as usage_count,
@@ -130,7 +130,7 @@ async def query_tool_usage_stats(database_url: str) -> List[Dict[str, Any]]:
         return []
 
 
-async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
+async def api_request(method: str, endpoint: str, **kwargs) -> dict[str, Any]:
     """Make authenticated API request to VPS."""
     if not API_KEY:
         return {"error": "L9_EXECUTOR_API_KEY not set", "success": False}
@@ -158,9 +158,7 @@ async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
             return {"error": str(e), "success": False}
 
 
-async def execute_cypher(
-    query: str, parameters: Optional[Dict] = None
-) -> Dict[str, Any]:
+async def execute_cypher(query: str, parameters: dict | None = None) -> dict[str, Any]:
     """Execute Cypher query via VPS API."""
     return await api_request(
         "POST",
@@ -170,9 +168,9 @@ async def execute_cypher(
 
 
 async def index_tool_usage_to_neo4j(
-    tool_stats: List[Dict[str, Any]],
+    tool_stats: list[dict[str, Any]],
     dry_run: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Index tool usage patterns to Neo4j graph.
 
@@ -230,7 +228,7 @@ async def index_tool_usage_to_neo4j(
                 )
         except Exception as e:
             logger.error(f"Failed to index batch {i // batch_size + 1}: {e}")
-            errors.append(f"Batch {i // batch_size + 1}: {str(e)}")
+            errors.append(f"Batch {i // batch_size + 1}: {e!s}")
 
     return {
         "tools_indexed": tools_indexed,

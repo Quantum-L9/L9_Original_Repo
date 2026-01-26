@@ -1,7 +1,7 @@
 # L9 Platform Deployment Guide
 
-**Version:** 3.0.0  
-**Last Updated:** January 21, 2026  
+**Version:** 3.0.0
+**Last Updated:** January 21, 2026
 **Status:** Production-Ready
 
 ---
@@ -23,6 +23,7 @@
 ## 🎯 Overview
 
 This guide covers deploying the L9 Agentic Intelligence Platform using:
+
 - **Docker Compose** (local development, single-server)
 - **Kubernetes + Helm** (production, multi-server)
 - **GitHub Actions** (CI/CD automation)
@@ -54,23 +55,25 @@ This guide covers deploying the L9 Agentic Intelligence Platform using:
 
 ### Required Tools
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| Docker | 24.0+ | Container runtime |
-| Docker Compose | 2.20+ | Multi-container orchestration |
-| Kubernetes | 1.28+ | Container orchestration (production) |
-| Helm | 3.13+ | Kubernetes package manager |
-| kubectl | 1.28+ | Kubernetes CLI |
-| Git | 2.40+ | Version control |
+| Tool           | Version | Purpose                              |
+| -------------- | ------- | ------------------------------------ |
+| Docker         | 24.0+   | Container runtime                    |
+| Docker Compose | 2.20+   | Multi-container orchestration        |
+| Kubernetes     | 1.28+   | Container orchestration (production) |
+| Helm           | 3.13+   | Kubernetes package manager           |
+| kubectl        | 1.28+   | Kubernetes CLI                       |
+| Git            | 2.40+   | Version control                      |
 
 ### System Requirements
 
 **Development:**
+
 - CPU: 4 cores
 - RAM: 8 GB
 - Disk: 20 GB
 
 **Production:**
+
 - CPU: 16+ cores
 - RAM: 32+ GB
 - Disk: 200+ GB SSD
@@ -97,6 +100,7 @@ nano .env.production
 ```
 
 **Required variables:**
+
 - `POSTGRES_PASSWORD` - Strong password for PostgreSQL
 - `NEO4J_PASSWORD` - Strong password for Neo4j
 - `OPENAI_API_KEY` - Your OpenAI API key
@@ -129,14 +133,14 @@ curl http://localhost:9002/health
 
 ### 5. Access Services
 
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| L9 API | http://localhost:8000 | API Key |
-| MCP Memory | http://localhost:9002 | API Key |
-| Grafana | http://localhost:3000 | admin / (from .env) |
-| Prometheus | http://localhost:9090 | None |
-| Jaeger UI | http://localhost:16686 | None |
-| Neo4j Browser | http://localhost:7474 | neo4j / (from .env) |
+| Service       | URL                    | Credentials         |
+| ------------- | ---------------------- | ------------------- |
+| L9 API        | http://localhost:8000  | API Key             |
+| MCP Memory    | http://localhost:9002  | API Key             |
+| Grafana       | http://localhost:3000  | admin / (from .env) |
+| Prometheus    | http://localhost:9090  | None                |
+| Jaeger UI     | http://localhost:16686 | None                |
+| Neo4j Browser | http://localhost:7474  | neo4j / (from .env) |
 
 ---
 
@@ -165,6 +169,7 @@ docker-compose down -v
 **File:** `deploy/docker-production/docker-compose.production.yml`
 
 **Features:**
+
 - Multi-stage Dockerfiles (70% smaller images)
 - Resource limits
 - Health checks
@@ -349,6 +354,7 @@ kubectl describe hpa l9-prod-api -n l9-prod
 **Location:** `.github/workflows/`
 
 **Workflows:**
+
 1. `docker-build.yml` - Build and push Docker images
 2. `k8s-deploy.yml` - Deploy to Kubernetes
 
@@ -356,12 +362,12 @@ kubectl describe hpa l9-prod-api -n l9-prod
 
 **Repository Settings → Secrets → Actions:**
 
-| Secret | Description |
-|--------|-------------|
-| `KUBECONFIG_DEV` | Kubernetes config for dev cluster |
+| Secret               | Description                           |
+| -------------------- | ------------------------------------- |
+| `KUBECONFIG_DEV`     | Kubernetes config for dev cluster     |
 | `KUBECONFIG_STAGING` | Kubernetes config for staging cluster |
-| `KUBECONFIG_PROD` | Kubernetes config for prod cluster |
-| `SLACK_WEBHOOK` | Slack webhook for notifications |
+| `KUBECONFIG_PROD`    | Kubernetes config for prod cluster    |
+| `SLACK_WEBHOOK`      | Slack webhook for notifications       |
 
 ### Deployment Flow
 
@@ -422,6 +428,7 @@ gh workflow run k8s-deploy.yml \
 **Access:** http://localhost:9090 (Docker) or https://prometheus.l9.ai (K8s)
 
 **Key Metrics:**
+
 - `http_requests_total` - Total HTTP requests
 - `http_request_duration_seconds` - Request latency
 - `process_cpu_seconds_total` - CPU usage
@@ -433,6 +440,7 @@ gh workflow run k8s-deploy.yml \
 **Access:** http://localhost:3000 (Docker) or https://grafana.l9.ai (K8s)
 
 **Default Dashboards:**
+
 1. L9 API Overview
 2. Database Performance
 3. Redis Metrics
@@ -444,6 +452,7 @@ gh workflow run k8s-deploy.yml \
 **Access:** http://localhost:16686 (Docker) or https://jaeger.l9.ai (K8s)
 
 **Features:**
+
 - Distributed tracing
 - Service dependencies
 - Latency analysis
@@ -452,6 +461,7 @@ gh workflow run k8s-deploy.yml \
 ### Log Aggregation
 
 **Docker:**
+
 ```bash
 # View logs
 docker-compose logs -f l9-api
@@ -461,6 +471,7 @@ docker-compose logs l9-api | grep ERROR
 ```
 
 **Kubernetes:**
+
 ```bash
 # View logs
 kubectl logs -f deployment/l9-prod-api -n l9-prod
@@ -481,10 +492,12 @@ kubectl logs deployment/l9-prod-api -n l9-prod | grep ERROR
 #### 1. API Not Starting
 
 **Symptoms:**
+
 - Container restarts repeatedly
 - Health check fails
 
 **Solutions:**
+
 ```bash
 # Check logs
 docker-compose logs l9-api
@@ -499,10 +512,12 @@ docker-compose exec l9-api python -c "import asyncpg; print('OK')"
 #### 2. Database Connection Failed
 
 **Symptoms:**
+
 - `could not connect to server`
 - `password authentication failed`
 
 **Solutions:**
+
 ```bash
 # Check PostgreSQL is running
 docker-compose ps l9-postgres
@@ -520,10 +535,12 @@ docker-compose exec l9-postgres psql -U postgres -c "ALTER USER l9_user PASSWORD
 #### 3. Out of Memory
 
 **Symptoms:**
+
 - OOMKilled pods
 - Slow performance
 
 **Solutions:**
+
 ```bash
 # Check resource usage
 docker stats
@@ -539,10 +556,12 @@ helm upgrade l9-prod ./l9-platform -f values-production.yaml
 #### 4. Image Pull Failed
 
 **Symptoms:**
+
 - `ImagePullBackOff`
 - `ErrImagePull`
 
 **Solutions:**
+
 ```bash
 # Check image exists
 docker pull ghcr.io/cryptoxdog/l9-api:3.0.0
@@ -602,12 +621,12 @@ kubectl create secret docker-registry ghcr-secret \
 
 ## 📞 Support
 
-**Documentation:** https://github.com/cryptoxdog/L9/tree/main/docs  
-**Issues:** https://github.com/cryptoxdog/L9/issues  
+**Documentation:** https://github.com/cryptoxdog/L9/tree/main/docs
+**Issues:** https://github.com/cryptoxdog/L9/issues
 **Discussions:** https://github.com/cryptoxdog/L9/discussions
 
 ---
 
-**Last Updated:** January 21, 2026  
-**Version:** 3.0.0  
+**Last Updated:** January 21, 2026
+**Version:** 3.0.0
 **Status:** Production-Ready

@@ -116,7 +116,7 @@ steps:
       mappings:
         - from: "${target_dir}/diff_imports.py"
           to: "core/existing_module.py"
-          after_line: 10  # Insert after line 10
+          after_line: 10 # Insert after line 10
         # Or use pattern:
         # - from: "${target_dir}/diff_class.py"
         #   to: "core/existing_module.py"
@@ -185,18 +185,18 @@ steps:
       code: |
         import os
         from pathlib import Path
-        
+
         # Access variables and working_dir
         wd = working_dir
         vars = variables
-        
+
         # Do custom processing
         print(f"Working in: {wd}")
         print(f"Variables: {vars}")
-        
+
         # Set output for logging
         output = "Custom processing complete"
-        
+
         # Set artifacts for downstream steps
         artifacts = {"custom_result": "value"}
 
@@ -213,7 +213,6 @@ steps:
         - "echo 'Created files:'"
         - "ls -la services/new_service.py core/new_module.py"
         - "echo 'Done!'"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

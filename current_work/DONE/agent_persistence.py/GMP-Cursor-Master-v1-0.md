@@ -1,8 +1,8 @@
 # GMP MASTER: L9 Agent Persistence Implementation v1.0
 
-**Status**: Ready for Cursor execution  
-**Target**: L9 Repository (Production)  
-**Timeline**: 8 sequential GMP stages  
+**Status**: Ready for Cursor execution
+**Target**: L9 Repository (Production)
+**Timeline**: 8 sequential GMP stages
 **Quality Bar**: Frontier AI Lab (OpenAI/DeepMind/Anthropic)
 
 ---
@@ -51,11 +51,11 @@ This master GMP and all 8 stage GMPs inherit from `GMP-Action-Prompt-Canonical-v
 ## STAGE SEQUENCE
 
 ### **Stage 1: Foundation Setup**
-**GMP File**: `prompts/GMP-Cursor-Stage-1-Foundation-Setup-v1.0.md`  
-**Purpose**: Initialize PostgreSQL schema, storage layer scaffolding, environment config  
-**Dependencies**: None (prerequisite)  
-**Produces**: Database migrations, config files, baseline schema  
-**Duration**: ~1 hour  
+**GMP File**: `prompts/GMP-Cursor-Stage-1-Foundation-Setup-v1.0.md`
+**Purpose**: Initialize PostgreSQL schema, storage layer scaffolding, environment config
+**Dependencies**: None (prerequisite)
+**Produces**: Database migrations, config files, baseline schema
+**Duration**: ~1 hour
 **Prerequisites Check**:
 - [ ] PostgreSQL connection verified
 - [ ] `memory/substratemodels.py` accessible
@@ -64,11 +64,11 @@ This master GMP and all 8 stage GMPs inherit from `GMP-Action-Prompt-Canonical-v
 ---
 
 ### **Stage 2: Core Persistence Methods**
-**GMP File**: `prompts/GMP-Cursor-Stage-2-Core-Methods-v1.0.md`  
-**Purpose**: Implement 7 required checkpoint methods (create, restore, list, delete, serialize, deserialize, validate)  
-**Dependencies**: Stage 1 (database schema exists)  
-**Produces**: `memory/agent_persistence.py` with full method implementations  
-**Duration**: ~4 hours  
+**GMP File**: `prompts/GMP-Cursor-Stage-2-Core-Methods-v1.0.md`
+**Purpose**: Implement 7 required checkpoint methods (create, restore, list, delete, serialize, deserialize, validate)
+**Dependencies**: Stage 1 (database schema exists)
+**Produces**: `memory/agent_persistence.py` with full method implementations
+**Duration**: ~4 hours
 **Prerequisites Check**:
 - [ ] Stage 1 report reviewed
 - [ ] Database migrations applied
@@ -77,11 +77,11 @@ This master GMP and all 8 stage GMPs inherit from `GMP-Action-Prompt-Canonical-v
 ---
 
 ### **Stage 3: Integration Wiring**
-**GMP File**: `prompts/GMP-Cursor-Stage-3-Integration-Wiring-v1.0.md`  
-**Purpose**: Connect persistence to 6 integration points (executor, server, approval, ingestion)  
-**Dependencies**: Stage 2 (core methods exist and tested)  
-**Produces**: Wired integration points with hook methods  
-**Duration**: ~3 hours  
+**GMP File**: `prompts/GMP-Cursor-Stage-3-Integration-Wiring-v1.0.md`
+**Purpose**: Connect persistence to 6 integration points (executor, server, approval, ingestion)
+**Dependencies**: Stage 2 (core methods exist and tested)
+**Produces**: Wired integration points with hook methods
+**Duration**: ~3 hours
 **Prerequisites Check**:
 - [ ] Stage 2 report reviewed
 - [ ] Core methods passing unit tests
@@ -90,11 +90,11 @@ This master GMP and all 8 stage GMPs inherit from `GMP-Action-Prompt-Canonical-v
 ---
 
 ### **Stage 4: Retention & Lifecycle**
-**GMP File**: `prompts/GMP-Cursor-Stage-4-Retention-Lifecycle-v1.0.md`  
-**Purpose**: Add retention policies, cleanup automation, lifecycle event hooks  
-**Dependencies**: Stage 3 (integration wired)  
-**Produces**: Retention policy engine, lifecycle coordinator  
-**Duration**: ~2 hours  
+**GMP File**: `prompts/GMP-Cursor-Stage-4-Retention-Lifecycle-v1.0.md`
+**Purpose**: Add retention policies, cleanup automation, lifecycle event hooks
+**Dependencies**: Stage 3 (integration wired)
+**Produces**: Retention policy engine, lifecycle coordinator
+**Duration**: ~2 hours
 **Prerequisites Check**:
 - [ ] Stage 3 report reviewed
 - [ ] Integration tests passing
@@ -103,11 +103,11 @@ This master GMP and all 8 stage GMPs inherit from `GMP-Action-Prompt-Canonical-v
 ---
 
 ### **Stage 5: Integrity & Security**
-**GMP File**: `prompts/GMP-Cursor-Stage-5-Integrity-Security-v1.0.md`  
-**Purpose**: Add checksums, schema versioning, encrypted storage, compliance logging  
-**Dependencies**: Stage 4 (lifecycle complete)  
-**Produces**: Cryptographic validation layer, schema versioning system  
-**Duration**: ~3 hours  
+**GMP File**: `prompts/GMP-Cursor-Stage-5-Integrity-Security-v1.0.md`
+**Purpose**: Add checksums, schema versioning, encrypted storage, compliance logging
+**Dependencies**: Stage 4 (lifecycle complete)
+**Produces**: Cryptographic validation layer, schema versioning system
+**Duration**: ~3 hours
 **Prerequisites Check**:
 - [ ] Stage 4 report reviewed
 - [ ] Retention tests passing
@@ -116,11 +116,11 @@ This master GMP and all 8 stage GMPs inherit from `GMP-Action-Prompt-Canonical-v
 ---
 
 ### **Stage 6: Observability & Metrics**
-**GMP File**: `prompts/GMP-Cursor-Stage-6-Observability-Metrics-v1.0.md`  
-**Purpose**: Add Prometheus metrics, structured logging, audit trails  
-**Dependencies**: Stage 5 (security layer complete)  
-**Produces**: Metrics definitions, audit log schema, observability integration  
-**Duration**: ~2 hours  
+**GMP File**: `prompts/GMP-Cursor-Stage-6-Observability-Metrics-v1.0.md`
+**Purpose**: Add Prometheus metrics, structured logging, audit trails
+**Dependencies**: Stage 5 (security layer complete)
+**Produces**: Metrics definitions, audit log schema, observability integration
+**Duration**: ~2 hours
 **Prerequisites Check**:
 - [ ] Stage 5 report reviewed
 - [ ] Security tests passing
@@ -129,11 +129,11 @@ This master GMP and all 8 stage GMPs inherit from `GMP-Action-Prompt-Canonical-v
 ---
 
 ### **Stage 7: Testing & Validation**
-**GMP File**: `prompts/GMP-Cursor-Stage-7-Testing-Validation-v1.0.md`  
-**Purpose**: Comprehensive unit, integration, and chaos tests  
-**Dependencies**: Stage 6 (full implementation complete)  
-**Produces**: Test suite covering all methods, integration points, failure modes  
-**Duration**: ~4 hours  
+**GMP File**: `prompts/GMP-Cursor-Stage-7-Testing-Validation-v1.0.md`
+**Purpose**: Comprehensive unit, integration, and chaos tests
+**Dependencies**: Stage 6 (full implementation complete)
+**Produces**: Test suite covering all methods, integration points, failure modes
+**Duration**: ~4 hours
 **Prerequisites Check**:
 - [ ] Stage 6 report reviewed
 - [ ] All observability tests passing
@@ -142,11 +142,11 @@ This master GMP and all 8 stage GMPs inherit from `GMP-Action-Prompt-Canonical-v
 ---
 
 ### **Stage 8: Deployment & Runbook**
-**GMP File**: `prompts/GMP-Cursor-Stage-8-Deployment-Runbook-v1.0.md`  
-**Purpose**: Production migration guide, ops runbook, final validation  
-**Dependencies**: Stage 7 (full test suite passing)  
-**Produces**: Migration guide, ops playbook, final checklist  
-**Duration**: ~2 hours  
+**GMP File**: `prompts/GMP-Cursor-Stage-8-Deployment-Runbook-v1.0.md`
+**Purpose**: Production migration guide, ops runbook, final validation
+**Dependencies**: Stage 7 (full test suite passing)
+**Produces**: Migration guide, ops playbook, final checklist
+**Duration**: ~2 hours
 **Prerequisites Check**:
 - [ ] Stage 7 report reviewed
 - [ ] All tests passing
@@ -237,13 +237,13 @@ Each stage GMP will:
 
 ## SUCCESS CRITERIA (MASTER LEVEL)
 
-✅ All 8 stages complete with FINAL DECLARATION: "All phases 0–6 complete. No assumptions. No drift."  
-✅ 7 required methods implemented and tested  
-✅ 6 integration points wired and validated  
-✅ Production-grade code ready to merge  
-✅ Ops runbook and migration guide delivered  
-✅ All tests passing (unit, integration, chaos)  
-✅ Zero manual edits outside GMP TODO plans  
+✅ All 8 stages complete with FINAL DECLARATION: "All phases 0–6 complete. No assumptions. No drift."
+✅ 7 required methods implemented and tested
+✅ 6 integration points wired and validated
+✅ Production-grade code ready to merge
+✅ Ops runbook and migration guide delivered
+✅ All tests passing (unit, integration, chaos)
+✅ Zero manual edits outside GMP TODO plans
 
 ---
 
@@ -264,6 +264,6 @@ Each stage GMP will:
 
 ## NEXT STEP
 
-→ **Open `prompts/GMP-Cursor-Stage-1-Foundation-Setup-v1.0.md`**  
-→ **Copy into Cursor chat**  
+→ **Open `prompts/GMP-Cursor-Stage-1-Foundation-Setup-v1.0.md`**
+→ **Copy into Cursor chat**
 → **Follow Stage 1 instructions to Phase 0 STOP**

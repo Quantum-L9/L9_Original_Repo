@@ -1,9 +1,9 @@
 # KERNEL ALIGNMENT ACTION PLAN
 ## Immediate Next Steps to Bridge GODMODE ↔ Your Kernels
 
-**Status:** READY TO EXECUTE  
-**Target:** 60% → 90% maturity in 2 weeks  
-**Owner:** Igor  
+**Status:** READY TO EXECUTE
+**Target:** 60% → 90% maturity in 2 weeks
+**Owner:** Igor
 **Last Updated:** 2026-01-14
 
 ---
@@ -38,7 +38,7 @@ class KernelState:
     session_id: str = ""
     timestamp: datetime = field(default_factory=datetime.now)
     activation_context: Dict[str, Any] = field(default_factory=dict)
-    
+
     # Execution tracking (GODMODE Part 7.1)
     decisions: List[Dict[str, Any]] = field(default_factory=list)
     escalations: List[Dict[str, Any]] = field(default_factory=list)
@@ -56,55 +56,55 @@ class KernelLoader:
         "private/kernels/00_system/09_developer_kernel.yaml",
         "private/kernels/00_system/10_packet_protocol_kernel.yaml",
     ]
-    
+
     @staticmethod
     def load_kernels(agent) -> KernelState:
         """
         Load all kernels in strict order (GODMODE Part 1.1).
-        
+
         If this function isn't used → kernels are not real.
         If any file fails to load → hard crash (by design).
         """
         agent.kernels = {}
         kernel_state = KernelState(session_id=agent.session_id if hasattr(agent, 'session_id') else str(datetime.now().timestamp()))
-        
+
         try:
             for i, path in enumerate(KernelLoader.KERNEL_ORDER, 1):
                 kernel_path = Path(path)
                 if not kernel_path.exists():
                     raise FileNotFoundError(f"Kernel {i} not found: {path}")
-                
+
                 # Load YAML
                 data = yaml.safe_load(kernel_path.read_text())
                 if not data:
                     raise ValueError(f"Kernel {i} is empty: {path}")
-                
+
                 # Track activation
                 kernel_name = data.get('file', path)
                 agent.kernels[kernel_name] = data
                 kernel_state.active_kernels[kernel_name] = True
-                
+
                 print(f"✓ Kernel {i}/{len(KernelLoader.KERNEL_ORDER)} loaded: {kernel_name}")
-        
+
         except Exception as e:
             print(f"✗ CRITICAL: Kernel load failed at step {i}")
             print(f"  Error: {str(e)}")
             raise RuntimeError(f"Kernel initialization failed. System halted. {str(e)}") from e
-        
+
         # Verify all kernels loaded
         if len(agent.kernels) != len(KernelLoader.KERNEL_ORDER):
             raise RuntimeError(f"Kernel count mismatch. Expected {len(KernelLoader.KERNEL_ORDER)}, got {len(agent.kernels)}")
-        
+
         # Mark as active
         kernel_state.initialized = True
         agent.kernel_state = kernel_state
-        
+
         print(f"\n✓ All {len(agent.kernels)} kernels loaded successfully.")
         print(f"✓ Kernel state: ACTIVE")
         print(f"✓ Session ID: {kernel_state.session_id}")
-        
+
         return kernel_state
-    
+
     @staticmethod
     def verify_load(agent) -> bool:
         """
@@ -148,10 +148,10 @@ def guarded_execute(
 ) -> Dict[str, Any]:
     """
     GODMODE Part 2: Guarded Execute Contract.
-    
+
     EVERY tool call MUST go through this gate.
     This is THE enforcement mechanism for the entire kernel system.
-    
+
     Contract:
       1. Check kernel activation
       2. Check owner (Igor-only)
@@ -161,7 +161,7 @@ def guarded_execute(
       6. Execute
       7. Log result or escalate
     """
-    
+
     # Step 1: Kernel activation check
     if not hasattr(agent, 'kernel_state') or not agent.kernel_state.initialized:
         raise RuntimeError(
@@ -169,9 +169,9 @@ def guarded_execute(
             "Escalation: MASTER_KERNEL\n"
             "Reason: kernel_state.initialized == False"
         )
-    
+
     kernel_state = agent.kernel_state
-    
+
     # Step 2: Owner verification (GODMODE Part 1.2)
     if kernel_state.owner != "igor":
         kernel_state.escalations.append({
@@ -187,11 +187,11 @@ def guarded_execute(
             f"Owner in state: {kernel_state.owner} (expected: igor)\n"
             f"Escalation: MASTER_KERNEL"
         )
-    
+
     # Step 3: Tool authorization (GODMODE Part 2.2)
     execution_kernel = agent.kernels.get("EXECUTION_KERNEL.yaml", {})
     tool_rules = execution_kernel.get("tool_authorization_matrix", {})
-    
+
     if tool_id not in tool_rules:
         kernel_state.escalations.append({
             "timestamp": datetime.now().isoformat(),
@@ -205,13 +205,13 @@ def guarded_execute(
             f"Not in authorization matrix.\n"
             f"Escalation: SAFETY_KERNEL"
         )
-    
+
     tool_class = tool_rules[tool_id].get("class", "RESTRICTED")
-    
+
     # Step 4: Pre-execute safety check (GODMODE Part 3)
     safety_kernel = agent.kernels.get("SAFETY_KERNEL.yaml", {})
     safety_check = _run_safety_scan(tool_id, params, safety_kernel)
-    
+
     if safety_check["blocked"]:
         kernel_state.escalations.append({
             "timestamp": datetime.now().isoformat(),
@@ -221,7 +221,7 @@ def guarded_execute(
             "violation": safety_check.get("reason", ""),
             "action": "BLOCK_OUTPUT"
         })
-        
+
         return {
             "status": "blocked",
             "severity": "high",
@@ -229,7 +229,7 @@ def guarded_execute(
             "safe_alternative": safety_check.get("rewrite", ""),
             "escalation": "safety_kernel"
         }
-    
+
     # Step 5: Authorization-level specific checks
     if tool_class == "LOW_TRUST":
         kernel_state.escalations.append({
@@ -239,7 +239,7 @@ def guarded_execute(
             "tool_id": tool_id,
             "action": "LOG_AND_NOTIFY_IGOR"
         })
-    
+
     # Step 6: Log intent (GODMODE Part 2.1)
     kernel_state.decisions.append({
         "timestamp": datetime.now().isoformat(),
@@ -248,11 +248,11 @@ def guarded_execute(
         "confidence": 0.95,
         "status": "pending"
     })
-    
+
     # Step 7: Execute
     try:
         result = agent.tools.execute(tool_id, params)
-        
+
         # Step 8: Log success
         kernel_state.tools_executed.append({
             "timestamp": datetime.now().isoformat(),
@@ -261,12 +261,12 @@ def guarded_execute(
             "status": "success",
             "result": result
         })
-        
+
         return {
             "status": "success",
             "result": result
         }
-    
+
     except Exception as e:
         # Log failure and escalate
         kernel_state.escalations.append({
@@ -277,7 +277,7 @@ def guarded_execute(
             "error": str(e),
             "action": "ESCALATE_TO_IGOR"
         })
-        
+
         raise RuntimeError(
             f"TOOL EXECUTION FAILED\n"
             f"Tool: {tool_id}\n"
@@ -293,7 +293,7 @@ def _run_safety_scan(
 ) -> Dict[str, Any]:
     """
     Pre-execution safety scan (GODMODE Part 3).
-    
+
     Returns:
       {
         "blocked": bool,
@@ -303,7 +303,7 @@ def _run_safety_scan(
     """
     forbidden_patterns = safety_kernel.get("forbidden_patterns", {})
     params_str = str(params).lower()
-    
+
     for category, patterns in forbidden_patterns.items():
         for pattern in patterns:
             if pattern.lower() in params_str:
@@ -312,7 +312,7 @@ def _run_safety_scan(
                     "reason": f"Forbidden pattern detected in {category}: '{pattern}'",
                     "rewrite": f"[DRY_RUN / SAFE_MODE] {str(params)[:100]}..."
                 }
-    
+
     return {"blocked": False}
 ```
 
@@ -348,10 +348,10 @@ description: >
 # System context that gets injected into L's cognition
 system_context_injection: |
   [SYSTEM INITIALIZATION]
-  
+
   You are L, the CTO agent for Igor.
   You are bound to Igor exclusively.
-  
+
   KERNELS ACTIVE:
   ✓ Master Kernel      (Authority: Igor-only)
   ✓ Identity Kernel    (Designation: L, Allegiance: Igor)
@@ -362,7 +362,7 @@ system_context_injection: |
   ✓ Safety Kernel      (Mode: Strict, Enforcement: Hard blocks)
   ✓ Developer Kernel   (Discipline: Spec-first, Schema-first, Test-bound)
   ✓ Packet Protocol    (Type: Structured, Lifecycle: managed)
-  
+
   RULES:
   1. Every decision is logged (kernel_state.decisions[])
   2. Every escalation is traced (kernel_state.escalations[])
@@ -371,11 +371,11 @@ system_context_injection: |
   5. You never execute outside kernel authorization
   6. You never hide reasoning or escalations
   7. You never override Igor's explicit instructions
-  
+
   Your mission: Turn Igor's constraints into functioning, weapon-grade systems.
   Your constraint: Operate only within kernel permission.
   Your duty: Maintain complete transparency and auditability.
-  
+
   [END SYSTEM INITIALIZATION]
 
 # Activation checklist (GODMODE Part 9.2)
@@ -394,17 +394,17 @@ tool_authorization_matrix:
     class: HIGH_TRUST
     requires_confirmation: false
     escalates_on: "no_results"
-  
+
   execute_python:
     class: MEDIUM_TRUST
     requires_confirmation: true
     escalates_on: "error or scope_overflow"
-  
+
   create_text_file:
     class: LOW_TRUST
     requires_confirmation: true
     escalates_on: "always"
-  
+
   generate_image:
     class: MEDIUM_TRUST
     requires_confirmation: true
@@ -419,7 +419,7 @@ escalation_routing:
       - kernel_state_corruption
     routes_to: MASTER_KERNEL
     action: HALT_AND_REPORT
-  
+
   HIGH:
     triggers:
       - unauthorized_tool_access
@@ -427,7 +427,7 @@ escalation_routing:
       - behavioral_conflict
     routes_to: [IDENTITY_KERNEL, SAFETY_KERNEL]
     action: PAUSE_AND_ESCALATE
-  
+
   MEDIUM:
     triggers:
       - confidence_below_70_percent
@@ -435,7 +435,7 @@ escalation_routing:
       - missing_critical_parameter
     routes_to: IGOR
     action: OFFER_OPTIONS
-  
+
   LOW:
     triggers:
       - informational_only
@@ -470,24 +470,24 @@ Add this section after the existing `enforcement` section:
 execution_gate_integration:
   function_name: guarded_execute
   location: runtime/execution_gate.py
-  
+
   pre_execution_flow:
     1: "guarded_execute() called with (tool_id, params)"
     2: "Check: is tool_id authorized?"
     3: "Call: _run_safety_scan(tool_id, params, safety_kernel)"
     4: "If violations: return {blocked: true, reason: X, rewrite: Y}"
     5: "Else: proceed to execution"
-  
+
   on_violation_detected:
     action: "Return blocked response (do NOT execute)"
     output: "{ status: 'blocked', reason: string, safe_alternative: string }"
     logging: "Log to kernel_state.escalations[]"
     escalation: "Escalate to SAFETY_KERNEL if severity=CRITICAL"
-  
+
   on_execution_success:
     logging: "Log to kernel_state.tools_executed[]"
     action: "Return result normally"
-  
+
   on_execution_failure:
     logging: "Log to kernel_state.escalations[] (severity=HIGH)"
     escalation: "Escalate to IGOR (decision required)"
@@ -535,22 +535,22 @@ def escalate_to_igor(
 ) -> str:
     """
     Format and route escalation to Igor.
-    
+
     Output:
       "⚠️  ESCALATION: [Category: MEDIUM]
-       
+
        Issue: [description]
        Context: [full context]
        Your confidence: [%]
-       
+
        Option A: [...]
        Option B: [...]
        Option C: [...]
-       
+
        Igor's decision needed: [what to do?]"
     """
     kernel_state = agent.kernel_state
-    
+
     kernel_state.escalations.append({
         "timestamp": datetime.now().isoformat(),
         "severity": "MEDIUM",
@@ -560,7 +560,7 @@ def escalate_to_igor(
         "options": options,
         "awaiting": "IGOR"
     })
-    
+
     message = f"""⚠️  ESCALATION: [Category: MEDIUM]
 
 Issue: {issue}
@@ -571,7 +571,7 @@ Options:
 """
     for i, opt in enumerate(options, 1):
         message += f"  {i}. {opt}\n"
-    
+
     message += "\nAwaiting Igor's decision..."
     return message
 ```
@@ -601,14 +601,14 @@ def tag_claim(
 ) -> str:
     """
     Tag a claim with confidence and epistemic status.
-    
+
     Example output:
       "Recent studies show X effectiveness[1] ([VERIFIED], 92% confidence)"
     """
     sources_str = ""
     if sources:
         sources_str = "[" + ", ".join([f"source:{i}" for i in range(1, len(sources)+1)]) + "] "
-    
+
     return f"{claim}{sources_str}({status.value}, {confidence*100:.0f}% confidence)"
 
 def confidence_to_level(confidence: float) -> str:
@@ -635,7 +635,7 @@ Update `runtime/kernel_loader.py` to add mode switching:
 def select_mode_based_on_confidence(confidence: float, master_kernel: Dict) -> str:
     """
     GODMODE Part 1.2: Switch modes based on confidence.
-    
+
     confidence >= 0.80 → executive (execute without asking)
     0.70 ≤ confidence < 0.80 → developer (explain thinking, await confirmation)
     confidence < 0.70 → ask (escalate to Igor)
@@ -676,7 +676,7 @@ from datetime import datetime
 class ResponseRenderer:
     """
     GODMODE Part 6: Enforce response template structure.
-    
+
     Every response follows:
       - Opening statement
       - Main content (A, B, C sections)
@@ -684,7 +684,7 @@ class ResponseRenderer:
       - Igor input needed?
       - Kernel status
     """
-    
+
     @staticmethod
     def render(
         opening: str,
@@ -695,16 +695,16 @@ class ResponseRenderer:
         kernel_state: Any = None
     ) -> str:
         """Render complete response with all sections"""
-        
+
         response = ""
-        
+
         # Section 1: Opening
         response += f"{opening}\n\n"
-        
+
         # Section 2: Main content
         for key, content in main_sections.items():
             response += f"### {key}\n{content}\n\n"
-        
+
         # Section 3: Confidence & Epistemology
         response += "## Confidence & Epistemology\n"
         response += f"- Overall confidence: {confidence_summary.get('overall', 0)*100:.0f}%\n"
@@ -713,11 +713,11 @@ class ResponseRenderer:
         if confidence_summary.get('assumptions'):
             response += f"- Assumptions: {', '.join(confidence_summary['assumptions'])}\n"
         response += "\n"
-        
+
         # Section 4: Igor input needed?
         if igor_input_needed:
             response += f"## Igor Input Needed\n{igor_input_prompt}\n\n"
-        
+
         # Section 5: Kernel status
         if kernel_state:
             response += "## Kernel Status\n"
@@ -728,7 +728,7 @@ class ResponseRenderer:
             if kernel_state.escalations:
                 response += f"  - Pending: {sum(1 for e in kernel_state.escalations if e.get('action') in ['HALT_EXECUTION', 'PAUSE_AND_ESCALATE'])}\n"
             response += "\n"
-        
+
         return response
 ```
 
@@ -745,41 +745,41 @@ from datetime import datetime
 def post_execution_introspection(agent: Any) -> Dict[str, Any]:
     """
     GODMODE Part 7.1: Self-audit after every request.
-    
+
     Runs after response generation, before returning to Igor.
     """
     kernel_state = agent.kernel_state
-    
+
     audit = {
         "timestamp": datetime.now().isoformat(),
         "session_id": kernel_state.session_id,
-        
+
         # Decision audit
         "decisions_made": len(kernel_state.decisions),
         "decisions": kernel_state.decisions[-5:],  # Last 5
-        
+
         # Confidence calibration
         "confidence_scores": [d.get("confidence") for d in kernel_state.decisions if d.get("confidence")],
         "avg_confidence": sum(d.get("confidence", 0) for d in kernel_state.decisions) / max(1, len(kernel_state.decisions)),
-        
+
         # Tool execution review
         "tools_executed": len(kernel_state.tools_executed),
         "tools_successful": sum(1 for t in kernel_state.tools_executed if t.get("status") == "success"),
         "tools_failed": sum(1 for t in kernel_state.tools_executed if t.get("status") == "failure"),
-        
+
         # Escalations
         "escalations": len(kernel_state.escalations),
         "critical_escalations": sum(1 for e in kernel_state.escalations if e.get("severity") == "CRITICAL"),
         "high_escalations": sum(1 for e in kernel_state.escalations if e.get("severity") == "HIGH"),
-        
+
         # Kernel state consistency
         "kernel_state_valid": kernel_state.initialized and kernel_state.owner == "igor",
         "all_kernels_loaded": len(kernel_state.active_kernels) == 9,
-        
+
         # Igor alignment
         "igor_corrections_applied": 0,  # Track in subsequent sessions
     }
-    
+
     return audit
 
 def export_session_memory(kernel_state: Any) -> Dict[str, Any]:

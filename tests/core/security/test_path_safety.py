@@ -1,8 +1,11 @@
 import pytest
 
-from core.security.path_safety import (PathSafetyError, safe_resolve_path,
-                                       safe_resolve_path_async,
-                                       validate_filename)
+from core.security.path_safety import (
+    PathSafetyError,
+    safe_resolve_path,
+    safe_resolve_path_async,
+    validate_filename,
+)
 
 
 @pytest.mark.parametrize(

@@ -48,30 +48,30 @@ capabilities:
   synthesize:
     description: Fast multi-perspective synthesis (~10 min)
     method: synthesize(topic, context)
-    variations: 5  # pragmatic, research, systems, agents, multimodal
-    
+    variations: 5 # pragmatic, research, systems, agents, multimodal
+
   discover:
     description: Deep 5-stage academic research (15-25 hours)
     method: discover(topic, domain, stages)
     stages:
-      - landscape      # 3-5 hours - map research landscape
-      - deep_dive      # 4-6 hours - vertical deep-dives
-      - comparative    # 3-5 hours - compare approaches
-      - gaps           # 3-4 hours - identify gaps
-      - hypotheses     # 2-3 hours - generate hypotheses
-      
+      - landscape # 3-5 hours - map research landscape
+      - deep_dive # 4-6 hours - vertical deep-dives
+      - comparative # 3-5 hours - compare approaches
+      - gaps # 3-4 hours - identify gaps
+      - hypotheses # 2-3 hours - generate hypotheses
+
   generate_spec:
     description: Generate Module-Spec-v2.4 YAML (~1 min)
     method: generate_spec(synthesis, topic, description)
     output_dir: codegen/specs/
-    
+
   research_to_code:
     description: End-to-end pipeline
     method: research_to_code(topic, mode, domain)
     modes:
-      - fast  # synthesis only
-      - deep  # full discovery
-      - full  # both
+      - fast # synthesis only
+      - deep # full discovery
+      - full # both
 
 # API Endpoints (when server is running)
 api_endpoints:
@@ -84,9 +84,9 @@ api_endpoints:
 # Environment Requirements
 environment:
   required:
-    - PERPLEXITY_API_KEY  # Required for all operations
+    - PERPLEXITY_API_KEY # Required for all operations
   optional:
-    - L9_EXECUTOR_API_KEY  # For authenticated API access
+    - L9_EXECUTOR_API_KEY # For authenticated API access
 
 # Prompt Variations (for multi-perspective synthesis)
 prompt_variations:
@@ -94,22 +94,22 @@ prompt_variations:
     name: Implementation-First (Pragmatic)
     focus: Working code first, theory second
     audience: ML engineers building systems today
-    
+
   v2_research:
     name: Theory-First (Research)
     focus: Mathematical foundations, properties, proofs
     audience: Researchers and AI scientists
-    
+
   v3_systems:
     name: Systems Integration (DevOps)
     focus: Deployment, monitoring, scaling, reliability
     audience: Platform engineers, MLOps teams
-    
+
   v4_agents:
     name: Agent-Specific (Autonomous Systems)
     focus: Integration with autonomous agents
     audience: AI agent developers
-    
+
   v5_multimodal:
     name: Multi-Modal Specifics (Cross-Modality)
     focus: Multi-modal fusion challenges
@@ -126,7 +126,6 @@ tags:
   - deep-research
   - spec-generation
   - code-generation
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

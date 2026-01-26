@@ -33,9 +33,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from collections.abc import Generator
 from contextlib import contextmanager
 from time import perf_counter
-from typing import Generator, Optional
 
 import structlog
 
@@ -131,7 +131,7 @@ class PatternMetrics:
     def __init__(self, subsystem: str):
         """Initialize metrics for a subsystem."""
         self.subsystem = subsystem
-        self._start_time: Optional[float] = None
+        self._start_time: float | None = None
 
     @contextmanager
     def track_pipeline(self) -> Generator[None, None, None]:

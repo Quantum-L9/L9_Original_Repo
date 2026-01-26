@@ -8,12 +8,14 @@
 ## Context and Problem Statement
 
 L9 requires secure management of sensitive credentials including:
+
 - Database connection strings (PostgreSQL, Neo4j, Redis)
 - API keys (OpenAI, Anthropic, Slack)
 - MCP authentication keys
 - JWT secrets
 
 Currently, secrets are stored in `.env` files and environment variables, which:
+
 - Risk accidental commits to version control
 - Don't support rotation without redeployment
 - Lack audit trail for secret access
@@ -68,39 +70,39 @@ l9/{KEY_NAME}
 
 ### Complete Secret Inventory (21 secrets as of 2026-01-25)
 
-| Category | Secret | Description |
-|----------|--------|-------------|
-| **Infrastructure** | `l9/DATABASE_URL` | PostgreSQL connection string |
-| | `l9/MEMORY_DSN` | Memory service DSN |
-| | `l9/NEO4J_PASSWORD` | Neo4j graph database |
-| | `l9/POSTGRES_PASSWORD` | PostgreSQL password |
-| **LLM APIs** | `l9/OPENAI_API_KEY` | OpenAI GPT-4 |
-| | `l9/ANTHROPIC_API_KEY` | Anthropic Claude |
-| | `l9/PERPLEXITY_API_KEY` | Perplexity research |
-| **Authentication** | `l9/MCP_API_KEY` | Main MCP key |
-| | `l9/MCP_API_KEY_C` | Cursor agent MCP |
-| | `l9/MCP_API_KEY_L` | L agent MCP |
-| | `l9/L9_EXECUTOR_API_KEY` | VPS executor auth |
-| **Slack** | `l9/SLACK_BOT_TOKEN` | Bot OAuth token |
-| | `l9/SLACK_SIGNING_SECRET` | Request signing |
-| | `l9/SLACK_CLIENT_SECRET` | OAuth client |
-| | `l9/SLACK_VERIFICATION_TOKEN` | Legacy verification |
-| **Communication** | `l9/TWILIO_AUTH_TOKEN` | Twilio API auth |
-| | `l9/TWILIO_ACCOUNT_SID` | Twilio account |
-| **Third-Party** | `l9/GOOGLE_CALENDAR_API_KEY` | Calendar integration |
-| | `l9/GMAIL_API_KEY` | Email integration |
-| **Observability** | `l9/GRAFANA_PASSWORD` | Dashboard admin |
-| **Signing** | `l9/GPG_KEY` | GPG signing key |
+| Category           | Secret                        | Description                  |
+| ------------------ | ----------------------------- | ---------------------------- |
+| **Infrastructure** | `l9/DATABASE_URL`             | PostgreSQL connection string |
+|                    | `l9/MEMORY_DSN`               | Memory service DSN           |
+|                    | `l9/NEO4J_PASSWORD`           | Neo4j graph database         |
+|                    | `l9/POSTGRES_PASSWORD`        | PostgreSQL password          |
+| **LLM APIs**       | `l9/OPENAI_API_KEY`           | OpenAI GPT-4                 |
+|                    | `l9/ANTHROPIC_API_KEY`        | Anthropic Claude             |
+|                    | `l9/PERPLEXITY_API_KEY`       | Perplexity research          |
+| **Authentication** | `l9/MCP_API_KEY`              | Main MCP key                 |
+|                    | `l9/MCP_API_KEY_C`            | Cursor agent MCP             |
+|                    | `l9/MCP_API_KEY_L`            | L agent MCP                  |
+|                    | `l9/L9_EXECUTOR_API_KEY`      | VPS executor auth            |
+| **Slack**          | `l9/SLACK_BOT_TOKEN`          | Bot OAuth token              |
+|                    | `l9/SLACK_SIGNING_SECRET`     | Request signing              |
+|                    | `l9/SLACK_CLIENT_SECRET`      | OAuth client                 |
+|                    | `l9/SLACK_VERIFICATION_TOKEN` | Legacy verification          |
+| **Communication**  | `l9/TWILIO_AUTH_TOKEN`        | Twilio API auth              |
+|                    | `l9/TWILIO_ACCOUNT_SID`       | Twilio account               |
+| **Third-Party**    | `l9/GOOGLE_CALENDAR_API_KEY`  | Calendar integration         |
+|                    | `l9/GMAIL_API_KEY`            | Email integration            |
+| **Observability**  | `l9/GRAFANA_PASSWORD`         | Dashboard admin              |
+| **Signing**        | `l9/GPG_KEY`                  | GPG signing key              |
 
 ### Configuration
 
-| Environment Variable | Default | Description |
-|---------------------|---------|-------------|
-| `L9_SECRETS_PROVIDER` | `env` | Provider: `env` or `aws` |
-| `AWS_REGION` | `us-east-1` | AWS region |
-| `AWS_SECRETS_PREFIX` | `l9` | Secret name prefix |
-| `AWS_SECRETS_CACHE_TTL` | `3600` | Cache TTL in seconds |
-| `AWS_SECRETS_FALLBACK_TO_ENV` | `true` (non-prod) | Fallback to env vars |
+| Environment Variable          | Default           | Description              |
+| ----------------------------- | ----------------- | ------------------------ |
+| `L9_SECRETS_PROVIDER`         | `env`             | Provider: `env` or `aws` |
+| `AWS_REGION`                  | `us-east-1`       | AWS region               |
+| `AWS_SECRETS_PREFIX`          | `l9`              | Secret name prefix       |
+| `AWS_SECRETS_CACHE_TTL`       | `3600`            | Cache TTL in seconds     |
+| `AWS_SECRETS_FALLBACK_TO_ENV` | `true` (non-prod) | Fallback to env vars     |
 
 ### Caching Strategy
 
@@ -112,12 +114,12 @@ l9/{KEY_NAME}
 
 ### Modules Created
 
-| Module | Purpose |
-|--------|---------|
-| `core/secrets/__init__.py` | Factory: `get_secrets_client()` |
-| `core/secrets/env_secrets_client.py` | Environment variable provider |
-| `core/secrets/aws_secrets_client.py` | AWS Secrets Manager client |
-| `scripts/secrets/setup_secrets_manager.sh` | One-time setup script |
+| Module                                     | Purpose                         |
+| ------------------------------------------ | ------------------------------- |
+| `core/secrets/__init__.py`                 | Factory: `get_secrets_client()` |
+| `core/secrets/env_secrets_client.py`       | Environment variable provider   |
+| `core/secrets/aws_secrets_client.py`       | AWS Secrets Manager client      |
+| `scripts/secrets/setup_secrets_manager.sh` | One-time setup script           |
 
 ### Usage
 
@@ -164,9 +166,7 @@ export L9_SECRETS_PROVIDER=aws
   "Statement": [
     {
       "Effect": "Allow",
-      "Action": [
-        "secretsmanager:GetSecretValue"
-      ],
+      "Action": ["secretsmanager:GetSecretValue"],
       "Resource": "arn:aws:s3:::l9/*"
     }
   ]
@@ -174,6 +174,7 @@ export L9_SECRETS_PROVIDER=aws
 ```
 
 For setup script (additional):
+
 ```json
 {
   "Action": [
@@ -187,6 +188,7 @@ For setup script (additional):
 ## Rollback Strategy
 
 If issues arise in production:
+
 1. Set `L9_SECRETS_PROVIDER=env` (or unset to default)
 2. Redeploy services
 3. App reverts to env-var resolution automatically

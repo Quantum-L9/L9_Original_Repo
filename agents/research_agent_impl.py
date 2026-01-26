@@ -49,11 +49,12 @@ from uuid import uuid4
 import structlog
 
 from core.decorators import must_stay_async
+
 # Import production Perplexity client
-from services.research.tools.perplexity_client import \
-    PerplexityClient as ProductionPerplexityClient
-from services.research.tools.perplexity_client import (PerplexityModel,
-                                                       PerplexityRequest)
+from services.research.tools.perplexity_client import (
+    PerplexityClient as ProductionPerplexityClient,
+)
+from services.research.tools.perplexity_client import PerplexityModel, PerplexityRequest
 
 # ============================================================================
 # Configuration
@@ -545,7 +546,7 @@ class ResearchAgent:
 
         # Process responses
         processed: list[ResearchResponse] = []
-        for (variation, _), response in zip(prompts, responses):
+        for (variation, _), response in zip(prompts, responses, strict=False):
             if isinstance(response, Exception):
                 self.log.warning(
                     "variation_failed",
@@ -671,7 +672,7 @@ class ResearchAgent:
         domain: str,
     ) -> dict[str, Any]:
         """Stage 1: Landscape Mapping (3-5 hours)."""
-        prompt = f"""Conduct an exhaustive mapping of the {topic} research landscape 
+        prompt = f"""Conduct an exhaustive mapping of the {topic} research landscape
 from 2020-2025. Identify:
 
 1. All major research frameworks and architectures (minimum 20 approaches)
@@ -739,7 +740,7 @@ Analyze 30-50 sources to:
         prior: dict[str, Any],
     ) -> dict[str, Any]:
         """Stage 3: Comparative Analysis (3-5 hours)."""
-        prompt = f"""Create comprehensive comparative analysis of leading {topic} 
+        prompt = f"""Create comprehensive comparative analysis of leading {topic}
 approaches. For the top 5-8 systems, construct detailed comparison matrices:
 
 1. Architectural patterns
@@ -763,7 +764,7 @@ Return: comparison tables, decision matrix, detailed narrative analysis"""
         prior: dict[str, Any],
     ) -> dict[str, Any]:
         """Stage 4: Gap Identification (3-4 hours)."""
-        prompt = f"""Based on comprehensive analysis of {topic}, conduct meta-analysis 
+        prompt = f"""Based on comprehensive analysis of {topic}, conduct meta-analysis
 to identify research gaps:
 
 1. Technical gaps & unsolved problems
@@ -771,7 +772,7 @@ to identify research gaps:
 3. Research frontiers (2025-2026)
 4. Interdisciplinary opportunities
 
-Return: Gap analysis with evidence, heat map of well-studied vs neglected topics, 
+Return: Gap analysis with evidence, heat map of well-studied vs neglected topics,
 10-15 high-priority research questions"""
 
         response = await self.client.deep_research(prompt)
@@ -788,7 +789,7 @@ Return: Gap analysis with evidence, heat map of well-studied vs neglected topics
         prior: dict[str, Any],
     ) -> dict[str, Any]:
         """Stage 5: Hypothesis Generation (2-3 hours)."""
-        prompt = f"""Based on comprehensive literature synthesis, generate 8-12 
+        prompt = f"""Based on comprehensive literature synthesis, generate 8-12
 specific, testable hypotheses about {topic}.
 
 For each hypothesis:
@@ -1137,24 +1138,24 @@ def create_research_agent(
 # ============================================================================
 
 __all__ = [
-    # Main class
-    "ResearchAgent",
-    # Factory
-    "create_research_agent",
-    # Data models
-    "PromptVariation",
-    "ResearchResponse",
-    "SynthesisResult",
-    "DiscoveryResult",
-    "ResearchTask",
-    "SpecResult",
-    "CodeResult",
-    # Supporting classes
-    "PerplexityClient",
-    "ResponseProcessor",
-    "SynthesisEngine",
     # Constants
     "DEFAULT_PROMPT_VARIATIONS",
+    "CodeResult",
+    "DiscoveryResult",
+    # Supporting classes
+    "PerplexityClient",
+    # Data models
+    "PromptVariation",
+    # Main class
+    "ResearchAgent",
+    "ResearchResponse",
+    "ResearchTask",
+    "ResponseProcessor",
+    "SpecResult",
+    "SynthesisEngine",
+    "SynthesisResult",
+    # Factory
+    "create_research_agent",
 ]
 
 

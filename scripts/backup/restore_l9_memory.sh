@@ -73,20 +73,20 @@ log_step() {
 
 list_available_backups() {
     log_step "Available S3 Backups"
-    
+
     if ! command -v aws &> /dev/null; then
         log_error "AWS CLI not installed"
         return 1
     fi
-    
+
     echo ""
     echo "PostgreSQL backups:"
     aws s3 ls "s3://${S3_BUCKET}/postgres/" --region "$S3_REGION" 2>/dev/null | sort -r | head -10
-    
+
     echo ""
     echo "Neo4j backups:"
     aws s3 ls "s3://${S3_BUCKET}/neo4j/" --region "$S3_REGION" 2>/dev/null | sort -r | head -10
-    
+
     echo ""
     echo "Config backups:"
     aws s3 ls "s3://${S3_BUCKET}/config/" --region "$S3_REGION" 2>/dev/null | sort -r | head -10
@@ -104,11 +104,11 @@ get_latest_timestamp() {
 
 download_from_s3() {
     local target_timestamp="$1"
-    
+
     log_step "Downloading from S3 (timestamp: $target_timestamp)"
-    
+
     mkdir -p "$RESTORE_DIR"
-    
+
     # Download PostgreSQL backup
     local pg_file="postgres_${target_timestamp}.sql.gz"
     log_info "Downloading: $pg_file"
@@ -117,7 +117,7 @@ download_from_s3() {
         log_error "Failed to download PostgreSQL backup"
         return 1
     }
-    
+
     # Download Neo4j backup (optional)
     local neo_file="neo4j_${target_timestamp}.tar.gz"
     log_info "Downloading: $neo_file (optional)"
@@ -125,7 +125,7 @@ download_from_s3() {
         --region "$S3_REGION" >> "$LOG_FILE" 2>&1 || {
         log_warn "Neo4j backup not found (may not exist)"
     }
-    
+
     # Download config backup (optional)
     local config_file="config_${target_timestamp}.tar.gz"
     log_info "Downloading: $config_file (optional)"
@@ -133,44 +133,44 @@ download_from_s3() {
         --region "$S3_REGION" >> "$LOG_FILE" 2>&1 || {
         log_warn "Config backup not found (may not exist)"
     }
-    
+
     log_info "Downloads complete"
 }
 
 restore_postgres() {
     local target_timestamp="$1"
-    
+
     log_step "Restoring PostgreSQL"
-    
+
     local backup_file="${RESTORE_DIR}/postgres_${target_timestamp}.sql.gz"
-    
+
     if [[ ! -f "$backup_file" ]]; then
         log_error "Backup file not found: $backup_file"
         return 1
     fi
-    
+
     # Verify container is running
     if ! docker ps --format '{{.Names}}' | grep -q "^${DB_CONTAINER}$"; then
         log_error "PostgreSQL container '$DB_CONTAINER' is not running"
         return 1
     fi
-    
+
     # Verify backup integrity
     if ! gzip -t "$backup_file" 2>/dev/null; then
         log_error "Backup file is corrupt: $backup_file"
         return 1
     fi
-    
+
     log_warn "⚠️  This will OVERWRITE the current database!"
     log_info "Restoring from: $backup_file"
-    
+
     # Restore
     gunzip -c "$backup_file" | docker exec -i "$DB_CONTAINER" psql -U "$DB_USER" -d postgres >> "$LOG_FILE" 2>&1
-    
+
     # Verify restore
     local packet_count=$(docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT COUNT(*) FROM packet_store" 2>/dev/null | tr -d ' ')
     local fact_count=$(docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT COUNT(*) FROM knowledge_facts" 2>/dev/null | tr -d ' ')
-    
+
     log_info "PostgreSQL restored"
     log_info "  Packets: $packet_count"
     log_info "  Facts: $fact_count"
@@ -178,57 +178,57 @@ restore_postgres() {
 
 restore_neo4j() {
     local target_timestamp="$1"
-    
+
     log_step "Restoring Neo4j"
-    
+
     local backup_file="${RESTORE_DIR}/neo4j_${target_timestamp}.tar.gz"
-    
+
     if [[ ! -f "$backup_file" ]]; then
         log_warn "Neo4j backup not found - skipping"
         return 0
     fi
-    
+
     # Stop Neo4j
     log_info "Stopping Neo4j..."
     docker stop "$NEO4J_CONTAINER" >> "$LOG_FILE" 2>&1 || true
     sleep 2
-    
+
     # Clear existing data
     log_warn "⚠️  Removing existing Neo4j data..."
     rm -rf "${NEO4J_DATA_DIR:?}/"* 2>/dev/null || true
-    
+
     # Extract backup
     log_info "Extracting: $backup_file"
     tar -xzf "$backup_file" -C "$(dirname "$NEO4J_DATA_DIR")" >> "$LOG_FILE" 2>&1
-    
+
     # Start Neo4j
     log_info "Starting Neo4j..."
     docker start "$NEO4J_CONTAINER" >> "$LOG_FILE" 2>&1 || true
-    
+
     log_info "Neo4j restored"
 }
 
 restore_configs() {
     local target_timestamp="$1"
-    
+
     log_step "Restoring Configs"
-    
+
     local backup_file="${RESTORE_DIR}/config_${target_timestamp}.tar.gz"
-    
+
     if [[ ! -f "$backup_file" ]]; then
         log_warn "Config backup not found - skipping"
         return 0
     fi
-    
+
     log_warn "⚠️  This will OVERWRITE .env and kernel_hashes.json!"
     log_info "Extracting: $backup_file"
-    
+
     # Extract to root (paths are absolute in tar)
     tar -xzf "$backup_file" -C / >> "$LOG_FILE" 2>&1 || {
         # Try relative extraction
         tar -xzf "$backup_file" -C "$L9_DIR" >> "$LOG_FILE" 2>&1 || true
     }
-    
+
     log_info "Configs restored"
 }
 
@@ -288,7 +288,7 @@ main() {
     local skip_neo4j=false
     local skip_config=false
     local skip_confirm=false
-    
+
     while [[ $# -gt 0 ]]; do
         case $1 in
             --list) list_only=true; shift ;;
@@ -303,16 +303,16 @@ main() {
             *) target_timestamp="$1"; shift ;;
         esac
     done
-    
+
     echo ""
     log_step "L9 Memory Restore"
-    
+
     # List mode
     if [[ "$list_only" == "true" ]] || [[ -z "$target_timestamp" ]]; then
         list_available_backups
         exit 0
     fi
-    
+
     # Get latest timestamp if requested
     if [[ "$target_timestamp" == "latest" ]]; then
         target_timestamp=$(get_latest_timestamp "postgres")
@@ -322,7 +322,7 @@ main() {
         fi
         log_info "Latest backup: $target_timestamp"
     fi
-    
+
     # Confirm
     if [[ "$skip_confirm" != "true" ]]; then
         echo ""
@@ -336,13 +336,13 @@ main() {
             exit 0
         fi
     fi
-    
+
     # Create restore directory
     mkdir -p "$RESTORE_DIR"
-    
+
     # Download backups
     download_from_s3 "$target_timestamp"
-    
+
     # Restore based on options
     if [[ "$postgres_only" == "true" ]]; then
         restore_postgres "$target_timestamp"
@@ -353,16 +353,16 @@ main() {
     else
         # Full restore
         restore_postgres "$target_timestamp"
-        
+
         if [[ "$skip_neo4j" != "true" ]]; then
             restore_neo4j "$target_timestamp"
         fi
-        
+
         if [[ "$skip_config" != "true" ]]; then
             restore_configs "$target_timestamp"
         fi
     fi
-    
+
     # Summary
     log_step "Restore Complete"
     log_info "✅ L9 memory restored from: $target_timestamp"

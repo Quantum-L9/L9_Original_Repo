@@ -39,7 +39,6 @@ __dora_meta__ = {
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Optional
 
 # Feature flag for multi-account mode
 L9_EMAIL_MULTI_ACCOUNT = os.getenv("L9_EMAIL_MULTI_ACCOUNT", "true").lower() == "true"
@@ -79,7 +78,7 @@ class AccountConfig:
 
 
 # Multi-account registry
-ACCOUNTS: Dict[str, AccountConfig] = {
+ACCOUNTS: dict[str, AccountConfig] = {
     "igor": AccountConfig(
         name="igor",
         email="igor@quantumaipartners.com",
@@ -145,7 +144,7 @@ def get_account_config(account: str) -> AccountConfig:
     return ACCOUNTS[account]
 
 
-def ensure_dirs(account: Optional[str] = None):
+def ensure_dirs(account: str | None = None):
     """
     Ensure all required directories exist.
     Creates directories if they don't exist.
@@ -167,16 +166,15 @@ def ensure_dirs(account: Optional[str] = None):
             "client_secret_file": str(config.client_secret_file),
             "attachments_dir": str(config.attachments_dir),
         }
-    else:
-        # Legacy mode
-        GMAIL_DATA_ROOT.mkdir(parents=True, exist_ok=True)
-        ATTACHMENTS_DIR.mkdir(parents=True, exist_ok=True)
-        return {
-            "gmail_data_root": str(GMAIL_DATA_ROOT),
-            "tokens_file": str(TOKENS_FILE),
-            "client_secret_file": str(CLIENT_SECRET_FILE),
-            "attachments_dir": str(ATTACHMENTS_DIR),
-        }
+    # Legacy mode
+    GMAIL_DATA_ROOT.mkdir(parents=True, exist_ok=True)
+    ATTACHMENTS_DIR.mkdir(parents=True, exist_ok=True)
+    return {
+        "gmail_data_root": str(GMAIL_DATA_ROOT),
+        "tokens_file": str(TOKENS_FILE),
+        "client_secret_file": str(CLIENT_SECRET_FILE),
+        "attachments_dir": str(ATTACHMENTS_DIR),
+    }
 
 
 # ============================================================================

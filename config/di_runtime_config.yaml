@@ -75,7 +75,6 @@ feature_flags:
 
   # Backoff multiplier in seconds (2^attempt * backoff_seconds)
   connection_backoff_seconds: 2
-
 # ============================================================================
 # Environment-Specific Overrides
 # ============================================================================

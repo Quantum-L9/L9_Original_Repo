@@ -176,10 +176,7 @@ def should_scan_file(file_path: Path) -> bool:
         return False
 
     # Check anti-pattern documentation files (allowed to document what NOT to do)
-    if file_path.name in ANTI_PATTERN_FILES:
-        return False
-
-    return True
+    return file_path.name not in ANTI_PATTERN_FILES
 
 
 def scan_file(file_path: Path) -> list[Violation]:
@@ -279,34 +276,31 @@ def main() -> int:
         logger.info("✅ CI GATE PASSED: No deprecated service references found")
         logger.info("=" * 60 + "\n")
         return 0
-    else:
-        logger.info("\n" + "=" * 60)
-        logger.info(f"❌ CI GATE FAILED: {len(violations)} violation(s) found")
-        logger.info("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info(f"❌ CI GATE FAILED: {len(violations)} violation(s) found")
+    logger.info("=" * 60)
 
-        # Group by service
-        by_service: dict[str, list[Violation]] = {}
-        for v in violations:
-            service = v.pattern.split(":")[0]
-            by_service.setdefault(service, []).append(v)
+    # Group by service
+    by_service: dict[str, list[Violation]] = {}
+    for v in violations:
+        service = v.pattern.split(":")[0]
+        by_service.setdefault(service, []).append(v)
 
-        for service, service_violations in sorted(by_service.items()):
-            logger.info(
-                f"\n🚫 {service.upper()} references ({len(service_violations)}):"
-            )
-            for v in service_violations[:10]:  # Limit output
-                rel_path = v.file.relative_to(PROJECT_ROOT)
-                logger.info(f"   {rel_path}:{v.line_num}")
-                logger.info(f"      → {v.line_content}")
-            if len(service_violations) > 10:
-                logger.info(f"   ... and {len(service_violations) - 10} more")
+    for service, service_violations in sorted(by_service.items()):
+        logger.info(f"\n🚫 {service.upper()} references ({len(service_violations)}):")
+        for v in service_violations[:10]:  # Limit output
+            rel_path = v.file.relative_to(PROJECT_ROOT)
+            logger.info(f"   {rel_path}:{v.line_num}")
+            logger.info(f"      → {v.line_content}")
+        if len(service_violations) > 10:
+            logger.info(f"   ... and {len(service_violations) - 10} more")
 
-        logger.info("\n" + "-" * 60)
-        logger.info("💡 To fix: Remove all references to deprecated services.")
-        logger.info("   These services have been replaced in L9 architecture.")
-        logger.info("-" * 60 + "\n")
+    logger.info("\n" + "-" * 60)
+    logger.info("💡 To fix: Remove all references to deprecated services.")
+    logger.info("   These services have been replaced in L9 architecture.")
+    logger.info("-" * 60 + "\n")
 
-        return 1
+    return 1
 
 
 if __name__ == "__main__":

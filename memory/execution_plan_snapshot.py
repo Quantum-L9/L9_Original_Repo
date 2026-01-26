@@ -48,12 +48,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, List, Dict, Optional
+from typing import Any
 from uuid import uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -112,15 +113,15 @@ class ExecutionStepSnapshot:
     step_name: str
     step_type: str
     status: StepStatus
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    duration_seconds: Optional[float] = None
-    inputs: Dict[str, Any] = field(default_factory=dict)
-    outputs: Dict[str, Any] = field(default_factory=dict)
-    error: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    duration_seconds: float | None = None
+    inputs: dict[str, Any] = field(default_factory=dict)
+    outputs: dict[str, Any] = field(default_factory=dict)
+    error: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export as dict."""
         return {
             "step_id": self.step_id,
@@ -164,15 +165,15 @@ class ExecutionPlanSnapshot:
     checkpoint_id: str
     status: PlanStatus
     created_at: datetime
-    steps: List[ExecutionStepSnapshot] = field(default_factory=list)
+    steps: list[ExecutionStepSnapshot] = field(default_factory=list)
     current_step_index: int = 0
     total_steps: int = 0
     completed_steps: int = 0
     failed_steps: int = 0
-    execution_context: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    execution_context: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export as dict."""
         return {
             "snapshot_id": self.snapshot_id,
@@ -195,13 +196,13 @@ class ExecutionPlanSnapshot:
             return 0.0
         return (self.completed_steps / self.total_steps) * 100.0
 
-    def get_current_step(self) -> Optional[ExecutionStepSnapshot]:
+    def get_current_step(self) -> ExecutionStepSnapshot | None:
         """Get currently executing step."""
         if 0 <= self.current_step_index < len(self.steps):
             return self.steps[self.current_step_index]
         return None
 
-    def get_failed_steps(self) -> List[ExecutionStepSnapshot]:
+    def get_failed_steps(self) -> list[ExecutionStepSnapshot]:
         """Get all failed steps."""
         return [step for step in self.steps if step.status == StepStatus.FAILED]
 
@@ -221,7 +222,7 @@ class ExecutionPlanSnapshotManager:
 
     def __init__(self):
         """Initialize snapshot manager."""
-        self._snapshots: Dict[str, ExecutionPlanSnapshot] = {}
+        self._snapshots: dict[str, ExecutionPlanSnapshot] = {}
 
         logger.info("ExecutionPlanSnapshotManager initialized")
 
@@ -230,10 +231,10 @@ class ExecutionPlanSnapshotManager:
         plan_id: str,
         checkpoint_id: str,
         status: PlanStatus,
-        steps: List[Dict[str, Any]],
+        steps: list[dict[str, Any]],
         current_step_index: int = 0,
-        execution_context: Optional[Dict[str, Any]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        execution_context: dict[str, Any] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> ExecutionPlanSnapshot:
         """
         Create execution plan snapshot.
@@ -309,7 +310,7 @@ class ExecutionPlanSnapshotManager:
 
         return snapshot
 
-    async def get_snapshot(self, snapshot_id: str) -> Optional[ExecutionPlanSnapshot]:
+    async def get_snapshot(self, snapshot_id: str) -> ExecutionPlanSnapshot | None:
         """
         Get snapshot by ID.
 
@@ -324,7 +325,7 @@ class ExecutionPlanSnapshotManager:
     async def get_snapshots_for_plan(
         self,
         plan_id: str,
-    ) -> List[ExecutionPlanSnapshot]:
+    ) -> list[ExecutionPlanSnapshot]:
         """
         Get all snapshots for a plan.
 
@@ -343,7 +344,7 @@ class ExecutionPlanSnapshotManager:
     async def get_latest_snapshot_for_plan(
         self,
         plan_id: str,
-    ) -> Optional[ExecutionPlanSnapshot]:
+    ) -> ExecutionPlanSnapshot | None:
         """
         Get latest snapshot for a plan.
 
@@ -363,7 +364,7 @@ class ExecutionPlanSnapshotManager:
     async def recover_plan_from_snapshot(
         self,
         snapshot_id: str,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Recover execution plan from snapshot.
 
@@ -412,7 +413,7 @@ class ExecutionPlanSnapshotManager:
     async def analyze_plan_evolution(
         self,
         plan_id: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Analyze plan evolution over time.
 
@@ -499,7 +500,7 @@ class ExecutionPlanSnapshotManager:
 # Singleton Instance
 # =============================================================================
 
-_global_snapshot_manager: Optional[ExecutionPlanSnapshotManager] = None
+_global_snapshot_manager: ExecutionPlanSnapshotManager | None = None
 
 
 def get_snapshot_manager() -> ExecutionPlanSnapshotManager:
@@ -523,11 +524,11 @@ def get_snapshot_manager() -> ExecutionPlanSnapshotManager:
 # =============================================================================
 
 __all__ = [
-    "PlanStatus",
-    "StepStatus",
-    "ExecutionStepSnapshot",
     "ExecutionPlanSnapshot",
     "ExecutionPlanSnapshotManager",
+    "ExecutionStepSnapshot",
+    "PlanStatus",
+    "StepStatus",
     "get_snapshot_manager",
 ]
 

@@ -42,14 +42,13 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
 
 from ir_engine.ir_generator import IRGenerator
-from ir_engine.ir_schema import (ActionNode, ActionType, IRGraph, IRStatus,
-                                 NodePriority)
+from ir_engine.ir_schema import ActionNode, ActionType, IRGraph, IRStatus, NodePriority
 
 logger = structlog.get_logger(__name__)
 
@@ -70,10 +69,10 @@ class ExecutionStep:
     retry_count: int = 0
     max_retries: int = 3
     status: str = "pending"  # pending, running, completed, failed, skipped
-    result: Optional[dict[str, Any]] = None
-    error: Optional[str] = None
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    result: dict[str, Any] | None = None
+    error: str | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -116,7 +115,7 @@ class ExecutionPlan:
             "created_at": self.created_at.isoformat(),
         }
 
-    def get_next_step(self) -> Optional[ExecutionStep]:
+    def get_next_step(self) -> ExecutionStep | None:
         """Get the next pending step."""
         for step in self.steps:
             if step.status == "pending":
@@ -270,7 +269,7 @@ class IRToPlanAdapter:
     def _topological_sort_actions(self, graph: IRGraph) -> list[ActionNode]:
         """Topologically sort actions by dependencies."""
         # Build in-degree map
-        in_degree: dict[UUID, int] = {aid: 0 for aid in graph.actions}
+        in_degree: dict[UUID, int] = dict.fromkeys(graph.actions, 0)
 
         for action in graph.actions.values():
             for dep_id in action.depends_on:
@@ -401,7 +400,7 @@ class IRToPlanAdapter:
             "plan_id": str(plan.plan_id),
             "source_graph_id": str(graph.graph_id),
             "total_steps": len(plan.steps),
-            "step_types": list(set(s.action_type for s in plan.steps)),
+            "step_types": list({s.action_type for s in plan.steps}),
             "estimated_duration_ms": sum(s.timeout_ms for s in plan.steps),
             "constraints_active": len(graph.get_active_constraints()),
             "created_at": plan.created_at.isoformat(),
@@ -418,7 +417,7 @@ class IRToPlanAdapter:
         action_type: str,
         description: str,
         target: str,
-        parameters: Optional[dict[str, Any]] = None,
+        parameters: dict[str, Any] | None = None,
     ) -> ExecutionStep:
         """
         Insert a new step into an existing plan.
@@ -470,7 +469,7 @@ class IRToPlanAdapter:
         """
         for idx, step in enumerate(plan.steps):
             if step.step_id == step_id:
-                removed = plan.steps.pop(idx)
+                plan.steps.pop(idx)
 
                 # Renumber subsequent steps
                 for s in plan.steps[idx:]:

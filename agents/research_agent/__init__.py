@@ -30,38 +30,49 @@ See Also:
 """
 
 # Facade functions (simple interface)
-from agents.research_agent.research_facade import (extract_facts,
-                                                   generate_superprompt,
-                                                   run_quick_research,
-                                                   run_research)
+from agents.research_agent.research_facade import (
+    extract_facts,
+    generate_superprompt,
+    run_quick_research,
+    run_research,
+)
+
 # Re-export from services.research for advanced use
-from services.research import (Evidence, ResearchGraphRuntime,
-                               ResearchGraphState, ResearchMemoryAdapter,
-                               ResearchStep, build_research_graph,
-                               create_initial_state, get_memory_adapter,
-                               get_runtime, init_runtime)
-from services.research import \
-    run_research as run_research_full  # State; Memory; Graph; Runtime
-from services.research import shutdown_runtime
+from services.research import (
+    Evidence,
+    ResearchGraphRuntime,
+    ResearchGraphState,
+    ResearchMemoryAdapter,
+    ResearchStep,
+    build_research_graph,
+    create_initial_state,
+    get_memory_adapter,
+    get_runtime,
+    init_runtime,
+    shutdown_runtime,
+)
+from services.research import (
+    run_research as run_research_full,  # State; Memory; Graph; Runtime
+)
 
 __all__ = [
-    # Facade (simple)
-    "run_research",
-    "run_quick_research",
-    "generate_superprompt",
-    "extract_facts",
+    "Evidence",
+    "ResearchGraphRuntime",
     # Advanced (from services.research)
     "ResearchGraphState",
-    "ResearchStep",
-    "Evidence",
-    "create_initial_state",
     "ResearchMemoryAdapter",
-    "get_memory_adapter",
+    "ResearchStep",
     "build_research_graph",
-    "run_research_full",
-    "ResearchGraphRuntime",
+    "create_initial_state",
+    "extract_facts",
+    "generate_superprompt",
+    "get_memory_adapter",
     "get_runtime",
     "init_runtime",
+    "run_quick_research",
+    # Facade (simple)
+    "run_research",
+    "run_research_full",
     "shutdown_runtime",
 ]
 

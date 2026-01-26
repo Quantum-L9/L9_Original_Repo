@@ -30,8 +30,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 from world_model.interfaces import Entity
 from world_model.registry import WorldModelRegistry
@@ -43,15 +44,15 @@ class QueryContext:
     """Context for query execution."""
 
     state: WorldModelState
-    registry: Optional[WorldModelRegistry] = None
-    bindings: Dict[str, Any] = None  # Variable bindings from joins
+    registry: WorldModelRegistry | None = None
+    bindings: dict[str, Any] = None  # Variable bindings from joins
 
 
 class QueryEngine:
     """Executes declarative queries on World Model state."""
 
     def __init__(
-        self, state: WorldModelState, registry: Optional[WorldModelRegistry] = None
+        self, state: WorldModelState, registry: WorldModelRegistry | None = None
     ):
         """Initialize query engine.
 
@@ -69,7 +70,7 @@ class QueryEngine:
 
     # ========== BASIC QUERIES ==========
 
-    def get_entity(self, entity_id: str) -> Optional[Entity]:
+    def get_entity(self, entity_id: str) -> Entity | None:
         """Retrieve entity by ID.
 
         Args:
@@ -80,7 +81,7 @@ class QueryEngine:
         """
         return self._state.get_entity(entity_id)
 
-    def get_all_entities(self) -> List[Entity]:
+    def get_all_entities(self) -> list[Entity]:
         """Get all entities in state.
 
         Returns:
@@ -88,7 +89,7 @@ class QueryEngine:
         """
         return list(self._state.get_all_entities())
 
-    def get_entities_by_type(self, entity_type: str) -> List[Entity]:
+    def get_entities_by_type(self, entity_type: str) -> list[Entity]:
         """Get all entities of specific type.
 
         Args:
@@ -101,7 +102,7 @@ class QueryEngine:
 
     # ========== FILTER QUERIES ==========
 
-    def filter_entities(self, predicate: Callable[[Entity], bool]) -> List[Entity]:
+    def filter_entities(self, predicate: Callable[[Entity], bool]) -> list[Entity]:
         """Filter entities by predicate.
 
         Args:
@@ -114,11 +115,11 @@ class QueryEngine:
 
     def filter_by_attribute(
         self,
-        entity_type: Optional[str] = None,
-        attribute: Optional[str] = None,
-        value: Optional[Any] = None,
+        entity_type: str | None = None,
+        attribute: str | None = None,
+        value: Any | None = None,
         comparator: str = "eq",
-    ) -> List[Entity]:
+    ) -> list[Entity]:
         """Filter entities by attribute value.
 
         Args:
@@ -166,7 +167,7 @@ class QueryEngine:
 
     # ========== PATH QUERIES ==========
 
-    def traverse_relation(self, entity_id: str, relation_type: str) -> List[Entity]:
+    def traverse_relation(self, entity_id: str, relation_type: str) -> list[Entity]:
         """Traverse entities through a relation type.
 
         Args:
@@ -193,7 +194,7 @@ class QueryEngine:
 
     def reverse_traverse_relation(
         self, entity_id: str, relation_type: str
-    ) -> List[Entity]:
+    ) -> list[Entity]:
         """Reverse traverse entities through a relation type.
 
         Args:
@@ -219,8 +220,8 @@ class QueryEngine:
         return sources
 
     def path_query(
-        self, start_entity_id: str, path: List[str], max_depth: int = 10
-    ) -> List[Entity]:
+        self, start_entity_id: str, path: list[str], max_depth: int = 10
+    ) -> list[Entity]:
         """Execute path query (multi-hop traversal).
 
         Args:
@@ -255,7 +256,7 @@ class QueryEngine:
 
     # ========== AGGREGATION QUERIES ==========
 
-    def count_entities(self, entity_type: Optional[str] = None) -> int:
+    def count_entities(self, entity_type: str | None = None) -> int:
         """Count entities (optionally by type).
 
         Args:
@@ -268,7 +269,7 @@ class QueryEngine:
             return len(self.get_entities_by_type(entity_type))
         return len(self.get_all_entities())
 
-    def count_relations(self, relation_type: Optional[str] = None) -> int:
+    def count_relations(self, relation_type: str | None = None) -> int:
         """Count relations (optionally by type).
 
         Args:
@@ -283,8 +284,8 @@ class QueryEngine:
         return len(relations)
 
     def group_by_attribute(
-        self, entity_type: Optional[str] = None, attribute: str = None
-    ) -> Dict[Any, List[Entity]]:
+        self, entity_type: str | None = None, attribute: str | None = None
+    ) -> dict[Any, list[Entity]]:
         """Group entities by attribute value.
 
         Args:
@@ -310,8 +311,8 @@ class QueryEngine:
         return groups
 
     def distinct_values(
-        self, entity_type: Optional[str] = None, attribute: str = None
-    ) -> Set[Any]:
+        self, entity_type: str | None = None, attribute: str | None = None
+    ) -> set[Any]:
         """Get distinct attribute values.
 
         Args:
@@ -339,7 +340,7 @@ class QueryEngine:
 
     def join_entities(
         self, entity_type_a: str, entity_type_b: str, relation_type: str
-    ) -> List[Tuple[Entity, Entity]]:
+    ) -> list[tuple[Entity, Entity]]:
         """Join entities by relation.
 
         Args:
@@ -374,7 +375,7 @@ class QueryEngine:
         entity_type_b: str,
         attr_b: str,
         relation_type: str,
-    ) -> Dict[Any, List[Any]]:
+    ) -> dict[Any, list[Any]]:
         """Correlate attributes across relation.
 
         Args:
@@ -403,7 +404,7 @@ class QueryEngine:
 
     # ========== GRAPH ANALYSIS ==========
 
-    def get_neighbors(self, entity_id: str) -> List[Entity]:
+    def get_neighbors(self, entity_id: str) -> list[Entity]:
         """Get all entities connected via any relation.
 
         Args:
@@ -426,7 +427,7 @@ class QueryEngine:
 
         return [self._state.get_entity(nid) for nid in neighbors]
 
-    def find_connected_component(self, entity_id: str) -> Set[str]:
+    def find_connected_component(self, entity_id: str) -> set[str]:
         """Find all entities in connected component.
 
         Args:
@@ -453,7 +454,7 @@ class QueryEngine:
 
         return visited
 
-    def get_relation_graph(self) -> Dict[str, List[str]]:
+    def get_relation_graph(self) -> dict[str, list[str]]:
         """Get adjacency graph representation.
 
         Returns:

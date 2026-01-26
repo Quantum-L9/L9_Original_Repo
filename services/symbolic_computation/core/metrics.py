@@ -37,12 +37,11 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
-from services.symbolic_computation.config import (SymbolicComputationConfig,
-                                                  get_config)
+from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 from services.symbolic_computation.core.models import MetricsSummary
 
 logger = structlog.get_logger(__name__)
@@ -70,8 +69,8 @@ class MetricsCollector:
 
     def __init__(
         self,
-        config: Optional[SymbolicComputationConfig] = None,
-        postgres_client: Optional[Any] = None,
+        config: SymbolicComputationConfig | None = None,
+        postgres_client: Any | None = None,
     ):
         """
         Initialize the metrics collector.
@@ -85,8 +84,8 @@ class MetricsCollector:
         self.logger = logger.bind(component="metrics_collector")
 
         # In-memory metrics buffer (for when Postgres is unavailable)
-        self._evaluation_buffer: List[Dict[str, Any]] = []
-        self._codegen_buffer: List[Dict[str, Any]] = []
+        self._evaluation_buffer: list[dict[str, Any]] = []
+        self._codegen_buffer: list[dict[str, Any]] = []
 
         # Aggregated stats
         self._total_evaluations = 0
@@ -94,8 +93,8 @@ class MetricsCollector:
         self._evaluation_time_sum = 0.0
         self._codegen_time_sum = 0.0
         self._cache_hits = 0
-        self._backend_usage: Dict[str, int] = {}
-        self._language_usage: Dict[str, int] = {}
+        self._backend_usage: dict[str, int] = {}
+        self._language_usage: dict[str, int] = {}
 
         self.logger.info(
             "metrics_collector_initialized",
@@ -252,12 +251,12 @@ class MetricsCollector:
             time_range_hours=last_hours,
         )
 
-    async def _persist_evaluation_metric(self, metric: Dict[str, Any]) -> None:
+    async def _persist_evaluation_metric(self, metric: dict[str, Any]) -> None:
         """Persist evaluation metric to PostgreSQL."""
         try:
             await self.postgres_client.execute(
                 """
-                INSERT INTO sympy_metrics 
+                INSERT INTO sympy_metrics
                 (expr_hash, backend, duration_ms, success, cache_hit, timestamp)
                 VALUES ($1, $2, $3, $4, $5, $6)
                 """,
@@ -274,12 +273,12 @@ class MetricsCollector:
                 error=str(e),
             )
 
-    async def _persist_codegen_metric(self, metric: Dict[str, Any]) -> None:
+    async def _persist_codegen_metric(self, metric: dict[str, Any]) -> None:
         """Persist code generation metric to PostgreSQL."""
         try:
             await self.postgres_client.execute(
                 """
-                INSERT INTO sympy_codegen_metrics 
+                INSERT INTO sympy_codegen_metrics
                 (expr_hash, language, duration_ms, success, timestamp)
                 VALUES ($1, $2, $3, $4, $5)
                 """,
@@ -303,10 +302,10 @@ class MetricsCollector:
             # Query evaluation metrics
             eval_result = await self.postgres_client.fetchrow(
                 """
-                SELECT 
+                SELECT
                     COUNT(*) as total,
                     AVG(duration_ms) as avg_time,
-                    SUM(CASE WHEN cache_hit THEN 1 ELSE 0 END)::float / 
+                    SUM(CASE WHEN cache_hit THEN 1 ELSE 0 END)::float /
                         NULLIF(COUNT(*), 0) * 100 as hit_rate
                 FROM sympy_metrics
                 WHERE timestamp > $1
@@ -317,7 +316,7 @@ class MetricsCollector:
             # Query codegen metrics
             codegen_result = await self.postgres_client.fetchrow(
                 """
-                SELECT 
+                SELECT
                     COUNT(*) as total,
                     AVG(duration_ms) as avg_time
                 FROM sympy_codegen_metrics

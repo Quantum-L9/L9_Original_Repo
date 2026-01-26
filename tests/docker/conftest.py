@@ -91,8 +91,7 @@ def resolve_service_url(service_name: str, port: int) -> str:
     context = get_execution_context()
     if context == "docker":
         return f"http://{service_name}:{port}"
-    else:
-        return f"http://127.0.0.1:{port}"
+    return f"http://127.0.0.1:{port}"
 
 
 # Pre-resolved URLs for common services (can be imported directly)

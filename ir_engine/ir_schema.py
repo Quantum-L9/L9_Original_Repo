@@ -45,7 +45,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -159,8 +159,8 @@ class IntentNode(IRNodeBase):
     parameters: dict[str, Any] = Field(default_factory=dict)
     priority: NodePriority = Field(default=NodePriority.MEDIUM)
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
-    source_text: Optional[str] = Field(default=None, description="Original user text")
-    parent_intent_id: Optional[UUID] = Field(default=None)
+    source_text: str | None = Field(default=None, description="Original user text")
+    parent_intent_id: UUID | None = Field(default=None)
     child_intent_ids: list[UUID] = Field(default_factory=list)
 
     def add_child(self, child_id: UUID) -> None:
@@ -181,7 +181,7 @@ class ConstraintNode(IRNodeBase):
     constraint_type: ConstraintType
     status: ConstraintStatus = Field(default=ConstraintStatus.ACTIVE)
     description: str
-    expression: Optional[str] = Field(
+    expression: str | None = Field(
         default=None, description="Formal constraint expression"
     )
     applies_to: list[UUID] = Field(
@@ -189,10 +189,10 @@ class ConstraintNode(IRNodeBase):
     )
     priority: NodePriority = Field(default=NodePriority.MEDIUM)
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
-    challenge_reason: Optional[str] = Field(default=None)
-    alternative_suggestion: Optional[str] = Field(default=None)
+    challenge_reason: str | None = Field(default=None)
+    alternative_suggestion: str | None = Field(default=None)
 
-    def challenge(self, reason: str, alternative: Optional[str] = None) -> None:
+    def challenge(self, reason: str, alternative: str | None = None) -> None:
         """Mark constraint as challenged."""
         self.status = ConstraintStatus.CHALLENGED
         self.challenge_reason = reason
@@ -224,14 +224,14 @@ class ActionNode(IRNodeBase):
     target: str = Field(..., description="Target of the action (file, API, etc.)")
     parameters: dict[str, Any] = Field(default_factory=dict)
     priority: NodePriority = Field(default=NodePriority.MEDIUM)
-    derived_from_intent: Optional[UUID] = Field(default=None)
+    derived_from_intent: UUID | None = Field(default=None)
     constrained_by: list[UUID] = Field(default_factory=list)
     depends_on: list[UUID] = Field(
         default_factory=list, description="Actions this depends on"
     )
-    estimated_duration_ms: Optional[int] = Field(default=None)
+    estimated_duration_ms: int | None = Field(default=None)
     risk_level: float = Field(default=0.0, ge=0.0, le=1.0)
-    rollback_action: Optional[str] = Field(default=None)
+    rollback_action: str | None = Field(default=None)
 
     def add_dependency(self, action_id: UUID) -> None:
         """Add a dependency on another action."""
@@ -255,9 +255,9 @@ class IRMetadata(BaseModel):
     """Metadata for an IR graph."""
 
     source: str = Field(default="user_input", description="Source of the IR")
-    session_id: Optional[str] = Field(default=None)
-    user_id: Optional[str] = Field(default=None)
-    agent_id: Optional[str] = Field(default=None)
+    session_id: str | None = Field(default=None)
+    user_id: str | None = Field(default=None)
+    agent_id: str | None = Field(default=None)
     version: int = Field(default=1)
     tags: list[str] = Field(default_factory=list)
     context: dict[str, Any] = Field(default_factory=dict)
@@ -312,15 +312,15 @@ class IRGraph(BaseModel):
         self.updated_at = datetime.utcnow()
         return action.node_id
 
-    def get_intent(self, intent_id: UUID) -> Optional[IntentNode]:
+    def get_intent(self, intent_id: UUID) -> IntentNode | None:
         """Get an intent by ID."""
         return self.intents.get(intent_id)
 
-    def get_constraint(self, constraint_id: UUID) -> Optional[ConstraintNode]:
+    def get_constraint(self, constraint_id: UUID) -> ConstraintNode | None:
         """Get a constraint by ID."""
         return self.constraints.get(constraint_id)
 
-    def get_action(self, action_id: UUID) -> Optional[ActionNode]:
+    def get_action(self, action_id: UUID) -> ActionNode | None:
         """Get an action by ID."""
         return self.actions.get(action_id)
 
@@ -448,7 +448,7 @@ class ValidationError(BaseModel):
 
     code: str
     message: str
-    node_id: Optional[UUID] = None
+    node_id: UUID | None = None
     severity: str = "error"  # error, warning, info
 
 
@@ -462,9 +462,7 @@ class IRValidationResult(BaseModel):
     validated_at: datetime = Field(default_factory=datetime.utcnow)
     validator_version: str = Field(default="1.0.0")
 
-    def add_error(
-        self, code: str, message: str, node_id: Optional[UUID] = None
-    ) -> None:
+    def add_error(self, code: str, message: str, node_id: UUID | None = None) -> None:
         """Add a validation error."""
         self.errors.append(
             ValidationError(
@@ -473,9 +471,7 @@ class IRValidationResult(BaseModel):
         )
         self.valid = False
 
-    def add_warning(
-        self, code: str, message: str, node_id: Optional[UUID] = None
-    ) -> None:
+    def add_warning(self, code: str, message: str, node_id: UUID | None = None) -> None:
         """Add a validation warning."""
         self.warnings.append(
             ValidationError(
@@ -483,7 +479,7 @@ class IRValidationResult(BaseModel):
             )
         )
 
-    def add_info(self, code: str, message: str, node_id: Optional[UUID] = None) -> None:
+    def add_info(self, code: str, message: str, node_id: UUID | None = None) -> None:
         """Add validation info."""
         self.info.append(
             ValidationError(

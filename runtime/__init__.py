@@ -95,69 +95,69 @@ from runtime.tool_packages import (
 from runtime.websocket_orchestrator import WebSocketOrchestrator, ws_orchestrator
 
 __all__ = [
-    # Task Queue
-    "TaskQueue",
+    # Kernel Loader - Configuration
+    "DEFAULT_KERNEL_PATH",
+    "DEFAULT_TOOL_AUTHORIZATION",
+    "FORBIDDEN_PATTERNS",
+    "KERNEL_EXTENSIONS",
+    "KERNEL_ID_MAP",
+    "KERNEL_ORDER",
+    # Tool Package Registry (GMP-122)
+    "TOOL_PACKAGES",
+    # Background Task Registry
+    "BackgroundTaskRegistry",
+    "DoraGraph",
+    "DoraMetrics",
+    "DoraTraceBlock",
+    "KernelStack",
+    "KernelState",
     "QueuedTask",
     # Rate Limiter
     "RateLimiter",
     # Redis Client
     "RedisClient",
-    "get_redis_client",
-    "close_redis_client",
-    # Kernel Loader - Configuration
-    "DEFAULT_KERNEL_PATH",
-    "KERNEL_EXTENSIONS",
-    "KERNEL_ORDER",
-    "KERNEL_ID_MAP",
-    # Kernel Loader - Agent loading
-    "load_kernels",
-    "load_kernel_stack",
-    "KernelStack",
-    # Kernel Loader - Dynamic discovery
-    "load_kernel_file",
-    "load_all_private_kernels",
-    "load_layered_kernels",
-    # Kernel Loader - Query functions
-    "get_kernel_by_name",
-    "get_enabled_rules",
-    "get_rules_by_type",
-    # Kernel Loader - Validation
-    "validate_kernel_structure",
-    "validate_all_kernels",
-    "validate_packet_protocol_rules",
-    # Kernel Loader - Enforcement
-    "guarded_execute",
-    "verify_kernel_activation",
-    "require_kernel_activation",
+    # Task Queue
+    "TaskQueue",
     # WebSocket Orchestrator
     "WebSocketOrchestrator",
-    "ws_orchestrator",
-    # DORA Block Runtime
-    "l9_traced",
-    "DoraTraceBlock",
-    "DoraMetrics",
-    "DoraGraph",
-    "update_dora_block_in_file",
-    "emit_executor_trace",
-    "get_empty_dora_block_python",
-    # Kernel State (GODMODE Part 1.1 + 7.2)
-    "kernel_state",
-    "KernelState",
+    "close_redis_client",
     "create_kernel_state",
+    "discover_from_packages",
+    "emit_executor_trace",
+    "escalate_to_igor",
     # Execution Gate (GODMODE Part 2)
     "execution_gate",
-    "guarded_execute_v2",
-    "should_escalate_on_confidence",
-    "escalate_to_igor",
-    "select_mode_based_on_confidence",
-    "DEFAULT_TOOL_AUTHORIZATION",
-    "FORBIDDEN_PATTERNS",
-    # Background Task Registry
-    "BackgroundTaskRegistry",
     "get_background_task_registry",
-    # Tool Package Registry (GMP-122)
-    "TOOL_PACKAGES",
+    "get_empty_dora_block_python",
+    "get_enabled_rules",
+    # Kernel Loader - Query functions
+    "get_kernel_by_name",
+    "get_redis_client",
+    "get_rules_by_type",
     "get_tool_packages",
+    # Kernel Loader - Enforcement
+    "guarded_execute",
+    "guarded_execute_v2",
+    # Kernel State (GODMODE Part 1.1 + 7.2)
+    "kernel_state",
+    # DORA Block Runtime
+    "l9_traced",
+    "load_all_private_kernels",
+    # Kernel Loader - Dynamic discovery
+    "load_kernel_file",
+    "load_kernel_stack",
+    # Kernel Loader - Agent loading
+    "load_kernels",
+    "load_layered_kernels",
     "register_tool_package",
-    "discover_from_packages",
+    "require_kernel_activation",
+    "select_mode_based_on_confidence",
+    "should_escalate_on_confidence",
+    "update_dora_block_in_file",
+    "validate_all_kernels",
+    # Kernel Loader - Validation
+    "validate_kernel_structure",
+    "validate_packet_protocol_rules",
+    "verify_kernel_activation",
+    "ws_orchestrator",
 ]

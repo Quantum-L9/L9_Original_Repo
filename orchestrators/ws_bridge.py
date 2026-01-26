@@ -42,7 +42,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Optional
 
 import structlog
 
@@ -57,7 +56,7 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 
-def event_to_task(event: EventMessage) -> Optional[TaskEnvelope]:
+def event_to_task(event: EventMessage) -> TaskEnvelope | None:
     """
     Convert an inbound EventMessage into a TaskEnvelope, if applicable.
 
@@ -145,7 +144,7 @@ def event_to_task(event: EventMessage) -> Optional[TaskEnvelope]:
 # =============================================================================
 
 
-def handle_ws_event(event: EventMessage) -> Optional[TaskEnvelope]:
+def handle_ws_event(event: EventMessage) -> TaskEnvelope | None:
     """
     Entry point from WebSocketOrchestrator.handle_incoming.
 
@@ -264,7 +263,7 @@ class WSEventRouter:
     - Conditional routing based on agent capabilities
     """
 
-    def __init__(self, config: Optional[WSBridgeConfig] = None):
+    def __init__(self, config: WSBridgeConfig | None = None):
         self._config = config or WSBridgeConfig()
         self._handlers: dict = {}
 
@@ -272,7 +271,7 @@ class WSEventRouter:
         """Register a custom handler for an event type."""
         self._handlers[event_type] = handler
 
-    def route(self, event: EventMessage) -> Optional[TaskEnvelope]:
+    def route(self, event: EventMessage) -> TaskEnvelope | None:
         """Route event using registered handlers or default logic."""
         if event.type in self._handlers:
             return self._handlers[event.type](event)
@@ -284,11 +283,11 @@ class WSEventRouter:
 # =============================================================================
 
 __all__ = [
-    "event_to_task",
-    "handle_ws_event",
-    "enqueue_ws_event",
     "WSBridgeConfig",
     "WSEventRouter",
+    "enqueue_ws_event",
+    "event_to_task",
+    "handle_ws_event",
 ]
 
 # ============================================================================

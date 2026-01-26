@@ -1,17 +1,21 @@
 # ADR 0019: structlog Logging Standard
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 ALL logging via `structlog.get_logger(__name__)`; NEVER use `print()` or stdlib `logging`.
 
 ## Files
+
 - 444+ files use `structlog.get_logger`
 - `ci/lint_forbidden_imports.py` - Import enforcement
 - `config/settings.py` - Logger configuration
 
 ## Import Block
+
 ```python
 import structlog
 
@@ -19,6 +23,7 @@ logger = structlog.get_logger(__name__)
 ```
 
 ## Minimal Implementation
+
 ```python
 """Example module with proper logging."""
 import structlog
@@ -29,13 +34,13 @@ logger = structlog.get_logger(__name__)
 class MyService:
     def __init__(self):
         logger.info("service.initialized", service="MyService")
-    
+
     async def process(self, item_id: str) -> dict:
         logger.debug(
             "process.started",
             item_id=item_id,
         )
-        
+
         try:
             result = await self._do_work(item_id)
             logger.info(
@@ -62,6 +67,7 @@ class MyService:
 ```
 
 ## Usage Example
+
 ```python
 import structlog
 
@@ -91,6 +97,7 @@ log.info("operation.completed")  # Also has request_id, user_id
 ```
 
 ## Anti-Pattern Example
+
 ```python
 # ❌ WRONG — Using print()
 print(f"Processing item {item_id}")  # No structure, no levels
@@ -110,6 +117,7 @@ logger.info("item.processing", item_id=item_id, status="started")
 ```
 
 ## Event Naming Convention
+
 ```python
 # Format: component.action or component.action_detail
 logger.info("service.initialized")       # Component lifecycle
@@ -121,6 +129,7 @@ logger.warning("validation.failed")      # Input validation
 ```
 
 ## Rules
+
 1. ALWAYS use `structlog.get_logger(__name__)`
 2. ALWAYS use keyword arguments for context (not string formatting)
 3. ALWAYS use snake_case event names (`component.action`)
@@ -128,13 +137,16 @@ logger.warning("validation.failed")      # Input validation
 5. NEVER use stdlib `logging` module
 
 ## AI Guidance
+
 **DO:**
+
 - Use `structlog.get_logger(__name__)` for all logging
 - Include relevant context as kwargs
 - Use consistent event naming (`component.action`)
 - Add `exc_info=True` for error logging
 
 **DO NOT:**
+
 - Use `print()` for any logging
 - Use stdlib `logging` module
 - Format strings in log message (use kwargs)

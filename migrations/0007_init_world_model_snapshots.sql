@@ -33,4 +33,3 @@ COMMENT ON COLUMN world_model_snapshots.entity_count IS 'Number of entities at s
 COMMENT ON COLUMN world_model_snapshots.relation_count IS 'Number of relations at snapshot time';
 COMMENT ON COLUMN world_model_snapshots.description IS 'Optional description or reason for snapshot';
 COMMENT ON COLUMN world_model_snapshots.created_by IS 'System or user that created the snapshot';
-

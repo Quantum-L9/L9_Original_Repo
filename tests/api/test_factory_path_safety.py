@@ -69,7 +69,7 @@ def _install_fake_research_factory(tmp_path: Path) -> None:
 
     class GlueConfig:
         @classmethod
-        def model_validate(cls, data: dict) -> "GlueConfig":
+        def model_validate(cls, data: dict) -> GlueConfig:
             return cls()
 
     extractor_mod.UniversalExtractor = UniversalExtractor

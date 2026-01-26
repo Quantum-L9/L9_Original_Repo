@@ -36,7 +36,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from enum import Enum
 from functools import lru_cache
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -152,8 +152,8 @@ CYPHER_TEMPLATES: dict[str, CypherTemplate] = {
         description="Get all relationships of an entity",
         query="""
         MATCH (n:$label {id: $entity_id})-[r]-(m)
-        RETURN type(r) as relationship_type, 
-               startNode(r).id as from_id, 
+        RETURN type(r) as relationship_type,
+               startNode(r).id as from_id,
                endNode(r).id as to_id,
                properties(r) as properties,
                labels(m) as connected_labels,
@@ -347,8 +347,8 @@ CYPHER_TEMPLATES: dict[str, CypherTemplate] = {
         MATCH (root:Event {id: $event_id})
         MATCH path = (root)-[:TRIGGERED*0..10]->(descendant:Event)
         RETURN [node in nodes(path) | {
-            id: node.id, 
-            event_type: node.event_type, 
+            id: node.id,
+            event_type: node.event_type,
             timestamp: node.timestamp
         }] as event_chain
         """,
@@ -407,7 +407,7 @@ class CypherTemplateLibrary:
         )
     """
 
-    def __init__(self, templates: Optional[dict[str, CypherTemplate]] = None):
+    def __init__(self, templates: dict[str, CypherTemplate] | None = None):
         """
         Initialize template library.
 
@@ -421,7 +421,7 @@ class CypherTemplateLibrary:
 
     def list_templates(
         self,
-        category: Optional[CypherTemplateCategory] = None,
+        category: CypherTemplateCategory | None = None,
     ) -> list[dict[str, Any]]:
         """
         List available templates.
@@ -447,7 +447,7 @@ class CypherTemplateLibrary:
             )
         return results
 
-    def get_template(self, name: str) -> Optional[CypherTemplate]:
+    def get_template(self, name: str) -> CypherTemplate | None:
         """
         Get a specific template by name.
 
@@ -576,7 +576,7 @@ def get_template_library() -> CypherTemplateLibrary:
 
 
 @lru_cache(maxsize=64)
-def get_template_cached(name: str) -> Optional[CypherTemplate]:
+def get_template_cached(name: str) -> CypherTemplate | None:
     """
     Get a Cypher template by name. CACHED.
 
@@ -614,13 +614,13 @@ async def execute_template(
 
 
 __all__ = [
+    "CYPHER_TEMPLATES",
     "CypherTemplate",
     "CypherTemplateCategory",
     "CypherTemplateLibrary",
-    "CYPHER_TEMPLATES",
-    "get_template_library",
-    "get_template_cached",
     "execute_template",
+    "get_template_cached",
+    "get_template_library",
 ]
 
 # ============================================================================

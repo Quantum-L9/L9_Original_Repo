@@ -52,7 +52,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from datetime import datetime
 
 import structlog
@@ -95,12 +95,12 @@ from runtime.background_tasks import BackgroundTaskRegistry
 
 # MCP Server Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
 from runtime.mcp_server_registry import (
-    get_all_mcp_servers,  # noqa: F401
+    get_all_mcp_servers,
 )
 
 # Tool Executor Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
 from runtime.tool_registry import (
-    get_tool_executors,  # noqa: F401
+    get_tool_executors,
 )
 
 # Telemetry / Prometheus metrics
@@ -2688,10 +2688,8 @@ async def lifespan(app: FastAPI):
             app.state.event_queue.stop()
             if hasattr(app.state, "event_processor_task"):
                 app.state.event_processor_task.cancel()
-                try:
+                with suppress(asyncio.CancelledError):
                     await app.state.event_processor_task
-                except asyncio.CancelledError:
-                    pass
             logger.info("EventQueue stopped")
         except Exception as e:
             logger.warning(f"Error stopping EventQueue: {e}")
@@ -2711,10 +2709,8 @@ async def lifespan(app: FastAPI):
             app.state.world_model_runtime.stop()
             if hasattr(app.state, "world_model_task"):
                 app.state.world_model_task.cancel()
-                try:
+                with suppress(asyncio.CancelledError):
                     await app.state.world_model_task
-                except asyncio.CancelledError:
-                    pass
             logger.info("World Model Runtime stopped")
         except Exception as e:
             logger.error(f"Error stopping World Model Runtime: {e}")
@@ -2912,10 +2908,7 @@ async def health():
     startup_result = getattr(app.state, "session_startup_result", None)
 
     # Determine overall health status
-    if startup_ready:
-        status = "ok"
-    else:
-        status = "degraded"
+    status = "ok" if startup_ready else "degraded"
 
     response = {
         "status": status,
@@ -3190,10 +3183,8 @@ async def checkpoint_health():
     checkpoint_saver = getattr(app.state, "checkpoint_saver", None)
     live_stats = None
     if checkpoint_saver and hasattr(checkpoint_saver, "get_pool_stats"):
-        try:
+        with suppress(Exception):
             live_stats = checkpoint_saver.get_pool_stats()
-        except Exception:
-            pass
 
     return {
         "status": "ok",
@@ -3302,7 +3293,9 @@ async def lchat(
         result = await agent_executor.start_agent_task(task)
     except Exception as e:
         logger.exception("lchat: execution failed: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Agent execution error: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Agent execution error: {e}"
+        ) from e
 
     # Handle duplicate detection
     if isinstance(result, DuplicateTaskResponse):
@@ -3332,10 +3325,7 @@ async def lchat(
 
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-if OPENAI_API_KEY:
-    chat_client = OpenAI(api_key=OPENAI_API_KEY)
-else:
-    chat_client = None
+chat_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 # =============================================================================
 # Legacy /chat endpoint REMOVED

@@ -35,7 +35,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -56,15 +56,15 @@ class TestAgentResult:
     tests_passed: int
     tests_failed: int
     tests_skipped: int
-    coverage_percent: Optional[float]
+    coverage_percent: float | None
     duration_ms: float
     timestamp: datetime
-    recommendations: List[str]
-    test_results: Optional[TestResults]
+    recommendations: list[str]
+    test_results: TestResults | None
     success: bool
-    error: Optional[str]
+    error: str | None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for memory storage."""
         return {
             "run_id": str(self.run_id),
@@ -90,7 +90,7 @@ class TestAgent:
     Writes results to the test_results memory segment.
     """
 
-    def __init__(self, substrate_service: Optional[Any] = None):
+    def __init__(self, substrate_service: Any | None = None):
         """
         Initialize TestAgent.
 
@@ -106,7 +106,7 @@ class TestAgent:
         task_id: str,
         code_proposal: str,
         proposal_type: str = "general",
-        dependencies: Optional[List[str]] = None,
+        dependencies: list[str] | None = None,
     ) -> TestAgentResult:
         """
         Validate a code proposal by generating and running tests.
@@ -224,7 +224,7 @@ class TestAgent:
                 error=str(e),
             )
 
-    def _build_test_file(self, tests: List[str]) -> str:
+    def _build_test_file(self, tests: list[str]) -> str:
         """Build a complete test file from test functions."""
         header = '''"""
 Auto-generated tests for code proposal validation.
@@ -237,7 +237,7 @@ from unittest.mock import Mock, AsyncMock, patch
 '''
         return header + "\n".join(tests)
 
-    def _generate_recommendations(self, results: TestResults) -> List[str]:
+    def _generate_recommendations(self, results: TestResults) -> list[str]:
         """Generate recommendations based on test results."""
         recommendations = []
 
@@ -294,8 +294,8 @@ from unittest.mock import Mock, AsyncMock, patch
 async def spawn_test_agent(
     task_id: str,
     code_proposal: str,
-    substrate_service: Optional[Any] = None,
-    dependencies: Optional[List[str]] = None,
+    substrate_service: Any | None = None,
+    dependencies: list[str] | None = None,
 ) -> TestAgentResult:
     """
     Spawn a test agent to validate a code proposal.

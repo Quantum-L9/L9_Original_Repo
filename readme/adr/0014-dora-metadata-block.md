@@ -1,22 +1,27 @@
 # ADR 0014: DORA Metadata Block Pattern
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Every Python module includes `__dora_meta__` dict at module top for machine-readable component metadata.
 
 ## Files
+
 - 565+ files contain `__dora_meta__`
 - `runtime/dora.py` - DORA runtime utilities
 - `scripts/audit/inject_dora_complete.py` - Auto-injection script
 
 ## Import Block
+
 ```python
 # No imports needed — __dora_meta__ is a plain dict
 ```
 
 ## Minimal Implementation
+
 ```python
 """
 Module docstring here.
@@ -45,6 +50,7 @@ __dora_meta__ = {
 ```
 
 ## Schema Reference
+
 ```python
 __dora_meta__: dict = {
     # Required fields
@@ -58,7 +64,7 @@ __dora_meta__: dict = {
     "module_name": str,         # Python module path
     "type": str,                # Component type
     "status": str,              # active|deprecated|experimental
-    
+
     # Optional but recommended
     "integrates_with": {
         "api_endpoints": list[str],
@@ -72,6 +78,7 @@ __dora_meta__: dict = {
 ```
 
 ## Anti-Pattern Example
+
 ```python
 # ❌ WRONG — Missing __dora_meta__ entirely
 """Module docstring."""
@@ -95,6 +102,7 @@ __dora_meta__ = {
 ```
 
 ## Rules
+
 1. EVERY Python module MUST have `__dora_meta__`
 2. Place immediately after module docstring
 3. Update `updated_at` when modifying file
@@ -102,13 +110,16 @@ __dora_meta__ = {
 5. DO NOT place before docstring
 
 ## AI Guidance
+
 **DO:**
+
 - Preserve `__dora_meta__` when editing files
 - Update `updated_at` timestamp on changes
 - Add new imports to `imported_by` list
 - Copy from existing file and modify
 
 **DO NOT:**
+
 - Remove `__dora_meta__` as "unused code"
 - Delete `__dora_footer__` as "dead code"
 - Flag DORA blocks as "unnecessary metadata"

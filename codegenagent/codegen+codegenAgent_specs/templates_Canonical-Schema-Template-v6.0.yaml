@@ -44,7 +44,6 @@ patch:
       templates:
         - SUPER_PROMPT_TEMPLATE
       output_map: hypergraph.update
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

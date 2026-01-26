@@ -29,7 +29,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import List, Optional
 from uuid import UUID
 
 import structlog
@@ -51,9 +50,9 @@ class SearchHit(BaseModel):
 
     packet_id: UUID = Field(..., description="Packet ID")
     similarity_score: float = Field(..., description="Similarity score (0-1)")
-    packet_type: Optional[str] = Field(None, description="Packet type")
-    scope: Optional[str] = Field(None, description="Scope (developer, global)")
-    tags: Optional[List[str]] = Field(None, description="Tags")
+    packet_type: str | None = Field(None, description="Packet type")
+    scope: str | None = Field(None, description="Scope (developer, global)")
+    tags: list[str] | None = Field(None, description="Tags")
     payload: dict = Field(default_factory=dict, description="Packet payload")
 
 
@@ -67,8 +66,8 @@ async def semantic_search(
     agent_id: str,
     project_id: str,
     top_k: int = 10,
-    substrate_service: Optional[MemorySubstrateService] = None,
-) -> List[SearchHit]:
+    substrate_service: MemorySubstrateService | None = None,
+) -> list[SearchHit]:
     """
     Semantic search wrapper for Cursor.
 

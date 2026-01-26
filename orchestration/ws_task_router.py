@@ -441,7 +441,7 @@ class LangGraphRouter:
         if self._world_model:
             try:
                 # Query world model for relevant context
-                event_type = state.get("event_type", "")
+                state.get("event_type", "")
 
                 if hasattr(self._world_model, "query_patterns"):
                     patterns = await self._world_model.query_patterns(
@@ -495,7 +495,7 @@ class LangGraphRouter:
     async def _create_task_node(self, state: RouterState) -> RouterState:
         """Create task envelope from classified event."""
         event = state.get("event", {})
-        context = state.get("context", {})
+        state.get("context", {})
         world_context = state.get("world_model_context", {})
         classification = state.get("classification", "standard")
 
@@ -537,7 +537,7 @@ class LangGraphRouter:
             return {
                 **state,
                 "task_envelope": None,
-                "errors": state.get("errors", []) + [str(e)],
+                "errors": [*state.get("errors", []), str(e)],
             }
 
         return {

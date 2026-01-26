@@ -40,7 +40,7 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 # Safety check
 check_target() {
     CURRENT_IP=$(hostname -I 2>/dev/null | awk '{print $1}' || echo "unknown")
-    
+
     if [[ "$CURRENT_IP" == "$L9_IP" ]]; then
         log_error "SAFETY VIOLATION: Cannot run rollback on L9 server!"
         exit 1
@@ -51,7 +51,7 @@ check_target() {
 show_status() {
     log_info "Current deployment status:"
     echo ""
-    
+
     if kubectl get namespace $NAMESPACE &>/dev/null; then
         echo "=== NAMESPACE: $NAMESPACE ==="
         kubectl get pods -n $NAMESPACE 2>/dev/null || echo "No pods found"
@@ -67,7 +67,7 @@ show_status() {
 rollback_deployment() {
     local deployment=$1
     log_info "Rolling back deployment: $deployment"
-    
+
     kubectl delete deployment "$deployment" -n $NAMESPACE --ignore-not-found
     log_success "Deployment $deployment deleted"
 }
@@ -76,7 +76,7 @@ rollback_deployment() {
 rollback_statefulset() {
     local statefulset=$1
     log_info "Rolling back statefulset: $statefulset"
-    
+
     kubectl delete statefulset "$statefulset" -n $NAMESPACE --ignore-not-found
     log_success "StatefulSet $statefulset deleted (PVC data preserved)"
 }
@@ -86,7 +86,7 @@ delete_namespace() {
     log_warn "This will delete ALL resources in namespace $NAMESPACE"
     log_warn "PVC data will be preserved on disk at /var/lib/rancher/k3s/storage/"
     read -p "Are you sure? (type 'yes' to confirm) " -r
-    
+
     if [[ "$REPLY" == "yes" ]]; then
         log_info "Deleting namespace $NAMESPACE..."
         kubectl delete namespace $NAMESPACE --ignore-not-found
@@ -106,10 +106,10 @@ full_uninstall() {
     log_error ""
     log_error "The server will return to a clean state."
     read -p "Type 'UNINSTALL' to confirm: " -r
-    
+
     if [[ "$REPLY" == "UNINSTALL" ]]; then
         log_info "Uninstalling k3s..."
-        
+
         if [[ -f /usr/local/bin/k3s-uninstall.sh ]]; then
             /usr/local/bin/k3s-uninstall.sh
             log_success "k3s uninstalled completely"
@@ -124,7 +124,7 @@ full_uninstall() {
 # Interactive mode
 interactive_mode() {
     show_status
-    
+
     echo "=== ROLLBACK OPTIONS ==="
     echo "1. Rollback L9 API only"
     echo "2. Rollback MCP Memory only"
@@ -137,7 +137,7 @@ interactive_mode() {
     echo "9. Cancel"
     echo ""
     read -p "Select option (1-9): " -r
-    
+
     case $REPLY in
         1)
             rollback_deployment "l9-api"
@@ -176,12 +176,12 @@ interactive_mode() {
 # Parse arguments
 main() {
     check_target
-    
+
     if [[ $# -eq 0 ]]; then
         interactive_mode
         exit 0
     fi
-    
+
     case $1 in
         --deployment)
             if [[ -n "${2:-}" ]]; then

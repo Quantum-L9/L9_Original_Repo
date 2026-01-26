@@ -47,6 +47,8 @@ if TYPE_CHECKING:
     from memory.agent_persistence import AgentPersistenceService
     from memory.substrate_repository import SubstrateRepository
 
+import contextlib
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -260,10 +262,8 @@ class RetentionEngine:
         self._running = False
         if self._scheduler_task:
             self._scheduler_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._scheduler_task
-            except asyncio.CancelledError:
-                pass
             self._scheduler_task = None
 
         logger.info("Retention scheduler stopped")

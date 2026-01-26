@@ -34,7 +34,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 import structlog
 
@@ -48,22 +48,22 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 
-def _validate_agent_class(cls: Type) -> bool:
+def _validate_agent_class(cls: type) -> bool:
     """Validate that an object is an agent class."""
     # Check if it's a class and has required agent attributes
     return isinstance(cls, type) and hasattr(cls, "__name__")
 
 
 # Global agent registry
-agent_registry = AutoRegistry[Type](
+agent_registry = AutoRegistry[type](
     name="agents", validator=_validate_agent_class, allow_duplicates=False
 )
 
 
 def register_agent(
-    name: Optional[str] = None,
-    role: Optional[str] = None,
-    category: Optional[str] = None,
+    name: str | None = None,
+    role: str | None = None,
+    category: str | None = None,
     priority: int = 0,
     **metadata: Any,
 ):
@@ -97,7 +97,7 @@ def register_agent(
     if category:
         tags.append(category)
 
-    def decorator(cls: Type) -> Type:
+    def decorator(cls: type) -> type:
         # Register the class directly (not as a factory)
         agent_name = name or cls.__name__
         agent_registry.register_instance(
@@ -128,7 +128,7 @@ def discover_agents(package: str = "agents") -> int:
     return count
 
 
-def get_all_agents() -> Dict[str, Type]:
+def get_all_agents() -> dict[str, type]:
     """
     Get all registered agent classes as a dictionary.
 
@@ -144,7 +144,7 @@ def get_all_agents() -> Dict[str, Type]:
     agent_registry.initialize_factories()
 
     # Build dictionary mapping names to classes
-    agents: Dict[str, Type] = {}
+    agents: dict[str, type] = {}
 
     for agent_id in agent_registry.list_ids():
         agent_cls = agent_registry.get(agent_id)
@@ -155,7 +155,7 @@ def get_all_agents() -> Dict[str, Type]:
     return agents
 
 
-def get_agents_by_role(role: str) -> Dict[str, Type]:
+def get_agents_by_role(role: str) -> dict[str, type]:
     """
     Get all agent classes with a specific role.
 
@@ -168,7 +168,7 @@ def get_agents_by_role(role: str) -> Dict[str, Type]:
     agent_registry.initialize_factories()
 
     agents_list = agent_registry.get_all(tags=[role])
-    agents: Dict[str, Type] = {}
+    agents: dict[str, type] = {}
 
     for agent_cls in agents_list:
         # Find the agent's ID
@@ -180,7 +180,7 @@ def get_agents_by_role(role: str) -> Dict[str, Type]:
     return agents
 
 
-def get_agents_by_category(category: str) -> Dict[str, Type]:
+def get_agents_by_category(category: str) -> dict[str, type]:
     """
     Get all agent classes in a specific category.
 
@@ -193,7 +193,7 @@ def get_agents_by_category(category: str) -> Dict[str, Type]:
     agent_registry.initialize_factories()
 
     agents_list = agent_registry.get_all(tags=[category])
-    agents: Dict[str, Type] = {}
+    agents: dict[str, type] = {}
 
     for agent_cls in agents_list:
         # Find the agent's ID
@@ -205,7 +205,7 @@ def get_agents_by_category(category: str) -> Dict[str, Type]:
     return agents
 
 
-def build_agent_exports() -> List[str]:
+def build_agent_exports() -> list[str]:
     """
     Build the __all__ list for agents/__init__.py.
 

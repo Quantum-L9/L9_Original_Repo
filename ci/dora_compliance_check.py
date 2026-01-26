@@ -28,7 +28,6 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 # Directories to skip
 SKIP_DIRS = {
@@ -69,18 +68,14 @@ def should_skip_file(file_path: Path) -> bool:
         return True
 
     # Skip by pattern
-    for pattern in SKIP_PATTERNS:
-        if file_path.match(pattern):
-            return True
-
-    return False
+    return any(file_path.match(pattern) for pattern in SKIP_PATTERNS)
 
 
-def check_dora_blocks(file_path: Path) -> Dict[str, bool]:
+def check_dora_blocks(file_path: Path) -> dict[str, bool]:
     """Check which DORA blocks exist in a file."""
     try:
         content = file_path.read_text(encoding="utf-8")
-    except (IOError, UnicodeDecodeError):
+    except (OSError, UnicodeDecodeError):
         return {"header": False, "footer": False, "trace": False, "error": True}
 
     is_yaml = file_path.suffix in (".yaml", ".yml")
@@ -92,16 +87,15 @@ def check_dora_blocks(file_path: Path) -> Dict[str, bool]:
             "trace": True,  # YAML files don't need trace
             "error": False,
         }
-    else:
-        return {
-            "header": "__dora_meta__" in content,
-            "footer": "__dora_footer__" in content,
-            "trace": "__l9_trace__" in content,
-            "error": False,
-        }
+    return {
+        "header": "__dora_meta__" in content,
+        "footer": "__dora_footer__" in content,
+        "trace": "__l9_trace__" in content,
+        "error": False,
+    }
 
 
-def scan_files(root_path: Path, extensions: List[str]) -> List[Path]:
+def scan_files(root_path: Path, extensions: list[str]) -> list[Path]:
     """Scan for files with given extensions."""
     files = []
     for ext in extensions:
@@ -111,7 +105,7 @@ def scan_files(root_path: Path, extensions: List[str]) -> List[Path]:
     return sorted(files)
 
 
-def check_compliance(root_path: Path) -> Tuple[List[Path], List[Path], List[Path]]:
+def check_compliance(root_path: Path) -> tuple[list[Path], list[Path], list[Path]]:
     """
     Check all files for DORA compliance.
 
@@ -169,9 +163,8 @@ def fix_file(file_path: Path, repo_root: Path, dry_run: bool = False) -> bool:
 
         if result.returncode == 0:
             return True
-        else:
-            print(f"  Error fixing {relative_path}: {result.stderr}")
-            return False
+        print(f"  Error fixing {relative_path}: {result.stderr}")
+        return False
 
     except Exception as e:
         print(f"  Exception fixing {relative_path}: {e}")
@@ -242,7 +235,7 @@ def main():
         sys.exit(0)
 
     # Report findings
-    print(f"📊 DORA Compliance Report")
+    print("📊 DORA Compliance Report")
     print(f"{'=' * 60}")
     print(f"  Files scanned: {len(scan_files(check_path, ['.py', '.yaml', '.yml']))}")
     print(f"  Missing header: {len(missing_header)}")
@@ -290,7 +283,7 @@ def main():
                 failed += 1
 
         print()
-        print(f"📊 Fix Summary")
+        print("📊 Fix Summary")
         print(f"{'=' * 60}")
         print(f"  Fixed: {fixed}")
         print(f"  Failed: {failed}")

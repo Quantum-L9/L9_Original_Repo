@@ -23,12 +23,12 @@
 
 ## 🏛️ Hierarchy
 
-| Role | Responsibility | Authority |
-|------|----------------|-----------|
-| **Igor (Human)** | Strategic direction, final approval on critical systems | Absolute |
-| **L-CTO** | Technical architecture, contract creation, CGA oversight | High |
-| **CGA (CodeGenAgent)** | Code generation, YAML→Code pipeline, module emission | Medium |
-| **Generated Agents** | Execute specific tasks as defined by their contracts | Low |
+| Role                   | Responsibility                                           | Authority |
+| ---------------------- | -------------------------------------------------------- | --------- |
+| **Igor (Human)**       | Strategic direction, final approval on critical systems  | Absolute  |
+| **L-CTO**              | Technical architecture, contract creation, CGA oversight | High      |
+| **CGA (CodeGenAgent)** | Code generation, YAML→Code pipeline, module emission     | Medium    |
+| **Generated Agents**   | Execute specific tasks as defined by their contracts     | Low       |
 
 ---
 
@@ -37,6 +37,7 @@
 ### What is a Contract?
 
 A **contract** is a formal specification sent to CGA that defines:
+
 - **What** to build (agent, module, tool, API, etc.)
 - **Why** it exists (purpose, responsibilities)
 - **How** it integrates (wiring, dependencies, triggers)
@@ -47,7 +48,7 @@ A **contract** is a formal specification sent to CGA that defines:
 ```
 1. CONTRACT RECEIVED
    └─▶ L-CTO sends spec/request to CGA
-   
+
 2. CGA PROCESSING
    └─▶ Analyzes contract
    └─▶ Validates against governance policies
@@ -101,39 +102,44 @@ agents/codegenagent/
 The `specs/` directory contains the complete blueprint for the CGA system:
 
 ### Core CGA Modules (5 files)
-| File | Purpose |
-|------|---------|
-| `agents_codegen_agent_codegen_agent.yaml` | Main CGA agent definition |
-| `agents_codegen_agent_meta.yaml` | CGA meta-contract (interface definition) |
-| `agents_codegen_agent_meta_loader.yaml` | Loads and parses meta.yaml files |
-| `agents_codegen_agent_c_gmp_engine.yaml` | GMP (God Mode Prompt) expansion engine |
-| `agents_codegen_agent_file_emitter.yaml` | Writes generated code to files |
+
+| File                                      | Purpose                                  |
+| ----------------------------------------- | ---------------------------------------- |
+| `agents_codegen_agent_codegen_agent.yaml` | Main CGA agent definition                |
+| `agents_codegen_agent_meta.yaml`          | CGA meta-contract (interface definition) |
+| `agents_codegen_agent_meta_loader.yaml`   | Loads and parses meta.yaml files         |
+| `agents_codegen_agent_c_gmp_engine.yaml`  | GMP (God Mode Prompt) expansion engine   |
+| `agents_codegen_agent_file_emitter.yaml`  | Writes generated code to files           |
 
 ### Pipeline Components
-| File | Purpose |
-|------|---------|
-| `ir_engine_meta_ir.yaml` | Intermediate Representation schema |
-| `ir_engine_compile_meta_to_ir.yaml` | Compiles meta.yaml to IR |
-| `agents_codegen_agent_pipeline_validator.yaml` | Validates generation pipeline |
-| `agents_codegen_agent_ap_generator.yaml` | Generates action plans |
+
+| File                                           | Purpose                            |
+| ---------------------------------------------- | ---------------------------------- |
+| `ir_engine_meta_ir.yaml`                       | Intermediate Representation schema |
+| `ir_engine_compile_meta_to_ir.yaml`            | Compiles meta.yaml to IR           |
+| `agents_codegen_agent_pipeline_validator.yaml` | Validates generation pipeline      |
+| `agents_codegen_agent_ap_generator.yaml`       | Generates action plans             |
 
 ### Governance & Safety
-| File | Purpose |
-|------|---------|
-| `agents_codegen_agent_compliance_auditor.yaml` | Policy compliance checking |
-| `governance_kernel_integrity_monitor.yaml` | Kernel file integrity monitoring |
-| `governance_eval_patch.yaml` | Patch compliance evaluation |
+
+| File                                           | Purpose                          |
+| ---------------------------------------------- | -------------------------------- |
+| `agents_codegen_agent_compliance_auditor.yaml` | Policy compliance checking       |
+| `governance_kernel_integrity_monitor.yaml`     | Kernel file integrity monitoring |
+| `governance_eval_patch.yaml`                   | Patch compliance evaluation      |
 
 ### Wiring & Integration
-| File | Purpose |
-|------|---------|
-| `orchestration_langgraph_builder.yaml` | Builds LangGraph DAGs |
-| `core_agent_registry_patch.yaml` | Agent self-registration |
-| `api_routes_codegen.yaml` | FastAPI endpoints for CGA |
+
+| File                                   | Purpose                   |
+| -------------------------------------- | ------------------------- |
+| `orchestration_langgraph_builder.yaml` | Builds LangGraph DAGs     |
+| `core_agent_registry_patch.yaml`       | Agent self-registration   |
+| `api_routes_codegen.yaml`              | FastAPI endpoints for CGA |
 
 ### Roadmap
-| File | Purpose |
-|------|---------|
+
+| File                              | Purpose                                               |
+| --------------------------------- | ----------------------------------------------------- |
 | `sandbox_session_roadmap_l9.yaml` | Master status tracker (completed/in-progress/blocked) |
 
 ---
@@ -141,6 +147,7 @@ The `specs/` directory contains the complete blueprint for the CGA system:
 ## 🚀 Weaponization Strategy
 
 ### Phase 1: FOUNDATION (Current)
+
 - [x] Extract all YAML specs from chat transcript
 - [x] Organize into specs/ and patches/
 - [x] Apply patches to specs (merge wiring)
@@ -148,6 +155,7 @@ The `specs/` directory contains the complete blueprint for the CGA system:
 - [ ] Create extraction pipeline
 
 ### Phase 2: CGA CORE
+
 - [ ] Implement `codegen_agent.py` (main agent)
 - [ ] Implement `meta_loader.py` (YAML parsing)
 - [ ] Implement `c_gmp_engine.py` (code expansion)
@@ -155,18 +163,21 @@ The `specs/` directory contains the complete blueprint for the CGA system:
 - [ ] Implement `pipeline_validator.py` (validation)
 
 ### Phase 3: PIPELINE
+
 - [ ] Build IR compiler (meta.yaml → IR)
 - [ ] Build code generator (IR → Python)
 - [ ] Build wiring system (auto-registration)
 - [ ] Build test scaffold generator
 
 ### Phase 4: GOVERNANCE
+
 - [ ] Implement approval workflows
 - [ ] Add rollback system
 - [ ] Add audit trails
 - [ ] Integrate with L-CTO approval gates
 
 ### Phase 5: AUTONOMY
+
 - [ ] Self-evolution loop (CGA upgrades itself)
 - [ ] Perplexity integration (external knowledge)
 - [ ] Multi-agent swarm generation
@@ -183,28 +194,28 @@ contract:
   from: L-CTO
   to: CodeGenAgent
   priority: high
-  
+
 request:
   type: agent | module | tool | api | test
   name: MyNewAgent
   domain: orchestration | governance | memory | runtime
-  
+
 spec:
   description: |
     What this agent/module does and why it exists.
-    
+
   responsibilities:
     - First responsibility
     - Second responsibility
-    
+
   inputs:
     - PacketEnvelope
     - ConfigData
-    
+
   outputs:
     - Result
     - AuditLog
-    
+
   wiring:
     dependencies:
       - MemorySubstrate
@@ -213,11 +224,11 @@ spec:
       - on_packet_received
     emits:
       - telemetry_event
-      
+
   governance:
     approval_required: false
     risk_level: low | medium | high | critical
-    
+
   constraints:
     - Must be idempotent
     - Must log all actions
@@ -247,6 +258,7 @@ spec:
 ## 🎯 Success Criteria
 
 CGA is successful when:
+
 - ✅ Any agent/module can be generated from a contract
 - ✅ Generated code is production-ready (linted, typed, tested)
 - ✅ Wiring is automatic (no manual registration)
@@ -266,8 +278,6 @@ CGA is successful when:
 
 ---
 
-*Created: 2024-12-31*
-*Owner: CodeGenAgent System*
-*Authority: L-CTO*
-
-
+_Created: 2024-12-31_
+_Owner: CodeGenAgent System_
+_Authority: L-CTO_

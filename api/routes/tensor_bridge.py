@@ -5,11 +5,11 @@ Endpoints for Domain Tensor Bridge and TensorGlobe adapter.
 Provides HTTP access to tensor reasoning capabilities.
 """
 
-from typing import Dict, List, Optional, Any
 from datetime import datetime
+from typing import Any
 
 import structlog
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 from api.routes.registry import router_registry
@@ -39,12 +39,12 @@ class TensorInferenceRequest(BaseModel):
     """Request for tensor inference operations."""
 
     domain_id: str = Field(..., description="Domain context")
-    entities: List[str] = Field(..., description="Entities to process")
+    entities: list[str] = Field(..., description="Entities to process")
     operation: str = Field(
         ..., description="similarity_search, link_prediction, ranking, embedding"
     )
-    constraints: Dict[str, Any] = Field(default_factory=dict)
-    agent_id: Optional[str] = Field(None, description="Requesting agent ID")
+    constraints: dict[str, Any] = Field(default_factory=dict)
+    agent_id: str | None = Field(None, description="Requesting agent ID")
 
 
 class TensorInferenceResponse(BaseModel):
@@ -52,10 +52,10 @@ class TensorInferenceResponse(BaseModel):
 
     request_id: str
     success: bool
-    results: List[Dict[str, Any]] = Field(default_factory=list)
+    results: list[dict[str, Any]] = Field(default_factory=list)
     confidence: float = Field(default=0.0, ge=0.0, le=1.0)
     latency_ms: float = Field(default=0.0)
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class DomainPacketRequest(BaseModel):
@@ -63,10 +63,10 @@ class DomainPacketRequest(BaseModel):
 
     packet_type: str = Field(..., description="Type of domain packet")
     domain_id: str = Field(..., description="Domain identifier")
-    payload: Dict[str, Any] = Field(..., description="Packet payload")
-    context: Dict[str, Any] = Field(default_factory=dict)
+    payload: dict[str, Any] = Field(..., description="Packet payload")
+    context: dict[str, Any] = Field(default_factory=dict)
     enable_reasoning: bool = Field(default=True)
-    reasoning_modes: List[str] = Field(
+    reasoning_modes: list[str] = Field(
         default_factory=lambda: ["causal", "symbolic", "analogical"]
     )
 
@@ -76,19 +76,19 @@ class DomainPacketResponse(BaseModel):
 
     packet_id: str
     success: bool
-    decision: Optional[Dict[str, Any]] = None
-    reasoning_trace: List[Dict[str, Any]] = Field(default_factory=list)
+    decision: dict[str, Any] | None = None
+    reasoning_trace: list[dict[str, Any]] = Field(default_factory=list)
     governance_status: str = Field(default="pending")
     latency_ms: float = Field(default=0.0)
-    error: Optional[str] = None
+    error: str | None = None
 
 
 class BridgeStatusResponse(BaseModel):
     """Status of tensor bridge components."""
 
-    domain_tensor_bridge: Dict[str, Any]
-    tensorglobe_adapter: Dict[str, Any]
-    eos_status: Dict[str, Any]
+    domain_tensor_bridge: dict[str, Any]
+    tensorglobe_adapter: dict[str, Any]
+    eos_status: dict[str, Any]
     timestamp: datetime
 
 
@@ -98,7 +98,7 @@ class BridgeStatusResponse(BaseModel):
 
 
 @router.get("/health")
-async def tensor_bridge_health() -> Dict[str, Any]:
+async def tensor_bridge_health() -> dict[str, Any]:
     """Check tensor bridge health status."""
     return {
         "status": "healthy",
@@ -145,15 +145,14 @@ async def tensor_inference(request: TensorInferenceRequest) -> TensorInferenceRe
     - ranking: Rank entities by criteria
     - embedding: Generate embeddings
     """
-    import uuid
     import time
+    import uuid
 
     start_time = time.time()
     request_id = str(uuid.uuid4())
 
     try:
         # Import DTB components
-        from domain_tensor_bridge import ReasoningEngine
 
         logger.info(
             "tensor_inference.started",
@@ -206,20 +205,14 @@ async def process_domain_packet(request: DomainPacketRequest) -> DomainPacketRes
     4. Decision synthesis
     5. Governance gate
     """
-    import uuid
     import time
+    import uuid
 
     start_time = time.time()
     packet_id = str(uuid.uuid4())
 
     try:
         # Import DTB components
-        from domain_tensor_bridge import (
-            AgentController,
-            ReasoningEngine,
-            DecisionSynthesizer,
-            GovernanceBridge,
-        )
 
         logger.info(
             "process_packet.started",
@@ -288,7 +281,7 @@ async def process_domain_packet(request: DomainPacketRequest) -> DomainPacketRes
 
 
 @router.get("/reasoning-modes")
-async def list_reasoning_modes() -> Dict[str, Any]:
+async def list_reasoning_modes() -> dict[str, Any]:
     """List available reasoning modes in the Domain Tensor Bridge."""
     return {
         "available_modes": [
@@ -318,7 +311,7 @@ async def list_reasoning_modes() -> Dict[str, Any]:
 
 
 @router.get("/eos/status")
-async def eos_status() -> Dict[str, Any]:
+async def eos_status() -> dict[str, Any]:
     """Get EOS (Epistemic Operating System) status."""
     try:
         from core.eos import AccountabilityEngine

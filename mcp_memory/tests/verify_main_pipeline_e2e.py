@@ -42,7 +42,7 @@ import json
 import os
 import sys
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import UUID
 
 import asyncpg
@@ -98,8 +98,8 @@ class MCPClient:
         kind: str,
         scope: str = "developer",
         duration: str = "long",
-        tags: Optional[list] = None,
-    ) -> Dict[str, Any]:
+        tags: list | None = None,
+    ) -> dict[str, Any]:
         """Save memory via MCP tool."""
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
@@ -125,7 +125,7 @@ class MCPClient:
         query: str,
         top_k: int = 5,
         threshold: float = 0.7,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Search memory via MCP tool."""
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(
@@ -155,7 +155,7 @@ class PipelineTracer:
 
     def __init__(self, dsn: str):
         self.dsn = dsn
-        self.conn: Optional[asyncpg.Connection] = None
+        self.conn: asyncpg.Connection | None = None
 
     async def connect(self):
         """Connect to database."""
@@ -166,7 +166,7 @@ class PipelineTracer:
         if self.conn:
             await self.conn.close()
 
-    async def trace_packet(self, packet_id: str) -> Dict[str, Any]:
+    async def trace_packet(self, packet_id: str) -> dict[str, Any]:
         """Trace packet through all pipeline stages."""
         packet_uuid = UUID(packet_id)
 
@@ -178,7 +178,7 @@ class PipelineTracer:
         # Stage 1: packet_store (event log)
         packet_row = await self.conn.fetchrow(
             """
-            SELECT 
+            SELECT
                 packet_id,
                 packet_type,
                 envelope,
@@ -219,7 +219,7 @@ class PipelineTracer:
         # Stage 2: memory_embeddings (vector store)
         embedding_row = await self.conn.fetchrow(
             """
-            SELECT 
+            SELECT
                 embedding_id,
                 embedding_type,
                 chunk_text,
@@ -249,7 +249,7 @@ class PipelineTracer:
         # Stage 3: knowledge_facts (fact extraction)
         facts = await self.conn.fetch(
             """
-            SELECT 
+            SELECT
                 fact_id,
                 subject,
                 predicate,
@@ -287,7 +287,7 @@ class PipelineTracer:
         # Stage 4: reasoning_traces (reasoning traces)
         trace_row = await self.conn.fetchrow(
             """
-            SELECT 
+            SELECT
                 trace_id,
                 agent_id,
                 steps,
@@ -339,9 +339,7 @@ async def verify_main_pipeline():
         sys.exit(1)
 
     if not Config.MEMORY_DSN:
-        logger.warning(
-            "⚠️  WARNING: MEMORY_DSN not set. Cannot trace through database."
-        )
+        logger.warning("⚠️  WARNING: MEMORY_DSN not set. Cannot trace through database.")
         logger.info("   Set MEMORY_DSN to enable full pipeline tracing.")
         trace_db = False
     else:
@@ -496,9 +494,7 @@ async def verify_main_pipeline():
                 )
                 stages_ok.append("reasoning_traces")
             else:
-                logger.info(
-                    "⚠️  Stage 4: reasoning_traces - No reasoning trace created"
-                )
+                logger.info("⚠️  Stage 4: reasoning_traces - No reasoning trace created")
                 logger.info(
                     "   (This is OK - reasoning traces may not be created for all packets)"
                 )
@@ -529,13 +525,11 @@ async def verify_main_pipeline():
                 if save_result.get("pipeline") == "main_dag":
                     logger.info("✅ Pipeline indicator confirmed: 'main_dag'")
                 return 0
-            else:
-                logger.error("❌ PIPELINE VERIFICATION FAILED: Critical stages missing")
-                return 1
-        else:
-            logger.info("⚠️  Database tracing disabled - cannot verify pipeline stages")
-            logger.info("   Set MEMORY_DSN to enable full verification")
-            return 0
+            logger.error("❌ PIPELINE VERIFICATION FAILED: Critical stages missing")
+            return 1
+        logger.info("⚠️  Database tracing disabled - cannot verify pipeline stages")
+        logger.info("   Set MEMORY_DSN to enable full verification")
+        return 0
 
     except Exception as e:
         logger.error(f"❌ ERROR: {e}")

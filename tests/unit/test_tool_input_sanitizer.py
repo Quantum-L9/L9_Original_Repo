@@ -2,8 +2,7 @@ import pytest
 
 
 def test_sanitizer_rejects_non_object_arguments():
-    from core.tools.sanitizer import (ToolInputSanitizationError,
-                                      ToolInputSanitizer)
+    from core.tools.sanitizer import ToolInputSanitizationError, ToolInputSanitizer
 
     s = ToolInputSanitizer()
     with pytest.raises(ToolInputSanitizationError):
@@ -13,8 +12,7 @@ def test_sanitizer_rejects_non_object_arguments():
 
 
 def test_sanitizer_enforces_required_fields():
-    from core.tools.sanitizer import (ToolInputSanitizationError,
-                                      ToolInputSanitizer)
+    from core.tools.sanitizer import ToolInputSanitizationError, ToolInputSanitizer
 
     s = ToolInputSanitizer()
     schema = {
@@ -28,8 +26,7 @@ def test_sanitizer_enforces_required_fields():
 
 
 def test_sanitizer_rejects_unknown_keys_when_schema_has_properties():
-    from core.tools.sanitizer import (ToolInputSanitizationError,
-                                      ToolInputSanitizer)
+    from core.tools.sanitizer import ToolInputSanitizationError, ToolInputSanitizer
 
     s = ToolInputSanitizer()
     schema = {
@@ -62,8 +59,7 @@ def test_sanitizer_coerces_int_and_strips_strings():
 
 
 def test_sanitizer_blocks_path_traversal_for_path_like_keys():
-    from core.tools.sanitizer import (ToolInputSanitizationError,
-                                      ToolInputSanitizer)
+    from core.tools.sanitizer import ToolInputSanitizationError, ToolInputSanitizer
 
     s = ToolInputSanitizer()
     schema = {

@@ -79,10 +79,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -103,12 +104,12 @@ class SingletonEntry:
 
     name: str
     module_path: str
-    instance: Optional[Any] = None
-    getter: Optional[Callable] = None
-    closer: Optional[Callable] = None
+    instance: Any | None = None
+    getter: Callable | None = None
+    closer: Callable | None = None
     lifecycle: SingletonLifecycle = SingletonLifecycle.LAZY
-    dependencies: List[str] = field(default_factory=list)
-    initialized_at: Optional[datetime] = None
+    dependencies: list[str] = field(default_factory=list)
+    initialized_at: datetime | None = None
     description: str = ""
 
     def is_initialized(self) -> bool:
@@ -129,17 +130,17 @@ class SingletonRegistry:
 
     def __init__(self):
         """Initialize empty registry."""
-        self._singletons: Dict[str, SingletonEntry] = {}
-        self._initialization_order: List[str] = []
+        self._singletons: dict[str, SingletonEntry] = {}
+        self._initialization_order: list[str] = []
 
     def register(
         self,
         name: str,
         module_path: str,
-        getter: Optional[Callable] = None,
-        closer: Optional[Callable] = None,
+        getter: Callable | None = None,
+        closer: Callable | None = None,
         lifecycle: SingletonLifecycle = SingletonLifecycle.LAZY,
-        dependencies: Optional[List[str]] = None,
+        dependencies: list[str] | None = None,
         description: str = "",
     ) -> None:
         """
@@ -169,7 +170,7 @@ class SingletonRegistry:
 
         logger.debug(f"Registered singleton: {name} ({module_path})")
 
-    def get(self, name: str) -> Optional[Any]:
+    def get(self, name: str) -> Any | None:
         """
         Get singleton instance by name (sync version).
 
@@ -211,7 +212,7 @@ class SingletonRegistry:
 
         return entry.instance
 
-    async def get_async(self, name: str) -> Optional[Any]:
+    async def get_async(self, name: str) -> Any | None:
         """
         Get singleton instance by name (async version).
 
@@ -276,8 +277,7 @@ class SingletonRegistry:
                         f"Singleton {name} has async closer, use close_async()"
                     )
                     return False
-                else:
-                    entry.closer()
+                entry.closer()
 
             entry.instance = None
             entry.initialized_at = None
@@ -327,7 +327,7 @@ class SingletonRegistry:
             logger.error(f"Error closing singleton {name}: {e}")
             return False
 
-    def close_all(self) -> Dict[str, bool]:
+    def close_all(self) -> dict[str, bool]:
         """
         Close all initialized singletons (in reverse initialization order).
 
@@ -340,7 +340,7 @@ class SingletonRegistry:
             results[name] = self.close(name)
         return results
 
-    async def close_all_async(self) -> Dict[str, bool]:
+    async def close_all_async(self) -> dict[str, bool]:
         """
         Close all initialized singletons (async, reverse order).
 
@@ -353,15 +353,15 @@ class SingletonRegistry:
             results[name] = await self.close_async(name)
         return results
 
-    def list_all(self) -> List[SingletonEntry]:
+    def list_all(self) -> list[SingletonEntry]:
         """List all registered singletons."""
         return list(self._singletons.values())
 
-    def list_initialized(self) -> List[SingletonEntry]:
+    def list_initialized(self) -> list[SingletonEntry]:
         """List all initialized singletons."""
         return [e for e in self._singletons.values() if e.is_initialized()]
 
-    def get_entry(self, name: str) -> Optional[SingletonEntry]:
+    def get_entry(self, name: str) -> SingletonEntry | None:
         """Get registry entry for a singleton."""
         return self._singletons.get(name)
 
@@ -376,7 +376,7 @@ class SingletonRegistry:
         self._initialization_order.clear()
         logger.debug("Registry reset complete")
 
-    def validate_dependencies(self, name: str) -> tuple[bool, List[str]]:
+    def validate_dependencies(self, name: str) -> tuple[bool, list[str]]:
         """
         Validate that all dependencies for a singleton are satisfied.
 
@@ -400,7 +400,7 @@ class SingletonRegistry:
 
         return len(missing) == 0, missing
 
-    def get_by_category(self, category: str) -> List[SingletonEntry]:
+    def get_by_category(self, category: str) -> list[SingletonEntry]:
         """
         Get singletons by category (inferred from module path).
 
@@ -431,7 +431,7 @@ class SingletonRegistry:
             if any(e.module_path.startswith(p) for p in prefixes)
         ]
 
-    def get_health_status(self) -> Dict[str, Any]:
+    def get_health_status(self) -> dict[str, Any]:
         """
         Get health status of all singletons.
 
@@ -492,7 +492,7 @@ class SingletonRegistry:
             "initialization_order": self._initialization_order.copy(),
         }
 
-    def get_dependency_graph(self) -> Dict[str, List[str]]:
+    def get_dependency_graph(self) -> dict[str, list[str]]:
         """
         Get dependency graph for all singletons.
 
@@ -510,7 +510,7 @@ class SingletonRegistry:
 # Global Singleton Registry Instance
 # =============================================================================
 
-_registry: Optional[SingletonRegistry] = None
+_registry: SingletonRegistry | None = None
 
 
 def get_singleton_registry() -> SingletonRegistry:
@@ -595,8 +595,7 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Memory Substrate Repository
     try:
-        from memory.substrate_repository import (close_repository,
-                                                 get_repository)
+        from memory.substrate_repository import close_repository, get_repository
 
         registry.register(
             name="memory_substrate_repository",
@@ -799,8 +798,10 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # World Model Service
     try:
-        from world_model.service import (close_world_model_service,
-                                         get_world_model_service)
+        from world_model.service import (
+            close_world_model_service,
+            get_world_model_service,
+        )
 
         registry.register(
             name="world_model_service",
@@ -817,8 +818,7 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # World Model Engine
     try:
-        from world_model.engine import (get_world_model_engine,
-                                        reset_world_model_engine)
+        from world_model.engine import get_world_model_engine, reset_world_model_engine
 
         def close_world_model_engine():
             reset_world_model_engine()
@@ -842,8 +842,7 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Memory Client
     try:
-        from clients.memory_client import (close_memory_client,
-                                           get_memory_client)
+        from clients.memory_client import close_memory_client, get_memory_client
 
         registry.register(
             name="memory_client",
@@ -859,8 +858,10 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # World Model Client
     try:
-        from clients.world_model_client import (close_world_model_client,
-                                                get_world_model_client)
+        from clients.world_model_client import (
+            close_world_model_client,
+            get_world_model_client,
+        )
 
         registry.register(
             name="world_model_client",
@@ -969,8 +970,7 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Research Graph Runtime
     try:
-        from services.research.graph_runtime import (get_runtime,
-                                                     shutdown_runtime)
+        from services.research.graph_runtime import get_runtime, shutdown_runtime
 
         registry.register(
             name="research_graph_runtime",
@@ -987,8 +987,10 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Research Settings
     try:
-        from config.research_settings import (get_research_settings,
-                                              reset_research_settings)
+        from config.research_settings import (
+            get_research_settings,
+            reset_research_settings,
+        )
 
         def close_research_settings():
             reset_research_settings()
@@ -1012,7 +1014,9 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
     # Cursor Memory Kernel
     try:
         from agents.cursor.cursor_memory_kernel import (
-            create_cursor_memory_kernel, get_active_kernel)
+            create_cursor_memory_kernel,
+            get_active_kernel,
+        )
 
         def get_cursor_memory_kernel():
             # Try to get active kernel first, fallback to creating new one
@@ -1066,9 +1070,9 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
 
 __all__ = [
-    "SingletonRegistry",
     "SingletonEntry",
     "SingletonLifecycle",
+    "SingletonRegistry",
     "get_singleton_registry",
 ]
 

@@ -53,7 +53,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from core.kernels.schemas import (
     KernelActivationResult,
@@ -77,7 +77,7 @@ class KernelValidator(Protocol):
     - MockKernelValidator: Test double for unit testing
     """
 
-    def validate(self, data: Dict[str, Any], file_path: str) -> KernelValidationResult:
+    def validate(self, data: dict[str, Any], file_path: str) -> KernelValidationResult:
         """
         Validate kernel data against schema.
 
@@ -120,7 +120,7 @@ class KernelDiscovery(Protocol):
     - DynamicKernelDiscovery: Runtime-determined order
     """
 
-    def discover_kernels(self, base_path: Path) -> List[Path]:
+    def discover_kernels(self, base_path: Path) -> list[Path]:
         """
         Discover kernel files from base path.
 
@@ -136,7 +136,7 @@ class KernelDiscovery(Protocol):
         """
         ...
 
-    def get_kernel_order(self) -> List[str]:
+    def get_kernel_order(self) -> list[str]:
         """
         Get the configured kernel loading order.
 
@@ -217,7 +217,7 @@ class KernelActivator(Protocol):
         self,
         manifest: KernelManifest,
         agent: Any,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> KernelActivationResult:
         """
         Activate a kernel with context injection.
@@ -262,7 +262,7 @@ class KernelStateManager(Protocol):
     - DistributedStateManager: State shared across instances
     """
 
-    def get_state(self, kernel_id: str) -> Optional[KernelState]:
+    def get_state(self, kernel_id: str) -> KernelState | None:
         """
         Get current state of a kernel.
 
@@ -300,7 +300,7 @@ class KernelStateManager(Protocol):
         """
         ...
 
-    def get_all_states(self) -> Dict[str, KernelState]:
+    def get_all_states(self) -> dict[str, KernelState]:
         """
         Get states of all tracked kernels.
 
@@ -323,7 +323,7 @@ class KernelAwareAgent(Protocol):
     """
 
     def kernel_activate(
-        self, manifest: KernelManifest, context: Optional[Dict[str, Any]] = None
+        self, manifest: KernelManifest, context: dict[str, Any] | None = None
     ) -> KernelActivationResult:
         """
         Activate agent with kernel manifest.
@@ -346,7 +346,7 @@ class KernelAwareAgent(Protocol):
         """
         ...
 
-    def get_kernel_state(self) -> Optional[KernelState]:
+    def get_kernel_state(self) -> KernelState | None:
         """
         Get current kernel state.
 
@@ -357,12 +357,12 @@ class KernelAwareAgent(Protocol):
 
 
 __all__ = [
-    "KernelValidator",
-    "KernelDiscovery",
     "IntegrityVerifier",
     "KernelActivator",
-    "KernelStateManager",
     "KernelAwareAgent",
+    "KernelDiscovery",
+    "KernelStateManager",
+    "KernelValidator",
 ]
 
 # ============================================================================

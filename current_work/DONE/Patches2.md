@@ -92,13 +92,13 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing database...")
     await init_db()
     logger.info("✓ Database initialized")
-    
+
     # Initialize L9 Memory Substrate Service (uses same pipeline as L agent)
     logger.info("Initializing L9 Memory Substrate Service...")
     try:
         from memory.substrate_service import init_service
         import os
-        
+
         database_url = settings.MEMORY_DSN or os.getenv("DATABASE_URL")
         if not database_url:
             logger.warning(
@@ -121,7 +121,7 @@ async def lifespan(app: FastAPI):
             "MCP memory will fall back to direct DB access."
         )
         app.state.substrate_service = None
-    
+
     app.state.rate_limiter = RateLimiter(
         request_limit=RATE_LIMIT_REQUESTS,
         request_window_seconds=RATE_LIMIT_WINDOW,
@@ -133,12 +133,12 @@ async def lifespan(app: FastAPI):
     yield
     logger.info("Closing database connections...")
     await close_db()
-    
+
     # Close memory service if initialized
     if hasattr(app.state, "substrate_service") and app.state.substrate_service:
         from memory.substrate_service import close_service
         await close_service()
-    
+
     logger.info("✓ Shutdown complete")
 
 
@@ -162,10 +162,10 @@ def check_rate_limit(ip: str) -> None:
     """Check if IP has exceeded rate limit. Raises 429 if so."""
     now = time.time()
     cutoff = now - RATE_LIMIT_WINDOW
-    
+
     # Clean old entries
     request_log[ip] = [(ts, ok) for ts, ok in request_log[ip] if ts > cutoff]
-    
+
     if len(request_log[ip]) >= RATE_LIMIT_REQUESTS:
         logger.warning(f"Rate limit exceeded for IP: {ip}")
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again later.")
@@ -175,10 +175,10 @@ def check_auth_block(ip: str) -> None:
     """Check if IP is blocked due to failed auth attempts."""
     now = time.time()
     cutoff = now - FAILED_AUTH_BLOCK_SECONDS
-    
+
     # Clean old entries
     failed_auth_log[ip] = [ts for ts in failed_auth_log[ip] if ts > cutoff]
-    
+
     if len(failed_auth_log[ip]) >= FAILED_AUTH_LIMIT:
         logger.warning(f"IP blocked due to failed auth attempts: {ip}")
         raise HTTPException(status_code=403, detail="Too many failed attempts. Blocked temporarily.")
@@ -192,7 +192,7 @@ def record_failed_auth(ip: str) -> None:
 
 class CallerIdentity:
     """Caller identity determined from API key.
-    
+
     See: mcp_memory/memory-setup-instructions.md for governance spec.
     - L: L-CTO kernel (full read/write/delete for shared userid)
     - C: Cursor IDE (read all, write/delete own memories only)
@@ -202,12 +202,12 @@ class CallerIdentity:
         self.user_id = user_id      # Shared userid
         self.is_l = caller_id == "L"
         self.is_c = caller_id == "C"
-    
+
     @property
     def creator(self) -> str:
         """Metadata creator value for this caller."""
         return "L-CTO" if self.is_l else "Cursor-IDE"
-    
+
     @property
     def source(self) -> str:
         """Metadata source value for this caller."""
@@ -216,14 +216,14 @@ class CallerIdentity:
 
 async def verify_api_key(request: Request, authorization: str = Header(None)) -> CallerIdentity:
     """Verify API key and return caller identity with rate limiting and brute-force protection.
-    
+
     Returns CallerIdentity with:
     - caller_id: "L" or "C"
     - user_id: Shared userid (L_CTO_USER_ID)
     - creator/source: For metadata enforcement
     """
     ip = get_client_ip(request)
-    
+
     rate_limiter = getattr(request.app.state, "rate_limiter", None)
     if rate_limiter is None:
         rate_limiter = RateLimiter(
@@ -236,14 +236,14 @@ async def verify_api_key(request: Request, authorization: str = Header(None)) ->
 
     # Check if IP is blocked
     check_auth_block(ip)
-    
+
     if await rate_limiter.is_auth_blocked(ip):
         logger.warning(f"IP blocked due to failed auth attempts: {ip}")
         raise HTTPException(status_code=403, detail="Too many failed attempts. Blocked temporarily.")
 
     # Check rate limit
     check_rate_limit(ip)
-    
+
     if await rate_limiter.is_rate_limited(ip):
         logger.warning(f"Rate limit exceeded for IP: {ip}")
         raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again later.")
@@ -251,7 +251,7 @@ async def verify_api_key(request: Request, authorization: str = Header(None)) ->
     # Record this request
     request_log[ip].append((time.time(), True))
     await rate_limiter.record_request(ip, now=time.time())
-    
+
     if not authorization or not authorization.startswith("Bearer "):
         record_failed_auth(ip)
         await rate_limiter.record_failed_auth(ip, now=time.time())
@@ -266,13 +266,13 @@ async def verify_api_key(request: Request, authorization: str = Header(None)) ->
             status_code=401, detail="Missing or invalid Authorization header"
         )
     token = authorization.replace("Bearer ", "")
-    
+
     # Determine caller from API key (with legacy fallback support)
     from src.config import get_api_key_l, get_api_key_c
-    
+
     api_key_l = get_api_key_l()
     api_key_c = get_api_key_c()
-    
+
     # Primary keys first
     if api_key_l and token == api_key_l:
         return CallerIdentity(caller_id="L", user_id=settings.L_CTO_USER_ID)
@@ -621,7 +621,7 @@ mcp_memory/src/routes/memory_unified.py
 
 @@ -427,50 +427,51 @@ async def _save_via_direct_db(
     )
-    
+
     return {
         "packet_id": str(packet_id),
         "embedding_id": str(embedding_result["embedding_id"]),
@@ -649,7 +649,7 @@ async def search_memory_handler(
 ) -> Dict[str, Any]:
     """
     Search unified L9 substrate using memory_embeddings with packet_store join.
-    
+
     Uses vector similarity search on memory_embeddings, then joins to packet_store
     for full envelope data and scope filtering.
     """
@@ -657,23 +657,23 @@ async def search_memory_handler(
         embed_start = time.time()
         query_embedding = await embed_text(query)
         embed_time_ms = (time.time() - embed_start) * 1000
-        
+
         # Convert embedding vector to string format for pgvector
         # pgvector expects format: '[1.0,2.0,3.0]'
         query_embedding_str = f"[{','.join(str(v) for v in query_embedding)}]"
-        
+
         # Map MCP scopes to DB scopes
         db_scopes = [map_mcp_scope_to_db_scope(s) for s in (scopes or ["developer", "global"])]
-        
+
         search_start = time.time()
-        
+
         # Build WHERE clause for scope filtering
         scope_filter = ""
         params = [query_embedding_str, threshold, top_k]
         param_idx = 4
 @@ -511,52 +512,52 @@ async def search_memory_handler(
         search_query = f"""
-        SELECT 
+        SELECT
             ps.packet_id,
             ps.packet_type,
             ps.envelope,
@@ -694,9 +694,9 @@ async def search_memory_handler(
         ORDER BY similarity DESC
         LIMIT $3;
         """
-        
+
         rows = await fetch_all(search_query, *params)
-        
+
         # Update access tracking
         if rows:
         # Update access tracking (explicit opt-in)
@@ -704,14 +704,14 @@ async def search_memory_handler(
             packet_ids = [r["packet_id"] for r in rows]
             await execute(
                 """
-                UPDATE packet_store 
+                UPDATE packet_store
                 SET access_count = access_count + 1,
                     last_accessed = CURRENT_TIMESTAMP
                 WHERE packet_id = ANY($1::uuid[]);
                 """,
                 packet_ids,
             )
-        
+
         # Format results
         results = []
         for row in rows:
@@ -724,7 +724,7 @@ async def search_memory_handler(
                     envelope = {}
             payload = envelope.get("payload", {}) if isinstance(envelope, dict) else {}
             mcp_scope = map_db_scope_to_mcp_scope(row["db_scope"])
-            
+
             results.append({
 @@ -614,50 +615,51 @@ async def save_memory_route(
         content=req["content"],
@@ -767,7 +767,7 @@ async def get_memory_stats(
 ) -> Dict[str, Any]:
     """
     Get memory statistics from unified substrate.
-    
+
     Queries packet_store instead of deprecated memory.* tables.
     """
     try:
@@ -775,7 +775,7 @@ async def get_memory_stats(
         user_filter = ""
         params = []
         param_idx = 1
-        
+
         if user_id:
             # Filter by envelope metadata (user_id is in envelope JSONB)
 @@ -1443,26 +1445,25 @@ async def save_memory_with_confidence(
@@ -789,7 +789,7 @@ async def get_memory_stats(
             creator=creator,
             source=source,
         )
-        
+
         # Log relationships if provided
         if related_memory_ids:
             for related_id in related_memory_ids:
@@ -799,7 +799,7 @@ async def get_memory_stats(
                     packet_id=result["packet_id"],
                     related_to=related_id,
                 )
-        
+
         return result
     except Exception as e:
         logger.exception("Error saving memory with confidence")
@@ -945,7 +945,7 @@ class IngestionPipeline:
                     # Store structured packet (uses transaction connection)
                     await self._store_packet_with_connection(envelope, conn)
                     written_tables.append("packet_store")
-                    
+
                     # Store memory event (uses same transaction connection)
                     await self._store_memory_event_with_connection(envelope, conn)
                     written_tables.append("agent_memory_events")
@@ -958,7 +958,7 @@ class IngestionPipeline:
                             agent_id=agent_id,
                         )
                         written_tables.append("semantic_memory")
-                    
+
                     # Transaction commits here (or rolls back on exception)
             except Exception as e:
                 logger.error(f"Transaction failed for core writes: {e}")
@@ -1213,8 +1213,8 @@ memory/substrate_repository.py
             if agent_id:
                 rows = await conn.fetch(
                     """
-                    SELECT 
-                        embedding_id, 
+                    SELECT
+                        embedding_id,
 memory/substrate_semantic.py
 memory/substrate_semantic.py
 +19
@@ -1338,19 +1338,19 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class ToolEmbedding:
     """Embedded tool for semantic search."""
-    
+
     tool_name: str
     description: str
     category: str
     embedding_id: UUID = field(default_factory=uuid4)
-    
+
     # Metadata
     risk_level: str = "low"
 @@ -141,137 +142,146 @@ class ToolRouter:
-    
+
     # Agent ID used for tool embeddings
     TOOL_AGENT_ID = "tool_router"
-    
+
     def __init__(
         self,
         embedding_provider: Optional[Any] = None,
@@ -1359,7 +1359,7 @@ class ToolEmbedding:
     ):
         """
         Initialize tool router.
-        
+
         Args:
             embedding_provider: EmbeddingProvider for generating embeddings
             repository: SubstrateRepository for pgvector storage
@@ -1368,25 +1368,25 @@ class ToolEmbedding:
         self._provider = embedding_provider
         self._repository = repository
         self._cache_embeddings = cache_embeddings
-        
+
         # In-memory cache for testing without DB
         self._tool_cache: dict[str, ToolEmbedding] = {}
         self._embedding_cache: dict[str, list[float]] = {}
         self._cache_lock = asyncio.Lock()
         self._cache_version = 0
-        
+
         # Track if tools have been embedded
         self._tools_embedded = False
-        
+
         logger.info("ToolRouter initialized", cache_enabled=cache_embeddings)
-    
+
     async def embed_tool(self, tool: Any) -> Optional[ToolEmbedding]:
         """
         Embed a single tool definition.
-        
+
         Args:
             tool: ToolDefinition from core.tools.tool_graph
-            
+
         Returns:
             ToolEmbedding if successful
         """
@@ -1398,7 +1398,7 @@ class ToolEmbedding:
         is_destructive = getattr(tool, "is_destructive", False)
         requires_confirmation = getattr(tool, "requires_confirmation", False)
         external_apis = getattr(tool, "external_apis", [])
-        
+
         # Create embedding record
         embedding = ToolEmbedding(
             tool_name=tool_name,
@@ -1409,9 +1409,9 @@ class ToolEmbedding:
             requires_confirmation=requires_confirmation,
             external_apis=external_apis,
         )
-        
+
         embedding.content_hash = embedding.compute_hash()
-        
+
         # Check if already embedded with same content
         if tool_name in self._tool_cache:
             cached = self._tool_cache[tool_name]
@@ -1423,27 +1423,27 @@ class ToolEmbedding:
         if cached and cached.content_hash == embedding.content_hash:
             logger.debug(f"Tool already embedded: {tool_name}")
             return cached
-        
+
         # Generate embedding
         searchable_text = embedding.to_searchable_text()
-        
+
         vector = None
         if self._provider:
             try:
                 vector = await self._provider.embed_text(searchable_text)
-                
+
                 # Store in pgvector if repository available
                 if self._repository:
                     await self._store_embedding(embedding, vector)
-                
+
                 # Cache
                 if self._cache_embeddings:
                     self._embedding_cache[tool_name] = vector
-                
+
             except Exception as e:
                 logger.error(f"Failed to embed tool {tool_name}: {e}")
                 return None
-        
+
         embedding.embedded_at = datetime.utcnow()
         self._tool_cache[tool_name] = embedding
 
@@ -1456,17 +1456,17 @@ class ToolEmbedding:
             embedding.embedded_at = datetime.utcnow()
             self._tool_cache[tool_name] = embedding
             self._cache_version += 1
-        
+
         logger.debug(f"Embedded tool: {tool_name}")
         return embedding
-    
+
     async def embed_tools(self, tools: list[Any]) -> int:
         """
         Embed multiple tool definitions.
-        
+
         Args:
             tools: List of ToolDefinition objects
-            
+
         Returns:
             Number of tools successfully embedded
         """
@@ -1475,14 +1475,14 @@ class ToolEmbedding:
             result = await self.embed_tool(tool)
             if result:
                 count += 1
-        
+
         self._tools_embedded = True
         async with self._cache_lock:
             self._tools_embedded = True
             self._cache_version += 1
         logger.info(f"Embedded {count}/{len(tools)} tools")
         return count
-    
+
     async def _store_embedding(
         self,
         tool: ToolEmbedding,
@@ -1491,7 +1491,7 @@ class ToolEmbedding:
         """Store tool embedding in pgvector."""
         if not self._repository:
             return
-        
+
         try:
             # Use semantic_memory table with tool_router agent_id
             await self._repository.store_semantic_memory(
@@ -1508,13 +1508,13 @@ class ToolEmbedding:
 @@ -320,123 +330,138 @@ class ToolRouter:
                     if hit.get("score", 0) < min_similarity:
                         continue
-                    
+
                     payload = hit.get("payload", {})
-                    
+
                     # Apply category filter
                     if category_filter and payload.get("category") != category_filter:
                         continue
-                    
+
                     matches.append(ToolMatch(
                         tool_name=payload.get("tool_name", "unknown"),
                         description=payload.get("description", ""),
@@ -1524,22 +1524,22 @@ class ToolEmbedding:
                         is_destructive=payload.get("is_destructive", False),
                         external_apis=payload.get("external_apis", []),
                     ))
-                    
+
                     if len(matches) >= limit:
                         break
-                        
+
             except Exception as e:
                 logger.warning(f"pgvector search failed, falling back to cache: {e}")
-        
+
         tool_cache, _, _, _ = await self._snapshot_cache()
 
         # Fallback to in-memory cache search
         if not matches and self._tool_cache:
         if not matches and tool_cache:
             matches = await self._search_cache(query, limit, min_similarity, category_filter)
-        
+
         search_time = (time.time() - start_time) * 1000
-        
+
         return ToolSearchResult(
             query=query,
             matches=matches,
@@ -1547,7 +1547,7 @@ class ToolEmbedding:
             total_tools=len(self._tool_cache),
             total_tools=len(tool_cache),
         )
-    
+
     async def _search_cache(
         self,
         query: str,
@@ -1561,33 +1561,33 @@ class ToolEmbedding:
             # Without embeddings, do simple text matching
             return self._text_match_cache(query, limit, category_filter)
             return self._text_match_cache(tool_cache, query, limit, category_filter)
-        
+
         try:
             query_vector = await self._provider.embed_text(query)
         except Exception:
             return self._text_match_cache(query, limit, category_filter)
             return self._text_match_cache(tool_cache, query, limit, category_filter)
-        
+
         # Compute similarities
         scored: list[tuple[float, ToolEmbedding]] = []
-        
+
         for tool_name, tool in self._tool_cache.items():
         for tool_name, tool in tool_cache.items():
             if category_filter and tool.category != category_filter:
                 continue
-            
+
             if tool_name in self._embedding_cache:
                 tool_vector = self._embedding_cache[tool_name]
             if tool_name in embedding_cache:
                 tool_vector = embedding_cache[tool_name]
                 similarity = self._cosine_similarity(query_vector, tool_vector)
-                
+
                 if similarity >= min_similarity:
                     scored.append((similarity, tool))
-        
+
         # Sort by similarity
         scored.sort(key=lambda x: x[0], reverse=True)
-        
+
         return [
             ToolMatch(
                 tool_name=tool.tool_name,
@@ -1611,7 +1611,7 @@ class ToolEmbedding:
                 self._tools_embedded,
                 self._cache_version,
             )
-    
+
     def _text_match_cache(
         self,
         tool_cache: dict[str, ToolEmbedding],
@@ -1622,23 +1622,23 @@ class ToolEmbedding:
         """Simple text matching fallback."""
         query_lower = query.lower()
         query_words = set(query_lower.split())
-        
+
         scored: list[tuple[int, ToolEmbedding]] = []
-        
+
         for tool in self._tool_cache.values():
         for tool in tool_cache.values():
             if category_filter and tool.category != category_filter:
                 continue
-            
+
             # Count word matches
             tool_text = f"{tool.tool_name} {tool.description}".lower()
             score = sum(1 for word in query_words if word in tool_text)
-            
+
             if score > 0:
                 scored.append((score, tool))
-        
+
         scored.sort(key=lambda x: x[0], reverse=True)
-        
+
         return [
             ToolMatch(
                 tool_name=tool.tool_name,
@@ -1651,15 +1651,15 @@ class ToolEmbedding:
             )
             for score, tool in scored[:limit]
         ]
-    
+
 @@ -484,65 +509,68 @@ class ToolRouter:
                 apis = f" (uses: {', '.join(match.external_apis)})" if match.external_apis else ""
                 lines.append(f"- **{match.tool_name}**{risk}: {match.description}{apis}")
             else:
                 lines.append(f"- **{match.tool_name}**: {match.description}")
-        
+
         return "\n".join(lines)
-    
+
     async def get_tools_for_task(
         self,
         task_description: str,
@@ -1667,24 +1667,24 @@ class ToolEmbedding:
     ) -> str:
         """
         Convenience method: search and format in one call.
-        
+
         Args:
             task_description: What the agent is trying to do
             limit: Max tools to return
-            
+
         Returns:
             Formatted tool context string
         """
         result = await self.find_relevant_tools(task_description, limit=limit)
         return self.get_tool_context(result)
-    
+
     def list_embedded_tools(self) -> list[str]:
     async def list_embedded_tools(self) -> list[str]:
         """List all embedded tool names."""
         return list(self._tool_cache.keys())
         tool_cache, _, _, _ = await self._snapshot_cache()
         return list(tool_cache.keys())
-    
+
     def get_stats(self) -> dict[str, Any]:
     async def get_stats(self) -> dict[str, Any]:
         """Get router statistics."""
@@ -1693,7 +1693,7 @@ class ToolEmbedding:
         for tool in self._tool_cache.values():
         for tool in tool_cache.values():
             categories[tool.category] = categories.get(tool.category, 0) + 1
-        
+
         return {
             "total_tools": len(self._tool_cache),
             "tools_with_embeddings": len(self._embedding_cache),
@@ -1720,11 +1720,11 @@ async def get_tool_router(
 ) -> ToolRouter:
     """Get or create singleton tool router."""
     global _router
-    
+
     if _router is None:
         _router = ToolRouter(
             embedding_provider=embedding_provider,
             repository=repository,
         )
-    
+
     return _router

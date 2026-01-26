@@ -1,6 +1,6 @@
 # =============================================================================
 # L9 Terraform Variables
-# 
+#
 # Copy this to terraform.tfvars and edit:
 #   cp terraform.tfvars.example terraform.tfvars
 # =============================================================================

@@ -22,6 +22,7 @@ ssh -L 16686:localhost:16686 root@157.180.73.53
 ```
 
 **Then access from your Mac:**
+
 - Grafana: `http://localhost:3000`
 - Prometheus: `http://localhost:9090`
 - Jaeger: `http://localhost:16686`
@@ -46,10 +47,12 @@ ports:
 ```
 
 **Then access:**
+
 - Grafana: `http://157.180.73.53:3000`
 - Prometheus: `http://157.180.73.53:9090`
 
 **⚠️ Security:** Make sure Grafana has strong password! Already configured:
+
 - Username: `admin`
 - Password: Set via `GRAFANA_PASSWORD` env var
 
@@ -61,11 +64,13 @@ ports:
 ### Option 3: Reverse Proxy (Most Secure)
 
 Use Caddy/Nginx to expose Grafana with:
+
 - HTTPS (SSL)
 - Authentication
 - Domain name (e.g., `grafana.yourdomain.com`)
 
 **Example Caddy config:**
+
 ```caddy
 grafana.yourdomain.com {
     reverse_proxy localhost:3000
@@ -89,6 +94,7 @@ ssh -L 3000:localhost:3000 -L 9090:localhost:9090 -L 16686:localhost:16686 root@
 ```
 
 **Then open in browser:**
+
 - Grafana: `http://localhost:3000` (admin/admin)
 - Prometheus: `http://localhost:9090`
 - Jaeger: `http://localhost:16686`
@@ -115,9 +121,9 @@ netstat -tlnp | grep -E "3000|9090|16686"
 For now, **SSH port forwarding is safest** - no firewall changes, fully encrypted, works immediately.
 
 Just run:
+
 ```bash
 ssh -L 3000:localhost:3000 -L 9090:localhost:9090 root@157.180.73.53
 ```
 
 Then access `http://localhost:3000` from your Mac - it will show VPS Grafana!
-

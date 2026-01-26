@@ -107,7 +107,7 @@ class TestIncrementalCompilation:
         new_intent_ids = set(updated_graph.intents.keys()) - initial_intent_ids
         assert len(new_intent_ids) == 1, "Should have exactly 1 new intent"
 
-        new_intent = updated_graph.intents[list(new_intent_ids)[0]]
+        new_intent = updated_graph.intents[next(iter(new_intent_ids))]
         assert "logging" in new_intent.description.lower()
 
     @pytest.mark.asyncio

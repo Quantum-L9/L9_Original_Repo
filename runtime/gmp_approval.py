@@ -36,17 +36,21 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
-from runtime.gmp_worker import (approve_and_enqueue, get_pending_task,
-                                list_pending_tasks, remove_pending_task)
+from runtime.gmp_worker import (
+    approve_and_enqueue,
+    get_pending_task,
+    list_pending_tasks,
+    remove_pending_task,
+)
 
 logger = structlog.get_logger(__name__)
 
 
-async def list_pending_gmp_tasks() -> List[Dict[str, Any]]:
+async def list_pending_gmp_tasks() -> list[dict[str, Any]]:
     """
     List all pending GMP tasks (not yet approved).
 
@@ -68,7 +72,7 @@ async def list_pending_gmp_tasks() -> List[Dict[str, Any]]:
     ]
 
 
-async def get_gmp_task(task_id: str) -> Optional[Dict[str, Any]]:
+async def get_gmp_task(task_id: str) -> dict[str, Any] | None:
     """
     Get details of a specific GMP task.
 
@@ -162,13 +166,13 @@ async def cli_reject(task_id: str) -> None:
 
 
 __all__ = [
-    "list_pending_gmp_tasks",
-    "get_gmp_task",
     "approve_gmp_task",
-    "reject_gmp_task",
-    "cli_list_pending",
     "cli_approve",
+    "cli_list_pending",
     "cli_reject",
+    "get_gmp_task",
+    "list_pending_gmp_tasks",
+    "reject_gmp_task",
 ]
 
 # ============================================================================

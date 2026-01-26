@@ -39,12 +39,12 @@ phases:
     required: true
     time_budget: "5-10 minutes"
     purpose: "Lock TODO plan, establish scope"
-    
+
     inputs:
       - "User request or task description"
       - "Relevant codebase files"
       - "Relevant ADRs from readme/adr/ (MANDATORY - per ADR-0035)"
-    
+
     outputs:
       required:
         - "TODO_PLAN_LOCKED"
@@ -54,7 +54,7 @@ phases:
       optional:
         - "RISK_ASSESSMENT"
         - "DEPENDENCY_MAP"
-    
+
     actions:
       - "Read relevant ADRs (readme/adr/*.md) for patterns and constraints"
       - "Extract copy-paste templates from ADRs (per config/schemas/adr_schema.yaml)"
@@ -64,7 +64,7 @@ phases:
       - "Decompose into atomic TODO items"
       - "Document constraints and risks"
       - "Create locked TODO list"
-    
+
     checklist:
       - id: "P0-01"
         check: "Plan is written in detail"
@@ -90,7 +90,7 @@ phases:
       - id: "P0-08"
         check: "Code templates extracted from ADRs for reuse"
         required: true
-    
+
     fail_rule: "If any checkpoint fails: STOP. Re-run Phase 0."
     next_phase: 1
 
@@ -100,24 +100,24 @@ phases:
     required: true
     time_budget: "2-5 minutes"
     purpose: "Verify assumptions, establish ground truth"
-    
+
     inputs:
       - "TODO_PLAN_LOCKED from Phase 0"
       - "Target files"
-    
+
     outputs:
       required:
         - "BASELINE_VERIFIED"
         - "ASSUMPTIONS_CHECKLIST"
       optional:
         - "DEVIATIONS_LOG"
-    
+
     actions:
       - "Read all target files exactly as they exist"
       - "Verify every assumption from Phase 0"
       - "Note actual state"
       - "Document any deviations"
-    
+
     checklist:
       - id: "P1-01"
         check: "All TODO targets exist at exact paths"
@@ -131,7 +131,7 @@ phases:
       - id: "P1-04"
         check: "All assumptions verified"
         required: true
-    
+
     fail_rule: "If ANY assumption fails: STOP. Report. Re-run Phase 0."
     next_phase: 2
 
@@ -141,23 +141,23 @@ phases:
     required: true
     time_budget: "10-30 minutes"
     purpose: "Execute locked TODO plan"
-    
+
     inputs:
       - "TODO_PLAN_LOCKED from Phase 0"
       - "BASELINE_VERIFIED from Phase 1"
-    
+
     outputs:
       required:
         - "IMPLEMENTATION_COMPLETE"
         - "FILE_MODIFICATIONS_LOG"
         - "TODO_COMPLETION_MAP"
-    
+
     actions:
       - "Execute exact TODO changes only"
       - "Record file paths + line ranges for all changes"
       - "Verify each change immediately"
       - "No changes outside TODO scope"
-    
+
     constraints:
       forbidden:
         - "Refactoring code not in plan"
@@ -167,7 +167,7 @@ phases:
       required:
         - "Preserve indentation, style, structure"
         - "Use exact same coding style as surrounding code"
-    
+
     checklist:
       - id: "P2-01"
         check: "All TODO items complete"
@@ -184,7 +184,7 @@ phases:
       - id: "P2-05"
         check: "No new imports added that weren't planned"
         required: true
-    
+
     fail_rule: "If implementation deviates: STOP. Revert. Re-run Phase 0."
     next_phase: 3
 
@@ -194,10 +194,10 @@ phases:
     required: true
     time_budget: "10-20 minutes"
     purpose: "Add guards, fail-fast conditions, validation"
-    
+
     inputs:
       - "IMPLEMENTATION_COMPLETE from Phase 2"
-    
+
     outputs:
       required:
         - "GUARDS_ADDED"
@@ -205,14 +205,14 @@ phases:
       optional:
         - "ERROR_MESSAGES_IMPROVED"
         - "TYPE_HINTS_ADDED"
-    
+
     actions:
       - "Add assertions that would fail if behavior regressed"
       - "Add comments explaining 'why' for future maintainers"
       - "Add fail-fast conditions"
       - "Add meaningful error messages"
       - "Add defensive checks"
-    
+
     guards:
       code_changes:
         - "Assertions for regression prevention"
@@ -225,7 +225,7 @@ phases:
         - "Input validation"
         - "Error messages that guide users"
         - "Logging for debugging"
-    
+
     checklist:
       - id: "P3-01"
         check: "Every fixed behavior has a guard or assertion"
@@ -245,7 +245,7 @@ phases:
       - id: "P3-06"
         check: "All errors are meaningful (point to cause and fix)"
         required: true
-    
+
     fail_rule: "If enforcement incomplete: STOP. Add guards. Re-run."
     next_phase: 4
 
@@ -255,17 +255,17 @@ phases:
     required: true
     time_budget: "10-15 minutes"
     purpose: "Tests, edge cases, regression verification"
-    
+
     inputs:
       - "GUARDS_ADDED from Phase 3"
       - "TODO_PLAN_LOCKED from Phase 0"
-    
+
     outputs:
       required:
         - "TESTS_PASSED"
         - "EDGE_CASES_HANDLED"
         - "REGRESSION_VERIFIED"
-    
+
     actions:
       - "Re-read entire Phase 0 plan"
       - "Verify implementation matches plan exactly"
@@ -273,7 +273,7 @@ phases:
       - "Check for unintended side effects"
       - "Perform negative tests"
       - "Perform regression tests"
-    
+
     tests:
       positive:
         - "Happy path works as expected"
@@ -284,7 +284,7 @@ phases:
         - "Original problem no longer exists"
         - "All guards work correctly"
         - "System functions normally"
-    
+
     checklist:
       - id: "P4-01"
         check: "Plan implementation is 100% complete"
@@ -304,7 +304,7 @@ phases:
       - id: "P4-06"
         check: "No new bugs detected"
         required: true
-    
+
     fail_rule: "If ANY test fails: STOP. Fix issue. Re-run Phase 4."
     next_phase: 5
 
@@ -314,24 +314,24 @@ phases:
     required: true
     time_budget: "5-10 minutes"
     purpose: "Verify no scope drift, check invariants"
-    
+
     inputs:
       - "TODO_PLAN_LOCKED from Phase 0"
       - "FILE_MODIFICATIONS_LOG from Phase 2"
       - "TESTS_PASSED from Phase 4"
-    
+
     outputs:
       required:
         - "SCOPE_VERIFIED"
         - "INVARIANTS_PRESERVED"
         - "NO_DRIFT_CONFIRMED"
-    
+
     actions:
       - "Compare modified files to Phase 0 plan"
       - "Check for scope creep"
       - "Verify L9 invariants"
       - "Consistency check"
-    
+
     invariants:
       l9_core:
         - "Protected files untouched"
@@ -341,7 +341,7 @@ phases:
         - "Naming conventions consistent"
         - "Error handling matches codebase style"
         - "Patterns align with L9 standards"
-    
+
     checklist:
       - id: "P5-01"
         check: "All changes align with Phase 0 plan"
@@ -361,7 +361,7 @@ phases:
       - id: "P5-06"
         check: "No scope drift detected"
         required: true
-    
+
     fail_rule: "If scope drift detected: STOP. Fix. Re-run Phase 5."
     next_phase: 6
 
@@ -371,10 +371,10 @@ phases:
     required: true
     time_budget: "5-10 minutes"
     purpose: "Evidence report, final declaration"
-    
+
     inputs:
       - "All outputs from Phases 0-5"
-    
+
     outputs:
       required:
         - "EVIDENCE_REPORT"
@@ -382,14 +382,14 @@ phases:
         - "FINAL_DECLARATION"
       optional:
         - "GMP_REPORT_FILE"
-    
+
     actions:
       - "Generate evidence report"
       - "Create TODO ID → Change mapping"
       - "Document test results"
       - "Write final declaration"
       - "Save report (if applicable)"
-    
+
     report_sections:
       - "Task description"
       - "Status"
@@ -399,7 +399,7 @@ phases:
       - "Explicit declaration"
       - "Changes at a glance"
       - "Verification instructions"
-    
+
     checklist:
       - id: "P6-01"
         check: "Evidence report generated"
@@ -413,15 +413,15 @@ phases:
       - id: "P6-04"
         check: "Final declaration written"
         required: true
-    
+
     final_declaration: |
       All phases (0–6) complete.
       No assumptions. No drift.
       Implementation matches locked Phase 0 plan exactly.
       System is ready for deployment.
-    
+
     fail_rule: "If evidence incomplete: Complete report before declaring done."
-    next_phase: null  # Terminal phase
+    next_phase: null # Terminal phase
 
 # ============================================================================
 # DEFINITION OF DONE
@@ -429,7 +429,7 @@ phases:
 
 definition_of_done:
   description: "The task is ONLY complete if ALL items are true"
-  
+
   required_conditions:
     - id: "DOD-01"
       condition: "Phase 0 plan created and locked"
@@ -468,7 +468,7 @@ definition_of_done:
 
 modification_lock:
   description: "Absolute constraints on what may and may not be modified"
-  
+
   forbidden:
     - "Modify files not in locked TODO plan"
     - "Create files outside project scope"
@@ -478,13 +478,13 @@ modification_lock:
     - "Invent new abstractions or redesign unsolicited"
     - "Add logging/comments/refactoring outside TODO scope"
     - "Skip phases or assume partial completion"
-  
+
   allowed:
     - "Implement exact changes in locked TODO plan"
     - "Operate within phases 0–6 as defined"
     - "Stop immediately if ambiguity detected"
     - "Report results in canonical format"
-  
+
   violation_response: "If change requires violating MODIFICATION LOCK → It MUST fail at Phase 0"
 
 # ============================================================================
@@ -500,7 +500,7 @@ tier_classification:
       - "executor.py"
       - "websocket_orchestrator.py"
       - "memory_substrate_service.py"
-    
+
   RUNTIME_TIER:
     description: "Task queue, Redis client, rate limiter, tool registry, agents"
     gmp_modules: ["GMP-Action", "Integration-Tests"]
@@ -509,15 +509,16 @@ tier_classification:
       - "redis_client.py"
       - "tool_registry.py"
       - "long_plan_graph.py"
-    
+
   INFRA_TIER:
     description: "Docker-compose, infra, deploy, k8s, helm"
-    gmp_modules: ["DEPLOYMENT_MANIFEST", "Wire-Orchestrators", "Critical-Path Tests"]
+    gmp_modules:
+      ["DEPLOYMENT_MANIFEST", "Wire-Orchestrators", "Critical-Path Tests"]
     examples:
       - "docker-compose.yml"
       - "infra/**"
       - "deploy/**"
-    
+
   UX_TIER:
     description: "React/Next UI, TS client, docs, non-critical scripts"
     gmp_modules: ["Unit-Test-Quality", "Generator"]
@@ -532,7 +533,7 @@ tier_classification:
 
 protected_files:
   description: "Files that require explicit approval before modification"
-  
+
   critical:
     - path: "kernel_loader.py"
       reason: "Kernel YAML loading - breaks all agent identity"
@@ -544,7 +545,7 @@ protected_files:
       reason: "Infrastructure wiring - requires full stack testing"
     - path: "memory_substrate_service.py"
       reason: "Packet ingestion and memory DAG - mission critical"
-  
+
   modification_requirement: "Separate Phase 0 plan and dedicated GMP run required"
 
 # ============================================================================
@@ -556,15 +557,15 @@ fail_rules:
     - trigger: "Any checklist item cannot be marked with evidence"
       action: "STOP immediately"
       response: "Report exact gap + recovery options. User chooses next action."
-    
+
     - trigger: "Ambiguity detected in TODO plan"
       action: "STOP immediately"
       response: "Request clarification before proceeding"
-    
+
     - trigger: "Protected file in scope without approval"
       action: "FAIL at Phase 0"
       response: "User must provide explicit approval or revise scope"
-    
+
     - trigger: "Implementation deviates from locked plan"
       action: "STOP immediately"
       response: "Revert changes. Report deviation. Re-run Phase 0 if needed."
@@ -583,7 +584,7 @@ enforcement:
     ✓ Ground truth per-query (re-verify files each response)
     ✓ Drift is impossible (Phase 5 + MODIFICATION LOCK prevent it)
     ✓ Failures are explicit (no silent partial success)
-  
+
   user_obligations:
     - "Provide clear change requests"
     - "Supply necessary context files"
@@ -609,7 +610,6 @@ metadata:
     - "cursor-phase-4-validation.md"
     - "cursor-phase-5-recursion.md"
     - "cursor-phase-6-finalization.md"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

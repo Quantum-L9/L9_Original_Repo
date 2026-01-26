@@ -36,7 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from fastapi import HTTPException, Request
@@ -47,19 +47,19 @@ from api.auth import verify_api_key
 logger = structlog.get_logger(__name__)
 
 __all__ = [
-    "verify_api_key",
-    "get_substrate_service",
     "get_agent_executor",
-    "get_governance_engine",
-    "get_tool_registry",
-    "get_neo4j_client",
-    "get_redis_client",
-    "get_observability_service",
-    "get_timeline_service",
-    "get_memory_state_manager",
     "get_aios_runtime",
-    "get_evaluator",
     "get_consolidation_service",
+    "get_evaluator",
+    "get_governance_engine",
+    "get_memory_state_manager",
+    "get_neo4j_client",
+    "get_observability_service",
+    "get_redis_client",
+    "get_substrate_service",
+    "get_timeline_service",
+    "get_tool_registry",
+    "verify_api_key",
 ]
 
 # =============================================================================
@@ -196,7 +196,7 @@ def get_redis_client(
 
 def get_observability_service(
     request: Request,
-) -> Optional[Any]:  # SCAFFOLDING: Awaiting observability routes
+) -> Any | None:  # SCAFFOLDING: Awaiting observability routes
     """
     Get ObservabilityService from app.state.
 
@@ -210,7 +210,7 @@ def get_observability_service(
     return getattr(request.app.state, "observability_service", None)
 
 
-def get_memory_orchestrator(request: Request) -> Optional[Any]:
+def get_memory_orchestrator(request: Request) -> Any | None:
     """
     Get MemoryOrchestrator from app.state.
 
@@ -223,7 +223,7 @@ def get_memory_orchestrator(request: Request) -> Optional[Any]:
 
 def get_world_model_service(
     request: Request,
-) -> Optional[Any]:  # SCAFFOLDING: Awaiting world model routes
+) -> Any | None:  # SCAFFOLDING: Awaiting world model routes
     """
     Get WorldModelService from app.state.
 
@@ -242,7 +242,7 @@ def get_world_model_service(
 # =============================================================================
 
 
-def get_timeline_service(request: Request) -> Optional[Any]:
+def get_timeline_service(request: Request) -> Any | None:
     """
     Get TimelineService from app.state.
 
@@ -254,7 +254,7 @@ def get_timeline_service(request: Request) -> Optional[Any]:
     return getattr(request.app.state, "timeline_service", None)
 
 
-def get_memory_state_manager(request: Request) -> Optional[Any]:
+def get_memory_state_manager(request: Request) -> Any | None:
     """
     Get MemoryStateManager from app.state.
 
@@ -266,7 +266,7 @@ def get_memory_state_manager(request: Request) -> Optional[Any]:
     return getattr(request.app.state, "memory_state_manager", None)
 
 
-def get_consolidation_service(request: Request) -> Optional[Any]:
+def get_consolidation_service(request: Request) -> Any | None:
     """
     Get ConsolidationService from app.state.
 
@@ -283,7 +283,7 @@ def get_consolidation_service(request: Request) -> Optional[Any]:
 # =============================================================================
 
 
-def get_aios_runtime(request: Request) -> Optional[Any]:
+def get_aios_runtime(request: Request) -> Any | None:
     """
     Get AIOSRuntime from app.state.
 
@@ -295,7 +295,7 @@ def get_aios_runtime(request: Request) -> Optional[Any]:
     return getattr(request.app.state, "aios_runtime", None)
 
 
-def get_evaluator(request: Request) -> Optional[Any]:
+def get_evaluator(request: Request) -> Any | None:
     """
     Get Evaluator from app.state.
 
@@ -307,7 +307,7 @@ def get_evaluator(request: Request) -> Optional[Any]:
     return getattr(request.app.state, "evaluator", None)
 
 
-def get_virtual_context_manager(request: Request) -> Optional[Any]:
+def get_virtual_context_manager(request: Request) -> Any | None:
     """
     Get VirtualContextManager from app.state.
 
@@ -319,7 +319,7 @@ def get_virtual_context_manager(request: Request) -> Optional[Any]:
     return getattr(request.app.state, "virtual_context_manager", None)
 
 
-def get_housekeeping_engine(request: Request) -> Optional[Any]:
+def get_housekeeping_engine(request: Request) -> Any | None:
     """
     Get HousekeepingEngine from app.state.
 

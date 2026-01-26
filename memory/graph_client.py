@@ -15,8 +15,7 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-from core.singleton_auto_registry import (register_singleton,
-                                          register_singleton_closer)
+from core.singleton_auto_registry import register_singleton, register_singleton_closer
 
 # ============================================================================
 __dora_meta__ = {
@@ -51,7 +50,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -81,9 +80,9 @@ class Neo4jClient:
 
     def __init__(
         self,
-        uri: Optional[str] = None,
-        user: Optional[str] = None,
-        password: Optional[str] = None,
+        uri: str | None = None,
+        user: str | None = None,
+        password: str | None = None,
         database: str = "neo4j",
     ):
         """
@@ -111,7 +110,7 @@ class Neo4jClient:
         self._user = user or os.getenv("NEO4J_USER", "neo4j")
         self._password = password or os.getenv("NEO4J_PASSWORD")
         self._database = database
-        self._driver: Optional[AsyncDriver] = None
+        self._driver: AsyncDriver | None = None
         self._available = False
 
     async def connect(self) -> bool:
@@ -172,11 +171,11 @@ class Neo4jClient:
         return self._available and self._driver is not None
 
     @property
-    def driver(self) -> Optional[AsyncDriver]:
+    def driver(self) -> AsyncDriver | None:
         """Expose the raw AsyncDriver for components that need it (e.g., AgentGraphLoader)."""
         return self._driver
 
-    def session(self, database: Optional[str] = None) -> AsyncSession:
+    def session(self, database: str | None = None) -> AsyncSession:
         """Create a session (AsyncDriver-compatible interface).
 
         This allows Neo4jClient to be used where an AsyncDriver is expected.
@@ -187,7 +186,7 @@ class Neo4jClient:
         return self._driver.session(database=db)
 
     @must_stay_async("callers use await")
-    async def _get_session(self) -> Optional[AsyncSession]:
+    async def _get_session(self) -> AsyncSession | None:
         """Get a session for database operations."""
         if not self.is_available():
             return None
@@ -202,7 +201,7 @@ class Neo4jClient:
         entity_type: str,
         entity_id: str,
         properties: dict[str, Any],
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Create or merge an entity node.
 
@@ -240,7 +239,7 @@ class Neo4jClient:
         self,
         entity_type: str,
         entity_id: str,
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Get an entity by type and ID.
 
@@ -309,8 +308,8 @@ class Neo4jClient:
         name: str,
         entity_type: str,
         attrs: dict[str, Any],
-        workspace_id: Optional[str] = None,
-    ) -> Optional[str]:
+        workspace_id: str | None = None,
+    ) -> str | None:
         """
         Upsert (create or update) an entity node.
 
@@ -385,7 +384,7 @@ class Neo4jClient:
         to_type: str,
         to_id: str,
         rel_type: str,
-        properties: Optional[dict[str, Any]] = None,
+        properties: dict[str, Any] | None = None,
     ) -> bool:
         """
         Create a relationship between two entities.
@@ -435,7 +434,7 @@ class Neo4jClient:
         self,
         entity_type: str,
         entity_id: str,
-        rel_type: Optional[str] = None,
+        rel_type: str | None = None,
         direction: str = "both",
     ) -> list[dict[str, Any]]:
         """
@@ -474,8 +473,7 @@ class Neo4jClient:
                     """
 
                 result = await session.run(query, entity_id=entity_id)
-                records = await result.data()
-                return records
+                return await result.data()
         except Exception as e:
             logger.error(f"Neo4j get_relationships failed: {e}")
             return []
@@ -490,8 +488,8 @@ class Neo4jClient:
         rel: str,
         tgt: str,
         confidence: float = 1.0,
-        source_packet: Optional[str] = None,
-    ) -> Optional[str]:
+        source_packet: str | None = None,
+    ) -> str | None:
         """
         Upsert a relationship between two entities.
 
@@ -526,7 +524,7 @@ class Neo4jClient:
         self,
         source: str,
         depth: int = 2,
-        relationship_types: Optional[list[str]] = None,
+        relationship_types: list[str] | None = None,
     ) -> list[dict[str, Any]]:
         """
         Traverse graph from source entity to specified depth.
@@ -554,7 +552,7 @@ class Neo4jClient:
                 MATCH path = (start {{id: $source}})-[r{rel_filter}*1..{depth}]-(end)
                 UNWIND relationships(path) as rel
                 WITH startNode(rel) as src, rel, endNode(rel) as tgt, length(path) as d
-                RETURN DISTINCT src.id as source_id, type(rel) as rel_type, 
+                RETURN DISTINCT src.id as source_id, type(rel) as rel_type,
                        tgt.id as target_id, properties(rel) as rel_props, d as depth
                 ORDER BY d
                 """
@@ -593,7 +591,7 @@ class Neo4jClient:
                 query = f"""
                 MATCH path = shortestPath((start {{id: $source}})-[*1..{max_depth}]-(end {{id: $target}}))
                 UNWIND relationships(path) as rel
-                RETURN startNode(rel).id as source_id, type(rel) as rel_type, 
+                RETURN startNode(rel).id as source_id, type(rel) as rel_type,
                        endNode(rel).id as target_id, properties(rel) as rel_props
                 """
                 result = await session.run(query, source=source, target=target)
@@ -637,7 +635,7 @@ class Neo4jClient:
 
                 query = f"""
                 MATCH {pattern}
-                RETURN m.id as neighbor_id, labels(m) as labels, 
+                RETURN m.id as neighbor_id, labels(m) as labels,
                        type(r) as rel_type, properties(m) as props
                 """
                 result = await session.run(query, entity=entity)
@@ -658,8 +656,8 @@ class Neo4jClient:
         event_type: str,
         timestamp: str,
         properties: dict[str, Any],
-        parent_event_id: Optional[str] = None,
-    ) -> Optional[str]:
+        parent_event_id: str | None = None,
+    ) -> str | None:
         """
         Create an event in the timeline.
 
@@ -709,9 +707,9 @@ class Neo4jClient:
 
     async def get_event_timeline(
         self,
-        start_time: Optional[str] = None,
-        end_time: Optional[str] = None,
-        event_type: Optional[str] = None,
+        start_time: str | None = None,
+        end_time: str | None = None,
+        event_type: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """
@@ -768,8 +766,8 @@ class Neo4jClient:
     async def get_temporal_events(
         self,
         entity: str,
-        start: Optional[str] = None,
-        end: Optional[str] = None,
+        start: str | None = None,
+        end: str | None = None,
     ) -> list[dict[str, Any]]:
         """
         Get events related to an entity within a time range.
@@ -858,7 +856,7 @@ class Neo4jClient:
     async def run_query(
         self,
         query: str,
-        parameters: Optional[dict[str, Any]] = None,
+        parameters: dict[str, Any] | None = None,
     ) -> list[dict[str, Any]]:
         """
         Run a custom Cypher query.
@@ -876,8 +874,7 @@ class Neo4jClient:
         try:
             async with self._driver.session(database=self._database) as session:
                 result = await session.run(query, **(parameters or {}))
-                records = await result.data()
-                return records
+                return await result.data()
         except Exception as e:
             logger.error(f"Neo4j run_query failed: {e}")
             return []
@@ -887,7 +884,7 @@ class Neo4jClient:
 # Singleton Factory
 # =============================================================================
 
-_neo4j_client: Optional[Neo4jClient] = None
+_neo4j_client: Neo4jClient | None = None
 
 
 @register_singleton(
@@ -895,7 +892,7 @@ _neo4j_client: Optional[Neo4jClient] = None
     lifecycle="startup",
     description="Neo4j graph database client for knowledge graph operations",
 )
-async def get_neo4j_client() -> Optional[Neo4jClient]:
+async def get_neo4j_client() -> Neo4jClient | None:
     """
     Get or create singleton Neo4j client.
 
@@ -920,7 +917,7 @@ async def close_neo4j_client() -> None:
         _neo4j_client = None
 
 
-__all__ = ["Neo4jClient", "get_neo4j_client", "close_neo4j_client"]
+__all__ = ["Neo4jClient", "close_neo4j_client", "get_neo4j_client"]
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

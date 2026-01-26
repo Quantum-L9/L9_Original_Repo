@@ -334,7 +334,6 @@ class TestResearchGraphPersistence:
 
         # Mock to capture the finding_type
         captured_types = []
-        original_persist = persistence.persist_finding
 
         async def capture_persist(finding):
             captured_types.append(finding.get("finding_type"))

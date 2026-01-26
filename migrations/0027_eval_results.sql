@@ -10,27 +10,27 @@
 
 CREATE TABLE IF NOT EXISTS eval_results (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    
+
     -- Evaluation metadata
     eval_set_name VARCHAR(255) NOT NULL,
     agent_id VARCHAR(50) NOT NULL,
     version VARCHAR(100) NOT NULL DEFAULT 'latest',
-    
+
     -- Core metrics
     success_rate FLOAT NOT NULL,
     avg_latency_ms FLOAT,
     tool_accuracy FLOAT,
     llm_judge_score FLOAT,
-    
+
     -- Additional metrics (optional)
     examples_run INTEGER,
     examples_passed INTEGER,
     error_count INTEGER DEFAULT 0,
     p95_latency_ms FLOAT,
-    
+
     -- Timestamps
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    
+
     -- Optional: Link to CI/CD run
     ci_run_id VARCHAR(255),
     commit_sha VARCHAR(64),
@@ -42,19 +42,19 @@ CREATE TABLE IF NOT EXISTS eval_results (
 -- =============================================================================
 
 -- Primary lookup: agent + eval set + time (for baseline retrieval)
-CREATE INDEX IF NOT EXISTS idx_eval_results_agent_set_time 
+CREATE INDEX IF NOT EXISTS idx_eval_results_agent_set_time
     ON eval_results(agent_id, eval_set_name, created_at DESC);
 
 -- Version lookup (for specific version comparison)
-CREATE INDEX IF NOT EXISTS idx_eval_results_version 
+CREATE INDEX IF NOT EXISTS idx_eval_results_version
     ON eval_results(agent_id, eval_set_name, version);
 
 -- CI/CD lookup (for build status queries)
-CREATE INDEX IF NOT EXISTS idx_eval_results_ci_run 
+CREATE INDEX IF NOT EXISTS idx_eval_results_ci_run
     ON eval_results(ci_run_id) WHERE ci_run_id IS NOT NULL;
 
 -- Time-based cleanup queries
-CREATE INDEX IF NOT EXISTS idx_eval_results_created_at 
+CREATE INDEX IF NOT EXISTS idx_eval_results_created_at
     ON eval_results(created_at);
 
 -- =============================================================================
@@ -72,12 +72,12 @@ COMMENT ON COLUMN eval_results.tool_accuracy IS 'Tool selection accuracy (Jaccar
 -- =============================================================================
 
 CREATE OR REPLACE VIEW eval_results_retention AS
-SELECT 
+SELECT
     id,
     eval_set_name,
     agent_id,
     created_at,
-    CASE 
+    CASE
         WHEN created_at < NOW() - INTERVAL '90 days' THEN 'archive'
         WHEN created_at < NOW() - INTERVAL '30 days' THEN 'compress'
         ELSE 'keep'
@@ -105,7 +105,7 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
     RETURN QUERY
-    SELECT 
+    SELECT
         er.id,
         er.version,
         er.success_rate,
@@ -114,7 +114,7 @@ BEGIN
         er.llm_judge_score,
         er.created_at
     FROM eval_results er
-    WHERE er.agent_id = p_agent_id 
+    WHERE er.agent_id = p_agent_id
       AND er.eval_set_name = p_eval_set_name
     ORDER BY er.created_at DESC
     LIMIT 1;

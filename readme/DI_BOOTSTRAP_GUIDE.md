@@ -52,9 +52,9 @@ async def lifespan(app: FastAPI):
     # Startup
     container = await bootstrap_di_container()
     set_global_di_container(container)
-    
+
     yield
-    
+
     # Shutdown
     container.clear_all()
 
@@ -68,26 +68,32 @@ See `examples/fastapi_lifespan_di_bootstrap.py` for a complete example.
 The bootstrap function initializes services in dependency order:
 
 ### Tier 1: Database Clients
+
 - **PostgresClient** (required)
 - **Neo4jClient** (optional)
 - **RedisClient** (optional)
 
 ### Tier 2: Memory Substrate
+
 - **MemorySubstrateService** (fully composed with all dependencies)
 
 ### Tier 3: Registries & Runtime
+
 - **ToolRegistry** (optional)
 - **AgentRegistry** (optional)
 - **AIOSRuntime** (optional)
 
 ### Tier 4: Kernel
+
 - **KernelProtocol** (with fallback strategy)
 
 ### Tier 5: Persistence & Validation
+
 - **AgentPersistenceService**
 - **PacketValidator**
 
 ### Tier 6: Telemetry
+
 - **TelemetryService**
 
 ## Configuration
@@ -161,7 +167,7 @@ async def test_my_feature():
     with patch("core.di.container.bootstrap_di_container") as mock_bootstrap:
         mock_container = AsyncMock()
         mock_bootstrap.return_value = mock_container
-        
+
         # Your test code
         container = await bootstrap_di_container()
         assert container is mock_container
@@ -178,7 +184,7 @@ async def test_full_bootstrap():
     container = await bootstrap_di_container(
         database_url="postgresql://localhost/l9_test"
     )
-    
+
     try:
         # Test with real services
         service = container.resolve(MemorySubstrateService)
@@ -289,11 +295,11 @@ You can create custom bootstrap functions for specific use cases:
 async def bootstrap_test_container() -> DIContainer:
     """Bootstrap container with test doubles."""
     container = DIContainer()
-    
+
     # Register test doubles
     container.bind_singleton(MemorySubstrateService, lambda: MockMemoryService())
     container.bind_singleton(ToolRegistry, lambda: MockToolRegistry())
-    
+
     return container
 ```
 
@@ -305,16 +311,16 @@ For lightweight applications, you can bootstrap only required services:
 async def bootstrap_minimal_container() -> DIContainer:
     """Bootstrap only database and memory services."""
     container = DIContainer()
-    
+
     # Tier 1: Database
     postgres = PostgresClient(database_url)
     await postgres.connect()
     container.bind_singleton(PostgresClient, lambda: postgres)
-    
+
     # Tier 2: Memory
     memory = await create_substrate_service(database_url)
     container.bind_singleton(MemorySubstrateService, lambda: memory)
-    
+
     return container
 ```
 
@@ -329,6 +335,7 @@ async def bootstrap_minimal_container() -> DIContainer:
 ## Support
 
 For questions or issues:
+
 1. Check the examples directory
 2. Review the test suite
 3. Consult ADR-0052

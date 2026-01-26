@@ -37,9 +37,9 @@ import os
 import shutil
 import threading
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -55,14 +55,14 @@ class MacTask:
     source: str
     channel: str
     user: str
-    command: Optional[str] = None  # Legacy: shell command
-    steps: Optional[List[Dict[str, Any]]] = None  # V2: automation steps
-    attachments: Optional[List[Dict[str, Any]]] = None  # File attachments from Slack
+    command: str | None = None  # Legacy: shell command
+    steps: list[dict[str, Any]] | None = None  # V2: automation steps
+    attachments: list[dict[str, Any]] | None = None  # File attachments from Slack
     status: str = "queued"  # "queued" | "running" | "done" | "failed"
-    result: Optional[str] = None
-    screenshot_path: Optional[str] = None
-    logs: Optional[List[str]] = None
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    result: str | None = None
+    screenshot_path: str | None = None
+    logs: list[str] | None = None
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 # File-based storage directories
@@ -76,7 +76,7 @@ IN_PROGRESS_DIR.mkdir(parents=True, exist_ok=True)
 COMPLETED_DIR.mkdir(parents=True, exist_ok=True)
 
 # In-memory storage (legacy support)
-_tasks: Dict[int, MacTask] = {}
+_tasks: dict[int, MacTask] = {}
 _next_id: int = 1
 _lock = threading.Lock()
 
@@ -85,9 +85,9 @@ def enqueue_mac_task(
     source: str,
     channel: str,
     user: str,
-    command: Optional[str] = None,
-    steps: Optional[List[Dict[str, Any]]] = None,
-    attachments: Optional[List[Dict[str, Any]]] = None,
+    command: str | None = None,
+    steps: list[dict[str, Any]] | None = None,
+    attachments: list[dict[str, Any]] | None = None,
 ) -> int:
     """
     Enqueue a new Mac task (legacy function signature).
@@ -151,7 +151,7 @@ def enqueue_mac_task(
     return task_id
 
 
-def enqueue_mac_task_dict(task_dict: Dict[str, Any]) -> str:
+def enqueue_mac_task_dict(task_dict: dict[str, Any]) -> str:
     """
     Enqueue a Mac task from task router (file-based storage).
 
@@ -179,7 +179,7 @@ def enqueue_mac_task_dict(task_dict: Dict[str, Any]) -> str:
     # Add task_id to dict
     task_dict["task_id"] = task_id
     task_dict["status"] = "queued"
-    task_dict["created_at"] = datetime.now(timezone.utc).isoformat()
+    task_dict["created_at"] = datetime.now(UTC).isoformat()
 
     try:
         with open(task_file, "w") as f:
@@ -223,7 +223,7 @@ def enqueue_mac_task_dict(task_dict: Dict[str, Any]) -> str:
         raise
 
 
-def get_next_task() -> Optional[Dict[str, Any]]:
+def get_next_task() -> dict[str, Any] | None:
     """
     Get the oldest queued mac_task from file-based queue.
 
@@ -242,7 +242,7 @@ def get_next_task() -> Optional[Dict[str, Any]]:
         task_file = task_files[0]
 
         # Read task
-        with open(task_file, "r") as f:
+        with open(task_file) as f:
             task_dict = json.load(f)
 
         # Validate it's a mac_task (safety check)
@@ -294,9 +294,9 @@ def complete_task(
     task_id: int,
     result: str,
     status: str = "done",
-    screenshot_path: Optional[str] = None,
-    logs: Optional[List[str]] = None,
-) -> Optional[MacTask]:
+    screenshot_path: str | None = None,
+    logs: list[str] | None = None,
+) -> MacTask | None:
     """
     Complete a task with result and status (legacy API for backward compatibility).
 
@@ -323,7 +323,7 @@ def complete_task(
     return None
 
 
-def list_tasks() -> List[Dict]:
+def list_tasks() -> list[dict]:
     """
     List all tasks as dictionaries (legacy support).
 
@@ -352,7 +352,7 @@ def list_tasks() -> List[Dict]:
 
 # Legacy function name for backward compatibility
 # This will be deprecated - use enqueue_mac_task_dict instead
-def enqueue_task(task_dict: Dict[str, Any]) -> str:
+def enqueue_task(task_dict: dict[str, Any]) -> str:
     """
     DEPRECATED: Use enqueue_mac_task_dict() instead.
 

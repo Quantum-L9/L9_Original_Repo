@@ -37,7 +37,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -52,7 +52,7 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 
-def post_execution_introspection(agent: Any) -> Dict[str, Any]:
+def post_execution_introspection(agent: Any) -> dict[str, Any]:
     """
     Self-audit after every request (GODMODE Part 7.1).
 
@@ -65,7 +65,7 @@ def post_execution_introspection(agent: Any) -> Dict[str, Any]:
     Returns:
         Audit results dict
     """
-    kernel_state: Optional[Any] = getattr(agent, "kernel_state", None)
+    kernel_state: Any | None = getattr(agent, "kernel_state", None)
 
     if kernel_state is None or not hasattr(kernel_state, "initialized"):
         logger.warning("introspection.no_kernel_state")
@@ -109,7 +109,7 @@ def post_execution_introspection(agent: Any) -> Dict[str, Any]:
     return audit
 
 
-def _audit_decisions(kernel_state: Any) -> Dict[str, Any]:
+def _audit_decisions(kernel_state: Any) -> dict[str, Any]:
     """Audit decisions made during the session."""
     decisions = kernel_state.decisions
     escalations = kernel_state.escalations
@@ -128,7 +128,7 @@ def _audit_decisions(kernel_state: Any) -> Dict[str, Any]:
     }
 
 
-def _audit_confidence(kernel_state: Any) -> Dict[str, Any]:
+def _audit_confidence(kernel_state: Any) -> dict[str, Any]:
     """Audit confidence calibration."""
     decisions = kernel_state.decisions
 
@@ -168,15 +168,14 @@ def _get_calibration_feedback(avg: float, low_count: int) -> str:
     """Generate calibration feedback message."""
     if avg >= 0.90:
         return "High confidence session - verify not overconfident"
-    elif avg >= 0.80:
+    if avg >= 0.80:
         return "Good confidence levels"
-    elif avg >= 0.70:
+    if avg >= 0.70:
         return "Moderate confidence - consider seeking more verification"
-    else:
-        return f"Low confidence session ({low_count} low-confidence decisions) - escalate to Igor"
+    return f"Low confidence session ({low_count} low-confidence decisions) - escalate to Igor"
 
 
-def _audit_tools(kernel_state: Any) -> Dict[str, Any]:
+def _audit_tools(kernel_state: Any) -> dict[str, Any]:
     """Audit tool executions."""
     tools = kernel_state.tools_executed
 
@@ -185,12 +184,12 @@ def _audit_tools(kernel_state: Any) -> Dict[str, Any]:
         "successful": sum(1 for t in tools if t.get("status") == "success"),
         "blocked": sum(1 for t in tools if t.get("status") == "blocked"),
         "failed": sum(1 for t in tools if t.get("status") == "failure"),
-        "tools_used": list(set(t.get("tool", "unknown") for t in tools)),
+        "tools_used": list({t.get("tool", "unknown") for t in tools}),
         "recent_executions": tools[-5:] if tools else [],
     }
 
 
-def _audit_kernel_state(kernel_state: Any) -> Dict[str, Any]:
+def _audit_kernel_state(kernel_state: Any) -> dict[str, Any]:
     """Audit kernel state consistency."""
     return {
         "initialized": kernel_state.initialized,
@@ -208,7 +207,7 @@ def _audit_kernel_state(kernel_state: Any) -> Dict[str, Any]:
     }
 
 
-def _compute_overall_assessment(audit: Dict[str, Any]) -> Dict[str, Any]:
+def _compute_overall_assessment(audit: dict[str, Any]) -> dict[str, Any]:
     """Compute overall session assessment."""
     decision_audit = audit["decision_audit"]
     confidence = audit["confidence_calibration"]
@@ -267,7 +266,7 @@ def _compute_overall_assessment(audit: Dict[str, Any]) -> Dict[str, Any]:
 # =============================================================================
 
 
-def export_session_memory(kernel_state: Any) -> Dict[str, Any]:
+def export_session_memory(kernel_state: Any) -> dict[str, Any]:
     """
     Export complete session memory for audit/persistence (GODMODE Part 7.2).
 
@@ -413,7 +412,7 @@ def on_session_start(agent: Any) -> None:
         )
 
 
-def on_session_end(agent: Any) -> Dict[str, Any]:
+def on_session_end(agent: Any) -> dict[str, Any]:
     """
     Hook called at session end.
 
@@ -445,15 +444,15 @@ def on_session_end(agent: Any) -> Dict[str, Any]:
 # =============================================================================
 
 __all__ = [
-    # Core introspection
-    "post_execution_introspection",
     "export_session_memory",
-    # Calibration
-    "record_confidence_outcome",
     "get_calibration_score",
+    "on_session_end",
     # Lifecycle hooks
     "on_session_start",
-    "on_session_end",
+    # Core introspection
+    "post_execution_introspection",
+    # Calibration
+    "record_confidence_outcome",
 ]
 
 # ============================================================================

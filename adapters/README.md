@@ -59,15 +59,15 @@ Adapters for external services and APIs
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -83,12 +83,12 @@ adapters/
 ├── tensorglobe_bridge/security.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `anomaly_guard.py` | Anomaly severity levels |
+| File               | Purpose                     |
+| ------------------ | --------------------------- |
+| `__init__.py`      | Core module (PROTECTED)     |
+| `anomaly_guard.py` | Anomaly severity levels     |
 | `anomaly_guard.py` | Types of anomalies detected |
-| `anomaly_guard.py` | Anomaly detection output |
+| `anomaly_guard.py` | Anomaly detection output    |
 
 ### Naming Conventions
 
@@ -106,7 +106,7 @@ adapters/
 ```python
 class AnomalySeverity:
     """Anomaly severity levels"""
-    
+
     # Key methods:
 
 ```
@@ -118,7 +118,7 @@ class AnomalySeverity:
 ```python
 class AnomalyType:
     """Types of anomalies detected"""
-    
+
     # Key methods:
 
 ```
@@ -130,7 +130,7 @@ class AnomalyType:
 ```python
 class AnomalySignal:
     """Anomaly detection output"""
-    
+
     # Key methods:
 
 ```
@@ -142,7 +142,7 @@ class AnomalySignal:
 ```python
 class AnomalyDetector:
     """Statistical anomaly detection for TensorGlobe responses."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -166,7 +166,7 @@ class AnomalyDetector:
 ```python
 class TensorGlobeBridgeAdapter:
     """L9 External Cognitive Accelerator."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -184,7 +184,6 @@ class TensorGlobeBridgeAdapter:
 **Public Methods:** `__init__`, `handle_tensor_request`, `_validate_request_schema`, `_verify_request_signature`, `_call_tensorglobe`
 
 **Lines:** 24-229 in `adapter.py`
-
 
 ---
 
@@ -260,9 +259,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Adapters feature flags
-L9_ENABLE_ADAPTERS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_ADAPTERS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_ADAPTERS_AUDIT: true    # Enable audit logging
+L9_ENABLE_ADAPTERS_TRACING: true # Enable detailed tracing
+L9_ENABLE_ADAPTERS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_ADAPTERS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -329,6 +328,7 @@ Adapters operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -336,12 +336,12 @@ Adapters operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                           | Type      | Description                    |
+| -------------------------------- | --------- | ------------------------------ |
 | `adapters_operation_duration_ms` | Histogram | Operation latency distribution |
-| `adapters_operation_total` | Counter | Total operations processed |
-| `adapters_error_total` | Counter | Total errors encountered |
-| `adapters_active_connections` | Gauge | Current active connections |
+| `adapters_operation_total`       | Counter   | Total operations processed     |
+| `adapters_error_total`           | Counter   | Total errors encountered       |
+| `adapters_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -359,6 +359,7 @@ Adapters emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/adapters/`:
+
 - `test_adapters.py` — Core unit tests
 - `test_adapters_integration.py` — Integration tests (if applicable)
 
@@ -401,6 +402,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

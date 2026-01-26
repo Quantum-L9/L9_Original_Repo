@@ -30,7 +30,6 @@ import logging
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict
 
 import yaml
 
@@ -40,7 +39,7 @@ from .base_extractor import BaseExtractor
 class CursorActionExtractor(BaseExtractor):
     """Extracts and reconstructs all files from chat history."""
 
-    def extract(self, input_path: Path, output_root: Path) -> Dict:
+    def extract(self, input_path: Path, output_root: Path) -> dict:
         """Extract and reconstruct all files from chat history."""
         self.logger.info(f"CursorActionExtractor: Processing {input_path.name}")
 
@@ -148,7 +147,7 @@ class CursorActionExtractor(BaseExtractor):
             "errors": [],
         }
 
-    def create_directory_structure(self, output_root: Path) -> Dict[str, Path]:
+    def create_directory_structure(self, output_root: Path) -> dict[str, Path]:
         """Create all required directories."""
         dirs = {
             "kernels": output_root / "kernels",
@@ -168,7 +167,7 @@ class CursorActionExtractor(BaseExtractor):
 
         return dirs
 
-    def extract_yaml_configs(self, content: str) -> Dict[str, Dict]:
+    def extract_yaml_configs(self, content: str) -> dict[str, dict]:
         """Extract YAML configurations from content."""
         configs = {}
 
@@ -184,7 +183,7 @@ class CursorActionExtractor(BaseExtractor):
 
         return configs
 
-    def extract_executive_mode(self, content: str) -> Dict:
+    def extract_executive_mode(self, content: str) -> dict:
         """Extract Executive Mode YAML."""
         exec_match = re.search(
             r"L9_EXECUTIVE_MODE\.yaml.*?(_l9_spec.*?termination:.*?behavior_on_exit:.*?\[)",
@@ -293,7 +292,7 @@ class CursorActionExtractor(BaseExtractor):
             },
         }
 
-    def extract_loader_config(self, content: str) -> Dict:
+    def extract_loader_config(self, content: str) -> dict:
         """Extract L9-L-Clone-Core loader configuration."""
         return {
             "_g_version": "1.0",
@@ -381,23 +380,11 @@ class CursorActionExtractor(BaseExtractor):
             },
         }
 
-    def extract_components(self, content: str) -> Dict[str, Dict]:
+    def extract_components(self, content: str) -> dict[str, dict]:
         """Extract all component definitions."""
         components = {}
 
         # Extract component names from content
-        component_patterns = [
-            r'master_loader:.*?description:\s*"([^"]+)"',
-            r'l_core_reasoning_engine:.*?description:\s*"([^"]+)"',
-            r'deployment_directive_bundle:.*?description:\s*"([^"]+)"',
-            r'l9_code_synthesis_agent:.*?description:\s*"([^"]+)"',
-            r'l9_memory_system:.*?description:\s*"([^"]+)"',
-            r'l_os_behavioral_kernel:.*?description:\s*"([^"]+)"',
-            r'diagnostic_suite:.*?description:\s*"([^"]+)"',
-            r'deployment_urgency_engine:.*?description:\s*"([^"]+)"',
-            r'extraction_engine_zero_loss:.*?description:\s*"([^"]+)"',
-            r'governance_consistency_hooks:.*?description:\s*"([^"]+)"',
-        ]
 
         component_names = [
             "master_loader",
@@ -422,7 +409,7 @@ class CursorActionExtractor(BaseExtractor):
 
         return components
 
-    def extract_reasoning_pattern_schema(self, content: str) -> Dict:
+    def extract_reasoning_pattern_schema(self, content: str) -> dict:
         """Extract reasoning pattern schema definition."""
         return {
             "_l9_spec": "1.0",
@@ -505,8 +492,8 @@ class CursorActionExtractor(BaseExtractor):
         }
 
     def generate_python_modules(
-        self, content: str, dirs: Dict[str, Path]
-    ) -> Dict[str, str]:
+        self, content: str, dirs: dict[str, Path]
+    ) -> dict[str, str]:
         """Generate Python module code from component definitions."""
         modules = {}
 
@@ -532,15 +519,15 @@ class ReasoningPathType(Enum):
 
 class LCoreReasoningEngine:
     """Core multi-path reasoning engine."""
-    
+
     def __init__(self, paths_min: int = 3, paths_max: int = 5):
         self.paths_min = paths_min
         self.paths_max = paths_max
-    
+
     def generate_paths(self, intent: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Generate multiple reasoning paths."""
         paths = []
-        
+
         for path_type in ReasoningPathType:
             path = {
                 'type': path_type.value,
@@ -548,9 +535,9 @@ class LCoreReasoningEngine:
                 'score': 0.0
             }
             paths.append(path)
-        
+
         return paths[:self.paths_max]
-    
+
     def score_path(self, path: Dict[str, Any], criteria: Dict[str, float]) -> float:
         """Score a reasoning path."""
         score = 0.0
@@ -560,15 +547,15 @@ class LCoreReasoningEngine:
         score += criteria.get('clarity', 0.0) * 0.15
         score += criteria.get('effort_vs_reward', 0.0) * 0.15
         return score
-    
+
     def converge(self, paths: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Select highest-scoring path."""
         if not paths:
             return {}
-        
+
         best_path = max(paths, key=lambda p: p.get('score', 0.0))
         return best_path
-    
+
     def _interpret(self, intent: Dict[str, Any], path_type: ReasoningPathType) -> str:
         """Interpret intent according to path type."""
         # Implementation would go here
@@ -587,21 +574,21 @@ from typing import Dict, List, Any
 
 class DiagnosticSuite:
     """Self-diagnostic system."""
-    
+
     def __init__(self):
         self.checks = {
             'drift_check': self._drift_check,
             'capability_check': self._capability_check,
             'focus_check': self._focus_check
         }
-    
+
     def run_diagnostic(self, check_name: str, context: Dict[str, Any]) -> Dict[str, Any]:
         """Run a diagnostic check."""
         if check_name not in self.checks:
             return {'error': f'Unknown check: {check_name}'}
-        
+
         return self.checks[check_name](context)
-    
+
     def _drift_check(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Check for drift from BSL and active modes."""
         questions = [
@@ -609,33 +596,33 @@ class DiagnosticSuite:
             'Am I moving deployment forward?',
             'Am I asking unnecessary questions?'
         ]
-        
+
         return {
             'check': 'drift_check',
             'questions': questions,
             'status': 'pending'
         }
-    
+
     def _capability_check(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Check capability claims."""
         questions = [
             'Am I accidentally promising external actions?',
             'Am I respecting current environment limits?'
         ]
-        
+
         return {
             'check': 'capability_check',
             'questions': questions,
             'status': 'pending'
         }
-    
+
     def _focus_check(self, context: Dict[str, Any]) -> Dict[str, Any]:
         """Check focus on deployment/build."""
         questions = [
             'Is this response directly serving deployment / build?',
             'Did I drift into generic explanation?'
         ]
-        
+
         return {
             'check': 'focus_check',
             'questions': questions,
@@ -645,21 +632,20 @@ class DiagnosticSuite:
 
         return modules
 
-    def parse_inline_yaml(self, text: str) -> Dict:
+    def parse_inline_yaml(self, text: str) -> dict:
         """Parse inline YAML-like structure."""
         # Simple parser for inline YAML structures
-        result = {}
+        return {}
         # This would need more sophisticated parsing
-        return result
 
-    def write_yaml(self, file_path: Path, data: Dict):
+    def write_yaml(self, file_path: Path, data: dict):
         """Write YAML file."""
         with open(file_path, "w", encoding="utf-8") as f:
             yaml.dump(
                 data, f, default_flow_style=False, allow_unicode=True, sort_keys=False
             )
 
-    def write_manifest(self, manifest_path: Path, manifest: Dict):
+    def write_manifest(self, manifest_path: Path, manifest: dict):
         """Write extraction manifest."""
         with open(manifest_path, "w", encoding="utf-8") as f:
             f.write("# L9-L-Clone-Core Extraction Manifest\n\n")

@@ -1,7 +1,7 @@
 # PacketEnvelope & PacketStore Architecture
 
-**Version:** 2.0.0  
-**Updated:** 2026-01-13  
+**Version:** 2.0.0
+**Updated:** 2026-01-13
 **Spec:** `memory_spec_v3.0.yaml`
 
 ---
@@ -204,34 +204,34 @@
 class PacketEnvelope(BaseModel):
     """
     Canonical immutable event container for L9 Memory Substrate.
-    
+
     Contracts:
     - IMMUTABLE once created (frozen=True enforced)
     - Modifications use with_mutation() creating new packet with lineage
     - Schema version 2.0.0
     """
-    
+
     # Primary Key
     packet_id: UUID                    # Auto-generated unique ID
-    
+
     # Required Fields
     packet_type: str                   # event, memory_write, reasoning_trace, etc.
     payload: dict[str, Any]            # Flexible JSON payload
     timestamp: datetime                # UTC timestamp (auto-generated)
-    
+
     # Optional Fields
     metadata: PacketMetadata           # schema_version, agent, domain
     provenance: PacketProvenance       # source, tool, derive_type
     confidence: PacketConfidence       # score (0-1), rationale
     reasoning_block: dict              # StructuredReasoningBlock inline
-    
+
     # v1.1.0+ Fields
     thread_id: UUID                    # Conversation/task thread
     lineage: PacketLineage             # parent_ids[], derivation_type, generation
     tags: list[str]                    # Lightweight labels
     ttl: datetime                      # Expiration for GC
-    
-    # v2.0.0 Fields  
+
+    # v2.0.0 Fields
     content_hash: str                  # SHA-256 for integrity verification
 ```
 
@@ -239,30 +239,30 @@ class PacketEnvelope(BaseModel):
 
 ## PacketStore Table Schema
 
-| Column | Type | Migration | Description |
-|--------|------|-----------|-------------|
-| `packet_id` | UUID PK | 0001 | Primary key |
-| `packet_type` | TEXT | 0001 | Event classification |
-| `envelope` | JSONB | 0001 | Full PacketEnvelope |
-| `timestamp` | TIMESTAMPTZ | 0001 | Event time |
-| `routing` | JSONB | 0001 | Agent routing metadata |
-| `provenance` | JSONB | 0001 | Source/derivation info |
-| `thread_id` | UUID | 0002 | Thread identifier |
-| `parent_ids` | UUID[] | 0002 | Multi-parent lineage |
-| `tags` | TEXT[] | 0002 | Labels |
-| `ttl` | TIMESTAMP | 0002 | Expiration |
-| `scope` | TEXT | 0008 | shared/cursor/l-private |
-| `importance_score` | FLOAT | 0008 | Learned importance (0-1) |
-| `access_count` | INT | 0008 | Retrieval counter |
-| `last_accessed` | TIMESTAMPTZ | 0008 | Last access time |
-| `contradiction_count` | INT | 0008 | Times contradicted |
-| `chunk_count` | INT | 0008 | Number of chunks |
-| `is_chunked` | BOOLEAN | 0008 | Was content chunked? |
-| `content_hash` | TEXT | 0008 | Deduplication hash |
-| `processing_status` | TEXT | 0008 | Status tracking |
-| `tenant_id` | UUID | 0008 | Multi-tenant |
-| `org_id` | UUID | 0008 | Organization |
-| `user_id` | UUID | 0008 | User |
+| Column                | Type        | Migration | Description              |
+| --------------------- | ----------- | --------- | ------------------------ |
+| `packet_id`           | UUID PK     | 0001      | Primary key              |
+| `packet_type`         | TEXT        | 0001      | Event classification     |
+| `envelope`            | JSONB       | 0001      | Full PacketEnvelope      |
+| `timestamp`           | TIMESTAMPTZ | 0001      | Event time               |
+| `routing`             | JSONB       | 0001      | Agent routing metadata   |
+| `provenance`          | JSONB       | 0001      | Source/derivation info   |
+| `thread_id`           | UUID        | 0002      | Thread identifier        |
+| `parent_ids`          | UUID[]      | 0002      | Multi-parent lineage     |
+| `tags`                | TEXT[]      | 0002      | Labels                   |
+| `ttl`                 | TIMESTAMP   | 0002      | Expiration               |
+| `scope`               | TEXT        | 0008      | shared/cursor/l-private  |
+| `importance_score`    | FLOAT       | 0008      | Learned importance (0-1) |
+| `access_count`        | INT         | 0008      | Retrieval counter        |
+| `last_accessed`       | TIMESTAMPTZ | 0008      | Last access time         |
+| `contradiction_count` | INT         | 0008      | Times contradicted       |
+| `chunk_count`         | INT         | 0008      | Number of chunks         |
+| `is_chunked`          | BOOLEAN     | 0008      | Was content chunked?     |
+| `content_hash`        | TEXT        | 0008      | Deduplication hash       |
+| `processing_status`   | TEXT        | 0008      | Status tracking          |
+| `tenant_id`           | UUID        | 0008      | Multi-tenant             |
+| `org_id`              | UUID        | 0008      | Organization             |
+| `user_id`             | UUID        | 0008      | User                     |
 
 ---
 
@@ -313,48 +313,48 @@ Join packet_store                   → Get full packets
 
 ## Related Tables
 
-| Table | Purpose | FK to packet_store |
-|-------|---------|-------------------|
-| `memory_embeddings` | Vector embeddings | `packet_id` |
-| `knowledge_facts` | S-P-O triples | `source_packet` |
-| `reasoning_traces` | Reasoning chains | `packet_id` |
-| `graph_checkpoints` | Agent state | N/A |
-| `reflection_store` | Lessons learned | `source_packet` |
-| `tool_audit_log` | Tool execution | `request_id` |
+| Table               | Purpose           | FK to packet_store |
+| ------------------- | ----------------- | ------------------ |
+| `memory_embeddings` | Vector embeddings | `packet_id`        |
+| `knowledge_facts`   | S-P-O triples     | `source_packet`    |
+| `reasoning_traces`  | Reasoning chains  | `packet_id`        |
+| `graph_checkpoints` | Agent state       | N/A                |
+| `reflection_store`  | Lessons learned   | `source_packet`    |
+| `tool_audit_log`    | Tool execution    | `request_id`       |
 
 ---
 
 ## File Locations
 
-| Component | Path | Purpose |
-|-----------|------|---------|
-| PacketEnvelope Schema | `core/schemas/packet_envelope_v2.py` | Canonical model |
-| Deprecated Schema | `memory/substrate_models.py` | v1.1.1 (sunset 2026-04-05) |
-| Repository | `memory/substrate_repository.py` | Database access |
-| Service | `memory/substrate_service.py` | Orchestration |
-| DAG Pipeline | `memory/substrate_dag.py` | LangGraph nodes |
-| Ingestion | `memory/ingestion.py` | Entry point |
-| Validator | `memory/validators/packet_validator.py` | Whitelist |
-| API Router | `api/memory/router.py` | HTTP endpoints |
-| MCP Routes | `mcp_memory/src/routes/memory_unified.py` | MCP server |
-| Migration 0001 | `migrations/0001_init_memory_substrate.sql` | Core tables |
-| Migration 0002 | `migrations/0002_enhance_packet_store.sql` | Threading |
-| Migration 0008 | `migrations/0008_memory_substrate_10x.sql` | 10X upgrade |
+| Component             | Path                                        | Purpose                    |
+| --------------------- | ------------------------------------------- | -------------------------- |
+| PacketEnvelope Schema | `core/schemas/packet_envelope_v2.py`        | Canonical model            |
+| Deprecated Schema     | `memory/substrate_models.py`                | v1.1.1 (sunset 2026-04-05) |
+| Repository            | `memory/substrate_repository.py`            | Database access            |
+| Service               | `memory/substrate_service.py`               | Orchestration              |
+| DAG Pipeline          | `memory/substrate_dag.py`                   | LangGraph nodes            |
+| Ingestion             | `memory/ingestion.py`                       | Entry point                |
+| Validator             | `memory/validators/packet_validator.py`     | Whitelist                  |
+| API Router            | `api/memory/router.py`                      | HTTP endpoints             |
+| MCP Routes            | `mcp_memory/src/routes/memory_unified.py`   | MCP server                 |
+| Migration 0001        | `migrations/0001_init_memory_substrate.sql` | Core tables                |
+| Migration 0002        | `migrations/0002_enhance_packet_store.sql`  | Threading                  |
+| Migration 0008        | `migrations/0008_memory_substrate_10x.sql`  | 10X upgrade                |
 
 ---
 
 ## Packet Types
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `event` | General event | User action, system event |
-| `memory_write` | Memory storage | Saved fact, preference |
-| `reasoning_trace` | Agent reasoning | Thought chain |
-| `tool_call` | Tool invocation | MCP tool execution |
-| `tool_result` | Tool output | Tool response |
-| `tool_audit` | Tool audit log | Governance record |
-| `insight` | Extracted insight | Pattern, lesson |
-| `message` | Chat message | Conversation turn |
+| Type              | Description       | Example                   |
+| ----------------- | ----------------- | ------------------------- |
+| `event`           | General event     | User action, system event |
+| `memory_write`    | Memory storage    | Saved fact, preference    |
+| `reasoning_trace` | Agent reasoning   | Thought chain             |
+| `tool_call`       | Tool invocation   | MCP tool execution        |
+| `tool_result`     | Tool output       | Tool response             |
+| `tool_audit`      | Tool audit log    | Governance record         |
+| `insight`         | Extracted insight | Pattern, lesson           |
+| `message`         | Chat message      | Conversation turn         |
 
 ---
 

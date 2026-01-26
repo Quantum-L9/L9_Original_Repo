@@ -32,13 +32,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncio
-import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
-from jinja2 import Environment, FileSystemLoader, Template
+from jinja2 import Environment, FileSystemLoader
 from pydantic import BaseModel, Field
 
 # L9 imports
@@ -70,7 +68,7 @@ class ModuleCompiler:
     - DORA block injection points
     """
 
-    def __init__(self, templates_dir: Optional[Path] = None):
+    def __init__(self, templates_dir: Path | None = None):
         self.logger = get_logger(__name__)
 
         # Templates directory
@@ -238,22 +236,22 @@ from pydantic_settings import BaseSettings
 
 class {class_name}Config(BaseSettings):
     """Configuration for {metadata.get("name", "Module")}"""
-    
+
     # Module metadata
     module_id: str = Field(default="{module_id}", description="Module identifier")
     tier: int = Field(default={metadata.get("tier", 3)}, description="Module tier")
-    
+
     # Feature flags
     enabled: bool = Field(default=True, description="Module enabled")
-    
+
     # Runtime settings
     timeout_seconds: int = Field(default=30, description="Operation timeout")
     max_retries: int = Field(default=3, description="Max retry attempts")
-    
+
     # Observability
     log_level: str = Field(default="INFO", description="Logging level")
     enable_tracing: bool = Field(default=True, description="Enable distributed tracing")
-    
+
     class Config:
         env_prefix = "{module_id.upper()}_"
         case_sensitive = False
@@ -287,13 +285,13 @@ from pydantic import BaseModel, Field
 
 class {self._to_pascal_case(module_id)}Request(BaseModel):
     """Request model for {metadata.get("name", "Module")}"""
-    
+
     request_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique request ID")
     timestamp: datetime = Field(default_factory=datetime.utcnow, description="Request timestamp")
-    
+
     # Add your request fields here based on spec
     data: dict[str, Any] = Field(default_factory=dict, description="Request data")
-    
+
     class Config:
         json_schema_extra = {{
             "example": {{
@@ -306,13 +304,13 @@ class {self._to_pascal_case(module_id)}Request(BaseModel):
 
 class {self._to_pascal_case(module_id)}Response(BaseModel):
     """Response model for {metadata.get("name", "Module")}"""
-    
+
     request_id: str = Field(..., description="Original request ID")
     success: bool = Field(..., description="Operation success")
     data: dict[str, Any] = Field(default_factory=dict, description="Response data")
     error: Optional[str] = Field(default=None, description="Error message if failed")
     timestamp: datetime = Field(default_factory=datetime.utcnow, description="Response timestamp")
-    
+
     class Config:
         json_schema_extra = {{
             "example": {{
@@ -353,15 +351,15 @@ from .models import {class_name}Request, {class_name}Response
 class {class_name}Orchestrator:
     """
     Main orchestrator for {metadata.get("name", "Module")}.
-    
+
     Tier: {metadata.get("tier", 3)}
     Description: {metadata.get("description", "")}
     """
-    
+
     def __init__(self):
         self.logger = get_logger(__name__)
         self.config = config
-        
+
         self.logger.info(
             f"{class_name}Orchestrator initialized",
             extra={{
@@ -369,20 +367,20 @@ class {class_name}Orchestrator:
                 "tier": self.config.tier
             }}
         )
-    
+
     async def process(
         self,
         request: {class_name}Request
     ) -> {class_name}Response:
         """
         Process a request.
-        
+
         Args:
             request: Request to process
-        
+
         Returns:
             Response with results
-        
+
         Raises:
             {class_name}Error: If processing fails
         """
@@ -392,17 +390,17 @@ class {class_name}Orchestrator:
                 "request_id": request.request_id
             }}
         )
-        
+
         try:
             # TODO: Implement your business logic here
             result_data = await self._execute_logic(request)
-            
+
             return {class_name}Response(
                 request_id=request.request_id,
                 success=True,
                 data=result_data
             )
-        
+
         except Exception as e:
             self.logger.error(
                 f"Processing failed: {{e}}",
@@ -411,34 +409,34 @@ class {class_name}Orchestrator:
                     "request_id": request.request_id
                 }}
             )
-            
+
             return {class_name}Response(
                 request_id=request.request_id,
                 success=False,
                 error=str(e)
             )
-    
+
     async def _execute_logic(
         self,
         request: {class_name}Request
     ) -> dict[str, Any]:
         """
         Execute core business logic.
-        
+
         This is where you implement the module's main functionality.
         """
         # Placeholder implementation
         await asyncio.sleep(0.1)  # Simulate async work
-        
+
         return {{
             "processed": True,
             "request_id": request.request_id
         }}
-    
+
     async def health_check(self) -> dict[str, Any]:
         """
         Health check endpoint.
-        
+
         Returns:
             Health status
         """
@@ -474,22 +472,22 @@ from .logger import get_logger
 
 class DatabaseManager:
     """Database connection manager"""
-    
+
     def __init__(self):
         self.logger = get_logger(__name__)
         self.pool: Optional[asyncpg.Pool] = None
-    
+
     async def connect(self, dsn: str):
         """Connect to database"""
         self.pool = await asyncpg.create_pool(dsn)
         self.logger.info("Database pool created")
-    
+
     async def disconnect(self):
         """Disconnect from database"""
         if self.pool:
             await self.pool.close()
             self.logger.info("Database pool closed")
-    
+
     async def execute_query(
         self,
         query: str,
@@ -498,7 +496,7 @@ class DatabaseManager:
         """Execute a query and return results"""
         if not self.pool:
             raise RuntimeError("Database not connected")
-        
+
         async with self.pool.acquire() as conn:
             rows = await conn.fetch(query, *args)
             return [dict(row) for row in rows]
@@ -542,17 +540,17 @@ async def {module_id}_process_tool(
 ) -> dict[str, Any]:
     """
     Tool wrapper for {metadata.get("name", "Module")}.
-    
+
     Args:
         data: Request data
-    
+
     Returns:
         Response data
     """
     orchestrator = {class_name}Orchestrator()
     request = {class_name}Request(data=data)
     response = await orchestrator.process(request)
-    
+
     return response.model_dump()
 '''
 
@@ -617,15 +615,15 @@ from .config import config
 def get_logger(name: str) -> logging.Logger:
     """
     Get a configured logger instance.
-    
+
     Args:
         name: Logger name (usually __name__)
-    
+
     Returns:
         Configured logger
     """
     logger = logging.getLogger(name)
-    
+
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
@@ -634,7 +632,7 @@ def get_logger(name: str) -> logging.Logger:
         handler.setFormatter(formatter)
         logger.addHandler(handler)
         logger.setLevel(getattr(logging, config.log_level.upper()))
-    
+
     return logger
 '''
 
@@ -662,7 +660,7 @@ from .core import {class_name}Orchestrator
 async def health_check() -> dict[str, Any]:
     """
     Health check endpoint.
-    
+
     Returns:
         Health status
     """
@@ -758,9 +756,9 @@ async def test_process_request(sample_request_data):
     """Test request processing"""
     orchestrator = {class_name}Orchestrator()
     request = {class_name}Request(data=sample_request_data)
-    
+
     response = await orchestrator.process(request)
-    
+
     assert response.success is True
     assert response.request_id == request.request_id
 
@@ -770,7 +768,7 @@ async def test_health_check():
     """Test health check"""
     orchestrator = {class_name}Orchestrator()
     health = await orchestrator.health_check()
-    
+
     assert health["status"] == "healthy"
     assert "module_id" in health
 '''

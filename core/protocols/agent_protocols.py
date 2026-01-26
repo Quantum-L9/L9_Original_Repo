@@ -54,7 +54,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 
 class AgentState(str, Enum):
@@ -83,7 +83,7 @@ class ActivatableAgent(Protocol):
     """
 
     def kernel_activate(
-        self, manifest: Any, context: Optional[Dict[str, Any]] = None
+        self, manifest: Any, context: dict[str, Any] | None = None
     ) -> Any:
         """
         Activate agent with kernel manifest.
@@ -106,7 +106,7 @@ class ActivatableAgent(Protocol):
         """
         ...
 
-    def get_kernel_state(self) -> Optional[Any]:
+    def get_kernel_state(self) -> Any | None:
         """
         Get current kernel state.
 
@@ -138,9 +138,9 @@ class ToolExecutor(Protocol):
     async def execute_tool(
         self,
         tool_name: str,
-        parameters: Dict[str, Any],
-        context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        parameters: dict[str, Any],
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Execute a tool with parameters.
 
@@ -154,7 +154,7 @@ class ToolExecutor(Protocol):
         """
         ...
 
-    def list_available_tools(self) -> List[str]:
+    def list_available_tools(self) -> list[str]:
         """
         List available tools.
 
@@ -163,7 +163,7 @@ class ToolExecutor(Protocol):
         """
         ...
 
-    def get_tool_schema(self, tool_name: str) -> Dict[str, Any]:
+    def get_tool_schema(self, tool_name: str) -> dict[str, Any]:
         """
         Get tool parameter schema.
 
@@ -176,7 +176,7 @@ class ToolExecutor(Protocol):
         ...
 
     def validate_tool_parameters(
-        self, tool_name: str, parameters: Dict[str, Any]
+        self, tool_name: str, parameters: dict[str, Any]
     ) -> bool:
         """
         Validate tool parameters against schema.
@@ -205,7 +205,7 @@ class StateManager(Protocol):
     - DistributedStateManager: State shared across instances
     """
 
-    async def get_state(self, agent_id: str) -> Optional[AgentState]:
+    async def get_state(self, agent_id: str) -> AgentState | None:
         """
         Get current state of an agent.
 
@@ -245,7 +245,7 @@ class StateManager(Protocol):
 
     async def get_state_history(
         self, agent_id: str, limit: int = 10
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get state transition history.
 
@@ -274,7 +274,7 @@ class AgentOrchestrator(Protocol):
     """
 
     async def register_agent(
-        self, agent: ActivatableAgent, metadata: Optional[Dict[str, Any]] = None
+        self, agent: ActivatableAgent, metadata: dict[str, Any] | None = None
     ) -> str:
         """
         Register an agent with orchestrator.
@@ -301,7 +301,7 @@ class AgentOrchestrator(Protocol):
         ...
 
     async def route_task(
-        self, task: Dict[str, Any], constraints: Optional[Dict[str, Any]] = None
+        self, task: dict[str, Any], constraints: dict[str, Any] | None = None
     ) -> str:
         """
         Route task to appropriate agent.
@@ -315,7 +315,7 @@ class AgentOrchestrator(Protocol):
         """
         ...
 
-    async def get_agent_status(self, agent_id: str) -> Dict[str, Any]:
+    async def get_agent_status(self, agent_id: str) -> dict[str, Any]:
         """
         Get agent status.
 
@@ -327,7 +327,7 @@ class AgentOrchestrator(Protocol):
         """
         ...
 
-    def list_agents(self) -> List[str]:
+    def list_agents(self) -> list[str]:
         """
         List all registered agents.
 
@@ -355,7 +355,7 @@ class AgentRegistry(Protocol):
         self,
         agent_id: str,
         agent_type: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """
         Register an agent.
@@ -379,7 +379,7 @@ class AgentRegistry(Protocol):
         """
         ...
 
-    def get_agent(self, agent_id: str) -> Optional[Dict[str, Any]]:
+    def get_agent(self, agent_id: str) -> dict[str, Any] | None:
         """
         Get agent information.
 
@@ -392,8 +392,8 @@ class AgentRegistry(Protocol):
         ...
 
     def find_agents(
-        self, agent_type: Optional[str] = None, filters: Optional[Dict[str, Any]] = None
-    ) -> List[Dict[str, Any]]:
+        self, agent_type: str | None = None, filters: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
         """
         Find agents by type or filters.
 
@@ -406,7 +406,7 @@ class AgentRegistry(Protocol):
         """
         ...
 
-    def list_all(self) -> List[str]:
+    def list_all(self) -> list[str]:
         """
         List all registered agent IDs.
 
@@ -436,11 +436,11 @@ class AgentContext(Protocol):
         ...
 
     @property
-    def session_id(self) -> Optional[str]:
+    def session_id(self) -> str | None:
         """Get session ID."""
         ...
 
-    def get_memory(self, key: str) -> Optional[Any]:
+    def get_memory(self, key: str) -> Any | None:
         """
         Get value from context memory.
 
@@ -462,7 +462,7 @@ class AgentContext(Protocol):
         """
         ...
 
-    def get_metadata(self) -> Dict[str, Any]:
+    def get_metadata(self) -> dict[str, Any]:
         """
         Get context metadata.
 
@@ -474,12 +474,12 @@ class AgentContext(Protocol):
 
 __all__ = [
     "ActivatableAgent",
-    "ToolExecutor",
-    "StateManager",
+    "AgentContext",
     "AgentOrchestrator",
     "AgentRegistry",
-    "AgentContext",
     "AgentState",
+    "StateManager",
+    "ToolExecutor",
 ]
 
 # ============================================================================

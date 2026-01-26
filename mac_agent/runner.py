@@ -89,22 +89,19 @@ def execute_command(command: str) -> tuple[str, str]:
         if result.returncode == 0:
             output = result.stdout.strip() if result.stdout.strip() else "(no output)"
             return output, "done"
-        else:
-            error_msg = (
-                result.stderr.strip()
-                if result.stderr.strip()
-                else result.stdout.strip()
-            )
-            output = (
-                f"Exit code: {result.returncode}\n{error_msg}"
-                if error_msg
-                else f"Exit code: {result.returncode}"
-            )
-            return output, "failed"
+        error_msg = (
+            result.stderr.strip() if result.stderr.strip() else result.stdout.strip()
+        )
+        output = (
+            f"Exit code: {result.returncode}\n{error_msg}"
+            if error_msg
+            else f"Exit code: {result.returncode}"
+        )
+        return output, "failed"
     except subprocess.TimeoutExpired:
         return "Command timed out after 5 minutes", "failed"
     except Exception as e:
-        return f"Execution error: {str(e)}", "failed"
+        return f"Execution error: {e!s}", "failed"
 
 
 async def execute_steps(task: dict) -> dict:
@@ -315,7 +312,7 @@ async def poll_and_execute():
                             }
                         ],
                         "screenshots": [],
-                        "data": {"error": f"Runner error: {str(e)}"},
+                        "data": {"error": f"Runner error: {e!s}"},
                     }
 
                     # Take desktop screenshot if possible

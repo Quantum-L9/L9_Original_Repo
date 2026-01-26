@@ -33,7 +33,7 @@ __dora_meta__ = {
 
 import hashlib
 import json
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 
@@ -96,8 +96,8 @@ GRAPH_CACHE_SCHEMA_VERSION = compute_graph_schema_hash()
 
 
 def build_cypher_from_intent(
-    query_intent: str, params: Dict[str, Any]
-) -> Dict[str, Any]:
+    query_intent: str, params: dict[str, Any]
+) -> dict[str, Any]:
     """
     Build Cypher query from intent string and parameters.
 
@@ -118,7 +118,7 @@ def build_cypher_from_intent(
 
     # Find matching template
     match = None
-    for key, template in DSL_TEMPLATES.items():
+    for _key, template in DSL_TEMPLATES.items():
         if template["intent"] in query_intent.lower():
             match = template
             break

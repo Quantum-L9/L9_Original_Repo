@@ -13,7 +13,7 @@ Features:
 Usage:
     # Programmatic
     from core.governance.policy_generator import PolicyGenerator
-    
+
     gen = PolicyGenerator()
     yaml_str = gen.generate_allow_policy(
         id="allow-memory-read",
@@ -23,7 +23,7 @@ Usage:
         resources=["scope:developer"],
         priority=100,
     )
-    
+
     # CLI
     python -m core.governance.policy_generator --template allow \\
         --id "allow-test" --name "Test Policy" --subjects L,C \\
@@ -58,7 +58,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import structlog
 import yaml
@@ -78,13 +78,13 @@ class PolicySpec:
     id: str
     name: str
     effect: str  # "allow" or "deny"
-    subjects: List[str]
-    actions: List[str]
-    resources: List[str]
+    subjects: list[str]
+    actions: list[str]
+    resources: list[str]
     priority: int = 100
     description: str = ""
     enabled: bool = True
-    conditions: Optional[Dict[str, Any]] = None
+    conditions: dict[str, Any] | None = None
 
     def __post_init__(self):
         """Validate policy spec."""
@@ -97,7 +97,7 @@ class PolicySpec:
         if not self.subjects:
             raise ValueError("subjects cannot be empty")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for YAML serialization."""
         result = {
             "id": self.id,
@@ -121,11 +121,11 @@ class ScopeAccessSpec:
     """Specification for scope access matrix entry."""
 
     caller_id: str
-    allowed_scopes: List[str]
-    denied_scopes: List[str] = field(default_factory=list)
+    allowed_scopes: list[str]
+    denied_scopes: list[str] = field(default_factory=list)
     description: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         result = {
             "allowed_scopes": self.allowed_scopes,
@@ -143,9 +143,9 @@ class PolicyFileSpec:
     file_name: str
     component_name: str
     description: str = ""
-    policies: List[PolicySpec] = field(default_factory=list)
-    scope_access_matrix: Dict[str, ScopeAccessSpec] = field(default_factory=dict)
-    extra_sections: Dict[str, Any] = field(default_factory=dict)
+    policies: list[PolicySpec] = field(default_factory=list)
+    scope_access_matrix: dict[str, ScopeAccessSpec] = field(default_factory=dict)
+    extra_sections: dict[str, Any] = field(default_factory=dict)
 
 
 # =============================================================================
@@ -201,7 +201,7 @@ class PolicyGenerator:
 # ============================================================================
 """
 
-    def _generate_dora_footer(self, tags: List[str], keywords: List[str]) -> str:
+    def _generate_dora_footer(self, tags: list[str], keywords: list[str]) -> str:
         """Generate DORA metadata footer."""
         now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         tags_str = ", ".join(f'"{t}"' for t in tags)
@@ -224,13 +224,13 @@ class PolicyGenerator:
         self,
         id: str,
         name: str,
-        subjects: List[str],
-        actions: List[str],
-        resources: List[str],
+        subjects: list[str],
+        actions: list[str],
+        resources: list[str],
         priority: int = 100,
         description: str = "",
-        conditions: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        conditions: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Generate a single allow policy dict.
 
@@ -264,13 +264,13 @@ class PolicyGenerator:
         self,
         id: str,
         name: str,
-        subjects: List[str],
-        actions: List[str],
-        resources: List[str],
+        subjects: list[str],
+        actions: list[str],
+        resources: list[str],
         priority: int = 100,
         description: str = "",
-        conditions: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        conditions: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """Generate a single deny policy dict."""
         spec = PolicySpec(
             id=id,
@@ -293,10 +293,10 @@ class PolicyGenerator:
         self,
         file_name: str,
         component_name: str,
-        policies: List[Dict[str, Any]],
+        policies: list[dict[str, Any]],
         description: str = "",
-        scope_access_matrix: Optional[Dict[str, Dict[str, Any]]] = None,
-        extra_sections: Optional[Dict[str, Any]] = None,
+        scope_access_matrix: dict[str, dict[str, Any]] | None = None,
+        extra_sections: dict[str, Any] | None = None,
     ) -> str:
         """
         Generate a complete policy YAML file.
@@ -313,7 +313,7 @@ class PolicyGenerator:
             Complete YAML string with DORA metadata
         """
         # Build YAML content
-        content_dict: Dict[str, Any] = {}
+        content_dict: dict[str, Any] = {}
 
         if scope_access_matrix:
             content_dict["scope_access_matrix"] = scope_access_matrix
@@ -347,7 +347,7 @@ class PolicyGenerator:
         keywords = list(keywords)[:5]
 
         # Assemble file
-        result = (
+        return (
             self._generate_dora_header(component_name, file_name)
             + "\n"
             + desc_comment
@@ -358,7 +358,6 @@ class PolicyGenerator:
             )
         )
 
-        return result
 
     # -------------------------------------------------------------------------
     # Template Presets
@@ -388,18 +387,17 @@ class PolicyGenerator:
         """
         if template == "scope-access":
             return self._template_scope_access(file_name, **kwargs)
-        elif template == "tool-approval":
+        if template == "tool-approval":
             return self._template_tool_approval(file_name, **kwargs)
-        elif template == "resource-access":
+        if template == "resource-access":
             return self._template_resource_access(file_name, **kwargs)
-        else:
-            raise ValueError(f"Unknown template: {template}")
+        raise ValueError(f"Unknown template: {template}")
 
     def _template_scope_access(
         self,
         file_name: str,
-        scopes: List[str],
-        callers: Dict[str, List[str]],
+        scopes: list[str],
+        callers: dict[str, list[str]],
         default_caller: str = "default",
     ) -> str:
         """
@@ -433,7 +431,7 @@ class PolicyGenerator:
                         id=f"allow-{scope}-scope",
                         name=f"Allow {scope.title()} Scope Access",
                         subjects=(
-                            allowed_subjects + ["*"]
+                            [*allowed_subjects, "*"]
                             if "*" in allowed_subjects
                             else allowed_subjects
                         ),
@@ -455,9 +453,9 @@ class PolicyGenerator:
     def _template_tool_approval(
         self,
         file_name: str,
-        high_risk_tools: List[str],
-        auto_approve_tools: List[str],
-        approvers: List[str] = None,
+        high_risk_tools: list[str],
+        auto_approve_tools: list[str],
+        approvers: list[str] | None = None,
     ) -> str:
         """
         Generate tool approval policy file.
@@ -515,9 +513,9 @@ class PolicyGenerator:
         self,
         file_name: str,
         resource_type: str,
-        read_subjects: List[str],
-        write_subjects: List[str],
-        admin_subjects: List[str] = None,
+        read_subjects: list[str],
+        write_subjects: list[str],
+        admin_subjects: list[str] | None = None,
     ) -> str:
         """
         Generate resource access policy file.
@@ -595,7 +593,7 @@ class PolicyGenerator:
     def write_policy_file(
         self,
         content: str,
-        output_path: Union[str, Path],
+        output_path: str | Path,
         overwrite: bool = False,
     ) -> Path:
         """

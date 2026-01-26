@@ -38,8 +38,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from collections.abc import Iterable
 from datetime import datetime
-from typing import Any, Iterable, Optional
+from typing import Any
 
 import structlog
 from pydantic import ValidationError
@@ -91,9 +92,9 @@ class PacketValidationError(Exception):
     def __init__(
         self,
         message: str,
-        field: Optional[str] = None,
+        field: str | None = None,
         value: Any = None,
-        error_code: Optional[str] = None,
+        error_code: str | None = None,
     ):
         """
         Initialize validation error with structured details.
@@ -150,13 +151,12 @@ class PacketValidator:
                     value=packet_in.packet_type,
                     error_code="INVALID_PACKET_TYPE",
                 )
-            else:
-                # Warn but allow (future-proofs for new integrations)
-                logger.warning(
-                    "packet_type_unknown",
-                    packet_type=packet_in.packet_type,
-                    hint="Consider adding to EXTENDED_PACKET_TYPES in packet_validator.py",
-                )
+            # Warn but allow (future-proofs for new integrations)
+            logger.warning(
+                "packet_type_unknown",
+                packet_type=packet_in.packet_type,
+                hint="Consider adding to EXTENDED_PACKET_TYPES in packet_validator.py",
+            )
 
         # TTL must be in future (if provided)
         if packet_in.ttl and packet_in.ttl < datetime.utcnow():

@@ -45,10 +45,11 @@ import asyncio
 import json
 import logging
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from functools import wraps
-from typing import Any, Callable, Dict, Optional
+from typing import Any
 
 try:
     from opentelemetry import baggage, metrics, trace
@@ -59,8 +60,9 @@ try:
     from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
-    from opentelemetry.trace.propagation.tracecontext import \
-        TraceContextTextMapPropagator
+    from opentelemetry.trace.propagation.tracecontext import (
+        TraceContextTextMapPropagator,
+    )
 
     OPENTELEMETRY_AVAILABLE = True
 except ImportError:
@@ -154,7 +156,7 @@ class PacketEnvelopeObservability:
         self.meter = metrics.get_meter(__name__)
 
         # Initialize propagators
-        propagator = CompositePropagator(
+        CompositePropagator(
             [
                 TraceContextTextMapPropagator(),
                 W3CBaggagePropagator(),
@@ -209,7 +211,7 @@ class PacketEnvelopeObservability:
     def trace_operation(
         self,
         operation_name: str,
-        attributes: Dict[str, Any] = None,
+        attributes: dict[str, Any] | None = None,
         should_trace: bool = True,
     ):
         """
@@ -315,12 +317,11 @@ class PacketEnvelopeObservability:
             # Return async or sync wrapper based on func
             if asyncio.iscoroutinefunction(func):
                 return async_wrapper
-            else:
-                return sync_wrapper
+            return sync_wrapper
 
         return decorator
 
-    def extract_trace_context(self, headers: Dict[str, str]) -> Dict[str, str]:
+    def extract_trace_context(self, headers: dict[str, str]) -> dict[str, str]:
         """
         Extract W3C Trace Context from HTTP headers
         Returns: {trace_id, span_id, trace_flags, parent_id}
@@ -347,7 +348,7 @@ class PacketEnvelopeObservability:
 
         return {}
 
-    def inject_trace_context(self, headers: Dict[str, str] = None) -> Dict[str, str]:
+    def inject_trace_context(self, headers: dict[str, str] | None = None) -> dict[str, str]:
         """
         Inject W3C Trace Context into headers for downstream propagation
         """
@@ -404,12 +405,12 @@ class StructuredLogEvent:
     timestamp: datetime
     level: str
     message: str
-    trace_id: Optional[str] = None
-    span_id: Optional[str] = None
-    packet_id: Optional[str] = None
-    operation: Optional[str] = None
-    user_id: Optional[str] = None
-    attributes: Dict[str, Any] = field(default_factory=dict)
+    trace_id: str | None = None
+    span_id: str | None = None
+    packet_id: str | None = None
+    operation: str | None = None
+    user_id: str | None = None
+    attributes: dict[str, Any] = field(default_factory=dict)
 
     def to_json(self) -> str:
         """Serialize to JSON for centralized logging"""
@@ -449,7 +450,7 @@ class WebSocketTracePropagator:
         self.obs = observability
         self.logger = logger
 
-    def attach_to_frame(self, frame_data: Dict) -> Dict:
+    def attach_to_frame(self, frame_data: dict) -> dict:
         """
         Attach W3C trace context to WebSocket frame
         """
@@ -472,7 +473,7 @@ class WebSocketTracePropagator:
 
         return frame_data
 
-    def extract_from_frame(self, frame_data: Dict) -> Optional[Dict]:
+    def extract_from_frame(self, frame_data: dict) -> dict | None:
         """
         Extract trace context from received WebSocket frame
         """

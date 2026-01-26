@@ -530,13 +530,13 @@ async def invalidate_tool_cache(task_id: str) -> bool:
 
 
 __all__ = [
+    "cache_tools",
     "discover_tools_for_task",
-    "is_dynamic_discovery_enabled",
-    "get_discovery_stats",
     # Multi-turn caching (GMP-79)
     "get_cached_tools",
-    "cache_tools",
+    "get_discovery_stats",
     "invalidate_tool_cache",
+    "is_dynamic_discovery_enabled",
 ]
 
 # ============================================================================

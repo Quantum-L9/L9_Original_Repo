@@ -30,7 +30,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any
 
 import aiofiles
 import structlog
@@ -45,9 +45,9 @@ logger = structlog.get_logger(__name__)
 
 
 async def load_identity_persona(
-    instance: "BootstrapInstanceData",
-    substrate_service: "MemorySubstrateService",
-    identity_yaml_path: Optional[str] = None,
+    instance: BootstrapInstanceData,
+    substrate_service: MemorySubstrateService,
+    identity_yaml_path: str | None = None,
 ) -> None:
     """
     Load identity persona from YAML and hydrate memory.
@@ -85,7 +85,7 @@ async def load_identity_persona(
         return
 
     try:
-        async with aiofiles.open(identity_path, "r") as f:
+        async with aiofiles.open(identity_path) as f:
             identity_data = yaml.safe_load(await f.read())
 
         # Create identity memory chunk
@@ -170,6 +170,110 @@ async def load_identity_persona(
         # Set minimal identity on failure
         instance.designation = instance.agent_id
         instance.role = "Agent"
+
+
+# =============================================================================
+# View Pattern API (GMP Bootstrap 7-Phase)
+# =============================================================================
+
+
+async def load_identity_persona_view(
+    agent_id: str,
+    identity_kernel: dict[str, Any],
+    kernel_paths: dict[str, str],
+) -> dict[str, Any]:
+    """
+    Load agent identity from 02-identity kernel (View Pattern).
+
+    This is the new view-pattern implementation that:
+    - Computes identity from kernel data
+    - Returns IdentityView in context_delta
+    - Does NOT write to Neo4j or memory substrate (view-only)
+
+    Args:
+        agent_id: Agent identifier
+        identity_kernel: Parsed 02-identity kernel dict (from Phase 1)
+        kernel_paths: Dict mapping kernel names to file paths
+
+    Returns:
+        dict with keys:
+          - success: bool
+          - context_delta: dict with "identity_view" (IdentityView)
+          - error: Exception | None
+    """
+    from .models import IdentityView
+
+    try:
+        # Extract identity metadata from kernel
+        # Expected structure (from 02-identity.yaml):
+        # metadata:
+        #   display_name: "L-CTO"
+        #   short_name: "L"
+        #   description: "..."
+        #   default_tone: "direct"
+        #   tags: ["governance", "kernel-aware"]
+        # capabilities:
+        #   - "code_generation"
+        #   - "architecture_design"
+        #   ...
+
+        metadata = identity_kernel.get("metadata", {})
+        capabilities_raw = identity_kernel.get("capabilities", [])
+
+        # Also try top-level fields for backward compatibility
+        if not metadata:
+            metadata = {
+                "display_name": identity_kernel.get("designation", agent_id),
+                "short_name": identity_kernel.get("designation", agent_id)[:2] if identity_kernel.get("designation") else agent_id[:2],
+                "description": identity_kernel.get("mission", ""),
+                "default_tone": "neutral",
+                "tags": [],
+            }
+            capabilities_raw = identity_kernel.get("tools", [])
+
+        # Use defaults if still missing
+        display_name = metadata.get("display_name") or agent_id
+        short_name = metadata.get("short_name") or display_name[:2]
+        description = metadata.get("description") or ""
+        default_tone = metadata.get("default_tone") or "neutral"
+        tags = metadata.get("tags") or []
+
+        # Build IdentityView
+        identity_view = IdentityView(
+            agent_id=agent_id,
+            display_name=display_name,
+            short_name=short_name,
+            description=description,
+            capabilities=capabilities_raw if isinstance(capabilities_raw, list) else [],
+            default_tone=default_tone,
+            tags=tags if isinstance(tags, list) else [],
+        )
+
+        logger.info(
+            "agent.bootstrap.phase4.identity_loaded_view",
+            agent_id=agent_id,
+            display_name=identity_view.display_name,
+            capabilities_count=len(identity_view.capabilities),
+        )
+
+        return {
+            "success": True,
+            "context_delta": {"identity_view": identity_view},
+            "error": None,
+        }
+
+    except Exception as e:
+        logger.error(
+            "agent.bootstrap.phase4.identity_load_view_failed",
+            agent_id=agent_id,
+            error=str(e),
+        )
+        return {
+            "success": False,
+            "context_delta": {},
+            "error": e,
+            "error_code": "BOOTSTRAP_PHASE4_LOAD_IDENTITY_FAILED",
+        }
 
 
 # ============================================================================

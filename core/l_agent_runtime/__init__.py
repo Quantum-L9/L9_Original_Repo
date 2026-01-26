@@ -30,19 +30,19 @@ __all__ = [
     # Action registry
     "ActionRegistry",
     "ActionResult",
-    "registry",
-    # Foresight engine
-    "ForesightEngine",
-    "CandidateAction",
-    "ForesightDecision",
-    "DecisionMode",
-    # Reflection engine
-    "ReflectionEngine",
-    "ReflectionResult",
     # State management
     "AgentState",
     "AgentStateManager",
-    "ProactivityLevel",
+    "CandidateAction",
+    "DecisionMode",
+    "ForesightDecision",
+    # Foresight engine
+    "ForesightEngine",
     # Memory
     "MemoryAdapter",
+    "ProactivityLevel",
+    # Reflection engine
+    "ReflectionEngine",
+    "ReflectionResult",
+    "registry",
 ]

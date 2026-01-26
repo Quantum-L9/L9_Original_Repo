@@ -31,10 +31,10 @@ __dora_meta__ = {
 
 import asyncio
 import random
-from typing import List
 
 import structlog
 from openai import AsyncOpenAI
+
 from src.config import settings
 
 logger = structlog.get_logger(__name__)
@@ -90,10 +90,10 @@ async def _with_retries(coro_func, *, operation: str):
     ) from last_error
 
 
-async def embed_text(text: str) -> List[float]:
+async def embed_text(text: str) -> list[float]:
     """Generate embedding for single text with retry logic."""
 
-    async def _embed() -> List[float]:
+    async def _embed() -> list[float]:
         response = await client.embeddings.create(
             model=settings.OPENAI_EMBED_MODEL,
             input=text,
@@ -104,10 +104,10 @@ async def embed_text(text: str) -> List[float]:
     return await _with_retries(_embed, operation="embed_text")
 
 
-async def embed_texts(texts: List[str]) -> List[List[float]]:
+async def embed_texts(texts: list[str]) -> list[list[float]]:
     """Generate embeddings for batch of texts with retry logic."""
 
-    async def _embed() -> List[List[float]]:
+    async def _embed() -> list[list[float]]:
         response = await client.embeddings.create(
             model=settings.OPENAI_EMBED_MODEL,
             input=texts,

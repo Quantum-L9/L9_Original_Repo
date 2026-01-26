@@ -22,6 +22,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from fastapi import APIRouter
+
 from src import db  # Import module to access pool after init_db() updates it
 from src.config import settings
 

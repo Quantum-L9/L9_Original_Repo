@@ -29,7 +29,6 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Dict, Set
 
 import structlog
 import yaml
@@ -41,10 +40,10 @@ logger = structlog.get_logger(__name__)
 # Cached Policy Data
 # =============================================================================
 
-_PROTECTED_FILES_POLICY: Dict = {}
+_PROTECTED_FILES_POLICY: dict = {}
 
 
-def _load_protected_files_policy() -> Dict:
+def _load_protected_files_policy() -> dict:
     """Load protected files policy from YAML file."""
     global _PROTECTED_FILES_POLICY
 
@@ -122,7 +121,7 @@ def _load_protected_files_policy() -> Dict:
 # =============================================================================
 
 
-def get_lcto_controlled_files() -> Set[str]:
+def get_lcto_controlled_files() -> set[str]:
     """Get set of LCTO-controlled file paths.
 
     Returns:
@@ -133,7 +132,7 @@ def get_lcto_controlled_files() -> Set[str]:
     return {item["path"] if isinstance(item, dict) else item for item in lcto}
 
 
-def get_subsystem_protected_files() -> Dict[str, Set[str]]:
+def get_subsystem_protected_files() -> dict[str, set[str]]:
     """Get subsystem-protected files by subsystem name.
 
     Returns:
@@ -144,7 +143,7 @@ def get_subsystem_protected_files() -> Dict[str, Set[str]]:
     return {name: set(config.get("files", [])) for name, config in subsystems.items()}
 
 
-def get_all_protected_files() -> Set[str]:
+def get_all_protected_files() -> set[str]:
     """Get all protected file paths.
 
     Returns:
@@ -200,6 +199,6 @@ def get_file_subsystem(file_path: str) -> str | None:
 # Module-level constants (backward compatibility)
 # =============================================================================
 
-PROTECTED_BY_LCTO: Set[str] = get_lcto_controlled_files()
-SUBSYSTEM_PROTECTED: Dict[str, Set[str]] = get_subsystem_protected_files()
-ALL_PROTECTED: Set[str] = get_all_protected_files()
+PROTECTED_BY_LCTO: set[str] = get_lcto_controlled_files()
+SUBSYSTEM_PROTECTED: dict[str, set[str]] = get_subsystem_protected_files()
+ALL_PROTECTED: set[str] = get_all_protected_files()

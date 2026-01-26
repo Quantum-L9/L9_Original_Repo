@@ -34,4 +34,3 @@ ssh -N -L ${LOCAL_PORT}:localhost:${VPS_PORT} \
     -o ServerAliveCountMax=3 \
     -o ExitOnForwardFailure=yes \
     ${VPS_USER}@${VPS_HOST}
-

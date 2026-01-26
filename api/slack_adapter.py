@@ -47,7 +47,7 @@ __dora_meta__ = {
 import hashlib
 import hmac
 import time
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
 
 import structlog
@@ -100,9 +100,9 @@ class SlackRequestValidator:
     def verify(
         self,
         request_body: bytes,
-        timestamp_str: Optional[str],
-        signature: Optional[str],
-    ) -> Tuple[bool, Optional[str]]:
+        timestamp_str: str | None,
+        signature: str | None,
+    ) -> tuple[bool, str | None]:
         """
         Verify Slack request signature.
 
@@ -183,7 +183,7 @@ class SlackRequestNormalizer:
         return str(thread_id)
 
     @staticmethod
-    def parse_event_callback(payload: Dict[str, Any]) -> Dict[str, Any]:
+    def parse_event_callback(payload: dict[str, Any]) -> dict[str, Any]:
         """
         Parse event_callback payload from Slack.
 
@@ -244,7 +244,7 @@ class SlackRequestNormalizer:
         )
         thread_string = f"slack:{team_id}:{channel_id}:{thread_ts}"
 
-        normalized = {
+        return {
             "team_id": team_id,
             "enterprise_id": payload.get("enterprise_id") or "",
             "channel_id": channel_id,
@@ -260,10 +260,9 @@ class SlackRequestNormalizer:
             "raw_event": event,
         }
 
-        return normalized
 
     @staticmethod
-    def parse_command(payload: Dict[str, Any]) -> Dict[str, Any]:
+    def parse_command(payload: dict[str, Any]) -> dict[str, Any]:
         """
         Parse slash command payload from Slack.
 
@@ -311,7 +310,7 @@ class SlackRequestNormalizer:
             team_id, channel_id, cmd_thread_ts
         )
 
-        normalized = {
+        return {
             "team_id": team_id,
             "enterprise_id": payload.get("enterprise_id") or "",
             "channel_id": channel_id,
@@ -324,7 +323,6 @@ class SlackRequestNormalizer:
             "thread_uuid": thread_uuid,
         }
 
-        return normalized
 
 
 # ============================================================================

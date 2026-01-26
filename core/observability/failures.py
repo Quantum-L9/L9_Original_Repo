@@ -27,7 +27,6 @@ __dora_meta__ = {
 
 import asyncio
 from enum import Enum
-from typing import Dict, List, Optional
 
 import structlog
 
@@ -53,7 +52,7 @@ class FailureDetector:
     """Detects failures from spans and signals."""
 
     @staticmethod
-    def detect_from_span(span: Span) -> Optional[FailureSignal]:
+    def detect_from_span(span: Span) -> FailureSignal | None:
         """Check if a span represents a failure."""
         # Tool timeout
         if (
@@ -112,13 +111,13 @@ class RecoveryExecutor:
         """Initialize recovery executor."""
         self.max_retries = max_retries
         self.circuit_breaker_threshold = circuit_breaker_threshold
-        self._failure_counts: Dict[str, int] = {}
-        self._circuit_breakers: Dict[str, bool] = {}
+        self._failure_counts: dict[str, int] = {}
+        self._circuit_breakers: dict[str, bool] = {}
 
     async def execute_recovery(
         self,
         failure: FailureSignal,
-        recovery_actions: List[RemediationAction],
+        recovery_actions: list[RemediationAction],
     ) -> bool:
         """Execute recovery actions for a failure.
 
@@ -227,7 +226,7 @@ class RecoveryExecutor:
 
 
 # Recovery strategy mapping: which actions to try for each failure class
-FAILURE_RECOVERY_MAP: Dict[FailureClass, List[RemediationAction]] = {
+FAILURE_RECOVERY_MAP: dict[FailureClass, list[RemediationAction]] = {
     FailureClass.TOOL_TIMEOUT: [
         RemediationAction(
             action_type=RecoveryAction.RETRY.value,
@@ -290,7 +289,7 @@ FAILURE_RECOVERY_MAP: Dict[FailureClass, List[RemediationAction]] = {
 }
 
 
-def get_recovery_actions(failure_class: FailureClass) -> List[RemediationAction]:
+def get_recovery_actions(failure_class: FailureClass) -> list[RemediationAction]:
     """Get recommended recovery actions for a failure class."""
     return FAILURE_RECOVERY_MAP.get(
         failure_class,

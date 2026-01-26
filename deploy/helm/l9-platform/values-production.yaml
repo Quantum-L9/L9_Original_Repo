@@ -27,11 +27,11 @@ global:
 
 api:
   replicaCount: 3
-  
+
   image:
     tag: "3.0.0"
     pullPolicy: IfNotPresent
-  
+
   ingress:
     enabled: true
     className: nginx
@@ -48,7 +48,7 @@ api:
       - secretName: l9-api-tls-prod
         hosts:
           - api.l9.ai
-  
+
   resources:
     requests:
       memory: "2Gi"
@@ -56,28 +56,28 @@ api:
     limits:
       memory: "4Gi"
       cpu: "4000m"
-  
+
   autoscaling:
     enabled: true
     minReplicas: 3
     maxReplicas: 20
     targetCPUUtilizationPercentage: 60
     targetMemoryUtilizationPercentage: 70
-  
+
   podDisruptionBudget:
     enabled: true
     minAvailable: 2
-  
+
   env:
     LOG_LEVEL: INFO
 
 mcpMemory:
   replicaCount: 2
-  
+
   image:
     tag: "3.0.0"
     pullPolicy: IfNotPresent
-  
+
   resources:
     requests:
       memory: "1Gi"
@@ -92,7 +92,7 @@ postgresql:
       enabled: true
       size: 100Gi
       storageClass: fast-ssd
-    
+
     resources:
       requests:
         memory: "4Gi"
@@ -107,7 +107,7 @@ redis:
       enabled: true
       size: 20Gi
       storageClass: fast-ssd
-    
+
     resources:
       requests:
         memory: "1Gi"
@@ -121,7 +121,7 @@ neo4j:
     enabled: true
     size: 100Gi
     storageClass: fast-ssd
-  
+
   resources:
     requests:
       memory: "4Gi"
@@ -132,13 +132,13 @@ neo4j:
 
 monitoring:
   enabled: true
-  
+
   prometheus:
     persistence:
       enabled: true
       size: 50Gi
       storageClass: fast-ssd
-    
+
     resources:
       requests:
         memory: "1Gi"
@@ -146,15 +146,15 @@ monitoring:
       limits:
         memory: "2Gi"
         cpu: "1000m"
-    
+
     retention: 90d
-  
+
   grafana:
     persistence:
       enabled: true
       size: 10Gi
       storageClass: fast-ssd
-    
+
     resources:
       requests:
         memory: "512Mi"
@@ -162,7 +162,7 @@ monitoring:
       limits:
         memory: "1Gi"
         cpu: "500m"
-    
+
     ingress:
       enabled: true
       className: nginx
@@ -177,13 +177,13 @@ monitoring:
         - secretName: grafana-tls-prod
           hosts:
             - grafana.l9.ai
-  
+
   jaeger:
     persistence:
       enabled: true
       size: 20Gi
       storageClass: fast-ssd
-    
+
     resources:
       requests:
         memory: "1Gi"
@@ -195,21 +195,21 @@ monitoring:
 security:
   podSecurityPolicy:
     enabled: true
-  
+
   networkPolicy:
     enabled: true
-  
+
   rbac:
     create: true
 
 backup:
   enabled: true
-  schedule: "0 2 * * *"  # 2 AM daily
-  retention: 30  # days
-  
+  schedule: "0 2 * * *" # 2 AM daily
+  retention: 30 # days
+
   postgresql:
     enabled: true
-  
+
   neo4j:
     enabled: true
 
@@ -218,23 +218,22 @@ affinity:
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       nodeSelectorTerms:
-      - matchExpressions:
-        - key: node-role.kubernetes.io/worker
-          operator: In
-          values:
-          - "true"
+        - matchExpressions:
+            - key: node-role.kubernetes.io/worker
+              operator: In
+              values:
+                - "true"
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
-    - weight: 100
-      podAffinityTerm:
-        labelSelector:
-          matchExpressions:
-          - key: app
-            operator: In
-            values:
-            - l9-api
-        topologyKey: kubernetes.io/hostname
-
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - l9-api
+          topologyKey: kubernetes.io/hostname
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

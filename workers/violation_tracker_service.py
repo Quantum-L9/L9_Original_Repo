@@ -42,7 +42,7 @@ __dora_meta__ = {
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
 
 import aiofiles
@@ -111,7 +111,7 @@ class ViolationTrackerServiceRequest(BaseModel):
         ..., description="Source of the content (file path, command, etc.)"
     )
     user_id: str = Field(default="cursor_agent", description="User or agent ID")
-    context: Dict[str, Any] = Field(default_factory=dict)
+    context: dict[str, Any] = Field(default_factory=dict)
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
     model_config = {"extra": "forbid"}
@@ -123,10 +123,10 @@ class ViolationTrackerServiceResponse(BaseModel):
     ok: bool = Field(..., description="Whether the operation succeeded")
     request_id: str = Field(..., description="Original request ID")
     violations_found: int = Field(default=0)
-    violations: List[ViolationRecord] = Field(default_factory=list)
+    violations: list[ViolationRecord] = Field(default_factory=list)
     escalation_triggered: bool = Field(default=False)
-    escalated_lessons: List[str] = Field(default_factory=list)
-    error: Optional[str] = Field(None, description="Error message if failed")
+    escalated_lessons: list[str] = Field(default_factory=list)
+    error: str | None = Field(None, description="Error message if failed")
     duration_ms: int = Field(
         default=0, description="Processing duration in milliseconds"
     )
@@ -148,9 +148,9 @@ class ViolationTrackerService:
 
     def __init__(
         self,
-        pattern_matcher: Optional[ViolationPatterns] = None,
-        audit_log_path: Optional[Path] = None,
-        violations_log_path: Optional[Path] = None,
+        pattern_matcher: ViolationPatterns | None = None,
+        audit_log_path: Path | None = None,
+        violations_log_path: Path | None = None,
         mcp_enabled: bool = True,
     ):
         """
@@ -169,7 +169,7 @@ class ViolationTrackerService:
         self._mcp_enabled = mcp_enabled
 
         # In-memory violation counts per lesson
-        self._violation_counts: Dict[str, int] = {}
+        self._violation_counts: dict[str, int] = {}
 
         # Stats
         self._stats = {
@@ -235,8 +235,8 @@ class ViolationTrackerService:
             ViolationTrackerServiceResponse with violations found and actions taken
         """
         start_time = datetime.utcnow()
-        violations: List[ViolationRecord] = []
-        escalated_lessons: List[str] = []
+        violations: list[ViolationRecord] = []
+        escalated_lessons: list[str] = []
 
         try:
             logger.info(
@@ -268,10 +268,9 @@ class ViolationTrackerService:
                 if (
                     self._violation_counts.get(match.lesson_id, 0)
                     >= ESCALATION_THRESHOLD
-                ):
-                    if match.lesson_id not in escalated_lessons:
-                        escalated_lessons.append(match.lesson_id)
-                        await self._trigger_escalation(match.lesson_id)
+                ) and match.lesson_id not in escalated_lessons:
+                    escalated_lessons.append(match.lesson_id)
+                    await self._trigger_escalation(match.lesson_id)
 
             self._stats["total_violations"] += len(violations)
             if escalated_lessons:
@@ -493,7 +492,7 @@ class ViolationTrackerService:
             return
 
         try:
-            async with aiofiles.open(self._violations_log_path, "r") as f:
+            async with aiofiles.open(self._violations_log_path) as f:
                 async for line in f:
                     try:
                         entry = json.loads(line.strip())
@@ -525,7 +524,7 @@ class ViolationTrackerService:
         """Get current violation count for a lesson."""
         return self._violation_counts.get(lesson_id, 0)
 
-    def get_all_violation_counts(self) -> Dict[str, int]:
+    def get_all_violation_counts(self) -> dict[str, int]:
         """Get all violation counts."""
         return self._violation_counts.copy()
 
@@ -539,7 +538,7 @@ class ViolationTrackerService:
     # Health Check
     # =========================================================================
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Check service health."""
         pattern_health = await self._pattern_matcher.health_check()
 
@@ -562,7 +561,7 @@ class ViolationTrackerService:
 
 
 def create_violation_tracker_service(
-    pattern_matcher: Optional[ViolationPatterns] = None,
+    pattern_matcher: ViolationPatterns | None = None,
     mcp_enabled: bool = True,
 ) -> ViolationTrackerService:
     """Factory function to create ViolationTrackerService."""
@@ -577,13 +576,13 @@ def create_violation_tracker_service(
 # =============================================================================
 
 __all__ = [
+    "MODULE_ID",
+    "MODULE_NAME",
+    "ViolationRecord",
     "ViolationTrackerService",
     "ViolationTrackerServiceRequest",
     "ViolationTrackerServiceResponse",
-    "ViolationRecord",
     "create_violation_tracker_service",
-    "MODULE_ID",
-    "MODULE_NAME",
 ]
 
 # ============================================================================

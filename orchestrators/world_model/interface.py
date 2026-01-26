@@ -27,7 +27,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Protocol
+from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
 
@@ -49,12 +49,10 @@ class WorldModelRequest(BaseModel):
     operation: WorldModelOperation = Field(
         default=WorldModelOperation.INGEST, description="Operation type"
     )
-    updates: List[Dict[str, Any]] = Field(
+    updates: list[dict[str, Any]] = Field(
         default_factory=list, description="Updates to ingest"
     )
-    snapshot_id: Optional[str] = Field(
-        default=None, description="Snapshot ID for restore"
-    )
+    snapshot_id: str | None = Field(default=None, description="Snapshot ID for restore")
 
 
 class WorldModelResponse(BaseModel):
@@ -62,7 +60,7 @@ class WorldModelResponse(BaseModel):
 
     success: bool = Field(..., description="Whether operation succeeded")
     message: str = Field(..., description="Result message")
-    affected_entities: List[str] = Field(
+    affected_entities: list[str] = Field(
         default_factory=list, description="Affected entity IDs"
     )
     state_version: int = Field(default=0, description="Current state version")
@@ -79,8 +77,8 @@ class IWorldModelOrchestrator(Protocol):
     @must_stay_async("callers use await")
     async def update_from_insights(
         self,
-        insights: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        insights: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """Update world model from extracted insights."""
         ...
 

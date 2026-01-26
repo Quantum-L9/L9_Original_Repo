@@ -48,7 +48,6 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -115,8 +114,8 @@ class Capability(BaseModel):
 
     tool: ToolName = Field(..., description="Tool this capability governs")
     allowed: bool = Field(default=True, description="Whether tool is allowed")
-    rate_limit: Optional[int] = Field(None, ge=0, description="Max invocations/minute")
-    scope: Optional[str] = Field(
+    rate_limit: int | None = Field(None, ge=0, description="Max invocations/minute")
+    scope: str | None = Field(
         None,
         description="Scope restriction (e.g., 'read_only', 'local_only', 'requires_igor_approval')",
     )
@@ -156,7 +155,7 @@ class AgentCapabilities(BaseModel):
     """
 
     agent_id: str = Field(..., min_length=1, description="Unique agent identifier")
-    capabilities: List[Capability] = Field(
+    capabilities: list[Capability] = Field(
         default_factory=list, description="List of tool capabilities"
     )
     default_allowed: bool = Field(
@@ -181,7 +180,7 @@ class AgentCapabilities(BaseModel):
                 return cap.allowed
         return self.default_allowed
 
-    def get_capability(self, tool: ToolName) -> Optional[Capability]:
+    def get_capability(self, tool: ToolName) -> Capability | None:
         """
         Get the capability for a specific tool.
 
@@ -196,7 +195,7 @@ class AgentCapabilities(BaseModel):
                 return cap
         return None
 
-    def list_allowed_tools(self) -> List[ToolName]:
+    def list_allowed_tools(self) -> list[ToolName]:
         """
         List all explicitly allowed tools.
 
@@ -205,7 +204,7 @@ class AgentCapabilities(BaseModel):
         """
         return [cap.tool for cap in self.capabilities if cap.allowed]
 
-    def list_denied_tools(self) -> List[ToolName]:
+    def list_denied_tools(self) -> list[ToolName]:
         """
         List all explicitly denied tools.
 
@@ -301,13 +300,13 @@ DEFAULT_L_CAPABILITIES = AgentCapabilities(
 # =============================================================================
 
 __all__ = [
-    "ToolName",
-    "Capability",
-    "AgentCapabilities",
-    "DEFAULT_READER_CAPABILITIES",
-    "DEFAULT_CODER_CAPABILITIES",
     "DEFAULT_ARCHITECT_CAPABILITIES",
+    "DEFAULT_CODER_CAPABILITIES",
     "DEFAULT_L_CAPABILITIES",
+    "DEFAULT_READER_CAPABILITIES",
+    "AgentCapabilities",
+    "Capability",
+    "ToolName",
 ]
 
 # ============================================================================

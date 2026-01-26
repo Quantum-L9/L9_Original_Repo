@@ -1,24 +1,28 @@
 # ADR 0060: Mediator Pattern for Agent Communication
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Agent-to-agent communication via centralized mediator, decoupling agents from direct dependencies.
 
 ## Files
+
 - `core/coordination/agent_mediator.py` - Implementation
 - `core/coordination/__init__.py` - Exports
 
 ## Context
 
 Direct agent-to-agent communication creates tight coupling:
+
 ```python
 # ❌ WRONG — Direct coupling
 class ResearchAgent:
     def __init__(self, cto_agent: CTOAgent):
         self.cto = cto_agent
-    
+
     async def complete_task(self, result):
         await self.cto.receive_result(result)  # Direct dependency
 ```
@@ -26,6 +30,7 @@ class ResearchAgent:
 The Mediator pattern decouples agents by routing all communication through a central coordinator.
 
 ## Import Block
+
 ```python
 from core.coordination.agent_mediator import (
     AgentMediator,
@@ -36,6 +41,7 @@ from core.coordination.agent_mediator import (
 ```
 
 ## Minimal Implementation
+
 ```python
 from core.singleton_auto_registry import register_singleton
 
@@ -54,16 +60,16 @@ async def get_agent_mediator() -> AgentMediator:
 
 class AgentMediator:
     """Centralized mediator for agent communication."""
-    
+
     def __init__(self):
         self.agents: dict[str, Any] = {}
         self.subscriptions: dict[str, list[Callable]] = defaultdict(list)
         self.message_queue: dict[str, list[Message]] = defaultdict(list)
-    
+
     def register_agent(self, agent_id: str, agent: Any) -> None:
         """Register agent with mediator."""
         self.agents[agent_id] = agent
-    
+
     async def send_message(
         self,
         from_agent: str,
@@ -73,14 +79,14 @@ class AgentMediator:
     ) -> str:
         """Send message between agents via mediator."""
         msg = Message(from_agent=from_agent, to_agent=to_agent, payload=message)
-        
+
         if to_agent in self.agents:
             await self._deliver_message(to_agent, msg)
         else:
             self.message_queue[to_agent].append(msg)  # Queue for later
-        
+
         return msg.id
-    
+
     async def broadcast(
         self,
         from_agent: str,
@@ -95,6 +101,7 @@ class AgentMediator:
 ```
 
 ## Usage Example
+
 ```python
 from core.coordination.agent_mediator import get_agent_mediator
 
@@ -120,14 +127,16 @@ await mediator.broadcast(
 ```
 
 ## Benefits
-| Benefit | Impact |
-|---------|--------|
-| Decoupled agents | -50% coupling |
-| Centralized routing | Easier debugging |
-| Message queuing | Handles offline agents |
-| Pub/sub support | Event-driven patterns |
+
+| Benefit             | Impact                 |
+| ------------------- | ---------------------- |
+| Decoupled agents    | -50% coupling          |
+| Centralized routing | Easier debugging       |
+| Message queuing     | Handles offline agents |
+| Pub/sub support     | Event-driven patterns  |
 
 ## Rules
+
 1. Agents MUST NOT import other agents directly
 2. All inter-agent communication MUST go through mediator
 3. Mediator MUST use `@register_singleton` (NOT simple `@singleton`)
@@ -135,17 +144,21 @@ await mediator.broadcast(
 5. Offline agents MUST have messages queued
 
 ## AI Guidance
+
 **DO:**
+
 - Use mediator for all agent-to-agent communication
 - Register agents at startup
 - Handle delivery failures gracefully
 
 **DO NOT:**
+
 - Import agents directly into other agents
 - Use simple `@singleton` decorator (use `@register_singleton`)
 - Skip message logging
 - Assume agents are always online
 
 ## Related ADRs
+
 - [ADR-0004: Singleton Auto-Registry](./0004-singleton-auto-registry.md) - Singleton pattern
 - [ADR-0061: L9 Facade Pattern](./0061-l9-facade-simplified-api.md) - Uses mediator internally

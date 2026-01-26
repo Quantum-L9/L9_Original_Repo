@@ -40,11 +40,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import contextlib
 import hashlib
 import json
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -107,8 +108,8 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
     def __init__(
         self,
         neo4j_client: Any,
-        semantic_service: Optional[Any] = None,
-        config: Optional[StrategyMemoryConfig] = None,
+        semantic_service: Any | None = None,
+        config: StrategyMemoryConfig | None = None,
     ):
         """
         Initialize Neo4j Strategy Memory Service.
@@ -139,7 +140,7 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
         self,
         request: StrategyRetrievalRequest,
         limit: int = 3,
-    ) -> List[StrategyCandidate]:
+    ) -> list[StrategyCandidate]:
         """
         Retrieve matching strategies using hybrid scoring.
 
@@ -198,9 +199,9 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
         self,
         task_id: str,
         description: str,
-        plan_payload: Dict[str, Any],
-        context_embedding: List[float],
-        tags: Optional[List[str]] = None,
+        plan_payload: dict[str, Any],
+        context_embedding: list[float],
+        tags: list[str] | None = None,
     ) -> str:
         """
         Record a new strategy to Neo4j.
@@ -371,7 +372,7 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
     async def _retrieve_candidates(
         self,
         request: StrategyRetrievalRequest,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Retrieve candidate strategies from Neo4j.
 
@@ -380,7 +381,7 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
         """
         # Build filter conditions
         conditions = ["s.schema_version = $schema_version"]
-        params: Dict[str, Any] = {
+        params: dict[str, Any] = {
             "schema_version": self._config.SCHEMA_VERSION,
             "limit": request.max_results or self._config.DEFAULT_MAX_RESULTS,
         }
@@ -423,9 +424,9 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
 
     async def _score_candidates(
         self,
-        candidates: List[Dict[str, Any]],
+        candidates: list[dict[str, Any]],
         request: StrategyRetrievalRequest,
-    ) -> List[StrategyCandidate]:
+    ) -> list[StrategyCandidate]:
         """
         Compute hybrid scores for candidates.
 
@@ -487,8 +488,8 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
 
     async def _compute_embedding_similarity(
         self,
-        query_embedding: List[float],
-        stored_embedding: List[float],
+        query_embedding: list[float],
+        stored_embedding: list[float],
     ) -> float:
         """
         Compute cosine similarity between embeddings.
@@ -551,8 +552,8 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
 
     def _compute_tag_similarity(
         self,
-        request_tags: List[str],
-        stored_tags: List[str],
+        request_tags: list[str],
+        stored_tags: list[str],
     ) -> float:
         """
         Compute tag overlap similarity.
@@ -562,8 +563,8 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
         if not request_tags or not stored_tags:
             return 0.5  # Neutral if no tags to compare
 
-        request_set = set(t.lower() for t in request_tags)
-        stored_set = set(t.lower() for t in stored_tags)
+        request_set = {t.lower() for t in request_tags}
+        stored_set = {t.lower() for t in stored_tags}
 
         intersection = len(request_set & stored_set)
         union = len(request_set | stored_set)
@@ -575,7 +576,7 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
 
     def _compute_graph_signature(
         self,
-        plan_payload: Dict[str, Any],
+        plan_payload: dict[str, Any],
     ) -> str:
         """
         Compute a hash signature of the plan structure.
@@ -598,27 +599,26 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
 
         if isinstance(obj, dict):
             return {k: self._extract_structure(v, depth + 1) for k, v in obj.items()}
-        elif isinstance(obj, list):
+        if isinstance(obj, list):
             if not obj:
                 return []
             # Sample first element's structure
             return [self._extract_structure(obj[0], depth + 1)]
-        elif isinstance(obj, str):
+        if isinstance(obj, str):
             return "str"
-        elif isinstance(obj, (int, float)):
+        if isinstance(obj, (int, float)):
             return "num"
-        elif isinstance(obj, bool):
+        if isinstance(obj, bool):
             return "bool"
-        elif obj is None:
+        if obj is None:
             return "null"
-        else:
-            return str(type(obj).__name__)
+        return str(type(obj).__name__)
 
     # =========================================================================
     # Utility Methods
     # =========================================================================
 
-    async def get_strategy_by_id(self, strategy_id: str) -> Optional[StrategyCandidate]:
+    async def get_strategy_by_id(self, strategy_id: str) -> StrategyCandidate | None:
         """
         Get a specific strategy by ID.
 
@@ -651,10 +651,8 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
         cand = result[0]["strategy"]
         plan_payload = {}
         if cand.get("plan_payload"):
-            try:
+            with contextlib.suppress(json.JSONDecodeError):
                 plan_payload = json.loads(cand["plan_payload"])
-            except json.JSONDecodeError:
-                pass
 
         return StrategyCandidate(
             strategy_id=cand["id"],
@@ -671,7 +669,7 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
         self,
         limit: int = 20,
         min_score: float = 0.0,
-    ) -> List[StrategyCandidate]:
+    ) -> list[StrategyCandidate]:
         """
         List all strategies, optionally filtered by minimum score.
 
@@ -709,10 +707,8 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
             cand = r["strategy"]
             plan_payload = {}
             if cand.get("plan_payload"):
-                try:
+                with contextlib.suppress(json.JSONDecodeError):
                     plan_payload = json.loads(cand["plan_payload"])
-                except json.JSONDecodeError:
-                    pass
 
             strategies.append(
                 StrategyCandidate(
@@ -765,7 +761,7 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
 
 def create_neo4j_strategy_memory(
     neo4j_client: Any,
-    semantic_service: Optional[Any] = None,
+    semantic_service: Any | None = None,
 ) -> Neo4jStrategyMemoryService:
     """
     Factory function to create Neo4j Strategy Memory Service.

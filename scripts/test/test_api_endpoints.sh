@@ -62,7 +62,7 @@ if [ -z "$PACKET_ID" ]; then
     echo "   Response: $PACKET_RESPONSE"
 else
     test_info "Created test packet: $PACKET_ID"
-    
+
     # Test reasoning replay with narrative format
     REPLAY_RESPONSE=$(curl -s -X POST "$API_URL/api/v1/memory/reasoning/replay" \
         -H "Authorization: Bearer $API_KEY" \
@@ -71,9 +71,9 @@ else
             \"packet_id\": \"$PACKET_ID\",
             \"format\": \"narrative\"
         }")
-    
+
     REPLAY_STATUS=$(echo "$REPLAY_RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('chain_id', 'error'))" 2>/dev/null || echo "error")
-    
+
     if [ "$REPLAY_STATUS" != "error" ] && echo "$REPLAY_RESPONSE" | grep -q "chain_id\|explanation"; then
         test_pass "Reasoning replay endpoint (narrative format)"
         echo "   Chain ID: $(echo "$REPLAY_RESPONSE" | python3 -c "import sys, json; d=json.load(sys.stdin); print(d.get('chain_id', 'N/A'))" 2>/dev/null || echo 'N/A')"
@@ -82,7 +82,7 @@ else
             -H "Authorization: Bearer $API_KEY" \
             -H "Content-Type: application/json" \
             -d "{\"packet_id\": \"$PACKET_ID\", \"format\": \"narrative\"}")
-        
+
         if [ "$HTTP_CODE" = "503" ]; then
             test_info "Reasoning replay endpoint not available (status: 503) - service may not be initialized"
         else
@@ -102,7 +102,7 @@ if [ -n "$PACKET_ID" ]; then
             \"packet_id\": \"$PACKET_ID\",
             \"format\": \"json\"
         }")
-    
+
     if echo "$REPLAY_JSON_RESPONSE" | grep -q "chain_id\|packets"; then
         test_pass "Reasoning replay endpoint (json format)"
     else
@@ -146,7 +146,7 @@ else
         -H "Authorization: Bearer $API_KEY" \
         -H "Content-Type: application/json" \
         -d '{"dry_run": true}')
-    
+
     if [ "$HTTP_CODE" = "503" ]; then
         test_info "Consolidation endpoint not available (status: 503) - service may not be initialized"
     else
@@ -178,4 +178,3 @@ else
     echo -e "${YELLOW}╚══════════════════════════════════════════════════════════════╝${NC}"
     exit 1
 fi
-

@@ -39,8 +39,7 @@ def _get_kernels():
 
 
 def get_active_mode() -> str:
-    mode = _get_kernels().get_rule("master", "modes.default", default="Developer_Mode")
-    return mode
+    return _get_kernels().get_rule("master", "modes.default", default="Developer_Mode")
 
 
 # ============================================================================

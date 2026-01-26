@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Domain Context Builder
@@ -45,7 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 
@@ -59,9 +58,9 @@ class DomainContext:
     """Domain-specific context structure."""
 
     domain: str
-    entity_data: Dict[str, Any] = field(default_factory=dict)
-    domain_rules: Dict[str, Any] = field(default_factory=dict)
-    constraints: Dict[str, Any] = field(default_factory=dict)
+    entity_data: dict[str, Any] = field(default_factory=dict)
+    domain_rules: dict[str, Any] = field(default_factory=dict)
+    constraints: dict[str, Any] = field(default_factory=dict)
 
 
 class DomainContextBuilder:
@@ -107,7 +106,7 @@ __footer_meta__ = {
     "dependencies": ["structlog", "l9.core.schemas"],
 }
 
-__all__ = ["DomainContextBuilder", "DomainContext", "__footer_meta__", "__l9_trace__"]
+__all__ = ["DomainContext", "DomainContextBuilder", "__footer_meta__", "__l9_trace__"]
 
 __l9_trace__ = {
     "trace_id": "",

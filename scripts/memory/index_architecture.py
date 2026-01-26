@@ -47,7 +47,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 import structlog
@@ -84,7 +84,7 @@ CODE_EXTENSIONS = {
 }
 
 
-def extract_architecture_from_code(file_path: Path) -> List[Dict[str, Any]]:
+def extract_architecture_from_code(file_path: Path) -> list[dict[str, Any]]:
     """
     Extract architecture decisions from code comments.
 
@@ -127,7 +127,7 @@ def extract_architecture_from_code(file_path: Path) -> List[Dict[str, Any]]:
                     if class_match:
                         component = class_match.group(1)
                         break
-                    elif func_match:
+                    if func_match:
                         component = func_match.group(1)
                         break
 
@@ -144,7 +144,7 @@ def extract_architecture_from_code(file_path: Path) -> List[Dict[str, Any]]:
     return decisions
 
 
-def extract_architecture_from_gmp_reports() -> List[Dict[str, Any]]:
+def extract_architecture_from_gmp_reports() -> list[dict[str, Any]]:
     """Extract architectural decisions from GMP reports."""
     decisions = []
 
@@ -164,7 +164,7 @@ def extract_architecture_from_gmp_reports() -> List[Dict[str, Any]]:
                 (r"## ARCHITECTURAL DECISIONS(.*?)(?=##|\Z)", "arch_decisions"),
             ]
 
-            for pattern, section_type in sections:
+            for pattern, _section_type in sections:
                 match = re.search(pattern, content, re.DOTALL | re.IGNORECASE)
                 if match:
                     section_content = match.group(1)
@@ -213,7 +213,7 @@ def extract_architecture_from_gmp_reports() -> List[Dict[str, Any]]:
     return decisions
 
 
-async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
+async def api_request(method: str, endpoint: str, **kwargs) -> dict[str, Any]:
     """Make authenticated API request to VPS."""
     if not API_KEY:
         return {"error": "L9_EXECUTOR_API_KEY not set", "success": False}
@@ -239,9 +239,7 @@ async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
             return {"error": str(e), "success": False}
 
 
-async def execute_cypher(
-    query: str, parameters: Optional[Dict] = None
-) -> Dict[str, Any]:
+async def execute_cypher(query: str, parameters: dict | None = None) -> dict[str, Any]:
     """Execute Cypher query via VPS API."""
     return await api_request(
         "POST",
@@ -251,10 +249,10 @@ async def execute_cypher(
 
 
 async def index_architecture_decisions(
-    decisions: List[Dict[str, Any]],
+    decisions: list[dict[str, Any]],
     substrate_service: Any,
     dry_run: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Index architectural decisions to memory substrate and Neo4j.
 
@@ -330,7 +328,7 @@ async def index_architecture_decisions(
                     logger.debug(f"Failed to create Neo4j relationship: {e}")
 
         except Exception as e:
-            errors.append(f"Component {component}: {str(e)}")
+            errors.append(f"Component {component}: {e!s}")
             logger.debug(f"Failed to index {component}: {e}")
 
     return {

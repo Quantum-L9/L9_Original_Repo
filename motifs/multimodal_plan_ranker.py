@@ -5,9 +5,8 @@ Rank and reroute plans based on motif coverage, kernel compliance,
 and modality success. Combines tensor, symbolic, motif, and governance signals.
 """
 
-import logging
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -23,9 +22,9 @@ class PlanCandidate:
 
     plan_id: str = field(default_factory=lambda: str(uuid4()))
     description: str = ""
-    modalities: List[str] = field(default_factory=list)
-    raw_scores: Dict[str, float] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    modalities: list[str] = field(default_factory=list)
+    raw_scores: dict[str, float] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -34,11 +33,11 @@ class RankedPlan:
 
     plan_id: str = ""
     score: float = 0.0
-    reasons: List[str] = field(default_factory=list)
+    reasons: list[str] = field(default_factory=list)
     motif_coverage: float = 0.0
     governance_risk: float = 0.0
-    modalities: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    modalities: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class MultimodalPlanRanker:
@@ -54,13 +53,13 @@ class MultimodalPlanRanker:
 
     def __init__(
         self,
-        motif_graph: Optional[MotifFeedbackGraph] = None,
-        tensor_coordinator: Optional[Any] = None,
-        symbolic_reasoner: Optional[Any] = None,
-        compliance_checker: Optional[Any] = None,
-        anomaly_handler: Optional[Any] = None,
-        causal_reasoner: Optional[Any] = None,
-        analogical_reasoner: Optional[Any] = None,
+        motif_graph: MotifFeedbackGraph | None = None,
+        tensor_coordinator: Any | None = None,
+        symbolic_reasoner: Any | None = None,
+        compliance_checker: Any | None = None,
+        anomaly_handler: Any | None = None,
+        causal_reasoner: Any | None = None,
+        analogical_reasoner: Any | None = None,
     ):
         """
         Initialize the multimodal plan ranker.
@@ -98,9 +97,9 @@ class MultimodalPlanRanker:
     async def rank_plans(
         self,
         packet_id: str,
-        plans: List[PlanCandidate],
-        context: Optional[Dict[str, Any]] = None,
-    ) -> List[RankedPlan]:
+        plans: list[PlanCandidate],
+        context: dict[str, Any] | None = None,
+    ) -> list[RankedPlan]:
         """
         Rank candidate plans using multimodal signals.
 
@@ -113,7 +112,7 @@ class MultimodalPlanRanker:
             List of RankedPlan objects sorted by score (highest first)
         """
         context = context or {}
-        ranked_plans: List[RankedPlan] = []
+        ranked_plans: list[RankedPlan] = []
 
         self.logger.info(
             "rank_plans.started",
@@ -151,7 +150,7 @@ class MultimodalPlanRanker:
                     RankedPlan(
                         plan_id=plan.plan_id,
                         score=0.0,
-                        reasons=[f"Ranking failed: {str(e)}"],
+                        reasons=[f"Ranking failed: {e!s}"],
                         governance_risk=1.0,
                         modalities=plan.modalities,
                     )
@@ -173,11 +172,11 @@ class MultimodalPlanRanker:
         self,
         packet_id: str,
         plan: PlanCandidate,
-        context: Dict[str, Any],
+        context: dict[str, Any],
     ) -> RankedPlan:
         """Rank a single plan candidate."""
-        scores: Dict[str, float] = {}
-        reasons: List[str] = []
+        scores: dict[str, float] = {}
+        reasons: list[str] = []
 
         # 1. Tensor score (from raw scores or coordinator)
         scores["tensor"] = plan.raw_scores.get("tensor", 0.5)

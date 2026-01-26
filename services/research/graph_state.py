@@ -38,7 +38,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 
 class ResearchStep(TypedDict, total=False):
@@ -50,7 +50,7 @@ class ResearchStep(TypedDict, total=False):
     query: str
     tools: list[str]
     status: str  # "pending", "in_progress", "completed", "failed"
-    result: Optional[dict[str, Any]]
+    result: dict[str, Any] | None
 
 
 class Evidence(TypedDict, total=False):
@@ -142,7 +142,7 @@ class ResearchGraphState(TypedDict, total=False):
 
     # Metadata
     timestamp: str
-    packet_id: Optional[str]
+    packet_id: str | None
 
     # Memory Substrate Integration
     stored_insights: list[dict[str, Any]]

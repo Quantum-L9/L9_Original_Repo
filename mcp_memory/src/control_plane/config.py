@@ -31,10 +31,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from dataclasses import dataclass
-from typing import Optional
-from functools import lru_cache
 import os
+from dataclasses import dataclass
+from functools import lru_cache
+
 from dotenv import load_dotenv
 
 
@@ -53,20 +53,20 @@ class Settings:
     LOG_LEVEL: str = "INFO"
 
     # Database
-    MEMORY_DSN: Optional[str] = None
+    MEMORY_DSN: str | None = None
     DB_POOL_SIZE: int = 20
     DB_TIMEOUT: int = 30
 
     # Embeddings
     OPENAI_EMBED_MODEL: str = "text-embedding-3-small"
-    OPENAI_API_KEY: Optional[str] = None
+    OPENAI_API_KEY: str | None = None
     EMBEDDING_PROVIDER: str = "openai"
 
     # API Keys
-    API_KEY_L: Optional[str] = None
-    API_KEY_C: Optional[str] = None
-    MCP_API_KEY: Optional[str] = None  # Legacy
-    MCPL9MEMORYKEY: Optional[str] = None  # Legacy
+    API_KEY_L: str | None = None
+    API_KEY_C: str | None = None
+    MCP_API_KEY: str | None = None  # Legacy
+    MCPL9MEMORYKEY: str | None = None  # Legacy
 
     # Governance
     GOVERNANCE_HARDENING_ENABLED: bool = True

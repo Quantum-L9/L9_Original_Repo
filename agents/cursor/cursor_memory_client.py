@@ -87,7 +87,7 @@ import ssl
 import urllib.error
 import urllib.request
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 # =============================================================================
@@ -112,7 +112,7 @@ def get_daily_session_id() -> str:
 
     Uses UUID5 (SHA-1 based) with fixed namespace + date string.
     """
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
     session_uuid = uuid.uuid5(CURSOR_SESSION_NAMESPACE, f"cursor-session-{today}")
     return str(session_uuid)
 
@@ -180,8 +180,7 @@ def mcp_call_tool(tool_name: str, arguments: dict) -> dict:
             # MCP server returns {"status": "success", "result": {...}, "caller": "C"}
             if result.get("status") == "success":
                 return result.get("result", {})
-            else:
-                return {"error": result.get("detail", "MCP call failed")}
+            return {"error": result.get("detail", "MCP call failed")}
     except urllib.error.HTTPError as e:
         error_detail = e.read().decode() if e.fp else ""
         return {"error": f"HTTP {e.code}", "detail": error_detail}
@@ -194,7 +193,7 @@ def mcp_call_tool(tool_name: str, arguments: dict) -> dict:
 # =============================================================================
 
 
-def api_request(method: str, path: str, data: dict = None) -> dict:
+def api_request(method: str, path: str, data: dict | None = None) -> dict:
     """
     Direct HTTP API request (FALLBACK ONLY).
 
@@ -384,7 +383,7 @@ def cmd_search(
     )
 
 
-def cmd_write(content: str, kind: str = "note", thread_id: str = None):
+def cmd_write(content: str, kind: str = "note", thread_id: str | None = None):
     """
     Write to memory via MCP using PacketEnvelope v2.0 schema.
 
@@ -431,7 +430,7 @@ def cmd_write(content: str, kind: str = "note", thread_id: str = None):
 def cmd_session():
     """Show current daily session ID."""
     session_id = get_daily_session_id()
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
     print(
         json.dumps(
             {
@@ -492,11 +491,10 @@ def cmd_mcp_test():
         results["message"] = f"❌ MCP WRITE FAILED: {write_result.get('error')}"
         print(json.dumps(results, indent=2))
         return
-    else:
-        results["steps"]["write"] = {
-            "status": "success",
-            "memory_id": write_result.get("memory_id"),
-        }
+    results["steps"]["write"] = {
+        "status": "success",
+        "memory_id": write_result.get("memory_id"),
+    }
 
     # STEP 2: Search via MCP search_memory tool
     time.sleep(1)  # Brief delay for indexing
@@ -558,7 +556,7 @@ def cmd_session_close():
     4. Stores for semantic session retrieval
     """
     session_id = get_daily_session_id()
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
 
     # Step 1: Get all packets from this session via MCP
     search_result = mcp_call_tool(
@@ -619,7 +617,7 @@ def cmd_session_close():
     print(json.dumps(output, indent=2))
 
 
-def cmd_session_resume(task_description: str = None):
+def cmd_session_resume(task_description: str | None = None):
     """
     Resume session by finding relevant previous session anchors.
 
@@ -628,7 +626,7 @@ def cmd_session_resume(task_description: str = None):
     All searches via MCP search_memory tool.
     """
     session_id = get_daily_session_id()
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
 
     # Search for session anchors via MCP
     query = task_description if task_description else "session_anchor recent work"
@@ -842,7 +840,7 @@ def cmd_warn(task_description: str):
     print(json.dumps(output, indent=2))
 
 
-def cmd_inject(task_description: str = None, layers: str = "all"):
+def cmd_inject(task_description: str | None = None, layers: str = "all"):
     """
     Layered Context Injection - injects context at 5 levels.
 
@@ -919,7 +917,7 @@ def cmd_inject(task_description: str = None, layers: str = "all"):
                 context["domain"].append(content[:200])
 
     # Layer 4: Temporal (recent) via MCP
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
     temporal_result = mcp_call_tool(
         "search_memory",
         {
@@ -974,7 +972,7 @@ def cmd_inject(task_description: str = None, layers: str = "all"):
     print(json.dumps(output, indent=2))
 
 
-def cmd_temporal(query: str, since: str = "24h", until: str = None):
+def cmd_temporal(query: str, since: str = "24h", until: str | None = None):
     """
     Temporal Context Windowing - time-scoped memory queries.
 
@@ -1098,7 +1096,7 @@ def cmd_fix_error(error_message: str):
     print(json.dumps(output, indent=2))
 
 
-def cmd_suggest(context: str = None):
+def cmd_suggest(context: str | None = None):
     """
     Proactive Suggestion Engine - pattern-based next-step suggestions.
 
@@ -1224,7 +1222,7 @@ def cmd_session_diff():
     All searches via MCP search_memory tool.
     """
     session_id = get_daily_session_id()
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    today = datetime.now(UTC).strftime("%Y-%m-%d")
 
     # Get current session content via MCP
     current_result = mcp_call_tool(
@@ -1306,7 +1304,7 @@ def cmd_graph_context(domain: str, limit: int = 10):
     print(json.dumps(result, indent=2))
 
 
-def cmd_graph_query(query: str, params: str = None):
+def cmd_graph_query(query: str, params: str | None = None):
     """
     Run a Cypher query on Neo4j.
 
@@ -1373,7 +1371,7 @@ def cmd_cache_get(key: str):
     print(json.dumps(result, indent=2))
 
 
-def cmd_cache_set(key: str, value: str, ttl: int = None):
+def cmd_cache_set(key: str, value: str, ttl: int | None = None):
     """
     Set value in Redis cache.
 
@@ -1388,7 +1386,7 @@ def cmd_cache_set(key: str, value: str, ttl: int = None):
     print(json.dumps(result, indent=2))
 
 
-def cmd_cache_session_context(session_id: str = None):
+def cmd_cache_session_context(session_id: str | None = None):
     """
     Get session context from Redis.
 

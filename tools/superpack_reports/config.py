@@ -70,7 +70,7 @@ class SuperpackLayout:
 def detect_root(start: Path | None = None) -> Path:
     """Resolve repo root as the directory containing pyproject.toml."""
     current = (start or Path(__file__)).resolve()
-    for parent in (current,) + tuple(current.parents):
+    for parent in (current, *tuple(current.parents)):
         if (parent / "pyproject.toml").is_file():
             return parent
     raise RuntimeError("Unable to locate repo root (pyproject.toml not found).")

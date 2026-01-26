@@ -13,8 +13,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from core.kernels.kernelloader import (KERNEL_ORDER, load_kernels,
-                                       reload_kernels)
+from core.kernels.kernelloader import KERNEL_ORDER, load_kernels, reload_kernels
 
 # =============================================================================
 # Fixtures

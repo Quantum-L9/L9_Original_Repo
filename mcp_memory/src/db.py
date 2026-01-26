@@ -24,16 +24,16 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import asyncpg
 import structlog
-from src.config import settings
 
 from memory.governance_gate import require_governance_context
+from src.config import settings
 
 logger = structlog.get_logger(__name__)
-pool: Optional[asyncpg.Pool] = None
+pool: asyncpg.Pool | None = None
 
 
 async def _init_connection(conn: asyncpg.Connection) -> None:
@@ -75,7 +75,7 @@ async def execute(query: str, *args) -> Any:
         return await conn.execute(query, *args)
 
 
-async def fetch_one(query: str, *args) -> Optional[Dict[str, Any]]:
+async def fetch_one(query: str, *args) -> dict[str, Any] | None:
     if not pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.fetch_one")
@@ -84,7 +84,7 @@ async def fetch_one(query: str, *args) -> Optional[Dict[str, Any]]:
         return dict(row) if row else None
 
 
-async def fetch_all(query: str, *args) -> List[Dict[str, Any]]:
+async def fetch_all(query: str, *args) -> list[dict[str, Any]]:
     if not pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.fetch_all")
@@ -93,14 +93,13 @@ async def fetch_all(query: str, *args) -> List[Dict[str, Any]]:
         return [dict(row) for row in rows]
 
 
-async def insert_many(query: str, args_list: List[tuple]) -> int:
+async def insert_many(query: str, args_list: list[tuple]) -> int:
     if not pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.insert_many")
     async with pool.acquire() as conn:
         result = await conn.executemany(query, args_list)
-    count = int(result.split()[-1]) if result else 0
-    return count
+    return int(result.split()[-1]) if result else 0
 
 
 # ============================================================================

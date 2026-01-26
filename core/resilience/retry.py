@@ -54,8 +54,9 @@ __dora_meta__ = {
 
 import asyncio
 import random
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Optional, Tuple, Type, TypeVar
+from typing import Any, TypeVar
 
 import structlog
 
@@ -68,7 +69,7 @@ class RetryExhaustedError(Exception):
     """Raised when all retry attempts have been exhausted."""
 
     def __init__(
-        self, message: str, last_error: Optional[Exception] = None, attempts: int = 0
+        self, message: str, last_error: Exception | None = None, attempts: int = 0
     ):
         super().__init__(message)
         self.last_error = last_error
@@ -112,9 +113,9 @@ DEFAULT_RETRY_CONFIG = AsyncRetryConfig()
 async def async_retry(
     coro_func: Callable[[], Any],
     *,
-    config: Optional[AsyncRetryConfig] = None,
+    config: AsyncRetryConfig | None = None,
     operation: str = "operation",
-    retry_on: Optional[Tuple[Type[Exception], ...]] = None,
+    retry_on: tuple[type[Exception], ...] | None = None,
 ) -> T:
     """
     Execute async function with retry logic and exponential backoff.
@@ -138,7 +139,7 @@ async def async_retry(
         result = await async_retry(fetch, operation="fetch_url")
     """
     cfg = config or DEFAULT_RETRY_CONFIG
-    last_error: Optional[Exception] = None
+    last_error: Exception | None = None
 
     for attempt in range(1, cfg.max_retries + 1):
         try:

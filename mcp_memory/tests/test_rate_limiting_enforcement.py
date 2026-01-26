@@ -41,8 +41,8 @@ class TestRateLimitEnforcement:
         client_ip = "192.168.1.100"
 
         # First 5 requests should pass (not rate limited)
-        for i in range(5):
-            is_limited = await rate_limiter.is_rate_limited(client_ip)
+        for _i in range(5):
+            await rate_limiter.is_rate_limited(client_ip)
             # Note: is_rate_limited returns True when BLOCKED
             # We need to check the logic
 
@@ -69,7 +69,7 @@ class TestRateLimitEnforcement:
             await rate_limiter.is_rate_limited(client_a)
 
         # Client B should NOT be affected
-        is_b_limited = await rate_limiter.is_rate_limited(client_b)
+        await rate_limiter.is_rate_limited(client_b)
         # First request from B should not be limited
         # (depends on implementation details)
 

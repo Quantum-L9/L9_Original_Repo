@@ -52,13 +52,12 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 import structlog
 
-from world_model.repository import (WorldModelRepository,
-                                    get_world_model_repository)
+from world_model.repository import WorldModelRepository, get_world_model_repository
 
 logger = structlog.get_logger(__name__)
 
@@ -88,7 +87,7 @@ class WorldModelService:
         await service.restore_from_snapshot(snapshot.snapshot_id)
     """
 
-    def __init__(self, repository: Optional[WorldModelRepository] = None):
+    def __init__(self, repository: WorldModelRepository | None = None):
         """
         Initialize World Model Service.
 
@@ -107,11 +106,11 @@ class WorldModelService:
     async def get_entity(
         self,
         entity_id: str,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Retrieve entity by ID.
 
@@ -134,13 +133,13 @@ class WorldModelService:
 
     async def list_entities(
         self,
-        entity_type: Optional[str] = None,
-        min_confidence: Optional[float] = None,
+        entity_type: str | None = None,
+        min_confidence: float | None = None,
         limit: int = 100,
         offset: int = 0,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> list[dict[str, Any]]:
         """
@@ -173,9 +172,9 @@ class WorldModelService:
         attributes: dict[str, Any],
         entity_type: str = "unknown",
         confidence: float = 1.0,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> dict[str, Any]:
         """
@@ -206,9 +205,9 @@ class WorldModelService:
     async def delete_entity(
         self,
         entity_id: str,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> bool:
         """
@@ -238,9 +237,9 @@ class WorldModelService:
     async def update_from_insights(
         self,
         insights: list[dict[str, Any]],
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> dict[str, Any]:
         """
@@ -384,11 +383,11 @@ class WorldModelService:
 
     async def create_snapshot(
         self,
-        description: Optional[str] = None,
+        description: str | None = None,
         created_by: str = "system",
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> dict[str, Any]:
         """
@@ -439,9 +438,9 @@ class WorldModelService:
     async def restore_from_snapshot(
         self,
         snapshot_id: UUID,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> dict[str, Any]:
         """
@@ -511,11 +510,11 @@ class WorldModelService:
 
     async def get_latest_snapshot(
         self,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Get the most recent snapshot.
 
@@ -535,9 +534,9 @@ class WorldModelService:
     async def list_snapshots(
         self,
         limit: int = 20,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> list[dict[str, Any]]:
         """
@@ -564,9 +563,9 @@ class WorldModelService:
 
     async def get_state_version(
         self,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> int:
         """
@@ -587,9 +586,9 @@ class WorldModelService:
 
     async def get_entity_count(
         self,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> int:
         """
@@ -611,13 +610,13 @@ class WorldModelService:
 
     async def list_updates(
         self,
-        insight_type: Optional[str] = None,
-        min_confidence: Optional[float] = None,
-        since: Optional[datetime] = None,
+        insight_type: str | None = None,
+        min_confidence: float | None = None,
+        since: datetime | None = None,
         limit: int = 100,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> list[dict[str, Any]]:
         """
@@ -649,7 +648,7 @@ class WorldModelService:
 # Singleton Access
 # =============================================================================
 
-_service: Optional[WorldModelService] = None
+_service: WorldModelService | None = None
 
 
 @register_singleton(

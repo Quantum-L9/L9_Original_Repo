@@ -47,7 +47,6 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Dict, List, Set
 
 import structlog
 import yaml
@@ -59,10 +58,10 @@ logger = structlog.get_logger(__name__)
 # Cached Policy Data
 # =============================================================================
 
-_TOOL_RISK_POLICY: Dict = {}
+_TOOL_RISK_POLICY: dict = {}
 
 
-def _load_tool_risk_policy() -> Dict:
+def _load_tool_risk_policy() -> dict:
     """Load tool risk policy from YAML file.
 
     Returns cached data if already loaded. Falls back to hardcoded
@@ -139,7 +138,7 @@ def _load_tool_risk_policy() -> Dict:
 # =============================================================================
 
 
-def get_high_risk_tools() -> Set[str]:
+def get_high_risk_tools() -> set[str]:
     """Get set of high-risk tool IDs.
 
     Returns:
@@ -150,7 +149,7 @@ def get_high_risk_tools() -> Set[str]:
     return {item["tool_id"] if isinstance(item, dict) else item for item in high_risk}
 
 
-def get_igor_approval_tools() -> Set[str]:
+def get_igor_approval_tools() -> set[str]:
     """Get set of tool IDs that require Igor's approval.
 
     Returns:
@@ -160,7 +159,7 @@ def get_igor_approval_tools() -> Set[str]:
     return set(policy.get("igor_approval_required", []))
 
 
-def get_safe_tools() -> Set[str]:
+def get_safe_tools() -> set[str]:
     """Get set of safe tool IDs.
 
     Returns:
@@ -170,7 +169,7 @@ def get_safe_tools() -> Set[str]:
     return set(policy.get("safe", []))
 
 
-def get_side_effect_tools() -> Set[str]:
+def get_side_effect_tools() -> set[str]:
     """Get set of tools with side effects.
 
     Returns:
@@ -185,7 +184,7 @@ def get_side_effect_tools() -> Set[str]:
 # =============================================================================
 
 
-def get_high_risk_tools_with_descriptions() -> Dict[str, str]:
+def get_high_risk_tools_with_descriptions() -> dict[str, str]:
     """Get high-risk tools with their descriptions.
 
     Returns:
@@ -205,7 +204,7 @@ def get_high_risk_tools_with_descriptions() -> Dict[str, str]:
 # =============================================================================
 
 
-def get_high_risk_tools_list() -> List[str]:
+def get_high_risk_tools_list() -> list[str]:
     """Get list of high-risk tool IDs.
 
     Returns:
@@ -260,9 +259,9 @@ def is_safe(tool_id: str) -> bool:
 # =============================================================================
 
 # These are populated on first access for code that imports directly
-HIGH_RISK_TOOLS: Set[str] = get_high_risk_tools()
-IGOR_APPROVAL_REQUIRED: Set[str] = get_igor_approval_tools()
-SAFE_TOOLS: Set[str] = get_safe_tools()
+HIGH_RISK_TOOLS: set[str] = get_high_risk_tools()
+IGOR_APPROVAL_REQUIRED: set[str] = get_igor_approval_tools()
+SAFE_TOOLS: set[str] = get_safe_tools()
 
 
 # =============================================================================

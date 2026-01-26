@@ -54,7 +54,7 @@ jobs:
   validate:
     name: CI Gates
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -70,7 +70,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -90,7 +90,7 @@ jobs:
   crypto-guard:
     name: Crypto Guard
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -98,14 +98,14 @@ jobs:
       - name: Check for banned MD5 usage
         run: |
           echo "🔐 Checking for banned MD5 usage..."
-          
+
           # Find MD5 in Python files (excluding .venv and tests)
           FOUND=$(grep -r "hashlib\.md5" --include="*.py" . \
             | grep -v ".venv" \
             | grep -v "__pycache__" \
             | grep -v "# MD5 required by protocol" \
             || true)
-          
+
           if [ -n "$FOUND" ]; then
             echo "❌ BANNED: MD5 usage detected!"
             echo ""
@@ -115,13 +115,13 @@ jobs:
             echo "If MD5 is required by external protocol, add comment: # MD5 required by protocol"
             exit 1
           fi
-          
+
           echo "✅ No banned MD5 usage found"
 
       - name: Check for weak SHA1 (non-HMAC)
         run: |
           echo "🔐 Checking for weak SHA1 usage..."
-          
+
           # Find SHA1 usage (excluding HMAC and protocol requirements)
           FOUND=$(grep -r "hashlib\.sha1" --include="*.py" . \
             | grep -v ".venv" \
@@ -129,7 +129,7 @@ jobs:
             | grep -v "hmac" \
             | grep -v "# SHA1 required by protocol" \
             || true)
-          
+
           if [ -n "$FOUND" ]; then
             echo "⚠️ WARNING: SHA1 usage detected (review required)"
             echo ""
@@ -137,13 +137,13 @@ jobs:
             echo ""
             echo "Consider using SHA256 unless required by external protocol."
           fi
-          
+
           echo "✅ SHA1 check complete"
 
       - name: Check for deprecated TaskKind usage
         run: |
           echo "🚫 Checking for deprecated TaskKind usage..."
-          
+
           # Check 1: Import of TaskKind from core.agents.schemas (DEPRECATED)
           # NOT core.schemas.tasks.TaskKind which is for internal routing
           IMPORTS=$(grep -rE "from core\.agents\.schemas import.*TaskKind" --include="*.py" . \
@@ -152,7 +152,7 @@ jobs:
             | grep -v "current_work/" \
             | grep -v "# TaskKind: backward compat" \
             || true)
-          
+
           # Check 2: Usage of deprecated TaskKind enum values
           # CONVERSATION, QUERY, EXECUTION, RESEARCH are ONLY in core.agents.schemas (deprecated)
           # RESULT, ERROR, COMMAND are in core.schemas.tasks (NOT deprecated)
@@ -163,23 +163,23 @@ jobs:
             | grep -v "current_work/" \
             | grep -v "# TaskKind: backward compat" \
             || true)
-          
+
           FAILED=0
-          
+
           if [ -n "$IMPORTS" ]; then
             echo "❌ DEPRECATED: TaskKind import from core.agents.schemas!"
             echo ""
             echo "$IMPORTS"
             FAILED=1
           fi
-          
+
           if [ -n "$USAGE" ]; then
             echo "❌ DEPRECATED: TaskKind enum values (CONVERSATION/QUERY/EXECUTION/RESEARCH)!"
             echo ""
             echo "$USAGE"
             FAILED=1
           fi
-          
+
           if [ $FAILED -eq 1 ]; then
             echo ""
             echo "========================================="
@@ -202,7 +202,7 @@ jobs:
             echo "Escape hatch: Add comment '# TaskKind: backward compat'"
             exit 1
           fi
-          
+
           echo "✅ No deprecated TaskKind usage found"
 
   # ===========================================================================
@@ -211,7 +211,7 @@ jobs:
   dora-check:
     name: DORA Compliance
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -225,7 +225,7 @@ jobs:
         run: |
           echo "🔍 Checking DORA block compliance..."
           python ci/dora_compliance_check.py --check --path .
-        continue-on-error: true  # Don't block CI yet - report only
+        continue-on-error: true # Don't block CI yet - report only
 
   # ===========================================================================
   # JOB 2: DOCKER-CHECK — Validate Docker Files
@@ -233,7 +233,7 @@ jobs:
   docker-check:
     name: Docker Validation
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -251,7 +251,7 @@ jobs:
     name: Test Suite
     runs-on: ubuntu-latest
     needs: [validate, docker-check]
-    
+
     services:
       postgres:
         image: pgvector/pgvector:pg16
@@ -285,7 +285,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -336,7 +336,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -359,7 +359,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          cache: "pip"
 
       - name: Install Semgrep
         run: |
@@ -377,7 +377,7 @@ jobs:
     name: Docker Smoke Test
     runs-on: ubuntu-latest
     needs: [validate, docker-check]
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -435,16 +435,16 @@ jobs:
         run: |
           echo "🐳 Building Docker stack..."
           docker compose build
-          
+
           echo "🚀 Starting services..."
           docker compose up -d
-          
+
           echo "⏳ Waiting for services..."
           sleep 30
-          
+
           echo "🧪 Running health checks..."
           docker compose ps
-          
+
           echo "🧹 Cleanup..."
           docker compose down -v
 
@@ -454,9 +454,9 @@ jobs:
   mutation-tests:
     name: Mutation Testing
     runs-on: ubuntu-latest
-    needs: [test]  # Only run after tests pass
+    needs: [test] # Only run after tests pass
     if: github.event_name == 'pull_request'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -465,7 +465,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -477,7 +477,7 @@ jobs:
         id: mutation
         run: |
           echo "🧬 Running mutation tests on critical paths..."
-          
+
           # Run mutmut on critical paths only (full codebase would take hours)
           mutmut run \
             --paths-to-mutate core/agents/executor.py \
@@ -485,28 +485,28 @@ jobs:
             --timeout 30 \
             --no-progress \
             2>&1 || true
-            
+
       - name: Check mutation score threshold
         run: |
           # Get results
           RESULTS=$(mutmut results --json 2>/dev/null || echo '{"killed":0,"total":1}')
           KILLED=$(echo "$RESULTS" | jq -r '.killed // 0')
           TOTAL=$(echo "$RESULTS" | jq -r '.total // 1')
-          
+
           # Calculate score
           if [ "$TOTAL" -eq 0 ]; then
             SCORE="100"
           else
             SCORE=$(echo "scale=2; $KILLED * 100 / $TOTAL" | bc)
           fi
-          
+
           echo "📊 Mutation Testing Results:"
           echo "   Killed: $KILLED / $TOTAL"
           echo "   Score:  $SCORE%"
-          
+
           # Check threshold (85%)
           PASSED=$(echo "$SCORE >= 85" | bc -l)
-          
+
           if [ "$PASSED" -eq 0 ]; then
             echo ""
             echo "❌ FAILED: Mutation score $SCORE% is below 85% threshold"
@@ -517,7 +517,7 @@ jobs:
             echo "  3. Add tests that catch the mutation"
             exit 1
           fi
-          
+
           echo "✅ PASSED: Mutation score $SCORE% meets 85% threshold"
 
   # ===========================================================================
@@ -527,7 +527,7 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     needs: validate
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -554,7 +554,7 @@ jobs:
     needs: validate
     # Only run if OPENAI_API_KEY is set (skip on forks)
     if: ${{ vars.AI_GUARDRAILS_ENABLED == 'true' }}
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -563,7 +563,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -576,7 +576,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           echo "🛡️ Running AI Guardrails..."
-          
+
           if [ -z "$OPENAI_API_KEY" ]; then
             echo "⚠️ OPENAI_API_KEY not set, running in dry-run mode"
             python ci/ai_guardrails/runner.py --dry-run
@@ -590,9 +590,20 @@ jobs:
   ci-complete:
     name: CI Complete
     runs-on: ubuntu-latest
-    needs: [validate, crypto-guard, dora-check, docker-check, test, mutation-tests, docker-smoke, security, ai-guardrails]
+    needs:
+      [
+        validate,
+        crypto-guard,
+        dora-check,
+        docker-check,
+        test,
+        mutation-tests,
+        docker-smoke,
+        security,
+        ai-guardrails,
+      ]
     if: always()
-    
+
     steps:
       - name: Summary
         run: |
@@ -611,23 +622,23 @@ jobs:
           echo "  ├─ Security:       ${{ needs.security.result }}"
           echo "  └─ AI Guardrails:  ${{ needs.ai-guardrails.result || 'skipped' }}"
           echo ""
-          
+
           # Fail if critical jobs failed
           if [[ "${{ needs.validate.result }}" == "failure" ]]; then
             echo "❌ CI Gates failed"
             exit 1
           fi
-          
+
           if [[ "${{ needs.crypto-guard.result }}" == "failure" ]]; then
             echo "❌ Crypto Guard failed (banned MD5 detected)"
             exit 1
           fi
-          
+
           if [[ "${{ needs.docker-check.result }}" == "failure" ]]; then
             echo "❌ Docker validation failed"
             exit 1
           fi
-          
+
           echo "✅ All critical checks passed"
 
 # ============================================================================

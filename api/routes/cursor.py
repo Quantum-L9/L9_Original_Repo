@@ -28,7 +28,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -79,9 +79,9 @@ class CursorTaskRequest(BaseModel):
 
     task: str = Field(..., description="Task description")
     project_id: str = Field(..., description="Project identifier")
-    entry_file: Optional[str] = Field(None, description="Entry file path")
-    selection: Optional[str] = Field(None, description="Selected code snippet")
-    thread_id: Optional[str] = Field(None, description="Thread ID for continuation")
+    entry_file: str | None = Field(None, description="Entry file path")
+    selection: str | None = Field(None, description="Selected code snippet")
+    thread_id: str | None = Field(None, description="Thread ID for continuation")
 
 
 class CursorTaskResponse(BaseModel):
@@ -90,16 +90,16 @@ class CursorTaskResponse(BaseModel):
     success: bool = Field(..., description="Whether operation succeeded")
     thread_id: str = Field(..., description="Thread identifier")
     task_status: str = Field(..., description="Task status")
-    decisions: list[Dict[str, Any]] = Field(
+    decisions: list[dict[str, Any]] = Field(
         default_factory=list, description="Decisions made"
     )
-    errors: list[Dict[str, Any]] = Field(
+    errors: list[dict[str, Any]] = Field(
         default_factory=list, description="Errors encountered"
     )
-    reasoning_trace: list[Dict[str, Any]] = Field(
+    reasoning_trace: list[dict[str, Any]] = Field(
         default_factory=list, description="Reasoning trace"
     )
-    message: Optional[str] = Field(None, description="Result message")
+    message: str | None = Field(None, description="Result message")
 
 
 class CursorResumeRequest(BaseModel):
@@ -228,7 +228,9 @@ async def cursor_resume(
         raise HTTPException(status_code=404, detail=f"Thread not found: {e}") from e
     except Exception as e:
         logger.exception("Cursor resume execution failed", error=str(e))
-        raise HTTPException(status_code=500, detail=f"Resume execution error: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Resume execution error: {e}"
+        ) from e
 
 
 # ============================================================================

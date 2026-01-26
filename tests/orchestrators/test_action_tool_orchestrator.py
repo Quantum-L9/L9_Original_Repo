@@ -26,8 +26,7 @@ class TestActionToolOrchestrator:
         """
         Contract: ActionToolOrchestrator initializes successfully.
         """
-        from orchestrators.action_tool.orchestrator import \
-            ActionToolOrchestrator
+        from orchestrators.action_tool.orchestrator import ActionToolOrchestrator
 
         orchestrator = ActionToolOrchestrator()
 
@@ -64,10 +63,11 @@ class TestActionToolOrchestrator:
         """
         Contract: execute() returns ActionToolResponse with success status.
         """
-        from orchestrators.action_tool.interface import (ActionToolRequest,
-                                                         ActionToolResponse)
-        from orchestrators.action_tool.orchestrator import \
-            ActionToolOrchestrator
+        from orchestrators.action_tool.interface import (
+            ActionToolRequest,
+            ActionToolResponse,
+        )
+        from orchestrators.action_tool.orchestrator import ActionToolOrchestrator
 
         orchestrator = ActionToolOrchestrator()
 
@@ -92,8 +92,10 @@ class TestActionToolOrchestrator:
         """
         Contract: ActionToolResponse model validates correctly.
         """
-        from orchestrators.action_tool.interface import (ActionToolResponse,
-                                                         ToolSafetyLevel)
+        from orchestrators.action_tool.interface import (
+            ActionToolResponse,
+            ToolSafetyLevel,
+        )
 
         response = ActionToolResponse(
             success=True,
@@ -134,10 +136,11 @@ class TestActionToolOrchestrator:
         """
         Contract: Non-existent tool_id returns error response.
         """
-        from orchestrators.action_tool.interface import (ActionToolRequest,
-                                                         ActionToolResponse)
-        from orchestrators.action_tool.orchestrator import \
-            ActionToolOrchestrator
+        from orchestrators.action_tool.interface import (
+            ActionToolRequest,
+            ActionToolResponse,
+        )
+        from orchestrators.action_tool.orchestrator import ActionToolOrchestrator
 
         orchestrator = ActionToolOrchestrator()
 
@@ -157,10 +160,11 @@ class TestActionToolOrchestrator:
         """
         Contract: Empty arguments handled correctly.
         """
-        from orchestrators.action_tool.interface import (ActionToolRequest,
-                                                         ActionToolResponse)
-        from orchestrators.action_tool.orchestrator import \
-            ActionToolOrchestrator
+        from orchestrators.action_tool.interface import (
+            ActionToolRequest,
+            ActionToolResponse,
+        )
+        from orchestrators.action_tool.orchestrator import ActionToolOrchestrator
 
         orchestrator = ActionToolOrchestrator()
 
@@ -179,10 +183,11 @@ class TestActionToolOrchestrator:
         """
         Contract: Execution timeout returns appropriate error.
         """
-        from orchestrators.action_tool.interface import (ActionToolRequest,
-                                                         ActionToolResponse)
-        from orchestrators.action_tool.orchestrator import \
-            ActionToolOrchestrator
+        from orchestrators.action_tool.interface import (
+            ActionToolRequest,
+            ActionToolResponse,
+        )
+        from orchestrators.action_tool.orchestrator import ActionToolOrchestrator
 
         orchestrator = ActionToolOrchestrator()
 

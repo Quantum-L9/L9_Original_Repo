@@ -45,17 +45,21 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Union
 
 import structlog
 
-from core.commands.schemas import (COMMAND_PATTERNS, Command, CommandType,
-                                   NLPPrompt, RiskLevel)
+from core.commands.schemas import (
+    COMMAND_PATTERNS,
+    Command,
+    CommandType,
+    NLPPrompt,
+    RiskLevel,
+)
 
 logger = structlog.get_logger(__name__)
 
 
-def parse_command(text: str) -> Union[Command, NLPPrompt]:
+def parse_command(text: str) -> Command | NLPPrompt:
     """
     Parse Igor input into structured Command or NLPPrompt.
 
@@ -106,7 +110,7 @@ def _build_command(pattern_name: str, match, raw_text: str) -> Command:
             parameters={"gmp_description": description},
         )
 
-    elif pattern_name == "analyze":
+    if pattern_name == "analyze":
         entity = match.group(1).strip()
         return Command(
             type=CommandType.ANALYZE,
@@ -116,7 +120,7 @@ def _build_command(pattern_name: str, match, raw_text: str) -> Command:
             parameters={"entity_id": entity},
         )
 
-    elif pattern_name == "approve":
+    if pattern_name == "approve":
         task_id = match.group(1).strip()
         return Command(
             type=CommandType.APPROVE,
@@ -126,7 +130,7 @@ def _build_command(pattern_name: str, match, raw_text: str) -> Command:
             parameters={"task_id": task_id},
         )
 
-    elif pattern_name == "rollback":
+    if pattern_name == "rollback":
         change_id = match.group(1).strip()
         return Command(
             type=CommandType.ROLLBACK,
@@ -136,7 +140,7 @@ def _build_command(pattern_name: str, match, raw_text: str) -> Command:
             parameters={"change_id": change_id},
         )
 
-    elif pattern_name == "status":
+    if pattern_name == "status":
         task_id = match.group(1) if match.lastindex else None
         return Command(
             type=CommandType.STATUS,
@@ -146,21 +150,20 @@ def _build_command(pattern_name: str, match, raw_text: str) -> Command:
             parameters={"task_id": task_id.strip() if task_id else None},
         )
 
-    elif pattern_name == "help":
+    if pattern_name == "help":
         return Command(
             type=CommandType.HELP,
             raw_text=raw_text,
             risk_level=RiskLevel.LOW,
         )
 
-    else:
-        # Fallback (should not happen)
-        logger.warning("Unknown pattern matched", pattern_name=pattern_name)
-        return Command(
-            type=CommandType.QUERY,
-            raw_text=raw_text,
-            risk_level=RiskLevel.LOW,
-        )
+    # Fallback (should not happen)
+    logger.warning("Unknown pattern matched", pattern_name=pattern_name)
+    return Command(
+        type=CommandType.QUERY,
+        raw_text=raw_text,
+        risk_level=RiskLevel.LOW,
+    )
 
 
 def is_l_command(text: str) -> bool:
@@ -177,10 +180,10 @@ def is_l_command(text: str) -> bool:
 
 
 __all__ = [
-    "parse_command",
-    "is_l_command",
     "Command",
     "NLPPrompt",
+    "is_l_command",
+    "parse_command",
 ]
 
 # ============================================================================

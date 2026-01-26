@@ -41,7 +41,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
@@ -86,7 +86,7 @@ class ValidateResponse(BaseModel):
     warning_count: int = Field(default=0, description="Number of warnings")
     errors: list[dict[str, Any]] = Field(default_factory=list)
     warnings: list[dict[str, Any]] = Field(default_factory=list)
-    agent_id: Optional[str] = Field(None, description="Parsed agent ID if valid")
+    agent_id: str | None = Field(None, description="Parsed agent ID if valid")
 
     model_config = {"extra": "forbid"}
 
@@ -98,9 +98,7 @@ class ExtractRequest(BaseModel):
     output_dir: str = Field(
         ..., description="Output directory (relative to sandbox root)"
     )
-    glue_yaml: Optional[str] = Field(
-        None, description="Optional glue configuration YAML"
-    )
+    glue_yaml: str | None = Field(None, description="Optional glue configuration YAML")
     overwrite: bool = Field(default=False, description="Overwrite existing files")
     dry_run: bool = Field(default=False, description="Validate only, don't write files")
     strict: bool = Field(default=False, description="Enable strict validation")
@@ -112,7 +110,7 @@ class ExtractResponse(BaseModel):
     """Response model for agent extraction."""
 
     success: bool = Field(..., description="Whether extraction succeeded")
-    agent_id: Optional[str] = Field(None, description="Extracted agent ID")
+    agent_id: str | None = Field(None, description="Extracted agent ID")
     file_count: int = Field(default=0, description="Number of files generated")
     files: list[str] = Field(default_factory=list, description="Generated file paths")
     error_count: int = Field(default=0, description="Number of errors")
@@ -122,7 +120,7 @@ class ExtractResponse(BaseModel):
     duration_ms: int = Field(
         default=0, description="Extraction duration in milliseconds"
     )
-    manifest: Optional[dict[str, Any]] = Field(None, description="Extraction manifest")
+    manifest: dict[str, Any] | None = Field(None, description="Extraction manifest")
 
     model_config = {"extra": "forbid"}
 
@@ -198,8 +196,11 @@ async def factory_health() -> HealthResponse:
 
 
 def _safe_output_dir(output_dir: str) -> str:
-    from core.security.path_safety import (PathSafetyError, resolve_base_dir,
-                                           safe_resolve_path)
+    from core.security.path_safety import (
+        PathSafetyError,
+        resolve_base_dir,
+        safe_resolve_path,
+    )
 
     base_root = resolve_base_dir()
     try:
@@ -320,9 +321,7 @@ async def extract_agent_file(
     output_dir: str = Form(
         ..., description="Output directory (relative to sandbox root)"
     ),
-    glue_file: Optional[UploadFile] = File(
-        None, description="Optional glue config file"
-    ),
+    glue_file: UploadFile | None = File(None, description="Optional glue config file"),
     overwrite: bool = Form(False, description="Overwrite existing files"),
     dry_run: bool = Form(False, description="Validate only, don't write"),
     strict: bool = Form(False, description="Strict validation"),
@@ -343,7 +342,6 @@ async def extract_agent_file(
     """
     try:
         import yaml
-
         from services.research_factory.extractor import UniversalExtractor
         from services.research_factory.glue_resolver import GlueConfig
 
@@ -429,7 +427,9 @@ async def list_templates() -> TemplatesResponse:
 
     except Exception as e:
         logger.exception("Failed to list templates: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Failed to list templates: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Failed to list templates: {e}"
+        ) from e
 
 
 @router.get("/templates/{template_name}")
@@ -465,7 +465,9 @@ async def get_template(template_name: str) -> dict[str, Any]:
         raise
     except Exception as e:
         logger.exception("Failed to get template: %s", str(e))
-        raise HTTPException(status_code=500, detail=f"Failed to get template: {e}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Failed to get template: {e}"
+        ) from e
 
 
 # =============================================================================

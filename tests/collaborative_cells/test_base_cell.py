@@ -19,8 +19,7 @@ if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
 try:
-    from collaborative_cells.base_cell import (BaseCell, CellConfig,
-                                               ConsensusStrategy)
+    from collaborative_cells.base_cell import BaseCell, CellConfig, ConsensusStrategy
 except ImportError as e:
     pytest.skip(
         f"Could not import collaborative_cells.base_cell: {e}", allow_module_level=True

@@ -37,16 +37,19 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-from core.schemas.research_factory_models import (IntegrationResult,
-                                                  ParsedObject, QueryPlan,
-                                                  ResearchJobSpec,
-                                                  ResearchMetrics,
-                                                  RetrievalBatch, Superprompt)
+from core.schemas.research_factory_models import (
+    IntegrationResult,
+    ParsedObject,
+    QueryPlan,
+    ResearchJobSpec,
+    ResearchMetrics,
+    RetrievalBatch,
+    Superprompt,
+)
 
 
 class PassStatus(str, Enum):
@@ -63,10 +66,10 @@ class PassMetadata(BaseModel):
     """Metadata for a single pass execution."""
 
     status: PassStatus = Field(default=PassStatus.PENDING)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
-    duration_ms: Optional[float] = None
-    error: Optional[str] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    duration_ms: float | None = None
+    error: str | None = None
 
     model_config = {"extra": "allow"}
 
@@ -89,12 +92,12 @@ class ResearchState(BaseModel):
     thread_id: UUID = Field(default_factory=uuid4, description="Thread/conversation ID")
 
     # === Input ===
-    job_spec: Optional[ResearchJobSpec] = Field(
+    job_spec: ResearchJobSpec | None = Field(
         None, description="Input job specification"
     )
 
     # === Pass 1 Output ===
-    query_plan: Optional[QueryPlan] = Field(None, description="Generated query plan")
+    query_plan: QueryPlan | None = Field(None, description="Generated query plan")
 
     # === Pass 2 Output ===
     superprompts: list[Superprompt] = Field(
@@ -112,7 +115,7 @@ class ResearchState(BaseModel):
     )
 
     # === Pass 5 Output ===
-    integration_result: Optional[IntegrationResult] = Field(
+    integration_result: IntegrationResult | None = Field(
         None, description="Final integration result"
     )
 
@@ -158,9 +161,7 @@ class ResearchState(BaseModel):
             }
         )
 
-    def complete_pass(
-        self, pass_num: int, error: Optional[str] = None
-    ) -> "ResearchState":
+    def complete_pass(self, pass_num: int, error: str | None = None) -> "ResearchState":
         """Mark a pass as completed or failed."""
         pass_key = f"pass_{pass_num}"
         current_meta = self.pass_metadata.get(pass_key, PassMetadata())
@@ -196,14 +197,14 @@ class ResearchState(BaseModel):
     def add_error(self, error: str) -> "ResearchState":
         """Add an error to the state."""
         return self.model_copy(
-            update={"errors": self.errors + [error], "updated_at": datetime.utcnow()}
+            update={"errors": [*self.errors, error], "updated_at": datetime.utcnow()}
         )
 
     def add_warning(self, warning: str) -> "ResearchState":
         """Add a warning to the state."""
         return self.model_copy(
             update={
-                "warnings": self.warnings + [warning],
+                "warnings": [*self.warnings, warning],
                 "updated_at": datetime.utcnow(),
             }
         )

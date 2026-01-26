@@ -13,7 +13,7 @@ name: README Generation Pipeline
 version: 1.0.0
 description: |
   Systematic workflow for generating and validating subsystem READMEs.
-  
+
   Phases:
   1. Gap Analysis - identify missing subsystems
   2. Config Enrichment - add missing entries
@@ -40,7 +40,7 @@ nodes:
   - id: start
     type: START
     name: Start
-    
+
   - id: gap_analysis
     type: ANALYZE
     name: Gap Analysis
@@ -51,12 +51,12 @@ nodes:
     outputs:
       - gaps
       - stale_entries
-      
+
   - id: gate_gaps
     type: GATE
     name: Gaps Found?
     condition: "len(gaps) > 0"
-    
+
   - id: enrich_config
     type: TRANSFORM
     name: Enrich Config
@@ -64,12 +64,12 @@ nodes:
     file: config/subsystems/readme_config.yaml
     outputs:
       - config_updated
-      
+
   - id: gate_template
     type: GATE
     name: Template Update Needed?
     gate_type: HUMAN_APPROVAL
-    
+
   - id: update_template
     type: TRANSFORM
     name: Update Template
@@ -77,7 +77,7 @@ nodes:
     file: scripts/generate_subsystem_readmes.py
     outputs:
       - template_updated
-      
+
   - id: generate
     type: EXECUTE
     name: Generate READMEs
@@ -87,7 +87,7 @@ nodes:
     outputs:
       - generated_count
       - skipped_count
-      
+
   - id: validate
     type: VALIDATE
     name: Validate Output
@@ -98,26 +98,26 @@ nodes:
     outputs:
       - validation_passed
       - validation_errors
-      
+
   - id: gate_validation
     type: GATE
     name: Validation Passed?
     condition: "validation_passed == True"
-    
+
   - id: report
     type: REPORT
     name: Generate Report
     description: Summarize pipeline results
     template: |
       ## README Pipeline Report
-      
+
       | Metric | Value |
       |--------|-------|
       | Subsystems in config | {{ config_count }} |
       | READMEs generated | {{ generated_count }} |
       | Gaps identified | {{ len(gaps) }} |
       | Validation | {{ 'PASSED' if validation_passed else 'FAILED' }} |
-      
+
   - id: end
     type: END
     name: End
@@ -126,56 +126,56 @@ edges:
   # Main flow
   - from: start
     to: gap_analysis
-    
+
   - from: gap_analysis
     to: gate_gaps
-    
+
   # Conditional: gaps found
   - from: gate_gaps
     to: enrich_config
     condition: gaps_exist
     label: "Gaps found"
-    
+
   - from: gate_gaps
     to: gate_template
     condition: no_gaps
     label: "No gaps"
-    
+
   - from: enrich_config
     to: gate_template
-    
+
   # Conditional: template update
   - from: gate_template
     to: update_template
     condition: template_update_requested
     label: "Update needed"
-    
+
   - from: gate_template
     to: generate
     condition: no_template_update
     label: "Skip template"
-    
+
   - from: update_template
     to: generate
-    
+
   # Generate → Validate → Report
   - from: generate
     to: validate
-    
+
   - from: validate
     to: gate_validation
-    
+
   # Conditional: validation
   - from: gate_validation
     to: report
     condition: validation_passed
     label: "Passed"
-    
+
   - from: gate_validation
     to: enrich_config
     condition: validation_failed
     label: "Fix issues"
-    
+
   - from: report
     to: end
 

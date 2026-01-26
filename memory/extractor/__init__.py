@@ -14,8 +14,8 @@ from .memory_extractor import MemoryExtractor
 from .module_schema_extractor import ModuleSchemaExtractor
 
 __all__ = [
+    "AgentConfigExtractor",
     "CodeExtractor",
     "MemoryExtractor",
-    "AgentConfigExtractor",
     "ModuleSchemaExtractor",
 ]

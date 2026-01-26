@@ -28,14 +28,16 @@ __dora_meta__ = {
 # ============================================================================
 
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 import structlog
 
 from core.decorators import must_stay_async
-from services.research.tools.perplexity_client import (PerplexityClient,
-                                                       get_perplexity_client)
+from services.research.tools.perplexity_client import (
+    PerplexityClient,
+    get_perplexity_client,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -73,7 +75,7 @@ class PerplexityTool(BaseTool):
 
     def __init__(self):
         """Initialize Perplexity tool."""
-        self._client: Optional[PerplexityClient] = None
+        self._client: PerplexityClient | None = None
 
     async def execute(self, args: dict[str, Any]) -> dict[str, Any]:
         """
@@ -132,18 +134,17 @@ class PerplexityTool(BaseTool):
                         "tokens": response.tokens_used,
                         "cost": response.cost,
                     }
-                else:
-                    return {
-                        "result": f"Search failed: {response.error}",
-                        "sources": [],
-                        "model": response.model,
-                        "error": response.error,
-                    }
+                return {
+                    "result": f"Search failed: {response.error}",
+                    "sources": [],
+                    "model": response.model,
+                    "error": response.error,
+                }
 
         except Exception as e:
             log.error("perplexity_tool_error", error=str(e))
             return {
-                "result": f"Search failed: {str(e)}",
+                "result": f"Search failed: {e!s}",
                 "sources": [],
                 "error": str(e),
             }

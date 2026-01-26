@@ -59,15 +59,15 @@ Development and maintenance tools
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -93,12 +93,12 @@ tools/
 └── ... (22 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `mac_protocol.py` | Mac protocol message schema. |
+| File              | Purpose                       |
+| ----------------- | ----------------------------- |
+| `__init__.py`     | Core module (PROTECTED)       |
+| `mac_protocol.py` | Mac protocol message schema.  |
 | `mac_protocol.py` | Mac protocol response schema. |
-| `mac_protocol.py` | Component |
+| `mac_protocol.py` | Component                     |
 
 ### Naming Conventions
 
@@ -116,7 +116,7 @@ tools/
 ```python
 class MacMessage:
     """Mac protocol message schema."""
-    
+
     # Key methods:
 
 ```
@@ -128,7 +128,7 @@ class MacMessage:
 ```python
 class MacResponse:
     """Mac protocol response schema."""
-    
+
     # Key methods:
 
 ```
@@ -140,7 +140,7 @@ class MacResponse:
 ```python
 class Config:
     """No description"""
-    
+
     # Key methods:
 
 ```
@@ -152,7 +152,7 @@ class Config:
 ```python
 class Config:
     """No description"""
-    
+
     # Key methods:
 
 ```
@@ -164,7 +164,7 @@ class Config:
 ```python
 class Violation:
     """Represents a single ADR violation."""
-    
+
     # Key methods:
 
     async def to_dict(self, ...): ...
@@ -174,7 +174,6 @@ class Violation:
 **Public Methods:** `to_dict`
 
 **Lines:** 41-54 in `adr_enforcer.py`
-
 
 ---
 
@@ -248,9 +247,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Tools feature flags
-L9_ENABLE_TOOLS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_TOOLS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_TOOLS_AUDIT: true    # Enable audit logging
+L9_ENABLE_TOOLS_TRACING: true # Enable detailed tracing
+L9_ENABLE_TOOLS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_TOOLS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -312,7 +311,6 @@ Identify app entrypoints with useful metadata.
 - **File:** `export_repo_indexes.py:217`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -353,6 +351,7 @@ Tools operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -360,12 +359,12 @@ Tools operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                        | Type      | Description                    |
+| ----------------------------- | --------- | ------------------------------ |
 | `tools_operation_duration_ms` | Histogram | Operation latency distribution |
-| `tools_operation_total` | Counter | Total operations processed |
-| `tools_error_total` | Counter | Total errors encountered |
-| `tools_active_connections` | Gauge | Current active connections |
+| `tools_operation_total`       | Counter   | Total operations processed     |
+| `tools_error_total`           | Counter   | Total errors encountered       |
+| `tools_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -383,6 +382,7 @@ Tools emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/tools/`:
+
 - `test_tools.py` — Core unit tests
 - `test_tools_integration.py` — Integration tests (if applicable)
 
@@ -425,6 +425,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

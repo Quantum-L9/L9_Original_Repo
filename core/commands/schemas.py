@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 import re
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -86,10 +86,10 @@ class Command(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique command ID")
     type: CommandType = Field(..., description="Command type")
     raw_text: str = Field(..., description="Original input text")
-    target: Optional[str] = Field(
+    target: str | None = Field(
         None, description="Target entity (e.g., task_id, entity_id)"
     )
-    description: Optional[str] = Field(
+    description: str | None = Field(
         None, description="Description for propose commands"
     )
     parameters: dict[str, Any] = Field(
@@ -124,7 +124,7 @@ class IntentModel(BaseModel):
         default_factory=list, description="Ambiguous elements"
     )
     original_text: str = Field(..., description="Original NLP text")
-    suggested_command: Optional[Command] = Field(
+    suggested_command: Command | None = Field(
         None, description="Suggested structured command"
     )
 
@@ -140,7 +140,7 @@ class ConfirmationResult(BaseModel):
     confirmed: bool = Field(..., description="Whether Igor confirmed the action")
     command_id: UUID = Field(..., description="Command ID being confirmed")
     confirmed_by: str = Field(default="Igor", description="Confirmer identity")
-    reason: Optional[str] = Field(None, description="Confirmation/rejection reason")
+    reason: str | None = Field(None, description="Confirmation/rejection reason")
     timestamp: str = Field(..., description="ISO timestamp of confirmation")
 
 
@@ -149,7 +149,7 @@ class CommandResult(BaseModel):
 
     success: bool = Field(..., description="Whether command executed successfully")
     command_id: UUID = Field(..., description="Command ID")
-    task_id: Optional[UUID] = Field(None, description="Created task ID if applicable")
+    task_id: UUID | None = Field(None, description="Created task ID if applicable")
     message: str = Field(..., description="Result message")
     data: dict[str, Any] = Field(default_factory=dict, description="Result data")
 

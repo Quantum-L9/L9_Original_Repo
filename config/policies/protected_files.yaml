@@ -35,19 +35,19 @@ protected_files:
     - path: runtime/websocket_orchestrator.py
       reason: "Real-time communication core"
       owner: L
-      
+
     - path: runtime/kernel_loader.py
       reason: "Governance kernel loading"
       owner: L
-      
+
     - path: docker-compose.yml
       reason: "Infrastructure orchestration"
       owner: L
-      
+
     - path: runtime/redis_client.py
       reason: "State management core"
       owner: L
-      
+
     - path: core/agents/executor.py
       reason: "Agent execution engine"
       owner: L
@@ -57,7 +57,7 @@ protected_files:
   # ==========================================================================
   # Files protected by subsystem ownership.
   # Changes require subsystem owner approval.
-  
+
   subsystems:
     agents:
       owner: L
@@ -65,14 +65,14 @@ protected_files:
         - core/agents/executor.py
         - core/agents/registry.py
         - core/agents/__init__.py
-        
+
     memory:
       owner: L
       files:
         - memory/substrate_service.py
         - memory/substrate_dag.py
         - memory/__init__.py
-        
+
     tools:
       owner: L
       files:
@@ -88,12 +88,11 @@ protected_files:
       - Get approval from L (CTO)
       - Open an issue documenting the change
       - Include risk assessment and rollback plan
-      
+
     subsystem:
       - Get approval from subsystem owner
       - Include test coverage for changes
       - Document API changes if any
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

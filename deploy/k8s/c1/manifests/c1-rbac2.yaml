@@ -117,7 +117,6 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: l9-prometheus-readonly
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

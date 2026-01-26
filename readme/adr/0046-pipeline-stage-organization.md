@@ -11,10 +11,12 @@ Organize orchestration pipeline stages in a dedicated directory structure: `orch
 ## Context
 
 L9's `orchestration/` directory is flat with monolithic files:
+
 - `unified_controller.py` (~800 lines)
 - `plan_executor.py` (~700 lines)
 
 These files contain multiple pipeline phases inline. The stage-based organization enables:
+
 - Independent testing of each stage
 - Clear stage boundaries
 - Pluggable stage implementations
@@ -95,16 +97,16 @@ from orchestration.pipeline.context import PipelineContext
 class PipelineStage(Protocol):
     """
     Protocol for orchestration pipeline stages.
-    
+
     Each stage:
     - Receives PipelineContext
     - Performs one orchestration concern
     - Returns (potentially modified) context
     - Is ≤ 200 lines
     """
-    
+
     name: str
-    
+
     async def execute(self, ctx: PipelineContext) -> PipelineContext:
         """Execute this stage and return updated context."""
         ...
@@ -124,14 +126,14 @@ from core.agents.schemas import AgentTask
 class PipelineContext:
     """
     Context passed through orchestration pipeline.
-    
+
     Immutable-style: stages return new context with modifications.
     """
-    
+
     request: Any  # Original request
     user_id: str
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     # Stage outputs (populated as pipeline progresses)
     routed_target: Optional[str] = None
     compiled_ir: Optional[Any] = None
@@ -142,12 +144,12 @@ class PipelineContext:
     plan: Optional[Any] = None
     execution_result: Optional[Any] = None
     reflection_insights: Optional[Any] = None
-    
+
     # Control flow
     status: str = "running"
     error: Optional[str] = None
     skip_remaining: bool = False
-    
+
     def with_status(self, status: str) -> "PipelineContext":
         """Return context with updated status."""
         return PipelineContext(
@@ -185,14 +187,14 @@ logger = logging.getLogger(__name__)
 class ControllerPipeline:
     """
     Orchestrates execution of pipeline stages.
-    
+
     Runs stages in sequence, passing context through.
     Stops on terminal status or error.
     """
-    
+
     def __init__(self, stages: List[PipelineStage]):
         self._stages = stages
-    
+
     async def run(
         self,
         request: Any,
@@ -201,7 +203,7 @@ class ControllerPipeline:
     ) -> PipelineContext:
         """
         Run the pipeline with given request.
-        
+
         Returns:
             Final context with all stage outputs.
         """
@@ -210,20 +212,20 @@ class ControllerPipeline:
             user_id=user_id,
             metadata=metadata or {},
         )
-        
+
         for stage in self._stages:
             logger.debug(f"Running stage: {stage.name}")
-            
+
             ctx = await stage.execute(ctx)
-            
+
             if ctx.status in {"completed", "failed", "blocked"}:
                 logger.info(f"Pipeline stopped at {stage.name}: {ctx.status}")
                 break
-            
+
             if ctx.skip_remaining:
                 logger.info(f"Pipeline skipping remaining stages after {stage.name}")
                 break
-        
+
         return ctx
 ```
 
@@ -240,32 +242,32 @@ logger = logging.getLogger(__name__)
 class RoutingStage:
     """
     Routes request to appropriate execution target.
-    
+
     Analyzes:
     - Request type and complexity
     - Agent capabilities
     - Resource availability
-    
+
     Outputs:
     - routed_target in context
     """
-    
+
     name: str = "routing"
-    
+
     def __init__(self, router_service=None):
         self._router = router_service
-    
+
     async def execute(self, ctx: PipelineContext) -> PipelineContext:
         """Route request to target."""
-        
+
         if self._router:
             target = await self._router.route(ctx.request)
         else:
             # Default routing
             target = "default"
-        
+
         logger.info(f"Routed to: {target}")
-        
+
         return PipelineContext(
             request=ctx.request,
             user_id=ctx.user_id,
@@ -282,10 +284,10 @@ class RoutingStage:
 
 class UnifiedController:
     """Simplified controller using pipeline."""
-    
+
     def __init__(self, pipeline: ControllerPipeline):
         self._pipeline = pipeline
-    
+
     async def process_request(
         self,
         request,
@@ -295,7 +297,7 @@ class UnifiedController:
         """Process request through pipeline."""
         ctx = await self._pipeline.run(request, user_id, metadata)
         return self._build_response(ctx)
-    
+
     def _build_response(self, ctx: PipelineContext):
         """Build response from context."""
         if ctx.status == "completed":
@@ -335,18 +337,18 @@ class UnifiedController:
     async def process_request(self, request, user_id, metadata):
         # Phase 1: Routing (inline)
         target = await self._route(request)
-        
+
         # Phase 2: Compile (inline)
         ir = await self._compile(request)
-        
+
         # Phase 3: Validate (inline)
         validation = await self._validate(ir)
-        
+
         # ... 6 more phases inline ...
-        
+
         # Phase 9: Reflection (inline)
         await self._reflect(result)
-        
+
         return result
 
 # ✅ CORRECT — Stages in separate files, pipeline orchestrates

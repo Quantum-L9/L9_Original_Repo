@@ -38,4 +38,3 @@ COMMENT ON COLUMN world_model_entities.entity_type IS 'Type classification of th
 COMMENT ON COLUMN world_model_entities.attributes IS 'JSONB attributes and properties';
 COMMENT ON COLUMN world_model_entities.confidence IS 'Confidence score (0.0 to 1.0)';
 COMMENT ON COLUMN world_model_entities.version IS 'Version number for optimistic locking';
-

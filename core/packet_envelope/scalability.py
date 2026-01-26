@@ -43,10 +43,11 @@ __dora_meta__ = {
 
 import asyncio
 import logging
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Awaitable, Callable, Dict, List, Optional
+from typing import Any
 
 from core.decorators import must_stay_async
 
@@ -62,9 +63,9 @@ class BatchIngestRequest:
     """Batch ingestion request"""
 
     batch_id: str
-    packets: List[Dict[str, Any]]
+    packets: list[dict[str, Any]]
     priority: str = "normal"  # normal, high, low
-    idempotency_key: Optional[str] = None
+    idempotency_key: str | None = None
     timeout_seconds: int = 30
 
 
@@ -76,7 +77,7 @@ class BatchIngestResult:
     total_packets: int
     successful_packets: int
     failed_packets: int
-    errors: List[Dict[str, Any]] = field(default_factory=list)
+    errors: list[dict[str, Any]] = field(default_factory=list)
     duration_ms: float = 0.0
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
@@ -134,7 +135,7 @@ class BatchIngestionEngine:
             # Process in parallel
             semaphore = asyncio.Semaphore(self.max_concurrent_batches)
 
-            async def process_sub_batch(packets: List):
+            async def process_sub_batch(packets: list):
                 async with semaphore:
                     return await self._process_sub_batch(packets)
 
@@ -188,7 +189,7 @@ class BatchIngestionEngine:
 
         return result
 
-    async def _process_sub_batch(self, packets: List) -> Dict[str, Any]:
+    async def _process_sub_batch(self, packets: list) -> dict[str, Any]:
         """Process a single sub-batch"""
         successful = 0
         failed = 0
@@ -215,7 +216,7 @@ class BatchIngestionEngine:
 
         return {"successful": successful, "failed": failed, "errors": errors}
 
-    def _validate_packet(self, packet: Dict) -> Dict:
+    def _validate_packet(self, packet: dict) -> dict:
         """Validate individual packet"""
         required_fields = ["id", "payload", "timestamp"]
         for field_name in required_fields:
@@ -224,7 +225,7 @@ class BatchIngestionEngine:
         return packet
 
     @must_stay_async("callers use await")
-    async def _check_idempotency(self, key: str) -> Optional[BatchIngestResult]:
+    async def _check_idempotency(self, key: str) -> BatchIngestResult | None:
         """Check if batch already processed"""
         # TODO(GMP-106): Check cache
         return None
@@ -257,9 +258,9 @@ class Command:
     command_id: str
     command_type: CommandType
     aggregate_id: str  # Usually packet_id
-    data: Dict[str, Any]
+    data: dict[str, Any]
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    user_id: Optional[str] = None
+    user_id: str | None = None
 
 
 @dataclass
@@ -269,9 +270,9 @@ class Event:
     event_id: str
     event_type: str
     aggregate_id: str
-    data: Dict[str, Any]
+    data: dict[str, Any]
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    command_id: Optional[str] = None
+    command_id: str | None = None
 
 
 class CommandHandler:
@@ -280,20 +281,19 @@ class CommandHandler:
     def __init__(self):
         self.logger = logger
 
-    async def handle_command(self, command: Command) -> List[Event]:
+    async def handle_command(self, command: Command) -> list[Event]:
         """
         Process command and generate events
         Returns: List of domain events
         """
         if command.command_type == CommandType.INGEST_PACKET:
             return await self._handle_ingest_packet(command)
-        elif command.command_type == CommandType.UPDATE_LINEAGE:
+        if command.command_type == CommandType.UPDATE_LINEAGE:
             return await self._handle_update_lineage(command)
-        else:
-            raise ValueError(f"Unknown command type: {command.command_type}")
+        raise ValueError(f"Unknown command type: {command.command_type}")
 
     @must_stay_async("callers use await")
-    async def _handle_ingest_packet(self, command: Command) -> List[Event]:
+    async def _handle_ingest_packet(self, command: Command) -> list[Event]:
         """Handle packet ingestion command"""
         events = []
 
@@ -315,7 +315,7 @@ class CommandHandler:
         return events
 
     @must_stay_async("callers use await")
-    async def _handle_update_lineage(self, command: Command) -> List[Event]:
+    async def _handle_update_lineage(self, command: Command) -> list[Event]:
         """Handle lineage update command"""
         events = []
 
@@ -339,8 +339,8 @@ class ReadModel:
     """
 
     def __init__(self):
-        self.packets: Dict[str, Dict] = {}
-        self.lineage_graph: Dict[str, List[str]] = {}
+        self.packets: dict[str, dict] = {}
+        self.lineage_graph: dict[str, list[str]] = {}
         self.logger = logger
 
     @must_stay_async("callers use await")
@@ -365,12 +365,12 @@ class ReadModel:
                 self.lineage_graph[parent_id].append(event.aggregate_id)
 
     @must_stay_async("callers use await")
-    async def query_packet(self, packet_id: str) -> Optional[Dict]:
+    async def query_packet(self, packet_id: str) -> dict | None:
         """Query packet from read model"""
         return self.packets.get(packet_id)
 
     @must_stay_async("callers use await")
-    async def query_lineage(self, packet_id: str) -> List[str]:
+    async def query_lineage(self, packet_id: str) -> list[str]:
         """Query lineage from read model"""
         return self.lineage_graph.get(packet_id, [])
 
@@ -390,7 +390,7 @@ class StreamConsumer:
     def __init__(
         self,
         consumer_group: str,
-        event_handlers: List[Callable[[Event], Awaitable[None]]],
+        event_handlers: list[Callable[[Event], Awaitable[None]]],
     ):
         self.consumer_group = consumer_group
         self.event_handlers = event_handlers
@@ -435,7 +435,7 @@ class StreamConsumer:
         self.logger.info(f"Consumer {self.consumer_group} stopped")
 
     @must_stay_async("future await planned")
-    async def _fetch_events(self, from_offset: int, batch_size: int) -> List[Event]:
+    async def _fetch_events(self, from_offset: int, batch_size: int) -> list[Event]:
         """Fetch events from event store"""
         # TODO(GMP-108): Implement event store query
         return []
@@ -457,7 +457,7 @@ class Snapshot:
 
     aggregate_id: str
     aggregate_version: int
-    state: Dict[str, Any]
+    state: dict[str, Any]
     created_at: datetime = field(default_factory=datetime.utcnow)
 
 
@@ -468,8 +468,8 @@ class EventStore:
     """
 
     def __init__(self, snapshot_interval: int = 100):
-        self.events: List[Event] = []
-        self.snapshots: Dict[str, Snapshot] = {}
+        self.events: list[Event] = []
+        self.snapshots: dict[str, Snapshot] = {}
         self.snapshot_interval = snapshot_interval
         self.logger = logger
 
@@ -484,7 +484,7 @@ class EventStore:
         return len(self.events) - 1
 
     @must_stay_async("callers use await")
-    async def get_events(self, aggregate_id: str, from_version: int = 0) -> List[Event]:
+    async def get_events(self, aggregate_id: str, from_version: int = 0) -> list[Event]:
         """Get events for aggregate"""
         return [
             e
@@ -493,7 +493,7 @@ class EventStore:
         ]
 
     @must_stay_async("callers use await")
-    async def get_snapshot(self, aggregate_id: str) -> Optional[Snapshot]:
+    async def get_snapshot(self, aggregate_id: str) -> Snapshot | None:
         """Get latest snapshot"""
         return self.snapshots.get(aggregate_id)
 
@@ -501,7 +501,7 @@ class EventStore:
     async def _create_snapshot(self):
         """Create snapshot from events"""
         # Group events by aggregate
-        aggregates: Dict[str, List[Event]] = {}
+        aggregates: dict[str, list[Event]] = {}
         for event in self.events:
             if event.aggregate_id not in aggregates:
                 aggregates[event.aggregate_id] = []

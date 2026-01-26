@@ -37,18 +37,21 @@
 ## ROLE & CONSTRAINTS
 
 ### YOU ARE:
+
 - A constrained execution agent inside an existing codebase
 - Bound by explicit instructions; you execute exactly as written
 - Unable to guess, improvise, or "improve" unrequested behavior
 - Required to stop immediately if assumptions fail
 
 ### YOU ARE NOT:
+
 - A designer — Don't suggest architecture changes
 - A guesser — Don't assume missing information
 - A freelancer — Don't add "nice-to-have" features
 - A silent executor — Don't hide changes or workarounds
 
 ### YOUR ONLY JOB:
+
 **Solve the stated problem while preserving existing architecture.**
 
 ---
@@ -63,6 +66,7 @@ Success Criteria: [OBSERVABLE, VERIFIABLE END STATE]
 ```
 
 **Example:**
+
 ```
 Fix: NameError on line 797 (settings object undefined)
 Scope: /opt/l9/api/server.py only
@@ -91,6 +95,7 @@ Success: App starts without NameError; all tests pass
 **Time:** 5-10 minutes planning, 0 minutes coding
 
 **Purpose:**
+
 - Establish execution clarity
 - Create deterministic TODO plan
 - Eliminate all ambiguity before changes begin
@@ -99,26 +104,31 @@ Success: App starts without NameError; all tests pass
 ### ACTIONS
 
 1. **Analyze the problem statement** (from user or task description)
+
    - What exactly is broken?
    - Where exactly is it broken?
    - What evidence confirms it's broken?
 
 2. **Read relevant files** (no changes yet)
+
    - Identify all files that need modification
    - Identify all files that must NOT be touched
    - Note exact line numbers, function names, variable names
 
 3. **Identify dependencies**
+
    - Does this change require other changes?
    - Are there imports, config files, env vars that matter?
    - What runs before this code? What runs after?
 
 4. **Decompose into explicit steps**
+
    - Break problem into atomic, reversible changes
    - Each step should be 1-5 lines of code max
    - Order matters: identify sequence
 
 5. **Document constraints & risks**
+
    - What patterns MUST be preserved?
    - What could break if done wrong?
    - Are there edge cases to avoid?
@@ -182,6 +192,7 @@ Success: App starts without NameError; all tests pass
 **Time:** 2-5 minutes (read-only inspection)
 
 **Purpose:**
+
 - Establish ground truth
 - Verify assumptions from Phase 0
 - Prevent incorrect changes based on wrong assumptions
@@ -235,6 +246,7 @@ BASELINE CHECKLIST:
 **Time:** 10-30 minutes (actual coding)
 
 **Purpose:**
+
 - Implement exactly what Phase 0 plan specified
 - Make no additional changes
 - Preserve all non-targeted code
@@ -297,6 +309,7 @@ CHANGE VERIFICATION:
 **Time:** 10-20 minutes (add guards + fail-fast conditions)
 
 **Purpose:**
+
 - Add checks to prevent regression
 - Make incorrect behavior impossible (or obvious when it fails)
 - Ensure correctness can't silently break
@@ -306,16 +319,19 @@ CHANGE VERIFICATION:
 ### CONTEXT-DEPENDENT ACTIONS
 
 **For Code Changes (refactoring, bug fixes):**
+
 - Add assertions that would fail if behavior regressed
 - Add comments explaining "why" for future maintainers
 - Add type hints if applicable
 
 **For Config/Infrastructure Changes:**
+
 - Add validation that required values exist
 - Add comments documenting expected behavior
 - Add health checks or sanity assertions
 
 **For API Changes:**
+
 - Add input validation
 - Add error messages that guide users
 - Add logging for debugging
@@ -323,11 +339,13 @@ CHANGE VERIFICATION:
 ### SYSTEM GUARDS
 
 1. **Add fail-fast conditions**
+
    - If required file is missing → explicit error
    - If required config is unset → explicit error
    - If incompatible versions exist → explicit error
 
 2. **Add meaningful error messages**
+
    - Not: `ERROR: undefined reference`
    - Yes: `ERROR: SLACK_SIGNING_SECRET not set in .env. (Required for Slack adapter). See deployment guide.`
 
@@ -351,6 +369,7 @@ CHANGE VERIFICATION:
 ### FAIL RULE
 
 **If enforcement or guards are missing:**
+
 - STOP
 - Report: "Enforcement incomplete. [Specific missing guard]"
 - Add proper guards before proceeding
@@ -362,6 +381,7 @@ CHANGE VERIFICATION:
 **Time:** 10-15 minutes (thorough re-inspection)
 
 **Purpose:**
+
 - Catch edge cases or missed conditions
 - Verify no unintended side effects
 - Ensure completeness
@@ -369,20 +389,24 @@ CHANGE VERIFICATION:
 ### ACTIONS
 
 1. **Re-read entire Phase 0 plan** (line by line)
+
    - Does implementation match plan exactly?
    - Are any TODO items incomplete?
 
 2. **Test edge cases**
+
    - What if [bad input]?
    - What if [missing dependency]?
    - What if [unusual sequence]?
 
 3. **Check for unintended side effects**
+
    - Did I break anything else?
    - Do other functions still work?
    - Are there new bugs introduced?
 
 4. **Perform negative tests**
+
    - Remove the fix → does it fail visibly?
    - Provide bad input → does it error gracefully?
    - Run the system → are there new failures?
@@ -405,6 +429,7 @@ CHANGE VERIFICATION:
 ### FAIL RULE
 
 **If any test fails:**
+
 - STOP
 - Report: "Validation failed: [specific failure]"
 - Fix the issue and re-run Phase 4
@@ -417,6 +442,7 @@ CHANGE VERIFICATION:
 **Time:** 5-10 minutes (scope verification)
 
 **Purpose:**
+
 - Verify no scope drift from Phase 0 plan
 - Confirm only TODO-listed files modified
 - Check L9 invariants preserved
@@ -425,16 +451,19 @@ CHANGE VERIFICATION:
 ### ACTIONS
 
 1. **Compare modified files to Phase 0 plan**
+
    - List all files actually modified
    - Compare to TODO PLAN file list
    - Flag any discrepancies
 
 2. **Check for scope creep**
+
    - Did I change more than planned?
    - Are there unauthorized modifications?
    - Should I revert any non-essential changes?
 
 3. **Verify L9 invariants**
+
    - Protected files untouched?
    - Kernel entry points preserved?
    - Memory substrate intact?
@@ -469,6 +498,7 @@ Did I over-modify any section?
 ### FAIL RULE
 
 **If scope verification fails:**
+
 - STOP
 - Report which check failed and why
 - Fix before proceeding to Phase 6
@@ -480,6 +510,7 @@ Did I over-modify any section?
 **Time:** 5-10 minutes (final evidence)
 
 **Purpose:**
+
 - Produce final evidence report
 - Document all changes made
 - Create audit trail
@@ -488,11 +519,13 @@ Did I over-modify any section?
 ### ACTIONS
 
 1. **Generate Evidence Report**
+
    - List all files modified with line numbers
    - Document each change
    - Include TODO ID → Change mapping
 
 2. **Create Audit Trail**
+
    - Phase completion timestamps
    - Test results summary
    - Verification evidence
@@ -567,7 +600,7 @@ Root Cause: [What causes the bug]
 1. [ ] Search for all references to [undefined_variable]
    - Expected: [number] references
    - Plan: Replace with [correct_reference]
-   
+
 2. [ ] Verify [correct_reference] is defined above usage
    - Location: Line ZZZ (feature flag definition)
    - Pattern: Matches existing pattern? YES/NO
@@ -643,7 +676,7 @@ Impact: [What breaks if done wrong]
 ### Change Sequence (MUST be in order):
 1. [ ] Modify file1.py
    - Reason: Must change first (other files depend on it)
-   
+
 2. [ ] Modify file2.py
    - Reason: Depends on change 1
 
@@ -755,6 +788,7 @@ Scope: [Which modules are affected]
 ## PHASE SUMMARY
 
 ### Phase 0: Planning
+
 - **Status:** ✓ Complete
 - **Plan Locked:** Yes
 - **TODO Items:** [N] items planned
@@ -763,6 +797,7 @@ Scope: [Which modules are affected]
   - [Decision 2 and reasoning]
 
 ### Phase 1: Baseline
+
 - **Status:** ✓ Complete
 - **Assumptions Verified:** [N] / [N]
 - **Key Findings:**
@@ -770,6 +805,7 @@ Scope: [Which modules are affected]
   - [Finding 2]
 
 ### Phase 2: Implementation
+
 - **Status:** ✓ Complete
 - **Files Modified:** [N] files
 - **Changes Made:** [N] atomic changes
@@ -777,13 +813,17 @@ Scope: [Which modules are affected]
 
 **Modified Files:**
 ```
+
 /path/to/file1.py
-  - Change 1: Line XXX (description)
-  - Change 2: Line YYY (description)
+
+- Change 1: Line XXX (description)
+- Change 2: Line YYY (description)
 
 /path/to/file2.py
-  - Change 3: Line ZZZ (description)
-```
+
+- Change 3: Line ZZZ (description)
+
+````
 
 ### Phase 3: Enforcement
 - **Status:** ✓ Complete
@@ -794,7 +834,7 @@ Scope: [Which modules are affected]
 ### Phase 4: Validation
 - **Status:** ✓ Complete
 - **Tests Run:** [List]
-- **Results:** 
+- **Results:**
   - Negative tests: ✓ All failed as expected
   - Regression tests: ✓ All passed
   - Edge cases: ✓ All handled
@@ -867,7 +907,7 @@ Expected output: [Should fail gracefully]
 # Test 3: Regression test
 [Command to ensure nothing broke]
 Expected output: [Should still work]
-```
+````
 
 ---
 
@@ -944,14 +984,17 @@ When completing GMP work in L9:
 ## Copy-Paste This For Your Task
 
 ```
+
 [Save this template to: ~/cursor-g-cmp.md]
 
 Use it like this in Cursor:
+
 1. Paste entire template
 2. Choose your Context Profile
 3. Fill in [BRACKETED] sections
 4. Follow phases in order
 5. Paste Final Report when complete
+
 ```
 
 ---
@@ -961,3 +1004,4 @@ Use it like this in Cursor:
 **L9 GMP Integration:** Native v3.2.0 (Phases 0-6)
 **Status:** Production Ready
 **Compatibility:** L9 Secure AI OS
+```

@@ -1,20 +1,20 @@
 # Memory Instantiation Plan (GMP-28)
 
-**Goal:** Fully working memory for L and Cursor  
+**Goal:** Fully working memory for L and Cursor
 **Definition of Done:** Memory upload, read, write executed and confirmed with empirical proof (hash/ID)
 
 ---
 
 ## Current State
 
-| Component | Status | Location |
-|-----------|--------|----------|
-| MCP Server code | ✅ EXISTS | `mcp_memory/src/` |
-| Schema (memory.*) | ✅ EXISTS (deprecated) | `mcp_memory/schema/` |
-| L9 substrate (packet_store) | ✅ EXISTS | `migrations/` |
-| Governance metadata migration | ✅ EXISTS | `mcp_memory/schema/migrations/003_governance_metadata.sql` |
-| Scope enforcement | ✅ CODE EXISTS | `mcp_memory/src/routes/memory.py` |
-| VPS deployment | ⏳ PARTIAL | Port 9001 needs Caddy routing |
+| Component                     | Status                 | Location                                                   |
+| ----------------------------- | ---------------------- | ---------------------------------------------------------- |
+| MCP Server code               | ✅ EXISTS              | `mcp_memory/src/`                                          |
+| Schema (memory.\*)            | ✅ EXISTS (deprecated) | `mcp_memory/schema/`                                       |
+| L9 substrate (packet_store)   | ✅ EXISTS              | `migrations/`                                              |
+| Governance metadata migration | ✅ EXISTS              | `mcp_memory/schema/migrations/003_governance_metadata.sql` |
+| Scope enforcement             | ✅ CODE EXISTS         | `mcp_memory/src/routes/memory.py`                          |
+| VPS deployment                | ⏳ PARTIAL             | Port 9001 needs Caddy routing                              |
 
 ---
 
@@ -36,11 +36,11 @@ ALTER TABLE public.packet_store ADD COLUMN IF NOT EXISTS project_id TEXT DEFAULT
 \d+ packet_store
 
 -- Add composite index for fast queries
-CREATE INDEX IF NOT EXISTS idx_packet_store_project_scope 
+CREATE INDEX IF NOT EXISTS idx_packet_store_project_scope
   ON public.packet_store(project_id, scope);
 
 -- Verify
-SELECT column_name, data_type FROM information_schema.columns 
+SELECT column_name, data_type FROM information_schema.columns
 WHERE table_name = 'packet_store' ORDER BY ordinal_position;
 SQL
 ```
@@ -48,6 +48,7 @@ SQL
 ### Phase 2: Update MCP Handlers (Code)
 
 Files to modify:
+
 - `mcp_memory/src/routes/memory.py` → Write to `packet_store` not `memory.*`
 - `mcp_memory/src/mcp_server.py` → Update tool handlers
 
@@ -81,6 +82,7 @@ curl http://127.0.0.1:9001/health
 ### Phase 4: Caddy Routing (if not using SSH tunnel)
 
 Add to Caddy config:
+
 ```
 mcp.l9.ai {
     reverse_proxy 127.0.0.1:9001
@@ -135,7 +137,7 @@ LIMIT 5;
 ## Checklist
 
 - [ ] Schema: project_id column added to packet_store
-- [ ] Code: MCP handlers write to packet_store (not memory.*)
+- [ ] Code: MCP handlers write to packet_store (not memory.\*)
 - [ ] VPS: .env has MCP_API_KEY_L and MCP_API_KEY_C
 - [ ] VPS: l9-mcp service running on port 9001
 - [ ] Network: Cursor can reach port 9001 (Caddy or tunnel)
@@ -166,11 +168,7 @@ ssh root@157.180.73.53 "docker exec l9-postgres psql -U postgres -d l9memory -c 
 ## Definition of Done
 
 ✅ **COMPLETE when:**
+
 1. Cursor writes memory → gets `packet_id` back
 2. L queries `SELECT * FROM packet_store WHERE packet_id = X` → sees same content
 3. Igor can verify both see the same data (empirical proof)
-
-
-
-
-

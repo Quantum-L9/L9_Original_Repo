@@ -41,7 +41,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 from uuid import uuid4
 
 import structlog
@@ -68,7 +68,7 @@ class WorldModelGraphState(TypedDict, total=False):
     world_model_result: dict[str, Any]
 
     # Snapshot output
-    snapshot_result: Optional[dict[str, Any]]
+    snapshot_result: dict[str, Any] | None
 
     # State tracking
     state_version: int
@@ -126,7 +126,7 @@ async def world_model_service_update_node(
             world_model_service = get_world_model_service()
         except ImportError as e:
             logger.error(f"world_model_service_update_node: Service import failed: {e}")
-            errors.append(f"Service import error: {str(e)}")
+            errors.append(f"Service import error: {e!s}")
             return {
                 **state,
                 "world_model_result": {"status": "error", "error": str(e)},
@@ -164,7 +164,7 @@ async def world_model_service_update_node(
 
     except Exception as e:
         logger.error(f"world_model_service_update_node: Update failed: {e}")
-        errors.append(f"world_model_service_update_node error: {str(e)}")
+        errors.append(f"world_model_service_update_node error: {e!s}")
         return {
             **state,
             "world_model_result": {"status": "error", "error": str(e)},
@@ -180,7 +180,7 @@ async def world_model_service_update_node(
 async def world_model_snapshot_node(
     state: WorldModelGraphState,
     world_model_service=None,
-    description: Optional[str] = None,
+    description: str | None = None,
 ) -> WorldModelGraphState:
     """
     LangGraph node that creates a world model snapshot.
@@ -209,7 +209,7 @@ async def world_model_snapshot_node(
             world_model_service = get_world_model_service()
         except ImportError as e:
             logger.error(f"world_model_snapshot_node: Service import failed: {e}")
-            errors.append(f"Service import error: {str(e)}")
+            errors.append(f"Service import error: {e!s}")
             return {
                 **state,
                 "snapshot_result": {"status": "error", "error": str(e)},
@@ -236,7 +236,7 @@ async def world_model_snapshot_node(
 
     except Exception as e:
         logger.error(f"world_model_snapshot_node: Snapshot failed: {e}")
-        errors.append(f"world_model_snapshot_node error: {str(e)}")
+        errors.append(f"world_model_snapshot_node error: {e!s}")
         return {
             **state,
             "snapshot_result": {"status": "error", "error": str(e)},
@@ -252,8 +252,8 @@ async def world_model_snapshot_node(
 async def world_model_query_node(
     state: dict[str, Any],
     world_model_service=None,
-    entity_id: Optional[str] = None,
-    entity_type: Optional[str] = None,
+    entity_id: str | None = None,
+    entity_type: str | None = None,
 ) -> dict[str, Any]:
     """
     LangGraph node for querying world model entities.
@@ -298,20 +298,19 @@ async def world_model_query_node(
                     "found": entity is not None,
                 },
             }
-        else:
-            # List entities
-            entities = await world_model_service.list_entities(
-                entity_type=entity_type,
-                limit=100,
-            )
-            return {
-                **state,
-                "query_result": {
-                    "status": "ok",
-                    "entities": entities,
-                    "count": len(entities),
-                },
-            }
+        # List entities
+        entities = await world_model_service.list_entities(
+            entity_type=entity_type,
+            limit=100,
+        )
+        return {
+            **state,
+            "query_result": {
+                "status": "ok",
+                "entities": entities,
+                "count": len(entities),
+            },
+        }
 
     except Exception as e:
         logger.error(f"world_model_query_node: Query failed: {e}")
@@ -328,7 +327,7 @@ async def world_model_query_node(
 
 def create_insights_from_facts(
     facts: list[dict[str, Any]],
-    packet_id: Optional[str] = None,
+    packet_id: str | None = None,
 ) -> list[dict[str, Any]]:
     """
     Convert knowledge facts to insights for world model update.

@@ -38,7 +38,6 @@ import ast
 import re
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 import structlog
 
@@ -64,7 +63,7 @@ class SyntaxIssue:
     """Represents a syntax error in a file."""
 
     def __init__(
-        self, file_path: str, line_num: int, message: str, code: Optional[str] = None
+        self, file_path: str, line_num: int, message: str, code: str | None = None
     ):
         self.file_path = file_path
         self.line_num = line_num
@@ -85,15 +84,12 @@ def should_skip_file(file_path: Path) -> bool:
     except ValueError:
         rel_path = path_str
 
-    for pattern in SKIP_PATTERNS:
-        if pattern in path_str or pattern in rel_path:
-            return True
-    return False
+    return any(pattern in path_str or pattern in rel_path for pattern in SKIP_PATTERNS)
 
 
 def fix_broken_method_definition(
-    lines: List[str], start_idx: int
-) -> Tuple[bool, List[str], int]:
+    lines: list[str], start_idx: int
+) -> tuple[bool, list[str], int]:
     """
     Fix broken method definitions like:
         logger.info(self,
@@ -195,8 +191,8 @@ def fix_broken_method_definition(
 
 
 def fix_broken_class_definition(
-    lines: List[str], start_idx: int
-) -> Tuple[bool, List[str], int]:
+    lines: list[str], start_idx: int
+) -> tuple[bool, list[str], int]:
     """
     Fix broken class definitions like:
         logger.info(BaseModel)
@@ -252,7 +248,7 @@ def fix_broken_class_definition(
     return True, result_lines, end_idx - start_idx + 1
 
 
-def fix_duplicate_parameters(lines: List[str]) -> Tuple[bool, List[str]]:
+def fix_duplicate_parameters(lines: list[str]) -> tuple[bool, list[str]]:
     """Remove duplicate parameters in function definitions."""
     modified = False
     new_lines = []
@@ -307,7 +303,7 @@ def fix_duplicate_parameters(lines: List[str]) -> Tuple[bool, List[str]]:
     return modified, new_lines
 
 
-def fix_extra_closing_parens(lines: List[str]) -> Tuple[bool, List[str]]:
+def fix_extra_closing_parens(lines: list[str]) -> tuple[bool, list[str]]:
     """Fix patterns like ):) -> ):"""
     modified = False
     new_lines = []
@@ -324,7 +320,7 @@ def fix_extra_closing_parens(lines: List[str]) -> Tuple[bool, List[str]]:
 
 def check_and_fix_syntax(
     file_path: Path, fix: bool = False
-) -> Tuple[List[SyntaxIssue], bool]:
+) -> tuple[list[SyntaxIssue], bool]:
     """
     Check a Python file for syntax errors and optionally fix them.
 
@@ -335,7 +331,7 @@ def check_and_fix_syntax(
     was_fixed = False
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             lines = f.readlines()
             content = "".join(lines)
     except Exception as e:
@@ -366,7 +362,7 @@ def check_and_fix_syntax(
 
     # File has syntax errors - try to fix if requested
     if fix:
-        original_lines = lines.copy()
+        lines.copy()
 
         # Fix 1: Extra closing parens like ):)
         fixed, lines = fix_extra_closing_parens(lines)
@@ -426,16 +422,15 @@ def check_and_fix_syntax(
         error_msg = getattr(syntax_error, "msg", None) or str(syntax_error)
 
         code = None
-        if line_num > 0:
-            if line_num <= len(lines):
-                code = lines[line_num - 1].strip()
+        if line_num > 0 and line_num <= len(lines):
+            code = lines[line_num - 1].strip()
 
         errors.append(SyntaxIssue(str(file_path), line_num, error_msg, code))
 
     return errors, was_fixed
 
 
-def check_syntax(file_path: Path, fix: bool = False) -> Tuple[List[SyntaxIssue], bool]:
+def check_syntax(file_path: Path, fix: bool = False) -> tuple[list[SyntaxIssue], bool]:
     """
     Check a Python file for syntax errors and optionally fix them.
 
@@ -445,7 +440,7 @@ def check_syntax(file_path: Path, fix: bool = False) -> Tuple[List[SyntaxIssue],
     return check_and_fix_syntax(file_path, fix)
 
 
-def _check_indentation_issues(file_path: Path, content: str) -> List[SyntaxIssue]:
+def _check_indentation_issues(file_path: Path, content: str) -> list[SyntaxIssue]:
     """Check for common indentation issues that might not be caught by Python."""
     errors = []
     lines = content.split("\n")
@@ -471,7 +466,7 @@ def _check_indentation_issues(file_path: Path, content: str) -> List[SyntaxIssue
     return errors
 
 
-def find_python_files(root: Path, specific_file: Optional[Path] = None) -> List[Path]:
+def find_python_files(root: Path, specific_file: Path | None = None) -> list[Path]:
     """Find all Python files to check."""
     if specific_file:
         if specific_file.exists() and specific_file.suffix == ".py":
@@ -545,24 +540,23 @@ def main() -> int:
         else:
             logger.info("✅ All files passed syntax check!")
         return 0
+    if args.fix:
+        logger.error(
+            f"⚠️  Found {len(all_errors)} syntax error(s), fixed {total_fixed} file(s)"
+        )
+        logger.error(f"   {len(all_errors)} error(s) require manual fixes")
     else:
-        if args.fix:
-            logger.error(
-                f"⚠️  Found {len(all_errors)} syntax error(s), fixed {total_fixed} file(s)"
-            )
-            logger.error(f"   {len(all_errors)} error(s) require manual fixes")
-        else:
-            logger.error(
-                f"❌ Found {len(all_errors)} syntax error(s) in {len(set(e.file_path for e in all_errors))} file(s)"
-            )
-            logger.info("   Run with --fix to attempt auto-fixes")
-        logger.info("")
-        logger.info("Common fixes:")
-        logger.info("  - Check for missing colons (:) after function/class definitions")
-        logger.info("  - Check for unclosed brackets, parentheses, or quotes")
-        logger.info("  - Check for incorrect indentation")
-        logger.info("  - Check for broken method/function definitions")
-        return 1
+        logger.error(
+            f"❌ Found {len(all_errors)} syntax error(s) in {len({e.file_path for e in all_errors})} file(s)"
+        )
+        logger.info("   Run with --fix to attempt auto-fixes")
+    logger.info("")
+    logger.info("Common fixes:")
+    logger.info("  - Check for missing colons (:) after function/class definitions")
+    logger.info("  - Check for unclosed brackets, parentheses, or quotes")
+    logger.info("  - Check for incorrect indentation")
+    logger.info("  - Check for broken method/function definitions")
+    return 1
 
 
 if __name__ == "__main__":

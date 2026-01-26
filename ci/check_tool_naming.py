@@ -183,9 +183,8 @@ def main():
         logger.info("=" * 60)
 
         return 1
-    else:
-        logger.info("✅ All tool IDs are OpenAI-compliant!")
-        return 0
+    logger.info("✅ All tool IDs are OpenAI-compliant!")
+    return 0
 
 
 if __name__ == "__main__":

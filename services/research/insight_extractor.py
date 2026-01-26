@@ -146,10 +146,9 @@ class InsightExtractorAgent:
 
         if last_period > max_length * 0.7:
             return truncated[: last_period + 1]
-        elif last_space > max_length * 0.7:
+        if last_space > max_length * 0.7:
             return truncated[:last_space] + "..."
-        else:
-            return truncated + "..."
+        return truncated + "..."
 
     def _truncate(self, text: str, max_length: int = 200) -> str:
         """Truncate text to max length."""

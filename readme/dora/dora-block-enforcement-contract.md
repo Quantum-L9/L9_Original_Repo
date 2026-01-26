@@ -1,18 +1,19 @@
 # DORA ENFORCEMENT CONTRACT SYSTEM
+
 ## Header Metadata + Footer Trace Block
 
-**Created:** 2026-01-02T02:04:00Z  
+**Created:** 2026-01-02T02:04:00Z
 **Purpose:** Turn DORA requirements into enforceable contracts (CI, codegen, validation)
 
 ---
 
 ## 🔒 LOCKED TERMINOLOGY: THREE DISTINCT BLOCKS
 
-| Block | Location | Purpose | Updates |
-|-------|----------|---------|---------|
-| **Header Meta** | TOP of file | Module identity, governance (points to footer) | On generation |
-| **Footer Meta** | BOTTOM of file | Extended metadata (header references this) | On generation |
-| **DORA Block** | VERY END (after footer) | L9_TRACE_TEMPLATE runtime trace | Auto on EVERY run |
+| Block           | Location                | Purpose                                        | Updates           |
+| --------------- | ----------------------- | ---------------------------------------------- | ----------------- |
+| **Header Meta** | TOP of file             | Module identity, governance (points to footer) | On generation     |
+| **Footer Meta** | BOTTOM of file          | Extended metadata (header references this)     | On generation     |
+| **DORA Block**  | VERY END (after footer) | L9_TRACE_TEMPLATE runtime trace                | Auto on EVERY run |
 
 **DORA Block = L9_TRACE_TEMPLATE ONLY** — NOT header meta, NOT footer meta.
 
@@ -58,7 +59,7 @@ dora_block_contract:
 required_dora_block:
   # Format varies by file type (see PART 2)
   # But CONTENT must be identical across all files
-  
+
   mandatory_fields:
     - component_id          # e.g., SYM-CORE-001
     - component_name        # Human-readable name
@@ -284,22 +285,22 @@ __dora_block__ = {
     "component_id": "{LAYER}-{ABBREV}-{NUM}",  # e.g., SYM-CORE-001
     "component_name": "{component_name}",
     "module_version": "1.0.0",
-    
+
     # Authorship (REQUIRED)
     "created_at": "{YYYY-MM-DDTHH:MM:SSZ}",  # e.g., 2026-01-02T02:04:00Z
     "created_by": "L9_Codegen_Engine",
-    
+
     # Classification (REQUIRED)
     "layer": "{foundation|intelligence|operations|learning|security}",
     "domain": "{domain}",
     "type": "{service|collector|tracker|engine|utility|adapter}",
     "status": "{active|deprecated|experimental|maintenance}",
-    
+
     # Governance (REQUIRED)
     "governance_level": "{critical|high|medium|low}",
     "compliance_required": True,
     "audit_trail": True,
-    
+
     # Purpose (REQUIRED)
     "purpose": "{One-sentence business value}",
     "dependencies": ["list", "of", "dependencies"],
@@ -324,31 +325,30 @@ __dora_block__ = {
 
 dora_block:
   # Component Identity (REQUIRED)
-  component_id: "{LAYER}-{ABBREV}-{NUM}"  # e.g., SYM-CORE-001
+  component_id: "{LAYER}-{ABBREV}-{NUM}" # e.g., SYM-CORE-001
   component_name: "{component_name}"
   module_version: "1.0.0"
-  
+
   # Authorship (REQUIRED)
   created_at: "{YYYY-MM-DDTHH:MM:SSZ}"
   created_by: "L9_Codegen_Engine"
-  
+
   # Classification (REQUIRED)
   layer: "{foundation|intelligence|operations|learning|security}"
   domain: "{domain}"
   type: "{service|collector|tracker|engine|utility|adapter}"
   status: "{active|deprecated|experimental|maintenance}"
-  
+
   # Governance (REQUIRED)
   governance_level: "{critical|high|medium|low}"
   compliance_required: true
   audit_trail: true
-  
+
   # Purpose (REQUIRED)
   purpose: "{One-sentence business value}"
   dependencies:
     - dependency1
     - dependency2
-
 # ============================================================================
 # END DORA BLOCK
 # ============================================================================
@@ -380,7 +380,6 @@ dora_block:
   dependencies:
     - dependency1
     - dependency2
-
 ---
 
 # Document Title
@@ -426,7 +425,7 @@ dora_block:
 def validate_before_generation(schema: Dict, file_type: str) -> bool:
     """
     Validate that all DORA fields are present in schema before generation.
-    
+
     If any field is missing, raise error and STOP generation.
     """
     required_dora_fields = [
@@ -445,13 +444,13 @@ def validate_before_generation(schema: Dict, file_type: str) -> bool:
         "purpose",
         "dependencies",
     ]
-    
+
     for field in required_dora_fields:
         if field not in schema or not schema[field]:
             raise CodegenDORAfailedError(
                 f"DORA field '{field}' missing in schema. Cannot generate file."
             )
-    
+
     return True
 
 async def generate_file_with_dora(
@@ -462,41 +461,41 @@ async def generate_file_with_dora(
 ) -> str:
     """
     Generate file with DORA block injected.
-    
+
     1. Validate DORA fields
     2. Build DORA block from schema
     3. Inject into file at correct position
     4. Write file
     5. Validate DORA block in written file
     """
-    
+
     # Step 1: Validate
     validate_before_generation(schema, file_type)
-    
+
     # Step 2: Build DORA block (format depends on file_type)
     dora_block = build_dora_block_for_filetype(schema, file_type)
-    
+
     # Step 3: Inject into content
     content_with_dora = inject_dora_block(dora_block, content, file_type)
-    
+
     # Step 4: Write file
     with open(file_path, 'w') as f:
         f.write(content_with_dora)
-    
+
     # Step 5: Validate written file
     if not validate_dora_block_in_file(file_path):
         raise CodegenDORAvalidationError(
             f"Generated file {file_path} failed DORA validation. Rollback."
         )
-    
+
     # Log to audit trail
     log_dora_generation(file_path, schema["component_id"])
-    
+
     return file_path
 
 def build_dora_block_for_filetype(schema: Dict, file_type: str) -> str:
     """Build DORA block in correct format for file type."""
-    
+
     if file_type == "python":
         return format_dora_python(schema)
     elif file_type in ["yaml", "yml"]:
@@ -559,19 +558,19 @@ on:
 jobs:
   validate-dora-blocks:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-      
+          python-version: "3.11"
+
       - name: Install validation script
         run: |
           pip install pyyaml pydantic
-      
+
       - name: Validate DORA blocks in all generated files
         run: |
           python scripts/validate_all_dora_blocks.py
@@ -582,19 +581,19 @@ jobs:
           # 4. Checks for template placeholders
           # 5. Verifies component_id uniqueness
           # 6. Generates report
-      
+
       - name: Check DORA registry
         run: |
           python scripts/check_dora_registry.py
           # Validates .l9-dora-registry.json is up-to-date
-      
+
       - name: Publish DORA compliance report
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: dora-compliance-report
           path: ci-reports/dora-validation.html
-      
+
       - name: Fail if DORA validation failed
         if: failure()
         run: |
@@ -624,7 +623,7 @@ for file in $FILES; do
     if [ ! -f "$file" ]; then
         continue
     fi
-    
+
     # Check if file should have DORA block
     if [[ $file == *.py || $file == *.yaml || $file == *.yml || $file == *.md || $file == *.json ]]; then
         # Check for DORA block presence
@@ -674,10 +673,10 @@ import json
 
 def fix_dora_blocks(directory: str = "."):
     """Scan directory and fix all DORA blocks."""
-    
+
     fixed_count = 0
     failed_count = 0
-    
+
     for file_path in Path(directory).rglob("*"):
         if file_path.is_file() and file_path.suffix in [".py", ".yaml", ".yml", ".md", ".json"]:
             try:
@@ -688,7 +687,7 @@ def fix_dora_blocks(directory: str = "."):
             except Exception as e:
                 failed_count += 1
                 print(f"✗ Failed to fix {file_path}: {e}")
-    
+
     print(f"\nResults: {fixed_count} fixed, {failed_count} failed")
 
 def needs_dora_block(file_path: Path) -> bool:
@@ -706,7 +705,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--fix", action="store_true", help="Fix DORA blocks")
     args = parser.parse_args()
-    
+
     if args.fix:
         fix_dora_blocks()
     else:
@@ -719,16 +718,16 @@ if __name__ == "__main__":
 
 ### What Makes This Enforceable
 
-| Component | Enforcement | When | Action |
-|-----------|------------|------|--------|
-| **Codegen System** | Mandatory | Before file generation | FAIL if DORA fields missing |
-| **File Writer** | Mandatory | When writing file | Inject DORA block automatically |
-| **File Validation** | Mandatory | After generation | FAIL if DORA validation fails |
-| **Pre-Commit Hook** | Local | Before git commit | BLOCK commit if DORA missing |
-| **CI/CD Pipeline** | Mandatory | On push/PR | BLOCK merge if DORA fails |
-| **Audit Trail** | Continuous | Every codegen run | Log all DORA validations |
-| **Registry** | Continuous | After every generation | Update .l9-dora-registry.json |
-| **Dashboard** | Continuous | Real-time monitoring | Alert if compliance drops |
+| Component           | Enforcement | When                   | Action                          |
+| ------------------- | ----------- | ---------------------- | ------------------------------- |
+| **Codegen System**  | Mandatory   | Before file generation | FAIL if DORA fields missing     |
+| **File Writer**     | Mandatory   | When writing file      | Inject DORA block automatically |
+| **File Validation** | Mandatory   | After generation       | FAIL if DORA validation fails   |
+| **Pre-Commit Hook** | Local       | Before git commit      | BLOCK commit if DORA missing    |
+| **CI/CD Pipeline**  | Mandatory   | On push/PR             | BLOCK merge if DORA fails       |
+| **Audit Trail**     | Continuous  | Every codegen run      | Log all DORA validations        |
+| **Registry**        | Continuous  | After every generation | Update .l9-dora-registry.json   |
+| **Dashboard**       | Continuous  | Real-time monitoring   | Alert if compliance drops       |
 
 ---
 
@@ -752,6 +751,7 @@ if __name__ == "__main__":
 ✅ **ENFORCEABLE CONTRACT DEFINED**
 
 This system makes DORA blocks:
+
 1. **Automatic** (codegen injects them)
 2. **Mandatory** (codegen fails without them)
 3. **Validated** (CI/CD blocks merge if invalid)

@@ -60,7 +60,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -138,8 +138,8 @@ class TaskRoute:
     requires_collaboration: bool = False
     cell_types: list[str] = field(default_factory=list)
     parameters: dict[str, Any] = field(default_factory=dict)
-    fallback_target: Optional[ExecutionTarget] = None
-    estimated_duration_ms: Optional[int] = None
+    fallback_target: ExecutionTarget | None = None
+    estimated_duration_ms: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -300,9 +300,7 @@ class TaskRouter:
     def __init__(self):
         """Initialize the task router."""
         self._routing_history: list[RoutingDecision] = []
-        self._target_load: dict[ExecutionTarget, int] = {
-            target: 0 for target in ExecutionTarget
-        }
+        self._target_load: dict[ExecutionTarget, int] = dict.fromkeys(ExecutionTarget, 0)
 
         # Compile regex patterns
         self._type_patterns = {
@@ -327,7 +325,7 @@ class TaskRouter:
     def route(
         self,
         task: dict[str, Any],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> RoutingDecision:
         """
         Route a task to appropriate target.
@@ -413,7 +411,7 @@ class TaskRouter:
                 pass
 
         # Score each type by pattern matches
-        scores: dict[TaskType, int] = {t: 0 for t in TaskType}
+        scores: dict[TaskType, int] = dict.fromkeys(TaskType, 0)
 
         for task_type, patterns in self._type_patterns.items():
             for pattern in patterns:
@@ -460,11 +458,11 @@ class TaskRouter:
         # Determine level
         if high_score >= 2:
             return TaskComplexity.CRITICAL
-        elif high_score >= 1:
+        if high_score >= 1:
             return TaskComplexity.COMPLEX
-        elif medium_score >= 2:
+        if medium_score >= 2:
             return TaskComplexity.MODERATE
-        elif low_score >= 2:
+        if low_score >= 2:
             return TaskComplexity.TRIVIAL
 
         return TaskComplexity.SIMPLE
@@ -494,9 +492,9 @@ class TaskRouter:
         # Determine level
         if critical_score >= 2:
             return TaskRisk.CRITICAL
-        elif critical_score >= 1 or high_score >= 2:
+        if critical_score >= 1 or high_score >= 2:
             return TaskRisk.HIGH
-        elif high_score >= 1 or medium_score >= 2:
+        if high_score >= 1 or medium_score >= 2:
             return TaskRisk.MEDIUM
 
         return TaskRisk.LOW
@@ -776,7 +774,7 @@ class TaskRouter:
     def route_batch(
         self,
         tasks: list[dict[str, Any]],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> list[RoutingDecision]:
         """
         Route multiple tasks.
@@ -862,7 +860,7 @@ class TaskRouter:
     def clear_history(self) -> None:
         """Clear routing history and reset loads."""
         self._routing_history.clear()
-        self._target_load = {target: 0 for target in ExecutionTarget}
+        self._target_load = dict.fromkeys(ExecutionTarget, 0)
 
 
 # =============================================================================
@@ -1023,7 +1021,7 @@ class CapabilityEnforcedRouter(TaskRouter):
         self,
         task: dict[str, Any],
         agent_caps: AgentCapabilities,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> RoutingDecision:
         """
         Route a task with capability enforcement.
@@ -1063,7 +1061,7 @@ class CapabilityEnforcedRouter(TaskRouter):
 
         for secondary in decision.secondary_routes:
             sec_tools = get_tools_for_target(secondary.target)
-            sec_allowed, sec_missing = validate_agent_capabilities(
+            sec_allowed, _sec_missing = validate_agent_capabilities(
                 agent_caps, sec_tools
             )
 

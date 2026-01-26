@@ -5,8 +5,12 @@ import pytest
 
 @pytest.mark.asyncio
 async def test_dispatch_tool_call_rejects_unknown_args_before_executor_runs():
-    from core.tools.base_registry import (ToolMetadata, ToolRegistry,
-                                          ToolSchema, ToolType)
+    from core.tools.base_registry import (
+        ToolMetadata,
+        ToolRegistry,
+        ToolSchema,
+        ToolType,
+    )
     from core.tools.registry_adapter import ExecutorToolRegistry
 
     registry = ToolRegistry()

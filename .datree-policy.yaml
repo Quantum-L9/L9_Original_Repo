@@ -36,7 +36,6 @@ policies:
         match:
           resources: ["ComposeFile"]
           selector: ["$.services[*].deploy.resources.limits"]
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

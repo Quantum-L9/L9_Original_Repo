@@ -59,14 +59,14 @@ Agent and output evaluation framework
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module         | Purpose             |
+| -------------- | ------------------- |
 | `core/agents/` | Required dependency |
 
 ---
@@ -79,12 +79,12 @@ core/evaluation/
 ├── evaluator.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `evaluator.py` | Single evaluation case |
+| File           | Purpose                           |
+| -------------- | --------------------------------- |
+| `__init__.py`  | Core module (PROTECTED)           |
+| `evaluator.py` | Single evaluation case            |
 | `evaluator.py` | Collection of evaluation examples |
-| `evaluator.py` | Result of evaluation run |
+| `evaluator.py` | Result of evaluation run          |
 
 ### Naming Conventions
 
@@ -102,7 +102,7 @@ core/evaluation/
 ```python
 class EvaluationExample:
     """Single evaluation case"""
-    
+
     # Key methods:
 
 ```
@@ -114,7 +114,7 @@ class EvaluationExample:
 ```python
 class EvaluationSet:
     """Collection of evaluation examples"""
-    
+
     # Key methods:
 
 ```
@@ -126,7 +126,7 @@ class EvaluationSet:
 ```python
 class EvaluationResult:
     """Result of evaluation run"""
-    
+
     # Key methods:
 
     async def task_success_rate(self, ...): ...
@@ -142,7 +142,7 @@ class EvaluationResult:
 ```python
 class Evaluator:
     """Evaluation service for agent performance"""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -166,13 +166,12 @@ class Evaluator:
 ```python
 class RegressionError:
     """Raised when eval results regress beyond thresholds"""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 258-261 in `evaluator.py`
-
 
 ---
 
@@ -243,9 +242,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Evaluation feature flags
-L9_ENABLE_CORE_EVALUATION_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_EVALUATION_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_EVALUATION_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_EVALUATION_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_EVALUATION_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_EVALUATION_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -278,7 +277,6 @@ Block PRs that regress eval scores
 
 - **File:** `evaluator.py:264`
 - **Async:** Yes
-
 
 ### Usage Example
 
@@ -320,6 +318,7 @@ Core Evaluation operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -327,12 +326,12 @@ Core Evaluation operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                  | Type      | Description                    |
+| --------------------------------------- | --------- | ------------------------------ |
 | `core_evaluation_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_evaluation_operation_total` | Counter | Total operations processed |
-| `core_evaluation_error_total` | Counter | Total errors encountered |
-| `core_evaluation_active_connections` | Gauge | Current active connections |
+| `core_evaluation_operation_total`       | Counter   | Total operations processed     |
+| `core_evaluation_error_total`           | Counter   | Total errors encountered       |
+| `core_evaluation_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -350,6 +349,7 @@ Core Evaluation emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_evaluation/`:
+
 - `test_core_evaluation.py` — Core unit tests
 - `test_core_evaluation_integration.py` — Integration tests (if applicable)
 
@@ -392,6 +392,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

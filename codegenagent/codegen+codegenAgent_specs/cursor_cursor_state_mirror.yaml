@@ -22,7 +22,7 @@ type: session_bridge
 language: python
 
 description: |
-  Continuously syncs Cursor-visible session state into L9 memory. 
+  Continuously syncs Cursor-visible session state into L9 memory.
   Enables prompt replay, patch recall, capsule projection, and orchestrator-aware diff tracking.
 
 wiring:

@@ -53,9 +53,10 @@ import hashlib
 import json
 import re
 import unicodedata
+from collections.abc import Iterable
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Iterable, Optional, Set
+from typing import Any
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 import structlog
@@ -91,7 +92,7 @@ PII_PATTERNS: dict[str, re.Pattern[str]] = {
 
 # Common prompt injection patterns to detect
 # These patterns indicate potential attempts to manipulate LLM behavior
-INJECTION_MARKERS: Set[str] = {
+INJECTION_MARKERS: set[str] = {
     # Direct instruction overrides
     "ignore previous instructions",
     "ignore all previous",
@@ -161,11 +162,11 @@ class AuditReport:
 
     packet_id: UUID
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    injection_markers: Set[str] = field(default_factory=set)
+    injection_markers: set[str] = field(default_factory=set)
     regex_matches: list[str] = field(default_factory=list)
     # v2.0 additions
-    content_hash: Optional[str] = None
-    checksum_raw: Optional[str] = None
+    content_hash: str | None = None
+    checksum_raw: str | None = None
     redaction_count: int = 0
     pii_types: tuple[str, ...] = field(default_factory=tuple)
     sanitized: bool = False
@@ -214,14 +215,10 @@ def has_injection_markers(packet: PacketEnvelopeIn) -> bool:
             return True
 
     # Check regex patterns
-    for pattern in INJECTION_REGEX_PATTERNS:
-        if pattern.search(text_content):
-            return True
-
-    return False
+    return any(pattern.search(text_content) for pattern in INJECTION_REGEX_PATTERNS)
 
 
-def detect_injection_markers(text: str) -> tuple[Set[str], list[str]]:
+def detect_injection_markers(text: str) -> tuple[set[str], list[str]]:
     """
     Detect all injection markers in text.
 
@@ -231,7 +228,7 @@ def detect_injection_markers(text: str) -> tuple[Set[str], list[str]]:
     Returns:
         Tuple of (string_markers_found, regex_matches_found)
     """
-    string_markers: Set[str] = set()
+    string_markers: set[str] = set()
     regex_matches: list[str] = []
 
     text_lower = text.lower()
@@ -251,7 +248,7 @@ def detect_injection_markers(text: str) -> tuple[Set[str], list[str]]:
     return string_markers, regex_matches
 
 
-def _extract_text_content(packet: PacketEnvelopeIn) -> Optional[str]:
+def _extract_text_content(packet: PacketEnvelopeIn) -> str | None:
     """
     Extract text content from packet payload for analysis.
 
@@ -305,8 +302,7 @@ def normalize_text(text: str) -> str:
     """
     normalized = unicodedata.normalize("NFC", text)
     normalized = ZERO_WIDTH_RE.sub("", normalized)
-    normalized = WHITESPACE_RE.sub(" ", normalized).strip()
-    return normalized
+    return WHITESPACE_RE.sub(" ", normalized).strip()
 
 
 def normalize_payload(value: Any) -> Any:
@@ -384,7 +380,7 @@ def redact_pii(payload: Any) -> tuple[Any, int, tuple[str, ...]]:
         Tuple of (redacted_payload, redaction_count, pii_types_found)
     """
     redaction_count = 0
-    pii_types: Set[str] = set()
+    pii_types: set[str] = set()
 
     def _redact_value(value: Any) -> Any:
         nonlocal redaction_count
@@ -566,25 +562,25 @@ def prepare_packet_for_ingest(
 # =============================================================================
 
 __all__ = [
-    # Core classes
-    "AuditReport",
     # Injection detection
     "INJECTION_MARKERS",
     "INJECTION_REGEX_PATTERNS",
-    "has_injection_markers",
-    "detect_injection_markers",
     # PII detection (v2.0)
     "PII_PATTERNS",
-    "detect_pii_types",
-    "redact_pii",
-    "extract_strings",
-    # Normalization (v2.0)
-    "normalize_text",
-    "normalize_payload",
+    # Core classes
+    "AuditReport",
     # Hashing (v2.0)
     "compute_content_hash",
+    "detect_injection_markers",
+    "detect_pii_types",
+    "extract_strings",
+    "has_injection_markers",
+    "normalize_payload",
+    # Normalization (v2.0)
+    "normalize_text",
     # Main entry point
     "prepare_packet_for_ingest",
+    "redact_pii",
 ]
 
 # ============================================================================

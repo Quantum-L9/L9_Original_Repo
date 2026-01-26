@@ -103,7 +103,7 @@ def query_neo4j(cypher: str) -> dict:
 
 def format_results(result: dict) -> str:
     """Format Neo4j results for display."""
-    if "errors" in result and result["errors"]:
+    if result.get("errors"):
         return f"❌ Error: {result['errors'][0].get('message', 'Unknown error')}"
 
     if "results" not in result or not result["results"]:

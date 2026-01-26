@@ -95,22 +95,22 @@ pgvector-powered vector operations:
 
 ### MCP Endpoints (Primary for Cursor)
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/mcp/call` | POST | Execute MCP tools (`save_memory`, `search_memory`, `get_memory_stats`) |
-| `/mcp/tools` | GET | List available MCP tools |
-| `/mcp/health` | GET | MCP-specific health check |
+| Endpoint      | Method | Purpose                                                                |
+| ------------- | ------ | ---------------------------------------------------------------------- |
+| `/mcp/call`   | POST   | Execute MCP tools (`save_memory`, `search_memory`, `get_memory_stats`) |
+| `/mcp/tools`  | GET    | List available MCP tools                                               |
+| `/mcp/health` | GET    | MCP-specific health check                                              |
 
 ### Memory Router Endpoints
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/api/v1/memory/packet` | POST | Ingest packet via DAG pipeline |
-| `/api/v1/memory/semantic/search` | POST | Semantic similarity search |
-| `/api/v1/memory/stats` | GET | Memory system statistics |
-| `/api/v1/memory/batch` | POST | Batch packet ingestion |
-| `/api/v1/memory/saga/fetch-and-enrich` | POST | Cross-DB fetch + graph enrichment |
-| `/api/v1/memory/warm` | POST | Predictive memory warming |
+| Endpoint                               | Method | Purpose                           |
+| -------------------------------------- | ------ | --------------------------------- |
+| `/api/v1/memory/packet`                | POST   | Ingest packet via DAG pipeline    |
+| `/api/v1/memory/semantic/search`       | POST   | Semantic similarity search        |
+| `/api/v1/memory/stats`                 | GET    | Memory system statistics          |
+| `/api/v1/memory/batch`                 | POST   | Batch packet ingestion            |
+| `/api/v1/memory/saga/fetch-and-enrich` | POST   | Cross-DB fetch + graph enrichment |
+| `/api/v1/memory/warm`                  | POST   | Predictive memory warming         |
 
 ## Multi-Tenant Isolation
 
@@ -126,10 +126,10 @@ SET app.role = 'developer';
 
 ### Scope Separation
 
-| Scope | Access |
-|-------|--------|
+| Scope       | Access              |
+| ----------- | ------------------- |
 | `developer` | Cursor + L + admins |
-| `global` | Everyone |
+| `global`    | Everyone            |
 | `l-private` | L only (CTO kernel) |
 
 ## Governance Gate
@@ -164,32 +164,32 @@ async with lifespan_ctx as state:
 
 Environment variables:
 
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `L9_DATABASE_URL` | PostgreSQL connection | `postgresql://...` |
-| `L9_REDIS_URL` | Redis connection | `redis://localhost:6379` |
-| `NEO4J_URI` | Neo4j connection | `bolt://localhost:7687` |
-| `L9_OPENAI_API_KEY` | Embedding generation | (required) |
-| `L9_PROJECT_ID` | Project identifier | `l9` |
-| `L9_MEMORY_SCOPE` | Default scope | `shared` |
+| Variable            | Purpose               | Default                  |
+| ------------------- | --------------------- | ------------------------ |
+| `L9_DATABASE_URL`   | PostgreSQL connection | `postgresql://...`       |
+| `L9_REDIS_URL`      | Redis connection      | `redis://localhost:6379` |
+| `NEO4J_URI`         | Neo4j connection      | `bolt://localhost:7687`  |
+| `L9_OPENAI_API_KEY` | Embedding generation  | (required)               |
+| `L9_PROJECT_ID`     | Project identifier    | `l9`                     |
+| `L9_MEMORY_SCOPE`   | Default scope         | `shared`                 |
 
 ## Related Files
 
-| File | Purpose |
-|------|---------|
-| `memory/substrate_service.py` | Main service singleton |
-| `memory/substrate_repository.py` | PostgreSQL repository |
-| `memory/substrate_dag.py` | LangGraph ingestion pipeline |
-| `memory/semantic_service.py` | pgvector operations |
-| `memory/governance_gate.py` | RLS context management |
-| `memory/ingestion.py` | Canonical `ingest_packet()` |
-| `memory/retrieval.py` | RetrievalPipeline |
-| `memory/consolidation.py` | Deduplication + archival |
-| `api/memory/router.py` | FastAPI router |
-| `api/routes/mcp.py` | MCP tool router |
-| `migrations/README.md` | Database schema docs |
+| File                             | Purpose                      |
+| -------------------------------- | ---------------------------- |
+| `memory/substrate_service.py`    | Main service singleton       |
+| `memory/substrate_repository.py` | PostgreSQL repository        |
+| `memory/substrate_dag.py`        | LangGraph ingestion pipeline |
+| `memory/semantic_service.py`     | pgvector operations          |
+| `memory/governance_gate.py`      | RLS context management       |
+| `memory/ingestion.py`            | Canonical `ingest_packet()`  |
+| `memory/retrieval.py`            | RetrievalPipeline            |
+| `memory/consolidation.py`        | Deduplication + archival     |
+| `api/memory/router.py`           | FastAPI router               |
+| `api/routes/mcp.py`              | MCP tool router              |
+| `migrations/README.md`           | Database schema docs         |
 
 ---
 
-*L9 Secure AI OS — Memory Substrate Service*
-*Last updated: 2026-01-24*
+_L9 Secure AI OS — Memory Substrate Service_
+_Last updated: 2026-01-24_

@@ -689,7 +689,7 @@ class PlanExecutor:
     ) -> None:
         """Execute steps with dependency awareness."""
         completed_ids: set[UUID] = set()
-        step_map = {s.step_id: s for s in plan.steps}
+        {s.step_id: s for s in plan.steps}
 
         while len(completed_ids) < len(plan.steps):
             # Find executable steps (dependencies satisfied)
@@ -716,7 +716,7 @@ class PlanExecutor:
             step_results = await asyncio.gather(*tasks, return_exceptions=True)
 
             # Process results
-            for step, step_result in zip(batch, step_results):
+            for step, step_result in zip(batch, step_results, strict=False):
                 if isinstance(step_result, Exception):
                     step_result = StepResult(
                         step_id=step.step_id,
@@ -1092,7 +1092,7 @@ class PlanExecutor:
                     "execution_id": str(result.execution_id),
                     "plan_id": str(plan.plan_id),
                     "total_steps": len(plan.steps),
-                    "step_types": list(set(s.action_type for s in plan.steps)),
+                    "step_types": list({s.action_type for s in plan.steps}),
                     "dry_run": self._config.dry_run,
                 },
                 provenance={"source": self._config.packet_source},

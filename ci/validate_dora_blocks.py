@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 DORA Block Validator
 Validates DORA blocks in all generated files
@@ -8,15 +7,15 @@ Usage:
     python validate_dora_blocks.py [--directory .] [--strict] [--fix]
 """
 
+import json
+import logging
 import os
 import re
 import sys
-import json
-import yaml
-from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Tuple, Optional
-import logging
+from pathlib import Path
+
+import yaml
 
 # ============================================================================
 # CONFIGURATION
@@ -58,7 +57,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 
-def extract_dora_block_from_python(content: str) -> Optional[Dict]:
+def extract_dora_block_from_python(content: str) -> dict | None:
     """Extract DORA block from Python file."""
     match = re.search(r"__dora_block__\s*=\s*(\{.*?\})", content, re.DOTALL)
     if match:
@@ -70,7 +69,7 @@ def extract_dora_block_from_python(content: str) -> Optional[Dict]:
     return None
 
 
-def extract_dora_block_from_yaml(content: str) -> Optional[Dict]:
+def extract_dora_block_from_yaml(content: str) -> dict | None:
     """Extract DORA block from YAML file."""
     try:
         data = yaml.safe_load(content)
@@ -81,7 +80,7 @@ def extract_dora_block_from_yaml(content: str) -> Optional[Dict]:
     return None
 
 
-def extract_dora_block_from_json(content: str) -> Optional[Dict]:
+def extract_dora_block_from_json(content: str) -> dict | None:
     """Extract DORA block from JSON file."""
     try:
         data = json.loads(content)
@@ -92,7 +91,7 @@ def extract_dora_block_from_json(content: str) -> Optional[Dict]:
     return None
 
 
-def extract_dora_block_from_markdown(content: str) -> Optional[Dict]:
+def extract_dora_block_from_markdown(content: str) -> dict | None:
     """Extract DORA block from Markdown file (YAML frontmatter)."""
     if content.startswith("---"):
         try:
@@ -107,10 +106,10 @@ def extract_dora_block_from_markdown(content: str) -> Optional[Dict]:
     return None
 
 
-def extract_dora_block(file_path: Path) -> Optional[Dict]:
+def extract_dora_block(file_path: Path) -> dict | None:
     """Extract DORA block from file based on file type."""
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = f.read()
     except Exception as e:
         logger.error(f"Cannot read file {file_path}: {e}")
@@ -120,11 +119,11 @@ def extract_dora_block(file_path: Path) -> Optional[Dict]:
 
     if suffix == ".py":
         return extract_dora_block_from_python(content)
-    elif suffix in [".yaml", ".yml"]:
+    if suffix in [".yaml", ".yml"]:
         return extract_dora_block_from_yaml(content)
-    elif suffix == ".json":
+    if suffix == ".json":
         return extract_dora_block_from_json(content)
-    elif suffix == ".md":
+    if suffix == ".md":
         return extract_dora_block_from_markdown(content)
 
     return None
@@ -135,9 +134,7 @@ def extract_dora_block(file_path: Path) -> Optional[Dict]:
 # ============================================================================
 
 
-def validate_dora_field(
-    field_name: str, field_value: any
-) -> Tuple[bool, Optional[str]]:
+def validate_dora_field(field_name: str, field_value: any) -> tuple[bool, str | None]:
     """Validate a single DORA field against pattern."""
     if field_name not in MANDATORY_FIELDS:
         return True, None  # Optional field, skip
@@ -162,12 +159,12 @@ def validate_dora_field(
     return True, None
 
 
-def validate_dora_block(dora_block: Dict, file_path: Path) -> Tuple[bool, List[str]]:
+def validate_dora_block(dora_block: dict, file_path: Path) -> tuple[bool, list[str]]:
     """Validate entire DORA block."""
     errors = []
 
     # Check all mandatory fields are present
-    for field in MANDATORY_FIELDS.keys():
+    for field in MANDATORY_FIELDS:
         if field not in dora_block:
             errors.append(f"Missing mandatory field: {field}")
 
@@ -182,19 +179,18 @@ def validate_dora_block(dora_block: Dict, file_path: Path) -> Tuple[bool, List[s
         domain = dora_block["domain"]
         gov_level = dora_block["governance_level"]
 
-        if domain in CRITICAL_DOMAINS:
-            if gov_level not in ["critical", "high"]:
-                errors.append(
-                    f"Domain '{domain}' is critical but governance_level is '{gov_level}'. "
-                    f"Must be 'critical' or 'high'"
-                )
+        if domain in CRITICAL_DOMAINS and gov_level not in ["critical", "high"]:
+            errors.append(
+                f"Domain '{domain}' is critical but governance_level is '{gov_level}'. "
+                f"Must be 'critical' or 'high'"
+            )
 
     return len(errors) == 0, errors
 
 
 def check_unique_component_id(
-    component_id: str, registry: Dict
-) -> Tuple[bool, Optional[str]]:
+    component_id: str, registry: dict
+) -> tuple[bool, str | None]:
     """Check if component_id is globally unique."""
     if component_id in registry:
         return (
@@ -209,7 +205,7 @@ def check_unique_component_id(
 # ============================================================================
 
 
-def validate_file(file_path: Path, registry: Dict) -> Tuple[bool, Dict]:
+def validate_file(file_path: Path, registry: dict) -> tuple[bool, dict]:
     """Validate a single file."""
     result = {
         "file_path": str(file_path),
@@ -253,7 +249,7 @@ def validate_file(file_path: Path, registry: Dict) -> Tuple[bool, Dict]:
     return True, result
 
 
-def validate_directory(directory: str = ".") -> Tuple[int, int, List[Dict]]:
+def validate_directory(directory: str = ".") -> tuple[int, int, list[dict]]:
     """Validate all files in directory."""
     registry = {}
     results = []
@@ -264,8 +260,8 @@ def validate_directory(directory: str = ".") -> Tuple[int, int, List[Dict]]:
     registry_file = Path(directory) / ".l9-dora-registry.json"
     if registry_file.exists():
         try:
-            with open(registry_file, "r") as f:
-                registry_data = json.load(f)
+            with open(registry_file) as f:
+                json.load(f)
                 # Skip current files for uniqueness check (will re-add)
                 registry = {}
         except Exception as e:
@@ -340,7 +336,7 @@ def main():
 
     logger.info(f"Validating DORA blocks in {args.directory}")
 
-    passed, failed, results = validate_directory(args.directory)
+    passed, failed, _results = validate_directory(args.directory)
 
     logger.info(f"Results: {passed} passed, {failed} failed")
 

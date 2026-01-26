@@ -1,6 +1,6 @@
 # L9 MCP Memory Server - VPS Deployment Guide
 
-**Date:** 2026-01-09  
+**Date:** 2026-01-09
 **Status:** Production-ready deployment instructions
 
 ---
@@ -37,6 +37,7 @@ git reset --hard origin/main
 ```
 
 **Before `git reset --hard`:**
+
 - ✅ All changes committed and pushed from local
 - ✅ VPS `.env` backed up (if modified)
 - ✅ Any VPS-only configs documented
@@ -57,6 +58,7 @@ psql $MEMORY_DSN -f migrations/0013_mcp_audit_columns.sql
 ```
 
 **Verify:**
+
 ```sql
 \d tool_audit_log
 -- Should show caller and project_id columns
@@ -99,6 +101,7 @@ bash mcp_memory/deploy/scripts/init_mcp_memory.sh
 ```
 
 **Verify:**
+
 ```bash
 # Check container health
 docker compose ps l9-api
@@ -134,11 +137,13 @@ l9.quantumaipartners.com {
 ```
 
 **Key Points:**
+
 - ✅ **No `/mcp/*` special routing** — All traffic goes to 8000
 - ✅ **No port 9002** — Deprecated, never deployed
 - ✅ **Unified backend** — Single `l9-api` container handles everything
 
 **Reload Caddy:**
+
 ```bash
 sudo systemctl reload caddy
 ```
@@ -146,6 +151,7 @@ sudo systemctl reload caddy
 **Reference:** See `mcp_memory/deploy/CADDY_CONFIG.md` for complete Caddy configuration.
 
 **Reload Caddy:**
+
 ```bash
 sudo systemctl reload caddy
 ```
@@ -272,10 +278,9 @@ sudo systemctl reload caddy
 - [ ] Save memory works via MCP
 - [ ] Search memory works via MCP
 - [ ] Audit log captures caller and project_id
-- [ ] Caddy routes /mcp/* correctly
+- [ ] Caddy routes /mcp/\* correctly
 - [ ] Cursor mcp.json configured with correct API key
 
 ---
 
 **Last Updated:** 2026-01-09
-

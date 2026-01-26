@@ -2,9 +2,9 @@
 # =============================================================================
 # L9 Agent Executor Deployment Script
 # =============================================================================
-# 
+#
 # Purpose: Deploy and verify agent_executor fix on a server (VPS or local)
-# 
+#
 # This script is NOT for bootstrapping Slack at server boot - that's handled
 # by api/server.py's lifespan() function. This script is for:
 #   - Installing dependencies on a fresh server
@@ -46,7 +46,7 @@ echo "Step 2: Running verification script..."
 if [ -f "scripts/verify_agent_executor.py" ]; then
     python3 scripts/verify_agent_executor.py
     VERIFY_EXIT=$?
-    
+
     if [ $VERIFY_EXIT -ne 0 ]; then
         echo ""
         echo "✗ Verification failed. Please review errors above."
@@ -65,7 +65,7 @@ if [ -f ".env" ]; then
     if grep -q "L9_ENABLE_LEGACY_SLACK_ROUTER" .env; then
         LEGACY_VALUE=$(grep "L9_ENABLE_LEGACY_SLACK_ROUTER" .env | cut -d'=' -f2 | tr -d ' ')
         echo "  L9_ENABLE_LEGACY_SLACK_ROUTER=$LEGACY_VALUE"
-        
+
         if [ "$LEGACY_VALUE" = "false" ] || [ "$LEGACY_VALUE" = "False" ]; then
             echo "  ⚠ New Slack routing is enabled - agent_executor MUST initialize successfully"
             echo "  ✓ Health check will prevent server start if agent_executor fails"
@@ -108,4 +108,3 @@ echo "- Check that all kernel files exist in private/kernels/00_system/"
 echo "- Verify database connectivity (Neo4j, PostgreSQL)"
 echo "- Ensure all environment variables are set correctly"
 echo ""
-

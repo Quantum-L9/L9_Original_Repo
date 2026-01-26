@@ -11,11 +11,11 @@ C1 is a Hetzner CPX32 server (8GB RAM, 4 vCPU) designated as the Kubernetes depl
 
 ### Options Considered
 
-| Option | Description | Pros | Cons |
-|--------|-------------|------|------|
-| A | Build on Mac, push to GHCR, pull on C1 | Standard CI/CD pattern | Requires GHCR auth setup |
-| B | Build on Mac, SCP tar to C1, import | Fast, no auth needed | Copies codebase via SCP |
-| C | Commit to Git, pull on C1, build on C1 | Clean separation, reproducible | Requires Docker on C1 |
+| Option | Description                            | Pros                           | Cons                     |
+| ------ | -------------------------------------- | ------------------------------ | ------------------------ |
+| A      | Build on Mac, push to GHCR, pull on C1 | Standard CI/CD pattern         | Requires GHCR auth setup |
+| B      | Build on Mac, SCP tar to C1, import    | Fast, no auth needed           | Copies codebase via SCP  |
+| C      | Commit to Git, pull on C1, build on C1 | Clean separation, reproducible | Requires Docker on C1    |
 
 ## Decision
 
@@ -28,6 +28,7 @@ Mac (Dev) ─── git push ───> GitHub ─── git pull ───> C1 
 ### Workflow
 
 1. **Development (Mac)**
+
    - Make code changes
    - Test locally
    - Commit and push to GitHub
@@ -79,30 +80,35 @@ kubectl rollout restart deployment/l9-api -n l9-c1
 ### K8s Manifest Update
 
 Change image reference from:
+
 ```yaml
 image: ghcr.io/igor-beylin/l9-api:latest
 ```
 
 To:
+
 ```yaml
 image: l9-api:latest
-imagePullPolicy: Never  # Use local image
+imagePullPolicy: Never # Use local image
 ```
 
 ## Consequences
 
 ### Positive
+
 - Clean Git-based workflow
 - No secrets needed for container registry
 - Full control over build process
 - Easy rollback via Git
 
 ### Negative
+
 - Requires Docker installed on C1 (uses disk/memory)
 - Manual deployment steps (can automate later)
 - Build time on C1 (not pre-built)
 
 ### Mitigations
+
 - Docker only needed during build, can be stopped after
 - Create deployment script for automation
 - Consider CI/CD pipeline (GitHub Actions) for future
@@ -115,6 +121,6 @@ imagePullPolicy: Never  # Use local image
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
+| Date       | Change           |
+| ---------- | ---------------- |
 | 2026-01-22 | Initial decision |

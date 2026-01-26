@@ -126,7 +126,7 @@ check_var() {
     local value="${!var_name}"
     local is_required=false
     local is_important=false
-    
+
     # Check if required
     for req in "${REQUIRED_VARS[@]}"; do
         if [ "$req" = "$var_name" ]; then
@@ -134,7 +134,7 @@ check_var() {
             break
         fi
     done
-    
+
     # Check if important
     for imp in "${IMPORTANT_VARS[@]}"; do
         if [ "$imp" = "$var_name" ]; then
@@ -142,7 +142,7 @@ check_var() {
             break
         fi
     done
-    
+
     if [ -z "$value" ]; then
         if [ "$is_required" = true ]; then
             log "  ${RED}❌ $var_name${NC} - ${RED}REQUIRED, NOT SET${NC}"
@@ -256,7 +256,7 @@ else
     for var in "${IMPORTANT_VARS[@]}"; do
         check_var "$var"
     done
-    
+
     # Also count total vars from .env.example vs .env
     TOTAL_EXAMPLE=$(grep -cE "^[A-Z_]+=" "$EXAMPLE_FILE" 2>/dev/null || echo "0")
     TOTAL_ENV=$(grep -cE "^[A-Z_]+=" "$ENV_FILE" 2>/dev/null || echo "0")
@@ -272,7 +272,7 @@ if [ "$QUICK" = true ]; then
     # Quick summary with accurate totals
     TOTAL_EXAMPLE=$(grep -cE "^[A-Z_]+=" "$EXAMPLE_FILE" 2>/dev/null || echo "0")
     TOTAL_ENV=$(grep -cE "^[A-Z_]+=" "$ENV_FILE" 2>/dev/null || echo "0")
-    
+
     if [ ${#MISSING_REQUIRED[@]} -eq 0 ]; then
         log_always "${GREEN}✅ Env verify: ${#SET_VARS[@]} core vars set (${TOTAL_ENV}/${TOTAL_EXAMPLE} total)${NC}"
     else

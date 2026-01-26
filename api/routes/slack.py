@@ -43,7 +43,7 @@ __dora_meta__ = {
 
 import json
 from time import time as current_time
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -54,10 +54,12 @@ from memory.slack_ingest import handle_slack_commands, handle_slack_events
 
 # Optional telemetry - gracefully degrade if module not available
 try:
-    from telemetry.slack_metrics import (record_rate_limit_hit,
-                                         record_signature_verification,
-                                         record_slack_processing,
-                                         record_slack_request)
+    from telemetry.slack_metrics import (
+        record_rate_limit_hit,
+        record_signature_verification,
+        record_slack_processing,
+        record_slack_request,
+    )
 except ImportError:
     # Stub functions when telemetry not available
     def record_slack_request(*args, **kwargs):
@@ -106,7 +108,7 @@ async def slack_events(
     validator: SlackRequestValidator = Depends(get_slack_validator),
     x_slack_signature: str = Header(None),
     x_slack_request_timestamp: str = Header(None),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Slack Events API webhook handler.
 
@@ -305,7 +307,7 @@ async def slack_commands(
     validator: SlackRequestValidator = Depends(get_slack_validator),
     x_slack_signature: str = Header(None),
     x_slack_request_timestamp: str = Header(None),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Slack slash command handler.
 
@@ -363,7 +365,7 @@ async def slack_commands(
     # Parse form-encoded payload
     try:
         form_data = await request.form()
-        payload = {k: v for k, v in form_data.items()}
+        payload = dict(form_data.items())
     except Exception as e:
         logger.warning("slack_invalid_form_data", error=str(e))
         raise HTTPException(status_code=400, detail="Invalid form data") from e
@@ -395,7 +397,7 @@ async def slack_commands(
     async def process_command_async():
         """Process command asynchronously after returning ACK."""
         try:
-            result = await handle_slack_commands(
+            await handle_slack_commands(
                 payload=payload,
                 substrate_service=substrate_service,
                 slack_client=slack_client,

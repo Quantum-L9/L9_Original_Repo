@@ -56,7 +56,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -85,7 +85,7 @@ class CausalEdge:
     source_id: str  # cause
     target_id: str  # effect
     edge_type: str = "causes"
-    strength: Optional[float] = None  # Future: causal strength
+    strength: float | None = None  # Future: causal strength
     attributes: dict[str, Any] = field(default_factory=dict)
 
 
@@ -133,7 +133,7 @@ class CausalGraph:
     def add_node(
         self,
         node_or_id: CausalNode | str,
-        data: Optional[dict[str, Any]] = None,
+        data: dict[str, Any] | None = None,
     ) -> None:
         """
         Add node to causal graph.
@@ -170,7 +170,7 @@ class CausalGraph:
         if node.node_id not in self._effects:
             self._effects[node.node_id] = []
 
-    def get_node(self, node_id: str) -> Optional[CausalNode]:
+    def get_node(self, node_id: str) -> CausalNode | None:
         """
         Get node by ID.
 
@@ -221,8 +221,8 @@ class CausalGraph:
     def add_edge(
         self,
         edge_or_source: CausalEdge | str,
-        target_id: Optional[str] = None,
-        data: Optional[dict[str, Any]] = None,
+        target_id: str | None = None,
+        data: dict[str, Any] | None = None,
     ) -> None:
         """
         Add causal edge (cause → effect).
@@ -284,7 +284,7 @@ class CausalGraph:
         if edge.target_id not in self._effects[edge.source_id]:
             self._effects[edge.source_id].append(edge.target_id)
 
-    def get_edge(self, edge_id: str) -> Optional[CausalEdge]:
+    def get_edge(self, edge_id: str) -> CausalEdge | None:
         """
         Get edge by ID.
 
@@ -388,11 +388,11 @@ class CausalGraph:
             # Get effects (downstream causal nodes)
             for effect_id in self._effects.get(current, []):
                 if effect_id == to_node:
-                    return path + [effect_id]
+                    return [*path, effect_id]
 
                 if effect_id not in visited:
                     visited.add(effect_id)
-                    queue.append(path + [effect_id])
+                    queue.append([*path, effect_id])
 
         return []  # No path found
 

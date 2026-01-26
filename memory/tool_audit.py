@@ -44,7 +44,6 @@ __dora_meta__ = {
 
 import asyncio
 from datetime import datetime, timedelta
-from typing import Optional
 from uuid import UUID, uuid4
 
 import structlog
@@ -65,12 +64,12 @@ async def log_tool_invocation(
     call_id: UUID,
     tool_id: str,
     agent_id: str,
-    task_id: Optional[str] = None,
+    task_id: str | None = None,
     status: str = "success",
     duration_ms: int = 0,
-    error: Optional[str] = None,
-    arguments: Optional[dict] = None,
-    result_summary: Optional[str] = None,
+    error: str | None = None,
+    arguments: dict | None = None,
+    result_summary: str | None = None,
 ) -> None:
     """
     Log a tool invocation to the memory substrate (non-blocking).
@@ -215,8 +214,8 @@ async def _write_to_audit_table(
     agent_id: str,
     status: str,
     duration_ms: int,
-    error: Optional[str] = None,
-    arguments: Optional[dict] = None,
+    error: str | None = None,
+    arguments: dict | None = None,
 ) -> None:
     """
     Internal: Write audit entry to dedicated tool_audit_log Postgres table.
@@ -306,8 +305,8 @@ def _sanitize_arguments(arguments: dict) -> dict:
 # =============================================================================
 
 __all__ = [
-    "log_tool_invocation",
     "TOOL_AUDIT_TTL_HOURS",
+    "log_tool_invocation",
 ]
 
 # ============================================================================

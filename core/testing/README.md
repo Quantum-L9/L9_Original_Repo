@@ -59,15 +59,15 @@ Test utilities, fixtures, and mocks
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -81,12 +81,12 @@ core/testing/
 ├── test_generator.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `test_generator.py` | Generates tests from code proposals. |
-| `test_agent.py` | Result of test agent execution. |
-| `test_agent.py` | Agent that generates and executes tests for code p |
+| File                | Purpose                                            |
+| ------------------- | -------------------------------------------------- |
+| `__init__.py`       | Core module (PROTECTED)                            |
+| `test_generator.py` | Generates tests from code proposals.               |
+| `test_agent.py`     | Result of test agent execution.                    |
+| `test_agent.py`     | Agent that generates and executes tests for code p |
 
 ### Naming Conventions
 
@@ -104,7 +104,7 @@ core/testing/
 ```python
 class TestGenerator:
     """Generates tests from code proposals."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -128,7 +128,7 @@ class TestGenerator:
 ```python
 class TestAgentResult:
     """Result of test agent execution."""
-    
+
     # Key methods:
 
     async def to_dict(self, ...): ...
@@ -144,7 +144,7 @@ class TestAgentResult:
 ```python
 class TestAgent:
     """Agent that generates and executes tests for code proposals."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -168,7 +168,7 @@ class TestAgent:
 ```python
 class TestResult:
     """Result of a single test."""
-    
+
     # Key methods:
 
 ```
@@ -180,7 +180,7 @@ class TestResult:
 ```python
 class TestResults:
     """Results of a test run."""
-    
+
     # Key methods:
 
     async def to_dict(self, ...): ...
@@ -190,7 +190,6 @@ class TestResults:
 **Public Methods:** `to_dict`
 
 **Lines:** 64-101 in `test_executor.py`
-
 
 ---
 
@@ -262,9 +261,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Testing feature flags
-L9_ENABLE_CORE_TESTING_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_TESTING_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_TESTING_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_TESTING_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_TESTING_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_TESTING_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -319,7 +318,6 @@ Convenience function to run tests in sandbox.
 - **File:** `test_executor.py:306`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -360,6 +358,7 @@ Core Testing operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -367,12 +366,12 @@ Core Testing operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                               | Type      | Description                    |
+| ------------------------------------ | --------- | ------------------------------ |
 | `core_testing_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_testing_operation_total` | Counter | Total operations processed |
-| `core_testing_error_total` | Counter | Total errors encountered |
-| `core_testing_active_connections` | Gauge | Current active connections |
+| `core_testing_operation_total`       | Counter   | Total operations processed     |
+| `core_testing_error_total`           | Counter   | Total errors encountered       |
+| `core_testing_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -390,6 +389,7 @@ Core Testing emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_testing/`:
+
 - `test_core_testing.py` — Core unit tests
 - `test_core_testing_integration.py` — Integration tests (if applicable)
 
@@ -432,6 +432,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

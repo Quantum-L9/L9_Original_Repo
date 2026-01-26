@@ -31,11 +31,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import logging
-import time
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from typing import Any
 
 # Try to import prometheus_client, but make it optional
 try:
@@ -66,7 +65,7 @@ class SecurityMetric:
     name: str
     metric_type: MetricType
     description: str
-    labels: List[str]
+    labels: list[str]
     value: float = 0.0
     timestamp: datetime = None
 
@@ -88,7 +87,7 @@ class SecurityMetricsCollector:
 
     def __init__(self):
         """Initialize security metrics collector."""
-        self.metrics: Dict[str, Any] = {}
+        self.metrics: dict[str, Any] = {}
         self._initialize_metrics()
 
         logger.info("SecurityMetricsCollector initialized")
@@ -168,7 +167,7 @@ class SecurityMetricsCollector:
             ).observe(duration)
 
         logger.info(
-            f"Security scan completed",
+            "Security scan completed",
             extra={
                 "scan_type": scan_type,
                 "severity": severity,
@@ -194,7 +193,7 @@ class SecurityMetricsCollector:
             ).set(count)
 
         logger.info(
-            f"Vulnerabilities recorded",
+            "Vulnerabilities recorded",
             extra={
                 "scan_type": scan_type,
                 "severity": severity,
@@ -217,7 +216,7 @@ class SecurityMetricsCollector:
             ).inc()
 
         logger.error(
-            f"Security scan failed",
+            "Security scan failed",
             extra={
                 "scan_type": scan_type,
                 "reason": reason,
@@ -238,7 +237,7 @@ class SecurityMetricsCollector:
             ).inc()
 
         logger.warning(
-            f"Security policy violation",
+            "Security policy violation",
             extra={
                 "policy_type": policy_type,
                 "action": action,
@@ -259,7 +258,7 @@ class SecurityMetricsCollector:
             ).inc()
 
         logger.critical(
-            f"Secret detected",
+            "Secret detected",
             extra={
                 "secret_type": secret_type,
                 "location": location,
@@ -278,7 +277,7 @@ class SecurityMetricsCollector:
             self.metrics["security_score"].labels(environment=environment).set(score)
 
         logger.info(
-            f"Security score updated",
+            "Security score updated",
             extra={
                 "environment": environment,
                 "score": score,
@@ -286,7 +285,7 @@ class SecurityMetricsCollector:
         )
 
     def calculate_security_score(
-        self, scan_results: Dict[str, Dict[str, int]]
+        self, scan_results: dict[str, dict[str, int]]
     ) -> float:
         """
         Calculate overall security score based on scan results.
@@ -307,24 +306,23 @@ class SecurityMetricsCollector:
 
         base_score = 100.0
 
-        for scan_type, severities in scan_results.items():
+        for _scan_type, severities in scan_results.items():
             for severity, count in severities.items():
                 weight = weights.get(severity, 0)
                 base_score += weight * count
 
         # Clamp to 0-100
-        score = max(0.0, min(100.0, base_score))
+        return max(0.0, min(100.0, base_score))
 
-        return score
 
-    def get_grafana_dashboard_json(self) -> Dict[str, Any]:
+    def get_grafana_dashboard_json(self) -> dict[str, Any]:
         """
         Generate Grafana dashboard configuration.
 
         Returns:
             Grafana dashboard JSON
         """
-        dashboard = {
+        return {
             "dashboard": {
                 "title": "L9 Security Dashboard",
                 "tags": ["security", "l9"],
@@ -394,13 +392,12 @@ class SecurityMetricsCollector:
             }
         }
 
-        return dashboard
 
 
 # =============================================================================
 # Singleton instance
 # =============================================================================
-_security_metrics_collector: Optional[SecurityMetricsCollector] = None
+_security_metrics_collector: SecurityMetricsCollector | None = None
 
 
 def get_security_metrics_collector() -> SecurityMetricsCollector:
@@ -450,13 +447,13 @@ def update_security_score(environment: str, score: float):
     collector.update_security_score(environment, score)
 
 
-def calculate_security_score(scan_results: Dict[str, Dict[str, int]]) -> float:
+def calculate_security_score(scan_results: dict[str, dict[str, int]]) -> float:
     """Calculate overall security score."""
     collector = get_security_metrics_collector()
     return collector.calculate_security_score(scan_results)
 
 
-def get_grafana_dashboard_json() -> Dict[str, Any]:
+def get_grafana_dashboard_json() -> dict[str, Any]:
     """Generate Grafana dashboard configuration."""
     collector = get_security_metrics_collector()
     return collector.get_grafana_dashboard_json()

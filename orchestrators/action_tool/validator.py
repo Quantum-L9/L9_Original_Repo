@@ -27,7 +27,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 import structlog
 
@@ -36,12 +36,15 @@ from core.decorators import must_stay_async
 logger = structlog.get_logger(__name__)
 
 # GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
-from core.governance.tool_risk_policy import (  # noqa: E402
-    get_high_risk_tools, get_igor_approval_tools, get_safe_tools)
+from core.governance.tool_risk_policy import (
+    get_high_risk_tools,
+    get_igor_approval_tools,
+    get_safe_tools,
+)
 
-HIGH_RISK_TOOLS: Set[str] = get_high_risk_tools()
-IGOR_APPROVAL_REQUIRED: Set[str] = get_igor_approval_tools()
-SAFE_TOOLS: Set[str] = get_safe_tools()
+HIGH_RISK_TOOLS: set[str] = get_high_risk_tools()
+IGOR_APPROVAL_REQUIRED: set[str] = get_igor_approval_tools()
+SAFE_TOOLS: set[str] = get_safe_tools()
 
 
 class ValidationResult:
@@ -53,8 +56,8 @@ class ValidationResult:
         tool_id: str,
         safety_level: str = "safe",
         requires_approval: bool = False,
-        errors: Optional[List[str]] = None,
-        warnings: Optional[List[str]] = None,
+        errors: list[str] | None = None,
+        warnings: list[str] | None = None,
     ):
         self.valid = valid
         self.tool_id = tool_id
@@ -63,7 +66,7 @@ class ValidationResult:
         self.errors = errors or []
         self.warnings = warnings or []
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "valid": self.valid,
             "tool_id": self.tool_id,
@@ -85,7 +88,7 @@ class Validator:
     - Argument validation
     """
 
-    def __init__(self, tool_registry: Optional[Any] = None):
+    def __init__(self, tool_registry: Any | None = None):
         """
         Initialize validator.
 
@@ -96,12 +99,11 @@ class Validator:
         logger.info("Validator initialized")
 
     @must_stay_async("callers use await")
-    async def _get_registry(self) -> Optional[Any]:
+    async def _get_registry(self) -> Any | None:
         """Get or lazily load the tool registry."""
         if self._registry is None:
             try:
-                from core.tools.registry_adapter import \
-                    get_executor_tool_registry
+                from core.tools.registry_adapter import get_executor_tool_registry
 
                 self._registry = get_executor_tool_registry()
             except ImportError:
@@ -109,7 +111,7 @@ class Validator:
                 return None
         return self._registry
 
-    async def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def process(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Process validation request.
 
@@ -124,8 +126,8 @@ class Validator:
     async def validate_tool(
         self,
         tool_id: str,
-        arguments: Dict[str, Any],
-        context: Optional[Dict[str, Any]] = None,
+        arguments: dict[str, Any],
+        context: dict[str, Any] | None = None,
     ) -> ValidationResult:
         """
         Validate a tool call.
@@ -138,8 +140,8 @@ class Validator:
         Returns:
             ValidationResult with validity, safety level, and any errors
         """
-        errors: List[str] = []
-        warnings: List[str] = []
+        errors: list[str] = []
+        warnings: list[str] = []
 
         # Basic validation
         if not tool_id:
@@ -195,23 +197,21 @@ class Validator:
     def _requires_approval(
         self,
         tool_id: str,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> bool:
         """Check if tool requires human approval."""
         if tool_id in IGOR_APPROVAL_REQUIRED:
             return True
         if tool_id in HIGH_RISK_TOOLS:
             return True
-        if context and context.get("require_all_approvals"):
-            return True
-        return False
+        return bool(context and context.get("require_all_approvals"))
 
     async def _check_governance(
         self,
         tool_id: str,
-        arguments: Dict[str, Any],
-        context: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        arguments: dict[str, Any],
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
         """Check governance policies for tool execution."""
         gov_engine = context.get("governance_engine")
         if not gov_engine:
@@ -229,8 +229,8 @@ class Validator:
     async def _validate_arguments(
         self,
         tool_id: str,
-        arguments: Dict[str, Any],
-    ) -> List[str]:
+        arguments: dict[str, Any],
+    ) -> list[str]:
         """Validate tool arguments against schema."""
         errors = []
 

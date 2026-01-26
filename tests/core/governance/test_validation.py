@@ -16,9 +16,13 @@ from __future__ import annotations
 
 import pytest
 
-from core.governance.validation import (audit_log, detect_drift,
-                                        get_audit_trail, validate_authority,
-                                        validate_safety)
+from core.governance.validation import (
+    audit_log,
+    detect_drift,
+    get_audit_trail,
+    validate_authority,
+    validate_safety,
+)
 
 
 class TestValidateAuthority:
@@ -130,7 +134,7 @@ class TestDetectDrift:
         action = "problematic_action"
 
         # Simulate repeated failures
-        for i in range(3):
+        for _i in range(3):
             audit_log(agent_id="l-cto", action=action, success=False)
 
         drift = detect_drift(

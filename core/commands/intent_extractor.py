@@ -38,14 +38,20 @@ __dora_meta__ = {
 
 import json
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from openai import AsyncOpenAI, OpenAI
 
-from core.commands.schemas import (Command, CommandType, ConfirmationResult,
-                                   IntentModel, IntentType, NLPPrompt,
-                                   RiskLevel)
+from core.commands.schemas import (
+    Command,
+    CommandType,
+    ConfirmationResult,
+    IntentModel,
+    IntentType,
+    NLPPrompt,
+    RiskLevel,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -79,7 +85,7 @@ Be conservative with confidence. If unclear, use confidence < 0.7."""
 
 async def extract_intent(
     nlp_prompt: NLPPrompt,
-    openai_client: Optional[AsyncOpenAI] = None,
+    openai_client: AsyncOpenAI | None = None,
 ) -> IntentModel:
     """
     Extract intent from natural language prompt using LLM.
@@ -147,7 +153,7 @@ async def extract_intent(
 
 def extract_intent_sync(
     nlp_prompt: NLPPrompt,
-    openai_client: Optional[OpenAI] = None,
+    openai_client: OpenAI | None = None,
 ) -> IntentModel:
     """
     Synchronous version of extract_intent for non-async contexts.
@@ -215,7 +221,7 @@ def extract_intent_sync(
 async def confirm_intent(
     intent: IntentModel,
     user_context: dict[str, Any],
-    slack_client: Optional[Any] = None,
+    slack_client: Any | None = None,
 ) -> ConfirmationResult:
     """
     Request Igor confirmation for high-risk commands.
@@ -296,7 +302,7 @@ def _intent_to_command(
     intent_type: IntentType,
     entities: dict[str, Any],
     raw_text: str,
-) -> Optional[Command]:
+) -> Command | None:
     """Convert intent to structured command if possible."""
 
     type_mapping: dict[IntentType, CommandType] = {
@@ -409,10 +415,10 @@ def _rule_based_intent(text: str, raw_text: str) -> IntentModel:
 
 
 __all__ = [
+    "IntentModel",
+    "confirm_intent",
     "extract_intent",
     "extract_intent_sync",
-    "confirm_intent",
-    "IntentModel",
 ]
 
 # ============================================================================

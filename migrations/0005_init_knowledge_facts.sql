@@ -58,4 +58,3 @@ COMMENT ON COLUMN knowledge_facts.source_packet IS 'Reference to originating pac
 -- =============================================================================
 -- End Migration 0004
 -- =============================================================================
-

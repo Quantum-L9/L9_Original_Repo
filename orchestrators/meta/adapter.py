@@ -26,13 +26,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 from openai import AsyncOpenAI
 
-from .interface import (Blueprint, BlueprintEvaluation, BlueprintScore,
-                        EvaluationCriteria)
+from .interface import (
+    Blueprint,
+    BlueprintEvaluation,
+    BlueprintScore,
+    EvaluationCriteria,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -56,9 +60,9 @@ class BlueprintAdapter:
     async def score_blueprint(
         self,
         blueprint: Blueprint,
-        criteria: List[EvaluationCriteria],
-        context: Optional[Dict[str, Any]] = None,
-    ) -> List[BlueprintScore]:
+        criteria: list[EvaluationCriteria],
+        context: dict[str, Any] | None = None,
+    ) -> list[BlueprintScore]:
         """Score a blueprint against all criteria using LLM."""
         logger.info(f"Scoring blueprint: {blueprint.id}")
 
@@ -76,12 +80,11 @@ class BlueprintAdapter:
             temperature=0.3,
         )
 
-        scores = self._parse_scores(response.choices[0].message.content, criteria)
-        return scores
+        return self._parse_scores(response.choices[0].message.content, criteria)
 
     async def generate_improvements(
         self, blueprint: Blueprint, evaluation: BlueprintEvaluation
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate improvement suggestions using LLM."""
         logger.info(f"Generating improvements for: {blueprint.id}")
 
@@ -99,14 +102,13 @@ class BlueprintAdapter:
             temperature=0.7,
         )
 
-        suggestions = self._parse_suggestions(response.choices[0].message.content)
-        return suggestions
+        return self._parse_suggestions(response.choices[0].message.content)
 
     def _build_scoring_prompt(
         self,
         blueprint: Blueprint,
-        criteria: List[EvaluationCriteria],
-        context: Optional[Dict[str, Any]] = None,
+        criteria: list[EvaluationCriteria],
+        context: dict[str, Any] | None = None,
     ) -> str:
         """Build prompt for scoring."""
         prompt = f"""
@@ -176,8 +178,8 @@ Format each suggestion as:
         return prompt
 
     def _parse_scores(
-        self, llm_response: str, criteria: List[EvaluationCriteria]
-    ) -> List[BlueprintScore]:
+        self, llm_response: str, criteria: list[EvaluationCriteria]
+    ) -> list[BlueprintScore]:
         """Parse LLM response into structured scores."""
         scores = []
         lines = llm_response.strip().split("\n")
@@ -219,7 +221,7 @@ Format each suggestion as:
 
         return scores
 
-    def _parse_suggestions(self, llm_response: str) -> List[str]:
+    def _parse_suggestions(self, llm_response: str) -> list[str]:
         """Parse LLM response into list of suggestions."""
         suggestions = []
         lines = llm_response.strip().split("\n")

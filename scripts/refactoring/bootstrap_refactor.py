@@ -432,34 +432,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
-      
+
       - name: Install refactoring tools
         run: |
           pip install -r .refactor-config/requirements-refactor.txt
-      
+
       - name: Run Ruff linter
         run: ruff check src/ --statistics
-      
+
       - name: Run Black formatter check
         run: black --check src/
-      
+
       - name: Run mypy type checker
         run: mypy src/ --strict
-      
+
       - name: Run Bandit security scan
         run: bandit -r src/ -f json | jq '.results | length'
-      
+
       - name: Run pytest
         run: pytest tests/ -v --tb=short
-      
+
       - name: Run mutation tests
         run: mutmut run --tests-dir tests/ --paths-to-mutate src/
-      
+
       - name: Report metrics
         run: |
           echo "Refactoring validation passed ✓"
@@ -485,38 +485,38 @@ jobs:
       - id: ruff
         args: ['--fix']
       - id: ruff-format
-  
+
   - repo: https://github.com/psf/black
     rev: 24.10.0
     hooks:
       - id: black
         language_version: python3.12
-  
+
   # Python type checking
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.8.0
     hooks:
       - id: mypy
         args: ['--strict']
-  
+
   # Security scanning
   - repo: https://github.com/PyCQA/bandit
     rev: 1.7.5
     hooks:
       - id: bandit
-  
+
   # JavaScript/TypeScript
   - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v8.56.0
     hooks:
       - id: eslint
         args: ['--fix']
-  
+
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.1.0
     hooks:
       - id: prettier
-  
+
   # Generic checkers
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -550,20 +550,20 @@ refactoring_constraints:
   required_test_coverage: 0.80
   mutation_score_min: 0.85
   cyclomatic_complexity_max: 10
-  
+
 approval_gates:
   - type: "test_suite"
     timeout_seconds: 300
     min_success_rate: 1.0
-  
+
   - type: "mutation_testing"
     timeout_seconds: 600
     min_mutation_score: 0.85
-  
+
   - type: "static_analysis"
     timeout_seconds: 60
     enforce_strict_mode: true
-  
+
   - type: "security_scan"
     timeout_seconds: 120
     fail_on_vulnerabilities: true
@@ -573,17 +573,17 @@ refactoring_patterns:
     tools: ["cursor"]
     description: "Extract long methods into testable functions"
     validation: "test_suite + mutation"
-  
+
   - name: "dead_code_removal"
     tools: ["ruff", "vulture"]
     description: "Remove unused imports, variables, functions"
     validation: "test_suite"
-  
+
   - name: "type_annotation_injection"
     tools: ["cursor", "pyright"]
     description: "Add type hints to untyped functions"
     validation: "mypy_strict"
-  
+
   - name: "complexity_reduction"
     tools: ["claude", "cursor"]
     description: "Simplify complex functions using design patterns"
@@ -593,10 +593,10 @@ ci_cd_integration:
   repository: "github"
   trigger_on: ["pull_request", "push_to_main"]
   validation_workflow: ".github/workflows/refactoring-validation.yaml"
-  
+
   auto_commit: false         # Require manual approval
   branch_protection: true    # Enforce status checks
-  
+
   slack_notifications:
     enabled: false
     channel: "#refactoring"
@@ -688,7 +688,7 @@ quarterly_review:
    1. Revert: git checkout <file>
    2. Review change scope: should be < 300 lines
    3. Ask Claude for smaller, atomic refactoring
-   
+
 ### Type errors appear
 → Run: mypy src/ --strict
 → Use Cursor to add missing type annotations

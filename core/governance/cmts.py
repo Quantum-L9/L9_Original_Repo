@@ -52,9 +52,9 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import aiofiles
@@ -83,7 +83,7 @@ class FileSnapshot(BaseModel):
     """Snapshot of a file before/after mutation."""
 
     path: str
-    content_hash: Optional[str] = None
+    content_hash: str | None = None
     line_count: int = 0
     exists: bool = True
 
@@ -94,7 +94,7 @@ class MutationRecord(BaseModel):
     tracking_id: str = Field(default_factory=lambda: f"CMTS-{uuid4().hex[:12]}")
     subsystem: str
     agent_id: str
-    trace_id: Optional[str] = None
+    trace_id: str | None = None
 
     # File tracking
     files_before: list[FileSnapshot] = Field(default_factory=list)
@@ -104,18 +104,18 @@ class MutationRecord(BaseModel):
     files_deleted: list[str] = Field(default_factory=list)
 
     # Git tracking
-    branch_name: Optional[str] = None
-    commit_sha: Optional[str] = None
-    pr_url: Optional[str] = None
-    pr_number: Optional[int] = None
+    branch_name: str | None = None
+    commit_sha: str | None = None
+    pr_url: str | None = None
+    pr_number: int | None = None
 
     # Status tracking
     status: MutationStatus = MutationStatus.PENDING
-    error_message: Optional[str] = None
+    error_message: str | None = None
 
     # Timestamps
-    started_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    completed_at: Optional[datetime] = None
+    started_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    completed_at: datetime | None = None
 
     # Metadata
     metadata: dict[str, Any] = Field(default_factory=dict)
@@ -124,11 +124,11 @@ class MutationRecord(BaseModel):
 class MutationQuery(BaseModel):
     """Query parameters for searching mutations."""
 
-    subsystem: Optional[str] = None
-    agent_id: Optional[str] = None
-    status: Optional[MutationStatus] = None
-    since: Optional[datetime] = None
-    until: Optional[datetime] = None
+    subsystem: str | None = None
+    agent_id: str | None = None
+    status: MutationStatus | None = None
+    since: datetime | None = None
+    until: datetime | None = None
     limit: int = 100
     offset: int = 0
 
@@ -159,8 +159,8 @@ class CMTSService:
         subsystem: str,
         files: list[str],
         agent_id: str,
-        trace_id: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        trace_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """
         Start tracking a new mutation.
@@ -206,14 +206,14 @@ class CMTSService:
         self,
         tracking_id: str,
         status: str,
-        commit_sha: Optional[str] = None,
-        branch_name: Optional[str] = None,
-        pr_url: Optional[str] = None,
-        pr_number: Optional[int] = None,
-        files_created: Optional[list[str]] = None,
-        files_modified: Optional[list[str]] = None,
-        files_deleted: Optional[list[str]] = None,
-        error_message: Optional[str] = None,
+        commit_sha: str | None = None,
+        branch_name: str | None = None,
+        pr_url: str | None = None,
+        pr_number: int | None = None,
+        files_created: list[str] | None = None,
+        files_modified: list[str] | None = None,
+        files_deleted: list[str] | None = None,
+        error_message: str | None = None,
     ) -> MutationRecord:
         """
         Complete a mutation and record the outcome.
@@ -249,7 +249,7 @@ class CMTSService:
         record.files_modified = files_modified or []
         record.files_deleted = files_deleted or []
         record.error_message = error_message
-        record.completed_at = datetime.now(timezone.utc)
+        record.completed_at = datetime.now(UTC)
 
         # Create after-snapshots for modified files
         all_files = (files_created or []) + (files_modified or [])
@@ -293,7 +293,7 @@ class CMTSService:
     async def rollback_mutation(
         self,
         tracking_id: str,
-        rollback_commit_sha: Optional[str] = None,
+        rollback_commit_sha: str | None = None,
     ) -> MutationRecord:
         """
         Mark a mutation as rolled back.
@@ -311,7 +311,7 @@ class CMTSService:
 
         record.status = MutationStatus.ROLLED_BACK
         record.metadata["rollback_commit_sha"] = rollback_commit_sha
-        record.metadata["rollback_timestamp"] = datetime.now(timezone.utc).isoformat()
+        record.metadata["rollback_timestamp"] = datetime.now(UTC).isoformat()
 
         logger.info(
             "Mutation rolled back",
@@ -321,7 +321,7 @@ class CMTSService:
 
         return record
 
-    async def get_mutation(self, tracking_id: str) -> Optional[MutationRecord]:
+    async def get_mutation(self, tracking_id: str) -> MutationRecord | None:
         """
         Get a mutation record by tracking ID.
 
@@ -370,7 +370,7 @@ class CMTSService:
     async def get_recent_mutations(
         self,
         limit: int = 10,
-        subsystem: Optional[str] = None,
+        subsystem: str | None = None,
     ) -> list[MutationRecord]:
         """
         Get recent mutations.
@@ -387,7 +387,7 @@ class CMTSService:
 
     async def get_mutation_stats(
         self,
-        subsystem: Optional[str] = None,
+        subsystem: str | None = None,
     ) -> dict[str, Any]:
         """
         Get mutation statistics.
@@ -445,7 +445,7 @@ class CMTSService:
 # Singleton Instance
 # =============================================================================
 
-_cmts_instance: Optional[CMTSService] = None
+_cmts_instance: CMTSService | None = None
 
 
 def get_cmts_service() -> CMTSService:

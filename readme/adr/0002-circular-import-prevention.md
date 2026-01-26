@@ -1,10 +1,13 @@
 # ADR 0002: Circular Import Prevention via TYPE_CHECKING Pattern
 
 ## Status
+
 Accepted
 
 ## Context
+
 The memory subsystem has bidirectional dependencies between modules:
+
 - `memory/substrate_service.py` imports `AgentPersistenceService` (runtime)
 - `memory/agent_persistence.py` needs `MemorySubstrateService` type hints
 - `memory/retention_engine.py` needs `AgentPersistenceService` type hints
@@ -12,6 +15,7 @@ The memory subsystem has bidirectional dependencies between modules:
 Direct circular imports would cause `ImportError` at module load time.
 
 ## Decision
+
 Use the TYPE_CHECKING + PEP 563 pattern:
 
 1. **Guard imports with `if TYPE_CHECKING:`** - Imports only execute during
@@ -50,12 +54,12 @@ class AgentPersistenceService:
 
 ### Files Using This Pattern
 
-| File | TYPE_CHECKING Import | Runtime Dependency |
-|------|---------------------|-------------------|
-| `memory/agent_persistence.py` | `MemorySubstrateService` | Instance via `__init__` |
-| `memory/retention_engine.py` | `AgentPersistenceService`, `SubstrateRepository` | Instance via `__init__` |
-| `core/governance/approval_manager.py` | `MemorySubstrateService` | Instance via `__init__` |
-| `graph_adapter/packet_node_adapter.py` | `MemorySubstrateService` | Instance via parameter |
+| File                                   | TYPE_CHECKING Import                             | Runtime Dependency      |
+| -------------------------------------- | ------------------------------------------------ | ----------------------- |
+| `memory/agent_persistence.py`          | `MemorySubstrateService`                         | Instance via `__init__` |
+| `memory/retention_engine.py`           | `AgentPersistenceService`, `SubstrateRepository` | Instance via `__init__` |
+| `core/governance/approval_manager.py`  | `MemorySubstrateService`                         | Instance via `__init__` |
+| `graph_adapter/packet_node_adapter.py` | `MemorySubstrateService`                         | Instance via parameter  |
 
 ### Why This Works
 
@@ -72,21 +76,25 @@ class AgentPersistenceService:
 ## Consequences
 
 ### Positive
+
 - No circular import errors at runtime
 - Full type safety during static analysis (mypy/pyright)
 - IDE autocomplete and hover work correctly
 - Clear separation of type-time vs runtime dependencies
 
 ### Neutral
+
 - Requires understanding of the pattern for new contributors
 - AI code reviewers may flag without this ADR context (hence this document)
 
 ### Negative
+
 - None identified — this is standard Python practice
 
 ## AI Reviewer Guidance
 
 This pattern is **CORRECT** and should **NOT** be flagged as:
+
 - ❌ "Circular import detected"
 - ❌ "Unused import" (TYPE_CHECKING imports appear unused at runtime)
 - ❌ "Import not at top of file" (TYPE_CHECKING block is intentionally guarded)

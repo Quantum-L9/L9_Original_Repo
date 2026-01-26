@@ -13,13 +13,13 @@
 # status: "active"
 # ============================================================================
 
-version: '2.0'
-config_updated: '2026-01-25T19:42:30Z'
+version: "2.0"
+config_updated: "2026-01-25T19:42:30Z"
 defaults:
   owner: Igor
   prereading:
-  - README-L9_ARCHITECTURE.md
-  - docs/CURSOR-RUNBOOK.md
+    - README-L9_ARCHITECTURE.md
+    - docs/CURSOR-RUNBOOK.md
   sections:
     overview:
       required: true
@@ -45,47 +45,49 @@ subsystems:
     title: Agent Execution Runtime
     tier: core
     description: Agent executor, runtime, registry, and task lifecycle management
-    purpose: Orchestrates agent task execution, kernel loading, tool dispatch, and
+    purpose:
+      Orchestrates agent task execution, kernel loading, tool dispatch, and
       memory integration.
     owner: Igor
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
     protected_files:
-    - executor.py
-    - registry.py
-    - aios_runtime.py
+      - executor.py
+      - registry.py
+      - aios_runtime.py
     forbidden_scopes:
-    - executor.py
-    - registry.py
-    - __init__.py
+      - executor.py
+      - registry.py
+      - __init__.py
     allowed_patterns:
-    - adaptive_prompting.py
-    - selfreflection.py
-    - prompt_builder.py
-    - agent_instance.py
-    - bootstrap/**
-    - graph_state/**
-    - tests/**
-    - docs/**
+      - adaptive_prompting.py
+      - selfreflection.py
+      - prompt_builder.py
+      - agent_instance.py
+      - bootstrap/**
+      - graph_state/**
+      - tests/**
+      - docs/**
     depends_on:
-    - memory/substrate_service.py
-    - core/tools/registry_adapter.py
-    - runtime/kernel_loader.py
+      - memory/substrate_service.py
+      - core/tools/registry_adapter.py
+      - runtime/kernel_loader.py
     depended_by:
-    - api/agent_routes.py
-    - runtime/task_queue.py
-    - orchestrators/agent_execution/
+      - api/agent_routes.py
+      - runtime/task_queue.py
+      - orchestrators/agent_execution/
     invariants:
-    - Agent IDs are UUIDv4 or registered agent names
-    - All agent tasks emit PacketEnvelope to memory substrate
-    - Kernel stack loaded via KernelLoader before execution
-    - Tool access mediated by RegistryAdapter with capability checks
-    - High-risk tools require Igor approval before dispatch
+      - Agent IDs are UUIDv4 or registered agent names
+      - All agent tasks emit PacketEnvelope to memory substrate
+      - Kernel stack loaded via KernelLoader before execution
+      - Tool access mediated by RegistryAdapter with capability checks
+      - High-risk tools require Igor approval before dispatch
     prereading:
-    - README-L9_ARCHITECTURE.md
-    - docs/CURSOR-RUNBOOK.md
-    - core/agents/README.md
+      - README-L9_ARCHITECTURE.md
+      - docs/CURSOR-RUNBOOK.md
+      - core/agents/README.md
     file_descriptions:
-      executor.py: Core agent execution loop, context management, and signal handling
+      executor.py:
+        Core agent execution loop, context management, and signal handling
         (PROTECTED)
       registry.py: Agent type registry and discovery (PROTECTED)
       aios_runtime.py: AIOS runtime wrapper for agent execution (PROTECTED)
@@ -95,38 +97,43 @@ subsystems:
       adaptive_prompting.py: Context-aware prompt adaptation strategies
       selfreflection.py: Agent self-reflection and metacognition
     naming_conventions:
-    - '**Agent classes:** `<Name>Agent` (e.g., `ResearcherAgent`)'
-    - '**Executor classes:** `<Name>Executor` or `AgentExecutorService`'
-    - '**Config models:** `<Name>Config` (e.g., `AgentConfig`)'
-    - '**Request/Response:** `<Operation>Request`, `<Operation>Response`'
+      - "**Agent classes:** `<Name>Agent` (e.g., `ResearcherAgent`)"
+      - "**Executor classes:** `<Name>Executor` or `AgentExecutorService`"
+      - "**Config models:** `<Name>Config` (e.g., `AgentConfig`)"
+      - "**Request/Response:** `<Operation>Request`, `<Operation>Response`"
     edge_cases:
-    - name: Token exhaustion
-      description: Agent hits token budget mid-execution → returns partial result
-        with 'incomplete' status
-    - name: Tool unavailable
-      description: Requested tool not in agent's capability set → logged warning,
-        agent continues without tool
-    - name: Memory timeout
-      description: Memory substrate query times out → agent continues with cached
-        context
-    - name: Deadline exceeded
-      description: Execution time exceeds deadline → agent interrupted, partial result
-        returned
-    - name: Kernel load failure
-      description: Kernel YAML invalid → agent fails fast with clear error message
+      - name: Token exhaustion
+        description:
+          Agent hits token budget mid-execution → returns partial result
+          with 'incomplete' status
+      - name: Tool unavailable
+        description:
+          Requested tool not in agent's capability set → logged warning,
+          agent continues without tool
+      - name: Memory timeout
+        description:
+          Memory substrate query times out → agent continues with cached
+          context
+      - name: Deadline exceeded
+        description:
+          Execution time exceeds deadline → agent interrupted, partial result
+          returned
+      - name: Kernel load failure
+        description: Kernel YAML invalid → agent fails fast with clear error message
     responsibilities:
-    - Agent execution model (start, run, shutdown)
-    - Kernel registry and discovery
-    - Agent lifecycle management
-    - Context propagation (correlation_id, user, execution context)
-    - Tool dispatch coordination via RegistryAdapter
+      - Agent execution model (start, run, shutdown)
+      - Kernel registry and discovery
+      - Agent lifecycle management
+      - Context propagation (correlation_id, user, execution context)
+      - Tool dispatch coordination via RegistryAdapter
     non_responsibilities:
-    - Tool execution logic (owned by core/tools)
-    - Memory persistence (owned by memory/)
-    - Network/WebSocket communication (owned by runtime/)
-    - Authentication (owned by api/auth.py)
+      - Tool execution logic (owned by core/tools)
+      - Memory persistence (owned by memory/)
+      - Network/WebSocket communication (owned by runtime/)
+      - Authentication (owned by api/auth.py)
     lifecycle:
-      startup: '1. **Discovery:** Agent name resolved via `AgentRegistry.get_agent()`.
+      startup:
+        "1. **Discovery:** Agent name resolved via `AgentRegistry.get_agent()`.
 
         2. **Manifest loading:** YAML config parsed and validated.
 
@@ -135,8 +142,8 @@ subsystems:
         4. **Context creation:** ExecutionContext initialized with correlation_id,
         user, deadline.
 
-        '
-      execution: '1. **Planning:** Kernel calls LLM to plan next action.
+        "
+      execution: "1. **Planning:** Kernel calls LLM to plan next action.
 
         2. **Tool invocation:** If plan calls tool, dispatched via RegistryAdapter.
 
@@ -144,8 +151,8 @@ subsystems:
 
         4. **Iteration:** Repeat until goal achieved or timeout/max-steps.
 
-        '
-      shutdown: '1. **Finalization:** Kernel writes remaining state to memory.
+        "
+      shutdown: "1. **Finalization:** Kernel writes remaining state to memory.
 
         2. **Logging:** Execution trace emitted as structured JSON.
 
@@ -153,9 +160,10 @@ subsystems:
 
         4. **Result:** AgentResult returned to caller.
 
-        '
+        "
       background: None. Agents are synchronous from task queue worker perspective.
-    api_example: "```python\nfrom core.agents import AgentRegistry, ExecutionContext\n\
+    api_example:
+      "```python\nfrom core.agents import AgentRegistry, ExecutionContext\n\
       from uuid import uuid4\nfrom datetime import datetime, timedelta, timezone\n\
       \nregistry = AgentRegistry()\nresearcher = registry.get_agent(\"researcher\"\
       )\n\nresult = await researcher.execute(\n    agent_id=\"researcher-001\",\n\
@@ -170,39 +178,40 @@ subsystems:
     title: Tool Registry & Dispatch
     tier: core
     description: Tool definitions, capability enforcement, and safe tool invocation
-    purpose: Manages tool definitions, capability enforcement, approval gates, and
+    purpose:
+      Manages tool definitions, capability enforcement, approval gates, and
       safe tool invocation.
     owner: Igor
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
     protected_files:
-    - registry_adapter.py
-    - tool_graph.py
+      - registry_adapter.py
+      - tool_graph.py
     forbidden_scopes:
-    - registry_adapter.py
-    - tool_graph.py
-    - __init__.py
+      - registry_adapter.py
+      - tool_graph.py
+      - __init__.py
     allowed_patterns:
-    - sanitizer.py
-    - memory_tools.py
-    - research_tools.py
-    - reflection_tools.py
-    - tool_embeddings.py
-    - tests/**
-    - docs/**
+      - sanitizer.py
+      - memory_tools.py
+      - research_tools.py
+      - reflection_tools.py
+      - tool_embeddings.py
+      - tests/**
+      - docs/**
     prereading:
-    - README-L9_ARCHITECTURE.md
-    - docs/CURSOR-RUNBOOK.md
-    - core/tools/README.md
+      - README-L9_ARCHITECTURE.md
+      - docs/CURSOR-RUNBOOK.md
+      - core/tools/README.md
     depends_on:
-    - runtime/l_tools.py
-    - core/governance/approval_manager.py
+      - runtime/l_tools.py
+      - core/governance/approval_manager.py
     depended_by:
-    - core/agents/executor.py
+      - core/agents/executor.py
     invariants:
-    - Tool names must exist in L_TOOLS_DEFINITIONS registry
-    - Destructive tools require explicit approval gates
-    - All tool executions logged to PacketEnvelope audit trail
-    - Tool dispatch respects AgentCapabilities enum
+      - Tool names must exist in L_TOOLS_DEFINITIONS registry
+      - Destructive tools require explicit approval gates
+      - All tool executions logged to PacketEnvelope audit trail
+      - Tool dispatch respects AgentCapabilities enum
     file_descriptions:
       registry_adapter.py: RegistryAdapter for tool discovery and dispatch (PROTECTED)
       tool_graph.py: Tool definitions and L_TOOLS_DEFINITIONS registry (PROTECTED)
@@ -212,30 +221,32 @@ subsystems:
       reflection_tools.py: Self-reflection and metacognition tools
       tool_embeddings.py: Semantic tool discovery via embeddings
     naming_conventions:
-    - '**Tool definitions:** UPPER_SNAKE_CASE in L_TOOLS_DEFINITIONS'
-    - '**Tool wrappers:** `<name>_tool` function'
-    - '**Tool classes:** `<Name>Tool` (if class-based)'
+      - "**Tool definitions:** UPPER_SNAKE_CASE in L_TOOLS_DEFINITIONS"
+      - "**Tool wrappers:** `<name>_tool` function"
+      - "**Tool classes:** `<Name>Tool` (if class-based)"
     edge_cases:
-    - name: Tool not found
-      description: Requested tool name not in registry → raise ToolNotFoundError
-    - name: Capability denied
-      description: Agent lacks capability for tool → log warning, return capability
-        error
-    - name: Approval required
-      description: High-risk tool needs Igor approval → block until approved or timeout
-    - name: Input validation failure
-      description: Tool arguments fail schema validation → return validation error
+      - name: Tool not found
+        description: Requested tool name not in registry → raise ToolNotFoundError
+      - name: Capability denied
+        description:
+          Agent lacks capability for tool → log warning, return capability
+          error
+      - name: Approval required
+        description: High-risk tool needs Igor approval → block until approved or timeout
+      - name: Input validation failure
+        description: Tool arguments fail schema validation → return validation error
     responsibilities:
-    - Tool manifest registry and discovery
-    - Capability enforcement per agent
-    - Approval gates for high-risk tools
-    - Tool input sanitization and validation
-    - Audit logging of all tool executions
+      - Tool manifest registry and discovery
+      - Capability enforcement per agent
+      - Approval gates for high-risk tools
+      - Tool input sanitization and validation
+      - Audit logging of all tool executions
     non_responsibilities:
-    - Actual tool implementation (tools are self-contained)
-    - Agent execution logic (owned by core/agents)
-    - Memory operations (owned by memory/)
-    api_example: "```python\nfrom core.tools import RegistryAdapter, AgentCapabilities\n\
+      - Actual tool implementation (tools are self-contained)
+      - Agent execution logic (owned by core/agents)
+      - Memory operations (owned by memory/)
+    api_example:
+      "```python\nfrom core.tools import RegistryAdapter, AgentCapabilities\n\
       \nadapter = RegistryAdapter()\n\n# Get available tools for agent\ntools = adapter.get_tools_for_capabilities(\n\
       \    AgentCapabilities.RESEARCH | AgentCapabilities.MEMORY_READ\n)\n\n# Invoke\
       \ a tool\nresult = await adapter.invoke_tool(\n    tool_name=\"search_web\"\
@@ -246,49 +257,52 @@ subsystems:
     path: memory
     title: Memory Substrate
     tier: core
-    description: Multi-layer memory with PacketEnvelope storage, semantic search,
+    description:
+      Multi-layer memory with PacketEnvelope storage, semantic search,
       and audit trails
-    purpose: Provides PacketEnvelope storage, semantic search, retrieval, deduplication,
+    purpose:
+      Provides PacketEnvelope storage, semantic search, retrieval, deduplication,
       and audit trails.
     owner: Igor
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
     protected_files:
-    - substrate_service.py
-    - substrate_dag.py
-    - substrate_models.py
+      - substrate_service.py
+      - substrate_dag.py
+      - substrate_models.py
     forbidden_scopes:
-    - substrate_service.py
-    - substrate_dag.py
-    - __init__.py
+      - substrate_service.py
+      - substrate_dag.py
+      - __init__.py
     allowed_patterns:
-    - retrieval.py
-    - semantic_search.py
-    - context_builder.py
-    - insight_extraction.py
-    - consolidation.py
-    - deduplication.py
-    - graph_memory.py
-    - tests/**
-    - docs/**
+      - retrieval.py
+      - semantic_search.py
+      - context_builder.py
+      - insight_extraction.py
+      - consolidation.py
+      - deduplication.py
+      - graph_memory.py
+      - tests/**
+      - docs/**
     depends_on:
-    - runtime/redis_client.py
-    - config/di_config.py
+      - runtime/redis_client.py
+      - config/di_config.py
     depended_by:
-    - core/agents/executor.py
-    - api/memory/router.py
-    - mcp_memory/src/
+      - core/agents/executor.py
+      - api/memory/router.py
+      - mcp_memory/src/
     invariants:
-    - All packet IDs are UUIDv4
-    - All timestamps are UTC ISO-8601
-    - PacketEnvelope is the canonical data structure for all memory writes
-    - Embeddings are list[float] with dimension 1536 or 3072
-    - Deduplication via dedup_key prevents duplicate ingestion
+      - All packet IDs are UUIDv4
+      - All timestamps are UTC ISO-8601
+      - PacketEnvelope is the canonical data structure for all memory writes
+      - Embeddings are list[float] with dimension 1536 or 3072
+      - Deduplication via dedup_key prevents duplicate ingestion
     prereading:
-    - README-L9_ARCHITECTURE.md
-    - docs/CURSOR-RUNBOOK.md
-    - memory/README.md
+      - README-L9_ARCHITECTURE.md
+      - docs/CURSOR-RUNBOOK.md
+      - memory/README.md
     file_descriptions:
-      substrate_service.py: MemorySubstrateService - core ingestion, search, retrieval
+      substrate_service.py:
+        MemorySubstrateService - core ingestion, search, retrieval
         (PROTECTED)
       substrate_dag.py: Ingestion DAG and processing pipeline (PROTECTED)
       substrate_models.py: PacketEnvelope and data models (PROTECTED)
@@ -300,36 +314,38 @@ subsystems:
       deduplication.py: Deduplication engine for packet uniqueness
       graph_memory.py: Neo4j graph memory adapter
     naming_conventions:
-    - '**Packets:** `PacketEnvelope` with `kind`, `payload`, `metadata`'
-    - '**IDs:** UUIDv4 for all packet identifiers'
-    - '**Timestamps:** UTC ISO-8601 format'
-    - '**Embeddings:** `list[float]` with dimension 1536 or 3072'
+      - "**Packets:** `PacketEnvelope` with `kind`, `payload`, `metadata`"
+      - "**IDs:** UUIDv4 for all packet identifiers"
+      - "**Timestamps:** UTC ISO-8601 format"
+      - "**Embeddings:** `list[float]` with dimension 1536 or 3072"
     edge_cases:
-    - name: Duplicate packet
-      description: Same dedup_key already exists → skip ingestion, return existing
-        packet
-    - name: Embedding failure
-      description: Embedding API unavailable → queue for retry, store without embedding
-    - name: Search timeout
-      description: Vector search exceeds timeout → return partial results with warning
-    - name: Graph sync failure
-      description: Neo4j unavailable → PostgreSQL is source of truth, retry graph
-        sync
-    - name: Large payload
-      description: Payload > 10KB → store in blob storage, reference in packet
+      - name: Duplicate packet
+        description:
+          Same dedup_key already exists → skip ingestion, return existing
+          packet
+      - name: Embedding failure
+        description: Embedding API unavailable → queue for retry, store without embedding
+      - name: Search timeout
+        description: Vector search exceeds timeout → return partial results with warning
+      - name: Graph sync failure
+        description:
+          Neo4j unavailable → PostgreSQL is source of truth, retry graph
+          sync
+      - name: Large payload
+        description: Payload > 10KB → store in blob storage, reference in packet
     responsibilities:
-    - PacketEnvelope ingestion and storage
-    - Semantic search via embeddings
-    - Memory retrieval and ranking
-    - Deduplication enforcement
-    - Audit trail maintenance
-    - Graph memory synchronization
+      - PacketEnvelope ingestion and storage
+      - Semantic search via embeddings
+      - Memory retrieval and ranking
+      - Deduplication enforcement
+      - Audit trail maintenance
+      - Graph memory synchronization
     non_responsibilities:
-    - Agent execution (owned by core/agents)
-    - API routing (owned by api/)
-    - External client communication (owned by mcp_memory/)
+      - Agent execution (owned by core/agents)
+      - API routing (owned by api/)
+      - External client communication (owned by mcp_memory/)
     lifecycle:
-      startup: '1. **Connection:** Establish PostgreSQL and Redis connections.
+      startup: "1. **Connection:** Establish PostgreSQL and Redis connections.
 
         2. **Schema validation:** Verify database schema is current.
 
@@ -337,8 +353,9 @@ subsystems:
 
         4. **Ready:** Service ready to accept ingestion and search requests.
 
-        '
-      execution: '1. **Ingestion:** Receive PacketEnvelope → validate → check dedup
+        "
+      execution:
+        "1. **Ingestion:** Receive PacketEnvelope → validate → check dedup
         → store.
 
         2. **Embedding:** Generate embedding async if content present.
@@ -347,17 +364,19 @@ subsystems:
 
         4. **Search:** Vector search → rank results → return with metadata.
 
-        '
-      shutdown: '1. **Flush:** Complete pending writes.
+        "
+      shutdown: "1. **Flush:** Complete pending writes.
 
         2. **Disconnect:** Close database connections gracefully.
 
         3. **Log:** Emit shutdown complete event.
 
-        '
-      background: Embedding generation, graph sync, and consolidation run as background
+        "
+      background:
+        Embedding generation, graph sync, and consolidation run as background
         tasks.
-    api_example: "```python\nfrom memory import MemorySubstrateService, PacketEnvelope\n\
+    api_example:
+      "```python\nfrom memory import MemorySubstrateService, PacketEnvelope\n\
       from datetime import datetime, timezone\n\nservice = MemorySubstrateService()\n\
       \n# Ingest a packet\npacket = PacketEnvelope(\n    source_id=\"cursor_session\"\
       ,\n    agent_id=\"researcher-001\",\n    thread_id=\"thread-xyz\",\n    kind=\"\
@@ -370,54 +389,57 @@ subsystems:
     path: runtime
     title: Runtime Services
     tier: core
-    description: Task queue, Redis client, rate limiter, kernel loader, and background
+    description:
+      Task queue, Redis client, rate limiter, kernel loader, and background
       workers
-    purpose: Provides core runtime services including task queuing, caching, rate
+    purpose:
+      Provides core runtime services including task queuing, caching, rate
       limiting, and kernel loading.
     protected_files:
-    - kernel_loader.py
-    - task_queue.py
-    - redis_client.py
-    - __init__.py
+      - kernel_loader.py
+      - task_queue.py
+      - redis_client.py
+      - __init__.py
     allowed_patterns:
-    - rate_limiter.py
-    - superprompt_emitter.py
-    - websocket_orchestrator.py
+      - rate_limiter.py
+      - superprompt_emitter.py
+      - websocket_orchestrator.py
     depends_on:
-    - config/di_config.py
+      - config/di_config.py
     depended_by:
-    - core/agents/executor.py
-    - api/server.py
-    - memory/substrate_service.py
+      - core/agents/executor.py
+      - api/server.py
+      - memory/substrate_service.py
     invariants:
-    - All external calls have explicit timeouts
-    - Redis operations are atomic where required
-    - Kernel YAML files are validated on load
-    last_updated: '2026-01-25T19:42:30Z'
+      - All external calls have explicit timeouts
+      - Redis operations are atomic where required
+      - Kernel YAML files are validated on load
+    last_updated: "2026-01-25T19:42:30Z"
   core_governance:
     path: core/governance
     title: Governance & Approval Gates
     tier: core
     description: Policy enforcement, approval workflows, and compliance checks
-    purpose: Enforces governance policies, manages approval gates, and ensures compliance
+    purpose:
+      Enforces governance policies, manages approval gates, and ensures compliance
       with security rules.
     protected_files:
-    - approval_manager.py
-    - policy_engine.py
-    - __init__.py
+      - approval_manager.py
+      - policy_engine.py
+      - __init__.py
     allowed_patterns:
-    - credentials_policy.py
-    - violation_tracker.py
+      - credentials_policy.py
+      - violation_tracker.py
     depends_on:
-    - config/policies/
+      - config/policies/
     depended_by:
-    - core/tools/registry_adapter.py
-    - core/agents/executor.py
+      - core/tools/registry_adapter.py
+      - core/agents/executor.py
     invariants:
-    - High-risk operations require explicit approval
-    - All policy violations are logged
-    - Approval tokens have expiration
-    last_updated: '2026-01-25T19:42:30Z'
+      - High-risk operations require explicit approval
+      - All policy violations are logged
+      - Approval tokens have expiration
+    last_updated: "2026-01-25T19:42:30Z"
   core_security:
     path: core/security
     title: Security & Authentication
@@ -425,43 +447,44 @@ subsystems:
     description: Authentication, authorization, secrets management, and security policies
     purpose: Manages authentication, authorization, secrets, and security policy enforcement.
     protected_files:
-    - auth_service.py
-    - secrets_manager.py
-    - __init__.py
+      - auth_service.py
+      - secrets_manager.py
+      - __init__.py
     allowed_patterns:
-    - token_validator.py
+      - token_validator.py
     depends_on:
-    - config/policies/security/
+      - config/policies/security/
     depended_by:
-    - api/auth.py
-    - api/middleware/
+      - api/auth.py
+      - api/middleware/
     invariants:
-    - Secrets never logged in plaintext
-    - All auth tokens validated before use
-    - Failed auth attempts are rate-limited
-    last_updated: '2026-01-25T19:42:30Z'
+      - Secrets never logged in plaintext
+      - All auth tokens validated before use
+      - Failed auth attempts are rate-limited
+    last_updated: "2026-01-25T19:42:30Z"
   core_kernels:
     path: core/kernels
     title: Kernel Management
     tier: core
     description: Kernel loading, validation, and integrity verification
-    purpose: Loads, validates, and manages the kernel stack for agent identity and
+    purpose:
+      Loads, validates, and manages the kernel stack for agent identity and
       behavior.
     protected_files:
-    - kernel_validator.py
-    - __init__.py
+      - kernel_validator.py
+      - __init__.py
     allowed_patterns:
-    - kernel_discovery.py
+      - kernel_discovery.py
     depends_on:
-    - config/kernels/
-    - private/kernels/
+      - config/kernels/
+      - private/kernels/
     depended_by:
-    - runtime/kernel_loader.py
-    - core/agents/executor.py
+      - runtime/kernel_loader.py
+      - core/agents/executor.py
     invariants:
-    - Kernel YAML must pass schema validation
-    - Kernel load order is deterministic
-    last_updated: '2026-01-25T19:42:30Z'
+      - Kernel YAML must pass schema validation
+      - Kernel load order is deterministic
+    last_updated: "2026-01-25T19:42:30Z"
   orchestration:
     path: orchestration
     title: Unified Orchestration
@@ -469,81 +492,83 @@ subsystems:
     description: Unified controller, task router, and plan executor
     purpose: Coordinates multi-agent task execution, routing, and plan orchestration.
     protected_files:
-    - unified_controller.py
-    - task_router.py
-    - __init__.py
+      - unified_controller.py
+      - task_router.py
+      - __init__.py
     allowed_patterns:
-    - plan_executor.py
+      - plan_executor.py
     depends_on:
-    - core/agents/executor.py
-    - memory/substrate_service.py
+      - core/agents/executor.py
+      - memory/substrate_service.py
     depended_by:
-    - api/routes/
+      - api/routes/
     invariants:
-    - Tasks are routed deterministically
-    - Plan execution is resumable
-    last_updated: '2026-01-25T19:42:30Z'
+      - Tasks are routed deterministically
+      - Plan execution is resumable
+    last_updated: "2026-01-25T19:42:30Z"
   orchestrators:
     path: orchestrators
     title: Pattern Orchestrators
     tier: orchestration
-    description: Domain-specific orchestration patterns for agents, memory, reasoning,
+    description:
+      Domain-specific orchestration patterns for agents, memory, reasoning,
       and world model
     purpose: Provides specialized orchestration patterns for different execution domains.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - agent_execution/**
-    - memory/**
-    - reasoning/**
-    - world_model/**
-    - pattern/**
+      - agent_execution/**
+      - memory/**
+      - reasoning/**
+      - world_model/**
+      - pattern/**
     depends_on:
-    - orchestration/unified_controller.py
-    - core/agents/executor.py
+      - orchestration/unified_controller.py
+      - core/agents/executor.py
     depended_by:
-    - api/routes/
+      - api/routes/
     invariants:
-    - Orchestrators emit structured packets
-    last_updated: '2026-01-25T19:42:30Z'
+      - Orchestrators emit structured packets
+    last_updated: "2026-01-25T19:42:30Z"
   api:
     path: api
     title: API Gateway
     tier: api
     description: HTTP and WebSocket interfaces for L9 Secure AI OS
-    purpose: Exposes FastAPI endpoints for agent tasks, memory operations, and real-time
+    purpose:
+      Exposes FastAPI endpoints for agent tasks, memory operations, and real-time
       communication.
     owner: Igor
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
     protected_files:
-    - server.py
-    - auth.py
+      - server.py
+      - auth.py
     forbidden_scopes:
-    - server.py
-    - auth.py
-    - __init__.py
+      - server.py
+      - auth.py
+      - __init__.py
     allowed_patterns:
-    - routes/**
-    - agent_routes.py
-    - os_routes.py
-    - memory/**
-    - tools/**
-    - tests/**
-    - docs/**
+      - routes/**
+      - agent_routes.py
+      - os_routes.py
+      - memory/**
+      - tools/**
+      - tests/**
+      - docs/**
     depends_on:
-    - core/agents/executor.py
-    - memory/substrate_service.py
-    - runtime/websocket_orchestrator.py
+      - core/agents/executor.py
+      - memory/substrate_service.py
+      - runtime/websocket_orchestrator.py
     depended_by: []
     invariants:
-    - Request/response schemas validated via Pydantic
-    - All logging is structured JSON with context (agent_id, task_id)
-    - WebSocket routes use websocket_orchestrator for lifecycle
-    - Rate limiting enforced via RateLimiter with Redis backend
+      - Request/response schemas validated via Pydantic
+      - All logging is structured JSON with context (agent_id, task_id)
+      - WebSocket routes use websocket_orchestrator for lifecycle
+      - Rate limiting enforced via RateLimiter with Redis backend
     prereading:
-    - README-L9_ARCHITECTURE.md
-    - docs/CURSOR-RUNBOOK.md
-    - api/README.md
+      - README-L9_ARCHITECTURE.md
+      - docs/CURSOR-RUNBOOK.md
+      - api/README.md
     file_descriptions:
       server.py: FastAPI app initialization, route registration (PROTECTED)
       auth.py: Authentication and authorization middleware (PROTECTED)
@@ -553,34 +578,34 @@ subsystems:
       memory/router.py: Memory API endpoints (/memory/search, /memory/ingest)
       tools/router.py: Tool API endpoints (/tools/invoke)
     naming_conventions:
-    - '**Routes:** kebab-case paths (e.g., `/api/agent-tasks`)'
-    - '**Handlers:** `async def verb_noun()` (e.g., `async def create_task()`)'
-    - '**Request models:** `<Noun><Verb>Request` (e.g., `TaskCreateRequest`)'
-    - '**Response models:** `<Noun><Verb>Response` (e.g., `TaskCreateResponse`)'
+      - "**Routes:** kebab-case paths (e.g., `/api/agent-tasks`)"
+      - "**Handlers:** `async def verb_noun()` (e.g., `async def create_task()`)"
+      - "**Request models:** `<Noun><Verb>Request` (e.g., `TaskCreateRequest`)"
+      - "**Response models:** `<Noun><Verb>Response` (e.g., `TaskCreateResponse`)"
     edge_cases:
-    - name: Invalid request body
-      description: Pydantic validation fails → 422 with validation errors
-    - name: Authentication failure
-      description: Invalid/expired JWT → 401 Unauthorized
-    - name: Rate limit exceeded
-      description: Too many requests → 429 with retry-after header
-    - name: Agent timeout
-      description: Agent execution exceeds timeout → 504 Gateway Timeout
-    - name: WebSocket disconnect
-      description: Client disconnects unexpectedly → cleanup resources, log event
+      - name: Invalid request body
+        description: Pydantic validation fails → 422 with validation errors
+      - name: Authentication failure
+        description: Invalid/expired JWT → 401 Unauthorized
+      - name: Rate limit exceeded
+        description: Too many requests → 429 with retry-after header
+      - name: Agent timeout
+        description: Agent execution exceeds timeout → 504 Gateway Timeout
+      - name: WebSocket disconnect
+        description: Client disconnects unexpectedly → cleanup resources, log event
     responsibilities:
-    - HTTP endpoint routing and handling
-    - WebSocket connection management
-    - Request/response validation
-    - Authentication and authorization
-    - Rate limiting enforcement
-    - Structured logging with context
+      - HTTP endpoint routing and handling
+      - WebSocket connection management
+      - Request/response validation
+      - Authentication and authorization
+      - Rate limiting enforcement
+      - Structured logging with context
     non_responsibilities:
-    - Agent execution logic (owned by core/agents)
-    - Memory storage (owned by memory/)
-    - Tool execution (owned by core/tools)
+      - Agent execution logic (owned by core/agents)
+      - Memory storage (owned by memory/)
+      - Tool execution (owned by core/tools)
     lifecycle:
-      startup: '1. **App creation:** FastAPI app initialized.
+      startup: "1. **App creation:** FastAPI app initialized.
 
         2. **Middleware:** CORS, auth, logging middleware registered.
 
@@ -588,8 +613,8 @@ subsystems:
 
         4. **Lifespan:** Startup events connect to Redis, PostgreSQL.
 
-        '
-      execution: '1. **Request:** Receive HTTP/WebSocket request.
+        "
+      execution: "1. **Request:** Receive HTTP/WebSocket request.
 
         2. **Auth:** Validate JWT token (if required).
 
@@ -597,8 +622,8 @@ subsystems:
 
         4. **Dispatch:** Route to handler, execute, return response.
 
-        '
-      shutdown: '1. **Drain:** Stop accepting new requests.
+        "
+      shutdown: "1. **Drain:** Stop accepting new requests.
 
         2. **Pending:** Wait for in-flight requests to complete.
 
@@ -606,10 +631,12 @@ subsystems:
 
         4. **Log:** Emit graceful shutdown event.
 
-        '
-      background: Background tasks via Starlette BackgroundTasks for non-blocking
+        "
+      background:
+        Background tasks via Starlette BackgroundTasks for non-blocking
         operations.
-    api_example: "```python\n# HTTP Example\nimport httpx\n\nasync with httpx.AsyncClient()\
+    api_example:
+      "```python\n# HTTP Example\nimport httpx\n\nasync with httpx.AsyncClient()\
       \ as client:\n    # Execute an agent task\n    response = await client.post(\n\
       \        \"http://localhost:8000/api/agents/researcher/execute\",\n        json={\n\
       \            \"goal\": \"Analyze AI market trends\",\n            \"context\"\
@@ -625,40 +652,42 @@ subsystems:
     title: MCP Memory Server
     tier: api
     description: Model Context Protocol server for memory operations
-    purpose: Provides MCP-compliant interface for memory read/write operations from
+    purpose:
+      Provides MCP-compliant interface for memory read/write operations from
       external clients.
     protected_files:
-    - src/server.py
-    - __init__.py
+      - src/server.py
+      - __init__.py
     allowed_patterns:
-    - src/handlers/**
-    - src/tools/**
+      - src/handlers/**
+      - src/tools/**
     depends_on:
-    - memory/substrate_service.py
+      - memory/substrate_service.py
     depended_by: []
     invariants:
-    - MCP protocol compliance
-    - All operations logged
-    last_updated: '2026-01-25T19:42:30Z'
+      - MCP protocol compliance
+      - All operations logged
+    last_updated: "2026-01-25T19:42:30Z"
   agents:
     path: agents
     title: Agent Modules
     tier: agents
     description: Collection of specialized agents for different domains
-    purpose: Houses domain-specific agents (cursor, research, architect, coder) that
+    purpose:
+      Houses domain-specific agents (cursor, research, architect, coder) that
       extend L9 capabilities.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - core/agents/executor.py
-    - memory/substrate_service.py
+      - core/agents/executor.py
+      - memory/substrate_service.py
     depended_by: []
     invariants:
-    - All agents follow AgentInstance lifecycle
-    - Agent outputs stored as PacketEnvelope
-    last_updated: '2026-01-25T19:42:30Z'
+      - All agents follow AgentInstance lifecycle
+      - Agent outputs stored as PacketEnvelope
+    last_updated: "2026-01-25T19:42:30Z"
   agents_cursor:
     path: agents/cursor
     title: Cursor Agent
@@ -666,17 +695,17 @@ subsystems:
     description: Cursor IDE integration agent with memory client
     purpose: Provides Cursor IDE integration for memory operations and context injection.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - cursor_memory_client.py
-    - context_sync.py
+      - cursor_memory_client.py
+      - context_sync.py
     depends_on:
-    - mcp_memory/
-    - memory/substrate_service.py
+      - mcp_memory/
+      - memory/substrate_service.py
     depended_by: []
     invariants:
-    - Memory client uses MCP protocol
-    last_updated: '2026-01-25T19:42:30Z'
+      - Memory client uses MCP protocol
+    last_updated: "2026-01-25T19:42:30Z"
   agents_research:
     path: agents/research_agent
     title: Research Agent
@@ -684,17 +713,17 @@ subsystems:
     description: Autonomous research agent with web search and analysis capabilities
     purpose: Conducts autonomous research using web search, analysis, and memory integration.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - research_facade.py
-    - perplexity_client.py
+      - research_facade.py
+      - perplexity_client.py
     depends_on:
-    - services/research/
-    - memory/substrate_service.py
+      - services/research/
+      - memory/substrate_service.py
     depended_by: []
     invariants:
-    - Research results stored as packets
-    last_updated: '2026-01-25T19:42:30Z'
+      - Research results stored as packets
+    last_updated: "2026-01-25T19:42:30Z"
   email_agent:
     path: email_agent
     title: Email Agent
@@ -702,20 +731,20 @@ subsystems:
     description: Gmail integration agent for email triage and processing
     purpose: Handles email triage, OAuth authentication, and email-to-task conversion.
     protected_files:
-    - credentials.py
-    - __init__.py
+      - credentials.py
+      - __init__.py
     allowed_patterns:
-    - gmail_client.py
-    - parser.py
-    - triage.py
-    - router.py
+      - gmail_client.py
+      - parser.py
+      - triage.py
+      - router.py
     depends_on:
-    - core/agents/executor.py
+      - core/agents/executor.py
     depended_by: []
     invariants:
-    - OAuth tokens refreshed automatically
-    - Credentials never logged
-    last_updated: '2026-01-25T19:42:30Z'
+      - OAuth tokens refreshed automatically
+      - Credentials never logged
+    last_updated: "2026-01-25T19:42:30Z"
   mac_agent:
     path: mac_agent
     title: Mac Agent
@@ -723,19 +752,19 @@ subsystems:
     description: Mac automation agent for system tasks and WebSocket communication
     purpose: Executes Mac automation tasks via WebSocket connection to L9 server.
     protected_files:
-    - executor.py
-    - __init__.py
+      - executor.py
+      - __init__.py
     allowed_patterns:
-    - websocket_client.py
-    - runner.py
-    - config.py
+      - websocket_client.py
+      - runner.py
+      - config.py
     depends_on:
-    - runtime/websocket_orchestrator.py
+      - runtime/websocket_orchestrator.py
     depended_by: []
     invariants:
-    - Shell commands require approval for destructive ops
-    - WebSocket connection auto-reconnects
-    last_updated: '2026-01-25T19:42:30Z'
+      - Shell commands require approval for destructive ops
+      - WebSocket connection auto-reconnects
+    last_updated: "2026-01-25T19:42:30Z"
   services_research:
     path: services/research
     title: Research Service
@@ -743,20 +772,20 @@ subsystems:
     description: Research graph, LangGraph integration, and insight extraction
     purpose: Provides research workflow orchestration with LangGraph and insight extraction.
     protected_files:
-    - research_graph.py
-    - __init__.py
+      - research_graph.py
+      - __init__.py
     allowed_patterns:
-    - agents/**
-    - tools/**
-    - insight_extractor.py
-    - memory_adapter.py
+      - agents/**
+      - tools/**
+      - insight_extractor.py
+      - memory_adapter.py
     depends_on:
-    - memory/substrate_service.py
+      - memory/substrate_service.py
     depended_by:
-    - agents/research_agent/
+      - agents/research_agent/
     invariants:
-    - Research state is persisted
-    last_updated: '2026-01-25T19:42:30Z'
+      - Research state is persisted
+    last_updated: "2026-01-25T19:42:30Z"
   services_symbolic:
     path: services/symbolic_computation
     title: Symbolic Computation Service
@@ -764,18 +793,18 @@ subsystems:
     description: SymPy-based symbolic math computation engine
     purpose: Provides symbolic mathematics computation, simplification, and code generation.
     protected_files:
-    - computation.py
-    - __init__.py
+      - computation.py
+      - __init__.py
     allowed_patterns:
-    - core/**
-    - tools/**
-    - api/**
+      - core/**
+      - tools/**
+      - api/**
     depends_on: []
     depended_by:
-    - core/tools/
+      - core/tools/
     invariants:
-    - Expressions validated before evaluation
-    last_updated: '2026-01-25T19:42:30Z'
+      - Expressions validated before evaluation
+    last_updated: "2026-01-25T19:42:30Z"
   world_model:
     path: world_model
     title: World Model
@@ -783,24 +812,24 @@ subsystems:
     description: Causal graph, knowledge engine, and world state management
     purpose: Maintains causal knowledge graph and world state for agent reasoning.
     protected_files:
-    - engine.py
-    - service.py
-    - __init__.py
+      - engine.py
+      - service.py
+      - __init__.py
     allowed_patterns:
-    - causal_graph.py
-    - causal_mapper.py
-    - knowledge_ingestor.py
-    - query_engine.py
-    - nodes/**
+      - causal_graph.py
+      - causal_mapper.py
+      - knowledge_ingestor.py
+      - query_engine.py
+      - nodes/**
     depends_on:
-    - memory/substrate_service.py
+      - memory/substrate_service.py
     depended_by:
-    - orchestrators/world_model/
-    - core/agents/
+      - orchestrators/world_model/
+      - core/agents/
     invariants:
-    - Causal relationships are directional
-    - World state is versioned
-    last_updated: '2026-01-25T19:42:30Z'
+      - Causal relationships are directional
+      - World state is versioned
+    last_updated: "2026-01-25T19:42:30Z"
   ir_engine:
     path: ir_engine
     title: IR Compilation Engine
@@ -808,21 +837,21 @@ subsystems:
     description: Intermediate representation compiler and semantic compilation
     purpose: Compiles meta-specifications to intermediate representation for execution.
     protected_files:
-    - ir_generator.py
-    - semantic_compiler.py
-    - __init__.py
+      - ir_generator.py
+      - semantic_compiler.py
+      - __init__.py
     allowed_patterns:
-    - ir_schema.py
-    - ir_validator.py
-    - ir_to_python.py
-    - ir_to_plan_adapter.py
+      - ir_schema.py
+      - ir_validator.py
+      - ir_to_python.py
+      - ir_to_plan_adapter.py
     depends_on: []
     depended_by:
-    - orchestrators/
+      - orchestrators/
     invariants:
-    - IR schema is versioned
-    - Compilation is deterministic
-    last_updated: '2026-01-25T19:42:30Z'
+      - IR schema is versioned
+      - Compilation is deterministic
+    last_updated: "2026-01-25T19:42:30Z"
   domain_tensor_bridge:
     path: domain_tensor_bridge
     title: Domain Tensor Bridge
@@ -830,13 +859,13 @@ subsystems:
     description: Bridge for domain-specific tensor operations and validation
     purpose: Provides tensor bridge infrastructure for domain-specific computations.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   core_reasoning:
     path: core/reasoning
     title: Reasoning Engine
@@ -844,17 +873,17 @@ subsystems:
     description: ToTH engine, reasoning patterns, and cognitive processing
     purpose: Implements Tree-of-Thought reasoning and cognitive processing patterns.
     protected_files:
-    - toth_engine.py
-    - __init__.py
+      - toth_engine.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - core/agents/executor.py
+      - core/agents/executor.py
     depended_by:
-    - orchestrators/reasoning/
+      - orchestrators/reasoning/
     invariants:
-    - Reasoning steps are logged as packets
-    last_updated: '2026-01-25T19:42:30Z'
+      - Reasoning steps are logged as packets
+    last_updated: "2026-01-25T19:42:30Z"
   core_observability:
     path: core/observability
     title: Observability
@@ -862,16 +891,16 @@ subsystems:
     description: Metrics, tracing, and structured logging
     purpose: Provides observability infrastructure for metrics, tracing, and logging.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - all modules
+      - all modules
     invariants:
-    - All logs are structured JSON
-    - Metrics follow Prometheus conventions
-    last_updated: '2026-01-25T19:42:30Z'
+      - All logs are structured JSON
+      - Metrics follow Prometheus conventions
+    last_updated: "2026-01-25T19:42:30Z"
   core_llm:
     path: core/llm
     title: LLM Clients
@@ -879,17 +908,17 @@ subsystems:
     description: LLM provider clients and abstraction layer
     purpose: Provides unified interface for LLM providers (OpenAI, Anthropic, etc.).
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - config/
+      - config/
     depended_by:
-    - core/agents/executor.py
+      - core/agents/executor.py
     invariants:
-    - API keys from environment only
-    - All requests have timeouts
-    last_updated: '2026-01-25T19:42:30Z'
+      - API keys from environment only
+      - All requests have timeouts
+    last_updated: "2026-01-25T19:42:30Z"
   core_protocols:
     path: core/protocols
     title: Abstract Protocols
@@ -897,15 +926,15 @@ subsystems:
     description: Protocol definitions and abstract interfaces
     purpose: Defines abstract protocols for dependency injection and loose coupling.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - all modules
+      - all modules
     invariants:
-    - Protocols are abstract (no implementation)
-    last_updated: '2026-01-25T19:42:30Z'
+      - Protocols are abstract (no implementation)
+    last_updated: "2026-01-25T19:42:30Z"
   core_coordination:
     path: core/coordination
     title: Coordination & Events
@@ -913,17 +942,17 @@ subsystems:
     description: Event bus, coordination primitives, and inter-module communication
     purpose: Provides event bus and coordination primitives for inter-module communication.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - runtime/redis_client.py
+      - runtime/redis_client.py
     depended_by:
-    - orchestrators/
+      - orchestrators/
     invariants:
-    - Events are typed
-    - Event delivery is at-least-once
-    last_updated: '2026-01-25T19:42:30Z'
+      - Events are typed
+      - Event delivery is at-least-once
+    last_updated: "2026-01-25T19:42:30Z"
   core_resilience:
     path: core/resilience
     title: Resilience Patterns
@@ -931,16 +960,16 @@ subsystems:
     description: Circuit breakers, retry logic, and fault tolerance
     purpose: Implements circuit breakers, retry logic, and fault tolerance patterns.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - runtime/
-    - core/agents/
+      - runtime/
+      - core/agents/
     invariants:
-    - Circuit breakers have configurable thresholds
-    last_updated: '2026-01-25T19:42:30Z'
+      - Circuit breakers have configurable thresholds
+    last_updated: "2026-01-25T19:42:30Z"
   config:
     path: config
     title: Configuration
@@ -948,21 +977,21 @@ subsystems:
     description: Dependency injection, settings, and configuration management
     purpose: Manages application configuration, DI container, and settings.
     protected_files:
-    - di_config.py
-    - settings.py
-    - __init__.py
+      - di_config.py
+      - settings.py
+      - __init__.py
     allowed_patterns:
-    - agents/**
-    - patterns/**
-    - policies/**
-    - schemas/**
+      - agents/**
+      - patterns/**
+      - policies/**
+      - schemas/**
     depends_on: []
     depended_by:
-    - all modules
+      - all modules
     invariants:
-    - Settings loaded from environment
-    - DI container is singleton
-    last_updated: '2026-01-25T19:42:30Z'
+      - Settings loaded from environment
+      - DI container is singleton
+    last_updated: "2026-01-25T19:42:30Z"
   workers:
     path: workers
     title: Background Workers
@@ -970,15 +999,15 @@ subsystems:
     description: Background job workers for async processing
     purpose: Executes background jobs for anomaly detection, remediation, and monitoring.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - runtime/task_queue.py
+      - runtime/task_queue.py
     depended_by: []
     invariants:
-    - Workers are idempotent
-    last_updated: '2026-01-25T19:42:30Z'
+      - Workers are idempotent
+    last_updated: "2026-01-25T19:42:30Z"
   telemetry:
     path: telemetry
     title: Telemetry
@@ -986,15 +1015,15 @@ subsystems:
     description: Metrics collection and emission
     purpose: Collects and emits telemetry data for monitoring and alerting.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - core/observability/
+      - core/observability/
     depended_by: []
     invariants:
-    - Metrics are Prometheus-compatible
-    last_updated: '2026-01-25T19:42:30Z'
+      - Metrics are Prometheus-compatible
+    last_updated: "2026-01-25T19:42:30Z"
   adapters:
     path: adapters
     title: External Adapters
@@ -1002,13 +1031,13 @@ subsystems:
     description: Adapters for external services and APIs
     purpose: Provides adapters for integrating with external services.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   graph_adapter:
     path: graph_adapter
     title: Graph Adapter
@@ -1016,15 +1045,15 @@ subsystems:
     description: Neo4j graph database adapter
     purpose: Adapts packet data to Neo4j graph nodes and relationships.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - memory/
+      - memory/
     depended_by: []
     invariants:
-    - Graph operations are transactional
-    last_updated: '2026-01-25T19:42:30Z'
+      - Graph operations are transactional
+    last_updated: "2026-01-25T19:42:30Z"
   clients:
     path: clients
     title: API Clients
@@ -1032,13 +1061,13 @@ subsystems:
     description: Client implementations for external APIs
     purpose: Provides client implementations for external API communication.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   collaborative_cells:
     path: collaborative_cells
     title: Collaborative Cells
@@ -1046,19 +1075,19 @@ subsystems:
     description: Multi-agent collaboration cells (architect, coder, reviewer)
     purpose: Implements multi-agent collaboration patterns for complex tasks.
     protected_files:
-    - base_cell.py
-    - __init__.py
+      - base_cell.py
+      - __init__.py
     allowed_patterns:
-    - architect_cell.py
-    - coder_cell.py
-    - reviewer_cell.py
-    - reflection_cell.py
+      - architect_cell.py
+      - coder_cell.py
+      - reviewer_cell.py
+      - reflection_cell.py
     depends_on:
-    - core/agents/
+      - core/agents/
     depended_by: []
     invariants:
-    - Cells communicate via messages
-    last_updated: '2026-01-25T19:42:30Z'
+      - Cells communicate via messages
+    last_updated: "2026-01-25T19:42:30Z"
   simulation:
     path: simulation
     title: Simulation Engine
@@ -1066,13 +1095,13 @@ subsystems:
     description: Simulation and testing infrastructure
     purpose: Provides simulation infrastructure for testing and validation.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   ci:
     path: ci
     title: CI Infrastructure
@@ -1080,13 +1109,13 @@ subsystems:
     description: Continuous integration scripts and guardrails
     purpose: Provides CI/CD infrastructure, guardrails, and automated checks.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   core_accountability:
     path: core/accountability
     title: Accountability & Audit
@@ -1094,15 +1123,15 @@ subsystems:
     description: Accountability tracking and audit trail management
     purpose: Tracks agent actions and maintains audit trails for compliance.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - memory/substrate_service.py
+      - memory/substrate_service.py
     depended_by: []
     invariants:
-    - All actions are logged with timestamps
-    last_updated: '2026-01-25T19:42:30Z'
+      - All actions are logged with timestamps
+    last_updated: "2026-01-25T19:42:30Z"
   core_aios:
     path: core/aios
     title: AIOS Core
@@ -1110,14 +1139,14 @@ subsystems:
     description: AI Operating System core abstractions
     purpose: Provides core AIOS abstractions and interfaces.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - core/agents/
+      - core/agents/
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   core_boundary:
     path: core/boundary
     title: Boundary Enforcement
@@ -1125,14 +1154,14 @@ subsystems:
     description: Module boundary and interface enforcement
     purpose: Enforces clean boundaries between subsystems.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants:
-    - Boundaries are validated at import time
-    last_updated: '2026-01-25T19:42:30Z'
+      - Boundaries are validated at import time
+    last_updated: "2026-01-25T19:42:30Z"
   core_codegen:
     path: core/codegen
     title: Code Generation Core
@@ -1140,15 +1169,15 @@ subsystems:
     description: Code generation utilities and templates
     purpose: Provides code generation infrastructure for dynamic code creation.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - ir_engine/
+      - ir_engine/
     invariants:
-    - Generated code must be valid Python
-    last_updated: '2026-01-25T19:42:30Z'
+      - Generated code must be valid Python
+    last_updated: "2026-01-25T19:42:30Z"
   core_commands:
     path: core/commands
     title: Command System
@@ -1156,15 +1185,15 @@ subsystems:
     description: Command pattern implementation for agent actions
     purpose: Implements command pattern for undoable/auditable actions.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - core/agents/
+      - core/agents/
     invariants:
-    - Commands are serializable
-    last_updated: '2026-01-25T19:42:30Z'
+      - Commands are serializable
+    last_updated: "2026-01-25T19:42:30Z"
   core_compliance:
     path: core/compliance
     title: Compliance Engine
@@ -1172,15 +1201,15 @@ subsystems:
     description: Compliance checking and policy enforcement
     purpose: Ensures system operations comply with defined policies.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - core/governance/
+      - core/governance/
     depended_by: []
     invariants:
-    - Compliance violations are logged
-    last_updated: '2026-01-25T19:42:30Z'
+      - Compliance violations are logged
+    last_updated: "2026-01-25T19:42:30Z"
   core_di:
     path: core/di
     title: Dependency Injection
@@ -1188,16 +1217,16 @@ subsystems:
     description: Dependency injection container and utilities
     purpose: Provides DI container for loose coupling and testability.
     protected_files:
-    - __init__.py
-    - container.py
+      - __init__.py
+      - container.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - config/di_config.py
+      - config/di_config.py
     invariants:
-    - Container is singleton per process
-    last_updated: '2026-01-25T19:42:30Z'
+      - Container is singleton per process
+    last_updated: "2026-01-25T19:42:30Z"
   core_eos:
     path: core/eos
     title: EOS System
@@ -1205,13 +1234,13 @@ subsystems:
     description: Execution Operating System components
     purpose: Manages execution environment and system resources.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   core_evaluation:
     path: core/evaluation
     title: Evaluation Framework
@@ -1219,15 +1248,15 @@ subsystems:
     description: Agent and output evaluation framework
     purpose: Evaluates agent performance and output quality.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - core/agents/
+      - core/agents/
     depended_by: []
     invariants:
-    - Evaluation results are stored as packets
-    last_updated: '2026-01-25T19:42:30Z'
+      - Evaluation results are stored as packets
+    last_updated: "2026-01-25T19:42:30Z"
   core_facade:
     path: core/facade
     title: Facade Layer
@@ -1235,14 +1264,14 @@ subsystems:
     description: Simplified interfaces to complex subsystems
     purpose: Provides simplified APIs for common operations.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - api/
+      - api/
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   core_graph:
     path: core/graph
     title: Graph Utilities
@@ -1250,16 +1279,16 @@ subsystems:
     description: Graph data structures and algorithms
     purpose: Provides graph utilities for knowledge representation.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - world_model/
-    - memory/
+      - world_model/
+      - memory/
     invariants:
-    - Graph operations are transactional
-    last_updated: '2026-01-25T19:42:30Z'
+      - Graph operations are transactional
+    last_updated: "2026-01-25T19:42:30Z"
   core_instrumentation:
     path: core/instrumentation
     title: Instrumentation
@@ -1267,15 +1296,15 @@ subsystems:
     description: Code instrumentation for observability
     purpose: Instruments code for metrics, tracing, and logging.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - core/observability/
+      - core/observability/
     depended_by: []
     invariants:
-    - Instrumentation has minimal overhead
-    last_updated: '2026-01-25T19:42:30Z'
+      - Instrumentation has minimal overhead
+    last_updated: "2026-01-25T19:42:30Z"
   core_integration:
     path: core/integration
     title: Integration Layer
@@ -1283,13 +1312,13 @@ subsystems:
     description: Cross-subsystem integration utilities
     purpose: Facilitates integration between subsystems.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   core_kernel_wiring:
     path: core/kernel_wiring
     title: Kernel Wiring
@@ -1297,16 +1326,16 @@ subsystems:
     description: Kernel configuration and wiring utilities
     purpose: Wires kernel components together during bootstrap.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - core/kernels/
+      - core/kernels/
     depended_by:
-    - runtime/kernel_loader.py
+      - runtime/kernel_loader.py
     invariants:
-    - Wiring is deterministic
-    last_updated: '2026-01-25T19:42:30Z'
+      - Wiring is deterministic
+    last_updated: "2026-01-25T19:42:30Z"
   core_memory:
     path: core/memory
     title: Core Memory Utilities
@@ -1314,14 +1343,14 @@ subsystems:
     description: Memory abstractions and utilities
     purpose: Provides core memory abstractions used by memory subsystem.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - memory/
+      - memory/
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   core_models:
     path: core/models
     title: Core Data Models
@@ -1329,14 +1358,14 @@ subsystems:
     description: Shared data models and schemas
     purpose: Defines shared data models used across subsystems.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants:
-    - Models are Pydantic BaseModel subclasses
-    last_updated: '2026-01-25T19:42:30Z'
+      - Models are Pydantic BaseModel subclasses
+    last_updated: "2026-01-25T19:42:30Z"
   core_packet_envelope:
     path: core/packet_envelope
     title: Packet Envelope
@@ -1344,18 +1373,18 @@ subsystems:
     description: PacketEnvelope data structure and utilities
     purpose: Defines the canonical PacketEnvelope for all data exchange.
     protected_files:
-    - __init__.py
-    - envelope.py
+      - __init__.py
+      - envelope.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - memory/
-    - core/agents/
+      - memory/
+      - core/agents/
     invariants:
-    - PacketEnvelope is immutable after creation
-    - All IDs are UUIDv4
-    last_updated: '2026-01-25T19:42:30Z'
+      - PacketEnvelope is immutable after creation
+      - All IDs are UUIDv4
+    last_updated: "2026-01-25T19:42:30Z"
   core_retrievers:
     path: core/retrievers
     title: Retrieval Strategies
@@ -1363,16 +1392,16 @@ subsystems:
     description: Memory and knowledge retrieval strategies
     purpose: Implements various retrieval strategies for memory search.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - memory/
+      - memory/
     depended_by:
-    - core/agents/
+      - core/agents/
     invariants:
-    - Retrievers return ranked results
-    last_updated: '2026-01-25T19:42:30Z'
+      - Retrievers return ranked results
+    last_updated: "2026-01-25T19:42:30Z"
   core_runtimes:
     path: core/runtimes
     title: Runtime Implementations
@@ -1380,14 +1409,14 @@ subsystems:
     description: Alternative runtime implementations
     purpose: Provides different runtime implementations for various contexts.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - runtime/
+      - runtime/
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   core_schemas:
     path: core/schemas
     title: Core Schemas
@@ -1395,14 +1424,14 @@ subsystems:
     description: JSON schemas and validation utilities
     purpose: Provides schema validation for configurations and data.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants:
-    - Schemas are JSON Schema compliant
-    last_updated: '2026-01-25T19:42:30Z'
+      - Schemas are JSON Schema compliant
+    last_updated: "2026-01-25T19:42:30Z"
   core_secrets:
     path: core/secrets
     title: Secrets Management
@@ -1410,17 +1439,17 @@ subsystems:
     description: Secure secrets handling and storage
     purpose: Manages secrets securely with encryption at rest.
     protected_files:
-    - __init__.py
-    - vault.py
+      - __init__.py
+      - vault.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - core/security/
+      - core/security/
     invariants:
-    - Secrets never logged in plaintext
-    - Secrets encrypted at rest
-    last_updated: '2026-01-25T19:42:30Z'
+      - Secrets never logged in plaintext
+      - Secrets encrypted at rest
+    last_updated: "2026-01-25T19:42:30Z"
   core_testing:
     path: core/testing
     title: Testing Utilities
@@ -1428,13 +1457,13 @@ subsystems:
     description: Test utilities, fixtures, and mocks
     purpose: Provides testing infrastructure for subsystem tests.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   core_worldmodel:
     path: core/worldmodel
     title: World Model Core
@@ -1442,14 +1471,14 @@ subsystems:
     description: Core world model abstractions
     purpose: Provides core abstractions for world model representation.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by:
-    - world_model/
+      - world_model/
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   tools:
     path: tools
     title: Development Tools
@@ -1457,13 +1486,13 @@ subsystems:
     description: Development and maintenance tools
     purpose: Provides CLI tools for development, debugging, and maintenance.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   codegenagent:
     path: codegenagent
     title: CodeGen Agent
@@ -1471,16 +1500,16 @@ subsystems:
     description: Code generation agent and specifications
     purpose: Implements code generation agent with YAML specs.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
-    - '**/*.yaml'
+      - "**/*.py"
+      - "**/*.yaml"
     depends_on:
-    - core/agents/
+      - core/agents/
     depended_by: []
     invariants:
-    - Generated code must pass linting
-    last_updated: '2026-01-25T19:42:30Z'
+      - Generated code must pass linting
+    last_updated: "2026-01-25T19:42:30Z"
   prompts:
     path: prompts
     title: Prompt Library
@@ -1489,14 +1518,14 @@ subsystems:
     purpose: Stores and manages prompt templates for agents.
     protected_files: []
     allowed_patterns:
-    - '**/*.txt'
-    - '**/*.md'
-    - '**/*.yaml'
+      - "**/*.txt"
+      - "**/*.md"
+      - "**/*.yaml"
     depends_on: []
     depended_by:
-    - core/agents/
+      - core/agents/
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   langgraph:
     path: langgraph
     title: LangGraph Integration
@@ -1505,12 +1534,12 @@ subsystems:
     purpose: Documents LangGraph integration patterns.
     protected_files: []
     allowed_patterns:
-    - '**/*.md'
+      - "**/*.md"
     depends_on: []
     depended_by:
-    - services/research/
+      - services/research/
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   local_dashboard:
     path: local_dashboard
     title: Local Dashboard
@@ -1518,14 +1547,14 @@ subsystems:
     description: Local development dashboard
     purpose: Provides local web dashboard for development monitoring.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on:
-    - api/
+      - api/
     depended_by: []
     invariants: []
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
   scripts:
     path: scripts
     title: Automation Scripts
@@ -1534,13 +1563,13 @@ subsystems:
     purpose: Houses automation scripts for deployment, maintenance, and development.
     protected_files: []
     allowed_patterns:
-    - '**/*.py'
-    - '**/*.sh'
+      - "**/*.py"
+      - "**/*.sh"
     depends_on: []
     depended_by: []
     invariants:
-    - Scripts must be idempotent where possible
-    last_updated: '2026-01-25T19:42:30Z'
+      - Scripts must be idempotent where possible
+    last_updated: "2026-01-25T19:42:30Z"
   dev:
     path: dev
     title: Development Utilities
@@ -1548,43 +1577,44 @@ subsystems:
     description: Development-only utilities and tools
     purpose: Provides development-only tools not for production use.
     protected_files:
-    - __init__.py
+      - __init__.py
     allowed_patterns:
-    - '**/*.py'
+      - "**/*.py"
     depends_on: []
     depended_by: []
     invariants:
-    - Dev tools never imported in production
-    last_updated: '2026-01-25T19:42:30Z'
+      - Dev tools never imported in production
+    last_updated: "2026-01-25T19:42:30Z"
   workflows:
     path: workflows
     title: Workflow Engine
     tier: infrastructure
     description: DAG-based workflow execution engine with session management
-    purpose: Provides workflow orchestration using directed acyclic graphs (DAGs)
+    purpose:
+      Provides workflow orchestration using directed acyclic graphs (DAGs)
       for multi-step operations like harvest-deploy, refactoring, and session management.
     owner: Igor
-    last_updated: '2026-01-25T19:42:30Z'
+    last_updated: "2026-01-25T19:42:30Z"
     protected_files:
-    - __init__.py
-    - state.py
-    - runner.py
+      - __init__.py
+      - state.py
+      - runner.py
     allowed_patterns:
-    - nodes/**
-    - defs/**
-    - session/**
-    - harvest_deploy.py
+      - nodes/**
+      - defs/**
+      - session/**
+      - harvest_deploy.py
     depends_on:
-    - memory/substrate_service.py
-    - core/agents/executor.py
+      - memory/substrate_service.py
+      - core/agents/executor.py
     depended_by:
-    - api/routes/
+      - api/routes/
     invariants:
-    - Workflow state is persisted between runs
-    - DAG nodes execute in topological order
-    - Session state is serializable
+      - Workflow state is persisted between runs
+      - DAG nodes execute in topological order
+      - Session state is serializable
     prereading:
-    - workflows/defs/workflow-template.yaml
+      - workflows/defs/workflow-template.yaml
     file_descriptions:
       state.py: Workflow state management and persistence (PROTECTED)
       runner.py: Workflow execution engine (PROTECTED)
@@ -1600,28 +1630,27 @@ subsystems:
       defs/harvest-deploy.yaml: Harvest-deploy workflow definition
       defs/workflow-template.yaml: Template for new workflows
     naming_conventions:
-    - '**Workflow defs:** kebab-case YAML files (e.g., `harvest-deploy.yaml`)'
-    - '**Node modules:** snake_case Python files (e.g., `extract.py`)'
-    - '**Node functions:** `execute_<action>()` pattern'
-    - '**DAG classes:** `<Name>DAG` (e.g., `RefactoringDAG`)'
+      - "**Workflow defs:** kebab-case YAML files (e.g., `harvest-deploy.yaml`)"
+      - "**Node modules:** snake_case Python files (e.g., `extract.py`)"
+      - "**Node functions:** `execute_<action>()` pattern"
+      - "**DAG classes:** `<Name>DAG` (e.g., `RefactoringDAG`)"
     edge_cases:
-    - name: Node failure
-      description: Node raises exception → workflow halts, state preserved for retry
-    - name: Session timeout
-      description: Session exceeds timeout → checkpoint state, emit warning
-    - name: Circular dependency
-      description: DAG validation catches cycles → reject workflow definition
+      - name: Node failure
+        description: Node raises exception → workflow halts, state preserved for retry
+      - name: Session timeout
+        description: Session exceeds timeout → checkpoint state, emit warning
+      - name: Circular dependency
+        description: DAG validation catches cycles → reject workflow definition
     responsibilities:
-    - Workflow definition parsing (YAML)
-    - DAG execution ordering
-    - State persistence across runs
-    - Session lifecycle management
-    - Checkpoint and recovery
+      - Workflow definition parsing (YAML)
+      - DAG execution ordering
+      - State persistence across runs
+      - Session lifecycle management
+      - Checkpoint and recovery
     non_responsibilities:
-    - Agent execution (owned by core/agents)
-    - Memory storage (owned by memory/)
-    - File harvesting logic (owned by nodes)
-
+      - Agent execution (owned by core/agents)
+      - Memory storage (owned by memory/)
+      - File harvesting logic (owned by nodes)
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

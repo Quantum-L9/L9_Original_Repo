@@ -22,6 +22,7 @@ IMPACT_METRICS: API surface area, GMP learning accessibility
 ## CONTEXT
 
 The GMP learning engine needs API endpoints for:
+
 - Viewing current autonomy level
 - Checking graduation status
 - Getting active heuristics
@@ -32,12 +33,14 @@ The GMP learning engine needs API endpoints for:
 ## TODO PLAN
 
 ### [T1] Create api/routes/gmp_learning.py
+
 - **File:** `api/routes/gmp_learning.py`
 - **Lines:** 1-150
 - **Action:** Create
 - **Change:** New router with endpoints
 
 ### [T2] Wire router to api/server.py
+
 - **File:** `api/server.py`
 - **Lines:** Router includes section
 - **Action:** Insert
@@ -128,7 +131,7 @@ LEVEL_INFO = {
         "capabilities": ["locked_todo_plans", "static_audit", "no_learning"]
     },
     "L3": {
-        "description": "Adaptive Execution", 
+        "description": "Adaptive Execution",
         "capabilities": ["adaptive_todos", "failure_recovery", "pattern_matching"]
     },
     "L4": {
@@ -147,9 +150,9 @@ async def get_autonomy_level(engine: GMPMetaLearningEngine = Depends(get_gmp_eng
     """Get current GMP autonomy level."""
     controller = AutonomyController(engine)
     level = await controller.get_current_autonomy_level()
-    
+
     info = LEVEL_INFO.get(level.value, LEVEL_INFO["L2"])
-    
+
     return AutonomyLevelResponse(
         current_level=level.value,
         description=info["description"],
@@ -161,12 +164,12 @@ async def get_autonomy_level(engine: GMPMetaLearningEngine = Depends(get_gmp_eng
 async def get_graduation_status(engine: GMPMetaLearningEngine = Depends(get_gmp_engine)):
     """Check if system can graduate to next autonomy level."""
     controller = AutonomyController(engine)
-    
+
     current = await controller.get_current_autonomy_level()
     can_graduate, reason = await controller.can_graduate_to_next_level()
-    
+
     next_level_map = {"L2": "L3", "L3": "L4", "L4": "L5", "L5": None}
-    
+
     return GraduationStatusResponse(
         can_graduate=can_graduate,
         reason=reason,
@@ -179,12 +182,12 @@ async def get_graduation_status(engine: GMPMetaLearningEngine = Depends(get_gmp_
 async def graduate_to_next_level(engine: GMPMetaLearningEngine = Depends(get_gmp_engine)):
     """Attempt to graduate to the next autonomy level."""
     controller = AutonomyController(engine)
-    
+
     success, message = await controller.graduate_to_next_level()
     current = await controller.get_current_autonomy_level()
-    
+
     next_level_map = {"L2": "L3", "L3": "L4", "L4": "L5", "L5": None}
-    
+
     return GraduationStatusResponse(
         can_graduate=success,
         reason=message,
@@ -197,7 +200,7 @@ async def graduate_to_next_level(engine: GMPMetaLearningEngine = Depends(get_gmp
 async def get_heuristics(engine: GMPMetaLearningEngine = Depends(get_gmp_engine)):
     """Get all active learned heuristics."""
     heuristics = await engine.get_active_heuristics()
-    
+
     return HeuristicsResponse(
         count=len(heuristics),
         heuristics=[
@@ -219,7 +222,7 @@ async def get_heuristics(engine: GMPMetaLearningEngine = Depends(get_gmp_engine)
 async def get_analytics(engine: GMPMetaLearningEngine = Depends(get_gmp_engine)):
     """Get GMP execution analytics for past 30 days."""
     stats = await engine.analyze_execution_patterns()
-    
+
     if stats.get("total_executions", 0) == 0:
         return AnalyticsResponse(
             total_executions=0,
@@ -229,7 +232,7 @@ async def get_analytics(engine: GMPMetaLearningEngine = Depends(get_gmp_engine))
             pass_rate=0.0,
             by_task_type={}
         )
-    
+
     return AnalyticsResponse(
         total_executions=stats["total_executions"],
         avg_execution_time=stats["avg_execution_time"],
@@ -247,13 +250,13 @@ async def log_execution(
 ):
     """Log a GMP execution result (internal use)."""
     success = await engine.log_execution(result)
-    
+
     if not success:
         raise HTTPException(status_code=500, detail="Failed to log execution")
-    
+
     # Update autonomy metrics
     metrics = await engine.update_autonomy_metrics(result)
-    
+
     return {
         "logged": True,
         "gmp_id": result.gmp_id,
@@ -269,7 +272,7 @@ async def log_execution(
 async def trigger_heuristic_generation(engine: GMPMetaLearningEngine = Depends(get_gmp_engine)):
     """Manually trigger heuristic generation from execution history."""
     heuristics = await engine.generate_heuristics()
-    
+
     return {
         "generated": len(heuristics),
         "heuristics": [
@@ -295,12 +298,12 @@ async def trigger_heuristic_generation(engine: GMPMetaLearningEngine = Depends(g
 
 ## EXPECTED ENDPOINTS
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/gmp/autonomy-level` | Current level (L2/L3/L4/L5) |
-| GET | `/api/gmp/graduation-status` | Can graduate? |
-| POST | `/api/gmp/graduate` | Attempt graduation |
-| GET | `/api/gmp/heuristics` | Active learned heuristics |
-| GET | `/api/gmp/analytics` | 30-day execution analytics |
-| POST | `/api/gmp/log-execution` | Log GMP result |
-| POST | `/api/gmp/generate-heuristics` | Trigger heuristic generation |
+| Method | Path                           | Description                  |
+| ------ | ------------------------------ | ---------------------------- |
+| GET    | `/api/gmp/autonomy-level`      | Current level (L2/L3/L4/L5)  |
+| GET    | `/api/gmp/graduation-status`   | Can graduate?                |
+| POST   | `/api/gmp/graduate`            | Attempt graduation           |
+| GET    | `/api/gmp/heuristics`          | Active learned heuristics    |
+| GET    | `/api/gmp/analytics`           | 30-day execution analytics   |
+| POST   | `/api/gmp/log-execution`       | Log GMP result               |
+| POST   | `/api/gmp/generate-heuristics` | Trigger heuristic generation |

@@ -38,42 +38,42 @@ field_definitions:
     type: string
     pattern: "^[A-Z_]+$"
     description: "Unique identifier (e.g., MVC, CQRS, HEXAGONAL)"
-  
+
   name:
     type: string
     description: "Full pattern name"
     examples:
       - "Model-View-Controller"
       - "Command Query Responsibility Segregation"
-  
+
   intent:
     type: string
     description: "What problem this pattern solves"
-  
+
   applicability:
     type: string
     description: "What situations this pattern applies to"
-  
+
   when_to_use:
     type: array
     description: "Conditions that indicate this pattern is appropriate"
-  
+
   when_not_to_use:
     type: array
     description: "Conditions that indicate this pattern should be avoided"
-  
+
   constraints:
     type: array
     description: "Rules that must be followed when using this pattern"
-  
+
   failure_modes:
     type: array
     description: "Common ways this pattern can be misapplied"
-  
+
   remediation:
     type: string
     description: "How to fix violations of this pattern"
-  
+
   related_patterns:
     type: array
     description: "Other patterns that work well with this one"
@@ -105,7 +105,6 @@ examples:
     failure_modes:
       - "Fat controllers"
       - "Business logic in templates"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

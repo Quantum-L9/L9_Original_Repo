@@ -35,7 +35,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -64,14 +64,14 @@ class ComplianceReport:
     # Violations
     unapproved_high_risk_calls: int = 0
     failed_tool_calls: int = 0
-    violations: List[Dict[str, Any]] = field(default_factory=list)
+    violations: list[dict[str, Any]] = field(default_factory=list)
 
     # Details
-    commands_by_type: Dict[str, int] = field(default_factory=dict)
-    tools_by_name: Dict[str, int] = field(default_factory=dict)
-    memory_writes_by_segment: Dict[str, int] = field(default_factory=dict)
+    commands_by_type: dict[str, int] = field(default_factory=dict)
+    tools_by_name: dict[str, int] = field(default_factory=dict)
+    memory_writes_by_segment: dict[str, int] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "report_id": str(self.report_id),
@@ -111,7 +111,7 @@ class ComplianceReporter:
     # GMP-104: Tool risk classification loaded from config/policies/high_risk_tools.yaml
     HIGH_RISK_TOOLS = get_high_risk_tools()
 
-    def __init__(self, substrate_service: Optional[Any] = None):
+    def __init__(self, substrate_service: Any | None = None):
         """
         Initialize ComplianceReporter.
 
@@ -122,7 +122,7 @@ class ComplianceReporter:
 
     async def generate_daily_report(
         self,
-        date: Optional[datetime] = None,
+        date: datetime | None = None,
     ) -> ComplianceReport:
         """
         Generate a compliance report for a specific day.
@@ -351,7 +351,7 @@ class ComplianceReporter:
         from_date: datetime,
         to_date: datetime,
         format: str = "json",
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Export raw audit log entries for a date range.
 

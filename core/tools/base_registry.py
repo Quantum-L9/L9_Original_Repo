@@ -1024,7 +1024,7 @@ async def saga_timeline_correlation(
 
             substrate = await get_service()
             if substrate:
-                cutoff = datetime.utcnow() - timedelta(hours=time_range_hours)
+                datetime.utcnow() - timedelta(hours=time_range_hours)
 
                 # Search for events related to entity
                 search_results = await substrate.search_packets_by_type(

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Memory Bridge
@@ -50,7 +49,7 @@ __dora_meta__ = {
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -67,8 +66,8 @@ class EpisodicEvent:
     event_id: str
     timestamp: str
     event_type: str
-    payload: Dict[str, Any]
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    payload: dict[str, Any]
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -77,8 +76,8 @@ class Node:
 
     node_id: str
     node_type: str
-    properties: Dict[str, Any]
-    edges: List[str] = field(default_factory=list)
+    properties: dict[str, Any]
+    edges: list[str] = field(default_factory=list)
 
 
 class MemoryBridge:
@@ -94,7 +93,7 @@ class MemoryBridge:
 
     def __init__(
         self,
-        substrate_service: Optional[MemorySubstrateService] = None,
+        substrate_service: MemorySubstrateService | None = None,
     ):
         self.substrate = substrate_service
         self._redis_dsn = os.environ.get("L9_REDIS_URL")
@@ -122,7 +121,7 @@ class MemoryBridge:
     # Working Memory (Redis)
     # =========================================================================
 
-    async def get_working_memory(self, key: str) -> Optional[Dict[str, Any]]:
+    async def get_working_memory(self, key: str) -> dict[str, Any] | None:
         """
         Get value from working memory (Redis).
 
@@ -143,7 +142,7 @@ class MemoryBridge:
     async def set_working_memory(
         self,
         key: str,
-        value: Dict[str, Any],
+        value: dict[str, Any],
         ttl_seconds: int = 300,
     ) -> bool:
         """
@@ -171,8 +170,8 @@ class MemoryBridge:
 
     async def query_episodic_memory(
         self,
-        filters: Dict[str, Any],
-    ) -> List[EpisodicEvent]:
+        filters: dict[str, Any],
+    ) -> list[EpisodicEvent]:
         """
         Query episodic memory (Postgres) for events.
 
@@ -220,7 +219,7 @@ class MemoryBridge:
     # Semantic Graph (Neo4j)
     # =========================================================================
 
-    async def query_semantic_graph(self, query: str) -> List[Node]:
+    async def query_semantic_graph(self, query: str) -> list[Node]:
         """
         Query semantic graph (Neo4j).
 
@@ -255,7 +254,7 @@ class MemoryBridge:
         self,
         entity_id: str,
         depth: int = 2,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Query causal graph for entity relationships.
 
@@ -301,8 +300,8 @@ __footer_meta__ = {
 }
 
 __all__ = [
-    "MemoryBridge",
     "EpisodicEvent",
+    "MemoryBridge",
     "Node",
     "__footer_meta__",
     "__l9_trace__",

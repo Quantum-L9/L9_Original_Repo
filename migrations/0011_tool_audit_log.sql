@@ -19,12 +19,11 @@ CREATE TABLE IF NOT EXISTS tool_audit_log (
 );
 
 -- Indexes for common queries
-CREATE INDEX IF NOT EXISTS idx_tool_audit_agent_timestamp 
+CREATE INDEX IF NOT EXISTS idx_tool_audit_agent_timestamp
     ON tool_audit_log (agent_id, timestamp);
-CREATE INDEX IF NOT EXISTS idx_tool_audit_tool_timestamp 
+CREATE INDEX IF NOT EXISTS idx_tool_audit_tool_timestamp
     ON tool_audit_log (tool_name, timestamp);
-CREATE INDEX IF NOT EXISTS idx_tool_audit_request_id 
+CREATE INDEX IF NOT EXISTS idx_tool_audit_request_id
     ON tool_audit_log (request_id);
 
 COMMIT;
-

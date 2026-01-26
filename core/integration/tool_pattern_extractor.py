@@ -43,6 +43,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import contextlib
 import os
 from datetime import datetime, timedelta
 from typing import Any
@@ -122,10 +123,8 @@ class ToolPatternExtractor:
         self._running = False
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
             self._task = None
         logger.info("ToolPatternExtractor stopped")
 
@@ -217,7 +216,7 @@ class ToolPatternExtractor:
                 lookback = datetime.utcnow() - timedelta(hours=self.lookback_hours)
 
                 query = """
-                    SELECT 
+                    SELECT
                         tool_name,
                         agent_id,
                         (error IS NULL) as success,

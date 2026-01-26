@@ -34,15 +34,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
 from services.symbolic_computation.config import get_config
 from services.symbolic_computation.core.cache_manager import CacheManager
 from services.symbolic_computation.core.code_generator import CodeGenerator
-from services.symbolic_computation.core.expression_evaluator import \
-    ExpressionEvaluator
+from services.symbolic_computation.core.expression_evaluator import ExpressionEvaluator
 from services.symbolic_computation.core.metrics import MetricsCollector
 from services.symbolic_computation.core.optimizer import Optimizer
 from services.symbolic_computation.core.validator import ExpressionValidator
@@ -80,8 +79,8 @@ class SymPyTool:
 
     def __init__(
         self,
-        redis_client: Optional[Any] = None,
-        postgres_client: Optional[Any] = None,
+        redis_client: Any | None = None,
+        postgres_client: Any | None = None,
     ):
         """
         Initialize the SymPy tool.
@@ -109,9 +108,9 @@ class SymPyTool:
     async def evaluate(
         self,
         expression: str,
-        variables: Dict[str, float] | None = None,
+        variables: dict[str, float] | None = None,
         backend: str = "numpy",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Evaluate a symbolic expression numerically.
 
@@ -159,10 +158,10 @@ class SymPyTool:
     async def generate_code(
         self,
         expression: str,
-        variables: List[str],
+        variables: list[str],
         language: str = "C",
         function_name: str = "evaluate",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Generate compilable code from expression.
 
@@ -212,8 +211,8 @@ class SymPyTool:
     def optimize(
         self,
         expression: str,
-        strategies: List[str] | None = None,
-    ) -> Dict[str, Any]:
+        strategies: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         Optimize expression for faster evaluation.
 
@@ -268,7 +267,7 @@ class SymPyTool:
             "strategies_applied": strategies,
         }
 
-    def validate(self, expression: str) -> Dict[str, Any]:
+    def validate(self, expression: str) -> dict[str, Any]:
         """
         Validate an expression.
 
@@ -288,7 +287,7 @@ class SymPyTool:
             "dangerous_functions_found": result.dangerous_functions_found,
         }
 
-    def get_tool_definitions(self) -> List[Dict[str, Any]]:
+    def get_tool_definitions(self) -> list[dict[str, Any]]:
         """
         Get tool definitions for registration in L9 tool registry.
 
@@ -346,8 +345,8 @@ class SymPyTool:
 
 # Factory function for tool registration
 def create_sympy_tool(
-    redis_client: Optional[Any] = None,
-    postgres_client: Optional[Any] = None,
+    redis_client: Any | None = None,
+    postgres_client: Any | None = None,
 ) -> SymPyTool:
     """
     Create a SymPyTool instance.

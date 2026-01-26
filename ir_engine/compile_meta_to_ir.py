@@ -40,7 +40,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 import structlog
 import yaml
@@ -61,8 +61,8 @@ class GenerationTarget:
 
     path: str
     target_type: str  # adapter, client, route, ingest, test, doc
-    template_name: Optional[str] = None
-    context: Dict[str, Any] = field(default_factory=dict)
+    template_name: str | None = None
+    context: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -79,16 +79,15 @@ class DependencyEdge:
         # Well-known L9 modules
         if self.target_module == "memory.service":
             return "from memory.substrate_service import MemorySubstrateService"
-        elif self.target_module == "aios.runtime":
+        if self.target_module == "aios.runtime":
             return "from core.agents.runtime import AIOSRuntime"
-        elif "." in self.target_module:
+        if "." in self.target_module:
             # Module path with dots: from a.b import c
             parts = self.target_module.split(".")
             return f"from {'.'.join(parts[:-1])} import {parts[-1]}"
-        else:
-            # Single module name (tool interface) - skip import, will be injected at runtime
-            # Tools like rollback_orchestrator, notification_service are runtime-injected
-            return f"# {self.target_module} - injected via tool registry"
+        # Single module name (tool interface) - skip import, will be injected at runtime
+        # Tools like rollback_orchestrator, notification_service are runtime-injected
+        return f"# {self.target_module} - injected via tool registry"
 
 
 @dataclass
@@ -96,7 +95,7 @@ class PacketSpec:
     """Packet specification for code generation."""
 
     packet_type: str
-    required_metadata: List[str]
+    required_metadata: list[str]
 
     @property
     def class_name(self) -> str:
@@ -123,10 +122,10 @@ class WiringSpec:
 
     service: str
     startup_phase: str
-    depends_on: List[str]
+    depends_on: list[str]
     blocks_startup_on_failure: bool
-    router_include: Optional[str] = None
-    lifespan_init: Optional[str] = None
+    router_include: str | None = None
+    lifespan_init: str | None = None
 
 
 @dataclass
@@ -145,37 +144,37 @@ class ModuleIR:
     tier: str
 
     # Generation targets
-    targets: List[GenerationTarget] = field(default_factory=list)
+    targets: list[GenerationTarget] = field(default_factory=list)
 
     # Dependencies
-    dependencies: List[DependencyEdge] = field(default_factory=list)
-    required_imports: Set[str] = field(default_factory=set)
+    dependencies: list[DependencyEdge] = field(default_factory=list)
+    required_imports: set[str] = field(default_factory=set)
 
     # Packets
-    packets: List[PacketSpec] = field(default_factory=list)
+    packets: list[PacketSpec] = field(default_factory=list)
 
     # Tests
-    tests: List[TestSpec] = field(default_factory=list)
+    tests: list[TestSpec] = field(default_factory=list)
 
     # Wiring
-    wiring: Optional[WiringSpec] = None
+    wiring: WiringSpec | None = None
 
     # Interfaces
-    inbound_routes: List[Dict[str, Any]] = field(default_factory=list)
-    outbound_clients: List[Dict[str, Any]] = field(default_factory=list)
+    inbound_routes: list[dict[str, Any]] = field(default_factory=list)
+    outbound_clients: list[dict[str, Any]] = field(default_factory=list)
 
     # Environment
-    required_env_vars: List[Dict[str, str]] = field(default_factory=list)
-    optional_env_vars: List[Dict[str, str]] = field(default_factory=list)
+    required_env_vars: list[dict[str, str]] = field(default_factory=list)
+    optional_env_vars: list[dict[str, str]] = field(default_factory=list)
 
     # Observability
-    counters: List[str] = field(default_factory=list)
-    histograms: List[str] = field(default_factory=list)
+    counters: list[str] = field(default_factory=list)
+    histograms: list[str] = field(default_factory=list)
 
     # Generation context (for templates)
-    context: Dict[str, Any] = field(default_factory=dict)
+    context: dict[str, Any] = field(default_factory=dict)
 
-    def get_imports(self) -> List[str]:
+    def get_imports(self) -> list[str]:
         """Get all required imports as sorted list."""
         imports = set(self.required_imports)
         comments = []
@@ -275,7 +274,7 @@ class MetaToIRCompiler:
         Returns:
             ModuleIR ready for code generation
         """
-        with open(yaml_path, "r", encoding="utf-8") as f:
+        with open(yaml_path, encoding="utf-8") as f:
             raw = yaml.safe_load(f)
 
         contract = MetaContract(**raw)
@@ -459,21 +458,19 @@ class MetaToIRCompiler:
         """Infer target type from file path pattern."""
         if path.endswith("_adapter.py"):
             return "adapter"
-        elif path.endswith("_client.py"):
+        if path.endswith("_client.py"):
             return "client"
-        elif path.startswith("api/routes/"):
+        if path.startswith("api/routes/"):
             return "route"
-        elif path.endswith("_ingest.py"):
+        if path.endswith("_ingest.py"):
             return "ingest"
-        elif path.startswith("tests/"):
+        if path.startswith("tests/"):
             if "_smoke" in path:
                 return "smoke_test"
-            else:
-                return "test"
-        elif path.endswith(".md"):
+            return "test"
+        if path.endswith(".md"):
             return "doc"
-        else:
-            return "module"
+        return "module"
 
     def _infer_template_name(self, target_type: str) -> str:
         """Infer template name from target type."""

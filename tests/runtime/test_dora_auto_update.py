@@ -35,7 +35,6 @@ from runtime.dora import (
     update_dora_block_in_file,
 )
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
@@ -60,7 +59,9 @@ def temp_python_file():
         f.write('    "graph": {"nodes": [], "edges": []},\n')
         f.write('    "inputs": {},\n')
         f.write('    "outputs": {},\n')
-        f.write('    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},\n')
+        f.write(
+            '    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},\n'
+        )
         f.write("}\n")
         f.write("# " + "=" * 76 + "\n")
         f.write("# END L9 DORA BLOCK\n")
@@ -176,6 +177,7 @@ def test_update_dora_block_nonexistent_file():
 
 def test_l9_traced_decorator_default_update_source(temp_python_file):
     """Test that @l9_traced now defaults to update_source=True."""
+
     # Create a traced function
     @l9_traced(source_file=temp_python_file)
     def test_func(x: int) -> int:
@@ -423,7 +425,12 @@ __l9_trace__ = {
     "graph": {"nodes": [], "edges": []},
     "inputs": {},
     "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": "", "duration_ms": None},
+    "metrics": {
+        "confidence": "",
+        "errors_detected": [],
+        "stability_score": "",
+        "duration_ms": None,
+    },
 }
 # ============================================================================
 # END L9 DORA BLOCK

@@ -197,7 +197,7 @@ class L9TextToCode:
             superprompt_content = self.superprompt_path.read_text()
 
         # Build prompt
-        prompt = f"""# CONCEPT SPECIFICATION
+        return f"""# CONCEPT SPECIFICATION
 
 ```yaml
 CONCEPT_NAME: "{concept.name}"
@@ -243,7 +243,6 @@ Follow the superprompt rules exactly:
 Output all files with their full paths and complete code.
 """
 
-        return prompt
 
     def compile_governance(self, module_dir: Path) -> list[str]:
         """
@@ -305,9 +304,8 @@ Output all files with their full paths and complete code.
         print(f"✅ Parsed concept: {concept.name} v{concept.version}")
 
         # Generate code
-        result = self.generate_code(concept)
+        return self.generate_code(concept)
 
-        return result
 
 
 def main():

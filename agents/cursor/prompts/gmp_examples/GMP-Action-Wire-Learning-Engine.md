@@ -30,22 +30,26 @@ The `core/gmp/meta_learning_engine.py` module is 100% instantiated but not wired
 ## TODO PLAN
 
 ### [T1] Add import to api/server.py
+
 - **File:** `api/server.py`
 - **Lines:** Import section (top)
 - **Action:** Insert
 - **Change:** Add `from core.gmp import GMPMetaLearningEngine`
 
 ### [T2] Add global variable
+
 - **File:** `api/server.py`
 - **Lines:** After imports
 - **Action:** Insert
 - **Change:** Add `gmp_learning_engine: Optional[GMPMetaLearningEngine] = None`
 
 ### [T3] Initialize in lifespan startup
+
 - **File:** `api/server.py`
 - **Lines:** Inside `lifespan()` function, after other initializations
 - **Action:** Insert
 - **Change:** Add initialization block:
+
 ```python
 # GMP Learning Engine
 if settings.L9_GMP_LEARNING_ENABLED:
@@ -56,6 +60,7 @@ if settings.L9_GMP_LEARNING_ENABLED:
 ```
 
 ### [T4] Add feature flag to config/settings.py
+
 - **File:** `config/settings.py`
 - **Lines:** Feature flags section
 - **Action:** Insert
@@ -83,14 +88,14 @@ gmp_learning_engine: Optional[GMPMetaLearningEngine] = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # ... existing init ...
-    
+
     # GMP Learning Engine
     if settings.L9_GMP_LEARNING_ENABLED:
         global gmp_learning_engine
         gmp_learning_engine = GMPMetaLearningEngine(settings.DATABASE_URL)
         await gmp_learning_engine.create_tables()
         logger.info("GMP Learning Engine initialized")
-    
+
     yield
     # ... cleanup ...
 ```

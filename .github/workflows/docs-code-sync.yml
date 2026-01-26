@@ -19,13 +19,13 @@ description: "Automated consistency checks between CODE-MAP.yaml, readme_config.
 on:
   pull_request:
     paths:
-      - 'core/**/*.py'
-      - 'memory/**/*.py'
-      - 'api/**/*.py'
-      - 'runtime/**/*.py'
-      - 'docs/CODE-MAP.yaml'
-      - 'config/subsystems/readme_config.yaml'  # Single source of truth
-      - '.github/workflows/docs-code-sync.yml'
+      - "core/**/*.py"
+      - "memory/**/*.py"
+      - "api/**/*.py"
+      - "runtime/**/*.py"
+      - "docs/CODE-MAP.yaml"
+      - "config/subsystems/readme_config.yaml" # Single source of truth
+      - ".github/workflows/docs-code-sync.yml"
 
 jobs:
   validate-consistency:
@@ -37,8 +37,8 @@ jobs:
       - name: "Set up Python"
         uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
-          cache: 'pip'
+          python-version: "3.12"
+          cache: "pip"
 
       - name: "Install dependencies"
         run: |
@@ -89,8 +89,8 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
-          cache: 'pip'
+          python-version: "3.12"
+          cache: "pip"
       - run: pip install pyyaml pytest
       - name: "Validate config"
         run: python scripts/generate_subsystem_readmes.py --validate
@@ -98,7 +98,6 @@ jobs:
         run: python scripts/generate_subsystem_readmes.py --subsystem core_agents --dry-run --skip-time-verify
       - name: "Run tests"
         run: pytest tests/test_code_facts_extraction.py -v
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

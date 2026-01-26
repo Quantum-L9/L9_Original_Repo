@@ -46,11 +46,11 @@ CREATE INDEX IF NOT EXISTS idx_semantic_memory_created_at ON semantic_memory(cre
 
 -- IVFFlat index for approximate nearest neighbor search
 -- Note: Run AFTER inserting some data for optimal clustering
--- CREATE INDEX IF NOT EXISTS idx_semantic_memory_vector_ivfflat 
+-- CREATE INDEX IF NOT EXISTS idx_semantic_memory_vector_ivfflat
 --     ON semantic_memory USING ivfflat (vector vector_cosine_ops) WITH (lists = 100);
 
 -- HNSW index (alternative, usually better for smaller datasets)
-CREATE INDEX IF NOT EXISTS idx_semantic_memory_vector_hnsw 
+CREATE INDEX IF NOT EXISTS idx_semantic_memory_vector_hnsw
     ON semantic_memory USING hnsw (vector vector_cosine_ops);
 
 -- =============================================================================
@@ -225,4 +225,3 @@ COMMENT ON TABLE supplier_profiles IS 'Supplier profiles for plastic brokerage';
 COMMENT ON TABLE transactions IS 'Material transactions';
 COMMENT ON TABLE material_edges IS 'Material relationship graph edges';
 COMMENT ON TABLE entity_metadata IS 'Generic entity metadata store';
-

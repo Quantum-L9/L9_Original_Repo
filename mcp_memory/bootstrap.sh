@@ -1055,7 +1055,7 @@ import sys
 
 async def main():
     print("Testing connections...")
-    
+
     # Test PostgreSQL
     try:
         import asyncpg
@@ -1067,7 +1067,7 @@ async def main():
     except Exception as e:
         print(f"✗ PostgreSQL: {e}")
         sys.exit(1)
-    
+
     # Test OpenAI
     try:
         from openai import OpenAI
@@ -1077,7 +1077,7 @@ async def main():
     except Exception as e:
         print(f"✗ OpenAI: {e}")
         sys.exit(1)
-    
+
     print("\n✅ All connections successful!")
 
 if __name__ == "__main__":
@@ -1111,10 +1111,10 @@ async def test_save_memory_creates_embedding():
             with patch("src.routes.memory.execute", new_callable=AsyncMock):
                 mock_embed.return_value = [0.1] * 1536
                 mock_fetch.return_value = {"id": 1, "user_id": "test", "kind": "fact", "content": "test", "importance": 1.0, "created_at": "2025-01-01T00:00:00Z"}
-                
+
                 from src.routes.memory import save_memory_handler
                 result = await save_memory_handler(user_id="test", content="test content", kind="fact", duration="long")
-                
+
                 mock_embed.assert_called_once_with("test content")
                 assert result["id"] == 1
 
@@ -1127,10 +1127,10 @@ async def test_search_returns_similar():
             with patch("src.routes.memory.execute", new_callable=AsyncMock):
                 mock_embed.return_value = [0.1] * 1536
                 mock_fetch.return_value = [{"id": 1, "user_id": "test", "kind": "fact", "content": "similar", "importance": 1.0, "similarity": 0.95, "created_at": "2025-01-01T00:00:00Z"}]
-                
+
                 from src.routes.memory import search_memory_handler
                 result = await search_memory_handler(user_id="test", query="test query")
-                
+
                 assert result["total_results"] == 1
                 assert result["results"][0]["similarity"] == 0.95
 
@@ -1149,10 +1149,10 @@ async def test_duplicate_memory_compounds():
                         {"id": 2, "content": "a", "embedding": [0.1]*1536, "importance": 0.5, "access_count": 1, "created_at": "2025-01-02", "tags": []},
                     ]
                     mock_fetch_one.return_value = {"similarity": 0.95}
-                    
+
                     from src.routes.memory import compound_similar_memories
                     result = await compound_similar_memories(user_id="test", threshold=0.92)
-                    
+
                     assert result["status"] == "completed"
 ENDFILE
 
@@ -1172,13 +1172,13 @@ async def test_embed_text_returns_vector():
     """embed_text must return 1536-dim vector."""
     mock_response = MagicMock()
     mock_response.data = [MagicMock(embedding=[0.1] * 1536)]
-    
+
     with patch("src.embeddings.client.embeddings.create", new_callable=AsyncMock) as mock_create:
         mock_create.return_value = mock_response
-        
+
         from src.embeddings import embed_text
         result = await embed_text("test")
-        
+
         assert len(result) == 1536
         mock_create.assert_called_once()
 
@@ -1188,13 +1188,13 @@ async def test_embed_texts_batch():
     """embed_texts must handle batch requests."""
     mock_response = MagicMock()
     mock_response.data = [MagicMock(embedding=[0.1] * 1536, index=0), MagicMock(embedding=[0.2] * 1536, index=1)]
-    
+
     with patch("src.embeddings.client.embeddings.create", new_callable=AsyncMock) as mock_create:
         mock_create.return_value = mock_response
-        
+
         from src.embeddings import embed_texts
         result = await embed_texts(["test1", "test2"])
-        
+
         assert len(result) == 2
         assert len(result[0]) == 1536
 ENDFILE
@@ -1218,10 +1218,10 @@ async def test_search_respects_threshold():
             with patch("src.routes.memory.execute", new_callable=AsyncMock):
                 mock_embed.return_value = [0.1] * 1536
                 mock_fetch.return_value = []
-                
+
                 from src.routes.memory import search_memory_handler
                 result = await search_memory_handler(user_id="test", query="query", threshold=0.99)
-                
+
                 assert result["total_results"] == 0
 
 
@@ -1233,10 +1233,10 @@ async def test_search_respects_top_k():
             with patch("src.routes.memory.execute", new_callable=AsyncMock):
                 mock_embed.return_value = [0.1] * 1536
                 mock_fetch.return_value = [{"id": i, "user_id": "test", "kind": "fact", "content": f"c{i}", "importance": 1.0, "similarity": 0.9, "created_at": "2025-01-01"} for i in range(10)]
-                
+
                 from src.routes.memory import search_memory_handler
                 result = await search_memory_handler(user_id="test", query="query", top_k=3)
-                
+
                 assert result["total_results"] <= 3
 ENDFILE
 
@@ -1520,4 +1520,3 @@ echo "Next steps:"
 echo "  1. cp .env.example .env"
 echo "  2. Edit .env with your credentials"
 echo "  3. Deploy to VPS with deploy/scripts/install.sh"
-

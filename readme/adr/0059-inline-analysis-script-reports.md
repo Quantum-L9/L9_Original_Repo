@@ -1,12 +1,13 @@
 # ADR-0059: Inline Analysis with Script-Generated Reports
 
-**Status:** Accepted  
-**Date:** 2026-01-24  
-**Decision Makers:** Igor  
+**Status:** Accepted
+**Date:** 2026-01-24
+**Decision Makers:** Igor
 
 ## Context
 
 The `/pr` command was generating GMP reports manually during analysis, which:
+
 - Consumes tokens writing to files mid-conversation
 - Creates reports before analysis is complete
 - Duplicates information (inline chat + report file)
@@ -26,23 +27,25 @@ The `/pr` command was generating GMP reports manually during analysis, which:
 ### Workflow Change
 
 **Before (Anti-Pattern):**
+
 ```
 /pr #51 → Analyze → Write report file → Present in chat → User confirms → Done
 ```
 
 **After (Correct):**
+
 ```
 /pr #51 → Analyze → Present INLINE → User confirms → [Optional] Generate report via script
 ```
 
 ### When to Generate Reports
 
-| Scenario | Generate Report? |
-|----------|------------------|
-| Quick PR analysis | ❌ No — inline summary sufficient |
-| Complex multi-file PR | ⚠️ Optional — if user requests |
+| Scenario                  | Generate Report?                     |
+| ------------------------- | ------------------------------------ |
+| Quick PR analysis         | ❌ No — inline summary sufficient    |
+| Complex multi-file PR     | ⚠️ Optional — if user requests       |
 | Audit/compliance required | ✅ Yes — via script after completion |
-| Historical record needed | ✅ Yes — via script after completion |
+| Historical record needed  | ✅ Yes — via script after completion |
 
 ### Report Generation Command
 
@@ -60,12 +63,14 @@ python3 scripts/workflow/generate_gmp_report.py \
 ## Consequences
 
 ### Positive
+
 - Faster PR analysis (no mid-analysis file writes)
 - Lower token usage
 - Reports only created when needed
 - Consistent report formatting via script
 
 ### Negative
+
 - Must run script separately if report needed
 - Historical record requires explicit action
 

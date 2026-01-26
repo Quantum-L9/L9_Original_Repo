@@ -31,13 +31,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
 from core.singleton_auto_registry import register_singleton
-from core.tools.base_registry import (ToolMetadata, ToolRegistry,
-                                      get_tool_registry)
+from core.tools.base_registry import ToolMetadata, ToolRegistry, get_tool_registry
 
 logger = structlog.get_logger(__name__)
 
@@ -52,7 +51,7 @@ class ToolResolver:
     - Rate limits
     """
 
-    def __init__(self, registry: Optional[ToolRegistry] = None):
+    def __init__(self, registry: ToolRegistry | None = None):
         """
         Initialize resolver.
 
@@ -71,7 +70,7 @@ class ToolResolver:
     def resolve(
         self,
         role: str,
-        tool_names: Optional[list[str]] = None,
+        tool_names: list[str] | None = None,
     ) -> list[ToolMetadata]:
         """
         Resolve available tools for a role.
@@ -183,15 +182,14 @@ class ToolResolver:
         # Execute
         try:
             logger.info(f"Executing tool {tool_id} for role {role}")
-            result = await executor.execute(args)
-            return result
+            return await executor.execute(args)
         except Exception as e:
             logger.error(f"Tool execution failed: {tool_id}: {e}")
             raise RuntimeError(f"Tool execution failed: {e}") from e
 
 
 # Singleton instance
-_resolver: Optional[ToolResolver] = None
+_resolver: ToolResolver | None = None
 
 
 @register_singleton(

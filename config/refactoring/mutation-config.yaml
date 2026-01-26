@@ -17,15 +17,15 @@
 mutation_testing:
   tool: mutmut
   version: ">=2.4.5"
-  
+
   # Critical paths to mutate (keep scope small - mutation testing is slow)
   # Each mutant takes ~30s to test, so 100 mutants = 50 minutes
   paths_to_mutate:
-    - core/agents/executor.py        # Agent execution loop - CRITICAL
-    - memory/substrate_service.py    # Memory operations - CRITICAL
-    - core/governance/               # Governance enforcement - CRITICAL
-    - memory/ingestion.py            # Packet ingestion - CRITICAL
-    
+    - core/agents/executor.py # Agent execution loop - CRITICAL
+    - memory/substrate_service.py # Memory operations - CRITICAL
+    - core/governance/ # Governance enforcement - CRITICAL
+    - memory/ingestion.py # Packet ingestion - CRITICAL
+
   # Paths to exclude (too slow, not critical, or test code)
   exclude_paths:
     - tests/
@@ -37,28 +37,27 @@ mutation_testing:
     - readme/
     - .venv/
     - __pycache__/
-    
+
   # Thresholds
   thresholds:
-    minimum_score: 85              # Block PR if below this
-    warning_score: 90              # Warn if below this
-    
+    minimum_score: 85 # Block PR if below this
+    warning_score: 90 # Warn if below this
+
   # Performance settings
-  timeout_per_mutant: 30           # seconds per mutant test
-  parallel_workers: 4              # concurrent mutation test runners
-  
+  timeout_per_mutant: 30 # seconds per mutant test
+  parallel_workers: 4 # concurrent mutation test runners
+
   # CI settings
   ci:
-    run_on: pull_request           # Only on PRs (too slow for every push)
-    required: true                 # Block merge if fails
-    allow_skip_label: "skip-mutation"  # Label to skip mutation tests
-    
+    run_on: pull_request # Only on PRs (too slow for every push)
+    required: true # Block merge if fails
+    allow_skip_label: "skip-mutation" # Label to skip mutation tests
+
   # Reporting
   reporting:
-    format: json                   # json, html, text
+    format: json # json, html, text
     output_dir: .mutation-results/
     upload_artifacts: true
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

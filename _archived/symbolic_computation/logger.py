@@ -24,7 +24,8 @@ __dora_meta__ = {
 # ============================================================================
 
 import logging
-from typing import Any, Dict
+from typing import Any
+
 from pythonjsonlogger import jsonlogger
 
 
@@ -46,7 +47,7 @@ class StructuredLogger(logging.Logger):
         self.addHandler(handler)
         self.setLevel(logging.INFO)
 
-    def log_structured(self, level: int, message: str, extra: Dict[str, Any] = None):
+    def log_structured(self, level: int, message: str, extra: dict[str, Any] = None):
         """
         Log structured message.
 

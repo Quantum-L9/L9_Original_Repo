@@ -40,7 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Any, Dict, Optional, Union
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -68,9 +68,9 @@ class LCTOAgent(BaseAgent):
 
     def __init__(
         self,
-        agent_id: Optional[str] = None,
-        config: Optional[AgentConfig] = None,
-        manifest: Optional[str] = None,
+        agent_id: str | None = None,
+        config: AgentConfig | None = None,
+        manifest: str | None = None,
     ):
         """
         Initialize the L-CTO agent.
@@ -84,20 +84,20 @@ class LCTOAgent(BaseAgent):
 
         # Kernel state - can be str "INACTIVE"/"ACTIVE" or KernelState object
         # After kernel_loader.load_kernels(), this will be a KernelState object
-        self.kernels: Dict[str, Dict[str, Any]] = {}
-        self.kernel_state: Union[str, "KernelState"] = "INACTIVE"
+        self.kernels: dict[str, dict[str, Any]] = {}
+        self.kernel_state: str | KernelState = "INACTIVE"
 
         # Boot overlay (set by kernel_loader)
-        self.boot_overlay: Dict[str, Any] = {}
+        self.boot_overlay: dict[str, Any] = {}
 
         # System context (set by kernel loader)
-        self._system_context: Optional[str] = None
+        self._system_context: str | None = None
 
         # Kernel-derived configuration
-        self._identity: Dict[str, Any] = {}
-        self._behavioral: Dict[str, Any] = {}
-        self._safety: Dict[str, Any] = {}
-        self._execution: Dict[str, Any] = {}
+        self._identity: dict[str, Any] = {}
+        self._behavioral: dict[str, Any] = {}
+        self._safety: dict[str, Any] = {}
+        self._execution: dict[str, Any] = {}
 
         # Manifest path (for reference)
         self._manifest_path = manifest
@@ -108,7 +108,7 @@ class LCTOAgent(BaseAgent):
     # Kernel Interface
     # =========================================================================
 
-    def absorb_kernel(self, kernel_data: Dict[str, Any]) -> None:
+    def absorb_kernel(self, kernel_data: dict[str, Any]) -> None:
         """
         Absorb a kernel into the agent's configuration.
 
@@ -122,7 +122,7 @@ class LCTOAgent(BaseAgent):
             return
 
         # Get kernel file identifier if present
-        kernel_file = kernel_data.get("file", "unknown")
+        kernel_data.get("file", "unknown")
 
         # Extract identity kernel data
         if "identity" in kernel_data or "personality" in kernel_data:
@@ -173,7 +173,7 @@ class LCTOAgent(BaseAgent):
         self._system_context = context
         logger.info("l_cto.activated: system context set")
 
-    def apply_boot_overlay(self, overlay: Dict[str, Any]) -> None:
+    def apply_boot_overlay(self, overlay: dict[str, Any]) -> None:
         """Apply boot-time overlay before kernel loading."""
         if "identity" in overlay:
             self._identity.update(overlay["identity"])
@@ -215,11 +215,11 @@ class LCTOAgent(BaseAgent):
         """
         if isinstance(self.kernel_state, str):
             return self.kernel_state == "ACTIVE"
-        elif hasattr(self.kernel_state, "initialized"):
+        if hasattr(self.kernel_state, "initialized"):
             return self.kernel_state.initialized
         return False
 
-    def get_kernel_state_summary(self) -> Dict[str, Any]:
+    def get_kernel_state_summary(self) -> dict[str, Any]:
         """
         Get kernel state summary for response rendering.
 
@@ -349,11 +349,10 @@ class LCTOAgent(BaseAgent):
                 f"Role: {self._identity.get('primary_role', 'CTO')}. "
                 f"Allegiance: {self._identity.get('allegiance', 'Igor-only')}."
             )
-        else:
-            state_str = (
-                self.kernel_state if isinstance(self.kernel_state, str) else "INACTIVE"
-            )
-            return f"L-CTO Agent (kernel_state: {state_str}, awaiting activation)"
+        state_str = (
+            self.kernel_state if isinstance(self.kernel_state, str) else "INACTIVE"
+        )
+        return f"L-CTO Agent (kernel_state: {state_str}, awaiting activation)"
 
     # =========================================================================
     # Task Execution
@@ -361,8 +360,8 @@ class LCTOAgent(BaseAgent):
 
     async def run(
         self,
-        task: Dict[str, Any],
-        context: Optional[Dict[str, Any]] = None,
+        task: dict[str, Any],
+        context: dict[str, Any] | None = None,
     ) -> AgentResponse:
         """
         Execute the agent's primary function.
@@ -449,9 +448,9 @@ class LCTOAgent(BaseAgent):
 
     async def _emit_reasoning_packet(
         self,
-        task: Dict[str, Any],
+        task: dict[str, Any],
         response: AgentResponse,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> None:
         """
         Emit reasoning packet to memory substrate (best-effort).
@@ -530,9 +529,9 @@ class LCTOAgent(BaseAgent):
 def execute_tool_guarded(
     agent: LCTOAgent,
     tool_id: str,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     confidence: float = 0.95,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Execute a tool with kernel enforcement.
 
@@ -564,8 +563,8 @@ def execute_tool_guarded(
 
 
 def create_l_cto_agent(
-    agent_id: Optional[str] = None,
-    config: Optional[AgentConfig] = None,
+    agent_id: str | None = None,
+    config: AgentConfig | None = None,
     load_kernels_on_create: bool = True,
 ) -> LCTOAgent:
     """
@@ -585,8 +584,7 @@ def create_l_cto_agent(
     agent = LCTOAgent(agent_id=agent_id, config=config)
 
     if load_kernels_on_create:
-        from runtime.kernel_loader import (load_kernels,
-                                           require_kernel_activation)
+        from runtime.kernel_loader import load_kernels, require_kernel_activation
 
         agent = load_kernels(agent)
         require_kernel_activation(agent)
@@ -602,7 +600,7 @@ def create_l_cto_agent(
     return agent
 
 
-def end_l_cto_session(agent: LCTOAgent) -> Dict[str, Any]:
+def end_l_cto_session(agent: LCTOAgent) -> dict[str, Any]:
     """
     End an L-CTO session and export memory.
 
@@ -687,8 +685,7 @@ def create_l_cto_research_agent(
         agent._model_config = research_config["model"]
 
     if load_kernels_on_create:
-        from runtime.kernel_loader import (load_kernels,
-                                           require_kernel_activation)
+        from runtime.kernel_loader import load_kernels, require_kernel_activation
 
         agent = load_kernels(agent)
         require_kernel_activation(agent)
@@ -732,13 +729,13 @@ def is_research_mode(agent: LCTOAgent) -> bool:
 # =============================================================================
 
 __all__ = [
+    "RESEARCH_OVERLAY_PATH",
     "LCTOAgent",
     "create_l_cto_agent",
     "create_l_cto_research_agent",
     "end_l_cto_session",
     "execute_tool_guarded",
     "is_research_mode",
-    "RESEARCH_OVERLAY_PATH",
 ]
 
 # ============================================================================

@@ -34,7 +34,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -49,8 +49,13 @@ except ImportError:
     Credentials = None  # Type hint placeholder
     structlog.get_logger(__name__).warning("Gmail OAuth libraries not available")
 
-from email_agent.config import (CLIENT_SECRET_FILE, SCOPES, TOKENS_FILE,
-                                ensure_dirs, get_account_config)
+from email_agent.config import (
+    CLIENT_SECRET_FILE,
+    SCOPES,
+    TOKENS_FILE,
+    ensure_dirs,
+    get_account_config,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -58,7 +63,7 @@ logger = structlog.get_logger(__name__)
 ensure_dirs()
 
 
-def load_client_secrets(account: Optional[str] = None) -> Optional[Dict[str, Any]]:
+def load_client_secrets(account: str | None = None) -> dict[str, Any] | None:
     """
     Load OAuth client secrets.
 
@@ -84,7 +89,7 @@ def load_client_secrets(account: Optional[str] = None) -> Optional[Dict[str, Any
         return None
 
     try:
-        with open(secret_file, "r") as f:
+        with open(secret_file) as f:
             secrets = json.load(f)
         logger.info(f"Loaded client secrets from {secret_file}")
         return secrets
@@ -94,8 +99,8 @@ def load_client_secrets(account: Optional[str] = None) -> Optional[Dict[str, Any
 
 
 def create_flow(
-    redirect_uri: Optional[str] = None, account: Optional[str] = None
-) -> Optional[Any]:
+    redirect_uri: str | None = None, account: str | None = None
+) -> Any | None:
     """
     Create OAuth2 flow for Gmail authentication.
 
@@ -122,18 +127,17 @@ def create_flow(
         secret_file = CLIENT_SECRET_FILE
 
     try:
-        flow = InstalledAppFlow.from_client_secrets_file(
+        return InstalledAppFlow.from_client_secrets_file(
             str(secret_file), SCOPES, redirect_uri=redirect_uri
         )
-        return flow
     except Exception as e:
         logger.error(f"Failed to create OAuth flow: {e}")
         return None
 
 
 def exchange_code_for_tokens(
-    authorization_code: str, redirect_uri: str, account: Optional[str] = None
-) -> Optional[Credentials]:
+    authorization_code: str, redirect_uri: str, account: str | None = None
+) -> Credentials | None:
     """
     Exchange authorization code for access/refresh tokens.
 
@@ -171,7 +175,7 @@ def exchange_code_for_tokens(
         return None
 
 
-def save_tokens(credentials: Credentials, account: Optional[str] = None) -> bool:
+def save_tokens(credentials: Credentials, account: str | None = None) -> bool:
     """
     Save OAuth tokens.
 
@@ -215,7 +219,7 @@ def save_tokens(credentials: Credentials, account: Optional[str] = None) -> bool
         return False
 
 
-def load_tokens(account: Optional[str] = None) -> Optional[Credentials]:
+def load_tokens(account: str | None = None) -> Credentials | None:
     """
     Load OAuth tokens.
 
@@ -242,7 +246,7 @@ def load_tokens(account: Optional[str] = None) -> Optional[Credentials]:
         return None
 
     try:
-        with open(tokens_file, "r") as f:
+        with open(tokens_file) as f:
             token_data = json.load(f)
 
         credentials = Credentials(

@@ -59,15 +59,15 @@ Execution Operating System components
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -78,8 +78,8 @@ core/eos/
 ├── __init__.py
 ```
 
-| File | Purpose |
-|------|---------|
+| File          | Purpose                 |
+| ------------- | ----------------------- |
 | `__init__.py` | Core module (PROTECTED) |
 
 ### Naming Conventions
@@ -165,9 +165,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Eos feature flags
-L9_ENABLE_CORE_EOS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_EOS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_EOS_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_EOS_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_EOS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_EOS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -234,6 +234,7 @@ Core Eos operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -241,12 +242,12 @@ Core Eos operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                           | Type      | Description                    |
+| -------------------------------- | --------- | ------------------------------ |
 | `core_eos_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_eos_operation_total` | Counter | Total operations processed |
-| `core_eos_error_total` | Counter | Total errors encountered |
-| `core_eos_active_connections` | Gauge | Current active connections |
+| `core_eos_operation_total`       | Counter   | Total operations processed     |
+| `core_eos_error_total`           | Counter   | Total errors encountered       |
+| `core_eos_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -264,6 +265,7 @@ Core Eos emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_eos/`:
+
 - `test_core_eos.py` — Core unit tests
 - `test_core_eos_integration.py` — Integration tests (if applicable)
 
@@ -306,6 +308,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

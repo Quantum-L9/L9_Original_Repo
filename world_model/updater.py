@@ -52,7 +52,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from world_model.registry import WorldModelRegistry
@@ -122,7 +122,7 @@ class WorldModelUpdater:
 
     def __init__(
         self,
-        registry: Optional[WorldModelRegistry] = None,
+        registry: WorldModelRegistry | None = None,
     ) -> None:
         """
         Initialize updater.
@@ -383,13 +383,13 @@ class WorldModelUpdater:
                         operation.target_id,
                         operation.data.get("attributes", {}),
                     )
-                elif operation.operation == "update":
+                if operation.operation == "update":
                     return self.update_entity(
                         state,
                         operation.target_id,
                         operation.data,
                     )
-                elif operation.operation == "delete":
+                if operation.operation == "delete":
                     return self.delete_entity(state, operation.target_id)
 
             elif operation.target_type == "relation":
@@ -401,7 +401,7 @@ class WorldModelUpdater:
                         operation.data.get("target_id", ""),
                         operation.data.get("attributes", {}),
                     )
-                elif operation.operation == "delete":
+                if operation.operation == "delete":
                     return self.delete_relation(state, operation.target_id)
 
             return UpdateResult(
@@ -469,7 +469,7 @@ class WorldModelUpdater:
                     UpdateResult(
                         success=False,
                         operation=op,
-                        errors=[f"Batch exception: {str(e)}"],
+                        errors=[f"Batch exception: {e!s}"],
                     )
                 )
 

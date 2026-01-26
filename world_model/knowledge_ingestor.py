@@ -65,7 +65,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -256,8 +256,8 @@ class KnowledgeIngestor:
 
     def __init__(
         self,
-        state: Optional[WorldModelState] = None,
-        config: Optional[IngestorConfig] = None,
+        state: WorldModelState | None = None,
+        config: IngestorConfig | None = None,
     ):
         """
         Initialize the ingestor.
@@ -276,7 +276,7 @@ class KnowledgeIngestor:
         self._heuristic_cache: dict[str, NormalizedHeuristic] = {}
 
         # DB persistence (wired via set_world_model_service)
-        self._world_model_service: Optional["WorldModelService"] = None
+        self._world_model_service: WorldModelService | None = None
         self._pending_entities: list[Entity] = []
 
         logger.info("KnowledgeIngestor initialized (v2.1.0 with DB sync)")
@@ -285,7 +285,7 @@ class KnowledgeIngestor:
         """Set the world model state."""
         self._state = state
 
-    def set_world_model_service(self, service: "WorldModelService") -> None:
+    def set_world_model_service(self, service: WorldModelService) -> None:
         """
         Set the WorldModelService for DB persistence.
 
@@ -300,9 +300,9 @@ class KnowledgeIngestor:
 
     async def sync_to_db(
         self,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> dict[str, Any]:
         """
@@ -348,7 +348,7 @@ class KnowledgeIngestor:
                 logger.warning(
                     f"sync_to_db: Failed to sync entity {entity.entity_id}: {e}"
                 )
-                errors.append(f"{entity.entity_id}: {str(e)}")
+                errors.append(f"{entity.entity_id}: {e!s}")
 
         # Clear pending after sync
         self._pending_entities.clear()
@@ -368,7 +368,7 @@ class KnowledgeIngestor:
     def ingest_seed_yaml(
         self,
         path: str | Path,
-        seed_type: Optional[str] = None,
+        seed_type: str | None = None,
     ) -> IngestResult:
         """
         Ingest knowledge from a seed YAML file.
@@ -396,7 +396,7 @@ class KnowledgeIngestor:
             return result
 
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
 
             if not data:
@@ -926,7 +926,7 @@ class KnowledgeIngestor:
 
         # Extract metrics as facts
         metrics = run_data.get("metrics", {})
-        for metric_name, metric_value in metrics.items():
+        for _metric_name, _metric_value in metrics.items():
             result.facts_extracted += 1
 
     # ==========================================================================
@@ -1226,7 +1226,7 @@ class KnowledgeIngestor:
         self,
         data: dict[str, Any],
         result: IngestResult,
-    ) -> Optional[Entity]:
+    ) -> Entity | None:
         """Add entity from data."""
         entity = Entity(
             entity_id=data.get("id", str(uuid4())),
@@ -1241,17 +1241,16 @@ class KnowledgeIngestor:
             result.entities_updated += 1
             self._track_entity_for_sync(existing)  # Track for DB sync
             return existing
-        else:
-            self._state.add_entity(entity)
-            self._track_entity_for_sync(entity)  # Track for DB sync
-            result.entities_added += 1
-            return entity
+        self._state.add_entity(entity)
+        self._track_entity_for_sync(entity)  # Track for DB sync
+        result.entities_added += 1
+        return entity
 
     def _add_relation(
         self,
         data: dict[str, Any],
         result: IngestResult,
-    ) -> Optional[Relation]:
+    ) -> Relation | None:
         """Add relation from data."""
         relation = Relation(
             relation_id=data.get("id", str(uuid4())),
@@ -1274,7 +1273,7 @@ class KnowledgeIngestor:
         result: IngestResult,
     ) -> None:
         """Extract facts from metadata."""
-        for key, value in metadata.items():
+        for _key, value in metadata.items():
             if isinstance(value, (str, int, float, bool)):
                 result.facts_extracted += 1
 
@@ -1380,7 +1379,7 @@ class KnowledgeIngestor:
         """
         packet_type = packet.get("packet_type", packet.get("kind", "unknown"))
         payload = packet.get("payload", packet)
-        metadata = packet.get("metadata", {})
+        packet.get("metadata", {})
         provenance = packet.get("provenance", {})
 
         update: dict[str, Any] = {

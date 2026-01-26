@@ -73,7 +73,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Optional
 
 import structlog
 
@@ -180,7 +179,7 @@ def record_slack_request(
 
 def record_signature_verification(
     valid: bool,
-    reason: Optional[str] = None,
+    reason: str | None = None,
 ) -> None:
     """
     Record signature verification result.
@@ -353,16 +352,16 @@ def init_slack_metrics() -> bool:
 
 __all__ = [
     "PROMETHEUS_AVAILABLE",
-    "record_slack_request",
-    "record_signature_verification",
-    "record_idempotent_hit",
-    "record_slack_processing",
-    "record_aios_call",
-    "record_packet_write_error",
-    "record_slack_reply_error",
-    "record_rate_limit_hit",
-    "set_active_threads",
     "init_slack_metrics",
+    "record_aios_call",
+    "record_idempotent_hit",
+    "record_packet_write_error",
+    "record_rate_limit_hit",
+    "record_signature_verification",
+    "record_slack_processing",
+    "record_slack_reply_error",
+    "record_slack_request",
+    "set_active_threads",
 ]
 
 # ============================================================================

@@ -40,7 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 import structlog
@@ -74,10 +74,10 @@ router_registry.register(
 class SimulationRequest(BaseModel):
     """Request to run a simulation."""
 
-    graph_data: Dict[str, Any] = Field(
+    graph_data: dict[str, Any] = Field(
         ..., description="IR graph data from IRGenerator"
     )
-    scenario_params: Optional[Dict[str, Any]] = Field(
+    scenario_params: dict[str, Any] | None = Field(
         None, description="Optional scenario configuration"
     )
     mode: str = Field(
@@ -95,7 +95,7 @@ class SimulationMetricsResponse(BaseModel):
     duration_ms: int
     parallelism_factor: float
     critical_path_length: int = 0
-    bottlenecks: List[str] = []
+    bottlenecks: list[str] = []
 
 
 class SimulationResponse(BaseModel):
@@ -106,7 +106,7 @@ class SimulationResponse(BaseModel):
     status: str
     score: float
     metrics: SimulationMetricsResponse
-    failure_modes: List[str]
+    failure_modes: list[str]
 
 
 # =============================================================================
@@ -120,8 +120,7 @@ def _get_engine():
     """Get or create simulation engine singleton."""
     global _simulation_engine
     if _simulation_engine is None:
-        from simulation.simulation_engine import (SimulationConfig,
-                                                  SimulationEngine)
+        from simulation.simulation_engine import SimulationConfig, SimulationEngine
 
         _simulation_engine = SimulationEngine(config=SimulationConfig())
         logger.info("SimulationEngine singleton created")
@@ -150,9 +149,11 @@ async def run_simulation(
     Returns simulation results with score, metrics, and identified failure modes.
     """
     try:
-        from simulation.simulation_engine import (SimulationConfig,
-                                                  SimulationEngine,
-                                                  SimulationMode)
+        from simulation.simulation_engine import (
+            SimulationConfig,
+            SimulationEngine,
+            SimulationMode,
+        )
 
         # Map mode string to enum
         mode_map = {
@@ -203,7 +204,7 @@ async def run_simulation(
 async def get_simulation_run(
     run_id: str,
     _: bool = Depends(verify_api_key),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get a simulation run by ID.
 
@@ -230,7 +231,7 @@ async def get_simulation_run(
 async def get_runs_for_graph(
     graph_id: str,
     _: bool = Depends(verify_api_key),
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Get all simulation runs for a graph.
 
@@ -249,7 +250,7 @@ async def get_runs_for_graph(
 
 @router.get("/health")
 @must_stay_async("FastAPI/ASGI route handler")
-async def simulation_health() -> Dict[str, Any]:
+async def simulation_health() -> dict[str, Any]:
     """
     Health check for simulation engine.
 

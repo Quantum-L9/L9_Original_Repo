@@ -50,9 +50,9 @@ graph TB
     subgraph "PostgreSQL Write - SubstrateRepository"
         PG_CONN["async with pool.acquire()<br/>→ asyncpg.Connection"]
         RLS_SET["await conn.execute()<br/>SELECT l9_set_scope()<br/>$1=tenant_id<br/>$2=org_id<br/>$3=user_id"]
-        
+
         SQL_INSERT["await conn.execute()<br/>INSERT INTO packet_store<br/>(packet_id, packet_type,<br/>envelope, timestamp, routing,<br/>provenance, thread_id,<br/>parent_ids, tags, ttl,<br/>content_hash, session_id,<br/>scope, content, embedding)<br/>VALUES ($1...$15)<br/>ON CONFLICT (packet_id)<br/>DO UPDATE SET..."]
-        
+
         SQL_CONFLICT["ON CONFLICT<br/>→ UPDATE existing"]
         SQL_SUCCESS["✅ INSERT 1<br/>→ packet_id"]
     end
@@ -70,11 +70,11 @@ graph TB
     subgraph "Semantic Search Flow"
         QUERY_CLASS["QueryClassifier<br/>classify(query)<br/>→ QueryType"]
         QUERY_EMBED["Generate query embedding<br/>await embed_provider<br/>.embed(query)"]
-        
+
         SQL_SEARCH["await conn.fetch()<br/>SELECT embedding_id,<br/>payload,<br/>vector <=> $1::vector<br/>AS distance<br/>FROM semantic_memory<br/>WHERE agent_id = $2<br/>ORDER BY distance<br/>LIMIT $3"]
-        
+
         PGVECTOR_OP["pgvector operator<br/><=> cosine distance<br/>Uses HNSW index"]
-        
+
         RESULTS["SemanticSearchResult<br/>hits: List[SemanticHit]<br/>total_count: int"]
     end
 

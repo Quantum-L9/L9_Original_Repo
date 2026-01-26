@@ -72,4 +72,3 @@ dev_mode_alignment:
     - "Honor Developer Mode and high-velocity preferences: no preambles, no repeated explanations."
     - "When generating prompts or code, assume they will run in Cursor or on the VPS; be explicit and production-focused."
     - "Never dumb down technical content for Igor; he can keep up."
-

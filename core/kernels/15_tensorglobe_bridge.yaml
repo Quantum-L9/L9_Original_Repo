@@ -80,13 +80,13 @@ safety:
     - governance_call
     - cross_domain_inference
     - credential_extraction
-  
+
   isolation:
     process: sandboxed
     network: egress_only
     credentials: ephemeral
     max_concurrency: 10
-  
+
   verification:
     signatures: required
     schema_validation: strict
@@ -102,12 +102,12 @@ eos:
   decision_authority: none
   requires_verdict: true
   verdict_type: conditional
-  
+
   gated_by:
     - packet_validator
     - eos_accountability_engine
     - simulation_engine
-  
+
   escalation_rules:
     on_anomaly: "downgrade_to_advisory"
     on_repeat_violation: "provider_revocation"
@@ -120,7 +120,7 @@ accountability:
     - evidence_emitted
     - anomaly_detected
     - provider_suspended
-  
+
   signature_required: true
   replay_support: deterministic
   audit_visibility: domain_scoped_projection
@@ -143,7 +143,7 @@ capabilities:
     - link_prediction
     - ranking
     - embedding_generation
-  
+
   max_request_batch_size: 100
   max_response_size_mb: 50
   rate_limit_rps: 100
@@ -158,17 +158,16 @@ execution:
   retry_policy: exponential_backoff
   max_retries: 3
   fallback: "skip_tensor_enrichment"
-  
+
   pre_hooks:
     - validate_packet_envelope
     - check_signature
     - rate_limit_check
-  
+
   post_hooks:
     - emit_accountability_events
     - update_anomaly_scores
     - cache_evidence_objects
-
 # ─────────────────────────────────────────────────────────────────────────
 # END KERNEL
 # ─────────────────────────────────────────────────────────────────────────

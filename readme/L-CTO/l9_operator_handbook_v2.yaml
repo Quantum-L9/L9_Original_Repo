@@ -139,7 +139,6 @@ handoff_instruction:
     - read this file first
     - treat as binding
     - ask only when uncertainty blocks correctness
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

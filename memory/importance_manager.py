@@ -40,7 +40,7 @@ __dora_meta__ = {
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import structlog
@@ -104,8 +104,8 @@ class AccessRecord:
     context: str = ""  # What triggered the access
 
     # Optional: who accessed
-    agent_id: Optional[str] = None
-    session_id: Optional[UUID] = None
+    agent_id: str | None = None
+    session_id: UUID | None = None
 
 
 @dataclass
@@ -144,8 +144,8 @@ class ImportanceManager:
 
     def __init__(
         self,
-        repository: Optional["SubstrateRepository"] = None,
-        config: Optional[ImportanceConfig] = None,
+        repository: SubstrateRepository | None = None,
+        config: ImportanceConfig | None = None,
     ):
         """
         Initialize ImportanceManager.
@@ -158,7 +158,7 @@ class ImportanceManager:
         self._config = config or DEFAULT_CONFIG
         logger.info("ImportanceManager initialized", config=str(self._config))
 
-    def set_repository(self, repository: "SubstrateRepository") -> None:
+    def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update repository reference."""
         self._repository = repository
 
@@ -172,7 +172,7 @@ class ImportanceManager:
         access_type: str = "retrieval",
         context: str = "",
         auto_elevate: bool = True,
-    ) -> Optional[ImportanceUpdate]:
+    ) -> ImportanceUpdate | None:
         """
         Track access to a fact and optionally elevate importance.
 
@@ -233,9 +233,9 @@ class ImportanceManager:
     async def elevate_importance(
         self,
         fact_id: UUID,
-        increment: Optional[float] = None,
+        increment: float | None = None,
         reason: str = "manual",
-    ) -> Optional[ImportanceUpdate]:
+    ) -> ImportanceUpdate | None:
         """
         Elevate importance of a fact.
 
@@ -394,7 +394,7 @@ class ImportanceManager:
     def _calculate_decay(
         self,
         importance: float,
-        last_accessed: Optional[datetime],
+        last_accessed: datetime | None,
         now: datetime,
     ) -> float:
         """Calculate decayed importance using exponential decay."""
@@ -447,13 +447,13 @@ class ImportanceManager:
                 if dry_run:
                     # Just count candidates
                     row = await conn.fetchrow(
-                        """
+                        f"""
                         SELECT COUNT(*) as count
                         FROM semantic_facts
                         WHERE tier != ALL($1::text[])
                         AND importance < $2
-                        AND created_at < NOW() - INTERVAL '%s days'
-                        """ % min_age_days,
+                        AND created_at < NOW() - INTERVAL '{min_age_days} days'
+                        """,
                         exempt_tiers,
                         threshold,
                     )
@@ -463,17 +463,17 @@ class ImportanceManager:
 
                 # Actually prune
                 result = await conn.execute(
-                    """
+                    f"""
                     DELETE FROM semantic_facts
                     WHERE fact_id IN (
                         SELECT fact_id
                         FROM semantic_facts
                         WHERE tier != ALL($1::text[])
                         AND importance < $2
-                        AND created_at < NOW() - INTERVAL '%s days'
+                        AND created_at < NOW() - INTERVAL '{min_age_days} days'
                         LIMIT $3
                     )
-                    """ % min_age_days,
+                    """,
                     exempt_tiers,
                     threshold,
                     batch_size,
@@ -506,7 +506,7 @@ class ImportanceManager:
         try:
             async with self._repository.acquire() as conn:
                 rows = await conn.fetch("""
-                    SELECT 
+                    SELECT
                         tier,
                         COUNT(*) as count,
                         AVG(importance) as avg_importance,
@@ -557,7 +557,7 @@ class ImportanceManager:
 # =============================================================================
 
 
-_manager: Optional[ImportanceManager] = None
+_manager: ImportanceManager | None = None
 
 
 def get_importance_manager() -> ImportanceManager:
@@ -570,7 +570,7 @@ def get_importance_manager() -> ImportanceManager:
 
 def init_importance_manager(
     repository,
-    config: Optional[ImportanceConfig] = None,
+    config: ImportanceConfig | None = None,
 ) -> ImportanceManager:
     """Initialize the ImportanceManager with dependencies."""
     manager = get_importance_manager()

@@ -29,7 +29,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, List, Optional
+from typing import Any
 
 from langchain_core.documents import Document
 from langchain_core.retrievers import BaseRetriever
@@ -46,7 +46,7 @@ class SubstrateRetriever(BaseRetriever):
     def __init__(
         self,
         service: MemorySubstrateService,
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
         top_k: int = 5,
     ) -> None:
         super().__init__()
@@ -54,7 +54,7 @@ class SubstrateRetriever(BaseRetriever):
         self._agent_id = agent_id
         self._top_k = top_k
 
-    async def _aget_relevant_documents(self, query: str) -> List[Document]:
+    async def _aget_relevant_documents(self, query: str) -> list[Document]:
         """
         Async retrieval of relevant documents using semantic_search.
         """
@@ -65,7 +65,7 @@ class SubstrateRetriever(BaseRetriever):
         )
         result: SemanticSearchResult = await self._service.semantic_search(request)
 
-        docs: List[Document] = []
+        docs: list[Document] = []
         for hit in result.hits:
             payload: dict[str, Any] = hit.payload
             text = payload.get("text") or payload.get("content") or str(payload)
@@ -82,7 +82,7 @@ class SubstrateRetriever(BaseRetriever):
             docs.append(Document(page_content=text, metadata=metadata))
         return docs
 
-    def _get_relevant_documents(self, query: str) -> List[Document]:
+    def _get_relevant_documents(self, query: str) -> list[Document]:
         """
         Synchronous wrapper required by BaseRetriever.
 

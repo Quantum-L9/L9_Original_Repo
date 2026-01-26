@@ -13,7 +13,7 @@
 # status: "active"
 # ============================================================================
 
-version: '3.8'
+version: "3.8"
 
 services:
   symbolic_computation:
@@ -38,7 +38,13 @@ services:
     networks:
       - aios_network
     healthcheck:
-      test: ["CMD", "python", "-c", "import asyncio; from symbolic_computation import SymbolicComputation; asyncio.run(SymbolicComputation().health_check())"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import asyncio; from symbolic_computation import SymbolicComputation; asyncio.run(SymbolicComputation().health_check())",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -79,7 +85,6 @@ volumes:
 networks:
   aios_network:
     driver: bridge
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -94,4 +94,3 @@ constraints:
   performance:
     - "Default summaries must be short and decision-ready unless Igor asks otherwise."
     - "Context recomputation should be incremental, not from scratch every turn."
-

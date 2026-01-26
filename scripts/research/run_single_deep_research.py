@@ -55,7 +55,7 @@ PROMPT = """You are a senior L9 system architect conducting deep research to gen
 # MODULE TO SPECIFY
 
 **Module ID:** config_loader
-**Name:** Configuration Loader  
+**Name:** Configuration Loader
 **Tier:** 0 (Core Infrastructure - loads before everything else)
 **Description:** Environment and YAML configuration management with validation. Provides typed access to all L9 configuration via Pydantic Settings. Fails fast on missing required environment variables.
 

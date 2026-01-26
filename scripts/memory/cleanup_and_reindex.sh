@@ -81,4 +81,3 @@ echo "  1. Verify semantic search returns better results"
 echo "  2. Check knowledge facts are accessible"
 echo "  3. Monitor embedding quality going forward"
 echo ""
-

@@ -52,7 +52,7 @@ __dora_meta__ = {
 import json
 import os
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import asyncpg
@@ -153,7 +153,7 @@ class WorldModelEntityRow:
         }
 
     @classmethod
-    def from_row(cls, row) -> "WorldModelEntityRow":
+    def from_row(cls, row) -> WorldModelEntityRow:
         attributes = row["attributes"]
         if isinstance(attributes, str):
             attributes = json.loads(attributes)
@@ -174,15 +174,15 @@ class WorldModelUpdateRow:
     def __init__(
         self,
         update_id: UUID,
-        insight_id: Optional[UUID],
-        insight_type: Optional[str],
+        insight_id: UUID | None,
+        insight_type: str | None,
         entities: list[str],
         content: dict[str, Any],
         confidence: float,
         applied_at: datetime,
-        source_packet: Optional[UUID] = None,
-        state_version_before: Optional[int] = None,
-        state_version_after: Optional[int] = None,
+        source_packet: UUID | None = None,
+        state_version_before: int | None = None,
+        state_version_after: int | None = None,
     ):
         self.update_id = update_id
         self.insight_id = insight_id
@@ -221,7 +221,7 @@ class WorldModelSnapshotRow:
         entity_count: int,
         relation_count: int,
         created_at: datetime,
-        description: Optional[str] = None,
+        description: str | None = None,
         created_by: str = "system",
     ):
         self.snapshot_id = snapshot_id
@@ -272,9 +272,9 @@ class WorldModelRepository:
 
     @staticmethod
     def _ensure_scope(
-        tenant_id: Optional[str],
-        org_id: Optional[str],
-        user_id: Optional[str],
+        tenant_id: str | None,
+        org_id: str | None,
+        user_id: str | None,
     ) -> None:
         if not tenant_id or not org_id or not user_id:
             raise RuntimeError(
@@ -306,11 +306,11 @@ class WorldModelRepository:
     async def get_entity(
         self,
         entity_id: str,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
-    ) -> Optional[WorldModelEntityRow]:
+    ) -> WorldModelEntityRow | None:
         """
         Retrieve entity by ID.
 
@@ -339,13 +339,13 @@ class WorldModelRepository:
 
     async def list_entities(
         self,
-        entity_type: Optional[str] = None,
-        min_confidence: Optional[float] = None,
+        entity_type: str | None = None,
+        min_confidence: float | None = None,
         limit: int = 100,
         offset: int = 0,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> list[WorldModelEntityRow]:
         """
@@ -402,9 +402,9 @@ class WorldModelRepository:
         attributes: dict[str, Any],
         entity_type: str = "unknown",
         confidence: float = 1.0,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> WorldModelEntityRow:
         """
@@ -427,7 +427,7 @@ class WorldModelRepository:
             await self.set_session_scope(conn, tenant_id, org_id, user_id, role)
             row = await conn.fetchrow(
                 """
-                INSERT INTO world_model_entities 
+                INSERT INTO world_model_entities
                     (entity_id, entity_type, attributes, confidence, created_at, updated_at, version)
                 VALUES ($1, $2, $3, $4, now(), now(), 1)
                 ON CONFLICT (entity_id) DO UPDATE SET
@@ -449,9 +449,9 @@ class WorldModelRepository:
     async def delete_entity(
         self,
         entity_id: str,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> bool:
         """
@@ -477,9 +477,9 @@ class WorldModelRepository:
 
     async def get_entity_count(
         self,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> int:
         """Get total entity count."""
@@ -498,17 +498,17 @@ class WorldModelRepository:
 
     async def record_update(
         self,
-        insight_id: Optional[UUID],
-        insight_type: Optional[str],
+        insight_id: UUID | None,
+        insight_type: str | None,
         entities: list[str],
         content: dict[str, Any],
         confidence: float,
-        source_packet: Optional[UUID] = None,
-        state_version_before: Optional[int] = None,
-        state_version_after: Optional[int] = None,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        source_packet: UUID | None = None,
+        state_version_before: int | None = None,
+        state_version_after: int | None = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> WorldModelUpdateRow:
         """
@@ -536,7 +536,7 @@ class WorldModelRepository:
                 """
                 INSERT INTO world_model_updates
                     (update_id, insight_id, insight_type, entities, content,
-                     confidence, applied_at, source_packet, 
+                     confidence, applied_at, source_packet,
                      state_version_before, state_version_after)
                 VALUES ($1, $2, $3, $4, $5, $6, now(), $7, $8, $9)
                 """,
@@ -567,13 +567,13 @@ class WorldModelRepository:
 
     async def list_updates(
         self,
-        insight_type: Optional[str] = None,
-        min_confidence: Optional[float] = None,
-        since: Optional[datetime] = None,
+        insight_type: str | None = None,
+        min_confidence: float | None = None,
+        since: datetime | None = None,
         limit: int = 100,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> list[WorldModelUpdateRow]:
         """
@@ -662,11 +662,11 @@ class WorldModelRepository:
         state_version: int,
         entity_count: int = 0,
         relation_count: int = 0,
-        description: Optional[str] = None,
+        description: str | None = None,
         created_by: str = "system",
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> WorldModelSnapshotRow:
         """
@@ -719,11 +719,11 @@ class WorldModelRepository:
     async def load_snapshot(
         self,
         snapshot_id: UUID,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
-    ) -> Optional[WorldModelSnapshotRow]:
+    ) -> WorldModelSnapshotRow | None:
         """
         Load a snapshot by ID.
 
@@ -764,11 +764,11 @@ class WorldModelRepository:
 
     async def get_latest_snapshot(
         self,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
-    ) -> Optional[WorldModelSnapshotRow]:
+    ) -> WorldModelSnapshotRow | None:
         """
         Get the most recent snapshot.
 
@@ -805,9 +805,9 @@ class WorldModelRepository:
     async def list_snapshots(
         self,
         limit: int = 20,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> list[WorldModelSnapshotRow]:
         """
@@ -858,9 +858,9 @@ class WorldModelRepository:
 
     async def get_state_version(
         self,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
     ) -> int:
         """
@@ -884,7 +884,7 @@ class WorldModelRepository:
 # Singleton Access
 # =============================================================================
 
-_repository: Optional[WorldModelRepository] = None
+_repository: WorldModelRepository | None = None
 
 
 @register_singleton(

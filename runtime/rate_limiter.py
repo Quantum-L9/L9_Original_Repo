@@ -34,7 +34,6 @@ __dora_meta__ = {
 
 from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Optional
 
 import structlog
 
@@ -213,7 +212,7 @@ class RateLimiter:
         cutoff = now - timedelta(seconds=self._window_seconds)
         return len([t for t in self._calls[key] if t > cutoff])
 
-    async def reset(self, key: Optional[str] = None) -> None:
+    async def reset(self, key: str | None = None) -> None:
         """
         Reset rate limits for a key or all keys.
 

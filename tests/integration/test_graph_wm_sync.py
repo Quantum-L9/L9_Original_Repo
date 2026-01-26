@@ -245,8 +245,10 @@ def test_get_graph_wm_sync():
     """Test getting global instance."""
     # Clear any existing instance
     import core.integration.graph_to_wm_sync as module
-    from core.integration.graph_to_wm_sync import (GraphToWorldModelSync,
-                                                   get_graph_wm_sync)
+    from core.integration.graph_to_wm_sync import (
+        GraphToWorldModelSync,
+        get_graph_wm_sync,
+    )
 
     module._sync_service = None
 

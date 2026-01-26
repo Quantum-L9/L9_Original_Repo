@@ -40,13 +40,20 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
 from core.decorators import must_stay_async
-from memory.saga import (DatabaseType, Saga, SagaBuilder, SagaContext,
-                         SagaExecutor, SagaResult, get_saga_executor)
+from memory.saga import (
+    DatabaseType,
+    Saga,
+    SagaBuilder,
+    SagaContext,
+    SagaExecutor,
+    SagaResult,
+    get_saga_executor,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -126,7 +133,9 @@ async def _extract_entities_step(
             entity_type = (
                 "User"
                 if source.startswith("user:")
-                else "Agent" if source.startswith("agent:") else "System"
+                else "Agent"
+                if source.startswith("agent:")
+                else "System"
             )
             entities.append(
                 {
@@ -234,7 +243,7 @@ async def _graph_enrich_step(
         try:
             query = f"""
             MATCH (n:`{safe_type}` {{id: $entity_id}})-[r]-(neighbor)
-            RETURN DISTINCT 
+            RETURN DISTINCT
                 neighbor.id as neighbor_id,
                 labels(neighbor)[0] as neighbor_type,
                 neighbor.name as neighbor_name,
@@ -404,10 +413,10 @@ async def _trace_causal_chain_step(
         query = """
         MATCH (root:Event {id: $event_id})
         MATCH path = (root)-[:TRIGGERED*0..5]->(descendant:Event)
-        RETURN 
+        RETURN
             root.id as root_id,
             [node in nodes(path) | {
-                id: node.id, 
+                id: node.id,
                 event_type: node.event_type,
                 timestamp: node.timestamp
             }] as chain
@@ -657,9 +666,9 @@ class SagaPatterns:
 
     async def correlate_timeline(
         self,
-        start_time: Optional[str] = None,
-        end_time: Optional[str] = None,
-        event_type: Optional[str] = None,
+        start_time: str | None = None,
+        end_time: str | None = None,
+        event_type: str | None = None,
         limit: int = 50,
     ) -> SagaResult:
         """
@@ -690,14 +699,14 @@ class SagaPatterns:
 # =============================================================================
 
 
-_patterns: Optional[SagaPatterns] = None
+_patterns: SagaPatterns | None = None
 
 
 async def get_saga_patterns(
-    executor: Optional[SagaExecutor] = None,
-    postgres_pool: Optional[Any] = None,
-    neo4j_client: Optional[Any] = None,
-    semantic_service: Optional[Any] = None,
+    executor: SagaExecutor | None = None,
+    postgres_pool: Any | None = None,
+    neo4j_client: Any | None = None,
+    semantic_service: Any | None = None,
 ) -> SagaPatterns:
     """Get or create singleton saga patterns."""
     global _patterns
@@ -716,9 +725,9 @@ async def get_saga_patterns(
 
 async def fetch_and_enrich(
     query: str,
-    postgres_pool: Optional[Any] = None,
-    neo4j_client: Optional[Any] = None,
-    semantic_service: Optional[Any] = None,
+    postgres_pool: Any | None = None,
+    neo4j_client: Any | None = None,
+    semantic_service: Any | None = None,
     limit: int = 10,
 ) -> SagaResult:
     """
@@ -745,15 +754,15 @@ async def fetch_and_enrich(
 
 
 __all__ = [
-    # Sagas
-    "create_fetch_and_enrich_saga",
-    "create_entity_enrichment_saga",
-    "create_timeline_correlation_saga",
     # High-level API
     "SagaPatterns",
-    "get_saga_patterns",
+    "create_entity_enrichment_saga",
+    # Sagas
+    "create_fetch_and_enrich_saga",
+    "create_timeline_correlation_saga",
     # Convenience
     "fetch_and_enrich",
+    "get_saga_patterns",
 ]
 
 # ============================================================================

@@ -51,7 +51,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
@@ -262,8 +262,8 @@ class WorldModelServiceAPI:
 
     def __init__(
         self,
-        engine: Optional["WorldModelEngine"] = None,
-        runtime: Optional["WorldModelRuntime"] = None,
+        engine: WorldModelEngine | None = None,
+        runtime: WorldModelRuntime | None = None,
     ):
         """
         Initialize the service API.
@@ -277,9 +277,9 @@ class WorldModelServiceAPI:
         self._initialized = False
 
         # Lazy component references
-        self._reflection_memory: Optional["ReflectionMemory"] = None
-        self._causal_mapper: Optional["CausalMapper"] = None
-        self._ingestor: Optional["KnowledgeIngestor"] = None
+        self._reflection_memory: ReflectionMemory | None = None
+        self._causal_mapper: CausalMapper | None = None
+        self._ingestor: KnowledgeIngestor | None = None
 
         logger.info("WorldModelServiceAPI initialized (v2.0.0)")
 
@@ -330,8 +330,8 @@ class WorldModelServiceAPI:
 
     def get_context(
         self,
-        intent: Optional[str] = None,
-        task_id: Optional[str] = None,
+        intent: str | None = None,
+        task_id: str | None = None,
         include_entities: bool = True,
         include_relations: bool = True,
         include_patterns: bool = True,
@@ -340,7 +340,7 @@ class WorldModelServiceAPI:
         include_lessons: bool = True,
         include_examples: bool = True,
         include_causal: bool = False,
-        entity_types: Optional[list[str]] = None,
+        entity_types: list[str] | None = None,
         limit: int = 50,
     ) -> WorldContext:
         """
@@ -446,7 +446,7 @@ class WorldModelServiceAPI:
 
         # Gather causal structure
         if include_causal and self._causal_mapper:
-            causal_stats = self._causal_mapper.get_stats()
+            self._causal_mapper.get_stats()
             causal_data = self._causal_mapper.to_dict()
 
             context.causal_nodes = causal_data.get("nodes", [])[:limit]
@@ -474,8 +474,8 @@ class WorldModelServiceAPI:
 
     def get_constraints(
         self,
-        context: Optional[str] = None,
-        constraint_types: Optional[list[str]] = None,
+        context: str | None = None,
+        constraint_types: list[str] | None = None,
         include_hidden: bool = True,
         include_false: bool = True,
         min_confidence: float = 0.5,
@@ -572,9 +572,9 @@ class WorldModelServiceAPI:
 
     def get_patterns(
         self,
-        intent: Optional[str] = None,
-        category: Optional[str] = None,
-        applicable_to: Optional[list[str]] = None,
+        intent: str | None = None,
+        category: str | None = None,
+        applicable_to: list[str] | None = None,
         min_success_rate: float = 0.0,
         limit: int = 20,
     ) -> list[PatternMatch]:
@@ -700,10 +700,10 @@ class WorldModelServiceAPI:
 
     def get_heuristics(
         self,
-        code_context: Optional[str] = None,
-        category: Optional[str] = None,
+        code_context: str | None = None,
+        category: str | None = None,
         severity_min: str = "low",
-        language: Optional[str] = None,
+        language: str | None = None,
         limit: int = 20,
     ) -> list[HeuristicMatch]:
         """
@@ -805,7 +805,7 @@ class WorldModelServiceAPI:
     def get_examples_for_intent(
         self,
         intent_type: str,
-        action_type: Optional[str] = None,
+        action_type: str | None = None,
         outcome_preference: str = "success",
         limit: int = 5,
     ) -> list[dict[str, Any]]:
@@ -836,7 +836,7 @@ class WorldModelServiceAPI:
     def get_lessons_for_constraint(
         self,
         constraint_description: str,
-        constraint_type: Optional[str] = None,
+        constraint_type: str | None = None,
         limit: int = 5,
     ) -> list[dict[str, Any]]:
         """
@@ -866,7 +866,7 @@ class WorldModelServiceAPI:
         decision_id: str,
         description: str,
         outcome: str,
-        metrics: Optional[dict[str, Any]] = None,
+        metrics: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Record a decision outcome for causal learning.
@@ -926,12 +926,12 @@ class WorldModelServiceAPI:
 # Singleton Access
 # =============================================================================
 
-_service: Optional[WorldModelServiceAPI] = None
+_service: WorldModelServiceAPI | None = None
 
 
 def get_world_model_service_api(
-    engine: Optional["WorldModelEngine"] = None,
-    runtime: Optional["WorldModelRuntime"] = None,
+    engine: WorldModelEngine | None = None,
+    runtime: WorldModelRuntime | None = None,
 ) -> WorldModelServiceAPI:
     """
     Get or create singleton service API.

@@ -35,7 +35,7 @@ def test_runtime_initialization():
     """
     Contract: AIOSRuntime can be instantiated.
     """
-    with patch("core.aios.runtime.AsyncOpenAI") as mock_openai:
+    with patch("core.aios.runtime.AsyncOpenAI"):
         runtime = AIOSRuntime(
             api_key="test-key",
             model="gpt-4o",

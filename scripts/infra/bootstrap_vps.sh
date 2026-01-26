@@ -59,11 +59,11 @@ section() { echo -e "\n${BLUE}========== $1 ==========${NC}\n"; }
 
 phase1_system_setup() {
     section "PHASE 1: System Setup"
-    
+
     # Update system
     log "Updating system packages..."
     apt-get update && apt-get upgrade -y
-    
+
     # Install essentials
     log "Installing essential packages..."
     apt-get install -y \
@@ -79,7 +79,7 @@ phase1_system_setup() {
         ca-certificates \
         gnupg \
         lsb-release
-    
+
     # Create admin user if doesn't exist
     if ! id "$ADMIN_USER" &>/dev/null; then
         log "Creating admin user: $ADMIN_USER"
@@ -87,7 +87,7 @@ phase1_system_setup() {
         usermod -aG sudo "$ADMIN_USER"
         echo "$ADMIN_USER ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/$ADMIN_USER
     fi
-    
+
     log "✅ Phase 1 complete"
 }
 
@@ -97,27 +97,27 @@ phase1_system_setup() {
 
 phase2_docker() {
     section "PHASE 2: Docker Installation"
-    
+
     if command -v docker &> /dev/null; then
         log "Docker already installed: $(docker --version)"
     else
         log "Installing Docker..."
         curl -fsSL https://get.docker.com | sh
-        
+
         # Add admin user to docker group
         usermod -aG docker "$ADMIN_USER"
     fi
-    
+
     # Install Docker Compose v2
     if ! docker compose version &> /dev/null; then
         log "Installing Docker Compose..."
         apt-get install -y docker-compose-plugin
     fi
-    
+
     # Enable and start Docker
     systemctl enable docker
     systemctl start docker
-    
+
     log "Docker version: $(docker --version)"
     log "Docker Compose version: $(docker compose version)"
     log "✅ Phase 2 complete"
@@ -129,7 +129,7 @@ phase2_docker() {
 
 phase3_caddy() {
     section "PHASE 3: Caddy Installation"
-    
+
     if command -v caddy &> /dev/null; then
         log "Caddy already installed: $(caddy version)"
     else
@@ -140,7 +140,7 @@ phase3_caddy() {
         apt-get update
         apt-get install -y caddy
     fi
-    
+
     # Caddy config will be restored from S3 backup
     log "✅ Phase 3 complete"
 }
@@ -151,7 +151,7 @@ phase3_caddy() {
 
 phase4_aws() {
     section "PHASE 4: AWS CLI Installation"
-    
+
     if command -v aws &> /dev/null; then
         log "AWS CLI already installed: $(aws --version)"
     else
@@ -161,30 +161,30 @@ phase4_aws() {
         /tmp/aws/install
         rm -rf /tmp/aws /tmp/awscliv2.zip
     fi
-    
+
     # Configure AWS for admin user
     if [[ -n "$AWS_ACCESS_KEY" && -n "$AWS_SECRET_KEY" ]]; then
         log "Configuring AWS credentials..."
         sudo -u "$ADMIN_USER" mkdir -p /home/$ADMIN_USER/.aws
-        
+
         cat > /home/$ADMIN_USER/.aws/credentials << EOF
 [default]
 aws_access_key_id = $AWS_ACCESS_KEY
 aws_secret_access_key = $AWS_SECRET_KEY
 EOF
-        
+
         cat > /home/$ADMIN_USER/.aws/config << EOF
 [default]
 region = $AWS_REGION
 output = json
 EOF
-        
+
         chown -R $ADMIN_USER:$ADMIN_USER /home/$ADMIN_USER/.aws
         chmod 600 /home/$ADMIN_USER/.aws/credentials
     else
         warn "AWS credentials not provided. Set AWS_ACCESS_KEY and AWS_SECRET_KEY."
     fi
-    
+
     log "✅ Phase 4 complete"
 }
 
@@ -194,7 +194,7 @@ EOF
 
 phase5_clone_repo() {
     section "PHASE 5: Clone L9 Repository"
-    
+
     if [[ -d "$L9_DIR/.git" ]]; then
         log "L9 repo already exists at $L9_DIR"
         cd "$L9_DIR"
@@ -205,7 +205,7 @@ phase5_clone_repo() {
         git clone -b "$L9_BRANCH" "$L9_REPO" "$L9_DIR"
         chown -R $ADMIN_USER:$ADMIN_USER "$L9_DIR"
     fi
-    
+
     log "✅ Phase 5 complete"
 }
 
@@ -215,38 +215,38 @@ phase5_clone_repo() {
 
 phase6_restore_backup() {
     section "PHASE 6: Restore from S3 Backup"
-    
+
     cd "$L9_DIR"
-    
+
     # Check if we can access S3
     if ! sudo -u "$ADMIN_USER" aws s3 ls "s3://$S3_BUCKET/" &>/dev/null; then
         warn "Cannot access S3 bucket. Skipping backup restore."
         warn "You'll need to manually configure .env and restore data."
         return 0
     fi
-    
+
     # Create backup directories
     mkdir -p "$L9_DIR/backups/server-config"
     chown -R $ADMIN_USER:$ADMIN_USER "$L9_DIR/backups"
-    
+
     # Download server configs
     log "Downloading server configs from S3..."
     sudo -u "$ADMIN_USER" aws s3 cp "s3://$S3_BUCKET/server-config/system-configs-latest.tar.gz" "$L9_DIR/backups/server-config/" || warn "No server configs found"
     sudo -u "$ADMIN_USER" aws s3 cp "s3://$S3_BUCKET/server-config/crontab_admin.txt" "$L9_DIR/backups/server-config/" || warn "No crontab found"
-    
+
     # Restore system configs
     if [[ -f "$L9_DIR/backups/server-config/system-configs-latest.tar.gz" ]]; then
         log "Restoring Caddy and systemd configs..."
         tar -xzvf "$L9_DIR/backups/server-config/system-configs-latest.tar.gz" -C /
         systemctl daemon-reload
     fi
-    
+
     # Restore crontab
     if [[ -f "$L9_DIR/backups/server-config/crontab_admin.txt" ]]; then
         log "Restoring crontab..."
         sudo -u "$ADMIN_USER" crontab "$L9_DIR/backups/server-config/crontab_admin.txt"
     fi
-    
+
     log "✅ Phase 6 complete"
 }
 
@@ -256,14 +256,14 @@ phase6_restore_backup() {
 
 phase7_start_containers() {
     section "PHASE 7: Start Docker Containers"
-    
+
     cd "$L9_DIR"
-    
+
     # Check for .env file
     if [[ ! -f "$L9_DIR/.env" ]]; then
         warn ".env file not found!"
         warn "Attempting to download latest config backup from S3..."
-        
+
         # Try to get latest config backup
         LATEST_CONFIG=$(sudo -u "$ADMIN_USER" aws s3 ls "s3://$S3_BUCKET/config/" --recursive | sort | tail -1 | awk '{print $4}')
         if [[ -n "$LATEST_CONFIG" ]]; then
@@ -274,17 +274,17 @@ phase7_start_containers() {
             error "No .env file found and no config backup in S3. Create .env manually."
         fi
     fi
-    
+
     # Start containers
     log "Starting Docker containers..."
     cd "$L9_DIR"
     sudo -u "$ADMIN_USER" docker compose up -d
-    
+
     # Wait for containers
     log "Waiting for containers to be healthy..."
     sleep 10
     sudo -u "$ADMIN_USER" docker compose ps
-    
+
     log "✅ Phase 7 complete"
 }
 
@@ -294,20 +294,20 @@ phase7_start_containers() {
 
 phase8_restore_data() {
     section "PHASE 8: Restore Memory Data"
-    
+
     cd "$L9_DIR"
-    
+
     # Check if restore script exists
     if [[ ! -f "$L9_DIR/scripts/backup/restore_l9_memory.sh" ]]; then
         warn "Restore script not found. Skipping data restore."
         return 0
     fi
-    
+
     # Run restore
     log "Restoring PostgreSQL and Neo4j data from S3..."
     chmod +x "$L9_DIR/scripts/backup/restore_l9_memory.sh"
     sudo -u "$ADMIN_USER" "$L9_DIR/scripts/backup/restore_l9_memory.sh" latest --yes || warn "Restore failed or no backup found"
-    
+
     log "✅ Phase 8 complete"
 }
 
@@ -317,15 +317,15 @@ phase8_restore_data() {
 
 phase9_start_services() {
     section "PHASE 9: Start Services"
-    
+
     # Reload systemd
     systemctl daemon-reload
-    
+
     # Start Caddy
     log "Starting Caddy..."
     systemctl enable caddy
     systemctl restart caddy || warn "Caddy start failed (check Caddyfile)"
-    
+
     # Start L9 services if they exist
     for svc in l9 l9-agent l9-mcp; do
         if [[ -f "/etc/systemd/system/${svc}.service" ]]; then
@@ -334,7 +334,7 @@ phase9_start_services() {
             systemctl restart "$svc" || warn "$svc start failed"
         fi
     done
-    
+
     log "✅ Phase 9 complete"
 }
 
@@ -344,11 +344,11 @@ phase9_start_services() {
 
 phase10_verify() {
     section "PHASE 10: Verification"
-    
+
     echo ""
     log "=== Docker Containers ==="
     docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-    
+
     echo ""
     log "=== Systemd Services ==="
     for svc in caddy l9 l9-agent l9-mcp; do
@@ -358,15 +358,15 @@ phase10_verify() {
             echo -e "  ${RED}✗${NC} $svc: not running"
         fi
     done
-    
+
     echo ""
     log "=== Crontab ==="
     sudo -u "$ADMIN_USER" crontab -l 2>/dev/null || echo "  No crontab"
-    
+
     echo ""
     log "=== Disk Usage ==="
     df -h "$L9_DIR"
-    
+
     echo ""
     log "✅ Bootstrap complete!"
     echo ""
@@ -387,12 +387,12 @@ main() {
     echo "║           L9 VPS Bootstrap Script v1.0.0                      ║"
     echo "╚═══════════════════════════════════════════════════════════════╝"
     echo ""
-    
+
     # Check root
     if [[ $EUID -ne 0 ]]; then
         error "This script must be run as root (sudo)"
     fi
-    
+
     phase1_system_setup
     phase2_docker
     phase3_caddy

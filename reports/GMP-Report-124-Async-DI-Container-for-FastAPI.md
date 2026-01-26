@@ -8,23 +8,21 @@
 
 ## TODO Plan (Executed)
 
-| T# | File | Lines | Action | Description |
-|----|------|-------|--------|-------------|
-| T1 | `config/di_async_config.py` | 1-377 | Create | AsyncDIContainer + async factories + lifespan |
-| T2 | `core/fastapi_lifespan.py` | 1-48 | Create | Re-export lifespan functions |
-| T3 | `tests/config/test_di_async_config.py` | 1-308 | Create | 13 unit tests for async DI |
-
+| T#  | File                                   | Lines | Action | Description                                   |
+| --- | -------------------------------------- | ----- | ------ | --------------------------------------------- |
+| T1  | `config/di_async_config.py`            | 1-377 | Create | AsyncDIContainer + async factories + lifespan |
+| T2  | `core/fastapi_lifespan.py`             | 1-48  | Create | Re-export lifespan functions                  |
+| T3  | `tests/config/test_di_async_config.py` | 1-308 | Create | 13 unit tests for async DI                    |
 
 ---
 
 ## Validation Results
 
-| Check | Result |
-|-------|--------|
-| py_compile | ✅ |
-| ruff | ✅ |
-| module_load | ✅ |
-
+| Check       | Result |
+| ----------- | ------ |
+| py_compile  | ✅     |
+| ruff        | ✅     |
+| module_load | ✅     |
 
 ---
 

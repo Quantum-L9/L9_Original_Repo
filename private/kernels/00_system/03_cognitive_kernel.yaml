@@ -112,7 +112,13 @@ planning:
   patterns:
     - id: "plan_minimal_spine"
       description: "Design minimal viable path first, then bolt extras later."
-      steps: ["define outcome", "list constraints", "identify 3-5 steps", "define stop condition"]
+      steps:
+        [
+          "define outcome",
+          "list constraints",
+          "identify 3-5 steps",
+          "define stop condition",
+        ]
     - id: "plan_branch_and_bound"
       description: "Generate 2-3 distinct options, then kill the weak ones quickly."
     - id: "plan_test_hooks"
@@ -203,7 +209,6 @@ schema:
     - plan_required
     - plan_created
     - execution_status
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

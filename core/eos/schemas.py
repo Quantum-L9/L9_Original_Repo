@@ -3,12 +3,12 @@ EOS Core Schemas — L9 Epistemic Operating System
 Pydantic models derived from core/eos/schemas.yaml
 """
 
-from enum import Enum
-from typing import Dict, List, Optional, Set, Any
 from datetime import datetime
+from enum import Enum
+from typing import Any
 from uuid import uuid4
-from pydantic import BaseModel, Field
 
+from pydantic import BaseModel, Field
 
 # -----------------------------------------------------------------------------
 # ENUMS
@@ -104,9 +104,9 @@ class AuthorityLevel(str, Enum):
 class EpistemicEmbeddings(BaseModel):
     """3D embeddings for epistemic objects"""
 
-    semantic: List[float] = Field(default_factory=list, description="Meaning space")
-    structural: List[float] = Field(default_factory=list, description="Graph topology")
-    normative: List[float] = Field(default_factory=list, description="Constraint space")
+    semantic: list[float] = Field(default_factory=list, description="Meaning space")
+    structural: list[float] = Field(default_factory=list, description="Graph topology")
+    normative: list[float] = Field(default_factory=list, description="Constraint space")
 
 
 # -----------------------------------------------------------------------------
@@ -117,7 +117,7 @@ class EpistemicEmbeddings(BaseModel):
 class Provenance(BaseModel):
     """Provenance tracking for epistemic objects"""
 
-    ledger_ref: Optional[str] = Field(None, description="Hash reference to ledger")
+    ledger_ref: str | None = Field(None, description="Hash reference to ledger")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     created_by: str = Field(..., description="Agent ID that created this")
 
@@ -139,8 +139,8 @@ class EpistemicObject(BaseModel):
     embeddings: EpistemicEmbeddings = Field(default_factory=EpistemicEmbeddings)
     enforceability: Enforceability = Field(default=Enforceability.SOFT)
     authority_id: str = Field(..., description="Authority that created/owns this")
-    tags: Set[str] = Field(default_factory=set)
-    provenance: Optional[Provenance] = None
+    tags: set[str] = Field(default_factory=set)
+    provenance: Provenance | None = None
 
     class Config:
         use_enum_values = True
@@ -159,11 +159,11 @@ class ExecutableDoctrine(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid4()))
     source: DoctrineSource = Field(...)
-    claims: List[str] = Field(default_factory=list)
-    assumptions: List[str] = Field(default_factory=list)
-    invariants: List[str] = Field(default_factory=list)
-    allowed_actions: List[str] = Field(default_factory=list)
-    forbidden_actions: List[str] = Field(default_factory=list)
+    claims: list[str] = Field(default_factory=list)
+    assumptions: list[str] = Field(default_factory=list)
+    invariants: list[str] = Field(default_factory=list)
+    allowed_actions: list[str] = Field(default_factory=list)
+    forbidden_actions: list[str] = Field(default_factory=list)
     enforcement_level: Enforceability = Field(default=Enforceability.HARD)
     authority_required: AuthorityLevel = Field(default=AuthorityLevel.L)
 
@@ -187,11 +187,11 @@ class ActionEnvelope(BaseModel):
     action_type: ActionType = Field(...)
     payload_ref: str = Field(..., description="URI to action payload")
     claimed_authority: str = Field(..., description="Authority ID claimed")
-    required_capabilities: List[str] = Field(default_factory=list)
+    required_capabilities: list[str] = Field(default_factory=list)
     environment: Environment = Field(default=Environment.DEV)
     risk_class: RiskClass = Field(default=RiskClass.LOW)
-    evidence_refs: List[str] = Field(default_factory=list)
-    simulation_ref: Optional[str] = None
+    evidence_refs: list[str] = Field(default_factory=list)
+    simulation_ref: str | None = None
     signature: str = Field(..., description="Cryptographic signature")
     signing_key_id: str = Field(...)
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -210,7 +210,7 @@ class Condition(BaseModel):
 
     type: ConditionType = Field(...)
     description: str = Field(...)
-    deadline: Optional[datetime] = None
+    deadline: datetime | None = None
     satisfied: bool = Field(default=False)
 
     class Config:
@@ -231,10 +231,10 @@ class Verdict(BaseModel):
     verdict_id: str = Field(default_factory=lambda: str(uuid4()))
     action_id: str = Field(..., description="Action this verdict is for")
     decision: VerdictDecision = Field(...)
-    conditions: List[Condition] = Field(default_factory=list)
+    conditions: list[Condition] = Field(default_factory=list)
     issuing_authority: str = Field(..., description="Authority or quorum that issued")
-    justification_refs: List[str] = Field(default_factory=list)
-    ledger_ref: Optional[str] = Field(None, description="Immutable ledger reference")
+    justification_refs: list[str] = Field(default_factory=list)
+    ledger_ref: str | None = Field(None, description="Immutable ledger reference")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
@@ -255,7 +255,7 @@ class Evidence(BaseModel):
     source_id: str = Field(..., description="Where this evidence came from")
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 # -----------------------------------------------------------------------------
@@ -270,9 +270,9 @@ class LedgerEntry(BaseModel):
     hash: str = Field(..., description="Content hash")
     signer: str = Field(..., description="Who signed this entry")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    action_ref: Optional[str] = None
-    verdict_ref: Optional[str] = None
-    payload: Dict[str, Any] = Field(default_factory=dict)
+    action_ref: str | None = None
+    verdict_ref: str | None = None
+    payload: dict[str, Any] = Field(default_factory=dict)
 
 
 # -----------------------------------------------------------------------------
@@ -280,24 +280,24 @@ class LedgerEntry(BaseModel):
 # -----------------------------------------------------------------------------
 
 __all__ = [
-    # Enums
-    "EpistemicObjectType",
-    "Enforceability",
+    "ActionEnvelope",
     "ActionType",
-    "Environment",
-    "RiskClass",
-    "VerdictDecision",
+    "AuthorityLevel",
+    "Condition",
     "ConditionType",
     "DoctrineSource",
-    "AuthorityLevel",
+    "Enforceability",
+    "Environment",
     # Models
     "EpistemicEmbeddings",
-    "Provenance",
     "EpistemicObject",
-    "ExecutableDoctrine",
-    "ActionEnvelope",
-    "Condition",
-    "Verdict",
+    # Enums
+    "EpistemicObjectType",
     "Evidence",
+    "ExecutableDoctrine",
     "LedgerEntry",
+    "Provenance",
+    "RiskClass",
+    "Verdict",
+    "VerdictDecision",
 ]

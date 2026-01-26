@@ -18,8 +18,8 @@ MCP_ROOT = PROJECT_ROOT / "mcp_memory"
 if str(MCP_ROOT) not in sys.path:
     sys.path.insert(0, str(MCP_ROOT))
 
-from src import mcp_server  # noqa: E402
-from src.mcp_server import MCPToolCall, handle_tool_call  # noqa: E402
+from src import mcp_server
+from src.mcp_server import MCPToolCall, handle_tool_call
 
 
 class DummyCaller:

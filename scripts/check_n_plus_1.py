@@ -45,7 +45,6 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import List, Tuple, Optional
 
 
 class N1DetectorVisitor(ast.NodeVisitor):
@@ -53,7 +52,7 @@ class N1DetectorVisitor(ast.NodeVisitor):
 
     def __init__(self, filename: str):
         self.filename = filename
-        self.issues: List[Tuple[int, str, str]] = []
+        self.issues: list[tuple[int, str, str]] = []
         self.in_loop = False
         self.loop_line = 0
 
@@ -103,7 +102,7 @@ class N1DetectorVisitor(ast.NodeVisitor):
     def visit_ListComp(self, node: ast.ListComp) -> None:
         """Visit list comprehension"""
         # Check for database queries in list comprehension
-        for generator in node.generators:
+        for _generator in node.generators:
             # Mark as in loop for the comprehension body
             old_in_loop = self.in_loop
             old_loop_line = self.loop_line
@@ -139,7 +138,7 @@ class N1DetectorVisitor(ast.NodeVisitor):
         return False
 
 
-def check_file_ast(filepath: Path) -> List[Tuple[int, str, str]]:
+def check_file_ast(filepath: Path) -> list[tuple[int, str, str]]:
     """
     Check a Python file for N+1 patterns using AST analysis
 
@@ -150,7 +149,7 @@ def check_file_ast(filepath: Path) -> List[Tuple[int, str, str]]:
         List of (line_number, issue_type, description) tuples
     """
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             source = f.read()
 
         tree = ast.parse(source, filename=str(filepath))
@@ -166,7 +165,7 @@ def check_file_ast(filepath: Path) -> List[Tuple[int, str, str]]:
         return []
 
 
-def check_file_regex(filepath: Path) -> List[Tuple[int, str, str]]:
+def check_file_regex(filepath: Path) -> list[tuple[int, str, str]]:
     """
     Check a Python file for N+1 patterns using regex (fallback)
 
@@ -179,7 +178,7 @@ def check_file_regex(filepath: Path) -> List[Tuple[int, str, str]]:
     issues = []
 
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             lines = f.readlines()
 
         in_loop = False
@@ -201,25 +200,16 @@ def check_file_regex(filepath: Path) -> List[Tuple[int, str, str]]:
                 in_loop = False
 
             # Detect database query in loop
-            if in_loop:
-                if re.search(
-                    r"\.(fetch_one|fetch_all|fetch|execute|executemany)\s*\(", line
-                ):
-                    issues.append(
-                        (
-                            i,
-                            "potential_n_plus_1",
-                            f"Database query inside loop (loop starts at line {loop_line})",
-                        )
+            if in_loop and (re.search(
+                r"\.(fetch_one|fetch_all|fetch|execute|executemany)\s*\(", line
+            ) or re.search(r"await\s+.*\.(query|get|filter|all|first)\s*\(", line)):
+                issues.append(
+                    (
+                        i,
+                        "potential_n_plus_1",
+                        f"Database query inside loop (loop starts at line {loop_line})",
                     )
-                elif re.search(r"await\s+.*\.(query|get|filter|all|first)\s*\(", line):
-                    issues.append(
-                        (
-                            i,
-                            "potential_n_plus_1",
-                            f"Database query inside loop (loop starts at line {loop_line})",
-                        )
-                    )
+                )
 
     except Exception as e:
         print(f"⚠️  Error analyzing {filepath}: {e}", file=sys.stderr)
@@ -227,7 +217,7 @@ def check_file_regex(filepath: Path) -> List[Tuple[int, str, str]]:
     return issues
 
 
-def get_changed_files() -> List[Path]:
+def get_changed_files() -> list[Path]:
     """Get list of changed Python files from git"""
     try:
         result = subprocess.run(
@@ -250,7 +240,7 @@ def get_changed_files() -> List[Path]:
         return []
 
 
-def get_all_python_files(root: Path) -> List[Path]:
+def get_all_python_files(root: Path) -> list[Path]:
     """Get all Python files in repository"""
     exclude_dirs = {
         "__pycache__",
@@ -351,7 +341,7 @@ def main():
             total_issues += len(issues)
 
             print(f"⚠️  {filepath}")
-            for line, issue_type, description in sorted(issues):
+            for line, _issue_type, description in sorted(issues):
                 print(f"    Line {line}: {description}")
             print()
 
@@ -369,13 +359,11 @@ def main():
 
         if args.strict:
             return 1
-        else:
-            print()
-            print("ℹ️  Run with --strict to fail CI on N+1 patterns")
-            return 0
-    else:
-        print("✅ No N+1 query patterns detected")
+        print()
+        print("ℹ️  Run with --strict to fail CI on N+1 patterns")
         return 0
+    print("✅ No N+1 query patterns detected")
+    return 0
 
 
 if __name__ == "__main__":

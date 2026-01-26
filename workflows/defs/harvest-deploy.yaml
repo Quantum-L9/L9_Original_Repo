@@ -192,7 +192,7 @@ steps:
   - id: validate_python
     name: "Validate Python Syntax"
     type: validate
-    depends_on: 
+    depends_on:
       - inject_settings
       - inject_discovery_imports
       - inject_discovery_helper
@@ -241,7 +241,6 @@ steps:
         - "echo 'Telemetry metrics added:'"
         - "grep -n 'tool_feedback_recorded\\|tool_success_rate' telemetry/memory_metrics.py | head -3"
     checkpoint: true
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

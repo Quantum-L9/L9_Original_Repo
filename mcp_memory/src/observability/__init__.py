@@ -26,14 +26,14 @@ Every kernel/substrate/safety operation SHOULD use observability exports.
 """
 
 from observability.logging import get_logger, setup_logging
-from observability.tracing import get_tracer, setup_tracing
 from observability.metrics import get_meter, setup_metrics
+from observability.tracing import get_tracer, setup_tracing
 
 __all__ = [
     "get_logger",
-    "setup_logging",
-    "get_tracer",
-    "setup_tracing",
     "get_meter",
+    "get_tracer",
+    "setup_logging",
     "setup_metrics",
+    "setup_tracing",
 ]

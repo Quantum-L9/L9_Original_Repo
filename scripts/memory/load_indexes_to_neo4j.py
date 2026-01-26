@@ -47,7 +47,6 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Optional
 
 import structlog
 
@@ -72,9 +71,9 @@ class RepoGraphLoader:
 
     def __init__(
         self,
-        uri: Optional[str] = None,
-        user: Optional[str] = None,
-        password: Optional[str] = None,
+        uri: str | None = None,
+        user: str | None = None,
+        password: str | None = None,
         database: str = "neo4j",
         dry_run: bool = False,
         verbose: bool = False,
@@ -136,7 +135,7 @@ class RepoGraphLoader:
             self.driver.close()
             logger.info("Neo4j disconnected")
 
-    def _run_query(self, query: str, parameters: dict = None):
+    def _run_query(self, query: str, parameters: dict | None = None):
         """Run a Cypher query."""
         if self.dry_run:
             if self.verbose:
@@ -193,7 +192,7 @@ class RepoGraphLoader:
 
         logger.info("Loading file metrics...")
 
-        with open(metrics_file, "r") as f:
+        with open(metrics_file) as f:
             for line in f:
                 # Parse: | `path/to/file.py` | 100 | 5 | 10 | 3 |
                 match = re.match(
@@ -236,7 +235,7 @@ class RepoGraphLoader:
 
         logger.info("Loading class definitions...")
 
-        with open(classes_file, "r") as f:
+        with open(classes_file) as f:
             for line in f:
                 # Parse: path/to/file.py::ClassName - Docstring
                 match = re.match(r"^([^:]+)::(\w+)\s*-\s*(.*)$", line.strip())
@@ -272,7 +271,7 @@ class RepoGraphLoader:
 
         logger.info("Loading inheritance graph...")
 
-        with open(inheritance_file, "r") as f:
+        with open(inheritance_file) as f:
             for line in f:
                 # Parse: ChildClass::Parent1,Parent2 @ path/to/file.py
                 match = re.match(r"^(\w+)::([^@]+)\s*@\s*(.+)$", line.strip())
@@ -310,7 +309,7 @@ class RepoGraphLoader:
 
         logger.info("Loading method catalog...")
 
-        with open(methods_file, "r") as f:
+        with open(methods_file) as f:
             for line in f:
                 # Parse: ClassName::method_name(args) @ path/to/file.py
                 match = re.match(
@@ -352,7 +351,7 @@ class RepoGraphLoader:
 
         logger.info("Loading route handlers...")
 
-        with open(routes_file, "r") as f:
+        with open(routes_file) as f:
             for line in f:
                 # Parse: GET /api/health → handler_func() @ path/to/file.py
                 match = re.match(
@@ -397,7 +396,7 @@ class RepoGraphLoader:
         count = 0
         max_funcs = 500
 
-        with open(funcs_file, "r") as f:
+        with open(funcs_file) as f:
             for line in f:
                 if count >= max_funcs:
                     break
@@ -445,7 +444,7 @@ class RepoGraphLoader:
 
         logger.info("Loading Pydantic models...")
 
-        with open(models_file, "r") as f:
+        with open(models_file) as f:
             for line in f:
                 # Parse: ModelName @ path/to/file.py - docstring
                 match = re.match(r"^(\w+)\s*@\s*([^\s-]+)\s*-?\s*(.*)$", line.strip())

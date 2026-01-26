@@ -44,7 +44,7 @@ __dora_meta__ = {
 import json
 import re
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 _DEFAULT_MAX_TOTAL_BYTES = 32_768  # 32KB
 _DEFAULT_MAX_DEPTH = 8
@@ -84,14 +84,14 @@ class ToolInputSanitizer:
     - {"type": "object", "properties": {...}, "required": [...]}
     """
 
-    def __init__(self, config: Optional[ToolInputSanitizerConfig] = None) -> None:
+    def __init__(self, config: ToolInputSanitizerConfig | None = None) -> None:
         self._config = config or ToolInputSanitizerConfig()
 
     def sanitize(
         self,
         tool_id: str,
         arguments: Any,
-        schema: Optional[dict[str, Any]] = None,
+        schema: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Sanitize and validate tool arguments.
@@ -165,7 +165,7 @@ class ToolInputSanitizer:
         self,
         key: str,
         value: Any,
-        expected: Optional[dict[str, Any]],
+        expected: dict[str, Any] | None,
         reasons: list[str],
     ) -> Any:
         expected_type = None

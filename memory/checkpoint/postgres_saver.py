@@ -36,22 +36,25 @@ __dora_meta__ = {
 
 import asyncio
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
 # LangGraph checkpoint interface (if available)
 try:
-    from langgraph.checkpoint.base import (BaseCheckpointSaver, Checkpoint,
-                                           CheckpointMetadata)
+    from langgraph.checkpoint.base import (
+        BaseCheckpointSaver,
+        Checkpoint,
+        CheckpointMetadata,
+    )
 
     LANGGRAPH_AVAILABLE = True
 except ImportError:
     # Fallback: define minimal interface
     LANGGRAPH_AVAILABLE = False
     BaseCheckpointSaver = object
-    Checkpoint = Dict[str, Any]
-    CheckpointMetadata = Dict[str, Any]
+    Checkpoint = dict[str, Any]
+    CheckpointMetadata = dict[str, Any]
 
 from core.decorators import must_stay_async
 from memory.substrate_repository import SubstrateRepository, get_repository
@@ -67,7 +70,7 @@ class L9PostgresSaver(BaseCheckpointSaver):
     Uses existing SubstrateRepository.save_checkpoint() / get_checkpoint().
     """
 
-    def __init__(self, repository: Optional[SubstrateRepository] = None):
+    def __init__(self, repository: SubstrateRepository | None = None):
         """
         Initialize L9 PostgresSaver.
 
@@ -84,11 +87,11 @@ class L9PostgresSaver(BaseCheckpointSaver):
 
     async def put(
         self,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         checkpoint: Checkpoint,
         metadata: CheckpointMetadata,
-        new_versions: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        new_versions: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Save checkpoint (LangGraph interface).
 
@@ -149,8 +152,8 @@ class L9PostgresSaver(BaseCheckpointSaver):
 
     async def get(
         self,
-        config: Dict[str, Any],
-    ) -> Optional[Checkpoint]:
+        config: dict[str, Any],
+    ) -> Checkpoint | None:
         """
         Load checkpoint (LangGraph interface).
 
@@ -189,11 +192,11 @@ class L9PostgresSaver(BaseCheckpointSaver):
     @must_stay_async("callers use await")
     async def list(
         self,
-        config: Dict[str, Any],
-        filter: Optional[Dict[str, Any]] = None,
-        before: Optional[Dict[str, Any]] = None,
-        limit: Optional[int] = None,
-    ) -> List[Dict[str, Any]]:
+        config: dict[str, Any],
+        filter: dict[str, Any] | None = None,
+        before: dict[str, Any] | None = None,
+        limit: int | None = None,
+    ) -> list[dict[str, Any]]:
         """
         List checkpoints for a thread (LangGraph interface).
 
@@ -264,7 +267,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
 
     def __init__(
         self,
-        repository: Optional[SubstrateRepository] = None,
+        repository: SubstrateRepository | None = None,
         max_retries: int = 3,
         base_retry_delay: float = 0.1,
     ):
@@ -307,7 +310,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
         Raises:
             Last exception if all retries exhausted
         """
-        last_exception: Optional[Exception] = None
+        last_exception: Exception | None = None
 
         for attempt in range(self.max_retries):
             try:
@@ -347,11 +350,11 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
 
     async def put(
         self,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         checkpoint: Checkpoint,
         metadata: CheckpointMetadata,
-        new_versions: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        new_versions: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Save checkpoint with retry logic and observability.
 
@@ -388,8 +391,8 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
 
     async def get(
         self,
-        config: Dict[str, Any],
-    ) -> Optional[Checkpoint]:
+        config: dict[str, Any],
+    ) -> Checkpoint | None:
         """
         Load checkpoint with retry logic.
 
@@ -407,11 +410,11 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
 
     async def list(
         self,
-        config: Dict[str, Any],
-        filter: Optional[Dict[str, Any]] = None,
-        before: Optional[Dict[str, Any]] = None,
-        limit: Optional[int] = None,
-    ) -> List[Dict[str, Any]]:
+        config: dict[str, Any],
+        filter: dict[str, Any] | None = None,
+        before: dict[str, Any] | None = None,
+        limit: int | None = None,
+    ) -> list[dict[str, Any]]:
         """
         List checkpoints with retry logic.
 
@@ -433,7 +436,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
             limit=limit,
         )
 
-    def get_pool_stats(self) -> Dict[str, Any]:
+    def get_pool_stats(self) -> dict[str, Any]:
         """
         Get connection pool statistics for monitoring.
 

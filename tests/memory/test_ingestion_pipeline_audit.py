@@ -37,12 +37,16 @@ class TestDAGNodeCoverage:
 
     def test_all_eight_nodes_defined_as_functions(self):
         """Verify all 8 node functions are defined in substrate_dag.py."""
-        from memory.substrate_dag import (checkpoint_node,
-                                          extract_insights_node, intake_node,
-                                          memory_write_node, reasoning_node,
-                                          semantic_embed_node,
-                                          store_insights_node,
-                                          world_model_trigger_node)
+        from memory.substrate_dag import (
+            checkpoint_node,
+            extract_insights_node,
+            intake_node,
+            memory_write_node,
+            reasoning_node,
+            semantic_embed_node,
+            store_insights_node,
+            world_model_trigger_node,
+        )
 
         # All nodes should be async functions
         assert callable(intake_node)
@@ -96,8 +100,7 @@ class TestDAGNodeCoverage:
     async def test_substrate_dag_node_execution_flow(self):
         """Verify SubstrateDAG node execution without graph compilation."""
         from core.schemas import PacketEnvelopeIn
-        from memory.substrate_dag import (intake_node, memory_write_node,
-                                          reasoning_node)
+        from memory.substrate_dag import intake_node, memory_write_node, reasoning_node
 
         packet = PacketEnvelopeIn(
             packet_type="test.audit.dag",
@@ -132,8 +135,11 @@ class TestDAGNodeCoverage:
     async def test_dag_state_accumulates_through_nodes(self):
         """Verify state is properly accumulated through DAG nodes."""
         from core.schemas import PacketEnvelopeIn
-        from memory.substrate_dag import (SubstrateGraphState, intake_node,
-                                          reasoning_node)
+        from memory.substrate_dag import (
+            SubstrateGraphState,
+            intake_node,
+            reasoning_node,
+        )
 
         packet = PacketEnvelopeIn(
             packet_type="test.state",
@@ -185,8 +191,7 @@ class TestGMP42EmbeddingFilter:
 
     def test_gmp42_skip_filter_blocks_error_messages(self):
         """Verify GMP-42 patterns are NOT embedded."""
-        from memory.substrate_dag import (SKIP_EMBEDDING_PATTERNS,
-                                          _should_skip_embedding)
+        from memory.substrate_dag import SKIP_EMBEDDING_PATTERNS, _should_skip_embedding
 
         for pattern in SKIP_EMBEDDING_PATTERNS:
             assert _should_skip_embedding(
@@ -272,7 +277,7 @@ class TestDualPipelineArchitecture:
         from memory.ingestion import IngestionPipeline
 
         assert hasattr(IngestionPipeline, "_sync_to_graph")
-        assert callable(getattr(IngestionPipeline, "_sync_to_graph"))
+        assert callable(IngestionPipeline._sync_to_graph)
 
     def test_substrate_dag_has_no_neo4j_node(self):
         """Verify SubstrateDAG does not have Neo4j sync node."""
@@ -348,9 +353,12 @@ class TestDualPipelineArchitecture:
             ), f"IngestionPipeline missing: {feature}"
 
         # SubstrateDAG features (reasoning, insights, world model)
-        from memory.substrate_dag import (extract_insights_node,
-                                          reasoning_node, store_insights_node,
-                                          world_model_trigger_node)
+        from memory.substrate_dag import (
+            extract_insights_node,
+            reasoning_node,
+            store_insights_node,
+            world_model_trigger_node,
+        )
 
         assert callable(reasoning_node)
         assert callable(extract_insights_node)
@@ -390,8 +398,7 @@ class TestTransactionAtomicity:
     async def test_transaction_rollback_on_packet_error(self):
         """Verify transaction rolls back if packet insert fails."""
         from core.schemas import PacketEnvelopeIn
-        from memory.governance_gate import (build_governance_context,
-                                            governance_context)
+        from memory.governance_gate import build_governance_context, governance_context
         from memory.ingestion import IngestionPipeline
 
         # Create mock repository that fails during transaction
@@ -531,7 +538,7 @@ class TestCrossSubstrateConsistency:
         assert "_sync_to_graph" in source
 
         # Check that Neo4j failure is logged as warning, not added to errors
-        sync_source = inspect.getsource(IngestionPipeline._sync_to_graph)
+        inspect.getsource(IngestionPipeline._sync_to_graph)
         # The method exists - actual error handling verified in source
 
     def test_embedding_decoupled_from_core_writes(self):
@@ -558,11 +565,14 @@ class TestCrossSubstrateConsistency:
 
     def test_storage_tables_documented(self):
         """Verify all storage tables are modeled."""
-        from memory.substrate_models import (AgentMemoryEventRow,
-                                             GraphCheckpointRow,
-                                             KnowledgeFactRow, PacketStoreRow,
-                                             ReasoningTraceRow,
-                                             SemanticMemoryRow)
+        from memory.substrate_models import (
+            AgentMemoryEventRow,
+            GraphCheckpointRow,
+            KnowledgeFactRow,
+            PacketStoreRow,
+            ReasoningTraceRow,
+            SemanticMemoryRow,
+        )
 
         # All table DTOs should exist
         assert PacketStoreRow is not None
@@ -676,10 +686,14 @@ class TestE2EIngestionFlow:
     async def test_full_dag_execution_e2e(self):
         """Test full DAG node execution without graph compilation."""
         from core.schemas import PacketEnvelopeIn
-        from memory.substrate_dag import (checkpoint_node,
-                                          extract_insights_node, intake_node,
-                                          memory_write_node, reasoning_node,
-                                          store_insights_node)
+        from memory.substrate_dag import (
+            checkpoint_node,
+            extract_insights_node,
+            intake_node,
+            memory_write_node,
+            reasoning_node,
+            store_insights_node,
+        )
 
         packet = PacketEnvelopeIn(
             packet_type="test.e2e",
@@ -720,8 +734,7 @@ class TestE2EIngestionFlow:
     async def test_ingestion_pipeline_validation(self):
         """Test IngestionPipeline validation."""
         from core.schemas import PacketEnvelopeIn
-        from memory.governance_gate import (build_governance_context,
-                                            governance_context)
+        from memory.governance_gate import build_governance_context, governance_context
         from memory.ingestion import IngestionPipeline
 
         pipeline = IngestionPipeline()
@@ -779,8 +792,7 @@ class TestAuditSummary:
 
     def test_gmp42_category(self):
         """GMP-42 Filter audit category."""
-        from memory.substrate_dag import (SKIP_EMBEDDING_PATTERNS,
-                                          _should_skip_embedding)
+        from memory.substrate_dag import SKIP_EMBEDDING_PATTERNS, _should_skip_embedding
 
         assert len(SKIP_EMBEDDING_PATTERNS) >= 6
         assert _should_skip_embedding("")

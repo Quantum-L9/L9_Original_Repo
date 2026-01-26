@@ -26,16 +26,22 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
 from core.decorators import must_stay_async
 
 from .adapter import BlueprintAdapter
-from .interface import (Blueprint, BlueprintEvaluation, BlueprintScore,
-                        EvaluationCriteria, IMetaOrchestrator,
-                        MetaOrchestratorRequest, MetaOrchestratorResponse)
+from .interface import (
+    Blueprint,
+    BlueprintEvaluation,
+    BlueprintScore,
+    EvaluationCriteria,
+    IMetaOrchestrator,
+    MetaOrchestratorRequest,
+    MetaOrchestratorResponse,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -61,7 +67,7 @@ class MetaOrchestrator(IMetaOrchestrator):
 
         logger.info(f"Evaluating {len(request.blueprints)} blueprints")
 
-        evaluations: List[BlueprintEvaluation] = []
+        evaluations: list[BlueprintEvaluation] = []
         for blueprint in request.blueprints:
             scores = await self._adapter.score_blueprint(
                 blueprint, request.criteria, request.context
@@ -126,8 +132,8 @@ class MetaOrchestrator(IMetaOrchestrator):
         self,
         blueprint_a: Blueprint,
         blueprint_b: Blueprint,
-        criteria: List[EvaluationCriteria],
-    ) -> Dict[str, Any]:
+        criteria: list[EvaluationCriteria],
+    ) -> dict[str, Any]:
         """Compare two blueprints head-to-head."""
         logger.info(f"Comparing {blueprint_a.id} vs {blueprint_b.id}")
 
@@ -164,19 +170,18 @@ class MetaOrchestrator(IMetaOrchestrator):
 
     async def suggest_improvements(
         self, blueprint: Blueprint, evaluation: BlueprintEvaluation
-    ) -> List[str]:
+    ) -> list[str]:
         """Suggest improvements based on evaluation."""
         logger.info(f"Generating improvements for {blueprint.id}")
-        suggestions = await self._adapter.generate_improvements(blueprint, evaluation)
-        return suggestions
+        return await self._adapter.generate_improvements(blueprint, evaluation)
 
     @must_stay_async("callers use await")
     async def _evaluate_blueprint(
         self,
         blueprint: Blueprint,
-        criteria: List[EvaluationCriteria],
-        scores: List[BlueprintScore],
-        context: Optional[Dict[str, Any]] = None,
+        criteria: list[EvaluationCriteria],
+        scores: list[BlueprintScore],
+        context: dict[str, Any] | None = None,
     ) -> BlueprintEvaluation:
         """Evaluate a single blueprint against all criteria."""
         logger.info(f"Evaluating blueprint: {blueprint.id}")
@@ -213,7 +218,7 @@ class MetaOrchestrator(IMetaOrchestrator):
         )
 
     def _generate_selection_rationale(
-        self, best: BlueprintEvaluation, all_evaluations: List[BlueprintEvaluation]
+        self, best: BlueprintEvaluation, all_evaluations: list[BlueprintEvaluation]
     ) -> str:
         """Generate rationale for why this blueprint was selected."""
         if len(all_evaluations) == 1:
@@ -222,14 +227,13 @@ class MetaOrchestrator(IMetaOrchestrator):
         second_best = all_evaluations[1]
         margin = best.weighted_total - second_best.weighted_total
 
-        rationale = (
+        return (
             f"Selected with score {best.weighted_total:.2f}, "
             f"{margin:.2f} points ahead of next best candidate. "
             f"Key strengths: {', '.join(best.strengths[:3])}."
         )
-        return rationale
 
-    def _calculate_confidence(self, evaluations: List[BlueprintEvaluation]) -> float:
+    def _calculate_confidence(self, evaluations: list[BlueprintEvaluation]) -> float:
         """Calculate confidence in selection based on score distribution."""
         if len(evaluations) == 1:
             return evaluations[0].weighted_total
@@ -238,8 +242,7 @@ class MetaOrchestrator(IMetaOrchestrator):
         second_best_score = evaluations[1].weighted_total
 
         gap = best_score - second_best_score
-        confidence = min(1.0, best_score + (gap * 0.5))
-        return confidence
+        return min(1.0, best_score + (gap * 0.5))
 
 
 # ============================================================================

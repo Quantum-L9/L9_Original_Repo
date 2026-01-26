@@ -3,36 +3,31 @@ L9 Reasoning Module
 Theorem-of-Thought (ToTh) reasoning integration for L9 agents
 """
 
+from core.reasoning.l9_toth_adapter import L9ReasoningContext, L9ToThAdapter
 from core.reasoning.toth_engine import (
-    ProductionToThEngine,
-    ToThConfig,
-    ReasoningMode,
+    CloudModelClient,
+    FormalReasoningGraph,
     ModelProvider,
+    ProductionToThEngine,
+    ReasoningMode,
     ReasoningResult,
     ReasoningStep,
-    FormalReasoningGraph,
-    CloudModelClient
-)
-
-from core.reasoning.l9_toth_adapter import (
-    L9ToThAdapter,
-    L9ReasoningContext
+    ToThConfig,
 )
 
 __all__ = [
-    # Core ToTh Engine
-    'ProductionToThEngine',
-    'ToThConfig',
-    'ReasoningMode',
-    'ModelProvider',
-    'ReasoningResult',
-    'ReasoningStep',
-    'FormalReasoningGraph',
-    'CloudModelClient',
-    
+    "CloudModelClient",
+    "FormalReasoningGraph",
+    "L9ReasoningContext",
     # L9 Integration
-    'L9ToThAdapter',
-    'L9ReasoningContext',
+    "L9ToThAdapter",
+    "ModelProvider",
+    # Core ToTh Engine
+    "ProductionToThEngine",
+    "ReasoningMode",
+    "ReasoningResult",
+    "ReasoningStep",
+    "ToThConfig",
 ]
 
-__version__ = '1.0.0'
+__version__ = "1.0.0"

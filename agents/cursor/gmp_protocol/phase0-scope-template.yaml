@@ -34,11 +34,11 @@
 # PHASE METADATA (REQUIRED)
 # -----------------------------------------------------------------------------
 phase_metadata:
-  gmp_id: "GMP-XXX"                    # REQUIRED: GMP identifier
-  feature_name: "your-feature-name"    # REQUIRED: Descriptive name
-  risk_tier: "RUNTIME"                 # KERNEL | RUNTIME | INFRA | UX
-  owner: "L=CTO"                       # Responsible party
-  created_at: "2026-01-19T00:00:00Z"   # ISO 8601 timestamp
+  gmp_id: "GMP-XXX" # REQUIRED: GMP identifier
+  feature_name: "your-feature-name" # REQUIRED: Descriptive name
+  risk_tier: "RUNTIME" # KERNEL | RUNTIME | INFRA | UX
+  owner: "L=CTO" # Responsible party
+  created_at: "2026-01-19T00:00:00Z" # ISO 8601 timestamp
 
 # -----------------------------------------------------------------------------
 # SCOPE ITEMS (REQUIRED) - What will be changed
@@ -49,19 +49,19 @@ phase_metadata:
 scope_items:
   - id: "T1"
     file: "path/to/file.py"
-    lines: "44-52"                     # Line range or "NEW" for new files
-    action: "Replace"                  # Insert | Replace | Delete | Wrap | Create
-    target: "function_name()"          # Function/class/section being modified
+    lines: "44-52" # Line range or "NEW" for new files
+    action: "Replace" # Insert | Replace | Delete | Wrap | Create
+    target: "function_name()" # Function/class/section being modified
     description: "Clear description of what this TODO does"
-    dependencies: []                   # List of TODO IDs this depends on
-  
+    dependencies: [] # List of TODO IDs this depends on
+
   - id: "T2"
     file: "path/to/other.py"
     lines: "10-12"
     action: "Insert"
     target: "imports"
     description: "Add required import statement"
-    dependencies: ["T1"]               # T2 depends on T1
+    dependencies: ["T1"] # T2 depends on T1
 
 # -----------------------------------------------------------------------------
 # NON-GOALS (REQUIRED) - What is OUT OF SCOPE
@@ -103,8 +103,8 @@ validation:
   py_compile: true
   ruff_check: true
   ruff_format: true
-  pytest: false                        # Set to true if tests modified
-  test_paths: []                       # Specific test files to run
+  pytest: false # Set to true if tests modified
+  test_paths: [] # Specific test files to run
 
 # -----------------------------------------------------------------------------
 # NEXT STEPS (Optional) - Checklist for Phases 1-6
@@ -116,7 +116,6 @@ next_steps:
   - "Run validation (Phase 4)"
   - "Verify no scope drift (Phase 5)"
   - "Generate report (Phase 6)"
-
 # ============================================================================
 # EXAMPLE: Complete scope file for a real GMP
 # ============================================================================

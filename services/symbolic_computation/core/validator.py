@@ -38,13 +38,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import re
-from typing import List, Optional
 
 import structlog
 from sympy import sympify
 
-from services.symbolic_computation.config import (SymbolicComputationConfig,
-                                                  get_config)
+from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 from services.symbolic_computation.core.models import ValidationResult
 
 logger = structlog.get_logger(__name__)
@@ -102,7 +100,7 @@ class ExpressionValidator:
 
     def __init__(
         self,
-        config: Optional[SymbolicComputationConfig] = None,
+        config: SymbolicComputationConfig | None = None,
     ):
         """
         Initialize the validator.
@@ -135,9 +133,9 @@ class ExpressionValidator:
         Returns:
             ValidationResult with validation status and details
         """
-        errors: List[str] = []
-        warnings: List[str] = []
-        dangerous_found: List[str] = []
+        errors: list[str] = []
+        warnings: list[str] = []
+        dangerous_found: list[str] = []
 
         self.logger.debug(
             "validating_expression",
@@ -196,7 +194,7 @@ class ExpressionValidator:
 
         return result
 
-    def check_dangerous_functions(self, expr: str) -> List[str]:
+    def check_dangerous_functions(self, expr: str) -> list[str]:
         """
         Find dangerous functions in expression.
 
@@ -224,7 +222,7 @@ class ExpressionValidator:
 
         return found
 
-    def _check_expensive_functions(self, expr: str) -> List[str]:
+    def _check_expensive_functions(self, expr: str) -> list[str]:
         """Check for potentially expensive symbolic functions."""
         found = []
 
@@ -234,7 +232,7 @@ class ExpressionValidator:
 
         return found
 
-    def _validate_syntax(self, expr: str) -> Optional[str]:
+    def _validate_syntax(self, expr: str) -> str | None:
         """Validate SymPy syntax by attempting to parse."""
         try:
             sympify(expr)
@@ -242,7 +240,7 @@ class ExpressionValidator:
         except Exception as e:
             return str(e)
 
-    def _check_balanced(self, expr: str) -> Optional[str]:
+    def _check_balanced(self, expr: str) -> str | None:
         """Check for balanced parentheses and brackets."""
         stack = []
         pairs = {"(": ")", "[": "]", "{": "}"}
@@ -263,7 +261,7 @@ class ExpressionValidator:
 
         return None
 
-    def validate_variable_names(self, variables: List[str]) -> List[str]:
+    def validate_variable_names(self, variables: list[str]) -> list[str]:
         """
         Validate variable names.
 
@@ -276,9 +274,7 @@ class ExpressionValidator:
         invalid = []
 
         for var in variables:
-            if not self.VARIABLE_PATTERN.match(var):
-                invalid.append(var)
-            elif var in self._blocked_functions:
+            if not self.VARIABLE_PATTERN.match(var) or var in self._blocked_functions:
                 invalid.append(var)
 
         return invalid

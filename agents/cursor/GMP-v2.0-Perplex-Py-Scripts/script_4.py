@@ -159,7 +159,7 @@ GMP v2.0 is a **deterministic repository updating system** that integrates:
    09-developer-kernel.yaml     → Developer discipline
    10-packet-protocol-kernel.yaml → Event protocol
    ```
-   
+
    **GMP Rule**: If TODO modifies agent behavior → Check which kernel(s) govern it
 
 2. **Memory Substrate Architecture (PostgreSQL + pgvector)**
@@ -180,12 +180,12 @@ GMP v2.0 is a **deterministic repository updating system** that integrates:
    if os.getenv("L9_ENABLE_AGENT_EXECUTOR") != "true":
        # Skip agent execution modifications
        pass
-   
+
    if os.getenv("L9_ENABLE_MEMORY_SUBSTRATE") != "true":
        # Skip memory substrate modifications
        pass
    ```
-   
+
    **GMP Rule**: If feature flag disabled → SKIP file + document in report
 
 5. **Tool Registry Pattern (ExecutorToolRegistry)**
@@ -292,18 +292,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      
+
       - name: Run GMP Audit
         run: |
           python scripts/gmp_audit.py \\
             --report reports/GMP_Report_${{ github.event.pull_request.head.sha }}.md \\
             --threshold 95
-      
+
       - name: Check Confidence Score
         run: |
           CONFIDENCE=$(cat audit_results.json | jq -r '.confidence')
@@ -313,7 +313,7 @@ jobs:
           else
             echo "✅ GMP Audit PASSED: Confidence $CONFIDENCE%"
           fi
-      
+
       - name: Comment PR with Results
         if: always()
         uses: actions/github-script@v6
@@ -323,23 +323,23 @@ jobs:
             const audit = JSON.parse(fs.readFileSync('audit_results.json', 'utf8'));
             const body = `
             ## 🔍 GMP Audit Results
-            
+
             **Confidence Score:** ${audit.confidence}% ${audit.confidence >= 95 ? '✅' : '❌'}
             **Status:** ${audit.status}
-            
+
             ### Breakdown
             - Plan Integrity: ${audit.plan_integrity}%
             - Implementation Compliance: ${audit.implementation_compliance}%
             - Operational Readiness: ${audit.operational_readiness}%
             - L9 Integration: ${audit.l9_integration}%
             - Git Integrity: ${audit.git_integrity}%
-            
+
             ### Issues
-            ${audit.issues.map(i => \`- \${i}\`).join('\\n')}
-            
+            ${audit.issues.map(i => \\`- \\${i}\\`).join('\\n')}
+
             **Full Report:** [View Report](${audit.report_path})
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

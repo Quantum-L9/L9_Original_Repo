@@ -1,14 +1,17 @@
 # ADR 0037: Tool Wiring Protocol
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Every tool must be fully wired: ToolDefinition + Executor + Export. Placeholder tools must be marked as FUTURE or DEPRECATED in source code.
 
 ## Context
 
 L9 tools require multiple integration points to be functional:
+
 1. **ToolDefinition** in `core/tools/tool_graph.py` - Metadata, capabilities, risk level
 2. **Executor function** in `runtime/l_tools.py` - Actual implementation
 3. **TOOL_EXECUTORS entry** - Registration in dispatch table
@@ -21,6 +24,7 @@ Tools missing any component are "loose stitches" - partially wired and unusable.
 ### 1. Wiring Checklist (for /wire command)
 
 Every tool MUST have:
+
 - [ ] Function exists in `runtime/l_tools.py` or linked module
 - [ ] Entry in `TOOL_EXECUTORS` dict
 - [ ] ToolDefinition in `L_INTERNAL_TOOLS` or `L9_TOOLS`
@@ -29,11 +33,11 @@ Every tool MUST have:
 
 ### 2. Tool Status Categories
 
-| Status | Meaning | Source Code Marker |
-|--------|---------|-------------------|
-| **ACTIVE** | Fully wired, functional | `# ACTIVE - Executor: ...` |
-| **FUTURE** | Definition exists, awaiting impl | `# FUTURE FEATURE - NOT ORPHANED` |
-| **DEPRECATED** | Superseded, do not implement | `# DEPRECATED - DO NOT IMPLEMENT` |
+| Status         | Meaning                          | Source Code Marker                |
+| -------------- | -------------------------------- | --------------------------------- |
+| **ACTIVE**     | Fully wired, functional          | `# ACTIVE - Executor: ...`        |
+| **FUTURE**     | Definition exists, awaiting impl | `# FUTURE FEATURE - NOT ORPHANED` |
+| **DEPRECATED** | Superseded, do not implement     | `# DEPRECATED - DO NOT IMPLEMENT` |
 
 ### 3. Source Code Markers
 
@@ -69,24 +73,28 @@ Tools MUST be marked in `core/tools/tool_graph.py`:
 ## Consequences
 
 ### Positive
+
 - No "loose stitches" - partially wired tools are visible
 - Agents know which tools are usable vs planned
 - AI agents won't try to use DEPRECATED tools
 - Clear path to implement FUTURE tools
 
 ### Negative
+
 - More verbose source code with markers
 - Requires discipline to maintain markers
 
 ## Compliance
 
 ### Before Adding a Tool
+
 1. Create ToolDefinition with status marker
 2. If ACTIVE: implement executor and wire to TOOL_EXECUTORS
 3. If FUTURE: document blocking factor
 4. Add to /wire checklist
 
 ### Before Deprecating a Tool
+
 1. Identify superseding alternatives
 2. Add DEPRECATED marker with alternatives
 3. Do NOT remove definition (keep for documentation)
@@ -94,13 +102,14 @@ Tools MUST be marked in `core/tools/tool_graph.py`:
 
 ## Current Tool Status (2026-01-20)
 
-| Category | Count |
-|----------|-------|
-| ACTIVE | 87 |
-| FUTURE | 17 |
-| DEPRECATED | 8 |
+| Category   | Count |
+| ---------- | ----- |
+| ACTIVE     | 87    |
+| FUTURE     | 17    |
+| DEPRECATED | 8     |
 
 ### FUTURE Features (Not Orphaned)
+
 - `web_search` - Alternative: `run_research_query`
 - `email_*` (6) - Awaiting email_agent/ integration
 - `calendar_create` - Awaiting Google Calendar API
@@ -111,6 +120,7 @@ Tools MUST be marked in `core/tools/tool_graph.py`:
 - `graph_memory_*` (3) - Convenience wrappers
 
 ### DEPRECATED (Do Not Implement)
+
 - `memory_read` → `memory_get_packet`, `memory_search`
 - `hybrid_rag_search` → `memory_hybrid_search`
 - `tool_router_list` → `tools_list_all`, `tools_list_enabled`
@@ -119,6 +129,7 @@ Tools MUST be marked in `core/tools/tool_graph.py`:
 - `schema_introspect_*` (2) → Direct queries
 
 ## Related ADRs
+
 - ADR-0017: Tool Definition Schema
 - ADR-0022: Registry Pattern
 - ADR-0034: Agent Capability Scoping

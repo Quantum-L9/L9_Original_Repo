@@ -37,7 +37,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
 
 import structlog
@@ -95,7 +95,7 @@ class RemediationEngineRequest(BaseModel):
     recommended_action: str = Field(
         ..., description="Recommended action from classifier"
     )
-    context: Dict[str, Any] = Field(
+    context: dict[str, Any] = Field(
         default_factory=dict, description="Additional context"
     )
     source_id: str = Field(default="anomaly_classifier")
@@ -110,10 +110,10 @@ class RemediationResult(BaseModel):
     anomaly_id: str
     action_taken: RemediationAction
     status: RemediationStatus
-    details: Dict[str, Any] = Field(default_factory=dict)
+    details: dict[str, Any] = Field(default_factory=dict)
     rollback_triggered: bool = False
     escalation_sent: bool = False
-    next_steps: List[str] = Field(default_factory=list)
+    next_steps: list[str] = Field(default_factory=list)
 
 
 class RemediationEngineResponse(BaseModel):
@@ -121,8 +121,8 @@ class RemediationEngineResponse(BaseModel):
 
     ok: bool = Field(..., description="Whether the remediation succeeded")
     request_id: str = Field(..., description="Original request ID")
-    result: Optional[RemediationResult] = Field(None, description="Remediation result")
-    error: Optional[str] = Field(None, description="Error message if failed")
+    result: RemediationResult | None = Field(None, description="Remediation result")
+    error: str | None = Field(None, description="Error message if failed")
     duration_ms: int = Field(
         default=0, description="Processing duration in milliseconds"
     )
@@ -151,7 +151,7 @@ class RemediationEngine:
         self._initialized = False
         self._rollback_endpoint = rollback_endpoint
         self._escalation_endpoint = escalation_endpoint
-        self._remediation_history: List[RemediationResult] = []
+        self._remediation_history: list[RemediationResult] = []
         logger.info("remediation_engine_initialized")
 
     # =========================================================================
@@ -257,14 +257,13 @@ class RemediationEngine:
 
         if action == RemediationAction.LOG_AND_MONITOR:
             return await self._handle_log_and_monitor(request)
-        elif action == RemediationAction.REMEDIATE:
+        if action == RemediationAction.REMEDIATE:
             return await self._handle_remediate(request)
-        elif action == RemediationAction.ROLLBACK:
+        if action == RemediationAction.ROLLBACK:
             return await self._handle_rollback(request)
-        elif action == RemediationAction.ESCALATE:
+        if action == RemediationAction.ESCALATE:
             return await self._handle_escalate(request)
-        else:
-            return await self._handle_investigate(request)
+        return await self._handle_investigate(request)
 
     @must_stay_async("callers use await")
     async def _handle_log_and_monitor(
@@ -463,7 +462,7 @@ class RemediationEngine:
     # =========================================================================
 
     @must_stay_async("health endpoint")
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Check service health."""
         return {
             "module": MODULE_ID,
@@ -479,8 +478,8 @@ class RemediationEngine:
 
 
 def create_remediation_engine(
-    rollback_endpoint: Optional[str] = None,
-    escalation_endpoint: Optional[str] = None,
+    rollback_endpoint: str | None = None,
+    escalation_endpoint: str | None = None,
 ) -> RemediationEngine:
     """Factory function to create RemediationEngine."""
     kwargs = {}
@@ -496,15 +495,15 @@ def create_remediation_engine(
 # =============================================================================
 
 __all__ = [
+    "MODULE_ID",
+    "MODULE_NAME",
+    "RemediationAction",
     "RemediationEngine",
     "RemediationEngineRequest",
     "RemediationEngineResponse",
     "RemediationResult",
-    "RemediationAction",
     "RemediationStatus",
     "create_remediation_engine",
-    "MODULE_ID",
-    "MODULE_NAME",
 ]
 
 # ============================================================================

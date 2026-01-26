@@ -22,6 +22,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+
+# Configure structlog
+# Use structlog log levels (no need for logging module)
+import logging
 import sys
 import time
 from contextlib import asynccontextmanager
@@ -42,10 +46,6 @@ from src.mcp_server import MCPToolCall, get_mcp_tools, handle_tool_call
 from src.rate_limiter import RateLimiter
 from src.routes import health
 from src.routes import memory_unified as memory
-
-# Configure structlog
-# Use structlog log levels (no need for logging module)
-import logging
 
 log_level_map = {
     "DEBUG": 10,

@@ -4,10 +4,10 @@ This document describes the available L9 agents, their capabilities, and how to 
 
 ## Tool Placement Summary
 
-| Agent | Config Location | Available In |
-|-------|-----------------|--------------|
-| **ReflectionAgent** | `L-CTO-Agent.yaml` (base) | ALL L-CTO modes |
-| **ResearchAgent** | `L-CTO-Research-Overlay.yaml` | Research mode only |
+| Agent               | Config Location               | Available In       |
+| ------------------- | ----------------------------- | ------------------ |
+| **ReflectionAgent** | `L-CTO-Agent.yaml` (base)     | ALL L-CTO modes    |
+| **ResearchAgent**   | `L-CTO-Research-Overlay.yaml` | Research mode only |
 
 > **Key Insight:** Reflection tools are general-purpose self-improvement (all modes). Research tools are Perplexity-powered web research (research mode only).
 
@@ -17,32 +17,32 @@ This document describes the available L9 agents, their capabilities, and how to 
 
 **Purpose:** Meta-reasoning and self-improvement agent for analyzing execution history, failures, and deriving lessons.
 
-**Config:** `config/agents/reflection-agent-v1.yaml`  
-**Python Class:** `agents.reflection_agent.ReflectionAgent`  
+**Config:** `config/agents/reflection-agent-v1.yaml`
+**Python Class:** `agents.reflection_agent.ReflectionAgent`
 **Factory:** `agents.reflection_agent.create_reflection_agent()`
 
 ### API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/reflection/agent/status` | GET | Agent status and capabilities |
-| `/reflection/agent/reflect` | POST | Reflect on execution history |
-| `/reflection/agent/analyze-failure` | POST | Deep failure root cause analysis |
-| `/reflection/agent/compare` | POST | Compare two approaches |
-| `/reflection/agent/extract-patterns` | POST | Extract patterns from examples |
-| `/reflection/agent/generate-improvements` | POST | Generate improvement plan |
-| `/reflection/agent/lessons-learned` | GET | Get accumulated lessons |
-| `/reflection/agent/lessons-learned` | DELETE | Clear lessons |
+| Endpoint                                  | Method | Description                      |
+| ----------------------------------------- | ------ | -------------------------------- |
+| `/reflection/agent/status`                | GET    | Agent status and capabilities    |
+| `/reflection/agent/reflect`               | POST   | Reflect on execution history     |
+| `/reflection/agent/analyze-failure`       | POST   | Deep failure root cause analysis |
+| `/reflection/agent/compare`               | POST   | Compare two approaches           |
+| `/reflection/agent/extract-patterns`      | POST   | Extract patterns from examples   |
+| `/reflection/agent/generate-improvements` | POST   | Generate improvement plan        |
+| `/reflection/agent/lessons-learned`       | GET    | Get accumulated lessons          |
+| `/reflection/agent/lessons-learned`       | DELETE | Clear lessons                    |
 
 ### Tool Callables (for L-CTO)
 
-| Tool Name | Description | Tier |
-|-----------|-------------|------|
-| `reflection_agent_reflect` | Reflect on execution history, derive insights and lessons | T1 |
-| `reflection_agent_analyze_failure` | Deep root cause analysis of failures | T1 |
-| `reflection_agent_compare_approaches` | Compare approaches with scoring | T1 |
-| `reflection_agent_extract_patterns` | Extract patterns from examples | T1 |
-| `reflection_agent_generate_improvements` | Generate improvement plans (requires approval) | T2 |
+| Tool Name                                | Description                                               | Tier |
+| ---------------------------------------- | --------------------------------------------------------- | ---- |
+| `reflection_agent_reflect`               | Reflect on execution history, derive insights and lessons | T1   |
+| `reflection_agent_analyze_failure`       | Deep root cause analysis of failures                      | T1   |
+| `reflection_agent_compare_approaches`    | Compare approaches with scoring                           | T1   |
+| `reflection_agent_extract_patterns`      | Extract patterns from examples                            | T1   |
+| `reflection_agent_generate_improvements` | Generate improvement plans (requires approval)            | T2   |
 
 ### Usage Examples
 
@@ -135,27 +135,27 @@ POST /reflection/agent/generate-improvements
 
 **Purpose:** Deep research and code generation agent using Perplexity API for multi-perspective synthesis.
 
-**Config:** `config/agents/research-agent-v1.yaml`  
-**Python Class:** `agents.research_agent.ResearchAgent`  
+**Config:** `config/agents/research-agent-v1.yaml`
+**Python Class:** `agents.research_agent.ResearchAgent`
 **Factory:** `agents.research_agent.create_research_agent()`
 
 ### API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/research/agent/status` | GET | Agent status and capabilities |
-| `/research/agent/synthesize` | POST | Fast multi-perspective synthesis (~10 min) |
-| `/research/agent/discover` | POST | Deep 5-stage research (15-25 hours) |
-| `/research/agent/generate-spec` | POST | Generate Module-Spec-v2.4 YAML |
-| `/research/agent/research-to-code` | POST | End-to-end research-to-code pipeline |
+| Endpoint                           | Method | Description                                |
+| ---------------------------------- | ------ | ------------------------------------------ |
+| `/research/agent/status`           | GET    | Agent status and capabilities              |
+| `/research/agent/synthesize`       | POST   | Fast multi-perspective synthesis (~10 min) |
+| `/research/agent/discover`         | POST   | Deep 5-stage research (15-25 hours)        |
+| `/research/agent/generate-spec`    | POST   | Generate Module-Spec-v2.4 YAML             |
+| `/research/agent/research-to-code` | POST   | End-to-end research-to-code pipeline       |
 
 ### Tool Callables (for L-CTO)
 
-| Tool Name | Description | Tier |
-|-----------|-------------|------|
-| `research_agent_synthesize` | Fast multi-perspective synthesis via Perplexity | T1 |
-| `research_agent_discover` | Deep 5-stage academic research (long-running) | T2 |
-| `research_agent_generate_spec` | Generate Module-Spec-v2.4 YAML | T1 |
+| Tool Name                      | Description                                     | Tier |
+| ------------------------------ | ----------------------------------------------- | ---- |
+| `research_agent_synthesize`    | Fast multi-perspective synthesis via Perplexity | T1   |
+| `research_agent_discover`      | Deep 5-stage academic research (long-running)   | T2   |
+| `research_agent_generate_spec` | Generate Module-Spec-v2.4 YAML                  | T1   |
 
 ### Usage Examples
 
@@ -191,6 +191,7 @@ POST /research/agent/discover
 ### List All Available Agents
 
 Check `config/agents/` for all agent configurations:
+
 - `L-CTO-Agent.yaml` — Main L-CTO agent
 - `L-CTO-Research-Overlay.yaml` — L-CTO in research mode
 - `research-agent-v1.yaml` — Research agent
@@ -211,11 +212,11 @@ curl -H "Authorization: Bearer $API_KEY" https://l9.quantumaipartners.com/resear
 
 ## Environment Requirements
 
-| Agent | Required Env Vars |
-|-------|-------------------|
-| ReflectionAgent | `OPENAI_API_KEY` |
-| ResearchAgent | `PERPLEXITY_API_KEY` |
+| Agent           | Required Env Vars    |
+| --------------- | -------------------- |
+| ReflectionAgent | `OPENAI_API_KEY`     |
+| ResearchAgent   | `PERPLEXITY_API_KEY` |
 
 ---
 
-*Last Updated: 2026-01-16*
+_Last Updated: 2026-01-16_

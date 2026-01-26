@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -43,9 +43,9 @@ logger = structlog.get_logger(__name__)
 
 
 async def wire_governance_gates(
-    instance: "BootstrapInstanceData",
-    substrate_service: "MemorySubstrateService",
-    kernels: Dict[str, "KernelParsed"],
+    instance: BootstrapInstanceData,
+    substrate_service: MemorySubstrateService,
+    kernels: dict[str, KernelParsed],
 ) -> None:
     """
     Wire governance gates: tool execution → kernel enforcement.

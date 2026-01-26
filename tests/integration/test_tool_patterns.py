@@ -299,7 +299,9 @@ def test_get_tool_pattern_extractor():
     # Clear any existing instance
     import core.integration.tool_pattern_extractor as module
     from core.integration.tool_pattern_extractor import (
-        ToolPatternExtractor, get_tool_pattern_extractor)
+        ToolPatternExtractor,
+        get_tool_pattern_extractor,
+    )
 
     module._extractor = None
 

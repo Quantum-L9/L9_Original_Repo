@@ -2,9 +2,9 @@
 
 ################################################################################
 # docker-build-validator.sh
-# 
+#
 # Purpose: Discover, validate, and safely build ALL Dockerfiles in the repo
-# 
+#
 # Ensures:
 #   1. All docker-compose.yml files are syntactically valid
 #   2. All Dockerfiles referenced in compose files exist
@@ -58,7 +58,7 @@ warning() {
 
 discover_docker_files() {
   log "Phase 1: Discovering Docker files..."
-  
+
   # Find all docker-compose files
   while IFS= read -r file; do
     if [[ -f "$file" ]]; then
@@ -66,7 +66,7 @@ discover_docker_files() {
       log "Found compose file: $file"
     fi
   done < <(find . -maxdepth 3 -name "docker-compose*.yml" -type f)
-  
+
   # Find all Dockerfiles
   while IFS= read -r file; do
     if [[ -f "$file" ]]; then
@@ -74,17 +74,17 @@ discover_docker_files() {
       log "Found Dockerfile: $file"
     fi
   done < <(find . -maxdepth 3 -name "Dockerfile*" -type f)
-  
+
   if [[ ${#COMPOSE_FILES[@]} -eq 0 ]]; then
     error "No docker-compose files found!"
     return 1
   fi
-  
+
   if [[ ${#DOCKERFILES[@]} -eq 0 ]]; then
     error "No Dockerfiles found!"
     return 1
   fi
-  
+
   success "Discovered ${#COMPOSE_FILES[@]} compose file(s) and ${#DOCKERFILES[@]} Dockerfile(s)"
 }
 
@@ -94,16 +94,16 @@ discover_docker_files() {
 
 validate_compose_files() {
   log "Phase 2: Validating docker-compose syntax..."
-  
+
   for compose in "${COMPOSE_FILES[@]}"; do
     log "Checking: $compose"
-    
+
     if ! docker-compose -f "$compose" config > /dev/null 2>&1; then
       error "Invalid syntax in: $compose"
       docker-compose -f "$compose" config 2>&1 | head -20
       return 1
     fi
-    
+
     success "Valid: $compose"
   done
 }
@@ -114,16 +114,16 @@ validate_compose_files() {
 
 validate_dockerfile_references() {
   log "Phase 3: Validating Dockerfile references..."
-  
+
   for compose in "${COMPOSE_FILES[@]}"; do
     log "Checking references in: $compose"
-    
+
     # Extract build: dockerfile: lines
     while IFS= read -r line; do
       dockerfile=$(echo "$line" | sed 's/.*dockerfile: //g' | tr -d "'" | tr -d '"')
       compose_dir=$(dirname "$compose")
       dockerfile_full_path="$compose_dir/$dockerfile"
-      
+
       if [[ ! -f "$dockerfile_full_path" ]]; then
         error "Dockerfile not found: $dockerfile_full_path (referenced in $compose)"
       else
@@ -139,20 +139,20 @@ validate_dockerfile_references() {
 
 validate_build_contexts() {
   log "Phase 4: Validating build contexts..."
-  
+
   for compose in "${COMPOSE_FILES[@]}"; do
     log "Checking build contexts in: $compose"
-    
+
     # Parse services with build context
     local compose_dir=$(dirname "$compose")
-    
+
     # Simple extraction of build contexts (requires docker-compose config)
     docker-compose -f "$compose" config 2>/dev/null | \
       grep -A 5 "build:" | \
       grep -E "(context|dockerfile):" | \
       while read -r line; do
         path=$(echo "$line" | sed 's/.*context: //g' | tr -d " " | tr -d "'" | tr -d '"')
-        
+
         if [[ -n "$path" ]] && [[ ! "$path" =~ "dockerfile:" ]]; then
           # Handle absolute vs relative paths
           if [[ "$path" == /* ]]; then
@@ -160,7 +160,7 @@ validate_build_contexts() {
           else
             full_path="$compose_dir/$path"
           fi
-          
+
           if [[ ! -d "$full_path" ]]; then
             error "Build context directory not found: $full_path"
           else
@@ -177,15 +177,15 @@ validate_build_contexts() {
 
 validate_dockerfiles() {
   log "Phase 5: Validating Dockerfile structure..."
-  
+
   for dockerfile in "${DOCKERFILES[@]}"; do
     log "Checking: $dockerfile"
-    
+
     if ! grep -q "^FROM" "$dockerfile"; then
       error "Dockerfile missing FROM statement: $dockerfile"
       continue
     fi
-    
+
     success "Valid: $dockerfile (has FROM)"
   done
 }
@@ -196,16 +196,16 @@ validate_dockerfiles() {
 
 build_dockerfiles() {
   log "Phase 6: Building all services (dry run)..."
-  
+
   for compose in "${COMPOSE_FILES[@]}"; do
     log "Building services from: $compose"
-    
+
     if ! docker-compose -f "$compose" build --no-cache 2>&1 | tee /tmp/docker-build.log; then
       error "Build failed for: $compose"
       tail -50 /tmp/docker-build.log
       return 1
     fi
-    
+
     success "Build successful: $compose"
   done
 }
@@ -216,11 +216,11 @@ build_dockerfiles() {
 
 verify_built_images() {
   log "Phase 7: Verifying built images..."
-  
+
   for compose in "${COMPOSE_FILES[@]}"; do
     # Get image names from compose file
     local images=$(docker-compose -f "$compose" config 2>/dev/null | grep "image:" | sed 's/.*image: //g' | tr -d " " | sort | uniq)
-    
+
     while IFS= read -r image; do
       if [[ -n "$image" ]]; then
         if docker image inspect "$image" > /dev/null 2>&1; then
@@ -239,44 +239,44 @@ verify_built_images() {
 
 main() {
   local mode="${1:-check-only}"
-  
+
   echo ""
   echo "╔════════════════════════════════════════════════════════════════════╗"
   echo "║              DOCKER BUILD VALIDATOR & EXECUTOR                    ║"
   echo "║                    Mode: $mode                               ║"
   echo "╚════════════════════════════════════════════════════════════════════╝"
   echo ""
-  
+
   # Phase 1: Discovery
   if ! discover_docker_files; then
     error "Discovery phase failed"
     exit 1
   fi
   echo ""
-  
+
   # Phase 2: Validate compose syntax
   if ! validate_compose_files; then
     error "Compose validation failed"
     exit 1
   fi
   echo ""
-  
+
   # Phase 3: Validate Dockerfile references
   validate_dockerfile_references
   echo ""
-  
+
   # Phase 4: Validate build contexts
   validate_build_contexts
   echo ""
-  
+
   # Phase 5: Validate Dockerfile structure
   validate_dockerfiles
   echo ""
-  
+
   # Report early errors
   if [[ $VALIDATION_ERRORS -gt 0 ]]; then
     error "Found $VALIDATION_ERRORS validation error(s)"
-    
+
     case "$mode" in
       check-only|validate-only)
         exit 1
@@ -286,7 +286,7 @@ main() {
         ;;
     esac
   fi
-  
+
   # Phase 6: Build (only if requested)
   if [[ "$mode" == "build" ]]; then
     echo ""
@@ -296,11 +296,11 @@ main() {
       exit 1
     fi
     echo ""
-    
+
     # Phase 7: Verify images
     verify_built_images
   fi
-  
+
   echo ""
   echo "╔════════════════════════════════════════════════════════════════════╗"
   if [[ $VALIDATION_ERRORS -eq 0 ]]; then
@@ -313,7 +313,7 @@ main() {
   fi
   echo "╚════════════════════════════════════════════════════════════════════╝"
   echo ""
-  
+
   [[ $VALIDATION_ERRORS -eq 0 ]] && exit 0 || exit 1
 }
 

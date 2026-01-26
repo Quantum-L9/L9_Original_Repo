@@ -30,14 +30,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
-import yaml
 import logging
-from pathlib import Path
-from typing import Dict, List, Optional, Any
+import os
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
-from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any
+
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -69,9 +70,9 @@ class SecurityViolation:
     violation_type: str  # sast, dependencies, secrets, containers
     severity: VulnerabilitySeverity
     message: str
-    location: Optional[str] = None
-    cve: Optional[str] = None
-    package: Optional[str] = None
+    location: str | None = None
+    cve: str | None = None
+    package: str | None = None
     action: SecurityAction = SecurityAction.BLOCK
     timestamp: datetime = None
 
@@ -79,7 +80,7 @@ class SecurityViolation:
         if self.timestamp is None:
             self.timestamp = datetime.utcnow()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for logging/storage."""
         return {
             "violation_id": self.violation_id,
@@ -100,11 +101,11 @@ class SecurityScanResult:
 
     scan_type: str  # sast, dependencies, secrets, containers
     scan_timestamp: datetime
-    violations: List[SecurityViolation]
+    violations: list[SecurityViolation]
     passed: bool
-    summary: Dict[str, int]  # Count by severity
+    summary: dict[str, int]  # Count by severity
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for logging/storage."""
         return {
             "scan_type": self.scan_type,
@@ -125,7 +126,7 @@ class SecurityPolicyService:
     - core/governance/engine.py (policy enforcement)
     """
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: str | None = None):
         """
         Initialize security policy service.
 
@@ -137,7 +138,7 @@ class SecurityPolicyService:
         self.environment = os.getenv("L9_ENVIRONMENT", "development")
 
         logger.info(
-            f"SecurityPolicyService initialized",
+            "SecurityPolicyService initialized",
             extra={
                 "config_path": self.config_path,
                 "environment": self.environment,
@@ -157,10 +158,10 @@ class SecurityPolicyService:
         # Fallback to environment variable
         return os.getenv("L9_SECURITY_POLICY_PATH", "config/security_policy.yaml")
 
-    def _load_policy(self) -> Dict[str, Any]:
+    def _load_policy(self) -> dict[str, Any]:
         """Load security policy from YAML file."""
         try:
-            with open(self.config_path, "r") as f:
+            with open(self.config_path) as f:
                 policy = yaml.safe_load(f)
 
             logger.info(f"Security policy loaded from {self.config_path}")
@@ -176,7 +177,7 @@ class SecurityPolicyService:
             logger.error(f"Failed to load security policy: {e}")
             return self._get_default_policy()
 
-    def _get_default_policy(self) -> Dict[str, Any]:
+    def _get_default_policy(self) -> dict[str, Any]:
         """Get default security policy (fail-closed)."""
         return {
             "sast": {
@@ -214,7 +215,7 @@ class SecurityPolicyService:
 
     def get_threshold(
         self, scan_type: str, severity: VulnerabilitySeverity
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Get threshold configuration for a scan type and severity.
 
@@ -242,10 +243,9 @@ class SecurityPolicyService:
         # Ultimate fallback: block on critical, warn on high
         if severity == VulnerabilitySeverity.CRITICAL:
             return {"max_allowed": 0, "action": "block"}
-        elif severity == VulnerabilitySeverity.HIGH:
+        if severity == VulnerabilitySeverity.HIGH:
             return {"max_allowed": 5, "action": "warn"}
-        else:
-            return {"max_allowed": 50, "action": "info"}
+        return {"max_allowed": 50, "action": "info"}
 
     def evaluate_scan_result(self, scan_result: SecurityScanResult) -> bool:
         """
@@ -275,7 +275,7 @@ class SecurityPolicyService:
 
             if count > max_allowed:
                 logger.warning(
-                    f"Security threshold exceeded",
+                    "Security threshold exceeded",
                     extra={
                         "scan_type": scan_result.scan_type,
                         "severity": severity.value,
@@ -312,7 +312,7 @@ class SecurityPolicyService:
                     expiry_date = datetime.fromisoformat(expires)
                     if datetime.utcnow() > expiry_date:
                         logger.warning(
-                            f"Allowlist exception expired",
+                            "Allowlist exception expired",
                             extra={
                                 "cve": violation.cve,
                                 "expires": expires,
@@ -321,7 +321,7 @@ class SecurityPolicyService:
                         continue
 
                 logger.info(
-                    f"Vulnerability allowed by policy",
+                    "Vulnerability allowed by policy",
                     extra={
                         "cve": violation.cve,
                         "reason": allowed.get("reason"),
@@ -334,7 +334,7 @@ class SecurityPolicyService:
                 pattern = allowed.get("pattern", "")
                 if pattern and pattern in violation.message:
                     logger.info(
-                        f"Secret allowed by policy",
+                        "Secret allowed by policy",
                         extra={
                             "pattern": pattern,
                             "reason": allowed.get("reason"),
@@ -344,11 +344,11 @@ class SecurityPolicyService:
 
         return False
 
-    def get_metrics_config(self) -> Dict[str, Any]:
+    def get_metrics_config(self) -> dict[str, Any]:
         """Get observability metrics configuration."""
         return self.policy.get("observability", {}).get("metrics", [])
 
-    def get_alert_config(self, alert_type: str) -> Dict[str, Any]:
+    def get_alert_config(self, alert_type: str) -> dict[str, Any]:
         """Get alert configuration for a specific alert type."""
         alerts = self.policy.get("observability", {}).get("alerts", {})
         return alerts.get(alert_type, {})
@@ -372,7 +372,7 @@ class SecurityPolicyService:
         # Check severity matches alert type
         if alert_type == "critical_vulnerability":
             return violation.severity == VulnerabilitySeverity.CRITICAL
-        elif alert_type == "high_vulnerability":
+        if alert_type == "high_vulnerability":
             return violation.severity == VulnerabilitySeverity.HIGH
 
         return False
@@ -381,7 +381,7 @@ class SecurityPolicyService:
         self,
         decision: str,
         scan_result: SecurityScanResult,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ):
         """
         Audit a security policy decision.
@@ -417,7 +417,7 @@ class SecurityPolicyService:
 # =============================================================================
 # Singleton instance
 # =============================================================================
-_security_policy_service: Optional[SecurityPolicyService] = None
+_security_policy_service: SecurityPolicyService | None = None
 
 
 def get_security_policy_service() -> SecurityPolicyService:
@@ -450,7 +450,7 @@ def is_vulnerability_allowed(violation: SecurityViolation) -> bool:
 def audit_security_decision(
     decision: str,
     scan_result: SecurityScanResult,
-    context: Optional[Dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
 ):
     """Audit a security policy decision."""
     service = get_security_policy_service()

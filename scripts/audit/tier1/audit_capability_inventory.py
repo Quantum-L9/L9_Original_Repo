@@ -51,10 +51,11 @@ __dora_meta__ = {
 import ast
 import inspect
 import json
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, get_type_hints
+from typing import Any, get_type_hints
 
 import structlog
 
@@ -194,8 +195,8 @@ class ParameterSchema:
     type: str
     description: str = ""
     required: bool = True
-    default: Optional[Any] = None
-    enum_values: Optional[List[str]] = None
+    default: Any | None = None
+    enum_values: list[str] | None = None
 
 
 @dataclass
@@ -204,9 +205,9 @@ class MCPSchema:
 
     name: str
     description: str
-    input_schema: Dict[str, Any]
-    output_schema: Dict[str, Any]
-    parameters: List[ParameterSchema] = field(default_factory=list)
+    input_schema: dict[str, Any]
+    output_schema: dict[str, Any]
+    parameters: list[ParameterSchema] = field(default_factory=list)
 
 
 @dataclass
@@ -219,13 +220,13 @@ class CapabilityMethod:
     module: str
     docstring: str = ""
     signature: str = ""
-    parameters: List[ParameterSchema] = field(default_factory=list)
+    parameters: list[ParameterSchema] = field(default_factory=list)
     return_type: str = "Any"
     is_exposed: bool = False
     is_deprecated: bool = False
-    deprecation_reason: Optional[str] = None
+    deprecation_reason: str | None = None
     version_added: str = "1.0.0"
-    version_deprecated: Optional[str] = None
+    version_deprecated: str | None = None
 
 
 @dataclass
@@ -246,13 +247,13 @@ class CapabilityMatrix:
 class CapabilityReport:
     """Complete capability inventory report."""
 
-    exposed_tools: List[CapabilityMethod] = field(default_factory=list)
-    hidden_capabilities: List[CapabilityMethod] = field(default_factory=list)
-    capability_matrix: List[CapabilityMatrix] = field(default_factory=list)
-    mcp_schemas: List[MCPSchema] = field(default_factory=list)
-    missing_acl: List[str] = field(default_factory=list)
-    deprecated_methods: List[CapabilityMethod] = field(default_factory=list)
-    summary: Dict[str, Any] = field(default_factory=dict)
+    exposed_tools: list[CapabilityMethod] = field(default_factory=list)
+    hidden_capabilities: list[CapabilityMethod] = field(default_factory=list)
+    capability_matrix: list[CapabilityMatrix] = field(default_factory=list)
+    mcp_schemas: list[MCPSchema] = field(default_factory=list)
+    missing_acl: list[str] = field(default_factory=list)
+    deprecated_methods: list[CapabilityMethod] = field(default_factory=list)
+    summary: dict[str, Any] = field(default_factory=dict)
 
 
 # =============================================================================
@@ -269,7 +270,7 @@ def extract_type_hint(annotation) -> str:
     return str(annotation).replace("typing.", "")
 
 
-def build_parameters_from_signature(func: Callable) -> List[ParameterSchema]:
+def build_parameters_from_signature(func: Callable) -> list[ParameterSchema]:
     """Extract parameters from function signature."""
     params = []
     try:
@@ -336,7 +337,7 @@ def generate_mcp_schema(method: CapabilityMethod) -> MCPSchema:
 # =============================================================================
 
 
-def get_exposed_tools(root: Path) -> Dict[str, Any]:
+def get_exposed_tools(root: Path) -> dict[str, Any]:
     """Extract tool names from TOOL_EXECUTORS dict."""
     l_tools_file = root / "runtime/l_tools.py"
     if not l_tools_file.exists():
@@ -375,7 +376,7 @@ def get_exposed_tools(root: Path) -> Dict[str, Any]:
         return {}
 
 
-def get_async_methods(filepath: Path) -> List[CapabilityMethod]:
+def get_async_methods(filepath: Path) -> list[CapabilityMethod]:
     """Extract async method definitions from file."""
     if not filepath.exists():
         return []
@@ -413,14 +414,13 @@ def get_async_methods(filepath: Path) -> List[CapabilityMethod]:
         for decorator in node.decorator_list:
             if isinstance(decorator, ast.Name) and decorator.id == "deprecated":
                 is_deprecated = True
-            elif isinstance(decorator, ast.Call):
-                if (
-                    isinstance(decorator.func, ast.Name)
-                    and decorator.func.id == "deprecated"
-                ):
-                    is_deprecated = True
-                    if decorator.args:
-                        deprecation_reason = ast.literal_eval(decorator.args[0])
+            elif isinstance(decorator, ast.Call) and (
+                isinstance(decorator.func, ast.Name)
+                and decorator.func.id == "deprecated"
+            ):
+                is_deprecated = True
+                if decorator.args:
+                    deprecation_reason = ast.literal_eval(decorator.args[0])
 
         # Extract signature
         signature = f"async def {node.name}("
@@ -538,8 +538,8 @@ def main():
     logger.info("HIDDEN CAPABILITIES BY FILE")
     logger.info(f"{'=' * 70}")
 
-    all_methods: List[CapabilityMethod] = []
-    hidden_methods: List[CapabilityMethod] = []
+    all_methods: list[CapabilityMethod] = []
+    hidden_methods: list[CapabilityMethod] = []
 
     for rel_path in INFRA_FILES:
         filepath = REPO_ROOT / rel_path

@@ -67,19 +67,44 @@ defaults:
 # ============================================================
 prohibitions:
   - name: self_deprecation
-    detect: ["just an AI", "I can't", "I don't know", "I'm not able", "I'm only", "as an AI"]
+    detect:
+      [
+        "just an AI",
+        "I can't",
+        "I don't know",
+        "I'm not able",
+        "I'm only",
+        "as an AI",
+      ]
     action: rephrase_confidently
     level: critical
   - name: permission_seeking
-    detect: ["Should I", "Would you like", "Do you want me to", "Shall I", "Can I", "May I"]
+    detect:
+      [
+        "Should I",
+        "Would you like",
+        "Do you want me to",
+        "Shall I",
+        "Can I",
+        "May I",
+      ]
     action: execute_directly
     level: critical
   - name: hedge_stacking
-    detect: ["might possibly", "could potentially", "may perhaps", "possibly might"]
+    detect:
+      ["might possibly", "could potentially", "may perhaps", "possibly might"]
     action: pick_one_or_none
     level: high
   - name: filler_phrases
-    detect: ["Great question", "Certainly", "Absolutely", "Of course", "Sure thing", "Happy to"]
+    detect:
+      [
+        "Great question",
+        "Certainly",
+        "Absolutely",
+        "Of course",
+        "Sure thing",
+        "Happy to",
+      ]
     action: delete
     level: high
   - name: excessive_apologies
@@ -133,7 +158,6 @@ schema:
     - hedges_count
     - tone_score
     - compliance_status
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

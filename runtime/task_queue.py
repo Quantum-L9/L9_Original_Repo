@@ -48,9 +48,10 @@ __dora_meta__ = {
 
 import asyncio
 from collections import deque
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Callable, Coroutine, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -111,18 +112,18 @@ class QueuedTask:
 
     task_id: str
     name: str
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
     handler: str
-    agent_id: Optional[str]
+    agent_id: str | None
     priority: int
-    tags: List[str]
+    tags: list[str]
     created_at: datetime = field(default_factory=datetime.utcnow)
     status: str = "pending_igor_approval"
-    approved_by: Optional[str] = None
-    approval_timestamp: Optional[datetime] = None
-    approval_reason: Optional[str] = None
+    approved_by: str | None = None
+    approval_timestamp: datetime | None = None
+    approval_reason: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dict."""
         return {
             "task_id": self.task_id,
@@ -142,7 +143,7 @@ class QueuedTask:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> QueuedTask:
+    def from_dict(cls, data: dict[str, Any]) -> QueuedTask:
         """Deserialize from dict."""
         return cls(
             task_id=data["task_id"],
@@ -192,7 +193,7 @@ class TaskQueue:
         self._redis_client = None
         self._queue: deque[QueuedTask] = deque()
         self._lock = asyncio.Lock()
-        self._handlers: Dict[str, Callable[..., Coroutine[Any, Any, Any]]] = {}
+        self._handlers: dict[str, Callable[..., Coroutine[Any, Any, Any]]] = {}
         self._redis_available = False
 
         # Try to connect to Redis (async, will be checked on first use)
@@ -221,11 +222,11 @@ class TaskQueue:
     async def enqueue(
         self,
         name: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         handler: str = "default",
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
         priority: int = 5,
-        tags: Optional[List[str]] = None,
+        tags: list[str] | None = None,
     ) -> str:
         """
         Add a task to the queue.
@@ -271,7 +272,7 @@ class TaskQueue:
         except Exception as e:
             raise RuntimeError(f"Redis enqueue failed: {e}") from e
 
-    async def dequeue(self) -> Optional[QueuedTask]:
+    async def dequeue(self) -> QueuedTask | None:
         """
         Remove and return the highest priority task.
 
@@ -289,7 +290,7 @@ class TaskQueue:
         except Exception as e:
             raise RuntimeError(f"Redis dequeue failed: {e}") from e
 
-    async def peek(self) -> Optional[QueuedTask]:
+    async def peek(self) -> QueuedTask | None:
         """Return the next task without removing it."""
         await self._ensure_redis()
         raise RuntimeError("TaskQueue.peek is not supported for Redis-backed queues")
@@ -345,8 +346,8 @@ class TaskQueue:
 
 
 async def enqueue_long_plan_tasks(
-    plan_id: str, task_specs: List[Dict[str, Any]]
-) -> List[str]:
+    plan_id: str, task_specs: list[dict[str, Any]]
+) -> list[str]:
     """
     Bulk-enqueue extracted tasks from a long plan.
 
@@ -369,7 +370,7 @@ async def enqueue_long_plan_tasks(
                 handler=spec["handler"],
                 agent_id=spec.get("agent_id", "L"),
                 priority=spec.get("priority", 5),
-                tags=spec.get("tags", []) + [f"plan:{plan_id}"],
+                tags=[*spec.get("tags", []), f"plan:{plan_id}"],
             )
             task_ids.append(task_id)
             logger.debug(f"Enqueued task {task_id} from plan {plan_id}")
@@ -380,7 +381,7 @@ async def enqueue_long_plan_tasks(
     return task_ids
 
 
-__all__ = ["TaskQueue", "QueuedTask", "enqueue_long_plan_tasks"]
+__all__ = ["QueuedTask", "TaskQueue", "enqueue_long_plan_tasks"]
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

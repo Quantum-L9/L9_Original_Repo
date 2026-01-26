@@ -43,7 +43,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Any, Dict, Optional
+from typing import Any
 
 import aiofiles
 import httpx
@@ -96,11 +96,11 @@ class SlackAPIClient:
         self,
         channel: str,
         text: str,
-        thread_ts: Optional[str] = None,
-        blocks: Optional[list] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        thread_ts: str | None = None,
+        blocks: list | None = None,
+        metadata: dict[str, Any] | None = None,
         reply_broadcast: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Post a message to Slack.
 
@@ -184,9 +184,9 @@ class SlackAPIClient:
         self,
         channel: str,
         file_path: str,
-        filename: Optional[str] = None,
-        title: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        filename: str | None = None,
+        title: str | None = None,
+    ) -> dict[str, Any]:
         """
         Upload a file to Slack using files.uploadV2 API.
 
@@ -263,7 +263,7 @@ class SlackAPIClient:
         except Exception as e:
             raise SlackClientError(f"HTTP error uploading file to Slack: {e}") from e
 
-    async def get_file_info(self, file_id: str) -> Dict[str, Any]:
+    async def get_file_info(self, file_id: str) -> dict[str, Any]:
         """
         Get file metadata from Slack using files.info API.
 
@@ -322,15 +322,17 @@ class SlackAPIClient:
                 f"Slack API HTTP error {e.response.status_code}: {e}"
             ) from e
         except Exception as e:
-            raise SlackClientError(f"HTTP error getting file info from Slack: {e}") from e
+            raise SlackClientError(
+                f"HTTP error getting file info from Slack: {e}"
+            ) from e
 
 
 async def post_result_async(
     user: str,
     task: dict,
     result: dict,
-    slack_client: Optional[SlackAPIClient] = None,
-) -> Optional[Dict[str, Any]]:
+    slack_client: SlackAPIClient | None = None,
+) -> dict[str, Any] | None:
     """
     Post execution summary + screenshots back to Slack (async version).
 

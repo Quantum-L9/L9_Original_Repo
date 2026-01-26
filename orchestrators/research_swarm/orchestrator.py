@@ -27,15 +27,18 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
 
 from core.decorators import must_stay_async
 
-from .interface import (IResearchSwarmOrchestrator, ResearchSwarmRequest,
-                        ResearchSwarmResponse)
+from .interface import (
+    IResearchSwarmOrchestrator,
+    ResearchSwarmRequest,
+    ResearchSwarmResponse,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -47,7 +50,7 @@ class ResearchSwarmOrchestrator(IResearchSwarmOrchestrator):
     Spawns parallel research agents, collects results, and attempts consensus.
     """
 
-    def __init__(self, llm_client: Optional[Any] = None):
+    def __init__(self, llm_client: Any | None = None):
         """
         Initialize research_swarm orchestrator.
 
@@ -63,7 +66,7 @@ class ResearchSwarmOrchestrator(IResearchSwarmOrchestrator):
         agent_id: str,
         query: str,
         agent_index: int,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Spawn a single research agent to investigate the query.
 
@@ -134,9 +137,9 @@ class ResearchSwarmOrchestrator(IResearchSwarmOrchestrator):
     @must_stay_async("callers use await")
     async def _attempt_consensus(
         self,
-        results: List[Dict[str, Any]],
+        results: list[dict[str, Any]],
         threshold: float,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Attempt to reach consensus from agent results.
 

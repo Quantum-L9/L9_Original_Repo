@@ -8,9 +8,14 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from memory.tool_router import (ToolEmbedding, ToolMatch, ToolRouter,
-                                ToolSearchResult, get_tool_router,
-                                init_tool_router)
+from memory.tool_router import (
+    ToolEmbedding,
+    ToolMatch,
+    ToolRouter,
+    ToolSearchResult,
+    get_tool_router,
+    init_tool_router,
+)
 
 
 class MockToolDefinition:
@@ -23,7 +28,7 @@ class MockToolDefinition:
         category: str = "general",
         risk_level: str = "low",
         is_destructive: bool = False,
-        external_apis: list = None,
+        external_apis: list | None = None,
     ):
         self.name = name
         self.description = description

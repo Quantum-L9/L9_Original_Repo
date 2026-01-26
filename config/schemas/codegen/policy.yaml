@@ -36,11 +36,11 @@ field_definitions:
     type: string
     pattern: "^POL-[A-Z]+-[0-9]{3}$"
     description: "Unique identifier (e.g., POL-CONF-001)"
-  
+
   name:
     type: string
     description: "Human-readable policy name"
-  
+
   condition:
     type: object
     description: "The if condition that triggers this policy"
@@ -52,7 +52,7 @@ field_definitions:
         values: [lt, gt, eq, ne, contains]
       value:
         type: any
-  
+
   action:
     type: object
     description: "What to do when condition is met"
@@ -64,21 +64,21 @@ field_definitions:
         type: string
       parameters:
         type: object
-  
+
   description:
     type: string
     description: "What this policy accomplishes"
-  
+
   priority:
     type: integer
     description: "Execution order (lower = higher priority)"
     default: 100
-  
+
   scope:
     type: enum
     values: [global, module, agent]
     default: global
-  
+
   exceptions:
     type: array
     description: "Conditions where this policy does not apply"
@@ -111,7 +111,6 @@ examples:
       parameters:
         reason: "confidence_below_threshold"
     description: "Escalate to L when confidence is too low"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

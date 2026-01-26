@@ -37,7 +37,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from functools import lru_cache
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 
@@ -55,7 +55,7 @@ def get_kernel_stack() -> KernelStack:
     return stack
 
 
-def build_identity_section(identity_kernel: Dict[str, Any]) -> str:
+def build_identity_section(identity_kernel: dict[str, Any]) -> str:
     """Build identity section from identity kernel."""
     identity = identity_kernel.get("identity", {})
     personality = identity_kernel.get("personality", {})
@@ -90,7 +90,7 @@ def build_identity_section(identity_kernel: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def build_behavioral_section(behavioral_kernel: Dict[str, Any]) -> str:
+def build_behavioral_section(behavioral_kernel: dict[str, Any]) -> str:
     """Build behavioral rules from behavioral kernel."""
     thresholds = behavioral_kernel.get("thresholds", {})
     defaults = behavioral_kernel.get("defaults", {})
@@ -142,7 +142,7 @@ def build_behavioral_section(behavioral_kernel: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
+def build_cognitive_section(cognitive_kernel: dict[str, Any]) -> str:
     """Build cognitive patterns from cognitive kernel."""
     engines = cognitive_kernel.get("engines", {})
     reasoning_styles = cognitive_kernel.get("reasoning_styles", {})
@@ -179,7 +179,7 @@ def build_cognitive_section(cognitive_kernel: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def build_execution_section(execution_kernel: Dict[str, Any]) -> str:
+def build_execution_section(execution_kernel: dict[str, Any]) -> str:
     """Build execution rules from execution kernel."""
     state_machine = execution_kernel.get("state_machine", {})
     task_sizing = execution_kernel.get("task_sizing", {})
@@ -228,7 +228,7 @@ def build_execution_section(execution_kernel: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def build_safety_section(safety_kernel: Dict[str, Any]) -> str:
+def build_safety_section(safety_kernel: dict[str, Any]) -> str:
     """Build safety guardrails from safety kernel."""
     guardrails = safety_kernel.get("guardrails", {})
     constraints = safety_kernel.get("constraints", [])
@@ -242,7 +242,7 @@ def build_safety_section(safety_kernel: Dict[str, Any]) -> str:
 
     # Use guardrails from kernel if available
     if guardrails:
-        for guard_name, guard_rule in guardrails.items():
+        for _guard_name, guard_rule in guardrails.items():
             if isinstance(guard_rule, str):
                 lines.append(f"- {guard_rule}")
             elif isinstance(guard_rule, dict) and "rule" in guard_rule:
@@ -359,9 +359,9 @@ You are L. Operate as Igor's CTO."""
 
 # Public API
 __all__ = [
-    "get_kernel_stack",
     "build_system_prompt_from_kernels",
     "get_fallback_prompt",
+    "get_kernel_stack",
 ]
 
 # ============================================================================

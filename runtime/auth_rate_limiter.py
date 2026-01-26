@@ -56,10 +56,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import contextlib
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
-from typing import Optional
+from datetime import UTC, datetime, timedelta
 
 import structlog
 
@@ -99,8 +99,8 @@ class AuthAttemptResult:
     """Result of checking auth rate limit."""
 
     allowed: bool
-    reason: Optional[str] = None
-    retry_after_seconds: Optional[int] = None
+    reason: str | None = None
+    retry_after_seconds: int | None = None
     failures_count: int = 0
     delay_ms: int = 0
 
@@ -113,7 +113,7 @@ class AuthRateLimiter:
     brute force and credential stuffing attacks.
     """
 
-    def __init__(self, config: Optional[AuthRateLimitConfig] = None) -> None:
+    def __init__(self, config: AuthRateLimitConfig | None = None) -> None:
         """
         Initialize auth rate limiter.
 
@@ -152,7 +152,7 @@ class AuthRateLimiter:
     async def check_allowed(
         self,
         ip_address: str,
-        username: Optional[str] = None,
+        username: str | None = None,
     ) -> AuthAttemptResult:
         """
         Check if an authentication attempt is allowed.
@@ -164,7 +164,7 @@ class AuthRateLimiter:
         Returns:
             AuthAttemptResult with allowed status and details
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Check lockout first
         lockout_key = self._get_lockout_key(ip_address, username)
@@ -232,7 +232,7 @@ class AuthRateLimiter:
     async def record_failure(
         self,
         ip_address: str,
-        username: Optional[str] = None,
+        username: str | None = None,
     ) -> None:
         """
         Record a failed authentication attempt.
@@ -241,7 +241,7 @@ class AuthRateLimiter:
             ip_address: Client IP address
             username: Username that failed authentication
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Record to Redis if available
         if await self._ensure_redis():
@@ -287,10 +287,8 @@ class AuthRateLimiter:
 
         # Clear user failures (IP failures persist for DDoS protection)
         if await self._ensure_redis():
-            try:
+            with contextlib.suppress(Exception):
                 await self._redis_clear_user_failures(username)
-            except Exception:
-                pass
 
         self._user_failures[username] = []
         combined_key = f"{ip_address}:{username}"
@@ -305,10 +303,10 @@ class AuthRateLimiter:
     async def _count_failures(
         self,
         ip_address: str,
-        username: Optional[str],
+        username: str | None,
     ) -> dict[str, int]:
         """Count failures in the current window."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         cutoff = now - timedelta(seconds=self._config.window_seconds)
 
         # Try Redis first
@@ -336,19 +334,19 @@ class AuthRateLimiter:
             "combined": combined_count,
         }
 
-    def _get_lockout_key(self, ip_address: str, username: Optional[str]) -> str:
+    def _get_lockout_key(self, ip_address: str, username: str | None) -> str:
         """Generate lockout key."""
         if username:
             return f"auth_lockout:{ip_address}:{username}"
         return f"auth_lockout:{ip_address}"
 
-    async def _get_lockout(self, key: str) -> Optional[datetime]:
+    async def _get_lockout(self, key: str) -> datetime | None:
         """Get lockout expiry time."""
         if await self._ensure_redis():
             try:
                 ttl = await self._redis_client.ttl(key)
                 if ttl and ttl > 0:
-                    return datetime.now(timezone.utc) + timedelta(seconds=ttl)
+                    return datetime.now(UTC) + timedelta(seconds=ttl)
             except Exception:
                 pass
 
@@ -356,19 +354,17 @@ class AuthRateLimiter:
 
     async def _set_lockout(self, key: str) -> None:
         """Set lockout for key."""
-        lockout_until = datetime.now(timezone.utc) + timedelta(
+        lockout_until = datetime.now(UTC) + timedelta(
             seconds=self._config.lockout_duration_seconds
         )
 
         if await self._ensure_redis():
-            try:
+            with contextlib.suppress(Exception):
                 await self._redis_client.setex(
                     key,
                     self._config.lockout_duration_seconds,
                     "locked",
                 )
-            except Exception:
-                pass
 
         self._lockouts[key] = lockout_until
 
@@ -381,10 +377,8 @@ class AuthRateLimiter:
     async def _clear_lockout(self, key: str) -> None:
         """Clear lockout for key."""
         if await self._ensure_redis():
-            try:
+            with contextlib.suppress(Exception):
                 await self._redis_client.delete(key)
-            except Exception:
-                pass
 
         self._lockouts.pop(key, None)
 
@@ -392,7 +386,7 @@ class AuthRateLimiter:
     async def _redis_record_failure(
         self,
         ip_address: str,
-        username: Optional[str],
+        username: str | None,
         timestamp: datetime,
     ) -> None:
         """Record failure to Redis."""
@@ -417,10 +411,10 @@ class AuthRateLimiter:
     async def _redis_count_failures(
         self,
         ip_address: str,
-        username: Optional[str],
+        username: str | None,
     ) -> dict[str, int]:
         """Count failures from Redis."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         cutoff = (now - timedelta(seconds=self._config.window_seconds)).timestamp()
 
         ip_key = f"auth_failures:ip:{ip_address}"
@@ -454,7 +448,7 @@ class AuthRateLimiter:
 # Singleton Instance
 # =============================================================================
 
-_auth_limiter_instance: Optional[AuthRateLimiter] = None
+_auth_limiter_instance: AuthRateLimiter | None = None
 
 
 def get_auth_rate_limiter() -> AuthRateLimiter:
@@ -466,9 +460,9 @@ def get_auth_rate_limiter() -> AuthRateLimiter:
 
 
 __all__ = [
-    "AuthRateLimiter",
-    "AuthRateLimitConfig",
     "AuthAttemptResult",
+    "AuthRateLimitConfig",
+    "AuthRateLimiter",
     "get_auth_rate_limiter",
 ]
 

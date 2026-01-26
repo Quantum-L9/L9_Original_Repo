@@ -38,7 +38,7 @@ __dora_meta__ = {
 import json
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -68,7 +68,7 @@ class DLQEntry:
     """
 
     packet_id: str
-    packet_data: Dict[str, Any]
+    packet_data: dict[str, Any]
     failure_reason: str
     failure_count: int
     first_failed_at: str
@@ -80,7 +80,7 @@ class DLQEntry:
         return json.dumps(asdict(self))
 
     @classmethod
-    def from_json(cls, json_str: str) -> "DLQEntry":
+    def from_json(cls, json_str: str) -> DLQEntry:
         """Deserialize from JSON."""
         data = json.loads(json_str)
         return cls(**data)
@@ -213,7 +213,7 @@ class DeadLetterQueue:
             logger.error(f"Failed to push to DLQ: {e}", exc_info=True)
             return False
 
-    async def pop(self, wait_for_retry: bool = True) -> Optional[DLQEntry]:
+    async def pop(self, wait_for_retry: bool = True) -> DLQEntry | None:
         """
         Pop a packet from the DLQ for reprocessing.
 
@@ -324,7 +324,7 @@ class DeadLetterQueue:
             logger.error(f"Failed to requeue DLQ entry: {e}", exc_info=True)
             return False
 
-    async def get_stats(self) -> Dict[str, int]:
+    async def get_stats(self) -> dict[str, int]:
         """
         Get DLQ statistics.
 

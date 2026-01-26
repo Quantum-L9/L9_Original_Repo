@@ -20,21 +20,21 @@ subsystems:
     priority: high
     max_parallel: 1
     description: "Agentic code generation and mutation tracking"
-  
+
   tools:
     config_path: config/subsystems/tools.yaml
     enabled: true
     priority: medium
     max_parallel: 2
     description: "Tool registry and capability-based dispatch"
-  
+
   auth:
     config_path: config/subsystems/auth.yaml
     enabled: true
     priority: critical
     max_parallel: 1
     description: "Authentication, authorization, and RLS"
-  
+
   memory_retrieval:
     config_path: config/subsystems/memory_retrieval.yaml
     enabled: true
@@ -50,7 +50,6 @@ orchestration:
     - "auth changes require sequential execution (no parallel)"
     - "tools and memory_retrieval can run in parallel"
     - "Each subsystem runs its own N1-N9 pipeline independently"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

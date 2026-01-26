@@ -526,7 +526,7 @@
   TS      TIMESTAMP WITHOUT TIME ZONE
   TIMESTAMPTZ  TIMESTAMP WITH TIME ZONE
   SERIAL  Auto-incrementing integer
-  
+
   ─────►  Foreign key relationship
   ─ ─ ─►  Logical relationship
   │       Data flow direction
@@ -536,4 +536,3 @@
 ================================================================================
                               END OF DIAGRAM
 ================================================================================
-

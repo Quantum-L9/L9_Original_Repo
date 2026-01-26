@@ -18,12 +18,12 @@ Kernel MUST NOT directly depend on:
 Kernel defines the contract that all substrates must implement.
 """
 
-from kernel.protocol import PacketEnvelope, PacketEnvelopeV2
 from kernel.orchestrator import Orchestrator, OrchestratorConfig
+from kernel.protocol import PacketEnvelope, PacketEnvelopeV2
 
 __all__ = [
-    "PacketEnvelope",
-    "PacketEnvelopeV2",
     "Orchestrator",
     "OrchestratorConfig",
+    "PacketEnvelope",
+    "PacketEnvelopeV2",
 ]

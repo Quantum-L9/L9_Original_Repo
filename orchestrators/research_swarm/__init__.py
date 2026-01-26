@@ -6,14 +6,17 @@ Runs concurrent research agents, analyst pass, dreamers, convergence.
 """
 
 from .convergence import Convergence
-from .interface import (IResearchSwarmOrchestrator, ResearchSwarmRequest,
-                        ResearchSwarmResponse)
+from .interface import (
+    IResearchSwarmOrchestrator,
+    ResearchSwarmRequest,
+    ResearchSwarmResponse,
+)
 from .orchestrator import ResearchSwarmOrchestrator
 
 __all__ = [
+    "Convergence",
     "IResearchSwarmOrchestrator",
+    "ResearchSwarmOrchestrator",
     "ResearchSwarmRequest",
     "ResearchSwarmResponse",
-    "ResearchSwarmOrchestrator",
-    "Convergence",
 ]

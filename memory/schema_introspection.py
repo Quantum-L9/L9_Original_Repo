@@ -37,7 +37,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -58,8 +58,8 @@ class ColumnInfo:
     name: str
     data_type: str
     is_nullable: bool
-    column_default: Optional[str] = None
-    character_maximum_length: Optional[int] = None
+    column_default: str | None = None
+    character_maximum_length: int | None = None
     is_primary_key: bool = False
     is_foreign_key: bool = False
 
@@ -72,7 +72,7 @@ class TableInfo:
     table_name: str
     table_type: str  # 'BASE TABLE', 'VIEW'
     columns: list[ColumnInfo]
-    row_count_estimate: Optional[int] = None
+    row_count_estimate: int | None = None
 
 
 @dataclass
@@ -121,8 +121,8 @@ class SchemaSnapshot:
 
     # Metadata
     captured_at: datetime
-    postgres_version: Optional[str] = None
-    neo4j_version: Optional[str] = None
+    postgres_version: str | None = None
+    neo4j_version: str | None = None
 
 
 # =============================================================================
@@ -216,7 +216,7 @@ class PostgresIntrospector:
     ) -> list[ColumnInfo]:
         """Get columns for a table."""
         query = """
-            SELECT 
+            SELECT
                 c.column_name,
                 c.data_type,
                 c.is_nullable,
@@ -228,20 +228,20 @@ class PostgresIntrospector:
             LEFT JOIN (
                 SELECT ku.column_name, ku.table_name, ku.table_schema
                 FROM information_schema.table_constraints tc
-                JOIN information_schema.key_column_usage ku 
+                JOIN information_schema.key_column_usage ku
                     ON tc.constraint_name = ku.constraint_name
                 WHERE tc.constraint_type = 'PRIMARY KEY'
-            ) pk ON pk.column_name = c.column_name 
-                AND pk.table_name = c.table_name 
+            ) pk ON pk.column_name = c.column_name
+                AND pk.table_name = c.table_name
                 AND pk.table_schema = c.table_schema
             LEFT JOIN (
                 SELECT ku.column_name, ku.table_name, ku.table_schema
                 FROM information_schema.table_constraints tc
-                JOIN information_schema.key_column_usage ku 
+                JOIN information_schema.key_column_usage ku
                     ON tc.constraint_name = ku.constraint_name
                 WHERE tc.constraint_type = 'FOREIGN KEY'
-            ) fk ON fk.column_name = c.column_name 
-                AND fk.table_name = c.table_name 
+            ) fk ON fk.column_name = c.column_name
+                AND fk.table_name = c.table_name
                 AND fk.table_schema = c.table_schema
             WHERE c.table_schema = $1 AND c.table_name = $2
             ORDER BY c.ordinal_position
@@ -273,7 +273,7 @@ class PostgresIntrospector:
         """
         async with self._pool.acquire() as conn:
             query = """
-                SELECT 
+                SELECT
                     i.relname as index_name,
                     t.relname as table_name,
                     array_agg(a.attname ORDER BY x.ordinality) as column_names,
@@ -386,7 +386,7 @@ class Neo4jIntrospector:
                 MATCH (n:`{label}`)
                 WITH n LIMIT 100
                 UNWIND keys(n) as key
-                RETURN DISTINCT key as property, 
+                RETURN DISTINCT key as property,
                        head(collect(DISTINCT apoc.meta.cypher.type(n[key]))) as type
             """
 
@@ -406,7 +406,7 @@ class Neo4jIntrospector:
                 """
                 prop_result = await self._client.run_query(prop_query_fallback)
                 properties = [r["property"] for r in prop_result]
-                property_types = {p: "unknown" for p in properties}
+                property_types = dict.fromkeys(properties, "unknown")
 
             # Get node count
             count_result = await self._client.run_query(
@@ -450,7 +450,7 @@ class Neo4jIntrospector:
                 MATCH (a)-[r:`{rel_type}`]->(b)
                 WITH labels(a) as start_labels, labels(b) as end_labels, keys(r) as props
                 LIMIT 100
-                RETURN 
+                RETURN
                     collect(DISTINCT start_labels[0]) as start_labels,
                     collect(DISTINCT end_labels[0]) as end_labels,
                     collect(DISTINCT props) as all_props
@@ -463,7 +463,7 @@ class Neo4jIntrospector:
                 end_labels = detail.get("end_labels", [])
                 # Flatten property lists
                 all_props = detail.get("all_props", [[]])
-                properties = list(set(p for props in all_props for p in props))
+                properties = list({p for props in all_props for p in props})
             else:
                 start_labels = []
                 end_labels = []
@@ -553,8 +553,8 @@ class SchemaIntrospector:
 
     def __init__(
         self,
-        postgres_pool: Optional[Any] = None,
-        neo4j_client: Optional[Any] = None,
+        postgres_pool: Any | None = None,
+        neo4j_client: Any | None = None,
     ):
         """
         Initialize with database connections.
@@ -682,13 +682,13 @@ class SchemaIntrospector:
 # =============================================================================
 
 
-_introspector: Optional[SchemaIntrospector] = None
+_introspector: SchemaIntrospector | None = None
 
 
 @must_stay_async("callers use await")
 async def get_schema_introspector(
-    postgres_pool: Optional[Any] = None,
-    neo4j_client: Optional[Any] = None,
+    postgres_pool: Any | None = None,
+    neo4j_client: Any | None = None,
 ) -> SchemaIntrospector:
     """
     Get or create singleton schema introspector.
@@ -710,14 +710,14 @@ async def get_schema_introspector(
 
 __all__ = [
     "ColumnInfo",
-    "TableInfo",
     "IndexInfo",
+    "Neo4jIntrospector",
     "Neo4jLabelInfo",
     "Neo4jRelationshipInfo",
-    "SchemaSnapshot",
     "PostgresIntrospector",
-    "Neo4jIntrospector",
     "SchemaIntrospector",
+    "SchemaSnapshot",
+    "TableInfo",
     "get_schema_introspector",
 ]
 

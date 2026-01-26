@@ -33,10 +33,16 @@ if "memory.tool_audit" not in sys.modules:
     sys.modules["memory.tool_audit"] = fake_tool_audit
 
 # Now import from the package - the fake module will be used
-from core.tools.tool_graph import (L9_TOOLS, L_INTERNAL_TOOLS, ToolDefinition,
-                                   ToolGraph, create_tool_definition,
-                                   register_l9_tools, register_l_tools,
-                                   register_tool_with_metadata)
+from core.tools.tool_graph import (
+    L9_TOOLS,
+    L_INTERNAL_TOOLS,
+    ToolDefinition,
+    ToolGraph,
+    create_tool_definition,
+    register_l9_tools,
+    register_l_tools,
+    register_tool_with_metadata,
+)
 
 # =============================================================================
 # Test Relationship Constants
@@ -142,7 +148,7 @@ async def test_get_l_tool_catalog_query_format():
     )
 
     with patch.object(ToolGraph, "_get_neo4j", return_value=mock_neo4j):
-        catalog = await ToolGraph.get_l_tool_catalog()
+        await ToolGraph.get_l_tool_catalog()
 
         # Verify query was called
         assert mock_neo4j.run_query.called

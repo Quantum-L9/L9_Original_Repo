@@ -26,15 +26,14 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import json
 import logging
 import os
 import sys
 import time
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Dict, List, Optional, Any, Tuple, Union
-from dataclasses import dataclass, asdict
+from typing import Any
 
 try:  # pragma: no cover - import guard
     import aiohttp  # type: ignore
@@ -55,13 +54,13 @@ except ModuleNotFoundError:  # pragma: no cover - handled explicitly
         async def close(self) -> None:
             return None
 
-        def get(self, *args, **kwargs):  # noqa: D401 - runtime error for auditability
+        def get(self, *args, **kwargs):
             raise RuntimeError(
                 "aiohttp is not installed; HTTP GET operations are unavailable. "
                 "Install aiohttp to enable live endpoint polling"
             )
 
-        def post(self, *args, **kwargs):  # noqa: D401 - runtime error for auditability
+        def post(self, *args, **kwargs):
             raise RuntimeError(
                 "aiohttp is not installed; HTTP POST operations are unavailable. "
                 "Install aiohttp to enable live endpoint polling"
@@ -73,8 +72,8 @@ except ModuleNotFoundError:  # pragma: no cover - handled explicitly
 
     aiohttp = _StubAioHttpModule()  # type: ignore
     sys.modules.setdefault("aiohttp", aiohttp)
+
 import networkx as nx
-from pathlib import Path
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -102,14 +101,14 @@ class ToThConfig:
 
     model_provider: ModelProvider = ModelProvider.OPENAI
     model_name: str = "gpt-4"
-    api_key: Optional[str] = None
+    api_key: str | None = None
     max_tokens: int = 2048
     temperature: float = 0.7
     confidence_threshold: float = 0.7
     reasoning_timeout: int = 30
     enable_caching: bool = True
     cache_ttl: int = 3600
-    fallback_provider: Optional[ModelProvider] = ModelProvider.MOCK
+    fallback_provider: ModelProvider | None = ModelProvider.MOCK
 
     def __post_init__(self):
         if self.api_key is None:
@@ -125,7 +124,7 @@ class ReasoningStep:
     premise: str
     conclusion: str
     confidence: float
-    evidence: List[str] = None
+    evidence: list[str] = None
     timestamp: datetime = None
 
     def __post_init__(self):
@@ -141,10 +140,10 @@ class ReasoningResult:
 
     query: str
     reasoning_mode: ReasoningMode
-    steps: List[ReasoningStep]
+    steps: list[ReasoningStep]
     final_conclusion: str
     overall_confidence: float
-    reasoning_graph: Optional[Dict[str, Any]] = None
+    reasoning_graph: dict[str, Any] | None = None
     execution_time: float = 0.0
     model_used: str = ""
 
@@ -156,7 +155,7 @@ class ReasoningResult:
 class FormalReasoningGraph:
     """Lightweight reasoning graph without heavy dependencies"""
 
-    def __init__(self, steps: List[ReasoningStep]):
+    def __init__(self, steps: list[ReasoningStep]):
         self.graph = nx.DiGraph()
         self.steps = steps
         self.build_graph()
@@ -203,7 +202,7 @@ class FormalReasoningGraph:
         confidences = [data["confidence"] for _, data in self.graph.nodes(data=True)]
         return sum(confidences) / len(confidences)
 
-    def get_reasoning_path(self) -> List[Tuple[str, float]]:
+    def get_reasoning_path(self) -> list[tuple[str, float]]:
         """Get reasoning path with confidences"""
         path = []
         for node in nx.topological_sort(self.graph):
@@ -217,8 +216,8 @@ class CloudModelClient:
 
     def __init__(self, config: ToThConfig):
         self.config = config
-        self.session: Optional["aiohttp.ClientSession"] = None
-        self.cache: Dict[str, Any] = {}
+        self.session: aiohttp.ClientSession | None = None
+        self.cache: dict[str, Any] = {}
 
     async def __aenter__(self):
         if self._needs_network():
@@ -339,9 +338,8 @@ class CloudModelClient:
             if response.status == 200:
                 result = await response.json()
                 return result["choices"][0]["message"]["content"]
-            else:
-                error_text = await response.text()
-                raise Exception(f"OpenAI API error {response.status}: {error_text}")
+            error_text = await response.text()
+            raise Exception(f"OpenAI API error {response.status}: {error_text}")
 
     async def _call_anthropic(self, prompt: str, reasoning_mode: ReasoningMode) -> str:
         """Call Anthropic Claude API"""
@@ -379,9 +377,8 @@ class CloudModelClient:
             if response.status == 200:
                 result = await response.json()
                 return result["content"][0]["text"]
-            else:
-                error_text = await response.text()
-                raise Exception(f"Anthropic API error {response.status}: {error_text}")
+            error_text = await response.text()
+            raise Exception(f"Anthropic API error {response.status}: {error_text}")
 
     async def _call_mock(self, prompt: str, reasoning_mode: ReasoningMode) -> str:
         """Mock response for testing and fallback"""
@@ -452,7 +449,7 @@ class ReasoningStepParser:
     @staticmethod
     def parse_reasoning_response(
         response: str, reasoning_mode: ReasoningMode
-    ) -> List[ReasoningStep]:
+    ) -> list[ReasoningStep]:
         """Parse model response into reasoning steps"""
         steps = []
 
@@ -517,8 +514,8 @@ class ProductionToThEngine:
 
     def __init__(self, config: ToThConfig = None):
         self.config = config or ToThConfig()
-        self.reasoning_history: List[ReasoningResult] = []
-        self.performance_metrics: Dict[str, Any] = {
+        self.reasoning_history: list[ReasoningResult] = []
+        self.performance_metrics: dict[str, Any] = {
             "total_queries": 0,
             "avg_response_time": 0.0,
             "success_rate": 0.0,
@@ -586,17 +583,16 @@ class ProductionToThEngine:
             logger.error(f"Reasoning failed: {e}")
 
             # Return error result
-            error_result = ReasoningResult(
+            return ReasoningResult(
                 query=query,
                 reasoning_mode=reasoning_mode,
                 steps=[],
-                final_conclusion=f"Reasoning failed: {str(e)}",
+                final_conclusion=f"Reasoning failed: {e!s}",
                 overall_confidence=0.0,
                 execution_time=time.time() - start_time,
                 model_used="error",
             )
 
-            return error_result
 
     def _create_reasoning_prompt(
         self, query: str, reasoning_mode: ReasoningMode
@@ -606,56 +602,56 @@ class ProductionToThEngine:
         prompts = {
             ReasoningMode.ABDUCTIVE: f"""
             Using ABDUCTIVE reasoning, analyze the following query and find the most likely explanation:
-            
+
             Query: {query}
-            
+
             Please provide:
             1. Key observations from the query
             2. Possible explanations for these observations
             3. Evaluation of each explanation's likelihood
             4. The most probable explanation with supporting evidence
             5. Confidence level in your conclusion
-            
+
             Structure your response with clear steps and reasoning.
             """,
             ReasoningMode.DEDUCTIVE: f"""
             Using DEDUCTIVE reasoning, analyze the following query by applying logical principles:
-            
+
             Query: {query}
-            
+
             Please provide:
             1. Identification of premises and given facts
             2. Applicable logical rules or principles
             3. Step-by-step logical deduction
             4. Inevitable conclusion based on the premises
             5. Confidence level in the logical chain
-            
+
             Ensure each step follows logically from the previous.
             """,
             ReasoningMode.INDUCTIVE: f"""
             Using INDUCTIVE reasoning, analyze the following query to identify patterns and generalizations:
-            
+
             Query: {query}
-            
+
             Please provide:
             1. Specific observations or examples from the query
             2. Patterns identified across these observations
             3. Generalized rules or principles derived
             4. Prediction or conclusion based on the pattern
             5. Confidence level considering the sample size
-            
+
             Focus on pattern recognition and generalization.
             """,
             ReasoningMode.HYBRID: f"""
             Using HYBRID multi-modal reasoning, analyze the following query:
-            
+
             Query: {query}
-            
+
             Apply all three reasoning modes:
             1. ABDUCTIVE: What's the most likely explanation?
             2. DEDUCTIVE: What logical conclusions follow?
             3. INDUCTIVE: What patterns can be generalized?
-            
+
             Then synthesize these approaches into a comprehensive analysis with:
             - Integrated insights from all reasoning modes
             - Confidence assessment for each mode
@@ -666,7 +662,7 @@ class ProductionToThEngine:
 
         return prompts.get(reasoning_mode, prompts[ReasoningMode.HYBRID])
 
-    def _graph_to_dict(self, graph: FormalReasoningGraph) -> Dict[str, Any]:
+    def _graph_to_dict(self, graph: FormalReasoningGraph) -> dict[str, Any]:
         """Convert reasoning graph to dictionary"""
         return {
             "nodes": dict(graph.graph.nodes(data=True)),
@@ -711,7 +707,7 @@ class ProductionToThEngine:
                 "confidence_scores"
             ][-100:]
 
-    async def multi_modal_reasoning(self, query: str) -> Dict[str, ReasoningResult]:
+    async def multi_modal_reasoning(self, query: str) -> dict[str, ReasoningResult]:
         """Execute all reasoning modes and compare results"""
 
         logger.info(f"Starting multi-modal reasoning for: {query[:100]}...")
@@ -732,15 +728,15 @@ class ProductionToThEngine:
 
         return results
 
-    def get_performance_metrics(self) -> Dict[str, Any]:
+    def get_performance_metrics(self) -> dict[str, Any]:
         """Get current performance metrics"""
         return self.performance_metrics.copy()
 
-    def get_reasoning_history(self, limit: int = 10) -> List[ReasoningResult]:
+    def get_reasoning_history(self, limit: int = 10) -> list[ReasoningResult]:
         """Get recent reasoning history"""
         return self.reasoning_history[-limit:]
 
-    async def validate_reasoning(self, result: ReasoningResult) -> Dict[str, Any]:
+    async def validate_reasoning(self, result: ReasoningResult) -> dict[str, Any]:
         """Validate reasoning result quality"""
         validation = {
             "valid": True,
@@ -788,15 +784,15 @@ class L9ToThIntegration:
 
     async def enhance_pattern_detection(
         self, pattern_data: str, context: str = ""
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Enhance pattern detection with ToTh reasoning"""
 
         query = f"""
         Analyze the following pattern data for reusable patterns and insights:
-        
+
         Pattern Data: {pattern_data}
         Context: {context}
-        
+
         Identify:
         1. Recurring structures or sequences
         2. Potential automation opportunities
@@ -815,20 +811,20 @@ class L9ToThIntegration:
         }
 
     async def enhance_decision_making(
-        self, decision_context: str, options: List[str]
-    ) -> Dict[str, Any]:
+        self, decision_context: str, options: list[str]
+    ) -> dict[str, Any]:
         """Enhance decision making with ToTh reasoning"""
 
         options_str = "\n".join([f"- {option}" for option in options])
 
         query = f"""
         Make a decision for the following context and options:
-        
+
         Context: {decision_context}
-        
+
         Available Options:
         {options_str}
-        
+
         Provide:
         1. Analysis of each option
         2. Pros and cons evaluation
@@ -849,15 +845,15 @@ class L9ToThIntegration:
 
     async def enhance_error_correction(
         self, error_context: str, error_details: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Enhance error correction with ToTh reasoning"""
 
         query = f"""
         Analyze the following error and provide correction strategy:
-        
+
         Error Context: {error_context}
         Error Details: {error_details}
-        
+
         Provide:
         1. Root cause analysis
         2. Immediate fix recommendations
@@ -876,7 +872,7 @@ class L9ToThIntegration:
             "confidence_level": result.overall_confidence,
         }
 
-    def _extract_recommendations(self, result: ReasoningResult) -> List[str]:
+    def _extract_recommendations(self, result: ReasoningResult) -> list[str]:
         """Extract actionable recommendations from reasoning result"""
         recommendations = []
         for step in result.steps:
@@ -897,7 +893,7 @@ class L9ToThIntegration:
                 return step.conclusion
         return result.final_conclusion
 
-    def _extract_risks(self, result: ReasoningResult) -> List[str]:
+    def _extract_risks(self, result: ReasoningResult) -> list[str]:
         """Extract risk factors from reasoning result"""
         risks = []
         for step in result.steps:
@@ -915,7 +911,7 @@ class L9ToThIntegration:
                 return step.conclusion
         return "Root cause analysis in progress"
 
-    def _extract_fixes(self, result: ReasoningResult) -> List[str]:
+    def _extract_fixes(self, result: ReasoningResult) -> list[str]:
         """Extract fix recommendations from reasoning result"""
         fixes = []
         for step in result.steps:

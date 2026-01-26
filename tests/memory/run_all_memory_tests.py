@@ -82,7 +82,7 @@ TEST_FILES = [
 
 
 def run_all_tests(
-    verbose: bool = False, fast: bool = False, keyword: str = None
+    verbose: bool = False, fast: bool = False, keyword: str | None = None
 ) -> int:
     """
     Run all memory tests using pytest.

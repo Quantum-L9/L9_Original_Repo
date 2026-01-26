@@ -243,14 +243,14 @@ async def memory_search(
 ) -> List[MemorySearchResult]:
     """
     Search agent memory for relevant information.
-    
+
     Args:
         agent_id: Agent performing the search
         query: Natural language query
         segment: Optional segment to search (defaults to all)
         limit: Maximum results to return
         substrate_service: Memory substrate service
-    
+
     Returns:
         List of MemorySearchResult sorted by relevance
     """
@@ -269,11 +269,11 @@ async def memory_search(
         segment=segment,
         limit=limit,
     )
-    
+
     if not substrate_service:
         logger.warning("memory_search: substrate_service not available")
         return []
-    
+
     try:
         # Use substrate semantic search
         if hasattr(substrate_service, 'semantic_search'):
@@ -288,7 +288,7 @@ async def memory_search(
                 filters={"agent_id": agent_id},
                 limit=limit,
 @@ -333,26 +362,25 @@ async def register_memory_tools(tool_registry: Any, substrate_service: Any = Non
-                
+
                 if 'tool_id' in params or len(params) >= 4:
                     # ExecutorToolRegistry: register_tool(tool_id, name, description, executor)
                     tool_registry.register_tool(
@@ -305,12 +305,12 @@ async def memory_search(
             else:
                 logger.warning(f"No register method available on registry for {tool_id}")
                 continue
-                
+
             registered += 1
             logger.debug(f"Registered memory tool: {tool_id}")
         except Exception as e:
             logger.warning(f"Failed to register tool {tool_def['tool_id']}: {e}")
-    
+
     logger.info(f"✓ Memory tools registered: {registered} tools")
     return registered
 

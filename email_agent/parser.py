@@ -29,7 +29,7 @@ __dora_meta__ = {
 import base64
 import re
 from email.header import decode_header
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 
@@ -44,7 +44,7 @@ except ImportError:
 logger = structlog.get_logger(__name__)
 
 
-def parse_headers(payload: Dict[str, Any]) -> Dict[str, str]:
+def parse_headers(payload: dict[str, Any]) -> dict[str, str]:
     """
     Parse email headers from Gmail payload.
 
@@ -81,7 +81,7 @@ def parse_headers(payload: Dict[str, Any]) -> Dict[str, str]:
     return headers
 
 
-def parse_body(payload: Dict[str, Any]) -> Dict[str, str]:
+def parse_body(payload: dict[str, Any]) -> dict[str, str]:
     """
     Parse email body from Gmail payload.
     Extracts both plain text and HTML versions.
@@ -95,7 +95,7 @@ def parse_body(payload: Dict[str, Any]) -> Dict[str, str]:
     text_body = ""
     html_body = ""
 
-    def extract_from_part(part: Dict[str, Any]):
+    def extract_from_part(part: dict[str, Any]):
         """Recursively extract body from message parts."""
         nonlocal text_body, html_body
 
@@ -134,8 +134,8 @@ def parse_body(payload: Dict[str, Any]) -> Dict[str, str]:
 
 
 def parse_attachments(
-    payload: Dict[str, Any], msg_id: str, attachments_dir
-) -> List[Dict[str, Any]]:
+    payload: dict[str, Any], msg_id: str, attachments_dir
+) -> list[dict[str, Any]]:
     """
     Parse attachments from Gmail payload.
 
@@ -149,7 +149,7 @@ def parse_attachments(
     """
     attachments = []
 
-    def extract_from_part(part: Dict[str, Any], parent_path: str = ""):
+    def extract_from_part(part: dict[str, Any], parent_path: str = ""):
         """Recursively extract attachments from message parts."""
         mime_type = part.get("mimeType", "")
         body_data = part.get("body", {})
@@ -251,15 +251,14 @@ def html_to_text(html: str) -> str:
             import html as html_module
 
             text = html_module.unescape(text)
-        except Exception as e:
+        except Exception:
             # Silently ignore HTML unescape errors
             pass
 
         # Clean up whitespace
         text = re.sub(r"\n\s*\n", "\n\n", text)
-        text = text.strip()
+        return text.strip()
 
-        return text
 
     try:
         # Use html.parser for better extraction

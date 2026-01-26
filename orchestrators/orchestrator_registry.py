@@ -34,7 +34,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 import structlog
 
@@ -48,14 +48,14 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 
-def _validate_orchestrator_class(cls: Type) -> bool:
+def _validate_orchestrator_class(cls: type) -> bool:
     """Validate that an object is an orchestrator class."""
     # Check if it's a class and has required orchestrator attributes
     return isinstance(cls, type) and hasattr(cls, "__name__")
 
 
 # Global orchestrator registry
-orchestrator_registry = AutoRegistry[Type](
+orchestrator_registry = AutoRegistry[type](
     name="orchestrators",
     validator=_validate_orchestrator_class,
     allow_duplicates=False,
@@ -63,9 +63,9 @@ orchestrator_registry = AutoRegistry[Type](
 
 
 def register_orchestrator(
-    name: Optional[str] = None,
-    domain: Optional[str] = None,
-    category: Optional[str] = None,
+    name: str | None = None,
+    domain: str | None = None,
+    category: str | None = None,
     priority: int = 0,
     **metadata: Any,
 ):
@@ -99,7 +99,7 @@ def register_orchestrator(
     if category:
         tags.append(category)
 
-    def decorator(cls: Type) -> Type:
+    def decorator(cls: type) -> type:
         # Register the class directly (not as a factory)
         orch_name = name or cls.__name__
         orchestrator_registry.register_instance(
@@ -130,7 +130,7 @@ def discover_orchestrators(package: str = "orchestrators") -> int:
     return count
 
 
-def get_all_orchestrators() -> Dict[str, Type]:
+def get_all_orchestrators() -> dict[str, type]:
     """
     Get all registered orchestrator classes as a dictionary.
 
@@ -146,7 +146,7 @@ def get_all_orchestrators() -> Dict[str, Type]:
     orchestrator_registry.initialize_factories()
 
     # Build dictionary mapping names to classes
-    orchestrators: Dict[str, Type] = {}
+    orchestrators: dict[str, type] = {}
 
     for orch_id in orchestrator_registry.list_ids():
         orch_cls = orchestrator_registry.get(orch_id)
@@ -157,7 +157,7 @@ def get_all_orchestrators() -> Dict[str, Type]:
     return orchestrators
 
 
-def get_orchestrators_by_domain(domain: str) -> Dict[str, Type]:
+def get_orchestrators_by_domain(domain: str) -> dict[str, type]:
     """
     Get all orchestrator classes in a specific domain.
 
@@ -170,7 +170,7 @@ def get_orchestrators_by_domain(domain: str) -> Dict[str, Type]:
     orchestrator_registry.initialize_factories()
 
     orch_list = orchestrator_registry.get_all(tags=[domain])
-    orchestrators: Dict[str, Type] = {}
+    orchestrators: dict[str, type] = {}
 
     for orch_cls in orch_list:
         # Find the orchestrator's ID
@@ -182,7 +182,7 @@ def get_orchestrators_by_domain(domain: str) -> Dict[str, Type]:
     return orchestrators
 
 
-def get_orchestrators_by_category(category: str) -> Dict[str, Type]:
+def get_orchestrators_by_category(category: str) -> dict[str, type]:
     """
     Get all orchestrator classes in a specific category.
 
@@ -195,7 +195,7 @@ def get_orchestrators_by_category(category: str) -> Dict[str, Type]:
     orchestrator_registry.initialize_factories()
 
     orch_list = orchestrator_registry.get_all(tags=[category])
-    orchestrators: Dict[str, Type] = {}
+    orchestrators: dict[str, type] = {}
 
     for orch_cls in orch_list:
         # Find the orchestrator's ID
@@ -207,7 +207,7 @@ def get_orchestrators_by_category(category: str) -> Dict[str, Type]:
     return orchestrators
 
 
-def build_orchestrator_exports() -> List[str]:
+def build_orchestrator_exports() -> list[str]:
     """
     Build the __all__ list for orchestrators/__init__.py.
 

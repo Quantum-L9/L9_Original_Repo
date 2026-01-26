@@ -54,11 +54,7 @@ def is_patch(yaml_content: str, filename: str) -> bool:
 
     # Check filename for patch indicators
     filename_lower = filename.lower()
-    for pattern in PATCH_FILENAME_PATTERNS:
-        if pattern in filename_lower:
-            return True
-
-    return False
+    return any(pattern in filename_lower for pattern in PATCH_FILENAME_PATTERNS)
 
 
 def extract_yaml_blocks(content: str) -> list:
@@ -114,7 +110,7 @@ def sanitize_filename(filename: str) -> str:
     # Ensure it ends with .yaml
     if not safe_name.endswith(".yaml"):
         # Get extension
-        base, ext = os.path.splitext(safe_name)
+        base, _ext = os.path.splitext(safe_name)
         safe_name = base + ".yaml"
     return safe_name
 

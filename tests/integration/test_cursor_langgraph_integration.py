@@ -22,10 +22,11 @@ from uuid import uuid4
 import pytest
 
 from agents.cursor.integrations.cursor_gateway import (
-    CursorMemoryGateway, CursorScopeViolationError)
+    CursorMemoryGateway,
+    CursorScopeViolationError,
+)
 from agents.cursor.integrations.cursor_langgraph import CursorAgentState
-from core.governance.approval_gate import (escalate_to_igor,
-                                           is_high_impact_decision)
+from core.governance.approval_gate import escalate_to_igor, is_high_impact_decision
 from core.governance.approval_manager import ApprovalManager, ApprovalStatus
 from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
 from memory.checkpoint.postgres_saver import L9PostgresSaver
@@ -159,7 +160,7 @@ class TestGraphSearchUsesRedisCache:
         ctx = GraphSearchContext(project_id="test")
 
         # First call: should hit Neo4j
-        result1 = await cached_graph_search(
+        await cached_graph_search(
             query="MATCH (n) RETURN n",
             params={},
             ctx=ctx,
@@ -178,7 +179,7 @@ class TestGraphSearchUsesRedisCache:
             return_value='{"results": [], "created_at": "2026-01-01T00:00:00", "schema_version": "test", "ttl": 100}'
         )
 
-        result2 = await cached_graph_search(
+        await cached_graph_search(
             query="MATCH (n) RETURN n",
             params={},
             ctx=ctx,

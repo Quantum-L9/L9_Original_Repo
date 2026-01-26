@@ -126,9 +126,9 @@ def test_core_imports() -> tuple[bool, str]:
 def test_langgraph_not_shadowed() -> tuple[bool, str]:
     """Test that langgraph library is not shadowed by local package."""
     try:
+        # Verify it's the actual library, not our local shim
         from langgraph.graph import END, StateGraph
 
-        # Verify it's the actual library, not our local shim
         import langgraph
 
         # langgraph is a namespace package, so __file__ may be None
@@ -265,7 +265,7 @@ async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
         )
 
         # Create envelope with proper UUID
-        envelope = PacketEnvelope(
+        PacketEnvelope(
             packet_id=uuid4(),
             packet_type=packet.packet_type,
             payload=packet.payload,
@@ -277,7 +277,7 @@ async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
             from memory.substrate_dag import SubstrateDAG
 
             # Create DAG without services (dry run)
-            dag = SubstrateDAG(repository=None, semantic_service=None)
+            SubstrateDAG(repository=None, semantic_service=None)
         except ImportError:
             # langgraph not installed, skip DAG instantiation
             pass
@@ -293,7 +293,7 @@ async def test_world_model_instantiation() -> tuple[bool, str]:
         from world_model.runtime import WorldModelRuntime
 
         # Create without DB connection
-        runtime = WorldModelRuntime()
+        WorldModelRuntime()
 
         return True, ""
     except Exception as e:
@@ -350,11 +350,10 @@ def main():
         logger.info("ALL SMOKE TESTS PASSED")
         logger.info("=" * 60)
         return 0
-    else:
-        logger.info("\n" + "=" * 60)
-        logger.error("SMOKE TESTS FAILED - SEE ERRORS ABOVE")
-        logger.info("=" * 60)
-        return 1
+    logger.info("\n" + "=" * 60)
+    logger.error("SMOKE TESTS FAILED - SEE ERRORS ABOVE")
+    logger.info("=" * 60)
+    return 1
 
 
 if __name__ == "__main__":

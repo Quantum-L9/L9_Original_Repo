@@ -16,7 +16,7 @@ from services.research.agents.researcher_agent import ResearcherAgent
 
 __all__ = [
     "BaseAgent",
+    "CriticAgent",
     "PlannerAgent",
     "ResearcherAgent",
-    "CriticAgent",
 ]

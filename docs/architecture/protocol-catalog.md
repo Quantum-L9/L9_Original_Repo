@@ -1,8 +1,8 @@
 # L9 Protocol Catalog
 
-**Version:** 1.0.0  
-**GMP:** di-dip-phase1-abstractions  
-**Quality:** Top Frontier AI Lab - Enterprise Production-Ready  
+**Version:** 1.0.0
+**GMP:** di-dip-phase1-abstractions
+**Quality:** Top Frontier AI Lab - Enterprise Production-Ready
 **Author:** L9 DI/DIP Upgrade Team
 
 ---
@@ -30,7 +30,7 @@ class KernelValidator(Protocol):
     ) -> KernelValidationResult:
         """Validate kernel data against schema."""
         ...
-    
+
     def validate_manifest(self, manifest: KernelManifest) -> bool:
         """Validate a kernel manifest object."""
         ...
@@ -61,7 +61,7 @@ class KernelDiscovery(Protocol):
     def discover_kernels(self, base_path: Path) -> List[Path]:
         """Discover kernel files from base path."""
         ...
-    
+
     def get_kernel_order(self) -> List[str]:
         """Get the configured kernel loading order."""
         ...
@@ -92,11 +92,11 @@ class IntegrityVerifier(Protocol):
     def compute_hash(self, path: Path) -> str:
         """Compute hash of kernel file."""
         ...
-    
+
     def verify_integrity(self, path: Path, stored_hash: str) -> bool:
         """Verify kernel file integrity against stored hash."""
         ...
-    
+
     def get_algorithm(self) -> str:
         """Get the hash algorithm name."""
         ...
@@ -133,7 +133,7 @@ class KernelActivator(Protocol):
     ) -> KernelActivationResult:
         """Activate a kernel with context injection."""
         ...
-    
+
     def deactivate(self, agent: Any) -> bool:
         """Deactivate a kernel."""
         ...
@@ -157,11 +157,11 @@ class KernelStateManager(Protocol):
     def get_state(self, kernel_id: str) -> Optional[KernelState]:
         """Get current state of a kernel."""
         ...
-    
+
     def set_state(self, kernel_id: str, state: KernelState) -> None:
         """Set state of a kernel."""
         ...
-    
+
     def transition_state(
         self, kernel_id: str, from_state: KernelState, to_state: KernelState
     ) -> bool:
@@ -191,17 +191,17 @@ class CacheClient(Protocol):
     async def get(self, key: str) -> Optional[str]:
         """Get value by key."""
         ...
-    
+
     async def set(
         self, key: str, value: str, ttl: Optional[int] = None
     ) -> bool:
         """Set key-value pair with optional TTL."""
         ...
-    
+
     async def delete(self, key: str) -> bool:
         """Delete key from cache."""
         ...
-    
+
     async def exists(self, key: str) -> bool:
         """Check if key exists."""
         ...
@@ -235,13 +235,13 @@ class GraphClient(Protocol):
     ) -> List[Dict[str, Any]]:
         """Execute Cypher query."""
         ...
-    
+
     async def create_node(
         self, labels: List[str], properties: Dict[str, Any]
     ) -> str:
         """Create a node with labels and properties."""
         ...
-    
+
     async def create_relationship(
         self,
         from_node_id: str,
@@ -276,7 +276,7 @@ class VectorStore(Protocol):
     ) -> None:
         """Insert or update embedding with metadata."""
         ...
-    
+
     async def search_similar(
         self, query_embedding: List[float], top_k: int = 10, threshold: float = 0.7
     ) -> List[Dict[str, Any]]:
@@ -307,11 +307,11 @@ class MemoryRepository(Protocol):
     ) -> str:
         """Store a memory."""
         ...
-    
+
     async def retrieve_memory(self, memory_id: str) -> Optional[Dict[str, Any]]:
         """Retrieve memory by ID."""
         ...
-    
+
     async def search_memories(
         self,
         query: str,
@@ -342,7 +342,7 @@ class IngestionPipeline(Protocol):
     ) -> str:
         """Ingest content into memory system."""
         ...
-    
+
     async def batch_ingest(
         self, items: List[Dict[str, Any]]
     ) -> List[str]:
@@ -373,7 +373,7 @@ class RetrievalStrategy(Protocol):
     ) -> List[Dict[str, Any]]:
         """Retrieve memories for query."""
         ...
-    
+
     def rank_results(
         self, results: List[Dict[str, Any]], query: str
     ) -> List[Dict[str, Any]]:
@@ -410,7 +410,7 @@ class SpanEmitter(Protocol):
     ) -> Any:
         """Start a new span."""
         ...
-    
+
     def finish_span(
         self,
         span: Any,
@@ -441,13 +441,13 @@ class MetricsCollector(Protocol):
     ) -> None:
         """Increment a counter metric."""
         ...
-    
+
     def set_gauge(
         self, name: str, value: float, labels: Optional[Dict[str, str]] = None
     ) -> None:
         """Set a gauge metric."""
         ...
-    
+
     def record_histogram(
         self, name: str, value: float, labels: Optional[Dict[str, str]] = None
     ) -> None:
@@ -479,11 +479,11 @@ class ActivatableAgent(Protocol):
     ) -> Any:
         """Activate agent with kernel manifest."""
         ...
-    
+
     def kernel_deactivate(self) -> bool:
         """Deactivate kernel from agent."""
         ...
-    
+
     @property
     def agent_id(self) -> str:
         """Get unique agent identifier."""
@@ -513,11 +513,11 @@ class ToolExecutor(Protocol):
     ) -> Dict[str, Any]:
         """Execute a tool with parameters."""
         ...
-    
+
     def list_available_tools(self) -> List[str]:
         """List available tools."""
         ...
-    
+
     def get_tool_schema(self, tool_name: str) -> Dict[str, Any]:
         """Get tool parameter schema."""
         ...
@@ -541,11 +541,11 @@ class StateManager(Protocol):
     async def get_state(self, agent_id: str) -> Optional[AgentState]:
         """Get current state of an agent."""
         ...
-    
+
     async def set_state(self, agent_id: str, state: AgentState) -> None:
         """Set state of an agent."""
         ...
-    
+
     async def transition_state(
         self, agent_id: str, from_state: AgentState, to_state: AgentState
     ) -> bool:
@@ -573,13 +573,13 @@ class AgentOrchestrator(Protocol):
     ) -> str:
         """Register an agent with orchestrator."""
         ...
-    
+
     async def route_task(
         self, task: Dict[str, Any], constraints: Optional[Dict[str, Any]] = None
     ) -> str:
         """Route task to appropriate agent."""
         ...
-    
+
     def list_agents(self) -> List[str]:
         """List all registered agents."""
         ...
@@ -608,7 +608,7 @@ class AgentRegistry(Protocol):
     ) -> None:
         """Register an agent."""
         ...
-    
+
     def find_agents(
         self, agent_type: Optional[str] = None, filters: Optional[Dict[str, Any]] = None
     ) -> List[Dict[str, Any]]:
@@ -634,26 +634,26 @@ from core.abstractions import *
 def configure_protocols():
     """Configure all protocol bindings."""
     container = get_di_container()
-    
+
     # Kernel protocols
     container.bind_singleton(KernelValidator, PydanticKernelValidator)
     container.bind_singleton(KernelDiscovery, OrderedKernelDiscovery)
     container.bind_singleton(IntegrityVerifier, SHA256IntegrityVerifier)
-    
+
     # Memory protocols
     container.bind_singleton(CacheClient, lambda: RedisClient())
     container.bind_singleton(GraphClient, lambda: Neo4jClient())
     container.bind_singleton(VectorStore, lambda: PgVectorStore())
     container.bind_singleton(MemoryRepository, SubstrateMemoryRepository)
-    
+
     # Observability protocols
     container.bind_singleton(SpanEmitter, JaegerSpanEmitter)
     container.bind_singleton(MetricsCollector, PrometheusMetricsCollector)
-    
+
     # Agent protocols
     container.bind_singleton(AgentRegistry, InMemoryAgentRegistry)
     container.bind_singleton(AgentOrchestrator, StandardOrchestrator)
-    
+
     return container
 ```
 

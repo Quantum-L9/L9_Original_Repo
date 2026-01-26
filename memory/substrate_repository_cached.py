@@ -29,22 +29,20 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
-from datetime import datetime
+
 import structlog
 
-from memory.substrate_repository import SubstrateRepository
-from memory.query_cache import get_cache
 from core.schemas import PacketEnvelope, SemanticHit
+from memory.query_cache import get_cache
 from memory.substrate_models import (
-    PacketStoreRow,
     AgentMemoryEventRow,
-    ReasoningTraceRow,
-    KnowledgeFactRow,
-    SemanticFactRow,
     GraphCheckpointRow,
+    KnowledgeFactRow,
+    PacketStoreRow,
 )
+from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -89,7 +87,7 @@ class CachedSubstrateRepository:
         """Get cache instance for decorators."""
         return self.cache
 
-    async def get_packet(self, packet_id: UUID) -> Optional[PacketStoreRow]:
+    async def get_packet(self, packet_id: UUID) -> PacketStoreRow | None:
         """
         Get packet by ID (LRU cached - immutable data).
 
@@ -106,7 +104,7 @@ class CachedSubstrateRepository:
 
         return await _get_packet_cached(packet_id)
 
-    async def get_checkpoint(self, agent_id: str) -> Optional[GraphCheckpointRow]:
+    async def get_checkpoint(self, agent_id: str) -> GraphCheckpointRow | None:
         """
         Get agent checkpoint (TTL cached - changes periodically).
 
@@ -128,7 +126,7 @@ class CachedSubstrateRepository:
         agent_id: str,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[AgentMemoryEventRow]:
+    ) -> list[AgentMemoryEventRow]:
         """
         Get memory events (TTL cached - changes frequently).
 
@@ -151,7 +149,7 @@ class CachedSubstrateRepository:
         self,
         limit: int = 100,
         offset: int = 0,
-    ) -> List[KnowledgeFactRow]:
+    ) -> list[KnowledgeFactRow]:
         """
         Get knowledge facts (TTL cached).
 
@@ -171,10 +169,10 @@ class CachedSubstrateRepository:
 
     async def search_semantic_memory(
         self,
-        query_vector: List[float],
+        query_vector: list[float],
         limit: int = 10,
-        agent_id: Optional[str] = None,
-    ) -> List[SemanticHit]:
+        agent_id: str | None = None,
+    ) -> list[SemanticHit]:
         """
         Search semantic memory (NOT cached - vectors change frequently).
 
@@ -206,7 +204,7 @@ class CachedSubstrateRepository:
         packet_id = await self.repo.insert_packet(envelope)
 
         # Invalidate packet cache
-        self.cache.invalidate(pattern=f"get_packet:{str(packet_id)}")
+        self.cache.invalidate(pattern=f"get_packet:{packet_id!s}")
 
         logger.debug("packet_inserted_cache_invalidated", packet_id=str(packet_id))
         return packet_id
@@ -215,8 +213,8 @@ class CachedSubstrateRepository:
         self,
         agent_id: str,
         event_type: str,
-        content: Dict[str, Any],
-        packet_id: Optional[UUID] = None,
+        content: dict[str, Any],
+        packet_id: UUID | None = None,
     ) -> UUID:
         """
         Insert memory event and invalidate relevant caches.
@@ -247,7 +245,7 @@ class CachedSubstrateRepository:
     async def upsert_checkpoint(
         self,
         agent_id: str,
-        checkpoint_data: Dict[str, Any],
+        checkpoint_data: dict[str, Any],
     ) -> None:
         """
         Upsert checkpoint and invalidate cache.
@@ -287,7 +285,7 @@ class CachedSubstrateRepository:
     # Cache Management
     # =========================================================================
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """
         Get cache statistics.
 

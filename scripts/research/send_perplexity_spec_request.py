@@ -113,7 +113,7 @@ TIER 0 CONSTRAINTS:
 
 REQUIRED ENVIRONMENT VARIABLES:
 - DATABASE_URL: PostgreSQL connection string
-- REDIS_URL: Redis connection string  
+- REDIS_URL: Redis connection string
 - AIOS_BASE_URL: AIOS API endpoint (optional, default: http://localhost:8000)
 - LOG_LEVEL: Logging level (optional, default: INFO)
 - LOG_FORMAT: json or console (optional, default: json)
@@ -153,9 +153,7 @@ Generate the complete Module-Spec v2.5 YAML now. Start immediately with 'schema_
             )
 
             elapsed = time.time() - start
-            logger.info(
-                f"\n⏱️  Response in {elapsed:.1f}s (status: {resp.status_code})"
-            )
+            logger.info(f"\n⏱️  Response in {elapsed:.1f}s (status: {resp.status_code})")
 
             if resp.status_code == 200:
                 data = resp.json()

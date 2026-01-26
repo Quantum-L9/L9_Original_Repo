@@ -16,15 +16,16 @@ Updated: 2026-01-15 - Refactored to use AgentGraphState dataclass
 GMP: GMP-UKG-5 (Memory Consolidation Loop)
 """
 
-from typing import Optional
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from core.agents.graph_state.agent_graph_loader import (AgentDirective,
-                                                        AgentGraphState,
-                                                        AgentResponsibility,
-                                                        AgentTool)
+from core.agents.graph_state.agent_graph_loader import (
+    AgentDirective,
+    AgentGraphState,
+    AgentResponsibility,
+    AgentTool,
+)
 
 # =============================================================================
 # Test Helpers
@@ -35,9 +36,9 @@ def make_mock_graph_state(
     agent_id: str = "L",
     designation: str = "CTO",
     status: str = "ACTIVE",
-    responsibilities: Optional[list] = None,
-    directives: Optional[list] = None,
-    tools: Optional[list] = None,
+    responsibilities: list | None = None,
+    directives: list | None = None,
+    tools: list | None = None,
 ) -> AgentGraphState:
     """Create a mock AgentGraphState dataclass for testing."""
     return AgentGraphState(

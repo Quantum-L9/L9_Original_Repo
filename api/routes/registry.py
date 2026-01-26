@@ -31,7 +31,6 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 import structlog
 from fastapi import APIRouter, FastAPI
@@ -45,10 +44,10 @@ class RouterDefinition:
 
     router: APIRouter
     prefix: str
-    tags: List[str]
+    tags: list[str]
     module_id: str
     display_name: str
-    dependencies: List[str] = None
+    dependencies: list[str] = None
 
     def __post_init__(self):
         if self.dependencies is None:
@@ -97,18 +96,18 @@ class RouterRegistry:
     """
 
     def __init__(self):
-        self._routers: Dict[str, RouterDefinition] = {}
-        self._wired: Dict[str, bool] = {}
+        self._routers: dict[str, RouterDefinition] = {}
+        self._wired: dict[str, bool] = {}
         logger.info("RouterRegistry initialized")
 
     def register(
         self,
         router: APIRouter,
         prefix: str,
-        tags: Optional[List[str]] = None,
-        module_id: Optional[str] = None,
-        display_name: Optional[str] = None,
-        dependencies: Optional[List[str]] = None,
+        tags: list[str] | None = None,
+        module_id: str | None = None,
+        display_name: str | None = None,
+        dependencies: list[str] | None = None,
     ) -> None:
         """
         Register a router for auto-wiring.
@@ -241,7 +240,7 @@ class RouterRegistry:
                 logger.error(
                     f"Failed to wire router: {module_id}", error=str(e), exc_info=True
                 )
-                errors.append(f"{module_id}: {str(e)}")
+                errors.append(f"{module_id}: {e!s}")
 
         if errors:
             logger.warning(
@@ -255,7 +254,7 @@ class RouterRegistry:
 
         return count
 
-    def get_definition(self, module_id: str) -> Optional[RouterDefinition]:
+    def get_definition(self, module_id: str) -> RouterDefinition | None:
         """Get router definition by module ID."""
         return self._routers.get(module_id)
 
@@ -324,7 +323,7 @@ def discover_routers() -> int:
     try:
         import api.routes
 
-        for importer, modname, ispkg in pkgutil.iter_modules(api.routes.__path__):
+        for _importer, modname, ispkg in pkgutil.iter_modules(api.routes.__path__):
             # Skip registry module itself
             if not ispkg and modname != "registry":
                 try:

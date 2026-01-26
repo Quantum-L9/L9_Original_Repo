@@ -1,17 +1,21 @@
 # ADR 0032: Neo4j Cypher Query Pattern
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 ALL Cypher queries parameterized; use templates from `cypher_templates.py`; never string interpolation.
 
 ## Files
+
 - `memory/cypher_templates.py` - Query templates
 - `memory/graph_client.py` - Neo4j client
 - `scripts/memory/bootstrap_neo4j_schema.py` - Schema setup
 
 ## Import Block
+
 ```python
 from neo4j import AsyncGraphDatabase
 from memory.cypher_templates import (
@@ -25,6 +29,7 @@ logger = structlog.get_logger(__name__)
 ```
 
 ## Minimal Implementation
+
 ```python
 # === memory/cypher_templates.py ===
 """
@@ -80,10 +85,10 @@ logger = structlog.get_logger(__name__)
 
 class GraphClient:
     """Neo4j client with parameterized queries."""
-    
+
     def __init__(self, uri: str, user: str, password: str):
         self._driver = AsyncGraphDatabase.driver(uri, auth=(user, password))
-    
+
     async def run(
         self,
         query: str,
@@ -91,33 +96,34 @@ class GraphClient:
     ) -> list[dict]:
         """
         Execute parameterized Cypher query.
-        
+
         Args:
             query: Cypher query with $param placeholders
             **params: Parameter values
-        
+
         Returns:
             List of result records as dicts
         """
         async with self._driver.session() as session:
             result = await session.run(query, params)
             records = [record.data() async for record in result]
-            
+
             logger.debug(
                 "cypher.executed",
                 query_preview=query[:50],
                 param_count=len(params),
                 result_count=len(records),
             )
-            
+
             return records
-    
+
     async def close(self):
         """Close driver connection."""
         await self._driver.close()
 ```
 
 ## Usage Example
+
 ```python
 from memory.graph_client import GraphClient
 from memory.cypher_templates import FIND_AGENT, CREATE_ENTITY, FIND_RELATED
@@ -158,6 +164,7 @@ await client.close()
 ```
 
 ## Anti-Pattern Example
+
 ```python
 # ❌ WRONG — String interpolation (SQL/Cypher injection risk!)
 agent_id = "l-cto"
@@ -186,23 +193,26 @@ await client.run(query, agent_id=agent_id, tenant_id=tenant_id)
 ```
 
 ## Node Types
-| Node | Properties | Purpose |
-|------|------------|---------|
-| Agent | agent_id, tenant_id, name | Agent entities |
-| Tool | tool_id, name, category | Tool definitions |
-| Entity | entity_id, type, tenant_id | World model entities |
-| Fact | fact_id, subject, predicate | Knowledge facts |
-| Memory | memory_id, content, tenant_id | Memory entries |
+
+| Node   | Properties                    | Purpose              |
+| ------ | ----------------------------- | -------------------- |
+| Agent  | agent_id, tenant_id, name     | Agent entities       |
+| Tool   | tool_id, name, category       | Tool definitions     |
+| Entity | entity_id, type, tenant_id    | World model entities |
+| Fact   | fact_id, subject, predicate   | Knowledge facts      |
+| Memory | memory_id, content, tenant_id | Memory entries       |
 
 ## Relationship Types
-| Relationship | From | To | Purpose |
-|--------------|------|----|---------| 
-| CAN_EXECUTE | Agent | Tool | Tool permissions |
-| KNOWS | Agent | Entity | Agent knowledge |
-| RELATES_TO | Entity | Entity | Entity relations |
-| DERIVED_FROM | Fact | Memory | Fact provenance |
+
+| Relationship | From   | To     | Purpose          |
+| ------------ | ------ | ------ | ---------------- |
+| CAN_EXECUTE  | Agent  | Tool   | Tool permissions |
+| KNOWS        | Agent  | Entity | Agent knowledge  |
+| RELATES_TO   | Entity | Entity | Entity relations |
+| DERIVED_FROM | Fact   | Memory | Fact provenance  |
 
 ## Rules
+
 1. ALL queries MUST use `$param` syntax
 2. Add queries to `cypher_templates.py`
 3. Always filter by `tenant_id`
@@ -210,13 +220,16 @@ await client.run(query, agent_id=agent_id, tenant_id=tenant_id)
 5. Return only needed properties
 
 ## AI Guidance
+
 **DO:**
+
 - Use `$parameter` syntax for all values
 - Add new queries to `cypher_templates.py`
 - Include `tenant_id` in WHERE clause
 - Use MERGE for upserts
 
 **DO NOT:**
+
 - Use string interpolation (f-strings)
 - Embed values directly in query
 - Skip tenant_id filtering

@@ -27,7 +27,6 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Dict
 
 import yaml
 
@@ -37,7 +36,7 @@ from .base_extractor import BaseExtractor
 class ModuleSchemaExtractor(BaseExtractor):
     """Extracts L9 module schema definitions."""
 
-    def extract(self, input_path: Path, output_root: Path) -> Dict:
+    def extract(self, input_path: Path, output_root: Path) -> dict:
         """Extract module schemas from kernel."""
         self.logger.info(f"ModuleSchemaExtractor: Processing {input_path.name}")
 
@@ -51,7 +50,7 @@ class ModuleSchemaExtractor(BaseExtractor):
 
         try:
             # Load kernel
-            with open(input_path, "r") as f:
+            with open(input_path) as f:
                 kernel = yaml.safe_load(f)
 
             # Check if this is a cognition suite kernel
@@ -81,7 +80,7 @@ class ModuleSchemaExtractor(BaseExtractor):
                 "errors": [f"Failed to process: {e}"],
             }
 
-    def generate_modules(self, kernel: Dict, output_root: Path) -> int:
+    def generate_modules(self, kernel: dict, output_root: Path) -> int:
         """Generate module YAML files from kernel."""
         output_dir = self.create_output_dir(output_root, "modules")
         count = 0

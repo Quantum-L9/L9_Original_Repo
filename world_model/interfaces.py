@@ -47,7 +47,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional, Protocol
+from typing import Any, Protocol
 
 
 class IWorldModelState(Protocol):
@@ -67,7 +67,7 @@ class IWorldModelState(Protocol):
     - Reasoning Kernel 03: state accessed during inference
     """
 
-    def get_entity(self, entity_id: str) -> Optional[dict[str, Any]]:
+    def get_entity(self, entity_id: str) -> dict[str, Any] | None:
         """Retrieve entity by ID."""
         ...
 

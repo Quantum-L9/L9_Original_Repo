@@ -29,7 +29,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, List, Optional
+from typing import Any
 
 from memory.substrate_models import AgentMemoryEventRow
 from memory.substrate_repository import SubstrateRepository
@@ -48,9 +48,9 @@ class TimelineService:
     async def get_recent_events(
         self,
         agent_id: str,
-        event_type: Optional[str] = None,
+        event_type: str | None = None,
         limit: int = 100,
-    ) -> List[AgentMemoryEventRow]:
+    ) -> list[AgentMemoryEventRow]:
         """
         Fetch recent events for an agent, optionally filtered by event_type.
 
@@ -65,7 +65,7 @@ class TimelineService:
     async def get_timeline_json(
         self,
         agent_id: str,
-        event_type: Optional[str] = None,
+        event_type: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """

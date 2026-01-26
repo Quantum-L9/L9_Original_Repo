@@ -59,14 +59,14 @@ Code generation agent and specifications
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module         | Purpose             |
+| -------------- | ------------------- |
 | `core/agents/` | Required dependency |
 
 ---
@@ -84,12 +84,12 @@ codegenagent/
 ├── readme_generator.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `c_gmp_engine.py` | Exception raised when code generation fails. |
+| File              | Purpose                                            |
+| ----------------- | -------------------------------------------------- |
+| `__init__.py`     | Core module (PROTECTED)                            |
+| `c_gmp_engine.py` | Exception raised when code generation fails.       |
 | `c_gmp_engine.py` | Code Generation and Mathematical Processing Engine |
-| `meta_loader.py` | Exception raised when meta loading fails. |
+| `meta_loader.py`  | Exception raised when meta loading fails.          |
 
 ### Naming Conventions
 
@@ -107,7 +107,7 @@ codegenagent/
 ```python
 class CGMPEngineError:
     """Exception raised when code generation fails."""
-    
+
     # Key methods:
 
 ```
@@ -119,7 +119,7 @@ class CGMPEngineError:
 ```python
 class CGMPEngine:
     """Code Generation and Mathematical Processing Engine."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -143,7 +143,7 @@ class CGMPEngine:
 ```python
 class MetaLoaderError:
     """Exception raised when meta loading fails."""
-    
+
     # Key methods:
 
 ```
@@ -155,7 +155,7 @@ class MetaLoaderError:
 ```python
 class MetaLoader:
     """Loads and validates YAML meta specifications."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -179,13 +179,12 @@ class MetaLoader:
 ```python
 class ReadmeSection:
     """A single section of a README document."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 30-35 in `readme_generator.py`
-
 
 ---
 
@@ -256,9 +255,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Codegenagent feature flags
-L9_ENABLE_CODEGENAGENT_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CODEGENAGENT_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CODEGENAGENT_AUDIT: true    # Enable audit logging
+L9_ENABLE_CODEGENAGENT_TRACING: true # Enable detailed tracing
+L9_ENABLE_CODEGENAGENT_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CODEGENAGENT_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -320,7 +319,6 @@ Convert a path-like filename to a safe filename.
 - **File:** `extract_yaml_specs.py:96`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -361,6 +359,7 @@ Codegenagent operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -368,12 +367,12 @@ Codegenagent operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                               | Type      | Description                    |
+| ------------------------------------ | --------- | ------------------------------ |
 | `codegenagent_operation_duration_ms` | Histogram | Operation latency distribution |
-| `codegenagent_operation_total` | Counter | Total operations processed |
-| `codegenagent_error_total` | Counter | Total errors encountered |
-| `codegenagent_active_connections` | Gauge | Current active connections |
+| `codegenagent_operation_total`       | Counter   | Total operations processed     |
+| `codegenagent_error_total`           | Counter   | Total errors encountered       |
+| `codegenagent_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -391,6 +390,7 @@ Codegenagent emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/codegenagent/`:
+
 - `test_codegenagent.py` — Core unit tests
 - `test_codegenagent_integration.py` — Integration tests (if applicable)
 
@@ -434,6 +434,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

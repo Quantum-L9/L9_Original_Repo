@@ -27,7 +27,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import List, Optional, Protocol
+from typing import Protocol
 
 from pydantic import BaseModel, Field
 
@@ -59,10 +59,10 @@ class ReasoningResponse(BaseModel):
 
     success: bool = Field(..., description="Whether operation succeeded")
     message: str = Field(..., description="Result message")
-    reasoning_trace: List[str] = Field(
+    reasoning_trace: list[str] = Field(
         default_factory=list, description="Reasoning steps"
     )
-    conclusion: Optional[str] = Field(default=None, description="Final conclusion")
+    conclusion: str | None = Field(default=None, description="Final conclusion")
 
 
 class IReasoningOrchestrator(Protocol):

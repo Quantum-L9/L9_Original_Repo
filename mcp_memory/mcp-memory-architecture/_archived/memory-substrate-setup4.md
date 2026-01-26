@@ -1,8 +1,8 @@
 Those MCP files are intentionally **standalone infra** and only need three wires inside your L9 world:
 
-1. **To the same Postgres memory DB L already uses**  
-2. **To your VPS/systemd deployment flow**  
-3. **To Cursor via MCP config**  
+1. **To the same Postgres memory DB L already uses**
+2. **To your VPS/systemd deployment flow**
+3. **To Cursor via MCP config**
 
 Nothing inside the existing `/l9/` Python package, Docker, or API server needs to import them.
 
@@ -44,8 +44,8 @@ The `mcp-memory/scripts/install.sh` and `systemd-l9-mcp.service` need to be invo
 This script:
 
 - Copies `mcp-memory/` to `/opt/l9/mcp/memory`.[1]
-- Creates `/opt/l9/venv-mcp`.  
-- Installs `requirements-mcp.txt`.  
+- Creates `/opt/l9/venv-mcp`.
+- Installs `requirements-mcp.txt`.
 - Runs `scripts/migrate_db.py` (which uses `schema/init.sql`) to ensure the `memory.*` tables and indexes exist.[1]
 - Installs and enables `l9-mcp.service` in systemd and starts it.[1]
 

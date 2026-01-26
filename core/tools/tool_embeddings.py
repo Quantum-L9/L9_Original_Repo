@@ -151,7 +151,7 @@ async def store_tool_embedding(
         async with pool.acquire() as conn:
             await conn.execute(
                 """
-                INSERT INTO tool_embeddings 
+                INSERT INTO tool_embeddings
                     (tool_name, description, category, embedding, negative_constraints, metadata)
                 VALUES ($1, $2, $3, $4, $5, $6)
                 ON CONFLICT (tool_name) DO UPDATE SET
@@ -213,7 +213,7 @@ async def find_relevant_tools(
 
             rows = await conn.fetch(
                 f"""
-                SELECT 
+                SELECT
                     tool_name,
                     description,
                     category,
@@ -276,7 +276,7 @@ async def find_tools_keyword(
         async with pool.acquire() as conn:
             rows = await conn.fetch(
                 """
-                SELECT 
+                SELECT
                     tool_name,
                     description,
                     category,

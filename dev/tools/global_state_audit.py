@@ -36,7 +36,6 @@ __dora_meta__ = {
 
 import ast
 from pathlib import Path
-from typing import List, Tuple
 
 import structlog
 
@@ -44,9 +43,9 @@ logger = structlog.get_logger(__name__)
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def iter_python_files() -> List[Path]:
+def iter_python_files() -> list[Path]:
     ignored = {"tests", ".venv", "venv", "migrations", "private"}
-    files: List[Path] = []
+    files: list[Path] = []
 
     for path in ROOT.rglob("*.py"):
         rel = path.relative_to(ROOT)
@@ -60,7 +59,7 @@ def iter_python_files() -> List[Path]:
 class GlobalStateVisitor(ast.NodeVisitor):
     def __init__(self, filename: Path):
         self.filename = filename
-        self.suspicious: List[Tuple[int, str]] = []
+        self.suspicious: list[tuple[int, str]] = []
 
     def visit_Assign(self, node: ast.Assign):
         # Only look at module-level assignments

@@ -1,18 +1,22 @@
 # ADR 0020: Test Fixture Hierarchy
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Shared fixtures in `tests/conftest.py`; domain mocks in `tests/mocks/`; no network in unit tests.
 
 ## Files
+
 - `tests/conftest.py` - Root fixtures (308+ fixtures)
 - `tests/mocks/kernel_mocks.py` - Kernel state mocks
 - `tests/mocks/memory_mocks.py` - Memory adapter mocks
 - `tests/mocks/orchestrator_mocks.py` - Orchestrator mocks
 
 ## Import Block
+
 ```python
 # In test files
 import pytest
@@ -23,6 +27,7 @@ from tests.mocks.kernel_mocks import mock_kernel_state
 ```
 
 ## Minimal Implementation
+
 ```python
 # tests/conftest.py — Root fixtures
 import pytest
@@ -58,19 +63,20 @@ async def test_db_session():
 # tests/mocks/memory_mocks.py — Domain-specific mocks
 class MockSubstrateService:
     """Mock for MemorySubstrateService."""
-    
+
     def __init__(self):
         self.packets_written: list[dict] = []
-    
+
     async def write_packet(self, packet: dict) -> dict:
         self.packets_written.append(packet)
         return {"status": "ok", "packet_id": "test-id"}
-    
+
     async def search(self, query: str, limit: int = 10) -> list[dict]:
         return []
 ```
 
 ## Usage Example
+
 ```python
 # tests/memory/test_ingestion.py
 import pytest
@@ -78,34 +84,35 @@ from memory.ingestion import IngestionPipeline
 
 class TestIngestionPipeline:
     """Tests for ingestion pipeline."""
-    
+
     @pytest.mark.asyncio
     async def test_ingest_packet(self, mock_substrate_service):
         """Test packet ingestion with mock service."""
         # Arrange
         pipeline = IngestionPipeline(service=mock_substrate_service)
         packet = {"type": "test", "payload": {}}
-        
+
         # Act
         result = await pipeline.ingest(packet)
-        
+
         # Assert
         assert result["status"] == "ok"
         mock_substrate_service.write_packet.assert_called_once()
-    
+
     @pytest.mark.asyncio
     async def test_ingest_with_validation_error(self, mock_substrate_service):
         """Test validation error handling."""
         # Arrange
         mock_substrate_service.write_packet.side_effect = ValueError("Invalid")
         pipeline = IngestionPipeline(service=mock_substrate_service)
-        
+
         # Act & Assert
         with pytest.raises(ValueError):
             await pipeline.ingest({"invalid": True})
 ```
 
 ## Anti-Pattern Example
+
 ```python
 # ❌ WRONG — Inline mock (duplicates across tests)
 async def test_something():
@@ -129,6 +136,7 @@ async def test_something(mock_substrate_service):  # From conftest.py
 ```
 
 ## Directory Structure
+
 ```
 tests/
 ├── conftest.py              ← Root fixtures (ALL shared fixtures here)
@@ -144,6 +152,7 @@ tests/
 ```
 
 ## Rules
+
 1. Unit tests MUST NOT access network
 2. Shared fixtures MUST go in `tests/conftest.py`
 3. Domain mocks MUST go in `tests/mocks/`
@@ -151,13 +160,16 @@ tests/
 5. Clean up resources in fixture teardown
 
 ## AI Guidance
+
 **DO:**
+
 - Use existing fixtures from `conftest.py`
 - Add new mocks to `tests/mocks/`
 - Use `AsyncMock` for async methods
 - Include setup and teardown in fixtures
 
 **DO NOT:**
+
 - Create inline mocks (use `tests/mocks/`)
 - Access network in unit tests
 - Duplicate fixtures across test files

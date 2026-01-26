@@ -41,7 +41,6 @@ import sys
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 # Add repo root to path
 REPO_ROOT = Path(__file__).parent.parent.parent
@@ -64,7 +63,7 @@ class SignatureMismatch:
     function_name: str
     issue: str
     severity: SeverityLevel
-    fix_suggestion: Optional[str] = None
+    fix_suggestion: str | None = None
     auto_fixable: bool = False
 
 
@@ -78,9 +77,9 @@ class AuditResult:
     high_count: int = 0
     medium_count: int = 0
     low_count: int = 0
-    mismatches: List[SignatureMismatch] = field(default_factory=list)
+    mismatches: list[SignatureMismatch] = field(default_factory=list)
     fixed_count: int = 0
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
 
 # =============================================================================
@@ -129,7 +128,7 @@ class SignatureAnalyzer(ast.NodeVisitor):
     def __init__(self, filepath: str, source: str):
         self.filepath = filepath
         self.source = source
-        self.mismatches: List[SignatureMismatch] = []
+        self.mismatches: list[SignatureMismatch] = []
 
     def visit_Call(self, node: ast.Call) -> None:
         """Check function/method calls for signature issues."""
@@ -174,11 +173,11 @@ class SignatureAnalyzer(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-    def _get_func_name(self, node: ast.Call) -> Optional[str]:
+    def _get_func_name(self, node: ast.Call) -> str | None:
         """Extract function name from call node."""
         if isinstance(node.func, ast.Name):
             return node.func.id
-        elif isinstance(node.func, ast.Attribute):
+        if isinstance(node.func, ast.Attribute):
             return node.func.attr
         return None
 
@@ -226,7 +225,7 @@ class SignatureAnalyzer(ast.NodeVisitor):
         pass
 
 
-def analyze_file(filepath: Path) -> Tuple[List[SignatureMismatch], Optional[str]]:
+def analyze_file(filepath: Path) -> tuple[list[SignatureMismatch], str | None]:
     """Analyze single file for signature mismatches."""
     try:
         source = filepath.read_text(encoding="utf-8", errors="ignore")
@@ -242,7 +241,7 @@ def analyze_file(filepath: Path) -> Tuple[List[SignatureMismatch], Optional[str]
         return [], f"Error analyzing {filepath}: {e}"
 
 
-def find_value_on_get_state(filepath: Path) -> List[SignatureMismatch]:
+def find_value_on_get_state(filepath: Path) -> list[SignatureMismatch]:
     """
     Specifically find .get_state().value patterns.
     Uses regex for more reliable detection than AST for chained calls.
@@ -275,7 +274,7 @@ def find_value_on_get_state(filepath: Path) -> List[SignatureMismatch]:
     return mismatches
 
 
-def find_httpx_app_param(filepath: Path) -> List[SignatureMismatch]:
+def find_httpx_app_param(filepath: Path) -> list[SignatureMismatch]:
     """
     Find httpx AsyncClient(app=...) patterns (deprecated in 0.28+).
     """
@@ -314,8 +313,8 @@ def find_httpx_app_param(filepath: Path) -> List[SignatureMismatch]:
 
 def run_api_signature_audit(
     repo_root: Path = REPO_ROOT,
-    skip_dirs: List[str] = None,
-    skip_files: List[str] = None,
+    skip_dirs: list[str] | None = None,
+    skip_files: list[str] | None = None,
     fix: bool = False,
 ) -> AuditResult:
     """
@@ -401,13 +400,13 @@ def run_api_signature_audit(
     return result
 
 
-def auto_fix_mismatches(mismatches: List[SignatureMismatch]) -> int:
+def auto_fix_mismatches(mismatches: list[SignatureMismatch]) -> int:
     """
     Auto-fix auto-fixable mismatches.
     Returns count of fixed items.
     """
     fixed = 0
-    files_to_fix: Dict[str, List[SignatureMismatch]] = {}
+    files_to_fix: dict[str, list[SignatureMismatch]] = {}
 
     # Group by file
     for m in mismatches:
@@ -505,9 +504,7 @@ def main():
         print_report(result)
 
     # Exit code based on critical findings
-    if result.critical_count > 0:
-        sys.exit(1)
-    elif result.high_count > 0:
+    if result.critical_count > 0 or result.high_count > 0:
         sys.exit(1)
     else:
         sys.exit(0)

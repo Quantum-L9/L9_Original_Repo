@@ -37,7 +37,7 @@ __dora_meta__ = {
 
 import logging
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from world_model.interfaces import Entity, Relation, UpdateResult
 from world_model.neo4j_substrate import Neo4jConfig, Neo4jSubstrate
@@ -61,9 +61,9 @@ class SubstrateOrchestrator:
 
     def __init__(
         self,
-        postgres_config: Optional[PostgresConfig] = None,
-        neo4j_config: Optional[Neo4jConfig] = None,
-        redis_config: Optional[RedisConfig] = None,
+        postgres_config: PostgresConfig | None = None,
+        neo4j_config: Neo4jConfig | None = None,
+        redis_config: RedisConfig | None = None,
         consistency: ConsistencyMode = ConsistencyMode.EVENTUAL,
     ):
         """Initialize orchestrator.
@@ -195,7 +195,7 @@ class SubstrateOrchestrator:
         except Exception as e:
             return UpdateResult(success=False, error=f"Failed to store entity: {e}")
 
-    def get_entity(self, entity_id: str) -> Optional[Entity]:
+    def get_entity(self, entity_id: str) -> Entity | None:
         """Retrieve entity (read-aside cache).
 
         Priority: Redis → Neo4j → PostgreSQL
@@ -239,7 +239,7 @@ class SubstrateOrchestrator:
             self.logger.error(f"PostgreSQL lookup failed: {e}")
             return None
 
-    def get_all_entities(self) -> List[Entity]:
+    def get_all_entities(self) -> list[Entity]:
         """Retrieve all entities.
 
         Args:
@@ -319,7 +319,7 @@ class SubstrateOrchestrator:
         except Exception as e:
             return UpdateResult(success=False, error=f"Failed to store relation: {e}")
 
-    def get_relation(self, relation_id: str) -> Optional[Relation]:
+    def get_relation(self, relation_id: str) -> Relation | None:
         """Retrieve relation (read-aside cache).
 
         Args:
@@ -358,7 +358,7 @@ class SubstrateOrchestrator:
             self.logger.error(f"PostgreSQL lookup failed: {e}")
             return None
 
-    def get_all_relations(self) -> List[Relation]:
+    def get_all_relations(self) -> list[Relation]:
         """Retrieve all relations.
 
         Returns:
@@ -450,7 +450,7 @@ class SubstrateOrchestrator:
 
     # ========== HEALTH & DIAGNOSTICS ==========
 
-    def health_check(self) -> Dict[str, Any]:
+    def health_check(self) -> dict[str, Any]:
         """Check health of all substrates.
 
         Returns:
@@ -479,7 +479,7 @@ class SubstrateOrchestrator:
 
         return health
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get statistics from all substrates.
 
         Returns:

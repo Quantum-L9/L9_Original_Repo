@@ -78,10 +78,7 @@ def is_trash(payload: dict) -> bool:
             return True
 
     # Very short
-    if len(text) < 20:
-        return True
-
-    return False
+    return len(text) < 20
 
 
 async def find_trash_ids() -> list:

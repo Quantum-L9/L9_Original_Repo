@@ -1,7 +1,7 @@
 # Unified CodeGen System v2.0.0 - L9 Aligned
 
-**Version**: 2.0.0 (L9-Aligned)  
-**Date**: December 31, 2025  
+**Version**: 2.0.0 (L9-Aligned)
+**Date**: December 31, 2025
 **Status**: ✅ PRODUCTION READY
 
 ---
@@ -10,14 +10,14 @@
 
 ### L9 Integration (Critical Fixes)
 
-✅ **BaseAgent Inheritance** - Generated agents now inherit from `agents.base_agent.BaseAgent`  
-✅ **PacketEnvelope v2.0.0** - All responses use `core.schemas.PacketEnvelope`  
-✅ **Absolute L9 Imports** - Uses absolute imports from L9 repo root  
-✅ **Rate Limiting** - Includes `@rate_limit` decorators from `core.governance.rate_limit_policy`  
-✅ **Retry Logic** - Includes `@async_retry` decorators from `core.resilience.retry`  
-✅ **Tool Registry** - Generates tool YAML configs for Neo4j registry  
-✅ **Memory Integration** - Optional `MemoryClient` integration  
-✅ **DORA Metadata** - Matches L9's `__dora_meta__` format  
+✅ **BaseAgent Inheritance** - Generated agents now inherit from `agents.base_agent.BaseAgent`
+✅ **PacketEnvelope v2.0.0** - All responses use `core.schemas.PacketEnvelope`
+✅ **Absolute L9 Imports** - Uses absolute imports from L9 repo root
+✅ **Rate Limiting** - Includes `@rate_limit` decorators from `core.governance.rate_limit_policy`
+✅ **Retry Logic** - Includes `@async_retry` decorators from `core.resilience.retry`
+✅ **Tool Registry** - Generates tool YAML configs for Neo4j registry
+✅ **Memory Integration** - Optional `MemoryClient` integration
+✅ **DORA Metadata** - Matches L9's `__dora_meta__` format
 
 ---
 
@@ -190,7 +190,7 @@ print(response.structured_output)
 class MyOrchestrator:
     def __init__(self):
         self.logger = get_logger(__name__)
-    
+
     async def process(self, request):
         return {"result": "..."}
 ```
@@ -202,10 +202,10 @@ from agents.base_agent import BaseAgent, AgentConfig, AgentResponse, AgentRole
 class MyAgent(BaseAgent):
     agent_role = AgentRole.REFLECTION
     agent_name = "my_agent"
-    
+
     def get_system_prompt(self) -> str:
         return "You are MyAgent..."
-    
+
     async def run(self, task: dict, context: Optional[dict] = None) -> AgentResponse:
         # Implementation
         return AgentResponse(
@@ -523,16 +523,16 @@ Apache 2.0
 
 **Unified CodeGen System v2.0.0** is fully aligned with L9 AIOS and ready for production use.
 
-✅ **ONE unified system** consolidating 11 existing systems  
-✅ **L9-integrated** (BaseAgent, PacketEnvelope, rate limiting, retry logic)  
-✅ **Research-powered** (Perplexity Labs for gap-filling)  
-✅ **Production-ready** (async, type-hinted, tested, documented)  
-✅ **Deterministic** (90% automated code generation)  
+✅ **ONE unified system** consolidating 11 existing systems
+✅ **L9-integrated** (BaseAgent, PacketEnvelope, rate limiting, retry logic)
+✅ **Research-powered** (Perplexity Labs for gap-filling)
+✅ **Production-ready** (async, type-hinted, tested, documented)
+✅ **Deterministic** (90% automated code generation)
 
 **Ready to generate amazing L9-integrated agents!** 🚀
 
 ---
 
-**Version**: 2.0.0 (L9-Aligned)  
-**Date**: December 31, 2025  
+**Version**: 2.0.0 (L9-Aligned)
+**Date**: December 31, 2025
 **Status**: ✅ PRODUCTION READY

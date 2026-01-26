@@ -2,7 +2,7 @@
 # L9 Production Dependencies (Docker/K8s)
 # =============================================================================
 # Generated: 2026-01-25
-# 
+#
 # This file contains ALL production dependencies needed for L9 API and MCP Memory.
 # Excludes: Development tools (pytest, ruff, mypy), Mac-only packages (playwright)
 #

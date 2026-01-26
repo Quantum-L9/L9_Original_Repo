@@ -29,136 +29,184 @@ Version: 1.0.0 (production)
 """
 
 from world_model.causal_graph import CausalGraph
-from world_model.causal_mapper import (CausalEdge,  # v1.2.0 additions
-                                       CausalLink, CausalMapper, CausalNode,
-                                       CausalPath, CausalQuery,
-                                       CausalQueryResult, CausalRelationType,
-                                       CausalStrength, Decision, Outcome)
+from world_model.causal_mapper import (  # v1.2.0 additions
+    CausalEdge,
+    CausalLink,
+    CausalMapper,
+    CausalNode,
+    CausalPath,
+    CausalQuery,
+    CausalQueryResult,
+    CausalRelationType,
+    CausalStrength,
+    Decision,
+    Outcome,
+)
+
 # Async singleton (v1.2.0)
 # Core components
-from world_model.engine import (WorldModelEngine, get_world_model_engine,
-                                init_world_model_engine,
-                                reset_world_model_engine)
-from world_model.interfaces import (IWorldModelEngine, IWorldModelState,
-                                    IWorldModelUpdater)
-from world_model.knowledge_ingestor import (ExtractedFact, IngestorConfig,
-                                            IngestResult, KnowledgeIngestor,
-                                            NormalizedHeuristic,
-                                            NormalizedPattern, SourceType)
+from world_model.engine import (
+    WorldModelEngine,
+    get_world_model_engine,
+    init_world_model_engine,
+    reset_world_model_engine,
+)
+from world_model.interfaces import (
+    IWorldModelEngine,
+    IWorldModelState,
+    IWorldModelUpdater,
+)
+from world_model.knowledge_ingestor import (
+    ExtractedFact,
+    IngestorConfig,
+    IngestResult,
+    KnowledgeIngestor,
+    NormalizedHeuristic,
+    NormalizedPattern,
+    SourceType,
+)
 from world_model.loader import WorldModelLoader
+
 # LangGraph nodes (v1.0.0+)
-from world_model.nodes import (WorldModelGraphState, WorldModelNodeState,
-                               update_world_model_node, world_model_query_node,
-                               world_model_service_update_node,
-                               world_model_snapshot_node)
+from world_model.nodes import (
+    WorldModelGraphState,
+    WorldModelNodeState,
+    update_world_model_node,
+    world_model_query_node,
+    world_model_service_update_node,
+    world_model_snapshot_node,
+)
 from world_model.query_engine import QueryContext, QueryEngine
-from world_model.reflection_memory import (Improvement,  # v1.2.0 additions
-                                           Pattern, Reflection,
-                                           ReflectionMemory,
-                                           ReflectionPriority, ReflectionType,
-                                           TaskReflection)
+from world_model.reflection_memory import (  # v1.2.0 additions
+    Improvement,
+    Pattern,
+    Reflection,
+    ReflectionMemory,
+    ReflectionPriority,
+    ReflectionType,
+    TaskReflection,
+)
 from world_model.registry import WorldModelRegistry
+
 # Database persistence (v1.0.0+)
-from world_model.repository import (WorldModelEntityRow, WorldModelRepository,
-                                    WorldModelSnapshotRow, WorldModelUpdateRow,
-                                    get_world_model_repository)
+from world_model.repository import (
+    WorldModelEntityRow,
+    WorldModelRepository,
+    WorldModelSnapshotRow,
+    WorldModelUpdateRow,
+    get_world_model_repository,
+)
+
 # IR Engine integration (v2.0.0+)
-from world_model.runtime import (MemorySubstratePacketSource, PacketSource,
-                                 QueryPattern, RuntimeConfig, RuntimeMode,
-                                 RuntimeStats, SimulationVariant, UpdateRecord,
-                                 WorldModelRuntime)
+from world_model.runtime import (
+    MemorySubstratePacketSource,
+    PacketSource,
+    QueryPattern,
+    RuntimeConfig,
+    RuntimeMode,
+    RuntimeStats,
+    SimulationVariant,
+    UpdateRecord,
+    WorldModelRuntime,
+)
+
 # Service layer (v1.0.0+)
 from world_model.service import WorldModelService, get_world_model_service
 from world_model.state import Entity, Relation, WorldModelState
 from world_model.updater import WorldModelUpdater
+
 # Service API layer (v2.0.0+)
-from world_model.world_model_service import (ConstraintSet, HeuristicMatch,
-                                             PatternMatch, WorldContext,
-                                             WorldModelServiceAPI,
-                                             get_world_model_service_api,
-                                             reset_world_model_service_api)
+from world_model.world_model_service import (
+    ConstraintSet,
+    HeuristicMatch,
+    PatternMatch,
+    WorldContext,
+    WorldModelServiceAPI,
+    get_world_model_service_api,
+    reset_world_model_service_api,
+)
 
 __all__ = [
-    # Core
-    "WorldModelEngine",
-    "get_world_model_engine",
-    "init_world_model_engine",
-    "reset_world_model_engine",
-    "WorldModelState",
-    "Entity",
-    "Relation",
+    "CausalEdge",
     "CausalGraph",
-    "WorldModelRegistry",
-    "WorldModelLoader",
-    "WorldModelUpdater",
-    "QueryEngine",
-    "QueryContext",
-    # Interfaces
-    "IWorldModelEngine",
-    "IWorldModelState",
-    "IWorldModelUpdater",
-    # Repository
-    "WorldModelRepository",
-    "WorldModelEntityRow",
-    "WorldModelUpdateRow",
-    "WorldModelSnapshotRow",
-    "get_world_model_repository",
-    # Service
-    "WorldModelService",
-    "get_world_model_service",
-    # Service API (v2.0.0+)
-    "WorldModelServiceAPI",
-    "get_world_model_service_api",
-    "reset_world_model_service_api",
-    "WorldContext",
-    "ConstraintSet",
-    "PatternMatch",
-    "HeuristicMatch",
-    # LangGraph Nodes
-    "update_world_model_node",
-    "world_model_service_update_node",
-    "world_model_snapshot_node",
-    "world_model_query_node",
-    "WorldModelGraphState",
-    "WorldModelNodeState",
-    # Runtime (v2.0.0+)
-    "WorldModelRuntime",
-    "RuntimeConfig",
-    "RuntimeMode",
-    "UpdateRecord",
-    "RuntimeStats",
-    "PacketSource",
-    "MemorySubstratePacketSource",
-    "QueryPattern",
-    "SimulationVariant",
-    # Knowledge Ingestor (v2.0.0+)
-    "KnowledgeIngestor",
-    "IngestorConfig",
-    "IngestResult",
-    "SourceType",
-    "ExtractedFact",
-    "NormalizedPattern",
-    "NormalizedHeuristic",
+    "CausalLink",
     # Causal Mapper (v2.0.0+)
     "CausalMapper",
     "CausalNode",
-    "CausalEdge",
     "CausalPath",
     "CausalQuery",
     "CausalQueryResult",
     "CausalRelationType",
     "CausalStrength",
+    "ConstraintSet",
     "Decision",
+    "Entity",
+    "ExtractedFact",
+    "HeuristicMatch",
+    # Interfaces
+    "IWorldModelEngine",
+    "IWorldModelState",
+    "IWorldModelUpdater",
+    "Improvement",
+    "IngestResult",
+    "IngestorConfig",
+    # Knowledge Ingestor (v2.0.0+)
+    "KnowledgeIngestor",
+    "MemorySubstratePacketSource",
+    "NormalizedHeuristic",
+    "NormalizedPattern",
     "Outcome",
-    "CausalLink",
+    "PacketSource",
+    "Pattern",
+    "PatternMatch",
+    "QueryContext",
+    "QueryEngine",
+    "QueryPattern",
+    "Reflection",
     # Reflection Memory (v2.0.0+)
     "ReflectionMemory",
-    "Reflection",
-    "ReflectionType",
     "ReflectionPriority",
-    "Pattern",
-    "Improvement",
+    "ReflectionType",
+    "Relation",
+    "RuntimeConfig",
+    "RuntimeMode",
+    "RuntimeStats",
+    "SimulationVariant",
+    "SourceType",
     "TaskReflection",
+    "UpdateRecord",
+    "WorldContext",
+    # Core
+    "WorldModelEngine",
+    "WorldModelEntityRow",
+    "WorldModelGraphState",
+    "WorldModelLoader",
+    "WorldModelNodeState",
+    "WorldModelRegistry",
+    # Repository
+    "WorldModelRepository",
+    # Runtime (v2.0.0+)
+    "WorldModelRuntime",
+    # Service
+    "WorldModelService",
+    # Service API (v2.0.0+)
+    "WorldModelServiceAPI",
+    "WorldModelSnapshotRow",
+    "WorldModelState",
+    "WorldModelUpdateRow",
+    "WorldModelUpdater",
+    "get_world_model_engine",
+    "get_world_model_repository",
+    "get_world_model_service",
+    "get_world_model_service_api",
+    "init_world_model_engine",
+    "reset_world_model_engine",
+    "reset_world_model_service_api",
+    # LangGraph Nodes
+    "update_world_model_node",
+    "world_model_query_node",
+    "world_model_service_update_node",
+    "world_model_snapshot_node",
 ]
 
 __version__ = "2.0.0"

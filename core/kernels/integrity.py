@@ -53,7 +53,6 @@ import json
 from datetime import datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import structlog
 
@@ -90,12 +89,12 @@ def hash_file(path: Path) -> str:
             for chunk in iter(lambda: f.read(8192), b""):
                 h.update(chunk)
         return h.hexdigest()
-    except (IOError, OSError) as e:
+    except OSError as e:
         logger.error(f"Failed to hash file {path}: {e}")
         raise
 
 
-def compute_kernel_hashes(base_path: str = "private") -> Dict[str, str]:
+def compute_kernel_hashes(base_path: str = "private") -> dict[str, str]:
     """
     Compute hashes for all kernel YAML files in a directory tree.
 
@@ -106,7 +105,7 @@ def compute_kernel_hashes(base_path: str = "private") -> Dict[str, str]:
         Dict mapping file paths (relative) to their hashes
     """
     base = Path(base_path)
-    hashes: Dict[str, str] = {}
+    hashes: dict[str, str] = {}
 
     if not base.exists():
         logger.warning(f"Kernel base path does not exist: {base}")
@@ -130,7 +129,7 @@ def compute_kernel_hashes(base_path: str = "private") -> Dict[str, str]:
 
 
 @lru_cache(maxsize=8)
-def _load_kernel_hashes_cached(hash_file: Path) -> Dict[str, str]:
+def _load_kernel_hashes_cached(hash_file: Path) -> dict[str, str]:
     """Internal cached implementation."""
     if not hash_file.exists():
         logger.info(f"No stored kernel hashes found at {hash_file}")
@@ -139,12 +138,12 @@ def _load_kernel_hashes_cached(hash_file: Path) -> Dict[str, str]:
     try:
         data = json.loads(hash_file.read_text())
         return data.get("hashes", {})
-    except (json.JSONDecodeError, IOError) as e:
+    except (OSError, json.JSONDecodeError) as e:
         logger.error(f"Failed to load kernel hashes: {e}")
         return {}
 
 
-def load_kernel_hashes(hash_file: Optional[Path] = None) -> Dict[str, str]:
+def load_kernel_hashes(hash_file: Path | None = None) -> dict[str, str]:
     """
     Load stored kernel hashes from file. CACHED.
 
@@ -161,8 +160,8 @@ def load_kernel_hashes(hash_file: Optional[Path] = None) -> Dict[str, str]:
 
 
 def save_kernel_hashes(
-    hashes: Dict[str, str],
-    hash_file: Optional[Path] = None,
+    hashes: dict[str, str],
+    hash_file: Path | None = None,
 ) -> None:
     """
     Save kernel hashes to file.
@@ -186,7 +185,7 @@ def save_kernel_hashes(
     try:
         hash_file.write_text(json.dumps(data, indent=2))
         logger.info(f"Saved {len(hashes)} kernel hashes to {hash_file}")
-    except (IOError, OSError) as e:
+    except OSError as e:
         logger.error(f"Failed to save kernel hashes: {e}")
         raise
 
@@ -207,8 +206,8 @@ class IntegrityChange:
         self,
         path: str,
         change_type: str,
-        old_hash: Optional[str] = None,
-        new_hash: Optional[str] = None,
+        old_hash: str | None = None,
+        new_hash: str | None = None,
     ):
         self.path = path
         self.change_type = change_type
@@ -222,7 +221,7 @@ class IntegrityChange:
 def check_kernel_integrity(
     base_path: str = "private",
     auto_update: bool = True,
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Check integrity of kernel files against stored hashes.
 
@@ -241,7 +240,7 @@ def check_kernel_integrity(
     existing = load_kernel_hashes()
     current = compute_kernel_hashes(base_path)
 
-    changes: Dict[str, str] = {}
+    changes: dict[str, str] = {}
 
     # Check for new and modified files
     for path, current_hash in current.items():
@@ -278,7 +277,7 @@ def check_kernel_integrity(
     return changes
 
 
-def get_detailed_changes(base_path: str = "private") -> List[IntegrityChange]:
+def get_detailed_changes(base_path: str = "private") -> list[IntegrityChange]:
     """
     Get detailed change information for kernel files.
 
@@ -291,7 +290,7 @@ def get_detailed_changes(base_path: str = "private") -> List[IntegrityChange]:
     existing = load_kernel_hashes()
     current = compute_kernel_hashes(base_path)
 
-    changes: List[IntegrityChange] = []
+    changes: list[IntegrityChange] = []
 
     # Check for new and modified files
     for path, current_hash in current.items():
@@ -329,7 +328,7 @@ def get_detailed_changes(base_path: str = "private") -> List[IntegrityChange]:
     return changes
 
 
-def verify_specific_file(file_path: str) -> Tuple[bool, Optional[str]]:
+def verify_specific_file(file_path: str) -> tuple[bool, str | None]:
     """
     Verify a specific kernel file against stored hash.
 
@@ -359,11 +358,10 @@ def verify_specific_file(file_path: str) -> Tuple[bool, Optional[str]]:
 
     if current_hash == stored_hash:
         return True, "Hash matches"
-    else:
-        return (
-            False,
-            f"Hash mismatch: expected {stored_hash[:16]}..., got {current_hash[:16]}...",
-        )
+    return (
+        False,
+        f"Hash mismatch: expected {stored_hash[:16]}..., got {current_hash[:16]}...",
+    )
 
 
 # =============================================================================
@@ -404,16 +402,16 @@ def initialize_kernel_hashes(base_path: str = "private", force: bool = False) ->
 # =============================================================================
 
 __all__ = [
-    "hash_file",
+    "KERNEL_HASH_FILE",
+    "IntegrityChange",
+    "check_kernel_integrity",
     "compute_kernel_hashes",
+    "get_detailed_changes",
+    "hash_file",
+    "initialize_kernel_hashes",
     "load_kernel_hashes",
     "save_kernel_hashes",
-    "check_kernel_integrity",
-    "get_detailed_changes",
     "verify_specific_file",
-    "initialize_kernel_hashes",
-    "IntegrityChange",
-    "KERNEL_HASH_FILE",
 ]
 
 # ============================================================================

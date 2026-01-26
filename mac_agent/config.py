@@ -26,7 +26,6 @@ __dora_meta__ = {
 
 import os
 from pathlib import Path
-from typing import Optional
 
 import structlog
 import yaml
@@ -48,7 +47,7 @@ class MacAgentConfig:
         config_path = Path(__file__).parent / "config.yaml"
         if config_path.exists():
             try:
-                with open(config_path, "r") as f:
+                with open(config_path) as f:
                     config_data = yaml.safe_load(f) or {}
 
                 # Override with config.yaml values if present
@@ -83,7 +82,7 @@ class MacAgentConfig:
 
 
 # Singleton instance
-_config: Optional[MacAgentConfig] = None
+_config: MacAgentConfig | None = None
 
 
 def get_config() -> MacAgentConfig:

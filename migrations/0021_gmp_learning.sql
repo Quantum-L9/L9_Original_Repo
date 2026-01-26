@@ -32,19 +32,19 @@ CREATE TABLE IF NOT EXISTS gmp_execution_history (
 );
 
 -- Indexes for gmp_execution_history
-CREATE INDEX IF NOT EXISTS idx_gmp_execution_gmp_id 
+CREATE INDEX IF NOT EXISTS idx_gmp_execution_gmp_id
     ON gmp_execution_history(gmp_id);
 
-CREATE INDEX IF NOT EXISTS idx_gmp_execution_task_type 
+CREATE INDEX IF NOT EXISTS idx_gmp_execution_task_type
     ON gmp_execution_history(task_type);
 
-CREATE INDEX IF NOT EXISTS idx_gmp_execution_created_at 
+CREATE INDEX IF NOT EXISTS idx_gmp_execution_created_at
     ON gmp_execution_history(created_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_gmp_execution_task_type_confidence 
+CREATE INDEX IF NOT EXISTS idx_gmp_execution_task_type_confidence
     ON gmp_execution_history(task_type, final_confidence);
 
-CREATE INDEX IF NOT EXISTS idx_gmp_execution_error_analysis 
+CREATE INDEX IF NOT EXISTS idx_gmp_execution_error_analysis
     ON gmp_execution_history(error_count, created_at DESC);
 
 -- ============================================================================
@@ -65,18 +65,18 @@ CREATE TABLE IF NOT EXISTS learned_heuristics (
 );
 
 -- Indexes for learned_heuristics
-CREATE INDEX IF NOT EXISTS idx_heuristics_heuristic_id 
+CREATE INDEX IF NOT EXISTS idx_heuristics_heuristic_id
     ON learned_heuristics(heuristic_id);
 
-CREATE INDEX IF NOT EXISTS idx_heuristics_confidence 
-    ON learned_heuristics(confidence DESC) 
+CREATE INDEX IF NOT EXISTS idx_heuristics_confidence
+    ON learned_heuristics(confidence DESC)
     WHERE active = TRUE;
 
-CREATE INDEX IF NOT EXISTS idx_heuristics_generated_date 
+CREATE INDEX IF NOT EXISTS idx_heuristics_generated_date
     ON learned_heuristics(generated_date DESC);
 
-CREATE INDEX IF NOT EXISTS idx_heuristics_active 
-    ON learned_heuristics(active) 
+CREATE INDEX IF NOT EXISTS idx_heuristics_active
+    ON learned_heuristics(active)
     WHERE active = TRUE;
 
 -- ============================================================================
@@ -138,14 +138,14 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'gmp_execution_history') THEN
         RAISE EXCEPTION 'Table gmp_execution_history was not created';
     END IF;
-    
+
     IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'learned_heuristics') THEN
         RAISE EXCEPTION 'Table learned_heuristics was not created';
     END IF;
-    
+
     IF NOT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'autonomy_graduation_metrics') THEN
         RAISE EXCEPTION 'Table autonomy_graduation_metrics was not created';
     END IF;
-    
+
     RAISE NOTICE 'Migration 0021_gmp_learning.sql completed successfully';
 END $$;

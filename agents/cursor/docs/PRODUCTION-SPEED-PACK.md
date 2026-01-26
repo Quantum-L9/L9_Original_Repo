@@ -27,9 +27,9 @@ summary: >
   performance optimization strategies, and debugging approaches. Extracted from
   CursorPreferencePack to accelerate development velocity while maintaining quality.
 business_value: "Accelerates development with production-ready templates"
-
 # === LEGACY METADATA (preserved) ===
-tags: ["production", "templates", "patterns", "performance", "debugging", "speed"]
+tags:
+  ["production", "templates", "patterns", "performance", "debugging", "speed"]
 production_ready: true
 ---
 
@@ -71,14 +71,14 @@ async def create_resource(
 ) -> ResourceResponse:
     """
     Create a new resource.
-    
+
     Args:
         resource: Resource creation data
         db: Database session
-        
+
     Returns:
         Created resource with ID and timestamp
-        
+
     Raises:
         HTTPException: 400 if validation fails, 500 if database error
     """
@@ -160,7 +160,7 @@ CREATE TABLE resources (
     status VARCHAR(50) NOT NULL DEFAULT 'active',
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    
+
     CONSTRAINT resources_status_check CHECK (status IN ('active', 'inactive', 'archived'))
 );
 
@@ -200,15 +200,15 @@ def process_order(order):
         raise ValueError("Empty order")
     if order.total < 0:
         raise ValueError("Negative total")
-    
+
     # Calculate
     subtotal = sum(item.price * item.quantity for item in order.items)
     tax = subtotal * 0.08
     total = subtotal + tax
-    
+
     # Save
     db.save(order)
-    
+
 # After
 def process_order(order):
     validate_order(order)
@@ -306,8 +306,9 @@ def calculate_discount(total):
 ### 1. Database Optimization
 
 **A. Query Optimization Checklist**
+
 - ✅ Use indexes for WHERE, JOIN, ORDER BY columns
-- ✅ Avoid SELECT *, specify needed columns
+- ✅ Avoid SELECT \*, specify needed columns
 - ✅ Use EXPLAIN ANALYZE to identify slow queries
 - ✅ Batch inserts/updates (use bulk operations)
 - ✅ Use connection pooling
@@ -344,10 +345,10 @@ redis_client = redis.Redis(host='localhost', port=6379)
 async def get_user(user_id: int):
     cache_key = f"user:{user_id}"
     cached = redis_client.get(cache_key)
-    
+
     if cached:
         return json.loads(cached)
-    
+
     user = await db.query(User).filter_by(id=user_id).first()
     redis_client.setex(cache_key, 3600, json.dumps(user.to_dict()))
     return user
@@ -372,7 +373,7 @@ export const DataProcessor = ({ items }) => {
   const processedData = useMemo(() => {
     return items.map(item => expensiveTransform(item));
   }, [items]);
-  
+
   return <div>{processedData}</div>;
 };
 
@@ -381,7 +382,7 @@ export const ParentComponent = () => {
   const handleClick = useCallback((id: number) => {
     console.log(`Clicked ${id}`);
   }, []);
-  
+
   return <ChildComponent onClick={handleClick} />;
 };
 ```
@@ -393,6 +394,7 @@ export const ParentComponent = () => {
 ### 1. Systematic Debugging Approach
 
 **A. 5-Step Process**
+
 1. Reproduce the issue consistently
 2. Isolate the problem (binary search through code)
 3. Form hypothesis about root cause
@@ -436,7 +438,7 @@ class PaymentError(Exception):
         self.amount = amount
         self.provider = provider
         super().__init__(self.message)
-    
+
     def to_dict(self):
         return {
             "error": self.message,
@@ -487,7 +489,7 @@ async def increment():
 class DataProcessor:
     def __init__(self):
         self.listeners = []
-    
+
     def add_listener(self, listener):
         self.listeners.append(listener)
 
@@ -495,13 +497,13 @@ class DataProcessor:
 class DataProcessor:
     def __init__(self):
         self.listeners = []
-    
+
     def add_listener(self, listener):
         self.listeners.append(listener)
-    
+
     def remove_listener(self, listener):
         self.listeners.remove(listener)
-    
+
     def __del__(self):
         self.listeners.clear()
 ```
@@ -524,6 +526,7 @@ DELETE /api/v1/resources/{id}     # Delete resource
 ### 2. Response Format
 
 **Success Response**
+
 ```json
 {
   "data": {
@@ -539,6 +542,7 @@ DELETE /api/v1/resources/{id}     # Delete resource
 ```
 
 **Error Response**
+
 ```json
 {
   "error": {
@@ -565,6 +569,7 @@ DELETE /api/v1/resources/{id}     # Delete resource
 ### Before Deployment
 
 **Code Quality**
+
 - ✅ All functions have type hints
 - ✅ All functions have docstrings
 - ✅ All external calls have error handling
@@ -573,12 +578,14 @@ DELETE /api/v1/resources/{id}     # Delete resource
 - ✅ No placeholder comments
 
 **Performance**
+
 - ✅ Database queries use indexes
 - ✅ No N+1 query patterns
 - ✅ Caching implemented where appropriate
 - ✅ Connection pooling configured
 
 **Security**
+
 - ✅ All secrets in environment variables
 - ✅ All user inputs sanitized
 - ✅ Parameterized queries (no SQL injection)
@@ -586,6 +593,7 @@ DELETE /api/v1/resources/{id}     # Delete resource
 - ✅ HTTPS only
 
 **Testing**
+
 - ✅ Unit tests passing
 - ✅ Integration tests passing
 - ✅ Edge cases covered
@@ -596,6 +604,7 @@ DELETE /api/v1/resources/{id}     # Delete resource
 ## G. Quick Reference
 
 ### Refactoring Triggers
+
 - Function > 50 lines → Extract function
 - Duplicate code in 3+ places → Create reusable function
 - Nested conditionals > 3 levels → Strategy pattern or early returns
@@ -603,7 +612,8 @@ DELETE /api/v1/resources/{id}     # Delete resource
 - Long parameter lists (>4 params) → Use objects/dataclasses
 
 ### Performance Red Flags
-- SELECT * queries
+
+- SELECT \* queries
 - Missing indexes on foreign keys
 - N+1 query patterns
 - No connection pooling
@@ -611,6 +621,7 @@ DELETE /api/v1/resources/{id}     # Delete resource
 - Memory leaks (unclosed connections, unremoved listeners)
 
 ### Security Red Flags
+
 - Hardcoded credentials
 - Unsanitized user inputs
 - String concatenation in SQL queries
@@ -620,7 +631,6 @@ DELETE /api/v1/resources/{id}     # Delete resource
 
 ---
 
-**Last Updated**: 2025-11-07  
-**Source**: CursorPreferencePack.md  
+**Last Updated**: 2025-11-07
+**Source**: CursorPreferencePack.md
 **Confidence**: 0.95
-

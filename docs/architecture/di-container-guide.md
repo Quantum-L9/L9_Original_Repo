@@ -1,8 +1,8 @@
 # L9 Dependency Injection Container Guide
 
-**Version:** 1.0.0  
-**GMP:** di-dip-phase1-phase2  
-**Quality:** Top Frontier AI Lab - Enterprise Production-Ready  
+**Version:** 1.0.0
+**GMP:** di-dip-phase1-phase2
+**Quality:** Top Frontier AI Lab - Enterprise Production-Ready
 **Author:** L9 DI/DIP Upgrade Team
 
 ---
@@ -142,7 +142,7 @@ from typing import Protocol, runtime_checkable
 @runtime_checkable
 class CacheClient(Protocol):
     """Cache client protocol."""
-    
+
     def get(self, key: str) -> Optional[str]: ...
     def set(self, key: str, value: str, ttl: Optional[int] = None) -> bool: ...
 ```
@@ -152,13 +152,13 @@ class CacheClient(Protocol):
 ```python
 class RedisClient:
     """Redis implementation of CacheClient protocol."""
-    
+
     def __init__(self):
         self.client = redis.Redis()
-    
+
     def get(self, key: str) -> Optional[str]:
         return self.client.get(key)
-    
+
     def set(self, key: str, value: str, ttl: Optional[int] = None) -> bool:
         return self.client.set(key, value, ex=ttl)
 
@@ -329,10 +329,10 @@ from core.di.container import DIContainer
 class MockCacheClient:
     def __init__(self):
         self.data = {}
-    
+
     def get(self, key: str) -> Optional[str]:
         return self.data.get(key)
-    
+
     def set(self, key: str, value: str, ttl: Optional[int] = None) -> bool:
         self.data[key] = value
         return True
@@ -347,7 +347,7 @@ def container():
 def test_memory_service(container):
     """Test memory service with mock cache."""
     service = container.resolve(MemoryService)
-    
+
     # Test with mock (no Redis required!)
     service.cache.set("test", "value")
     assert service.cache.get("test") == "value"
@@ -359,10 +359,10 @@ def test_memory_service(container):
 def test_integration_with_real_redis():
     """Integration test with real Redis."""
     container = DIContainer()
-    
+
     # Use real implementations
     container.bind_singleton(CacheClient, lambda: RedisClient())
-    
+
     service = container.resolve(MemoryService)
     # Test with real Redis
 ```
@@ -469,22 +469,22 @@ for t in threads:
 
 ### "No binding registered for X"
 
-**Cause:** Forgot to register binding.  
+**Cause:** Forgot to register binding.
 **Fix:** Add `container.bind_singleton(X, factory)` before resolution.
 
 ### "Circular dependency detected"
 
-**Cause:** A → B → A dependency cycle.  
+**Cause:** A → B → A dependency cycle.
 **Fix:** Use factory pattern or lazy initialization to break cycle.
 
 ### "Failed to resolve X"
 
-**Cause:** Factory function raised exception.  
+**Cause:** Factory function raised exception.
 **Fix:** Check factory implementation and dependencies.
 
 ### Type hints not working
 
-**Cause:** Missing type annotations in constructor.  
+**Cause:** Missing type annotations in constructor.
 **Fix:** Add type hints: `def __init__(self, cache: CacheClient):`
 
 ---
@@ -500,31 +500,31 @@ from core.abstractions import *
 def configure_container():
     """Configure DI container at application startup."""
     container = get_di_container()
-    
+
     # Core infrastructure
     container.bind_singleton(CacheClient, lambda: RedisClient())
     container.bind_singleton(GraphClient, lambda: Neo4jClient())
     container.bind_singleton(VectorStore, lambda: PgVectorStore())
-    
+
     # Memory subsystem
     container.bind_singleton(MemoryRepository, MemorySubstrateRepository)
     container.bind_singleton(IngestionPipeline, StandardIngestionPipeline)
     container.bind_singleton(RetrievalStrategy, HybridRetrievalStrategy)
-    
+
     # Observability
     container.bind_singleton(SpanEmitter, JaegerSpanEmitter)
     container.bind_singleton(MetricsCollector, PrometheusMetricsCollector)
-    
+
     # Agents
     container.bind_singleton(AgentRegistry, InMemoryAgentRegistry)
     container.bind_singleton(AgentOrchestrator, StandardOrchestrator)
-    
+
     return container
 
 # Application startup
 if __name__ == "__main__":
     container = configure_container()
-    
+
     # Resolve application
     app = container.resolve(Application)
     app.run()

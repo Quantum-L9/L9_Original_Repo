@@ -35,7 +35,7 @@ __dora_meta__ = {
 import asyncio
 from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import structlog
 
@@ -55,18 +55,18 @@ class ObservabilityService:
 
     def __init__(
         self,
-        config: Optional[ObservabilitySettings] = None,
-        substrate_service: Optional[Any] = None,
+        config: ObservabilitySettings | None = None,
+        substrate_service: Any | None = None,
     ):
         """Initialize observability service."""
         self.config = config or load_config()
         self.substrate_service = substrate_service
-        self.spans: List[Span] = []
-        self.failures: List[FailureSignal] = []
-        self.exporters: List[Any] = []
-        self._trace_context: Optional[TraceContext] = None
-        self._prometheus_exporter: Optional[Any] = None
-        self._jaeger_exporter: Optional[Any] = None
+        self.spans: list[Span] = []
+        self.failures: list[FailureSignal] = []
+        self.exporters: list[Any] = []
+        self._trace_context: TraceContext | None = None
+        self._prometheus_exporter: Any | None = None
+        self._jaeger_exporter: Any | None = None
         self._setup_logging()
         logger.info(
             "ObservabilityService initialized",
@@ -96,8 +96,7 @@ class ObservabilityService:
     @must_stay_async("callers use await")
     async def initialize_exporters(self) -> None:
         """Initialize configured exporters."""
-        from .exporters import (ConsoleExporter, JSONFileExporter,
-                                SubstrateExporter)
+        from .exporters import ConsoleExporter, JSONFileExporter, SubstrateExporter
         from .jaeger_exporter import initialize_jaeger_exporter
         from .prometheus_exporter import initialize_exporter
 
@@ -183,8 +182,7 @@ class ObservabilityService:
                 )
 
                 # Record specialized span types
-                from .models import (ContextAssemblySpan, LLMGenerationSpan,
-                                     ToolCallSpan)
+                from .models import ContextAssemblySpan, LLMGenerationSpan, ToolCallSpan
 
                 if isinstance(span, LLMGenerationSpan):
                     self._prometheus_exporter.record_llm_call(
@@ -218,7 +216,7 @@ class ObservabilityService:
                 logger.error(f"Export failed: {exc}")
 
     @must_stay_async("callers use await")
-    async def compute_metrics(self) -> Dict[str, Any]:
+    async def compute_metrics(self) -> dict[str, Any]:
         """Compute SRE metrics from recent spans."""
         if not self.spans:
             return {
@@ -286,7 +284,7 @@ class ObservabilityService:
                 logger.debug(f"Failed to update agent KPI for {agent_name}: {exc}")
 
     @must_stay_async("callers use await")
-    async def detect_failures(self) -> List[FailureSignal]:
+    async def detect_failures(self) -> list[FailureSignal]:
         """Detect failures from recent spans."""
         signals = []
 
@@ -377,8 +375,8 @@ class ObservabilityService:
 
 
 async def initialize_observability(
-    config: Optional[ObservabilitySettings] = None,
-    substrate_service: Optional[Any] = None,
+    config: ObservabilitySettings | None = None,
+    substrate_service: Any | None = None,
 ) -> ObservabilityService:
     """
     Initialize and return global observability service.
@@ -395,7 +393,7 @@ async def initialize_observability(
     return service
 
 
-def get_observability_service() -> Optional[ObservabilityService]:
+def get_observability_service() -> ObservabilityService | None:
     """
     Get the global observability service instance.
 

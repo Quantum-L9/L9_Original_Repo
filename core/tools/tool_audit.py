@@ -41,6 +41,8 @@ import structlog
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
 
+import contextlib
+
 from core.decorators import must_stay_async
 from services.tool_feedback_service import (
     ToolFeedbackEntry,
@@ -122,10 +124,8 @@ class ToolAuditService:
         """Stop background flush"""
         if self._flush_task:
             self._flush_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._flush_task
-            except asyncio.CancelledError:
-                pass
         await self.flush()
         logger.info("Tool audit service stopped")
 

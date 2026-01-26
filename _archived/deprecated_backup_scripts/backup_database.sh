@@ -111,16 +111,16 @@ log_step() {
 send_slack_notification() {
     local status="$1"
     local message="$2"
-    
+
     if [[ -z "$SLACK_WEBHOOK" ]]; then
         return 0
     fi
-    
+
     local color="good"
     if [[ "$status" == "failure" ]]; then
         color="danger"
     fi
-    
+
     curl -s -X POST "$SLACK_WEBHOOK" \
         -H 'Content-Type: application/json' \
         -d "{
@@ -154,17 +154,17 @@ notify_failure() {
 
 check_prerequisites() {
     log_step "Checking Prerequisites"
-    
+
     # Check if running locally or remotely
     if [[ "${LOCAL_MODE:-false}" == "true" ]]; then
         log_info "Running in local mode"
-        
+
         # Check Docker is running
         if ! docker info > /dev/null 2>&1; then
             log_error "Docker is not running"
             return 1
         fi
-        
+
         # Check container exists
         if ! docker ps --format '{{.Names}}' | grep -q "^${DB_CONTAINER}$"; then
             log_error "Database container '$DB_CONTAINER' is not running"
@@ -172,21 +172,21 @@ check_prerequisites() {
         fi
     else
         log_info "Running in remote mode (VPS: $VPS_HOST)"
-        
+
         # Check SSH connectivity
         if ! ssh -q -o BatchMode=yes -o ConnectTimeout=5 "$VPS_USER@$VPS_HOST" exit 2>/dev/null; then
             log_error "Cannot connect to VPS at $VPS_HOST"
             return 1
         fi
     fi
-    
+
     log_info "Prerequisites check passed"
     return 0
 }
 
 create_backup_directory() {
     log_step "Creating Backup Directory"
-    
+
     if [[ "${LOCAL_MODE:-false}" == "true" ]]; then
         mkdir -p "$BACKUP_DIR"
         log_info "Created local backup directory: $BACKUP_DIR"
@@ -198,13 +198,13 @@ create_backup_directory() {
 
 perform_backup() {
     log_step "Performing Database Backup"
-    
+
     local backup_path="$BACKUP_DIR/$BACKUP_FILENAME"
     local start_time=$(date +%s)
-    
+
     if [[ "${LOCAL_MODE:-false}" == "true" ]]; then
         log_info "Backing up database locally..."
-        
+
         docker exec "$DB_CONTAINER" pg_dump \
             -U "$DB_USER" \
             -d "$DB_NAME" \
@@ -215,11 +215,11 @@ perform_backup() {
             2>> "$LOG_FILE" | gzip > "$backup_path"
     else
         log_info "Backing up database on VPS..."
-        
+
         ssh "$VPS_USER@$VPS_HOST" bash <<REMOTE_EOF
             set -e
             cd "$VPS_L9_DIR"
-            
+
             docker exec "$DB_CONTAINER" pg_dump \
                 -U "$DB_USER" \
                 -d "$DB_NAME" \
@@ -230,10 +230,10 @@ perform_backup() {
                 2>/dev/null | gzip > "$backup_path"
 REMOTE_EOF
     fi
-    
+
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    
+
     # Verify backup exists and has content
     local backup_size
     if [[ "${LOCAL_MODE:-false}" == "true" ]]; then
@@ -241,48 +241,48 @@ REMOTE_EOF
     else
         backup_size=$(ssh "$VPS_USER@$VPS_HOST" "stat --printf='%s' '$backup_path' 2>/dev/null || echo 0")
     fi
-    
+
     if [[ "$backup_size" -lt 1000 ]]; then
         log_error "Backup file is too small (${backup_size} bytes). Backup may have failed."
         return 1
     fi
-    
+
     local size_mb=$(echo "scale=2; $backup_size / 1048576" | bc)
     log_info "Backup created: $backup_path"
     log_info "Size: ${size_mb}MB, Duration: ${duration}s"
-    
+
     echo "$backup_path"
     return 0
 }
 
 upload_to_s3() {
     local backup_path="$1"
-    
+
     if [[ -z "$S3_BUCKET" ]]; then
         log_info "S3 upload skipped (S3_BUCKET not configured)"
         return 0
     fi
-    
+
     log_step "Uploading to S3"
-    
+
     local s3_uri="s3://${S3_BUCKET}/${S3_PATH}/${BACKUP_FILENAME}"
-    
+
     if [[ "${LOCAL_MODE:-false}" == "true" ]]; then
         aws s3 cp "$backup_path" "$s3_uri" --profile "$AWS_PROFILE" 2>> "$LOG_FILE"
     else
         ssh "$VPS_USER@$VPS_HOST" "aws s3 cp '$backup_path' '$s3_uri' --profile '$AWS_PROFILE'" 2>> "$LOG_FILE"
     fi
-    
+
     log_info "Uploaded to S3: $s3_uri"
 }
 
 cleanup_old_backups() {
     log_step "Cleaning Up Old Backups"
-    
+
     if [[ "${LOCAL_MODE:-false}" == "true" ]]; then
         # Delete backups older than RETENTION_DAYS
         find "$BACKUP_DIR" -name "l9_backup_*.sql.gz" -mtime +"$RETENTION_DAYS" -delete 2>/dev/null || true
-        
+
         # Keep only MAX_BACKUPS most recent
         local backup_count=$(ls -1 "$BACKUP_DIR"/l9_backup_*.sql.gz 2>/dev/null | wc -l || echo "0")
         if [[ "$backup_count" -gt "$MAX_BACKUPS" ]]; then
@@ -294,7 +294,7 @@ cleanup_old_backups() {
         ssh "$VPS_USER@$VPS_HOST" bash <<REMOTE_EOF
             # Delete backups older than RETENTION_DAYS
             find "$BACKUP_DIR" -name "l9_backup_*.sql.gz" -mtime +$RETENTION_DAYS -delete 2>/dev/null || true
-            
+
             # Keep only MAX_BACKUPS most recent
             backup_count=\$(ls -1 "$BACKUP_DIR"/l9_backup_*.sql.gz 2>/dev/null | wc -l || echo "0")
             if [[ "\$backup_count" -gt "$MAX_BACKUPS" ]]; then
@@ -304,20 +304,20 @@ cleanup_old_backups() {
             fi
 REMOTE_EOF
     fi
-    
+
     # Clean up S3 if configured
     if [[ -n "$S3_BUCKET" ]]; then
         log_info "S3 lifecycle policies should handle S3 cleanup"
     fi
-    
+
     log_info "Cleanup complete"
 }
 
 verify_backup_integrity() {
     local backup_path="$1"
-    
+
     log_step "Verifying Backup Integrity"
-    
+
     # Test that the gzip file is valid
     if [[ "${LOCAL_MODE:-false}" == "true" ]]; then
         if gzip -t "$backup_path" 2>/dev/null; then
@@ -334,19 +334,19 @@ verify_backup_integrity() {
             return 1
         fi
     fi
-    
+
     return 0
 }
 
 generate_backup_manifest() {
     local backup_path="$1"
-    
+
     log_step "Generating Backup Manifest"
-    
+
     local manifest_file="$BACKUP_DIR/backup_manifest.json"
     local backup_size
     local backup_hash
-    
+
     if [[ "${LOCAL_MODE:-false}" == "true" ]]; then
         backup_size=$(stat -f%z "$backup_path" 2>/dev/null || stat --printf="%s" "$backup_path" 2>/dev/null)
         backup_hash=$(md5sum "$backup_path" 2>/dev/null | cut -d' ' -f1 || md5 -q "$backup_path" 2>/dev/null)
@@ -354,7 +354,7 @@ generate_backup_manifest() {
         backup_size=$(ssh "$VPS_USER@$VPS_HOST" "stat --printf='%s' '$backup_path'")
         backup_hash=$(ssh "$VPS_USER@$VPS_HOST" "md5sum '$backup_path' | cut -d' ' -f1")
     fi
-    
+
     local manifest_entry="{
   \"timestamp\": \"$TIMESTAMP\",
   \"filename\": \"$BACKUP_FILENAME\",
@@ -371,7 +371,7 @@ generate_backup_manifest() {
     else
         ssh "$VPS_USER@$VPS_HOST" "echo '$manifest_entry' >> '$manifest_file'"
     fi
-    
+
     log_info "Manifest updated: $manifest_file"
 }
 
@@ -421,7 +421,7 @@ main() {
     local dry_run=false
     local no_cleanup=false
     local no_s3=false
-    
+
     # Parse arguments
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -457,13 +457,13 @@ main() {
                 ;;
         esac
     done
-    
+
     echo ""
     echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
     echo -e "${BLUE}  L9 Database Backup - $(date '+%Y-%m-%d %H:%M:%S UTC')${NC}"
     echo -e "${BLUE}═══════════════════════════════════════════════════════════════${NC}"
     echo ""
-    
+
     if [[ "$dry_run" == "true" ]]; then
         log_warn "DRY RUN MODE - No actual backup will be created"
         log_info "Would backup database: $DB_NAME"
@@ -471,26 +471,26 @@ main() {
         [[ -n "$S3_BUCKET" ]] && log_info "Would upload to S3: s3://${S3_BUCKET}/${S3_PATH}/"
         exit 0
     fi
-    
+
     # Execute backup pipeline
     local backup_path=""
     local exit_code=0
-    
+
     if check_prerequisites; then
         create_backup_directory
-        
+
         if backup_path=$(perform_backup); then
             if verify_backup_integrity "$backup_path"; then
                 generate_backup_manifest "$backup_path"
-                
+
                 if [[ "$no_s3" != "true" ]]; then
                     upload_to_s3 "$backup_path" || log_warn "S3 upload failed (non-fatal)"
                 fi
-                
+
                 if [[ "$no_cleanup" != "true" ]]; then
                     cleanup_old_backups
                 fi
-                
+
                 log_step "Backup Complete"
                 log_info "✅ Database backup successful: $BACKUP_FILENAME"
                 notify_success "Backup completed: $BACKUP_FILENAME"
@@ -503,12 +503,12 @@ main() {
     else
         exit_code=1
     fi
-    
+
     if [[ $exit_code -ne 0 ]]; then
         log_error "❌ Database backup FAILED"
         notify_failure "Backup failed. Check logs: $LOG_FILE"
     fi
-    
+
     exit $exit_code
 }
 

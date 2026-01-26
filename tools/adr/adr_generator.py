@@ -30,9 +30,8 @@ def slugify(text: str) -> str:
     text = re.sub(r"-+", "-", text)
 
     # Remove leading/trailing hyphens
-    text = text.strip("-")
+    return text.strip("-")
 
-    return text
 
 
 def generate_adr(
@@ -70,7 +69,7 @@ def generate_adr(
     if not template_file.exists():
         raise FileNotFoundError(f"Template not found: {template_file}")
 
-    with open(template_file, "r") as f:
+    with open(template_file) as f:
         content = f.read()
 
     # Replace placeholders
@@ -129,7 +128,7 @@ def generate_adr_from_pr(
     )
 
     # Read generated ADR
-    with open(adr_file, "r") as f:
+    with open(adr_file) as f:
         content = f.read()
 
     # Add PR context

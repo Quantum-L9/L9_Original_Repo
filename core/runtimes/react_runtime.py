@@ -31,7 +31,7 @@ __dora_meta__ = {
 }
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -47,9 +47,9 @@ class ReActStep:
     def __init__(
         self,
         thought: str,
-        action: Optional[str] = None,
-        action_input: Optional[Dict[str, Any]] = None,
-        observation: Optional[str] = None,
+        action: str | None = None,
+        action_input: dict[str, Any] | None = None,
+        observation: str | None = None,
     ):
         self.thought = thought
         self.action = action
@@ -83,7 +83,7 @@ class ReActRuntime:
     async def execute_task(
         self,
         task: AgentTask,
-        agent_context: Dict[str, Any],
+        agent_context: dict[str, Any],
     ) -> ExecutionResult:
         """
         Execute task using ReAct loop.
@@ -96,7 +96,7 @@ class ReActRuntime:
             ExecutionResult with final response
         """
         start_time = datetime.utcnow()
-        steps: List[ReActStep] = []
+        steps: list[ReActStep] = []
 
         # Initial context
         context = {
@@ -155,7 +155,7 @@ class ReActRuntime:
                         else tool_result.error
                     )
                 except Exception as e:
-                    step.observation = f"Tool error: {str(e)}"
+                    step.observation = f"Tool error: {e!s}"
 
                 steps.append(step)
 
@@ -181,9 +181,9 @@ class ReActRuntime:
 
     def _build_thought_context(
         self,
-        base_context: Dict[str, Any],
-        steps: List[ReActStep],
-    ) -> Dict[str, Any]:
+        base_context: dict[str, Any],
+        steps: list[ReActStep],
+    ) -> dict[str, Any]:
         """Build context for thought generation."""
         system_prompt = """You are using the ReAct (Reason + Act) framework.
 

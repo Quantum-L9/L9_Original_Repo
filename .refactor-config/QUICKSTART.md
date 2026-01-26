@@ -23,6 +23,7 @@
 
 2. Remove dead code:
    vulture src/ --min-confidence 80 > dead_code.txt
+
    # Review then manually remove
 
 3. Run test suite:
@@ -41,6 +42,7 @@
 ## Phase 4: Validation (Ongoing)
 
 1. Monitor CI/CD pipeline:
+
    - GitHub Actions: https://github.com/YOUR_ORG/YOUR_REPO/actions
    - Check mutation score: > 85%
    - Check test coverage: > 80%
@@ -53,18 +55,23 @@
 ## Troubleshooting
 
 ### AI suggests broken code
+
 → This is normal! Add more test cases. AI hallucinations are caught by:
-   - Mutation testing
-   - Type checking (mypy strict)
-   - Integration tests
+
+- Mutation testing
+- Type checking (mypy strict)
+- Integration tests
 
 ### Tests fail after refactoring
+
 → Check if change broke contract:
-   1. Revert: git checkout <file>
-   2. Review change scope: should be < 300 lines
-   3. Ask Claude for smaller, atomic refactoring
-   
+
+1.  Revert: git checkout <file>
+2.  Review change scope: should be < 300 lines
+3.  Ask Claude for smaller, atomic refactoring
+
 ### Type errors appear
+
 → Run: mypy src/ --strict
 → Use Cursor to add missing type annotations
 

@@ -315,7 +315,7 @@ async def test_e2e_audit_logging_tool_call_logged(mock_caller_c):
         mock_stats.return_value = {"total_count": 100}
         mock_audit.return_value = None
 
-        result = await handle_tool_call(
+        await handle_tool_call(
             tool=tool_call, user_id="test-user", caller=mock_caller_c
         )
 

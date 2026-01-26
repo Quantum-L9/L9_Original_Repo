@@ -47,7 +47,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from core.decorators import must_stay_async
 
@@ -75,7 +75,7 @@ class DataRetentionConfig:
     default_policy: RetentionPolicy = RetentionPolicy.STANDARD
 
     # Policy-specific TTLs
-    ttl_by_policy: Dict[RetentionPolicy, int] = field(
+    ttl_by_policy: dict[RetentionPolicy, int] = field(
         default_factory=lambda: {
             RetentionPolicy.PERMANENT: -1,  # Never delete
             RetentionPolicy.MINIMAL: 30,
@@ -104,7 +104,7 @@ class RetentionManager:
     def __init__(self, config: DataRetentionConfig = None):
         self.config = config or DataRetentionConfig()
         self.logger = logger
-        self.retention_registry: Dict[str, RetentionPolicy] = {}
+        self.retention_registry: dict[str, RetentionPolicy] = {}
 
     def set_retention_policy(self, aggregate_id: str, policy: RetentionPolicy):
         """Set retention policy for aggregate"""
@@ -128,7 +128,7 @@ class RetentionManager:
 
     def get_expiration_date(
         self, aggregate_id: str, created_at: datetime
-    ) -> Optional[datetime]:
+    ) -> datetime | None:
         """Get expiration date"""
         policy = self.get_retention_policy(aggregate_id)
         ttl_days = self.config.ttl_by_policy[policy]
@@ -139,14 +139,14 @@ class RetentionManager:
         return created_at + timedelta(days=ttl_days)
 
     @must_stay_async("callers use await")
-    async def enforce_ttl(self) -> Dict[str, Any]:
+    async def enforce_ttl(self) -> dict[str, Any]:
         """
         Enforce TTL on all expired aggregates
         Returns: {deleted_count, anonymized_count, errors}
         """
         self.logger.info("Starting TTL enforcement cycle")
 
-        stats = {
+        return {
             "deleted_count": 0,
             "anonymized_count": 0,
             "errors": [],
@@ -156,7 +156,6 @@ class RetentionManager:
         # TODO(GMP-101): Query all aggregates, check expiration
         # For now, return empty stats
 
-        return stats
 
 
 # ============================================================================
@@ -175,15 +174,15 @@ class DeletionRequest:
     requested_at: datetime = field(default_factory=datetime.utcnow)
 
     # Approval chain
-    approved_by: Optional[str] = None
-    approved_at: Optional[datetime] = None
+    approved_by: str | None = None
+    approved_at: datetime | None = None
 
     # Execution
-    executed_at: Optional[datetime] = None
-    proof_hash: Optional[str] = None  # SHA256 of deleted data
+    executed_at: datetime | None = None
+    proof_hash: str | None = None  # SHA256 of deleted data
 
     # Audit
-    cascading_deletes: List[str] = field(default_factory=list)
+    cascading_deletes: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -195,7 +194,7 @@ class DeletionProof:
     deletion_timestamp: datetime
     data_hash: str  # SHA256 of deleted content
     proof_signature: str  # HMAC signature
-    cascading_proofs: List[str] = field(default_factory=list)
+    cascading_proofs: list[str] = field(default_factory=list)
 
 
 class ErasureEngine:
@@ -207,8 +206,8 @@ class ErasureEngine:
     def __init__(self, config: DataRetentionConfig = None):
         self.config = config or DataRetentionConfig()
         self.logger = logger
-        self.deletion_requests: Dict[str, DeletionRequest] = {}
-        self.deletion_proofs: Dict[str, DeletionProof] = {}
+        self.deletion_requests: dict[str, DeletionRequest] = {}
+        self.deletion_proofs: dict[str, DeletionProof] = {}
 
     @must_stay_async("callers use await")
     async def request_erasure(
@@ -312,13 +311,13 @@ class ErasureEngine:
         return proof
 
     @must_stay_async("callers use await")
-    async def _fetch_aggregate(self, aggregate_id: str) -> Dict:
+    async def _fetch_aggregate(self, aggregate_id: str) -> dict:
         """Fetch aggregate data"""
         # TODO(GMP-102): Query data store
         return {"id": aggregate_id, "created_at": datetime.utcnow().isoformat()}
 
     @must_stay_async("callers use await")
-    async def _find_cascading_deletes(self, aggregate_id: str) -> List[str]:
+    async def _find_cascading_deletes(self, aggregate_id: str) -> list[str]:
         """Find aggregates dependent on this one (lineage, relationships)"""
         # TODO(GMP-103): Query relationships, lineage
         return []
@@ -369,14 +368,14 @@ class AnonymizationEngine:
 
     def __init__(self):
         self.logger = logger
-        self.rules: Dict[str, AnonymizationRule] = {}
+        self.rules: dict[str, AnonymizationRule] = {}
 
     def register_rule(self, rule: AnonymizationRule):
         """Register anonymization rule"""
         self.rules[rule.field_name] = rule
 
     @must_stay_async("callers use await")
-    async def anonymize_aggregate(self, aggregate_data: Dict) -> Dict:
+    async def anonymize_aggregate(self, aggregate_data: dict) -> dict:
         """Anonymize PII in aggregate"""
         anonymized = aggregate_data.copy()
 
@@ -420,8 +419,8 @@ class ComplianceEvent:
     aggregate_id: str
     user_id: str
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    details: Dict[str, Any] = field(default_factory=dict)
-    proof_hash: Optional[str] = None
+    details: dict[str, Any] = field(default_factory=dict)
+    proof_hash: str | None = None
 
 
 class ComplianceAuditLog:
@@ -432,7 +431,7 @@ class ComplianceAuditLog:
 
     def __init__(self):
         self.logger = logger
-        self.events: List[ComplianceEvent] = []
+        self.events: list[ComplianceEvent] = []
 
     @must_stay_async("callers use await")
     async def log_event(
@@ -440,8 +439,8 @@ class ComplianceAuditLog:
         event_type: str,
         aggregate_id: str,
         user_id: str,
-        details: Dict[str, Any] = None,
-        proof_hash: Optional[str] = None,
+        details: dict[str, Any] | None = None,
+        proof_hash: str | None = None,
     ) -> ComplianceEvent:
         """Log compliance event"""
         event = ComplianceEvent(
@@ -466,9 +465,9 @@ class ComplianceAuditLog:
     async def export_audit_trail(
         self,
         aggregate_id: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
-    ) -> List[ComplianceEvent]:
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
+    ) -> list[ComplianceEvent]:
         """Export audit trail for compliance"""
         events = [e for e in self.events if e.aggregate_id == aggregate_id]
 
@@ -492,10 +491,10 @@ class ComplianceReport:
     report_id: str
     report_type: str  # gdpr, ccpa, audit_trail
     generated_at: datetime = field(default_factory=datetime.utcnow)
-    period_start: Optional[datetime] = None
-    period_end: Optional[datetime] = None
-    data: List[Dict[str, Any]] = field(default_factory=list)
-    signature: Optional[str] = None
+    period_start: datetime | None = None
+    period_end: datetime | None = None
+    data: list[dict[str, Any]] = field(default_factory=list)
+    signature: str | None = None
 
 
 class ComplianceExporter:
@@ -511,8 +510,8 @@ class ComplianceExporter:
     async def export_gdpr_sar(
         self,
         user_id: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> ComplianceReport:
         """
         Export GDPR Subject Access Request data
@@ -521,7 +520,7 @@ class ComplianceExporter:
 
         events = await self.audit_log.export_audit_trail(user_id, start_date, end_date)
 
-        report = ComplianceReport(
+        return ComplianceReport(
             report_id=f"gdpr-{datetime.utcnow().timestamp()}",
             report_type="gdpr_sar",
             period_start=start_date,
@@ -537,20 +536,19 @@ class ComplianceExporter:
             ],
         )
 
-        return report
 
     async def export_audit_trail_report(
         self,
         aggregate_id: str,
-        start_date: Optional[datetime] = None,
-        end_date: Optional[datetime] = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
     ) -> ComplianceReport:
         """Export complete audit trail"""
         events = await self.audit_log.export_audit_trail(
             aggregate_id, start_date, end_date
         )
 
-        report = ComplianceReport(
+        return ComplianceReport(
             report_id=f"audit-{datetime.utcnow().timestamp()}",
             report_type="audit_trail",
             period_start=start_date,
@@ -568,7 +566,6 @@ class ComplianceExporter:
             ],
         )
 
-        return report
 
 
 # ============================================================================

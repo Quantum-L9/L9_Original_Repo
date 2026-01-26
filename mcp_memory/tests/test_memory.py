@@ -146,25 +146,24 @@ async def test_session_learning_extraction():
     """Session learning extraction should store multiple memory types."""
     with patch(
         "src.routes.memory.save_memory_handler", new_callable=AsyncMock
-    ) as mock_save:
-        with patch("src.routes.memory.execute", new_callable=AsyncMock):
-            mock_save.return_value = {"id": 1}
+    ) as mock_save, patch("src.routes.memory.execute", new_callable=AsyncMock):
+        mock_save.return_value = {"id": 1}
 
-            from src.routes.memory import extract_session_learnings
+        from src.routes.memory import extract_session_learnings
 
-            result = await extract_session_learnings(
-                user_id="test",
-                session_id="session-123",
-                session_summary="Fixed auth bug and added rate limiting",
-                key_decisions=["Use Redis for rate limiting"],
-                errors_encountered=["Token expiry bug - fixed by refreshing"],
-                successes=["Rate limiting works well"],
-            )
+        result = await extract_session_learnings(
+            user_id="test",
+            session_id="session-123",
+            session_summary="Fixed auth bug and added rate limiting",
+            key_decisions=["Use Redis for rate limiting"],
+            errors_encountered=["Token expiry bug - fixed by refreshing"],
+            successes=["Rate limiting works well"],
+        )
 
-            # Should store: 1 summary + 1 decision + 1 error + 1 success = 4
-            assert result["learnings_stored"] == 4
-            assert "context" in result["kinds_created"]
-            assert "decision" in result["kinds_created"]
+        # Should store: 1 summary + 1 decision + 1 error + 1 success = 4
+        assert result["learnings_stored"] == 4
+        assert "context" in result["kinds_created"]
+        assert "decision" in result["kinds_created"]
 
 
 @pytest.mark.asyncio
@@ -172,34 +171,33 @@ async def test_proactive_suggestions():
     """Proactive suggestions should surface relevant past experiences."""
     with patch(
         "src.routes.memory.search_memory_handler", new_callable=AsyncMock
-    ) as mock_search:
-        with patch("src.routes.memory.execute", new_callable=AsyncMock):
-            mock_search.return_value = {
-                "results": [
-                    {
-                        "id": 1,
-                        "user_id": "test",
-                        "kind": "error",
-                        "content": "timeout error - increase timeout",
-                        "importance": 0.9,
-                        "similarity": 0.8,
-                    }
-                ],
-                "total_results": 1,
-            }
+    ) as mock_search, patch("src.routes.memory.execute", new_callable=AsyncMock):
+        mock_search.return_value = {
+            "results": [
+                {
+                    "id": 1,
+                    "user_id": "test",
+                    "kind": "error",
+                    "content": "timeout error - increase timeout",
+                    "importance": 0.9,
+                    "similarity": 0.8,
+                }
+            ],
+            "total_results": 1,
+        }
 
-            from src.routes.memory import get_proactive_suggestions
+        from src.routes.memory import get_proactive_suggestions
 
-            result = await get_proactive_suggestions(
-                current_context="debugging timeout issue",
-                user_id="test",
-                include_error_fixes=True,
-                include_preferences=True,
-            )
+        result = await get_proactive_suggestions(
+            current_context="debugging timeout issue",
+            user_id="test",
+            include_error_fixes=True,
+            include_preferences=True,
+        )
 
-            assert "suggestions" in result
-            assert "error_fix_pairs" in result
-            assert "recall_time_ms" in result
+        assert "suggestions" in result
+        assert "error_fix_pairs" in result
+        assert "recall_time_ms" in result
 
 
 @pytest.mark.asyncio
@@ -242,22 +240,21 @@ async def test_save_with_confidence():
     """Save with confidence should scale importance and add tags."""
     with patch(
         "src.routes.memory.save_memory_handler", new_callable=AsyncMock
-    ) as mock_save:
-        with patch("src.routes.memory.execute", new_callable=AsyncMock):
-            mock_save.return_value = {"id": 1, "importance": 0.7}
+    ) as mock_save, patch("src.routes.memory.execute", new_callable=AsyncMock):
+        mock_save.return_value = {"id": 1, "importance": 0.7}
 
-            from src.routes.memory import save_memory_with_confidence
+        from src.routes.memory import save_memory_with_confidence
 
-            result = await save_memory_with_confidence(
-                user_id="test",
-                content="I think this is correct",
-                kind="fact",
-                duration="long",
-                confidence=0.7,  # Medium confidence
-                source="inferred",
-            )
+        await save_memory_with_confidence(
+            user_id="test",
+            content="I think this is correct",
+            kind="fact",
+            duration="long",
+            confidence=0.7,  # Medium confidence
+            source="inferred",
+        )
 
-            # Verify save_memory_handler was called with scaled importance
-            call_args = mock_save.call_args
-            assert call_args[1]["importance"] == 0.7  # 1.0 * 0.7
-            assert "confidence:medium" in call_args[1]["tags"]
+        # Verify save_memory_handler was called with scaled importance
+        call_args = mock_save.call_args
+        assert call_args[1]["importance"] == 0.7  # 1.0 * 0.7
+        assert "confidence:medium" in call_args[1]["tags"]

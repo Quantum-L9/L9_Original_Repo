@@ -25,12 +25,15 @@ import pytest
 _pattern_import_error = ""
 try:
     from orchestrators.pattern import metrics
-    from orchestrators.pattern.cell_adapter import (CellAgentAdapter,
-                                                    DirectLLMAgent)
-    from orchestrators.pattern.interface import (NodeDefinition, NodeKind,
-                                                 NodeResult, NodeStatus,
-                                                 PipelineResult,
-                                                 PipelineStatus)
+    from orchestrators.pattern.cell_adapter import CellAgentAdapter, DirectLLMAgent
+    from orchestrators.pattern.interface import (
+        NodeDefinition,
+        NodeKind,
+        NodeResult,
+        NodeStatus,
+        PipelineResult,
+        PipelineStatus,
+    )
     from orchestrators.pattern.orchestrator import PatternOrchestrator
 
     _pattern_available = True

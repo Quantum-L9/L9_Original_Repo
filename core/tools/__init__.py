@@ -22,12 +22,6 @@ Breaking Changes (v2.0.0):
 # GMP-78 Phase 2: Dynamic Tool Discovery (PREFERRED)
 # GMP-79: Multi-Turn Tool Caching (Redis)
 # GMP-TD: Advanced Tool Discovery (Harvested 2026-01-25)
-from core.tools.semantic_tool_search import (
-    SemanticToolSearchAdapter,
-    ToolSearchOptimizer,
-    ToolSearchResult,
-)
-
 # GMP-TD-WIRE: Discovery tracing/observability
 from core.tools.discovery_tracing import (
     DiscoveryPhase,
@@ -47,11 +41,11 @@ from core.tools.dynamic_discovery import (
     invalidate_tool_cache,
     is_dynamic_discovery_enabled,
 )
+from core.tools.prompt_caching import CacheMetrics as PromptCacheMetrics
 from core.tools.prompt_caching import (
     CachingMetricsCollector,
     PromptCachingStrategy,
 )
-from core.tools.prompt_caching import CacheMetrics as PromptCacheMetrics  # noqa: F401
 from core.tools.registry_adapter import (
     ExecutorToolRegistry,
     create_executor_tool_registry,
@@ -71,6 +65,11 @@ from core.tools.semantic_discovery import (
     ToolContextFormatter,
     ToolStatus,
 )
+from core.tools.semantic_tool_search import (
+    SemanticToolSearchAdapter,
+    ToolSearchOptimizer,
+    ToolSearchResult,
+)
 
 # GMP-78 Phase 1: Tool Embeddings (Foundation)
 # GMP-TD-WIRE: Added hybrid search (semantic + BM25)
@@ -83,46 +82,46 @@ from core.tools.tool_embeddings import (
 from core.tools.tool_graph import L9_TOOLS, ToolDefinition, ToolGraph, register_l9_tools
 
 __all__ = [
+    # Tool Graph
+    "L9_TOOLS",
     # Registry Cache
     "CacheConfig",
     "CacheMetrics",
     "CacheStrategy",
-    "ToolRegistryCache",
-    # Registry Adapter
-    "ExecutorToolRegistry",
-    "create_executor_tool_registry",
-    # Tool Graph
-    "L9_TOOLS",
-    "ToolDefinition",
-    "ToolGraph",
-    "register_l9_tools",
-    # Dynamic Discovery (GMP-78 + GMP-TD-WIRE)
-    "cache_tools",
-    "discover_tools_for_task",
-    "find_relevant_tools",
-    "find_tools_hybrid",
-    "find_tools_keyword",
-    "get_cached_tools",
-    "get_discovery_stats",
-    "invalidate_tool_cache",
-    "is_dynamic_discovery_enabled",
-    "sync_all_tool_embeddings",
+    # Prompt Caching
+    "CachingMetricsCollector",
     # Discovery Types (GMP-TD-WIRE)
     "DiscoveryMethod",
     "DiscoveryPhase",
     "DiscoveryResult",
     "DiscoveryTrace",
     "DiscoveryTracer",
-    "get_discovery_tracer",
-    # Semantic Tool Search (GMP-TD-WIRE)
-    "SemanticToolSearchAdapter",
-    "ToolSearchOptimizer",
-    "ToolSearchResult",
-    # Prompt Caching
-    "CachingMetricsCollector",
-    "PromptCachingStrategy",
     # Dynamic Discovery Service
     "DynamicToolDiscoveryService",
+    # Registry Adapter
+    "ExecutorToolRegistry",
+    "PromptCachingStrategy",
+    # Semantic Tool Search (GMP-TD-WIRE)
+    "SemanticToolSearchAdapter",
     "ToolContextFormatter",
+    "ToolDefinition",
+    "ToolGraph",
+    "ToolRegistryCache",
+    "ToolSearchOptimizer",
+    "ToolSearchResult",
     "ToolStatus",
+    # Dynamic Discovery (GMP-78 + GMP-TD-WIRE)
+    "cache_tools",
+    "create_executor_tool_registry",
+    "discover_tools_for_task",
+    "find_relevant_tools",
+    "find_tools_hybrid",
+    "find_tools_keyword",
+    "get_cached_tools",
+    "get_discovery_stats",
+    "get_discovery_tracer",
+    "invalidate_tool_cache",
+    "is_dynamic_discovery_enabled",
+    "register_l9_tools",
+    "sync_all_tool_embeddings",
 ]

@@ -42,7 +42,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -150,9 +150,9 @@ class HierarchicalSummarizer:
 
     def __init__(
         self,
-        repository: Optional[Any] = None,
-        llm_client: Optional[Any] = None,
-        tier_configs: Optional[dict[SummaryTier, SummaryConfig]] = None,
+        repository: Any | None = None,
+        llm_client: Any | None = None,
+        tier_configs: dict[SummaryTier, SummaryConfig] | None = None,
         dry_run: bool = False,
     ):
         """
@@ -177,7 +177,7 @@ class HierarchicalSummarizer:
 
     async def run_cascade(
         self,
-        cutoff_time: Optional[datetime] = None,
+        cutoff_time: datetime | None = None,
     ) -> dict[SummaryTier, list[SummaryResult]]:
         """
         Run full summarization cascade: session → daily → weekly.
@@ -263,7 +263,7 @@ class HierarchicalSummarizer:
         # Group items by time window
         windows = self._group_by_time_window(items, config.time_window_minutes)
 
-        for window_start, window_items in windows.items():
+        for _window_start, window_items in windows.items():
             if len(window_items) < 2:
                 continue  # Skip windows with too few items
 
@@ -374,7 +374,7 @@ class HierarchicalSummarizer:
         tier: SummaryTier,
         items: list[dict[str, Any]],
         config: SummaryConfig,
-    ) -> Optional[SummaryResult]:
+    ) -> SummaryResult | None:
         """Generate a summary using LLM."""
         if not items:
             return None
@@ -439,7 +439,7 @@ class HierarchicalSummarizer:
             },
         )
 
-    async def _call_llm(self, prompt: str) -> Optional[str]:
+    async def _call_llm(self, prompt: str) -> str | None:
         """Call LLM for summarization."""
         if self._llm_client is None:
             logger.warning("No LLM client configured, using extractive fallback")
@@ -478,10 +478,7 @@ class HierarchicalSummarizer:
 
         # Find content block
         match = re.search(r"Requirements:", prompt)
-        if match:
-            content = prompt[: match.start()].strip()
-        else:
-            content = prompt
+        content = prompt[:match.start()].strip() if match else prompt
 
         # Simple extractive: first 2-3 sentences per section
         sections = content.split("\n\n---\n\n")

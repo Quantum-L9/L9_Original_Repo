@@ -51,7 +51,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional, Type
+from typing import Any
 
 import structlog
 
@@ -96,9 +96,9 @@ class CellAgentAdapter:
 
     def __init__(
         self,
-        cell_config: Optional[CellConfig] = None,
-        role_mapping: Optional[dict[str, str]] = None,
-        api_key: Optional[str] = None,
+        cell_config: CellConfig | None = None,
+        role_mapping: dict[str, str] | None = None,
+        api_key: str | None = None,
         model: str = "gpt-4o",
     ):
         """
@@ -251,7 +251,7 @@ class CellAgentAdapter:
                 "_requires_human_action": True,
             }
 
-        elif role == "GitWorker":
+        if role == "GitWorker":
             # Git operations - prepare commands but don't execute
             logger.info(
                 "GitWorker invoked - preparing git operations",
@@ -295,8 +295,7 @@ class CellAgentAdapter:
                 "_requires_git_execution": True,
             }
 
-        else:
-            raise ValueError(f"Unknown special role: {role}")
+        raise ValueError(f"Unknown special role: {role}")
 
     def _get_cell_for_role(self, role: str) -> BaseCell:
         """
@@ -332,7 +331,7 @@ class CellAgentAdapter:
 
         return cell
 
-    def _import_cell_class(self, class_path: str) -> Type[BaseCell]:
+    def _import_cell_class(self, class_path: str) -> type[BaseCell]:
         """
         Dynamically import a cell class from its path.
 
@@ -352,8 +351,7 @@ class CellAgentAdapter:
             import importlib
 
             module = importlib.import_module(module_path)
-            cell_class = getattr(module, class_name)
-            return cell_class
+            return getattr(module, class_name)
         except (ImportError, AttributeError) as e:
             raise ValueError(f"Failed to import cell class {class_path}: {e}") from e
 
@@ -383,10 +381,7 @@ class CellAgentAdapter:
         subsystem_goals = input_data.get("subsystem_goals", [])
 
         # Build task description
-        if user_prompts:
-            task_description = "\n".join(user_prompts)
-        else:
-            task_description = prompt
+        task_description = "\n".join(user_prompts) if user_prompts else prompt
 
         # Build context string for cells
         context_str = json.dumps(
@@ -488,7 +483,7 @@ class DirectLLMAgent:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         model: str = "gpt-4o",
         temperature: float = 0.7,
         max_tokens: int = 4096,
@@ -579,7 +574,7 @@ class DirectLLMAgent:
 
 
 def create_cell_adapter(
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
     model: str = "gpt-4o",
     max_rounds: int = 3,
     consensus_threshold: float = 0.8,
@@ -606,7 +601,7 @@ def create_cell_adapter(
 
 
 def create_direct_agent(
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
     model: str = "gpt-4o",
 ) -> DirectLLMAgent:
     """

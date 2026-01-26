@@ -40,12 +40,11 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, List, Optional
+from typing import Any
 from uuid import UUID
 
 import structlog
 
-from core.decorators import must_stay_async
 from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
@@ -58,7 +57,7 @@ class ReasoningChain:
         self,
         chain_id: UUID,
         start_packet_id: UUID,
-        packets: List[dict[str, Any]],
+        packets: list[dict[str, Any]],
         depth: int,
         is_complete: bool,
     ):
@@ -83,7 +82,7 @@ class ReasoningReplayPipeline:
     - repair_broken_lineage(packet_id) -> bool
     """
 
-    def __init__(self, repository: Optional[SubstrateRepository] = None):
+    def __init__(self, repository: SubstrateRepository | None = None):
         """
         Initialize reasoning replay pipeline.
 
@@ -102,7 +101,7 @@ class ReasoningReplayPipeline:
     async def reconstruct_chain(
         self,
         packet_id: UUID,
-        max_depth: Optional[int] = None,
+        max_depth: int | None = None,
     ) -> ReasoningChain:
         """
         Reconstruct reasoning chain from a packet.
@@ -182,7 +181,7 @@ class ReasoningReplayPipeline:
         self,
         packet_id: UUID,
         max_depth: int = 10,
-    ) -> List[dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get decision ancestors (parents) of a packet.
 
@@ -267,7 +266,7 @@ class ReasoningReplayPipeline:
                 indent=2,
             )
 
-        elif format == "narrative":
+        if format == "narrative":
             narrative = f"Decision Chain (ID: {chain.chain_id})\n"
             narrative += f"Starting from packet: {chain.start_packet_id}\n"
             narrative += f"Depth: {chain.depth}, Complete: {chain.is_complete}\n\n"
@@ -281,7 +280,7 @@ class ReasoningReplayPipeline:
 
             return narrative
 
-        elif format == "graph_viz":
+        if format == "graph_viz":
             # Graphviz DOT format
             dot = "digraph DecisionChain {\n"
             for i, packet in enumerate(chain.packets):
@@ -293,7 +292,7 @@ class ReasoningReplayPipeline:
             dot += "}\n"
             return dot
 
-        elif format == "mermaid":
+        if format == "mermaid":
             # Mermaid flowchart format
             mermaid = "graph TD\n"
             for i, packet in enumerate(chain.packets):
@@ -304,8 +303,7 @@ class ReasoningReplayPipeline:
                     mermaid += f"  P{i - 1} --> {node_id}\n"
             return mermaid
 
-        else:
-            raise ValueError(f"Unsupported format: {format}")
+        raise ValueError(f"Unsupported format: {format}")
 
     async def verify_lineage_integrity(self, packet_id: UUID) -> bool:
         """
@@ -361,7 +359,7 @@ class ReasoningReplayPipeline:
             logger.error("Lineage integrity check failed", error=str(e), exc_info=True)
             return False
 
-    async def detect_orphaned_packets(self, agent_id: str) -> List[UUID]:
+    async def detect_orphaned_packets(self, agent_id: str) -> list[UUID]:
         """
         Detect orphaned packets (packets with broken lineage references).
 
@@ -378,7 +376,7 @@ class ReasoningReplayPipeline:
         if self._repository is None:
             raise RuntimeError("Repository not set")
 
-        orphaned: List[UUID] = []
+        orphaned: list[UUID] = []
 
         try:
             async with self._repository.acquire() as conn:
@@ -392,7 +390,7 @@ class ReasoningReplayPipeline:
                       AND p.parent_ids IS NOT NULL
                       AND array_length(p.parent_ids, 1) > 0
                       AND EXISTS (
-                          SELECT 1 
+                          SELECT 1
                           FROM unnest(p.parent_ids) AS parent_id
                           WHERE parent_id NOT IN (
                               SELECT packet_id FROM packet_store

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # L9 VPS Deploy Script (10X Edition)
-# 
+#
 # PRINCIPLE: GitHub is SSOT. VPS must match GitHub exactly.
 # NO stashing, NO local changes preserved, NO merge conflicts.
 #

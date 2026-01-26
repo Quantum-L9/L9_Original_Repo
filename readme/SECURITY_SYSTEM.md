@@ -1,7 +1,7 @@
 # L9 Security Scanning System
 
-**Version:** 1.0.0  
-**Created:** 2026-01-21  
+**Version:** 1.0.0
+**Created:** 2026-01-21
 **Status:** Production Ready
 
 ## Overview
@@ -49,21 +49,25 @@ The L9 Security Scanning System is a comprehensive, automated security infrastru
 Automated security scanning in GitHub Actions with 5 jobs:
 
 1. **SAST Scan** - Static code analysis
+
    - Bandit (Python security linter)
    - Semgrep (multi-language SAST)
    - Uploads results to GitHub Security tab
 
 2. **Dependency Scan** - Vulnerability scanning
+
    - Safety (Python package vulnerabilities)
    - pip-audit (PyPI vulnerability database)
    - Checks against known CVEs
 
 3. **Secret Scan** - Credential detection
+
    - TruffleHog (git history scanning)
    - detect-secrets (pre-commit integration)
    - Scans full repository history
 
 4. **Container Scan** - Docker image security
+
    - Trivy (comprehensive container scanner)
    - Scans base images and dependencies
    - Integrates with GitHub Security
@@ -74,6 +78,7 @@ Automated security scanning in GitHub Actions with 5 jobs:
    - Comments on PRs with results
 
 **Triggers:**
+
 - Every push to `main` or `develop`
 - Every pull request
 - Daily at 2 AM UTC (scheduled scan)
@@ -93,12 +98,13 @@ Centralized security policy defining:
 - **Observability configuration** (metrics, alerts)
 
 **Example threshold:**
+
 ```yaml
 sast:
   thresholds:
     critical:
       max_allowed: 0
-      action: block  # Blocks PR merge
+      action: block # Blocks PR merge
     high:
       max_allowed: 5
       action: block
@@ -118,6 +124,7 @@ Runtime security policy enforcement:
 - **Audit logging** - Decision tracking
 
 **Usage:**
+
 ```python
 from core.governance.security_policy import evaluate_security_scan, SecurityScanResult
 
@@ -143,6 +150,7 @@ Prometheus metrics collection:
 - `l9_security_score` - Overall security score (0-100)
 
 **Grafana Dashboard:**
+
 - Security score gauge
 - Vulnerabilities by severity graph
 - Scan duration trends
@@ -161,6 +169,7 @@ Multi-channel alert delivery:
 - **Webhook** - Custom integrations
 
 **Alert Types:**
+
 - `critical_vulnerability` - CRITICAL vulnerabilities detected
 - `high_vulnerability` - HIGH vulnerabilities detected
 - `secret_detected` - Secrets found in code
@@ -298,12 +307,12 @@ send_vulnerability_alert(
 
 ### Default Thresholds (Production)
 
-| Scan Type | Critical | High | Medium | Low |
-|---|---|---|---|---|
-| **SAST** | 0 (block) | 0 (block) | 20 (warn) | 50 (info) |
-| **Dependencies** | 0 (block) | 3 (warn) | 10 (info) | 50 (info) |
-| **Secrets** | 0 (block) | - | - | - |
-| **Containers** | 0 (warn) | 10 (warn) | 50 (info) | 100 (info) |
+| Scan Type        | Critical  | High      | Medium    | Low        |
+| ---------------- | --------- | --------- | --------- | ---------- |
+| **SAST**         | 0 (block) | 0 (block) | 20 (warn) | 50 (info)  |
+| **Dependencies** | 0 (block) | 3 (warn)  | 10 (info) | 50 (info)  |
+| **Secrets**      | 0 (block) | -         | -         | -          |
+| **Containers**   | 0 (warn)  | 10 (warn) | 50 (info) | 100 (info) |
 
 ### Development Environment
 
@@ -355,6 +364,7 @@ rate(l9_security_policy_violations_total[24h])
 **Issue:** Security scan fails in CI/CD
 
 **Solutions:**
+
 1. Check tool installation: `bandit --version`, `semgrep --version`
 2. Review scan logs in GitHub Actions artifacts
 3. Verify file permissions and exclusions
@@ -379,6 +389,7 @@ sast:
 **Issue:** Too many alerts
 
 **Solutions:**
+
 1. Adjust thresholds in `config/security_policy.yaml`
 2. Enable deduplication (default: 15 minutes)
 3. Use different channels for different severities
@@ -462,6 +473,7 @@ audit_security_decision(
 ## Roadmap
 
 ### Phase 1 (Complete)
+
 - ✅ CI/CD integration
 - ✅ Security policy configuration
 - ✅ Governance integration
@@ -469,12 +481,14 @@ audit_security_decision(
 - ✅ Documentation
 
 ### Phase 2 (Q1 2026)
+
 - 🔄 Machine learning for vulnerability prioritization
 - 🔄 Automated remediation suggestions
 - 🔄 Security score trending and forecasting
 - 🔄 Integration with external threat intelligence
 
 ### Phase 3 (Q2 2026)
+
 - 📅 Runtime application self-protection (RASP)
 - 📅 Advanced behavioral analysis
 - 📅 Security chaos engineering
@@ -496,6 +510,6 @@ Copyright © 2026 L9 AI OS. All rights reserved.
 
 ---
 
-**Last Updated:** 2026-01-21  
-**Version:** 1.0.0  
+**Last Updated:** 2026-01-21
+**Version:** 1.0.0
 **Maintainer:** Security Team

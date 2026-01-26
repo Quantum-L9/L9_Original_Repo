@@ -26,7 +26,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -94,10 +94,10 @@ class ResearchExecuteResponse(BaseModel):
 
     success: bool = Field(..., description="Whether operation succeeded")
     message: str = Field(default="", description="Result message")
-    results: List[Dict[str, Any]] = Field(
+    results: list[dict[str, Any]] = Field(
         default_factory=list, description="Individual agent results"
     )
-    consensus: Optional[str] = Field(
+    consensus: str | None = Field(
         default=None, description="Converged consensus if reached"
     )
 
@@ -182,7 +182,7 @@ async def execute_research(
     except Exception as e:
         logger.error(f"Research swarm execution failed: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Research execution failed: {str(e)}"
+            status_code=500, detail=f"Research execution failed: {e!s}"
         ) from e
 
 

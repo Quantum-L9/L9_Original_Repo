@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from openai import AsyncOpenAI
@@ -147,10 +147,10 @@ class ReviewerCell(BaseCell):
 
     cell_type = "reviewer"
 
-    def __init__(self, config: Optional[CellConfig] = None):
+    def __init__(self, config: CellConfig | None = None):
         """Initialize the reviewer cell."""
         super().__init__(config)
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
 
     def _ensure_client(self) -> AsyncOpenAI:
         """Ensure OpenAI client is initialized."""
@@ -162,7 +162,7 @@ class ReviewerCell(BaseCell):
         self,
         task: dict[str, Any],
         context: dict[str, Any],
-        previous_critique: Optional[dict[str, Any]] = None,
+        previous_critique: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Run Reviewer A to produce primary review."""
         client = self._ensure_client()
@@ -314,7 +314,7 @@ class ReviewerCell(BaseCell):
         self,
         code: dict[str, str],
         requirements: list[str],
-        focus_areas: Optional[list[str]] = None,
+        focus_areas: list[str] | None = None,
     ) -> dict[str, Any]:
         """
         Review code against requirements.

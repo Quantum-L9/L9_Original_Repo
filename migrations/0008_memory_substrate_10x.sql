@@ -5,7 +5,7 @@
 -- Author: L9 System (via 7-Block Reasoning Analysis)
 -- Date: 2026-01-01
 -- =============================================================================
--- 
+--
 -- PURPOSE: 10X improvement to memory substrate for:
 --   - Accuracy: Multi-vector embeddings, confidence decay
 --   - Efficiency: Access-based importance, optimized indexes
@@ -45,9 +45,9 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Function: Set session scope for RLS policies
 CREATE OR REPLACE FUNCTION l9_set_scope(
-    p_tenant uuid, 
-    p_org uuid, 
-    p_user uuid, 
+    p_tenant uuid,
+    p_org uuid,
+    p_user uuid,
     p_role text DEFAULT 'end_user'
 )
 RETURNS void
@@ -153,16 +153,16 @@ CREATE INDEX IF NOT EXISTS idx_embeddings_type ON memory_embeddings(embedding_ty
 CREATE INDEX IF NOT EXISTS idx_embeddings_created ON memory_embeddings(created_at DESC);
 
 -- Type-specific HNSW indexes for efficient per-type vector search
-CREATE INDEX IF NOT EXISTS idx_embeddings_vector_content ON memory_embeddings 
-    USING hnsw (vector vector_cosine_ops) 
+CREATE INDEX IF NOT EXISTS idx_embeddings_vector_content ON memory_embeddings
+    USING hnsw (vector vector_cosine_ops)
     WHERE embedding_type = 'content';
 
-CREATE INDEX IF NOT EXISTS idx_embeddings_vector_entity ON memory_embeddings 
-    USING hnsw (vector vector_cosine_ops) 
+CREATE INDEX IF NOT EXISTS idx_embeddings_vector_entity ON memory_embeddings
+    USING hnsw (vector vector_cosine_ops)
     WHERE embedding_type = 'entity';
 
-CREATE INDEX IF NOT EXISTS idx_embeddings_vector_summary ON memory_embeddings 
-    USING hnsw (vector vector_cosine_ops) 
+CREATE INDEX IF NOT EXISTS idx_embeddings_vector_summary ON memory_embeddings
+    USING hnsw (vector vector_cosine_ops)
     WHERE embedding_type = 'summary';
 
 -- Multi-tenant indexes for memory_embeddings
@@ -249,7 +249,7 @@ CREATE INDEX IF NOT EXISTS idx_rel_user ON entity_relationships(user_id);
 CREATE INDEX IF NOT EXISTS idx_rel_corr ON entity_relationships(correlation_id);
 
 -- Unique constraint to enable UPSERT for relationship reinforcement (scoped by tenant)
-CREATE UNIQUE INDEX IF NOT EXISTS idx_rel_unique 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_rel_unique
     ON entity_relationships(tenant_id, source_entity, relationship_type, target_entity);
 
 
@@ -297,8 +297,8 @@ CREATE INDEX IF NOT EXISTS idx_summary_user ON memory_summaries(user_id);
 CREATE INDEX IF NOT EXISTS idx_summary_corr ON memory_summaries(correlation_id);
 
 -- Vector index for summary search
-CREATE INDEX IF NOT EXISTS idx_summary_vector ON memory_summaries 
-    USING hnsw (vector vector_cosine_ops) 
+CREATE INDEX IF NOT EXISTS idx_summary_vector ON memory_summaries
+    USING hnsw (vector vector_cosine_ops)
     WHERE vector IS NOT NULL;
 
 
@@ -353,8 +353,8 @@ CREATE INDEX IF NOT EXISTS idx_reflection_user ON reflection_store(user_id);
 CREATE INDEX IF NOT EXISTS idx_reflection_corr ON reflection_store(correlation_id);
 
 -- Vector index for semantic reflection search
-CREATE INDEX IF NOT EXISTS idx_reflection_vector ON reflection_store 
-    USING hnsw (vector vector_cosine_ops) 
+CREATE INDEX IF NOT EXISTS idx_reflection_vector ON reflection_store
+    USING hnsw (vector vector_cosine_ops)
     WHERE vector IS NOT NULL;
 
 
@@ -454,7 +454,7 @@ CREATE INDEX IF NOT EXISTS idx_packet_accessed ON packet_store(last_accessed DES
 CREATE INDEX IF NOT EXISTS idx_packet_access_count ON packet_store(access_count DESC);
 
 -- Deduplication index
-CREATE UNIQUE INDEX IF NOT EXISTS idx_packet_content_hash ON packet_store(content_hash) 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_packet_content_hash ON packet_store(content_hash)
     WHERE content_hash IS NOT NULL;
 
 -- Multi-tenant indexes
@@ -558,12 +558,12 @@ CREATE OR REPLACE FUNCTION update_packet_access(p_id UUID, accessing_agent TEXT 
 RETURNS VOID AS $$
 BEGIN
     UPDATE packet_store
-    SET 
+    SET
         access_count = access_count + 1,
         last_accessed = NOW(),
         importance_score = LEAST(1.0, importance_score + 0.02)
     WHERE packet_id = p_id;
-    
+
     INSERT INTO memory_access_log (target_type, target_id, agent_id, accessed_at)
     VALUES ('packet', p_id, accessing_agent, NOW());
 END;
@@ -579,13 +579,13 @@ DECLARE
     new_confidence FLOAT;
 BEGIN
     UPDATE knowledge_facts
-    SET 
+    SET
         confidence = GREATEST(0.1, confidence - decay_factor),
         contradiction_count = contradiction_count + 1,
         confidence_updated_at = NOW()
     WHERE fact_id = f_id
     RETURNING confidence INTO new_confidence;
-    
+
     RETURN new_confidence;
 END;
 $$ LANGUAGE plpgsql;
@@ -600,13 +600,13 @@ DECLARE
     new_confidence FLOAT;
 BEGIN
     UPDATE knowledge_facts
-    SET 
+    SET
         confidence = LEAST(1.0, confidence + reinforce_factor),
         supporting_packet_count = supporting_packet_count + 1,
         confidence_updated_at = NOW()
     WHERE fact_id = f_id
     RETURNING confidence INTO new_confidence;
-    
+
     RETURN new_confidence;
 END;
 $$ LANGUAGE plpgsql;
@@ -642,12 +642,12 @@ DECLARE
 BEGIN
     -- Recency based on last access or creation
     recency_score := temporal_weight(COALESCE(last_access, created_ts), 30);
-    
+
     -- Access score (logarithmic to prevent runaway)
     access_score := LEAST(1.0, LOG(access_count_val + 1) / LOG(100));
-    
-    RETURN (base_weight * base_importance) + 
-           (recency_weight * recency_score) + 
+
+    RETURN (base_weight * base_importance) +
+           (recency_weight * recency_score) +
            (access_weight * access_score);
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
@@ -681,13 +681,13 @@ DECLARE
 BEGIN
     INSERT INTO entity_relationships (source_entity, relationship_type, target_entity, confidence, source_packet)
     VALUES (p_source, p_type, p_target, p_confidence, p_packet_id)
-    ON CONFLICT (source_entity, relationship_type, target_entity) 
+    ON CONFLICT (source_entity, relationship_type, target_entity)
     DO UPDATE SET
         mention_count = entity_relationships.mention_count + 1,
         confidence = LEAST(1.0, entity_relationships.confidence + 0.02),
         last_seen = NOW()
     RETURNING relationship_id INTO rel_id;
-    
+
     RETURN rel_id;
 END;
 $$ LANGUAGE plpgsql;
@@ -701,7 +701,7 @@ COMMENT ON FUNCTION upsert_entity_relationship IS 'Insert or reinforce entity re
 
 -- Recent high-importance memories per agent (refresh daily)
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_agent_recent_important AS
-SELECT 
+SELECT
     e.agent_id,
     p.packet_id,
     p.packet_type,
@@ -711,9 +711,9 @@ SELECT
     p.tags,
     p.scope,
     combined_importance(
-        p.importance_score, 
-        p.access_count, 
-        p.last_accessed, 
+        p.importance_score,
+        p.access_count,
+        p.last_accessed,
         p.timestamp
     ) as combined_score
 FROM packet_store p
@@ -728,7 +728,7 @@ CREATE INDEX IF NOT EXISTS idx_mv_agent_score ON mv_agent_recent_important(agent
 
 -- Entity relationship graph summary (refresh daily)
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_entity_graph AS
-SELECT 
+SELECT
     source_entity,
     relationship_type,
     target_entity,
@@ -749,7 +749,7 @@ CREATE INDEX IF NOT EXISTS idx_mv_entity_mentions ON mv_entity_graph(total_menti
 
 -- High-confidence facts summary (refresh daily)
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_high_confidence_facts AS
-SELECT 
+SELECT
     f.fact_id,
     f.subject,
     f.subject_normalized,
@@ -776,7 +776,7 @@ CREATE INDEX IF NOT EXISTS idx_mv_facts_score ON mv_high_confidence_facts(combin
 
 -- Reflection patterns summary (refresh daily)
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_reflection_patterns AS
-SELECT 
+SELECT
     reflection_type,
     COUNT(*) as count,
     AVG(confidence) as avg_confidence,
@@ -838,9 +838,9 @@ LANGUAGE plpgsql AS $$
 BEGIN
     UPDATE packet_store
     SET importance_score = GREATEST(0.1, importance_score - decay_rate)
-    WHERE last_accessed IS NULL 
+    WHERE last_accessed IS NULL
        OR last_accessed < NOW() - (days_threshold || ' days')::INTERVAL;
-    
+
     RAISE NOTICE 'Decayed importance for unaccessed packets older than % days', days_threshold;
 END;
 $$;
@@ -854,7 +854,7 @@ BEGIN
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_entity_graph;
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_high_confidence_facts;
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_reflection_patterns;
-    
+
     RAISE NOTICE 'Refreshed all memory materialized views';
 END;
 $$;
@@ -868,7 +868,7 @@ DECLARE
 BEGIN
     DELETE FROM packet_store
     WHERE ttl IS NOT NULL AND ttl < NOW();
-    
+
     GET DIAGNOSTICS evicted_count = ROW_COUNT;
     RAISE NOTICE 'Evicted % expired packets', evicted_count;
 END;
@@ -883,7 +883,7 @@ DECLARE
 BEGIN
     DELETE FROM reflection_store
     WHERE expires_at IS NOT NULL AND expires_at < NOW();
-    
+
     GET DIAGNOSTICS evicted_count = ROW_COUNT;
     RAISE NOTICE 'Evicted % expired reflections', evicted_count;
 END;
@@ -932,7 +932,7 @@ BEGIN
         -- Enable RLS and force it (even for table owners)
         EXECUTE format('ALTER TABLE %I ENABLE ROW LEVEL SECURITY', t);
         EXECUTE format('ALTER TABLE %I FORCE ROW LEVEL SECURITY', t);
-        
+
         -- ============================================================
         -- Policy 1: Tenant Isolation
         -- Users can only see rows matching their tenant_id
@@ -942,15 +942,15 @@ BEGIN
             CREATE POLICY %I_tenant_isolation ON %I
             FOR ALL
             USING (
-                tenant_id IS NULL 
+                tenant_id IS NULL
                 OR tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
             )
             WITH CHECK (
-                tenant_id IS NULL 
+                tenant_id IS NULL
                 OR tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
             );
         $pol$, t, t, t, t);
-        
+
         -- ============================================================
         -- Policy 2: Organization Isolation
         -- Within tenant, users can only see rows matching their org_id
@@ -960,15 +960,15 @@ BEGIN
             CREATE POLICY %I_org_isolation ON %I
             FOR ALL
             USING (
-                org_id IS NULL 
+                org_id IS NULL
                 OR org_id = NULLIF(current_setting('app.org_id', true), '')::uuid
             )
             WITH CHECK (
-                org_id IS NULL 
+                org_id IS NULL
                 OR org_id = NULLIF(current_setting('app.org_id', true), '')::uuid
             );
         $pol$, t, t, t, t);
-        
+
         -- ============================================================
         -- Policy 3: Admin Override
         -- Platform admins and tenant admins can see all rows
@@ -984,7 +984,7 @@ BEGIN
                 COALESCE(current_setting('app.role', true), 'end_user') IN ('platform_admin', 'tenant_admin')
             );
         $pol$, t, t, t, t);
-        
+
         -- ============================================================
         -- Policy 4: User Visibility (for end_user role)
         -- End users can only see their own rows or rows with null user_id
@@ -1004,7 +1004,7 @@ BEGIN
                 OR user_id = NULLIF(current_setting('app.user_id', true), '')::uuid
             );
         $pol$, t, t, t, t);
-        
+
     END LOOP;
 END$$;
 
@@ -1018,13 +1018,13 @@ DROP POLICY IF EXISTS packet_store_scope_access ON packet_store;
 CREATE POLICY packet_store_scope_access ON packet_store
     FOR ALL
     USING (
-        scope IS NULL 
+        scope IS NULL
         OR scope = 'shared'
         OR (scope = 'cursor' AND COALESCE(current_setting('app.role', true), 'end_user') IN ('cursor_user', 'platform_admin', 'tenant_admin'))
         OR (scope = 'l-private' AND COALESCE(current_setting('app.role', true), 'end_user') IN ('l9_system', 'platform_admin'))
     )
     WITH CHECK (
-        scope IS NULL 
+        scope IS NULL
         OR scope = 'shared'
         OR (scope = 'cursor' AND COALESCE(current_setting('app.role', true), 'end_user') IN ('cursor_user', 'platform_admin', 'tenant_admin'))
         OR (scope = 'l-private' AND COALESCE(current_setting('app.role', true), 'end_user') IN ('l9_system', 'platform_admin'))
@@ -1035,12 +1035,12 @@ DROP POLICY IF EXISTS knowledge_facts_scope_access ON knowledge_facts;
 CREATE POLICY knowledge_facts_scope_access ON knowledge_facts
     FOR ALL
     USING (
-        scope IS NULL 
+        scope IS NULL
         OR scope = 'shared'
         OR COALESCE(current_setting('app.role', true), 'end_user') IN ('platform_admin', 'tenant_admin', 'l9_system')
     )
     WITH CHECK (
-        scope IS NULL 
+        scope IS NULL
         OR scope = 'shared'
         OR COALESCE(current_setting('app.role', true), 'end_user') IN ('platform_admin', 'tenant_admin', 'l9_system')
     );
@@ -1050,12 +1050,12 @@ DROP POLICY IF EXISTS semantic_memory_scope_access ON semantic_memory;
 CREATE POLICY semantic_memory_scope_access ON semantic_memory
     FOR ALL
     USING (
-        scope IS NULL 
+        scope IS NULL
         OR scope = 'shared'
         OR COALESCE(current_setting('app.role', true), 'end_user') IN ('platform_admin', 'tenant_admin', 'l9_system')
     )
     WITH CHECK (
-        scope IS NULL 
+        scope IS NULL
         OR scope = 'shared'
         OR COALESCE(current_setting('app.role', true), 'end_user') IN ('platform_admin', 'tenant_admin', 'l9_system')
     );
@@ -1096,21 +1096,21 @@ BEGIN
     FROM information_schema.tables
     WHERE table_schema = 'public'
       AND table_name IN (
-          'memory_embeddings', 
-          'memory_access_log', 
+          'memory_embeddings',
+          'memory_access_log',
           'entity_relationships',
           'memory_summaries',
           'reflection_store',
           'task_reflections'
       );
-    
+
     -- Check multi-tenant columns on packet_store
     SELECT COUNT(*) INTO tenant_col_count
     FROM information_schema.columns
     WHERE table_schema = 'public'
       AND table_name = 'packet_store'
       AND column_name IN ('tenant_id', 'org_id', 'user_id', 'correlation_id');
-    
+
     IF table_count = 6 AND tenant_col_count = 4 THEN
         RAISE NOTICE '✅ Migration 0008_memory_substrate_10x.sql completed successfully';
         RAISE NOTICE '   - 6 new tables created';
@@ -1132,11 +1132,11 @@ COMMIT;
 -- =============================================================================
 -- POST-MIGRATION: How to Use Multi-Tenant Features
 -- =============================================================================
--- 
+--
 -- 1. Set session scope before queries:
 --    SELECT l9_set_scope(
 --        'tenant-uuid'::uuid,
---        'org-uuid'::uuid, 
+--        'org-uuid'::uuid,
 --        'user-uuid'::uuid,
 --        'end_user'  -- or 'org_admin', 'tenant_admin', 'platform_admin'
 --    );
@@ -1150,7 +1150,7 @@ COMMIT;
 --    SELECT l9_current_tenant(), l9_current_org(), l9_current_user_id(), l9_current_role();
 --
 -- 5. Backfill existing data (run separately, adjust UUIDs):
---    UPDATE packet_store SET 
+--    UPDATE packet_store SET
 --        tenant_id = 'default-tenant-uuid'::uuid,
 --        org_id = 'default-org-uuid'::uuid,
 --        user_id = 'default-user-uuid'::uuid
@@ -1159,4 +1159,3 @@ COMMIT;
 -- =============================================================================
 -- END MIGRATION 0008
 -- =============================================================================
-

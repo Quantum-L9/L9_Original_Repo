@@ -32,13 +32,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
-from orchestration.long_plan_graph import (execute_long_plan,
-                                           extract_tasks_from_plan,
-                                           simulate_long_plan)
+from orchestration.long_plan_graph import (
+    execute_long_plan,
+    extract_tasks_from_plan,
+    simulate_long_plan,
+)
 from runtime.task_queue import enqueue_long_plan_tasks
 from runtime.tool_call_wrapper import tool_call_wrapper
 
@@ -47,11 +49,11 @@ logger = structlog.get_logger(__name__)
 
 async def long_plan_execute_tool(
     goal: str,
-    constraints: List[str] | None = None,
-    target_apps: List[str] | None = None,
+    constraints: list[str] | None = None,
+    target_apps: list[str] | None = None,
     agent_id: str = "L",
-    thread_id: Optional[str] = None,
-) -> Dict[str, Any]:
+    thread_id: str | None = None,
+) -> dict[str, Any]:
     """
     Execute a long plan through the LangGraph DAG.
 
@@ -103,10 +105,10 @@ async def long_plan_execute_tool(
 
 async def long_plan_simulate_tool(
     goal: str,
-    constraints: List[str] | None = None,
-    target_apps: List[str] | None = None,
+    constraints: list[str] | None = None,
+    target_apps: list[str] | None = None,
     agent_id: str = "L",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Simulate a long plan without executing (dry run).
 
@@ -148,7 +150,7 @@ async def long_plan_simulate_tool(
         }
 
 
-async def execute_long_plan_tasks(plan_id: str, repo_root: str) -> Dict[str, Any]:
+async def execute_long_plan_tasks(plan_id: str, repo_root: str) -> dict[str, Any]:
     """
     Execute tasks from a completed long plan.
 
@@ -203,9 +205,9 @@ async def execute_long_plan_tasks(plan_id: str, repo_root: str) -> Dict[str, Any
 
 
 __all__ = [
+    "execute_long_plan_tasks",
     "long_plan_execute_tool",
     "long_plan_simulate_tool",
-    "execute_long_plan_tasks",
 ]
 
 # ============================================================================

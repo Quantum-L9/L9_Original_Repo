@@ -129,7 +129,7 @@ class ForesightEngine:
         # Step 4: Check confidence threshold (C-CONF-001)
         if best.confidence >= self.confidence_threshold:
             # Execute autonomously
-            result = self.execute_action(best.action, best.confidence)
+            self.execute_action(best.action, best.confidence)
             return ForesightDecision(
                 mode=DecisionMode.EXECUTE,
                 action=best.action,

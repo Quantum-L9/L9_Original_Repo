@@ -1,23 +1,28 @@
 # ADR 0017: Tool Definition Schema
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 All tools defined via `ToolDefinition` dataclass with OpenAI-compatible naming (no dots, spaces).
 
 ## Files
+
 - `core/tools/tool_graph.py` - ToolDefinition dataclass
 - `runtime/l_tools.py` - L9 tool definitions
 - `core/tools/registry_adapter.py` - Tool registry
 
 ## Import Block
+
 ```python
 from core.tools.tool_graph import ToolDefinition, ToolParameter
 from core.tools.registry_adapter import ToolRegistry
 ```
 
 ## Minimal Implementation
+
 ```python
 from dataclasses import dataclass, field
 from typing import Callable, Any
@@ -43,12 +48,12 @@ class ToolDefinition:
     description: str                # What the tool does
     parameters: list[ToolParameter] = field(default_factory=list)
     handler: Callable | None = None # Async function to execute
-    
+
     # Risk classification
     is_destructive: bool = False    # Modifies state
     requires_igor_approval: bool = False  # High-risk
     risk_level: str = "low"         # low|medium|high|critical
-    
+
     def __post_init__(self):
         if not TOOL_NAME_PATTERN.match(self.tool_id):
             raise ValueError(
@@ -58,6 +63,7 @@ class ToolDefinition:
 ```
 
 ## Usage Example
+
 ```python
 # Define a tool
 memory_search = ToolDefinition(
@@ -94,6 +100,7 @@ result = await registry.execute("memory_search", query="user preferences")
 ```
 
 ## Anti-Pattern Example
+
 ```python
 # ❌ WRONG — Dots in tool name (OpenAI rejects this)
 ToolDefinition(
@@ -127,6 +134,7 @@ ToolDefinition(
 ```
 
 ## Naming Convention
+
 ```
 Valid:   memory_search, git_commit, file_read, perplexity-search
 Invalid: memory.search, git:commit, file read, @tool
@@ -134,6 +142,7 @@ Pattern: ^[a-zA-Z0-9_-]+$
 ```
 
 ## Rules
+
 1. Tool name MUST match `^[a-zA-Z0-9_-]+$` (no dots, spaces, special chars)
 2. Use underscores `_` or hyphens `-` as separators
 3. Set `is_destructive=True` for state-changing tools
@@ -141,13 +150,16 @@ Pattern: ^[a-zA-Z0-9_-]+$
 5. Provide clear `description` for LLM function calling
 
 ## AI Guidance
+
 **DO:**
+
 - Use underscores in tool names (`memory_search`)
 - Set appropriate `risk_level` and flags
 - Include all parameters with descriptions
 - Validate tool_id in `__post_init__`
 
 **DO NOT:**
+
 - Use dots in tool names (`memory.search` is INVALID)
 - Use spaces or special characters
 - Skip `is_destructive` flag for write operations

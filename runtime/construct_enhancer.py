@@ -43,7 +43,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiofiles
 import structlog
@@ -82,15 +82,15 @@ class EnhancementResult:
     patches_applied: int
 
     # Enhanced contract (if successful)
-    enhanced_contract: Optional[MetaContract] = None
-    enhanced_spec: Optional[Dict[str, Any]] = None
+    enhanced_contract: MetaContract | None = None
+    enhanced_spec: dict[str, Any] | None = None
 
     # Validation
-    validation_result: Optional[MetaContractValidationResult] = None
+    validation_result: MetaContractValidationResult | None = None
 
     # Errors
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
     @property
     def gaps_filled(self) -> int:
@@ -124,7 +124,7 @@ class ConstructEnhancer:
 
     def __init__(
         self,
-        perplexity_api_key: Optional[str] = None,
+        perplexity_api_key: str | None = None,
         strict_validation: bool = False,
     ):
         """
@@ -147,7 +147,7 @@ class ConstructEnhancer:
 
     async def enhance_spec(
         self,
-        spec: Dict[str, Any],
+        spec: dict[str, Any],
         max_iterations: int = 2,
     ) -> EnhancementResult:
         """
@@ -268,12 +268,12 @@ class ConstructEnhancer:
         Returns:
             EnhancementResult
         """
-        async with aiofiles.open(yaml_path, "r", encoding="utf-8") as f:
+        async with aiofiles.open(yaml_path, encoding="utf-8") as f:
             spec = yaml.safe_load(await f.read())
 
         return await self.enhance_spec(spec)
 
-    def analyze_gaps(self, spec: Dict[str, Any]) -> GapAnalysis:
+    def analyze_gaps(self, spec: dict[str, Any]) -> GapAnalysis:
         """
         Analyze gaps without enhancement.
 
@@ -287,8 +287,8 @@ class ConstructEnhancer:
 
     def preview_enhancement(
         self,
-        spec: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        spec: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Preview what would be enhanced without making API calls.
 
@@ -334,7 +334,7 @@ class BatchEnhancementResult:
     failed: int
     skipped: int
 
-    results: List[EnhancementResult] = field(default_factory=list)
+    results: list[EnhancementResult] = field(default_factory=list)
 
     @property
     def success_rate(self) -> float:
@@ -350,7 +350,7 @@ class BatchEnhancer:
 
     def __init__(
         self,
-        perplexity_api_key: Optional[str] = None,
+        perplexity_api_key: str | None = None,
         rate_limit_delay: float = 1.0,
     ):
         """
@@ -406,7 +406,7 @@ class BatchEnhancer:
 
         for yaml_file in yaml_files:
             try:
-                async with aiofiles.open(yaml_file, "r") as f:
+                async with aiofiles.open(yaml_file) as f:
                     spec = yaml.safe_load(await f.read())
 
                 # Check if already valid
@@ -453,7 +453,7 @@ class BatchEnhancer:
 # =============================================================================
 
 
-async def enhance_spec(spec: Dict[str, Any]) -> EnhancementResult:
+async def enhance_spec(spec: dict[str, Any]) -> EnhancementResult:
     """
     Enhance a specification via Perplexity.
 
@@ -481,7 +481,7 @@ async def enhance_yaml(yaml_path: str) -> EnhancementResult:
     return await enhancer.enhance_yaml(yaml_path)
 
 
-def preview_enhancement(spec: Dict[str, Any]) -> Dict[str, Any]:
+def preview_enhancement(spec: dict[str, Any]) -> dict[str, Any]:
     """
     Preview what would be enhanced.
 

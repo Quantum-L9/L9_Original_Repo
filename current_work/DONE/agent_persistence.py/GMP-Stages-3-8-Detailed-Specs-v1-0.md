@@ -6,9 +6,9 @@ This file provides detailed specifications for Stages 3-8. Each stage GMP file i
 
 ## STAGE 3: Integration Wiring v1.0
 
-**Purpose**: Wire AgentPersistence to 6 system integration points  
-**Scope**: Modify 6 files (executor, server, approval_manager, ingestion, agent_instance)  
-**Produces**: Hooked save/restore operations in all 6 locations  
+**Purpose**: Wire AgentPersistence to 6 system integration points
+**Scope**: Modify 6 files (executor, server, approval_manager, ingestion, agent_instance)
+**Produces**: Hooked save/restore operations in all 6 locations
 
 ### Phase 0 TODOs (Template)
 
@@ -67,9 +67,9 @@ This file provides detailed specifications for Stages 3-8. Each stage GMP file i
 
 ## STAGE 4: Retention & Lifecycle v1.0
 
-**Purpose**: Add retention policies, cleanup automation, lifecycle coordination  
-**Scope**: New files (retention_engine.py, lifecycle_coordinator.py)  
-**Produces**: Automated cleanup and retention policy management  
+**Purpose**: Add retention policies, cleanup automation, lifecycle coordination
+**Scope**: New files (retention_engine.py, lifecycle_coordinator.py)
+**Produces**: Automated cleanup and retention policy management
 
 ### Key Features to Implement
 
@@ -127,9 +127,9 @@ This file provides detailed specifications for Stages 3-8. Each stage GMP file i
 
 ## STAGE 5: Integrity & Security v1.0
 
-**Purpose**: Add checksums, schema versioning, encrypted storage  
-**Scope**: New files (checkpoint_validator.py, schema_versioning.py), updates to agent_persistence.py  
-**Produces**: Cryptographic validation + schema migration support  
+**Purpose**: Add checksums, schema versioning, encrypted storage
+**Scope**: New files (checkpoint_validator.py, schema_versioning.py), updates to agent_persistence.py
+**Produces**: Cryptographic validation + schema migration support
 
 ### Key Features
 
@@ -184,9 +184,9 @@ This file provides detailed specifications for Stages 3-8. Each stage GMP file i
 
 ## STAGE 6: Observability & Metrics v1.0
 
-**Purpose**: Add Prometheus metrics, audit trails, structured logging  
-**Scope**: New files (metrics_definitions.py, audit_logger.py), updates to agent_persistence.py  
-**Produces**: Production-grade observability  
+**Purpose**: Add Prometheus metrics, audit trails, structured logging
+**Scope**: New files (metrics_definitions.py, audit_logger.py), updates to agent_persistence.py
+**Produces**: Production-grade observability
 
 ### Metrics (8–10 key metrics)
 
@@ -255,9 +255,9 @@ metrics = {
 
 ## STAGE 7: Testing & Validation v1.0
 
-**Purpose**: Comprehensive test coverage (unit, integration, chaos)  
-**Scope**: Test files (test_agent_persistence.py, test_integration.py, test_chaos.py)  
-**Produces**: >85% code coverage  
+**Purpose**: Comprehensive test coverage (unit, integration, chaos)
+**Scope**: Test files (test_agent_persistence.py, test_integration.py, test_chaos.py)
+**Produces**: >85% code coverage
 
 ### Test Coverage
 
@@ -319,9 +319,9 @@ metrics = {
 
 ## STAGE 8: Deployment & Runbook v1.0
 
-**Purpose**: Migration guide, ops runbook, final validation  
-**Scope**: Documentation files (migration_guide.md, ops_runbook.md, pre_prod_checklist.md)  
-**Produces**: Production-ready deployment artifacts  
+**Purpose**: Migration guide, ops runbook, final validation
+**Scope**: Documentation files (migration_guide.md, ops_runbook.md, pre_prod_checklist.md)
+**Produces**: Production-ready deployment artifacts
 
 ### Migration Guide
 

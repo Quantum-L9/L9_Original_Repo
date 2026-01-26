@@ -36,7 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -58,7 +58,7 @@ class EOSHypergraphClient:
     - Verdict (allow, deny, conditional, rollback)
     """
 
-    def __init__(self, neo4j_client: Optional[Any] = None):
+    def __init__(self, neo4j_client: Any | None = None):
         """
         Initialize EOS Hypergraph Client.
 
@@ -86,8 +86,8 @@ class EOSHypergraphClient:
         self,
         action_type: str,
         agent_id: str,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
         """
         Check if an action would violate any constraints.
 
@@ -129,12 +129,14 @@ class EOSHypergraphClient:
             )
 
             for prohibition in prohibitions:
-                result["violations"].append({
-                    "type": "prohibition",
-                    "name": prohibition.get("prohibition"),
-                    "description": prohibition.get("description"),
-                    "severity": prohibition.get("severity", "high"),
-                })
+                result["violations"].append(
+                    {
+                        "type": "prohibition",
+                        "name": prohibition.get("prohibition"),
+                        "description": prohibition.get("description"),
+                        "severity": prohibition.get("severity", "high"),
+                    }
+                )
 
             # Query 2: Check agent capabilities
             capability_query = """
@@ -150,19 +152,23 @@ class EOSHypergraphClient:
             )
 
             if not capabilities:
-                result["violations"].append({
-                    "type": "missing_capability",
-                    "name": f"No capability for {action_type}",
-                    "description": f"Agent {agent_id} lacks capability for {action_type}",
-                    "severity": "medium",
-                })
+                result["violations"].append(
+                    {
+                        "type": "missing_capability",
+                        "name": f"No capability for {action_type}",
+                        "description": f"Agent {agent_id} lacks capability for {action_type}",
+                        "severity": "medium",
+                    }
+                )
             else:
                 for cap in capabilities:
-                    result["satisfied"].append({
-                        "type": "capability",
-                        "name": cap.get("capability"),
-                        "scope": cap.get("scope"),
-                    })
+                    result["satisfied"].append(
+                        {
+                            "type": "capability",
+                            "name": cap.get("capability"),
+                            "scope": cap.get("scope"),
+                        }
+                    )
 
             # Query 3: Check required evidence obligations
             obligation_query = """
@@ -180,12 +186,14 @@ class EOSHypergraphClient:
             for obligation in obligations:
                 evidence_type = obligation.get("evidence_type")
                 if not any(evidence_type in str(ref) for ref in evidence_refs):
-                    result["violations"].append({
-                        "type": "missing_evidence",
-                        "name": obligation.get("obligation"),
-                        "description": f"Missing required evidence: {evidence_type}",
-                        "severity": "medium",
-                    })
+                    result["violations"].append(
+                        {
+                            "type": "missing_evidence",
+                            "name": obligation.get("obligation"),
+                            "description": f"Missing required evidence: {evidence_type}",
+                            "severity": "medium",
+                        }
+                    )
 
             self.logger.debug(
                 "eos.hypergraph_client.check_violations",
@@ -210,7 +218,7 @@ class EOSHypergraphClient:
     async def get_agent_capabilities(
         self,
         agent_id: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Get all capabilities for an agent.
 
@@ -226,7 +234,7 @@ class EOSHypergraphClient:
         try:
             query = """
             MATCH (agent:Agent {id: $agent_id})-[:HAS_CAPABILITY]->(cap:Capability)
-            RETURN cap.name AS name, cap.action_type AS action_type, 
+            RETURN cap.name AS name, cap.action_type AS action_type,
                    cap.scope AS scope, cap.risk_class AS risk_class
             """
 
@@ -240,7 +248,7 @@ class EOSHypergraphClient:
             )
             return []
 
-    async def get_active_prohibitions(self) -> List[Dict[str, Any]]:
+    async def get_active_prohibitions(self) -> list[dict[str, Any]]:
         """
         Get all active prohibitions in the hypergraph.
 
@@ -254,7 +262,7 @@ class EOSHypergraphClient:
             query = """
             MATCH (p:Prohibition)
             WHERE p.active = true
-            RETURN p.name AS name, p.description AS description, 
+            RETURN p.name AS name, p.description AS description,
                    p.severity AS severity, p.created_at AS created_at
             ORDER BY p.severity DESC
             """
@@ -274,7 +282,7 @@ class EOSHypergraphClient:
         action_id: str,
         decision: str,
         agent_id: str,
-        justification: Optional[List[str]] = None,
+        justification: list[str] | None = None,
     ) -> bool:
         """
         Record a verdict in the hypergraph for audit trail.

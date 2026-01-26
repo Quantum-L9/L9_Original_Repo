@@ -36,7 +36,6 @@ patch:
     log_research_replies: true
     inject_summary_to_manifest: true
     feedback_self_loop_enabled: true
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

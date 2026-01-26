@@ -2,8 +2,12 @@
 Tests for InputSegmenter - Harvested from tokenizer pipeline.
 """
 
-from orchestration.input_segmenter import (InputSegmenter, SegmenterConfig,
-                                           segment_input, segment_to_tasks)
+from orchestration.input_segmenter import (
+    InputSegmenter,
+    SegmenterConfig,
+    segment_input,
+    segment_to_tasks,
+)
 
 
 class TestInputSegmenter:

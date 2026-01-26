@@ -147,7 +147,7 @@ KEY CHANGES IN v2.0:
    User must provide:
    - L9_REPO_ROOT: /Users/ib-mac/Projects/L9/ (or your path)
    - L9_REPORTS_DIR: ${L9_REPO_ROOT}/reports/
-   
+
    All subsequent TODOs use ${L9_REPO_ROOT} variable.
    ```
 
@@ -155,7 +155,7 @@ KEY CHANGES IN v2.0:
    ```markdown
    OLD: [0.1], [0.2], [1.1]
    NEW: [v2.0.0-001], [v2.0.0-002], [v2.0.0-042]
-   
+
    Format: [vMAJOR.MINOR.PATCH-SEQUENCE]
    ```
 
@@ -165,7 +165,7 @@ KEY CHANGES IN v2.0:
    - [ ] Create branch: gmp-execution-{task}-{timestamp}
    - [ ] Commit baseline: "GMP Phase 0 baseline - {task}"
    - [ ] Record baseline_commit_sha in report Section 3
-   
+
    Rollback command: git reset --hard {baseline_commit_sha}
    ```
 
@@ -206,19 +206,19 @@ KEY CHANGES IN v2.0:
    - [ ] Code coverage ≥80% for modified files
    - [ ] All imports resolve correctly
    - [ ] No TODO/FIXME comments in production code
-   
+
    L9 Integration:
    - [ ] Feature flags respected
    - [ ] Kernel dependencies loaded
    - [ ] Memory substrate connections valid
    - [ ] Tool registry bindings correct
    - [ ] Safety kernel enforcements in place
-   
+
    Performance:
    - [ ] No N+1 queries
    - [ ] Database indexes present
    - [ ] API response time <500ms
-   
+
    Security:
    - [ ] No hardcoded secrets
    - [ ] Input validation present
@@ -243,25 +243,25 @@ KEY CHANGES IN v2.0:
    ```markdown
    ### FINAL DECLARATION
    All phases (0–6) complete. No assumptions. No drift.
-   
+
    Git Status:
    - Branch: gmp-execution-{task}-{timestamp}
    - Baseline SHA: {baseline_sha}
    - Final SHA: {final_sha}
    - Total Commits: {count}
    - Rollback Command: git reset --hard {baseline_sha}
-   
+
    DORA Blocks:
    - Files Modified: {count}
    - DORA Blocks Generated: {count}
    - Validation Status: ALL "validated"
-   
+
    L9 Integration:
    - Feature Flags Used: {list}
    - Kernel Dependencies: {list}
    - Memory Substrate Access: {yes/no}
    - Tool Registry Integration: {yes/no}
-   
+
    Production Readiness:
    - Syntax Errors: 0
    - Logic Errors: 0
@@ -280,7 +280,7 @@ KEY CHANGES IN v2.0:
 1. CONFIDENCE CALCULATION FORMULA (Deterministic)
    ```markdown
    BASE CONFIDENCE: 100%
-   
+
    PENALTIES:
    - Missing critical file: -50% per file (FAIL if >1)
    - Snippet instead of full file: -5% per file
@@ -291,7 +291,7 @@ KEY CHANGES IN v2.0:
    - Missing DORA block: -20% per file
    - Invalid DORA block JSON: -10% per file
    - Feature flag violation: -30% (FAIL if critical)
-   
+
    CONFIDENCE LEVELS:
    - 100%: Perfect execution, all evidence present
    - 95%: Minor visibility issues, all TODOs verified
@@ -312,7 +312,7 @@ KEY CHANGES IN v2.0:
    - [ ] version follows semver
    - [ ] dependencies list valid
    - [ ] l9_integration fields correct
-   
+
    SCORING:
    - All valid: +0 penalty
    - Missing block: -20% per file
@@ -331,7 +331,7 @@ KEY CHANGES IN v2.0:
    - [ ] Safety kernel enforcements present
    - [ ] WebSocket orchestrator unchanged (unless in TODO)
    - [ ] Docker Compose unchanged (unless in TODO)
-   
+
    SCORING:
    - All valid: +0 penalty
    - Feature flag violation: -30% (FAIL if critical flag)
@@ -351,7 +351,7 @@ KEY CHANGES IN v2.0:
    - [ ] No commits outside TODO plan
    - [ ] Final commit SHA recorded in report
    - [ ] Rollback command valid
-   
+
    SCORING:
    - All valid: +0 penalty
    - Missing branch: -10%
@@ -363,18 +363,18 @@ KEY CHANGES IN v2.0:
 5. AUTOMATED AUDIT TRIGGERS (New Section)
    ```markdown
    ## WHEN TO RUN AUDIT
-   
+
    MANDATORY TRIGGERS:
    - Before merging GMP branch to main
    - Before deploying to staging/production
    - Before tagging a release
    - After 3+ file modifications in single GMP
-   
+
    RECOMMENDED TRIGGERS:
    - Daily on all open GMP branches
    - On dependency change detection
    - On feature flag state change
-   
+
    CI/CD INTEGRATION:
    ```yaml
    # .github/workflows/gmp-audit.yml
@@ -386,7 +386,7 @@ KEY CHANGES IN v2.0:
      push:
        branches:
          - 'gmp-execution-*'
-   
+
    jobs:
      audit:
        runs-on: ubuntu-latest
@@ -424,23 +424,23 @@ KEY CHANGES IN v2.0:
 1. PHASE 1.5: CONTEXT VALIDATION (NEW)
    ```markdown
    ## PHASE 1.5 — CONTEXT VALIDATION & CONFLICT RESOLUTION
-   
+
    ACTIONS:
    • For each file path in extracted requirements:
      - [ ] Verify file exists in repo at ${L9_REPO_ROOT}
      - [ ] Verify line numbers valid (file has that many lines)
      - [ ] Verify target structure exists (function/class name matches)
      - [ ] Check file not in PROTECTED list (websocket_orchestrator.py, etc.)
-   
+
    • For conflicting requirements:
      - [ ] Flag conflicts (two TODOs modify same line range)
      - [ ] Ask user to resolve conflicts
      - [ ] Do NOT proceed until resolved
-   
+
    • For missing context:
      - [ ] List assumptions made
      - [ ] Request additional context if critical
-   
+
    FAIL RULE:
    If >20% of extracted requirements cannot be validated, STOP.
    Request updated context files with correct paths/lines.
@@ -449,25 +449,25 @@ KEY CHANGES IN v2.0:
 2. L9 PATTERN DETECTION (New Phase 2.5)
    ```markdown
    ## PHASE 2.5 — L9 PATTERN DETECTION
-   
+
    Analyze extracted requirements for L9-specific patterns:
-   
+
    Feature Flags:
    - [ ] Does requirement involve agent execution? → L9_ENABLE_AGENT_EXECUTOR
    - [ ] Does requirement involve memory substrate? → L9_ENABLE_MEMORY_SUBSTRATE
    - [ ] Does requirement involve Slack? → SLACK_APP_ENABLED
    - [ ] List ALL flags in generated prompt Phase 0
-   
+
    Kernel Dependencies:
    - [ ] Does requirement modify agent behavior? → Check kernel YAML
    - [ ] Does requirement add tool? → tool_registry.py + kernels
    - [ ] Does requirement change memory? → memory_helpers.py + substrate
-   
+
    Memory Substrate:
    - [ ] Check if PostgreSQL tables involved
    - [ ] Check if migrations needed (never auto-create, only reference)
    - [ ] Check if pgvector embeddings involved
-   
+
    Protected Files:
    - [ ] websocket_orchestrator.py → WARN if in requirements
    - [ ] docker-compose.yml → WARN if in requirements
@@ -477,7 +477,7 @@ KEY CHANGES IN v2.0:
 3. DORA BLOCK TEMPLATE GENERATION (Phase 3 Enhancement)
    ```markdown
    ## PHASE 3: TODO PLAN ASSEMBLY
-   
+
    For EACH file in TODO plan:
    - [ ] Generate DORA block template in TODO
    - [ ] Pre-fill known fields:
@@ -488,7 +488,7 @@ KEY CHANGES IN v2.0:
      * todo_ids_implemented: ["[v2.0.0-NNN]"]
      * l9_integration.feature_flags: {detected_flags}
      * l9_integration.kernel_dependencies: {detected_kernels}
-   
+
    Include in TODO:
    ```markdown
    TODO [v2.0.0-001]: Create /l9/new_module.py
@@ -514,7 +514,7 @@ KEY CHANGES IN v2.0:
 4. GENERATED PROMPT VALIDATION (Phase 4 - NEW)
    ```markdown
    ## PHASE 4 — GENERATED PROMPT VALIDATION
-   
+
    Lint generated prompt:
    - [ ] All required sections present (1-10)
    - [ ] All TODO IDs unique and sequential
@@ -525,13 +525,13 @@ KEY CHANGES IN v2.0:
    - [ ] All DORA block templates valid JSON
    - [ ] All L9 feature flags recognized
    - [ ] All kernel dependencies exist
-   
+
    Dry-run simulation (optional but recommended):
    - [ ] Parse TODO plan (can all TODOs be parsed?)
    - [ ] Check all files exist (Phase 1 simulation)
    - [ ] Check all line numbers valid
    - [ ] Flag potential issues before actual execution
-   
+
    FAIL RULE:
    If lint fails, fix generated prompt before outputting.
    Do NOT deliver broken prompt to user.
@@ -643,7 +643,7 @@ KEY CHANGES IN v2.0:
        "Cannot access external APIs without explicit permission"
      ]
    }
-   
+
    IF any REQUIRED capability is false, GMP CANNOT proceed.
    USER must upgrade Cursor or use alternative executor.
    ```
@@ -678,7 +678,7 @@ KEY CHANGES IN v2.0:
 1. L9-SPECIFIC BEHAVIORS (New Section)
    ```markdown
    ## L9 REPOSITORY AWARENESS
-   
+
    YOU MUST:
    - Check feature flags before modifying files
    - Respect kernel dependencies (load order matters)
@@ -689,7 +689,7 @@ KEY CHANGES IN v2.0:
    - Respect L9 memory substrate schema (PostgreSQL tables)
    - Respect L9 tool registry bindings
    - Respect L9 agent capabilities defined in AgentConfig
-   
+
    YOU MUST NOT:
    - Hallucinate L9-specific APIs or patterns
    - Modify protected files without explicit user approval
@@ -702,7 +702,7 @@ KEY CHANGES IN v2.0:
 2. DORA BLOCK GENERATION (New Section)
    ```markdown
    ## DORA BLOCK REQUIREMENTS
-   
+
    For EVERY file you create or modify:
    1. Read DORA-Block-Spec-v2.0.md
    2. Generate valid DORA block JSON
@@ -718,7 +718,7 @@ KEY CHANGES IN v2.0:
       - l9_integration.kernel_dependencies: Detect from imports
    4. Append to bottom of file
    5. Verify JSON is valid before saving
-   
+
    FAIL RULE:
    If you cannot generate valid DORA block, STOP and request help.
    Do NOT save file without valid DORA block.
@@ -727,21 +727,21 @@ KEY CHANGES IN v2.0:
 3. GIT WORKFLOW (New Section)
    ```markdown
    ## GIT INTEGRATION WORKFLOW
-   
+
    Phase 1.5 (Baseline):
    ```bash
    git checkout -b gmp-execution-{task}-{timestamp}
    git commit -m "GMP Phase 0 baseline - {task}"
    # Record baseline SHA
    ```
-   
+
    Phase 2 (Implementation) - After EACH TODO:
    ```bash
    git add {modified_files}
    git commit -m "TODO [v2.0.0-NNN] implemented: {description}"
    # Record commit SHA in report
    ```
-   
+
    Phase 5 (Rollback if needed):
    ```bash
    git reset --hard {baseline_sha}
@@ -752,7 +752,7 @@ KEY CHANGES IN v2.0:
 4. ERROR RECOVERY (New Section)
    ```markdown
    ## ERROR RECOVERY PROCEDURES
-   
+
    | Error Type | Recovery Action |
    |------------|----------------|
    | Syntax Error | Fix immediately, retry current TODO |
@@ -763,7 +763,7 @@ KEY CHANGES IN v2.0:
    | Git Conflict | STOP, request user to resolve manually |
    | DORA Block Invalid | Fix JSON, regenerate, retry |
    | Test Failure | Analyze failure, fix code, rerun tests |
-   
+
    ESCALATION RULE:
    - Same error 3 times → STOP immediately
    - Provide diagnostic report

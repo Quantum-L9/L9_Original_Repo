@@ -33,8 +33,12 @@ import structlog
 
 from core.decorators import must_stay_async
 
-from .interface import (IReasoningOrchestrator, ReasoningMode,
-                        ReasoningRequest, ReasoningResponse)
+from .interface import (
+    IReasoningOrchestrator,
+    ReasoningMode,
+    ReasoningRequest,
+    ReasoningResponse,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -70,22 +74,21 @@ class ReasoningOrchestrator(IReasoningOrchestrator):
         try:
             if request.mode == ReasoningMode.CHAIN_OF_THOUGHT:
                 return await self._chain_of_thought(request)
-            elif request.mode == ReasoningMode.TREE_OF_THOUGHT:
+            if request.mode == ReasoningMode.TREE_OF_THOUGHT:
                 return await self._tree_of_thought(request)
-            elif request.mode == ReasoningMode.FOREST_OF_THOUGHT:
+            if request.mode == ReasoningMode.FOREST_OF_THOUGHT:
                 return await self._forest_of_thought(request)
-            elif request.mode == ReasoningMode.BEAM_SEARCH:
+            if request.mode == ReasoningMode.BEAM_SEARCH:
                 return await self._beam_search(request)
-            else:
-                return ReasoningResponse(
-                    success=False,
-                    message=f"Unknown reasoning mode: {request.mode}",
-                )
+            return ReasoningResponse(
+                success=False,
+                message=f"Unknown reasoning mode: {request.mode}",
+            )
         except Exception as e:
             logger.error(f"Reasoning error: {e}")
             return ReasoningResponse(
                 success=False,
-                message=f"Reasoning failed: {str(e)}",
+                message=f"Reasoning failed: {e!s}",
             )
 
     @must_stay_async("callers use await")

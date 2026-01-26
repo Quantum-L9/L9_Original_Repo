@@ -25,21 +25,21 @@ from .diff_generator import BatchDiff, DiffGenerator, FileDiff
 from .report_generator import ChangeReport, ChangeType, ReportGenerator
 
 __all__ = [
-    # Diff generation
-    "DiffGenerator",
-    "FileDiff",
     "BatchDiff",
-    # Report generation
-    "ReportGenerator",
-    "ChangeReport",
-    "ChangeType",
-    # Constraint validation
-    "ConstraintValidator",
-    "Violation",
-    "ViolationSeverity",
-    "ValidationResult",
     # Orchestration
     "CACodeChange",
     "ChangeProposal",
+    "ChangeReport",
     "ChangeStatus",
+    "ChangeType",
+    # Constraint validation
+    "ConstraintValidator",
+    # Diff generation
+    "DiffGenerator",
+    "FileDiff",
+    # Report generation
+    "ReportGenerator",
+    "ValidationResult",
+    "Violation",
+    "ViolationSeverity",
 ]

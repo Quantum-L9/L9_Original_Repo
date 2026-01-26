@@ -53,8 +53,7 @@ logger = structlog.get_logger(__name__)
 # Add L9 root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from core.governance.mistake_prevention import (Violation,
-                                                create_mistake_prevention)
+from core.governance.mistake_prevention import Violation, create_mistake_prevention
 
 
 def format_violation(v: Violation) -> str:
@@ -162,9 +161,8 @@ def main():
     if not allowed:
         logger.info("🚫 BLOCKED: Critical violations would prevent execution")
         return 2
-    else:
-        logger.info("⚠️  WARNINGS: Non-blocking violations detected")
-        return 1
+    logger.info("⚠️  WARNINGS: Non-blocking violations detected")
+    return 1
 
 
 if __name__ == "__main__":

@@ -102,13 +102,13 @@ HTML_TEMPLATE = """
             --user-bg: #1a2520;
             --l-bg: #15151f;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
             background: var(--bg-primary);
@@ -117,7 +117,7 @@ HTML_TEMPLATE = """
             display: flex;
             flex-direction: column;
         }
-        
+
         /* Header */
         .header {
             background: var(--bg-secondary);
@@ -127,13 +127,13 @@ HTML_TEMPLATE = """
             align-items: center;
             justify-content: space-between;
         }
-        
+
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        
+
         .logo-icon {
             width: 32px;
             height: 32px;
@@ -146,17 +146,17 @@ HTML_TEMPLATE = """
             color: var(--bg-primary);
             font-size: 18px;
         }
-        
+
         .logo-text {
             font-size: 18px;
             font-weight: 600;
             color: var(--text-primary);
         }
-        
+
         .logo-text span {
             color: var(--accent);
         }
-        
+
         .status {
             display: flex;
             align-items: center;
@@ -164,7 +164,7 @@ HTML_TEMPLATE = """
             font-size: 12px;
             color: var(--text-secondary);
         }
-        
+
         .status-dot {
             width: 8px;
             height: 8px;
@@ -172,12 +172,12 @@ HTML_TEMPLATE = """
             background: var(--accent);
             animation: pulse 2s infinite;
         }
-        
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
-        
+
         /* Chat Container */
         .chat-container {
             flex: 1;
@@ -187,7 +187,7 @@ HTML_TEMPLATE = """
             flex-direction: column;
             gap: 16px;
         }
-        
+
         .message {
             max-width: 75%;
             padding: 14px 18px;
@@ -195,33 +195,33 @@ HTML_TEMPLATE = """
             line-height: 1.5;
             font-size: 14px;
         }
-        
+
         .message.user {
             align-self: flex-end;
             background: var(--user-bg);
             border: 1px solid var(--accent-dim);
             color: var(--accent);
         }
-        
+
         .message.l {
             align-self: flex-start;
             background: var(--l-bg);
             border: 1px solid var(--border);
         }
-        
+
         .message.l .sender {
             color: var(--accent);
             font-weight: 600;
             margin-bottom: 8px;
             font-size: 12px;
         }
-        
+
         .message.error {
             background: #2a1515;
             border-color: #ff4444;
             color: #ff8888;
         }
-        
+
         .message pre {
             background: var(--bg-primary);
             padding: 12px;
@@ -230,27 +230,27 @@ HTML_TEMPLATE = """
             margin-top: 8px;
             font-size: 13px;
         }
-        
+
         .timestamp {
             font-size: 10px;
             color: var(--text-secondary);
             margin-top: 6px;
         }
-        
+
         /* Input Area */
         .input-area {
             background: var(--bg-secondary);
             border-top: 1px solid var(--border);
             padding: 20px 24px;
         }
-        
+
         .input-container {
             display: flex;
             gap: 12px;
             max-width: 1000px;
             margin: 0 auto;
         }
-        
+
         #message-input {
             flex: 1;
             background: var(--bg-tertiary);
@@ -264,16 +264,16 @@ HTML_TEMPLATE = """
             min-height: 50px;
             max-height: 150px;
         }
-        
+
         #message-input:focus {
             outline: none;
             border-color: var(--accent);
         }
-        
+
         #message-input::placeholder {
             color: var(--text-secondary);
         }
-        
+
         #send-btn {
             background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
             border: none;
@@ -286,28 +286,28 @@ HTML_TEMPLATE = """
             cursor: pointer;
             transition: transform 0.1s, opacity 0.2s;
         }
-        
+
         #send-btn:hover {
             transform: scale(1.02);
         }
-        
+
         #send-btn:active {
             transform: scale(0.98);
         }
-        
+
         #send-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
-        
+
         /* Loading */
         .loading {
             display: flex;
             gap: 4px;
             padding: 20px;
         }
-        
+
         .loading-dot {
             width: 8px;
             height: 8px;
@@ -315,49 +315,49 @@ HTML_TEMPLATE = """
             border-radius: 50%;
             animation: bounce 1.4s infinite ease-in-out;
         }
-        
+
         .loading-dot:nth-child(1) { animation-delay: -0.32s; }
         .loading-dot:nth-child(2) { animation-delay: -0.16s; }
-        
+
         @keyframes bounce {
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1); }
         }
-        
+
         /* Empty state */
         .empty-state {
             text-align: center;
             color: var(--text-secondary);
             padding: 60px 20px;
         }
-        
+
         .empty-state h2 {
             color: var(--accent);
             margin-bottom: 12px;
             font-size: 24px;
         }
-        
+
         .empty-state p {
             font-size: 14px;
             max-width: 400px;
             margin: 0 auto;
             line-height: 1.6;
         }
-        
+
         /* Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: var(--bg-primary);
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: var(--border);
             border-radius: 4px;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: var(--text-secondary);
         }
@@ -374,38 +374,38 @@ HTML_TEMPLATE = """
             <span>Connected to L9</span>
         </div>
     </div>
-    
+
     <div class="chat-container" id="chat-container">
         <div class="empty-state" id="empty-state">
             <h2>Talk to L</h2>
             <p>Your CTO is ready. Type a message below to start a conversation with L.</p>
         </div>
     </div>
-    
+
     <div class="input-area">
         <div class="input-container">
-            <textarea 
-                id="message-input" 
-                placeholder="Message L..." 
+            <textarea
+                id="message-input"
+                placeholder="Message L..."
                 rows="1"
                 autofocus
             ></textarea>
             <button id="send-btn" onclick="sendMessage()">Send</button>
         </div>
     </div>
-    
+
     <script>
         const chatContainer = document.getElementById('chat-container');
         const messageInput = document.getElementById('message-input');
         const sendBtn = document.getElementById('send-btn');
         const emptyState = document.getElementById('empty-state');
-        
+
         // Auto-resize textarea
         messageInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 150) + 'px';
         });
-        
+
         // Enter to send (Shift+Enter for newline)
         messageInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -413,22 +413,22 @@ HTML_TEMPLATE = """
                 sendMessage();
             }
         });
-        
+
         function formatTime() {
-            return new Date().toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            return new Date().toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
             });
         }
-        
+
         function addMessage(content, isUser, isError = false) {
             if (emptyState) {
                 emptyState.remove();
             }
-            
+
             const msg = document.createElement('div');
             msg.className = `message ${isUser ? 'user' : 'l'} ${isError ? 'error' : ''}`;
-            
+
             if (isUser) {
                 msg.innerHTML = `
                     <div>${escapeHtml(content)}</div>
@@ -441,11 +441,11 @@ HTML_TEMPLATE = """
                     <div class="timestamp">${formatTime()}</div>
                 `;
             }
-            
+
             chatContainer.appendChild(msg);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-        
+
         function addLoading() {
             const loading = document.createElement('div');
             loading.className = 'loading';
@@ -458,18 +458,18 @@ HTML_TEMPLATE = """
             chatContainer.appendChild(loading);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-        
+
         function removeLoading() {
             const loading = document.getElementById('loading');
             if (loading) loading.remove();
         }
-        
+
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
         }
-        
+
         function formatContent(content) {
             // Handle code blocks
             let formatted = escapeHtml(content);
@@ -478,23 +478,23 @@ HTML_TEMPLATE = """
             formatted = formatted.replace(/\\n/g, '<br>');
             return formatted;
         }
-        
+
         async function sendMessage() {
             const message = messageInput.value.trim();
             if (!message) return;
-            
+
             // Clear input
             messageInput.value = '';
             messageInput.style.height = 'auto';
-            
+
             // Add user message
             addMessage(message, true);
-            
+
             // Disable input while waiting
             sendBtn.disabled = true;
             messageInput.disabled = true;
             addLoading();
-            
+
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
@@ -503,9 +503,9 @@ HTML_TEMPLATE = """
                     },
                     body: JSON.stringify({ message })
                 });
-                
+
                 removeLoading();
-                
+
                 if (!response.ok) {
                     const error = await response.json();
                     addMessage(`Error: ${error.detail || 'Failed to reach L'}`, false, true);
@@ -599,7 +599,9 @@ async def chat(request: Request):
             status_code=503, detail="Cannot connect to L9 API. Is Docker running?"
         ) from None
     except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="L9 API request timed out") from None
+        raise HTTPException(
+            status_code=504, detail="L9 API request timed out"
+        ) from None
     except HTTPException:
         raise
     except Exception as e:

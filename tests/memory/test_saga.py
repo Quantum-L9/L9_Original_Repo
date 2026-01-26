@@ -9,13 +9,23 @@ from uuid import UUID
 
 import pytest
 
-from memory.saga import (DatabaseType, SagaBuilder, SagaContext, SagaExecutor,
-                         SagaResult, SagaStatus, SagaStepResult,
-                         SagaStepStatus)
-from memory.saga_patterns import (SagaPatterns, create_entity_enrichment_saga,
-                                  create_fetch_and_enrich_saga,
-                                  create_timeline_correlation_saga,
-                                  fetch_and_enrich)
+from memory.saga import (
+    DatabaseType,
+    SagaBuilder,
+    SagaContext,
+    SagaExecutor,
+    SagaResult,
+    SagaStatus,
+    SagaStepResult,
+    SagaStepStatus,
+)
+from memory.saga_patterns import (
+    SagaPatterns,
+    create_entity_enrichment_saga,
+    create_fetch_and_enrich_saga,
+    create_timeline_correlation_saga,
+    fetch_and_enrich,
+)
 
 
 class TestSagaContext:

@@ -20,15 +20,17 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 from openai import OpenAI
 
 # Import kernel-based prompt builder
 try:
-    from core.kernels.prompt_builder import (build_system_prompt_from_kernels,
-                                             get_fallback_prompt)
+    from core.kernels.prompt_builder import (
+        build_system_prompt_from_kernels,
+        get_fallback_prompt,
+    )
 
     KERNELS_AVAILABLE = True
 except ImportError:
@@ -118,7 +120,7 @@ No hallucinated tools.
 You are L. Operate as Igor's CTO."""
 
 
-def chat_with_l9(user_message: str) -> Dict[str, Any]:
+def chat_with_l9(user_message: str) -> dict[str, Any]:
     """
     Call LLM and return:
     - reply: short natural-language reply
@@ -144,7 +146,7 @@ def chat_with_l9(user_message: str) -> Dict[str, Any]:
     import re
 
     action = "none"
-    payload: Dict[str, Any] = {}
+    payload: dict[str, Any] = {}
     reply = text
 
     # Look for a JSON object on its own line

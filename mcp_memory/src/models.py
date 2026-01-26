@@ -24,7 +24,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
@@ -35,9 +35,9 @@ class SaveMemoryRequest(BaseModel):
     scope: str = "user"
     duration: str
     user_id: str
-    tags: Optional[List[str]] = None
-    importance: Optional[float] = 1.0
-    metadata: Optional[Dict[str, Any]] = None
+    tags: list[str] | None = None
+    importance: float | None = 1.0
+    metadata: dict[str, Any] | None = None
 
 
 class MemoryResponse(BaseModel):
@@ -46,24 +46,24 @@ class MemoryResponse(BaseModel):
     kind: str
     content: str
     importance: float
-    tags: Optional[List[str]] = None
+    tags: list[str] | None = None
     created_at: datetime
-    similarity: Optional[float] = None
+    similarity: float | None = None
 
 
 class SearchMemoryRequest(BaseModel):
     query: str
     user_id: str
-    scopes: Optional[List[str]] = ["user", "project", "global"]
-    kinds: Optional[List[str]] = None
-    top_k: Optional[int] = 5
-    threshold: Optional[float] = 0.7
-    duration: Optional[str] = "all"
-    track_access: Optional[bool] = False
+    scopes: list[str] | None = ["user", "project", "global"]
+    kinds: list[str] | None = None
+    top_k: int | None = 5
+    threshold: float | None = 0.7
+    duration: str | None = "all"
+    track_access: bool | None = False
 
 
 class SearchMemoryResponse(BaseModel):
-    results: List[MemoryResponse]
+    results: list[MemoryResponse]
     query_embedding_time_ms: float
     search_time_ms: float
     total_results: int
@@ -95,16 +95,16 @@ class ContextInjectionRequest(BaseModel):
 
     task_description: str
     user_id: str
-    top_k: Optional[int] = 5
-    include_recent: Optional[bool] = True  # Include last 24h context
-    kinds: Optional[List[str]] = None  # Filter by memory kinds
+    top_k: int | None = 5
+    include_recent: bool | None = True  # Include last 24h context
+    kinds: list[str] | None = None  # Filter by memory kinds
 
 
 class ContextInjectionResponse(BaseModel):
     """Context memories to inject into system prompt."""
 
-    memories: List[MemoryResponse]
-    recent_context: List[MemoryResponse]
+    memories: list[MemoryResponse]
+    recent_context: list[MemoryResponse]
     total_injected: int
     retrieval_time_ms: float
 
@@ -115,17 +115,17 @@ class SessionLearningRequest(BaseModel):
     user_id: str
     session_id: str
     session_summary: str  # What happened this session
-    key_decisions: Optional[List[str]] = None
-    errors_encountered: Optional[List[str]] = None
-    successes: Optional[List[str]] = None
+    key_decisions: list[str] | None = None
+    errors_encountered: list[str] | None = None
+    successes: list[str] | None = None
 
 
 class SessionLearningResponse(BaseModel):
     """Learnings extracted and stored from session."""
 
     learnings_stored: int
-    memory_ids: List[int]
-    kinds_created: List[str]
+    memory_ids: list[int]
+    kinds_created: list[str]
 
 
 class ProactiveRecallRequest(BaseModel):
@@ -133,17 +133,17 @@ class ProactiveRecallRequest(BaseModel):
 
     current_context: str  # What user is currently working on
     user_id: str
-    include_error_fixes: Optional[bool] = True
-    include_preferences: Optional[bool] = True
-    top_k: Optional[int] = 3
+    include_error_fixes: bool | None = True
+    include_preferences: bool | None = True
+    top_k: int | None = 3
 
 
 class ProactiveRecallResponse(BaseModel):
     """Proactive suggestions surfaced from memory."""
 
-    suggestions: List[MemoryResponse]
-    error_fix_pairs: List[Dict[str, Any]]  # {error: str, fix: str, confidence: float}
-    relevant_preferences: List[MemoryResponse]
+    suggestions: list[MemoryResponse]
+    error_fix_pairs: list[dict[str, Any]]  # {error: str, fix: str, confidence: float}
+    relevant_preferences: list[MemoryResponse]
     recall_time_ms: float
 
 
@@ -151,16 +151,16 @@ class TemporalQueryRequest(BaseModel):
     """Request for temporal memory queries."""
 
     user_id: str
-    since: Optional[datetime] = None  # What changed since this time
-    until: Optional[datetime] = None
-    kinds: Optional[List[str]] = None
-    operation: Optional[str] = "changes"  # "changes", "timeline", "diff"
+    since: datetime | None = None  # What changed since this time
+    until: datetime | None = None
+    kinds: list[str] | None = None
+    operation: str | None = "changes"  # "changes", "timeline", "diff"
 
 
 class TemporalQueryResponse(BaseModel):
     """Temporal query results showing memory evolution."""
 
-    memories: List[MemoryResponse]
+    memories: list[MemoryResponse]
     created_count: int
     updated_count: int
     deleted_count: int
@@ -176,12 +176,12 @@ class SaveMemoryWithConfidenceRequest(BaseModel):
     scope: str = "user"
     duration: str
     user_id: str
-    tags: Optional[List[str]] = None
-    importance: Optional[float] = 1.0
-    confidence: Optional[float] = 1.0  # How confident are we in this memory
-    source: Optional[str] = "cursor"  # Where did this memory come from
-    related_memory_ids: Optional[List[int]] = None  # Link to related memories
-    metadata: Optional[Dict[str, Any]] = None
+    tags: list[str] | None = None
+    importance: float | None = 1.0
+    confidence: float | None = 1.0  # How confident are we in this memory
+    source: str | None = "cursor"  # Where did this memory come from
+    related_memory_ids: list[int] | None = None  # Link to related memories
+    metadata: dict[str, Any] | None = None
 
 
 # =============================================================================
@@ -200,10 +200,10 @@ class SaveMemoryArgs(BaseModel):
     kind: str  # Enum: preference, fact, context, error, success
     scope: str = "developer"  # Enum: developer, l-private, global
     duration: str  # Enum: short, medium, long
-    user_id: Optional[str] = None  # Injected server-side from caller identity
-    tags: Optional[List[str]] = None
-    importance: Optional[float] = 1.0  # Range: 0-1
-    metadata: Optional[Dict[str, Any]] = None
+    user_id: str | None = None  # Injected server-side from caller identity
+    tags: list[str] | None = None
+    importance: float | None = 1.0  # Range: 0-1
+    metadata: dict[str, Any] | None = None
 
     class Config:
         # Allow extra fields in metadata but validate known fields strictly
@@ -214,12 +214,12 @@ class SearchMemoryArgs(BaseModel):
     """Validation model for search_memory tool arguments."""
 
     query: str
-    user_id: Optional[str] = None  # Injected server-side from caller identity
-    scopes: Optional[List[str]] = None  # Enum: developer, l-private, global
-    kinds: Optional[List[str]] = None
-    top_k: Optional[int] = 5
-    threshold: Optional[float] = 0.7
-    duration: Optional[str] = "all"  # Enum: short, medium, long, all
+    user_id: str | None = None  # Injected server-side from caller identity
+    scopes: list[str] | None = None  # Enum: developer, l-private, global
+    kinds: list[str] | None = None
+    top_k: int | None = 5
+    threshold: float | None = 0.7
+    duration: str | None = "all"  # Enum: short, medium, long, all
 
     class Config:
         extra = "forbid"
@@ -228,8 +228,8 @@ class SearchMemoryArgs(BaseModel):
 class GetMemoryStatsArgs(BaseModel):
     """Validation model for get_memory_stats tool arguments."""
 
-    user_id: Optional[str] = None
-    duration: Optional[str] = "all"  # Enum: short, medium, long, all
+    user_id: str | None = None
+    duration: str | None = "all"  # Enum: short, medium, long, all
 
     class Config:
         extra = "forbid"
@@ -238,7 +238,7 @@ class GetMemoryStatsArgs(BaseModel):
 class DeleteExpiredMemoriesArgs(BaseModel):
     """Validation model for delete_expired_memories tool arguments."""
 
-    dry_run: Optional[bool] = True
+    dry_run: bool | None = True
 
     class Config:
         extra = "forbid"
@@ -247,8 +247,8 @@ class DeleteExpiredMemoriesArgs(BaseModel):
 class CompoundMemoriesArgs(BaseModel):
     """Validation model for compound_memories tool arguments."""
 
-    user_id: Optional[str] = None  # Injected server-side from caller identity
-    threshold: Optional[float] = 0.92
+    user_id: str | None = None  # Injected server-side from caller identity
+    threshold: float | None = 0.92
 
     class Config:
         extra = "forbid"
@@ -257,7 +257,7 @@ class CompoundMemoriesArgs(BaseModel):
 class ApplyDecayArgs(BaseModel):
     """Validation model for apply_decay tool arguments."""
 
-    dry_run: Optional[bool] = True
+    dry_run: bool | None = True
 
     class Config:
         extra = "forbid"
@@ -267,10 +267,10 @@ class GetContextArgs(BaseModel):
     """Validation model for get_context tool arguments."""
 
     task_description: str
-    user_id: Optional[str] = None  # Injected server-side from caller identity
-    top_k: Optional[int] = 5
-    include_recent: Optional[bool] = True
-    kinds: Optional[List[str]] = None
+    user_id: str | None = None  # Injected server-side from caller identity
+    top_k: int | None = 5
+    include_recent: bool | None = True
+    kinds: list[str] | None = None
 
     class Config:
         extra = "forbid"
@@ -279,12 +279,12 @@ class GetContextArgs(BaseModel):
 class ExtractSessionLearningsArgs(BaseModel):
     """Validation model for extract_session_learnings tool arguments."""
 
-    user_id: Optional[str] = None  # Injected server-side from caller identity
+    user_id: str | None = None  # Injected server-side from caller identity
     session_id: str
     session_summary: str
-    key_decisions: Optional[List[str]] = None
-    errors_encountered: Optional[List[str]] = None
-    successes: Optional[List[str]] = None
+    key_decisions: list[str] | None = None
+    errors_encountered: list[str] | None = None
+    successes: list[str] | None = None
 
     class Config:
         extra = "forbid"
@@ -294,10 +294,10 @@ class GetProactiveSuggestionsArgs(BaseModel):
     """Validation model for get_proactive_suggestions tool arguments."""
 
     current_context: str
-    user_id: Optional[str] = None  # Injected server-side from caller identity
-    include_error_fixes: Optional[bool] = True
-    include_preferences: Optional[bool] = True
-    top_k: Optional[int] = 3
+    user_id: str | None = None  # Injected server-side from caller identity
+    include_error_fixes: bool | None = True
+    include_preferences: bool | None = True
+    top_k: int | None = 3
 
     class Config:
         extra = "forbid"
@@ -306,11 +306,11 @@ class GetProactiveSuggestionsArgs(BaseModel):
 class QueryTemporalArgs(BaseModel):
     """Validation model for query_temporal tool arguments."""
 
-    user_id: Optional[str] = None  # Injected server-side from caller identity
-    since: Optional[str] = None  # ISO datetime string
-    until: Optional[str] = None  # ISO datetime string
-    kinds: Optional[List[str]] = None
-    operation: Optional[str] = "changes"  # Enum: changes, timeline, diff
+    user_id: str | None = None  # Injected server-side from caller identity
+    since: str | None = None  # ISO datetime string
+    until: str | None = None  # ISO datetime string
+    kinds: list[str] | None = None
+    operation: str | None = "changes"  # Enum: changes, timeline, diff
 
     class Config:
         extra = "forbid"
@@ -323,13 +323,13 @@ class SaveMemoryWithConfidenceArgs(BaseModel):
     kind: str  # Enum: preference, fact, context, error, success, learning, decision
     scope: str = "developer"  # Enum: developer, l-private, global
     duration: str  # Enum: short, medium, long
-    user_id: Optional[str] = None  # Injected server-side from caller identity
-    confidence: Optional[float] = 1.0  # Range: 0-1
-    source: Optional[str] = "cursor"
-    related_memory_ids: Optional[List[Any]] = None  # UUIDs or legacy integer IDs
-    tags: Optional[List[str]] = None
-    importance: Optional[float] = 1.0  # Range: 0-1
-    metadata: Optional[Dict[str, Any]] = None
+    user_id: str | None = None  # Injected server-side from caller identity
+    confidence: float | None = 1.0  # Range: 0-1
+    source: str | None = "cursor"
+    related_memory_ids: list[Any] | None = None  # UUIDs or legacy integer IDs
+    tags: list[str] | None = None
+    importance: float | None = 1.0  # Range: 0-1
+    metadata: dict[str, Any] | None = None
 
     class Config:
         extra = "forbid"
@@ -344,7 +344,7 @@ class GraphQueryArgs(BaseModel):
     """Validation model for graph_query tool arguments."""
 
     query: str  # Cypher query string
-    parameters: Optional[Dict[str, Any]] = None  # Query parameters
+    parameters: dict[str, Any] | None = None  # Query parameters
 
     class Config:
         extra = "forbid"
@@ -364,7 +364,7 @@ class GraphGetContextArgs(BaseModel):
     """Validation model for graph_get_context tool arguments."""
 
     domain: str  # Domain name (memory, agents, tools, etc.)
-    limit: Optional[int] = 10  # Max results
+    limit: int | None = 10  # Max results
 
     class Config:
         extra = "forbid"
@@ -389,7 +389,7 @@ class CacheSetArgs(BaseModel):
 
     key: str  # Cache key
     value: Any  # Value to store (will be JSON serialized)
-    ttl: Optional[int] = None  # TTL in seconds
+    ttl: int | None = None  # TTL in seconds
 
     class Config:
         extra = "forbid"
@@ -398,7 +398,7 @@ class CacheSetArgs(BaseModel):
 class CacheGetSessionContextArgs(BaseModel):
     """Validation model for cache_get_session_context tool arguments."""
 
-    session_id: Optional[str] = None  # Session ID (defaults to daily session)
+    session_id: str | None = None  # Session ID (defaults to daily session)
 
     class Config:
         extra = "forbid"

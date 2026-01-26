@@ -42,7 +42,7 @@ __dora_meta__ = {
 
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 import yaml
@@ -56,13 +56,12 @@ logger = structlog.get_logger(__name__)
 USE_KERNELS = os.getenv("L9_USE_KERNELS", "true").lower() in ("true", "1", "yes")
 
 
-def _get_kernel_system_prompt() -> Optional[str]:
+def _get_kernel_system_prompt() -> str | None:
     """Get kernel-based system prompt if available."""
     if not USE_KERNELS:
         return None
     try:
-        from core.kernels.prompt_builder import \
-            build_system_prompt_from_kernels
+        from core.kernels.prompt_builder import build_system_prompt_from_kernels
 
         prompt = build_system_prompt_from_kernels()
         logger.info("Using kernel-based system prompt for agent")
@@ -100,7 +99,7 @@ class AgentRegistry:
             logger.info(f"Agent: {config.name}")
     """
 
-    def __init__(self, config_dir: Optional[str | Path] = None):
+    def __init__(self, config_dir: str | Path | None = None):
         """
         Initialize the registry.
 
@@ -109,7 +108,7 @@ class AgentRegistry:
                        If provided, loads immediately.
         """
         self._agents: dict[str, AgentConfig] = {}
-        self._config_dir: Optional[Path] = None
+        self._config_dir: Path | None = None
 
         if config_dir:
             self._config_dir = Path(config_dir)
@@ -141,7 +140,7 @@ class AgentRegistry:
 
     def _load_agent_file(self, filepath: Path) -> None:
         """Load a single agent configuration file."""
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             data = yaml.safe_load(f)
 
         if not data:
@@ -155,7 +154,7 @@ class AgentRegistry:
 
     def _parse_agent_config(
         self, data: dict[str, Any], source: Path
-    ) -> Optional[AgentConfig]:
+    ) -> AgentConfig | None:
         """
         Parse agent configuration from YAML data.
 
@@ -261,7 +260,7 @@ class AgentRegistry:
         self._agents[config.agent_id] = config
         logger.info("Registered agent: %s", config.agent_id)
 
-    def register_from_dict(self, data: dict[str, Any]) -> Optional[str]:
+    def register_from_dict(self, data: dict[str, Any]) -> str | None:
         """
         Register an agent from a dictionary.
 
@@ -297,7 +296,7 @@ class AgentRegistry:
     # Lookup
     # =========================================================================
 
-    def get_agent_config(self, agent_id: str) -> Optional[AgentConfig]:
+    def get_agent_config(self, agent_id: str) -> AgentConfig | None:
         """
         Get configuration for an agent.
 
@@ -343,7 +342,7 @@ class AgentRegistry:
     # Default Agent
     # =========================================================================
 
-    def get_default_agent(self) -> Optional[AgentConfig]:
+    def get_default_agent(self) -> AgentConfig | None:
         """
         Get the default agent configuration.
 
@@ -489,7 +488,7 @@ BEHAVIOR
 # =============================================================================
 
 
-def create_agent_registry(config_dir: Optional[str | Path] = None) -> AgentRegistry:
+def create_agent_registry(config_dir: str | Path | None = None) -> AgentRegistry:
     """
     Create an agent registry.
 
@@ -520,11 +519,11 @@ def create_default_registry() -> AgentRegistry:
 # =============================================================================
 
 __all__ = [
+    "DEFAULT_AGENT_ID",
+    "DEFAULT_CONFIG_DIR",
     "AgentRegistry",
     "create_agent_registry",
     "create_default_registry",
-    "DEFAULT_CONFIG_DIR",
-    "DEFAULT_AGENT_ID",
 ]
 
 # ============================================================================

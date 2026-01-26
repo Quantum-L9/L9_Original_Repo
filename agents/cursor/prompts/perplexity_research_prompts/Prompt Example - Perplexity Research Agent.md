@@ -1,14 +1,18 @@
 # ============================================================================
+
 # L9 CURSOR PROMOTING SYSTEM EVOLUTION SUPER PROMPT
+
 # FRONTIER-GRADE RESEARCH AGENT SPECIFICATION
+
 # Version 2.0 | Perplexity Research Agent Configuration
+
 # ============================================================================
 
 # FILE PURPOSE: This super prompt enables Perplexity research agents to generate frontier-grade evolution of the L9 Cursor Promoting System, advancing autonomy from L2 (constrained) to L5 (fully autonomous) while maintaining world-class traceability, safety, and governance.
 
 **Document Purpose:**
-Generate a comprehensive implementation guide for evolving the current GMP v1.0 Cursor 
-Promoting System to GMP v2.0+ with frontier-grade autonomy, recursive traceability, 
+Generate a comprehensive implementation guide for evolving the current GMP v1.0 Cursor
+Promoting System to GMP v2.0+ with frontier-grade autonomy, recursive traceability,
 and production-ready code at the L9 AI OS level.
 
 **Target User:** Research agents inside L9 with Perplexity API access + code generation
@@ -20,6 +24,7 @@ and production-ready code at the L9 AI OS level.
 ## EXECUTIVE SUMMARY
 
 ### Current State (GMP v1.0)
+
 - **Scope:** Deterministic repo updating via Phase 0-6 execution model
 - **Verification:** Static audit prompts with manual evidence collection
 - **Autonomy Level:** L2 (Constrained Execution) - rigid TODO plans, no learning
@@ -27,6 +32,7 @@ and production-ready code at the L9 AI OS level.
 - **Limitation:** No meta-learning, no cross-GMP pattern recognition, no autonomy advancement
 
 ### Target State (GMP v2.0+)
+
 - **Enhanced Autonomy:** L3 (Adaptive Execution) with graduated autonomy levels (L2→L3→L4→L5)
 - **Recursive Traceability:** Nested DORA blocks with dependency graphs and failure mode recovery
 - **Meta-Learning:** Pattern extraction across prior GMPs → automated improvement heuristics
@@ -38,10 +44,12 @@ and production-ready code at the L9 AI OS level.
 ## PART 1: FRONTIER CONCEPTS & RESEARCH GAPS
 
 ### Gap 1: Autonomy Levels & Capability Handshakes
+
 **Current:** Binary enabled/disabled per GMP
 **Frontier:** L2→L3→L4→L5 progressive graduation with explicit capability assertion
 
 **What GMP v2.0 Needs:**
+
 ```yaml
 # Autonomous Capability Model
 autonomy_levels:
@@ -52,7 +60,7 @@ autonomy_levels:
       - no_scope_drift_enforcement
       - static_audit_only
     graduation_path: "L2→L3 via 10 consecutive error-free executions"
-    
+
   L3:
     name: "Adaptive Execution"
     capabilities:
@@ -61,7 +69,7 @@ autonomy_levels:
       - failure_mode_recovery_automation
       - heuristic_suggestion_generation
     graduation_criteria: "L3→L4 via demonstrated learning consistency"
-    
+
   L4:
     name: "Meta-Strategic Execution"
     capabilities:
@@ -70,7 +78,7 @@ autonomy_levels:
       - performance_optimization_automation
       - safety_margin_self_adjustment
     graduation_path: "L4→L5 via safe autonomy audit"
-    
+
   L5:
     name: "Fully Autonomous"
     capabilities:
@@ -81,10 +89,12 @@ autonomy_levels:
 ```
 
 ### Gap 2: Recursive Traceability & Nested Evidence
+
 **Current:** Flat report structure with line-by-line citations
 **Frontier:** Hierarchical DORA blocks with execution trees, dependency graphs, failure recovery
 
 **What GMP v2.0 Needs:**
+
 ```yaml
 # Nested DORA Block Specification
 dora_v2_structure:
@@ -97,7 +107,7 @@ dora_v2_structure:
       - kernel_id: "10-packet-protocol"
         minimum_version: "1.0.0"
       - memory_substrate: "postgresql+pgvector"
-      
+
   execution_tree:
     phase_0:
       research_findings:
@@ -105,20 +115,20 @@ dora_v2_structure:
           source_file: "/l9/path/to/file.py"
           lines: "42-51"
           evidence: "code snippet"
-      
+
       todo_plan:
         items:
           - id: "[v2.0.0-001]"
             hash: "sha256_of_todo_text"
-            dependencies: ["[v2.0.0-000]"]  # TODO_ID dependencies
+            dependencies: ["[v2.0.0-000]"] # TODO_ID dependencies
             gating: "L9_ENABLE_FEATURE_FLAG"
-            
+
   failure_modes:
     error_category: "SyntaxError"
     trigger_condition: "lines 42-51 have unbalanced parenthesis"
     recovery_action: "STOP, report, recommend fix"
     escalation_threshold: "same_error_3x"
-    
+
   audit_trace:
     confidence_breakdown:
       files_provided: 1.0
@@ -128,10 +138,12 @@ dora_v2_structure:
 ```
 
 ### Gap 3: Cross-GMP Learning & Meta-Heuristics
+
 **Current:** Each GMP isolated, no pattern memory
 **Frontier:** Learning system that tracks patterns across executions → suggests improvements
 
 **What GMP v2.0 Needs:**
+
 ```yaml
 # Meta-Learning Database Schema
 gmp_learning_db:
@@ -145,24 +157,27 @@ gmp_learning_db:
       - error_types: ["SyntaxError", "LogicError", "ScopeCreep"]
       - files_modified: ["path1", "path2"]
       - final_confidence: "100% → 0%"
-      
+
   learned_heuristics:
     - pattern: "if todo_count > 15 AND file_size > 5000_lines → add_extra_verification"
     - pattern: "if error_type == ScopeCreep → recommend_todo_bundling"
     - pattern: "if execution_time > 300_minutes → split_gmp_into_phases"
-    
+
   improvement_suggestions:
     - suggestion_id: "S001"
       confidence: 0.87
       text: "Prior GMPs with similar scope saw 3.2x faster execution with Phase 1 refactoring"
-      gmp_ids_supporting: ["GMP-L.5-refactor-2025-12-20", "GMP-L.3-schema-2025-12-15"]
+      gmp_ids_supporting:
+        ["GMP-L.5-refactor-2025-12-20", "GMP-L.3-schema-2025-12-15"]
 ```
 
 ### Gap 4: Feature Flag Progressive Enablement
-**Current:** L9_ENABLE_* flags binary at system start
+
+**Current:** L9*ENABLE*\* flags binary at system start
 **Frontier:** Graduated autonomy flags with explicit capability negotiation
 
 **What GMP v2.0 Needs:**
+
 ```python
 # Feature Flag Evolution Strategy
 autonomy_feature_flags = {
@@ -171,21 +186,21 @@ autonomy_feature_flags = {
         "description": "Enforce zero speculation, locked TODO plans",
         "impact": "blocks all dynamic behavior"
     },
-    
+
     "L9_GMP_L3_ADAPTIVE_TODOS": {
         "default": False,
         "graduation_requirement": "10_consecutive_perfect_executions",
         "description": "Allow TODO refinement within locked scope",
         "impact": "enables failure recovery, pattern matching"
     },
-    
+
     "L9_GMP_L4_ARCHITECTURAL_REASONING": {
         "default": False,
         "graduation_requirement": "L3_demonstrated_learning_consistency",
         "description": "Enable cross-GMP pattern analysis, improvement recommendations",
         "impact": "suggests optimizations, detects technical debt"
     },
-    
+
     "L9_GMP_L5_AUTONOMOUS_GOAL": {
         "default": False,
         "graduation_requirement": "L4_safe_autonomy_audit_pass",
@@ -213,6 +228,7 @@ def validate_feature_flag_prerequisites(target_level: str) -> bool:
 ### 2.1 Core Components
 
 #### Component A: Enhanced TODO Planning (Phase 0 Evolution)
+
 ```yaml
 # GMP-Phase-0-Enhanced-v2.0
 
@@ -228,25 +244,25 @@ Processing:
      - Cross-reference L9 repository state
      - Detect prior similar patterns
      - Extract ground-truth facts
-     
+
   2. Heuristic Application
      - Apply learned patterns from GMP learning DB
      - Suggest optimal TODO bundling
      - Estimate execution time (ML model)
      - Flag high-risk areas
-     
+
   3. Autonomy Level Determination
      - Check if L3 prerequisites met → suggest graduated autonomy
      - If L3 enabled: allow adaptive TODO refinement
      - If L4 enabled: enable architectural reasoning
      - If L5 enabled: present goal-oriented alternatives
-     
+
   4. TODO Plan Generation
      - Format: [v2.0.0-NNN] with semantic versioning
      - Include TODO_ID dependencies
      - Add feature flag guards
      - Embed failure modes per TODO
-     
+
   5. Risk Assessment
      - Confidence scoring with breakdown
      - Dependency analysis
@@ -261,7 +277,8 @@ Output:
 ```
 
 #### Component B: Intelligent Verification (Phase 5 Evolution)
-```yaml
+
+````yaml
 # GMP-Phase-5-Recursive-Verification-v2.0
 
 Input:
@@ -275,39 +292,39 @@ Processing:
      - Extract every changed line with context
      - Map each change to TODO_ID
      - Build change→TODO graph
-     
+
   2. Nested Verification
      - Verify each TODO implementation
      - Verify each change has TODO ownership
      - Verify TODO dependencies are satisfied
      - Verify scope containment (no extra changes)
-     
+
   3. Pattern-Based Validation
      - Apply learned error patterns from history
      - Detect anomalies using prior execution profiles
      - Flag unusual patterns (suspicious changes)
-     
+
   4. Recursive Dependency Checking
      - If TODO modifies A and B depends on A
      - Verify B still works with modified A
      - Check memory substrate impacts
      - Check kernel dependency impacts
-     
+
   5. Confidence Scoring (Deterministic Formula)
      ```
      Confidence = (Files_Visible / Files_Needed)
                × (TODOs_Verified / TODOs_Total)
                × (Changes_Attributed / Total_Changes)
                × Quality_Score
-               
+
      Quality_Score = 1.0 - (0.3×syntax_errors + 0.4×logic_errors + 0.3×integration_issues)
-     
+
      Thresholds:
        ≥95% = PASS (safe to merge)
        75-94% = CONDITIONAL (needs review)
        <75% = FAIL (stop, report)
      ```
-     
+
   6. Heuristic Learning
      - Log this execution pattern to learning DB
      - Update meta-heuristics if new pattern detected
@@ -319,9 +336,10 @@ Output:
   - Confidence Score with breakdown
   - Learned Pattern Suggestions for next GMP
   - Recovery Recommendations (if issues found)
-```
+````
 
 #### Component C: Meta-Learning System (New in v2.0)
+
 ```yaml
 # GMP-Meta-Learning-Engine-v2.0
 
@@ -341,12 +359,12 @@ Learning Algorithm:
      - Group similar tasks → similar execution profiles
      - Find error correlations → predict high-risk patterns
      - Detect time/resource trends
-     
+
   4. Heuristic Generation:
      - If task_type_A + file_size > X → always add Phase_5_extra_check
      - If error_type_B occurred → verify pattern in pre-Phase_2_validation
      - If confidence_drop > threshold → recommend scope reduction
-     
+
   5. Autonomy Graduation Verification:
      - Track consecutive perfect executions
      - Verify consistency metrics
@@ -360,7 +378,8 @@ Output:
 ```
 
 #### Component D: Progressive Autonomy Controller
-```yaml
+
+````yaml
 # GMP-Autonomy-Controller-v2.0
 
 Responsibility: Mediate autonomy level progression, enforce prerequisites
@@ -371,17 +390,17 @@ Features:
      - L3: Adaptive TODO refinement, failure recovery
      - L4: Architectural reasoning, optimization suggestions
      - L5: Goal-oriented autonomous evolution
-     
+
   2. Prerequisite Verification
      - Before enabling L3: Check 10 consecutive perfect L2 executions
      - Before enabling L4: Verify L3 consistency score ≥95%
      - Before enabling L5: Audit L4 safety record
-     
+
   3. Runtime Capability Assertion
      - At GMP start, declare which autonomy features are enabled
      - Enforce feature gates throughout execution
      - Block operations unsupported at current level
-     
+
   4. Fallback & Degradation
      - If L3 feature fails: gracefully fallback to L2
      - Log degradation event with reason
@@ -397,7 +416,7 @@ Pseudocode:
           elif feature == "architectural_reasoning":
               return self.is_l4_enabled()
           return True  # L2 baseline
-      
+
       def graduate_to_next_level(self, current: L2|L3|L4) -> bool:
           """Check if prerequisites met for next level."""
           if current == L2:
@@ -406,8 +425,9 @@ Pseudocode:
               return self.check_consistency_score(0.95)
           elif current == L4:
               return self.audit_safety_record()
-  ```
-```
+````
+
+````
 
 ---
 
@@ -476,7 +496,7 @@ Pseudocode:
        created_at TIMESTAMP,
        INDEX(task_type, todo_count)
    );
-   
+
    CREATE TABLE learned_heuristics (
        id UUID PRIMARY KEY,
        pattern_text TEXT,
@@ -485,9 +505,10 @@ Pseudocode:
        generated_date TIMESTAMP,
        active BOOLEAN DEFAULT true
    );
-   ```
+````
 
 2. **GMP Meta-Learning Engine** (`l9/core/gmp_meta_learning.py`)
+
    - Logs execution → learning DB
    - Analyzes patterns weekly
    - Generates heuristic suggestions
@@ -500,10 +521,13 @@ Pseudocode:
    - Handles fallback/degradation
 
 ### Phase 4: Integration & Testing (Weeks 7-8)
+
 **Objective:** Wire GMP v2.0 into L9 runtime, comprehensive testing
 
 **Deliverables:**
+
 1. **GMP v2.0 Full Prompt Suite** (8 files)
+
    - GMP-System-Prompt-v2.0.md (updated cross-GMP governance)
    - GMP-Action-Prompt-Canonical-v2.0.md (with learning integration)
    - GMP-Audit-Prompt-Canonical-v2.0.md (with nested verification)
@@ -514,6 +538,7 @@ Pseudocode:
    - GMP-Autonomy-Governance-v2.0.md (NEW - autonomy graduation rules)
 
 2. **API Routes for GMP Management** (`l9/api/routes/gmp.py`)
+
    - GET /api/gmp/autonomy_level (current level)
    - GET /api/gmp/graduation_status (prerequisites check)
    - GET /api/gmp/learning_heuristics (suggestions)
@@ -526,10 +551,13 @@ Pseudocode:
    - Safety tests: Feature flag enforcement
 
 ### Phase 5: Production Rollout (Weeks 9-10)
+
 **Objective:** Deploy GMP v2.0 with progressive autonomy enablement
 
 **Deliverables:**
+
 1. **GMP v2.0 Launch Documentation**
+
    - Migration guide from v1.0 → v2.0
    - Feature flag enablement checklist
    - Autonomy graduation criteria
@@ -546,6 +574,7 @@ Pseudocode:
 ## PART 4: FRONTIER-GRADE CODE QUALITY STANDARDS
 
 ### Code Requirements
+
 ✅ **Production Ready:** Zero placeholders, zero assumptions, complete implementations
 ✅ **Type-Safe:** Full type hints, Pydantic models for all data structures
 ✅ **Evidence-Based:** No hallucinated APIs, all references validated against L9 codebase
@@ -554,6 +583,7 @@ Pseudocode:
 ✅ **L9-Aligned:** Respects kernel loading, memory substrate, feature flags, governance rules
 
 ### File Organization
+
 ```
 l9/
 ├── gmp/
@@ -593,6 +623,7 @@ l9/
 ## PART 5: EXPECTED OUTCOMES & IMPACT
 
 ### Autonomy Evolution Timeline
+
 ```
 Current (GMP v1.0):
   - L2 Only
@@ -632,11 +663,13 @@ Year 1:
 ```
 
 ### Traceability Impact
+
 - **Before:** Flat report, 10 sections, 50-100 checklist items
 - **After:** Nested DORA blocks, 10+ execution tree levels, 200+ evidence points
 - **Auditability:** Every TODO has dependency graph, failure modes, recovery path
 
 ### Learning Impact
+
 - **Before:** Static patterns, no adaptation
 - **After:** 50+ learned heuristics, weekly improvement suggestions
 - **Result:** 3x faster Phase 0 planning, 2x higher confidence scores
@@ -646,6 +679,7 @@ Year 1:
 ## PART 6: CRITICAL SAFETY GUARDRAILS
 
 ### Hallucination Prevention
+
 ✅ All file paths verified against L9 repository state
 ✅ All APIs validated before use
 ✅ All feature flags cross-checked against L9 codebase
@@ -653,6 +687,7 @@ Year 1:
 ✅ Learning heuristics only applied with confidence > 0.85
 
 ### Autonomy Safety
+
 ✅ L2→L3 graduation requires 10 perfect executions
 ✅ L3→L4 requires 95% consistency score
 ✅ L4→L5 requires full safety audit pass
@@ -660,6 +695,7 @@ Year 1:
 ✅ Fallback to L2 if any advanced feature fails
 
 ### Scope Containment
+
 ✅ TODO plans locked immutably at Phase 0
 ✅ Phase 2 modifies only TODO-listed files/lines
 ✅ Phase 5 verifies zero unauthorized changes
@@ -670,6 +706,7 @@ Year 1:
 ## PART 7: SUCCESS CRITERIA & VALIDATION
 
 ### GMP v2.0 Acceptance Criteria
+
 1. ✅ All 8 prompt files complete and consistent
 2. ✅ Learning database schema deployed
 3. ✅ Meta-learning engine processes prior GMPs
@@ -682,12 +719,14 @@ Year 1:
 10. ✅ Production-ready deployment on L9 VPS
 
 ### Traceability Validation
+
 - Every change → TODO_ID (100% coverage)
 - Every TODO → Phase 0 research findings (100% coverage)
 - Every Phase 0 finding → sourced file/lines (100% coverage)
 - Confidence score breakdown auditable (100% transparency)
 
 ### Learning Validation
+
 - Heuristic confidence scores > 0.85 only
 - Supporting evidence (prior GMP IDs) documented
 - Weekly heuristic refresh cycle operational
@@ -696,6 +735,7 @@ Year 1:
 ---
 
 **Implementation produces:**
+
 - 8 production-ready GMP v2.0 prompt files
 - 5 production-ready Python modules (5000+ LOC)
 - 1 updated SQL schema with learning database
@@ -704,6 +744,7 @@ Year 1:
 - Complete documentation and API endpoints
 
 **All code follows L9 standards:**
+
 - Type-safe Python 3.11+
 - Pydantic v2 models
 - Async/await where appropriate

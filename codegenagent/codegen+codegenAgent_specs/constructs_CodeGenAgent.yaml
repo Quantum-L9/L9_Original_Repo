@@ -39,7 +39,6 @@ patch:
     exec_patch_all: true
     emit_gmp: true
     override_self_construct: true
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

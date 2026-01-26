@@ -30,7 +30,7 @@ __dora_meta__ = {
 
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 from openai import OpenAI
@@ -49,8 +49,8 @@ def get_client() -> OpenAI:
 
 
 def route_slack_message(
-    text: str, artifacts: List[Dict[str, Any]], user: str
-) -> Dict[str, Any]:
+    text: str, artifacts: list[dict[str, Any]], user: str
+) -> dict[str, Any]:
     """
     Convert Slack message + file artifacts into Mac Agent task structure.
 

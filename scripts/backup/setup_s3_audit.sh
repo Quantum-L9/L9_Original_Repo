@@ -181,13 +181,13 @@ echo -e "${BLUE}6. Enabling access logging on source buckets...${NC}"
 
 for bucket in $SOURCE_BUCKETS; do
     echo -e "${BLUE}   Configuring logging for: ${bucket}${NC}"
-    
+
     # Check if bucket exists
     if ! aws s3api head-bucket --bucket "$bucket" 2>/dev/null; then
         echo -e "${YELLOW}   ⚠ Bucket ${bucket} does not exist - skipping${NC}"
         continue
     fi
-    
+
     # Configure logging
     LOGGING_CONFIG=$(cat <<EOF
 {
@@ -203,11 +203,11 @@ for bucket in $SOURCE_BUCKETS; do
 }
 EOF
 )
-    
+
     aws s3api put-bucket-logging \
         --bucket "$bucket" \
         --bucket-logging-status "$LOGGING_CONFIG"
-    
+
     echo -e "${GREEN}   ✓ Logging enabled: ${bucket} → ${AUDIT_BUCKET}/${bucket}/${NC}"
 done
 

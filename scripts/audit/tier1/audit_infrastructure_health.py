@@ -55,7 +55,7 @@ import os
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 import structlog
@@ -155,7 +155,7 @@ class HealthCheck:
     message: str
     latency_ms: float
     timestamp: str = ""
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -166,7 +166,7 @@ class ConfigValidation:
     status: bool
     expected_type: str
     actual_value: str
-    error: Optional[str] = None
+    error: str | None = None
 
 
 @dataclass
@@ -174,29 +174,29 @@ class DependencyCheck:
     """Dependency DAG verification."""
 
     service: str
-    depends_on: List[str]
+    depends_on: list[str]
     all_available: bool
-    missing_dependencies: List[str] = field(default_factory=list)
+    missing_dependencies: list[str] = field(default_factory=list)
 
 
 @dataclass
 class StartupSequence:
     """Startup initialization order."""
 
-    order: List[str]
+    order: list[str]
     valid: bool
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
 
 @dataclass
 class InfrastructureReport:
     """Complete infrastructure health report."""
 
-    health_checks: List[HealthCheck] = field(default_factory=list)
-    config_validations: List[ConfigValidation] = field(default_factory=list)
-    dependency_checks: List[DependencyCheck] = field(default_factory=list)
-    startup_sequence: Optional[StartupSequence] = None
-    summary: Dict[str, Any] = field(default_factory=dict)
+    health_checks: list[HealthCheck] = field(default_factory=list)
+    config_validations: list[ConfigValidation] = field(default_factory=list)
+    dependency_checks: list[DependencyCheck] = field(default_factory=list)
+    startup_sequence: StartupSequence | None = None
+    summary: dict[str, Any] = field(default_factory=dict)
 
 
 # =============================================================================
@@ -226,7 +226,7 @@ class TCPHealthProbe(HealthProbe):
 
         start = time.time()
         try:
-            reader, writer = await asyncio.wait_for(
+            _reader, writer = await asyncio.wait_for(
                 asyncio.open_connection(self.host, self.port), timeout=self.timeout
             )
             writer.close()
@@ -243,7 +243,7 @@ class TCPHealthProbe(HealthProbe):
                     "port": self.port,
                 },
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return HealthCheck(
                 service=self.service_name,
                 status=HealthStatus.UNHEALTHY,
@@ -255,7 +255,7 @@ class TCPHealthProbe(HealthProbe):
             return HealthCheck(
                 service=self.service_name,
                 status=HealthStatus.UNHEALTHY,
-                message=f"TCP connection failed: {str(e)}",
+                message=f"TCP connection failed: {e!s}",
                 latency_ms=(time.time() - start) * 1000,
                 details={"host": self.host, "port": self.port, "error": str(e)},
             )
@@ -268,7 +268,7 @@ class HTTPHealthProbe(HealthProbe):
         self,
         service_name: str,
         base_url: str,
-        endpoints: List[str],
+        endpoints: list[str],
         timeout: float = 3.0,
     ):
         self.service_name = service_name
@@ -302,7 +302,7 @@ class HTTPHealthProbe(HealthProbe):
                 details={"endpoints_checked": len(self.endpoints)},
             )
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return HealthCheck(
                 service=self.service_name,
                 status=HealthStatus.UNHEALTHY,
@@ -314,7 +314,7 @@ class HTTPHealthProbe(HealthProbe):
             return HealthCheck(
                 service=self.service_name,
                 status=HealthStatus.UNHEALTHY,
-                message=f"HTTP check failed: {str(e)}",
+                message=f"HTTP check failed: {e!s}",
                 latency_ms=(time.time() - start) * 1000,
                 details={"error": str(e)},
             )
@@ -344,9 +344,9 @@ class PythonModuleHealthProbe(HealthProbe):
 
             # Try to call function (in asyncio)
             if asyncio.iscoroutinefunction(func):
-                result = await asyncio.wait_for(func(), timeout=self.timeout)
+                await asyncio.wait_for(func(), timeout=self.timeout)
             else:
-                result = func()
+                func()
 
             return HealthCheck(
                 service=self.service_name,
@@ -356,7 +356,7 @@ class PythonModuleHealthProbe(HealthProbe):
                 details={"module": self.module, "function": self.function},
             )
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return HealthCheck(
                 service=self.service_name,
                 status=HealthStatus.UNHEALTHY,
@@ -379,7 +379,7 @@ class PythonModuleHealthProbe(HealthProbe):
 # =============================================================================
 
 
-def validate_config() -> List[ConfigValidation]:
+def validate_config() -> list[ConfigValidation]:
     """Validate environment configuration."""
     results = []
 
@@ -438,7 +438,7 @@ def validate_config() -> List[ConfigValidation]:
 # =============================================================================
 
 
-def verify_dependency_dag() -> List[DependencyCheck]:
+def verify_dependency_dag() -> list[DependencyCheck]:
     """Verify dependency graph and startup order."""
     results = []
 
@@ -458,13 +458,13 @@ def verify_dependency_dag() -> List[DependencyCheck]:
     return results
 
 
-def compute_startup_order(dependency_checks: List[DependencyCheck]) -> StartupSequence:
+def compute_startup_order(dependency_checks: list[DependencyCheck]) -> StartupSequence:
     """Compute valid startup order using topological sort."""
     from collections import deque
 
     # Build adjacency list
     graph = {service: DEPENDENCY_DAG.get(service, []) for service in SERVICES}
-    in_degree = {service: 0 for service in SERVICES}
+    in_degree = dict.fromkeys(SERVICES, 0)
 
     for service, deps in graph.items():
         for dep in deps:
@@ -503,22 +503,13 @@ def compute_startup_order(dependency_checks: List[DependencyCheck]) -> StartupSe
 # =============================================================================
 
 
-async def run_all_health_checks() -> List[HealthCheck]:
+async def run_all_health_checks() -> list[HealthCheck]:
     """Run all health checks concurrently."""
-    probes: List[HealthProbe] = []
+    probes: list[HealthProbe] = []
 
     # Create probes for each service
     for service_name, config in SERVICES.items():
-        if config["type"] == "postgresql":
-            probes.append(
-                TCPHealthProbe(
-                    service_name=service_name,
-                    host=config["host"],
-                    port=config["port"],
-                    timeout=config["timeout"],
-                )
-            )
-        elif config["type"] == "redis":
+        if config["type"] == "postgresql" or config["type"] == "redis":
             probes.append(
                 TCPHealthProbe(
                     service_name=service_name,
@@ -570,7 +561,7 @@ async def run_all_health_checks() -> List[HealthCheck]:
                 HealthCheck(
                     service="unknown",
                     status=HealthStatus.UNKNOWN,
-                    message=f"Probe error: {str(result)}",
+                    message=f"Probe error: {result!s}",
                     latency_ms=0.0,
                 )
             )
@@ -586,9 +577,9 @@ async def run_all_health_checks() -> List[HealthCheck]:
 
 
 def generate_report(
-    health_checks: List[HealthCheck],
-    config_validations: List[ConfigValidation],
-    dependency_checks: List[DependencyCheck],
+    health_checks: list[HealthCheck],
+    config_validations: list[ConfigValidation],
+    dependency_checks: list[DependencyCheck],
     startup_sequence: StartupSequence,
 ) -> InfrastructureReport:
     """Generate complete infrastructure report."""

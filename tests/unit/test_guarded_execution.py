@@ -13,14 +13,19 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
 
-from core.agents.schemas import (AgentConfig, AgentTask, ToolBinding,
-                                 ToolCallRequest, ToolCallResult)
+from core.agents.schemas import (
+    AgentConfig,
+    AgentTask,
+    ToolBinding,
+    ToolCallRequest,
+    ToolCallResult,
+)
 
 # =============================================================================
 # Fixtures
@@ -33,9 +38,9 @@ class MockKernelAwareAgent:
     def __init__(
         self,
         kernel_state: str = "ACTIVE",
-        kernels: Dict[str, Any] = None,
-        behavioral: Dict[str, Any] = None,
-        safety: Dict[str, Any] = None,
+        kernels: dict[str, Any] | None = None,
+        behavioral: dict[str, Any] | None = None,
+        safety: dict[str, Any] | None = None,
     ) -> None:
         self.agent_id = "test-agent"
         self.kernel_state = kernel_state
@@ -59,8 +64,8 @@ class MockToolRegistry:
     async def dispatch_tool_call(
         self,
         tool_id: str,
-        arguments: Dict[str, Any],
-        context: Dict[str, Any],
+        arguments: dict[str, Any],
+        context: dict[str, Any],
     ) -> ToolCallResult:
         return self._dispatch_result
 

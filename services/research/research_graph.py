@@ -47,8 +47,11 @@ from langgraph.graph import END, START, StateGraph
 from clients.memory_client import PacketWriteResult, get_memory_client
 from services.research.agents import CriticAgent, PlannerAgent, ResearcherAgent
 from services.research.graph_persistence import get_graph_persistence
-from services.research.graph_state import (Evidence, ResearchGraphState,
-                                           create_initial_state)
+from services.research.graph_state import (
+    Evidence,
+    ResearchGraphState,
+    create_initial_state,
+)
 from services.research.insight_extractor import InsightExtractorAgent
 from services.research.memory_adapter import get_memory_adapter
 from services.research.tools import get_tool_registry
@@ -102,7 +105,7 @@ async def planning_node(state: ResearchGraphState) -> ResearchGraphState:
         logger.error(f"Planning failed: {e}")
         return {
             **state,
-            "errors": state.get("errors", []) + [f"Planning failed: {str(e)}"],
+            "errors": [*state.get("errors", []), f"Planning failed: {e!s}"],
         }
 
 
@@ -170,11 +173,11 @@ async def research_node(state: ResearchGraphState) -> ResearchGraphState:
             "plan": plan,
             "evidence": evidence,
             "sources": list(
-                set(
+                {
                     src
                     for ev in evidence
                     for src in ev.get("metadata", {}).get("sources", [])
-                )
+                }
             ),
         }
 
@@ -182,7 +185,7 @@ async def research_node(state: ResearchGraphState) -> ResearchGraphState:
         logger.error(f"Research failed: {e}")
         return {
             **state,
-            "errors": state.get("errors", []) + [f"Research failed: {str(e)}"],
+            "errors": [*state.get("errors", []), f"Research failed: {e!s}"],
         }
 
 
@@ -213,7 +216,7 @@ async def merge_node(state: ResearchGraphState) -> ResearchGraphState:
         return {
             **state,
             "final_summary": "Failed to synthesize evidence",
-            "errors": state.get("errors", []) + [f"Merge failed: {str(e)}"],
+            "errors": [*state.get("errors", []), f"Merge failed: {e!s}"],
         }
 
 
@@ -257,8 +260,8 @@ async def critic_node(state: ResearchGraphState) -> ResearchGraphState:
         return {
             **state,
             "critic_score": 0.5,
-            "critic_feedback": f"Evaluation failed: {str(e)}",
-            "errors": state.get("errors", []) + [f"Critic failed: {str(e)}"],
+            "critic_feedback": f"Evaluation failed: {e!s}",
+            "errors": [*state.get("errors", []), f"Critic failed: {e!s}"],
         }
 
 
@@ -398,7 +401,7 @@ async def store_insights_node(state: ResearchGraphState) -> ResearchGraphState:
         return {
             **state,
             "stored_insights": [],
-            "errors": state.get("errors", []) + [f"Insight storage failed: {str(e)}"],
+            "errors": [*state.get("errors", []), f"Insight storage failed: {e!s}"],
         }
 
     return {
@@ -434,9 +437,8 @@ def should_retry(
         # Increment retry count for next iteration
         state["retry_count"] = retry_count + 1
         return "planning_node"
-    else:
-        logger.info(f"Proceeding to finalize: score={score:.2f}")
-        return "finalize_node"
+    logger.info(f"Proceeding to finalize: score={score:.2f}")
+    return "finalize_node"
 
 
 # =============================================================================
@@ -501,7 +503,7 @@ def build_research_graph() -> StateGraph:
 async def run_research(
     query: str,
     user_id: str = "anonymous",
-    thread_id: str = None,
+    thread_id: str | None = None,
 ) -> dict:
     """
     Execute the research graph.

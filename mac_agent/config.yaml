@@ -20,13 +20,12 @@ vps_url: "http://localhost:8000"
 auth_token: ""
 
 # Polling
-poll_interval: 5  # seconds
+poll_interval: 5 # seconds
 
 # Automation settings
 gui_safety: true
 browser_headless: false
 screenshot_dir: "~/Desktop/l9_screenshots"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

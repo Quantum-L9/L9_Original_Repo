@@ -11,13 +11,12 @@ import os
 import pytest
 
 from memory.consolidation import ConsolidationPipeline, ConsolidationReport
-from memory.substrate_service import (MemorySubstrateService, close_service,
-                                      init_service)
+from memory.substrate_service import MemorySubstrateService, close_service, init_service
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def memory_substrate_service():
     """Provide a memory substrate service for testing."""
     if not TEST_DB_URL:
@@ -32,11 +31,10 @@ async def memory_substrate_service():
 @pytest.fixture
 def consolidation_pipeline(memory_substrate_service):
     """Provide a ConsolidationPipeline instance."""
-    pipeline = ConsolidationPipeline(
+    return ConsolidationPipeline(
         repository=memory_substrate_service._repository,
         dry_run=True,  # Use dry-run for tests
     )
-    return pipeline
 
 
 class TestConsolidationPipeline:

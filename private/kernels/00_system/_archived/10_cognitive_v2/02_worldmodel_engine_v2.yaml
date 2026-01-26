@@ -84,4 +84,3 @@ integration:
   packet_protocol:
     - "World model updates and queries use PacketEnvelope payloads."
     - "All graph writes are auditable and reversible."
-

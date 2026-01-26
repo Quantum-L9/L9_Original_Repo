@@ -42,7 +42,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -91,7 +91,7 @@ class SecretViolation:
     secret_type: str
     severity: str
     match_preview: str  # First/last chars only for safety
-    line_number: Optional[int] = None
+    line_number: int | None = None
     blocked: bool = True
 
 
@@ -391,14 +391,14 @@ def create_credentials_policy() -> CredentialsPolicy:
 
 
 __all__ = [
-    "CredentialsPolicy",
-    "SecretPattern",
-    "SecretViolation",
-    "SecretType",
-    "create_credentials_policy",
-    "CredentialRotationPolicy",
     "CredentialRecord",
+    "CredentialRotationPolicy",
+    "CredentialsPolicy",
     "RotationStatus",
+    "SecretPattern",
+    "SecretType",
+    "SecretViolation",
+    "create_credentials_policy",
     "create_rotation_policy",
 ]
 
@@ -438,7 +438,7 @@ class CredentialRecord:
     credential_type: str
     name: str
     created_at: datetime
-    last_rotated: Optional[datetime] = None
+    last_rotated: datetime | None = None
     rotation_period_days: int = 90  # Default: rotate every 90 days
     owner: str = "system"
     notes: str = ""
@@ -461,10 +461,10 @@ class CredentialRecord:
 
         if days_until > 14:  # More than 2 weeks
             return RotationStatus.CURRENT
-        elif days_until > 0:  # Within 2 weeks
+        if days_until > 0:  # Within 2 weeks
             return RotationStatus.WARNING
-        else:  # Overdue
-            return RotationStatus.EXPIRED
+        # Overdue
+        return RotationStatus.EXPIRED
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -523,8 +523,8 @@ class CredentialRotationPolicy:
         credential_id: str,
         credential_type: str,
         name: str,
-        created_at: Optional[datetime] = None,
-        rotation_period_days: Optional[int] = None,
+        created_at: datetime | None = None,
+        rotation_period_days: int | None = None,
         owner: str = "system",
         notes: str = "",
     ) -> CredentialRecord:
@@ -572,7 +572,7 @@ class CredentialRotationPolicy:
     def record_rotation(
         self,
         credential_id: str,
-        rotated_at: Optional[datetime] = None,
+        rotated_at: datetime | None = None,
         rotated_by: str = "system",
         notes: str = "",
     ) -> bool:
@@ -620,7 +620,7 @@ class CredentialRotationPolicy:
 
         return True
 
-    def get_credential(self, credential_id: str) -> Optional[CredentialRecord]:
+    def get_credential(self, credential_id: str) -> CredentialRecord | None:
         """Get a credential record by ID."""
         return self._credentials.get(credential_id)
 
@@ -728,7 +728,7 @@ class CredentialRotationPolicy:
 
     def get_rotation_history(
         self,
-        credential_id: Optional[str] = None,
+        credential_id: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """

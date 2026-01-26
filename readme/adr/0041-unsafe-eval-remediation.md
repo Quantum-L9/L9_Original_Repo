@@ -25,15 +25,18 @@ We will remediate these vulnerabilities by replacing the unsafe functions with s
 ## Consequences
 
 ### Positive
+
 - **Eliminates critical security vulnerabilities** related to code injection.
 - **Improves code quality** by using safer, more explicit functions.
 - **Reduces attack surface** for the L9 platform.
 
 ### Negative
+
 - **Slightly more verbose code** in the DI container to handle `get_type_hints()`.
 - **Calculator tool functionality is reduced** to simple literals (no functions like `abs()`, `round()`). This is an acceptable trade-off for security.
 
 ### Neutral
+
 - No performance impact.
 
 ## Alternatives Considered
@@ -49,9 +52,9 @@ We will remediate these vulnerabilities by replacing the unsafe functions with s
 - **audit_trail**: True
 - **dependencies**: ["core.di.container", "core.tools.base_registry", "core.error_tracking"]
 - **tags**: ["adr", "security", "remediation", "eval", "injection"]
-- **keywords": ["adr", "security", "eval", "injection", "remediation"]
--mediation"]
-- **business_value**: "Remediates critical security vulnerabilities related to unsafe eval() and __import__() usage, preventing code injection attacks."
+- \*\*keywords": ["adr", "security", "eval", "injection", "remediation"]
+  -mediation"]
+- **business_value**: "Remediates critical security vulnerabilities related to unsafe eval() and **import**() usage, preventing code injection attacks."
 - **last_modified**: "2026-01-21T19:00:00Z"
 - **modified_by**: "Manus_AI"
 - **change_summary**: "Initial ADR for unsafe eval() remediation"

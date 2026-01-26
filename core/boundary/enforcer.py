@@ -55,7 +55,7 @@ __dora_meta__ = {
 
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -96,13 +96,13 @@ class BoundarySpec:
     def __init__(
         self,
         raw_content: str = "",
-        redaction_patterns: Optional[List[tuple]] = None,
-        protected_fields: Optional[List[str]] = None,
+        redaction_patterns: list[tuple] | None = None,
+        protected_fields: list[str] | None = None,
     ):
         self.raw_content = raw_content
         self.redaction_patterns = redaction_patterns or []
         self.protected_fields = protected_fields or []
-        self._compiled_patterns: List[tuple] = []
+        self._compiled_patterns: list[tuple] = []
 
         # Compile patterns
         for pattern, replacement in self.redaction_patterns:
@@ -119,7 +119,7 @@ class BoundarySpec:
         return result
 
 
-def load_boundary_spec(boundary_file: Optional[Path] = None) -> str:
+def load_boundary_spec(boundary_file: Path | None = None) -> str:
     """
     Load the PRIVATE_BOUNDARY.md specification file.
 
@@ -137,7 +137,7 @@ def load_boundary_spec(boundary_file: Optional[Path] = None) -> str:
 
     try:
         return boundary_file.read_text()
-    except (IOError, OSError) as e:
+    except OSError as e:
         logger.warning(f"Failed to read boundary file: {e}")
         return ""
 
@@ -172,7 +172,7 @@ def parse_boundary_spec(content: str) -> BoundarySpec:
 
 def enforce_boundary(
     prompt: str,
-    context: Optional[Dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
 ) -> str:
     """
     Apply PRIVATE_BOUNDARY enforcement to a prompt.
@@ -210,7 +210,7 @@ def enforce_boundary(
 
 def enforce_response_boundary(
     response: str,
-    context: Optional[Dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
 ) -> str:
     """
     Apply PRIVATE_BOUNDARY enforcement to a response.
@@ -229,9 +229,9 @@ def enforce_response_boundary(
 
 
 def enforce_payload_boundary(
-    payload: Dict[str, Any],
-    protected_fields: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    payload: dict[str, Any],
+    protected_fields: list[str] | None = None,
+) -> dict[str, Any]:
     """
     Apply PRIVATE_BOUNDARY enforcement to a payload dict.
 
@@ -277,7 +277,7 @@ class BoundaryEnforcer:
 
     def __init__(
         self,
-        boundary_file: Optional[Path] = None,
+        boundary_file: Path | None = None,
         enabled: bool = True,
         log_enforcement: bool = True,
     ):
@@ -294,7 +294,7 @@ class BoundaryEnforcer:
         self.log_enforcement = log_enforcement
 
         # Load spec on init
-        self._spec: Optional[BoundarySpec] = None
+        self._spec: BoundarySpec | None = None
         self._load_spec()
 
     def _load_spec(self) -> None:
@@ -314,7 +314,7 @@ class BoundaryEnforcer:
     def enforce(
         self,
         text: str,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> str:
         """
         Apply boundary enforcement to text.
@@ -339,9 +339,9 @@ class BoundaryEnforcer:
 
     def enforce_dict(
         self,
-        data: Dict[str, Any],
-        string_fields: Optional[List[str]] = None,
-    ) -> Dict[str, Any]:
+        data: dict[str, Any],
+        string_fields: list[str] | None = None,
+    ) -> dict[str, Any]:
         """
         Apply boundary enforcement to string fields in a dict.
 
@@ -385,7 +385,7 @@ class BoundaryEnforcer:
 # Singleton Instance
 # =============================================================================
 
-_default_enforcer: Optional[BoundaryEnforcer] = None
+_default_enforcer: BoundaryEnforcer | None = None
 
 
 def get_default_enforcer() -> BoundaryEnforcer:
@@ -401,18 +401,18 @@ def get_default_enforcer() -> BoundaryEnforcer:
 # =============================================================================
 
 __all__ = [
+    # Constants
+    "BOUNDARY_FILE",
+    "BoundaryEnforcer",
+    # Classes
+    "BoundarySpec",
+    "enforce_boundary",
+    "enforce_payload_boundary",
+    "enforce_response_boundary",
+    "get_default_enforcer",
     # Functions
     "load_boundary_spec",
     "parse_boundary_spec",
-    "enforce_boundary",
-    "enforce_response_boundary",
-    "enforce_payload_boundary",
-    "get_default_enforcer",
-    # Classes
-    "BoundarySpec",
-    "BoundaryEnforcer",
-    # Constants
-    "BOUNDARY_FILE",
 ]
 
 # ============================================================================

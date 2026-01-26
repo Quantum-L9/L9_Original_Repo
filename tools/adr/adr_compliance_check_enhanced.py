@@ -252,10 +252,7 @@ class ADRComplianceChecker:
             violations = stats["violations"]
             total = compliant + violations
 
-            if total > 0:
-                compliance_rate = (compliant / total) * 100
-            else:
-                compliance_rate = 0
+            compliance_rate = compliant / total * 100 if total > 0 else 0
 
             status = (
                 "✅"
@@ -333,7 +330,7 @@ def main():
 
     # Scan key directories
     scan_dirs = ["core", "agents", "memory", "runtime", "api", "tools"]
-    total_files = checker.scan_directory(scan_dirs)
+    checker.scan_directory(scan_dirs)
 
     # Generate report
     format = "json" if args.json else "text"

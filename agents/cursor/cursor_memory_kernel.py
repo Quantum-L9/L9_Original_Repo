@@ -154,10 +154,7 @@ def _run_psql(sql: str, with_rls: bool = True) -> str | None:
     """
     try:
         # Prepend RLS context if requested
-        if with_rls:
-            full_sql = _get_rls_prefix() + sql
-        else:
-            full_sql = sql
+        full_sql = _get_rls_prefix() + sql if with_rls else sql
 
         cmd = [
             "docker",
@@ -237,7 +234,7 @@ def neo4j_query(query: str, tenant_id: str = CURSOR_TENANT_ID) -> list[dict]:
             for line in lines[1:]:
                 values = [v.strip().strip('"') for v in line.split(",")]
                 if len(values) == len(headers):
-                    rows.append(dict(zip(headers, values)))
+                    rows.append(dict(zip(headers, values, strict=False)))
             return rows
     return []
 
@@ -273,7 +270,7 @@ def neo4j_get_graph_stats(tenant_id: str = CURSOR_TENANT_ID) -> dict:
 def _run_redis(cmd_parts: list[str]) -> str | None:
     """Execute Redis command via docker exec."""
     try:
-        cmd = ["docker", "exec", DOCKER_REDIS, "redis-cli"] + cmd_parts
+        cmd = ["docker", "exec", DOCKER_REDIS, "redis-cli", *cmd_parts]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
         if result.returncode == 0:
             return result.stdout.strip()
@@ -298,7 +295,7 @@ def redis_get(key: str, tenant_id: str = CURSOR_TENANT_ID) -> str | None:
 
 
 def redis_set(
-    key: str, value: str, tenant_id: str = CURSOR_TENANT_ID, ttl: int = None
+    key: str, value: str, tenant_id: str = CURSOR_TENANT_ID, ttl: int | None = None
 ) -> bool:
     """Set value in Redis (tenant-isolated)."""
     prefixed_key = redis_key(key, tenant_id)
@@ -324,7 +321,7 @@ def redis_hgetall(key: str, tenant_id: str = CURSOR_TENANT_ID) -> dict:
     result = _run_redis(["HGETALL", prefixed_key])
     if result:
         parts = result.split("\n")
-        return dict(zip(parts[::2], parts[1::2]))
+        return dict(zip(parts[::2], parts[1::2], strict=False))
     return {}
 
 
@@ -357,17 +354,17 @@ def load_lessons() -> list[Lesson]:
     This prevents L from loading Cursor's lessons and vice versa.
     """
     sql = """
-        SELECT 
+        SELECT
             envelope->'payload'->>'title' as title,
             envelope->'payload'->>'severity' as severity,
             envelope->'payload'->>'content' as content
-        FROM packet_store 
+        FROM packet_store
         WHERE packet_type = 'LESSON'
         AND (
             envelope->'metadata'->>'agent' = 'cursor'
             OR envelope->'metadata'->>'agent' IS NULL
         )
-        ORDER BY 
+        ORDER BY
             CASE envelope->'payload'->>'severity'
                 WHEN 'ULTRA-CRITICAL' THEN 1
                 WHEN 'CRITICAL' THEN 2
@@ -384,7 +381,7 @@ def load_todos(session_id: str) -> list[TodoItem]:
     """Load TODO items for a session."""
     sql = f"""
         SELECT envelope->'payload'->'todos' as todos
-        FROM packet_store 
+        FROM packet_store
         WHERE packet_type = 'SESSION_TODO'
         AND envelope->'payload'->>'session_id' = '{session_id}'
         ORDER BY timestamp DESC
@@ -427,7 +424,7 @@ def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
 
 
 def write_lesson(
-    title: str, content: str, severity: str = "INFO", tags: list[str] = None
+    title: str, content: str, severity: str = "INFO", tags: list[str] | None = None
 ) -> bool:
     """Write a new lesson to memory."""
     payload = {
@@ -522,7 +519,7 @@ class CursorMemoryKernel:
             logger.error("cursor_memory_kernel.config_load_failed", error=str(e))
             self.config = {}
 
-    def activate(self, session_id: str = None) -> SessionState:
+    def activate(self, session_id: str | None = None) -> SessionState:
         """
         Activate kernel for a session.
 
@@ -584,7 +581,7 @@ class CursorMemoryKernel:
 
         return "\n".join(lines)
 
-    def add_todo(self, content: str, milestone: str = None) -> TodoItem:
+    def add_todo(self, content: str, milestone: str | None = None) -> TodoItem:
         """Add a TODO item."""
         if not self.session_state:
             raise RuntimeError("Kernel not activated")
@@ -641,7 +638,7 @@ class CursorMemoryKernel:
         - max_questions: int
         - execute: bool
         """
-        logic = self.config.get("confidence_logic", {}).get("behavior", {})
+        self.config.get("confidence_logic", {}).get("behavior", {})
 
         if confidence >= 0.80:
             return {
@@ -706,7 +703,7 @@ def create_cursor_memory_kernel() -> CursorMemoryKernel:
     return _kernel_instance
 
 
-def activate_session(session_id: str = None) -> SessionState:
+def activate_session(session_id: str | None = None) -> SessionState:
     """Convenience function to activate a session."""
     kernel = create_cursor_memory_kernel()
     return kernel.activate(session_id)

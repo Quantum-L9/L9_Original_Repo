@@ -40,7 +40,7 @@ def load_index() -> dict:
     if not index_path.exists():
         return {"version": "1.0.0", "adrs": []}
 
-    with open(index_path, "r") as f:
+    with open(index_path) as f:
         return json.load(f)
 
 
@@ -128,7 +128,7 @@ def cmd_show(args: argparse.Namespace) -> int:
     adr_file = adr_files[0]
 
     # Read and display ADR content
-    with open(adr_file, "r") as f:
+    with open(adr_file) as f:
         content = f.read()
 
     print(content)
@@ -156,7 +156,7 @@ def cmd_update_status(args: argparse.Namespace) -> int:
     adr_file = adr_files[0]
 
     # Read ADR content
-    with open(adr_file, "r") as f:
+    with open(adr_file) as f:
         lines = f.readlines()
 
     # Update status line
@@ -197,7 +197,7 @@ def cmd_deprecate(args: argparse.Namespace) -> int:
     adr_file = adr_files[0]
 
     # Read ADR content
-    with open(adr_file, "r") as f:
+    with open(adr_file) as f:
         lines = f.readlines()
 
     # Update status and superseded_by lines
@@ -235,9 +235,9 @@ def cmd_search(args: argparse.Namespace) -> int:
     # Search in title, tags, and content
     matches = []
     for adr in adrs:
-        if query in adr["title"].lower():
-            matches.append(adr)
-        elif any(query in tag.lower() for tag in adr.get("tags", [])):
+        if query in adr["title"].lower() or any(
+            query in tag.lower() for tag in adr.get("tags", [])
+        ):
             matches.append(adr)
 
     if not matches:

@@ -107,7 +107,7 @@ core/codegen/
 ```python
 class ValidationGate:
     """Single validation gate result"""
-    
+
     # Key methods:
 
 ```
@@ -119,7 +119,7 @@ class ValidationGate:
 ```python
 class ValidationReport:
     """Complete validation report"""
-    
+
     # Key methods:
 
 ```
@@ -131,7 +131,7 @@ class ValidationReport:
 ```python
 class CodeValidator:
     """14-gate validation pipeline for generated code."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -155,7 +155,7 @@ class CodeValidator:
 ```python
 class DORABlock:
     """DORA metadata block"""
-    
+
     # Key methods:
 
 ```
@@ -167,7 +167,7 @@ class DORABlock:
 ```python
 class DORABlockGenerator:
     """Generate DORA blocks for all files."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...

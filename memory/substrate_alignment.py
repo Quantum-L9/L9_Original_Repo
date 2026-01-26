@@ -31,7 +31,6 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import List, Set
 from uuid import UUID
 
 import structlog
@@ -47,10 +46,10 @@ class AlignmentReport:
 
     postgres_count: int = 0
     neo4j_count: int = 0
-    missing_in_neo4j: Set[UUID] = field(default_factory=set)
-    missing_in_postgres: Set[UUID] = field(default_factory=set)
+    missing_in_neo4j: set[UUID] = field(default_factory=set)
+    missing_in_postgres: set[UUID] = field(default_factory=set)
     checked_at: str = ""
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
     @property
     def is_aligned(self) -> bool:
@@ -83,7 +82,7 @@ class SubstrateAlignmentChecker:
         self._repository = repository
         self._graph_client = graph_client
 
-    async def _fetch_postgres_packet_ids(self, limit: int) -> Set[UUID]:
+    async def _fetch_postgres_packet_ids(self, limit: int) -> set[UUID]:
         async with self._repository.acquire() as conn:
             rows = await conn.fetch(
                 "SELECT packet_id FROM packet_store ORDER BY timestamp DESC LIMIT $1",
@@ -109,7 +108,7 @@ class SubstrateAlignmentChecker:
         )
         return bool(results)
 
-    async def _fetch_neo4j_event_ids(self, limit: int) -> List[str]:
+    async def _fetch_neo4j_event_ids(self, limit: int) -> list[str]:
         if not await self._neo4j_available():
             return []
         results = await self._graph_client.run_query(

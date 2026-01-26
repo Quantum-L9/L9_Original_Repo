@@ -8,6 +8,7 @@
 ## Context
 
 L9 memory system began as monolith with tightly coupled responsibilities:
+
 - Packet validation mixed with routing logic (kernel)
 - Safety checks intertwined with memory operations
 - Configuration scattered across singletons
@@ -28,6 +29,7 @@ Refactor into five bounded contexts:
 5. **Control Plane** (mcp_memory/src/control_plane/): Configuration, secrets, feature flags
 
 Data flow:
+
 ```
 HTTP Request -> Kernel.Orchestrator
     -> Safety.SafetyService.check_query()
@@ -46,7 +48,7 @@ All config from Control_Plane.get_settings()
 
 ## Verification
 
-- [x] Module __init__.py files created
+- [x] Module **init**.py files created
 - [ ] Abstract base classes defined
 - [ ] Tests verify module isolation
 - [ ] All imports flow through interfaces

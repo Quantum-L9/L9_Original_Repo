@@ -26,24 +26,24 @@ CREATE TABLE IF NOT EXISTS cmts_mutations (
     subsystem VARCHAR(100) NOT NULL,
     agent_id VARCHAR(100) NOT NULL,
     trace_id VARCHAR(100),  -- Correlation with pattern orchestrator
-    
+
     -- Git tracking
     branch_name VARCHAR(255),
     commit_sha VARCHAR(64),
     pr_url TEXT,
     pr_number INTEGER,
-    
+
     -- Status
     status mutation_status NOT NULL DEFAULT 'pending',
     error_message TEXT,
-    
+
     -- Timestamps
     started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     completed_at TIMESTAMPTZ,
-    
+
     -- Metadata (JSON)
     metadata JSONB DEFAULT '{}',
-    
+
     -- Indexes
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS cmts_file_snapshots (
     content_hash VARCHAR(64),  -- SHA-256
     line_count INTEGER DEFAULT 0,
     file_exists BOOLEAN DEFAULT TRUE,
-    
+
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS cmts_file_changes (
     mutation_id INTEGER NOT NULL REFERENCES cmts_mutations(id) ON DELETE CASCADE,
     change_type VARCHAR(10) NOT NULL CHECK (change_type IN ('created', 'modified', 'deleted')),
     file_path TEXT NOT NULL,
-    
+
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

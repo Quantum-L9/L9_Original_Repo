@@ -12,12 +12,13 @@ from uuid import uuid4
 
 import pytest
 
-from core.testing.test_agent import (TestAgent, TestAgentResult,
-                                     spawn_test_agent)
+from core.testing.test_agent import TestAgent, TestAgentResult, spawn_test_agent
 from core.testing.test_executor import TestResults
-from core.testing.test_generator import (TestGenerator,
-                                         generate_integration_tests,
-                                         generate_unit_tests)
+from core.testing.test_generator import (
+    TestGenerator,
+    generate_integration_tests,
+    generate_unit_tests,
+)
 
 
 class TestTestGenerator:
@@ -49,11 +50,11 @@ def multiply(x, y):
 class Calculator:
     def __init__(self, initial=0):
         self.value = initial
-    
+
     def add(self, x):
         self.value += x
         return self.value
-    
+
     def reset(self):
         self.value = 0
 """

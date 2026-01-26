@@ -46,7 +46,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Generic, Optional, TypeVar
+from typing import Any, TypeVar
 from uuid import UUID, uuid4
 
 import structlog
@@ -75,7 +75,7 @@ class CellConfig:
     timeout_ms: int = 120000
     require_validation: bool = True
     store_packets: bool = True
-    api_key: Optional[str] = None
+    api_key: str | None = None
     model: str = "gpt-4o"
 
 
@@ -106,13 +106,13 @@ T = TypeVar("T")
 
 
 @dataclass
-class CellResult(Generic[T]):
+class CellResult[T]:
     """Result of cell execution."""
 
     cell_id: UUID
     cell_type: str
     success: bool
-    output: Optional[T]
+    output: T | None
     rounds: list[CellRound]
     consensus_reached: bool
     final_score: float
@@ -147,7 +147,7 @@ class BaseCell(ABC):
 
     cell_type: str = "base"
 
-    def __init__(self, config: Optional[CellConfig] = None):
+    def __init__(self, config: CellConfig | None = None):
         """
         Initialize the cell.
 
@@ -181,7 +181,7 @@ class BaseCell(ABC):
         self,
         task: dict[str, Any],
         context: dict[str, Any],
-        previous_critique: Optional[dict[str, Any]] = None,
+        previous_critique: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Run the producer agent.
@@ -261,7 +261,7 @@ class BaseCell(ABC):
     async def execute(
         self,
         task: dict[str, Any],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> CellResult:
         """
         Execute the cell on a task.
@@ -276,7 +276,7 @@ class BaseCell(ABC):
         start_time = datetime.utcnow()
         context = context or {}
         rounds: list[CellRound] = []
-        current_output: Optional[dict[str, Any]] = None
+        current_output: dict[str, Any] | None = None
         last_score = 0.0
         consensus_reached = False
         errors: list[str] = []
@@ -377,16 +377,15 @@ class BaseCell(ABC):
         if self._config.consensus_strategy == ConsensusStrategy.THRESHOLD:
             return score >= self._config.consensus_threshold
 
-        elif self._config.consensus_strategy == ConsensusStrategy.UNANIMOUS:
+        if self._config.consensus_strategy == ConsensusStrategy.UNANIMOUS:
             return critique.get("consensus", False)
 
-        elif self._config.consensus_strategy == ConsensusStrategy.LEADER:
+        if self._config.consensus_strategy == ConsensusStrategy.LEADER:
             # Leader decides - always accept if score is reasonable
             return score >= 0.7
 
-        else:
-            # Default to threshold
-            return score >= self._config.consensus_threshold
+        # Default to threshold
+        return score >= self._config.consensus_threshold
 
     # ==========================================================================
     # Memory Integration
@@ -418,7 +417,7 @@ class BaseCell(ABC):
     # Utility Methods
     # ==========================================================================
 
-    def get_agent(self, agent_id: str) -> Optional[Any]:
+    def get_agent(self, agent_id: str) -> Any | None:
         """Get a registered agent by ID."""
         return self._agents.get(agent_id)
 

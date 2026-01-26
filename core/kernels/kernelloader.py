@@ -52,19 +52,27 @@ __dora_meta__ = {
 
 import hashlib
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Protocol, Tuple
+from typing import Any, Protocol
 
 import structlog
 import yaml
 
-from core.kernels.schemas import (KernelActivationResult, KernelManifest,
-                                  KernelState, KernelValidationResult,
-                                  ValidationError)
+from core.kernels.schemas import (
+    KernelActivationResult,
+    KernelManifest,
+    KernelState,
+    KernelValidationResult,
+    ValidationError,
+)
 
 # Optional: Observability spans (v3.4+ / GMP-KERNEL-BOOT)
 try:
-    from core.observability.models import (KernelLifecycleSpan, SpanKind,
-                                           SpanStatus, TraceContext)
+    from core.observability.models import (
+        KernelLifecycleSpan,
+        SpanKind,
+        SpanStatus,
+        TraceContext,
+    )
     from core.observability.service import get_observability_service
 
     _has_observability = True
@@ -83,9 +91,9 @@ def _create_kernel_span(
     name: str,
     kernel_id: str,
     phase: str,
-    trace_context: Optional[Any] = None,
+    trace_context: Any | None = None,
     **attributes: Any,
-) -> Optional[Any]:
+) -> Any | None:
     """Create a kernel lifecycle span if observability is available."""
     if not _has_observability:
         return None
@@ -99,7 +107,7 @@ def _create_kernel_span(
             ctx = TraceContext()
             trace_id = ctx.trace_id
 
-        span = KernelLifecycleSpan.start(
+        return KernelLifecycleSpan.start(
             name=name,
             trace_id=trace_id,
             parent_span_id=parent_span_id,
@@ -110,16 +118,15 @@ def _create_kernel_span(
             phase=phase,
             **attributes,
         )
-        return span
     except Exception as e:
         logger.debug("kernel_loader.span_creation_failed", error=str(e))
         return None
 
 
 def _finish_span(
-    span: Optional[Any],
+    span: Any | None,
     status: str = "OK",
-    error: Optional[str] = None,
+    error: str | None = None,
 ) -> None:
     """Finish a span if it exists."""
     if span is None or not _has_observability:
@@ -164,7 +171,7 @@ KERNEL_ORDER = [
 ]
 
 # Kernel ID to filename mapping
-KERNEL_ID_MAP: Dict[str, str] = {
+KERNEL_ID_MAP: dict[str, str] = {
     "master": "01_master_kernel.yaml",
     "identity": "02_identity_kernel.yaml",
     "cognitive": "03_cognitive_kernel.yaml",
@@ -189,10 +196,10 @@ REQUIRED_KERNEL_COUNT = 10
 class KernelAwareAgent(Protocol):
     """Protocol for agents that can absorb kernels."""
 
-    kernels: Dict[str, Dict[str, Any]]
+    kernels: dict[str, dict[str, Any]]
     kernel_state: str
 
-    def absorb_kernel(self, kernel_data: Dict[str, Any]) -> None:
+    def absorb_kernel(self, kernel_data: dict[str, Any]) -> None:
         """Absorb a kernel into the agent's configuration."""
         ...
 
@@ -213,7 +220,7 @@ def _sha256_of_file(path: Path) -> str:
 
 
 def _validate_kernel_yaml(
-    data: Dict[str, Any], file_path: str
+    data: dict[str, Any], file_path: str
 ) -> KernelValidationResult:
     """
     Validate kernel YAML against Pydantic schema.
@@ -225,8 +232,8 @@ def _validate_kernel_yaml(
     Returns:
         KernelValidationResult with validation status
     """
-    errors: List[ValidationError] = []
-    warnings: List[ValidationError] = []
+    errors: list[ValidationError] = []
+    warnings: list[ValidationError] = []
 
     # Check for kernel key
     if "kernel" not in data:
@@ -262,7 +269,7 @@ def _validate_kernel_yaml(
         errors.append(
             ValidationError(
                 field="schema",
-                message=f"Schema validation failed: {str(e)}",
+                message=f"Schema validation failed: {e!s}",
                 severity="ERROR",
             )
         )
@@ -275,11 +282,11 @@ def _validate_kernel_yaml(
 
 
 def load_kernels_phase1(
-    base_path: Optional[Path] = None,
+    base_path: Path | None = None,
     validate_schema: bool = True,
     verify_integrity: bool = True,
-    trace_context: Optional[Any] = None,
-) -> Tuple[Dict[str, Dict[str, Any]], Dict[str, str], List[ValidationError]]:
+    trace_context: Any | None = None,
+) -> tuple[dict[str, dict[str, Any]], dict[str, str], list[ValidationError]]:
     """
     Phase 1: LOAD - Parse YAML, validate schema, compute hashes.
 
@@ -320,7 +327,7 @@ def load_kernels_phase1(
     )
 
     # Validate kernel paths exist (fail-fast on missing kernels)
-    missing_kernels: List[str] = []
+    missing_kernels: list[str] = []
     for kernel_path in KERNEL_ORDER:
         full_path = base_path / kernel_path
         if not full_path.exists():
@@ -343,9 +350,9 @@ def load_kernels_phase1(
     )
 
     # Load and validate each kernel
-    kernels_by_path: Dict[str, Dict[str, Any]] = {}
-    hashes: Dict[str, str] = {}
-    all_errors: List[ValidationError] = []
+    kernels_by_path: dict[str, dict[str, Any]] = {}
+    hashes: dict[str, str] = {}
+    all_errors: list[ValidationError] = []
 
     for kernel_path in KERNEL_ORDER:
         full_path = base_path / kernel_path
@@ -393,7 +400,7 @@ def load_kernels_phase1(
             all_errors.append(
                 ValidationError(
                     field=kernel_path,
-                    message=f"YAML parse error: {str(e)}",
+                    message=f"YAML parse error: {e!s}",
                     severity="ERROR",
                 )
             )
@@ -407,7 +414,7 @@ def load_kernels_phase1(
             all_errors.append(
                 ValidationError(
                     field=kernel_path,
-                    message=f"Load error: {str(e)}",
+                    message=f"Load error: {e!s}",
                     severity="ERROR",
                 )
             )
@@ -491,9 +498,9 @@ Igor's word is law. His corrections apply immediately and permanently.
 
 def activate_kernels_phase2(
     agent: Any,
-    kernels_by_path: Dict[str, Dict[str, Any]],
-    hashes: Dict[str, str],
-    trace_context: Optional[Any] = None,
+    kernels_by_path: dict[str, dict[str, Any]],
+    hashes: dict[str, str],
+    trace_context: Any | None = None,
 ) -> KernelActivationResult:
     """
     Phase 2: ACTIVATE - Inject context, set state, verify activation.
@@ -527,7 +534,7 @@ def activate_kernels_phase2(
         kernel_count=len(kernels_by_path),
     )
 
-    errors: List[ValidationError] = []
+    errors: list[ValidationError] = []
 
     # Initialize kernel storage on agent
     agent.kernels = {}
@@ -554,7 +561,7 @@ def activate_kernels_phase2(
             errors.append(
                 ValidationError(
                     field=kernel_path,
-                    message=f"Absorption failed: {str(e)}",
+                    message=f"Absorption failed: {e!s}",
                     severity="ERROR",
                 )
             )
@@ -664,7 +671,7 @@ def activate_kernels_phase2(
 
 def load_kernels(
     agent: Any,
-    base_path: Optional[Path] = None,
+    base_path: Path | None = None,
     validate_schema: bool = True,
     verify_integrity: bool = True,
 ) -> Any:
@@ -747,10 +754,7 @@ def verify_kernel_activation(agent: Any) -> bool:
     if not hasattr(agent, "kernels") or len(agent.kernels) == 0:
         return False
 
-    if len(agent.kernels) < REQUIRED_KERNEL_COUNT:
-        return False
-
-    return True
+    return not len(agent.kernels) < REQUIRED_KERNEL_COUNT
 
 
 def require_kernel_activation(agent: Any) -> None:
@@ -774,8 +778,8 @@ def require_kernel_activation(agent: Any) -> None:
 
 def verify_kernel_integrity(
     agent: Any,
-    base_path: Optional[Path] = None,
-) -> Dict[str, str]:
+    base_path: Path | None = None,
+) -> dict[str, str]:
     """
     Verify kernel file integrity against stored hashes.
 
@@ -798,7 +802,7 @@ def verify_kernel_integrity(
         agent, "_kernel_hashes", {}
     )
 
-    results: Dict[str, str] = {}
+    results: dict[str, str] = {}
 
     for kernel_path in KERNEL_ORDER:
         full_path = base_path / kernel_path
@@ -832,10 +836,10 @@ class KernelReloadResult:
         self,
         success: bool,
         kernels_reloaded: int,
-        modified_kernels: List[str],
-        errors: List[str],
-        previous_hashes: Dict[str, str],
-        new_hashes: Dict[str, str],
+        modified_kernels: list[str],
+        errors: list[str],
+        previous_hashes: dict[str, str],
+        new_hashes: dict[str, str],
     ):
         self.success = success
         self.kernels_reloaded = kernels_reloaded
@@ -847,7 +851,7 @@ class KernelReloadResult:
 
 def reload_kernels(
     agent: Any,
-    base_path: Optional[Path] = None,
+    base_path: Path | None = None,
     force: bool = False,
 ) -> KernelReloadResult:
     """
@@ -889,7 +893,7 @@ def reload_kernels(
         agent_id=getattr(agent, "agent_id", "unknown"),
     )
 
-    errors: List[str] = []
+    errors: list[str] = []
 
     # Get previous hashes
     previous_hashes = getattr(agent, "kernel_hashes", None) or getattr(
@@ -999,7 +1003,7 @@ def reload_kernels(
         )
 
     except Exception as e:
-        errors.append(f"Reload failed with exception: {str(e)}")
+        errors.append(f"Reload failed with exception: {e!s}")
         logger.error("kernel_loader.reload_exception", error=str(e), exc_info=True)
         agent.kernel_state = KernelState.ERROR.value
         _finish_span(reload_span, status="ERROR", error=str(e))
@@ -1021,22 +1025,22 @@ __all__ = [
     # Configuration
     "DEFAULT_KERNEL_PATH",
     "KERNEL_EXTENSIONS",
-    "KERNEL_ORDER",
     "KERNEL_ID_MAP",
+    "KERNEL_ORDER",
     "REQUIRED_KERNEL_COUNT",
-    # Two-phase loading
-    "load_kernels_phase1",
-    "activate_kernels_phase2",
-    "load_kernels",
-    # Verification
-    "verify_kernel_activation",
-    "require_kernel_activation",
-    "verify_kernel_integrity",
-    # Hot reload
-    "reload_kernels",
-    "KernelReloadResult",
     # Protocol
     "KernelAwareAgent",
+    "KernelReloadResult",
+    "activate_kernels_phase2",
+    "load_kernels",
+    # Two-phase loading
+    "load_kernels_phase1",
+    # Hot reload
+    "reload_kernels",
+    "require_kernel_activation",
+    # Verification
+    "verify_kernel_activation",
+    "verify_kernel_integrity",
 ]
 
 # ============================================================================

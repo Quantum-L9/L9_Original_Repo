@@ -33,14 +33,13 @@ __dora_meta__ = {
 
 import asyncio
 import json
-
-import aiofiles
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
+import aiofiles
 import httpx
 
 # Add project root to path
@@ -59,7 +58,7 @@ if not API_KEY:
     sys.exit(1)
 
 
-async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
+async def api_request(method: str, endpoint: str, **kwargs) -> dict[str, Any]:
     """Make authenticated API request to VPS."""
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -86,14 +85,13 @@ async def api_request(method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
             }
 
 
-async def audit_memory_stats() -> Dict[str, Any]:
+async def audit_memory_stats() -> dict[str, Any]:
     """Get memory system stats."""
     print("📊 Fetching memory stats...")
-    result = await api_request("GET", "/api/v1/memory/stats")
-    return result
+    return await api_request("GET", "/api/v1/memory/stats")
 
 
-async def audit_packets(limit: int = 10) -> Dict[str, Any]:
+async def audit_packets(limit: int = 10) -> dict[str, Any]:
     """Audit packet store via semantic search."""
     print("📦 Auditing packets...")
 
@@ -114,7 +112,7 @@ async def audit_packets(limit: int = 10) -> Dict[str, Any]:
     }
 
 
-async def audit_facts(limit: int = 20) -> Dict[str, Any]:
+async def audit_facts(limit: int = 20) -> dict[str, Any]:
     """Audit knowledge facts."""
     print("📚 Auditing knowledge facts...")
 
@@ -141,7 +139,7 @@ async def audit_facts(limit: int = 20) -> Dict[str, Any]:
     }
 
 
-async def audit_neo4j_via_api() -> Dict[str, Any]:
+async def audit_neo4j_via_api() -> dict[str, Any]:
     """Query Neo4j via graph API endpoint."""
     print("🕸️  Querying Neo4j via API...")
 
@@ -278,7 +276,7 @@ async def audit_neo4j_via_api() -> Dict[str, Any]:
     return results
 
 
-async def run_audit() -> Dict[str, Any]:
+async def run_audit() -> dict[str, Any]:
     """Run full audit."""
     print("=" * 80)
     print("L9 GRAPH AUDIT - VPS API")
@@ -315,7 +313,7 @@ async def run_audit() -> Dict[str, Any]:
     return results
 
 
-def print_report(results: Dict[str, Any]):
+def print_report(results: dict[str, Any]):
     """Print formatted report."""
     print("\n" + "=" * 80)
     print("AUDIT REPORT")

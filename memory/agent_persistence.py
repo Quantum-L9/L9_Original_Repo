@@ -44,7 +44,7 @@ __dora_meta__ = {
 
 import json
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -67,7 +67,7 @@ class Checkpoint:
         self,
         checkpoint_id: UUID,
         agent_id: str,
-        state: Dict[str, Any],
+        state: dict[str, Any],
         reason: str,
         created_at: datetime,
     ):
@@ -94,8 +94,8 @@ class AgentPersistenceService:
 
     def __init__(
         self,
-        service: Optional[MemorySubstrateService] = None,
-        repository: Optional[SubstrateRepository] = None,
+        service: MemorySubstrateService | None = None,
+        repository: SubstrateRepository | None = None,
         enable_checksums: bool = True,
     ):
         """
@@ -137,7 +137,7 @@ class AgentPersistenceService:
     async def create_checkpoint(
         self,
         agent_id: str,
-        state: Dict[str, Any],
+        state: dict[str, Any],
         reason: str = "manual",
     ) -> UUID:
         """
@@ -168,7 +168,7 @@ class AgentPersistenceService:
             if self._enable_checksums:
                 state_with_meta = self._validator.add_checksum_to_state(state_with_meta)
 
-            checkpoint_id: Optional[UUID] = None
+            checkpoint_id: UUID | None = None
 
             if self._service:
                 checkpoint_id = await self._service.save_checkpoint(
@@ -209,9 +209,9 @@ class AgentPersistenceService:
     async def restore_checkpoint(
         self,
         agent_id: str,
-        checkpoint_id: Optional[UUID] = None,
+        checkpoint_id: UUID | None = None,
         validate_integrity: bool = True,
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Restore a checkpoint for an agent.
 
@@ -237,8 +237,8 @@ class AgentPersistenceService:
                 checkpoint_id=str(checkpoint_id) if checkpoint_id else "latest",
             )
 
-            state: Optional[Dict[str, Any]] = None
-            restored_checkpoint_id: Optional[UUID] = None
+            state: dict[str, Any] | None = None
+            restored_checkpoint_id: UUID | None = None
 
             if self._service:
                 state = await self._service.get_checkpoint(agent_id=agent_id)
@@ -296,7 +296,7 @@ class AgentPersistenceService:
         self,
         agent_id: str,
         limit: int = 10,
-    ) -> List[Checkpoint]:
+    ) -> list[Checkpoint]:
         """
         List checkpoints for an agent.
 
@@ -398,7 +398,7 @@ class AgentPersistenceService:
 
         return count
 
-    def serialize_agent_state(self, agent: Any) -> Dict[str, Any]:
+    def serialize_agent_state(self, agent: Any) -> dict[str, Any]:
         """
         Serialize an agent object to a state dict.
 
@@ -411,38 +411,36 @@ class AgentPersistenceService:
         if hasattr(agent, "model_dump"):
             # Pydantic model
             return agent.model_dump(mode="json")
-        elif hasattr(agent, "__dict__"):
+        if hasattr(agent, "__dict__"):
             # Regular object
             return {
                 k: self._serialize_value(v)
                 for k, v in agent.__dict__.items()
                 if not k.startswith("_")
             }
-        elif isinstance(agent, dict):
+        if isinstance(agent, dict):
             # Already a dict
             return agent
-        else:
-            # Fallback: convert to string
-            return {"state": str(agent)}
+        # Fallback: convert to string
+        return {"state": str(agent)}
 
     def _serialize_value(self, value: Any) -> Any:
         """Recursively serialize a value."""
         if isinstance(value, (str, int, float, bool, type(None))):
             return value
-        elif isinstance(value, (list, tuple)):
+        if isinstance(value, (list, tuple)):
             return [self._serialize_value(v) for v in value]
-        elif isinstance(value, dict):
+        if isinstance(value, dict):
             return {k: self._serialize_value(v) for k, v in value.items()}
-        elif isinstance(value, UUID):
+        if isinstance(value, UUID):
             return str(value)
-        elif isinstance(value, datetime):
+        if isinstance(value, datetime):
             return value.isoformat()
-        elif hasattr(value, "model_dump"):
+        if hasattr(value, "model_dump"):
             return value.model_dump(mode="json")
-        else:
-            return str(value)
+        return str(value)
 
-    def deserialize_agent_state(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    def deserialize_agent_state(self, state: dict[str, Any]) -> dict[str, Any]:
         """
         Deserialize a state dict back to agent-compatible format.
 
@@ -459,7 +457,7 @@ class AgentPersistenceService:
     async def validate_checkpoint_integrity(
         self,
         checkpoint_id: UUID,
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
     ) -> bool:
         """
         Validate checkpoint integrity.
@@ -561,9 +559,9 @@ class AgentPersistenceService:
         self,
         event_type: str,
         agent_id: str,
-        checkpoint_id: Optional[UUID],
+        checkpoint_id: UUID | None,
         reason: str,
-        state_keys: List[str],
+        state_keys: list[str],
     ) -> None:
         """
         Emit a PacketEnvelope for checkpoint audit trail.

@@ -58,7 +58,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 import structlog
@@ -87,8 +87,8 @@ class EntityData(BaseModel):
     entity_type: str
     attributes: dict[str, Any]
     confidence: float
-    created_at: Optional[str] = None
-    updated_at: Optional[str] = None
+    created_at: str | None = None
+    updated_at: str | None = None
     version: int = 1
 
 
@@ -106,7 +106,7 @@ class SnapshotData(BaseModel):
     state_version: int
     entity_count: int
     created_at: str
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class RestoreResult(BaseModel):
@@ -131,8 +131,8 @@ class UpdateRecord(BaseModel):
     """Update record from API."""
 
     update_id: str
-    insight_id: Optional[str] = None
-    insight_type: Optional[str] = None
+    insight_id: str | None = None
+    insight_type: str | None = None
     entities: list[str]
     confidence: float
     applied_at: str
@@ -152,7 +152,7 @@ class WorldModelClient:
 
     def __init__(
         self,
-        base_url: Optional[str] = None,
+        base_url: str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
     ):
         """
@@ -164,7 +164,7 @@ class WorldModelClient:
         """
         self.base_url = base_url or os.getenv("L9_API_BASE_URL", DEFAULT_BASE_URL)
         self.timeout = timeout
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
         logger.info(f"WorldModelClient initialized: {self.base_url}")
 
     @must_stay_async("callers use await")
@@ -186,7 +186,7 @@ class WorldModelClient:
             logger.debug("WorldModelClient closed")
 
     @must_stay_async("async context manager protocol")
-    async def __aenter__(self) -> "WorldModelClient":
+    async def __aenter__(self) -> WorldModelClient:
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
@@ -216,7 +216,7 @@ class WorldModelClient:
     # Entity Operations
     # =========================================================================
 
-    async def get_entity(self, entity_id: str) -> Optional[EntityData]:
+    async def get_entity(self, entity_id: str) -> EntityData | None:
         """
         Get entity by ID.
 
@@ -242,8 +242,8 @@ class WorldModelClient:
 
     async def list_entities(
         self,
-        entity_type: Optional[str] = None,
-        min_confidence: Optional[float] = None,
+        entity_type: str | None = None,
+        min_confidence: float | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[EntityData]:
@@ -296,7 +296,7 @@ class WorldModelClient:
 
     async def snapshot(
         self,
-        description: Optional[str] = None,
+        description: str | None = None,
         created_by: str = "client",
     ) -> SnapshotData:
         """
@@ -430,8 +430,8 @@ class WorldModelClient:
 
     async def list_updates(
         self,
-        insight_type: Optional[str] = None,
-        min_confidence: Optional[float] = None,
+        insight_type: str | None = None,
+        min_confidence: float | None = None,
         limit: int = 100,
     ) -> list[UpdateRecord]:
         """
@@ -464,7 +464,7 @@ class WorldModelClient:
 # Singleton / Factory
 # =============================================================================
 
-_client: Optional[WorldModelClient] = None
+_client: WorldModelClient | None = None
 
 
 def get_world_model_client() -> WorldModelClient:

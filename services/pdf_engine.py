@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 
@@ -54,7 +54,7 @@ if not PDFPLUMBER_AVAILABLE and not PYPDF_AVAILABLE:
     logger.warning("Neither pdfplumber nor pypdf installed. PDF extraction disabled.")
 
 
-def extract_pdf(path: str, summarize: bool = True) -> Dict[str, Any]:
+def extract_pdf(path: str, summarize: bool = True) -> dict[str, Any]:
     """
     Extract text and metadata from PDF.
 
@@ -87,7 +87,7 @@ def extract_pdf(path: str, summarize: bool = True) -> Dict[str, Any]:
         if PDFPLUMBER_AVAILABLE:
             try:
                 with pdfplumber.open(path) as pdf:
-                    for i, page in enumerate(pdf.pages):
+                    for _i, page in enumerate(pdf.pages):
                         page_text = page.extract_text() or ""
                         pages.append(page_text)
                         full_text += page_text + "\n"
@@ -126,7 +126,7 @@ def extract_pdf(path: str, summarize: bool = True) -> Dict[str, Any]:
         # Fallback to pypdf
         if not PDFPLUMBER_AVAILABLE and PYPDF_AVAILABLE:
             reader = PdfReader(path)
-            for i, page in enumerate(reader.pages):
+            for _i, page in enumerate(reader.pages):
                 page_text = page.extract_text() or ""
                 pages.append(page_text)
                 full_text += page_text + "\n"

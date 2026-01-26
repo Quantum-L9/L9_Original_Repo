@@ -1,18 +1,22 @@
 # ADR 0027: LRU Cache Pattern
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Use `@lru_cache` for expensive computations and config loading; cache config, not service instances.
 
 ## Files
+
 - `config/rls_config.py` - `@lru_cache(maxsize=1)` for config
 - `config/settings.py` - `@lru_cache(maxsize=1)` for settings
 - `runtime/kernel_loader.py` - Kernel cache
 - `core/kernels/prompt_builder.py` - Prompt cache
 
 ## Import Block
+
 ```python
 from functools import lru_cache
 from typing import TypeVar
@@ -21,6 +25,7 @@ T = TypeVar("T")
 ```
 
 ## Minimal Implementation
+
 ```python
 from functools import lru_cache
 from dataclasses import dataclass
@@ -40,7 +45,7 @@ class RLSConfig:
 def get_rls_config() -> RLSConfig:
     """
     Get RLS config singleton. CACHED.
-    
+
     First call loads from env/file, subsequent calls return cached.
     """
     return RLSConfig(
@@ -61,10 +66,10 @@ def get_settings() -> "Settings":
 def load_kernel(kernel_name: str) -> dict:
     """
     Cache parsed kernel YAML.
-    
+
     Args:
         kernel_name: Name of kernel file (without .yaml)
-    
+
     Returns:
         Parsed kernel dict
     """
@@ -80,6 +85,7 @@ def build_prompt(template_name: str, **kwargs) -> str:
 ```
 
 ## Usage Example
+
 ```python
 from functools import lru_cache
 from config.rls_config import get_rls_config
@@ -102,6 +108,7 @@ config = get_rls_config()  # Cache MISS, reloads
 ```
 
 ## Anti-Pattern Example
+
 ```python
 # ❌ WRONG — Caching service instance
 @lru_cache(maxsize=1)
@@ -139,17 +146,19 @@ async def get_user_cached(user_id: str):
 ```
 
 ## When to Use
-| Use Case | Cache? | maxsize | Why |
-|----------|--------|---------|-----|
-| Config loading | ✅ Yes | 1 | Singleton, rarely changes |
-| Settings | ✅ Yes | 1 | Singleton, rarely changes |
-| Kernel parsing | ✅ Yes | 10-20 | Limited set of kernels |
-| Prompt building | ✅ Yes | 100 | Expensive computation |
-| Service instances | ❌ No | — | Use lazy init pattern (ADR-0011) |
-| DB query results | ❌ No | — | Use Redis/external cache |
-| Mutable objects | ❌ No | — | Can be modified unexpectedly |
+
+| Use Case          | Cache? | maxsize | Why                              |
+| ----------------- | ------ | ------- | -------------------------------- |
+| Config loading    | ✅ Yes | 1       | Singleton, rarely changes        |
+| Settings          | ✅ Yes | 1       | Singleton, rarely changes        |
+| Kernel parsing    | ✅ Yes | 10-20   | Limited set of kernels           |
+| Prompt building   | ✅ Yes | 100     | Expensive computation            |
+| Service instances | ❌ No  | —       | Use lazy init pattern (ADR-0011) |
+| DB query results  | ❌ No  | —       | Use Redis/external cache         |
+| Mutable objects   | ❌ No  | —       | Can be modified unexpectedly     |
 
 ## Rules
+
 1. Use `maxsize=1` for singletons
 2. Cache MUST be deterministic (same input → same output)
 3. Don't cache mutable objects
@@ -157,13 +166,16 @@ async def get_user_cached(user_id: str):
 5. Clear cache on config reload: `func.cache_clear()`
 
 ## AI Guidance
+
 **DO:**
+
 - Use `@lru_cache` for config/settings
 - Set explicit `maxsize`
 - Add "CACHED" in docstring for clarity
 - Use `cache_clear()` for invalidation
 
 **DO NOT:**
+
 - Cache service instances (use `get_*()` pattern)
 - Cache DB query results (use Redis)
 - Cache mutable objects (dicts, lists)

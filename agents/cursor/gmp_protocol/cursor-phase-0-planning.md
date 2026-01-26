@@ -1,6 +1,6 @@
 # CURSOR PHASE 0 — TODO PLAN LOCK
 
-**Version:** 3.1.0  
+**Version:** 3.1.0
 **Purpose:** Generate locked, deterministic TODO plans for GMP execution
 
 ---
@@ -90,6 +90,7 @@ config/agents/*.yaml
 ## Workflow
 
 1. **Read relevant ADRs** (MANDATORY per ADR-0035):
+
    - Scan `readme/adr/README.md` for ADR index
    - Read ADRs related to the task domain (memory, tools, agents, etc.)
    - Extract **Import Block** and **Minimal Implementation** code templates

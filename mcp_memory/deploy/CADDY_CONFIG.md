@@ -44,6 +44,7 @@
 ```
 
 **Key Points:**
+
 - **No standalone MCP server** — MCP endpoints are integrated into `l9-api`
 - **Port 9001** is an alternate HTTPS front door, routing to the same `l9-api` on 8000
 - **Port 9002 is not used** — there is no separate MCP service
@@ -76,16 +77,16 @@ l9.quantumaipartners.com {
 
 ## Endpoints Available Through l9-api
 
-| Endpoint | Description |
-|----------|-------------|
-| `/health` | API health check |
-| `/mcp/tools` | List available MCP tools |
-| `/mcp/call` | Execute MCP tool calls |
-| `/mcp/health` | MCP-specific health check |
-| `/api/v1/memory/*` | Memory API routes |
-| `/memory/*` | Memory API routes (alternate) |
-| `/slack/*` | Slack webhook routes |
-| `/docs`, `/openapi.json` | API documentation |
+| Endpoint                 | Description                   |
+| ------------------------ | ----------------------------- |
+| `/health`                | API health check              |
+| `/mcp/tools`             | List available MCP tools      |
+| `/mcp/call`              | Execute MCP tool calls        |
+| `/mcp/health`            | MCP-specific health check     |
+| `/api/v1/memory/*`       | Memory API routes             |
+| `/memory/*`              | Memory API routes (alternate) |
+| `/slack/*`               | Slack webhook routes          |
+| `/docs`, `/openapi.json` | API documentation             |
 
 ---
 
@@ -171,6 +172,7 @@ curl -ks -H "Authorization: Bearer $MCP_API_KEY_C" \
 **Cause:** Caddy routing to a backend that doesn't exist (e.g., port 9002)
 
 **Fix:**
+
 ```bash
 # Check current Caddyfile for 9002 references
 grep 9002 /etc/caddy/Caddyfile
@@ -180,11 +182,12 @@ sudo sed -i 's|127.0.0.1:9002|127.0.0.1:8000|g' /etc/caddy/Caddyfile
 sudo systemctl reload caddy
 ```
 
-### HTTP 404 Not Found on /mcp/*
+### HTTP 404 Not Found on /mcp/\*
 
 **Cause:** MCP endpoints not integrated into `l9-api`
 
 **Fix:** Ensure `api/routes/mcp.py` exists and is registered in `api/server.py`:
+
 ```python
 # In api/server.py
 from api.routes.mcp import router as mcp_router
@@ -192,6 +195,7 @@ app.include_router(mcp_router)
 ```
 
 Then rebuild and restart:
+
 ```bash
 cd /opt/l9
 docker compose build l9-api
@@ -227,7 +231,7 @@ docker compose logs -f l9-api --tail 50
 > **⚠️ Deprecated:** Previous documentation referenced a standalone MCP server on port 9002.
 > This architecture was **never deployed** on the VPS. All MCP functionality is integrated into
 > the unified `l9-api` service on port 8000.
-> 
+>
 > **Do not create port 9002 routing** — it will cause 502 errors. All traffic routes to 8000.
 
 ---
@@ -235,6 +239,7 @@ docker compose logs -f l9-api --tail 50
 ## Official Configuration (Locked 2026-01-12)
 
 **Verified Working Configuration:**
+
 - **URL:** `https://157.180.73.53:9001` (IP-based) or `https://l9.quantumaipartners.com` (domain)
 - **Backend:** `127.0.0.1:8000` (l9-api Docker container)
 - **API Key:** `MCP_API_KEY_C` (for Cursor IDE)

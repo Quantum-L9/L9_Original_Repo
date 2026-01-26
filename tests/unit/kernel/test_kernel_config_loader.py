@@ -24,15 +24,18 @@ from unittest.mock import patch
 import pytest
 import yaml
 
-from runtime.kernel_config_loader import (FALLBACK_CONFIG,
-                                          apply_environment_overrides,
-                                          get_environment, get_kernel_order,
-                                          get_minimum_kernel_count,
-                                          get_required_kernels,
-                                          is_config_loading_enabled,
-                                          load_kernel_config,
-                                          should_use_env_overrides,
-                                          validate_config)
+from runtime.kernel_config_loader import (
+    FALLBACK_CONFIG,
+    apply_environment_overrides,
+    get_environment,
+    get_kernel_order,
+    get_minimum_kernel_count,
+    get_required_kernels,
+    is_config_loading_enabled,
+    load_kernel_config,
+    should_use_env_overrides,
+    validate_config,
+)
 
 # =============================================================================
 # Test Fixtures

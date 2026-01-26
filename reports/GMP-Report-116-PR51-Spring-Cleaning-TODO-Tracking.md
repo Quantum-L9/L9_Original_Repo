@@ -11,49 +11,49 @@
 
 ## Phase Completion Checklist
 
-| Phase | Status | Evidence |
-|-------|--------|----------|
-| 0. Memory Injection | ✅ | No relevant lessons found in memory |
-| 1. Discovery | ✅ | PR #51 fetched, 11 files, +963/-23 lines |
-| 2. Index Scan | ✅ | 4 indexes queried (class_definitions, function_signatures, route_handlers, wiring_map) |
-| 3. Deep Research | ✅ | 4 rg searches for existing patterns |
-| 4. Gap Analysis | ✅ | 11/11 files classified |
-| 5. Report Generated | ✅ | This file |
-| 6. Close Notes | ✅ | 4 sections populated |
+| Phase               | Status | Evidence                                                                               |
+| ------------------- | ------ | -------------------------------------------------------------------------------------- |
+| 0. Memory Injection | ✅     | No relevant lessons found in memory                                                    |
+| 1. Discovery        | ✅     | PR #51 fetched, 11 files, +963/-23 lines                                               |
+| 2. Index Scan       | ✅     | 4 indexes queried (class_definitions, function_signatures, route_handlers, wiring_map) |
+| 3. Deep Research    | ✅     | 4 rg searches for existing patterns                                                    |
+| 4. Gap Analysis     | ✅     | 11/11 files classified                                                                 |
+| 5. Report Generated | ✅     | This file                                                                              |
+| 6. Close Notes      | ✅     | 4 sections populated                                                                   |
 
 ---
 
 ## 🧠 Memory Context
 
-| Relevant Lesson | Source |
-|-----------------|--------|
+| Relevant Lesson                     | Source                                                 |
+| ----------------------------------- | ------------------------------------------------------ |
 | No relevant lessons found in memory | Memory search: "PR merge lessons errors TODO tracking" |
 
 ---
 
 ## 📊 Implementation Status (ALL FILES)
 
-| # | PR File | Status | Confidence | Existing Equivalent | Gap | Evidence |
-|---|---------|--------|------------|---------------------|-----|----------|
-| 1 | `agents/cursor/integrations/cursor_langgraph.py` | ⚠️ PARTIAL | 95% | Same file on main | Adds GMP-120, GMP-121 tags | diff: tag addition |
-| 2 | `agents/research_agent_impl.py` | ⚠️ PARTIAL | 95% | Same file on main | Adds GMP-122 tag | diff: tag addition |
-| 3 | `ci/run_ci_gates.sh` | ⚠️ PARTIAL | 90% | Same file on main | +34 lines to gate_14 | diff: expansion |
-| 4 | `core/governance/validation.py` | ⚠️ PARTIAL | 95% | Same file on main | Adds GMP-100 tag | diff: tag addition |
-| 5 | `core/packet_envelope/governance.py` | ⚠️ PARTIAL | 95% | Same file on main | Adds GMP-101→105 tags | diff: tag addition |
-| 6 | `core/packet_envelope/scalability.py` | ⚠️ PARTIAL | 95% | Same file on main | Adds GMP-106→108 tags | diff: tag addition |
-| 7 | `core/testing/test_generator.py` | ⚠️ PARTIAL | 95% | Same file on main | Adds GMP-109→116 tags | diff: tag addition |
-| 8 | `memory/consolidation.py` | ⚠️ PARTIAL | 95% | Same file on main | Adds GMP-118 tag | diff: tag addition |
-| 9 | `memory/reasoning_replay.py` | ⚠️ PARTIAL | 95% | Same file on main | Adds GMP-119 tag | diff: tag addition |
-| 10 | `runtime/dora.py` | ⚠️ PARTIAL | 95% | Same file on main | Adds GMP-117 tag | diff: tag addition |
-| 11 | `tests/ci/test_anti_patterns.py` | ⚠️ PARTIAL | 90% | 508-line file exists | +398 lines (6 new tests) | diff: major expansion |
+| #   | PR File                                          | Status     | Confidence | Existing Equivalent  | Gap                        | Evidence              |
+| --- | ------------------------------------------------ | ---------- | ---------- | -------------------- | -------------------------- | --------------------- |
+| 1   | `agents/cursor/integrations/cursor_langgraph.py` | ⚠️ PARTIAL | 95%        | Same file on main    | Adds GMP-120, GMP-121 tags | diff: tag addition    |
+| 2   | `agents/research_agent_impl.py`                  | ⚠️ PARTIAL | 95%        | Same file on main    | Adds GMP-122 tag           | diff: tag addition    |
+| 3   | `ci/run_ci_gates.sh`                             | ⚠️ PARTIAL | 90%        | Same file on main    | +34 lines to gate_14       | diff: expansion       |
+| 4   | `core/governance/validation.py`                  | ⚠️ PARTIAL | 95%        | Same file on main    | Adds GMP-100 tag           | diff: tag addition    |
+| 5   | `core/packet_envelope/governance.py`             | ⚠️ PARTIAL | 95%        | Same file on main    | Adds GMP-101→105 tags      | diff: tag addition    |
+| 6   | `core/packet_envelope/scalability.py`            | ⚠️ PARTIAL | 95%        | Same file on main    | Adds GMP-106→108 tags      | diff: tag addition    |
+| 7   | `core/testing/test_generator.py`                 | ⚠️ PARTIAL | 95%        | Same file on main    | Adds GMP-109→116 tags      | diff: tag addition    |
+| 8   | `memory/consolidation.py`                        | ⚠️ PARTIAL | 95%        | Same file on main    | Adds GMP-118 tag           | diff: tag addition    |
+| 9   | `memory/reasoning_replay.py`                     | ⚠️ PARTIAL | 95%        | Same file on main    | Adds GMP-119 tag           | diff: tag addition    |
+| 10  | `runtime/dora.py`                                | ⚠️ PARTIAL | 95%        | Same file on main    | Adds GMP-117 tag           | diff: tag addition    |
+| 11  | `tests/ci/test_anti_patterns.py`                 | ⚠️ PARTIAL | 90%        | 508-line file exists | +398 lines (6 new tests)   | diff: major expansion |
 
 ---
 
 ## ✅ Already Implemented (SKIP)
 
-| PR File | Existing Implementation | Evidence |
-|---------|------------------------|----------|
-| N/A - All files are partial updates | N/A | All changes are additions to existing files |
+| PR File                             | Existing Implementation | Evidence                                    |
+| ----------------------------------- | ----------------------- | ------------------------------------------- |
+| N/A - All files are partial updates | N/A                     | All changes are additions to existing files |
 
 ---
 
@@ -61,64 +61,64 @@
 
 ### Category 1: TODO Tagging (9 files)
 
-| PR File | Existing File | What PR Adds | Integration Steps |
-|---------|---------------|--------------|-------------------|
-| `core/governance/validation.py` | Same | GMP-100 tag | 🤖 AUTO - Direct merge |
-| `core/packet_envelope/governance.py` | Same | GMP-101→105 tags | 🤖 AUTO - Direct merge |
-| `core/packet_envelope/scalability.py` | Same | GMP-106→108 tags | 🤖 AUTO - Direct merge |
-| `core/testing/test_generator.py` | Same | GMP-109→116 tags | 🤖 AUTO - Direct merge |
-| `memory/consolidation.py` | Same | GMP-118 tag | 🤖 AUTO - Direct merge |
-| `memory/reasoning_replay.py` | Same | GMP-119 tag | 🤖 AUTO - Direct merge |
-| `runtime/dora.py` | Same | GMP-117 tag | 🤖 AUTO - Direct merge |
-| `agents/cursor/integrations/cursor_langgraph.py` | Same | GMP-120→121 tags | 🤖 AUTO - Direct merge |
-| `agents/research_agent_impl.py` | Same | GMP-122 tag | 🤖 AUTO - Direct merge |
+| PR File                                          | Existing File | What PR Adds     | Integration Steps      |
+| ------------------------------------------------ | ------------- | ---------------- | ---------------------- |
+| `core/governance/validation.py`                  | Same          | GMP-100 tag      | 🤖 AUTO - Direct merge |
+| `core/packet_envelope/governance.py`             | Same          | GMP-101→105 tags | 🤖 AUTO - Direct merge |
+| `core/packet_envelope/scalability.py`            | Same          | GMP-106→108 tags | 🤖 AUTO - Direct merge |
+| `core/testing/test_generator.py`                 | Same          | GMP-109→116 tags | 🤖 AUTO - Direct merge |
+| `memory/consolidation.py`                        | Same          | GMP-118 tag      | 🤖 AUTO - Direct merge |
+| `memory/reasoning_replay.py`                     | Same          | GMP-119 tag      | 🤖 AUTO - Direct merge |
+| `runtime/dora.py`                                | Same          | GMP-117 tag      | 🤖 AUTO - Direct merge |
+| `agents/cursor/integrations/cursor_langgraph.py` | Same          | GMP-120→121 tags | 🤖 AUTO - Direct merge |
+| `agents/research_agent_impl.py`                  | Same          | GMP-122 tag      | 🤖 AUTO - Direct merge |
 
 ### Category 2: CI Gate Enhancement (1 file)
 
-| PR File | Existing File | What PR Adds | Integration Steps |
-|---------|---------------|--------------|-------------------|
+| PR File              | Existing File         | What PR Adds          | Integration Steps            |
+| -------------------- | --------------------- | --------------------- | ---------------------------- |
 | `ci/run_ci_gates.sh` | Same (gate_14 exists) | Expanded test logging | 🔧 SEMI - Review gate output |
 
 ### Category 3: Test Expansion (1 file)
 
-| PR File | Existing File | What PR Adds | Integration Steps |
-|---------|---------------|--------------|-------------------|
-| `tests/ci/test_anti_patterns.py` | 508 lines | +398 lines (6 new tests) | 🔧 SEMI - Verify tests pass |
+| PR File                          | Existing File | What PR Adds             | Integration Steps           |
+| -------------------------------- | ------------- | ------------------------ | --------------------------- |
+| `tests/ci/test_anti_patterns.py` | 508 lines     | +398 lines (6 new tests) | 🔧 SEMI - Verify tests pass |
 
 ---
 
 ## 🆕 Not Yet Implemented (ADOPT)
 
-| PR File | Purpose | Dependencies | Complexity |
-|---------|---------|--------------|------------|
-| N/A | All changes are enhancements to existing files | N/A | N/A |
+| PR File | Purpose                                        | Dependencies | Complexity |
+| ------- | ---------------------------------------------- | ------------ | ---------- |
+| N/A     | All changes are enhancements to existing files | N/A          | N/A        |
 
 ---
 
 ## 🔄 Conflicts (USER DECISION REQUIRED)
 
-| PR File | Existing File | Difference | Options |
-|---------|---------------|------------|---------|
-| None identified | N/A | N/A | N/A |
+| PR File         | Existing File | Difference | Options |
+| --------------- | ------------- | ---------- | ------- |
+| None identified | N/A           | N/A        | N/A     |
 
 ---
 
 ## 🔌 Wiring Analysis
 
-| PR File | Integrates With | Status | Missing Wiring |
-|---------|-----------------|--------|----------------|
-| `ci/run_ci_gates.sh` | `tests/ci/test_anti_patterns.py` | ✅ | None - gate_14 already calls tests |
-| `tests/ci/test_anti_patterns.py` | Core modules (scanned) | ✅ | None - tests scan existing modules |
+| PR File                          | Integrates With                  | Status | Missing Wiring                     |
+| -------------------------------- | -------------------------------- | ------ | ---------------------------------- |
+| `ci/run_ci_gates.sh`             | `tests/ci/test_anti_patterns.py` | ✅     | None - gate_14 already calls tests |
+| `tests/ci/test_anti_patterns.py` | Core modules (scanned)           | ✅     | None - tests scan existing modules |
 
 ---
 
 ## 🔧 Required Actions (Prioritized)
 
-| # | Priority | Action | Files | Complexity | Blocked By |
-|---|----------|--------|-------|------------|------------|
-| 1 | 🟢 LOW | Merge TODO tagging changes | 9 files | 🤖 AUTO | — |
-| 2 | 🟢 LOW | Merge CI gate expansion | `ci/run_ci_gates.sh` | 🤖 AUTO | — |
-| 3 | 🟡 MEDIUM | Verify anti-pattern tests pass | `tests/ci/test_anti_patterns.py` | 🔧 SEMI | — |
+| #   | Priority  | Action                         | Files                            | Complexity | Blocked By |
+| --- | --------- | ------------------------------ | -------------------------------- | ---------- | ---------- |
+| 1   | 🟢 LOW    | Merge TODO tagging changes     | 9 files                          | 🤖 AUTO    | —          |
+| 2   | 🟢 LOW    | Merge CI gate expansion        | `ci/run_ci_gates.sh`             | 🤖 AUTO    | —          |
+| 3   | 🟡 MEDIUM | Verify anti-pattern tests pass | `tests/ci/test_anti_patterns.py` | 🔧 SEMI    | —          |
 
 ---
 
@@ -137,18 +137,18 @@ The PR adds 6 new test functions to `tests/ci/test_anti_patterns.py`:
 
 ## GMP Ticket Range Analysis
 
-| GMP Range | Count | Files |
-|-----------|-------|-------|
-| GMP-100 | 1 | `core/governance/validation.py` |
-| GMP-101→105 | 5 | `core/packet_envelope/governance.py` |
-| GMP-106→108 | 3 | `core/packet_envelope/scalability.py` |
-| GMP-109→116 | 8 | `core/testing/test_generator.py` |
-| GMP-117 | 1 | `runtime/dora.py` |
-| GMP-118 | 1 | `memory/consolidation.py` |
-| GMP-119 | 1 | `memory/reasoning_replay.py` |
-| GMP-120→121 | 2 | `agents/cursor/integrations/cursor_langgraph.py` |
-| GMP-122 | 1 | `agents/research_agent_impl.py` |
-| **Total** | **23** | 9 files |
+| GMP Range   | Count  | Files                                            |
+| ----------- | ------ | ------------------------------------------------ |
+| GMP-100     | 1      | `core/governance/validation.py`                  |
+| GMP-101→105 | 5      | `core/packet_envelope/governance.py`             |
+| GMP-106→108 | 3      | `core/packet_envelope/scalability.py`            |
+| GMP-109→116 | 8      | `core/testing/test_generator.py`                 |
+| GMP-117     | 1      | `runtime/dora.py`                                |
+| GMP-118     | 1      | `memory/consolidation.py`                        |
+| GMP-119     | 1      | `memory/reasoning_replay.py`                     |
+| GMP-120→121 | 2      | `agents/cursor/integrations/cursor_langgraph.py` |
+| GMP-122     | 1      | `agents/research_agent_impl.py`                  |
+| **Total**   | **23** | 9 files                                          |
 
 ---
 
@@ -156,23 +156,23 @@ The PR adds 6 new test functions to `tests/ci/test_anti_patterns.py`:
 
 ### ✅ YES (Do Now)
 
-| # | Action | Why | Files | Complexity |
-|---|--------|-----|-------|------------|
-| 1 | Merge PR #51 | Clean TODO tracking, no behavior changes | All 11 files | 🤖 AUTO |
+| #   | Action       | Why                                      | Files        | Complexity |
+| --- | ------------ | ---------------------------------------- | ------------ | ---------- |
+| 1   | Merge PR #51 | Clean TODO tracking, no behavior changes | All 11 files | 🤖 AUTO    |
 
 ### ❌ NO (Skip/Defer)
 
-| # | Action | Why |
-|---|--------|-----|
+| #    | Action                     | Why |
+| ---- | -------------------------- | --- |
 | None | All changes are beneficial | N/A |
 
 ### ➡️ PROCEED (Next Steps)
 
-| Step | Description | Command |
-|------|-------------|---------|
-| 1 | Run anti-pattern tests to verify | `python3 -m pytest tests/ci/test_anti_patterns.py -v` |
-| 2 | Merge PR | `gh pr merge 51 --squash --delete-branch` |
-| 3 | Verify tests pass post-merge | `python3 -m pytest tests/ci/ -v` |
+| Step | Description                      | Command                                               |
+| ---- | -------------------------------- | ----------------------------------------------------- |
+| 1    | Run anti-pattern tests to verify | `python3 -m pytest tests/ci/test_anti_patterns.py -v` |
+| 2    | Merge PR                         | `gh pr merge 51 --squash --delete-branch`             |
+| 3    | Verify tests pass post-merge     | `python3 -m pytest tests/ci/ -v`                      |
 
 ---
 
@@ -180,29 +180,29 @@ The PR adds 6 new test functions to `tests/ci/test_anti_patterns.py`:
 
 ### ✅ IMPLEMENTED (Adopted from PR)
 
-| Item | PR File | Target Location | Method |
-|------|---------|-----------------|--------|
-| GMP-100→122 TODO tags | 9 files | Same files | Merge |
-| Gate 14 expansion | `ci/run_ci_gates.sh` | Same file | Merge |
-| 6 new anti-pattern tests | `tests/ci/test_anti_patterns.py` | Same file | Merge |
+| Item                     | PR File                          | Target Location | Method |
+| ------------------------ | -------------------------------- | --------------- | ------ |
+| GMP-100→122 TODO tags    | 9 files                          | Same files      | Merge  |
+| Gate 14 expansion        | `ci/run_ci_gates.sh`             | Same file       | Merge  |
+| 6 new anti-pattern tests | `tests/ci/test_anti_patterns.py` | Same file       | Merge  |
 
 ### ❌ NOT IMPLEMENTED (Skipped)
 
-| Item | PR File | Reason |
-|------|---------|--------|
-| None | N/A | All PR changes adopted |
+| Item | PR File | Reason                 |
+| ---- | ------- | ---------------------- |
+| None | N/A     | All PR changes adopted |
 
 ### ⚠️ MIS-ALIGNED (Issues Found)
 
-| Item | PR Approach | Repo Standard | Issue |
-|------|-------------|---------------|-------|
-| None | N/A | N/A | PR follows existing patterns |
+| Item | PR Approach | Repo Standard | Issue                        |
+| ---- | ----------- | ------------- | ---------------------------- |
+| None | N/A         | N/A           | PR follows existing patterns |
 
 ### 🔧 REALIGNED (Changes Made Before Merge)
 
-| Item | Original PR | Changed To | Why |
-|------|-------------|------------|-----|
-| None | N/A | N/A | No realignment needed |
+| Item | Original PR | Changed To | Why                   |
+| ---- | ----------- | ---------- | --------------------- |
+| None | N/A         | N/A        | No realignment needed |
 
 ---
 

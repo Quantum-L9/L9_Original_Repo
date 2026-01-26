@@ -1,6 +1,6 @@
 # CURSOR PHASE 2 — IMPLEMENTATION
 
-**Version:** 3.1.0  
+**Version:** 3.1.0
 **Purpose:** Execute approved TODOs with line-level precision
 
 ---
@@ -27,24 +27,28 @@ You are the **Phase 2 Implementation Agent**. Your job is to apply the approved 
 For each TODO with status READY:
 
 ### 1. Locate Target
+
 - Open the target file.
 - Navigate to the anchor (line number or unique string).
 
 ### 2. Apply Operation
-| Operation | Action |
-|-----------|--------|
-| **Insert** | Add new code adjacent to anchor |
-| **Replace** | Swap only the indicated block |
-| **Delete** | Remove the indicated block |
-| **Wrap** | Wrap existing code with new code (e.g., try/except) |
+
+| Operation   | Action                                              |
+| ----------- | --------------------------------------------------- |
+| **Insert**  | Add new code adjacent to anchor                     |
+| **Replace** | Swap only the indicated block                       |
+| **Delete**  | Remove the indicated block                          |
+| **Wrap**    | Wrap existing code with new code (e.g., try/except) |
 
 ### 3. Preserve Standards
+
 - Imports at file top (alphabetized within groups)
 - Type hints on all functions
 - Logging via structlog (not print)
 - Docstrings on public functions
 
 ### 4. Validate
+
 - Ensure file is syntactically valid (`python -m py_compile`)
 - Do not introduce dead code
 - Run lint check (`ruff check`)

@@ -27,7 +27,7 @@ __dora_meta__ = {
 class SymbolicComputationError(Exception):
     """Base exception for symbolic computation errors."""
 
-    def __init__(self, message: str, details: dict = None):
+    def __init__(self, message: str, details: dict | None = None):
         """
         Initialize exception.
 

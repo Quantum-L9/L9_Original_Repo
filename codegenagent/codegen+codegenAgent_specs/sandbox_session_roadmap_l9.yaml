@@ -102,7 +102,6 @@ blocked:
   - Meta-DAG Diff Visualizer (requires memory schema overlay)
   - Human-LCTO Override Layer (for final patch approvals)
   - Swarm-to-Canonical-Prompt Mapper (GPT planning + mapping layer)
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

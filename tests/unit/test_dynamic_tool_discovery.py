@@ -45,13 +45,16 @@ class TestDynamicDiscovery:
         self, mock_tool_embedding_results
     ):
         """Discovered tools should be in OpenAI function calling format."""
-        with patch(
-            "core.tools.dynamic_discovery.find_relevant_tools",
-            new_callable=AsyncMock,
-            return_value=mock_tool_embedding_results,
-        ), patch(
-            "core.tools.dynamic_discovery.is_dynamic_discovery_enabled",
-            return_value=True,
+        with (
+            patch(
+                "core.tools.dynamic_discovery.find_relevant_tools",
+                new_callable=AsyncMock,
+                return_value=mock_tool_embedding_results,
+            ),
+            patch(
+                "core.tools.dynamic_discovery.is_dynamic_discovery_enabled",
+                return_value=True,
+            ),
         ):
             from core.tools.dynamic_discovery import discover_tools_for_task
 
@@ -168,13 +171,16 @@ class TestAgentInstanceDynamicDiscovery:
             }
         ]
 
-        with patch(
-            "core.agents.agent_instance.discover_tools_for_task",
-            new_callable=AsyncMock,
-            return_value=mock_tools,
-        ), patch(
-            "core.agents.agent_instance.is_dynamic_discovery_enabled",
-            return_value=True,
+        with (
+            patch(
+                "core.agents.agent_instance.discover_tools_for_task",
+                new_callable=AsyncMock,
+                return_value=mock_tools,
+            ),
+            patch(
+                "core.agents.agent_instance.is_dynamic_discovery_enabled",
+                return_value=True,
+            ),
         ):
             count = await instance.prepare_dynamic_tools()
 

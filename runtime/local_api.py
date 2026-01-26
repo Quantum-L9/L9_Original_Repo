@@ -32,7 +32,7 @@ __dora_meta__ = {
 import shlex
 import subprocess
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -75,7 +75,7 @@ class LocalAPI:
     }
 
     # Blocked dangerous patterns
-    BLOCKED_PATTERNS: List[str] = [
+    BLOCKED_PATTERNS: list[str] = [
         "rm -rf /",
         "rm -rf ~",
         "rm -rf *",
@@ -88,7 +88,7 @@ class LocalAPI:
         "sudo mkfs",
     ]
 
-    def __init__(self, settings: Dict[str, Any]):
+    def __init__(self, settings: dict[str, Any]):
         """
         Initialize LocalAPI.
 
@@ -126,7 +126,7 @@ class LocalAPI:
 
         return True
 
-    def execute_shell(self, command: str, cwd: Optional[str] = None) -> Dict[str, Any]:
+    def execute_shell(self, command: str, cwd: str | None = None) -> dict[str, Any]:
         """
         Execute shell command safely.
 
@@ -180,7 +180,7 @@ class LocalAPI:
             logger.error(f"Command execution error: {e}")
             return {"success": False, "output": "", "error": str(e), "exit_code": -1}
 
-    def read_file(self, file_path: str, limit: Optional[int] = None) -> Dict[str, Any]:
+    def read_file(self, file_path: str, limit: int | None = None) -> dict[str, Any]:
         """
         Read file safely with path traversal protection.
 
@@ -205,11 +205,8 @@ class LocalAPI:
             if not path.exists():
                 return {"success": False, "content": "", "error": "File not found"}
 
-            with open(path, "r") as f:
-                if limit:
-                    content = "".join(f.readlines()[:limit])
-                else:
-                    content = f.read()
+            with open(path) as f:
+                content = "".join(f.readlines()[:limit]) if limit else f.read()
 
             return {"success": True, "content": content, "error": ""}
 
@@ -217,7 +214,7 @@ class LocalAPI:
             logger.error(f"File read error: {e}")
             return {"success": False, "content": "", "error": str(e)}
 
-    def write_file(self, file_path: str, content: str) -> Dict[str, Any]:
+    def write_file(self, file_path: str, content: str) -> dict[str, Any]:
         """
         Write file safely with path traversal protection.
 
@@ -248,7 +245,7 @@ class LocalAPI:
             logger.error(f"File write error: {e}")
             return {"success": False, "error": str(e)}
 
-    def list_directory(self, dir_path: str) -> Dict[str, Any]:
+    def list_directory(self, dir_path: str) -> dict[str, Any]:
         """
         List directory contents safely.
 

@@ -1,8 +1,8 @@
 # L9 Container Loading Issues - Comprehensive Diagnosis
 
-**Date:** January 25, 2026  
-**Issue:** Containers aren't loading  
-**Status:** Root cause analysis complete  
+**Date:** January 25, 2026
+**Issue:** Containers aren't loading
+**Status:** Root cause analysis complete
 
 ---
 
@@ -15,6 +15,7 @@ I've checked all possible causes for container loading failures in L9. Here are 
 ## ✅ What's CORRECT (No Issues Found)
 
 ### 1. Docker Configuration ✅
+
 - **docker-compose.yml:** Well-structured, comprehensive
 - **Services defined:** 8 services (redis, neo4j, l9-api, l9-mcp-memory, postgres, prometheus, grafana, jaeger)
 - **Health checks:** All services have proper healthchecks
@@ -23,11 +24,13 @@ I've checked all possible causes for container loading failures in L9. Here are 
 - **Volumes:** Persistent volumes defined for all data
 
 ### 2. Dockerfiles ✅
+
 - **runtime/Dockerfile:** Clean, Python 3.12, proper healthcheck
 - **mcp_memory/Dockerfile:** Clean, Python 3.12, proper healthcheck
 - **Both use:** Non-root users, proper WORKDIR, EXPOSE ports
 
 ### 3. Requirements ✅
+
 - **requirements.txt:** All dependencies present
 - **No conflicting versions:** Dependencies look compatible
 - **Async libraries:** Proper async support (asyncpg, aiofiles, httpx)
@@ -37,13 +40,16 @@ I've checked all possible causes for container loading failures in L9. Here are 
 ## ❌ CRITICAL ISSUES FOUND (Root Causes)
 
 ### Issue #1: Missing .env File (P0 - CRITICAL)
+
 **Problem:**
+
 ```bash
 $ ls -la .env
 ls: cannot access '.env': No such file or directory
 ```
 
 **Impact:**
+
 - All environment variables use defaults
 - **POSTGRES_PASSWORD** = `YOUR_DB_PASSWORD_HERE` (invalid)
 - **NEO4J_PASSWORD** = `YOUR_NEO4J_PASSWORD` (invalid)
@@ -51,6 +57,7 @@ ls: cannot access '.env': No such file or directory
 - Containers start but **fail authentication** to databases
 
 **Evidence in docker-compose.yml:**
+
 ```yaml
 # Line 45
 NEO4J_AUTH: ${NEO4J_USER:-neo4j}/${NEO4J_PASSWORD:-YOUR_NEO4J_PASSWORD}
@@ -67,7 +74,9 @@ OPENAI_API_KEY: ${OPENAI_API_KEY:-YOUR_OPENAI_KEY_HERE}
 ---
 
 ### Issue #2: Missing Prometheus Configuration (P1 - HIGH)
+
 **Problem:**
+
 ```yaml
 # Line 251 in docker-compose.yml
 volumes:
@@ -75,12 +84,14 @@ volumes:
 ```
 
 **Check:**
+
 ```bash
 $ ls -la docker/prometheus.yml
 ls: cannot access 'docker/prometheus.yml': No such file or directory
 ```
 
 **Impact:**
+
 - Prometheus container **fails to start** (missing config file)
 - Metrics collection broken
 - Monitoring unavailable
@@ -88,7 +99,9 @@ ls: cannot access 'docker/prometheus.yml': No such file or directory
 ---
 
 ### Issue #3: Missing Grafana Provisioning (P1 - HIGH)
+
 **Problem:**
+
 ```yaml
 # Lines 283-284 in docker-compose.yml
 volumes:
@@ -97,12 +110,14 @@ volumes:
 ```
 
 **Check:**
+
 ```bash
 $ ls -la grafana/provisioning/
 ls: cannot access 'grafana/provisioning/': No such file or directory
 ```
 
 **Impact:**
+
 - Grafana container **fails to start** (missing provisioning files)
 - Dashboard visualization broken
 - No pre-configured data sources
@@ -110,13 +125,16 @@ ls: cannot access 'grafana/provisioning/': No such file or directory
 ---
 
 ### Issue #4: playwright in requirements.txt (P2 - MEDIUM)
+
 **Problem:**
+
 ```python
 # Line 48 in requirements.txt
 playwright>=1.40.0
 ```
 
 **Impact:**
+
 - **500MB+ download** during Docker build
 - **Browser binaries** installed (Chromium, Firefox, WebKit)
 - **Not needed in containers** (comment says "local only, not Docker")
@@ -124,6 +142,7 @@ playwright>=1.40.0
 - **Image size:** 500MB+ larger
 
 **Evidence:**
+
 ```python
 # Comment in requirements.txt line 47:
 # Browser Automation (Mac Agent - local only, not Docker)
@@ -133,11 +152,14 @@ playwright>=1.40.0  # ← Should NOT be in Docker builds
 ---
 
 ### Issue #5: Missing docker-compose.override.yml (P2 - MEDIUM)
+
 **Problem:**
+
 - Example file exists: `docker-compose.override.yml.example`
 - Actual file missing: `docker-compose.override.yml`
 
 **Impact:**
+
 - No local development overrides
 - Can't easily switch between host/container PostgreSQL
 - Developers need to edit docker-compose.yml directly (bad practice)
@@ -145,11 +167,14 @@ playwright>=1.40.0  # ← Should NOT be in Docker builds
 ---
 
 ### Issue #6: No .dockerignore Optimization (P3 - LOW)
+
 **Problem:**
+
 - `.dockerignore` exists but may not exclude all unnecessary files
 - Large build context = slower builds
 
 **Check needed:**
+
 ```bash
 # What gets copied to Docker context?
 - .git/ (should be ignored)
@@ -165,14 +190,14 @@ playwright>=1.40.0  # ← Should NOT be in Docker builds
 
 ### Why Containers Aren't Loading
 
-| Issue | Severity | Impact | Containers Affected |
-|-------|----------|--------|---------------------|
-| **Missing .env** | P0 | Authentication failures | l9-api, l9-mcp-memory, neo4j, postgres |
-| **Missing prometheus.yml** | P1 | Container won't start | prometheus |
-| **Missing grafana provisioning** | P1 | Container won't start | grafana |
-| **playwright bloat** | P2 | Slow builds, large images | l9-api |
-| **Missing override file** | P2 | Dev friction | (local dev only) |
-| **.dockerignore** | P3 | Slow builds | All |
+| Issue                            | Severity | Impact                    | Containers Affected                    |
+| -------------------------------- | -------- | ------------------------- | -------------------------------------- |
+| **Missing .env**                 | P0       | Authentication failures   | l9-api, l9-mcp-memory, neo4j, postgres |
+| **Missing prometheus.yml**       | P1       | Container won't start     | prometheus                             |
+| **Missing grafana provisioning** | P1       | Container won't start     | grafana                                |
+| **playwright bloat**             | P2       | Slow builds, large images | l9-api                                 |
+| **Missing override file**        | P2       | Dev friction              | (local dev only)                       |
+| **.dockerignore**                | P3       | Slow builds               | All                                    |
 
 ### Most Likely Scenario
 
@@ -197,6 +222,7 @@ playwright>=1.40.0  # ← Should NOT be in Docker builds
 ## ✅ Solution Design
 
 ### Fix #1: Create .env File (P0)
+
 ```bash
 # Copy example and fill in real values
 cp .env.example .env
@@ -209,6 +235,7 @@ OPENAI_API_KEY=<real_key>
 ```
 
 ### Fix #2: Create Prometheus Config (P1)
+
 ```bash
 mkdir -p docker
 cat > docker/prometheus.yml << 'EOF'
@@ -220,11 +247,11 @@ scrape_configs:
   - job_name: 'l9-api'
     static_configs:
       - targets: ['l9-api:8000']
-  
+
   - job_name: 'l9-mcp-memory'
     static_configs:
       - targets: ['l9-mcp-memory:9002']
-  
+
   - job_name: 'prometheus'
     static_configs:
       - targets: ['localhost:9090']
@@ -232,6 +259,7 @@ EOF
 ```
 
 ### Fix #3: Create Grafana Provisioning (P1)
+
 ```bash
 mkdir -p grafana/provisioning/datasources
 mkdir -p grafana/provisioning/dashboards
@@ -265,31 +293,37 @@ EOF
 ```
 
 ### Fix #4: Exclude playwright from Docker (P2)
+
 **Option A:** Conditional requirements
+
 ```python
 # requirements.txt
 playwright>=1.40.0; platform_system != "Linux" or os.environ.get("DOCKER_BUILD") != "true"
 ```
 
 **Option B:** Separate requirements files
+
 ```bash
 # requirements-docker.txt (without playwright)
 # requirements-dev.txt (with playwright)
 ```
 
 **Option C:** Install playwright separately
+
 ```dockerfile
 # In Dockerfile, skip playwright:
 RUN pip install --no-cache-dir $(grep -v playwright requirements.txt)
 ```
 
 ### Fix #5: Create docker-compose.override.yml (P2)
+
 ```bash
 cp docker-compose.override.yml.example docker-compose.override.yml
 # Edit as needed for local dev
 ```
 
 ### Fix #6: Optimize .dockerignore (P3)
+
 ```
 # Add to .dockerignore
 .git/
@@ -314,6 +348,7 @@ tests/
 ## 📊 Expected Impact After Fixes
 
 ### Before Fixes
+
 - ❌ l9-api: **FAILS** (can't connect to DB)
 - ❌ l9-mcp-memory: **FAILS** (can't connect to DB)
 - ❌ prometheus: **FAILS** (missing config)
@@ -326,6 +361,7 @@ tests/
 **Success rate:** 3/8 (37.5%)
 
 ### After Fixes
+
 - ✅ l9-api: **WORKS** (can connect to DB)
 - ✅ l9-mcp-memory: **WORKS** (can connect to DB)
 - ✅ prometheus: **WORKS** (has config)
@@ -342,6 +378,7 @@ tests/
 ## 🚀 Implementation Plan
 
 ### Phase 1: Critical Fixes (P0-P1) - 30 minutes
+
 1. Create `.env` file with real credentials
 2. Create `docker/prometheus.yml`
 3. Create `grafana/provisioning/` files
@@ -349,6 +386,7 @@ tests/
 5. Verify: `docker compose ps` (all healthy)
 
 ### Phase 2: Optimization (P2-P3) - 1 hour
+
 1. Exclude playwright from Docker builds
 2. Create `docker-compose.override.yml`
 3. Optimize `.dockerignore`
@@ -360,6 +398,7 @@ tests/
 ## 📝 Files to Create/Modify
 
 ### New Files (7)
+
 1. `.env` (from .env.example)
 2. `docker/prometheus.yml`
 3. `grafana/provisioning/datasources/prometheus.yml`
@@ -369,6 +408,7 @@ tests/
 7. `.dockerignore` (update)
 
 ### Modified Files (2)
+
 1. `runtime/Dockerfile` (exclude playwright)
 2. `mcp_memory/Dockerfile` (exclude playwright)
 

@@ -72,7 +72,7 @@ async def delete_trash_embeddings(
         try:
             # Get all embeddings
             rows = await conn.fetch("""
-                SELECT 
+                SELECT
                     embedding_id,
                     payload::text as payload_json
                 FROM semantic_memory
@@ -172,8 +172,7 @@ async def main(dry_run: bool = False, verbose: bool = False):
         logger.error("DATABASE_URL or TEST_DATABASE_URL not set")
         logger.info("Trying to use VPS API instead...")
         # Fallback to API-based detection
-        from cleanup_trash_embeddings_via_api import \
-            find_trash_embeddings_via_search
+        from cleanup_trash_embeddings_via_api import find_trash_embeddings_via_search
 
         result = await find_trash_embeddings_via_search(
             dry_run=dry_run, verbose=verbose

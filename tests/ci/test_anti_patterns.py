@@ -178,7 +178,7 @@ def test_no_frozen_model_mutation():
         if is_allowed_exception(file_path, "frozen_mutation"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        tree, _content = parse_python_file(file_path)
         if tree is None:
             continue
 
@@ -232,7 +232,7 @@ def test_no_hardcoded_user_paths():
         if is_allowed_exception(file_path, "hardcoded_paths"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        _tree, content = parse_python_file(file_path)
         if not content:
             continue
 
@@ -307,7 +307,7 @@ def test_no_bare_except_in_core():
         if is_allowed_exception(file_path, "bare_except"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        tree, _content = parse_python_file(file_path)
         if tree is None:
             continue
 
@@ -367,7 +367,7 @@ def test_no_print_in_core_modules():
         if is_allowed_exception(file_path, "print_statements"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        tree, _content = parse_python_file(file_path)
         if tree is None:
             continue
 
@@ -415,7 +415,7 @@ def test_no_stdlib_logging_in_core():
         if is_allowed_exception(file_path, "stdlib_logging"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        _tree, content = parse_python_file(file_path)
         if not content:
             continue
 
@@ -472,17 +472,16 @@ class SyncBlockingCallVisitor(ast.NodeVisitor):
                         }
                     )
             # Check for requests library calls
-            elif isinstance(node.func, ast.Attribute):
-                if (
-                    isinstance(node.func.value, ast.Name)
-                    and node.func.value.id == "requests"
-                ):
-                    self.violations.append(
-                        {
-                            "line": node.lineno,
-                            "pattern": f"requests.{node.func.attr}() in async function",
-                        }
-                    )
+            elif isinstance(node.func, ast.Attribute) and (
+                isinstance(node.func.value, ast.Name)
+                and node.func.value.id == "requests"
+            ):
+                self.violations.append(
+                    {
+                        "line": node.lineno,
+                        "pattern": f"requests.{node.func.attr}() in async function",
+                    }
+                )
 
         self.generic_visit(node)
 
@@ -511,7 +510,7 @@ def test_no_sync_blocking_in_async():
         if is_allowed_exception(file_path, "sync_blocking"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        tree, _content = parse_python_file(file_path)
         if tree is None:
             continue
 
@@ -601,7 +600,7 @@ def test_no_missing_async_context_managers():
         if is_allowed_exception(file_path, "async_context"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        tree, _content = parse_python_file(file_path)
         if tree is None:
             continue
 
@@ -650,7 +649,7 @@ def test_no_requests_library():
         if is_allowed_exception(file_path, "requests_library"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        _tree, content = parse_python_file(file_path)
         if not content:
             continue
 
@@ -727,7 +726,7 @@ def test_no_missing_type_hints_in_core():
         if is_allowed_exception(file_path, "type_hints"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        tree, _content = parse_python_file(file_path)
         if tree is None:
             continue
 
@@ -783,7 +782,7 @@ def test_no_untracked_todos():
         if is_allowed_exception(file_path, "todos"):
             continue
 
-        tree, content = parse_python_file(file_path)
+        _tree, content = parse_python_file(file_path)
         if not content:
             continue
 

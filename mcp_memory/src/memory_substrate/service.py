@@ -34,7 +34,7 @@ __dora_meta__ = {
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -61,8 +61,8 @@ class MemoryRecord:
     similarity: float
     created_at: datetime
     updated_at: datetime
-    tags: Optional[List[str]] = None
-    metadata: Optional[Dict[str, Any]] = None
+    tags: list[str] | None = None
+    metadata: dict[str, Any] | None = None
 
 
 class AbstractMemoryRepository(ABC):
@@ -86,7 +86,7 @@ class AbstractMemoryRepository(ABC):
         user_id: str,
         query: str,
         top_k: int = 5,
-    ) -> List[MemoryRecord]:
+    ) -> list[MemoryRecord]:
         """Search memory semantically."""
         pass
 
@@ -100,12 +100,12 @@ class AbstractMemoryRepository(ABC):
         self,
         user_id: str,
         dry_run: bool = True,
-    ) -> Dict[str, int]:
+    ) -> dict[str, int]:
         """Apply temporal decay. Returns stats."""
         pass
 
     @abstractmethod
-    async def get_stats(self, user_id: str) -> Dict[str, Any]:
+    async def get_stats(self, user_id: str) -> dict[str, Any]:
         """Get memory statistics."""
         pass
 
@@ -135,9 +135,9 @@ class SubstrateService(ABC):
 
 
 __all__ = [
-    "SubstrateConfig",
-    "MemoryRecord",
     "AbstractMemoryRepository",
+    "MemoryRecord",
+    "SubstrateConfig",
     "SubstrateService",
 ]
 

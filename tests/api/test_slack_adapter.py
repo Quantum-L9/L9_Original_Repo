@@ -97,10 +97,12 @@ class TestSlackMetrics:
 
     def test_metrics_module_imports(self):
         """Verify slack_metrics module imports without error."""
-        from telemetry.slack_metrics import (record_aios_call,
-                                             record_signature_verification,
-                                             record_slack_processing,
-                                             record_slack_request)
+        from telemetry.slack_metrics import (
+            record_aios_call,
+            record_signature_verification,
+            record_slack_processing,
+            record_slack_request,
+        )
 
         # All imports should succeed
         assert callable(record_slack_request)
@@ -187,8 +189,7 @@ class TestSlackMetrics:
 
     def test_init_slack_metrics(self):
         """Test metrics initialization."""
-        from telemetry.slack_metrics import (PROMETHEUS_AVAILABLE,
-                                             init_slack_metrics)
+        from telemetry.slack_metrics import PROMETHEUS_AVAILABLE, init_slack_metrics
 
         result = init_slack_metrics()
         # Result depends on whether prometheus_client is installed
@@ -306,8 +307,7 @@ class TestPacketStorage:
     @pytest.mark.asyncio
     async def test_inbound_packet_stored(self, mock_substrate_service):
         """Test inbound packet is stored."""
-        from core.schemas import (PacketEnvelopeIn, PacketMetadata,
-                                  PacketProvenance)
+        from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 
         packet = PacketEnvelopeIn(
             packet_type="slack.in",
@@ -323,8 +323,7 @@ class TestPacketStorage:
     @pytest.mark.asyncio
     async def test_outbound_packet_stored(self, mock_substrate_service):
         """Test outbound packet is stored."""
-        from core.schemas import (PacketEnvelopeIn, PacketMetadata,
-                                  PacketProvenance)
+        from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 
         packet = PacketEnvelopeIn(
             packet_type="slack.out",
@@ -420,8 +419,10 @@ class TestErrorHandling:
 
     def test_metrics_graceful_degradation(self):
         """Test metrics degrade gracefully when prometheus unavailable."""
-        from telemetry.slack_metrics import (record_signature_verification,
-                                             record_slack_request)
+        from telemetry.slack_metrics import (
+            record_signature_verification,
+            record_slack_request,
+        )
 
         # These should never raise, even if prometheus is unavailable
         try:

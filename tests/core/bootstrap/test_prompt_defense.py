@@ -10,10 +10,12 @@ Tests the detection of various prompt injection patterns:
 Version: 1.0.0
 """
 
-from core.agents.prompt_defense import (InjectionSeverity,
-                                        detect_prompt_injection,
-                                        get_blocked_response,
-                                        should_block_request)
+from core.agents.prompt_defense import (
+    InjectionSeverity,
+    detect_prompt_injection,
+    get_blocked_response,
+    should_block_request,
+)
 
 
 class TestCriticalInjectionDetection:

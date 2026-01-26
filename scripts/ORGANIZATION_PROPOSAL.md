@@ -87,6 +87,7 @@ scripts/
 ## 📊 Script Categorization
 
 ### Deployment & VPS (5 scripts)
+
 - `deploy_agent_executor.sh` - Deploy agent executor
 - `pull_to_vps.sh` - Pull code to VPS
 - `rollback_vps.sh` - Rollback VPS deployment
@@ -98,6 +99,7 @@ scripts/
 ---
 
 ### Development & Testing (5 scripts)
+
 - `dev_up.sh` - Development environment setup
 - `test_everything.sh` - Run all tests
 - `precommit_docker_smoke.sh` - Pre-commit smoke tests
@@ -109,6 +111,7 @@ scripts/
 ---
 
 ### Research Factory (6 scripts)
+
 - `delegate_deep_research.py` - Delegate research tasks
 - `run_single_deep_research.py` - Run single research task
 - `send_perplexity_spec_request.py` - Send Perplexity requests
@@ -121,6 +124,7 @@ scripts/
 ---
 
 ### Agents (4 scripts)
+
 - `verify_agent_executor.py` - Verify agent executor
 - `neo4j_merge_agent_nodes.py` - Merge agent nodes in Neo4j
 - `neo4j_unify_relationships.py` - Unify agent relationships
@@ -131,6 +135,7 @@ scripts/
 ---
 
 ### Workspace (3 scripts)
+
 - `init_workspace.py` - Initialize workspace
 - `init_workspace_NEW.py` - New workspace initialization
 - `rename_l_to_l_cto.py` - Rename agent
@@ -140,6 +145,7 @@ scripts/
 ---
 
 ### Batch Operations (1 script)
+
 - `batch_generate_specs.py` - Batch generate specifications
 
 **Why**: Batch processing script, could grow into a category for batch operations.
@@ -149,17 +155,20 @@ scripts/
 ## 🎯 Benefits of This Organization
 
 1. **Clear Separation of Concerns**
+
    - Memory operations isolated
    - Deployment scripts grouped
    - Research factory operations together
    - Agent operations centralized
 
 2. **Easier Navigation**
+
    - Developers know where to find scripts by purpose
    - New scripts have clear home
    - Reduces root-level clutter
 
 3. **Better Maintainability**
+
    - Related scripts are co-located
    - Easier to find and update related functionality
    - Clear ownership boundaries
@@ -171,7 +180,7 @@ scripts/
 
 ---
 
-## ⚠️  Considerations
+## ⚠️ Considerations
 
 1. **Import Paths**: Some scripts may import from each other or reference paths. These will need to be updated.
 
@@ -186,6 +195,7 @@ scripts/
 ## 📝 Recommendation
 
 **Start with high-value categories first:**
+
 1. ✅ Memory (already done)
 2. **Deployment** (high impact, frequently used)
 3. **Research Factory** (cohesive group, clear purpose)
@@ -194,4 +204,3 @@ scripts/
 6. **Workspace** (rarely used, low priority)
 
 **Alternative: Keep root-level for frequently-used scripts, create subfolders only for larger groups.**
-

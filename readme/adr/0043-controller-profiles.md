@@ -11,6 +11,7 @@ Define **Controller Profiles** that configure `UnifiedController` pipeline behav
 ## Context
 
 L9's `UnifiedController` handles multiple orchestration modes with branching logic:
+
 - Simple routing → execution (direct)
 - Full 9-stage pipeline (governed)
 - Compile → simulate → return plan (simulation)
@@ -63,13 +64,13 @@ from orchestration.pipeline import ControllerPipeline
 class ControllerProfile(Protocol):
     """
     Protocol for controller profiles.
-    
+
     Each profile builds a pipeline with appropriate
     stages for its orchestration mode.
     """
-    
+
     name: str
-    
+
     def build_pipeline(self) -> ControllerPipeline:
         """Build the pipeline for this profile."""
         ...
@@ -89,17 +90,17 @@ from orchestration.pipeline.stages import (
 class SimpleDirectProfile:
     """
     Minimal orchestration profile.
-    
+
     Pipeline: routing → execution
-    
+
     Use for:
     - Simple tasks without complex planning
     - High-throughput, low-latency scenarios
     - Testing
     """
-    
+
     name: str = "simple_direct"
-    
+
     def build_pipeline(self) -> ControllerPipeline:
         """Build minimal 2-stage pipeline."""
         return ControllerPipeline(
@@ -131,19 +132,19 @@ from orchestration.pipeline.stages import (
 class FullGovernedProfile:
     """
     Full 9-stage governed orchestration profile.
-    
-    Pipeline: routing → compile → validate → challenge → 
-              deliberation → simulation → planning → 
+
+    Pipeline: routing → compile → validate → challenge →
+              deliberation → simulation → planning →
               execution → reflection
-    
+
     Use for:
     - Complex multi-step tasks
     - High-risk operations
     - Production with full governance
     """
-    
+
     name: str = "full_governed"
-    
+
     def build_pipeline(self) -> ControllerPipeline:
         """Build full 9-stage pipeline."""
         return ControllerPipeline(
@@ -176,17 +177,17 @@ from orchestration.pipeline.stages import (
 class SimOnlyProfile:
     """
     Simulation-only orchestration profile.
-    
+
     Pipeline: routing → compile → simulate → return plan
-    
+
     Use for:
     - Plan preview before execution
     - Risk assessment
     - "What-if" analysis
     """
-    
+
     name: str = "sim_only"
-    
+
     def build_pipeline(self) -> ControllerPipeline:
         """Build simulation pipeline (no execution)."""
         return ControllerPipeline(
@@ -207,11 +208,11 @@ class UnifiedController:
     """
     Orchestration controller using profile-built pipelines.
     """
-    
+
     def __init__(self, profile: ControllerProfile):
         self._profile = profile
         self._pipeline = profile.build_pipeline()
-    
+
     async def process_request(
         self,
         request: ControllerRequest,
@@ -219,7 +220,7 @@ class UnifiedController:
         metadata: dict,
     ) -> ControllerResponse:
         """Process request through profile-configured pipeline."""
-        
+
         # No conditionals — pipeline determined by profile
         pipeline = self._profile.build_pipeline()
         return await pipeline.run(request, user_id, metadata)
@@ -238,7 +239,7 @@ async def process_task(request: TaskRequest):
         profile = SimpleDirectProfile()
     else:
         profile = FullGovernedProfile()
-    
+
     controller = UnifiedController(profile)
     return await controller.process_request(request, ...)
 ```
@@ -253,11 +254,11 @@ class UnifiedController:
             result = await self._routing_stage.run(...)
             result = await self._compile_stage.run(...)
             return await self._simulation_stage.run(...)
-        
+
         elif request.fast_mode:
             result = await self._routing_stage.run(...)
             return await self._execution_stage.run(...)
-        
+
         else:
             # Full 9-stage pipeline with lots of conditionals
             result = await self._routing_stage.run(...)

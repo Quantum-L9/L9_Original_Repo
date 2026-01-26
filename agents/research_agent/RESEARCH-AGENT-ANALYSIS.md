@@ -12,14 +12,14 @@
 
 **This is a complete multi-agent research system using LangGraph.**
 
-| Component | File | Status | Description |
-|-----------|------|--------|-------------|
-| **Research Graph** | `services/research/research_graph.py` | ✅ Production | LangGraph DAG: planning → research → merge → critic → finalize → store_insights |
-| **Graph Runtime** | `services/research/graph_runtime.py` | ✅ Production | Lifecycle management, health checks |
-| **Graph State** | `services/research/graph_state.py` | ✅ Production | TypedDict state for LangGraph |
-| **Research API** | `services/research/research_api.py` | ✅ Production | FastAPI router `/research` |
-| **Memory Adapter** | `services/research/memory_adapter.py` | ✅ Production | Memory substrate integration |
-| **Insight Extractor** | `services/research/insight_extractor.py` | ✅ Production | Extract insights → PacketEnvelope |
+| Component             | File                                     | Status        | Description                                                                     |
+| --------------------- | ---------------------------------------- | ------------- | ------------------------------------------------------------------------------- |
+| **Research Graph**    | `services/research/research_graph.py`    | ✅ Production | LangGraph DAG: planning → research → merge → critic → finalize → store_insights |
+| **Graph Runtime**     | `services/research/graph_runtime.py`     | ✅ Production | Lifecycle management, health checks                                             |
+| **Graph State**       | `services/research/graph_state.py`       | ✅ Production | TypedDict state for LangGraph                                                   |
+| **Research API**      | `services/research/research_api.py`      | ✅ Production | FastAPI router `/research`                                                      |
+| **Memory Adapter**    | `services/research/memory_adapter.py`    | ✅ Production | Memory substrate integration                                                    |
+| **Insight Extractor** | `services/research/insight_extractor.py` | ✅ Production | Extract insights → PacketEnvelope                                               |
 
 **Agents:**
 | Agent | File | Purpose |
@@ -42,33 +42,33 @@
 
 **Concurrent research orchestration with convergence.**
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| `ResearchSwarmOrchestrator` | `orchestrators/research_swarm/orchestrator.py` | Run N agents in parallel |
-| `Convergence` | `orchestrators/research_swarm/convergence.py` | Merge parallel results |
-| `IResearchSwarmOrchestrator` | `orchestrators/research_swarm/interface.py` | Interface + request/response types |
+| Component                    | File                                           | Purpose                            |
+| ---------------------------- | ---------------------------------------------- | ---------------------------------- |
+| `ResearchSwarmOrchestrator`  | `orchestrators/research_swarm/orchestrator.py` | Run N agents in parallel           |
+| `Convergence`                | `orchestrators/research_swarm/convergence.py`  | Merge parallel results             |
+| `IResearchSwarmOrchestrator` | `orchestrators/research_swarm/interface.py`    | Interface + request/response types |
 
 ---
 
 ### TERTIARY: Scripts & Schemas
 
-| Location | Purpose |
-|----------|---------|
-| `scripts/research/run_single_deep_research.py` | CLI for single research task |
-| `scripts/research/delegate_deep_research.py` | Delegation script |
-| `scripts/research/factory_extract.py` | Factory extraction |
-| `core/schemas/research_factory_*.py` | Pydantic schemas for research |
-| `config/research_settings.py` | Research configuration |
+| Location                                       | Purpose                       |
+| ---------------------------------------------- | ----------------------------- |
+| `scripts/research/run_single_deep_research.py` | CLI for single research task  |
+| `scripts/research/delegate_deep_research.py`   | Delegation script             |
+| `scripts/research/factory_extract.py`          | Factory extraction            |
+| `core/schemas/research_factory_*.py`           | Pydantic schemas for research |
+| `config/research_settings.py`                  | Research configuration        |
 
 ---
 
 ### API ROUTES
 
-| Route | File | Purpose |
-|-------|------|---------|
-| `POST /research` | `services/research/research_api.py` | Main research endpoint |
-| `POST /research/agent/*` | `api/routes/research_agent.py` | Agent-specific routes |
-| `/research/*` | `api/routes/research.py` | Additional routes |
+| Route                    | File                                | Purpose                |
+| ------------------------ | ----------------------------------- | ---------------------- |
+| `POST /research`         | `services/research/research_api.py` | Main research endpoint |
+| `POST /research/agent/*` | `api/routes/research_agent.py`      | Agent-specific routes  |
+| `/research/*`            | `api/routes/research.py`            | Additional routes      |
 
 ---
 
@@ -91,6 +91,7 @@ agents/research_agent/
 ```
 
 **Why:**
+
 - Don't duplicate production code
 - `services/research/` already has LangGraph, memory integration, retry logic
 - Facade provides simple entry point for Cursor/scripts
@@ -100,6 +101,7 @@ agents/research_agent/
 Move everything from `services/research/` to `agents/research_agent/`.
 
 **Why NOT:**
+
 - Services are already well-organized
 - Would break existing imports
 - No architectural benefit
@@ -112,6 +114,7 @@ Move everything from `services/research/` to `agents/research_agent/`.
 
 1. Create `agents/research_agent/__init__.py`
 2. Create `agents/research_agent/research_facade.py`:
+
    - Import from `services.research`
    - Expose simple `run_research(query)` function
    - Add Perplexity-specific helpers
@@ -139,11 +142,11 @@ Move everything from `services/research/` to `agents/research_agent/`.
 
 ## ✅ Status of Existing Research Files in `perplexity_research_results/`
 
-| File | Status | Project | Next Action |
-|------|--------|---------|-------------|
-| `PHASE-0-TODO-STAGE-4-BELIEF-REVISION.md` | **✅ TODO LOCKED** | Memory Substrate Stage 4 | Execute GMP (separate from GMP-100) |
-| `stage4_belief_revision_system.md` | **✅ RESEARCH COMPLETE** | Memory Substrate Stage 4 | Reference during GMP execution |
-| `stage6_multi_agent_consensus.md` | **⏳ FUTURE** | Memory Substrate Stage 6 | Hold until Stage 4+5 complete |
+| File                                      | Status                   | Project                  | Next Action                         |
+| ----------------------------------------- | ------------------------ | ------------------------ | ----------------------------------- |
+| `PHASE-0-TODO-STAGE-4-BELIEF-REVISION.md` | **✅ TODO LOCKED**       | Memory Substrate Stage 4 | Execute GMP (separate from GMP-100) |
+| `stage4_belief_revision_system.md`        | **✅ RESEARCH COMPLETE** | Memory Substrate Stage 4 | Reference during GMP execution      |
+| `stage6_multi_agent_consensus.md`         | **⏳ FUTURE**            | Memory Substrate Stage 6 | Hold until Stage 4+5 complete       |
 
 **These are NOT part of GMP-100 (README generation).** They are research outputs for the Memory Substrate enhancement project (Stages 4-6).
 
@@ -151,16 +154,16 @@ Move everything from `services/research/` to `agents/research_agent/`.
 
 ## 📊 Summary
 
-| Aspect | Current State | Recommendation |
-|--------|--------------|----------------|
-| Research execution | `services/research/` | ✅ Keep |
-| LangGraph DAG | `services/research/research_graph.py` | ✅ Keep |
-| Perplexity client | `services/research/tools/perplexity_client.py` | ✅ Keep |
-| Research swarm | `orchestrators/research_swarm/` | ✅ Keep |
-| Simple facade | ❌ Missing | Create in `agents/research_agent/` |
-| CLI interface | `scripts/research/*.py` | Consolidate to `agents/research_agent/cli.py` |
-| Superprompt templates | ❌ Missing | Create in `agents/research_agent/prompts/` |
+| Aspect                | Current State                                  | Recommendation                                |
+| --------------------- | ---------------------------------------------- | --------------------------------------------- |
+| Research execution    | `services/research/`                           | ✅ Keep                                       |
+| LangGraph DAG         | `services/research/research_graph.py`          | ✅ Keep                                       |
+| Perplexity client     | `services/research/tools/perplexity_client.py` | ✅ Keep                                       |
+| Research swarm        | `orchestrators/research_swarm/`                | ✅ Keep                                       |
+| Simple facade         | ❌ Missing                                     | Create in `agents/research_agent/`            |
+| CLI interface         | `scripts/research/*.py`                        | Consolidate to `agents/research_agent/cli.py` |
+| Superprompt templates | ❌ Missing                                     | Create in `agents/research_agent/prompts/`    |
 
 ---
 
-*Generated by /analyze+evaluate on 2026-01-18*
+_Generated by /analyze+evaluate on 2026-01-18_

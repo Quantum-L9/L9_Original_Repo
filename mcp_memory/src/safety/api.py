@@ -36,7 +36,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class SafetyDecision(str, Enum):
@@ -60,7 +60,7 @@ class SafetyEvent:
     policy_rule: str
     reason: str
     timestamp: datetime
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: dict[str, Any] | None = None
 
 
 SAFETY_EVENT_TYPES = {
@@ -76,7 +76,7 @@ class SafetyPolicyBundle:
     """Versioned set of safety policies."""
 
     version: str
-    rules: List[str]
+    rules: list[str]
     created_at: datetime
     created_by: str
 
@@ -100,7 +100,7 @@ class SafetyService(ABC):
         self,
         caller_id: str,
         capability: str,
-        resource_id: Optional[str] = None,
+        resource_id: str | None = None,
     ) -> bool:
         """Check if caller has required capability."""
         pass
@@ -122,11 +122,11 @@ class SafetyService(ABC):
 
 
 __all__ = [
+    "SAFETY_EVENT_TYPES",
     "SafetyDecision",
     "SafetyEvent",
     "SafetyPolicyBundle",
     "SafetyService",
-    "SAFETY_EVENT_TYPES",
 ]
 
 # ============================================================================

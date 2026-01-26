@@ -55,7 +55,6 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
 
 import structlog
 
@@ -111,8 +110,8 @@ class FixResult:
     line: int
     action: str  # FIXED, SKIPPED, MANUAL_REVIEW
     reason: str
-    before: Optional[str] = None
-    after: Optional[str] = None
+    before: str | None = None
+    after: str | None = None
 
 
 @dataclass
@@ -398,7 +397,7 @@ def auto_fix_dead_code(
     repo_root: Path = REPO_ROOT,
     gmp_id: str = "DeadCode",
     dry_run: bool = False,
-    output_file: Optional[Path] = None,
+    output_file: Path | None = None,
 ) -> GMPReport:
     """
     Auto-fix dead code and generate GMP Report.

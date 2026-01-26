@@ -17,18 +17,14 @@ Version: 1.0.0
 Created: 2025-12-31
 """
 
+from .compiler.module_compiler import CompilationResult, ModuleCompiler
 from .gatekeeper.codegen_gatekeeper import (
+    BlindSpot,
     CodeGenGatekeeperAgent,
+    CodeGenOutput,
     ContractType,
     NormalizedSpec,
-    CodeGenOutput,
-    BlindSpot,
-    ResearchFinding
-)
-
-from .compiler.module_compiler import (
-    ModuleCompiler,
-    CompilationResult
+    ResearchFinding,
 )
 
 __version__ = "1.0.0"

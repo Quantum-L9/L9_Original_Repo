@@ -35,7 +35,7 @@ __dora_meta__ = {
 
 import asyncio
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 import yaml
@@ -63,7 +63,7 @@ class QuantumSwarmLoader:
 
     def __init__(
         self,
-        symbolic_engine: Optional[SymbolicComputation] = None,
+        symbolic_engine: SymbolicComputation | None = None,
         max_parallel: int = 10,
     ):
         """
@@ -75,7 +75,7 @@ class QuantumSwarmLoader:
         """
         self._symbolic = symbolic_engine or SymbolicComputation(cache_size=256)
         self._max_parallel = max_parallel
-        self._swarm_stats: Dict[str, Any] = {
+        self._swarm_stats: dict[str, Any] = {
             "capsules_loaded": 0,
             "specs_processed": 0,
             "files_generated": 0,
@@ -90,7 +90,7 @@ class QuantumSwarmLoader:
     async def load_quantum_swarm(
         self,
         capsule_path: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Load and execute a quantum swarm capsule.
 
@@ -130,7 +130,7 @@ class QuantumSwarmLoader:
             # Generate in parallel with semaphore for rate limiting
             semaphore = asyncio.Semaphore(self._max_parallel)
 
-            async def generate_with_limit(spec_path: str) -> Dict[str, Any]:
+            async def generate_with_limit(spec_path: str) -> dict[str, Any]:
                 async with semaphore:
                     return await engine.generate_from_meta(spec_path)
 
@@ -190,7 +190,7 @@ class QuantumSwarmLoader:
                 "error": str(e),
             }
 
-    def _load_capsule(self, capsule_path: str) -> Dict[str, Any]:
+    def _load_capsule(self, capsule_path: str) -> dict[str, Any]:
         """
         Load a swarm capsule YAML file.
 
@@ -205,7 +205,7 @@ class QuantumSwarmLoader:
         if not path.exists():
             raise SwarmLoaderError(f"Capsule not found: {capsule_path}")
 
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             capsule = yaml.safe_load(f)
 
         if not isinstance(capsule, dict):
@@ -219,7 +219,7 @@ class QuantumSwarmLoader:
 
         return capsule
 
-    async def _warmup_cache(self, expressions: List[str]) -> None:
+    async def _warmup_cache(self, expressions: list[str]) -> None:
         """
         Pre-compile common expressions to warm the cache.
 
@@ -246,7 +246,7 @@ class QuantumSwarmLoader:
             expressions_warmed=len(expressions),
         )
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """
         Get swarm loader statistics.
 
@@ -256,7 +256,7 @@ class QuantumSwarmLoader:
         return self._swarm_stats.copy()
 
 
-async def load_quantum_swarm(capsule_path: str) -> Dict[str, Any]:
+async def load_quantum_swarm(capsule_path: str) -> dict[str, Any]:
     """
     Convenience function to load and execute a quantum swarm.
 

@@ -54,7 +54,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import structlog
 
@@ -84,7 +84,7 @@ def ensure_cursor_commands_symlink(
     dry_run: bool,
     verbose: bool,
     force_resymlink: bool,
-) -> Tuple[bool, Dict[str, Any], str]:
+) -> tuple[bool, dict[str, Any], str]:
     """
     Ensure `.cursor-commands` is a symlink pointing to the GlobalCommands pack.
 
@@ -152,39 +152,38 @@ def ensure_cursor_commands_symlink(
                 verbose=verbose,
             )
             return True, {"link": str(link_path), "target": str(target)}, ""
+        if link_path.is_dir() and not link_path.is_symlink():
+            _log(
+                f"Removing existing directory at {link_path} "
+                "to replace with symlink.",
+                verbose=verbose,
+            )
         else:
-            if link_path.is_dir() and not link_path.is_symlink():
+            _log(
+                f"Removing existing entry at {link_path} to replace with symlink.",
+                verbose=verbose,
+            )
+        if link_path.is_dir() and not link_path.is_symlink():
+            # Remove directory contents cautiously
+            for _child in link_path.iterdir():
                 _log(
-                    f"Removing existing directory at {link_path} "
-                    "to replace with symlink.",
+                    f"Refusing to delete contents of existing directory "
+                    f"{link_path}. Please clean up manually.",
+                    level="ERROR",
                     verbose=verbose,
                 )
-            else:
-                _log(
-                    f"Removing existing entry at {link_path} to replace with symlink.",
-                    verbose=verbose,
+                return (
+                    False,
+                    {},
+                    (
+                        f"Existing non-symlink directory {link_path} detected. "
+                        "Clean or move it before running this script."
+                    ),
                 )
-            if link_path.is_dir() and not link_path.is_symlink():
-                # Remove directory contents cautiously
-                for child in link_path.iterdir():
-                    _log(
-                        f"Refusing to delete contents of existing directory "
-                        f"{link_path}. Please clean up manually.",
-                        level="ERROR",
-                        verbose=verbose,
-                    )
-                    return (
-                        False,
-                        {},
-                        (
-                            f"Existing non-symlink directory {link_path} detected. "
-                            "Clean or move it before running this script."
-                        ),
-                    )
-                # After manual cleanup, remove dir
-                link_path.rmdir()
-            else:
-                link_path.unlink()
+            # After manual cleanup, remove dir
+            link_path.rmdir()
+        else:
+            link_path.unlink()
 
     # Create new symlink
     if dry_run:
@@ -193,10 +192,9 @@ def ensure_cursor_commands_symlink(
             verbose=verbose,
         )
         return True, {"link": str(link_path), "target": str(target)}, ""
-    else:
-        _log(f"Creating symlink {link_path} -> {target}", verbose=verbose)
-        link_path.symlink_to(target, target_is_directory=True)
-        return True, {"link": str(link_path), "target": str(target)}, ""
+    _log(f"Creating symlink {link_path} -> {target}", verbose=verbose)
+    link_path.symlink_to(target, target_is_directory=True)
+    return True, {"link": str(link_path), "target": str(target)}, ""
 
 
 def run_env_manager(
@@ -204,7 +202,7 @@ def run_env_manager(
     workspace_root: Path,
     dry_run: bool,
     verbose: bool,
-) -> Tuple[bool, Dict[str, Any], str]:
+) -> tuple[bool, dict[str, Any], str]:
     """
     Run environment/env-manager.py to sync workspace configuration and
     ensure `.suite6-config.json` is created or updated.
@@ -227,29 +225,28 @@ def run_env_manager(
     if dry_run:
         _log("[DRY RUN] Would execute env-manager sync.", verbose=verbose)
         return True, {"command": cmd}, ""
-    else:
-        try:
-            _log("Running env-manager sync...", verbose=verbose)
-            result = subprocess.run(
-                cmd,
-                cwd=str(workspace_root),
-                capture_output=True,
-                text=True,
-                check=False,
+    try:
+        _log("Running env-manager sync...", verbose=verbose)
+        result = subprocess.run(
+            cmd,
+            cwd=str(workspace_root),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if result.returncode != 0:
+            msg = (
+                "env-manager sync failed with exit code "
+                f"{result.returncode}: {result.stderr.strip()}"
             )
-            if result.returncode != 0:
-                msg = (
-                    "env-manager sync failed with exit code "
-                    f"{result.returncode}: {result.stderr.strip()}"
-                )
-                _log(msg, level="ERROR", verbose=verbose)
-                return False, {"stdout": result.stdout, "stderr": result.stderr}, msg
-            _log("env-manager sync completed successfully.", verbose=verbose)
-            return True, {"stdout": result.stdout}, ""
-        except Exception as e:
-            msg = f"Error running env-manager: {e}"
             _log(msg, level="ERROR", verbose=verbose)
-            return False, {}, msg
+            return False, {"stdout": result.stdout, "stderr": result.stderr}, msg
+        _log("env-manager sync completed successfully.", verbose=verbose)
+        return True, {"stdout": result.stdout}, ""
+    except Exception as e:
+        msg = f"Error running env-manager: {e}"
+        _log(msg, level="ERROR", verbose=verbose)
+        return False, {}, msg
 
 
 def run_setup_new_workspace_yaml(
@@ -258,7 +255,7 @@ def run_setup_new_workspace_yaml(
     yaml_path: Path | None,
     dry_run: bool,
     verbose: bool,
-) -> Tuple[bool, Dict[str, Any], str]:
+) -> tuple[bool, dict[str, Any], str]:
     """
     Invoke `setup-new-workspace.yaml` orchestrator to perform phased
     initialization / upgrade.
@@ -294,17 +291,16 @@ def run_setup_new_workspace_yaml(
             verbose=verbose,
         )
         return True, {"yaml": str(yaml_path), "hint": cmd_hint}, ""
-    else:
-        # If you have a concrete runner (e.g., `.cursor-commands/ops/scripts/workspace-orchestrator.py`),
-        # replace this block with a real subprocess call.
-        _log(
-            "No automatic YAML runner is wired in this script to avoid "
-            "guesswork. Please execute the configured orchestrator "
-            f"for {yaml_path} (e.g., via `/rules` or `gmp`).",
-            level="WARNING",
-            verbose=verbose,
-        )
-        return True, {"yaml": str(yaml_path), "hint": cmd_hint}, ""
+    # If you have a concrete runner (e.g., `.cursor-commands/ops/scripts/workspace-orchestrator.py`),
+    # replace this block with a real subprocess call.
+    _log(
+        "No automatic YAML runner is wired in this script to avoid "
+        "guesswork. Please execute the configured orchestrator "
+        f"for {yaml_path} (e.g., via `/rules` or `gmp`).",
+        level="WARNING",
+        verbose=verbose,
+    )
+    return True, {"yaml": str(yaml_path), "hint": cmd_hint}, ""
 
 
 # ---------------------------------------------------------------------------
@@ -318,7 +314,7 @@ def start_new_workspace(
     dry_run: bool,
     verbose: bool,
     force_resymlink: bool,
-) -> Tuple[bool, Dict[str, Any], str]:
+) -> tuple[bool, dict[str, Any], str]:
     """
     High-level entrypoint:
         1. Ensure `.cursor-commands` symlink to GlobalCommands.
@@ -328,7 +324,7 @@ def start_new_workspace(
     Returns:
         (success, data, error)
     """
-    data: Dict[str, Any] = {}
+    data: dict[str, Any] = {}
 
     _log(
         f"Starting new/updated workspace initialization at {workspace_root}",
@@ -433,11 +429,10 @@ def main() -> int:
         if args.verbose:
             _log(f"Details: {data}", verbose=True)
         return 0
-    else:
-        _log(f"start-new-workspace FAILED: {error}", level="ERROR", verbose=True)
-        if args.verbose and data:
-            _log(f"Partial data: {data}", level="ERROR", verbose=True)
-        return 1
+    _log(f"start-new-workspace FAILED: {error}", level="ERROR", verbose=True)
+    if args.verbose and data:
+        _log(f"Partial data: {data}", level="ERROR", verbose=True)
+    return 1
 
 
 if __name__ == "__main__":

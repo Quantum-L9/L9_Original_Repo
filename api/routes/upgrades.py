@@ -41,14 +41,13 @@ __dora_meta__ = {
 # ============================================================================
 
 from functools import lru_cache
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, HTTPException
 
 from core.decorators import must_stay_async
-from core.packet_envelope import (PacketEnvelopeUpgradeEngine,
-                                  validate_deployment)
+from core.packet_envelope import PacketEnvelopeUpgradeEngine, validate_deployment
 
 logger = structlog.get_logger(__name__)
 
@@ -77,7 +76,7 @@ def get_upgrade_engine() -> PacketEnvelopeUpgradeEngine:
 
 @router.get("/packet-envelope/status")
 @must_stay_async("FastAPI/ASGI route handler")
-async def get_upgrade_status() -> Dict[str, Any]:
+async def get_upgrade_status() -> dict[str, Any]:
     """
     Get current PacketEnvelope upgrade status
 
@@ -90,7 +89,7 @@ async def get_upgrade_status() -> Dict[str, Any]:
 
 @router.get("/packet-envelope/features")
 @must_stay_async("FastAPI/ASGI route handler")
-async def get_enabled_features() -> Dict[str, bool]:
+async def get_enabled_features() -> dict[str, bool]:
     """
     Get list of enabled features
 
@@ -102,7 +101,7 @@ async def get_enabled_features() -> Dict[str, bool]:
 
 
 @router.get("/packet-envelope/validate")
-async def validate_upgrade_deployment() -> Dict[str, Any]:
+async def validate_upgrade_deployment() -> dict[str, Any]:
     """
     Validate deployment readiness for all phases
 
@@ -117,7 +116,7 @@ async def validate_upgrade_deployment() -> Dict[str, Any]:
 
 
 @router.post("/packet-envelope/activate/phase-2")
-async def activate_phase_2() -> Dict[str, Any]:
+async def activate_phase_2() -> dict[str, Any]:
     """
     Activate Phase 2: Observability
 
@@ -136,7 +135,7 @@ async def activate_phase_2() -> Dict[str, Any]:
 
 
 @router.post("/packet-envelope/activate/phase-3")
-async def activate_phase_3() -> Dict[str, Any]:
+async def activate_phase_3() -> dict[str, Any]:
     """
     Activate Phase 3: Standardization
 
@@ -157,7 +156,7 @@ async def activate_phase_3() -> Dict[str, Any]:
 
 
 @router.post("/packet-envelope/activate/phase-4")
-async def activate_phase_4() -> Dict[str, Any]:
+async def activate_phase_4() -> dict[str, Any]:
     """
     Activate Phase 4: Scalability
 
@@ -178,7 +177,7 @@ async def activate_phase_4() -> Dict[str, Any]:
 
 
 @router.post("/packet-envelope/activate/phase-5")
-async def activate_phase_5() -> Dict[str, Any]:
+async def activate_phase_5() -> dict[str, Any]:
     """
     Activate Phase 5: Governance
 
@@ -200,7 +199,7 @@ async def activate_phase_5() -> Dict[str, Any]:
 
 
 @router.post("/packet-envelope/activate/all")
-async def activate_all_phases() -> Dict[str, Any]:
+async def activate_all_phases() -> dict[str, Any]:
     """
     Activate all phases (2-5) sequentially
 
@@ -217,7 +216,7 @@ async def activate_all_phases() -> Dict[str, Any]:
 
 @router.get("/health")
 @must_stay_async("FastAPI/ASGI route handler")
-async def upgrade_health() -> Dict[str, Any]:
+async def upgrade_health() -> dict[str, Any]:
     """
     Health check for upgrade system
 

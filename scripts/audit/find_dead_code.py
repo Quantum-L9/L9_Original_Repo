@@ -42,7 +42,7 @@ from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -153,8 +153,7 @@ def run_vulture(
 
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "vulture", "--min-confidence", str(min_confidence)]
-            + file_paths,
+            [sys.executable, "-m", "vulture", "--min-confidence", str(min_confidence), *file_paths],
             capture_output=True,
             text=True,
             cwd=REPO_ROOT,
@@ -242,15 +241,7 @@ def run_ruff(files: list[Path]) -> list[DeadCodeFinding]:
 
     try:
         result = subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "ruff",
-                "check",
-                "--select=F401,F841,ARG",
-                "--output-format=json",
-            ]
-            + file_paths,
+            [sys.executable, "-m", "ruff", "check", "--select=F401,F841,ARG", "--output-format=json", *file_paths],
             capture_output=True,
             text=True,
             cwd=REPO_ROOT,
@@ -291,9 +282,9 @@ def _ruff_code_to_type(code: str) -> str:
     """Convert ruff error code to symbol type."""
     if code == "F401":
         return "import"
-    elif code == "F841":
+    if code == "F841":
         return "variable"
-    elif code.startswith("ARG"):
+    if code.startswith("ARG"):
         return "argument"
     return "unknown"
 
@@ -309,7 +300,7 @@ class DataclassFieldVisitor(ast.NodeVisitor):
     def __init__(self, filepath: str):
         self.filepath = filepath
         self.fields: list[DataclassFieldInfo] = []
-        self.current_class: Optional[str] = None
+        self.current_class: str | None = None
         self.in_dataclass = False
 
     def visit_ClassDef(self, node: ast.ClassDef):
@@ -549,10 +540,9 @@ def find_unwired_services(repo_root: Path) -> list[DeadCodeFinding]:
     findings = []
 
     # Service class patterns
-    service_suffixes = ("Service", "Executor", "Pipeline", "Handler", "Manager")
-    service_classes: dict[str, tuple[str, int, str]] = (
-        {}
-    )  # class_name -> (file, line, parent_class)
+    service_classes: dict[
+        str, tuple[str, int, str]
+    ] = {}  # class_name -> (file, line, parent_class)
 
     # Enhanced pattern to capture parent class
     class_pattern = re.compile(
@@ -736,7 +726,7 @@ def find_unwired_tools(repo_root: Path) -> list[DeadCodeFinding]:
             continue
 
     # Check if tools are registered (search for register_tool calls referencing these arrays)
-    register_patterns = [
+    [
         re.compile(r"register_tool\s*\("),
         re.compile(r"for\s+tool\s+in\s+(\w+)"),
         re.compile(r"ToolGraph\.register_tool"),
@@ -1393,9 +1383,9 @@ def find_unwired_event_handlers(repo_root: Path) -> list[DeadCodeFinding]:
     ]
 
     # Find all event handler functions
-    handlers: dict[str, tuple[str, int, str, str]] = (
-        {}
-    )  # func_name -> (file, line, event_type, content)
+    handlers: dict[
+        str, tuple[str, int, str, str]
+    ] = {}  # func_name -> (file, line, event_type, content)
 
     python_files = get_python_files(repo_root)
     for filepath in python_files:
@@ -1678,7 +1668,7 @@ def scan_file_for_dataclass_fields(filepath: Path) -> list[DataclassFieldInfo]:
     return extract_dataclass_fields(filepath)
 
 
-def get_python_files(repo_root: Path, exclude_dirs: set[str] = None) -> list[Path]:
+def get_python_files(repo_root: Path, exclude_dirs: set[str] | None = None) -> list[Path]:
     """Get all Python files in the repo."""
     exclude_dirs = exclude_dirs or EXCLUDE_DIRS
     files = []
@@ -1703,9 +1693,9 @@ def get_python_files(repo_root: Path, exclude_dirs: set[str] = None) -> list[Pat
 def run_dead_code_audit(
     repo_root: Path = REPO_ROOT,
     min_vulture_confidence: int = MIN_VULTURE_CONFIDENCE,
-    exclude_dirs: set[str] = None,
+    exclude_dirs: set[str] | None = None,
     parallel_workers: int = 8,
-    output_file: Optional[Path] = None,
+    output_file: Path | None = None,
     wiring_only: bool = False,
 ) -> AuditResult:
     """
@@ -1899,10 +1889,9 @@ def generate_sarif_output(
     def confidence_to_level(conf: float) -> str:
         if conf >= 0.85:
             return "error"
-        elif conf >= 0.70:
+        if conf >= 0.70:
             return "warning"
-        else:
-            return "note"
+        return "note"
 
     # Build rules array
     rules = []
@@ -1960,7 +1949,7 @@ def generate_sarif_output(
         )
 
     # Build SARIF document
-    sarif = {
+    return {
         "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
         "version": "2.1.0",
         "runs": [
@@ -1986,7 +1975,6 @@ def generate_sarif_output(
         ],
     }
 
-    return sarif
 
 
 # =============================================================================
@@ -2002,10 +1990,9 @@ def get_confidence_tier(confidence: float) -> tuple[str, str]:
     """
     if confidence >= 0.85:
         return "HIGH", "🔴"
-    elif confidence >= 0.70:
+    if confidence >= 0.70:
         return "MEDIUM", "🟡"
-    else:
-        return "LOW", "🟢"
+    return "LOW", "🟢"
 
 
 def print_findings_by_confidence_tier(findings: list[DeadCodeFinding]) -> None:
@@ -2135,7 +2122,7 @@ Examples:
     output_file = REPO_ROOT / args.output
 
     # Adjust output extension for SARIF
-    if args.format == "sarif" and not output_file.suffix == ".sarif":
+    if args.format == "sarif" and output_file.suffix != ".sarif":
         output_file = output_file.with_suffix(".sarif")
 
     result = run_dead_code_audit(

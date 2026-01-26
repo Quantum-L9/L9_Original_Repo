@@ -2,48 +2,54 @@
 
 ## Executive Summary
 
-The SymPy utilities module (https://docs.sympy.org/latest/modules/utilities/index.html) 
-is a collection of powerful tools for converting symbolic mathematical expressions into 
-high-performance numerical code. This document provides a complete overview of what 
+The SymPy utilities module (https://docs.sympy.org/latest/modules/utilities/index.html)
+is a collection of powerful tools for converting symbolic mathematical expressions into
+high-performance numerical code. This document provides a complete overview of what
 SymPy utilities are and how to integrate them into your AIOS repository.
 
 ## What is SymPy Utilities?
 
-SymPy utilities is a submodule of SymPy containing general-purpose tools used across 
-the library and available for developers. It transforms symbolic mathematics into 
+SymPy utilities is a submodule of SymPy containing general-purpose tools used across
+the library and available for developers. It transforms symbolic mathematics into
 production-ready numerical code.
 
 ### Core Components
 
 1. **lambdify** - Expression to Function Converter
+
    - Converts SymPy expressions into fast numerical Python functions
    - Supports multiple backends: NumPy, Math, Mpmath, SciPy
    - Enables vectorization and array operations
    - 10-100x faster than symbolic evaluation
 
 2. **autowrap** - Automatic Code Compiler
+
    - Generates code, compiles it, and imports it automatically
    - Supports Cython and F2PY backends
    - Creates binary Python extensions
    - Near C/Fortran performance (500-800x speedup)
 
 3. **codegen** - Code Generator
+
    - Generates compilable code in C, Fortran, Python, Cython
    - Creates header files and complete programs
    - Lower level than autowrap (manual compilation)
    - Full control over generated code
 
 4. **iterables** - Iterator Utilities
+
    - Advanced iteration: flatten(), variations(), permutations()
    - Combinatorial functions: combinations(), product()
    - Essential for handling nested structures
 
 5. **memoization** - Caching Decorators
+
    - @recurrence_memo for recursive functions
    - @memoize_property for expensive properties
    - Performance optimization through caching
 
 6. **decorator** - Function Decorators
+
    - @vectorize for element-wise operations
    - @deprecated for deprecation warnings
    - Function transformation utilities
@@ -56,6 +62,7 @@ production-ready numerical code.
 ## Performance Hierarchy
 
 From slowest to fastest:
+
 1. SymPy evalf() - 1x (baseline)
 2. lambdify with math - 50x
 3. lambdify with numpy - 100x
@@ -143,26 +150,31 @@ code_result = await engine.generate_code(
 ## Use Cases for AI Agents
 
 ### 1. Mathematical Reasoning
+
 - Evaluate complex formulas symbolically
 - Verify mathematical identities
 - Solve equations numerically
 
 ### 2. Scientific Computing
+
 - Physics simulations
 - Engineering calculations
 - Statistical analysis
 
 ### 3. Code Generation
+
 - Generate optimized functions for agents
 - Create compiled extensions for speed
 - Export to other languages for integration
 
 ### 4. Performance Optimization
+
 - Cache frequently used expressions
 - Compile hot paths to native code
 - Vectorize operations for arrays
 
 ### 5. Dynamic Formula Evaluation
+
 - Evaluate user-provided formulas safely
 - Parse and compute expressions at runtime
 - Support for custom functions
@@ -185,6 +197,7 @@ docker-compose logs -f symbolic_computation
 ### Environment Configuration
 
 Key environment variables:
+
 - `SYMBOLIC_CACHE_ENABLED=true` - Enable caching
 - `SYMBOLIC_CACHE_SIZE=128` - Cache size
 - `SYMBOLIC_DEFAULT_BACKEND=numpy` - Default backend
@@ -193,6 +206,7 @@ Key environment variables:
 ### Monitoring
 
 Health check endpoint:
+
 ```python
 health = await engine.health_check()
 # Returns: {"status": "healthy", "metrics": {...}}
@@ -201,21 +215,25 @@ health = await engine.health_check()
 ## Performance Best Practices
 
 ### 1. Use Appropriate Backend
+
 - **NumPy**: Array operations, vectorization
 - **Math**: Simple scalar operations
 - **Mpmath**: Arbitrary precision needed
 
 ### 2. Enable Caching
+
 - Cache lambdified expressions
 - Reuse compiled code
 - Monitor cache hit rates
 
 ### 3. Optimize Expressions
+
 - Use common subexpression elimination (CSE)
 - Simplify before evaluation
 - Factor out constants
 
 ### 4. Compile for Production
+
 - Use autowrap for hot paths
 - Generate C code for critical functions
 - Profile before optimizing
@@ -223,11 +241,13 @@ health = await engine.health_check()
 ## Security Considerations
 
 ### Input Validation
+
 - Maximum expression length limits
 - Whitelist allowed functions
 - Sanitize user inputs
 
 ### Safe Evaluation
+
 ```python
 # Configure security settings
 SYMBOLIC_MAX_EXPRESSION_LENGTH=10000
@@ -235,6 +255,7 @@ SYMBOLIC_ALLOW_DANGEROUS_FUNCTIONS=false
 ```
 
 ### Sandboxing
+
 - Run in Docker containers
 - Limit resource usage
 - Monitor execution time
@@ -242,16 +263,19 @@ SYMBOLIC_ALLOW_DANGEROUS_FUNCTIONS=false
 ## Testing Strategy
 
 ### Unit Tests
+
 - Test each utility function
 - Validate error handling
 - Check edge cases
 
 ### Integration Tests
+
 - End-to-end workflows
 - Multi-component interactions
 - Real-world scenarios
 
 ### Performance Tests
+
 - Benchmark different backends
 - Measure cache effectiveness
 - Profile memory usage
@@ -261,6 +285,7 @@ Target: >80% code coverage
 ## Examples
 
 See `examples_symbolic_computation.py` for:
+
 - Basic evaluation
 - Multi-variable expressions
 - Array operations
@@ -272,16 +297,19 @@ See `examples_symbolic_computation.py` for:
 ## Resources
 
 ### Documentation
+
 - SymPy Utilities: https://docs.sympy.org/latest/modules/utilities/index.html
 - Lambdify: https://docs.sympy.org/latest/modules/utilities/lambdify.html
 - Autowrap: https://docs.sympy.org/latest/modules/utilities/autowrap.html
 - Codegen: https://docs.sympy.org/latest/modules/codegen.html
 
 ### Tutorials
+
 - SciPy 2017 Codegen Tutorial: https://www.sympy.org/scipy-2017-codegen-tutorial/
 - SymPy Complete Guide: https://www.datacamp.com/tutorial/sympy
 
 ### Community
+
 - SymPy GitHub: https://github.com/sympy/sympy
 - SymPy Mailing List
 - Stack Overflow: [sympy] tag
@@ -315,14 +343,17 @@ optimized = optimize_expression("sin(x)**2 + 2*sin(x)**2")
 ### Common Issues
 
 1. **Import Error**
+
    - Install dependencies: `pip install -r requirements.txt`
    - Check Python version: >= 3.9 required
 
 2. **Compilation Failed**
+
    - Install build tools: gcc, gfortran
    - Check Cython installation
 
 3. **Cache Miss Rate High**
+
    - Increase cache size
    - Normalize expressions
    - Check cache configuration
@@ -334,8 +365,8 @@ optimized = optimize_expression("sin(x)**2 + 2*sin(x)**2")
 
 ## Conclusion
 
-SymPy utilities provide a powerful bridge between symbolic mathematics and 
-high-performance numerical computing. By integrating this module into your 
+SymPy utilities provide a powerful bridge between symbolic mathematics and
+high-performance numerical computing. By integrating this module into your
 AIOS repository, your agents gain:
 
 ✓ Fast mathematical computation

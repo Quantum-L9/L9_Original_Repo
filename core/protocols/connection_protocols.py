@@ -30,7 +30,7 @@ connection recycling, and comprehensive metrics tracking.
 import asyncio
 import time
 from collections.abc import AsyncGenerator, Awaitable, Callable
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
@@ -561,10 +561,8 @@ class StandardConnectionPool:
         # Cancel health check task
         if self._health_check_task and not self._health_check_task.done():
             self._health_check_task.cancel()
-            try:
+            with suppress(asyncio.CancelledError):
                 await self._health_check_task
-            except asyncio.CancelledError:
-                pass
 
         # Wait for in-use connections with timeout
         timeout_at = time.time() + 30.0

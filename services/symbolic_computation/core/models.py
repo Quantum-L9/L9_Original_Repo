@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -65,13 +65,13 @@ class ComputationRequest(BaseModel):
     """Request model for expression evaluation."""
 
     expression: str = Field(..., description="SymPy expression as string")
-    variables: Dict[str, float] = Field(
+    variables: dict[str, float] = Field(
         default_factory=dict, description="Variable name to value mapping"
     )
     backend: BackendType = Field(
         default=BackendType.NUMPY, description="Numerical backend to use"
     )
-    options: Dict[str, Any] = Field(
+    options: dict[str, Any] = Field(
         default_factory=dict, description="Additional evaluation options"
     )
 
@@ -84,7 +84,7 @@ class ComputationResult(BaseModel):
     cache_hit: bool = Field(default=False, description="Whether result was from cache")
     backend_used: str = Field(..., description="Backend that was used")
     expression_hash: str = Field(..., description="Hash of the expression")
-    error: Optional[str] = Field(default=None, description="Error message if failed")
+    error: str | None = Field(default=None, description="Error message if failed")
 
     class Config:
         json_encoders = {datetime: lambda v: v.isoformat()}
@@ -94,7 +94,7 @@ class CodeGenRequest(BaseModel):
     """Request model for code generation."""
 
     expression: str = Field(..., description="SymPy expression as string")
-    variables: List[str] = Field(..., description="List of variable names")
+    variables: list[str] = Field(..., description="List of variable names")
     language: CodeLanguage = Field(
         default=CodeLanguage.C, description="Target language for code generation"
     )
@@ -111,7 +111,7 @@ class CodeGenResult(BaseModel):
     function_name: str = Field(..., description="Name of generated function")
     success: bool = Field(..., description="Whether generation succeeded")
     execution_time_ms: float = Field(..., description="Generation time in milliseconds")
-    error_message: Optional[str] = Field(
+    error_message: str | None = Field(
         default=None, description="Error message if failed"
     )
 
@@ -121,13 +121,13 @@ class ValidationResult(BaseModel):
 
     is_valid: bool = Field(..., description="Whether expression is valid")
     expression_length: int = Field(..., description="Length of expression")
-    dangerous_functions_found: List[str] = Field(
+    dangerous_functions_found: list[str] = Field(
         default_factory=list, description="List of dangerous functions found"
     )
-    errors: List[str] = Field(
+    errors: list[str] = Field(
         default_factory=list, description="List of validation errors"
     )
-    warnings: List[str] = Field(
+    warnings: list[str] = Field(
         default_factory=list, description="List of validation warnings"
     )
 
@@ -136,9 +136,9 @@ class HealthStatus(BaseModel):
     """Health status model for the service."""
 
     status: str = Field(..., description="Overall status (healthy/degraded/unhealthy)")
-    backends_available: List[str] = Field(..., description="Available backends")
+    backends_available: list[str] = Field(..., description="Available backends")
     cache_available: bool = Field(..., description="Whether cache is available")
-    memory_backends: Dict[str, bool] = Field(
+    memory_backends: dict[str, bool] = Field(
         default_factory=dict,
         description="Status of memory backends (redis, postgres, neo4j)",
     )
@@ -156,8 +156,8 @@ class MetricsSummary(BaseModel):
     avg_evaluation_time_ms: float = Field(default=0.0)
     avg_codegen_time_ms: float = Field(default=0.0)
     cache_hit_rate: float = Field(default=0.0)
-    backend_usage: Dict[str, int] = Field(default_factory=dict)
-    language_usage: Dict[str, int] = Field(default_factory=dict)
+    backend_usage: dict[str, int] = Field(default_factory=dict)
+    language_usage: dict[str, int] = Field(default_factory=dict)
     time_range_hours: int = Field(default=24)
 
 

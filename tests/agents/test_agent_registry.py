@@ -6,10 +6,15 @@ Test suite for the agent auto-discovery system.
 
 import pytest
 
-from agents.agent_registry import (agent_registry, build_agent_exports,
-                                   get_agent_snapshot, get_agents_by_category,
-                                   get_agents_by_role, get_all_agents,
-                                   register_agent)
+from agents.agent_registry import (
+    agent_registry,
+    build_agent_exports,
+    get_agent_snapshot,
+    get_agents_by_category,
+    get_agents_by_role,
+    get_all_agents,
+    register_agent,
+)
 
 # =============================================================================
 # Test Fixtures

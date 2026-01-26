@@ -1,11 +1,10 @@
 # L9 Memory Substrate — Architecture Documentation
 
-> **Version:** 1.1.0  
-> **Status:** NOT Production Ready  
-> **Last Updated:** 2025-12-27  
-> **Component ID:** MEM-SUB-001  
+> **Version:** 1.1.0
+> **Status:** NOT Production Ready
+> **Last Updated:** 2025-12-27
+> **Component ID:** MEM-SUB-001
 > **Governance Level:** Core Infrastructure
-
 
 unified MCP‑memory system that now runs through l9-api, not separate systems.
 ​
@@ -23,12 +22,10 @@ MCP → substrate_service
 The MCP handler on /mcp/call builds an MCPToolCall, then passes the main substrate_service into handle_tool_call(), which lets Tier‑1 (full Substrate DAG pipeline with Neo4j, embeddings, enrichment) handle writes instead of dropping straight to direct DB fallback.
 ​
 
-
-
-
 ## Overview
 
 The L9 Memory Substrate is a hybrid memory system combining:
+
 - **Structured Storage** — PostgreSQL for packets, events, reasoning traces
 - **Vector Storage** — pgvector for semantic embeddings
 - **Knowledge Graph** — Extracted facts and insights
@@ -112,6 +109,7 @@ result = await pipeline.ingest(PacketEnvelopeIn(...))
 ```
 
 **Ingestion Steps:**
+
 1. Validate packet structure
 2. Auto-generate tags from content
 3. Store to `packet_store`
@@ -124,17 +122,17 @@ result = await pipeline.ingest(PacketEnvelopeIn(...))
 
 The LangGraph DAG processes packets through these nodes:
 
-| Node | Function |
-|------|----------|
-| `intake_node` | Validate, normalize, set defaults |
-| `reasoning_node` | Generate StructuredReasoningBlock |
-| `memory_write_node` | Persist packet and reasoning |
-| `semantic_embed_node` | Generate and store embedding |
-| `extract_insights_node` | Extract facts and insights |
-| `store_insights_node` | Persist to knowledge_facts |
-| `world_model_trigger_node` | Trigger world model updates |
-| `gc_trigger_node` | Probabilistic TTL eviction |
-| `checkpoint_node` | Save graph state |
+| Node                       | Function                          |
+| -------------------------- | --------------------------------- |
+| `intake_node`              | Validate, normalize, set defaults |
+| `reasoning_node`           | Generate StructuredReasoningBlock |
+| `memory_write_node`        | Persist packet and reasoning      |
+| `semantic_embed_node`      | Generate and store embedding      |
+| `extract_insights_node`    | Extract facts and insights        |
+| `store_insights_node`      | Persist to knowledge_facts        |
+| `world_model_trigger_node` | Trigger world model updates       |
+| `gc_trigger_node`          | Probabilistic TTL eviction        |
+| `checkpoint_node`          | Save graph state                  |
 
 ### 3. Retrieval
 
@@ -182,12 +180,12 @@ result = await pipeline.extract_from_packet(envelope)
 
 ### Insight Types
 
-| Type | Description |
-|------|-------------|
-| `conclusion` | Derived from reasoning decision tokens |
-| `pattern` | Text content detection |
-| `anomaly` | Unusual patterns or values |
-| `recommendation` | Suggested actions |
+| Type             | Description                            |
+| ---------------- | -------------------------------------- |
+| `conclusion`     | Derived from reasoning decision tokens |
+| `pattern`        | Text content detection                 |
+| `anomaly`        | Unusual patterns or values             |
+| `recommendation` | Suggested actions                      |
 
 ### Knowledge Facts
 
@@ -226,13 +224,13 @@ result = await engine.run_full_gc()
 
 ### GC Operations
 
-| Operation | Description |
-|-----------|-------------|
-| `evict_expired_ttl` | Remove packets with expired TTL |
-| `cleanup_orphan_packets` | Fix invalid parent references |
-| `cleanup_parentless_packets` | Remove abandoned packets |
-| `cleanup_orphan_artifacts` | Remove orphan embeddings/events |
-| `gc_unused_tags` | Remove low-usage tags |
+| Operation                    | Description                     |
+| ---------------------------- | ------------------------------- |
+| `evict_expired_ttl`          | Remove packets with expired TTL |
+| `cleanup_orphan_packets`     | Fix invalid parent references   |
+| `cleanup_parentless_packets` | Remove abandoned packets        |
+| `cleanup_orphan_artifacts`   | Remove orphan embeddings/events |
+| `gc_unused_tags`             | Remove low-usage tags           |
 
 ## API Reference
 
@@ -240,20 +238,20 @@ result = await engine.run_full_gc()
 
 **Base Path:** `/memory` (mounted in `api/server.py`)
 
-| Method | Path | Status | Description |
-|--------|------|--------|-------------|
-| POST | `/packet` | ✅ **Implemented** | Submit packet |
-| POST | `/semantic/search` | ✅ **Implemented** | Semantic search |
-| GET | `/stats` | ✅ **Implemented** | Get memory statistics |
-| GET | `/packet/{id}` | ⚠️ **Backend Ready** | Get packet by ID (repository method exists) |
-| POST | `/hybrid/search` | ⚠️ **Backend Ready** | Hybrid search (retrieval pipeline exists) |
-| GET | `/thread/{id}` | ⚠️ **Backend Ready** | Get thread packets (repository method exists) |
-| GET | `/lineage/{id}` | ⚠️ **Backend Ready** | Get packet lineage (retrieval pipeline exists) |
-| GET | `/facts` | ⚠️ **Backend Ready** | Query knowledge facts (repository method exists) |
-| GET | `/insights` | ⚠️ **Backend Ready** | Query insights (extraction pipeline exists) |
-| POST | `/gc/run` | ⚠️ **Backend Ready** | Run garbage collection (housekeeping engine exists) |
-| GET | `/gc/stats` | ⚠️ **Backend Ready** | Get GC statistics (housekeeping engine exists) |
-| GET | `/health` | ⚠️ **Backend Ready** | Health check (service.health_check() exists) |
+| Method | Path               | Status               | Description                                         |
+| ------ | ------------------ | -------------------- | --------------------------------------------------- |
+| POST   | `/packet`          | ✅ **Implemented**   | Submit packet                                       |
+| POST   | `/semantic/search` | ✅ **Implemented**   | Semantic search                                     |
+| GET    | `/stats`           | ✅ **Implemented**   | Get memory statistics                               |
+| GET    | `/packet/{id}`     | ⚠️ **Backend Ready** | Get packet by ID (repository method exists)         |
+| POST   | `/hybrid/search`   | ⚠️ **Backend Ready** | Hybrid search (retrieval pipeline exists)           |
+| GET    | `/thread/{id}`     | ⚠️ **Backend Ready** | Get thread packets (repository method exists)       |
+| GET    | `/lineage/{id}`    | ⚠️ **Backend Ready** | Get packet lineage (retrieval pipeline exists)      |
+| GET    | `/facts`           | ⚠️ **Backend Ready** | Query knowledge facts (repository method exists)    |
+| GET    | `/insights`        | ⚠️ **Backend Ready** | Query insights (extraction pipeline exists)         |
+| POST   | `/gc/run`          | ⚠️ **Backend Ready** | Run garbage collection (housekeeping engine exists) |
+| GET    | `/gc/stats`        | ⚠️ **Backend Ready** | Get GC statistics (housekeeping engine exists)      |
+| GET    | `/health`          | ⚠️ **Backend Ready** | Health check (service.health_check() exists)        |
 
 **Note:** Endpoints marked "Backend Ready" have full repository/service support but need API route handlers added to `api/memory/router.py`.
 
@@ -276,31 +274,33 @@ async with MemoryClient(base_url="http://l9-api:8000") as client:
         packet_type="insight",
         payload={"summary": "User behavior analysis"},
     )
-    
+
     # Semantic search
     results = await client.semantic_search("user behavior", top_k=10)
-    
+
     # Hybrid search (requires API endpoint)
     results = await client.hybrid_search(
         query="login events",
         filters={"packet_type": "event"},
     )
-    
+
     # Fetch lineage (requires API endpoint)
     lineage = await client.fetch_lineage(packet_id, direction="ancestors")
-    
+
     # Fetch facts (requires API endpoint)
     facts = await client.fetch_facts(subject="user_123")
-    
+
     # Run GC (requires API endpoint)
     gc_result = await client.run_gc()
 ```
 
 **Important:** The client expects endpoints at `/api/v1/memory/*`, but the router is mounted at `/memory/*`. Either:
+
 1. Update client base URL to include `/api/v1` prefix, or
 2. Add `/api/v1` prefix to router mount path in `api/server.py`
 
 **Current Implementation:**
+
 - ✅ Client SDK: Complete (`clients/memory_client.py`)
 - ✅ Backend methods: All repository/service methods exist
 - ⚠️ API routes: Only 3/11 endpoints implemented in `api/memory/router.py`
@@ -340,20 +340,21 @@ created_at TIMESTAMP
 ### Migrations
 
 Apply in order:
+
 1. `0001_init_memory_substrate.sql` — Core tables
 2. `0002_enhance_packet_store.sql` — Thread/lineage/tags/TTL
 3. `0004_init_knowledge_facts.sql` — Knowledge facts table
 
 ## Configuration
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DATABASE_URL` | - | PostgreSQL connection string |
-| `OPENAI_API_KEY` | - | For OpenAI embeddings |
-| `EMBEDDING_MODEL` | text-embedding-3-large | Embedding model |
-| `EMBEDDING_PROVIDER` | openai | `openai` or `stub` |
-| `DB_POOL_SIZE` | 5 | Connection pool size |
-| `DB_MAX_OVERFLOW` | 10 | Pool overflow limit |
+| Variable             | Default                | Description                  |
+| -------------------- | ---------------------- | ---------------------------- |
+| `DATABASE_URL`       | -                      | PostgreSQL connection string |
+| `OPENAI_API_KEY`     | -                      | For OpenAI embeddings        |
+| `EMBEDDING_MODEL`    | text-embedding-3-large | Embedding model              |
+| `EMBEDDING_PROVIDER` | openai                 | `openai` or `stub`           |
+| `DB_POOL_SIZE`       | 5                      | Connection pool size         |
+| `DB_MAX_OVERFLOW`    | 10                     | Pool overflow limit          |
 
 ## Examples
 
@@ -409,4 +410,4 @@ anomalies = await pipeline.detect_anomalies(
 
 ---
 
-*L9 Memory Substrate Documentation — v1.1.0*
+_L9 Memory Substrate Documentation — v1.1.0_

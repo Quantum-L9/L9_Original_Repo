@@ -59,16 +59,16 @@ PacketEnvelope data structure and utilities
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `memory/` | Uses this module |
+| Module         | Purpose          |
+| -------------- | ---------------- |
+| `memory/`      | Uses this module |
 | `core/agents/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -85,13 +85,13 @@ core/packet_envelope/
 ├── standardization.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `envelope.py` | Core module (PROTECTED) |
-| `config.py` | Jaeger tracing configuration |
-| `config.py` | Prometheus metrics configuration |
-| `config.py` | Phase 2 observability configuration |
+| File          | Purpose                             |
+| ------------- | ----------------------------------- |
+| `__init__.py` | Core module (PROTECTED)             |
+| `envelope.py` | Core module (PROTECTED)             |
+| `config.py`   | Jaeger tracing configuration        |
+| `config.py`   | Prometheus metrics configuration    |
+| `config.py`   | Phase 2 observability configuration |
 
 ### Naming Conventions
 
@@ -109,7 +109,7 @@ core/packet_envelope/
 ```python
 class JaegerConfig:
     """Jaeger tracing configuration"""
-    
+
     # Key methods:
 
 ```
@@ -121,7 +121,7 @@ class JaegerConfig:
 ```python
 class PrometheusConfig:
     """Prometheus metrics configuration"""
-    
+
     # Key methods:
 
 ```
@@ -133,7 +133,7 @@ class PrometheusConfig:
 ```python
 class ObservabilityPhaseConfig:
     """Phase 2 observability configuration"""
-    
+
     # Key methods:
 
 ```
@@ -145,7 +145,7 @@ class ObservabilityPhaseConfig:
 ```python
 class CloudEventsConfig:
     """Phase 3 CloudEvents configuration"""
-    
+
     # Key methods:
 
 ```
@@ -157,13 +157,12 @@ class CloudEventsConfig:
 ```python
 class BatchIngestionConfig:
     """Phase 4 batch ingestion configuration"""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 124-135 in `config.py`
-
 
 ---
 
@@ -239,9 +238,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Packet_Envelope feature flags
-L9_ENABLE_CORE_PACKET_ENVELOPE_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_PACKET_ENVELOPE_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_PACKET_ENVELOPE_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_PACKET_ENVELOPE_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_PACKET_ENVELOPE_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_PACKET_ENVELOPE_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -303,7 +302,6 @@ Validate deployment readiness for phases 2-5
 - **File:** `integration.py:399`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -344,6 +342,7 @@ Core Packet Envelope operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -351,12 +350,12 @@ Core Packet Envelope operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                       | Type      | Description                    |
+| -------------------------------------------- | --------- | ------------------------------ |
 | `core_packet_envelope_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_packet_envelope_operation_total` | Counter | Total operations processed |
-| `core_packet_envelope_error_total` | Counter | Total errors encountered |
-| `core_packet_envelope_active_connections` | Gauge | Current active connections |
+| `core_packet_envelope_operation_total`       | Counter   | Total operations processed     |
+| `core_packet_envelope_error_total`           | Counter   | Total errors encountered       |
+| `core_packet_envelope_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -374,6 +373,7 @@ Core Packet Envelope emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_packet_envelope/`:
+
 - `test_core_packet_envelope.py` — Core unit tests
 - `test_core_packet_envelope_integration.py` — Integration tests (if applicable)
 
@@ -418,6 +418,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

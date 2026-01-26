@@ -47,8 +47,14 @@ from uuid import UUID
 
 import structlog
 
-from ir_engine.ir_schema import (ActionNode, ConstraintNode, IntentNode,
-                                 IRGraph, IRStatus, NodePriority)
+from ir_engine.ir_schema import (
+    ActionNode,
+    ConstraintNode,
+    IntentNode,
+    IRGraph,
+    IRStatus,
+    NodePriority,
+)
 
 logger = structlog.get_logger(__name__)
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Compliance Checker
@@ -45,7 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 
@@ -67,15 +66,15 @@ class ComplianceResult:
     """Result of compliance check."""
 
     compliant: bool
-    rules_checked: List[str]
-    violations: List[Dict[str, Any]] = field(default_factory=list)
+    rules_checked: list[str]
+    violations: list[dict[str, Any]] = field(default_factory=list)
 
 
 class ComplianceChecker:
     """Checks compliance with rules."""
 
     def check_compliance(
-        self, decision: Dict[str, Any], rules: List[Rule]
+        self, decision: dict[str, Any], rules: list[Rule]
     ) -> ComplianceResult:
         """Check decision against rules."""
         logger.info("checking_compliance", rule_count=len(rules))
@@ -107,7 +106,7 @@ class ComplianceChecker:
             violations=violations,
         )
 
-    def _check_rule(self, decision: Dict[str, Any], rule: Rule) -> bool:
+    def _check_rule(self, decision: dict[str, Any], rule: Rule) -> bool:
         """Check single rule."""
         # Simplified rule checking
         return True

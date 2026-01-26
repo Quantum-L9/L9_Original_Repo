@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Dict, List
 
 REQUIRED_SECTIONS = [
     "# ADR-",
@@ -40,7 +39,7 @@ VALID_IMPACTS = ["High", "Medium", "Low"]
 VALID_TIERS = ["T1", "T2", "T3"]
 
 
-def validate_adr(adr_file: Path) -> List[str]:
+def validate_adr(adr_file: Path) -> list[str]:
     """
     Validate an ADR file.
 
@@ -55,7 +54,7 @@ def validate_adr(adr_file: Path) -> List[str]:
     if not adr_file.exists():
         return [f"File not found: {adr_file}"]
 
-    with open(adr_file, "r") as f:
+    with open(adr_file) as f:
         content = f.read()
 
     # Check required sections
@@ -139,7 +138,7 @@ def validate_adr(adr_file: Path) -> List[str]:
     return issues
 
 
-def validate_all_adrs(adr_dir: Path) -> Dict[Path, List[str]]:
+def validate_all_adrs(adr_dir: Path) -> dict[Path, list[str]]:
     """
     Validate all ADRs in a directory.
 
@@ -175,7 +174,7 @@ def check_t3_approval(adr_file: Path) -> bool:
     Returns:
         True if T3 ADR has approval, False otherwise
     """
-    with open(adr_file, "r") as f:
+    with open(adr_file) as f:
         content = f.read()
 
     # Check if this is a T3 ADR
@@ -190,8 +189,4 @@ def check_t3_approval(adr_file: Path) -> bool:
         r"\*\*Status:\*\*\s+Accepted",  # Accepted status implies approval
     ]
 
-    for pattern in approval_patterns:
-        if re.search(pattern, content):
-            return True
-
-    return False
+    return any(re.search(pattern, content) for pattern in approval_patterns)

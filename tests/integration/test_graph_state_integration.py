@@ -269,10 +269,13 @@ async def test_directive_compliance_check(mock_neo4j_driver, sample_graph_result
 @pytest.mark.asyncio
 async def test_bootstrap_defaults():
     """Test that bootstrap defaults are complete and valid."""
-    from core.agents.graph_state.bootstrap_l_graph import (L_AGENT_CONFIG,
-                                                           L_DIRECTIVES,
-                                                           L_RESPONSIBILITIES,
-                                                           L_SOPS, L_TOOLS)
+    from core.agents.graph_state.bootstrap_l_graph import (
+        L_AGENT_CONFIG,
+        L_DIRECTIVES,
+        L_RESPONSIBILITIES,
+        L_SOPS,
+        L_TOOLS,
+    )
 
     # Agent config complete
     assert L_AGENT_CONFIG["agent_id"] == "L"
@@ -318,8 +321,10 @@ async def test_real_neo4j_bootstrap():
     """
     from neo4j import AsyncGraphDatabase, basic_auth
 
-    from core.agents.graph_state.bootstrap_l_graph import (bootstrap_l_graph,
-                                                           verify_l_graph)
+    from core.agents.graph_state.bootstrap_l_graph import (
+        bootstrap_l_graph,
+        verify_l_graph,
+    )
 
     neo4j_uri = os.getenv("NEO4J_URL") or os.getenv(
         "NEO4J_URI", "bolt://localhost:7687"

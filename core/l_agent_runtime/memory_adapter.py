@@ -74,13 +74,12 @@ class MemoryAdapter:
         if self.memory:
             try:
                 # Query memory substrate
-                results = self.memory.query(
+                return self.memory.query(
                     query=f"action_type:{action_type}"
                     if action_type
                     else "type:action_outcome",
                     limit=limit,
                 )
-                return results
             except Exception as e:
                 logger.error(f"Failed to query action history: {e}")
                 return []
@@ -111,8 +110,7 @@ class MemoryAdapter:
                 embedding = self._embed_context(context)
 
                 # Query similar vectors
-                similar = self.memory.vector_search(embedding, limit=limit)
-                return similar
+                return self.memory.vector_search(embedding, limit=limit)
             except Exception as e:
                 logger.error(f"Failed to find similar contexts: {e}")
                 return []

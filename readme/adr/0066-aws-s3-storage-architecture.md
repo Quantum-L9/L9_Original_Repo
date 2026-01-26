@@ -8,6 +8,7 @@
 ## Context and Problem Statement
 
 L9 requires reliable, scalable storage for:
+
 1. Database backups (PostgreSQL, Neo4j)
 2. Large content offloading (blob storage for packets >512KB)
 3. File storage (Slack attachments, documents)
@@ -36,12 +37,12 @@ Chosen option: **AWS S3** (us-east-1 region), because it provides the best balan
 
 ### S3 Bucket Architecture
 
-| Bucket | Purpose | Lifecycle | Versioning |
-|--------|---------|-----------|------------|
-| `l9-backups` | Database backups (PostgreSQL, Neo4j) | 30 days → Glacier | ✅ Enabled |
-| `l9-blobs` | Large content offloading (>512KB) | 90 days retention | ✅ Enabled |
-| `l9-files` | Slack files, documents | 365 days retention | ✅ Enabled |
-| `l9-audit` | S3 access logs, compliance | 7 years retention | ❌ (immutable) |
+| Bucket       | Purpose                              | Lifecycle          | Versioning     |
+| ------------ | ------------------------------------ | ------------------ | -------------- |
+| `l9-backups` | Database backups (PostgreSQL, Neo4j) | 30 days → Glacier  | ✅ Enabled     |
+| `l9-blobs`   | Large content offloading (>512KB)    | 90 days retention  | ✅ Enabled     |
+| `l9-files`   | Slack files, documents               | 365 days retention | ✅ Enabled     |
+| `l9-audit`   | S3 access logs, compliance           | 7 years retention  | ❌ (immutable) |
 
 ### Key Structure
 
@@ -86,18 +87,18 @@ l9-audit/
 
 ### Scripts Created
 
-| Script | Purpose |
-|--------|---------|
-| `scripts/backup/backup_c1_memory.sh` | Backup C1 PostgreSQL + Neo4j to S3 |
+| Script                                   | Purpose                                  |
+| ---------------------------------------- | ---------------------------------------- |
+| `scripts/backup/backup_c1_memory.sh`     | Backup C1 PostgreSQL + Neo4j to S3       |
 | `scripts/backup/enable_s3_versioning.sh` | Enable versioning, encryption, lifecycle |
-| `scripts/backup/setup_s3_audit.sh` | Configure S3 access logging |
+| `scripts/backup/setup_s3_audit.sh`       | Configure S3 access logging              |
 
 ### Code Integration
 
-| Module | Purpose |
-|--------|---------|
-| `memory/blob_store.py` | S3 client for large content offloading |
-| `services/slack_files.py` | S3 backend for Slack file storage |
+| Module                    | Purpose                                |
+| ------------------------- | -------------------------------------- |
+| `memory/blob_store.py`    | S3 client for large content offloading |
+| `services/slack_files.py` | S3 backend for Slack file storage      |
 
 ## Positive Consequences
 

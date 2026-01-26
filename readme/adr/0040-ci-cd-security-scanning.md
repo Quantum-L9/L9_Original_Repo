@@ -29,6 +29,7 @@ We need to integrate automated security and code quality scanning into the CI/CD
 Chosen option: **Open-Source Tools**, because it provides a cost-effective, flexible, and customizable solution that can be easily integrated into our existing CI/CD pipeline.
 
 We will add two new jobs to the `ci.yml` workflow:
+
 - **`sast`**: Runs Bandit for Static Application Security Testing.
 - **`code-quality`**: Runs Radon for code complexity and maintainability analysis.
 

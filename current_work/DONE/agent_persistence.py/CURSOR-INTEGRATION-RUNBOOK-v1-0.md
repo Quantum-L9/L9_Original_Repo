@@ -1,8 +1,8 @@
 # CURSOR INTEGRATION RUNBOOK v1.0
 
-**For**: L9 Engineers running Agent Persistence GMP stages in Cursor  
-**Quality**: Production-grade agent_persistence.py implementation  
-**Timeline**: 8 sequential stages, ~20 hours total (~2.5 hours per stage average)  
+**For**: L9 Engineers running Agent Persistence GMP stages in Cursor
+**Quality**: Production-grade agent_persistence.py implementation
+**Timeline**: 8 sequential stages, ~20 hours total (~2.5 hours per stage average)
 
 ---
 

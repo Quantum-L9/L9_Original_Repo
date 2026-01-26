@@ -22,8 +22,8 @@ global:
 
   # Attach labels to any time series or alerts
   external_labels:
-    monitor: 'l9-packet-envelope'
-    environment: 'development'
+    monitor: "l9-packet-envelope"
+    environment: "development"
 
 # Alerting configuration (optional)
 alerting:
@@ -35,21 +35,21 @@ rule_files: []
 # Scrape configurations
 scrape_configs:
   # L9 API metrics (PacketEnvelope observability)
-  - job_name: 'l9-api'
+  - job_name: "l9-api"
     static_configs:
-      - targets: ['l9-api:8000']
+      - targets: ["l9-api:8000"]
     metrics_path: /metrics
     scrape_interval: 10s
 
   # Prometheus self-monitoring
-  - job_name: 'prometheus'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]
 
   # Jaeger metrics (optional - if enabled)
-  - job_name: 'jaeger'
+  - job_name: "jaeger"
     static_configs:
-      - targets: ['jaeger:14269']
+      - targets: ["jaeger:14269"]
     metrics_path: /metrics
     scrape_interval: 30s
 
@@ -62,7 +62,6 @@ scrape_configs:
   # - job_name: 'postgres'
   #   static_configs:
   #     - targets: ['postgres-exporter:9187']
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -41,7 +41,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 import httpx
@@ -82,11 +82,11 @@ class PacketEnvelopeIn(BaseModel):
         ..., min_length=1, description="Semantic category (e.g., event, insight)"
     )
     payload: dict[str, Any] = Field(..., description="Flexible JSON-like structure")
-    metadata: Optional[dict[str, Any]] = Field(None, description="Optional metadata")
-    provenance: Optional[dict[str, Any]] = Field(
+    metadata: dict[str, Any] | None = Field(None, description="Optional metadata")
+    provenance: dict[str, Any] | None = Field(
         None, description="Optional provenance (parent_packet, source_agent)"
     )
-    confidence: Optional[dict[str, Any]] = Field(
+    confidence: dict[str, Any] | None = Field(
         None, description="Optional confidence (score, rationale)"
     )
 
@@ -103,7 +103,7 @@ class PacketWriteResult(BaseModel):
     written_tables: list[str] = Field(
         default_factory=list, description="Tables updated"
     )
-    error_message: Optional[str] = Field(
+    error_message: str | None = Field(
         None, description="Error details if status='error'"
     )
 
@@ -117,7 +117,7 @@ class SemanticSearchRequest(BaseModel):
 
     query: str = Field(..., min_length=1, description="Natural language query")
     top_k: int = Field(10, ge=1, le=100, description="Number of results to return")
-    agent_id: Optional[str] = Field(None, description="Filter by agent ID")
+    agent_id: str | None = Field(None, description="Filter by agent ID")
 
 
 class SemanticHit(BaseModel):
@@ -157,7 +157,7 @@ class MemoryClient:
 
     def __init__(
         self,
-        base_url: Optional[str] = None,
+        base_url: str | None = None,
         timeout: float = DEFAULT_TIMEOUT,
         enable_fallback: bool = FALLBACK_ENABLED,
     ):
@@ -175,7 +175,7 @@ class MemoryClient:
         self.base_url = self.primary_url  # Start with primary
         self.timeout = timeout
         self.enable_fallback = enable_fallback
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
         self._using_fallback = False
 
     @must_stay_async("callers use await")
@@ -241,9 +241,9 @@ class MemoryClient:
         self,
         packet_type: str,
         payload: dict[str, Any],
-        metadata: Optional[dict[str, Any]] = None,
-        provenance: Optional[dict[str, Any]] = None,
-        confidence: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
+        provenance: dict[str, Any] | None = None,
+        confidence: dict[str, Any] | None = None,
     ) -> PacketWriteResult:
         """
         Write a packet to the memory substrate.
@@ -309,7 +309,7 @@ class MemoryClient:
         self,
         query: str,
         top_k: int = 10,
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
     ) -> SemanticSearchResult:
         """
         Search semantic memory using natural language query.
@@ -405,8 +405,8 @@ class MemoryClient:
         self,
         query: str,
         top_k: int = 10,
-        filters: Optional[dict[str, Any]] = None,
-        agent_id: Optional[str] = None,
+        filters: dict[str, Any] | None = None,
+        agent_id: str | None = None,
         min_score: float = 0.5,
     ) -> dict[str, Any]:
         """
@@ -510,9 +510,9 @@ class MemoryClient:
 
     async def fetch_facts(
         self,
-        subject: Optional[str] = None,
-        predicate: Optional[str] = None,
-        source_packet: Optional[str] = None,
+        subject: str | None = None,
+        predicate: str | None = None,
+        source_packet: str | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """
@@ -546,8 +546,8 @@ class MemoryClient:
 
     async def fetch_insights(
         self,
-        packet_id: Optional[str] = None,
-        insight_type: Optional[str] = None,
+        packet_id: str | None = None,
+        insight_type: str | None = None,
         limit: int = 50,
     ) -> list[dict[str, Any]]:
         """
@@ -622,7 +622,7 @@ class MemoryClient:
 # Singleton / Factory
 # =============================================================================
 
-_client: Optional[MemoryClient] = None
+_client: MemoryClient | None = None
 
 
 def get_memory_client() -> MemoryClient:

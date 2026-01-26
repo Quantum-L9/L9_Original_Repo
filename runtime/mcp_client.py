@@ -42,6 +42,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import contextlib
 import json
 import os
 from functools import lru_cache
@@ -123,10 +124,8 @@ class MCPServerProcess:
         async with self._lock:
             if self._reader_task:
                 self._reader_task.cancel()
-                try:
+                with contextlib.suppress(asyncio.CancelledError):
                     await self._reader_task
-                except asyncio.CancelledError:
-                    pass
                 self._reader_task = None
 
             if self._process:
@@ -229,8 +228,7 @@ class MCPServerProcess:
             await self._process.stdin.drain()
 
             # Wait for response
-            result = await asyncio.wait_for(future, timeout=timeout)
-            return result
+            return await asyncio.wait_for(future, timeout=timeout)
 
         except TimeoutError:
             self._pending_requests.pop(request_id, None)
@@ -436,7 +434,7 @@ class MCPClient:
 
     async def stop_all_servers(self) -> None:
         """Stop all running MCP server processes."""
-        for server_id, process in list(self._processes.items()):
+        for _server_id, process in list(self._processes.items()):
             await process.stop()
         self._processes.clear()
         logger.info("All MCP servers stopped")

@@ -152,7 +152,7 @@ def extract_yaml_from_response(response: dict) -> str:
         start = content.find("```yaml") + 7
         end = content.find("```", start)
         return content[start:end].strip()
-    elif "```" in content:
+    if "```" in content:
         start = content.find("```") + 3
         end = content.find("```", start)
         return content[start:end].strip()

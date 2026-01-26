@@ -145,7 +145,7 @@ async def get_error_chain(error_id: str) -> list[dict[str, Any]]:
 
     try:
         # Traverse backwards through TRIGGERED relationships
-        result = await neo4j.run_query(
+        return await neo4j.run_query(
             """
             MATCH path = (root:Event)-[:TRIGGERED*0..10]->(target:Event {id: $error_id})
             WHERE root.event_type = 'error'
@@ -156,7 +156,6 @@ async def get_error_chain(error_id: str) -> list[dict[str, Any]]:
             {"error_id": error_id},
         )
 
-        return result
 
     except Exception as e:
         logger.warning(f"Failed to get error chain: {e}")

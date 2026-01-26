@@ -210,9 +210,8 @@ def migrate_file(path: Path, dry_run: bool = True) -> tuple[bool, str]:
         short_old = old_import.replace("\n", " ")[:60]
         short_new = new_import.replace("\n", " ")[:60]
         return True, f"{path}\n    FROM: {short_old}...\n    TO:   {short_new}..."
-    else:
-        path.write_text(new_content)
-        return True, f"Updated {path}"
+    path.write_text(new_content)
+    return True, f"Updated {path}"
 
 
 def main():

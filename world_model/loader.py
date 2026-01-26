@@ -125,7 +125,7 @@ class WorldModelLoader:
         if not file_path.exists():
             raise FileNotFoundError(f"Specification file not found: {path}")
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             content = yaml.safe_load(f)
 
         # Cache loaded spec
@@ -310,7 +310,7 @@ class WorldModelLoader:
         specs = self.load_multiple_yaml(spec_paths)
 
         # Extract and register entity types
-        for path, spec in specs.items():
+        for _path, spec in specs.items():
             entity_schemas = self.load_entity_schemas(spec)
             for type_name, schema_def in entity_schemas.items():
                 entity_schema = EntityTypeSchema(
@@ -362,7 +362,7 @@ class WorldModelLoader:
         # Load specs and extract causal structure
         specs = self.load_multiple_yaml(spec_paths)
 
-        for path, spec in specs.items():
+        for _path, spec in specs.items():
             structure = self.load_causal_structure(spec)
 
             # Add nodes
@@ -411,7 +411,7 @@ class WorldModelLoader:
         # Load specs
         specs = self.load_multiple_yaml(spec_paths)
 
-        for path, spec in specs.items():
+        for _path, spec in specs.items():
             # Load initial entities if present
             if "initial_entities" in spec:
                 for entity_data in spec["initial_entities"]:

@@ -1,17 +1,21 @@
 # ADR 0033: Async Context Manager Pattern
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Use `@asynccontextmanager` for resource lifecycle; ensure cleanup in finally block.
 
 ## Files
+
 - `api/server.py` - Lifespan context
 - `memory/substrate_repository.py` - Transaction context
 - `memory/governance_gate.py` - Governance context
 
 ## Import Block
+
 ```python
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, TypeVar
@@ -20,6 +24,7 @@ T = TypeVar("T")
 ```
 
 ## Minimal Implementation
+
 ```python
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, Any
@@ -36,11 +41,11 @@ class GovernanceScope:
     org_id: str
     user_id: str
     active: bool = False
-    
+
     async def activate(self) -> None:
         """Activate the governance scope."""
         self.active = True
-    
+
     async def deactivate(self) -> None:
         """Deactivate the governance scope."""
         self.active = False
@@ -54,21 +59,21 @@ async def governance_context(
 ) -> AsyncIterator[GovernanceScope]:
     """
     Context manager for governance-scoped operations.
-    
+
     Args:
         tenant_id: Tenant UUID
         org_id: Organization UUID
         user_id: User UUID
-    
+
     Yields:
         Activated GovernanceScope
-    
+
     Example:
         async with governance_context(tid, oid, uid) as scope:
             await do_work(scope)
     """
     scope = GovernanceScope(tenant_id, org_id, user_id)
-    
+
     try:
         # Setup
         await scope.activate()
@@ -77,9 +82,9 @@ async def governance_context(
             tenant=tenant_id,
             user=user_id,
         )
-        
+
         yield scope  # Caller uses scope here
-        
+
     finally:
         # Cleanup (ALWAYS runs, even on exception)
         await scope.deactivate()
@@ -95,22 +100,22 @@ async def managed_resource(
 ) -> AsyncIterator[dict]:
     """
     Generic pattern for managed resources.
-    
+
     Args:
         resource_name: Name for logging
-    
+
     Yields:
         Resource dict
     """
     resource = {"name": resource_name, "active": False}
-    
+
     try:
         # Acquire resource
         resource["active"] = True
         logger.info(f"{resource_name}.acquired")
-        
+
         yield resource
-        
+
     except Exception as e:
         # Log error before re-raising
         logger.error(
@@ -118,7 +123,7 @@ async def managed_resource(
             error=str(e),
         )
         raise
-        
+
     finally:
         # Release resource (ALWAYS)
         resource["active"] = False
@@ -126,6 +131,7 @@ async def managed_resource(
 ```
 
 ## Usage Example
+
 ```python
 from memory.governance_gate import governance_context
 from contextlib import asynccontextmanager
@@ -152,9 +158,9 @@ async def lifespan(app: FastAPI):
     await init_database()
     await init_services()
     logger.info("app.startup_complete")
-    
+
     yield  # App runs here
-    
+
     # Shutdown (cleanup)
     await close_services()
     await close_database()
@@ -176,6 +182,7 @@ async def complex_operation():
 ```
 
 ## Anti-Pattern Example
+
 ```python
 # ❌ WRONG — No finally block (cleanup may not run)
 @asynccontextmanager
@@ -211,15 +218,17 @@ async def good_context():
 ```
 
 ## Common Use Cases
-| Context | Resource | Setup | Cleanup |
-|---------|----------|-------|---------|
-| Lifespan | App services | `init_services()` | `close_services()` |
-| Transaction | DB connection | BEGIN | COMMIT/ROLLBACK |
-| Governance | RLS scope | SET app.* | Clear session |
-| Lock | Distributed lock | Acquire | Release |
-| File | File handle | Open | Close |
+
+| Context     | Resource         | Setup             | Cleanup            |
+| ----------- | ---------------- | ----------------- | ------------------ |
+| Lifespan    | App services     | `init_services()` | `close_services()` |
+| Transaction | DB connection    | BEGIN             | COMMIT/ROLLBACK    |
+| Governance  | RLS scope        | SET app.\*        | Clear session      |
+| Lock        | Distributed lock | Acquire           | Release            |
+| File        | File handle      | Open              | Close              |
 
 ## Rules
+
 1. ALWAYS use try/finally in context manager
 2. Cleanup code in finally block
 3. Log entry/exit for debugging
@@ -227,13 +236,16 @@ async def good_context():
 5. Handle exceptions before re-raising
 
 ## AI Guidance
+
 **DO:**
+
 - Use `@asynccontextmanager` for async resources
 - Put cleanup in `finally` block
 - Log context entry/exit
 - Yield minimal interface
 
 **DO NOT:**
+
 - Skip `finally` block
 - Forget to cleanup on exception
 - Yield mutable internal state

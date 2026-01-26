@@ -10,9 +10,9 @@ from .interface import IMemoryOrchestrator, MemoryRequest, MemoryResponse
 from .orchestrator import MemoryOrchestrator
 
 __all__ = [
+    "Housekeeping",
     "IMemoryOrchestrator",
+    "MemoryOrchestrator",
     "MemoryRequest",
     "MemoryResponse",
-    "MemoryOrchestrator",
-    "Housekeeping",
 ]

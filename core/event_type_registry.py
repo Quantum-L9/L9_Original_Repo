@@ -35,7 +35,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 import structlog
 
@@ -56,14 +56,14 @@ class EventTypeConfig:
     name: str
     category: str
     description: str = ""
-    schema: Optional[Dict[str, Any]] = None
-    metadata: Dict[str, Any] = None
+    schema: dict[str, Any] | None = None
+    metadata: dict[str, Any] = None
 
     def __post_init__(self):
         if self.metadata is None:
             self.metadata = {}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "name": self.name,
@@ -94,7 +94,7 @@ def register_event_type(
     name: str,
     category: str,
     description: str = "",
-    schema: Optional[Dict[str, Any]] = None,
+    schema: dict[str, Any] | None = None,
     priority: int = 0,
     **metadata: Any,
 ) -> EventTypeConfig:
@@ -144,7 +144,7 @@ def register_event_type(
 
 
 def register_event_category(
-    category_name: str, event_names: List[str], **metadata: Any
+    category_name: str, event_names: list[str], **metadata: Any
 ):
     """
     Register multiple event types in a category at once.
@@ -183,7 +183,7 @@ def discover_event_types(package: str = "core") -> int:
     return count
 
 
-def get_all_event_types() -> Dict[str, EventTypeConfig]:
+def get_all_event_types() -> dict[str, EventTypeConfig]:
     """
     Get all registered event types.
 
@@ -197,7 +197,7 @@ def get_all_event_types() -> Dict[str, EventTypeConfig]:
     """
     event_type_registry.initialize_factories()
 
-    event_types: Dict[str, EventTypeConfig] = {}
+    event_types: dict[str, EventTypeConfig] = {}
 
     for event_id in event_type_registry.list_ids():
         config = event_type_registry.get(event_id)
@@ -208,7 +208,7 @@ def get_all_event_types() -> Dict[str, EventTypeConfig]:
     return event_types
 
 
-def get_event_types_by_category(category: str) -> Dict[str, EventTypeConfig]:
+def get_event_types_by_category(category: str) -> dict[str, EventTypeConfig]:
     """
     Get all event types in a specific category.
 
@@ -221,7 +221,7 @@ def get_event_types_by_category(category: str) -> Dict[str, EventTypeConfig]:
     event_type_registry.initialize_factories()
 
     configs = event_type_registry.get_all(tags=[category])
-    event_types: Dict[str, EventTypeConfig] = {}
+    event_types: dict[str, EventTypeConfig] = {}
 
     for config in configs:
         event_types[config.name] = config
@@ -229,7 +229,7 @@ def get_event_types_by_category(category: str) -> Dict[str, EventTypeConfig]:
     return event_types
 
 
-def get_event_categories() -> Set[str]:
+def get_event_categories() -> set[str]:
     """
     Get all registered event categories.
 
@@ -253,7 +253,7 @@ def is_event_type_registered(event_name: str) -> bool:
     return event_type_registry.get(event_name) is not None
 
 
-def create_dynamic_event_enum(category: Optional[str] = None) -> type:
+def create_dynamic_event_enum(category: str | None = None) -> type:
     """
     Create a dynamic Enum class from registered event types.
 
@@ -283,7 +283,7 @@ def create_dynamic_event_enum(category: Optional[str] = None) -> type:
 
     # Build enum members dict
     enum_members = {}
-    for name, config in event_types.items():
+    for name, _config in event_types.items():
         # Convert to UPPER_CASE for enum member name
         member_name = name.upper()
         enum_members[member_name] = name
@@ -292,7 +292,7 @@ def create_dynamic_event_enum(category: Optional[str] = None) -> type:
     return Enum(enum_name, enum_members, type=str)
 
 
-def validate_event_payload(event_name: str, payload: Dict[str, Any]) -> bool:
+def validate_event_payload(event_name: str, payload: dict[str, Any]) -> bool:
     """
     Validate an event payload against its registered schema.
 

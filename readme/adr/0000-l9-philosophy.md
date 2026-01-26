@@ -1,12 +1,15 @@
 # ADR 0000: L9 Philosophy — Foundational Principles
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 L9 is an autonomous AI operating system built on automation-first principles: every manual process should be automated, every automation should be improved, and AI code reviews must suggest new automation opportunities.
 
 ## Files
+
 - `scripts/generate_gmp_report.py` - Auto-generates GMP reports (not manual drafting)
 - `scripts/validate_gmp_report.py` - Auto-validates reports against contract
 - `tools/export_repo_indexes.py` - Auto-generates 34 repo index files
@@ -20,14 +23,14 @@ L9 is an autonomous AI operating system built on automation-first principles: ev
 
 Automation is not a feature — it is the foundation upon which L9 is built. Every aspect of the system should trend toward full automation:
 
-| Layer | Manual Today | Automated Tomorrow |
-|-------|-------------|-------------------|
-| **Reports** | Token-consuming drafts | Script-generated, verified |
-| **Reviews** | Human-only reviews | AI + human hybrid |
-| **Indexes** | Manual catalog updates | Auto-generated on session start |
-| **Compliance** | Manual DORA checks | CI-enforced DORA validation |
-| **Migrations** | Manual SQL execution | Auto-applied at startup |
-| **Memory** | Manual context loading | MCP-injected context |
+| Layer          | Manual Today           | Automated Tomorrow              |
+| -------------- | ---------------------- | ------------------------------- |
+| **Reports**    | Token-consuming drafts | Script-generated, verified      |
+| **Reviews**    | Human-only reviews     | AI + human hybrid               |
+| **Indexes**    | Manual catalog updates | Auto-generated on session start |
+| **Compliance** | Manual DORA checks     | CI-enforced DORA validation     |
+| **Migrations** | Manual SQL execution   | Auto-applied at startup         |
+| **Memory**     | Manual context loading | MCP-injected context            |
 
 ### 2. Automation Improvement Cycle
 
@@ -68,6 +71,7 @@ Automation is not a feature — it is the foundation upon which L9 is built. Eve
 ## AI Guidance
 
 **DO:**
+
 - Suggest automation opportunities in every code review
 - Create scripts for repetitive tasks before doing them manually
 - Add `--dry-run` and `--verify` flags to all automation scripts
@@ -76,6 +80,7 @@ Automation is not a feature — it is the foundation upon which L9 is built. Eve
 - Propose automation improvements even for working systems
 
 **DO NOT:**
+
 - Manually draft reports, indexes, or catalogs that can be generated
 - Accept manual processes without questioning if they can be automated
 - Create automation without verification/validation steps
@@ -86,18 +91,21 @@ Automation is not a feature — it is the foundation upon which L9 is built. Eve
 ## Automation Categories
 
 ### Tier 1: Must Be Automated (Day 0)
+
 - GMP report generation
 - Code validation (py_compile, import test, lint)
 - Session startup (load governance, workflow state)
 - Pre-commit hooks (security, format, type-check)
 
 ### Tier 2: Should Be Automated (Sprint N)
+
 - Code review suggestions
 - Documentation generation
 - Test scaffolding
 - Dependency updates
 
 ### Tier 3: Can Be Automated (Future)
+
 - Architecture decision suggestions
 - Refactoring recommendations
 - Performance optimization detection
@@ -142,18 +150,20 @@ def check_report(report_path):
 
 ## Metrics for Automation Health
 
-| Metric | Target | How to Measure |
-|--------|--------|----------------|
-| Manual report drafts | 0 | Count reports not in `reports/` |
-| Automation coverage | >80% | Scripts / Total processes |
-| Automation suggestions per review | ≥1 | Track in code review logs |
-| Script verification rate | 100% | Scripts with `--verify` or tests |
-| Automation failure rate | <5% | Failed runs / Total runs |
+| Metric                            | Target | How to Measure                   |
+| --------------------------------- | ------ | -------------------------------- |
+| Manual report drafts              | 0      | Count reports not in `reports/`  |
+| Automation coverage               | >80%   | Scripts / Total processes        |
+| Automation suggestions per review | ≥1     | Track in code review logs        |
+| Script verification rate          | 100%   | Scripts with `--verify` or tests |
+| Automation failure rate           | <5%    | Failed runs / Total runs         |
 
 ## Related ADRs
+
 - [ADR-0004: Singleton Auto-Registry](0004-singleton-auto-registry.md) - Auto-registration pattern
 - [ADR-0012: Memory DAG Pipeline](0012-memory-dag-pipeline.md) - Automated packet processing
 - [ADR-0035: ADR Bootstrap Protocol](0035-adr-bootstrap-protocol.md) - Automated ADR creation
 
 ## Changelog
+
 - 2026-01-20: Initial creation — established automation-first philosophy

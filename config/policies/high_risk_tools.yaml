@@ -46,51 +46,51 @@ tool_risk_classification:
     - tool_id: shell_exec
       description: "Execute shell commands"
       risk_level: critical
-      
+
     - tool_id: file_write
       description: "Write files to filesystem"
       risk_level: high
-      
+
     - tool_id: file_delete
       description: "Delete files from filesystem"
       risk_level: critical
-      
+
     - tool_id: git_commit
       description: "Commit changes to git repository"
       risk_level: high
-      
+
     - tool_id: git_push
       description: "Push changes to remote repository"
       risk_level: critical
-      
+
     - tool_id: gmp_run
       description: "Execute GMP protocol (code changes)"
       risk_level: critical
-      
+
     - tool_id: gmprun
       description: "Execute GMP protocol (legacy name)"
       risk_level: critical
-      
+
     - tool_id: mac_agent_exec
       description: "Execute commands on Mac agent"
       risk_level: critical
-      
+
     - tool_id: mac_agent_exec_task
       description: "Execute task on Mac agent"
       risk_level: critical
-      
+
     - tool_id: deploy
       description: "Deploy to production environment"
       risk_level: critical
-      
+
     - tool_id: github_create_pull_request
       description: "Create GitHub pull request"
       risk_level: high
-      
+
     - tool_id: github_merge_pull_request
       description: "Merge GitHub pull request"
       risk_level: critical
-      
+
     - tool_id: vercel_trigger_deploy
       description: "Trigger Vercel deployment"
       risk_level: critical
@@ -135,7 +135,6 @@ tool_risk_classification:
     - api_call
     - send_email
     - slack_message
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

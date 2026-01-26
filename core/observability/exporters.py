@@ -26,7 +26,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from abc import ABC, abstractmethod
-from typing import Any, List
+from typing import Any
 
 import structlog
 
@@ -42,7 +42,7 @@ class SpanExporter(ABC):
     """Abstract base class for span exporters."""
 
     @abstractmethod
-    def export(self, spans: List[Span]) -> None:
+    def export(self, spans: list[Span]) -> None:
         """Synchronously export spans."""
         pass
 
@@ -52,7 +52,7 @@ class AsyncSpanExporter(ABC):
 
     @abstractmethod
     @must_stay_async("callers use await")
-    async def export_async(self, spans: List[Span]) -> None:
+    async def export_async(self, spans: list[Span]) -> None:
         """Asynchronously export spans."""
         pass
 
@@ -65,7 +65,7 @@ class AsyncSpanExporter(ABC):
 class ConsoleExporter(SpanExporter):
     """Export spans to console (stdout)."""
 
-    def export(self, spans: List[Span]) -> None:
+    def export(self, spans: list[Span]) -> None:
         """Print spans to console."""
         for span in spans:
             status_icon = "✓" if span.status.value == "OK" else "✗"
@@ -83,7 +83,7 @@ class JSONFileExporter(SpanExporter):
         """Initialize file exporter."""
         self.file_path = file_path
 
-    def export(self, spans: List[Span]) -> None:
+    def export(self, spans: list[Span]) -> None:
         """Write spans as JSONL."""
         try:
             with open(self.file_path, "a") as f:
@@ -101,10 +101,10 @@ class SubstrateExporter(AsyncSpanExporter):
     def __init__(self, substrate_service: Any):
         """Initialize substrate exporter."""
         self.substrate = substrate_service
-        self._batch: List[Span] = []
+        self._batch: list[Span] = []
         self._batch_size = 100
 
-    async def export_async(self, spans: List[Span]) -> None:
+    async def export_async(self, spans: list[Span]) -> None:
         """Export spans to substrate (batched)."""
         self._batch.extend(spans)
         if len(self._batch) >= self._batch_size:
@@ -142,11 +142,11 @@ class SubstrateExporter(AsyncSpanExporter):
 class CompositeExporter:
     """Export to multiple backends simultaneously."""
 
-    def __init__(self, exporters: List[SpanExporter]):
+    def __init__(self, exporters: list[SpanExporter]):
         """Initialize composite exporter."""
         self.exporters = exporters
 
-    def export(self, spans: List[Span]) -> None:
+    def export(self, spans: list[Span]) -> None:
         """Export spans to all backends."""
         for exporter in self.exporters:
             if isinstance(exporter, AsyncSpanExporter):
@@ -156,7 +156,7 @@ class CompositeExporter:
             except Exception as exc:
                 logger.error(f"Export failed in {type(exporter).__name__}: {exc}")
 
-    async def export_async(self, spans: List[Span]) -> None:
+    async def export_async(self, spans: list[Span]) -> None:
         """Export spans to all backends (async)."""
         for exporter in self.exporters:
             try:

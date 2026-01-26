@@ -33,7 +33,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 
@@ -46,8 +46,8 @@ async def gmp_run_tool(
     gmp_markdown: str,
     repo_root: str,
     caller: str = "L",
-    metadata: Dict[str, Any] | None = None,
-) -> Dict[str, Any]:
+    metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     GMP run tool implementation.
 
@@ -188,7 +188,7 @@ async def gmp_run_tool(
         return {
             "task_id": None,
             "status": "error",
-            "message": f"Failed to create GMP task: {str(e)}",
+            "message": f"Failed to create GMP task: {e!s}",
             "error": str(e),
         }
 

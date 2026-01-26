@@ -28,7 +28,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -47,7 +47,7 @@ class Housekeeping:
     - Health checks
     """
 
-    def __init__(self, repository: Optional[Any] = None):
+    def __init__(self, repository: Any | None = None):
         """
         Initialize housekeeping.
 
@@ -69,7 +69,7 @@ class Housekeeping:
                 return None
         return self._repository
 
-    async def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    async def process(self, data: dict[str, Any]) -> dict[str, Any]:
         """
         Process data through housekeeping.
 
@@ -79,19 +79,18 @@ class Housekeeping:
 
         if operation == "gc":
             return await self.garbage_collect(data.get("threshold_days", 30))
-        elif operation == "compact":
+        if operation == "compact":
             return await self.compact()
-        else:
-            return await self.health_check()
+        return await self.health_check()
 
     async def garbage_collect(
         self,
         threshold_days: int = 30,
-        tenant_id: Optional[str] = None,
-        org_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        tenant_id: str | None = None,
+        org_id: str | None = None,
+        user_id: str | None = None,
         role: str = "end_user",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Delete packets older than threshold.
 
@@ -171,7 +170,7 @@ class Housekeeping:
                 "deleted_count": 0,
             }
 
-    async def compact(self) -> Dict[str, Any]:
+    async def compact(self) -> dict[str, Any]:
         """
         Compact/optimize storage.
 
@@ -218,7 +217,7 @@ class Housekeeping:
                 "message": str(e),
             }
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """
         Check health of memory substrate.
 
@@ -283,7 +282,7 @@ class Housekeeping:
             logger.error(f"TTL eviction failed: {e}")
             return 0
 
-    async def run_scheduled_maintenance(self) -> Dict[str, Any]:
+    async def run_scheduled_maintenance(self) -> dict[str, Any]:
         """
         Run ALL scheduled maintenance procedures from migration 0008.
 
@@ -307,7 +306,7 @@ class Housekeeping:
                 "status": "unavailable",
             }
 
-        results: Dict[str, Any] = {
+        results: dict[str, Any] = {
             "decay_unaccessed_importance": None,
             "refresh_memory_views": None,
             "evict_expired_packets": None,
@@ -396,7 +395,7 @@ class Housekeeping:
         dry_run: bool = False,
         batch_size: int = 1000,
         sleep_between_batches_ms: int = 100,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Run memory consolidation pipeline (v3.1).
 

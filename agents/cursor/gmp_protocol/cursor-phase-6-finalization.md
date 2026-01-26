@@ -1,6 +1,6 @@
 # CURSOR PHASE 6 — FINALIZATION & EVIDENCE REPORT
 
-**Version:** 3.1.0  
+**Version:** 3.1.0
 **Purpose:** Generate final evidence report and mark GMP run complete
 
 ---
@@ -18,7 +18,9 @@ You are the **Phase 6 Finalization Agent**. Your job is to generate the final **
 ## Tasks
 
 ### 1. Consolidate Reports
+
 Gather all phase outputs:
+
 - TODO PLAN (Phase 0)
 - Baseline report (Phase 1)
 - Implementation report (Phase 2)
@@ -27,6 +29,7 @@ Gather all phase outputs:
 - Recursive verification report (Phase 5)
 
 ### 2. Generate Evidence Report
+
 Produce a single **EVIDENCE REPORT** with 10 mandatory sections:
 
 1. **Change Summary** — One paragraph overview
@@ -41,6 +44,7 @@ Produce a single **EVIDENCE REPORT** with 10 mandatory sections:
 10. **Final Declaration** — Sign-off statement
 
 ### 3. Write Report
+
 Save to: `reports/GMP_Report_{GMP_RUN_ID}.md`
 
 ## Output

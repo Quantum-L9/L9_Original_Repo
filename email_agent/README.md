@@ -59,14 +59,14 @@ Gmail integration agent for email triage and processing
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                    | Purpose             |
+| ------------------------- | ------------------- |
 | `core/agents/executor.py` | Required dependency |
 
 ---
@@ -86,13 +86,13 @@ email_agent/
 ├── triage.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `credentials.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
-| `config.py` | Configuration for a Gmail account. |
+| File              | Purpose                                            |
+| ----------------- | -------------------------------------------------- |
+| `credentials.py`  | Core module (PROTECTED)                            |
+| `__init__.py`     | Core module (PROTECTED)                            |
+| `config.py`       | Configuration for a Gmail account.                 |
 | `gmail_client.py` | Gmail API client wrapper with multi-account suppor |
-| `oauth_server.py` | HTTP handler for OAuth flow. |
+| `oauth_server.py` | HTTP handler for OAuth flow.                       |
 
 ### Naming Conventions
 
@@ -110,7 +110,7 @@ email_agent/
 ```python
 class AccountConfig:
     """Configuration for a Gmail account."""
-    
+
     # Key methods:
 
     async def __post_init__(self, ...): ...
@@ -132,7 +132,7 @@ class AccountConfig:
 ```python
 class GmailClient:
     """Gmail API client wrapper with multi-account support."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -156,7 +156,7 @@ class GmailClient:
 ```python
 class OAuthHandler:
     """HTTP handler for OAuth flow."""
-    
+
     # Key methods:
 
     async def do_GET(self, ...): ...
@@ -178,7 +178,7 @@ class OAuthHandler:
 ```python
 class HTMLToTextParser:
     """No description"""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -202,13 +202,12 @@ class HTMLToTextParser:
 ```python
 class QueryRequest:
     """Request model for email query."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 93-97 in `router.py`
-
 
 ---
 
@@ -284,9 +283,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Email_Agent feature flags
-L9_ENABLE_EMAIL_AGENT_TRACING: true  # Enable detailed tracing
-L9_ENABLE_EMAIL_AGENT_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_EMAIL_AGENT_AUDIT: true    # Enable audit logging
+L9_ENABLE_EMAIL_AGENT_TRACING: true # Enable detailed tracing
+L9_ENABLE_EMAIL_AGENT_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_EMAIL_AGENT_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -348,7 +347,6 @@ Exchange authorization code for access/refresh tokens.
 - **File:** `credentials.py:134`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -389,6 +387,7 @@ Email Agent operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -396,12 +395,12 @@ Email Agent operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                              | Type      | Description                    |
+| ----------------------------------- | --------- | ------------------------------ |
 | `email_agent_operation_duration_ms` | Histogram | Operation latency distribution |
-| `email_agent_operation_total` | Counter | Total operations processed |
-| `email_agent_error_total` | Counter | Total errors encountered |
-| `email_agent_active_connections` | Gauge | Current active connections |
+| `email_agent_operation_total`       | Counter   | Total operations processed     |
+| `email_agent_error_total`           | Counter   | Total errors encountered       |
+| `email_agent_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -419,6 +418,7 @@ Email Agent emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/email_agent/`:
+
 - `test_email_agent.py` — Core unit tests
 - `test_email_agent_integration.py` — Integration tests (if applicable)
 
@@ -466,6 +466,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

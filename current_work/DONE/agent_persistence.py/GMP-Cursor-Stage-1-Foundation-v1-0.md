@@ -1,9 +1,9 @@
 # GMP STAGE 1: Foundation Setup v1.0
 
-**Inherits from**: GMP-Action-Prompt-Canonical-v1.0.md  
-**Stage Purpose**: Initialize PostgreSQL schema, storage layer, environment configuration  
-**Duration**: ~1 hour  
-**Produces**: Database migrations, Pydantic models, config scaffolding  
+**Inherits from**: GMP-Action-Prompt-Canonical-v1.0.md
+**Stage Purpose**: Initialize PostgreSQL schema, storage layer, environment configuration
+**Duration**: ~1 hour
+**Produces**: Database migrations, Pydantic models, config scaffolding
 
 ---
 
@@ -191,7 +191,7 @@ After Phase 0 STOP, human must verify:
 - [ ] Migration files are reversible (down() methods or rollback SQL)
 - [ ] No breaking changes to existing tables/schemas
 
-If all checked, approve and Cursor continues Phases 1–6.  
+If all checked, approve and Cursor continues Phases 1–6.
 If not, Cursor stops and waits for revised TODO plan.
 
 ---

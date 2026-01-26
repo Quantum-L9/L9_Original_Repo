@@ -46,7 +46,7 @@ servers:
     command: ["npx", "-y", "@modelcontextprotocol/server-github"]
     env:
       GITHUB_TOKEN: ${GITHUB_TOKEN}
-    enabled: false  # Disabled by default, enable when GITHUB_TOKEN is set
+    enabled: false # Disabled by default, enable when GITHUB_TOKEN is set
     priority: 5
     category: development
     description: GitHub API integration for repository operations
@@ -60,7 +60,6 @@ servers:
   #   priority: 0
   #   category: custom
   #   description: Custom MCP server implementation
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

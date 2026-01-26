@@ -1,42 +1,44 @@
 # ADR-0064: Dynamic Tool Discovery for Context-Efficient Agents
 
-**Status:** Implemented  
-**Date:** 2026-01-25  
-**Author:** Igor Beylin  
+**Status:** Implemented
+**Date:** 2026-01-25
+**Author:** Igor Beylin
 **Implementation:** GMP-78 Phase 2
 
 ## Context
 
 L9 agents face critical context overhead when tool catalogs exceed ~20 tools. Static tool context (loading all tool definitions upfront) creates severe scaling limitations:
 
-| Problem | Impact |
-|---------|--------|
-| **Performance degradation** | Models make poor tool selections when presented with >20 tool descriptions simultaneously |
-| **Token explosion** | Tool descriptions consume 5,000-15,000+ tokens (10-30% of context windows) |
-| **Cognitive overload** | Agents struggle with decision overhead, selecting suboptimal or incorrect tools |
-| **Opportunity cost** | Tokens spent on static tool lists could be allocated to task context, reasoning, or memory |
+| Problem                     | Impact                                                                                     |
+| --------------------------- | ------------------------------------------------------------------------------------------ |
+| **Performance degradation** | Models make poor tool selections when presented with >20 tool descriptions simultaneously  |
+| **Token explosion**         | Tool descriptions consume 5,000-15,000+ tokens (10-30% of context windows)                 |
+| **Cognitive overload**      | Agents struggle with decision overhead, selecting suboptimal or incorrect tools            |
+| **Opportunity cost**        | Tokens spent on static tool lists could be allocated to task context, reasoning, or memory |
 
 **Production Evidence**: Cursor's testing of dynamic context discovery for MCP tool loading achieved **46.9% token reduction** for agent runs involving tool calls.
 
 ### Options Considered
 
-| Option | Description | Pros | Cons |
-|--------|-------------|------|------|
-| A | Static tool context (prior approach) | Simple, all tools available | Context bloat, degraded quality at scale |
-| B | New infrastructure (Qdrant + new module) | Full-featured | Duplicates existing pgvector infra |
-| **C** | **Wire existing infrastructure** | Minimal diff, uses existing pgvector | Requires coordination between modules |
-| D | Hybrid (semantic + file-based + caching) | Most complete | High complexity for Phase 1 |
+| Option | Description                              | Pros                                 | Cons                                     |
+| ------ | ---------------------------------------- | ------------------------------------ | ---------------------------------------- |
+| A      | Static tool context (prior approach)     | Simple, all tools available          | Context bloat, degraded quality at scale |
+| B      | New infrastructure (Qdrant + new module) | Full-featured                        | Duplicates existing pgvector infra       |
+| **C**  | **Wire existing infrastructure**         | Minimal diff, uses existing pgvector | Requires coordination between modules    |
+| D      | Hybrid (semantic + file-based + caching) | Most complete                        | High complexity for Phase 1              |
 
 ## Decision
 
 **Option C: Wire Existing Infrastructure**
 
 L9 already had semantic tool discovery infrastructure built but not wired:
+
 - `core/tools/tool_embeddings.py` - pgvector storage + semantic search (GMP-78 Phase 1)
 - `sync_all_tool_embeddings()` - already called at startup
 - `find_relevant_tools()` - already implemented
 
 The decision was to **wire existing components** into the agent execution loop rather than building new infrastructure. This approach:
+
 - Minimizes deployment risk
 - Uses battle-tested pgvector infrastructure
 - Maintains backwards compatibility via feature flag
@@ -82,14 +84,14 @@ The decision was to **wire existing components** into the agent execution loop r
 
 ### Files Modified/Created
 
-| File | Change |
-|------|--------|
-| `config/settings.py` | Added 4 dynamic discovery settings |
-| `core/tools/dynamic_discovery.py` | **NEW** - Integration module |
-| `core/agents/agent_instance.py` | Added `prepare_dynamic_tools()` + cache |
-| `core/agents/executor.py` | Wired discovery before AIOS call |
-| `api/server.py` | Added health tracking for tool embeddings |
-| `tests/unit/test_dynamic_tool_discovery.py` | **NEW** - Test suite |
+| File                                        | Change                                    |
+| ------------------------------------------- | ----------------------------------------- |
+| `config/settings.py`                        | Added 4 dynamic discovery settings        |
+| `core/tools/dynamic_discovery.py`           | **NEW** - Integration module              |
+| `core/agents/agent_instance.py`             | Added `prepare_dynamic_tools()` + cache   |
+| `core/agents/executor.py`                   | Wired discovery before AIOS call          |
+| `api/server.py`                             | Added health tracking for tool embeddings |
+| `tests/unit/test_dynamic_tool_discovery.py` | **NEW** - Test suite                      |
 
 ### Configuration
 
@@ -122,7 +124,7 @@ async def discover_tools_for_task(
         top_k=top_k * 2,
         min_similarity=min_similarity,
     )
-    
+
     # Convert to OpenAI format with token budget enforcement
     return await _format_and_filter_tools(results, max_tokens)
 ```
@@ -137,7 +139,7 @@ async def prepare_dynamic_tools(self) -> int:
     """
     if not is_dynamic_discovery_enabled():
         return 0
-    
+
     task_query = self._extract_task_query()
     self._discovered_tools = await discover_tools_for_task(task_query)
     return len(self._discovered_tools)
@@ -181,37 +183,41 @@ GET /health/services
 
 ### Failure Modes & Fallbacks
 
-| Scenario | Behavior |
-|----------|----------|
+| Scenario                                      | Behavior                                     |
+| --------------------------------------------- | -------------------------------------------- |
 | `sync_all_tool_embeddings()` fails at startup | Logs warning, `tool_embeddings_synced=false` |
-| `discover_tools_for_task()` fails | Falls back to static binding |
-| Feature flag disabled | Uses static binding |
-| Empty task payload | Returns empty list, uses static binding |
-| Token budget exceeded | Truncates tool list at budget limit |
+| `discover_tools_for_task()` fails             | Falls back to static binding                 |
+| Feature flag disabled                         | Uses static binding                          |
+| Empty task payload                            | Returns empty list, uses static binding      |
+| Token budget exceeded                         | Truncates tool list at budget limit          |
 
 ## Success Criteria
 
 ### Efficiency
-| Metric | Target | Status |
-|--------|--------|--------|
-| Token reduction | 40-70% vs static tool context | Pending measurement |
-| Discovery latency | <100ms for tool search | ✅ pgvector ~50ms |
+
+| Metric            | Target                        | Status              |
+| ----------------- | ----------------------------- | ------------------- |
+| Token reduction   | 40-70% vs static tool context | Pending measurement |
+| Discovery latency | <100ms for tool search        | ✅ pgvector ~50ms   |
 
 ### Quality
-| Metric | Target | Status |
-|--------|--------|--------|
+
+| Metric                   | Target                      | Status              |
+| ------------------------ | --------------------------- | ------------------- |
 | Tool selection precision | >85% for well-defined tasks | Pending measurement |
-| Task success rate | No degradation vs static | Pending measurement |
+| Task success rate        | No degradation vs static    | Pending measurement |
 
 ### Robustness
-| Metric | Target | Status |
-|--------|--------|--------|
-| Graceful fallback | Falls back to static binding | ✅ Implemented |
-| Feature flag control | Can disable without deploy | ✅ Implemented |
+
+| Metric               | Target                       | Status         |
+| -------------------- | ---------------------------- | -------------- |
+| Graceful fallback    | Falls back to static binding | ✅ Implemented |
+| Feature flag control | Can disable without deploy   | ✅ Implemented |
 
 ## Consequences
 
 ### Positive
+
 - **Minimal deployment risk** - wires existing infrastructure
 - **Backwards compatible** - feature flag controlled
 - **40-70% token reduction** expected for tool context
@@ -220,6 +226,7 @@ GET /health/services
 - **Full audit trail** - health endpoint shows discovery status
 
 ### Negative
+
 - **Single search method** - semantic only (no hybrid BM25 yet)
 - **No file-based fallback** - relies on pgvector availability
 - **Re-embedding required** - tools must be re-embedded when updated
@@ -239,13 +246,13 @@ GET /health/services
 
 ## Integration Points
 
-| Component | Integration |
-|-----------|-------------|
-| `core/tools/tool_embeddings.py` | Source: `find_relevant_tools()` for semantic search |
-| `core/tools/base_registry.py` | Source: tool schemas for OpenAI format |
-| `core/agents/executor.py` | Consumer: calls `prepare_dynamic_tools()` |
-| `api/server.py` | Startup: `sync_all_tool_embeddings()`, health tracking |
-| `config/settings.py` | Config: feature flags and tuning parameters |
+| Component                       | Integration                                            |
+| ------------------------------- | ------------------------------------------------------ |
+| `core/tools/tool_embeddings.py` | Source: `find_relevant_tools()` for semantic search    |
+| `core/tools/base_registry.py`   | Source: tool schemas for OpenAI format                 |
+| `core/agents/executor.py`       | Consumer: calls `prepare_dynamic_tools()`              |
+| `api/server.py`                 | Startup: `sync_all_tool_embeddings()`, health tracking |
+| `config/settings.py`            | Config: feature flags and tuning parameters            |
 
 ## Related
 
@@ -264,7 +271,7 @@ GET /health/services
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
-| 2026-01-25 | Initial proposal based on Perplexity research |
+| Date       | Change                                                     |
+| ---------- | ---------------------------------------------------------- |
+| 2026-01-25 | Initial proposal based on Perplexity research              |
 | 2026-01-25 | **Implemented** - Wired existing infrastructure (Option C) |

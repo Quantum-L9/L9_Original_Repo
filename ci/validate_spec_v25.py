@@ -201,7 +201,7 @@ class ValidationResult:
     def _get_schema_version(self) -> str:
         """Get schema version from spec file."""
         try:
-            with open(self.spec_path, "r") as f:
+            with open(self.spec_path) as f:
                 spec = yaml.safe_load(f)
                 return str(spec.get("schema_version", "unknown"))
         except (OSError, yaml.YAMLError):
@@ -531,7 +531,7 @@ def validate_spec(spec_path: str) -> ValidationResult:
 
     # Parse YAML
     try:
-        with open(spec_path, "r") as f:
+        with open(spec_path) as f:
             spec = yaml.safe_load(f)
     except yaml.YAMLError as e:
         result.add_error(f"YAML PARSE ERROR: {e}")
@@ -595,9 +595,8 @@ def main() -> int:
     if all_passed:
         logger.info("✅ ALL SPECS PASSED VALIDATION")
         return 0
-    else:
-        logger.error("❌ VALIDATION FAILED - See errors above")
-        return 1
+    logger.error("❌ VALIDATION FAILED - See errors above")
+    return 1
 
 
 if __name__ == "__main__":

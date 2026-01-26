@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -76,8 +76,8 @@ class CoderAgentB(BaseAgent):
 
     def __init__(
         self,
-        agent_id: Optional[str] = None,
-        config: Optional[AgentConfig] = None,
+        agent_id: str | None = None,
+        config: AgentConfig | None = None,
     ):
         """Initialize Coder Agent B."""
         super().__init__(agent_id, config)
@@ -89,7 +89,7 @@ class CoderAgentB(BaseAgent):
     async def run(
         self,
         task: dict[str, Any],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> AgentResponse:
         """
         Execute task (implementation or review).
@@ -105,13 +105,12 @@ class CoderAgentB(BaseAgent):
 
         if task_type == "review":
             return await self._review_code(task, context)
-        else:
-            return await self._implement(task, context)
+        return await self._implement(task, context)
 
     async def _implement(
         self,
         task: dict[str, Any],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> AgentResponse:
         """Implement code."""
         specification = task.get("specification", "")
@@ -149,7 +148,7 @@ Provide:
     async def _review_code(
         self,
         task: dict[str, Any],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> AgentResponse:
         """Review code from another coder."""
         code = task.get("code", {})

@@ -160,7 +160,7 @@ async def save_memory_handler(
 
     # Main pipeline (ONLY path - no fallback)
     try:
-        result = await _save_via_main_pipeline(
+        return await _save_via_main_pipeline(
             user_id=user_id,
             content=content,
             kind=kind,
@@ -177,7 +177,6 @@ async def save_memory_handler(
 
         # Enrichment failure is NOT a pipeline failure - core write succeeded
         # Just return 200 with enrichment_status="failed" (already set in result)
-        return result
 
     except HTTPException:
         # Re-raise HTTP exceptions as-is (e.g., 500 from _save_via_main_pipeline)
@@ -381,7 +380,7 @@ async def search_memory_handler(
         params.extend(db_scopes)
 
         search_query = f"""
-        SELECT 
+        SELECT
             sm.embedding_id,
             sm.payload->>'packet_id' as packet_id,
             sm.payload->>'packet_type' as packet_type,
@@ -618,7 +617,7 @@ async def get_memory_stats(
         if duration in ["all", "long"]:
             # Count unique callers (L or C), not user_id (which is shared as l9-shared)
             query = f"""
-            SELECT 
+            SELECT
                 COUNT(*) as cnt,
                 COUNT(DISTINCT envelope->'metadata'->>'caller') as users,
                 AVG(importance_score) as avg_imp
@@ -651,7 +650,9 @@ async def get_memory_stats(
         logger.exception(
             "Unexpected error getting stats from unified substrate", error=str(e)
         )
-        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {e!s}"
+        ) from e
 
 
 async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
@@ -707,7 +708,7 @@ async def compound_similar_memories(
     try:
         # Get all long-term memories with embeddings for this user
         memories_query = """
-        SELECT 
+        SELECT
             ps.packet_id,
             ps.envelope,
             ps.importance_score,
@@ -885,7 +886,9 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=f"Database error: {e!s}") from e
     except Exception as e:
         logger.exception("Unexpected error applying importance decay", error=str(e))
-        raise HTTPException(status_code=500, detail=f"Internal server error: {e!s}") from e
+        raise HTTPException(
+            status_code=500, detail=f"Internal server error: {e!s}"
+        ) from e
 
 
 async def cleanup_task():
@@ -962,7 +965,7 @@ async def get_context_injection(
         recent_memories = []
         if include_recent:
             recent_query = """
-            SELECT 
+            SELECT
                 ps.packet_id,
                 ps.envelope,
                 ps.timestamp,
@@ -1273,7 +1276,7 @@ async def query_temporal(
 
         if operation == "changes":
             query = f"""
-            SELECT 
+            SELECT
                 ps.packet_id,
                 ps.envelope,
                 ps.timestamp,
@@ -1297,7 +1300,7 @@ async def query_temporal(
 
         elif operation == "timeline":
             query = f"""
-            SELECT 
+            SELECT
                 ps.packet_id,
                 ps.envelope,
                 ps.timestamp,
@@ -1313,7 +1316,7 @@ async def query_temporal(
 
         else:  # diff
             query = f"""
-            SELECT 
+            SELECT
                 ps.packet_id,
                 ps.envelope,
                 ps.timestamp,

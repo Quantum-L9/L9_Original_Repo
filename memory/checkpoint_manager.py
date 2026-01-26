@@ -29,7 +29,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 from memory.substrate_service import MemorySubstrateService
 
@@ -49,7 +49,7 @@ class CheckpointManager:
         """Persist latest state for an agent."""
         await self._service.save_checkpoint(agent_id=agent_id, state=state)
 
-    async def load(self, agent_id: str) -> Optional[dict[str, Any]]:
+    async def load(self, agent_id: str) -> dict[str, Any] | None:
         """Load latest state for an agent."""
         return await self._service.get_checkpoint(agent_id=agent_id)
 

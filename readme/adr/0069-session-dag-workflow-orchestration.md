@@ -1,37 +1,38 @@
 # ADR-0069: Session DAG Workflow Orchestration
 
-**Status:** Implemented  
-**Date:** 2026-01-25  
-**Author:** Igor Beylin  
+**Status:** Implemented
+**Date:** 2026-01-25
+**Author:** Igor Beylin
 **Implementation:** Session DAG system in `workflows/session/`
 
 ## Context
 
 Cursor coding sessions follow predictable patterns but execute inconsistently. Slash commands provide structure but lack:
 
-| Problem | Impact |
-|---------|--------|
-| **Inconsistent execution** | Same workflow varies between sessions |
-| **No explicit gates** | User confirmations happen ad-hoc, not at defined checkpoints |
-| **No visual structure** | Workflows exist only in markdown prose, not graph form |
-| **No reusability** | Each session re-discovers the workflow pattern |
+| Problem                    | Impact                                                       |
+| -------------------------- | ------------------------------------------------------------ |
+| **Inconsistent execution** | Same workflow varies between sessions                        |
+| **No explicit gates**      | User confirmations happen ad-hoc, not at defined checkpoints |
+| **No visual structure**    | Workflows exist only in markdown prose, not graph form       |
+| **No reusability**         | Each session re-discovers the workflow pattern               |
 
 **Production Evidence**: Router Migration session (2026-01-25) demonstrated a successful 6-phase workflow that should be repeatable for similar refactoring tasks.
 
 ### Options Considered
 
-| Option | Description | Pros | Cons |
-|--------|-------------|------|------|
-| A | Enhanced slash commands | Familiar pattern | Already inconsistent, no gates |
-| B | YAML workflow definitions | Declarative, easy to read | No code validation, limited logic |
-| **C** | **Python DAG with gates** | Type-safe, validatable, programmatic | More complex than YAML |
-| D | LangGraph state machine | Full checkpoint support | Heavy dependency, overkill for sessions |
+| Option | Description               | Pros                                 | Cons                                    |
+| ------ | ------------------------- | ------------------------------------ | --------------------------------------- |
+| A      | Enhanced slash commands   | Familiar pattern                     | Already inconsistent, no gates          |
+| B      | YAML workflow definitions | Declarative, easy to read            | No code validation, limited logic       |
+| **C**  | **Python DAG with gates** | Type-safe, validatable, programmatic | More complex than YAML                  |
+| D      | LangGraph state machine   | Full checkpoint support              | Heavy dependency, overkill for sessions |
 
 ## Decision
 
 **Option C: Python DAG with typed gates**
 
 Session workflows are best represented as Directed Acyclic Graphs with:
+
 - Typed nodes (ANALYZE, TRANSFORM, VALIDATE, GATE, COMMIT)
 - Typed gates (USER_CONFIRM, AUTO_PASS, CONDITIONAL)
 - Explicit edges with conditions
@@ -39,6 +40,7 @@ Session workflows are best represented as Directed Acyclic Graphs with:
 - Export to Mermaid diagrams and markdown documentation
 
 This enables:
+
 - Consistent workflow execution across sessions
 - Clear user confirmation points
 - Visual documentation via Mermaid
@@ -94,7 +96,7 @@ class SessionDAG:
     version: str
     nodes: list[SessionNode]
     edges: list[SessionEdge]
-    
+
     def validate(self) -> list[str]  # Returns errors
     def to_mermaid(self) -> str      # Diagram export
     def to_markdown(self) -> str     # Documentation export
@@ -141,6 +143,7 @@ graph TD
 ### Usage Pattern
 
 **In a Cursor session:**
+
 ```
 Follow the Refactoring DAG at workflows/session/dags/REFACTORING_DAG.md
 
@@ -148,6 +151,7 @@ Document: @path/to/migration-doc.md
 ```
 
 **Programmatic access:**
+
 ```python
 from workflows.session import get_session_dag
 
@@ -159,12 +163,12 @@ print(dag.to_mermaid())
 
 Gates pause workflow execution for user decision:
 
-| Gate | Location | Valid Responses |
-|------|----------|-----------------|
-| `gate_analysis` | After cross-reference | `proceed` / `stop` |
-| `gate_plan` | After GMP scope lock | `confirm` / `revise` |
-| `gate_batch` | After batch validation | `continue` / `commit` / `stop` |
-| `gate_commit` | Before git commit | `yes` / `abort` |
+| Gate            | Location               | Valid Responses                |
+| --------------- | ---------------------- | ------------------------------ |
+| `gate_analysis` | After cross-reference  | `proceed` / `stop`             |
+| `gate_plan`     | After GMP scope lock   | `confirm` / `revise`           |
+| `gate_batch`    | After batch validation | `continue` / `commit` / `stop` |
+| `gate_commit`   | Before git commit      | `yes` / `abort`                |
 
 ## Consequences
 
@@ -190,10 +194,10 @@ Gates pause workflow execution for user decision:
 
 **Why `workflows/` not `orchestrators/`:**
 
-| Directory | Purpose |
-|-----------|---------|
+| Directory        | Purpose                                                         |
+| ---------------- | --------------------------------------------------------------- |
 | `orchestrators/` | Runtime agent orchestration (meta, reasoning, memory, research) |
-| `workflows/` | Session-level workflow definitions (DAGs, state, nodes) |
+| `workflows/`     | Session-level workflow definitions (DAGs, state, nodes)         |
 
 Session DAGs guide human+AI collaboration patterns, not runtime agent coordination.
 

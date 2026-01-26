@@ -5,7 +5,7 @@
 -- Author: Cursor Agent (via GMP)
 -- Date: 2026-01-01
 -- =============================================================================
--- 
+--
 -- PURPOSE: Add Emma's feedback loop patterns to L9 core:
 --   1. feedback_events table - Structured feedback from Igor/users
 --   2. Effectiveness tracking on reflection_store
@@ -25,39 +25,39 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS feedback_events (
     feedback_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    
+
     -- What produced the output being evaluated
     packet_id UUID REFERENCES packet_store(packet_id) ON DELETE SET NULL,
     reflection_id UUID REFERENCES reflection_store(reflection_id) ON DELETE SET NULL,
     task_id TEXT,
-    
+
     -- Who gave the feedback
     agent_id TEXT NOT NULL,
-    
+
     -- Feedback details
     feedback_type TEXT NOT NULL CHECK (feedback_type IN ('positive', 'negative', 'correction', 'preference', 'question', 'clarification')),
     feedback_text TEXT,
     sentiment_score FLOAT CHECK (sentiment_score >= -1.0 AND sentiment_score <= 1.0),
-    
+
     -- Processing status
     was_processed BOOLEAN DEFAULT false,
     processed_at TIMESTAMPTZ,
     processing_notes TEXT,
-    
+
     -- What was derived from this feedback
     derived_reflection_id UUID REFERENCES reflection_store(reflection_id) ON DELETE SET NULL,
     derived_fact_id UUID,  -- References knowledge_facts if feedback creates a new fact
-    
+
     -- Multi-tenant identity (4 core fields)
     tenant_id UUID,
     org_id UUID,
     user_id UUID,
     correlation_id UUID DEFAULT uuid_generate_v4(),
-    
+
     -- Tracing
     session_id TEXT,
     trace_id TEXT,
-    
+
     -- Metadata
     metadata JSONB DEFAULT '{}',
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -113,7 +113,7 @@ COMMENT ON COLUMN reflection_store.times_applied IS 'Total times this reflection
 
 -- Function: Update reflection effectiveness
 CREATE OR REPLACE FUNCTION update_reflection_effectiveness(
-    r_id UUID, 
+    r_id UUID,
     was_successful BOOLEAN
 )
 RETURNS FLOAT AS $$
@@ -137,16 +137,16 @@ BEGIN
             last_accessed = NOW()
         WHERE reflection_id = r_id;
     END IF;
-    
+
     -- Recalculate effectiveness score
     UPDATE reflection_store
-    SET effectiveness_score = 
-        CASE WHEN (success_count + failure_count) > 0 
+    SET effectiveness_score =
+        CASE WHEN (success_count + failure_count) > 0
         THEN success_count::FLOAT / (success_count + failure_count)::FLOAT
         ELSE NULL END
     WHERE reflection_id = r_id
     RETURNING effectiveness_score INTO new_score;
-    
+
     RETURN new_score;
 END;
 $$ LANGUAGE plpgsql;
@@ -166,11 +166,11 @@ BEGIN
     SELECT * INTO v_feedback
     FROM feedback_events
     WHERE feedback_id = p_feedback_id;
-    
+
     IF NOT FOUND THEN
         RETURN jsonb_build_object('success', false, 'error', 'Feedback not found');
     END IF;
-    
+
     -- If feedback is on a reflection, update its effectiveness
     IF v_feedback.reflection_id IS NOT NULL THEN
         IF v_feedback.feedback_type = 'positive' THEN
@@ -179,7 +179,7 @@ BEGIN
             PERFORM update_reflection_effectiveness(v_feedback.reflection_id, false);
         END IF;
     END IF;
-    
+
     -- Create a new reflection for negative/correction feedback
     IF v_feedback.feedback_type IN ('negative', 'correction') AND v_feedback.feedback_text IS NOT NULL THEN
         INSERT INTO reflection_store (
@@ -207,21 +207,21 @@ BEGIN
             v_feedback.user_id,
             v_feedback.correlation_id
         ) RETURNING reflection_id INTO v_reflection_id;
-        
+
         -- Link back to feedback
         UPDATE feedback_events
         SET derived_reflection_id = v_reflection_id
         WHERE feedback_id = p_feedback_id;
     END IF;
-    
+
     -- Mark as processed
     UPDATE feedback_events
-    SET 
+    SET
         was_processed = true,
         processed_at = NOW(),
         processing_notes = 'Auto-processed by system'
     WHERE feedback_id = p_feedback_id;
-    
+
     -- Build result
     v_result := jsonb_build_object(
         'success', true,
@@ -230,7 +230,7 @@ BEGIN
         'new_reflection_created', v_reflection_id IS NOT NULL,
         'new_reflection_id', v_reflection_id
     );
-    
+
     RETURN v_result;
 END;
 $$ LANGUAGE plpgsql;
@@ -240,7 +240,7 @@ COMMENT ON FUNCTION process_feedback_event IS 'Process feedback: update effectiv
 
 -- Function: Decay reflection confidence (for contradicting feedback)
 CREATE OR REPLACE FUNCTION decay_reflection_confidence(
-    r_id UUID, 
+    r_id UUID,
     decay_factor FLOAT DEFAULT 0.1
 )
 RETURNS FLOAT AS $$
@@ -248,11 +248,11 @@ DECLARE
     new_confidence FLOAT;
 BEGIN
     UPDATE reflection_store
-    SET 
+    SET
         confidence = GREATEST(0.1, confidence - decay_factor)
     WHERE reflection_id = r_id
     RETURNING confidence INTO new_confidence;
-    
+
     RETURN new_confidence;
 END;
 $$ LANGUAGE plpgsql;
@@ -276,7 +276,7 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
     RETURN QUERY
-    SELECT 
+    SELECT
         r.reflection_id,
         r.content,
         r.reflection_type,
@@ -288,7 +288,7 @@ BEGIN
       AND r.effectiveness_score >= p_min_effectiveness
       AND r.times_applied >= 3  -- Minimum applications for reliability
       AND (r.expires_at IS NULL OR r.expires_at > NOW())
-    ORDER BY 
+    ORDER BY
         r.effectiveness_score DESC,
         r.times_applied DESC,
         r.confidence DESC
@@ -305,7 +305,7 @@ COMMENT ON FUNCTION get_effective_reflections IS 'Get high-effectiveness reflect
 -- =============================================================================
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_effective_reflections AS
-SELECT 
+SELECT
     r.reflection_id,
     r.task_id,
     r.reflection_type,
@@ -323,8 +323,8 @@ SELECT
     r.entities,
     r.tags,
     -- Combined score: effectiveness * confidence * recency
-    (COALESCE(r.effectiveness_score, 0.5) * 0.5) + 
-    (r.confidence * 0.3) + 
+    (COALESCE(r.effectiveness_score, 0.5) * 0.5) +
+    (r.confidence * 0.3) +
     (POWER(0.5, EXTRACT(EPOCH FROM (NOW() - COALESCE(r.last_applied_at, r.created_at))) / (30 * 86400)) * 0.2)
     AS combined_score
 FROM reflection_store r
@@ -355,11 +355,11 @@ DROP POLICY IF EXISTS feedback_events_tenant_isolation ON feedback_events;
 CREATE POLICY feedback_events_tenant_isolation ON feedback_events
     FOR ALL
     USING (
-        tenant_id IS NULL 
+        tenant_id IS NULL
         OR tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
     )
     WITH CHECK (
-        tenant_id IS NULL 
+        tenant_id IS NULL
         OR tenant_id = NULLIF(current_setting('app.tenant_id', true), '')::uuid
     );
 
@@ -368,11 +368,11 @@ DROP POLICY IF EXISTS feedback_events_org_isolation ON feedback_events;
 CREATE POLICY feedback_events_org_isolation ON feedback_events
     FOR ALL
     USING (
-        org_id IS NULL 
+        org_id IS NULL
         OR org_id = NULLIF(current_setting('app.org_id', true), '')::uuid
     )
     WITH CHECK (
-        org_id IS NULL 
+        org_id IS NULL
         OR org_id = NULLIF(current_setting('app.org_id', true), '')::uuid
     );
 
@@ -401,7 +401,7 @@ BEGIN
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_high_confidence_facts;
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_reflection_patterns;
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_effective_reflections;
-    
+
     RAISE NOTICE 'Refreshed all memory materialized views including mv_effective_reflections';
 END;
 $$;
@@ -421,15 +421,15 @@ BEGIN
         SELECT 1 FROM information_schema.tables
         WHERE table_schema = 'public' AND table_name = 'feedback_events'
     ) INTO feedback_exists;
-    
+
     -- Check effectiveness columns on reflection_store
     SELECT EXISTS (
         SELECT 1 FROM information_schema.columns
-        WHERE table_schema = 'public' 
+        WHERE table_schema = 'public'
           AND table_name = 'reflection_store'
           AND column_name = 'effectiveness_score'
     ) INTO effectiveness_col_exists;
-    
+
     IF feedback_exists AND effectiveness_col_exists THEN
         RAISE NOTICE '✅ Migration 0009_feedback_and_effectiveness.sql completed successfully';
         RAISE NOTICE '   - feedback_events table created';
@@ -449,7 +449,7 @@ COMMIT;
 -- =============================================================================
 -- POST-MIGRATION: How to Use
 -- =============================================================================
--- 
+--
 -- 1. Record feedback on an agent output:
 --    INSERT INTO feedback_events (packet_id, agent_id, feedback_type, feedback_text)
 --    VALUES ('packet-uuid', 'L', 'negative', 'This response was too verbose');
@@ -467,7 +467,7 @@ COMMIT;
 --    SELECT * FROM get_effective_reflections('code review', 0.7, 5);
 --
 -- 5. Query the materialized view for fast lookups:
---    SELECT * FROM mv_effective_reflections 
+--    SELECT * FROM mv_effective_reflections
 --    WHERE reflection_type = 'lesson'
 --    ORDER BY combined_score DESC
 --    LIMIT 10;
@@ -475,4 +475,3 @@ COMMIT;
 -- =============================================================================
 -- END MIGRATION 0009
 -- =============================================================================
-

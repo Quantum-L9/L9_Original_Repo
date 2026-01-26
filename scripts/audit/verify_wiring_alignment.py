@@ -47,7 +47,6 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Set
 
 # =============================================================================
 # CONFIGURATION
@@ -149,10 +148,10 @@ class PathReference:
 class VerificationResult:
     """Result of wiring alignment verification."""
 
-    verified_paths: List[str]
-    broken_docs: List[Dict]
-    deprecated_refs: List[Dict]
-    missing_canonical: List[str]
+    verified_paths: list[str]
+    broken_docs: list[dict]
+    deprecated_refs: list[dict]
+    missing_canonical: list[str]
     total_scanned: int
 
     @property
@@ -170,16 +169,14 @@ def should_skip(filepath: Path) -> bool:
     parts = set(filepath.parts)
     if parts & SKIP_DIRS:
         return True
-    if filepath.name in EXCLUDE_FILES:
-        return True
-    return False
+    return filepath.name in EXCLUDE_FILES
 
 
-def extract_paths_from_file(filepath: Path) -> List[PathReference]:
+def extract_paths_from_file(filepath: Path) -> list[PathReference]:
     """Extract all path references from a file."""
     try:
         content = filepath.read_text(errors="ignore")
-    except (IOError, OSError):
+    except OSError:
         return []
 
     references = []
@@ -211,7 +208,7 @@ def extract_paths_from_file(filepath: Path) -> List[PathReference]:
     return references
 
 
-def verify_canonical_files() -> List[str]:
+def verify_canonical_files() -> list[str]:
     """Verify all canonical files exist."""
     missing = []
     for canonical in CANONICAL_FILES:
@@ -222,7 +219,7 @@ def verify_canonical_files() -> List[str]:
 
 def scan_repository() -> VerificationResult:
     """Scan repository for wiring alignment issues."""
-    all_references: List[PathReference] = []
+    all_references: list[PathReference] = []
     files_scanned = 0
 
     # Scan all matching files
@@ -236,9 +233,9 @@ def scan_repository() -> VerificationResult:
             files_scanned += 1
 
     # Categorize results
-    verified_paths: Set[str] = set()
-    broken_docs: List[Dict] = []
-    deprecated_refs: List[Dict] = []
+    verified_paths: set[str] = set()
+    broken_docs: list[dict] = []
+    deprecated_refs: list[dict] = []
 
     for ref in all_references:
         if ref.is_deprecated:

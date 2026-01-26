@@ -1,6 +1,6 @@
 # MCP Memory Integration - Official Configuration
 
-**Status:** ✅ **PRODUCTION** - Verified E2E 2026-01-12  
+**Status:** ✅ **PRODUCTION** - Verified E2E 2026-01-12
 **Purpose:** Single source of truth for MCP Memory wiring between Cursor IDE and L9 VPS
 
 ---
@@ -181,7 +181,7 @@ When MCP memory saves work correctly, you should see:
      -H "Authorization: Bearer $MCP_API_KEY_C" \
      -H "Content-Type: application/json" \
      -d '{"tool_name": "save_memory", "arguments": {"content": "Test", "kind": "preference"}}'
-   
+
    # Search for it (wait 2-5 seconds for embedding)
    curl -X POST https://157.180.73.53:9001/mcp/call \
      -H "Authorization: Bearer $MCP_API_KEY_C" \

@@ -32,7 +32,8 @@ __dora_meta__ = {
 
 import asyncio
 import os
-from typing import Any, Awaitable, Callable, Dict, Optional
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 import structlog
 
@@ -62,8 +63,8 @@ class BackgroundTaskRegistry:
     """
 
     def __init__(self):
-        self._tasks: Dict[str, asyncio.Task] = {}
-        self._configs: Dict[str, Dict[str, Any]] = {}
+        self._tasks: dict[str, asyncio.Task] = {}
+        self._configs: dict[str, dict[str, Any]] = {}
         logger.info("BackgroundTaskRegistry initialized")
 
     def register(
@@ -71,7 +72,7 @@ class BackgroundTaskRegistry:
         name: str,
         coro: Callable[[], Awaitable[Any]],
         interval_seconds: int,
-        enabled_flag: Optional[str] = None,
+        enabled_flag: str | None = None,
         run_immediately: bool = False,
     ) -> bool:
         """
@@ -151,7 +152,7 @@ class BackgroundTaskRegistry:
         self,
         name: str,
         coro: Callable[[], Awaitable[Any]],
-        enabled_flag: Optional[str] = None,
+        enabled_flag: str | None = None,
     ) -> bool:
         """
         Register a one-shot background task (runs once, doesn't repeat).
@@ -195,7 +196,7 @@ class BackgroundTaskRegistry:
             return 0
 
         cancelled = 0
-        for name, task in self._tasks.items():
+        for _name, task in self._tasks.items():
             if not task.done():
                 task.cancel()
                 cancelled += 1
@@ -213,7 +214,7 @@ class BackgroundTaskRegistry:
         self._tasks.clear()
         return cancelled
 
-    def get_status(self, name: str) -> Optional[Dict[str, Any]]:
+    def get_status(self, name: str) -> dict[str, Any] | None:
         """Get status of a specific task."""
         if name not in self._tasks:
             return None
@@ -228,7 +229,7 @@ class BackgroundTaskRegistry:
             **config,
         }
 
-    def snapshot(self) -> Dict[str, Any]:
+    def snapshot(self) -> dict[str, Any]:
         """Get JSON-serializable snapshot of all tasks."""
         return {
             "count": len(self._tasks),
@@ -253,7 +254,7 @@ class BackgroundTaskRegistry:
 
 
 # Global singleton (optional - can also instantiate per-app)
-_background_task_registry: Optional[BackgroundTaskRegistry] = None
+_background_task_registry: BackgroundTaskRegistry | None = None
 
 
 def get_background_task_registry() -> BackgroundTaskRegistry:

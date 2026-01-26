@@ -22,7 +22,7 @@ type: codegen_agent
 language: python
 
 description: |
-  CodeGenAgent orchestrates meta-to-code workflows across L9. 
+  CodeGenAgent orchestrates meta-to-code workflows across L9.
   Supports validation, expansion, emission, monitoring, and rollback.
 
 wiring:

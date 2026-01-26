@@ -46,7 +46,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import structlog
@@ -144,9 +144,9 @@ class HierarchicalContextBuilder:
 
     def __init__(
         self,
-        repository: Optional["SubstrateRepository"] = None,
-        identity_service: Optional["IdentityTierService"] = None,
-        allocation: Optional[dict[MemoryTier, float]] = None,
+        repository: SubstrateRepository | None = None,
+        identity_service: IdentityTierService | None = None,
+        allocation: dict[MemoryTier, float] | None = None,
     ):
         """
         Initialize HierarchicalContextBuilder.
@@ -161,11 +161,11 @@ class HierarchicalContextBuilder:
         self._allocation = allocation or self.DEFAULT_ALLOCATION
         logger.info("HierarchicalContextBuilder initialized")
 
-    def set_repository(self, repository: "SubstrateRepository") -> None:
+    def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
-    def set_identity_service(self, service: "IdentityTierService") -> None:
+    def set_identity_service(self, service: IdentityTierService) -> None:
         """Set or update the identity service reference."""
         self._identity_service = service
 
@@ -175,11 +175,11 @@ class HierarchicalContextBuilder:
 
     async def build_context(
         self,
-        project_id: Optional[str] = None,
-        session_id: Optional[UUID] = None,
-        agent_id: Optional[str] = None,
+        project_id: str | None = None,
+        session_id: UUID | None = None,
+        agent_id: str | None = None,
         max_tokens: int = 4000,
-        include_tiers: Optional[list[MemoryTier]] = None,
+        include_tiers: list[MemoryTier] | None = None,
         format_type: str = "markdown",
     ) -> str:
         """
@@ -244,7 +244,7 @@ class HierarchicalContextBuilder:
 
     async def _build_project_section(
         self,
-        project_id: Optional[str],
+        project_id: str | None,
         max_tokens: int,
     ) -> ContextSection:
         """Build project tier context section."""
@@ -277,7 +277,7 @@ class HierarchicalContextBuilder:
 
     async def _build_session_section(
         self,
-        session_id: Optional[UUID],
+        session_id: UUID | None,
         max_tokens: int,
     ) -> ContextSection:
         """Build session tier context section."""
@@ -311,7 +311,7 @@ class HierarchicalContextBuilder:
 
     async def _build_general_section(
         self,
-        agent_id: Optional[str],
+        agent_id: str | None,
         max_tokens: int,
     ) -> ContextSection:
         """Build general tier context section."""
@@ -364,21 +364,21 @@ class HierarchicalContextBuilder:
                 indent=2,
             )
 
-        elif format_type == "text":
+        if format_type == "text":
             return "\n\n".join([s.content for s in sections if s.content])
 
-        else:  # markdown (default)
-            lines = ["# Memory Context\n"]
+        # markdown (default)
+        lines = ["# Memory Context\n"]
 
-            for section in sections:
-                if not section.content:
-                    continue
+        for section in sections:
+            if not section.content:
+                continue
 
-                tier_name = section.tier.value.title()
-                lines.append(f"\n## {tier_name} Tier ({section.fact_count} facts)\n")
-                lines.append(section.content)
+            tier_name = section.tier.value.title()
+            lines.append(f"\n## {tier_name} Tier ({section.fact_count} facts)\n")
+            lines.append(section.content)
 
-            return "\n".join(lines)
+        return "\n".join(lines)
 
     # =========================================================================
     # Quick Access Methods
@@ -420,7 +420,7 @@ class HierarchicalContextBuilder:
 # =============================================================================
 
 
-_context_builder: Optional[HierarchicalContextBuilder] = None
+_context_builder: HierarchicalContextBuilder | None = None
 
 
 def get_context_builder() -> HierarchicalContextBuilder:

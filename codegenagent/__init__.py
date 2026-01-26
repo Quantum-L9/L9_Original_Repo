@@ -47,31 +47,31 @@ from .readme_generator import (
 )
 
 __all__ = [
-    # Main orchestrator
-    "CodeGenAgent",
-    "GenerationResult",
-    "DryRunResult",
     "BatchResult",
-    "generate_from_spec",
-    "preview_spec",
-    # Meta loading
-    "MetaLoader",
-    "MetaLoaderError",
-    "load_meta",
-    "load_as_contract",
-    # File emission
-    "FileEmitter",
-    "FileChange",
-    "EmissionResult",
-    "emit_files",
-    "preview_emission",
     # Code generation engine (legacy)
     "CGMPEngine",
     "CGMPEngineError",
+    # Main orchestrator
+    "CodeGenAgent",
+    "DryRunResult",
+    "EmissionResult",
+    "FileChange",
+    # File emission
+    "FileEmitter",
+    "GeneratedReadme",
+    "GenerationResult",
+    # Meta loading
+    "MetaLoader",
+    "MetaLoaderError",
     # README generation
     "ReadmeGenerator",
-    "GeneratedReadme",
     "ReadmeMetadata",
     "ReadmeSection",
+    "emit_files",
+    "generate_from_spec",
     "generate_readme_for_module",
+    "load_as_contract",
+    "load_meta",
+    "preview_emission",
+    "preview_spec",
 ]

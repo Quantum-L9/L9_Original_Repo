@@ -34,8 +34,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Dict
 
 import structlog
 
@@ -63,7 +63,7 @@ class UpcasterConfig:
         """Get the unique key for this upcaster."""
         return f"{self.from_version}->{self.to_version}"
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert to dictionary."""
         return {
             "from_version": self.from_version,
@@ -157,7 +157,7 @@ def discover_upcasters(package: str = "core.schemas") -> int:
     return count
 
 
-def get_all_upcasters() -> Dict[str, UpcasterConfig]:
+def get_all_upcasters() -> dict[str, UpcasterConfig]:
     """
     Get all registered schema upcasters.
 
@@ -171,7 +171,7 @@ def get_all_upcasters() -> Dict[str, UpcasterConfig]:
     """
     upcaster_registry.initialize_factories()
 
-    upcasters: Dict[str, UpcasterConfig] = {}
+    upcasters: dict[str, UpcasterConfig] = {}
 
     for upcaster_id in upcaster_registry.list_ids():
         config = upcaster_registry.get(upcaster_id)

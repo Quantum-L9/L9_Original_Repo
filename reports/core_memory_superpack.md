@@ -38,118 +38,118 @@ Exit: DAG node stored, memory service notified
 
 ## Memory Modules (AST Scanned)
 
-| Module | Classes | Functions | Async | LOC |
-|--------|---------|-----------|-------|-----|
-| `memory.__init__` | 0 | 0 |  | 457 |
-| `memory.active_encoder` | 5 | 2 |  | 749 |
-| `memory.agent_persistence` | 2 | 0 |  | 683 |
-| `memory.audit_utils` | 1 | 12 |  | 642 |
-| `memory.blob_store` | 2 | 3 |  | 404 |
-| `memory.checkpoint.__init__` | 0 | 0 |  | 14 |
-| `memory.checkpoint.cursor_checkpoint_manager` | 1 | 0 |  | 221 |
-| `memory.checkpoint.postgres_saver` | 2 | 0 |  | 505 |
-| `memory.checkpoint_manager` | 1 | 0 |  | 89 |
-| `memory.checkpoint_metrics` | 1 | 3 |  | 503 |
-| `memory.checkpoint_validator` | 2 | 0 |  | 291 |
-| `memory.consolidation` | 2 | 0 |  | 769 |
-| `memory.context_builder` | 3 | 2 |  | 495 |
-| `memory.cross_encoder_reranker` | 3 | 3 |  | 425 |
-| `memory.cypher_templates` | 3 | 3 | ✓ | 677 |
-| `memory.dead_letter` | 2 | 0 |  | 245 |
-| `memory.dead_letter_queue` | 2 | 0 |  | 366 |
-| `memory.deduplication` | 5 | 0 |  | 578 |
-| `memory.enrichment_dag` | 5 | 1 |  | 736 |
-| `memory.execution_plan_snapshot` | 5 | 1 |  | 529 |
-| `memory.extractor.__init__` | 0 | 0 |  | 21 |
-| `memory.extractor.agent_config_extractor` | 1 | 0 |  | 303 |
-| `memory.extractor.base_extractor` | 1 | 0 |  | 131 |
-| `memory.extractor.code_extractor` | 1 | 0 |  | 221 |
-| `memory.extractor.ingestion.__init__` | 0 | 0 |  | 1 |
-| `memory.extractor.memory_extractor` | 1 | 0 |  | 213 |
-| `memory.extractor.module_schema_extractor` | 1 | 0 |  | 156 |
-| `memory.gap_detector` | 1 | 0 |  | 469 |
-| `memory.governance_gate` | 1 | 12 | ✓ | 389 |
-| `memory.governance_hooks` | 10 | 1 |  | 629 |
-| `memory.governance_patterns` | 2 | 1 |  | 223 |
-| `memory.graph_client` | 1 | 2 | ✓ | 977 |
-| `memory.graph_memory` | 7 | 3 | ✓ | 918 |
-| `memory.graph_search_cache` | 2 | 4 | ✓ | 317 |
-| `memory.hierarchical_summarizer` | 4 | 0 |  | 577 |
-| `memory.housekeeping` | 1 | 2 |  | 513 |
-| `memory.hybrid_rag` | 8 | 2 | ✓ | 899 |
-| `memory.identity_tier` | 4 | 2 |  | 626 |
-| `memory.importance_manager` | 4 | 2 |  | 633 |
-| `memory.index_syncer` | 1 | 0 |  | 132 |
-| `memory.ingestion` | 1 | 4 | ✓ | 1057 |
-| `memory.insight_extraction` | 1 | 2 |  | 552 |
-| `memory.migration_runner` | 1 | 2 | ✓ | 283 |
-| `memory.neo4j_strategy_memory` | 2 | 1 |  | 814 |
-| `memory.neural_decay_scheduler` | 3 | 0 |  | 597 |
-| `memory.packet_serializer` | 0 | 5 |  | 119 |
-| `memory.predictive_cache` | 1 | 0 |  | 648 |
-| `memory.query_cache` | 1 | 2 |  | 349 |
-| `memory.query_classifier` | 1 | 1 |  | 374 |
-| `memory.reasoning_replay` | 2 | 0 |  | 485 |
-| `memory.retention_engine` | 3 | 0 |  | 378 |
-| `memory.retrieval` | 1 | 5 | ✓ | 1444 |
-| `memory.retrieval_ranking` | 3 | 2 |  | 531 |
-| `memory.retrieval_strategy` | 5 | 2 |  | 958 |
-| `memory.saga` | 10 | 1 | ✓ | 799 |
-| `memory.saga_patterns` | 1 | 11 | ✓ | 811 |
-| `memory.schema_introspection` | 9 | 1 | ✓ | 772 |
-| `memory.semantic_search` | 1 | 1 | ✓ | 171 |
-| `memory.service_adapter` | 1 | 1 |  | 275 |
-| `memory.slack_ingest` | 0 | 13 | ✓ | 1812 |
-| `memory.smoke_test` | 0 | 2 | ✓ | 204 |
-| `memory.state_manager` | 1 | 0 |  | 468 |
-| `memory.strategymemory` | 5 | 0 |  | 420 |
-| `memory.substrate_alignment` | 2 | 0 |  | 268 |
-| `memory.substrate_dag` | 2 | 16 | ✓ | 1421 |
-| `memory.substrate_dag_wrapper` | 2 | 0 |  | 299 |
-| `memory.substrate_models` | 15 | 0 |  | 572 |
-| `memory.substrate_repository` | 1 | 5 | ✓ | 2517 |
-| `memory.substrate_repository_batch_helpers` | 1 | 1 | ✓ | 465 |
-| `memory.substrate_repository_cached` | 1 | 0 |  | 277 |
-| `memory.substrate_semantic` | 4 | 2 | ✓ | 715 |
-| `memory.substrate_service` | 1 | 4 | ✓ | 1401 |
-| `memory.timeline_service` | 1 | 0 |  | 117 |
-| `memory.tool_audit` | 0 | 4 | ✓ | 370 |
-| `memory.tool_router` | 4 | 3 | ✓ | 738 |
-| `memory.validators.__init__` | 0 | 0 |  | 6 |
-| `memory.validators.packet_validator` | 2 | 0 |  | 338 |
-| `memory.vector_search_config` | 1 | 2 |  | 111 |
-| `memory.warming_models` | 10 | 0 |  | 230 |
-| `memory.warming_service` | 1 | 1 | ✓ | 503 |
-| `world_model.__init__` | 0 | 0 |  | 164 |
-| `world_model._pack_staging.loader` | 1 | 0 |  | 448 |
-| `world_model._pack_staging.neo4j_substrate` | 2 | 0 |  | 570 |
-| `world_model._pack_staging.orchestrator` | 2 | 0 |  | 543 |
-| `world_model._pack_staging.postgres_substrate` | 2 | 0 |  | 629 |
-| `world_model._pack_staging.query_engine` | 2 | 0 |  | 516 |
-| `world_model._pack_staging.redis_substrate` | 2 | 0 |  | 516 |
-| `world_model._pack_staging.registry` | 1 | 0 |  | 377 |
-| `world_model._pack_staging.state` | 1 | 0 |  | 385 |
-| `world_model._pack_staging.test_integration` | 5 | 0 |  | 423 |
-| `world_model._pack_staging.updater` | 3 | 0 |  | 424 |
-| `world_model.causal_graph` | 3 | 0 |  | 730 |
-| `world_model.causal_mapper` | 11 | 0 |  | 1600 |
-| `world_model.engine` | 1 | 3 | ✓ | 885 |
-| `world_model.interfaces` | 5 | 0 |  | 305 |
-| `world_model.knowledge_ingestor` | 7 | 0 |  | 1857 |
-| `world_model.loader` | 1 | 0 |  | 650 |
-| `world_model.nodes.__init__` | 0 | 0 |  | 45 |
-| `world_model.nodes.service_nodes` | 1 | 4 | ✓ | 417 |
-| `world_model.nodes.update_world_model_node` | 1 | 2 | ✓ | 262 |
-| `world_model.query_engine` | 2 | 0 |  | 602 |
-| `world_model.reflection_memory` | 7 | 0 |  | 1354 |
-| `world_model.registry` | 3 | 0 |  | 501 |
-| `world_model.repository` | 4 | 4 | ✓ | 955 |
-| `world_model.runtime` | 9 | 2 | ✓ | 2100 |
-| `world_model.seed_loader` | 1 | 1 | ✓ | 863 |
-| `world_model.service` | 1 | 2 | ✓ | 728 |
-| `world_model.state` | 3 | 0 |  | 564 |
-| `world_model.updater` | 3 | 0 |  | 821 |
-| `world_model.world_model_service` | 5 | 2 |  | 1017 |
+| Module                                         | Classes | Functions | Async | LOC  |
+| ---------------------------------------------- | ------- | --------- | ----- | ---- |
+| `memory.__init__`                              | 0       | 0         |       | 457  |
+| `memory.active_encoder`                        | 5       | 2         |       | 749  |
+| `memory.agent_persistence`                     | 2       | 0         |       | 683  |
+| `memory.audit_utils`                           | 1       | 12        |       | 642  |
+| `memory.blob_store`                            | 2       | 3         |       | 404  |
+| `memory.checkpoint.__init__`                   | 0       | 0         |       | 14   |
+| `memory.checkpoint.cursor_checkpoint_manager`  | 1       | 0         |       | 221  |
+| `memory.checkpoint.postgres_saver`             | 2       | 0         |       | 505  |
+| `memory.checkpoint_manager`                    | 1       | 0         |       | 89   |
+| `memory.checkpoint_metrics`                    | 1       | 3         |       | 503  |
+| `memory.checkpoint_validator`                  | 2       | 0         |       | 291  |
+| `memory.consolidation`                         | 2       | 0         |       | 769  |
+| `memory.context_builder`                       | 3       | 2         |       | 495  |
+| `memory.cross_encoder_reranker`                | 3       | 3         |       | 425  |
+| `memory.cypher_templates`                      | 3       | 3         | ✓     | 677  |
+| `memory.dead_letter`                           | 2       | 0         |       | 245  |
+| `memory.dead_letter_queue`                     | 2       | 0         |       | 366  |
+| `memory.deduplication`                         | 5       | 0         |       | 578  |
+| `memory.enrichment_dag`                        | 5       | 1         |       | 736  |
+| `memory.execution_plan_snapshot`               | 5       | 1         |       | 529  |
+| `memory.extractor.__init__`                    | 0       | 0         |       | 21   |
+| `memory.extractor.agent_config_extractor`      | 1       | 0         |       | 303  |
+| `memory.extractor.base_extractor`              | 1       | 0         |       | 131  |
+| `memory.extractor.code_extractor`              | 1       | 0         |       | 221  |
+| `memory.extractor.ingestion.__init__`          | 0       | 0         |       | 1    |
+| `memory.extractor.memory_extractor`            | 1       | 0         |       | 213  |
+| `memory.extractor.module_schema_extractor`     | 1       | 0         |       | 156  |
+| `memory.gap_detector`                          | 1       | 0         |       | 469  |
+| `memory.governance_gate`                       | 1       | 12        | ✓     | 389  |
+| `memory.governance_hooks`                      | 10      | 1         |       | 629  |
+| `memory.governance_patterns`                   | 2       | 1         |       | 223  |
+| `memory.graph_client`                          | 1       | 2         | ✓     | 977  |
+| `memory.graph_memory`                          | 7       | 3         | ✓     | 918  |
+| `memory.graph_search_cache`                    | 2       | 4         | ✓     | 317  |
+| `memory.hierarchical_summarizer`               | 4       | 0         |       | 577  |
+| `memory.housekeeping`                          | 1       | 2         |       | 513  |
+| `memory.hybrid_rag`                            | 8       | 2         | ✓     | 899  |
+| `memory.identity_tier`                         | 4       | 2         |       | 626  |
+| `memory.importance_manager`                    | 4       | 2         |       | 633  |
+| `memory.index_syncer`                          | 1       | 0         |       | 132  |
+| `memory.ingestion`                             | 1       | 4         | ✓     | 1057 |
+| `memory.insight_extraction`                    | 1       | 2         |       | 552  |
+| `memory.migration_runner`                      | 1       | 2         | ✓     | 283  |
+| `memory.neo4j_strategy_memory`                 | 2       | 1         |       | 814  |
+| `memory.neural_decay_scheduler`                | 3       | 0         |       | 597  |
+| `memory.packet_serializer`                     | 0       | 5         |       | 119  |
+| `memory.predictive_cache`                      | 1       | 0         |       | 648  |
+| `memory.query_cache`                           | 1       | 2         |       | 349  |
+| `memory.query_classifier`                      | 1       | 1         |       | 374  |
+| `memory.reasoning_replay`                      | 2       | 0         |       | 485  |
+| `memory.retention_engine`                      | 3       | 0         |       | 378  |
+| `memory.retrieval`                             | 1       | 5         | ✓     | 1444 |
+| `memory.retrieval_ranking`                     | 3       | 2         |       | 531  |
+| `memory.retrieval_strategy`                    | 5       | 2         |       | 958  |
+| `memory.saga`                                  | 10      | 1         | ✓     | 799  |
+| `memory.saga_patterns`                         | 1       | 11        | ✓     | 811  |
+| `memory.schema_introspection`                  | 9       | 1         | ✓     | 772  |
+| `memory.semantic_search`                       | 1       | 1         | ✓     | 171  |
+| `memory.service_adapter`                       | 1       | 1         |       | 275  |
+| `memory.slack_ingest`                          | 0       | 13        | ✓     | 1812 |
+| `memory.smoke_test`                            | 0       | 2         | ✓     | 204  |
+| `memory.state_manager`                         | 1       | 0         |       | 468  |
+| `memory.strategymemory`                        | 5       | 0         |       | 420  |
+| `memory.substrate_alignment`                   | 2       | 0         |       | 268  |
+| `memory.substrate_dag`                         | 2       | 16        | ✓     | 1421 |
+| `memory.substrate_dag_wrapper`                 | 2       | 0         |       | 299  |
+| `memory.substrate_models`                      | 15      | 0         |       | 572  |
+| `memory.substrate_repository`                  | 1       | 5         | ✓     | 2517 |
+| `memory.substrate_repository_batch_helpers`    | 1       | 1         | ✓     | 465  |
+| `memory.substrate_repository_cached`           | 1       | 0         |       | 277  |
+| `memory.substrate_semantic`                    | 4       | 2         | ✓     | 715  |
+| `memory.substrate_service`                     | 1       | 4         | ✓     | 1401 |
+| `memory.timeline_service`                      | 1       | 0         |       | 117  |
+| `memory.tool_audit`                            | 0       | 4         | ✓     | 370  |
+| `memory.tool_router`                           | 4       | 3         | ✓     | 738  |
+| `memory.validators.__init__`                   | 0       | 0         |       | 6    |
+| `memory.validators.packet_validator`           | 2       | 0         |       | 338  |
+| `memory.vector_search_config`                  | 1       | 2         |       | 111  |
+| `memory.warming_models`                        | 10      | 0         |       | 230  |
+| `memory.warming_service`                       | 1       | 1         | ✓     | 503  |
+| `world_model.__init__`                         | 0       | 0         |       | 164  |
+| `world_model._pack_staging.loader`             | 1       | 0         |       | 448  |
+| `world_model._pack_staging.neo4j_substrate`    | 2       | 0         |       | 570  |
+| `world_model._pack_staging.orchestrator`       | 2       | 0         |       | 543  |
+| `world_model._pack_staging.postgres_substrate` | 2       | 0         |       | 629  |
+| `world_model._pack_staging.query_engine`       | 2       | 0         |       | 516  |
+| `world_model._pack_staging.redis_substrate`    | 2       | 0         |       | 516  |
+| `world_model._pack_staging.registry`           | 1       | 0         |       | 377  |
+| `world_model._pack_staging.state`              | 1       | 0         |       | 385  |
+| `world_model._pack_staging.test_integration`   | 5       | 0         |       | 423  |
+| `world_model._pack_staging.updater`            | 3       | 0         |       | 424  |
+| `world_model.causal_graph`                     | 3       | 0         |       | 730  |
+| `world_model.causal_mapper`                    | 11      | 0         |       | 1600 |
+| `world_model.engine`                           | 1       | 3         | ✓     | 885  |
+| `world_model.interfaces`                       | 5       | 0         |       | 305  |
+| `world_model.knowledge_ingestor`               | 7       | 0         |       | 1857 |
+| `world_model.loader`                           | 1       | 0         |       | 650  |
+| `world_model.nodes.__init__`                   | 0       | 0         |       | 45   |
+| `world_model.nodes.service_nodes`              | 1       | 4         | ✓     | 417  |
+| `world_model.nodes.update_world_model_node`    | 1       | 2         | ✓     | 262  |
+| `world_model.query_engine`                     | 2       | 0         |       | 602  |
+| `world_model.reflection_memory`                | 7       | 0         |       | 1354 |
+| `world_model.registry`                         | 3       | 0         |       | 501  |
+| `world_model.repository`                       | 4       | 4         | ✓     | 955  |
+| `world_model.runtime`                          | 9       | 2         | ✓     | 2100 |
+| `world_model.seed_loader`                      | 1       | 1         | ✓     | 863  |
+| `world_model.service`                          | 1       | 2         | ✓     | 728  |
+| `world_model.state`                            | 3       | 0         |       | 564  |
+| `world_model.updater`                          | 3       | 0         |       | 821  |
+| `world_model.world_model_service`              | 5       | 2         |       | 1017 |
 
 **Total:** 110 modules, 63646 LOC, 30 async
 
@@ -255,4 +255,4 @@ Before modifying memory modules:
 
 ---
 
-*Auto-generated by `tools/superpack_reports/` | Regenerate: `make superpacks`*
+_Auto-generated by `tools/superpack_reports/` | Regenerate: `make superpacks`_

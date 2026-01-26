@@ -22,6 +22,7 @@ Comprehensive guide to the L9 Agentic Intelligence Platform API with OpenAPI/Swa
 The L9 Platform provides **184 REST API endpoints** across 44 modules for building, deploying, and managing AI agents with enterprise-grade governance.
 
 **Key Features:**
+
 - ✅ **OpenAPI 3.0 Specification** - Industry-standard API documentation
 - ✅ **Interactive Swagger UI** - Test APIs directly in your browser
 - ✅ **ReDoc Documentation** - Alternative, clean documentation view
@@ -36,16 +37,19 @@ The L9 Platform provides **184 REST API endpoints** across 44 modules for buildi
 ### 1. Access the Documentation
 
 **Swagger UI (Interactive):**
+
 ```
 http://localhost:8000/docs
 ```
 
 **ReDoc (Clean View):**
+
 ```
 http://localhost:8000/redoc
 ```
 
 **OpenAPI Spec (JSON):**
+
 ```
 http://localhost:8000/openapi.json
 ```
@@ -62,6 +66,7 @@ curl -H "X-API-Key: your-api-key-here" \
 ```
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -107,13 +112,13 @@ print(response.json())
 ### Using JavaScript/TypeScript
 
 ```typescript
-const response = await fetch('http://localhost:8000/memory/packet', {
-  method: 'POST',
+const response = await fetch("http://localhost:8000/memory/packet", {
+  method: "POST",
   headers: {
-    'X-API-Key': 'your-api-key-here',
-    'Content-Type': 'application/json',
+    "X-API-Key": "your-api-key-here",
+    "Content-Type": "application/json",
   },
-  body: JSON.stringify({ content: 'Hello, L9!' }),
+  body: JSON.stringify({ content: "Hello, L9!" }),
 });
 
 const data = await response.json();
@@ -153,12 +158,13 @@ The L9 API is organized into **8 categories**:
 
 ### 1. System APIs
 
-**Endpoints:** 21  
+**Endpoints:** 21
 **Base Path:** `/health`, `/metrics`, `/status`
 
 **Purpose:** System health checks, monitoring, and status
 
 **Key Endpoints:**
+
 - `GET /health` - Overall system health
 - `GET /health/neo4j` - Neo4j database health
 - `GET /health/services` - All service health checks
@@ -169,12 +175,13 @@ The L9 API is organized into **8 categories**:
 
 ### 2. Agent APIs
 
-**Endpoints:** 31  
+**Endpoints:** 31
 **Base Path:** `/agent`, `/cursor`, `/research`, `/reflection`
 
 **Purpose:** Agent execution, task management, and lifecycle operations
 
 **Key Endpoints:**
+
 - `POST /agent/execute` - Execute an agent task
 - `POST /cursor/task` - Create a Cursor agent task
 - `POST /research/execute` - Run research agent
@@ -182,6 +189,7 @@ The L9 API is organized into **8 categories**:
 - `GET /agent/status` - Get agent status
 
 **Example:**
+
 ```bash
 POST /agent/execute
 {
@@ -198,12 +206,13 @@ POST /agent/execute
 
 ### 3. Memory APIs
 
-**Endpoints:** 45  
+**Endpoints:** 45
 **Base Path:** `/memory`, `/packet`, `/cache`
 
 **Purpose:** Memory substrate operations, semantic search, knowledge management
 
 **Key Endpoints:**
+
 - `POST /memory/packet` - Create a memory packet
 - `POST /memory/semantic/search` - Semantic similarity search
 - `GET /memory/packet/{packet_id}` - Retrieve packet by ID
@@ -213,6 +222,7 @@ POST /agent/execute
 - `GET /cache/get/{key}` - Get cache value
 
 **Example:**
+
 ```bash
 POST /memory/semantic/search
 {
@@ -226,12 +236,13 @@ POST /memory/semantic/search
 
 ### 4. World Model APIs
 
-**Endpoints:** 14  
+**Endpoints:** 14
 **Base Path:** `/world-model`, `/entity`
 
 **Purpose:** Entity management, relationships, and world state
 
 **Key Endpoints:**
+
 - `POST /world-model/entity` - Create entity
 - `GET /world-model/entity/{entity_id}` - Get entity
 - `POST /world-model/relationship` - Create relationship
@@ -240,6 +251,7 @@ POST /memory/semantic/search
 - `POST /world-model/restore` - Restore from snapshot
 
 **Example:**
+
 ```bash
 POST /world-model/entity
 {
@@ -257,18 +269,20 @@ POST /world-model/entity
 
 ### 5. Tool APIs
 
-**Endpoints:** 13  
+**Endpoints:** 13
 **Base Path:** `/tools`, `/mcp`
 
 **Purpose:** Tool execution, MCP integration, and tool registry
 
 **Key Endpoints:**
+
 - `POST /tools/execute` - Execute a tool
 - `GET /mcp/tools` - List all MCP tools
 - `POST /mcp/call` - Call MCP tool
 - `GET /mcp/health` - MCP server health
 
 **Example:**
+
 ```bash
 POST /tools/execute
 {
@@ -284,18 +298,20 @@ POST /tools/execute
 
 ### 6. Governance APIs
 
-**Endpoints:** 15  
+**Endpoints:** 15
 **Base Path:** `/governance`, `/compliance`
 
 **Purpose:** Policy enforcement, compliance reporting, audit logs
 
 **Key Endpoints:**
+
 - `GET /compliance/report` - Get compliance report
 - `GET /compliance/audit-log` - Retrieve audit logs
 - `POST /governance/feedback` - Submit governance feedback
 - `GET /compliance/report/daily` - Daily compliance summary
 
 **Example:**
+
 ```bash
 GET /compliance/audit-log?start_date=2026-01-01&end_date=2026-01-21
 ```
@@ -304,12 +320,13 @@ GET /compliance/audit-log?start_date=2026-01-01&end_date=2026-01-21
 
 ### 7. Integration APIs
 
-**Endpoints:** 11  
+**Endpoints:** 11
 **Base Path:** `/slack`, `/twilio`, `/waba`
 
 **Purpose:** External service integrations (Slack, Twilio, WhatsApp)
 
 **Key Endpoints:**
+
 - `POST /slack/events` - Slack event webhook
 - `POST /slack/commands` - Slack slash commands
 - `POST /twilio/webhook` - Twilio SMS webhook
@@ -320,12 +337,13 @@ GET /compliance/audit-log?start_date=2026-01-01&end_date=2026-01-21
 
 ### 8. Observability APIs
 
-**Endpoints:** 34  
+**Endpoints:** 34
 **Base Path:** `/observability`, `/metrics`, `/spans`
 
 **Purpose:** Metrics, traces, circuit breakers, and monitoring
 
 **Key Endpoints:**
+
 - `GET /observability/metrics` - System metrics
 - `GET /observability/spans` - Distributed traces
 - `GET /observability/failures` - Failure tracking
@@ -344,10 +362,12 @@ GET /memory/facts?limit=20&offset=0
 ```
 
 **Parameters:**
+
 - `limit` (int): Number of results per page (default: 20, max: 100)
 - `offset` (int): Number of results to skip (default: 0)
 
 **Response:**
+
 ```json
 {
   "data": [...],
@@ -407,39 +427,41 @@ All errors follow a consistent format:
 
 ### HTTP Status Codes
 
-| Code | Meaning | Description |
-|---|---|---|
-| 200 | OK | Request successful |
-| 201 | Created | Resource created successfully |
-| 400 | Bad Request | Invalid request data |
-| 401 | Unauthorized | Invalid or missing API key |
-| 403 | Forbidden | Insufficient permissions |
-| 404 | Not Found | Resource not found |
-| 422 | Validation Error | Request data validation failed |
-| 429 | Too Many Requests | Rate limit exceeded |
-| 500 | Internal Server Error | Server error |
-| 503 | Service Unavailable | Service temporarily unavailable |
+| Code | Meaning               | Description                     |
+| ---- | --------------------- | ------------------------------- |
+| 200  | OK                    | Request successful              |
+| 201  | Created               | Resource created successfully   |
+| 400  | Bad Request           | Invalid request data            |
+| 401  | Unauthorized          | Invalid or missing API key      |
+| 403  | Forbidden             | Insufficient permissions        |
+| 404  | Not Found             | Resource not found              |
+| 422  | Validation Error      | Request data validation failed  |
+| 429  | Too Many Requests     | Rate limit exceeded             |
+| 500  | Internal Server Error | Server error                    |
+| 503  | Service Unavailable   | Service temporarily unavailable |
 
 ### Error Codes
 
-| Code | Description |
-|---|---|
-| `VALIDATION_ERROR` | Request data validation failed |
-| `AUTH_ERROR` | Authentication failed |
-| `PERMISSION_ERROR` | Insufficient permissions |
-| `NOT_FOUND` | Resource not found |
-| `RATE_LIMIT_EXCEEDED` | Too many requests |
-| `INTERNAL_ERROR` | Internal server error |
+| Code                  | Description                    |
+| --------------------- | ------------------------------ |
+| `VALIDATION_ERROR`    | Request data validation failed |
+| `AUTH_ERROR`          | Authentication failed          |
+| `PERMISSION_ERROR`    | Insufficient permissions       |
+| `NOT_FOUND`           | Resource not found             |
+| `RATE_LIMIT_EXCEEDED` | Too many requests              |
+| `INTERNAL_ERROR`      | Internal server error          |
 
 ---
 
 ## Rate Limiting
 
 **Default Limits:**
+
 - **100 requests per minute** per API key
 - **1,000 requests per hour** per API key
 
 **Headers:**
+
 ```
 X-RateLimit-Limit: 100
 X-RateLimit-Remaining: 95
@@ -447,6 +469,7 @@ X-RateLimit-Reset: 1642780800
 ```
 
 **When rate limited:**
+
 ```json
 {
   "detail": "Rate limit exceeded. Try again in 45 seconds.",
@@ -464,11 +487,13 @@ The L9 API uses **semantic versioning** (MAJOR.MINOR.PATCH).
 **Current Version:** `2.5.0`
 
 **Version Header:**
+
 ```
 X-API-Version: 2.5.0
 ```
 
 **Breaking Changes:**
+
 - Major version changes (e.g., 2.x → 3.x) may include breaking changes
 - Minor version changes (e.g., 2.5 → 2.6) are backward compatible
 - Patch version changes (e.g., 2.5.0 → 2.5.1) are bug fixes only
@@ -482,6 +507,7 @@ X-API-Version: 2.5.0
 Use the OpenAPI specification to generate client SDKs in any language:
 
 **Python:**
+
 ```bash
 openapi-generator-cli generate \
   -i http://localhost:8000/openapi.json \
@@ -490,6 +516,7 @@ openapi-generator-cli generate \
 ```
 
 **TypeScript:**
+
 ```bash
 openapi-generator-cli generate \
   -i http://localhost:8000/openapi.json \
@@ -498,6 +525,7 @@ openapi-generator-cli generate \
 ```
 
 **Go:**
+
 ```bash
 openapi-generator-cli generate \
   -i http://localhost:8000/openapi.json \
@@ -515,12 +543,12 @@ openapi-generator-cli generate \
 
 ## Support
 
-**Documentation:** https://docs.l9.ai  
-**GitHub:** https://github.com/cryptoxdog/L9  
-**Support:** https://help.l9.ai  
+**Documentation:** https://docs.l9.ai
+**GitHub:** https://github.com/cryptoxdog/L9
+**Support:** https://help.l9.ai
 **Email:** support@l9.ai
 
 ---
 
-**Last Updated:** 2026-01-21  
+**Last Updated:** 2026-01-21
 **API Version:** 2.5.0

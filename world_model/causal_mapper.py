@@ -53,7 +53,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -90,7 +90,7 @@ class CausalNode:
     name: str = ""
     attributes: dict[str, Any] = field(default_factory=dict)
     observed: bool = False
-    value: Optional[Any] = None
+    value: Any | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -151,10 +151,10 @@ class CausalQuery:
     """A causal query specification."""
 
     query_type: str = "effect"  # effect, cause, path, counterfactual
-    source: Optional[str] = None
-    target: Optional[str] = None
-    intervention: Optional[dict[str, Any]] = None
-    evidence: Optional[dict[str, Any]] = None
+    source: str | None = None
+    target: str | None = None
+    intervention: dict[str, Any] | None = None
+    evidence: dict[str, Any] | None = None
 
 
 @dataclass
@@ -218,7 +218,7 @@ class Outcome:
     result: str = "unknown"  # success, failure, partial, unknown
     metrics: dict[str, Any] = field(default_factory=dict)  # Measured values
     related_decisions: list[str] = field(default_factory=list)  # Decision IDs
-    execution_id: Optional[str] = None  # Execution plan ID
+    execution_id: str | None = None  # Execution plan ID
     created_at: datetime = field(default_factory=datetime.utcnow)
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -318,7 +318,7 @@ class CausalMapper:
         node_id: str,
         node_type: str = "variable",
         name: str = "",
-        attributes: Optional[dict[str, Any]] = None,
+        attributes: dict[str, Any] | None = None,
     ) -> CausalNode:
         """
         Add a node to the causal graph.
@@ -352,8 +352,8 @@ class CausalMapper:
         relation_type: CausalRelationType = CausalRelationType.CAUSES,
         strength: CausalStrength = CausalStrength.MODERATE,
         confidence: float = 0.8,
-        attributes: Optional[dict[str, Any]] = None,
-    ) -> Optional[CausalEdge]:
+        attributes: dict[str, Any] | None = None,
+    ) -> CausalEdge | None:
         """
         Add a causal edge.
 
@@ -520,7 +520,7 @@ class CausalMapper:
         # In production: full do-calculus implementation
         affected_nodes = []
 
-        for var_id, value in query.intervention.items():
+        for var_id, _value in query.intervention.items():
             descendants = self._find_descendants(var_id)
             affected_nodes.extend(descendants)
 
@@ -786,10 +786,10 @@ class CausalMapper:
         decision_id: str,
         description: str,
         decision_type: str = "generic",
-        context: Optional[dict[str, Any]] = None,
-        code_changes: Optional[list[str]] = None,
-        related_intents: Optional[list[str]] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
+        code_changes: list[str] | None = None,
+        related_intents: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> Decision:
         """
         Record a decision in the causal graph.
@@ -853,10 +853,10 @@ class CausalMapper:
         outcome_type: str = "generic",
         description: str = "",
         result: str = "unknown",
-        metrics: Optional[dict[str, Any]] = None,
-        related_decisions: Optional[list[str]] = None,
-        execution_id: Optional[str] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        metrics: dict[str, Any] | None = None,
+        related_decisions: list[str] | None = None,
+        execution_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> Outcome:
         """
         Record an outcome in the causal graph.
@@ -930,7 +930,7 @@ class CausalMapper:
     def infer_causal_links(
         self,
         min_confidence: float = 0.5,
-        time_window_seconds: Optional[float] = None,
+        time_window_seconds: float | None = None,
     ) -> list[CausalLink]:
         """
         Infer causal links between decisions and outcomes.
@@ -996,7 +996,7 @@ class CausalMapper:
         self,
         decision: Decision,
         outcome: Outcome,
-        time_window_seconds: Optional[float],
+        time_window_seconds: float | None,
     ) -> tuple[float, list[str]]:
         """
         Calculate confidence and evidence for a decision-outcome link.
@@ -1051,17 +1051,17 @@ class CausalMapper:
         """Convert confidence score to CausalStrength enum."""
         if confidence >= 0.8:
             return CausalStrength.STRONG
-        elif confidence >= 0.5:
+        if confidence >= 0.5:
             return CausalStrength.MODERATE
-        elif confidence >= 0.3:
+        if confidence >= 0.3:
             return CausalStrength.WEAK
         return CausalStrength.UNCERTAIN
 
-    def get_decision(self, decision_id: str) -> Optional[Decision]:
+    def get_decision(self, decision_id: str) -> Decision | None:
         """Get a decision by ID."""
         return self._decisions.get(decision_id)
 
-    def get_outcome(self, outcome_id: str) -> Optional[Outcome]:
+    def get_outcome(self, outcome_id: str) -> Outcome | None:
         """Get an outcome by ID."""
         return self._outcomes.get(outcome_id)
 
@@ -1099,8 +1099,8 @@ class CausalMapper:
 
     def get_causal_links(
         self,
-        decision_id: Optional[str] = None,
-        outcome_id: Optional[str] = None,
+        decision_id: str | None = None,
+        outcome_id: str | None = None,
         min_confidence: float = 0.0,
     ) -> list[CausalLink]:
         """Get causal links with optional filters."""
@@ -1121,7 +1121,7 @@ class CausalMapper:
 
     def detect_hidden_constraints(
         self,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
         min_evidence_count: int = 2,
         min_confidence: float = 0.5,
     ) -> list[dict[str, Any]]:

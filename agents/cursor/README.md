@@ -59,15 +59,15 @@ Cursor IDE integration agent with memory client
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `mcp_memory/` | Required dependency |
+| Module                        | Purpose             |
+| ----------------------------- | ------------------- |
+| `mcp_memory/`                 | Required dependency |
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -94,11 +94,11 @@ agents/cursor/
 └── ... (4 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `cursor_client.py` | Client for Cursor remote API. |
-| `gmp_meta_learning.py` | Graduated autonomy levels in GMP v2.0. |
+| File                   | Purpose                                 |
+| ---------------------- | --------------------------------------- |
+| `__init__.py`          | Core module (PROTECTED)                 |
+| `cursor_client.py`     | Client for Cursor remote API.           |
+| `gmp_meta_learning.py` | Graduated autonomy levels in GMP v2.0.  |
 | `gmp_meta_learning.py` | Results from a completed GMP execution. |
 
 ### Naming Conventions
@@ -117,7 +117,7 @@ agents/cursor/
 ```python
 class CursorClient:
     """Client for Cursor remote API."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -141,7 +141,7 @@ class CursorClient:
 ```python
 class AutonomyLevel:
     """Graduated autonomy levels in GMP v2.0."""
-    
+
     # Key methods:
 
 ```
@@ -153,7 +153,7 @@ class AutonomyLevel:
 ```python
 class GMPExecutionResult:
     """Results from a completed GMP execution."""
-    
+
     # Key methods:
 
 ```
@@ -165,7 +165,7 @@ class GMPExecutionResult:
 ```python
 class LearnedHeuristic:
     """A heuristic pattern learned from prior executions."""
-    
+
     # Key methods:
 
     async def __hash__(self, ...): ...
@@ -181,13 +181,12 @@ class LearnedHeuristic:
 ```python
 class AutonomyGraduationMetrics:
     """Tracks metrics for autonomy level graduation."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 133-154 in `gmp_meta_learning.py`
-
 
 ---
 
@@ -258,9 +257,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Agents_Cursor feature flags
-L9_ENABLE_AGENTS_CURSOR_TRACING: true  # Enable detailed tracing
-L9_ENABLE_AGENTS_CURSOR_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_AGENTS_CURSOR_AUDIT: true    # Enable audit logging
+L9_ENABLE_AGENTS_CURSOR_TRACING: true # Enable detailed tracing
+L9_ENABLE_AGENTS_CURSOR_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_AGENTS_CURSOR_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -322,7 +321,6 @@ Direct HTTP API request (FALLBACK ONLY).
 - **File:** `cursor_memory_client.py:197`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -363,6 +361,7 @@ Agents Cursor operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -370,12 +369,12 @@ Agents Cursor operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                | Type      | Description                    |
+| ------------------------------------- | --------- | ------------------------------ |
 | `agents_cursor_operation_duration_ms` | Histogram | Operation latency distribution |
-| `agents_cursor_operation_total` | Counter | Total operations processed |
-| `agents_cursor_error_total` | Counter | Total errors encountered |
-| `agents_cursor_active_connections` | Gauge | Current active connections |
+| `agents_cursor_operation_total`       | Counter   | Total operations processed     |
+| `agents_cursor_error_total`           | Counter   | Total errors encountered       |
+| `agents_cursor_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -393,6 +392,7 @@ Agents Cursor emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/agents_cursor/`:
+
 - `test_agents_cursor.py` — Core unit tests
 - `test_agents_cursor_integration.py` — Integration tests (if applicable)
 
@@ -436,6 +436,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

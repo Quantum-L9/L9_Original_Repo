@@ -61,7 +61,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -144,7 +144,7 @@ class SubstrateState(BaseModel):
     """
 
     envelope: Any  # PacketEnvelope - imported at runtime to avoid circular imports
-    reasoning_block: Optional[StructuredReasoningBlock] = None
+    reasoning_block: StructuredReasoningBlock | None = None
     written_tables: list[str] = Field(default_factory=list)
     embedding_generated: bool = False
     checkpoint_saved: bool = False
@@ -165,7 +165,7 @@ class AgentMemoryEventRow(BaseModel):
     event_id: UUID
     agent_id: str
     timestamp: datetime
-    packet_id: Optional[UUID]
+    packet_id: UUID | None
     event_type: str
     content: dict[str, Any]
 
@@ -174,7 +174,7 @@ class SemanticMemoryRow(BaseModel):
     """DTO for semantic_memory table."""
 
     embedding_id: UUID
-    agent_id: Optional[str]
+    agent_id: str | None
     vector: list[float]  # 1536 dimensions
     payload: dict[str, Any]
     created_at: datetime
@@ -185,13 +185,13 @@ class ReasoningTraceRow(BaseModel):
 
     trace_id: UUID
     agent_id: str
-    packet_id: Optional[UUID]
-    steps: Optional[dict[str, Any]]
-    extracted_features: Optional[dict[str, Any]]
-    inference_steps: Optional[list[dict[str, Any]]]
-    reasoning_tokens: Optional[list[str]]
-    decision_tokens: Optional[list[str]]
-    confidence_scores: Optional[dict[str, float]]
+    packet_id: UUID | None
+    steps: dict[str, Any] | None
+    extracted_features: dict[str, Any] | None
+    inference_steps: list[dict[str, Any]] | None
+    reasoning_tokens: list[str] | None
+    decision_tokens: list[str] | None
+    confidence_scores: dict[str, float] | None
     created_at: datetime
 
 
@@ -203,36 +203,36 @@ class PacketStoreRow(BaseModel):
     packet_type: str
     envelope: dict[str, Any]
     timestamp: datetime
-    routing: Optional[dict[str, Any]] = None
-    provenance: Optional[dict[str, Any]] = None
+    routing: dict[str, Any] | None = None
+    provenance: dict[str, Any] | None = None
 
     # Threading & lineage (migration 0002)
-    thread_id: Optional[UUID] = None
+    thread_id: UUID | None = None
     parent_ids: list[UUID] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
-    ttl: Optional[datetime] = None
+    ttl: datetime | None = None
 
     # 10X Enhancements (migration 0008)
-    scope: Optional[str] = "shared"
-    importance_score: Optional[float] = 0.5
-    access_count: Optional[int] = 0
-    last_accessed: Optional[datetime] = None
-    confidence_updated_at: Optional[datetime] = None
-    contradiction_count: Optional[int] = 0
-    chunk_count: Optional[int] = 1
-    is_chunked: Optional[bool] = False
-    content_hash: Optional[str] = None
-    processing_status: Optional[str] = "complete"
+    scope: str | None = "shared"
+    importance_score: float | None = 0.5
+    access_count: int | None = 0
+    last_accessed: datetime | None = None
+    confidence_updated_at: datetime | None = None
+    contradiction_count: int | None = 0
+    chunk_count: int | None = 1
+    is_chunked: bool | None = False
+    content_hash: str | None = None
+    processing_status: str | None = "complete"
 
     # Multi-tenant identity (migration 0008)
-    tenant_id: Optional[UUID] = None
-    org_id: Optional[UUID] = None
-    user_id: Optional[UUID] = None
-    correlation_id: Optional[UUID] = None
+    tenant_id: UUID | None = None
+    org_id: UUID | None = None
+    user_id: UUID | None = None
+    correlation_id: UUID | None = None
 
     # Tracing (migration 0008)
-    session_id: Optional[str] = None
-    trace_id: Optional[str] = None
+    session_id: str | None = None
+    trace_id: str | None = None
 
 
 class GraphCheckpointRow(BaseModel):
@@ -242,10 +242,8 @@ class GraphCheckpointRow(BaseModel):
     agent_id: str
     graph_state: dict[str, Any]
     updated_at: datetime
-    reason: Optional[str] = (
-        None  # Added in migration 0014, optional for backward compat
-    )
-    checkpoint_number: Optional[int] = None  # Added in migration 0014
+    reason: str | None = None  # Added in migration 0014, optional for backward compat
+    checkpoint_number: int | None = None  # Added in migration 0014
 
 
 # =============================================================================
@@ -268,7 +266,7 @@ class KnowledgeFact(BaseModel):
     confidence: float = Field(
         default=0.8, ge=0.0, le=1.0, description="Extraction confidence"
     )
-    source_packet: Optional[UUID] = Field(None, description="Originating packet ID")
+    source_packet: UUID | None = Field(None, description="Originating packet ID")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -280,37 +278,37 @@ class KnowledgeFactRow(BaseModel):
     subject: str
     predicate: str
     object: Any
-    confidence: Optional[float] = 0.8
-    source_packet: Optional[UUID] = None
+    confidence: float | None = 0.8
+    source_packet: UUID | None = None
     created_at: datetime
 
     # Entity normalization (migration 0008)
-    subject_normalized: Optional[str] = None
-    object_normalized: Optional[str] = None
-    object_type: Optional[str] = "value"
+    subject_normalized: str | None = None
+    object_normalized: str | None = None
+    object_type: str | None = "value"
 
     # Confidence decay tracking (migration 0008)
-    confidence_updated_at: Optional[datetime] = None
-    contradiction_count: Optional[int] = 0
-    supporting_packet_count: Optional[int] = 1
+    confidence_updated_at: datetime | None = None
+    contradiction_count: int | None = 0
+    supporting_packet_count: int | None = 1
 
     # Access tracking (migration 0008)
-    access_count: Optional[int] = 0
-    last_accessed: Optional[datetime] = None
+    access_count: int | None = 0
+    last_accessed: datetime | None = None
 
     # Scope (migration 0008)
-    scope: Optional[str] = "shared"
+    scope: str | None = "shared"
 
     # Multi-tenant identity (migration 0008)
-    tenant_id: Optional[UUID] = None
-    org_id: Optional[UUID] = None
-    user_id: Optional[UUID] = None
-    correlation_id: Optional[UUID] = None
+    tenant_id: UUID | None = None
+    org_id: UUID | None = None
+    user_id: UUID | None = None
+    correlation_id: UUID | None = None
 
     # Deprecation (migration 0010)
-    deprecated: Optional[bool] = False
-    deprecated_at: Optional[datetime] = None
-    deprecated_reason: Optional[str] = None
+    deprecated: bool | None = False
+    deprecated_at: datetime | None = None
+    deprecated_reason: str | None = None
 
 
 class ExtractedInsight(BaseModel):
@@ -328,7 +326,7 @@ class ExtractedInsight(BaseModel):
     content: str = Field(..., description="Natural language insight description")
     entities: list[str] = Field(default_factory=list, description="Referenced entities")
     confidence: float = Field(default=0.7, ge=0.0, le=1.0)
-    source_packet: Optional[UUID] = None
+    source_packet: UUID | None = None
     facts: list[KnowledgeFact] = Field(
         default_factory=list, description="Supporting facts"
     )
@@ -361,7 +359,7 @@ class EnrichmentResult(BaseModel):
     insights: list[ExtractedInsight] = Field(
         default_factory=list, description="Higher-level extracted insights"
     )
-    reasoning_trace: Optional[StructuredReasoningBlock] = Field(
+    reasoning_trace: StructuredReasoningBlock | None = Field(
         None, description="Reasoning trace if generated during enrichment"
     )
 
@@ -398,7 +396,7 @@ class SemanticFactRow(BaseModel):
     tenant_id: UUID
     org_id: UUID
     user_id: UUID
-    agent_id: Optional[str] = None
+    agent_id: str | None = None
 
     # Fact content
     fact_text: str
@@ -407,27 +405,27 @@ class SemanticFactRow(BaseModel):
     )  # {subject, predicate, object}
 
     # Embedding (optional - not always loaded)
-    embedding: Optional[list[float]] = (
+    embedding: list[float] | None = (
         None  # 1536 dimensions (truncated from text-embedding-3-large)
     )
 
     # Importance and ranking
     importance: float = 0.5
     access_count: int = 0
-    last_accessed: Optional[datetime] = None
+    last_accessed: datetime | None = None
 
     # Categorization
     tags: list[str] = Field(default_factory=list)
     tier: str = "general"  # identity, project, session, general
 
     # Source tracking
-    source: Optional[str] = None
-    source_packet_id: Optional[UUID] = None
+    source: str | None = None
+    source_packet_id: UUID | None = None
 
     # Confidence and validation
     confidence: float = 0.8
-    validated_at: Optional[datetime] = None
-    validated_by: Optional[str] = None
+    validated_at: datetime | None = None
+    validated_by: str | None = None
 
     # Timestamps
     created_at: datetime
@@ -453,7 +451,7 @@ class EpisodicEventRow(BaseModel):
     tenant_id: UUID
     org_id: UUID
     user_id: UUID
-    agent_id: Optional[str] = None
+    agent_id: str | None = None
 
     # Event content
     observation: str  # What happened
@@ -461,30 +459,30 @@ class EpisodicEventRow(BaseModel):
 
     # Temporal information (CRITICAL)
     event_timestamp: datetime  # When it occurred
-    duration_seconds: Optional[int] = None
+    duration_seconds: int | None = None
 
     # Entity references
     entities: list[str] = Field(default_factory=list)
 
     # Context and outcome
     context: dict[str, Any] = Field(default_factory=dict)
-    outcome: Optional[str] = None
+    outcome: str | None = None
 
     # Importance and ranking
     severity: float = 0.5
     impact_score: float = 0.5
 
     # Lineage
-    source_packet_id: Optional[UUID] = None
-    parent_event_id: Optional[UUID] = None
+    source_packet_id: UUID | None = None
+    parent_event_id: UUID | None = None
 
     # Session/thread grouping
-    session_id: Optional[UUID] = None
-    thread_id: Optional[UUID] = None
+    session_id: UUID | None = None
+    thread_id: UUID | None = None
 
     # Decay and retention
     decay_factor: float = 1.0
-    last_recalled: Optional[datetime] = None
+    last_recalled: datetime | None = None
     recall_count: int = 0
 
     # Timestamps

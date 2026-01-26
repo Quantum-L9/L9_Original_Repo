@@ -1,6 +1,6 @@
 # =============================================================================
 # L9 Infrastructure - Terraform
-# 
+#
 # Provisions a VPS with all necessary resources.
 # Supports: DigitalOcean, Hetzner, AWS EC2
 #
@@ -15,20 +15,20 @@
 
 terraform {
   required_version = ">= 1.0"
-  
+
   required_providers {
     # Uncomment the provider you're using
-    
+
     # digitalocean = {
     #   source  = "digitalocean/digitalocean"
     #   version = "~> 2.0"
     # }
-    
+
     hetzner = {
       source  = "hetznercloud/hcloud"
       version = "~> 1.45"
     }
-    
+
     # aws = {
     #   source  = "hashicorp/aws"
     #   version = "~> 5.0"
@@ -95,38 +95,38 @@ resource "hcloud_server" "l9" {
   location    = var.region
   image       = "ubuntu-22.04"
   ssh_keys    = [data.hcloud_ssh_key.default.id]
-  
+
   labels = {
     project = "l9"
     env     = "production"
   }
-  
+
   # Bootstrap script - runs on first boot
   user_data = <<-EOF
     #!/bin/bash
-    
+
     # Update system
     apt-get update && apt-get upgrade -y
-    
+
     # Install essentials
     apt-get install -y curl git unzip
-    
+
     # Create admin user
     useradd -m -s /bin/bash admin
     usermod -aG sudo admin
     echo "admin ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/admin
-    
+
     # Copy SSH keys to admin
     mkdir -p /home/admin/.ssh
     cp /root/.ssh/authorized_keys /home/admin/.ssh/
     chown -R admin:admin /home/admin/.ssh
     chmod 700 /home/admin/.ssh
     chmod 600 /home/admin/.ssh/authorized_keys
-    
+
     # Install Docker
     curl -fsSL https://get.docker.com | sh
     usermod -aG docker admin
-    
+
     # Signal completion
     touch /tmp/bootstrap-complete
   EOF
@@ -135,7 +135,7 @@ resource "hcloud_server" "l9" {
 # Firewall
 resource "hcloud_firewall" "l9" {
   name = "${var.server_name}-fw"
-  
+
   # SSH
   rule {
     direction = "in"
@@ -143,7 +143,7 @@ resource "hcloud_firewall" "l9" {
     port      = "22"
     source_ips = ["0.0.0.0/0", "::/0"]
   }
-  
+
   # HTTP
   rule {
     direction = "in"
@@ -151,7 +151,7 @@ resource "hcloud_firewall" "l9" {
     port      = "80"
     source_ips = ["0.0.0.0/0", "::/0"]
   }
-  
+
   # HTTPS
   rule {
     direction = "in"
@@ -159,7 +159,7 @@ resource "hcloud_firewall" "l9" {
     port      = "443"
     source_ips = ["0.0.0.0/0", "::/0"]
   }
-  
+
   # Allow all outbound
   rule {
     direction = "out"
@@ -167,7 +167,7 @@ resource "hcloud_firewall" "l9" {
     port      = "any"
     destination_ips = ["0.0.0.0/0", "::/0"]
   }
-  
+
   rule {
     direction = "out"
     protocol  = "udp"
@@ -204,21 +204,21 @@ output "ssh_command" {
 output "next_steps" {
   description = "What to do next"
   value       = <<-EOF
-    
+
     Server provisioned! Next steps:
-    
+
     1. Wait for cloud-init to complete (~2 min):
        ssh admin@${hcloud_server.l9.ipv4_address} "ls /tmp/bootstrap-complete"
-    
+
     2. Run the full bootstrap script:
        ssh admin@${hcloud_server.l9.ipv4_address}
        curl -sL https://raw.githubusercontent.com/YOUR_REPO/l9/main/scripts/infra/bootstrap_vps.sh | sudo bash
-    
+
     3. Or manually:
        git clone YOUR_REPO /opt/l9
        cd /opt/l9
        ./scripts/infra/bootstrap_vps.sh
-    
+
   EOF
 }
 
@@ -230,46 +230,46 @@ output "next_steps" {
 # provider "digitalocean" {
 #   # Set DIGITALOCEAN_TOKEN environment variable
 # }
-# 
+#
 # data "digitalocean_ssh_key" "default" {
 #   name = var.ssh_key_name
 # }
-# 
+#
 # resource "digitalocean_droplet" "l9" {
 #   name     = var.server_name
 #   size     = var.server_type
 #   region   = var.region
 #   image    = "ubuntu-22-04-x64"
 #   ssh_keys = [data.digitalocean_ssh_key.default.id]
-#   
+#
 #   user_data = <<-EOF
 #     #!/bin/bash
 #     # Same bootstrap as above
 #   EOF
 # }
-# 
+#
 # resource "digitalocean_firewall" "l9" {
 #   name        = "${var.server_name}-fw"
 #   droplet_ids = [digitalocean_droplet.l9.id]
-#   
+#
 #   inbound_rule {
 #     protocol         = "tcp"
 #     port_range       = "22"
 #     source_addresses = ["0.0.0.0/0", "::/0"]
 #   }
-#   
+#
 #   inbound_rule {
 #     protocol         = "tcp"
 #     port_range       = "80"
 #     source_addresses = ["0.0.0.0/0", "::/0"]
 #   }
-#   
+#
 #   inbound_rule {
 #     protocol         = "tcp"
 #     port_range       = "443"
 #     source_addresses = ["0.0.0.0/0", "::/0"]
 #   }
-#   
+#
 #   outbound_rule {
 #     protocol              = "tcp"
 #     port_range            = "all"

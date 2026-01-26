@@ -465,14 +465,14 @@ def generate_gmp_spec_from_plan(plan: EvolutionPlan) -> str:
 # =============================================================================
 
 __all__ = [
+    "EvolutionPlan",
     # Data models
     "KernelUpdateProposal",
-    "EvolutionPlan",
+    "create_evolution_plan",
+    "generate_gmp_spec_from_plan",
     # Functions
     "generate_proposal_from_gap",
     "generate_proposals_from_reflection",
-    "create_evolution_plan",
-    "generate_gmp_spec_from_plan",
 ]
 
 # ============================================================================

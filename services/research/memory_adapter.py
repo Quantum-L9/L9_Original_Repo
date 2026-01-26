@@ -42,13 +42,17 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
 
-from core.schemas import (PacketConfidence, PacketEnvelope, PacketMetadata,
-                          PacketProvenance)
+from core.schemas import (
+    PacketConfidence,
+    PacketEnvelope,
+    PacketMetadata,
+    PacketProvenance,
+)
 from core.singleton_auto_registry import register_singleton
 from memory.substrate_models import StructuredReasoningBlock
 from memory.substrate_repository import SubstrateRepository, get_repository
@@ -68,7 +72,7 @@ class ResearchMemoryAdapter:
     - Store reasoning traces
     """
 
-    def __init__(self, repository: Optional[SubstrateRepository] = None):
+    def __init__(self, repository: SubstrateRepository | None = None):
         """
         Initialize adapter with optional repository.
 
@@ -109,7 +113,7 @@ class ResearchMemoryAdapter:
         payload = dict(state)
 
         # Create envelope
-        envelope = PacketEnvelope(
+        return PacketEnvelope(
             packet_id=uuid4(),
             packet_type=packet_type,
             timestamp=datetime.utcnow(),
@@ -137,7 +141,6 @@ class ResearchMemoryAdapter:
             ),
         )
 
-        return envelope
 
     def envelope_to_state(self, envelope: PacketEnvelope) -> ResearchGraphState:
         """
@@ -152,7 +155,7 @@ class ResearchMemoryAdapter:
         payload = envelope.payload
 
         # Reconstruct state from payload
-        state = ResearchGraphState(
+        return ResearchGraphState(
             thread_id=payload.get("thread_id", ""),
             request_id=payload.get("request_id", ""),
             user_id=payload.get("user_id", "anonymous"),
@@ -173,7 +176,6 @@ class ResearchMemoryAdapter:
             packet_id=str(envelope.packet_id),
         )
 
-        return state
 
     # =========================================================================
     # Checkpoint Operations (uses graph_checkpoints table)
@@ -214,7 +216,7 @@ class ResearchMemoryAdapter:
         self,
         thread_id: str,
         agent_id: str = "research_graph",
-    ) -> Optional[ResearchGraphState]:
+    ) -> ResearchGraphState | None:
         """
         Load research graph state from checkpoint.
 
@@ -245,7 +247,7 @@ class ResearchMemoryAdapter:
         agent_id: str,
         event_type: str,
         content: dict[str, Any],
-        packet_id: Optional[UUID] = None,
+        packet_id: UUID | None = None,
     ) -> UUID:
         """
         Log a memory event for an agent.
@@ -354,7 +356,7 @@ class ResearchMemoryAdapter:
         agent_id: str,
         level: str,
         message: str,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> UUID:
         """
         Write a log entry to agent_log table.
@@ -368,18 +370,17 @@ class ResearchMemoryAdapter:
         Returns:
             Log ID
         """
-        log_id = await self.repository.insert_log(
+        return await self.repository.insert_log(
             agent_id=agent_id,
             level=level,
             message=message,
             metadata=metadata,
         )
 
-        return log_id
 
 
 # Singleton adapter instance
-_adapter: Optional[ResearchMemoryAdapter] = None
+_adapter: ResearchMemoryAdapter | None = None
 
 
 @register_singleton(

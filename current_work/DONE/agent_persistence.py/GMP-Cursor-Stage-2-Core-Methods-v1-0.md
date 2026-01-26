@@ -1,10 +1,10 @@
 # GMP STAGE 2: Core Persistence Methods v1.0
 
-**Inherits from**: GMP-Action-Prompt-Canonical-v1.0.md  
-**Stage Purpose**: Implement 7 required checkpoint methods with full serialization and validation  
-**Dependencies**: Stage 1 (database schema + models exist)  
-**Duration**: ~4 hours  
-**Produces**: `memory/agent_persistence.py` with all 7 required methods  
+**Inherits from**: GMP-Action-Prompt-Canonical-v1.0.md
+**Stage Purpose**: Implement 7 required checkpoint methods with full serialization and validation
+**Dependencies**: Stage 1 (database schema + models exist)
+**Duration**: ~4 hours
+**Produces**: `memory/agent_persistence.py` with all 7 required methods
 
 ---
 

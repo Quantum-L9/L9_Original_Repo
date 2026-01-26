@@ -208,7 +208,7 @@ class TestPostgresLayer:
             # Check table exists
             exists = await conn.fetchval("""
                 SELECT EXISTS(
-                    SELECT 1 FROM information_schema.tables 
+                    SELECT 1 FROM information_schema.tables
                     WHERE table_name = 'packet_store'
                 )
             """)
@@ -216,8 +216,8 @@ class TestPostgresLayer:
 
             # Check key columns
             columns = await conn.fetch("""
-                SELECT column_name, data_type 
-                FROM information_schema.columns 
+                SELECT column_name, data_type
+                FROM information_schema.columns
                 WHERE table_name = 'packet_store'
                 ORDER BY ordinal_position
             """)
@@ -234,7 +234,7 @@ class TestPostgresLayer:
         async with pg_pool.acquire() as conn:
             exists = await conn.fetchval("""
                 SELECT EXISTS(
-                    SELECT 1 FROM information_schema.tables 
+                    SELECT 1 FROM information_schema.tables
                     WHERE table_name = 'memory_embeddings'
                 )
             """)
@@ -243,8 +243,8 @@ class TestPostgresLayer:
             # Check for vector column (L9 uses 'vector' not 'embedding')
             has_vector = await conn.fetchval("""
                 SELECT EXISTS(
-                    SELECT 1 FROM information_schema.columns 
-                    WHERE table_name = 'memory_embeddings' 
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'memory_embeddings'
                     AND column_name = 'vector'
                 )
             """)
@@ -256,8 +256,8 @@ class TestPostgresLayer:
                 has_col = await conn.fetchval(
                     """
                     SELECT EXISTS(
-                        SELECT 1 FROM information_schema.columns 
-                        WHERE table_name = 'memory_embeddings' 
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'memory_embeddings'
                         AND column_name = $1
                     )
                 """,

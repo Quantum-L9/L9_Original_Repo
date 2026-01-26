@@ -1,7 +1,7 @@
 # L9 Secure AI OS
 
-> **Version:** 2.3.0  
-> **Status:** Production Ready (VPS Deployed)  
+> **Version:** 2.3.0
+> **Status:** Production Ready (VPS Deployed)
 > **Updated:** 2026-01-20
 
 ---
@@ -19,6 +19,7 @@
 - **Five-Tier Observability** — Distributed tracing, failure detection, context strategies, metrics aggregation, multi-backend export (Console, Substrate, Datadog, Honeycomb)
 
 **Primary Goals:**
+
 - Secure, governed runtime for autonomous AI agents
 - Multi-layer memory (short-term, long-term, semantic, audit) with retrieval
 - Tool execution with sandboxing, approval gates, and rollback
@@ -142,12 +143,12 @@ L9/
 
 **MANDATORY FOR AI AGENTS**: Read ALL ADRs before code operations.
 
-| Key | Value |
-|-----|-------|
-| Location | `readme/adr/` |
-| Index | [`readme/adr/README.md`](readme/adr/README.md) |
-| Count | 35 ADRs (34 Accepted, 1 Proposed) |
-| Bootstrap | ADR-0035 |
+| Key       | Value                                          |
+| --------- | ---------------------------------------------- |
+| Location  | `readme/adr/`                                  |
+| Index     | [`readme/adr/README.md`](readme/adr/README.md) |
+| Count     | 35 ADRs (34 Accepted, 1 Proposed)              |
+| Bootstrap | ADR-0035                                       |
 
 ### AI Bootstrap Protocol
 
@@ -161,22 +162,22 @@ BEFORE ANY CODE OPERATION:
 
 ### Critical ADRs (Must-Know)
 
-| ADR | Constraint | Violation = |
-|-----|------------|-------------|
-| 0006 | All operations emit PacketEnvelope | Silent operations |
-| 0012 | Packets flow through DAG pipeline | Bypass = audit gap |
-| 0012 | Validation in `intake_node` only | Duplicate validation |
-| 0002 | TYPE_CHECKING for circular imports | Import errors |
-| 0003 | Module docstring + DORA metadata | Missing docs |
+| ADR  | Constraint                         | Violation =          |
+| ---- | ---------------------------------- | -------------------- |
+| 0006 | All operations emit PacketEnvelope | Silent operations    |
+| 0012 | Packets flow through DAG pipeline  | Bypass = audit gap   |
+| 0012 | Validation in `intake_node` only   | Duplicate validation |
+| 0002 | TYPE_CHECKING for circular imports | Import errors        |
+| 0003 | Module docstring + DORA metadata   | Missing docs         |
 
 ### Key Files for AI
 
-| What | Where |
-|------|-------|
-| PacketEnvelope schema | `core/schemas/packet_envelope_v2.py` |
-| Packet validation | `memory/validators/packet_validator.py` |
-| DAG pipeline | `memory/substrate_dag.py` |
-| Canonical ingestion | `memory/ingestion.py` → `ingest_packet()` |
+| What                  | Where                                     |
+| --------------------- | ----------------------------------------- |
+| PacketEnvelope schema | `core/schemas/packet_envelope_v2.py`      |
+| Packet validation     | `memory/validators/packet_validator.py`   |
+| DAG pipeline          | `memory/substrate_dag.py`                 |
+| Canonical ingestion   | `memory/ingestion.py` → `ingest_packet()` |
 
 ---
 
@@ -232,68 +233,68 @@ docker compose logs -f l9-api
 
 ### Core Routes
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | Root status |
-| `/health` | GET | Health check |
-| `/os/health` | GET | OS layer health |
-| `/os/status` | GET | System status |
+| Endpoint     | Method | Description     |
+| ------------ | ------ | --------------- |
+| `/`          | GET    | Root status     |
+| `/health`    | GET    | Health check    |
+| `/os/health` | GET    | OS layer health |
+| `/os/status` | GET    | System status   |
 
 ### Agent Routes
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/agent/health` | GET | Agent layer health |
-| `/agent/task` | POST | Submit agent task |
-| `/lchat` | POST | L-CTO chat endpoint |
-| `/wsagent` | WebSocket | Real-time agent communication |
+| Endpoint        | Method    | Description                   |
+| --------------- | --------- | ----------------------------- |
+| `/agent/health` | GET       | Agent layer health            |
+| `/agent/task`   | POST      | Submit agent task             |
+| `/lchat`        | POST      | L-CTO chat endpoint           |
+| `/wsagent`      | WebSocket | Real-time agent communication |
 
 ### Memory Routes (`/api/v1/memory`)
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/packet/{id}` | GET | Get packet by ID |
-| `/thread/{id}` | GET | Get thread packets |
-| `/ingest` | POST | Ingest packet |
-| `/hybrid/search` | POST | Semantic + filter search |
-| `/facts` | GET | Query knowledge facts |
-| `/insights` | GET | Query insights |
+| Endpoint         | Method | Description              |
+| ---------------- | ------ | ------------------------ |
+| `/packet/{id}`   | GET    | Get packet by ID         |
+| `/thread/{id}`   | GET    | Get thread packets       |
+| `/ingest`        | POST   | Ingest packet            |
+| `/hybrid/search` | POST   | Semantic + filter search |
+| `/facts`         | GET    | Query knowledge facts    |
+| `/insights`      | GET    | Query insights           |
 
 ### Governance & Compliance
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/commands/execute` | POST | Execute @L command |
-| `/commands/governance/feedback` | POST | Approval feedback |
-| `/compliance/report` | GET | Compliance summary |
-| `/compliance/audit-log` | GET | Audit trail |
+| Endpoint                        | Method | Description        |
+| ------------------------------- | ------ | ------------------ |
+| `/commands/execute`             | POST   | Execute @L command |
+| `/commands/governance/feedback` | POST   | Approval feedback  |
+| `/compliance/report`            | GET    | Compliance summary |
+| `/compliance/audit-log`         | GET    | Audit trail        |
 
 ### World Model
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/worldmodel/agents` | GET | Agent capabilities |
-| `/worldmodel/infra` | GET | Infrastructure status |
-| `/worldmodel/approvals` | GET | Approval history |
-| `/worldmodel/context` | POST | Contextual search |
+| Endpoint                | Method | Description           |
+| ----------------------- | ------ | --------------------- |
+| `/worldmodel/agents`    | GET    | Agent capabilities    |
+| `/worldmodel/infra`     | GET    | Infrastructure status |
+| `/worldmodel/approvals` | GET    | Approval history      |
+| `/worldmodel/context`   | POST   | Contextual search     |
 
 ---
 
 ## Key Modules
 
-| Module | Purpose | Status |
-|--------|---------|--------|
-| `core/agents/` | Agent execution, kernel loading, task management | ✅ Production |
-| `core/governance/` | Approval gates, pattern learning, validation | ✅ Production |
-| `core/commands/` | Igor @L command parsing, intent extraction | ✅ Production |
-| `core/compliance/` | Audit logging, compliance reporting | ✅ Production |
-| `core/testing/` | Test generation, recursive self-testing | ✅ Production |
-| `core/worldmodel/` | World model service, insight emission | ✅ Production |
+| Module                | Purpose                                                                          | Status        |
+| --------------------- | -------------------------------------------------------------------------------- | ------------- |
+| `core/agents/`        | Agent execution, kernel loading, task management                                 | ✅ Production |
+| `core/governance/`    | Approval gates, pattern learning, validation                                     | ✅ Production |
+| `core/commands/`      | Igor @L command parsing, intent extraction                                       | ✅ Production |
+| `core/compliance/`    | Audit logging, compliance reporting                                              | ✅ Production |
+| `core/testing/`       | Test generation, recursive self-testing                                          | ✅ Production |
+| `core/worldmodel/`    | World model service, insight emission                                            | ✅ Production |
 | `core/observability/` | Five-tier observability: tracing, failure detection, metrics, context strategies | ✅ Production |
-| `memory/` | PacketEnvelope, semantic search, insight extraction | ✅ Production |
-| `orchestrators/` | 7 orchestration patterns | ✅ Production |
-| `runtime/` | Kernel loader, task queue, WebSocket | ✅ Production |
-| `services/research/` | Perplexity research agents | ✅ Production |
+| `memory/`             | PacketEnvelope, semantic search, insight extraction                              | ✅ Production |
+| `orchestrators/`      | 7 orchestration patterns                                                         | ✅ Production |
+| `runtime/`            | Kernel loader, task queue, WebSocket                                             | ✅ Production |
+| `services/research/`  | Perplexity research agents                                                       | ✅ Production |
 
 ---
 
@@ -309,34 +310,34 @@ for f in migrations/0*.sql; do psql $DATABASE_URL -f $f; done
 python scripts/apply_migrations.py
 ```
 
-| Range | Purpose |
-|-------|---------|
-| 0001-0003 | Core memory substrate |
-| 0004-0007 | World model entities |
-| 0008-0009 | 10X upgrade + effectiveness |
-| 0010-0015 | Tool audit, checkpoints, governance |
+| Range     | Purpose                                    |
+| --------- | ------------------------------------------ |
+| 0001-0003 | Core memory substrate                      |
+| 0004-0007 | World model entities                       |
+| 0008-0009 | 10X upgrade + effectiveness                |
+| 0010-0015 | Tool audit, checkpoints, governance        |
 | 0016-0022 | Governance scope, semantic facts, temporal |
-| 0023-0024 | Strategy memory (Neo4j), CMTS |
+| 0023-0024 | Strategy memory (Neo4j), CMTS              |
 
 ---
 
 ## Configuration
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `DATABASE_URL` | Yes | — | PostgreSQL connection string |
-| `OPENAI_API_KEY` | No | — | For OpenAI embeddings/LLM |
-| `EMBEDDING_PROVIDER` | No | `openai` | `openai` or `stub` |
-| `EMBEDDING_MODEL` | No | `text-embedding-3-large` | Embedding model |
-| `L9_API_KEY` | No | — | API authentication key |
-| `LOG_LEVEL` | No | `INFO` | Logging level |
-| `SLACK_APP_ENABLED` | No | `false` | Enable Slack integration |
-| `L9_ENABLE_LEGACY_SLACK_ROUTER` | No | `true` | Use legacy Slack routing |
-| `L9_OBSERVABILITY` | No | `true` | Enable Five-Tier Observability system |
-| `OBS_ENABLED` | No | `true` | Observability subsystem enabled |
-| `OBS_SAMPLING_RATE` | No | `0.10` | Fraction of requests to sample (0.0-1.0) |
-| `OBS_EXPORTERS` | No | `console` | Exporters: console, file, substrate, datadog, honeycomb |
-| `OBS_SUBSTRATE_ENABLED` | No | `true` | Export spans to L9 Memory Substrate |
+| Variable                        | Required | Default                  | Description                                             |
+| ------------------------------- | -------- | ------------------------ | ------------------------------------------------------- |
+| `DATABASE_URL`                  | Yes      | —                        | PostgreSQL connection string                            |
+| `OPENAI_API_KEY`                | No       | —                        | For OpenAI embeddings/LLM                               |
+| `EMBEDDING_PROVIDER`            | No       | `openai`                 | `openai` or `stub`                                      |
+| `EMBEDDING_MODEL`               | No       | `text-embedding-3-large` | Embedding model                                         |
+| `L9_API_KEY`                    | No       | —                        | API authentication key                                  |
+| `LOG_LEVEL`                     | No       | `INFO`                   | Logging level                                           |
+| `SLACK_APP_ENABLED`             | No       | `false`                  | Enable Slack integration                                |
+| `L9_ENABLE_LEGACY_SLACK_ROUTER` | No       | `true`                   | Use legacy Slack routing                                |
+| `L9_OBSERVABILITY`              | No       | `true`                   | Enable Five-Tier Observability system                   |
+| `OBS_ENABLED`                   | No       | `true`                   | Observability subsystem enabled                         |
+| `OBS_SAMPLING_RATE`             | No       | `0.10`                   | Fraction of requests to sample (0.0-1.0)                |
+| `OBS_EXPORTERS`                 | No       | `console`                | Exporters: console, file, substrate, datadog, honeycomb |
+| `OBS_SUBSTRATE_ENABLED`         | No       | `true`                   | Export spans to L9 Memory Substrate                     |
 
 ---
 
@@ -358,6 +359,7 @@ pytest tests/core/agents/ -v
 ```
 
 **Test Coverage (as of 2026-01-11):**
+
 - 54+ integration tests passing
 - 119+ test files total
 - Key test suites: closed_loop_learning (7), world_model (19), recursive_self_testing (20), compliance_audit (15), observability (32)
@@ -384,6 +386,7 @@ curl -sS http://127.0.0.1:8000/health | jq .
 ```
 
 **VPS Details:**
+
 - IP: 157.180.73.53
 - Domain: l9.quantumaipartners.com (Cloudflare proxied)
 - Ports: 8000 (l9-api), 9001 (mcp-memory)
@@ -392,20 +395,20 @@ curl -sS http://127.0.0.1:8000/health | jq .
 
 ## Recent GMPs Completed
 
-| GMP | Description | Date |
-|-----|-------------|------|
-| GMP-48 | Cursor + LangGraph + L9 Memory Integration | 2026-01-11 |
-| GMP-47 | Stub Elimination (Fail Loudly + Implement) | 2026-01-09 |
-| GMP-46 | OpenAI Tool Name Validation | 2026-01-08 |
-| GMP-45 | ToolInputSanitizer + ModuleRegistry | 2026-01-08 |
-| GMP-44 | Auto-Discovery Tool Capabilities | 2026-01-08 |
-| GMP-34 | EmbeddingProvider Default (stub → openai) | 2026-01-09 |
-| GMP-33 | CircuitBreaker Memory Wiring | 2026-01-09 |
-| GMP-32 | CircuitBreaker Integration | 2026-01-09 |
-| GMP-21 | Compliance audit trail and reporting | 2026-01-01 |
-| GMP-19 | Recursive self-testing and validation | 2026-01-01 |
-| GMP-18 | World model population and reasoning | 2026-01-01 |
-| GMP-16 | Closed-loop learning from approvals | 2026-01-01 |
+| GMP    | Description                                   | Date       |
+| ------ | --------------------------------------------- | ---------- |
+| GMP-48 | Cursor + LangGraph + L9 Memory Integration    | 2026-01-11 |
+| GMP-47 | Stub Elimination (Fail Loudly + Implement)    | 2026-01-09 |
+| GMP-46 | OpenAI Tool Name Validation                   | 2026-01-08 |
+| GMP-45 | ToolInputSanitizer + ModuleRegistry           | 2026-01-08 |
+| GMP-44 | Auto-Discovery Tool Capabilities              | 2026-01-08 |
+| GMP-34 | EmbeddingProvider Default (stub → openai)     | 2026-01-09 |
+| GMP-33 | CircuitBreaker Memory Wiring                  | 2026-01-09 |
+| GMP-32 | CircuitBreaker Integration                    | 2026-01-09 |
+| GMP-21 | Compliance audit trail and reporting          | 2026-01-01 |
+| GMP-19 | Recursive self-testing and validation         | 2026-01-01 |
+| GMP-18 | World model population and reasoning          | 2026-01-01 |
+| GMP-16 | Closed-loop learning from approvals           | 2026-01-01 |
 | GMP-11 | Igor command interface with intent extraction | 2026-01-01 |
 
 See [reports/](reports/) for detailed execution reports.
@@ -414,29 +417,29 @@ See [reports/](reports/) for detailed execution reports.
 
 ## Documentation
 
-| Document | Location | Purpose |
-|----------|----------|---------|
-| Go-Live Checklist | [docs/Go-Live.md](docs/Go-Live.md) | VPS deployment guide |
-| Roadmap | [docs/ROADMAP.md](docs/ROADMAP.md) | Development roadmap |
-| Memory Substrate | [memory/README.md](memory/README.md) | Memory system docs |
-| Observability | [core/observability/OBSERVABILITY.md](core/observability/OBSERVABILITY.md) | Five-tier observability system |
-| Kernel Loading | [private/kernels/00_system/Loading Instructions.md](private/kernels/00_system/Loading%20Instructions.md) | Kernel config |
-| GMP Reports | [reports/](reports/) | Execution reports (25 files) |
-| Cursor Briefs | [docs/cursor-briefs/](docs/cursor-briefs/) | Analysis briefs (52 files) |
+| Document          | Location                                                                                                 | Purpose                        |
+| ----------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Go-Live Checklist | [docs/Go-Live.md](docs/Go-Live.md)                                                                       | VPS deployment guide           |
+| Roadmap           | [docs/ROADMAP.md](docs/ROADMAP.md)                                                                       | Development roadmap            |
+| Memory Substrate  | [memory/README.md](memory/README.md)                                                                     | Memory system docs             |
+| Observability     | [core/observability/OBSERVABILITY.md](core/observability/OBSERVABILITY.md)                               | Five-tier observability system |
+| Kernel Loading    | [private/kernels/00_system/Loading Instructions.md](private/kernels/00_system/Loading%20Instructions.md) | Kernel config                  |
+| GMP Reports       | [reports/](reports/)                                                                                     | Execution reports (25 files)   |
+| Cursor Briefs     | [docs/cursor-briefs/](docs/cursor-briefs/)                                                               | Analysis briefs (52 files)     |
 
 ---
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 2.3.0 | 2026-01-20 | ADR Bootstrap Protocol (ADR-0035), Validation enforcement docs, README AI compatibility |
-| 2.2.0 | 2026-01-11 | Cursor+LangGraph integration (GMP-48), Five-Tier Observability, Stub Elimination (GMP-47), CircuitBreaker (GMP-32/33), Tool improvements (GMP-44/45/46) |
-| 2.1.0 | 2026-01-01 | 4 HIGH GMPs (16,18,19,21), Emma Substrate 10X, Igor commands, 54 tests |
-| 2.0.0 | 2025-12-31 | Research Factory, SymPy integration, CodeGenAgent specs |
-| 1.1.0 | 2025-12-08 | Insight extraction, knowledge facts, world model integration |
-| 1.0.0 | 2025-12-01 | Initial memory substrate release |
+| Version | Date       | Changes                                                                                                                                                 |
+| ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2.3.0   | 2026-01-20 | ADR Bootstrap Protocol (ADR-0035), Validation enforcement docs, README AI compatibility                                                                 |
+| 2.2.0   | 2026-01-11 | Cursor+LangGraph integration (GMP-48), Five-Tier Observability, Stub Elimination (GMP-47), CircuitBreaker (GMP-32/33), Tool improvements (GMP-44/45/46) |
+| 2.1.0   | 2026-01-01 | 4 HIGH GMPs (16,18,19,21), Emma Substrate 10X, Igor commands, 54 tests                                                                                  |
+| 2.0.0   | 2025-12-31 | Research Factory, SymPy integration, CodeGenAgent specs                                                                                                 |
+| 1.1.0   | 2025-12-08 | Insight extraction, knowledge facts, world model integration                                                                                            |
+| 1.0.0   | 2025-12-01 | Initial memory substrate release                                                                                                                        |
 
 ---
 
-*L9 Secure AI OS — Internal Use*
+_L9 Secure AI OS — Internal Use_

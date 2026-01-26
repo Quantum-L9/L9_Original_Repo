@@ -39,7 +39,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -86,7 +86,7 @@ class CommandExecuteResponse(BaseModel):
 
     success: bool = Field(..., description="Whether command executed successfully")
     command_id: str = Field(..., description="Command identifier")
-    task_id: Optional[str] = Field(None, description="Created task ID if applicable")
+    task_id: str | None = Field(None, description="Created task ID if applicable")
     message: str = Field(..., description="Result message")
     data: dict[str, Any] = Field(default_factory=dict, description="Result data")
     requires_confirmation: bool = Field(
@@ -106,7 +106,7 @@ class IntentExtractResponse(BaseModel):
         default_factory=list, description="Ambiguous elements"
     )
     is_ambiguous: bool = Field(..., description="Whether intent is ambiguous")
-    suggested_command: Optional[dict[str, Any]] = Field(
+    suggested_command: dict[str, Any] | None = Field(
         None, description="Suggested structured command"
     )
 
@@ -204,7 +204,7 @@ async def execute_command(
             requires_confirmation=False,
         )
 
-    elif isinstance(parsed, NLPPrompt):
+    if isinstance(parsed, NLPPrompt):
         # NLP prompt - extract intent first
         logger.debug("Parsed as NLP prompt, extracting intent")
 
@@ -314,9 +314,8 @@ async def execute_command(
             data={"intent_type": intent.intent_type.value},
         )
 
-    else:
-        # Should not happen
-        raise HTTPException(status_code=500, detail="Unexpected parse result type")
+    # Should not happen
+    raise HTTPException(status_code=500, detail="Unexpected parse result type")
 
 
 @router.post("/parse")
@@ -339,13 +338,12 @@ async def parse_command_endpoint(
             "type": "structured",
             "command": parsed.dict(),
         }
-    elif isinstance(parsed, NLPPrompt):
+    if isinstance(parsed, NLPPrompt):
         return {
             "type": "nlp",
             "prompt": parsed.dict(),
         }
-    else:
-        raise HTTPException(status_code=500, detail="Unexpected parse result")
+    raise HTTPException(status_code=500, detail="Unexpected parse result")
 
 
 @router.post("/intent")
@@ -420,8 +418,8 @@ class ApprovalFeedbackRequest(BaseModel):
     decision: str = Field(..., description="'approved' or 'rejected'")
     reason: str = Field(..., description="Reason for decision")
     approver: str = Field(default="Igor", description="Who made the decision")
-    tool_name: Optional[str] = Field(None, description="Tool involved")
-    task_type: Optional[str] = Field(None, description="Type of task")
+    tool_name: str | None = Field(None, description="Tool involved")
+    task_type: str | None = Field(None, description="Type of task")
     context: dict[str, Any] = Field(
         default_factory=dict, description="Additional context"
     )
@@ -506,7 +504,7 @@ async def record_approval_feedback(
         logger.exception(f"Failed to record approval feedback: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to record feedback: {str(e)}",
+            detail=f"Failed to record feedback: {e!s}",
         ) from e
 
 

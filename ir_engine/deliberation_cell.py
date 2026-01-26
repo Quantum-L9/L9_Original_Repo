@@ -36,15 +36,23 @@ __dora_meta__ = {
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
 from openai import AsyncOpenAI
 
-from ir_engine.ir_schema import (ActionNode, ActionType, ConstraintNode,
-                                 ConstraintType, IntentNode, IntentType,
-                                 IRGraph, IRStatus, NodePriority)
+from ir_engine.ir_schema import (
+    ActionNode,
+    ActionType,
+    ConstraintNode,
+    ConstraintType,
+    IntentNode,
+    IntentType,
+    IRGraph,
+    IRStatus,
+    NodePriority,
+)
 from ir_engine.ir_validator import IRValidator
 from ir_engine.semantic_compiler import SemanticCompiler
 
@@ -160,7 +168,7 @@ class DeliberationCell:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         model: str = "gpt-4o",
         max_rounds: int = 5,
         consensus_threshold: float = 0.85,
@@ -174,7 +182,7 @@ class DeliberationCell:
             max_rounds: Maximum deliberation rounds
             consensus_threshold: Score threshold for consensus
         """
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
         self._api_key = api_key
         self._model = model
         self._max_rounds = max_rounds
@@ -201,8 +209,8 @@ class DeliberationCell:
     async def deliberate(
         self,
         task: str,
-        initial_graph: Optional[IRGraph] = None,
-        context: Optional[dict[str, Any]] = None,
+        initial_graph: IRGraph | None = None,
+        context: dict[str, Any] | None = None,
     ) -> DeliberationResult:
         """
         Run deliberation process on a task.

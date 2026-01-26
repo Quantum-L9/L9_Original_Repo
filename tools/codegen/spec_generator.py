@@ -162,7 +162,7 @@ class L9SpecGenerator:
         context = self._build_context(concept)
 
         # Create PLAN spec
-        plan = PlanSpec(
+        return PlanSpec(
             plan_id=plan_id,
             type="implementation",
             project_id=project_id,
@@ -176,7 +176,6 @@ class L9SpecGenerator:
             created_by="L_architect",
         )
 
-        return plan
 
     def _build_task_description(self, concept: ConceptSpec) -> str:
         """Build task description from concept."""
@@ -382,17 +381,17 @@ class {{ComponentName}}Output(BaseModel):
 async def {{component_name}}(input: {{ComponentName}}Input) -> {{ComponentName}}Output:
     \"\"\"
     {{Component description from spec}}.
-    
+
     Args:
         input: {{Input description}}
-    
+
     Returns:
         {{Output description}}
     \"\"\"
     logger.info("{{component_name}}_called", input=input.dict())
-    
+
     # Implementation here
-    
+
     logger.info("{{component_name}}_completed", output=output.dict())
     return output
 ```

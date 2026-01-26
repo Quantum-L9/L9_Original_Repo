@@ -42,15 +42,24 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 import structlog
 from openai import AsyncOpenAI
 
-from ir_engine.ir_schema import (ActionNode, ActionType, ConstraintNode,
-                                 ConstraintType, IntentNode, IntentType,
-                                 IRGraph, IRMetadata, IRStatus, NodePriority)
+from ir_engine.ir_schema import (
+    ActionNode,
+    ActionType,
+    ConstraintNode,
+    ConstraintType,
+    IntentNode,
+    IntentType,
+    IRGraph,
+    IRMetadata,
+    IRStatus,
+    NodePriority,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -112,7 +121,7 @@ class SemanticCompiler:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         model: str = "gpt-4o",
         temperature: float = 0.3,
     ):
@@ -124,7 +133,7 @@ class SemanticCompiler:
             model: LLM model to use
             temperature: Generation temperature
         """
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
         self._api_key = api_key
         self._model = model
         self._temperature = temperature
@@ -144,9 +153,9 @@ class SemanticCompiler:
     async def compile(
         self,
         text: str,
-        context: Optional[dict[str, Any]] = None,
-        session_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        context: dict[str, Any] | None = None,
+        session_id: str | None = None,
+        user_id: str | None = None,
     ) -> IRGraph:
         """
         Compile natural language text into an IR graph.
@@ -205,7 +214,7 @@ class SemanticCompiler:
     async def _extract_semantic_structure(
         self,
         text: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Extract semantic structure from text using LLM.
@@ -315,7 +324,7 @@ class SemanticCompiler:
         priority = self._parse_priority(data.get("priority", "medium"))
 
         # Find derived_from intent
-        derived_from: Optional[UUID] = None
+        derived_from: UUID | None = None
         derived_desc = data.get("derived_from", "")
         if derived_desc in intent_map:
             derived_from = intent_map[derived_desc]

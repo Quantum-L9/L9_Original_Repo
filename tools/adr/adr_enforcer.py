@@ -39,10 +39,9 @@ import ast
 import json
 import re
 import sys
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 try:
     import structlog
@@ -71,7 +70,7 @@ class Violation:
     fix: str = ""
     code_snippet: str = ""
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return asdict(self)
 
 
@@ -87,7 +86,7 @@ class ValidationReport:
     files_scanned: int = 0
     high_priority_violations: list[Violation] = field(default_factory=list)
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "timestamp": self.timestamp,
             "total_violations": self.total_violations,
@@ -276,9 +275,7 @@ class ADREnforcementValidator:
         if isinstance(test, ast.Name) and test.id == "TYPE_CHECKING":
             return True
         # Handle: if typing.TYPE_CHECKING:
-        if isinstance(test, ast.Attribute) and test.attr == "TYPE_CHECKING":
-            return True
-        return False
+        return bool(isinstance(test, ast.Attribute) and test.attr == "TYPE_CHECKING")
 
     def _detect_cycles(self, graph: dict[str, set[str]]) -> list[list[str]]:
         visited: set[str] = set()
@@ -307,7 +304,7 @@ class ADREnforcementValidator:
             path.pop()
             stack.remove(node)
 
-        for node in graph.keys():
+        for node in graph:
             if node not in visited:
                 dfs(node)
 
@@ -320,7 +317,7 @@ class ADREnforcementValidator:
         cycles = self._detect_cycles(graph)
 
         for cycle in cycles:
-            cycle_str = " -> ".join(cycle + [cycle[0]])
+            cycle_str = " -> ".join([*cycle, cycle[0]])
             violations.append(
                 Violation(
                     adr="ADR-0002",
@@ -357,7 +354,7 @@ class ADREnforcementValidator:
             return violations
 
         # Skip module docstring check for __init__.py files
-        if not path.name == "__init__.py" and not ast.get_docstring(tree):
+        if path.name != "__init__.py" and not ast.get_docstring(tree):
             violations.append(
                 Violation(
                     adr="ADR-0003",
@@ -611,28 +608,76 @@ class ADREnforcementValidator:
     # ===== ADR-0026: Protocol-based abstractions =====
 
     def check_adr_0026(self, path: Path) -> list[Violation]:
-        """Encourage Protocol-based abstractions instead of only ABC."""
+        """Encourage Protocol-based abstractions for PURE interfaces.
+
+        Only flags ABC usage when it's a pure interface (only abstract methods,
+        no concrete implementations). Base classes with concrete code legitimately
+        use ABC for inheritance.
+        """
         violations: list[Violation] = []
         text = self._read(path)
-        lines = text.splitlines()
 
-        uses_abc = any("from abc import" in l or "import abc" in l for l in lines)
-        uses_protocol = "Protocol" in text
+        # Quick check: skip if no ABC
+        if "from abc import" not in text and "import abc" not in text:
+            return violations
 
-        if uses_abc and not uses_protocol:
-            for lineno, line in enumerate(lines, start=1):
-                if "from abc import" in line or "import abc" in line:
-                    violations.append(
-                        Violation(
-                            adr="ADR-0026",
-                            severity="MEDIUM",
-                            file=str(path),
-                            line=lineno,
-                            issue="Using ABC without Protocol-based abstractions.",
-                            fix="Consider using typing.Protocol for structural contracts (ADR-0026).",
-                            code_snippet=line.strip(),
-                        )
+        # If already using Protocol alongside ABC, that's fine
+        if "Protocol" in text:
+            return violations
+
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            return violations
+
+        # Find ABC subclasses and check if they're pure interfaces
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.ClassDef):
+                continue
+
+            # Check if class inherits from ABC
+            inherits_abc = any(
+                (isinstance(base, ast.Name) and base.id == "ABC")
+                or (isinstance(base, ast.Attribute) and base.attr == "ABC")
+                for base in node.bases
+            )
+
+            if not inherits_abc:
+                continue
+
+            # Count abstract vs concrete methods
+            abstract_count = 0
+            concrete_count = 0
+
+            for item in node.body:
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    # Check if method has @abstractmethod decorator
+                    is_abstract = any(
+                        (isinstance(d, ast.Name) and d.id == "abstractmethod")
+                        or (isinstance(d, ast.Attribute) and d.attr == "abstractmethod")
+                        for d in item.decorator_list
                     )
+
+                    if is_abstract:
+                        abstract_count += 1
+                    elif not item.name.startswith("_"):
+                        # Non-private, non-abstract method = concrete
+                        concrete_count += 1
+
+            # Only flag if it's a PURE interface (all abstract, no concrete)
+            if abstract_count > 0 and concrete_count == 0:
+                violations.append(
+                    Violation(
+                        adr="ADR-0026",
+                        severity="LOW",  # Advisory - Protocol is preferred but not required
+                        file=str(path),
+                        line=node.lineno,
+                        issue=f"Class '{node.name}' is a pure interface using ABC.",
+                        fix="Consider using typing.Protocol for structural subtyping (duck typing).",
+                        code_snippet=f"class {node.name}(ABC):",
+                    )
+                )
+
         return violations
 
     # ===== ADR-0055: Fail-loudly vs silent failures =====

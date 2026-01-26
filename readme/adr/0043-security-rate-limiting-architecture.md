@@ -9,6 +9,7 @@
 ## Context
 
 The L9 platform requires protection against:
+
 1. **Code injection** via `eval()`, `exec()`, `__import__()`
 2. **API abuse** via missing rate limiting
 3. **Brute force attacks** on authentication endpoints
@@ -22,22 +23,22 @@ We maintain a **defense-in-depth** approach with multiple security layers:
 
 ### 1. Rate Limiting Architecture
 
-| Layer | File | Purpose | Algorithm |
-|-------|------|---------|-----------|
-| **General API** | `runtime/rate_limiter.py` | Per-endpoint rate limiting | Sliding window |
-| **Authentication** | `runtime/auth_rate_limiter.py` | Brute force prevention | IP + user tracking |
-| **MCP Memory** | `mcp_memory/src/rate_limiter.py` | Memory server protection | Versioned buckets |
-| **Tool Registry** | `core/tools/base_registry.py` | Per-tool rate limits | Sliding window |
-| **Policy Config** | `config/policies/rate_limits.yaml` | Centralized limits | YAML config |
+| Layer              | File                               | Purpose                    | Algorithm          |
+| ------------------ | ---------------------------------- | -------------------------- | ------------------ |
+| **General API**    | `runtime/rate_limiter.py`          | Per-endpoint rate limiting | Sliding window     |
+| **Authentication** | `runtime/auth_rate_limiter.py`     | Brute force prevention     | IP + user tracking |
+| **MCP Memory**     | `mcp_memory/src/rate_limiter.py`   | Memory server protection   | Versioned buckets  |
+| **Tool Registry**  | `core/tools/base_registry.py`      | Per-tool rate limits       | Sliding window     |
+| **Policy Config**  | `config/policies/rate_limits.yaml` | Centralized limits         | YAML config        |
 
 ### 2. Code Injection Prevention
 
-| Risk | Mitigation | Location |
-|------|------------|----------|
-| `eval()` in expressions | AST-based safe evaluator | `core/tools/base_registry.py:557-602` |
-| `eval()` in DI container | `typing.get_type_hints()` | `core/di/container.py:337-354` |
-| `eval()`/`exec()` in code exec | Forbidden pattern blocking | `runtime/execution_gate.py:127-131` |
-| `__import__()` dynamic imports | Direct static imports | All modules (enforced) |
+| Risk                           | Mitigation                 | Location                              |
+| ------------------------------ | -------------------------- | ------------------------------------- |
+| `eval()` in expressions        | AST-based safe evaluator   | `core/tools/base_registry.py:557-602` |
+| `eval()` in DI container       | `typing.get_type_hints()`  | `core/di/container.py:337-354`        |
+| `eval()`/`exec()` in code exec | Forbidden pattern blocking | `runtime/execution_gate.py:127-131`   |
+| `__import__()` dynamic imports | Direct static imports      | All modules (enforced)                |
 
 ### 3. Execution Gate (Defense Layer)
 
@@ -63,12 +64,14 @@ FORBIDDEN_PATTERNS = {
 **Purpose**: General-purpose sliding window rate limiter with Redis backend.
 
 **Key Features**:
+
 - Redis backend with automatic in-memory fallback
 - Sliding window algorithm (configurable window size)
 - Neo4j audit logging for rate limit events
 - Async-safe operations
 
 **Usage**:
+
 ```python
 from runtime.rate_limiter import RateLimiter
 
@@ -82,6 +85,7 @@ else:
 ```
 
 **Integration Points**:
+
 - `api/server.py` - API endpoint protection
 - `core/tools/base_registry.py` - Tool execution limits
 
@@ -92,6 +96,7 @@ else:
 **Purpose**: OWASP-compliant authentication rate limiting.
 
 **Key Features**:
+
 - Per-IP, per-user, and combined tracking
 - Automatic lockout after N failures (default: 5)
 - Progressive delays on failures (exponential backoff)
@@ -99,6 +104,7 @@ else:
 - Success clears user failure count
 
 **Usage**:
+
 ```python
 from runtime.auth_rate_limiter import get_auth_rate_limiter
 
@@ -117,6 +123,7 @@ await limiter.record_success(ip_address, username)
 ```
 
 **Integration Points**:
+
 - `api/auth.py` - Authentication endpoints
 - `api/dependencies.py` - FastAPI dependency injection
 
@@ -127,12 +134,14 @@ await limiter.record_success(ip_address, username)
 **Purpose**: Memory server-specific rate limiting with versioned buckets.
 
 **Key Features**:
+
 - Async-safe with lock protection
 - Version tracking for concurrency detection
 - Separate request and auth failure tracking
 - Immutable snapshots for auditing
 
 **Usage**:
+
 ```python
 from mcp_memory.src.rate_limiter import RateLimiter
 
@@ -154,17 +163,19 @@ if await limiter.is_rate_limited(ip):
 **Purpose**: Calculator tool that safely evaluates mathematical expressions.
 
 **Key Features**:
+
 - Uses `ast.parse()` + custom walker (NOT `eval()`)
 - Whitelist of allowed operations: `+`, `-`, `*`, `/`, `**`, unary `-`
 - Limited builtin functions: `abs`, `round`, `min`, `max`
 - Clear error messages for invalid expressions
 
 **Implementation** (lines 557-602):
+
 ```python
 def calculate_executor(expression: str) -> dict:
     import ast
     import operator
-    
+
     allowed_ops = {
         ast.Add: operator.add,
         ast.Sub: operator.sub,
@@ -173,7 +184,7 @@ def calculate_executor(expression: str) -> dict:
         ast.Pow: operator.pow,
         ast.USub: operator.neg,
     }
-    
+
     def eval_expr(node):
         if isinstance(node, ast.Constant):
             return node.value
@@ -183,7 +194,7 @@ def calculate_executor(expression: str) -> dict:
                 raise ValueError(f"Unsupported operation")
             return op(eval_expr(node.left), eval_expr(node.right))
         # ... more node types
-    
+
     tree = ast.parse(expression, mode='eval')
     result = eval_expr(tree.body)
     return {"result": result}
@@ -196,11 +207,13 @@ def calculate_executor(expression: str) -> dict:
 **Purpose**: Safe resolution of string type annotations without `eval()`.
 
 **Key Features**:
+
 - Uses `typing.get_type_hints()` instead of `eval()`
 - Handles forward references safely
 - Falls back gracefully on resolution failure
 
 **Implementation** (lines 337-354):
+
 ```python
 if isinstance(annotation, str):
     try:
@@ -223,11 +236,13 @@ if isinstance(annotation, str):
 **Purpose**: Final safety layer blocking dangerous code patterns.
 
 **Key Features**:
+
 - Pattern-based blocking for dangerous operations
 - Whitelist approach for allowed operations
 - Audit logging of blocked attempts
 
 **Forbidden Patterns**:
+
 ```python
 FORBIDDEN_PATTERNS = {
     "code": ["eval(", "exec(", "__import__", "open(", "os.system", ...],
@@ -285,30 +300,30 @@ auth:
 
 ### Core Security Files
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `runtime/rate_limiter.py` | 380 | General rate limiting |
-| `runtime/auth_rate_limiter.py` | 505 | Auth-specific rate limiting |
-| `runtime/execution_gate.py` | ~400 | Code execution safety |
-| `core/tools/base_registry.py` | 1327 | Safe expression evaluation |
-| `core/di/container.py` | 577 | Safe type resolution |
-| `mcp_memory/src/rate_limiter.py` | 207 | MCP rate limiting |
+| File                             | Lines | Purpose                     |
+| -------------------------------- | ----- | --------------------------- |
+| `runtime/rate_limiter.py`        | 380   | General rate limiting       |
+| `runtime/auth_rate_limiter.py`   | 505   | Auth-specific rate limiting |
+| `runtime/execution_gate.py`      | ~400  | Code execution safety       |
+| `core/tools/base_registry.py`    | 1327  | Safe expression evaluation  |
+| `core/di/container.py`           | 577   | Safe type resolution        |
+| `mcp_memory/src/rate_limiter.py` | 207   | MCP rate limiting           |
 
 ### Configuration Files
 
-| File | Purpose |
-|------|---------|
-| `config/policies/rate_limits.yaml` | Rate limit settings |
-| `core/governance/rate_limit_policy.py` | Policy enforcement |
+| File                                   | Purpose             |
+| -------------------------------------- | ------------------- |
+| `config/policies/rate_limits.yaml`     | Rate limit settings |
+| `core/governance/rate_limit_policy.py` | Policy enforcement  |
 
 ### Test Files
 
-| File | Purpose |
-|------|---------|
-| `tests/runtime/test_execution_gate.py` | Execution gate tests |
-| `tests/orchestrators/test_rate_limit_persistence.py` | Rate limit tests |
-| `mcp_memory/tests/test_rate_limiter.py` | MCP rate limiter tests |
-| `mcp_memory/tests/test_rate_limiting_enforcement.py` | Enforcement tests |
+| File                                                 | Purpose                |
+| ---------------------------------------------------- | ---------------------- |
+| `tests/runtime/test_execution_gate.py`               | Execution gate tests   |
+| `tests/orchestrators/test_rate_limit_persistence.py` | Rate limit tests       |
+| `mcp_memory/tests/test_rate_limiter.py`              | MCP rate limiter tests |
+| `mcp_memory/tests/test_rate_limiting_enforcement.py` | Enforcement tests      |
 
 ## Related
 

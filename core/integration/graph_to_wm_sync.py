@@ -44,6 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import contextlib
 import os
 from datetime import datetime
 from typing import Any
@@ -127,10 +128,8 @@ class GraphToWorldModelSync:
         self._running = False
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
             self._task = None
         logger.info("GraphToWorldModelSync stopped")
 

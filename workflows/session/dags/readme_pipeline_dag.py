@@ -76,15 +76,15 @@ KEY FILES:
 
 2. List all potential subsystem directories:
    ```bash
-   find . -type d -name "*.py" -prune -o -type d -print | 
-     grep -E "^\\./[a-z]" | 
+   find . -type d -name "*.py" -prune -o -type d -print |
+     grep -E "^\\./[a-z]" |
      grep -v -E "(node_modules|venv|__pycache__|.git)"
    ```
 
 3. Compare and identify:
    - Directories NOT in config (gaps)
    - Config entries with invalid paths (stale)
-   
+
 4. Document gaps in state:
    ```python
    state["gaps"] = ["core/new_module", "services/new_service"]

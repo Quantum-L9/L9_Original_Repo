@@ -5,9 +5,8 @@ Bind motif metadata to tensor routing packets and responses.
 Links the motif layer with the tensor coordination layer.
 """
 
-import logging
 from dataclasses import dataclass, field
-from typing import Dict, List, Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -23,7 +22,7 @@ class MotifMetadata:
     motif_type: str = ""
     confidence: float = 0.0
     source_component: str = ""
-    tags: Dict[str, Any] = field(default_factory=dict)
+    tags: dict[str, Any] = field(default_factory=dict)
 
 
 class TensorMotifLinker:
@@ -45,9 +44,9 @@ class TensorMotifLinker:
 
     def attach_motifs(
         self,
-        packet: Dict[str, Any],
-        motifs: List[MotifMetadata],
-    ) -> Dict[str, Any]:
+        packet: dict[str, Any],
+        motifs: list[MotifMetadata],
+    ) -> dict[str, Any]:
         """
         Attach motif metadata to a packet's metadata field.
 
@@ -83,7 +82,7 @@ class TensorMotifLinker:
 
         return packet
 
-    def extract_motifs(self, packet: Dict[str, Any]) -> List[MotifMetadata]:
+    def extract_motifs(self, packet: dict[str, Any]) -> list[MotifMetadata]:
         """
         Extract motif metadata from a packet if present.
 
@@ -112,10 +111,10 @@ class TensorMotifLinker:
 
     def bind_tensor_response(
         self,
-        packet: Dict[str, Any],
-        tensor_response: Dict[str, Any],
-        motifs: List[MotifMetadata],
-    ) -> Dict[str, Any]:
+        packet: dict[str, Any],
+        tensor_response: dict[str, Any],
+        motifs: list[MotifMetadata],
+    ) -> dict[str, Any]:
         """
         Bind motif metadata to a tensor response and return updated packet.
 
@@ -151,7 +150,7 @@ class TensorMotifLinker:
 
     def create_motif_from_tensor(
         self,
-        tensor_result: Dict[str, Any],
+        tensor_result: dict[str, Any],
         motif_type: str,
         source_component: str = "TensorMotifLinker",
     ) -> MotifMetadata:
@@ -177,4 +176,4 @@ class TensorMotifLinker:
         )
 
 
-__all__ = ["TensorMotifLinker", "MotifMetadata"]
+__all__ = ["MotifMetadata", "TensorMotifLinker"]

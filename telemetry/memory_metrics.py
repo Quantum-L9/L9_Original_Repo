@@ -543,23 +543,23 @@ def init_metrics() -> bool:
 
 __all__ = [
     "PROMETHEUS_AVAILABLE",
+    "init_metrics",
+    "record_latency",
+    "record_memory_dedup",
+    # Enrichment DAG metrics (SUPERPROMPTPACK)
+    "record_memory_enrichment",
+    # Audit mode metrics (v2.0)
+    "record_memory_ingest",
+    "record_memory_poison_suspect",
+    "record_memory_quarantine",
+    "record_memory_search",
     # Core metrics
     "record_memory_write",
-    "record_memory_search",
+    "record_retrieval_quality",
     "record_tool_invocation",
     "set_memory_substrate_health",
     "update_packet_store_size",
-    "init_metrics",
-    # Audit mode metrics (v2.0)
-    "record_memory_ingest",
-    "record_memory_dedup",
-    "record_memory_quarantine",
-    "record_memory_poison_suspect",
-    "record_retrieval_quality",
-    "record_latency",
     "update_vector_index_size",
-    # Enrichment DAG metrics (SUPERPROMPTPACK)
-    "record_memory_enrichment",
 ]
 
 # ============================================================================

@@ -42,7 +42,7 @@ __dora_meta__ = {
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -149,7 +149,7 @@ class RankingItem:
 
     # Raw factor values
     similarity_score: float = 0.0  # 0.0-1.0
-    timestamp: Optional[datetime] = None  # For recency calculation
+    timestamp: datetime | None = None  # For recency calculation
     importance: float = 0.5  # 0.0-1.0
     access_count: int = 0  # For frequency calculation
 
@@ -185,7 +185,7 @@ class MultiFactorRanker:
 
     def __init__(
         self,
-        weights: Optional[RankingWeights] = None,
+        weights: RankingWeights | None = None,
         recency_half_life_days: float = 30.0,
         frequency_scale: float = 10.0,
     ):
@@ -224,7 +224,7 @@ class MultiFactorRanker:
         self,
         items: list[RankingItem],
         agent_uncertainty: float = 0.5,
-        reference_time: Optional[datetime] = None,
+        reference_time: datetime | None = None,
     ) -> list[RankingItem]:
         """
         Rank items using multi-factor scoring.
@@ -264,7 +264,7 @@ class MultiFactorRanker:
         self,
         items: list[dict[str, Any]],
         agent_uncertainty: float = 0.5,
-        reference_time: Optional[datetime] = None,
+        reference_time: datetime | None = None,
     ) -> list[dict[str, Any]]:
         """
         Rank dictionaries using multi-factor scoring.
@@ -327,7 +327,7 @@ class MultiFactorRanker:
 
     def _compute_recency_score(
         self,
-        timestamp: Optional[datetime],
+        timestamp: datetime | None,
         reference_time: datetime,
     ) -> float:
         """
@@ -396,7 +396,7 @@ class MultiFactorRanker:
 
         return max(0.0, min(1.0, score))
 
-    def _parse_timestamp(self, value: Any) -> Optional[datetime]:
+    def _parse_timestamp(self, value: Any) -> datetime | None:
         """Parse timestamp from various formats."""
         if value is None:
             return None
@@ -463,7 +463,7 @@ class MultiFactorRanker:
 # =============================================================================
 
 
-_ranker: Optional[MultiFactorRanker] = None
+_ranker: MultiFactorRanker | None = None
 
 
 def get_multi_factor_ranker() -> MultiFactorRanker:

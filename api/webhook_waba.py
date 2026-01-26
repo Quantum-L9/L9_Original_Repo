@@ -19,6 +19,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import contextlib
 import hashlib
 import hmac
 import os
@@ -121,8 +122,7 @@ async def verify_waba_webhook(request: Request):
 
     if mode == "subscribe" and token == WABA_WEBHOOK_VERIFY_TOKEN:
         return JSONResponse(content={"hub.challenge": challenge})
-    else:
-        raise HTTPException(status_code=403, detail="Invalid verification token")
+    raise HTTPException(status_code=403, detail="Invalid verification token")
 
 
 @router.post("/waba/webhook", response_class=JSONResponse)
@@ -239,7 +239,7 @@ async def waba_webhook(request: Request):
 
             except Exception as e:
                 logger.error(f"Error processing WABA message: {e}")
-                try:
+                with contextlib.suppress(Exception):
                     await send_waba_message(
                         from_number,
                         "text",
@@ -248,8 +248,6 @@ async def waba_webhook(request: Request):
                             "body": "Error processing message. Please try again.",
                         },
                     )
-                except Exception:
-                    pass
 
     return JSONResponse(content={"status": "ok"})
 

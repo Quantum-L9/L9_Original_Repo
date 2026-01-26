@@ -33,14 +33,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncio
 import hashlib
 import json
-from datetime import datetime, timedelta
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, Dict, Optional, Tuple, Union
-from cachetools import TTLCache, LRUCache
+from typing import Any
+
 import structlog
+from cachetools import LRUCache, TTLCache
 
 logger = structlog.get_logger(__name__)
 
@@ -110,7 +110,7 @@ class QueryCache:
             enabled=enabled,
         )
 
-    def _make_cache_key(self, func_name: str, args: Tuple, kwargs: Dict) -> str:
+    def _make_cache_key(self, func_name: str, args: tuple, kwargs: dict) -> str:
         """
         Generate cache key from function name and arguments.
 
@@ -144,9 +144,9 @@ class QueryCache:
 
     def ttl(
         self,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
         cache_none: bool = False,
-        key_func: Optional[Callable] = None,
+        key_func: Callable | None = None,
     ):
         """
         TTL cache decorator for async functions.
@@ -223,9 +223,9 @@ class QueryCache:
 
     def lru(
         self,
-        maxsize: Optional[int] = None,
+        maxsize: int | None = None,
         cache_none: bool = False,
-        key_func: Optional[Callable] = None,
+        key_func: Callable | None = None,
     ):
         """
         LRU cache decorator for async functions.
@@ -290,7 +290,7 @@ class QueryCache:
 
         return decorator
 
-    def invalidate(self, pattern: Optional[str] = None):
+    def invalidate(self, pattern: str | None = None):
         """
         Invalidate cache entries.
 
@@ -304,8 +304,8 @@ class QueryCache:
             logger.info("cache_cleared", cache_type="all")
         else:
             # Clear matching keys
-            ttl_keys = [k for k in self.ttl_cache.keys() if pattern in k]
-            lru_keys = [k for k in self.lru_cache.keys() if pattern in k]
+            ttl_keys = [k for k in self.ttl_cache if pattern in k]
+            lru_keys = [k for k in self.lru_cache if pattern in k]
 
             for key in ttl_keys:
                 del self.ttl_cache[key]
@@ -319,7 +319,7 @@ class QueryCache:
                 lru_keys_removed=len(lru_keys),
             )
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """
         Get cache statistics.
 
@@ -358,7 +358,7 @@ class QueryCache:
 
 
 # Global cache instance
-_global_cache: Optional[QueryCache] = None
+_global_cache: QueryCache | None = None
 
 
 def get_cache() -> QueryCache:

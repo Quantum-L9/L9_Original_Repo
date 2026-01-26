@@ -23,16 +23,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from enum import Enum
-from typing import Dict, List, Optional, Any
 from datetime import datetime
+from enum import Enum
+from typing import Any
 from uuid import uuid4
-import hashlib
-from pydantic import BaseModel, Field, validator
 
-from core.eos.schemas import ActionEnvelope, EpistemicObject, EpistemicObjectType
+from pydantic import BaseModel, Field
+
+from core.eos.schemas import EpistemicObject, EpistemicObjectType
 from core.schemas.packet_envelope import PacketEnvelope
-
 
 # ─────────────────────────────────────────────────────────────────
 # INPUT: TensorRequest (Wrapped in PacketEnvelope)
@@ -56,10 +55,10 @@ class TensorRequest(BaseModel):
 
     request_id: str = Field(default_factory=lambda: str(uuid4()))
     domain_id: str = Field(..., description="Domain context")
-    entities: List[str] = Field(..., description="Entities to process")
+    entities: list[str] = Field(..., description="Entities to process")
     operation: TensorOperation = Field(...)
 
-    constraints: Dict[str, Any] = Field(
+    constraints: dict[str, Any] = Field(
         default_factory=dict,
         description="max_latency_ms, max_confidence, seed_for_determinism",
     )
@@ -95,11 +94,11 @@ class TensorResult(BaseModel):
     """Single tensor result (similarity score, prediction, etc.)"""
 
     entity_a: str
-    entity_b: Optional[str] = None
+    entity_b: str | None = None
     score: float = Field(..., ge=0.0, le=1.0)
     confidence: float = Field(..., ge=0.0, le=1.0)
     uncertainty: float = Field(..., ge=0.0, le=1.0, description="1 - confidence")
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class TensorResponse(BaseModel):
@@ -109,9 +108,9 @@ class TensorResponse(BaseModel):
     """
 
     request_id: str = Field(...)
-    results: List[TensorResult] = Field(...)
+    results: list[TensorResult] = Field(...)
 
-    model_metadata: Dict[str, str] = Field(
+    model_metadata: dict[str, str] = Field(
         description="model_id, version, training_domain"
     )
 

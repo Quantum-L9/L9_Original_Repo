@@ -81,10 +81,7 @@ def is_trash_embedding(payload: dict) -> bool:
             return True
 
     # Very short content
-    if len(text) < 20:
-        return True
-
-    return False
+    return len(text) < 20
 
 
 async def find_trash_embeddings_via_search(

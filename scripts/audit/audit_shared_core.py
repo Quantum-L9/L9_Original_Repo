@@ -39,7 +39,7 @@ from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 import structlog
 
@@ -73,7 +73,7 @@ class CacheManager:
             sha.update(f.read())
         return sha.hexdigest()
 
-    def load_manifest(self) -> Dict[str, CacheEntry]:
+    def load_manifest(self) -> dict[str, CacheEntry]:
         """Load cache manifest."""
         if not self.manifest_file.exists():
             return {}
@@ -83,17 +83,17 @@ class CacheManager:
         except (json.JSONDecodeError, TypeError):
             return {}
 
-    def save_manifest(self, manifest: Dict[str, CacheEntry]):
+    def save_manifest(self, manifest: dict[str, CacheEntry]):
         """Save cache manifest."""
         data = {k: asdict(v) for k, v in manifest.items()}
         self.manifest_file.write_text(json.dumps(data, indent=2))
 
     def get_modified_files(
         self,
-        all_files: List[Path],
+        all_files: list[Path],
         audit_type: str = "general",
-        repo_root: Path = None,
-    ) -> Set[Path]:
+        repo_root: Path | None = None,
+    ) -> set[Path]:
         """Return only modified files since last run."""
         manifest = self.load_manifest()
         modified = set()
@@ -102,20 +102,20 @@ class CacheManager:
             rel_path = str(filepath.relative_to(repo_root or filepath.parent))
             current_hash = self.get_file_hash(filepath)
 
-            if rel_path not in manifest:
-                modified.add(filepath)
-            elif manifest[rel_path].hash != current_hash:
-                modified.add(filepath)
-            elif manifest[rel_path].audit_type != audit_type:
+            if (
+                rel_path not in manifest
+                or manifest[rel_path].hash != current_hash
+                or manifest[rel_path].audit_type != audit_type
+            ):
                 modified.add(filepath)
 
         return modified
 
     def update_manifest(
         self,
-        all_files: List[Path],
+        all_files: list[Path],
         audit_type: str = "general",
-        repo_root: Path = None,
+        repo_root: Path | None = None,
     ):
         """Update manifest with current file hashes."""
         manifest = self.load_manifest()
@@ -131,7 +131,7 @@ class CacheManager:
 
         self.save_manifest(manifest)
 
-    def invalidate(self, pattern: str = None):
+    def invalidate(self, pattern: str | None = None):
         """Invalidate cache entries matching pattern."""
         manifest = self.load_manifest()
         if pattern:
@@ -162,8 +162,8 @@ class CallGraphBuilder(ast.NodeVisitor):
 
     def __init__(self, filepath: str):
         self.filepath = filepath
-        self.calls: List[CallGraphEdge] = []
-        self.definitions: Dict[str, tuple[int, str]] = {}
+        self.calls: list[CallGraphEdge] = []
+        self.definitions: dict[str, tuple[int, str]] = {}
         self.current_scope = None
         self.current_class = None
 
@@ -228,7 +228,7 @@ class Reporter:
         self.report_dir = repo_root / "reports"
         self.report_dir.mkdir(parents=True, exist_ok=True)
 
-    def to_json(self, data: Dict[str, Any], filename: str = None) -> Path:
+    def to_json(self, data: dict[str, Any], filename: str | None = None) -> Path:
         """Export data as JSON."""
         if not filename:
             filename = f"audit_{self.audit_name}.json"
@@ -236,7 +236,7 @@ class Reporter:
         output_path.write_text(json.dumps(data, indent=2, default=str))
         return output_path
 
-    def to_jsonl(self, records: List[Dict[str, Any]], filename: str = None) -> Path:
+    def to_jsonl(self, records: list[dict[str, Any]], filename: str | None = None) -> Path:
         """Export records as JSONL."""
         if not filename:
             filename = f"audit_{self.audit_name}.jsonl"
@@ -246,7 +246,7 @@ class Reporter:
                 f.write(json.dumps(record, default=str) + "\n")
         return output_path
 
-    def to_html(self, html_content: str, filename: str = None) -> Path:
+    def to_html(self, html_content: str, filename: str | None = None) -> Path:
         """Export as HTML."""
         if not filename:
             filename = f"audit_{self.audit_name}.html"
@@ -254,7 +254,7 @@ class Reporter:
         output_path.write_text(html_content)
         return output_path
 
-    def to_markdown(self, markdown_content: str, filename: str = None) -> Path:
+    def to_markdown(self, markdown_content: str, filename: str | None = None) -> Path:
         """Export as Markdown."""
         if not filename:
             filename = f"audit_{self.audit_name}.md"
@@ -263,7 +263,7 @@ class Reporter:
         return output_path
 
     def generate_html_template(
-        self, title: str, summary: Dict[str, Any], content: str
+        self, title: str, summary: dict[str, Any], content: str
     ) -> str:
         """Generate basic HTML template."""
         html_content = f"""
@@ -339,7 +339,7 @@ class GMPTODOItem:
     action: str  # Replace, Insert, Delete, Wrap
     target: str
     expected_behavior: str
-    imports_needed: List[str] = field(default_factory=list)
+    imports_needed: list[str] = field(default_factory=list)
 
 
 class GMPIntegration:
@@ -347,7 +347,7 @@ class GMPIntegration:
 
     def __init__(self, audit_name: str):
         self.audit_name = audit_name
-        self.todos: List[GMPTODOItem] = []
+        self.todos: list[GMPTODOItem] = []
 
     def add_todo(
         self,
@@ -357,7 +357,7 @@ class GMPIntegration:
         action: str,
         target: str,
         behavior: str,
-        imports: List[str] = None,
+        imports: list[str] | None = None,
     ):
         """Add a TODO item."""
         todo_id = f"TODO_{self.audit_name.upper()}_{len(self.todos) + 1:03d}"
@@ -403,22 +403,22 @@ class ValidationRule:
     variable: str
     expected_type: str
     required: bool = True
-    min_value: Optional[float] = None
-    max_value: Optional[float] = None
-    allowed_values: Optional[List[str]] = None
+    min_value: float | None = None
+    max_value: float | None = None
+    allowed_values: list[str] | None = None
 
 
 class ConfigValidator:
     """Validate configuration against rules."""
 
     def __init__(self):
-        self.rules: Dict[str, ValidationRule] = {}
+        self.rules: dict[str, ValidationRule] = {}
 
     def add_rule(self, rule: ValidationRule):
         """Add validation rule."""
         self.rules[rule.variable] = rule
 
-    def validate(self, config: Dict[str, Any]) -> Dict[str, List[str]]:
+    def validate(self, config: dict[str, Any]) -> dict[str, list[str]]:
         """Validate config, return errors by variable."""
         errors = defaultdict(list)
 
@@ -434,15 +434,14 @@ class ConfigValidator:
                 continue
 
             # Check type
-            if rule.expected_type == "bool":
-                if not isinstance(value, bool):
-                    if isinstance(value, str):
-                        if value.lower() not in ["true", "false", "1", "0"]:
-                            errors[var_name].append(f"Expected bool, got '{value}'")
-                    else:
-                        errors[var_name].append(
-                            f"Expected bool, got {type(value).__name__}"
-                        )
+            if rule.expected_type == "bool" and not isinstance(value, bool):
+                if isinstance(value, str):
+                    if value.lower() not in ["true", "false", "1", "0"]:
+                        errors[var_name].append(f"Expected bool, got '{value}'")
+                else:
+                    errors[var_name].append(
+                        f"Expected bool, got {type(value).__name__}"
+                    )
 
             # Check range
             if rule.min_value is not None and value < rule.min_value:
@@ -467,7 +466,7 @@ class ObservabilityHooks:
 
     def __init__(self, substrate_enabled: bool = False):
         self.substrate_enabled = substrate_enabled
-        self.spans: List[Dict[str, Any]] = []
+        self.spans: list[dict[str, Any]] = []
 
     def record_span(
         self,
@@ -475,7 +474,7 @@ class ObservabilityHooks:
         operation: str,
         status: str,
         duration_ms: float,
-        attributes: Dict[str, Any] = None,
+        attributes: dict[str, Any] | None = None,
     ):
         """Record a span for observability."""
         span = {

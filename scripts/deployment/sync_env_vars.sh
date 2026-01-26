@@ -91,7 +91,7 @@ while IFS= read -r line; do
     case "$line" in
         \#*|"") continue ;;
     esac
-    
+
     # Extract variable name
     var_name=$(echo "$line" | grep -oE "^[A-Z][A-Z0-9_]*" || true)
     if [ -n "$var_name" ]; then

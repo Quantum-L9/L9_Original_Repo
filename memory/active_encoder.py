@@ -591,7 +591,7 @@ class ActiveMemoryEncoder:
             return None
 
         try:
-            event_id = await self._repository.insert_episodic_event(
+            return await self._repository.insert_episodic_event(
                 observation=outcome.outcome_text or outcome.description,
                 event_type=outcome.task_type,
                 event_timestamp=outcome.completed_at,
@@ -604,7 +604,6 @@ class ActiveMemoryEncoder:
                 severity=outcome.impact_score,
                 session_id=outcome.session_id,
             )
-            return event_id
         except Exception as e:
             logger.error(f"Error creating episode: {e}")
             return None

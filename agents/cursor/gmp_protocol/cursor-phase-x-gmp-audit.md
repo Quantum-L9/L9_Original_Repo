@@ -1,7 +1,7 @@
 # GMP Audit v1.0 — Example Implementation & Usage Guide
 
-**Document:** GMP Audit v1.0 Implementation Guide  
-**Date:** 2025-12-24  
+**Document:** GMP Audit v1.0 Implementation Guide
+**Date:** 2025-12-24
 **Purpose:** Show how to invoke and execute the Audit GMP after completing a prior GMP
 
 ---
@@ -12,23 +12,23 @@ The **GMP Audit v1.0** is a comprehensive verification protocol that audits whet
 
 ### Key Characteristics
 
-| Aspect | Detail |
-|--------|--------|
-| **Input** | Original locked TODO plan + edited files |
-| **Output** | Single audit report (markdown) |
-| **Phases** | 9 phases (0 = setup, 1–8 = verification, 9 = finalization) |
-| **Evidence** | Line-by-line code verification with quotes |
+| Aspect         | Detail                                                                  |
+| -------------- | ----------------------------------------------------------------------- |
+| **Input**      | Original locked TODO plan + edited files                                |
+| **Output**     | Single audit report (markdown)                                          |
+| **Phases**     | 9 phases (0 = setup, 1–8 = verification, 9 = finalization)              |
+| **Evidence**   | Line-by-line code verification with quotes                              |
 | **Confidence** | 100%, 95%, 75%, or 0% (based on file visibility & verification success) |
-| **Fail-Fast** | Stops immediately if critical issue found |
-| **Format** | 100% compatible with GMPv1.0 structure |
+| **Fail-Fast**  | Stops immediately if critical issue found                               |
+| **Format**     | 100% compatible with GMPv1.0 structure                                  |
 
 ---
 
 ## When to Use Audit GMP
 
-✅ **Use after:** Any GMP execution (Stage 1, 2, 3, etc.)  
-✅ **Use before:** Stage 2 approval gate  
-✅ **Use to:** Verify scope adherence, detect errors, confirm completeness  
+✅ **Use after:** Any GMP execution (Stage 1, 2, 3, etc.)
+✅ **Use before:** Stage 2 approval gate
+✅ **Use to:** Verify scope adherence, detect errors, confirm completeness
 ✅ **Use for:** Automated quality gates in CI/CD workflows
 
 ❌ **Don't use for:** Code review beyond scope, architecture recommendations, refactoring suggestions
@@ -45,19 +45,20 @@ From the original GMP execution document, copy:
 ## TODO PLAN (LOCKED)
 
 - [0.1] File: `/l9/path/to/file1.py` Lines: 44–52 Action: Replace
-      Change: Replace X with Y
-      Gate: None
-      Imports: NONE
+  Change: Replace X with Y
+  Gate: None
+  Imports: NONE
 
 - [0.2] File: `/l9/path/to/file2.py` Lines: 100–110 Action: Insert
-      Change: Add error checking
-      Gate: None
-      Imports: logger
+  Change: Add error checking
+  Gate: None
+  Imports: logger
 ```
 
 ### Step 2: Provide Edited Files
 
 Attach or reference the files that were modified:
+
 - Full files (100% content visibility) preferred
 - Snippets acceptable (with confidence penalty)
 
@@ -83,6 +84,7 @@ Begin Phase 0.
 ### Step 4: Receive Audit Report
 
 The auditor produces a single markdown file at the specified path containing:
+
 - Sections 1–11 (all phases documented)
 - Evidence for every TODO
 - Final verdict (PASS / FAIL / PARTIAL)
@@ -94,20 +96,20 @@ The auditor produces a single markdown file at the specified path containing:
 
 Here's what an audit report looks like:
 
-```markdown
+````markdown
 # AUDIT REPORT — Stage 1 Critical Issues Fix
 
 ## AUDIT SCOPE (LOCKED TODO PLAN REFERENCE)
 
 - [0.1] File: `/l9/gmp_approval.py` Lines: 15–18 Action: Replace
-      Change: Replace `x for x in tasks` → `[x for x in tasks if x.status == 'pending']`
-      Gate: None
-      Imports: NONE
+  Change: Replace `x for x in tasks` → `[x for x in tasks if x.status == 'pending']`
+  Gate: None
+  Imports: NONE
 
 - [0.2] File: `/l9/mcp_client.py` Lines: 142–160 Action: Replace
-      Change: Replace fake success return with explicit error
-      Gate: None
-      Imports: None (logger already imported)
+  Change: Replace fake success return with explicit error
+  Gate: None
+  Imports: None (logger already imported)
 
 [... more TODOs ...]
 
@@ -117,13 +119,13 @@ Original TODO plan hash: `abc123def456...` (deterministic checksum)
 
 ## FILES PROVIDED + CONTENT VISIBILITY
 
-| File | Provided | Visibility | Size | Status |
-|------|----------|-----------|------|--------|
-| gmp_approval.py | ✅ | 100% | 3,883 B | Full file |
-| mcp_client.py | ✅ | 100% | 7,953 B | Full file |
-| gmp_worker.py | ✅ | 100% | 9,323 B | Full file |
-| long_plan_graph.py | ✅ | 100% | 19,045 B | Full file |
-| memory_helpers.py | ✅ | 100% | 8,235 B | Full file |
+| File               | Provided | Visibility | Size     | Status    |
+| ------------------ | -------- | ---------- | -------- | --------- |
+| gmp_approval.py    | ✅       | 100%       | 3,883 B  | Full file |
+| mcp_client.py      | ✅       | 100%       | 7,953 B  | Full file |
+| gmp_worker.py      | ✅       | 100%       | 9,323 B  | Full file |
+| long_plan_graph.py | ✅       | 100%       | 19,045 B | Full file |
+| memory_helpers.py  | ✅       | 100%       | 8,235 B  | Full file |
 
 Visibility: 100% (all files full content)
 Missing files: None
@@ -134,6 +136,7 @@ Confidence impact: ✅ No penalty
 ### [0.1] gmp_approval.py — List Comprehension Fix
 
 **Specification:**
+
 - File: `/l9/gmp_approval.py`
 - Lines: 15–18
 - Action: Replace
@@ -143,21 +146,16 @@ Confidence impact: ✅ No penalty
 **Verification:**
 
 - [x] **Location correct?** Lines 15–18 in `list_pending_gmp_tasks()` ✅
-      ```python
-      # Before (error): x for x in tasks if x.status == 'pending'
-      # After (fixed): [x for x in tasks if x.status == 'pending']
-      ```
+      `python
+    # Before (error): x for x in tasks if x.status == 'pending'
+    # After (fixed): [x for x in tasks if x.status == 'pending']
+    `
 
 - [x] **Action verb fulfilled?** Replace syntax error with correct list comprehension ✅
 
-- [x] **Target structure unchanged?** Rest of function intact ✅
-      - Function signature: unchanged
-      - Return type: unchanged
-      - Error handling: unchanged
+- [x] **Target structure unchanged?** Rest of function intact ✅ - Function signature: unchanged - Return type: unchanged - Error handling: unchanged
 
-- [x] **New behavior matches spec?** Now correctly filters pending tasks ✅
-      - Old: SyntaxError when executed
-      - New: Returns list of pending tasks
+- [x] **New behavior matches spec?** Now correctly filters pending tasks ✅ - Old: SyntaxError when executed - New: Returns list of pending tasks
 
 - [x] **Imports added if required?** No new imports needed ✅
 
@@ -178,6 +176,7 @@ Confidence impact: ✅ No penalty
 ### [0.2] mcp_client.py — Error Stub Replacement
 
 **Specification:**
+
 - File: `/l9/mcp_client.py`
 - Lines: 142–160
 - Action: Replace
@@ -187,14 +186,13 @@ Confidence impact: ✅ No penalty
 **Verification:**
 
 - [x] **Location correct?** Lines 142–160 in `call_tool()` method ✅
-      ```python
-      # Old (before):
+      ```python # Old (before):
       return {
-          "success": True,
-          "result": {"message": "MCP tool call (stub)"},
-          "error": None,
+      "success": True,
+      "result": {"message": "MCP tool call (stub)"},
+      "error": None,
       }
-      
+
       # New (after):
       return {
           "success": False,
@@ -205,14 +203,9 @@ Confidence impact: ✅ No penalty
 
 - [x] **Action verb fulfilled?** Replaced entire return statement ✅
 
-- [x] **Target structure unchanged?** Rest of function intact ✅
-      - Function signature: unchanged
-      - Parameters: unchanged
-      - Try-except block: preserved
+- [x] **Target structure unchanged?** Rest of function intact ✅ - Function signature: unchanged - Parameters: unchanged - Try-except block: preserved
 
-- [x] **New behavior matches spec?** Now explicitly fails instead of faking success ✅
-      - Old: Returned {success: True} → silent failure
-      - New: Returns {success: False} → explicit error
+- [x] **New behavior matches spec?** Now explicitly fails instead of faking success ✅ - Old: Returned {success: True} → silent failure - New: Returns {success: False} → explicit error
 
 - [x] **Imports added if required?** No new imports (logger already present) ✅
 
@@ -225,9 +218,9 @@ Confidence impact: ✅ No penalty
 - [x] **Backward compatible?** Yes, return type matches existing contract ✅
 
 - [x] **Logger/error handling?** Logger call present before return ✅
-      ```python
-      logger.warning(f"MCP tool call requested but not implemented...")
-      ```
+      `python
+    logger.warning(f"MCP tool call requested but not implemented...")
+    `
 
 **Verification Result: ✅ COMPLETE AND CORRECT**
 
@@ -236,17 +229,18 @@ Confidence impact: ✅ No penalty
 ## SCOPE CREEP DETECTION (Unauthorized Changes)
 
 ### Method
+
 For each modified file, extract all changes and verify they map to TODO IDs.
 
 ### Results
 
-| File | Total Changes | Mapped to TODO | Unauthorized | Status |
-|------|---|---|---|---|
-| gmp_approval.py | 1 | 1 | 0 | ✅ |
-| mcp_client.py | 1 | 1 | 0 | ✅ |
-| gmp_worker.py | 1 | 1 | 0 | ✅ |
-| long_plan_graph.py | 2 | 2 | 0 | ✅ |
-| memory_helpers.py | 1 | 1 | 0 | ✅ |
+| File               | Total Changes | Mapped to TODO | Unauthorized | Status |
+| ------------------ | ------------- | -------------- | ------------ | ------ |
+| gmp_approval.py    | 1             | 1              | 0            | ✅     |
+| mcp_client.py      | 1             | 1              | 0            | ✅     |
+| gmp_worker.py      | 1             | 1              | 0            | ✅     |
+| long_plan_graph.py | 2             | 2              | 0            | ✅     |
+| memory_helpers.py  | 1             | 1              | 0            | ✅     |
 
 **Scope Creep Finding: ✅ NONE DETECTED**
 
@@ -257,6 +251,7 @@ All changes mapped to original TODO plan. No unauthorized edits.
 ## INTEGRATION & QUALITY VALIDATION
 
 ### Syntax Validation
+
 - [x] All Python files: 0 syntax errors ✅
 - [x] All YAML files (if any): 0 syntax errors ✅
 - [x] Balanced parentheses/brackets/quotes: All valid ✅
@@ -264,6 +259,7 @@ All changes mapped to original TODO plan. No unauthorized edits.
 - [x] All imports resolved: Yes ✅
 
 ### Logic Validation
+
 - [x] Control flow makes sense: Yes ✅
 - [x] Variables assigned before use: Yes ✅
 - [x] Return types consistent: Yes ✅
@@ -271,6 +267,7 @@ All changes mapped to original TODO plan. No unauthorized edits.
 - [x] No impossible conditions: Correct ✅
 
 ### Integration Validation
+
 - [x] Upstream callers (gmp_tool.py): Still work ✅
 - [x] Downstream handlers: Still work ✅
 - [x] State machines (long_plan_graph): Valid transitions ✅
@@ -283,11 +280,13 @@ All changes mapped to original TODO plan. No unauthorized edits.
 ## BACKWARD COMPATIBILITY ASSESSMENT
 
 ### Function Signatures
+
 - [x] Return types unchanged: Yes ✅
 - [x] Parameter types unchanged: Yes ✅
 - [x] Dict keys unchanged: Yes ✅
 
 ### Behavior Changes
+
 - [x] Normal path still works: Yes (error path added) ✅
 - [x] Error handling compatible: Yes (explicit error now) ✅
 - [x] Logging patterns consistent: Yes ✅
@@ -300,18 +299,19 @@ All changes mapped to original TODO plan. No unauthorized edits.
 ## AUDIT CONFIDENCE LEVEL + LIMITATIONS
 
 ### Confidence Calculation
+````
 
-```
 Confidence = (Files_Provided / Files_Needed)
-           × (Content_Visible / Content_Total)
-           × (TODOs_Verifiable / TODOs_Total)
-           × Quality_Score
+× (Content_Visible / Content_Total)
+× (TODOs_Verifiable / TODOs_Total)
+× Quality_Score
 
            = (5 / 5)
            × (100% / 100%)
            × (6 / 6)
            × (100%)
            = 100% ✅
+
 ```
 
 ### Confidence Breakdown
@@ -335,30 +335,30 @@ None. All files provided in full, all TODOs verifiable, zero errors detected.
 
 ## FINAL AUDIT DEFINITION OF DONE
 
-✓ PHASE 0–9 completed and documented  
-✓ Original locked TODO plan recovered and verified  
-✓ Every TODO ID mapped to implementation code  
-✓ Every TODO implementation verified correct  
-✓ No unauthorized changes outside TODO scope  
-✓ No syntax errors, logic errors, or integration failures  
-✓ Backward compatibility verified  
-✓ Audit confidence level calculated (100%)  
-✓ All audit checklists marked with evidence  
-✓ Report written at `/l9/reports/audit_report_stage1.md`  
-✓ Final audit declaration below  
+✓ PHASE 0–9 completed and documented
+✓ Original locked TODO plan recovered and verified
+✓ Every TODO ID mapped to implementation code
+✓ Every TODO implementation verified correct
+✓ No unauthorized changes outside TODO scope
+✓ No syntax errors, logic errors, or integration failures
+✓ Backward compatibility verified
+✓ Audit confidence level calculated (100%)
+✓ All audit checklists marked with evidence
+✓ Report written at `/l9/reports/audit_report_stage1.md`
+✓ Final audit declaration below
 
 ---
 
 ## FINAL AUDIT DECLARATION
 
 > All audit phases (0–9) complete. Original TODO plan verified.
-> 
+>
 > **Implementation status: COMPLETE** (6/6 TODOs implemented correctly)
-> 
+>
 > **Confidence level: 100%** (all files full, all TODOs verified)
-> 
+>
 > **Scope creep detected: NO** (0 unauthorized changes)
-> 
+>
 > **Recommendations: NONE** (ready for Stage 2)
 >
 > Audit report stored at `/l9/reports/audit_report_stage1.md`.
@@ -411,5 +411,6 @@ The **GMP Audit v1.0** enables automated verification that:
 
 ---
 
-**Document Completed:** 2025-12-24  
+**Document Completed:** 2025-12-24
 **For:** GMP Audit v1.0 Usage Guide
+```

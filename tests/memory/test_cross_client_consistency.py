@@ -269,8 +269,10 @@ class TestScopeIsolationQuery:
 
     def test_build_scope_project_filter_parameterized(self):
         """Verify scope filter uses parameterized queries (SQL injection safe)."""
-        from memory.governance_gate import (build_governance_context,
-                                            build_scope_project_filter)
+        from memory.governance_gate import (
+            build_governance_context,
+            build_scope_project_filter,
+        )
 
         # Build context for Cursor first
         ctx = build_governance_context(
@@ -282,7 +284,7 @@ class TestScopeIsolationQuery:
         )
 
         # Build filter using context
-        sql_fragment, params, _ = build_scope_project_filter(
+        sql_fragment, _params, _ = build_scope_project_filter(
             ctx,
             param_idx=1,
             table_alias="ps",

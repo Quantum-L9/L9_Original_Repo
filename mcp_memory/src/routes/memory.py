@@ -541,7 +541,7 @@ async def get_context_injection(
             recent_query = """
             SELECT id, user_id, kind, content, importance, tags, created_at
             FROM memory.long_term
-            WHERE user_id = $1 
+            WHERE user_id = $1
             AND created_at > NOW() - INTERVAL '24 hours'
             ORDER BY created_at DESC
             LIMIT 5;
@@ -552,7 +552,7 @@ async def get_context_injection(
             medium_query = """
             SELECT id, user_id, kind, content, importance, created_at
             FROM memory.medium_term
-            WHERE user_id = $1 
+            WHERE user_id = $1
             AND expires_at > CURRENT_TIMESTAMP
             ORDER BY created_at DESC
             LIMIT 3;
@@ -879,7 +879,7 @@ async def query_temporal(
         # Check audit log for deletes
         delete_query = """
         SELECT COUNT(*) as cnt FROM memory.audit_log
-        WHERE user_id = $1 AND operation = 'DELETE' 
+        WHERE user_id = $1 AND operation = 'DELETE'
         AND created_at >= $2 AND created_at <= $3;
         """
         delete_result = await fetch_one(delete_query, user_id, since_dt, until_dt)

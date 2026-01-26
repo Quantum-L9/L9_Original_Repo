@@ -1,8 +1,8 @@
 # L9 Slack Integration — Comprehensive Module Documentation
 
-> **Version:** 2.0+ (Active Implementation)  
-> **Last Updated:** 2026-01-08  
-> **Status:** ✅ Production  
+> **Version:** 2.0+ (Active Implementation)
+> **Last Updated:** 2026-01-08
+> **Status:** ✅ Production
 > **Owner:** L9 Core Team
 
 ---
@@ -38,12 +38,12 @@ The L9 Slack integration provides **bidirectional communication** between Slack 
 
 ### Supported Event Types
 
-| Event Type | Handler | Description |
-|------------|---------|-------------|
-| `app_mention` | `handle_slack_events()` | Bot mentioned in channel |
-| `message` | `handle_slack_events()` | Direct message or channel message |
-| `url_verification` | `slack_events()` | Slack handshake during setup |
-| `/l9` commands | `handle_slack_commands()` | Slash command handler |
+| Event Type         | Handler                   | Description                       |
+| ------------------ | ------------------------- | --------------------------------- |
+| `app_mention`      | `handle_slack_events()`   | Bot mentioned in channel          |
+| `message`          | `handle_slack_events()`   | Direct message or channel message |
+| `url_verification` | `slack_events()`          | Slack handshake during setup      |
+| `/l9` commands     | `handle_slack_commands()` | Slash command handler             |
 
 ---
 
@@ -499,10 +499,12 @@ _archived/codegen_slack_adapter/
 **Purpose:** FastAPI router for Slack webhook endpoints
 
 **Endpoints:**
+
 - `POST /slack/events` — Slack Events API webhook
 - `POST /slack/commands` — Slack slash command handler
 
 **Key Functions:**
+
 ```python
 async def slack_events(...) -> Dict[str, Any]
     # Handles: url_verification, event_callback
@@ -514,6 +516,7 @@ async def slack_commands(...) -> Dict[str, Any]
 ```
 
 **Dependencies:**
+
 - `api.slack_adapter.SlackRequestValidator` — Signature validation
 - `memory.slack_ingest.handle_slack_events()` — Event orchestration
 - `memory.slack_ingest.handle_slack_commands()` — Command handling
@@ -525,6 +528,7 @@ async def slack_commands(...) -> Dict[str, Any]
 **Purpose:** HMAC-SHA256 signature verification and request normalization
 
 **Classes:**
+
 ```python
 class SlackRequestValidator:
     def verify(request_body, timestamp_str, signature) -> Tuple[bool, Optional[str]]
@@ -540,6 +544,7 @@ class SlackRequestNormalizer:
 ```
 
 **Security:**
+
 - Fail-closed: Invalid signature → 401 Unauthorized
 - Replay protection: Timestamp must be within 300 seconds
 - Constant-time comparison: Prevents timing attacks
@@ -551,6 +556,7 @@ class SlackRequestNormalizer:
 **Purpose:** Async wrapper for posting messages to Slack
 
 **Classes:**
+
 ```python
 class SlackAPIClient:
     async def post_message(
@@ -564,6 +570,7 @@ class SlackAPIClient:
 ```
 
 **Usage:**
+
 ```python
 client = SlackAPIClient(bot_token="xoxb-...", http_client=httpx_client)
 await client.post_message(
@@ -582,9 +589,11 @@ await client.post_message(
 **Key Functions:**
 
 #### `handle_slack_events()`
+
 Main entry point for Slack Events API webhooks.
 
 **Flow:**
+
 1. Normalize provenance (team_id, channel_id, user_id)
 2. Generate thread UUID (deterministic from team:channel:thread_ts)
 3. Check duplicate (`_check_duplicate()`)
@@ -598,55 +607,69 @@ Main entry point for Slack Events API webhooks.
    - Default → L-CTO agent (if legacy flag False) or AIOS /chat
 
 #### `handle_slack_commands()`
+
 Handles slash commands (`/l9 do <task>`).
 
 **Flow:**
+
 1. Parse command text
 2. Route to appropriate handler
 3. Post response to Slack (response_url or API)
 
 #### `_check_duplicate()`
+
 Prevents double-processing of retried events.
 
 **Implementation:**
+
 - Queries `packet_store` for existing event_id
 - Returns early if duplicate found
 - Uses event_id as primary key, fallback to team:channel:ts:user
 
 #### `_retrieve_thread_context()`
+
 Fetches conversation history from memory substrate.
 
 **Returns:**
+
 - List of packets in thread (ordered by timestamp)
 - Used for conversation continuity
 
 #### `_retrieve_semantic_hits()`
+
 Performs semantic search for related knowledge.
 
 **Returns:**
+
 - List of semantically similar packets
 - Used for context injection
 
 #### `_route_to_mac_task()`
+
 Routes messages with files to Mac Agent task queue.
 
 **Flow:**
+
 1. Call `slack_task_router.route_slack_message()`
 2. Enqueue via `orchestrators.agent_execution.enqueue_mac_task_dict()`
 3. Post acknowledgment to Slack
 
 #### `_route_to_email_task()`
+
 Routes email commands to Email Agent.
 
 **Flow:**
+
 1. Call `email_task_router.route_email_task()`
 2. Execute directly via `email_agent.client.execute_email_task()`
 3. Post result to Slack
 
 #### `handle_slack_with_l_agent()`
+
 Routes messages to L-CTO agent via AgentExecutorService.
 
 **Flow:**
+
 1. Create `AgentTask` with context
 2. Call `AgentExecutorService.start_agent_task()`
 3. Post reply to Slack
@@ -659,6 +682,7 @@ Routes messages to L-CTO agent via AgentExecutorService.
 **Purpose:** Converts Slack messages into Mac Agent task structures
 
 **Function:**
+
 ```python
 def route_slack_message(
     text: str,
@@ -671,6 +695,7 @@ def route_slack_message(
 ```
 
 **Task Structure:**
+
 ```json
 {
   "type": "mac_task",
@@ -697,6 +722,7 @@ def route_slack_message(
 **Purpose:** Converts Slack messages into Email Agent task structures
 
 **Function:**
+
 ```python
 def route_email_task(
     text: str,
@@ -709,6 +735,7 @@ def route_email_task(
 ```
 
 **Task Structure:**
+
 ```json
 {
   "type": "email_task",
@@ -734,9 +761,11 @@ def route_email_task(
 **Components:**
 
 #### `task_queue.py`
+
 File-based task queue for Mac Agent tasks.
 
 **Functions:**
+
 ```python
 def enqueue_mac_task_dict(task_dict: Dict[str, Any]) -> str
     # Writes task to ~/.l9/mac_tasks/{task_id}.json
@@ -753,9 +782,11 @@ def mark_task_completed(task_id: str)
 ```
 
 #### `orchestrator.py`
+
 Main orchestrator that polls queue and executes tasks.
 
 **Class:**
+
 ```python
 class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
     async def poll_and_execute() -> None
@@ -772,6 +803,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
 **Purpose:** Downloads and processes file attachments from Slack
 
 **Functions:**
+
 ```python
 def download_file(file_id, file_url_private, filename) -> bytes
     # Downloads file from Slack using private URL
@@ -785,6 +817,7 @@ def process_file_artifact(file_info) -> Dict[str, Any]
 ```
 
 **Storage:**
+
 - Files saved to `~/.l9/slack_files/YYYY/MM/DD/`
 - Artifact metadata includes: path, type, OCR data, PDF fields, transcription
 
@@ -795,6 +828,7 @@ def process_file_artifact(file_info) -> Dict[str, Any]
 **Purpose:** Synchronous Slack client for Mac Agent task results
 
 **Functions:**
+
 ```python
 def slack_post(channel: str, text: str)
     # Synchronous message posting
@@ -839,19 +873,21 @@ class Settings:
 
 ## Feature Flags
 
-| Flag | Default | Purpose | Location |
-|------|---------|---------|----------|
-| `SLACK_APP_ENABLED` | `false` | Master toggle for Slack integration | `config/settings.py` |
-| `L9_ENABLE_LEGACY_SLACK_ROUTER` | `true` | Use legacy AIOS /chat vs L-CTO agent | `memory/slack_ingest.py` |
+| Flag                            | Default | Purpose                              | Location                 |
+| ------------------------------- | ------- | ------------------------------------ | ------------------------ |
+| `SLACK_APP_ENABLED`             | `false` | Master toggle for Slack integration  | `config/settings.py`     |
+| `L9_ENABLE_LEGACY_SLACK_ROUTER` | `true`  | Use legacy AIOS /chat vs L-CTO agent | `memory/slack_ingest.py` |
 
 ### `L9_ENABLE_LEGACY_SLACK_ROUTER`
 
 **When `false` (Recommended):**
+
 - Routes through L-CTO agent via `AgentExecutorService`
 - Full kernel stack, governance, memory integration
 - Better conversation continuity
 
 **When `true` (Legacy):**
+
 - Routes through AIOS `/chat` endpoint
 - Simpler, but less integrated
 - No kernel stack, limited governance
@@ -862,21 +898,21 @@ class Settings:
 
 ### External Dependencies
 
-| Package | Purpose | Used By |
-|---------|---------|---------|
-| `httpx` | HTTP client (async) | `api/slack_client.py`, `memory/slack_ingest.py` |
-| `openai` | LLM client | `orchestration/slack_task_router.py`, `orchestration/email_task_router.py` |
-| `slack_sdk` | Legacy sync client | `services/slack_client.py` (optional) |
+| Package     | Purpose             | Used By                                                                    |
+| ----------- | ------------------- | -------------------------------------------------------------------------- |
+| `httpx`     | HTTP client (async) | `api/slack_client.py`, `memory/slack_ingest.py`                            |
+| `openai`    | LLM client          | `orchestration/slack_task_router.py`, `orchestration/email_task_router.py` |
+| `slack_sdk` | Legacy sync client  | `services/slack_client.py` (optional)                                      |
 
 ### Internal Dependencies
 
-| Module | Used By | Purpose |
-|--------|---------|---------|
-| `memory.substrate_service` | `slack_ingest.py` | Packet storage, thread context, semantic search |
-| `core.agents.executor` | `slack_ingest.py` | L-CTO agent execution |
-| `mac_agent.executor` | `agent_execution/orchestrator.py` | Browser automation |
-| `email_agent.client` | `slack_ingest.py` | Email operations |
-| `orchestrators.agent_execution` | `slack_ingest.py` | Mac Agent task queue |
+| Module                          | Used By                           | Purpose                                         |
+| ------------------------------- | --------------------------------- | ----------------------------------------------- |
+| `memory.substrate_service`      | `slack_ingest.py`                 | Packet storage, thread context, semantic search |
+| `core.agents.executor`          | `slack_ingest.py`                 | L-CTO agent execution                           |
+| `mac_agent.executor`            | `agent_execution/orchestrator.py` | Browser automation                              |
+| `email_agent.client`            | `slack_ingest.py`                 | Email operations                                |
+| `orchestrators.agent_execution` | `slack_ingest.py`                 | Mac Agent task queue                            |
 
 ---
 
@@ -905,6 +941,7 @@ pytest tests/integration/test_slack_dispatch_integration.py
 ### Manual Testing
 
 1. **Test Events:**
+
    ```bash
    # Send test event via Slack Events API
    curl -X POST http://localhost:8000/slack/events \
@@ -932,11 +969,13 @@ pytest tests/integration/test_slack_dispatch_integration.py
 **Symptom:** `401 Unauthorized` on all Slack requests
 
 **Causes:**
+
 - `SLACK_SIGNING_SECRET` not set or incorrect
 - Request timestamp too old (> 300 seconds)
 - Signature header format incorrect
 
 **Fix:**
+
 ```bash
 # Verify secret is set
 echo $SLACK_SIGNING_SECRET
@@ -949,11 +988,13 @@ echo $SLACK_SIGNING_SECRET
 **Symptom:** Messages sent but no reply
 
 **Causes:**
+
 - `SLACK_BOT_TOKEN` not set
 - Bot not added to channel
 - `SLACK_APP_ENABLED=false`
 
 **Fix:**
+
 ```bash
 # Verify token is set
 echo $SLACK_BOT_TOKEN
@@ -967,10 +1008,12 @@ echo $SLACK_BOT_TOKEN
 **Symptom:** Bot responds twice to same message
 
 **Causes:**
+
 - `_check_duplicate()` not working
 - Event ID not being set correctly
 
 **Fix:**
+
 - Check `packet_store` for duplicate event_id entries
 - Verify `_check_duplicate()` is being called
 - Check logs for deduplication messages
@@ -980,11 +1023,13 @@ echo $SLACK_BOT_TOKEN
 **Symptom:** Tasks enqueued but not executed
 
 **Causes:**
+
 - Orchestrator not running
 - `MAC_AGENT_ENABLED=false`
 - Queue directory permissions
 
 **Fix:**
+
 ```bash
 # Check orchestrator is running
 ps aux | grep agent_execution
@@ -1001,11 +1046,13 @@ tail -f logs/agent_execution.log
 **Symptom:** Email commands return error
 
 **Causes:**
+
 - Gmail API not configured
 - `email_agent` not available
 - OAuth tokens expired
 
 **Fix:**
+
 ```bash
 # Check Gmail client is available
 python3 -c "from email_agent.gmail_client import GmailClient; print('OK')"
@@ -1018,18 +1065,18 @@ ls -la ~/.l9/gmail_credentials.json
 
 ## File Interaction Matrix
 
-| File | Imports From | Used By |
-|------|--------------|---------|
-| `api/routes/slack.py` | `api.slack_adapter`, `memory.slack_ingest` | `api/server.py` |
-| `api/slack_adapter.py` | None | `api/routes/slack.py` |
-| `api/slack_client.py` | `httpx` | `memory/slack_ingest.py` |
-| `memory/slack_ingest.py` | `api.slack_adapter`, `api.slack_client`, `orchestration.slack_task_router`, `orchestration.email_task_router`, `orchestrators.agent_execution`, `email_agent.client`, `core.agents.executor` | `api/routes/slack.py` |
-| `orchestration/slack_task_router.py` | `openai` | `memory/slack_ingest.py` |
-| `orchestration/email_task_router.py` | `openai` | `memory/slack_ingest.py` |
-| `orchestrators/agent_execution/task_queue.py` | `memory.ingestion` | `orchestrators/agent_execution/orchestrator.py`, `memory/slack_ingest.py` |
-| `orchestrators/agent_execution/orchestrator.py` | `mac_agent.executor`, `services.slack_client` | Standalone (polling loop) |
-| `services/slack_files.py` | `httpx` | `memory/slack_ingest.py` |
-| `services/slack_client.py` | `slack_sdk` (optional) | `orchestrators/agent_execution/orchestrator.py` |
+| File                                            | Imports From                                                                                                                                                                                 | Used By                                                                   |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `api/routes/slack.py`                           | `api.slack_adapter`, `memory.slack_ingest`                                                                                                                                                   | `api/server.py`                                                           |
+| `api/slack_adapter.py`                          | None                                                                                                                                                                                         | `api/routes/slack.py`                                                     |
+| `api/slack_client.py`                           | `httpx`                                                                                                                                                                                      | `memory/slack_ingest.py`                                                  |
+| `memory/slack_ingest.py`                        | `api.slack_adapter`, `api.slack_client`, `orchestration.slack_task_router`, `orchestration.email_task_router`, `orchestrators.agent_execution`, `email_agent.client`, `core.agents.executor` | `api/routes/slack.py`                                                     |
+| `orchestration/slack_task_router.py`            | `openai`                                                                                                                                                                                     | `memory/slack_ingest.py`                                                  |
+| `orchestration/email_task_router.py`            | `openai`                                                                                                                                                                                     | `memory/slack_ingest.py`                                                  |
+| `orchestrators/agent_execution/task_queue.py`   | `memory.ingestion`                                                                                                                                                                           | `orchestrators/agent_execution/orchestrator.py`, `memory/slack_ingest.py` |
+| `orchestrators/agent_execution/orchestrator.py` | `mac_agent.executor`, `services.slack_client`                                                                                                                                                | Standalone (polling loop)                                                 |
+| `services/slack_files.py`                       | `httpx`                                                                                                                                                                                      | `memory/slack_ingest.py`                                                  |
+| `services/slack_client.py`                      | `slack_sdk` (optional)                                                                                                                                                                       | `orchestrators/agent_execution/orchestrator.py`                           |
 
 ---
 
@@ -1144,13 +1191,13 @@ ls -la ~/.l9/gmail_credentials.json
 
 ### Packet Types
 
-| Packet Type | Created By | Purpose |
-|-------------|------------|---------|
-| `slack_event_received` | `slack_ingest.py` | Inbound event from Slack |
-| `slack_reply_sent` | `slack_ingest.py` | Outbound reply to Slack |
-| `mac_task_enqueued` | `task_queue.py` | Mac Agent task queued |
-| `email_task_executed` | `slack_ingest.py` | Email Agent task executed |
-| `agent.executor.trace` | `executor.py` | L-CTO agent reasoning steps |
+| Packet Type            | Created By        | Purpose                     |
+| ---------------------- | ----------------- | --------------------------- |
+| `slack_event_received` | `slack_ingest.py` | Inbound event from Slack    |
+| `slack_reply_sent`     | `slack_ingest.py` | Outbound reply to Slack     |
+| `mac_task_enqueued`    | `task_queue.py`   | Mac Agent task queued       |
+| `email_task_executed`  | `slack_ingest.py` | Email Agent task executed   |
+| `agent.executor.trace` | `executor.py`     | L-CTO agent reasoning steps |
 
 ### Thread Model
 
@@ -1243,34 +1290,32 @@ ls -la ~/.l9/gmail_credentials.json
 
 ### Key Files
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `api/routes/slack.py` | 357 | HTTP routes |
-| `memory/slack_ingest.py` | 1,380 | Orchestration |
-| `api/slack_adapter.py` | 296 | Validation |
-| `api/slack_client.py` | 146 | API client |
-| `orchestration/slack_task_router.py` | 248 | Mac task routing |
-| `orchestration/email_task_router.py` | 248 | Email task routing |
-| `services/slack_files.py` | 432 | File processing |
-| `orchestrators/agent_execution/` | 735 | Mac Agent orchestrator |
+| File                                 | Lines | Purpose                |
+| ------------------------------------ | ----- | ---------------------- |
+| `api/routes/slack.py`                | 357   | HTTP routes            |
+| `memory/slack_ingest.py`             | 1,380 | Orchestration          |
+| `api/slack_adapter.py`               | 296   | Validation             |
+| `api/slack_client.py`                | 146   | API client             |
+| `orchestration/slack_task_router.py` | 248   | Mac task routing       |
+| `orchestration/email_task_router.py` | 248   | Email task routing     |
+| `services/slack_files.py`            | 432   | File processing        |
+| `orchestrators/agent_execution/`     | 735   | Mac Agent orchestrator |
 
 ### Key Functions
 
-| Function | File | Purpose |
-|---------|------|---------|
-| `slack_events()` | `api/routes/slack.py` | HTTP endpoint for events |
-| `handle_slack_events()` | `memory/slack_ingest.py` | Main orchestration |
-| `handle_slack_with_l_agent()` | `memory/slack_ingest.py` | L-CTO agent routing |
-| `_route_to_mac_task()` | `memory/slack_ingest.py` | Mac Agent routing |
-| `_route_to_email_task()` | `memory/slack_ingest.py` | Email Agent routing |
-| `route_slack_message()` | `orchestration/slack_task_router.py` | Mac task generation |
-| `route_email_task()` | `orchestration/email_task_router.py` | Email task generation |
-| `poll_and_execute()` | `orchestrators/agent_execution/orchestrator.py` | Mac Agent execution loop |
+| Function                      | File                                            | Purpose                  |
+| ----------------------------- | ----------------------------------------------- | ------------------------ |
+| `slack_events()`              | `api/routes/slack.py`                           | HTTP endpoint for events |
+| `handle_slack_events()`       | `memory/slack_ingest.py`                        | Main orchestration       |
+| `handle_slack_with_l_agent()` | `memory/slack_ingest.py`                        | L-CTO agent routing      |
+| `_route_to_mac_task()`        | `memory/slack_ingest.py`                        | Mac Agent routing        |
+| `_route_to_email_task()`      | `memory/slack_ingest.py`                        | Email Agent routing      |
+| `route_slack_message()`       | `orchestration/slack_task_router.py`            | Mac task generation      |
+| `route_email_task()`          | `orchestration/email_task_router.py`            | Email task generation    |
+| `poll_and_execute()`          | `orchestrators/agent_execution/orchestrator.py` | Mac Agent execution loop |
 
 ---
 
-**Last Updated:** 2026-01-08  
-**Maintainer:** L9 Core Team  
+**Last Updated:** 2026-01-08
+**Maintainer:** L9 Core Team
 **Status:** ✅ Production
-
-

@@ -146,7 +146,9 @@ def generate_task_report(
         for i, item in enumerate(todo_items, 1):
             parts = item.split("|")
             if len(parts) >= 4:
-                todo_table += f"| T{i} | `{parts[0]}` | {parts[1]} | {parts[2]} | {parts[3]} |\n"
+                todo_table += (
+                    f"| T{i} | `{parts[0]}` | {parts[1]} | {parts[2]} | {parts[3]} |\n"
+                )
 
     # Parse validation results
     val_table = ""
@@ -216,14 +218,19 @@ Examples:
     mode.add_argument("--task", type=str, help="Task description (task mode)")
 
     # Common args
-    parser.add_argument("--tier", type=str, default="RUNTIME",
-                        choices=["KERNEL", "RUNTIME", "INFRA", "UX"],
-                        help="Tier classification")
+    parser.add_argument(
+        "--tier",
+        type=str,
+        default="RUNTIME",
+        choices=["KERNEL", "RUNTIME", "INFRA", "UX"],
+        help="Tier classification",
+    )
     parser.add_argument("--notes", type=str, default="", help="Additional notes")
     parser.add_argument("--dry-run", action="store_true", help="Print without saving")
     parser.add_argument("--json", action="store_true", help="Output as JSON")
-    parser.add_argument("--update-workflow", action="store_true",
-                        help="Also update workflow_state.md")
+    parser.add_argument(
+        "--update-workflow", action="store_true", help="Also update workflow_state.md"
+    )
 
     # PR mode args
     parser.add_argument("--title", type=str, help="PR title (PR mode)")
@@ -234,10 +241,18 @@ Examples:
     parser.add_argument("--files", type=int, default=None, help="Total files")
 
     # Task mode args
-    parser.add_argument("--todo", type=str, action="append",
-                        help="TODO item: file|lines|action|desc (repeatable)")
-    parser.add_argument("--validation", type=str, default="",
-                        help="Validation results: check|result,check|result")
+    parser.add_argument(
+        "--todo",
+        type=str,
+        action="append",
+        help="TODO item: file|lines|action|desc (repeatable)",
+    )
+    parser.add_argument(
+        "--validation",
+        type=str,
+        default="",
+        help="Validation results: check|result,check|result",
+    )
 
     args = parser.parse_args()
 
@@ -294,22 +309,38 @@ Examples:
     # Optionally update workflow_state.md
     if args.update_workflow:
         import subprocess
+
         script = Path(__file__).parent / "update_workflow_state.py"
         if args.pr:
-            subprocess.run([
-                "python3", str(script), "pr-complete",
-                "--pr", str(args.pr),
-                "--gmp", str(gmp_number),
-                "--adopted", str(args.adopted),
-                "--skipped", str(args.skipped),
-                "--realigned", str(args.realigned),
-            ])
+            subprocess.run(
+                [
+                    "python3",
+                    str(script),
+                    "pr-complete",
+                    "--pr",
+                    str(args.pr),
+                    "--gmp",
+                    str(gmp_number),
+                    "--adopted",
+                    str(args.adopted),
+                    "--skipped",
+                    str(args.skipped),
+                    "--realigned",
+                    str(args.realigned),
+                ]
+            )
         else:
-            subprocess.run([
-                "python3", str(script), "gmp-complete",
-                "--gmp", str(gmp_number),
-                "--status", "pass",
-            ])
+            subprocess.run(
+                [
+                    "python3",
+                    str(script),
+                    "gmp-complete",
+                    "--gmp",
+                    str(gmp_number),
+                    "--status",
+                    "pass",
+                ]
+            )
 
 
 if __name__ == "__main__":

@@ -10,67 +10,71 @@
 
 ## Phase Completion Checklist
 
-| Phase | Status | Evidence |
-|-------|--------|----------|
-| 0. Workflow Injection | ✅ | 9 PRs injected to workflow_state.md |
-| 1. Discovery | ✅ | gh pr view on all 9 PRs |
-| 2. Index Scan | ✅ | 6 indexes queried |
-| 3. Deep Research | ✅ | File existence verified |
-| 4. Gap Analysis | ✅ | 8/8 PRs classified |
-| 5. Report Generated | ✅ | This file |
-| 6. Close Notes | ✅ | All 4 sections below |
+| Phase                 | Status | Evidence                            |
+| --------------------- | ------ | ----------------------------------- |
+| 0. Workflow Injection | ✅     | 9 PRs injected to workflow_state.md |
+| 1. Discovery          | ✅     | gh pr view on all 9 PRs             |
+| 2. Index Scan         | ✅     | 6 indexes queried                   |
+| 3. Deep Research      | ✅     | File existence verified             |
+| 4. Gap Analysis       | ✅     | 8/8 PRs classified                  |
+| 5. Report Generated   | ✅     | This file                           |
+| 6. Close Notes        | ✅     | All 4 sections below                |
 
 ---
 
 ## 📊 PR Status Summary
 
-| PR | Title | Status | Confidence | Action |
-|----|-------|--------|------------|--------|
-| #52 | DI/DIP Three-Track | ✅ CLOSED | 100% | Already done |
-| #54 | 7 Design Pattern ADRs | 🆕 NEW | 95% | **ADOPT** (docs only) |
-| #53 | Design Pattern Improvements | 🔄 CONFLICTS | 85% | **PARTIAL ADOPT** |
-| #51 | Spring Cleaning TODOs | ✅ EXISTS | 95% | **CLOSE** (on main) |
-| #50 | Anti-Pattern Violations | ✅ EXISTS | 95% | **CLOSE** (on main) |
-| #49 | ADR Enforcement | ✅ EXISTS | 90% | **CLOSE** (GMP-114 adopted) |
-| #48 | AutoRegistry Migration | ⚠️ PARTIAL | 80% | **REVIEW** |
-| #46 | Anti-Pattern Tests | ✅ EXISTS | 95% | **CLOSE** (on main) |
-| #36 | Eval + Rate Limiting | 🔄 CONFLICTS | 85% | **PARTIAL ADOPT** |
+| PR  | Title                       | Status       | Confidence | Action                      |
+| --- | --------------------------- | ------------ | ---------- | --------------------------- |
+| #52 | DI/DIP Three-Track          | ✅ CLOSED    | 100%       | Already done                |
+| #54 | 7 Design Pattern ADRs       | 🆕 NEW       | 95%        | **ADOPT** (docs only)       |
+| #53 | Design Pattern Improvements | 🔄 CONFLICTS | 85%        | **PARTIAL ADOPT**           |
+| #51 | Spring Cleaning TODOs       | ✅ EXISTS    | 95%        | **CLOSE** (on main)         |
+| #50 | Anti-Pattern Violations     | ✅ EXISTS    | 95%        | **CLOSE** (on main)         |
+| #49 | ADR Enforcement             | ✅ EXISTS    | 90%        | **CLOSE** (GMP-114 adopted) |
+| #48 | AutoRegistry Migration      | ⚠️ PARTIAL   | 80%        | **REVIEW**                  |
+| #46 | Anti-Pattern Tests          | ✅ EXISTS    | 95%        | **CLOSE** (on main)         |
+| #36 | Eval + Rate Limiting        | 🔄 CONFLICTS | 85%        | **PARTIAL ADOPT**           |
 
 ---
 
 ## ✅ Already Implemented (CLOSE These PRs)
 
 ### PR #46 — Add 5 More Anti-Pattern Tests
-| PR File | Existing Implementation | Evidence |
-|---------|------------------------|----------|
+
+| PR File                          | Existing Implementation                      | Evidence            |
+| -------------------------------- | -------------------------------------------- | ------------------- |
 | `tests/ci/test_anti_patterns.py` | `tests/ci/test_anti_patterns.py` (509 lines) | File exists on main |
-| `ci/run_ci_gates.sh` | `ci/run_ci_gates.sh` (584 lines) | File exists on main |
+| `ci/run_ci_gates.sh`             | `ci/run_ci_gates.sh` (584 lines)             | File exists on main |
 
 **Status:** ✅ 100% already on main
 
 ### PR #50 — Remove CRITICAL Anti-Pattern Violations + Git Hook
-| PR File | Existing Implementation | Evidence |
-|---------|------------------------|----------|
-| `tests/ci/test_anti_patterns.py` | `tests/ci/test_anti_patterns.py` | Same as PR #46 |
-| `ci/run_ci_gates.sh` | `ci/run_ci_gates.sh` | Same as PR #46 |
-| `scripts/hooks/pre-commit` | `scripts/hooks/pre-commit` (428 lines) | Production-grade hook exists |
+
+| PR File                          | Existing Implementation                | Evidence                     |
+| -------------------------------- | -------------------------------------- | ---------------------------- |
+| `tests/ci/test_anti_patterns.py` | `tests/ci/test_anti_patterns.py`       | Same as PR #46               |
+| `ci/run_ci_gates.sh`             | `ci/run_ci_gates.sh`                   | Same as PR #46               |
+| `scripts/hooks/pre-commit`       | `scripts/hooks/pre-commit` (428 lines) | Production-grade hook exists |
 
 **Status:** ✅ Core functionality on main
 
 ### PR #51 — Spring Cleaning - Track All TODOs with GMP Tickets
-| PR File | Existing Implementation | Evidence |
-|---------|------------------------|----------|
+
+| PR File                          | Existing Implementation          | Evidence  |
+| -------------------------------- | -------------------------------- | --------- |
 | `tests/ci/test_anti_patterns.py` | `tests/ci/test_anti_patterns.py` | Same file |
-| `ci/run_ci_gates.sh` | `ci/run_ci_gates.sh` | Same file |
+| `ci/run_ci_gates.sh`             | `ci/run_ci_gates.sh`             | Same file |
 
 **Status:** ✅ Core functionality on main
 
 ### PR #49 — ADR Enforcement Infrastructure
-| PR File | Existing Implementation | Evidence |
-|---------|------------------------|----------|
-| `core/protocols/service_protocols.py` | `core/protocols/service_protocols.py` (334 lines) | GMP-114 already adopted |
-| `core/patterns/singleton.py` | `core/singleton_registry.py` | Different approach, conflicts |
-| `.pre-commit-config.yaml` | `.pre-commit-config.yaml` (1056 bytes) | Already exists |
+
+| PR File                               | Existing Implementation                           | Evidence                      |
+| ------------------------------------- | ------------------------------------------------- | ----------------------------- |
+| `core/protocols/service_protocols.py` | `core/protocols/service_protocols.py` (334 lines) | GMP-114 already adopted       |
+| `core/patterns/singleton.py`          | `core/singleton_registry.py`                      | Different approach, conflicts |
+| `.pre-commit-config.yaml`             | `.pre-commit-config.yaml` (1056 bytes)            | Already exists                |
 
 **Status:** ✅ Useful parts adopted via GMP-114
 
@@ -79,15 +83,16 @@
 ## 🆕 Not Yet Implemented (ADOPT These)
 
 ### PR #54 — Add 7 Design Pattern ADRs
-| PR File | Purpose | Complexity |
-|---------|---------|------------|
-| `readme/adr/0056-singleton-class-decorator.md` | Singleton pattern docs | 🤖 AUTO |
-| `readme/adr/0057-decorator-metadata-preservation.md` | Decorator docs | 🤖 AUTO |
-| `readme/adr/0058-mediator-pattern-agent-communication.md` | Mediator docs | 🤖 AUTO |
-| `readme/adr/0059-facade-pattern-simplified-api.md` | Facade docs | 🤖 AUTO |
-| `readme/adr/0060-observer-pattern-agent-monitoring.md` | Observer docs | 🤖 AUTO |
-| `readme/adr/0061-composite-pattern-agent-hierarchies.md` | Composite docs | 🤖 AUTO |
-| `readme/adr/0062-factory-pattern-consolidation.md` | Factory docs | 🤖 AUTO |
+
+| PR File                                                   | Purpose                | Complexity |
+| --------------------------------------------------------- | ---------------------- | ---------- |
+| `readme/adr/0056-singleton-class-decorator.md`            | Singleton pattern docs | 🤖 AUTO    |
+| `readme/adr/0057-decorator-metadata-preservation.md`      | Decorator docs         | 🤖 AUTO    |
+| `readme/adr/0058-mediator-pattern-agent-communication.md` | Mediator docs          | 🤖 AUTO    |
+| `readme/adr/0059-facade-pattern-simplified-api.md`        | Facade docs            | 🤖 AUTO    |
+| `readme/adr/0060-observer-pattern-agent-monitoring.md`    | Observer docs          | 🤖 AUTO    |
+| `readme/adr/0061-composite-pattern-agent-hierarchies.md`  | Composite docs         | 🤖 AUTO    |
+| `readme/adr/0062-factory-pattern-consolidation.md`        | Factory docs           | 🤖 AUTO    |
 
 **Status:** 🆕 ADRs 0056-0062 do not exist (latest is 0055). ADOPT ALL.
 
@@ -96,28 +101,31 @@
 ## 🔄 Conflicting Implementations (Partial Adopt)
 
 ### PR #53 — Design Pattern Improvements
-| PR File | Existing File | Difference | Decision |
-|---------|---------------|------------|----------|
-| `core/patterns/singleton.py` | `core/singleton_registry.py` | PR uses class decorator, repo uses registry | **SKIP** |
-| `core/facade/l9_facade.py` | — | NEW | **ADOPT** |
-| `core/coordination/agent_mediator.py` | — | NEW | **ADOPT** |
-| `core/decorators_enhanced.py` | `core/decorators.py` | Enhanced version | **REVIEW** |
+
+| PR File                               | Existing File                | Difference                                  | Decision   |
+| ------------------------------------- | ---------------------------- | ------------------------------------------- | ---------- |
+| `core/patterns/singleton.py`          | `core/singleton_registry.py` | PR uses class decorator, repo uses registry | **SKIP**   |
+| `core/facade/l9_facade.py`            | —                            | NEW                                         | **ADOPT**  |
+| `core/coordination/agent_mediator.py` | —                            | NEW                                         | **ADOPT**  |
+| `core/decorators_enhanced.py`         | `core/decorators.py`         | Enhanced version                            | **REVIEW** |
 
 ### PR #36 — Remediate unsafe eval() and rate limiting
-| PR File | Existing File | Difference | Decision |
-|---------|---------------|------------|----------|
-| `api/middleware/rate_limiter.py` | `core/governance/rate_limit_policy.py` (663 lines) | Duplicate functionality | **SKIP** |
-| `readme/adr/0041-unsafe-eval-remediation.md` | — | NEW | **ADOPT** |
-| `readme/adr/0042-rate-limiting-middleware.md` | — | NEW | **ADOPT** |
-| `core/error_tracking.py` fixes | `core/error_tracking.py` | Security fixes | **REVIEW** |
-| `core/tools/base_registry.py` fixes | `core/tools/base_registry.py` | Security fixes | **REVIEW** |
+
+| PR File                                       | Existing File                                      | Difference              | Decision   |
+| --------------------------------------------- | -------------------------------------------------- | ----------------------- | ---------- |
+| `api/middleware/rate_limiter.py`              | `core/governance/rate_limit_policy.py` (663 lines) | Duplicate functionality | **SKIP**   |
+| `readme/adr/0041-unsafe-eval-remediation.md`  | —                                                  | NEW                     | **ADOPT**  |
+| `readme/adr/0042-rate-limiting-middleware.md` | —                                                  | NEW                     | **ADOPT**  |
+| `core/error_tracking.py` fixes                | `core/error_tracking.py`                           | Security fixes          | **REVIEW** |
+| `core/tools/base_registry.py` fixes           | `core/tools/base_registry.py`                      | Security fixes          | **REVIEW** |
 
 ### PR #48 — Complete AutoRegistry Migration
-| PR File | Status | Decision |
-|---------|--------|----------|
-| `runtime/tool_registry.py` | ⚠️ Need verification | **REVIEW** |
+
+| PR File                          | Status               | Decision   |
+| -------------------------------- | -------------------- | ---------- |
+| `runtime/tool_registry.py`       | ⚠️ Need verification | **REVIEW** |
 | `core/tools/reflection_tools.py` | ⚠️ Need verification | **REVIEW** |
-| `core/tools/research_tools.py` | ⚠️ Need verification | **REVIEW** |
+| `core/tools/research_tools.py`   | ⚠️ Need verification | **REVIEW** |
 
 ---
 
@@ -125,45 +133,46 @@
 
 ### ✅ IMPLEMENTED (From These PRs)
 
-| Item | Source PR | Target Location | Method |
-|------|-----------|-----------------|--------|
-| Anti-pattern tests | #46, #50, #51 | `tests/ci/test_anti_patterns.py` | Already on main |
-| CI gates script | #46, #50, #51 | `ci/run_ci_gates.sh` | Already on main |
-| Pre-commit hook | #50 | `scripts/hooks/pre-commit` | Already on main |
-| Service protocols | #49 | `core/protocols/service_protocols.py` | GMP-114 adopted |
-| Pre-commit config | #49 | `.pre-commit-config.yaml` | GMP-114 adopted |
+| Item               | Source PR     | Target Location                       | Method          |
+| ------------------ | ------------- | ------------------------------------- | --------------- |
+| Anti-pattern tests | #46, #50, #51 | `tests/ci/test_anti_patterns.py`      | Already on main |
+| CI gates script    | #46, #50, #51 | `ci/run_ci_gates.sh`                  | Already on main |
+| Pre-commit hook    | #50           | `scripts/hooks/pre-commit`            | Already on main |
+| Service protocols  | #49           | `core/protocols/service_protocols.py` | GMP-114 adopted |
+| Pre-commit config  | #49           | `.pre-commit-config.yaml`             | GMP-114 adopted |
 
 ### ❌ NOT IMPLEMENTED (Skipped)
 
-| Item | Source PR | Reason |
-|------|-----------|--------|
-| `core/patterns/singleton.py` | #49, #53 | `core/singleton_registry.py` already exists with different approach |
-| `api/middleware/rate_limiter.py` | #36 | `core/governance/rate_limit_policy.py` (663 lines) already exists |
-| `core/di/bootstrap_integration.py` | #49 | Conflicts with production bootstrap in `core/bootstrap/` |
-| `pyproject.toml` full replacement | #49 | Would overwrite existing config |
+| Item                               | Source PR | Reason                                                              |
+| ---------------------------------- | --------- | ------------------------------------------------------------------- |
+| `core/patterns/singleton.py`       | #49, #53  | `core/singleton_registry.py` already exists with different approach |
+| `api/middleware/rate_limiter.py`   | #36       | `core/governance/rate_limit_policy.py` (663 lines) already exists   |
+| `core/di/bootstrap_integration.py` | #49       | Conflicts with production bootstrap in `core/bootstrap/`            |
+| `pyproject.toml` full replacement  | #49       | Would overwrite existing config                                     |
 
 ### ⚠️ MIS-ALIGNED (Issues Found)
 
-| Item | PR Approach | Repo Standard | Issue |
-|------|-------------|---------------|-------|
-| Singleton pattern | Class decorator in `core/patterns/` | Registry in `core/singleton_registry.py` | Two different patterns |
-| Rate limiting | New middleware in `api/middleware/` | Policy-based in `core/governance/` | Architectural mismatch |
-| Bootstrap integration | New file | Existing bootstrap phases | Would conflict |
-| ADR numbering | 0056-0062 | Latest is 0055 | OK - sequential |
+| Item                  | PR Approach                         | Repo Standard                            | Issue                  |
+| --------------------- | ----------------------------------- | ---------------------------------------- | ---------------------- |
+| Singleton pattern     | Class decorator in `core/patterns/` | Registry in `core/singleton_registry.py` | Two different patterns |
+| Rate limiting         | New middleware in `api/middleware/` | Policy-based in `core/governance/`       | Architectural mismatch |
+| Bootstrap integration | New file                            | Existing bootstrap phases                | Would conflict         |
+| ADR numbering         | 0056-0062                           | Latest is 0055                           | OK - sequential        |
 
 ### 🔧 REALIGNED (Changes Made)
 
-| Item | Original PR | Changed To | Why |
-|------|-------------|------------|-----|
-| Service protocols | PR #49 full file | Selective adoption | GMP-114 took useful parts only |
-| Pre-commit config | PR #49 full file | Merge with existing | Preserve existing hooks |
-| Anti-pattern tests | Multiple PRs same file | Use main version | Avoid conflict |
+| Item               | Original PR            | Changed To          | Why                            |
+| ------------------ | ---------------------- | ------------------- | ------------------------------ |
+| Service protocols  | PR #49 full file       | Selective adoption  | GMP-114 took useful parts only |
+| Pre-commit config  | PR #49 full file       | Merge with existing | Preserve existing hooks        |
+| Anti-pattern tests | Multiple PRs same file | Use main version    | Avoid conflict                 |
 
 ---
 
 ## 🚀 PR CLOSE COMMANDS
 
 ### PR #46 (Anti-Pattern Tests) — CLOSE
+
 ```bash
 gh pr comment 46 --body "## PR Analysis Complete
 
@@ -183,6 +192,7 @@ gh pr close 46 -c "Closing: Content already on main. See GMP-Report-117."
 ```
 
 ### PR #50 (Anti-Pattern Violations) — CLOSE
+
 ```bash
 gh pr comment 50 --body "## PR Analysis Complete
 
@@ -203,6 +213,7 @@ gh pr close 50 -c "Closing: Content already on main. See GMP-Report-117."
 ```
 
 ### PR #51 (Spring Cleaning) — CLOSE
+
 ```bash
 gh pr comment 51 --body "## PR Analysis Complete
 
@@ -223,6 +234,7 @@ gh pr close 51 -c "Closing: Content already on main. See GMP-Report-117."
 ```
 
 ### PR #49 (ADR Enforcement) — CLOSE
+
 ```bash
 gh pr comment 49 --body "## PR Analysis Complete
 
@@ -249,6 +261,7 @@ gh pr close 49 -c "Closing: Useful parts adopted via GMP-114. See GMP-Report-117
 ```
 
 ### PR #48 (AutoRegistry Migration) — NEEDS REVIEW
+
 ```bash
 gh pr comment 48 --body "## PR Analysis Complete
 
@@ -266,6 +279,7 @@ Recommendation: Manual review required before adoption."
 ```
 
 ### PR #36 (Eval + Rate Limiting) — PARTIAL CLOSE
+
 ```bash
 gh pr comment 36 --body "## PR Analysis Complete
 
@@ -292,6 +306,7 @@ gh pr close 36 -c "Closing: ADRs + security fixes adoptable separately. Rate lim
 ```
 
 ### PR #53 (Design Patterns) — PARTIAL CLOSE
+
 ```bash
 gh pr comment 53 --body "## PR Analysis Complete
 
@@ -318,6 +333,7 @@ gh pr close 53 -c "Closing: Facade/mediator adoptable separately. Singleton conf
 ```
 
 ### PR #54 (Design Pattern ADRs) — ADOPT
+
 ```bash
 gh pr comment 54 --body "## PR Analysis Complete
 

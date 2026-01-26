@@ -31,7 +31,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, Any
+from typing import Any
 
 # OpenAPI Metadata
 OPENAPI_METADATA = {
@@ -227,7 +227,7 @@ REDOC_PARAMETERS = {
 }
 
 
-def get_openapi_config() -> Dict[str, Any]:
+def get_openapi_config() -> dict[str, Any]:
     """
     Get complete OpenAPI configuration for FastAPI app.
 
@@ -242,7 +242,7 @@ def get_openapi_config() -> Dict[str, Any]:
     }
 
 
-def get_security_schemes() -> Dict[str, Dict[str, Any]]:
+def get_security_schemes() -> dict[str, dict[str, Any]]:
     """
     Get OpenAPI security schemes.
 

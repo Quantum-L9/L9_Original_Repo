@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -110,24 +110,24 @@ class AgentHandshake(BaseModel):
 
     # Version and metadata
     agent_version: str = Field(default="0.1.0", description="Agent semantic version")
-    capabilities: List[str] = Field(
+    capabilities: list[str] = Field(
         default_factory=list,
         description="List of capability names (simple string list)",
     )
 
     # Authentication (optional, can be in query params or handshake)
-    auth_token: Optional[str] = Field(
+    auth_token: str | None = Field(
         None, description="Authentication token (can also be provided via query params)"
     )
 
     # Full capability object (optional, for advanced use)
-    agent_capabilities: Optional[AgentCapabilities] = Field(
+    agent_capabilities: AgentCapabilities | None = Field(
         None, description="Full AgentCapabilities object for detailed permissions"
     )
 
     # Environment metadata
-    hostname: Optional[str] = Field(None, description="Host where agent runs")
-    platform: Optional[str] = Field(None, description="Platform identifier")
+    hostname: str | None = Field(None, description="Host where agent runs")
+    platform: str | None = Field(None, description="Platform identifier")
 
     # Session tracking
     session_id: UUID = Field(default_factory=uuid4, description="Session identifier")
@@ -188,16 +188,16 @@ class HandshakeResponse(BaseModel):
     status: HandshakeStatus = Field(..., description="Acceptance status")
 
     # Approved capabilities
-    effective_capabilities: List[str] = Field(
+    effective_capabilities: list[str] = Field(
         default_factory=list, description="Capabilities actually granted"
     )
 
     # Session management
-    session_token: Optional[str] = Field(None, description="Session token for requests")
-    expires_at: Optional[datetime] = Field(None, description="Handshake expiration")
+    session_token: str | None = Field(None, description="Session token for requests")
+    expires_at: datetime | None = Field(None, description="Handshake expiration")
 
     # Rejection details
-    rejection_reason: Optional[str] = Field(None, description="Reason if rejected")
+    rejection_reason: str | None = Field(None, description="Reason if rejected")
 
     timestamp: datetime = Field(
         default_factory=datetime.utcnow, description="Response timestamp"
@@ -230,11 +230,11 @@ class SecurityEvent(BaseModel):
     event_type: SecurityEventType = Field(..., description="Type of security event")
 
     # Context
-    agent_id: Optional[str] = Field(None, description="Agent involved")
-    session_id: Optional[UUID] = Field(None, description="Session context")
+    agent_id: str | None = Field(None, description="Agent involved")
+    session_id: UUID | None = Field(None, description="Session context")
 
     # Event details
-    details: Dict[str, Any] = Field(
+    details: dict[str, Any] = Field(
         default_factory=dict, description="Event-specific details"
     )
     severity: str = Field(default="info", description="Event severity")
@@ -245,10 +245,10 @@ class SecurityEvent(BaseModel):
     )
 
     # Correlation
-    correlation_id: Optional[UUID] = Field(
+    correlation_id: UUID | None = Field(
         None, description="Correlation ID for tracing related events"
     )
-    trace_id: Optional[str] = Field(None, description="Distributed trace ID")
+    trace_id: str | None = Field(None, description="Distributed trace ID")
 
     model_config = {"frozen": True}
 
@@ -275,7 +275,7 @@ class CapabilityViolation(BaseModel):
     tool_attempted: ToolName = Field(..., description="Tool that was attempted")
 
     # Action details
-    action_details: Dict[str, Any] = Field(
+    action_details: dict[str, Any] = Field(
         default_factory=dict, description="Details of attempted action"
     )
 
@@ -286,8 +286,8 @@ class CapabilityViolation(BaseModel):
     )
 
     # Context
-    session_id: Optional[UUID] = Field(None, description="Session context")
-    correlation_id: Optional[UUID] = Field(None, description="Correlation ID")
+    session_id: UUID | None = Field(None, description="Session context")
+    correlation_id: UUID | None = Field(None, description="Correlation ID")
 
     # Timing
     timestamp: datetime = Field(
@@ -339,14 +339,14 @@ def create_violation_event(violation: CapabilityViolation) -> SecurityEvent:
 # =============================================================================
 
 __all__ = [
-    # Enums
-    "HandshakeStatus",
-    "SecurityEventType",
     # Models
     "AgentHandshake",
-    "HandshakeResponse",
-    "SecurityEvent",
     "CapabilityViolation",
+    "HandshakeResponse",
+    # Enums
+    "HandshakeStatus",
+    "SecurityEvent",
+    "SecurityEventType",
     # Factories
     "create_handshake_event",
     "create_violation_event",

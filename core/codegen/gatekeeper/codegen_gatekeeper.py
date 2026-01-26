@@ -30,21 +30,19 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncio
 import json
 import os
 import uuid
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 from pydantic import BaseModel, Field
 
 # L9 imports (matching existing patterns)
-from core.agents.base_agent import BaseAgent, AgentResponse
-from core.tools.registry_adapter import get_tool_registry_adapter
+from core.agents.base_agent import AgentResponse, BaseAgent
 
 
 class ContractType(str, Enum):
@@ -131,7 +129,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
     def __init__(
         self,
         agent_id: str = "codegen_gatekeeper",
-        perplexity_api_key: Optional[str] = None,
+        perplexity_api_key: str | None = None,
         research_enabled: bool = True,
         min_confidence: float = 85.0,
         **kwargs,
@@ -149,7 +147,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
         )
 
         self.logger.info(
-            f"CodeGenGatekeeperAgent initialized",
+            "CodeGenGatekeeperAgent initialized",
             extra={
                 "research_enabled": self.research_enabled,
                 "min_confidence": self.min_confidence,
@@ -157,7 +155,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
         )
 
     async def run(
-        self, task: dict[str, Any], context: Optional[dict[str, Any]] = None
+        self, task: dict[str, Any], context: dict[str, Any] | None = None
     ) -> AgentResponse:
         """
         Main entry point for code generation requests.
@@ -179,7 +177,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
             options = task.get("options", {})
 
             self.logger.info(
-                f"Processing code generation request",
+                "Processing code generation request",
                 extra={
                     "contract_type": contract_type.value,
                     "output_dir": str(output_dir),
@@ -197,7 +195,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
             # Step 2: Check confidence threshold
             if normalized_spec.confidence < self.min_confidence:
                 self.logger.warning(
-                    f"Confidence below threshold",
+                    "Confidence below threshold",
                     extra={
                         "confidence": normalized_spec.confidence,
                         "min_confidence": self.min_confidence,
@@ -309,7 +307,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
         processing_time = (datetime.utcnow() - start_time).total_seconds()
 
         self.logger.info(
-            f"Contract processed",
+            "Contract processed",
             extra={
                 "contract_type": contract_type.value,
                 "confidence": confidence,
@@ -523,7 +521,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
                         )
 
                         self.logger.info(
-                            f"Research completed for blind spot",
+                            "Research completed for blind spot",
                             extra={
                                 "category": blind_spot.category,
                                 "sources_count": len(sources),
@@ -728,27 +726,26 @@ class CodeGenGatekeeperAgent(BaseAgent):
         if contract_type == ContractType.SYMCODE or "_symcode_spec" in spec:
             return "symcode"
 
-        elif contract_type == ContractType.AGENT_YAML and confidence >= 90:
+        if contract_type == ContractType.AGENT_YAML and confidence >= 90:
             # High confidence agent spec → QPF factory
             return "qpf_factory"
 
-        elif contract_type == ContractType.MODULE_BLOCK:
+        if contract_type == ContractType.MODULE_BLOCK:
             # Module block → deterministic compiler
             return "module_compiler"
 
-        elif contract_type == ContractType.CONCEPT:
+        if contract_type == ContractType.CONCEPT:
             # Natural language concept → SuperPrompt
             return "superprompt"
 
-        else:
-            # Default to hybrid approach
-            return "hybrid"
+        # Default to hybrid approach
+        return "hybrid"
 
     async def generate_code(
         self,
         spec: NormalizedSpec,
         output_dir: Path,
-        options: Optional[dict[str, Any]] = None,
+        options: dict[str, Any] | None = None,
     ) -> CodeGenOutput:
         """
         Generate production-ready code from normalized spec.

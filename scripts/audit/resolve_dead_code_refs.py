@@ -46,7 +46,7 @@ import re
 import sys
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -95,7 +95,7 @@ class ResolvedFinding:
     message: str
     context: str = ""
     is_false_positive: bool = False
-    false_positive_reason: Optional[str] = None
+    false_positive_reason: str | None = None
     accessed_via: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -130,7 +130,7 @@ class FalsePositiveDetector:
 
     def __init__(self, repo_root: Path = REPO_ROOT):
         self.repo_root = repo_root
-        self._codebase_content: Optional[str] = None
+        self._codebase_content: str | None = None
         self._registry_patterns: set[str] = set()
         self._protocol_implementations: set[str] = set()
         self._inheritance_map: dict[str, list[str]] = {}
@@ -213,7 +213,7 @@ class FalsePositiveDetector:
             except Exception:
                 continue
 
-    def check_dynamic_access(self, symbol: str, content: str) -> Optional[str]:
+    def check_dynamic_access(self, symbol: str, content: str) -> str | None:
         """Check if symbol is accessed dynamically via getattr, __dict__, etc."""
         patterns = [
             (rf"getattr\([^,]+,\s*['\"]?{re.escape(symbol)}['\"]?\)", "getattr()"),
@@ -236,8 +236,8 @@ class FalsePositiveDetector:
         return symbol in self._protocol_implementations
 
     def check_inheritance_usage(
-        self, symbol: str, class_name: Optional[str] = None
-    ) -> Optional[str]:
+        self, symbol: str, class_name: str | None = None
+    ) -> str | None:
         """Check if symbol is used in subclasses."""
         if class_name and class_name in self._inheritance_map:
             subclasses = self._inheritance_map[class_name]
@@ -256,7 +256,7 @@ class FalsePositiveDetector:
         symbol_lower = symbol.lower()
         return any(p in symbol_lower for p in fixture_patterns)
 
-    def check_dynamic_import(self, symbol: str, content: str) -> Optional[str]:
+    def check_dynamic_import(self, symbol: str, content: str) -> str | None:
         """Check if symbol might be loaded via importlib."""
         patterns = [
             rf"import_module\(['\"].*{re.escape(symbol)}",
@@ -268,7 +268,7 @@ class FalsePositiveDetector:
                 return "dynamic import"
         return None
 
-    def check_serialization_usage(self, symbol: str, content: str) -> Optional[str]:
+    def check_serialization_usage(self, symbol: str, content: str) -> str | None:
         """Check if symbol might be used in serialization (JSON, dataclass_json, etc.)."""
         # Dataclass fields often accessed via asdict, model_dump, etc.
         patterns = [
@@ -290,7 +290,7 @@ class FalsePositiveDetector:
                 return reason
         return None
 
-    def check_excluded_directory(self, filepath: str) -> Optional[str]:
+    def check_excluded_directory(self, filepath: str) -> str | None:
         """Check if file is in an excluded directory (generated code, archives, etc.)."""
         for excluded in EXCLUDED_DIRS:
             if excluded in filepath:
@@ -341,13 +341,13 @@ class FalsePositiveDetector:
             except Exception:
                 continue
 
-    def check_pydantic_model(self, class_name: Optional[str]) -> bool:
+    def check_pydantic_model(self, class_name: str | None) -> bool:
         """Check if class is a Pydantic model (fields auto-serialized)."""
         if class_name:
             return class_name in self._pydantic_models
         return False
 
-    def check_response_model(self, class_name: Optional[str]) -> bool:
+    def check_response_model(self, class_name: str | None) -> bool:
         """Check if class is used as FastAPI response_model."""
         if class_name:
             return class_name in self._response_models
@@ -468,7 +468,7 @@ class FalsePositiveDetector:
 def resolve_dead_code_refs(
     baseline_file: Path,
     repo_root: Path = REPO_ROOT,
-    output_file: Optional[Path] = None,
+    output_file: Path | None = None,
 ) -> ResolutionResult:
     """
     Resolve false positives from Phase 1 baseline.

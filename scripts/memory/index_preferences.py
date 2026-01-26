@@ -46,7 +46,7 @@ import asyncio
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 from dotenv import load_dotenv
@@ -66,7 +66,7 @@ DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
 
 async def query_preference_packets(
     database_url: str, limit: int = 1000
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Query packet_store for packets with kind=preference.
 
@@ -85,7 +85,7 @@ async def query_preference_packets(
             # Query preference packets
             packet_rows = await conn.fetch(
                 """
-                SELECT 
+                SELECT
                     packet_id,
                     envelope::jsonb->>'payload' as payload_json,
                     envelope::jsonb->>'metadata' as metadata_json,
@@ -150,7 +150,7 @@ async def query_preference_packets(
             # Also query knowledge_facts for preferences already extracted
             fact_rows = await conn.fetch(
                 """
-                SELECT 
+                SELECT
                     fact_id,
                     subject,
                     predicate,
@@ -223,10 +223,10 @@ async def query_preference_packets(
 
 
 async def index_preferences(
-    preferences: List[Dict[str, Any]],
+    preferences: list[dict[str, Any]],
     substrate_service: Any,
     dry_run: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Index user preferences to memory substrate.
 
@@ -273,7 +273,7 @@ Preference: {preference_text}
 Source: {preference.get("source", "unknown")}
 """
             try:
-                embedding_id = await substrate_service.embed_text(
+                await substrate_service.embed_text(
                     text=preference_context,
                     payload={
                         "user_id": user_id,
@@ -289,9 +289,7 @@ Source: {preference.get("source", "unknown")}
                 logger.debug(f"Failed to create preference embedding: {e}")
 
         except Exception as e:
-            errors.append(
-                f"Preference {preference.get('packet_id', 'unknown')}: {str(e)}"
-            )
+            errors.append(f"Preference {preference.get('packet_id', 'unknown')}: {e!s}")
             logger.debug(f"Failed to index preference: {e}")
 
     return {

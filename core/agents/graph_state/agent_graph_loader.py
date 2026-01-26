@@ -40,12 +40,16 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import structlog
 
-from .schema import (AGENT_EXISTS_QUERY, GET_DIRECTIVES_BY_SEVERITY_QUERY,
-                     GET_TOOLS_QUERY, LOAD_AGENT_STATE_QUERY)
+from .schema import (
+    AGENT_EXISTS_QUERY,
+    GET_DIRECTIVES_BY_SEVERITY_QUERY,
+    GET_TOOLS_QUERY,
+    LOAD_AGENT_STATE_QUERY,
+)
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
@@ -86,7 +90,7 @@ class AgentTool:
     name: str
     risk_level: str  # HIGH, MEDIUM, LOW
     requires_approval: bool
-    approval_source: Optional[str] = None
+    approval_source: str | None = None
 
 
 @dataclass
@@ -109,7 +113,7 @@ class AgentGraphState:
     sops: list[AgentSOP] = field(default_factory=list)
     tools: list[AgentTool] = field(default_factory=list)
 
-    supervisor_id: Optional[str] = None
+    supervisor_id: str | None = None
     collaborator_ids: list[str] = field(default_factory=list)
 
     def get_critical_directives(self) -> list[AgentDirective]:
@@ -139,7 +143,7 @@ class AgentGraphLoader:
     - Full audit trail in Neo4j
     """
 
-    def __init__(self, neo4j_driver: "AsyncDriver"):
+    def __init__(self, neo4j_driver: AsyncDriver):
         self.driver = neo4j_driver
         self._cache: dict[str, AgentGraphState] = {}
 
@@ -276,7 +280,7 @@ class AgentGraphLoader:
             record = await result.single()
             return record is not None and record["exists"]
 
-    def invalidate_cache(self, agent_id: Optional[str] = None) -> None:
+    def invalidate_cache(self, agent_id: str | None = None) -> None:
         """
         Invalidate cached agent state.
 

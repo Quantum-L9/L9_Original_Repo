@@ -59,15 +59,15 @@ Automation and utility scripts
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -93,11 +93,11 @@ scripts/
 └── ... (65 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `generate_gmp_report.py` | A single TODO item from Phase 0. |
+| File                     | Purpose                              |
+| ------------------------ | ------------------------------------ |
+| `generate_gmp_report.py` | A single TODO item from Phase 0.     |
 | `generate_gmp_report.py` | A change made during implementation. |
-| `generate_gmp_report.py` | A validation gate result. |
+| `generate_gmp_report.py` | A validation gate result.            |
 
 ### Naming Conventions
 
@@ -115,7 +115,7 @@ scripts/
 ```python
 class TodoItem:
     """A single TODO item from Phase 0."""
-    
+
     # Key methods:
 
 ```
@@ -127,7 +127,7 @@ class TodoItem:
 ```python
 class ChangeItem:
     """A change made during implementation."""
-    
+
     # Key methods:
 
 ```
@@ -139,7 +139,7 @@ class ChangeItem:
 ```python
 class ValidationResult:
     """A validation gate result."""
-    
+
     # Key methods:
 
 ```
@@ -151,7 +151,7 @@ class ValidationResult:
 ```python
 class PhaseStatus:
     """Status of a GMP phase."""
-    
+
     # Key methods:
 
 ```
@@ -163,13 +163,12 @@ class PhaseStatus:
 ```python
 class GMPReportData:
     """All data needed to generate a GMP report."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 100-117 in `generate_gmp_report.py`
-
 
 ---
 
@@ -243,9 +242,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Scripts feature flags
-L9_ENABLE_SCRIPTS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_SCRIPTS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_SCRIPTS_AUDIT: true    # Enable audit logging
+L9_ENABLE_SCRIPTS_TRACING: true # Enable detailed tracing
+L9_ENABLE_SCRIPTS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_SCRIPTS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -307,7 +306,6 @@ Load GMP data from a JSON file.
 - **File:** `generate_gmp_report.py:518`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -348,6 +346,7 @@ Scripts operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -355,12 +354,12 @@ Scripts operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                          | Type      | Description                    |
+| ------------------------------- | --------- | ------------------------------ |
 | `scripts_operation_duration_ms` | Histogram | Operation latency distribution |
-| `scripts_operation_total` | Counter | Total operations processed |
-| `scripts_error_total` | Counter | Total errors encountered |
-| `scripts_active_connections` | Gauge | Current active connections |
+| `scripts_operation_total`       | Counter   | Total operations processed     |
+| `scripts_error_total`           | Counter   | Total errors encountered       |
+| `scripts_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -378,6 +377,7 @@ Scripts emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/scripts/`:
+
 - `test_scripts.py` — Core unit tests
 - `test_scripts_integration.py` — Integration tests (if applicable)
 
@@ -421,6 +421,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

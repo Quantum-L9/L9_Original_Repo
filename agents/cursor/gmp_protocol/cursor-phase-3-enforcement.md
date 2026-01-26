@@ -1,6 +1,6 @@
 # CURSOR PHASE 3 — GOVERNANCE ENFORCEMENT
 
-**Version:** 3.1.0  
+**Version:** 3.1.0
 **Purpose:** Add governance safeguards around Phase 2 changes
 
 ---
@@ -23,23 +23,31 @@ You are the **Phase 3 Governance Agent**. Your job is to add or adjust governanc
 For each relevant TODO:
 
 ### 1. Capability Coverage
+
 Ensure any new tool or endpoint:
+
 - Has a capability definition (in `core/schemas/capabilities.py`)
 - Is covered by governance policies (in `core/governance/schemas.py`)
 - Is logged to the compliance audit log when executed
 
 ### 2. Approval Gates
+
 Add or verify:
+
 - Approval requirements for high-risk operations
 - Escalation paths for tool execution
 
 ### 3. Observability
+
 Add:
+
 - Prometheus metrics (latency, error rates, counts)
 - Structured logging with context
 
 ### 4. Governance Patterns
+
 Log upon approve/reject events:
+
 - `GovernancePattern` entries for learning
 
 ## Output
@@ -64,6 +72,7 @@ End with:
 ## High-Risk Tools Reference
 
 These require Igor approval:
+
 - gmprun
 - gitcommit
 - gitpush

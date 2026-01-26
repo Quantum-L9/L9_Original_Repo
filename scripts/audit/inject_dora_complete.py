@@ -54,7 +54,6 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
 
 # ============================================================================
 # DATA MODELS
@@ -68,7 +67,7 @@ class ClassInfo:
     file_path: str
     line_number: int
     module_path: str
-    bases: List[str] = field(default_factory=list)  # Base class names
+    bases: list[str] = field(default_factory=list)  # Base class names
 
 
 @dataclass
@@ -88,7 +87,7 @@ class HeaderMeta:
     compliance_required: bool
     audit_trail: bool
     purpose: str
-    dependencies: List[str]
+    dependencies: list[str]
 
 
 @dataclass
@@ -112,11 +111,11 @@ class DoraTraceBlock:
     trace_id: str = ""
     task: str = ""
     timestamp: str = ""
-    patterns_used: List[str] = field(default_factory=list)
-    graph: Dict = field(default_factory=lambda: {"nodes": [], "edges": []})
-    inputs: Dict = field(default_factory=dict)
-    outputs: Dict = field(default_factory=dict)
-    metrics: Dict = field(
+    patterns_used: list[str] = field(default_factory=list)
+    graph: dict = field(default_factory=lambda: {"nodes": [], "edges": []})
+    inputs: dict = field(default_factory=dict)
+    outputs: dict = field(default_factory=dict)
+    metrics: dict = field(
         default_factory=lambda: {
             "confidence": "",
             "errors_detected": [],
@@ -219,12 +218,12 @@ class DoraCompleteInjector:
 
     def __init__(self, repo_path: str):
         self.repo_path = Path(repo_path)
-        self.classes_found: List[ClassInfo] = []
-        self.files_to_process: Dict[str, List[ClassInfo]] = {}
-        self.component_id_counter: Dict[str, int] = {}
+        self.classes_found: list[ClassInfo] = []
+        self.files_to_process: dict[str, list[ClassInfo]] = {}
+        self.component_id_counter: dict[str, int] = {}
 
     def scan_repository(
-        self, single_file: Optional[str] = None, force: bool = False
+        self, single_file: str | None = None, force: bool = False
     ) -> None:
         """Scan repository for Python and YAML files."""
         if single_file:
@@ -280,10 +279,10 @@ class DoraCompleteInjector:
             f"✅ Found {len(self.classes_found)} classes in {py_count} Python files, {yaml_count} YAML files"
         )
 
-    def _extract_classes(self, file_path: Path) -> List[ClassInfo]:
+    def _extract_classes(self, file_path: Path) -> list[ClassInfo]:
         """Extract class definitions from a Python file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             tree = ast.parse(content, filename=str(file_path))
@@ -318,7 +317,7 @@ class DoraCompleteInjector:
         """Convert file path to Python module path."""
         try:
             rel_path = file_path.relative_to(self.repo_path)
-            module_parts = list(rel_path.parts[:-1]) + [rel_path.stem]
+            module_parts = [*list(rel_path.parts[:-1]), rel_path.stem]
             return ".".join(module_parts)
         except ValueError:
             return file_path.stem
@@ -401,7 +400,7 @@ class DoraCompleteInjector:
 
         # Priority 2: Content-based detection
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
                 content_lower = content.lower()
 
@@ -456,20 +455,20 @@ class DoraCompleteInjector:
                 if "production" in docstring:
                     return "production"
 
-        except (IOError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             pass
 
         # Default: active
         return "active"
 
     def _detect_type_from_content(
-        self, file_path: str, classes: List[ClassInfo]
-    ) -> Optional[str]:
+        self, file_path: str, classes: list[ClassInfo]
+    ) -> str | None:
         """Detect file type from decorators, base classes, and content patterns."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-        except (IOError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             return None
 
         # Priority 1: Decorator patterns (most specific)
@@ -537,12 +536,12 @@ class DoraCompleteInjector:
 
         return None
 
-    def _get_reverse_imports(self, file_path: str) -> List[str]:
+    def _get_reverse_imports(self, file_path: str) -> list[str]:
         """Find what files import this module using ripgrep."""
         try:
             # Convert file path to module path for import matching
             rel_path = Path(file_path).relative_to(self.repo_path)
-            module_parts = list(rel_path.parts[:-1]) + [rel_path.stem]
+            module_parts = [*list(rel_path.parts[:-1]), rel_path.stem]
             module_path = ".".join(module_parts)
 
             # Also check for partial imports (e.g., "from core.agents import executor")
@@ -574,7 +573,7 @@ class DoraCompleteInjector:
                                 try:
                                     imp_rel = Path(f).relative_to(Path("."))
                                     imp_module = ".".join(
-                                        list(imp_rel.parts[:-1]) + [imp_rel.stem]
+                                        [*list(imp_rel.parts[:-1]), imp_rel.stem]
                                     )
                                     importers.add(imp_module)
                                 except ValueError:
@@ -582,16 +581,16 @@ class DoraCompleteInjector:
                 except subprocess.TimeoutExpired:
                     continue
 
-            return sorted(list(importers))[:10]  # Limit to top 10
+            return sorted(importers)[:10]  # Limit to top 10
         except Exception:
             return []
 
-    def _detect_datasources_from_content(self, file_path: str) -> List[str]:
+    def _detect_datasources_from_content(self, file_path: str) -> list[str]:
         """Detect actual datasource usage from imports and content."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-        except (IOError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             return []
 
         datasources = set()
@@ -646,9 +645,9 @@ class DoraCompleteInjector:
         if any(p in content for p in ["perplexity", "PerplexityClient"]):
             datasources.add("Perplexity API")
 
-        return sorted(list(datasources))
+        return sorted(datasources)
 
-    def _analyze_base_classes(self, classes: List[ClassInfo]) -> Dict[str, any]:
+    def _analyze_base_classes(self, classes: list[ClassInfo]) -> dict[str, any]:
         """Analyze base classes for enhanced type and domain inference."""
         result = {
             "primary_type": None,
@@ -693,12 +692,12 @@ class DoraCompleteInjector:
 
         return result
 
-    def _detect_api_endpoints(self, file_path: str) -> List[str]:
+    def _detect_api_endpoints(self, file_path: str) -> list[str]:
         """Extract API endpoint paths from router files."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-        except (IOError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             return []
 
         endpoints = []
@@ -726,14 +725,11 @@ class DoraCompleteInjector:
 
         if domain in critical_domains or layer in critical_layers:
             return "critical"
-        elif layer == "intelligence":
+        if layer == "intelligence" or layer == "learning":
             return "high"
-        elif layer == "learning":
-            return "high"
-        else:
-            return "medium"
+        return "medium"
 
-    def _parse_module_docstring(self, file_path: str) -> Dict[str, any]:
+    def _parse_module_docstring(self, file_path: str) -> dict[str, any]:
         """Extract metadata from module docstring including structured sections."""
         result = {
             "title": "",
@@ -747,7 +743,7 @@ class DoraCompleteInjector:
         }
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             tree = ast.parse(content)
@@ -813,8 +809,8 @@ class DoraCompleteInjector:
                 for section_name, markers in section_markers.items():
                     if any(
                         stripped_lower.startswith(m)
-                        or stripped_lower.endswith(":")
-                        and m.rstrip(":") in stripped_lower
+                        or (stripped_lower.endswith(":")
+                        and m.rstrip(":") in stripped_lower)
                         for m in markers
                     ):
                         # Save previous section
@@ -891,7 +887,7 @@ class DoraCompleteInjector:
 
         return result
 
-    def _generate_purpose(self, classes: List[ClassInfo], file_path: str) -> str:
+    def _generate_purpose(self, classes: list[ClassInfo], file_path: str) -> str:
         """Generate purpose statement - prefer docstring, fallback to inference."""
         # First try to get from docstring
         doc_meta = self._parse_module_docstring(file_path)
@@ -904,19 +900,18 @@ class DoraCompleteInjector:
 
         if len(class_names) == 1:
             return f"Implements {class_names[0]} for {filename.replace('_', ' ')} functionality"
-        elif len(class_names) > 1:
+        if len(class_names) > 1:
             return f"Provides {filename.replace('_', ' ')} components including {', '.join(class_names[:3])}"
-        else:
-            return f"Utility module for {filename.replace('_', ' ')}"
+        return f"Utility module for {filename.replace('_', ' ')}"
 
-    def _extract_dependencies(self, file_path: str) -> List[str]:
+    def _extract_dependencies(self, file_path: str) -> list[str]:
         """Extract import dependencies from file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             tree = ast.parse(content)
-            deps: Set[str] = set()
+            deps: set[str] = set()
 
             for node in ast.walk(tree):
                 if isinstance(node, ast.Import):
@@ -934,11 +929,11 @@ class DoraCompleteInjector:
                     ):
                         deps.add(node.module)
 
-            return sorted(list(deps))[:5]
+            return sorted(deps)[:5]
         except Exception:
             return []
 
-    def _get_file_dates(self, file_path: str) -> Tuple[str, str]:
+    def _get_file_dates(self, file_path: str) -> tuple[str, str]:
         """Get actual file creation and modification dates."""
         try:
             stat = Path(file_path).stat()
@@ -989,7 +984,7 @@ class DoraCompleteInjector:
         except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
             return "Unknown"
 
-    def _get_git_creation_date(self, file_path: str) -> Optional[str]:
+    def _get_git_creation_date(self, file_path: str) -> str | None:
         """Get actual creation date from git history."""
         try:
             # Get the date of the first commit that added this file
@@ -1022,8 +1017,8 @@ class DoraCompleteInjector:
             return None
 
     def generate_metadata(
-        self, file_path: str, classes: List[ClassInfo]
-    ) -> Tuple[HeaderMeta, FooterMeta, DoraTraceBlock]:
+        self, file_path: str, classes: list[ClassInfo]
+    ) -> tuple[HeaderMeta, FooterMeta, DoraTraceBlock]:
         """Generate all three metadata blocks for a file."""
         # Parse docstring for accurate metadata
         doc_meta = self._parse_module_docstring(file_path)
@@ -1108,10 +1103,10 @@ class DoraCompleteInjector:
 
         return header, footer, trace
 
-    def _check_existing_blocks(self, file_path: str) -> Dict[str, bool]:
+    def _check_existing_blocks(self, file_path: str) -> dict[str, bool]:
         """Check which DORA blocks already exist in file."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             is_yaml = file_path.endswith((".yaml", ".yml"))
@@ -1124,25 +1119,24 @@ class DoraCompleteInjector:
                     "trace": True,  # YAML files don't have trace blocks
                     "legacy": False,
                 }
-            else:
-                # Use regex to detect actual variable assignments at line start
-                # ONLY detect dict assignments - not string templates or comments
-                # This prevents false positives in generator/validator scripts
-                return {
-                    "header": bool(
-                        re.search(r"^__dora_meta__\s*=\s*\{", content, re.MULTILINE)
-                    ),
-                    "footer": bool(
-                        re.search(r"^__dora_footer__\s*=\s*\{", content, re.MULTILINE)
-                    ),
-                    "trace": bool(
-                        re.search(r"^__l9_trace__\s*=\s*\{", content, re.MULTILINE)
-                    ),
-                    # Check for old-style blocks (actual assignment at line start)
-                    "legacy": bool(
-                        re.search(r"^__dora_block__\s*=\s*\{", content, re.MULTILINE)
-                    ),
-                }
+            # Use regex to detect actual variable assignments at line start
+            # ONLY detect dict assignments - not string templates or comments
+            # This prevents false positives in generator/validator scripts
+            return {
+                "header": bool(
+                    re.search(r"^__dora_meta__\s*=\s*\{", content, re.MULTILINE)
+                ),
+                "footer": bool(
+                    re.search(r"^__dora_footer__\s*=\s*\{", content, re.MULTILINE)
+                ),
+                "trace": bool(
+                    re.search(r"^__l9_trace__\s*=\s*\{", content, re.MULTILINE)
+                ),
+                # Check for old-style blocks (actual assignment at line start)
+                "legacy": bool(
+                    re.search(r"^__dora_block__\s*=\s*\{", content, re.MULTILINE)
+                ),
+            }
         except Exception:
             return {"header": False, "footer": False, "trace": False, "legacy": False}
 
@@ -1233,22 +1227,21 @@ class DoraCompleteInjector:
         content = re.sub(
             r"\n# ={76}\n(?=from |import )", "\n", content
         )  # Before imports
-        content = re.sub(r"\n{3,}", "\n\n", content)
+        return re.sub(r"\n{3,}", "\n\n", content)
 
-        return content
 
     def _format_header_meta(
         self, header: HeaderMeta, file_path: str, modified_at: str
     ) -> str:
         """Format Header Meta block for Python file (TOP)."""
-        module_name = Path(file_path).stem
+        Path(file_path).stem
 
         # Generate integrates_with from actual file analysis
-        integrates_with = self._generate_integrates_with(
+        self._generate_integrates_with(
             file_path, header.domain, header.layer
         )
 
-        return f"""# ============================================================================
+        return """# ============================================================================
 """
 
     def _format_header_meta_yaml(
@@ -1290,7 +1283,7 @@ class DoraCompleteInjector:
 
     def _generate_smart_tags_yaml(
         self, file_path: str, domain: str, comp_type: str, layer: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate tags for YAML files."""
         tags = set()
         tags.add(layer)
@@ -1298,7 +1291,7 @@ class DoraCompleteInjector:
         tags.add(domain.replace("_", "-"))
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read().lower()
 
             # YAML-specific tags
@@ -1323,14 +1316,14 @@ class DoraCompleteInjector:
                 if keyword in content:
                     tags.add(tag)
 
-        except (IOError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             pass
 
-        return sorted(list(tags))[:8]
+        return sorted(tags)[:8]
 
     def _generate_smart_keywords_yaml(
         self, file_path: str, component_name: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate keywords for YAML files."""
         keywords = set()
 
@@ -1340,7 +1333,7 @@ class DoraCompleteInjector:
                 keywords.add(word)
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Extract top-level keys as keywords
@@ -1355,14 +1348,14 @@ class DoraCompleteInjector:
             except yaml.YAMLError:
                 pass
 
-        except (IOError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             pass
 
-        return sorted(list(keywords))[:6]
+        return sorted(keywords)[:6]
 
     def _generate_integrates_with(
         self, file_path: str, domain: str, layer: str
-    ) -> Dict:
+    ) -> dict:
         """Generate integrates_with from actual file analysis."""
         # Get real data from file analysis
         api_endpoints = self._detect_api_endpoints(file_path)
@@ -1372,7 +1365,7 @@ class DoraCompleteInjector:
         # Determine memory layers based on actual imports/usage
         memory_layers = []
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Working memory indicators
@@ -1429,11 +1422,10 @@ class DoraCompleteInjector:
                     "PacketEnvelope",
                     "ingest_packet",
                 ]
-            ):
-                if "working_memory" not in memory_layers:
-                    memory_layers.append("working_memory")
+            ) and "working_memory" not in memory_layers:
+                memory_layers.append("working_memory")
 
-        except (IOError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             pass
 
         return {
@@ -1448,27 +1440,27 @@ class DoraCompleteInjector:
         footer: FooterMeta,
         header: HeaderMeta,
         file_path: str = "",
-        classes: List[ClassInfo] = None,
+        classes: list[ClassInfo] | None = None,
     ) -> str:
         """Format Footer Meta block for Python file (BOTTOM, before trace)."""
         classes = classes or []
 
         # Generate smart tags from content analysis (or fallback to basic)
         if file_path:
-            tags = self._generate_smart_tags(
+            self._generate_smart_tags(
                 file_path, classes, header.domain, header.type, header.layer
             )
-            keywords = self._generate_smart_keywords(
+            self._generate_smart_keywords(
                 file_path, classes, header.component_name
             )
         else:
-            tags = self._generate_tags(header.domain, header.type, header.layer)
-            keywords = self._generate_keywords(header.component_name, header.domain)
+            self._generate_tags(header.domain, header.type, header.layer)
+            self._generate_keywords(header.component_name, header.domain)
 
-        return f"""
+        return """
 """
 
-    def _generate_tags(self, domain: str, comp_type: str, layer: str) -> List[str]:
+    def _generate_tags(self, domain: str, comp_type: str, layer: str) -> list[str]:
         """Generate tags based on domain, type, and layer."""
         tags = [domain.replace("_", "-"), comp_type, layer]
 
@@ -1485,7 +1477,7 @@ class DoraCompleteInjector:
 
         return list(set(tags))[:6]  # Limit to 6 unique tags
 
-    def _generate_keywords(self, component_name: str, domain: str) -> List[str]:
+    def _generate_keywords(self, component_name: str, domain: str) -> list[str]:
         """Generate keywords from component name and domain."""
         # Split component name into words
         words = component_name.lower().replace("_", " ").replace("-", " ").split()
@@ -1505,11 +1497,11 @@ class DoraCompleteInjector:
     def _generate_smart_tags(
         self,
         file_path: str,
-        classes: List[ClassInfo],
+        classes: list[ClassInfo],
         domain: str,
         comp_type: str,
         layer: str,
-    ) -> List[str]:
+    ) -> list[str]:
         """Generate tags from actual file content analysis."""
         tags = set()
 
@@ -1519,9 +1511,9 @@ class DoraCompleteInjector:
         tags.add(domain.replace("_", "-"))
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-        except (IOError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             return list(tags)[:8]
 
         # Strip existing DORA blocks to avoid circular detection
@@ -1696,11 +1688,11 @@ class DoraCompleteInjector:
         if "BaseModel" in content:
             tags.add("pydantic")
 
-        return sorted(list(tags))[:10]  # Limit to 10 tags
+        return sorted(tags)[:10]  # Limit to 10 tags
 
     def _generate_smart_keywords(
-        self, file_path: str, classes: List[ClassInfo], component_name: str
-    ) -> List[str]:
+        self, file_path: str, classes: list[ClassInfo], component_name: str
+    ) -> list[str]:
         """Generate keywords from actual content analysis."""
         keywords = set()
 
@@ -1811,7 +1803,7 @@ class DoraCompleteInjector:
                     keywords.add(word.lower())
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Strip existing DORA blocks to avoid circular detection
@@ -1873,12 +1865,12 @@ class DoraCompleteInjector:
                     for word in func_name.split("_"):
                         if is_valid_keyword(word):
                             keywords.add(word)
-        except (IOError, UnicodeDecodeError):
+        except (OSError, UnicodeDecodeError):
             pass
 
-        return sorted(list(keywords))[:8]  # Limit to 8 keywords
+        return sorted(keywords)[:8]  # Limit to 8 keywords
 
-    def _find_test_coverage(self, file_path: str) -> Dict[str, any]:
+    def _find_test_coverage(self, file_path: str) -> dict[str, any]:
         """Find associated test files and estimate coverage."""
         result = {
             "test_files": [],
@@ -1923,10 +1915,10 @@ class DoraCompleteInjector:
             for test_file in result["test_files"][:3]:  # Check first 3
                 try:
                     test_path = self.repo_path / test_file
-                    with open(test_path, "r", encoding="utf-8") as f:
+                    with open(test_path, encoding="utf-8") as f:
                         test_content = f.read()
                     result["test_count"] += len(re.findall(r"def test_", test_content))
-                except (IOError, UnicodeDecodeError):
+                except (OSError, UnicodeDecodeError):
                     pass
 
             result["has_tests"] = len(result["test_files"]) > 0
@@ -1937,7 +1929,7 @@ class DoraCompleteInjector:
 
         return result
 
-    def _generate_success_metrics(self, performance_tier: str) -> Dict:
+    def _generate_success_metrics(self, performance_tier: str) -> dict:
         """Generate success metrics based on performance tier."""
         metrics = {
             "realtime": {
@@ -1963,7 +1955,7 @@ class DoraCompleteInjector:
 
     def _format_trace_block(self, trace: DoraTraceBlock) -> str:
         """Format DORA Trace Block for Python file (VERY END)."""
-        return f"""
+        return """
 """
 
     def _find_insertion_point(self, content: str) -> int:
@@ -2015,8 +2007,7 @@ class DoraCompleteInjector:
                 break
 
         # Calculate character position
-        char_pos = sum(len(lines[i]) + 1 for i in range(insert_line))
-        return char_pos
+        return sum(len(lines[i]) + 1 for i in range(insert_line))
 
     def inject_blocks(
         self,
@@ -2024,10 +2015,10 @@ class DoraCompleteInjector:
         header: HeaderMeta,
         footer: FooterMeta,
         trace: DoraTraceBlock,
-        classes: List[ClassInfo],
+        classes: list[ClassInfo],
         dry_run: bool = True,
         force: bool = False,
-    ) -> Dict[str, bool]:
+    ) -> dict[str, bool]:
         """Inject DORA blocks into a Python or YAML file."""
         results = {"header": False, "footer": False, "trace": False}
         is_yaml = file_path.endswith((".yaml", ".yml"))
@@ -2040,7 +2031,7 @@ class DoraCompleteInjector:
                 print(f"⚠️  {file_path} has legacy __dora_block__ - needs migration")
                 return results
 
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             modified = False
@@ -2125,7 +2116,7 @@ class DoraCompleteInjector:
             print(f"❌ Error processing {file_path}: {e}")
             return results
 
-    def process_all_files(self, dry_run: bool = True, force: bool = False) -> Dict:
+    def process_all_files(self, dry_run: bool = True, force: bool = False) -> dict:
         """Process all files and inject DORA blocks."""
         mode_str = "🔍 DRY RUN MODE" if dry_run else "🚀 EXECUTION MODE"
         if force:
@@ -2175,7 +2166,7 @@ class DoraCompleteInjector:
 
         return results
 
-    def generate_report(self, results: Dict, output_path: str) -> None:
+    def generate_report(self, results: dict, output_path: str) -> None:
         """Generate injection report."""
         with open(output_path, "w") as f:
             json.dump(results, f, indent=2)

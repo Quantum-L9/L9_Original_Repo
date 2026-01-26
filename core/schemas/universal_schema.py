@@ -40,24 +40,37 @@ __dora_meta__ = {
 # Packet Envelope (Memory.yaml v1.0.1)
 # =============================================================================
 
-from core.schemas import (PacketConfidence, PacketEnvelope, PacketEnvelopeIn,
-                          PacketMetadata, PacketProvenance, PacketWriteResult,
-                          SemanticHit, SemanticSearchRequest,
-                          SemanticSearchResult)
-from core.schemas.research_factory_models import (IntegrationResult,
-                                                  ParsedObject, Query,
-                                                  QueryPlan, ResearchJobSpec,
-                                                  ResearchMetrics,
-                                                  RetrievalBatch, Superprompt,
-                                                  ValidationStatus)
-from core.schemas.research_factory_nodes import (build_research_graph,
-                                                 pass_1_plan_queries,
-                                                 pass_2_build_superprompts,
-                                                 pass_3_execute_retrieval,
-                                                 pass_4_extract_results,
-                                                 pass_5_integrate_results)
-from core.schemas.research_factory_state import (PassMetadata, PassStatus,
-                                                 ResearchState)
+from core.schemas import (
+    PacketConfidence,
+    PacketEnvelope,
+    PacketEnvelopeIn,
+    PacketMetadata,
+    PacketProvenance,
+    PacketWriteResult,
+    SemanticHit,
+    SemanticSearchRequest,
+    SemanticSearchResult,
+)
+from core.schemas.research_factory_models import (
+    IntegrationResult,
+    ParsedObject,
+    Query,
+    QueryPlan,
+    ResearchJobSpec,
+    ResearchMetrics,
+    RetrievalBatch,
+    Superprompt,
+    ValidationStatus,
+)
+from core.schemas.research_factory_nodes import (
+    build_research_graph,
+    pass_1_plan_queries,
+    pass_2_build_superprompts,
+    pass_3_execute_retrieval,
+    pass_4_extract_results,
+    pass_5_integrate_results,
+)
+from core.schemas.research_factory_state import PassMetadata, PassStatus, ResearchState
 
 # =============================================================================
 # Research Factory Models (research_factory_schema.yaml)
@@ -79,37 +92,37 @@ from core.schemas.research_factory_state import (PassMetadata, PassStatus,
 # =============================================================================
 
 __all__ = [
+    "IntegrationResult",
+    "PacketConfidence",
     # === Packet Envelope (Memory.yaml v1.0.1) ===
     "PacketEnvelope",
     "PacketEnvelopeIn",
-    "PacketWriteResult",
     "PacketMetadata",
     "PacketProvenance",
-    "PacketConfidence",
-    "SemanticSearchRequest",
-    "SemanticHit",
-    "SemanticSearchResult",
-    # === Research Factory Models ===
-    "ResearchJobSpec",
+    "PacketWriteResult",
+    "ParsedObject",
+    "PassMetadata",
+    "PassStatus",
     "Query",
     "QueryPlan",
-    "Superprompt",
-    "RetrievalBatch",
-    "ParsedObject",
-    "ValidationStatus",
-    "IntegrationResult",
+    # === Research Factory Models ===
+    "ResearchJobSpec",
     "ResearchMetrics",
     # === Research Factory State ===
     "ResearchState",
-    "PassStatus",
-    "PassMetadata",
+    "RetrievalBatch",
+    "SemanticHit",
+    "SemanticSearchRequest",
+    "SemanticSearchResult",
+    "Superprompt",
+    "ValidationStatus",
+    "build_research_graph",
     # === Research Factory Nodes ===
     "pass_1_plan_queries",
     "pass_2_build_superprompts",
     "pass_3_execute_retrieval",
     "pass_4_extract_results",
     "pass_5_integrate_results",
-    "build_research_graph",
 ]
 
 # =============================================================================

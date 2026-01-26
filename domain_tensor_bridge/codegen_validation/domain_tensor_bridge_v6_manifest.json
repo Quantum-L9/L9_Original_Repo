@@ -7,7 +7,7 @@
   "created_by": "L9_Codegen_Engine",
   "schema_source": "docs/Roadmap-Upgrades/Factory Deployment Strategy (YAML->Code)/example-L9_Tensor_MainAgent_Schema_v6.yaml",
   "extraction_root": "codegen/extractions/domain_tensor_bridge_v6_20260102",
-  
+
   "metadata": {
     "description": "Central orchestrator connecting domain data with TensorAIOS layer",
     "layer": "operations",
@@ -15,7 +15,7 @@
     "governance_level": "critical",
     "compliance_required": true
   },
-  
+
   "modules": {
     "total": 23,
     "by_layer": {
@@ -50,7 +50,7 @@
       "domain_tensor_bridge/memory_bridge.py"
     ]
   },
-  
+
   "documentation": {
     "total": 9,
     "files": [
@@ -65,7 +65,7 @@
       "domain_tensor_bridge/docs/DEPLOYMENT.md"
     ]
   },
-  
+
   "tests": {
     "total": 8,
     "coverage_target": 85,
@@ -80,7 +80,7 @@
       "tests/domain_tensor_bridge/test_context_enrichment.py"
     ]
   },
-  
+
   "dependencies": {
     "internal": [
       "l9.core.schemas",
@@ -88,13 +88,9 @@
       "l9.governance.approvals",
       "l9.memory.substrate_service"
     ],
-    "external": [
-      "structlog",
-      "httpx",
-      "pydantic"
-    ]
+    "external": ["structlog", "httpx", "pydantic"]
   },
-  
+
   "quality_gates": {
     "three_block_system": true,
     "no_todos_in_code": true,
@@ -102,9 +98,7 @@
     "test_coverage_target": 85,
     "test_pass_rate_target": 95
   },
-  
+
   "glue_file": "domain_tensor_bridge_extraction_glue.yaml",
   "evidence_report": "evidence_report.md"
 }
-
-

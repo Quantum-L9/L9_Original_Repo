@@ -168,26 +168,26 @@ create_or_update_secret() {
     local key=$1
     local value=$2
     local secret_name="${SECRET_PREFIX}/${key}"
-    
+
     if [ -z "$value" ]; then
         log_warn "Skipping $key (empty value)"
         return
     fi
-    
+
     if [ "$DRY_RUN" = true ]; then
         log_debug "[DRY RUN] Would upsert: $secret_name"
         return
     fi
-    
+
     log_info "Processing: $secret_name"
-    
+
     # Check if secret exists
     if aws secretsmanager describe-secret \
         --region "$AWS_REGION" \
         --secret-id "$secret_name" \
         --no-cli-pager \
         > /dev/null 2>&1; then
-        
+
         # Secret exists - update it
         aws secretsmanager put-secret-value \
             --region "$AWS_REGION" \
@@ -195,7 +195,7 @@ create_or_update_secret() {
             --secret-string "$value" \
             --no-cli-pager \
             > /dev/null 2>&1
-        
+
         log_info "  ✓ Updated existing secret"
     else
         # Secret doesn't exist - create it
@@ -210,7 +210,7 @@ create_or_update_secret() {
                 Key=managed-by,Value=l9-setup \
             --no-cli-pager \
             > /dev/null 2>&1
-        
+
         log_info "  ✓ Created new secret"
     fi
 }
@@ -349,7 +349,7 @@ if [ "$DRY_RUN" = false ]; then
             echo "  - $secret"
             ((SECRET_COUNT++)) || true
         done
-    
+
     TOTAL=$(aws secretsmanager list-secrets \
         --region "$AWS_REGION" \
         --filters Key=name,Values="$SECRET_PREFIX/" \

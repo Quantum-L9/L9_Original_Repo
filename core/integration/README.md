@@ -59,15 +59,15 @@ Cross-subsystem integration utilities
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -81,12 +81,12 @@ core/integration/
 ├── wm_to_graph_sync.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `graph_to_wm_sync.py` | Service to sync agent state from Neo4j to World Mo |
+| File                        | Purpose                                            |
+| --------------------------- | -------------------------------------------------- |
+| `__init__.py`               | Core module (PROTECTED)                            |
+| `graph_to_wm_sync.py`       | Service to sync agent state from Neo4j to World Mo |
 | `tool_pattern_extractor.py` | Service to extract tool usage patterns and feed to |
-| `wm_to_graph_sync.py` | Syncs World Model causal data to Neo4j graph. |
+| `wm_to_graph_sync.py`       | Syncs World Model causal data to Neo4j graph.      |
 
 ### Naming Conventions
 
@@ -104,7 +104,7 @@ core/integration/
 ```python
 class GraphToWorldModelSync:
     """Service to sync agent state from Neo4j to World Model."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -128,7 +128,7 @@ class GraphToWorldModelSync:
 ```python
 class ToolPatternExtractor:
     """Service to extract tool usage patterns and feed to World Model."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -152,7 +152,7 @@ class ToolPatternExtractor:
 ```python
 class WMToGraphSync:
     """Syncs World Model causal data to Neo4j graph."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -170,7 +170,6 @@ class WMToGraphSync:
 **Public Methods:** `__init__`, `start`, `stop`, `_sync_loop`, `sync_all`
 
 **Lines:** 64-304 in `wm_to_graph_sync.py`
-
 
 ---
 
@@ -244,9 +243,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Integration feature flags
-L9_ENABLE_CORE_INTEGRATION_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_INTEGRATION_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_INTEGRATION_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_INTEGRATION_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_INTEGRATION_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_INTEGRATION_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -308,7 +307,6 @@ Start the global extractor.
 - **File:** `tool_pattern_extractor.py:445`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -349,6 +347,7 @@ Core Integration operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -356,12 +355,12 @@ Core Integration operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                   | Type      | Description                    |
+| ---------------------------------------- | --------- | ------------------------------ |
 | `core_integration_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_integration_operation_total` | Counter | Total operations processed |
-| `core_integration_error_total` | Counter | Total errors encountered |
-| `core_integration_active_connections` | Gauge | Current active connections |
+| `core_integration_operation_total`       | Counter   | Total operations processed     |
+| `core_integration_error_total`           | Counter   | Total errors encountered       |
+| `core_integration_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -379,6 +378,7 @@ Core Integration emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_integration/`:
+
 - `test_core_integration.py` — Core unit tests
 - `test_core_integration_integration.py` — Integration tests (if applicable)
 
@@ -421,6 +421,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

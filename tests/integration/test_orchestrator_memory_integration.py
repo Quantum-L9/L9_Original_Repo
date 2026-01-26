@@ -31,8 +31,7 @@ class TestOrchestratorMemoryIntegration:
     @pytest.mark.asyncio
     async def test_memory_orchestrator_writes_packet(self):
         """Memory orchestrator can write to substrate."""
-        from orchestrators.memory.interface import (MemoryOperation,
-                                                    MemoryRequest)
+        from orchestrators.memory.interface import MemoryOperation, MemoryRequest
         from orchestrators.memory.orchestrator import MemoryOrchestrator
 
         orchestrator = MemoryOrchestrator()

@@ -39,38 +39,34 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
 import json
-import structlog
+import os
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
-from pathlib import Path
-from typing import Any, Optional
-from uuid import uuid4
+from typing import Any
+
+import structlog
 
 # L9 Core Imports (absolute paths)
 from agents.base_agent import (
-    BaseAgent,
     AgentConfig,
+    AgentMessage,
     AgentResponse,
     AgentRole,
-    AgentMessage,
+    BaseAgent,
 )
-from core.schemas import (
-    PacketEnvelope,
-    PacketMetadata,
-    PacketProvenance,
-    PacketKind,
-    PacketLineage,
-)
-from core.governance.rate_limit_policy import rate_limit
-from core.resilience.retry import async_retry, AsyncRetryConfig
-from core.decorators import must_stay_async
 from clients.memory_client import MemoryClient
 
 # CodeGen imports
 from core.codegen.compiler.module_compiler_v2 import ModuleCompilerV2
+from core.decorators import must_stay_async
+from core.governance.rate_limit_policy import rate_limit
+from core.resilience.retry import AsyncRetryConfig, async_retry
+from core.schemas import (
+    PacketEnvelope,
+    PacketMetadata,
+    PacketProvenance,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -150,8 +146,8 @@ class CodeGenGatekeeperAgent(BaseAgent):
 
     def __init__(
         self,
-        agent_id: Optional[str] = None,
-        config: Optional[AgentConfig] = None,
+        agent_id: str | None = None,
+        config: AgentConfig | None = None,
     ):
         """
         Initialize CodeGen Gatekeeper Agent.
@@ -194,7 +190,7 @@ before code generation. Be thorough and precise.
 
     @must_stay_async("callers use await")
     async def run(
-        self, task: dict[str, Any], context: Optional[dict[str, Any]] = None
+        self, task: dict[str, Any], context: dict[str, Any] | None = None
     ) -> AgentResponse:
         """
         Execute the gatekeeper's primary function.
@@ -312,7 +308,7 @@ before code generation. Be thorough and precise.
 
             return AgentResponse(
                 agent_id=self.agent_id,
-                content=f"Error: {str(e)}",
+                content=f"Error: {e!s}",
                 success=False,
                 error=str(e),
             )
@@ -330,17 +326,15 @@ before code generation. Be thorough and precise.
         Returns:
             Parsed spec dictionary
         """
-        if contract_type == ContractType.AGENT_YAML:
+        if (
+            contract_type == ContractType.AGENT_YAML
+            or contract_type == ContractType.MODULE_BLOCK
+        ):
             import yaml
 
             return yaml.safe_load(contract)
 
-        elif contract_type == ContractType.MODULE_BLOCK:
-            import yaml
-
-            return yaml.safe_load(contract)
-
-        elif contract_type == ContractType.CONCEPT:
+        if contract_type == ContractType.CONCEPT:
             # Use LLM to convert concept to spec
             messages = [
                 AgentMessage(
@@ -351,8 +345,7 @@ before code generation. Be thorough and precise.
             response = await self.call_llm(messages, json_mode=True)
             return json.loads(response.content)
 
-        else:
-            raise ValueError(f"Unsupported contract type: {contract_type}")
+        raise ValueError(f"Unsupported contract type: {contract_type}")
 
     async def _detect_blind_spots(self, spec: dict[str, Any]) -> list[BlindSpot]:
         """

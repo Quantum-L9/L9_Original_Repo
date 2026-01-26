@@ -33,11 +33,23 @@ from uuid import uuid4
 
 import pytest
 
-from ir_engine.ir_schema import (ActionNode, ActionType, ConstraintNode,
-                                 ConstraintType, IntentNode, IntentType,
-                                 IRGraph, IRMetadata, IRStatus)
-from ir_engine.simulation_router import (RankedCandidate, SimulationRequest,
-                                         SimulationResult, SimulationRouter)
+from ir_engine.ir_schema import (
+    ActionNode,
+    ActionType,
+    ConstraintNode,
+    ConstraintType,
+    IntentNode,
+    IntentType,
+    IRGraph,
+    IRMetadata,
+    IRStatus,
+)
+from ir_engine.simulation_router import (
+    RankedCandidate,
+    SimulationRequest,
+    SimulationResult,
+    SimulationRouter,
+)
 
 
 class TestSimulationRequestCreation:
@@ -122,7 +134,7 @@ class TestSimulationRequestCreation:
         router = SimulationRouter()
 
         # Act
-        request = router.create_request(validated_graph)
+        router.create_request(validated_graph)
 
         # Assert
         assert router.get_pending_count() == 1

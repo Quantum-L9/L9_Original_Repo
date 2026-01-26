@@ -2,22 +2,21 @@
 Test: TensorGlobe adapter EOS gating
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 from adapters.tensorglobe_bridge.adapter import TensorGlobeBridgeAdapter
 from adapters.tensorglobe_bridge.schemas import (
-    TensorRequest,
-    TensorResponse,
     TensorOperation,
+    TensorRequest,
 )
 from core.eos.schemas import Verdict, VerdictDecision
 
 
 @pytest.fixture
 def mock_accountability():
-    engine = AsyncMock()
-    return engine
+    return AsyncMock()
 
 
 @pytest.fixture
@@ -74,7 +73,7 @@ async def test_eos_gate_allow(adapter, sample_request, mock_accountability):
                     with patch.object(
                         adapter, "_call_tensorglobe", return_value=MagicMock()
                     ):
-                        success, response, error = await adapter.handle_tensor_request(
+                        success, _response, error = await adapter.handle_tensor_request(
                             sample_request,
                             "agent-001",
                         )
@@ -102,7 +101,7 @@ async def test_eos_gate_deny(adapter, sample_request, mock_accountability):
 
     with patch.object(adapter, "_verify_request_signature", return_value=True):
         with patch.object(adapter, "_validate_request_schema", return_value=True):
-            success, response, error = await adapter.handle_tensor_request(
+            success, _response, error = await adapter.handle_tensor_request(
                 sample_request,
                 "agent-001",
             )

@@ -16,7 +16,7 @@
 # L9 Governance - Tool Usage Policies
 # ====================================
 # Policies controlling which tools agents can execute.
-# 
+#
 # Tools are categorized by risk level:
 # - Low: Information retrieval (search, read)
 # - Medium: External communication (http requests)
@@ -127,7 +127,6 @@ policies:
       - "file_write"
       - "database_write"
     enabled: true
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

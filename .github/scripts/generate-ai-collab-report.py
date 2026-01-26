@@ -33,12 +33,11 @@ __dora_meta__ = {
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Set
 
 import yaml
 
 
-def get_changed_files() -> Set[str]:
+def get_changed_files() -> set[str]:
     """Get files changed in current PR."""
     try:
         result = subprocess.run(
@@ -54,7 +53,7 @@ def get_changed_files() -> Set[str]:
         return set()
 
 
-def load_code_map() -> Dict:
+def load_code_map() -> dict:
     """Load CODE-MAP.yaml."""
     code_map_path = Path("docs/CODE-MAP.yaml")
     if not code_map_path.exists():
@@ -63,7 +62,7 @@ def load_code_map() -> Dict:
         return yaml.safe_load(f) or {}
 
 
-def analyze_pr(changed_files: Set[str], code_map: Dict) -> Dict[str, List[str]]:
+def analyze_pr(changed_files: set[str], code_map: dict) -> dict[str, list[str]]:
     """Map changed files to subsystems and AI scopes."""
     analysis = {
         "allowed": [],
@@ -78,7 +77,6 @@ def analyze_pr(changed_files: Set[str], code_map: Dict) -> Dict[str, List[str]]:
         if not changed_file or changed_file == "":
             continue
 
-        found = False
 
         # Check each subsystem
         for subsystem_name, subsystem_info in code_map.get("subsystems", {}).items():
@@ -90,17 +88,14 @@ def analyze_pr(changed_files: Set[str], code_map: Dict) -> Dict[str, List[str]]:
 
             if any(pattern_match(changed_file, p) for p in allowed):
                 analysis["allowed"].append(f"{changed_file} ({subsystem_name})")
-                found = True
                 break
 
             if any(pattern_match(changed_file, p) for p in forbidden):
                 analysis["protected"].append(f"{changed_file} ({subsystem_name})")
-                found = True
                 break
 
             if changed_file.startswith(subsystem_info["path"]):
                 analysis["restricted"].append(f"{changed_file} ({subsystem_name})")
-                found = True
                 break
 
     # Find untouched subsystems
@@ -117,7 +112,7 @@ def pattern_match(path: str, pattern: str) -> bool:
     return fnmatch(path, pattern)
 
 
-def format_report(analysis: Dict, changed_files: Set[str]) -> str:
+def format_report(analysis: dict, changed_files: set[str]) -> str:
     """Format markdown report."""
     lines = [
         "### 📋 AI Collaboration Scope Analysis",

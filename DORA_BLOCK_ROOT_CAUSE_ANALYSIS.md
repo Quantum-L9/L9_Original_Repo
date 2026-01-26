@@ -1,8 +1,8 @@
 # DORA Block Auto-Update Root Cause Analysis
 
-**Issue:** DORA blocks don't update automatically  
-**Date:** January 25, 2026  
-**Analyzed By:** Manus AI Agent  
+**Issue:** DORA blocks don't update automatically
+**Date:** January 25, 2026
+**Analyzed By:** Manus AI Agent
 
 ---
 
@@ -33,11 +33,12 @@ __l9_trace__ = {
 
 ### Current State
 
-**Files with DORA blocks:** 100+ files  
-**Expected behavior:** Auto-update on every execution  
+**Files with DORA blocks:** 100+ files
+**Expected behavior:** Auto-update on every execution
 **Actual behavior:** Blocks remain empty or stale
 
 **Example from `.github/scripts/generate-ai-collab-report.py`:**
+
 ```python
 __l9_trace__ = {
     "trace_id": "",           # ❌ Empty
@@ -60,6 +61,7 @@ __l9_trace__ = {
 **Finding:** The `@l9_traced` decorator is **defined** but **NOT USED** in any production code.
 
 **Evidence:**
+
 ```bash
 $ grep -rn "@l9_traced" --include="*.py" | grep -v "runtime/dora.py"
 # Result: Only found in runtime/dora.py (the definition), not in actual code
@@ -74,6 +76,7 @@ $ grep -rn "@l9_traced" --include="*.py" | grep -v "runtime/dora.py"
 **Finding:** Even if the decorator were used, `update_source` defaults to `False`.
 
 **From `runtime/dora.py` line 290:**
+
 ```python
 def l9_traced(
     func: Optional[F] = None,
@@ -86,6 +89,7 @@ def l9_traced(
 ```
 
 **Impact:** Even with decorator, you must explicitly set `update_source=True`:
+
 ```python
 @l9_traced(update_source=True)  # Required for auto-update
 def my_function():
@@ -99,16 +103,19 @@ def my_function():
 **Finding:** DORA blocks are injected at **code generation time** but not updated at **runtime** unless explicitly decorated.
 
 **Evidence:**
+
 - `scripts/audit/inject_dora_complete.py` - Injects empty blocks
 - `runtime/dora.py` - Provides update mechanism
 - **Missing:** Automatic runtime update without decorator
 
 **Current Flow:**
+
 1. ✅ Codegen injects empty DORA block
 2. ❌ Function runs (no decorator)
 3. ❌ DORA block stays empty
 
 **Expected Flow:**
+
 1. ✅ Codegen injects empty DORA block
 2. ✅ Function runs with `@l9_traced(update_source=True)`
 3. ✅ DORA block updates automatically
@@ -120,6 +127,7 @@ def my_function():
 **Finding:** The `emit_executor_trace()` function exists but doesn't update source files.
 
 **From `runtime/dora.py` line 444-496:**
+
 ```python
 async def emit_executor_trace(...) -> DoraTraceBlock:
     """Create and emit a DORA trace from the executor."""
@@ -134,12 +142,12 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 
 ## 📊 Gap Analysis
 
-| Component | Expected | Actual | Gap |
-|-----------|----------|--------|-----|
-| **Decorator Usage** | Used on all traced functions | Not used anywhere | 100% |
-| **Auto-Update** | Enabled by default | Disabled by default | Critical |
-| **Executor Integration** | Updates DORA blocks | Only logs traces | High |
-| **Runtime Hook** | Automatic for all functions | Manual decorator required | High |
+| Component                | Expected                     | Actual                    | Gap      |
+| ------------------------ | ---------------------------- | ------------------------- | -------- |
+| **Decorator Usage**      | Used on all traced functions | Not used anywhere         | 100%     |
+| **Auto-Update**          | Enabled by default           | Disabled by default       | Critical |
+| **Executor Integration** | Updates DORA blocks          | Only logs traces          | High     |
+| **Runtime Hook**         | Automatic for all functions  | Manual decorator required | High     |
 
 ---
 
@@ -147,20 +155,23 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 
 ### Solution 1: Add @l9_traced to Key Functions (Quick Fix)
 
-**Effort:** 2-4 hours  
+**Effort:** 2-4 hours
 **Impact:** Medium (only decorated functions update)
 
 **Implementation:**
+
 1. Identify key functions to trace
 2. Add `@l9_traced(update_source=True)` decorator
 3. Test DORA block updates
 
 **Pros:**
+
 - ✅ Quick to implement
 - ✅ Selective tracing
 - ✅ Low risk
 
 **Cons:**
+
 - ❌ Manual work for each function
 - ❌ Easy to forget decorator
 - ❌ Not truly "automatic"
@@ -169,10 +180,11 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 
 ### Solution 2: Change Default to `update_source=True` (Better)
 
-**Effort:** 30 minutes  
+**Effort:** 30 minutes
 **Impact:** High (all decorated functions auto-update)
 
 **Implementation:**
+
 1. Change line 290 in `runtime/dora.py`:
    ```python
    update_source: bool = True,  # Changed from False
@@ -181,11 +193,13 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 3. Test
 
 **Pros:**
+
 - ✅ Simple change
 - ✅ Auto-update by default
 - ✅ Backward compatible (can still set False)
 
 **Cons:**
+
 - ❌ Still requires manual decorator addition
 - ❌ File I/O overhead on every execution
 
@@ -193,10 +207,11 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 
 ### Solution 3: Automatic Runtime Hook (Best - Recommended)
 
-**Effort:** 4-6 hours  
+**Effort:** 4-6 hours
 **Impact:** Very High (all functions auto-trace)
 
 **Implementation:**
+
 1. Create runtime hook that auto-wraps functions
 2. Use `sys.settrace()` or import hooks
 3. Auto-detect functions with DORA blocks
@@ -204,12 +219,14 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 5. Add configuration to enable/disable
 
 **Pros:**
+
 - ✅ Truly automatic
 - ✅ No decorator needed
 - ✅ Works for all functions
 - ✅ Can be toggled per environment
 
 **Cons:**
+
 - ❌ More complex implementation
 - ❌ Performance overhead
 - ❌ Requires careful testing
@@ -218,20 +235,23 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 
 ### Solution 4: Executor Integration (Complementary)
 
-**Effort:** 2-3 hours  
+**Effort:** 2-3 hours
 **Impact:** High (executor tasks auto-update)
 
 **Implementation:**
+
 1. Modify `emit_executor_trace()` to accept file path
 2. Call `update_dora_block_in_file()` after trace creation
 3. Integrate with AgentExecutorService
 
 **Pros:**
+
 - ✅ Works for agent executions
 - ✅ Integrates with existing flow
 - ✅ No decorator needed for executor tasks
 
 **Cons:**
+
 - ❌ Only works for executor-run code
 - ❌ Doesn't help standalone functions
 
@@ -242,21 +262,24 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 **Combine Solutions 2 + 3 + 4:**
 
 ### Phase 1: Quick Win (30 minutes)
+
 1. ✅ Change default `update_source=True`
 2. ✅ Add decorator to 5-10 key functions
 3. ✅ Test and verify updates work
 
 ### Phase 2: Executor Integration (2-3 hours)
+
 1. ✅ Update `emit_executor_trace()` to write to files
 2. ✅ Integrate with AgentExecutorService
 3. ✅ Test executor task tracing
 
 ### Phase 3: Automatic Hook (4-6 hours - Optional)
+
 1. ✅ Implement runtime hook for auto-tracing
 2. ✅ Add configuration flag
 3. ✅ Performance testing
 
-**Total Effort:** 2.5-9.5 hours (depending on phases implemented)  
+**Total Effort:** 2.5-9.5 hours (depending on phases implemented)
 **Impact:** High - DORA blocks will auto-update
 
 ---
@@ -264,6 +287,7 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 ## 🔧 Implementation Plan
 
 ### Immediate (This PR)
+
 1. Fix `update_source` default to `True`
 2. Add `@l9_traced` to key functions:
    - `runtime/kernel_loader.py::load_kernels()`
@@ -274,6 +298,7 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 4. Add tests
 
 ### Follow-up (Future PR)
+
 1. Implement automatic runtime hook
 2. Add configuration for tracing
 3. Performance optimization
@@ -283,6 +308,7 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 ## ✅ Verification Criteria
 
 **Success = DORA blocks auto-update when:**
+
 1. ✅ Decorated function executes
 2. ✅ Executor runs agent task
 3. ✅ Trace data appears in `__l9_trace__`
@@ -294,10 +320,12 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 ## 📝 Files to Modify
 
 ### Core Fix (runtime/dora.py)
+
 - Line 290: Change `update_source: bool = False` → `True`
 - Line 444-496: Update `emit_executor_trace()` to write to files
 
 ### Add Decorators (5-10 files)
+
 - `runtime/kernel_loader.py`
 - `memory/substrate_repository.py`
 - `core/agents/executor.py`
@@ -305,6 +333,7 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 - Others TBD
 
 ### Tests (new file)
+
 - `tests/runtime/test_dora_auto_update.py`
 
 ---
@@ -312,6 +341,7 @@ async def emit_executor_trace(...) -> DoraTraceBlock:
 ## 🎉 Expected Outcome
 
 **Before:**
+
 ```python
 __l9_trace__ = {
     "trace_id": "",  # Empty
@@ -321,6 +351,7 @@ __l9_trace__ = {
 ```
 
 **After:**
+
 ```python
 __l9_trace__ = {
     "trace_id": "a1b2c3d4",

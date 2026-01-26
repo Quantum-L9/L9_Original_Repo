@@ -1,8 +1,8 @@
 # C1 Kubernetes Deployment
 
-Target: **C1 Hetzner Server** (46.62.243.82)  
-Type: CPX32 (8GB RAM, 4 vCPU, 160GB SSD)  
-OS: Ubuntu 24.04 LTS  
+Target: **C1 Hetzner Server** (46.62.243.82)
+Type: CPX32 (8GB RAM, 4 vCPU, 160GB SSD)
+OS: Ubuntu 24.04 LTS
 K8s: k3s
 
 ## Quick Start
@@ -49,14 +49,14 @@ deploy/k8s/c1/
 
 ## Access Endpoints
 
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| Grafana | http://46.62.243.82:30300 | C1_admin / C1_Grafana-2026! |
-| Prometheus | http://46.62.243.82:30909 | - |
-| Neo4j Browser | http://46.62.243.82:30474 | neo4j / C1_Neo4j-2026! |
-| L9 API | http://46.62.243.82:30080 | - |
-| MCP Memory | http://46.62.243.82:30902 | - |
-| PostgreSQL | 46.62.243.82:30432 | l9_user / C1_Postgres-2026! |
+| Service       | URL                       | Credentials                 |
+| ------------- | ------------------------- | --------------------------- |
+| Grafana       | http://46.62.243.82:30300 | C1_admin / C1_Grafana-2026! |
+| Prometheus    | http://46.62.243.82:30909 | -                           |
+| Neo4j Browser | http://46.62.243.82:30474 | neo4j / C1_Neo4j-2026!      |
+| L9 API        | http://46.62.243.82:30080 | -                           |
+| MCP Memory    | http://46.62.243.82:30902 | -                           |
+| PostgreSQL    | 46.62.243.82:30432        | l9_user / C1_Postgres-2026! |
 
 ## Deployment Order
 

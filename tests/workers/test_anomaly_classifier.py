@@ -11,10 +11,13 @@ Phase: 4 (VALIDATE)
 
 import pytest
 
-from workers.anomaly_classifier import (AnomalyClassifier,
-                                        AnomalyClassifierRequest,
-                                        AnomalySeverity, AnomalyType,
-                                        ClassificationRule)
+from workers.anomaly_classifier import (
+    AnomalyClassifier,
+    AnomalyClassifierRequest,
+    AnomalySeverity,
+    AnomalyType,
+    ClassificationRule,
+)
 
 
 class TestAnomalyClassifierInit:

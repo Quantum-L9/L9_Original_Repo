@@ -48,7 +48,7 @@ import ast
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 try:
     import yaml
@@ -207,7 +207,7 @@ class CodeFactExtractor:
 
         return f"def {node.name}({', '.join(args)}){return_type}"
 
-    def extract_class_info(self, filepath: Path, class_name: str) -> Dict[str, Any]:
+    def extract_class_info(self, filepath: Path, class_name: str) -> dict[str, Any]:
         """Extract class info: methods, docstring, line range."""
         try:
             content = filepath.read_text()
@@ -238,7 +238,7 @@ class CodeFactExtractor:
 
         return {}
 
-    def find_pydantic_models(self, subsystem_path: Path) -> List[Dict[str, Any]]:
+    def find_pydantic_models(self, subsystem_path: Path) -> list[dict[str, Any]]:
         """Find Pydantic dataclasses/models in subsystem."""
         models = []
 
@@ -294,7 +294,7 @@ class CodeFactExtractor:
 # ============================================================================
 
 
-def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> Dict[str, Any]:
+def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> dict[str, Any]:
     """Generate CODE-MAP.yaml structure."""
     code_map = {
         "version": "1.0",
@@ -306,7 +306,6 @@ def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> Dict[str
         subsystem_path = repo_root / config["path"]
 
         # Extract class info
-        entrypoint_file = None
         entrypoint_info = {}
 
         # Try to find entrypoint class
@@ -315,7 +314,6 @@ def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> Dict[str
                 py_file, config["entrypoint_class"]
             )
             if class_info:
-                entrypoint_file = py_file
                 entrypoint_info = class_info
                 break
 
@@ -348,7 +346,7 @@ def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> Dict[str
 # ============================================================================
 
 
-def generate_meta_yaml(subsystem_name: str) -> Dict[str, Any]:
+def generate_meta_yaml(subsystem_name: str) -> dict[str, Any]:
     """Generate README.meta.yaml for a subsystem."""
     config = SUBSYSTEMS[subsystem_name]
     subsystem_path = config["path"]
@@ -414,7 +412,7 @@ def main():
     print(f"✅ Generated {code_map_path}")
 
     # Generate README.meta.yaml for each subsystem
-    for subsystem_name in SUBSYSTEMS.keys():
+    for subsystem_name in SUBSYSTEMS:
         subsystem_path = repo_root / SUBSYSTEMS[subsystem_name]["path"]
         subsystem_path.mkdir(parents=True, exist_ok=True)
 
@@ -428,7 +426,7 @@ def main():
 
     print("\n✨ Code facts extraction complete!")
     print(f"📊 Generated {len(SUBSYSTEMS)} subsystem metadata files")
-    print(f"📋 All files committed to source control")
+    print("📋 All files committed to source control")
     return 0
 
 

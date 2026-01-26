@@ -10,16 +10,21 @@ Created: 2026-01-20
 """
 
 import json
-from typing import Any, Dict
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from memory.neo4j_strategy_memory import (Neo4jStrategyMemoryService,
-                                          create_neo4j_strategy_memory)
-from memory.strategymemory import (IStrategyMemoryService, StrategyFeedback,
-                                   StrategyMemoryService,
-                                   StrategyRetrievalRequest)
+from memory.neo4j_strategy_memory import (
+    Neo4jStrategyMemoryService,
+    create_neo4j_strategy_memory,
+)
+from memory.strategymemory import (
+    IStrategyMemoryService,
+    StrategyFeedback,
+    StrategyMemoryService,
+    StrategyRetrievalRequest,
+)
 
 # =============================================================================
 # Fixtures
@@ -59,7 +64,7 @@ def sample_retrieval_request() -> StrategyRetrievalRequest:
 
 
 @pytest.fixture
-def sample_strategy_data() -> Dict[str, Any]:
+def sample_strategy_data() -> dict[str, Any]:
     """Create sample strategy data as returned from Neo4j."""
     return {
         "id": "str_abc123",
@@ -139,7 +144,7 @@ class TestRetrieveStrategies:
         strategy_memory_service: Neo4jStrategyMemoryService,
         mock_neo4j_client: MagicMock,
         sample_retrieval_request: StrategyRetrievalRequest,
-        sample_strategy_data: Dict[str, Any],
+        sample_strategy_data: dict[str, Any],
     ):
         """Should return candidates when matches found."""
         # Mock Neo4j returning a strategy
@@ -160,7 +165,7 @@ class TestRetrieveStrategies:
         strategy_memory_service: Neo4jStrategyMemoryService,
         mock_neo4j_client: MagicMock,
         sample_retrieval_request: StrategyRetrievalRequest,
-        sample_strategy_data: Dict[str, Any],
+        sample_strategy_data: dict[str, Any],
     ):
         """Should respect the limit parameter."""
         # Return multiple strategies
@@ -196,7 +201,7 @@ class TestRetrieveStrategies:
         self,
         strategy_memory_service: Neo4jStrategyMemoryService,
         mock_neo4j_client: MagicMock,
-        sample_strategy_data: Dict[str, Any],
+        sample_strategy_data: dict[str, Any],
     ):
         """Should filter candidates below min_confidence threshold."""
         # Low confidence strategy

@@ -5,6 +5,7 @@
 The L9 World Model is the **central semantic state store** for the L9 system. It maintains a persistent representation of entities, their attributes, and relationships derived from memory insights.
 
 **Key Capabilities:**
+
 - **Entity Management**: CRUD operations for world model entities
 - **Insight Integration**: Updates from memory substrate's insight pipeline
 - **Persistence**: PostgreSQL-backed storage with asyncpg
@@ -43,13 +44,13 @@ The L9 World Model is the **central semantic state store** for the L9 system. It
 
 ### Components
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| Repository | `world_model/repository.py` | DB operations (asyncpg) |
-| Service | `world_model/service.py` | Business logic layer |
-| API | `api/world_model_api.py` | HTTP endpoints |
-| Client SDK | `clients/world_model_client.py` | Async HTTP client |
-| LangGraph Nodes | `world_model/nodes.py` | DAG integration |
+| Component       | File                            | Purpose                 |
+| --------------- | ------------------------------- | ----------------------- |
+| Repository      | `world_model/repository.py`     | DB operations (asyncpg) |
+| Service         | `world_model/service.py`        | Business logic layer    |
+| API             | `api/world_model_api.py`        | HTTP endpoints          |
+| Client SDK      | `clients/world_model_client.py` | Async HTTP client       |
+| LangGraph Nodes | `world_model/nodes.py`          | DAG integration         |
 
 ## Database Layout
 
@@ -57,44 +58,44 @@ The L9 World Model is the **central semantic state store** for the L9 system. It
 
 Primary entity storage.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `entity_id` | TEXT | Primary key |
-| `entity_type` | TEXT | Classification |
-| `attributes` | JSONB | Entity properties |
-| `confidence` | FLOAT | Confidence score (0-1) |
-| `created_at` | TIMESTAMP | Creation time |
-| `updated_at` | TIMESTAMP | Last update |
-| `version` | INT | Optimistic lock version |
+| Column        | Type      | Description             |
+| ------------- | --------- | ----------------------- |
+| `entity_id`   | TEXT      | Primary key             |
+| `entity_type` | TEXT      | Classification          |
+| `attributes`  | JSONB     | Entity properties       |
+| `confidence`  | FLOAT     | Confidence score (0-1)  |
+| `created_at`  | TIMESTAMP | Creation time           |
+| `updated_at`  | TIMESTAMP | Last update             |
+| `version`     | INT       | Optimistic lock version |
 
 ### `world_model_updates`
 
 Audit log of all updates.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `update_id` | UUID | Primary key |
-| `insight_id` | UUID | Source insight |
-| `insight_type` | TEXT | Type of insight |
-| `entities` | JSONB | Affected entity IDs |
-| `content` | JSONB | Update payload |
-| `confidence` | FLOAT | Update confidence |
-| `applied_at` | TIMESTAMP | When applied |
-| `state_version_before` | INT | Version before |
-| `state_version_after` | INT | Version after |
+| Column                 | Type      | Description         |
+| ---------------------- | --------- | ------------------- |
+| `update_id`            | UUID      | Primary key         |
+| `insight_id`           | UUID      | Source insight      |
+| `insight_type`         | TEXT      | Type of insight     |
+| `entities`             | JSONB     | Affected entity IDs |
+| `content`              | JSONB     | Update payload      |
+| `confidence`           | FLOAT     | Update confidence   |
+| `applied_at`           | TIMESTAMP | When applied        |
+| `state_version_before` | INT       | Version before      |
+| `state_version_after`  | INT       | Version after       |
 
 ### `world_model_snapshots`
 
 Point-in-time state backups.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `snapshot_id` | UUID | Primary key |
-| `snapshot` | JSONB | Full state serialization |
-| `state_version` | INT | Version at snapshot |
-| `entity_count` | INT | Entity count |
-| `created_at` | TIMESTAMP | Creation time |
-| `description` | TEXT | Optional description |
+| Column          | Type      | Description              |
+| --------------- | --------- | ------------------------ |
+| `snapshot_id`   | UUID      | Primary key              |
+| `snapshot`      | JSONB     | Full state serialization |
+| `state_version` | INT       | Version at snapshot      |
+| `entity_count`  | INT       | Entity count             |
+| `created_at`    | TIMESTAMP | Creation time            |
+| `description`   | TEXT      | Optional description     |
 
 ## Lifecycle: Insights → Updates → Entities
 
@@ -129,6 +130,7 @@ Memory Substrate              World Model Service              Database
 ## API Reference
 
 ### Base URL
+
 ```
 /world-model
 ```
@@ -136,6 +138,7 @@ Memory Substrate              World Model Service              Database
 ### Endpoints
 
 #### Health Check
+
 ```
 GET /world-model/health
 
@@ -147,6 +150,7 @@ Response: {
 ```
 
 #### Get Entity
+
 ```
 GET /world-model/entities/{entity_id}
 
@@ -160,6 +164,7 @@ Response: {
 ```
 
 #### List Entities
+
 ```
 GET /world-model/entities?entity_type=user&min_confidence=0.8&limit=50
 
@@ -172,6 +177,7 @@ Response: {
 ```
 
 #### Get State Version
+
 ```
 GET /world-model/state-version
 
@@ -182,6 +188,7 @@ Response: {
 ```
 
 #### Create Snapshot
+
 ```
 POST /world-model/snapshot
 {
@@ -198,6 +205,7 @@ Response: {
 ```
 
 #### Restore from Snapshot
+
 ```
 POST /world-model/restore
 {
@@ -212,6 +220,7 @@ Response: {
 ```
 
 #### Submit Insights
+
 ```
 POST /world-model/insights
 {
@@ -235,6 +244,7 @@ Response: {
 ```
 
 #### List Updates
+
 ```
 GET /world-model/updates?insight_type=conclusion&limit=100
 
@@ -253,20 +263,20 @@ from clients.world_model_client import get_world_model_client
 
 async def example():
     client = get_world_model_client()
-    
+
     # Get entity
     entity = await client.get_entity("user-123")
     if entity:
         print(f"Found: {entity.entity_id}, type={entity.entity_type}")
-    
+
     # List entities
     users = await client.list_entities(entity_type="user", limit=50)
     print(f"Found {len(users)} users")
-    
+
     # Get state version
     state = await client.get_state_version()
     print(f"Version: {state.state_version}, Entities: {state.entity_count}")
-    
+
     # Submit insights
     result = await client.send_insights_for_update([
         {
@@ -277,11 +287,11 @@ async def example():
         }
     ])
     print(f"Applied {result.updates_applied} updates")
-    
+
     # Create snapshot
     snapshot = await client.snapshot(description="Daily backup")
     print(f"Snapshot: {snapshot.snapshot_id}")
-    
+
     # Cleanup
     await client.close()
 ```
@@ -341,6 +351,7 @@ extract_insights → store_insights → world_model_trigger → checkpoint
 ```
 
 When an insight has `trigger_world_model=True`, it flows to:
+
 1. `WorldModelService.update_from_insights()`
 2. Entity upsert via repository
 3. Update audit log
@@ -355,7 +366,7 @@ from clients.world_model_client import get_world_model_client
 class MyOrchestrator:
     def __init__(self):
         self.world_model = get_world_model_client()
-    
+
     async def get_context(self, entity_id: str):
         return await self.world_model.get_entity(entity_id)
 ```
@@ -381,16 +392,16 @@ async def process_user_action(user_id: str, action: str):
         },
         "metadata": {"agent": "user_tracker"}
     })
-    
+
     # Memory substrate DAG automatically:
     # - Extracts insights
     # - Triggers world model if insight.trigger_world_model=True
-    
+
     # 2. Query updated world model
     wm = get_world_model_client()
     entity = await wm.get_entity(user_id)
     print(f"User {user_id} updated: {entity.attributes}")
-    
+
     # 3. Get current state version
     state = await wm.get_state_version()
     print(f"World model at version {state.state_version}")
@@ -413,11 +424,10 @@ psql $DATABASE_URL -f L9/migrations/0006_init_world_model_snapshots.sql
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0.0 | 2025-01-15 | Initial production release |
-| - | - | PostgreSQL persistence |
-| - | - | API endpoints |
-| - | - | Client SDK |
-| - | - | LangGraph nodes |
-
+| Version | Date       | Changes                    |
+| ------- | ---------- | -------------------------- |
+| 1.0.0   | 2025-01-15 | Initial production release |
+| -       | -          | PostgreSQL persistence     |
+| -       | -          | API endpoints              |
+| -       | -          | Client SDK                 |
+| -       | -          | LangGraph nodes            |

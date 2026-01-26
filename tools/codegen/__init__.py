@@ -27,25 +27,25 @@ from .spec_generator import L9SpecGenerator, PlanSpec
 from .text_to_code import GenerationResult, L9TextToCode
 
 __all__ = [
-    # Document compiler
-    "L9Compiler",
-    "SourceMetadata",
-    "Schema",
+    "ConceptExtractor",
+    "ConceptReview",
+    "ConceptYAML",
     "DocumentClassifier",
+    "ExtractedConcept",
+    "FileScanner",
+    "GenerationResult",
     # Knowledge harvester
     "KnowledgeHarvester",
-    "ExtractedConcept",
-    "ConceptYAML",
-    "FileScanner",
-    "ConceptExtractor",
-    "YAMLGenerator",
-    # QC dashboard
-    "QCDashboard",
-    "ConceptReview",
+    # Document compiler
+    "L9Compiler",
     # Spec generator
     "L9SpecGenerator",
-    "PlanSpec",
     # Text-to-code orchestrator
     "L9TextToCode",
-    "GenerationResult",
+    "PlanSpec",
+    # QC dashboard
+    "QCDashboard",
+    "Schema",
+    "SourceMetadata",
+    "YAMLGenerator",
 ]

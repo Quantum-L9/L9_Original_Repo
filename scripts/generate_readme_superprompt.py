@@ -38,7 +38,7 @@ import ast
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 try:
     import yaml
@@ -61,7 +61,7 @@ class TypeInfo:
     is_optional: bool = False
     is_list: bool = False
     is_dict: bool = False
-    inner_types: List[str] = field(default_factory=list)
+    inner_types: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -70,7 +70,7 @@ class FieldInfo:
 
     name: str
     type_annotation: str
-    default: Optional[str] = None
+    default: str | None = None
     is_required: bool = True
 
 
@@ -83,10 +83,10 @@ class ClassInfo:
     line_start: int
     line_end: int
     docstring: str
-    methods: List[Dict[str, Any]] = field(default_factory=list)
-    fields: List[FieldInfo] = field(default_factory=list)
-    bases: List[str] = field(default_factory=list)
-    decorators: List[str] = field(default_factory=list)
+    methods: list[dict[str, Any]] = field(default_factory=list)
+    fields: list[FieldInfo] = field(default_factory=list)
+    bases: list[str] = field(default_factory=list)
+    decorators: list[str] = field(default_factory=list)
     is_pydantic: bool = False
     is_dataclass: bool = False
 
@@ -101,9 +101,9 @@ class FunctionInfo:
     signature: str
     docstring: str
     is_async: bool = False
-    return_type: Optional[str] = None
-    parameters: List[Dict[str, str]] = field(default_factory=list)
-    decorators: List[str] = field(default_factory=list)
+    return_type: str | None = None
+    parameters: list[dict[str, str]] = field(default_factory=list)
+    decorators: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -115,7 +115,7 @@ class RouteInfo:
     function_name: str
     file: str
     line: int
-    decorators: List[str] = field(default_factory=list)
+    decorators: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -123,19 +123,19 @@ class SubsystemFacts:
     """All extracted facts from a subsystem."""
 
     path: str
-    classes: List[ClassInfo] = field(default_factory=list)
-    functions: List[FunctionInfo] = field(default_factory=list)
-    routes: List[RouteInfo] = field(default_factory=list)
-    files: List[str] = field(default_factory=list)
-    imports: List[str] = field(default_factory=list)
-    pydantic_models: List[ClassInfo] = field(default_factory=list)
-    enums: List[ClassInfo] = field(default_factory=list)
-    constants: List[Tuple[str, str, str]] = field(
+    classes: list[ClassInfo] = field(default_factory=list)
+    functions: list[FunctionInfo] = field(default_factory=list)
+    routes: list[RouteInfo] = field(default_factory=list)
+    files: list[str] = field(default_factory=list)
+    imports: list[str] = field(default_factory=list)
+    pydantic_models: list[ClassInfo] = field(default_factory=list)
+    enums: list[ClassInfo] = field(default_factory=list)
+    constants: list[tuple[str, str, str]] = field(
         default_factory=list
     )  # (name, value, file)
     # Phase 1 enhancements
-    exports: List[str] = field(default_factory=list)  # __all__ contents
-    dora_meta: Dict[str, Any] = field(default_factory=dict)  # __dora_meta__ contents
+    exports: list[str] = field(default_factory=list)  # __all__ contents
+    dora_meta: dict[str, Any] = field(default_factory=dict)  # __dora_meta__ contents
     has_existing_readme: bool = False  # Warning flag
 
     @property
@@ -148,7 +148,7 @@ def extract_type_annotation(node: ast.expr) -> str:
     """Extract type annotation as string."""
     if isinstance(node, ast.Name):
         return node.id
-    elif isinstance(node, ast.Subscript):
+    if isinstance(node, ast.Subscript):
         if isinstance(node.value, ast.Name):
             base = node.value.id
             if isinstance(node.slice, ast.Tuple):
@@ -172,10 +172,10 @@ def extract_decorator_name(dec: ast.expr) -> str:
     """Extract decorator name."""
     if isinstance(dec, ast.Name):
         return dec.id
-    elif isinstance(dec, ast.Call):
+    if isinstance(dec, ast.Call):
         if isinstance(dec.func, ast.Name):
             return dec.func.id
-        elif isinstance(dec.func, ast.Attribute):
+        if isinstance(dec.func, ast.Attribute):
             return f"{extract_decorator_name(dec.func.value)}.{dec.func.attr}"
     elif isinstance(dec, ast.Attribute):
         return f"{extract_decorator_name(dec.value)}.{dec.attr}"
@@ -184,7 +184,7 @@ def extract_decorator_name(dec: ast.expr) -> str:
 
 def extract_route_info(
     dec: ast.expr, func_name: str, file: str, line: int
-) -> Optional[RouteInfo]:
+) -> RouteInfo | None:
     """Extract FastAPI route information from decorator."""
     dec_name = extract_decorator_name(dec)
 
@@ -216,7 +216,7 @@ def extract_route_info(
     return None
 
 
-def extract_class_fields(node: ast.ClassDef) -> List[FieldInfo]:
+def extract_class_fields(node: ast.ClassDef) -> list[FieldInfo]:
     """Extract fields from class (Pydantic/dataclass)."""
     fields = []
     for item in node.body:
@@ -394,9 +394,8 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
                 if isinstance(node, ast.Import):
                     for alias in node.names:
                         facts.imports.append(alias.name)
-                elif isinstance(node, ast.ImportFrom):
-                    if node.module:
-                        facts.imports.append(node.module)
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    facts.imports.append(node.module)
 
                 # Extract module-level constants
                 if isinstance(node, ast.Assign):
@@ -414,7 +413,9 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
                             elif target.id == "__dora_meta__" and isinstance(
                                 node.value, ast.Dict
                             ):
-                                for key, val in zip(node.value.keys, node.value.values):
+                                for key, val in zip(
+                                    node.value.keys, node.value.values, strict=False
+                                ):
                                     if isinstance(key, ast.Constant) and isinstance(
                                         val, ast.Constant
                                     ):
@@ -630,7 +631,7 @@ def format_route_info(route: RouteInfo) -> str:
 def generate_superprompt(
     facts: SubsystemFacts,
     title: str,
-    config: Optional[Dict] = None,
+    config: dict | None = None,
     max_classes: int = 15,
     max_functions: int = 15,
 ) -> str:

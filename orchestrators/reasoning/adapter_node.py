@@ -29,7 +29,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 import structlog
 
@@ -46,7 +46,7 @@ class ReasoningNodeState(TypedDict):
     mode: str
     depth: int
     branch_factor: int
-    result: Optional[dict[str, Any]]
+    result: dict[str, Any] | None
     errors: list[str]
 
 
@@ -104,7 +104,7 @@ class ReasoningAdapterNode:
 
         except Exception as e:
             logger.error(f"Reasoning adapter error: {e}")
-            errors.append(f"reasoning_adapter error: {str(e)}")
+            errors.append(f"reasoning_adapter error: {e!s}")
             return {
                 **state,
                 "result": None,

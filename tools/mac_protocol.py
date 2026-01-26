@@ -25,7 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -38,9 +38,9 @@ class MacMessage(BaseModel):
 
     token: str = Field(..., description="Authentication token")
     cmd: str = Field(..., description="Command to execute")
-    args: List[str] = Field(default_factory=list, description="Command arguments")
-    cwd: Optional[str] = Field(None, description="Working directory")
-    timeout: Optional[int] = Field(None, description="Command timeout in seconds")
+    args: list[str] = Field(default_factory=list, description="Command arguments")
+    cwd: str | None = Field(None, description="Working directory")
+    timeout: int | None = Field(None, description="Command timeout in seconds")
 
     class Config:
         json_schema_extra = {
@@ -77,7 +77,7 @@ class MacResponse(BaseModel):
         }
 
 
-def parse_mac_message(data: Dict[str, Any]) -> MacMessage:
+def parse_mac_message(data: dict[str, Any]) -> MacMessage:
     """Parse and validate Mac protocol message."""
     return MacMessage(**data)
 
@@ -87,8 +87,8 @@ def create_mac_response(
     output: str = "",
     error: str = "",
     exit_code: int = 0,
-    timestamp: Optional[str] = None,
-) -> Dict[str, Any]:
+    timestamp: str | None = None,
+) -> dict[str, Any]:
     """Create Mac protocol response dict."""
     from datetime import datetime
 

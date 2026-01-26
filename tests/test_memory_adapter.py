@@ -11,11 +11,12 @@ pytest.skip("Legacy memory substrate system — skipping.", allow_module_level=T
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
-from services.research.graph_state import (ResearchGraphState,
-                                           create_initial_state)
-from services.research.memory_adapter import (ResearchMemoryAdapter,
-                                              get_memory_adapter,
-                                              init_memory_adapter)
+from services.research.graph_state import ResearchGraphState, create_initial_state
+from services.research.memory_adapter import (
+    ResearchMemoryAdapter,
+    get_memory_adapter,
+    init_memory_adapter,
+)
 
 
 class TestResearchMemoryAdapter:

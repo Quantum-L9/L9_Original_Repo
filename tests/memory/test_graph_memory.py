@@ -10,10 +10,16 @@ from uuid import uuid4
 
 import pytest
 
-from memory.graph_memory import (ConversationContext, ConversationGraphMemory,
-                                 GraphMessage, MessageRole, TopicExtractor,
-                                 get_graph_memory, query_history,
-                                 store_message)
+from memory.graph_memory import (
+    ConversationContext,
+    ConversationGraphMemory,
+    GraphMessage,
+    MessageRole,
+    TopicExtractor,
+    get_graph_memory,
+    query_history,
+    store_message,
+)
 
 
 class TestTopicExtractor:

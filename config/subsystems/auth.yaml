@@ -19,46 +19,94 @@ subsystem_config_v1:
     domain: authentication_and_authorization
     criticality: critical
     agents_involved: [ArchitectAgent, SecurityAgent, QAAgent]
-  
+
   goals:
     - "Implement secure API key and token validation"
     - "Enforce role-based access control (RBAC)"
     - "Support multi-tenant isolation via RLS"
     - "Audit all authentication and authorization decisions"
-  
+
   constraints:
     - "No authentication bypass under any circumstances"
     - "All auth changes require manual human approval"
     - "Secrets must never appear in logs or memory"
     - "Session tokens must have explicit expiration"
-  
+
   pipeline:
     stages:
-      - {name: "Requirements", description: "Define auth requirements and threat model"}
-      - {name: "Architecture", description: "Design auth flow and token lifecycle"}
-      - {name: "Frontier Review", description: "Compare against OWASP and security standards"}
-      - {name: "TODO Plan", description: "Implementation plan for auth changes"}
-      - {name: "Architect Approval", description: "Security review of auth design"}
-      - {name: "L Improvement Loop", description: "Harden auth implementation"}
-      - {name: "ME Approval", description: "MANDATORY human approval for all auth changes"}
-      - {name: "Implementation", description: "Implement auth changes with security focus"}
-      - {name: "Test Validation", description: "Security testing, penetration tests"}
-      - {name: "Mutation & Tracking", description: "Apply changes with full audit"}
-      - {name: "Final Validation", description: "Verify no security regressions"}
-  
+      - {
+          name: "Requirements",
+          description: "Define auth requirements and threat model",
+        }
+      - {
+          name: "Architecture",
+          description: "Design auth flow and token lifecycle",
+        }
+      - {
+          name: "Frontier Review",
+          description: "Compare against OWASP and security standards",
+        }
+      - {
+          name: "TODO Plan",
+          description: "Implementation plan for auth changes",
+        }
+      - {
+          name: "Architect Approval",
+          description: "Security review of auth design",
+        }
+      - {
+          name: "L Improvement Loop",
+          description: "Harden auth implementation",
+        }
+      - {
+          name: "ME Approval",
+          description: "MANDATORY human approval for all auth changes",
+        }
+      - {
+          name: "Implementation",
+          description: "Implement auth changes with security focus",
+        }
+      - {
+          name: "Test Validation",
+          description: "Security testing, penetration tests",
+        }
+      - {
+          name: "Mutation & Tracking",
+          description: "Apply changes with full audit",
+        }
+      - {
+          name: "Final Validation",
+          description: "Verify no security regressions",
+        }
+
   approval_model:
     levels:
-      - {name: "auto_qa", criteria: ["security_tests_pass", "no_vulnerabilities"], sla_minutes: 0}
-      - {name: "security_review", criteria: ["threat_model_updated", "risk_score <= 15"], sla_minutes: 30}
-      - {name: "manual_human", criteria: ["ALWAYS_REQUIRED"], sla_minutes: 120}
-  
+      - {
+          name: "auto_qa",
+          criteria: ["security_tests_pass", "no_vulnerabilities"],
+          sla_minutes: 0,
+        }
+      - {
+          name: "security_review",
+          criteria: ["threat_model_updated", "risk_score <= 15"],
+          sla_minutes: 30,
+        }
+      - {
+          name: "manual_human",
+          criteria: ["ALWAYS_REQUIRED"],
+          sla_minutes: 120,
+        }
+
   memory_model:
     segments:
-      - {name: "auth_designs", writes: ["N1", "N2", "N6"]}
-      - {name: "auth_audit_log", writes: ["N8"]}
-      - {name: "security_artifacts", writes: ["N7", "N9"]}
-      - {name: "approval_artifacts", writes: ["N5", "N5_L_IMPROVEMENT_LOOP", "N5_ME_APPROVAL"]}
-  
+      - { name: "auth_designs", writes: ["N1", "N2", "N6"] }
+      - { name: "auth_audit_log", writes: ["N8"] }
+      - { name: "security_artifacts", writes: ["N7", "N9"] }
+      - {
+          name: "approval_artifacts",
+          writes: ["N5", "N5_L_IMPROVEMENT_LOOP", "N5_ME_APPROVAL"],
+        }
+
   risk_model:
     assessment_dimensions: [attack_surface, data_sensitivity, compliance_impact]
     high_risk_triggers:
@@ -67,7 +115,6 @@ subsystem_config_v1:
       - "Token generation or validation changes"
       - "Session management changes"
       - "Credential storage or handling"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -34,7 +34,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -74,7 +74,7 @@ class CursorCheckpointManager:
         self,
         thread_id: str,
         state: CursorAgentState,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Save dual checkpoint per Decision 3.
 
@@ -133,7 +133,7 @@ class CursorCheckpointManager:
     async def restore(
         self,
         thread_id: str,
-    ) -> Optional[CursorAgentState]:
+    ) -> CursorAgentState | None:
         """
         Restore checkpoint per Decision 6 priority.
 
@@ -159,12 +159,11 @@ class CursorCheckpointManager:
                 # Convert Checkpoint to CursorAgentState
                 if isinstance(checkpoint, dict):
                     return CursorAgentState(**checkpoint)
-                elif hasattr(checkpoint, "model_dump"):
+                if hasattr(checkpoint, "model_dump"):
                     return CursorAgentState(**checkpoint.model_dump())
-                else:
-                    # Try to extract state from checkpoint
-                    if isinstance(checkpoint, CursorAgentState):
-                        return checkpoint
+                # Try to extract state from checkpoint
+                if isinstance(checkpoint, CursorAgentState):
+                    return checkpoint
         except Exception as e:
             logger.warning("Failed to restore from PostgresSaver", error=str(e))
 

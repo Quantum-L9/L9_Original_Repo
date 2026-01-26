@@ -48,7 +48,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -90,28 +90,28 @@ class CloudEvent:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Optional but recommended
-    time: Optional[datetime] = field(default_factory=datetime.utcnow)
+    time: datetime | None = field(default_factory=datetime.utcnow)
     datacontenttype: str = "application/json"
-    dataschema: Optional[str] = None
+    dataschema: str | None = None
 
     # Event data
-    data: Optional[Dict[str, Any]] = None
+    data: dict[str, Any] | None = None
 
     # Optional extension attributes
-    subject: Optional[str] = None
-    packet_id: Optional[str] = None  # L9-specific
-    trace_id: Optional[str] = None  # Correlation
-    user_id: Optional[str] = None
+    subject: str | None = None
+    packet_id: str | None = None  # L9-specific
+    trace_id: str | None = None  # Correlation
+    user_id: str | None = None
     environment: str = "production"
 
     # Custom extensions (dict)
-    extensions: Dict[str, Any] = field(default_factory=dict)
+    extensions: dict[str, Any] = field(default_factory=dict)
 
     # Metadata
-    _received_at: Optional[datetime] = None
-    _processed_at: Optional[datetime] = None
+    _received_at: datetime | None = None
+    _processed_at: datetime | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to CloudEvents dict representation"""
         event_dict = {
             "specversion": self.specversion,
@@ -146,7 +146,7 @@ class CloudEvent:
         return json.dumps(self.to_dict(), default=str)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "CloudEvent":
+    def from_dict(cls, data: dict[str, Any]) -> "CloudEvent":
         """Deserialize from dict"""
         # Extract known fields
         known_fields = {
@@ -185,7 +185,7 @@ class CloudEvent:
         """Deserialize from JSON"""
         return cls.from_dict(json.loads(json_str))
 
-    def validate(self) -> tuple[bool, List[str]]:
+    def validate(self) -> tuple[bool, list[str]]:
         """Validate CloudEvents compliance"""
         errors = []
 
@@ -229,7 +229,7 @@ class HTTPBinaryBinding(ProtocolBinding):
     Ref: https://github.com/cloudevents/spec/blob/main/cloudevents/bindings/http-protocol-binding.md
     """
 
-    def serialize(self, event: CloudEvent) -> tuple[Dict[str, str], bytes]:
+    def serialize(self, event: CloudEvent) -> tuple[dict[str, str], bytes]:
         """
         Serialize to HTTP binary mode
         Returns: (headers, body)
@@ -264,7 +264,7 @@ class HTTPBinaryBinding(ProtocolBinding):
 
         return headers, body
 
-    def deserialize(self, headers: Dict[str, str], body: bytes = b"") -> CloudEvent:
+    def deserialize(self, headers: dict[str, str], body: bytes = b"") -> CloudEvent:
         """Deserialize from HTTP binary mode"""
         data = json.loads(body.decode("utf-8")) if body else None
 
@@ -323,7 +323,7 @@ class HTTPStructuredBinding(ProtocolBinding):
     All metadata and data in JSON body
     """
 
-    def serialize(self, event: CloudEvent) -> tuple[Dict[str, str], bytes]:
+    def serialize(self, event: CloudEvent) -> tuple[dict[str, str], bytes]:
         """Serialize to HTTP structured mode"""
         headers = {
             "content-type": "application/cloudevents+json",
@@ -333,7 +333,7 @@ class HTTPStructuredBinding(ProtocolBinding):
 
         return headers, body
 
-    def deserialize(self, headers: Dict[str, str], body: bytes = b"") -> CloudEvent:
+    def deserialize(self, headers: dict[str, str], body: bytes = b"") -> CloudEvent:
         """Deserialize from HTTP structured mode"""
         json_data = json.loads(body.decode("utf-8"))
         return CloudEvent.from_dict(json_data)
@@ -350,11 +350,11 @@ class EventSchema:
 
     event_type: str
     version: str
-    schema: Dict[str, Any]  # JSON Schema
+    schema: dict[str, Any]  # JSON Schema
     encoding: str = "json"
     created_at: datetime = field(default_factory=datetime.utcnow)
     deprecated: bool = False
-    deprecated_at: Optional[datetime] = None
+    deprecated_at: datetime | None = None
 
 
 class SchemaRegistry:
@@ -364,11 +364,11 @@ class SchemaRegistry:
     """
 
     def __init__(self):
-        self.schemas: Dict[str, List[EventSchema]] = {}
+        self.schemas: dict[str, list[EventSchema]] = {}
         self.logger = logger
 
     def register_schema(
-        self, event_type: str, version: str, schema: Dict[str, Any]
+        self, event_type: str, version: str, schema: dict[str, Any]
     ) -> EventSchema:
         """Register event schema"""
         schema_obj = EventSchema(event_type=event_type, version=version, schema=schema)
@@ -382,8 +382,8 @@ class SchemaRegistry:
         return schema_obj
 
     def get_schema(
-        self, event_type: str, version: Optional[str] = None
-    ) -> Optional[EventSchema]:
+        self, event_type: str, version: str | None = None
+    ) -> EventSchema | None:
         """Get schema (latest version if not specified)"""
         schemas = self.schemas.get(event_type, [])
 
@@ -400,7 +400,7 @@ class SchemaRegistry:
 
         return None
 
-    def validate_event(self, event: CloudEvent) -> tuple[bool, List[str]]:
+    def validate_event(self, event: CloudEvent) -> tuple[bool, list[str]]:
         """Validate event against registered schema"""
         schema = self.get_schema(event.type)
 
@@ -429,9 +429,9 @@ class SchemaRegistry:
 def create_packet_ingested_event(
     packet_id: str,
     source: str,
-    packet_data: Dict[str, Any],
-    trace_id: Optional[str] = None,
-    user_id: Optional[str] = None,
+    packet_data: dict[str, Any],
+    trace_id: str | None = None,
+    user_id: str | None = None,
 ) -> CloudEvent:
     """Factory for packet ingested events"""
     return CloudEvent(
@@ -458,7 +458,7 @@ def create_packet_ingested_event(
 class CloudEventBatch:
     """Batch of CloudEvents for efficient transmission"""
 
-    events: List[CloudEvent]
+    events: list[CloudEvent]
     batch_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     created_at: datetime = field(default_factory=datetime.utcnow)
 

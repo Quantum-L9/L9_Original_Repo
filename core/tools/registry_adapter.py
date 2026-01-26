@@ -342,7 +342,9 @@ class ExecutorToolRegistry:
                     continue
             elif self._governance_enabled:
                 # Fallback to hardcoded rules
-                if tool_meta.id in SIDE_EFFECT_TOOLS and not self._is_approved(agent_id, tool_meta.id):
+                if tool_meta.id in SIDE_EFFECT_TOOLS and not self._is_approved(
+                    agent_id, tool_meta.id
+                ):
                     logger.debug(
                         "Tool %s denied for agent %s (side-effect, not approved)",
                         tool_meta.id,
@@ -459,7 +461,9 @@ class ExecutorToolRegistry:
                 if not allowed:
                     continue
             elif self._governance_enabled:
-                if tool_meta.id in SIDE_EFFECT_TOOLS and not self._is_approved(agent_id, tool_meta.id):
+                if tool_meta.id in SIDE_EFFECT_TOOLS and not self._is_approved(
+                    agent_id, tool_meta.id
+                ):
                     continue
                 if tool_meta.id in HIGH_RISK_TOOLS:
                     continue
@@ -626,7 +630,9 @@ class ExecutorToolRegistry:
                     )
             elif self._governance_enabled:
                 # Fallback to hardcoded rules
-                if tool_id in SIDE_EFFECT_TOOLS and not self._is_approved(agent_id, tool_id):
+                if tool_id in SIDE_EFFECT_TOOLS and not self._is_approved(
+                    agent_id, tool_id
+                ):
                     duration_ms = int((time.monotonic() - start_time) * 1000)
                     await log_tool_invocation(
                         call_id=call_id,
@@ -2064,11 +2070,11 @@ def get_tool_registry_adapter() -> ExecutorToolRegistry:
 # =============================================================================
 
 __all__ = [
+    "HIGH_RISK_TOOLS",
+    "SIDE_EFFECT_TOOLS",
     "CacheConfig",
     "ExecutorToolRegistry",
-    "HIGH_RISK_TOOLS",
     "RiskLevel",
-    "SIDE_EFFECT_TOOLS",
     "ToolRegistryCache",
     "create_executor_tool_registry",
     "register_l_tools",

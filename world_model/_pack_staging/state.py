@@ -32,7 +32,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from world_model.interfaces import Entity, IWorldModelState, Relation
 
@@ -51,16 +51,16 @@ class WorldModelState(IWorldModelState):
 
     def __init__(self):
         """Initialize empty state containers."""
-        self._entities: Dict[str, Entity] = {}
-        self._relations: Dict[str, Relation] = {}
-        self._entity_to_relations: Dict[str, List[str]] = {}
-        self._causal_graph: Optional[Any] = None  # Deferred import
+        self._entities: dict[str, Entity] = {}
+        self._relations: dict[str, Relation] = {}
+        self._entity_to_relations: dict[str, list[str]] = {}
+        self._causal_graph: Any | None = None  # Deferred import
         self._version: int = 0
         self._timestamp: datetime = datetime.utcnow()
 
     # ========== ENTITY OPERATIONS ==========
 
-    def get_entity(self, entity_id: str) -> Optional[Entity]:
+    def get_entity(self, entity_id: str) -> Entity | None:
         """Retrieve entity by ID.
 
         Args:
@@ -88,7 +88,7 @@ class WorldModelState(IWorldModelState):
         self._version += 1
         self._timestamp = datetime.utcnow()
 
-    def update_entity(self, entity_id: str, updates: Dict[str, Any]) -> None:
+    def update_entity(self, entity_id: str, updates: dict[str, Any]) -> None:
         """Update entity attributes by ID.
 
         Args:
@@ -149,7 +149,7 @@ class WorldModelState(IWorldModelState):
         self._version += 1
         self._timestamp = datetime.utcnow()
 
-    def list_entities(self, entity_type: Optional[str] = None) -> List[Entity]:
+    def list_entities(self, entity_type: str | None = None) -> list[Entity]:
         """List all entities, optionally filtered by type.
 
         Args:
@@ -169,7 +169,7 @@ class WorldModelState(IWorldModelState):
 
     # ========== RELATION OPERATIONS ==========
 
-    def get_relations(self, entity_id: str) -> List[Relation]:
+    def get_relations(self, entity_id: str) -> list[Relation]:
         """Get all relations involving an entity.
 
         Args:
@@ -251,7 +251,7 @@ class WorldModelState(IWorldModelState):
         self._causal_graph = graph
         self._version += 1
 
-    def get_causal_graph(self) -> Optional[Any]:
+    def get_causal_graph(self) -> Any | None:
         """Get current causal graph.
 
         Returns:
@@ -261,7 +261,7 @@ class WorldModelState(IWorldModelState):
 
     # ========== SNAPSHOT/RESTORE ==========
 
-    def snapshot(self) -> Dict[str, Any]:
+    def snapshot(self) -> dict[str, Any]:
         """Create point-in-time snapshot for checkpointing.
 
         Returns:
@@ -281,7 +281,7 @@ class WorldModelState(IWorldModelState):
             "entity_to_relations": self._entity_to_relations,
         }
 
-    def restore(self, snapshot: Dict[str, Any]) -> None:
+    def restore(self, snapshot: dict[str, Any]) -> None:
         """Restore state from snapshot.
 
         Args:
@@ -331,8 +331,7 @@ class WorldModelState(IWorldModelState):
         for rid, relation_data in snapshot["relations"].items():
             if isinstance(relation_data, dict):
                 try:
-                    from world_model.interfaces import \
-                        Relation as RelationClass
+                    from world_model.interfaces import Relation as RelationClass
 
                     self._relations[rid] = RelationClass(**relation_data)
                 except Exception:

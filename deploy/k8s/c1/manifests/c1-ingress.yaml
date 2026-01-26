@@ -30,10 +30,10 @@ spec:
   selector:
     app: grafana
   ports:
-  - port: 3000
-    targetPort: 3000
-    nodePort: 30300  # Access via 46.62.243.82:30300
-    name: http
+    - port: 3000
+      targetPort: 3000
+      nodePort: 30300 # Access via 46.62.243.82:30300
+      name: http
 ---
 apiVersion: v1
 kind: Service
@@ -47,10 +47,10 @@ spec:
   selector:
     app: prometheus
   ports:
-  - port: 9090
-    targetPort: 9090
-    nodePort: 30909  # Access via 46.62.243.82:30909
-    name: http
+    - port: 9090
+      targetPort: 9090
+      nodePort: 30909 # Access via 46.62.243.82:30909
+      name: http
 ---
 apiVersion: v1
 kind: Service
@@ -64,14 +64,14 @@ spec:
   selector:
     app: l9-neo4j
   ports:
-  - port: 7474
-    targetPort: 7474
-    nodePort: 30474  # Neo4j Browser: 46.62.243.82:30474
-    name: http
-  - port: 7687
-    targetPort: 7687
-    nodePort: 30687  # Neo4j Bolt: 46.62.243.82:30687
-    name: bolt
+    - port: 7474
+      targetPort: 7474
+      nodePort: 30474 # Neo4j Browser: 46.62.243.82:30474
+      name: http
+    - port: 7687
+      targetPort: 7687
+      nodePort: 30687 # Neo4j Bolt: 46.62.243.82:30687
+      name: bolt
 ---
 # L9 API External Access
 apiVersion: v1
@@ -86,10 +86,10 @@ spec:
   selector:
     app: l9-api
   ports:
-  - port: 8000
-    targetPort: 8000
-    nodePort: 30080  # L9 API: 46.62.243.82:30080
-    name: http
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30080 # L9 API: 46.62.243.82:30080
+      name: http
 ---
 # MCP Memory External Access
 apiVersion: v1
@@ -104,10 +104,10 @@ spec:
   selector:
     app: l9-mcp-memory
   ports:
-  - port: 9002
-    targetPort: 9002
-    nodePort: 30902  # MCP Memory: 46.62.243.82:30902
-    name: http
+    - port: 9002
+      targetPort: 9002
+      nodePort: 30902 # MCP Memory: 46.62.243.82:30902
+      name: http
 ---
 # PostgreSQL External Access (for debugging - consider removing in production)
 apiVersion: v1
@@ -122,10 +122,10 @@ spec:
   selector:
     app: l9-postgres
   ports:
-  - port: 5432
-    targetPort: 5432
-    nodePort: 30432  # PostgreSQL: 46.62.243.82:30432
-    name: postgres
+    - port: 5432
+      targetPort: 5432
+      nodePort: 30432 # PostgreSQL: 46.62.243.82:30432
+      name: postgres
 ---
 # Option 2: Traefik IngressRoute (if using k3s default Traefik)
 # Uncomment if you want domain-based routing later

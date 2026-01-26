@@ -116,8 +116,8 @@ RETURN d.text as text, d.context as context, d.severity as severity
 # Get agent tools with approval requirements
 GET_TOOLS_QUERY = """
 MATCH (a:Agent {agent_id: $agent_id})-[:CAN_EXECUTE]->(t:Tool)
-RETURN t.name as name, 
-       t.risk_level as risk_level, 
+RETURN t.name as name,
+       t.risk_level as risk_level,
        t.requires_approval as requires_approval,
        t.approval_source as approval_source
 ORDER BY t.risk_level DESC
@@ -251,7 +251,7 @@ ON CREATE SET
     a.status = 'ACTIVE',
     a.created_at = datetime(),
     a.created_by = 'system'
-RETURN a.agent_id as agent_id, 
+RETURN a.agent_id as agent_id,
        a.created_at IS NOT NULL as created
 """
 

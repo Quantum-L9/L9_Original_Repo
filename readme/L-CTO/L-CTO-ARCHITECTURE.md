@@ -1,6 +1,6 @@
 # L-CTO System Architecture
 
-*Updated: 2026-01-08 (GMP-44 Auto-Discovery)*
+_Updated: 2026-01-08 (GMP-44 Auto-Discovery)_
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -92,7 +92,7 @@
 
   Request                          Processing                         Storage
  ─────────                        ────────────                        ─────────
-                                        
+
  HTTP/Slack  ─────►  server.py  ─────►  KernelAwareAgentRegistry
     │                                          │
     │                              ┌───────────┴───────────┐
@@ -119,20 +119,21 @@
 
 ## Key Files
 
-| Component | File | Purpose |
-|-----------|------|---------|
-| Entry Point | `api/server.py` | FastAPI lifespan, initializes registry |
-| Registry | `core/agents/kernel_registry.py` | Creates kernel-aware agents |
-| Kernel Loader | `runtime/kernel_loader.py` | Parses 10 YAML kernels |
-| Agent | `agents/l_cto.py` | LCTOAgent with kernel absorption |
-| Executor | `core/agents/executor.py` | Governance + execution loop |
-| Runtime | `core/agents/aios_runtime.py` | LLM calls + tool dispatch |
-| Memory | `memory/substrate_service.py` | Packet ingestion |
-| Governance | `core/governance/validation.py` | Authority/safety checks |
+| Component     | File                             | Purpose                                |
+| ------------- | -------------------------------- | -------------------------------------- |
+| Entry Point   | `api/server.py`                  | FastAPI lifespan, initializes registry |
+| Registry      | `core/agents/kernel_registry.py` | Creates kernel-aware agents            |
+| Kernel Loader | `runtime/kernel_loader.py`       | Parses 10 YAML kernels                 |
+| Agent         | `agents/l_cto.py`                | LCTOAgent with kernel absorption       |
+| Executor      | `core/agents/executor.py`        | Governance + execution loop            |
+| Runtime       | `core/agents/aios_runtime.py`    | LLM calls + tool dispatch              |
+| Memory        | `memory/substrate_service.py`    | Packet ingestion                       |
+| Governance    | `core/governance/validation.py`  | Authority/safety checks                |
 
 ## Kernel Files
 
 Located in `l-cto/l-cto-yaml-files/`:
+
 - `00-masterkernel.yaml`
 - `02-identity.yaml`
 - `08-safety.yaml`
@@ -146,15 +147,15 @@ Tools are **auto-discovered** from `ToolDefinition.agent_id`:
 register_l_tools() → _TOOL_AGENT_IDS["tool"] = "L" → get_approved_tools() checks dict
 ```
 
-| Component | File | Role |
-|-----------|------|------|
-| Executor functions | `runtime/l_tools.py` | 71 async functions |
-| ToolDefinitions | `core/tools/registry_adapter.py` | Metadata + auto-discovery |
-| CI Gate | `ci/check_tool_wiring.py` | Validates consistency |
+| Component          | File                             | Role                      |
+| ------------------ | -------------------------------- | ------------------------- |
+| Executor functions | `runtime/l_tools.py`             | 71 async functions        |
+| ToolDefinitions    | `core/tools/registry_adapter.py` | Metadata + auto-discovery |
+| CI Gate            | `ci/check_tool_wiring.py`        | Validates consistency     |
 
-**To add a tool:** 
+**To add a tool:**
+
 1. Add executor to `l_tools.py`
 2. Add ToolDefinition with `agent_id="L"` to `register_l_tools()`
 
 No manual enum or capability list updates needed.
-

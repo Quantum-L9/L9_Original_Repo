@@ -28,7 +28,6 @@ __dora_meta__ = {
 
 import re
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 from .base_extractor import BaseExtractor
 
@@ -60,7 +59,7 @@ class CodeExtractor(BaseExtractor):
         ),
     ]
 
-    def extract(self, input_path: Path, output_root: Path) -> Dict:
+    def extract(self, input_path: Path, output_root: Path) -> dict:
         """Extract code files from input."""
         self.logger.info(f"CodeExtractor: Processing {input_path.name}")
 
@@ -98,7 +97,7 @@ class CodeExtractor(BaseExtractor):
             "errors": errors,
         }
 
-    def find_code_blocks(self, content: str) -> List[Tuple[str, str]]:
+    def find_code_blocks(self, content: str) -> list[tuple[str, str]]:
         """
         Find all code blocks with file paths in content.
 
@@ -135,7 +134,7 @@ class CodeExtractor(BaseExtractor):
         return code_blocks
 
     def extract_code_content(
-        self, lines: List[str], start_idx: int, pattern_type: str
+        self, lines: list[str], start_idx: int, pattern_type: str
     ) -> str:
         """Extract code content starting from start_idx."""
         code_lines = []
@@ -151,9 +150,8 @@ class CodeExtractor(BaseExtractor):
                     in_code_block = True
                     i += 1
                     continue
-                else:
-                    # End of code block
-                    break
+                # End of code block
+                break
 
             # If we're in a code block, add the line
             if in_code_block or (i == start_idx and not line.strip().startswith("#")):
@@ -162,12 +160,11 @@ class CodeExtractor(BaseExtractor):
             # Stop conditions
             if not in_code_block and (
                 line.strip() == ""
-                or line.strip().startswith("#")
-                and not line.strip().startswith("# ")
+                or (line.strip().startswith("#")
+                and not line.strip().startswith("# "))
                 or any(re.match(p[0], line.strip()) for p in self.PATTERNS)
-            ):
-                if len(code_lines) > 3:  # Minimum 3 lines for valid code
-                    break
+            ) and len(code_lines) > 3:  # Minimum 3 lines for valid code
+                break
 
             i += 1
 

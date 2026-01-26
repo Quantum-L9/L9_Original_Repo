@@ -59,14 +59,14 @@ Multi-agent collaboration cells (architect, coder, reviewer)
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module         | Purpose             |
+| -------------- | ------------------- |
 | `core/agents/` | Required dependency |
 
 ---
@@ -84,13 +84,13 @@ collaborative_cells/
 ├── reviewer_cell.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `base_cell.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
-| `reviewer_cell.py` | Collaborative cell for code review and QA. |
-| `architect_cell.py` | Collaborative cell for architecture design. |
-| `reflection_cell.py` | Meta-reasoning cell for self-improvement. |
+| File                 | Purpose                                     |
+| -------------------- | ------------------------------------------- |
+| `base_cell.py`       | Core module (PROTECTED)                     |
+| `__init__.py`        | Core module (PROTECTED)                     |
+| `reviewer_cell.py`   | Collaborative cell for code review and QA.  |
+| `architect_cell.py`  | Collaborative cell for architecture design. |
+| `reflection_cell.py` | Meta-reasoning cell for self-improvement.   |
 
 ### Naming Conventions
 
@@ -108,7 +108,7 @@ collaborative_cells/
 ```python
 class ReviewerCell:
     """Collaborative cell for code review and QA."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -132,7 +132,7 @@ class ReviewerCell:
 ```python
 class ArchitectCell:
     """Collaborative cell for architecture design."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -156,7 +156,7 @@ class ArchitectCell:
 ```python
 class ReflectionCell:
     """Meta-reasoning cell for self-improvement."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -180,7 +180,7 @@ class ReflectionCell:
 ```python
 class ConsensusStrategy:
     """Strategy for reaching consensus."""
-    
+
     # Key methods:
 
 ```
@@ -192,13 +192,12 @@ class ConsensusStrategy:
 ```python
 class CellConfig:
     """Configuration for a cell."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 69-79 in `base_cell.py`
-
 
 ---
 
@@ -269,9 +268,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Collaborative_Cells feature flags
-L9_ENABLE_COLLABORATIVE_CELLS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_COLLABORATIVE_CELLS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_COLLABORATIVE_CELLS_AUDIT: true    # Enable audit logging
+L9_ENABLE_COLLABORATIVE_CELLS_TRACING: true # Enable detailed tracing
+L9_ENABLE_COLLABORATIVE_CELLS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_COLLABORATIVE_CELLS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -333,7 +332,6 @@ Get a snapshot of all registered cells for observability.
 - **File:** `cell_registry.py:151`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -374,6 +372,7 @@ Collaborative Cells operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -381,12 +380,12 @@ Collaborative Cells operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                      | Type      | Description                    |
+| ------------------------------------------- | --------- | ------------------------------ |
 | `collaborative_cells_operation_duration_ms` | Histogram | Operation latency distribution |
-| `collaborative_cells_operation_total` | Counter | Total operations processed |
-| `collaborative_cells_error_total` | Counter | Total errors encountered |
-| `collaborative_cells_active_connections` | Gauge | Current active connections |
+| `collaborative_cells_operation_total`       | Counter   | Total operations processed     |
+| `collaborative_cells_error_total`           | Counter   | Total errors encountered       |
+| `collaborative_cells_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -404,6 +403,7 @@ Collaborative Cells emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/collaborative_cells/`:
+
 - `test_collaborative_cells.py` — Core unit tests
 - `test_collaborative_cells_integration.py` — Integration tests (if applicable)
 
@@ -451,6 +451,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -46,7 +46,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 from dotenv import load_dotenv
@@ -65,7 +65,7 @@ REPO_DIR = PROJECT_ROOT
 REPORTS_DIR = REPO_DIR / "reports"
 
 
-def parse_gmp_report(file_path: Path) -> Optional[Dict[str, Any]]:
+def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
     """
     Parse a GMP report markdown file and extract structured data.
 
@@ -167,9 +167,9 @@ def parse_gmp_report(file_path: Path) -> Optional[Dict[str, Any]]:
 
 
 async def index_gmp_report(
-    report_data: Dict[str, Any],
+    report_data: dict[str, Any],
     substrate_service: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Index a single GMP report to memory substrate.
 

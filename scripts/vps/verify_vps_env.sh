@@ -20,15 +20,15 @@ if [[ -f "$CANONICAL_SCRIPT" ]]; then
     exec bash "$CANONICAL_SCRIPT" "$@"
 else
     # Fallback: minimal verification for VPS
-    
+
     RED='\033[0;31m'
     GREEN='\033[0;32m'
     YELLOW='\033[1;33m'
     NC='\033[0m'
-    
+
     QUICK=false
     [[ "$1" == "--quick" || "$1" == "-q" ]] && QUICK=true
-    
+
     # Determine paths
     if [ -f "/opt/l9/.env" ]; then
         ENV_FILE="/opt/l9/.env"
@@ -40,17 +40,17 @@ else
         echo -e "${RED}❌ ERROR: No .env file found${NC}"
         exit 1
     fi
-    
+
     if [ ! -f "$EXAMPLE_FILE" ]; then
         echo -e "${RED}❌ ERROR: .env.example not found${NC}"
         exit 1
     fi
-    
+
     # Source the .env
     set -a
     source "$ENV_FILE"
     set +a
-    
+
     # Check critical vars
     REQUIRED_VARS=(
         "MEMORY_DSN"
@@ -59,14 +59,14 @@ else
         "POSTGRES_DB"
         "OPENAI_API_KEY"
     )
-    
+
     MISSING=()
     for var in "${REQUIRED_VARS[@]}"; do
         if [ -z "${!var}" ]; then
             MISSING+=("$var")
         fi
     done
-    
+
     if [ ${#MISSING[@]} -eq 0 ]; then
         if [ "$QUICK" = true ]; then
             echo -e "${GREEN}✅ Env verify: all required vars set${NC}"

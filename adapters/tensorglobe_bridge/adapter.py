@@ -25,25 +25,21 @@ __dora_meta__ = {
 # ============================================================================
 
 import logging
-import asyncio
-import hashlib
-from typing import Optional, List, Tuple
 from datetime import datetime
 
+from core.boundary.enforcer import BoundaryEnforcer
 from core.eos import AccountabilityEngine
 from core.eos.schemas import (
     ActionEnvelope,
     ActionType,
-    RiskClass,
     Environment,
-    Verdict,
+    RiskClass,
 )
 from memory.substrate_service import MemorySubstrateService
-from core.boundary.enforcer import BoundaryEnforcer
 
-from .schemas import TensorRequest, TensorResponse, TensorResponsePacket, AnomalySignal
-from .security import SignatureVerifier
 from .anomaly_guard import AnomalyDetector
+from .schemas import TensorRequest, TensorResponse
+from .security import SignatureVerifier
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +81,7 @@ class TensorGlobeBridgeAdapter:
         self,
         request: TensorRequest,
         requester_agent_id: str,
-    ) -> Tuple[bool, Optional[TensorResponse], Optional[str]]:
+    ) -> tuple[bool, TensorResponse | None, str | None]:
         """
         Main entry point for handling tensor requests.
 
@@ -200,7 +196,7 @@ class TensorGlobeBridgeAdapter:
     ) -> bool:
         """Verify request signature (agent → adapter)"""
         try:
-            canonical = request.compute_canonical()
+            request.compute_canonical()
             # TODO: Fetch public key for agent_id, verify signature
             return True  # Placeholder
         except Exception as e:
@@ -227,7 +223,7 @@ class TensorGlobeBridgeAdapter:
                 signature="placeholder_signature",
                 signing_key_id="tensorglobe_key_001",
             )
-        except asyncio.TimeoutError:
+        except TimeoutError as e:
             raise ValueError("TensorGlobe timeout (5s exceeded)") from e
 
     def _validate_response_schema(self, response: TensorResponse) -> bool:

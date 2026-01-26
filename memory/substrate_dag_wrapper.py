@@ -36,7 +36,7 @@ __dora_meta__ = {
 import asyncio
 import random
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -97,10 +97,10 @@ class SubstrateDagOrchestrator:
 
     def __init__(
         self,
-        dag: Optional[SubstrateDAG] = None,
-        circuit_breaker: Optional["CircuitBreaker"] = None,
-        dead_letter_queue: Optional["DeadLetterQueue"] = None,
-        retry_policy: Optional[RetryPolicy] = None,
+        dag: SubstrateDAG | None = None,
+        circuit_breaker: CircuitBreaker | None = None,
+        dead_letter_queue: DeadLetterQueue | None = None,
+        retry_policy: RetryPolicy | None = None,
     ):
         """
         Initialize DAG orchestrator with resilience features.
@@ -129,7 +129,7 @@ class SubstrateDagOrchestrator:
     async def ingest_packet(
         self,
         envelope: PacketEnvelopeIn | PacketEnvelope,
-        idempotency_key: Optional[str] = None,
+        idempotency_key: str | None = None,
     ) -> PacketWriteResult:
         """
         Ingest packet with retry, circuit breaker, and dead letter handling.
@@ -180,7 +180,7 @@ class SubstrateDagOrchestrator:
             )
 
         # Retry loop
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
         for attempt in range(self._retry_policy.max_retries + 1):
             try:
                 result = await self._dag.run(full_envelope)

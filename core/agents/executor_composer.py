@@ -54,10 +54,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-import structlog
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -90,7 +91,7 @@ class ExecutorConfig:
     fallback_agent_id: str = "l9-standard-v1"
 
     @classmethod
-    def from_env(cls, env: Optional[Dict[str, str]] = None) -> "ExecutorConfig":
+    def from_env(cls, env: dict[str, str] | None = None) -> ExecutorConfig:
         """
         Load configuration from environment variables.
 
@@ -139,8 +140,8 @@ class ExecutorDeps:
     tool_registry: Any
     substrate_service: Any
     agent_registry: Any
-    agent_persistence: Optional[Any] = None
-    approval_manager: Optional[Any] = None
+    agent_persistence: Any | None = None
+    approval_manager: Any | None = None
 
 
 # =============================================================================
@@ -172,7 +173,7 @@ class ExecutorComposer:
         >>> executor = composer.compose()
     """
 
-    def __init__(self, env: Optional[Dict[str, str]] = None):
+    def __init__(self, env: dict[str, str] | None = None):
         """
         Initialize composer with optional env override.
 
@@ -181,15 +182,15 @@ class ExecutorComposer:
                  Useful for testing with custom env vars
         """
         self._env = env or os.environ
-        self._di_container: Optional[Any] = None
-        self._config: Optional[ExecutorConfig] = None
+        self._di_container: Any | None = None
+        self._config: ExecutorConfig | None = None
 
         logger.debug(
             "executor_composer.initialized",
             env_override=env is not None,
         )
 
-    def set_di_container(self, container: Any) -> "ExecutorComposer":
+    def set_di_container(self, container: Any) -> ExecutorComposer:
         """
         Wire DIContainer for dependency resolution.
 
@@ -328,10 +329,10 @@ class ExecutorComposer:
         # Import protocol types for resolution
         # Note: Actual protocol locations may vary, adjust imports as needed
         try:
+            from core.agents.registry import AgentRegistry
             from core.aios.runtime import AIOSRuntime
             from core.tools.registry_adapter import ExecutorToolRegistry
             from memory.substrate_service import MemorySubstrateService
-            from core.agents.registry import AgentRegistry
         except ImportError as e:
             logger.error(
                 "executor_composer.protocol_import_failed",
@@ -402,7 +403,7 @@ class ExecutorComposer:
             approval_manager=approval_manager,
         )
 
-    def get_config(self) -> Optional[ExecutorConfig]:
+    def get_config(self) -> ExecutorConfig | None:
         """
         Return loaded config (for debugging/testing).
 

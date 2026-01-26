@@ -5,6 +5,7 @@
 This PR eliminates **495 critical issues** (from 501 to 6) across the L9 codebase, achieving **99.4% code cleanliness** by focusing on real bugs rather than cosmetic style issues.
 
 **Impact:**
+
 - ✅ 99.4% code cleanliness (6 issues / 940 files)
 - ✅ 495 critical issues fixed (98.8% reduction)
 - ✅ 814 files cleaned and formatted
@@ -16,6 +17,7 @@ This PR eliminates **495 critical issues** (from 501 to 6) across the L9 codebas
 ## 📊 Before & After
 
 ### Before Cleanup
+
 - **Total Issues:** 501 critical issues
 - **Code Cleanliness:** ~50%
 - **Issues per File:** 0.53
@@ -23,6 +25,7 @@ This PR eliminates **495 critical issues** (from 501 to 6) across the L9 codebas
 - **Import Organization:** Chaotic
 
 ### After Cleanup
+
 - **Total Issues:** 6 critical issues (in staging code)
 - **Code Cleanliness:** 99.4%
 - **Issues per File:** 0.006
@@ -34,17 +37,21 @@ This PR eliminates **495 critical issues** (from 501 to 6) across the L9 codebas
 ## 🔧 Changes Made
 
 ### Phase 1: Automated Fixes (768 files)
+
 **Commit:** `8736e2b` - "chore: auto-fix technical debt (phase 1)"
 
 1. **Removed unused imports** (120 occurrences)
+
    - autoflake + ruff auto-fix
    - Cleaned up stale imports from refactoring
 
 2. **Removed unused variables** (103 occurrences)
+
    - Identified dead code
    - Removed with unsafe-fixes flag
 
 3. **Code formatting** (271 files)
+
    - Black formatter applied
    - Consistent 88-char line length
    - PEP 8 compliant
@@ -59,25 +66,28 @@ This PR eliminates **495 critical issues** (from 501 to 6) across the L9 codebas
 ---
 
 ### Phase 2: Manual Fixes (46 files)
+
 **Commit:** `0b5f79e` - "chore: technical debt cleanup - phase 2 (manual fixes)"
 
 1. **Fixed missing imports** (3 occurrences)
+
    ```python
    # api/memory/router.py
    + import json
-   
+
    # config/di_config.py
    + from typing import Any
    ```
 
 2. **Fixed bare except clauses** (8 occurrences)
+
    ```python
    # Before
    try:
        risky_operation()
    except:  # E722: bare except
        pass
-   
+
    # After
    try:
        risky_operation()
@@ -86,12 +96,13 @@ This PR eliminates **495 critical issues** (from 501 to 6) across the L9 codebas
    ```
 
 3. **Fixed ambiguous variable names** (5 occurrences)
+
    ```python
    # Before
    I = max(0.0, min(1.0, initial_importance))  # E741
    for l in lines:  # E741
        ...
-   
+
    # After
    importance = max(0.0, min(1.0, initial_importance))
    for line in lines:
@@ -113,29 +124,37 @@ This PR eliminates **495 critical issues** (from 501 to 6) across the L9 codebas
 All remaining issues are in **non-critical staging code** or edge cases:
 
 ### 1. `world_model/_pack_staging/loader.py`
+
 ```python
 # F811: Redefinition of unused `load_initial_state` from line 186
 def load_initial_state(self, operation: UpdateOperation) -> None:
     ...
 ```
+
 **Status:** Staging code, will be refactored in world model v2
 
 ### 2. `world_model/_pack_staging/updater.py` (3 issues)
+
 ```python
 # F811: Redefined UpdateOperation, UpdateResult, apply_update
 ```
+
 **Status:** Experimental code, intentional overloading pattern
 
 ### 3. `mac_agent/runner.py`
+
 ```python
 # F821: Undefined name `post_result`
 ```
+
 **Status:** Mac agent is experimental, needs import fix
 
 ### 4. `services/pdf_engine.py`
+
 ```python
 # F823: Local variable `PDFPLUMBER_AVAILABLE` referenced before assignment
 ```
+
 **Status:** Edge case in optional dependency check
 
 **Action:** Tracked in follow-up issue, not blocking
@@ -181,6 +200,7 @@ skip = ["l9_private/kernels", ".venv", "venv"]
 ```
 
 **Rationale:**
+
 - **E402 exclusion:** DORA metadata headers are intentionally placed before imports (observability-first architecture)
 - **Focused linting:** Only check critical issues (bugs), not style
 - **Kernel protection:** Exclude `l9_private/kernels` per project rules
@@ -190,6 +210,7 @@ skip = ["l9_private/kernels", ".venv", "venv"]
 ## ✅ Testing & Validation
 
 ### Automated Validation
+
 ```bash
 # Linting
 $ ruff check .
@@ -206,6 +227,7 @@ SUCCESS
 ```
 
 ### Manual Validation
+
 - ✅ All imports resolve correctly
 - ✅ No syntax errors in production code
 - ✅ DORA metadata headers preserved
@@ -213,6 +235,7 @@ SUCCESS
 - ✅ Docstrings preserved
 
 ### Test Suite
+
 ```bash
 $ pytest tests/ -v
 # All tests passing (not run in this PR, but validated locally)
@@ -227,6 +250,7 @@ $ pytest tests/ -v
 **No action required!** This PR is 100% backward compatible.
 
 **Benefits you'll see:**
+
 1. **Faster code review:** Consistent formatting
 2. **Better IDE support:** Clean imports, no false warnings
 3. **Easier debugging:** No ambiguous variable names
@@ -243,12 +267,12 @@ repos:
     rev: 24.1.1
     hooks:
       - id: black
-  
+
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
-  
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.14
     hooks:
@@ -262,28 +286,28 @@ repos:
 
 ### Code Quality Improvement
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **Critical Issues** | 501 | 6 | 98.8% ↓ |
-| **Code Cleanliness** | 50% | 99.4% | 49.4% ↑ |
-| **Issues per File** | 0.53 | 0.006 | 98.9% ↓ |
-| **Formatted Files** | ~200 | 938 | 369% ↑ |
-| **Sorted Imports** | ~100 | 768 | 668% ↑ |
+| Metric               | Before | After | Improvement |
+| -------------------- | ------ | ----- | ----------- |
+| **Critical Issues**  | 501    | 6     | 98.8% ↓     |
+| **Code Cleanliness** | 50%    | 99.4% | 49.4% ↑     |
+| **Issues per File**  | 0.53   | 0.006 | 98.9% ↓     |
+| **Formatted Files**  | ~200   | 938   | 369% ↑      |
+| **Sorted Imports**   | ~100   | 768   | 668% ↑      |
 
 ### Issue Breakdown
 
-| Category | Before | After | Fixed |
-|----------|--------|-------|-------|
-| Unused imports (F401) | 120 | 0 | 120 |
-| Unused variables (F841) | 103 | 0 | 103 |
-| Import ordering (E402) | 169 | 0* | 169* |
-| Undefined names (F821) | 54 | 1 | 53 |
-| Syntax errors | 21 | 0 | 21 |
-| Bare except (E722) | 8 | 0 | 8 |
-| Ambiguous names (E741) | 5 | 0 | 5 |
-| True/false comparison (E712) | 5 | 0 | 5 |
-| Redefined functions (F811) | 4 | 4 | 0 |
-| Other | 12 | 1 | 11 |
+| Category                     | Before | After | Fixed |
+| ---------------------------- | ------ | ----- | ----- |
+| Unused imports (F401)        | 120    | 0     | 120   |
+| Unused variables (F841)      | 103    | 0     | 103   |
+| Import ordering (E402)       | 169    | 0\*   | 169\* |
+| Undefined names (F821)       | 54     | 1     | 53    |
+| Syntax errors                | 21     | 0     | 21    |
+| Bare except (E722)           | 8      | 0     | 8     |
+| Ambiguous names (E741)       | 5      | 0     | 5     |
+| True/false comparison (E712) | 5      | 0     | 5     |
+| Redefined functions (F811)   | 4      | 4     | 0     |
+| Other                        | 12     | 1     | 11    |
 
 \* E402 excluded as intentional pattern (DORA metadata)
 
@@ -303,11 +327,13 @@ repos:
 ## 🔄 Follow-Up Work
 
 ### Immediate (Not Blocking)
+
 1. Fix remaining 6 issues in staging code
 2. Add pre-commit hooks to CI/CD
 3. Document DORA metadata pattern in coding standards
 
 ### Future Enhancements
+
 1. Add mypy type checking to CI
 2. Implement mutation testing (per Phase 0 plan)
 3. Add complexity analysis (mccabe)
@@ -326,6 +352,7 @@ repos:
 ## 🙏 Acknowledgments
 
 This cleanup was guided by:
+
 - **PEP 8** - Style Guide for Python Code
 - **Black** - The Uncompromising Code Formatter
 - **Ruff** - An extremely fast Python linter
@@ -336,6 +363,7 @@ This cleanup was guided by:
 ## 📝 Commit History
 
 1. `8736e2b` - chore: auto-fix technical debt (phase 1)
+
    - 768 files changed
    - 183 issues fixed automatically
    - Black + isort + autoflake + ruff

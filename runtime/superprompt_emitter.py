@@ -41,7 +41,7 @@ __dora_meta__ = {
 
 import os
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aiofiles
 import structlog
@@ -63,7 +63,7 @@ class SpecGap:
     field: str
     severity: str  # critical, important, optional
     description: str
-    suggestion: Optional[str] = None
+    suggestion: str | None = None
 
 
 @dataclass
@@ -76,7 +76,7 @@ class GapAnalysis:
     critical_gaps: int
     important_gaps: int
     optional_gaps: int
-    gaps: List[SpecGap] = field(default_factory=list)
+    gaps: list[SpecGap] = field(default_factory=list)
 
     @property
     def has_critical_gaps(self) -> bool:
@@ -122,7 +122,7 @@ class GapDetector:
         "example",
     ]
 
-    def analyze(self, spec: Dict[str, Any]) -> GapAnalysis:
+    def analyze(self, spec: dict[str, Any]) -> GapAnalysis:
         """
         Analyze a spec for gaps.
 
@@ -132,7 +132,7 @@ class GapDetector:
         Returns:
             GapAnalysis with detected gaps
         """
-        gaps: List[SpecGap] = []
+        gaps: list[SpecGap] = []
         module_id = spec.get("metadata", {}).get("module_id", "unknown")
 
         # Check required content sections
@@ -168,7 +168,7 @@ class GapDetector:
         )
 
     def _check_required_content(
-        self, spec: Dict[str, Any], gaps: List[SpecGap]
+        self, spec: dict[str, Any], gaps: list[SpecGap]
     ) -> None:
         """Check required content sections."""
         for path, description in self.REQUIRED_CONTENT_SECTIONS.items():
@@ -201,7 +201,7 @@ class GapDetector:
                 )
 
     def _check_placeholders(
-        self, spec: Dict[str, Any], gaps: List[SpecGap], path: str = ""
+        self, spec: dict[str, Any], gaps: list[SpecGap], path: str = ""
     ) -> None:
         """Recursively check for placeholder patterns."""
         if isinstance(spec, dict):
@@ -227,7 +227,7 @@ class GapDetector:
                     )
                     break  # Only report once per field
 
-    def _check_empty_lists(self, spec: Dict[str, Any], gaps: List[SpecGap]) -> None:
+    def _check_empty_lists(self, spec: dict[str, Any], gaps: list[SpecGap]) -> None:
         """Check for empty lists that should have content."""
         required_lists = [
             ("dependencies.outbound_calls", "optional"),
@@ -270,8 +270,8 @@ class SuperPrompt:
 
     module_id: str
     purpose: str
-    context: Dict[str, Any]
-    gaps_to_fill: List[SpecGap]
+    context: dict[str, Any]
+    gaps_to_fill: list[SpecGap]
     prompt_text: str
     expected_format: str = "yaml"
 
@@ -285,7 +285,7 @@ class SuperPromptEmitter:
     """
 
     # System prompt template for Perplexity
-    SYSTEM_PROMPT = """You are an L9 AI OS specification expert. Your task is to fill in missing 
+    SYSTEM_PROMPT = """You are an L9 AI OS specification expert. Your task is to fill in missing
 details in Module-Spec-v2.4 YAML specifications.
 
 Rules:
@@ -316,8 +316,8 @@ Module-Spec-v2.4 requires:
 
     def emit_from_spec(
         self,
-        spec: Dict[str, Any],
-        gap_analysis: Optional[GapAnalysis] = None,
+        spec: dict[str, Any],
+        gap_analysis: GapAnalysis | None = None,
     ) -> SuperPrompt:
         """
         Generate a SuperPrompt from a specification.
@@ -358,7 +358,7 @@ Module-Spec-v2.4 requires:
         Returns:
             SuperPrompt ready for LLM submission
         """
-        with open(yaml_path, "r", encoding="utf-8") as f:
+        with open(yaml_path, encoding="utf-8") as f:
             spec = yaml.safe_load(f)
 
         return self.emit_from_spec(spec)
@@ -369,7 +369,7 @@ Module-Spec-v2.4 requires:
 
     def _build_prompt(
         self,
-        spec: Dict[str, Any],
+        spec: dict[str, Any],
         gap_analysis: GapAnalysis,
     ) -> str:
         """Build the enrichment prompt."""
@@ -384,7 +384,7 @@ Module-Spec-v2.4 requires:
                 f"- [{gap.severity.upper()}] {gap.section}.{gap.field}: {gap.description}"
             )
 
-        prompt = f"""# Module Specification Enrichment Request
+        return f"""# Module Specification Enrichment Request
 
 ## Target Module
 - Module ID: {module_id}
@@ -416,7 +416,6 @@ patches:
 ```
 """
 
-        return prompt
 
 
 # =============================================================================
@@ -436,8 +435,8 @@ class PerplexityEnricher:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        model: Optional[str] = None,
+        api_key: str | None = None,
+        model: str | None = None,
     ):
         """
         Initialize the enricher.
@@ -460,7 +459,7 @@ class PerplexityEnricher:
     async def enrich(
         self,
         superprompt: SuperPrompt,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Send SuperPrompt to Perplexity and get enrichment.
 
@@ -516,7 +515,7 @@ class PerplexityEnricher:
             "patches": self._parse_patches(content),
         }
 
-    def _parse_patches(self, content: str) -> List[Dict[str, Any]]:
+    def _parse_patches(self, content: str) -> list[dict[str, Any]]:
         """Parse patches from LLM response."""
         patches = []
 
@@ -551,9 +550,9 @@ class SpecPatcher:
 
     def apply_patches(
         self,
-        spec: Dict[str, Any],
-        patches: List[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        spec: dict[str, Any],
+        patches: list[dict[str, Any]],
+    ) -> dict[str, Any]:
         """
         Apply patches to a specification.
 
@@ -579,7 +578,7 @@ class SpecPatcher:
 
     def _set_nested(
         self,
-        data: Dict[str, Any],
+        data: dict[str, Any],
         path: str,
         value: Any,
     ) -> None:
@@ -587,7 +586,7 @@ class SpecPatcher:
         parts = path.split(".")
         current = data
 
-        for i, part in enumerate(parts[:-1]):
+        for _i, part in enumerate(parts[:-1]):
             if part not in current:
                 current[part] = {}
             current = current[part]
@@ -601,19 +600,19 @@ class SpecPatcher:
 # =============================================================================
 
 
-def detect_gaps(spec: Dict[str, Any]) -> GapAnalysis:
+def detect_gaps(spec: dict[str, Any]) -> GapAnalysis:
     """Detect gaps in a specification."""
     detector = GapDetector()
     return detector.analyze(spec)
 
 
-def emit_superprompt(spec: Dict[str, Any]) -> SuperPrompt:
+def emit_superprompt(spec: dict[str, Any]) -> SuperPrompt:
     """Generate SuperPrompt from specification."""
     emitter = SuperPromptEmitter()
     return emitter.emit_from_spec(spec)
 
 
-async def enrich_spec(spec_path: str) -> Dict[str, Any]:
+async def enrich_spec(spec_path: str) -> dict[str, Any]:
     """
     Enrich a specification via Perplexity.
 
@@ -623,7 +622,7 @@ async def enrich_spec(spec_path: str) -> Dict[str, Any]:
     Returns:
         Enriched specification
     """
-    async with aiofiles.open(spec_path, "r") as f:
+    async with aiofiles.open(spec_path) as f:
         spec = yaml.safe_load(await f.read())
 
     emitter = SuperPromptEmitter()

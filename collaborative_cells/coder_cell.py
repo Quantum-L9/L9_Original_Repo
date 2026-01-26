@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from openai import AsyncOpenAI
@@ -136,10 +136,10 @@ class CoderCell(BaseCell):
 
     cell_type = "coder"
 
-    def __init__(self, config: Optional[CellConfig] = None):
+    def __init__(self, config: CellConfig | None = None):
         """Initialize the coder cell."""
         super().__init__(config)
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
 
     def _ensure_client(self) -> AsyncOpenAI:
         """Ensure OpenAI client is initialized."""
@@ -151,7 +151,7 @@ class CoderCell(BaseCell):
         self,
         task: dict[str, Any],
         context: dict[str, Any],
-        previous_critique: Optional[dict[str, Any]] = None,
+        previous_critique: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Run Coder A to produce implementation."""
         client = self._ensure_client()
@@ -305,8 +305,8 @@ class CoderCell(BaseCell):
         self,
         specification: str,
         language: str = "python",
-        framework: Optional[str] = None,
-        existing_code: Optional[dict[str, str]] = None,
+        framework: str | None = None,
+        existing_code: dict[str, str] | None = None,
     ) -> dict[str, Any]:
         """
         Implement code from specification.
@@ -369,7 +369,7 @@ class CoderCell(BaseCell):
         code: str,
         file_path: str,
         bug_description: str,
-        error_message: Optional[str] = None,
+        error_message: str | None = None,
     ) -> dict[str, Any]:
         """
         Fix a bug in code.

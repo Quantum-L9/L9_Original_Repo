@@ -30,7 +30,6 @@ __dora_meta__ = {
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
 
 import yaml
 
@@ -40,7 +39,7 @@ from .base_extractor import BaseExtractor
 class AgentConfigExtractor(BaseExtractor):
     """Extracts agent configuration (preferences, SOPs, roles)."""
 
-    def extract(self, input_path: Path, output_root: Path) -> Dict:
+    def extract(self, input_path: Path, output_root: Path) -> dict:
         """Extract agent configuration from input."""
         self.logger.info(f"AgentConfigExtractor: Processing {input_path.name}")
 
@@ -79,7 +78,7 @@ class AgentConfigExtractor(BaseExtractor):
             "errors": [],
         }
 
-    def extract_config(self, content: str, mode: str) -> Dict:
+    def extract_config(self, content: str, mode: str) -> dict:
         """Extract configuration based on mode."""
         config = {
             "schema_meta": {
@@ -112,7 +111,7 @@ class AgentConfigExtractor(BaseExtractor):
 
         return config
 
-    def extract_preferences(self, content: str) -> List[Dict]:
+    def extract_preferences(self, content: str) -> list[dict]:
         """Extract user preferences."""
         preferences = []
 
@@ -122,7 +121,7 @@ class AgentConfigExtractor(BaseExtractor):
             (r"User preference:\s*(.+?)(?:\n|$)", "explicit_marker"),
         ]
 
-        for pattern, pattern_type in pref_patterns:
+        for pattern, _pattern_type in pref_patterns:
             for match in re.finditer(pattern, content, re.IGNORECASE):
                 pref_text = match.group(1).strip()
                 preferences.append(
@@ -136,7 +135,7 @@ class AgentConfigExtractor(BaseExtractor):
 
         return preferences
 
-    def extract_sops(self, content: str) -> List[Dict]:
+    def extract_sops(self, content: str) -> list[dict]:
         """Extract Standard Operating Procedures."""
         sops = []
 
@@ -174,7 +173,7 @@ class AgentConfigExtractor(BaseExtractor):
 
         return sops
 
-    def extract_signals(self, content: str) -> List[Dict]:
+    def extract_signals(self, content: str) -> list[dict]:
         """Extract signal phrases."""
         signals = []
 
@@ -196,7 +195,7 @@ class AgentConfigExtractor(BaseExtractor):
 
         return signals
 
-    def extract_operating_mode(self, content: str) -> Dict:
+    def extract_operating_mode(self, content: str) -> dict:
         """Extract operating mode information."""
         return {
             "reasoning": "both",
@@ -205,7 +204,7 @@ class AgentConfigExtractor(BaseExtractor):
             "delegation": "flexible",
         }
 
-    def extract_roles(self, content: str) -> List[Dict]:
+    def extract_roles(self, content: str) -> list[dict]:
         """Extract role definitions."""
         roles = []
 
@@ -223,15 +222,15 @@ class AgentConfigExtractor(BaseExtractor):
 
         return roles
 
-    def extract_patterns(self, content: str) -> List[Dict]:
+    def extract_patterns(self, content: str) -> list[dict]:
         """Extract structural patterns."""
         return []
 
-    def extract_issues(self, content: str) -> List[Dict]:
+    def extract_issues(self, content: str) -> list[dict]:
         """Extract known issues."""
         return []
 
-    def extract_lessons(self, content: str) -> List[Dict]:
+    def extract_lessons(self, content: str) -> list[dict]:
         """Extract lessons."""
         lessons = []
 

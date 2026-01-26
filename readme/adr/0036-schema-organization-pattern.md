@@ -102,12 +102,12 @@ class NewDomainStatus(str, Enum):
 
 class NewDomainEntity(BaseModel):
     """Primary entity for NewDomain operations."""
-    
+
     id: UUID = Field(default_factory=uuid4)
     name: str = Field(..., description="Entity name")
     status: NewDomainStatus = Field(default=NewDomainStatus.PENDING)
     metadata: dict[str, Any] = Field(default_factory=dict)
-    
+
     model_config = {"extra": "forbid"}
 
 

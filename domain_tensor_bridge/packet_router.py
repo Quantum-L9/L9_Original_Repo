@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Packet Router
@@ -47,8 +46,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -62,7 +62,7 @@ class RoutingResult:
     """Result of packet routing decision."""
 
     handler_name: str
-    handler: Optional[Callable]
+    handler: Callable | None
     route_confidence: float
     fallback_used: bool
 
@@ -79,9 +79,9 @@ class PacketRouter:
     """
 
     def __init__(self):
-        self._handlers: Dict[str, Callable] = {}
-        self._domain_handlers: Dict[str, Callable] = {}
-        self._fallback_handler: Optional[Callable] = None
+        self._handlers: dict[str, Callable] = {}
+        self._domain_handlers: dict[str, Callable] = {}
+        self._fallback_handler: Callable | None = None
 
     def register_handler(
         self,
@@ -140,7 +140,7 @@ class PacketRouter:
 
         return "default"
 
-    def get_handler_for_type(self, packet_type: str) -> Optional[Callable]:
+    def get_handler_for_type(self, packet_type: str) -> Callable | None:
         """
         Get handler for packet type.
 
@@ -173,7 +173,7 @@ class PacketRouter:
 
         return ValidationResult(valid=len(errors) == 0, errors=errors)
 
-    async def route(self, packet: PacketEnvelope) -> Dict[str, Any]:
+    async def route(self, packet: PacketEnvelope) -> dict[str, Any]:
         """Route packet and return routing info."""
         handler_name = await self.route_packet(packet)
         handler = self.get_handler_for_type(handler_name)

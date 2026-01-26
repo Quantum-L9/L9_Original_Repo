@@ -59,7 +59,7 @@ __dora_meta__ = {
 
 import asyncio
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
 import structlog
@@ -71,8 +71,8 @@ from world_model.state import WorldModelState
 from world_model.updater import WorldModelUpdater
 
 if TYPE_CHECKING:
-    from world_model.knowledge_ingestor import KnowledgeIngestor
     from world_model.causal_mapper import CausalMapper
+    from world_model.knowledge_ingestor import KnowledgeIngestor
     from world_model.reflection_memory import ReflectionMemory
     from world_model.service import WorldModelService
 
@@ -137,8 +137,8 @@ class WorldModelEngine:
 
     def __init__(self) -> None:
         """Initialize World Model Engine."""
-        self._state: Optional[WorldModelState] = None
-        self._causal_graph: Optional[CausalGraph] = None
+        self._state: WorldModelState | None = None
+        self._causal_graph: CausalGraph | None = None
         self._registry: WorldModelRegistry = WorldModelRegistry()
         self._loader: WorldModelLoader = WorldModelLoader()
         self._updater: WorldModelUpdater = WorldModelUpdater(self._registry)
@@ -149,16 +149,16 @@ class WorldModelEngine:
         self._lock: asyncio.Lock = asyncio.Lock()
 
         # Runtime components (lazy initialized)
-        self._ingestor: Optional[KnowledgeIngestor] = None
-        self._causal_mapper: Optional[CausalMapper] = None
-        self._reflection_memory: Optional[ReflectionMemory] = None
+        self._ingestor: KnowledgeIngestor | None = None
+        self._causal_mapper: CausalMapper | None = None
+        self._reflection_memory: ReflectionMemory | None = None
 
         # World Model Service for DB-backed entity persistence
-        self._world_model_service: Optional["WorldModelService"] = None
+        self._world_model_service: WorldModelService | None = None
 
         logger.info("WorldModelEngine initialized (v1.3.0 async with DB sync)")
 
-    def set_world_model_service(self, service: "WorldModelService") -> None:
+    def set_world_model_service(self, service: WorldModelService) -> None:
         """
         Set WorldModelService for DB-backed entity persistence.
 
@@ -210,7 +210,7 @@ class WorldModelEngine:
 
     async def initialize_state(
         self,
-        initial_state: Optional[dict[str, Any]] = None,
+        initial_state: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Initialize world model state from loaded specifications.
@@ -391,7 +391,7 @@ class WorldModelEngine:
         """Process execution plan packet from ir_to_plan_adapter.to_memory_packet()."""
         entities: list[str] = []
 
-        plan_id = payload.get("plan_id", str(uuid4()))
+        payload.get("plan_id", str(uuid4()))
 
         if self._ingestor:
             from world_model.knowledge_ingestor import SourceType
@@ -598,7 +598,7 @@ class WorldModelEngine:
                 "errors": ["Engine not initialized"],
             }
 
-        simulation_type = change_request.get("type", "counterfactual")
+        change_request.get("type", "counterfactual")
         intervention = change_request.get("intervention", {})
         target = change_request.get("target")
         errors: list[str] = []
@@ -644,7 +644,7 @@ class WorldModelEngine:
     # State Access
     # =========================================================================
 
-    def get_state(self) -> Optional[WorldModelState]:
+    def get_state(self) -> WorldModelState | None:
         """
         Get current world model state.
 
@@ -653,7 +653,7 @@ class WorldModelEngine:
         """
         return self._state
 
-    def get_causal_graph(self) -> Optional[CausalGraph]:
+    def get_causal_graph(self) -> CausalGraph | None:
         """
         Get causal graph.
 
@@ -675,15 +675,15 @@ class WorldModelEngine:
     # Component Access
     # =========================================================================
 
-    def get_ingestor(self) -> Optional["KnowledgeIngestor"]:
+    def get_ingestor(self) -> KnowledgeIngestor | None:
         """Get knowledge ingestor instance."""
         return self._ingestor
 
-    def get_causal_mapper(self) -> Optional["CausalMapper"]:
+    def get_causal_mapper(self) -> CausalMapper | None:
         """Get causal mapper instance."""
         return self._causal_mapper
 
-    def get_reflection_memory(self) -> Optional["ReflectionMemory"]:
+    def get_reflection_memory(self) -> ReflectionMemory | None:
         """Get reflection memory instance."""
         return self._reflection_memory
 
@@ -779,7 +779,7 @@ class WorldModelEngine:
 # Singleton Access
 # =============================================================================
 
-_engine: Optional[WorldModelEngine] = None
+_engine: WorldModelEngine | None = None
 
 
 @register_singleton(
@@ -801,8 +801,8 @@ def get_world_model_engine() -> WorldModelEngine:
 
 
 async def init_world_model_engine(
-    spec_paths: Optional[list[str]] = None,
-    initial_state: Optional[dict[str, Any]] = None,
+    spec_paths: list[str] | None = None,
+    initial_state: dict[str, Any] | None = None,
 ) -> WorldModelEngine:
     """
     Initialize singleton engine with specifications (async).

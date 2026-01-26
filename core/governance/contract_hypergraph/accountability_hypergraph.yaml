@@ -26,7 +26,7 @@ metadata:
   name: accountability_hypergraph
   version: "1.0.0"
   description: |
-    Extended hypergraph that models permission, causality, liability, 
+    Extended hypergraph that models permission, causality, liability,
     and blast radius in one structure. Supersedes contract_hypergraph.
 
 # -----------------------------------------------------------------------------
@@ -168,7 +168,6 @@ enforcement:
     name: causal_chain_required
     constraint: "Every state_transition MUST have CAUSES edge to action"
     enforcement: soft
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -25,198 +25,198 @@ Before you begin, make sure you have:
 Copy and paste the following new jobs into your `.github/workflows/ci.yml` file, placing them before your existing `validate` job:
 
 ```yaml
-  # ===========================================================================
-  # NEW JOB: LINT-FORMAT — Ruff + MyPy
-  # ===========================================================================
-  lint-format:
-    name: Lint & Format (Ruff + MyPy)
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+# ===========================================================================
+# NEW JOB: LINT-FORMAT — Ruff + MyPy
+# ===========================================================================
+lint-format:
+  name: Lint & Format (Ruff + MyPy)
+  runs-on: ubuntu-latest
+  timeout-minutes: 10
 
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install ruff mypy
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: "pip"
 
-      - name: Run Ruff (linting)
-        run: |
-          echo "🔍 Running Ruff linter..."
-          ruff check . --output-format=github
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff mypy
 
-      - name: Run Ruff (formatting)
-        run: |
-          echo "🎨 Checking code formatting..."
-          ruff format --check .
+    - name: Run Ruff (linting)
+      run: |
+        echo "🔍 Running Ruff linter..."
+        ruff check . --output-format=github
 
-      - name: Run MyPy (type checking)
-        run: |
-          echo "🔬 Running MyPy type checker..."
-          mypy . --config-file=pyproject.toml || true
-        continue-on-error: true  # Don't block CI yet - report only
+    - name: Run Ruff (formatting)
+      run: |
+        echo "🎨 Checking code formatting..."
+        ruff format --check .
 
-  # ===========================================================================
-  # NEW JOB: SONARCLOUD — Code Quality & Security Analysis
-  # ===========================================================================
-  sonarcloud:
-    name: SonarCloud Analysis
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for better analysis
+    - name: Run MyPy (type checking)
+      run: |
+        echo "🔬 Running MyPy type checker..."
+        mypy . --config-file=pyproject.toml || true
+      continue-on-error: true # Don't block CI yet - report only
 
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+# ===========================================================================
+# NEW JOB: SONARCLOUD — Code Quality & Security Analysis
+# ===========================================================================
+sonarcloud:
+  name: SonarCloud Analysis
+  runs-on: ubuntu-latest
+  timeout-minutes: 15
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .
-          pip install pytest pytest-cov
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Shallow clones should be disabled for better analysis
 
-      - name: Run tests with coverage
-        run: |
-          echo "🧪 Running tests with coverage for SonarCloud..."
-          pytest tests/ --cov=. --cov-report=xml --cov-report=term --ignore=tests/e2e || true
-        continue-on-error: true
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: "pip"
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=L9
-            -Dsonar.organization=cryptoxdog
-            -Dsonar.python.coverage.reportPaths=coverage.xml
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pytest pytest-cov
 
-  # ===========================================================================
-  # NEW JOB: SECRETS-SCAN — GitGuardian Secrets Detection
-  # ===========================================================================
-  secrets-scan:
-    name: Secrets Scan (GitGuardian)
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full history for better detection
+    - name: Run tests with coverage
+      run: |
+        echo "🧪 Running tests with coverage for SonarCloud..."
+        pytest tests/ --cov=. --cov-report=xml --cov-report=term --ignore=tests/e2e || true
+      continue-on-error: true
 
-      - name: GitGuardian scan
-        uses: GitGuardian/ggshield-action@v1
-        env:
-          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
-          GITHUB_PUSH_BASE_SHA: ${{ github.event.base }}
-          GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectKey=L9
+          -Dsonar.organization=cryptoxdog
+          -Dsonar.python.coverage.reportPaths=coverage.xml
 
-  # ===========================================================================
-  # NEW JOB: COVERAGE — Codecov Coverage Tracking
-  # ===========================================================================
-  coverage:
-    name: Coverage (Codecov)
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    
-    services:
-      postgres:
-        image: pgvector/pgvector:pg16
-        env:
-          POSTGRES_USER: l9
-          POSTGRES_PASSWORD: l9test
-          POSTGRES_DB: l9_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+# ===========================================================================
+# NEW JOB: SECRETS-SCAN — GitGuardian Secrets Detection
+# ===========================================================================
+secrets-scan:
+  name: Secrets Scan (GitGuardian)
+  runs-on: ubuntu-latest
+  timeout-minutes: 10
 
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Full history for better detection
 
-      - name: Set up Python ${{ env.PYTHON_VERSION }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+    - name: GitGuardian scan
+      uses: GitGuardian/ggshield-action@v1
+      env:
+        GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+        GITHUB_PUSH_BASE_SHA: ${{ github.event.base }}
+        GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -e .
-          pip install pytest pytest-asyncio pytest-cov httpx structlog pydantic tenacity asyncpg redis
+# ===========================================================================
+# NEW JOB: COVERAGE — Codecov Coverage Tracking
+# ===========================================================================
+coverage:
+  name: Coverage (Codecov)
+  runs-on: ubuntu-latest
+  timeout-minutes: 15
 
-      - name: Run tests with coverage
-        env:
-          DATABASE_URL: postgresql://l9:l9test@localhost:5432/l9_test
-          REDIS_URL: redis://localhost:6379
-          TESTING: "true"
-        run: |
-          echo "🧪 Running tests with coverage..."
-          pytest tests/ -v --cov=. --cov-report=xml --cov-report=term --ignore=tests/e2e
+  services:
+    postgres:
+      image: pgvector/pgvector:pg16
+      env:
+        POSTGRES_USER: l9
+        POSTGRES_PASSWORD: l9test
+        POSTGRES_DB: l9_test
+      ports:
+        - 5432:5432
+      options: >-
+        --health-cmd pg_isready
+        --health-interval 10s
+        --health-timeout 5s
+        --health-retries 5
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: true
+    redis:
+      image: redis:7-alpine
+      ports:
+        - 6379:6379
+      options: >-
+        --health-cmd "redis-cli ping"
+        --health-interval 10s
+        --health-timeout 5s
+        --health-retries 5
 
-  # ===========================================================================
-  # NEW JOB: DATREE-CHECK — YAML Validation
-  # ===========================================================================
-  datree-check:
-    name: YAML Validation (Datree)
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Run Datree Policy Check
-        uses: datreeio/action-datree@main
-        with:
-          path: '.github/workflows/*.yml'
-          cliArguments: '--only-k8s-files --policy-config .datree-policy.yaml'
-        continue-on-error: true  # Don't block CI yet - report only
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: "pip"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pytest pytest-asyncio pytest-cov httpx structlog pydantic tenacity asyncpg redis
+
+    - name: Run tests with coverage
+      env:
+        DATABASE_URL: postgresql://l9:l9test@localhost:5432/l9_test
+        REDIS_URL: redis://localhost:6379
+        TESTING: "true"
+      run: |
+        echo "🧪 Running tests with coverage..."
+        pytest tests/ -v --cov=. --cov-report=xml --cov-report=term --ignore=tests/e2e
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+
+# ===========================================================================
+# NEW JOB: DATREE-CHECK — YAML Validation
+# ===========================================================================
+datree-check:
+  name: YAML Validation (Datree)
+  runs-on: ubuntu-latest
+  timeout-minutes: 10
+
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Run Datree Policy Check
+      uses: datreeio/action-datree@main
+      with:
+        path: ".github/workflows/*.yml"
+        cliArguments: "--only-k8s-files --policy-config .datree-policy.yaml"
+      continue-on-error: true # Don't block CI yet - report only
 ```
 
 ### Step 2: Update `ci-complete` Job
@@ -224,23 +224,23 @@ Copy and paste the following new jobs into your `.github/workflows/ci.yml` file,
 Update the `needs` section of your existing `ci-complete` job to include the new jobs:
 
 ```yaml
-  ci-complete:
-    name: CI Complete
-    runs-on: ubuntu-latest
-    needs: 
-      - lint-format
-      - sonarcloud
-      - secrets-scan
-      - coverage
-      - datree-check
-      - validate
-      - crypto-guard
-      - dora-check
-      - docker-check
-      - test
-      - docker-smoke
-      - security
-    if: always()
+ci-complete:
+  name: CI Complete
+  runs-on: ubuntu-latest
+  needs:
+    - lint-format
+    - sonarcloud
+    - secrets-scan
+    - coverage
+    - datree-check
+    - validate
+    - crypto-guard
+    - dora-check
+    - docker-check
+    - test
+    - docker-smoke
+    - security
+  if: always()
 ```
 
 ### Step 3: Update `ci-complete` Summary
@@ -248,61 +248,61 @@ Update the `needs` section of your existing `ci-complete` job to include the new
 Update the `Summary` step in your `ci-complete` job to include the new jobs:
 
 ```yaml
-      - name: Summary
-        run: |
-          echo "╔══════════════════════════════════════════════════════════════╗"
-          echo "║          L9 ENHANCED CI PIPELINE SUMMARY                     ║"
-          echo "╚══════════════════════════════════════════════════════════════╝"
-          echo ""
-          echo "GitHub Marketplace Jobs:"
-          echo "  ├─ Lint & Format:  ${{ needs.lint-format.result }}"
-          echo "  ├─ SonarCloud:     ${{ needs.sonarcloud.result }}"
-          echo "  ├─ Secrets Scan:   ${{ needs.secrets-scan.result }}"
-          echo "  ├─ Coverage:       ${{ needs.coverage.result }}"
-          echo "  └─ Datree Check:   ${{ needs.datree-check.result }}"
-          echo ""
-          echo "Core CI Jobs:"
-          echo "  ├─ Validate:       ${{ needs.validate.result }}"
-          echo "  ├─ Crypto Guard:   ${{ needs.crypto-guard.result }}"
-          echo "  ├─ DORA Check:     ${{ needs.dora-check.result }}"
-          echo "  ├─ Docker Check:   ${{ needs.docker-check.result }}"
-          echo "  ├─ Test:           ${{ needs.test.result }}"
-          echo "  ├─ Docker Smoke:   ${{ needs.docker-smoke.result || 'skipped (push)' }}"
-          echo "  └─ Security:       ${{ needs.security.result }}"
-          echo ""
-          
-          # Fail if critical jobs failed
-          if [[ "${{ needs.lint-format.result }}" == "failure" ]]; then
-            echo "❌ Lint & Format failed"
-            exit 1
-          fi
-          
-          if [[ "${{ needs.secrets-scan.result }}" == "failure" ]]; then
-            echo "❌ Secrets Scan failed (hardcoded secrets detected)"
-            exit 1
-          fi
-          
-          if [[ "${{ needs.coverage.result }}" == "failure" ]]; then
-            echo "❌ Coverage failed (below 75% threshold)"
-            exit 1
-          fi
-          
-          if [[ "${{ needs.validate.result }}" == "failure" ]]; then
-            echo "❌ CI Gates failed"
-            exit 1
-          fi
-          
-          if [[ "${{ needs.crypto-guard.result }}" == "failure" ]]; then
-            echo "❌ Crypto Guard failed (banned MD5 detected)"
-            exit 1
-          fi
-          
-          if [[ "${{ needs.docker-check.result }}" == "failure" ]]; then
-            echo "❌ Docker validation failed"
-            exit 1
-          fi
-          
-          echo "✅ All critical checks passed"
+- name: Summary
+  run: |
+    echo "╔══════════════════════════════════════════════════════════════╗"
+    echo "║          L9 ENHANCED CI PIPELINE SUMMARY                     ║"
+    echo "╚══════════════════════════════════════════════════════════════╝"
+    echo ""
+    echo "GitHub Marketplace Jobs:"
+    echo "  ├─ Lint & Format:  ${{ needs.lint-format.result }}"
+    echo "  ├─ SonarCloud:     ${{ needs.sonarcloud.result }}"
+    echo "  ├─ Secrets Scan:   ${{ needs.secrets-scan.result }}"
+    echo "  ├─ Coverage:       ${{ needs.coverage.result }}"
+    echo "  └─ Datree Check:   ${{ needs.datree-check.result }}"
+    echo ""
+    echo "Core CI Jobs:"
+    echo "  ├─ Validate:       ${{ needs.validate.result }}"
+    echo "  ├─ Crypto Guard:   ${{ needs.crypto-guard.result }}"
+    echo "  ├─ DORA Check:     ${{ needs.dora-check.result }}"
+    echo "  ├─ Docker Check:   ${{ needs.docker-check.result }}"
+    echo "  ├─ Test:           ${{ needs.test.result }}"
+    echo "  ├─ Docker Smoke:   ${{ needs.docker-smoke.result || 'skipped (push)' }}"
+    echo "  └─ Security:       ${{ needs.security.result }}"
+    echo ""
+
+    # Fail if critical jobs failed
+    if [[ "${{ needs.lint-format.result }}" == "failure" ]]; then
+      echo "❌ Lint & Format failed"
+      exit 1
+    fi
+
+    if [[ "${{ needs.secrets-scan.result }}" == "failure" ]]; then
+      echo "❌ Secrets Scan failed (hardcoded secrets detected)"
+      exit 1
+    fi
+
+    if [[ "${{ needs.coverage.result }}" == "failure" ]]; then
+      echo "❌ Coverage failed (below 75% threshold)"
+      exit 1
+    fi
+
+    if [[ "${{ needs.validate.result }}" == "failure" ]]; then
+      echo "❌ CI Gates failed"
+      exit 1
+    fi
+
+    if [[ "${{ needs.crypto-guard.result }}" == "failure" ]]; then
+      echo "❌ Crypto Guard failed (banned MD5 detected)"
+      exit 1
+    fi
+
+    if [[ "${{ needs.docker-check.result }}" == "failure" ]]; then
+      echo "❌ Docker validation failed"
+      exit 1
+    fi
+
+    echo "✅ All critical checks passed"
 ```
 
 ## 5. Validation

@@ -54,7 +54,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 
 @runtime_checkable
@@ -71,7 +71,7 @@ class CacheClient(Protocol):
     - DistributedCacheClient: Multi-node cache cluster
     """
 
-    async def get(self, key: str) -> Optional[str]:
+    async def get(self, key: str) -> str | None:
         """
         Get value by key.
 
@@ -83,7 +83,7 @@ class CacheClient(Protocol):
         """
         ...
 
-    async def set(self, key: str, value: str, ttl: Optional[int] = None) -> bool:
+    async def set(self, key: str, value: str, ttl: int | None = None) -> bool:
         """
         Set key-value pair with optional TTL.
 
@@ -154,8 +154,8 @@ class GraphClient(Protocol):
     """
 
     async def execute_query(
-        self, query: str, parameters: Optional[Dict[str, Any]] = None
-    ) -> List[Dict[str, Any]]:
+        self, query: str, parameters: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
         """
         Execute Cypher query.
 
@@ -168,7 +168,7 @@ class GraphClient(Protocol):
         """
         ...
 
-    async def create_node(self, labels: List[str], properties: Dict[str, Any]) -> str:
+    async def create_node(self, labels: list[str], properties: dict[str, Any]) -> str:
         """
         Create a node with labels and properties.
 
@@ -186,7 +186,7 @@ class GraphClient(Protocol):
         from_node_id: str,
         to_node_id: str,
         rel_type: str,
-        properties: Optional[Dict[str, Any]] = None,
+        properties: dict[str, Any] | None = None,
     ) -> str:
         """
         Create relationship between nodes.
@@ -202,7 +202,7 @@ class GraphClient(Protocol):
         """
         ...
 
-    async def get_node(self, node_id: str) -> Optional[Dict[str, Any]]:
+    async def get_node(self, node_id: str) -> dict[str, Any] | None:
         """
         Get node by ID.
 
@@ -236,8 +236,8 @@ class VectorStore(Protocol):
     async def upsert_embedding(
         self,
         id: str,
-        embedding: List[float],
-        metadata: Optional[Dict[str, Any]] = None,
+        embedding: list[float],
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """
         Insert or update embedding with metadata.
@@ -250,8 +250,8 @@ class VectorStore(Protocol):
         ...
 
     async def search_similar(
-        self, query_embedding: List[float], top_k: int = 10, threshold: float = 0.7
-    ) -> List[Dict[str, Any]]:
+        self, query_embedding: list[float], top_k: int = 10, threshold: float = 0.7
+    ) -> list[dict[str, Any]]:
         """
         Search for similar embeddings.
 
@@ -300,7 +300,7 @@ class MemoryRepository(Protocol):
         self,
         content: str,
         memory_type: str,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """
         Store a memory.
@@ -315,7 +315,7 @@ class MemoryRepository(Protocol):
         """
         ...
 
-    async def retrieve_memory(self, memory_id: str) -> Optional[Dict[str, Any]]:
+    async def retrieve_memory(self, memory_id: str) -> dict[str, Any] | None:
         """
         Retrieve memory by ID.
 
@@ -330,9 +330,9 @@ class MemoryRepository(Protocol):
     async def search_memories(
         self,
         query: str,
-        memory_type: Optional[str] = None,
+        memory_type: str | None = None,
         top_k: int = 10,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """
         Search memories by query.
 
@@ -373,9 +373,7 @@ class IngestionPipeline(Protocol):
     - StreamingIngestionPipeline: Real-time streaming ingestion
     """
 
-    async def ingest(
-        self, content: str, metadata: Optional[Dict[str, Any]] = None
-    ) -> str:
+    async def ingest(self, content: str, metadata: dict[str, Any] | None = None) -> str:
         """
         Ingest content into memory system.
 
@@ -388,7 +386,7 @@ class IngestionPipeline(Protocol):
         """
         ...
 
-    async def batch_ingest(self, items: List[Dict[str, Any]]) -> List[str]:
+    async def batch_ingest(self, items: list[dict[str, Any]]) -> list[str]:
         """
         Ingest multiple items in batch.
 
@@ -431,8 +429,8 @@ class RetrievalStrategy(Protocol):
         self,
         query: str,
         top_k: int = 10,
-        filters: Optional[Dict[str, Any]] = None,
-    ) -> List[Dict[str, Any]]:
+        filters: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Retrieve memories for query.
 
@@ -447,8 +445,8 @@ class RetrievalStrategy(Protocol):
         ...
 
     def rank_results(
-        self, results: List[Dict[str, Any]], query: str
-    ) -> List[Dict[str, Any]]:
+        self, results: list[dict[str, Any]], query: str
+    ) -> list[dict[str, Any]]:
         """
         Re-rank retrieval results.
 
@@ -474,10 +472,10 @@ class RetrievalStrategy(Protocol):
 __all__ = [
     "CacheClient",
     "GraphClient",
-    "VectorStore",
-    "MemoryRepository",
     "IngestionPipeline",
+    "MemoryRepository",
     "RetrievalStrategy",
+    "VectorStore",
 ]
 
 # ============================================================================

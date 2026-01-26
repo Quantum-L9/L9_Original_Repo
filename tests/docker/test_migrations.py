@@ -54,7 +54,7 @@ class TestMigrationFileStructure:
         if not MIGRATIONS_DIR.exists():
             pytest.skip("Migrations directory not found")
 
-        sql_files = sorted([f for f in MIGRATIONS_DIR.glob("*.sql")])
+        sql_files = sorted(MIGRATIONS_DIR.glob("*.sql"))
 
         for file in sql_files:
             # Should start with 4 digits
@@ -70,7 +70,7 @@ class TestMigrationFileStructure:
         if not MIGRATIONS_DIR.exists():
             pytest.skip("Migrations directory not found")
 
-        sql_files = [f for f in MIGRATIONS_DIR.glob("*.sql")]
+        sql_files = list(MIGRATIONS_DIR.glob("*.sql"))
         numbers = []
 
         for file in sql_files:
@@ -94,7 +94,7 @@ class TestMigrationFileStructure:
         if not MIGRATIONS_DIR.exists():
             pytest.skip("Migrations directory not found")
 
-        sql_files = sorted([f for f in MIGRATIONS_DIR.glob("*.sql")])
+        sql_files = sorted(MIGRATIONS_DIR.glob("*.sql"))
 
         numbers = []
         for file in sql_files:

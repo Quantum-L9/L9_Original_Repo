@@ -1,8 +1,8 @@
 # Core Module
 
-**Path:** `core/`  
-**Purpose:** Foundational logic and infrastructure for the L9 platform  
-**Files:** 164 Python files  
+**Path:** `core/`
+**Purpose:** Foundational logic and infrastructure for the L9 platform
+**Files:** 164 Python files
 **Last Updated:** 2026-01-18
 
 ---
@@ -17,13 +17,13 @@ The `core` module contains the foundational components of the L9 Agentic Intelli
 
 ### Major Subsystems
 
-| Subsystem | Purpose | Key Files |
-|---|---|---|
-| **`agents/`** | Agent infrastructure | `executor.py`, `agent_instance.py`, `prompt_builder.py` |
-| **`governance/`** | Policy enforcement and compliance | `policy_registry.py`, `credentials_policy.py` |
-| **`schemas/`** | Data schemas and validation | `upcaster_registry.py`, `research_factory_nodes.py` |
-| **`evaluation/`** | Agent and system evaluation | `evaluator.py` |
-| **`bootstrap/`** | System initialization | `executor.py` |
+| Subsystem         | Purpose                           | Key Files                                               |
+| ----------------- | --------------------------------- | ------------------------------------------------------- |
+| **`agents/`**     | Agent infrastructure              | `executor.py`, `agent_instance.py`, `prompt_builder.py` |
+| **`governance/`** | Policy enforcement and compliance | `policy_registry.py`, `credentials_policy.py`           |
+| **`schemas/`**    | Data schemas and validation       | `upcaster_registry.py`, `research_factory_nodes.py`     |
+| **`evaluation/`** | Agent and system evaluation       | `evaluator.py`                                          |
+| **`bootstrap/`**  | System initialization             | `executor.py`                                           |
 
 ### Core Registries
 
@@ -52,6 +52,7 @@ await SingletonRegistry.close_memory_engine()
 ```
 
 **Critical Methods:**
+
 - `get_memory_engine()` - Memory substrate access
 - `get_world_model_engine()` - World model access
 - `get_ws_orchestrator()` - WebSocket orchestration
@@ -72,6 +73,7 @@ await policy.enforce(context, action)
 ```
 
 **Policy Types:**
+
 - **Credentials Policy** - Secret management and detection
 - **Memory Scope Policy** - Data access boundaries
 - **Resource Limits** - Compute and API usage
@@ -151,6 +153,7 @@ class V1ToV2Upcaster(BaseUpcaster):
 ⚠️ **WARNING:** Core modifications affect the entire system.
 
 **Required Steps:**
+
 1. **RFC (Request for Comments)** - Propose changes in team discussion
 2. **Impact Analysis** - Identify all affected modules
 3. **Backward Compatibility** - Maintain compatibility or provide migration path
@@ -242,6 +245,7 @@ System evaluation framework:
 ### Common Issues
 
 **Singleton not initializing:**
+
 ```python
 # Check singleton registry state
 from core.singleton_registry import SingletonRegistry
@@ -249,11 +253,13 @@ print(SingletonRegistry._instances)
 ```
 
 **Policy violations:**
+
 - Review policy configuration in `config/policies/`
 - Check audit logs for violation details
 - Verify context has required permissions
 
 **Schema migration failures:**
+
 - Ensure upcasters are registered
 - Verify schema versions are correct
 - Check upcaster logic for errors
@@ -298,7 +304,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for general guidelines.
 
 ---
 
-**Module Maintainer:** L-CTO Agent  
-**Last Audit:** 2026-01-18  
-**Status:** Production  
+**Module Maintainer:** L-CTO Agent
+**Last Audit:** 2026-01-18
+**Status:** Production
 **Complexity:** Very High (164 files, 380+ line functions)

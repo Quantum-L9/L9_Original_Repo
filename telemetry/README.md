@@ -59,14 +59,14 @@ Metrics collection and emission
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                | Purpose             |
+| --------------------- | ------------------- |
 | `core/observability/` | Required dependency |
 
 ---
@@ -80,8 +80,8 @@ telemetry/
 ├── slack_metrics.py
 ```
 
-| File | Purpose |
-|------|---------|
+| File          | Purpose                 |
+| ------------- | ----------------------- |
 | `__init__.py` | Core module (PROTECTED) |
 
 ### Naming Conventions
@@ -166,9 +166,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Telemetry feature flags
-L9_ENABLE_TELEMETRY_TRACING: true  # Enable detailed tracing
-L9_ENABLE_TELEMETRY_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_TELEMETRY_AUDIT: true    # Enable audit logging
+L9_ENABLE_TELEMETRY_TRACING: true # Enable detailed tracing
+L9_ENABLE_TELEMETRY_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_TELEMETRY_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -230,7 +230,6 @@ Update the packet store size gauge for a segment.
 - **File:** `memory_metrics.py:333`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -271,6 +270,7 @@ Telemetry operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -278,12 +278,12 @@ Telemetry operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                            | Type      | Description                    |
+| --------------------------------- | --------- | ------------------------------ |
 | `telemetry_operation_duration_ms` | Histogram | Operation latency distribution |
-| `telemetry_operation_total` | Counter | Total operations processed |
-| `telemetry_error_total` | Counter | Total errors encountered |
-| `telemetry_active_connections` | Gauge | Current active connections |
+| `telemetry_operation_total`       | Counter   | Total operations processed     |
+| `telemetry_error_total`           | Counter   | Total errors encountered       |
+| `telemetry_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -301,6 +301,7 @@ Telemetry emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/telemetry/`:
+
 - `test_telemetry.py` — Core unit tests
 - `test_telemetry_integration.py` — Integration tests (if applicable)
 
@@ -343,6 +344,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

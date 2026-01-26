@@ -364,7 +364,7 @@ class SemanticService:
         vectors = await self._provider.embed_batch(texts)
 
         embedding_ids = []
-        for item, vector in zip(items, vectors):
+        for item, vector in zip(items, vectors, strict=False):
             text = item.pop(text_key)
             enriched_payload = {
                 **item,

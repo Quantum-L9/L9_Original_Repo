@@ -43,13 +43,14 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
 # Import L9 components
 from memory.gap_detector import GapDetector
 from memory.predictive_cache import PredictiveCache
+
 # Use harvested models
 from memory.warming_models import MemoryContext, PredictiveCacheConfig
 
@@ -112,17 +113,17 @@ class MemoryWarmingService:
         >>> service.set_entity_graph({"entity_1": {"entity_2", "entity_3"}})
         >>> result = await service.warm_for_query(
         ...     query="Find entity_1 relationships",
-        ...     mentioned_entities=["entity_1", "entity_4"]
+        ...     mentioned_entities=["entity_1", "entity_4"],
         ... )
         >>> print(f"Warmed {result['entities_warmed']} entities")
     """
 
     def __init__(
         self,
-        gap_detector: Optional[GapDetector] = None,
-        cache: Optional[PredictiveCache] = None,
-        config: Optional[PredictiveCacheConfig] = None,
-        graph_client: Optional[Any] = None,
+        gap_detector: GapDetector | None = None,
+        cache: PredictiveCache | None = None,
+        config: PredictiveCacheConfig | None = None,
+        graph_client: Any | None = None,
     ) -> None:
         """
         Initialize the memory warming service.
@@ -433,8 +434,8 @@ class MemoryWarmingService:
 
 # Factory function for easy initialization
 async def create_warming_service(
-    config: Optional[PredictiveCacheConfig] = None,
-    graph_client: Optional[Any] = None,
+    config: PredictiveCacheConfig | None = None,
+    graph_client: Any | None = None,
 ) -> MemoryWarmingService:
     """
     Factory function to create and initialize a MemoryWarmingService.

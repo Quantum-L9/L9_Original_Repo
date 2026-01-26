@@ -24,19 +24,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncio
 import logging
-from typing import Dict, List, Optional, Any, Union
+from dataclasses import dataclass
 from datetime import datetime
-from dataclasses import dataclass, asdict
+from typing import Any
 
 from core.reasoning.toth_engine import (
     ProductionToThEngine,
-    ToThConfig,
     ReasoningMode,
-    ModelProvider,
     ReasoningResult,
-    ReasoningStep,
+    ToThConfig,
 )
 
 # Configure logging
@@ -49,11 +46,11 @@ class L9ReasoningContext:
 
     agent_id: str
     agent_type: str
-    task_id: Optional[str] = None
+    task_id: str | None = None
     governance_level: str = "standard"  # standard, elevated, critical
-    memory_context: Optional[Dict[str, Any]] = None
-    world_model_context: Optional[Dict[str, Any]] = None
-    constraints: Optional[List[str]] = None
+    memory_context: dict[str, Any] | None = None
+    world_model_context: dict[str, Any] | None = None
+    constraints: list[str] | None = None
 
     def __post_init__(self):
         if self.constraints is None:
@@ -78,7 +75,7 @@ class L9ToThAdapter:
 
     def __init__(
         self,
-        config: Optional[ToThConfig] = None,
+        config: ToThConfig | None = None,
         memory_service=None,
         world_model_service=None,
         governance_service=None,
@@ -101,14 +98,14 @@ class L9ToThAdapter:
         self.governance_service = governance_service
 
         # Reasoning history for agents
-        self.agent_reasoning_history: Dict[str, List[ReasoningResult]] = {}
+        self.agent_reasoning_history: dict[str, list[ReasoningResult]] = {}
 
         logger.info("L9 ToTh Adapter initialized")
 
     async def reason_with_context(
         self,
         query: str,
-        reasoning_mode: Union[ReasoningMode, str],
+        reasoning_mode: ReasoningMode | str,
         context: L9ReasoningContext,
     ) -> ReasoningResult:
         """
@@ -158,7 +155,7 @@ class L9ToThAdapter:
 
     async def multi_modal_reasoning_with_context(
         self, query: str, context: L9ReasoningContext
-    ) -> Dict[str, ReasoningResult]:
+    ) -> dict[str, ReasoningResult]:
         """
         Execute multi-modal reasoning with L9 context
 
@@ -194,8 +191,8 @@ class L9ToThAdapter:
         return results
 
     async def board_reasoning(
-        self, query: str, board_members: List[str], context: L9ReasoningContext
-    ) -> Dict[str, Any]:
+        self, query: str, board_members: list[str], context: L9ReasoningContext
+    ) -> dict[str, Any]:
         """
         Execute Board-style reasoning with multiple perspectives
 
@@ -244,13 +241,12 @@ class L9ToThAdapter:
             }
 
         # Synthesize board decision
-        board_decision = self._synthesize_board_decision(perspectives, query)
+        return self._synthesize_board_decision(perspectives, query)
 
-        return board_decision
 
     async def ceo_reasoning(
-        self, query: str, temporal_context: Dict[str, str], context: L9ReasoningContext
-    ) -> Dict[str, Any]:
+        self, query: str, temporal_context: dict[str, str], context: L9ReasoningContext
+    ) -> dict[str, Any]:
         """
         Execute CEO-style tri-temporal reasoning
 
@@ -307,13 +303,12 @@ class L9ToThAdapter:
             }
 
         # Synthesize CEO decision
-        ceo_decision = self._synthesize_ceo_decision(temporal_reasoning, query)
+        return self._synthesize_ceo_decision(temporal_reasoning, query)
 
-        return ceo_decision
 
     async def research_reasoning(
-        self, hypothesis: str, evidence: List[str], context: L9ReasoningContext
-    ) -> Dict[str, Any]:
+        self, hypothesis: str, evidence: list[str], context: L9ReasoningContext
+    ) -> dict[str, Any]:
         """
         Execute Research Agent reasoning for hypothesis validation
 
@@ -329,19 +324,19 @@ class L9ToThAdapter:
         Returns:
             Research analysis with hypothesis validation
         """
-        logger.info(f"Research reasoning initiated: hypothesis validation")
+        logger.info("Research reasoning initiated: hypothesis validation")
 
         evidence_str = "\n".join([f"- {e}" for e in evidence])
 
         # Generate alternative hypotheses (Abductive)
         alt_query = f"""
         Given the following evidence, generate alternative hypotheses:
-        
+
         Evidence:
         {evidence_str}
-        
+
         Original Hypothesis: {hypothesis}
-        
+
         What are other plausible explanations?
         """
 
@@ -352,12 +347,12 @@ class L9ToThAdapter:
         # Validate logical consistency (Deductive)
         validation_query = f"""
         Validate the logical consistency of this hypothesis:
-        
+
         Hypothesis: {hypothesis}
-        
+
         Evidence:
         {evidence_str}
-        
+
         Does the hypothesis logically follow from the evidence?
         """
 
@@ -368,10 +363,10 @@ class L9ToThAdapter:
         # Generalize patterns (Inductive)
         pattern_query = f"""
         Analyze the following evidence for patterns:
-        
+
         Evidence:
         {evidence_str}
-        
+
         What general principles can be derived?
         """
 
@@ -380,7 +375,7 @@ class L9ToThAdapter:
         )
 
         # Synthesize research analysis
-        research_analysis = {
+        return {
             "original_hypothesis": hypothesis,
             "alternative_hypotheses": [step.conclusion for step in alt_result.steps],
             "validation": {
@@ -400,7 +395,6 @@ class L9ToThAdapter:
             ),
         }
 
-        return research_analysis
 
     async def _enrich_query_with_memory(
         self, query: str, context: L9ReasoningContext
@@ -415,8 +409,7 @@ class L9ToThAdapter:
             # For now, append memory context if available
             memory_snippet = context.memory_context.get("relevant_memories", "")
             if memory_snippet:
-                enriched = f"{query}\n\nRelevant Context: {memory_snippet}"
-                return enriched
+                return f"{query}\n\nRelevant Context: {memory_snippet}"
         except Exception as e:
             logger.warning(f"Failed to enrich query with memory: {e}")
 
@@ -432,7 +425,7 @@ class L9ToThAdapter:
         try:
             # Store reasoning result in PostgreSQL + pgvector
             # This would integrate with L9's memory service
-            memory_entry = {
+            {
                 "agent_id": context.agent_id,
                 "task_id": context.task_id,
                 "reasoning_mode": result.reasoning_mode.value,
@@ -481,8 +474,8 @@ class L9ToThAdapter:
             raise
 
     def _select_best_reasoning(
-        self, results: Dict[str, ReasoningResult]
-    ) -> Dict[str, Any]:
+        self, results: dict[str, ReasoningResult]
+    ) -> dict[str, Any]:
         """Select best reasoning result from multi-modal results"""
         if not results:
             return {"mode": "none", "confidence": 0.0}
@@ -497,8 +490,8 @@ class L9ToThAdapter:
         }
 
     def _synthesize_board_decision(
-        self, perspectives: Dict[str, Dict[str, Any]], query: str
-    ) -> Dict[str, Any]:
+        self, perspectives: dict[str, dict[str, Any]], query: str
+    ) -> dict[str, Any]:
         """Synthesize board decision from multiple perspectives"""
         # Calculate weighted consensus
         total_confidence = sum(p["confidence"] for p in perspectives.values())
@@ -527,8 +520,8 @@ class L9ToThAdapter:
         }
 
     def _synthesize_ceo_decision(
-        self, temporal_reasoning: Dict[str, Dict[str, Any]], query: str
-    ) -> Dict[str, Any]:
+        self, temporal_reasoning: dict[str, dict[str, Any]], query: str
+    ) -> dict[str, Any]:
         """Synthesize CEO decision from tri-temporal analysis"""
         # Calculate confidence across temporal dimensions
         confidences = [data["confidence"] for data in temporal_reasoning.values()]
@@ -556,11 +549,10 @@ class L9ToThAdapter:
         """Synthesize research recommendation"""
         if validation_result.overall_confidence > self.config.confidence_threshold:
             return f"Hypothesis '{hypothesis}' is well-supported by evidence. Recommend proceeding with validation."
-        else:
-            return f"Hypothesis '{hypothesis}' requires further investigation. Consider alternative hypotheses."
+        return f"Hypothesis '{hypothesis}' requires further investigation. Consider alternative hypotheses."
 
     def _extract_board_recommendation(
-        self, perspectives: Dict[str, Dict[str, Any]]
+        self, perspectives: dict[str, dict[str, Any]]
     ) -> str:
         """Extract board recommendation from perspectives"""
         # Find highest confidence perspective
@@ -568,8 +560,8 @@ class L9ToThAdapter:
         return best_perspective["result"].final_conclusion
 
     def _extract_dissenting_views(
-        self, perspectives: Dict[str, Dict[str, Any]]
-    ) -> List[str]:
+        self, perspectives: dict[str, dict[str, Any]]
+    ) -> list[str]:
         """Extract dissenting views from board perspectives"""
         dissenting = []
         avg_confidence = sum(p["confidence"] for p in perspectives.values()) / len(
@@ -583,21 +575,21 @@ class L9ToThAdapter:
         return dissenting
 
     def _extract_ceo_recommendation(
-        self, temporal_reasoning: Dict[str, Dict[str, Any]]
+        self, temporal_reasoning: dict[str, dict[str, Any]]
     ) -> str:
         """Extract CEO recommendation from temporal analysis"""
         # Prioritize future analysis for strategic decisions
         if "future" in temporal_reasoning:
             return temporal_reasoning["future"]["analysis"]
-        elif "present" in temporal_reasoning:
+        if "present" in temporal_reasoning:
             return temporal_reasoning["present"]["analysis"]
-        elif "past" in temporal_reasoning:
+        if "past" in temporal_reasoning:
             return temporal_reasoning["past"]["analysis"]
         return "Insufficient temporal context for recommendation"
 
     def _extract_risk_assessment(
-        self, temporal_reasoning: Dict[str, Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, temporal_reasoning: dict[str, dict[str, Any]]
+    ) -> dict[str, Any]:
         """Extract risk assessment from temporal analysis"""
         risks = {"historical_risks": [], "current_risks": [], "future_risks": []}
 
@@ -613,8 +605,8 @@ class L9ToThAdapter:
         return risks
 
     def _extract_action_plan(
-        self, temporal_reasoning: Dict[str, Dict[str, Any]]
-    ) -> List[str]:
+        self, temporal_reasoning: dict[str, dict[str, Any]]
+    ) -> list[str]:
         """Extract action plan from temporal analysis"""
         actions = []
 
@@ -631,14 +623,14 @@ class L9ToThAdapter:
 
     def get_agent_reasoning_history(
         self, agent_id: str, limit: int = 10
-    ) -> List[ReasoningResult]:
+    ) -> list[ReasoningResult]:
         """Get reasoning history for specific agent"""
         if agent_id not in self.agent_reasoning_history:
             return []
 
         return self.agent_reasoning_history[agent_id][-limit:]
 
-    def get_performance_metrics(self) -> Dict[str, Any]:
+    def get_performance_metrics(self) -> dict[str, Any]:
         """Get overall performance metrics"""
         return self.toth_engine.get_performance_metrics()
 

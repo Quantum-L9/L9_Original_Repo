@@ -40,7 +40,6 @@ import argparse
 import ast
 import sys
 from pathlib import Path
-from typing import Dict, List
 
 # L9 module directories to scan (not "src" - L9 uses flat structure)
 L9_SCAN_DIRS = [
@@ -70,10 +69,10 @@ class AOISCompliance(ast.NodeVisitor):
 
     def __init__(self, filename: str):
         self.filename = filename
-        self.violations: List[str] = []
+        self.violations: list[str] = []
         self.has_pydantic = False
         self.has_logging = False
-        self.functions: List[tuple] = []
+        self.functions: list[tuple] = []
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
         if node.module == "pydantic":
@@ -96,7 +95,7 @@ class AOISCompliance(ast.NodeVisitor):
                 self.functions.append(("sync", node.name))
         self.generic_visit(node)
 
-    def check_file(self) -> List[str]:
+    def check_file(self) -> list[str]:
         """Run compliance checks"""
         if not self.has_logging and "logger" in self.filename:
             self.violations.append("No json_logger import found")
@@ -108,9 +107,9 @@ def should_skip(path: Path) -> bool:
     return any(skip in path.parts for skip in SKIP_DIRS)
 
 
-def scan_directory(base_path: Path) -> Dict[str, List[str]]:
+def scan_directory(base_path: Path) -> dict[str, list[str]]:
     """Scan directory for AIOS compliance violations"""
-    violations_summary: Dict[str, List[str]] = {}
+    violations_summary: dict[str, list[str]] = {}
 
     for py_file in base_path.rglob("*.py"):
         if should_skip(py_file):
@@ -151,7 +150,7 @@ def main() -> int:
             break
         repo_root = repo_root.parent
 
-    violations_summary: Dict[str, List[str]] = {}
+    violations_summary: dict[str, list[str]] = {}
 
     if args.path:
         # Scan specific path
@@ -184,9 +183,8 @@ def main() -> int:
             f"Total: {sum(len(v) for v in violations_summary.values())} issues in {len(violations_summary)} files"
         )
         return 1
-    else:
-        print("✅ All modules pass AIOS compliance checks")
-        return 0
+    print("✅ All modules pass AIOS compliance checks")
+    return 0
 
 
 if __name__ == "__main__":

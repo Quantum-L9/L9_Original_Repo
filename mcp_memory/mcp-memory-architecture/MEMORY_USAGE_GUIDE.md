@@ -22,12 +22,15 @@
 ## Quick Start
 
 ### Base URL
+
 - **Local:** `http://127.0.0.1:8000/api/v1/memory`
 - **VPS (HTTPS):** `https://l9.quantumaipartners.com:9001/api/v1/memory`
 - **VPS (Local):** `http://127.0.0.1:8000/api/v1/memory`
 
 ### Authentication
+
 All endpoints require Bearer token authentication:
+
 ```
 Authorization: Bearer <L9_EXECUTOR_API_KEY>
 ```
@@ -39,17 +42,20 @@ Authorization: Bearer <L9_EXECUTOR_API_KEY>
 ### Getting the API Key
 
 **On VPS:**
+
 ```bash
 ssh root@157.180.73.53 "cd /opt/l9 && grep L9_EXECUTOR_API_KEY .env"
 ```
 
 **In Code:**
+
 ```python
 import os
 api_key = os.environ.get("L9_EXECUTOR_API_KEY")
 ```
 
 ### Header Format
+
 ```bash
 -H "Authorization: Bearer <api_key>"
 ```
@@ -59,6 +65,7 @@ api_key = os.environ.get("L9_EXECUTOR_API_KEY")
 ## Saving Memories
 
 ### Endpoint
+
 ```
 POST /api/v1/memory/packet
 ```
@@ -85,14 +92,14 @@ POST /api/v1/memory/packet
 
 ### Common Packet Types
 
-| Type | Use Case |
-|------|----------|
-| `memory.milestone` | Important achievements, first-time events |
-| `memory.lesson` | Lessons learned, mistakes to avoid |
-| `memory.pattern` | Code patterns, architectural decisions |
-| `memory.preference` | User preferences, style choices |
-| `memory.decision` | Strategic decisions, trade-offs |
-| `memory.error` | Error patterns and fixes |
+| Type                | Use Case                                  |
+| ------------------- | ----------------------------------------- |
+| `memory.milestone`  | Important achievements, first-time events |
+| `memory.lesson`     | Lessons learned, mistakes to avoid        |
+| `memory.pattern`    | Code patterns, architectural decisions    |
+| `memory.preference` | User preferences, style choices           |
+| `memory.decision`   | Strategic decisions, trade-offs           |
+| `memory.error`      | Error patterns and fixes                  |
 
 ### Example: Save a Milestone
 
@@ -135,15 +142,18 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/packet" \
 ### Important Notes
 
 1. **`confidence` field:** If provided, must be a **dict** with `score` and `rationale`, NOT a number:
+
    ```json
    "confidence": {
      "score": 0.95,
      "rationale": "High confidence based on successful test"
    }
    ```
+
    Or omit it entirely (defaults to None).
 
 2. **All fields are optional except:**
+
    - `packet_type` (required)
    - `payload` (required)
 
@@ -164,6 +174,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/packet" \
 **Endpoint:** `POST /api/v1/memory/semantic/search`
 
 **Request:**
+
 ```json
 {
   "query": "search query text",
@@ -174,6 +185,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/packet" \
 ```
 
 **Example:**
+
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/memory/semantic/search" \
   -H "Authorization: Bearer $L9_EXECUTOR_API_KEY" \
@@ -185,6 +197,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/semantic/search" \
 ```
 
 **Response:**
+
 ```json
 {
   "query": "first day mcp server memory works",
@@ -208,6 +221,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/semantic/search" \
 **Request:** Query params + JSON body for filters
 
 **Example:**
+
 ```bash
 curl -X POST "http://127.0.0.1:8000/api/v1/memory/hybrid/search?query=mcp%20memory&top_k=10&min_score=0.7" \
   -H "Authorization: Bearer $L9_EXECUTOR_API_KEY" \
@@ -227,6 +241,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/hybrid/search?query=mcp%20memo
 **Endpoint:** `GET /api/v1/memory/facts?subject=<subject>&predicate=<predicate>&limit=<n>`
 
 **Example:**
+
 ```bash
 curl "http://127.0.0.1:8000/api/v1/memory/facts?subject=memory&limit=10" \
   -H "Authorization: Bearer $L9_EXECUTOR_API_KEY"
@@ -237,6 +252,7 @@ curl "http://127.0.0.1:8000/api/v1/memory/facts?subject=memory&limit=10" \
 **Endpoint:** `GET /api/v1/memory/insights?packet_id=<uuid>&insight_type=<type>&limit=<n>`
 
 **Example:**
+
 ```bash
 curl "http://127.0.0.1:8000/api/v1/memory/insights?packet_id=cff80210-2e42-4d1d-8ee3-8c875bbd53e8" \
   -H "Authorization: Bearer $L9_EXECUTOR_API_KEY"
@@ -247,12 +263,14 @@ curl "http://127.0.0.1:8000/api/v1/memory/insights?packet_id=cff80210-2e42-4d1d-
 **Endpoint:** `GET /api/v1/memory/stats`
 
 **Example:**
+
 ```bash
 curl "http://127.0.0.1:8000/api/v1/memory/stats" \
   -H "Authorization: Bearer $L9_EXECUTOR_API_KEY"
 ```
 
 **Response:**
+
 ```json
 {
   "status": "operational",
@@ -372,12 +390,12 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/packet" \
 
 ### Common Errors
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `401 Unauthorized` | Missing or invalid API key | Check `L9_EXECUTOR_API_KEY` in `.env` |
-| `400 Bad Request` | Invalid request format | Check JSON structure, required fields |
-| `503 Service Unavailable` | Memory system not initialized | Check server logs, ensure migrations ran |
-| `500 Internal Server Error` | Database/embedding failure | Check server logs, verify database connection |
+| Error                       | Cause                         | Solution                                      |
+| --------------------------- | ----------------------------- | --------------------------------------------- |
+| `401 Unauthorized`          | Missing or invalid API key    | Check `L9_EXECUTOR_API_KEY` in `.env`         |
+| `400 Bad Request`           | Invalid request format        | Check JSON structure, required fields         |
+| `503 Service Unavailable`   | Memory system not initialized | Check server logs, ensure migrations ran      |
+| `500 Internal Server Error` | Database/embedding failure    | Check server logs, verify database connection |
 
 ### Error Response Format
 
@@ -390,6 +408,7 @@ curl -X POST "http://127.0.0.1:8000/api/v1/memory/packet" \
 ### Validation Errors
 
 If `confidence` is provided as a number instead of dict:
+
 ```json
 {
   "detail": [
@@ -404,6 +423,7 @@ If `confidence` is provided as a number instead of dict:
 ```
 
 **Fix:** Either omit `confidence` or provide it as:
+
 ```json
 "confidence": {
   "score": 0.95,
@@ -418,6 +438,7 @@ If `confidence` is provided as a number instead of dict:
 ### 1. Use Descriptive Packet Types
 
 ✅ **Good:**
+
 ```json
 "packet_type": "memory.lesson"
 "packet_type": "memory.pattern"
@@ -425,6 +446,7 @@ If `confidence` is provided as a number instead of dict:
 ```
 
 ❌ **Bad:**
+
 ```json
 "packet_type": "memory"
 "packet_type": "note"
@@ -434,6 +456,7 @@ If `confidence` is provided as a number instead of dict:
 ### 2. Include Rich Metadata
 
 ✅ **Good:**
+
 ```json
 {
   "metadata": {
@@ -449,11 +472,13 @@ If `confidence` is provided as a number instead of dict:
 ### 3. Use Tags for Filtering
 
 ✅ **Good:**
+
 ```json
 "tags": ["lesson", "paths", "portability", "bash", "error-prevention"]
 ```
 
 ❌ **Bad:**
+
 ```json
 "tags": ["stuff"]
 ```
@@ -461,6 +486,7 @@ If `confidence` is provided as a number instead of dict:
 ### 4. Structure Payload Content
 
 ✅ **Good:**
+
 ```json
 {
   "payload": {
@@ -491,15 +517,15 @@ Always test memory operations on local VPS (`http://127.0.0.1:8000`) before usin
 
 ### Endpoints Summary
 
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `POST` | `/api/v1/memory/packet` | Save a memory |
-| `POST` | `/api/v1/memory/semantic/search` | Semantic search |
-| `POST` | `/api/v1/memory/hybrid/search` | Hybrid search with filters |
-| `GET` | `/api/v1/memory/facts` | Query knowledge facts |
-| `GET` | `/api/v1/memory/insights` | Get insights for a packet |
-| `GET` | `/api/v1/memory/stats` | System statistics |
-| `GET` | `/api/v1/memory/health` | Health check |
+| Method | Endpoint                         | Purpose                    |
+| ------ | -------------------------------- | -------------------------- |
+| `POST` | `/api/v1/memory/packet`          | Save a memory              |
+| `POST` | `/api/v1/memory/semantic/search` | Semantic search            |
+| `POST` | `/api/v1/memory/hybrid/search`   | Hybrid search with filters |
+| `GET`  | `/api/v1/memory/facts`           | Query knowledge facts      |
+| `GET`  | `/api/v1/memory/insights`        | Get insights for a packet  |
+| `GET`  | `/api/v1/memory/stats`           | System statistics          |
+| `GET`  | `/api/v1/memory/health`          | Health check               |
 
 ### Required Headers
 

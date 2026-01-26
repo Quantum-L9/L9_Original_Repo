@@ -38,7 +38,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -59,8 +59,7 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 try:
-    from services.symbolic_computation.core import \
-        CodeGenerator as SymPyCodeGenerator
+    from services.symbolic_computation.core import CodeGenerator as SymPyCodeGenerator
 
     HAS_SYMPY = True
 except ImportError:
@@ -98,17 +97,17 @@ logger = structlog.get_logger(__name__)
 
 class {{ class_name }}Validator:
     """Validates incoming {{ module_id }} requests."""
-    
+
     def __init__(self, signing_secret: str):
         """
         Initialize validator.
-        
+
         Args:
             signing_secret: Secret for HMAC signature verification
         """
         self.signing_secret = signing_secret
         logger.info("{{ module_id }}_validator_initialized")
-    
+
     def validate_signature(
         self,
         body: bytes,
@@ -117,38 +116,38 @@ class {{ class_name }}Validator:
     ) -> bool:
         """
         Validate request signature.
-        
+
         Args:
             body: Raw request body
             signature: Signature from header
             timestamp: Timestamp from header
-            
+
         Returns:
             True if valid, False otherwise
         """
         # TODO: Implement HMAC-SHA256 validation
         import hmac
         import hashlib
-        
+
         expected = hmac.new(
             self.signing_secret.encode(),
             f"{timestamp}:{body.decode()}".encode(),
             hashlib.sha256
         ).hexdigest()
-        
+
         return hmac.compare_digest(signature, expected)
 
 
 class {{ class_name }}Normalizer:
     """Normalizes {{ module_id }} payloads to L9 format."""
-    
+
     def normalize(self, payload: Dict[str, Any]) -> Dict[str, Any]:
         """
         Normalize payload to L9 format.
-        
+
         Args:
             payload: Raw payload from {{ module_id }}
-            
+
         Returns:
             Normalized payload
         """
@@ -193,22 +192,22 @@ async def {{ route.name | replace('-', '_') }}(
 ) -> Dict[str, Any]:
     """
     Handle {{ route.name }} request.
-    
+
     Args:
         request: FastAPI request object
-        
+
     Returns:
         Response payload
     """
     body = await request.body()
-    
+
     # TODO: Validate and process request
     logger.info(
         "{{ module_id }}_request_received",
         route="{{ route.route }}",
         method="{{ route.method }}",
     )
-    
+
     return {"status": "ok", "module": "{{ module_id }}"}
 
 {%- endfor %}
@@ -250,13 +249,13 @@ def create_{{ packet.packet_type | replace('.', '_') }}_packet(
 ) -> PacketEnvelopeIn:
     """
     Create {{ packet.packet_type }} packet.
-    
+
     Args:
         payload: Event payload
         {%- for field in packet.required_metadata %}
         {{ field }}: {{ field | replace('_', ' ') | title }}
         {%- endfor %}
-        
+
     Returns:
         PacketEnvelopeIn ready for ingestion
     """
@@ -280,22 +279,22 @@ async def handle_{{ module_id }}_events(
 ) -> int:
     """
     Handle batch of {{ module_id }} events.
-    
+
     Args:
         events: List of event payloads
         substrate_service: Memory substrate service instance
-        
+
     Returns:
         Number of events processed
     """
     processed = 0
-    
+
     for event in events:
         try:
             # Generate deterministic thread UUID
             event_id = event.get("id", str(uuid5(NAMESPACE_DNS, str(event))))
             thread_uuid = str(uuid5(NAMESPACE_DNS, f"{{ module_id }}:{event_id}"))
-            
+
             # Create packet
             packet = create_{{ module_id }}_in_packet(
                 payload=event,
@@ -304,24 +303,24 @@ async def handle_{{ module_id }}_events(
                 source="{{ module_id }}",
                 tool_id="{{ module_id }}_adapter",
             )
-            
+
             # Ingest
             await substrate_service.write_packet(packet)
             processed += 1
-            
+
         except Exception as e:
             logger.error(
                 "{{ module_id }}_event_failed",
                 event_id=event.get("id"),
                 error=str(e),
             )
-    
+
     logger.info(
         "{{ module_id }}_events_processed",
         total=len(events),
         processed=processed,
     )
-    
+
     return processed
 '''
 
@@ -375,7 +374,7 @@ def {{ test.test_function }}(
 ) -> None:
     """
     {{ test.description }}
-    
+
     Acceptance ID: {{ test.acceptance_id }}
     """
     # TODO: Implement test
@@ -396,7 +395,7 @@ def {{ test.test_function }}(
 ) -> None:
     """
     {{ test.description }}
-    
+
     Acceptance ID: {{ test.acceptance_id }}
     """
     # TODO: Implement test
@@ -507,25 +506,25 @@ MODULE_NAME = "{{ module_name }}"
 
 class {{ class_name }}Request(BaseModel):
     """Input request for {{ class_name }}."""
-    
+
     request_id: str = Field(default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.utcnow()))))
     payload: Dict[str, Any] = Field(default_factory=dict)
     context: Dict[str, Any] = Field(default_factory=dict)
     source_id: str = Field(default="internal")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
-    
+
     model_config = {"extra": "forbid"}
 
 
 class {{ class_name }}Response(BaseModel):
     """Output response from {{ class_name }}."""
-    
+
     ok: bool = Field(..., description="Whether the operation succeeded")
     request_id: str = Field(..., description="Original request ID")
     result: Optional[Dict[str, Any]] = Field(None, description="Operation result")
     error: Optional[str] = Field(None, description="Error message if failed")
     duration_ms: int = Field(default=0, description="Processing duration in milliseconds")
-    
+
     model_config = {"extra": "forbid"}
 
 
@@ -537,105 +536,105 @@ class {{ class_name }}Response(BaseModel):
 class {{ class_name }}:
     """
     {{ module_name }} Service.
-    
+
     {{ description }}
     """
-    
+
     def __init__(self):
         """Initialize the service."""
         self._initialized = False
         logger.info("{{ module_id }}_initialized")
-    
+
     # =========================================================================
     # Lifecycle
     # =========================================================================
-    
+
     async def startup(self) -> None:
         """Initialize resources on startup."""
         logger.info("{{ module_id }}_starting")
-        
+
         # TODO: Initialize connections and resources
         {%- for client in outbound_clients %}
         # - {{ client.module }}: {{ client.interface }} -> {{ client.endpoint }}
         {%- endfor %}
-        
+
         self._initialized = True
         logger.info("{{ module_id }}_started")
-    
+
     async def shutdown(self) -> None:
         """Clean up resources on shutdown."""
         logger.info("{{ module_id }}_shutting_down")
-        
+
         # TODO: Clean up resources
-        
+
         self._initialized = False
         logger.info("{{ module_id }}_shutdown_complete")
-    
+
     # =========================================================================
     # Main API
     # =========================================================================
-    
+
     async def process(self, request: {{ class_name }}Request) -> {{ class_name }}Response:
         """
         Process an incoming request.
-        
+
         Args:
             request: Input request
-            
+
         Returns:
             {{ class_name }}Response with result or error
         """
         start_time = datetime.utcnow()
-        
+
         try:
             logger.info(
                 "{{ module_id }}_process_start",
                 request_id=request.request_id,
                 source=request.source_id,
             )
-            
+
             result = await self._execute(request)
-            
+
             duration_ms = self._calc_duration(start_time)
-            
+
             logger.info(
                 "{{ module_id }}_process_complete",
                 request_id=request.request_id,
                 duration_ms=duration_ms,
             )
-            
+
             return {{ class_name }}Response(
                 ok=True,
                 request_id=request.request_id,
                 result=result,
                 duration_ms=duration_ms,
             )
-            
+
         except Exception as e:
             logger.exception(
                 "{{ module_id }}_process_error",
                 request_id=request.request_id,
                 error=str(e),
             )
-            
+
             return {{ class_name }}Response(
                 ok=False,
                 request_id=request.request_id,
                 error=str(e),
                 duration_ms=self._calc_duration(start_time),
             )
-    
+
     # =========================================================================
     # Internal Methods
     # =========================================================================
-    
+
     async def _execute(self, request: {{ class_name }}Request) -> Dict[str, Any]:
         """
         Execute the main processing logic.
-        
+
         Args:
             request: Input request
-            
+
         Returns:
             Processing result
         """
@@ -645,19 +644,19 @@ class {{ class_name }}:
             "request_id": request.request_id,
             "module": MODULE_ID,
         }
-    
+
     def _calc_duration(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
         return int((datetime.utcnow() - start_time).total_seconds() * 1000)
-    
+
     # =========================================================================
     # Health Check
     # =========================================================================
-    
+
     async def health_check(self) -> Dict[str, Any]:
         """
         Check service health.
-        
+
         Returns:
             Health status dict
         """
@@ -676,7 +675,7 @@ class {{ class_name }}:
 def create_{{ module_id | replace("-", "_") }}() -> {{ class_name }}:
     """
     Factory function to create {{ class_name }}.
-    
+
     Returns:
         Configured {{ class_name }} instance
     """
@@ -727,7 +726,7 @@ class IRToPythonCompiler:
 
     def __init__(
         self,
-        template_dir: Optional[str] = None,
+        template_dir: str | None = None,
         use_sympy: bool = True,
     ):
         """
@@ -759,7 +758,7 @@ class IRToPythonCompiler:
             )
 
         # Initialize SymPy (if available)
-        self.sympy_codegen: Optional[SymPyCodeGenerator] = None
+        self.sympy_codegen: SymPyCodeGenerator | None = None
         if self.use_sympy and SymPyCodeGenerator:
             self.sympy_codegen = SymPyCodeGenerator()
 
@@ -770,7 +769,7 @@ class IRToPythonCompiler:
             template_dir=str(self.template_dir) if self.template_dir else "inline",
         )
 
-    def compile(self, ir: ModuleIR) -> Dict[str, str]:
+    def compile(self, ir: ModuleIR) -> dict[str, str]:
         """
         Compile ModuleIR to Python source files.
 
@@ -782,7 +781,7 @@ class IRToPythonCompiler:
         """
         logger.info("compiling_ir_to_python", module_id=ir.module_id)
 
-        files: Dict[str, str] = {}
+        files: dict[str, str] = {}
 
         # Build template context
         context = self._build_context(ir)
@@ -838,7 +837,7 @@ class IRToPythonCompiler:
     # PRIVATE METHODS
     # =========================================================================
 
-    def _build_context(self, ir: ModuleIR) -> Dict[str, Any]:
+    def _build_context(self, ir: ModuleIR) -> dict[str, Any]:
         """Build template context from IR."""
         # Pascal case class name
         class_name = "".join(
@@ -880,7 +879,7 @@ class IRToPythonCompiler:
     def _render_target(
         self,
         target: GenerationTarget,
-        context: Dict[str, Any],
+        context: dict[str, Any],
     ) -> str:
         """Render a single generation target."""
         template_name = target.template_name or self._get_template_for_type(
@@ -921,7 +920,7 @@ class IRToPythonCompiler:
     def _generate_stub(
         self,
         target: GenerationTarget,
-        context: Dict[str, Any],
+        context: dict[str, Any],
     ) -> str:
         """Generate a minimal stub file."""
         module_id = context.get("module_id", "unknown")
@@ -935,15 +934,14 @@ Auto-generated stub by L9 CodeGenAgent.
 
 # TODO: Implement {target.target_type} for {module_id}
 '''
-        elif target.path.endswith(".md"):
+        if target.path.endswith(".md"):
             return f"""# {context.get("module_name", "Module")}
 
 {context.get("description", "No description")}
 
 *Auto-generated stub by L9 CodeGenAgent*
 """
-        else:
-            return f"# Stub for {target.path}\n"
+        return f"# Stub for {target.path}\n"
 
 
 # =============================================================================
@@ -951,7 +949,7 @@ Auto-generated stub by L9 CodeGenAgent.
 # =============================================================================
 
 
-def compile_ir_to_python(ir: ModuleIR) -> Dict[str, str]:
+def compile_ir_to_python(ir: ModuleIR) -> dict[str, str]:
     """
     Compile ModuleIR to Python source files.
 

@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 import re
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import structlog
@@ -93,7 +93,7 @@ class InsightExtractionPipeline:
     - Patterns and anomalies
     """
 
-    def __init__(self, repository: Optional["SubstrateRepository"] = None):
+    def __init__(self, repository: SubstrateRepository | None = None):
         """
         Initialize insight extraction pipeline.
 
@@ -108,7 +108,7 @@ class InsightExtractionPipeline:
         }
         logger.info("InsightExtractionPipeline initialized")
 
-    def set_repository(self, repository: "SubstrateRepository") -> None:
+    def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
@@ -490,7 +490,7 @@ def get_insight_pipeline() -> InsightExtractionPipeline:
 
 
 def init_insight_pipeline(
-    repository: "SubstrateRepository",
+    repository: SubstrateRepository,
 ) -> InsightExtractionPipeline:
     """Initialize the insight extraction pipeline with a repository."""
     pipeline = get_insight_pipeline()

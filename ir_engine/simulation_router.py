@@ -41,7 +41,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -114,7 +114,7 @@ class SimulationRouter:
 
     def __init__(
         self,
-        simulation_engine: Optional[Any] = None,
+        simulation_engine: Any | None = None,
         default_timeout_ms: int = 30000,
         max_candidates: int = 5,
     ):
@@ -147,9 +147,9 @@ class SimulationRouter:
         self,
         graph: IRGraph,
         scenario_type: str = "default",
-        parameters: Optional[dict[str, Any]] = None,
+        parameters: dict[str, Any] | None = None,
         priority: int = 5,
-        timeout_ms: Optional[int] = None,
+        timeout_ms: int | None = None,
     ) -> SimulationRequest:
         """
         Create a simulation request for a graph.
@@ -292,7 +292,7 @@ class SimulationRouter:
         self,
         candidates: list[IRGraph],
         scenario_type: str = "default",
-        parameters: Optional[dict[str, Any]] = None,
+        parameters: dict[str, Any] | None = None,
     ) -> list[RankedCandidate]:
         """
         Simulate multiple candidates and return ranked results.
@@ -350,16 +350,15 @@ class SimulationRouter:
         """Determine why a candidate was ranked at this position."""
         if rank == 1:
             return f"Highest score: {result.score:.2f}"
-        elif result.failure_modes:
+        if result.failure_modes:
             return f"Has failure modes: {', '.join(result.failure_modes[:2])}"
-        else:
-            return f"Score: {result.score:.2f}"
+        return f"Score: {result.score:.2f}"
 
     async def select_best(
         self,
         candidates: list[IRGraph],
         min_score: float = 0.5,
-    ) -> Optional[IRGraph]:
+    ) -> IRGraph | None:
         """
         Select the best candidate from simulation results.
 
@@ -391,7 +390,7 @@ class SimulationRouter:
         """Get count of pending requests."""
         return len(self._pending_requests)
 
-    def get_result(self, request_id: UUID) -> Optional[SimulationResult]:
+    def get_result(self, request_id: UUID) -> SimulationResult | None:
         """Get a simulation result by request ID."""
         return self._results.get(request_id)
 

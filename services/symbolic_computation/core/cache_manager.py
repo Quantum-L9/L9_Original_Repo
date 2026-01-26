@@ -38,13 +38,13 @@ __dora_meta__ = {
 
 import hashlib
 import pickle
-from typing import Any, Callable, Dict, Optional
+from collections.abc import Callable
+from typing import Any
 
 import structlog
 
 from core.decorators import must_stay_async
-from services.symbolic_computation.config import (SymbolicComputationConfig,
-                                                  get_config)
+from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 
 logger = structlog.get_logger(__name__)
 
@@ -70,8 +70,8 @@ class CacheManager:
 
     def __init__(
         self,
-        config: Optional[SymbolicComputationConfig] = None,
-        redis_client: Optional[Any] = None,
+        config: SymbolicComputationConfig | None = None,
+        redis_client: Any | None = None,
     ):
         """
         Initialize the cache manager.
@@ -85,8 +85,8 @@ class CacheManager:
         self.logger = logger.bind(component="cache_manager")
 
         # L1: In-memory LRU cache
-        self._result_cache: Dict[str, Any] = {}
-        self._compiled_cache: Dict[str, Callable] = {}
+        self._result_cache: dict[str, Any] = {}
+        self._compiled_cache: dict[str, Callable] = {}
 
         # Stats
         self._hits = 0
@@ -145,7 +145,7 @@ class CacheManager:
         self,
         expr: str,
         backend: str,
-    ) -> Optional[Any]:
+    ) -> Any | None:
         """
         Retrieve cached expression result.
 
@@ -223,7 +223,7 @@ class CacheManager:
             )
             return False
 
-    def get_cached_compiled(self, expr: str) -> Optional[Callable]:
+    def get_cached_compiled(self, expr: str) -> Callable | None:
         """
         Retrieve cached compiled function.
 
@@ -262,7 +262,7 @@ class CacheManager:
                 error=str(e),
             )
 
-    async def _get_l2_result(self, key: str) -> Optional[Any]:
+    async def _get_l2_result(self, key: str) -> Any | None:
         """Retrieve result from L2 (Redis)."""
         try:
             serialized = await self.redis_client.get(key)
@@ -288,7 +288,7 @@ class CacheManager:
         self._misses = 0
         self.logger.info("caches_cleared")
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         total = self._hits + self._misses
         hit_rate = (self._hits / total * 100) if total > 0 else 0.0

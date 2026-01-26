@@ -31,7 +31,7 @@ __dora_meta__ = {
 import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 
@@ -50,7 +50,7 @@ class MockBlobStore:
         self.blobs[blob_id] = content
         return blob_id
 
-    def retrieve(self, blob_id: str) -> Optional[bytes]:
+    def retrieve(self, blob_id: str) -> bytes | None:
         """Retrieve blob by ID."""
         return self.blobs.get(blob_id)
 
@@ -93,7 +93,7 @@ class MockMemoryAdapter:
         """
         return self.blob_store.store(content)
 
-    async def retrieve_blob(self, blob_id: str) -> Optional[bytes]:
+    async def retrieve_blob(self, blob_id: str) -> bytes | None:
         """Retrieve blob by ID."""
         return self.blob_store.retrieve(blob_id)
 
@@ -135,7 +135,7 @@ class MockMemoryAdapter:
 
         return packet
 
-    async def retrieve(self, packet_id: str) -> Optional[dict[str, Any]]:
+    async def retrieve(self, packet_id: str) -> dict[str, Any] | None:
         """
         Retrieve a packet by ID.
 
@@ -221,7 +221,7 @@ class MockMemoryAdapter:
         }
         return checkpoint_id
 
-    async def load_checkpoint(self, thread_id: str) -> Optional[dict[str, Any]]:
+    async def load_checkpoint(self, thread_id: str) -> dict[str, Any] | None:
         """
         Load the latest checkpoint for a thread.
 
@@ -236,7 +236,7 @@ class MockMemoryAdapter:
             return list(self.checkpoints.values())[-1]
         return None
 
-    def fork(self) -> "MockMemoryAdapter":
+    def fork(self) -> MockMemoryAdapter:
         """
         Create a fork of this adapter.
 
@@ -290,7 +290,7 @@ class MockPostgresCursor:
         else:
             self._results = []
 
-    def fetchone(self) -> Optional[tuple]:
+    def fetchone(self) -> tuple | None:
         """Fetch one result."""
         if self._results:
             return self._results[0]

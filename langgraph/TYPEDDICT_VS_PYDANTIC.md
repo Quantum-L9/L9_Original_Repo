@@ -3,6 +3,7 @@
 ## Current L9 Strategy
 
 L9 uses a **hybrid approach**:
+
 - **TypedDict** for LangGraph state definitions
 - **Pydantic BaseModel** for all other data structures (PacketEnvelope, API models, etc.)
 
@@ -15,6 +16,7 @@ L9 uses a **hybrid approach**:
 ### 1. LangGraph's Native Requirements
 
 LangGraph's `StateGraph` expects **dictionary-based state** that can be:
+
 - **Merged incrementally** across nodes
 - **Serialized/deserialized** for checkpoints
 - **Updated partially** (nodes only set fields they modify)
@@ -29,6 +31,7 @@ TypedDict is a **type annotation on dicts** - perfect fit.
 ### 2. Performance & Simplicity
 
 **No conversion overhead:**
+
 ```python
 # TypedDict (current approach)
 state: SubstrateGraphState = {
@@ -60,6 +63,7 @@ def node2(state: ResearchGraphState) -> ResearchGraphState:
 ```
 
 With Pydantic, you'd need to:
+
 - Reconstruct the full model each time
 - Handle partial updates manually
 - Or use `model_validate()` with `from_attributes=True` (still overhead)
@@ -86,6 +90,7 @@ TypedDict is **compile-time only** - no runtime checks.
 ### 2. Better Error Messages
 
 Pydantic provides detailed validation errors:
+
 ```python
 ValidationError: 1 validation error for PacketEnvelope
   packet_id
@@ -97,6 +102,7 @@ TypedDict errors are generic type checker errors.
 ### 3. Serialization/Deserialization
 
 Pydantic handles JSON/ORM conversion automatically:
+
 ```python
 # Serialize
 json_str = envelope.model_dump_json()
@@ -120,7 +126,7 @@ def process_packet(envelope: PacketEnvelope):
         "errors": []
     }
     # State flows as dict through graph
-    
+
 # Exit point: TypedDict → Pydantic (if needed)
 def extract_result(state: SubstrateGraphState) -> PacketEnvelope:
     return PacketEnvelope.model_validate(state["envelope"])
@@ -132,23 +138,25 @@ def extract_result(state: SubstrateGraphState) -> PacketEnvelope:
 
 ### ✅ Advantages
 
-| Aspect | TypedDict for LangGraph | Pydantic for LangGraph |
-|-------|------------------------|------------------------|
-| **Performance** | ✅ Fast (native dicts) | ❌ Slower (validation overhead) |
-| **State Merging** | ✅ Natural (dict merge) | ❌ Manual (reconstruct model) |
+| Aspect                  | TypedDict for LangGraph     | Pydantic for LangGraph          |
+| ----------------------- | --------------------------- | ------------------------------- |
+| **Performance**         | ✅ Fast (native dicts)      | ❌ Slower (validation overhead) |
+| **State Merging**       | ✅ Natural (dict merge)     | ❌ Manual (reconstruct model)   |
 | **Incremental Updates** | ✅ Built-in (`total=False`) | ❌ Complex (partial validation) |
-| **Type Safety** | ✅ Compile-time | ✅ Runtime + compile-time |
-| **Error Messages** | ⚠️ Generic | ✅ Detailed |
-| **Serialization** | ⚠️ Manual | ✅ Automatic |
+| **Type Safety**         | ✅ Compile-time             | ✅ Runtime + compile-time       |
+| **Error Messages**      | ⚠️ Generic                  | ✅ Detailed                     |
+| **Serialization**       | ⚠️ Manual                   | ✅ Automatic                    |
 
 ### ⚠️ Disadvantages
 
 1. **No Runtime Validation in Graph State**
+
    - TypedDict doesn't validate at runtime
    - Invalid state can flow through graph
    - **Mitigation:** Validate at entry/exit boundaries
 
 2. **Two Type Systems**
+
    - Developers need to know both
    - Potential for confusion
    - **Mitigation:** Clear documentation (this file!)
@@ -166,12 +174,13 @@ def extract_result(state: SubstrateGraphState) -> PacketEnvelope:
 class SubstrateGraphState(BaseModel):
     envelope: PacketEnvelope
     errors: list[str] = Field(default_factory=list)
-    
+
     class Config:
         extra = "allow"  # For incremental updates
 ```
 
 **Problems:**
+
 - LangGraph state merging doesn't work naturally
 - Need custom reducers for each field
 - Performance overhead per node
@@ -182,6 +191,7 @@ class SubstrateGraphState(BaseModel):
 Use TypedDict everywhere, no Pydantic.
 
 **Problems:**
+
 - Lose runtime validation for API models
 - Lose automatic serialization
 - Lose ORM integration
@@ -192,6 +202,7 @@ Use TypedDict everywhere, no Pydantic.
 **TypedDict for LangGraph state, Pydantic for everything else.**
 
 **Benefits:**
+
 - Best of both worlds
 - Each tool used where it excels
 - Clear boundaries
@@ -236,7 +247,7 @@ def graph_state_to_pydantic(state: SubstrateGraphState) -> PacketEnvelope:
 # =============================================================================
 # Boundary: Pydantic ↔ TypedDict
 # =============================================================================
-# 
+#
 # This module converts between:
 # - Pydantic models (PacketEnvelope, etc.) - used in API/storage
 # - TypedDict state (SubstrateGraphState) - used in LangGraph
@@ -284,12 +295,14 @@ result_envelope = PacketEnvelope.model_validate(state["envelope"])
 ## When to Use Each
 
 ### Use TypedDict When:
+
 - ✅ Defining LangGraph state schemas
 - ✅ State needs incremental updates
 - ✅ Performance is critical (graph execution)
 - ✅ State merging is required
 
 ### Use Pydantic When:
+
 - ✅ API request/response models
 - ✅ Database models (ORM integration)
 - ✅ External data validation
@@ -313,4 +326,3 @@ The only downside is maintaining two type systems, but the benefits far outweigh
 - [TypedDict Usage in L9](./README.md) - Complete TypedDict reference
 - `memory/substrate_graph.py` - Real-world example
 - `core/schemas/packet_envelope_v2.py` - Pydantic model example
-

@@ -242,4 +242,3 @@ release_readiness_check:
     - lint_clean
     - config_example_present
     - no_todo_markers_in_core_code
-

@@ -17,7 +17,7 @@ def _format_args(node: ast.arguments) -> str:
         else:
             parts.append(a.arg)
 
-    defaults_iter = iter(node.defaults or [])
+    iter(node.defaults or [])
     defaults_count = len(list(node.defaults or []))
     positional = node.posonlyargs + node.args
     start_defaults = len(positional) - defaults_count

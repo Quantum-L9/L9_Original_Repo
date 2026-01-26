@@ -46,7 +46,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 from dotenv import load_dotenv
@@ -94,7 +94,7 @@ def extract_error_type(error_message: str) -> str:
 
 async def query_failure_packets(
     database_url: str, limit: int = 1000
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Query packet_store for packets with kind=FAILURE.
 
@@ -110,7 +110,7 @@ async def query_failure_packets(
         try:
             rows = await conn.fetch(
                 """
-                SELECT 
+                SELECT
                     packet_id,
                     envelope::jsonb->>'payload' as payload_json,
                     envelope::jsonb->>'metadata' as metadata_json,
@@ -188,10 +188,10 @@ async def query_failure_packets(
 
 
 async def index_error_patterns(
-    failures: List[Dict[str, Any]],
+    failures: list[dict[str, Any]],
     substrate_service: Any,
     dry_run: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Index error patterns to memory substrate.
 
@@ -239,7 +239,7 @@ Error Message: {error_message}
 Fix Applied: {fix_applied if fix_applied else "No fix recorded"}
 """
             try:
-                embedding_id = await substrate_service.embed_text(
+                await substrate_service.embed_text(
                     text=error_context,
                     payload={
                         "error_type": error_type,
@@ -255,7 +255,7 @@ Fix Applied: {fix_applied if fix_applied else "No fix recorded"}
                 logger.debug(f"Failed to create embedding for {error_type}: {e}")
 
         except Exception as e:
-            errors.append(f"Error {failure.get('packet_id', 'unknown')}: {str(e)}")
+            errors.append(f"Error {failure.get('packet_id', 'unknown')}: {e!s}")
             logger.debug(f"Failed to index error pattern: {e}")
 
     return {

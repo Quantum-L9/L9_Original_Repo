@@ -49,25 +49,25 @@ properties:
         pattern: "^GMP-[0-9]+$"
         description: "GMP identifier (e.g., GMP-102)"
         examples: ["GMP-102", "GMP-45"]
-      
+
       feature_name:
         type: string
         minLength: 3
         maxLength: 100
         description: "Descriptive name for the feature/task"
         examples: ["registry-refactor", "add-rate-limiting"]
-      
+
       risk_tier:
         type: string
         enum: ["KERNEL", "RUNTIME", "INFRA", "UX"]
         default: "RUNTIME"
         description: "L9 tier classification per 86-module-tier-mapping.mdc"
-      
+
       owner:
         type: string
         default: "L=CTO"
         description: "Responsible party (L=CTO, Igor, etc.)"
-      
+
       created_at:
         type: string
         format: date-time
@@ -92,31 +92,31 @@ properties:
           type: string
           pattern: "^T[0-9]+$"
           description: "TODO identifier (T1, T2, etc.)"
-        
+
         file:
           type: string
           description: "Relative path to target file"
           examples: ["core/tools/registry.py", "api/server.py"]
-        
+
         lines:
           type: string
           pattern: "^([0-9]+(-[0-9]+)?|NEW)$"
           description: "Line range (e.g., '44-52') or 'NEW' for new files"
-        
+
         action:
           type: string
           enum: ["Insert", "Replace", "Delete", "Wrap", "Create"]
           description: "Operation type"
-        
+
         target:
           type: string
           description: "Function/class/section being modified"
-        
+
         description:
           type: string
           minLength: 10
           description: "Clear description of the change"
-        
+
         dependencies:
           type: array
           items:
@@ -215,7 +215,6 @@ properties:
 # =============================================================================
 
 additionalProperties: false
-
 # Custom validation: scope_items files must not be in protected_files
 # (Enforced by GMP executor, not JSON Schema)
 

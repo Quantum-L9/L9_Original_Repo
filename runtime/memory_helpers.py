@@ -47,7 +47,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -74,7 +74,7 @@ async def memory_search(
     query: str,
     agent_id: str = "L",
     top_k: int = 10,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """
     Search memory within a specific segment.
 
@@ -156,10 +156,10 @@ async def memory_search(
 
 async def memory_write(
     segment: str,
-    payload: Dict[str, Any],
+    payload: dict[str, Any],
     agent_id: str = "L",
-    metadata: Optional[Dict[str, Any]] = None,
-) -> Optional[str]:
+    metadata: dict[str, Any] | None = None,
+) -> str | None:
     """
     Write to memory within a specific segment.
 
@@ -197,11 +197,10 @@ async def memory_write(
         )
 
         # Merge with additional metadata if provided
-        if metadata:
-            if packet_metadata.model_dump(exclude_none=True):
-                packet_metadata_dict = packet_metadata.model_dump(exclude_none=True)
-                packet_metadata_dict.update(metadata)
-                packet_metadata = PacketMetadata(**packet_metadata_dict)
+        if metadata and packet_metadata.model_dump(exclude_none=True):
+            packet_metadata_dict = packet_metadata.model_dump(exclude_none=True)
+            packet_metadata_dict.update(metadata)
+            packet_metadata = PacketMetadata(**packet_metadata_dict)
 
         # Create packet with segment encoded in packet_type
         packet_in = PacketEnvelopeIn(
@@ -218,9 +217,8 @@ async def memory_write(
                 f"Wrote to memory segment {segment}: packet_id={result.packet_id}"
             )
             return str(result.packet_id)
-        else:
-            logger.warning(f"Memory write to {segment} returned no packet_id")
-            return None
+        logger.warning(f"Memory write to {segment} returned no packet_id")
+        return None
 
     except ImportError as exc:
         raise RuntimeError("Memory ingestion not available") from exc
@@ -266,11 +264,11 @@ Tool Call Logging:
 """
 
 __all__ = [
+    "ALL_SEGMENTS",
     "MEMORY_SEGMENT_GOVERNANCE_META",
     "MEMORY_SEGMENT_PROJECT_HISTORY",
-    "MEMORY_SEGMENT_TOOL_AUDIT",
     "MEMORY_SEGMENT_SESSION_CONTEXT",
-    "ALL_SEGMENTS",
+    "MEMORY_SEGMENT_TOOL_AUDIT",
     "memory_search",
     "memory_write",
 ]

@@ -6,11 +6,11 @@
 
 ## 🔒 LOCKED TERMINOLOGY: THREE BLOCKS
 
-| Block | Location | Purpose | Updates |
-|-------|----------|---------|---------|
-| **Header Meta** | TOP of file | Module identity, governance (points to footer) | On generation |
-| **Footer Meta** | BOTTOM of file | Extended metadata (header references this) | On generation |
-| **DORA Block** | VERY END (after footer) | L9_TRACE_TEMPLATE runtime trace | Auto on EVERY run |
+| Block           | Location                | Purpose                                        | Updates           |
+| --------------- | ----------------------- | ---------------------------------------------- | ----------------- |
+| **Header Meta** | TOP of file             | Module identity, governance (points to footer) | On generation     |
+| **Footer Meta** | BOTTOM of file          | Extended metadata (header references this)     | On generation     |
+| **DORA Block**  | VERY END (after footer) | L9_TRACE_TEMPLATE runtime trace                | Auto on EVERY run |
 
 **DORA Block = L9_TRACE_TEMPLATE ONLY** — NOT header meta, NOT footer meta.
 
@@ -21,9 +21,11 @@
 ## 📦 FOUR ARTIFACTS CREATED
 
 ### 1. **Enforcement Contract** (`.l9-codegen-dora-contract.yaml`)
+
 **Purpose:** Source of truth for what DORA enforcement means
 
 **Contains:**
+
 - ✅ 14 mandatory fields (component_id, layer, domain, type, governance_level, etc.)
 - ✅ Validation rules (enum values, format patterns, uniqueness)
 - ✅ Codegen requirements (when to validate, how to inject)
@@ -36,9 +38,11 @@
 ---
 
 ### 2. **Enforcement Guide** (`dora-block-enforcement-contract.md`)
+
 **Purpose:** Complete implementation manual
 
 **Contains:**
+
 - **Part 1:** Contract definition and enforcement rules
 - **Part 2:** DORA block format by file type (.py, .yaml, .md, .json)
 - **Part 3:** How to modify codegen (validation, injection, post-write checks)
@@ -52,9 +56,11 @@
 ---
 
 ### 3. **Validation Script** (`validate_dora_blocks.py`)
+
 **Purpose:** Executable validator - scans all files, validates DORA blocks, generates reports
 
 **Capabilities:**
+
 - ✅ Parses DORA blocks from Python, YAML, Markdown, JSON
 - ✅ Validates all 14 mandatory fields against patterns
 - ✅ Checks for placeholder values ({PLACEHOLDER}, TODO, FILL_IN)
@@ -69,9 +75,11 @@
 ---
 
 ### 4. **Quick Start Guide** (`DORA-ENFORCEMENT-QUICKSTART.md`)
+
 **Purpose:** How to deploy this system in your repo
 
 **Contains:**
+
 - ✅ What we built (automatic, mandatory, validated, tracked, auditable, remediable)
 - ✅ What you have (contract, guide, script, checklist)
 - ✅ Deployment checklist (7 steps)
@@ -154,14 +162,14 @@ Result: NO FILE CAN EXIST WITHOUT A VALID DORA BLOCK
 
 ## 🔒 WHAT CANNOT BE BYPASSED
 
-| Bypass Attempt | What Stops It | Result |
-|---|---|---|
-| "I'll generate file without DORA block" | Codegen validator (Gate 1) | ✗ File not generated |
-| "I'll add placeholder values" | Validator checks for {PLACEHOLDER} | ✗ File deleted after write |
-| "I'll commit without DORA block" | Pre-commit hook (Gate 4) | ✗ Commit blocked |
-| "I'll push to GitHub without DORA" | CI/CD pipeline (Gate 5) | ✗ Merge blocked |
-| "I'll use a duplicate component_id" | Uniqueness check (Gate 1, 5) | ✗ Validation fails |
-| "I'll set wrong governance_level on critical module" | Governance check (Gate 5) | ✗ Merge blocked |
+| Bypass Attempt                                       | What Stops It                      | Result                     |
+| ---------------------------------------------------- | ---------------------------------- | -------------------------- |
+| "I'll generate file without DORA block"              | Codegen validator (Gate 1)         | ✗ File not generated       |
+| "I'll add placeholder values"                        | Validator checks for {PLACEHOLDER} | ✗ File deleted after write |
+| "I'll commit without DORA block"                     | Pre-commit hook (Gate 4)           | ✗ Commit blocked           |
+| "I'll push to GitHub without DORA"                   | CI/CD pipeline (Gate 5)            | ✗ Merge blocked            |
+| "I'll use a duplicate component_id"                  | Uniqueness check (Gate 1, 5)       | ✗ Validation fails         |
+| "I'll set wrong governance_level on critical module" | Governance check (Gate 5)          | ✗ Merge blocked            |
 
 **Result:** There is no way to get a file without a valid DORA block into the main repo. The contract is bulletproof.
 
@@ -170,20 +178,24 @@ Result: NO FILE CAN EXIST WITHOUT A VALID DORA BLOCK
 ## 📊 ENFORCEMENT METRICS
 
 ### During Codegen
+
 - ✅ **Files generated with valid DORA blocks:** 100% (or 0 generated)
 - ✅ **Generation failures due to DORA validation:** Recorded in audit log
 - ✅ **Placeholder values caught:** At post-write validation
 
 ### Pre-Commit
+
 - ✅ **Commits blocked due to DORA validation:** Recorded in git hooks
 - ✅ **Auto-remediation success rate:** Tracked
 
 ### CI/CD
+
 - ✅ **Merges blocked due to DORA validation:** Visible in CI logs
 - ✅ **DORA compliance rate:** 100% (or gate blocks merge)
 - ✅ **Critical modules with correct governance_level:** 100%
 
 ### Registry
+
 - ✅ **Total registered components:** In `.l9-dora-registry.json`
 - ✅ **Components by governance_level:** Distribution tracked
 - ✅ **Last validation time:** Per component
@@ -234,23 +246,27 @@ When a file is generated, this is what gets validated:
 ## ✅ WHAT THIS GIVES YOU
 
 ### Visibility
+
 - Can query `.l9-dora-registry.json` to see all generated components
 - Can read `logs/codegen-dora-audit.log` for validation history
 - Can generate compliance dashboard from registry
 
 ### Enforcement
+
 - No file can exit codegen without DORA block
 - No DORA block with placeholder values
 - No duplicate component_ids
 - No critical modules without critical/high governance
 
 ### Auditability
+
 - Every generation logged
 - Every validation recorded
 - Compliance metrics tracked
 - Failure reasons documented
 
 ### Remediability
+
 - Auto-fix script available (fix common issues)
 - Clear error messages (know what's wrong)
 - Rollback on validation failure (no partial commits)
@@ -260,6 +276,7 @@ When a file is generated, this is what gets validated:
 ## 🎓 KEY CONCEPTS
 
 **DORA Block:** Machine-readable metadata at top of file defining:
+
 - What the file is (component_id, component_name)
 - What layer/domain/type it belongs to
 - How governed it is (governance_level)
@@ -275,18 +292,21 @@ When a file is generated, this is what gets validated:
 ## 📞 SUPPORT
 
 **If DORA block is missing:**
+
 - Codegen: Raises error, stops generation
 - Pre-commit: Blocks commit
 - CI/CD: Blocks merge
 - Fix: Use auto-remediation script or add manually
 
 **If DORA block is invalid:**
+
 - Post-write validation: Deletes file, logs error
 - Pre-commit: Blocks commit with specific error
 - CI/CD: Blocks merge with detailed report
 - Fix: Address specific validation error shown in logs
 
 **If you need to override:**
+
 - You can't (that's the point)
 - DORA enforcement is non-negotiable
 
@@ -304,12 +324,12 @@ You asked for an enforceable DORA block contract. You got:
 ✅ **Auto-remediation** (fix common issues)
 ✅ **Monitoring** (registry, metrics, dashboard-ready)
 
-**Status:** Ready to deploy  
-**Effort to integrate:** ~2 hours  
+**Status:** Ready to deploy
+**Effort to integrate:** ~2 hours
 **Result:** Every file generated has valid DORA block. Guaranteed.
 
 ---
 
-**Implementation Status:** ✅ COMPLETE  
-**Contract Status:** ✅ ENFORCEABLE  
+**Implementation Status:** ✅ COMPLETE
+**Contract Status:** ✅ ENFORCEABLE
 **Deployment Status:** ✅ PRODUCTION-READY

@@ -11,6 +11,7 @@ Define **Execution Profiles** that configure the executor for different risk mod
 ## Context
 
 L9's executor has many conditional branches for different modes:
+
 - Production (full governance, all checks)
 - Testing (minimal checks, mock tools)
 - Local development (no approvals, fast iteration)
@@ -65,13 +66,13 @@ from core.agents.executor_builder import ExecutorBuilder
 class ExecutionProfile(Protocol):
     """
     Protocol for execution profiles.
-    
+
     Each profile configures an ExecutorBuilder with
     appropriate stages and policies for its use case.
     """
-    
+
     name: str
-    
+
     async def configure_executor(self, builder: ExecutorBuilder) -> None:
         """Configure the builder with this profile's settings."""
         ...
@@ -97,7 +98,7 @@ from core.agents.stages import (
 class SafeDefaultProfile:
     """
     Production-safe execution profile.
-    
+
     Includes:
     - Full governance checks
     - All approval gates
@@ -105,9 +106,9 @@ class SafeDefaultProfile:
     - Memory warming enabled
     - Complete audit logging
     """
-    
+
     name: str = "safe_default"
-    
+
     async def configure_executor(self, builder: ExecutorBuilder) -> None:
         """Configure builder with production-safe settings."""
         builder.with_stages([
@@ -119,7 +120,7 @@ class SafeDefaultProfile:
             TerminationGuardStage(),
             GovernanceAuditStage(),
         ])
-        
+
         # Enable all policies
         from core.agents.policies import (
             PromptDefensePolicy,
@@ -127,7 +128,7 @@ class SafeDefaultProfile:
             GraphHydrationPolicy,
             ReflectionPolicy,
         )
-        
+
         builder.with_prompt_defense(PromptDefensePolicy())
         builder.with_memory_warming(MemoryWarmPolicy())
         builder.with_graph_hydration(GraphHydrationPolicy())
@@ -151,7 +152,7 @@ from core.agents.stages import (
 class FastLocalProfile:
     """
     Fast local development profile.
-    
+
     Stripped down for rapid iteration:
     - No governance checks
     - No approval gates
@@ -159,9 +160,9 @@ class FastLocalProfile:
     - No memory warming
     - Minimal logging
     """
-    
+
     name: str = "fast_local"
-    
+
     async def configure_executor(self, builder: ExecutorBuilder) -> None:
         """Configure builder with minimal settings."""
         builder.with_stages([
@@ -170,7 +171,7 @@ class FastLocalProfile:
             ToolDispatchStage(),
             TerminationGuardStage(max_iterations=5),  # Lower limit
         ])
-        
+
         # No policies — fastest possible execution
 ```
 
@@ -194,7 +195,7 @@ from core.agents.stages import (
 class ParanoidProfile:
     """
     High-security execution profile.
-    
+
     Maximum safety:
     - All governance checks
     - All approval gates
@@ -202,9 +203,9 @@ class ParanoidProfile:
     - Stricter thresholds
     - Comprehensive logging
     """
-    
+
     name: str = "paranoid"
-    
+
     async def configure_executor(self, builder: ExecutorBuilder) -> None:
         """Configure builder with maximum security settings."""
         builder.with_stages([
@@ -216,7 +217,7 @@ class ParanoidProfile:
             TerminationGuardStage(max_iterations=3),  # Very conservative
             GovernanceAuditStage(audit_level="detailed"),
         ])
-        
+
         # Enable all policies with strict settings
         from core.agents.policies import (
             PromptDefensePolicy,
@@ -224,7 +225,7 @@ class ParanoidProfile:
             GraphHydrationPolicy,
             ReflectionPolicy,
         )
-        
+
         builder.with_prompt_defense(PromptDefensePolicy(strict=True))
         builder.with_memory_warming(MemoryWarmPolicy())
         builder.with_graph_hydration(GraphHydrationPolicy())
@@ -245,17 +246,17 @@ async def lifespan(app: FastAPI):
     # Profile from environment
     profile_name = os.getenv("EXECUTION_PROFILE", "safe_default")
     profile = get_profile_by_name(profile_name)
-    
+
     config = ExecutorConfig.from_env()
     builder = ExecutorBuilder().with_config(config)
-    
+
     # Profile configures the builder
     await profile.configure_executor(builder)
-    
+
     # Build executor
     executor = builder.build()
     app.state.executor = executor
-    
+
     logger.info(f"Executor started with profile: {profile.name}")
     yield
 
@@ -268,10 +269,10 @@ def get_profile_by_name(name: str) -> ExecutionProfile:
         "fast_local": FastLocalProfile(),
         "paranoid": ParanoidProfile(),
     }
-    
+
     if name not in profiles:
         raise ValueError(f"Unknown profile: {name}. Available: {list(profiles.keys())}")
-    
+
     return profiles[name]
 ```
 
@@ -286,13 +287,13 @@ class AgentExecutorService:
             pass
         else:
             await self._check_governance(...)
-        
+
         if os.getenv("HIGH_SECURITY"):
             await self._extra_validation(...)
-        
+
         if not os.getenv("SKIP_REFLECTION"):
             await self._reflect(...)
-        
+
         # ... conditionals everywhere ...
 
 # ✅ CORRECT — Profile configures builder once

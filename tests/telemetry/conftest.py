@@ -16,7 +16,7 @@ def reset_prometheus_metrics():
     Note: This is a best-effort reset. Some metrics may persist
     due to the global nature of Prometheus registries.
     """
-    yield
+    return
     # Cleanup after test - metrics persist in process but tests
     # should use unique labels to avoid collisions
 

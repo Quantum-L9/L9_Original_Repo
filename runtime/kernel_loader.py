@@ -442,7 +442,7 @@ def load_kernels(agent: Any, base_path: Path | None = None) -> Any:
     return agent
 
 
-def _inject_activation_context(agent: Any, boot_overlay: dict[str, Any] = None) -> None:
+def _inject_activation_context(agent: Any, boot_overlay: dict[str, Any] | None = None) -> None:
     """
     Inject the activation context that makes L aware of kernels.
 
@@ -786,10 +786,7 @@ def verify_kernel_activation(agent: Any) -> bool:
     if not kernel_active:
         return False
 
-    if not hasattr(agent, "kernels") or len(agent.kernels) == 0:
-        return False
-
-    return True
+    return not (not hasattr(agent, "kernels") or len(agent.kernels) == 0)
 
 
 def require_kernel_activation(agent: Any) -> None:
@@ -1340,7 +1337,9 @@ def validate_packet_protocol_rules() -> dict[str, Any]:
     actual_files = [Path(p).name for p in KERNEL_ORDER]
 
     mismatches = []
-    for i, (expected, actual) in enumerate(zip(expected_files, actual_files)):
+    for i, (expected, actual) in enumerate(
+        zip(expected_files, actual_files, strict=False)
+    ):
         if expected != actual:
             mismatches.append({"position": i, "expected": expected, "actual": actual})
 
@@ -1418,37 +1417,37 @@ __all__ = [
     # Configuration
     "DEFAULT_KERNEL_PATH",
     "KERNEL_EXTENSIONS",
-    "KERNEL_ORDER",
     "KERNEL_ID_MAP",
-    "REQUIRED_KERNELS",
+    "KERNEL_ORDER",
     "MINIMUM_KERNEL_COUNT",
-    # Agent loading
-    "load_kernels",
-    "load_kernel_stack",
-    "KernelStack",
+    "REQUIRED_KERNELS",
     "KernelAwareAgent",
-    # Dynamic discovery
-    "load_kernel_file",
-    "load_all_private_kernels",
-    "load_layered_kernels",
+    "KernelStack",
+    "ensure_kernel_integrity",
+    "get_enabled_rules",
     # Query functions
     "get_kernel_by_name",
-    "get_enabled_rules",
-    "get_rules_by_type",
     # Cached accessors
     "get_kernel_cached",
     "get_rule_cached",
-    # Validation
-    "validate_kernel_structure",
-    "validate_all_kernels",
-    "validate_packet_protocol_rules",
-    # Integrity verification
-    "verify_kernel_integrity",
-    "ensure_kernel_integrity",
+    "get_rules_by_type",
     # Enforcement (deprecated - use runtime.execution_gate)
     "guarded_execute",
-    "verify_kernel_activation",
+    "load_all_private_kernels",
+    # Dynamic discovery
+    "load_kernel_file",
+    "load_kernel_stack",
+    # Agent loading
+    "load_kernels",
+    "load_layered_kernels",
     "require_kernel_activation",
+    "validate_all_kernels",
+    # Validation
+    "validate_kernel_structure",
+    "validate_packet_protocol_rules",
+    "verify_kernel_activation",
+    # Integrity verification
+    "verify_kernel_integrity",
 ]
 
 # ============================================================================

@@ -45,8 +45,7 @@ class TestIdentityTier:
 
     def test_identity_tier_service_initialization(self):
         """Test IdentityTierService can be instantiated."""
-        from memory.identity_tier import (IDENTITY_MIN_IMPORTANCE,
-                                          IdentityTierService)
+        from memory.identity_tier import IDENTITY_MIN_IMPORTANCE, IdentityTierService
 
         service = IdentityTierService()
         assert service is not None
@@ -124,9 +123,11 @@ class TestRetrievalStrategy:
 
     def test_strategy_determiner_identity_keywords(self):
         """Test StrategyDeterminer detects identity keywords."""
-        from memory.retrieval_strategy import (RetrievalStrategy,
-                                               StrategyContext,
-                                               StrategyDeterminer)
+        from memory.retrieval_strategy import (
+            RetrievalStrategy,
+            StrategyContext,
+            StrategyDeterminer,
+        )
 
         determiner = StrategyDeterminer()
 
@@ -139,22 +140,26 @@ class TestRetrievalStrategy:
 
     def test_strategy_determiner_temporal_keywords(self):
         """Test StrategyDeterminer detects temporal keywords."""
-        from memory.retrieval_strategy import (RetrievalStrategy,
-                                               StrategyContext,
-                                               StrategyDeterminer)
+        from memory.retrieval_strategy import (
+            RetrievalStrategy,
+            StrategyContext,
+            StrategyDeterminer,
+        )
 
         determiner = StrategyDeterminer()
 
         ctx = StrategyContext(query="What happened yesterday?")
-        strategy, reason = determiner.determine_strategy(ctx)
+        strategy, _reason = determiner.determine_strategy(ctx)
 
         assert strategy == RetrievalStrategy.TEMPORAL_RECALL
 
     def test_strategy_determiner_high_uncertainty(self):
         """Test StrategyDeterminer triggers uncertainty_fill for high uncertainty."""
-        from memory.retrieval_strategy import (RetrievalStrategy,
-                                               StrategyContext,
-                                               StrategyDeterminer)
+        from memory.retrieval_strategy import (
+            RetrievalStrategy,
+            StrategyContext,
+            StrategyDeterminer,
+        )
 
         determiner = StrategyDeterminer()
 
@@ -281,7 +286,7 @@ class TestQueryClassifierStrategy:
         from memory.query_classifier import get_query_classifier
 
         classifier = get_query_classifier()
-        strategy, reason = classifier.determine_retrieval_strategy(
+        strategy, _reason = classifier.determine_retrieval_strategy(
             "What are my coding preferences?"
         )
 
@@ -292,7 +297,7 @@ class TestQueryClassifierStrategy:
         from memory.query_classifier import get_query_classifier
 
         classifier = get_query_classifier()
-        strategy, reason = classifier.determine_retrieval_strategy(
+        strategy, _reason = classifier.determine_retrieval_strategy(
             "What happened last week?"
         )
 
@@ -303,7 +308,7 @@ class TestQueryClassifierStrategy:
         from memory.query_classifier import get_query_classifier
 
         classifier = get_query_classifier()
-        strategy, reason = classifier.determine_retrieval_strategy(
+        strategy, _reason = classifier.determine_retrieval_strategy(
             "What is the project scope?",
             context={"project_id": "proj-123"},
         )
@@ -501,9 +506,9 @@ class TestPipelineIntegration:
         from memory.context_builder import HierarchicalContextBuilder
         from memory.identity_tier import IdentityTierService
         from memory.retrieval_ranking import MultiFactorRanker
+
         # GMP-80-A6 (direct import)
-        from memory.retrieval_strategy import (RetrievalStrategy,
-                                               StrategyBasedRetriever)
+        from memory.retrieval_strategy import RetrievalStrategy, StrategyBasedRetriever
 
         # All imports successful
         assert IdentityTierService is not None

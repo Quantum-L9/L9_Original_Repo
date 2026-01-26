@@ -19,13 +19,13 @@ CREATE TABLE IF NOT EXISTS tool_embeddings (
 
 -- Index for vector similarity search (cosine distance)
 -- Using ivfflat with 20 lists - appropriate for ~100-200 tools
-CREATE INDEX IF NOT EXISTS idx_tool_embeddings_vector 
-    ON tool_embeddings 
-    USING ivfflat (embedding vector_cosine_ops) 
+CREATE INDEX IF NOT EXISTS idx_tool_embeddings_vector
+    ON tool_embeddings
+    USING ivfflat (embedding vector_cosine_ops)
     WITH (lists = 20);
 
 -- Index for category filtering
-CREATE INDEX IF NOT EXISTS idx_tool_embeddings_category 
+CREATE INDEX IF NOT EXISTS idx_tool_embeddings_category
     ON tool_embeddings (category);
 
 -- Function to update updated_at timestamp

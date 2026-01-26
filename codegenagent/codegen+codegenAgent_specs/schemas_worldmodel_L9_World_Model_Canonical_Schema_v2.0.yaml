@@ -35,7 +35,6 @@ patch:
     - sub-agent_suggestions
     - reroute_trace_links
     - world_facts_asserted
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

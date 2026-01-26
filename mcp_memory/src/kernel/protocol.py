@@ -36,7 +36,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional, Union
+from typing import Any
 from uuid import uuid4
 
 
@@ -54,13 +54,13 @@ class PacketMetadata:
         tags: Optional tags for filtering and debugging
     """
 
-    correlation_id: Optional[str] = None
-    trace_id: Optional[str] = None
-    span_id: Optional[str] = None
-    user_id: Optional[str] = None
-    caller_id: Optional[str] = None  # "L" or "C"
-    source: Optional[str] = None
-    tags: Optional[Dict[str, str]] = field(default_factory=dict)
+    correlation_id: str | None = None
+    trace_id: str | None = None
+    span_id: str | None = None
+    user_id: str | None = None
+    caller_id: str | None = None  # "L" or "C"
+    source: str | None = None
+    tags: dict[str, str] | None = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -85,7 +85,7 @@ class PacketEnvelopeV2:
 
     # Core fields (required)
     packet_type: str  # e.g., "memory_search", "safety_check", "audit_log"
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
 
     # Auto-generated (immutable)
     packet_id: str = field(default_factory=lambda: str(uuid4()))
@@ -94,9 +94,9 @@ class PacketEnvelopeV2:
     # Optional fields
     confidence: float = 1.0  # [0, 1]
     status: str = "pending"  # pending, processing, completed, failed
-    error: Optional[str] = None
-    metadata: Optional[PacketMetadata] = None
-    result: Optional[Dict[str, Any]] = None
+    error: str | None = None
+    metadata: PacketMetadata | None = None
+    result: dict[str, Any] | None = None
 
     def __post_init__(self):
         """Validate immutability constraints."""
@@ -150,9 +150,9 @@ PACKET_TYPES = {
 
 def create_packet(
     packet_type: str,
-    payload: Dict[str, Any],
+    payload: dict[str, Any],
     confidence: float = 1.0,
-    metadata: Optional[PacketMetadata] = None,
+    metadata: PacketMetadata | None = None,
 ) -> PacketEnvelopeV2:
     """Factory function to create and validate packet.
 
@@ -182,11 +182,11 @@ def create_packet(
 
 
 __all__ = [
-    "PacketMetadata",
-    "PacketEnvelopeV2",
-    "PacketEnvelope",
-    "create_packet",
     "PACKET_TYPES",
+    "PacketEnvelope",
+    "PacketEnvelopeV2",
+    "PacketMetadata",
+    "create_packet",
 ]
 
 # ============================================================================

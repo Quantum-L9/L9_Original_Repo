@@ -12,15 +12,15 @@
 
 ## Phase Completion Checklist
 
-| Phase | Status | Evidence |
-|-------|--------|----------|
-| 0. Memory Injection | ✅ | No relevant lessons found |
-| 1. Discovery | ✅ | 5 PRs fetched, 39 files total |
-| 2. Index Scan | ✅ | 7 indexes queried |
-| 3. Deep Research | ✅ | 12 rg/grep searches |
-| 4. Gap Analysis | ✅ | 39/39 files classified |
-| 5. Report Generated | ✅ | This file |
-| 6. Close Notes | ✅ | 4 sections per PR |
+| Phase               | Status | Evidence                      |
+| ------------------- | ------ | ----------------------------- |
+| 0. Memory Injection | ✅     | No relevant lessons found     |
+| 1. Discovery        | ✅     | 5 PRs fetched, 39 files total |
+| 2. Index Scan       | ✅     | 7 indexes queried             |
+| 3. Deep Research    | ✅     | 12 rg/grep searches           |
+| 4. Gap Analysis     | ✅     | 39/39 files classified        |
+| 5. Report Generated | ✅     | This file                     |
+| 6. Close Notes      | ✅     | 4 sections per PR             |
 
 ---
 
@@ -28,27 +28,27 @@
 
 ### Actions Executed
 
-| T# | Action | Status | Files |
-|----|--------|--------|-------|
-| T1 | Close PR #46 | ✅ | `gh pr close 46` |
-| T2-T9 | Fix hardcoded paths | ✅ | 8 production files |
-| T10 | Add @register_tool to reflection_tools | ✅ | 5 decorators added |
-| T11 | Remove RESEARCH_TOOL_EXECUTORS | ✅ | Legacy dict removed |
-| T12 | Update tool_registry auto-discovery | ✅ | Manual → auto |
-| T13 | Fix eval() in base_registry | ✅ | ast.literal_eval |
-| T14 | Fix eval() in container.py | ✅ | Already applied |
-| T15 | Replace test_anti_patterns.py | ✅ | 508→906 lines |
-| T16 | Add ADR compliance checker | ✅ | 362 lines |
+| T#    | Action                                 | Status | Files               |
+| ----- | -------------------------------------- | ------ | ------------------- |
+| T1    | Close PR #46                           | ✅     | `gh pr close 46`    |
+| T2-T9 | Fix hardcoded paths                    | ✅     | 8 production files  |
+| T10   | Add @register_tool to reflection_tools | ✅     | 5 decorators added  |
+| T11   | Remove RESEARCH_TOOL_EXECUTORS         | ✅     | Legacy dict removed |
+| T12   | Update tool_registry auto-discovery    | ✅     | Manual → auto       |
+| T13   | Fix eval() in base_registry            | ✅     | ast.literal_eval    |
+| T14   | Fix eval() in container.py             | ✅     | Already applied     |
+| T15   | Replace test_anti_patterns.py          | ✅     | 508→906 lines       |
+| T16   | Add ADR compliance checker             | ✅     | 362 lines           |
 
 ### Validation Results
 
-| Check | Result |
-|-------|--------|
-| py_compile (all 14 files) | ✅ PASSED |
-| Hardcoded paths removed | ✅ 0 remaining |
-| eval() removed | ✅ Only ast.literal_eval |
-| Legacy dicts removed | ✅ Only LEGACY comments |
-| Scope drift | ✅ None |
+| Check                     | Result                   |
+| ------------------------- | ------------------------ |
+| py_compile (all 14 files) | ✅ PASSED                |
+| Hardcoded paths removed   | ✅ 0 remaining           |
+| eval() removed            | ✅ Only ast.literal_eval |
+| Legacy dicts removed      | ✅ Only LEGACY comments  |
+| Scope drift               | ✅ None                  |
 
 ### Files Modified (14)
 
@@ -71,21 +71,21 @@
 
 ## 🧠 Memory Context
 
-| Relevant Lesson | Source |
-|-----------------|--------|
+| Relevant Lesson           | Source                           |
+| ------------------------- | -------------------------------- |
 | No relevant lessons found | Memory search returned 0 results |
 
 ---
 
 ## 📊 PR Summary Table
 
-| PR | Title | Files | +/- | Status | Confidence |
-|----|-------|-------|-----|--------|------------|
-| #50 | Anti-Pattern Violations + Git Hook | 11 | +994/-14 | ⚠️ PARTIAL | 90% |
-| #49 | ADR Enforcement Infrastructure | 11 | +2558/-0 | ⚠️ PARTIAL | 80% |
-| #48 | AutoRegistry Migration Complete | 4 | +281/-55 | 🆕 NEW | 95% |
-| #46 | Add 5 More Anti-Pattern Tests | 2 | +940/-0 | 🔄 CONFLICTS | 95% |
-| #36 | Security eval() + Rate Limiting | 11 | +731/-13 | ⚠️ PARTIAL | 75% |
+| PR  | Title                              | Files | +/-      | Status       | Confidence |
+| --- | ---------------------------------- | ----- | -------- | ------------ | ---------- |
+| #50 | Anti-Pattern Violations + Git Hook | 11    | +994/-14 | ⚠️ PARTIAL   | 90%        |
+| #49 | ADR Enforcement Infrastructure     | 11    | +2558/-0 | ⚠️ PARTIAL   | 80%        |
+| #48 | AutoRegistry Migration Complete    | 4     | +281/-55 | 🆕 NEW       | 95%        |
+| #46 | Add 5 More Anti-Pattern Tests      | 2     | +940/-0  | 🔄 CONFLICTS | 95%        |
+| #36 | Security eval() + Rate Limiting    | 11    | +731/-13 | ⚠️ PARTIAL   | 75%        |
 
 ---
 
@@ -96,19 +96,19 @@
 
 ### File Analysis
 
-| # | PR File | Status | Confidence | Existing Equivalent | Gap | Evidence |
-|---|---------|--------|------------|---------------------|-----|----------|
-| 1 | `ci/run_ci_gates.sh` | ⚠️ PARTIAL | 90% | EXISTS (18KB) | PR adds Gate 14 | `ls -la` shows 18159 bytes |
-| 2 | `core/governance/mistake_prevention.py` | 🆕 FIX NEEDED | 95% | Has hardcoded path | Line 147 | grep shows `/Users/ib-mac` |
-| 3 | `core/governance/quick_fixes.py` | 🆕 FIX NEEDED | 95% | Has hardcoded path | Lines 177-178 | grep shows 2 violations |
-| 4 | `core/governance/session_startup.py` | 🆕 FIX NEEDED | 95% | Has hardcoded path | Lines 165, 725 | grep shows 2 violations |
-| 5 | `core/worldmodel/service.py` | 🆕 FIX NEEDED | 95% | Has hardcoded path | Line 361 | grep output |
-| 6 | `orchestration/long_plan_graph.py` | 🆕 FIX NEEDED | 95% | Has hardcoded path | Line 540 | grep output |
-| 7 | `orchestration/plan_executor.py` | 🆕 FIX NEEDED | 95% | Has hardcoded path | Lines 184, 893 | grep shows 2 violations |
-| 8 | `runtime/l_tools.py` | 🆕 FIX NEEDED | 95% | Has hardcoded path | Line 991 | grep output |
-| 9 | `runtime/mcp_client.py` | 🆕 FIX NEEDED | 95% | Has hardcoded path | Line 334 | grep output |
-| 10 | `scripts/hooks/pre-commit` | ⚠️ PARTIAL | 85% | EXISTS (17KB) | PR adds anti-pattern detection | `ls -la` shows 17749 bytes |
-| 11 | `tests/ci/test_anti_patterns.py` | 🔄 CONFLICTS | 80% | EXISTS (508 lines, 6 tests) | PR adds 906 lines, 10 tests | wc -l shows 508 |
+| #   | PR File                                 | Status        | Confidence | Existing Equivalent         | Gap                            | Evidence                   |
+| --- | --------------------------------------- | ------------- | ---------- | --------------------------- | ------------------------------ | -------------------------- |
+| 1   | `ci/run_ci_gates.sh`                    | ⚠️ PARTIAL    | 90%        | EXISTS (18KB)               | PR adds Gate 14                | `ls -la` shows 18159 bytes |
+| 2   | `core/governance/mistake_prevention.py` | 🆕 FIX NEEDED | 95%        | Has hardcoded path          | Line 147                       | grep shows `/Users/ib-mac` |
+| 3   | `core/governance/quick_fixes.py`        | 🆕 FIX NEEDED | 95%        | Has hardcoded path          | Lines 177-178                  | grep shows 2 violations    |
+| 4   | `core/governance/session_startup.py`    | 🆕 FIX NEEDED | 95%        | Has hardcoded path          | Lines 165, 725                 | grep shows 2 violations    |
+| 5   | `core/worldmodel/service.py`            | 🆕 FIX NEEDED | 95%        | Has hardcoded path          | Line 361                       | grep output                |
+| 6   | `orchestration/long_plan_graph.py`      | 🆕 FIX NEEDED | 95%        | Has hardcoded path          | Line 540                       | grep output                |
+| 7   | `orchestration/plan_executor.py`        | 🆕 FIX NEEDED | 95%        | Has hardcoded path          | Lines 184, 893                 | grep shows 2 violations    |
+| 8   | `runtime/l_tools.py`                    | 🆕 FIX NEEDED | 95%        | Has hardcoded path          | Line 991                       | grep output                |
+| 9   | `runtime/mcp_client.py`                 | 🆕 FIX NEEDED | 95%        | Has hardcoded path          | Line 334                       | grep output                |
+| 10  | `scripts/hooks/pre-commit`              | ⚠️ PARTIAL    | 85%        | EXISTS (17KB)               | PR adds anti-pattern detection | `ls -la` shows 17749 bytes |
+| 11  | `tests/ci/test_anti_patterns.py`        | 🔄 CONFLICTS  | 80%        | EXISTS (508 lines, 6 tests) | PR adds 906 lines, 10 tests    | wc -l shows 508            |
 
 ### Verdict: ⚠️ PARTIAL ADOPT
 
@@ -125,26 +125,26 @@
 
 ### File Analysis
 
-| # | PR File | Status | Confidence | Existing Equivalent | Gap | Evidence |
-|---|---------|--------|------------|---------------------|-----|----------|
-| 1 | `.pre-commit-config.yaml` | ✅ EXISTS | 90% | EXISTS (46 lines) | PR has 105 lines | Different hooks |
-| 2 | `ADR_GAP_ANALYSIS_AND_ENFORCEMENT.md` | 🆕 NEW | 95% | — | Documentation | — |
-| 3 | `PR_DESCRIPTION_V2.md` | 🆕 NEW | 95% | — | Documentation | — |
-| 4 | `core/di/bootstrap_integration.py` | 🆕 NEW | 85% | — | 315 lines | Not in repo |
-| 5 | `core/patterns/__init__.py` | 🆕 NEW | 85% | — | Directory doesn't exist | `ls` confirms |
-| 6 | `core/patterns/singleton.py` | 🔄 CONFLICTS | 70% | `core/singleton_registry.py` exists | Different implementation | index scan |
-| 7 | `core/protocols/__init__.py` | ⚠️ PARTIAL | 80% | EXISTS | PR adds exports | — |
-| 8 | `core/protocols/service_protocols.py` | ✅ EXISTS | 95% | EXISTS (280 lines) | Docstring cites "Source: PR #49" | **Already merged!** |
-| 9 | `pyproject.toml` | ⚠️ PARTIAL | 75% | EXISTS | PR adds ruff config | Need to verify |
-| 10 | `tests/unit/test_singleton_pattern.py` | 🆕 NEW | 85% | — | 170 lines | — |
-| 11 | `tools/adr/adr_compliance_check_enhanced.py` | 🆕 NEW | 90% | — | 362 lines | — |
+| #   | PR File                                      | Status       | Confidence | Existing Equivalent                 | Gap                              | Evidence            |
+| --- | -------------------------------------------- | ------------ | ---------- | ----------------------------------- | -------------------------------- | ------------------- |
+| 1   | `.pre-commit-config.yaml`                    | ✅ EXISTS    | 90%        | EXISTS (46 lines)                   | PR has 105 lines                 | Different hooks     |
+| 2   | `ADR_GAP_ANALYSIS_AND_ENFORCEMENT.md`        | 🆕 NEW       | 95%        | —                                   | Documentation                    | —                   |
+| 3   | `PR_DESCRIPTION_V2.md`                       | 🆕 NEW       | 95%        | —                                   | Documentation                    | —                   |
+| 4   | `core/di/bootstrap_integration.py`           | 🆕 NEW       | 85%        | —                                   | 315 lines                        | Not in repo         |
+| 5   | `core/patterns/__init__.py`                  | 🆕 NEW       | 85%        | —                                   | Directory doesn't exist          | `ls` confirms       |
+| 6   | `core/patterns/singleton.py`                 | 🔄 CONFLICTS | 70%        | `core/singleton_registry.py` exists | Different implementation         | index scan          |
+| 7   | `core/protocols/__init__.py`                 | ⚠️ PARTIAL   | 80%        | EXISTS                              | PR adds exports                  | —                   |
+| 8   | `core/protocols/service_protocols.py`        | ✅ EXISTS    | 95%        | EXISTS (280 lines)                  | Docstring cites "Source: PR #49" | **Already merged!** |
+| 9   | `pyproject.toml`                             | ⚠️ PARTIAL   | 75%        | EXISTS                              | PR adds ruff config              | Need to verify      |
+| 10  | `tests/unit/test_singleton_pattern.py`       | 🆕 NEW       | 85%        | —                                   | 170 lines                        | —                   |
+| 11  | `tools/adr/adr_compliance_check_enhanced.py` | 🆕 NEW       | 90%        | —                                   | 362 lines                        | —                   |
 
 ### ⚠️ Low Confidence Items (<80%)
 
-| File | Confidence | Reason | Action Required |
-|------|------------|--------|-----------------|
-| `core/patterns/singleton.py` | 70% | L9 already has `core/singleton_registry.py` and `core/singleton_auto_registry.py` | User decision: adopt PR's version or keep existing? |
-| `pyproject.toml` | 75% | May conflict with existing ruff config | Manual merge required |
+| File                         | Confidence | Reason                                                                            | Action Required                                     |
+| ---------------------------- | ---------- | --------------------------------------------------------------------------------- | --------------------------------------------------- |
+| `core/patterns/singleton.py` | 70%        | L9 already has `core/singleton_registry.py` and `core/singleton_auto_registry.py` | User decision: adopt PR's version or keep existing? |
+| `pyproject.toml`             | 75%        | May conflict with existing ruff config                                            | Manual merge required                               |
 
 ### Verdict: ⚠️ PARTIAL — 1 file already merged
 
@@ -162,12 +162,12 @@
 
 ### File Analysis
 
-| # | PR File | Status | Confidence | Existing Equivalent | Gap | Evidence |
-|---|---------|--------|------------|---------------------|-----|----------|
-| 1 | `AUTOREGISTRY_MIGRATION_SUMMARY.md` | 🆕 NEW | 95% | — | Documentation | — |
-| 2 | `core/tools/reflection_tools.py` | 🆕 FIX NEEDED | 95% | EXISTS (257 lines) | Remove `REFLECTION_TOOL_EXECUTORS` dict | grep found at line 189 |
-| 3 | `core/tools/research_tools.py` | 🆕 FIX NEEDED | 95% | EXISTS (445 lines) | Remove `RESEARCH_TOOL_EXECUTORS` dict | grep found at line 378 |
-| 4 | `runtime/tool_registry.py` | 🆕 FIX NEEDED | 95% | EXISTS (251 lines) | Switch to auto-discovery | — |
+| #   | PR File                             | Status        | Confidence | Existing Equivalent | Gap                                     | Evidence               |
+| --- | ----------------------------------- | ------------- | ---------- | ------------------- | --------------------------------------- | ---------------------- |
+| 1   | `AUTOREGISTRY_MIGRATION_SUMMARY.md` | 🆕 NEW        | 95%        | —                   | Documentation                           | —                      |
+| 2   | `core/tools/reflection_tools.py`    | 🆕 FIX NEEDED | 95%        | EXISTS (257 lines)  | Remove `REFLECTION_TOOL_EXECUTORS` dict | grep found at line 189 |
+| 3   | `core/tools/research_tools.py`      | 🆕 FIX NEEDED | 95%        | EXISTS (445 lines)  | Remove `RESEARCH_TOOL_EXECUTORS` dict   | grep found at line 378 |
+| 4   | `runtime/tool_registry.py`          | 🆕 FIX NEEDED | 95%        | EXISTS (251 lines)  | Switch to auto-discovery                | —                      |
 
 ### Verdict: ✅ ADOPT
 
@@ -183,10 +183,10 @@
 
 ### File Analysis
 
-| # | PR File | Status | Confidence | Existing Equivalent | Gap | Evidence |
-|---|---------|--------|------------|---------------------|-----|----------|
-| 1 | `ci/run_ci_gates.sh` | 🔄 CONFLICTS | 95% | **Same file as PR #50** | Duplicate modification | Both PRs add 34 lines |
-| 2 | `tests/ci/test_anti_patterns.py` | 🔄 CONFLICTS | 95% | **Same file as PR #50** | Duplicate modification | Both PRs add ~906 lines |
+| #   | PR File                          | Status       | Confidence | Existing Equivalent     | Gap                    | Evidence                |
+| --- | -------------------------------- | ------------ | ---------- | ----------------------- | ---------------------- | ----------------------- |
+| 1   | `ci/run_ci_gates.sh`             | 🔄 CONFLICTS | 95%        | **Same file as PR #50** | Duplicate modification | Both PRs add 34 lines   |
+| 2   | `tests/ci/test_anti_patterns.py` | 🔄 CONFLICTS | 95%        | **Same file as PR #50** | Duplicate modification | Both PRs add ~906 lines |
 
 ### Verdict: 🔄 DUPLICATE OF PR #50
 
@@ -202,26 +202,26 @@
 
 ### File Analysis
 
-| # | PR File | Status | Confidence | Existing Equivalent | Gap | Evidence |
-|---|---------|--------|------------|---------------------|-----|----------|
-| 1 | `api/middleware/__init__.py` | 🆕 NEW | 90% | EXISTS (empty) | 5 lines | — |
-| 2 | `api/middleware/rate_limiter.py` | 🔄 CONFLICTS | 60% | `core/governance/rate_limit_policy.py` (450+ lines) | **Duplicate impl** | index scan |
-| 3 | `api/server.py` | ⚠️ PARTIAL | 80% | EXISTS | 13 line change | — |
-| 4 | `core/di/container.py` | 🆕 FIX NEEDED | 85% | EXISTS | Replace eval() | Need to verify |
-| 5 | `core/error_tracking.py` | ✅ ALREADY FIXED | 90% | No __import__ found | grep returned empty | **Already clean** |
-| 6 | `core/tools/base_registry.py` | 🆕 FIX NEEDED | 90% | Still has eval() at line 591 | grep confirms | Legitimate fix |
-| 7 | `readme/adr/0041-unsafe-eval-remediation.md` | 🆕 NEW | 95% | — | ADR documentation | — |
-| 8 | `readme/adr/0042-rate-limiting-middleware.md` | 🆕 NEW | 95% | — | ADR documentation | — |
-| 9 | `tests/api/middleware/__init__.py` | 🆕 NEW | 95% | — | Empty init | — |
-| 10 | `tests/api/middleware/test_rate_limiter.py` | ⚠️ PARTIAL | 70% | Rate limit tests exist elsewhere | Possible duplicate | — |
-| 11 | `tests/core/test_security_fixes.py` | 🆕 NEW | 90% | — | 148 lines | — |
+| #   | PR File                                       | Status           | Confidence | Existing Equivalent                                 | Gap                 | Evidence          |
+| --- | --------------------------------------------- | ---------------- | ---------- | --------------------------------------------------- | ------------------- | ----------------- |
+| 1   | `api/middleware/__init__.py`                  | 🆕 NEW           | 90%        | EXISTS (empty)                                      | 5 lines             | —                 |
+| 2   | `api/middleware/rate_limiter.py`              | 🔄 CONFLICTS     | 60%        | `core/governance/rate_limit_policy.py` (450+ lines) | **Duplicate impl**  | index scan        |
+| 3   | `api/server.py`                               | ⚠️ PARTIAL       | 80%        | EXISTS                                              | 13 line change      | —                 |
+| 4   | `core/di/container.py`                        | 🆕 FIX NEEDED    | 85%        | EXISTS                                              | Replace eval()      | Need to verify    |
+| 5   | `core/error_tracking.py`                      | ✅ ALREADY FIXED | 90%        | No **import** found                                 | grep returned empty | **Already clean** |
+| 6   | `core/tools/base_registry.py`                 | 🆕 FIX NEEDED    | 90%        | Still has eval() at line 591                        | grep confirms       | Legitimate fix    |
+| 7   | `readme/adr/0041-unsafe-eval-remediation.md`  | 🆕 NEW           | 95%        | —                                                   | ADR documentation   | —                 |
+| 8   | `readme/adr/0042-rate-limiting-middleware.md` | 🆕 NEW           | 95%        | —                                                   | ADR documentation   | —                 |
+| 9   | `tests/api/middleware/__init__.py`            | 🆕 NEW           | 95%        | —                                                   | Empty init          | —                 |
+| 10  | `tests/api/middleware/test_rate_limiter.py`   | ⚠️ PARTIAL       | 70%        | Rate limit tests exist elsewhere                    | Possible duplicate  | —                 |
+| 11  | `tests/core/test_security_fixes.py`           | 🆕 NEW           | 90%        | —                                                   | 148 lines           | —                 |
 
 ### ⚠️ Low Confidence Items (<80%)
 
-| File | Confidence | Reason | Action Required |
-|------|------------|--------|-----------------|
-| `api/middleware/rate_limiter.py` | 60% | L9 already has `core/governance/rate_limit_policy.py` with comprehensive rate limiting | **USER DECISION: Use PR's version or keep existing?** |
-| `tests/api/middleware/test_rate_limiter.py` | 70% | May duplicate existing rate limit tests | Verify no overlap |
+| File                                        | Confidence | Reason                                                                                 | Action Required                                       |
+| ------------------------------------------- | ---------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `api/middleware/rate_limiter.py`            | 60%        | L9 already has `core/governance/rate_limit_policy.py` with comprehensive rate limiting | **USER DECISION: Use PR's version or keep existing?** |
+| `tests/api/middleware/test_rate_limiter.py` | 70%        | May duplicate existing rate limit tests                                                | Verify no overlap                                     |
 
 ### Verdict: ⚠️ PARTIAL — Rate limiter conflicts
 
@@ -234,74 +234,74 @@
 
 ## 📊 Overall Implementation Status
 
-| Status | Count | Files |
-|--------|-------|-------|
-| ✅ ALREADY EXISTS | 2 | `service_protocols.py`, `error_tracking.py` |
-| ⚠️ PARTIAL | 8 | CI gates, pre-commit, pyproject.toml, etc. |
-| 🆕 NEW (ADOPT) | 19 | Path fixes, ADR tooling, AutoRegistry |
-| 🔄 CONFLICTS | 8 | test_anti_patterns.py (x2), singleton.py, rate_limiter.py |
+| Status            | Count | Files                                                     |
+| ----------------- | ----- | --------------------------------------------------------- |
+| ✅ ALREADY EXISTS | 2     | `service_protocols.py`, `error_tracking.py`               |
+| ⚠️ PARTIAL        | 8     | CI gates, pre-commit, pyproject.toml, etc.                |
+| 🆕 NEW (ADOPT)    | 19    | Path fixes, ADR tooling, AutoRegistry                     |
+| 🔄 CONFLICTS      | 8     | test_anti_patterns.py (x2), singleton.py, rate_limiter.py |
 
 ---
 
 ## ✅ Already Implemented (SKIP)
 
-| PR | File | Existing Implementation | Evidence |
-|----|------|------------------------|----------|
+| PR  | File                                  | Existing Implementation          | Evidence       |
+| --- | ------------------------------------- | -------------------------------- | -------------- |
 | #49 | `core/protocols/service_protocols.py` | Docstring cites "Source: PR #49" | Already merged |
-| #36 | `core/error_tracking.py` | No `__import__()` found | Already clean |
-| #46 | **ENTIRE PR** | Subset of PR #50 | Same 2 files |
+| #36 | `core/error_tracking.py`              | No `__import__()` found          | Already clean  |
+| #46 | **ENTIRE PR**                         | Subset of PR #50                 | Same 2 files   |
 
 ---
 
 ## ⚠️ Partially Implemented (MERGE)
 
-| PR | File | Existing File | What PR Adds | Integration Steps |
-|----|------|---------------|--------------|-------------------|
-| #50 | `ci/run_ci_gates.sh` | 18KB exists | Gate 14 (anti-patterns) | Merge new gate section |
-| #50 | `scripts/hooks/pre-commit` | 17KB exists | Anti-pattern detection | Merge hook additions |
-| #49 | `.pre-commit-config.yaml` | 46 lines | ADR-specific hooks | Compare and merge |
-| #49 | `pyproject.toml` | Exists | Ruff lint config | Verify no conflicts |
+| PR  | File                       | Existing File | What PR Adds            | Integration Steps      |
+| --- | -------------------------- | ------------- | ----------------------- | ---------------------- |
+| #50 | `ci/run_ci_gates.sh`       | 18KB exists   | Gate 14 (anti-patterns) | Merge new gate section |
+| #50 | `scripts/hooks/pre-commit` | 17KB exists   | Anti-pattern detection  | Merge hook additions   |
+| #49 | `.pre-commit-config.yaml`  | 46 lines      | ADR-specific hooks      | Compare and merge      |
+| #49 | `pyproject.toml`           | Exists        | Ruff lint config        | Verify no conflicts    |
 
 ---
 
 ## 🆕 Not Yet Implemented (ADOPT)
 
-| PR | File | Purpose | Dependencies | Complexity |
-|----|------|---------|--------------|------------|
-| #50 | 8 production files | Path fixes | None | 🤖 AUTO |
-| #49 | `core/di/bootstrap_integration.py` | DI bootstrap | None | 🔧 SEMI |
-| #49 | `core/patterns/__init__.py` | Patterns module | None | 🤖 AUTO |
-| #49 | `tools/adr/adr_compliance_check_enhanced.py` | ADR checker | None | 🤖 AUTO |
-| #48 | All 4 files | AutoRegistry migration | None | 🤖 AUTO |
-| #36 | `core/tools/base_registry.py` | eval() fix | None | 🤖 AUTO |
-| #36 | `core/di/container.py` | eval() fix | None | 🤖 AUTO |
-| #36 | ADR docs (2 files) | Documentation | None | 🤖 AUTO |
+| PR  | File                                         | Purpose                | Dependencies | Complexity |
+| --- | -------------------------------------------- | ---------------------- | ------------ | ---------- |
+| #50 | 8 production files                           | Path fixes             | None         | 🤖 AUTO    |
+| #49 | `core/di/bootstrap_integration.py`           | DI bootstrap           | None         | 🔧 SEMI    |
+| #49 | `core/patterns/__init__.py`                  | Patterns module        | None         | 🤖 AUTO    |
+| #49 | `tools/adr/adr_compliance_check_enhanced.py` | ADR checker            | None         | 🤖 AUTO    |
+| #48 | All 4 files                                  | AutoRegistry migration | None         | 🤖 AUTO    |
+| #36 | `core/tools/base_registry.py`                | eval() fix             | None         | 🤖 AUTO    |
+| #36 | `core/di/container.py`                       | eval() fix             | None         | 🤖 AUTO    |
+| #36 | ADR docs (2 files)                           | Documentation          | None         | 🤖 AUTO    |
 
 ---
 
 ## 🔄 Conflicts (USER DECISION REQUIRED)
 
-| PR | File | Existing File | Difference | Options |
-|----|------|---------------|------------|---------|
-| #50 | `tests/ci/test_anti_patterns.py` | EXISTS (508 lines) | PR adds 906 lines | A: Use PR / B: Merge both |
-| #46 | Same as #50 | — | **DUPLICATE PR** | **CLOSE #46** |
-| #49 | `core/patterns/singleton.py` | `core/singleton_registry.py` | Different singleton approach | A: Use PR / B: Keep existing / C: Merge |
-| #36 | `api/middleware/rate_limiter.py` | `core/governance/rate_limit_policy.py` | Different location + impl | A: Use PR / B: Keep existing |
+| PR  | File                             | Existing File                          | Difference                   | Options                                 |
+| --- | -------------------------------- | -------------------------------------- | ---------------------------- | --------------------------------------- |
+| #50 | `tests/ci/test_anti_patterns.py` | EXISTS (508 lines)                     | PR adds 906 lines            | A: Use PR / B: Merge both               |
+| #46 | Same as #50                      | —                                      | **DUPLICATE PR**             | **CLOSE #46**                           |
+| #49 | `core/patterns/singleton.py`     | `core/singleton_registry.py`           | Different singleton approach | A: Use PR / B: Keep existing / C: Merge |
+| #36 | `api/middleware/rate_limiter.py` | `core/governance/rate_limit_policy.py` | Different location + impl    | A: Use PR / B: Keep existing            |
 
 ---
 
 ## 🔧 Required Actions (Prioritized)
 
-| # | Priority | Action | PRs | Files | Complexity | Blocked By |
-|---|----------|--------|-----|-------|------------|------------|
-| 1 | 🔴 HIGH | Close PR #46 as duplicate | #46 | 2 | 🤖 AUTO | — |
-| 2 | 🔴 HIGH | Adopt hardcoded path fixes | #50 | 8 | 🤖 AUTO | — |
-| 3 | 🔴 HIGH | Adopt AutoRegistry migration | #48 | 4 | 🤖 AUTO | — |
-| 4 | 🔴 HIGH | Adopt eval() security fixes | #36 | 2 | 🤖 AUTO | — |
-| 5 | 🟡 MEDIUM | Merge test_anti_patterns.py | #50 | 1 | 🔧 SEMI | Decision |
-| 6 | 🟡 MEDIUM | Adopt ADR tooling | #49 | 3 | 🔧 SEMI | — |
-| 7 | 🟢 LOW | Decide on singleton.py | #49 | 1 | 👤 MANUAL | User decision |
-| 8 | 🟢 LOW | Decide on rate_limiter.py | #36 | 1 | 👤 MANUAL | User decision |
+| #   | Priority  | Action                       | PRs | Files | Complexity | Blocked By    |
+| --- | --------- | ---------------------------- | --- | ----- | ---------- | ------------- |
+| 1   | 🔴 HIGH   | Close PR #46 as duplicate    | #46 | 2     | 🤖 AUTO    | —             |
+| 2   | 🔴 HIGH   | Adopt hardcoded path fixes   | #50 | 8     | 🤖 AUTO    | —             |
+| 3   | 🔴 HIGH   | Adopt AutoRegistry migration | #48 | 4     | 🤖 AUTO    | —             |
+| 4   | 🔴 HIGH   | Adopt eval() security fixes  | #36 | 2     | 🤖 AUTO    | —             |
+| 5   | 🟡 MEDIUM | Merge test_anti_patterns.py  | #50 | 1     | 🔧 SEMI    | Decision      |
+| 6   | 🟡 MEDIUM | Adopt ADR tooling            | #49 | 3     | 🔧 SEMI    | —             |
+| 7   | 🟢 LOW    | Decide on singleton.py       | #49 | 1     | 👤 MANUAL  | User decision |
+| 8   | 🟢 LOW    | Decide on rate_limiter.py    | #36 | 1     | 👤 MANUAL  | User decision |
 
 ---
 
@@ -309,36 +309,36 @@
 
 ### ✅ YES (Do Now)
 
-| # | Action | Why | PRs | Files | Complexity |
-|---|--------|-----|-----|-------|------------|
-| 1 | Close PR #46 | Duplicate of #50 | #46 | 2 | 🤖 AUTO |
-| 2 | Adopt path fixes from #50 | Critical anti-pattern violations | #50 | 8 | 🤖 AUTO |
-| 3 | Adopt AutoRegistry migration #48 | Completes 100% tool uniformity | #48 | 4 | 🤖 AUTO |
-| 4 | Adopt eval() fixes from #36 | Security fixes | #36 | 2 | 🤖 AUTO |
-| 5 | Skip service_protocols.py from #49 | Already merged | #49 | 1 | — |
-| 6 | Skip error_tracking.py from #36 | Already clean | #36 | 1 | — |
+| #   | Action                             | Why                              | PRs | Files | Complexity |
+| --- | ---------------------------------- | -------------------------------- | --- | ----- | ---------- |
+| 1   | Close PR #46                       | Duplicate of #50                 | #46 | 2     | 🤖 AUTO    |
+| 2   | Adopt path fixes from #50          | Critical anti-pattern violations | #50 | 8     | 🤖 AUTO    |
+| 3   | Adopt AutoRegistry migration #48   | Completes 100% tool uniformity   | #48 | 4     | 🤖 AUTO    |
+| 4   | Adopt eval() fixes from #36        | Security fixes                   | #36 | 2     | 🤖 AUTO    |
+| 5   | Skip service_protocols.py from #49 | Already merged                   | #49 | 1     | —          |
+| 6   | Skip error_tracking.py from #36    | Already clean                    | #36 | 1     | —          |
 
 ### ❌ NO (Skip/Defer)
 
-| # | Action | Why |
-|---|--------|-----|
-| 1 | PR #46 entirely | Duplicate of PR #50 |
-| 2 | `service_protocols.py` from #49 | Already exists in repo |
-| 3 | `error_tracking.py` fix from #36 | No unsafe code found |
-| 4 | `api/middleware/rate_limiter.py` from #36 | Duplicates `core/governance/rate_limit_policy.py` |
-| 5 | `core/patterns/singleton.py` from #49 | Conflicts with existing `core/singleton_registry.py` |
+| #   | Action                                    | Why                                                  |
+| --- | ----------------------------------------- | ---------------------------------------------------- |
+| 1   | PR #46 entirely                           | Duplicate of PR #50                                  |
+| 2   | `service_protocols.py` from #49           | Already exists in repo                               |
+| 3   | `error_tracking.py` fix from #36          | No unsafe code found                                 |
+| 4   | `api/middleware/rate_limiter.py` from #36 | Duplicates `core/governance/rate_limit_policy.py`    |
+| 5   | `core/patterns/singleton.py` from #49     | Conflicts with existing `core/singleton_registry.py` |
 
 ### ➡️ PROCEED (Next Steps)
 
-| Step | Description | Command |
-|------|-------------|---------|
-| 1 | Close PR #46 as duplicate | `gh pr close 46 -c "Duplicate of PR #50"` |
-| 2 | Cherry-pick path fixes from #50 | Manual review of 8 files |
-| 3 | Adopt PR #48 entirely | Cherry-pick or merge |
-| 4 | Cherry-pick eval() fixes from #36 | 2 files only |
-| 5 | Merge CI/test changes from #50 | After verifying no conflicts |
-| 6 | Review singleton decision | User decides on #49 singleton approach |
-| 7 | Review rate limiter decision | User decides on #36 middleware |
+| Step | Description                       | Command                                   |
+| ---- | --------------------------------- | ----------------------------------------- |
+| 1    | Close PR #46 as duplicate         | `gh pr close 46 -c "Duplicate of PR #50"` |
+| 2    | Cherry-pick path fixes from #50   | Manual review of 8 files                  |
+| 3    | Adopt PR #48 entirely             | Cherry-pick or merge                      |
+| 4    | Cherry-pick eval() fixes from #36 | 2 files only                              |
+| 5    | Merge CI/test changes from #50    | After verifying no conflicts              |
+| 6    | Review singleton decision         | User decides on #49 singleton approach    |
+| 7    | Review rate limiter decision      | User decides on #36 middleware            |
 
 ---
 
@@ -461,6 +461,7 @@ gh pr close 46 -c "Closing: Duplicate of PR #50. Both PRs modify the same 2 file
 ### 2-5. Other PRs — Keep Open for Cherry-Picking
 
 PRs #36, #48, #49, #50 should remain open for selective adoption. User should:
+
 1. Review the YES/NO decisions above
 2. Cherry-pick approved changes
 3. Close PRs with appropriate feedback comments

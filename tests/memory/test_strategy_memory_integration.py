@@ -178,8 +178,7 @@ class TestStrategyMemoryIntegration:
         cleanup_test_strategies,
     ):
         """Test that strategies are ranked by performance score."""
-        from memory.strategymemory import (StrategyFeedback,
-                                           StrategyRetrievalRequest)
+        from memory.strategymemory import StrategyFeedback, StrategyRetrievalRequest
 
         # Create two strategies
         high_perf_id = await strategy_memory_service.record_new_strategy(
@@ -441,8 +440,11 @@ class TestAutoCaptureIntegration:
         from dataclasses import dataclass, field
         from uuid import uuid4
 
-        from orchestration.plan_executor import (ExecutionStatus,
-                                                 ExecutorConfig, PlanExecutor)
+        from orchestration.plan_executor import (
+            ExecutionStatus,
+            ExecutorConfig,
+            PlanExecutor,
+        )
 
         # Create executor with auto-capture enabled
         config = ExecutorConfig(
@@ -531,8 +533,11 @@ class TestAutoCaptureIntegration:
         from dataclasses import dataclass, field
         from uuid import uuid4
 
-        from orchestration.plan_executor import (ExecutionStatus,
-                                                 ExecutorConfig, PlanExecutor)
+        from orchestration.plan_executor import (
+            ExecutionStatus,
+            ExecutorConfig,
+            PlanExecutor,
+        )
 
         # First, create a strategy manually
         existing_strategy_id = await strategy_memory_service.record_new_strategy(

@@ -60,15 +60,15 @@ Tool definitions, capability enforcement, and safe tool invocation
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                    | Purpose          |
+| ------------------------- | ---------------- |
 | `core/agents/executor.py` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `runtime/l_tools.py` | Required dependency |
+| Module                                | Purpose             |
+| ------------------------------------- | ------------------- |
+| `runtime/l_tools.py`                  | Required dependency |
 | `core/governance/approval_manager.py` | Required dependency |
 
 ---
@@ -95,15 +95,15 @@ core/tools/
 └── ... (3 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `registry_adapter.py` | RegistryAdapter for tool discovery and dispatch (PROTECTED) |
-| `tool_graph.py` | Tool definitions and L_TOOLS_DEFINITIONS registry (PROTECTED) |
-| `sanitizer.py` | Input sanitization and validation for tool arguments |
-| `memory_tools.py` | Memory-related tools (search, write, retrieve) |
-| `research_tools.py` | Research and web search tools |
-| `reflection_tools.py` | Self-reflection and metacognition tools |
-| `tool_embeddings.py` | Semantic tool discovery via embeddings |
+| File                  | Purpose                                                       |
+| --------------------- | ------------------------------------------------------------- |
+| `registry_adapter.py` | RegistryAdapter for tool discovery and dispatch (PROTECTED)   |
+| `tool_graph.py`       | Tool definitions and L_TOOLS_DEFINITIONS registry (PROTECTED) |
+| `sanitizer.py`        | Input sanitization and validation for tool arguments          |
+| `memory_tools.py`     | Memory-related tools (search, write, retrieve)                |
+| `research_tools.py`   | Research and web search tools                                 |
+| `reflection_tools.py` | Self-reflection and metacognition tools                       |
+| `tool_embeddings.py`  | Semantic tool discovery via embeddings                        |
 
 ### Naming Conventions
 
@@ -120,7 +120,7 @@ core/tools/
 ```python
 class ToolEmbeddingResult:
     """Result from tool embedding search."""
-    
+
     # Key methods:
 
 ```
@@ -132,7 +132,7 @@ class ToolEmbeddingResult:
 ```python
 class CacheMetrics:
     """Metrics for prompt caching."""
-    
+
     # Key methods:
 
     async def hit_rate(self, ...): ...
@@ -148,7 +148,7 @@ class CacheMetrics:
 ```python
 class PromptCachingStrategy:
     """Two-tier prompt caching strategy for tool-heavy agents."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -172,7 +172,7 @@ class PromptCachingStrategy:
 ```python
 class CachingMetricsCollector:
     """Collect and report caching metrics for observability."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -196,7 +196,7 @@ class CachingMetricsCollector:
 ```python
 class ToolInputSanitizationError:
     """Raised when tool input cannot be sanitized/validated."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -206,7 +206,6 @@ class ToolInputSanitizationError:
 **Public Methods:** `__init__`
 
 **Lines:** 61-67 in `sanitizer.py`
-
 
 ---
 
@@ -282,9 +281,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Tools feature flags
-L9_ENABLE_CORE_TOOLS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_TOOLS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_TOOLS_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_TOOLS_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_TOOLS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_TOOLS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -346,7 +345,6 @@ Hybrid tool discovery combining semantic + keyword (BM25) search.
 - **File:** `tool_embeddings.py:321`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -371,7 +369,6 @@ print(result.success)  # True
 print(result.output)   # Search results
 ```
 
-
 ---
 
 ## Observability
@@ -393,6 +390,7 @@ Core Tools operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -400,12 +398,12 @@ Core Tools operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                             | Type      | Description                    |
+| ---------------------------------- | --------- | ------------------------------ |
 | `core_tools_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_tools_operation_total` | Counter | Total operations processed |
-| `core_tools_error_total` | Counter | Total errors encountered |
-| `core_tools_active_connections` | Gauge | Current active connections |
+| `core_tools_operation_total`       | Counter   | Total operations processed     |
+| `core_tools_error_total`           | Counter   | Total errors encountered       |
+| `core_tools_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -423,6 +421,7 @@ Core Tools emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_tools/`:
+
 - `test_core_tools.py` — Core unit tests
 - `test_core_tools_integration.py` — Integration tests (if applicable)
 
@@ -475,6 +474,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

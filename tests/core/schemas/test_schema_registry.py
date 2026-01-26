@@ -18,9 +18,14 @@ from uuid import uuid4
 import pytest
 
 from core.schemas import PacketEnvelope
-from core.schemas.schema_registry import (SchemaRegistry, detect_version,
-                                          read_packet, read_packets, upcast,
-                                          write_packet)
+from core.schemas.schema_registry import (
+    SchemaRegistry,
+    detect_version,
+    read_packet,
+    read_packets,
+    upcast,
+    write_packet,
+)
 
 
 class TestVersionDetection:

@@ -6,12 +6,12 @@
 
 **ID:** GMP-{###}
 **Task:** {task}
-**Tier:** {KERNEL|RUNTIME|INFRA|UX}_TIER
+**Tier:** {KERNEL|RUNTIME|INFRA|UX}\_TIER
 **Date:** {YYYY-MM-DD}
 **Time:** {HH:MM} EST
 **Status:** {✅ COMPLETE|⚠️ PARTIAL|❌ FAILED}
 
-<!-- 
+<!--
   BEFORE CREATING:
   1. Check highest GMP number: ls reports/GMP-Report-*.md reports/'GMP Reports'/GMP*Report*.md | grep -oE '[0-9]+' | sort -n | tail -1
   2. Use: highest + 1, zero-padded to 3 digits (e.g., 097, 098, 099)
@@ -23,10 +23,10 @@
 
 ## PLAN
 
-| ID | File | Lines | Action | Status |
-|----|------|-------|--------|--------|
-| T1 | {path} | {L###} | {CREATE|INSERT|REPLACE|DELETE} | {✅|❌} |
-| T2 | {path} | {L###-###} | {action} | {✅|❌} |
+| ID  | File   | Lines      | Action   | Status |
+| --- | ------ | ---------- | -------- | ------ | ------- | ------- | --- | --- |
+| T1  | {path} | {L###}     | {CREATE  | INSERT | REPLACE | DELETE} | {✅ | ❌} |
+| T2  | {path} | {L###-###} | {action} | {✅    | ❌}     |
 
 **Hash:** `{TODO_COUNT} TODOs | {key files summary}`
 
@@ -34,27 +34,27 @@
 
 ## CHANGES
 
-| File | Lines | Action | Description |
-|------|-------|--------|-------------|
+| File     | Lines     | Action   | Description          |
+| -------- | --------- | -------- | -------------------- |
 | `{path}` | {###-###} | {action} | {change description} |
 
 ---
 
 ## TODO → CHANGE MAP
 
-| TODO | File | Change |
-|------|------|--------|
-| T1 | {file} | {what changed} |
+| TODO | File   | Change         |
+| ---- | ------ | -------------- |
+| T1   | {file} | {what changed} |
 
 ---
 
 ## VALIDATION
 
-| Gate | Result |
-|------|--------|
-| py_compile | ✅ |
-| import test | ✅ |
-| unit tests | ✅ {X} passed |
+| Gate        | Result        |
+| ----------- | ------------- |
+| py_compile  | ✅            |
+| import test | ✅            |
+| unit tests  | ✅ {X} passed |
 
 ---
 

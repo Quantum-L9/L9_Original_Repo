@@ -6,16 +6,16 @@
 -- Pattern: Harvested from Tool Discovery research
 
 -- Add tsvector column for pre-computed full-text search
-ALTER TABLE tool_embeddings 
+ALTER TABLE tool_embeddings
 ADD COLUMN IF NOT EXISTS search_vector tsvector;
 
 -- Populate search_vector from description
-UPDATE tool_embeddings 
+UPDATE tool_embeddings
 SET search_vector = to_tsvector('english', COALESCE(description, ''));
 
 -- Create GIN index for fast full-text search
-CREATE INDEX IF NOT EXISTS idx_tool_embeddings_search_vector 
-    ON tool_embeddings 
+CREATE INDEX IF NOT EXISTS idx_tool_embeddings_search_vector
+    ON tool_embeddings
     USING gin (search_vector);
 
 -- Trigger to auto-update search_vector on insert/update

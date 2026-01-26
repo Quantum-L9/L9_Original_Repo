@@ -85,7 +85,7 @@ async def get_agent_capabilities(agent_id: str) -> list[ToolDefinition]:
         logger.debug("Tool registry not available, using default tools")
 
     # Default tools for L-CTO
-    default_tools = [
+    return [
         ToolDefinition(
             tool_id="memory_search",
             name="memory_search",
@@ -119,7 +119,6 @@ async def get_agent_capabilities(agent_id: str) -> list[ToolDefinition]:
         ),
     ]
 
-    return default_tools
 
 
 async def bind_tools_and_capabilities(

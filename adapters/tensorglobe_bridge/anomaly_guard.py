@@ -31,12 +31,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import logging
-import numpy as np
-from typing import List, Optional, Dict, Any
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
 from collections import deque
+from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
+from typing import Any
+
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +70,7 @@ class AnomalySignal:
     anomaly_score: float  # 0.0 to 1.0
     severity: AnomalySeverity
     action_taken: str
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
 
@@ -103,15 +104,15 @@ class AnomalyDetector:
         self.consecutive_failures: int = 0
 
         # Statistics cache
-        self._latency_mean: Optional[float] = None
-        self._latency_std: Optional[float] = None
-        self._confidence_mean: Optional[float] = None
+        self._latency_mean: float | None = None
+        self._latency_std: float | None = None
+        self._confidence_mean: float | None = None
 
     async def detect(
         self,
         request: Any,  # TensorRequest
         response: Any,  # TensorResponse
-    ) -> List[AnomalySignal]:
+    ) -> list[AnomalySignal]:
         """
         Detect anomalies in TensorGlobe response.
 
@@ -124,7 +125,7 @@ class AnomalyDetector:
         Returns:
             List of detected anomalies (empty if none)
         """
-        anomalies: List[AnomalySignal] = []
+        anomalies: list[AnomalySignal] = []
 
         # Extract metrics from response
         latency_ms = response.latency_ms
@@ -194,7 +195,7 @@ class AnomalyDetector:
         self,
         request_id: str,
         avg_confidence: float,
-    ) -> Optional[AnomalySignal]:
+    ) -> AnomalySignal | None:
         """Check if average confidence is below threshold"""
         if avg_confidence < self.CONFIDENCE_COLLAPSE_THRESHOLD:
             score = 1.0 - (avg_confidence / self.CONFIDENCE_COLLAPSE_THRESHOLD)
@@ -222,7 +223,7 @@ class AnomalyDetector:
         self,
         request_id: str,
         latency_ms: float,
-    ) -> Optional[AnomalySignal]:
+    ) -> AnomalySignal | None:
         """Check if latency exceeds threshold"""
         if latency_ms > self.LATENCY_BREACH_THRESHOLD_MS:
             overage_ratio = latency_ms / self.LATENCY_BREACH_THRESHOLD_MS
@@ -252,7 +253,7 @@ class AnomalyDetector:
         request_id: str,
         latency_ms: float,
         avg_confidence: float,
-    ) -> Optional[AnomalySignal]:
+    ) -> AnomalySignal | None:
         """Check for statistical outliers using simplified distance metric"""
         # Need enough history for statistical analysis
         if len(self.latency_history) < 10:
@@ -290,7 +291,7 @@ class AnomalyDetector:
         self.consecutive_failures = 0
         self.logger.info("Failure count reset")
 
-    def get_statistics(self) -> Dict[str, Any]:
+    def get_statistics(self) -> dict[str, Any]:
         """Get current anomaly detection statistics"""
         return {
             "total_failures": self.failure_count,

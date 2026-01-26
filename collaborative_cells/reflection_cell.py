@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from openai import AsyncOpenAI
@@ -139,10 +139,10 @@ class ReflectionCell(BaseCell):
 
     cell_type = "reflection"
 
-    def __init__(self, config: Optional[CellConfig] = None):
+    def __init__(self, config: CellConfig | None = None):
         """Initialize the reflection cell."""
         super().__init__(config)
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
         self._reflection_history: list[dict[str, Any]] = []
 
     def _ensure_client(self) -> AsyncOpenAI:
@@ -155,7 +155,7 @@ class ReflectionCell(BaseCell):
         self,
         task: dict[str, Any],
         context: dict[str, Any],
-        previous_critique: Optional[dict[str, Any]] = None,
+        previous_critique: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Run Analyst to examine history."""
         client = self._ensure_client()
@@ -295,7 +295,7 @@ class ReflectionCell(BaseCell):
         self,
         execution_history: list[dict[str, Any]],
         current_state: dict[str, Any],
-        goals: Optional[list[str]] = None,
+        goals: list[str] | None = None,
     ) -> dict[str, Any]:
         """
         Reflect on execution history.
@@ -335,7 +335,7 @@ class ReflectionCell(BaseCell):
         self,
         failure_context: dict[str, Any],
         error_message: str,
-        stack_trace: Optional[str] = None,
+        stack_trace: str | None = None,
     ) -> dict[str, Any]:
         """
         Reflect specifically on a failure.

@@ -52,7 +52,7 @@ import structlog
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from core.governance.tool_risk_policy import get_high_risk_tools  # noqa: E402
+from core.governance.tool_risk_policy import get_high_risk_tools
 
 logger = structlog.get_logger(__name__)
 
@@ -292,9 +292,8 @@ def main() -> int:
     if passed:
         logger.info("\n✅ CI GATE PASSED: Tool wiring is consistent\n")
         return 0
-    else:
-        logger.info(f"\n❌ CI GATE FAILED: {len(errors)} error(s) found\n")
-        return 1
+    logger.info(f"\n❌ CI GATE FAILED: {len(errors)} error(s) found\n")
+    return 1
 
 
 if __name__ == "__main__":

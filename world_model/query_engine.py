@@ -46,8 +46,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from world_model.registry import WorldModelRegistry
@@ -59,7 +60,7 @@ class QueryContext:
     """Context for query execution."""
 
     state: WorldModelState
-    registry: Optional[WorldModelRegistry] = None
+    registry: WorldModelRegistry | None = None
     bindings: dict[str, Any] = field(default_factory=dict)
 
 
@@ -87,7 +88,7 @@ class QueryEngine:
     def __init__(
         self,
         state: WorldModelState,
-        registry: Optional[WorldModelRegistry] = None,
+        registry: WorldModelRegistry | None = None,
     ) -> None:
         """
         Initialize query engine.
@@ -108,7 +109,7 @@ class QueryEngine:
     # Basic Queries
     # =========================================================================
 
-    def get_entity(self, entity_id: str) -> Optional[Entity]:
+    def get_entity(self, entity_id: str) -> Entity | None:
         """
         Retrieve entity by ID.
 
@@ -161,9 +162,9 @@ class QueryEngine:
 
     def filter_by_attribute(
         self,
-        entity_type: Optional[str] = None,
-        attribute: Optional[str] = None,
-        value: Optional[Any] = None,
+        entity_type: str | None = None,
+        attribute: str | None = None,
+        value: Any | None = None,
         comparator: str = "eq",
     ) -> list[Entity]:
         """
@@ -310,7 +311,7 @@ class QueryEngine:
     # Aggregation Queries
     # =========================================================================
 
-    def count_entities(self, entity_type: Optional[str] = None) -> int:
+    def count_entities(self, entity_type: str | None = None) -> int:
         """
         Count entities (optionally by type).
 
@@ -324,7 +325,7 @@ class QueryEngine:
             return len(self.get_entities_by_type(entity_type))
         return len(self.get_all_entities())
 
-    def count_relations(self, relation_type: Optional[str] = None) -> int:
+    def count_relations(self, relation_type: str | None = None) -> int:
         """
         Count relations (optionally by type).
 
@@ -340,7 +341,7 @@ class QueryEngine:
         return len(relations)
 
     def group_by_attribute(
-        self, entity_type: Optional[str] = None, attribute: Optional[str] = None
+        self, entity_type: str | None = None, attribute: str | None = None
     ) -> dict[Any, list[Entity]]:
         """
         Group entities by attribute value.
@@ -368,7 +369,7 @@ class QueryEngine:
         return groups
 
     def distinct_values(
-        self, entity_type: Optional[str] = None, attribute: Optional[str] = None
+        self, entity_type: str | None = None, attribute: str | None = None
     ) -> set[Any]:
         """
         Get distinct attribute values.
@@ -553,7 +554,7 @@ class QueryEngine:
         return self._state
 
     @property
-    def registry(self) -> Optional[WorldModelRegistry]:
+    def registry(self) -> WorldModelRegistry | None:
         """Get registry if available."""
         return self._registry
 

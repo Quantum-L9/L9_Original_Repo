@@ -80,19 +80,19 @@ done
 # =============================================================================
 verify_prerequisites() {
     log_step "VERIFY PREREQUISITES"
-    
+
     # Check Docker
     if ! command -v docker &> /dev/null; then
         log_error "Docker not found. Please install Docker."
         exit 1
     fi
-    
+
     # Check we're in the right directory
     if [[ ! -f "$REPO_ROOT/requirements.txt" ]]; then
         log_error "Cannot find requirements.txt in repo root: $REPO_ROOT"
         exit 1
     fi
-    
+
     # Check production requirements exist
     if [[ ! -f "$BUILD_DIR/requirements-production.txt" ]]; then
         log_warn "requirements-production.txt not found, copying from template..."
@@ -100,7 +100,7 @@ verify_prerequisites() {
         grep -v -E "^pytest|^ruff|^mypy|^vulture|^mutmut|^playwright|^black" "$REPO_ROOT/requirements.txt" \
             > "$BUILD_DIR/requirements-production.txt"
     fi
-    
+
     log_success "Prerequisites verified"
     log_info "Repo root: $REPO_ROOT"
     log_info "Build dir: $BUILD_DIR"
@@ -113,19 +113,19 @@ verify_prerequisites() {
 # =============================================================================
 sync_requirements() {
     log_step "SYNC REQUIREMENTS"
-    
+
     log_info "Ensuring requirements-production.txt is up to date..."
-    
+
     # Count packages in production requirements
     PROD_COUNT=$(grep -c "^[a-zA-Z]" "$BUILD_DIR/requirements-production.txt" || echo 0)
     log_info "Production requirements: $PROD_COUNT packages"
-    
+
     # Show key packages
     log_info "Key packages:"
     grep -E "^(fastapi|pydantic|asyncpg|neo4j|redis|openai|langchain|structlog|prometheus)" "$BUILD_DIR/requirements-production.txt" | while read line; do
         echo "  - $line"
     done
-    
+
     log_success "Requirements synced"
 }
 
@@ -134,16 +134,16 @@ sync_requirements() {
 # =============================================================================
 build_l9_api() {
     log_step "BUILD L9 API IMAGE"
-    
+
     local image_tag="$REGISTRY/$L9_API_IMAGE:$VERSION"
     local latest_tag="$REGISTRY/$L9_API_IMAGE:latest"
-    
+
     log_info "Building: $image_tag"
     log_info "Build context: $REPO_ROOT"
     log_info "Dockerfile: $BUILD_DIR/Dockerfile"
-    
+
     cd "$REPO_ROOT"
-    
+
     docker build $NO_CACHE \
         -f "$BUILD_DIR/Dockerfile" \
         --build-arg BUILD_DATE="$BUILD_DATE" \
@@ -152,9 +152,9 @@ build_l9_api() {
         -t "$image_tag" \
         -t "$latest_tag" \
         .
-    
+
     log_success "Built: $image_tag"
-    
+
     # Show image size
     local size=$(docker images --format "{{.Size}}" "$image_tag")
     log_info "Image size: $size"
@@ -165,21 +165,21 @@ build_l9_api() {
 # =============================================================================
 build_mcp_memory() {
     log_step "BUILD MCP MEMORY IMAGE"
-    
+
     local mcp_dockerfile="$BUILD_DIR/Dockerfile.mcp-memory"
-    
+
     if [[ ! -f "$mcp_dockerfile" ]]; then
         log_warn "Dockerfile.mcp-memory not found, creating from template..."
         create_mcp_dockerfile
     fi
-    
+
     local image_tag="$REGISTRY/$MCP_MEMORY_IMAGE:$VERSION"
     local latest_tag="$REGISTRY/$MCP_MEMORY_IMAGE:latest"
-    
+
     log_info "Building: $image_tag"
-    
+
     cd "$REPO_ROOT"
-    
+
     docker build $NO_CACHE \
         -f "$mcp_dockerfile" \
         --build-arg BUILD_DATE="$BUILD_DATE" \
@@ -188,7 +188,7 @@ build_mcp_memory() {
         -t "$image_tag" \
         -t "$latest_tag" \
         .
-    
+
     log_success "Built: $image_tag"
 }
 
@@ -230,7 +230,7 @@ EXPOSE 9000
 
 CMD ["python", "-m", "mcp_memory.server", "--host", "0.0.0.0", "--port", "9000"]
 DOCKERFILE
-    
+
     log_success "Created Dockerfile.mcp-memory"
 }
 
@@ -242,17 +242,17 @@ push_images() {
         log_info "Skipping push (use --push to push to registry)"
         return
     fi
-    
+
     log_step "PUSH IMAGES TO REGISTRY"
-    
+
     log_info "Pushing L9 API..."
     docker push "$REGISTRY/$L9_API_IMAGE:$VERSION"
     docker push "$REGISTRY/$L9_API_IMAGE:latest"
-    
+
     log_info "Pushing MCP Memory..."
     docker push "$REGISTRY/$MCP_MEMORY_IMAGE:$VERSION"
     docker push "$REGISTRY/$MCP_MEMORY_IMAGE:latest"
-    
+
     log_success "All images pushed to $REGISTRY"
 }
 
@@ -261,10 +261,10 @@ push_images() {
 # =============================================================================
 verify_images() {
     log_step "VERIFY IMAGES"
-    
+
     log_info "Local images:"
     docker images | grep -E "(l9-api|l9-mcp-memory)" | head -10
-    
+
     log_info "Verifying L9 API image can import key modules..."
     docker run --rm "$REGISTRY/$L9_API_IMAGE:$VERSION" python -c "
 import sys
@@ -285,7 +285,7 @@ except ImportError as e:
     print(f'❌ Import error: {e}')
     sys.exit(1)
 "
-    
+
     log_success "Image verification passed"
 }
 
@@ -301,14 +301,14 @@ main() {
     echo "   Date: $BUILD_DATE"
     echo "============================================="
     echo ""
-    
+
     verify_prerequisites
     sync_requirements
     build_l9_api
     build_mcp_memory
     push_images
     verify_images
-    
+
     echo ""
     echo "============================================="
     echo -e "${GREEN}   BUILD COMPLETE${NC}"

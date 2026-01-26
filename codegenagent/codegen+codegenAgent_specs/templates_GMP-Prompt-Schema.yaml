@@ -49,7 +49,6 @@ schema:
     recursive_mode: true
     confidence_threshold: 0.6
     auto_regenerate: true
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

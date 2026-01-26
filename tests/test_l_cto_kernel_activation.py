@@ -41,8 +41,7 @@ class TestLCTOKernelActivation:
     def test_kernel_state_active(self):
         """Test 2 — Kernel awareness: kernel_state == ACTIVE."""
         from agents.l_cto import LCTOAgent
-        from runtime.kernel_loader import (load_kernels,
-                                           require_kernel_activation)
+        from runtime.kernel_loader import load_kernels, require_kernel_activation
 
         agent = LCTOAgent(agent_id="test-l-cto")
         agent = load_kernels(agent)
@@ -66,7 +65,7 @@ class TestLCTOKernelActivation:
         assert len(agent.kernels) > 0, "No kernels loaded"
 
         # Check that we have at least the master kernel
-        master_loaded = any("master" in k for k in agent.kernels.keys())
+        master_loaded = any("master" in k for k in agent.kernels)
         assert (
             master_loaded
         ), f"Master kernel not loaded. Keys: {list(agent.kernels.keys())}"
@@ -188,8 +187,7 @@ class TestKernelAwareRegistry:
         os.environ["L9_USE_KERNELS"] = "true"
 
         try:
-            from core.agents.kernel_registry import \
-                create_kernel_aware_registry
+            from core.agents.kernel_registry import create_kernel_aware_registry
 
             registry = create_kernel_aware_registry()
 
@@ -210,8 +208,7 @@ class TestKernelAwareRegistry:
         os.environ["L9_USE_KERNELS"] = "true"
 
         try:
-            from core.agents.kernel_registry import \
-                create_kernel_aware_registry
+            from core.agents.kernel_registry import create_kernel_aware_registry
 
             registry = create_kernel_aware_registry()
             config = registry.get_agent_config("l9-standard-v1")

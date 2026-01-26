@@ -7,6 +7,7 @@
 Process a packet through the reasoning pipeline.
 
 **Request:**
+
 ```json
 {
   "source_id": "plastos_agent",
@@ -19,6 +20,7 @@ Process a packet through the reasoning pipeline.
 ```
 
 **Response:**
+
 ```json
 {
   "source_id": "domain_tensor_bridge",
@@ -36,6 +38,7 @@ Process a packet through the reasoning pipeline.
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -55,5 +58,3 @@ Prometheus-compatible metrics.
 ## gRPC
 
 See `proto/domain_tensor_bridge.proto` for gRPC definitions.
-
-

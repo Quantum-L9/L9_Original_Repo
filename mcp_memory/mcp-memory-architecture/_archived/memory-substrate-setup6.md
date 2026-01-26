@@ -1,7 +1,7 @@
 Perfect. I hear you loud and clear:
 
 1. **No SSH tunnel** – you don't want background processes draining your Mac's CPU
-2. **Direct HTTP API** – access MCP and L9 tools over clean HTTP from Cursor, VPS handles it remotely  
+2. **Direct HTTP API** – access MCP and L9 tools over clean HTTP from Cursor, VPS handles it remotely
 3. **Fix the zsh parse error** – that openssl command had a syntax issue
 
 Here's the **clean solution**:
@@ -24,7 +24,7 @@ USER_ID=$(python3 -c "import uuid; print(uuid.uuid4())")
 CURSOR_USERNAME="cursor_$(openssl rand -hex 4)"
 
 # Print all together
-echo "=== SAVE THESE ===" 
+echo "=== SAVE THESE ==="
 echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD"
 echo "MCP_API_KEY=$MCP_API_KEY"
 echo "USER_ID=$USER_ID"

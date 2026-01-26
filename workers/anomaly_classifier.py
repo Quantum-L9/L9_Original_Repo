@@ -38,7 +38,7 @@ __dora_meta__ = {
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
 
 import structlog
@@ -100,10 +100,10 @@ class AnomalyClassifierRequest(BaseModel):
     source: str = Field(
         ..., description="Source of the anomaly (telemetry, audit, etc.)"
     )
-    raw_data: Dict[str, Any] = Field(
+    raw_data: dict[str, Any] = Field(
         default_factory=dict, description="Raw anomaly data"
     )
-    context: Dict[str, Any] = Field(
+    context: dict[str, Any] = Field(
         default_factory=dict, description="Additional context"
     )
     timestamp: datetime = Field(default_factory=datetime.utcnow)
@@ -118,9 +118,9 @@ class ClassificationResult(BaseModel):
     anomaly_type: AnomalyType
     severity: AnomalySeverity
     confidence: float = Field(ge=0.0, le=1.0)
-    matched_rules: List[str] = Field(default_factory=list)
+    matched_rules: list[str] = Field(default_factory=list)
     recommended_action: str
-    details: Dict[str, Any] = Field(default_factory=dict)
+    details: dict[str, Any] = Field(default_factory=dict)
 
 
 class AnomalyClassifierResponse(BaseModel):
@@ -128,10 +128,10 @@ class AnomalyClassifierResponse(BaseModel):
 
     ok: bool = Field(..., description="Whether the classification succeeded")
     request_id: str = Field(..., description="Original request ID")
-    result: Optional[ClassificationResult] = Field(
+    result: ClassificationResult | None = Field(
         None, description="Classification result"
     )
-    error: Optional[str] = Field(None, description="Error message if failed")
+    error: str | None = Field(None, description="Error message if failed")
     duration_ms: int = Field(
         default=0, description="Processing duration in milliseconds"
     )
@@ -152,7 +152,7 @@ class AnomalyClassifier:
     """
 
     # Default classification rules
-    DEFAULT_RULES: List[ClassificationRule] = [
+    DEFAULT_RULES: list[ClassificationRule] = [
         # Critical - Security
         ClassificationRule(
             pattern="unauthorized_access",
@@ -220,7 +220,7 @@ class AnomalyClassifier:
         ),
     ]
 
-    def __init__(self, custom_rules: Optional[List[ClassificationRule]] = None):
+    def __init__(self, custom_rules: list[ClassificationRule] | None = None):
         """Initialize the classifier with optional custom rules."""
         self._initialized = False
         self._rules = self.DEFAULT_RULES + (custom_rules or [])
@@ -320,7 +320,7 @@ class AnomalyClassifier:
         Returns:
             ClassificationResult with severity and recommendations
         """
-        matched_rules: List[ClassificationRule] = []
+        matched_rules: list[ClassificationRule] = []
 
         # Convert raw data to searchable string
         search_text = self._flatten_to_text(request.raw_data)
@@ -359,22 +359,21 @@ class AnomalyClassifier:
                     "primary_pattern": primary_rule.pattern,
                 },
             )
-        else:
-            # Unknown anomaly - default to moderate for investigation
-            return ClassificationResult(
-                anomaly_id=request.anomaly_id,
-                anomaly_type=AnomalyType.WORKFLOW,
-                severity=AnomalySeverity.MODERATE,
-                confidence=0.3,
-                matched_rules=[],
-                recommended_action="investigate",
-                details={
-                    "source": request.source,
-                    "note": "No matching rules, requires investigation",
-                },
-            )
+        # Unknown anomaly - default to moderate for investigation
+        return ClassificationResult(
+            anomaly_id=request.anomaly_id,
+            anomaly_type=AnomalyType.WORKFLOW,
+            severity=AnomalySeverity.MODERATE,
+            confidence=0.3,
+            matched_rules=[],
+            recommended_action="investigate",
+            details={
+                "source": request.source,
+                "note": "No matching rules, requires investigation",
+            },
+        )
 
-    def _flatten_to_text(self, data: Dict[str, Any], prefix: str = "") -> str:
+    def _flatten_to_text(self, data: dict[str, Any], prefix: str = "") -> str:
         """Flatten dict to searchable text string."""
         parts = []
         for key, value in data.items():
@@ -403,7 +402,7 @@ class AnomalyClassifier:
     # =========================================================================
 
     @must_stay_async("health endpoint")
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Check service health."""
         return {
             "module": MODULE_ID,
@@ -419,7 +418,7 @@ class AnomalyClassifier:
 
 
 def create_anomaly_classifier(
-    custom_rules: Optional[List[ClassificationRule]] = None,
+    custom_rules: list[ClassificationRule] | None = None,
 ) -> AnomalyClassifier:
     """Factory function to create AnomalyClassifier."""
     return AnomalyClassifier(custom_rules=custom_rules)
@@ -430,16 +429,16 @@ def create_anomaly_classifier(
 # =============================================================================
 
 __all__ = [
+    "MODULE_ID",
+    "MODULE_NAME",
     "AnomalyClassifier",
     "AnomalyClassifierRequest",
     "AnomalyClassifierResponse",
-    "ClassificationResult",
     "AnomalySeverity",
     "AnomalyType",
+    "ClassificationResult",
     "ClassificationRule",
     "create_anomaly_classifier",
-    "MODULE_ID",
-    "MODULE_NAME",
 ]
 
 # ============================================================================

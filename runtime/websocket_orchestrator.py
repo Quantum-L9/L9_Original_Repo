@@ -45,12 +45,13 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import structlog
 from fastapi import WebSocket
 
 from core.decorators import must_stay_async
+
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import get_segmenter
 
@@ -131,9 +132,9 @@ class WebSocketOrchestrator:
     """
 
     def __init__(self) -> None:
-        self._connections: Dict[str, WebSocket] = {}
-        self._metadata: Dict[str, Dict[str, Any]] = {}
-        self._connected_at: Dict[str, datetime] = {}
+        self._connections: dict[str, WebSocket] = {}
+        self._metadata: dict[str, dict[str, Any]] = {}
+        self._connected_at: dict[str, datetime] = {}
         logger.info("WebSocketOrchestrator initialized")
 
     # =========================================================================
@@ -145,7 +146,7 @@ class WebSocketOrchestrator:
         self,
         agent_id: str,
         websocket: WebSocket,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """
         Register an agent's WebSocket connection.
@@ -185,7 +186,7 @@ class WebSocketOrchestrator:
         """Get list of currently connected agent IDs."""
         return list(self._connections.keys())
 
-    def get_metadata(self, agent_id: str) -> Dict[str, Any]:
+    def get_metadata(self, agent_id: str) -> dict[str, Any]:
         """Get metadata for a connected agent."""
         return self._metadata.get(agent_id, {})
 
@@ -194,7 +195,7 @@ class WebSocketOrchestrator:
     # =========================================================================
 
     @must_stay_async("callers use await")
-    async def handle_incoming(self, agent_id: str, data: Dict[str, Any]) -> None:
+    async def handle_incoming(self, agent_id: str, data: dict[str, Any]) -> None:
         """
         Handle an incoming message from an agent.
 
@@ -242,8 +243,8 @@ class WebSocketOrchestrator:
 
     @must_stay_async("callers use await")
     async def handle_conversation_task(
-        self, agent_id: str, data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, agent_id: str, data: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Handle conversation task routing to AgentExecutorService.
 
@@ -261,9 +262,12 @@ class WebSocketOrchestrator:
         Returns:
             Response dict with task_id, status, reply (combined if multi-part)
         """
-        from core.agents.schemas import (AgentTask, AgentType,
-                                         DuplicateTaskResponse,
-                                         ExecutionResult)
+        from core.agents.schemas import (
+            AgentTask,
+            AgentType,
+            DuplicateTaskResponse,
+            ExecutionResult,
+        )
 
         # Validate message field
         message = data.get("message")
@@ -309,7 +313,7 @@ class WebSocketOrchestrator:
                 agent_id=agent_id,
             )
 
-            replies: List[Tuple[str, str, str]] = []  # (segment, status, reply)
+            replies: list[tuple[str, str, str]] = []  # (segment, status, reply)
             first_task_id = None
 
             for i, segment in enumerate(segment_result.segments):
@@ -349,7 +353,7 @@ class WebSocketOrchestrator:
                     logger.exception(
                         "handle_conversation_task: segment %d failed: %s", i, str(e)
                     )
-                    replies.append((segment, "error", f"Error: {str(e)}"))
+                    replies.append((segment, "error", f"Error: {e!s}"))
 
             # Combine replies
             successful = [r for s, st, r in replies if st == "completed"]
@@ -409,7 +413,7 @@ class WebSocketOrchestrator:
             return {
                 "task_id": str(task.id),
                 "status": "error",
-                "reply": f"Execution error: {str(e)}",
+                "reply": f"Execution error: {e!s}",
             }
 
         # Handle duplicate detection
@@ -442,7 +446,7 @@ class WebSocketOrchestrator:
             "reply": "Unexpected result format",
         }
 
-    async def on_user_message(self, message: str) -> List[str]:
+    async def on_user_message(self, message: str) -> list[str]:
         """
         Handle user message and trigger reactive task generation and dispatch.
 
@@ -519,7 +523,7 @@ class WebSocketOrchestrator:
             "Dispatched event to agent %s: type=%s", agent_id, payload.get("type")
         )
 
-    async def broadcast(self, event: Any, exclude: Optional[list[str]] = None) -> int:
+    async def broadcast(self, event: Any, exclude: list[str] | None = None) -> int:
         """
         Broadcast an event to all connected agents.
 
@@ -551,7 +555,7 @@ class WebSocketOrchestrator:
 
 ws_orchestrator = WebSocketOrchestrator()
 
-__all__ = ["WebSocketOrchestrator", "ws_orchestrator", "verify_ws_token"]
+__all__ = ["WebSocketOrchestrator", "verify_ws_token", "ws_orchestrator"]
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

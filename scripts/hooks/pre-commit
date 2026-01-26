@@ -62,10 +62,10 @@ for protected in "${PROTECTED_BRANCHES[@]}"; do
             echo -e "${RED}❌ CRITICAL: --no-verify / bypass blocked on $BRANCH${NC}"
             echo "   Branch: $BRANCH is PROTECTED"
             echo "   Emergency override: Contact security@l9.ai with incident ticket"
-            
+
             # Log to audit trail
             echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"bypass_attempt_blocked\",\"branch\":\"$BRANCH\",\"user\":\"$USER\",\"severity\":\"CRITICAL\"}" >> "$HOOK_AUDIT_LOG"
-            
+
             BYPASS_BLOCKED=1
         fi
     fi
@@ -97,7 +97,7 @@ else
         if [ -f "$REPO_ROOT/.gitleaks.toml" ]; then
             GITLEAKS_CONFIG="--config=$REPO_ROOT/.gitleaks.toml"
         fi
-        
+
         if gitleaks protect --staged --no-banner $GITLEAKS_CONFIG 2>/dev/null; then
             echo -e "${GREEN}✓ No secrets detected ($(echo $STAGED_FILES | wc -w | tr -d ' ') files scanned)${NC}"
             CHECKS_PASSED=$((CHECKS_PASSED + 1))
@@ -200,7 +200,7 @@ if [ -z "$STAGED_PY_FILES" ]; then
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
 else
     AI_VIOLATIONS=0
-    
+
     # Check for jailbreak patterns
     JAILBREAK_PATTERNS=(
         "Ignore.*previous.*instructions"
@@ -211,7 +211,7 @@ else
         "bypass.*restrictions"
         "system_prompt\s*=\s*['\"]"
     )
-    
+
     for file in $STAGED_PY_FILES; do
         for pattern in "${JAILBREAK_PATTERNS[@]}"; do
             if grep -inE "$pattern" "$file" 2>/dev/null | grep -v "# security test" > /dev/null; then
@@ -220,7 +220,7 @@ else
                 echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"ai_injection_detected\",\"file\":\"$file\",\"pattern\":\"$pattern\",\"severity\":\"HIGH\"}" >> "$AI_SEC_LOG"
             fi
         done
-        
+
         # Check PacketEnvelope safety
         if grep -q "PacketEnvelope" "$file" 2>/dev/null; then
             if grep -q "pickle\|eval\|exec" "$file"; then
@@ -229,7 +229,7 @@ else
                 echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"unsafe_serialization\",\"file\":\"$file\",\"severity\":\"CRITICAL\"}" >> "$AI_SEC_LOG"
             fi
         fi
-        
+
         # Check WebSocket message validation
         if [[ "$file" == *websocket* ]] || [[ "$file" == *ws_* ]]; then
             if grep -q "json.loads\|yaml.load" "$file" 2>/dev/null && ! grep -q "validate\|schema" "$file"; then
@@ -239,13 +239,13 @@ else
             fi
         fi
     done
-    
+
     if [ $AI_VIOLATIONS -gt 0 ]; then
         echo -e "${RED}❌ Found $AI_VIOLATIONS AI security issues${NC}"
         echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"ai_security_check_failed\",\"violations\":$AI_VIOLATIONS,\"severity\":\"HIGH\"}" >> "$HOOK_AUDIT_LOG"
         exit 1
     fi
-    
+
     echo -e "${GREEN}✓ AI security checks passed (no injection patterns)${NC}"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
 fi
@@ -266,10 +266,10 @@ else
     else
         # Extract module paths and run focused tests
         MODULES=$(echo "$STAGED_PY_FILES" | sed 's|/|.|g' | sed 's|.py||g' | tr '\n' ' ')
-        
+
         if pytest --co -q $MODULES 2>/dev/null | grep -q "test_"; then
             TEST_START=$(date +%s)
-            
+
             if pytest \
                 --cov=. \
                 --cov-fail-under=75 \
@@ -318,7 +318,7 @@ for file in $(git diff --cached --name-only); do
     for protected in "${PROTECTED_SURFACES[@]}"; do
         if [[ "$file" == "$protected" ]]; then
             echo "   🔐 Validating protected surface: $file"
-            
+
             # WebSocket orchestrator checks
             if [[ "$file" == *websocket_orchestrator* ]]; then
                 if ! grep -q "def verify_ws_token\|def.*token.*verify" "$file"; then
@@ -334,7 +334,7 @@ for file in $(git diff --cached --name-only); do
                     PROTECTED_VIOLATIONS=$((PROTECTED_VIOLATIONS + 1))
                 fi
             fi
-            
+
             # Substrate service checks
             if [[ "$file" == *substrate_service* ]]; then
                 if grep -qE "SELECT|INSERT|UPDATE|DELETE" "$file" && ! grep -q "?\|placeholder\|parameterized" "$file"; then
@@ -346,7 +346,7 @@ for file in $(git diff --cached --name-only); do
                     PROTECTED_VIOLATIONS=$((PROTECTED_VIOLATIONS + 1))
                 fi
             fi
-            
+
             # Kernel loader checks
             if [[ "$file" == *kernel_loader* ]]; then
                 if grep -q "__import__\|importlib.import_module" "$file" && ! grep -q "validate_import_path\|kernel_registry\|safe_import" "$file"; then
@@ -358,7 +358,7 @@ for file in $(git diff --cached --name-only); do
                     PROTECTED_VIOLATIONS=$((PROTECTED_VIOLATIONS + 1))
                 fi
             fi
-            
+
             # Docker-compose checks
             if [[ "$file" == *docker-compose* ]]; then
                 if grep -qE "password:|POSTGRES_PASSWORD|MYSQL_ROOT_PASSWORD" "$file" && ! grep -q ".env" "$file"; then
@@ -366,7 +366,7 @@ for file in $(git diff --cached --name-only); do
                     PROTECTED_VIOLATIONS=$((PROTECTED_VIOLATIONS + 1))
                 fi
             fi
-            
+
             # Packet protocol checks
             if [[ "$file" == */packet.py ]]; then
                 if grep -q "class PacketEnvelope" "$file" && ! grep -qE ": str|: int|: dict|: List|: Optional" "$file"; then
@@ -374,7 +374,7 @@ for file in $(git diff --cached --name-only); do
                     PROTECTED_VIOLATIONS=$((PROTECTED_VIOLATIONS + 1))
                 fi
             fi
-            
+
             # Auth layer checks
             if [[ "$file" == */auth.py ]]; then
                 if grep -E "password\s*=|password:" "$file" | grep -v "hash\|bcrypt" > /dev/null; then
@@ -415,7 +415,7 @@ else
             if [[ "$file" == tests/* ]] || [[ "$file" == scripts/* ]] || [[ "$file" == agents/cursor/* ]]; then
                 continue
             fi
-            
+
             if grep -q "/Users/ib-mac" "$file"; then
                 echo -e "  ${RED}❌ CRITICAL: Hardcoded /Users/ib-mac path in $file${NC}"
                 echo "     Fix: Use Path.home() or environment variables"
@@ -423,13 +423,13 @@ else
             fi
         fi
     done
-    
+
     if [ $ANTI_PATTERN_VIOLATIONS -gt 0 ]; then
         echo -e "${RED}❌ Anti-pattern check FAILED: $ANTI_PATTERN_VIOLATIONS violation(s)${NC}"
         echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"anti_pattern_violations\",\"branch\":\"$BRANCH\",\"user\":\"$USER\",\"violations\":$ANTI_PATTERN_VIOLATIONS,\"severity\":\"CRITICAL\"}" >> "$HOOK_AUDIT_LOG"
         exit 1
     fi
-    
+
     echo -e "${GREEN}✓ No anti-pattern violations detected${NC}"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
 fi
@@ -449,7 +449,7 @@ else
     # Run ADR enforcer if available
     if [ -f "$REPO_ROOT/tools/adr/adr_enforcer.py" ]; then
         echo "  Running ADR enforcement validator..."
-        
+
         # Run in non-strict mode (warn only) for now
         if python3 -c "from tools.adr.adr_enforcer import ADREnforcementValidator; v = ADREnforcementValidator(); r = v.scan_repo(); print(f'Violations: {r.total_violations}')" 2>/dev/null; then
             echo -e "${GREEN}✓ ADR enforcement check completed${NC}"

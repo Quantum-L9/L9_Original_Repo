@@ -1,22 +1,24 @@
 # GMP STAGE {STAGE_ID} EXECUTION REPORT
+
 ## {STAGE_NAME}
 
 ---
 
 ## SECTION 1: EXECUTION REPORT
 
-**Stage**: {STAGE_ID} - {STAGE_NAME}  
-**Timestamp Start**: {YYYY-MM-DD HH:MM:SS UTC}  
-**Timestamp End**: {YYYY-MM-DD HH:MM:SS UTC}  
-**Duration**: {HH:MM:SS}  
-**Executor**: Cursor AI Agent v{VERSION}  
-**GMP Version**: Canonical v1.0  
+**Stage**: {STAGE_ID} - {STAGE_NAME}
+**Timestamp Start**: {YYYY-MM-DD HH:MM:SS UTC}
+**Timestamp End**: {YYYY-MM-DD HH:MM:SS UTC}
+**Duration**: {HH:MM:SS}
+**Executor**: Cursor AI Agent v{VERSION}
+**GMP Version**: Canonical v1.0
 
 ---
 
 ## SECTION 2: TODO PLAN LOCKED
 
 ### Phase 0 Verification Completed
+
 - [x] Base files exist and are accessible
 - [x] Line ranges verified in target files
 - [x] All imports available in environment
@@ -26,6 +28,7 @@
 ### Locked TODO Plan ({N} items)
 
 #### TODO {STAGE}.1
+
 ```yaml
 file: {path}
 lines: {start}-{end}
@@ -36,7 +39,7 @@ imports: {list or NONE}
 gate: {flag or NONE}
 ```
 
-*[Repeat for all TODOs]*
+_[Repeat for all TODOs]_
 
 ---
 
@@ -54,15 +57,15 @@ gate: {flag or NONE}
 
 ## SECTION 4: PHASE CHECKLIST STATUS (0–6)
 
-| Phase | Status | Evidence Location |
-| :-- | :-- | :-- |
-| **0: Plan Lock** | ✅ COMPLETE | Section 2, 3 |
-| **1: Baseline** | ✅ COMPLETE | Section 5 (old code blocks) |
-| **2: Implementation** | ✅ COMPLETE | Section 5 (new code blocks) |
-| **3: Enforcement** | ✅ COMPLETE | Section 7 (test results) |
-| **4: Validation** | ✅ COMPLETE | Section 7 (benchmarks) |
-| **5: Recursive Verification** | ✅ COMPLETE | Section 8 |
-| **6: Final Audit** | ✅ COMPLETE | Section 9 |
+| Phase                         | Status      | Evidence Location           |
+| :---------------------------- | :---------- | :-------------------------- |
+| **0: Plan Lock**              | ✅ COMPLETE | Section 2, 3                |
+| **1: Baseline**               | ✅ COMPLETE | Section 5 (old code blocks) |
+| **2: Implementation**         | ✅ COMPLETE | Section 5 (new code blocks) |
+| **3: Enforcement**            | ✅ COMPLETE | Section 7 (test results)    |
+| **4: Validation**             | ✅ COMPLETE | Section 7 (benchmarks)      |
+| **5: Recursive Verification** | ✅ COMPLETE | Section 8                   |
+| **6: Final Audit**            | ✅ COMPLETE | Section 9                   |
 
 **Checkbox Policy**: No box checked without inline evidence in the referenced section.
 
@@ -82,7 +85,6 @@ gate: {flag or NONE}
 {original code block with line numbers}
 ```
 
-
 #### NEW (Implementation - Phase 2)
 
 ```python
@@ -95,18 +97,18 @@ gate: {flag or NONE}
 - Lines removed: {M}
 - Net change: {+/-K}
 
-*[Repeat for each modified file]*
+_[Repeat for each modified file]_
 
 ---
 
 ## SECTION 6: TODO CHANGE MAP
 
-| TODO ID | File | Action | Lines Changed | Status |
-| :-- | :-- | :-- | :-- | :-- |
-| {STAGE}.1 | `{path}` | Replace | 190-209 | ✅ DONE |
-| {STAGE}.2 | `{path}` | Replace | 263-285 | ✅ DONE |
-| {STAGE}.3 | `{path}` | Create | NEW FILE | ✅ DONE |
-| ... | ... | ... | ... | ... |
+| TODO ID   | File     | Action  | Lines Changed | Status  |
+| :-------- | :------- | :------ | :------------ | :------ |
+| {STAGE}.1 | `{path}` | Replace | 190-209       | ✅ DONE |
+| {STAGE}.2 | `{path}` | Replace | 263-285       | ✅ DONE |
+| {STAGE}.3 | `{path}` | Create  | NEW FILE      | ✅ DONE |
+| ...       | ...      | ...     | ...           | ...     |
 
 **Cross-Reference**: Every TODO in Section 2 has exactly one entry in this table. Every file in Section 5 maps to at least one TODO.
 
@@ -156,13 +158,12 @@ TOTAL                                                 325     33    90%
 
 ### Performance Benchmarks (Phase 4)
 
-| Metric | Target | Actual | Status |
-| :-- | :-- | :-- | :-- |
-| Decay calculation (1000 packets) | < 5ms | 3.2ms | ✅ PASS |
-| Summarization (50-packet batch) | < 2s | 1.8s | ✅ PASS |
-| Memory overhead (10k packets) | < 50MB | 42MB | ✅ PASS |
-| Cascade scheduling latency | < 100ms | 78ms | ✅ PASS |
-
+| Metric                           | Target  | Actual | Status  |
+| :------------------------------- | :------ | :----- | :------ |
+| Decay calculation (1000 packets) | < 5ms   | 3.2ms  | ✅ PASS |
+| Summarization (50-packet batch)  | < 2s    | 1.8s   | ✅ PASS |
+| Memory overhead (10k packets)    | < 50MB  | 42MB   | ✅ PASS |
+| Cascade scheduling latency       | < 100ms | 78ms   | ✅ PASS |
 
 ---
 
@@ -239,7 +240,6 @@ git diff --stat origin/main...HEAD
 - [x] No assumptions made (all changes evidenced)
 - [x] No scope expansion (verified via git diff)
 - [x] Output verified (tests pass, benchmarks met)
-
 
 ### Canonical Final Declaration
 

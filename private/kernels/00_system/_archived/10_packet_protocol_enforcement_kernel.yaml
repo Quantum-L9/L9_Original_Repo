@@ -68,4 +68,3 @@ errors:
       behavior: "fallback to safe default route"
     - id: "schema_mismatch"
       behavior: "block + output fix instructions"
-

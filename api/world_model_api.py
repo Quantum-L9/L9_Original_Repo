@@ -350,7 +350,9 @@ async def restore_from_snapshot(request: RestoreRequest):
     try:
         snapshot_uuid = UUID(request.snapshot_id)
     except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid snapshot_id format") from None
+        raise HTTPException(
+            status_code=400, detail="Invalid snapshot_id format"
+        ) from None
 
     result = await service.restore_from_snapshot(snapshot_uuid)
 

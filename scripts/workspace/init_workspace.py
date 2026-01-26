@@ -229,7 +229,7 @@ def print_banner(result: InitResult) -> None:
   │ Quick Fix Patterns                 │ {result.quickfixes_loaded:<8} │
   │ Credentials Policy Patterns        │ {result.credentials_patterns:<8} │
   └────────────────────────────────────┴──────────┘
-  
+
   Duration: {result.duration_ms}ms
 """)
 
@@ -265,7 +265,7 @@ Examples:
   python scripts/init_workspace.py
   python scripts/init_workspace.py --verbose
   python scripts/init_workspace.py --workspace /path/to/l9
-  
+
 Exit Codes:
   0 = READY (all systems operational)
   1 = DEGRADED (some warnings, proceed with caution)

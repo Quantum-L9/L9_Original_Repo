@@ -47,7 +47,6 @@ __dora_meta__ = {
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Tuple
 
 import structlog
 
@@ -149,8 +148,8 @@ class InjectionDetectionResult:
     """Result of prompt injection detection."""
 
     detected: bool = False
-    severity: Optional[InjectionSeverity] = None
-    patterns_matched: List[str] = field(default_factory=list)
+    severity: InjectionSeverity | None = None
+    patterns_matched: list[str] = field(default_factory=list)
     should_block: bool = False
     should_downgrade: bool = False
     message: str = ""
@@ -176,8 +175,8 @@ class InjectionDetectionResult:
 
 def _check_patterns(
     text: str,
-    patterns: List[Tuple[str, str]],
-) -> List[str]:
+    patterns: list[tuple[str, str]],
+) -> list[str]:
     """
     Check text against a list of regex patterns.
 
@@ -213,7 +212,7 @@ def _redact_input(text: str, max_length: int = 100) -> str:
 
 def detect_prompt_injection(
     user_input: str,
-    context: Optional[dict] = None,
+    context: dict | None = None,
 ) -> InjectionDetectionResult:
     """
     Detect prompt injection in user input.
@@ -345,15 +344,14 @@ def get_blocked_response(detection_result: InjectionDetectionResult) -> str:
             "If you believe this is an error, please rephrase your request or "
             "contact Igor for assistance."
         )
-    elif detection_result.severity == InjectionSeverity.HIGH:
+    if detection_result.severity == InjectionSeverity.HIGH:
         return (
             "⚠️ **Request Blocked**\n\n"
             "Your message contains patterns that appear to attempt bypassing "
             "my safety constraints. I cannot process this request.\n\n"
             "This incident has been logged for review."
         )
-    else:
-        return detection_result.message or "Request blocked due to policy violation."
+    return detection_result.message or "Request blocked due to policy violation."
 
 
 # =============================================================================
@@ -361,11 +359,11 @@ def get_blocked_response(detection_result: InjectionDetectionResult) -> str:
 # =============================================================================
 
 __all__ = [
-    "detect_prompt_injection",
-    "should_block_request",
-    "get_blocked_response",
     "InjectionDetectionResult",
     "InjectionSeverity",
+    "detect_prompt_injection",
+    "get_blocked_response",
+    "should_block_request",
 ]
 
 # ============================================================================

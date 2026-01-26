@@ -1,8 +1,8 @@
 # ADR-0063: Incremental Configuration Adoption (No Breaking Replacements)
 
-**Status:** Accepted  
-**Date:** 2026-01-24  
-**Decision Makers:** Igor (Human), Claude (Agent)  
+**Status:** Accepted
+**Date:** 2026-01-24
+**Decision Makers:** Igor (Human), Claude (Agent)
 **Context:** PR #58 CI/CD Enhancement, Spring Cleaning batch analysis
 
 ## Context
@@ -11,11 +11,11 @@ During PR review and adoption, we identified a recurring anti-pattern: PRs that 
 
 ### Examples Encountered
 
-| PR | File | Anti-Pattern | Risk |
-|----|------|--------------|------|
-| #58 | `pyproject.toml` | Strict linting flags | 1000+ errors, blocked CI |
-| #58 | `.gitleaks.toml` | Removed allowlist paths | False positives in CI |
-| #49 | `.pre-commit-config.yaml` | Different hook structure | Broke existing hooks |
+| PR  | File                      | Anti-Pattern             | Risk                     |
+| --- | ------------------------- | ------------------------ | ------------------------ |
+| #58 | `pyproject.toml`          | Strict linting flags     | 1000+ errors, blocked CI |
+| #58 | `.gitleaks.toml`          | Removed allowlist paths  | False positives in CI    |
+| #49 | `.pre-commit-config.yaml` | Different hook structure | Broke existing hooks     |
 
 ## Problem
 
@@ -40,25 +40,25 @@ During PR review and adoption, we identified a recurring anti-pattern: PRs that 
 
 ### Rule 2: Breaking Changes Require Incremental Rollout
 
-| Change Type | Adoption Strategy |
-|-------------|-------------------|
-| New tool/integration | ✅ Add immediately |
-| New lint rule | ⚠️ Enable per-module first |
-| Stricter type checking | ⚠️ Enable per-module first |
-| Format changes (line-length) | ❌ Defer or reject |
-| Allowlist removal | ❌ Never (additive only) |
+| Change Type                  | Adoption Strategy          |
+| ---------------------------- | -------------------------- |
+| New tool/integration         | ✅ Add immediately         |
+| New lint rule                | ⚠️ Enable per-module first |
+| Stricter type checking       | ⚠️ Enable per-module first |
+| Format changes (line-length) | ❌ Defer or reject         |
+| Allowlist removal            | ❌ Never (additive only)   |
 
 ### Rule 3: Config Files Are Protected Surfaces
 
 These config files require **additive merge** review:
 
-| File | Protected Elements |
-|------|-------------------|
-| `pyproject.toml` | `line-length`, `strict`, `select` rules |
-| `.gitleaks.toml` | `[allowlist]` paths and regexes |
-| `.pre-commit-config.yaml` | Existing hooks |
-| `ruff.toml` / `mypy.ini` | Existing exceptions |
-| `codecov.yml` | Coverage thresholds |
+| File                      | Protected Elements                      |
+| ------------------------- | --------------------------------------- |
+| `pyproject.toml`          | `line-length`, `strict`, `select` rules |
+| `.gitleaks.toml`          | `[allowlist]` paths and regexes         |
+| `.pre-commit-config.yaml` | Existing hooks                          |
+| `ruff.toml` / `mypy.ini`  | Existing exceptions                     |
+| `codecov.yml`             | Coverage thresholds                     |
 
 ### Rule 4: Cherry-Pick Pattern for Config PRs
 

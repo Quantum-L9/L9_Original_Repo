@@ -30,7 +30,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 
 class KernelViolationError(Exception):
@@ -158,8 +158,8 @@ def merge_dicts(
 
 
 def load_kernels(
-    governance_path: Optional[str] = None,
-    agent_path: Optional[str] = None,
+    governance_path: str | None = None,
+    agent_path: str | None = None,
 ) -> KernelState:
     """
     Load and merge kernel configurations.

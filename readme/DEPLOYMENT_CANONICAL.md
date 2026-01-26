@@ -15,15 +15,15 @@ docker compose up -d
 
 ### Services
 
-| Container | Port | Description |
-|-----------|------|-------------|
-| `l9-api` | 8000 | Main API server (includes MCP routes) |
-| `l9-postgres` | 5432 | PostgreSQL + pgvector |
-| `l9-redis` | 6379 | Redis cache |
-| `l9-neo4j` | 7474, 7687 | Neo4j graph database |
-| `l9-prometheus` | 9090 | Metrics |
-| `l9-grafana` | 3000 | Dashboards |
-| `l9-jaeger` | 16686 | Tracing |
+| Container       | Port       | Description                           |
+| --------------- | ---------- | ------------------------------------- |
+| `l9-api`        | 8000       | Main API server (includes MCP routes) |
+| `l9-postgres`   | 5432       | PostgreSQL + pgvector                 |
+| `l9-redis`      | 6379       | Redis cache                           |
+| `l9-neo4j`      | 7474, 7687 | Neo4j graph database                  |
+| `l9-prometheus` | 9090       | Metrics                               |
+| `l9-grafana`    | 3000       | Dashboards                            |
+| `l9-jaeger`     | 16686      | Tracing                               |
 
 ### Health Check
 
@@ -37,10 +37,10 @@ curl http://127.0.0.1:8000/health
 
 The following systemd services are **NOT supported** and should be **removed** if found:
 
-| Service | Status | Action |
-|---------|--------|--------|
-| `l9.service` | DEPRECATED | `sudo systemctl stop l9 && sudo systemctl disable l9` |
-| `l9-mcp.service` | DEPRECATED | `sudo systemctl stop l9-mcp && sudo systemctl disable l9-mcp` |
+| Service            | Status     | Action                                                            |
+| ------------------ | ---------- | ----------------------------------------------------------------- |
+| `l9.service`       | DEPRECATED | `sudo systemctl stop l9 && sudo systemctl disable l9`             |
+| `l9-mcp.service`   | DEPRECATED | `sudo systemctl stop l9-mcp && sudo systemctl disable l9-mcp`     |
 | `l9-agent.service` | DEPRECATED | `sudo systemctl stop l9-agent && sudo systemctl disable l9-agent` |
 
 ### Cleanup Commands
@@ -83,6 +83,7 @@ Use the 10X deploy script for full deployment:
 ```
 
 This handles:
+
 - Git commit and push
 - SSH to VPS
 - Git pull

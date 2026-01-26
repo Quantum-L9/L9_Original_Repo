@@ -6,12 +6,15 @@ from enum import Enum
 
 import pytest
 
-from core.event_type_registry import (create_dynamic_event_enum,
-                                      event_type_registry, get_all_event_types,
-                                      get_event_categories,
-                                      is_event_type_registered,
-                                      register_event_category,
-                                      register_event_type)
+from core.event_type_registry import (
+    create_dynamic_event_enum,
+    event_type_registry,
+    get_all_event_types,
+    get_event_categories,
+    is_event_type_registered,
+    register_event_category,
+    register_event_type,
+)
 
 
 @pytest.fixture(autouse=True)

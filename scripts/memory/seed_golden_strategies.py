@@ -22,7 +22,7 @@ Created: 2026-01-20
 import argparse
 import asyncio
 import sys
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 
@@ -33,7 +33,7 @@ logger = structlog.get_logger(__name__)
 # Golden Strategy Definitions
 # =============================================================================
 
-GOLDEN_STRATEGIES: List[Dict[str, Any]] = [
+GOLDEN_STRATEGIES: list[dict[str, Any]] = [
     {
         "name": "Research and Report",
         "description": "Research a topic using multiple sources, analyze findings, and produce a structured report",
@@ -227,7 +227,7 @@ GOLDEN_STRATEGIES: List[Dict[str, Any]] = [
 async def seed_golden_strategies(
     neo4j_client: Any,
     force: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Seed golden strategies into Neo4j.
 
@@ -307,7 +307,7 @@ async def seed_golden_strategies(
     return results
 
 
-async def list_strategies(neo4j_client: Any) -> List[Dict[str, Any]]:
+async def list_strategies(neo4j_client: Any) -> list[dict[str, Any]]:
     """List all strategies in Neo4j."""
     query = """
     MATCH (s:Strategy)

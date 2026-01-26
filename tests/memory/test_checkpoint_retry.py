@@ -13,8 +13,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from memory.checkpoint.postgres_saver import (L9PostgresSaver,
-                                              L9RetryablePostgresSaver)
+from memory.checkpoint.postgres_saver import L9PostgresSaver, L9RetryablePostgresSaver
 
 # ============================================================================
 # Fixtures
@@ -151,9 +150,8 @@ class TestExecuteWithRetry:
 
         mock_func = AsyncMock(side_effect=Exception("Error"))
 
-        with patch("asyncio.sleep", mock_sleep):
-            with pytest.raises(Exception):
-                await saver._execute_with_retry("test_op", mock_func)
+        with patch("asyncio.sleep", mock_sleep), pytest.raises(Exception):
+            await saver._execute_with_retry("test_op", mock_func)
 
         # Should have 2 delays (before retry 2 and 3)
         assert len(delays) == 2

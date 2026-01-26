@@ -49,7 +49,7 @@ __dora_meta__ = {
 import json
 import os
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -108,11 +108,11 @@ class AIOSRuntime:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        model: Optional[str] = None,
+        api_key: str | None = None,
+        model: str | None = None,
         temperature: float = 0.3,
         max_tokens: int = 4000,
-        default_system_prompt: Optional[str] = None,
+        default_system_prompt: str | None = None,
     ):
         """
         Initialize AIOS Runtime.
@@ -136,7 +136,7 @@ class AIOSRuntime:
         self._default_system_prompt = default_system_prompt or DEFAULT_SYSTEM_PROMPT
 
         # Initialize client (lazy)
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
 
         logger.info(
             "AIOSRuntime initialized: model=%s, temperature=%.1f, max_tokens=%d",
@@ -284,7 +284,7 @@ class AIOSRuntime:
                         exc_info=True,
                     )
                     raise ValueError(
-                        f"Failed to parse tool call arguments for {tool_call.function.name}: {str(e)}"
+                        f"Failed to parse tool call arguments for {tool_call.function.name}: {e!s}"
                     ) from e
 
                 # Create tool call request
@@ -381,8 +381,8 @@ class AIOSRuntime:
 
 
 def create_aios_runtime(
-    api_key: Optional[str] = None,
-    model: Optional[str] = None,
+    api_key: str | None = None,
+    model: str | None = None,
     **kwargs,
 ) -> AIOSRuntime:
     """
@@ -408,9 +408,9 @@ def create_aios_runtime(
 # =============================================================================
 
 __all__ = [
+    "DEFAULT_SYSTEM_PROMPT",
     "AIOSRuntime",
     "create_aios_runtime",
-    "DEFAULT_SYSTEM_PROMPT",
 ]
 
 # ============================================================================

@@ -44,7 +44,8 @@ __dora_meta__ = {
 import importlib
 import inspect
 import pkgutil
-from typing import Any, Callable, Dict, Generic, List, Optional, TypeVar, Union
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 import structlog
 
@@ -87,7 +88,7 @@ class ValidationError(RegistryError):
 # =============================================================================
 
 
-class AutoRegistry(Generic[T]):
+class AutoRegistry[T]:
     """
     Generic auto-discovery and registration system for L9 components.
 
@@ -123,7 +124,7 @@ class AutoRegistry(Generic[T]):
     def __init__(
         self,
         name: str,
-        validator: Optional[Callable[[T], bool]] = None,
+        validator: Callable[[T], bool] | None = None,
         allow_duplicates: bool = False,
     ) -> None:
         """
@@ -137,9 +138,9 @@ class AutoRegistry(Generic[T]):
         self.name = name
         self._validator = validator
         self._allow_duplicates = allow_duplicates
-        self._components: Dict[str, T] = {}
-        self._metadata: Dict[str, Dict[str, Any]] = {}
-        self._factories: Dict[str, Callable[[], T]] = {}
+        self._components: dict[str, T] = {}
+        self._metadata: dict[str, dict[str, Any]] = {}
+        self._factories: dict[str, Callable[[], T]] = {}
 
         logger.info(
             "registry.initialized",
@@ -156,11 +157,11 @@ class AutoRegistry(Generic[T]):
 
     def register(
         self,
-        name: Optional[str] = None,
+        name: str | None = None,
         priority: int = 0,
-        tags: Optional[List[str]] = None,
+        tags: list[str] | None = None,
         **metadata: Any,
-    ) -> Callable[[Union[T, Callable[[], T]]], Union[T, Callable[[], T]]]:
+    ) -> Callable[[T | Callable[[], T]], T | Callable[[], T]]:
         """
         Decorator to register a component or factory function.
 
@@ -184,8 +185,8 @@ class AutoRegistry(Generic[T]):
         """
 
         def decorator(
-            component: Union[T, Callable[[], T]],
-        ) -> Union[T, Callable[[], T]]:
+            component: T | Callable[[], T],
+        ) -> T | Callable[[], T]:
             # Determine component name
             component_name = name
             if component_name is None:
@@ -242,7 +243,7 @@ class AutoRegistry(Generic[T]):
         component_id: str,
         component: T,
         priority: int = 0,
-        tags: Optional[List[str]] = None,
+        tags: list[str] | None = None,
         **metadata: Any,
     ) -> None:
         """
@@ -285,7 +286,7 @@ class AutoRegistry(Generic[T]):
     def discover(
         self,
         package_name: str,
-        pattern: Optional[str] = None,
+        pattern: str | None = None,
         recursive: bool = True,
     ) -> int:
         """
@@ -413,7 +414,7 @@ class AutoRegistry(Generic[T]):
 
         return initialized_count
 
-    def get(self, component_id: str) -> Optional[T]:
+    def get(self, component_id: str) -> T | None:
         """
         Get a registered component by ID.
 
@@ -425,7 +426,7 @@ class AutoRegistry(Generic[T]):
         """
         return self._components.get(component_id)
 
-    def get_all(self, tags: Optional[List[str]] = None) -> List[T]:
+    def get_all(self, tags: list[str] | None = None) -> list[T]:
         """
         Get all registered components, optionally filtered by tags.
 
@@ -453,11 +454,11 @@ class AutoRegistry(Generic[T]):
 
         return [comp for _, comp in components]
 
-    def get_metadata(self, component_id: str) -> Optional[Dict[str, Any]]:
+    def get_metadata(self, component_id: str) -> dict[str, Any] | None:
         """Get metadata for a registered component."""
         return self._metadata.get(component_id)
 
-    def list_ids(self) -> List[str]:
+    def list_ids(self) -> list[str]:
         """Get list of all registered component IDs."""
         return list(self._components.keys())
 
@@ -465,7 +466,7 @@ class AutoRegistry(Generic[T]):
         """Get the number of registered components."""
         return len(self._components)
 
-    def snapshot(self) -> Dict[str, Any]:
+    def snapshot(self) -> dict[str, Any]:
         """
         Get a snapshot of the registry state for observability.
 
@@ -481,7 +482,7 @@ class AutoRegistry(Generic[T]):
                     "id": comp_id,
                     **self._metadata.get(comp_id, {}),
                 }
-                for comp_id in self._components.keys()
+                for comp_id in self._components
             ],
         }
 

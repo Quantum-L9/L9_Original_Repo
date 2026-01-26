@@ -23,7 +23,6 @@ import yaml
 # agents.l_cto pre-imported in root conftest.py
 
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -367,8 +366,7 @@ class TestCreateKernelAwareRegistry:
             "core.kernels.kernelloader.load_kernels",
             side_effect=RuntimeError("Kernel files missing"),
         ):
-            from core.agents.kernel_registry import \
-                create_kernel_aware_registry
+            from core.agents.kernel_registry import create_kernel_aware_registry
 
             with pytest.raises(RuntimeError, match="FATAL"):
                 create_kernel_aware_registry()
@@ -385,9 +383,11 @@ class TestBootstrapIntegration:
     def test_full_bootstrap_flow(self, temp_kernel_dir: Path) -> None:
         """Test complete bootstrap flow from agent creation to activation."""
         from agents.l_cto import LCTOAgent
-        from core.kernels.kernelloader import (load_kernels,
-                                               require_kernel_activation,
-                                               verify_kernel_activation)
+        from core.kernels.kernelloader import (
+            load_kernels,
+            require_kernel_activation,
+            verify_kernel_activation,
+        )
 
         # Create agent
         agent = LCTOAgent(agent_id="l9-standard-v1")
@@ -406,7 +406,8 @@ class TestBootstrapIntegration:
         # Check absorbed data
         assert len(agent.kernels) == 10
         # Check identity was absorbed
-        assert hasattr(agent, "_identity") and "L" in agent._identity.get(
+        assert hasattr(agent, "_identity")
+        assert "L" in agent._identity.get(
             "designation", ""
         )
 

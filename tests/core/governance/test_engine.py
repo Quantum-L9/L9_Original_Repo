@@ -25,8 +25,12 @@ import yaml
 
 from core.governance.engine import GovernanceEngineService
 from core.governance.loader import InvalidPolicyError, PolicyLoadError
-from core.governance.schemas import (Condition, ConditionOperator,
-                                     EvaluationRequest, PolicyEffect)
+from core.governance.schemas import (
+    Condition,
+    ConditionOperator,
+    EvaluationRequest,
+    PolicyEffect,
+)
 
 # =============================================================================
 # Fixtures

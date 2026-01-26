@@ -25,8 +25,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from pydantic import BaseSettings, Field
 from dotenv import load_dotenv
+from pydantic import BaseSettings, Field
 
 # Load environment variables
 load_dotenv()

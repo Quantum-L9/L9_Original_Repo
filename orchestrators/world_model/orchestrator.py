@@ -28,15 +28,19 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
 
 from core.decorators import must_stay_async
 
-from .interface import (IWorldModelOrchestrator, WorldModelOperation,
-                        WorldModelRequest, WorldModelResponse)
+from .interface import (
+    IWorldModelOrchestrator,
+    WorldModelOperation,
+    WorldModelRequest,
+    WorldModelResponse,
+)
 from .scheduler import WorldModelScheduler
 
 logger = structlog.get_logger(__name__)
@@ -50,7 +54,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
     Coordinates with scheduler for update timing and batching.
     """
 
-    def __init__(self, scheduler: Optional[WorldModelScheduler] = None):
+    def __init__(self, scheduler: WorldModelScheduler | None = None):
         """
         Initialize world_model orchestrator.
 
@@ -74,22 +78,21 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
         try:
             if request.operation == WorldModelOperation.INGEST:
                 return await self._ingest(request.updates)
-            elif request.operation == WorldModelOperation.PROPAGATE:
+            if request.operation == WorldModelOperation.PROPAGATE:
                 return await self._propagate()
-            elif request.operation == WorldModelOperation.SNAPSHOT:
+            if request.operation == WorldModelOperation.SNAPSHOT:
                 return await self._snapshot()
-            elif request.operation == WorldModelOperation.RESTORE:
+            if request.operation == WorldModelOperation.RESTORE:
                 return await self._restore(request.snapshot_id)
-            else:
-                return WorldModelResponse(
-                    success=False,
-                    message=f"Unknown operation: {request.operation}",
-                )
+            return WorldModelResponse(
+                success=False,
+                message=f"Unknown operation: {request.operation}",
+            )
         except Exception as e:
             logger.error(f"WorldModel error: {e}")
             return WorldModelResponse(
                 success=False,
-                message=f"Operation failed: {str(e)}",
+                message=f"Operation failed: {e!s}",
             )
 
     @must_stay_async("callers use await")
@@ -231,7 +234,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
         )
 
     @must_stay_async("callers use await")
-    async def _restore(self, snapshot_id: Optional[str]) -> WorldModelResponse:
+    async def _restore(self, snapshot_id: str | None) -> WorldModelResponse:
         """Restore world model from snapshot."""
         if not snapshot_id:
             return WorldModelResponse(

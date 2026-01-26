@@ -24,7 +24,7 @@ Robert C. Martin (Uncle Bob) developed the SOLID principles to encourage better 
 SOLID Principles
 
 1. Single Responsibility Principle (SRP)
-A class should have only one reason to change, meaning it should be responsible for a single part of the software functionality.
+   A class should have only one reason to change, meaning it should be responsible for a single part of the software functionality.
 
 Purpose:
 SRP promotes modularity, clarity, and maintainability. When each class or module is focused on a single task, it becomes easier to understand, test, debug, and extend. This principle is especially valuable in complex systems where responsibilities can easily become entangled.
@@ -39,7 +39,7 @@ Conclusion:
 Yes, AI systems can follow SRP. With a clear and focused prompt, AI can generate code that respects single responsibilities, making the system easier to manage and reuse.
 
 2. Open/Closed Principle (OCP)
-Software entities (classes, modules, functions) should be open for extension but closed for modification.
+   Software entities (classes, modules, functions) should be open for extension but closed for modification.
 
 Purpose:
 OCP encourages developers to design systems that can be extended with new functionality without altering existing code. This reduces the risk of introducing bugs and makes the system more adaptable.
@@ -54,7 +54,7 @@ Conclusion:
 Yes, AI systems can follow OCP. When prompted clearly, AI can generate extendable code structures that protect existing logic while allowing new features to be added safely.
 
 3. Liskov Substitution Principle (LSP)
-Objects of a superclass should be replaceable with objects of its subclasses without affecting the correctness of the program.
+   Objects of a superclass should be replaceable with objects of its subclasses without affecting the correctness of the program.
 
 Purpose:
 LSP ensures subclasses behave consistently with their parent classes, enabling safe polymorphism and interchangeable components.
@@ -63,13 +63,13 @@ Prompt example:
 Design a BaseModel interface that follows the Liskov Substitution Principle. Include methods Train(), Predict(), and Evaluate(). Then implement LinearRegressionModel and RandomForestModel subclasses that behave consistently with the base interface.
 
 In AI development:
-Subclasses like LinearRegressionModel and RandomForestModel should implement the same methods as the base class so that they can be used interchangeably without breaking the system. 
+Subclasses like LinearRegressionModel and RandomForestModel should implement the same methods as the base class so that they can be used interchangeably without breaking the system.
 
 Conclusion:
 Yes, AI systems can follow LSP. With well-defined prompts, AI can generate interchangeable components that maintain consistent behavior across subclasses.
 
 4. Interface Segregation Principle (ISP)
-Clients should not be forced to depend on interfaces they do not use.
+   Clients should not be forced to depend on interfaces they do not use.
 
 Purpose:
 ISP promotes the creation of focused, minimal interfaces tailored to specific client needs. This avoids bloated interfaces and improves usability and maintainability.
@@ -84,7 +84,7 @@ Conclusion:
 Yes, AI systems can follow ISP. When guided with clear prompts, AI can generate role-specific interfaces that reduce complexity and improve collaboration.
 
 5. Dependency Inversion Principle (DIP)
-High-level modules should not depend on low-level modules. Both should depend on abstractions.
+   High-level modules should not depend on low-level modules. Both should depend on abstractions.
 
 Purpose:
 DIP decouples components, making systems more flexible, testable, and easier to maintain. It encourages the use of interfaces or abstract classes to define dependencies.
@@ -172,4 +172,3 @@ Conclusion
 AI is reshaping software development, but it doesn’t replace good architecture. Tools like ChatGPT and Copilot generate code fast, but without guidance, they often ignore SOLID principles, leading to fragile, unscalable systems. SOLID isn’t outdated; it’s underutilized in AI workflows. By applying these principles through prompt engineering and modular design, developers can regain control over code quality and maintainability.
 
 Syncfusion® Code Studio helps bridge this gap, offering reusable components and structured workflows that align with SOLID principles even in AI-driven environments. As AI systems scale, clean architecture becomes more critical than ever. SOLID principles aren’t just surviving, they’re evolving to meet the demands of modern, intelligent development.
-

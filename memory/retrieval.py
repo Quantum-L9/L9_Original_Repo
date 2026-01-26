@@ -56,7 +56,7 @@ __dora_meta__ = {
 import math
 from datetime import datetime
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import structlog
@@ -65,11 +65,17 @@ if TYPE_CHECKING:
     from memory.substrate_repository import SubstrateRepository
     from memory.substrate_semantic import SemanticService
 
+import contextlib
+
 from core.schemas import SemanticHit, SemanticSearchResult
-from memory.cross_encoder_reranker import (get_cross_encoder_reranker,
-                                           is_cross_encoder_available)
-from memory.governance_gate import (build_scope_project_filter,
-                                    require_governance_context)
+from memory.cross_encoder_reranker import (
+    get_cross_encoder_reranker,
+    is_cross_encoder_available,
+)
+from memory.governance_gate import (
+    build_scope_project_filter,
+    require_governance_context,
+)
 from memory.substrate_models import KnowledgeFactRow, PacketStoreRow
 
 logger = structlog.get_logger(__name__)
@@ -119,7 +125,7 @@ def apply_temporal_decay(
     score: float,
     timestamp: datetime,
     half_life_days: float = 30.0,
-    reference_time: Optional[datetime] = None,
+    reference_time: datetime | None = None,
 ) -> float:
     """
     Apply exponential temporal decay to a score based on age.
@@ -187,11 +193,11 @@ class RetrievalPipeline:
         self._semantic_service = semantic_service
         logger.info("RetrievalPipeline initialized")
 
-    def set_repository(self, repository: "SubstrateRepository") -> None:
+    def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
-    def set_semantic_service(self, service: "SemanticService") -> None:
+    def set_semantic_service(self, service: SemanticService) -> None:
         """Set or update the semantic service reference."""
         self._semantic_service = service
 
@@ -203,7 +209,7 @@ class RetrievalPipeline:
         self,
         query: str,
         top_k: int = 10,
-        agent_id: Optional[str] = None,
+        agent_id: str | None = None,
     ) -> SemanticSearchResult:
         """
         Perform semantic search using vector similarity.
@@ -248,7 +254,7 @@ class RetrievalPipeline:
         self,
         query: str,
         top_k: int = 10,
-        packet_type: Optional[str] = None,
+        packet_type: str | None = None,
     ) -> list[dict[str, Any]]:
         """
         Perform full-text search using PostgreSQL FTS (to_tsvector/plainto_tsquery).
@@ -281,7 +287,7 @@ class RetrievalPipeline:
                 # Build base query with FTS
                 # Search in envelope payload text content
                 base_query = """
-                    SELECT 
+                    SELECT
                         packet_id,
                         packet_type,
                         timestamp,
@@ -311,7 +317,7 @@ class RetrievalPipeline:
                 # Add packet_type filter if specified
                 if packet_type:
                     base_query += f" AND packet_type = ${next_idx}"
-                    filter_params = list(filter_params) + [packet_type]
+                    filter_params = [*list(filter_params), packet_type]
                     next_idx += 1
 
                 # Add governance scope filter
@@ -352,8 +358,8 @@ class RetrievalPipeline:
         self,
         query: str,
         top_k: int = 10,
-        filters: Optional[dict[str, Any]] = None,
-        agent_id: Optional[str] = None,
+        filters: dict[str, Any] | None = None,
+        agent_id: str | None = None,
         min_score: float = 0.5,
         rrf_k: int = 60,
         temporal_half_life_days: float = 30.0,
@@ -412,10 +418,8 @@ class RetrievalPipeline:
         for hit in semantic_hits:
             packet_id = hit.payload.get("packet_id")
             if packet_id:
-                try:
+                with contextlib.suppress(ValueError, TypeError):
                     packet_ids.append(UUID(packet_id))
-                except (ValueError, TypeError):
-                    pass
 
         # Add keyword result packet IDs
         for kw_hit in keyword_results:
@@ -777,9 +781,9 @@ class RetrievalPipeline:
 
     async def fetch_facts(
         self,
-        subject: Optional[str] = None,
-        predicate: Optional[str] = None,
-        source_packet: Optional[UUID] = None,
+        subject: str | None = None,
+        predicate: str | None = None,
+        source_packet: UUID | None = None,
         limit: int = 100,
     ) -> list[dict[str, Any]]:
         """
@@ -843,8 +847,8 @@ class RetrievalPipeline:
 
     async def fetch_insights(
         self,
-        packet_id: Optional[UUID] = None,
-        insight_type: Optional[str] = None,
+        packet_id: UUID | None = None,
+        insight_type: str | None = None,
         limit: int = 50,
     ) -> list[dict[str, Any]]:
         """
@@ -930,7 +934,7 @@ class RetrievalPipeline:
     async def replay_chain(
         self,
         start_packet_id: UUID,
-        end_packet_id: Optional[UUID] = None,
+        end_packet_id: UUID | None = None,
         include_reasoning: bool = True,
     ) -> dict[str, Any]:
         """
@@ -1039,19 +1043,19 @@ class RetrievalPipeline:
                 indent=2,
             )
 
-        elif format_type == "text":
+        if format_type == "text":
             return "\n".join([f"- {f.fact_text}" for f in facts])
 
-        else:  # markdown (default)
-            lines = ["## Identity Core Facts\n"]
-            for f in facts:
-                lines.append(f"- {f.fact_text}")
-            return "\n".join(lines)
+        # markdown (default)
+        lines = ["## Identity Core Facts\n"]
+        for f in facts:
+            lines.append(f"- {f.fact_text}")
+        return "\n".join(lines)
 
     async def hierarchical_search(
         self,
         query: str,
-        tiers: Optional[list[str]] = None,
+        tiers: list[str] | None = None,
         max_per_tier: int = 5,
         min_score: float = 0.5,
     ) -> dict[str, Any]:
@@ -1164,7 +1168,7 @@ class RetrievalPipeline:
     async def strategy_search(
         self,
         query: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
         max_results: int = 10,
         use_ranking: bool = True,
     ) -> dict[str, Any]:
@@ -1200,8 +1204,7 @@ class RetrievalPipeline:
         """
         from memory.query_classifier import get_query_classifier
         from memory.retrieval_ranking import get_multi_factor_ranker
-        from memory.retrieval_strategy import (StrategyContext,
-                                               get_strategy_retriever)
+        from memory.retrieval_strategy import StrategyContext, get_strategy_retriever
 
         context = context or {}
 
@@ -1280,8 +1283,8 @@ def get_retrieval_pipeline() -> RetrievalPipeline:
 
 
 def init_retrieval_pipeline(
-    repository: "SubstrateRepository",
-    semantic_service: Optional["SemanticService"] = None,
+    repository: SubstrateRepository,
+    semantic_service: SemanticService | None = None,
 ) -> RetrievalPipeline:
     """Initialize the retrieval pipeline with dependencies."""
     pipeline = get_retrieval_pipeline()
@@ -1297,9 +1300,9 @@ def init_retrieval_pipeline(
 
 
 async def get_governance_patterns(
-    tool_name: Optional[str] = None,
-    task_type: Optional[str] = None,
-    decision: Optional[str] = None,
+    tool_name: str | None = None,
+    task_type: str | None = None,
+    decision: str | None = None,
     limit: int = 5,
 ) -> list[dict[str, Any]]:
     """

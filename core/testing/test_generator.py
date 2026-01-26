@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import ast
-from typing import Any, List, Optional
+from typing import Any
 
 import structlog
 
@@ -53,7 +53,7 @@ class TestGenerator:
     - Edge case tests for error handling
     """
 
-    def __init__(self, use_llm: bool = False, llm_client: Optional[Any] = None):
+    def __init__(self, use_llm: bool = False, llm_client: Any | None = None):
         """
         Initialize TestGenerator.
 
@@ -67,8 +67,8 @@ class TestGenerator:
     def generate_unit_tests(
         self,
         code_proposal: str,
-        module_name: Optional[str] = None,
-    ) -> List[str]:
+        module_name: str | None = None,
+    ) -> list[str]:
         """
         Generate unit tests for a code proposal.
 
@@ -113,9 +113,9 @@ class TestGenerator:
     def generate_integration_tests(
         self,
         code_proposal: str,
-        dependencies: List[str],
-        module_name: Optional[str] = None,
-    ) -> List[str]:
+        dependencies: list[str],
+        module_name: str | None = None,
+    ) -> list[str]:
         """
         Generate integration tests for a code proposal.
 
@@ -145,8 +145,8 @@ class TestGenerator:
     def _generate_function_tests(
         self,
         func: ast.FunctionDef,
-        module_name: Optional[str],
-    ) -> List[str]:
+        module_name: str | None,
+    ) -> list[str]:
         """Generate tests for a function."""
         tests = []
         func_name = func.name
@@ -185,8 +185,8 @@ def test_{func_name}_error_handling():
     def _generate_class_tests(
         self,
         cls: ast.ClassDef,
-        module_name: Optional[str],
-    ) -> List[str]:
+        module_name: str | None,
+    ) -> list[str]:
         """Generate tests for a class."""
         tests = []
         class_name = cls.name
@@ -217,7 +217,7 @@ def test_{class_name.lower()}_{node.name}():
     def _generate_syntax_test(
         self,
         code_proposal: str,
-        module_name: Optional[str],
+        module_name: str | None,
     ) -> str:
         """Generate a basic syntax validation test."""
         return f'''
@@ -247,7 +247,7 @@ def test_module_import():
     def _generate_dependency_test(
         self,
         dependency: str,
-        module_name: Optional[str],
+        module_name: str | None,
     ) -> str:
         """Generate a dependency integration test."""
         dep_name = dependency.split(".")[-1]
@@ -259,7 +259,7 @@ async def test_integration_with_{dep_name}():
     pass
 '''
 
-    def _generate_async_flow_test(self, module_name: Optional[str]) -> str:
+    def _generate_async_flow_test(self, module_name: str | None) -> str:
         """Generate an async flow test."""
         return '''
 @pytest.mark.asyncio
@@ -269,7 +269,7 @@ async def test_async_flow():
     pass
 '''
 
-    def _generate_error_handling_test(self, module_name: Optional[str]) -> str:
+    def _generate_error_handling_test(self, module_name: str | None) -> str:
         """Generate an error handling test."""
         return '''
 def test_error_handling():
@@ -280,8 +280,8 @@ def test_error_handling():
 
 
 def generate_unit_tests(
-    code_proposal: str, module_name: Optional[str] = None
-) -> List[str]:
+    code_proposal: str, module_name: str | None = None
+) -> list[str]:
     """
     Convenience function to generate unit tests.
 
@@ -298,9 +298,9 @@ def generate_unit_tests(
 
 def generate_integration_tests(
     code_proposal: str,
-    dependencies: List[str],
-    module_name: Optional[str] = None,
-) -> List[str]:
+    dependencies: list[str],
+    module_name: str | None = None,
+) -> list[str]:
     """
     Convenience function to generate integration tests.
 
@@ -324,8 +324,8 @@ def generate_integration_tests(
 
 __all__ = [
     "TestGenerator",
-    "generate_unit_tests",
     "generate_integration_tests",
+    "generate_unit_tests",
 ]
 
 # ============================================================================

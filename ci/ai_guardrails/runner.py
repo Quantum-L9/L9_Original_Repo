@@ -59,8 +59,8 @@ import yaml
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from api.llm import MODEL, get_client  # noqa: E402
-from config.ai_eval_settings import get_ai_eval_settings  # noqa: E402
+from api.llm import MODEL, get_client
+from config.ai_eval_settings import get_ai_eval_settings
 
 logger = structlog.get_logger(__name__)
 

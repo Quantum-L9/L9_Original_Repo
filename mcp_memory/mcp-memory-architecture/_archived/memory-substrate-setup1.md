@@ -87,4 +87,3 @@ Then the next answer can be a strict Phase 0–6 plan plus exact code/config edi
 
 - Add a dedicated `userId` mapping for C requests; and/or
 - Add an L9-side “proxy tool” that queries the same MCP memory server under that ID.
-

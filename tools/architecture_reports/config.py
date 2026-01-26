@@ -42,7 +42,7 @@ def detect_root(start: Path | None = None) -> Path:
         RuntimeError: if pyproject.toml is not found walking upwards.
     """
     current = (start or Path(__file__)).resolve()
-    for parent in (current,) + tuple(current.parents):
+    for parent in (current, *tuple(current.parents)):
         if (parent / "pyproject.toml").is_file():
             return parent
     raise RuntimeError("Unable to locate repo root (pyproject.toml not found).")

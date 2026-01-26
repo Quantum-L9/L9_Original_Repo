@@ -31,7 +31,7 @@ integration:
     - "tool_registry"
     - "openai"
     - "perplexity"
-  
+
 governance:
   escalation_path: "Igor"
   tier: 2

@@ -96,12 +96,11 @@ async def run_migration(force: bool = False) -> dict:
         logger.info("Neo4j connection verified")
 
         # Run bootstrap
-        stats = await bootstrap_l_graph(
+        return await bootstrap_l_graph(
             neo4j_driver=driver,
             force_refresh=force,
         )
 
-        return stats
 
     finally:
         await driver.close()
@@ -130,8 +129,7 @@ async def verify_migration() -> dict:
     )
 
     try:
-        verification = await verify_l_graph(driver)
-        return verification
+        return await verify_l_graph(driver)
 
     finally:
         await driver.close()
@@ -198,7 +196,12 @@ async def main():
         logger.info("=" * 60)
 
         from core.agents.graph_state.bootstrap_l_graph import (
-            L_AGENT_CONFIG, L_DIRECTIVES, L_RESPONSIBILITIES, L_SOPS, L_TOOLS)
+            L_AGENT_CONFIG,
+            L_DIRECTIVES,
+            L_RESPONSIBILITIES,
+            L_SOPS,
+            L_TOOLS,
+        )
 
         logger.info(
             f"\n  Agent: {L_AGENT_CONFIG['agent_id']} ({L_AGENT_CONFIG['designation']})"

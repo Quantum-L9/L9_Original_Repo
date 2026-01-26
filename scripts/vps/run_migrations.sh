@@ -84,7 +84,7 @@ log "─────────────────────────
 
 while IFS= read -r migration_file; do
     migration_name=$(basename "$migration_file")
-    
+
     if grep -q "^$migration_name$" "$APPLIED_FILE" 2>/dev/null; then
         log "  ${GREEN}✅${NC} $migration_name (applied)"
         ((APPLIED_COUNT++))
@@ -141,14 +141,14 @@ log ""
 FAILED=false
 while IFS= read -r migration_file; do
     migration_name=$(basename "$migration_file")
-    
+
     # Skip if already applied
     if grep -q "^$migration_name$" "$APPLIED_FILE" 2>/dev/null; then
         continue
     fi
-    
+
     log "  ${BLUE}➜${NC} Applying $migration_name..."
-    
+
     # Try to apply via psql
     if command -v psql &> /dev/null; then
         if PGPASSWORD="$POSTGRES_PASSWORD" psql -h "${POSTGRES_HOST:-localhost}" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$migration_file" 2>&1; then

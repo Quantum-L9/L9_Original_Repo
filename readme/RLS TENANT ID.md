@@ -11,12 +11,12 @@ L and C intentionally share the **SAME tenant_id/org_id/user_id** to preserve co
 
 The L9 memory architecture uses a **unified tenant with scope-based isolation**, not separate tenants:
 
-| Isolation Layer | Mechanism | Purpose |
-|-----------------|-----------|---------|
-| **Tenant** | `RLS_TENANT_ID=l9` | Top-level organization isolation (single L9 deployment) |
-| **Scope** | `developer`, `l-private`, `global` | Access control between L and C |
-| **Creator** | `metadata.creator` = "L-CTO" or "Cursor-IDE" | Ownership for write/delete permissions |
-| **Project** | `project_id` | Multi-project isolation (l9, future-x, etc.) |
+| Isolation Layer | Mechanism                                    | Purpose                                                 |
+| --------------- | -------------------------------------------- | ------------------------------------------------------- |
+| **Tenant**      | `RLS_TENANT_ID=l9`                           | Top-level organization isolation (single L9 deployment) |
+| **Scope**       | `developer`, `l-private`, `global`           | Access control between L and C                          |
+| **Creator**     | `metadata.creator` = "L-CTO" or "Cursor-IDE" | Ownership for write/delete permissions                  |
+| **Project**     | `project_id`                                 | Multi-project isolation (l9, future-x, etc.)            |
 
 ---
 
@@ -25,11 +25,13 @@ The L9 memory architecture uses a **unified tenant with scope-based isolation**,
 ### What Was Implemented
 
 1. **Deterministic UUID Generation** (`config/rls_config.py`)
+
    - Uses `uuid5(NAMESPACE_DNS, identifier)` for consistent UUIDs
    - Same identifier always produces same UUID
    - Valid PostgreSQL UUIDs
 
 2. **Generated UUIDs**
+
    ```
    tenant_id "l9" → 73350468-3158-5d0f-9b8c-9b193d96fc4b
    org_id "quantumai" → 14910cef-fea1-51d7-9a28-05579e6c0c18
@@ -37,6 +39,7 @@ The L9 memory architecture uses a **unified tenant with scope-based isolation**,
    ```
 
 3. **Governance Gate Integration** (`memory/governance_gate.py`)
+
    - `_fallback_context()` now populates tenant_id, org_id, user_id
    - UUIDs derived from `config/rls_config.py`
 
@@ -75,6 +78,7 @@ RLS_USER_ID=l9-shared
 ```
 
 The PostgreSQL RLS policies use session variables:
+
 ```sql
 SET app.tenant_id = '73350468-3158-5d0f-9b8c-9b193d96fc4b';
 SET app.org_id = '14910cef-fea1-51d7-9a28-05579e6c0c18';
@@ -110,14 +114,14 @@ ACCESS MATRIX:
 
 ## Summary
 
-| Variable | Value | UUID | Shared? |
-|----------|-------|------|---------|
-| `RLS_TENANT_ID` | `l9` | `73350468-3158-5d0f-9b8c-9b193d96fc4b` | Yes |
-| `RLS_ORG_ID` | `quantumai` | `14910cef-fea1-51d7-9a28-05579e6c0c18` | Yes |
-| `RLS_USER_ID` | `l9-shared` | `2f00c090-3816-51a0-806c-34d32522a070` | Yes |
-| `caller_id` | "L" or "C" | N/A | No - API key determines |
-| `metadata.creator` | "L-CTO" or "Cursor-IDE" | N/A | No - server-enforced |
-| `scope` | developer/l-private/global | N/A | Access differs |
+| Variable           | Value                      | UUID                                   | Shared?                 |
+| ------------------ | -------------------------- | -------------------------------------- | ----------------------- |
+| `RLS_TENANT_ID`    | `l9`                       | `73350468-3158-5d0f-9b8c-9b193d96fc4b` | Yes                     |
+| `RLS_ORG_ID`       | `quantumai`                | `14910cef-fea1-51d7-9a28-05579e6c0c18` | Yes                     |
+| `RLS_USER_ID`      | `l9-shared`                | `2f00c090-3816-51a0-806c-34d32522a070` | Yes                     |
+| `caller_id`        | "L" or "C"                 | N/A                                    | No - API key determines |
+| `metadata.creator` | "L-CTO" or "Cursor-IDE"    | N/A                                    | No - server-enforced    |
+| `scope`            | developer/l-private/global | N/A                                    | Access differs          |
 
 ---
 

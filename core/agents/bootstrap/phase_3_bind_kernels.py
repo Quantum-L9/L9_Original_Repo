@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -43,9 +43,9 @@ logger = structlog.get_logger(__name__)
 
 
 async def bind_kernels_to_agent(
-    instance: "BootstrapInstanceData",
-    kernels: Dict[str, "KernelParsed"],
-    substrate_service: "MemorySubstrateService",
+    instance: BootstrapInstanceData,
+    kernels: dict[str, KernelParsed],
+    substrate_service: MemorySubstrateService,
 ) -> None:
     """
     Activate all kernels on agent. Create agent→kernel relationships in Neo4j.

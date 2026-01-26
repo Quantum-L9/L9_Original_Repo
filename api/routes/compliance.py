@@ -134,7 +134,7 @@ async def get_daily_compliance_report(
         logger.error(f"Failed to generate daily report: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to generate report: {str(e)}",
+            detail=f"Failed to generate report: {e!s}",
         ) from e
 
 
@@ -199,7 +199,7 @@ async def get_compliance_report(
         logger.error(f"Failed to generate report: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to generate report: {str(e)}",
+            detail=f"Failed to generate report: {e!s}",
         ) from e
 
 
@@ -275,7 +275,7 @@ async def export_audit_log(
         logger.error(f"Failed to export audit log: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to export audit log: {str(e)}",
+            detail=f"Failed to export audit log: {e!s}",
         ) from e
 
 

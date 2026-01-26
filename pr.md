@@ -12,4 +12,3 @@ Before merging, ensure you've consulted the relevant superpack(s):
   - [ ] No PacketEnvelope schema changes without ADR-0066 approval
   - [ ] No authority role assignments changed without L-CTO approval
 - [ ] I have updated relevant documentation (ADRs, workflow state, superpack files) if behavior changed
-

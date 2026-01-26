@@ -37,7 +37,6 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 
 # ============================================================================
 # MIGRATION ENGINE
@@ -48,7 +47,7 @@ class DoraLegacyMigrator:
 
     def __init__(self, repo_path: str):
         self.repo_path = Path(repo_path)
-        self.legacy_files: List[str] = []
+        self.legacy_files: list[str] = []
 
     def scan_for_legacy(self) -> None:
         """Find all files with legacy __dora_block__."""
@@ -67,7 +66,7 @@ class DoraLegacyMigrator:
                 continue
 
             try:
-                with open(py_file, "r", encoding="utf-8") as f:
+                with open(py_file, encoding="utf-8") as f:
                     content = f.read()
 
                 if "__dora_block__" in content and "__dora_meta__" not in content:
@@ -77,7 +76,7 @@ class DoraLegacyMigrator:
 
         print(f"✅ Found {len(self.legacy_files)} files with legacy __dora_block__")
 
-    def _extract_legacy_block(self, content: str) -> Optional[Dict]:
+    def _extract_legacy_block(self, content: str) -> dict | None:
         """Extract legacy __dora_block__ data from file content."""
         # Pattern to match the entire  block
         pattern = r"__dora_block__\s*=\s*\{[^}]+\}"
@@ -96,8 +95,7 @@ class DoraLegacyMigrator:
             # Safely evaluate the dict using ast.literal_eval (safer than eval)
             import ast
 
-            data = ast.literal_eval(dict_str)
-            return data
+            return ast.literal_eval(dict_str)
         except Exception as e:
             print(f"⚠️  Could not parse legacy block: {e}")
             return None
@@ -117,18 +115,18 @@ class DoraLegacyMigrator:
 
         return content
 
-    def _format_new_header(self, legacy_data: Dict) -> str:
+    def _format_new_header(self, legacy_data: dict) -> str:
         """Format new __dora_meta__ header from legacy data."""
-        deps = json.dumps(legacy_data.get("dependencies", []))
+        json.dumps(legacy_data.get("dependencies", []))
 
-        return f"""# ============================================================================
+        return """# ============================================================================
 """
 
-    def _format_new_footer(self, legacy_data: Dict) -> str:
+    def _format_new_footer(self, legacy_data: dict) -> str:
         """Format new __dora_footer__ from legacy data."""
-        timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
-        return f"""
+        return """
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
@@ -182,7 +180,7 @@ class DoraLegacyMigrator:
     def migrate_file(self, file_path: str, dry_run: bool = True) -> bool:
         """Migrate a single file from legacy to new format."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Extract legacy data
@@ -219,7 +217,7 @@ class DoraLegacyMigrator:
             print(f"❌ Error migrating {file_path}: {e}")
             return False
 
-    def migrate_all(self, dry_run: bool = True) -> Dict:
+    def migrate_all(self, dry_run: bool = True) -> dict:
         """Migrate all legacy files."""
         print(f"\n{'🔍 DRY RUN MODE' if dry_run else '🚀 EXECUTION MODE'}")
         print("=" * 80)
@@ -242,7 +240,7 @@ class DoraLegacyMigrator:
 
         return results
 
-    def generate_report(self, results: Dict, output_path: str) -> None:
+    def generate_report(self, results: dict, output_path: str) -> None:
         """Generate migration report."""
         with open(output_path, "w") as f:
             json.dump(results, f, indent=2)
@@ -264,7 +262,7 @@ class DoraMultiFormatMigrator:
 
     def __init__(self, repo_path: str):
         self.repo_path = Path(repo_path)
-        self.legacy_files: Dict[str, str] = {}  # file_path -> file_type
+        self.legacy_files: dict[str, str] = {}  # file_path -> file_type
 
     def scan_for_legacy(self) -> None:
         """Find files with legacy DORA format."""
@@ -291,7 +289,7 @@ class DoraMultiFormatMigrator:
     def _is_legacy_yaml(self, file_path: Path) -> bool:
         """Check if YAML file has legacy l9_dora format."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
             return "l9_dora:" in content and "dora_meta:" not in content
         except Exception:
@@ -300,7 +298,7 @@ class DoraMultiFormatMigrator:
     def _is_legacy_json(self, file_path: Path) -> bool:
         """Check if JSON file has legacy _l9_dora format."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
             return '"_l9_dora"' in content and '"_dora_meta"' not in content
         except Exception:
@@ -309,7 +307,7 @@ class DoraMultiFormatMigrator:
     def migrate_yaml(self, file_path: str, dry_run: bool) -> bool:
         """Migrate YAML file from legacy to new format."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Extract l9_dora section
@@ -395,7 +393,7 @@ l9_trace:
             print(f"❌ Error migrating {file_path}: {e}")
             return False
 
-    def migrate_all(self, dry_run: bool = True) -> Dict:
+    def migrate_all(self, dry_run: bool = True) -> dict:
         """Migrate all legacy multi-format files."""
         results = {"total": len(self.legacy_files), "migrated": 0, "failed": 0}
 

@@ -139,9 +139,8 @@ def load_config(repo_root: Path) -> dict[str, Any]:
         sys.exit(1)
 
     with open(config_file) as f:
-        config = yaml.safe_load(f)
+        return yaml.safe_load(f)
 
-    return config
 
 
 def save_config(repo_root: Path, config: dict[str, Any]) -> None:
@@ -263,9 +262,8 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
                 if isinstance(node, ast.Import):
                     for alias in node.names:
                         facts.imports.append(alias.name)
-                elif isinstance(node, ast.ImportFrom):
-                    if node.module:
-                        facts.imports.append(node.module)
+                elif isinstance(node, ast.ImportFrom) and node.module:
+                    facts.imports.append(node.module)
 
         except Exception as e:
             print(f"WARNING: Could not parse {py_file}: {e}")
@@ -577,7 +575,7 @@ def generate_readme(
         components_lines.append(f"### `{cls.file.split('/')[-1]}` — {cls.name}\n")
 
         # Add async marker if applicable
-        async_methods = [
+        [
             m
             for m in cls.methods
             if m.startswith("async_") or m in ["execute", "run", "start"]

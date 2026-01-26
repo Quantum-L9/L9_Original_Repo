@@ -8,30 +8,28 @@
 
 ## TODO Plan (Executed)
 
-| T# | File | Lines | Action | Description |
-|----|------|-------|--------|-------------|
-| T1 | `memory/substrate_dag.py` | 287 | Delete | Remove unused repository in reasoning_node |
-| T2 | `memory/substrate_dag.py` | 545 | Delete | Remove unused repository in semantic_embed_node |
-| T3 | `memory/substrate_dag.py` | 698 | Delete | Remove unused repository in extract_insights_node |
-| T4 | `memory/substrate_dag.py` | 920 | Delete | Remove unused repository in world_model_trigger_node |
-| T5 | `memory/substrate_dag.py` | 122-125 | Replace | Simplify return statement (SIM103) |
-| T6 | `core/observability/prometheus_exporter.py` | 143 | Replace | Fix mypy syntax error (type comment) |
-| T7 | `core/observability/prometheus_exporter.py` | 36 | Delete | Remove unused Summary import |
-| T8 | `.git/hooks/pre-commit` | 219 | Replace | Fix AI security false positive (word-boundary) |
-| T9 | `.git/hooks/pre-commit` | 26-34 | Replace | Fix log directory fallback |
-
+| T#  | File                                        | Lines   | Action  | Description                                          |
+| --- | ------------------------------------------- | ------- | ------- | ---------------------------------------------------- |
+| T1  | `memory/substrate_dag.py`                   | 287     | Delete  | Remove unused repository in reasoning_node           |
+| T2  | `memory/substrate_dag.py`                   | 545     | Delete  | Remove unused repository in semantic_embed_node      |
+| T3  | `memory/substrate_dag.py`                   | 698     | Delete  | Remove unused repository in extract_insights_node    |
+| T4  | `memory/substrate_dag.py`                   | 920     | Delete  | Remove unused repository in world_model_trigger_node |
+| T5  | `memory/substrate_dag.py`                   | 122-125 | Replace | Simplify return statement (SIM103)                   |
+| T6  | `core/observability/prometheus_exporter.py` | 143     | Replace | Fix mypy syntax error (type comment)                 |
+| T7  | `core/observability/prometheus_exporter.py` | 36      | Delete  | Remove unused Summary import                         |
+| T8  | `.git/hooks/pre-commit`                     | 219     | Replace | Fix AI security false positive (word-boundary)       |
+| T9  | `.git/hooks/pre-commit`                     | 26-34   | Replace | Fix log directory fallback                           |
 
 ---
 
 ## Validation Results
 
-| Check | Result |
-|-------|--------|
-| py_compile | ✅ |
-| ruff | ✅ |
-| bash_syntax | ✅ |
-| ai_security | ✅ |
-
+| Check       | Result |
+| ----------- | ------ |
+| py_compile  | ✅     |
+| ruff        | ✅     |
+| bash_syntax | ✅     |
+| ai_security | ✅     |
 
 ---
 

@@ -49,10 +49,12 @@ __dora_meta__ = {
 import functools
 import inspect
 import time
-import structlog
+from collections.abc import Callable
 from contextvars import ContextVar
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, TypeVar
 from uuid import uuid4
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -60,8 +62,10 @@ logger = structlog.get_logger(__name__)
 F = TypeVar("F", bound=Callable[..., Any])
 
 # Context variable for trace_id propagation
-_trace_id_context: ContextVar[Optional[str]] = ContextVar("trace_id", default=None)
-_correlation_id_context: ContextVar[Optional[str]] = ContextVar("correlation_id", default=None)
+_trace_id_context: ContextVar[str | None] = ContextVar("trace_id", default=None)
+_correlation_id_context: ContextVar[str | None] = ContextVar(
+    "correlation_id", default=None
+)
 
 
 # =============================================================================
@@ -69,13 +73,13 @@ _correlation_id_context: ContextVar[Optional[str]] = ContextVar("correlation_id"
 # =============================================================================
 
 
-def get_current_trace_id() -> Optional[str]:
+def get_current_trace_id() -> str | None:
     """
     Get current trace_id from context.
-    
+
     Returns:
         Current trace_id or None if not set
-        
+
     Example:
         >>> trace_id = get_current_trace_id()
         >>> if trace_id:
@@ -87,10 +91,10 @@ def get_current_trace_id() -> Optional[str]:
 def set_trace_id(trace_id: str) -> None:
     """
     Set trace_id in current context.
-    
+
     Args:
         trace_id: Trace ID to set
-        
+
     Example:
         >>> set_trace_id(str(uuid4()))
         >>> # All subsequent @traced calls will use this trace_id
@@ -98,10 +102,10 @@ def set_trace_id(trace_id: str) -> None:
     _trace_id_context.set(trace_id)
 
 
-def get_current_correlation_id() -> Optional[str]:
+def get_current_correlation_id() -> str | None:
     """
     Get current correlation_id from context.
-    
+
     Returns:
         Current correlation_id or None if not set
     """
@@ -111,7 +115,7 @@ def get_current_correlation_id() -> Optional[str]:
 def set_correlation_id(correlation_id: str) -> None:
     """
     Set correlation_id in current context.
-    
+
     Args:
         correlation_id: Correlation ID to set
     """
@@ -123,16 +127,16 @@ def set_correlation_id(correlation_id: str) -> None:
 # =============================================================================
 
 
-def capture_source_location(frame: Optional[inspect.FrameInfo] = None) -> dict[str, Any]:
+def capture_source_location(frame: inspect.FrameInfo | None = None) -> dict[str, Any]:
     """
     Capture source code location from call stack.
-    
+
     Args:
         frame: Optional frame info (defaults to caller's frame)
-        
+
     Returns:
         Dict with file, line, function keys
-        
+
     Example:
         >>> location = capture_source_location()
         >>> print(f"Called from {location['file']}:{location['line']}")
@@ -144,7 +148,7 @@ def capture_source_location(frame: Optional[inspect.FrameInfo] = None) -> dict[s
             frame = stack[1]
         else:
             return {"file": "unknown", "line": 0, "function": "unknown"}
-    
+
     return {
         "file": frame.filename,
         "line": frame.lineno,
@@ -157,51 +161,54 @@ def capture_source_location(frame: Optional[inspect.FrameInfo] = None) -> dict[s
 # =============================================================================
 
 
-def traced(
-    func: Optional[F] = None,
+def traced[F: Callable[..., Any]](
+    func: F | None = None,
     *,
-    trace_id: Optional[str] = None,
-    correlation_id: Optional[str] = None,
+    trace_id: str | None = None,
+    correlation_id: str | None = None,
     log_entry: bool = True,
     log_exit: bool = True,
 ) -> F:
     """
     Decorator for automatic trace_id propagation.
-    
+
     Injects trace_id and correlation_id into function context,
     enabling distributed tracing across function calls.
-    
+
     Args:
         func: Function to decorate (auto-filled when used as @traced)
         trace_id: Override trace_id (defaults to context or generates new)
         correlation_id: Override correlation_id (defaults to trace_id)
         log_entry: Log function entry
         log_exit: Log function exit
-        
+
     Returns:
         Decorated function with trace context
-        
+
     Example:
         >>> @traced
         >>> async def process_task(task_id: str):
-        >>>     # trace_id automatically available in context
+        >>> # trace_id automatically available in context
         >>>     logger.info("processing", task_id=task_id)
-        
+
         >>> @traced(trace_id="custom-trace-id")
         >>> def custom_trace():
         >>>     pass
     """
+
     def decorator(f: F) -> F:
         @functools.wraps(f)
         async def async_wrapper(*args, **kwargs):
             # Get or generate trace IDs
             current_trace_id = trace_id or get_current_trace_id() or str(uuid4())
-            current_correlation_id = correlation_id or get_current_correlation_id() or current_trace_id
-            
+            current_correlation_id = (
+                correlation_id or get_current_correlation_id() or current_trace_id
+            )
+
             # Set context
             _trace_id_context.set(current_trace_id)
             _correlation_id_context.set(current_correlation_id)
-            
+
             # Log entry
             if log_entry:
                 logger.debug(
@@ -211,10 +218,10 @@ def traced(
                     function=f.__name__,
                     module=f.__module__,
                 )
-            
+
             try:
                 result = await f(*args, **kwargs)
-                
+
                 # Log exit
                 if log_exit:
                     logger.debug(
@@ -223,7 +230,7 @@ def traced(
                         correlation_id=current_correlation_id,
                         function=f.__name__,
                     )
-                
+
                 return result
             except Exception as e:
                 logger.error(
@@ -235,17 +242,19 @@ def traced(
                     error_type=type(e).__name__,
                 )
                 raise
-        
+
         @functools.wraps(f)
         def sync_wrapper(*args, **kwargs):
             # Get or generate trace IDs
             current_trace_id = trace_id or get_current_trace_id() or str(uuid4())
-            current_correlation_id = correlation_id or get_current_correlation_id() or current_trace_id
-            
+            current_correlation_id = (
+                correlation_id or get_current_correlation_id() or current_trace_id
+            )
+
             # Set context
             _trace_id_context.set(current_trace_id)
             _correlation_id_context.set(current_correlation_id)
-            
+
             # Log entry
             if log_entry:
                 logger.debug(
@@ -255,10 +264,10 @@ def traced(
                     function=f.__name__,
                     module=f.__module__,
                 )
-            
+
             try:
                 result = f(*args, **kwargs)
-                
+
                 # Log exit
                 if log_exit:
                     logger.debug(
@@ -267,7 +276,7 @@ def traced(
                         correlation_id=current_correlation_id,
                         function=f.__name__,
                     )
-                
+
                 return result
             except Exception as e:
                 logger.error(
@@ -279,59 +288,57 @@ def traced(
                     error_type=type(e).__name__,
                 )
                 raise
-        
+
         # Return appropriate wrapper based on function type
         if inspect.iscoroutinefunction(f):
             return async_wrapper
-        else:
-            return sync_wrapper
-    
+        return sync_wrapper
+
     # Support both @traced and @traced()
     if func is None:
         return decorator
-    else:
-        return decorator(func)
+    return decorator(func)
 
 
-def timed(
-    func: Optional[F] = None,
+def timed[F: Callable[..., Any]](
+    func: F | None = None,
     *,
-    log_threshold_ms: Optional[float] = None,
+    log_threshold_ms: float | None = None,
 ) -> F:
     """
     Decorator for execution time tracking.
-    
+
     Logs execution time for function calls. Optionally only logs
     if execution time exceeds threshold.
-    
+
     Args:
         func: Function to decorate
         log_threshold_ms: Only log if execution time exceeds this (milliseconds)
-        
+
     Returns:
         Decorated function with timing
-        
+
     Example:
         >>> @timed
         >>> async def slow_operation():
         >>>     await asyncio.sleep(1)
-        >>>     # Logs: slow_operation.timed duration_ms=1000.0
-        
+        >>> # Logs: slow_operation.timed duration_ms=1000.0
+
         >>> @timed(log_threshold_ms=100)
         >>> def fast_operation():
         >>>     pass  # Won't log if < 100ms
     """
+
     def decorator(f: F) -> F:
         @functools.wraps(f)
         async def async_wrapper(*args, **kwargs):
             start_time = time.perf_counter()
-            
+
             try:
-                result = await f(*args, **kwargs)
-                return result
+                return await f(*args, **kwargs)
             finally:
                 duration_ms = (time.perf_counter() - start_time) * 1000
-                
+
                 # Only log if threshold not set or exceeded
                 if log_threshold_ms is None or duration_ms >= log_threshold_ms:
                     logger.info(
@@ -340,17 +347,16 @@ def timed(
                         duration_ms=round(duration_ms, 2),
                         trace_id=get_current_trace_id(),
                     )
-        
+
         @functools.wraps(f)
         def sync_wrapper(*args, **kwargs):
             start_time = time.perf_counter()
-            
+
             try:
-                result = f(*args, **kwargs)
-                return result
+                return f(*args, **kwargs)
             finally:
                 duration_ms = (time.perf_counter() - start_time) * 1000
-                
+
                 # Only log if threshold not set or exceeded
                 if log_threshold_ms is None or duration_ms >= log_threshold_ms:
                     logger.info(
@@ -359,22 +365,20 @@ def timed(
                         duration_ms=round(duration_ms, 2),
                         trace_id=get_current_trace_id(),
                     )
-        
+
         # Return appropriate wrapper based on function type
         if inspect.iscoroutinefunction(f):
             return async_wrapper
-        else:
-            return sync_wrapper
-    
+        return sync_wrapper
+
     # Support both @timed and @timed()
     if func is None:
         return decorator
-    else:
-        return decorator(func)
+    return decorator(func)
 
 
-def logged(
-    func: Optional[F] = None,
+def logged[F: Callable[..., Any]](
+    func: F | None = None,
     *,
     level: str = "info",
     log_args: bool = False,
@@ -382,26 +386,27 @@ def logged(
 ) -> F:
     """
     Decorator for automatic structured logging.
-    
+
     Logs function entry, exit, and optionally arguments and results.
-    
+
     Args:
         func: Function to decorate
         level: Log level (debug, info, warning, error)
         log_args: Log function arguments
         log_result: Log function result
-        
+
     Returns:
         Decorated function with logging
-        
+
     Example:
         >>> @logged(level="debug", log_args=True)
         >>> def process_data(data: dict):
         >>>     return data["result"]
     """
+
     def decorator(f: F) -> F:
         log_func = getattr(logger, level, logger.info)
-        
+
         @functools.wraps(f)
         async def async_wrapper(*args, **kwargs):
             log_data = {
@@ -409,22 +414,22 @@ def logged(
                 "module": f.__module__,
                 "trace_id": get_current_trace_id(),
             }
-            
+
             if log_args:
                 log_data["args"] = str(args)[:100]  # Truncate for safety
                 log_data["kwargs"] = {k: str(v)[:100] for k, v in kwargs.items()}
-            
+
             log_func(f"{f.__name__}.called", **log_data)
-            
+
             result = await f(*args, **kwargs)
-            
+
             if log_result:
                 log_data["result"] = str(result)[:100]  # Truncate for safety
-            
+
             log_func(f"{f.__name__}.completed", **log_data)
-            
+
             return result
-        
+
         @functools.wraps(f)
         def sync_wrapper(*args, **kwargs):
             log_data = {
@@ -432,47 +437,45 @@ def logged(
                 "module": f.__module__,
                 "trace_id": get_current_trace_id(),
             }
-            
+
             if log_args:
                 log_data["args"] = str(args)[:100]  # Truncate for safety
                 log_data["kwargs"] = {k: str(v)[:100] for k, v in kwargs.items()}
-            
+
             log_func(f"{f.__name__}.called", **log_data)
-            
+
             result = f(*args, **kwargs)
-            
+
             if log_result:
                 log_data["result"] = str(result)[:100]  # Truncate for safety
-            
+
             log_func(f"{f.__name__}.completed", **log_data)
-            
+
             return result
-        
+
         # Return appropriate wrapper based on function type
         if inspect.iscoroutinefunction(f):
             return async_wrapper
-        else:
-            return sync_wrapper
-    
+        return sync_wrapper
+
     # Support both @logged and @logged()
     if func is None:
         return decorator
-    else:
-        return decorator(func)
+    return decorator(func)
 
 
-def with_source_location(func: F) -> F:
+def with_source_location[F: Callable[..., Any]](func: F) -> F:
     """
     Decorator to capture source code location.
-    
+
     Injects source_location into function kwargs if it accepts it.
-    
+
     Args:
         func: Function to decorate
-        
+
     Returns:
         Decorated function with source location
-        
+
     Example:
         >>> @with_source_location
         >>> def create_packet(payload: dict, source_location: dict = None):
@@ -482,6 +485,7 @@ def with_source_location(func: F) -> F:
         >>>         source_location=source_location,
         >>>     )
     """
+
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         # Capture source location
@@ -489,14 +493,14 @@ def with_source_location(func: F) -> F:
         if len(stack) > 1:
             caller_frame = stack[1]
             source_location = capture_source_location(caller_frame)
-            
+
             # Inject if function accepts source_location parameter
             sig = inspect.signature(func)
             if "source_location" in sig.parameters:
                 kwargs["source_location"] = source_location
-        
+
         return func(*args, **kwargs)
-    
+
     return wrapper
 
 
@@ -505,13 +509,13 @@ def with_source_location(func: F) -> F:
 # =============================================================================
 
 __all__ = [
-    "traced",
-    "timed",
-    "logged",
-    "with_source_location",
-    "get_current_trace_id",
-    "set_trace_id",
-    "get_current_correlation_id",
-    "set_correlation_id",
     "capture_source_location",
+    "get_current_correlation_id",
+    "get_current_trace_id",
+    "logged",
+    "set_correlation_id",
+    "set_trace_id",
+    "timed",
+    "traced",
+    "with_source_location",
 ]

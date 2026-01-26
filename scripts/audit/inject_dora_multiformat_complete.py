@@ -41,7 +41,6 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
 
 # ============================================================================
 # DATA MODELS
@@ -64,7 +63,7 @@ class HeaderMeta:
     compliance_required: bool
     audit_trail: bool
     purpose: str
-    dependencies: List[str]
+    dependencies: list[str]
 
 
 @dataclass
@@ -88,11 +87,11 @@ class DoraTraceBlock:
     trace_id: str = ""
     task: str = ""
     timestamp: str = ""
-    patterns_used: List[str] = field(default_factory=list)
-    graph: Dict = field(default_factory=lambda: {"nodes": [], "edges": []})
-    inputs: Dict = field(default_factory=dict)
-    outputs: Dict = field(default_factory=dict)
-    metrics: Dict = field(
+    patterns_used: list[str] = field(default_factory=list)
+    graph: dict = field(default_factory=lambda: {"nodes": [], "edges": []})
+    inputs: dict = field(default_factory=dict)
+    outputs: dict = field(default_factory=dict)
+    metrics: dict = field(
         default_factory=lambda: {
             "confidence": "",
             "errors_detected": [],
@@ -143,10 +142,10 @@ class DoraMultiFormatInjector:
 
     def __init__(self, repo_path: str):
         self.repo_path = Path(repo_path)
-        self.files_to_process: Dict[str, str] = {}  # file_path -> file_type
-        self.component_id_counter: Dict[str, int] = {}
+        self.files_to_process: dict[str, str] = {}  # file_path -> file_type
+        self.component_id_counter: dict[str, int] = {}
 
-    def scan_repository(self, file_types: List[str]) -> None:
+    def scan_repository(self, file_types: list[str]) -> None:
         """Scan repository for specified file types."""
         print(f"🔍 Scanning repository for: {', '.join(file_types)}")
 
@@ -229,18 +228,16 @@ class DoraMultiFormatInjector:
         if file_type in ["yaml", "yml"]:
             if "config" in filename or "settings" in filename:
                 return "config"
-            elif "schema" in filename:
-                return "schema"
-            elif "kernel" in filename:
-                return "config"
-            else:
-                return "config"
-        elif file_type == "json":
             if "schema" in filename:
                 return "schema"
-            else:
+            if "kernel" in filename:
                 return "config"
-        elif file_type == "md":
+            return "config"
+        if file_type == "json":
+            if "schema" in filename:
+                return "schema"
+            return "config"
+        if file_type == "md":
             return "schema"  # Documentation as schema per contract
 
         return "config"
@@ -263,12 +260,9 @@ class DoraMultiFormatInjector:
 
         if domain in critical_domains or layer in critical_layers:
             return "critical"
-        elif layer == "intelligence":
+        if layer == "intelligence" or layer == "learning":
             return "high"
-        elif layer == "learning":
-            return "high"
-        else:
-            return "medium"
+        return "medium"
 
     def _generate_purpose(self, file_path: str, file_type: str) -> str:
         """Generate purpose statement."""
@@ -276,9 +270,9 @@ class DoraMultiFormatInjector:
 
         if file_type in ["yaml", "yml"]:
             return f"Configuration for {filename}"
-        elif file_type == "json":
+        if file_type == "json":
             return f"Schema or configuration definition for {filename}"
-        elif file_type == "md":
+        if file_type == "md":
             return f"Documentation for {filename}"
 
         return f"Configuration: {filename}"
@@ -327,10 +321,10 @@ class DoraMultiFormatInjector:
 
         return header, footer, trace
 
-    def _check_existing_blocks(self, file_path: str, file_type: str) -> Dict[str, bool]:
+    def _check_existing_blocks(self, file_path: str, file_type: str) -> dict[str, bool]:
         """Check which DORA blocks already exist."""
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             if file_type in ["yaml", "yml"]:
@@ -340,14 +334,14 @@ class DoraMultiFormatInjector:
                     "trace": "l9_trace:" in content,
                     "legacy": "l9_dora:" in content,
                 }
-            elif file_type == "json":
+            if file_type == "json":
                 return {
                     "header": '"_dora_meta"' in content,
                     "footer": '"_dora_footer"' in content,
                     "trace": '"_l9_trace"' in content,
                     "legacy": '"_l9_dora"' in content,
                 }
-            elif file_type == "md":
+            if file_type == "md":
                 return {
                     "header": "## DORA HEADER META" in content,
                     "footer": "## DORA FOOTER META" in content,
@@ -585,7 +579,7 @@ l9_trace:
         footer: FooterMeta,
         trace: DoraTraceBlock,
         dry_run: bool,
-    ) -> Dict[str, bool]:
+    ) -> dict[str, bool]:
         """Inject all blocks into YAML file."""
         results = {"header": False, "footer": False, "trace": False}
 
@@ -596,7 +590,7 @@ l9_trace:
                 print(f"⚠️  {file_path} has legacy l9_dora - needs migration")
                 return results
 
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             modified = False
@@ -646,7 +640,7 @@ l9_trace:
         footer: FooterMeta,
         trace: DoraTraceBlock,
         dry_run: bool,
-    ) -> Dict[str, bool]:
+    ) -> dict[str, bool]:
         """Inject all blocks into JSON file."""
         results = {"header": False, "footer": False, "trace": False}
 
@@ -657,7 +651,7 @@ l9_trace:
                 print(f"⏭️  Skipping {file_path} (all blocks exist)")
                 return results
 
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 data = json.load(f)
 
             if not existing["header"]:
@@ -691,7 +685,7 @@ l9_trace:
         footer: FooterMeta,
         trace: DoraTraceBlock,
         dry_run: bool,
-    ) -> Dict[str, bool]:
+    ) -> dict[str, bool]:
         """Inject all blocks into Markdown file."""
         results = {"header": False, "footer": False, "trace": False}
 
@@ -702,7 +696,7 @@ l9_trace:
                 print(f"⚠️  {file_path} has legacy DORA block - needs migration")
                 return results
 
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             modified = False
@@ -751,7 +745,7 @@ l9_trace:
             print(f"❌ Error processing {file_path}: {e}")
             return results
 
-    def process_all_files(self, dry_run: bool = True) -> Dict:
+    def process_all_files(self, dry_run: bool = True) -> dict:
         """Process all files and inject DORA blocks."""
         print(f"\n{'🔍 DRY RUN MODE' if dry_run else '🚀 EXECUTION MODE'}")
         print("=" * 80)
@@ -806,7 +800,7 @@ l9_trace:
 
         return results
 
-    def generate_report(self, results: Dict, output_path: str) -> None:
+    def generate_report(self, results: dict, output_path: str) -> None:
         """Generate injection report."""
         with open(output_path, "w") as f:
             json.dump(results, f, indent=2)

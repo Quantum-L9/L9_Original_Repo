@@ -36,8 +36,8 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
 
 import structlog
 
@@ -293,17 +293,17 @@ def get_bootstrap_metrics(agent_id: str) -> BootstrapMetrics:
 # =============================================================================
 
 __all__ = [
-    "BootstrapMetrics",
-    "get_bootstrap_metrics",
+    "ACTIVE_BOOTSTRAPS",
+    "BOOTSTRAP_INIT_SIGNATURES",
     "BOOTSTRAP_PHASE_DURATION",
     "BOOTSTRAP_PHASE_ERRORS",
     "BOOTSTRAP_ROLLBACKS",
-    "BOOTSTRAP_INIT_SIGNATURES",
     "BOOTSTRAP_TOTAL",
-    "ACTIVE_BOOTSTRAPS",
     "KERNELS_BOUND",
-    "TOOLS_BOUND",
     "PROMETHEUS_AVAILABLE",
+    "TOOLS_BOUND",
+    "BootstrapMetrics",
+    "get_bootstrap_metrics",
 ]
 
 # ============================================================================

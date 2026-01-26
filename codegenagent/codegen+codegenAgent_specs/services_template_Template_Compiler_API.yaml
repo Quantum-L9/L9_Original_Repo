@@ -31,7 +31,7 @@ wiring:
     - body: { template_type, template_yaml }
   outputs:
     - path: compiled_output/{agent, module, layer}/
-    - status: {"success": true, "path": "..."}
+    - status: { "success": true, "path": "..." }
   triggers:
     - HTTP POST to /compile_template
 

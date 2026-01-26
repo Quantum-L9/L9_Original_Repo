@@ -38,17 +38,20 @@ import asyncio
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
 import yaml
 
-from core.schemas import (PacketEnvelope, PacketEnvelopeIn, PacketMetadata,
-                          PacketProvenance)
+from core.schemas import (
+    PacketEnvelope,
+    PacketEnvelopeIn,
+    PacketMetadata,
+    PacketProvenance,
+)
 from memory.substrate_service import MemorySubstrateService
-from world_model.knowledge_ingestor import (IngestResult, KnowledgeIngestor,
-                                            SourceType)
+from world_model.knowledge_ingestor import IngestResult, KnowledgeIngestor, SourceType
 from world_model.state import WorldModelState
 
 logger = structlog.get_logger(__name__)
@@ -92,7 +95,7 @@ class SeedLoader:
         self,
         substrate: MemorySubstrateService,
         ingestor: KnowledgeIngestor,
-        seed_dir: Optional[str] = None,
+        seed_dir: str | None = None,
     ):
         """
         Initialize the seed loader.
@@ -137,7 +140,7 @@ class SeedLoader:
         if not path.exists():
             raise FileNotFoundError(f"Seed file not found: {path}")
 
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             data = yaml.safe_load(f)
 
         logger.info(f"Loaded YAML: {path.name}, type={data.get('type', 'unknown')}")
@@ -224,9 +227,8 @@ class SeedLoader:
             if result.status == "ok":
                 logger.info(f"Wrote packet {packet.packet_id} to substrate")
                 return True
-            else:
-                logger.error(f"Failed to write packet: {result.error_message}")
-                return False
+            logger.error(f"Failed to write packet: {result.error_message}")
+            return False
 
         except Exception as e:
             logger.error(f"Substrate write failed: {e}")
@@ -573,9 +575,11 @@ class SeedLoader:
                 await self.write_packet_to_substrate(packet)
 
             # Load into reflection memory directly
-            from world_model.reflection_memory import (ReflectionMemory,
-                                                       ReflectionPriority,
-                                                       ReflectionType)
+            from world_model.reflection_memory import (
+                ReflectionMemory,
+                ReflectionPriority,
+                ReflectionType,
+            )
 
             # Get or create reflection memory instance
             reflection_memory = None
@@ -690,8 +694,8 @@ class SeedLoader:
 
 
 async def run_seed_loader(
-    seed_dir: Optional[str] = None,
-    db_url: Optional[str] = None,
+    seed_dir: str | None = None,
+    db_url: str | None = None,
 ) -> dict[str, Any]:
     """
     Run the seed loader as standalone process.

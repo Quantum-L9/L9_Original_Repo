@@ -59,16 +59,16 @@ Kernel loading, validation, and integrity verification
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                     | Purpose          |
+| -------------------------- | ---------------- |
 | `runtime/kernel_loader.py` | Uses this module |
-| `core/agents/executor.py` | Uses this module |
+| `core/agents/executor.py`  | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `config/kernels/` | Required dependency |
+| Module             | Purpose             |
+| ------------------ | ------------------- |
+| `config/kernels/`  | Required dependency |
 | `private/kernels/` | Required dependency |
 
 ---
@@ -84,13 +84,13 @@ core/kernels/
 ├── schemas.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `kernel_validator.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
-| `kernelloader.py` | Protocol for agents that can absorb kernels. |
-| `kernelloader.py` | Result of a kernel hot-reload operation. |
-| `schemas.py` | Base model that allows extra fields for forward co |
+| File                  | Purpose                                            |
+| --------------------- | -------------------------------------------------- |
+| `kernel_validator.py` | Core module (PROTECTED)                            |
+| `__init__.py`         | Core module (PROTECTED)                            |
+| `kernelloader.py`     | Protocol for agents that can absorb kernels.       |
+| `kernelloader.py`     | Result of a kernel hot-reload operation.           |
+| `schemas.py`          | Base model that allows extra fields for forward co |
 
 ### Naming Conventions
 
@@ -108,7 +108,7 @@ core/kernels/
 ```python
 class KernelAwareAgent:
     """Protocol for agents that can absorb kernels."""
-    
+
     # Key methods:
 
     async def absorb_kernel(self, ...): ...
@@ -126,7 +126,7 @@ class KernelAwareAgent:
 ```python
 class KernelReloadResult:
     """Result of a kernel hot-reload operation."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -142,7 +142,7 @@ class KernelReloadResult:
 ```python
 class FlexibleModel:
     """Base model that allows extra fields for forward compatibility."""
-    
+
     # Key methods:
 
 ```
@@ -154,7 +154,7 @@ class FlexibleModel:
 ```python
 class KernelType:
     """Kernel type identifiers."""
-    
+
     # Key methods:
 
 ```
@@ -166,13 +166,12 @@ class KernelType:
 ```python
 class KernelState:
     """Kernel activation states."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 88-95 in `schemas.py`
-
 
 ---
 
@@ -247,9 +246,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Kernels feature flags
-L9_ENABLE_CORE_KERNELS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_KERNELS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_KERNELS_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_KERNELS_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_KERNELS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_KERNELS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -311,7 +310,6 @@ Build execution rules from execution kernel.
 - **File:** `prompt_builder.py:182`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -352,6 +350,7 @@ Core Kernels operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -359,12 +358,12 @@ Core Kernels operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                               | Type      | Description                    |
+| ------------------------------------ | --------- | ------------------------------ |
 | `core_kernels_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_kernels_operation_total` | Counter | Total operations processed |
-| `core_kernels_error_total` | Counter | Total errors encountered |
-| `core_kernels_active_connections` | Gauge | Current active connections |
+| `core_kernels_operation_total`       | Counter   | Total operations processed     |
+| `core_kernels_error_total`           | Counter   | Total errors encountered       |
+| `core_kernels_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -382,6 +381,7 @@ Core Kernels emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_kernels/`:
+
 - `test_core_kernels.py` — Core unit tests
 - `test_core_kernels_integration.py` — Integration tests (if applicable)
 
@@ -426,6 +426,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

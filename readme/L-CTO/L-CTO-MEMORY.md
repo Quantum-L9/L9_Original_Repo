@@ -1,6 +1,6 @@
 # L-CTO Memory Architecture
 
-*Updated: 2026-01-08*
+_Updated: 2026-01-08_
 
 ## Current Design: **Shared User ID, Different Scope**
 
@@ -8,10 +8,10 @@ You set it up correctly. Here's how it works:
 
 ### Identity Model
 
-| Caller | API Key | User ID | Creator | Scope |
-|--------|---------|---------|---------|-------|
-| **L** (L-CTO Kernel) | `MCP_API_KEY_L` | `l9-shared` | `L-CTO` | Full read/write/delete |
-| **C** (Cursor IDE) | `MCP_API_KEY_C` | `l9-shared` | `Cursor-IDE` | Read all, write/delete **own only** |
+| Caller               | API Key         | User ID     | Creator      | Scope                               |
+| -------------------- | --------------- | ----------- | ------------ | ----------------------------------- |
+| **L** (L-CTO Kernel) | `MCP_API_KEY_L` | `l9-shared` | `L-CTO`      | Full read/write/delete              |
+| **C** (Cursor IDE)   | `MCP_API_KEY_C` | `l9-shared` | `Cursor-IDE` | Read all, write/delete **own only** |
 
 ### How L Sees My Memories (But Not Vice Versa)
 
@@ -43,6 +43,7 @@ You set it up correctly. Here's how it works:
 3. **Write/Delete scope** = C can only modify where `creator = 'Cursor-IDE'`
 
 From `main.py`:
+
 ```python
 # L: Full access
 if token == settings.MCP_API_KEY_L:
@@ -55,15 +56,15 @@ elif token == settings.MCP_API_KEY_C:
 
 ### What This Means
 
-| Action | L Can Do? | Cursor Can Do? |
-|--------|-----------|----------------|
-| Read L's memories | ✅ | ✅ |
-| Read Cursor's memories | ✅ | ✅ |
-| Write new memories | ✅ (creator=L-CTO) | ✅ (creator=Cursor-IDE) |
-| Delete L's memories | ✅ | ❌ |
-| Delete Cursor's memories | ✅ | ✅ |
-| Update L's memories | ✅ | ❌ |
-| Update Cursor's memories | ✅ | ✅ |
+| Action                   | L Can Do?          | Cursor Can Do?          |
+| ------------------------ | ------------------ | ----------------------- |
+| Read L's memories        | ✅                 | ✅                      |
+| Read Cursor's memories   | ✅                 | ✅                      |
+| Write new memories       | ✅ (creator=L-CTO) | ✅ (creator=Cursor-IDE) |
+| Delete L's memories      | ✅                 | ❌                      |
+| Delete Cursor's memories | ✅                 | ✅                      |
+| Update L's memories      | ✅                 | ❌                      |
+| Update Cursor's memories | ✅                 | ✅                      |
 
 ### This Is Intentional Design
 
@@ -77,12 +78,12 @@ L (as CTO kernel) has **supervisory access** — can see and modify everything C
 
 L has 20 memory-related tools (auto-discovered via GMP-44):
 
-| Category | Tools | Description |
-|----------|-------|-------------|
-| Core | `memory_search`, `memory_write`, `memory_hybrid_search` | Basic read/write |
-| Substrate Direct | 9 tools | Direct packet access |
-| Client API | 5 tools | High-level operations |
-| Advanced | 3 tools | Health, checkpoints, world model |
+| Category         | Tools                                                   | Description                      |
+| ---------------- | ------------------------------------------------------- | -------------------------------- |
+| Core             | `memory_search`, `memory_write`, `memory_hybrid_search` | Basic read/write                 |
+| Substrate Direct | 9 tools                                                 | Direct packet access             |
+| Client API       | 5 tools                                                 | High-level operations            |
+| Advanced         | 3 tools                                                 | Health, checkpoints, world model |
 
 See `readme/L-CTO-ABILITIES.md` for full list.
 
@@ -96,8 +97,8 @@ Cursor accesses memory via REST API:
 python3 .cursor-commands/cursor-memory/cursor_memory_client.py [command]
 ```
 
-| Command | Purpose |
-|---------|---------|
-| `search "query"` | Semantic search |
-| `write "content" --kind TYPE` | Write packet |
-| `health` | Check connectivity |
+| Command                       | Purpose            |
+| ----------------------------- | ------------------ |
+| `search "query"`              | Semantic search    |
+| `write "content" --kind TYPE` | Write packet       |
+| `health`                      | Check connectivity |

@@ -85,4 +85,3 @@ failure_handling:
       trigger: "safety boundary or severe contradiction"
       behavior:
         - "Stop, explain the conflict, and wait for Igor."
-

@@ -39,7 +39,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -139,7 +139,7 @@ class ScenarioLoader:
     - Dynamic scenario generation
     """
 
-    def __init__(self, scenario_dir: Optional[Path] = None):
+    def __init__(self, scenario_dir: Path | None = None):
         """
         Initialize the scenario loader.
 
@@ -327,7 +327,7 @@ class ScenarioLoader:
         Returns:
             Loaded Scenario
         """
-        with open(path, "r") as f:
+        with open(path) as f:
             data = json.load(f)
 
         scenario = Scenario.from_dict(data)
@@ -356,7 +356,7 @@ class ScenarioLoader:
 
         return loaded
 
-    def save_scenario(self, scenario: Scenario, path: Optional[Path] = None) -> Path:
+    def save_scenario(self, scenario: Scenario, path: Path | None = None) -> Path:
         """
         Save a scenario to a file.
 
@@ -386,7 +386,7 @@ class ScenarioLoader:
     # Scenario Access
     # ==========================================================================
 
-    def get_scenario(self, name: str) -> Optional[Scenario]:
+    def get_scenario(self, name: str) -> Scenario | None:
         """Get a scenario by name."""
         if not self._builtin_loaded:
             self.load_builtins()
@@ -418,8 +418,8 @@ class ScenarioLoader:
         self,
         name: str,
         scenario_type: ScenarioType,
-        conditions: Optional[list[dict[str, Any]]] = None,
-        parameters: Optional[dict[str, Any]] = None,
+        conditions: list[dict[str, Any]] | None = None,
+        parameters: dict[str, Any] | None = None,
         description: str = "",
     ) -> Scenario:
         """

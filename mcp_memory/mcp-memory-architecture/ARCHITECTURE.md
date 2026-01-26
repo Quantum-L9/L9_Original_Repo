@@ -1,7 +1,7 @@
 # L9 Unified Memory Architecture
 
-**Version:** 2.0 (Multi-Project)  
-**Updated:** 2026-01-02  
+**Version:** 2.0 (Multi-Project)
+**Updated:** 2026-01-02
 **Status:** LOCKED
 
 ---
@@ -53,10 +53,10 @@ L (L-CTO) and Cursor share a **unified memory substrate** with scope-based acces
 
 ## Access Matrix
 
-| Actor | `developer` | `l-private` |
-|-------|-------------|-------------|
-| **Cursor (C)** | ✅ READ/WRITE (global) | ❌ BLOCKED |
-| **L-CTO** | ✅ READ/WRITE | ✅ READ/WRITE |
+| Actor          | `developer`            | `l-private`   |
+| -------------- | ---------------------- | ------------- |
+| **Cursor (C)** | ✅ READ/WRITE (global) | ❌ BLOCKED    |
+| **L-CTO**      | ✅ READ/WRITE          | ✅ READ/WRITE |
 
 **Key invariant:** `WHERE scope = 'developer'` on ALL Cursor queries.
 
@@ -219,7 +219,7 @@ L (L-CTO) and Cursor share a **unified memory substrate** with scope-based acces
 1. **Scope determines visibility**, not author
 2. **Cursor = `developer` scope ONLY** (enforced server-side)
 3. **L sees everything** (full substrate access)
-4. **No separate memory.* tables** (unified substrate)
+4. **No separate memory.\* tables** (unified substrate)
 5. **project_id enables multi-project** (l9, future projects)
 6. **Audit trail on every operation** (caller, scope, project)
 
@@ -227,14 +227,14 @@ L (L-CTO) and Cursor share a **unified memory substrate** with scope-based acces
 
 ## Implementation Status
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Schema changes (project_id, scope) | ⏳ PENDING | Need migration |
-| MCP handlers → packet_store | ⏳ PENDING | Rewrite handlers |
-| Scope enforcement in handlers | ⏳ PENDING | Add WHERE clause |
-| Delete memory.* tables | ⏳ PENDING | After migration |
-| VPS deployment | ⏳ PENDING | Caddy + restart |
-| End-to-end test | ⏳ PENDING | Write + read + verify |
+| Component                          | Status     | Notes                 |
+| ---------------------------------- | ---------- | --------------------- |
+| Schema changes (project_id, scope) | ⏳ PENDING | Need migration        |
+| MCP handlers → packet_store        | ⏳ PENDING | Rewrite handlers      |
+| Scope enforcement in handlers      | ⏳ PENDING | Add WHERE clause      |
+| Delete memory.\* tables            | ⏳ PENDING | After migration       |
+| VPS deployment                     | ⏳ PENDING | Caddy + restart       |
+| End-to-end test                    | ⏳ PENDING | Write + read + verify |
 
 ---
 
@@ -243,8 +243,3 @@ L (L-CTO) and Cursor share a **unified memory substrate** with scope-based acces
 - **Spec:** `mcp_memory/memory-setup-instructions.md`
 - **Architecture:** `mcp_memory/mcp-memory-architecture/ARCHITECTURE.md` (this file)
 - **Old docs:** `mcp_memory/mcp-memory-architecture/_archived/` (deprecated)
-
-
-
-
-

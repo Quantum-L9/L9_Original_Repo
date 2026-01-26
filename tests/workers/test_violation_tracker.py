@@ -14,12 +14,17 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from workers.violation_patterns import (ViolationMatch, ViolationPatterns,
-                                        ViolationPatternsResponse,
-                                        ViolationSeverity)
-from workers.violation_tracker_service import (ViolationRecord,
-                                               ViolationTrackerService,
-                                               ViolationTrackerServiceRequest)
+from workers.violation_patterns import (
+    ViolationMatch,
+    ViolationPatterns,
+    ViolationPatternsResponse,
+    ViolationSeverity,
+)
+from workers.violation_tracker_service import (
+    ViolationRecord,
+    ViolationTrackerService,
+    ViolationTrackerServiceRequest,
+)
 
 
 class TestViolationTrackerServiceInit:

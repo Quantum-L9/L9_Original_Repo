@@ -169,17 +169,17 @@ EOF
 rollback() {
     log_header "ROLLBACK INITIATED"
     log_error "Deployment failed! Reverting to previous state..."
-    
+
     if [[ -n "$PREV_VPS_SHA" ]]; then
         log_step "Reverting VPS to SHA: $PREV_VPS_SHA"
         ssh "$VPS_HOST" "cd $VPS_REPO && git checkout $PREV_VPS_SHA 2>&1" || log_error "Git rollback failed!"
-        
+
         log_step "Rebuilding ALL services with previous code..."
         ssh "$VPS_HOST" "cd $VPS_REPO && docker compose down 2>/dev/null || true"
         ssh "$VPS_HOST" "cd $VPS_REPO && docker compose up -d --build" || log_error "Service restart failed!"
-        
+
         wait_with_spinner 15 "Allowing all services to stabilize..."
-        
+
         # Verify rollback worked
         log_step "Verifying rollback health..."
         ROLLBACK_HEALTH=$(ssh "$VPS_HOST" "curl -s --max-time 10 http://127.0.0.1:8000/health 2>/dev/null || echo 'FAIL'")
@@ -194,7 +194,7 @@ rollback() {
         log_error "No previous SHA saved - cannot rollback"
         log_error "Manual intervention required: ssh $VPS_HOST"
     fi
-    
+
     log_error "Deployment log: $DEPLOY_LOG"
     exit 1
 }
@@ -256,26 +256,26 @@ COMMIT_MSG="${COMMIT_MSG:-chore(deploy): automated 10X deployment}"
 
 if [[ "$DRY_RUN" == "true" ]]; then
     log_header "DRY RUN MODE - No changes will be made"
-    
+
     cd "$MAC_REPO"
-    
+
     echo ""
     log_step "Would commit with message: '$COMMIT_MSG'"
     echo ""
-    
+
     log_step "Local changes to commit:"
     git status --short
     echo ""
-    
+
     log_step "Commits to push:"
     git fetch origin 2>/dev/null || true
     git log --oneline origin/main..HEAD 2>/dev/null || echo "  (none or not fetched)"
     echo ""
-    
+
     log_step "VPS would pull and rebuild l9-api"
     [[ "$QUICK" == "true" ]] && echo "  (--quick mode: with cache)" || echo "  (full rebuild: --no-cache)"
     echo ""
-    
+
     log_ok "Dry run complete. Run without --dry-run to execute."
     exit 0
 fi
@@ -457,12 +457,12 @@ MIGRATION_COUNT=$(echo "$MIGRATION_COUNT" | tr -d '[:space:]')
 
 if [[ "$MIGRATION_COUNT" -gt 0 ]]; then
     log_ok "Found $MIGRATION_COUNT migration file(s) - auto-applied on l9-api startup"
-    
+
     # Show migration status from database (Python runner uses schema_migrations table)
     log_step "Checking applied migrations in database..."
     APPLIED_COUNT=$(ssh "$VPS_HOST" "cd $VPS_REPO && docker compose exec -T l9-postgres psql -U \$POSTGRES_USER -d \$POSTGRES_DB -t -c 'SELECT COUNT(*) FROM schema_migrations' 2>/dev/null | tr -d ' '" || echo "0")
     log_ok "Already applied: $APPLIED_COUNT migrations (tracked in schema_migrations table)"
-    
+
     # Manual run is deprecated - just show info
     if [[ "$RUN_MIGRATIONS" == "true" ]]; then
         log_warn "--run-migrations is deprecated (migrations auto-run on startup)"
@@ -511,7 +511,7 @@ BUILD_OPTS=""
 if [[ "$QUICK" == "false" ]]; then
     BUILD_OPTS="--no-cache"
     log_step "Building ALL images (no cache - FRESH SLATE)..."
-    
+
     # Remove old images to force complete rebuild
     log_step "Removing old images to force fresh builds..."
     ssh "$VPS_HOST" "docker rmi l9-l9-api l9-l9-mcp-memory 2>/dev/null || true"
@@ -593,18 +593,18 @@ while [[ $RETRY_COUNT -lt $HEALTH_MAX_RETRIES ]]; do
     HEALTH_RESULT=$(ssh "$VPS_HOST" "curl -s -w '\n%{http_code}' --max-time 10 http://127.0.0.1:8000/health 2>/dev/null || echo -e 'FAIL\n000'")
     HEALTH_RESPONSE=$(echo "$HEALTH_RESULT" | head -n -1)
     LAST_HTTP_CODE=$(echo "$HEALTH_RESULT" | tail -1)
-    
+
     if [[ "$LAST_HTTP_CODE" == "200" ]]; then
         HEALTH_OK=true
         break
     fi
-    
+
     # Also accept these patterns even without 200 (some health endpoints return different codes)
     if [[ "$HEALTH_RESPONSE" == *"status"* ]] || [[ "$HEALTH_RESPONSE" == *"ok"* ]] || [[ "$HEALTH_RESPONSE" == *"healthy"* ]]; then
         HEALTH_OK=true
         break
     fi
-    
+
     ((RETRY_COUNT++))
     if [[ $RETRY_COUNT -lt $HEALTH_MAX_RETRIES ]]; then
         echo "  Retry $RETRY_COUNT/$HEALTH_MAX_RETRIES (HTTP $LAST_HTTP_CODE)..."
@@ -619,25 +619,25 @@ else
     log_error "API health check failed after $HEALTH_MAX_RETRIES attempts!"
     log_error "Last HTTP code: $LAST_HTTP_CODE"
     log_error "Last response: $HEALTH_RESPONSE"
-    
+
     # Enhanced diagnostics
     log_step "Running enhanced diagnostics..."
-    
+
     log_step "1. Container resource usage:"
     ssh "$VPS_HOST" "docker stats l9-l9-api-1 --no-stream 2>/dev/null" || true
-    
+
     log_step "2. Container network connectivity:"
     ssh "$VPS_HOST" "docker exec l9-l9-api-1 curl -s http://127.0.0.1:8000/health 2>&1 || echo 'Internal curl failed'" || true
-    
+
     log_step "3. Process list inside container:"
     ssh "$VPS_HOST" "docker exec l9-l9-api-1 ps aux 2>/dev/null | head -10" || true
-    
+
     log_step "4. Full container logs (last 100 lines):"
     ssh "$VPS_HOST" "cd $VPS_REPO && docker compose logs l9-api --tail=100" | tee -a "$DEPLOY_LOG"
-    
+
     log_step "5. Container inspect (exit code, state):"
     ssh "$VPS_HOST" "docker inspect l9-l9-api-1 --format='State: {{.State.Status}}, ExitCode: {{.State.ExitCode}}, Error: {{.State.Error}}'" 2>/dev/null || true
-    
+
     rollback
 fi
 
@@ -741,7 +741,7 @@ fi
 # =============================================================================
 if [[ "$SKIP_MRI" == "false" ]]; then
     log_header "PHASE 9: Full MRI Diagnostic"
-    
+
     log_step "Running vps-mri.sh..."
     ssh "$VPS_HOST" "cd $VPS_REPO && bash scripts/deployment/vps-mri.sh" 2>&1 | tee -a "$DEPLOY_LOG" | tail -50
 else
@@ -754,16 +754,16 @@ fi
 # =============================================================================
 if [[ "$SKIP_E2E" == "false" ]]; then
     log_header "PHASE 10: MCP Memory E2E Test"
-    
+
     MCP_KEY=$(ssh "$VPS_HOST" "cd $VPS_REPO && grep MCP_API_KEY_C .env 2>/dev/null | cut -d= -f2" || echo "")
     if [[ -n "$MCP_KEY" ]]; then
         log_step "Running MCP memory write test..."
-        
+
         E2E_RESULT=$(ssh "$VPS_HOST" "curl -s -X POST http://127.0.0.1:8000/memory/packet \
             -H 'Authorization: Bearer $MCP_KEY' \
             -H 'Content-Type: application/json' \
             -d '{\"content\": \"E2E Test via 10X Deploy v3.0 - $(date)\", \"kind\": \"note\", \"tags\": [\"deploy\", \"e2e\"]}'" 2>/dev/null || echo "FAIL")
-        
+
         if [[ "$E2E_RESULT" == *"id"* ]] || [[ "$E2E_RESULT" == *"success"* ]]; then
             log_ok "MCP memory write OK"
         else

@@ -41,15 +41,17 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from agents.cursor.gmp_meta_learning import (AutonomyController,
-                                             GMPExecutionResult,
-                                             GMPMetaLearningEngine)
+from agents.cursor.gmp_meta_learning import (
+    AutonomyController,
+    GMPExecutionResult,
+    GMPMetaLearningEngine,
+)
 
 logger = structlog.get_logger(__name__)
 router = APIRouter()
@@ -69,19 +71,19 @@ router_registry.register(
 class AutonomyLevelResponse(BaseModel):
     current_level: str
     description: str
-    capabilities: List[str]
+    capabilities: list[str]
 
 
 class GraduationStatusResponse(BaseModel):
     can_graduate: bool
     reason: str
     current_level: str
-    next_level: Optional[str]
+    next_level: str | None
 
 
 class HeuristicsResponse(BaseModel):
     count: int
-    heuristics: List[Dict[str, Any]]
+    heuristics: list[dict[str, Any]]
 
 
 class AnalyticsResponse(BaseModel):
@@ -90,7 +92,7 @@ class AnalyticsResponse(BaseModel):
     avg_confidence: float
     error_rate: float
     pass_rate: float
-    by_task_type: Dict[str, Any]
+    by_task_type: dict[str, Any]
 
 
 # Dependency to get engine

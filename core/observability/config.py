@@ -29,7 +29,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import List, Optional
 
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -62,7 +61,7 @@ class ObservabilitySettings(BaseSettings):
         ge=0.0,
         le=1.0,
     )
-    exporters: List[str] = Field(
+    exporters: list[str] = Field(
         default_factory=lambda: ["console"],
         description="List of exporters: console, file, substrate, jaeger, datadog, honeycomb",
     )
@@ -70,7 +69,7 @@ class ObservabilitySettings(BaseSettings):
         default=False,
         description="Export to Jaeger for distributed tracing",
     )
-    jaeger_endpoint: Optional[str] = Field(
+    jaeger_endpoint: str | None = Field(
         default=None,
         description="Jaeger OTLP endpoint (default: http://jaeger:4318/v1/traces)",
     )
@@ -100,7 +99,7 @@ class ObservabilitySettings(BaseSettings):
         default=False,
         description="Export to Datadog APM",
     )
-    datadog_api_key: Optional[str] = Field(
+    datadog_api_key: str | None = Field(
         default=None,
         description="Datadog API key (required if datadog_enabled=True)",
     )
@@ -145,7 +144,7 @@ class ObservabilitySettings(BaseSettings):
         """
         if self.substrate_enabled and "substrate" not in self.exporters:
             # Create a new list to avoid mutating the default
-            self.exporters = list(self.exporters) + ["substrate"]
+            self.exporters = [*list(self.exporters), "substrate"]
         return self
 
 

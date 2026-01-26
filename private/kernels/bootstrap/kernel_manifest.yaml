@@ -27,10 +27,9 @@ kernel_manifest:
     - 08_safety_kernel.yaml
     - 09_developer_kernel.yaml
     - 10_packet_protocol_kernel.yaml
-  
+
   load_order_source: "runtime/kernel_loader.py::KERNEL_ORDER"
   enforcement: "strict"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -30,7 +30,6 @@ __dora_meta__ = {
 import json
 import os
 from pathlib import Path
-from typing import Optional
 
 import asyncpg
 import structlog
@@ -55,7 +54,7 @@ class MigrationRunner:
     Tracks applied migrations in schema_migrations table.
     """
 
-    def __init__(self, database_url: str, migrations_dir: Optional[str] = None):
+    def __init__(self, database_url: str, migrations_dir: str | None = None):
         """
         Initialize migration runner.
 
@@ -69,7 +68,7 @@ class MigrationRunner:
             if migrations_dir
             else Path(__file__).parent.parent / "migrations"
         )
-        self._pool: Optional[asyncpg.Pool] = None
+        self._pool: asyncpg.Pool | None = None
 
     async def connect(self) -> None:
         """Initialize connection pool."""
@@ -149,10 +148,9 @@ class MigrationRunner:
         sql_content = file_path.read_text()
 
         # Execute in transaction
-        async with self._pool.acquire() as conn:
-            async with conn.transaction():
-                await conn.execute(sql_content)
-                await self.mark_migration_applied(migration_name)
+        async with self._pool.acquire() as conn, conn.transaction():
+            await conn.execute(sql_content)
+            await self.mark_migration_applied(migration_name)
 
         logger.info(f"Migration applied: {migration_name}")
         return True
@@ -199,10 +197,10 @@ class MigrationRunner:
 
 
 # Singleton instance
-_runner: Optional[MigrationRunner] = None
+_runner: MigrationRunner | None = None
 
 
-async def run_migrations(database_url: Optional[str] = None) -> dict[str, any]:
+async def run_migrations(database_url: str | None = None) -> dict[str, any]:
     """
     Run all pending migrations.
 

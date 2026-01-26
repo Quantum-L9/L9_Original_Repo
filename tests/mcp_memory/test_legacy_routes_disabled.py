@@ -19,7 +19,7 @@ MCP_ROOT = PROJECT_ROOT / "mcp_memory"
 if str(MCP_ROOT) not in sys.path:
     sys.path.insert(0, str(MCP_ROOT))
 
-from src.routes import memory_unified  # noqa: E402
+from src.routes import memory_unified
 
 
 def test_legacy_save_route_disabled() -> None:

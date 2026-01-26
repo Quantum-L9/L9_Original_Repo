@@ -20,7 +20,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Any, Dict
+from typing import Any
 
 from twilio.rest import Client
 
@@ -46,7 +46,7 @@ def load_twilio_client():
     return Client(account_sid, auth_token)
 
 
-def send_whatsapp_message(body: str, to: str | None = None) -> Dict[str, Any]:
+def send_whatsapp_message(body: str, to: str | None = None) -> dict[str, Any]:
     client = load_twilio_client()
     from_number = os.getenv("TWILIO_WHATSAPP_FROM")
     to_number = to or os.getenv("TWILIO_WHATSAPP_TO")

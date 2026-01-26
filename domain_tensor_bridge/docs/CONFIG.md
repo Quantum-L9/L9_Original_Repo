@@ -2,14 +2,14 @@
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `L9_REDIS_URL` | Redis connection | - |
-| `L9_POSTGRES_URL` | Postgres connection | - |
-| `L9_NEO4J_URL` | Neo4j connection | - |
-| `L9_HYPERGRAPH_URL` | HyperGraphDB connection | - |
-| `L9_TENSOR_URL` | TensorAIOS endpoint | - |
-| `L9_WORLD_MODEL_URL` | World model endpoint | - |
+| Variable             | Description             | Default |
+| -------------------- | ----------------------- | ------- |
+| `L9_REDIS_URL`       | Redis connection        | -       |
+| `L9_POSTGRES_URL`    | Postgres connection     | -       |
+| `L9_NEO4J_URL`       | Neo4j connection        | -       |
+| `L9_HYPERGRAPH_URL`  | HyperGraphDB connection | -       |
+| `L9_TENSOR_URL`      | TensorAIOS endpoint     | -       |
+| `L9_WORLD_MODEL_URL` | World model endpoint    | -       |
 
 ## Reasoning Configuration
 
@@ -36,5 +36,3 @@ tensor_config = {
     "max_retries": 3,
 }
 ```
-
-

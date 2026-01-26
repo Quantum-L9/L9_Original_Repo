@@ -43,15 +43,13 @@ __dora_meta__ = {
 import uuid as uuid_module
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import structlog
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import (Boolean, Column, DateTime, Float, Index, Integer,
-                        String, select)
+from sqlalchemy import Boolean, Column, DateTime, Float, Index, Integer, String, select
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
 logger = structlog.get_logger(__name__)
@@ -84,8 +82,8 @@ class GMPExecutionResult(BaseModel):
         ..., ge=0, description="Total execution time in minutes"
     )
     error_count: int = Field(0, ge=0, description="Number of errors encountered")
-    error_types: List[str] = Field(default_factory=list, description="Types of errors")
-    files_modified: List[str] = Field(
+    error_types: list[str] = Field(default_factory=list, description="Types of errors")
+    files_modified: list[str] = Field(
         default_factory=list, description="Files modified"
     )
     lines_changed: int = Field(0, ge=0, description="Total lines changed")
@@ -96,10 +94,10 @@ class GMPExecutionResult(BaseModel):
     created_at: datetime = Field(
         default_factory=datetime.utcnow, description="Execution timestamp"
     )
-    l9_kernel_versions: Dict[str, str] = Field(
+    l9_kernel_versions: dict[str, str] = Field(
         default_factory=dict, description="Kernel versions at execution"
     )
-    feature_flags_enabled: List[str] = Field(
+    feature_flags_enabled: list[str] = Field(
         default_factory=list, description="Enabled feature flags"
     )
 
@@ -116,7 +114,7 @@ class LearnedHeuristic(BaseModel):
     confidence: float = Field(
         ..., ge=0, le=1, description="Confidence score for this heuristic"
     )
-    supporting_gmp_ids: List[str] = Field(
+    supporting_gmp_ids: list[str] = Field(
         default_factory=list, description="GMPs validating this heuristic"
     )
     impact_estimate: str = Field(
@@ -317,7 +315,7 @@ class GMPMetaLearningEngine:
             logger.exception("Failed to log execution", error=str(e))
             return False
 
-    async def analyze_execution_patterns(self) -> Dict[str, Any]:
+    async def analyze_execution_patterns(self) -> dict[str, Any]:
         """
         Analyze all logged executions to find patterns.
 
@@ -355,7 +353,7 @@ class GMPMetaLearningEngine:
 
                 # Analyze by task type
                 by_task_type = {}
-                for task_type in set(e.task_type for e in exec_list):
+                for task_type in {e.task_type for e in exec_list}:
                     task_execs = [e for e in exec_list if e.task_type == task_type]
                     by_task_type[task_type] = {
                         "count": len(task_execs),
@@ -374,14 +372,14 @@ class GMPMetaLearningEngine:
             logger.exception("Failed to analyze patterns", error=str(e))
             return {}
 
-    async def generate_heuristics(self) -> List[LearnedHeuristic]:
+    async def generate_heuristics(self) -> list[LearnedHeuristic]:
         """
         Generate new heuristics from execution patterns.
 
         Returns:
             List of new/updated heuristics with high confidence
         """
-        heuristics: List[LearnedHeuristic] = []
+        heuristics: list[LearnedHeuristic] = []
 
         try:
             async with self.async_session() as session:
@@ -415,7 +413,7 @@ class GMPMetaLearningEngine:
                         )
 
                 # Heuristic 2: Certain error types are predictable by task type
-                error_by_type: Dict[str, List[str]] = {}
+                error_by_type: dict[str, list[str]] = {}
                 for e in executions:
                     if e.task_type not in error_by_type:
                         error_by_type[e.task_type] = []
@@ -488,7 +486,7 @@ class GMPMetaLearningEngine:
             logger.exception("Failed to generate heuristics", error=str(e))
             return []
 
-    async def get_active_heuristics(self) -> List[LearnedHeuristic]:
+    async def get_active_heuristics(self) -> list[LearnedHeuristic]:
         """
         Retrieve all active heuristics for use in next GMP.
 
@@ -606,7 +604,7 @@ class GMPMetaLearningEngine:
             raise
 
     @staticmethod
-    def _calculate_correlation(x: List[float], y: List[float]) -> float:
+    def _calculate_correlation(x: list[float], y: list[float]) -> float:
         """Calculate Pearson correlation coefficient."""
         if len(x) < 2 or len(y) < 2 or len(x) != len(y):
             return 0.0
@@ -661,12 +659,11 @@ class AutonomyController:
                 # Determine highest ready level
                 if metrics.l4_to_l5_ready:
                     return AutonomyLevel.L5
-                elif metrics.l3_to_l4_ready:
+                if metrics.l3_to_l4_ready:
                     return AutonomyLevel.L4
-                elif metrics.l2_to_l3_ready:
+                if metrics.l2_to_l3_ready:
                     return AutonomyLevel.L3
-                else:
-                    return AutonomyLevel.L2
+                return AutonomyLevel.L2
 
         except Exception as e:
             self._logger.exception("Failed to get autonomy level", error=str(e))
@@ -711,7 +708,7 @@ class AutonomyController:
 
         return is_enabled
 
-    async def can_graduate_to_next_level(self) -> Tuple[bool, Optional[str]]:
+    async def can_graduate_to_next_level(self) -> tuple[bool, str | None]:
         """
         Check if system can graduate to next autonomy level.
 
@@ -734,25 +731,23 @@ class AutonomyController:
                         True,
                         "Ready to graduate L2→L3 (10 perfect executions achieved)",
                     )
-                elif current == AutonomyLevel.L3 and metrics.l3_to_l4_ready:
+                if current == AutonomyLevel.L3 and metrics.l3_to_l4_ready:
                     return True, "Ready to graduate L3→L4 (consistency >= 95% achieved)"
-                elif current == AutonomyLevel.L4 and metrics.l4_to_l5_ready:
+                if current == AutonomyLevel.L4 and metrics.l4_to_l5_ready:
                     return True, "Ready to graduate L4→L5 (safety audit passed)"
-                else:
-                    if current == AutonomyLevel.L2:
-                        needed = 10 - metrics.perfect_executions_l2
-                        return False, f"Need {needed} more perfect executions for L2→L3"
-                    elif current == AutonomyLevel.L3:
-                        needed = max(0, int(95 - metrics.consistency_score_l3 * 100))
-                        return False, f"Need {needed}% more consistency for L3→L4"
-                    else:
-                        return False, "Safety audit required for L4→L5"
+                if current == AutonomyLevel.L2:
+                    needed = 10 - metrics.perfect_executions_l2
+                    return False, f"Need {needed} more perfect executions for L2→L3"
+                if current == AutonomyLevel.L3:
+                    needed = max(0, int(95 - metrics.consistency_score_l3 * 100))
+                    return False, f"Need {needed}% more consistency for L3→L4"
+                return False, "Safety audit required for L4→L5"
 
         except Exception as e:
             self._logger.exception("Failed to check graduation readiness", error=str(e))
             return False, str(e)
 
-    async def graduate_to_next_level(self) -> Tuple[bool, str]:
+    async def graduate_to_next_level(self) -> tuple[bool, str]:
         """
         Attempt to graduate to the next autonomy level.
 

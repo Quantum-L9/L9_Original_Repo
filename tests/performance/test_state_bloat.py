@@ -7,7 +7,7 @@ Tests for monitoring state size and memory usage.
 
 import sys
 from datetime import datetime
-from typing import Optional, TypedDict
+from typing import TypedDict
 
 
 # Mock ResearchGraphState for testing without production dependencies
@@ -31,7 +31,7 @@ class ResearchGraphState(TypedDict, total=False):
     final_output: dict
     errors: list
     timestamp: str
-    packet_id: Optional[str]
+    packet_id: str | None
     stored_insights: list
 
 

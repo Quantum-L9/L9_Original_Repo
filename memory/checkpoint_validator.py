@@ -38,7 +38,7 @@ import hashlib
 import json
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 import structlog
 
@@ -53,7 +53,7 @@ class SchemaVersion(Enum):
     V2_0 = "2.0"  # Future: encrypted storage
 
     @classmethod
-    def current(cls) -> "SchemaVersion":
+    def current(cls) -> SchemaVersion:
         """Return current schema version."""
         return cls.V1_1
 
@@ -74,7 +74,7 @@ class CheckpointValidator:
         """Initialize checkpoint validator."""
         logger.info("CheckpointValidator initialized")
 
-    def generate_checksum(self, state: Dict[str, Any]) -> str:
+    def generate_checksum(self, state: dict[str, Any]) -> str:
         """
         Generate SHA-256 checksum for checkpoint state.
 
@@ -101,7 +101,7 @@ class CheckpointValidator:
 
         return checksum
 
-    def add_checksum_to_state(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    def add_checksum_to_state(self, state: dict[str, Any]) -> dict[str, Any]:
         """
         Add checksum and schema version to state dict.
 
@@ -114,19 +114,18 @@ class CheckpointValidator:
         checksum = self.generate_checksum(state)
 
         # Create new dict with checksum fields
-        validated_state = {
+        return {
             **state,
             self.CHECKSUM_FIELD: checksum,
             self.SCHEMA_VERSION_FIELD: SchemaVersion.current().value,
             self.CHECKSUM_TIMESTAMP_FIELD: datetime.utcnow().isoformat(),
         }
 
-        return validated_state
 
     def validate_checksum(
         self,
-        state: Dict[str, Any],
-    ) -> Tuple[bool, Optional[str]]:
+        state: dict[str, Any],
+    ) -> tuple[bool, str | None]:
         """
         Validate checksum of a restored checkpoint state.
 
@@ -148,8 +147,7 @@ class CheckpointValidator:
                     "Legacy checkpoint (V1.0) without checksum, skipping validation"
                 )
                 return True, None
-            else:
-                return False, "Missing checksum field"
+            return False, "Missing checksum field"
 
         # Compute checksum of current state
         computed_checksum = self.generate_checksum(state)
@@ -161,18 +159,17 @@ class CheckpointValidator:
                 checksum=stored_checksum[:16] + "...",
             )
             return True, None
-        else:
-            logger.warning(
-                "Checksum validation FAILED - possible corruption",
-                stored=stored_checksum[:16] + "...",
-                computed=computed_checksum[:16] + "...",
-            )
-            return (
-                False,
-                f"Checksum mismatch: stored={stored_checksum[:16]}..., computed={computed_checksum[:16]}...",
-            )
+        logger.warning(
+            "Checksum validation FAILED - possible corruption",
+            stored=stored_checksum[:16] + "...",
+            computed=computed_checksum[:16] + "...",
+        )
+        return (
+            False,
+            f"Checksum mismatch: stored={stored_checksum[:16]}..., computed={computed_checksum[:16]}...",
+        )
 
-    def get_schema_version(self, state: Dict[str, Any]) -> SchemaVersion:
+    def get_schema_version(self, state: dict[str, Any]) -> SchemaVersion:
         """
         Detect schema version of checkpoint state.
 
@@ -193,7 +190,7 @@ class CheckpointValidator:
             )
             return SchemaVersion.V1_0
 
-    def _strip_checksum_fields(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    def _strip_checksum_fields(self, state: dict[str, Any]) -> dict[str, Any]:
         """
         Remove checksum-related fields from state for computation.
 
@@ -214,7 +211,7 @@ class CheckpointValidator:
             )
         }
 
-    def strip_metadata_for_restore(self, state: Dict[str, Any]) -> Dict[str, Any]:
+    def strip_metadata_for_restore(self, state: dict[str, Any]) -> dict[str, Any]:
         """
         Remove all internal metadata fields before returning to caller.
 

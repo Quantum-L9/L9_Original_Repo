@@ -9,6 +9,7 @@
 ## Summary
 
 Implemented high-level service protocols defined in GMP-114:
+
 - **GMP-115:** MemoryServiceAdapter wrapping MemorySubstrateService
 - **GMP-116:** OpenAILLMService + MockLLMService implementing LLMService protocol
 
@@ -16,23 +17,23 @@ Implemented high-level service protocols defined in GMP-114:
 
 ## TODO Plan (Locked)
 
-| T# | File | Lines | Action | Status |
-|----|------|-------|--------|--------|
-| T1 | `memory/service_adapter.py` | NEW | Create MemoryServiceAdapter | ✅ |
-| T2 | `memory/__init__.py` | EOF | Export MemoryServiceAdapter | ✅ |
-| T3 | `core/llm/__init__.py` | NEW | Create package init | ✅ |
-| T4 | `core/llm/llm_service.py` | NEW | Create LLMService implementations | ✅ |
+| T#  | File                        | Lines | Action                            | Status |
+| --- | --------------------------- | ----- | --------------------------------- | ------ |
+| T1  | `memory/service_adapter.py` | NEW   | Create MemoryServiceAdapter       | ✅     |
+| T2  | `memory/__init__.py`        | EOF   | Export MemoryServiceAdapter       | ✅     |
+| T3  | `core/llm/__init__.py`      | NEW   | Create package init               | ✅     |
+| T4  | `core/llm/llm_service.py`   | NEW   | Create LLMService implementations | ✅     |
 
 ---
 
 ## Files Modified
 
-| File | Action | Lines | Description |
-|------|--------|-------|-------------|
-| `memory/service_adapter.py` | CREATE | +244 | MemoryServiceAdapter class |
-| `memory/__init__.py` | INSERT | +3 | Import and export MemoryServiceAdapter |
-| `core/llm/__init__.py` | CREATE | +27 | LLM module package init |
-| `core/llm/llm_service.py` | CREATE | +352 | OpenAILLMService, MockLLMService |
+| File                        | Action | Lines | Description                            |
+| --------------------------- | ------ | ----- | -------------------------------------- |
+| `memory/service_adapter.py` | CREATE | +244  | MemoryServiceAdapter class             |
+| `memory/__init__.py`        | INSERT | +3    | Import and export MemoryServiceAdapter |
+| `core/llm/__init__.py`      | CREATE | +27   | LLM module package init                |
+| `core/llm/llm_service.py`   | CREATE | +352  | OpenAILLMService, MockLLMService       |
 
 **Total:** 4 files, ~626 lines added
 
@@ -46,11 +47,11 @@ Implemented high-level service protocols defined in GMP-114:
 
 **Method Mapping:**
 
-| Protocol Method | Delegates To | Description |
-|-----------------|--------------|-------------|
-| `store(content, session_id, ...)` | `write_packet(PacketEnvelopeIn(...))` | Creates MEMORY packet, processes through DAG |
-| `retrieve(memory_id, session_id)` | `get_packet(packet_id)` | Fetches packet, transforms to simple dict |
-| `search(query, session_id, ...)` | `semantic_search(SemanticSearchRequest(...))` | Vector search with similarity threshold |
+| Protocol Method                   | Delegates To                                  | Description                                  |
+| --------------------------------- | --------------------------------------------- | -------------------------------------------- |
+| `store(content, session_id, ...)` | `write_packet(PacketEnvelopeIn(...))`         | Creates MEMORY packet, processes through DAG |
+| `retrieve(memory_id, session_id)` | `get_packet(packet_id)`                       | Fetches packet, transforms to simple dict    |
+| `search(query, session_id, ...)`  | `semantic_search(SemanticSearchRequest(...))` | Vector search with similarity threshold      |
 
 **Design Decision:** Created adapter class rather than modifying protected `substrate_service.py`.
 
@@ -61,6 +62,7 @@ Implemented high-level service protocols defined in GMP-114:
 **Classes:**
 
 1. **OpenAILLMService** - Production implementation
+
    - Lazy AsyncOpenAI client initialization
    - Configurable default models via env vars
    - Structured logging for all operations
@@ -72,6 +74,7 @@ Implemented high-level service protocols defined in GMP-114:
    - Configurable default responses
 
 **Factory Function:**
+
 ```python
 create_llm_service(provider="openai" | "mock", api_key=None, **kwargs) -> LLMService
 ```
@@ -81,6 +84,7 @@ create_llm_service(provider="openai" | "mock", api_key=None, **kwargs) -> LLMSer
 ## Validation Results
 
 ### Syntax Validation
+
 ```
 ✅ memory/service_adapter.py syntax valid
 ✅ core/llm/__init__.py syntax valid
@@ -88,12 +92,14 @@ create_llm_service(provider="openai" | "mock", api_key=None, **kwargs) -> LLMSer
 ```
 
 ### Lint Check (ruff)
+
 ```
 All checks passed!
 ✅ All lint checks passed
 ```
 
 ### AST Validation
+
 ```
 ✅ service_protocols.py AST valid
 ✅ llm_service.py AST valid
@@ -181,15 +187,18 @@ llm = create_llm_service(provider="openai")
 ## /ynp Next Steps
 
 ### YES (Do Now) ✅ COMPLETED
+
 - ✅ Wire `MemoryServiceAdapter` to DI container (`core/di/bootstrap.py`)
 - ✅ Create tests for `MemoryServiceAdapter` and `LLMService` (25 tests)
 - ✅ Fix pre-existing `substrate_repository.py` asyncpg type issue (50 occurrences)
 
 ### NO (Don't Do)
+
 - Don't modify protected `substrate_service.py` without KERNEL GMP
 - Don't add Anthropic support until foundation is tested
 
 ### PROCEED (Later)
+
 - Implement `GovernanceService` (check_policy, enforce_limits)
 - Add Anthropic LLM provider
 - Create integration tests with real LLM calls
@@ -200,13 +209,14 @@ llm = create_llm_service(provider="openai")
 
 ### Files Modified
 
-| File | Action | Description |
-|------|--------|-------------|
-| `memory/substrate_repository.py` | FIX | 50 `Type \| None` → `Optional[Type]` |
-| `core/di/bootstrap.py` | INSERT | MemoryService + LLMService bindings |
-| `tests/unit/test_service_adapters.py` | CREATE | 25 unit tests |
+| File                                  | Action | Description                          |
+| ------------------------------------- | ------ | ------------------------------------ |
+| `memory/substrate_repository.py`      | FIX    | 50 `Type \| None` → `Optional[Type]` |
+| `core/di/bootstrap.py`                | INSERT | MemoryService + LLMService bindings  |
+| `tests/unit/test_service_adapters.py` | CREATE | 25 unit tests                        |
 
 ### Test Results
+
 ```
 25 passed in 0.25s
 ```

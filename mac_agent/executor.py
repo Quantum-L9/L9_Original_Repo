@@ -34,7 +34,7 @@ import os
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -44,9 +44,8 @@ from mac_agent.helpers.logging import log_step, ts
 
 # Playwright imports
 try:
-    from playwright.async_api import Browser, BrowserContext, Page
+    from playwright.async_api import Browser, BrowserContext, Page, async_playwright
     from playwright.async_api import TimeoutError as PlaywrightTimeoutError
-    from playwright.async_api import async_playwright
 
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
@@ -72,10 +71,10 @@ class AutomationExecutor:
 
     def __init__(self):
         self.config = get_config()
-        self.browser: Optional[Browser] = None
-        self.context: Optional[BrowserContext] = None
-        self.page: Optional[Page] = None
-        self.logs: List[str] = []
+        self.browser: Browser | None = None
+        self.context: BrowserContext | None = None
+        self.page: Page | None = None
+        self.logs: list[str] = []
         self._browser_installed = False
 
     @must_stay_async("callers use await")
@@ -110,7 +109,7 @@ class AutomationExecutor:
             )
             self._browser_installed = True  # Assume browsers are installed
 
-    async def _init_browser(self, headless: Optional[bool] = None):
+    async def _init_browser(self, headless: bool | None = None):
         """Initialize browser context."""
         if not PLAYWRIGHT_AVAILABLE:
             raise RuntimeError("Playwright not available")
@@ -168,7 +167,7 @@ class AutomationExecutor:
         except Exception as e:
             logger.error(f"Error during cleanup: {e}")
 
-    async def _take_screenshot(self, task_id: str, suffix: str = "") -> Optional[str]:
+    async def _take_screenshot(self, task_id: str, suffix: str = "") -> str | None:
         """
         Take screenshot and save to task-specific directory.
 
@@ -209,8 +208,8 @@ class AutomationExecutor:
             return False
 
     async def _execute_with_retry(
-        self, step: Dict[str, Any], step_num: int, task_id: str, max_retries: int = 2
-    ) -> Dict[str, Any]:
+        self, step: dict[str, Any], step_num: int, task_id: str, max_retries: int = 2
+    ) -> dict[str, Any]:
         """
         Execute a step with retry logic for transient failures.
 
@@ -238,7 +237,7 @@ class AutomationExecutor:
                     )
                     return {"status": "success", "details": f"Navigated to {url}"}
 
-                elif action == "click":
+                if action == "click":
                     selector = step.get("selector")
                     if not selector:
                         raise ValueError("click action requires 'selector' parameter")
@@ -262,7 +261,7 @@ class AutomationExecutor:
                     )
                     return {"status": "success", "details": f"Clicked: {selector}"}
 
-                elif action == "fill":
+                if action == "fill":
                     selector = step.get("selector")
                     text = step.get("text", "")
                     if not selector:
@@ -291,7 +290,7 @@ class AutomationExecutor:
                     )
                     return {"status": "success", "details": f"Filled {selector}"}
 
-                elif action == "upload":
+                if action == "upload":
                     selector = step.get("selector")
                     file_path = step.get("file_path")
                     if not selector or not file_path:
@@ -337,7 +336,7 @@ class AutomationExecutor:
                         "details": f"Uploaded: {os.path.basename(file_path)}",
                     }
 
-                elif action == "wait_for" or action == "wait":
+                if action == "wait_for" or action == "wait":
                     selector = step.get("selector")
                     timeout = step.get("timeout", 10000)
                     if not selector:
@@ -352,7 +351,7 @@ class AutomationExecutor:
                     )
                     return {"status": "success", "details": f"Waited for: {selector}"}
 
-                elif action == "scroll":
+                if action == "scroll":
                     direction = step.get("direction", "down")
                     pixels = step.get("pixels", 500)
                     if direction == "down":
@@ -368,7 +367,7 @@ class AutomationExecutor:
                     )
                     return {"status": "success", "details": f"Scrolled {direction}"}
 
-                elif action == "screenshot":
+                if action == "screenshot":
                     screenshot_path = await self._take_screenshot(
                         task_id, f"_step{step_num}"
                     )
@@ -385,21 +384,19 @@ class AutomationExecutor:
                             "details": screenshot_path,
                             "screenshot": screenshot_path,
                         }
-                    else:
-                        log_step(
-                            self.logs,
-                            step_num,
-                            action,
-                            "error",
-                            "Failed to take screenshot",
-                        )
-                        return {
-                            "status": "error",
-                            "details": "Failed to take screenshot",
-                        }
+                    log_step(
+                        self.logs,
+                        step_num,
+                        action,
+                        "error",
+                        "Failed to take screenshot",
+                    )
+                    return {
+                        "status": "error",
+                        "details": "Failed to take screenshot",
+                    }
 
-                else:
-                    raise ValueError(f"Unknown action: {action}")
+                raise ValueError(f"Unknown action: {action}")
 
             except (PlaywrightTimeoutError, Exception) as e:
                 error_str = str(e)
@@ -425,23 +422,22 @@ class AutomationExecutor:
                     )
                     await asyncio.sleep(backoff)
                     continue
-                else:
-                    # Not retryable or max retries reached
-                    log_step(
-                        self.logs,
-                        step_num,
-                        action,
-                        "error",
-                        f"{error_type}: {error_str}",
-                    )
-                    screenshot_path = await self._take_screenshot(
-                        task_id, f"_error_step{step_num}"
-                    )
-                    return {
-                        "status": "error",
-                        "details": f"{error_type}: {error_str}",
-                        "screenshot": screenshot_path,
-                    }
+                # Not retryable or max retries reached
+                log_step(
+                    self.logs,
+                    step_num,
+                    action,
+                    "error",
+                    f"{error_type}: {error_str}",
+                )
+                screenshot_path = await self._take_screenshot(
+                    task_id, f"_error_step{step_num}"
+                )
+                return {
+                    "status": "error",
+                    "details": f"{error_type}: {error_str}",
+                    "screenshot": screenshot_path,
+                }
 
         # Should never reach here, but just in case
         log_step(self.logs, step_num, action, "error", "Max retries exceeded")
@@ -454,10 +450,10 @@ class AutomationExecutor:
 
     async def run_steps(
         self,
-        steps: List[Dict[str, Any]],
-        headless: Optional[bool] = None,
-        task_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        steps: list[dict[str, Any]],
+        headless: bool | None = None,
+        task_id: str | None = None,
+    ) -> dict[str, Any]:
         """
         Execute automation steps with structured logging, retries, and error handling.
 
@@ -512,7 +508,7 @@ class AutomationExecutor:
 
                 except Exception as e:
                     # Unexpected error in step execution wrapper
-                    error_msg = f"Step {i} execution error: {str(e)}"
+                    error_msg = f"Step {i} execution error: {e!s}"
                     log_step(
                         self.logs, i, step.get("action", "unknown"), "error", error_msg
                     )
@@ -555,7 +551,7 @@ class AutomationExecutor:
 
         except Exception as e:
             # Catastrophic error
-            error_msg = f"Execution error: {str(e)}"
+            error_msg = f"Execution error: {e!s}"
             log_step(self.logs, 0, "execution", "error", error_msg)
             logger.error(error_msg, exc_info=True)
 
@@ -582,7 +578,7 @@ class AutomationExecutor:
             # Cleanup
             await self._cleanup()
 
-    def run_gui_fallback(self, steps: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def run_gui_fallback(self, steps: list[dict[str, Any]]) -> dict[str, Any]:
         """
         Execute steps using pyautogui fallback (for non-browser automation).
 
@@ -648,7 +644,7 @@ class AutomationExecutor:
             }
 
         except Exception as e:
-            error_msg = f"GUI execution error: {str(e)}"
+            error_msg = f"GUI execution error: {e!s}"
             self.logs.append(f"ERROR: {error_msg}")
             logger.error(error_msg, exc_info=True)
 

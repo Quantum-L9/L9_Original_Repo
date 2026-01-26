@@ -30,7 +30,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, Type
 
 import structlog
 
@@ -44,7 +43,7 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 
-def _validate_cell(cell_class: Type) -> bool:
+def _validate_cell(cell_class: type) -> bool:
     """Validate that a class is a valid collaborative cell."""
     # Check if it has required methods (execute is mandatory, name must end with Cell)
     return (
@@ -55,13 +54,13 @@ def _validate_cell(cell_class: Type) -> bool:
 
 
 # Global collaborative cell registry
-cell_registry = AutoRegistry[Type](
+cell_registry = AutoRegistry[type](
     name="collaborative_cells", validator=_validate_cell, allow_duplicates=False
 )
 
 
 def register_cell(
-    name: str = None, category: str = "general", priority: int = 0, **metadata
+    name: str | None = None, category: str = "general", priority: int = 0, **metadata
 ):
     """
     Decorator to register a collaborative cell.
@@ -78,7 +77,7 @@ def register_cell(
             pass
     """
 
-    def decorator(cls: Type) -> Type:
+    def decorator(cls: type) -> type:
         cell_name = name or cls.__name__
         cell_registry.register_instance(
             component_id=cell_name,
@@ -109,7 +108,7 @@ def discover_cells(package: str = "collaborative_cells") -> int:
     return count
 
 
-def get_all_cells() -> Dict[str, Type]:
+def get_all_cells() -> dict[str, type]:
     """
     Get all registered collaborative cells.
 
@@ -117,7 +116,7 @@ def get_all_cells() -> Dict[str, Type]:
         Dictionary mapping cell names to cell classes
     """
     cell_registry.initialize_factories()
-    cells: Dict[str, Type] = {}
+    cells: dict[str, type] = {}
 
     for cell_id in cell_registry.list_ids():
         cell_class = cell_registry.get(cell_id)
@@ -128,7 +127,7 @@ def get_all_cells() -> Dict[str, Type]:
     return cells
 
 
-def get_cells_by_category(category: str) -> Dict[str, Type]:
+def get_cells_by_category(category: str) -> dict[str, type]:
     """
     Get all collaborative cells in a specific category.
 
@@ -140,7 +139,7 @@ def get_cells_by_category(category: str) -> Dict[str, Type]:
     """
     cell_registry.initialize_factories()
     cell_classes = cell_registry.get_all(tags=[category])
-    cells: Dict[str, Type] = {}
+    cells: dict[str, type] = {}
 
     for cell_class in cell_classes:
         cells[cell_class.__name__] = cell_class

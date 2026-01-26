@@ -56,26 +56,39 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
 # Import audit components
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).parent / "tier1"))
-from audit_capability_inventory import (EXCLUDED_METHODS, assess_capability,
-                                        get_async_methods, get_exposed_tools)
+import contextlib
+
+from audit_capability_inventory import (
+    EXCLUDED_METHODS,
+    assess_capability,
+    get_async_methods,
+    get_exposed_tools,
+)
+
 # Import tier1 audit modules
 # Use CacheManager from audit_code_integrity (has result caching)
-from audit_code_integrity import \
-    CacheManager  # Has load_results/save_results for full caching
-from audit_code_integrity import (analyze_file_for_orphans,
-                                  analyze_file_for_uncalled,
-                                  detect_circular_imports, find_python_files)
-from audit_infrastructure_health import (SERVICES, HTTPHealthProbe,
-                                         PythonModuleHealthProbe,
-                                         TCPHealthProbe, validate_config,
-                                         verify_dependency_dag)
+from audit_code_integrity import (
+    CacheManager,  # Has load_results/save_results for full caching
+    analyze_file_for_orphans,
+    analyze_file_for_uncalled,
+    detect_circular_imports,
+    find_python_files,
+)
+from audit_infrastructure_health import (
+    SERVICES,
+    HTTPHealthProbe,
+    PythonModuleHealthProbe,
+    TCPHealthProbe,
+    validate_config,
+    verify_dependency_dag,
+)
 from audit_shared_core import GMPIntegration, ObservabilityHooks, Reporter
 
 logger = structlog.get_logger(__name__)
@@ -103,7 +116,7 @@ DEPRECATED_CURSOR_PATHS = [
 ]
 
 
-def validate_no_deprecated_paths(cache_dir: Path) -> List[str]:
+def validate_no_deprecated_paths(cache_dir: Path) -> list[str]:
     """
     Fail loudly if deprecated paths appear in audit cache.
 
@@ -120,11 +133,11 @@ def validate_no_deprecated_paths(cache_dir: Path) -> List[str]:
 
     try:
         manifest = json.loads(manifest_path.read_text())
-    except (json.JSONDecodeError, IOError):
+    except (OSError, json.JSONDecodeError):
         return ["Could not read manifest.json"]
 
     violations = []
-    for path in manifest.keys():
+    for path in manifest:
         for deprecated in DEPRECATED_CURSOR_PATHS:
             if deprecated in path:
                 violations.append(f"DEPRECATED: {path} (moved to agents/cursor/)")
@@ -161,9 +174,9 @@ class AuditResult:
     items_high: int
     items_medium: int
     items_low: int
-    errors: List[str] = field(default_factory=list)
-    data: Dict[str, Any] = field(default_factory=dict)
-    file_outputs: Dict[str, Path] = field(default_factory=dict)  # {format: path}
+    errors: list[str] = field(default_factory=list)
+    data: dict[str, Any] = field(default_factory=dict)
+    file_outputs: dict[str, Path] = field(default_factory=dict)  # {format: path}
 
 
 @dataclass
@@ -174,8 +187,8 @@ class AuditRun:
     timestamp: str
     tier: int
     duration_ms: float
-    results: Dict[AuditType, AuditResult] = field(default_factory=dict)
-    summary: Dict[str, Any] = field(default_factory=dict)
+    results: dict[AuditType, AuditResult] = field(default_factory=dict)
+    summary: dict[str, Any] = field(default_factory=dict)
 
 
 # =============================================================================
@@ -191,7 +204,7 @@ class AuditOrchestrator:
         repo_root: Path = REPO_ROOT,
         cache_enabled: bool = True,
         parallel_jobs: int = 4,
-        output_formats: List[str] = None,
+        output_formats: list[str] | None = None,
     ):
         self.repo_root = repo_root
         self.audit_dir = repo_root / "scripts" / "audit"
@@ -207,8 +220,8 @@ class AuditOrchestrator:
 
         # Audit state
         self.run_id = self._generate_run_id()
-        self.audit_results: Dict[AuditType, AuditResult] = {}
-        self.errors: List[str] = []
+        self.audit_results: dict[AuditType, AuditResult] = {}
+        self.errors: list[str] = []
 
     def _generate_run_id(self) -> str:
         """Generate unique run ID."""
@@ -320,12 +333,10 @@ class AuditOrchestrator:
             if all_content is None:
                 all_content = ""
                 for f in all_files:
-                    try:
+                    with contextlib.suppress(Exception):
                         all_content += (
                             f.read_text(encoding="utf-8", errors="ignore") + "\n"
                         )
-                    except Exception:
-                        pass
 
                 if self.cache_mgr:
                     self.cache_mgr.save_content_index(all_files, all_content)
@@ -558,8 +569,7 @@ class AuditOrchestrator:
             from datetime import datetime
 
             from categorize_dead_code import categorize_dead_code
-            from find_dead_code import \
-                run_dead_code_audit as find_dead_code_baseline
+            from find_dead_code import run_dead_code_audit as find_dead_code_baseline
             from generate_gmp_todos import auto_fix_dead_code
             from resolve_dead_code_refs import resolve_dead_code_refs
 
@@ -668,7 +678,7 @@ class AuditOrchestrator:
 
             result = scan_repository()
 
-            total_issues = len(result.broken_docs) + len(result.deprecated_refs)
+            len(result.broken_docs) + len(result.deprecated_refs)
 
             return AuditResult(
                 audit_type=AuditType.WIRING_ALIGNMENT,
@@ -822,7 +832,7 @@ class AuditOrchestrator:
                 errors=[str(e)],
             )
 
-    def run_all(self, tier: int = 1, only: Optional[str] = None) -> AuditRun:
+    def run_all(self, tier: int = 1, only: str | None = None) -> AuditRun:
         """Run all audits for given tier."""
         start_time = time.time()
         logger.info("=" * 70)
@@ -891,7 +901,7 @@ class AuditOrchestrator:
 
         return run
 
-    def _get_tier_audits(self, tier: int) -> List[AuditType]:
+    def _get_tier_audits(self, tier: int) -> list[AuditType]:
         """Get audits for tier."""
         if tier == 1:
             return [
@@ -903,13 +913,12 @@ class AuditOrchestrator:
                 AuditType.MEMORY_SPEC,
                 AuditType.API_SIGNATURES,
             ]
-        elif tier == 2:
+        if tier == 2:
             return [
                 AuditType.GOVERNANCE_COMPLIANCE,
                 AuditType.CONFIGURATION_DRIFT,
             ]
-        else:
-            return []
+        return []
 
     def _generate_report(self, format_str: str):
         """Generate report in given format."""
@@ -984,7 +993,7 @@ class AuditOrchestrator:
         output_file = self.reporter.to_jsonl(records, f"audit_run_{self.run_id}.jsonl")
         logger.info(f"✓ JSONL report: {output_file}")
 
-    def _build_summary(self) -> Dict[str, Any]:
+    def _build_summary(self) -> dict[str, Any]:
         """Build audit run summary."""
         total_items = sum(r.items_found for r in self.audit_results.values())
         total_critical = sum(r.items_critical for r in self.audit_results.values())
@@ -1096,9 +1105,7 @@ def main():
         logger.info("GMP plan ready (awaiting user approval)")
 
     # Exit with code
-    if run.summary["critical"] > 0:
-        sys.exit(1)
-    elif run.summary["high"] > 3:
+    if run.summary["critical"] > 0 or run.summary["high"] > 3:
         sys.exit(1)
     else:
         sys.exit(0)

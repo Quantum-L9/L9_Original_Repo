@@ -60,16 +60,16 @@ DAG-based workflow execution engine with session management
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module        | Purpose          |
+| ------------- | ---------------- |
 | `api/routes/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                        | Purpose             |
+| ----------------------------- | ------------------- |
 | `memory/substrate_service.py` | Required dependency |
-| `core/agents/executor.py` | Required dependency |
+| `core/agents/executor.py`     | Required dependency |
 
 ---
 
@@ -95,21 +95,21 @@ workflows/
 └── ... (2 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `state.py` | Workflow state management and persistence (PROTECTED) |
-| `runner.py` | Workflow execution engine (PROTECTED) |
-| `harvest_deploy.py` | Harvest-to-deploy workflow implementation |
-| `nodes/extract.py` | Extraction node for content harvesting |
-| `nodes/validate.py` | Validation node for quality checks |
-| `nodes/deploy.py` | Deployment node for output generation |
-| `nodes/inject.py` | Context injection node |
-| `nodes/checkpoint.py` | Checkpoint node for state persistence |
-| `nodes/report.py` | Report generation node |
-| `session/interface.py` | Session interface definition |
-| `session/registry.py` | Session registry and discovery |
-| `defs/harvest-deploy.yaml` | Harvest-deploy workflow definition |
-| `defs/workflow-template.yaml` | Template for new workflows |
+| File                          | Purpose                                               |
+| ----------------------------- | ----------------------------------------------------- |
+| `state.py`                    | Workflow state management and persistence (PROTECTED) |
+| `runner.py`                   | Workflow execution engine (PROTECTED)                 |
+| `harvest_deploy.py`           | Harvest-to-deploy workflow implementation             |
+| `nodes/extract.py`            | Extraction node for content harvesting                |
+| `nodes/validate.py`           | Validation node for quality checks                    |
+| `nodes/deploy.py`             | Deployment node for output generation                 |
+| `nodes/inject.py`             | Context injection node                                |
+| `nodes/checkpoint.py`         | Checkpoint node for state persistence                 |
+| `nodes/report.py`             | Report generation node                                |
+| `session/interface.py`        | Session interface definition                          |
+| `session/registry.py`         | Session registry and discovery                        |
+| `defs/harvest-deploy.yaml`    | Harvest-deploy workflow definition                    |
+| `defs/workflow-template.yaml` | Template for new workflows                            |
 
 ### Naming Conventions
 
@@ -127,7 +127,7 @@ workflows/
 ```python
 class StepStatus:
     """Status of a workflow step."""
-    
+
     # Key methods:
 
 ```
@@ -139,7 +139,7 @@ class StepStatus:
 ```python
 class StepType:
     """Type of workflow step."""
-    
+
     # Key methods:
 
 ```
@@ -151,7 +151,7 @@ class StepType:
 ```python
 class StepResult:
     """Result of executing a step."""
-    
+
     # Key methods:
 
 ```
@@ -163,7 +163,7 @@ class StepResult:
 ```python
 class Step:
     """A single step in the workflow DAG."""
-    
+
     # Key methods:
 
 ```
@@ -175,13 +175,12 @@ class Step:
 ```python
 class WorkflowState:
     """Persistent state of a workflow execution."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 102-111 in `runner.py`
-
 
 ---
 
@@ -254,9 +253,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Workflows feature flags
-L9_ENABLE_WORKFLOWS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_WORKFLOWS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_WORKFLOWS_AUDIT: true    # Enable audit logging
+L9_ENABLE_WORKFLOWS_TRACING: true # Enable detailed tracing
+L9_ENABLE_WORKFLOWS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_WORKFLOWS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -318,7 +317,6 @@ Route after validate: always go to report.
 - **File:** `harvest_deploy.py:122`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -359,6 +357,7 @@ Workflows operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -366,12 +365,12 @@ Workflows operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                            | Type      | Description                    |
+| --------------------------------- | --------- | ------------------------------ |
 | `workflows_operation_duration_ms` | Histogram | Operation latency distribution |
-| `workflows_operation_total` | Counter | Total operations processed |
-| `workflows_error_total` | Counter | Total errors encountered |
-| `workflows_active_connections` | Gauge | Current active connections |
+| `workflows_operation_total`       | Counter   | Total operations processed     |
+| `workflows_error_total`           | Counter   | Total errors encountered       |
+| `workflows_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -389,6 +388,7 @@ Workflows emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/workflows/`:
+
 - `test_workflows.py` — Core unit tests
 - `test_workflows_integration.py` — Integration tests (if applicable)
 
@@ -436,6 +436,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

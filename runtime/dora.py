@@ -48,10 +48,11 @@ import inspect
 import json
 import re
 import uuid
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
+from typing import Any, TypeVar
 
 import structlog
 
@@ -70,17 +71,17 @@ class DoraMetrics:
     """Metrics captured during execution."""
 
     confidence: str = ""
-    errors_detected: List[str] = field(default_factory=list)
+    errors_detected: list[str] = field(default_factory=list)
     stability_score: str = ""
-    duration_ms: Optional[int] = None
+    duration_ms: int | None = None
 
 
 @dataclass
 class DoraGraph:
     """Execution graph (nodes/edges for call flow visualization)."""
 
-    nodes: List[Dict[str, Any]] = field(default_factory=list)
-    edges: List[Dict[str, Any]] = field(default_factory=list)
+    nodes: list[dict[str, Any]] = field(default_factory=list)
+    edges: list[dict[str, Any]] = field(default_factory=list)
 
 
 @dataclass
@@ -95,13 +96,13 @@ class DoraTraceBlock:
     trace_id: str = ""
     task: str = ""
     timestamp: str = ""
-    patterns_used: List[str] = field(default_factory=list)
+    patterns_used: list[str] = field(default_factory=list)
     graph: DoraGraph = field(default_factory=DoraGraph)
-    inputs: Dict[str, Any] = field(default_factory=dict)
-    outputs: Dict[str, Any] = field(default_factory=dict)
+    inputs: dict[str, Any] = field(default_factory=dict)
+    outputs: dict[str, Any] = field(default_factory=dict)
     metrics: DoraMetrics = field(default_factory=DoraMetrics)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dict for serialization."""
         return {
             "trace_id": self.trace_id,
@@ -118,17 +119,17 @@ class DoraTraceBlock:
     def create(
         cls,
         task: str,
-        inputs: Dict[str, Any],
-        outputs: Dict[str, Any],
-        patterns_used: Optional[List[str]] = None,
-        duration_ms: Optional[int] = None,
-        errors: Optional[List[str]] = None,
-    ) -> "DoraTraceBlock":
+        inputs: dict[str, Any],
+        outputs: dict[str, Any],
+        patterns_used: list[str] | None = None,
+        duration_ms: int | None = None,
+        errors: list[str] | None = None,
+    ) -> DoraTraceBlock:
         """Factory method to create a new trace block."""
         return cls(
             trace_id=str(uuid.uuid4())[:8],
             task=task,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             patterns_used=patterns_used or [],
             graph=DoraGraph(),
             inputs=cls._sanitize_for_json(inputs),
@@ -195,9 +196,7 @@ def format_dora_block_python(trace: DoraTraceBlock) -> str:
     lines.append("__l9_trace__ = {")
 
     for key, value in trace_dict.items():
-        if isinstance(value, dict):
-            lines.append(f'    "{key}": {json.dumps(value, default=str)},')
-        elif isinstance(value, list):
+        if isinstance(value, (dict, list)):
             lines.append(f'    "{key}": {json.dumps(value, default=str)},')
         elif isinstance(value, str):
             lines.append(f'    "{key}": {json.dumps(value)},')
@@ -213,7 +212,7 @@ def format_dora_block_python(trace: DoraTraceBlock) -> str:
 
 
 def update_dora_block_in_file(
-    file_path: Union[str, Path],
+    file_path: str | Path,
     trace: DoraTraceBlock,
 ) -> bool:
     """
@@ -282,14 +281,14 @@ def update_dora_block_in_file(
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-def l9_traced(
-    func: Optional[F] = None,
+def l9_traced[F: Callable[..., Any]](
+    func: F | None = None,
     *,
-    task_name: Optional[str] = None,
-    patterns: Optional[List[str]] = None,
+    task_name: str | None = None,
+    patterns: list[str] | None = None,
     update_source: bool = True,
-    source_file: Optional[Union[str, Path]] = None,
-) -> Union[F, Callable[[F], F]]:
+    source_file: str | Path | None = None,
+) -> F | Callable[[F], F]:
     """
     Decorator to trace function execution for DORA Block.
 
@@ -340,19 +339,18 @@ def l9_traced(
             inputs = dict(bound.arguments)
 
             # Track execution
-            start_time = datetime.now(timezone.utc)
-            errors: List[str] = []
+            start_time = datetime.now(UTC)
+            errors: list[str] = []
             output: Any = None
 
             try:
-                output = fn(*args, **kwargs)
-                return output
+                return fn(*args, **kwargs)
             except Exception as e:
-                errors.append(f"{type(e).__name__}: {str(e)}")
+                errors.append(f"{type(e).__name__}: {e!s}")
                 raise
             finally:
                 # Calculate duration
-                end_time = datetime.now(timezone.utc)
+                end_time = datetime.now(UTC)
                 duration_ms = int((end_time - start_time).total_seconds() * 1000)
 
                 # Create trace block
@@ -387,19 +385,18 @@ def l9_traced(
             inputs = dict(bound.arguments)
 
             # Track execution
-            start_time = datetime.now(timezone.utc)
-            errors: List[str] = []
+            start_time = datetime.now(UTC)
+            errors: list[str] = []
             output: Any = None
 
             try:
-                output = await fn(*args, **kwargs)
-                return output
+                return await fn(*args, **kwargs)
             except Exception as e:
-                errors.append(f"{type(e).__name__}: {str(e)}")
+                errors.append(f"{type(e).__name__}: {e!s}")
                 raise
             finally:
                 # Calculate duration
-                end_time = datetime.now(timezone.utc)
+                end_time = datetime.now(UTC)
                 duration_ms = int((end_time - start_time).total_seconds() * 1000)
 
                 # Create trace block
@@ -446,12 +443,12 @@ async def emit_executor_trace(
     task_id: str,
     task_name: str,
     agent_id: str,
-    inputs: Dict[str, Any],
-    outputs: Dict[str, Any],
+    inputs: dict[str, Any],
+    outputs: dict[str, Any],
     duration_ms: int,
-    errors: Optional[List[str]] = None,
-    patterns: Optional[List[str]] = None,
-    source_file: Optional[Union[str, Path]] = None,
+    errors: list[str] | None = None,
+    patterns: list[str] | None = None,
+    source_file: str | Path | None = None,
 ) -> DoraTraceBlock:
     """
     Create and emit a DORA trace from the executor.

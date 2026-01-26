@@ -34,7 +34,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -72,9 +72,9 @@ class MemoryStateManager:
         self,
         packet_type: str,
         payload: dict[str, Any],
-        metadata: Optional[dict[str, Any]] = None,
-        provenance: Optional[dict[str, Any]] = None,
-        confidence: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
+        provenance: dict[str, Any] | None = None,
+        confidence: dict[str, Any] | None = None,
     ) -> PacketWriteResult:
         """
         Append a new event to memory as a PacketEnvelope.
@@ -98,7 +98,7 @@ class MemoryStateManager:
         """
         await self._service.save_checkpoint(agent_id=self._agent_id, state=state)
 
-    async def load_checkpoint(self) -> Optional[dict[str, Any]]:
+    async def load_checkpoint(self) -> dict[str, Any] | None:
         """
         Load the latest checkpoint for this agent.
 
@@ -120,7 +120,7 @@ class MemoryStateManager:
         thread_id: UUID,
         step_name: str,
         thoughts: str,
-        extra: Optional[dict[str, Any]] = None,
+        extra: dict[str, Any] | None = None,
     ) -> PacketWriteResult:
         """
         Convenience helper for logging a single reasoning trace step.
@@ -173,7 +173,7 @@ class MemoryStateManager:
         await self._persist_state()
         logger.debug(f"Updated agent state: {list(patch.keys())}")
 
-    async def reset_agent_state(self, preserve: Optional[list[str]] = None) -> None:
+    async def reset_agent_state(self, preserve: list[str] | None = None) -> None:
         """
         Reset agent state, optionally preserving specific keys.
 
@@ -198,7 +198,7 @@ class MemoryStateManager:
         self,
         flag_name: str,
         value: Any,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
     ) -> None:
         """
         Set a long-term flag for the agent.
@@ -260,7 +260,7 @@ class MemoryStateManager:
         subject: str,
         predicate: str,
         conflicting_objects: list[Any],
-        source_packet: Optional[UUID] = None,
+        source_packet: UUID | None = None,
     ) -> None:
         """
         Record a contradiction between facts.

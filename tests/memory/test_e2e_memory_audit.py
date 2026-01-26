@@ -352,7 +352,7 @@ async def audit_postgresql() -> AuditResult:
                 row = await conn.fetchrow(
                     """
                     SELECT EXISTS (
-                        SELECT FROM information_schema.tables 
+                        SELECT FROM information_schema.tables
                         WHERE table_name = $1
                     ) as exists
                     """,
@@ -776,8 +776,7 @@ async def memory_service():
     if not database_url:
         pytest.skip("MEMORY_DSN or DATABASE_URL not set")
 
-    from memory.substrate_service import (close_service, get_service,
-                                          init_service)
+    from memory.substrate_service import close_service, get_service, init_service
 
     await init_service(
         database_url=database_url,

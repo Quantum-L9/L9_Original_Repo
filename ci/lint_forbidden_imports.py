@@ -39,7 +39,6 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 import structlog
 
@@ -81,7 +80,7 @@ class LintResult:
 
     def __init__(self, file_path: str):
         self.file_path = file_path
-        self.errors: List[Tuple[int, str, str]] = []  # (line_num, pattern, message)
+        self.errors: list[tuple[int, str, str]] = []  # (line_num, pattern, message)
         self.fixed = False
 
     def add_error(self, line_num: int, pattern: str, message: str):
@@ -101,10 +100,7 @@ def should_skip_file(file_path: Path) -> bool:
     except ValueError:
         rel_path = path_str
 
-    for pattern in SKIP_PATTERNS:
-        if pattern in path_str or pattern in rel_path:
-            return True
-    return False
+    return any(pattern in path_str or pattern in rel_path for pattern in SKIP_PATTERNS)
 
 
 def detect_log_level(line: str) -> str:
@@ -112,17 +108,16 @@ def detect_log_level(line: str) -> str:
     line_upper = line.upper()
     if any(word in line_upper for word in ["ERROR", "FAILED", "FAILURE", "EXCEPTION"]):
         return "error"
-    elif any(word in line_upper for word in ["WARNING", "WARN"]):
+    if any(word in line_upper for word in ["WARNING", "WARN"]):
         return "warning"
-    elif any(word in line_upper for word in ["DEBUG", "DEBUGGING"]):
+    if any(word in line_upper for word in ["DEBUG", "DEBUGGING"]):
         return "debug"
-    else:
-        return "info"
+    return "info"
 
 
 def extract_print_content(
-    line: str, lines: List[str], line_idx: int
-) -> Tuple[Optional[str], int]:
+    line: str, lines: list[str], line_idx: int
+) -> tuple[str | None, int]:
     """Extract the content inside print() call, handling multi-line statements.
     Returns (content, number of lines consumed)."""
     # Find print( and extract everything until matching closing paren
@@ -163,8 +158,8 @@ def extract_print_content(
 
 
 def convert_print_to_logger(
-    line: str, lines: List[str], line_idx: int, indent: str
-) -> Tuple[str, int]:
+    line: str, lines: list[str], line_idx: int, indent: str
+) -> tuple[str, int]:
     """Convert a print() statement to logger call.
     Returns (converted_line, number of lines consumed)."""
     content, lines_consumed = extract_print_content(line, lines, line_idx)
@@ -217,7 +212,7 @@ def lint_file(file_path: Path, fix: bool = False) -> LintResult:
     result = LintResult(str(file_path))
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             lines = f.readlines()
     except Exception as e:
         result.add_error(0, "READ_ERROR", f"Could not read file: {e}")
@@ -230,7 +225,6 @@ def lint_file(file_path: Path, fix: bool = False) -> LintResult:
     import_insert_pos = -1
     logger_insert_pos = -1
     in_docstring = False
-    docstring_char = None
     skip_lines = set()  # Track lines to skip (part of multi-line print)
 
     # First pass: check for structlog import and logger definition
@@ -265,7 +259,6 @@ def lint_file(file_path: Path, fix: bool = False) -> LintResult:
 
     # Second pass: fix issues
     in_docstring_pass2 = False
-    docstring_char_pass2 = None
     for line_num, line in enumerate(lines, 1):
         original_line = line
         new_line = line
@@ -461,7 +454,7 @@ def lint_file(file_path: Path, fix: bool = False) -> LintResult:
     return result
 
 
-def find_python_files(root: Path, specific_file: Optional[Path] = None) -> List[Path]:
+def find_python_files(root: Path, specific_file: Path | None = None) -> list[Path]:
     """Find all Python files to lint."""
     if specific_file:
         if specific_file.exists() and specific_file.suffix == ".py":
@@ -515,7 +508,7 @@ def main() -> int:
     logger.info(f"Linting {len(files_to_lint)} Python file(s)...")
     logger.info("")
 
-    all_results: List[LintResult] = []
+    all_results: list[LintResult] = []
     for file_path in files_to_lint:
         result = lint_file(file_path, fix=args.fix)
         all_results.append(result)
@@ -532,7 +525,7 @@ def main() -> int:
                 logger.info(f"✅ Fixed: {result.file_path}")
             else:
                 logger.info(f"❌ {result.file_path}:")
-                for line_num, pattern, message in result.errors:
+                for line_num, _pattern, message in result.errors:
                     logger.info(f"   Line {line_num}: {message}")
                 logger.info("")
 
@@ -541,20 +534,15 @@ def main() -> int:
     if total_errors == 0:
         logger.info("✅ All files passed linting!")
         return 0
+    if args.fix:
+        logger.error(f"⚠️  Found {total_errors} issue(s), fixed {total_fixed} file(s)")
+        logger.error(f"   {total_errors - total_fixed} issue(s) require manual fixes")
     else:
-        if args.fix:
-            logger.error(
-                f"⚠️  Found {total_errors} issue(s), fixed {total_fixed} file(s)"
-            )
-            logger.error(
-                f"   {total_errors - total_fixed} issue(s) require manual fixes"
-            )
-        else:
-            logger.error(
-                f"❌ Found {total_errors} issue(s) in {len([r for r in all_results if r.has_errors])} file(s)"
-            )
-            logger.info("   Run with --fix to auto-fix some issues")
-        return 1
+        logger.error(
+            f"❌ Found {total_errors} issue(s) in {len([r for r in all_results if r.has_errors])} file(s)"
+        )
+        logger.info("   Run with --fix to auto-fix some issues")
+    return 1
 
 
 if __name__ == "__main__":

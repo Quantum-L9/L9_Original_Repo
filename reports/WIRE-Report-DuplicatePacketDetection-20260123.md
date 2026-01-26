@@ -10,27 +10,27 @@
 
 ## SUMMARY
 
-| Metric | Value |
-|--------|-------|
-| References discovered | 3 |
-| Broken references fixed | 0 |
-| Missing integrations added | 3 |
-| Files modified | 3 |
-| Tests added | 5 |
+| Metric                     | Value |
+| -------------------------- | ----- |
+| References discovered      | 3     |
+| Broken references fixed    | 0     |
+| Missing integrations added | 3     |
+| Files modified             | 3     |
+| Tests added                | 5     |
 
 ---
 
 ## PHASE EXECUTION
 
-| Phase | Name | Status | Notes |
-|-------|------|--------|-------|
-| 1 | Discovery | ✅ | Feature spans 3 files |
-| 2 | Analysis | ✅ | Integration flow verified |
-| 3 | Plan | ✅ | 3 additions needed |
-| 4 | Execute | ✅ | All additions complete |
-| 5 | Validate | ✅ | py_compile, imports, 5 tests pass |
-| 6 | Recursive | ✅ | No gaps, method verified |
-| 7 | Report | ✅ | This document |
+| Phase | Name      | Status | Notes                             |
+| ----- | --------- | ------ | --------------------------------- |
+| 1     | Discovery | ✅     | Feature spans 3 files             |
+| 2     | Analysis  | ✅     | Integration flow verified         |
+| 3     | Plan      | ✅     | 3 additions needed                |
+| 4     | Execute   | ✅     | All additions complete            |
+| 5     | Validate  | ✅     | py_compile, imports, 5 tests pass |
+| 6     | Recursive | ✅     | No gaps, method verified          |
+| 7     | Report    | ✅     | This document                     |
 
 ---
 
@@ -63,21 +63,21 @@ API/Pipeline → MemorySubstrateService.write_packet()
 
 ## WIRING ACTIONS
 
-| # | Action | File | Change | Status |
-|---|--------|------|--------|--------|
-| W1 | Add method | `memory/substrate_repository.py` | `check_packet_exists()` | ✅ |
-| W2 | Add check | `memory/substrate_dag.py:intake_node()` | Duplicate detection logic | ✅ |
-| W3 | Add tests | `tests/memory/test_substrate_dag_native.py` | 5 test cases | ✅ |
+| #   | Action     | File                                        | Change                    | Status |
+| --- | ---------- | ------------------------------------------- | ------------------------- | ------ |
+| W1  | Add method | `memory/substrate_repository.py`            | `check_packet_exists()`   | ✅     |
+| W2  | Add check  | `memory/substrate_dag.py:intake_node()`     | Duplicate detection logic | ✅     |
+| W3  | Add tests  | `tests/memory/test_substrate_dag_native.py` | 5 test cases              | ✅     |
 
 ---
 
 ## FILES MODIFIED
 
-| File | Lines Changed | Type |
-|------|---------------|------|
-| `memory/substrate_repository.py` | +21 | Method added |
-| `memory/substrate_dag.py` | +21 | Node enhanced |
-| `tests/memory/test_substrate_dag_native.py` | +108 | Tests added |
+| File                                        | Lines Changed | Type          |
+| ------------------------------------------- | ------------- | ------------- |
+| `memory/substrate_repository.py`            | +21           | Method added  |
+| `memory/substrate_dag.py`                   | +21           | Node enhanced |
+| `tests/memory/test_substrate_dag_native.py` | +108          | Tests added   |
 
 ---
 
@@ -90,7 +90,7 @@ API/Pipeline → MemorySubstrateService.write_packet()
 async def check_packet_exists(self, packet_id: UUID) -> bool:
     """
     Check if a packet with the given ID already exists.
-    
+
     Used for duplicate detection in the ingestion pipeline.
     This is a lightweight existence check without RLS filtering
     since deduplication is global (same packet_id = same packet).
@@ -132,34 +132,34 @@ if packet_id and repository:
 
 ## VALIDATION RESULTS
 
-| Gate | Status | Output |
-|------|--------|--------|
-| py_compile | ✅ | All 3 files compile |
-| imports | ✅ | SubstrateRepository, SubstrateDAG resolve |
-| tests | ✅ | 5 passed, 0 failed |
+| Gate       | Status | Output                                    |
+| ---------- | ------ | ----------------------------------------- |
+| py_compile | ✅     | All 3 files compile                       |
+| imports    | ✅     | SubstrateRepository, SubstrateDAG resolve |
+| tests      | ✅     | 5 passed, 0 failed                        |
 
 ### Test Cases
 
-| Test | Description | Status |
-|------|-------------|--------|
-| `test_intake_detects_duplicate` | Error added when packet exists | ✅ |
-| `test_intake_allows_new_packet` | No error for new packets | ✅ |
-| `test_intake_handles_missing_check_method` | Graceful degradation | ✅ |
-| `test_intake_handles_check_exception` | Exception handling | ✅ |
-| `test_dag_rejects_duplicate` | Full DAG returns error | ✅ |
+| Test                                       | Description                    | Status |
+| ------------------------------------------ | ------------------------------ | ------ |
+| `test_intake_detects_duplicate`            | Error added when packet exists | ✅     |
+| `test_intake_allows_new_packet`            | No error for new packets       | ✅     |
+| `test_intake_handles_missing_check_method` | Graceful degradation           | ✅     |
+| `test_intake_handles_check_exception`      | Exception handling             | ✅     |
+| `test_dag_rejects_duplicate`               | Full DAG returns error         | ✅     |
 
 ---
 
 ## RECURSIVE VERIFICATION
 
-| Check | Result |
-|-------|--------|
-| All planned wiring executed | ✅ |
-| No new references found | ✅ |
-| No broken references remain | ✅ |
-| No circular dependencies | ✅ |
-| Method exists on class | ✅ |
-| Method is async | ✅ |
+| Check                       | Result |
+| --------------------------- | ------ |
+| All planned wiring executed | ✅     |
+| No new references found     | ✅     |
+| No broken references remain | ✅     |
+| No circular dependencies    | ✅     |
+| Method exists on class      | ✅     |
+| Method is async             | ✅     |
 
 ---
 

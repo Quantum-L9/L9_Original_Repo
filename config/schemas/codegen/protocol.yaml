@@ -36,38 +36,38 @@ field_definitions:
     type: string
     pattern: "^P-[A-Z]+-[0-9]{3}$"
     description: "Unique identifier (e.g., P-CODE-001)"
-  
+
   name:
     type: string
     description: "Human-readable protocol name"
     examples:
       - "Code Change Protocol"
       - "Research Synthesis Protocol"
-  
+
   steps:
     type: array
     description: "Ordered list of required steps"
     item_type: string
     min_items: 2
-  
+
   description:
     type: string
     description: "What this protocol accomplishes"
-  
+
   enforcement:
     type: enum
     values: [required, recommended, optional]
     default: required
     description: "How strictly this protocol must be followed"
-  
+
   preconditions:
     type: array
     description: "Conditions that must be true before starting"
-  
+
   postconditions:
     type: array
     description: "Conditions that must be true after completion"
-  
+
   failure_handling:
     type: string
     description: "What to do if a step fails"
@@ -100,7 +100,6 @@ examples:
     postconditions:
       - "diff is valid"
       - "report includes confidence score"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -93,7 +93,7 @@ cd "$WORK_DIR"
 if docker compose ps --format json 2>/dev/null | grep -q '"State":"running"'; then
     log "  Stopping containers..."
     docker compose stop 2>/dev/null || true
-    
+
     log "  Starting containers with new env vars..."
     if docker compose up -d; then
         log_always "${GREEN}✅ Containers restarted${NC}"

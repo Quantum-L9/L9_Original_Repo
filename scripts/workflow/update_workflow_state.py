@@ -50,7 +50,6 @@ def inject_recent_change(content: str, entry: str) -> str:
     Entries are added at the TOP of the section (newest first).
     """
     marker = "## Recent Changes (digest)"
-    full_history_line = "Full history:"
 
     if marker not in content:
         print(f"⚠️  Section '{marker}' not found")
@@ -77,9 +76,8 @@ def inject_recent_change(content: str, entry: str) -> str:
 
     # Reconstruct content
     new_after_marker = "\n".join(lines)
-    content = content[:marker_pos] + new_after_marker
+    return content[:marker_pos] + new_after_marker
 
-    return content
 
 
 def inject_next_steps_pr(
@@ -94,7 +92,7 @@ def inject_next_steps_pr(
         print(f"⚠️  Section '{marker}' not found")
         return content
 
-    date = get_current_date()
+    get_current_date()
 
     # Check if PR already has an entry
     pr_pattern = rf"### .* PR #{pr_num}\b"
@@ -161,9 +159,8 @@ def inject_recent_session(content: str, entry: str) -> str:
     lines.insert(insert_idx, entry)
 
     new_after_marker = "\n".join(lines)
-    content = content[: marker_pos + len(marker)] + new_after_marker
+    return content[: marker_pos + len(marker)] + new_after_marker
 
-    return content
 
 
 def mark_session_complete(content: str, pr_num: int) -> str:

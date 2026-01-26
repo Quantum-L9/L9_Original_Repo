@@ -8,9 +8,10 @@
 
 ## Summary
 
-The current `formal_lesson_extractor.py` uses **primitive regex pattern matching** to extract lessons from chat exports. This yields low-quality, generic lessons. 
+The current `formal_lesson_extractor.py` uses **primitive regex pattern matching** to extract lessons from chat exports. This yields low-quality, generic lessons.
 
 **Goal:** Build a proper AI-powered extractor using L9's existing infrastructure to extract:
+
 - Lessons (mistakes and solutions)
 - Preferences (user workflow patterns)
 - Architecture decisions (what was chosen and why)
@@ -20,23 +21,23 @@ The current `formal_lesson_extractor.py` uses **primitive regex pattern matching
 
 ## Data Sources
 
-| Source | Location | Files | Content |
-|--------|----------|-------|---------|
-| Session JSONs | `.cursor-commands/intelligence/context-memory/sessions/` | 1,556 | Hourly session snapshots |
-| Chat Exports | `.cursor-commands/ops/logs/chat_exports/` | 106,919 | Raw chat data |
-| Memory Index | `.cursor-commands/ops/logs/memory_index.json` | 1 | 133 extracted patterns |
-| Learning Files | `.cursor-commands/learning/failures/` | 6 | Existing lessons |
+| Source         | Location                                                 | Files   | Content                  |
+| -------------- | -------------------------------------------------------- | ------- | ------------------------ |
+| Session JSONs  | `.cursor-commands/intelligence/context-memory/sessions/` | 1,556   | Hourly session snapshots |
+| Chat Exports   | `.cursor-commands/ops/logs/chat_exports/`                | 106,919 | Raw chat data            |
+| Memory Index   | `.cursor-commands/ops/logs/memory_index.json`            | 1       | 133 extracted patterns   |
+| Learning Files | `.cursor-commands/learning/failures/`                    | 6       | Existing lessons         |
 
 ---
 
 ## Existing Infrastructure to Use
 
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| **SemanticCompiler** | `ir_engine/semantic_compiler.py` | LLM-based intent/constraint extraction (GPT-4o) |
-| **IngestionPipeline** | `memory/ingestion.py` | Embedding generation + pgvector storage |
-| **SemanticSearch** | `memory/semantic_search.py` | pgvector similarity search |
-| **InsightExtractionPipeline** | `memory/insight_extraction.py` | Heuristic extraction (baseline) |
+| Component                     | Location                         | Purpose                                         |
+| ----------------------------- | -------------------------------- | ----------------------------------------------- |
+| **SemanticCompiler**          | `ir_engine/semantic_compiler.py` | LLM-based intent/constraint extraction (GPT-4o) |
+| **IngestionPipeline**         | `memory/ingestion.py`            | Embedding generation + pgvector storage         |
+| **SemanticSearch**            | `memory/semantic_search.py`      | pgvector similarity search                      |
+| **InsightExtractionPipeline** | `memory/insight_extraction.py`   | Heuristic extraction (baseline)                 |
 
 ---
 
@@ -81,25 +82,29 @@ The current `formal_lesson_extractor.py` uses **primitive regex pattern matching
 ## Implementation Plan
 
 ### Phase 1: Create Extractor Script
+
 - [ ] Create `scripts/governance_knowledge_extractor.py`
 - [ ] Use `SemanticCompiler` or direct OpenAI calls
 - [ ] Define extraction prompts for each category:
   - Lessons
-  - Preferences  
+  - Preferences
   - Architecture decisions
   - Workflow patterns
 
 ### Phase 2: Batch Processing
+
 - [ ] Process session JSONs in batches (avoid token limits)
 - [ ] Deduplicate similar extractions
 - [ ] Score by confidence and frequency
 
 ### Phase 3: Storage Integration
+
 - [ ] Store via `IngestionPipeline` with embeddings
 - [ ] Enable semantic search for relevant lessons
 - [ ] Link to source files (packet lineage)
 
 ### Phase 4: Output Generation
+
 - [ ] Generate structured YAML outputs
 - [ ] Update `repeated-mistakes.md` with high-quality lessons
 - [ ] Create `preferences.yaml` for always-applied rules

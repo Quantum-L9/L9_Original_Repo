@@ -102,10 +102,7 @@ class MetaLoader:
         """
         try:
             # Resolve path
-            if os.path.isabs(path):
-                file_path = Path(path)
-            else:
-                file_path = self.specs_dir / path
+            file_path = Path(path) if os.path.isabs(path) else self.specs_dir / path
 
             if not file_path.exists():
                 raise MetaLoaderError(f"Spec file not found: {file_path}")
@@ -161,7 +158,9 @@ class MetaLoader:
                 for err in e.errors()
             ]
             logger.error("meta_contract_validation_failed", path=path, errors=errors)
-            raise MetaLoaderError(f"Contract validation failed: {'; '.join(errors)}") from e
+            raise MetaLoaderError(
+                f"Contract validation failed: {'; '.join(errors)}"
+            ) from e
 
     def validate_meta(self, path: str) -> MetaContractValidationResult:
         """
@@ -173,10 +172,7 @@ class MetaLoader:
         Returns:
             Validation result with errors and warnings
         """
-        if os.path.isabs(path):
-            file_path = path
-        else:
-            file_path = str(self.specs_dir / path)
+        file_path = path if os.path.isabs(path) else str(self.specs_dir / path)
 
         return self._validator.validate_yaml(file_path)
 

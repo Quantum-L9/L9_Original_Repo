@@ -111,9 +111,7 @@ async def checkpoint_node(state: WorkflowState) -> dict:
         "current_phase": "done",
         "error": "Workflow stopped by user",
         "results": [result],
-        "messages": [
-            {"role": "assistant", "content": "⛔ Workflow stopped by user"}
-        ],
+        "messages": [{"role": "assistant", "content": "⛔ Workflow stopped by user"}],
     }
 
 

@@ -10,6 +10,7 @@
 ## Summary
 
 Adopted useful concepts from PR #49 while avoiding conflicting implementations:
+
 - Added ADR enforcement hooks to pre-commit
 - Expanded ruff linting rules for better code quality
 - Created high-level service protocols (MemoryService, LLMService, GovernanceService)
@@ -19,12 +20,12 @@ Adopted useful concepts from PR #49 while avoiding conflicting implementations:
 
 ## TODO Plan (Executed)
 
-| T# | File | Lines | Action | Description | Status |
-|----|------|-------|--------|-------------|--------|
-| T1 | `.pre-commit-config.yaml` | EOF | Insert | ADR enforcement hooks | ✅ |
-| T2 | `pyproject.toml` | 39-64 | Replace | Expanded ruff rules | ✅ |
-| T3 | `core/protocols/service_protocols.py` | NEW | Create | High-level protocols | ✅ |
-| T4 | `core/protocols/__init__.py` | 46-48, 82-85 | Insert | Register protocols | ✅ |
+| T#  | File                                  | Lines        | Action  | Description           | Status |
+| --- | ------------------------------------- | ------------ | ------- | --------------------- | ------ |
+| T1  | `.pre-commit-config.yaml`             | EOF          | Insert  | ADR enforcement hooks | ✅     |
+| T2  | `pyproject.toml`                      | 39-64        | Replace | Expanded ruff rules   | ✅     |
+| T3  | `core/protocols/service_protocols.py` | NEW          | Create  | High-level protocols  | ✅     |
+| T4  | `core/protocols/__init__.py`          | 46-48, 82-85 | Insert  | Register protocols    | ✅     |
 
 ---
 
@@ -58,6 +59,7 @@ select = [
 ```
 
 Also added:
+
 - `[tool.ruff.lint.isort]` — known-first-party modules
 - `[tool.ruff.lint.flake8-type-checking]` — Protocol as runtime-evaluated base
 
@@ -65,17 +67,18 @@ Also added:
 
 Created `core/protocols/service_protocols.py` (287 lines) with:
 
-| Protocol | Purpose | Methods |
-|----------|---------|---------|
-| `MemoryService` | Unified memory interface | `store()`, `retrieve()`, `search()` |
-| `LLMService` | Unified LLM interface | `complete()`, `chat()`, `embed()` |
-| `GovernanceService` | Policy enforcement | `check_policy()`, `enforce_limits()`, `request_approval()` |
+| Protocol            | Purpose                  | Methods                                                    |
+| ------------------- | ------------------------ | ---------------------------------------------------------- |
+| `MemoryService`     | Unified memory interface | `store()`, `retrieve()`, `search()`                        |
+| `LLMService`        | Unified LLM interface    | `complete()`, `chat()`, `embed()`                          |
+| `GovernanceService` | Policy enforcement       | `check_policy()`, `enforce_limits()`, `request_approval()` |
 
 All protocols are `@runtime_checkable` for isinstance() checks.
 
 ### T4: Protocol Registration
 
 Updated `core/protocols/__init__.py`:
+
 - Import: `from core.protocols.service_protocols import ...`
 - Export: Added to `__all__` list
 
@@ -83,25 +86,25 @@ Updated `core/protocols/__init__.py`:
 
 ## Validation Results
 
-| Check | Result |
-|-------|--------|
-| py_compile service_protocols.py | ✅ |
-| py_compile __init__.py | ✅ |
-| ruff check service_protocols.py | ✅ All checks passed |
-| YAML validation .pre-commit-config.yaml | ✅ |
-| TOML validation pyproject.toml | ✅ |
-| Protocol execution test | ✅ |
+| Check                                   | Result               |
+| --------------------------------------- | -------------------- |
+| py_compile service_protocols.py         | ✅                   |
+| py_compile **init**.py                  | ✅                   |
+| ruff check service_protocols.py         | ✅ All checks passed |
+| YAML validation .pre-commit-config.yaml | ✅                   |
+| TOML validation pyproject.toml          | ✅                   |
+| Protocol execution test                 | ✅                   |
 
 ---
 
 ## What Was Skipped from PR #49
 
-| PR Component | Reason Skipped |
-|--------------|----------------|
-| `core/patterns/singleton.py` | Local `@register_singleton` is more advanced |
-| `core/di/bootstrap_integration.py` | Conflicts with production `bootstrap.py` |
-| `tests/unit/test_singleton_pattern.py` | Tests unused pattern |
-| Most of `service_protocols.py` structure | Adapted to local patterns |
+| PR Component                             | Reason Skipped                               |
+| ---------------------------------------- | -------------------------------------------- |
+| `core/patterns/singleton.py`             | Local `@register_singleton` is more advanced |
+| `core/di/bootstrap_integration.py`       | Conflicts with production `bootstrap.py`     |
+| `tests/unit/test_singleton_pattern.py`   | Tests unused pattern                         |
+| Most of `service_protocols.py` structure | Adapted to local patterns                    |
 
 ---
 

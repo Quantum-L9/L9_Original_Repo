@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -65,26 +65,26 @@ class KernelState:
 
     # Activation state
     initialized: bool = False
-    active_kernels: Dict[str, bool] = field(default_factory=dict)
+    active_kernels: dict[str, bool] = field(default_factory=dict)
 
     # Boot configuration
-    boot_overlay: Dict[str, Any] = field(default_factory=dict)
-    activation_context: Dict[str, Any] = field(default_factory=dict)
+    boot_overlay: dict[str, Any] = field(default_factory=dict)
+    activation_context: dict[str, Any] = field(default_factory=dict)
 
     # Session metadata
     session_id: str = ""
     timestamp: datetime = field(default_factory=datetime.now)
 
     # Execution tracking (GODMODE Part 7.1)
-    decisions: List[Dict[str, Any]] = field(default_factory=list)
-    escalations: List[Dict[str, Any]] = field(default_factory=list)
-    tools_executed: List[Dict[str, Any]] = field(default_factory=list)
+    decisions: list[dict[str, Any]] = field(default_factory=list)
+    escalations: list[dict[str, Any]] = field(default_factory=list)
+    tools_executed: list[dict[str, Any]] = field(default_factory=list)
 
     # Confidence calibration
-    confidence_calibrations: Dict[str, float] = field(default_factory=dict)
+    confidence_calibrations: dict[str, float] = field(default_factory=dict)
 
     # Kernel snapshots for audit
-    kernel_snapshots: List[Dict[str, Any]] = field(default_factory=list)
+    kernel_snapshots: list[dict[str, Any]] = field(default_factory=list)
 
     def log_decision(
         self,
@@ -127,7 +127,7 @@ class KernelState:
         issue: str,
         severity: str,
         trigger: str = "",
-        resolution: Optional[str] = None,
+        resolution: str | None = None,
         action: str = "ESCALATE",
     ) -> None:
         """
@@ -163,10 +163,10 @@ class KernelState:
     def log_tool_execution(
         self,
         tool_id: str,
-        params: Dict[str, Any],
+        params: dict[str, Any],
         status: str,
         result: Any = None,
-        error: Optional[str] = None,
+        error: str | None = None,
     ) -> None:
         """
         Log tool execution (GODMODE Part 7.1).
@@ -194,7 +194,7 @@ class KernelState:
             status=status,
         )
 
-    def export_session_memory(self) -> Dict[str, Any]:
+    def export_session_memory(self) -> dict[str, Any]:
         """
         Export complete session memory for audit (GODMODE Part 7.2).
 
@@ -216,15 +216,15 @@ class KernelState:
             "kernel_snapshots": self.kernel_snapshots,
         }
 
-    def get_pending_escalations(self) -> List[Dict[str, Any]]:
+    def get_pending_escalations(self) -> list[dict[str, Any]]:
         """Get escalations awaiting Igor's decision."""
         return [e for e in self.escalations if e.get("awaiting") == "IGOR"]
 
-    def get_critical_escalations(self) -> List[Dict[str, Any]]:
+    def get_critical_escalations(self) -> list[dict[str, Any]]:
         """Get CRITICAL severity escalations."""
         return [e for e in self.escalations if e.get("severity") == "CRITICAL"]
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """
         Get a summary of kernel state for response rendering.
 

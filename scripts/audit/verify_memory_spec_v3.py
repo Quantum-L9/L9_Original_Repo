@@ -189,9 +189,7 @@ def extract_class_methods(file_path: Path) -> dict[str, list[str]]:
         if isinstance(node, ast.ClassDef):
             class_methods = []
             for item in node.body:
-                if isinstance(item, ast.FunctionDef) or isinstance(
-                    item, ast.AsyncFunctionDef
-                ):
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     class_methods.append(item.name)
             methods_by_class[node.name] = class_methods
 
@@ -209,7 +207,7 @@ def extract_function_names(file_path: Path) -> list[str]:
         return functions
 
     for node in ast.iter_child_nodes(tree):
-        if isinstance(node, ast.FunctionDef) or isinstance(node, ast.AsyncFunctionDef):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             functions.append(node.name)
 
     return functions
@@ -301,7 +299,6 @@ def check_required_methods(spec: dict, verbose: bool = False) -> tuple[bool, lis
 
 def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]:
     """Verify feature flags are defined in code (optional - informational)."""
-    issues = []
     warnings = []
 
     feature_flags = spec.get("feature_flags", {})
@@ -309,7 +306,7 @@ def check_feature_flags(spec: dict, verbose: bool = False) -> tuple[bool, list[s
         return True, []
 
     # Search for flag usage in codebase
-    for flag_name, flag_config in feature_flags.items():
+    for flag_name, _flag_config in feature_flags.items():
         found = False
 
         # Check memory directory

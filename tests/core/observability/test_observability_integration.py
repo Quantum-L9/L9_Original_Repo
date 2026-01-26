@@ -27,8 +27,7 @@ class TestObservabilityConfig:
 
     def test_load_config_returns_settings(self):
         """Test that load_config returns ObservabilitySettings."""
-        from core.observability.config import (ObservabilitySettings,
-                                               load_config)
+        from core.observability.config import ObservabilitySettings, load_config
 
         config = load_config()
         assert isinstance(config, ObservabilitySettings)
@@ -156,8 +155,10 @@ class TestObservabilityService:
     @pytest.mark.asyncio
     async def test_initialize_observability_creates_service(self):
         """Test that initialize_observability creates and returns service."""
-        from core.observability.service import (ObservabilityService,
-                                                initialize_observability)
+        from core.observability.service import (
+            ObservabilityService,
+            initialize_observability,
+        )
 
         # Clear any existing instance
         ObservabilityService._instance = None
@@ -216,8 +217,7 @@ class TestFailureDetection:
     def test_detect_tool_timeout(self):
         """Test detection of tool timeout failure."""
         from core.observability.failures import FailureDetector
-        from core.observability.models import (FailureClass, Span, SpanKind,
-                                               SpanStatus)
+        from core.observability.models import FailureClass, Span, SpanKind, SpanStatus
 
         # Use start() factory method, then set duration_ms manually
         span = Span.start(
@@ -236,8 +236,7 @@ class TestFailureDetection:
     def test_detect_tool_error(self):
         """Test detection of tool error failure."""
         from core.observability.failures import FailureDetector
-        from core.observability.models import (FailureClass, Span, SpanKind,
-                                               SpanStatus)
+        from core.observability.models import FailureClass, Span, SpanKind, SpanStatus
 
         # Use start() factory method
         span = Span.start(
@@ -273,8 +272,7 @@ class TestFailureDetection:
 
     def test_recovery_actions_mapping(self):
         """Test that failure classes map to recovery actions."""
-        from core.observability.failures import (RecoveryAction,
-                                                 get_recovery_actions)
+        from core.observability.failures import RecoveryAction, get_recovery_actions
         from core.observability.models import FailureClass
 
         # Tool timeout should suggest retry (returns list of RemediationAction)
@@ -386,8 +384,7 @@ class TestL9Integration:
     @pytest.mark.asyncio
     async def test_instrument_memory_substrate_wraps_methods(self):
         """Test that instrument_memory_substrate wraps write_packet and semantic_search."""
-        from core.observability.l9_integration import \
-            instrument_memory_substrate
+        from core.observability.l9_integration import instrument_memory_substrate
 
         # Mock substrate with methods
         mock_substrate = MagicMock()
@@ -417,8 +414,11 @@ class TestL9Integration:
     async def test_instrument_handles_none_service(self):
         """Test that instrumentation handles None services gracefully."""
         from core.observability.l9_integration import (
-            instrument_agent_executor, instrument_governance_engine,
-            instrument_memory_substrate, instrument_tool_registry)
+            instrument_agent_executor,
+            instrument_governance_engine,
+            instrument_memory_substrate,
+            instrument_tool_registry,
+        )
 
         # Should not raise for None
         await instrument_agent_executor(None)
@@ -484,8 +484,7 @@ class TestContextStrategies:
     @pytest.mark.asyncio
     async def test_naive_truncation_strategy(self):
         """Test NaiveTruncationStrategy."""
-        from core.observability.context_strategies import \
-            NaiveTruncationStrategy
+        from core.observability.context_strategies import NaiveTruncationStrategy
 
         strategy = NaiveTruncationStrategy()
 
@@ -502,8 +501,7 @@ class TestContextStrategies:
     @pytest.mark.asyncio
     async def test_recency_biased_window_strategy(self):
         """Test RecencyBiasedWindowStrategy."""
-        from core.observability.context_strategies import \
-            RecencyBiasedWindowStrategy
+        from core.observability.context_strategies import RecencyBiasedWindowStrategy
 
         strategy = RecencyBiasedWindowStrategy()
 

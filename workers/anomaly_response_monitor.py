@@ -40,18 +40,19 @@ __dora_meta__ = {
 
 import asyncio
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import NAMESPACE_DNS, uuid4, uuid5
 
 import structlog
 from pydantic import BaseModel, Field
 
 from core.decorators import must_stay_async
-from workers.anomaly_classifier import (AnomalyClassifier,
-                                        AnomalyClassifierRequest,
-                                        AnomalySeverity)
-from workers.remediation_engine import (RemediationEngine,
-                                        RemediationEngineRequest)
+from workers.anomaly_classifier import (
+    AnomalyClassifier,
+    AnomalyClassifierRequest,
+    AnomalySeverity,
+)
+from workers.remediation_engine import RemediationEngine, RemediationEngineRequest
 
 logger = structlog.get_logger(__name__)
 
@@ -78,7 +79,7 @@ class TelemetryEvent(BaseModel):
     event_id: str = Field(default_factory=lambda: str(uuid4()))
     source: str
     event_type: str
-    data: Dict[str, Any] = Field(default_factory=dict)
+    data: dict[str, Any] = Field(default_factory=dict)
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -88,11 +89,11 @@ class AnomalyResponseMonitorRequest(BaseModel):
     request_id: str = Field(
         default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.utcnow())))
     )
-    telemetry_events: List[TelemetryEvent] = Field(
+    telemetry_events: list[TelemetryEvent] = Field(
         default_factory=list,
         description="List of telemetry events to process",
     )
-    context: Dict[str, Any] = Field(default_factory=dict)
+    context: dict[str, Any] = Field(default_factory=dict)
     source_id: str = Field(default="telemetry_collector")
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
@@ -107,7 +108,7 @@ class ProcessedAnomaly(BaseModel):
     severity: str
     action_taken: str
     status: str
-    details: Dict[str, Any] = Field(default_factory=dict)
+    details: dict[str, Any] = Field(default_factory=dict)
 
 
 class AnomalyResponseMonitorResponse(BaseModel):
@@ -115,9 +116,9 @@ class AnomalyResponseMonitorResponse(BaseModel):
 
     ok: bool = Field(..., description="Whether the operation succeeded")
     request_id: str = Field(..., description="Original request ID")
-    result: Optional[Dict[str, Any]] = Field(None, description="Operation result")
-    anomalies_processed: List[ProcessedAnomaly] = Field(default_factory=list)
-    error: Optional[str] = Field(None, description="Error message if failed")
+    result: dict[str, Any] | None = Field(None, description="Operation result")
+    anomalies_processed: list[ProcessedAnomaly] = Field(default_factory=list)
+    error: str | None = Field(None, description="Error message if failed")
     duration_ms: int = Field(
         default=0, description="Processing duration in milliseconds"
     )
@@ -140,8 +141,8 @@ class AnomalyResponseMonitor:
 
     def __init__(
         self,
-        classifier: Optional[AnomalyClassifier] = None,
-        remediation_engine: Optional[RemediationEngine] = None,
+        classifier: AnomalyClassifier | None = None,
+        remediation_engine: RemediationEngine | None = None,
         poll_interval_seconds: int = DEFAULT_POLL_INTERVAL_SECONDS,
     ):
         """
@@ -157,7 +158,7 @@ class AnomalyResponseMonitor:
         self._remediation_engine = remediation_engine or RemediationEngine()
         self._poll_interval = poll_interval_seconds
         self._running = False
-        self._telemetry_providers: Dict[str, callable] = {}
+        self._telemetry_providers: dict[str, callable] = {}
         self._stats = {
             "total_processed": 0,
             "anomalies_detected": 0,
@@ -209,7 +210,7 @@ class AnomalyResponseMonitor:
 
     async def start_continuous_monitoring(
         self,
-        telemetry_source: Optional[callable] = None,
+        telemetry_source: callable | None = None,
     ) -> None:
         """
         Start continuous monitoring loop.
@@ -252,7 +253,7 @@ class AnomalyResponseMonitor:
         self._running = False
 
     @must_stay_async("callers use await")
-    async def _collect_telemetry(self) -> List[TelemetryEvent]:
+    async def _collect_telemetry(self) -> list[TelemetryEvent]:
         """
         Collect telemetry from configured sources.
 
@@ -260,7 +261,7 @@ class AnomalyResponseMonitor:
         - Memory substrate (recent error packets)
         - Custom telemetry providers (registered via add_telemetry_provider)
         """
-        events: List[TelemetryEvent] = []
+        events: list[TelemetryEvent] = []
 
         # Collect from registered providers
         for provider_name, provider_fn in self._telemetry_providers.items():
@@ -326,7 +327,7 @@ class AnomalyResponseMonitor:
             AnomalyResponseMonitorResponse with processing results
         """
         start_time = datetime.utcnow()
-        processed_anomalies: List[ProcessedAnomaly] = []
+        processed_anomalies: list[ProcessedAnomaly] = []
 
         try:
             logger.info(
@@ -384,7 +385,7 @@ class AnomalyResponseMonitor:
     # Internal Methods
     # =========================================================================
 
-    async def _process_event(self, event: TelemetryEvent) -> Optional[ProcessedAnomaly]:
+    async def _process_event(self, event: TelemetryEvent) -> ProcessedAnomaly | None:
         """
         Process a single telemetry event.
 
@@ -467,15 +468,14 @@ class AnomalyResponseMonitor:
                     "next_steps": result.next_steps,
                 },
             )
-        else:
-            return ProcessedAnomaly(
-                anomaly_id=anomaly_id,
-                event_id=event.event_id,
-                severity=classification.severity.value,
-                action_taken="none",
-                status="remediation_failed",
-                details={"error": remediate_response.error},
-            )
+        return ProcessedAnomaly(
+            anomaly_id=anomaly_id,
+            event_id=event.event_id,
+            severity=classification.severity.value,
+            action_taken="none",
+            status="remediation_failed",
+            details={"error": remediate_response.error},
+        )
 
     def _detect_anomaly(self, event: TelemetryEvent) -> bool:
         """
@@ -502,10 +502,7 @@ class AnomalyResponseMonitor:
 
         # Check event data
         data_str = str(event.data).lower()
-        if any(ind in data_str for ind in anomaly_indicators):
-            return True
-
-        return False
+        return bool(any(ind in data_str for ind in anomaly_indicators))
 
     def _calc_duration(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
@@ -515,7 +512,7 @@ class AnomalyResponseMonitor:
     # Health Check
     # =========================================================================
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Check service health."""
         classifier_health = await self._classifier.health_check()
         remediation_health = await self._remediation_engine.health_check()
@@ -539,8 +536,8 @@ class AnomalyResponseMonitor:
 
 
 def create_anomaly_response_monitor(
-    classifier: Optional[AnomalyClassifier] = None,
-    remediation_engine: Optional[RemediationEngine] = None,
+    classifier: AnomalyClassifier | None = None,
+    remediation_engine: RemediationEngine | None = None,
     poll_interval_seconds: int = DEFAULT_POLL_INTERVAL_SECONDS,
 ) -> AnomalyResponseMonitor:
     """Factory function to create AnomalyResponseMonitor."""
@@ -556,14 +553,14 @@ def create_anomaly_response_monitor(
 # =============================================================================
 
 __all__ = [
+    "MODULE_ID",
+    "MODULE_NAME",
     "AnomalyResponseMonitor",
     "AnomalyResponseMonitorRequest",
     "AnomalyResponseMonitorResponse",
-    "TelemetryEvent",
     "ProcessedAnomaly",
+    "TelemetryEvent",
     "create_anomaly_response_monitor",
-    "MODULE_ID",
-    "MODULE_NAME",
 ]
 
 # ============================================================================

@@ -27,7 +27,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Dict
 
 import pytest
 
@@ -39,25 +38,25 @@ os.environ["GOVERNANCE_ENFORCEMENT_MODE"] = "enforce"
 
 
 @pytest.fixture
-def cursor_auth() -> Dict[str, str]:
+def cursor_auth() -> dict[str, str]:
     """Cursor API key with developer+global scopes only."""
     return {"Authorization": "Bearer test-cursor-key-dev-global"}
 
 
 @pytest.fixture
-def l_auth() -> Dict[str, str]:
+def l_auth() -> dict[str, str]:
     """L-CTO API key with all scopes including l-private."""
     return {"Authorization": "Bearer test-lcto-key-all-scopes"}
 
 
 @pytest.fixture
-def no_auth() -> Dict[str, str]:
+def no_auth() -> dict[str, str]:
     """No authentication headers (should be rejected)."""
     return {}
 
 
 @pytest.fixture
-def invalid_auth() -> Dict[str, str]:
+def invalid_auth() -> dict[str, str]:
     """Invalid authentication token (should be rejected)."""
     return {"Authorization": "Bearer invalid-token-should-fail"}
 

@@ -57,7 +57,7 @@ __dora_meta__ = {
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -74,7 +74,7 @@ class SegmenterConfig:
     """Configuration for input segmentation."""
 
     # Separators for splitting directives
-    separators: List[str] = field(
+    separators: list[str] = field(
         default_factory=lambda: [
             r",\s*",  # Comma with optional whitespace
             r"\s+then\s+",  # "then" keyword
@@ -84,7 +84,7 @@ class SegmenterConfig:
     )
 
     # Abbreviations to expand (from tokenizer)
-    abbreviations: Dict[str, str] = field(
+    abbreviations: dict[str, str] = field(
         default_factory=lambda: {
             "db": "database",
             "sync'd": "synced",
@@ -115,11 +115,11 @@ class SegmenterConfig:
 class SegmentResult:
     """Result of segmentation with metadata."""
 
-    segments: List[str]
+    segments: list[str]
     raw_input: str
     segment_count: int
     was_multi_part: bool
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def __iter__(self):
         return iter(self.segments)
@@ -145,7 +145,7 @@ class InputSegmenter:
     Which becomes 4 separate tasks that can be routed and executed independently.
     """
 
-    def __init__(self, config: Optional[SegmenterConfig] = None):
+    def __init__(self, config: SegmenterConfig | None = None):
         """
         Initialize segmenter.
 
@@ -170,7 +170,7 @@ class InputSegmenter:
     # =========================================================================
 
     def segment(
-        self, input_text: str, context: Optional[Dict[str, Any]] = None
+        self, input_text: str, context: dict[str, Any] | None = None
     ) -> SegmentResult:
         """
         Segment input into atomic directives.
@@ -241,7 +241,7 @@ class InputSegmenter:
     # Segmentation Logic (Harvested from tokenizer._segment)
     # =========================================================================
 
-    def _split_on_separators(self, line: str) -> List[str]:
+    def _split_on_separators(self, line: str) -> list[str]:
         """
         Split a line on configured separators.
 
@@ -260,11 +260,10 @@ class InputSegmenter:
         parts = self._separator_pattern.split(line)
 
         # Filter out separator matches and empty strings
-        segments = [
+        return [
             p.strip() for p in parts if p and p.strip() and not self._is_separator(p)
         ]
 
-        return segments
 
     def _is_separator(self, text: str) -> bool:
         """Check if text is just a separator."""
@@ -315,8 +314,8 @@ class InputSegmenter:
     # =========================================================================
 
     def segment_to_tasks(
-        self, input_text: str, base_context: Optional[Dict[str, Any]] = None
-    ) -> List[Dict[str, Any]]:
+        self, input_text: str, base_context: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
         """
         Segment input and return task dicts ready for TaskRouter.
 
@@ -365,7 +364,7 @@ class InputSegmenter:
 # =============================================================================
 
 # Singleton instance for simple usage
-_default_segmenter: Optional[InputSegmenter] = None
+_default_segmenter: InputSegmenter | None = None
 
 
 def get_segmenter() -> InputSegmenter:
@@ -392,8 +391,8 @@ def segment_input(input_text: str) -> SegmentResult:
 
 
 def segment_to_tasks(
-    input_text: str, context: Optional[Dict[str, Any]] = None
-) -> List[Dict[str, Any]]:
+    input_text: str, context: dict[str, Any] | None = None
+) -> list[dict[str, Any]]:
     """
     Segment input to task dicts using default segmenter.
 
@@ -413,8 +412,8 @@ def segment_to_tasks(
 
 __all__ = [
     "InputSegmenter",
-    "SegmenterConfig",
     "SegmentResult",
+    "SegmenterConfig",
     "get_segmenter",
     "segment_input",
     "segment_to_tasks",

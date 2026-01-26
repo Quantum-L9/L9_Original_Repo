@@ -34,16 +34,16 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Deployment environment'
+        description: "Deployment environment"
         required: true
-        default: 'staging'
+        default: "staging"
         type: choice
         options:
           - development
           - staging
           - production
       version:
-        description: 'Version to deploy (leave empty for latest)'
+        description: "Version to deploy (leave empty for latest)"
         required: false
         type: string
 
@@ -59,22 +59,22 @@ jobs:
     environment:
       name: development
       url: https://dev.l9.ai
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Configure kubectl
         uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG_DEV }}
-      
+
       - name: Install Helm
         uses: azure/setup-helm@v3
         with:
-          version: '3.13.0'
-      
+          version: "3.13.0"
+
       - name: Deploy with Helm
         run: |
           helm upgrade --install l9-dev ./deploy/helm/l9-platform \
@@ -85,12 +85,12 @@ jobs:
             --timeout 10m \
             --set api.image.tag=${{ github.event.inputs.version || 'latest' }} \
             --set mcpMemory.image.tag=${{ github.event.inputs.version || 'latest' }}
-      
+
       - name: Verify deployment
         run: |
           kubectl rollout status deployment/l9-dev-api -n l9-dev
           kubectl get pods -n l9-dev
-  
+
   # ===========================================================================
   # Deploy to Staging
   # ===========================================================================
@@ -102,22 +102,22 @@ jobs:
     environment:
       name: staging
       url: https://staging.l9.ai
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Configure kubectl
         uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG_STAGING }}
-      
+
       - name: Install Helm
         uses: azure/setup-helm@v3
         with:
-          version: '3.13.0'
-      
+          version: "3.13.0"
+
       - name: Deploy with Helm
         run: |
           helm upgrade --install l9-staging ./deploy/helm/l9-platform \
@@ -129,19 +129,19 @@ jobs:
             --set global.environment=staging \
             --set api.image.tag=${{ github.event.inputs.version || github.sha }} \
             --set mcpMemory.image.tag=${{ github.event.inputs.version || github.sha }}
-      
+
       - name: Verify deployment
         run: |
           kubectl rollout status deployment/l9-staging-api -n l9-staging
           kubectl get pods -n l9-staging
-      
+
       - name: Run smoke tests
         run: |
           kubectl run smoke-test --rm -i --restart=Never \
             --image=curlimages/curl:latest \
             --namespace=l9-staging \
             -- curl -f http://l9-staging-api:8000/health
-  
+
   # ===========================================================================
   # Deploy to Production
   # ===========================================================================
@@ -151,23 +151,23 @@ jobs:
     environment:
       name: production
       url: https://l9.ai
-    needs: []  # Manual approval required
-    
+    needs: [] # Manual approval required
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Configure kubectl
         uses: azure/k8s-set-context@v3
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBECONFIG_PROD }}
-      
+
       - name: Install Helm
         uses: azure/setup-helm@v3
         with:
-          version: '3.13.0'
-      
+          version: "3.13.0"
+
       - name: Deploy with Helm (Blue-Green)
         run: |
           # Deploy to green environment
@@ -179,39 +179,38 @@ jobs:
             --timeout 15m \
             --set api.image.tag=${{ github.event.inputs.version || github.sha }} \
             --set mcpMemory.image.tag=${{ github.event.inputs.version || github.sha }}
-      
+
       - name: Verify deployment
         run: |
           kubectl rollout status deployment/l9-prod-green-api -n l9-prod
           kubectl get pods -n l9-prod
-      
+
       - name: Run smoke tests
         run: |
           kubectl run smoke-test --rm -i --restart=Never \
             --image=curlimages/curl:latest \
             --namespace=l9-prod \
             -- curl -f http://l9-prod-green-api:8000/health
-      
+
       - name: Switch traffic to green
         run: |
           kubectl patch service l9-prod-api -n l9-prod \
             -p '{"spec":{"selector":{"app.kubernetes.io/instance":"l9-prod-green"}}}'
-      
+
       - name: Wait for traffic switch
         run: sleep 30
-      
+
       - name: Delete blue deployment
         run: |
           helm uninstall l9-prod-blue -n l9-prod || true
-      
+
       - name: Notify deployment
         uses: 8398a7/action-slack@v3
         if: always()
         with:
           status: ${{ job.status }}
-          text: 'L9 Production Deployment: ${{ job.status }}'
+          text: "L9 Production Deployment: ${{ job.status }}"
           webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -32,17 +32,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncio
 import hashlib
 import json
-import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
-
 
 # ═══════════════════════════════════════════════════════════════
 # CODE VALIDATOR
@@ -159,7 +156,7 @@ class CodeValidator:
             if file_path.suffix == ".py":
                 try:
                     # Use Python's compile() to check syntax
-                    with open(file_path, "r") as f:
+                    with open(file_path) as f:
                         compile(f.read(), str(file_path), "exec")
                 except SyntaxError as e:
                     errors.append(f"{file_path.name}: {e}")
@@ -376,7 +373,7 @@ class DORABlockGenerator:
         pass
 
     async def add_dora_block(
-        self, file_path: Path, spec_id: str, metadata: Optional[dict[str, Any]] = None
+        self, file_path: Path, spec_id: str, metadata: dict[str, Any] | None = None
     ) -> DORABlock:
         """
         Add DORA block to a file.
@@ -501,8 +498,8 @@ class GitSafetyManager:
 
     def __init__(self, repo_root: Path):
         self.repo_root = repo_root
-        self.baseline_commit: Optional[str] = None
-        self.current_branch: Optional[str] = None
+        self.baseline_commit: str | None = None
+        self.current_branch: str | None = None
 
     async def create_feature_branch(self, task_name: str) -> str:
         """

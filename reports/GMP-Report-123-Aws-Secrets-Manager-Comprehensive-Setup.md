@@ -17,10 +17,10 @@ Extended AWS Secrets Manager coverage from 9 to 21 secrets. Added MCP_API_KEY, M
 
 ## PLAN
 
-| ID | File | Lines | Action | Status |
-|----|------|-------|--------|--------|
-| T1 | `scripts/secrets/setup_secrets_manager.sh` | 1-300 | REPLACE | ✅ |
-| T2 | `readme/adr/0067-aws-secrets-manager-integration.md` | 1-182 | REPLACE | ✅ |
+| ID  | File                                                 | Lines | Action  | Status |
+| --- | ---------------------------------------------------- | ----- | ------- | ------ |
+| T1  | `scripts/secrets/setup_secrets_manager.sh`           | 1-300 | REPLACE | ✅     |
+| T2  | `readme/adr/0067-aws-secrets-manager-integration.md` | 1-182 | REPLACE | ✅     |
 
 **Hash:** `2 TODOs | setup_secrets_manager.sh, 0067-aws-secrets-manager-integration.md`
 
@@ -28,28 +28,28 @@ Extended AWS Secrets Manager coverage from 9 to 21 secrets. Added MCP_API_KEY, M
 
 ## CHANGES
 
-| File | Lines | Action | Description |
-|------|-------|--------|-------------|
+| File                                       | Lines | Action  | Description                                                                                                 |
+| ------------------------------------------ | ----- | ------- | ----------------------------------------------------------------------------------------------------------- |
 | `scripts/secrets/setup_secrets_manager.sh` | 1-300 | REPLACE | Added MEMORY_DSN, MCP_API_KEY, SLACK_VERIFICATION_TOKEN, TWILIO_ACCOUNT_SID and reorganized into categories |
 
 ---
 
 ## TODO → CHANGE MAP
 
-| TODO | File | Change |
-|------|------|--------|
-| T1 | setup_secrets_manager.sh | Added MEMORY_DSN, MCP_API_KEY, SLACK_VERIFICATION_TOKEN, TWILIO_ACCOUNT_SID and  |
-| T2 | 0067-aws-secrets-manager-integration.md | Update ADR with complete secret inventory |
+| TODO | File                                    | Change                                                                          |
+| ---- | --------------------------------------- | ------------------------------------------------------------------------------- |
+| T1   | setup_secrets_manager.sh                | Added MEMORY_DSN, MCP_API_KEY, SLACK_VERIFICATION_TOKEN, TWILIO_ACCOUNT_SID and |
+| T2   | 0067-aws-secrets-manager-integration.md | Update ADR with complete secret inventory                                       |
 
 ---
 
 ## VALIDATION
 
-| Gate | Result |
-|------|--------|
-| dry-run | ✅ All 30 secrets detected |
-| aws secretsmanager list-secrets | ✅ 21 secrets created |
-| manual verification | ✅ Console shows all secrets |
+| Gate                            | Result                       |
+| ------------------------------- | ---------------------------- |
+| dry-run                         | ✅ All 30 secrets detected   |
+| aws secretsmanager list-secrets | ✅ 21 secrets created        |
+| manual verification             | ✅ Console shows all secrets |
 
 ---
 

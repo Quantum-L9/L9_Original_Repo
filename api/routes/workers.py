@@ -36,7 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException
@@ -109,24 +109,24 @@ class ViolationScanResponse(BaseModel):
 
     ok: bool
     violations_found: int
-    violations: List[Dict[str, Any]] = Field(default_factory=list)
+    violations: list[dict[str, Any]] = Field(default_factory=list)
     escalation_triggered: bool = False
-    escalated_lessons: List[str] = Field(default_factory=list)
-    error: Optional[str] = None
+    escalated_lessons: list[str] = Field(default_factory=list)
+    error: str | None = None
 
 
 class ViolationCountsResponse(BaseModel):
     """Response with violation counts per lesson."""
 
     ok: bool
-    counts: Dict[str, int]
+    counts: dict[str, int]
     total_violations: int
 
 
 class AnomalyProcessRequest(BaseModel):
     """Request to process telemetry events for anomalies."""
 
-    events: List[Dict[str, Any]] = Field(..., description="Telemetry events to process")
+    events: list[dict[str, Any]] = Field(..., description="Telemetry events to process")
     source_id: str = Field(default="api_caller")
 
 
@@ -136,15 +136,15 @@ class AnomalyProcessResponse(BaseModel):
     ok: bool
     events_processed: int
     anomalies_found: int
-    anomalies: List[Dict[str, Any]] = Field(default_factory=list)
-    error: Optional[str] = None
+    anomalies: list[dict[str, Any]] = Field(default_factory=list)
+    error: str | None = None
 
 
 class WorkersHealthResponse(BaseModel):
     """Health status of all workers."""
 
     ok: bool
-    workers: Dict[str, Dict[str, Any]]
+    workers: dict[str, dict[str, Any]]
 
 
 # =============================================================================
@@ -369,9 +369,9 @@ async def shutdown_workers():
 # =============================================================================
 
 __all__ = [
-    "router",
-    "get_violation_tracker",
     "get_anomaly_monitor",
+    "get_violation_tracker",
+    "router",
     "shutdown_workers",
 ]
 

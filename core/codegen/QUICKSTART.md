@@ -148,13 +148,13 @@ from module_my_first_agent import MyFirstAgentOrchestrator, MyFirstAgentRequest
 async def main():
     # Initialize orchestrator
     orchestrator = MyFirstAgentOrchestrator()
-    
+
     # Create request
     request = MyFirstAgentRequest(data={"message": "Hello, CodeGen!"})
-    
+
     # Process
     response = await orchestrator.process(request)
-    
+
     print(f"Success: {response.success}")
     print(f"Data: {response.data}")
 

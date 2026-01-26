@@ -14,14 +14,20 @@ from uuid import uuid4
 
 import pytest
 
-from core.agents.kernelevolution import (EvolutionPlan, KernelUpdateProposal,
-                                         create_evolution_plan,
-                                         generate_gmp_spec_from_plan,
-                                         generate_proposal_from_gap)
-from core.agents.selfreflection import (BehaviorGap, ReflectionResult,
-                                        TaskExecutionContext,
-                                        analyze_task_execution,
-                                        detect_behavior_gaps)
+from core.agents.kernelevolution import (
+    EvolutionPlan,
+    KernelUpdateProposal,
+    create_evolution_plan,
+    generate_gmp_spec_from_plan,
+    generate_proposal_from_gap,
+)
+from core.agents.selfreflection import (
+    BehaviorGap,
+    ReflectionResult,
+    TaskExecutionContext,
+    analyze_task_execution,
+    detect_behavior_gaps,
+)
 
 # =============================================================================
 # Fixtures
@@ -398,8 +404,7 @@ class TestExecutorIntegration:
     async def test_executor_runs_self_reflection(self):
         """Executor should run self-reflection after task completion."""
         try:
-            from core.agents.executor import (AgentExecutorService,
-                                              _has_self_reflection)
+            from core.agents.executor import AgentExecutorService, _has_self_reflection
 
             # Verify self-reflection is available
             assert _has_self_reflection is True

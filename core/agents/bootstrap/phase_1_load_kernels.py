@@ -31,7 +31,7 @@ __dora_meta__ = {
 import hashlib
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 import yaml
@@ -46,10 +46,10 @@ class KernelParsed:
     """Parsed kernel representation"""
 
     name: str
-    rules: Dict[str, Any]
+    rules: dict[str, Any]
     version: str
     hash: str  # SHA256 of original YAML
-    raw_content: Dict[str, Any] = None  # Full parsed YAML
+    raw_content: dict[str, Any] = None  # Full parsed YAML
 
 
 KERNEL_ORDER = [
@@ -69,7 +69,7 @@ KERNEL_ORDER = [
 @must_stay_async("callers use await")
 async def load_and_parse_kernels(
     kernel_dir: str = "private/kernels/00_system",
-) -> Dict[str, KernelParsed]:
+) -> dict[str, KernelParsed]:
     """
     Load and parse all 10 kernels from YAML.
 

@@ -35,8 +35,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import json
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 import structlog
@@ -61,8 +60,8 @@ class BatchQueryHelpers:
         self.repo = repository
 
     async def get_packets_with_metadata_batch(
-        self, packet_ids: List[UUID], tenant_id: Optional[str] = None
-    ) -> List[Dict[str, Any]]:
+        self, packet_ids: list[UUID], tenant_id: str | None = None
+    ) -> list[dict[str, Any]]:
         """
         Fetch packets with metadata in 2 queries (not N+1).
 
@@ -89,7 +88,7 @@ class BatchQueryHelpers:
         async with self.repo.acquire() as conn:
             # Query 1: Fetch packets
             packet_query = """
-                SELECT 
+                SELECT
                     packet_id, packet_type, envelope, timestamp,
                     routing, provenance, thread_id, parent_ids,
                     tags, ttl, scope, importance_score,
@@ -143,8 +142,8 @@ class BatchQueryHelpers:
             return result
 
     async def get_packets_with_children_batch(
-        self, parent_ids: List[UUID], tenant_id: Optional[str] = None
-    ) -> Dict[UUID, List[Dict[str, Any]]]:
+        self, parent_ids: list[UUID], tenant_id: str | None = None
+    ) -> dict[UUID, list[dict[str, Any]]]:
         """
         Fetch packets and their children in 2 queries.
 
@@ -214,7 +213,7 @@ class BatchQueryHelpers:
             return children_by_parent
 
     async def update_packets_status_batch(
-        self, packet_ids: List[UUID], status: str, tenant_id: Optional[str] = None
+        self, packet_ids: list[UUID], status: str, tenant_id: str | None = None
     ) -> int:
         """
         Update status for multiple packets in one query.
@@ -239,7 +238,7 @@ class BatchQueryHelpers:
         async with self.repo.acquire() as conn:
             query = """
                 UPDATE packets
-                SET 
+                SET
                     envelope = jsonb_set(
                         envelope,
                         '{status}',
@@ -268,7 +267,7 @@ class BatchQueryHelpers:
             return updated_count
 
     async def add_tags_batch(
-        self, packet_ids: List[UUID], tags: List[str], tenant_id: Optional[str] = None
+        self, packet_ids: list[UUID], tags: list[str], tenant_id: str | None = None
     ) -> int:
         """
         Add tags to multiple packets in one query.
@@ -308,7 +307,7 @@ class BatchQueryHelpers:
             return updated_count
 
     async def remove_tags_batch(
-        self, packet_ids: List[UUID], tags: List[str], tenant_id: Optional[str] = None
+        self, packet_ids: list[UUID], tags: list[str], tenant_id: str | None = None
     ) -> int:
         """
         Remove tags from multiple packets in one query.
@@ -353,8 +352,8 @@ class BatchQueryHelpers:
             return updated_count
 
     async def get_packets_by_thread_batch(
-        self, thread_ids: List[str], tenant_id: Optional[str] = None, limit: int = 1000
-    ) -> Dict[str, List[Dict[str, Any]]]:
+        self, thread_ids: list[str], tenant_id: str | None = None, limit: int = 1000
+    ) -> dict[str, list[dict[str, Any]]]:
         """
         Fetch packets for multiple threads in one query.
 
@@ -401,7 +400,7 @@ class BatchQueryHelpers:
             return packets_by_thread
 
     async def archive_packets_batch(
-        self, packet_ids: List[UUID], tenant_id: Optional[str] = None
+        self, packet_ids: list[UUID], tenant_id: str | None = None
     ) -> int:
         """
         Archive multiple packets in one query.
@@ -419,7 +418,7 @@ class BatchQueryHelpers:
         async with self.repo.acquire() as conn:
             query = """
                 UPDATE packets
-                SET 
+                SET
                     tags = array_append(tags, 'archived'),
                     envelope = jsonb_set(envelope, '{archived}', 'true'),
                     timestamp = NOW()
@@ -444,8 +443,8 @@ class BatchQueryHelpers:
 
 # Convenience function for direct import
 async def get_packets_with_metadata(
-    repository, packet_ids: List[UUID], tenant_id: Optional[str] = None
-) -> List[Dict[str, Any]]:
+    repository, packet_ids: list[UUID], tenant_id: str | None = None
+) -> list[dict[str, Any]]:
     """
     Convenience function to fetch packets with metadata.
 

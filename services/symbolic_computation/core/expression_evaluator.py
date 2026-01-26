@@ -39,15 +39,15 @@ __dora_meta__ = {
 
 import hashlib
 import time
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from typing import Any
 
 import structlog
 import sympy
 from sympy import sympify
 from sympy.utilities.lambdify import lambdify
 
-from services.symbolic_computation.config import (SymbolicComputationConfig,
-                                                  get_config)
+from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 from services.symbolic_computation.core.models import ComputationResult
 
 logger = structlog.get_logger(__name__)
@@ -77,9 +77,9 @@ class ExpressionEvaluator:
 
     def __init__(
         self,
-        config: Optional[SymbolicComputationConfig] = None,
-        cache_manager: Optional[Any] = None,
-        metrics_collector: Optional[Any] = None,
+        config: SymbolicComputationConfig | None = None,
+        cache_manager: Any | None = None,
+        metrics_collector: Any | None = None,
     ):
         """
         Initialize the expression evaluator.
@@ -95,7 +95,7 @@ class ExpressionEvaluator:
         self.logger = logger.bind(component="expression_evaluator")
 
         # Initialize LRU cache for compiled functions
-        self._compile_cache: Dict[str, Callable] = {}
+        self._compile_cache: dict[str, Callable] = {}
 
         self.logger.info(
             "expression_evaluator_initialized",
@@ -106,7 +106,7 @@ class ExpressionEvaluator:
     async def evaluate_expression(
         self,
         expr: str,
-        variables: Dict[str, float],
+        variables: dict[str, float],
         backend: str = "numpy",
     ) -> ComputationResult:
         """
@@ -148,8 +148,8 @@ class ExpressionEvaluator:
                     )
 
             # Parse and compile expression
-            parsed_expr = sympify(expr)
-            var_symbols = [sympy.Symbol(v) for v in variables.keys()]
+            sympify(expr)
+            var_symbols = [sympy.Symbol(v) for v in variables]
 
             # Get or compile lambdified function
             compiled_fn = self._get_compiled_function(expr, var_symbols, backend)
@@ -218,7 +218,7 @@ class ExpressionEvaluator:
     def compile_with_lambdify(
         self,
         expr: str,
-        variables: List[str],
+        variables: list[str],
         modules: str = "numpy",
     ) -> Callable:
         """
@@ -249,7 +249,7 @@ class ExpressionEvaluator:
     def compile_with_autowrap(
         self,
         expr: str,
-        variables: List[str],
+        variables: list[str],
         language: str = "C",
     ) -> Callable:
         """
@@ -298,7 +298,7 @@ class ExpressionEvaluator:
     def _get_compiled_function(
         self,
         expr: str,
-        var_symbols: List[sympy.Symbol],
+        var_symbols: list[sympy.Symbol],
         backend: str,
     ) -> Callable:
         """Get or create compiled function from cache."""

@@ -59,15 +59,15 @@ Intermediate representation compiler and semantic compilation
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module           | Purpose          |
+| ---------------- | ---------------- |
 | `orchestrators/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -90,14 +90,14 @@ ir_engine/
 ├── simulation_router.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `ir_generator.py` | Core module (PROTECTED) |
-| `semantic_compiler.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
-| `meta_ir.py` | Module tier classification (0-7). |
-| `meta_ir.py` | Team responsible for the module. |
-| `meta_ir.py` | Which service the module runs in. |
+| File                   | Purpose                           |
+| ---------------------- | --------------------------------- |
+| `ir_generator.py`      | Core module (PROTECTED)           |
+| `semantic_compiler.py` | Core module (PROTECTED)           |
+| `__init__.py`          | Core module (PROTECTED)           |
+| `meta_ir.py`           | Module tier classification (0-7). |
+| `meta_ir.py`           | Team responsible for the module.  |
+| `meta_ir.py`           | Which service the module runs in. |
 
 ### Naming Conventions
 
@@ -115,7 +115,7 @@ ir_engine/
 ```python
 class ModuleTier:
     """Module tier classification (0-7)."""
-    
+
     # Key methods:
 
 ```
@@ -127,7 +127,7 @@ class ModuleTier:
 ```python
 class OwnershipTeam:
     """Team responsible for the module."""
-    
+
     # Key methods:
 
 ```
@@ -139,7 +139,7 @@ class OwnershipTeam:
 ```python
 class ServiceType:
     """Which service the module runs in."""
-    
+
     # Key methods:
 
 ```
@@ -151,7 +151,7 @@ class ServiceType:
 ```python
 class StartupPhase:
     """When the module starts relative to others."""
-    
+
     # Key methods:
 
 ```
@@ -163,13 +163,12 @@ class StartupPhase:
 ```python
 class CallableFrom:
     """Who can call this module."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 117-121 in `meta_ir.py`
-
 
 ---
 
@@ -245,9 +244,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Ir_Engine feature flags
-L9_ENABLE_IR_ENGINE_TRACING: true  # Enable detailed tracing
-L9_ENABLE_IR_ENGINE_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_IR_ENGINE_AUDIT: true    # Enable audit logging
+L9_ENABLE_IR_ENGINE_TRACING: true # Enable detailed tracing
+L9_ENABLE_IR_ENGINE_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_IR_ENGINE_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -309,7 +308,6 @@ Compile ModuleIR to Python source files.
 - **File:** `ir_to_python.py:954`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -350,6 +348,7 @@ Ir Engine operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -357,12 +356,12 @@ Ir Engine operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                            | Type      | Description                    |
+| --------------------------------- | --------- | ------------------------------ |
 | `ir_engine_operation_duration_ms` | Histogram | Operation latency distribution |
-| `ir_engine_operation_total` | Counter | Total operations processed |
-| `ir_engine_error_total` | Counter | Total errors encountered |
-| `ir_engine_active_connections` | Gauge | Current active connections |
+| `ir_engine_operation_total`       | Counter   | Total operations processed     |
+| `ir_engine_error_total`           | Counter   | Total errors encountered       |
+| `ir_engine_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -380,6 +379,7 @@ Ir Engine emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/ir_engine/`:
+
 - `test_ir_engine.py` — Core unit tests
 - `test_ir_engine_integration.py` — Integration tests (if applicable)
 
@@ -429,6 +429,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

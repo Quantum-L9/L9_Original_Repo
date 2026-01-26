@@ -46,7 +46,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -106,19 +106,19 @@ class AgentTask(BaseModel):
 
     id: UUID = Field(default_factory=uuid4, description="Unique task identifier")
     kind: str = Field(..., description="Task kind for routing")
-    payload: Dict[str, Any] = Field(
+    payload: dict[str, Any] = Field(
         default_factory=dict, description="Task-specific data"
     )
     created_at: datetime = Field(
         default_factory=datetime.utcnow, description="Creation timestamp"
     )
     priority: int = Field(default=5, ge=1, le=10, description="Priority (1=highest)")
-    trace_id: Optional[str] = Field(None, description="Distributed trace ID")
-    timeout_ms: Optional[int] = Field(None, ge=0, description="Execution timeout (ms)")
+    trace_id: str | None = Field(None, description="Distributed trace ID")
+    timeout_ms: int | None = Field(None, ge=0, description="Execution timeout (ms)")
 
     model_config = {"extra": "allow"}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
             "id": str(self.id),
@@ -159,18 +159,16 @@ class TaskResult(BaseModel):
 
     id: UUID = Field(..., description="Task ID")
     status: TaskStatus = Field(..., description="Final execution status")
-    output: Dict[str, Any] = Field(default_factory=dict, description="Execution output")
-    error: Optional[str] = Field(None, description="Error message if failed")
+    output: dict[str, Any] = Field(default_factory=dict, description="Execution output")
+    error: str | None = Field(None, description="Error message if failed")
     completed_at: datetime = Field(
         default_factory=datetime.utcnow, description="Completion timestamp"
     )
-    duration_ms: Optional[int] = Field(
-        None, ge=0, description="Execution duration (ms)"
-    )
+    duration_ms: int | None = Field(None, ge=0, description="Execution duration (ms)")
 
     model_config = {"extra": "allow"}
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
             "id": str(self.id),
@@ -209,14 +207,14 @@ class TaskEnvelope(BaseModel):
     """
 
     task: AgentTask = Field(..., description="The enclosed task")
-    agent_id: Optional[str] = Field(None, description="Target agent ID")
-    assigned_at: Optional[datetime] = Field(None, description="Assignment timestamp")
-    source_event_id: Optional[UUID] = Field(None, description="Originating event ID")
+    agent_id: str | None = Field(None, description="Target agent ID")
+    assigned_at: datetime | None = Field(None, description="Assignment timestamp")
+    source_event_id: UUID | None = Field(None, description="Originating event ID")
     retry_count: int = Field(default=0, ge=0, description="Delivery retry count")
 
     model_config = {"extra": "allow"}
 
-    def assign_to(self, agent_id: str) -> "TaskEnvelope":
+    def assign_to(self, agent_id: str) -> TaskEnvelope:
         """
         Assign this envelope to a specific agent.
 
@@ -230,7 +228,7 @@ class TaskEnvelope(BaseModel):
         self.assigned_at = datetime.utcnow()
         return self
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize to dictionary."""
         return {
             "task": self.task.to_dict(),
@@ -260,14 +258,14 @@ class TaskGraph(BaseModel):
 
     graph_id: UUID = Field(default_factory=uuid4)
     tasks: list[AgentTask] = Field(default_factory=list)
-    dependencies: Dict[str, list[str]] = Field(default_factory=dict)
+    dependencies: dict[str, list[str]] = Field(default_factory=dict)
 
     # LangGraph integration
-    state_graph_id: Optional[str] = Field(
+    state_graph_id: str | None = Field(
         default=None,
         description="Reference to LangGraph StateGraph for routing decisions",
     )
-    graph_state: Dict[str, Any] = Field(
+    graph_state: dict[str, Any] = Field(
         default_factory=dict,
         description="Current state of the LangGraph execution",
     )
@@ -318,7 +316,7 @@ class TaskBatch(BaseModel):
     atomic: bool = Field(default=False)
 
     # Transaction support
-    transaction_id: Optional[UUID] = Field(
+    transaction_id: UUID | None = Field(
         default=None,
         description="Transaction ID for atomic operations and rollback",
     )
@@ -355,16 +353,16 @@ class TaskBatch(BaseModel):
 # =============================================================================
 
 __all__ = [
-    # Enums
-    "TaskStatus",
-    "TaskKind",
     # Models
     "AgentTask",
-    "TaskResult",
+    "TaskBatch",
     "TaskEnvelope",
     # Phase 3 Stubs
     "TaskGraph",
-    "TaskBatch",
+    "TaskKind",
+    "TaskResult",
+    # Enums
+    "TaskStatus",
 ]
 
 # ============================================================================

@@ -42,14 +42,17 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 import yaml
 from pydantic import ValidationError
 
-from ir_engine.meta_ir import (MetaContract, MetaContractValidationError,
-                               MetaContractValidationResult)
+from ir_engine.meta_ir import (
+    MetaContract,
+    MetaContractValidationError,
+    MetaContractValidationResult,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -100,7 +103,7 @@ REQUIRED_SECTIONS = [
 class SchemaValidationError(Exception):
     """Raised when schema validation fails."""
 
-    def __init__(self, message: str, errors: List[MetaContractValidationError]):
+    def __init__(self, message: str, errors: list[MetaContractValidationError]):
         super().__init__(message)
         self.errors = errors
 
@@ -145,7 +148,7 @@ class SchemaValidator:
             return result
 
         try:
-            with open(path, "r", encoding="utf-8") as f:
+            with open(path, encoding="utf-8") as f:
                 raw = yaml.safe_load(f)
         except yaml.YAMLError as e:
             result.add_error("yaml", f"YAML parse error: {e}")
@@ -157,7 +160,7 @@ class SchemaValidator:
 
         return self.validate_dict(raw)
 
-    def validate_dict(self, data: Dict[str, Any]) -> MetaContractValidationResult:
+    def validate_dict(self, data: dict[str, Any]) -> MetaContractValidationResult:
         """
         Validate a dictionary against Module-Spec-v2.4.0.
 
@@ -221,7 +224,7 @@ class SchemaValidator:
                 result.warnings,
             )
 
-        with open(yaml_path, "r", encoding="utf-8") as f:
+        with open(yaml_path, encoding="utf-8") as f:
             raw = yaml.safe_load(f)
 
         return MetaContract(**raw)
@@ -231,7 +234,7 @@ class SchemaValidator:
     # =========================================================================
 
     def _check_required_sections(
-        self, data: Dict[str, Any], result: MetaContractValidationResult
+        self, data: dict[str, Any], result: MetaContractValidationResult
     ) -> None:
         """Check that all required sections are present."""
         for section in REQUIRED_SECTIONS:
@@ -239,7 +242,7 @@ class SchemaValidator:
                 result.add_error(section, f"Required section '{section}' is missing")
 
     def _check_forbidden_patterns(
-        self, data: Dict[str, Any], result: MetaContractValidationResult, path: str = ""
+        self, data: dict[str, Any], result: MetaContractValidationResult, path: str = ""
     ) -> None:
         """Recursively check for forbidden patterns in string values."""
         if isinstance(data, dict):
@@ -260,8 +263,8 @@ class SchemaValidator:
                     )
 
     def _parse_as_contract(
-        self, data: Dict[str, Any], result: MetaContractValidationResult
-    ) -> Optional[MetaContract]:
+        self, data: dict[str, Any], result: MetaContractValidationResult
+    ) -> MetaContract | None:
         """Try to parse data as MetaContract."""
         try:
             return MetaContract(**data)

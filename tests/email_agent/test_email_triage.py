@@ -61,7 +61,7 @@ def test_priority_assignment():
     if classify_priority is not None:
         try:
             # If function exists, test it
-            if hasattr(classify_priority, "__call__"):
+            if callable(classify_priority):
                 # Mock Gmail client if needed
                 with patch("email_agent.triage.GmailClient") as mock_gmail:
                     mock_client = MagicMock()

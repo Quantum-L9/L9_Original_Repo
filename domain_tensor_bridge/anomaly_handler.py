@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Anomaly Handler
@@ -46,7 +45,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 
@@ -71,7 +70,7 @@ class AnomalyFlag:
     anomaly_type: str
     severity: AnomalySeverity
     confidence: float
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -142,8 +141,8 @@ __footer_meta__ = {
 }
 
 __all__ = [
-    "AnomalyHandler",
     "AnomalyFlag",
+    "AnomalyHandler",
     "AnomalyResponse",
     "AnomalySeverity",
     "__footer_meta__",

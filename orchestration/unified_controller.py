@@ -1013,10 +1013,7 @@ class UnifiedController:
         # Deliberate for complex/high-risk tasks
         if result.complexity in ("complex", "critical"):
             return True
-        if result.risk in ("high", "critical"):
-            return True
-
-        return False
+        return result.risk in ("high", "critical")
 
     def _should_use_cells(self, result: ControllerResult) -> bool:
         """Determine if collaborative cells should be used."""
@@ -1028,10 +1025,7 @@ class UnifiedController:
             return True
 
         # Use cells for complex/high-risk
-        if result.complexity == "critical" or result.risk == "critical":
-            return True
-
-        return False
+        return bool(result.complexity == "critical" or result.risk == "critical")
 
     async def _execute_with_cells(
         self,
@@ -1194,9 +1188,8 @@ class UnifiedController:
 
         graph.set_status(IRStatus.VALIDATED)
 
-        plan = self._plan_adapter.to_execution_plan(graph)
+        return self._plan_adapter.to_execution_plan(graph)
 
-        return plan
 
     async def execute(
         self,

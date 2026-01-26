@@ -9,6 +9,7 @@ L9 uses **mutation testing** to detect weak tests that pass even when code logic
 ## How It Works
 
 1. **Mutation:** mutmut creates small changes ("mutants") in your code:
+
    - `x > 0` → `x >= 0`
    - `return True` → `return False`
    - `x + 1` → `x - 1`
@@ -38,10 +39,10 @@ If score < 85%, the PR is blocked until tests are strengthened.
 
 ```yaml
 paths_to_mutate:
-  - core/agents/executor.py        # Agent execution loop
-  - memory/substrate_service.py    # Memory operations  
-  - core/governance/               # Governance enforcement
-  - memory/ingestion.py            # Packet ingestion
+  - core/agents/executor.py # Agent execution loop
+  - memory/substrate_service.py # Memory operations
+  - core/governance/ # Governance enforcement
+  - memory/ingestion.py # Packet ingestion
 ```
 
 ## Local Usage
@@ -86,17 +87,21 @@ git checkout -- core/agents/executor.py
 When mutation score is below threshold:
 
 1. **List survivors:**
+
    ```bash
    mutmut results
    ```
 
 2. **Inspect a survivor:**
+
    ```bash
    mutmut show <id>
    ```
+
    This shows the mutation that wasn't caught.
 
 3. **Add a test that catches it:**
+
    - If `x > 0` → `x >= 0` survived, add test for `x = 0` boundary
    - If `return True` → `return False` survived, assert the return value
 
@@ -111,12 +116,12 @@ See `config/refactoring/mutation-config.yaml` for full configuration.
 
 ### Key Settings
 
-| Setting | Value | Description |
-|---------|-------|-------------|
-| `minimum_score` | 85 | PR blocking threshold |
-| `warning_score` | 90 | Warning threshold |
-| `timeout_per_mutant` | 30s | Max time per mutant test |
-| `run_on` | `pull_request` | Only run on PRs |
+| Setting              | Value          | Description              |
+| -------------------- | -------------- | ------------------------ |
+| `minimum_score`      | 85             | PR blocking threshold    |
+| `warning_score`      | 90             | Warning threshold        |
+| `timeout_per_mutant` | 30s            | Max time per mutant test |
+| `run_on`             | `pull_request` | Only run on PRs          |
 
 ## Why 85%?
 

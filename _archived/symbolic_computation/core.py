@@ -28,24 +28,25 @@ __dora_meta__ = {
 
 import asyncio
 import time
-from typing import Dict, List, Union, Any, Callable
+from collections.abc import Callable
 from functools import lru_cache
+from typing import Any
 
 import sympy as sp
-from sympy.utilities.lambdify import lambdify
 from sympy.utilities.autowrap import autowrap
 from sympy.utilities.codegen import codegen
+from sympy.utilities.lambdify import lambdify
 
-from .models import (
-    ComputationRequest,
-    ComputationResult,
-    CodeGenRequest,
-    CodeGenResult,
-    BackendType,
-    CodeLanguage,
-)
 from .exceptions import EvaluationError
 from .logger import get_logger
+from .models import (
+    BackendType,
+    CodeGenRequest,
+    CodeGenResult,
+    CodeLanguage,
+    ComputationRequest,
+    ComputationResult,
+)
 
 logger = get_logger(__name__)
 
@@ -55,7 +56,7 @@ class ExpressionCache:
 
     def __init__(self, maxsize: int = 128):
         """Initialize cache with maximum size."""
-        self._cache: Dict[str, Callable] = {}
+        self._cache: dict[str, Callable] = {}
         self._maxsize = maxsize
 
     @lru_cache(maxsize=128)
@@ -90,8 +91,8 @@ class ExpressionCache:
             return func
 
         except Exception as e:
-            logger.error(f"Failed to lambdify expression: {str(e)}")
-            raise EvaluationError(f"Lambdify failed: {str(e)}")
+            logger.error(f"Failed to lambdify expression: {e!s}")
+            raise EvaluationError(f"Lambdify failed: {e!s}")
 
 
 class ExpressionEvaluator:
@@ -109,7 +110,7 @@ class ExpressionEvaluator:
             cache_size: Maximum number of cached expressions
         """
         self._cache = ExpressionCache(maxsize=cache_size)
-        self._metrics: Dict[str, int] = {
+        self._metrics: dict[str, int] = {
             "total_evaluations": 0,
             "cache_hits": 0,
             "cache_misses": 0,
@@ -159,7 +160,7 @@ class ExpressionEvaluator:
 
         except Exception as e:
             execution_time = (time.time() - start_time) * 1000
-            logger.error(f"Evaluation failed: {str(e)}")
+            logger.error(f"Evaluation failed: {e!s}")
 
             return ComputationResult(
                 success=False,
@@ -183,7 +184,7 @@ class ExpressionEvaluator:
         """
         return asyncio.run(self.evaluate(request))
 
-    def get_metrics(self) -> Dict[str, int]:
+    def get_metrics(self) -> dict[str, int]:
         """Get evaluation metrics."""
         return self._metrics.copy()
 
@@ -245,42 +246,41 @@ class CodeGenerator:
                     },
                 )
 
-            else:
-                # Use codegen for source code generation
-                code_result = await asyncio.to_thread(
-                    codegen,
-                    (request.function_name, expr),
-                    request.language.value,
-                    header=True,
-                    empty=False,
-                )
+            # Use codegen for source code generation
+            code_result = await asyncio.to_thread(
+                codegen,
+                (request.function_name, expr),
+                request.language.value,
+                header=True,
+                empty=False,
+            )
 
-                # Extract source code
-                source_code = ""
-                for filename, code in code_result:
-                    source_code += f"// File: {filename}\n{code}\n\n"
+            # Extract source code
+            source_code = ""
+            for filename, code in code_result:
+                source_code += f"// File: {filename}\n{code}\n\n"
 
-                self._generated_count += 1
+            self._generated_count += 1
 
-                logger.info(
-                    f"Generated {request.language.value} code for: "
-                    f"{request.function_name}"
-                )
+            logger.info(
+                f"Generated {request.language.value} code for: "
+                f"{request.function_name}"
+            )
 
-                return CodeGenResult(
-                    success=True,
-                    source_code=source_code,
-                    language=request.language,
-                    compiled=False,
-                    metadata={
-                        "function": request.function_name,
-                        "variables": request.variables,
-                        "generated_count": self._generated_count,
-                    },
-                )
+            return CodeGenResult(
+                success=True,
+                source_code=source_code,
+                language=request.language,
+                compiled=False,
+                metadata={
+                    "function": request.function_name,
+                    "variables": request.variables,
+                    "generated_count": self._generated_count,
+                },
+            )
 
         except Exception as e:
-            logger.error(f"Code generation failed: {str(e)}")
+            logger.error(f"Code generation failed: {e!s}")
 
             return CodeGenResult(
                 success=False,
@@ -328,7 +328,7 @@ class SymbolicComputation:
     async def compute(
         self,
         expression: str,
-        variables: Dict[str, Union[float, List[float]]],
+        variables: dict[str, float | list[float]],
         backend: str = "numpy",
     ) -> ComputationResult:
         """
@@ -354,7 +354,7 @@ class SymbolicComputation:
     async def generate_code(
         self,
         expression: str,
-        variables: List[str],
+        variables: list[str],
         language: str = "C",
         function_name: str = "generated_func",
         compile: bool = False,
@@ -382,7 +382,7 @@ class SymbolicComputation:
 
         return await self.codegen.generate(request)
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """
         Perform health check on symbolic computation engine.
 
@@ -401,7 +401,7 @@ class SymbolicComputation:
             }
 
         except Exception as e:
-            logger.error(f"Health check failed: {str(e)}")
+            logger.error(f"Health check failed: {e!s}")
             return {"status": "unhealthy", "error": str(e)}
 
 

@@ -46,7 +46,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -61,7 +61,7 @@ class AuditLogger:
     in the memory substrate.
     """
 
-    def __init__(self, substrate_service: Optional[Any] = None):
+    def __init__(self, substrate_service: Any | None = None):
         """
         Initialize AuditLogger.
 
@@ -78,9 +78,9 @@ class AuditLogger:
         action: str,
         risk_level: str,
         raw_text: str,
-        result: Optional[dict[str, Any]] = None,
-        error: Optional[str] = None,
-        timestamp: Optional[str] = None,
+        result: dict[str, Any] | None = None,
+        error: str | None = None,
+        timestamp: str | None = None,
     ) -> bool:
         """
         Log a command execution to audit trail.
@@ -151,8 +151,8 @@ class AuditLogger:
         task_id: str,
         approved_by: str,
         approved: bool,
-        reason: Optional[str] = None,
-        timestamp: Optional[str] = None,
+        reason: str | None = None,
+        timestamp: str | None = None,
     ) -> bool:
         """
         Log an approval decision to audit trail.
@@ -216,9 +216,9 @@ class AuditLogger:
         input_data: dict[str, Any],
         output_data: dict[str, Any],
         success: bool,
-        approved_by: Optional[str] = None,
-        approval_timestamp: Optional[str] = None,
-        execution_timestamp: Optional[str] = None,
+        approved_by: str | None = None,
+        approval_timestamp: str | None = None,
+        execution_timestamp: str | None = None,
     ) -> bool:
         """
         Log a tool execution to audit trail.
@@ -286,9 +286,9 @@ class AuditLogger:
         segment: str,
         content_type: str,
         size_bytes: int,
-        packet_type: Optional[str] = None,
-        thread_id: Optional[str] = None,
-        timestamp: Optional[str] = None,
+        packet_type: str | None = None,
+        thread_id: str | None = None,
+        timestamp: str | None = None,
     ) -> bool:
         """
         Log a memory write to audit trail.
@@ -359,8 +359,8 @@ async def log_command_to_audit(
     action: str,
     risk_level: str,
     raw_text: str,
-    result: Optional[dict[str, Any]] = None,
-    error: Optional[str] = None,
+    result: dict[str, Any] | None = None,
+    error: str | None = None,
 ) -> bool:
     """
     Convenience function to log a command to audit trail.

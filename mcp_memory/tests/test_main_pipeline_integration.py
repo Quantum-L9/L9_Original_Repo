@@ -204,7 +204,7 @@ async def test_save_via_main_pipeline_handles_ttl_correctly():
 
     from src.config import settings
 
-    result = await _save_via_main_pipeline(
+    await _save_via_main_pipeline(
         user_id="test-user",
         content="Short-term memory",
         kind="context",
@@ -350,7 +350,7 @@ async def test_mcp_tool_call_passes_substrate_service():
             "written_tables": ["packet_store", "memory_embeddings"],
         }
 
-        result = await handle_tool_call(
+        await handle_tool_call(
             tool=tool_call,
             user_id="test-user",
             caller=mock_caller,
@@ -384,7 +384,7 @@ async def test_main_pipeline_preserves_mcp_scope_in_payload():
     )
 
     # Test l-private scope
-    result = await _save_via_main_pipeline(
+    await _save_via_main_pipeline(
         user_id="test-user",
         content="Private memory",
         kind="preference",

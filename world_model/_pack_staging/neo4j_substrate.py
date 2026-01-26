@@ -32,7 +32,7 @@ __dora_meta__ = {
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from world_model.interfaces import Entity, Relation
 from world_model.state import WorldModelState
@@ -53,7 +53,7 @@ class Neo4jConfig:
 class Neo4jSubstrate:
     """Neo4j graph-native persistence layer for World Model."""
 
-    def __init__(self, config: Optional[Neo4jConfig] = None):
+    def __init__(self, config: Neo4jConfig | None = None):
         """Initialize Neo4j substrate.
 
         Args:
@@ -181,7 +181,7 @@ class Neo4jSubstrate:
                 self.logger.error(f"Failed to store entity {entity.id}: {e}")
                 raise
 
-    def load_entity(self, entity_id: str) -> Optional[Entity]:
+    def load_entity(self, entity_id: str) -> Entity | None:
         """Load entity from Neo4j.
 
         Args:
@@ -220,7 +220,7 @@ class Neo4jSubstrate:
                 self.logger.error(f"Failed to load entity {entity_id}: {e}")
                 return None
 
-    def load_all_entities(self) -> List[Entity]:
+    def load_all_entities(self) -> list[Entity]:
         """Load all entities from Neo4j.
 
         Returns:
@@ -309,7 +309,7 @@ class Neo4jSubstrate:
                 self.logger.error(f"Failed to store relation {relation.id}: {e}")
                 raise
 
-    def load_relation(self, relation_id: str) -> Optional[Relation]:
+    def load_relation(self, relation_id: str) -> Relation | None:
         """Load relation from Neo4j.
 
         Args:
@@ -323,7 +323,7 @@ class Neo4jSubstrate:
                 result = session.run(
                     """
                     MATCH (source)-[r {id: $id}]->(target)
-                    RETURN r, type(r) as rel_type, 
+                    RETURN r, type(r) as rel_type,
                            source.id as source_id, target.id as target_id
                 """,
                     {"id": relation_id},
@@ -347,7 +347,7 @@ class Neo4jSubstrate:
                 self.logger.error(f"Failed to load relation {relation_id}: {e}")
                 return None
 
-    def load_all_relations(self) -> List[Relation]:
+    def load_all_relations(self) -> list[Relation]:
         """Load all relations from Neo4j.
 
         Returns:
@@ -405,8 +405,8 @@ class Neo4jSubstrate:
     # ========== CYPHER QUERIES ==========
 
     def execute_cypher(
-        self, query: str, params: Optional[Dict[str, Any]] = None
-    ) -> List[Dict[str, Any]]:
+        self, query: str, params: dict[str, Any] | None = None
+    ) -> list[dict[str, Any]]:
         """Execute arbitrary Cypher query.
 
         Args:
@@ -429,9 +429,9 @@ class Neo4jSubstrate:
         self,
         source_id: str,
         target_id: str,
-        relation_type: Optional[str] = None,
+        relation_type: str | None = None,
         max_length: int = 5,
-    ) -> List[List[str]]:
+    ) -> list[list[str]]:
         """Find paths between entities.
 
         Args:
@@ -463,8 +463,8 @@ class Neo4jSubstrate:
         return [record["path"] for record in results]
 
     def find_neighbors(
-        self, entity_id: str, relation_type: Optional[str] = None
-    ) -> List[str]:
+        self, entity_id: str, relation_type: str | None = None
+    ) -> list[str]:
         """Find neighbor entities.
 
         Args:

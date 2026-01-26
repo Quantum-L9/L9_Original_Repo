@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -75,8 +75,8 @@ class QAAgent(BaseAgent):
 
     def __init__(
         self,
-        agent_id: Optional[str] = None,
-        config: Optional[AgentConfig] = None,
+        agent_id: str | None = None,
+        config: AgentConfig | None = None,
     ):
         """Initialize QA Agent."""
         super().__init__(agent_id, config)
@@ -88,7 +88,7 @@ class QAAgent(BaseAgent):
     async def run(
         self,
         task: dict[str, Any],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> AgentResponse:
         """
         Execute QA task.
@@ -330,7 +330,7 @@ Provide:
         self,
         code: dict[str, str],
         tests: dict[str, str],
-        documentation: Optional[str] = None,
+        documentation: str | None = None,
     ) -> dict[str, Any]:
         """
         Assess if code is production-ready.

@@ -41,7 +41,7 @@ import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -56,8 +56,8 @@ class TestResult:
     name: str
     passed: bool
     duration_ms: float
-    error: Optional[str] = None
-    output: Optional[str] = None
+    error: str | None = None
+    output: str | None = None
 
 
 @dataclass
@@ -70,14 +70,14 @@ class TestResults:
     passed: int = 0
     failed: int = 0
     skipped: int = 0
-    coverage_percent: Optional[float] = None
+    coverage_percent: float | None = None
     duration_ms: float = 0.0
-    results: List[TestResult] = field(default_factory=list)
+    results: list[TestResult] = field(default_factory=list)
     stdout: str = ""
     stderr: str = ""
     success: bool = False
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for storage."""
         return {
             "run_id": str(self.run_id),
@@ -130,8 +130,8 @@ class TestExecutor:
     async def run_tests(
         self,
         test_code: str,
-        source_code: Optional[str] = None,
-        env_config: Optional[Dict[str, str]] = None,
+        source_code: str | None = None,
+        env_config: dict[str, str] | None = None,
     ) -> TestResults:
         """
         Run tests in a sandbox environment.
@@ -190,7 +190,7 @@ def mock_substrate():
         self,
         working_dir: Path,
         test_file: Path,
-        env_config: Optional[Dict[str, str]],
+        env_config: dict[str, str] | None,
     ) -> TestResults:
         """Run pytest and parse results."""
         # Build pytest command
@@ -233,7 +233,7 @@ def mock_substrate():
 
             return self._parse_pytest_output(stdout_str, stderr_str, process.returncode)
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             return TestResults(
                 success=False,
                 stderr=f"Test execution timed out after {self._timeout}s",
@@ -305,8 +305,8 @@ def mock_substrate():
 
 async def run_tests_in_sandbox(
     test_code: str,
-    source_code: Optional[str] = None,
-    env_config: Optional[Dict[str, str]] = None,
+    source_code: str | None = None,
+    env_config: dict[str, str] | None = None,
 ) -> TestResults:
     """
     Convenience function to run tests in sandbox.

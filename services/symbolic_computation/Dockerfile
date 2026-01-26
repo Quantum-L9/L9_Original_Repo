@@ -32,7 +32,7 @@ ENV PYTHONPATH=/app
 # NOTE: Tests disabled - this service is not actively used
 # TODO: Review and re-enable symbolic_computation service when needed
 # See TODO.md for tracking
-# 
+#
 # Original command (disabled):
 # CMD ["python", "-m", "pytest", "tests/"]
 CMD ["echo", "Symbolic computation service is disabled. See TODO.md"]

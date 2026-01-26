@@ -9,12 +9,15 @@ from pathlib import Path
 
 import pytest
 
-from runtime.mcp_server_registry import (MCPServerConfig, get_all_mcp_servers,
-                                         get_mcp_server_snapshot,
-                                         get_mcp_servers_by_category,
-                                         load_mcp_servers_from_yaml,
-                                         mcp_server_registry,
-                                         register_mcp_server)
+from runtime.mcp_server_registry import (
+    MCPServerConfig,
+    get_all_mcp_servers,
+    get_mcp_server_snapshot,
+    get_mcp_servers_by_category,
+    load_mcp_servers_from_yaml,
+    mcp_server_registry,
+    register_mcp_server,
+)
 
 # =============================================================================
 # Test Fixtures

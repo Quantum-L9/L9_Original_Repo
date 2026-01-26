@@ -1275,7 +1275,7 @@ def generate_test_catalog():
         if os.path.isdir(test_dir):
             lines.append(f"### {test_dir_rel}/")
             lines.append("")
-            for root, dirs, files in os.walk(test_dir):
+            for root, _dirs, files in os.walk(test_dir):
                 for fname in files:
                     if fname.startswith("test_") and fname.endswith(".py"):
                         fpath = os.path.join(root, fname)
@@ -1539,14 +1539,14 @@ def generate_route_handlers():
         "",
     ]
     routes = []
-    route_pattern = re.compile(
+    re.compile(
         r'@(?:app|router)\.(?:api_route|get|post|put|delete|patch|websocket|options|head)\s*\(\s*["\']([^"\']+)["\']',
         re.MULTILINE,
     )
-    method_pattern = re.compile(
+    re.compile(
         r"@(?:app|router)\.(get|post|put|delete|patch|websocket|options|head)"
     )
-    func_pattern = re.compile(r"(?:async\s+)?def\s+(\w+)\s*\(")
+    re.compile(r"(?:async\s+)?def\s+(\w+)\s*\(")
 
     for root, dirs, files in os.walk(REPO_DIR):
         dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
@@ -1729,9 +1729,7 @@ def generate_dynamic_tool_catalog():
                     if fname.endswith(".py") and not fname.startswith("__"):
                         fpath = os.path.join(root, fname)
                         try:
-                            with open(
-                                fpath, encoding="utf-8", errors="ignore"
-                            ) as f:
+                            with open(fpath, encoding="utf-8", errors="ignore") as f:
                                 content = f.read()
                                 rel_path = os.path.relpath(fpath, REPO_DIR)
                                 for pattern in tool_patterns:

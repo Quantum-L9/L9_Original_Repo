@@ -104,14 +104,13 @@ async def get_legacy_relationships(driver) -> list[dict]:
     async with driver.session() as session:
         result = await session.run(f"""
             MATCH (a:Agent)-[r:{LEGACY_REL}]->(t:Tool)
-            RETURN a.agent_id as agent_id, 
+            RETURN a.agent_id as agent_id,
                    a.id as agent_id_alt,
                    t.name as tool_name,
                    t.id as tool_id_alt,
                    properties(r) as props
         """)
-        records = await result.data()
-        return records
+        return await result.data()
 
 
 async def migrate_relationship(
@@ -250,11 +249,10 @@ async def run_migration(dry_run: bool = False, delete_legacy: bool = False) -> d
             tool_id = rel.get("tool_name") or rel.get("tool_id_alt")
             props = rel.get("props", {})
 
-            if agent_id and tool_id:
-                if await migrate_relationship(
-                    driver, agent_id, tool_id, props, dry_run
-                ):
-                    migrated += 1
+            if agent_id and tool_id and await migrate_relationship(
+                driver, agent_id, tool_id, props, dry_run
+            ):
+                migrated += 1
 
         # Delete legacy if requested
         deleted = 0

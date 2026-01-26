@@ -47,7 +47,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -97,8 +97,8 @@ class GraphMessage:
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     # Context
-    session_id: Optional[UUID] = None
-    user_id: Optional[str] = None
+    session_id: UUID | None = None
+    user_id: str | None = None
 
     # Extracted data
     topics: list[str] = field(default_factory=list)
@@ -113,13 +113,13 @@ class GraphSession:
     """Conversation session in the graph."""
 
     session_id: UUID = field(default_factory=uuid4)
-    user_id: Optional[str] = None
+    user_id: str | None = None
     started_at: datetime = field(default_factory=datetime.utcnow)
-    ended_at: Optional[datetime] = None
+    ended_at: datetime | None = None
 
     # Summary
-    title: Optional[str] = None
-    summary: Optional[str] = None
+    title: str | None = None
+    summary: str | None = None
     message_count: int = 0
 
     # Metadata
@@ -135,10 +135,10 @@ class ConversationContext:
     topics: list[str] = field(default_factory=list)
 
     # Query info
-    query: Optional[str] = None
-    user_id: Optional[str] = None
-    time_range_start: Optional[datetime] = None
-    time_range_end: Optional[datetime] = None
+    query: str | None = None
+    user_id: str | None = None
+    time_range_start: datetime | None = None
+    time_range_end: datetime | None = None
 
     def to_prompt_context(self) -> str:
         """Format as prompt context."""
@@ -263,8 +263,8 @@ class ConversationGraphMemory:
 
     def __init__(
         self,
-        neo4j_client: Optional[Any] = None,
-        topic_extractor: Optional[TopicExtractor] = None,
+        neo4j_client: Any | None = None,
+        topic_extractor: TopicExtractor | None = None,
     ):
         """
         Initialize graph memory.
@@ -290,10 +290,10 @@ class ConversationGraphMemory:
         self,
         content: str,
         role: MessageRole = MessageRole.USER,
-        user_id: Optional[str] = None,
-        session_id: Optional[UUID] = None,
-        previous_message_id: Optional[UUID] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        user_id: str | None = None,
+        session_id: UUID | None = None,
+        previous_message_id: UUID | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> GraphMessage:
         """
         Store a message in the graph.
@@ -345,7 +345,7 @@ class ConversationGraphMemory:
     async def _store_message_neo4j(
         self,
         message: GraphMessage,
-        previous_message_id: Optional[UUID],
+        previous_message_id: UUID | None,
     ) -> None:
         """Store message in Neo4j."""
         # Ensure session exists
@@ -423,7 +423,7 @@ class ConversationGraphMemory:
     async def _ensure_session_exists(
         self,
         session_id: UUID,
-        user_id: Optional[str],
+        user_id: str | None,
     ) -> None:
         """Ensure session and user nodes exist."""
         # Create session
@@ -462,8 +462,8 @@ class ConversationGraphMemory:
     async def store_conversation(
         self,
         messages: list[dict[str, Any]],
-        user_id: Optional[str] = None,
-        session_id: Optional[UUID] = None,
+        user_id: str | None = None,
+        session_id: UUID | None = None,
     ) -> list[GraphMessage]:
         """
         Store multiple messages as a conversation.
@@ -478,7 +478,7 @@ class ConversationGraphMemory:
         """
         session_id = session_id or uuid4()
         stored: list[GraphMessage] = []
-        previous_id: Optional[UUID] = None
+        previous_id: UUID | None = None
 
         for msg in messages:
             content = msg.get("content", "")
@@ -501,7 +501,7 @@ class ConversationGraphMemory:
     async def query_user_history(
         self,
         user_id: str,
-        topic: Optional[str] = None,
+        topic: str | None = None,
         time_range_days: int = 30,
         limit: int = 20,
     ) -> ConversationContext:
@@ -538,7 +538,7 @@ class ConversationGraphMemory:
     async def _query_history_neo4j(
         self,
         user_id: str,
-        topic: Optional[str],
+        topic: str | None,
         time_range_days: int,
         limit: int,
     ) -> ConversationContext:
@@ -552,7 +552,7 @@ class ConversationGraphMemory:
             WHERE m.timestamp > datetime() - duration({days: $days})
             OPTIONAL MATCH (m)-[:MENTIONS]->(t:Topic {name: $topic})
             WHERE t IS NOT NULL
-            RETURN m.id as id, m.content as content, m.role as role, 
+            RETURN m.id as id, m.content as content, m.role as role,
                    m.timestamp as timestamp, s.id as session_id
             ORDER BY m.timestamp DESC
             LIMIT $limit
@@ -614,7 +614,7 @@ class ConversationGraphMemory:
     def _query_history_fallback(
         self,
         user_id: str,
-        topic: Optional[str],
+        topic: str | None,
         time_range_days: int,
         limit: int,
     ) -> ConversationContext:
@@ -800,12 +800,12 @@ class ConversationGraphMemory:
 # =============================================================================
 
 
-_graph_memory: Optional[ConversationGraphMemory] = None
+_graph_memory: ConversationGraphMemory | None = None
 
 
 @must_stay_async("callers use await")
 async def get_graph_memory(
-    neo4j_client: Optional[Any] = None,
+    neo4j_client: Any | None = None,
 ) -> ConversationGraphMemory:
     """Get or create singleton graph memory."""
     global _graph_memory
@@ -819,8 +819,8 @@ async def get_graph_memory(
 async def store_message(
     content: str,
     role: str = "user",
-    user_id: Optional[str] = None,
-    session_id: Optional[UUID] = None,
+    user_id: str | None = None,
+    session_id: UUID | None = None,
 ) -> GraphMessage:
     """Convenience function to store a message."""
     memory = await get_graph_memory()
@@ -834,7 +834,7 @@ async def store_message(
 
 async def query_history(
     user_id: str,
-    topic: Optional[str] = None,
+    topic: str | None = None,
     limit: int = 20,
 ) -> ConversationContext:
     """Convenience function to query history."""
@@ -847,20 +847,20 @@ async def query_history(
 
 
 __all__ = [
-    # Enums
-    "MessageRole",
-    "RelationshipType",
-    # Data classes
-    "GraphMessage",
-    "GraphSession",
     "ConversationContext",
     # Main class
     "ConversationGraphMemory",
+    # Data classes
+    "GraphMessage",
+    "GraphSession",
+    # Enums
+    "MessageRole",
+    "RelationshipType",
     "TopicExtractor",
     # Factory functions
     "get_graph_memory",
-    "store_message",
     "query_history",
+    "store_message",
 ]
 
 # ============================================================================

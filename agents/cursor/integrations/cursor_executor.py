@@ -31,7 +31,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -56,11 +56,11 @@ class CursorTaskSpec(BaseModel):
 
     task: str = Field(..., description="Task description")
     project_id: str = Field(..., description="Project identifier")
-    initial_state: Optional[CursorAgentState] = Field(
+    initial_state: CursorAgentState | None = Field(
         None, description="Initial state (optional)"
     )
-    entry_file: Optional[str] = Field(None, description="Entry file path")
-    selection: Optional[str] = Field(None, description="Selected code snippet")
+    entry_file: str | None = Field(None, description="Entry file path")
+    selection: str | None = Field(None, description="Selected code snippet")
 
 
 class CursorResult(BaseModel):
@@ -177,8 +177,7 @@ class CursorExecutor:
             error_state = initial_state.model_copy(
                 update={
                     "task_status": "failed",
-                    "errors": initial_state.errors
-                    + [{"type": "execution_error", "error": str(e)}],
+                    "errors": [*initial_state.errors, {"type": "execution_error", "error": str(e)}],
                 }
             )
 

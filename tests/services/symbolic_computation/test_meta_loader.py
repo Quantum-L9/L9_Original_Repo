@@ -11,8 +11,7 @@ import structlog
 
 logger = structlog.get_logger(__name__)
 
-from agents.codegenagent.meta_loader import (MetaLoader, MetaLoaderError,
-                                             load_meta)
+from agents.codegenagent.meta_loader import MetaLoader, MetaLoaderError, load_meta
 
 
 class TestMetaLoader:

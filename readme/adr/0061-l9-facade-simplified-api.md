@@ -1,12 +1,15 @@
 # ADR 0061: L9 Facade Pattern for Simplified API
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Unified facade (`L9Facade`) providing simplified access to L9 subsystems without exposing internal complexity.
 
 ## Files
+
 - `core/facade/l9_facade.py` - Implementation
 - `core/facade/__init__.py` - Exports
 
@@ -32,6 +35,7 @@ mediator = await get_agent_mediator()
 The Facade pattern provides a single, simplified entry point.
 
 ## Import Block
+
 ```python
 from core.facade import (
     L9Facade,
@@ -43,6 +47,7 @@ from core.facade import (
 ```
 
 ## Minimal Implementation
+
 ```python
 from core.singleton_auto_registry import register_singleton
 
@@ -62,13 +67,13 @@ async def get_l9_facade() -> L9Facade:
 
 class L9Facade:
     """Simplified facade for L9 AIOS operations."""
-    
+
     async def initialize(self) -> None:
         """Initialize all subsystems."""
         self._mediator = await get_agent_mediator()
         self._tool_registry = registry.get("tool_registry")
         self._memory_client = MemoryClient()
-    
+
     async def run_task(
         self,
         task: str,
@@ -80,7 +85,7 @@ class L9Facade:
             async with asyncio.timeout(timeout_seconds):
                 return await self._agents[agent].run(task)
         return await self._agents[agent].run(task)
-    
+
     async def execute_tool(self, tool_name: str, **kwargs) -> Any:
         """Execute tool by name."""
         return await self._tool_registry.dispatch_tool_call(
@@ -88,7 +93,7 @@ class L9Facade:
             arguments=kwargs,
             agent_id="l9-facade"
         )
-    
+
     async def query_memory(
         self,
         query: str,
@@ -101,7 +106,7 @@ class L9Facade:
             agent_id=agent_id,
             limit=limit
         )
-    
+
     async def send_message(
         self,
         from_agent: str,
@@ -117,6 +122,7 @@ class L9Facade:
 ```
 
 ## Usage Example
+
 ```python
 from core.facade import get_l9_facade
 
@@ -137,14 +143,16 @@ memories = await query_memory("patterns")
 ```
 
 ## Benefits
-| Benefit | Impact |
-|---------|--------|
-| Reduced learning curve | -70% for new developers |
-| Unified entry point | Single import |
-| Sensible defaults | Works out of the box |
-| Internal changes isolated | Subsystems can evolve |
+
+| Benefit                   | Impact                  |
+| ------------------------- | ----------------------- |
+| Reduced learning curve    | -70% for new developers |
+| Unified entry point       | Single import           |
+| Sensible defaults         | Works out of the box    |
+| Internal changes isolated | Subsystems can evolve   |
 
 ## Rules
+
 1. Facade MUST use `@register_singleton` (NOT simple `@singleton`)
 2. Facade MUST NOT expose internal implementation details
 3. All common operations MUST be accessible via facade
@@ -152,12 +160,13 @@ memories = await query_memory("patterns")
 5. Facade MUST delegate to appropriate subsystems
 
 ## Anti-Pattern
+
 ```python
 # ❌ WRONG — Exposing internals
 class L9Facade:
     def get_executor_service(self): ...  # Leaks internal
     def get_substrate_repository(self): ...  # Leaks internal
-    
+
 # ✅ CORRECT — High-level operations only
 class L9Facade:
     async def run_task(self, task, agent): ...
@@ -166,18 +175,22 @@ class L9Facade:
 ```
 
 ## AI Guidance
+
 **DO:**
+
 - Use facade for high-level L9 operations
 - Initialize once, reuse singleton
 - Use convenience functions for simple scripts
 
 **DO NOT:**
+
 - Expose internal subsystem access
 - Use simple `@singleton` decorator
 - Bypass facade for direct subsystem access (except in tests)
 - Add low-level methods to facade
 
 ## Related ADRs
+
 - [ADR-0004: Singleton Auto-Registry](./0004-singleton-auto-registry.md) - Singleton pattern
 - [ADR-0047: Memory Facade Decomposition](./0047-memory-facade-decomposition.md) - Memory-specific facade
 - [ADR-0060: Mediator Pattern](./0060-mediator-pattern-agent-communication.md) - Used internally

@@ -1,17 +1,21 @@
 # ADR 0015: Migration Sequential Apply Pattern
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Database migrations MUST be applied in strict sequential order; each builds on previous schema.
 
 ## Files
+
 - `migrations/*.sql` - 24+ PostgreSQL migrations
 - `migrations/README.md` - Full documentation
 - `memory/migration_runner.py` - Auto-apply at startup
 
 ## Import Block
+
 ```python
 # For migration runner
 from memory.migration_runner import MigrationRunner
@@ -22,6 +26,7 @@ MIGRATIONS_DIR = Path(__file__).parent.parent / "migrations"
 ```
 
 ## Minimal Implementation
+
 ```sql
 -- migrations/0025_new_feature.sql
 -- Migration: 0025
@@ -38,7 +43,7 @@ CREATE TABLE IF NOT EXISTS new_feature (
 );
 
 -- Add index if not exists
-CREATE INDEX IF NOT EXISTS idx_new_feature_name 
+CREATE INDEX IF NOT EXISTS idx_new_feature_name
 ON new_feature(name);
 
 -- RLS policy
@@ -50,6 +55,7 @@ USING (tenant_id = current_setting('app.tenant_id')::uuid);
 ```
 
 ## Usage Example
+
 ```python
 # Apply migrations at startup
 from memory.migration_runner import MigrationRunner
@@ -63,6 +69,7 @@ applied = await runner.get_applied_migrations()
 ```
 
 ## Anti-Pattern Example
+
 ```sql
 -- ❌ WRONG — Not idempotent (will fail on re-run)
 CREATE TABLE new_feature (...);  -- No IF NOT EXISTS
@@ -78,6 +85,7 @@ CREATE TABLE IF NOT EXISTS new_feature (...);
 ```
 
 ## Naming Convention
+
 ```
 NNNN_description.sql
 │    └── Snake_case description
@@ -90,6 +98,7 @@ Examples:
 ```
 
 ## Rules
+
 1. Migrations MUST be applied in numerical order (0001→0024→0025)
 2. Each migration MUST be idempotent (safe to re-run)
 3. NEVER skip migrations (0008 depends on 0001-0007)
@@ -98,13 +107,16 @@ Examples:
 6. Include `-- Migration: NNNN` header comment
 
 ## AI Guidance
+
 **DO:**
+
 - Apply migrations in order (0001 → latest)
 - Use `IF NOT EXISTS` and `IF EXISTS` guards
 - Create new migration for any schema change
 - Include RLS policies for new tables
 
 **DO NOT:**
+
 - Skip migrations (breaks dependencies)
 - Modify existing migration files after applied
 - Apply migrations out of order

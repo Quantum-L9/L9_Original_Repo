@@ -57,10 +57,6 @@ async def test_run_simulation_basic():
         engine = SimulationEngine()
 
         # Mock scenario data
-        scenario = {
-            "name": "test_scenario",
-            "steps": [],
-        }
 
         # Try to run simulation (may require more setup)
         # This test verifies the engine structure exists

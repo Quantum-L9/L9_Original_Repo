@@ -58,7 +58,7 @@ async def test_register_tool_mock():
     """
     Contract: ToolGraph can register tools (mocked Neo4j).
     """
-    tool_def = ToolDefinition(
+    ToolDefinition(
         name="test_tool",
         description="Test tool",
     )

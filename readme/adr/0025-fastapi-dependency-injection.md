@@ -1,17 +1,21 @@
 # ADR 0025: FastAPI Dependency Injection
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Use `Depends()` for all shared resources; define deps in `api/dependencies.py`; never inline service creation.
 
 ## Files
+
 - `api/dependencies.py` - Central dependency definitions
 - `api/routes/*.py` - 175+ Depends() usages
 - `api/server.py` - Lifespan-scoped dependencies
 
 ## Import Block
+
 ```python
 from fastapi import Depends, HTTPException, status
 from typing import Annotated
@@ -25,6 +29,7 @@ from api.dependencies import (
 ```
 
 ## Minimal Implementation
+
 ```python
 # === api/dependencies.py ===
 from fastapi import Depends, HTTPException, status
@@ -89,6 +94,7 @@ async def ingest_packet(
 ```
 
 ## Usage Example
+
 ```python
 from fastapi import APIRouter, Depends
 from typing import Annotated
@@ -121,6 +127,7 @@ async def write_packet(
 ```
 
 ## Anti-Pattern Example
+
 ```python
 # ❌ WRONG — Direct instantiation in route
 @router.post("/ingest")
@@ -151,6 +158,7 @@ async def ingest_packet(
 ```
 
 ## Dependency Chain
+
 ```
 Route Handler
     │
@@ -166,6 +174,7 @@ Route Handler
 ```
 
 ## Rules
+
 1. ALL route dependencies via `Depends()`
 2. Define shared deps in `api/dependencies.py`
 3. Use singleton getters for services
@@ -173,13 +182,16 @@ Route Handler
 5. Use `Annotated[Type, Depends(func)]` syntax
 
 ## AI Guidance
+
 **DO:**
+
 - Use `Depends()` for all injected resources
 - Define new deps in `api/dependencies.py`
 - Chain deps for composed functionality
 - Use `Annotated` type hints for clarity
 
 **DO NOT:**
+
 - Instantiate services directly in routes
 - Import services and call directly
 - Define deps in route files

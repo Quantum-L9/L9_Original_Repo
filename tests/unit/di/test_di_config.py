@@ -23,19 +23,31 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from core.di.container import DIContainer, get_di_container
-from core.protocols import (CacheClient, GraphClient, MemoryRepository,
-                            ObservabilityService, ToolExecutor, VectorStore)
+from core.protocols import (
+    CacheClient,
+    GraphClient,
+    MemoryRepository,
+    ObservabilityService,
+    ToolExecutor,
+    VectorStore,
+)
 
 # Aliases for test compatibility
 MemoryService = MemoryRepository
 WorldModelService = ObservabilityService  # Placeholder
 ToolRegistry = ToolExecutor  # Placeholder
-from config.di_config import (configure_di_container, get_cache_client,
-                              get_environment, get_graph_client,
-                              get_memory_service, get_vector_store,
-                              get_world_model_service_di,
-                              initialize_di_container, is_di_enabled,
-                              should_use_di_for_substrates)
+from config.di_config import (
+    configure_di_container,
+    get_cache_client,
+    get_environment,
+    get_graph_client,
+    get_memory_service,
+    get_vector_store,
+    get_world_model_service_di,
+    initialize_di_container,
+    is_di_enabled,
+    should_use_di_for_substrates,
+)
 
 # =============================================================================
 # Test Fixtures
@@ -45,29 +57,25 @@ from config.di_config import (configure_di_container, get_cache_client,
 @pytest.fixture
 def clean_container():
     """Create a clean DI container for each test."""
-    container = DIContainer()
-    return container
+    return DIContainer()
 
 
 @pytest.fixture
 def mock_redis_client():
     """Mock Redis client."""
-    mock = MagicMock(spec=CacheClient)
-    return mock
+    return MagicMock(spec=CacheClient)
 
 
 @pytest.fixture
 def mock_neo4j_client():
     """Mock Neo4j client."""
-    mock = MagicMock(spec=GraphClient)
-    return mock
+    return MagicMock(spec=GraphClient)
 
 
 @pytest.fixture
 def mock_vector_store():
     """Mock vector store."""
-    mock = MagicMock(spec=VectorStore)
-    return mock
+    return MagicMock(spec=VectorStore)
 
 
 # =============================================================================

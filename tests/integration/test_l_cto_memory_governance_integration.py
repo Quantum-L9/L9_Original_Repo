@@ -29,9 +29,13 @@ os.environ.setdefault("PYTHONPATH", PROJECT_ROOT_STR)
 
 import pytest
 
-from core.governance.validation import (audit_log, detect_drift,
-                                        get_audit_trail, validate_authority,
-                                        validate_safety)
+from core.governance.validation import (
+    audit_log,
+    detect_drift,
+    get_audit_trail,
+    validate_authority,
+    validate_safety,
+)
 
 
 class TestMemoryGovernanceIntegration:
@@ -210,7 +214,8 @@ class TestLCTOMemoryPacketStructure:
             packet_type="agent.executor.trace",
             payload={"agent_id": agent_id},
             metadata=PacketMetadata(
-                agent=agent_id, schema_version="1.0.0"  # Should match payload.agent_id
+                agent=agent_id,
+                schema_version="1.0.0",  # Should match payload.agent_id
             ),
         )
 

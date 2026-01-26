@@ -23,23 +23,28 @@ Integration:
 """
 
 # Service-based nodes (v1.0.0+ with DB persistence)
-from world_model.nodes.service_nodes import (WorldModelGraphState,
-                                             create_insights_from_facts,
-                                             world_model_query_node,
-                                             world_model_service_update_node,
-                                             world_model_snapshot_node)
+from world_model.nodes.service_nodes import (
+    WorldModelGraphState,
+    create_insights_from_facts,
+    world_model_query_node,
+    world_model_service_update_node,
+    world_model_snapshot_node,
+)
+
 # Engine-based node (original)
-from world_model.nodes.update_world_model_node import (WorldModelNodeState,
-                                                       update_world_model_node)
+from world_model.nodes.update_world_model_node import (
+    WorldModelNodeState,
+    update_world_model_node,
+)
 
 __all__ = [
+    "WorldModelGraphState",
+    "WorldModelNodeState",
+    "create_insights_from_facts",
     # Engine-based
     "update_world_model_node",
-    "WorldModelNodeState",
+    "world_model_query_node",
     # Service-based (DB-backed)
     "world_model_service_update_node",
     "world_model_snapshot_node",
-    "world_model_query_node",
-    "WorldModelGraphState",
-    "create_insights_from_facts",
 ]

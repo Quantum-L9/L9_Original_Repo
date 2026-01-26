@@ -59,15 +59,15 @@ Development-only utilities and tools
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -80,10 +80,10 @@ dev/
 ├── tools/global_state_audit.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `global_state_audit.py` | Component |
+| File                    | Purpose                 |
+| ----------------------- | ----------------------- |
+| `__init__.py`           | Core module (PROTECTED) |
+| `global_state_audit.py` | Component               |
 
 ### Naming Conventions
 
@@ -101,7 +101,7 @@ dev/
 ```python
 class GlobalStateVisitor:
     """No description"""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -115,7 +115,6 @@ class GlobalStateVisitor:
 **Public Methods:** `__init__`, `visit_Assign`, `generic_visit`
 
 **Lines:** 60-97 in `global_state_audit.py`
-
 
 ---
 
@@ -186,9 +185,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Dev feature flags
-L9_ENABLE_DEV_TRACING: true  # Enable detailed tracing
-L9_ENABLE_DEV_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_DEV_AUDIT: true    # Enable audit logging
+L9_ENABLE_DEV_TRACING: true # Enable detailed tracing
+L9_ENABLE_DEV_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_DEV_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -228,7 +227,6 @@ No description
 
 - **File:** `global_state_audit.py:100`
 - **Async:** No
-
 
 ### Usage Example
 
@@ -270,6 +268,7 @@ Dev operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -277,12 +276,12 @@ Dev operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                      | Type      | Description                    |
+| --------------------------- | --------- | ------------------------------ |
 | `dev_operation_duration_ms` | Histogram | Operation latency distribution |
-| `dev_operation_total` | Counter | Total operations processed |
-| `dev_error_total` | Counter | Total errors encountered |
-| `dev_active_connections` | Gauge | Current active connections |
+| `dev_operation_total`       | Counter   | Total operations processed     |
+| `dev_error_total`           | Counter   | Total errors encountered       |
+| `dev_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -300,6 +299,7 @@ Dev emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/dev/`:
+
 - `test_dev.py` — Core unit tests
 - `test_dev_integration.py` — Integration tests (if applicable)
 
@@ -342,6 +342,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

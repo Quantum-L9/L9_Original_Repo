@@ -44,7 +44,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional, TypedDict
+from typing import Any, TypedDict
 
 import structlog
 
@@ -76,7 +76,7 @@ class WorldModelNodeState(TypedDict, total=False):
     world_model_updates: list[dict[str, Any]]
 
     # State snapshot (optional)
-    world_model_snapshot: Optional[dict[str, Any]]
+    world_model_snapshot: dict[str, Any] | None
 
     # Errors
     world_model_errors: list[str]
@@ -168,7 +168,7 @@ async def update_world_model_node(
             )
 
         except Exception as e:
-            error_msg = f"Failed to process packet {i}: {str(e)}"
+            error_msg = f"Failed to process packet {i}: {e!s}"
             logger.error(error_msg)
             errors.append(error_msg)
 

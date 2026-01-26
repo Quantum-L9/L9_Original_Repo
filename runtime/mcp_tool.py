@@ -33,7 +33,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import time
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 
@@ -45,9 +45,9 @@ logger = structlog.get_logger(__name__)
 async def mcp_call_tool(
     server_id: str,
     tool_name: str,
-    arguments: Dict[str, Any] | None = None,
+    arguments: dict[str, Any] | None = None,
     agent_id: str = "L",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     MCP call tool implementation.
 
@@ -169,12 +169,11 @@ async def mcp_call_tool(
             "result": result.get("result") if result else None,
             "error": None,
         }
-    else:
-        return {
-            "success": False,
-            "result": None,
-            "error": error or "Unknown error",
-        }
+    return {
+        "success": False,
+        "result": None,
+        "error": error or "Unknown error",
+    }
 
 
 __all__ = ["mcp_call_tool"]

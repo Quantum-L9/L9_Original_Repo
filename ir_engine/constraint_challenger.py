@@ -39,14 +39,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 import structlog
 from openai import AsyncOpenAI
 
-from ir_engine.ir_schema import (ConstraintNode, ConstraintType, IRGraph,
-                                 IRStatus)
+from ir_engine.ir_schema import ConstraintNode, ConstraintType, IRGraph, IRStatus
 
 logger = structlog.get_logger(__name__)
 
@@ -99,7 +98,7 @@ class ChallengeResult:
 
     def __init__(
         self,
-        challenged: list[tuple[UUID, str, Optional[str]]],
+        challenged: list[tuple[UUID, str, str | None]],
         invalidated: list[tuple[UUID, str]],
         hidden_found: list[ConstraintNode],
         recommendations: list[str],
@@ -134,7 +133,7 @@ class ConstraintChallenger:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str | None = None,
         model: str = "gpt-4o",
         temperature: float = 0.4,
         auto_apply: bool = False,
@@ -148,7 +147,7 @@ class ConstraintChallenger:
             temperature: Generation temperature
             auto_apply: If True, automatically apply challenges to graph
         """
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
         self._api_key = api_key
         self._model = model
         self._temperature = temperature
@@ -171,7 +170,7 @@ class ConstraintChallenger:
     async def challenge(
         self,
         graph: IRGraph,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> ChallengeResult:
         """
         Challenge constraints in the graph.
@@ -194,7 +193,7 @@ class ConstraintChallenger:
         analysis = await self._analyze_constraints(graph, context)
 
         # Process challenges
-        challenged: list[tuple[UUID, str, Optional[str]]] = []
+        challenged: list[tuple[UUID, str, str | None]] = []
         invalidated: list[tuple[UUID, str]] = []
 
         for challenge in analysis.get("challenges", []):
@@ -258,7 +257,7 @@ class ConstraintChallenger:
     async def _analyze_constraints(
         self,
         graph: IRGraph,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Use LLM to analyze constraints."""
         client = self._ensure_client()
@@ -323,7 +322,7 @@ class ConstraintChallenger:
 
         Useful for quick validation without API calls.
         """
-        challenged: list[tuple[UUID, str, Optional[str]]] = []
+        challenged: list[tuple[UUID, str, str | None]] = []
         invalidated: list[tuple[UUID, str]] = []
 
         for constraint_id, constraint in graph.constraints.items():
@@ -378,7 +377,7 @@ class ConstraintChallenger:
     # Utility Methods
     # ==========================================================================
 
-    def _parse_constraint_id(self, id_str: str, graph: IRGraph) -> Optional[UUID]:
+    def _parse_constraint_id(self, id_str: str, graph: IRGraph) -> UUID | None:
         """Parse constraint ID string to UUID."""
         try:
             return UUID(id_str)
@@ -419,7 +418,7 @@ class ConstraintChallenger:
     async def challenge_multiple(
         self,
         graphs: list[IRGraph],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> dict[UUID, ChallengeResult]:
         """
         Challenge constraints in multiple graphs.

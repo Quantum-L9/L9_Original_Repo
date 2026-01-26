@@ -61,7 +61,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from time import time as current_time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import httpx
 import structlog
@@ -71,15 +71,18 @@ from api.slack_client import SlackAPIClient, SlackClientError
 from config.settings import settings
 from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 from memory.substrate_service import MemorySubstrateService
+
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import get_segmenter
 
 # Optional telemetry - gracefully degrade if module not available
 try:
-    from telemetry.slack_metrics import (record_aios_call,
-                                         record_idempotent_hit,
-                                         record_packet_write_error,
-                                         record_slack_reply_error)
+    from telemetry.slack_metrics import (
+        record_aios_call,
+        record_idempotent_hit,
+        record_packet_write_error,
+        record_slack_reply_error,
+    )
 except ImportError:
     # Stub functions when telemetry not available
     def record_aios_call(*args, **kwargs):
@@ -130,8 +133,8 @@ async def handle_slack_with_l_agent(
     team_id: str,
     channel_id: str,
     user_id: str,
-    context: Optional[Dict[str, Any]] = None,
-) -> Tuple[str, str]:
+    context: dict[str, Any] | None = None,
+) -> tuple[str, str]:
     """
     Route a Slack message through the L-CTO agent via AgentExecutorService.
 
@@ -155,9 +158,12 @@ async def handle_slack_with_l_agent(
     """
     try:
         # Import here to avoid circular imports
-        from core.agents.schemas import (AgentTask, AgentType,
-                                         DuplicateTaskResponse,
-                                         ExecutionResult)
+        from core.agents.schemas import (
+            AgentTask,
+            AgentType,
+            DuplicateTaskResponse,
+            ExecutionResult,
+        )
 
         # Check if agent executor is available
         agent_executor = getattr(app.state, "agent_executor", None)
@@ -213,7 +219,7 @@ async def handle_slack_with_l_agent(
 
     except Exception as e:
         logger.exception("handle_slack_with_l_agent: error: %s", str(e))
-        return (f"Error processing message: {str(e)}", "error")
+        return (f"Error processing message: {e!s}", "error")
 
 
 # =============================================================================
@@ -253,8 +259,8 @@ async def _handle_mac_command(
     user_id: str,
     file_artifacts: list,
     slack_client: SlackAPIClient,
-    thread_ts: Optional[str] = None,
-) -> Optional[Dict[str, Any]]:
+    thread_ts: str | None = None,
+) -> dict[str, Any] | None:
     """
     Handle !mac commands - route to Mac agent task queue.
 
@@ -325,7 +331,7 @@ async def _handle_mac_command(
         logger.error("_handle_mac_command error", error=str(e))
         await slack_client.post_message(
             channel=channel_id,
-            text=f"❌ Mac command error: {str(e)}",
+            text=f"❌ Mac command error: {e!s}",
             thread_ts=thread_ts,
         )
         return {"ok": True, "handled": "mac_error"}
@@ -356,10 +362,7 @@ def _is_email_command(text: str) -> bool:
         return True
 
     # Check for email action phrases
-    if any(kw in text_lower for kw in ["send email to", "reply to", "forward to"]):
-        return True
-
-    return False
+    return bool(any(kw in text_lower for kw in ["send email to", "reply to", "forward to"]))
 
 
 # =============================================================================
@@ -373,8 +376,8 @@ async def _route_to_mac_task(
     user_id: str,
     file_artifacts: list,
     slack_client: SlackAPIClient,
-    thread_ts: Optional[str] = None,
-) -> Optional[Dict[str, Any]]:
+    thread_ts: str | None = None,
+) -> dict[str, Any] | None:
     """
     Route message to Mac Agent task planner for structured execution.
 
@@ -382,8 +385,7 @@ async def _route_to_mac_task(
     """
     try:
         from orchestration.slack_task_router import route_slack_message
-        from orchestrators.agent_execution.task_queue import \
-            enqueue_mac_task_dict
+        from orchestrators.agent_execution.task_queue import enqueue_mac_task_dict
 
         # Route message + artifacts to mac_task structure
         task_dict = route_slack_message(text, file_artifacts, user_id)
@@ -435,8 +437,8 @@ async def _route_to_email_task(
     user_id: str,
     file_artifacts: list,
     slack_client: SlackAPIClient,
-    thread_ts: Optional[str] = None,
-) -> Optional[Dict[str, Any]]:
+    thread_ts: str | None = None,
+) -> dict[str, Any] | None:
     """
     Route message to Email Agent task planner for structured execution.
 
@@ -496,12 +498,12 @@ async def _route_to_email_task(
 
 async def handle_slack_events(
     request_body: bytes,
-    payload: Dict[str, Any],
+    payload: dict[str, Any],
     substrate_service: MemorySubstrateService,
     slack_client: SlackAPIClient,
     aios_base_url: str,
-    app: Optional[Any] = None,
-) -> Dict[str, Any]:
+    app: Any | None = None,
+) -> dict[str, Any]:
     """
     Handle Slack event callback.
 
@@ -695,7 +697,7 @@ async def handle_slack_events(
         logger.debug("slack_l_command_module_not_available", error=str(e))
     except Exception as e:
         logger.warning("slack_l_command_error", error=str(e))
-        command_response = f"Command processing error: {str(e)}"
+        command_response = f"Command processing error: {e!s}"
 
     # If @L command was handled, use command response instead of AIOS
     if is_l_command and command_response:
@@ -877,7 +879,7 @@ async def handle_slack_events(
                         segments=segment_result.segments,
                     )
 
-                    replies: List[Tuple[str, str]] = []
+                    replies: list[tuple[str, str]] = []
                     for i, segment in enumerate(segment_result.segments):
                         segment_reply, segment_status = await handle_slack_with_l_agent(
                             app=app,
@@ -911,7 +913,9 @@ async def handle_slack_events(
                         reply = (
                             "\n\n---\n\n".join(successful)
                             if len(successful) > 1
-                            else successful[0] if successful else "All tasks processed."
+                            else successful[0]
+                            if successful
+                            else "All tasks processed."
                         )
                         status = "completed"
                 else:
@@ -975,8 +979,7 @@ async def handle_slack_events(
                     logger.error("slack_l_agent_packet_storage_error", error=str(e))
 
                 return {"ok": True, "l_agent": True, "status": status}
-            else:
-                logger.warning("slack_l_agent_no_app_reference")
+            logger.warning("slack_l_agent_no_app_reference")
         except Exception as e:
             logger.error("slack_l_agent_routing_error", error=str(e))
             # Fall through to legacy AIOS flow
@@ -1279,11 +1282,11 @@ async def handle_slack_events(
 
 
 async def handle_slack_commands(
-    payload: Dict[str, Any],
+    payload: dict[str, Any],
     substrate_service: MemorySubstrateService,
     slack_client: SlackAPIClient,
     aios_base_url: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Handle Slack slash command (asynchronous follow-up).
 
@@ -1422,7 +1425,7 @@ async def _check_duplicate(
     channel_id: str,
     ts: str,
     user_id: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Check if event already processed.
 
@@ -1458,7 +1461,7 @@ async def _check_duplicate(
                 """
                 SELECT packet_id, envelope, timestamp
                 FROM packet_store
-                WHERE 
+                WHERE
                     (envelope->'payload'->>'event_id' = $1)
                     OR (
                         envelope->'payload'->>'team_id' = $2
@@ -1518,7 +1521,7 @@ async def _retrieve_thread_context(
     substrate_service: MemorySubstrateService,
     thread_uuid: str,
     limit: int = 10,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Retrieve recent packets in thread (thread context).
 
@@ -1557,7 +1560,7 @@ async def _retrieve_semantic_hits(
     query: str,
     team_id: str,
     limit: int = 5,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Retrieve semantically similar packets.
 
@@ -1717,8 +1720,8 @@ async def _index_slack_conversation(
 
 
 def _build_system_prompt(
-    thread_context: Dict[str, Any],
-    semantic_hits: Dict[str, Any],
+    thread_context: dict[str, Any],
+    semantic_hits: dict[str, Any],
     user_id: str,
     channel_id: str,
 ) -> str:

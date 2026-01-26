@@ -37,10 +37,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import contextlib
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -58,7 +59,7 @@ GMP_QUEUE = TaskQueue(queue_name="l9:gmp_runs", use_redis=True)
 
 # Pending tasks store (in-memory for now, could be Redis-backed)
 # Maps task_id -> QueuedTask
-_pending_gmp_tasks: Dict[str, QueuedTask] = {}
+_pending_gmp_tasks: dict[str, QueuedTask] = {}
 _pending_lock = asyncio.Lock()
 
 
@@ -79,7 +80,7 @@ class GMPWorker:
         """
         self.poll_interval = poll_interval
         self._running = False
-        self._task: Optional[asyncio.Task] = None
+        self._task: asyncio.Task | None = None
 
     @must_stay_async("callers use await")
     async def start(self) -> None:
@@ -97,10 +98,8 @@ class GMPWorker:
         self._running = False
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
         logger.info("GMP worker stopped")
 
     async def _worker_loop(self) -> None:
@@ -176,8 +175,8 @@ class GMPWorker:
         gmp_markdown: str,
         repo_root: str,
         caller: str,
-        metadata: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        metadata: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Run GMP workflow by invoking Cursor CLI.
 
@@ -258,7 +257,7 @@ class GMPWorker:
                     proc.communicate(),
                     timeout=GMP_TIMEOUT_SECONDS,
                 )
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 proc.kill()
                 await proc.wait()
                 return {
@@ -291,22 +290,21 @@ class GMPWorker:
                     "duration_seconds": duration,
                     "exit_code": 0,
                 }
-            else:
-                logger.error(
-                    "GMP execution failed",
-                    caller=caller,
-                    exit_code=proc.returncode,
-                    stderr=stderr_str[:500],
-                )
-                return {
-                    "success": False,
-                    "output": stdout_str,
-                    "error": stderr_str or f"Cursor exited with code {proc.returncode}",
-                    "traceback": None,
-                    "gmp_file": str(gmp_file),
-                    "duration_seconds": duration,
-                    "exit_code": proc.returncode,
-                }
+            logger.error(
+                "GMP execution failed",
+                caller=caller,
+                exit_code=proc.returncode,
+                stderr=stderr_str[:500],
+            )
+            return {
+                "success": False,
+                "output": stdout_str,
+                "error": stderr_str or f"Cursor exited with code {proc.returncode}",
+                "traceback": None,
+                "gmp_file": str(gmp_file),
+                "duration_seconds": duration,
+                "exit_code": proc.returncode,
+            }
 
         except Exception as e:
             logger.error(
@@ -329,7 +327,7 @@ class GMPWorker:
 
 
 # Global worker instance
-_gmp_worker: Optional[GMPWorker] = None
+_gmp_worker: GMPWorker | None = None
 
 
 async def start_gmp_worker(poll_interval: float = 2.0) -> GMPWorker:
@@ -372,7 +370,7 @@ async def store_pending_task(task: QueuedTask) -> None:
     logger.debug(f"Stored pending GMP task {task.task_id}")
 
 
-async def get_pending_task(task_id: str) -> Optional[QueuedTask]:
+async def get_pending_task(task_id: str) -> QueuedTask | None:
     """
     Get a pending GMP task by ID.
 
@@ -455,13 +453,13 @@ async def approve_and_enqueue(task_id: str) -> bool:
 __all__ = [
     "GMP_QUEUE",
     "GMPWorker",
-    "start_gmp_worker",
-    "stop_gmp_worker",
-    "store_pending_task",
+    "approve_and_enqueue",
     "get_pending_task",
     "list_pending_tasks",
     "remove_pending_task",
-    "approve_and_enqueue",
+    "start_gmp_worker",
+    "stop_gmp_worker",
+    "store_pending_task",
 ]
 
 # ============================================================================

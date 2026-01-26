@@ -37,7 +37,7 @@ __dora_meta__ = {
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -160,7 +160,7 @@ class DeadLetterQueue:
             logger.info("DLQ entry acknowledged and removed", entry_id=entry_id)
         return deleted > 0
 
-    async def get_entry(self, entry_id: str) -> Optional[DeadLetterEntry]:
+    async def get_entry(self, entry_id: str) -> DeadLetterEntry | None:
         """
         Get specific entry by ID.
 

@@ -51,7 +51,7 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import yaml
 
@@ -90,9 +90,9 @@ class ValidationIssue:
     severity: str  # "error", "warning", "info"
     section: str
     message: str
-    line: Optional[int] = None
+    line: int | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "severity": self.severity,
             "section": self.section,
@@ -107,22 +107,22 @@ class ValidationResult:
 
     filepath: str
     valid: bool = True
-    errors: List[ValidationIssue] = field(default_factory=list)
-    warnings: List[ValidationIssue] = field(default_factory=list)
-    info: List[ValidationIssue] = field(default_factory=list)
+    errors: list[ValidationIssue] = field(default_factory=list)
+    warnings: list[ValidationIssue] = field(default_factory=list)
+    info: list[ValidationIssue] = field(default_factory=list)
 
     # Extracted data
-    gmp_id: Optional[str] = None
-    task: Optional[str] = None
-    tier: Optional[str] = None
-    date: Optional[str] = None
-    time: Optional[str] = None
-    status: Optional[str] = None
+    gmp_id: str | None = None
+    task: str | None = None
+    tier: str | None = None
+    date: str | None = None
+    time: str | None = None
+    status: str | None = None
     todo_count: int = 0
     change_count: int = 0
     validation_count: int = 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "filepath": self.filepath,
             "valid": self.valid,
@@ -153,11 +153,11 @@ class ValidationResult:
 # ============================================================================
 
 
-def load_contract() -> Dict[str, Any]:
+def load_contract() -> dict[str, Any]:
     """Load the GMP report contract YAML."""
     if CONTRACT_PATH.exists():
         try:
-            with open(CONTRACT_PATH, "r") as f:
+            with open(CONTRACT_PATH) as f:
                 return yaml.safe_load(f)
         except Exception:
             pass
@@ -242,7 +242,7 @@ class GMPReportValidator:
                     )
                 )
 
-    def _validate_header(self, lines: List[str], result: ValidationResult):
+    def _validate_header(self, lines: list[str], result: ValidationResult):
         """Validate the header section (supports both old single-line and new multi-line format)."""
         # Try old single-line format first (has pipe separators)
         header_pattern = r"\*\*ID:\*\*\s*GMP-(\d+)\s*\|\s*\*\*Task:\*\*\s*(.+?)\s*\|\s*\*\*Tier:\*\*\s*(\w+_TIER)\s*\|\s*\*\*Date:\*\*\s*(\d{4}-\d{2}-\d{2})\s*\|\s*\*\*Status:\*\*\s*(.+)"
@@ -401,7 +401,7 @@ class GMPReportValidator:
                 )
             )
 
-    def _validate_plan(self, lines: List[str], result: ValidationResult):
+    def _validate_plan(self, lines: list[str], result: ValidationResult):
         """Validate PLAN section (accepts both 'PLAN' and 'TODO PLAN' headers)."""
         in_section = False
         in_table = False
@@ -496,7 +496,7 @@ class GMPReportValidator:
                     )
                 )
 
-    def _validate_changes(self, lines: List[str], result: ValidationResult):
+    def _validate_changes(self, lines: list[str], result: ValidationResult):
         """Validate CHANGES section."""
         in_section = False
         changes = []
@@ -545,7 +545,7 @@ class GMPReportValidator:
                 )
             )
 
-    def _validate_todo_change_map(self, lines: List[str], result: ValidationResult):
+    def _validate_todo_change_map(self, lines: list[str], result: ValidationResult):
         """Validate TODO → CHANGE MAP section."""
         in_section = False
         map_entries = 0
@@ -588,7 +588,7 @@ class GMPReportValidator:
                 )
             )
 
-    def _validate_validation_section(self, lines: List[str], result: ValidationResult):
+    def _validate_validation_section(self, lines: list[str], result: ValidationResult):
         """Validate VALIDATION section."""
         in_section = False
         validations = []
@@ -634,7 +634,7 @@ class GMPReportValidator:
                         )
                     )
 
-    def _validate_declaration(self, lines: List[str], result: ValidationResult):
+    def _validate_declaration(self, lines: list[str], result: ValidationResult):
         """Validate DECLARATION section."""
         in_section = False
         declaration_text = ""
@@ -669,7 +669,7 @@ class GMPReportValidator:
                         )
                     )
 
-    def _check_forbidden_sections(self, lines: List[str], result: ValidationResult):
+    def _check_forbidden_sections(self, lines: list[str], result: ValidationResult):
         """Check for forbidden sections."""
         forbidden = ["YNP RECOMMENDATION", "NEXT STEPS"]
 

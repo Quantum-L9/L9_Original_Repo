@@ -1843,4 +1843,3 @@ async function: world_model.seed_loader.run_seed_loader
 async function: world_model.service.close_world_model_service
   calls:
     - close_pool
-

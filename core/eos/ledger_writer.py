@@ -40,7 +40,7 @@ __dora_meta__ = {
 
 import hashlib
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -66,7 +66,7 @@ class EOSLedgerWriter:
     - immutable: True
     """
 
-    def __init__(self, substrate_service: Optional[Any] = None):
+    def __init__(self, substrate_service: Any | None = None):
         """
         Initialize EOS Ledger Writer.
 
@@ -75,7 +75,7 @@ class EOSLedgerWriter:
         """
         self._substrate = substrate_service
         self._available = substrate_service is not None
-        self._last_hash: Optional[str] = None
+        self._last_hash: str | None = None
         self.logger = logger.bind(component=self.__class__.__name__)
 
         if self._available:
@@ -91,7 +91,7 @@ class EOSLedgerWriter:
         """Check if ledger writer is available."""
         return self._available and self._substrate is not None
 
-    def _compute_hash(self, content: Dict[str, Any]) -> str:
+    def _compute_hash(self, content: dict[str, Any]) -> str:
         """
         Compute SHA-256 hash of content for tamper detection.
 
@@ -107,7 +107,7 @@ class EOSLedgerWriter:
         canonical = json.dumps(content, sort_keys=True, default=str)
         return hashlib.sha256(canonical.encode()).hexdigest()
 
-    async def write(self, entry: LedgerEntry) -> Optional[str]:
+    async def write(self, entry: LedgerEntry) -> str | None:
         """
         Write a LedgerEntry to the immutable ledger.
 
@@ -189,8 +189,8 @@ class EOSLedgerWriter:
         decision: str,
         agent_id: str,
         risk_class: str,
-        justification: Optional[List[str]] = None,
-    ) -> Optional[str]:
+        justification: list[str] | None = None,
+    ) -> str | None:
         """
         Write a verdict decision to the ledger.
 
@@ -233,7 +233,7 @@ class EOSLedgerWriter:
         environment: str,
         risk_class: str,
         status: str,
-    ) -> Optional[str]:
+    ) -> str | None:
         """
         Write an action submission/completion to the ledger.
 
@@ -273,8 +273,8 @@ class EOSLedgerWriter:
         anomaly_score: float,
         severity: str,
         action_taken: str,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> Optional[str]:
+        context: dict[str, Any] | None = None,
+    ) -> str | None:
         """
         Write an anomaly detection event to the ledger.
 
@@ -312,8 +312,8 @@ class EOSLedgerWriter:
     async def get_recent_entries(
         self,
         limit: int = 100,
-        event_type: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        event_type: str | None = None,
+    ) -> list[dict[str, Any]]:
         """
         Retrieve recent ledger entries.
 
@@ -343,13 +343,15 @@ class EOSLedgerWriter:
                     if ledger_entry.get("payload", {}).get("event_type") != event_type:
                         continue
 
-                entries.append({
-                    "entry_id": ledger_entry.get("entry_id"),
-                    "hash": payload.get("hash"),
-                    "timestamp": ledger_entry.get("timestamp"),
-                    "event_type": ledger_entry.get("payload", {}).get("event_type"),
-                    "payload": ledger_entry.get("payload"),
-                })
+                entries.append(
+                    {
+                        "entry_id": ledger_entry.get("entry_id"),
+                        "hash": payload.get("hash"),
+                        "timestamp": ledger_entry.get("timestamp"),
+                        "event_type": ledger_entry.get("payload", {}).get("event_type"),
+                        "payload": ledger_entry.get("payload"),
+                    }
+                )
 
             return entries
 
@@ -360,7 +362,7 @@ class EOSLedgerWriter:
             )
             return []
 
-    async def verify_chain_integrity(self) -> Dict[str, Any]:
+    async def verify_chain_integrity(self) -> dict[str, Any]:
         """
         Verify the integrity of the ledger chain.
 

@@ -25,13 +25,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
-import sys
 import json
-import requests
+import os
 import subprocess
-from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any
+
+import requests
 
 PROTECTED_FILES = {
     "api/websocket_orchestrator.py",
@@ -57,12 +56,12 @@ class PerplexityAuditor:
     def get_file_content(self, filepath: str) -> str:
         """Get full file content for deep analysis"""
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, encoding="utf-8") as f:
                 return f.read()
-        except (OSError, IOError):
+        except OSError:
             return ""
 
-    def audit_with_perplexity(self, diff: str, files: List[str]) -> Dict[str, Any]:
+    def audit_with_perplexity(self, diff: str, files: list[str]) -> dict[str, Any]:
         """Comprehensive security + performance + architecture audit"""
 
         prompt = f"""You are conducting a DEEP AUDIT of this pull request for the L9 AI agent system.
@@ -143,7 +142,7 @@ Return ONLY valid JSON.
         except (json.JSONDecodeError, ValueError):
             return {"security_findings": [], "summary": content}
 
-    def apply_auto_fixes(self, fixes: List[Dict]) -> int:
+    def apply_auto_fixes(self, fixes: list[dict]) -> int:
         """Apply security and performance fixes"""
         applied = 0
 
@@ -155,7 +154,7 @@ Return ONLY valid JSON.
                 continue
 
             try:
-                with open(filepath, "r", encoding="utf-8") as f:
+                with open(filepath, encoding="utf-8") as f:
                     content = f.read()
 
                 if fix["original"] in content:
@@ -172,7 +171,7 @@ Return ONLY valid JSON.
 
         return applied
 
-    def generate_audit_report(self, audit: Dict) -> str:
+    def generate_audit_report(self, audit: dict) -> str:
         """Generate markdown audit report"""
         md = []
 

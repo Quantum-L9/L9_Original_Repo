@@ -36,15 +36,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import List, Tuple
 
 import structlog
 import sympy
 from sympy import expand, factor, simplify, sympify
 from sympy.simplify.cse_main import cse
 
-from services.symbolic_computation.config import (SymbolicComputationConfig,
-                                                  get_config)
+from services.symbolic_computation.config import SymbolicComputationConfig, get_config
 
 logger = structlog.get_logger(__name__)
 
@@ -83,7 +81,7 @@ class Optimizer:
     def optimize_expression(
         self,
         expr: str | sympy.Expr,
-        strategies: List[str] | None = None,
+        strategies: list[str] | None = None,
     ) -> sympy.Expr:
         """
         Optimize expression using multiple strategies.
@@ -101,10 +99,7 @@ class Optimizer:
             strategies = ["simplify"]
 
         # Parse if string
-        if isinstance(expr, str):
-            parsed_expr = sympify(expr)
-        else:
-            parsed_expr = expr
+        parsed_expr = sympify(expr) if isinstance(expr, str) else expr
 
         original_ops = sympy.count_ops(parsed_expr)
 
@@ -151,7 +146,7 @@ class Optimizer:
     def apply_cse(
         self,
         expr: str | sympy.Expr,
-    ) -> Tuple[List[Tuple[sympy.Symbol, sympy.Expr]], List[sympy.Expr]]:
+    ) -> tuple[list[tuple[sympy.Symbol, sympy.Expr]], list[sympy.Expr]]:
         """
         Apply common subexpression elimination.
 
@@ -162,10 +157,7 @@ class Optimizer:
             Tuple of (replacements, reduced_expressions)
             where replacements is a list of (symbol, expr) pairs
         """
-        if isinstance(expr, str):
-            parsed_expr = sympify(expr)
-        else:
-            parsed_expr = expr
+        parsed_expr = sympify(expr) if isinstance(expr, str) else expr
 
         replacements, reduced = cse(parsed_expr)
 
@@ -203,10 +195,7 @@ class Optimizer:
         Returns:
             Simplified expression
         """
-        if isinstance(expr, str):
-            parsed_expr = sympify(expr)
-        else:
-            parsed_expr = expr
+        parsed_expr = sympify(expr) if isinstance(expr, str) else expr
 
         simplified = simplify(parsed_expr)
 
@@ -228,10 +217,7 @@ class Optimizer:
         Returns:
             Expanded expression
         """
-        if isinstance(expr, str):
-            parsed_expr = sympify(expr)
-        else:
-            parsed_expr = expr
+        parsed_expr = sympify(expr) if isinstance(expr, str) else expr
 
         return expand(parsed_expr)
 
@@ -245,10 +231,7 @@ class Optimizer:
         Returns:
             Factored expression
         """
-        if isinstance(expr, str):
-            parsed_expr = sympify(expr)
-        else:
-            parsed_expr = expr
+        parsed_expr = sympify(expr) if isinstance(expr, str) else expr
 
         return factor(parsed_expr)
 
@@ -262,10 +245,7 @@ class Optimizer:
         Returns:
             Number of operations
         """
-        if isinstance(expr, str):
-            parsed_expr = sympify(expr)
-        else:
-            parsed_expr = expr
+        parsed_expr = sympify(expr) if isinstance(expr, str) else expr
 
         return sympy.count_ops(parsed_expr)
 

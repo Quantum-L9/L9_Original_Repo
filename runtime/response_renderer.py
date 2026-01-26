@@ -36,7 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -62,11 +62,11 @@ class ResponseRenderer:
     @staticmethod
     def render(
         opening: str,
-        main_sections: Dict[str, str],
-        confidence_summary: Dict[str, Any],
+        main_sections: dict[str, str],
+        confidence_summary: dict[str, Any],
         igor_input_needed: bool = False,
         igor_input_prompt: str = "",
-        kernel_state: Optional[Any] = None,
+        kernel_state: Any | None = None,
         include_kernel_status: bool = True,
     ) -> str:
         """
@@ -119,7 +119,7 @@ class ResponseRenderer:
         return "\n".join(sections)
 
     @staticmethod
-    def _format_confidence(summary: Dict[str, Any]) -> str:
+    def _format_confidence(summary: dict[str, Any]) -> str:
         """Format confidence summary section."""
         lines = []
 
@@ -193,7 +193,7 @@ class ResponseRenderer:
     def render_minimal(
         content: str,
         confidence: float,
-        kernel_state: Optional[Any] = None,
+        kernel_state: Any | None = None,
     ) -> str:
         """
         Render minimal response (for simple queries).
@@ -221,7 +221,7 @@ class ResponseRenderer:
         issue: str,
         context: str,
         confidence: float,
-        options: List[str],
+        options: list[str],
         severity: str = "MEDIUM",
     ) -> str:
         """
@@ -283,18 +283,18 @@ class ResponseBuilder:
 
     def __init__(self):
         self._opening = ""
-        self._sections: Dict[str, str] = {}
-        self._confidence: Dict[str, Any] = {"overall": 0.5}
+        self._sections: dict[str, str] = {}
+        self._confidence: dict[str, Any] = {"overall": 0.5}
         self._igor_needed = False
         self._igor_prompt = ""
         self._include_kernel = True
 
-    def opening(self, text: str) -> "ResponseBuilder":
+    def opening(self, text: str) -> ResponseBuilder:
         """Set opening statement."""
         self._opening = text
         return self
 
-    def section(self, name: str, content: str) -> "ResponseBuilder":
+    def section(self, name: str, content: str) -> ResponseBuilder:
         """Add a main content section."""
         self._sections[name] = content
         return self
@@ -302,10 +302,10 @@ class ResponseBuilder:
     def confidence(
         self,
         overall: float,
-        strongest: Optional[str] = None,
-        weakest: Optional[str] = None,
-        assumptions: Optional[List[str]] = None,
-    ) -> "ResponseBuilder":
+        strongest: str | None = None,
+        weakest: str | None = None,
+        assumptions: list[str] | None = None,
+    ) -> ResponseBuilder:
         """Set confidence summary."""
         self._confidence = {
             "overall": overall,
@@ -315,24 +315,24 @@ class ResponseBuilder:
         }
         return self
 
-    def from_claims(self, claims: Any) -> "ResponseBuilder":
+    def from_claims(self, claims: Any) -> ResponseBuilder:
         """Set confidence from ClaimCollection."""
         if hasattr(claims, "summary"):
             self._confidence = claims.summary()
         return self
 
-    def needs_igor_input(self, prompt: str) -> "ResponseBuilder":
+    def needs_igor_input(self, prompt: str) -> ResponseBuilder:
         """Mark that Igor input is needed."""
         self._igor_needed = True
         self._igor_prompt = prompt
         return self
 
-    def no_kernel_status(self) -> "ResponseBuilder":
+    def no_kernel_status(self) -> ResponseBuilder:
         """Exclude kernel status section."""
         self._include_kernel = False
         return self
 
-    def build(self, kernel_state: Optional[Any] = None) -> str:
+    def build(self, kernel_state: Any | None = None) -> str:
         """Build the final response string."""
         return ResponseRenderer.render(
             opening=self._opening,
@@ -368,8 +368,8 @@ def format_citation(source_id: int, source_name: str = "") -> str:
 
 def format_claim_with_citation(
     claim: str,
-    sources: List[int],
-    confidence: Optional[float] = None,
+    sources: list[int],
+    confidence: float | None = None,
 ) -> str:
     """
     Format a claim with citation(s).
@@ -391,7 +391,7 @@ def format_claim_with_citation(
     return result
 
 
-def format_inference(claim: str, base_facts: List[str]) -> str:
+def format_inference(claim: str, base_facts: list[str]) -> str:
     """
     Format an inference claim.
 
@@ -426,14 +426,14 @@ def format_guess(claim: str, pattern: str, confidence: float) -> str:
 # =============================================================================
 
 __all__ = [
+    "ResponseBuilder",
     # Main renderer
     "ResponseRenderer",
-    "ResponseBuilder",
     # Citation helpers
     "format_citation",
     "format_claim_with_citation",
-    "format_inference",
     "format_guess",
+    "format_inference",
 ]
 
 # ============================================================================

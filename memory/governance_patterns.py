@@ -33,7 +33,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -74,17 +74,17 @@ class GovernancePattern(BaseModel):
     task_type: str = Field(default="general", description="Type of task")
     decision: DecisionType = Field(..., description="Approved or rejected")
     reason: str = Field(..., description="Reason for decision")
-    context: Dict[str, Any] = Field(
+    context: dict[str, Any] = Field(
         default_factory=dict, description="Task context (summary, files, etc.)"
     )
-    conditions: List[str] = Field(
+    conditions: list[str] = Field(
         default_factory=list, description="Conditions/tags for this decision"
     )
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     approved_by: str = Field(default="Igor", description="Decision maker")
     task_id: str = Field(..., description="Original task ID")
 
-    def to_packet_payload(self) -> Dict[str, Any]:
+    def to_packet_payload(self) -> dict[str, Any]:
         """Convert to packet payload for memory storage."""
         return {
             "pattern_id": self.pattern_id,
@@ -100,7 +100,7 @@ class GovernancePattern(BaseModel):
         }
 
     @classmethod
-    def from_packet_payload(cls, payload: Dict[str, Any]) -> "GovernancePattern":
+    def from_packet_payload(cls, payload: dict[str, Any]) -> GovernancePattern:
         """Create from packet payload."""
         return cls(
             pattern_id=payload.get("pattern_id", str(uuid4())),
@@ -116,7 +116,7 @@ class GovernancePattern(BaseModel):
         )
 
 
-def extract_conditions_from_reason(reason: str) -> List[str]:
+def extract_conditions_from_reason(reason: str) -> list[str]:
     """
     Extract condition tags from Igor's reason text.
 

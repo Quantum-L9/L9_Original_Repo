@@ -15,13 +15,13 @@ Apply Template Method pattern to extractors with PacketValidator integration. Cu
 
 ## Patches to Apply
 
-| Patch | File | Change |
-|-------|------|--------|
-| 4 | `memory/extractor/base_extractor.py` | Add Template Method + PacketValidator |
-| 5 | `memory/extractor/agent_config_extractor.py` | Rename `extract` → `_do_extraction` |
-| 6 | `memory/extractor/code_extractor.py` | Rename `extract` → `_do_extraction` |
-| 7 | `memory/extractor/memory_extractor.py` | Rename `extract` → `_do_extraction` |
-| 8 | `memory/extractor/module_schema_extractor.py` | Rename `extract` → `_do_extraction` |
+| Patch | File                                          | Change                                |
+| ----- | --------------------------------------------- | ------------------------------------- |
+| 4     | `memory/extractor/base_extractor.py`          | Add Template Method + PacketValidator |
+| 5     | `memory/extractor/agent_config_extractor.py`  | Rename `extract` → `_do_extraction`   |
+| 6     | `memory/extractor/code_extractor.py`          | Rename `extract` → `_do_extraction`   |
+| 7     | `memory/extractor/memory_extractor.py`        | Rename `extract` → `_do_extraction`   |
+| 8     | `memory/extractor/module_schema_extractor.py` | Rename `extract` → `_do_extraction`   |
 
 **Source file:** `current_work/Patches-Memory Substrate Audit & Cross-Substrate Alignment.md`
 
@@ -50,7 +50,7 @@ def extract(self, input_path: Path, output_root: Path) -> Dict[str, Any]:
     raw_packets = result.get("packets", [])
     validated = []
     dropped = 0
-    
+
     for packet in raw_packets:
         try:
             self._validator.validate(packet)
@@ -58,18 +58,19 @@ def extract(self, input_path: Path, output_root: Path) -> Dict[str, Any]:
         except PacketValidationError as exc:
             self.logger.warning(f"Extracted packet invalid, dropping: {exc}")
             dropped += 1
-    
+
     if raw_packets:
         result["packets"] = validated
         result["packets_dropped"] = dropped
         result["packets_validated"] = len(validated)
-    
+
     return result
 ```
 
 ### 2. Update All Subclasses
 
 Rename `def extract(...)` → `def _do_extraction(...)` in:
+
 - `agent_config_extractor.py`
 - `code_extractor.py`
 - `memory_extractor.py`
@@ -82,7 +83,7 @@ Update at least one extractor to return packets:
 ```python
 def _do_extraction(self, input_path: Path, output_root: Path) -> Dict:
     # ... existing logic ...
-    
+
     packets = [
         PacketEnvelopeIn(
             packet_type="extracted_config",
@@ -90,7 +91,7 @@ def _do_extraction(self, input_path: Path, output_root: Path) -> Dict:
         )
         for data in extracted_items
     ]
-    
+
     return {
         "success": True,
         "files_extracted": count,
@@ -111,6 +112,7 @@ def _do_extraction(self, input_path: Path, output_root: Path) -> Dict:
 ## When to Apply
 
 Apply when:
+
 - [ ] An extractor needs to ingest packets to memory
 - [ ] Processing untrusted input files
 - [ ] Building extraction → memory pipeline

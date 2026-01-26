@@ -59,16 +59,16 @@ Domain-specific orchestration patterns for agents, memory, reasoning, and world 
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module        | Purpose          |
+| ------------- | ---------------- |
 | `api/routes/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                                | Purpose             |
+| ------------------------------------- | ------------------- |
 | `orchestration/unified_controller.py` | Required dependency |
-| `core/agents/executor.py` | Required dependency |
+| `core/agents/executor.py`             | Required dependency |
 
 ---
 
@@ -94,12 +94,12 @@ orchestrators/
 └── ... (26 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `ws_bridge.py` | Phase 3: Configuration for the WS bridge. |
+| File           | Purpose                                            |
+| -------------- | -------------------------------------------------- |
+| `__init__.py`  | Core module (PROTECTED)                            |
+| `ws_bridge.py` | Phase 3: Configuration for the WS bridge.          |
 | `ws_bridge.py` | Phase 3: Extensible event router with handler regi |
-| `validator.py` | Result of tool validation. |
+| `validator.py` | Result of tool validation.                         |
 
 ### Naming Conventions
 
@@ -117,7 +117,7 @@ orchestrators/
 ```python
 class WSBridgeConfig:
     """Phase 3: Configuration for the WS bridge."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -133,7 +133,7 @@ class WSBridgeConfig:
 ```python
 class WSEventRouter:
     """Phase 3: Extensible event router with handler registration."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -153,7 +153,7 @@ class WSEventRouter:
 ```python
 class ValidationResult:
     """Result of tool validation."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -171,7 +171,7 @@ class ValidationResult:
 ```python
 class Validator:
     """Validator for ActionTool Orchestrator."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -195,13 +195,12 @@ class Validator:
 ```python
 class ToolSafetyLevel:
     """Tool safety levels."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 37-42 in `interface.py`
-
 
 ---
 
@@ -276,9 +275,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Orchestrators feature flags
-L9_ENABLE_ORCHESTRATORS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_ORCHESTRATORS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_ORCHESTRATORS_AUDIT: true    # Enable audit logging
+L9_ENABLE_ORCHESTRATORS_TRACING: true # Enable detailed tracing
+L9_ENABLE_ORCHESTRATORS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_ORCHESTRATORS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -340,7 +339,6 @@ Get all orchestrator classes in a specific category.
 - **File:** `orchestrator_registry.py:185`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -381,6 +379,7 @@ Orchestrators operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -388,12 +387,12 @@ Orchestrators operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                | Type      | Description                    |
+| ------------------------------------- | --------- | ------------------------------ |
 | `orchestrators_operation_duration_ms` | Histogram | Operation latency distribution |
-| `orchestrators_operation_total` | Counter | Total operations processed |
-| `orchestrators_error_total` | Counter | Total errors encountered |
-| `orchestrators_active_connections` | Gauge | Current active connections |
+| `orchestrators_operation_total`       | Counter   | Total operations processed     |
+| `orchestrators_error_total`           | Counter   | Total errors encountered       |
+| `orchestrators_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -411,6 +410,7 @@ Orchestrators emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/orchestrators/`:
+
 - `test_orchestrators.py` — Core unit tests
 - `test_orchestrators_integration.py` — Integration tests (if applicable)
 
@@ -457,6 +457,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

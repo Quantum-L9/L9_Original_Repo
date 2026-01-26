@@ -34,23 +34,24 @@ __dora_meta__ = {
 import subprocess
 import sys
 from pathlib import Path
-from typing import Set
 
 # Add project root to path for imports
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # GMP-104: Load protected files from config/policies/protected_files.yaml
-from core.governance.protected_files_policy import (  # noqa: E402
-    get_all_protected_files, get_lcto_controlled_files,
-    get_subsystem_protected_files)
+from core.governance.protected_files_policy import (
+    get_all_protected_files,
+    get_lcto_controlled_files,
+    get_subsystem_protected_files,
+)
 
 PROTECTED_BY_LCTO = get_lcto_controlled_files()
 SUBSYSTEM_PROTECTED = get_subsystem_protected_files()
 ALL_PROTECTED = get_all_protected_files()
 
 
-def get_changed_files() -> Set[str]:
+def get_changed_files() -> set[str]:
     """Get files changed in current PR (assumes git environment)."""
     try:
         # Get diff between main and HEAD

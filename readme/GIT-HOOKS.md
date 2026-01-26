@@ -11,11 +11,11 @@ bash scripts/install_git_hooks.sh
 
 ## Hooks Overview
 
-| Hook | Trigger | Purpose |
-|------|---------|---------|
-| `pre-commit` | Before commit | Secret scan, format, lint |
-| `post-merge` | After pull | Deps, migrations, kernel reload |
-| `pre-push` | Before push | Smoke tests, large file block |
+| Hook         | Trigger       | Purpose                         |
+| ------------ | ------------- | ------------------------------- |
+| `pre-commit` | Before commit | Secret scan, format, lint       |
+| `post-merge` | After pull    | Deps, migrations, kernel reload |
+| `pre-push`   | Before push   | Smoke tests, large file block   |
 
 ## Pre-Commit (5 Checks)
 
@@ -91,6 +91,7 @@ The `scripts/deployment/10X_Deploy_Script.sh` automatically installs hooks on VP
 ```
 
 **VPS needs:**
+
 - Python tools: Installed via `requirements.txt`
 - gitleaks: NOT needed (VPS only pulls, doesn't commit)
 

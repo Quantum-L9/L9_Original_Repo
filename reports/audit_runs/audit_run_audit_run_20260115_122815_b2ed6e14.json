@@ -10,9 +10,7 @@
       "items_high": 0,
       "items_medium": 0,
       "items_low": 0,
-      "errors": [
-        "__init__() got an unexpected keyword argument 'name'"
-      ],
+      "errors": ["__init__() got an unexpected keyword argument 'name'"],
       "data": {},
       "file_outputs": {}
     },
@@ -25,9 +23,7 @@
       "items_high": 0,
       "items_medium": 0,
       "items_low": 0,
-      "errors": [
-        "No module named 'scripts'"
-      ],
+      "errors": ["No module named 'scripts'"],
       "data": {},
       "file_outputs": {}
     },
@@ -40,9 +36,7 @@
       "items_high": 0,
       "items_medium": 0,
       "items_low": 0,
-      "errors": [
-        "No module named 'scripts'"
-      ],
+      "errors": ["No module named 'scripts'"],
       "data": {},
       "file_outputs": {}
     },
@@ -55,9 +49,7 @@
       "items_high": 0,
       "items_medium": 0,
       "items_low": 0,
-      "errors": [
-        "unsupported operand type(s) for /: 'str' and 'float'"
-      ],
+      "errors": ["unsupported operand type(s) for /: 'str' and 'float'"],
       "data": {},
       "file_outputs": {}
     },

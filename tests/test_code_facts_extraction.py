@@ -178,9 +178,9 @@ class TestAICollaborationScopes:
             forbidden = set(sub_config.get("forbidden_scopes", []))
 
             overlap = allowed & forbidden
-            assert not overlap, (
-                f"{key}: patterns in both allowed and forbidden: {overlap}"
-            )
+            assert (
+                not overlap
+            ), f"{key}: patterns in both allowed and forbidden: {overlap}"
 
 
 class TestProtectedFileEnforcement:
@@ -198,9 +198,9 @@ class TestProtectedFileEnforcement:
         sub = readme_config.get("subsystems", {}).get("memory", {})
         protected = sub.get("protected_files", [])
         assert len(protected) > 0, "memory has no protected files"
-        assert "substrate_service.py" in protected, (
-            "substrate_service.py should be protected"
-        )
+        assert (
+            "substrate_service.py" in protected
+        ), "substrate_service.py should be protected"
 
 
 class TestInvariantCoverage:
@@ -214,9 +214,9 @@ class TestInvariantCoverage:
             invariants = sub_config.get("invariants", [])
             # Not all subsystems require invariants, but major ones should
             if sub_config.get("tier") == "core":
-                assert len(invariants) > 0, (
-                    f"{key} (core tier) has no invariants defined"
-                )
+                assert (
+                    len(invariants) > 0
+                ), f"{key} (core tier) has no invariants defined"
 
 
 class TestCodeMapValidity:

@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -51,8 +51,8 @@ except ImportError:
 
 
 def execute_email_task(
-    task: Dict[str, Any], account: Optional[str] = None
-) -> Dict[str, Any]:
+    task: dict[str, Any], account: str | None = None
+) -> dict[str, Any]:
     """
     Execute an email task from Mac Agent runner.
 
@@ -212,7 +212,7 @@ def execute_email_task(
                                 "step": i,
                                 "action": action,
                                 "status": "error",
-                                "details": f"Failed to send draft: {str(e)}",
+                                "details": f"Failed to send draft: {e!s}",
                                 "timestamp": datetime.utcnow().isoformat(),
                             }
                         )

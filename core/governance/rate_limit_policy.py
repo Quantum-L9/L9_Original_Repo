@@ -51,11 +51,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from contextlib import asynccontextmanager
+from collections.abc import Callable
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass, field
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, TypeVar
 
 import structlog
 import yaml
@@ -81,9 +82,9 @@ class RateLimitConfig:
     window_seconds: int
     description: str = ""
     # Optional fields for specific limit types
-    daily_limit: Optional[int] = None
-    hourly_limit: Optional[int] = None
-    requires_approval_after: Optional[int] = None
+    daily_limit: int | None = None
+    hourly_limit: int | None = None
+    requires_approval_after: int | None = None
 
 
 @dataclass
@@ -94,7 +95,7 @@ class RateLimitResult:
     current_count: int
     limit: int
     remaining: int
-    retry_after_seconds: Optional[int] = None
+    retry_after_seconds: int | None = None
     key: str = ""
 
 
@@ -123,18 +124,18 @@ class RateLimitPolicy:
     Loads configuration from YAML and provides rate limiting primitives.
     """
 
-    _instance: Optional["RateLimitPolicy"] = None
+    _instance: RateLimitPolicy | None = None
     _config_path: str = "config/policies/rate_limits.yaml"
 
     def __init__(self) -> None:
         """Initialize the rate limit policy."""
         self._config: dict[str, Any] = {}
         self._settings = RateLimitSettings()
-        self._limiter: Optional[Any] = None
+        self._limiter: Any | None = None
         self._loaded = False
 
     @classmethod
-    def get_instance(cls) -> "RateLimitPolicy":
+    def get_instance(cls) -> RateLimitPolicy:
         """Get or create singleton instance."""
         if cls._instance is None:
             cls._instance = cls()
@@ -190,7 +191,7 @@ class RateLimitPolicy:
 
         return self._limiter
 
-    def get_config(self, policy_key: str) -> Optional[RateLimitConfig]:
+    def get_config(self, policy_key: str) -> RateLimitConfig | None:
         """
         Get rate limit configuration for a policy key.
 
@@ -252,8 +253,8 @@ class RateLimitPolicy:
 
     def is_exempted(
         self,
-        ip_address: Optional[str] = None,
-        caller_id: Optional[str] = None,
+        ip_address: str | None = None,
+        caller_id: str | None = None,
     ) -> bool:
         """Check if request is exempted from rate limiting."""
         self._ensure_loaded()
@@ -261,15 +262,12 @@ class RateLimitPolicy:
         if ip_address and ip_address in self._settings.exempted_ips:
             return True
 
-        if caller_id and caller_id in self._settings.exempted_caller_ids:
-            return True
-
-        return False
+        return bool(caller_id and caller_id in self._settings.exempted_caller_ids)
 
     async def check(
         self,
         policy_key: str,
-        unique_key: Optional[str] = None,
+        unique_key: str | None = None,
     ) -> RateLimitResult:
         """
         Check if request is within rate limit.
@@ -331,7 +329,7 @@ class RateLimitPolicy:
     async def increment(
         self,
         policy_key: str,
-        unique_key: Optional[str] = None,
+        unique_key: str | None = None,
     ) -> bool:
         """
         Increment the rate limit counter.
@@ -357,7 +355,7 @@ class RateLimitPolicy:
     async def check_and_increment(
         self,
         policy_key: str,
-        unique_key: Optional[str] = None,
+        unique_key: str | None = None,
     ) -> RateLimitResult:
         """
         Check rate limit and increment if allowed.
@@ -395,7 +393,7 @@ class _StubRateLimiter:
 
 def rate_limit(
     policy_key: str,
-    unique_key_extractor: Optional[Callable[..., str]] = None,
+    unique_key_extractor: Callable[..., str] | None = None,
 ) -> Callable[[F], F]:
     """
     Decorator to apply rate limiting to a function.
@@ -422,10 +420,8 @@ def rate_limit(
             # Extract unique key if extractor provided
             unique_key = None
             if unique_key_extractor:
-                try:
+                with suppress(Exception):
                     unique_key = unique_key_extractor(*args, **kwargs)
-                except Exception:
-                    pass
 
             # Check rate limit
             result = await policy.check_and_increment(policy_key, unique_key)
@@ -513,7 +509,7 @@ class RateLimitDep:
                 headers={"Retry-After": str(result.retry_after_seconds or 60)},
             )
 
-    def _get_client_ip(self, request: Request) -> Optional[str]:
+    def _get_client_ip(self, request: Request) -> str | None:
         """Extract client IP from request."""
         forwarded = request.headers.get("X-Forwarded-For")
         if forwarded:
@@ -537,7 +533,7 @@ class RateLimitDep:
 @asynccontextmanager
 async def rate_limit_context(
     policy_key: str,
-    unique_key: Optional[str] = None,
+    unique_key: str | None = None,
 ):
     """
     Async context manager for rate limiting.
@@ -592,7 +588,7 @@ def get_rate_limit_policy() -> RateLimitPolicy:
 
 async def check_rate_limit(
     policy_key: str,
-    unique_key: Optional[str] = None,
+    unique_key: str | None = None,
 ) -> RateLimitResult:
     """
     Check rate limit for a policy.
@@ -609,23 +605,23 @@ async def check_rate_limit(
 
 
 __all__ = [
-    # Service
-    "RateLimitPolicy",
-    "get_rate_limit_policy",
     # Models
     "RateLimitConfig",
-    "RateLimitResult",
-    "RateLimitSettings",
-    # Decorator
-    "rate_limit",
     # Dependency
     "RateLimitDep",
-    # Context Manager
-    "rate_limit_context",
-    # Functions
-    "check_rate_limit",
     # Exceptions
     "RateLimitExceeded",
+    # Service
+    "RateLimitPolicy",
+    "RateLimitResult",
+    "RateLimitSettings",
+    # Functions
+    "check_rate_limit",
+    "get_rate_limit_policy",
+    # Decorator
+    "rate_limit",
+    # Context Manager
+    "rate_limit_context",
 ]
 
 

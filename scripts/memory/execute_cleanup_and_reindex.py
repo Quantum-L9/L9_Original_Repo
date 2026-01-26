@@ -67,7 +67,6 @@ async def delete_trash_embeddings_from_sql():
         sql_content = sql_file.read_text()
 
         # Extract just the DELETE statement
-        delete_sql = None
         embedding_ids = []
 
         for line in sql_content.split("\n"):
@@ -75,7 +74,7 @@ async def delete_trash_embeddings_from_sql():
                 eid = line.strip().rstrip(",").strip("'")
                 embedding_ids.append(eid)
             elif "DELETE FROM semantic_memory" in line:
-                delete_sql = line
+                pass
 
         if not embedding_ids:
             logger.warning("No embedding IDs found in SQL file")

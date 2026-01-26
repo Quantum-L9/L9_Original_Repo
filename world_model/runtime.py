@@ -59,11 +59,12 @@ __dora_meta__ = {
 import asyncio
 import fnmatch
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import aiofiles
@@ -74,14 +75,14 @@ from world_model.registry import WorldModelRegistry
 from world_model.state import Entity, Relation, WorldModelState
 
 if TYPE_CHECKING:
+    from memory.substrate_service import MemorySubstrateService
+    from simulation.simulation_engine import SimulationEngine
+    from world_model.causal_mapper import CausalMapper
     from world_model.engine import WorldModelEngine
     from world_model.knowledge_ingestor import KnowledgeIngestor
-    from world_model.causal_mapper import CausalMapper
     from world_model.reflection_memory import ReflectionMemory
     from world_model.seed_loader import SeedLoader
     from world_model.service import WorldModelService
-    from simulation.simulation_engine import SimulationEngine
-    from memory.substrate_service import MemorySubstrateService
 
 from core.decorators import must_stay_async
 
@@ -135,17 +136,17 @@ class RuntimeConfig:
     # Event loop settings
     poll_interval_seconds: float = 1.0  # How often to poll for new packets
     batch_size: int = 50  # Max packets to process per run_once
-    packet_types: Optional[frozenset[str]] = None  # Filter packet types (None = all)
+    packet_types: frozenset[str] | None = None  # Filter packet types (None = all)
     shutdown_timeout_seconds: float = 5.0  # Graceful shutdown timeout
 
     # Seed loading settings
-    seed_directory: Optional[str] = None  # Custom seed directory
+    seed_directory: str | None = None  # Custom seed directory
     auto_load_seeds: bool = True  # Load seeds on startup
 
     # RLS / tenant scoping
-    tenant_id: Optional[str] = None
-    org_id: Optional[str] = None
-    user_id: Optional[str] = None
+    tenant_id: str | None = None
+    org_id: str | None = None
+    user_id: str | None = None
     role: str = "end_user"
 
     # Simulation settings
@@ -172,9 +173,9 @@ class PacketSource:
     @must_stay_async("callers use await")
     async def fetch_packets(
         self,
-        packet_types: Optional[frozenset[str]] = None,
+        packet_types: frozenset[str] | None = None,
         limit: int = 50,
-        since: Optional[datetime] = None,
+        since: datetime | None = None,
     ) -> list[dict[str, Any]]:
         """
         Fetch new packets from source.
@@ -202,17 +203,17 @@ class MemorySubstratePacketSource(PacketSource):
 
     source_id: str = "memory_substrate"
     source_type: str = "memory_substrate"
-    substrate_service: Optional["MemorySubstrateService"] = None
-    tenant_id: Optional[str] = None
-    org_id: Optional[str] = None
-    user_id: Optional[str] = None
+    substrate_service: MemorySubstrateService | None = None
+    tenant_id: str | None = None
+    org_id: str | None = None
+    user_id: str | None = None
     role: str = "end_user"
 
     @staticmethod
     def _ensure_scope(
-        tenant_id: Optional[str],
-        org_id: Optional[str],
-        user_id: Optional[str],
+        tenant_id: str | None,
+        org_id: str | None,
+        user_id: str | None,
     ) -> None:
         if not tenant_id or not org_id or not user_id:
             raise RuntimeError(
@@ -222,9 +223,9 @@ class MemorySubstratePacketSource(PacketSource):
 
     async def fetch_packets(
         self,
-        packet_types: Optional[frozenset[str]] = None,
+        packet_types: frozenset[str] | None = None,
         limit: int = 50,
-        since: Optional[datetime] = None,
+        since: datetime | None = None,
     ) -> list[dict[str, Any]]:
         """Fetch packets from Memory Substrate."""
         if not self.substrate_service:
@@ -265,8 +266,8 @@ class UpdateRecord:
     update_id: UUID = field(default_factory=uuid4)
     update_type: str = ""  # entity_add, entity_update, relation_add, etc.
     target_id: str = ""
-    old_value: Optional[dict[str, Any]] = None
-    new_value: Optional[dict[str, Any]] = None
+    old_value: dict[str, Any] | None = None
+    new_value: dict[str, Any] | None = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
     source: str = ""
 
@@ -288,7 +289,7 @@ class RuntimeStats:
     queries_processed: int = 0
     checkpoints_created: int = 0
     errors_encountered: int = 0
-    last_update_at: Optional[datetime] = None
+    last_update_at: datetime | None = None
     uptime_seconds: float = 0.0
     seeds_loaded: int = 0
     simulations_run: int = 0
@@ -301,10 +302,10 @@ class RuntimeStats:
 class QueryPattern:
     """Pattern specification for queries."""
 
-    entity_type: Optional[str] = None
-    attribute_pattern: Optional[dict[str, Any]] = None
-    relation_type: Optional[str] = None
-    tags: Optional[list[str]] = None
+    entity_type: str | None = None
+    attribute_pattern: dict[str, Any] | None = None
+    relation_type: str | None = None
+    tags: list[str] | None = None
     min_confidence: float = 0.0
     limit: int = 100
     include_relations: bool = False
@@ -351,12 +352,12 @@ class WorldModelRuntime:
 
     def __init__(
         self,
-        config: Optional[RuntimeConfig] = None,
-        state: Optional[WorldModelState] = None,
-        engine: Optional["WorldModelEngine"] = None,
-        packet_source: Optional[PacketSource] = None,
-        simulation_engine: Optional["SimulationEngine"] = None,
-        substrate_service: Optional["MemorySubstrateService"] = None,
+        config: RuntimeConfig | None = None,
+        state: WorldModelState | None = None,
+        engine: WorldModelEngine | None = None,
+        packet_source: PacketSource | None = None,
+        simulation_engine: SimulationEngine | None = None,
+        substrate_service: MemorySubstrateService | None = None,
     ):
         """
         Initialize the runtime.
@@ -371,7 +372,7 @@ class WorldModelRuntime:
         """
         self._config = config or RuntimeConfig()
         self._state = state or WorldModelState()
-        self._causal_graph: Optional[CausalGraph] = None
+        self._causal_graph: CausalGraph | None = None
         self._registry = WorldModelRegistry()
         self._engine = engine
         self._packet_source = packet_source or PacketSource()
@@ -388,13 +389,13 @@ class WorldModelRuntime:
 
         # Event loop state
         self._running = False
-        self._shutdown_event: Optional[asyncio.Event] = None
-        self._last_poll_time: Optional[datetime] = None
+        self._shutdown_event: asyncio.Event | None = None
+        self._last_poll_time: datetime | None = None
         self._packets_processed_total = 0
         self._run_iteration = 0
 
         # Seed loading state
-        self._seed_loader: Optional["SeedLoader"] = None
+        self._seed_loader: SeedLoader | None = None
         self._seeds_loaded = False
 
         # Pattern and heuristic indices
@@ -402,15 +403,15 @@ class WorldModelRuntime:
         self._heuristic_index: dict[str, list[str]] = {}  # category -> heuristic_ids
 
         # Runtime components (lazy initialized)
-        self._ingestor: Optional["KnowledgeIngestor"] = None
-        self._causal_mapper: Optional["CausalMapper"] = None
-        self._reflection_memory: Optional["ReflectionMemory"] = None
+        self._ingestor: KnowledgeIngestor | None = None
+        self._causal_mapper: CausalMapper | None = None
+        self._reflection_memory: ReflectionMemory | None = None
 
         # Substrate service (passed in to avoid creating duplicate with stub embeddings)
-        self._substrate_service: Optional["MemorySubstrateService"] = substrate_service
+        self._substrate_service: MemorySubstrateService | None = substrate_service
 
         # World Model Service for DB-backed entity persistence (wired via set_world_model_service)
-        self._world_model_service: Optional["WorldModelService"] = None
+        self._world_model_service: WorldModelService | None = None
 
         if isinstance(self._packet_source, MemorySubstratePacketSource):
             self._packet_source.tenant_id = self._config.tenant_id
@@ -420,7 +421,7 @@ class WorldModelRuntime:
 
         logger.info("WorldModelRuntime initialized (v2.1.0 with DB sync)")
 
-    def set_world_model_service(self, service: "WorldModelService") -> None:
+    def set_world_model_service(self, service: WorldModelService) -> None:
         """
         Set WorldModelService for DB-backed entity persistence.
 
@@ -442,7 +443,7 @@ class WorldModelRuntime:
 
     async def load_seed_library(
         self,
-        seed_dir: Optional[str] = None,
+        seed_dir: str | None = None,
         write_to_substrate: bool = True,
     ) -> dict[str, Any]:
         """
@@ -601,7 +602,7 @@ class WorldModelRuntime:
             self._heuristic_index[category].append(entity_id)
 
     @must_stay_async("callers use await")
-    async def _load_reflection_seeds(self, seed_dir: Optional[str]) -> int:
+    async def _load_reflection_seeds(self, seed_dir: str | None) -> int:
         """Load reflection memory seeds if available."""
         if not seed_dir:
             # Use default seed directory
@@ -616,7 +617,7 @@ class WorldModelRuntime:
         try:
             import yaml
 
-            async with aiofiles.open(reflection_file, "r", encoding="utf-8") as f:
+            async with aiofiles.open(reflection_file, encoding="utf-8") as f:
                 data = yaml.safe_load(await f.read())
 
             if not data:
@@ -867,7 +868,7 @@ class WorldModelRuntime:
         async with self._lock:
             try:
                 packet_type = packet.get("packet_type", packet.get("kind", "unknown"))
-                payload = packet.get("payload", packet)
+                packet.get("payload", packet)
 
                 # Initialize ingestor if needed
                 if not self._ingestor:
@@ -1302,7 +1303,7 @@ class WorldModelRuntime:
     @must_stay_async("callers use await")
     async def consolidate_reflections(
         self,
-        min_reflections: Optional[int] = None,
+        min_reflections: int | None = None,
     ) -> dict[str, Any]:
         """
         Consolidate and summarize reflections.
@@ -1571,6 +1572,7 @@ class WorldModelRuntime:
                 return {"success": False, "error": str(e)}
 
         self._mode = RuntimeMode.RUNNING
+        return None
 
     def _record_update(self, record: UpdateRecord) -> None:
         """Record an update in history."""
@@ -1666,12 +1668,12 @@ class WorldModelRuntime:
         """Get current state."""
         return self._state
 
-    def get_entity(self, entity_id: str) -> Optional[Entity]:
+    def get_entity(self, entity_id: str) -> Entity | None:
         """Get entity by ID."""
         self._stats.queries_processed += 1
         return self._state.get_entity(entity_id) if self._state else None
 
-    def get_relation(self, relation_id: str) -> Optional[Relation]:
+    def get_relation(self, relation_id: str) -> Relation | None:
         """Get relation by ID."""
         self._stats.queries_processed += 1
         return self._state.get_relation(relation_id) if self._state else None
@@ -1805,7 +1807,7 @@ class WorldModelRuntime:
 
     async def run_forever(
         self,
-        on_iteration: Optional[Callable[[dict[str, Any]], None]] = None,
+        on_iteration: Callable[[dict[str, Any]], None] | None = None,
     ) -> None:
         """
         Run the runtime loop continuously until stopped.
@@ -1869,7 +1871,7 @@ class WorldModelRuntime:
                             timeout=self._config.poll_interval_seconds,
                         )
                         break  # Shutdown signaled
-                except asyncio.TimeoutError:
+                except TimeoutError:
                     pass  # Normal timeout, continue loop
 
         except asyncio.CancelledError:
@@ -1884,7 +1886,7 @@ class WorldModelRuntime:
                 f"{self._packets_processed_total} packets processed"
             )
 
-    async def stop(self, timeout: Optional[float] = None) -> None:
+    async def stop(self, timeout: float | None = None) -> None:
         """
         Stop the runtime loop gracefully.
 
@@ -1910,7 +1912,7 @@ class WorldModelRuntime:
             logger.warning("Forced runtime shutdown after timeout")
             self._running = False
 
-    def set_engine(self, engine: "WorldModelEngine") -> None:
+    def set_engine(self, engine: WorldModelEngine) -> None:
         """Set the WorldModelEngine instance."""
         self._engine = engine
 
@@ -1918,7 +1920,7 @@ class WorldModelRuntime:
         """Set the packet source for ingestion."""
         self._packet_source = source
 
-    def set_simulation_engine(self, engine: "SimulationEngine") -> None:
+    def set_simulation_engine(self, engine: SimulationEngine) -> None:
         """Set the simulation engine."""
         self._simulation_engine = engine
 
@@ -1945,9 +1947,9 @@ class WorldModelRuntime:
 
 
 async def create_runtime_with_substrate(
-    substrate_service: "MemorySubstrateService",
-    engine: Optional["WorldModelEngine"] = None,
-    config: Optional[RuntimeConfig] = None,
+    substrate_service: MemorySubstrateService,
+    engine: WorldModelEngine | None = None,
+    config: RuntimeConfig | None = None,
 ) -> WorldModelRuntime:
     """
     Create a WorldModelRuntime wired to the Memory Substrate.
@@ -2013,11 +2015,11 @@ async def create_runtime_with_substrate(
 
 
 # Singleton for global access
-_global_runtime: Optional[WorldModelRuntime] = None
+_global_runtime: WorldModelRuntime | None = None
 
 
 async def get_or_create_runtime(
-    substrate_service: Optional["MemorySubstrateService"] = None,
+    substrate_service: MemorySubstrateService | None = None,
 ) -> WorldModelRuntime:
     """
     Get or create the global WorldModelRuntime singleton.

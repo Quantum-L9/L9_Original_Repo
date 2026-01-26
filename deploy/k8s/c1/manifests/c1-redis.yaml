@@ -39,55 +39,55 @@ spec:
         app: l9-redis
     spec:
       containers:
-      - name: redis
-        image: redis:7-alpine
-        command:
-          - redis-server
-          - --appendonly
-          - "yes"
-          - --maxmemory
-          - "400mb"
-          - --maxmemory-policy
-          - allkeys-lru
-          - --tcp-backlog
-          - "128"
-          - --timeout
-          - "0"
-          - --tcp-keepalive
-          - "300"
-        ports:
-        - containerPort: 6379
-          name: redis
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        volumeMounts:
-        - name: redis-data
-          mountPath: /data
-        livenessProbe:
-          exec:
-            command:
-            - redis-cli
-            - ping
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 5
-        readinessProbe:
-          exec:
-            command:
-            - redis-cli
-            - ping
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          timeoutSeconds: 3
+        - name: redis
+          image: redis:7-alpine
+          command:
+            - redis-server
+            - --appendonly
+            - "yes"
+            - --maxmemory
+            - "400mb"
+            - --maxmemory-policy
+            - allkeys-lru
+            - --tcp-backlog
+            - "128"
+            - --timeout
+            - "0"
+            - --tcp-keepalive
+            - "300"
+          ports:
+            - containerPort: 6379
+              name: redis
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
       volumes:
-      - name: redis-data
-        persistentVolumeClaim:
-          claimName: redis-data-pvc
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: redis-data-pvc
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -114,10 +114,9 @@ spec:
   selector:
     app: l9-redis
   ports:
-  - port: 6379
-    targetPort: 6379
-    name: redis
-
+    - port: 6379
+      targetPort: 6379
+      name: redis
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -41,10 +41,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from time import perf_counter
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -87,10 +87,10 @@ class MasterExecutionResult(BaseModel):
     status: str  # "success" | "partial" | "failure"
     subsystems_executed: int
     subsystems_failed: int
-    results: dict[str, Optional[dict[str, Any]]] = Field(default_factory=dict)
+    results: dict[str, dict[str, Any] | None] = Field(default_factory=dict)
     total_duration_ms: float = 0.0
     started_at: datetime
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
     errors: list[str] = Field(default_factory=list)
 
 
@@ -117,8 +117,8 @@ class MasterOrchestrator:
     def __init__(
         self,
         master_config_path: str = "config/subsystems/master.yaml",
-        pattern_path: Optional[str] = None,
-        agent: Optional[CellAgentAdapter] = None,
+        pattern_path: str | None = None,
+        agent: CellAgentAdapter | None = None,
     ):
         """
         Initialize the master orchestrator.
@@ -170,16 +170,16 @@ class MasterOrchestrator:
             name for name, cfg in self._master_config.subsystems.items() if cfg.enabled
         ]
 
-    def get_subsystem_config(self, name: str) -> Optional[SubsystemEntry]:
+    def get_subsystem_config(self, name: str) -> SubsystemEntry | None:
         """Get configuration for a specific subsystem."""
         return self._master_config.subsystems.get(name)
 
     async def execute_all(
         self,
-        user_prompts: Optional[list[str]] = None,
-        context: Optional[dict[str, Any]] = None,
+        user_prompts: list[str] | None = None,
+        context: dict[str, Any] | None = None,
         dry_run: bool = False,
-        subsystems: Optional[list[str]] = None,
+        subsystems: list[str] | None = None,
     ) -> MasterExecutionResult:
         """
         Execute pipelines for all enabled subsystems.
@@ -199,7 +199,7 @@ class MasterOrchestrator:
             MasterExecutionResult with aggregated results
         """
         trace_id = str(uuid4())
-        started_at = datetime.now(timezone.utc)
+        started_at = datetime.now(UTC)
         start_time = perf_counter()
 
         # Determine which subsystems to run
@@ -212,7 +212,7 @@ class MasterOrchestrator:
             dry_run=dry_run,
         )
 
-        results: dict[str, Optional[dict[str, Any]]] = {}
+        results: dict[str, dict[str, Any] | None] = {}
         errors: list[str] = []
 
         # Phase 1: Execute code_mutation first (sequential, blocks others)
@@ -273,9 +273,11 @@ class MasterOrchestrator:
                 *parallel_tasks, return_exceptions=True
             )
 
-            for subsystem, result in zip(parallel_subsystems, parallel_results):
+            for subsystem, result in zip(
+                parallel_subsystems, parallel_results, strict=False
+            ):
                 if isinstance(result, Exception):
-                    errors.append(f"{subsystem} failed: {str(result)}")
+                    errors.append(f"{subsystem} failed: {result!s}")
                     results[subsystem] = {"status": "failure", "error": str(result)}
                 else:
                     results[subsystem] = result
@@ -283,7 +285,7 @@ class MasterOrchestrator:
                         errors.append(f"{subsystem} failed: {result.get('error')}")
 
         # Calculate final status
-        completed_at = datetime.now(timezone.utc)
+        completed_at = datetime.now(UTC)
         total_duration_ms = (perf_counter() - start_time) * 1000
 
         successful = sum(
@@ -322,11 +324,11 @@ class MasterOrchestrator:
     async def _execute_subsystem(
         self,
         subsystem_name: str,
-        user_prompts: Optional[list[str]] = None,
-        context: Optional[dict[str, Any]] = None,
+        user_prompts: list[str] | None = None,
+        context: dict[str, Any] | None = None,
         dry_run: bool = False,
         trace_id: str = "",
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Execute the pipeline for a single subsystem.
 
@@ -380,10 +382,10 @@ class MasterOrchestrator:
     async def execute_subsystem(
         self,
         subsystem_name: str,
-        user_prompts: Optional[list[str]] = None,
-        context: Optional[dict[str, Any]] = None,
+        user_prompts: list[str] | None = None,
+        context: dict[str, Any] | None = None,
         dry_run: bool = False,
-    ) -> Optional[dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """
         Execute the pipeline for a single named subsystem.
 
@@ -415,7 +417,7 @@ class MasterOrchestrator:
 
 def create_master_orchestrator(
     master_config_path: str = "config/subsystems/master.yaml",
-    pattern_path: Optional[str] = None,
+    pattern_path: str | None = None,
 ) -> MasterOrchestrator:
     """
     Factory function to create a MasterOrchestrator.

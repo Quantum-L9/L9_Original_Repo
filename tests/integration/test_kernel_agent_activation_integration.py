@@ -36,10 +36,14 @@ class TestKernelAgentActivationIntegration:
         """Agent executor receives kernel-generated prompt."""
         with patch("core.agents.executor.get_substrate_service"):
             with patch("core.agents.executor.get_redis_client"):
-                from core.agents.executor import AgentExecutorService
                 from tests.core.agents.test_executor import (
-                    MockAgentRegistry, MockAIOSRuntime, MockSubstrateService,
-                    MockToolRegistry)
+                    MockAgentRegistry,
+                    MockAIOSRuntime,
+                    MockSubstrateService,
+                    MockToolRegistry,
+                )
+
+                from core.agents.executor import AgentExecutorService
 
                 executor = AgentExecutorService(
                     aios_runtime=MockAIOSRuntime(),
@@ -57,8 +61,7 @@ class TestKernelAgentActivationIntegration:
 
     def test_kernel_prompt_builder_integration(self):
         """Prompt builder uses kernel data."""
-        from core.kernels.prompt_builder import \
-            build_system_prompt_from_kernels
+        from core.kernels.prompt_builder import build_system_prompt_from_kernels
 
         prompt = build_system_prompt_from_kernels()
 

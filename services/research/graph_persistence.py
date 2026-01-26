@@ -49,7 +49,7 @@ __dora_meta__ = {
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, TypedDict
 
 import structlog
 
@@ -83,10 +83,10 @@ class ResearchFinding(TypedDict, total=False):
     confidence: float
     source_query: str
     source_agent: str
-    key_facts: List[str]
-    tags: List[str]
+    key_facts: list[str]
+    tags: list[str]
     timestamp: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
 
 
 # =============================================================================
@@ -189,7 +189,7 @@ class ResearchGraphPersistence:
     def __init__(
         self,
         neo4j_client: Any,
-        config: Optional[GraphPersistenceConfig] = None,
+        config: GraphPersistenceConfig | None = None,
     ):
         """
         Initialize Research Graph Persistence.
@@ -372,7 +372,7 @@ class ResearchGraphPersistence:
         finding_type: FindingType,
         min_confidence: float = 0.5,
         limit: int = 10,
-    ) -> List[ResearchFinding]:
+    ) -> list[ResearchFinding]:
         """
         Retrieve findings by type.
 
@@ -429,7 +429,7 @@ class ResearchGraphPersistence:
         self,
         query_text: str,
         limit: int = 10,
-    ) -> List[ResearchFinding]:
+    ) -> list[ResearchFinding]:
         """
         Get all findings produced by a specific query.
 
@@ -484,10 +484,10 @@ class ResearchGraphPersistence:
     @must_stay_async("callers use await")
     async def persist_evidence_as_findings(
         self,
-        evidence_list: List[Dict[str, Any]],
+        evidence_list: list[dict[str, Any]],
         source_query: str,
         source_agent: str = "researcher",
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Persist a list of Evidence objects as typed findings.
 
@@ -548,7 +548,7 @@ class ResearchGraphPersistence:
 
         return finding_ids
 
-    def _classify_finding_type(self, evidence: Dict[str, Any]) -> FindingType:
+    def _classify_finding_type(self, evidence: dict[str, Any]) -> FindingType:
         """
         Classify finding type based on evidence content.
 
@@ -591,7 +591,7 @@ class ResearchGraphPersistence:
 
 def create_graph_persistence(
     neo4j_client: Any,
-    config: Optional[GraphPersistenceConfig] = None,
+    config: GraphPersistenceConfig | None = None,
 ) -> ResearchGraphPersistence:
     """
     Factory function to create ResearchGraphPersistence.
@@ -615,17 +615,17 @@ def create_graph_persistence(
 # Singleton Instance
 # =============================================================================
 
-_persistence: Optional[ResearchGraphPersistence] = None
+_persistence: ResearchGraphPersistence | None = None
 
 
-def get_graph_persistence() -> Optional[ResearchGraphPersistence]:
+def get_graph_persistence() -> ResearchGraphPersistence | None:
     """Get the singleton persistence instance."""
     return _persistence
 
 
 def init_graph_persistence(
     neo4j_client: Any,
-    config: Optional[GraphPersistenceConfig] = None,
+    config: GraphPersistenceConfig | None = None,
 ) -> ResearchGraphPersistence:
     """Initialize the singleton persistence instance."""
     global _persistence

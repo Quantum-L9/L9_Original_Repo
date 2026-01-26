@@ -29,13 +29,13 @@ All other modules depend on control_plane.settings.
 
 from control_plane.config import Settings, get_settings
 from control_plane.feature_flags import FeatureFlagService
-from control_plane.secrets import SecretProvider
 from control_plane.policies import PolicyBundleRegistry
+from control_plane.secrets import SecretProvider
 
 __all__ = [
+    "FeatureFlagService",
+    "PolicyBundleRegistry",
+    "SecretProvider",
     "Settings",
     "get_settings",
-    "FeatureFlagService",
-    "SecretProvider",
-    "PolicyBundleRegistry",
 ]

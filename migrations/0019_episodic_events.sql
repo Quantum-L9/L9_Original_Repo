@@ -16,45 +16,45 @@
 CREATE TABLE IF NOT EXISTS episodic_events (
     -- Primary key
     event_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    
+
     -- Ownership (multi-tenant)
     tenant_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
     org_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
     user_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
     agent_id TEXT,  -- Which agent observed this event
-    
+
     -- Event content
     observation TEXT NOT NULL,  -- What happened (human-readable description)
     event_type TEXT DEFAULT 'general',  -- Type categorization
-    
+
     -- Temporal information (CRITICAL for episodic memory)
     event_timestamp TIMESTAMP WITH TIME ZONE NOT NULL,  -- When the event occurred
     duration_seconds INTEGER,  -- How long the event lasted (if applicable)
-    
+
     -- Entity references (for linking to semantic facts)
     entities TEXT[] DEFAULT '{}',  -- Entities involved (names, IDs, concepts)
-    
+
     -- Context and outcome
     context JSONB DEFAULT '{}'::jsonb,  -- Additional context (location, task, etc.)
     outcome TEXT,  -- What was the result/outcome
-    
+
     -- Importance and ranking
     severity DOUBLE PRECISION DEFAULT 0.5 CHECK (severity >= 0.0 AND severity <= 1.0),
     impact_score DOUBLE PRECISION DEFAULT 0.5 CHECK (impact_score >= 0.0 AND impact_score <= 1.0),
-    
+
     -- Lineage (optional link to packet that generated this event)
     source_packet_id UUID REFERENCES packet_store(packet_id) ON DELETE SET NULL,
     parent_event_id UUID REFERENCES episodic_events(event_id) ON DELETE SET NULL,
-    
+
     -- Session/thread grouping
     session_id UUID,  -- Group events by session
     thread_id UUID REFERENCES packet_store(thread_id) ON DELETE SET NULL,
-    
+
     -- Decay and retention
     decay_factor DOUBLE PRECISION DEFAULT 1.0,  -- Starts at 1.0, decays over time
     last_recalled TIMESTAMP WITH TIME ZONE,  -- When was this event last retrieved
     recall_count INTEGER DEFAULT 0,  -- How many times retrieved
-    
+
     -- Timestamps
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -68,18 +68,18 @@ CREATE TABLE IF NOT EXISTS episodic_events (
 CREATE TABLE IF NOT EXISTS episodic_semantic_links (
     -- Composite primary key
     link_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    
+
     -- Foreign keys
     event_id UUID NOT NULL REFERENCES episodic_events(event_id) ON DELETE CASCADE,
     fact_id UUID NOT NULL REFERENCES semantic_facts(fact_id) ON DELETE CASCADE,
-    
+
     -- Link metadata
     relationship_type TEXT DEFAULT 'involves',  -- Type of relationship
     strength DOUBLE PRECISION DEFAULT 1.0 CHECK (strength >= 0.0 AND strength <= 1.0),
-    
+
     -- Timestamps
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
+
     -- Unique constraint (one link per event-fact pair)
     CONSTRAINT uq_episodic_semantic_link UNIQUE (event_id, fact_id)
 );
@@ -175,7 +175,7 @@ BEGIN
     UPDATE episodic_events
     SET decay_factor = POWER(2.0, -EXTRACT(EPOCH FROM (NOW() - event_timestamp)) / 86400.0 / half_life_days)
     WHERE decay_factor > 0.01;  -- Don't update nearly-zero values
-    
+
     GET DIAGNOSTICS updated_count = ROW_COUNT;
     RETURN updated_count;
 END;

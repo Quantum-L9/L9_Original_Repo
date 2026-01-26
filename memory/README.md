@@ -61,18 +61,18 @@ Multi-layer memory with PacketEnvelope storage, semantic search, and audit trail
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                    | Purpose          |
+| ------------------------- | ---------------- |
 | `core/agents/executor.py` | Uses this module |
-| `api/memory/router.py` | Uses this module |
-| `mcp_memory/src/` | Uses this module |
+| `api/memory/router.py`    | Uses this module |
+| `mcp_memory/src/`         | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                    | Purpose             |
+| ------------------------- | ------------------- |
 | `runtime/redis_client.py` | Required dependency |
-| `config/di_config.py` | Required dependency |
+| `config/di_config.py`     | Required dependency |
 
 ---
 
@@ -98,18 +98,18 @@ memory/
 └── ... (65 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `substrate_service.py` | MemorySubstrateService - core ingestion, search, retrieval (PROTECTED) |
-| `substrate_dag.py` | Ingestion DAG and processing pipeline (PROTECTED) |
-| `substrate_models.py` | PacketEnvelope and data models (PROTECTED) |
-| `retrieval.py` | Memory retrieval strategies and ranking |
-| `semantic_search.py` | Vector-based semantic search implementation |
-| `context_builder.py` | Context assembly for agent execution |
-| `insight_extraction.py` | Pattern recognition and insight mining |
-| `consolidation.py` | Memory consolidation and cleanup workflows |
-| `deduplication.py` | Deduplication engine for packet uniqueness |
-| `graph_memory.py` | Neo4j graph memory adapter |
+| File                    | Purpose                                                                |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `substrate_service.py`  | MemorySubstrateService - core ingestion, search, retrieval (PROTECTED) |
+| `substrate_dag.py`      | Ingestion DAG and processing pipeline (PROTECTED)                      |
+| `substrate_models.py`   | PacketEnvelope and data models (PROTECTED)                             |
+| `retrieval.py`          | Memory retrieval strategies and ranking                                |
+| `semantic_search.py`    | Vector-based semantic search implementation                            |
+| `context_builder.py`    | Context assembly for agent execution                                   |
+| `insight_extraction.py` | Pattern recognition and insight mining                                 |
+| `consolidation.py`      | Memory consolidation and cleanup workflows                             |
+| `deduplication.py`      | Deduplication engine for packet uniqueness                             |
+| `graph_memory.py`       | Neo4j graph memory adapter                                             |
 
 ### Naming Conventions
 
@@ -127,7 +127,7 @@ memory/
 ```python
 class CrossEncoderConfig:
     """Configuration for cross-encoder re-ranking."""
-    
+
     # Key methods:
 
 ```
@@ -139,7 +139,7 @@ class CrossEncoderConfig:
 ```python
 class RerankingResult:
     """Result from cross-encoder re-ranking."""
-    
+
     # Key methods:
 
 ```
@@ -151,7 +151,7 @@ class RerankingResult:
 ```python
 class CrossEncoderReranker:
     """Cross-encoder based neural re-ranker for improved retrieval quality."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -175,7 +175,7 @@ class CrossEncoderReranker:
 ```python
 class GapSeverity:
     """Enumeration of knowledge gap severity levels."""
-    
+
     # Key methods:
 
 ```
@@ -187,13 +187,12 @@ class GapSeverity:
 ```python
 class KnowledgeGap:
     """Represents a detected knowledge gap with metadata for prioritization."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 61-72 in `warming_models.py`
-
 
 ---
 
@@ -246,7 +245,6 @@ class MemoryResponse(BaseModel):
 3. **Index loading:** Load vector indices for semantic search.
 4. **Ready:** Service ready to accept ingestion and search requests.
 
-
 ### Main Execution
 
 1. **Ingestion:** Receive PacketEnvelope → validate → check dedup → store.
@@ -254,13 +252,11 @@ class MemoryResponse(BaseModel):
 3. **Graph sync:** Sync to Neo4j if graph_memory enabled.
 4. **Search:** Vector search → rank results → return with metadata.
 
-
 ### Shutdown
 
 1. **Flush:** Complete pending writes.
 2. **Disconnect:** Close database connections gracefully.
 3. **Log:** Emit shutdown complete event.
-
 
 ### Background Tasks
 
@@ -274,9 +270,9 @@ Embedding generation, graph sync, and consolidation run as background tasks.
 
 ```yaml
 # Memory feature flags
-L9_ENABLE_MEMORY_TRACING: true  # Enable detailed tracing
-L9_ENABLE_MEMORY_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_MEMORY_AUDIT: true    # Enable audit logging
+L9_ENABLE_MEMORY_TRACING: true # Enable detailed tracing
+L9_ENABLE_MEMORY_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_MEMORY_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -338,7 +334,6 @@ Main entrypoint for smoke test.
 - **File:** `smoke_test.py:136`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -369,7 +364,6 @@ for r in results:
     print(r.packet_id, r.similarity, r.payload)
 ```
 
-
 ---
 
 ## Observability
@@ -391,6 +385,7 @@ Memory operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -398,12 +393,12 @@ Memory operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                         | Type      | Description                    |
+| ------------------------------ | --------- | ------------------------------ |
 | `memory_operation_duration_ms` | Histogram | Operation latency distribution |
-| `memory_operation_total` | Counter | Total operations processed |
-| `memory_error_total` | Counter | Total errors encountered |
-| `memory_active_connections` | Gauge | Current active connections |
+| `memory_operation_total`       | Counter   | Total operations processed     |
+| `memory_error_total`           | Counter   | Total errors encountered       |
+| `memory_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -421,6 +416,7 @@ Memory emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/memory/`:
+
 - `test_memory.py` — Core unit tests
 - `test_memory_integration.py` — Integration tests (if applicable)
 
@@ -477,6 +473,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

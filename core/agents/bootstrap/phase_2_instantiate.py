@@ -44,7 +44,7 @@ import json
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -75,21 +75,21 @@ class BootstrapInstanceData:
     instance_id: str
     agent_id: str
     name: str
-    config: "AgentConfig"
+    config: AgentConfig
     kernel_state: str = "LOADING"
     status: str = "INITIALIZING"
     created_at: datetime = field(default_factory=datetime.utcnow)
-    initialized_at: Optional[datetime] = None
-    initialization_signature: Optional[str] = None
-    designation: Optional[str] = None
-    role: Optional[str] = None
-    mission: Optional[str] = None
-    authority: Optional[str] = None
+    initialized_at: datetime | None = None
+    initialization_signature: str | None = None
+    designation: str | None = None
+    role: str | None = None
+    mission: str | None = None
+    authority: str | None = None
 
 
 async def instantiate_agent(
-    config: "AgentConfig",
-    substrate_service: "MemorySubstrateService",
+    config: AgentConfig,
+    substrate_service: MemorySubstrateService,
 ) -> BootstrapInstanceData:
     """
     Create bootstrap instance data and register agent in Neo4j.

@@ -38,6 +38,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from api.slack_client import SlackClientError
+
 # Import the tool under test
 from runtime.l_tools import slack_send
 

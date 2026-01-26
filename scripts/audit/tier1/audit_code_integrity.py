@@ -48,13 +48,14 @@ __dora_meta__ = {
 
 import ast
 import asyncio
+import contextlib
 import hashlib
 import json
 import re
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any
 
 import structlog
 
@@ -171,7 +172,7 @@ class UncalledFunction:
     name: str
     line_num: int
     filepath: Path
-    skip_reason: Optional[str] = None
+    skip_reason: str | None = None
     is_private: bool = False
 
 
@@ -182,10 +183,10 @@ class OrphanClass:
     name: str
     line_num: int
     filepath: Path
-    base_classes: List[str] = field(default_factory=list)
-    methods: List[str] = field(default_factory=list)
+    base_classes: list[str] = field(default_factory=list)
+    methods: list[str] = field(default_factory=list)
     is_stub: bool = False
-    stub_reason: Optional[str] = None
+    stub_reason: str | None = None
     caller_count: int = 0
 
 
@@ -193,19 +194,19 @@ class OrphanClass:
 class CircularImport:
     """Circular import finding."""
 
-    chain: List[str]  # A → B → C → A
-    files: List[str]
+    chain: list[str]  # A → B → C → A
+    files: list[str]
 
 
 @dataclass
 class AuditReport:
     """Complete integrity audit report."""
 
-    uncalled_functions: List[UncalledFunction] = field(default_factory=list)
-    orphan_classes: List[OrphanClass] = field(default_factory=list)
-    circular_imports: List[CircularImport] = field(default_factory=list)
-    summary: Dict[str, Any] = field(default_factory=dict)
-    call_graph_edges: List[CallGraphEdge] = field(default_factory=list)
+    uncalled_functions: list[UncalledFunction] = field(default_factory=list)
+    orphan_classes: list[OrphanClass] = field(default_factory=list)
+    circular_imports: list[CircularImport] = field(default_factory=list)
+    summary: dict[str, Any] = field(default_factory=dict)
+    call_graph_edges: list[CallGraphEdge] = field(default_factory=list)
 
 
 # =============================================================================
@@ -218,8 +219,8 @@ class CallGraphBuilder(ast.NodeVisitor):
 
     def __init__(self, filepath: str):
         self.filepath = filepath
-        self.calls: List[CallGraphEdge] = []
-        self.definitions: Dict[str, Tuple[int, str]] = {}  # name -> (line, type)
+        self.calls: list[CallGraphEdge] = []
+        self.definitions: dict[str, tuple[int, str]] = {}  # name -> (line, type)
         self.current_scope = None
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
@@ -296,11 +297,11 @@ class StubDetector(ast.NodeVisitor):
     def __init__(self, source_code: str):
         self.source_code = source_code
         self.source_lines = source_code.splitlines()
-        self.stubs: Dict[str, Tuple[bool, Optional[str]]] = {}
+        self.stubs: dict[str, tuple[bool, str | None]] = {}
 
     def check_is_stub(
-        self, node: Union[ast.ClassDef, ast.FunctionDef]
-    ) -> Tuple[bool, Optional[str]]:
+        self, node: ast.ClassDef | ast.FunctionDef
+    ) -> tuple[bool, str | None]:
         """Check if class or function is a stub."""
         try:
             start = node.lineno - 1
@@ -377,7 +378,7 @@ class CacheManager:
             sha.update(f.read())
         return sha.hexdigest()
 
-    def load_manifest(self) -> Dict[str, FileHashEntry]:
+    def load_manifest(self) -> dict[str, FileHashEntry]:
         """Load cache manifest."""
         if not CACHE_MANIFEST.exists():
             return {}
@@ -387,12 +388,12 @@ class CacheManager:
         except (json.JSONDecodeError, TypeError):
             return {}
 
-    def save_manifest(self, manifest: Dict[str, FileHashEntry]):
+    def save_manifest(self, manifest: dict[str, FileHashEntry]):
         """Save cache manifest."""
         data = {k: asdict(v) for k, v in manifest.items()}
         CACHE_MANIFEST.write_text(json.dumps(data, indent=2))
 
-    def get_modified_files(self, all_files: List[Path]) -> Set[Path]:
+    def get_modified_files(self, all_files: list[Path]) -> set[Path]:
         """Return only modified files since last run."""
         manifest = self.load_manifest()
         modified = set()
@@ -414,7 +415,7 @@ class CacheManager:
         """Path to content index hash."""
         return self.cache_dir / "content_index_hash.txt"
 
-    def compute_manifest_hash(self, all_files: List[Path]) -> str:
+    def compute_manifest_hash(self, all_files: list[Path]) -> str:
         """Compute hash of all file hashes combined."""
         manifest = self.load_manifest()
         combined = ""
@@ -427,7 +428,7 @@ class CacheManager:
                 combined += f"{rel_path}:{self.get_file_hash(filepath)}\n"
         return hashlib.sha256(combined.encode()).hexdigest()
 
-    def load_content_index(self, all_files: List[Path]) -> Optional[str]:
+    def load_content_index(self, all_files: list[Path]) -> str | None:
         """Load cached content index if valid."""
         hash_path = self.get_content_index_hash_path()
         index_path = self.get_content_index_path()
@@ -447,7 +448,7 @@ class CacheManager:
 
         return None
 
-    def save_content_index(self, all_files: List[Path], content: str):
+    def save_content_index(self, all_files: list[Path], content: str):
         """Save content index to cache."""
         try:
             hash_path = self.get_content_index_hash_path()
@@ -464,7 +465,7 @@ class CacheManager:
         """Path to analysis results cache."""
         return self.cache_dir / "analysis_results.json"
 
-    def load_results(self) -> Optional[Dict]:
+    def load_results(self) -> dict | None:
         """Load cached analysis results if content index unchanged."""
         results_path = self.get_results_cache_path()
         hash_path = self.get_content_index_hash_path()
@@ -485,7 +486,7 @@ class CacheManager:
 
         return None
 
-    def save_results(self, uncalled: List, orphans: List, circular: List):
+    def save_results(self, uncalled: list, orphans: list, circular: list):
         """Save analysis results to cache."""
         try:
             results_path = self.get_results_cache_path()
@@ -515,7 +516,7 @@ class CacheManager:
         except Exception as e:
             logger.warning(f"Failed to save results cache: {e}")
 
-    def update_manifest(self, all_files: List[Path]):
+    def update_manifest(self, all_files: list[Path]):
         """Update manifest with current file hashes."""
         manifest = self.load_manifest()
 
@@ -545,14 +546,10 @@ def should_skip_file(filepath: Path, root: Path) -> bool:
             return True
 
     # Skip path patterns
-    for pattern in SKIP_PATH_PATTERNS:
-        if pattern in rel_path.lower():
-            return True
-
-    return False
+    return any(pattern in rel_path.lower() for pattern in SKIP_PATH_PATTERNS)
 
 
-def find_python_files(root: Path, include_tests: bool = False) -> List[Path]:
+def find_python_files(root: Path, include_tests: bool = False) -> list[Path]:
     """Find all Python files to scan."""
     files = []
     for path in root.rglob("*.py"):
@@ -571,7 +568,7 @@ def find_python_files(root: Path, include_tests: bool = False) -> List[Path]:
 
 def analyze_file_for_uncalled(
     filepath: Path, all_content: str
-) -> List[UncalledFunction]:
+) -> list[UncalledFunction]:
     """Analyze file for uncalled parameterless functions."""
     try:
         content = filepath.read_text(encoding="utf-8", errors="ignore")
@@ -628,7 +625,7 @@ def analyze_file_for_uncalled(
     return results
 
 
-def analyze_file_for_orphans(filepath: Path, all_content: str) -> List[OrphanClass]:
+def analyze_file_for_orphans(filepath: Path, all_content: str) -> list[OrphanClass]:
     """Analyze file for orphan classes."""
     try:
         content = filepath.read_text(encoding="utf-8", errors="ignore")
@@ -694,9 +691,9 @@ def analyze_file_for_orphans(filepath: Path, all_content: str) -> List[OrphanCla
     return results
 
 
-def detect_circular_imports(root: Path) -> List[CircularImport]:
+def detect_circular_imports(root: Path) -> list[CircularImport]:
     """Detect circular imports using import graph."""
-    import_graph: Dict[str, Set[str]] = defaultdict(set)
+    import_graph: dict[str, set[str]] = defaultdict(set)
     py_files = find_python_files(root)
 
     # Build import graph
@@ -723,9 +720,9 @@ def detect_circular_imports(root: Path) -> List[CircularImport]:
     # Find cycles using DFS
     visited = set()
     rec_stack = set()
-    cycles: List[CircularImport] = []
+    cycles: list[CircularImport] = []
 
-    def dfs(node: str, path: List[str]) -> bool:
+    def dfs(node: str, path: list[str]) -> bool:
         visited.add(node)
         rec_stack.add(node)
         path.append(node)
@@ -737,7 +734,7 @@ def detect_circular_imports(root: Path) -> List[CircularImport]:
             elif neighbor in rec_stack:
                 # Found cycle
                 cycle_start = path.index(neighbor)
-                cycle = path[cycle_start:] + [neighbor]
+                cycle = [*path[cycle_start:], neighbor]
                 cycles.append(
                     CircularImport(
                         chain=cycle,
@@ -947,10 +944,8 @@ async def main():
         logger.info("Building content index...")
         all_content = ""
         for f in all_files:
-            try:
+            with contextlib.suppress(Exception):
                 all_content += f.read_text(encoding="utf-8", errors="ignore") + "\n"
-            except Exception:
-                pass
 
         # Save to cache for next run
         if cache_mgr:

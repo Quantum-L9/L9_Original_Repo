@@ -461,7 +461,7 @@ class ApprovalManager:
     def get_pending_requests(self) -> list[ApprovalRequest]:
         """Get all pending approval requests"""
         # Clean up expired requests
-        now = datetime.utcnow()
+        datetime.utcnow()
         expired = [req_id for req_id, req in self._pending.items() if req.is_expired()]
         for req_id in expired:
             del self._pending[req_id]

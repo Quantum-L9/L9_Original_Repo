@@ -13,17 +13,20 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 import yaml
 
-from core.kernels.kernelloader import (REQUIRED_KERNEL_COUNT,
-                                       activate_kernels_phase2, load_kernels,
-                                       load_kernels_phase1,
-                                       require_kernel_activation,
-                                       verify_kernel_activation,
-                                       verify_kernel_integrity)
+from core.kernels.kernelloader import (
+    REQUIRED_KERNEL_COUNT,
+    activate_kernels_phase2,
+    load_kernels,
+    load_kernels_phase1,
+    require_kernel_activation,
+    verify_kernel_activation,
+    verify_kernel_integrity,
+)
 from core.kernels.schemas import KernelState
 
 # =============================================================================
@@ -35,12 +38,12 @@ class MockKernelAwareAgent:
     """Mock agent that implements KernelAwareAgent protocol."""
 
     def __init__(self) -> None:
-        self.kernels: Dict[str, Dict[str, Any]] = {}
+        self.kernels: dict[str, dict[str, Any]] = {}
         self.kernel_state: str = "INACTIVE"
         self._system_context: str = ""
         self._absorbed_kernels: list = []
 
-    def absorb_kernel(self, kernel_data: Dict[str, Any]) -> None:
+    def absorb_kernel(self, kernel_data: dict[str, Any]) -> None:
         """Absorb a kernel into the agent's configuration."""
         self._absorbed_kernels.append(kernel_data)
 
@@ -201,7 +204,7 @@ class TestPhase1Load:
 
     def test_phase1_validates_schema(self, temp_kernel_dir: Path) -> None:
         """Phase 1 should validate kernel schema."""
-        kernels, _, errors = load_kernels_phase1(
+        kernels, _, _errors = load_kernels_phase1(
             base_path=temp_kernel_dir,
             validate_schema=True,
         )
@@ -221,7 +224,7 @@ class TestPhase1Load:
         )
         kernel_file.write_text("invalid: yaml: content: [")
 
-        kernels, _, errors = load_kernels_phase1(base_path=temp_kernel_dir)
+        _kernels, _, errors = load_kernels_phase1(base_path=temp_kernel_dir)
 
         # Should have YAML error
         yaml_errors = [e for e in errors if "YAML" in e.message]
@@ -550,7 +553,7 @@ class TestEdgeCases:
         )
         kernel_file.write_text("")
 
-        kernels, _, errors = load_kernels_phase1(base_path=temp_kernel_dir)
+        _kernels, _, errors = load_kernels_phase1(base_path=temp_kernel_dir)
 
         # Should have error for empty file
         empty_errors = [e for e in errors if "Empty" in e.message]
@@ -561,10 +564,10 @@ class TestEdgeCases:
 
         class MinimalAgent:
             def __init__(self) -> None:
-                self.kernels: Dict[str, Dict[str, Any]] = {}
+                self.kernels: dict[str, dict[str, Any]] = {}
                 self.kernel_state: str = "INACTIVE"
 
-            def absorb_kernel(self, kernel_data: Dict[str, Any]) -> None:
+            def absorb_kernel(self, kernel_data: dict[str, Any]) -> None:
                 pass
 
         agent = MinimalAgent()
@@ -580,11 +583,11 @@ class TestEdgeCases:
 
         class FailingAgent:
             def __init__(self) -> None:
-                self.kernels: Dict[str, Dict[str, Any]] = {}
+                self.kernels: dict[str, dict[str, Any]] = {}
                 self.kernel_state: str = "INACTIVE"
                 self._call_count = 0
 
-            def absorb_kernel(self, kernel_data: Dict[str, Any]) -> None:
+            def absorb_kernel(self, kernel_data: dict[str, Any]) -> None:
                 self._call_count += 1
                 if self._call_count == 5:
                     raise ValueError("Absorption failed")

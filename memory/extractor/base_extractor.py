@@ -28,13 +28,13 @@ __dora_meta__ = {
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 
 class BaseExtractor(ABC):
     """Base class for all extractors."""
 
-    def __init__(self, config: Dict, logger: logging.Logger):
+    def __init__(self, config: dict, logger: logging.Logger):
         """
         Initialize base extractor.
 
@@ -47,7 +47,7 @@ class BaseExtractor(ABC):
         self.name = self.__class__.__name__
 
     @abstractmethod
-    def extract(self, input_path: Path, output_root: Path) -> Dict[str, Any]:
+    def extract(self, input_path: Path, output_root: Path) -> dict[str, Any]:
         """
         Extract data from input file.
 
@@ -87,10 +87,7 @@ class BaseExtractor(ABC):
         Returns:
             Path to output directory
         """
-        if subdir:
-            output_dir = output_root / subdir
-        else:
-            output_dir = output_root
+        output_dir = output_root / subdir if subdir else output_root
 
         output_dir.mkdir(parents=True, exist_ok=True)
         return output_dir

@@ -7,22 +7,22 @@ Gated by EOS + Accountability. Read-only. Evidence-producing.
 
 from .adapter import TensorGlobeBridgeAdapter
 from .schemas import (
+    AnomalySignal,
     TensorOperation,
     TensorRequest,
-    TensorResult,
-    TensorResponse,
     TensorRequestPacket,
+    TensorResponse,
     TensorResponsePacket,
-    AnomalySignal,
+    TensorResult,
 )
 
 __all__ = [
+    "AnomalySignal",
     "TensorGlobeBridgeAdapter",
     "TensorOperation",
     "TensorRequest",
-    "TensorResult",
-    "TensorResponse",
     "TensorRequestPacket",
+    "TensorResponse",
     "TensorResponsePacket",
-    "AnomalySignal",
+    "TensorResult",
 ]

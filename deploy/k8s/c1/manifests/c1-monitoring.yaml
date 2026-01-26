@@ -36,48 +36,48 @@ spec:
         app: prometheus
     spec:
       containers:
-      - name: prometheus
-        image: prom/prometheus:v2.48.0
-        args:
-          - '--config.file=/etc/prometheus/prometheus.yml'
-          - '--storage.tsdb.path=/prometheus'
-          - '--storage.tsdb.retention.time=7d'  # Only 7 days retention
-          - '--storage.tsdb.retention.size=5GB'  # Max 5GB storage
-          - '--web.enable-lifecycle'
-        ports:
-        - containerPort: 9090
-          name: http
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "100m"
-          limits:
-            memory: "512Mi"
-            cpu: "250m"
-        volumeMounts:
-        - name: prometheus-config
-          mountPath: /etc/prometheus
-        - name: prometheus-data
-          mountPath: /prometheus
-        livenessProbe:
-          httpGet:
-            path: /-/healthy
-            port: 9090
-          initialDelaySeconds: 30
-          periodSeconds: 15
-        readinessProbe:
-          httpGet:
-            path: /-/ready
-            port: 9090
-          initialDelaySeconds: 10
-          periodSeconds: 5
+        - name: prometheus
+          image: prom/prometheus:v2.48.0
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus"
+            - "--storage.tsdb.retention.time=7d" # Only 7 days retention
+            - "--storage.tsdb.retention.size=5GB" # Max 5GB storage
+            - "--web.enable-lifecycle"
+          ports:
+            - containerPort: 9090
+              name: http
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "250m"
+          volumeMounts:
+            - name: prometheus-config
+              mountPath: /etc/prometheus
+            - name: prometheus-data
+              mountPath: /prometheus
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: 9090
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: 9090
+            initialDelaySeconds: 10
+            periodSeconds: 5
       volumes:
-      - name: prometheus-config
-        configMap:
-          name: prometheus-config
-      - name: prometheus-data
-        persistentVolumeClaim:
-          claimName: prometheus-data-pvc
+        - name: prometheus-config
+          configMap:
+            name: prometheus-config
+        - name: prometheus-data
+          persistentVolumeClaim:
+            claimName: prometheus-data-pvc
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -89,17 +89,17 @@ data:
     global:
       scrape_interval: 30s  # Longer interval for resource savings
       evaluation_interval: 30s
-    
+
     scrape_configs:
       - job_name: 'prometheus'
         static_configs:
           - targets: ['localhost:9090']
-      
+
       - job_name: 'l9-api'
         static_configs:
           - targets: ['l9-api:8000']
         metrics_path: /metrics
-      
+
       - job_name: 'kubernetes-pods'
         kubernetes_sd_configs:
           - role: pod
@@ -143,9 +143,9 @@ spec:
   selector:
     app: prometheus
   ports:
-  - port: 9090
-    targetPort: 9090
-    name: http
+    - port: 9090
+      targetPort: 9090
+      name: http
 ---
 # Grafana
 apiVersion: apps/v1
@@ -166,57 +166,57 @@ spec:
         app: grafana
     spec:
       containers:
-      - name: grafana
-        image: grafana/grafana:10.2.2
-        ports:
-        - containerPort: 3000
-          name: http
-        env:
-        - name: GF_SECURITY_ADMIN_USER
-          valueFrom:
-            secretKeyRef:
-              name: l9-secrets
-              key: grafana-user
-        - name: GF_SECURITY_ADMIN_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: l9-secrets
-              key: grafana-password
-        - name: GF_USERS_ALLOW_SIGN_UP
-          value: "false"
-        - name: GF_SERVER_ROOT_URL
-          value: "http://46.62.243.82:30300"
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "50m"
-          limits:
-            memory: "256Mi"
-            cpu: "200m"
-        volumeMounts:
-        - name: grafana-data
-          mountPath: /var/lib/grafana
-        - name: grafana-datasources
-          mountPath: /etc/grafana/provisioning/datasources
-        livenessProbe:
-          httpGet:
-            path: /api/health
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /api/health
-            port: 3000
-          initialDelaySeconds: 10
-          periodSeconds: 5
+        - name: grafana
+          image: grafana/grafana:10.2.2
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: l9-secrets
+                  key: grafana-user
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: l9-secrets
+                  key: grafana-password
+            - name: GF_USERS_ALLOW_SIGN_UP
+              value: "false"
+            - name: GF_SERVER_ROOT_URL
+              value: "http://46.62.243.82:30300"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          volumeMounts:
+            - name: grafana-data
+              mountPath: /var/lib/grafana
+            - name: grafana-datasources
+              mountPath: /etc/grafana/provisioning/datasources
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
       volumes:
-      - name: grafana-data
-        persistentVolumeClaim:
-          claimName: grafana-data-pvc
-      - name: grafana-datasources
-        configMap:
-          name: grafana-datasources
+        - name: grafana-data
+          persistentVolumeClaim:
+            claimName: grafana-data-pvc
+        - name: grafana-datasources
+          configMap:
+            name: grafana-datasources
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -256,10 +256,9 @@ spec:
   selector:
     app: grafana
   ports:
-  - port: 3000
-    targetPort: 3000
-    name: http
-
+    - port: 3000
+      targetPort: 3000
+      name: http
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

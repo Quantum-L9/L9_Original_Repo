@@ -48,13 +48,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Optional, List, Dict
-from uuid import uuid4
+from typing import Any
+
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -111,16 +111,16 @@ class HookContext:
 
     operation: str
     caller_id: str
-    project_id: Optional[str] = None
-    scope: Optional[str] = None
-    packet_type: Optional[str] = None
-    payload: Optional[Dict[str, Any]] = None
-    packet_id: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    trace_id: Optional[str] = None
+    project_id: str | None = None
+    scope: str | None = None
+    packet_type: str | None = None
+    payload: dict[str, Any] | None = None
+    packet_id: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+    trace_id: str | None = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export context as dict for logging."""
         return {
             "operation": self.operation,
@@ -147,25 +147,25 @@ class HookResult:
     """
 
     allowed: bool
-    reason: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    modified_payload: Optional[Dict[str, Any]] = None
+    reason: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+    modified_payload: dict[str, Any] | None = None
 
     @classmethod
-    def allow(cls, metadata: Optional[Dict[str, Any]] = None) -> HookResult:
+    def allow(cls, metadata: dict[str, Any] | None = None) -> HookResult:
         """Create an allow result."""
         return cls(allowed=True, metadata=metadata or {})
 
     @classmethod
-    def deny(cls, reason: str, metadata: Optional[Dict[str, Any]] = None) -> HookResult:
+    def deny(cls, reason: str, metadata: dict[str, Any] | None = None) -> HookResult:
         """Create a deny result."""
         return cls(allowed=False, reason=reason, metadata=metadata or {})
 
     @classmethod
     def allow_with_modification(
         cls,
-        modified_payload: Dict[str, Any],
-        metadata: Optional[Dict[str, Any]] = None,
+        modified_payload: dict[str, Any],
+        metadata: dict[str, Any] | None = None,
     ) -> HookResult:
         """Create an allow result with modified payload."""
         return cls(
@@ -364,7 +364,7 @@ class RateLimitingHook(GovernanceHook):
             priority=HookPriority.HIGH,
         )
         self._max_ops_per_minute = max_ops_per_minute
-        self._rate_tracker: Dict[str, List[datetime]] = {}
+        self._rate_tracker: dict[str, list[datetime]] = {}
 
     async def execute(self, context: HookContext) -> HookResult:
         """Check rate limit for caller."""
@@ -417,7 +417,7 @@ class GovernanceHookRegistry:
 
     def __init__(self):
         """Initialize hook registry."""
-        self._hooks: Dict[HookType, List[GovernanceHook]] = {
+        self._hooks: dict[HookType, list[GovernanceHook]] = {
             hook_type: [] for hook_type in HookType
         }
 
@@ -538,7 +538,7 @@ class GovernanceHookRegistry:
                 )
                 # On error, deny operation for safety
                 return HookResult.deny(
-                    f"Hook {hook.hook_id} failed: {str(e)}",
+                    f"Hook {hook.hook_id} failed: {e!s}",
                     metadata={"error": str(e)},
                 )
 
@@ -555,10 +555,9 @@ class GovernanceHookRegistry:
                 modified_payload=modified_payload,
                 metadata=combined_metadata,
             )
-        else:
-            return HookResult.allow(metadata=combined_metadata)
+        return HookResult.allow(metadata=combined_metadata)
 
-    def list_hooks(self, hook_type: Optional[HookType] = None) -> List[Dict[str, Any]]:
+    def list_hooks(self, hook_type: HookType | None = None) -> list[dict[str, Any]]:
         """
         List registered hooks.
 
@@ -588,7 +587,7 @@ class GovernanceHookRegistry:
 # Singleton Registry Instance
 # =============================================================================
 
-_global_hook_registry: Optional[GovernanceHookRegistry] = None
+_global_hook_registry: GovernanceHookRegistry | None = None
 
 
 def get_hook_registry() -> GovernanceHookRegistry:
@@ -619,16 +618,16 @@ def get_hook_registry() -> GovernanceHookRegistry:
 # =============================================================================
 
 __all__ = [
-    "HookType",
-    "HookPriority",
-    "HookContext",
-    "HookResult",
+    "AuditLoggingHook",
     "GovernanceHook",
+    "GovernanceHookRegistry",
+    "HookContext",
+    "HookPriority",
+    "HookResult",
+    "HookType",
+    "RateLimitingHook",
     "SchemaValidationHook",
     "ScopeAuthorizationHook",
-    "AuditLoggingHook",
-    "RateLimitingHook",
-    "GovernanceHookRegistry",
     "get_hook_registry",
 ]
 

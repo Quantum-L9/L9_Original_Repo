@@ -44,7 +44,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Dict, Optional
 
 import structlog
 
@@ -70,9 +69,9 @@ class KernelAwareAgentRegistry:
 
     def __init__(self):
         """Initialize the registry with kernel-loaded agents."""
-        self._agents: Dict[str, AgentConfig] = {}
+        self._agents: dict[str, AgentConfig] = {}
         self._l_cto_agent = None
-        self._kernel_system_prompt: Optional[str] = None
+        self._kernel_system_prompt: str | None = None
 
         if USE_KERNELS:
             self._initialize_with_kernels()
@@ -94,8 +93,10 @@ class KernelAwareAgentRegistry:
         try:
             # Import from new two-phase loader (core/kernels/kernelloader.py)
             from agents.l_cto import LCTOAgent
-            from core.kernels.kernelloader import (load_kernels,
-                                                   require_kernel_activation)
+            from core.kernels.kernelloader import (
+                load_kernels,
+                require_kernel_activation,
+            )
 
             logger.info(
                 "kernel_registry: initializing L-CTO with two-phase kernel activation..."
@@ -177,7 +178,7 @@ Be helpful, concise, and direct."""
             max_tokens=4000,
         )
 
-    def get_agent_config(self, agent_id: str) -> Optional[AgentConfig]:
+    def get_agent_config(self, agent_id: str) -> AgentConfig | None:
         """
         Get agent configuration by ID.
 
@@ -216,7 +217,7 @@ Be helpful, concise, and direct."""
             return self._l_cto_agent.kernel_state
         return KernelState.INACTIVE.value
 
-    def verify_kernel_integrity(self) -> Dict[str, str]:
+    def verify_kernel_integrity(self) -> dict[str, str]:
         """
         Verify kernel file integrity against stored hashes.
 
@@ -234,7 +235,7 @@ Be helpful, concise, and direct."""
             logger.warning("kernel_registry: integrity check failed: %s", e)
             return {}
 
-    def get_kernel_hashes(self) -> Dict[str, str]:
+    def get_kernel_hashes(self) -> dict[str, str]:
         """Get stored kernel hashes."""
         return getattr(self, "_kernel_hashes", {})
 

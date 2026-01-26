@@ -25,19 +25,19 @@ from config.settings import (
 __all__ = [
     # AI Eval Settings
     "AIEvalSettings",
-    "get_ai_eval_settings",
-    "reset_ai_eval_settings",
-    # Memory Substrate Settings
-    "MemorySubstrateSettings",
-    "get_settings",
-    "reset_settings",
-    # Research Settings
-    "ResearchSettings",
-    "get_research_settings",
-    "reset_research_settings",
     # Integration Settings
     "IntegrationSettings",
+    # Memory Substrate Settings
+    "MemorySubstrateSettings",
+    # Research Settings
+    "ResearchSettings",
+    "get_ai_eval_settings",
     "get_integration_settings",
+    "get_research_settings",
+    "get_settings",
+    "reset_ai_eval_settings",
     "reset_integration_settings",
+    "reset_research_settings",
+    "reset_settings",
     "settings",
 ]

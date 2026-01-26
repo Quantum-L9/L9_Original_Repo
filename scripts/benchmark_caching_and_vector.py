@@ -33,9 +33,8 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import time
-from typing import List
 import statistics
+import time
 
 
 # Mock implementations for benchmarking without database
@@ -47,7 +46,7 @@ class MockDatabase:
         await asyncio.sleep(delay)
         return {"result": "data"}
 
-    async def vector_search(self, vector: List[float], delay: float = 0.05):
+    async def vector_search(self, vector: list[float], delay: float = 0.05):
         """Simulate vector search."""
         await asyncio.sleep(delay)
         return [{"id": i, "score": 0.9 - i * 0.1} for i in range(10)]
@@ -72,9 +71,9 @@ async def benchmark_query_caching():
     # Benchmark uncached
     print("\n1. Uncached queries (10 identical queries)...")
     times_uncached = []
-    for i in range(10):
+    for _i in range(10):
         start = time.time()
-        result = await db.slow_query(delay=0.01)
+        await db.slow_query(delay=0.01)
         elapsed = time.time() - start
         times_uncached.append(elapsed * 1000)  # Convert to ms
 
@@ -85,9 +84,9 @@ async def benchmark_query_caching():
     # Benchmark cached
     print("\n2. Cached queries (10 identical queries)...")
     times_cached = []
-    for i in range(10):
+    for _i in range(10):
         start = time.time()
-        result = await cached_query()
+        await cached_query()
         elapsed = time.time() - start
         times_cached.append(elapsed * 1000)  # Convert to ms
 
@@ -134,9 +133,9 @@ async def benchmark_vector_search():
     vector = [0.1] * 1536  # 1536-dimensional vector
     times_unoptimized = []
 
-    for i in range(10):
+    for _i in range(10):
         start = time.time()
-        result = await db.vector_search(vector, delay=0.2)  # 200ms (unoptimized)
+        await db.vector_search(vector, delay=0.2)  # 200ms (unoptimized)
         elapsed = time.time() - start
         times_unoptimized.append(elapsed * 1000)
 
@@ -148,9 +147,9 @@ async def benchmark_vector_search():
     print("\n2. Optimized vector search (10 queries)...")
     times_optimized = []
 
-    for i in range(10):
+    for _i in range(10):
         start = time.time()
-        result = await db.vector_search(vector, delay=0.04)  # 40ms (optimized)
+        await db.vector_search(vector, delay=0.04)  # 40ms (optimized)
         elapsed = time.time() - start
         times_optimized.append(elapsed * 1000)
 
@@ -254,12 +253,12 @@ async def main():
     print("\n✅ Query Caching:")
     print(f"   - {caching_results['speedup']:.1f}x faster")
     print(f"   - {caching_results['improvement']:.1f}% improvement")
-    print(f"   - Best for: Repeated queries (permissions, configs)")
+    print("   - Best for: Repeated queries (permissions, configs)")
 
     print("\n✅ Vector Search Optimization:")
     print(f"   - {vector_results['speedup']:.1f}x faster")
     print(f"   - {vector_results['improvement']:.1f}% improvement")
-    print(f"   - Best for: Semantic search, similarity queries")
+    print("   - Best for: Semantic search, similarity queries")
 
     print("\n✅ Combined Impact:")
     print(f"   - {combined_results['speedup']:.1f}x faster overall")

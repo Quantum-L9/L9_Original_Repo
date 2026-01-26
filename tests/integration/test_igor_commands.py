@@ -256,8 +256,13 @@ class TestConfirmationFlow:
     async def test_low_risk_no_confirmation(self):
         """Low-risk commands should not require confirmation."""
         from core.commands.intent_extractor import confirm_intent
-        from core.commands.schemas import (Command, CommandType, IntentModel,
-                                           IntentType, RiskLevel)
+        from core.commands.schemas import (
+            Command,
+            CommandType,
+            IntentModel,
+            IntentType,
+            RiskLevel,
+        )
 
         low_risk_command = Command(
             type=CommandType.ANALYZE,
@@ -283,8 +288,13 @@ class TestConfirmationFlow:
     async def test_high_risk_requires_confirmation(self):
         """High-risk commands should require confirmation."""
         from core.commands.intent_extractor import confirm_intent
-        from core.commands.schemas import (Command, CommandType, IntentModel,
-                                           IntentType, RiskLevel)
+        from core.commands.schemas import (
+            Command,
+            CommandType,
+            IntentModel,
+            IntentType,
+            RiskLevel,
+        )
 
         high_risk_command = Command(
             type=CommandType.PROPOSE_GMP,
@@ -431,7 +441,7 @@ class TestAuditLogger:
         )
 
         # Patch the import within the audit_log module
-        with patch("core.compliance.audit_log.logger") as mock_logger:
+        with patch("core.compliance.audit_log.logger"):
             logger = AuditLogger(substrate_service=mock_substrate)
 
             # Note: In test environment, memory.substrate_models may not be available

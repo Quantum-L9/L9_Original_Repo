@@ -207,7 +207,6 @@ hard_constraint:
     No execution path may skip accountability verification.
     This kernel is inline, not advisory.
   enforcement: architectural
-
 # ─────────────────────────────────────────────────────────────────────────
 # END KERNEL
 # ─────────────────────────────────────────────────────────────────────────

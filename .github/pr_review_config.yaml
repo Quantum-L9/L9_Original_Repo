@@ -14,13 +14,13 @@ audit_scopes:
     - secret_exposure
     - unsafe_eval
     - command_injection
-  
+
   performance:
     - async_patterns
     - caching_opportunities
     - batch_operations
     - connection_pooling
-  
+
   architecture:
     - packet_envelope_compliance
     - memory_substrate_usage
@@ -32,11 +32,11 @@ review_stages:
   - name: "Gemini Code Assist"
     type: "github_app"
     auto_trigger: true
-    
+
   - name: "Gemini Auto-Apply"
     type: "api"
     script: "scripts/pr_review/gemini_auto_editor.py"
-    
+
   - name: "Perplexity Audit"
     type: "api"
     script: "scripts/pr_review/perplexity_reviewer.py"

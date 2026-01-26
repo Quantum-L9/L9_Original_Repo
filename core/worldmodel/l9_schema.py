@@ -38,7 +38,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -126,17 +126,17 @@ class L9Agent(BaseModel):
     role: str = Field(
         ..., description="Agent role (e.g., 'CTO', 'Research', 'Testing')"
     )
-    capabilities: List[str] = Field(
+    capabilities: list[str] = Field(
         default_factory=list, description="List of capability names"
     )
-    kernel_version: Optional[str] = Field(
+    kernel_version: str | None = Field(
         None, description="Version of kernels used by agent"
     )
-    last_active: Optional[datetime] = Field(None, description="Last activity timestamp")
+    last_active: datetime | None = Field(None, description="Last activity timestamp")
     status: str = Field(default="active", description="Agent status")
     entity_type: EntityType = Field(default=EntityType.AGENT)
 
-    def to_node_dict(self) -> Dict[str, Any]:
+    def to_node_dict(self) -> dict[str, Any]:
         """Convert to world model node dict."""
         return {
             "id": str(self.id),
@@ -159,12 +159,12 @@ class L9Repository(BaseModel):
     integration_type: str = Field(
         default="git", description="Integration type (git, svn, etc.)"
     )
-    last_push: Optional[datetime] = Field(None, description="Last push timestamp")
+    last_push: datetime | None = Field(None, description="Last push timestamp")
     default_branch: str = Field(default="main", description="Default branch name")
-    remote_url: Optional[str] = Field(None, description="Remote repository URL")
+    remote_url: str | None = Field(None, description="Remote repository URL")
     entity_type: EntityType = Field(default=EntityType.REPOSITORY)
 
-    def to_node_dict(self) -> Dict[str, Any]:
+    def to_node_dict(self) -> dict[str, Any]:
         """Convert to world model node dict."""
         return {
             "id": str(self.id),
@@ -187,13 +187,13 @@ class L9Infrastructure(BaseModel):
     )
     infra_type: InfrastructureType = Field(..., description="Type of infrastructure")
     status: str = Field(default="running", description="Current status")
-    endpoints: List[str] = Field(default_factory=list, description="Service endpoints")
-    health_check_url: Optional[str] = Field(None, description="Health check endpoint")
-    container_name: Optional[str] = Field(None, description="Docker container name")
-    port: Optional[int] = Field(None, description="Service port")
+    endpoints: list[str] = Field(default_factory=list, description="Service endpoints")
+    health_check_url: str | None = Field(None, description="Health check endpoint")
+    container_name: str | None = Field(None, description="Docker container name")
+    port: int | None = Field(None, description="Service port")
     entity_type: EntityType = Field(default=EntityType.INFRASTRUCTURE)
 
-    def to_node_dict(self) -> Dict[str, Any]:
+    def to_node_dict(self) -> dict[str, Any]:
         """Convert to world model node dict."""
         return {
             "id": str(self.id),
@@ -218,12 +218,12 @@ class L9Tool(BaseModel):
         default=ToolRiskLevel.LOW, description="Risk level"
     )
     requires_approval: bool = Field(default=False, description="Requires Igor approval")
-    last_used: Optional[datetime] = Field(None, description="Last usage timestamp")
+    last_used: datetime | None = Field(None, description="Last usage timestamp")
     use_count: int = Field(default=0, description="Total usage count")
-    description: Optional[str] = Field(None, description="Tool description")
+    description: str | None = Field(None, description="Tool description")
     entity_type: EntityType = Field(default=EntityType.TOOL)
 
-    def to_node_dict(self) -> Dict[str, Any]:
+    def to_node_dict(self) -> dict[str, Any]:
         """Convert to world model node dict."""
         return {
             "id": str(self.id),
@@ -244,13 +244,13 @@ class L9MemorySegment(BaseModel):
     id: UUID = Field(default_factory=uuid4, description="Unique segment identifier")
     name: str = Field(..., description="Segment name (e.g., 'governance_patterns')")
     segment_type: str = Field(..., description="Type of content stored")
-    last_updated: Optional[datetime] = Field(None, description="Last update timestamp")
+    last_updated: datetime | None = Field(None, description="Last update timestamp")
     size_bytes: int = Field(default=0, description="Approximate size in bytes")
     query_count: int = Field(default=0, description="Total queries to this segment")
-    retention_days: Optional[int] = Field(None, description="Retention period in days")
+    retention_days: int | None = Field(None, description="Retention period in days")
     entity_type: EntityType = Field(default=EntityType.MEMORY_SEGMENT)
 
-    def to_node_dict(self) -> Dict[str, Any]:
+    def to_node_dict(self) -> dict[str, Any]:
         """Convert to world model node dict."""
         return {
             "id": str(self.id),
@@ -276,19 +276,17 @@ class L9ExternalSystem(BaseModel):
     integration_type: str = Field(
         ..., description="Integration type (api, webhook, mcp)"
     )
-    api_endpoint: Optional[str] = Field(None, description="API endpoint URL")
+    api_endpoint: str | None = Field(None, description="API endpoint URL")
     connection_status: ConnectionStatus = Field(
         default=ConnectionStatus.UNKNOWN, description="Current connection status"
     )
-    last_contact: Optional[datetime] = Field(
-        None, description="Last successful contact"
-    )
-    auth_method: Optional[str] = Field(
+    last_contact: datetime | None = Field(None, description="Last successful contact")
+    auth_method: str | None = Field(
         None, description="Authentication method (api_key, oauth, etc.)"
     )
     entity_type: EntityType = Field(default=EntityType.EXTERNAL_SYSTEM)
 
-    def to_node_dict(self) -> Dict[str, Any]:
+    def to_node_dict(self) -> dict[str, Any]:
         """Convert to world model node dict."""
         return {
             "id": str(self.id),
@@ -320,14 +318,14 @@ class L9Relationship(BaseModel):
     source_type: EntityType = Field(..., description="Source entity type")
     target_id: UUID = Field(..., description="Target entity ID")
     target_type: EntityType = Field(..., description="Target entity type")
-    properties: Dict[str, Any] = Field(
+    properties: dict[str, Any] = Field(
         default_factory=dict, description="Relationship properties"
     )
     created_at: datetime = Field(
         default_factory=datetime.utcnow, description="Creation timestamp"
     )
 
-    def to_edge_dict(self) -> Dict[str, Any]:
+    def to_edge_dict(self) -> dict[str, Any]:
         """Convert to world model edge dict."""
         return {
             "id": str(self.id),
@@ -346,22 +344,22 @@ class L9Relationship(BaseModel):
 # =============================================================================
 
 __all__ = [
+    "ConnectionStatus",
     # Enums
     "EntityType",
     "InfrastructureType",
-    "ToolCategory",
-    "ToolRiskLevel",
-    "ConnectionStatus",
-    "L9RelationshipType",
     # Entity models
     "L9Agent",
-    "L9Repository",
-    "L9Infrastructure",
-    "L9Tool",
-    "L9MemorySegment",
     "L9ExternalSystem",
+    "L9Infrastructure",
+    "L9MemorySegment",
     # Relationship model
     "L9Relationship",
+    "L9RelationshipType",
+    "L9Repository",
+    "L9Tool",
+    "ToolCategory",
+    "ToolRiskLevel",
 ]
 
 # ============================================================================

@@ -37,7 +37,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -45,9 +45,11 @@ from .agent_graph_loader import AgentGraphLoader
 
 # Import kernel prompt builder for system prompt generation
 try:
-    from core.kernels.prompt_builder import (build_system_prompt_from_kernels,
-                                             get_fallback_prompt,
-                                             get_kernel_stack)
+    from core.kernels.prompt_builder import (
+        build_system_prompt_from_kernels,
+        get_fallback_prompt,
+        get_kernel_stack,
+    )
 
     _HAS_KERNEL_PROMPT_BUILDER = True
 except ImportError:
@@ -88,7 +90,7 @@ class HydratedAgentContext:
     safety_constraints: list[str]
 
     # Relationships
-    supervisor_id: Optional[str] = None
+    supervisor_id: str | None = None
 
     def to_system_prompt_context(self) -> str:
         """Generate system prompt context from hydrated state."""
@@ -189,8 +191,8 @@ class GraphHydrator:
 
     def __init__(
         self,
-        neo4j_driver: "AsyncDriver",
-        kernel_stack: Optional["KernelStack"] = None,
+        neo4j_driver: AsyncDriver,
+        kernel_stack: KernelStack | None = None,
     ):
         self.loader = AgentGraphLoader(neo4j_driver)
         self.kernel_stack = kernel_stack
@@ -366,7 +368,7 @@ class GraphHydrator:
         self,
         agent_id: str,
         tool_name: str,
-    ) -> tuple[bool, Optional[str]]:
+    ) -> tuple[bool, str | None]:
         """
         Check if tool requires approval.
 
@@ -401,11 +403,13 @@ class GraphHydrator:
         # Simple keyword-based check (production would use LLM)
         for directive in critical_directives:
             # Check for obvious violations
-            if "NO deletion" in directive.text and "delete" in proposed_action.lower():
-                violations.append(directive.text)
-            elif (
-                "MUST respect Igor" in directive.text
-                and "override igor" in proposed_action.lower()
+            if (
+                ("NO deletion" in directive.text
+                and "delete" in proposed_action.lower())
+                or (
+                    "MUST respect Igor" in directive.text
+                    and "override igor" in proposed_action.lower()
+                )
             ):
                 violations.append(directive.text)
 

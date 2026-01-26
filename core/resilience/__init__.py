@@ -10,15 +10,14 @@ Version: 1.1.0
 
 from core.resilience.mixin import ResilienceMixin
 from core.resilience.protocols import ResilientService
-from core.resilience.retry import (AsyncRetryConfig, RetryExhaustedError,
-                                   async_retry)
+from core.resilience.retry import AsyncRetryConfig, RetryExhaustedError, async_retry
 
 __all__ = [
-    # Retry utilities
-    "async_retry",
     "AsyncRetryConfig",
-    "RetryExhaustedError",
+    "ResilienceMixin",
     # DIP Protocol + Mixin (ADR-0014)
     "ResilientService",
-    "ResilienceMixin",
+    "RetryExhaustedError",
+    # Retry utilities
+    "async_retry",
 ]

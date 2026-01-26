@@ -26,7 +26,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 from symbolic_computation import SymbolicComputation
@@ -34,7 +34,7 @@ from symbolic_computation import SymbolicComputation
 logger = structlog.get_logger(__name__)
 
 
-async def perform_health_check() -> Dict[str, Any]:
+async def perform_health_check() -> dict[str, Any]:
     """
     Perform comprehensive health check.
 

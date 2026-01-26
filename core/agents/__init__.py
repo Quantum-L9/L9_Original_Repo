@@ -17,10 +17,16 @@ core.agents.executor when needed.
 """
 
 from core.agents.agent_instance import AgentInstance
+
 # Light imports (no heavy dependencies)
-from core.agents.schemas import (AgentConfig, AgentTask, AIOSResult,
-                                 ExecutorState, ToolCallRequest,
-                                 ToolCallResult)
+from core.agents.schemas import (
+    AgentConfig,
+    AgentTask,
+    AIOSResult,
+    ExecutorState,
+    ToolCallRequest,
+    ToolCallResult,
+)
 
 
 # Lazy import for executor (heavy deps)
@@ -34,14 +40,14 @@ def __getattr__(name: str):
 
 
 __all__ = [
+    "AIOSResult",
+    "AgentConfig",
+    "AgentExecutorService",
+    # Classes
+    "AgentInstance",
     # Schemas
     "AgentTask",
-    "AgentConfig",
-    "AIOSResult",
     "ExecutorState",
     "ToolCallRequest",
     "ToolCallResult",
-    # Classes
-    "AgentInstance",
-    "AgentExecutorService",
 ]

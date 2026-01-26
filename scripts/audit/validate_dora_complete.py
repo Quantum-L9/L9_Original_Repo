@@ -42,7 +42,6 @@ import sys
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Set
 
 # ============================================================================
 # CONTRACT DEFINITIONS
@@ -126,11 +125,11 @@ class ValidationResult:
     header_valid: bool = False
     footer_valid: bool = False
     trace_valid: bool = False
-    missing_header_fields: List[str] = field(default_factory=list)
-    missing_footer_fields: List[str] = field(default_factory=list)
-    missing_trace_fields: List[str] = field(default_factory=list)
-    invalid_values: List[str] = field(default_factory=list)
-    errors: List[str] = field(default_factory=list)
+    missing_header_fields: list[str] = field(default_factory=list)
+    missing_footer_fields: list[str] = field(default_factory=list)
+    missing_trace_fields: list[str] = field(default_factory=list)
+    invalid_values: list[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
     @property
     def is_compliant(self) -> bool:
@@ -157,10 +156,10 @@ class DoraCompleteValidator:
     def __init__(self, repo_path: str, strict: bool = False):
         self.repo_path = Path(repo_path)
         self.strict = strict
-        self.results: List[ValidationResult] = []
-        self.component_ids: Set[str] = set()
+        self.results: list[ValidationResult] = []
+        self.component_ids: set[str] = set()
 
-    def scan_repository(self, single_file: Optional[str] = None) -> List[str]:
+    def scan_repository(self, single_file: str | None = None) -> list[str]:
         """Find all files to validate."""
         files = []
 
@@ -188,7 +187,7 @@ class DoraCompleteValidator:
 
         return files
 
-    def _extract_python_dict(self, content: str, var_name: str) -> Optional[Dict]:
+    def _extract_python_dict(self, content: str, var_name: str) -> dict | None:
         """Extract a Python dict variable from content."""
         # Find the start of the variable assignment
         pattern = rf"{var_name}\s*=\s*\{{"
@@ -214,12 +213,11 @@ class DoraCompleteValidator:
             dict_str = content[start_pos:end_pos]
 
             # Use ast.literal_eval for safety
-            data = ast.literal_eval(dict_str)
-            return data
+            return ast.literal_eval(dict_str)
         except Exception:
             return None
 
-    def validate_header(self, data: Dict, result: ValidationResult) -> None:
+    def validate_header(self, data: dict, result: ValidationResult) -> None:
         """Validate header meta against contract."""
         if not data:
             result.errors.append("Header meta is empty or malformed")
@@ -229,9 +227,8 @@ class DoraCompleteValidator:
         for field_name in MANDATORY_FIELDS:
             if field_name not in data:
                 result.missing_header_fields.append(field_name)
-            elif data[field_name] in [None, "", [], {}]:
-                if self.strict:
-                    result.invalid_values.append(f"header.{field_name} is empty")
+            elif data[field_name] in [None, "", [], {}] and self.strict:
+                result.invalid_values.append(f"header.{field_name} is empty")
 
         # Check component_id format
         component_id = data.get("component_id", "")
@@ -315,7 +312,7 @@ class DoraCompleteValidator:
             == 0
         )
 
-    def validate_footer(self, data: Dict, result: ValidationResult) -> None:
+    def validate_footer(self, data: dict, result: ValidationResult) -> None:
         """Validate footer meta."""
         if not data:
             result.errors.append("Footer meta is empty or malformed")
@@ -327,7 +324,7 @@ class DoraCompleteValidator:
 
         result.footer_valid = len(result.missing_footer_fields) == 0
 
-    def validate_trace(self, data: Dict, result: ValidationResult) -> None:
+    def validate_trace(self, data: dict, result: ValidationResult) -> None:
         """Validate trace block."""
         if not data:
             result.errors.append("Trace block is empty or malformed")
@@ -344,7 +341,7 @@ class DoraCompleteValidator:
         result = ValidationResult(file_path=file_path)
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
 
             # Check for legacy block
@@ -385,14 +382,14 @@ class DoraCompleteValidator:
         self.results.append(result)
         return result
 
-    def validate_all(self, files: List[str]) -> None:
+    def validate_all(self, files: list[str]) -> None:
         """Validate all files."""
         print(f"🔍 Validating {len(files)} files...")
 
         for file_path in files:
             self.validate_python_file(file_path)
 
-    def generate_report(self, output_path: Optional[str] = None) -> Dict:
+    def generate_report(self, output_path: str | None = None) -> dict:
         """Generate validation report."""
         compliant = [r for r in self.results if r.is_compliant]
         non_compliant = [r for r in self.results if not r.is_compliant]
@@ -538,7 +535,7 @@ def main():
 
     validator.validate_all(files)
     validator.print_summary()
-    report = validator.generate_report(args.report)
+    validator.generate_report(args.report)
 
     # CI mode - fail if not 100% compliant
     if args.ci:

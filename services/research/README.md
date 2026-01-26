@@ -59,14 +59,14 @@ Research graph, LangGraph integration, and insight extraction
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                   | Purpose          |
+| ------------------------ | ---------------- |
 | `agents/research_agent/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                        | Purpose             |
+| ----------------------------- | ------------------- |
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -93,13 +93,13 @@ services/research/
 └── ... (2 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `research_graph.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
-| `graph_state.py` | Single step in a research plan. |
-| `graph_state.py` | Evidence gathered by a researcher. |
-| `graph_state.py` | Shared state across all research graph nodes. |
+| File                | Purpose                                       |
+| ------------------- | --------------------------------------------- |
+| `research_graph.py` | Core module (PROTECTED)                       |
+| `__init__.py`       | Core module (PROTECTED)                       |
+| `graph_state.py`    | Single step in a research plan.               |
+| `graph_state.py`    | Evidence gathered by a researcher.            |
+| `graph_state.py`    | Shared state across all research graph nodes. |
 
 ### Naming Conventions
 
@@ -117,7 +117,7 @@ services/research/
 ```python
 class ResearchStep:
     """Single step in a research plan."""
-    
+
     # Key methods:
 
 ```
@@ -129,7 +129,7 @@ class ResearchStep:
 ```python
 class Evidence:
     """Evidence gathered by a researcher."""
-    
+
     # Key methods:
 
 ```
@@ -141,7 +141,7 @@ class Evidence:
 ```python
 class ResearchGraphState:
     """Shared state across all research graph nodes."""
-    
+
     # Key methods:
 
 ```
@@ -153,7 +153,7 @@ class ResearchGraphState:
 ```python
 class ResearchGraphRuntime:
     """Runtime for managing research graph execution."""
-    
+
     # Key methods:
 
     async def __init__(self, ...): ...
@@ -177,13 +177,12 @@ class ResearchGraphRuntime:
 ```python
 class FindingType:
     """Types of research findings."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 66-74 in `graph_persistence.py`
-
 
 ---
 
@@ -258,9 +257,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Services_Research feature flags
-L9_ENABLE_SERVICES_RESEARCH_TRACING: true  # Enable detailed tracing
-L9_ENABLE_SERVICES_RESEARCH_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_SERVICES_RESEARCH_AUDIT: true    # Enable audit logging
+L9_ENABLE_SERVICES_RESEARCH_TRACING: true # Enable detailed tracing
+L9_ENABLE_SERVICES_RESEARCH_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_SERVICES_RESEARCH_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -322,7 +321,6 @@ Planning node - Decompose query into research steps.
 - **File:** `research_graph.py:63`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -363,6 +361,7 @@ Services Research operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -370,12 +369,12 @@ Services Research operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                    | Type      | Description                    |
+| ----------------------------------------- | --------- | ------------------------------ |
 | `services_research_operation_duration_ms` | Histogram | Operation latency distribution |
-| `services_research_operation_total` | Counter | Total operations processed |
-| `services_research_error_total` | Counter | Total errors encountered |
-| `services_research_active_connections` | Gauge | Current active connections |
+| `services_research_operation_total`       | Counter   | Total operations processed     |
+| `services_research_error_total`           | Counter   | Total errors encountered       |
+| `services_research_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -393,6 +392,7 @@ Services Research emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/services_research/`:
+
 - `test_services_research.py` — Core unit tests
 - `test_services_research_integration.py` — Integration tests (if applicable)
 
@@ -440,6 +440,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

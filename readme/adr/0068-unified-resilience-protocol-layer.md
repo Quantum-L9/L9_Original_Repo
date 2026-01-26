@@ -1,12 +1,15 @@
 # ADR 0068: Unified Resilience Protocol Layer
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 All resilience patterns (retry, rate limiting, connection pooling, error handling, validation) use Protocol-based abstractions with concrete `Standard*` implementations and decorators.
 
 ## Files
+
 - `core/protocols/retry_protocols.py` - Retry with backoff
 - `core/protocols/rate_limiting_protocols.py` - Rate limiting
 - `core/protocols/connection_protocols.py` - Connection pooling
@@ -16,6 +19,7 @@ All resilience patterns (retry, rate limiting, connection pooling, error handlin
 - `core/observability/observability_context.py` - W3C trace context
 
 ## Import Block
+
 ```python
 from core.protocols import (
     # Retry
@@ -24,7 +28,7 @@ from core.protocols import (
     RetryPolicy,
     BackoffStrategy,
     with_retry,
-    
+
     # Rate Limiting
     RateLimitingProtocol,
     StandardRateLimiter,
@@ -32,12 +36,12 @@ from core.protocols import (
     RateLimitStrategy,
     RateLimitExceededError,
     rate_limited,
-    
+
     # Connection Pool
     ConnectionPoolProtocol,
     StandardConnectionPool,
     ConnectionState,
-    
+
     # Error Handling
     ErrorHandlingProtocol,
     StandardErrorHandler,
@@ -45,7 +49,7 @@ from core.protocols import (
     ErrorSeverity,
     ErrorCategory,
     with_error_handling,
-    
+
     # Validation
     ValidationProtocol,
     StandardValidator,
@@ -59,16 +63,18 @@ from core.observability import observability_context, span, get_trace_id
 ```
 
 ## Decorator Quick Reference
-| Decorator | Purpose | Raises |
-|-----------|---------|--------|
-| `@with_retry(policy)` | Retry on failure with backoff | Last exception after exhaustion |
-| `@rate_limited(limiter, key)` | Enforce rate limits | `RateLimitExceededError` |
-| `@validate_input(validator, schema)` | Validate function inputs | `ValidationError` |
-| `@with_error_handling(handler)` | Structured error capture | Re-raises after logging |
+
+| Decorator                            | Purpose                       | Raises                          |
+| ------------------------------------ | ----------------------------- | ------------------------------- |
+| `@with_retry(policy)`                | Retry on failure with backoff | Last exception after exhaustion |
+| `@rate_limited(limiter, key)`        | Enforce rate limits           | `RateLimitExceededError`        |
+| `@validate_input(validator, schema)` | Validate function inputs      | `ValidationError`               |
+| `@with_error_handling(handler)`      | Structured error capture      | Re-raises after logging         |
 
 ## Usage Examples
 
 ### Retry with Backoff
+
 ```python
 from core.protocols import with_retry, RetryPolicy, BackoffStrategy
 
@@ -88,6 +94,7 @@ async def fetch_external_api(url: str) -> dict:
 ```
 
 ### Rate Limiting
+
 ```python
 from core.protocols import rate_limited, StandardRateLimiter, RateLimitPolicy
 
@@ -104,6 +111,7 @@ async def process_request(user_id: str, data: dict) -> dict:
 ```
 
 ### Connection Pool
+
 ```python
 from core.protocols import StandardConnectionPool
 
@@ -123,6 +131,7 @@ await pool.close()
 ```
 
 ### Error Handling
+
 ```python
 from core.protocols import with_error_handling, StandardErrorHandler
 
@@ -135,6 +144,7 @@ async def risky_operation(data: dict) -> dict:
 ```
 
 ### Validation
+
 ```python
 from core.protocols import validate_input, StandardValidator
 
@@ -156,20 +166,22 @@ async def create_user(data: dict) -> dict:
 ```
 
 ### Observability Context
+
 ```python
 from core.observability import observability_context, span, get_trace_id
 
 async with observability_context(operation="process_request"):
     trace_id = get_trace_id()
-    
+
     async with span("fetch_data"):
         data = await fetch()
-    
+
     async with span("transform"):
         result = transform(data)
 ```
 
 ## Anti-Pattern Examples
+
 ```python
 # ❌ WRONG — Manual retry loop (use @with_retry)
 for i in range(3):
@@ -204,6 +216,7 @@ async def create_user(data: dict) -> dict:
 ```
 
 ## Protocol Architecture
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    core/protocols/                          │
@@ -236,6 +249,7 @@ async def create_user(data: dict) -> dict:
 ```
 
 ## Rules
+
 1. ALL external I/O MUST use `@with_retry`
 2. ALL public APIs MUST use `@rate_limited`
 3. ALL user input MUST use `@validate_input`
@@ -245,10 +259,13 @@ async def create_user(data: dict) -> dict:
 7. Configure policies via dataclasses, not magic strings
 
 ## Supersedes
+
 - **ADR-0018** (Async Retry Pattern) — Now use `@with_retry` decorator
 
 ## AI Guidance
+
 **DO:**
+
 - Use decorators for cross-cutting concerns
 - Configure policies explicitly via dataclasses
 - Stack decorators in correct order
@@ -256,6 +273,7 @@ async def create_user(data: dict) -> dict:
 - Use `observability_context` for tracing
 
 **DO NOT:**
+
 - Implement manual retry loops
 - Implement manual rate limiting
 - Use bare try/except for error handling

@@ -32,8 +32,7 @@ if "memory.tool_audit" not in sys.modules:
     fake_tool_audit.log_tool_invocation = AsyncMock()
     sys.modules["memory.tool_audit"] = fake_tool_audit
 
-from core.agents.graph_state.schema import (CREATE_AGENT_QUERY,
-                                            ENSURE_AGENT_QUERY)
+from core.agents.graph_state.schema import CREATE_AGENT_QUERY, ENSURE_AGENT_QUERY
 from core.tools.tool_graph import ToolDefinition, ToolGraph
 
 # =============================================================================
@@ -218,7 +217,7 @@ async def test_unified_agent_node_scenario():
         assert result is True
 
         # Verify: Only ONE Agent:L node
-        agent_nodes = [k for k in created_nodes.keys() if k.startswith("Agent:")]
+        agent_nodes = [k for k in created_nodes if k.startswith("Agent:")]
         assert len(agent_nodes) == 1
         assert "Agent:L" in agent_nodes
 
@@ -256,8 +255,7 @@ def test_create_agent_query_uses_merge():
 
 def test_unified_relationship_type_consistency():
     """Test that Graph State and Tool Graph use same relationship type."""
-    from core.agents.graph_state.schema import \
-        CAN_EXECUTE as SCHEMA_CAN_EXECUTE
+    from core.agents.graph_state.schema import CAN_EXECUTE as SCHEMA_CAN_EXECUTE
 
     assert ToolGraph.AGENT_TOOL_REL == "CAN_EXECUTE"
     assert SCHEMA_CAN_EXECUTE == "CAN_EXECUTE"

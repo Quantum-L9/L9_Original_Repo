@@ -36,7 +36,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -107,7 +107,7 @@ class NodeDefinition(BaseModel):
     role: str = "ArchitectAgent"
     description: str = ""
     input_contract: list[InputField] = Field(default_factory=list)
-    output_contract: Optional[OutputContract] = None
+    output_contract: OutputContract | None = None
     memory_segment: str = "segment.default"
     next: list[str] = Field(default_factory=list)
 
@@ -118,10 +118,10 @@ class NodeResult(BaseModel):
     node_id: str
     status: NodeStatus
     output: dict[str, Any] = Field(default_factory=dict)
-    error: Optional[str] = None
+    error: str | None = None
     duration_ms: float = 0.0
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
 
 # =============================================================================
@@ -225,7 +225,7 @@ class PipelineConfig(BaseModel):
 class SubsystemConfig(BaseModel):
     """Full subsystem configuration loaded from YAML."""
 
-    subsystem_config_v1: Optional[dict[str, Any]] = None
+    subsystem_config_v1: dict[str, Any] | None = None
 
     # Flattened fields for direct access
     metadata: SubsystemMetadata = Field(
@@ -266,11 +266,11 @@ class PipelineResult(BaseModel):
     status: PipelineStatus
     node_results: list[NodeResult] = Field(default_factory=list)
     artifacts: dict[str, Any] = Field(default_factory=dict)
-    failed_node: Optional[str] = None
-    error: Optional[str] = None
+    failed_node: str | None = None
+    error: str | None = None
     total_duration_ms: float = 0.0
     started_at: datetime
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
 
     @property
     def nodes_completed(self) -> int:
@@ -294,7 +294,7 @@ class PipelineRequest(BaseModel):
     user_prompts: list[str] = Field(default_factory=list)
     context: dict[str, Any] = Field(default_factory=dict)
     dry_run: bool = False
-    max_iterations: Optional[int] = None
+    max_iterations: int | None = None
 
 
 # ============================================================================

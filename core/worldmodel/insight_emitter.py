@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -53,15 +53,15 @@ class Insight(BaseModel):
     timestamp: datetime = Field(
         default_factory=datetime.utcnow, description="When the insight was created"
     )
-    entities_involved: List[str] = Field(
+    entities_involved: list[str] = Field(
         default_factory=list, description="Entity IDs involved in the event"
     )
     summary: str = Field(..., description="Human-readable summary of the insight")
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
 
-    def to_packet_payload(self) -> Dict[str, Any]:
+    def to_packet_payload(self) -> dict[str, Any]:
         """Convert to packet payload for memory storage."""
         return {
             "insight_id": str(self.id),
@@ -81,7 +81,7 @@ class InsightEmitter:
     of L9 system operations.
     """
 
-    def __init__(self, substrate_service: Optional[Any] = None):
+    def __init__(self, substrate_service: Any | None = None):
         """
         Initialize InsightEmitter.
 
@@ -89,7 +89,7 @@ class InsightEmitter:
             substrate_service: Memory substrate for storing insights
         """
         self._substrate = substrate_service
-        self._pending_insights: List[Insight] = []
+        self._pending_insights: list[Insight] = []
 
     async def _write_insight(self, insight: Insight) -> bool:
         """Write insight to memory substrate."""
@@ -125,8 +125,8 @@ class InsightEmitter:
         tool_name: str,
         agent_id: str,
         success: bool,
-        duration_ms: Optional[int] = None,
-        error: Optional[str] = None,
+        duration_ms: int | None = None,
+        error: str | None = None,
     ) -> Insight:
         """
         Emit insight for a tool call.
@@ -167,7 +167,7 @@ class InsightEmitter:
         task_id: str,
         new_status: str,
         approved_by: str,
-        reason: Optional[str] = None,
+        reason: str | None = None,
     ) -> Insight:
         """
         Emit insight for an approval status change.
@@ -204,8 +204,8 @@ class InsightEmitter:
         self,
         segment_name: str,
         content_type: str,
-        agent_id: Optional[str] = None,
-        size_bytes: Optional[int] = None,
+        agent_id: str | None = None,
+        size_bytes: int | None = None,
     ) -> Insight:
         """
         Emit insight for a memory write operation.
@@ -246,8 +246,8 @@ class InsightEmitter:
     async def on_kernel_updated(
         self,
         kernel_name: str,
-        changes: List[str],
-        updated_by: Optional[str] = None,
+        changes: list[str],
+        updated_by: str | None = None,
     ) -> Insight:
         """
         Emit insight for a kernel update.
@@ -285,8 +285,8 @@ class InsightEmitter:
         self,
         repo_name: str,
         branch: str,
-        commits: List[str],
-        pushed_by: Optional[str] = None,
+        commits: list[str],
+        pushed_by: str | None = None,
     ) -> Insight:
         """
         Emit insight for a repository push.
@@ -360,10 +360,10 @@ class InsightEmitter:
 # Global emitter instance (lazy initialization)
 # =============================================================================
 
-_global_emitter: Optional[InsightEmitter] = None
+_global_emitter: InsightEmitter | None = None
 
 
-def get_insight_emitter(substrate_service: Optional[Any] = None) -> InsightEmitter:
+def get_insight_emitter(substrate_service: Any | None = None) -> InsightEmitter:
     """Get or create the global InsightEmitter instance."""
     global _global_emitter
 

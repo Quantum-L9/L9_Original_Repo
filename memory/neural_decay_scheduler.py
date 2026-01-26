@@ -48,7 +48,7 @@ import asyncio
 import math
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 import structlog
@@ -106,8 +106,8 @@ class NeuralDecayScheduler:
 
     def __init__(
         self,
-        repository: Optional[Any] = None,
-        config: Optional[DecayConfig] = None,
+        repository: Any | None = None,
+        config: DecayConfig | None = None,
         dry_run: bool = False,
     ):
         """
@@ -166,7 +166,7 @@ class NeuralDecayScheduler:
 
     async def run_decay_pass(
         self,
-        reference_time: Optional[datetime] = None,
+        reference_time: datetime | None = None,
     ) -> DecayResult:
         """
         Run a full decay pass over all memories.
@@ -199,7 +199,7 @@ class NeuralDecayScheduler:
             result.packets_archived = packet_result["archived"]
         except Exception as e:
             logger.error(f"Packet decay failed: {e}", exc_info=True)
-            result.errors.append(f"Packet decay: {str(e)}")
+            result.errors.append(f"Packet decay: {e!s}")
 
         # Process semantic_facts
         try:
@@ -209,7 +209,7 @@ class NeuralDecayScheduler:
             result.facts_archived = facts_result["archived"]
         except Exception as e:
             logger.error(f"Facts decay failed: {e}", exc_info=True)
-            result.errors.append(f"Facts decay: {str(e)}")
+            result.errors.append(f"Facts decay: {e!s}")
 
         result.duration_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
 
@@ -240,7 +240,7 @@ class NeuralDecayScheduler:
                     # Fetch batch
                     rows = await conn.fetch(
                         """
-                        SELECT packet_id, importance_score, access_count, 
+                        SELECT packet_id, importance_score, access_count,
                                last_accessed, created_at
                         FROM packet_store
                         WHERE importance_score > $1
@@ -292,7 +292,7 @@ class NeuralDecayScheduler:
                                 """
                                 UPDATE packet_store
                                 SET tags = array_append(
-                                    COALESCE(tags, ARRAY[]::text[]), 
+                                    COALESCE(tags, ARRAY[]::text[]),
                                     'decay_archived'
                                 ),
                                 importance_score = $1
@@ -345,7 +345,7 @@ class NeuralDecayScheduler:
                     # Fetch batch (exclude identity tier - those don't decay)
                     rows = await conn.fetch(
                         """
-                        SELECT fact_id, importance, access_count, 
+                        SELECT fact_id, importance, access_count,
                                last_accessed, created_at, tier
                         FROM semantic_facts
                         WHERE importance > $1
@@ -407,7 +407,7 @@ class NeuralDecayScheduler:
                                 """
                                 UPDATE semantic_facts
                                 SET tags = array_append(
-                                    COALESCE(tags, ARRAY[]::text[]), 
+                                    COALESCE(tags, ARRAY[]::text[]),
                                     'decay_archived'
                                 ),
                                 importance = $1
@@ -444,8 +444,8 @@ class NeuralDecayScheduler:
 
     async def get_decay_preview(
         self,
-        packet_id: Optional[UUID] = None,
-        fact_id: Optional[UUID] = None,
+        packet_id: UUID | None = None,
+        fact_id: UUID | None = None,
     ) -> dict[str, Any]:
         """
         Preview decay calculation for a specific memory.
@@ -467,7 +467,7 @@ class NeuralDecayScheduler:
                 if packet_id:
                     row = await conn.fetchrow(
                         """
-                        SELECT importance_score, access_count, 
+                        SELECT importance_score, access_count,
                                last_accessed, created_at
                         FROM packet_store
                         WHERE packet_id = $1
@@ -481,7 +481,7 @@ class NeuralDecayScheduler:
                 elif fact_id:
                     row = await conn.fetchrow(
                         """
-                        SELECT importance, access_count, 
+                        SELECT importance, access_count,
                                last_accessed, created_at, tier
                         FROM semantic_facts
                         WHERE fact_id = $1

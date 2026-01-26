@@ -249,7 +249,7 @@ class TestCallerIdentityEnforcement:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
             # Try to spoof creator in request body
-            resp = await client.post(
+            await client.post(
                 "/memory/save",
                 headers=l_auth,
                 json={
@@ -347,7 +347,9 @@ class TestScopeSemantics:
     def test_scope_mapping_preserves_semantics(self):
         """map_mcp_scope_to_db_scope must preserve distinct scope values."""
         from mcp_memory.src.routes.memory_unified import (
-            map_db_scope_to_mcp_scope, map_mcp_scope_to_db_scope)
+            map_db_scope_to_mcp_scope,
+            map_mcp_scope_to_db_scope,
+        )
 
         # Verify scope semantics are NOT collapsed
         assert map_mcp_scope_to_db_scope("developer") == "developer"

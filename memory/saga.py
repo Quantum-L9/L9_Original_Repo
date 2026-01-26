@@ -51,10 +51,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Callable, Optional, TypeVar
+from typing import Any, TypeVar
 from uuid import UUID, uuid4
 
 import structlog
@@ -121,11 +122,11 @@ class SagaStepResult:
 
     # Results
     data: Any = None
-    error: Optional[str] = None
+    error: str | None = None
 
     # Timing
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
     duration_ms: float = 0.0
 
     # Metadata
@@ -152,12 +153,12 @@ class SagaResult:
     output: Any = None
 
     # Error info
-    error: Optional[str] = None
-    failed_step: Optional[str] = None
+    error: str | None = None
+    failed_step: str | None = None
 
     # Timing
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
     total_duration_ms: float = 0.0
 
     # Statistics
@@ -259,11 +260,11 @@ class SagaStep:
     execute_fn: Callable[..., Any]
 
     # Compensation function (optional): (context, clients) -> None
-    compensate_fn: Optional[Callable[..., Any]] = None
+    compensate_fn: Callable[..., Any] | None = None
 
     # Condition function (optional): (context) -> bool
     # If returns False, step is skipped
-    condition_fn: Optional[Callable[[SagaContext], bool]] = None
+    condition_fn: Callable[[SagaContext], bool] | None = None
 
     # Whether this step is required (failure stops saga)
     required: bool = True
@@ -320,10 +321,10 @@ class SagaExecutor:
 
     def __init__(
         self,
-        postgres_pool: Optional[Any] = None,
-        neo4j_client: Optional[Any] = None,
-        redis_client: Optional[Any] = None,
-        semantic_service: Optional[Any] = None,
+        postgres_pool: Any | None = None,
+        neo4j_client: Any | None = None,
+        redis_client: Any | None = None,
+        semantic_service: Any | None = None,
     ):
         """
         Initialize saga executor with database clients.
@@ -343,9 +344,9 @@ class SagaExecutor:
 
     async def execute(
         self,
-        saga: "Saga",
-        input_data: Optional[dict[str, Any]] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        saga: Saga,
+        input_data: dict[str, Any] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> SagaResult:
         """
         Execute a saga with all its steps.
@@ -589,7 +590,7 @@ class Saga:
         name: str,
         steps: list[SagaStep],
         description: str = "",
-        output_builder: Optional[Callable[[SagaContext], Any]] = None,
+        output_builder: Callable[[SagaContext], Any] | None = None,
     ):
         """
         Initialize saga definition.
@@ -651,7 +652,7 @@ class SagaBuilder:
         self._name = name
         self._description = description
         self._steps: list[SagaStep] = []
-        self._output_builder: Optional[Callable[[SagaContext], Any]] = None
+        self._output_builder: Callable[[SagaContext], Any] | None = None
 
     def add_step(
         self,
@@ -659,11 +660,11 @@ class SagaBuilder:
         database: DatabaseType,
         execute_fn: Callable[..., Any],
         description: str = "",
-        compensate_fn: Optional[Callable[..., Any]] = None,
-        condition_fn: Optional[Callable[[SagaContext], bool]] = None,
+        compensate_fn: Callable[..., Any] | None = None,
+        condition_fn: Callable[[SagaContext], bool] | None = None,
         required: bool = True,
         max_retries: int = 0,
-    ) -> "SagaBuilder":
+    ) -> SagaBuilder:
         """Add a step to the saga."""
         self._steps.append(
             SagaStep(
@@ -682,7 +683,7 @@ class SagaBuilder:
     def with_output_builder(
         self,
         builder: Callable[[SagaContext], Any],
-    ) -> "SagaBuilder":
+    ) -> SagaBuilder:
         """Set custom output builder."""
         self._output_builder = builder
         return self
@@ -702,15 +703,15 @@ class SagaBuilder:
 # =============================================================================
 
 
-_executor: Optional[SagaExecutor] = None
+_executor: SagaExecutor | None = None
 
 
 @must_stay_async("callers use await")
 async def get_saga_executor(
-    postgres_pool: Optional[Any] = None,
-    neo4j_client: Optional[Any] = None,
-    redis_client: Optional[Any] = None,
-    semantic_service: Optional[Any] = None,
+    postgres_pool: Any | None = None,
+    neo4j_client: Any | None = None,
+    redis_client: Any | None = None,
+    semantic_service: Any | None = None,
 ) -> SagaExecutor:
     """Get or create singleton saga executor."""
     global _executor
@@ -727,19 +728,19 @@ async def get_saga_executor(
 
 
 __all__ = [
-    # Enums
-    "SagaStepStatus",
-    "SagaStatus",
     "DatabaseType",
-    # Data classes
-    "SagaStepResult",
-    "SagaResult",
-    "SagaContext",
-    "SagaStep",
     # Core classes
     "Saga",
-    "SagaExecutor",
     "SagaBuilder",
+    "SagaContext",
+    "SagaExecutor",
+    "SagaResult",
+    "SagaStatus",
+    "SagaStep",
+    # Data classes
+    "SagaStepResult",
+    # Enums
+    "SagaStepStatus",
     # Convenience
     "get_saga_executor",
 ]

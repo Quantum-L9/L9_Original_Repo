@@ -25,6 +25,7 @@ Now I have a complete picture. Let me provide the comprehensive `/analyze+evalua
 ## 🔍 L9 ANALYZE+EVALUATE: Class Definition Inventory
 
 ### 📍 STATE_SYNC
+
 - **PHASE:** 6 – FINALIZE (Governance Upgrade Complete)
 - **Priority Tier:** 🟢 Informational Query
 - **Target Type:** CODEBASE (full repo scan)
@@ -34,12 +35,12 @@ Now I have a complete picture. Let me provide the comprehensive `/analyze+evalua
 
 ## 📊 EXECUTIVE SUMMARY
 
-| Metric | Count | Notes |
-|--------|-------|-------|
+| Metric                      | Count  | Notes                                          |
+| --------------------------- | ------ | ---------------------------------------------- |
 | **Total Class Definitions** | ~2,706 | All file types (Python + Markdown code blocks) |
-| **Python-Only Classes** | ~1,620 | Across 501 Python files |
-| **Files with Classes** | 599 | Including docs, tests, archives |
-| **Production Classes** | ~900 | Excluding tests, docs, archive |
+| **Python-Only Classes**     | ~1,620 | Across 501 Python files                        |
+| **Files with Classes**      | 599    | Including docs, tests, archives                |
+| **Production Classes**      | ~900   | Excluding tests, docs, archive                 |
 
 ---
 
@@ -47,46 +48,46 @@ Now I have a complete picture. Let me provide the comprehensive `/analyze+evalua
 
 A **class definition** in Python is a blueprint for creating objects. In L9, classes serve 6 distinct purposes:
 
-| Class Type | Purpose | Example |
-|------------|---------|---------|
-| **Data Models** (Pydantic) | Type-safe data containers with validation | `PacketEnvelope`, `AgentTask`, `ExecutionResult` |
-| **Service Classes** | Business logic encapsulation | `AgentExecutorService`, `WorldModelService` |
-| **Agent Classes** | Autonomous agent implementations | `LCTO`, `ResearcherAgent`, `CodeGenAgent` |
-| **Orchestrators** | Multi-agent coordination | `PlanExecutor`, `UnifiedController`, `TaskRouter` |
-| **Enums** | Type-safe constants | `MemorySegment`, `PacketKind`, `ExecutorState` |
-| **Protocol Classes** | Interface contracts (duck-typing) | `ToolRegistry(Protocol)`, `MemorySubstrate(Protocol)` |
+| Class Type                 | Purpose                                   | Example                                               |
+| -------------------------- | ----------------------------------------- | ----------------------------------------------------- |
+| **Data Models** (Pydantic) | Type-safe data containers with validation | `PacketEnvelope`, `AgentTask`, `ExecutionResult`      |
+| **Service Classes**        | Business logic encapsulation              | `AgentExecutorService`, `WorldModelService`           |
+| **Agent Classes**          | Autonomous agent implementations          | `LCTO`, `ResearcherAgent`, `CodeGenAgent`             |
+| **Orchestrators**          | Multi-agent coordination                  | `PlanExecutor`, `UnifiedController`, `TaskRouter`     |
+| **Enums**                  | Type-safe constants                       | `MemorySegment`, `PacketKind`, `ExecutorState`        |
+| **Protocol Classes**       | Interface contracts (duck-typing)         | `ToolRegistry(Protocol)`, `MemorySubstrate(Protocol)` |
 
 ---
 
 ## 🗺️ CLASS DISTRIBUTION BY LOCATION
 
-| Directory | Classes | Files | Primary Purpose |
-|-----------|---------|-------|-----------------|
-| `core/` | **263** | 68 | Core L9 kernel, schemas, agents, governance |
-| `tests/` | **257** | 71 | Pytest test classes (unit, integration) |
-| `docs/` | **284** | 86 | Roadmap prototypes, archived code, audits |
-| `api/` | **122** | 44 | FastAPI routes, adapters, webhooks |
-| `services/` | **69** | 29 | Research, symbolic computation services |
-| `memory/` | **52** | 23 | Memory substrate, extractors, validators |
-| `orchestration/` | **41** | 8 | Plan execution, task routing |
-| `agents/` | **28** | 13 | Agent implementations (codegen, QA, etc.) |
-| `runtime/` | **25** | 10 | Kernel loader, Redis, WebSocket |
-| Other | ~175 | ~55 | ir_engine, world_model, mcp_memory, etc. |
+| Directory        | Classes | Files | Primary Purpose                             |
+| ---------------- | ------- | ----- | ------------------------------------------- |
+| `core/`          | **263** | 68    | Core L9 kernel, schemas, agents, governance |
+| `tests/`         | **257** | 71    | Pytest test classes (unit, integration)     |
+| `docs/`          | **284** | 86    | Roadmap prototypes, archived code, audits   |
+| `api/`           | **122** | 44    | FastAPI routes, adapters, webhooks          |
+| `services/`      | **69**  | 29    | Research, symbolic computation services     |
+| `memory/`        | **52**  | 23    | Memory substrate, extractors, validators    |
+| `orchestration/` | **41**  | 8     | Plan execution, task routing                |
+| `agents/`        | **28**  | 13    | Agent implementations (codegen, QA, etc.)   |
+| `runtime/`       | **25**  | 10    | Kernel loader, Redis, WebSocket             |
+| Other            | ~175    | ~55   | ir_engine, world_model, mcp_memory, etc.    |
 
 ---
 
 ## 🧬 CLASS TAXONOMY BY TYPE
 
-| Type | Count | Pattern | Usage |
-|------|-------|---------|-------|
-| **Pydantic BaseModel** | ~358 | `class Foo(BaseModel)` | Request/response schemas, data transfer objects |
-| **Test Classes** | ~232 | `class TestFoo` | Pytest test organization |
-| **Error/Exception** | ~37 | `class FooError` | Domain-specific exceptions |
-| **Agent Classes** | ~37 | `class FooAgent` | Autonomous agent implementations |
-| **Enum Classes** | ~34 | `class Foo(Enum)` | Type-safe constants |
-| **Service Classes** | ~25 | `class FooService` | Business logic with dependencies |
-| **Protocol Classes** | ~20 | `class Foo(Protocol)` | Interface contracts for dependency injection |
-| **Other Classes** | ~577 | Various | Orchestrators, extractors, adapters, etc. |
+| Type                   | Count | Pattern                | Usage                                           |
+| ---------------------- | ----- | ---------------------- | ----------------------------------------------- |
+| **Pydantic BaseModel** | ~358  | `class Foo(BaseModel)` | Request/response schemas, data transfer objects |
+| **Test Classes**       | ~232  | `class TestFoo`        | Pytest test organization                        |
+| **Error/Exception**    | ~37   | `class FooError`       | Domain-specific exceptions                      |
+| **Agent Classes**      | ~37   | `class FooAgent`       | Autonomous agent implementations                |
+| **Enum Classes**       | ~34   | `class Foo(Enum)`      | Type-safe constants                             |
+| **Service Classes**    | ~25   | `class FooService`     | Business logic with dependencies                |
+| **Protocol Classes**   | ~20   | `class Foo(Protocol)`  | Interface contracts for dependency injection    |
+| **Other Classes**      | ~577  | Various                | Orchestrators, extractors, adapters, etc.       |
 
 ---
 
@@ -106,11 +107,12 @@ class PacketEnvelope(BaseModel):
     packet_type: str
     payload: Dict[str, Any]
     timestamp: datetime
-    
+
     model_config = {"frozen": True}  # Immutability enforcement
 ```
 
 **Why so many?** Every API endpoint, tool call, and inter-service message has:
+
 - **Request model** (input validation)
 - **Response model** (output schema)
 - **Internal model** (domain logic)
@@ -120,7 +122,7 @@ class PacketEnvelope(BaseModel):
 ```python
 class TestExecutorGovernance:
     """Test governance constraints in agent executor."""
-    
+
 class TestPacketEnvelopeImmutability:
     """Test that packets cannot be mutated after creation."""
 ```
@@ -130,6 +132,7 @@ class TestPacketEnvelopeImmutability:
 ### 3. **10-Kernel Stack Architecture**
 
 L9's core has 10 governance kernels, each with associated classes:
+
 - `MasterKernel` → `SafetyKernel` → `ExecutionKernel` → etc.
 - Each kernel has: config classes, loader classes, validation classes
 
@@ -149,6 +152,7 @@ class PacketEnvelope(BaseModel):  # v2.0.0
 ### 5. **Integration Adapters (4 adapters × ~15 classes each)**
 
 Each external integration has a full class stack:
+
 - `api/adapters/slack_adapter/` → 15 classes
 - `api/adapters/email_adapter/` → 15 classes
 - `api/adapters/calendar_adapter/` → 15 classes
@@ -157,6 +161,7 @@ Each external integration has a full class stack:
 ### 6. **Roadmap/Prototype Code in Docs (284 classes)**
 
 Many classes exist in `docs/Roadmap-Upgrades/` as:
+
 - Future feature prototypes
 - Harvested code waiting for integration
 - Archived versions during GMP phases
@@ -192,33 +197,35 @@ ARCHIVE/DEPRECATED
 
 ### ✅ Well-Architected Patterns
 
-| Pattern | Status | Evidence |
-|---------|--------|----------|
-| Pydantic for data models | ✅ 100% | 358 BaseModel classes |
-| Protocol-based interfaces | ✅ | 20 Protocol classes for DI |
-| Test class organization | ✅ | 232 test classes, good coverage |
-| Error class hierarchy | ✅ | 37 domain-specific exceptions |
-| Enum for constants | ✅ | 34 Enum classes, no magic strings |
+| Pattern                   | Status  | Evidence                          |
+| ------------------------- | ------- | --------------------------------- |
+| Pydantic for data models  | ✅ 100% | 358 BaseModel classes             |
+| Protocol-based interfaces | ✅      | 20 Protocol classes for DI        |
+| Test class organization   | ✅      | 232 test classes, good coverage   |
+| Error class hierarchy     | ✅      | 37 domain-specific exceptions     |
+| Enum for constants        | ✅      | 34 Enum classes, no magic strings |
 
 ### 🟡 Areas of Note
 
-| Finding | Impact | Recommendation |
-|---------|--------|----------------|
-| 284 classes in `docs/` | Tech debt (non-production) | Archive or integrate |
-| Deprecated schema versions | Migration overhead | Complete sunset by 2026-04-05 |
-| Duplicate class names across versions | Import confusion risk | Use explicit version imports |
+| Finding                               | Impact                     | Recommendation                |
+| ------------------------------------- | -------------------------- | ----------------------------- |
+| 284 classes in `docs/`                | Tech debt (non-production) | Archive or integrate          |
+| Deprecated schema versions            | Migration overhead         | Complete sunset by 2026-04-05 |
+| Duplicate class names across versions | Import confusion risk      | Use explicit version imports  |
 
 ---
 
 ## 🎯 YNP (Your Next Play)
 
 **Question Answered:** The ~1,922-2,706 class definitions are distributed across:
+
 - **~900 production classes** (core business logic)
 - **~257 test classes** (quality assurance)
 - **~284 prototype/roadmap classes** (future features in docs)
 - **~50+ deprecated/archived classes**
 
 **This is normal for enterprise-grade AI systems.** The class count reflects:
+
 1. Type-safe architecture (Pydantic)
 2. Comprehensive testing
 3. Clean separation of concerns
@@ -237,14 +244,14 @@ analyze_evaluate:
   target: Full L9 Repository
   type: CODEBASE
   tier: MIXED
-  
+
   class_counts:
     total_all_files: 2706
     python_only: 1620
     production: ~900
     tests: 257
     docs_roadmap: 284
-    
+
   by_type:
     pydantic_models: 358
     test_classes: 232
@@ -253,7 +260,7 @@ analyze_evaluate:
     enum_classes: 34
     service_classes: 25
     protocol_classes: 20
-    
+
   health:
     structure: GOOD
     organization: GOOD

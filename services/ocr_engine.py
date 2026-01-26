@@ -28,8 +28,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import contextlib
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 
@@ -45,7 +46,7 @@ except ImportError:
     logger.warning("pytesseract/Pillow not installed. OCR disabled.")
 
 
-def ocr_image(path: str) -> Dict[str, Any]:
+def ocr_image(path: str) -> dict[str, Any]:
     """
     Extract text from image using OCR.
 
@@ -91,10 +92,8 @@ def ocr_image(path: str) -> Dict[str, Any]:
             if word.strip():
                 conf = ocr_data.get("conf", [])[i]
                 if conf != "-1":  # -1 means no confidence data
-                    try:
+                    with contextlib.suppress(ValueError, TypeError):
                         confidences.append(float(conf))
-                    except (ValueError, TypeError):
-                        pass
                 tokens.append(word.strip())
 
         # Calculate average confidence
@@ -122,7 +121,7 @@ def ocr_image(path: str) -> Dict[str, Any]:
         }
 
 
-def ocr_pdf_first_page(path: str) -> Dict[str, Any]:
+def ocr_pdf_first_page(path: str) -> dict[str, Any]:
     """
     Extract text from first page of PDF using screenshot fallback.
 
@@ -156,10 +155,8 @@ def ocr_pdf_first_page(path: str) -> Dict[str, Any]:
                 result = ocr_image(str(temp_image))
 
                 # Clean up temp file
-                try:
+                with contextlib.suppress(Exception):
                     temp_image.unlink()
-                except Exception:
-                    pass
 
                 return result
         except ImportError:

@@ -53,13 +53,13 @@ async def test_tool_registry():
 
     # Verify tier rules
     for tool in t1_tools:
-        assert tool["approval_required"] == False
+        assert not tool["approval_required"]
     for tool in t2_tools:
-        assert tool["approval_required"] == True
-        assert tool.get("hitl_approval") == True
+        assert tool["approval_required"]
+        assert tool.get("hitl_approval")
     for tool in t3_tools:
-        assert tool["approval_required"] == True
-        assert tool.get("igor_approval_required") == True
+        assert tool["approval_required"]
+        assert tool.get("igor_approval_required")
 
     print(
         f"✅ Tool registry valid: {len(t1_tools)} T1, {len(t2_tools)} T2, {len(t3_tools)} T3"

@@ -195,17 +195,17 @@ def get_secret_or_env(key: str, default: str | None = None) -> str | None:
 # =============================================================================
 
 __all__ = [
-    # Factory
-    "get_secrets_client",
-    "reset_secrets_client",
-    # Convenience
-    "get_secret",
-    "get_secret_or_env",
+    "AwsSecretsClient",
     # Implementations
     "EnvSecretsClient",
-    "AwsSecretsClient",
     # Types
     "SecretsClientType",
     # Errors
     "SecretsError",
+    # Convenience
+    "get_secret",
+    "get_secret_or_env",
+    # Factory
+    "get_secrets_client",
+    "reset_secrets_client",
 ]

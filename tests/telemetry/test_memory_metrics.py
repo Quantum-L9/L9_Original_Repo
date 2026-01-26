@@ -49,8 +49,7 @@ class TestInitMetrics:
 
     def test_init_metrics_sets_initial_health(self):
         """Contract: init_metrics sets initial substrate health to healthy."""
-        from telemetry.memory_metrics import (MEMORY_SUBSTRATE_HEALTHY,
-                                              init_metrics)
+        from telemetry.memory_metrics import MEMORY_SUBSTRATE_HEALTHY, init_metrics
 
         init_metrics()
         # Gauge should be set to 1 (healthy)
@@ -74,9 +73,11 @@ class TestRecordMemoryWrite:
 
     def test_record_memory_write_increments_counter(self):
         """Contract: record_memory_write increments the write counter."""
-        from telemetry.memory_metrics import (MEMORY_WRITE_TOTAL,
-                                              PROMETHEUS_AVAILABLE,
-                                              record_memory_write)
+        from telemetry.memory_metrics import (
+            MEMORY_WRITE_TOTAL,
+            PROMETHEUS_AVAILABLE,
+            record_memory_write,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -96,8 +97,7 @@ class TestRecordMemoryWrite:
 
     def test_record_memory_write_with_duration(self):
         """Contract: record_memory_write records duration when provided."""
-        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
-                                              record_memory_write)
+        from telemetry.memory_metrics import PROMETHEUS_AVAILABLE, record_memory_write
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -111,9 +111,11 @@ class TestRecordMemoryWrite:
 
     def test_record_memory_write_different_segments(self):
         """Contract: Different segments are tracked separately."""
-        from telemetry.memory_metrics import (MEMORY_WRITE_TOTAL,
-                                              PROMETHEUS_AVAILABLE,
-                                              record_memory_write)
+        from telemetry.memory_metrics import (
+            MEMORY_WRITE_TOTAL,
+            PROMETHEUS_AVAILABLE,
+            record_memory_write,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -135,9 +137,11 @@ class TestRecordMemoryWrite:
 
     def test_record_memory_write_different_statuses(self):
         """Contract: Different statuses are tracked separately."""
-        from telemetry.memory_metrics import (MEMORY_WRITE_TOTAL,
-                                              PROMETHEUS_AVAILABLE,
-                                              record_memory_write)
+        from telemetry.memory_metrics import (
+            MEMORY_WRITE_TOTAL,
+            PROMETHEUS_AVAILABLE,
+            record_memory_write,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -175,9 +179,11 @@ class TestRecordMemorySearch:
 
     def test_record_memory_search_increments_counter(self):
         """Contract: record_memory_search increments the search counter."""
-        from telemetry.memory_metrics import (MEMORY_SEARCH_TOTAL,
-                                              PROMETHEUS_AVAILABLE,
-                                              record_memory_search)
+        from telemetry.memory_metrics import (
+            MEMORY_SEARCH_TOTAL,
+            PROMETHEUS_AVAILABLE,
+            record_memory_search,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -197,9 +203,11 @@ class TestRecordMemorySearch:
 
     def test_record_memory_search_records_hits(self):
         """Contract: record_memory_search records hit count histogram."""
-        from telemetry.memory_metrics import (MEMORY_SEARCH_HITS,
-                                              PROMETHEUS_AVAILABLE,
-                                              record_memory_search)
+        from telemetry.memory_metrics import (
+            MEMORY_SEARCH_HITS,
+            PROMETHEUS_AVAILABLE,
+            record_memory_search,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -213,9 +221,11 @@ class TestRecordMemorySearch:
 
     def test_record_memory_search_different_types(self):
         """Contract: Different search types are tracked."""
-        from telemetry.memory_metrics import (MEMORY_SEARCH_TOTAL,
-                                              PROMETHEUS_AVAILABLE,
-                                              record_memory_search)
+        from telemetry.memory_metrics import (
+            MEMORY_SEARCH_TOTAL,
+            PROMETHEUS_AVAILABLE,
+            record_memory_search,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -240,8 +250,7 @@ class TestRecordMemorySearch:
 
     def test_record_memory_search_zero_hits(self):
         """Contract: Zero hits is valid and recorded."""
-        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
-                                              record_memory_search)
+        from telemetry.memory_metrics import PROMETHEUS_AVAILABLE, record_memory_search
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -261,9 +270,11 @@ class TestRecordToolInvocation:
 
     def test_record_tool_invocation_increments_counter(self):
         """Contract: record_tool_invocation increments the invocation counter."""
-        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
-                                              TOOL_INVOCATION_TOTAL,
-                                              record_tool_invocation)
+        from telemetry.memory_metrics import (
+            PROMETHEUS_AVAILABLE,
+            TOOL_INVOCATION_TOTAL,
+            record_tool_invocation,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -283,9 +294,11 @@ class TestRecordToolInvocation:
 
     def test_record_tool_invocation_records_duration(self):
         """Contract: record_tool_invocation records duration histogram."""
-        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
-                                              TOOL_INVOCATION_DURATION,
-                                              record_tool_invocation)
+        from telemetry.memory_metrics import (
+            PROMETHEUS_AVAILABLE,
+            TOOL_INVOCATION_DURATION,
+            record_tool_invocation,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -299,9 +312,11 @@ class TestRecordToolInvocation:
 
     def test_record_tool_invocation_different_statuses(self):
         """Contract: Different statuses are tracked separately."""
-        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
-                                              TOOL_INVOCATION_TOTAL,
-                                              record_tool_invocation)
+        from telemetry.memory_metrics import (
+            PROMETHEUS_AVAILABLE,
+            TOOL_INVOCATION_TOTAL,
+            record_tool_invocation,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -331,8 +346,10 @@ class TestRecordToolInvocation:
 
     def test_record_tool_invocation_zero_duration(self):
         """Contract: Zero duration is valid (e.g., for denied calls)."""
-        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
-                                              record_tool_invocation)
+        from telemetry.memory_metrics import (
+            PROMETHEUS_AVAILABLE,
+            record_tool_invocation,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -342,9 +359,11 @@ class TestRecordToolInvocation:
 
     def test_record_tool_invocation_high_duration(self):
         """Contract: High duration values are recorded correctly."""
-        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
-                                              TOOL_INVOCATION_DURATION,
-                                              record_tool_invocation)
+        from telemetry.memory_metrics import (
+            PROMETHEUS_AVAILABLE,
+            TOOL_INVOCATION_DURATION,
+            record_tool_invocation,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -370,9 +389,11 @@ class TestSetMemorySubstrateHealth:
 
     def test_set_health_to_healthy(self):
         """Contract: Setting health to True sets gauge to 1."""
-        from telemetry.memory_metrics import (MEMORY_SUBSTRATE_HEALTHY,
-                                              PROMETHEUS_AVAILABLE,
-                                              set_memory_substrate_health)
+        from telemetry.memory_metrics import (
+            MEMORY_SUBSTRATE_HEALTHY,
+            PROMETHEUS_AVAILABLE,
+            set_memory_substrate_health,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -382,9 +403,11 @@ class TestSetMemorySubstrateHealth:
 
     def test_set_health_to_unhealthy(self):
         """Contract: Setting health to False sets gauge to 0."""
-        from telemetry.memory_metrics import (MEMORY_SUBSTRATE_HEALTHY,
-                                              PROMETHEUS_AVAILABLE,
-                                              set_memory_substrate_health)
+        from telemetry.memory_metrics import (
+            MEMORY_SUBSTRATE_HEALTHY,
+            PROMETHEUS_AVAILABLE,
+            set_memory_substrate_health,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -397,9 +420,11 @@ class TestSetMemorySubstrateHealth:
 
     def test_set_health_toggle(self):
         """Contract: Health can be toggled between healthy and unhealthy."""
-        from telemetry.memory_metrics import (MEMORY_SUBSTRATE_HEALTHY,
-                                              PROMETHEUS_AVAILABLE,
-                                              set_memory_substrate_health)
+        from telemetry.memory_metrics import (
+            MEMORY_SUBSTRATE_HEALTHY,
+            PROMETHEUS_AVAILABLE,
+            set_memory_substrate_health,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -427,9 +452,11 @@ class TestUpdatePacketStoreSize:
 
     def test_update_packet_store_size_sets_gauge(self):
         """Contract: update_packet_store_size sets the gauge value."""
-        from telemetry.memory_metrics import (PACKET_STORE_SIZE,
-                                              PROMETHEUS_AVAILABLE,
-                                              update_packet_store_size)
+        from telemetry.memory_metrics import (
+            PACKET_STORE_SIZE,
+            PROMETHEUS_AVAILABLE,
+            update_packet_store_size,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -441,9 +468,11 @@ class TestUpdatePacketStoreSize:
 
     def test_update_packet_store_size_different_segments(self):
         """Contract: Different segments have independent gauge values."""
-        from telemetry.memory_metrics import (PACKET_STORE_SIZE,
-                                              PROMETHEUS_AVAILABLE,
-                                              update_packet_store_size)
+        from telemetry.memory_metrics import (
+            PACKET_STORE_SIZE,
+            PROMETHEUS_AVAILABLE,
+            update_packet_store_size,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -462,9 +491,11 @@ class TestUpdatePacketStoreSize:
 
     def test_update_packet_store_size_overwrites(self):
         """Contract: Gauge value is overwritten, not accumulated."""
-        from telemetry.memory_metrics import (PACKET_STORE_SIZE,
-                                              PROMETHEUS_AVAILABLE,
-                                              update_packet_store_size)
+        from telemetry.memory_metrics import (
+            PACKET_STORE_SIZE,
+            PROMETHEUS_AVAILABLE,
+            update_packet_store_size,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -477,9 +508,11 @@ class TestUpdatePacketStoreSize:
 
     def test_update_packet_store_size_zero(self):
         """Contract: Zero count is valid."""
-        from telemetry.memory_metrics import (PACKET_STORE_SIZE,
-                                              PROMETHEUS_AVAILABLE,
-                                              update_packet_store_size)
+        from telemetry.memory_metrics import (
+            PACKET_STORE_SIZE,
+            PROMETHEUS_AVAILABLE,
+            update_packet_store_size,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -518,12 +551,14 @@ class TestPublicAPI:
 
     def test_exports_are_callable(self):
         """Contract: All function exports are callable."""
-        from telemetry.memory_metrics import (init_metrics,
-                                              record_memory_search,
-                                              record_memory_write,
-                                              record_tool_invocation,
-                                              set_memory_substrate_health,
-                                              update_packet_store_size)
+        from telemetry.memory_metrics import (
+            init_metrics,
+            record_memory_search,
+            record_memory_write,
+            record_tool_invocation,
+            set_memory_substrate_health,
+            update_packet_store_size,
+        )
 
         assert callable(record_memory_write)
         assert callable(record_memory_search)
@@ -573,8 +608,7 @@ class TestMetricLabels:
 
     def test_tool_invocation_labels(self):
         """Contract: Tool invocation metrics use correct labels."""
-        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
-                                              TOOL_INVOCATION_TOTAL)
+        from telemetry.memory_metrics import PROMETHEUS_AVAILABLE, TOOL_INVOCATION_TOTAL
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -585,8 +619,7 @@ class TestMetricLabels:
 
     def test_memory_write_labels(self):
         """Contract: Memory write metrics use correct labels."""
-        from telemetry.memory_metrics import (MEMORY_WRITE_TOTAL,
-                                              PROMETHEUS_AVAILABLE)
+        from telemetry.memory_metrics import MEMORY_WRITE_TOTAL, PROMETHEUS_AVAILABLE
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -596,8 +629,7 @@ class TestMetricLabels:
 
     def test_memory_search_labels(self):
         """Contract: Memory search metrics use correct labels."""
-        from telemetry.memory_metrics import (MEMORY_SEARCH_TOTAL,
-                                              PROMETHEUS_AVAILABLE)
+        from telemetry.memory_metrics import MEMORY_SEARCH_TOTAL, PROMETHEUS_AVAILABLE
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -611,8 +643,10 @@ class TestHistogramBuckets:
 
     def test_tool_invocation_duration_buckets(self):
         """Contract: Tool invocation histogram has appropriate ms buckets."""
-        from telemetry.memory_metrics import (PROMETHEUS_AVAILABLE,
-                                              TOOL_INVOCATION_DURATION)
+        from telemetry.memory_metrics import (
+            PROMETHEUS_AVAILABLE,
+            TOOL_INVOCATION_DURATION,
+        )
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -625,8 +659,7 @@ class TestHistogramBuckets:
 
     def test_memory_write_duration_buckets(self):
         """Contract: Memory write histogram has appropriate second buckets."""
-        from telemetry.memory_metrics import (MEMORY_WRITE_DURATION,
-                                              PROMETHEUS_AVAILABLE)
+        from telemetry.memory_metrics import MEMORY_WRITE_DURATION, PROMETHEUS_AVAILABLE
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")
@@ -637,8 +670,7 @@ class TestHistogramBuckets:
 
     def test_memory_search_hits_buckets(self):
         """Contract: Memory search hits histogram has count buckets."""
-        from telemetry.memory_metrics import (MEMORY_SEARCH_HITS,
-                                              PROMETHEUS_AVAILABLE)
+        from telemetry.memory_metrics import MEMORY_SEARCH_HITS, PROMETHEUS_AVAILABLE
 
         if not PROMETHEUS_AVAILABLE:
             pytest.skip("Prometheus not available")

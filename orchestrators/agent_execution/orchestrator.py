@@ -285,7 +285,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                 }
                             ],
                             "screenshots": [],
-                            "data": {"error": f"Orchestrator error: {str(e)}"},
+                            "data": {"error": f"Orchestrator error: {e!s}"},
                         }
 
                         # Take desktop screenshot if possible

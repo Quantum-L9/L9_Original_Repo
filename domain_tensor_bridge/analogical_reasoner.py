@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Analogical Reasoner
@@ -45,7 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 
@@ -60,13 +59,13 @@ class Analogy:
     target_domain: str
     pattern: str
     confidence: float
-    mapping: Dict[str, str] = field(default_factory=dict)
+    mapping: dict[str, str] = field(default_factory=dict)
 
 
 class AnalogicalReasoner:
     """Finds cross-domain analogies."""
 
-    async def find_analogies(self, context: Dict[str, Any]) -> List[Analogy]:
+    async def find_analogies(self, context: dict[str, Any]) -> list[Analogy]:
         """Find analogies in context."""
         logger.info("finding_analogies")
 

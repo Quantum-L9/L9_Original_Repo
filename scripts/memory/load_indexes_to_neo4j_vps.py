@@ -44,7 +44,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import aiofiles
 import httpx
@@ -90,7 +90,7 @@ class VPSRepoGraphLoader:
             "queries_executed": 0,
         }
 
-    async def api_request(self, method: str, endpoint: str, **kwargs) -> Dict[str, Any]:
+    async def api_request(self, method: str, endpoint: str, **kwargs) -> dict[str, Any]:
         """Make authenticated API request to VPS."""
         if not API_KEY:
             return {
@@ -121,8 +121,8 @@ class VPSRepoGraphLoader:
                 return {"error": str(e), "success": False}
 
     async def execute_cypher(
-        self, query: str, parameters: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, query: str, parameters: dict | None = None
+    ) -> dict[str, Any]:
         """Execute Cypher query via VPS API."""
         if self.dry_run:
             if self.verbose:
@@ -202,7 +202,7 @@ class VPSRepoGraphLoader:
             return
 
         files = []
-        async with aiofiles.open(file_path, "r") as f:
+        async with aiofiles.open(file_path) as f:
             async for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
@@ -258,7 +258,7 @@ class VPSRepoGraphLoader:
             return
 
         classes = []
-        async with aiofiles.open(file_path, "r") as f:
+        async with aiofiles.open(file_path) as f:
             async for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
@@ -334,7 +334,7 @@ class VPSRepoGraphLoader:
             return
 
         relationships = []
-        async with aiofiles.open(file_path, "r") as f:
+        async with aiofiles.open(file_path) as f:
             async for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):
@@ -379,7 +379,7 @@ class VPSRepoGraphLoader:
             return
 
         routes = []
-        async with aiofiles.open(file_path, "r") as f:
+        async with aiofiles.open(file_path) as f:
             async for line in f:
                 line = line.strip()
                 if not line or line.startswith("#"):

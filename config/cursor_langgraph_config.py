@@ -29,7 +29,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -50,7 +49,7 @@ class CursorLangGraphConfig(BaseModel):
     )
 
     # MCP API key (if needed)
-    MCP_API_KEY: Optional[str] = Field(
+    MCP_API_KEY: str | None = Field(
         default_factory=lambda: os.getenv("MCP_API_KEY"),
         description="MCP API key (optional)",
     )
@@ -87,7 +86,7 @@ class CursorLangGraphConfig(BaseModel):
 
 
 # Singleton instance
-_config: Optional[CursorLangGraphConfig] = None
+_config: CursorLangGraphConfig | None = None
 
 
 def get_cursor_langgraph_config() -> CursorLangGraphConfig:

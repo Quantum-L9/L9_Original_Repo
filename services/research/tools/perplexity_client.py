@@ -41,7 +41,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 import httpx
 import structlog
@@ -107,14 +107,14 @@ class PerplexityRequest:
     search_domain_filter: list[str] = field(
         default_factory=list
     )  # e.g., ["docs.python.org"]
-    search_recency_filter: Optional[str] = None  # "day", "week", "month", "year"
+    search_recency_filter: str | None = None  # "day", "week", "month", "year"
 
     # Response control
     temperature: float = 0.2
     max_tokens: int = 4000
 
     # System context (kept minimal per best practices)
-    system_context: Optional[str] = None
+    system_context: str | None = None
 
     def validate(self) -> list[str]:
         """Validate request against best practices."""
@@ -154,7 +154,7 @@ class PerplexityResponse:
     model: str
     tokens_used: int
     cost: float
-    error: Optional[str] = None
+    error: str | None = None
     search_results: list[dict] = field(default_factory=list)
 
 
@@ -179,7 +179,7 @@ class PerplexityClient:
     def __init__(self, api_key: str):
         """Initialize client with API key."""
         self.api_key = api_key
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     @must_stay_async("async context manager protocol")
     async def __aenter__(self):
@@ -409,7 +409,7 @@ class PerplexityClient:
     async def research(
         self,
         query: str,
-        domains: Optional[list[str]] = None,
+        domains: list[str] | None = None,
     ) -> PerplexityResponse:
         """
         Standard research using Sonar Pro.
@@ -466,7 +466,7 @@ class PerplexityClient:
 # -----------------------------------------------------------------
 
 
-def get_perplexity_client() -> Optional[PerplexityClient]:
+def get_perplexity_client() -> PerplexityClient | None:
     """
     Get configured Perplexity client from environment.
 

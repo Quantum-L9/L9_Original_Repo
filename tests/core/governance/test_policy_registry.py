@@ -9,11 +9,13 @@ from pathlib import Path
 import pytest
 import yaml
 
-from core.governance.policy_registry import (discover_policy_sources,
-                                             get_all_policy_sources,
-                                             get_policy_source_snapshot,
-                                             policy_source_registry,
-                                             register_policy_source)
+from core.governance.policy_registry import (
+    discover_policy_sources,
+    get_all_policy_sources,
+    get_policy_source_snapshot,
+    policy_source_registry,
+    register_policy_source,
+)
 
 
 @pytest.fixture(autouse=True)

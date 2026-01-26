@@ -1,9 +1,9 @@
 # README: Cursor GMP Pack for L9 Agent Persistence v1.0
 
-**Purpose**: Production-grade implementation of agent_persistence.py for L9 OS  
-**Format**: God-Mode Prompt (GMP) pack with 8 sequential stages  
-**Quality**: Frontier AI lab standards (OpenAI/DeepMind/Anthropic)  
-**Status**: Ready to execute in Cursor  
+**Purpose**: Production-grade implementation of agent_persistence.py for L9 OS
+**Format**: God-Mode Prompt (GMP) pack with 8 sequential stages
+**Quality**: Frontier AI lab standards (OpenAI/DeepMind/Anthropic)
+**Status**: Ready to execute in Cursor
 
 ---
 
@@ -179,22 +179,22 @@ When all 8 stages complete successfully:
 
 ## FAQ
 
-**Q: Can I run multiple stages in parallel?**  
+**Q: Can I run multiple stages in parallel?**
 A: No. Each stage depends on previous stage's report showing COMPLETE.
 
-**Q: What if I need to stop mid-stage?**  
+**Q: What if I need to stop mid-stage?**
 A: All stages use git commits (via Phase 2 implementation). Revert to last good commit and re-run.
 
-**Q: Who should approve Phase 0 plans?**  
+**Q: Who should approve Phase 0 plans?**
 A: Any engineer with L9 write access. Recommended: L (CTO) or senior engineer for early stages.
 
-**Q: How long will this take?**  
+**Q: How long will this take?**
 A: ~20 hours total, spread over 1–2 weeks (assuming 2–3 hours per day).
 
-**Q: Is this production-ready?**  
+**Q: Is this production-ready?**
 A: Yes. Stage 8 includes migration guide + pre-production validation. Follow ops runbook.
 
-**Q: What if we need to modify L9 protected systems?**  
+**Q: What if we need to modify L9 protected systems?**
 A: Stage GMPs require explicit TODO approval for protected systems. Unlikely unless L9 core architecture changes.
 
 ---

@@ -41,7 +41,7 @@ __dora_meta__ = {
 
 from collections import deque
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -56,7 +56,7 @@ _audit_trail: deque = deque(maxlen=1000)
 # =============================================================================
 
 
-def validate_authority(action: str, agent_id: str) -> Dict[str, Any]:
+def validate_authority(action: str, agent_id: str) -> dict[str, Any]:
     """
     Validate agent has authority for action.
 
@@ -106,8 +106,8 @@ def validate_authority(action: str, agent_id: str) -> Dict[str, Any]:
 
 
 def validate_safety(
-    action: str, payload: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    action: str, payload: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """
     Validate action is safe to execute.
 
@@ -165,7 +165,7 @@ def validate_safety(
 
 def detect_drift(
     agent_id: str, action: str, success: bool, threshold: float = 0.6
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """
     Detect behavioral drift from established patterns.
 
@@ -233,7 +233,7 @@ def detect_drift(
 
 
 def audit_log(
-    agent_id: str, action: str, success: bool, metadata: Optional[Dict[str, Any]] = None
+    agent_id: str, action: str, success: bool, metadata: dict[str, Any] | None = None
 ) -> None:
     """
     Log execution for audit trail with structured format.
@@ -258,8 +258,8 @@ def audit_log(
 
 
 def get_audit_trail(
-    agent_id: Optional[str] = None, limit: int = 100
-) -> List[Dict[str, Any]]:
+    agent_id: str | None = None, limit: int = 100
+) -> list[dict[str, Any]]:
     """
     Get audit trail entries.
 
@@ -283,11 +283,11 @@ def get_audit_trail(
 # =============================================================================
 
 __all__ = [
+    "audit_log",
+    "detect_drift",
+    "get_audit_trail",
     "validate_authority",
     "validate_safety",
-    "detect_drift",
-    "audit_log",
-    "get_audit_trail",
 ]
 
 # ============================================================================

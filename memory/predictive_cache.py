@@ -44,13 +44,12 @@ __dora_meta__ = {
 
 import asyncio
 import time
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
 # Use harvested models
-from memory.warming_models import (CacheMetrics, PredictiveCacheConfig,
-                                   SubgraphEntry)
+from memory.warming_models import CacheMetrics, PredictiveCacheConfig, SubgraphEntry
 
 logger = structlog.get_logger(__name__)
 
@@ -123,8 +122,8 @@ class PredictiveCache:
 
     def __init__(
         self,
-        config: Optional[PredictiveCacheConfig] = None,
-        graph_client: Optional[Any] = None,
+        config: PredictiveCacheConfig | None = None,
+        graph_client: Any | None = None,
     ) -> None:
         """
         Initialize the predictive cache.
@@ -135,7 +134,7 @@ class PredictiveCache:
         """
         self.config = config or PredictiveCacheConfig()
         self.graph_client = graph_client
-        self._redis_client: Optional[Any] = None
+        self._redis_client: Any | None = None
         self.l1_cache: dict[str, SubgraphEntry] = {}
         self.metrics = CacheMetrics()
         self._warming_semaphore = asyncio.Semaphore(
@@ -193,7 +192,7 @@ class PredictiveCache:
             # Still mark as initialized to allow L1-only operation
             self._initialized = True
 
-    async def warm_entity(self, entity_id: str) -> Optional[SubgraphEntry]:
+    async def warm_entity(self, entity_id: str) -> SubgraphEntry | None:
         """
         Warm a single entity into cache.
 
@@ -318,7 +317,7 @@ class PredictiveCache:
             )
             return []
 
-    async def get_cached(self, entity_id: str) -> Optional[SubgraphEntry]:
+    async def get_cached(self, entity_id: str) -> SubgraphEntry | None:
         """
         Retrieve cached entity subgraph data.
 
@@ -385,7 +384,7 @@ class PredictiveCache:
         """
         return self.metrics
 
-    async def _fetch_subgraph(self, entity_id: str) -> Optional[SubgraphEntry]:
+    async def _fetch_subgraph(self, entity_id: str) -> SubgraphEntry | None:
         """
         Fetch subgraph data from Neo4j database.
 
@@ -407,7 +406,7 @@ class PredictiveCache:
                     query = """
                     MATCH (e)-[r]-(neighbor)
                     WHERE e.id = $entity_id OR e.name = $entity_id
-                    RETURN neighbor.id AS neighbor_id, 
+                    RETURN neighbor.id AS neighbor_id,
                            neighbor.name AS neighbor_name,
                            type(r) AS rel_type
                     LIMIT $limit
@@ -503,7 +502,7 @@ class PredictiveCache:
                 error=str(e),
             )
 
-    async def _get_from_redis(self, entity_id: str) -> Optional[SubgraphEntry]:
+    async def _get_from_redis(self, entity_id: str) -> SubgraphEntry | None:
         """Get entry from Redis, refresh TTL on hit."""
         if self._redis_client is None:
             return None

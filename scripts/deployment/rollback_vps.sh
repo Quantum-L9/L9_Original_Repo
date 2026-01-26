@@ -63,21 +63,21 @@ log_info "Rolling back to $LATEST_BACKUP..."
 ssh "$VPS_USER@$VPS_HOST" bash <<EOF
     set -e
     cd $VPS_PATH
-    
+
     echo "Stopping current stack..."
     docker compose down --remove-orphans 2>/dev/null || true
-    
+
     echo "Restoring backup..."
     rm -rf $VPS_PATH/*
     cp -r $BACKUP_PATH/$LATEST_BACKUP/* $VPS_PATH/
-    
+
     echo "Rebuilding and starting..."
     docker compose build --quiet
     docker compose up -d
-    
+
     echo "Waiting for services..."
     sleep 10
-    
+
     docker compose ps
 EOF
 
@@ -95,4 +95,3 @@ fi
 
 echo ""
 log_success "Successfully rolled back to: $LATEST_BACKUP"
-

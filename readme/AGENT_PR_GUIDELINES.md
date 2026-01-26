@@ -16,6 +16,7 @@
 ### Why This Matters
 
 Recent PRs (#57, #58, #59, #60, #61) required **manual review and partial integration** because:
+
 1. PRs contained entire file rewrites instead of targeted diffs
 2. Changes conflicted with existing L9 implementations
 3. New patterns were introduced that didn't exist in the codebase
@@ -38,24 +39,24 @@ ls -la path/to/suspected/location/
 
 ### 2. CHECK EXISTING IMPLEMENTATIONS
 
-| Pattern | L9 Already Has | Location |
-|---------|----------------|----------|
-| Singleton | `@register_singleton` decorator | `core/singleton_auto_registry.py` |
-| DI Container | Full 886-line implementation | `core/di/container.py` |
-| DI Bootstrap | Tiered initialization | `core/di/bootstrap.py` |
-| Protocol abstractions | `typing.Protocol` based | `core/protocols/` |
-| Service adapters | Adapter pattern | `memory/service_adapter.py` |
+| Pattern               | L9 Already Has                  | Location                          |
+| --------------------- | ------------------------------- | --------------------------------- |
+| Singleton             | `@register_singleton` decorator | `core/singleton_auto_registry.py` |
+| DI Container          | Full 886-line implementation    | `core/di/container.py`            |
+| DI Bootstrap          | Tiered initialization           | `core/di/bootstrap.py`            |
+| Protocol abstractions | `typing.Protocol` based         | `core/protocols/`                 |
+| Service adapters      | Adapter pattern                 | `memory/service_adapter.py`       |
 
 ### 3. DO NOT DUPLICATE
 
 These patterns were **rejected** from recent PRs:
 
-| ❌ Rejected Pattern | Why | L9 Alternative |
-|--------------------|-----|----------------|
-| `from core.patterns.singleton import singleton` | Module doesn't exist | Use `@register_singleton` |
-| `@singleton` class decorator | Not L9's pattern | Use factory functions |
-| Simplified DI container (229 lines) | Conflicts with 886-line version | Use existing `core/di/` |
-| Stricter Ruff/MyPy in pyproject.toml | Breaking changes | See ADR-0062 |
+| ❌ Rejected Pattern                             | Why                             | L9 Alternative            |
+| ----------------------------------------------- | ------------------------------- | ------------------------- |
+| `from core.patterns.singleton import singleton` | Module doesn't exist            | Use `@register_singleton` |
+| `@singleton` class decorator                    | Not L9's pattern                | Use factory functions     |
+| Simplified DI container (229 lines)             | Conflicts with 886-line version | Use existing `core/di/`   |
+| Stricter Ruff/MyPy in pyproject.toml            | Breaking changes                | See ADR-0062              |
 
 ---
 
@@ -63,12 +64,13 @@ These patterns were **rejected** from recent PRs:
 
 ### Small Change (< 20 lines)
 
-```markdown
+````markdown
 ## Change: Add timeout parameter to fetch_data()
 
 **File:** `core/api/client.py`
 
 **Diff:**
+
 ```diff
 - async def fetch_data(self, endpoint: str) -> dict:
 + async def fetch_data(self, endpoint: str, timeout: int = 30) -> dict:
@@ -77,9 +79,11 @@ These patterns were **rejected** from recent PRs:
 +     response = await self.session.get(endpoint, timeout=timeout)
       return response.json()
 ```
+````
 
 **Tests:** Add test in `tests/core/api/test_client.py`
-```
+
+````
 
 ### Multi-File Change
 
@@ -94,18 +98,20 @@ These patterns were **rejected** from recent PRs:
 **Diff 1: core/api/client.py (lines 45-52)**
 ```diff
 + from core.api.rate_limiter import RateLimiter
-+ 
++
   class APIClient:
       def __init__(self):
           self.session = aiohttp.ClientSession()
 +         self.rate_limiter = RateLimiter(requests_per_minute=60)
-```
+````
 
 **Diff 2: core/api/rate_limiter.py (NEW FILE)**
+
 ```python
 # Only show new file if truly new and doesn't duplicate existing
 ```
-```
+
+````
 
 ---
 
@@ -121,7 +127,7 @@ These patterns were **rejected** from recent PRs:
 ✅ RIGHT:
 "Here's the change:"
 [3-line diff with context]
-```
+````
 
 ### 2. Importing Non-Existent Modules
 
@@ -197,14 +203,14 @@ Before submitting code:
 
 ## 📊 Recent PR Integration Results
 
-| PR | Status | Integration | Reason |
-|----|--------|-------------|--------|
-| #57 | ❌ Closed | 0% | `@singleton` from non-existent module |
-| #58 | ⚠️ Partial | 30% | Stricter linting = breaking changes |
-| #59 | ❌ Closed | 0% | Files already existed |
-| #60 | ⚠️ Partial | 20% | 9/49 files adopted, rest had @singleton |
-| #61 | ⚠️ Partial | 5% | 3/57 files adopted, rest duplicated #60 |
-| #62-66 | ✅ Merged | 100% | Clean Dependabot updates (diffs only) |
+| PR     | Status     | Integration | Reason                                  |
+| ------ | ---------- | ----------- | --------------------------------------- |
+| #57    | ❌ Closed  | 0%          | `@singleton` from non-existent module   |
+| #58    | ⚠️ Partial | 30%         | Stricter linting = breaking changes     |
+| #59    | ❌ Closed  | 0%          | Files already existed                   |
+| #60    | ⚠️ Partial | 20%         | 9/49 files adopted, rest had @singleton |
+| #61    | ⚠️ Partial | 5%          | 3/57 files adopted, rest duplicated #60 |
+| #62-66 | ✅ Merged  | 100%        | Clean Dependabot updates (diffs only)   |
 
 **Lesson:** Dependabot PRs merged cleanly because they're **diffs only**.
 Manual PRs required cherry-picking because they contained **entire file rewrites**.

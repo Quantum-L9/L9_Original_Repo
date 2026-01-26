@@ -36,7 +36,6 @@ __dora_meta__ = {
 
 import argparse
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from typing import Optional
 from urllib.parse import parse_qs, urlparse
 
 import structlog
@@ -50,7 +49,7 @@ logger = structlog.get_logger(__name__)
 DEFAULT_PORT = 8080
 
 # Module-level state (set by CLI)
-CURRENT_ACCOUNT: Optional[str] = None
+CURRENT_ACCOUNT: str | None = None
 CURRENT_PORT: int = DEFAULT_PORT
 
 
@@ -104,7 +103,7 @@ class OAuthHandler(BaseHTTPRequestHandler):
             logger.error(f"Error starting OAuth flow: {e}")
             self.send_response(500)
             self.end_headers()
-            self.wfile.write(f"Error: {str(e)}".encode())
+            self.wfile.write(f"Error: {e!s}".encode())
 
     def handle_callback(self, query_string: str):
         """Handle OAuth callback - exchange code for tokens."""
@@ -150,7 +149,8 @@ class OAuthHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-                self.wfile.write(f"""
+                self.wfile.write(
+                    f"""
                     <html>
                     <head><title>Gmail OAuth Complete</title></head>
                     <body>
@@ -161,7 +161,8 @@ class OAuthHandler(BaseHTTPRequestHandler):
                         <p>You can close this window.</p>
                     </body>
                     </html>
-                """.encode("utf-8"))
+                """.encode()
+                )
 
                 logger.info(
                     f"✅ OAuth completed for account: {CURRENT_ACCOUNT or 'legacy'}"
@@ -177,7 +178,7 @@ class OAuthHandler(BaseHTTPRequestHandler):
             logger.error(f"Error handling callback: {e}")
             self.send_response(500)
             self.end_headers()
-            self.wfile.write(f"Error: {str(e)}".encode())
+            self.wfile.write(f"Error: {e!s}".encode())
 
     def log_message(self, format, *args):
         """Override to use our logger."""
@@ -222,8 +223,7 @@ def main():
         print(f"Client Secret: {config.client_secret_file}")
         print(f"Tokens:        {config.tokens_file}")
     else:
-        from email_agent.config import (CLIENT_SECRET_FILE, GMAIL_ACCOUNT,
-                                        TOKENS_FILE)
+        from email_agent.config import CLIENT_SECRET_FILE, GMAIL_ACCOUNT, TOKENS_FILE
 
         print("Mode:          LEGACY (no account specified)")
         print(f"Email:         {GMAIL_ACCOUNT}")

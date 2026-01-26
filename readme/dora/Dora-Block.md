@@ -10,11 +10,11 @@
 
 ## 🔒 LOCKED TERMINOLOGY — THREE DISTINCT BLOCKS
 
-| Block | Location | Purpose | Updates |
-|-------|----------|---------|---------|
-| **Header Meta** | TOP of file | Module identity, governance | On generation |
-| **Footer Meta** | BOTTOM of file | Extended metadata (header points here) | On generation |
-| **DORA Block** | VERY END (after Footer Meta) | Runtime execution trace | Auto on EVERY run |
+| Block           | Location                     | Purpose                                | Updates           |
+| --------------- | ---------------------------- | -------------------------------------- | ----------------- |
+| **Header Meta** | TOP of file                  | Module identity, governance            | On generation     |
+| **Footer Meta** | BOTTOM of file               | Extended metadata (header points here) | On generation     |
+| **DORA Block**  | VERY END (after Footer Meta) | Runtime execution trace                | Auto on EVERY run |
 
 ### CRITICAL DEFINITIONS
 
@@ -74,6 +74,7 @@
 ## Format by File Type
 
 ### Python (.py)
+
 ```python
 # [... all module code ...]
 # [... footer meta ...]
@@ -101,6 +102,7 @@ __l9_trace__ = {
 ```
 
 ### YAML (.yaml, .yml)
+
 ```yaml
 # [... all YAML content ...]
 # [... footer meta ...]
@@ -128,17 +130,18 @@ l9_trace:
 ```
 
 ### JSON (.json)
+
 ```json
 {
   "actual_content": {},
   "footer_meta": {},
-  
+
   "_l9_trace": {
     "trace_id": "abc123",
     "task": "data_processing",
     "timestamp": "2026-01-02T02:30:00Z",
     "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
+    "graph": { "nodes": [], "edges": [] },
     "inputs": {},
     "outputs": {},
     "metrics": {
@@ -164,6 +167,7 @@ l9_trace:
 ## Integration with Codegen
 
 The codegen system must:
+
 1. **Inject Header Meta** at TOP (points to Footer Meta)
 2. **Inject Footer Meta** at BOTTOM (extended metadata)
 3. **Inject empty DORA Block** at VERY END (after Footer Meta)
@@ -176,19 +180,20 @@ The codegen system must:
 
 ### ✅ IMPLEMENTED
 
-| Component | Location | Description |
-|-----------|----------|-------------|
-| `@l9_traced` decorator | `runtime/dora.py` | Wraps functions to capture execution traces |
-| `DoraTraceBlock` dataclass | `runtime/dora.py` | Data model for L9_TRACE_TEMPLATE |
-| `update_dora_block_in_file()` | `runtime/dora.py` | Writes trace data to file footer |
-| `emit_executor_trace()` | `runtime/dora.py` | Hook for AgentExecutorService |
-| Executor integration | `core/agents/executor.py` | Calls `emit_executor_trace()` after task completion |
-| Template with DORA Block | `codegen/templates/python-dora-template.py` | Module template with all three blocks |
-| Template with DORA Block | `codegen/templates/python-l9-module-template.py` | Full module template |
+| Component                     | Location                                         | Description                                         |
+| ----------------------------- | ------------------------------------------------ | --------------------------------------------------- |
+| `@l9_traced` decorator        | `runtime/dora.py`                                | Wraps functions to capture execution traces         |
+| `DoraTraceBlock` dataclass    | `runtime/dora.py`                                | Data model for L9_TRACE_TEMPLATE                    |
+| `update_dora_block_in_file()` | `runtime/dora.py`                                | Writes trace data to file footer                    |
+| `emit_executor_trace()`       | `runtime/dora.py`                                | Hook for AgentExecutorService                       |
+| Executor integration          | `core/agents/executor.py`                        | Calls `emit_executor_trace()` after task completion |
+| Template with DORA Block      | `codegen/templates/python-dora-template.py`      | Module template with all three blocks               |
+| Template with DORA Block      | `codegen/templates/python-l9-module-template.py` | Full module template                                |
 
 ### How Auto-Update Works
 
 1. **Decorator pattern**: Functions decorated with `@l9_traced` auto-capture:
+
    - Inputs (function arguments)
    - Outputs (return value)
    - Duration (execution time in ms)
@@ -196,6 +201,7 @@ The codegen system must:
    - Patterns used (optional, specified in decorator)
 
 2. **Executor hook**: `AgentExecutorService` calls `emit_executor_trace()` after every task:
+
    ```python
    await emit_executor_trace(
        task_id=task_id_str,
@@ -229,8 +235,8 @@ async def process_expression(expr: str) -> dict:
 
 ---
 
-**Status:** ACTIVE  
-**Created:** 2026-01-02  
-**Updated:** 2026-01-02  
-**Implemented:** 2026-01-02  
+**Status:** ACTIVE
+**Created:** 2026-01-02
+**Updated:** 2026-01-02
+**Implemented:** 2026-01-02
 **Location:** `codegen/sympy/phase 4/Dora-Block.md`

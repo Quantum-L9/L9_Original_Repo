@@ -11,6 +11,7 @@ Decompose `_run_execution_loop` into discrete, testable **micro-stages** that fo
 ## Context
 
 L9's `AgentExecutorService._run_execution_loop` is a ~300-line monolithic method that handles:
+
 - Pre-governance checks
 - Circuit breaker logic
 - Tool shortlisting
@@ -73,11 +74,11 @@ from typing import Protocol, runtime_checkable
 class LoopStage(Protocol):
     """
     Protocol for execution loop stages.
-    
+
     Each stage receives a LoopContext, performs one concern,
     and returns the (potentially modified) context.
     """
-    
+
     async def run(self, ctx: "LoopContext") -> "LoopContext":
         """Execute this stage and return updated context."""
         ...
@@ -97,11 +98,11 @@ from core.agents.agent_instance import AgentInstance
 class LoopContext:
     """
     Immutable context passed through the execution loop pipeline.
-    
+
     Each stage reads from context and returns a new context
     with any modifications (functional style).
     """
-    
+
     instance: AgentInstance
     aios_result: Optional[Any] = None
     status: str = "running"
@@ -109,7 +110,7 @@ class LoopContext:
     final_result: Optional[str] = None
     iteration: int = 0
     tool_calls: list = field(default_factory=list)
-    
+
     def with_status(self, status: str) -> "LoopContext":
         """Return new context with updated status."""
         return LoopContext(
@@ -121,7 +122,7 @@ class LoopContext:
             iteration=self.iteration,
             tool_calls=self.tool_calls,
         )
-    
+
     def with_error(self, error: str) -> "LoopContext":
         """Return new context with error and failed status."""
         return LoopContext(
@@ -152,21 +153,21 @@ class AgentExecutorService:
             TerminationGuardStage(max_iterations=self._max_iterations),
             GovernanceAuditStage(self._audit_logger),
         ]
-    
+
     async def _run_execution_loop(
         self,
         instance: AgentInstance,
     ) -> ExecutionResult:
         """Execute agent loop using stage pipeline."""
-        
+
         ctx = LoopContext(instance=instance)
-        
+
         while ctx.status == "running":
             for stage in self._loop_stages:
                 ctx = await stage.run(ctx)
                 if ctx.status in {"completed", "failed", "blocked", "terminated"}:
                     break
-            
+
             ctx = LoopContext(
                 instance=ctx.instance,
                 aios_result=ctx.aios_result,
@@ -176,7 +177,7 @@ class AgentExecutorService:
                 iteration=ctx.iteration + 1,
                 tool_calls=ctx.tool_calls,
             )
-        
+
         return ExecutionResult(
             output=ctx.final_result,
             status=ctx.status,
@@ -194,36 +195,36 @@ async def _run_execution_loop(self, instance: AgentInstance) -> ExecutionResult:
         # Pre-governance (buried)
         if not await self._check_governance(instance):
             return ExecutionResult(status="blocked")
-        
+
         # Tool shortlisting (buried)
         tools = await self._shortlist_tools(instance)
-        
+
         # AIOS call (buried)
         try:
             result = await self._aios_runtime.execute(...)
         except CircuitBreakerOpen:
             return ExecutionResult(status="circuit_open")
-        
+
         # ReAct logging (buried)
         await self._emit_react_packet(...)
-        
+
         # Tool dispatch (buried)
         if result.tool_calls:
             for tool_call in result.tool_calls:
                 await self._dispatch_tool_call(...)
-        
+
         # ... 200 more lines of tangled logic ...
 
 # ✅ CORRECT — Stage-based pipeline (this ADR)
 async def _run_execution_loop(self, instance: AgentInstance) -> ExecutionResult:
     ctx = LoopContext(instance=instance)
-    
+
     while ctx.status == "running":
         for stage in self._loop_stages:
             ctx = await stage.run(ctx)
             if ctx.status in {"completed", "failed", "blocked", "terminated"}:
                 break
-    
+
     return ExecutionResult.from_context(ctx)
 ```
 

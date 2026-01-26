@@ -36,7 +36,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -77,17 +78,17 @@ def must_stay_async(reason: str) -> Callable[[F], F]:
     return decorator
 
 
-def must_stay_async_route(func: F) -> F:
+def must_stay_async_route[F: Callable[..., Any]](func: F) -> F:
     """Shorthand for FastAPI/ASGI route handlers."""
     return must_stay_async("FastAPI/ASGI route handler")(func)
 
 
-def must_stay_async_protocol(func: F) -> F:
+def must_stay_async_protocol[F: Callable[..., Any]](func: F) -> F:
     """Shorthand for async protocol methods (__aenter__, __aexit__, __call__)."""
     return must_stay_async("async protocol method")(func)
 
 
-def must_stay_async_interface(func: F) -> F:
+def must_stay_async_interface[F: Callable[..., Any]](func: F) -> F:
     """Shorthand for interface methods where callers use await."""
     return must_stay_async("callers use await")(func)
 

@@ -25,7 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 import requests
 import structlog
@@ -43,8 +43,8 @@ class CursorClient:
         self.base_url = f"http://{host}:{port}"
 
     def _request(
-        self, endpoint: str, method: str = "POST", data: Optional[Dict] = None
-    ) -> Dict[str, Any]:
+        self, endpoint: str, method: str = "POST", data: dict | None = None
+    ) -> dict[str, Any]:
         """Make HTTP request to Cursor API."""
         url = f"{self.base_url}{endpoint}"
 
@@ -77,21 +77,21 @@ class CursorClient:
             logger.error(f"Unexpected error: {e}")
             return {"success": False, "error": str(e)}
 
-    def send_code(self, code: str) -> Dict[str, Any]:
+    def send_code(self, code: str) -> dict[str, Any]:
         """
         Send code to Cursor.
         Returns: {success: bool, response: Dict, error: str}
         """
         return self._request("/api/code", data={"code": code})
 
-    def send_command(self, command: str) -> Dict[str, Any]:
+    def send_command(self, command: str) -> dict[str, Any]:
         """
         Send command to Cursor.
         Returns: {success: bool, response: Dict, error: str}
         """
         return self._request("/api/command", data={"command": command})
 
-    def health_check(self) -> Dict[str, Any]:
+    def health_check(self) -> dict[str, Any]:
         """
         Check Cursor API health.
         Returns: {success: bool, response: Dict}

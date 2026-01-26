@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: World Model Bridge
@@ -47,10 +46,9 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from typing import Any, Dict, List
 
-import structlog
 import httpx
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -87,7 +85,7 @@ class WorldModelBridge:
         self._client = httpx.AsyncClient(timeout=30.0)
         logger.info("world_model_bridge_initialized")
 
-    async def query_causal_factors(self, entity_id: str) -> List[CausalFactor]:
+    async def query_causal_factors(self, entity_id: str) -> list[CausalFactor]:
         """Query causal factors for entity."""
         logger.debug("query_causal_factors", entity_id=entity_id)
 
@@ -103,7 +101,7 @@ class WorldModelBridge:
 
     async def query_temporal_patterns(
         self, entity_id: str, window_days: int = 30
-    ) -> List[Pattern]:
+    ) -> list[Pattern]:
         """Query temporal patterns for entity."""
         logger.debug("query_temporal_patterns", entity_id=entity_id, window=window_days)
 
@@ -141,9 +139,9 @@ __footer_meta__ = {
 }
 
 __all__ = [
-    "WorldModelBridge",
     "CausalFactor",
     "Pattern",
+    "WorldModelBridge",
     "__footer_meta__",
     "__l9_trace__",
 ]

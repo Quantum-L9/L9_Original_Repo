@@ -109,7 +109,7 @@ class TestNoCircularImports:
         Circular imports cause subtle bugs and slow startup.
         """
         # Clear any cached imports
-        modules_to_clear = [k for k in sys.modules.keys() if k.startswith("api.")]
+        modules_to_clear = [k for k in sys.modules if k.startswith("api.")]
         for mod in modules_to_clear:
             del sys.modules[mod]
 

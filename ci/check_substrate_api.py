@@ -39,7 +39,6 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 import structlog
 
@@ -86,9 +85,9 @@ class LintResult:
 
     def __init__(self, file_path: str):
         self.file_path = file_path
-        self.errors: List[Tuple[int, str, str, str]] = (
-            []
-        )  # (line_num, pattern, message, correct)
+        self.errors: list[
+            tuple[int, str, str, str]
+        ] = []  # (line_num, pattern, message, correct)
 
     def add_error(self, line_num: int, pattern: str, message: str, correct: str):
         self.errors.append((line_num, pattern, message, correct))
@@ -106,10 +105,7 @@ def should_skip_file(file_path: Path) -> bool:
     except ValueError:
         rel_path = path_str
 
-    for pattern in SKIP_PATTERNS:
-        if pattern in path_str or pattern in rel_path:
-            return True
-    return False
+    return any(pattern in path_str or pattern in rel_path for pattern in SKIP_PATTERNS)
 
 
 def lint_file(file_path: Path) -> LintResult:
@@ -121,7 +117,7 @@ def lint_file(file_path: Path) -> LintResult:
         return result
 
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             lines = f.readlines()
     except IsADirectoryError:
         # Symlink to directory - skip silently
@@ -159,7 +155,7 @@ def lint_file(file_path: Path) -> LintResult:
     return result
 
 
-def find_python_files(root: Path, specific_files: List[str] = None) -> List[Path]:
+def find_python_files(root: Path, specific_files: list[str] | None = None) -> list[Path]:
     """Find all Python files to lint."""
     if specific_files:
         files = []
@@ -206,7 +202,7 @@ def main() -> int:
     )
     logger.info("")
 
-    all_results: List[LintResult] = []
+    all_results: list[LintResult] = []
     for file_path in files_to_lint:
         result = lint_file(file_path)
         all_results.append(result)
@@ -220,7 +216,7 @@ def main() -> int:
             files_with_errors.append(result)
             total_errors += len(result.errors)
             logger.info(f"❌ {result.file_path}:")
-            for line_num, pattern, message, correct in result.errors:
+            for line_num, _pattern, message, correct in result.errors:
                 logger.info(f"   Line {line_num}: {message}")
                 if correct:
                     logger.info(f"   Correct usage: {correct}")
@@ -231,23 +227,22 @@ def main() -> int:
     if total_errors == 0:
         logger.info("✅ All files passed substrate API check!")
         return 0
-    else:
-        logger.error(
-            f"❌ Found {total_errors} substrate API issue(s) in {len(files_with_errors)} file(s)"
-        )
-        logger.info("")
-        logger.info("The MemorySubstrateService does not have a .write() method.")
-        logger.info("Use .write_packet(PacketEnvelopeIn(...)) instead.")
-        logger.info("")
-        logger.info("Example fix:")
-        logger.info("  from core.schemas import PacketEnvelopeIn")
-        logger.info("")
-        logger.info("  packet_in = PacketEnvelopeIn(")
-        logger.info("      packet_type='your_type',")
-        logger.info("      payload={'key': 'value'},")
-        logger.info("  )")
-        logger.info("  await substrate.write_packet(packet_in)")
-        return 1
+    logger.error(
+        f"❌ Found {total_errors} substrate API issue(s) in {len(files_with_errors)} file(s)"
+    )
+    logger.info("")
+    logger.info("The MemorySubstrateService does not have a .write() method.")
+    logger.info("Use .write_packet(PacketEnvelopeIn(...)) instead.")
+    logger.info("")
+    logger.info("Example fix:")
+    logger.info("  from core.schemas import PacketEnvelopeIn")
+    logger.info("")
+    logger.info("  packet_in = PacketEnvelopeIn(")
+    logger.info("      packet_type='your_type',")
+    logger.info("      payload={'key': 'value'},")
+    logger.info("  )")
+    logger.info("  await substrate.write_packet(packet_in)")
+    return 1
 
 
 if __name__ == "__main__":

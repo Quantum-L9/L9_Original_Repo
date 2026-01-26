@@ -30,7 +30,7 @@ __dora_meta__ = {
 
 import hashlib
 from datetime import datetime
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -44,9 +44,9 @@ logger = structlog.get_logger(__name__)
 
 
 async def verify_and_lock(
-    instance: "BootstrapInstanceData",
-    substrate_service: "MemorySubstrateService",
-    kernels: Dict[str, "KernelParsed"],
+    instance: BootstrapInstanceData,
+    substrate_service: MemorySubstrateService,
+    kernels: dict[str, KernelParsed],
 ) -> str:
     """
     Verify initialization, sign, and lock agent.
@@ -147,8 +147,10 @@ async def verify_and_lock(
         try:
             from config.rls_config import get_rls_config
             from core.schemas import PacketEnvelopeIn
-            from memory.governance_gate import (build_governance_context,
-                                                governance_context)
+            from memory.governance_gate import (
+                build_governance_context,
+                governance_context,
+            )
 
             # GMP-94: Bootstrap requires governance context for write_packet
             rls_config = get_rls_config()
@@ -211,6 +213,88 @@ async def verify_and_lock(
     )
 
     return signature
+
+
+# =============================================================================
+# View Pattern API (GMP Bootstrap 7-Phase)
+# =============================================================================
+
+
+async def verify_and_lock_view(
+    agent_id: str,
+    identity_view: Any,  # IdentityView from models
+    kernels: dict[str, Any],
+    tools: list[str],
+    governance_gates: dict[str, Any],
+    init_signature: str,
+) -> dict[str, Any]:
+    """
+    Final verification and lock step (View Pattern).
+
+    Validates all bootstrap state is consistent and ready for execution.
+    Does NOT write to Neo4j or memory substrate (view-only verification).
+
+    Args:
+        agent_id: Agent identifier
+        identity_view: IdentityView from Phase 4
+        kernels: Kernels loaded in Phase 1
+        tools: Tools bound in Phase 5
+        governance_gates: Gates wired in Phase 6
+        init_signature: Deterministic SHA-256 computed by orchestrator
+
+    Returns:
+        dict with keys:
+          - success: bool
+          - context_delta: dict (additional context to merge)
+          - error: Exception | None
+    """
+    start = datetime.utcnow()
+
+    try:
+        # Validate critical fields
+        if not agent_id:
+            raise ValueError("agent_id is required")
+        if not init_signature:
+            raise ValueError("init_signature must be set by Phase 7")
+        if not identity_view:
+            raise ValueError("identity_view must be loaded by Phase 4")
+
+        # Validate kernel count (expect at least 1 kernel)
+        kernel_count = len(kernels) if kernels else 0
+        if kernel_count < 1:
+            raise ValueError(f"Expected at least 1 kernel, got {kernel_count}")
+
+        logger.info(
+            "agent.bootstrap.phase7.verification_passed_view",
+            agent_id=agent_id,
+            kernels=kernel_count,
+            tools=len(tools) if tools else 0,
+            init_signature=init_signature[:16],  # First 16 chars for logging
+        )
+
+        duration = (datetime.utcnow() - start).total_seconds() * 1000
+
+        return {
+            "success": True,
+            "context_delta": {
+                "verified": True,
+                "phase7_duration_ms": duration,
+            },
+            "error": None,
+        }
+
+    except Exception as e:
+        logger.error(
+            "agent.bootstrap.phase7.verification_failed_view",
+            agent_id=agent_id,
+            error=str(e),
+        )
+        return {
+            "success": False,
+            "context_delta": {},
+            "error": e,
+            "error_code": "BOOTSTRAP_PHASE7_VERIFY_AND_LOCK_FAILED",
+        }
 
 
 # ============================================================================

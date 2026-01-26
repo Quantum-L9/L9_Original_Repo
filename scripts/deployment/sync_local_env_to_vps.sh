@@ -24,17 +24,17 @@ fi
 if [ $# -gt 0 ]; then
     VAR_NAME="$1"
     echo "Syncing $VAR_NAME from local to VPS..."
-    
+
     # Get value from local
     LOCAL_VALUE=$(grep "^${VAR_NAME}=" "$LOCAL_ENV" 2>/dev/null | cut -d= -f2- | sed 's/^"//;s/"$//' || echo "")
-    
+
     if [ -z "$LOCAL_VALUE" ]; then
         echo "❌ $VAR_NAME not found in local .env"
         exit 1
     fi
-    
+
     echo "  Local value: ${LOCAL_VALUE:0:20}..."
-    
+
     # Update on VPS
     ssh "$VPS_HOST" "cd $VPS_REPO && \
         if grep -q '^${VAR_NAME}=' .env 2>/dev/null; then \
@@ -44,7 +44,7 @@ if [ $# -gt 0 ]; then
             echo '${VAR_NAME}=${LOCAL_VALUE}' >> .env && \
             echo '✅ Added $VAR_NAME to VPS .env'; \
         fi"
-    
+
     echo "✅ $VAR_NAME synced"
     exit 0
 fi
@@ -58,12 +58,12 @@ while IFS='=' read -r key value; do
     # Skip comments and empty lines
     [[ "$key" =~ ^#.*$ ]] && continue
     [[ -z "$key" ]] && continue
-    
+
     # Remove quotes from value
     value=$(echo "$value" | sed 's/^"//;s/"$//')
-    
+
     echo "Syncing $key..."
-    
+
     # Update on VPS (preserve existing if it looks like a secret)
     ssh "$VPS_HOST" "cd $VPS_REPO && \
         if grep -q '^${key}=' .env 2>/dev/null; then \
@@ -79,7 +79,7 @@ while IFS='=' read -r key value; do
             echo '${key}=${value}' >> .env && \
             echo '  ✅ Added'; \
         fi" || echo "  ❌ Failed"
-    
+
 done < "$LOCAL_ENV"
 
 echo ""

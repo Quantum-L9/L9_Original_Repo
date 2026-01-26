@@ -43,7 +43,7 @@ import sys
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -343,7 +343,7 @@ def categorize_finding(finding: dict[str, Any]) -> CategorizedFinding:
 def categorize_dead_code(
     resolved_file: Path,
     repo_root: Path = REPO_ROOT,
-    output_file: Optional[Path] = None,
+    output_file: Path | None = None,
 ) -> CategorizationResult:
     """
     Categorize resolved findings by risk and action.

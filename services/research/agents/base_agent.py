@@ -33,7 +33,7 @@ __dora_meta__ = {
 
 import json
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from openai import AsyncOpenAI
@@ -58,8 +58,8 @@ class BaseAgent(ABC):
     def __init__(
         self,
         agent_id: str,
-        model: Optional[str] = None,
-        temperature: Optional[float] = None,
+        model: str | None = None,
+        temperature: float | None = None,
     ):
         """
         Initialize base agent.
@@ -85,9 +85,9 @@ class BaseAgent(ABC):
     async def call_llm(
         self,
         messages: list[dict[str, str]],
-        temperature: Optional[float] = None,
+        temperature: float | None = None,
         max_tokens: int = 2000,
-        response_format: Optional[dict[str, str]] = None,
+        response_format: dict[str, str] | None = None,
     ) -> str:
         """
         Call the LLM with messages.
@@ -128,7 +128,7 @@ class BaseAgent(ABC):
     async def call_llm_json(
         self,
         messages: list[dict[str, str]],
-        temperature: Optional[float] = None,
+        temperature: float | None = None,
         max_tokens: int = 2000,
     ) -> dict[str, Any]:
         """

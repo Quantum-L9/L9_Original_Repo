@@ -61,7 +61,7 @@ __dora_meta__ = {
 import time
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -125,7 +125,7 @@ class CircuitBreaker:
     Thread-safe for async usage (no locks needed for counters).
     """
 
-    def __init__(self, config: Optional[CircuitBreakerConfig] = None):
+    def __init__(self, config: CircuitBreakerConfig | None = None):
         """Initialize circuit breaker.
 
         Args:
@@ -133,9 +133,9 @@ class CircuitBreaker:
         """
         self.config = config or CircuitBreakerConfig()
         self._state = CircuitBreakerState.CLOSED
-        self._failures: List[Tuple[float, str]] = []
-        self._last_failure_time: Optional[float] = None
-        self._last_success_time: Optional[float] = None
+        self._failures: list[tuple[float, str]] = []
+        self._last_failure_time: float | None = None
+        self._last_success_time: float | None = None
         self._total_failures: int = 0
         self._total_successes: int = 0
         self._trips: int = 0  # Number of times circuit has opened

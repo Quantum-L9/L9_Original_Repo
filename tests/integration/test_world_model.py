@@ -13,11 +13,20 @@ import pytest
 
 # Test insight emitter
 from core.worldmodel.insight_emitter import Insight, InsightEmitter
+
 # Test the schema models
-from core.worldmodel.l9_schema import (EntityType, InfrastructureType, L9Agent,
-                                       L9Infrastructure, L9Relationship,
-                                       L9RelationshipType, L9Tool,
-                                       ToolCategory, ToolRiskLevel)
+from core.worldmodel.l9_schema import (
+    EntityType,
+    InfrastructureType,
+    L9Agent,
+    L9Infrastructure,
+    L9Relationship,
+    L9RelationshipType,
+    L9Tool,
+    ToolCategory,
+    ToolRiskLevel,
+)
+
 # Test service
 from core.worldmodel.service import WorldModelService
 

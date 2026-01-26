@@ -48,4 +48,3 @@ COMMENT ON COLUMN world_model_updates.content IS 'Update content/payload';
 COMMENT ON COLUMN world_model_updates.confidence IS 'Confidence score of the update';
 COMMENT ON COLUMN world_model_updates.state_version_before IS 'World model version before update';
 COMMENT ON COLUMN world_model_updates.state_version_after IS 'World model version after update';
-

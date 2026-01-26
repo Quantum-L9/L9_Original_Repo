@@ -34,7 +34,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
@@ -78,15 +78,15 @@ class FailureResponse(BaseModel):
     span_id: str
     trace_id: str
     timestamp: datetime
-    context: Dict[str, Any] = Field(default_factory=dict)
+    context: dict[str, Any] = Field(default_factory=dict)
     auto_recovery_applied: bool = False
-    recovery_action: Optional[str] = None
+    recovery_action: str | None = None
 
 
 class FailuresListResponse(BaseModel):
     """Response for failures list endpoint."""
 
-    failures: List[FailureResponse]
+    failures: list[FailureResponse]
     total: int
 
 
@@ -99,14 +99,14 @@ class SpanSummary(BaseModel):
     kind: str
     status: str
     start_time: datetime
-    duration_ms: Optional[float] = None
-    error: Optional[str] = None
+    duration_ms: float | None = None
+    error: str | None = None
 
 
 class SpansListResponse(BaseModel):
     """Response for spans list endpoint."""
 
-    spans: List[SpanSummary]
+    spans: list[SpanSummary]
     total: int
 
 
@@ -117,14 +117,14 @@ class CircuitBreakerStatus(BaseModel):
     state: str  # CLOSED, OPEN, HALF_OPEN
     failure_count: int
     success_count: int
-    last_failure_time: Optional[datetime] = None
-    recovery_time: Optional[datetime] = None
+    last_failure_time: datetime | None = None
+    recovery_time: datetime | None = None
 
 
 class CircuitBreakersResponse(BaseModel):
     """Response for circuit breakers endpoint."""
 
-    circuit_breakers: List[CircuitBreakerStatus]
+    circuit_breakers: list[CircuitBreakerStatus]
 
 
 class HealthResponse(BaseModel):
@@ -132,7 +132,7 @@ class HealthResponse(BaseModel):
 
     status: str  # healthy, degraded, unhealthy
     service_initialized: bool
-    exporters_active: List[str]
+    exporters_active: list[str]
     prometheus_enabled: bool
     jaeger_enabled: bool
     span_count: int
@@ -179,7 +179,7 @@ async def get_failures(
     limit: int = Query(
         default=100, ge=1, le=1000, description="Max failures to return"
     ),
-    failure_class: Optional[str] = Query(
+    failure_class: str | None = Query(
         default=None, description="Filter by failure class"
     ),
 ) -> FailuresListResponse:
@@ -229,10 +229,10 @@ async def get_failures(
 @must_stay_async("FastAPI route handler")
 async def get_spans(
     limit: int = Query(default=100, ge=1, le=1000, description="Max spans to return"),
-    status: Optional[str] = Query(
+    status: str | None = Query(
         default=None, description="Filter by status (OK, ERROR, UNSET)"
     ),
-    name_prefix: Optional[str] = Query(
+    name_prefix: str | None = Query(
         default=None, description="Filter by span name prefix"
     ),
 ) -> SpansListResponse:

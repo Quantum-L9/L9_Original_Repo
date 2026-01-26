@@ -1,9 +1,10 @@
 # Cursor MCP Memory Server — Implementation Pack
+
 ## L9 VPS Deployment (FastAPI + Python + PostgreSQL + pgvector)
 
-**Last Updated:** 2026-01-01  
-**Status:** Production-Ready  
-**Stack:** FastAPI 0.115+, Python 3.11+, PostgreSQL + pgvector, OpenAI Embeddings, MCP Spec 2025-03-26  
+**Last Updated:** 2026-01-01
+**Status:** Production-Ready
+**Stack:** FastAPI 0.115+, Python 3.11+, PostgreSQL + pgvector, OpenAI Embeddings, MCP Spec 2025-03-26
 **Domain:** `l9.quantumaipartners.com` (via Cloudflare)
 
 ---
@@ -82,8 +83,9 @@
 ```
 
 **Key Principles:**
+
 - **No SSH tunnel required** - Cloudflare handles HTTPS routing
-- **Origin IP hidden** - VPS IP protected by Cloudflare proxy  
+- **Origin IP hidden** - VPS IP protected by Cloudflare proxy
 - **Single domain** - All L9 services via `l9.quantumaipartners.com`
 - **Caddy routes** - Paths determine which service handles request
 
@@ -242,34 +244,34 @@ class Settings(BaseSettings):
     MCP_PORT: int = 9001
     MCP_ENV: str = "production"
     LOG_LEVEL: str = "INFO"
-    
+
     # OpenAI
     OPENAI_API_KEY: str
     OPENAI_EMBED_MODEL: str = "text-embedding-3-small"
     OPENAI_EMBED_DIM: int = 1536
-    
+
     # Database
     MEMORY_DSN: str
-    
+
     # Memory Lifecycle
     MEMORY_SHORT_TERM_HOURS: int = 1
     MEMORY_MEDIUM_TERM_HOURS: int = 24
     MEMORY_CLEANUP_INTERVAL_MINUTES: int = 60
     MEMORY_SHORT_RETENTION_DAYS: int = 7
     MEMORY_MEDIUM_RETENTION_DAYS: int = 30
-    
+
     # Vector Search
     VECTOR_SEARCH_THRESHOLD: float = 0.7
     VECTOR_SEARCH_TOP_K: int = 10
-    
+
     # Auth
     MCP_API_KEY: str
-    
+
     # Redis (optional embedding cache)
     REDIS_ENABLED: bool = False
     REDIS_HOST: str = "127.0.0.1"
     REDIS_PORT: int = 6379
-    
+
     class Config:
         env_file = ".env"
         extra = "ignore"
@@ -566,7 +568,7 @@ async def handle_tool_call(tool: MCPToolCall, user_id: str) -> Dict[str, Any]:
             tags=tool.arguments.get("tags", []),
             importance=tool.arguments.get("importance", 1.0),
         )
-    
+
     elif tool.name == "search_memory":
         from .routes.memory import search_memory
         return await search_memory(
@@ -578,20 +580,20 @@ async def handle_tool_call(tool: MCPToolCall, user_id: str) -> Dict[str, Any]:
             threshold=tool.arguments.get("threshold", 0.7),
             duration=tool.arguments.get("duration", "all"),
         )
-    
+
     elif tool.name == "get_memory_stats":
         from .routes.memory import get_memory_stats
         return await get_memory_stats(
             user_id=tool.arguments.get("user_id"),
             duration=tool.arguments.get("duration", "all"),
         )
-    
+
     elif tool.name == "delete_expired_memories":
         from .routes.memory import delete_expired_memories
         return await delete_expired_memories(
             dry_run=tool.arguments.get("dry_run", True),
         )
-    
+
     else:
         raise ValueError(f"Unknown tool: {tool.name}")
 ```
@@ -634,12 +636,12 @@ async def lifespan(app: FastAPI):
     logger.info("Initializing database...")
     await init_db()
     logger.info("✓ Database initialized")
-    
+
     # Start cleanup task
     asyncio.create_task(memory.cleanup_task())
-    
+
     yield
-    
+
     # Shutdown
     logger.info("Closing database connections...")
     await close_db()
@@ -667,11 +669,11 @@ async def verify_api_key(authorization: str = Header(None)) -> str:
     """
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
-    
+
     token = authorization.replace("Bearer ", "")
     if token != settings.MCP_API_KEY:
         raise HTTPException(status_code=403, detail="Invalid API key")
-    
+
     return token
 
 # ═════════════════════════════════════════════════════════════════
@@ -719,18 +721,18 @@ async def call_tool(
         tool_name = payload.get("tool_name")
         tool_args = payload.get("arguments", {})
         user_id = payload.get("user_id")
-        
+
         if not user_id:
             raise HTTPException(status_code=400, detail="user_id required")
-        
+
         tool_call = MCPToolCall(name=tool_name, arguments=tool_args)
         result = await handle_tool_call(tool_call, user_id)
-        
+
         return {
             "status": "success",
             "result": result,
         }
-    
+
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
@@ -785,17 +787,17 @@ pool: Optional[asyncpg.Pool] = None
 async def init_db():
     """Initialize database connection pool and run migrations."""
     global pool
-    
+
     pool = await asyncpg.create_pool(
         dsn=settings.MEMORY_DSN,
         min_size=5,
         max_size=20,
         command_timeout=60,
     )
-    
+
     # Register pgvector codec
     await pool.execute("CREATE EXTENSION IF NOT EXISTS vector;")
-    
+
     logger.info("Database pool initialized")
 
 async def close_db():
@@ -810,7 +812,7 @@ async def execute(query: str, *args) -> Any:
     """Execute a query and return result."""
     if not pool:
         raise RuntimeError("Database pool not initialized")
-    
+
     async with pool.acquire() as conn:
         return await conn.execute(query, *args)
 
@@ -818,7 +820,7 @@ async def fetch_one(query: str, *args) -> Optional[Dict[str, Any]]:
     """Fetch a single row as dict."""
     if not pool:
         raise RuntimeError("Database pool not initialized")
-    
+
     async with pool.acquire() as conn:
         row = await conn.fetchrow(query, *args)
         return dict(row) if row else None
@@ -827,7 +829,7 @@ async def fetch_all(query: str, *args) -> List[Dict[str, Any]]:
     """Fetch all rows as dicts."""
     if not pool:
         raise RuntimeError("Database pool not initialized")
-    
+
     async with pool.acquire() as conn:
         rows = await conn.fetch(query, *args)
         return [dict(row) for row in rows]
@@ -836,10 +838,10 @@ async def insert_many(query: str, args_list: List[tuple]) -> int:
     """Insert multiple rows, return count."""
     if not pool:
         raise RuntimeError("Database pool not initialized")
-    
+
     async with pool.acquire() as conn:
         result = await conn.executemany(query, args_list)
-    
+
     # executemany returns command completion tag like "INSERT 0 42"
     count = int(result.split()[-1]) if result else 0
     return count
@@ -871,7 +873,7 @@ async def embed_text(text: str) -> List[float]:
             input=text,
         )
         return response.data[0].embedding
-    
+
     except Exception as e:
         logger.error(f"Embedding error: {e}")
         raise
@@ -888,7 +890,7 @@ async def embed_texts(texts: List[str]) -> List[List[float]]:
         # Sort by index to maintain order
         sorted_data = sorted(response.data, key=lambda x: x.index)
         return [item.embedding for item in sorted_data]
-    
+
     except Exception as e:
         logger.error(f"Batch embedding error: {e}")
         raise
@@ -993,7 +995,7 @@ async def save_memory(
     try:
         # Generate embedding
         embedding = await embed_text(req.content)
-        
+
         # Determine table and expiration
         if req.duration == "short":
             table = "memory.short_term"
@@ -1010,7 +1012,7 @@ async def save_memory(
             expires_at = None  # No expiration
         else:
             raise ValueError(f"Invalid duration: {req.duration}")
-        
+
         # Insert
         if req.duration in ["short", "medium"]:
             query = f"""
@@ -1038,7 +1040,7 @@ async def save_memory(
                 req.user_id, req.scope, req.kind, req.content, embedding,
                 req.importance, req.tags, req.metadata
             )
-        
+
         # Audit
         await execute(
             """
@@ -1048,9 +1050,9 @@ async def save_memory(
             "INSERT", table, result["id"], req.user_id, "success",
             {"duration": req.duration, "kind": req.kind}
         )
-        
+
         return MemoryResponse(**result)
-    
+
     except Exception as e:
         logger.exception("Error saving memory")
         raise HTTPException(status_code=500, detail=str(e))
@@ -1067,19 +1069,19 @@ async def search_memory(
     Semantic search across memory tables using vector similarity.
     """
     start_time = time.time()
-    
+
     try:
         # Generate query embedding
         embed_start = time.time()
         query_embedding = await embed_text(req.query)
         embed_time_ms = (time.time() - embed_start) * 1000
-        
+
         search_start = time.time()
         results = []
-        
+
         # Search each requested duration
         durations = ["short", "medium", "long"] if req.duration == "all" else [req.duration]
-        
+
         for duration in durations:
             if duration == "short":
                 table = "memory.short_term"
@@ -1090,23 +1092,23 @@ async def search_memory(
             else:
                 table = "memory.long_term"
                 where = ""
-            
+
             # Build WHERE clause
             where_clauses = [f"user_id = $1 {where}"]
             params = [req.user_id]
-            
+
             if req.scopes and duration == "long":  # Only long-term has scope
                 scopes_clause = ", ".join([f"${i}" for i in range(2, 2 + len(req.scopes))])
                 where_clauses.append(f"scope IN ({scopes_clause})")
                 params.extend(req.scopes)
-            
+
             if req.kinds:
                 kinds_clause = ", ".join([f"${i}" for i in range(len(params) + 1, len(params) + 1 + len(req.kinds))])
                 where_clauses.append(f"kind IN ({kinds_clause})")
                 params.extend(req.kinds)
-            
+
             param_idx = len(params) + 1
-            
+
             query = f"""
             SELECT
                 id, user_id, kind, content, importance,
@@ -1118,18 +1120,18 @@ async def search_memory(
             ORDER BY similarity DESC
             LIMIT ${param_idx + 2};
             """
-            
+
             params.extend([query_embedding, req.threshold, req.top_k])
-            
+
             rows = await fetch_all(query, *params)
             results.extend(rows)
-        
+
         # Sort by similarity and take top_k
         results.sort(key=lambda x: x.get("similarity", 0), reverse=True)
         results = results[:req.top_k]
-        
+
         search_time_ms = (time.time() - search_start) * 1000
-        
+
         # Audit
         await execute(
             """
@@ -1139,16 +1141,16 @@ async def search_memory(
             "SEARCH", req.user_id, "success",
             {"query": req.query, "results_count": len(results)}
         )
-        
+
         memory_results = [MemoryResponse(**r) for r in results]
-        
+
         return SearchMemoryResponse(
             results=memory_results,
             query_embedding_time_ms=embed_time_ms,
             search_time_ms=search_time_ms,
             total_results=len(memory_results),
         )
-    
+
     except Exception as e:
         logger.exception("Error searching memory")
         raise HTTPException(status_code=500, detail=str(e))
@@ -1165,22 +1167,22 @@ async def cleanup_task():
         try:
             interval_seconds = settings.MEMORY_CLEANUP_INTERVAL_MINUTES * 60
             await asyncio.sleep(interval_seconds)
-            
+
             # Delete expired
             result = await execute(
                 """
                 DELETE FROM memory.short_term WHERE expires_at < CURRENT_TIMESTAMP;
                 """
             )
-            
+
             result = await execute(
                 """
                 DELETE FROM memory.medium_term WHERE expires_at < CURRENT_TIMESTAMP;
                 """
             )
-            
+
             logger.info(f"Cleanup task completed")
-        
+
         except Exception as e:
             logger.error(f"Cleanup task error: {e}")
 ```
@@ -1277,8 +1279,11 @@ Add to your Cursor settings (Cursor → Settings → MCP):
     "l9-memory": {
       "command": "curl",
       "args": [
-        "-X", "GET", "https://l9.quantumaipartners.com/mcp/tools",
-        "-H", "Authorization: Bearer YOUR_MCP_API_KEY"
+        "-X",
+        "GET",
+        "https://l9.quantumaipartners.com/mcp/tools",
+        "-H",
+        "Authorization: Bearer YOUR_MCP_API_KEY"
       ],
       "env": {
         "MCP_URL": "https://l9.quantumaipartners.com",
@@ -1309,6 +1314,7 @@ Configure in `~/.cursor/mcp.json`:
 ```
 
 **Official Configuration (Locked 2026-01-12):**
+
 - **URL:** `https://157.180.73.53:9001` (IP-based) or `https://l9.quantumaipartners.com` (domain)
 - **API Key:** `MCP_API_KEY_C` (Cursor IDE key)
 - See `docs/MCP-MEMORY-CAPSULE.md` for complete wiring documentation.
@@ -1323,9 +1329,9 @@ Configure in `~/.cursor/mcp.json`:
 
 In Cloudflare dashboard for `quantumaipartners.com`:
 
-| Type | Name | Content | Proxy Status |
-|------|------|---------|--------------|
-| A | `l9` | `157.180.73.53` | Proxied (orange cloud) |
+| Type | Name | Content         | Proxy Status           |
+| ---- | ---- | --------------- | ---------------------- |
+| A    | `l9` | `157.180.73.53` | Proxied (orange cloud) |
 
 ### SSL/TLS Settings
 
@@ -1343,27 +1349,27 @@ l9.quantumaipartners.com {
     handle /api/* {
         reverse_proxy l9-api:8000
     }
-    
+
     # Slack webhooks
     handle /slack/* {
         reverse_proxy l9-api:8000
     }
-    
+
     # MCP Memory - protocol endpoints
     handle /mcp/* {
         reverse_proxy 127.0.0.1:9001
     }
-    
+
     # MCP Memory - direct memory API
     handle /memory/* {
         reverse_proxy 127.0.0.1:9001
     }
-    
+
     # Health check
     handle /health {
         reverse_proxy 127.0.0.1:9001
     }
-    
+
     # Default to L9 API
     handle {
         reverse_proxy l9-api:8000
@@ -1457,11 +1463,13 @@ curl https://l9.quantumaipartners.com/memory/stats \
 ### "Connection refused" or timeout
 
 1. **Check Cloudflare DNS:** Verify `l9.quantumaipartners.com` resolves correctly
+
    ```bash
    dig l9.quantumaipartners.com
    ```
 
 2. **Check Caddy routing:** Ensure paths are configured correctly
+
    ```bash
    ssh root@157.180.73.53
    sudo systemctl status caddy
@@ -1469,6 +1477,7 @@ curl https://l9.quantumaipartners.com/memory/stats \
    ```
 
 3. **Check MCP server:** Verify service is running
+
    ```bash
    sudo systemctl status l9-mcp
    sudo journalctl -u l9-mcp -f

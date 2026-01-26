@@ -16,7 +16,7 @@ from memory.substrate_service import close_service, init_service
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def substrate_service():
     """Provide a memory substrate service for integration tests."""
     if not TEST_DB_URL:
@@ -28,7 +28,7 @@ async def substrate_service():
     await close_service()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def graph_client():
     """Provide a Neo4j client for alignment tests."""
     client = await get_neo4j_client()

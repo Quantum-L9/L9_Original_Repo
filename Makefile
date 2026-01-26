@@ -237,4 +237,3 @@ architecture-reports:
 
 cursor-start:
 	@./scripts/cursor-start-session
-

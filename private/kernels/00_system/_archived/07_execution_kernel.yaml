@@ -78,4 +78,3 @@ fallback:
     - "halt_execution"
     - "emit_debug_packet"
     - "output_recovery_steps"
-

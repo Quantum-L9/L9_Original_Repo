@@ -12,10 +12,12 @@ Version: 1.0.0
 
 from unittest.mock import MagicMock
 
-from core.agents.prompt_builder import (SAFETY_PREFIX,
-                                        build_kernel_system_prompt,
-                                        build_runtime_prompt,
-                                        get_safety_prefix)
+from core.agents.prompt_builder import (
+    SAFETY_PREFIX,
+    build_kernel_system_prompt,
+    build_runtime_prompt,
+    get_safety_prefix,
+)
 
 
 class MockKernelAgent:
@@ -23,7 +25,7 @@ class MockKernelAgent:
 
     def __init__(
         self,
-        kernels: dict = None,
+        kernels: dict | None = None,
         kernel_state: str = "ACTIVE",
     ):
         self.kernels = kernels or {}

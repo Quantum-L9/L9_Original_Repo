@@ -43,7 +43,7 @@ __dora_meta__ = {
 
 from datetime import datetime, timedelta
 from functools import lru_cache
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -61,7 +61,7 @@ class HousekeepingEngine:
     and unreferenced memory artifacts.
     """
 
-    def __init__(self, repository: Optional["SubstrateRepository"] = None):
+    def __init__(self, repository: SubstrateRepository | None = None):
         """
         Initialize housekeeping engine.
 
@@ -69,7 +69,7 @@ class HousekeepingEngine:
             repository: SubstrateRepository instance (injected)
         """
         self._repository = repository
-        self._last_run: Optional[datetime] = None
+        self._last_run: datetime | None = None
         self._stats: dict[str, int] = {
             "ttl_evicted": 0,
             "orphans_cleaned": 0,
@@ -78,7 +78,7 @@ class HousekeepingEngine:
         }
         logger.info("HousekeepingEngine initialized")
 
-    def set_repository(self, repository: "SubstrateRepository") -> None:
+    def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
@@ -122,7 +122,7 @@ class HousekeepingEngine:
             results["ttl_evicted"] = count
         except Exception as e:
             logger.error(f"TTL eviction failed: {e}")
-            results["errors"].append(f"ttl_eviction: {str(e)}")
+            results["errors"].append(f"ttl_eviction: {e!s}")
 
         # Orphan cleanup
         try:
@@ -130,7 +130,7 @@ class HousekeepingEngine:
             results["orphans_cleaned"] = count
         except Exception as e:
             logger.error(f"Orphan cleanup failed: {e}")
-            results["errors"].append(f"orphan_cleanup: {str(e)}")
+            results["errors"].append(f"orphan_cleanup: {e!s}")
 
         # Parentless cleanup
         try:
@@ -138,7 +138,7 @@ class HousekeepingEngine:
             results["parentless_cleaned"] = count
         except Exception as e:
             logger.error(f"Parentless cleanup failed: {e}")
-            results["errors"].append(f"parentless_cleanup: {str(e)}")
+            results["errors"].append(f"parentless_cleanup: {e!s}")
 
         # Artifact cleanup
         try:
@@ -146,7 +146,7 @@ class HousekeepingEngine:
             results["artifacts_cleaned"] = count
         except Exception as e:
             logger.error(f"Artifact cleanup failed: {e}")
-            results["errors"].append(f"artifact_cleanup: {str(e)}")
+            results["errors"].append(f"artifact_cleanup: {e!s}")
 
         # Tag GC
         try:
@@ -154,7 +154,7 @@ class HousekeepingEngine:
             results["tags_gc"] = count
         except Exception as e:
             logger.error(f"Tag GC failed: {e}")
-            results["errors"].append(f"tag_gc: {str(e)}")
+            results["errors"].append(f"tag_gc: {e!s}")
 
         # Update stats
         self._stats["ttl_evicted"] += results["ttl_evicted"]
@@ -222,7 +222,7 @@ class HousekeepingEngine:
                     INTERSECT
                     SELECT packet_id FROM packet_store
                 )
-                WHERE parent_ids IS NOT NULL 
+                WHERE parent_ids IS NOT NULL
                 AND array_length(parent_ids, 1) > 0
                 AND EXISTS (
                     SELECT 1 FROM unnest(p.parent_ids) AS parent_id
@@ -242,7 +242,7 @@ class HousekeepingEngine:
     async def cleanup_parentless_packets(
         self,
         max_age_hours: int = 72,
-        exclude_types: Optional[list[str]] = None,
+        exclude_types: list[str] | None = None,
     ) -> int:
         """
         Clean up old parentless packets that appear abandoned.
@@ -306,7 +306,7 @@ class HousekeepingEngine:
                 DELETE FROM semantic_memory sm
                 WHERE EXISTS (
                     SELECT 1 FROM jsonb_extract_path_text(sm.payload::jsonb, 'packet_id') AS pid
-                    WHERE pid IS NOT NULL 
+                    WHERE pid IS NOT NULL
                     AND pid::uuid NOT IN (SELECT packet_id FROM packet_store)
                 )
                 """)
@@ -405,7 +405,7 @@ class HousekeepingEngine:
             # Count orphan references
             orphan_refs = await conn.fetchval("""
                 SELECT COUNT(*) FROM packet_store p
-                WHERE parent_ids IS NOT NULL 
+                WHERE parent_ids IS NOT NULL
                 AND array_length(parent_ids, 1) > 0
                 AND EXISTS (
                     SELECT 1 FROM unnest(p.parent_ids) AS parent_id
@@ -451,7 +451,7 @@ def get_housekeeping_engine() -> HousekeepingEngine:
     return HousekeepingEngine()
 
 
-def init_housekeeping_engine(repository: "SubstrateRepository") -> HousekeepingEngine:
+def init_housekeeping_engine(repository: SubstrateRepository) -> HousekeepingEngine:
     """Initialize the housekeeping engine with a repository."""
     engine = get_housekeeping_engine()
     engine.set_repository(repository)

@@ -18,4 +18,3 @@ echo ""
 echo "✅ Index complete: Repo structure synced to VPS memory"
 echo ""
 echo "📊 Note: VPS memory audit runs automatically after index load"
-

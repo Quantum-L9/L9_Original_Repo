@@ -1,7 +1,7 @@
 # L9 Database Best Practices
 
-**Version:** 1.0.0  
-**Last Updated:** January 17, 2026  
+**Version:** 1.0.0
+**Last Updated:** January 17, 2026
 **Audience:** L9 Developers
 
 ---
@@ -34,25 +34,25 @@ An N+1 query pattern occurs when you:
 # BAD: N+1 pattern - 101 queries for 100 packets
 async def get_packets_with_metadata_bad(packet_ids: List[UUID]):
     packets = []
-    
+
     # Query 1: Fetch packets one by one
     for packet_id in packet_ids:  # ❌ Loop with query inside
         packet = await conn.fetch_one(
             "SELECT * FROM packets WHERE packet_id = $1",
             packet_id
         )
-        
+
         # Query 2-101: Fetch metadata one by one
         metadata = await conn.fetch_one(
             "SELECT * FROM packet_metadata WHERE packet_id = $1",
             packet_id
         )
-        
+
         packets.append({
             "packet": packet,
             "metadata": metadata
         })
-    
+
     return packets
 
 # Performance: 100 packets = 200 queries = ~1 second
@@ -65,22 +65,22 @@ async def get_packets_with_metadata_bad(packet_ids: List[UUID]):
 async def get_packets_with_metadata_good(packet_ids: List[UUID]):
     if not packet_ids:
         return []
-    
+
     # Query 1: Fetch ALL packets in one query
     packets = await conn.fetch(
         "SELECT * FROM packets WHERE packet_id = ANY($1)",
         packet_ids
     )
-    
+
     # Query 2: Fetch ALL metadata in one query
     metadata_rows = await conn.fetch(
         "SELECT * FROM packet_metadata WHERE packet_id = ANY($1)",
         packet_ids
     )
-    
+
     # Build lookup dictionary (in-memory, fast)
     metadata_map = {row["packet_id"]: row for row in metadata_rows}
-    
+
     # Combine results (no database queries)
     return [
         {
@@ -321,7 +321,7 @@ CREATE INDEX idx_packets_tenant_id ON packets(tenant_id);
 CREATE INDEX idx_packets_timestamp ON packets(timestamp);
 
 -- Composite index for common query patterns
-CREATE INDEX idx_packets_tenant_timestamp 
+CREATE INDEX idx_packets_tenant_timestamp
 ON packets(tenant_id, timestamp DESC);
 
 -- JSONB GIN index for envelope queries
@@ -391,16 +391,16 @@ async def get_packets_with_children(
     parent_ids: List[UUID]
 ) -> Dict[UUID, List[Dict]]:
     """Fetch packets and their children in 2 queries"""
-    
+
     if not parent_ids:
         return {}
-    
+
     # Query 1: Fetch parent packets
     parents = await conn.fetch(
         "SELECT * FROM packets WHERE packet_id = ANY($1)",
         parent_ids
     )
-    
+
     # Query 2: Fetch all children in one query
     children = await conn.fetch(
         """
@@ -409,13 +409,13 @@ async def get_packets_with_children(
         """,
         parent_ids
     )
-    
+
     # Group children by parent (in-memory)
     children_by_parent = {}
     for child in children:
         for parent_id in child["parent_ids"]:
             children_by_parent.setdefault(parent_id, []).append(child)
-    
+
     # Combine
     return {
         parent["packet_id"]: children_by_parent.get(parent["packet_id"], [])
@@ -431,11 +431,11 @@ async def update_packet_status_bulk(
     status: str
 ) -> int:
     """Update status for multiple packets"""
-    
+
     result = await conn.execute(
         """
         UPDATE packets
-        SET 
+        SET
             envelope = jsonb_set(envelope, '{status}', to_jsonb($2::text)),
             updated_at = NOW()
         WHERE packet_id = ANY($1)
@@ -443,7 +443,7 @@ async def update_packet_status_bulk(
         packet_ids,
         status
     )
-    
+
     # Parse "UPDATE N" to get count
     updated_count = int(result.split()[-1])
     return updated_count
@@ -457,11 +457,11 @@ async def archive_old_packets(
     days_old: int = 90
 ) -> int:
     """Archive packets older than N days"""
-    
+
     result = await conn.execute(
         """
         UPDATE packets
-        SET 
+        SET
             tags = array_append(tags, 'archived'),
             envelope = jsonb_set(envelope, '{archived}', 'true')
         WHERE tenant_id = $1
@@ -471,7 +471,7 @@ async def archive_old_packets(
         tenant_id,
         days_old
     )
-    
+
     archived_count = int(result.split()[-1])
     return archived_count
 ```
@@ -501,20 +501,20 @@ async def db_transaction(substrate_repo):
 async def test_batch_insert(db_transaction):
     """Test batch insert performance"""
     conn = db_transaction
-    
+
     # Insert 1000 packets
     packets = [
         (uuid4(), "test", json.dumps({}), datetime.utcnow())
         for _ in range(1000)
     ]
-    
+
     start = time.time()
     await conn.executemany(
         "INSERT INTO packets (packet_id, packet_type, envelope, timestamp) VALUES ($1, $2, $3, $4)",
         packets
     )
     duration = time.time() - start
-    
+
     # Should be fast (< 100ms for 1000 inserts)
     assert duration < 0.1
 ```
@@ -526,7 +526,7 @@ async def test_batch_insert(db_transaction):
 async def test_tenant_isolation(db_transaction):
     """Test that tenant filtering works"""
     conn = db_transaction
-    
+
     # Insert packets for two tenants
     await conn.execute(
         "INSERT INTO packets (packet_id, tenant_id, ...) VALUES ($1, $2, ...)",
@@ -536,13 +536,13 @@ async def test_tenant_isolation(db_transaction):
         "INSERT INTO packets (packet_id, tenant_id, ...) VALUES ($1, $2, ...)",
         uuid2, "tenant-b", ...
     )
-    
+
     # Query with tenant filter
     results = await conn.fetch(
         "SELECT * FROM packets WHERE tenant_id = $1",
         "tenant-a"
     )
-    
+
     # Should only return tenant-a's packet
     assert len(results) == 1
     assert results[0]["tenant_id"] == "tenant-a"
@@ -636,8 +636,8 @@ When reviewing database code, check:
 
 ---
 
-**Last Updated:** January 17, 2026  
-**Maintainer:** L9 Platform Team  
+**Last Updated:** January 17, 2026
+**Maintainer:** L9 Platform Team
 **Questions?** See `docs/` or ask in #l9-dev
 
 ---

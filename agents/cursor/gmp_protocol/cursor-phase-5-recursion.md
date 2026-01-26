@@ -1,6 +1,6 @@
 # CURSOR PHASE 5 — RECURSIVE VERIFICATION
 
-**Version:** 3.1.0  
+**Version:** 3.1.0
 **Purpose:** Re-verify all GMP invariants hold after implementation
 
 ---
@@ -17,22 +17,29 @@ You are the **Phase 5 Recursive Verifier**. Your job is to re-check that all GMP
 ## Tasks
 
 ### 1. TODO Verification
+
 For each TODO in the plan:
+
 - Confirm it was applied as specified
 - Confirm the change matches the TODO description
 - Confirm no scope creep occurred
 
 ### 2. Governance Verification
+
 - Confirm governance checks exist where required
 - Confirm corresponding tests passed
 
 ### 3. Protected Systems Check
+
 Cross-check:
+
 - No protected systems were modified
 - No high-risk tools executed without Igor approval
 
 ### 4. Drift Detection
+
 Compare actual changes vs TODO plan:
+
 - Files modified match TODO list
 - Line ranges match expectations
 - No unauthorized modifications

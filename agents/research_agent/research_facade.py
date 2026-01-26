@@ -16,7 +16,7 @@ Architecture Note:
 """
 
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -33,7 +33,7 @@ async def run_research(
     query: str,
     user_id: str = "cursor_agent",
     deep: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Run a research query through the full LangGraph pipeline.
 
@@ -64,13 +64,12 @@ async def run_research(
 
     log.info("Starting research via facade", query=query[:50], deep=deep)
 
-    result = await _run_research(
+    return await _run_research(
         query=query,
         user_id=user_id,
         thread_id=str(uuid4()),
     )
 
-    return result
 
 
 async def run_quick_research(
@@ -95,9 +94,11 @@ async def run_quick_research(
     Example:
         answer = await run_quick_research("What is LangGraph?")
     """
-    from services.research.tools.perplexity_client import (PerplexityClient,
-                                                           PerplexityModel,
-                                                           PerplexityRequest)
+    from services.research.tools.perplexity_client import (
+        PerplexityClient,
+        PerplexityModel,
+        PerplexityRequest,
+    )
 
     client = PerplexityClient()
 
@@ -121,7 +122,7 @@ async def run_quick_research(
 def generate_superprompt(
     path: str,
     template: str = "readme",
-    title: Optional[str] = None,
+    title: str | None = None,
 ) -> str:
     """
     Generate a superprompt for Perplexity by extracting facts from code.
@@ -156,8 +157,9 @@ def generate_superprompt(
 
     try:
         from generate_readme_superprompt import extract_subsystem_facts
-        from generate_readme_superprompt import \
-            generate_superprompt as _generate_superprompt
+        from generate_readme_superprompt import (
+            generate_superprompt as _generate_superprompt,
+        )
 
         repo_root = Path(__file__).parent.parent.parent
 
@@ -170,9 +172,8 @@ def generate_superprompt(
         facts = extract_subsystem_facts(repo_root, path)
 
         # Generate superprompt
-        superprompt = _generate_superprompt(facts, title)
+        return _generate_superprompt(facts, title)
 
-        return superprompt
 
     except ImportError as e:
         log.error("Failed to import superprompt generator", error=str(e))
@@ -182,7 +183,7 @@ def generate_superprompt(
         ) from e
 
 
-def extract_facts(path: str) -> Dict[str, Any]:
+def extract_facts(path: str) -> dict[str, Any]:
     """
     Extract code facts from a module using AST parsing.
 

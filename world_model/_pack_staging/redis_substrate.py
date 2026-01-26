@@ -33,8 +33,9 @@ __dora_meta__ = {
 
 import json
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from world_model.interfaces import Entity, Relation
 from world_model.state import WorldModelState
@@ -49,7 +50,7 @@ class RedisConfig:
     host: str = "localhost"
     port: int = 6379
     db: int = 0
-    password: Optional[str] = None
+    password: str | None = None
     default_ttl: int = 3600  # 1 hour
     max_memory: str = "1gb"
 
@@ -57,7 +58,7 @@ class RedisConfig:
 class RedisSubstrate:
     """Redis-backed cache layer for World Model."""
 
-    def __init__(self, config: Optional[RedisConfig] = None):
+    def __init__(self, config: RedisConfig | None = None):
         """Initialize Redis substrate.
 
         Args:
@@ -155,7 +156,7 @@ class RedisSubstrate:
 
     # ========== ENTITY CACHING ==========
 
-    def cache_entity(self, entity: Entity, ttl: Optional[int] = None) -> None:
+    def cache_entity(self, entity: Entity, ttl: int | None = None) -> None:
         """Cache entity with optional TTL.
 
         Args:
@@ -185,7 +186,7 @@ class RedisSubstrate:
         except Exception as e:
             self.logger.error(f"Failed to cache entity {entity.id}: {e}")
 
-    def get_cached_entity(self, entity_id: str) -> Optional[Entity]:
+    def get_cached_entity(self, entity_id: str) -> Entity | None:
         """Retrieve entity from cache.
 
         Args:
@@ -208,7 +209,7 @@ class RedisSubstrate:
             self.logger.error(f"Failed to get cached entity {entity_id}: {e}")
             return None
 
-    def get_cached_entities_by_type(self, entity_type: str) -> List[Entity]:
+    def get_cached_entities_by_type(self, entity_type: str) -> list[Entity]:
         """Get all cached entities of type.
 
         Args:
@@ -249,7 +250,7 @@ class RedisSubstrate:
 
     # ========== RELATION CACHING ==========
 
-    def cache_relation(self, relation: Relation, ttl: Optional[int] = None) -> None:
+    def cache_relation(self, relation: Relation, ttl: int | None = None) -> None:
         """Cache relation with optional TTL.
 
         Args:
@@ -281,7 +282,7 @@ class RedisSubstrate:
         except Exception as e:
             self.logger.error(f"Failed to cache relation {relation.id}: {e}")
 
-    def get_cached_relation(self, relation_id: str) -> Optional[Relation]:
+    def get_cached_relation(self, relation_id: str) -> Relation | None:
         """Retrieve relation from cache.
 
         Args:
@@ -320,7 +321,7 @@ class RedisSubstrate:
 
     # ========== BULK OPERATIONS ==========
 
-    def cache_state(self, state: WorldModelState, ttl: Optional[int] = None) -> None:
+    def cache_state(self, state: WorldModelState, ttl: int | None = None) -> None:
         """Cache entire state.
 
         Args:
@@ -345,7 +346,7 @@ class RedisSubstrate:
 
     # ========== MONITORING ==========
 
-    def get_cache_stats(self) -> Dict[str, Any]:
+    def get_cache_stats(self) -> dict[str, Any]:
         """Get cache statistics.
 
         Returns:
@@ -368,7 +369,7 @@ class RedisSubstrate:
 
     # ========== PUB/SUB (STATE CHANGE NOTIFICATIONS) ==========
 
-    def subscribe_to_updates(self, callback: Callable[[Dict[str, Any]], None]) -> None:
+    def subscribe_to_updates(self, callback: Callable[[dict[str, Any]], None]) -> None:
         """Subscribe to state change notifications.
 
         Args:
@@ -388,7 +389,7 @@ class RedisSubstrate:
         except Exception as e:
             self.logger.error(f"Pub/Sub error: {e}")
 
-    def publish_update(self, update: Dict[str, Any]) -> None:
+    def publish_update(self, update: dict[str, Any]) -> None:
         """Publish state change notification.
 
         Args:
@@ -406,7 +407,7 @@ class RedisSubstrate:
     # ========== SESSION MANAGEMENT ==========
 
     def store_session(
-        self, session_id: str, data: Dict[str, Any], ttl: Optional[int] = None
+        self, session_id: str, data: dict[str, Any], ttl: int | None = None
     ) -> None:
         """Store session data (for L9 authority model).
 
@@ -425,7 +426,7 @@ class RedisSubstrate:
         except Exception as e:
             self.logger.error(f"Failed to store session: {e}")
 
-    def get_session(self, session_id: str) -> Optional[Dict[str, Any]]:
+    def get_session(self, session_id: str) -> dict[str, Any] | None:
         """Retrieve session data.
 
         Args:

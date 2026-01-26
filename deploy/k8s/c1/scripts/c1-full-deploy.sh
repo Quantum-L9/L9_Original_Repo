@@ -69,25 +69,25 @@ log_step() { echo -e "${CYAN}[STEP $(date +%H:%M:%S)]${NC} ========== $1 =======
 # =============================================================================
 safety_check() {
     log_step "SAFETY CHECKS"
-    
+
     # Check we're not on L9
     if [[ "$(hostname -I 2>/dev/null | awk '{print $1}')" == "$L9_IP" ]]; then
         log_error "SAFETY VIOLATION: Running on L9 server! Aborting."
         exit 1
     fi
-    
+
     # Check API token exists
     if [[ -z "$HCLOUD_TOKEN" ]]; then
         log_error "HCLOUD_TOKEN not set. Source your .env file."
         exit 1
     fi
-    
+
     # Check SSH key exists
     if [[ ! -f "$SSH_KEY_FILE" ]]; then
         log_error "SSH key not found: $SSH_KEY_FILE"
         exit 1
     fi
-    
+
     log_success "Safety checks passed"
 }
 
@@ -98,9 +98,9 @@ hcloud_api() {
     local method="$1"
     local endpoint="$2"
     local data="${3:-}"
-    
+
     local url="https://api.hetzner.cloud/v1$endpoint"
-    
+
     if [[ -n "$data" ]]; then
         curl -s -X "$method" "$url" \
             -H "Authorization: Bearer $HCLOUD_TOKEN" \
@@ -117,30 +117,30 @@ hcloud_api() {
 # =============================================================================
 verify_c1_state() {
     log_step "PHASE 1: VERIFY C1 STATE"
-    
+
     log_info "Fetching C1 server info..."
     local server_info=$(hcloud_api GET "/servers/$C1_SERVER_ID")
-    
+
     local status=$(echo "$server_info" | jq -r '.server.status')
     local ip=$(echo "$server_info" | jq -r '.server.public_net.ipv4.ip')
     local image=$(echo "$server_info" | jq -r '.server.image.description')
     local server_type=$(echo "$server_info" | jq -r '.server.server_type.name')
-    
+
     log_info "C1 Status: $status"
     log_info "C1 IP: $ip"
     log_info "C1 Image: $image"
     log_info "C1 Type: $server_type"
-    
+
     if [[ "$ip" != "$C1_IP" ]]; then
         log_error "IP mismatch! Expected $C1_IP, got $ip"
         exit 1
     fi
-    
+
     if [[ "$status" != "running" ]]; then
         log_error "C1 is not running (status: $status)"
         exit 1
     fi
-    
+
     log_success "C1 verified: $server_type running at $ip"
     echo "$image"  # Return current image for later comparison
 }
@@ -150,30 +150,30 @@ verify_c1_state() {
 # =============================================================================
 ensure_ssh_key() {
     log_step "PHASE 2: ENSURE SSH KEY IN HETZNER"
-    
+
     log_info "Checking for existing SSH key: $SSH_KEY_NAME"
     local keys=$(hcloud_api GET "/ssh_keys")
     local existing_key=$(echo "$keys" | jq -r ".ssh_keys[] | select(.name==\"$SSH_KEY_NAME\") | .id")
-    
+
     if [[ -n "$existing_key" ]]; then
         log_success "SSH key '$SSH_KEY_NAME' already exists (ID: $existing_key)"
         echo "$existing_key"
         return
     fi
-    
+
     log_info "Adding SSH key to Hetzner..."
     local result=$(hcloud_api POST "/ssh_keys" "{
         \"name\": \"$SSH_KEY_NAME\",
         \"public_key\": \"$SSH_PUBLIC_KEY\"
     }")
-    
+
     local key_id=$(echo "$result" | jq -r '.ssh_key.id')
-    
+
     if [[ "$key_id" == "null" || -z "$key_id" ]]; then
         log_error "Failed to add SSH key: $(echo "$result" | jq -r '.error.message')"
         exit 1
     fi
-    
+
     log_success "SSH key added (ID: $key_id)"
     echo "$key_id"
 }
@@ -183,20 +183,20 @@ ensure_ssh_key() {
 # =============================================================================
 get_image_id() {
     log_step "PHASE 3: GET UBUNTU 24.04 IMAGE"
-    
+
     log_info "Fetching available images..."
     local images=$(hcloud_api GET "/images?type=system&status=available")
-    
+
     # Try ubuntu-24.04 first, fallback to ubuntu-22.04
     local image_id=$(echo "$images" | jq -r ".images[] | select(.name==\"$UBUNTU_IMAGE\") | .id")
-    
+
     if [[ -z "$image_id" || "$image_id" == "null" ]]; then
         log_warn "Ubuntu 24.04 not found, checking available Ubuntu images..."
         echo "$images" | jq -r '.images[] | select(.name | startswith("ubuntu")) | "\(.name): \(.id)"'
-        
+
         # Fallback to 22.04
         image_id=$(echo "$images" | jq -r '.images[] | select(.name=="ubuntu-22.04") | .id')
-        
+
         if [[ -z "$image_id" || "$image_id" == "null" ]]; then
             log_error "No suitable Ubuntu image found!"
             exit 1
@@ -205,7 +205,7 @@ get_image_id() {
     else
         log_success "Found Ubuntu 24.04 (ID: $image_id)"
     fi
-    
+
     echo "$image_id"
 }
 
@@ -215,13 +215,13 @@ get_image_id() {
 rebuild_c1() {
     local ssh_key_id="$1"
     local image_id="$2"
-    
+
     log_step "PHASE 4: REBUILD C1"
-    
+
     log_warn "This will WIPE C1 and reinstall Ubuntu!"
     log_info "Image ID: $image_id"
     log_info "SSH Key ID: $ssh_key_id"
-    
+
     # Confirm (unless running non-interactively)
     if [[ -t 0 ]]; then
         read -p "Proceed with rebuild? (type 'REBUILD' to confirm): " -r
@@ -230,35 +230,35 @@ rebuild_c1() {
             exit 1
         fi
     fi
-    
+
     log_info "Initiating rebuild..."
     local result=$(hcloud_api POST "/servers/$C1_SERVER_ID/actions/rebuild" "{
         \"image\": \"$image_id\",
         \"ssh_keys\": [$ssh_key_id]
     }")
-    
+
     local action_id=$(echo "$result" | jq -r '.action.id')
     local root_password=$(echo "$result" | jq -r '.root_password')
-    
+
     if [[ "$action_id" == "null" || -z "$action_id" ]]; then
         log_error "Rebuild failed: $(echo "$result" | jq -r '.error.message')"
         exit 1
     fi
-    
+
     log_info "Rebuild started (Action ID: $action_id)"
-    
+
     if [[ "$root_password" != "null" && -n "$root_password" ]]; then
         log_info "Root password (backup): $root_password"
         echo "$root_password" > "$SCRIPT_DIR/.c1-root-password"
         chmod 600 "$SCRIPT_DIR/.c1-root-password"
     fi
-    
+
     # Wait for rebuild to complete
     log_info "Waiting for rebuild to complete..."
     local status="running"
     local attempts=0
     local max_attempts=60  # 5 minutes max
-    
+
     while [[ "$status" == "running" && $attempts -lt $max_attempts ]]; do
         sleep 5
         local action_status=$(hcloud_api GET "/actions/$action_id")
@@ -268,12 +268,12 @@ rebuild_c1() {
         ((attempts++))
     done
     echo ""
-    
+
     if [[ "$status" != "success" ]]; then
         log_error "Rebuild failed with status: $status"
         exit 1
     fi
-    
+
     log_success "Rebuild completed successfully"
 }
 
@@ -282,15 +282,15 @@ rebuild_c1() {
 # =============================================================================
 wait_for_ssh() {
     log_step "PHASE 5: WAIT FOR SSH"
-    
+
     log_info "Waiting for SSH to become available..."
-    
+
     # Clear known hosts for this IP (fresh install = new host key)
     ssh-keygen -R "$C1_IP" 2>/dev/null || true
-    
+
     local attempts=0
     local max_attempts=30  # 2.5 minutes max
-    
+
     while [[ $attempts -lt $max_attempts ]]; do
         if ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o BatchMode=yes \
                -i "$SSH_KEY_FILE" root@"$C1_IP" "echo 'SSH OK'" 2>/dev/null; then
@@ -302,7 +302,7 @@ wait_for_ssh() {
         ((attempts++))
     done
     echo ""
-    
+
     log_error "SSH connection failed after $max_attempts attempts"
     exit 1
 }
@@ -312,9 +312,9 @@ wait_for_ssh() {
 # =============================================================================
 verify_system() {
     log_step "PHASE 6: VERIFY SYSTEM"
-    
+
     log_info "Verifying C1 system..."
-    
+
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
 echo "=== SYSTEM INFO ==="
 echo "Hostname: $(hostname)"
@@ -330,7 +330,7 @@ echo ""
 echo "=== NETWORK ==="
 ip addr show | grep -E "inet " | head -2
 REMOTE_SCRIPT
-    
+
     log_success "System verification complete"
 }
 
@@ -339,9 +339,9 @@ REMOTE_SCRIPT
 # =============================================================================
 install_k3s() {
     log_step "PHASE 7: INSTALL K3S + DOCKER"
-    
+
     log_info "Installing k3s and Docker on C1..."
-    
+
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
 set -e
 
@@ -374,7 +374,7 @@ kubectl get pods -A
 
 echo "k3s and Docker installed successfully"
 REMOTE_SCRIPT
-    
+
     log_success "k3s and Docker installed"
 }
 
@@ -383,9 +383,9 @@ REMOTE_SCRIPT
 # =============================================================================
 sync_env_files() {
     log_step "PHASE 8: SYNC ENV FILES TO VPS"
-    
+
     log_info "Syncing local .env files to C1..."
-    
+
     # Create directories on VPS
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
 mkdir -p /opt/l9/mcp_memory
@@ -393,7 +393,7 @@ mkdir -p /opt/l9/services/symbolic_computation
 mkdir -p /opt/l9/config
 chmod 700 /opt/l9
 REMOTE_SCRIPT
-    
+
     # Define env file mappings (local:remote)
     declare -a ENV_FILES=(
         "$HOME/Projects/L9/.env:/opt/l9/.env.production"
@@ -401,14 +401,14 @@ REMOTE_SCRIPT
         "$HOME/Projects/L9/.env.vps:/opt/l9/.env.vps"
         "$HOME/Projects/L9/mcp_memory/.env:/opt/l9/mcp_memory/.env"
     )
-    
+
     local synced=0
     local skipped=0
-    
+
     for mapping in "${ENV_FILES[@]}"; do
         local local_path="${mapping%%:*}"
         local remote_path="${mapping##*:}"
-        
+
         if [[ -f "$local_path" ]]; then
             log_info "Syncing: $(basename "$local_path") → $remote_path"
             scp -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" \
@@ -422,7 +422,7 @@ REMOTE_SCRIPT
             ((skipped++))
         fi
     done
-    
+
     # Create .env symlink for docker-compose
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
 if [[ -f /opt/l9/.env.production ]]; then
@@ -430,7 +430,7 @@ if [[ -f /opt/l9/.env.production ]]; then
     echo "Created symlink: /opt/l9/.env → .env.production"
 fi
 REMOTE_SCRIPT
-    
+
     # Validate required variables
     log_info "Validating required variables..."
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
@@ -454,7 +454,7 @@ echo ""
 echo "=== ENV FILES ON VPS ==="
 find /opt/l9 -name ".env*" -type f 2>/dev/null
 REMOTE_SCRIPT
-    
+
     log_success "Env files synced: $synced synced, $skipped skipped"
 }
 
@@ -463,9 +463,9 @@ REMOTE_SCRIPT
 # =============================================================================
 build_docker_images() {
     log_step "PHASE 9: BUILD DOCKER IMAGES ON C1"
-    
+
     log_info "Cloning L9 repo and building images with all requirements..."
-    
+
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
 set -e
 
@@ -566,7 +566,7 @@ docker build \
 echo "=== Docker images built ==="
 docker images | grep -E "(l9-api|l9-mcp)" | head -10
 REMOTE_SCRIPT
-    
+
     log_success "Docker images built on C1"
 }
 
@@ -575,19 +575,19 @@ REMOTE_SCRIPT
 # =============================================================================
 deploy_manifests() {
     log_step "PHASE 10: DEPLOY K8S MANIFESTS"
-    
+
     log_info "Copying manifests to C1..."
-    
+
     # Create directory on C1
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" "mkdir -p /opt/l9-k8s"
-    
+
     # Copy manifest files from the manifests directory
     scp -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" \
         "$SCRIPT_DIR"/../manifests/*.yaml \
         root@"$C1_IP":/opt/l9-k8s/
-    
+
     log_info "Applying manifests..."
-    
+
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
 set -e
 cd /opt/l9-k8s
@@ -627,7 +627,7 @@ kubectl apply -f c1-network-policy.yaml
 
 echo "All manifests applied"
 REMOTE_SCRIPT
-    
+
     log_success "Manifests deployed"
 }
 
@@ -636,9 +636,9 @@ REMOTE_SCRIPT
 # =============================================================================
 wait_for_pods() {
     log_step "PHASE 11: WAIT FOR PODS"
-    
+
     log_info "Waiting for pods to be ready..."
-    
+
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
 set -e
 
@@ -667,7 +667,7 @@ echo ""
 echo "=== POD STATUS ==="
 kubectl get pods -n l9-c1 -o wide
 REMOTE_SCRIPT
-    
+
     log_success "Pods deployment complete"
 }
 
@@ -676,9 +676,9 @@ REMOTE_SCRIPT
 # =============================================================================
 final_verification() {
     log_step "PHASE 12: FINAL VERIFICATION"
-    
+
     log_info "Running final checks..."
-    
+
     ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" root@"$C1_IP" bash << 'REMOTE_SCRIPT'
 echo "=== PODS ==="
 kubectl get pods -n l9-c1
@@ -695,10 +695,10 @@ echo ""
 echo "=== RESOURCE USAGE ==="
 kubectl top nodes 2>/dev/null || echo "(metrics not yet available)"
 REMOTE_SCRIPT
-    
+
     # Test endpoints
     log_info "Testing endpoints..."
-    
+
     local endpoints=(
         "30080:L9 API"
         "30902:MCP Memory"
@@ -707,7 +707,7 @@ REMOTE_SCRIPT
         "30300:Grafana"
         "30909:Prometheus"
     )
-    
+
     for ep in "${endpoints[@]}"; do
         local port="${ep%%:*}"
         local name="${ep#*:}"
@@ -717,7 +717,7 @@ REMOTE_SCRIPT
             log_warn "$name (port $port): Not yet accessible"
         fi
     done
-    
+
     log_success "Final verification complete"
 }
 
@@ -733,13 +733,13 @@ main() {
     echo "   Log: $LOG_FILE"
     echo "============================================="
     echo ""
-    
+
     safety_check
-    
+
     local current_image=$(verify_c1_state)
     local ssh_key_id=$(ensure_ssh_key)
     local image_id=$(get_image_id)
-    
+
     rebuild_c1 "$ssh_key_id" "$image_id"
     wait_for_ssh
     verify_system
@@ -749,7 +749,7 @@ main() {
     deploy_manifests
     wait_for_pods
     final_verification
-    
+
     echo ""
     echo "============================================="
     echo -e "${GREEN}   SUCCESS! C1 DEPLOYMENT COMPLETE${NC}"

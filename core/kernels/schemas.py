@@ -50,7 +50,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -117,9 +117,9 @@ class KernelRule(FlexibleModel):
     id: str = Field(..., description="Unique rule identifier")
     type: str = Field(..., description="Rule type (capability, safety, etc.)")
     enabled: bool = Field(default=True, description="Whether rule is active")
-    description: Optional[str] = Field(default=None, description="Rule description")
-    severity: Optional[str] = Field(default="MEDIUM", description="Violation severity")
-    enforcement: Optional[str] = Field(default="strict", description="Enforcement mode")
+    description: str | None = Field(default=None, description="Rule description")
+    severity: str | None = Field(default="MEDIUM", description="Violation severity")
+    enforcement: str | None = Field(default="strict", description="Enforcement mode")
 
 
 class KernelInfo(FlexibleModel):
@@ -128,20 +128,18 @@ class KernelInfo(FlexibleModel):
     name: str = Field(..., description="Kernel name")
     version: str = Field(..., description="Kernel version (semver)")
     priority: int = Field(default=100, description="Load priority (lower = earlier)")
-    description: Optional[str] = Field(default=None, description="Kernel description")
-    rules: List[KernelRule] = Field(default_factory=list, description="Kernel rules")
+    description: str | None = Field(default=None, description="Kernel description")
+    rules: list[KernelRule] = Field(default_factory=list, description="Kernel rules")
 
 
 class KernelMeta(FlexibleModel):
     """Metadata attached during loading."""
 
-    source_file: Optional[str] = Field(default=None, description="Source file path")
-    layer: Optional[str] = Field(
-        default=None, description="Layer name (00_system, etc.)"
-    )
+    source_file: str | None = Field(default=None, description="Source file path")
+    layer: str | None = Field(default=None, description="Layer name (00_system, etc.)")
     layer_order: int = Field(default=50, description="Layer load order")
-    loaded_at: Optional[datetime] = Field(default=None, description="Load timestamp")
-    sha256: Optional[str] = Field(default=None, description="File hash for integrity")
+    loaded_at: datetime | None = Field(default=None, description="Load timestamp")
+    sha256: str | None = Field(default=None, description="File hash for integrity")
 
 
 # =============================================================================
@@ -154,7 +152,7 @@ class SovereigntyConfig(FlexibleModel):
 
     owner: str = Field(default="Igor", description="System owner")
     allegiance: str = Field(default="Igor-only", description="Allegiance constraint")
-    authority_hierarchy: List[str] = Field(
+    authority_hierarchy: list[str] = Field(
         default_factory=lambda: ["Igor", "L", "Research agents", "Mac agent"],
         description="Authority hierarchy (highest first)",
     )
@@ -164,16 +162,16 @@ class ModeConfig(FlexibleModel):
     """Operational mode configuration."""
 
     name: str = Field(..., description="Mode name")
-    description: Optional[str] = Field(default=None, description="Mode description")
+    description: str | None = Field(default=None, description="Mode description")
     active: bool = Field(default=False, description="Whether mode is active")
 
 
 class MasterKernelData(FlexibleModel):
     """Master kernel specific data."""
 
-    sovereignty: Optional[SovereigntyConfig] = None
-    modes: Dict[str, ModeConfig] = Field(default_factory=dict)
-    system_law: Optional[str] = Field(default=None, description="Core system law text")
+    sovereignty: SovereigntyConfig | None = None
+    modes: dict[str, ModeConfig] = Field(default_factory=dict)
+    system_law: str | None = Field(default=None, description="Core system law text")
 
 
 class IdentityConfig(FlexibleModel):
@@ -182,9 +180,9 @@ class IdentityConfig(FlexibleModel):
     designation: str = Field(default="L", description="Agent designation")
     primary_role: str = Field(default="CTO for Igor", description="Primary role")
     allegiance: str = Field(default="Igor-only", description="Allegiance")
-    mission: Optional[str] = Field(default=None, description="Mission statement")
-    traits: List[str] = Field(default_factory=list, description="Personality traits")
-    anti_traits: List[str] = Field(
+    mission: str | None = Field(default=None, description="Mission statement")
+    traits: list[str] = Field(default_factory=list, description="Personality traits")
+    anti_traits: list[str] = Field(
         default_factory=list, description="Traits to NEVER exhibit"
     )
 
@@ -200,9 +198,9 @@ class StyleConfig(FlexibleModel):
 class IdentityKernelData(FlexibleModel):
     """Identity kernel specific data."""
 
-    identity: Optional[IdentityConfig] = None
-    personality: Dict[str, Any] = Field(default_factory=dict)
-    style: Optional[StyleConfig] = None
+    identity: IdentityConfig | None = None
+    personality: dict[str, Any] = Field(default_factory=dict)
+    style: StyleConfig | None = None
 
 
 class ThresholdsConfig(FlexibleModel):
@@ -222,7 +220,7 @@ class Prohibition(FlexibleModel):
     """A behavioral prohibition."""
 
     name: str = Field(..., description="Prohibition name")
-    detect: List[str] = Field(default_factory=list, description="Detection patterns")
+    detect: list[str] = Field(default_factory=list, description="Detection patterns")
     severity: str = Field(default="HIGH", description="Violation severity")
     action: str = Field(default="block", description="Action on violation")
 
@@ -230,9 +228,9 @@ class Prohibition(FlexibleModel):
 class BehavioralKernelData(FlexibleModel):
     """Behavioral kernel specific data."""
 
-    thresholds: Optional[ThresholdsConfig] = None
-    defaults: Dict[str, Any] = Field(default_factory=dict)
-    prohibitions: List[Prohibition] = Field(default_factory=list)
+    thresholds: ThresholdsConfig | None = None
+    defaults: dict[str, Any] = Field(default_factory=dict)
+    prohibitions: list[Prohibition] = Field(default_factory=list)
 
 
 class GuardrailConfig(FlexibleModel):
@@ -240,27 +238,25 @@ class GuardrailConfig(FlexibleModel):
 
     name: str = Field(..., description="Guardrail name")
     enabled: bool = Field(default=True, description="Whether guardrail is active")
-    description: Optional[str] = Field(
-        default=None, description="Guardrail description"
-    )
+    description: str | None = Field(default=None, description="Guardrail description")
     enforcement: str = Field(default="strict", description="Enforcement mode")
 
 
 class SafetyKernelData(FlexibleModel):
     """Safety kernel specific data."""
 
-    guardrails: Dict[str, GuardrailConfig] = Field(default_factory=dict)
-    prohibited_actions: List[str] = Field(default_factory=list)
-    confirmation_required: List[str] = Field(default_factory=list)
-    escalation_triggers: List[str] = Field(default_factory=list)
+    guardrails: dict[str, GuardrailConfig] = Field(default_factory=dict)
+    prohibited_actions: list[str] = Field(default_factory=list)
+    confirmation_required: list[str] = Field(default_factory=list)
+    escalation_triggers: list[str] = Field(default_factory=list)
 
 
 class StateMachineConfig(FlexibleModel):
     """Execution state machine configuration."""
 
     initial_state: str = Field(default="IDLE", description="Initial state")
-    states: List[str] = Field(default_factory=list, description="Valid states")
-    transitions: Dict[str, List[str]] = Field(
+    states: list[str] = Field(default_factory=list, description="Valid states")
+    transitions: dict[str, list[str]] = Field(
         default_factory=dict, description="State transitions"
     )
 
@@ -268,49 +264,49 @@ class StateMachineConfig(FlexibleModel):
 class TaskSizingConfig(FlexibleModel):
     """Task sizing configuration."""
 
-    small: Dict[str, Any] = Field(default_factory=dict)
-    medium: Dict[str, Any] = Field(default_factory=dict)
-    large: Dict[str, Any] = Field(default_factory=dict)
+    small: dict[str, Any] = Field(default_factory=dict)
+    medium: dict[str, Any] = Field(default_factory=dict)
+    large: dict[str, Any] = Field(default_factory=dict)
 
 
 class ExecutionKernelData(FlexibleModel):
     """Execution kernel specific data."""
 
-    state_machine: Optional[StateMachineConfig] = None
-    task_sizing: Optional[TaskSizingConfig] = None
-    timeout_defaults: Dict[str, int] = Field(default_factory=dict)
+    state_machine: StateMachineConfig | None = None
+    task_sizing: TaskSizingConfig | None = None
+    timeout_defaults: dict[str, int] = Field(default_factory=dict)
 
 
 class MemoryKernelData(FlexibleModel):
     """Memory kernel specific data."""
 
-    retention_policy: Dict[str, Any] = Field(default_factory=dict)
-    indexing_rules: Dict[str, Any] = Field(default_factory=dict)
-    retrieval_config: Dict[str, Any] = Field(default_factory=dict)
+    retention_policy: dict[str, Any] = Field(default_factory=dict)
+    indexing_rules: dict[str, Any] = Field(default_factory=dict)
+    retrieval_config: dict[str, Any] = Field(default_factory=dict)
 
 
 class WorldModelKernelData(FlexibleModel):
     """World model kernel specific data."""
 
-    entity_types: List[str] = Field(default_factory=list)
-    relationship_types: List[str] = Field(default_factory=list)
-    inference_rules: Dict[str, Any] = Field(default_factory=dict)
+    entity_types: list[str] = Field(default_factory=list)
+    relationship_types: list[str] = Field(default_factory=list)
+    inference_rules: dict[str, Any] = Field(default_factory=dict)
 
 
 class CognitiveKernelData(FlexibleModel):
     """Cognitive kernel specific data."""
 
-    reasoning_modes: Dict[str, Any] = Field(default_factory=dict)
-    cognitive_patterns: Dict[str, Any] = Field(default_factory=dict)
-    attention_config: Dict[str, Any] = Field(default_factory=dict)
+    reasoning_modes: dict[str, Any] = Field(default_factory=dict)
+    cognitive_patterns: dict[str, Any] = Field(default_factory=dict)
+    attention_config: dict[str, Any] = Field(default_factory=dict)
 
 
 class DeveloperKernelData(FlexibleModel):
     """Developer kernel specific data."""
 
-    coding_rules: Dict[str, Any] = Field(default_factory=dict)
-    review_checklist: List[str] = Field(default_factory=list)
-    anti_patterns: List[str] = Field(default_factory=list)
+    coding_rules: dict[str, Any] = Field(default_factory=dict)
+    review_checklist: list[str] = Field(default_factory=list)
+    anti_patterns: list[str] = Field(default_factory=list)
 
 
 class LoadSequenceEntry(FlexibleModel):
@@ -318,15 +314,15 @@ class LoadSequenceEntry(FlexibleModel):
 
     file: str = Field(..., description="Kernel filename")
     required: bool = Field(default=True, description="Whether kernel is required")
-    dependencies: List[str] = Field(default_factory=list, description="Dependencies")
+    dependencies: list[str] = Field(default_factory=list, description="Dependencies")
 
 
 class PacketProtocolKernelData(FlexibleModel):
     """Packet protocol kernel specific data."""
 
-    load_sequence: Dict[int, LoadSequenceEntry] = Field(default_factory=dict)
-    packet_format: Dict[str, Any] = Field(default_factory=dict)
-    validation_rules: Dict[str, Any] = Field(default_factory=dict)
+    load_sequence: dict[int, LoadSequenceEntry] = Field(default_factory=dict)
+    packet_format: dict[str, Any] = Field(default_factory=dict)
+    validation_rules: dict[str, Any] = Field(default_factory=dict)
 
 
 # =============================================================================
@@ -343,36 +339,36 @@ class KernelManifest(FlexibleModel):
     """
 
     kernel: KernelInfo = Field(..., description="Core kernel metadata")
-    load_meta: Optional[KernelMeta] = Field(default=None, description="Load metadata")
+    load_meta: KernelMeta | None = Field(default=None, description="Load metadata")
 
     # Type-specific data (only one populated per kernel)
-    sovereignty: Optional[SovereigntyConfig] = None
-    modes: Optional[Dict[str, ModeConfig]] = None
-    system_law: Optional[str] = None
+    sovereignty: SovereigntyConfig | None = None
+    modes: dict[str, ModeConfig] | None = None
+    system_law: str | None = None
 
-    identity: Optional[IdentityConfig] = None
-    personality: Optional[Dict[str, Any]] = None
-    style: Optional[StyleConfig] = None
+    identity: IdentityConfig | None = None
+    personality: dict[str, Any] | None = None
+    style: StyleConfig | None = None
 
-    thresholds: Optional[ThresholdsConfig] = None
-    defaults: Optional[Dict[str, Any]] = None
-    prohibitions: Optional[List[Prohibition]] = None
+    thresholds: ThresholdsConfig | None = None
+    defaults: dict[str, Any] | None = None
+    prohibitions: list[Prohibition] | None = None
 
-    guardrails: Optional[Dict[str, GuardrailConfig]] = None
-    prohibited_actions: Optional[List[str]] = None
-    confirmation_required: Optional[List[str]] = None
+    guardrails: dict[str, GuardrailConfig] | None = None
+    prohibited_actions: list[str] | None = None
+    confirmation_required: list[str] | None = None
 
-    state_machine: Optional[StateMachineConfig] = None
-    task_sizing: Optional[TaskSizingConfig] = None
+    state_machine: StateMachineConfig | None = None
+    task_sizing: TaskSizingConfig | None = None
 
-    reasoning: Optional[Dict[str, Any]] = None
-    cognitive: Optional[Dict[str, Any]] = None
+    reasoning: dict[str, Any] | None = None
+    cognitive: dict[str, Any] | None = None
 
-    memory: Optional[Dict[str, Any]] = None
-    worldmodel: Optional[Dict[str, Any]] = None
-    developer: Optional[Dict[str, Any]] = None
+    memory: dict[str, Any] | None = None
+    worldmodel: dict[str, Any] | None = None
+    developer: dict[str, Any] | None = None
 
-    load_sequence: Optional[Dict[str, Any]] = None
+    load_sequence: dict[str, Any] | None = None
 
     # Allow extra fields for forward compatibility
     model_config = {"extra": "allow"}
@@ -389,7 +385,7 @@ class KernelManifest(FlexibleModel):
                 v["version"] = "1.0.0"  # Default version
         return v
 
-    def get_kernel_type(self) -> Optional[KernelType]:
+    def get_kernel_type(self) -> KernelType | None:
         """Infer kernel type from name."""
         name = self.kernel.name.lower()
 
@@ -432,10 +428,10 @@ class KernelValidationResult(FlexibleModel):
     """Result of kernel validation."""
 
     valid: bool = Field(..., description="Whether kernel is valid")
-    kernel_name: Optional[str] = Field(default=None, description="Kernel name")
-    kernel_type: Optional[KernelType] = Field(default=None, description="Inferred type")
-    errors: List[ValidationError] = Field(default_factory=list)
-    warnings: List[ValidationError] = Field(default_factory=list)
+    kernel_name: str | None = Field(default=None, description="Kernel name")
+    kernel_type: KernelType | None = Field(default=None, description="Inferred type")
+    errors: list[ValidationError] = Field(default_factory=list)
+    warnings: list[ValidationError] = Field(default_factory=list)
 
 
 # =============================================================================
@@ -453,7 +449,7 @@ class KernelActivationResult(FlexibleModel):
     integrity_verified: bool = Field(
         default=False, description="Integrity check passed"
     )
-    validation_errors: List[ValidationError] = Field(default_factory=list)
+    validation_errors: list[ValidationError] = Field(default_factory=list)
     activation_context_set: bool = Field(
         default=False, description="Whether activation context was injected"
     )
@@ -467,42 +463,42 @@ class KernelActivationResult(FlexibleModel):
 # =============================================================================
 
 __all__ = [
-    # Enums
-    "KernelType",
-    "KernelState",
-    "RuleType",
-    # Base models
-    "KernelRule",
-    "KernelInfo",
-    "KernelMeta",
-    # Kernel-specific models
-    "SovereigntyConfig",
-    "ModeConfig",
-    "MasterKernelData",
-    "IdentityConfig",
-    "StyleConfig",
-    "IdentityKernelData",
-    "ThresholdsConfig",
-    "Prohibition",
     "BehavioralKernelData",
-    "GuardrailConfig",
-    "SafetyKernelData",
-    "StateMachineConfig",
-    "TaskSizingConfig",
-    "ExecutionKernelData",
-    "MemoryKernelData",
-    "WorldModelKernelData",
     "CognitiveKernelData",
     "DeveloperKernelData",
-    "LoadSequenceEntry",
-    "PacketProtocolKernelData",
-    # Unified manifest
-    "KernelManifest",
-    # Validation
-    "ValidationError",
-    "KernelValidationResult",
+    "ExecutionKernelData",
+    "GuardrailConfig",
+    "IdentityConfig",
+    "IdentityKernelData",
     # Activation
     "KernelActivationResult",
+    "KernelInfo",
+    # Unified manifest
+    "KernelManifest",
+    "KernelMeta",
+    # Base models
+    "KernelRule",
+    "KernelState",
+    # Enums
+    "KernelType",
+    "KernelValidationResult",
+    "LoadSequenceEntry",
+    "MasterKernelData",
+    "MemoryKernelData",
+    "ModeConfig",
+    "PacketProtocolKernelData",
+    "Prohibition",
+    "RuleType",
+    "SafetyKernelData",
+    # Kernel-specific models
+    "SovereigntyConfig",
+    "StateMachineConfig",
+    "StyleConfig",
+    "TaskSizingConfig",
+    "ThresholdsConfig",
+    # Validation
+    "ValidationError",
+    "WorldModelKernelData",
 ]
 
 # ============================================================================

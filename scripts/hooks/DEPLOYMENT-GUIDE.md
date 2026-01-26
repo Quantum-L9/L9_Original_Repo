@@ -1,16 +1,18 @@
 # CURSOR-RUNBOOK: L9 PRE-COMMIT SECURITY GATES IMPLEMENTATION
+
 ## Enterprise-Grade Deployment Guide
 
-**Last Updated:** 2026-01-19  
-**Risk Tier:** T2 (Reversible)  
-**Implementation Time:** 45 minutes  
-**Rollback Time:** 5 minutes  
+**Last Updated:** 2026-01-19
+**Risk Tier:** T2 (Reversible)
+**Implementation Time:** 45 minutes
+**Rollback Time:** 5 minutes
 
 ---
 
 ## PHASE 0-1: ASSESSMENT & BACKUP
 
 ### Step 1: Verify Current State
+
 ```bash
 # Check existing pre-commit hook
 ls -la .git/hooks/pre-commit
@@ -25,11 +27,13 @@ git diff --cached --name-only | head -20
 ```
 
 **Expected Output:**
+
 - File exists and is executable
 - Backup created successfully
 - Staged files count ≥0
 
 ### Step 2: Check Dependencies
+
 ```bash
 # Verify required tools installed
 which gitleaks ruff mypy pytest curl git
@@ -42,6 +46,7 @@ gitleaks --version
 ```
 
 **Missing Tools? Install:**
+
 ```bash
 # macOS
 brew install gitleaks
@@ -58,6 +63,7 @@ pip install --upgrade ruff mypy pytest pytest-cov
 ## PHASE 1: DEPLOYMENT
 
 ### Step 3: Create Logging Infrastructure
+
 ```bash
 # Create log directories with proper permissions
 sudo mkdir -p /var/log/l9
@@ -68,6 +74,7 @@ ls -ld /var/log/l9
 ```
 
 ### Step 4: Deploy Enhanced Pre-Commit Hook
+
 ```bash
 # From L9 repository root
 chmod +x install-precommit-security.sh
@@ -80,6 +87,7 @@ head -20 .git/hooks/pre-commit
 ```
 
 **Expected Output:**
+
 ```
 .git/hooks/pre-commit: Bourne-again shell script text executable
 ✓ Deployed enhanced pre-commit hook
@@ -88,6 +96,7 @@ head -20 .git/hooks/pre-commit
 ```
 
 ### Step 5: Configure Environment Variables
+
 ```bash
 # Add to ~/.bashrc, ~/.zshrc, or .env.local
 export HOOK_AUDIT_LOG=/var/log/l9/pre-commit-hooks.jsonl
@@ -108,6 +117,7 @@ source ~/.bashrc  # or ~/.zshrc
 ## PHASE 2: VALIDATION & TESTING
 
 ### Step 6: Test on Feature Branch (Safe)
+
 ```bash
 # Switch to feature branch (NOT main)
 git checkout -b test/precommit-validation
@@ -119,6 +129,7 @@ git commit --allow-empty -m "test: verify pre-commit security gates"
 ```
 
 **Expected Output:**
+
 ```
 🔐 L9 ENTERPRISE PRE-COMMIT SECURITY GATES
 ==========================================
@@ -156,6 +167,7 @@ Duration: 18s
 ```
 
 ### Step 7: Verify Audit Logs
+
 ```bash
 # Check hook execution log
 tail -20 /var/log/l9/pre-commit-hooks.jsonl
@@ -171,6 +183,7 @@ cat /var/log/l9/pre-commit-hooks.jsonl | jq '.[] | {timestamp, event_type, statu
 ```
 
 **Expected Output:**
+
 ```json
 {
   "timestamp": "2026-01-19T22:15:30+00:00",
@@ -182,6 +195,7 @@ cat /var/log/l9/pre-commit-hooks.jsonl | jq '.[] | {timestamp, event_type, statu
 ```
 
 ### Step 8: Test Protection on Main Branch
+
 ```bash
 # Switch to main
 git checkout main
@@ -194,6 +208,7 @@ git commit --allow-empty -m "test: normal commit on main" 2>&1 && echo "✓ Norm
 ```
 
 **Expected Output:**
+
 ```
 ❌ CRITICAL: --no-verify / bypass blocked on main
    Branch: main is PROTECTED
@@ -205,6 +220,7 @@ git commit --allow-empty -m "test: normal commit on main" 2>&1 && echo "✓ Norm
 ## PHASE 3: CONFIGURATION & TUNING
 
 ### Step 9: Customize Protected Surfaces (Optional)
+
 Edit `.git/hooks/pre-commit` line ~270 to add/remove protected files:
 
 ```bash
@@ -221,6 +237,7 @@ PROTECTED_SURFACES=(
 ```
 
 ### Step 10: Enable SIEM Integration (Optional)
+
 ```bash
 # Configure Splunk HEC (HTTP Event Collector)
 export SIEM_HEC_URL="https://your-splunk-instance:8088/services/collector"
@@ -234,6 +251,7 @@ export SIEM_WEBHOOK_URL="https://your-security-platform/api/events"
 ```
 
 ### Step 11: Set Coverage Threshold (Optional)
+
 Edit line ~297 in `.git/hooks/pre-commit`:
 
 ```bash
@@ -245,7 +263,8 @@ COVERAGE_THRESHOLD=75  # Change to your minimum (e.g., 80)
 ## PHASE 4: TEAM ROLLOUT
 
 ### Step 12: Document for Team
-```bash
+
+````bash
 # Create team guidance document
 cat > PRECOMMIT_SECURITY.md << 'EOF'
 # L9 Pre-Commit Security Gates
@@ -270,9 +289,10 @@ mypy --strict src/your_file.py
 
 # Option 2: Add type: ignore (if necessary)
 some_function()  # type: ignore[error-code]
-```
+````
 
 ### "Tests failed or coverage <75%"
+
 ```bash
 # Run tests locally first
 pytest --cov=. src/
@@ -281,6 +301,7 @@ pytest --cov=. src/
 ```
 
 ### "Secret detected"
+
 ```bash
 # Move to .env or environment variable
 # Never commit credentials
@@ -289,6 +310,7 @@ echo ".env" >> .gitignore
 ```
 
 ### "Bypass on main blocked"
+
 ```bash
 # This is INTENTIONAL - no override via --no-verify on main
 # For emergency:
@@ -299,6 +321,7 @@ echo ".env" >> .gitignore
 ```
 
 ## Monitoring
+
 ```bash
 # Check recent commits passed all gates
 tail -50 /var/log/l9/pre-commit-hooks.jsonl | jq '.[] | select(.status=="passed")'
@@ -308,13 +331,15 @@ cat /var/log/l9/ai_security.jsonl | jq '.[] | select(.severity=="CRITICAL")'
 ```
 
 ## Support
+
 - Security questions: security@l9.ai
 - Implementation issues: File GitHub issue
 - SIEM integration: See SIEM_INTEGRATION.md
-EOF
+  EOF
 
 cat PRECOMMIT_SECURITY.md
-```
+
+````
 
 ### Step 13: Team Training Checklist
 Send to team:
@@ -340,13 +365,14 @@ Send to team:
 - **Total: ~25-50s per commit**
 
 **Questions? Reach out:** security@l9.ai
-```
+````
 
 ---
 
 ## PHASE 5: MONITORING & MAINTENANCE
 
 ### Step 14: Setup Dashboard Queries
+
 ```bash
 # Daily violations summary
 jq -s 'group_by(.event_type) | map({event: .[0].event_type, count: length, latest: .[-1].timestamp})' /var/log/l9/pre-commit-hooks.jsonl
@@ -359,6 +385,7 @@ jq -s 'sort_by(-.duration_seconds) | .[0:5]' /var/log/l9/pre-commit-hooks.jsonl
 ```
 
 ### Step 15: Weekly Health Check
+
 ```bash
 #!/bin/bash
 # Run weekly via cron
@@ -409,26 +436,26 @@ echo "Rolled back to $(date)" >> .git/hooks/.backups/ROLLBACK_LOG
 
 ## SUCCESS CRITERIA
 
-✅ **All 8 gates execute without error**  
-✅ **Audit logs being created at /var/log/l9/**  
-✅ **Team can commit on feature branches**  
-✅ **Bypass blocked on main branch**  
-✅ **AI security checks find zero jailbreak patterns**  
-✅ **Protected file validations trigger on changes**  
-✅ **Tests execute and enforce ≥75% coverage**  
-✅ **Prometheus metrics exported (optional)**  
+✅ **All 8 gates execute without error**
+✅ **Audit logs being created at /var/log/l9/**
+✅ **Team can commit on feature branches**
+✅ **Bypass blocked on main branch**
+✅ **AI security checks find zero jailbreak patterns**
+✅ **Protected file validations trigger on changes**
+✅ **Tests execute and enforce ≥75% coverage**
+✅ **Prometheus metrics exported (optional)**
 
 ---
 
 ## SUPPORT & ESCALATION
 
-| Issue | Action |
-|-------|--------|
+| Issue                      | Action                                                                    |
+| -------------------------- | ------------------------------------------------------------------------- |
 | Hook fails on first commit | Run: `python3 -c "import sys; print(sys.version)"` (Python 3.8+ required) |
-| Permission denied on logs | Run: `sudo chmod 777 /var/log/l9` |
-| gitleaks not found | Run: `brew install gitleaks` (macOS) or `apt install gitleaks` (Linux) |
-| Tests failing | Run locally first: `pytest --cov=. src/` |
-| Bypass needed on main | Create GitHub issue with risk assessment, tag @security |
-| Hook too slow (>60s) | Optimize test suite or split into separate modules |
+| Permission denied on logs  | Run: `sudo chmod 777 /var/log/l9`                                         |
+| gitleaks not found         | Run: `brew install gitleaks` (macOS) or `apt install gitleaks` (Linux)    |
+| Tests failing              | Run locally first: `pytest --cov=. src/`                                  |
+| Bypass needed on main      | Create GitHub issue with risk assessment, tag @security                   |
+| Hook too slow (>60s)       | Optimize test suite or split into separate modules                        |
 
 **Emergency contact:** security@l9.ai

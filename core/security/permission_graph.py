@@ -380,11 +380,11 @@ async def get_user_permissions(user_id: str) -> list[str]:
 
 __all__ = [
     "PermissionGraph",
-    "grant_role",
-    "revoke_role",
-    "grant_permission",
     "can_access",
     "get_user_permissions",
+    "grant_permission",
+    "grant_role",
+    "revoke_role",
 ]
 
 # ============================================================================

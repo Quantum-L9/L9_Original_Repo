@@ -8,10 +8,14 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from memory.cypher_templates import (CYPHER_TEMPLATES, CypherTemplate,
-                                     CypherTemplateCategory,
-                                     CypherTemplateLibrary, execute_template,
-                                     get_template_library)
+from memory.cypher_templates import (
+    CYPHER_TEMPLATES,
+    CypherTemplate,
+    CypherTemplateCategory,
+    CypherTemplateLibrary,
+    execute_template,
+    get_template_library,
+)
 
 
 class TestCypherTemplateLibrary:

@@ -32,12 +32,12 @@ __dora_meta__ = {
 
 import json
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 from core.schemas import PacketEnvelope, PacketEnvelopeIn
 
 
-def envelope_to_dict(envelope: PacketEnvelope) -> Dict[str, Any]:
+def envelope_to_dict(envelope: PacketEnvelope) -> dict[str, Any]:
     """
     Convert a PacketEnvelope to a JSON-serializable dict.
 
@@ -51,14 +51,14 @@ def envelope_to_dict(envelope: PacketEnvelope) -> Dict[str, Any]:
     return data
 
 
-def envelope_from_dict(data: Dict[str, Any]) -> PacketEnvelope:
+def envelope_from_dict(data: dict[str, Any]) -> PacketEnvelope:
     """
     Construct a PacketEnvelope from a dict that likely came from JSON.
     """
     return PacketEnvelope.model_validate(data)
 
 
-def packet_in_from_dict(data: Dict[str, Any]) -> PacketEnvelopeIn:
+def packet_in_from_dict(data: dict[str, Any]) -> PacketEnvelopeIn:
     """
     Construct a PacketEnvelopeIn from a dict.
 

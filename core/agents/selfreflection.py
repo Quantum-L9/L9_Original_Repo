@@ -40,8 +40,8 @@ __dora_meta__ = {
 
 import os
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -87,14 +87,14 @@ class BehaviorGap:
     gap_type: str  # CAPABILITY, CONSTRAINT, POLICY, PERFORMANCE, SAFETY
     description: str
     severity: str  # LOW, MEDIUM, HIGH, CRITICAL
-    kernel_id: Optional[str]  # Which kernel might need updating
-    evidence: List[str]  # Evidence supporting the gap detection
+    kernel_id: str | None  # Which kernel might need updating
+    evidence: list[str]  # Evidence supporting the gap detection
     suggested_action: str  # What action to take
     confidence: float  # 0.0 to 1.0
-    detected_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    detected_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    metadata: dict[str, Any] = field(default_factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "gap_id": self.gap_id,
@@ -119,14 +119,14 @@ class TaskExecutionContext:
     task_kind: str
     success: bool
     duration_ms: float
-    tool_calls: List[Dict[str, Any]]
-    errors: List[str]
-    warnings: List[str]
+    tool_calls: list[dict[str, Any]]
+    errors: list[str]
+    warnings: list[str]
     iterations: int
     tokens_used: int
-    governance_blocks: List[Dict[str, Any]]
-    user_corrections: List[str]
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    governance_blocks: list[dict[str, Any]]
+    user_corrections: list[str]
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -136,12 +136,12 @@ class ReflectionResult:
     reflection_id: str
     task_id: str
     agent_id: str
-    gaps_detected: List[BehaviorGap]
-    patterns_observed: List[str]
-    recommendations: List[str]
+    gaps_detected: list[BehaviorGap]
+    patterns_observed: list[str]
+    recommendations: list[str]
     kernel_update_needed: bool
     analysis_duration_ms: float
-    analyzed_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    analyzed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 # =============================================================================
@@ -154,9 +154,9 @@ class GapDetectionPattern:
 
     pattern_id: str
     pattern_name: str
-    target_kernel: Optional[str] = None
+    target_kernel: str | None = None
 
-    def detect(self, context: TaskExecutionContext) -> Optional[BehaviorGap]:
+    def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
         """Detect a gap from the execution context. Override in subclasses."""
         raise NotImplementedError
 
@@ -168,9 +168,9 @@ class RepeatedToolFailurePattern(GapDetectionPattern):
     pattern_name = "Repeated Tool Failure"
     target_kernel = "execution"
 
-    def detect(self, context: TaskExecutionContext) -> Optional[BehaviorGap]:
+    def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
         # Count tool failures by tool_id
-        tool_failures: Dict[str, int] = {}
+        tool_failures: dict[str, int] = {}
         for call in context.tool_calls:
             if not call.get("success", True):
                 tool_id = call.get("tool_id", "unknown")
@@ -203,7 +203,7 @@ class GovernanceBlockPattern(GapDetectionPattern):
     pattern_name = "Governance Block"
     target_kernel = "safety"
 
-    def detect(self, context: TaskExecutionContext) -> Optional[BehaviorGap]:
+    def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
         if not context.governance_blocks:
             return None
 
@@ -240,7 +240,7 @@ class UserCorrectionPattern(GapDetectionPattern):
     pattern_name = "User Correction"
     target_kernel = "behavioral"
 
-    def detect(self, context: TaskExecutionContext) -> Optional[BehaviorGap]:
+    def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
         if not context.user_corrections:
             return None
 
@@ -274,7 +274,7 @@ class ExcessiveIterationPattern(GapDetectionPattern):
     pattern_name = "Excessive Iteration"
     target_kernel = "cognitive"
 
-    def detect(self, context: TaskExecutionContext) -> Optional[BehaviorGap]:
+    def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
         # Configurable threshold for excessive iterations
         if context.iterations > ITERATION_THRESHOLD:
             return BehaviorGap(
@@ -309,7 +309,7 @@ class TokenOverusePattern(GapDetectionPattern):
     pattern_name = "Token Overuse"
     target_kernel = "memory"
 
-    def detect(self, context: TaskExecutionContext) -> Optional[BehaviorGap]:
+    def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
         # Configurable threshold for token overuse
         if context.tokens_used > TOKEN_THRESHOLD:
             return BehaviorGap(
@@ -337,7 +337,7 @@ class TokenOverusePattern(GapDetectionPattern):
 
 
 # Default patterns to apply
-DEFAULT_PATTERNS: List[GapDetectionPattern] = [
+DEFAULT_PATTERNS: list[GapDetectionPattern] = [
     RepeatedToolFailurePattern(),
     GovernanceBlockPattern(),
     UserCorrectionPattern(),
@@ -348,8 +348,8 @@ DEFAULT_PATTERNS: List[GapDetectionPattern] = [
 
 def detect_behavior_gaps(
     context: TaskExecutionContext,
-    patterns: Optional[List[GapDetectionPattern]] = None,
-) -> List[BehaviorGap]:
+    patterns: list[GapDetectionPattern] | None = None,
+) -> list[BehaviorGap]:
     """
     Detect behavioral gaps from a task execution context.
 
@@ -363,7 +363,7 @@ def detect_behavior_gaps(
     if patterns is None:
         patterns = DEFAULT_PATTERNS
 
-    gaps: List[BehaviorGap] = []
+    gaps: list[BehaviorGap] = []
 
     for pattern in patterns:
         try:
@@ -390,7 +390,7 @@ def detect_behavior_gaps(
 @must_stay_async("callers use await")
 async def analyze_task_execution(
     context: TaskExecutionContext,
-    patterns: Optional[List[GapDetectionPattern]] = None,
+    patterns: list[GapDetectionPattern] | None = None,
 ) -> ReflectionResult:
     """
     Perform full self-reflection analysis on a task execution.
@@ -466,21 +466,21 @@ async def analyze_task_execution(
 # =============================================================================
 
 __all__ = [
+    "DEFAULT_PATTERNS",
     # Data models
     "BehaviorGap",
-    "TaskExecutionContext",
-    "ReflectionResult",
+    "ExcessiveIterationPattern",
     # Patterns
     "GapDetectionPattern",
-    "RepeatedToolFailurePattern",
     "GovernanceBlockPattern",
-    "UserCorrectionPattern",
-    "ExcessiveIterationPattern",
+    "ReflectionResult",
+    "RepeatedToolFailurePattern",
+    "TaskExecutionContext",
     "TokenOverusePattern",
-    "DEFAULT_PATTERNS",
+    "UserCorrectionPattern",
+    "analyze_task_execution",
     # Functions
     "detect_behavior_gaps",
-    "analyze_task_execution",
 ]
 
 # ============================================================================

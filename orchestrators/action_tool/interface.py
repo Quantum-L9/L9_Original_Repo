@@ -27,7 +27,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import Any, Dict, Optional, Protocol
+from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
 
@@ -46,7 +46,7 @@ class ActionToolRequest(BaseModel):
     """Request to action_tool orchestrator."""
 
     tool_id: str = Field(default="", description="Canonical tool identity")
-    arguments: Dict[str, Any] = Field(
+    arguments: dict[str, Any] = Field(
         default_factory=dict, description="Tool arguments"
     )
     max_retries: int = Field(default=3, description="Max retry attempts")
@@ -58,7 +58,7 @@ class ActionToolResponse(BaseModel):
 
     success: bool = Field(..., description="Whether operation succeeded")
     message: str = Field(..., description="Result message")
-    result: Optional[Dict[str, Any]] = Field(
+    result: dict[str, Any] | None = Field(
         default=None, description="Tool execution result"
     )
     retries_used: int = Field(default=0, description="Number of retries used")

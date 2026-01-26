@@ -1,18 +1,22 @@
 # ADR 0034: Agent Capability Scoping
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Agent capabilities scoped by tenant ID; L uses `l-cto`, Cursor uses `cursor`; capabilities differ per agent.
 
 ## Files
+
 - `core/tools/tool_graph.py` - `L9_TENANT_ID = 'l-cto'`
 - `agents/cursor/cursor_memory_kernel.py` - `CURSOR_TENANT_ID = 'cursor'`
 - `core/schemas/capabilities.py` - Capability definitions
 - `core/governance/approval_manager.py` - Approval flow
 
 ## Import Block
+
 ```python
 import os
 from enum import Enum
@@ -24,6 +28,7 @@ CURSOR_TENANT_ID = "cursor"
 ```
 
 ## Minimal Implementation
+
 ```python
 import os
 from enum import Enum
@@ -111,13 +116,13 @@ def check_capability(
 ) -> tuple[bool, bool]:
     """
     Check if agent has capability.
-    
+
     Returns:
         (has_capability, requires_approval)
     """
     has_cap = capability in agent.capabilities
     needs_approval = capability in agent.requires_approval_for
-    
+
     return has_cap or needs_approval, needs_approval
 
 
@@ -128,9 +133,9 @@ async def dispatch_tool(
 ) -> dict:
     """Dispatch tool with capability check."""
     agent = get_agent_capabilities(agent_id)
-    
+
     has_cap, needs_approval = check_capability(agent, tool_capability)
-    
+
     if not has_cap:
         logger.warning(
             "capability.denied",
@@ -140,16 +145,17 @@ async def dispatch_tool(
         raise CapabilityDenied(
             f"Agent {agent_id} cannot execute {tool_id}"
         )
-    
+
     if needs_approval:
         approval = await request_igor_approval(agent_id, tool_id)
         if not approval.approved:
             raise ApprovalRequired(tool_id)
-    
+
     return await execute_tool(tool_id)
 ```
 
 ## Usage Example
+
 ```python
 from core.schemas.capabilities import (
     check_capability,
@@ -183,39 +189,41 @@ has_shell, _ = check_capability(
 # In tool dispatch
 async def handle_tool_request(agent_id: str, tool_id: str):
     agent = get_agent_capabilities(agent_id)
-    
+
     if tool_id == "git_commit":
         has_cap, needs_approval = check_capability(
             agent, Capability.GIT_COMMIT
         )
-        
+
         if not has_cap:
             return {"error": "Capability denied"}
-        
+
         if needs_approval:
             return {"status": "pending_approval"}
-        
+
         return await execute_git_commit()
 ```
 
 ## Capability Matrix
-| Capability | L-CTO | Cursor | Research | Mac |
-|------------|-------|--------|----------|-----|
-| memory_read | ✅ | ✅ | ✅ | ❌ |
-| memory_write | ✅ | ✅ | ⚠️ | ❌ |
-| tool_execute | ✅ | ⚠️ | ❌ | ❌ |
-| tool_execute_safe | ✅ | ✅ | ✅ | ❌ |
-| git_commit | ✅ | ⚠️ | ❌ | ❌ |
-| git_push | ⚠️ | ❌ | ❌ | ❌ |
-| file_delete | ✅ | ❌ | ❌ | ❌ |
-| shell_execute | ✅ | ❌ | ❌ | ⚠️ |
-| deploy | ⚠️ | ❌ | ❌ | ❌ |
+
+| Capability        | L-CTO | Cursor | Research | Mac |
+| ----------------- | ----- | ------ | -------- | --- |
+| memory_read       | ✅    | ✅     | ✅       | ❌  |
+| memory_write      | ✅    | ✅     | ⚠️       | ❌  |
+| tool_execute      | ✅    | ⚠️     | ❌       | ❌  |
+| tool_execute_safe | ✅    | ✅     | ✅       | ❌  |
+| git_commit        | ✅    | ⚠️     | ❌       | ❌  |
+| git_push          | ⚠️    | ❌     | ❌       | ❌  |
+| file_delete       | ✅    | ❌     | ❌       | ❌  |
+| shell_execute     | ✅    | ❌     | ❌       | ⚠️  |
+| deploy            | ⚠️    | ❌     | ❌       | ❌  |
 
 ✅ = Has capability
 ⚠️ = Requires Igor approval
 ❌ = Denied
 
 ## Authority Hierarchy
+
 ```
 Igor (Human)
     │ FULL access, approves all high-risk
@@ -234,6 +242,7 @@ Mac Agent
 ```
 
 ## Rules
+
 1. ALWAYS check tenant_id before operations
 2. L-CTO uses `l-cto` tenant
 3. Cursor uses `cursor` tenant
@@ -241,13 +250,16 @@ Mac Agent
 5. High-risk tools need Igor approval regardless
 
 ## AI Guidance
+
 **DO:**
+
 - Check agent capabilities before dispatch
 - Use correct tenant ID for each agent
 - Respect capability matrix
 - Log capability denials
 
 **DO NOT:**
+
 - Skip capability checks
 - Give Cursor L-CTO capabilities
 - Auto-approve high-risk tools

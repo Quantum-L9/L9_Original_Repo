@@ -4,13 +4,13 @@ Agent YAML manifests defining identity, capabilities, tools, and governance for 
 
 ## Agent Catalog
 
-| Agent | ID | Model | Status | Purpose |
-|-------|----|----|--------|---------|
-| **L-CTO Agent** | `l-cto` | Claude 3.5 Sonnet | Production | Igor-only CTO. Kernel-governed with HITL gates |
-| **L-CTO Research** | `l-cto-research` | Claude 3.5 Sonnet | Production | L-CTO in research mode (overlay) |
-| **Research Agent** | `research-agent-v1` | Perplexity Sonar | Production | Deep research + spec generation |
-| **Reflection Agent** | `reflection-agent-v1` | GPT-4o | Production | Meta-reasoning, failure analysis |
-| **Standard Agent** | `l9-standard-v1` | GPT-4o | Production | Default general assistant |
+| Agent                | ID                    | Model             | Status     | Purpose                                        |
+| -------------------- | --------------------- | ----------------- | ---------- | ---------------------------------------------- |
+| **L-CTO Agent**      | `l-cto`               | Claude 3.5 Sonnet | Production | Igor-only CTO. Kernel-governed with HITL gates |
+| **L-CTO Research**   | `l-cto-research`      | Claude 3.5 Sonnet | Production | L-CTO in research mode (overlay)               |
+| **Research Agent**   | `research-agent-v1`   | Perplexity Sonar  | Production | Deep research + spec generation                |
+| **Reflection Agent** | `reflection-agent-v1` | GPT-4o            | Production | Meta-reasoning, failure analysis               |
+| **Standard Agent**   | `l9-standard-v1`      | GPT-4o            | Production | Default general assistant                      |
 
 ---
 
@@ -27,12 +27,14 @@ temperature: 0.7
 ```
 
 **Key Features:**
+
 - **10 System Kernels** loaded from `private/kernels/00_system/`
 - **Tool Tiering:** T1 (read-only), T2 (HITL), T3 (Igor approval)
 - **GODMODE Parts 1-7** compliance
 - **ISO 42001 + NIST AI RMF + OpenAI Tier 2-3** governance
 
 **Tool Categories:**
+
 - T1: Memory search, Neo4j query, kernel read, reflection agent tools
 - T2: Redis operations, MCP tool calls, plan simulation
 - T3: Memory write, GMP run, git commit, mac agent exec
@@ -48,10 +50,11 @@ Overlay for L-CTO when conducting deep analysis tasks.
 ```yaml
 agent_id: l-cto-research
 model: claude-3-5-sonnet-20241022
-temperature: 0.8  # Higher for creativity
+temperature: 0.8 # Higher for creativity
 ```
 
 **Research Methodology (5-Phase):**
+
 1. PLAN — Define scope, identify gaps
 2. RESEARCH — Gather via Perplexity, graph queries
 3. CRITIQUE — Challenge assumptions
@@ -59,6 +62,7 @@ temperature: 0.8  # Higher for creativity
 5. CITE — Traceable sources
 
 **Additional Tools:**
+
 - `research_agent_synthesize` (T1) — Fast multi-perspective synthesis
 - `research_agent_discover` (T2) — Deep 5-stage research
 - `research_agent_generate_spec` (T1) — Module-Spec-v2.4 YAML
@@ -142,23 +146,23 @@ config/agents/
 
 ## Runtime Integration
 
-| File | Purpose |
-|------|---------|
-| `runtime/kernel_loader.py` | Load kernels into KernelState |
-| `runtime/kernel_state.py` | KernelState object |
+| File                        | Purpose                              |
+| --------------------------- | ------------------------------------ |
+| `runtime/kernel_loader.py`  | Load kernels into KernelState        |
+| `runtime/kernel_state.py`   | KernelState object                   |
 | `runtime/execution_gate.py` | `guarded_execute()` with tier checks |
-| `runtime/introspection.py` | Post-execution audit |
-| `config/boot_overlay.yaml` | Tool authorization matrix |
+| `runtime/introspection.py`  | Post-execution audit                 |
+| `config/boot_overlay.yaml`  | Tool authorization matrix            |
 
 ## Governance
 
 ### Tool Tiers
 
-| Tier | Description | Approval |
-|------|-------------|----------|
-| **T1** | Read-only, automated | None |
-| **T2** | Reversible, rollback capable | HITL approval |
-| **T3** | Irreversible, high-impact | **Igor explicit approval** |
+| Tier   | Description                  | Approval                   |
+| ------ | ---------------------------- | -------------------------- |
+| **T1** | Read-only, automated         | None                       |
+| **T2** | Reversible, rollback capable | HITL approval              |
+| **T3** | Irreversible, high-impact    | **Igor explicit approval** |
 
 ### Compliance
 
@@ -168,12 +172,12 @@ config/agents/
 
 ## Environment Variables
 
-| Variable | Required By | Purpose |
-|----------|-------------|---------|
-| `OPENAI_API_KEY` | Reflection, Standard | OpenAI API access |
-| `PERPLEXITY_API_KEY` | Research Agent | Perplexity API access |
-| `ANTHROPIC_API_KEY` | L-CTO | Claude API access |
-| `L9_EXECUTOR_API_KEY` | All (API) | Authenticated API access |
+| Variable              | Required By          | Purpose                  |
+| --------------------- | -------------------- | ------------------------ |
+| `OPENAI_API_KEY`      | Reflection, Standard | OpenAI API access        |
+| `PERPLEXITY_API_KEY`  | Research Agent       | Perplexity API access    |
+| `ANTHROPIC_API_KEY`   | L-CTO                | Claude API access        |
+| `L9_EXECUTOR_API_KEY` | All (API)            | Authenticated API access |
 
 ## Adding New Agents
 
@@ -186,5 +190,5 @@ config/agents/
 
 ---
 
-**Updated:** 2026-01-16  
+**Updated:** 2026-01-16
 **Owner:** L9 System

@@ -44,7 +44,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 import structlog
@@ -114,9 +114,9 @@ class StrategyContext:
     query_pattern: str = "default"  # From QueryClassifier
 
     # Context information
-    project_id: Optional[str] = None
-    session_id: Optional[UUID] = None
-    agent_id: Optional[str] = None
+    project_id: str | None = None
+    session_id: UUID | None = None
+    agent_id: str | None = None
 
     # Agent state
     agent_uncertainty: float = 0.5  # 0.0 = certain, 1.0 = uncertain
@@ -129,7 +129,7 @@ class StrategyContext:
     entities: list[str] = field(default_factory=list)
 
     # Explicit strategy override (if any)
-    strategy_override: Optional[RetrievalStrategy] = None
+    strategy_override: RetrievalStrategy | None = None
 
 
 # =============================================================================
@@ -152,7 +152,7 @@ class StrategyResult:
     execution_time_ms: float = 0.0
 
     # Context used
-    context: Optional[StrategyContext] = None
+    context: StrategyContext | None = None
 
     # Explanation of why this strategy was chosen
     strategy_reason: str = ""
@@ -324,9 +324,9 @@ class StrategyBasedRetriever:
 
     def __init__(
         self,
-        repository: Optional["SubstrateRepository"] = None,
-        identity_service: Optional["IdentityTierService"] = None,
-        strategy_determiner: Optional[StrategyDeterminer] = None,
+        repository: SubstrateRepository | None = None,
+        identity_service: IdentityTierService | None = None,
+        strategy_determiner: StrategyDeterminer | None = None,
     ):
         """
         Initialize StrategyBasedRetriever.
@@ -341,11 +341,11 @@ class StrategyBasedRetriever:
         self._strategy_determiner = strategy_determiner or StrategyDeterminer()
         logger.info("StrategyBasedRetriever initialized")
 
-    def set_repository(self, repository: "SubstrateRepository") -> None:
+    def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
-    def set_identity_service(self, service: "IdentityTierService") -> None:
+    def set_identity_service(self, service: IdentityTierService) -> None:
         """Set or update the identity service reference."""
         self._identity_service = service
 
@@ -356,7 +356,7 @@ class StrategyBasedRetriever:
     async def retrieve(
         self,
         query: str,
-        context: Optional[StrategyContext] = None,
+        context: StrategyContext | None = None,
         max_results: int = 10,
     ) -> StrategyResult:
         """
@@ -415,20 +415,20 @@ class StrategyBasedRetriever:
         if strategy == RetrievalStrategy.CORE_IDENTITY:
             return await self._execute_core_identity(context, max_results)
 
-        elif strategy == RetrievalStrategy.PROJECT_CONTEXT:
+        if strategy == RetrievalStrategy.PROJECT_CONTEXT:
             return await self._execute_project_context(context, max_results)
 
-        elif strategy == RetrievalStrategy.TEMPORAL_RECALL:
+        if strategy == RetrievalStrategy.TEMPORAL_RECALL:
             return await self._execute_temporal_recall(context, max_results)
 
-        elif strategy == RetrievalStrategy.ASSOCIATION:
+        if strategy == RetrievalStrategy.ASSOCIATION:
             return await self._execute_association(context, max_results)
 
-        elif strategy == RetrievalStrategy.UNCERTAINTY_FILL:
+        if strategy == RetrievalStrategy.UNCERTAINTY_FILL:
             return await self._execute_uncertainty_fill(context, max_results)
 
-        else:  # SEMANTIC_SEARCH (fallback)
-            return await self._execute_semantic_search(context, max_results)
+        # SEMANTIC_SEARCH (fallback)
+        return await self._execute_semantic_search(context, max_results)
 
     async def _execute_core_identity(
         self,
@@ -882,7 +882,7 @@ class StrategyBasedRetriever:
 # =============================================================================
 
 
-_strategy_retriever: Optional[StrategyBasedRetriever] = None
+_strategy_retriever: StrategyBasedRetriever | None = None
 
 
 def get_strategy_retriever() -> StrategyBasedRetriever:

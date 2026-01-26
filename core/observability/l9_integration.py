@@ -39,8 +39,7 @@ from typing import Any
 
 import structlog
 
-from .instrumentation import (trace_governance_check, trace_span,
-                              trace_tool_call)
+from .instrumentation import trace_governance_check, trace_span, trace_tool_call
 from .models import SpanKind
 
 logger = structlog.get_logger(__name__)

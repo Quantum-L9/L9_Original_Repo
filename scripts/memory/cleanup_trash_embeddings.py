@@ -36,7 +36,7 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 from dotenv import load_dotenv
@@ -71,7 +71,7 @@ TRASH_PATTERNS = [
 ]
 
 
-def is_trash_embedding(payload: Dict[str, Any]) -> bool:
+def is_trash_embedding(payload: dict[str, Any]) -> bool:
     """
     Check if an embedding payload indicates trash content.
 
@@ -117,7 +117,7 @@ async def cleanup_trash_embeddings(
     database_url: str,
     dry_run: bool = False,
     verbose: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Find and delete trash embeddings from semantic_memory table.
 
@@ -133,7 +133,7 @@ async def cleanup_trash_embeddings(
         try:
             # Get all embeddings with payloads
             rows = await conn.fetch("""
-                SELECT 
+                SELECT
                     embedding_id,
                     payload::text as payload_json,
                     agent_id,

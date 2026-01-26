@@ -1,11 +1,12 @@
 # STAGE 2: TODO PLAN TEMPLATE
+
 # Hierarchical Memory Consolidation Engine
 
 ## PHASE 0 TODO PLAN LOCK
 
-**Stage**: 2 - Hierarchical Memory Consolidation  
-**Timestamp**: {YYYY-MM-DD HH:MM:SS UTC}  
-**Executor**: Cursor AI Agent  
+**Stage**: 2 - Hierarchical Memory Consolidation
+**Timestamp**: {YYYY-MM-DD HH:MM:SS UTC}
+**Executor**: Cursor AI Agent
 **Plan Hash**: {SHA-256 of TODO list below}
 
 ---
@@ -32,6 +33,7 @@ TODO {STAGE}.{ID}
 ### LOCKED TODO PLAN (8 items)
 
 #### **TODO 2.1**
+
 - **File**: `memory/consolidation.py`
 - **Lines**: 190-209
 - **Action**: Replace
@@ -41,6 +43,7 @@ TODO {STAGE}.{ID}
 - **Gate**: NONE
 
 #### **TODO 2.2**
+
 - **File**: `memory/consolidation.py`
 - **Lines**: 263-285
 - **Action**: Replace
@@ -50,6 +53,7 @@ TODO {STAGE}.{ID}
 - **Gate**: `L9_ENABLE_HIERARCHICAL_CONSOLIDATION`
 
 #### **TODO 2.3**
+
 - **File**: `memory/consolidation/hierarchical_summarizer.py`
 - **Lines**: NEW FILE
 - **Action**: Create
@@ -59,15 +63,17 @@ TODO {STAGE}.{ID}
 - **Gate**: NONE
 
 #### **TODO 2.4**
+
 - **File**: `memory/consolidation/neural_decay_scheduler.py`
 - **Lines**: NEW FILE
 - **Action**: Create
 - **Target**: New module
-- **Behavior**: Implement NeuralDecayScheduler with exponential decay formula S(m,t) = I(m) * exp(-λt) * R(m)
+- **Behavior**: Implement NeuralDecayScheduler with exponential decay formula S(m,t) = I(m) _ exp(-λt) _ R(m)
 - **Imports**: `math, datetime, asyncio, logging, from memory.substrate_repository import PacketStore`
 - **Gate**: NONE
 
 #### **TODO 2.5**
+
 - **File**: `memory/consolidation/__init__.py`
 - **Lines**: NEW FILE
 - **Action**: Create
@@ -77,6 +83,7 @@ TODO {STAGE}.{ID}
 - **Gate**: NONE
 
 #### **TODO 2.6**
+
 - **File**: `memory/__init__.py`
 - **Lines**: 45-60 (approximate, verify in Phase 0)
 - **Action**: Insert
@@ -86,6 +93,7 @@ TODO {STAGE}.{ID}
 - **Gate**: NONE
 
 #### **TODO 2.7**
+
 - **File**: `tests/memory/test_hierarchical_consolidation.py`
 - **Lines**: NEW FILE
 - **Action**: Create
@@ -95,6 +103,7 @@ TODO {STAGE}.{ID}
 - **Gate**: NONE
 
 #### **TODO 2.8**
+
 - **File**: `k8s/cronjobs/decay-scheduler.yaml`
 - **Lines**: NEW FILE
 - **Action**: Create
@@ -112,7 +121,7 @@ TODO {STAGE}.{ID}
 - [ ] All imports are valid and available in L9
 - [ ] No TODO speculates about files that don't exist
 - [ ] No TODO modifies protected systems (websocket_orchestrator, kernel_loader)
-- [ ] All feature flags follow L9_ENABLE_* pattern
+- [ ] All feature flags follow L9*ENABLE*\* pattern
 - [ ] All new files include comprehensive docstrings
 - [ ] All behavior statements are outcome-focused (not implementation details)
 
@@ -140,28 +149,27 @@ python3 -c "import anthropic; print('✅ Anthropic SDK available')"
 ! grep -q "websocket_orchestrator\|kernel_loader" <<< "$(cat stage-2-todo-template.md)" || echo "ERROR: Protected system in TODO plan"
 ```
 
-
 ---
 
 ### EXPECTED OUTPUTS (Phase 6)
 
 1. **New Files Created**: 5
-    - `memory/consolidation/hierarchical_summarizer.py` (~250 lines)
-    - `memory/consolidation/neural_decay_scheduler.py` (~180 lines)
-    - `memory/consolidation/__init__.py` (~15 lines)
-    - `tests/memory/test_hierarchical_consolidation.py` (~350 lines)
-    - `k8s/cronjobs/decay-scheduler.yaml` (~45 lines)
+   - `memory/consolidation/hierarchical_summarizer.py` (~250 lines)
+   - `memory/consolidation/neural_decay_scheduler.py` (~180 lines)
+   - `memory/consolidation/__init__.py` (~15 lines)
+   - `tests/memory/test_hierarchical_consolidation.py` (~350 lines)
+   - `k8s/cronjobs/decay-scheduler.yaml` (~45 lines)
 2. **Files Modified**: 2
-    - `memory/consolidation.py` (2 sections replaced)
-    - `memory/__init__.py` (1 export block added)
+   - `memory/consolidation.py` (2 sections replaced)
+   - `memory/__init__.py` (1 export block added)
 3. **Test Results**:
-    - Total tests: >= 12
-    - Coverage: >= 85%
-    - All tests passing
+   - Total tests: >= 12
+   - Coverage: >= 85%
+   - All tests passing
 4. **Performance Benchmarks**:
-    - Decay calculation: < 5ms per 1000 packets
-    - Summarization: < 2s per 50-packet batch
-    - Memory overhead: < 50MB for 10k packets
+   - Decay calculation: < 5ms per 1000 packets
+   - Summarization: < 2s per 50-packet batch
+   - Memory overhead: < 50MB for 10k packets
 
 ---
 
@@ -179,4 +187,3 @@ python3 -c "import anthropic; print('✅ Anthropic SDK available')"
 ---
 
 **END OF TODO PLAN TEMPLATE**
-

@@ -16,7 +16,7 @@
 # ADR Schema v1.0 — Canonical Format for AI-Readable Architecture Decision Records
 # Location: config/schemas/adr_schema.yaml
 # Referenced by: readme/adr/README.md, core/governance/session_startup.py
-# 
+#
 # PURPOSE: Define the mandatory structure for all L9 ADRs to ensure:
 #   1. Consistent format across all ADRs
 #   2. Copy-paste ready code templates for AI agents
@@ -34,10 +34,10 @@ required_sections:
   - name: "Status"
     description: "Current state of the ADR"
     allowed_values:
-      - Accepted     # Active, must be followed
-      - Proposed     # Under review
-      - Deprecated   # Superseded, don't use
-      - Superseded   # Replaced by another ADR
+      - Accepted # Active, must be followed
+      - Proposed # Under review
+      - Deprecated # Superseded, don't use
+      - Superseded # Replaced by another ADR
     format: "Single line after ## Status"
 
   - name: "Pattern"
@@ -65,7 +65,7 @@ required_sections:
       **DO:**
       - Action 1
       - Action 2
-      
+
       **DO NOT:**
       - Anti-pattern 1
       - Anti-pattern 2
@@ -109,7 +109,7 @@ template_sections:
       ```python
       # ❌ WRONG — Explanation of why this is wrong
       bad_example()
-      
+
       # ✅ CORRECT — The right way
       good_example()
       ```
@@ -167,7 +167,7 @@ markdown_template: |
   class MyImplementation(Base):
       def __init__(self, dependency: Dependency):
           self._dependency = dependency
-      
+
       async def method(self) -> Result:
           return await self._dependency.call()
   ```
@@ -183,7 +183,7 @@ markdown_template: |
   ```python
   # ❌ WRONG — {Explanation}
   bad_approach()
-  
+
   # ✅ CORRECT — {Explanation}
   good_approach()
   ```
@@ -211,19 +211,19 @@ markdown_template: |
 validation:
   - rule: "Status must be one of allowed values"
     check: "status in ['Accepted', 'Proposed', 'Deprecated', 'Superseded']"
-  
+
   - rule: "Pattern must be 1-2 sentences"
     check: "len(pattern) < 300 characters"
-  
+
   - rule: "Files section must list at least one file"
     check: "len(files) >= 1"
-  
+
   - rule: "Rules section must have numbered items"
     check: "all rules start with digit + '.'"
-  
+
   - rule: "AI Guidance must have DO and DO NOT"
     check: "'**DO:**' in content and '**DO NOT:**' in content"
-  
+
   - rule: "Code patterns must have Import Block"
     check: "if 'import' in pattern: has_import_block"
 
@@ -232,20 +232,20 @@ validation:
 # =============================================================================
 ai_notes:
   priority_sections:
-    - "Import Block"      # Copy first
-    - "Minimal Implementation"  # Copy second
-    - "Rules"             # Check constraints
-    - "AI Guidance"       # Final validation
-  
+    - "Import Block" # Copy first
+    - "Minimal Implementation" # Copy second
+    - "Rules" # Check constraints
+    - "AI Guidance" # Final validation
+
   skip_in_quick_scan:
-    - "Context"           # Only for deep understanding
-    - "Migration"         # Only when migrating
-  
+    - "Context" # Only for deep understanding
+    - "Migration" # Only when migrating
+
   search_keywords:
-    - "MUST"              # Hard requirements
-    - "MUST NOT"          # Hard prohibitions
-    - "DO NOT"            # AI-specific prohibitions
-    - "❌ WRONG"          # Anti-patterns
+    - "MUST" # Hard requirements
+    - "MUST NOT" # Hard prohibitions
+    - "DO NOT" # AI-specific prohibitions
+    - "❌ WRONG" # Anti-patterns
 
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED

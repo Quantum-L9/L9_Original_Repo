@@ -65,7 +65,7 @@ __dora_meta__ = {
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 import yaml
@@ -141,7 +141,7 @@ def get_config_path() -> Path:
     return Path(DEFAULT_CONFIG_PATH)
 
 
-def load_yaml_config(config_path: Path) -> Dict[str, Any]:
+def load_yaml_config(config_path: Path) -> dict[str, Any]:
     """
     Load YAML configuration from file.
 
@@ -158,7 +158,7 @@ def load_yaml_config(config_path: Path) -> Dict[str, Any]:
     if not config_path.exists():
         raise FileNotFoundError(f"Kernel config not found: {config_path}")
 
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         config = yaml.safe_load(f)
 
     if config is None:
@@ -167,7 +167,7 @@ def load_yaml_config(config_path: Path) -> Dict[str, Any]:
     return config
 
 
-def apply_environment_overrides(config: Dict[str, Any], env: str) -> Dict[str, Any]:
+def apply_environment_overrides(config: dict[str, Any], env: str) -> dict[str, Any]:
     """
     Apply environment-specific overrides to configuration.
 
@@ -198,7 +198,7 @@ def apply_environment_overrides(config: Dict[str, Any], env: str) -> Dict[str, A
     return merged_config
 
 
-def validate_config(config: Dict[str, Any]) -> List[str]:
+def validate_config(config: dict[str, Any]) -> list[str]:
     """
     Validate kernel configuration structure.
 
@@ -208,7 +208,7 @@ def validate_config(config: Dict[str, Any]) -> List[str]:
     Returns:
         List[str]: List of validation errors (empty if valid)
     """
-    errors: List[str] = []
+    errors: list[str] = []
 
     # Check required top-level keys
     required_keys = ["kernel_order", "required_kernels", "minimum_kernel_count"]
@@ -245,7 +245,7 @@ def validate_config(config: Dict[str, Any]) -> List[str]:
     return errors
 
 
-def is_config_loading_enabled(config: Dict[str, Any]) -> bool:
+def is_config_loading_enabled(config: dict[str, Any]) -> bool:
     """
     Check if config loading is enabled via feature flag.
 
@@ -259,7 +259,7 @@ def is_config_loading_enabled(config: Dict[str, Any]) -> bool:
     return feature_flags.get("enable_config_loading", True)
 
 
-def should_use_env_overrides(config: Dict[str, Any]) -> bool:
+def should_use_env_overrides(config: dict[str, Any]) -> bool:
     """
     Check if environment overrides should be applied.
 
@@ -288,7 +288,7 @@ def get_environment() -> str:
 # =============================================================================
 
 
-def load_kernel_config(env: Optional[str] = None) -> Dict[str, Any]:
+def load_kernel_config(env: str | None = None) -> dict[str, Any]:
     """
     Load kernel configuration from config/kernel_discovery.yaml.
 
@@ -386,7 +386,7 @@ def load_kernel_config(env: Optional[str] = None) -> Dict[str, Any]:
 # =============================================================================
 
 
-def get_kernel_order(env: Optional[str] = None) -> List[str]:
+def get_kernel_order(env: str | None = None) -> list[str]:
     """
     Get kernel loading order.
 
@@ -400,7 +400,7 @@ def get_kernel_order(env: Optional[str] = None) -> List[str]:
     return config["kernel_order"]
 
 
-def get_required_kernels(env: Optional[str] = None) -> Dict[str, str]:
+def get_required_kernels(env: str | None = None) -> dict[str, str]:
     """
     Get required kernels mapping.
 
@@ -414,7 +414,7 @@ def get_required_kernels(env: Optional[str] = None) -> Dict[str, str]:
     return config["required_kernels"]
 
 
-def get_minimum_kernel_count(env: Optional[str] = None) -> int:
+def get_minimum_kernel_count(env: str | None = None) -> int:
     """
     Get minimum kernel count.
 
@@ -433,10 +433,10 @@ def get_minimum_kernel_count(env: Optional[str] = None) -> int:
 # =============================================================================
 
 __all__ = [
-    "load_kernel_config",
-    "get_kernel_order",
-    "get_required_kernels",
-    "get_minimum_kernel_count",
-    "get_environment",
     "FALLBACK_CONFIG",
+    "get_environment",
+    "get_kernel_order",
+    "get_minimum_kernel_count",
+    "get_required_kernels",
+    "load_kernel_config",
 ]

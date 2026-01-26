@@ -17,12 +17,12 @@ docker run --rm symtest
 
 ## What This Module Does
 
-| Capability | Description |
-|------------|-------------|
-| **Expression Evaluation** | Parse and evaluate SymPy expressions numerically (numpy/math/mpmath backends) |
-| **Code Generation** | Generate compilable C, Fortran, Cython, Python from symbolic expressions |
-| **Expression Optimization** | Simplify, factor, expand, CSE (common subexpression elimination) |
-| **Validation** | Security checks to block dangerous expressions (`eval`, `exec`, imports) |
+| Capability                  | Description                                                                   |
+| --------------------------- | ----------------------------------------------------------------------------- |
+| **Expression Evaluation**   | Parse and evaluate SymPy expressions numerically (numpy/math/mpmath backends) |
+| **Code Generation**         | Generate compilable C, Fortran, Cython, Python from symbolic expressions      |
+| **Expression Optimization** | Simplify, factor, expand, CSE (common subexpression elimination)              |
+| **Validation**              | Security checks to block dangerous expressions (`eval`, `exec`, imports)      |
 
 ## Architecture
 
@@ -46,11 +46,11 @@ services/symbolic_computation/
 
 ## Wiring in L9
 
-| Integration Point | Location | Status |
-|-------------------|----------|--------|
-| API Router | `api/server.py` → `/symbolic/*` | ✅ Active |
-| Tool Executors | `runtime/l_tools.py` → `symbolic_compute`, `symbolic_codegen`, `symbolic_optimize` | ✅ Active |
-| Tool Registry | `core/tools/registry_adapter.py` | ✅ Registered |
+| Integration Point | Location                                                                           | Status        |
+| ----------------- | ---------------------------------------------------------------------------------- | ------------- |
+| API Router        | `api/server.py` → `/symbolic/*`                                                    | ✅ Active     |
+| Tool Executors    | `runtime/l_tools.py` → `symbolic_compute`, `symbolic_codegen`, `symbolic_optimize` | ✅ Active     |
+| Tool Registry     | `core/tools/registry_adapter.py`                                                   | ✅ Registered |
 
 **SymPy is lazy-loaded** — API starts even if sympy not installed, returns error only if tools called.
 
@@ -176,49 +176,49 @@ echo "Fortran compilation successful!"
 
 ## API Endpoints
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/symbolic/evaluate` | POST | Evaluate expression numerically |
-| `/symbolic/generate_code` | POST | Generate C/Fortran/Python code |
-| `/symbolic/optimize` | POST | Simplify/factor/expand expression |
-| `/symbolic/validate` | POST | Check expression safety |
-| `/symbolic/metrics` | GET | Performance metrics summary |
-| `/symbolic/health` | GET | Service health check |
-| `/symbolic/cache/stats` | GET | Cache hit/miss stats |
-| `/symbolic/cache/clear` | POST | Clear expression cache |
+| Endpoint                  | Method | Purpose                           |
+| ------------------------- | ------ | --------------------------------- |
+| `/symbolic/evaluate`      | POST   | Evaluate expression numerically   |
+| `/symbolic/generate_code` | POST   | Generate C/Fortran/Python code    |
+| `/symbolic/optimize`      | POST   | Simplify/factor/expand expression |
+| `/symbolic/validate`      | POST   | Check expression safety           |
+| `/symbolic/metrics`       | GET    | Performance metrics summary       |
+| `/symbolic/health`        | GET    | Service health check              |
+| `/symbolic/cache/stats`   | GET    | Cache hit/miss stats              |
+| `/symbolic/cache/clear`   | POST   | Clear expression cache            |
 
 ---
 
 ## Test Files
 
-| File | Coverage Target | Purpose |
-|------|----------------|---------|
-| `test_expression_evaluator.py` | ≥85% | Numerical evaluation, backends, caching |
-| `test_code_generator.py` | ≥85% | C/Fortran/Cython generation |
-| `test_validator.py` | ≥90% | Security validation |
-| `test_integration.py` | ≥80% | End-to-end workflows |
+| File                           | Coverage Target | Purpose                                 |
+| ------------------------------ | --------------- | --------------------------------------- |
+| `test_expression_evaluator.py` | ≥85%            | Numerical evaluation, backends, caching |
+| `test_code_generator.py`       | ≥85%            | C/Fortran/Cython generation             |
+| `test_validator.py`            | ≥90%            | Security validation                     |
+| `test_integration.py`          | ≥80%            | End-to-end workflows                    |
 
 ---
 
 ## Backends
 
-| Backend | Speed | Precision | Use Case |
-|---------|-------|-----------|----------|
-| `numpy` | Fast | Float64 | Default, array operations |
-| `math` | Medium | Float64 | Scalar, no numpy dependency |
-| `mpmath` | Slow | Arbitrary | High-precision scientific |
-| `sympy` | Slowest | Exact | Symbolic (no numerical eval) |
+| Backend  | Speed   | Precision | Use Case                     |
+| -------- | ------- | --------- | ---------------------------- |
+| `numpy`  | Fast    | Float64   | Default, array operations    |
+| `math`   | Medium  | Float64   | Scalar, no numpy dependency  |
+| `mpmath` | Slow    | Arbitrary | High-precision scientific    |
+| `sympy`  | Slowest | Exact     | Symbolic (no numerical eval) |
 
 ---
 
 ## Code Languages
 
-| Language | Use Case | Compiler Required |
-|----------|----------|-------------------|
-| `C` | High-performance, embedded | gcc |
-| `Fortran` | Scientific computing, legacy integration | gfortran |
-| `Cython` | Python extension modules | cython + gcc |
-| `Python` | Debugging, prototyping | None |
+| Language  | Use Case                                 | Compiler Required |
+| --------- | ---------------------------------------- | ----------------- |
+| `C`       | High-performance, embedded               | gcc               |
+| `Fortran` | Scientific computing, legacy integration | gfortran          |
+| `Cython`  | Python extension modules                 | cython + gcc      |
+| `Python`  | Debugging, prototyping                   | None              |
 
 ---
 
@@ -242,6 +242,7 @@ pip install sympy>=1.12
 ### Generated code won't compile
 
 Ensure you're in the Docker container with compilers:
+
 ```bash
 docker run --rm -it l9-symtest bash
 which gcc gfortran  # Should show paths
@@ -258,8 +259,3 @@ curl -X POST http://localhost:8000/symbolic/cache/clear
 ## License
 
 Part of L9 Secure AI OS — Internal use only
-
-
-
-
-

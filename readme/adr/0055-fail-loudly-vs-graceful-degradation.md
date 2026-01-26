@@ -1,12 +1,15 @@
 # ADR 0055: Fail-Loudly vs Graceful Degradation Policy
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 Core infrastructure (kernels, memory, execution runtime) MUST fail loudly with `RuntimeError`. Observability layers (metrics, telemetry, Neo4j graph) MAY degrade gracefully.
 
 ## Context
+
 L9 had inconsistent error handling — some components failed silently (returning `None`, swallowing exceptions), while others crashed hard. GMP-47 (Stub Elimination) and GMP-75 (Silent Failure Audit) established that silent failures are anti-patterns that hide bugs and make debugging impossible.
 
 This ADR formalizes when each approach is appropriate.
@@ -15,30 +18,31 @@ This ADR formalizes when each approach is appropriate.
 
 ### FAIL LOUDLY (RuntimeError) — Required For:
 
-| Component | Reason | Example |
-|-----------|--------|---------|
-| **Kernel Loading** | Agent cannot operate without kernels | `raise RuntimeError("Required kernel missing")` |
-| **AIOS Runtime** | Execution impossible without runtime | `raise RuntimeError("AIOSRuntime import failed")` |
-| **Tool Registry** | Agent cannot dispatch tools | `raise RuntimeError("ToolRegistry unavailable")` |
-| **PostgreSQL** | Memory, tasks, users require DB | `raise RuntimeError("Database connection failed")` |
-| **Memory Ingestion** | Audit trail is mandatory | `raise HTTPException(500, "Ingestion failed")` |
-| **Agent Registry** | Cannot instantiate agents | `raise RuntimeError("AgentRegistry failed")` |
-| **Required Env Vars** | Security/config is mandatory | `raise RuntimeError("OPENAI_API_KEY not set")` |
+| Component             | Reason                               | Example                                            |
+| --------------------- | ------------------------------------ | -------------------------------------------------- |
+| **Kernel Loading**    | Agent cannot operate without kernels | `raise RuntimeError("Required kernel missing")`    |
+| **AIOS Runtime**      | Execution impossible without runtime | `raise RuntimeError("AIOSRuntime import failed")`  |
+| **Tool Registry**     | Agent cannot dispatch tools          | `raise RuntimeError("ToolRegistry unavailable")`   |
+| **PostgreSQL**        | Memory, tasks, users require DB      | `raise RuntimeError("Database connection failed")` |
+| **Memory Ingestion**  | Audit trail is mandatory             | `raise HTTPException(500, "Ingestion failed")`     |
+| **Agent Registry**    | Cannot instantiate agents            | `raise RuntimeError("AgentRegistry failed")`       |
+| **Required Env Vars** | Security/config is mandatory         | `raise RuntimeError("OPENAI_API_KEY not set")`     |
 
 ### GRACEFUL DEGRADATION — Allowed For:
 
-| Component | Reason | Fallback Behavior |
-|-----------|--------|-------------------|
-| **Neo4j Graph** | Observability layer, not critical path | Log warning, set `app.state.neo4j_healthy = False` |
-| **Prometheus Metrics** | Telemetry shouldn't break execution | Silent no-op, log debug |
-| **Packet Emission** | Observability shouldn't block | Best-effort, continue execution |
-| **Memory Warming** | Performance optimization only | Skip warming, log info |
-| **Graph Hydration** | Enhancement, not requirement | Skip hydration, continue |
-| **Self-Reflection** | Analytics, not critical path | Skip reflection, log debug |
+| Component              | Reason                                 | Fallback Behavior                                  |
+| ---------------------- | -------------------------------------- | -------------------------------------------------- |
+| **Neo4j Graph**        | Observability layer, not critical path | Log warning, set `app.state.neo4j_healthy = False` |
+| **Prometheus Metrics** | Telemetry shouldn't break execution    | Silent no-op, log debug                            |
+| **Packet Emission**    | Observability shouldn't block          | Best-effort, continue execution                    |
+| **Memory Warming**     | Performance optimization only          | Skip warming, log info                             |
+| **Graph Hydration**    | Enhancement, not requirement           | Skip hydration, continue                           |
+| **Self-Reflection**    | Analytics, not critical path           | Skip reflection, log debug                         |
 
 ## Minimal Implementation
 
 ### Fail-Loudly Pattern
+
 ```python
 def load_required_service():
     """Load a required service — FAIL LOUDLY if unavailable."""
@@ -61,6 +65,7 @@ if not _has_aios_runtime:
 ```
 
 ### Graceful Degradation Pattern
+
 ```python
 def init_optional_service():
     """Initialize optional service — graceful degradation if unavailable."""
@@ -151,6 +156,7 @@ Is this component required for agent operation?
 ## Validation
 
 ### Fail-Loudly Checklist
+
 - [ ] Kernel loading raises `RuntimeError` on missing kernels
 - [ ] Database connection raises `RuntimeError` on failure
 - [ ] AIOS runtime raises `RuntimeError` if import fails
@@ -158,6 +164,7 @@ Is this component required for agent operation?
 - [ ] Memory ingestion returns HTTP 500 on failure
 
 ### Graceful Degradation Checklist
+
 - [ ] Neo4j unavailable → logs warning, sets health flag, continues
 - [ ] Prometheus unavailable → silent no-op, doesn't crash
 - [ ] Memory warming unavailable → logs info, skips, continues
@@ -165,6 +172,7 @@ Is this component required for agent operation?
 ## AI Guidance
 
 **DO:**
+
 - Raise `RuntimeError` for any component the agent needs to function
 - Include clear error messages explaining what failed
 - Use `raise X from e` to preserve the exception chain
@@ -172,6 +180,7 @@ Is this component required for agent operation?
 - Set health flags when degrading (`app.state.X_healthy = False`)
 
 **DO NOT:**
+
 - Return `None` without logging when a required component fails
 - Use `except: pass` or `except Exception: return None` for critical paths
 - Allow observability failures to crash the server
@@ -179,15 +188,18 @@ Is this component required for agent operation?
 - Assume "it might work later" — fail fast, fail clearly
 
 ## Related ADRs
+
 - [ADR-0023: Error Packet Pattern](./0023-error-packet-pattern.md)
 - [ADR-0009: Circuit Breaker Resilience](./0009-circuit-breaker-resilience.md)
 
 ## Related GMPs
+
 - **GMP-47**: Stub Elimination — Established fail-loudly for critical stubs
 - **GMP-75**: Silent Failure Audit — Fixed 7 silent failures in substrate_service.py
 - **GMP-60**: Runtime Hardening — Added kernel integrity verification
 
 ## References
+
 - `docs/GRACEFUL_DEGRADATION_VS_FAIL_LOUDLY.md` — Original policy document
 - `ci/STRICT_MODE.md` — CI enforcement ("Silent failure - Must emit error packet")
 - `.cursor/rules/00-global.mdc` — "Fail loud, fail fast" rule

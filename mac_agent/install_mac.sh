@@ -77,4 +77,3 @@ echo "To unload agents:"
 echo "  launchctl unload $LAUNCH_AGENTS_DIR/com.l9.agent.plist"
 echo "  launchctl unload $LAUNCH_AGENTS_DIR/com.l9.tunnel.plist"
 echo ""
-

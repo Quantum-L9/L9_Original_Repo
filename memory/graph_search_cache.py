@@ -36,7 +36,7 @@ import hashlib
 import json
 import random
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 import structlog
 from pydantic import BaseModel, Field
@@ -55,7 +55,7 @@ logger = structlog.get_logger(__name__)
 class GraphSearchContext(BaseModel):
     """Context for graph search operations."""
 
-    agent_id: Optional[str] = Field(None, description="Agent identifier")
+    agent_id: str | None = Field(None, description="Agent identifier")
     project_id: str = Field(..., description="Project identifier")
     freshness_level: Literal["strict", "normal", "relaxed"] = Field(
         default="normal", description="Freshness requirement"
@@ -65,7 +65,7 @@ class GraphSearchContext(BaseModel):
 class GraphSearchResult(BaseModel):
     """Graph search result with caching metadata."""
 
-    results: List[Dict[str, Any]] = Field(..., description="Search results")
+    results: list[dict[str, Any]] = Field(..., description="Search results")
     created_at: datetime = Field(
         default_factory=datetime.utcnow, description="Result creation time"
     )
@@ -86,8 +86,9 @@ def compute_graph_schema_version() -> str:
     """
     try:
         # Try to import graph query builder
-        from core.graph.query.graph_search_query_builder import \
-            GRAPH_CACHE_SCHEMA_VERSION
+        from core.graph.query.graph_search_query_builder import (
+            GRAPH_CACHE_SCHEMA_VERSION,
+        )
 
         query_hash = GRAPH_CACHE_SCHEMA_VERSION
     except ImportError:
@@ -102,8 +103,7 @@ def compute_graph_schema_version() -> str:
 
     try:
         # Try to import world model schema version
-        from core.worldmodel.l9schema import \
-            WORLD_MODEL_SCHEMA_VERSION
+        from core.worldmodel.l9schema import WORLD_MODEL_SCHEMA_VERSION
 
         world_model_hash = WORLD_MODEL_SCHEMA_VERSION
     except (ImportError, AttributeError):
@@ -112,9 +112,8 @@ def compute_graph_schema_version() -> str:
 
     # Combine hashes
     combined = f"{query_hash}:{world_model_hash}"
-    schema_version = hashlib.sha256(combined.encode()).hexdigest()[:32]
+    return hashlib.sha256(combined.encode()).hexdigest()[:32]
 
-    return schema_version
 
 
 GRAPH_CACHE_SCHEMA_VERSION = compute_graph_schema_version()
@@ -125,7 +124,7 @@ GRAPH_CACHE_SCHEMA_VERSION = compute_graph_schema_version()
 # =============================================================================
 
 
-def _compute_query_hash(query: str, params: Dict[str, Any]) -> str:
+def _compute_query_hash(query: str, params: dict[str, Any]) -> str:
     """Compute hash for query + params."""
     combined = json.dumps({"query": query, "params": params}, sort_keys=True)
     return hashlib.sha256(combined.encode()).hexdigest()[:16]
@@ -142,10 +141,7 @@ def _compute_ttl(ctx: GraphSearchContext, is_governance: bool = False) -> int:
     Returns:
         TTL in seconds with ±10% jitter
     """
-    if is_governance:
-        base_ttl = random.randint(60, 120)
-    else:
-        base_ttl = random.randint(300, 600)
+    base_ttl = random.randint(60, 120) if is_governance else random.randint(300, 600)
 
     # Add ±10% jitter
     jitter = int(base_ttl * 0.1)
@@ -156,10 +152,10 @@ def _compute_ttl(ctx: GraphSearchContext, is_governance: bool = False) -> int:
 
 async def cached_graph_search(
     query: str,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     ctx: GraphSearchContext,
-    redis_client: Optional[RedisClient] = None,
-    neo4j_client: Optional[Neo4jClient] = None,
+    redis_client: RedisClient | None = None,
+    neo4j_client: Neo4jClient | None = None,
 ) -> GraphSearchResult:
     """
     Execute graph search with Redis caching and schema version invalidation.
@@ -199,12 +195,11 @@ async def cached_graph_search(
                         schema_version=cached_version,
                         ttl=cached_data["ttl"],
                     )
-                else:
-                    logger.info(
-                        "Cache miss (schema version mismatch)",
-                        cached_version=cached_version,
-                        current_version=GRAPH_CACHE_SCHEMA_VERSION,
-                    )
+                logger.info(
+                    "Cache miss (schema version mismatch)",
+                    cached_version=cached_version,
+                    current_version=GRAPH_CACHE_SCHEMA_VERSION,
+                )
         except Exception as e:
             logger.warning("Cache read failed", error=str(e))
 

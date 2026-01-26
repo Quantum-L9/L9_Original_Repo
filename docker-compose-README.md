@@ -1,12 +1,13 @@
 # Docker Compose Alignment Strategy
 
-> **Version:** 1.0.0  
-> **Last Updated:** 2026-01-13  
+> **Version:** 1.0.0
+> **Last Updated:** 2026-01-13
 > **GMP:** GMP-68
 
 ## Overview
 
 This document explains how L9 maintains **one `docker-compose.yml`** that works identically on:
+
 - Local Mac development
 - VPS production
 - CI/CD pipelines
@@ -49,6 +50,7 @@ This document explains how L9 maintains **one `docker-compose.yml`** that works 
 ## The Problem
 
 Docker uses internal DNS for container-to-container communication:
+
 - Inside Docker: `http://l9-api:8000` works
 - From host: `http://l9-api:8000` **fails** (DNS cannot resolve)
 
@@ -156,25 +158,25 @@ docker-compose down -v
 
 ## Service Ports
 
-| Service | Container Port | Host Port | Docker DNS |
-|---------|---------------|-----------|------------|
-| l9-api | 8000 | 127.0.0.1:8000 | l9-api:8000 |
-| l9-postgres | 5432 | 127.0.0.1:5432 | l9-postgres:5432 |
-| l9-redis | 6379 | 127.0.0.1:6379 | l9-redis:6379 |
-| l9-neo4j | 7474, 7687 | 127.0.0.1:7474/7687 | l9-neo4j:7474/7687 |
-| l9-grafana | 3000 | 127.0.0.1:3000 | l9-grafana:3000 |
-| l9-prometheus | 9090 | 127.0.0.1:9090 | l9-prometheus:9090 |
-| l9-jaeger | 16686 | 127.0.0.1:16686 | l9-jaeger:16686 |
+| Service       | Container Port | Host Port           | Docker DNS         |
+| ------------- | -------------- | ------------------- | ------------------ |
+| l9-api        | 8000           | 127.0.0.1:8000      | l9-api:8000        |
+| l9-postgres   | 5432           | 127.0.0.1:5432      | l9-postgres:5432   |
+| l9-redis      | 6379           | 127.0.0.1:6379      | l9-redis:6379      |
+| l9-neo4j      | 7474, 7687     | 127.0.0.1:7474/7687 | l9-neo4j:7474/7687 |
+| l9-grafana    | 3000           | 127.0.0.1:3000      | l9-grafana:3000    |
+| l9-prometheus | 9090           | 127.0.0.1:9090      | l9-prometheus:9090 |
+| l9-jaeger     | 16686          | 127.0.0.1:16686     | l9-jaeger:16686    |
 
 ---
 
 ## Environment Variables (Optional Overrides)
 
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `API_BASE_URL` | Override API URL | Auto-detected |
+| Variable              | Purpose                 | Default       |
+| --------------------- | ----------------------- | ------------- |
+| `API_BASE_URL`        | Override API URL        | Auto-detected |
 | `MEMORY_API_BASE_URL` | Override Memory API URL | Auto-detected |
-| `L9_API_URL` | Alternative override | Auto-detected |
+| `L9_API_URL`          | Alternative override    | Auto-detected |
 
 ---
 
@@ -185,6 +187,7 @@ docker-compose down -v
 **Cause:** Running tests from host without auto-detection.
 
 **Fix:** Ensure you're using the updated test files with `conftest.py`:
+
 ```bash
 # Should work automatically now
 pytest tests/docker/test_stack_smoke.py -v
@@ -195,6 +198,7 @@ pytest tests/docker/test_stack_smoke.py -v
 **Check:** `docker ps` shows health status
 
 **Fix:**
+
 ```bash
 # Restart unhealthy container
 docker-compose restart l9-api
@@ -206,6 +210,7 @@ docker-compose logs l9-api
 ### Port Already in Use
 
 **Fix:**
+
 ```bash
 # Find process using port
 lsof -i :8000

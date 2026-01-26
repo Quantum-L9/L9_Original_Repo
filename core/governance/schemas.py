@@ -43,7 +43,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -116,37 +116,37 @@ class Condition(BaseModel):
 
         if self.operator == ConditionOperator.EQUALS:
             return field_value == self.value
-        elif self.operator == ConditionOperator.NOT_EQUALS:
+        if self.operator == ConditionOperator.NOT_EQUALS:
             return field_value != self.value
-        elif self.operator == ConditionOperator.CONTAINS:
+        if self.operator == ConditionOperator.CONTAINS:
             return (
                 self.value in field_value
                 if hasattr(field_value, "__contains__")
                 else False
             )
-        elif self.operator == ConditionOperator.NOT_CONTAINS:
+        if self.operator == ConditionOperator.NOT_CONTAINS:
             return (
                 self.value not in field_value
                 if hasattr(field_value, "__contains__")
                 else True
             )
-        elif self.operator == ConditionOperator.IN:
+        if self.operator == ConditionOperator.IN:
             return (
                 field_value in self.value
                 if hasattr(self.value, "__contains__")
                 else False
             )
-        elif self.operator == ConditionOperator.NOT_IN:
+        if self.operator == ConditionOperator.NOT_IN:
             return (
                 field_value not in self.value
                 if hasattr(self.value, "__contains__")
                 else True
             )
-        elif self.operator == ConditionOperator.GREATER_THAN:
+        if self.operator == ConditionOperator.GREATER_THAN:
             return field_value > self.value
-        elif self.operator == ConditionOperator.LESS_THAN:
+        if self.operator == ConditionOperator.LESS_THAN:
             return field_value < self.value
-        elif self.operator == ConditionOperator.MATCHES:
+        if self.operator == ConditionOperator.MATCHES:
             import re
 
             return bool(re.match(self.value, str(field_value)))
@@ -181,7 +181,7 @@ class Policy(BaseModel):
 
     id: str = Field(..., description="Unique policy identifier")
     name: str = Field(..., description="Human-readable name")
-    description: Optional[str] = Field(None, description="Policy description")
+    description: str | None = Field(None, description="Policy description")
     effect: PolicyEffect = Field(..., description="Allow or deny")
     priority: int = Field(
         default=0, ge=0, description="Evaluation priority (higher first)"
@@ -235,11 +235,7 @@ class Policy(BaseModel):
             return False
 
         # Check all conditions
-        for condition in self.conditions:
-            if not condition.evaluate(context):
-                return False
-
-        return True
+        return all(condition.evaluate(context) for condition in self.conditions)
 
     def _pattern_matches(self, value: str, patterns: list[str]) -> bool:
         """Check if value matches any of the patterns."""
@@ -317,8 +313,8 @@ class EvaluationResult(BaseModel):
     request_id: UUID = Field(..., description="Original request ID")
     allowed: bool = Field(..., description="Whether action is permitted")
     effect: PolicyEffect = Field(..., description="Applied effect")
-    policy_id: Optional[str] = Field(None, description="Matching policy ID")
-    policy_name: Optional[str] = Field(None, description="Matching policy name")
+    policy_id: str | None = Field(None, description="Matching policy ID")
+    policy_name: str | None = Field(None, description="Matching policy name")
     reason: str = Field(..., description="Explanation")
     evaluated_at: datetime = Field(default_factory=datetime.utcnow)
     duration_ms: int = Field(default=0, ge=0, description="Evaluation duration")
@@ -331,7 +327,7 @@ class EvaluationResult(BaseModel):
         request_id: UUID,
         policy: Policy,
         duration_ms: int = 0,
-    ) -> "EvaluationResult":
+    ) -> EvaluationResult:
         """Create an allow result."""
         return cls(
             request_id=request_id,
@@ -347,10 +343,10 @@ class EvaluationResult(BaseModel):
     def deny(
         cls,
         request_id: UUID,
-        policy: Optional[Policy] = None,
-        reason: Optional[str] = None,
+        policy: Policy | None = None,
+        reason: str | None = None,
         duration_ms: int = 0,
-    ) -> "EvaluationResult":
+    ) -> EvaluationResult:
         """Create a deny result."""
         if policy:
             return cls(
@@ -362,16 +358,15 @@ class EvaluationResult(BaseModel):
                 reason=f"Denied by policy: {policy.name}",
                 duration_ms=duration_ms,
             )
-        else:
-            return cls(
-                request_id=request_id,
-                allowed=False,
-                effect=PolicyEffect.DENY,
-                policy_id=None,
-                policy_name=None,
-                reason=reason or "Denied by default (no matching policy)",
-                duration_ms=duration_ms,
-            )
+        return cls(
+            request_id=request_id,
+            allowed=False,
+            effect=PolicyEffect.DENY,
+            policy_id=None,
+            policy_name=None,
+            reason=reason or "Denied by default (no matching policy)",
+            duration_ms=duration_ms,
+        )
 
 
 # =============================================================================
@@ -379,12 +374,12 @@ class EvaluationResult(BaseModel):
 # =============================================================================
 
 __all__ = [
-    "PolicyEffect",
-    "ConditionOperator",
     "Condition",
-    "Policy",
+    "ConditionOperator",
     "EvaluationRequest",
     "EvaluationResult",
+    "Policy",
+    "PolicyEffect",
 ]
 
 # ============================================================================

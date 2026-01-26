@@ -12,13 +12,12 @@ import os
 import pytest
 
 from core.schemas import PacketEnvelopeIn
-from memory.substrate_service import (MemorySubstrateService, close_service,
-                                      init_service)
+from memory.substrate_service import MemorySubstrateService, close_service, init_service
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture
 async def memory_substrate_service():
     """Provide a memory substrate service for testing."""
     if not TEST_DB_URL:
@@ -77,8 +76,8 @@ async def test_extraction_pipeline_creates_facts(
 
     # Verify facts reference the source packet
     for fact in facts:
-        assert fact["source_packet"] == str(
-            result.packet_id
+        assert (
+            fact["source_packet"] == str(result.packet_id)
         ), f"Fact should reference source packet {result.packet_id}, got {fact.get('source_packet')}"
 
 

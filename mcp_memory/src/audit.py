@@ -33,16 +33,17 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
+from collections.abc import Awaitable, Callable
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Awaitable, Callable, Dict, Optional
+from typing import Any
 
 import aiofiles
 import structlog
-from src.config import settings
 
 from core.decorators import must_stay_async
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
+from src.config import settings
 
 logger = structlog.get_logger(__name__)
 
@@ -63,7 +64,7 @@ class AuditLogger:
     def __init__(
         self,
         execute_fn: Callable[..., Awaitable[Any]],
-        fallback_path: Optional[str] = None,
+        fallback_path: str | None = None,
         failure_threshold: int = 3,
         recovery_timeout: int = 60,
     ):
@@ -104,10 +105,10 @@ class AuditLogger:
         agent_id: str,
         caller_id: str,
         project_id: str,
-        input_data: Dict[str, Any],
-        output_data: Dict[str, Any],
+        input_data: dict[str, Any],
+        output_data: dict[str, Any],
         duration_ms: float,
-        error: Optional[str] = None,
+        error: str | None = None,
     ) -> None:
         """
         Log audit event. Fails request if both DB and fallback fail (fail-closed).
@@ -205,7 +206,7 @@ class AuditLogger:
             ) from fallback_error
 
     @must_stay_async("callers use await")
-    async def _alert_audit_fallback(self, event: Dict[str, Any]) -> None:
+    async def _alert_audit_fallback(self, event: dict[str, Any]) -> None:
         """
         Alert that audit is using fallback storage.
 
@@ -223,11 +224,11 @@ class AuditLogger:
 
 
 # Singleton pattern for audit logger
-_audit_logger: Optional[AuditLogger] = None
+_audit_logger: AuditLogger | None = None
 
 
 def get_audit_logger(
-    execute_fn: Optional[Callable[..., Awaitable[Any]]] = None,
+    execute_fn: Callable[..., Awaitable[Any]] | None = None,
 ) -> AuditLogger:
     """
     Get or create audit logger singleton.

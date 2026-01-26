@@ -32,7 +32,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -43,9 +43,9 @@ logger = structlog.get_logger(__name__)
 class ModuleDefinition:
     module_id: str
     display_name: str
-    route_prefix: Optional[str] = None
-    owner: Optional[str] = None
-    version: Optional[str] = None
+    route_prefix: str | None = None
+    owner: str | None = None
+    version: str | None = None
     required_env: tuple[str, ...] = ()
 
 
@@ -55,7 +55,7 @@ class ModuleStatus:
     enabled: bool
     available: bool
     initialized: bool
-    notes: Optional[str] = None
+    notes: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
@@ -79,10 +79,10 @@ class ModuleRegistry:
     def set_status(self, status: ModuleStatus) -> None:
         self._status[status.module_id] = status
 
-    def get_definition(self, module_id: str) -> Optional[ModuleDefinition]:
+    def get_definition(self, module_id: str) -> ModuleDefinition | None:
         return self._definitions.get(module_id)
 
-    def get_status(self, module_id: str) -> Optional[ModuleStatus]:
+    def get_status(self, module_id: str) -> ModuleStatus | None:
         return self._status.get(module_id)
 
     def snapshot(self) -> dict[str, Any]:

@@ -59,15 +59,15 @@ Command pattern implementation for agent actions
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module         | Purpose          |
+| -------------- | ---------------- |
 | `core/agents/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -82,12 +82,12 @@ core/commands/
 ├── schemas.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `schemas.py` | Recognized structured command types. |
-| `schemas.py` | Intent categories for NLP extraction. |
-| `schemas.py` | Risk level for command execution. |
+| File          | Purpose                               |
+| ------------- | ------------------------------------- |
+| `__init__.py` | Core module (PROTECTED)               |
+| `schemas.py`  | Recognized structured command types.  |
+| `schemas.py`  | Intent categories for NLP extraction. |
+| `schemas.py`  | Risk level for command execution.     |
 
 ### Naming Conventions
 
@@ -105,7 +105,7 @@ core/commands/
 ```python
 class CommandType:
     """Recognized structured command types."""
-    
+
     # Key methods:
 
 ```
@@ -117,7 +117,7 @@ class CommandType:
 ```python
 class IntentType:
     """Intent categories for NLP extraction."""
-    
+
     # Key methods:
 
 ```
@@ -129,7 +129,7 @@ class IntentType:
 ```python
 class RiskLevel:
     """Risk level for command execution."""
-    
+
     # Key methods:
 
 ```
@@ -141,7 +141,7 @@ class RiskLevel:
 ```python
 class Command:
     """Structured command parsed from Igor input."""
-    
+
     # Key methods:
 
     async def requires_confirmation(self, ...): ...
@@ -157,13 +157,12 @@ class Command:
 ```python
 class NLPPrompt:
     """Natural language prompt requiring intent extraction."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 106-111 in `schemas.py`
-
 
 ---
 
@@ -236,9 +235,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Commands feature flags
-L9_ENABLE_CORE_COMMANDS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_COMMANDS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_COMMANDS_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_COMMANDS_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_COMMANDS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_COMMANDS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -300,7 +299,6 @@ Execute a structured command.
 - **File:** `__init__.py:49`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -341,6 +339,7 @@ Core Commands operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -348,12 +347,12 @@ Core Commands operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                | Type      | Description                    |
+| ------------------------------------- | --------- | ------------------------------ |
 | `core_commands_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_commands_operation_total` | Counter | Total operations processed |
-| `core_commands_error_total` | Counter | Total errors encountered |
-| `core_commands_active_connections` | Gauge | Current active connections |
+| `core_commands_operation_total`       | Counter   | Total operations processed     |
+| `core_commands_error_total`           | Counter   | Total errors encountered       |
+| `core_commands_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -371,6 +370,7 @@ Core Commands emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_commands/`:
+
 - `test_core_commands.py` — Core unit tests
 - `test_core_commands_integration.py` — Integration tests (if applicable)
 
@@ -413,6 +413,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

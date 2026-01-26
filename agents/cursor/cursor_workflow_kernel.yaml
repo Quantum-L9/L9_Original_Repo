@@ -23,7 +23,7 @@
 id: cursor_workflow_kernel
 name: Cursor Workflow Kernel
 version: "1.1.0"
-schema: config/schemas/cursor_kernel.schema.yaml  # T5: Schema validation
+schema: config/schemas/cursor_kernel.schema.yaml # T5: Schema validation
 type: kernel
 status: active
 scope: cursor_agent
@@ -60,8 +60,8 @@ init:
 memory_ops:
   # MCP tools via /mcp/call endpoint
   mcp_endpoint: /mcp/call
-  user_id: l9-shared  # Shared namespace for L + Cursor
-  
+  user_id: l9-shared # Shared namespace for L + Cursor
+
   read:
     session_state:
       tool: search_memory
@@ -75,7 +75,7 @@ memory_ops:
       kinds: [preference]
       top_k: 10
     workflow_state:
-      tool: file_read  # Local file, not MCP
+      tool: file_read # Local file, not MCP
       path: workflow_state.md
     mistake_patterns:
       tool: search_memory
@@ -83,7 +83,7 @@ memory_ops:
       scopes: [developer, global]
       kinds: [lesson, error]
       top_k: 10
-  
+
   write:
     derived_specifications:
       tool: save_memory
@@ -100,12 +100,12 @@ memory_ops:
       kind: lesson
       scope: developer
       duration: long
-  
+
   persistence_rules:
     - prefer_structured_state
     - no_overwriting_without_versioning
     - maintain_semantic_consistency
-    - dedupe_before_write  # Check similarity > 0.8 before saving
+    - dedupe_before_write # Check similarity > 0.8 before saving
 
 # ============================================================================
 # ERROR RECOVERY (T2: Resilience for VPS downtime)
@@ -116,22 +116,22 @@ error_recovery:
     log_level: warning
     fallback: local_context_only
     message: "⚠️ Memory unavailable - proceeding with local context"
-  
+
   mcp_timeout:
     timeout_ms: 5000
     retry_count: 2
     retry_delay_ms: 500
     on_exhaust: proceed_without_memory
-  
+
   search_empty:
     behavior: continue
     fallback: use_default_patterns
-  
+
   write_failed:
     behavior: warn_and_continue
     retry_once: true
     log_for_later_sync: true
-  
+
   confidence_when_degraded:
     reduce_by_percent: 20
     min_confidence: 0.50
@@ -236,7 +236,7 @@ hooks:
     fallback_if_unavailable: skip
     action:
       - inject_todo_snapshot_if_due
-  
+
   - name: roadmap_milestone_scan
     condition: after_user_prompt
     implementation: cursor_memory_kernel.extract_milestone_tags
@@ -244,7 +244,7 @@ hooks:
     action:
       - extract_milestone_tags_from_prompt
       - associate_with_relevant_todo
-  
+
   - name: mistake_check
     condition: before_code_generation
     implementation: cursor_memory_client.cmd_warn
@@ -254,7 +254,7 @@ hooks:
     action:
       - check_against_repeated_mistakes
       - warn_if_pattern_detected
-  
+
   - name: context_injection
     condition: session_start
     implementation: cursor_memory_client.cmd_inject
@@ -278,7 +278,6 @@ agent_settings:
     - audit_hooks
   report_only_if_non_default: true
   include_in_summary: true
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

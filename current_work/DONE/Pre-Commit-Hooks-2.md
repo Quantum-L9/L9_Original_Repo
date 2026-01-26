@@ -76,10 +76,10 @@ echo -e "\n${YELLOW}[2/5]${NC} Auto-formatting Python code..."
 if command -v ruff &> /dev/null; then
     # Format staged files
     echo "$STAGED_PY_FILES" | xargs ruff format --quiet 2>/dev/null || true
-    
+
     # Re-stage formatted files
     echo "$STAGED_PY_FILES" | xargs git add
-    
+
     echo -e "${GREEN}✓ Code formatted with ruff${NC}"
 else
     echo -e "${YELLOW}⚠ ruff not installed, skipping format${NC}"
@@ -216,11 +216,11 @@ echo -e "\n${YELLOW}[1/8]${NC} Checking environment variables..."
 
 if echo "$CHANGED_FILES" | grep -q "^\.env\.example$"; then
     echo -e "${YELLOW}⚠ .env.example changed!${NC}"
-    
+
     # Check for new required vars
     if [ -f ".env.example" ] && [ -f ".env" ]; then
         NEW_VARS=$(comm -23 <(grep "^[A-Z]" .env.example | cut -d= -f1 | sort) <(grep "^[A-Z]" .env | cut -d= -f1 | sort) || true)
-        
+
         if [ -n "$NEW_VARS" ]; then
             echo -e "${RED}❌ Missing environment variables:${NC}"
             echo "$NEW_VARS" | while read var; do
@@ -246,13 +246,13 @@ echo -e "\n${YELLOW}[2/8]${NC} Checking Python dependencies..."
 if echo "$CHANGED_FILES" | grep -qE "^(requirements\.txt|pyproject\.toml|setup\.py)$"; then
     echo -e "${YELLOW}⚠ Dependencies changed!${NC}"
     echo "   Auto-installing..."
-    
+
     if [ -f "requirements.txt" ]; then
         pip install -r requirements.txt --quiet 2>&1 | tail -5 || true
     elif [ -f "pyproject.toml" ]; then
         pip install -e . --quiet 2>&1 | tail -5 || true
     fi
-    
+
     echo -e "${GREEN}✓ Dependencies installed${NC}"
 else
     echo -e "${GREEN}✓ No dependency changes${NC}"
@@ -265,12 +265,12 @@ echo -e "\n${YELLOW}[3/8]${NC} Checking for new migrations..."
 
 if echo "$CHANGED_FILES" | grep -q "^migrations/.*\.sql$"; then
     NEW_MIGRATIONS=$(echo "$CHANGED_FILES" | grep "^migrations/.*\.sql$" || true)
-    
+
     echo -e "${YELLOW}⚠ New migrations detected:${NC}"
     echo "$NEW_MIGRATIONS" | while read migration; do
         echo "   - $migration"
     done
-    
+
     # Check if migration runner exists
     if [ -f "memory/migration_runner.py" ]; then
         echo "   Auto-running migrations..."
@@ -308,7 +308,7 @@ echo -e "\n${YELLOW}[5/8]${NC} Checking kernel changes..."
 
 if echo "$CHANGED_FILES" | grep -q "^kernels/"; then
     echo -e "${YELLOW}⚠ Kernels changed!${NC}"
-    
+
     # Attempt hot-reload via API
     if curl -s -X POST http://localhost:8000/api/kernels/reload --max-time 2 >/dev/null 2>&1; then
         echo -e "${GREEN}✓ Kernels hot-reloaded${NC}"
@@ -326,7 +326,7 @@ echo -e "\n${YELLOW}[6/8]${NC} Checking audit scripts..."
 
 if echo "$CHANGED_FILES" | grep -q "^scripts/audit/"; then
     echo -e "${YELLOW}⚠ Audit scripts changed!${NC}"
-    
+
     if [ -d ".audit_cache" ]; then
         echo "   Clearing audit cache..."
         rm -rf .audit_cache/
@@ -345,7 +345,7 @@ echo -e "\n${YELLOW}[7/8]${NC} Checking pre-commit configuration..."
 
 if echo "$CHANGED_FILES" | grep -q "^\.pre-commit-config\.yaml$"; then
     echo -e "${YELLOW}⚠ Pre-commit config changed!${NC}"
-    
+
     if command -v pre-commit &> /dev/null; then
         echo "   Reinstalling hooks..."
         pre-commit install --install-hooks >/dev/null 2>&1 || true
@@ -417,7 +417,7 @@ echo -e "\n${YELLOW}[1/4]${NC} Running smoke tests..."
 
 if [ -f "tests/smoke_test.py" ]; then
     echo "   Running tests/smoke_test.py..."
-    
+
     if pytest tests/smoke_test.py -v --tb=short --maxfail=3 2>&1 | tail -20; then
         echo -e "${GREEN}✓ Smoke tests passed${NC}"
     else
@@ -472,7 +472,7 @@ echo -e "\n${YELLOW}[3/4]${NC} Validating schemas..."
 # Check if memory spec validator exists
 if [ -f "scripts/audit/verify_memory_spec_v3.py" ]; then
     echo "   Validating memory/memory_spec_v3.0.yaml..."
-    
+
     if python3 scripts/audit/verify_memory_spec_v3.py --quiet 2>&1 | tail -10; then
         echo -e "${GREEN}✓ Schema validation passed${NC}"
     else
@@ -496,7 +496,7 @@ if git diff --cached --name-only | grep -q "memory/substrate_models.py"; then
     echo "   This may contain breaking changes to PacketEnvelope"
     echo "   Ensure backward compatibility or update version"
     echo ""
-    
+
     # Check if version was bumped
     if git diff --cached memory/substrate_models.py | grep -q "PACKET_SCHEMA_VERSION"; then
         echo -e "${GREEN}✓ Schema version updated${NC}"
@@ -611,10 +611,10 @@ l9/
    ```bash
    # Test pre-commit
    echo "test" >> test.py && git add test.py && git commit -m "test"
-   
+
    # Test post-merge
    git pull
-   
+
    # Test pre-push
    git push --dry-run
    ```

@@ -74,7 +74,7 @@ class TestRLSScopeTransaction:
             org_id=TEST_ORG_A,
             user_id=TEST_USER_A,
             role="end_user",
-        ) as conn:
+        ):
             # Verify l9_set_scope was called
             mock_conn.execute.assert_called_once()
             call_args = mock_conn.execute.call_args[0]
@@ -89,8 +89,10 @@ class TestRLSScopeTransaction:
         """Verify RLS connection is available in context variable during transaction."""
         from contextlib import asynccontextmanager
 
-        from memory.substrate_repository import (SubstrateRepository,
-                                                 _current_rls_connection)
+        from memory.substrate_repository import (
+            SubstrateRepository,
+            _current_rls_connection,
+        )
 
         # Mock connection pool with proper async context managers
         mock_pool = MagicMock()
@@ -140,10 +142,11 @@ class TestRLSIsolation:
     @pytest.mark.asyncio
     async def test_repository_uses_rls_connection_when_available(self):
         """Verify repository methods use RLS connection when available."""
-        from core.schemas import (PacketEnvelope, PacketMetadata,
-                                  PacketProvenance)
-        from memory.substrate_repository import (SubstrateRepository,
-                                                 _current_rls_connection)
+        from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
+        from memory.substrate_repository import (
+            SubstrateRepository,
+            _current_rls_connection,
+        )
 
         # Mock RLS connection in context
         mock_rls_conn = AsyncMock()
@@ -176,8 +179,7 @@ class TestRLSIsolation:
     @pytest.mark.asyncio
     async def test_repository_uses_pool_when_no_rls_connection(self):
         """Verify repository methods use pool when no RLS connection available."""
-        from core.schemas import (PacketEnvelope, PacketMetadata,
-                                  PacketProvenance)
+        from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
         from memory.substrate_repository import SubstrateRepository
 
         # Mock connection pool
@@ -219,8 +221,7 @@ class TestWritePacketWithRLS:
         from unittest.mock import AsyncMock, MagicMock
 
         from core.schemas import PacketEnvelopeIn
-        from memory.governance_gate import (build_governance_context,
-                                            governance_context)
+        from memory.governance_gate import build_governance_context, governance_context
         from memory.substrate_service import MemorySubstrateService
 
         # Mock repository with transaction

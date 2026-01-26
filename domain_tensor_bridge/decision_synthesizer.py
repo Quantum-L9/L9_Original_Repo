@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Decision Synthesizer
@@ -46,7 +45,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -60,9 +59,9 @@ class Decision:
     action: str
     confidence: float
     reasoning_summary: str
-    contributing_modes: List[str]
-    conflicts_resolved: List[Dict[str, Any]] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    contributing_modes: list[str]
+    conflicts_resolved: list[dict[str, Any]] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class DecisionSynthesizer:
@@ -76,7 +75,7 @@ class DecisionSynthesizer:
     - Decision audit logging
     """
 
-    def __init__(self, mode_weights: Optional[Dict[str, float]] = None):
+    def __init__(self, mode_weights: dict[str, float] | None = None):
         self.mode_weights = mode_weights or {
             "symbolic": 0.3,
             "causal": 0.25,
@@ -86,7 +85,7 @@ class DecisionSynthesizer:
 
     async def synthesize_decision(
         self,
-        reasoning_outputs: List[Dict[str, Any]],
+        reasoning_outputs: list[dict[str, Any]],
     ) -> Decision:
         """
         Combine reasoning mode outputs into final decision.
@@ -134,8 +133,8 @@ class DecisionSynthesizer:
 
     def _detect_conflicts(
         self,
-        outputs: List[Dict[str, Any]],
-    ) -> List[Dict[str, Any]]:
+        outputs: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
         """Detect conflicting recommendations across modes."""
         conflicts = []
 
@@ -156,8 +155,8 @@ class DecisionSynthesizer:
 
     def _resolve_conflicts(
         self,
-        conflicts: List[Dict[str, Any]],
-    ) -> List[Dict[str, Any]]:
+        conflicts: list[dict[str, Any]],
+    ) -> list[dict[str, Any]]:
         """Resolve detected conflicts using weighted voting."""
         resolved = []
 
@@ -173,7 +172,7 @@ class DecisionSynthesizer:
 
     def _calculate_weighted_confidence(
         self,
-        outputs: List[Dict[str, Any]],
+        outputs: list[dict[str, Any]],
     ) -> float:
         """Calculate weighted confidence from all outputs."""
         total_weight = 0.0
@@ -205,23 +204,22 @@ class DecisionSynthesizer:
 
     def _determine_action(
         self,
-        outputs: List[Dict[str, Any]],
+        outputs: list[dict[str, Any]],
         confidence: float,
     ) -> str:
         """Determine final action based on outputs and confidence."""
         if confidence < 0.3:
             return "escalate_for_review"
-        elif confidence < 0.5:
+        if confidence < 0.5:
             return "proceed_with_caution"
-        elif confidence < 0.8:
+        if confidence < 0.8:
             return "proceed"
-        else:
-            return "proceed_with_high_confidence"
+        return "proceed_with_high_confidence"
 
     def _get_contributing_modes(
         self,
-        outputs: List[Dict[str, Any]],
-    ) -> List[str]:
+        outputs: list[dict[str, Any]],
+    ) -> list[str]:
         """Extract list of contributing modes."""
         modes = []
         for output in outputs:
@@ -232,8 +230,8 @@ class DecisionSynthesizer:
 
     def _build_summary(
         self,
-        outputs: List[Dict[str, Any]],
-        resolved: List[Dict[str, Any]],
+        outputs: list[dict[str, Any]],
+        resolved: list[dict[str, Any]],
     ) -> str:
         """Build human-readable summary of synthesis."""
         parts = [f"Synthesized from {len(outputs)} reasoning modes."]
@@ -267,8 +265,8 @@ __footer_meta__ = {
 }
 
 __all__ = [
-    "DecisionSynthesizer",
     "Decision",
+    "DecisionSynthesizer",
     "__footer_meta__",
     "__l9_trace__",
 ]

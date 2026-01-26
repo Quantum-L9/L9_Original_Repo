@@ -27,12 +27,19 @@ __dora_meta__ = {
 
 import asyncio
 import functools
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 import structlog
 
-from .models import (GovernanceCheckSpan, LLMGenerationSpan, Span, SpanKind,
-                     SpanStatus, ToolCallSpan)
+from .models import (
+    GovernanceCheckSpan,
+    LLMGenerationSpan,
+    Span,
+    SpanKind,
+    SpanStatus,
+    ToolCallSpan,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -88,36 +95,35 @@ def trace_span(
                     service.export_span(span)
 
             return async_wrapper
-        else:
 
-            @functools.wraps(func)
-            def sync_wrapper(*args: Any, **kwargs: Any) -> T:
-                from .service import ObservabilityService
+        @functools.wraps(func)
+        def sync_wrapper(*args: Any, **kwargs: Any) -> T:
+            from .service import ObservabilityService
 
-                service = ObservabilityService.get()
-                if not service or not service.config.enabled:
-                    return func(*args, **kwargs)
+            service = ObservabilityService.get()
+            if not service or not service.config.enabled:
+                return func(*args, **kwargs)
 
-                ctx = service.current_trace_context()
-                span = Span.start(
-                    name=name,
-                    trace_id=ctx.trace_id,
-                    parent_span_id=ctx.span_id,
-                    kind=kind,
-                    **default_attributes,
-                )
+            ctx = service.current_trace_context()
+            span = Span.start(
+                name=name,
+                trace_id=ctx.trace_id,
+                parent_span_id=ctx.span_id,
+                kind=kind,
+                **default_attributes,
+            )
 
-                try:
-                    result = func(*args, **kwargs)
-                    span.finish(status=SpanStatus.OK)
-                    return result
-                except Exception as exc:
-                    span.finish(status=SpanStatus.ERROR, error=str(exc))
-                    raise
-                finally:
-                    service.export_span(span)
+            try:
+                result = func(*args, **kwargs)
+                span.finish(status=SpanStatus.OK)
+                return result
+            except Exception as exc:
+                span.finish(status=SpanStatus.ERROR, error=str(exc))
+                raise
+            finally:
+                service.export_span(span)
 
-            return sync_wrapper
+        return sync_wrapper
 
     return decorator
 
@@ -167,36 +173,35 @@ def trace_llm_call(
                     service.export_span(span)
 
             return async_wrapper
-        else:
 
-            @functools.wraps(func)
-            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-                from .service import ObservabilityService
+        @functools.wraps(func)
+        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            from .service import ObservabilityService
 
-                service = ObservabilityService.get()
-                if not service or not service.config.enabled:
-                    return func(*args, **kwargs)
+            service = ObservabilityService.get()
+            if not service or not service.config.enabled:
+                return func(*args, **kwargs)
 
-                ctx = service.current_trace_context()
-                span = LLMGenerationSpan.start(
-                    name=f"llm.{func.__name__}",
-                    trace_id=ctx.trace_id,
-                    parent_span_id=ctx.span_id,
-                    kind=SpanKind.CLIENT,
-                    model=model,
-                )
+            ctx = service.current_trace_context()
+            span = LLMGenerationSpan.start(
+                name=f"llm.{func.__name__}",
+                trace_id=ctx.trace_id,
+                parent_span_id=ctx.span_id,
+                kind=SpanKind.CLIENT,
+                model=model,
+            )
 
-                try:
-                    result = func(*args, **kwargs)
-                    span.finish(status=SpanStatus.OK)
-                    return result
-                except Exception as exc:
-                    span.finish(status=SpanStatus.ERROR, error=str(exc))
-                    raise
-                finally:
-                    service.export_span(span)
+            try:
+                result = func(*args, **kwargs)
+                span.finish(status=SpanStatus.OK)
+                return result
+            except Exception as exc:
+                span.finish(status=SpanStatus.ERROR, error=str(exc))
+                raise
+            finally:
+                service.export_span(span)
 
-            return sync_wrapper
+        return sync_wrapper
 
     return decorator
 
@@ -249,39 +254,38 @@ def trace_tool_call(
                     service.export_span(span)
 
             return async_wrapper
-        else:
 
-            @functools.wraps(func)
-            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-                from .service import ObservabilityService
+        @functools.wraps(func)
+        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            from .service import ObservabilityService
 
-                service = ObservabilityService.get()
-                if not service or not service.config.enabled:
-                    return func(*args, **kwargs)
+            service = ObservabilityService.get()
+            if not service or not service.config.enabled:
+                return func(*args, **kwargs)
 
-                ctx = service.current_trace_context()
-                span = ToolCallSpan.start(
-                    name=f"tool.{tool_name}",
-                    trace_id=ctx.trace_id,
-                    parent_span_id=ctx.span_id,
-                    kind=SpanKind.CLIENT,
-                    tool_name=tool_name,
-                    tool_input=kwargs,
-                )
+            ctx = service.current_trace_context()
+            span = ToolCallSpan.start(
+                name=f"tool.{tool_name}",
+                trace_id=ctx.trace_id,
+                parent_span_id=ctx.span_id,
+                kind=SpanKind.CLIENT,
+                tool_name=tool_name,
+                tool_input=kwargs,
+            )
 
-                try:
-                    result = func(*args, **kwargs)
-                    span.tool_output = result
-                    span.finish(status=SpanStatus.OK)
-                    return result
-                except Exception as exc:
-                    span.tool_error = str(exc)
-                    span.finish(status=SpanStatus.ERROR, error=str(exc))
-                    raise
-                finally:
-                    service.export_span(span)
+            try:
+                result = func(*args, **kwargs)
+                span.tool_output = result
+                span.finish(status=SpanStatus.OK)
+                return result
+            except Exception as exc:
+                span.tool_error = str(exc)
+                span.finish(status=SpanStatus.ERROR, error=str(exc))
+                raise
+            finally:
+                service.export_span(span)
 
-            return sync_wrapper
+        return sync_wrapper
 
     return decorator
 
@@ -334,39 +338,38 @@ def trace_governance_check(
                     service.export_span(span)
 
             return async_wrapper
-        else:
 
-            @functools.wraps(func)
-            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-                from .service import ObservabilityService
+        @functools.wraps(func)
+        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            from .service import ObservabilityService
 
-                service = ObservabilityService.get()
-                if not service or not service.config.enabled:
-                    return func(*args, **kwargs)
+            service = ObservabilityService.get()
+            if not service or not service.config.enabled:
+                return func(*args, **kwargs)
 
-                ctx = service.current_trace_context()
-                span = GovernanceCheckSpan.start(
-                    name=f"governance.{policy_name}",
-                    trace_id=ctx.trace_id,
-                    parent_span_id=ctx.span_id,
-                    kind=SpanKind.INTERNAL,
-                    policy_name=policy_name,
-                )
+            ctx = service.current_trace_context()
+            span = GovernanceCheckSpan.start(
+                name=f"governance.{policy_name}",
+                trace_id=ctx.trace_id,
+                parent_span_id=ctx.span_id,
+                kind=SpanKind.INTERNAL,
+                policy_name=policy_name,
+            )
 
-                try:
-                    result = func(*args, **kwargs)
-                    span.policy_result = "allow" if result else "deny"
-                    span.finish(status=SpanStatus.OK)
-                    return result
-                except Exception as exc:
-                    span.policy_result = "error"
-                    span.policy_reason = str(exc)
-                    span.finish(status=SpanStatus.ERROR, error=str(exc))
-                    raise
-                finally:
-                    service.export_span(span)
+            try:
+                result = func(*args, **kwargs)
+                span.policy_result = "allow" if result else "deny"
+                span.finish(status=SpanStatus.OK)
+                return result
+            except Exception as exc:
+                span.policy_result = "error"
+                span.policy_reason = str(exc)
+                span.finish(status=SpanStatus.ERROR, error=str(exc))
+                raise
+            finally:
+                service.export_span(span)
 
-            return sync_wrapper
+        return sync_wrapper
 
     return decorator
 

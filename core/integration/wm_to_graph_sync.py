@@ -53,6 +53,8 @@ import structlog
 if TYPE_CHECKING:
     from world_model.causal_mapper import CausalMapper
 
+import contextlib
+
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -74,7 +76,7 @@ class WMToGraphSync:
     def __init__(
         self,
         neo4j_driver: Any,
-        causal_mapper: "CausalMapper",
+        causal_mapper: CausalMapper,
         sync_interval_seconds: int = 300,
         enabled: bool | None = None,
     ):
@@ -107,10 +109,8 @@ class WMToGraphSync:
         self._running = False
         if self._task:
             self._task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._task
-            except asyncio.CancelledError:
-                pass
         logger.info("WMToGraphSync stopped")
 
     async def _sync_loop(self) -> None:
@@ -160,7 +160,7 @@ class WMToGraphSync:
         """Sync CausalNodes to Neo4j."""
         count = 0
         async with self.neo4j_driver.session() as session:
-            for node_id, node in self.causal_mapper._nodes.items():
+            for _node_id, node in self.causal_mapper._nodes.items():
                 await session.run(
                     """
                     MERGE (n:CausalNode {node_id: $node_id})
@@ -186,7 +186,7 @@ class WMToGraphSync:
         """Sync CausalEdges to Neo4j as relationships."""
         count = 0
         async with self.neo4j_driver.session() as session:
-            for edge_id, edge in self.causal_mapper._edges.items():
+            for _edge_id, edge in self.causal_mapper._edges.items():
                 # Use relationship type from edge
                 rel_type = edge.relation_type.value.upper()
 
@@ -215,7 +215,7 @@ class WMToGraphSync:
         """Sync Decisions to Neo4j."""
         count = 0
         async with self.neo4j_driver.session() as session:
-            for dec_id, decision in self.causal_mapper._decisions.items():
+            for _dec_id, decision in self.causal_mapper._decisions.items():
                 await session.run(
                     """
                     MERGE (d:Decision {decision_id: $decision_id})
@@ -243,7 +243,7 @@ class WMToGraphSync:
         """Sync Outcomes to Neo4j."""
         count = 0
         async with self.neo4j_driver.session() as session:
-            for out_id, outcome in self.causal_mapper._outcomes.items():
+            for _out_id, outcome in self.causal_mapper._outcomes.items():
                 await session.run(
                     """
                     MERGE (o:Outcome {outcome_id: $outcome_id})
@@ -281,7 +281,7 @@ class WMToGraphSync:
         """Sync CausalLinks to Neo4j."""
         count = 0
         async with self.neo4j_driver.session() as session:
-            for link_id, link in self.causal_mapper._causal_links.items():
+            for _link_id, link in self.causal_mapper._causal_links.items():
                 await session.run(
                     """
                     MATCH (d:Decision {decision_id: $decision_id})
@@ -311,9 +311,7 @@ class WMToGraphSync:
 _wm_graph_sync: WMToGraphSync | None = None
 
 
-def get_wm_graph_sync(
-    neo4j_driver: Any, causal_mapper: "CausalMapper"
-) -> WMToGraphSync:
+def get_wm_graph_sync(neo4j_driver: Any, causal_mapper: CausalMapper) -> WMToGraphSync:
     """Get global WMToGraphSync instance."""
     global _wm_graph_sync
     if _wm_graph_sync is None:
@@ -321,7 +319,7 @@ def get_wm_graph_sync(
     return _wm_graph_sync
 
 
-async def start_wm_graph_sync(neo4j_driver: Any, causal_mapper: "CausalMapper") -> None:
+async def start_wm_graph_sync(neo4j_driver: Any, causal_mapper: CausalMapper) -> None:
     """Start the WM to Graph sync service."""
     service = get_wm_graph_sync(neo4j_driver, causal_mapper)
     await service.start()

@@ -30,11 +30,15 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
-from world_model.interfaces import (Entity, EntityTypeSchema,
-                                    IWorldModelRegistry, Relation,
-                                    RelationTypeSchema)
+from world_model.interfaces import (
+    Entity,
+    EntityTypeSchema,
+    IWorldModelRegistry,
+    Relation,
+    RelationTypeSchema,
+)
 
 
 @dataclass
@@ -50,10 +54,10 @@ class WorldModelRegistry(IWorldModelRegistry):
 
     def __init__(self):
         """Initialize empty registry."""
-        self._entity_types: Dict[str, EntityTypeSchema] = {}
-        self._relation_types: Dict[str, RelationTypeSchema] = {}
-        self._type_hierarchy: Dict[str, Set[str]] = {}  # child → {parents}
-        self._required_fields_cache: Dict[str, Set[str]] = {}
+        self._entity_types: dict[str, EntityTypeSchema] = {}
+        self._relation_types: dict[str, RelationTypeSchema] = {}
+        self._type_hierarchy: dict[str, set[str]] = {}  # child → {parents}
+        self._required_fields_cache: dict[str, set[str]] = {}
 
     # ========== ENTITY TYPE OPERATIONS ==========
 
@@ -70,7 +74,7 @@ class WorldModelRegistry(IWorldModelRegistry):
         if hasattr(schema, "parent_type") and schema.parent_type:
             self._type_hierarchy.setdefault(type_name, set()).add(schema.parent_type)
 
-    def get_entity_type(self, type_name: str) -> Optional[EntityTypeSchema]:
+    def get_entity_type(self, type_name: str) -> EntityTypeSchema | None:
         """Retrieve entity type schema by name.
 
         Args:
@@ -81,7 +85,7 @@ class WorldModelRegistry(IWorldModelRegistry):
         """
         return self._entity_types.get(type_name)
 
-    def list_entity_types(self) -> List[str]:
+    def list_entity_types(self) -> list[str]:
         """List all registered entity type names.
 
         Returns:
@@ -146,7 +150,7 @@ class WorldModelRegistry(IWorldModelRegistry):
         if hasattr(schema, "parent_type") and schema.parent_type:
             self._type_hierarchy.setdefault(type_name, set()).add(schema.parent_type)
 
-    def get_relation_type(self, type_name: str) -> Optional[RelationTypeSchema]:
+    def get_relation_type(self, type_name: str) -> RelationTypeSchema | None:
         """Retrieve relation type schema by name.
 
         Args:
@@ -157,7 +161,7 @@ class WorldModelRegistry(IWorldModelRegistry):
         """
         return self._relation_types.get(type_name)
 
-    def list_relation_types(self) -> List[str]:
+    def list_relation_types(self) -> list[str]:
         """List all registered relation type names.
 
         Returns:
@@ -207,7 +211,7 @@ class WorldModelRegistry(IWorldModelRegistry):
 
     # ========== TYPE HIERARCHY OPERATIONS ==========
 
-    def get_subtypes(self, type_name: str) -> List[str]:
+    def get_subtypes(self, type_name: str) -> list[str]:
         """Get all subtypes of a given type.
 
         Args:
@@ -222,7 +226,7 @@ class WorldModelRegistry(IWorldModelRegistry):
                 subtypes.append(child)
         return subtypes
 
-    def get_supertypes(self, type_name: str) -> List[str]:
+    def get_supertypes(self, type_name: str) -> list[str]:
         """Get all supertypes of a given type.
 
         Args:
@@ -271,7 +275,7 @@ class WorldModelRegistry(IWorldModelRegistry):
 
     # ========== SERIALIZATION ==========
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize registry to dict for persistence.
 
         Returns:
@@ -293,7 +297,7 @@ class WorldModelRegistry(IWorldModelRegistry):
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "WorldModelRegistry":
+    def from_dict(cls, data: dict[str, Any]) -> "WorldModelRegistry":
         """Deserialize registry from dict.
 
         Args:
@@ -316,7 +320,9 @@ class WorldModelRegistry(IWorldModelRegistry):
                 schema = EntityTypeSchema(**schema_data)
                 registry.register_entity_type(type_name, schema)
             except Exception as e:
-                raise ValueError(f"Failed to restore entity type {type_name}: {e}") from e
+                raise ValueError(
+                    f"Failed to restore entity type {type_name}: {e}"
+                ) from e
 
         # Restore relation types
         for type_name, schema_data in data.get("relation_types", {}).items():
@@ -324,7 +330,9 @@ class WorldModelRegistry(IWorldModelRegistry):
                 schema = RelationTypeSchema(**schema_data)
                 registry.register_relation_type(type_name, schema)
             except Exception as e:
-                raise ValueError(f"Failed to restore relation type {type_name}: {e}") from e
+                raise ValueError(
+                    f"Failed to restore relation type {type_name}: {e}"
+                ) from e
 
         # Restore type hierarchy
         for parent, children in data.get("type_hierarchy", {}).items():

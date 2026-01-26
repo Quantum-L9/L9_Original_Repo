@@ -26,14 +26,14 @@ global:
 
 api:
   replicaCount: 1
-  
+
   image:
     tag: "latest"
     pullPolicy: Always
-  
+
   ingress:
     enabled: false
-  
+
   resources:
     requests:
       memory: "512Mi"
@@ -41,23 +41,23 @@ api:
     limits:
       memory: "1Gi"
       cpu: "1000m"
-  
+
   autoscaling:
     enabled: false
-  
+
   podDisruptionBudget:
     enabled: false
-  
+
   env:
     LOG_LEVEL: DEBUG
 
 mcpMemory:
   replicaCount: 1
-  
+
   image:
     tag: "latest"
     pullPolicy: Always
-  
+
   resources:
     requests:
       memory: "256Mi"
@@ -70,7 +70,7 @@ postgresql:
   primary:
     persistence:
       size: 5Gi
-    
+
     resources:
       requests:
         memory: "512Mi"
@@ -83,7 +83,7 @@ redis:
   master:
     persistence:
       size: 2Gi
-    
+
     resources:
       requests:
         memory: "128Mi"
@@ -95,7 +95,7 @@ redis:
 neo4j:
   persistence:
     size: 5Gi
-  
+
   resources:
     requests:
       memory: "512Mi"
@@ -108,16 +108,16 @@ monitoring:
   prometheus:
     persistence:
       size: 5Gi
-    
+
     retention: 7d
-  
+
   grafana:
     persistence:
       size: 2Gi
-    
+
     ingress:
       enabled: false
-  
+
   jaeger:
     persistence:
       size: 2Gi
@@ -128,7 +128,6 @@ security:
 
 backup:
   enabled: false
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

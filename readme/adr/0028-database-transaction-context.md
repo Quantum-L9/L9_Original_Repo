@@ -1,23 +1,28 @@
 # ADR 0028: Database Transaction Context
 
 ## Status
+
 Accepted
 
 ## Pattern
+
 ALL database operations wrapped in `transaction()` context manager with RLS scope.
 
 ## Files
+
 - `memory/substrate_repository.py` - Transaction implementation
 - `memory/ingestion.py` - Transaction usage
 - `memory/governance_gate.py` - RLS context
 
 ## Import Block
+
 ```python
 from memory.substrate_repository import SubstrateRepository, TransactionError
 from config.rls_config import get_rls_config
 ```
 
 ## Minimal Implementation
+
 ```python
 from contextlib import asynccontextmanager
 from typing import AsyncIterator, Any
@@ -34,10 +39,10 @@ class TransactionError(Exception):
 
 class SubstrateRepository:
     """Repository with transaction support and RLS."""
-    
+
     def __init__(self, pool: asyncpg.Pool):
         self._pool = pool
-    
+
     @asynccontextmanager
     async def transaction(
         self,
@@ -48,21 +53,21 @@ class SubstrateRepository:
     ) -> AsyncIterator[asyncpg.Connection]:
         """
         Transaction context with RLS scope.
-        
+
         Args:
             tenant_id: RLS tenant UUID
             org_id: RLS organization UUID
             user_id: RLS user UUID
             role: User role for RLS policies
-        
+
         Yields:
             Database connection with RLS configured
-        
+
         Raises:
             TransactionError: If transaction fails
         """
         conn = await self._pool.acquire()
-        
+
         try:
             # Start transaction
             async with conn.transaction():
@@ -83,18 +88,18 @@ class SubstrateRepository:
                     "SET app.role = $1",
                     role,
                 )
-                
+
                 logger.debug(
                     "transaction.started",
                     tenant_id=tenant_id,
                     org_id=org_id,
                 )
-                
+
                 yield conn
-                
+
                 # Auto-commit on successful exit
                 logger.debug("transaction.committed")
-                
+
         except Exception as e:
             # Auto-rollback on exception
             logger.error(
@@ -102,12 +107,13 @@ class SubstrateRepository:
                 error=str(e),
             )
             raise TransactionError(f"Transaction failed: {e}") from e
-            
+
         finally:
             await self._pool.release(conn)
 ```
 
 ## Usage Example
+
 ```python
 from memory.substrate_repository import SubstrateRepository
 from config.rls_config import get_rls_config
@@ -116,7 +122,7 @@ async def ingest_packet(packet: dict) -> dict:
     """Ingest packet with transaction."""
     repo = SubstrateRepository(pool)
     rls = get_rls_config()
-    
+
     async with repo.transaction(
         tenant_id=str(rls.tenant_id),
         org_id=str(rls.org_id),
@@ -134,7 +140,7 @@ async def ingest_packet(packet: dict) -> dict:
             packet["payload"],
             packet["metadata"],
         )
-        
+
         # Second operation in same transaction
         await conn.execute(
             """
@@ -144,7 +150,7 @@ async def ingest_packet(packet: dict) -> dict:
             packet_id,
             embedding,
         )
-        
+
         # Auto-commit on exit
         return {"packet_id": str(packet_id)}
 
@@ -162,6 +168,7 @@ async def safe_write(data: dict) -> dict | None:
 ```
 
 ## Anti-Pattern Example
+
 ```python
 # ❌ WRONG — No transaction wrapper
 async def bad_write(packet: dict):
@@ -196,6 +203,7 @@ async with repo.transaction(
 ```
 
 ## RLS Session Variables
+
 ```sql
 -- Set by transaction() context manager
 SET app.tenant_id = '73350468-3158-5d0f-9b8c-9b193d96fc4b';
@@ -209,6 +217,7 @@ USING (tenant_id = current_setting('app.tenant_id')::uuid);
 ```
 
 ## Rules
+
 1. ALL DB operations MUST use `transaction()`
 2. Pass RLS params (tenant_id, org_id, user_id, role)
 3. Never use raw connection outside transaction
@@ -216,13 +225,16 @@ USING (tenant_id = current_setting('app.tenant_id')::uuid);
 5. Never nest transactions (not supported)
 
 ## AI Guidance
+
 **DO:**
+
 - Use `transaction()` for all DB operations
 - Pass RLS params from governance context
 - Let context manager handle commit/rollback
 - Log transaction start/end
 
 **DO NOT:**
+
 - Execute queries without transaction
 - Skip RLS parameters
 - Manually commit/rollback

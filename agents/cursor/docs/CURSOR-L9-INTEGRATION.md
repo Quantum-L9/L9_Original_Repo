@@ -1,21 +1,21 @@
 # 🔌 Cursor-L9 Integration Guide
 
-**Generated:** 2026-01-08 20:15 EST  
-**Purpose:** How Cursor IDE can leverage L9's infrastructure  
+**Generated:** 2026-01-08 20:15 EST
+**Purpose:** How Cursor IDE can leverage L9's infrastructure
 **L's Tools:** 71 (auto-discovered from ToolDefinition.agent_id)
 
 ---
 
 ## 📊 Integration Status
 
-| Capability | Status | How |
-|------------|--------|-----|
-| **Memory Read** | ✅ WORKS | MCP `search_memory` tool via `l9-memory` server |
-| **Memory Write** | ✅ WORKS | MCP `save_memory` tool via `l9-memory` server |
-| **Kernel Reference** | ✅ WORKS | `readme/L9-KERNEL-REFERENCE.md` |
-| **Mistake Prevention** | ✅ WORKS | `python scripts/cursor_check_mistakes.py` |
-| **MCP Memory Server** | ✅ ACTIVE | `https://l9.quantumaipartners.com/mcp` |
-| **Simulation** | ❌ NOT YET | Requires runtime execution |
+| Capability             | Status     | How                                             |
+| ---------------------- | ---------- | ----------------------------------------------- |
+| **Memory Read**        | ✅ WORKS   | MCP `search_memory` tool via `l9-memory` server |
+| **Memory Write**       | ✅ WORKS   | MCP `save_memory` tool via `l9-memory` server   |
+| **Kernel Reference**   | ✅ WORKS   | `readme/L9-KERNEL-REFERENCE.md`                 |
+| **Mistake Prevention** | ✅ WORKS   | `python scripts/cursor_check_mistakes.py`       |
+| **MCP Memory Server**  | ✅ ACTIVE  | `https://l9.quantumaipartners.com/mcp`          |
+| **Simulation**         | ❌ NOT YET | Requires runtime execution                      |
 
 ---
 
@@ -25,35 +25,35 @@ Cursor has **direct read access** to L9's PostgreSQL database via `mcp_postgres_
 
 ### Available Tables
 
-| Table | Contents | Example Query |
-|-------|----------|---------------|
-| `packet_store` | All memory packets | `SELECT * FROM packet_store LIMIT 5` |
-| `reasoning_traces` | L's reasoning steps | `SELECT steps FROM reasoning_traces ORDER BY created_at DESC LIMIT 3` |
-| `semantic_memory` | Semantic embeddings | `SELECT content FROM semantic_memory` |
-| `knowledge_facts` | Knowledge graph facts | `SELECT * FROM knowledge_facts` |
-| `agent_memory_events` | Tool calls, decisions | `SELECT * FROM agent_memory_events` |
+| Table                 | Contents              | Example Query                                                         |
+| --------------------- | --------------------- | --------------------------------------------------------------------- |
+| `packet_store`        | All memory packets    | `SELECT * FROM packet_store LIMIT 5`                                  |
+| `reasoning_traces`    | L's reasoning steps   | `SELECT steps FROM reasoning_traces ORDER BY created_at DESC LIMIT 3` |
+| `semantic_memory`     | Semantic embeddings   | `SELECT content FROM semantic_memory`                                 |
+| `knowledge_facts`     | Knowledge graph facts | `SELECT * FROM knowledge_facts`                                       |
+| `agent_memory_events` | Tool calls, decisions | `SELECT * FROM agent_memory_events`                                   |
 
 ### Example: Read L's Recent Reasoning
 
 ```sql
-SELECT 
-    agent_id, 
-    steps, 
-    confidence_scores, 
-    created_at 
-FROM reasoning_traces 
-ORDER BY created_at DESC 
+SELECT
+    agent_id,
+    steps,
+    confidence_scores,
+    created_at
+FROM reasoning_traces
+ORDER BY created_at DESC
 LIMIT 3;
 ```
 
 ### Example: Search Memory Packets
 
 ```sql
-SELECT 
+SELECT
     packet_type,
     envelope->>'content' as content,
     timestamp
-FROM packet_store 
+FROM packet_store
 WHERE envelope::text ILIKE '%search term%'
 ORDER BY timestamp DESC
 LIMIT 10;
@@ -69,12 +69,12 @@ L9's 10 kernels are in `private/` which is blocked by `.cursorignore`.
 
 ### Key Governance Rules to Follow
 
-| Kernel | Key Rule for Cursor |
-|--------|---------------------|
-| **Master** | Igor-only authority, executive mode by default |
+| Kernel         | Key Rule for Cursor                                  |
+| -------------- | ---------------------------------------------------- |
+| **Master**     | Igor-only authority, executive mode by default       |
 | **Behavioral** | Confidence ≥0.80 → execute, <0.50 → ask one question |
-| **Memory** | Never repeat mistakes, log all corrections |
-| **Developer** | Use structlog, httpx, Pydantic v2 |
+| **Memory**     | Never repeat mistakes, log all corrections           |
+| **Developer**  | Use structlog, httpx, Pydantic v2                    |
 
 ### Apply Kernel Rules
 
@@ -115,23 +115,23 @@ echo "content" | python scripts/cursor_check_mistakes.py --stdin
 
 ### Current Rules
 
-| Rule | Severity | Pattern |
-|------|----------|---------|
+| Rule   | Severity | Pattern                                           |
+| ------ | -------- | ------------------------------------------------- |
 | MP-001 | CRITICAL | Data fabrication (fake, placeholder, example.com) |
-| MP-002 | HIGH | Claiming fixed without proof |
-| MP-003 | CRITICAL | Wrong GlobalCommands path (Library not Dropbox) |
-| MP-004 | CRITICAL | Hardcoded /Users/ib-mac/ paths |
-| MP-008 | HIGH | host.docker.internal on Linux |
-| MP-009 | CRITICAL | git push without explicit request |
-| MP-010 | HIGH | Creating reports/briefs documentation |
+| MP-002 | HIGH     | Claiming fixed without proof                      |
+| MP-003 | CRITICAL | Wrong GlobalCommands path (Library not Dropbox)   |
+| MP-004 | CRITICAL | Hardcoded /Users/ib-mac/ paths                    |
+| MP-008 | HIGH     | host.docker.internal on Linux                     |
+| MP-009 | CRITICAL | git push without explicit request                 |
+| MP-010 | HIGH     | Creating reports/briefs documentation             |
 
 ### Exit Codes
 
-| Code | Meaning |
-|------|---------|
-| 0 | No violations |
-| 1 | Warnings (non-blocking) |
-| 2 | CRITICAL violations (would block) |
+| Code | Meaning                           |
+| ---- | --------------------------------- |
+| 0    | No violations                     |
+| 1    | Warnings (non-blocking)           |
+| 2    | CRITICAL violations (would block) |
 
 ---
 
@@ -174,18 +174,18 @@ Cursor cannot write to memory directly via MCP. This is by design (security).
 
 ## 5. What Cursor Shares with L
 
-| Shared | Details |
-|--------|---------|
-| **Codebase** | Same L9 workspace |
-| **Rules** | Same `.cursor/rules/*.mdc` files |
-| **Patterns** | Same Python/TypeScript conventions |
-| **PostgreSQL** | Same database (read for Cursor) |
+| Shared         | Details                            |
+| -------------- | ---------------------------------- |
+| **Codebase**   | Same L9 workspace                  |
+| **Rules**      | Same `.cursor/rules/*.mdc` files   |
+| **Patterns**   | Same Python/TypeScript conventions |
+| **PostgreSQL** | Same database (read for Cursor)    |
 
-| NOT Shared | Details |
-|------------|---------|
+| NOT Shared           | Details                                     |
+| -------------------- | ------------------------------------------- |
 | **Neo4j Tool Graph** | L uses direct tools; Cursor uses CLI script |
-| **Redis Session** | Separate tenant IDs (cursor vs l-cto) |
-| **Private Kernels** | Cursor reads summary only |
+| **Redis Session**    | Separate tenant IDs (cursor vs l-cto)       |
+| **Private Kernels**  | Cursor reads summary only                   |
 
 ---
 
@@ -212,13 +212,13 @@ python scripts/cursor_neo4j_query.py "MATCH (t:Tool) RETURN t.name LIMIT 10"
 
 ### Graph Contents
 
-| Node Type | Count | Use For |
-|-----------|-------|---------|
+| Node Type  | Count | Use For           |
+| ---------- | ----- | ----------------- |
 | RepoMethod | 4,404 | Method signatures |
-| RepoClass | 1,915 | Class locations |
-| RepoFile | 853 | File discovery |
-| Tool | 86 | L9 tool registry |
-| Kernel | 10 | Governance rules |
+| RepoClass  | 1,915 | Class locations   |
+| RepoFile   | 853   | File discovery    |
+| Tool       | 86    | L9 tool registry  |
+| Kernel     | 10    | Governance rules  |
 
 ---
 
@@ -248,10 +248,10 @@ L's tools are **auto-discovered** from `ToolDefinition.agent_id="L"` at startup.
 
 ### Adding New Tools
 
-| Step | File | Action |
-|------|------|--------|
-| 1 | `runtime/l_tools.py` | Add async executor function |
-| 2 | `core/tools/registry_adapter.py` | Add ToolDefinition with `agent_id="L"` |
+| Step | File                             | Action                                 |
+| ---- | -------------------------------- | -------------------------------------- |
+| 1    | `runtime/l_tools.py`             | Add async executor function            |
+| 2    | `core/tools/registry_adapter.py` | Add ToolDefinition with `agent_id="L"` |
 
 **No ToolName enum or DEFAULT_L_CAPABILITIES updates needed!**
 
@@ -262,6 +262,7 @@ python3 ci/check_tool_wiring.py
 ```
 
 Expected output:
+
 ```
 ✅ CI GATE PASSED: Tool wiring is consistent
 ℹ️  GMP-44: Auto-discovery from ToolDefinition.agent_id is active
@@ -275,18 +276,19 @@ Expected output:
 
 ### Implementation Path
 
-| Step | Description | Effort |
-|------|-------------|--------|
-| 1 | Create API router `api/simulation/router.py` | 1 hour |
-| 2 | Add Pydantic models for request/response | 30 min |
-| 3 | Register in `api/server.py` | 15 min |
-| 4 | Create Cursor CLI script | 30 min |
-| 5 | Test with sample IR graph | 1 hour |
-| **Total** | | **3-4 hours** |
+| Step      | Description                                  | Effort        |
+| --------- | -------------------------------------------- | ------------- |
+| 1         | Create API router `api/simulation/router.py` | 1 hour        |
+| 2         | Add Pydantic models for request/response     | 30 min        |
+| 3         | Register in `api/server.py`                  | 15 min        |
+| 4         | Create Cursor CLI script                     | 30 min        |
+| 5         | Test with sample IR graph                    | 1 hour        |
+| **Total** |                                              | **3-4 hours** |
 
 ### What Simulation Does
 
 The `SimulationEngine` evaluates IR graphs for:
+
 - **Feasibility scoring** (0.0-1.0)
 - **Failure mode detection**
 - **Dependency analysis**
@@ -326,13 +328,13 @@ import requests  # Use httpx instead
 
 ### Code Standards
 
-| Pattern | Required |
-|---------|----------|
-| Type hints | All functions |
-| Docstrings | Google style |
-| Error handling | Explicit packets, not bare except |
-| I/O operations | Always async |
-| Data validation | Pydantic v2 BaseModel |
+| Pattern         | Required                          |
+| --------------- | --------------------------------- |
+| Type hints      | All functions                     |
+| Docstrings      | Google style                      |
+| Error handling  | Explicit packets, not bare except |
+| I/O operations  | Always async                      |
+| Data validation | Pydantic v2 BaseModel             |
 
 ### Pre-Generation Checklist
 
@@ -359,7 +361,7 @@ logger = structlog.get_logger(__name__)
 
 class UserRequest(BaseModel):
     """Request model for user operations."""
-    
+
     user_id: str = Field(..., description="Unique user identifier")
     action: str = Field(..., description="Action to perform")
 
@@ -367,13 +369,13 @@ class UserRequest(BaseModel):
 async def fetch_user_data(user_id: str) -> dict:
     """
     Fetch user data from the API.
-    
+
     Args:
         user_id: The unique user identifier
-        
+
     Returns:
         User data dictionary
-        
+
     Raises:
         httpx.HTTPError: On network failures
     """
@@ -389,19 +391,19 @@ async def fetch_user_data(user_id: str) -> dict:
 
 ### Files Cursor Should Reference
 
-| File | Purpose |
-|------|---------|
-| `readme/L9-KERNEL-REFERENCE.md` | Kernel governance rules |
-| `readme/L-CTO-ABILITIES.md` | L's 71 tools (auto-discovered) |
-| `docs/CAPABILITY_ENABLING_PATTERN.md` | How to add new tools |
-| `core/governance/mistake_prevention.py` | Mistake prevention source |
-| `scripts/cursor_check_mistakes.py` | CLI for mistake checking |
-| `.cursor/rules/*.mdc` | Cursor-native rules |
+| File                                    | Purpose                        |
+| --------------------------------------- | ------------------------------ |
+| `readme/L9-KERNEL-REFERENCE.md`         | Kernel governance rules        |
+| `readme/L-CTO-ABILITIES.md`             | L's 71 tools (auto-discovered) |
+| `docs/CAPABILITY_ENABLING_PATTERN.md`   | How to add new tools           |
+| `core/governance/mistake_prevention.py` | Mistake prevention source      |
+| `scripts/cursor_check_mistakes.py`      | CLI for mistake checking       |
+| `.cursor/rules/*.mdc`                   | Cursor-native rules            |
 
 ### How to Leverage L9 from Cursor
 
 1. **Before generating code:** Check `L9-KERNEL-REFERENCE.md` for patterns
-2. **Before outputting paths:** Run `cursor_check_mistakes.py` 
+2. **Before outputting paths:** Run `cursor_check_mistakes.py`
 3. **To read L's context:** Query `mcp_postgres_query` for recent reasoning
 4. **To persist learnings:** Use Cursor's native `update_memory`
 
@@ -409,12 +411,12 @@ async def fetch_user_data(user_id: str) -> dict:
 
 ## 🚀 Future Enhancements
 
-| Enhancement | Status | Notes |
-|-------------|--------|-------|
-| MCP write permissions | Not planned | Security concern |
-| Cursor-specific memory table | Possible | Separate from L's packets |
-| Neo4j read access | Possible | For repo graph queries |
-| Simulation dry-run | Future | Complex runtime needed |
+| Enhancement                  | Status      | Notes                     |
+| ---------------------------- | ----------- | ------------------------- |
+| MCP write permissions        | Not planned | Security concern          |
+| Cursor-specific memory table | Possible    | Separate from L's packets |
+| Neo4j read access            | Possible    | For repo graph queries    |
+| Simulation dry-run           | Future      | Complex runtime needed    |
 
 ---
 
@@ -424,4 +426,3 @@ async def fetch_user_data(user_id: str) -> dict:
 - `readme/L-CTO-ABILITIES.md` — L's 70 tools
 - `.cursor-commands/learning/failures/repeated-mistakes.md` — Mistake database
 - `core/governance/cursor_memory_kernel.py` — Cursor memory integration code
-

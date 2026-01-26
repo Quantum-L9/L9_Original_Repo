@@ -12,7 +12,8 @@ if str(PROJECT_ROOT) not in sys.path:
 auth_path = PROJECT_ROOT / "api" / "auth.py"
 spec = importlib.util.spec_from_file_location("l9_api_auth", auth_path)
 auth = importlib.util.module_from_spec(spec)
-assert spec and spec.loader
+assert spec
+assert spec.loader
 spec.loader.exec_module(auth)
 
 

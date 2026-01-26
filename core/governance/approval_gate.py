@@ -32,7 +32,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -53,10 +53,10 @@ class EscalationResult:
     """Result of escalation to Igor."""
 
     approval_status: ApprovalStatus
-    request_id: Optional[str] = None
-    rationale: Optional[str] = None
-    overrides: Optional[Dict[str, Any]] = None
-    constraints: Optional[Dict[str, Any]] = None
+    request_id: str | None = None
+    rationale: str | None = None
+    overrides: dict[str, Any] | None = None
+    constraints: dict[str, Any] | None = None
 
 
 # =============================================================================
@@ -64,7 +64,7 @@ class EscalationResult:
 # =============================================================================
 
 
-def is_high_impact_decision(decision: Dict[str, Any]) -> bool:
+def is_high_impact_decision(decision: dict[str, Any]) -> bool:
     """
     Determine if a decision requires Igor approval.
 
@@ -131,17 +131,14 @@ def is_high_impact_decision(decision: Dict[str, Any]) -> bool:
 
     # Check confidence (low confidence = higher risk)
     confidence = decision.get("confidence", 1.0)
-    if confidence < 0.7:
-        return True
-
-    return False
+    return confidence < 0.7
 
 
 async def escalate_to_igor(
-    decision_packet: Optional[PacketEnvelope],
+    decision_packet: PacketEnvelope | None,
     approval_manager: ApprovalManager,
     agent_id: str = "cursor",
-    task_id: Optional[str] = None,
+    task_id: str | None = None,
 ) -> EscalationResult:
     """
     Escalate decision to Igor via ApprovalManager.
@@ -187,7 +184,7 @@ async def escalate_to_igor(
         logger.error("Failed to escalate to Igor", error=str(e))
         return EscalationResult(
             approval_status=ApprovalStatus.REJECTED,
-            rationale=f"Escalation failed: {str(e)}",
+            rationale=f"Escalation failed: {e!s}",
         )
 
 
@@ -238,11 +235,11 @@ def handle_governance_result(
             update={
                 "approval_status": "approved",
                 "approval_id": escalation_result.request_id,
-                "reasoning_trace": state.reasoning_trace + [reasoning_block],
+                "reasoning_trace": [*state.reasoning_trace, reasoning_block],
             }
         )
 
-    elif escalation_result.approval_status == ApprovalStatus.REJECTED:
+    if escalation_result.approval_status == ApprovalStatus.REJECTED:
         # Mark decision as rejected
         if state.decisions:
             state.decisions[-1]["approval_status"] = "rejected"
@@ -265,18 +262,17 @@ def handle_governance_result(
         return state.model_copy(
             update={
                 "approval_status": "rejected",
-                "reasoning_trace": state.reasoning_trace + [reasoning_block],
+                "reasoning_trace": [*state.reasoning_trace, reasoning_block],
             }
         )
 
-    else:
-        # PENDING or EXPIRED - keep current state, just update status
-        return state.model_copy(
-            update={
-                "approval_status": approval_status,
-                "approval_id": escalation_result.request_id,
-            }
-        )
+    # PENDING or EXPIRED - keep current state, just update status
+    return state.model_copy(
+        update={
+            "approval_status": approval_status,
+            "approval_id": escalation_result.request_id,
+        }
+    )
 
 
 # ============================================================================

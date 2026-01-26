@@ -14,11 +14,17 @@ from uuid import uuid4
 
 import pytest
 
-from core.schemas.packet_envelope import (PacketConfidence, PacketEnvelope,
-                                          PacketEnvelopeIn, PacketMetadata,
-                                          PacketProvenance, PacketWriteResult,
-                                          SemanticHit, SemanticSearchRequest,
-                                          SemanticSearchResult)
+from core.schemas.packet_envelope import (
+    PacketConfidence,
+    PacketEnvelope,
+    PacketEnvelopeIn,
+    PacketMetadata,
+    PacketProvenance,
+    PacketWriteResult,
+    SemanticHit,
+    SemanticSearchRequest,
+    SemanticSearchResult,
+)
 
 
 class TestPacketEnvelopeImmutability:

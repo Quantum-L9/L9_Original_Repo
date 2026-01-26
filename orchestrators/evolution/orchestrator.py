@@ -27,17 +27,22 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 
 from core.decorators import must_stay_async
 
 from .apply_engine import ApplyEngine
-from .interface import (EvolutionOrchestratorRequest,
-                        EvolutionOrchestratorResponse, IEvolutionOrchestrator,
-                        Upgrade, UpgradeExecution, UpgradeStatus,
-                        UpgradeValidation)
+from .interface import (
+    EvolutionOrchestratorRequest,
+    EvolutionOrchestratorResponse,
+    IEvolutionOrchestrator,
+    Upgrade,
+    UpgradeExecution,
+    UpgradeStatus,
+    UpgradeValidation,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -57,7 +62,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
     def __init__(self, apply_engine: ApplyEngine):
         """Initialize evolution orchestrator."""
         self._engine = apply_engine
-        self._history: List[UpgradeExecution] = []
+        self._history: list[UpgradeExecution] = []
         logger.info("EvolutionOrchestrator initialized")
 
     async def apply_upgrades(
@@ -167,7 +172,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
             estimated_downtime=estimated_downtime,
         )
 
-    async def rollback_upgrade(self, upgrade_id: str) -> Dict[str, Any]:
+    async def rollback_upgrade(self, upgrade_id: str) -> dict[str, Any]:
         """Rollback a previously applied upgrade."""
         logger.info(f"Rolling back upgrade: {upgrade_id}")
 
@@ -192,7 +197,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
         return rollback_result
 
     @must_stay_async("callers use await")
-    async def get_upgrade_history(self, limit: int = 10) -> List[UpgradeExecution]:
+    async def get_upgrade_history(self, limit: int = 10) -> list[UpgradeExecution]:
         """Get history of applied upgrades."""
         return self._history[-limit:]
 
@@ -225,7 +230,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
         execution.completed_at = datetime.utcnow()
         return execution
 
-    def _sort_by_dependencies(self, upgrades: List[Upgrade]) -> List[Upgrade]:
+    def _sort_by_dependencies(self, upgrades: list[Upgrade]) -> list[Upgrade]:
         """Sort upgrades by dependencies (topological sort)."""
         sorted_upgrades = []
         remaining = upgrades.copy()
@@ -251,13 +256,11 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
         try:
             from_parts = [int(x) for x in version_from.split(".")]
             to_parts = [int(x) for x in version_to.split(".")]
-            if to_parts[0] < from_parts[0]:
-                return False
-            return True
+            return not to_parts[0] < from_parts[0]
         except (ValueError, IndexError):
             return False
 
-    def _check_dependencies(self, upgrade: Upgrade) -> List[str]:
+    def _check_dependencies(self, upgrade: Upgrade) -> list[str]:
         """Check if all dependencies are satisfied."""
         missing = []
         for dep_id in upgrade.dependencies:
@@ -265,7 +268,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
                 missing.append(dep_id)
         return missing
 
-    def _validate_changes(self, changes: List[Dict[str, Any]]) -> bool:
+    def _validate_changes(self, changes: list[dict[str, Any]]) -> bool:
         """Validate that changes are well-formed."""
         for change in changes:
             if "type" not in change or "target" not in change:

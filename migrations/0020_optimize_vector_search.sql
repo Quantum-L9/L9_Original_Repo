@@ -13,20 +13,20 @@ DROP INDEX IF EXISTS idx_semantic_memory_vector_hnsw;
 --         Higher = better recall, more memory
 -- ef_construction = 64: Size of dynamic candidate list (default: 64, range: 4-1000)
 --                       Higher = better index quality, slower build
-CREATE INDEX idx_semantic_memory_vector_hnsw 
+CREATE INDEX idx_semantic_memory_vector_hnsw
     ON semantic_memory USING hnsw (vector vector_cosine_ops)
     WITH (m = 16, ef_construction = 64);
 
 -- Create composite indexes for filtered vector search
 -- These enable fast filtering before vector search
-CREATE INDEX IF NOT EXISTS idx_semantic_memory_agent_created 
+CREATE INDEX IF NOT EXISTS idx_semantic_memory_agent_created
     ON semantic_memory(agent_id, created_at DESC);
 
-CREATE INDEX IF NOT EXISTS idx_semantic_memory_payload_gin 
+CREATE INDEX IF NOT EXISTS idx_semantic_memory_payload_gin
     ON semantic_memory USING gin (payload jsonb_path_ops);
 
 -- Add index for common payload filters
-CREATE INDEX IF NOT EXISTS idx_semantic_memory_payload_type 
+CREATE INDEX IF NOT EXISTS idx_semantic_memory_payload_type
     ON semantic_memory((payload->>'type'));
 
 -- =============================================================================
@@ -70,5 +70,5 @@ CREATE INDEX IF NOT EXISTS idx_semantic_memory_payload_type
 -- DROP INDEX IF EXISTS idx_semantic_memory_payload_gin;
 -- DROP INDEX IF EXISTS idx_semantic_memory_payload_type;
 --
--- CREATE INDEX idx_semantic_memory_vector_hnsw 
+-- CREATE INDEX idx_semantic_memory_vector_hnsw
 --     ON semantic_memory USING hnsw (vector vector_cosine_ops);

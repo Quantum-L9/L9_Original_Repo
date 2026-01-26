@@ -39,12 +39,14 @@ All bridges between Five-Tier Observability and the three observability tools ar
 **Location:** `core/observability/service.py:136-165`
 
 **What it does:**
+
 - Every span exported calls `_prometheus_exporter.record_span()`
 - Records counters, histograms for all spans
 - Records specialized metrics for LLM calls, tool calls, context assembly
 - Updates SRE metrics (error rate, latency percentiles) every 30s
 
 **Code:**
+
 ```python
 # Export to Prometheus (if enabled)
 if self._prometheus_exporter:
@@ -59,12 +61,14 @@ if self._prometheus_exporter:
 **Location:** `core/observability/service.py:128-133`
 
 **What it does:**
+
 - Every span exported calls `_jaeger_exporter.export_span()`
 - Converts L9 spans to OpenTelemetry format
 - Sends to Jaeger via OTLP protocol
 - Includes full trace context, attributes, relationships
 
 **Code:**
+
 ```python
 # Export to Jaeger (if enabled)
 if self._jaeger_exporter:
@@ -78,6 +82,7 @@ if self._jaeger_exporter:
 **Location:** `grafana/provisioning/datasources/prometheus.yml`
 
 **What it does:**
+
 - Auto-provisions Prometheus datasource in Grafana
 - Grafana queries Prometheus for all metrics
 - Two dashboards visualize Five-Tier Observability metrics
@@ -89,12 +94,14 @@ if self._jaeger_exporter:
 **Location:** `api/server.py:1540-1558`
 
 **What it does:**
+
 - Background task runs every 30 seconds
 - Calls `observability.compute_metrics()` to calculate SRE metrics
 - Updates Prometheus gauges (error_rate, p50/p95/p99 latency)
 - Updates agent KPIs in Prometheus
 
 **Code:**
+
 ```python
 async def update_observability_metrics():
     while True:
@@ -117,7 +124,7 @@ async def update_observability_metrics():
    - ✅ **Prometheus:** `_prometheus_exporter.record_span()` → Metrics
    - ✅ **Jaeger:** `_jaeger_exporter.export_span()` → Traces (if enabled)
    - ✅ **Other Exporters:** Console, File, Substrate (as configured)
-   ↓
+     ↓
 4. **Prometheus Scrapes** `/metrics` endpoint every 10s
    ↓
 5. **Grafana Queries** Prometheus and displays in dashboards
@@ -171,4 +178,3 @@ Should return metrics if spans are being created.
 - ✅ Background updates → Prometheus (SRE metrics, KPIs)
 
 The integration is **complete and production-ready**.
-

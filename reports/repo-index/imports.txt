@@ -1,4 +1,4 @@
-# 
+#
   .
   ..adapters.
   ..adapters.calendar_adapter_adapter

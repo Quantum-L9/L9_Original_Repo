@@ -552,7 +552,7 @@ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/
 codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_tensor_coordination.py::TestTimeoutHandling - Tests for timeout handling.
 codegen/scripts/generate_spec.py::PerplexityClient - Client for Perplexity API with retry logic.
 codegen/symbolic/analyzer.py::AnalysisResult - Result of analyzing a candidate.
-codegen/symbolic/analyzer.py::CandidateAnalyzer - Analyzes candidate code solutions for structural properties 
+codegen/symbolic/analyzer.py::CandidateAnalyzer - Analyzes candidate code solutions for structural properties
 codegen/symbolic/candidates.py::CandidateGenerator - Generates candidate code solutions using symbolic manipulati
 codegen/symbolic/pipeline.py::SymbolicCodegenPipeline - Orchestrates the complete symbolic code generation pipeline.
 codegen/symbolic/selector.py::CandidateSelector - Selects the best candidate from a list of verified candidate
@@ -1371,7 +1371,7 @@ current_work/01-25-2026/harvested-files/6_diff_settings.py::IntegrationSettings 
 current_work/Bayesian Upgrade/bayesian_kernel.py::BayesianKernel - Bayesian Reasoning Kernel for L9.
 current_work/Bayesian Upgrade/bayesian_kernel.py::BeliefState - Represents current belief about a variable.
 current_work/Bayesian Upgrade/bayesian_kernel.py::EvidenceStrength - Classification of evidence strength.
-current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::SubjectiveLogicAdapter - Adapter between Bayesian probabilities and Subjective Logic 
+current_work/Bayesian Upgrade/core/bayesian/subjective_logic.py::SubjectiveLogicAdapter - Adapter between Bayesian probabilities and Subjective Logic
 current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::BayesianUncertainty - Complete Bayesian uncertainty quantification.
 current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::DeepEnsemble - Deep ensemble for implicit Bayesian inference.
 current_work/Bayesian Upgrade/core/bayesian/uncertainty.py::TestModel - No docstring
@@ -1716,8 +1716,8 @@ current_work/packetEnvelope - Phase 2-5/test_suite.py::TestPhase5Governance - Te
 data/l9-phase0-to-6-execution.py::L9CodeGenerator - No docstring
 data/l9-phase0-to-6-execution.py::L9MasterExecutor - No docstring
 data/l9-phase0-to-6-execution.py::Phase0Lock - No docstring
-data/l9-phase0-to-pr-example.py::Phase0Orchestrator - Orchestrates Phase 0 TODO LOCK → Draft PR with CI-validated 
-data/l9-phase0-to-pr.py::Phase0Orchestrator - Orchestrates Phase 0 TODO LOCK → Draft PR with CI-validated 
+data/l9-phase0-to-pr-example.py::Phase0Orchestrator - Orchestrates Phase 0 TODO LOCK → Draft PR with CI-validated
+data/l9-phase0-to-pr.py::Phase0Orchestrator - Orchestrates Phase 0 TODO LOCK → Draft PR with CI-validated
 dev/tools/global_state_audit.py::GlobalStateVisitor - No docstring
 domain_tensor_bridge/agent_controller.py::AgentController - Main controller for Domain-Tensor Bridge.
 domain_tensor_bridge/analogical_reasoner.py::AnalogicalReasoner - Finds cross-domain analogies.
@@ -1799,7 +1799,7 @@ email_agent/router.py::GetRequest - Request model for getting email.
 email_agent/router.py::QueryRequest - Request model for email query.
 email_agent/router.py::ReplyRequest - Request model for replying to email.
 email_agent/router.py::SendRequest - Request model for sending email.
-graph_adapter/packet_node_adapter.py::PacketNodeAdapter - Wraps a node function, ensuring its input/output are logged 
+graph_adapter/packet_node_adapter.py::PacketNodeAdapter - Wraps a node function, ensuring its input/output are logged
 igor/DONE!/L9 Memory Substrate Audit/circuit_breaker.py::CircuitBreaker - Circuit breaker for memory batch operations.
 igor/DONE!/L9 Memory Substrate Audit/circuit_breaker.py::CircuitBreakerConfig - Configuration for circuit breaker.
 igor/DONE!/L9 Memory Substrate Audit/circuit_breaker.py::CircuitBreakerState - Circuit breaker states.
@@ -2216,7 +2216,7 @@ memory/context_builder.py::ContextSection - A section of context from a specific
 memory/context_builder.py::HierarchicalContextBuilder - Builds hierarchical context for agent prompts.
 memory/context_builder.py::MemoryTier - 4-tier hierarchical memory system.
 memory/cross_encoder_reranker.py::CrossEncoderConfig - Configuration for cross-encoder re-ranking.
-memory/cross_encoder_reranker.py::CrossEncoderReranker - Cross-encoder based neural re-ranker for improved retrieval 
+memory/cross_encoder_reranker.py::CrossEncoderReranker - Cross-encoder based neural re-ranker for improved retrieval
 memory/cross_encoder_reranker.py::RerankingResult - Result from cross-encoder re-ranking.
 memory/cypher_templates.py::CypherTemplate - A parameterized Cypher query template.
 memory/cypher_templates.py::CypherTemplateCategory - Categories for Cypher templates.
@@ -2417,7 +2417,7 @@ orchestration/plan_executor.py::ExecutorConfig - Configuration for plan executor
 orchestration/plan_executor.py::PlanExecutor - Executes finalized IR plans with memory integration.
 orchestration/plan_executor.py::StepResult - Result of executing a single step.
 orchestration/plan_executor.py::StepStatus - Status of a single step.
-orchestration/quantum_swarm_loader.py::QuantumSwarmLoader - Loads and executes quantum swarm capsules for parallel code 
+orchestration/quantum_swarm_loader.py::QuantumSwarmLoader - Loads and executes quantum swarm capsules for parallel code
 orchestration/quantum_swarm_loader.py::SwarmLoaderError - Exception raised when swarm loading fails.
 orchestration/task_router.py::CapabilityEnforcedRouter - TaskRouter with capability enforcement.
 orchestration/task_router.py::ExecutionTarget - Execution targets for routing.
@@ -2542,7 +2542,7 @@ runtime/gmp_worker.py::GMPWorker - Worker for processing GMP runs.
 runtime/introspection.py::MockAgent - No docstring
 runtime/kernel_loader.py::KernelAwareAgent - Protocol for agents that can absorb kernels.
 runtime/kernel_loader.py::KernelStack - Lightweight context object for the 10-kernel stack.
-runtime/kernel_state.py::KernelState - Runtime representation of kernel system state (GODMODE Part 
+runtime/kernel_state.py::KernelState - Runtime representation of kernel system state (GODMODE Part
 runtime/local_api.py::LocalAPI - Safe local API for shell commands and file operations.
 runtime/mcp_client.py::MCPClient - MCP client for connecting to MCP servers.
 runtime/mcp_client.py::MCPServerProcess - Manages a single MCP server subprocess.

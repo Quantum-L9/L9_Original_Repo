@@ -46,15 +46,18 @@ __dora_meta__ = {
 
 import os
 from datetime import datetime
-from typing import Any, Optional, Protocol
+from typing import Any, Protocol
 
 import structlog
 
 from core.decorators import must_stay_async
-from core.governance.loader import (InvalidPolicyError, PolicyLoader,
-                                    PolicyLoadError)
-from core.governance.schemas import (EvaluationRequest, EvaluationResult,
-                                     Policy, PolicyEffect)
+from core.governance.loader import InvalidPolicyError, PolicyLoader, PolicyLoadError
+from core.governance.schemas import (
+    EvaluationRequest,
+    EvaluationResult,
+    Policy,
+    PolicyEffect,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -92,9 +95,9 @@ class GovernanceEngineService:
 
     def __init__(
         self,
-        policy_dir: Optional[str] = None,
+        policy_dir: str | None = None,
         default_effect: PolicyEffect = PolicyEffect.DENY,
-        substrate_service: Optional[SubstrateProtocol] = None,
+        substrate_service: SubstrateProtocol | None = None,
     ) -> None:
         """
         Initialize the governance engine.
@@ -264,12 +267,11 @@ class GovernanceEngineService:
                         policy=policy,
                         duration_ms=duration_ms,
                     )
-                else:
-                    return EvaluationResult.deny(
-                        request_id=request.request_id,
-                        policy=policy,
-                        duration_ms=duration_ms,
-                    )
+                return EvaluationResult.deny(
+                    request_id=request.request_id,
+                    policy=policy,
+                    duration_ms=duration_ms,
+                )
 
         # No match - default deny
         return EvaluationResult.deny(
@@ -283,7 +285,7 @@ class GovernanceEngineService:
         subject: str,
         action: str,
         resource: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> bool:
         """
         Quick check if an action is allowed.
@@ -312,7 +314,7 @@ class GovernanceEngineService:
     # Policy Management
     # =========================================================================
 
-    def get_policy(self, policy_id: str) -> Optional[Policy]:
+    def get_policy(self, policy_id: str) -> Policy | None:
         """Get a policy by ID."""
         for policy in self._loader.policies:
             if policy.id == policy_id:
@@ -323,7 +325,7 @@ class GovernanceEngineService:
         """Get all policies that could apply to an action."""
         return self._loader.get_policies_for_action(action)
 
-    def reload_policies(self, policy_dir: Optional[str] = None) -> int:
+    def reload_policies(self, policy_dir: str | None = None) -> int:
         """
         Reload policies from directory.
 
@@ -401,8 +403,8 @@ class GovernanceEngineService:
 
 
 def create_governance_engine(
-    policy_dir: Optional[str] = None,
-    substrate_service: Optional[SubstrateProtocol] = None,
+    policy_dir: str | None = None,
+    substrate_service: SubstrateProtocol | None = None,
 ) -> GovernanceEngineService:
     """
     Create a GovernanceEngineService.

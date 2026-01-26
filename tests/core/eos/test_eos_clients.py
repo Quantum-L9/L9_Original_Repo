@@ -10,9 +10,9 @@ Version: 1.0.0
 from __future__ import annotations
 
 import sys
-from pathlib import Path
-from typing import Any, Dict, List, Optional
 from datetime import datetime
+from pathlib import Path
+from typing import Any
 from uuid import uuid4
 
 import pytest
@@ -26,7 +26,6 @@ from core.eos.hypergraph_client import EOSHypergraphClient
 from core.eos.ledger_writer import EOSLedgerWriter
 from core.eos.schemas import LedgerEntry
 
-
 # =============================================================================
 # Mock Neo4j Client
 # =============================================================================
@@ -36,24 +35,24 @@ class MockNeo4jClient:
     """Mock Neo4j client for testing."""
 
     def __init__(self) -> None:
-        self.queries: List[Dict[str, Any]] = []
-        self.read_results: List[List[Dict[str, Any]]] = []
-        self.write_results: List[List[Dict[str, Any]]] = []
+        self.queries: list[dict[str, Any]] = []
+        self.read_results: list[list[dict[str, Any]]] = []
+        self.write_results: list[list[dict[str, Any]]] = []
         self._read_index = 0
         self._write_index = 0
         self.should_fail: bool = False
 
-    def set_read_results(self, results: List[List[Dict[str, Any]]]) -> None:
+    def set_read_results(self, results: list[list[dict[str, Any]]]) -> None:
         """Set sequence of read results."""
         self.read_results = results
         self._read_index = 0
 
-    def set_write_results(self, results: List[List[Dict[str, Any]]]) -> None:
+    def set_write_results(self, results: list[list[dict[str, Any]]]) -> None:
         """Set sequence of write results."""
         self.write_results = results
         self._write_index = 0
 
-    async def execute_read(self, query: str, **params: Any) -> List[Dict[str, Any]]:
+    async def execute_read(self, query: str, **params: Any) -> list[dict[str, Any]]:
         """Execute a read query."""
         self.queries.append({"type": "read", "query": query, "params": params})
 
@@ -66,7 +65,7 @@ class MockNeo4jClient:
             return result
         return []
 
-    async def execute_write(self, query: str, **params: Any) -> List[Dict[str, Any]]:
+    async def execute_write(self, query: str, **params: Any) -> list[dict[str, Any]]:
         """Execute a write query."""
         self.queries.append({"type": "write", "query": query, "params": params})
 
@@ -89,10 +88,10 @@ class MockSubstrateService:
     """Mock substrate service for testing."""
 
     def __init__(self) -> None:
-        self.packets: List[Dict[str, Any]] = []
+        self.packets: list[dict[str, Any]] = []
         self.should_fail: bool = False
 
-    async def ingest_packet(self, packet: Dict[str, Any]) -> str:
+    async def ingest_packet(self, packet: dict[str, Any]) -> str:
         """Ingest a packet."""
         if self.should_fail:
             raise RuntimeError("Substrate ingest failed")
@@ -105,7 +104,7 @@ class MockSubstrateService:
         self,
         packet_type: str,
         limit: int = 100,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Search packets by type."""
         return [p for p in self.packets if p.get("packet_type") == packet_type][:limit]
 
@@ -165,11 +164,15 @@ class TestEOSHypergraphClient:
     ) -> None:
         """Test check_violations with no violations found."""
         # Set up mock to return no prohibitions, one capability
-        mock_neo4j.set_read_results([
-            [],  # No prohibitions
-            [{"capability": "tool_call", "scope": "all", "risk_class": "low"}],  # Has capability
-            [],  # No obligations
-        ])
+        mock_neo4j.set_read_results(
+            [
+                [],  # No prohibitions
+                [
+                    {"capability": "tool_call", "scope": "all", "risk_class": "low"}
+                ],  # Has capability
+                [],  # No obligations
+            ]
+        )
 
         result = await hypergraph_client.check_violations(
             action_type="tool_call",
@@ -187,11 +190,19 @@ class TestEOSHypergraphClient:
         mock_neo4j: MockNeo4jClient,
     ) -> None:
         """Test check_violations when prohibition is found."""
-        mock_neo4j.set_read_results([
-            [{"prohibition": "no_deploy", "description": "Deployments blocked", "severity": "high"}],
-            [{"capability": "deploy", "scope": "all", "risk_class": "high"}],
-            [],
-        ])
+        mock_neo4j.set_read_results(
+            [
+                [
+                    {
+                        "prohibition": "no_deploy",
+                        "description": "Deployments blocked",
+                        "severity": "high",
+                    }
+                ],
+                [{"capability": "deploy", "scope": "all", "risk_class": "high"}],
+                [],
+            ]
+        )
 
         result = await hypergraph_client.check_violations(
             action_type="deploy",
@@ -210,11 +221,13 @@ class TestEOSHypergraphClient:
         mock_neo4j: MockNeo4jClient,
     ) -> None:
         """Test check_violations when agent lacks capability."""
-        mock_neo4j.set_read_results([
-            [],  # No prohibitions
-            [],  # No capabilities
-            [],  # No obligations
-        ])
+        mock_neo4j.set_read_results(
+            [
+                [],  # No prohibitions
+                [],  # No capabilities
+                [],  # No obligations
+            ]
+        )
 
         result = await hypergraph_client.check_violations(
             action_type="deploy",
@@ -283,12 +296,24 @@ class TestEOSHypergraphClient:
         mock_neo4j: MockNeo4jClient,
     ) -> None:
         """Test getting agent capabilities."""
-        mock_neo4j.set_read_results([
+        mock_neo4j.set_read_results(
             [
-                {"name": "tool_call", "action_type": "tool_call", "scope": "all", "risk_class": "low"},
-                {"name": "code_diff", "action_type": "code_diff", "scope": "workspace", "risk_class": "medium"},
+                [
+                    {
+                        "name": "tool_call",
+                        "action_type": "tool_call",
+                        "scope": "all",
+                        "risk_class": "low",
+                    },
+                    {
+                        "name": "code_diff",
+                        "action_type": "code_diff",
+                        "scope": "workspace",
+                        "risk_class": "medium",
+                    },
+                ]
             ]
-        ])
+        )
 
         capabilities = await hypergraph_client.get_agent_capabilities("agent-001")
 
@@ -517,17 +542,25 @@ class TestAccountabilityEngineIntegration:
         mock_neo4j: MockNeo4jClient,
     ) -> None:
         """Test AccountabilityEngine uses hypergraph client."""
-        from core.eos import AccountabilityEngine, ActionEnvelope, ActionType, Environment, RiskClass
+        from core.eos import (
+            AccountabilityEngine,
+            ActionEnvelope,
+            ActionType,
+            Environment,
+            RiskClass,
+        )
 
         hypergraph = EOSHypergraphClient(neo4j_client=mock_neo4j)
         engine = AccountabilityEngine(hypergraph_client=hypergraph)
 
         # Set up mock to return capabilities
-        mock_neo4j.set_read_results([
-            [],  # No prohibitions
-            [{"capability": "tool_call", "scope": "all", "risk_class": "low"}],
-            [],  # No obligations
-        ])
+        mock_neo4j.set_read_results(
+            [
+                [],  # No prohibitions
+                [{"capability": "tool_call", "scope": "all", "risk_class": "low"}],
+                [],  # No obligations
+            ]
+        )
 
         action = ActionEnvelope(
             agent_id="agent-001",
@@ -540,7 +573,7 @@ class TestAccountabilityEngineIntegration:
             risk_class=RiskClass.LOW,
         )
 
-        verdict, violations = await engine.evaluate_action(action)
+        _verdict, _violations = await engine.evaluate_action(action)
 
         # Hypergraph was queried
         assert len(mock_neo4j.queries) >= 1
@@ -551,7 +584,13 @@ class TestAccountabilityEngineIntegration:
         mock_substrate: MockSubstrateService,
     ) -> None:
         """Test AccountabilityEngine uses ledger writer."""
-        from core.eos import AccountabilityEngine, ActionEnvelope, ActionType, Environment, RiskClass
+        from core.eos import (
+            AccountabilityEngine,
+            ActionEnvelope,
+            ActionType,
+            Environment,
+            RiskClass,
+        )
 
         ledger = EOSLedgerWriter(substrate_service=mock_substrate)
         engine = AccountabilityEngine(ledger_writer=ledger)
@@ -567,7 +606,7 @@ class TestAccountabilityEngineIntegration:
             risk_class=RiskClass.MEDIUM,  # Medium+ triggers ledger write
         )
 
-        verdict, violations = await engine.evaluate_action(action)
+        _verdict, _violations = await engine.evaluate_action(action)
 
         # Ledger was written
         assert len(mock_substrate.packets) >= 1

@@ -11,8 +11,7 @@ from pathlib import Path
 import pytest
 
 from tools.adr.adr_generator import generate_adr, slugify
-from tools.adr.adr_indexer import (build_index, extract_adr_metadata,
-                                   get_next_adr_number)
+from tools.adr.adr_indexer import build_index, extract_adr_metadata, get_next_adr_number
 from tools.adr.adr_validator import validate_adr, validate_all_adrs
 
 # Fixtures
@@ -34,11 +33,11 @@ def sample_adr_content():
 
 ## Status
 
-**Status:** Accepted  
-**Date:** 2026-01-20  
-**Author:** @test-user  
-**Stakeholders:** @team1, @team2  
-**Supersedes:** None  
+**Status:** Accepted
+**Date:** 2026-01-20
+**Author:** @test-user
+**Stakeholders:** @team1, @team2
+**Supersedes:** None
 **Superseded by:** None
 
 ## Context
@@ -93,11 +92,11 @@ Run benchmarks to verify performance.
 
 ## Metadata
 
-**Category:** Architecture  
-**Impact:** High  
-**Tier:** T2  
-**Related PRs:** #100, #101  
-**Related ADRs:** ADR-0041, ADR-0043  
+**Category:** Architecture
+**Impact:** High
+**Tier:** T2
+**Related PRs:** #100, #101
+**Related ADRs:** ADR-0041, ADR-0043
 **References:** https://protobuf.dev/
 
 ## Notes
@@ -113,9 +112,9 @@ def template_content():
 
 ## Status
 
-**Status:** [Proposed | Accepted | Deprecated | Superseded]  
-**Date:** YYYY-MM-DD  
-**Author:** @username  
+**Status:** [Proposed | Accepted | Deprecated | Superseded]
+**Date:** YYYY-MM-DD
+**Author:** @username
 
 ## Context
 
@@ -160,11 +159,11 @@ def template_content():
 
 ## Metadata
 
-**Category:** [Architecture | Infrastructure | Process | Tooling]  
-**Impact:** [High | Medium | Low]  
-**Tier:** [T1 | T2 | T3]  
-**Related PRs:** #XX, #YY  
-**Related ADRs:** ADR-AAA, ADR-BBB  
+**Category:** [Architecture | Infrastructure | Process | Tooling]
+**Impact:** [High | Medium | Low]
+**Tier:** [T1 | T2 | T3]
+**Related PRs:** #XX, #YY
+**Related ADRs:** ADR-AAA, ADR-BBB
 **References:** [Links to docs, RFCs, etc.]
 
 ## Notes
@@ -206,7 +205,7 @@ def test_generate_adr(temp_adr_dir, template_content):
     assert adr_file.name == "0042-use-protocol-buffers.md"
 
     # Check content
-    with open(adr_file, "r") as f:
+    with open(adr_file) as f:
         content = f.read()
 
     assert "ADR-0042: Use Protocol Buffers" in content

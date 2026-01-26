@@ -10,8 +10,7 @@ from pathlib import Path
 # Ensure project root is in path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from memory.substrate_dag import (SKIP_EMBEDDING_PATTERNS,
-                                  _should_skip_embedding)
+from memory.substrate_dag import SKIP_EMBEDDING_PATTERNS, _should_skip_embedding
 
 
 class TestShouldSkipEmbedding:

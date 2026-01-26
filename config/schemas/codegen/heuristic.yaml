@@ -36,39 +36,39 @@ field_definitions:
     type: string
     pattern: "^H-[A-Z]+-[0-9]{3}$"
     description: "Unique identifier (e.g., H-EXC-001)"
-  
+
   rule:
     type: string
     description: "The heuristic rule in plain English"
     examples:
       - "never_swallow_exceptions"
       - "prefer_idempotent_operations"
-  
+
   rationale:
     type: string
     description: "Why this heuristic exists"
-  
+
   why:
     type: string
     description: "Deeper explanation of the reasoning"
-  
+
   violation_signals:
     type: array
     description: "Code patterns that indicate a violation"
     examples:
       - "except: pass"
       - "bare except clause"
-  
+
   auto_fixes:
     type: array
     description: "Automatic corrections that can be applied"
-  
+
   severity:
     type: enum
     values: [critical, warning, info]
     default: warning
     description: "How important this heuristic is"
-  
+
   examples:
     type: object
     properties:
@@ -108,7 +108,6 @@ examples:
         - "try: risky_op() except: pass"
       good:
         - "try: risky_op() except SpecificError as e: logger.error(e)"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

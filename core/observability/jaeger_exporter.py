@@ -25,7 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
@@ -40,8 +40,7 @@ if TYPE_CHECKING:
 # Try to import OpenTelemetry (runtime import)
 try:
     from opentelemetry import trace as _trace
-    from opentelemetry.exporter.otlp.proto.http.trace_exporter import \
-        OTLPSpanExporter
+    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
     from opentelemetry.sdk.resources import Resource
     from opentelemetry.sdk.trace import TracerProvider
     from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -59,7 +58,7 @@ class JaegerExporter:
 
     def __init__(
         self,
-        jaeger_endpoint: Optional[str] = None,
+        jaeger_endpoint: str | None = None,
         service_name: str = "l9-observability",
     ):
         """Initialize Jaeger exporter.
@@ -154,8 +153,7 @@ class JaegerExporter:
                             otel_span.set_attribute(key, str(value))
 
                 # Add specialized span attributes
-                from .models import (ContextAssemblySpan, LLMGenerationSpan,
-                                     ToolCallSpan)
+                from .models import ContextAssemblySpan, LLMGenerationSpan, ToolCallSpan
 
                 if isinstance(span, LLMGenerationSpan):
                     otel_span.set_attribute("llm.model", span.model)
@@ -215,7 +213,7 @@ class JaegerExporter:
 
         return mapping.get(kind_str, trace.SpanKind.INTERNAL)
 
-    def export(self, spans: List[Any]) -> None:
+    def export(self, spans: list[Any]) -> None:
         """Export multiple spans to Jaeger.
 
         Args:
@@ -228,7 +226,7 @@ class JaegerExporter:
             self.export_span(span)
 
     @must_stay_async("callers use await")
-    async def export_async(self, spans: List[Any]) -> None:
+    async def export_async(self, spans: list[Any]) -> None:
         """Export spans asynchronously (same as sync for now)."""
         self.export(spans)
 
@@ -240,18 +238,18 @@ class JaegerExporter:
 
 
 # Global exporter instance
-_exporter: Optional[JaegerExporter] = None
+_exporter: JaegerExporter | None = None
 
 
-def get_jaeger_exporter() -> Optional[JaegerExporter]:
+def get_jaeger_exporter() -> JaegerExporter | None:
     """Get the global Jaeger exporter instance."""
     return _exporter
 
 
 def initialize_jaeger_exporter(
-    jaeger_endpoint: Optional[str] = None,
+    jaeger_endpoint: str | None = None,
     service_name: str = "l9-observability",
-) -> Optional[JaegerExporter]:
+) -> JaegerExporter | None:
     """Initialize the global Jaeger exporter."""
     global _exporter
     if OPENTELEMETRY_AVAILABLE:

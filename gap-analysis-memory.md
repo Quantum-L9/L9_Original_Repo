@@ -1,19 +1,19 @@
 # L9 Memory System — Complete Gap Analysis & Wiring Guide
 
-**Date:** 2026-01-11  
-**Status:** Comprehensive Gap Analysis  
+**Date:** 2026-01-11
+**Status:** Comprehensive Gap Analysis
 **Target:** `memory/` directory + spec v3.0 compliance
 
 ---
 
 ## 📊 EXECUTIVE SUMMARY
 
-| Category | Status | Count |
-|----------|--------|-------|
-| **Missing Components** | ❌ | 3 critical modules |
-| **Partial Gaps** | ⚠️ | 4 methods missing |
-| **Complete Components** | ✅ | 2/2 from Missing Components.md |
-| **Spec Compliance** | 🟠 | 65% (missing persistence, reasoning_replay, consolidation) |
+| Category                | Status | Count                                                      |
+| ----------------------- | ------ | ---------------------------------------------------------- |
+| **Missing Components**  | ❌     | 3 critical modules                                         |
+| **Partial Gaps**        | ⚠️     | 4 methods missing                                          |
+| **Complete Components** | ✅     | 2/2 from Missing Components.md                             |
+| **Spec Compliance**     | 🟠     | 65% (missing persistence, reasoning_replay, consolidation) |
 
 **Tech Debt Score:** 78% (Structure: 85%, Quality: 82%, Compliance: 65%)
 
@@ -21,17 +21,17 @@
 
 ## 📋 Doc-Code Alignment Table
 
-| Logical Component | Old Path | New Path | Router/Module | Notes |
-|-------------------|----------|----------|---------------|-------|
-| Memory API Router | api/routes/memory.py | api/memory/router.py | 17 async endpoints | 689 LOC, batch/search/health |
-| Cursor Memory Kernel | core/governance/cursor_memory_kernel.py | agents/cursor/cursor_memory_kernel.py | Session memory | 689 LOC, 33 functions |
-| Cursor Client | tools/cursor_client.py | agents/cursor/cursor_client.py | API client | 77 LOC |
-| Cursor Extractor | memory/extractor/cursor_action_extractor.py | agents/cursor/extractors/cursor_action_extractor.py | Action extraction | 661 LOC |
-| MCP Memory Routes | - | mcp_memory/src/routes/memory.py | MCP server | Separate service |
-| MCP Memory Unified | - | mcp_memory/src/routes/memory_unified.py | MCP unified | With caller tracking |
-| Memory Substrate Service | - | memory/substrate_service.py | Core memory ops | 908 LOC |
-| Memory Substrate Repository | - | memory/substrate_repository.py | DB layer | 976 LOC |
-| Memory Substrate Graph | - | memory/substrate_graph.py | Neo4j layer | 836 LOC |
+| Logical Component           | Old Path                                    | New Path                                            | Router/Module      | Notes                        |
+| --------------------------- | ------------------------------------------- | --------------------------------------------------- | ------------------ | ---------------------------- |
+| Memory API Router           | api/routes/memory.py                        | api/memory/router.py                                | 17 async endpoints | 689 LOC, batch/search/health |
+| Cursor Memory Kernel        | core/governance/cursor_memory_kernel.py     | agents/cursor/cursor_memory_kernel.py               | Session memory     | 689 LOC, 33 functions        |
+| Cursor Client               | tools/cursor_client.py                      | agents/cursor/cursor_client.py                      | API client         | 77 LOC                       |
+| Cursor Extractor            | memory/extractor/cursor_action_extractor.py | agents/cursor/extractors/cursor_action_extractor.py | Action extraction  | 661 LOC                      |
+| MCP Memory Routes           | -                                           | mcp_memory/src/routes/memory.py                     | MCP server         | Separate service             |
+| MCP Memory Unified          | -                                           | mcp_memory/src/routes/memory_unified.py             | MCP unified        | With caller tracking         |
+| Memory Substrate Service    | -                                           | memory/substrate_service.py                         | Core memory ops    | 908 LOC                      |
+| Memory Substrate Repository | -                                           | memory/substrate_repository.py                      | DB layer           | 976 LOC                      |
+| Memory Substrate Graph      | -                                           | memory/substrate_graph.py                           | Neo4j layer        | 836 LOC                      |
 
 > **Note:** All paths verified against `readme/repo-index/file_metrics.txt`. Old paths are from `architecture_decisions.md` (2026-01-11 Cursor File Organization decision).
 
@@ -41,21 +41,24 @@
 
 ### 1. `graph_search_query_builder.py`
 
-**Location:** `core/graph/query/graph_search_query_builder.py`  
-**Status:** ✅ EXISTS (created GMP-49)  
+**Location:** `core/graph/query/graph_search_query_builder.py`
+**Status:** ✅ EXISTS (created GMP-49)
 **Spec Source:** `docs/__Notes/Missing Components.md`
 
 **Current Implementation:**
+
 - ✅ DSL_TEMPLATES dict with 5 Cypher query templates
 - ✅ `build_cypher_from_intent()` function
 - ✅ `GRAPH_CACHE_SCHEMA_VERSION` computed from DSL hash
 - ✅ Matches Missing Components.md spec exactly
 
 **Where Used:**
+
 - `memory/graph_search_cache.py` — imports `GRAPH_CACHE_SCHEMA_VERSION`
 - `memory/memory_spec_v3.0.yaml` — referenced in retrieval pipeline
 
 **Wiring Status:**
+
 - ✅ Imported in `graph_search_cache.py`
 - ✅ Schema version used for cache invalidation
 - ⚠️ **NOT YET WIRED** into `RetrievalPipeline` for query building
@@ -82,6 +85,7 @@ class RetrievalPipeline:
 ```
 
 **Integration Points:**
+
 1. **RetrievalPipeline.graph_search()** — Use `build_cypher_from_intent()` for structured queries
 2. **GraphSearchCache** — Already uses `GRAPH_CACHE_SCHEMA_VERSION` ✅
 3. **API Routes** — Add `/api/v1/memory/graph/query` endpoint using query builder
@@ -90,11 +94,12 @@ class RetrievalPipeline:
 
 ### 2. `schema_registry.py`
 
-**Location:** `core/schemas/schema_registry.py`  
-**Status:** ✅ EXISTS (production-ready)  
+**Location:** `core/schemas/schema_registry.py`
+**Status:** ✅ EXISTS (production-ready)
 **Spec Source:** `docs/__Notes/Missing Components.md`
 
 **Current Implementation:**
+
 - ✅ `SchemaRegistry` singleton class
 - ✅ `read_packet()` — auto-upcasts to latest version
 - ✅ `upcast()` — chained migration paths
@@ -103,11 +108,13 @@ class RetrievalPipeline:
 - ✅ More sophisticated than Missing Components.md spec (class-based vs simple functions)
 
 **Where Used:**
+
 - `memory/substrate_repository.py` — should use for packet reads (currently direct)
 - `memory/substrate_service.py` — should use for packet validation
 - `core/schemas/packet_envelope_v2.py` — referenced in imports
 
 **Wiring Status:**
+
 - ⚠️ **NOT YET WIRED** into repository reads
 - ⚠️ **NOT YET WIRED** into service layer
 - ✅ Available for use but not integrated
@@ -139,6 +146,7 @@ class MemorySubstrateService:
 ```
 
 **Integration Points:**
+
 1. **SubstrateRepository.get_packet()** — Auto-upcast on read
 2. **SubstrateRepository.get_packets_by_thread()** — Batch upcast
 3. **MemorySubstrateService.write_packet()** — Validate schema version before write
@@ -150,31 +158,35 @@ class MemorySubstrateService:
 
 ### 1. `agent_persistence.py`
 
-**Location:** `memory/agent_persistence.py`  
-**Status:** ❌ MISSING  
-**Spec Source:** `memory/memory_spec_v3.0.yaml` lines 225-253  
+**Location:** `memory/agent_persistence.py`
+**Status:** ❌ MISSING
+**Spec Source:** `memory/memory_spec_v3.0.yaml` lines 225-253
 **Priority:** 🔴 HIGH (Cascade Score: 9.5)
 
 **Required Methods (7 total):**
 
 #### Checkpoint Management (4 methods):
+
 1. `create_checkpoint(agent_id: str, state: dict, reason: str) -> UUID`
 2. `restore_checkpoint(agent_id: str, checkpoint_id: Optional[UUID]) -> dict`
 3. `list_checkpoints(agent_id: str, limit: int) -> List[Checkpoint]`
 4. `delete_old_checkpoints(agent_id: str, keep_last: int) -> int`
 
 #### State Serialization (3 methods):
+
 5. `serialize_agent_state(agent: Any) -> dict`
 6. `deserialize_agent_state(state: dict) -> dict`
 7. `validate_checkpoint_integrity(checkpoint_id: UUID) -> bool`
 
 **Checkpoint Triggers (per spec):**
+
 - `on_agent_shutdown` — Save state when agent stops
 - `on_session_boundary` — Save at conversation boundaries
 - `on_critical_decision` — Save after high-impact decisions
 - `scheduled_hourly` — Periodic checkpointing
 
 **Retention Policy (per spec):**
+
 - Keep last N: 10
 - Keep daily for: 30 days
 - Keep weekly for: 12 weeks
@@ -183,26 +195,31 @@ class MemorySubstrateService:
 **Where Should Be Used:**
 
 1. **`core/agents/executor.py`** — AgentExecutorService
+
    - **Current:** No checkpointing on agent shutdown
    - **Should:** Call `agent_persistence.create_checkpoint()` on shutdown
    - **Location:** `AgentExecutorService.__del__()` or cleanup method
 
 2. **`core/agents/agent_instance.py`** — AgentInstance
+
    - **Current:** No state recovery on instantiation
    - **Should:** Call `agent_persistence.restore_checkpoint()` on startup
    - **Location:** `AgentInstance.__init__()` or `AgentInstance.restore_state()`
 
 3. **`core/agents/executor.py`** — After critical decisions
+
    - **Current:** No checkpointing after high-impact decisions
    - **Should:** Call `agent_persistence.create_checkpoint()` after governance approvals
    - **Location:** After `ApprovalManager.approve()` in executor loop
 
 4. **`api/server.py`** — Server startup/shutdown
+
    - **Current:** No agent state restoration on startup
    - **Should:** Restore agent states from checkpoints in `lifespan()` startup
    - **Location:** `@asynccontextmanager lifespan()` startup phase
 
 5. **`memory/ingestion.py`** — IngestionPipeline
+
    - **Current:** No checkpoint trigger on critical packets
    - **Should:** Call `agent_persistence.create_checkpoint()` when `packet_type="critical_decision"`
    - **Location:** `IngestionPipeline._store_packet()` after packet_type check
@@ -250,14 +267,14 @@ class Checkpoint(BaseModel):
 class AgentPersistence:
     """
     Agent persistence service for checkpoint management and state recovery.
-    
+
     Per memory_spec_v3.0.yaml persistence layer requirements.
     """
-    
+
     def __init__(self, repository: SubstrateRepository):
         self._repository = repository
         logger.info("AgentPersistence initialized")
-    
+
     async def create_checkpoint(
         self,
         agent_id: str,
@@ -266,20 +283,20 @@ class AgentPersistence:
     ) -> UUID:
         """
         Create a checkpoint for agent state.
-        
+
         Args:
             agent_id: Agent identifier
             state: Agent state dict (serialized)
             reason: Reason for checkpoint (e.g., "on_agent_shutdown", "on_critical_decision")
-            
+
         Returns:
             Checkpoint ID
         """
         checkpoint_id = uuid4()
-        
+
         # Serialize state
         serialized_state = self.serialize_agent_state(state)
-        
+
         # Store in agent_checkpoints table (needs migration)
         # For now, use graph_checkpoints with agent_id prefix
         await self._repository.save_checkpoint(
@@ -292,16 +309,16 @@ class AgentPersistence:
                 "created_at": datetime.utcnow().isoformat(),
             },
         )
-        
+
         logger.info(
             "Checkpoint created",
             checkpoint_id=checkpoint_id,
             agent_id=agent_id,
             reason=reason,
         )
-        
+
         return checkpoint_id
-    
+
     async def restore_checkpoint(
         self,
         agent_id: str,
@@ -309,11 +326,11 @@ class AgentPersistence:
     ) -> Optional[Dict[str, Any]]:
         """
         Restore agent state from checkpoint.
-        
+
         Args:
             agent_id: Agent identifier
             checkpoint_id: Specific checkpoint ID (None = latest)
-            
+
         Returns:
             Deserialized agent state dict, or None if not found
         """
@@ -321,14 +338,14 @@ class AgentPersistence:
         checkpoint = await self._repository.get_checkpoint(
             agent_id=f"agent_persistence:{agent_id}",
         )
-        
+
         if checkpoint and checkpoint.graph_state:
             state_dict = checkpoint.graph_state.get("state")
             if state_dict:
                 return self.deserialize_agent_state(state_dict)
-        
+
         return None
-    
+
     async def list_checkpoints(
         self,
         agent_id: str,
@@ -338,7 +355,7 @@ class AgentPersistence:
         # Query agent_checkpoints table (needs migration)
         # For now, return empty list
         return []
-    
+
     async def delete_old_checkpoints(
         self,
         agent_id: str,
@@ -351,11 +368,11 @@ class AgentPersistence:
         # - Keep weekly for: 12 weeks
         # - Keep monthly for: 6 months
         return 0
-    
+
     def serialize_agent_state(self, agent: Any) -> Dict[str, Any]:
         """
         Serialize agent state for checkpointing.
-        
+
         Handles:
         - AgentInstance state
         - AgentConfig
@@ -371,11 +388,11 @@ class AgentPersistence:
             }
         else:
             return {"state": str(agent)}
-    
+
     def deserialize_agent_state(self, state: Dict[str, Any]) -> Dict[str, Any]:
         """Deserialize agent state from checkpoint."""
         return state
-    
+
     async def validate_checkpoint_integrity(
         self,
         checkpoint_id: UUID,
@@ -391,7 +408,7 @@ class AgentPersistence:
 class AgentExecutorService:
     def __init__(self, ..., agent_persistence: Optional[AgentPersistence] = None):
         self._agent_persistence = agent_persistence
-    
+
     async def shutdown(self):
         """Save checkpoint on shutdown."""
         if self._agent_persistence:
@@ -424,9 +441,9 @@ async def lifespan(app: FastAPI):
         state = await agent_persistence.restore_checkpoint(agent_id)
         if state:
             logger.info(f"Restored state for {agent_id}")
-    
+
     yield
-    
+
     # Shutdown: Save checkpoints
     # (handled by executor shutdown)
 
@@ -434,7 +451,7 @@ async def lifespan(app: FastAPI):
 class IngestionPipeline:
     async def _store_packet(self, envelope: PacketEnvelope):
         # ... existing code ...
-        
+
         # Trigger checkpoint on critical decisions
         if envelope.packet_type == "critical_decision":
             if self._agent_persistence:
@@ -446,6 +463,7 @@ class IngestionPipeline:
 ```
 
 **Database Migration Required:**
+
 ```sql
 -- migrations/XXXX_add_agent_checkpoints.sql
 CREATE TABLE IF NOT EXISTS agent_checkpoints (
@@ -466,30 +484,34 @@ CREATE INDEX idx_agent_checkpoints_created_at ON agent_checkpoints(created_at);
 
 ### 2. `reasoning_replay.py`
 
-**Location:** `memory/reasoning_replay.py`  
-**Status:** ❌ MISSING  
-**Spec Source:** `memory/memory_spec_v3.0.yaml` lines 348-377  
+**Location:** `memory/reasoning_replay.py`
+**Status:** ❌ MISSING
+**Spec Source:** `memory/memory_spec_v3.0.yaml` lines 348-377
 **Priority:** 🔴 HIGH (Cascade Score: 8.8)
 
 **Required Methods (6 total):**
 
 #### Chain Reconstruction (3 methods):
+
 1. `reconstruct_chain(packet_id: UUID) -> ReasoningChain`
 2. `get_decision_ancestors(packet_id: UUID, max_depth: int) -> List[Packet]`
 3. `explain_decision(packet_id: UUID, format: str) -> str`
 
 #### Lineage Validation (3 methods):
+
 4. `verify_lineage_integrity(packet_id: UUID) -> bool`
 5. `detect_orphaned_packets(agent_id: str) -> List[UUID]`
 6. `repair_broken_lineage(packet_id: UUID) -> bool`
 
 **Output Formats (per spec):**
+
 - `json` — Structured JSON representation
 - `narrative` — Human-readable narrative
 - `graph_viz` — Graph visualization format
 - `mermaid` — Mermaid diagram format
 
 **Contracts (per spec):**
+
 - Must traverse: `PacketLineage.parent_ids`
 - Must return: `full_decision_dag`
 - Must handle: `cyclic_reference_detection`
@@ -498,26 +520,31 @@ CREATE INDEX idx_agent_checkpoints_created_at ON agent_checkpoints(created_at);
 **Where Should Be Used:**
 
 1. **`api/memory/router.py`** — API endpoint for decision explanation
+
    - **Current:** No endpoint for decision explanation
    - **Should:** Add `GET /api/v1/memory/reasoning/{packet_id}/explain` endpoint
    - **Location:** New route handler using `reasoning_replay.explain_decision()`
 
 2. **`core/governance/approval_manager.py`** — Decision audit trail
+
    - **Current:** No decision chain reconstruction
    - **Should:** Use `reasoning_replay.reconstruct_chain()` for approval context
    - **Location:** `ApprovalManager.request_approval()` — include decision chain
 
 3. **`memory/housekeeping.py`** — Memory maintenance
+
    - **Current:** No orphaned packet detection
    - **Should:** Use `reasoning_replay.detect_orphaned_packets()` in housekeeping
    - **Location:** `HousekeepingEngine.run_housekeeping()` — detect and repair orphans
 
 4. **`memory/substrate_service.py`** — Packet validation
+
    - **Current:** No lineage integrity checks
    - **Should:** Use `reasoning_replay.verify_lineage_integrity()` before write
    - **Location:** `MemorySubstrateService.write_packet()` — validate lineage
 
 5. **`core/agents/executor.py`** — Decision debugging
+
    - **Current:** No decision explanation in executor
    - **Should:** Use `reasoning_replay.explain_decision()` for error recovery
    - **Location:** `AgentExecutorService._handle_error()` — explain failed decisions
@@ -562,48 +589,48 @@ class ReasoningChain(BaseModel):
 class ReasoningReplay:
     """
     Reasoning replay service for decision chain reconstruction.
-    
+
     Per memory_spec_v3.0.yaml reasoning_replay pipeline requirements.
     """
-    
+
     def __init__(self, repository: SubstrateRepository):
         self._repository = repository
         self._max_depth = 50
         self._timeout_seconds = 10
         logger.info("ReasoningReplay initialized")
-    
+
     async def reconstruct_chain(
         self,
         packet_id: UUID,
     ) -> ReasoningChain:
         """
         Reconstruct full reasoning chain from packet_id.
-        
+
         Traverses PacketLineage.parent_ids to build decision DAG.
-        
+
         Args:
             packet_id: Starting packet ID
-            
+
         Returns:
             ReasoningChain with full decision DAG
         """
         visited = set()
         packets = []
         edges = []
-        
+
         async def traverse(p_id: UUID, depth: int = 0):
             if depth > self._max_depth or p_id in visited:
                 return
-            
+
             visited.add(p_id)
-            
+
             # Get packet
             packet = await self._repository.get_packet(p_id)
             if not packet:
                 return
-            
+
             packets.append(packet)
-            
+
             # Traverse parents
             if packet.lineage and packet.lineage.parent_ids:
                 for parent_id in packet.lineage.parent_ids:
@@ -613,9 +640,9 @@ class ReasoningReplay:
                         "type": packet.lineage.derivation_type or "unknown",
                     })
                     await traverse(parent_id, depth + 1)
-        
+
         await traverse(packet_id)
-        
+
         return ReasoningChain(
             root_packet_id=packet_id,
             packets=packets,
@@ -623,7 +650,7 @@ class ReasoningReplay:
             depth=len(packets),
             format="json",
         )
-    
+
     async def get_decision_ancestors(
         self,
         packet_id: UUID,
@@ -632,7 +659,7 @@ class ReasoningReplay:
         """Get all ancestor packets up to max_depth."""
         chain = await self.reconstruct_chain(packet_id)
         return chain.packets[:max_depth]
-    
+
     async def explain_decision(
         self,
         packet_id: UUID,
@@ -640,33 +667,33 @@ class ReasoningReplay:
     ) -> str:
         """
         Explain a decision in specified format.
-        
+
         Formats: json, narrative, graph_viz, mermaid
         """
         chain = await self.reconstruct_chain(packet_id)
-        
+
         if format == "json":
             return json.dumps({
                 "root_packet_id": str(chain.root_packet_id),
                 "packets": [p.model_dump() for p in chain.packets],
                 "edges": chain.edges,
             }, indent=2)
-        
+
         elif format == "narrative":
             lines = [f"Decision Chain for {packet_id}:\n"]
             for i, packet in enumerate(chain.packets):
                 lines.append(f"{i+1}. {packet.packet_type}: {packet.payload.get('content', '')[:100]}")
             return "\n".join(lines)
-        
+
         elif format == "mermaid":
             lines = ["graph TD"]
             for edge in chain.edges:
                 lines.append(f'  {edge["from"][:8]} --> {edge["to"][:8]}')
             return "\n".join(lines)
-        
+
         else:
             return f"Unsupported format: {format}"
-    
+
     async def verify_lineage_integrity(
         self,
         packet_id: UUID,
@@ -675,15 +702,15 @@ class ReasoningReplay:
         packet = await self._repository.get_packet(packet_id)
         if not packet or not packet.lineage:
             return True
-        
+
         for parent_id in packet.lineage.parent_ids:
             parent = await self._repository.get_packet(parent_id)
             if not parent:
                 logger.warning(f"Orphaned parent: {parent_id}")
                 return False
-        
+
         return True
-    
+
     async def detect_orphaned_packets(
         self,
         agent_id: str,
@@ -693,7 +720,7 @@ class ReasoningReplay:
         # Check each packet's lineage.parent_ids
         # Return list of orphaned packet IDs
         return []
-    
+
     async def repair_broken_lineage(
         self,
         packet_id: UUID,
@@ -702,19 +729,19 @@ class ReasoningReplay:
         packet = await self._repository.get_packet(packet_id)
         if not packet or not packet.lineage:
             return False
-        
+
         valid_parents = []
         for parent_id in packet.lineage.parent_ids:
             parent = await self._repository.get_packet(parent_id)
             if parent:
                 valid_parents.append(parent_id)
-        
+
         if len(valid_parents) != len(packet.lineage.parent_ids):
             # Update packet with valid parents only
             # (requires packet update method)
             logger.info(f"Repaired lineage for {packet_id}")
             return True
-        
+
         return False
 
 
@@ -738,7 +765,7 @@ class ApprovalManager:
         if request.decision_packet_id:
             chain = await self._reasoning_replay.reconstruct_chain(request.decision_packet_id)
             request.context["decision_chain"] = chain.model_dump()
-        
+
         # ... rest of approval logic
 
 # 3. memory/housekeeping.py
@@ -754,14 +781,14 @@ class HousekeepingEngine:
 class MemorySubstrateService:
     async def write_packet(self, packet_in: PacketEnvelopeIn) -> PacketWriteResult:
         envelope = packet_in.to_envelope()
-        
+
         # Validate lineage integrity before write
         if envelope.lineage and envelope.lineage.parent_ids:
             for parent_id in envelope.lineage.parent_ids:
                 parent = await self._repository.get_packet(parent_id)
                 if not parent:
                     raise ValueError(f"Invalid parent_id in lineage: {parent_id}")
-        
+
         # ... rest of write logic
 ```
 
@@ -769,20 +796,22 @@ class MemorySubstrateService:
 
 ### 3. `consolidation.py`
 
-**Location:** `memory/consolidation.py`  
-**Status:** ❌ MISSING  
-**Spec Source:** `memory/memory_spec_v3.0.yaml` lines 379-422  
+**Location:** `memory/consolidation.py`
+**Status:** ❌ MISSING
+**Spec Source:** `memory/memory_spec_v3.0.yaml` lines 379-422
 **Priority:** 🟠 MEDIUM (Cascade Score: 6.2)
 
 **Required Strategies (4 total):**
 
 #### 1. Deduplication:
+
 - **Enabled:** true
 - **Similarity threshold:** 0.95
 - **Merge policy:** keep_highest_confidence
 - **Compare fields:** subject, predicate, object
 
 #### 2. Archival:
+
 - **Enabled:** true
 - **Triggers:**
   - age_days: 90
@@ -792,6 +821,7 @@ class MemorySubstrateService:
 - **Compress payload:** true
 
 #### 3. Summarization:
+
 - **Enabled:** true
 - **Triggers:**
   - access_count_gte: 10
@@ -800,15 +830,18 @@ class MemorySubstrateService:
 - **Generate embedding:** true
 
 #### 4. TTL Expiration:
+
 - **Enabled:** true
 - **Check frequency:** daily
 - **Grace period hours:** 24
 - **Cascade delete embeddings:** true
 
 **Schedule (per spec):**
+
 - `weekly_saturday_2am_utc`
 
 **Contracts (per spec):**
+
 - Must log: `consolidation_report`
 - Must preserve: `high_importance_memories`
 - Must cascade delete: `embeddings_on_packet_delete`
@@ -817,21 +850,25 @@ class MemorySubstrateService:
 **Where Should Be Used:**
 
 1. **`memory/housekeeping.py`** — HousekeepingEngine
+
    - **Current:** No consolidation integration
    - **Should:** Call `consolidation.run_consolidation()` in housekeeping schedule
    - **Location:** `HousekeepingEngine.run_housekeeping()` — weekly consolidation
 
 2. **`api/memory/router.py`** — Manual consolidation endpoint
+
    - **Current:** No manual consolidation endpoint
    - **Should:** Add `POST /api/v1/memory/consolidation/run` endpoint
    - **Location:** New route handler
 
 3. **`memory/substrate_service.py`** — After packet deletion
+
    - **Current:** No cascade delete of embeddings
    - **Should:** Call `consolidation.cascade_delete_embeddings()` on packet delete
    - **Location:** `MemorySubstrateService.delete_packet()` — cascade delete
 
 4. **`memory/retrieval.py`** — Access tracking
+
    - **Current:** No access count tracking
    - **Should:** Track access counts for consolidation triggers
    - **Location:** `RetrievalPipeline.semantic_search()` — increment access_count
@@ -880,10 +917,10 @@ class ConsolidationReport(BaseModel):
 class Consolidation:
     """
     Memory consolidation service for memory hygiene.
-    
+
     Per memory_spec_v3.0.yaml consolidation pipeline requirements.
     """
-    
+
     def __init__(
         self,
         repository: SubstrateRepository,
@@ -893,14 +930,14 @@ class Consolidation:
         self._semantic_service = semantic_service
         self._dry_run = False
         logger.info("Consolidation initialized")
-    
+
     async def run_consolidation(
         self,
         dry_run: bool = False,
     ) -> ConsolidationReport:
         """
         Run full consolidation pipeline.
-        
+
         Strategies:
         1. Deduplication (similarity_threshold: 0.95)
         2. Archival (age_days: 90, access_count_lt: 3, importance_lt: 0.3)
@@ -909,7 +946,7 @@ class Consolidation:
         """
         self._dry_run = dry_run
         started_at = datetime.utcnow()
-        
+
         report = ConsolidationReport(
             deduplicated_count=0,
             archived_count=0,
@@ -920,42 +957,42 @@ class Consolidation:
             started_at=started_at,
             completed_at=started_at,
         )
-        
+
         try:
             # 1. Deduplication
             report.deduplicated_count = await self._deduplicate()
-            
+
             # 2. Archival
             report.archived_count = await self._archive_old_memories()
-            
+
             # 3. Summarization
             report.summarized_count = await self._summarize_frequently_accessed()
-            
+
             # 4. TTL Expiration
             report.expired_count = await self._expire_ttl_memories()
-            
+
             # 5. Preserve high-importance memories
             report.preserved_count = await self._preserve_high_importance()
-            
+
         except Exception as e:
             report.errors.append(str(e))
             logger.exception("Consolidation failed", error=str(e))
-        
+
         report.completed_at = datetime.utcnow()
-        
+
         # Emit consolidation_completed event
         # bus.emit("consolidation_completed", report.model_dump())
-        
+
         logger.info("Consolidation completed", report=report.model_dump())
         return report
-    
+
     async def _deduplicate(self) -> int:
         """Deduplicate similar memories (similarity_threshold: 0.95)."""
         # Query knowledge_facts for duplicates
         # Compare subject, predicate, object
         # Merge duplicates (keep_highest_confidence)
         return 0
-    
+
     async def _archive_old_memories(self) -> int:
         """Archive old, low-access memories."""
         # Query packets with:
@@ -965,7 +1002,7 @@ class Consolidation:
         # Move to postgres_archive_table
         # Compress payload
         return 0
-    
+
     async def _summarize_frequently_accessed(self) -> int:
         """Summarize frequently accessed memories."""
         # Query packets with:
@@ -975,7 +1012,7 @@ class Consolidation:
         # Store in memory_summaries_table
         # Generate embedding for summary
         return 0
-    
+
     async def _expire_ttl_memories(self) -> int:
         """Expire TTL-based memories."""
         # Query packets with:
@@ -983,12 +1020,12 @@ class Consolidation:
         # Delete packets
         # Cascade delete embeddings
         return 0
-    
+
     async def _preserve_high_importance(self) -> int:
         """Preserve high-importance memories (never archive/delete)."""
         # Mark high-importance memories as preserved
         return 0
-    
+
     async def cascade_delete_embeddings(self, packet_id: UUID) -> int:
         """Cascade delete embeddings when packet is deleted."""
         # Delete embeddings referencing packet_id
@@ -1026,11 +1063,11 @@ class MemorySubstrateService:
 class RetrievalPipeline:
     async def semantic_search(self, query: str, top_k: int = 10) -> SemanticSearchResult:
         result = await self._semantic_service.search(query, top_k)
-        
+
         # Track access counts for consolidation
         for hit in result.hits:
             await self._repository.increment_access_count(hit.embedding_id)
-        
+
         return result
 
 # 5. runtime/task_queue.py
@@ -1046,6 +1083,7 @@ async def schedule_consolidation():
 ```
 
 **Database Migrations Required:**
+
 ```sql
 -- migrations/XXXX_add_consolidation_tables.sql
 
@@ -1080,8 +1118,8 @@ ALTER TABLE packet_store ADD COLUMN IF NOT EXISTS has_summary BOOLEAN DEFAULT FA
 
 ### 1. `state_manager.py` — Missing `get_agent_flags()`
 
-**Location:** `memory/state_manager.py`  
-**Current State:** ✅ EXISTS (class: MemoryStateManager)  
+**Location:** `memory/state_manager.py`
+**Current State:** ✅ EXISTS (class: MemoryStateManager)
 **Missing Method:** `get_agent_flags(agent_id: str) -> dict`
 
 **Spec Requirement:** `memory_spec_v3.0.yaml` line 190
@@ -1089,11 +1127,13 @@ ALTER TABLE packet_store ADD COLUMN IF NOT EXISTS has_summary BOOLEAN DEFAULT FA
 **Where Should Be Used:**
 
 1. **`memory/retrieval.py`** — RetrievalPipeline
+
    - **Current:** No agent flags in retrieval context
    - **Should:** Call `state_manager.get_agent_flags()` in retrieval bundle
    - **Location:** `RetrievalPipeline.hybrid_search()` — include agent flags
 
 2. **`core/agents/agent_instance.py`** — AgentInstance
+
    - **Current:** No agent flags access
    - **Should:** Call `state_manager.get_agent_flags()` for agent configuration
    - **Location:** `AgentInstance.__init__()` — load agent flags
@@ -1111,7 +1151,7 @@ class MemoryStateManager:
     async def get_agent_flags(self, agent_id: str) -> Dict[str, Any]:
         """
         Get agent flags (long-term configuration).
-        
+
         Per memory_spec_v3.0.yaml state.agent_state.get_agent_flags requirement.
         """
         # Query agent_state table for flags
@@ -1133,8 +1173,8 @@ class RetrievalPipeline:
 
 ### 2. `substrate_semantic.py` — Missing `batch_store_embeddings()`
 
-**Location:** `memory/substrate_semantic.py`  
-**Current State:** ✅ EXISTS (class: SemanticService)  
+**Location:** `memory/substrate_semantic.py`
+**Current State:** ✅ EXISTS (class: SemanticService)
 **Missing Method:** `batch_store_embeddings(embeddings: List[EmbeddingInput]) -> List[UUID]`
 
 **Spec Requirement:** `memory_spec_v3.0.yaml` line 84
@@ -1142,11 +1182,13 @@ class RetrievalPipeline:
 **Where Should Be Used:**
 
 1. **`memory/ingestion.py`** — IngestionPipeline
+
    - **Current:** Single embedding per packet
    - **Should:** Use `batch_store_embeddings()` for bulk imports
    - **Location:** `IngestionPipeline.ingest_batch()` — batch embeddings
 
 2. **`scripts/export_repo_indexes.py`** — Bulk indexing
+
    - **Current:** Sequential embedding storage
    - **Should:** Use `batch_store_embeddings()` for index embeddings
    - **Location:** Bulk index generation scripts
@@ -1167,13 +1209,13 @@ class SemanticService:
     ) -> List[UUID]:
         """
         Batch store embeddings for efficiency.
-        
+
         Per memory_spec_v3.0.yaml semantic.embedding_storage.batch_store_embeddings requirement.
         """
         # Generate embeddings in batch
         texts = [e["text"] for e in embeddings]
         vectors = await self._provider.embed_batch(texts)
-        
+
         # Store in batch
         embedding_ids = []
         for i, embedding in enumerate(embeddings):
@@ -1184,7 +1226,7 @@ class SemanticService:
                 embedding_type=embedding.get("embedding_type", "content"),
             )
             embedding_ids.append(embedding_id)
-        
+
         return embedding_ids
 
 # Integration:
@@ -1201,7 +1243,7 @@ class IngestionPipeline:
                 "agent_id": packet.metadata.agent,
                 "embedding_type": "content",
             })
-        
+
         # Batch store embeddings
         embedding_ids = await self._semantic_service.batch_store_embeddings(embedding_inputs)
 ```
@@ -1210,9 +1252,10 @@ class IngestionPipeline:
 
 ### 3. `retrieval.py` — Missing Adaptive Weighted Strategy
 
-**Location:** `memory/retrieval.py`  
-**Current State:** ✅ EXISTS (class: RetrievalPipeline)  
+**Location:** `memory/retrieval.py`
+**Current State:** ✅ EXISTS (class: RetrievalPipeline)
 **Missing Features:**
+
 - `adaptive_weighted` strategy (currently static weights)
 - `query_classifier` module
 - `weight_override_policy`
@@ -1222,11 +1265,13 @@ class IngestionPipeline:
 **Where Should Be Used:**
 
 1. **`memory/retrieval.py`** — RetrievalPipeline.hybrid_search()
+
    - **Current:** Static weights for retrieval bundle
    - **Should:** Use adaptive weights based on query pattern
    - **Location:** `RetrievalPipeline.hybrid_search()` — replace static weights
 
 2. **`core/agents/agent_instance.py`** — Agent context retrieval
+
    - **Current:** No query pattern classification
    - **Should:** Classify query pattern and adjust weights
    - **Location:** `AgentInstance.assemble_context()` — use adaptive retrieval
@@ -1258,7 +1303,7 @@ QueryPattern = Literal[
 def classify_query(query: str) -> QueryPattern:
     """Classify query pattern for adaptive weight adjustment."""
     query_lower = query.lower()
-    
+
     if any(word in query_lower for word in ["who", "what", "where", "when", "which"]):
         return "entity_lookup"
     elif any(word in query_lower for word in ["why", "how", "explain", "reason"]):
@@ -1276,7 +1321,7 @@ def classify_query(query: str) -> QueryPattern:
 class RetrievalPipeline:
     def __init__(self, ..., query_classifier=None):
         self._query_classifier = query_classifier or classify_query
-    
+
     def _get_adaptive_weights(self, query_pattern: QueryPattern) -> Dict[str, float]:
         """Get adaptive weights based on query pattern."""
         base_weights = {
@@ -1285,7 +1330,7 @@ class RetrievalPipeline:
             "graph_context": 0.2,
             "facts": 0.1,
         }
-        
+
         # Adjust weights based on pattern
         if query_pattern == "entity_lookup":
             return {"recent": 0.1, "semantic_hits": 0.2, "graph_context": 0.6, "facts": 0.1}
@@ -1299,7 +1344,7 @@ class RetrievalPipeline:
             return {"recent": 0.1, "semantic_hits": 0.2, "graph_context": 0.1, "facts": 0.6}
         else:
             return base_weights
-    
+
     async def hybrid_search(
         self,
         query: str,
@@ -1310,16 +1355,16 @@ class RetrievalPipeline:
         # Classify query if pattern not provided
         if not query_pattern:
             query_pattern = self._query_classifier(query)
-        
+
         # Get adaptive weights
         weights = self._get_adaptive_weights(query_pattern)
-        
+
         # Execute retrieval with adaptive weights
         recent = await self._get_recent(limit=int(20 * weights["recent"]))
         semantic = await self.semantic_search(query, top_k=int(10 * weights["semantic_hits"]))
         graph = await self._get_graph_context(depth=2, weight=weights["graph_context"])
         facts = await self._get_facts(weight=weights["facts"])
-        
+
         # Combine and rerank
         return self._combine_results(recent, semantic, graph, facts, weights)
 ```
@@ -1328,11 +1373,12 @@ class RetrievalPipeline:
 
 ### 4. `graph_client.py` — Sync `run_query()` Method
 
-**Location:** `memory/graph_client.py` line 483  
-**Current State:** ⚠️ SYNC METHOD (blocks event loop)  
+**Location:** `memory/graph_client.py` line 483
+**Current State:** ⚠️ SYNC METHOD (blocks event loop)
 **Issue:** `run_query()` is synchronous, should be async
 
 **Where Used:**
+
 - `memory/graph_search_cache.py` — Calls `run_query()` in async context
 - `memory/substrate_graph.py` — May call `run_query()` for graph queries
 
@@ -1354,7 +1400,7 @@ class Neo4jClient:
             None,
             lambda: self.run_query(cypher, parameters),
         )
-    
+
     # Keep sync method for backward compatibility
     def run_query(self, cypher: str, parameters: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """Sync query method (deprecated, use run_query_async)."""
@@ -1368,6 +1414,7 @@ class Neo4jClient:
 ### Phase 1: Critical Components (🔴 HIGH)
 
 - [ ] **Create `memory/agent_persistence.py`**
+
   - [ ] Implement 7 required methods
   - [ ] Create database migration for `agent_checkpoints` table
   - [ ] Wire into `core/agents/executor.py` (shutdown checkpointing)
@@ -1398,29 +1445,34 @@ class Neo4jClient:
 ### Phase 3: Quick Wins (🟡 LOW)
 
 - [ ] **Add `state_manager.get_agent_flags()`**
+
   - [ ] Implement method
   - [ ] Wire into `memory/retrieval.py` (retrieval context)
   - [ ] Wire into `core/agents/agent_instance.py` (agent config)
   - [ ] Wire into `api/memory/router.py` (flags endpoint)
 
 - [ ] **Add `substrate_semantic.batch_store_embeddings()`**
+
   - [ ] Implement method
   - [ ] Wire into `memory/ingestion.py` (batch imports)
   - [ ] Wire into `scripts/export_repo_indexes.py` (bulk indexing)
   - [ ] Wire into `memory/migration_runner.py` (migration efficiency)
 
 - [ ] **Fix `graph_client.run_query()` async**
+
   - [ ] Add `run_query_async()` method
   - [ ] Update `memory/graph_search_cache.py` to use async method
   - [ ] Update `memory/substrate_graph.py` to use async method
 
 - [ ] **Add adaptive weighted strategy to `retrieval.py`**
+
   - [ ] Create `memory/query_classifier.py`
   - [ ] Update `RetrievalPipeline.hybrid_search()` with adaptive weights
   - [ ] Wire into `core/agents/agent_instance.py` (context retrieval)
   - [ ] Wire into `api/memory/router.py` (query_pattern parameter)
 
 - [ ] **Wire `graph_search_query_builder.py` into retrieval**
+
   - [ ] Update `RetrievalPipeline.graph_search()` to use query builder
   - [ ] Add `/api/v1/memory/graph/query` endpoint
 
@@ -1504,17 +1556,17 @@ Hybrid Search:
 
 ## 📊 COMPLIANCE MATRIX
 
-| Component | Spec Requirement | Current Status | Wiring Status | Priority |
-|-----------|------------------|----------------|---------------|----------|
-| `graph_search_query_builder.py` | Missing Components.md | ✅ EXISTS | ⚠️ PARTIAL | 🟡 |
-| `schema_registry.py` | Missing Components.md | ✅ EXISTS | ❌ NOT WIRED | 🟡 |
-| `agent_persistence.py` | memory_spec_v3.0.yaml | ❌ MISSING | ❌ NOT WIRED | 🔴 |
-| `reasoning_replay.py` | memory_spec_v3.0.yaml | ❌ MISSING | ❌ NOT WIRED | 🔴 |
-| `consolidation.py` | memory_spec_v3.0.yaml | ❌ MISSING | ❌ NOT WIRED | 🟠 |
-| `state_manager.get_agent_flags()` | memory_spec_v3.0.yaml | ⚠️ MISSING | ❌ NOT WIRED | 🟠 |
-| `substrate_semantic.batch_store_embeddings()` | memory_spec_v3.0.yaml | ⚠️ MISSING | ❌ NOT WIRED | 🟡 |
-| `retrieval.py` adaptive weights | memory_spec_v3.0.yaml | ⚠️ STATIC | ❌ NOT WIRED | 🟡 |
-| `graph_client.run_query()` async | Code quality | ⚠️ SYNC | ❌ NOT WIRED | 🟡 |
+| Component                                     | Spec Requirement      | Current Status | Wiring Status | Priority |
+| --------------------------------------------- | --------------------- | -------------- | ------------- | -------- |
+| `graph_search_query_builder.py`               | Missing Components.md | ✅ EXISTS      | ⚠️ PARTIAL    | 🟡       |
+| `schema_registry.py`                          | Missing Components.md | ✅ EXISTS      | ❌ NOT WIRED  | 🟡       |
+| `agent_persistence.py`                        | memory_spec_v3.0.yaml | ❌ MISSING     | ❌ NOT WIRED  | 🔴       |
+| `reasoning_replay.py`                         | memory_spec_v3.0.yaml | ❌ MISSING     | ❌ NOT WIRED  | 🔴       |
+| `consolidation.py`                            | memory_spec_v3.0.yaml | ❌ MISSING     | ❌ NOT WIRED  | 🟠       |
+| `state_manager.get_agent_flags()`             | memory_spec_v3.0.yaml | ⚠️ MISSING     | ❌ NOT WIRED  | 🟠       |
+| `substrate_semantic.batch_store_embeddings()` | memory_spec_v3.0.yaml | ⚠️ MISSING     | ❌ NOT WIRED  | 🟡       |
+| `retrieval.py` adaptive weights               | memory_spec_v3.0.yaml | ⚠️ STATIC      | ❌ NOT WIRED  | 🟡       |
+| `graph_client.run_query()` async              | Code quality          | ⚠️ SYNC        | ❌ NOT WIRED  | 🟡       |
 
 **Overall Compliance:** 65% (6/9 components complete, 3 missing, 4 partial)
 
@@ -1523,16 +1575,19 @@ Hybrid Search:
 ## 🚀 IMPLEMENTATION ROADMAP
 
 ### Sprint 1: Critical Gaps (Week 1)
+
 1. Create `agent_persistence.py` (4-6 hours)
 2. Create `reasoning_replay.py` (3-4 hours)
 3. Wire both into executor, ingestion, housekeeping (2-3 hours)
 
 ### Sprint 2: Consolidation (Week 2)
+
 1. Create `consolidation.py` (5-7 hours)
 2. Create database migrations (1-2 hours)
 3. Wire into housekeeping, API routes (2-3 hours)
 
 ### Sprint 3: Quick Wins (Week 3)
+
 1. Add missing methods (state_manager, substrate_semantic) (1-2 hours)
 2. Fix async issues (graph_client) (1 hour)
 3. Add adaptive retrieval (query_classifier + retrieval) (2-3 hours)
@@ -1545,4 +1600,3 @@ Hybrid Search:
 **GAP ANALYSIS COMPLETE** ✅
 
 All missing components identified, usage locations mapped, and proper wiring patterns defined for maximum utilization.
-

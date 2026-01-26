@@ -42,7 +42,7 @@ __dora_meta__ = {
 import asyncio
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import structlog
@@ -58,14 +58,14 @@ class MockGmailClient:
     def __init__(self):
         self.service = MagicMock()
 
-    def list_messages(self, query: str, max_results: int = 10) -> List[Dict[str, Any]]:
+    def list_messages(self, query: str, max_results: int = 10) -> list[dict[str, Any]]:
         """Mock list_messages - returns fake results."""
         return [
             {"id": "msg_1", "subject": "Test Email 1", "from": "test@example.com"},
             {"id": "msg_2", "subject": "Test Email 2", "from": "test2@example.com"},
         ]
 
-    def get_message(self, message_id: str) -> Dict[str, Any]:
+    def get_message(self, message_id: str) -> dict[str, Any]:
         """Mock get_message - returns fake message."""
         return {
             "id": message_id,
@@ -83,15 +83,15 @@ class MockGmailClient:
 
     def send_email(
         self, to: str, subject: str, body: str, attachments=None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Mock send_email - returns fake result."""
         return {"message_id": "sent_123", "thread_id": "thread_123"}
 
-    def reply_to_email(self, message_id: str, body: str) -> Dict[str, Any]:
+    def reply_to_email(self, message_id: str, body: str) -> dict[str, Any]:
         """Mock reply_to_email - returns fake result."""
         return {"message_id": "reply_123", "thread_id": "thread_123"}
 
-    def forward_email(self, message_id: str, to: str, body: str = "") -> Dict[str, Any]:
+    def forward_email(self, message_id: str, to: str, body: str = "") -> dict[str, Any]:
         """Mock forward_email - returns fake result."""
         return {"message_id": "forward_123", "thread_id": "thread_123"}
 
@@ -100,7 +100,7 @@ class IngestTracker:
     """Tracks calls to ingest_packet for verification."""
 
     def __init__(self):
-        self.calls: List[Dict[str, Any]] = []
+        self.calls: list[dict[str, Any]] = []
 
     async def mock_ingest(self, packet_in):
         """Mock ingest_packet that records calls."""
@@ -112,7 +112,7 @@ class IngestTracker:
             }
         )
 
-    def find_by_trace_id(self, trace_id: str) -> List[Dict[str, Any]]:
+    def find_by_trace_id(self, trace_id: str) -> list[dict[str, Any]]:
         """Find all ingested packets with a specific trace_id."""
         return [
             c
@@ -121,7 +121,7 @@ class IngestTracker:
             or c.get("metadata", {}).get("trace_id") == trace_id
         ]
 
-    def find_by_action(self, action: str) -> List[Dict[str, Any]]:
+    def find_by_action(self, action: str) -> list[dict[str, Any]]:
         """Find all ingested packets with a specific action."""
         return [c for c in self.calls if c.get("payload", {}).get("action") == action]
 
@@ -186,13 +186,14 @@ async def test_email_get_ingestion():
                 result = await get_email(request)
 
                 assert "trace_id" in result
-                trace_id = result["trace_id"]
+                result["trace_id"]
 
                 action_calls = tracker.find_by_action("email.get")
                 assert len(action_calls) == 2
 
                 phases = [c["payload"]["phase"] for c in action_calls]
-                assert "pre" in phases and "post" in phases
+                assert "pre" in phases
+                assert "post" in phases
 
                 # Verify message_id is in payload
                 pre_call = next(
@@ -435,11 +436,10 @@ async def run_all_tests():
         logger.info("ALL EMAIL SMOKE TESTS PASSED")
         logger.info("=" * 60)
         return 0
-    else:
-        logger.info("\n" + "=" * 60)
-        logger.error("EMAIL SMOKE TESTS FAILED - SEE ERRORS ABOVE")
-        logger.info("=" * 60)
-        return 1
+    logger.info("\n" + "=" * 60)
+    logger.error("EMAIL SMOKE TESTS FAILED - SEE ERRORS ABOVE")
+    logger.info("=" * 60)
+    return 1
 
 
 def main():

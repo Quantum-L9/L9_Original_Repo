@@ -293,18 +293,28 @@ git log -1 --oneline""",
         SessionEdge("analyze_document", "cross_reference"),
         SessionEdge("cross_reference", "gate_analysis"),
         # Analysis gate
-        SessionEdge("gate_analysis", "create_scope_lock", condition="proceed", label="Proceed"),
+        SessionEdge(
+            "gate_analysis", "create_scope_lock", condition="proceed", label="Proceed"
+        ),
         SessionEdge("gate_analysis", "end", condition="stop", label="Stop"),
         # Plan
         SessionEdge("create_scope_lock", "gate_plan"),
-        SessionEdge("gate_plan", "execute_safe_batch", condition="confirm", label="Confirmed"),
-        SessionEdge("gate_plan", "create_scope_lock", condition="revise", label="Revise"),
+        SessionEdge(
+            "gate_plan", "execute_safe_batch", condition="confirm", label="Confirmed"
+        ),
+        SessionEdge(
+            "gate_plan", "create_scope_lock", condition="revise", label="Revise"
+        ),
         # Execute safe batch
         SessionEdge("execute_safe_batch", "validate_batch"),
         SessionEdge("validate_batch", "gate_batch"),
         # Batch gate
-        SessionEdge("gate_batch", "execute_remaining", condition="continue", label="Continue"),
-        SessionEdge("gate_batch", "prepare_commit", condition="commit", label="Commit Now"),
+        SessionEdge(
+            "gate_batch", "execute_remaining", condition="continue", label="Continue"
+        ),
+        SessionEdge(
+            "gate_batch", "prepare_commit", condition="commit", label="Commit Now"
+        ),
         SessionEdge("gate_batch", "end", condition="stop", label="Stop"),
         # Execute remaining
         SessionEdge("execute_remaining", "final_validation"),

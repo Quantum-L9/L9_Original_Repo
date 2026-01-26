@@ -32,11 +32,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import contextlib
 import re
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
 
 import structlog
@@ -80,7 +81,7 @@ class ViolationPattern:
 
 
 # Patterns from feedback_loop_config.yaml
-DEFAULT_PATTERNS: List[ViolationPattern] = [
+DEFAULT_PATTERNS: list[ViolationPattern] = [
     # Ultra-Critical
     ViolationPattern(
         pattern="Library/Application Support/Cursor",
@@ -163,8 +164,8 @@ class ViolationMatch(BaseModel):
     lesson_id: str
     severity: ViolationSeverity
     description: str
-    location: Optional[str] = None
-    line_number: Optional[int] = None
+    location: str | None = None
+    line_number: int | None = None
     context: str = ""
 
 
@@ -176,7 +177,7 @@ class ViolationPatternsRequest(BaseModel):
     )
     content: str = Field(..., description="Content to scan for violations")
     source: str = Field(default="unknown", description="Source of the content")
-    context: Dict[str, Any] = Field(default_factory=dict)
+    context: dict[str, Any] = Field(default_factory=dict)
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
     model_config = {"extra": "forbid"}
@@ -188,9 +189,9 @@ class ViolationPatternsResponse(BaseModel):
     ok: bool = Field(..., description="Whether the scan succeeded")
     request_id: str = Field(..., description="Original request ID")
     violations_found: int = Field(default=0)
-    matches: List[ViolationMatch] = Field(default_factory=list)
-    highest_severity: Optional[ViolationSeverity] = None
-    error: Optional[str] = Field(None, description="Error message if failed")
+    matches: list[ViolationMatch] = Field(default_factory=list)
+    highest_severity: ViolationSeverity | None = None
+    error: str | None = Field(None, description="Error message if failed")
     duration_ms: int = Field(
         default=0, description="Processing duration in milliseconds"
     )
@@ -210,11 +211,11 @@ class ViolationPatterns:
     Scans content for patterns that indicate lesson violations.
     """
 
-    def __init__(self, custom_patterns: Optional[List[ViolationPattern]] = None):
+    def __init__(self, custom_patterns: list[ViolationPattern] | None = None):
         """Initialize with optional custom patterns."""
         self._initialized = False
         self._patterns = DEFAULT_PATTERNS + (custom_patterns or [])
-        self._compiled_patterns: Dict[str, re.Pattern] = {}
+        self._compiled_patterns: dict[str, re.Pattern] = {}
         logger.info("violation_patterns_initialized", pattern_count=len(self._patterns))
 
     # =========================================================================
@@ -333,7 +334,7 @@ class ViolationPatterns:
     # =========================================================================
 
     @must_stay_async("callers use await")
-    async def _execute(self, request: ViolationPatternsRequest) -> List[ViolationMatch]:
+    async def _execute(self, request: ViolationPatternsRequest) -> list[ViolationMatch]:
         """
         Execute pattern matching.
 
@@ -343,7 +344,7 @@ class ViolationPatterns:
         Returns:
             List of ViolationMatch for each pattern found
         """
-        matches: List[ViolationMatch] = []
+        matches: list[ViolationMatch] = []
         content = request.content
         lines = content.split("\n")
 
@@ -409,15 +410,13 @@ class ViolationPatterns:
         """Add a new pattern at runtime."""
         self._patterns.append(pattern)
         if pattern.is_regex:
-            try:
+            with contextlib.suppress(re.error):
                 self._compiled_patterns[pattern.pattern] = re.compile(
                     pattern.pattern, re.IGNORECASE
                 )
-            except re.error:
-                pass
         logger.info("pattern_added", lesson_id=pattern.lesson_id)
 
-    def get_patterns_for_lesson(self, lesson_id: str) -> List[ViolationPattern]:
+    def get_patterns_for_lesson(self, lesson_id: str) -> list[ViolationPattern]:
         """Get all patterns associated with a lesson."""
         return [p for p in self._patterns if p.lesson_id == lesson_id]
 
@@ -426,7 +425,7 @@ class ViolationPatterns:
     # =========================================================================
 
     @must_stay_async("health endpoint")
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Check service health."""
         return {
             "module": MODULE_ID,
@@ -443,7 +442,7 @@ class ViolationPatterns:
 
 
 def create_violation_patterns(
-    custom_patterns: Optional[List[ViolationPattern]] = None,
+    custom_patterns: list[ViolationPattern] | None = None,
 ) -> ViolationPatterns:
     """Factory function to create ViolationPatterns."""
     return ViolationPatterns(custom_patterns=custom_patterns)
@@ -454,16 +453,16 @@ def create_violation_patterns(
 # =============================================================================
 
 __all__ = [
-    "ViolationPatterns",
-    "ViolationPatternsRequest",
-    "ViolationPatternsResponse",
-    "ViolationMatch",
-    "ViolationPattern",
-    "ViolationSeverity",
-    "create_violation_patterns",
     "DEFAULT_PATTERNS",
     "MODULE_ID",
     "MODULE_NAME",
+    "ViolationMatch",
+    "ViolationPattern",
+    "ViolationPatterns",
+    "ViolationPatternsRequest",
+    "ViolationPatternsResponse",
+    "ViolationSeverity",
+    "create_violation_patterns",
 ]
 
 # ============================================================================

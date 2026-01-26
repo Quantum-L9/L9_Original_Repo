@@ -12,13 +12,11 @@ This module implements frontier-lab grade agent initialization:
 
 from __future__ import annotations
 
-from .bootstrap_metrics import \
-    PROMETHEUS_AVAILABLE as BOOTSTRAP_PROMETHEUS_AVAILABLE
+from .bootstrap_metrics import PROMETHEUS_AVAILABLE as BOOTSTRAP_PROMETHEUS_AVAILABLE
 from .bootstrap_metrics import BootstrapMetrics, get_bootstrap_metrics
 from .orchestrator import AgentBootstrapOrchestrator
 from .phase_0_validate import validate_agent_blueprint
-from .phase_1_load_kernels import (KERNEL_ORDER, KernelParsed,
-                                   load_and_parse_kernels)
+from .phase_1_load_kernels import KERNEL_ORDER, KernelParsed, load_and_parse_kernels
 from .phase_2_instantiate import BootstrapInstanceData, instantiate_agent
 from .phase_3_bind_kernels import bind_kernels_to_agent
 from .phase_4_load_identity import load_identity_persona
@@ -27,20 +25,20 @@ from .phase_6_wire_governance import wire_governance_gates
 from .phase_7_verify_and_lock import verify_and_lock
 
 __all__ = [
-    "AgentBootstrapOrchestrator",
-    "validate_agent_blueprint",
-    "load_and_parse_kernels",
-    "KernelParsed",
+    "BOOTSTRAP_PROMETHEUS_AVAILABLE",
     "KERNEL_ORDER",
-    "instantiate_agent",
+    "AgentBootstrapOrchestrator",
     "BootstrapInstanceData",
-    "bind_kernels_to_agent",
-    "load_identity_persona",
-    "bind_tools_and_capabilities",
-    "wire_governance_gates",
-    "verify_and_lock",
     # Metrics
     "BootstrapMetrics",
+    "KernelParsed",
+    "bind_kernels_to_agent",
+    "bind_tools_and_capabilities",
     "get_bootstrap_metrics",
-    "BOOTSTRAP_PROMETHEUS_AVAILABLE",
+    "instantiate_agent",
+    "load_and_parse_kernels",
+    "load_identity_persona",
+    "validate_agent_blueprint",
+    "verify_and_lock",
+    "wire_governance_gates",
 ]

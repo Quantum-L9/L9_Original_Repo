@@ -64,5 +64,3 @@ curl http://localhost:8000/bridge/health
 ## Monitoring
 
 Metrics exposed at `/bridge/metrics` in Prometheus format.
-
-

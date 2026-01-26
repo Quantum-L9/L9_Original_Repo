@@ -25,8 +25,7 @@ class TestResearchToolIntegration:
     @pytest.mark.asyncio
     async def test_tool_execution_returns_result(self):
         """Tool execution returns structured result."""
-        from core.tools.base_registry import (ToolMetadata, ToolRegistry,
-                                              ToolType)
+        from core.tools.base_registry import ToolMetadata, ToolRegistry, ToolType
 
         registry = ToolRegistry()
 

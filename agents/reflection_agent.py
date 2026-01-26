@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -74,8 +74,8 @@ class ReflectionAgent(BaseAgent):
 
     def __init__(
         self,
-        agent_id: Optional[str] = None,
-        config: Optional[AgentConfig] = None,
+        agent_id: str | None = None,
+        config: AgentConfig | None = None,
     ):
         """Initialize Reflection Agent."""
         super().__init__(agent_id, config)
@@ -88,7 +88,7 @@ class ReflectionAgent(BaseAgent):
     async def run(
         self,
         task: dict[str, Any],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> AgentResponse:
         """
         Execute reflection task.
@@ -169,7 +169,7 @@ Provide deep reflection:
         self,
         failure_context: dict[str, Any],
         error: str,
-        stack_trace: Optional[str] = None,
+        stack_trace: str | None = None,
     ) -> dict[str, Any]:
         """
         Analyze a specific failure.
@@ -373,7 +373,7 @@ Provide:
         self,
         history: list[dict[str, Any]],
         focus: str = "general",
-        goals: Optional[list[str]] = None,
+        goals: list[str] | None = None,
     ) -> dict[str, Any]:
         """
         Tool-callable wrapper for reflection task.
@@ -400,7 +400,7 @@ Provide:
         self,
         failure_context: dict[str, Any],
         error: str,
-        stack_trace: Optional[str] = None,
+        stack_trace: str | None = None,
     ) -> dict[str, Any]:
         """
         Tool-callable wrapper for failure analysis.
@@ -468,8 +468,8 @@ Provide:
 
 
 def create_reflection_agent(
-    agent_id: Optional[str] = None,
-    config: Optional[AgentConfig] = None,
+    agent_id: str | None = None,
+    config: AgentConfig | None = None,
 ) -> ReflectionAgent:
     """
     Factory function to create a ReflectionAgent instance.
@@ -488,9 +488,9 @@ def create_reflection_agent(
 
 
 __all__ = [
+    "SYSTEM_PROMPT",
     "ReflectionAgent",
     "create_reflection_agent",
-    "SYSTEM_PROMPT",
 ]
 
 # ============================================================================

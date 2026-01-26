@@ -81,15 +81,15 @@ log_step() {
 
 backup_postgres() {
     log_step "Backing up PostgreSQL (memories + embeddings)"
-    
+
     local backup_file="${BACKUP_DIR}/postgres_${TIMESTAMP}.sql.gz"
-    
+
     # Check container is running
     if ! docker ps --format '{{.Names}}' | grep -q "^${DB_CONTAINER}$"; then
         log_error "PostgreSQL container '$DB_CONTAINER' is not running"
         return 1
     fi
-    
+
     # Dump with all extensions and data
     docker exec "$DB_CONTAINER" pg_dump \
         -U "$DB_USER" \
@@ -100,39 +100,39 @@ backup_postgres() {
         --no-owner \
         --no-privileges \
         2>> "$LOG_FILE" | gzip > "$backup_file"
-    
+
     # Verify backup
     local size=$(stat --printf="%s" "$backup_file" 2>/dev/null || echo "0")
     if [[ "$size" -lt 1000 ]]; then
         log_error "PostgreSQL backup too small (${size} bytes) - may have failed"
         return 1
     fi
-    
+
     # Verify contains critical data
     local vector_count=$(zcat "$backup_file" | grep -c "vector" || echo "0")
     if [[ "$vector_count" -lt 10 ]]; then
         log_warn "Low vector count ($vector_count) - embeddings may be missing!"
     fi
-    
+
     local size_mb=$(echo "scale=2; $size / 1048576" | bc)
     log_info "PostgreSQL backup: ${size_mb}MB, vectors: ${vector_count}"
     log_info "File: $backup_file"
-    
+
     echo "$backup_file"
 }
 
 backup_neo4j() {
     log_step "Backing up Neo4j (graph relationships)"
-    
+
     local backup_file="${BACKUP_DIR}/neo4j_${TIMESTAMP}.tar.gz"
-    
+
     # Check if Neo4j data exists
     if [[ ! -d "$NEO4J_DATA_DIR" ]]; then
         log_warn "Neo4j data directory not found: $NEO4J_DATA_DIR"
         log_info "Skipping Neo4j backup (no data)"
         return 0
     fi
-    
+
     # Stop Neo4j for consistent backup (Community Edition doesn't support online backup)
     local neo4j_was_running=false
     if docker ps --format '{{.Names}}' | grep -q "^${NEO4J_CONTAINER}$"; then
@@ -141,70 +141,70 @@ backup_neo4j() {
         docker stop "$NEO4J_CONTAINER" >> "$LOG_FILE" 2>&1 || true
         sleep 2
     fi
-    
+
     # Create backup
     tar -czf "$backup_file" -C "$(dirname "$NEO4J_DATA_DIR")" "$(basename "$NEO4J_DATA_DIR")" 2>> "$LOG_FILE"
-    
+
     # Restart Neo4j if it was running
     if [[ "$neo4j_was_running" == "true" ]]; then
         log_info "Restarting Neo4j..."
         docker start "$NEO4J_CONTAINER" >> "$LOG_FILE" 2>&1 || true
     fi
-    
+
     local size=$(stat --printf="%s" "$backup_file" 2>/dev/null || echo "0")
     local size_mb=$(echo "scale=2; $size / 1048576" | bc)
     log_info "Neo4j backup: ${size_mb}MB"
     log_info "File: $backup_file"
-    
+
     echo "$backup_file"
 }
 
 backup_configs() {
     log_step "Backing up Configs (secrets not in git)"
-    
+
     local backup_file="${BACKUP_DIR}/config_${TIMESTAMP}.tar.gz"
     local files_to_backup=""
-    
+
     # Collect files that exist
     [[ -f "${L9_DIR}/.env" ]] && files_to_backup="${files_to_backup} ${L9_DIR}/.env"
     [[ -f "${L9_DIR}/private/kernel_hashes.json" ]] && files_to_backup="${files_to_backup} ${L9_DIR}/private/kernel_hashes.json"
-    
+
     if [[ -z "$files_to_backup" ]]; then
         log_warn "No config files found to backup"
         return 0
     fi
-    
+
     # shellcheck disable=SC2086
     tar -czf "$backup_file" $files_to_backup 2>> "$LOG_FILE" || true
-    
+
     local size=$(stat --printf="%s" "$backup_file" 2>/dev/null || echo "0")
     log_info "Config backup: ${size} bytes"
     log_info "File: $backup_file"
-    
+
     echo "$backup_file"
 }
 
 upload_to_s3() {
     log_step "Uploading to S3"
-    
+
     local files=("$@")
-    
+
     if [[ -z "$S3_BUCKET" ]]; then
         log_warn "S3_BUCKET not set - skipping S3 upload"
         return 0
     fi
-    
+
     # Check AWS CLI is available
     if ! command -v aws &> /dev/null; then
         log_error "AWS CLI not installed - skipping S3 upload"
         return 1
     fi
-    
+
     for file in "${files[@]}"; do
         if [[ -f "$file" ]]; then
             local filename=$(basename "$file")
             local prefix=""
-            
+
             # Determine S3 prefix based on filename
             case "$filename" in
                 postgres_*) prefix="postgres" ;;
@@ -212,7 +212,7 @@ upload_to_s3() {
                 config_*) prefix="config" ;;
                 *) prefix="other" ;;
             esac
-            
+
             log_info "Uploading: $filename -> s3://${S3_BUCKET}/${prefix}/"
             aws s3 cp "$file" "s3://${S3_BUCKET}/${prefix}/${filename}" \
                 --region "$S3_REGION" \
@@ -220,38 +220,38 @@ upload_to_s3() {
                 >> "$LOG_FILE" 2>&1
         fi
     done
-    
+
     log_info "S3 upload complete"
 }
 
 cleanup_old_backups() {
     log_step "Cleaning Old Local Backups"
-    
+
     # Delete backups older than LOCAL_RETENTION_DAYS
     find "$BACKUP_DIR" -name "postgres_*.sql.gz" -mtime +"$LOCAL_RETENTION_DAYS" -delete 2>/dev/null || true
     find "$BACKUP_DIR" -name "neo4j_*.tar.gz" -mtime +"$LOCAL_RETENTION_DAYS" -delete 2>/dev/null || true
     find "$BACKUP_DIR" -name "config_*.tar.gz" -mtime +"$LOCAL_RETENTION_DAYS" -delete 2>/dev/null || true
-    
+
     # Count remaining backups
     local pg_count=$(ls -1 "$BACKUP_DIR"/postgres_*.sql.gz 2>/dev/null | wc -l || echo "0")
     local neo_count=$(ls -1 "$BACKUP_DIR"/neo4j_*.tar.gz 2>/dev/null | wc -l || echo "0")
-    
+
     log_info "Local backups remaining: PostgreSQL=$pg_count, Neo4j=$neo_count"
     log_info "S3 lifecycle policy handles remote cleanup (${S3_RETENTION_DAYS} days)"
 }
 
 record_counts() {
     log_step "Recording Row Counts (for restore verification)"
-    
+
     local counts_file="${BACKUP_DIR}/counts_${TIMESTAMP}.txt"
-    
+
     docker exec "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -c "
-        SELECT 
+        SELECT
             (SELECT COUNT(*) FROM packet_store) as packets,
             (SELECT COUNT(*) FROM knowledge_facts) as facts,
             (SELECT COUNT(*) FROM semantic_facts WHERE embedding IS NOT NULL) as semantic_embeddings
     " > "$counts_file" 2>/dev/null || true
-    
+
     if [[ -f "$counts_file" ]]; then
         log_info "Row counts saved: $counts_file"
         cat "$counts_file" | tee -a "$LOG_FILE"
@@ -294,7 +294,7 @@ main() {
     local skip_neo4j=false
     local skip_cleanup=false
     local dry_run=false
-    
+
     while [[ $# -gt 0 ]]; do
         case $1 in
             --no-s3) skip_s3=true; shift ;;
@@ -305,23 +305,23 @@ main() {
             *) log_error "Unknown option: $1"; usage; exit 1 ;;
         esac
     done
-    
+
     echo ""
     log_step "L9 Memory Backup - $TIMESTAMP"
-    
+
     if [[ "$dry_run" == "true" ]]; then
         log_warn "DRY RUN - No actual backup will be created"
         log_info "Would backup: PostgreSQL, Neo4j, Configs"
         log_info "Would upload to: s3://${S3_BUCKET}/"
         exit 0
     fi
-    
+
     # Create backup directory
     mkdir -p "$BACKUP_DIR"
-    
+
     # Collect backup files
     local backup_files=()
-    
+
     # 1. PostgreSQL (critical)
     local pg_file
     if pg_file=$(backup_postgres); then
@@ -330,7 +330,7 @@ main() {
         log_error "PostgreSQL backup FAILED - aborting"
         exit 1
     fi
-    
+
     # 2. Neo4j (optional)
     if [[ "$skip_neo4j" != "true" ]]; then
         local neo_file
@@ -338,26 +338,26 @@ main() {
             [[ -n "$neo_file" ]] && backup_files+=("$neo_file")
         fi
     fi
-    
+
     # 3. Configs
     local config_file
     if config_file=$(backup_configs); then
         [[ -n "$config_file" ]] && backup_files+=("$config_file")
     fi
-    
+
     # 4. Record counts for verification
     record_counts
-    
+
     # 5. Upload to S3
     if [[ "$skip_s3" != "true" ]] && [[ ${#backup_files[@]} -gt 0 ]]; then
         upload_to_s3 "${backup_files[@]}"
     fi
-    
+
     # 6. Cleanup old local backups
     if [[ "$skip_cleanup" != "true" ]]; then
         cleanup_old_backups
     fi
-    
+
     # Summary
     log_step "Backup Complete"
     log_info "✅ L9 memory backup successful"

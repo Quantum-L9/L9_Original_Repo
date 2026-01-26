@@ -59,15 +59,15 @@ Autonomous research agent with web search and analysis capabilities
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `services/research/` | Required dependency |
+| Module                        | Purpose             |
+| ----------------------------- | ------------------- |
+| `services/research/`          | Required dependency |
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -80,8 +80,8 @@ agents/research_agent/
 ├── research_facade.py
 ```
 
-| File | Purpose |
-|------|---------|
+| File          | Purpose                 |
+| ------------- | ----------------------- |
 | `__init__.py` | Core module (PROTECTED) |
 
 ### Naming Conventions
@@ -166,9 +166,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Agents_Research feature flags
-L9_ENABLE_AGENTS_RESEARCH_TRACING: true  # Enable detailed tracing
-L9_ENABLE_AGENTS_RESEARCH_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_AGENTS_RESEARCH_AUDIT: true    # Enable audit logging
+L9_ENABLE_AGENTS_RESEARCH_TRACING: true # Enable detailed tracing
+L9_ENABLE_AGENTS_RESEARCH_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_AGENTS_RESEARCH_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -230,7 +230,6 @@ Save Perplexity output to the research results folder.
 - **File:** `research_facade.py:278`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -271,6 +270,7 @@ Agents Research operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -278,12 +278,12 @@ Agents Research operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                  | Type      | Description                    |
+| --------------------------------------- | --------- | ------------------------------ |
 | `agents_research_operation_duration_ms` | Histogram | Operation latency distribution |
-| `agents_research_operation_total` | Counter | Total operations processed |
-| `agents_research_error_total` | Counter | Total errors encountered |
-| `agents_research_active_connections` | Gauge | Current active connections |
+| `agents_research_operation_total`       | Counter   | Total operations processed     |
+| `agents_research_error_total`           | Counter   | Total errors encountered       |
+| `agents_research_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -301,6 +301,7 @@ Agents Research emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/agents_research_agent/`:
+
 - `test_agents_research.py` — Core unit tests
 - `test_agents_research_integration.py` — Integration tests (if applicable)
 
@@ -344,6 +345,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

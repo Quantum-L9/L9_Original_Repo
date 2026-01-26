@@ -58,7 +58,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncio
 import inspect
 import threading
 from collections.abc import Callable
@@ -238,7 +237,7 @@ class DIContainer:
                 )
                 raise BindingNotFoundError(
                     f"No binding registered for {interface.__name__}. "
-                    f"Available bindings: {[t.__name__ for t in self._bindings.keys()]}"
+                    f"Available bindings: {[t.__name__ for t in self._bindings]}"
                 )
 
             # Detect circular dependencies
@@ -448,7 +447,7 @@ class DIContainer:
         with self._lock:
             registrations = {}
 
-            for interface in self._bindings.keys():
+            for interface in self._bindings:
                 is_singleton = interface in self._singleton_bindings
                 is_instantiated = interface in self._singletons
 
@@ -520,7 +519,7 @@ class DIContainer:
                     if interface in self._singleton_bindings
                     else "transient"
                 )
-                for interface in self._bindings.keys()
+                for interface in self._bindings
             }
 
     def __repr__(self) -> str:

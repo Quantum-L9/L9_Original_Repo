@@ -33,8 +33,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional, Tuple
-from uuid import UUID, uuid4, uuid5
+from uuid import UUID, uuid5
 
 import structlog
 
@@ -55,7 +54,7 @@ class Message:
     seq: int
     role: str  # "user" or "assistant"
     content: str
-    timestamp: Optional[datetime] = None
+    timestamp: datetime | None = None
 
 
 @dataclass
@@ -95,7 +94,7 @@ ROLE_PATTERNS = [
 ]
 
 
-def parse_transcript(content: str) -> List[Message]:
+def parse_transcript(content: str) -> list[Message]:
     """
     Parse chat transcript into messages.
 
@@ -125,7 +124,7 @@ def parse_transcript(content: str) -> List[Message]:
         logger.warning("No role markers found in transcript")
         return []
 
-    messages: List[Message] = []
+    messages: list[Message] = []
 
     for i, match in enumerate(matches):
         # Get content between this marker and the next
@@ -158,10 +157,10 @@ def parse_transcript(content: str) -> List[Message]:
 
 
 def chunk_messages(
-    messages: List[Message],
+    messages: list[Message],
     max_chars: int = 8000,
     overlap_messages: int = 1,
-) -> List[Chunk]:
+) -> list[Chunk]:
     """
     Chunk messages for embedding.
 
@@ -176,8 +175,8 @@ def chunk_messages(
     if not messages:
         return []
 
-    chunks: List[Chunk] = []
-    buffer: List[str] = []
+    chunks: list[Chunk] = []
+    buffer: list[str] = []
     buffer_len = 0
     start_seq = 1
 
@@ -240,10 +239,10 @@ def chunk_messages(
 
 async def ingest_to_memory(
     transcript_path: str,
-    messages: List[Message],
-    chunks: List[Chunk],
+    messages: list[Message],
+    chunks: list[Chunk],
     dry_run: bool = False,
-) -> Tuple[str, int, int]:
+) -> tuple[str, int, int]:
     """
     Ingest transcript into L9 memory substrate.
 

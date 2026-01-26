@@ -54,17 +54,18 @@ async def execute_command(command, user_id, context=None, **kwargs):
 
 
 # Re-export schemas for type hints
-from core.commands.schemas import (Command, CommandResult, CommandType,
-                                   ConfirmationResult, IntentModel, IntentType,
-                                   NLPPrompt, RiskLevel)
+from core.commands.schemas import (
+    Command,
+    CommandResult,
+    CommandType,
+    ConfirmationResult,
+    IntentModel,
+    IntentType,
+    NLPPrompt,
+    RiskLevel,
+)
 
 __all__ = [
-    # Functions
-    "parse_command",
-    "is_l_command",
-    "extract_intent",
-    "confirm_intent",
-    "execute_command",
     # Schemas
     "Command",
     "CommandResult",
@@ -74,4 +75,10 @@ __all__ = [
     "IntentType",
     "NLPPrompt",
     "RiskLevel",
+    "confirm_intent",
+    "execute_command",
+    "extract_intent",
+    "is_l_command",
+    # Functions
+    "parse_command",
 ]

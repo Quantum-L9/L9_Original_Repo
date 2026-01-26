@@ -9,11 +9,17 @@ from uuid import UUID
 
 import pytest
 
-from memory.hybrid_rag import (EnrichmentStrategy, EntityExtractor,
-                               GraphEnricher, GraphEnrichment,
-                               HybridRAGPipeline, HybridSearchResult,
-                               VectorHit, get_hybrid_rag_pipeline,
-                               hybrid_search)
+from memory.hybrid_rag import (
+    EnrichmentStrategy,
+    EntityExtractor,
+    GraphEnricher,
+    GraphEnrichment,
+    HybridRAGPipeline,
+    HybridSearchResult,
+    VectorHit,
+    get_hybrid_rag_pipeline,
+    hybrid_search,
+)
 
 
 class TestEnrichmentStrategy:

@@ -49,7 +49,6 @@ import sys
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List
 
 import structlog
 
@@ -179,8 +178,7 @@ class TokenBucketLimiter:
                 return 0
 
             # Calculate wait time
-            wait_time = (1 - self.tokens) / self.rate
-            return wait_time
+            return (1 - self.tokens) / self.rate
 
     async def wait_for_token(self):
         """Wait until a token is available"""
@@ -280,7 +278,7 @@ class BatchSpecGenerator:
         self.client = PerplexityBatchClient(config)
         self.results = []
 
-    async def process_batch(self, modules: List[tuple]) -> List[dict]:
+    async def process_batch(self, modules: list[tuple]) -> list[dict]:
         """Process a batch of modules with controlled concurrency"""
 
         semaphore = asyncio.Semaphore(self.config.batch_size)
@@ -315,7 +313,7 @@ class BatchSpecGenerator:
         output_path.write_text(yaml_content)
         return output_path
 
-    async def run(self, modules: List[tuple], dry_run: bool = False) -> dict:
+    async def run(self, modules: list[tuple], dry_run: bool = False) -> dict:
         """Run batch generation"""
 
         logger.info("=" * 60)
@@ -396,7 +394,7 @@ class BatchSpecGenerator:
 # ============================================================================
 
 
-def parse_modules_file(path: Path) -> List[tuple]:
+def parse_modules_file(path: Path) -> list[tuple]:
     """Parse modules file (format: module_name | description)"""
     modules = []
     for line in path.read_text().strip().split("\n"):

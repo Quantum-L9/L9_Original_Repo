@@ -36,18 +36,19 @@ except ImportError:
     if memory_path not in sys.path:
         sys.path.insert(0, memory_path)
 
-from core.agents.executor import (AgentExecutorService,
-                                  _generate_tasks_from_query)
-from core.agents.schemas import (AgentTask, AgentType, AIOSResult,
-                                 AIOSResultType)
+from tests.core.agents.test_executor import (
+    MockAgentRegistry,
+    MockAIOSRuntime,
+    MockSubstrateService,
+    MockToolRegistry,
+)
+
+from core.agents.executor import AgentExecutorService, _generate_tasks_from_query
+from core.agents.schemas import AgentTask, AgentType, AIOSResult, AIOSResultType
 from core.governance.approvals import ApprovalManager
 from core.tools.base_registry import recall_task_history
 from core.tools.tool_graph import ToolDefinition, ToolGraph
 from orchestration.long_plan_graph import extract_tasks_from_plan
-from tests.core.agents.test_executor import (MockAgentRegistry,
-                                             MockAIOSRuntime,
-                                             MockSubstrateService,
-                                             MockToolRegistry)
 
 # =============================================================================
 # Fixtures
@@ -281,7 +282,7 @@ async def test_approval_gate_block(
     )
 
     # Execute task (should block gmp_run)
-    result = await executor.start_agent_task(task)
+    await executor.start_agent_task(task)
 
     # Verify tool was blocked
     # The executor should have attempted the tool call but it should be blocked

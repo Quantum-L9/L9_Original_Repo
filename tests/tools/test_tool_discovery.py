@@ -10,7 +10,6 @@ Version: 1.0.0
 from __future__ import annotations
 
 import importlib
-from typing import Any
 
 import pytest
 
@@ -116,9 +115,9 @@ class TestToolDiscoveryIntegration:
             except ImportError:
                 continue
 
-        assert total >= expected_min, (
-            f"Expected at least {expected_min} tools, found {total}"
-        )
+        assert (
+            total >= expected_min
+        ), f"Expected at least {expected_min} tools, found {total}"
 
 
 class TestToolRegistryIntegration:
@@ -164,7 +163,6 @@ class TestForbiddenImports:
 
     def test_no_imports_from_l_tools(self):
         """No module should import from runtime.l_tools."""
-        import ast
         from pathlib import Path
 
         root = Path(__file__).parent.parent.parent

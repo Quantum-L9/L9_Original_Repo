@@ -8,60 +8,58 @@ and blocks execution paths that violate high-authority constraints.
 Core Principle: No verdict → no execution. No ledger entry → no verdict.
 """
 
-from .schemas import (
-    # Enums
-    EpistemicObjectType,
-    Enforceability,
-    ActionType,
-    Environment,
-    RiskClass,
-    VerdictDecision,
-    ConditionType,
-    DoctrineSource,
-    AuthorityLevel,
-    # Models
-    EpistemicEmbeddings,
-    Provenance,
-    EpistemicObject,
-    ExecutableDoctrine,
-    ActionEnvelope,
-    Condition,
-    Verdict,
-    Evidence,
-    LedgerEntry,
-)
-
 from .accountability_engine import AccountabilityEngine
 from .hypergraph_client import EOSHypergraphClient, create_eos_hypergraph_client
 from .ledger_writer import EOSLedgerWriter, create_eos_ledger_writer
-
+from .schemas import (
+    ActionEnvelope,
+    ActionType,
+    AuthorityLevel,
+    Condition,
+    ConditionType,
+    DoctrineSource,
+    Enforceability,
+    Environment,
+    # Models
+    EpistemicEmbeddings,
+    EpistemicObject,
+    # Enums
+    EpistemicObjectType,
+    Evidence,
+    ExecutableDoctrine,
+    LedgerEntry,
+    Provenance,
+    RiskClass,
+    Verdict,
+    VerdictDecision,
+)
 
 __all__ = [
-    # Enums
-    "EpistemicObjectType",
-    "Enforceability",
-    "ActionType",
-    "Environment",
-    "RiskClass",
-    "VerdictDecision",
-    "ConditionType",
-    "DoctrineSource",
-    "AuthorityLevel",
-    # Models
-    "EpistemicEmbeddings",
-    "Provenance",
-    "EpistemicObject",
-    "ExecutableDoctrine",
-    "ActionEnvelope",
-    "Condition",
-    "Verdict",
-    "Evidence",
-    "LedgerEntry",
     # Engine
     "AccountabilityEngine",
+    "ActionEnvelope",
+    "ActionType",
+    "AuthorityLevel",
+    "Condition",
+    "ConditionType",
+    "DoctrineSource",
     # Clients
     "EOSHypergraphClient",
-    "create_eos_hypergraph_client",
     "EOSLedgerWriter",
+    "Enforceability",
+    "Environment",
+    # Models
+    "EpistemicEmbeddings",
+    "EpistemicObject",
+    # Enums
+    "EpistemicObjectType",
+    "Evidence",
+    "ExecutableDoctrine",
+    "LedgerEntry",
+    "Provenance",
+    "RiskClass",
+    "Verdict",
+    "VerdictDecision",
+    "create_eos_hypergraph_client",
     "create_eos_ledger_writer",
 ]

@@ -31,7 +31,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Optional
+
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -117,7 +117,7 @@ class VectorSearchConfig:
 
 
 # Global configuration instance
-_global_config: Optional[VectorSearchConfig] = None
+_global_config: VectorSearchConfig | None = None
 
 
 def get_vector_config() -> VectorSearchConfig:

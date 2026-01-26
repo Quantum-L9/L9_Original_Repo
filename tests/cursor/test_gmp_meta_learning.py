@@ -11,10 +11,13 @@ from datetime import datetime
 
 import pytest
 
-from agents.cursor.gmp_meta_learning import (AutonomyGraduationMetrics,
-                                             AutonomyLevel, GMPExecutionResult,
-                                             GMPMetaLearningEngine,
-                                             LearnedHeuristic)
+from agents.cursor.gmp_meta_learning import (
+    AutonomyGraduationMetrics,
+    AutonomyLevel,
+    GMPExecutionResult,
+    GMPMetaLearningEngine,
+    LearnedHeuristic,
+)
 
 # ============================================================================
 # PYDANTIC MODEL TESTS

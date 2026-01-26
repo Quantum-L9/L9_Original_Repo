@@ -22,10 +22,10 @@ Safety MUST NOT:
   - Make business decisions (only enforce policies)
 """
 
-from safety.api import SafetyService, SafetyEvent, SafetyPolicyBundle
+from safety.api import SafetyEvent, SafetyPolicyBundle, SafetyService
 
 __all__ = [
-    "SafetyService",
     "SafetyEvent",
     "SafetyPolicyBundle",
+    "SafetyService",
 ]

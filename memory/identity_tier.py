@@ -46,7 +46,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -117,8 +117,8 @@ class IdentityFact:
     tags: list[str] = field(default_factory=list)
 
     # Validation
-    validated_at: Optional[datetime] = None
-    validated_by: Optional[str] = None
+    validated_at: datetime | None = None
+    validated_by: str | None = None
 
     # Timestamps
     created_at: datetime = field(default_factory=datetime.utcnow)
@@ -131,7 +131,7 @@ class IdentityFact:
 
         # Add identity tier tag
         if "identity" not in self.tags:
-            self.tags = ["identity"] + list(self.tags)
+            self.tags = ["identity", *list(self.tags)]
 
 
 # =============================================================================
@@ -156,7 +156,7 @@ class IdentityTierService:
     - Bulk import/export for identity facts
     """
 
-    def __init__(self, repository: Optional["SubstrateRepository"] = None):
+    def __init__(self, repository: SubstrateRepository | None = None):
         """
         Initialize IdentityTierService.
 
@@ -166,7 +166,7 @@ class IdentityTierService:
         self._repository = repository
         logger.info("IdentityTierService initialized")
 
-    def set_repository(self, repository: "SubstrateRepository") -> None:
+    def set_repository(self, repository: SubstrateRepository) -> None:
         """Set or update the repository reference."""
         self._repository = repository
 
@@ -177,17 +177,17 @@ class IdentityTierService:
     async def create_identity_fact(
         self,
         fact_text: str,
-        triplet: Optional[dict[str, Any]] = None,
+        triplet: dict[str, Any] | None = None,
         category: IdentityFactCategory = IdentityFactCategory.IDENTITY,
         source: IdentityFactSource = IdentityFactSource.IGOR_STATED,
-        tags: Optional[list[str]] = None,
+        tags: list[str] | None = None,
         importance: float = IDENTITY_MIN_IMPORTANCE,
         confidence: float = IDENTITY_DEFAULT_CONFIDENCE,
-        validated_by: Optional[str] = None,
-        agent_id: Optional[str] = None,
-        tenant_id: Optional[UUID] = None,
-        org_id: Optional[UUID] = None,
-        user_id: Optional[UUID] = None,
+        validated_by: str | None = None,
+        agent_id: str | None = None,
+        tenant_id: UUID | None = None,
+        org_id: UUID | None = None,
+        user_id: UUID | None = None,
     ) -> UUID:
         """
         Create a new identity tier fact.
@@ -223,7 +223,7 @@ class IdentityTierService:
             fact_tags.extend(tags)
 
         # Set validation if provided
-        validated_at = datetime.utcnow() if validated_by else None
+        datetime.utcnow() if validated_by else None
 
         # Create fact via repository
         fact_id = await self._repository.insert_semantic_fact(
@@ -252,8 +252,8 @@ class IdentityTierService:
 
     async def get_identity_facts(
         self,
-        category: Optional[IdentityFactCategory] = None,
-        tags: Optional[list[str]] = None,
+        category: IdentityFactCategory | None = None,
+        tags: list[str] | None = None,
         limit: int = 100,
     ) -> list:
         """
@@ -385,7 +385,7 @@ class IdentityTierService:
 
     async def get_identity_context(
         self,
-        categories: Optional[list[IdentityFactCategory]] = None,
+        categories: list[IdentityFactCategory] | None = None,
         max_facts: int = 20,
         format_type: str = "markdown",
     ) -> str:
@@ -436,29 +436,29 @@ class IdentityTierService:
                 indent=2,
             )
 
-        elif format_type == "text":
+        if format_type == "text":
             return "\n".join([f"- {f.fact_text}" for f in facts])
 
-        else:  # markdown (default)
-            lines = ["## Identity Core Facts\n"]
+        # markdown (default)
+        lines = ["## Identity Core Facts\n"]
 
-            # Group by category
-            categorized: dict[str, list] = {}
-            for f in facts:
-                cat = next(
-                    (t for t in f.tags if t in [c.value for c in IdentityFactCategory]),
-                    "identity",
-                )
-                if cat not in categorized:
-                    categorized[cat] = []
-                categorized[cat].append(f)
+        # Group by category
+        categorized: dict[str, list] = {}
+        for f in facts:
+            cat = next(
+                (t for t in f.tags if t in [c.value for c in IdentityFactCategory]),
+                "identity",
+            )
+            if cat not in categorized:
+                categorized[cat] = []
+            categorized[cat].append(f)
 
-            for cat, cat_facts in categorized.items():
-                lines.append(f"\n### {cat.replace('_', ' ').title()}\n")
-                for f in cat_facts:
-                    lines.append(f"- {f.fact_text}")
+        for cat, cat_facts in categorized.items():
+            lines.append(f"\n### {cat.replace('_', ' ').title()}\n")
+            for f in cat_facts:
+                lines.append(f"- {f.fact_text}")
 
-            return "\n".join(lines)
+        return "\n".join(lines)
 
     # =========================================================================
     # Bulk Operations
@@ -554,7 +554,7 @@ class IdentityTierService:
 # =============================================================================
 
 
-_identity_service: Optional[IdentityTierService] = None
+_identity_service: IdentityTierService | None = None
 
 
 def get_identity_tier_service() -> IdentityTierService:
@@ -566,7 +566,7 @@ def get_identity_tier_service() -> IdentityTierService:
 
 
 def init_identity_tier_service(
-    repository: "SubstrateRepository",
+    repository: SubstrateRepository,
 ) -> IdentityTierService:
     """Initialize the IdentityTierService with repository."""
     service = get_identity_tier_service()

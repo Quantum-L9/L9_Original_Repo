@@ -21,7 +21,7 @@ __dora_meta__ = {
 
 import os
 import subprocess
-from typing import Literal, Optional
+from typing import Literal
 
 import httpx
 import requests
@@ -55,7 +55,7 @@ app = FastAPI(title="L9 CTO Agent", version="1.0")
 class ShellTask(BaseModel):
     type: Literal["shell"]
     command: str
-    working_dir: Optional[str] = "/opt/l9"
+    working_dir: str | None = "/opt/l9"
 
 
 class MemoryHealthTask(BaseModel):
@@ -64,8 +64,8 @@ class MemoryHealthTask(BaseModel):
 
 class CompositeTask(BaseModel):
     type: str
-    command: Optional[str] = None
-    working_dir: Optional[str] = "/opt/l9"
+    command: str | None = None
+    working_dir: str | None = "/opt/l9"
 
 
 def check_auth(authorization: str = Header(...)) -> None:
@@ -131,7 +131,9 @@ def memory_health() -> dict:
             timeout=10,
         )
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Memory health call failed: {e}") from e
+        raise HTTPException(
+            status_code=502, detail=f"Memory health call failed: {e}"
+        ) from e
 
     return {
         "status_code": resp.status_code,
@@ -214,13 +216,12 @@ async def send_mac_task(command: str, timeout: int = 30) -> dict:
                     "exit_code": result.get("exit_code"),
                     "error": result.get("stderr") if not result.get("ok") else None,
                 }
-            else:
-                return {
-                    "success": False,
-                    "output": "",
-                    "exit_code": None,
-                    "error": f"HTTP {response.status_code}: {response.text}",
-                }
+            return {
+                "success": False,
+                "output": "",
+                "exit_code": None,
+                "error": f"HTTP {response.status_code}: {response.text}",
+            }
 
     except Exception as e:
         return {

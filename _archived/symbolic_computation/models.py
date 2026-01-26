@@ -25,9 +25,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Optional, Any, Union
-from pydantic import BaseModel, Field, validator
 from enum import Enum
+from typing import Any
+
+from pydantic import BaseModel, Field, validator
 
 
 class BackendType(str, Enum):
@@ -56,13 +57,13 @@ class ComputationRequest(BaseModel):
     expression: str = Field(
         ..., description="SymPy expression as string", example="x**2 + sin(x)"
     )
-    variables: List[str] = Field(
+    variables: list[str] = Field(
         ..., description="List of variable names in the expression", example=["x"]
     )
     backend: BackendType = Field(
         default=BackendType.NUMPY, description="Numerical backend to use"
     )
-    values: Dict[str, Union[float, List[float]]] = Field(
+    values: dict[str, float | list[float]] = Field(
         ..., description="Variable values for evaluation", example={"x": 1.0}
     )
     use_cache: bool = Field(
@@ -77,7 +78,7 @@ class ComputationRequest(BaseModel):
         return v.strip()
 
     @validator("variables")
-    def validate_variables(cls, v: List[str]) -> List[str]:
+    def validate_variables(cls, v: list[str]) -> list[str]:
         """Validate variables list."""
         if not v:
             raise ValueError("At least one variable must be specified")
@@ -88,7 +89,7 @@ class ComputationResult(BaseModel):
     """Result model for symbolic computation."""
 
     success: bool = Field(..., description="Whether computation succeeded")
-    result: Optional[Union[float, List[float]]] = Field(
+    result: float | list[float] | None = Field(
         None, description="Numerical result of computation"
     )
     expression_str: str = Field(
@@ -96,10 +97,10 @@ class ComputationResult(BaseModel):
     )
     backend_used: BackendType = Field(..., description="Backend that was used")
     execution_time_ms: float = Field(..., description="Execution time in milliseconds")
-    error_message: Optional[str] = Field(
+    error_message: str | None = Field(
         None, description="Error message if computation failed"
     )
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
 
@@ -108,7 +109,7 @@ class CodeGenRequest(BaseModel):
     """Request model for code generation."""
 
     expression: str = Field(..., description="SymPy expression to generate code for")
-    variables: List[str] = Field(..., description="Input variables")
+    variables: list[str] = Field(..., description="Input variables")
     language: CodeLanguage = Field(
         default=CodeLanguage.C, description="Target programming language"
     )
@@ -125,16 +126,14 @@ class CodeGenResult(BaseModel):
     """Result model for code generation."""
 
     success: bool = Field(..., description="Whether code generation succeeded")
-    source_code: Optional[str] = Field(None, description="Generated source code")
+    source_code: str | None = Field(None, description="Generated source code")
     language: CodeLanguage = Field(..., description="Target language")
     compiled: bool = Field(default=False, description="Whether code was compiled")
-    compilation_output: Optional[str] = Field(
-        None, description="Compilation output/logs"
-    )
-    error_message: Optional[str] = Field(
+    compilation_output: str | None = Field(None, description="Compilation output/logs")
+    error_message: str | None = Field(
         None, description="Error message if generation failed"
     )
-    metadata: Dict[str, Any] = Field(
+    metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
 

@@ -30,16 +30,16 @@ init:
 # ============================================================
 load_sequence:
   order:
-    1: {file: 01_master_kernel.yaml, required: true, ring: R0}
-    2: {file: 02_identity_kernel.yaml, required: true, ring: R0}
-    3: {file: 03_cognitive_kernel.yaml, required: true, ring: R1}
-    4: {file: 04_behavioral_kernel.yaml, required: true, ring: R2}
-    5: {file: 05_memory_kernel.yaml, required: true, ring: R4}
-    6: {file: 06_worldmodel_kernel.yaml, required: true, ring: R3}
-    7: {file: 07_execution_kernel.yaml, required: true, ring: R4}
-    8: {file: 08_safety_kernel.yaml, required: true, ring: R6}
-    9: {file: 09_developer_kernel.yaml, required: true, ring: R6}
-    10: {file: 10_packet_protocol_kernel.yaml, required: true, ring: R5}
+    1: { file: 01_master_kernel.yaml, required: true, ring: R0 }
+    2: { file: 02_identity_kernel.yaml, required: true, ring: R0 }
+    3: { file: 03_cognitive_kernel.yaml, required: true, ring: R1 }
+    4: { file: 04_behavioral_kernel.yaml, required: true, ring: R2 }
+    5: { file: 05_memory_kernel.yaml, required: true, ring: R4 }
+    6: { file: 06_worldmodel_kernel.yaml, required: true, ring: R3 }
+    7: { file: 07_execution_kernel.yaml, required: true, ring: R4 }
+    8: { file: 08_safety_kernel.yaml, required: true, ring: R6 }
+    9: { file: 09_developer_kernel.yaml, required: true, ring: R6 }
+    10: { file: 10_packet_protocol_kernel.yaml, required: true, ring: R5 }
   on_failure: halt_and_report
   on_success: announce_ready
 
@@ -262,7 +262,6 @@ schema:
     - lifecycle_state
     - routing_target
     - timestamp
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

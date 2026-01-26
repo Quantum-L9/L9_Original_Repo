@@ -173,7 +173,7 @@ write_rules:
     min_content_length: 20
     max_content_length: 2000
     require_kind: true
-    command: "python3 agents/cursor/cursor_memory_client.py dedupe-check \"<content>\""
+    command: 'python3 agents/cursor/cursor_memory_client.py dedupe-check "<content>"'
 
 # ============================================================================
 # MEMORY READ PATTERNS (BINDING)
@@ -190,19 +190,19 @@ read_patterns:
     queries:
       - "patterns for <task_domain>"
       - "warnings errors <task_type>"
-    command: "python3 agents/cursor/cursor_memory_client.py warn \"<task>\""
+    command: 'python3 agents/cursor/cursor_memory_client.py warn "<task>"'
 
   on_error:
     queries:
       - "error fix solution <error_message>"
       - "lesson <error_type>"
-    command: "python3 agents/cursor/cursor_memory_client.py fix-error \"<error>\""
+    command: 'python3 agents/cursor/cursor_memory_client.py fix-error "<error>"'
 
   when_uncertain:
     queries:
       - "pattern workflow <context>"
       - "previous approach <similar_task>"
-    command: "python3 agents/cursor/cursor_memory_client.py search \"<query>\""
+    command: 'python3 agents/cursor/cursor_memory_client.py search "<query>"'
 
 # ============================================================================
 # CONTEXT INJECTION LAYERS
@@ -348,7 +348,7 @@ search_optimization:
     for_important_lessons: importance
 
   query_patterns:
-    exact_concept: "\"<exact phrase>\""
+    exact_concept: '"<exact phrase>"'
     domain_scoped: "<domain> <concept> patterns"
     error_lookup: "error fix solution <error_keywords>"
     preference_lookup: "Igor prefers <topic>"
@@ -435,32 +435,32 @@ cli_commands:
     frequency: session_start
 
   inject:
-    command: "python3 agents/cursor/cursor_memory_client.py inject \"<task>\""
+    command: 'python3 agents/cursor/cursor_memory_client.py inject "<task>"'
     use_when: "Starting new task, need full context"
     frequency: task_change
 
   search:
-    command: "python3 agents/cursor/cursor_memory_client.py search \"<query>\""
+    command: 'python3 agents/cursor/cursor_memory_client.py search "<query>"'
     use_when: "Need specific information from memory"
     frequency: as_needed
 
   write:
-    command: "python3 agents/cursor/cursor_memory_client.py write \"<content>\" --kind <kind>"
+    command: 'python3 agents/cursor/cursor_memory_client.py write "<content>" --kind <kind>'
     use_when: "New lesson, preference, or insight to persist"
     frequency: on_discovery
 
   warn:
-    command: "python3 agents/cursor/cursor_memory_client.py warn \"<task>\""
+    command: 'python3 agents/cursor/cursor_memory_client.py warn "<task>"'
     use_when: "Starting risky or familiar task"
     frequency: before_risky_tasks
 
   fix_error:
-    command: "python3 agents/cursor/cursor_memory_client.py fix-error \"<error>\""
+    command: 'python3 agents/cursor/cursor_memory_client.py fix-error "<error>"'
     use_when: "Encountering an error"
     frequency: on_error
 
   dedupe_check:
-    command: "python3 agents/cursor/cursor_memory_client.py dedupe-check \"<content>\""
+    command: 'python3 agents/cursor/cursor_memory_client.py dedupe-check "<content>"'
     use_when: "Before writing new content"
     frequency: before_write
 
@@ -470,12 +470,12 @@ cli_commands:
     frequency: session_end
 
   session_resume:
-    command: "python3 agents/cursor/cursor_memory_client.py session-resume --task \"<task>\""
+    command: 'python3 agents/cursor/cursor_memory_client.py session-resume --task "<task>"'
     use_when: "Resuming from previous session"
     frequency: session_start
 
   temporal:
-    command: "python3 agents/cursor/cursor_memory_client.py temporal \"<query>\" --since <window>"
+    command: 'python3 agents/cursor/cursor_memory_client.py temporal "<query>" --since <window>'
     use_when: "Need time-scoped results"
     frequency: as_needed
 

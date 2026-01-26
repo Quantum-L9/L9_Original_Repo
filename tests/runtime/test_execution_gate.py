@@ -19,7 +19,7 @@ class TestGuardedExecuteContract:
         self,
         initialized: bool = True,
         owner: str = "igor",
-        boot_overlay: dict = None,
+        boot_overlay: dict | None = None,
     ):
         """Create a mock agent with kernel_state."""
         from runtime.kernel_state import KernelState
@@ -158,7 +158,7 @@ class TestSafetyScanning:
 class TestToolAuthorization:
     """Test tool authorization matrix."""
 
-    def _create_mock_agent(self, boot_overlay: dict = None):
+    def _create_mock_agent(self, boot_overlay: dict | None = None):
         """Create a mock agent."""
         from runtime.kernel_state import KernelState
 
@@ -370,11 +370,14 @@ class TestPublicAPI:
 
     def test_all_exports_are_importable(self):
         """All __all__ exports are importable."""
-        from runtime.execution_gate import (DEFAULT_TOOL_AUTHORIZATION,
-                                            FORBIDDEN_PATTERNS,
-                                            escalate_to_igor, guarded_execute,
-                                            select_mode_based_on_confidence,
-                                            should_escalate_on_confidence)
+        from runtime.execution_gate import (
+            DEFAULT_TOOL_AUTHORIZATION,
+            FORBIDDEN_PATTERNS,
+            escalate_to_igor,
+            guarded_execute,
+            select_mode_based_on_confidence,
+            should_escalate_on_confidence,
+        )
 
         assert callable(guarded_execute)
         assert callable(should_escalate_on_confidence)

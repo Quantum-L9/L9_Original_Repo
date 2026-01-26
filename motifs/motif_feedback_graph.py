@@ -5,10 +5,9 @@ Track motif activations, decisions, and outcomes in a traceable graph structure.
 Provides audit trail for reasoning patterns across domain packets.
 """
 
-import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, List, Any, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
@@ -24,10 +23,10 @@ class MotifEvent:
     packet_id: str = ""
     source_component: str = ""
     motif_type: str = ""
-    features: Dict[str, Any] = field(default_factory=dict)
+    features: dict[str, Any] = field(default_factory=dict)
     outcome: str = ""
     confidence: float = 0.0
-    governance_flags: Dict[str, Any] = field(default_factory=dict)
+    governance_flags: dict[str, Any] = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
 
@@ -36,8 +35,8 @@ class MotifTrace:
     """Complete trace of motif events for a packet."""
 
     packet_id: str = ""
-    events: List[MotifEvent] = field(default_factory=list)
-    edges: List[Dict[str, str]] = field(
+    events: list[MotifEvent] = field(default_factory=list)
+    edges: list[dict[str, str]] = field(
         default_factory=list
     )  # {"from": id, "to": id, "relation": str}
 
@@ -55,9 +54,9 @@ class MotifFeedbackGraph:
 
     def __init__(self):
         """Initialize the motif feedback graph."""
-        self._events: Dict[str, MotifEvent] = {}
-        self._traces: Dict[str, MotifTrace] = {}
-        self._transitions: List[Dict[str, str]] = []
+        self._events: dict[str, MotifEvent] = {}
+        self._traces: dict[str, MotifTrace] = {}
+        self._transitions: list[dict[str, str]] = []
         self.logger = logger.bind(component="MotifFeedbackGraph")
         self.logger.info("MotifFeedbackGraph initialized")
 
@@ -65,11 +64,11 @@ class MotifFeedbackGraph:
         self,
         packet_id: str,
         motif_type: str,
-        features: Dict[str, Any],
+        features: dict[str, Any],
         outcome: str,
         confidence: float,
         source_component: str = "unknown",
-        governance_flags: Optional[Dict[str, Any]] = None,
+        governance_flags: dict[str, Any] | None = None,
     ) -> MotifEvent:
         """
         Record a new motif event derived from a processed packet.
@@ -158,15 +157,15 @@ class MotifFeedbackGraph:
         """
         return self._traces.get(packet_id, MotifTrace(packet_id=packet_id))
 
-    async def get_statistics(self) -> Dict[str, Any]:
+    async def get_statistics(self) -> dict[str, Any]:
         """
         Aggregate statistics over motif events and transitions.
 
         Returns:
             Dictionary with aggregated metrics
         """
-        motif_type_counts: Dict[str, int] = {}
-        outcome_counts: Dict[str, int] = {}
+        motif_type_counts: dict[str, int] = {}
+        outcome_counts: dict[str, int] = {}
         total_confidence = 0.0
 
         for event in self._events.values():
@@ -189,7 +188,7 @@ class MotifFeedbackGraph:
             else 0.0,
         }
 
-    def get_event(self, event_id: str) -> Optional[MotifEvent]:
+    def get_event(self, event_id: str) -> MotifEvent | None:
         """Get a specific event by ID."""
         return self._events.get(event_id)
 
@@ -198,4 +197,4 @@ class MotifFeedbackGraph:
         return len(self._events)
 
 
-__all__ = ["MotifFeedbackGraph", "MotifEvent", "MotifTrace"]
+__all__ = ["MotifEvent", "MotifFeedbackGraph", "MotifTrace"]

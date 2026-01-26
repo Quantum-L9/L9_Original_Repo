@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from openai import AsyncOpenAI
@@ -146,10 +146,10 @@ class ArchitectCell(BaseCell):
 
     cell_type = "architect"
 
-    def __init__(self, config: Optional[CellConfig] = None):
+    def __init__(self, config: CellConfig | None = None):
         """Initialize the architect cell."""
         super().__init__(config)
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
 
     def _ensure_client(self) -> AsyncOpenAI:
         """Ensure OpenAI client is initialized."""
@@ -161,7 +161,7 @@ class ArchitectCell(BaseCell):
         self,
         task: dict[str, Any],
         context: dict[str, Any],
-        previous_critique: Optional[dict[str, Any]] = None,
+        previous_critique: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Run Architect A to produce architecture design."""
         client = self._ensure_client()
@@ -329,8 +329,8 @@ class ArchitectCell(BaseCell):
     async def design(
         self,
         requirements: str,
-        constraints: Optional[list[str]] = None,
-        existing_systems: Optional[list[str]] = None,
+        constraints: list[str] | None = None,
+        existing_systems: list[str] | None = None,
     ) -> dict[str, Any]:
         """
         Design an architecture from requirements.
@@ -375,8 +375,7 @@ class ArchitectCell(BaseCell):
         context = {"mode": "review"}
 
         # Run only critic
-        critique = await self._run_critic(architecture, task, context)
-        return critique
+        return await self._run_critic(architecture, task, context)
 
 
 # ============================================================================

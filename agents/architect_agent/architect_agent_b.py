@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -75,8 +75,8 @@ class ArchitectAgentB(BaseAgent):
 
     def __init__(
         self,
-        agent_id: Optional[str] = None,
-        config: Optional[AgentConfig] = None,
+        agent_id: str | None = None,
+        config: AgentConfig | None = None,
     ):
         """Initialize Architect Agent B."""
         super().__init__(agent_id, config)
@@ -88,7 +88,7 @@ class ArchitectAgentB(BaseAgent):
     async def run(
         self,
         task: dict[str, Any],
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> AgentResponse:
         """
         Execute design challenge task.

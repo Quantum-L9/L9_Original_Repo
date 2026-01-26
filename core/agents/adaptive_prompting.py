@@ -37,14 +37,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 
 logger = structlog.get_logger(__name__)
 
 
-def generate_adaptive_context(patterns: List[Dict[str, Any]]) -> str:
+def generate_adaptive_context(patterns: list[dict[str, Any]]) -> str:
     """
     Generate adaptive context from governance patterns.
 
@@ -95,7 +95,7 @@ def generate_adaptive_context(patterns: List[Dict[str, Any]]) -> str:
     return header + "\n\n".join(context_parts) + "\n---\n"
 
 
-def _extract_lessons_from_rejections(rejections: List[Dict[str, Any]]) -> str:
+def _extract_lessons_from_rejections(rejections: list[dict[str, Any]]) -> str:
     """Extract lessons from rejection patterns."""
     lessons = []
     seen_conditions = set()
@@ -148,7 +148,7 @@ def _extract_lessons_from_rejections(rejections: List[Dict[str, Any]]) -> str:
     return "\n".join(lessons[:5])  # Limit to top 5 lessons
 
 
-def _extract_lessons_from_approvals(approvals: List[Dict[str, Any]]) -> str:
+def _extract_lessons_from_approvals(approvals: list[dict[str, Any]]) -> str:
     """Extract lessons from approval patterns."""
     lessons = []
     seen_conditions = set()
@@ -224,8 +224,7 @@ async def get_world_model_context_for_agent(agent_name: str = "L") -> str:
         from core.worldmodel.service import get_world_model_service
 
         service = get_world_model_service()
-        context = await service.get_world_model_context(agent_name)
-        return context
+        return await service.get_world_model_context(agent_name)
 
     except Exception as e:
         logger.warning(f"Failed to get world model context for {agent_name}: {e}")
@@ -319,9 +318,9 @@ async def get_test_failure_context(task_id: str) -> str:
 __all__ = [
     "generate_adaptive_context",
     "get_adaptive_context_for_tool",
-    "get_world_model_context_for_agent",
     "get_combined_adaptive_context",
     "get_test_failure_context",
+    "get_world_model_context_for_agent",
 ]
 
 # ============================================================================

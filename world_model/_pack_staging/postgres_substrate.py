@@ -33,10 +33,13 @@ __dora_meta__ = {
 import json
 import logging
 from dataclasses import dataclass
-from typing import List, Optional
 
-from world_model.interfaces import (Entity, EntityTypeSchema, Relation,
-                                    RelationTypeSchema)
+from world_model.interfaces import (
+    Entity,
+    EntityTypeSchema,
+    Relation,
+    RelationTypeSchema,
+)
 from world_model.state import WorldModelState
 
 logger = logging.getLogger(__name__)
@@ -57,7 +60,7 @@ class PostgresConfig:
 class PostgresSubstrate:
     """PostgreSQL-backed persistence layer for World Model."""
 
-    def __init__(self, config: Optional[PostgresConfig] = None):
+    def __init__(self, config: PostgresConfig | None = None):
         """Initialize PostgreSQL substrate.
 
         Args:
@@ -328,7 +331,7 @@ class PostgresSubstrate:
         finally:
             self.return_connection(conn)
 
-    def load_entity(self, entity_id: str) -> Optional[Entity]:
+    def load_entity(self, entity_id: str) -> Entity | None:
         """Load entity from database.
 
         Args:
@@ -366,7 +369,7 @@ class PostgresSubstrate:
         finally:
             self.return_connection(conn)
 
-    def load_all_entities(self) -> List[Entity]:
+    def load_all_entities(self) -> list[Entity]:
         """Load all entities from database.
 
         Returns:
@@ -456,7 +459,7 @@ class PostgresSubstrate:
         finally:
             self.return_connection(conn)
 
-    def load_relation(self, relation_id: str) -> Optional[Relation]:
+    def load_relation(self, relation_id: str) -> Relation | None:
         """Load relation from database.
 
         Args:
@@ -496,7 +499,7 @@ class PostgresSubstrate:
         finally:
             self.return_connection(conn)
 
-    def load_all_relations(self) -> List[Relation]:
+    def load_all_relations(self) -> list[Relation]:
         """Load all relations from database.
 
         Returns:

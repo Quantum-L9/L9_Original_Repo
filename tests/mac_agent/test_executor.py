@@ -46,9 +46,7 @@ async def test_executor_runs_command():
 
             mock_browser.new_context.return_value = mock_context
             mock_context.new_page.return_value = mock_page
-            mock_playwright.return_value.__aenter__.return_value.chromium.launch.return_value = (
-                mock_browser
-            )
+            mock_playwright.return_value.__aenter__.return_value.chromium.launch.return_value = mock_browser
 
             # Test that executor can be initialized
             assert executor is not None

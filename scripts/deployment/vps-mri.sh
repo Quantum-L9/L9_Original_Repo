@@ -372,4 +372,3 @@ fi
 
 echo ""
 echo "Diagnostic completed at: $(date -Iseconds)"
-

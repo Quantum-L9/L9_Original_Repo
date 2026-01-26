@@ -16,15 +16,17 @@ Usage:
     await engine.activate_all_phases()
 """
 
-from core.packet_envelope.integration import (PacketEnvelopeAdapter,
-                                              PacketEnvelopeUpgradeEngine,
-                                              PacketEnvelopeUpgradePhase,
-                                              UpgradeState,
-                                              validate_deployment)
+from core.packet_envelope.integration import (
+    PacketEnvelopeAdapter,
+    PacketEnvelopeUpgradeEngine,
+    PacketEnvelopeUpgradePhase,
+    UpgradeState,
+    validate_deployment,
+)
 
 __all__ = [
-    "PacketEnvelopeUpgradeEngine",
     "PacketEnvelopeAdapter",
+    "PacketEnvelopeUpgradeEngine",
     "PacketEnvelopeUpgradePhase",
     "UpgradeState",
     "validate_deployment",

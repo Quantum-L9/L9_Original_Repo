@@ -55,10 +55,10 @@ else
     git diff --cached --name-only | head -10 | sed 's/^/    /'
     [ "$STAGED" -gt 10 ] && echo "    ... and $((STAGED - 10)) more"
     echo ""
-    
+
     # Generate commit message with timestamp
     COMMIT_MSG="deploy: $(date '+%Y-%m-%d %H:%M') - $STAGED file(s)"
-    
+
     echo "  Committing: $COMMIT_MSG"
     git commit -m "$COMMIT_MSG"
     echo "  ✅ Committed"

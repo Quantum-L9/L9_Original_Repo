@@ -35,10 +35,9 @@ MEMORY_DSN = os.getenv(
 
 
 def init_db():
-    with psycopg.connect(MEMORY_DSN, autocommit=True) as conn:
-        with conn.cursor() as cur:
-            cur.execute("CREATE SCHEMA IF NOT EXISTS memory;")
-            cur.execute("""
+    with psycopg.connect(MEMORY_DSN, autocommit=True) as conn, conn.cursor() as cur:
+        cur.execute("CREATE SCHEMA IF NOT EXISTS memory;")
+        cur.execute("""
                 CREATE TABLE IF NOT EXISTS memory.embeddings (
                     id SERIAL PRIMARY KEY,
                     source TEXT,
@@ -49,15 +48,14 @@ def init_db():
 
 
 def insert_embedding(source, content, vector=None):
-    with psycopg.connect(MEMORY_DSN, autocommit=True) as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
+    with psycopg.connect(MEMORY_DSN, autocommit=True) as conn, conn.cursor() as cur:
+        cur.execute(
+            """
                 INSERT INTO memory.embeddings (source, content, vector)
                 VALUES (%s, %s, %s);
             """,
-                (source, content, vector),
-            )
+            (source, content, vector),
+        )
 
 
 # ============================================================================

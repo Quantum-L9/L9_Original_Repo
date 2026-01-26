@@ -18,8 +18,7 @@ from unittest.mock import AsyncMock
 import pytest
 
 from services.symbolic_computation.config import SymbolicComputationConfig
-from services.symbolic_computation.core.expression_evaluator import \
-    ExpressionEvaluator
+from services.symbolic_computation.core.expression_evaluator import ExpressionEvaluator
 
 
 class TestExpressionEvaluator:

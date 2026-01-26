@@ -5,7 +5,7 @@ Cursor Session Startup CLI
 
 Run from anywhere:
     cursor-start-session
-    
+
 Or from project root:
     ./scripts/cursor-start-session
     make start-session
@@ -28,23 +28,25 @@ def main():
     print("=" * 60)
     print("🚀 CURSOR SESSION STARTUP")
     print("=" * 60)
-    
+
     startup = create_session_startup(L9_ROOT)
     result = startup.execute()
-    
+
     # Status banner
-    status_icon = {"READY": "✅", "DEGRADED": "⚠️", "BLOCKED": "❌"}.get(result.status, "?")
+    status_icon = {"READY": "✅", "DEGRADED": "⚠️", "BLOCKED": "❌"}.get(
+        result.status, "?"
+    )
     print(f"\nStatus: {status_icon} {result.status}")
     print(f"Files Loaded: {result.files_loaded.__len__()}")
     print(f"Kernel Ready: {result.kernels_ready}")
     print(f"Duration: {result.duration_ms}ms")
-    
+
     # Errors
     if result.errors:
         print("\n🔴 ERRORS:")
         for e in result.errors:
             print(f"  - {e}")
-    
+
     # Warnings
     if result.warnings:
         print("\n🟡 WARNINGS:")
@@ -52,7 +54,7 @@ def main():
             print(f"  - {w}")
         if len(result.warnings) > 5:
             print(f"  ... and {len(result.warnings) - 5} more")
-    
+
     # Key files reminder
     if result.status == "READY":
         print("\n📋 KEY FILES TO CHECK:")
@@ -60,9 +62,9 @@ def main():
         print("  2. .cursor-commands/learning/failures/repeated-mistakes.md")
         print("  3. agents/cursor/cursor_workflow_kernel.yaml — workflow contract")
         print("  4. agents/cursor/cursor_memory_kernel.yaml — memory contract")
-    
+
     print("\n" + "=" * 60)
-    
+
     # Exit code based on status
     return 0 if result.status == "READY" else (1 if result.status == "DEGRADED" else 2)
 

@@ -64,41 +64,41 @@ section() { echo -e "\n${BLUE}════════════════�
 
 check_prerequisites() {
     section "Checking Prerequisites"
-    
+
     local missing=()
-    
+
     # Check Terraform
     if ! command -v terraform &> /dev/null; then
         missing+=("terraform (brew install terraform)")
     else
         log "✓ Terraform: $(terraform version -json | jq -r '.terraform_version')"
     fi
-    
+
     # Check SSH key
     if [[ ! -f ~/.ssh/id_ed25519 && ! -f ~/.ssh/id_rsa ]]; then
         missing+=("SSH key (~/.ssh/id_ed25519 or ~/.ssh/id_rsa)")
     else
         log "✓ SSH key found"
     fi
-    
+
     # Check jq
     if ! command -v jq &> /dev/null; then
         missing+=("jq (brew install jq)")
     else
         log "✓ jq installed"
     fi
-    
+
     # Check hcloud CLI (optional but useful)
     if command -v hcloud &> /dev/null; then
         log "✓ hcloud CLI installed"
     else
         warn "hcloud CLI not installed (optional: brew install hcloud)"
     fi
-    
+
     if [[ ${#missing[@]} -gt 0 ]]; then
         error "Missing prerequisites:\n  - ${missing[*]}"
     fi
-    
+
     log "✓ All prerequisites met"
 }
 
@@ -108,12 +108,12 @@ check_prerequisites() {
 
 provision_server() {
     section "Provisioning Hetzner VPS"
-    
+
     cd "$TERRAFORM_DIR"
-    
+
     # Export token for Terraform
     export HCLOUD_TOKEN
-    
+
     # Create tfvars
     cat > terraform.tfvars << EOF
 server_name  = "$SERVER_NAME"
@@ -121,30 +121,30 @@ server_type  = "$SERVER_TYPE"
 region       = "$LOCATION"
 ssh_key_name = "$SSH_KEY_NAME"
 EOF
-    
+
     log "Terraform config:"
     cat terraform.tfvars
     echo ""
-    
+
     # Initialize Terraform
     log "Initializing Terraform..."
     terraform init -upgrade
-    
+
     # Plan
     log "Planning infrastructure..."
     terraform plan -out=tfplan
-    
+
     # Apply
     log "Applying infrastructure..."
     terraform apply tfplan
-    
+
     # Get IP
     SERVER_IP=$(terraform output -raw server_ip)
     log "✓ Server provisioned: $SERVER_IP"
-    
+
     # Save IP for later
     echo "$SERVER_IP" > "$SCRIPT_DIR/.last_server_ip"
-    
+
     cd - > /dev/null
 }
 
@@ -154,13 +154,13 @@ EOF
 
 wait_for_server() {
     section "Waiting for Server to be Ready"
-    
+
     local ip="$1"
     local max_attempts=30
     local attempt=1
-    
+
     log "Waiting for SSH on $ip..."
-    
+
     while [[ $attempt -le $max_attempts ]]; do
         if ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "root@$ip" "echo ready" 2>/dev/null; then
             log "✓ SSH is ready"
@@ -170,7 +170,7 @@ wait_for_server() {
         sleep 10
         ((attempt++))
     done
-    
+
     error "Server not ready after ${max_attempts} attempts"
 }
 
@@ -180,14 +180,14 @@ wait_for_server() {
 
 bootstrap_server() {
     section "Bootstrapping Server"
-    
+
     local ip="$1"
-    
+
     log "Running bootstrap on $ip..."
-    
+
     # Copy bootstrap script
     scp -o StrictHostKeyChecking=no "$SCRIPT_DIR/bootstrap_vps.sh" "root@$ip:/tmp/"
-    
+
     # Run bootstrap with all variables
     ssh -o StrictHostKeyChecking=no "root@$ip" << EOF
 export L9_REPO="$L9_REPO"
@@ -201,7 +201,7 @@ export S3_BUCKET="$S3_BUCKET"
 chmod +x /tmp/bootstrap_vps.sh
 /tmp/bootstrap_vps.sh
 EOF
-    
+
     log "✓ Bootstrap complete"
 }
 
@@ -211,16 +211,16 @@ EOF
 
 verify_deployment() {
     section "Verifying Deployment"
-    
+
     local ip="$1"
-    
+
     log "Checking services on $ip..."
-    
+
     # Check Docker containers
     echo ""
     log "Docker containers:"
     ssh -o StrictHostKeyChecking=no "admin@$ip" "docker ps --format 'table {{.Names}}\t{{.Status}}'" || true
-    
+
     # Check systemd services
     echo ""
     log "Systemd services:"
@@ -231,7 +231,7 @@ verify_deployment() {
             echo -e "  ${YELLOW}○${NC} $svc: not running (may be expected)"
         fi
     done
-    
+
     # Check API health
     echo ""
     log "API health check:"
@@ -240,7 +240,7 @@ verify_deployment() {
     else
         echo -e "  ${YELLOW}○${NC} API not responding (check docker logs)"
     fi
-    
+
     # Check crontab
     echo ""
     log "Crontab:"
@@ -253,18 +253,18 @@ verify_deployment() {
 
 destroy_server() {
     section "Destroying Server"
-    
+
     cd "$TERRAFORM_DIR"
     export HCLOUD_TOKEN
-    
+
     read -p "Are you sure you want to destroy the server? (yes/no): " confirm
     if [[ "$confirm" != "yes" ]]; then
         log "Aborted"
         exit 0
     fi
-    
+
     terraform destroy -auto-approve
-    
+
     log "✓ Server destroyed"
     rm -f "$SCRIPT_DIR/.last_server_ip"
 }
@@ -279,34 +279,34 @@ main() {
     echo "║         L9 One-Click VPS Deployment v1.0.0                    ║"
     echo "╚═══════════════════════════════════════════════════════════════╝"
     echo ""
-    
+
     # Handle --destroy flag
     if [[ "${1:-}" == "--destroy" ]]; then
         destroy_server
         exit 0
     fi
-    
+
     # Check prerequisites
     check_prerequisites
-    
+
     # Provision server
     provision_server
-    
+
     # Get IP
     SERVER_IP=$(cat "$SCRIPT_DIR/.last_server_ip")
-    
+
     # Wait for server
     wait_for_server "$SERVER_IP"
-    
+
     # Bootstrap
     bootstrap_server "$SERVER_IP"
-    
+
     # Verify
     verify_deployment "$SERVER_IP"
-    
+
     # Summary
     section "Deployment Complete!"
-    
+
     echo -e "${GREEN}Server IP:${NC} $SERVER_IP"
     echo -e "${GREEN}SSH:${NC} ssh admin@$SERVER_IP"
     echo -e "${GREEN}API:${NC} http://$SERVER_IP:8000"

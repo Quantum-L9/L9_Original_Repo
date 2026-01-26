@@ -19,17 +19,18 @@ class PacketEnvelope:
 
 ## Packet Kinds
 
-| Kind | Description |
-|------|-------------|
-| REASONING | Request for reasoning |
-| DECISION | Decision result |
-| TOOL_CALL | Tool execution request |
-| MEMORY_WRITE | Memory operation |
-| ESCALATION | Governance escalation |
+| Kind         | Description            |
+| ------------ | ---------------------- |
+| REASONING    | Request for reasoning  |
+| DECISION     | Decision result        |
+| TOOL_CALL    | Tool execution request |
+| MEMORY_WRITE | Memory operation       |
+| ESCALATION   | Governance escalation  |
 
 ## Routing
 
 Packets are routed based on:
+
 1. `kind` field (primary)
 2. `source_id` prefix (domain)
 3. Fallback handler (default)
@@ -37,9 +38,8 @@ Packets are routed based on:
 ## Validation
 
 All packets must pass validation:
+
 - Required fields present
 - Valid source_id format
 - Recognized kind
 - Payload < 1MB
-
-

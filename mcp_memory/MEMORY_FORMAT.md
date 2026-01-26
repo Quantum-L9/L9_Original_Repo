@@ -6,13 +6,13 @@
 python3 agents/cursor/cursor_memory_client.py write "CONTENT" --kind KIND
 ```
 
-| Arg | Required | Default |
-|-----|----------|---------|
-| `content` | Yes | - |
-| `--kind` | No | `fact` |
-| `--scope` | No | `developer` |
+| Arg       | Required | Default     |
+| --------- | -------- | ----------- |
+| `content` | Yes      | -           |
+| `--kind`  | No       | `fact`      |
+| `--scope` | No       | `developer` |
 
-**Kinds:** `fact`, `insight`, `lesson`, `milestone`, `preference`, `pattern`  
+**Kinds:** `fact`, `insight`, `lesson`, `milestone`, `preference`, `pattern`
 **Scopes:** `developer`, `l-private`, `global`
 
 ### Response
@@ -21,7 +21,14 @@ python3 agents/cursor/cursor_memory_client.py write "CONTENT" --kind KIND
 {
   "packet_id": "uuid",
   "kind": "fact",
-  "written_tables": ["packet_store", "agent_memory_events", "reasoning_traces", "semantic_memory", "knowledge_facts", "graph_checkpoints"],
+  "written_tables": [
+    "packet_store",
+    "agent_memory_events",
+    "reasoning_traces",
+    "semantic_memory",
+    "knowledge_facts",
+    "graph_checkpoints"
+  ],
   "ingest_time_ms": 1804
 }
 ```
@@ -36,7 +43,9 @@ python3 agents/cursor/cursor_memory_client.py search "QUERY" --limit 10
 
 ```json
 {
-  "results": [{"id": "uuid", "content": "...", "similarity": 0.92, "kind": "fact"}],
+  "results": [
+    { "id": "uuid", "content": "...", "similarity": 0.92, "kind": "fact" }
+  ],
   "total": 1
 }
 ```
@@ -51,9 +60,9 @@ curl -X POST "https://157.180.73.53:9001/mcp/call" \
 
 ## MCP Tools
 
-| Tool | Args |
-|------|------|
-| `save_memory` | `content`, `kind`, `scope` |
-| `search_memory` | `query`, `limit` |
-| `graph_query` | `query` (Cypher) |
-| `graph_get_entity` | `type`, `id` |
+| Tool               | Args                       |
+| ------------------ | -------------------------- |
+| `save_memory`      | `content`, `kind`, `scope` |
+| `search_memory`    | `query`, `limit`           |
+| `graph_query`      | `query` (Cypher)           |
+| `graph_get_entity` | `type`, `id`               |

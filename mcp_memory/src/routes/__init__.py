@@ -2,4 +2,4 @@
 
 from src.routes import health, memory
 
-__all__ = ["memory", "health"]
+__all__ = ["health", "memory"]

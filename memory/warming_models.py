@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -65,10 +65,10 @@ class KnowledgeGap:
     gap_type: str  # "entity_missing", "relationship_missing", "attention_uncertainty"
     severity: GapSeverity
     entity_ids: list[str]
-    attention_entropy: Optional[float] = None
+    attention_entropy: float | None = None
     confidence_score: float = 0.0
-    related_layer: Optional[int] = None
-    related_head: Optional[int] = None
+    related_layer: int | None = None
+    related_head: int | None = None
     timestamp_detected_ms: float = 0
 
 
@@ -148,7 +148,7 @@ class ThinkingOutput:
     identified_gaps: list[str]
     uncertainty_level: float  # 0.0 to 1.0
     required_memory_entities: list[str]
-    attention_entropy: Optional[float] = None
+    attention_entropy: float | None = None
 
 
 @dataclass

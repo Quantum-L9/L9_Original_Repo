@@ -53,7 +53,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import Any, Dict, Optional, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 
 class SpanKind(str, Enum):
@@ -93,8 +93,8 @@ class SpanEmitter(Protocol):
     def start_span(
         self,
         name: str,
-        trace_id: Optional[str] = None,
-        parent_span_id: Optional[str] = None,
+        trace_id: str | None = None,
+        parent_span_id: str | None = None,
         kind: SpanKind = SpanKind.INTERNAL,
         **attributes: Any,
     ) -> Any:
@@ -117,7 +117,7 @@ class SpanEmitter(Protocol):
         self,
         span: Any,
         status: SpanStatus = SpanStatus.OK,
-        error: Optional[str] = None,
+        error: str | None = None,
     ) -> None:
         """
         Finish a span.
@@ -139,7 +139,7 @@ class SpanEmitter(Protocol):
         ...
 
     def add_span_event(
-        self, span: Any, name: str, attributes: Optional[Dict[str, Any]] = None
+        self, span: Any, name: str, attributes: dict[str, Any] | None = None
     ) -> None:
         """
         Add event to span.
@@ -167,7 +167,7 @@ class MetricsCollector(Protocol):
     """
 
     def increment_counter(
-        self, name: str, value: float = 1.0, labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float = 1.0, labels: dict[str, str] | None = None
     ) -> None:
         """
         Increment a counter metric.
@@ -180,7 +180,7 @@ class MetricsCollector(Protocol):
         ...
 
     def set_gauge(
-        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: dict[str, str] | None = None
     ) -> None:
         """
         Set a gauge metric.
@@ -193,7 +193,7 @@ class MetricsCollector(Protocol):
         ...
 
     def record_histogram(
-        self, name: str, value: float, labels: Optional[Dict[str, str]] = None
+        self, name: str, value: float, labels: dict[str, str] | None = None
     ) -> None:
         """
         Record a histogram value.
@@ -205,7 +205,7 @@ class MetricsCollector(Protocol):
         """
         ...
 
-    def get_metrics(self) -> Dict[str, Any]:
+    def get_metrics(self) -> dict[str, Any]:
         """
         Get all collected metrics.
 
@@ -240,11 +240,11 @@ class TraceContext(Protocol):
         ...
 
     @property
-    def parent_span_id(self) -> Optional[str]:
+    def parent_span_id(self) -> str | None:
         """Get parent span ID."""
         ...
 
-    def to_headers(self) -> Dict[str, str]:
+    def to_headers(self) -> dict[str, str]:
         """
         Convert context to HTTP headers.
 
@@ -254,7 +254,7 @@ class TraceContext(Protocol):
         ...
 
     @classmethod
-    def from_headers(cls, headers: Dict[str, str]) -> "TraceContext":
+    def from_headers(cls, headers: dict[str, str]) -> TraceContext:
         """
         Create context from HTTP headers.
 
@@ -285,7 +285,7 @@ class LogExporter(Protocol):
         self,
         level: str,
         message: str,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -334,7 +334,7 @@ class HealthChecker(Protocol):
     - RemoteHealthChecker: Remote service health checks
     """
 
-    async def check_health(self) -> Dict[str, Any]:
+    async def check_health(self) -> dict[str, Any]:
         """
         Check system health.
 
@@ -355,7 +355,7 @@ class HealthChecker(Protocol):
         """
         ...
 
-    def get_health_summary(self) -> Dict[str, Any]:
+    def get_health_summary(self) -> dict[str, Any]:
         """
         Get health summary.
 
@@ -393,20 +393,20 @@ class ObservabilityService(Protocol):
         """Log an event."""
         ...
 
-    async def health_check(self) -> Dict[str, Any]:
+    async def health_check(self) -> dict[str, Any]:
         """Check service health."""
         ...
 
 
 __all__ = [
-    "SpanEmitter",
-    "MetricsCollector",
-    "TraceContext",
-    "LogExporter",
     "HealthChecker",
+    "LogExporter",
+    "MetricsCollector",
     "ObservabilityService",
+    "SpanEmitter",
     "SpanKind",
     "SpanStatus",
+    "TraceContext",
 ]
 
 # ============================================================================

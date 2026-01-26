@@ -18,7 +18,7 @@
 # ============================================================================
 # Version: 1.0.0
 # Created: 2026-01-21
-# 
+#
 # This file defines security scanning policies, thresholds, and enforcement
 # rules for the L9 platform. It integrates with:
 #   - .github/workflows/security-comprehensive.yml (CI/CD enforcement)
@@ -39,7 +39,7 @@ sast:
   tools:
     - bandit
     - semgrep
-  
+
   # Severity thresholds
   thresholds:
     critical:
@@ -54,7 +54,7 @@ sast:
     low:
       max_allowed: 50
       action: info
-  
+
   # Excluded paths (don't scan these)
   exclusions:
     - tests/*
@@ -64,7 +64,7 @@ sast:
     - "*.pyc"
     - dev/*
     - simulation/*
-  
+
   # Custom rules
   custom_rules:
     # Block dangerous functions
@@ -72,17 +72,17 @@ sast:
       pattern: "eval("
       severity: critical
       message: "Use of eval() is prohibited for security reasons"
-    
+
     - id: no-exec
       pattern: "exec("
       severity: critical
       message: "Use of exec() is prohibited for security reasons"
-    
+
     - id: no-shell-true
       pattern: "shell=True"
       severity: high
       message: "subprocess with shell=True is dangerous, use shlex.split() instead"
-    
+
     - id: no-hardcoded-secrets
       pattern: '(password|secret|key|token)\s*=\s*["\']'
       severity: critical
@@ -96,12 +96,12 @@ dependencies:
   tools:
     - safety
     - pip-audit
-  
+
   # Scan frequency
   schedule:
     ci_cd: always  # On every PR
     scheduled: daily  # Daily full scan
-  
+
   # Severity thresholds
   thresholds:
     critical:
@@ -116,7 +116,7 @@ dependencies:
     low:
       max_allowed: 50
       action: info
-  
+
   # Allowed vulnerabilities (with expiration)
   # Use this for false positives or vulnerabilities that don't apply
   allowlist:
@@ -126,7 +126,7 @@ dependencies:
     #   reason: "False positive - we don't use the vulnerable function"
     #   expires: "2026-03-01"
     #   reviewed_by: "security-team"
-  
+
   # Auto-update policy
   auto_update:
     enabled: false  # Manual updates for now
@@ -141,7 +141,7 @@ secrets:
   tools:
     - detect-secrets
     - trufflehog
-  
+
   # Scan scope
   scan_scope:
     current_commit: true
@@ -149,13 +149,13 @@ secrets:
     branches:
       - main
       - develop
-  
+
   # Thresholds
   thresholds:
     any_secrets:
       max_allowed: 0
       action: block
-  
+
   # Allowed patterns (for false positives)
   allowlist:
     # Example test keys
@@ -165,7 +165,7 @@ secrets:
       reason: "Test API keys"
     - pattern: "dummy_secret"
       reason: "Documentation example"
-  
+
   # Secret types to detect
   secret_types:
     - aws_access_key
@@ -186,13 +186,13 @@ containers:
   enabled: true
   tools:
     - trivy
-  
+
   # Scan targets
   targets:
     - Dockerfile
     - docker-compose.yml
     - kubernetes/*.yaml
-  
+
   # Severity thresholds
   thresholds:
     critical:
@@ -207,14 +207,14 @@ containers:
     low:
       max_allowed: 100
       action: info
-  
+
   # Base image policy
   base_images:
     approved:
       - "python:3.12-slim"
       - "python:3.12-alpine"
       - "ubuntu:22.04"
-    
+
     update_frequency: monthly
 
 # =============================================================================
@@ -222,25 +222,25 @@ containers:
 # =============================================================================
 observability:
   enabled: true
-  
+
   # Metrics to track
   metrics:
     - name: security_scan_duration_seconds
       type: histogram
       labels: [scan_type, severity]
-    
+
     - name: security_vulnerabilities_total
       type: gauge
       labels: [scan_type, severity, status]
-    
+
     - name: security_scan_failures_total
       type: counter
       labels: [scan_type, reason]
-    
+
     - name: security_policy_violations_total
       type: counter
       labels: [policy_type, action]
-  
+
   # Alerting
   alerts:
     critical_vulnerability:
@@ -251,14 +251,14 @@ observability:
       recipients:
         slack: "#security-alerts"
         email: "security@l9.ai"
-    
+
     high_vulnerability:
       enabled: true
       channels:
         - slack
       recipients:
         slack: "#engineering"
-    
+
     scan_failure:
       enabled: true
       channels:
@@ -271,20 +271,20 @@ observability:
 # =============================================================================
 governance:
   enabled: true
-  
+
   # Policy enforcement points
   enforcement_points:
     - pre_commit  # Local git hooks
     - ci_cd  # GitHub Actions
     - runtime  # Production runtime checks
-  
+
   # Audit logging
   audit:
     enabled: true
     log_level: info
     destination: memory_substrate  # Log to L9 memory
     retention_days: 90
-  
+
   # Approval requirements
   approvals:
     critical_vulnerability_exception:
@@ -306,10 +306,10 @@ environments:
     secrets:
       scan_scope:
         full_history: false
-  
+
   staging:
     # Use default policies
-  
+
   production:
     sast:
       thresholds:
@@ -332,19 +332,19 @@ environments:
 # =============================================================================
 reporting:
   enabled: true
-  
+
   # Report formats
   formats:
     - json
     - markdown
     - sarif  # For GitHub Security tab
-  
+
   # Report retention
   retention:
     ci_artifacts: 30  # days
     comprehensive_reports: 90  # days
     audit_logs: 365  # days
-  
+
   # Report distribution
   distribution:
     pr_comments: true  # Comment on PRs with security summary
@@ -359,21 +359,21 @@ compliance:
     - OWASP_Top_10
     - CWE_Top_25
     - SANS_Top_25
-  
+
   # Compliance checks
   checks:
     - id: OWASP-A01
       name: "Broken Access Control"
       enabled: true
-    
+
     - id: OWASP-A02
       name: "Cryptographic Failures"
       enabled: true
-    
+
     - id: OWASP-A03
       name: "Injection"
       enabled: true
-    
+
     - id: OWASP-A07
       name: "Identification and Authentication Failures"
       enabled: true

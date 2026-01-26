@@ -11,11 +11,14 @@ from unittest.mock import patch
 
 import pytest
 
-from memory.checkpoint_metrics import (CHECKPOINT_POOL_AVAILABLE,
-                                       CHECKPOINT_POOL_SIZE,
-                                       CHECKPOINT_POOL_WAITING,
-                                       PROMETHEUS_AVAILABLE,
-                                       get_pool_stats_dict, record_pool_stats)
+from memory.checkpoint_metrics import (
+    CHECKPOINT_POOL_AVAILABLE,
+    CHECKPOINT_POOL_SIZE,
+    CHECKPOINT_POOL_WAITING,
+    PROMETHEUS_AVAILABLE,
+    get_pool_stats_dict,
+    record_pool_stats,
+)
 
 # ============================================================================
 # Pool Stats Recording Tests

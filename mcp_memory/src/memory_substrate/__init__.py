@@ -24,11 +24,11 @@ Memory Substrate MUST NOT:
 Memory operations flow through PacketEnvelope (kernel.protocol).
 """
 
-from memory_substrate.service import SubstrateService, SubstrateConfig
 from memory_substrate.repository import AbstractMemoryRepository
+from memory_substrate.service import SubstrateConfig, SubstrateService
 
-__all__ [
-    "SubstrateService",
-    "SubstrateConfig",
+__all__ = [
     "AbstractMemoryRepository",
+    "SubstrateConfig",
+    "SubstrateService",
 ]

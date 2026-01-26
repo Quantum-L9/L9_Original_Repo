@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Embedding Processor
@@ -44,8 +43,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from dataclasses import dataclass, field
-from typing import List
+from dataclasses import dataclass
 
 import structlog
 
@@ -58,14 +56,14 @@ class ProcessedEmbedding:
 
     original_dim: int
     processed_dim: int
-    values: List[float]
+    values: list[float]
     normalized: bool = True
 
 
 class EmbeddingProcessor:
     """Processes embeddings from tensor layer."""
 
-    def process_embeddings(self, raw_embeddings: List[float]) -> ProcessedEmbedding:
+    def process_embeddings(self, raw_embeddings: list[float]) -> ProcessedEmbedding:
         """Process raw embedding vector."""
         logger.debug("processing_embeddings", dim=len(raw_embeddings))
 
@@ -78,7 +76,7 @@ class EmbeddingProcessor:
             normalized=True,
         )
 
-    def _normalize(self, values: List[float]) -> List[float]:
+    def _normalize(self, values: list[float]) -> list[float]:
         """L2 normalize embedding."""
         if not values:
             return []
@@ -96,7 +94,7 @@ class EmbeddingProcessor:
         if len(emb_a.values) != len(emb_b.values):
             return 0.0
 
-        return sum(a * b for a, b in zip(emb_a.values, emb_b.values))
+        return sum(a * b for a, b in zip(emb_a.values, emb_b.values, strict=False))
 
 
 __footer_meta__ = {

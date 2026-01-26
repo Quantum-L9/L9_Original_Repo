@@ -41,7 +41,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -91,7 +91,7 @@ class SynthesizeRequest(BaseModel):
     """Request model for fast synthesis."""
 
     topic: str = Field(..., min_length=3, description="Research topic to synthesize")
-    context: Optional[dict[str, Any]] = Field(
+    context: dict[str, Any] | None = Field(
         default=None, description="Optional additional context"
     )
 
@@ -117,7 +117,7 @@ class SynthesizeResponse(BaseModel):
     confidence_scores: dict[str, float] = Field(
         default_factory=dict, description="Confidence by category"
     )
-    error: Optional[str] = Field(default=None, description="Error message if failed")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 class DiscoverRequest(BaseModel):
@@ -125,7 +125,7 @@ class DiscoverRequest(BaseModel):
 
     topic: str = Field(..., min_length=3, description="Research topic")
     domain: str = Field(default="general", description="Research domain")
-    stages: Optional[list[str]] = Field(
+    stages: list[str] | None = Field(
         default=None,
         description="Stages to run: landscape, deep_dive, comparative, gaps, hypotheses",
     )
@@ -146,14 +146,14 @@ class DiscoverResponse(BaseModel):
         default=0, description="Number of hypotheses generated"
     )
     gaps_count: int = Field(default=0, description="Number of gaps identified")
-    error: Optional[str] = Field(default=None, description="Error message if failed")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 class GenerateSpecRequest(BaseModel):
     """Request model for spec generation."""
 
     topic: str = Field(..., min_length=3, description="Module topic")
-    description: Optional[str] = Field(default=None, description="Module description")
+    description: str | None = Field(default=None, description="Module description")
     run_synthesis_first: bool = Field(
         default=True,
         description="Whether to run synthesis before generating spec",
@@ -170,7 +170,7 @@ class GenerateSpecResponse(BaseModel):
     validation_errors: list[str] = Field(
         default_factory=list, description="Validation errors"
     )
-    error: Optional[str] = Field(default=None, description="Error message if failed")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 class ResearchToCodeRequest(BaseModel):
@@ -193,10 +193,8 @@ class ResearchToCodeResponse(BaseModel):
     has_discovery: bool = Field(default=False, description="Whether discovery ran")
     has_synthesis: bool = Field(default=False, description="Whether synthesis ran")
     has_spec: bool = Field(default=False, description="Whether spec was generated")
-    spec_path: Optional[str] = Field(
-        default=None, description="Path to spec if generated"
-    )
-    error: Optional[str] = Field(default=None, description="Error message if failed")
+    spec_path: str | None = Field(default=None, description="Path to spec if generated")
+    error: str | None = Field(default=None, description="Error message if failed")
 
 
 # ============================================================================

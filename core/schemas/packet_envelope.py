@@ -62,7 +62,7 @@ __dora_meta__ = {
 import warnings
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -122,8 +122,8 @@ class StructuredReasoningBlock(BaseModel):
 
     step: int = Field(..., description="Reasoning step number")
     thought: str = Field(..., description="Reasoning thought")
-    action: Optional[str] = Field(None, description="Action taken")
-    observation: Optional[str] = Field(None, description="Observation/result")
+    action: str | None = Field(None, description="Action taken")
+    observation: str | None = Field(None, description="Observation/result")
 
     model_config = {"frozen": True}
 
@@ -136,12 +136,10 @@ class StructuredReasoningBlock(BaseModel):
 class PacketConfidence(BaseModel):
     """Confidence score and rationale for a packet."""
 
-    score: Optional[float] = Field(
+    score: float | None = Field(
         None, ge=0.0, le=1.0, description="Confidence score 0-1"
     )
-    rationale: Optional[str] = Field(
-        None, description="Explanation of confidence level"
-    )
+    rationale: str | None = Field(None, description="Explanation of confidence level")
 
     model_config = {"frozen": True}
 
@@ -149,10 +147,8 @@ class PacketConfidence(BaseModel):
 class PacketProvenance(BaseModel):
     """Provenance information for packet traceability."""
 
-    parent_packet: Optional[UUID] = Field(
-        None, description="Parent packet ID if derived"
-    )
-    source_agent: Optional[str] = Field(None, description="Source agent identifier")
+    parent_packet: UUID | None = Field(None, description="Parent packet ID if derived")
+    source_agent: str | None = Field(None, description="Source agent identifier")
 
     model_config = {"frozen": True}
 
@@ -160,9 +156,9 @@ class PacketProvenance(BaseModel):
 class PacketMetadata(BaseModel):
     """Metadata attached to a packet envelope."""
 
-    schema_version: Optional[str] = Field("1.0.1", description="Schema version")
-    agent: Optional[str] = Field(None, description="Agent identifier")
-    domain: Optional[str] = Field(None, description="Domain context")
+    schema_version: str | None = Field("1.0.1", description="Schema version")
+    agent: str | None = Field(None, description="Agent identifier")
+    domain: str | None = Field(None, description="Domain context")
 
     model_config = {"frozen": True, "extra": "allow"}
 
@@ -202,9 +198,9 @@ class PacketEnvelope(BaseModel):
     )
 
     # Optional Fields
-    metadata: Optional[PacketMetadata] = Field(None)
-    provenance: Optional[PacketProvenance] = Field(None)
-    confidence: Optional[PacketConfidence] = Field(None)
+    metadata: PacketMetadata | None = Field(None)
+    provenance: PacketProvenance | None = Field(None)
+    confidence: PacketConfidence | None = Field(None)
 
     model_config = {
         "frozen": True,  # IMMUTABILITY ENFORCED
@@ -242,9 +238,9 @@ class PacketEnvelopeIn(BaseModel):
         ..., min_length=1, description="Semantic category of the packet"
     )
     payload: dict[str, Any] = Field(..., description="Flexible JSON-like structure")
-    metadata: Optional[dict[str, Any]] = Field(None)
-    provenance: Optional[dict[str, Any]] = Field(None)
-    confidence: Optional[dict[str, Any]] = Field(None)
+    metadata: dict[str, Any] | None = Field(None)
+    provenance: dict[str, Any] | None = Field(None)
+    confidence: dict[str, Any] | None = Field(None)
 
     def to_envelope(self) -> PacketEnvelope:
         """Convert input to full PacketEnvelope with defaults."""
@@ -272,7 +268,7 @@ class PacketWriteResult(BaseModel):
     written_tables: list[str] = Field(
         default_factory=list, description="Tables updated"
     )
-    error_message: Optional[str] = Field(
+    error_message: str | None = Field(
         None, description="Error details if status='error'"
     )
 
@@ -287,7 +283,7 @@ class SemanticSearchRequest(BaseModel):
 
     query: str = Field(..., min_length=1, description="Natural language query")
     top_k: int = Field(10, ge=1, le=100, description="Number of neighbors to return")
-    agent_id: Optional[str] = Field(None, description="Filter by agent ID")
+    agent_id: str | None = Field(None, description="Filter by agent ID")
 
 
 class SemanticHit(BaseModel):

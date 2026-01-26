@@ -11,6 +11,7 @@ Decompose `MemorySubstrateService` (a ~2,000 line god class) into a **facade** o
 ## Context
 
 L9's `MemorySubstrateService` handles too many concerns:
+
 - Packet CRUD
 - Semantic search / embeddings
 - Reasoning trace storage
@@ -86,10 +87,10 @@ from memory.services.knowledge_service import KnowledgeService
 class MemorySubstrateService:
     """
     Facade over memory mini-services.
-    
+
     Provides unified interface while delegating to
     specialized services for each concern.
-    
+
     Services:
     - packets: Packet CRUD operations
     - search: Semantic search and embeddings
@@ -97,39 +98,39 @@ class MemorySubstrateService:
     - checkpoints: Snapshot and restore
     - knowledge: Facts, insights, sagas
     """
-    
+
     packets: PacketService
     search: SemanticSearchService
     traces: ReasoningTraceService
     checkpoints: CheckpointService
     knowledge: KnowledgeService
-    
+
     # Convenience methods delegate to services
-    
+
     async def ingest_packet(self, packet):
         """Ingest packet (delegates to packets service)."""
         return await self.packets.ingest(packet)
-    
+
     async def query_packets(self, query, limit=10):
         """Query packets (delegates to packets service)."""
         return await self.packets.query(query, limit)
-    
+
     async def semantic_search(self, query, k=10):
         """Semantic search (delegates to search service)."""
         return await self.search.search(query, k)
-    
+
     async def store_trace(self, trace):
         """Store reasoning trace (delegates to traces service)."""
         return await self.traces.store(trace)
-    
+
     async def create_checkpoint(self, state):
         """Create checkpoint (delegates to checkpoints service)."""
         return await self.checkpoints.create(state)
-    
+
     async def restore_checkpoint(self, checkpoint_id):
         """Restore checkpoint (delegates to checkpoints service)."""
         return await self.checkpoints.restore(checkpoint_id)
-    
+
     async def store_insight(self, insight):
         """Store insight (delegates to knowledge service)."""
         return await self.knowledge.store_insight(insight)
@@ -142,7 +143,7 @@ def create_memory_substrate_service(
     embedder,
 ) -> MemorySubstrateService:
     """Factory for creating fully-wired MemorySubstrateService."""
-    
+
     return MemorySubstrateService(
         packets=PacketService(postgres_client),
         search=SemanticSearchService(postgres_client, embedder),
@@ -166,17 +167,17 @@ logger = logging.getLogger(__name__)
 class PacketService:
     """
     Handles packet CRUD operations.
-    
+
     Responsibilities:
     - Ingest new packets
     - Query packets by criteria
     - Update packet metadata
     - Delete/archive packets
     """
-    
+
     def __init__(self, postgres_client):
         self._db = postgres_client
-    
+
     async def ingest(self, packet) -> UUID:
         """Ingest a new packet."""
         result = await self._db.execute(
@@ -193,7 +194,7 @@ class PacketService:
         )
         logger.debug(f"Ingested packet: {packet.id}")
         return result["id"]
-    
+
     async def query(
         self,
         query: str,
@@ -208,16 +209,16 @@ class PacketService:
         if kind:
             sql += f" AND kind = '{kind}'"
         sql += f" LIMIT {limit}"
-        
+
         return await self._db.fetch(sql, query)
-    
+
     async def get(self, packet_id: UUID):
         """Get packet by ID."""
         return await self._db.fetchrow(
             "SELECT * FROM packets WHERE id = $1",
             packet_id,
         )
-    
+
     async def update_metadata(self, packet_id: UUID, metadata: dict):
         """Update packet metadata."""
         await self._db.execute(
@@ -240,17 +241,17 @@ logger = logging.getLogger(__name__)
 class SemanticSearchService:
     """
     Handles semantic search via embeddings.
-    
+
     Responsibilities:
     - Generate embeddings for content
     - k-NN search over embedding space
     - Similarity scoring
     """
-    
+
     def __init__(self, postgres_client, embedder):
         self._db = postgres_client
         self._embedder = embedder
-    
+
     async def search(
         self,
         query: str,
@@ -258,10 +259,10 @@ class SemanticSearchService:
         min_similarity: float = 0.7,
     ) -> List:
         """Semantic search using embeddings."""
-        
+
         # Generate query embedding
         query_embedding = await self._embedder.embed(query)
-        
+
         # k-NN search
         results = await self._db.fetch(
             """
@@ -275,14 +276,14 @@ class SemanticSearchService:
             min_similarity,
             k,
         )
-        
+
         logger.debug(f"Semantic search found {len(results)} results")
         return results
-    
+
     async def embed_and_store(self, packet_id, content: str):
         """Generate embedding and store for packet."""
         embedding = await self._embedder.embed(content)
-        
+
         await self._db.execute(
             "UPDATE packets SET embedding = $2 WHERE id = $1",
             packet_id,
@@ -304,21 +305,21 @@ logger = logging.getLogger(__name__)
 class CheckpointService:
     """
     Handles checkpoint creation and restoration.
-    
+
     Responsibilities:
     - Create state snapshots
     - Restore from checkpoints
     - Manage checkpoint lifecycle
     """
-    
+
     def __init__(self, postgres_client, neo4j_client):
         self._db = postgres_client
         self._graph = neo4j_client
-    
+
     async def create(self, state: dict) -> UUID:
         """Create a checkpoint from current state."""
         checkpoint_id = uuid4()
-        
+
         # Store in PostgreSQL
         await self._db.execute(
             """
@@ -328,7 +329,7 @@ class CheckpointService:
             checkpoint_id,
             state,
         )
-        
+
         # Create graph node
         await self._graph.execute(
             """
@@ -336,21 +337,21 @@ class CheckpointService:
             """,
             {"id": str(checkpoint_id)},
         )
-        
+
         logger.info(f"Created checkpoint: {checkpoint_id}")
         return checkpoint_id
-    
+
     async def restore(self, checkpoint_id: UUID) -> Optional[dict]:
         """Restore state from checkpoint."""
         result = await self._db.fetchrow(
             "SELECT state FROM checkpoints WHERE id = $1",
             checkpoint_id,
         )
-        
+
         if result:
             logger.info(f"Restored checkpoint: {checkpoint_id}")
             return result["state"]
-        
+
         logger.warning(f"Checkpoint not found: {checkpoint_id}")
         return None
 ```
@@ -387,7 +388,7 @@ class MemorySubstrateService:
     def __init__(self, ...):
         # 2000 lines of initialization and methods
         pass
-    
+
     async def ingest_packet(self, ...): ...      # 100 lines
     async def query_packets(self, ...): ...      # 80 lines
     async def semantic_search(self, ...): ...    # 150 lines

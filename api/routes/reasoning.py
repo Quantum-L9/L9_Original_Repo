@@ -26,7 +26,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import List, Optional
 
 import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
@@ -95,10 +94,10 @@ class ReasoningExecuteResponse(BaseModel):
 
     success: bool = Field(..., description="Whether operation succeeded")
     message: str = Field(default="", description="Result message")
-    reasoning_trace: List[str] = Field(
+    reasoning_trace: list[str] = Field(
         default_factory=list, description="Reasoning steps"
     )
-    conclusion: Optional[str] = Field(default=None, description="Final conclusion")
+    conclusion: str | None = Field(default=None, description="Final conclusion")
 
 
 # ============================================================================
@@ -213,7 +212,7 @@ async def execute_reasoning(
     except Exception as e:
         logger.error(f"Reasoning execution failed: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Reasoning execution failed: {str(e)}"
+            status_code=500, detail=f"Reasoning execution failed: {e!s}"
         ) from e
 
 

@@ -16,8 +16,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from core.schemas import VALID_DERIVE_TYPES, DeriveType, PacketEnvelopeIn
-from memory.validators.packet_validator import (PacketValidationError,
-                                                PacketValidator)
+from memory.validators.packet_validator import PacketValidationError, PacketValidator
 
 
 class TestPacketValidationErrorTyped:

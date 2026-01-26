@@ -16,44 +16,44 @@
 CREATE TABLE IF NOT EXISTS semantic_facts (
     -- Primary key
     fact_id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    
+
     -- Ownership (multi-tenant)
     tenant_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
     org_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
     user_id UUID NOT NULL DEFAULT '00000000-0000-0000-0000-000000000000'::uuid,
     agent_id TEXT,  -- Which agent created/owns this fact
-    
+
     -- Fact content
     fact_text TEXT NOT NULL,  -- Human-readable fact statement
-    
+
     -- Triplet structure (subject-predicate-object)
     triplet JSONB DEFAULT '{}'::jsonb,  -- {"subject": "X", "predicate": "is_a", "object": "Y"}
-    
+
     -- Embedding for semantic search
     embedding vector(3072),  -- text-embedding-3-large dimensions
-    
+
     -- Importance and ranking
     importance DOUBLE PRECISION DEFAULT 0.5 CHECK (importance >= 0.0 AND importance <= 1.0),
     access_count INTEGER DEFAULT 0,
     last_accessed TIMESTAMP WITH TIME ZONE,
-    
+
     -- Categorization
     tags TEXT[] DEFAULT '{}',
     tier TEXT DEFAULT 'general' CHECK (tier IN ('identity', 'project', 'session', 'general')),
-    
+
     -- Source tracking
     source TEXT,  -- Where this fact came from (e.g., "user_stated", "inferred", "extracted")
     source_packet_id UUID REFERENCES packet_store(packet_id) ON DELETE SET NULL,
-    
+
     -- Confidence and validation
     confidence DOUBLE PRECISION DEFAULT 0.8 CHECK (confidence >= 0.0 AND confidence <= 1.0),
     validated_at TIMESTAMP WITH TIME ZONE,
     validated_by TEXT,  -- "igor", "L", "system"
-    
+
     -- Timestamps
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
+
     -- Uniqueness constraint per tenant (same fact text = same fact)
     CONSTRAINT uq_semantic_facts_tenant_fact UNIQUE (tenant_id, fact_text)
 );
@@ -70,7 +70,7 @@ CREATE INDEX IF NOT EXISTS idx_semantic_facts_embedding
 -- Triplet component indexes for graph-style queries
 CREATE INDEX IF NOT EXISTS idx_semantic_facts_triplet_subject
     ON semantic_facts ((triplet->>'subject'));
-    
+
 CREATE INDEX IF NOT EXISTS idx_semantic_facts_triplet_predicate
     ON semantic_facts ((triplet->>'predicate'));
 

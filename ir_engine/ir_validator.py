@@ -47,8 +47,13 @@ from uuid import UUID
 
 import structlog
 
-from ir_engine.ir_schema import (ConstraintNode, ConstraintStatus, IRGraph,
-                                 IRStatus, IRValidationResult)
+from ir_engine.ir_schema import (
+    ConstraintNode,
+    ConstraintStatus,
+    IRGraph,
+    IRStatus,
+    IRValidationResult,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -341,13 +346,12 @@ class IRValidator:
 
         # Check each action
         for action_id in graph.actions:
-            if action_id not in visited:
-                if has_cycle(action_id):
-                    result.add_error(
-                        "DEPENDENCY_CYCLE",
-                        f"Circular dependency detected involving action {action_id}",
-                        action_id,
-                    )
+            if action_id not in visited and has_cycle(action_id):
+                result.add_error(
+                    "DEPENDENCY_CYCLE",
+                    f"Circular dependency detected involving action {action_id}",
+                    action_id,
+                )
 
     def _validate_completeness(
         self, graph: IRGraph, result: IRValidationResult

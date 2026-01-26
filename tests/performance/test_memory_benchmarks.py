@@ -16,9 +16,14 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from core.schemas import PacketEnvelopeIn
-from memory.audit_utils import (detect_injection_markers, detect_pii_types,
-                                normalize_payload, normalize_text,
-                                prepare_packet_for_ingest, redact_pii)
+from memory.audit_utils import (
+    detect_injection_markers,
+    detect_pii_types,
+    normalize_payload,
+    normalize_text,
+    prepare_packet_for_ingest,
+    redact_pii,
+)
 
 # Skip benchmarks if pytest-benchmark is not installed
 pytest_benchmark_available = True
@@ -181,7 +186,7 @@ class TestAuditPerformanceBaseline:
         )
 
         start = time.time()
-        prepared, report = prepare_packet_for_ingest(packet)
+        _prepared, report = prepare_packet_for_ingest(packet)
         duration = time.time() - start
 
         # Should complete in under 1 second even for large payloads

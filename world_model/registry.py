@@ -56,7 +56,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 
 
 @dataclass
@@ -70,7 +70,7 @@ class EntityTypeSchema:
     type_name: str
     description: str = ""
     attributes: dict[str, dict[str, Any]] = field(default_factory=dict)
-    parent_type: Optional[str] = None
+    parent_type: str | None = None
     constraints: list[dict[str, Any]] = field(default_factory=list)
 
 
@@ -144,7 +144,7 @@ class WorldModelRegistry:
                 self._type_hierarchy[schema.parent_type] = []
             self._type_hierarchy[schema.parent_type].append(schema.type_name)
 
-    def get_entity_type(self, type_name: str) -> Optional[EntityTypeSchema]:
+    def get_entity_type(self, type_name: str) -> EntityTypeSchema | None:
         """
         Get entity type schema by name.
 
@@ -222,7 +222,7 @@ class WorldModelRegistry:
         """
         self._relation_types[schema.type_name] = schema
 
-    def get_relation_type(self, type_name: str) -> Optional[RelationTypeSchema]:
+    def get_relation_type(self, type_name: str) -> RelationTypeSchema | None:
         """
         Get relation type schema by name.
 
@@ -410,7 +410,7 @@ class WorldModelRegistry:
         registry = cls()
 
         # Restore entity types
-        for type_name, schema_data in data.get("entity_types", {}).items():
+        for _type_name, schema_data in data.get("entity_types", {}).items():
             schema = EntityTypeSchema(
                 type_name=schema_data["type_name"],
                 description=schema_data.get("description", ""),
@@ -421,7 +421,7 @@ class WorldModelRegistry:
             registry.register_entity_type(schema)
 
         # Restore relation types
-        for type_name, schema_data in data.get("relation_types", {}).items():
+        for _type_name, schema_data in data.get("relation_types", {}).items():
             schema = RelationTypeSchema(
                 type_name=schema_data["type_name"],
                 description=schema_data.get("description", ""),

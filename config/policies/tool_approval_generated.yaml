@@ -18,43 +18,42 @@
 # Auto-approve: search, read, list, memory_read
 
 policies:
-- id: auto-approve-safe-tools
-  name: Auto-Approve Safe Tools
-  description: Low-risk tools that are automatically approved.
-  effect: allow
-  priority: 200
-  subjects:
-  - L
-  - C
-  - agent:*
-  actions:
-  - tool.execute.search
-  - tool.execute.read
-  - tool.execute.list
-  - tool.execute.memory_read
-  resources:
-  - '*'
-  enabled: true
-- id: require-approval-high-risk
-  name: Require Approval for High-Risk Tools
-  description: 'High-risk tools require approval from: Igor'
-  effect: deny
-  priority: 150
-  subjects:
-  - '*'
-  actions:
-  - tool.execute.gmprun
-  - tool.execute.gitcommit
-  - tool.execute.macagent
-  - tool.execute.shell_exec
-  resources:
-  - '*'
-  enabled: true
-  conditions:
-    requires_approval: true
-    approvers:
-    - Igor
-
+  - id: auto-approve-safe-tools
+    name: Auto-Approve Safe Tools
+    description: Low-risk tools that are automatically approved.
+    effect: allow
+    priority: 200
+    subjects:
+      - L
+      - C
+      - agent:*
+    actions:
+      - tool.execute.search
+      - tool.execute.read
+      - tool.execute.list
+      - tool.execute.memory_read
+    resources:
+      - "*"
+    enabled: true
+  - id: require-approval-high-risk
+    name: Require Approval for High-Risk Tools
+    description: "High-risk tools require approval from: Igor"
+    effect: deny
+    priority: 150
+    subjects:
+      - "*"
+    actions:
+      - tool.execute.gmprun
+      - tool.execute.gitcommit
+      - tool.execute.macagent
+      - tool.execute.shell_exec
+    resources:
+      - "*"
+    enabled: true
+    conditions:
+      requires_approval: true
+      approvers:
+        - Igor
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

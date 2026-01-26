@@ -93,7 +93,6 @@ Condition:
   description: string
   deadline: optional[datetime]
   satisfied: boolean
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

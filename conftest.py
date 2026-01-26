@@ -35,28 +35,28 @@ except ImportError:
 
 # Pre-import api.routes.registry for pytest router registry tests
 try:
-    import api.routes.registry  # noqa: F401
+    import api.routes.registry
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import clients.memory_client for pytest research integration tests
 try:
-    import clients.memory_client  # noqa: F401
+    import clients.memory_client
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import memory.graph_client to ensure it's available for lazy imports
 # in core.agents.bootstrap phases (fixes pytest import resolution)
 try:
-    import memory.graph_client  # noqa: F401
+    import memory.graph_client
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import runtime.kernel_state and runtime.execution_gate for pytest
 # (fixes ModuleNotFoundError in kernel runtime tests)
 try:
-    import runtime.execution_gate  # noqa: F401
-    import runtime.kernel_state  # noqa: F401
+    import runtime.execution_gate
+    import runtime.kernel_state
 except ImportError:
     pass  # Will be handled as test failure where needed
 
@@ -64,21 +64,21 @@ except ImportError:
 # (fixes ModuleNotFoundError in L-CTO bootstrap tests)
 # NOTE: tests/core/agents/ renamed to tests/core/bootstrap/ to avoid namespace collision
 try:
-    import agents.l_cto  # noqa: F401
+    import agents.l_cto
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import ir_engine.meta_ir for pytest
 # (fixes ModuleNotFoundError in CodeGenAgent tests)
 try:
-    import ir_engine.meta_ir  # noqa: F401
+    import ir_engine.meta_ir
 except ImportError:
     pass  # Will be handled as test failure where needed
 
 # Pre-import codegen.symbolic for pytest
 # (fixes ModuleNotFoundError in symbolic verification tests)
 try:
-    import codegen.symbolic  # noqa: F401
+    import codegen.symbolic
 except ImportError:
     pass  # Will be handled as test failure where needed
 

@@ -58,4 +58,3 @@ echo ""
 echo "View logs:"
 echo "  API:    docker logs l9-api -f"
 echo "  MCP:    docker logs l9-mcp-memory -f"
-

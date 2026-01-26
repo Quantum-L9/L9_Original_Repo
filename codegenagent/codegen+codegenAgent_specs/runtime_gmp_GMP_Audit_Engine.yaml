@@ -36,7 +36,6 @@ patch:
       log_event: "🔍 External reasoning engaged"
       audit_trace: true
       action: "log_to_hypergraph_and_mark_completion"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

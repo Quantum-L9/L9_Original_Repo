@@ -59,14 +59,14 @@ Background job workers for async processing
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                  | Purpose             |
+| ----------------------- | ------------------- |
 | `runtime/task_queue.py` | Required dependency |
 
 ---
@@ -83,11 +83,11 @@ workers/
 ├── violation_tracker_service.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `anomaly_classifier.py` | Anomaly severity levels. |
-| `anomaly_classifier.py` | Types of anomalies detected. |
+| File                    | Purpose                           |
+| ----------------------- | --------------------------------- |
+| `__init__.py`           | Core module (PROTECTED)           |
+| `anomaly_classifier.py` | Anomaly severity levels.          |
+| `anomaly_classifier.py` | Types of anomalies detected.      |
 | `anomaly_classifier.py` | A rule for classifying anomalies. |
 
 ### Naming Conventions
@@ -106,7 +106,7 @@ workers/
 ```python
 class AnomalySeverity:
     """Anomaly severity levels."""
-    
+
     # Key methods:
 
 ```
@@ -118,7 +118,7 @@ class AnomalySeverity:
 ```python
 class AnomalyType:
     """Types of anomalies detected."""
-    
+
     # Key methods:
 
 ```
@@ -130,7 +130,7 @@ class AnomalyType:
 ```python
 class ClassificationRule:
     """A rule for classifying anomalies."""
-    
+
     # Key methods:
 
 ```
@@ -142,7 +142,7 @@ class ClassificationRule:
 ```python
 class AnomalyClassifierRequest:
     """Input request for AnomalyClassifier."""
-    
+
     # Key methods:
 
 ```
@@ -154,13 +154,12 @@ class AnomalyClassifierRequest:
 ```python
 class ClassificationResult:
     """Result of anomaly classification."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 114-123 in `anomaly_classifier.py`
-
 
 ---
 
@@ -235,9 +234,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Workers feature flags
-L9_ENABLE_WORKERS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_WORKERS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_WORKERS_AUDIT: true    # Enable audit logging
+L9_ENABLE_WORKERS_TRACING: true # Enable detailed tracing
+L9_ENABLE_WORKERS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_WORKERS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -299,7 +298,6 @@ Factory function to create AnomalyResponseMonitor.
 - **File:** `anomaly_response_monitor.py:541`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -340,6 +338,7 @@ Workers operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -347,12 +346,12 @@ Workers operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                          | Type      | Description                    |
+| ------------------------------- | --------- | ------------------------------ |
 | `workers_operation_duration_ms` | Histogram | Operation latency distribution |
-| `workers_operation_total` | Counter | Total operations processed |
-| `workers_error_total` | Counter | Total errors encountered |
-| `workers_active_connections` | Gauge | Current active connections |
+| `workers_operation_total`       | Counter   | Total operations processed     |
+| `workers_error_total`           | Counter   | Total errors encountered       |
+| `workers_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -370,6 +369,7 @@ Workers emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/workers/`:
+
 - `test_workers.py` — Core unit tests
 - `test_workers_integration.py` — Integration tests (if applicable)
 
@@ -412,6 +412,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -236,7 +236,7 @@ def validate_dependency_contract(
     httpx_pattern = r'httpx\.(post|get|put|delete|patch)\s*\(\s*["\']([^"\']+)["\']'
     matches = re.findall(httpx_pattern, content)
 
-    for method, url in matches:
+    for _method, url in matches:
         # Check if URL matches any declared outbound
         matched = False
         for out in outbound:
@@ -299,7 +299,7 @@ def validate_test_presence(
     for test_file in test_files:
         if os.path.exists(test_file):
             try:
-                with open(test_file, "r") as f:
+                with open(test_file) as f:
                     content = f.read()
                     for test_name in required_tests:
                         if f"def {test_name}" in content:
@@ -422,7 +422,7 @@ def validate_code(
         return result
 
     try:
-        with open(spec_path, "r") as f:
+        with open(spec_path) as f:
             spec = yaml.safe_load(f)
     except yaml.YAMLError as e:
         result.add_error(f"SPEC PARSE ERROR: {e}")
@@ -450,7 +450,7 @@ def validate_code(
         result.files_checked.append(file_path)
 
         try:
-            with open(file_path, "r") as f:
+            with open(file_path) as f:
                 content = f.read()
         except Exception as e:
             result.add_error(f"READ ERROR: {file_path} - {e}")

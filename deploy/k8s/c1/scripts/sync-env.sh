@@ -123,20 +123,20 @@ scp_cmd() {
 # =============================================================================
 verify_prerequisites() {
     log_step "VERIFY PREREQUISITES"
-    
+
     # Check SSH key exists
     if [[ ! -f "$SSH_KEY_FILE" ]]; then
         log_error "SSH key not found: $SSH_KEY_FILE"
         exit 1
     fi
-    
+
     # Check we can connect to VPS
     log_info "Testing SSH connection to $C1_IP..."
     if ! ssh_cmd "echo 'SSH OK'" &>/dev/null; then
         log_error "Cannot connect to VPS at $C1_IP"
         exit 1
     fi
-    
+
     log_success "Prerequisites verified"
 }
 
@@ -145,17 +145,17 @@ verify_prerequisites() {
 # =============================================================================
 discover_env_files() {
     log_step "DISCOVER LOCAL ENV FILES"
-    
+
     log_info "Scanning for .env files in $REPO_ROOT..."
-    
+
     local found_files=()
-    
+
     # Check each mapping
     for mapping in "${ENV_MAPPINGS[@]}"; do
         local local_path="${mapping%%:*}"
         local vps_path="${mapping##*:}"
         local full_local="$REPO_ROOT/$local_path"
-        
+
         if [[ -f "$full_local" ]]; then
             found_files+=("$local_path")
             log_info "  ✓ Found: $local_path"
@@ -163,13 +163,13 @@ discover_env_files() {
             log_warn "  ✗ Missing: $local_path"
         fi
     done
-    
+
     # Discover any additional .env files not in mappings
     log_info "Scanning for additional .env files..."
     while IFS= read -r -d '' file; do
         local rel_path="${file#$REPO_ROOT/}"
         local already_mapped=false
-        
+
         for mapping in "${ENV_MAPPINGS[@]}"; do
             local mapped_path="${mapping%%:*}"
             if [[ "$rel_path" == "$mapped_path" ]]; then
@@ -177,12 +177,12 @@ discover_env_files() {
                 break
             fi
         done
-        
+
         if ! $already_mapped; then
             log_warn "  ! Unmapped: $rel_path (add to ENV_MAPPINGS if needed)"
         fi
     done < <(find "$REPO_ROOT" -name ".env" -o -name ".env.*" -type f -print0 2>/dev/null | grep -zv "node_modules" | grep -zv ".git")
-    
+
     log_success "Discovery complete: ${#found_files[@]} files found"
 }
 
@@ -191,14 +191,14 @@ discover_env_files() {
 # =============================================================================
 create_vps_directories() {
     log_step "CREATE VPS DIRECTORIES"
-    
+
     if $DRY_RUN; then
         log_info "[DRY RUN] Would create directories on VPS"
         return
     fi
-    
+
     log_info "Creating directory structure on VPS..."
-    
+
     ssh_cmd bash << 'REMOTE_SCRIPT'
 set -e
 mkdir -p /opt/l9
@@ -208,7 +208,7 @@ mkdir -p /opt/l9/config
 chmod 700 /opt/l9
 echo "Directories created"
 REMOTE_SCRIPT
-    
+
     log_success "VPS directories ready"
 }
 
@@ -217,34 +217,34 @@ REMOTE_SCRIPT
 # =============================================================================
 sync_env_files() {
     log_step "SYNC ENV FILES TO VPS"
-    
+
     local synced=0
     local skipped=0
     local failed=0
-    
+
     for mapping in "${ENV_MAPPINGS[@]}"; do
         local local_path="${mapping%%:*}"
         local vps_path="${mapping##*:}"
         local full_local="$REPO_ROOT/$local_path"
-        
+
         if [[ ! -f "$full_local" ]]; then
             log_warn "Skipping $local_path (file not found)"
             ((skipped++))
             continue
         fi
-        
+
         log_info "Syncing: $local_path → $vps_path"
-        
+
         if $DRY_RUN; then
             log_info "  [DRY RUN] Would copy $local_path"
             ((synced++))
             continue
         fi
-        
+
         # Create parent directory on VPS
         local vps_dir=$(dirname "$vps_path")
         ssh_cmd "mkdir -p '$vps_dir'"
-        
+
         # Copy file
         if scp_cmd "$full_local" "root@$C1_IP:$vps_path"; then
             # Set secure permissions
@@ -256,15 +256,15 @@ sync_env_files() {
             ((failed++))
         fi
     done
-    
+
     echo ""
     log_info "Sync summary: $synced synced, $skipped skipped, $failed failed"
-    
+
     if [[ $failed -gt 0 ]]; then
         log_error "Some files failed to sync!"
         return 1
     fi
-    
+
     log_success "Env files synced"
 }
 
@@ -273,17 +273,17 @@ sync_env_files() {
 # =============================================================================
 validate_env_vars() {
     log_step "VALIDATE REQUIRED VARIABLES"
-    
+
     if $DRY_RUN; then
         log_info "[DRY RUN] Would validate variables on VPS"
         return
     fi
-    
+
     log_info "Checking required variables in .env.production..."
-    
+
     local missing_required=()
     local missing_recommended=()
-    
+
     # Check required vars
     for var in "${REQUIRED_VARS[@]}"; do
         if ssh_cmd "grep -q '^${var}=' '$VPS_L9_DIR/.env.production' 2>/dev/null"; then
@@ -293,7 +293,7 @@ validate_env_vars() {
             log_error "  ✗ $var (REQUIRED)"
         fi
     done
-    
+
     # Check recommended vars
     for var in "${RECOMMENDED_VARS[@]}"; do
         if ssh_cmd "grep -q '^${var}=' '$VPS_L9_DIR/.env.production' 2>/dev/null"; then
@@ -303,20 +303,20 @@ validate_env_vars() {
             log_warn "  ? $var (recommended)"
         fi
     done
-    
+
     echo ""
-    
+
     if [[ ${#missing_required[@]} -gt 0 ]]; then
         log_error "Missing REQUIRED variables: ${missing_required[*]}"
         log_error "Add these to your local .env before deploying!"
         return 1
     fi
-    
+
     if [[ ${#missing_recommended[@]} -gt 0 ]]; then
         log_warn "Missing recommended variables: ${missing_recommended[*]}"
         log_warn "Some features may be disabled."
     fi
-    
+
     log_success "Validation passed"
 }
 
@@ -325,14 +325,14 @@ validate_env_vars() {
 # =============================================================================
 create_docker_symlinks() {
     log_step "CREATE DOCKER ENV SYMLINKS"
-    
+
     if $DRY_RUN; then
         log_info "[DRY RUN] Would create symlinks on VPS"
         return
     fi
-    
+
     log_info "Creating symlinks for Docker containers..."
-    
+
     ssh_cmd bash << 'REMOTE_SCRIPT'
 set -e
 
@@ -354,7 +354,7 @@ find /opt/l9 -name ".env*" -type f 2>/dev/null | while read f; do
     echo "  $f ($(stat -c %a $f 2>/dev/null || stat -f %p $f 2>/dev/null) permissions)"
 done
 REMOTE_SCRIPT
-    
+
     log_success "Symlinks created"
 }
 
@@ -363,9 +363,9 @@ REMOTE_SCRIPT
 # =============================================================================
 verify_on_vps() {
     log_step "VERIFY ENV FILES ON VPS"
-    
+
     log_info "Listing env files on VPS..."
-    
+
     ssh_cmd bash << 'REMOTE_SCRIPT'
 echo "=== /opt/l9 ENV FILES ==="
 find /opt/l9 -name ".env*" -type f 2>/dev/null | while read f; do
@@ -383,7 +383,7 @@ for f in /opt/l9/.env.production /opt/l9/mcp_memory/.env; do
     fi
 done
 REMOTE_SCRIPT
-    
+
     log_success "Verification complete"
 }
 
@@ -397,18 +397,18 @@ main() {
     echo "   Target: $C1_IP"
     echo "============================================="
     echo ""
-    
+
     if $DRY_RUN; then
         log_warn "DRY RUN MODE - No changes will be made"
         echo ""
     fi
-    
+
     if $VERIFY_ONLY; then
         verify_prerequisites
         verify_on_vps
         exit 0
     fi
-    
+
     verify_prerequisites
     discover_env_files
     create_vps_directories
@@ -416,7 +416,7 @@ main() {
     validate_env_vars
     create_docker_symlinks
     verify_on_vps
-    
+
     echo ""
     echo "============================================="
     echo -e "${GREEN}   ENV SYNC COMPLETE${NC}"

@@ -31,13 +31,17 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
 from .housekeeping import Housekeeping
-from .interface import (IMemoryOrchestrator, MemoryOperation, MemoryRequest,
-                        MemoryResponse)
+from .interface import (
+    IMemoryOrchestrator,
+    MemoryOperation,
+    MemoryRequest,
+    MemoryResponse,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -50,7 +54,7 @@ class MemoryOrchestrator(IMemoryOrchestrator):
     Uses MemorySubstrateService for actual storage operations.
     """
 
-    def __init__(self, substrate_service: Optional[Any] = None):
+    def __init__(self, substrate_service: Any | None = None):
         """
         Initialize memory orchestrator.
 
@@ -95,33 +99,32 @@ class MemoryOrchestrator(IMemoryOrchestrator):
             if request.operation == MemoryOperation.BATCH_WRITE:
                 return await self._batch_write(request.packets, request)
 
-            elif request.operation == MemoryOperation.REPLAY:
+            if request.operation == MemoryOperation.REPLAY:
                 return await self._replay(request)
 
-            elif request.operation == MemoryOperation.GC:
+            if request.operation == MemoryOperation.GC:
                 return await self._garbage_collect(request)
 
-            elif request.operation == MemoryOperation.COMPACT:
+            if request.operation == MemoryOperation.COMPACT:
                 return await self._compact()
 
-            else:
-                return MemoryResponse(
-                    success=False,
-                    message=f"Unknown operation: {request.operation}",
-                )
+            return MemoryResponse(
+                success=False,
+                message=f"Unknown operation: {request.operation}",
+            )
 
         except Exception as e:
             logger.error(f"Memory orchestration failed: {e}", exc_info=True)
             return MemoryResponse(
                 success=False,
-                message=f"Operation failed: {str(e)}",
+                message=f"Operation failed: {e!s}",
                 errors=[str(e)],
             )
 
     async def _batch_write(
         self,
-        packets: List[Dict[str, Any]],
-        request: Optional[MemoryRequest] = None,
+        packets: list[dict[str, Any]],
+        request: MemoryRequest | None = None,
     ) -> MemoryResponse:
         """Store multiple packets in batch."""
         if not packets:

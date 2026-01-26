@@ -30,7 +30,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 
@@ -116,7 +116,7 @@ class MockWorldModel:
         self.nodes[node_id] = node
         return node_id
 
-    async def get_node(self, node_id: str) -> Optional[dict[str, Any]]:
+    async def get_node(self, node_id: str) -> dict[str, Any] | None:
         """
         Get a node by ID.
 
@@ -190,7 +190,7 @@ class MockWorldModel:
         target_id: str,
         edge_type: str,
         weight: float = 1.0,
-        metadata: Optional[dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """
         Create an edge between two nodes.
@@ -223,7 +223,7 @@ class MockWorldModel:
         self,
         source_id: str,
         target_id: str,
-        edge_type: Optional[str] = None,
+        edge_type: str | None = None,
     ) -> int:
         """
         Remove edges between nodes.
@@ -339,8 +339,8 @@ class MockWorldModel:
         return {
             "node_count": len(self.nodes),
             "edge_count": len(self.edges),
-            "node_types": list(set(n.node_type for n in self.nodes.values())),
-            "edge_types": list(set(e.edge_type for e in self.edges)),
+            "node_types": list({n.node_type for n in self.nodes.values()}),
+            "edge_types": list({e.edge_type for e in self.edges}),
         }
 
 

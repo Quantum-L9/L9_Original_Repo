@@ -1,6 +1,5 @@
 """L9 Memory Validators"""
 
-from memory.validators.packet_validator import (PacketValidationError,
-                                                PacketValidator)
+from memory.validators.packet_validator import PacketValidationError, PacketValidator
 
-__all__ = ["PacketValidator", "PacketValidationError"]
+__all__ = ["PacketValidationError", "PacketValidator"]

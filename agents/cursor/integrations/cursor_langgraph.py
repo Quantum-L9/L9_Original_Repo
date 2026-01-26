@@ -38,7 +38,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 from uuid import UUID, uuid4
 
 import structlog
@@ -64,22 +64,22 @@ class CursorAgentState(BaseModel):
     """
 
     # === Identity ===
-    thread_id: Optional[str] = Field(None, description="Thread/conversation ID")
-    task_id: Optional[str] = Field(None, description="Task identifier")
+    thread_id: str | None = Field(None, description="Thread/conversation ID")
+    task_id: str | None = Field(None, description="Task identifier")
 
     # === Input ===
     messages: list[dict[str, Any]] = Field(
         default_factory=list, description="Serialized message history"
     )
-    task: Optional[str] = Field(None, description="Current task description")
+    task: str | None = Field(None, description="Current task description")
     task_status: Literal["pending", "running", "completed", "failed"] = Field(
         default="pending", description="Task execution status"
     )
 
     # === Context ===
-    current_file: Optional[str] = Field(None, description="Currently focused file path")
-    selected_code: Optional[str] = Field(None, description="Selected code snippet")
-    project_id: Optional[str] = Field(None, description="Project identifier")
+    current_file: str | None = Field(None, description="Currently focused file path")
+    selected_code: str | None = Field(None, description="Selected code snippet")
+    project_id: str | None = Field(None, description="Project identifier")
 
     # === Reasoning & Decisions ===
     reasoning_trace: list[dict[str, Any]] = Field(
@@ -96,16 +96,16 @@ class CursorAgentState(BaseModel):
     )
 
     # === Checkpoint & Governance ===
-    last_checkpoint_id: Optional[str] = Field(
+    last_checkpoint_id: str | None = Field(
         None, description="Last checkpoint ID (PostgresSaver)"
     )
-    last_packet_id: Optional[UUID] = Field(
+    last_packet_id: UUID | None = Field(
         None, description="Last PacketEnvelope ID (dual checkpoint)"
     )
-    approval_status: Optional[str] = Field(
+    approval_status: str | None = Field(
         None, description="Current Igor approval status"
     )
-    approval_id: Optional[str] = Field(None, description="Pending approval request ID")
+    approval_id: str | None = Field(None, description="Pending approval request ID")
 
     # === Error Handling ===
     errors: list[dict[str, Any]] = Field(
@@ -130,7 +130,7 @@ class CursorPlanningNode:
     Does NOT write to memory; only plans and enriches state.
     """
 
-    def __init__(self, llm_provider: Optional[Any] = None):
+    def __init__(self, llm_provider: Any | None = None):
         """
         Initialize planning node.
 
@@ -154,7 +154,7 @@ class CursorPlanningNode:
 
         # Refine task if needed
         refined_task = state.task
-        if state.task and not state.task_status == "completed":
+        if state.task and state.task_status != "completed":
             # Simple refinement: could be enhanced with LLM
             refined_task = state.task.strip()
 
@@ -172,7 +172,7 @@ class CursorPlanningNode:
             update={
                 "task": refined_task,
                 "task_status": "running",
-                "reasoning_trace": state.reasoning_trace + [reasoning_block],
+                "reasoning_trace": [*state.reasoning_trace, reasoning_block],
             }
         )
 
@@ -227,7 +227,7 @@ class CursorMemoryWriteNode:
 
         # Write errors
         if state.errors:
-            for error in state.errors:
+            for _error in state.errors:
                 try:
                     packet_id = await self._gateway.write_error(state)
                     packet_ids.append(packet_id)
@@ -293,16 +293,14 @@ class CursorMemorySearchNode:
             return state.model_copy(
                 update={
                     "search_hits": hits,
-                    "tool_results": state.tool_results
-                    + [{"type": "memory_search", "hits": hits}],
+                    "tool_results": [*state.tool_results, {"type": "memory_search", "hits": hits}],
                 }
             )
         except Exception as e:
             logger.error("Memory search failed", error=str(e))
             return state.model_copy(
                 update={
-                    "errors": state.errors
-                    + [{"type": "memory_search_error", "error": str(e)}],
+                    "errors": [*state.errors, {"type": "memory_search_error", "error": str(e)}],
                 }
             )
 
@@ -376,7 +374,7 @@ class CursorErrorRecoveryNode:
         return state.model_copy(
             update={
                 "recovery_suggestions": recovery_suggestions,
-                "reasoning_trace": state.reasoning_trace + [reasoning_block],
+                "reasoning_trace": [*state.reasoning_trace, reasoning_block],
             }
         )
 
@@ -430,18 +428,16 @@ class CursorDecisionGateNode:
             )
 
             # Handle governance result
-            updated_state = self._approval_gate.handle_governance_result(
+            return self._approval_gate.handle_governance_result(
                 escalation_result, state
             )
 
-            return updated_state
         except Exception as e:
             logger.error("Approval escalation failed", error=str(e))
             return state.model_copy(
                 update={
                     "approval_status": "error",
-                    "errors": state.errors
-                    + [{"type": "approval_error", "error": str(e)}],
+                    "errors": [*state.errors, {"type": "approval_error", "error": str(e)}],
                 }
             )
 

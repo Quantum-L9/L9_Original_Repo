@@ -7,12 +7,14 @@ L9 operates in STRICT MODE for all CI pipelines. This document defines what is e
 ## Enforcement Points
 
 ### 1. Before Codegen Merge
+
 - `ci/validate_spec_v25.py` MUST pass
 - ALL v2.5 required sections must be present
 - NO placeholders allowed in production specs
 - NO missing keystone blocks
 
 ### 2. Before Docker Build
+
 - `ci/validate_codegen.py` MUST pass
 - ALL files in repo manifest
 - ALL tests present
@@ -20,6 +22,7 @@ L9 operates in STRICT MODE for all CI pipelines. This document defines what is e
 - NO print() statements
 
 ### 3. Before Deployment
+
 - ALL specs in repo pass validation
 - Docker smoke tests pass
 - No unacknowledged global invariants
@@ -27,6 +30,7 @@ L9 operates in STRICT MODE for all CI pipelines. This document defines what is e
 ## What is FORBIDDEN
 
 ### In Specs
+
 - `if applicable` - All sections are required
 - Optional runtime wiring - Must be explicit
 - Inferred dependencies - Must be declared
@@ -36,6 +40,7 @@ L9 operates in STRICT MODE for all CI pipelines. This document defines what is e
 - Undeclared tier - Must be in MODULE_REGISTRY
 
 ### In Code Generation
+
 - Files outside allowed_new_files or allowed_modified_files
 - Missing test files when acceptance criteria exists
 - Using `logging` instead of `structlog`
@@ -44,6 +49,7 @@ L9 operates in STRICT MODE for all CI pipelines. This document defines what is e
 - Using `print()` for output
 
 ### In Parsers
+
 - `model_config = {"extra": "allow"}` for spec models
 - `default_factory` for required sections
 - Falling back to defaults when section missing
@@ -53,13 +59,16 @@ L9 operates in STRICT MODE for all CI pipelines. This document defines what is e
 ## What is ALLOWED
 
 ### Best-Effort Patterns (Runtime Only)
+
 These patterns are allowed at RUNTIME for resilience, but NOT for spec/code validation:
 
 1. **Packet Emission**: Best-effort, non-blocking
+
    - Observability should not break execution
    - Documented explicitly in executor
 
 2. **Metric Collection**: Best-effort
+
    - Telemetry should not break execution
 
 3. **Logging Flush on Shutdown**: Best-effort
@@ -90,29 +99,10 @@ make ci-all-specs
 ## Consequences of Failure
 
 When CI gates fail:
+
 1. **Merge blocked**: Cannot merge to main
 2. **Build blocked**: Cannot build Docker image
 3. **Deploy blocked**: Cannot deploy to VPS
 4. **Human intervention required**: C must fix issues manually
 
 This is intentional. Bad output cannot enter the repo.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

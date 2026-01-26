@@ -1,8 +1,8 @@
 # Slack Integration – L9 Subsystem README
 
-> **Location:** `api/` (Slack-related files)  
-> **Status:** ✅ Production  
-> **Last Updated:** 2026-01-06  
+> **Location:** `api/` (Slack-related files)
+> **Status:** ✅ Production
+> **Last Updated:** 2026-01-06
 > **Owner:** L9 Core Team
 
 ---
@@ -122,36 +122,36 @@ This integration fits into the larger L9 system as a **primary user interface** 
 
 ### ✅ Supported Responsibilities
 
-| Responsibility | Owner File |
-|----------------|------------|
-| Webhook signature verification (HMAC-SHA256) | `api/slack_adapter.py` |
-| Request normalization (events, commands) | `api/slack_adapter.py` |
-| Rate limiting (per-team) | `memory/slack_ingest.py` |
-| Deduplication (idempotent event processing) | `memory/slack_ingest.py` |
-| Channel permission checks | `memory/slack_ingest.py` |
-| Packet creation and memory storage | `memory/slack_ingest.py` |
-| Reply posting to Slack | `api/slack_client.py` |
-| Thread context management | `api/routes/slack.py` |
+| Responsibility                               | Owner File               |
+| -------------------------------------------- | ------------------------ |
+| Webhook signature verification (HMAC-SHA256) | `api/slack_adapter.py`   |
+| Request normalization (events, commands)     | `api/slack_adapter.py`   |
+| Rate limiting (per-team)                     | `memory/slack_ingest.py` |
+| Deduplication (idempotent event processing)  | `memory/slack_ingest.py` |
+| Channel permission checks                    | `memory/slack_ingest.py` |
+| Packet creation and memory storage           | `memory/slack_ingest.py` |
+| Reply posting to Slack                       | `api/slack_client.py`    |
+| Thread context management                    | `api/routes/slack.py`    |
 
 ### ❌ Explicit Non-Responsibilities
 
-| Not Handled | Why |
-|-------------|-----|
-| Slack OAuth flow | Handled by Slack app configuration |
-| User identity management | Uses Slack user IDs directly |
-| Workspace provisioning | Manual setup required |
-| Interactive modals/buttons | Not implemented (future work) |
-| File uploads | Not implemented |
+| Not Handled                | Why                                |
+| -------------------------- | ---------------------------------- |
+| Slack OAuth flow           | Handled by Slack app configuration |
+| User identity management   | Uses Slack user IDs directly       |
+| Workspace provisioning     | Manual setup required              |
+| Interactive modals/buttons | Not implemented (future work)      |
+| File uploads               | Not implemented                    |
 
 ### Dependencies
 
-| Direction | Dependency | Purpose |
-|-----------|------------|---------|
-| **Inbound** | Slack Events API | Receives webhooks |
-| **Outbound** | Slack Web API | Posts messages |
-| **Internal** | Memory Substrate | Stores packets |
-| **Internal** | AIOS Runtime | Agent reasoning |
-| **Internal** | Neo4j | Event graph storage |
+| Direction    | Dependency       | Purpose             |
+| ------------ | ---------------- | ------------------- |
+| **Inbound**  | Slack Events API | Receives webhooks   |
+| **Outbound** | Slack Web API    | Posts messages      |
+| **Internal** | Memory Substrate | Stores packets      |
+| **Internal** | AIOS Runtime     | Agent reasoning     |
+| **Internal** | Neo4j            | Event graph storage |
 
 ---
 
@@ -162,7 +162,7 @@ api/
 ├── routes/
 │   └── slack.py          # FastAPI router (344 lines)
 │                         # - POST /slack/events
-│                         # - POST /slack/commands  
+│                         # - POST /slack/commands
 │                         # - GET /slack/health
 │
 ├── slack_adapter.py      # Request validation (296 lines)
@@ -190,13 +190,14 @@ memory/
 
 The FastAPI router handling all Slack endpoints.
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/slack/events` | POST | Receive Slack Events API webhooks |
-| `/slack/commands` | POST | Handle `/l9` slash commands |
-| `/slack/health` | GET | Health check for monitoring |
+| Endpoint          | Method | Purpose                           |
+| ----------------- | ------ | --------------------------------- |
+| `/slack/events`   | POST   | Receive Slack Events API webhooks |
+| `/slack/commands` | POST   | Handle `/l9` slash commands       |
+| `/slack/health`   | GET    | Health check for monitoring       |
 
 **Key behaviors:**
+
 - URL verification challenge response (for Slack app setup)
 - Signature verification before processing
 - Rate limit checking (100 events/min/team)
@@ -206,13 +207,14 @@ The FastAPI router handling all Slack endpoints.
 
 Core security layer for Slack webhooks.
 
-| Class | Purpose |
-|-------|---------|
-| `SlackRequestValidator` | HMAC-SHA256 signature verification |
-| `SlackRequestNormalizer` | Parse events/commands into typed dicts |
-| `SlackSignatureVerificationError` | Custom exception for auth failures |
+| Class                             | Purpose                                |
+| --------------------------------- | -------------------------------------- |
+| `SlackRequestValidator`           | HMAC-SHA256 signature verification     |
+| `SlackRequestNormalizer`          | Parse events/commands into typed dicts |
+| `SlackSignatureVerificationError` | Custom exception for auth failures     |
 
 **Security guarantees:**
+
 - 5-minute timestamp tolerance (replay attack prevention)
 - Constant-time signature comparison (timing attack prevention)
 - Fail-closed: invalid signature = 401, no processing
@@ -221,12 +223,13 @@ Core security layer for Slack webhooks.
 
 Async client for posting messages back to Slack.
 
-| Class | Purpose |
-|-------|---------|
-| `SlackAPIClient` | Wrapper for `chat.postMessage` |
+| Class              | Purpose                           |
+| ------------------ | --------------------------------- |
+| `SlackAPIClient`   | Wrapper for `chat.postMessage`    |
 | `SlackClientError` | Custom exception for API failures |
 
 **Features:**
+
 - Thread reply support (`thread_ts`)
 - Block Kit formatting support
 - 10-second timeout with explicit error handling
@@ -235,13 +238,13 @@ Async client for posting messages back to Slack.
 
 The brain of Slack integration.
 
-| Function | Purpose |
-|----------|---------|
-| `SlackIngestService.ingest()` | Main entry point |
-| Deduplication | Prevent duplicate processing via event_id |
-| Rate limiting | 100 events/min per team_id |
-| Permission check | Channel allowlist enforcement |
-| AIOS dispatch | Invoke agent runtime for response |
+| Function                      | Purpose                                   |
+| ----------------------------- | ----------------------------------------- |
+| `SlackIngestService.ingest()` | Main entry point                          |
+| Deduplication                 | Prevent duplicate processing via event_id |
+| Rate limiting                 | 100 events/min per team_id                |
+| Permission check              | Channel allowlist enforcement             |
+| AIOS dispatch                 | Invoke agent runtime for response         |
 
 ---
 
@@ -269,12 +272,12 @@ The brain of Slack integration.
 
 ### Invariants
 
-| Rule | Enforcement |
-|------|-------------|
+| Rule                           | Enforcement                        |
+| ------------------------------ | ---------------------------------- |
 | `thread_uuid` is deterministic | UUIDv5 from team:channel:thread_ts |
-| Timestamps are Unix epoch | Slack format preserved |
-| `event_id` is unique per event | Used for deduplication |
-| All IDs are Slack-native | No internal ID translation |
+| Timestamps are Unix epoch      | Slack format preserved             |
+| `event_id` is unique per event | Used for deduplication             |
+| All IDs are Slack-native       | No internal ID translation         |
 
 ---
 
@@ -282,19 +285,19 @@ The brain of Slack integration.
 
 ### Environment Variables
 
-| Variable | Required | Purpose |
-|----------|----------|---------|
-| `SLACK_SIGNING_SECRET` | ✅ | HMAC signing secret from Slack app |
-| `SLACK_BOT_TOKEN` | ✅ | Bot token (`xoxb-...`) for API calls |
-| `SLACK_APP_ENABLED` | ❌ | Feature flag (default: true) |
-| `SLACK_RATE_LIMIT` | ❌ | Events/min per team (default: 100) |
-| `SLACK_ALLOWED_CHANNELS` | ❌ | Comma-separated channel IDs |
+| Variable                 | Required | Purpose                              |
+| ------------------------ | -------- | ------------------------------------ |
+| `SLACK_SIGNING_SECRET`   | ✅       | HMAC signing secret from Slack app   |
+| `SLACK_BOT_TOKEN`        | ✅       | Bot token (`xoxb-...`) for API calls |
+| `SLACK_APP_ENABLED`      | ❌       | Feature flag (default: true)         |
+| `SLACK_RATE_LIMIT`       | ❌       | Events/min per team (default: 100)   |
+| `SLACK_ALLOWED_CHANNELS` | ❌       | Comma-separated channel IDs          |
 
 ### Feature Flags
 
-| Flag | Default | Purpose |
-|------|---------|---------|
-| `_has_slack` | True | Enables Slack router in server.py |
+| Flag         | Default | Purpose                           |
+| ------------ | ------- | --------------------------------- |
+| `_has_slack` | True    | Enables Slack router in server.py |
 
 ---
 
@@ -302,33 +305,33 @@ The brain of Slack integration.
 
 ### Logs
 
-| Log Event | Level | Contains |
-|-----------|-------|----------|
-| `slack_event_received` | INFO | event_id, team_id, channel_id |
-| `slack_signature_valid` | DEBUG | timestamp, duration |
-| `slack_signature_failed` | WARN | reason, headers |
-| `slack_message_posted` | INFO | channel, ts, thread_ts |
-| `slack_rate_limited` | WARN | team_id, current_count |
+| Log Event                | Level | Contains                      |
+| ------------------------ | ----- | ----------------------------- |
+| `slack_event_received`   | INFO  | event_id, team_id, channel_id |
+| `slack_signature_valid`  | DEBUG | timestamp, duration           |
+| `slack_signature_failed` | WARN  | reason, headers               |
+| `slack_message_posted`   | INFO  | channel, ts, thread_ts        |
+| `slack_rate_limited`     | WARN  | team_id, current_count        |
 
 ### Metrics (via Prometheus)
 
-| Metric | Type | Labels |
-|--------|------|--------|
-| `slack_events_total` | Counter | team_id, event_type, status |
-| `slack_event_latency_seconds` | Histogram | team_id |
-| `slack_rate_limit_hits_total` | Counter | team_id |
+| Metric                        | Type      | Labels                      |
+| ----------------------------- | --------- | --------------------------- |
+| `slack_events_total`          | Counter   | team_id, event_type, status |
+| `slack_event_latency_seconds` | Histogram | team_id                     |
+| `slack_rate_limit_hits_total` | Counter   | team_id                     |
 
 ---
 
 ## Failure Modes and Resilience
 
-| Failure | Detection | Recovery |
-|---------|-----------|----------|
-| Invalid signature | 401 response | Slack retries 3x |
-| Rate limit exceeded | 429 response | Automatic backoff |
-| AIOS timeout | Error packet logged | Message not replied |
-| Slack API error | Exception logged | Retry with backoff |
-| Memory substrate down | Circuit breaker | Graceful degradation |
+| Failure               | Detection           | Recovery             |
+| --------------------- | ------------------- | -------------------- |
+| Invalid signature     | 401 response        | Slack retries 3x     |
+| Rate limit exceeded   | 429 response        | Automatic backoff    |
+| AIOS timeout          | Error packet logged | Message not replied  |
+| Slack API error       | Exception logged    | Retry with backoff   |
+| Memory substrate down | Circuit breaker     | Graceful degradation |
 
 ### Retry Policy
 
@@ -342,19 +345,19 @@ The brain of Slack integration.
 
 ### Files AI May Edit
 
-| File | Scope |
-|------|-------|
-| `api/routes/slack.py` | Add endpoints, modify handlers |
-| `memory/slack_ingest.py` | Modify business logic |
-| Tests in `tests/` | Add/modify test cases |
+| File                     | Scope                          |
+| ------------------------ | ------------------------------ |
+| `api/routes/slack.py`    | Add endpoints, modify handlers |
+| `memory/slack_ingest.py` | Modify business logic          |
+| Tests in `tests/`        | Add/modify test cases          |
 
 ### Files AI Should NOT Edit Without Review
 
-| File | Reason |
-|------|--------|
+| File                   | Reason                                   |
+| ---------------------- | ---------------------------------------- |
 | `api/slack_adapter.py` | Security-critical signature verification |
-| `api/slack_client.py` | External API contract |
-| `api/server.py` | Core server wiring |
+| `api/slack_client.py`  | External API contract                    |
+| `api/server.py`        | Core server wiring                       |
 
 ### Required Pre-Reading
 
@@ -397,11 +400,11 @@ pytest tests/integration/test_slack_flow.py -v
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
+| Date       | Change                                                           |
+| ---------- | ---------------------------------------------------------------- |
 | 2026-01-06 | Deleted unused v2.6 stub adapter (`api/adapters/slack_adapter/`) |
-| 2025-12-XX | Added rate limiting and permission checks |
-| 2025-12-XX | Initial Slack v2.0+ implementation |
+| 2025-12-XX | Added rate limiting and permission checks                        |
+| 2025-12-XX | Initial Slack v2.0+ implementation                               |
 
 ---
 
@@ -410,4 +413,3 @@ pytest tests/integration/test_slack_flow.py -v
 - [L9 Memory Substrate](../memory/README.md)
 - [AIOS Runtime](../core/agents/README.md)
 - [Slack API Documentation](https://api.slack.com/)
-

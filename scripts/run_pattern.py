@@ -59,19 +59,19 @@ def parse_args() -> argparse.Namespace:
 Examples:
     # Execute with default configs
     python scripts/run_pattern.py "Build a user authentication system"
-    
+
     # Execute with custom config
     python scripts/run_pattern.py --config config/patterns/pipeline_v1.yaml "Design API"
-    
+
     # Dry run (validate without agent execution)
     python scripts/run_pattern.py --dry-run "Test prompt"
-    
+
     # Use direct LLM agent (no consensus loop)
     python scripts/run_pattern.py --agent direct "Build X"
-    
+
     # Multiple prompts
     python scripts/run_pattern.py "Prompt 1" "Prompt 2" "Prompt 3"
-    
+
     # Output as JSON
     python scripts/run_pattern.py --json "Build a caching layer"
         """,
@@ -150,13 +150,13 @@ def create_agent(agent_type: str, model: str):
 
         return CellAgentAdapter(model=model)
 
-    elif agent_type == "direct":
+    if agent_type == "direct":
         from orchestrators.pattern.cell_adapter import DirectLLMAgent
 
         return DirectLLMAgent(model=model)
 
-    else:  # stub
-        return None  # PatternOrchestrator will use StubAgent
+    # stub
+    return None  # PatternOrchestrator will use StubAgent
 
 
 async def run_pattern(args: argparse.Namespace) -> dict:

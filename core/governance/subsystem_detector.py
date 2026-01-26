@@ -30,7 +30,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 import yaml
@@ -121,9 +121,9 @@ SUBSYSTEM_PRIORITY = ["auth", "tools", "memory_retrieval", "code_mutation"]
 
 
 def detect_subsystem(
-    files: Optional[list[str]] = None,
-    prompt: Optional[str] = None,
-    explicit: Optional[str] = None,
+    files: list[str] | None = None,
+    prompt: str | None = None,
+    explicit: str | None = None,
 ) -> str:
     """
     Detect the appropriate subsystem based on context.
@@ -283,9 +283,9 @@ def get_high_risk_triggers(subsystem: str) -> list[str]:
 
 
 def get_subsystem_context(
-    files: Optional[list[str]] = None,
-    prompt: Optional[str] = None,
-    explicit: Optional[str] = None,
+    files: list[str] | None = None,
+    prompt: str | None = None,
+    explicit: str | None = None,
 ) -> dict[str, Any]:
     """
     Get full subsystem context for pipeline execution.

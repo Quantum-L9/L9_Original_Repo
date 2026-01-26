@@ -11,6 +11,7 @@ Include **execution plan snapshots** in graph checkpoints to enable crash recove
 ## Context
 
 L9's current checkpoints store execution state but not the plan being executed. On crash recovery:
+
 - We can restore to a checkpoint
 - But we don't know what plan step was being executed
 - Recovery requires manual plan reconstruction
@@ -59,25 +60,25 @@ import time
 class GraphCheckpoint:
     """
     Checkpoint with execution plan snapshot.
-    
+
     Fields:
     - execution_plan_snapshot: Serialized Plan for crash recovery
     - step_index: Current step being executed
     - state: Full execution state
     """
-    
+
     checkpoint_id: UUID
     execution_plan_snapshot: Optional[Dict[str, Any]] = None  # NEW
     step_index: int = 0
     state: Dict[str, Any] = None
     timestamp: float = None
-    
+
     def __post_init__(self):
         if self.timestamp is None:
             self.timestamp = time.time()
         if self.state is None:
             self.state = {}
-    
+
     def to_neo4j_node(self) -> Dict[str, Any]:
         """Convert to Neo4j node properties."""
         return {
@@ -87,7 +88,7 @@ class GraphCheckpoint:
             "state": json.dumps(self.state),
             "timestamp": self.timestamp,
         }
-    
+
     @classmethod
     def from_neo4j_node(cls, node_data: Dict[str, Any]) -> "GraphCheckpoint":
         """Create from Neo4j node."""
@@ -97,14 +98,14 @@ class GraphCheckpoint:
                 plan_snapshot = json.loads(node_data["execution_plan_snapshot"])
             except json.JSONDecodeError:
                 pass
-        
+
         state = {}
         if node_data.get("state"):
             try:
                 state = json.loads(node_data["state"])
             except json.JSONDecodeError:
                 pass
-        
+
         return cls(
             checkpoint_id=UUID(node_data["checkpoint_id"]),
             execution_plan_snapshot=plan_snapshot,
@@ -124,7 +125,7 @@ from typing import Optional, Tuple
 
 class SubstrateGraph:
     """Neo4j graph operations."""
-    
+
     async def create_checkpoint(
         self,
         execution_plan,  # Plan object
@@ -133,29 +134,29 @@ class SubstrateGraph:
     ) -> str:
         """
         Create checkpoint with plan snapshot.
-        
+
         Args:
             execution_plan: Current Plan being executed
             current_step_index: Which step we're on
             state: Additional execution state
-        
+
         Returns:
             Checkpoint ID
         """
         checkpoint_id = uuid4()
-        
+
         # Serialize plan
         plan_dict = execution_plan.to_dict() if hasattr(execution_plan, 'to_dict') else {}
-        
+
         checkpoint = GraphCheckpoint(
             checkpoint_id=checkpoint_id,
             execution_plan_snapshot=plan_dict,
             step_index=current_step_index,
             state=state,
         )
-        
+
         node_props = checkpoint.to_neo4j_node()
-        
+
         await self._neo4j.execute(
             """
             CREATE (cp:Checkpoint {
@@ -169,16 +170,16 @@ class SubstrateGraph:
             """,
             node_props,
         )
-        
+
         return str(checkpoint_id)
-    
+
     async def restore_checkpoint(
         self,
         checkpoint_id: str,
     ) -> Optional[Tuple["Plan", int, dict]]:
         """
         Restore checkpoint with plan.
-        
+
         Returns:
             Tuple of (Plan, step_index, state) or None if not found
         """
@@ -189,16 +190,16 @@ class SubstrateGraph:
             """,
             {"checkpoint_id": checkpoint_id},
         )
-        
+
         if not result:
             return None
-        
+
         checkpoint = GraphCheckpoint.from_neo4j_node(result["cp"])
-        
+
         # Deserialize plan
         from core.schemas.plan import Plan
         plan = Plan.from_dict(checkpoint.execution_plan_snapshot) if checkpoint.execution_plan_snapshot else None
-        
+
         return plan, checkpoint.step_index, checkpoint.state
 ```
 
@@ -209,10 +210,10 @@ class SubstrateGraph:
 
 class PlanExecutor:
     """Executes plans with checkpoint support."""
-    
+
     async def execute_plan(self, plan: "Plan") -> "ExecutionResult":
         """Execute plan with checkpoint snapshots."""
-        
+
         for step_index, step in enumerate(plan.steps):
             # Create checkpoint before each step
             checkpoint_id = await self._graph.create_checkpoint(
@@ -220,7 +221,7 @@ class PlanExecutor:
                 current_step_index=step_index,
                 state={"last_result": self._last_result},
             )
-            
+
             try:
                 result = await self._execute_step(step)
                 self._last_result = result
@@ -230,30 +231,30 @@ class PlanExecutor:
                     f"Failed at step {step_index}",
                     checkpoint_id=checkpoint_id,
                 ) from e
-        
+
         return ExecutionResult(...)
-    
+
     async def resume_from_checkpoint(
         self,
         checkpoint_id: str,
     ) -> "ExecutionResult":
         """Resume execution from checkpoint."""
-        
+
         restored = await self._graph.restore_checkpoint(checkpoint_id)
         if not restored:
             raise CheckpointNotFoundError(checkpoint_id)
-        
+
         plan, step_index, state = restored
         self._last_result = state.get("last_result")
-        
+
         # Resume from step_index
         for i, step in enumerate(plan.steps):
             if i < step_index:
                 continue  # Skip completed steps
-            
+
             result = await self._execute_step(step)
             self._last_result = result
-        
+
         return ExecutionResult(...)
 ```
 

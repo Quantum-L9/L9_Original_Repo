@@ -44,17 +44,17 @@ __dora_meta__ = {
 import asyncio
 import re
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 import structlog
 
-from memory.substrate_repository import SubstrateRepository
 from memory.deduplication import (
     DeduplicationEngine,
     MergeStrategy,
     SimilarityMethod,
 )
+from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -67,11 +67,11 @@ class ConsolidationReport:
         self.archived_count = 0
         self.summarized_count = 0
         self.expired_count = 0
-        self.errors: List[str] = []
+        self.errors: list[str] = []
         self.start_time = datetime.utcnow()
-        self.end_time: Optional[datetime] = None
+        self.end_time: datetime | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert report to dict."""
         duration = None
         if self.end_time:
@@ -102,9 +102,9 @@ class ConsolidationPipeline:
 
     def __init__(
         self,
-        repository: Optional[SubstrateRepository] = None,
+        repository: SubstrateRepository | None = None,
         dry_run: bool = False,
-        dedup_engine: Optional[DeduplicationEngine] = None,
+        dedup_engine: DeduplicationEngine | None = None,
     ):
         """
         Initialize consolidation pipeline.
@@ -220,7 +220,7 @@ class ConsolidationPipeline:
 
         except Exception as e:
             logger.error("Consolidation pipeline failed", error=str(e), exc_info=True)
-            report.errors.append(f"Pipeline error: {str(e)}")
+            report.errors.append(f"Pipeline error: {e!s}")
 
         finally:
             report.end_time = datetime.utcnow()
@@ -268,7 +268,7 @@ class ConsolidationPipeline:
                 rows = await conn.fetch(
                     """
                     WITH embedding_pairs AS (
-                        SELECT 
+                        SELECT
                             e1.embedding_id as id1,
                             e2.embedding_id as id2,
                             e1.payload->>'packet_id' as packet_id_1,
@@ -277,7 +277,7 @@ class ConsolidationPipeline:
                             e1.created_at as created_1,
                             e2.created_at as created_2
                         FROM semantic_memory e1
-                        INNER JOIN semantic_memory e2 
+                        INNER JOIN semantic_memory e2
                             ON e1.embedding_id < e2.embedding_id
                         WHERE 1 - (e1.vector <=> e2.vector) >= $1
                         LIMIT $2
@@ -302,7 +302,10 @@ class ConsolidationPipeline:
                     similarity = row["similarity"]
 
                     # Determine which packet to keep based on merge strategy
-                    packet_id_to_keep, packet_id_to_mark = await self._resolve_duplicate_pair(
+                    (
+                        packet_id_to_keep,
+                        packet_id_to_mark,
+                    ) = await self._resolve_duplicate_pair(
                         conn=conn,
                         packet_id_1=packet_id_1,
                         packet_id_2=packet_id_2,
@@ -314,9 +317,9 @@ class ConsolidationPipeline:
                     if packet_id_to_mark:
                         await conn.execute(
                             """
-                            UPDATE packet_store 
+                            UPDATE packet_store
                             SET tags = array_append(
-                                COALESCE(tags, ARRAY[]::text[]), 
+                                COALESCE(tags, ARRAY[]::text[]),
                                 $1
                             )
                             WHERE packet_id = $2::uuid
@@ -350,8 +353,8 @@ class ConsolidationPipeline:
         conn: Any,
         packet_id_1: str,
         packet_id_2: str,
-        created_1: Optional[datetime],
-        created_2: Optional[datetime],
+        created_1: datetime | None,
+        created_2: datetime | None,
     ) -> tuple[str, str]:
         """
         Resolve which packet to keep in a duplicate pair using DeduplicationEngine strategy.
@@ -372,7 +375,7 @@ class ConsolidationPipeline:
             # Fetch confidence scores from both packets
             rows = await conn.fetch(
                 """
-                SELECT packet_id, 
+                SELECT packet_id,
                        COALESCE((envelope->'metadata'->>'confidence')::float, 0.0) as confidence
                 FROM packet_store
                 WHERE packet_id = ANY($1::uuid[])
@@ -383,30 +386,29 @@ class ConsolidationPipeline:
             if len(rows) == 2:
                 # Sort by confidence descending, keep highest
                 sorted_rows = sorted(rows, key=lambda r: r["confidence"], reverse=True)
-                return str(sorted_rows[0]["packet_id"]), str(sorted_rows[1]["packet_id"])
+                return str(sorted_rows[0]["packet_id"]), str(
+                    sorted_rows[1]["packet_id"]
+                )
 
         elif merge_strategy == MergeStrategy.KEEP_MOST_RECENT:
             # Keep the more recently created packet
             if created_1 and created_2:
                 if created_1 >= created_2:
                     return packet_id_1, packet_id_2
-                else:
-                    return packet_id_2, packet_id_1
+                return packet_id_2, packet_id_1
 
         elif merge_strategy == MergeStrategy.KEEP_FIRST:
             # Keep the older packet (first created)
             if created_1 and created_2:
                 if created_1 <= created_2:
                     return packet_id_1, packet_id_2
-                else:
-                    return packet_id_2, packet_id_1
+                return packet_id_2, packet_id_1
 
         # Default fallback: keep older packet (original behavior)
         if created_1 and created_2:
             if created_1 <= created_2:
                 return packet_id_1, packet_id_2
-            else:
-                return packet_id_2, packet_id_1
+            return packet_id_2, packet_id_1
 
         # If no timestamps, keep first by ID order
         return packet_id_1, packet_id_2
@@ -495,7 +497,7 @@ class ConsolidationPipeline:
                 # Must have access_count >= threshold and not already summarized
                 rows = await conn.fetch(
                     """
-                    SELECT 
+                    SELECT
                         packet_id,
                         packet_type,
                         envelope,

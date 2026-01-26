@@ -52,7 +52,7 @@ __dora_meta__ = {
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -94,9 +94,9 @@ class Reflection:
     tags: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=datetime.utcnow)
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     access_count: int = 0
-    last_accessed: Optional[datetime] = None
+    last_accessed: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -167,9 +167,9 @@ class Improvement:
     status: str = "proposed"  # proposed, in_progress, implemented, rejected
     priority: ReflectionPriority = ReflectionPriority.MEDIUM
     expected_impact: str = ""
-    actual_impact: Optional[str] = None
+    actual_impact: str | None = None
     created_at: datetime = field(default_factory=datetime.utcnow)
-    implemented_at: Optional[datetime] = None
+    implemented_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -210,7 +210,7 @@ class TaskReflection:
     lessons: list[str] = field(default_factory=list)
     recommendations: list[str] = field(default_factory=list)
     related_decisions: list[str] = field(default_factory=list)
-    execution_time_ms: Optional[float] = None
+    execution_time_ms: float | None = None
     created_at: datetime = field(default_factory=datetime.utcnow)
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -232,7 +232,7 @@ class TaskReflection:
         }
 
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "TaskReflection":
+    def from_dict(cls, data: dict[str, Any]) -> TaskReflection:
         return cls(
             task_id=data.get("task_id", ""),
             reflection_id=(
@@ -320,8 +320,8 @@ class ReflectionMemory:
         priority: ReflectionPriority = ReflectionPriority.MEDIUM,
         confidence: float = 0.8,
         source: str = "",
-        tags: Optional[list[str]] = None,
-        metadata: Optional[dict[str, Any]] = None,
+        tags: list[str] | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> Reflection:
         """
         Add a new reflection.
@@ -369,7 +369,7 @@ class ReflectionMemory:
 
         return reflection
 
-    def get_reflection(self, reflection_id: UUID) -> Optional[Reflection]:
+    def get_reflection(self, reflection_id: UUID) -> Reflection | None:
         """Get a reflection by ID."""
         reflection = self._reflections.get(reflection_id)
         if reflection:
@@ -380,9 +380,9 @@ class ReflectionMemory:
     def update_reflection(
         self,
         reflection_id: UUID,
-        content: Optional[str] = None,
-        confidence: Optional[float] = None,
-        priority: Optional[ReflectionPriority] = None,
+        content: str | None = None,
+        confidence: float | None = None,
+        priority: ReflectionPriority | None = None,
     ) -> bool:
         """Update a reflection."""
         reflection = self._reflections.get(reflection_id)
@@ -438,8 +438,8 @@ class ReflectionMemory:
         name: str,
         description: str,
         impact: str = "neutral",
-        triggers: Optional[list[str]] = None,
-        outcomes: Optional[list[str]] = None,
+        triggers: list[str] | None = None,
+        outcomes: list[str] | None = None,
     ) -> Pattern:
         """
         Add or update a pattern.
@@ -473,7 +473,7 @@ class ReflectionMemory:
         self._patterns[pattern.pattern_id] = pattern
         return pattern
 
-    def find_pattern_by_name(self, name: str) -> Optional[Pattern]:
+    def find_pattern_by_name(self, name: str) -> Pattern | None:
         """Find a pattern by name."""
         for pattern in self._patterns.values():
             if pattern.name.lower() == name.lower():
@@ -524,7 +524,7 @@ class ReflectionMemory:
         self,
         improvement_id: UUID,
         status: str,
-        actual_impact: Optional[str] = None,
+        actual_impact: str | None = None,
     ) -> bool:
         """Update improvement status."""
         improvement = self._improvements.get(improvement_id)
@@ -677,12 +677,12 @@ class ReflectionMemory:
 
     def query_reflections(
         self,
-        task_id: Optional[str] = None,
-        filters: Optional[dict[str, Any]] = None,
-        reflection_type: Optional[ReflectionType] = None,
-        tags: Optional[list[str]] = None,
+        task_id: str | None = None,
+        filters: dict[str, Any] | None = None,
+        reflection_type: ReflectionType | None = None,
+        tags: list[str] | None = None,
         min_confidence: float = 0.0,
-        priority: Optional[ReflectionPriority] = None,
+        priority: ReflectionPriority | None = None,
         limit: int = 100,
     ) -> list[Reflection | TaskReflection]:
         """
@@ -744,14 +744,12 @@ class ReflectionMemory:
     ) -> bool:
         """Check if task reflection matches filters."""
         # Outcome filter
-        if "outcome" in filters:
-            if reflection.outcome != filters["outcome"]:
-                return False
+        if "outcome" in filters and reflection.outcome != filters["outcome"]:
+            return False
 
         # Has lessons filter
-        if filters.get("has_lessons"):
-            if not reflection.lessons:
-                return False
+        if filters.get("has_lessons") and not reflection.lessons:
+            return False
 
         # Has false constraints filter
         if filters.get("has_false_constraints"):
@@ -767,10 +765,10 @@ class ReflectionMemory:
 
     def _query_standard_reflections(
         self,
-        reflection_type: Optional[ReflectionType],
-        tags: Optional[list[str]],
+        reflection_type: ReflectionType | None,
+        tags: list[str] | None,
         min_confidence: float,
-        priority: Optional[ReflectionPriority],
+        priority: ReflectionPriority | None,
         limit: int,
     ) -> list[Reflection]:
         """Query standard reflections (existing method renamed internally)."""
@@ -792,9 +790,8 @@ class ReflectionMemory:
             if priority and reflection.priority != priority:
                 continue
 
-            if tags:
-                if not any(tag in reflection.tags for tag in tags):
-                    continue
+            if tags and not any(tag in reflection.tags for tag in tags):
+                continue
 
             results.append(reflection)
 
@@ -803,7 +800,7 @@ class ReflectionMemory:
 
         return results
 
-    def get_task_reflection(self, task_id: str) -> Optional[TaskReflection]:
+    def get_task_reflection(self, task_id: str) -> TaskReflection | None:
         """Get task reflection by ID."""
         return self._task_reflections.get(task_id)
 
@@ -878,10 +875,10 @@ class ReflectionMemory:
 
     def popup_examples_for_ir_engine(
         self,
-        intent_type: Optional[str] = None,
-        action_type: Optional[str] = None,
-        context: Optional[str] = None,
-        outcome_filter: Optional[str] = None,
+        intent_type: str | None = None,
+        action_type: str | None = None,
+        context: str | None = None,
+        outcome_filter: str | None = None,
         limit: int = 5,
     ) -> list[dict[str, Any]]:
         """
@@ -993,7 +990,7 @@ class ReflectionMemory:
     def get_lessons_for_constraint_challenge(
         self,
         constraint_description: str,
-        constraint_type: Optional[str] = None,
+        constraint_type: str | None = None,
         limit: int = 5,
     ) -> list[dict[str, Any]]:
         """
@@ -1061,7 +1058,7 @@ class ReflectionMemory:
     def get_patterns_for_intent(
         self,
         intent_description: str,
-        intent_type: Optional[str] = None,
+        intent_type: str | None = None,
         outcome_preference: str = "success",
         limit: int = 5,
     ) -> list[dict[str, Any]]:
@@ -1150,8 +1147,8 @@ class ReflectionMemory:
         self,
         lesson: str,
         context: str,
-        task_id: Optional[str] = None,
-        tags: Optional[list[str]] = None,
+        task_id: str | None = None,
+        tags: list[str] | None = None,
         confidence: float = 0.8,
     ) -> Reflection:
         """
@@ -1187,8 +1184,8 @@ class ReflectionMemory:
         self,
         failure_description: str,
         root_cause: str,
-        task_id: Optional[str] = None,
-        recommended_fix: Optional[str] = None,
+        task_id: str | None = None,
+        recommended_fix: str | None = None,
         confidence: float = 0.7,
     ) -> Reflection:
         """

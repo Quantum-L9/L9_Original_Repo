@@ -17,7 +17,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_knowledge_facts_upsert_key
 -- =============================================================================
 -- Comments
 -- =============================================================================
-COMMENT ON INDEX idx_knowledge_facts_upsert_key IS 
+COMMENT ON INDEX idx_knowledge_facts_upsert_key IS
     'Enables idempotent UPSERT: same packet enriched twice = no duplicates (GMP-67)';
 
 -- =============================================================================

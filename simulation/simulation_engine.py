@@ -46,7 +46,7 @@ import random
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -59,10 +59,10 @@ from core.decorators import must_stay_async
 logger = structlog.get_logger(__name__)
 
 # Memory substrate packet emission (optional integration)
-_memory_substrate: Optional["MemorySubstrateService"] = None
+_memory_substrate: MemorySubstrateService | None = None
 
 
-def set_memory_substrate(substrate: "MemorySubstrateService") -> None:
+def set_memory_substrate(substrate: MemorySubstrateService) -> None:
     """Set the memory substrate for packet emission."""
     global _memory_substrate
     _memory_substrate = substrate
@@ -86,7 +86,7 @@ class SimulationConfig:
     timeout_ms: int = 60000
     failure_probability: float = 0.1  # Base failure probability
     resource_constraints: dict[str, float] = field(default_factory=dict)
-    random_seed: Optional[int] = None
+    random_seed: int | None = None
     parallel_actions: bool = True
     collect_metrics: bool = True
 
@@ -113,11 +113,11 @@ class SimulationStep:
     action_id: UUID = field(default_factory=uuid4)
     action_type: str = ""
     status: str = "pending"  # pending, running, completed, failed, skipped
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
     duration_ms: int = 0
     resource_used: dict[str, float] = field(default_factory=dict)
-    error: Optional[str] = None
+    error: str | None = None
     dependencies_satisfied: bool = True
 
 
@@ -133,8 +133,8 @@ class SimulationRun:
     metrics: SimulationMetrics = field(default_factory=SimulationMetrics)
     failure_modes: list[str] = field(default_factory=list)
     score: float = 0.0
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -161,7 +161,7 @@ class SimulationEngine:
     - Score candidates
     """
 
-    def __init__(self, config: Optional[SimulationConfig] = None):
+    def __init__(self, config: SimulationConfig | None = None):
         """
         Initialize the simulation engine.
 
@@ -181,7 +181,7 @@ class SimulationEngine:
     async def simulate(
         self,
         graph_data: dict[str, Any],
-        scenario: Optional[dict[str, Any]] = None,
+        scenario: dict[str, Any] | None = None,
     ) -> SimulationRun:
         """
         Simulate IR graph execution.
@@ -259,8 +259,7 @@ class SimulationEngine:
             return  # No substrate attached, skip emission
 
         try:
-            from core.schemas import (PacketConfidence, PacketEnvelope,
-                                      PacketProvenance)
+            from core.schemas import PacketConfidence, PacketEnvelope, PacketProvenance
 
             packet = PacketEnvelope(
                 packet_type="simulation_result",
@@ -327,7 +326,7 @@ class SimulationEngine:
         run: SimulationRun,
         actions: list[dict[str, Any]],
         dep_graph: dict[str, list[str]],
-        scenario: Optional[dict[str, Any]],
+        scenario: dict[str, Any] | None,
     ) -> None:
         """Fast heuristic simulation."""
         for action in actions:
@@ -359,7 +358,7 @@ class SimulationEngine:
         run: SimulationRun,
         actions: list[dict[str, Any]],
         dep_graph: dict[str, list[str]],
-        scenario: Optional[dict[str, Any]],
+        scenario: dict[str, Any] | None,
     ) -> None:
         """Standard simulation with dependency tracking."""
         completed: set[str] = set()
@@ -409,7 +408,7 @@ class SimulationEngine:
         run: SimulationRun,
         actions: list[dict[str, Any]],
         dep_graph: dict[str, list[str]],
-        scenario: Optional[dict[str, Any]],
+        scenario: dict[str, Any] | None,
     ) -> None:
         """Thorough simulation with multiple scenarios."""
         # Run standard simulation first
@@ -440,7 +439,7 @@ class SimulationEngine:
     async def _simulate_action(
         self,
         action: dict[str, Any],
-        scenario: Optional[dict[str, Any]],
+        scenario: dict[str, Any] | None,
     ) -> SimulationStep:
         """Simulate a single action."""
         step = SimulationStep(
@@ -643,7 +642,7 @@ class SimulationEngine:
     # Run Management
     # ==========================================================================
 
-    def get_run(self, run_id: UUID) -> Optional[SimulationRun]:
+    def get_run(self, run_id: UUID) -> SimulationRun | None:
         """Get a simulation run by ID."""
         return self._runs.get(run_id)
 

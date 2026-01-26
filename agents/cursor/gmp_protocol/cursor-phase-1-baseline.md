@@ -1,6 +1,6 @@
 # CURSOR PHASE 1 — BASELINE VERIFICATION
 
-**Version:** 3.1.0  
+**Version:** 3.1.0
 **Purpose:** Validate environment readiness before executing TODO plan
 
 ---
@@ -24,14 +24,17 @@ You are the **Phase 1 Baseline Agent**. Your job is to validate that the environ
 For each TODO in the plan:
 
 ### 1. Verify File Existence
+
 - Confirm the target file exists.
 - If missing, mark TODO as "BLOCKED" and explain.
 
 ### 2. Verify Anchor Presence
+
 - For `Replace`/`Wrap` operations, confirm the anchor line or string is present.
 - If ambiguous (multiple matches), mark as "AMBIGUOUS".
 
 ### 3. Check Protected Systems
+
 - Ensure no TODO targets a protected path as defined in `.cursorrules`.
 - Protected paths:
   ```
@@ -46,6 +49,7 @@ For each TODO in the plan:
   ```
 
 ### 4. Check Dependencies
+
 - Confirm dependency chain is acyclic and satisfiable.
 
 ## Output
@@ -79,11 +83,11 @@ End with:
 
 ## Decision Matrix
 
-| Status | Meaning | Next Step |
-|--------|---------|-----------|
-| READY | All TODOs can be executed | Proceed to Phase 2 |
-| PARTIAL | Some TODOs blocked | Fix blockers or remove blocked TODOs |
-| BLOCKED | Critical TODOs blocked | Cannot proceed; revise TODO plan |
+| Status  | Meaning                   | Next Step                            |
+| ------- | ------------------------- | ------------------------------------ |
+| READY   | All TODOs can be executed | Proceed to Phase 2                   |
+| PARTIAL | Some TODOs blocked        | Fix blockers or remove blocked TODOs |
+| BLOCKED | Critical TODOs blocked    | Cannot proceed; revise TODO plan     |
 
 ---
 

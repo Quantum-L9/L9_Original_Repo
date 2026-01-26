@@ -21,7 +21,7 @@ echo -e "\n${YELLOW}[1/4]${NC} Running smoke tests..."
 
 if [ -f "tests/smoke_test.py" ]; then
     echo "   Running tests/smoke_test.py..."
-    
+
     if pytest tests/smoke_test.py -v --tb=short --maxfail=3 2>&1 | tail -20; then
         echo -e "${GREEN}✓ Smoke tests passed${NC}"
     else
@@ -76,7 +76,7 @@ echo -e "\n${YELLOW}[3/4]${NC} Validating schemas..."
 # Check if memory spec validator exists
 if [ -f "scripts/audit/verify_memory_spec_v3.py" ]; then
     echo "   Validating memory/memory_spec_v3.0.yaml..."
-    
+
     if python3 scripts/audit/verify_memory_spec_v3.py --quiet 2>&1 | tail -10; then
         echo -e "${GREEN}✓ Schema validation passed${NC}"
     else
@@ -100,7 +100,7 @@ if git diff --cached --name-only | grep -q "memory/substrate_models.py"; then
     echo "   This may contain breaking changes to PacketEnvelope"
     echo "   Ensure backward compatibility or update version"
     echo ""
-    
+
     # Check if version was bumped
     if git diff --cached memory/substrate_models.py | grep -q "PACKET_SCHEMA_VERSION"; then
         echo -e "${GREEN}✓ Schema version updated${NC}"

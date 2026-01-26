@@ -43,7 +43,7 @@ __dora_meta__ = {
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, field_validator
@@ -160,7 +160,7 @@ class Superprompt(BaseModel):
     query_id: UUID = Field(..., description="Reference to source query")
     template: str = Field(..., min_length=1, description="Prompt template")
     variables: dict[str, Any] = Field(..., description="Template variables")
-    context: Optional[str] = Field(None, description="Additional context")
+    context: str | None = Field(None, description="Additional context")
     rendered: str = Field(..., description="Final rendered prompt")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 

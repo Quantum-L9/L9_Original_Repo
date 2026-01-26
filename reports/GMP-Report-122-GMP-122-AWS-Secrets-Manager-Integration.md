@@ -8,26 +8,24 @@
 
 ## TODO Plan (Executed)
 
-| T# | File | Lines | Action | Description |
-|----|------|-------|--------|-------------|
-| T1 | `core/secrets/__init__.py` | 0 | Create | Factory + exports |
-| T2 | `core/secrets/env_secrets_client.py` | 0 | Create | Env-var fallback implementation |
-| T3 | `core/secrets/aws_secrets_client.py` | 0 | Create | AWS Secrets Manager client |
-| T4 | `scripts/secrets/setup_secrets_manager.sh` | 0 | Create | One-time setup script |
-| T5 | `config/settings.py` | 209-239 | Insert | Add secrets provider settings |
-
+| T#  | File                                       | Lines   | Action | Description                     |
+| --- | ------------------------------------------ | ------- | ------ | ------------------------------- |
+| T1  | `core/secrets/__init__.py`                 | 0       | Create | Factory + exports               |
+| T2  | `core/secrets/env_secrets_client.py`       | 0       | Create | Env-var fallback implementation |
+| T3  | `core/secrets/aws_secrets_client.py`       | 0       | Create | AWS Secrets Manager client      |
+| T4  | `scripts/secrets/setup_secrets_manager.sh` | 0       | Create | One-time setup script           |
+| T5  | `config/settings.py`                       | 209-239 | Insert | Add secrets provider settings   |
 
 ---
 
 ## Validation Results
 
-| Check | Result |
-|-------|--------|
-| py_compile | ✅ |
-| ruff | ✅ |
-| ast_parse | ✅ |
-| bash_syntax | ✅ |
-
+| Check       | Result |
+| ----------- | ------ |
+| py_compile  | ✅     |
+| ruff        | ✅     |
+| ast_parse   | ✅     |
+| bash_syntax | ✅     |
 
 ---
 

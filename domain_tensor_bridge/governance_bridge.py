@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Governance Bridge
@@ -49,7 +48,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -82,10 +81,10 @@ class GovernanceResult:
 
     decision: GovernanceDecision
     approved: bool
-    reason: Optional[str] = None
-    escalation_level: Optional[EscalationLevel] = None
-    audit_id: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    reason: str | None = None
+    escalation_level: EscalationLevel | None = None
+    audit_id: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -94,7 +93,7 @@ class EscalationResult:
 
     escalated: bool
     anchor: str
-    response: Optional[str] = None
+    response: str | None = None
     timeout: bool = False
 
 
@@ -111,8 +110,8 @@ class GovernanceBridge:
 
     def __init__(
         self,
-        approval_manager: Optional[ApprovalManager] = None,
-        igor_client: Optional[Any] = None,  # Igor approval client (if available)
+        approval_manager: ApprovalManager | None = None,
+        igor_client: Any | None = None,  # Igor approval client (if available)
     ):
         self.approval_manager = approval_manager
         self.igor_client = igor_client
@@ -130,7 +129,7 @@ class GovernanceBridge:
 
     async def check_governance(
         self,
-        decision: Dict[str, Any],
+        decision: dict[str, Any],
     ) -> GovernanceResult:
         """
         Check decision against governance policy.
@@ -179,13 +178,13 @@ class GovernanceBridge:
             approved=True,
         )
 
-    async def check(self, result: Dict[str, Any]) -> GovernanceResult:
+    async def check(self, result: dict[str, Any]) -> GovernanceResult:
         """Alias for check_governance."""
         return await self.check_governance(result)
 
     async def escalate_to_anchor(
         self,
-        decision: Dict[str, Any],
+        decision: dict[str, Any],
         reason: str,
     ) -> EscalationResult:
         """
@@ -229,7 +228,7 @@ class GovernanceBridge:
             anchor="none",
         )
 
-    def _requires_escalation(self, decision: Dict[str, Any]) -> bool:
+    def _requires_escalation(self, decision: dict[str, Any]) -> bool:
         """Determine if decision requires escalation."""
         # Check confidence threshold
         confidence = decision.get("confidence", 1.0)
@@ -240,15 +239,12 @@ class GovernanceBridge:
         if decision.get("high_risk", False):
             return True
 
-        if decision.get("destructive", False):
-            return True
-
-        return False
+        return bool(decision.get("destructive", False))
 
     def _determine_escalation_level(
         self,
-        decision: Dict[str, Any],
-    ) -> Optional[EscalationLevel]:
+        decision: dict[str, Any],
+    ) -> EscalationLevel | None:
         """Determine appropriate escalation level."""
         if decision.get("critical", False):
             return EscalationLevel.IGOR
@@ -258,7 +254,7 @@ class GovernanceBridge:
 
         return EscalationLevel.STANDARD
 
-    async def _check_approval(self, decision: Dict[str, Any]) -> bool:
+    async def _check_approval(self, decision: dict[str, Any]) -> bool:
         """Check with approval manager."""
         if not self.approval_manager:
             return True
@@ -297,10 +293,10 @@ __footer_meta__ = {
 }
 
 __all__ = [
-    "GovernanceBridge",
-    "GovernanceResult",
-    "GovernanceDecision",
     "EscalationResult",
+    "GovernanceBridge",
+    "GovernanceDecision",
+    "GovernanceResult",
     "__footer_meta__",
     "__l9_trace__",
 ]

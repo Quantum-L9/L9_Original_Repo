@@ -59,15 +59,15 @@ JSON schemas and validation utilities
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -93,12 +93,12 @@ core/schemas/
 └── ... (3 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
+| File                 | Purpose                                    |
+| -------------------- | ------------------------------------------ |
+| `__init__.py`        | Core module (PROTECTED)                    |
 | `packet_envelope.py` | Kind of packet for routing/classification. |
-| `packet_envelope.py` | Token usage tracking for LLM calls. |
-| `packet_envelope.py` | Simple text content wrapper. |
+| `packet_envelope.py` | Token usage tracking for LLM calls.        |
+| `packet_envelope.py` | Simple text content wrapper.               |
 
 ### Naming Conventions
 
@@ -116,7 +116,7 @@ core/schemas/
 ```python
 class PacketKind:
     """Kind of packet for routing/classification."""
-    
+
     # Key methods:
 
 ```
@@ -128,7 +128,7 @@ class PacketKind:
 ```python
 class TokenUsage:
     """Token usage tracking for LLM calls."""
-    
+
     # Key methods:
 
 ```
@@ -140,7 +140,7 @@ class TokenUsage:
 ```python
 class SimpleContent:
     """Simple text content wrapper."""
-    
+
     # Key methods:
 
 ```
@@ -152,7 +152,7 @@ class SimpleContent:
 ```python
 class StructuredReasoningBlock:
     """Structured reasoning output from LLM."""
-    
+
     # Key methods:
 
 ```
@@ -164,13 +164,12 @@ class StructuredReasoningBlock:
 ```python
 class PacketConfidence:
     """Confidence score and rationale for a packet."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 136-146 in `packet_envelope.py`
-
 
 ---
 
@@ -245,9 +244,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Schemas feature flags
-L9_ENABLE_CORE_SCHEMAS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_SCHEMAS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_SCHEMAS_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_SCHEMAS_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_SCHEMAS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_SCHEMAS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -309,7 +308,6 @@ Pass 5 — Persist output to hypergraph and world model.
 - **File:** `research_factory_nodes.py:363`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -350,6 +348,7 @@ Core Schemas operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -357,12 +356,12 @@ Core Schemas operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                               | Type      | Description                    |
+| ------------------------------------ | --------- | ------------------------------ |
 | `core_schemas_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_schemas_operation_total` | Counter | Total operations processed |
-| `core_schemas_error_total` | Counter | Total errors encountered |
-| `core_schemas_active_connections` | Gauge | Current active connections |
+| `core_schemas_operation_total`       | Counter   | Total operations processed     |
+| `core_schemas_error_total`           | Counter   | Total errors encountered       |
+| `core_schemas_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -380,6 +379,7 @@ Core Schemas emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_schemas/`:
+
 - `test_core_schemas.py` — Core unit tests
 - `test_core_schemas_integration.py` — Integration tests (if applicable)
 
@@ -422,6 +422,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -31,10 +31,15 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from world_model.interfaces import (Entity, IWorldModelUpdater, Relation,
-                                    UpdateOperation, UpdateResult)
+from world_model.interfaces import (
+    Entity,
+    IWorldModelUpdater,
+    Relation,
+    UpdateOperation,
+    UpdateResult,
+)
 from world_model.registry import WorldModelRegistry
 from world_model.state import WorldModelState
 
@@ -44,7 +49,7 @@ class UpdateOperation:
     """Single update operation extracted from packet."""
 
     op_type: str  # "create_entity", "update_entity", "delete_entity", etc.
-    data: Dict[str, Any]
+    data: dict[str, Any]
 
 
 @dataclass
@@ -53,15 +58,15 @@ class UpdateResult:
 
     success: bool
     operations_applied: int = 0
-    error: Optional[str] = None
-    error_op: Optional[UpdateOperation] = None
+    error: str | None = None
+    error_op: UpdateOperation | None = None
 
 
 class WorldModelUpdater(IWorldModelUpdater):
     """Applies updates to World Model state."""
 
     def __init__(
-        self, state: WorldModelState, registry: Optional[WorldModelRegistry] = None
+        self, state: WorldModelState, registry: WorldModelRegistry | None = None
     ):
         """Initialize updater.
 
@@ -109,7 +114,7 @@ class WorldModelUpdater(IWorldModelUpdater):
 
     # ========== PACKET PARSING ==========
 
-    def parse_packet(self, packet: Any) -> List[UpdateOperation]:
+    def parse_packet(self, packet: Any) -> list[UpdateOperation]:
         """Extract update operations from PacketEnvelope.
 
         Args:
@@ -168,10 +173,7 @@ class WorldModelUpdater(IWorldModelUpdater):
         """
         try:
             operations = self.parse_packet(update)
-            for op in operations:
-                if not self.validate_operation(op):
-                    return False
-            return True
+            return all(self.validate_operation(op) for op in operations)
         except Exception:
             return False
 
@@ -210,7 +212,7 @@ class WorldModelUpdater(IWorldModelUpdater):
 
         elif operation.op_type == "delete_relation":
             # Check that relation exists
-            relation_id = operation.data.get("relation_id")
+            operation.data.get("relation_id")
             # TODO: add get_relation to state
             return True
 
@@ -256,7 +258,7 @@ class WorldModelUpdater(IWorldModelUpdater):
 
     # ========== BATCH OPERATIONS ==========
 
-    def apply_batch(self, operations: List[UpdateOperation]) -> List[UpdateResult]:
+    def apply_batch(self, operations: list[UpdateOperation]) -> list[UpdateResult]:
         """Apply multiple operations in order.
 
         Args:
@@ -283,7 +285,7 @@ class WorldModelUpdater(IWorldModelUpdater):
 
     # ========== ENTITY OPERATIONS ==========
 
-    def create_entity(self, entity_data: Dict[str, Any]) -> Entity:
+    def create_entity(self, entity_data: dict[str, Any]) -> Entity:
         """Create Entity instance from data dict.
 
         Args:
@@ -303,7 +305,7 @@ class WorldModelUpdater(IWorldModelUpdater):
         except Exception as e:
             raise ValueError(f"Failed to create entity: {e}") from e
 
-    def update_entity(self, entity_id: str, updates: Dict[str, Any]) -> Entity:
+    def update_entity(self, entity_id: str, updates: dict[str, Any]) -> Entity:
         """Update existing entity.
 
         Args:
@@ -332,7 +334,7 @@ class WorldModelUpdater(IWorldModelUpdater):
 
     # ========== RELATION OPERATIONS ==========
 
-    def create_relation(self, relation_data: Dict[str, Any]) -> Relation:
+    def create_relation(self, relation_data: dict[str, Any]) -> Relation:
         """Create Relation instance from data dict.
 
         Args:

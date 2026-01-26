@@ -30,14 +30,18 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
 from core.decorators import must_stay_async
 
-from .interface import (ActionToolRequest, ActionToolResponse,
-                        IActionToolOrchestrator, ToolSafetyLevel)
+from .interface import (
+    ActionToolRequest,
+    ActionToolResponse,
+    IActionToolOrchestrator,
+    ToolSafetyLevel,
+)
 from .validator import Validator
 
 logger = structlog.get_logger(__name__)
@@ -61,8 +65,8 @@ class ActionToolOrchestrator(IActionToolOrchestrator):
 
     def __init__(
         self,
-        tool_registry: Optional[Any] = None,
-        governance_engine: Optional[Any] = None,
+        tool_registry: Any | None = None,
+        governance_engine: Any | None = None,
     ):
         """
         Initialize action_tool orchestrator.
@@ -77,12 +81,11 @@ class ActionToolOrchestrator(IActionToolOrchestrator):
         logger.info("ActionToolOrchestrator initialized")
 
     @must_stay_async("callers use await")
-    async def _get_registry(self) -> Optional[Any]:
+    async def _get_registry(self) -> Any | None:
         """Get or lazily load the tool registry."""
         if self._registry is None:
             try:
-                from core.tools.registry_adapter import \
-                    create_executor_tool_registry
+                from core.tools.registry_adapter import create_executor_tool_registry
 
                 self._registry = create_executor_tool_registry(
                     governance_enabled=self._governance is not None,
@@ -157,21 +160,20 @@ class ActionToolOrchestrator(IActionToolOrchestrator):
                 retries_used=retries_used,
                 safety_level=ToolSafetyLevel(validation.safety_level),
             )
-        else:
-            return ActionToolResponse(
-                success=False,
-                message=result.get("error", "Tool execution failed"),
-                result=result,
-                retries_used=retries_used,
-                safety_level=ToolSafetyLevel(validation.safety_level),
-            )
+        return ActionToolResponse(
+            success=False,
+            message=result.get("error", "Tool execution failed"),
+            result=result,
+            retries_used=retries_used,
+            safety_level=ToolSafetyLevel(validation.safety_level),
+        )
 
     async def _execute_with_retry(
         self,
         tool_id: str,
-        arguments: Dict[str, Any],
+        arguments: dict[str, Any],
         max_retries: int,
-    ) -> tuple[Dict[str, Any], int]:
+    ) -> tuple[dict[str, Any], int]:
         """
         Execute tool with exponential backoff retry.
 
@@ -203,12 +205,9 @@ class ActionToolOrchestrator(IActionToolOrchestrator):
                                 result.result if hasattr(result, "result") else None
                             ),
                         }, attempt
-                    else:
-                        last_error = (
-                            result.error
-                            if hasattr(result, "error")
-                            else "Unknown error"
-                        )
+                    last_error = (
+                        result.error if hasattr(result, "error") else "Unknown error"
+                    )
                 else:
                     # Assume dict-like result
                     if result.get("success"):

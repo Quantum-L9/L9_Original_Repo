@@ -27,7 +27,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import Any, Dict, Optional, Protocol
+from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
 
@@ -48,11 +48,11 @@ class AgentExecutionRequest(BaseModel):
 
     task_id: str = Field(..., description="Task identifier")
     task_type: str = Field(default="mac_task", description="Task type (mac_task only)")
-    steps: list[Dict[str, Any]] = Field(
+    steps: list[dict[str, Any]] = Field(
         default_factory=list, description="Automation steps"
     )
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Task metadata")
-    artifacts: Optional[list[Dict[str, Any]]] = Field(
+    metadata: dict[str, Any] = Field(default_factory=dict, description="Task metadata")
+    artifacts: list[dict[str, Any]] | None = Field(
         default=None, description="File artifacts"
     )
 
@@ -62,10 +62,10 @@ class AgentExecutionResponse(BaseModel):
 
     success: bool = Field(..., description="Whether execution succeeded")
     status: TaskExecutionStatus = Field(..., description="Final execution status")
-    result: Optional[Dict[str, Any]] = Field(
+    result: dict[str, Any] | None = Field(
         default=None, description="Execution result with logs, screenshots, data"
     )
-    error: Optional[str] = Field(None, description="Error message if failed")
+    error: str | None = Field(None, description="Error message if failed")
     task_id: str = Field(..., description="Task identifier")
 
 

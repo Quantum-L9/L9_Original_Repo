@@ -6,9 +6,13 @@ Test suite for the tool executor auto-registration system.
 
 import pytest
 
-from runtime.tool_registry import (get_tool_executors, get_tool_snapshot,
-                                   get_tools_by_category, register_tool,
-                                   tool_executor_registry)
+from runtime.tool_registry import (
+    get_tool_executors,
+    get_tool_snapshot,
+    get_tools_by_category,
+    register_tool,
+    tool_executor_registry,
+)
 
 # =============================================================================
 # Test Fixtures

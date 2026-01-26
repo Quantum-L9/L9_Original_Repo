@@ -28,7 +28,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from datetime import datetime, timedelta
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -62,7 +62,7 @@ class WorldModelScheduler:
         self._min_interval = timedelta(seconds=min_interval_seconds)
         self._batch_size = batch_size
         self._max_pending = max_pending
-        self._last_update: Optional[datetime] = None
+        self._last_update: datetime | None = None
         self._pending_count = 0
         logger.info(
             f"WorldModelScheduler initialized (interval={min_interval_seconds}s)"

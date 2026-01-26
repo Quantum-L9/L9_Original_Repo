@@ -27,15 +27,14 @@ import asyncio
 import time
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Deque, Dict, Optional
 
 
 @dataclass
 class RateLimitBucket:
     """Mutable bucket for a single IP, tracked with a version counter."""
 
-    request_timestamps: Deque[float] = field(default_factory=deque)
-    failed_auth_timestamps: Deque[float] = field(default_factory=deque)
+    request_timestamps: deque[float] = field(default_factory=deque)
+    failed_auth_timestamps: deque[float] = field(default_factory=deque)
     version: int = 0
 
 
@@ -63,9 +62,9 @@ class RateLimiter:
         self._failed_auth_limit = failed_auth_limit
         self._failed_auth_block_seconds = failed_auth_block_seconds
         self._lock = asyncio.Lock()
-        self._buckets: Dict[str, RateLimitBucket] = {}
+        self._buckets: dict[str, RateLimitBucket] = {}
 
-    async def is_rate_limited(self, ip: str, now: Optional[float] = None) -> bool:
+    async def is_rate_limited(self, ip: str, now: float | None = None) -> bool:
         """Return True if the IP has exceeded the request limit."""
         current_time = now if now is not None else time.time()
         async with self._lock:
@@ -73,7 +72,7 @@ class RateLimiter:
             self._prune(bucket, current_time, self._request_window_seconds, "request")
             return len(bucket.request_timestamps) >= self._request_limit
 
-    async def is_auth_blocked(self, ip: str, now: Optional[float] = None) -> bool:
+    async def is_auth_blocked(self, ip: str, now: float | None = None) -> bool:
         """Return True if the IP has exceeded failed auth attempts."""
         current_time = now if now is not None else time.time()
         async with self._lock:
@@ -86,7 +85,7 @@ class RateLimiter:
             )
             return len(bucket.failed_auth_timestamps) >= self._failed_auth_limit
 
-    async def record_request(self, ip: str, now: Optional[float] = None) -> int:
+    async def record_request(self, ip: str, now: float | None = None) -> int:
         """Record a request for the IP and return the new bucket version."""
         current_time = now if now is not None else time.time()
         async with self._lock:
@@ -98,7 +97,7 @@ class RateLimiter:
             bucket.version += 1
             return bucket.version
 
-    async def record_failed_auth(self, ip: str, now: Optional[float] = None) -> int:
+    async def record_failed_auth(self, ip: str, now: float | None = None) -> int:
         """Record a failed auth attempt and return the new bucket version."""
         current_time = now if now is not None else time.time()
         async with self._lock:

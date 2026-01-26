@@ -10,9 +10,7 @@
       "items_high": 0,
       "items_medium": 0,
       "items_low": 0,
-      "errors": [
-        "__init__() got an unexpected keyword argument 'name'"
-      ],
+      "errors": ["__init__() got an unexpected keyword argument 'name'"],
       "data": {},
       "file_outputs": {}
     },
@@ -43,9 +41,7 @@
       "items_high": 0,
       "items_medium": 0,
       "items_low": 0,
-      "errors": [
-        "'CacheManager' object has no attribute 'load_content_index'"
-      ],
+      "errors": ["'CacheManager' object has no attribute 'load_content_index'"],
       "data": {},
       "file_outputs": {}
     }

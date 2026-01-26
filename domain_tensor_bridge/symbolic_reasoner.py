@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Symbolic Reasoner
@@ -45,7 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 
@@ -56,9 +55,9 @@ logger = structlog.get_logger(__name__)
 class RuleResult:
     """Result of rule application."""
 
-    rules_applied: List[str]
+    rules_applied: list[str]
     rule_confidence: float
-    findings: List[Dict[str, Any]] = field(default_factory=list)
+    findings: list[dict[str, Any]] = field(default_factory=list)
 
 
 class SymbolicReasoner:
@@ -70,7 +69,7 @@ class SymbolicReasoner:
         "default": ["basic_validation"],
     }
 
-    def apply_domain_rules(self, context: Dict[str, Any], domain: str) -> RuleResult:
+    def apply_domain_rules(self, context: dict[str, Any], domain: str) -> RuleResult:
         """Apply domain-specific rules."""
         logger.info("applying_domain_rules", domain=domain)
 
@@ -88,7 +87,7 @@ class SymbolicReasoner:
             findings=findings,
         )
 
-    def _apply_rule(self, rule: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    def _apply_rule(self, rule: str, context: dict[str, Any]) -> dict[str, Any]:
         """Apply single rule."""
         return {
             "rule": rule,
@@ -115,7 +114,7 @@ __footer_meta__ = {
     "dependencies": ["structlog"],
 }
 
-__all__ = ["SymbolicReasoner", "RuleResult", "__footer_meta__", "__l9_trace__"]
+__all__ = ["RuleResult", "SymbolicReasoner", "__footer_meta__", "__l9_trace__"]
 
 __l9_trace__ = {
     "trace_id": "",

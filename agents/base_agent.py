@@ -53,7 +53,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import structlog
@@ -81,13 +81,13 @@ class AgentRole(str, Enum):
 class AgentConfig:
     """Configuration for an agent."""
 
-    api_key: Optional[str] = None
+    api_key: str | None = None
     model: str = "gpt-4o"
     temperature: float = 0.3
     max_tokens: int = 4000
     timeout_seconds: int = 120
     retry_count: int = 3
-    system_prompt_override: Optional[str] = None
+    system_prompt_override: str | None = None
 
 
 @dataclass
@@ -112,11 +112,11 @@ class AgentResponse:
     response_id: UUID = field(default_factory=uuid4)
     agent_id: str = ""
     content: str = ""
-    structured_output: Optional[dict[str, Any]] = None
+    structured_output: dict[str, Any] | None = None
     tokens_used: int = 0
     duration_ms: int = 0
     success: bool = True
-    error: Optional[str] = None
+    error: str | None = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
@@ -146,8 +146,8 @@ class BaseAgent(ABC):
 
     def __init__(
         self,
-        agent_id: Optional[str] = None,
-        config: Optional[AgentConfig] = None,
+        agent_id: str | None = None,
+        config: AgentConfig | None = None,
     ):
         """
         Initialize the agent.
@@ -158,7 +158,7 @@ class BaseAgent(ABC):
         """
         self._agent_id = agent_id or f"{self.agent_name}_{uuid4().hex[:8]}"
         self._config = config or AgentConfig()
-        self._client: Optional[AsyncOpenAI] = None
+        self._client: AsyncOpenAI | None = None
         self._conversation_history: list[AgentMessage] = []
         self._initialized = False
 
@@ -197,7 +197,7 @@ class BaseAgent(ABC):
     @abstractmethod
     @must_stay_async("callers use await")
     async def run(
-        self, task: dict[str, Any], context: Optional[dict[str, Any]] = None
+        self, task: dict[str, Any], context: dict[str, Any] | None = None
     ) -> AgentResponse:
         """
         Execute the agent's primary function.
@@ -219,7 +219,7 @@ class BaseAgent(ABC):
     async def call_llm(
         self,
         messages: list[AgentMessage],
-        temperature: Optional[float] = None,
+        temperature: float | None = None,
         json_mode: bool = False,
     ) -> AgentResponse:
         """
@@ -315,7 +315,7 @@ class BaseAgent(ABC):
     async def call_llm_json(
         self,
         prompt: str,
-        context: Optional[dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """
         Call LLM and get JSON response.

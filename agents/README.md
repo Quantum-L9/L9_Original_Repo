@@ -59,15 +59,15 @@ Collection of specialized agents for different domains
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `core/agents/executor.py` | Required dependency |
+| Module                        | Purpose             |
+| ----------------------------- | ------------------- |
+| `core/agents/executor.py`     | Required dependency |
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -94,11 +94,11 @@ agents/
 └── ... (35 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
+| File                     | Purpose                                            |
+| ------------------------ | -------------------------------------------------- |
+| `__init__.py`            | Core module (PROTECTED)                            |
 | `research_agent_impl.py` | Represents a single prompt variation for multi-per |
-| `research_agent_impl.py` | Structured response from Perplexity API. |
+| `research_agent_impl.py` | Structured response from Perplexity API.           |
 | `research_agent_impl.py` | Result from fast synthesis (Super-Prompt Pack styl |
 
 ### Naming Conventions
@@ -117,7 +117,7 @@ agents/
 ```python
 class PromptVariation:
     """Represents a single prompt variation for multi-perspective synthesis."""
-    
+
     # Key methods:
 
 ```
@@ -129,7 +129,7 @@ class PromptVariation:
 ```python
 class ResearchResponse:
     """Structured response from Perplexity API."""
-    
+
     # Key methods:
 
 ```
@@ -141,7 +141,7 @@ class ResearchResponse:
 ```python
 class SynthesisResult:
     """Result from fast synthesis (Super-Prompt Pack style)."""
-    
+
     # Key methods:
 
 ```
@@ -153,7 +153,7 @@ class SynthesisResult:
 ```python
 class DiscoveryResult:
     """Result from deep research (Deep Workflows style)."""
-    
+
     # Key methods:
 
 ```
@@ -165,13 +165,12 @@ class DiscoveryResult:
 ```python
 class ResearchTask:
     """Research task specification."""
-    
+
     # Key methods:
 
 ```
 
 **Lines:** 128-143 in `research_agent_impl.py`
-
 
 ---
 
@@ -247,9 +246,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Agents feature flags
-L9_ENABLE_AGENTS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_AGENTS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_AGENTS_AUDIT: true    # Enable audit logging
+L9_ENABLE_AGENTS_TRACING: true # Enable detailed tracing
+L9_ENABLE_AGENTS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_AGENTS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -311,7 +310,6 @@ Get all registered agent classes as a dictionary.
 - **File:** `agent_registry.py:131`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -352,6 +350,7 @@ Agents operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -359,12 +358,12 @@ Agents operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                         | Type      | Description                    |
+| ------------------------------ | --------- | ------------------------------ |
 | `agents_operation_duration_ms` | Histogram | Operation latency distribution |
-| `agents_operation_total` | Counter | Total operations processed |
-| `agents_error_total` | Counter | Total errors encountered |
-| `agents_active_connections` | Gauge | Current active connections |
+| `agents_operation_total`       | Counter   | Total operations processed     |
+| `agents_error_total`           | Counter   | Total errors encountered       |
+| `agents_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -382,6 +381,7 @@ Agents emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/agents/`:
+
 - `test_agents.py` — Core unit tests
 - `test_agents_integration.py` — Integration tests (if applicable)
 
@@ -424,6 +424,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

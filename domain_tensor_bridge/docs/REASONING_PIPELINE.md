@@ -26,6 +26,7 @@ The reasoning pipeline has 5 stages:
 ## Stage 4: Multi-Modal Reasoning
 
 Apply reasoning modes in parallel:
+
 - **Symbolic**: Domain business rules
 - **Causal**: World model causal logic
 - **Analogical**: Cross-domain patterns
@@ -41,9 +42,8 @@ Apply reasoning modes in parallel:
 ## Confidence Calculation
 
 Final confidence = weighted average of mode confidences:
+
 - Symbolic: 0.30
 - Causal: 0.25
 - Analogical: 0.20
 - Reflective: 0.25
-
-

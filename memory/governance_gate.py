@@ -48,11 +48,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
+from collections.abc import AsyncGenerator, Sequence
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, AsyncGenerator, Optional, Sequence
+from typing import Any
 
 import structlog
 import yaml
@@ -167,11 +168,11 @@ class MemoryGovernanceContext:
     scope: str
     project_id: str
     allowed_scopes: tuple[str, ...]
-    tenant_id: Optional[str] = None
-    org_id: Optional[str] = None
-    user_id: Optional[str] = None
-    creator: Optional[str] = None
-    source: Optional[str] = None
+    tenant_id: str | None = None
+    org_id: str | None = None
+    user_id: str | None = None
+    creator: str | None = None
+    source: str | None = None
 
     def __post_init__(self) -> None:
         if not self.caller_id:
@@ -186,7 +187,7 @@ class MemoryGovernanceContext:
         validate_caller_scope_access(self.caller_id, self.allowed_scopes)
 
 
-_governance_context: ContextVar[Optional[MemoryGovernanceContext]] = ContextVar(
+_governance_context: ContextVar[MemoryGovernanceContext | None] = ContextVar(
     "memory_governance_context", default=None
 )
 
@@ -198,11 +199,11 @@ def build_governance_context(
     scope: str,
     project_id: str,
     allowed_scopes: Sequence[str],
-    tenant_id: Optional[str] = None,
-    org_id: Optional[str] = None,
-    user_id: Optional[str] = None,
-    creator: Optional[str] = None,
-    source: Optional[str] = None,
+    tenant_id: str | None = None,
+    org_id: str | None = None,
+    user_id: str | None = None,
+    creator: str | None = None,
+    source: str | None = None,
 ) -> MemoryGovernanceContext:
     """Build a validated governance context (server-derived only)."""
     return MemoryGovernanceContext(

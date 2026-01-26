@@ -27,7 +27,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 
@@ -52,10 +52,10 @@ class ApplyEngine:
 
     def __init__(self):
         """Initialize apply engine."""
-        self._applied_upgrades: Dict[str, Dict[str, Any]] = {}
+        self._applied_upgrades: dict[str, dict[str, Any]] = {}
         logger.info("ApplyEngine initialized")
 
-    async def apply(self, upgrade: Upgrade, allow_downtime: bool) -> Dict[str, Any]:
+    async def apply(self, upgrade: Upgrade, allow_downtime: bool) -> dict[str, Any]:
         """Apply an upgrade to the system."""
         logger.info(f"Applying upgrade: {upgrade.id}")
 
@@ -87,7 +87,7 @@ class ApplyEngine:
             logger.exception(f"Error applying upgrade {upgrade.id}")
             return {"success": False, "error": str(e)}
 
-    async def rollback(self, upgrade_id: str) -> Dict[str, Any]:
+    async def rollback(self, upgrade_id: str) -> dict[str, Any]:
         """Rollback a previously applied upgrade."""
         logger.info(f"Rolling back upgrade: {upgrade_id}")
 
@@ -112,7 +112,7 @@ class ApplyEngine:
             logger.exception(f"Error rolling back upgrade {upgrade_id}")
             return {"success": False, "error": str(e)}
 
-    async def _create_backup(self, upgrade: Upgrade) -> Dict[str, Any]:
+    async def _create_backup(self, upgrade: Upgrade) -> dict[str, Any]:
         """Create backup before applying upgrade."""
         logger.info(f"Creating backup for upgrade: {upgrade.id}")
 
@@ -153,7 +153,7 @@ class ApplyEngine:
 
         return backup
 
-    async def _restore_backup(self, upgrade_id: str, backup: Dict[str, Any]) -> None:
+    async def _restore_backup(self, upgrade_id: str, backup: dict[str, Any]) -> None:
         """Restore system from backup."""
         logger.info(f"Restoring backup for upgrade: {upgrade_id}")
 
@@ -168,23 +168,22 @@ class ApplyEngine:
             elif change_type == "db_migration":
                 await self._execute_sql(change["rollback_sql"])
 
-    async def _apply_change(self, change: Dict[str, Any], allow_downtime: bool) -> bool:
+    async def _apply_change(self, change: dict[str, Any], allow_downtime: bool) -> bool:
         """Apply a single change."""
         change_type = change.get("type")
 
         if change_type == "file_modify":
             return await self._apply_file_modify(change)
-        elif change_type == "config_update":
+        if change_type == "config_update":
             return await self._apply_config_update(change)
-        elif change_type == "db_migration":
+        if change_type == "db_migration":
             return await self._apply_db_migration(change, allow_downtime)
-        elif change_type == "service_restart":
+        if change_type == "service_restart":
             return await self._apply_service_restart(change, allow_downtime)
-        else:
-            logger.warning(f"Unknown change type: {change_type}")
-            return False
+        logger.warning(f"Unknown change type: {change_type}")
+        return False
 
-    async def _apply_file_modify(self, change: Dict[str, Any]) -> bool:
+    async def _apply_file_modify(self, change: dict[str, Any]) -> bool:
         """Apply file modification."""
         try:
             await self._write_file(change.get("target"), change.get("content"))
@@ -193,7 +192,7 @@ class ApplyEngine:
             logger.error(f"Failed to modify file {change.get('target')}: {e}")
             return False
 
-    async def _apply_config_update(self, change: Dict[str, Any]) -> bool:
+    async def _apply_config_update(self, change: dict[str, Any]) -> bool:
         """Apply configuration update."""
         try:
             await self._write_config(change.get("target"), change.get("value"))
@@ -203,7 +202,7 @@ class ApplyEngine:
             return False
 
     async def _apply_db_migration(
-        self, change: Dict[str, Any], allow_downtime: bool
+        self, change: dict[str, Any], allow_downtime: bool
     ) -> bool:
         """Apply database migration."""
         if not allow_downtime and change.get("requires_downtime"):
@@ -217,7 +216,7 @@ class ApplyEngine:
             return False
 
     async def _apply_service_restart(
-        self, change: Dict[str, Any], allow_downtime: bool
+        self, change: dict[str, Any], allow_downtime: bool
     ) -> bool:
         """Restart a service."""
         try:

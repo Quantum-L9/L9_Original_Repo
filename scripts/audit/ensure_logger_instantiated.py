@@ -50,7 +50,6 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional, Tuple
 
 # Patterns to detect module-level logger usage (not self.logger)
 LOGGER_USAGE_PATTERN = re.compile(
@@ -112,7 +111,7 @@ class FileAnalysis:
     has_logger_instantiation: bool
     has_structlog_import: bool
     has_logging_import: bool
-    logger_usages: List[Tuple[int, str]]  # (line_number, line_content)
+    logger_usages: list[tuple[int, str]]  # (line_number, line_content)
 
     @property
     def needs_fix(self) -> bool:
@@ -123,10 +122,7 @@ class FileAnalysis:
 
 def should_skip_file(file_path: Path) -> bool:
     """Check if file should be skipped."""
-    for pattern in SKIP_FILE_PATTERNS:
-        if re.search(pattern, file_path.name):
-            return True
-    return False
+    return any(re.search(pattern, file_path.name) for pattern in SKIP_FILE_PATTERNS)
 
 
 def is_logger_in_code(line: str) -> bool:
@@ -164,13 +160,10 @@ def is_logger_in_code(line: str) -> bool:
     double_quotes = code_before_logger.count('"') - code_before_logger.count('\\"')
 
     # If we're inside a string literal (odd number of quotes), skip
-    if single_quotes % 2 == 1 or double_quotes % 2 == 1:
-        return False
-
-    return True
+    return not (single_quotes % 2 == 1 or double_quotes % 2 == 1)
 
 
-def analyze_file(file_path: Path) -> Optional[FileAnalysis]:
+def analyze_file(file_path: Path) -> FileAnalysis | None:
     """Analyze a Python file for logger usage and instantiation."""
     try:
         content = file_path.read_text(encoding="utf-8")
@@ -223,7 +216,7 @@ def analyze_file(file_path: Path) -> Optional[FileAnalysis]:
     )
 
 
-def find_insertion_point(content: str) -> Tuple[int, str]:
+def find_insertion_point(content: str) -> tuple[int, str]:
     """
     Find the best line to insert logger instantiation.
 
@@ -274,33 +267,30 @@ def find_insertion_point(content: str) -> Tuple[int, str]:
     # Insert after last import, or after docstring/shebang if no imports
     if last_import_line >= 0:
         return last_import_line + 1, import_to_add
-    else:
-        # Find end of module docstring and shebang
-        insert_line = 0
-        in_docstring = False
-        for i, line in enumerate(lines):
-            stripped = line.strip()
-            if i == 0 and stripped.startswith("#!"):
+    # Find end of module docstring and shebang
+    insert_line = 0
+    in_docstring = False
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if i == 0 and stripped.startswith("#!"):
+            insert_line = i + 1
+            continue
+        if not in_docstring:
+            if stripped.startswith('"""') or stripped.startswith("'''"):
+                docstring_char = stripped[:3]
+                if stripped.count(docstring_char) >= 2 and len(stripped) > 6:
+                    insert_line = i + 1
+                    continue
+                in_docstring = True
+                continue
+            if stripped.startswith("#") or stripped == "":
                 insert_line = i + 1
                 continue
-            if not in_docstring:
-                if stripped.startswith('"""') or stripped.startswith("'''"):
-                    docstring_char = stripped[:3]
-                    if stripped.count(docstring_char) >= 2 and len(stripped) > 6:
-                        insert_line = i + 1
-                        continue
-                    in_docstring = True
-                    continue
-                elif stripped.startswith("#") or stripped == "":
-                    insert_line = i + 1
-                    continue
-                else:
-                    break
-            else:
-                if docstring_char in stripped:
-                    in_docstring = False
-                    insert_line = i + 1
-        return insert_line, import_to_add
+            break
+        if docstring_char in stripped:
+            in_docstring = False
+            insert_line = i + 1
+    return insert_line, import_to_add
 
 
 def fix_file(file_path: Path, analysis: FileAnalysis) -> bool:
@@ -341,7 +331,7 @@ def fix_file(file_path: Path, analysis: FileAnalysis) -> bool:
         return False
 
 
-def scan_directory(root_path: Path) -> List[FileAnalysis]:
+def scan_directory(root_path: Path) -> list[FileAnalysis]:
     """Scan directory for Python files and analyze them."""
     results = []
 

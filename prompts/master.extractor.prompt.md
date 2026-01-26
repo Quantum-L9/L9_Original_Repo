@@ -1,5 +1,3 @@
-
-
 # 🛡️ **L9 MASTER GOD-MODE SCHEMA EXTRACTION PLAN v3.0**
 
 **Universal Prompt — works for ALL L9 schemas**
@@ -14,12 +12,12 @@ Use this prompt with ANY schema you create. This is the **canonical** extraction
 Convert ANY `l9_schema` YAML file into a full set of production Python modules
 according to:
 
-* **Memory.yaml** (PacketEnvelope, SRB, ArtifactPointer)
-* **Packet Protocol.yaml** (routing rules, target directories)
-* The schema being extracted
-* Pydantic v2
-* LangGraph runtime signatures
-* L9 model placement conventions
+- **Memory.yaml** (PacketEnvelope, SRB, ArtifactPointer)
+- **Packet Protocol.yaml** (routing rules, target directories)
+- The schema being extracted
+- Pydantic v2
+- LangGraph runtime signatures
+- L9 model placement conventions
 
 All output MUST be **import-clean**, **runtime-clean**, **pass validation**, **contain zero placeholders**, and be fully **schema-complete**.
 
@@ -40,12 +38,10 @@ Cursor must load these **every time**:
 Defines PacketEnvelope, ArtifactPointer, StructuredReasoningBlock.
 **Used for ALL schemas.**
 
-
 ### 2.3 Packet Protocol routing spec
 
 Determines exact final file placement.
 **Used for ALL schemas.**
-
 
 ### 2.4 This master plan
 
@@ -59,10 +55,10 @@ No other files are required.
 
 ### 3.1 Schema→Model conversion
 
-* Every field MUST map 1:1 into Python with Pydantic v2 syntax.
-* No enums may be dropped.
-* No variant/discriminated unions may be simplified.
-* Every nested schema = its own model.
+- Every field MUST map 1:1 into Python with Pydantic v2 syntax.
+- No enums may be dropped.
+- No variant/discriminated unions may be simplified.
+- Every nested schema = its own model.
 
 ### 3.2 Pydantic requirements
 
@@ -75,12 +71,12 @@ pydantic >= 2.6,<3.0
 
 From Memory.yaml:
 
-* PacketEnvelope is **immutable**
-* Must use Pydantic `frozen=True`
-* Must use `.model_copy(update=...)` for safe mutation
-* Embedding field must support vectors up to dim 3072
-* Must include lineage (`parent_ids`)
-* Must support variant payloads based on `kind`
+- PacketEnvelope is **immutable**
+- Must use Pydantic `frozen=True`
+- Must use `.model_copy(update=...)` for safe mutation
+- Embedding field must support vectors up to dim 3072
+- Must include lineage (`parent_ids`)
+- Must support variant payloads based on `kind`
 
 ### 3.4 StructuredReasoningBlock is global
 
@@ -141,12 +137,12 @@ something.value → list[str] → unique? → length?
 
 The FIELD MAP is used for:
 
-* Type correctness
-* Validator construction
-* Avoiding missing fields
-* Order correctness
-* Memory substrate integration
-* LangGraph runtime binding
+- Type correctness
+- Validator construction
+- Avoiding missing fields
+- Order correctness
+- Memory substrate integration
+- LangGraph runtime binding
 
 ---
 
@@ -156,17 +152,17 @@ The module list is computed automatically from the schema contents.
 
 Cursor must generate:
 
-* One module per top-level schema block
-* Additional modules for:
+- One module per top-level schema block
+- Additional modules for:
 
-  * PacketEnvelope
-  * StructuredReasoningBlock
-  * ArtifactPointer
-  * Substrate models
-  * Node models
-  * Runtime profiles
-  * Universal schema aggregator
-  * Any LangGraph node set
+  - PacketEnvelope
+  - StructuredReasoningBlock
+  - ArtifactPointer
+  - Substrate models
+  - Node models
+  - Runtime profiles
+  - Universal schema aggregator
+  - Any LangGraph node set
 
 **Minimum modules: 4**
 **Typical modules: 7–12**
@@ -179,43 +175,43 @@ All MUST be placed via Packet Protocol routing rules.
 
 Each module must contain:
 
-* Fully typed Pydantic v2 models
-* Strict validation
-* No placeholders
-* No TODOs
-* No commented code
-* Clean imports
-* Correct routing decorators if applicable
-* Correct discriminated unions
-* Correct enum classes
-* Correct ARTIFACT POINTER references
-* Correct PacketEnvelope invariants
-* Correct SRB embedding
+- Fully typed Pydantic v2 models
+- Strict validation
+- No placeholders
+- No TODOs
+- No commented code
+- Clean imports
+- Correct routing decorators if applicable
+- Correct discriminated unions
+- Correct enum classes
+- Correct ARTIFACT POINTER references
+- Correct PacketEnvelope invariants
+- Correct SRB embedding
 
 ---
 
-## **STEP 5 — Apply ****Memory.yaml Requirements** to ALL schemas
+## **STEP 5 — Apply \*\***Memory.yaml Requirements\*\* to ALL schemas
 
 Memory.yaml governs:
 
-* Immutability rules
-* Reasoning block structure
-* ArtifactPointer structure
-* Postgres index artifacts
-* pgvector embeddings
+- Immutability rules
+- Reasoning block structure
+- ArtifactPointer structure
+- Postgres index artifacts
+- pgvector embeddings
 
 All these rules apply globally—no exceptions.
 
 ---
 
-## **STEP 6 — Apply ****Packet Protocol.yaml Routing Rules**
+## **STEP 6 — Apply \*\***Packet Protocol.yaml Routing Rules\*\*
 
 Use Packet Protocol.yaml verbatim.
 Place each generated file based on:
 
-* `explicit_files`
-* `patterns`
-* fallback rules
+- `explicit_files`
+- `patterns`
+- fallback rules
 
 **Never** guess file locations.
 **Never** create new routing groups.
@@ -247,9 +243,9 @@ ast.parse(open(file).read())
 
 Each model must:
 
-* Instantiate with example data
-* Reject invalid data
-* Enforce all constraints
+- Instantiate with example data
+- Reject invalid data
+- Enforce all constraints
 
 ### 7.4 PacketEnvelope Immutability Test
 
@@ -320,18 +316,18 @@ RUN L9_MASTER_SCHEMA_EXTRACTOR:
 
 Cursor MUST confirm:
 
-* 100% of schema fields mapped
-* All models typed + validated
-* All discriminators correct
-* PacketEnvelope immutable
-* SRB present where needed
-* ArtifactPointer references correct
-* All routing matches Packet Protocol
-* No circular imports
-* No syntax errors
-* All files load cleanly
-* All LangGraph nodes pass signature rules
-* Test suite passes
-* All output is production-grade
+- 100% of schema fields mapped
+- All models typed + validated
+- All discriminators correct
+- PacketEnvelope immutable
+- SRB present where needed
+- ArtifactPointer references correct
+- All routing matches Packet Protocol
+- No circular imports
+- No syntax errors
+- All files load cleanly
+- All LangGraph nodes pass signature rules
+- Test suite passes
+- All output is production-grade
 
 If ANY fail → regenerate EVERYTHING.

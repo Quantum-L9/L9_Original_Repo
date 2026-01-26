@@ -33,6 +33,8 @@ __dora_meta__ = {
 
 import unittest
 
+import pytest
+
 from world_model.interfaces import Entity, Relation
 from world_model.loader import WorldModelLoader
 from world_model.orchestrator import ConsistencyMode, SubstrateOrchestrator
@@ -61,8 +63,8 @@ class TestYAMLLoading(unittest.TestCase):
 
         registry = WorldModelLoader.load_entity_schemas(data)
 
-        self.assertIsNotNone(registry.get_entity_type("Person"))
-        self.assertIsNotNone(registry.get_entity_type("Company"))
+        assert registry.get_entity_type("Person") is not None
+        assert registry.get_entity_type("Company") is not None
 
     def test_load_initial_state(self):
         """Verify initial state (seed data) loading."""
@@ -89,8 +91,8 @@ class TestYAMLLoading(unittest.TestCase):
 
         state = WorldModelLoader.load_initial_state(data)
 
-        self.assertEqual(len(list(state.get_all_entities())), 2)
-        self.assertEqual(len(list(state.get_all_relations())), 1)
+        assert len(list(state.get_all_entities())) == 2
+        assert len(list(state.get_all_relations())) == 1
 
     def test_validate_spec(self):
         """Verify spec validation."""
@@ -102,7 +104,7 @@ class TestYAMLLoading(unittest.TestCase):
             "causal_structure": {},
         }
 
-        self.assertTrue(WorldModelLoader.validate_spec(valid_spec))
+        assert WorldModelLoader.validate_spec(valid_spec)
 
     def test_validate_spec_invalid(self):
         """Verify invalid spec rejection."""
@@ -110,7 +112,7 @@ class TestYAMLLoading(unittest.TestCase):
             "entity_types": "not a dict",  # Should be dict
         }
 
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             WorldModelLoader.validate_spec(invalid_spec)
 
 
@@ -132,8 +134,8 @@ class TestStateUpdates(unittest.TestCase):
         self.updater.apply_operation(op)
 
         entity = self.state.get_entity("e1")
-        self.assertIsNotNone(entity)
-        self.assertEqual(entity.attributes["name"], "Alice")
+        assert entity is not None
+        assert entity.attributes["name"] == "Alice"
 
     def test_update_entity_operation(self):
         """Verify entity update operation."""
@@ -150,7 +152,7 @@ class TestStateUpdates(unittest.TestCase):
         self.updater.apply_operation(op)
 
         updated = self.state.get_entity("e1")
-        self.assertEqual(updated.attributes["age"], 31)
+        assert updated.attributes["age"] == 31
 
     def test_create_relation_operation(self):
         """Verify relation creation operation."""
@@ -173,8 +175,8 @@ class TestStateUpdates(unittest.TestCase):
         self.updater.apply_operation(op)
 
         relations = list(self.state.get_all_relations())
-        self.assertEqual(len(relations), 1)
-        self.assertEqual(relations[0].type, "knows")
+        assert len(relations) == 1
+        assert relations[0].type == "knows"
 
     def test_batch_operations(self):
         """Verify batch operation execution."""
@@ -201,8 +203,8 @@ class TestStateUpdates(unittest.TestCase):
 
         results = self.updater.apply_batch(ops)
 
-        self.assertEqual(len(results), 3)
-        self.assertTrue(all(r.success for r in results))
+        assert len(results) == 3
+        assert all(r.success for r in results)
 
 
 class TestQueries(unittest.TestCase):
@@ -247,13 +249,13 @@ class TestQueries(unittest.TestCase):
     def test_get_entity_query(self):
         """Verify entity retrieval."""
         entity = self.query.get_entity("alice")
-        self.assertIsNotNone(entity)
-        self.assertEqual(entity.attributes["name"], "Alice")
+        assert entity is not None
+        assert entity.attributes["name"] == "Alice"
 
     def test_filter_by_type_query(self):
         """Verify type-based filtering."""
         persons = self.query.get_entities_by_type("Person")
-        self.assertEqual(len(persons), 2)
+        assert len(persons) == 2
 
     def test_filter_by_attribute_query(self):
         """Verify attribute-based filtering."""
@@ -263,47 +265,47 @@ class TestQueries(unittest.TestCase):
             value=30,
             comparator="eq",
         )
-        self.assertEqual(len(results), 1)
-        self.assertEqual(results[0].id, "alice")
+        assert len(results) == 1
+        assert results[0].id == "alice"
 
     def test_traverse_relation_query(self):
         """Verify relationship traversal."""
         # Alice knows Bob
         targets = self.query.traverse_relation("alice", "knows")
-        self.assertEqual(len(targets), 1)
-        self.assertEqual(targets[0].id, "bob")
+        assert len(targets) == 1
+        assert targets[0].id == "bob"
 
     def test_path_query(self):
         """Verify multi-hop path traversal."""
         # Alice -> works_at -> ACME
         path_results = self.query.path_query("alice", ["works_at"])
-        self.assertEqual(len(path_results), 1)
-        self.assertEqual(path_results[0].id, "acme")
+        assert len(path_results) == 1
+        assert path_results[0].id == "acme"
 
     def test_count_query(self):
         """Verify count aggregation."""
         total = self.query.count_entities()
         persons = self.query.count_entities("Person")
 
-        self.assertEqual(total, 3)
-        self.assertEqual(persons, 2)
+        assert total == 3
+        assert persons == 2
 
     def test_group_by_query(self):
         """Verify group by aggregation."""
         groups = self.query.group_by_attribute("Person", "age")
 
-        self.assertIn(30, groups)
-        self.assertIn(25, groups)
-        self.assertEqual(len(groups[30]), 1)
+        assert 30 in groups
+        assert 25 in groups
+        assert len(groups[30]) == 1
 
     def test_join_query(self):
         """Verify join operation."""
         pairs = self.query.join_entities("Person", "Company", "works_at")
 
-        self.assertEqual(len(pairs), 1)
+        assert len(pairs) == 1
         person, company = pairs[0]
-        self.assertEqual(person.id, "alice")
-        self.assertEqual(company.id, "acme")
+        assert person.id == "alice"
+        assert company.id == "acme"
 
 
 class TestOrchestration(unittest.TestCase):
@@ -315,7 +317,7 @@ class TestOrchestration(unittest.TestCase):
             consistency=ConsistencyMode.EVENTUAL,
         )
 
-        self.assertEqual(orch.consistency, ConsistencyMode.EVENTUAL)
+        assert orch.consistency == ConsistencyMode.EVENTUAL
 
     def test_consistency_modes(self):
         """Verify consistency mode enum."""
@@ -325,7 +327,7 @@ class TestOrchestration(unittest.TestCase):
             ConsistencyMode.CACHE_ONLY,
         ]
 
-        self.assertEqual(len(modes), 3)
+        assert len(modes) == 3
 
 
 class TestIntegration(unittest.TestCase):
@@ -359,13 +361,13 @@ class TestIntegration(unittest.TestCase):
         )
         result = updater.apply_update(op)
 
-        self.assertTrue(result.success)
+        assert result.success
 
         # 3. Query result
         query = QueryEngine(state, registry)
         entity = query.get_entity("alice")
 
-        self.assertEqual(entity.attributes["name"], "Alice Updated")
+        assert entity.attributes["name"] == "Alice Updated"
 
 
 if __name__ == "__main__":

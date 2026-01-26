@@ -28,7 +28,7 @@ policies:
     effect: "deny"
     priority: 0
     subjects: ["*"]
-    actions: []  # Empty = matches all
+    actions: [] # Empty = matches all
     resources: ["*"]
     enabled: true
 
@@ -42,7 +42,6 @@ policies:
     actions: ["system.*", "internal.*"]
     resources: ["*"]
     enabled: true
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

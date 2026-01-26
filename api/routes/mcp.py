@@ -215,7 +215,9 @@ async def call_tool(request: Request, authorization: str = Header(None)):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except ValidationError as e:
-        raise HTTPException(status_code=422, detail=f"Validation error: {e.errors()}") from e
+        raise HTTPException(
+            status_code=422, detail=f"Validation error: {e.errors()}"
+        ) from e
     except Exception as e:
         logger.exception("Tool call error")
         raise HTTPException(status_code=500, detail=str(e)) from e

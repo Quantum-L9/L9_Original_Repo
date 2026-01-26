@@ -463,7 +463,7 @@ class SubstrateRepository:
                 param_idx += 1
 
             # Add governance scope filter
-            filter_clause, filter_params, param_idx = build_scope_project_filter(
+            _filter_clause, filter_params, param_idx = build_scope_project_filter(
                 ctx, param_idx=param_idx, table_alias="packet_store"
             )
             # Strip leading "AND " from filter_clause since we're building conditions list
@@ -1206,10 +1206,10 @@ class SubstrateRepository:
                     graph_state = json.loads(graph_state)
 
                 # Handle optional fields (post-0014 schema)
-                reason = row.get("reason") if "reason" in row.keys() else None
+                reason = row.get("reason") if "reason" in row else None
                 checkpoint_number = (
                     row.get("checkpoint_number")
-                    if "checkpoint_number" in row.keys()
+                    if "checkpoint_number" in row
                     else None
                 )
 
@@ -2399,7 +2399,7 @@ class SubstrateRepository:
         """Check database connectivity and return status."""
         try:
             async with self.acquire() as conn:
-                result = await conn.fetchval("SELECT 1")
+                await conn.fetchval("SELECT 1")
                 return {
                     "status": "healthy",
                     "database": "connected",

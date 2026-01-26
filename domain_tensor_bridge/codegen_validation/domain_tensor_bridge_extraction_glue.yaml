@@ -26,11 +26,10 @@ extraction_metadata:
   extraction_root: "codegen/extractions/domain_tensor_bridge_v6_20260102"
 
 schema_to_code:
-  
   # ============================================================================
   # MAIN ORCHESTRATION (3 modules)
   # ============================================================================
-  
+
   agent_controller:
     target: domain_tensor_bridge/agent_controller.py
     source_section: "cursorinstructions.generatefiles[0]"
@@ -46,7 +45,7 @@ schema_to_code:
       - dispatch_to_handler:
           signature: "async def dispatch_to_handler(packet: PacketEnvelope, handler_type: str) -> Any"
           docstring: "Dispatch packet to appropriate handler based on type"
-  
+
   reasoning_engine:
     target: domain_tensor_bridge/reasoning_engine.py
     source_section: "reasoningengine"
@@ -62,7 +61,7 @@ schema_to_code:
           signature: "async def apply_causal_reasoning(context: dict) -> dict"
       - apply_analogical_reasoning:
           signature: "async def apply_analogical_reasoning(context: dict) -> dict"
-  
+
   decision_synthesizer:
     target: domain_tensor_bridge/decision_synthesizer.py
     source_section: "reasoningpipeline.stage_4"
@@ -78,7 +77,7 @@ schema_to_code:
   # ============================================================================
   # PACKET HANDLING (4 modules)
   # ============================================================================
-  
+
   packet_router:
     target: domain_tensor_bridge/packet_router.py
     source_section: "packetrouting"
@@ -92,7 +91,7 @@ schema_to_code:
           signature: "async def route_packet(packet: PacketEnvelope) -> str"
       - get_handler_for_type:
           signature: "def get_handler_for_type(packet_type: str) -> Callable"
-  
+
   packet_validator:
     target: domain_tensor_bridge/packet_validator.py
     source_section: "reasoningpipeline.stage_1"
@@ -104,7 +103,7 @@ schema_to_code:
     functions:
       - validate_packet:
           signature: "def validate_packet(packet: PacketEnvelope) -> ValidationResult"
-  
+
   domain_packet_handler:
     target: domain_tensor_bridge/domain_packet_handler.py
     source_section: "packetrouting.inbound"
@@ -118,7 +117,7 @@ schema_to_code:
           signature: "async def handle_plastos_packet(packet: PacketEnvelope) -> PacketEnvelope"
       - handle_mortgageos_packet:
           signature: "async def handle_mortgageos_packet(packet: PacketEnvelope) -> PacketEnvelope"
-  
+
   packet_formatter:
     target: domain_tensor_bridge/packet_formatter.py
     source_section: "packetrouting.outbound"
@@ -134,7 +133,7 @@ schema_to_code:
   # ============================================================================
   # CONTEXT ENRICHMENT (3 modules)
   # ============================================================================
-  
+
   context_enricher:
     target: domain_tensor_bridge/context_enricher.py
     source_section: "reasoningpipeline.stage_2"
@@ -146,7 +145,7 @@ schema_to_code:
     functions:
       - enrich_context:
           signature: "async def enrich_context(packet: PacketEnvelope) -> EnrichedContext"
-  
+
   world_model_bridge:
     target: domain_tensor_bridge/world_model_bridge.py
     source_section: "worldmodelintegration"
@@ -160,7 +159,7 @@ schema_to_code:
           signature: "async def query_causal_factors(entity_id: str) -> List[CausalFactor]"
       - query_temporal_patterns:
           signature: "async def query_temporal_patterns(entity_id: str, window_days: int) -> List[Pattern]"
-  
+
   domain_context_builder:
     target: domain_tensor_bridge/domain_context_builder.py
     source_section: "reasoningpipeline.stage_2"
@@ -176,7 +175,7 @@ schema_to_code:
   # ============================================================================
   # TENSOR COORDINATION (4 modules)
   # ============================================================================
-  
+
   tensor_coordinator:
     target: domain_tensor_bridge/tensor_coordinator.py
     source_section: "reasoningpipeline.stage_3"
@@ -188,7 +187,7 @@ schema_to_code:
     functions:
       - coordinate_tensor_calls:
           signature: "async def coordinate_tensor_calls(entities: List[str]) -> List[TensorResult]"
-  
+
   tensoraios_bridge:
     target: domain_tensor_bridge/tensoraios_bridge.py
     source_section: "integration.connectto[1]"
@@ -202,7 +201,7 @@ schema_to_code:
           signature: "async def call_link_prediction(source: str, target: str) -> float"
       - call_embedding_similarity:
           signature: "async def call_embedding_similarity(entity_a: str, entity_b: str) -> float"
-  
+
   embedding_processor:
     target: domain_tensor_bridge/embedding_processor.py
     source_section: "reasoningpipeline.stage_3"
@@ -214,7 +213,7 @@ schema_to_code:
     functions:
       - process_embeddings:
           signature: "def process_embeddings(raw_embeddings: List[float]) -> ProcessedEmbedding"
-  
+
   anomaly_handler:
     target: domain_tensor_bridge/anomaly_handler.py
     source_section: "reasoningpipeline.stage_3"
@@ -230,7 +229,7 @@ schema_to_code:
   # ============================================================================
   # MULTI-MODAL REASONING (4 modules)
   # ============================================================================
-  
+
   symbolic_reasoner:
     target: domain_tensor_bridge/symbolic_reasoner.py
     source_section: "reasoningengine.strategymodes[0]"
@@ -242,7 +241,7 @@ schema_to_code:
     functions:
       - apply_domain_rules:
           signature: "def apply_domain_rules(context: dict, domain: str) -> RuleResult"
-  
+
   causal_reasoner:
     target: domain_tensor_bridge/causal_reasoner.py
     source_section: "reasoningengine.secondarymodels[0]"
@@ -254,7 +253,7 @@ schema_to_code:
     functions:
       - apply_causal_logic:
           signature: "async def apply_causal_logic(context: dict) -> CausalResult"
-  
+
   analogical_reasoner:
     target: domain_tensor_bridge/analogical_reasoner.py
     source_section: "reasoningengine.secondarymodels[1]"
@@ -266,7 +265,7 @@ schema_to_code:
     functions:
       - find_analogies:
           signature: "async def find_analogies(context: dict) -> List[Analogy]"
-  
+
   reflective_auditor:
     target: domain_tensor_bridge/reflective_auditor.py
     source_section: "reasoningengine.secondarymodels[3]"
@@ -282,7 +281,7 @@ schema_to_code:
   # ============================================================================
   # GOVERNANCE & ESCALATION (3 modules)
   # ============================================================================
-  
+
   governance_bridge:
     target: domain_tensor_bridge/governance_bridge.py
     source_section: "governance"
@@ -299,7 +298,7 @@ schema_to_code:
           signature: "async def check_governance(decision: Decision) -> GovernanceResult"
       - escalate_to_anchor:
           signature: "async def escalate_to_anchor(decision: Decision, reason: str) -> EscalationResult"
-  
+
   compliance_checker:
     target: domain_tensor_bridge/compliance_checker.py
     source_section: "governance.complianceauditor"
@@ -311,7 +310,7 @@ schema_to_code:
     functions:
       - check_compliance:
           signature: "def check_compliance(decision: Decision, rules: List[Rule]) -> ComplianceResult"
-  
+
   escalation_handler:
     target: domain_tensor_bridge/escalation_handler.py
     source_section: "governance.escalationpolicy"
@@ -327,7 +326,7 @@ schema_to_code:
   # ============================================================================
   # MEMORY MANAGEMENT (1 module)
   # ============================================================================
-  
+
   memory_bridge:
     target: domain_tensor_bridge/memory_bridge.py
     source_section: "memorytopology"
@@ -358,42 +357,42 @@ documentation:
     target: domain_tensor_bridge/README.md
     source_section: "description"
     purpose: "Architecture overview"
-  
+
   architecture:
     target: domain_tensor_bridge/docs/ARCHITECTURE.md
     source_section: "integration + memorytopology"
     purpose: "Detailed design"
-  
+
   packet_spec:
     target: domain_tensor_bridge/docs/PACKET_SPEC.md
     source_section: "packetrouting"
     purpose: "PacketEnvelope format"
-  
+
   reasoning_pipeline:
     target: domain_tensor_bridge/docs/REASONING_PIPELINE.md
     source_section: "reasoningpipeline"
     purpose: "Step-by-step reasoning"
-  
+
   config:
     target: domain_tensor_bridge/docs/CONFIG.md
     source_section: "learningsystem"
     purpose: "Configuration"
-  
+
   api_spec:
     target: domain_tensor_bridge/docs/API_SPEC.md
     source_section: "deployment.endpoints"
     purpose: "REST/gRPC endpoints"
-  
+
   integration:
     target: domain_tensor_bridge/docs/INTEGRATION.md
     source_section: "integration"
     purpose: "How to register domain agents"
-  
+
   autonomy_rules:
     target: domain_tensor_bridge/docs/AUTONOMYRULES.md
     source_section: "governance"
     purpose: "Autonomy & escalation"
-  
+
   deployment:
     target: domain_tensor_bridge/docs/DEPLOYMENT.md
     source_section: "deployment"
@@ -412,7 +411,7 @@ tests:
       - happy_path_packet_dispatch
       - error_handling_invalid_packet
       - routing_decision_verification
-  
+
   test_reasoning_engine:
     target: tests/domain_tensor_bridge/test_reasoning_engine.py
     tests_module: reasoning_engine
@@ -421,7 +420,7 @@ tests:
       - reasoning_modes_selection
       - confidence_thresholds
       - error_paths
-  
+
   test_governance_integration:
     target: tests/domain_tensor_bridge/test_governance_integration.py
     tests_module: governance_bridge
@@ -430,7 +429,7 @@ tests:
       - escalation_triggers
       - overrides
       - audit_logging
-  
+
   test_memory_integration:
     target: tests/domain_tensor_bridge/test_memory_integration.py
     tests_module: memory_bridge
@@ -440,7 +439,7 @@ tests:
       - postgres_query
       - neo4j_query
       - hypergraphdb_query
-  
+
   test_api_surfaces:
     target: tests/domain_tensor_bridge/test_api_surfaces.py
     tests_module: agent_controller
@@ -448,7 +447,7 @@ tests:
     cases:
       - process_packet_endpoint
       - status_endpoint
-  
+
   test_packet_routing:
     target: tests/domain_tensor_bridge/test_packet_routing.py
     tests_module: packet_router
@@ -456,7 +455,7 @@ tests:
     cases:
       - route_by_type
       - route_by_domain
-  
+
   test_tensor_coordination:
     target: tests/domain_tensor_bridge/test_tensor_coordination.py
     tests_module: tensor_coordinator
@@ -464,7 +463,7 @@ tests:
     cases:
       - batch_tensor_calls
       - timeout_handling
-  
+
   test_context_enrichment:
     target: tests/domain_tensor_bridge/test_context_enrichment.py
     tests_module: context_enricher
@@ -482,17 +481,17 @@ enforcement:
     - rule: "No hardcoded credentials"
     - rule: "All external calls use httpx with timeout"
     - rule: "All expressions validated before processing"
-  
+
   memory:
     - rule: "All Redis operations go through memory_bridge"
     - rule: "All Postgres operations use env-based DSN"
     - rule: "All Neo4j operations use connection pool"
-  
+
   governance:
     - rule: "All critical operations checked against governance policy"
     - rule: "Igor/Compliance anchors must be reachable"
     - rule: "Escalation triggers respected"
-  
+
   testing:
     - rule: "Coverage >= 85%, pass rate >= 95%"
 
@@ -508,7 +507,6 @@ quality_gates:
   - gate: "All governance anchors reachable"
   - gate: "No circular imports"
   - gate: "Three-block system: Header Meta + Footer Meta + DORA Block"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

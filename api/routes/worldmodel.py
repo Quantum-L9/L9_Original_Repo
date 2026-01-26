@@ -36,7 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict
+from typing import Any
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -76,7 +76,7 @@ async def get_agent_capabilities(
     agent_id: str,
     request: Request,
     _: bool = Depends(verify_api_key),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get capabilities for an agent.
 
@@ -96,7 +96,7 @@ async def get_agent_capabilities(
 async def get_infrastructure_status(
     request: Request,
     _: bool = Depends(verify_api_key),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get status of all infrastructure components.
 
@@ -112,7 +112,7 @@ async def get_infrastructure_status(
 async def get_approvals_summary(
     request: Request,
     _: bool = Depends(verify_api_key),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get summary of approval requirements.
 
@@ -128,7 +128,7 @@ async def get_approvals_summary(
 async def get_integrations(
     request: Request,
     _: bool = Depends(verify_api_key),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get list of external system integrations.
 
@@ -145,7 +145,7 @@ async def get_world_model_context(
     agent_id: str,
     request: Request,
     _: bool = Depends(verify_api_key),
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     Get world model context for agent prompts.
 

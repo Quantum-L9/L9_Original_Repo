@@ -33,6 +33,7 @@ from openai import OpenAI
 
 from api.auth import verify_api_key
 from api.memory.router import router as memory_router
+
 # Integration settings
 from config.settings import settings
 

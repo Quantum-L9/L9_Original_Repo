@@ -158,29 +158,29 @@ echo -e "${GREEN}✓ Lifecycle policy set (30-day expiry, 14-day transition to G
 if [[ -n "$DR_BUCKET" ]]; then
     echo ""
     echo -e "${BLUE}5. Setting up cross-region replication to ${DR_BUCKET}...${NC}"
-    
+
     # Check if DR bucket exists
     if ! aws s3api head-bucket --bucket "$DR_BUCKET" 2>/dev/null; then
         echo -e "${YELLOW}Creating DR bucket ${DR_BUCKET} in ${DR_REGION}...${NC}"
-        
+
         if [[ "$DR_REGION" == "us-east-1" ]]; then
             aws s3api create-bucket --bucket "$DR_BUCKET" --region "$DR_REGION"
         else
             aws s3api create-bucket --bucket "$DR_BUCKET" --region "$DR_REGION" \
                 --create-bucket-configuration LocationConstraint="$DR_REGION"
         fi
-        
+
         # Enable versioning on DR bucket (required for replication)
         aws s3api put-bucket-versioning \
             --bucket "$DR_BUCKET" \
             --versioning-configuration Status=Enabled
-        
+
         echo -e "${GREEN}✓ DR bucket created${NC}"
     fi
-    
+
     # Create IAM role for replication
     ROLE_NAME="l9-s3-replication-role"
-    
+
     TRUST_POLICY=$(cat <<EOF
 {
     "Version": "2012-10-17",
@@ -196,14 +196,14 @@ if [[ -n "$DR_BUCKET" ]]; then
 }
 EOF
 )
-    
+
     # Create role if it doesn't exist
     if ! aws iam get-role --role-name "$ROLE_NAME" &>/dev/null; then
         aws iam create-role \
             --role-name "$ROLE_NAME" \
             --assume-role-policy-document "$TRUST_POLICY" \
             --description "S3 replication role for L9 backups"
-        
+
         PERMISSIONS_POLICY=$(cat <<EOF
 {
     "Version": "2012-10-17",
@@ -238,20 +238,20 @@ EOF
 }
 EOF
 )
-        
+
         aws iam put-role-policy \
             --role-name "$ROLE_NAME" \
             --policy-name "S3ReplicationPolicy" \
             --policy-document "$PERMISSIONS_POLICY"
-        
+
         echo -e "${GREEN}✓ Replication IAM role created${NC}"
-        
+
         # Wait for role to propagate
         sleep 10
     fi
-    
+
     ROLE_ARN=$(aws iam get-role --role-name "$ROLE_NAME" --query 'Role.Arn' --output text)
-    
+
     # Configure replication
     REPLICATION_CONFIG=$(cat <<EOF
 {
@@ -274,11 +274,11 @@ EOF
 }
 EOF
 )
-    
+
     aws s3api put-bucket-replication \
         --bucket "$BUCKET_NAME" \
         --replication-configuration "$REPLICATION_CONFIG"
-    
+
     echo -e "${GREEN}✓ Cross-region replication configured${NC}"
     echo -e "${GREEN}  Source: s3://${BUCKET_NAME} (${REGION})${NC}"
     echo -e "${GREEN}  Destination: s3://${DR_BUCKET} (${DR_REGION})${NC}"

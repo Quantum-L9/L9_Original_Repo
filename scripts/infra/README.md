@@ -66,11 +66,13 @@ curl -sL https://raw.githubusercontent.com/YOUR_REPO/l9/main/scripts/infra/boots
 ## What Gets Provisioned
 
 ### Terraform Creates:
+
 - Ubuntu 22.04 VPS (2 vCPU, 4GB RAM)
 - Firewall (22, 80, 443 open)
 - Admin user with sudo
 
 ### Bootstrap Script Installs:
+
 - Docker + Docker Compose
 - Caddy (reverse proxy)
 - AWS CLI
@@ -124,12 +126,12 @@ curl -sL https://raw.githubusercontent.com/YOUR_REPO/l9/main/scripts/infra/boots
 
 ## Cost Comparison
 
-| Provider | Specs | Cost/Month |
-|----------|-------|------------|
-| **Hetzner CX21** | 2 vCPU, 4GB RAM, 40GB SSD | €4.85 |
-| DigitalOcean | 2 vCPU, 4GB RAM, 80GB SSD | $24 |
-| AWS t3.medium | 2 vCPU, 4GB RAM, 30GB EBS | ~$30 |
-| Vultr | 2 vCPU, 4GB RAM, 80GB SSD | $24 |
+| Provider         | Specs                     | Cost/Month |
+| ---------------- | ------------------------- | ---------- |
+| **Hetzner CX21** | 2 vCPU, 4GB RAM, 40GB SSD | €4.85      |
+| DigitalOcean     | 2 vCPU, 4GB RAM, 80GB SSD | $24        |
+| AWS t3.medium    | 2 vCPU, 4GB RAM, 30GB EBS | ~$30       |
+| Vultr            | 2 vCPU, 4GB RAM, 80GB SSD | $24        |
 
 **Recommendation:** Hetzner CX21 is ~5x cheaper with similar performance.
 
@@ -181,12 +183,14 @@ export AWS_SECRET_ACCESS_KEY="xxx"
 ### Total Server Loss
 
 1. **Provision new VPS:**
+
    ```bash
    cd scripts/infra/terraform
    terraform apply
    ```
 
 2. **Bootstrap and restore:**
+
    ```bash
    ssh admin@NEW_IP
    curl -sL https://raw.githubusercontent.com/.../bootstrap_vps.sh | \
@@ -214,17 +218,17 @@ sudo ./bootstrap_vps.sh --no-restore
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `L9_DOMAIN` | Your domain | - |
-| `L9_EMAIL` | Email for Let's Encrypt | - |
-| `L9_REPO` | Git repository URL | - |
-| `L9_BRANCH` | Git branch | main |
-| `ADMIN_USER` | Non-root user | admin |
-| `S3_BUCKET` | S3 backup bucket | l9-backups |
-| `AWS_ACCESS_KEY` | AWS access key | - |
-| `AWS_SECRET_KEY` | AWS secret key | - |
-| `AWS_REGION` | AWS region | us-east-1 |
+| Variable         | Description             | Default    |
+| ---------------- | ----------------------- | ---------- |
+| `L9_DOMAIN`      | Your domain             | -          |
+| `L9_EMAIL`       | Email for Let's Encrypt | -          |
+| `L9_REPO`        | Git repository URL      | -          |
+| `L9_BRANCH`      | Git branch              | main       |
+| `ADMIN_USER`     | Non-root user           | admin      |
+| `S3_BUCKET`      | S3 backup bucket        | l9-backups |
+| `AWS_ACCESS_KEY` | AWS access key          | -          |
+| `AWS_SECRET_KEY` | AWS secret key          | -          |
+| `AWS_REGION`     | AWS region              | us-east-1  |
 
 ## Security Notes
 

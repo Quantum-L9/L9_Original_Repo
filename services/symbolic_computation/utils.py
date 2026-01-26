@@ -23,7 +23,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List
 
 import sympy as sp
 from sympy.utilities.memoization import recurrence_memo
@@ -46,7 +45,7 @@ def validate_expression(expression: str) -> bool:
         return False
 
 
-def extract_variables(expression: str) -> List[str]:
+def extract_variables(expression: str) -> list[str]:
     """
     Extract variable names from expression.
 
@@ -79,7 +78,7 @@ def simplify_expression(expression: str) -> str:
         simplified = sp.simplify(expr)
         return str(simplified)
     except Exception as e:
-        raise ValueError(f"Failed to simplify expression: {str(e)}") from e
+        raise ValueError(f"Failed to simplify expression: {e!s}") from e
 
 
 def optimize_expression(expression: str) -> str:
@@ -107,7 +106,7 @@ def optimize_expression(expression: str) -> str:
         return str(reduced[0] if reduced else expr)
 
     except Exception as e:
-        raise ValueError(f"Failed to optimize expression: {str(e)}") from e
+        raise ValueError(f"Failed to optimize expression: {e!s}") from e
 
 
 @recurrence_memo([1, 1])
@@ -127,8 +126,8 @@ def fibonacci(n: int) -> int:
 
 
 def generate_test_cases(
-    variables: List[str], num_cases: int = 10
-) -> List[Dict[str, float]]:
+    variables: list[str], num_cases: int = 10
+) -> list[dict[str, float]]:
     """
     Generate test cases for symbolic expressions.
 
@@ -169,7 +168,7 @@ class ExpressionOptimizer:
         return cse(expr)
 
     @staticmethod
-    def count_operations(expression: str) -> Dict[str, int]:
+    def count_operations(expression: str) -> dict[str, int]:
         """
         Count operations in expression.
 

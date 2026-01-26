@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 import structlog
 
@@ -41,9 +41,9 @@ logger = structlog.get_logger(__name__)
 
 
 async def validate_agent_blueprint(
-    agent_config: "AgentConfig",
-    substrate_service: "MemorySubstrateService",
-) -> Tuple[bool, str]:
+    agent_config: AgentConfig,
+    substrate_service: MemorySubstrateService,
+) -> tuple[bool, str]:
     """
     Validate agent blueprint before initialization.
 
@@ -115,7 +115,7 @@ async def validate_agent_blueprint(
     try:
         from core.tools.base_registry import get_tool_registry
 
-        tool_registry = get_tool_registry()
+        get_tool_registry()
         checks.append(("tool_registry_available", True))
         logger.debug("Blueprint check passed", check="tool_registry_available")
     except ImportError:

@@ -54,7 +54,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Optional, Protocol, runtime_checkable
+from typing import Protocol, runtime_checkable
 
 import structlog
 
@@ -75,7 +75,7 @@ class SecretsClient(Protocol):
     - EnvSecretsClient: Environment variable fallback for local development
     """
 
-    async def get_secret(self, key: str) -> Optional[str]:
+    async def get_secret(self, key: str) -> str | None:
         """
         Get secret value by key.
 

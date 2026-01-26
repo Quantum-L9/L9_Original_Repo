@@ -61,7 +61,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 import structlog
 from pydantic import BaseModel, Field, model_validator
@@ -252,7 +252,7 @@ class RuntimeWiringSpec(BaseModel):
     startup_phase: str = Field(
         ..., description="When to start relative to others (early | normal | late)"
     )
-    depends_on: List[str] = Field(
+    depends_on: list[str] = Field(
         default_factory=list,
         description="Services that must be running before this module starts",
     )
@@ -272,7 +272,7 @@ class ExternalSurface(BaseModel):
     exposes_http_endpoint: bool = Field(..., description="Exposes HTTP endpoint")
     exposes_webhook: bool = Field(..., description="Exposes webhook")
     exposes_tool: bool = Field(..., description="Exposes tool")
-    callable_from: List[str] = Field(
+    callable_from: list[str] = Field(
         default_factory=list, description="Who can call this (external | internal)"
     )
 
@@ -293,10 +293,10 @@ class OutboundCall(BaseModel):
 class DependencySpec(BaseModel):
     """Section 5: Explicit dependencies with endpoints."""
 
-    allowed_tiers: List[int] = Field(
+    allowed_tiers: list[int] = Field(
         default_factory=list, description="Which tiers this module may call"
     )
-    outbound_calls: List[OutboundCall] = Field(
+    outbound_calls: list[OutboundCall] = Field(
         default_factory=list,
         description="Explicit outbound calls with interface + endpoint",
     )
@@ -310,10 +310,10 @@ class DependencySpec(BaseModel):
 class PacketContract(BaseModel):
     """Section 6: Runtime blocks undeclared packet writes."""
 
-    emits: List[str] = Field(
+    emits: list[str] = Field(
         ..., description="All packet types this module can emit", min_length=1
     )
-    requires_metadata: List[str] = Field(
+    requires_metadata: list[str] = Field(
         default_factory=lambda: ["task_id", "thread_uuid", "source", "tool_id"],
         description="Metadata fields MANDATORY on every packet",
     )
@@ -371,11 +371,11 @@ class ErrorPolicy(BaseModel):
     escalation: EscalationConfig = Field(..., description="Escalation behavior")
 
     # Error categories (optional detailed handling)
-    invalid_signature: Optional[ErrorCategory] = None
-    stale_timestamp: Optional[ErrorCategory] = None
-    aios_failure: Optional[ErrorCategory] = None
-    side_effect_failure: Optional[ErrorCategory] = None
-    storage_failure: Optional[ErrorCategory] = None
+    invalid_signature: ErrorCategory | None = None
+    stale_timestamp: ErrorCategory | None = None
+    aios_failure: ErrorCategory | None = None
+    side_effect_failure: ErrorCategory | None = None
+    storage_failure: ErrorCategory | None = None
 
 
 # =============================================================================
@@ -394,8 +394,8 @@ class MetricsConfig(BaseModel):
     """Metrics configuration."""
 
     enabled: bool = Field(default=True, description="Metrics enabled")
-    counters: List[str] = Field(default_factory=list, description="Counter metrics")
-    histograms: List[str] = Field(default_factory=list, description="Histogram metrics")
+    counters: list[str] = Field(default_factory=list, description="Counter metrics")
+    histograms: list[str] = Field(default_factory=list, description="Histogram metrics")
 
 
 class TracesConfig(BaseModel):
@@ -449,8 +449,8 @@ class AcceptanceCriterion(BaseModel):
 
     id: str = Field(..., description="Criterion ID (e.g., AP-1, AN-1)")
     description: str = Field(..., description="What is being tested")
-    test: Optional[str] = Field(None, description="Test function name")
-    expected_behavior: Optional[str] = Field(
+    test: str | None = Field(None, description="Test function name")
+    expected_behavior: str | None = Field(
         None, description="Expected behavior (for negative)"
     )
 
@@ -458,10 +458,10 @@ class AcceptanceCriterion(BaseModel):
 class AcceptanceSpec(BaseModel):
     """Section 12: Acceptance criteria."""
 
-    positive: List[AcceptanceCriterion] = Field(
+    positive: list[AcceptanceCriterion] = Field(
         ..., description="Positive test cases", min_length=1
     )
-    negative: List[AcceptanceCriterion] = Field(
+    negative: list[AcceptanceCriterion] = Field(
         ..., description="Negative test cases (at least one required)", min_length=1
     )
 
@@ -481,7 +481,7 @@ class GlobalInvariantsAck(BaseModel):
     missing_env_fails_boot: bool = Field(default=True)
 
     @model_validator(mode="after")
-    def validate_all_true(self) -> "GlobalInvariantsAck":
+    def validate_all_true(self) -> GlobalInvariantsAck:
         """All invariants must be True."""
         for field_name, value in self.model_dump().items():
             if value is not True:
@@ -500,7 +500,7 @@ class SpecConfidence(BaseModel):
     """Section 14: Confidence level and basis."""
 
     level: str = Field(..., description="Confidence level (high | medium | low)")
-    basis: List[str] = Field(default_factory=list, description="Basis for confidence")
+    basis: list[str] = Field(default_factory=list, description="Basis for confidence")
 
 
 # =============================================================================
@@ -514,10 +514,10 @@ class RepoSpec(BaseModel):
     root_path: str = Field(
         default="/Users/ib-mac/Projects/L9", description="Repository root"
     )
-    allowed_new_files: List[str] = Field(
+    allowed_new_files: list[str] = Field(
         default_factory=list, description="Files that may be created"
     )
-    allowed_modified_files: List[str] = Field(
+    allowed_modified_files: list[str] = Field(
         default_factory=list, description="Files that may be modified"
     )
 
@@ -533,7 +533,7 @@ class InboundInterface(BaseModel):
     name: str = Field(..., description="Route name")
     method: str = Field(default="POST", description="HTTP method")
     route: str = Field(..., description="Route path")
-    headers: List[str] = Field(default_factory=list, description="Required headers")
+    headers: list[str] = Field(default_factory=list, description="Required headers")
     payload_type: str = Field(default="JSON", description="Payload type")
     auth: str = Field(default="none", description="Auth type")
 
@@ -551,8 +551,8 @@ class OutboundInterface(BaseModel):
 class InterfacesSpec(BaseModel):
     """Section 16: Interface definitions."""
 
-    inbound: List[InboundInterface] = Field(default_factory=list)
-    outbound: List[OutboundInterface] = Field(default_factory=list)
+    inbound: list[InboundInterface] = Field(default_factory=list)
+    outbound: list[OutboundInterface] = Field(default_factory=list)
 
 
 # =============================================================================
@@ -565,16 +565,16 @@ class EnvVar(BaseModel):
 
     name: str = Field(..., description="Variable name")
     description: str = Field(..., description="Variable description")
-    default: Optional[str] = Field(None, description="Default value")
+    default: str | None = Field(None, description="Default value")
 
 
 class EnvironmentSpec(BaseModel):
     """Section 17: Environment variables."""
 
-    required: List[EnvVar] = Field(
+    required: list[EnvVar] = Field(
         default_factory=list, description="Required env vars"
     )
-    optional: List[EnvVar] = Field(
+    optional: list[EnvVar] = Field(
         default_factory=list, description="Optional env vars"
     )
 
@@ -605,16 +605,16 @@ class SideEffect(BaseModel):
 
     action: str = Field(..., description="Action description")
     service: str = Field(..., description="Service to call")
-    packet_type: Optional[str] = Field(None, description="Packet type if applicable")
+    packet_type: str | None = Field(None, description="Packet type if applicable")
 
 
 class OrchestrationSpec(BaseModel):
     """Section 18: Orchestration flow."""
 
-    validation: List[str] = Field(default_factory=list, description="Validation steps")
-    context_reads: List[ContextRead] = Field(default_factory=list)
-    aios_calls: List[AIOSCall] = Field(default_factory=list)
-    side_effects: List[SideEffect] = Field(default_factory=list)
+    validation: list[str] = Field(default_factory=list, description="Validation steps")
+    context_reads: list[ContextRead] = Field(default_factory=list)
+    aios_calls: list[AIOSCall] = Field(default_factory=list)
+    side_effects: list[SideEffect] = Field(default_factory=list)
 
 
 # =============================================================================
@@ -644,14 +644,14 @@ class LoggingStandard(BaseModel):
     """Logging standard."""
 
     library: str = Field(default="structlog")
-    forbidden: List[str] = Field(default_factory=lambda: ["logging", "print"])
+    forbidden: list[str] = Field(default_factory=lambda: ["logging", "print"])
 
 
 class HttpClientStandard(BaseModel):
     """HTTP client standard."""
 
     library: str = Field(default="httpx")
-    forbidden: List[str] = Field(default_factory=lambda: ["aiohttp", "requests"])
+    forbidden: list[str] = Field(default_factory=lambda: ["aiohttp", "requests"])
 
 
 class StandardsSpec(BaseModel):
@@ -670,8 +670,8 @@ class StandardsSpec(BaseModel):
 class GoalsSpec(BaseModel):
     """Section 21: Goals and non-goals."""
 
-    goals: List[str] = Field(default_factory=list, description="Module goals")
-    non_goals: List[str] = Field(
+    goals: list[str] = Field(default_factory=list, description="Module goals")
+    non_goals: list[str] = Field(
         default_factory=lambda: [
             "No new database tables",
             "No new migrations",
@@ -789,8 +789,8 @@ class MetaContract(BaseModel):
 
     # === SECTION 21: GOALS & NON-GOALS ===
     # Using separate fields for compatibility
-    goals: List[str] = Field(default_factory=list, description="Module goals")
-    non_goals: List[str] = Field(
+    goals: list[str] = Field(default_factory=list, description="Module goals")
+    non_goals: list[str] = Field(
         default_factory=lambda: [
             "No new database tables",
             "No new migrations",
@@ -800,14 +800,14 @@ class MetaContract(BaseModel):
     )
 
     # === SECTION 22: NOTES FOR P ===
-    notes_for_perplexity: List[str] = Field(
+    notes_for_perplexity: list[str] = Field(
         default_factory=list, description="Notes for Perplexity code generation"
     )
 
     # === VALIDATION ===
 
     @model_validator(mode="after")
-    def validate_test_scope_rules(self) -> "MetaContract":
+    def validate_test_scope_rules(self) -> MetaContract:
         """
         Enforce validation rules from Module-Spec-v2.4:
         - If external_surface.exposes_http_endpoint == true → docker_smoke: true
@@ -837,19 +837,19 @@ class MetaContract(BaseModel):
         """Get the module ID."""
         return self.metadata.module_id
 
-    def get_allowed_files(self) -> List[str]:
+    def get_allowed_files(self) -> list[str]:
         """Get list of files that may be created or modified."""
         return self.repo.allowed_new_files + self.repo.allowed_modified_files
 
-    def get_required_env_vars(self) -> List[str]:
+    def get_required_env_vars(self) -> list[str]:
         """Get list of required environment variable names."""
         return [env.name for env in self.environment.required]
 
-    def get_packet_types(self) -> List[str]:
+    def get_packet_types(self) -> list[str]:
         """Get list of packet types this module emits."""
         return self.packet_contract.emits
 
-    def to_generation_context(self) -> Dict[str, Any]:
+    def to_generation_context(self) -> dict[str, Any]:
         """
         Convert to a context dict suitable for code generation templates.
         """
@@ -897,8 +897,8 @@ class MetaContractValidationResult(BaseModel):
     """Result of MetaContract validation."""
 
     valid: bool = True
-    errors: List[MetaContractValidationError] = Field(default_factory=list)
-    warnings: List[MetaContractValidationError] = Field(default_factory=list)
+    errors: list[MetaContractValidationError] = Field(default_factory=list)
+    warnings: list[MetaContractValidationError] = Field(default_factory=list)
 
     def add_error(self, field: str, message: str) -> None:
         """Add a validation error."""

@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -97,18 +97,17 @@ def confidence_to_level(confidence: float) -> ConfidenceLevel:
     """
     if confidence >= 0.95:
         return ConfidenceLevel.CERTAIN
-    elif confidence >= 0.90:
+    if confidence >= 0.90:
         return ConfidenceLevel.VERY_HIGH
-    elif confidence >= 0.80:
+    if confidence >= 0.80:
         return ConfidenceLevel.HIGH
-    elif confidence >= 0.70:
+    if confidence >= 0.70:
         return ConfidenceLevel.MEDIUM
-    elif confidence >= 0.50:
+    if confidence >= 0.50:
         return ConfidenceLevel.LOW
-    elif confidence >= 0.30:
+    if confidence >= 0.30:
         return ConfidenceLevel.VERY_LOW
-    else:
-        return ConfidenceLevel.UNKNOWN
+    return ConfidenceLevel.UNKNOWN
 
 
 def level_to_confidence_range(level: ConfidenceLevel) -> tuple[float, float]:
@@ -142,7 +141,7 @@ def tag_claim(
     claim: str,
     confidence: float,
     status: EpistemicStatus,
-    sources: Optional[List[str]] = None,
+    sources: list[str] | None = None,
     inline: bool = True,
 ) -> str:
     """
@@ -164,7 +163,12 @@ def tag_claim(
         >>> tag_claim("Python is a programming language", 0.99, EpistemicStatus.VERIFIED)
         'Python is a programming language ([VERIFIED], 99%)'
 
-        >>> tag_claim("This approach will work", 0.75, EpistemicStatus.INFERRED, ["prior experience"])
+        >>> tag_claim(
+        ...     "This approach will work",
+        ...     0.75,
+        ...     EpistemicStatus.INFERRED,
+        ...     ["prior experience"],
+        ... )
         'This approach will work[source:1] ([INFERRED], 75%)'
     """
     # Format source references
@@ -178,9 +182,8 @@ def tag_claim(
 
     if inline:
         return f"{claim}{sources_str} ({status.value}, {confidence_pct})"
-    else:
-        # Verbose format for detailed output
-        return f"{claim}{sources_str}\n  Status: {status.value}\n  Confidence: {confidence_pct}"
+    # Verbose format for detailed output
+    return f"{claim}{sources_str}\n  Status: {status.value}\n  Confidence: {confidence_pct}"
 
 
 def tag_claim_minimal(
@@ -217,8 +220,8 @@ class TaggedClaim:
         text: str,
         confidence: float,
         status: EpistemicStatus = EpistemicStatus.MODEL,
-        sources: Optional[List[str]] = None,
-        reasoning: Optional[str] = None,
+        sources: list[str] | None = None,
+        reasoning: str | None = None,
     ):
         self.text = text
         self.confidence = confidence
@@ -239,7 +242,7 @@ class TaggedClaim:
             self.text, self.confidence, self.status, self.sources, inline=False
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Return as dictionary for JSON serialization."""
         return {
             "text": self.text,
@@ -259,15 +262,15 @@ class ClaimCollection:
     """
 
     def __init__(self):
-        self.claims: List[TaggedClaim] = []
+        self.claims: list[TaggedClaim] = []
 
     def add(
         self,
         text: str,
         confidence: float,
         status: EpistemicStatus = EpistemicStatus.MODEL,
-        sources: Optional[List[str]] = None,
-        reasoning: Optional[str] = None,
+        sources: list[str] | None = None,
+        reasoning: str | None = None,
     ) -> TaggedClaim:
         """Add a claim to the collection."""
         claim = TaggedClaim(text, confidence, status, sources, reasoning)
@@ -280,35 +283,35 @@ class ClaimCollection:
             return 0.0
         return sum(c.confidence for c in self.claims) / len(self.claims)
 
-    def strongest_claim(self) -> Optional[TaggedClaim]:
+    def strongest_claim(self) -> TaggedClaim | None:
         """Get the claim with highest confidence."""
         if not self.claims:
             return None
         return max(self.claims, key=lambda c: c.confidence)
 
-    def weakest_claim(self) -> Optional[TaggedClaim]:
+    def weakest_claim(self) -> TaggedClaim | None:
         """Get the claim with lowest confidence."""
         if not self.claims:
             return None
         return min(self.claims, key=lambda c: c.confidence)
 
-    def by_status(self, status: EpistemicStatus) -> List[TaggedClaim]:
+    def by_status(self, status: EpistemicStatus) -> list[TaggedClaim]:
         """Get claims with a specific status."""
         return [c for c in self.claims if c.status == status]
 
-    def verified_claims(self) -> List[TaggedClaim]:
+    def verified_claims(self) -> list[TaggedClaim]:
         """Get all verified claims."""
         return self.by_status(EpistemicStatus.VERIFIED)
 
-    def assumptions(self) -> List[TaggedClaim]:
+    def assumptions(self) -> list[TaggedClaim]:
         """Get all assumption claims."""
         return self.by_status(EpistemicStatus.ASSUMPTION)
 
-    def low_confidence_claims(self, threshold: float = 0.70) -> List[TaggedClaim]:
+    def low_confidence_claims(self, threshold: float = 0.70) -> list[TaggedClaim]:
         """Get claims below confidence threshold."""
         return [c for c in self.claims if c.confidence < threshold]
 
-    def summary(self) -> Dict[str, Any]:
+    def summary(self) -> dict[str, Any]:
         """
         Generate epistemology summary for response.
 
@@ -335,7 +338,7 @@ class ClaimCollection:
             },
         }
 
-    def to_list(self) -> List[Dict[str, Any]]:
+    def to_list(self) -> list[dict[str, Any]]:
         """Return all claims as list of dicts."""
         return [c.to_dict() for c in self.claims]
 
@@ -377,7 +380,7 @@ def format_for_transparency(
         summary = claims.summary()
         return f"Overall confidence: {summary['overall_confidence'] * 100:.0f}%"
 
-    elif level == TransparencyLevel.LEVEL_1:
+    if level == TransparencyLevel.LEVEL_1:
         # Standard: inline tags
         lines = [c.to_inline() for c in claims.claims]
         summary = claims.summary()
@@ -389,7 +392,7 @@ def format_for_transparency(
             lines.append(f"Assumptions: {', '.join(a.text for a in assumptions)}")
         return "\n".join(lines)
 
-    elif level == TransparencyLevel.LEVEL_2:
+    if level == TransparencyLevel.LEVEL_2:
         # Detailed: verbose tags
         lines = [c.to_verbose() for c in claims.claims]
         summary = claims.summary()
@@ -402,24 +405,24 @@ def format_for_transparency(
         lines.append(f"- Low confidence: {summary['low_confidence_count']}")
         return "\n".join(lines)
 
-    else:  # LEVEL_3
-        # Full kernel trace
-        lines = ["## Full Claim Analysis"]
-        for i, claim in enumerate(claims.claims, 1):
-            lines.append(f"\n### Claim {i}")
-            lines.append(f"Text: {claim.text}")
-            lines.append(f"Status: {claim.status.value}")
-            lines.append(f"Confidence: {claim.confidence * 100:.0f}%")
-            lines.append(f"Level: {claim.level.value}")
-            if claim.sources:
-                lines.append(f"Sources: {', '.join(claim.sources)}")
-            if claim.reasoning:
-                lines.append(f"Reasoning: {claim.reasoning}")
+    # LEVEL_3
+    # Full kernel trace
+    lines = ["## Full Claim Analysis"]
+    for i, claim in enumerate(claims.claims, 1):
+        lines.append(f"\n### Claim {i}")
+        lines.append(f"Text: {claim.text}")
+        lines.append(f"Status: {claim.status.value}")
+        lines.append(f"Confidence: {claim.confidence * 100:.0f}%")
+        lines.append(f"Level: {claim.level.value}")
+        if claim.sources:
+            lines.append(f"Sources: {', '.join(claim.sources)}")
+        if claim.reasoning:
+            lines.append(f"Reasoning: {claim.reasoning}")
 
-        summary = claims.summary()
-        lines.append("\n## Summary Statistics")
-        lines.append(f"```json\n{summary}\n```")
-        return "\n".join(lines)
+    summary = claims.summary()
+    lines.append("\n## Summary Statistics")
+    lines.append(f"```json\n{summary}\n```")
+    return "\n".join(lines)
 
 
 # =============================================================================
@@ -427,19 +430,19 @@ def format_for_transparency(
 # =============================================================================
 
 __all__ = [
+    "ClaimCollection",
+    "ConfidenceLevel",
     # Enums
     "EpistemicStatus",
-    "ConfidenceLevel",
+    # Classes
+    "TaggedClaim",
     "TransparencyLevel",
     # Functions
     "confidence_to_level",
+    "format_for_transparency",
     "level_to_confidence_range",
     "tag_claim",
     "tag_claim_minimal",
-    "format_for_transparency",
-    # Classes
-    "TaggedClaim",
-    "ClaimCollection",
 ]
 
 # ============================================================================

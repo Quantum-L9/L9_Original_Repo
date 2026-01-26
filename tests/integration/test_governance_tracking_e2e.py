@@ -16,12 +16,13 @@ from uuid import uuid4
 import pytest
 
 from core.agents.agent_instance import AgentInstance
-from core.agents.schemas import (AgentConfig, AgentTask, AgentType,
-                                 ExecutionResult)
-from core.agents.selfreflection import (GovernanceBlockPattern,
-                                        TaskExecutionContext,
-                                        UserCorrectionPattern,
-                                        analyze_task_execution)
+from core.agents.schemas import AgentConfig, AgentTask, AgentType, ExecutionResult
+from core.agents.selfreflection import (
+    GovernanceBlockPattern,
+    TaskExecutionContext,
+    UserCorrectionPattern,
+    analyze_task_execution,
+)
 
 # =============================================================================
 # Fixtures
@@ -489,7 +490,7 @@ class TestGovernanceTrackingEndToEnd:
         formatted_blocks = []
         for block in result.governance_blocks or []:
             formatted_block = dict(block)
-            if "metadata" in formatted_block and formatted_block["metadata"]:
+            if formatted_block.get("metadata"):
                 if "reason" in formatted_block["metadata"]:
                     formatted_block["reason"] = formatted_block["metadata"]["reason"]
             formatted_blocks.append(formatted_block)

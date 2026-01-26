@@ -36,10 +36,19 @@ from __future__ import annotations
 
 from uuid import uuid4
 
-from ir_engine.ir_schema import (ActionNode, ActionType, ConstraintNode,
-                                 ConstraintStatus, ConstraintType, IntentNode,
-                                 IntentType, IRGraph, IRMetadata, IRStatus,
-                                 IRValidationResult)
+from ir_engine.ir_schema import (
+    ActionNode,
+    ActionType,
+    ConstraintNode,
+    ConstraintStatus,
+    ConstraintType,
+    IntentNode,
+    IntentType,
+    IRGraph,
+    IRMetadata,
+    IRStatus,
+    IRValidationResult,
+)
 from ir_engine.ir_validator import IRValidator
 
 
@@ -365,7 +374,7 @@ class TestCompletenessValidation:
             description="Create module",
             target="module",
         )
-        intent_id = graph.add_intent(intent)
+        graph.add_intent(intent)
 
         # Action that doesn't derive from intent
         action = ActionNode(

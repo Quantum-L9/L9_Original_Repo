@@ -102,8 +102,8 @@ def test_controller_start_stop():
     try:
         controller = Controller(settings=mock_settings, local_api=mock_local_api)
         # Check for common method patterns
-        has_start = any("start" in name.lower() for name in dir(controller))
-        has_stop = any("stop" in name.lower() for name in dir(controller))
+        any("start" in name.lower() for name in dir(controller))
+        any("stop" in name.lower() for name in dir(controller))
         # At least one lifecycle method should exist
         assert True  # Test passes if controller can be instantiated
     except Exception as e:

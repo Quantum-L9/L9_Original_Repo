@@ -40,67 +40,67 @@ spec:
         app: l9-postgres
     spec:
       containers:
-      - name: postgres
-        image: pgvector/pgvector:pg16
-        ports:
-        - containerPort: 5432
-          name: postgres
-        env:
-        - name: POSTGRES_USER
-          valueFrom:
-            secretKeyRef:
-              name: l9-secrets
-              key: postgres-user
-        - name: POSTGRES_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: l9-secrets
-              key: postgres-password
-        - name: POSTGRES_DB
-          value: "l9_memory"
-        - name: PGDATA
-          value: "/var/lib/postgresql/data/pgdata"
+        - name: postgres
+          image: pgvector/pgvector:pg16
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: l9-secrets
+                  key: postgres-user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: l9-secrets
+                  key: postgres-password
+            - name: POSTGRES_DB
+              value: "l9_memory"
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - l9_user
+                - -d
+                - l9_memory
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - l9_user
+                - -d
+                - l9_memory
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "250m"
-          limits:
-            memory: "1Gi"
-            cpu: "500m"
-        volumeMounts:
-        - name: postgres-data
-          mountPath: /var/lib/postgresql/data
-        livenessProbe:
-          exec:
-            command:
-            - pg_isready
-            - -U
-            - l9_user
-            - -d
-            - l9_memory
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-        readinessProbe:
-          exec:
-            command:
-            - pg_isready
-            - -U
-            - l9_user
-            - -d
-            - l9_memory
-          initialDelaySeconds: 10
-          periodSeconds: 5
-          timeoutSeconds: 3
-  volumeClaimTemplates:
-  - metadata:
-      name: postgres-data
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      storageClassName: local-path
-      resources:
-        requests:
-          storage: 20Gi
+            storage: 20Gi
 ---
 apiVersion: v1
 kind: Service
@@ -114,10 +114,9 @@ spec:
   selector:
     app: l9-postgres
   ports:
-  - port: 5432
-    targetPort: 5432
-    name: postgres
-
+    - port: 5432
+      targetPort: 5432
+      name: postgres
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

@@ -124,9 +124,9 @@ class AgentController:
 
             # Step 2: Route to handler
             if self.packet_router:
-                handler_result = await self.packet_router.route(packet)
+                await self.packet_router.route(packet)
             else:
-                handler_result = {"routed": True, "handler": "default"}
+                pass
 
             # Step 3: Execute reasoning
             if self.reasoning_engine:

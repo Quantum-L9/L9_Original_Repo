@@ -49,7 +49,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-from typing import List, NamedTuple
+from typing import NamedTuple
 
 
 class Violation(NamedTuple):
@@ -155,21 +155,15 @@ def should_skip_path(path: Path) -> bool:
     for pattern in SKIP_PATTERNS:
         if pattern in path_str:
             return True
-    for skip_dir in SKIP_DIRECTORIES:
-        if path_str.endswith(skip_dir):
-            return True
-    return False
+    return any(path_str.endswith(skip_dir) for skip_dir in SKIP_DIRECTORIES)
 
 
 def is_allowed_usage(line: str) -> bool:
     """Check if the line contains an allowed usage of 'kind'."""
-    for pattern in ALLOW_PATTERNS:
-        if re.search(pattern, line, re.IGNORECASE):
-            return True
-    return False
+    return any(re.search(pattern, line, re.IGNORECASE) for pattern in ALLOW_PATTERNS)
 
 
-def check_file(file_path: Path) -> List[Violation]:
+def check_file(file_path: Path) -> list[Violation]:
     """Check a single file for violations."""
     violations = []
 
@@ -207,7 +201,7 @@ def check_file(file_path: Path) -> List[Violation]:
     return violations
 
 
-def find_python_files(root: Path) -> List[Path]:
+def find_python_files(root: Path) -> list[Path]:
     """Find all Python files under root."""
     files = []
     for path in root.rglob("*.py"):
@@ -235,13 +229,10 @@ def main() -> int:
     args = parser.parse_args()
 
     # Determine paths to check
-    if args.paths:
-        paths = [Path(p) for p in args.paths]
-    else:
-        paths = [Path.cwd()]
+    paths = [Path(p) for p in args.paths] if args.paths else [Path.cwd()]
 
     # Collect all Python files
-    all_files: List[Path] = []
+    all_files: list[Path] = []
     for path in paths:
         if path.is_file():
             all_files.append(path)
@@ -249,7 +240,7 @@ def main() -> int:
             all_files.extend(find_python_files(path))
 
     # Check all files
-    all_violations: List[Violation] = []
+    all_violations: list[Violation] = []
     for file_path in all_files:
         violations = check_file(file_path)
         all_violations.extend(violations)
@@ -268,12 +259,9 @@ def main() -> int:
         print(f"\n\nTotal violations: {len(all_violations)}")
         print("\nFix these before merging to prevent packet schema confusion.")
         return 1
-    else:
-        if args.verbose:
-            print(
-                f"✅ Checked {len(all_files)} files - no packet_type naming violations"
-            )
-        return 0
+    if args.verbose:
+        print(f"✅ Checked {len(all_files)} files - no packet_type naming violations")
+    return 0
 
 
 if __name__ == "__main__":

@@ -1,14 +1,17 @@
 # ADR 0035: ADR Bootstrap Protocol
 
 ## Status
+
 Accepted
 
 ## Context
-ADR-0003 requires "Read all files in readme/adr/*.md at session start" — but how does an AI agent know to read ADRs if it hasn't read the ADR telling it to? This is a circular/bootstrap dependency.
+
+ADR-0003 requires "Read all files in readme/adr/\*.md at session start" — but how does an AI agent know to read ADRs if it hasn't read the ADR telling it to? This is a circular/bootstrap dependency.
 
 Additionally, ADRs are the authoritative source for architectural constraints, but they're buried in a subdirectory that agents might not discover.
 
 ## Decision
+
 Establish a **bootstrap protocol** that resolves the circular dependency:
 
 ### Bootstrap Entry Points (Priority Order)
@@ -43,24 +46,29 @@ Key architectural constraints are defined in ADRs. Violating them breaks L9.
 ```
 
 ## Files
+
 - `README.md` (root) — Bootstrap entry point
 - `readme/adr/README.md` — ADR index
 - `.cursor/rules/00-global.mdc` — Cursor rules (references ADRs)
 
 ## Rules
+
 1. Root README MUST reference ADRs with explicit bootstrap instructions
 2. ADR reading is MANDATORY, not optional
 3. This ADR is the exception to the "no circular reference" rule (it bootstraps the ADR system itself)
 4. AI agents MUST check for ADR violations before proposing changes
 
 ## AI Guidance
+
 **DO:**
+
 - Read root README first in any new session
 - Follow bootstrap protocol to discover ADRs
 - Check proposed changes against all Accepted ADRs
 - Flag ADR violations as blockers
 
 **DO NOT:**
+
 - Skip ADR reading because "it takes too long"
 - Assume you know the ADRs from training data (they change)
 - Propose changes that violate ADRs without explicit approval
