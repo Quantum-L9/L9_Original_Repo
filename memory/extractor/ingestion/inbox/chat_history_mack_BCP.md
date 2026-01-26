@@ -2150,9 +2150,13 @@ Your **manifest**.py should roughly look like this (adapt if you already have mo
 "author": "Mack",
 "depends": ["base", "sale", "purchase", "contacts"],
 "data": [
+
 # XML/YAML configs, views, security, etc.
+
 # "security/ir.model.access.csv",
+
 # "views/mack_reasoning_views.xml",
+
 ],
 "post_init_hook": "post_init_setup",
 "installable": True,
@@ -8013,13 +8017,13 @@ After generating the COMPLETE CAPSULE, generate a second block:
 
 This must:
 • Read the capsule
- • Rebuild all files referenced in the capsule
- • Restore repo structures
- • Reconstruct orchestration, modules, and infra EXACTLY as the capsule describes
- • Follow the same reconstruction rules as the previous Godmode prompt
- • Prefer final/most complete versions
- • Never invent missing code
- • Output a ready-to-paste prompt for Cursor
+• Rebuild all files referenced in the capsule
+• Restore repo structures
+• Reconstruct orchestration, modules, and infra EXACTLY as the capsule describes
+• Follow the same reconstruction rules as the previous Godmode prompt
+• Prefer final/most complete versions
+• Never invent missing code
+• Output a ready-to-paste prompt for Cursor
 
 ---
 
@@ -9232,15 +9236,15 @@ For each 7.1 model file:
 Add new files outside the Odoo addon:
 
 app/orchestration/state.py
- app/orchestration/nodes.py
- app/orchestration/graph.py
- app/core/db_postgres.py
- app/integrations/odoo_client.py
- app/api/routes.py
- main.py
- tests/test_pipeline.py
- tests/conftest.py
- docker-compose.yml
+app/orchestration/nodes.py
+app/orchestration/graph.py
+app/core/db_postgres.py
+app/integrations/odoo_client.py
+app/api/routes.py
+main.py
+tests/test_pipeline.py
+tests/conftest.py
+docker-compose.yml
 
 Use EXACT code blocks from the chat history.
 

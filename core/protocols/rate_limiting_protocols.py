@@ -166,7 +166,9 @@ class RateLimitingProtocol(Protocol):
 
         Example:
             >>> reset = limiter.get_reset_time("user:123")
-            >>> seconds_until_reset = (reset - datetime.now(timezone.utc)).total_seconds()
+            >>> seconds_until_reset = (
+            ...     reset - datetime.now(timezone.utc)
+            ... ).total_seconds()
         """
         ...
 

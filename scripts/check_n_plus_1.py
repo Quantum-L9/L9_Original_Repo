@@ -200,9 +200,12 @@ def check_file_regex(filepath: Path) -> list[tuple[int, str, str]]:
                 in_loop = False
 
             # Detect database query in loop
-            if in_loop and (re.search(
-                r"\.(fetch_one|fetch_all|fetch|execute|executemany)\s*\(", line
-            ) or re.search(r"await\s+.*\.(query|get|filter|all|first)\s*\(", line)):
+            if in_loop and (
+                re.search(
+                    r"\.(fetch_one|fetch_all|fetch|execute|executemany)\s*\(", line
+                )
+                or re.search(r"await\s+.*\.(query|get|filter|all|first)\s*\(", line)
+            ):
                 issues.append(
                     (
                         i,

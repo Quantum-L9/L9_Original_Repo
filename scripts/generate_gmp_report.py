@@ -369,9 +369,7 @@ class GMPReportGenerator:
 
             # Create entry for Recent Changes section
             date_str = datetime.now().strftime("%Y-%m-%d")
-            files_summary = ", ".join(
-                {t.file.split("/")[-1] for t in data.todos[:3]}
-            )
+            files_summary = ", ".join({t.file.split("/")[-1] for t in data.todos[:3]})
 
             new_entry = f"- [{date_str}] **GMP-{data.gmp_id:03d}: {data.task}** — "
             if data.summary:

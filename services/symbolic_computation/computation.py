@@ -265,8 +265,7 @@ class CodeGenerator:
             self._generated_count += 1
 
             logger.info(
-                f"Generated {request.language.value} code for: "
-                f"{request.function_name}"
+                f"Generated {request.language.value} code for: {request.function_name}"
             )
 
             return CodeGenResult(

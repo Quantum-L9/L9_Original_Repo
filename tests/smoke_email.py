@@ -149,9 +149,9 @@ async def test_email_query_ingestion():
 
                 # Verify ingestion calls
                 action_calls = tracker.find_by_action("email.query")
-                assert (
-                    len(action_calls) == 2
-                ), f"Expected 2 ingestion calls, got {len(action_calls)}"
+                assert len(action_calls) == 2, (
+                    f"Expected 2 ingestion calls, got {len(action_calls)}"
+                )
 
                 # Verify pre and post phases
                 phases = [c["payload"]["phase"] for c in action_calls]
@@ -160,9 +160,9 @@ async def test_email_query_ingestion():
 
                 # Verify trace_id consistency
                 trace_calls = tracker.find_by_trace_id(trace_id)
-                assert (
-                    len(trace_calls) == 2
-                ), "Trace ID not consistent across ingestions"
+                assert len(trace_calls) == 2, (
+                    "Trace ID not consistent across ingestions"
+                )
 
                 return True, ""
 
@@ -237,12 +237,12 @@ async def test_email_draft_ingestion():
                 pre_call = next(
                     c for c in action_calls if c["payload"]["phase"] == "pre"
                 )
-                assert (
-                    "body" not in pre_call["payload"]
-                ), "Body content should not be ingested"
-                assert (
-                    "body_length" in pre_call["payload"]
-                ), "Body length should be ingested"
+                assert "body" not in pre_call["payload"], (
+                    "Body content should not be ingested"
+                )
+                assert "body_length" in pre_call["payload"], (
+                    "Body length should be ingested"
+                )
 
                 return True, ""
 

@@ -407,9 +407,7 @@ class TestBootstrapIntegration:
         assert len(agent.kernels) == 10
         # Check identity was absorbed
         assert hasattr(agent, "_identity")
-        assert "L" in agent._identity.get(
-            "designation", ""
-        )
+        assert "L" in agent._identity.get("designation", "")
 
     @pytest.mark.skip(
         reason="Import patching complexity - l_cto.py uses runtime.kernel_loader"

@@ -189,9 +189,9 @@ class TestCursorReadsLMemories:
             project_id="l9",
         )
 
-        assert (
-            "l-private" not in ctx.allowed_scopes
-        ), "Cursor context should not include l-private"
+        assert "l-private" not in ctx.allowed_scopes, (
+            "Cursor context should not include l-private"
+        )
         assert "developer" in ctx.allowed_scopes
         assert "global" in ctx.allowed_scopes
 
@@ -254,9 +254,9 @@ class TestBidirectionalDeveloperScope:
         }
 
         # When L reads this memory, creator should still be Cursor-IDE
-        assert (
-            memory["envelope"]["metadata"]["creator"] == original_creator
-        ), "Creator metadata must be preserved on cross-client read"
+        assert memory["envelope"]["metadata"]["creator"] == original_creator, (
+            "Creator metadata must be preserved on cross-client read"
+        )
 
 
 # =============================================================================
@@ -291,14 +291,14 @@ class TestScopeIsolationQuery:
         )
 
         # Verify parameterized (no string interpolation)
-        assert (
-            "$" in sql_fragment or "ANY" in sql_fragment.upper()
-        ), "Scope filter should use parameterized queries"
+        assert "$" in sql_fragment or "ANY" in sql_fragment.upper(), (
+            "Scope filter should use parameterized queries"
+        )
 
         # Verify l-private NOT in filter (ctx.allowed_scopes doesn't have it)
-        assert (
-            "l-private" not in ctx.allowed_scopes
-        ), "l-private should not be in Cursor's allowed scopes"
+        assert "l-private" not in ctx.allowed_scopes, (
+            "l-private should not be in Cursor's allowed scopes"
+        )
 
     def test_governance_context_enforces_caller_scopes(self):
         """Verify governance context correctly sets allowed scopes per caller."""

@@ -141,7 +141,6 @@ class ResearchMemoryAdapter:
             ),
         )
 
-
     def envelope_to_state(self, envelope: PacketEnvelope) -> ResearchGraphState:
         """
         Convert PacketEnvelope back to ResearchGraphState.
@@ -175,7 +174,6 @@ class ResearchMemoryAdapter:
             timestamp=payload.get("timestamp", datetime.utcnow().isoformat()),
             packet_id=str(envelope.packet_id),
         )
-
 
     # =========================================================================
     # Checkpoint Operations (uses graph_checkpoints table)
@@ -376,7 +374,6 @@ class ResearchMemoryAdapter:
             message=message,
             metadata=metadata,
         )
-
 
 
 # Singleton adapter instance

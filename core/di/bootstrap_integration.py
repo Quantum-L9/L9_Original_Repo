@@ -303,7 +303,7 @@ def get_container() -> DIContainer:
     """
     if _container is None:
         raise RuntimeError(
-            "DI container not bootstrapped. " "Call bootstrap_di_container() first."
+            "DI container not bootstrapped. Call bootstrap_di_container() first."
         )
 
     return _container

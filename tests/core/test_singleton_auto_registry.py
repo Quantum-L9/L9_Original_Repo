@@ -16,7 +16,7 @@ from core.singleton_registry import SingletonLifecycle, SingletonRegistry
 
 
 @pytest.fixture(autouse=True)
-def clear_registries():
+def _clear_registries():
     """Clear all registries before and after each test."""
     singleton_service_registry.clear()
     yield

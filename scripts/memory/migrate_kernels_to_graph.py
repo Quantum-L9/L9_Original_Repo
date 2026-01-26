@@ -101,7 +101,6 @@ async def run_migration(force: bool = False) -> dict:
             force_refresh=force,
         )
 
-
     finally:
         await driver.close()
 

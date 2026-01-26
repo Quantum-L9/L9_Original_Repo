@@ -342,6 +342,7 @@ async def extract_agent_file(
     """
     try:
         import yaml
+
         from services.research_factory.extractor import UniversalExtractor
         from services.research_factory.glue_resolver import GlueConfig
 

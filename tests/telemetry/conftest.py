@@ -9,7 +9,7 @@ import pytest
 
 
 @pytest.fixture(autouse=True)
-def reset_prometheus_metrics():
+def _reset_prometheus_metrics():
     """
     Reset Prometheus metrics between tests to avoid test pollution.
 

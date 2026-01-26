@@ -115,7 +115,6 @@ def compute_graph_schema_version() -> str:
     return hashlib.sha256(combined.encode()).hexdigest()[:32]
 
 
-
 GRAPH_CACHE_SCHEMA_VERSION = compute_graph_schema_version()
 
 

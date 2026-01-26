@@ -147,9 +147,12 @@ Confidence impact: ✅ No penalty
 
 - [x] **Location correct?** Lines 15–18 in `list_pending_gmp_tasks()` ✅
       `python
-    # Before (error): x for x in tasks if x.status == 'pending'
-    # After (fixed): [x for x in tasks if x.status == 'pending']
-    `
+
+  # Before (error): x for x in tasks if x.status == 'pending'
+
+  # After (fixed): [x for x in tasks if x.status == 'pending']
+
+  `
 
 - [x] **Action verb fulfilled?** Replace syntax error with correct list comprehension ✅
 
@@ -219,8 +222,8 @@ Confidence impact: ✅ No penalty
 
 - [x] **Logger/error handling?** Logger call present before return ✅
       `python
-    logger.warning(f"MCP tool call requested but not implemented...")
-    `
+logger.warning(f"MCP tool call requested but not implemented...")
+`
 
 **Verification Result: ✅ COMPLETE AND CORRECT**
 

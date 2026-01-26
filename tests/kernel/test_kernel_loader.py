@@ -128,9 +128,9 @@ def test_packet_protocol_validation_matches_runtime_order():
     result = validate_packet_protocol_rules()
 
     # Core validation: orders must match
-    assert (
-        result["valid"] is True
-    ), f"Kernel order validation failed: {result['mismatches']}"
+    assert result["valid"] is True, (
+        f"Kernel order validation failed: {result['mismatches']}"
+    )
     assert result["expected_order"] == result["actual_order"]
     assert result["mismatches"] == []
 

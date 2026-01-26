@@ -243,7 +243,6 @@ Follow the superprompt rules exactly:
 Output all files with their full paths and complete code.
 """
 
-
     def compile_governance(self, module_dir: Path) -> list[str]:
         """
         Extract governance artifacts from generated code.
@@ -305,7 +304,6 @@ Output all files with their full paths and complete code.
 
         # Generate code
         return self.generate_code(concept)
-
 
 
 def main():

@@ -362,7 +362,9 @@ def _is_email_command(text: str) -> bool:
         return True
 
     # Check for email action phrases
-    return bool(any(kw in text_lower for kw in ["send email to", "reply to", "forward to"]))
+    return bool(
+        any(kw in text_lower for kw in ["send email to", "reply to", "forward to"])
+    )
 
 
 # =============================================================================

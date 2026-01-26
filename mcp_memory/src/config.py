@@ -206,7 +206,8 @@ def validate_api_keys() -> None:
         warnings.warn(
             "MCP_API_KEY_L not set. L-CTO operations will fail. "
             "Set MCP_API_KEY_L or use legacy MCP_API_KEYL/MCP_API_KEY/MCPL9MEMORYKEY.",
-            UserWarning, stacklevel=2,
+            UserWarning,
+            stacklevel=2,
         )
 
     if not api_key_c:
@@ -215,7 +216,8 @@ def validate_api_keys() -> None:
         warnings.warn(
             "MCP_API_KEY_C not set. Cursor operations will fail. "
             "Set MCP_API_KEY_C or use legacy MCP_API_KEYC/MCP_API_KEY/MCPL9MEMORYKEY.",
-            UserWarning, stacklevel=2,
+            UserWarning,
+            stacklevel=2,
         )
 
 

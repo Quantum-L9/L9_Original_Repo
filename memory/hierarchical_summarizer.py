@@ -478,7 +478,7 @@ class HierarchicalSummarizer:
 
         # Find content block
         match = re.search(r"Requirements:", prompt)
-        content = prompt[:match.start()].strip() if match else prompt
+        content = prompt[: match.start()].strip() if match else prompt
 
         # Simple extractive: first 2-3 sentences per section
         sections = content.split("\n\n---\n\n")

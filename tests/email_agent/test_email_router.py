@@ -121,9 +121,9 @@ class TestAuthEnforcement:
     def test_no_auth_returns_401(self, client, endpoint):
         """Request without API key returns 401."""
         response = client.post(endpoint, json={"query": "test"})
-        assert (
-            response.status_code == 401
-        ), f"Expected 401 for {endpoint}, got {response.status_code}"
+        assert response.status_code == 401, (
+            f"Expected 401 for {endpoint}, got {response.status_code}"
+        )
 
     @pytest.mark.parametrize(
         "endpoint",

@@ -165,7 +165,7 @@ def is_allowed_usage(line: str) -> bool:
 
 def check_file(file_path: Path) -> list[Violation]:
     """Check a single file for violations."""
-    violations = []
+    violations: list[Violation] = []
 
     if not file_path.exists():
         return violations

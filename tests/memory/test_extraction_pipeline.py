@@ -64,9 +64,9 @@ async def test_extraction_pipeline_creates_facts(
     )
 
     # Should have at least one fact (status, version, or description)
-    assert (
-        len(facts) > 0
-    ), "Extraction pipeline should create at least one knowledge fact"
+    assert len(facts) > 0, (
+        "Extraction pipeline should create at least one knowledge fact"
+    )
 
     # Verify facts contain expected predicates
     predicates = [f["predicate"] for f in facts]
@@ -76,9 +76,9 @@ async def test_extraction_pipeline_creates_facts(
 
     # Verify facts reference the source packet
     for fact in facts:
-        assert (
-            fact["source_packet"] == str(result.packet_id)
-        ), f"Fact should reference source packet {result.packet_id}, got {fact.get('source_packet')}"
+        assert fact["source_packet"] == str(result.packet_id), (
+            f"Fact should reference source packet {result.packet_id}, got {fact.get('source_packet')}"
+        )
 
 
 @pytest.mark.asyncio
@@ -117,9 +117,9 @@ async def test_extraction_pipeline_with_reasoning_block(
 
     # Find facts from this packet
     packet_facts = [f for f in all_facts if f["source_packet"] == str(result.packet_id)]
-    assert (
-        len(packet_facts) > 0
-    ), "Should have created facts from packet with reasoning block"
+    assert len(packet_facts) > 0, (
+        "Should have created facts from packet with reasoning block"
+    )
 
 
 @pytest.mark.asyncio

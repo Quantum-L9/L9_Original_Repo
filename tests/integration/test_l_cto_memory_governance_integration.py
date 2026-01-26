@@ -86,7 +86,7 @@ class TestMemoryGovernanceIntegration:
 
         # Log some failures
         for i in range(2):
-            audit_log(agent_id=agent_id, action=f"action_{i+5}", success=False)
+            audit_log(agent_id=agent_id, action=f"action_{i + 5}", success=False)
 
         # Get audit trail
         trail = get_audit_trail(agent_id=agent_id, limit=10)

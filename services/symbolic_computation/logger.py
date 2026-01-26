@@ -58,7 +58,9 @@ class StructuredLogger(logging.Logger):
         self.addHandler(handler)
         self.setLevel(logging.INFO)
 
-    def log_structured(self, level: int, message: str, extra: dict[str, Any] | None = None):
+    def log_structured(
+        self, level: int, message: str, extra: dict[str, Any] | None = None
+    ):
         """
         Log structured message.
 

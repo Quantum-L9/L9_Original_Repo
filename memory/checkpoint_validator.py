@@ -121,7 +121,6 @@ class CheckpointValidator:
             self.CHECKSUM_TIMESTAMP_FIELD: datetime.utcnow().isoformat(),
         }
 
-
     def validate_checksum(
         self,
         state: dict[str, Any],

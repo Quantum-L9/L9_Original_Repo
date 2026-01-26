@@ -64,7 +64,7 @@ def extract_yaml_blocks(content: str) -> list:
     # IMPORTANT: Only match '''yaml that appears at line start or after newline
     # to avoid matching explanatory mentions like "Wrapped in '''yaml for Cursor"
 
-    blocks = []
+    blocks: list[str] = []
 
     # Pattern: '''yaml at start of line, capture until closing '''
     # The (?:^|\n) ensures we only match '''yaml at line boundaries

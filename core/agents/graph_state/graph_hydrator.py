@@ -404,12 +404,10 @@ class GraphHydrator:
         for directive in critical_directives:
             # Check for obvious violations
             if (
-                ("NO deletion" in directive.text
-                and "delete" in proposed_action.lower())
-                or (
-                    "MUST respect Igor" in directive.text
-                    and "override igor" in proposed_action.lower()
-                )
+                "NO deletion" in directive.text and "delete" in proposed_action.lower()
+            ) or (
+                "MUST respect Igor" in directive.text
+                and "override igor" in proposed_action.lower()
             ):
                 violations.append(directive.text)
 

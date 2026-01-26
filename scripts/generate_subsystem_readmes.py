@@ -142,7 +142,6 @@ def load_config(repo_root: Path) -> dict[str, Any]:
         return yaml.safe_load(f)
 
 
-
 def save_config(repo_root: Path, config: dict[str, Any]) -> None:
     """Save config back to YAML (for updating last_updated)."""
     config_file = repo_root / CONFIG_PATH

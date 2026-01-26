@@ -99,9 +99,9 @@ class TestIncrementalCompilation:
         # Assert: Original intents preserved
         assert len(updated_graph.intents) > initial_intent_count
         for original_id in initial_intent_ids:
-            assert (
-                original_id in updated_graph.intents
-            ), "Original intent should be preserved"
+            assert original_id in updated_graph.intents, (
+                "Original intent should be preserved"
+            )
 
         # Assert: New intent added
         new_intent_ids = set(updated_graph.intents.keys()) - initial_intent_ids
@@ -241,9 +241,9 @@ class TestIncrementalCompilation:
         call_args = mock_openai_client.chat.completions.create.call_args
         prompt = call_args.kwargs["messages"][1]["content"]
 
-        assert (
-            "existing_intents" in prompt
-        ), "Prompt should include existing intents context"
+        assert "existing_intents" in prompt, (
+            "Prompt should include existing intents context"
+        )
 
 
 class TestIncrementalEdgeCases:

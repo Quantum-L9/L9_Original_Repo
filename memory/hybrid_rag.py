@@ -757,9 +757,7 @@ class HybridRAGPipeline:
 
             # Entity diversity: variety of entity types
             if enrichment.related_entities:
-                unique_types = len(
-                    {e.get("type") for e in enrichment.related_entities}
-                )
+                unique_types = len({e.get("type") for e in enrichment.related_entities})
                 factors["entity_diversity"] = min(
                     unique_types / 5, 1.0
                 )  # Normalize to 5 types

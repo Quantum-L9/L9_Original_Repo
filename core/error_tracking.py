@@ -156,7 +156,6 @@ async def get_error_chain(error_id: str) -> list[dict[str, Any]]:
             {"error_id": error_id},
         )
 
-
     except Exception as e:
         logger.warning(f"Failed to get error chain: {e}")
         return []

@@ -132,7 +132,7 @@ time_before = (
     + 30 * 200  # Vector searches (200ms each, unoptimized)
     + 20 * 10  # Uncached queries (10ms each)
 )
-print(f"   Total time: {time_before}ms = {time_before/1000:.2f}s")
+print(f"   Total time: {time_before}ms = {time_before / 1000:.2f}s")
 
 print("\n3. After optimization:")
 time_after = (
@@ -140,7 +140,7 @@ time_after = (
     + 30 * 40  # Vector searches (40ms each, optimized)
     + 20 * 10  # Uncached queries (10ms each, unchanged)
 )
-print(f"   Total time: {time_after}ms = {time_after/1000:.2f}s")
+print(f"   Total time: {time_after}ms = {time_after / 1000:.2f}s")
 
 speedup_combined = time_before / time_after if time_after > 0 else 0
 improvement_combined = (
@@ -150,7 +150,7 @@ improvement_combined = (
 print("\n4. Combined Results:")
 print(f"   Speedup: {speedup_combined:.1f}x faster")
 print(f"   Improvement: {improvement_combined:.1f}% faster")
-print(f"   Time saved: {(time_before - time_after)/1000:.2f}s")
+print(f"   Time saved: {(time_before - time_after) / 1000:.2f}s")
 
 # ============================================================================
 # Summary
@@ -173,7 +173,7 @@ print("   - Best for: Semantic search, similarity queries")
 print("\n✅ Combined Impact:")
 print(f"   - {speedup_combined:.1f}x faster overall")
 print(f"   - {improvement_combined:.1f}% improvement")
-print(f"   - Realistic workload: {time_before/1000:.2f}s → {time_after/1000:.2f}s")
+print(f"   - Realistic workload: {time_before / 1000:.2f}s → {time_after / 1000:.2f}s")
 
 print("\n" + "=" * 70)
 print("🎉 Benchmarks Complete!")

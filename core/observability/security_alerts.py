@@ -382,7 +382,6 @@ Details:
             channels=channels,
         )
 
-
     def create_secret_detected_alert(
         self, secret_type: str, location: str, details: dict[str, Any]
     ) -> SecurityAlert:
@@ -406,7 +405,6 @@ Details:
             details=details,
             channels=[AlertChannel.SLACK, AlertChannel.EMAIL, AlertChannel.PAGERDUTY],
         )
-
 
     def create_policy_violation_alert(
         self, policy_type: str, action: str, details: dict[str, Any]
@@ -433,7 +431,6 @@ Details:
             details=details,
             channels=[AlertChannel.SLACK],
         )
-
 
 
 # =============================================================================

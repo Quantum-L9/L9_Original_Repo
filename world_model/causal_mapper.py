@@ -1251,7 +1251,8 @@ class CausalMapper:
                 # Check all pairs
                 for i, dec_a in enumerate(decisions):
                     for dec_b in decisions[i + 1 :]:
-                        pair = tuple(sorted([dec_a, dec_b]))
+                        sorted_pair = sorted([dec_a, dec_b])
+                        pair: tuple[str, str] = (sorted_pair[0], sorted_pair[1])
                         co_occurrence[pair] = co_occurrence.get(pair, 0) + 1
 
         # Identify strong co-occurrences

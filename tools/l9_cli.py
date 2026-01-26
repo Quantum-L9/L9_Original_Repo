@@ -181,7 +181,7 @@ def manage_debt(path: str):
             click.echo(f"  {marker}: {len(items)}")
 
     click.echo("\n📝 Top files with technical debt:")
-    file_counts = {}
+    file_counts: dict[str, int] = {}
     for marker_items in findings.values():
         for file_path, _, _ in marker_items:
             file_counts[file_path] = file_counts.get(file_path, 0) + 1

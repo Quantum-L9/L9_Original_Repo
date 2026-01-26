@@ -1190,7 +1190,6 @@ class UnifiedController:
 
         return self._plan_adapter.to_execution_plan(graph)
 
-
     async def execute(
         self,
         task: str,

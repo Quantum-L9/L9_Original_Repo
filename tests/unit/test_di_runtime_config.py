@@ -68,7 +68,7 @@ def empty_config_file():
 
 
 @pytest.fixture(autouse=True)
-def reset_loader():
+def _reset_loader():
     """Reset singleton loader before each test."""
     reset_runtime_config_loader()
     yield

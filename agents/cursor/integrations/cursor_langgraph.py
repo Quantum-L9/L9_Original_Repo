@@ -42,10 +42,10 @@ from typing import Any, Literal
 from uuid import UUID, uuid4
 
 import structlog
-from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field
 
 from core.decorators import must_stay_async
+from langgraph.graph import END, START, StateGraph
 
 logger = structlog.get_logger(__name__)
 
@@ -293,14 +293,20 @@ class CursorMemorySearchNode:
             return state.model_copy(
                 update={
                     "search_hits": hits,
-                    "tool_results": [*state.tool_results, {"type": "memory_search", "hits": hits}],
+                    "tool_results": [
+                        *state.tool_results,
+                        {"type": "memory_search", "hits": hits},
+                    ],
                 }
             )
         except Exception as e:
             logger.error("Memory search failed", error=str(e))
             return state.model_copy(
                 update={
-                    "errors": [*state.errors, {"type": "memory_search_error", "error": str(e)}],
+                    "errors": [
+                        *state.errors,
+                        {"type": "memory_search_error", "error": str(e)},
+                    ],
                 }
             )
 
@@ -437,7 +443,10 @@ class CursorDecisionGateNode:
             return state.model_copy(
                 update={
                     "approval_status": "error",
-                    "errors": [*state.errors, {"type": "approval_error", "error": str(e)}],
+                    "errors": [
+                        *state.errors,
+                        {"type": "approval_error", "error": str(e)},
+                    ],
                 }
             )
 

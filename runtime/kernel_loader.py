@@ -442,7 +442,9 @@ def load_kernels(agent: Any, base_path: Path | None = None) -> Any:
     return agent
 
 
-def _inject_activation_context(agent: Any, boot_overlay: dict[str, Any] | None = None) -> None:
+def _inject_activation_context(
+    agent: Any, boot_overlay: dict[str, Any] | None = None
+) -> None:
     """
     Inject the activation context that makes L aware of kernels.
 

@@ -177,7 +177,10 @@ class CursorExecutor:
             error_state = initial_state.model_copy(
                 update={
                     "task_status": "failed",
-                    "errors": [*initial_state.errors, {"type": "execution_error", "error": str(e)}],
+                    "errors": [
+                        *initial_state.errors,
+                        {"type": "execution_error", "error": str(e)},
+                    ],
                 }
             )
 

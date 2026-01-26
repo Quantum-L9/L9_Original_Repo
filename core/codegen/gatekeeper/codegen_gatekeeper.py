@@ -346,7 +346,9 @@ class CodeGenGatekeeperAgent(BaseAgent):
             try:
                 return json.loads(contract)
             except json.JSONDecodeError as e:
-                raise ValueError(f"Failed to parse contract as YAML or JSON: {e}")
+                raise ValueError(
+                    f"Failed to parse contract as YAML or JSON: {e}"
+                ) from e
 
     async def _validate_contract(
         self, contract: dict[str, Any], contract_type: ContractType

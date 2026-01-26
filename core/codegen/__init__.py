@@ -29,12 +29,12 @@ from .gatekeeper.codegen_gatekeeper import (
 
 __version__ = "1.0.0"
 __all__ = [
-    "CodeGenGatekeeperAgent",
-    "ContractType",
-    "NormalizedSpec",
-    "CodeGenOutput",
     "BlindSpot",
-    "ResearchFinding",
-    "ModuleCompiler",
+    "CodeGenGatekeeperAgent",
+    "CodeGenOutput",
     "CompilationResult",
+    "ContractType",
+    "ModuleCompiler",
+    "NormalizedSpec",
+    "ResearchFinding",
 ]

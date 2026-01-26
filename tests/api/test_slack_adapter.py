@@ -224,9 +224,9 @@ class TestCanonicalLogEvents:
         ]
 
         for event in canonical_events:
-            assert (
-                event in source
-            ), f"Canonical event '{event}' not found in slack_ingest.py"
+            assert event in source, (
+                f"Canonical event '{event}' not found in slack_ingest.py"
+            )
 
 
 # =============================================================================

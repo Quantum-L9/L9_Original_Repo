@@ -44,7 +44,7 @@ sast:
   thresholds:
     critical:
       max_allowed: 0
-      action: block  # Block PR merge
+      action: block # Block PR merge
     high:
       max_allowed: 5
       action: block
@@ -84,7 +84,7 @@ sast:
       message: "subprocess with shell=True is dangerous, use shlex.split() instead"
 
     - id: no-hardcoded-secrets
-      pattern: '(password|secret|key|token)\s*=\s*["\']'
+      pattern: "(password|secret|key|token)\\s*=\\s*[\"']"
       severity: critical
       message: "Hardcoded secrets detected, use environment variables"
 
@@ -99,8 +99,8 @@ dependencies:
 
   # Scan frequency
   schedule:
-    ci_cd: always  # On every PR
-    scheduled: daily  # Daily full scan
+    ci_cd: always # On every PR
+    scheduled: daily # Daily full scan
 
   # Severity thresholds
   thresholds:
@@ -109,7 +109,7 @@ dependencies:
       action: block
     high:
       max_allowed: 3
-      action: warn  # Warn but don't block (dependencies take time to upgrade)
+      action: warn # Warn but don't block (dependencies take time to upgrade)
     medium:
       max_allowed: 10
       action: info
@@ -129,7 +129,7 @@ dependencies:
 
   # Auto-update policy
   auto_update:
-    enabled: false  # Manual updates for now
+    enabled: false # Manual updates for now
     max_minor_version_jump: 1
     max_major_version_jump: 0
 
@@ -145,7 +145,7 @@ secrets:
   # Scan scope
   scan_scope:
     current_commit: true
-    full_history: false  # Only on scheduled scans
+    full_history: false # Only on scheduled scans
     branches:
       - main
       - develop
@@ -197,7 +197,7 @@ containers:
   thresholds:
     critical:
       max_allowed: 0
-      action: warn  # Warn but don't block (base image vulns are common)
+      action: warn # Warn but don't block (base image vulns are common)
     high:
       max_allowed: 10
       action: warn
@@ -274,15 +274,15 @@ governance:
 
   # Policy enforcement points
   enforcement_points:
-    - pre_commit  # Local git hooks
-    - ci_cd  # GitHub Actions
-    - runtime  # Production runtime checks
+    - pre_commit # Local git hooks
+    - ci_cd # GitHub Actions
+    - runtime # Production runtime checks
 
   # Audit logging
   audit:
     enabled: true
     log_level: info
-    destination: memory_substrate  # Log to L9 memory
+    destination: memory_substrate # Log to L9 memory
     retention_days: 90
 
   # Approval requirements
@@ -302,7 +302,7 @@ environments:
     sast:
       thresholds:
         high:
-          action: warn  # More lenient in dev
+          action: warn # More lenient in dev
     secrets:
       scan_scope:
         full_history: false
@@ -314,11 +314,11 @@ environments:
     sast:
       thresholds:
         high:
-          max_allowed: 0  # Stricter in prod
+          max_allowed: 0 # Stricter in prod
     dependencies:
       thresholds:
         high:
-          action: block  # Block high vulns in prod
+          action: block # Block high vulns in prod
     observability:
       alerts:
         critical_vulnerability:
@@ -337,19 +337,19 @@ reporting:
   formats:
     - json
     - markdown
-    - sarif  # For GitHub Security tab
+    - sarif # For GitHub Security tab
 
   # Report retention
   retention:
-    ci_artifacts: 30  # days
-    comprehensive_reports: 90  # days
-    audit_logs: 365  # days
+    ci_artifacts: 30 # days
+    comprehensive_reports: 90 # days
+    audit_logs: 365 # days
 
   # Report distribution
   distribution:
-    pr_comments: true  # Comment on PRs with security summary
-    slack_summary: true  # Daily summary to Slack
-    email_digest: weekly  # Weekly email digest
+    pr_comments: true # Comment on PRs with security summary
+    slack_summary: true # Daily summary to Slack
+    email_digest: weekly # Weekly email digest
 
 # =============================================================================
 # Compliance & Standards
@@ -389,7 +389,6 @@ metadata:
     - "engineering-lead"
     - "devops-lead"
   next_review: "2026-04-21"
-
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

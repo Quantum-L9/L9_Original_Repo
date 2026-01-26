@@ -133,9 +133,9 @@ class TestRateLimiterConfiguration:
         # Required methods
         assert hasattr(rate_limiter, "is_rate_limited"), "Should have is_rate_limited"
         assert hasattr(rate_limiter, "record_request"), "Should have record_request"
-        assert hasattr(
-            rate_limiter, "record_failed_auth"
-        ), "Should have record_failed_auth"
+        assert hasattr(rate_limiter, "record_failed_auth"), (
+            "Should have record_failed_auth"
+        )
         assert hasattr(rate_limiter, "is_auth_blocked"), "Should have is_auth_blocked"
         assert hasattr(rate_limiter, "snapshot"), "Should have snapshot"
 

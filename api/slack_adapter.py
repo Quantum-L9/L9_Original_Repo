@@ -260,7 +260,6 @@ class SlackRequestNormalizer:
             "raw_event": event,
         }
 
-
     @staticmethod
     def parse_command(payload: dict[str, Any]) -> dict[str, Any]:
         """
@@ -322,7 +321,6 @@ class SlackRequestNormalizer:
             "trigger_id": payload.get("trigger_id", ""),
             "thread_uuid": thread_uuid,
         }
-
 
 
 # ============================================================================

@@ -236,7 +236,9 @@ class Reporter:
         output_path.write_text(json.dumps(data, indent=2, default=str))
         return output_path
 
-    def to_jsonl(self, records: list[dict[str, Any]], filename: str | None = None) -> Path:
+    def to_jsonl(
+        self, records: list[dict[str, Any]], filename: str | None = None
+    ) -> Path:
         """Export records as JSONL."""
         if not filename:
             filename = f"audit_{self.audit_name}.jsonl"

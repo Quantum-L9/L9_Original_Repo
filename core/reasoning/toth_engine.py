@@ -593,7 +593,6 @@ class ProductionToThEngine:
                 model_used="error",
             )
 
-
     def _create_reasoning_prompt(
         self, query: str, reasoning_mode: ReasoningMode
     ) -> str:

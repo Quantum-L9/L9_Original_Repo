@@ -264,7 +264,6 @@ class InputSegmenter:
             p.strip() for p in parts if p and p.strip() and not self._is_separator(p)
         ]
 
-
     def _is_separator(self, text: str) -> bool:
         """Check if text is just a separator."""
         normalized = text.strip().lower()

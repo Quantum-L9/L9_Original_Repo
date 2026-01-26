@@ -71,7 +71,6 @@ async def run_research(
     )
 
 
-
 async def run_quick_research(
     query: str,
     model: str = "sonar-pro",
@@ -173,7 +172,6 @@ def generate_superprompt(
 
         # Generate superprompt
         return _generate_superprompt(facts, title)
-
 
     except ImportError as e:
         log.error("Failed to import superprompt generator", error=str(e))

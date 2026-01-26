@@ -31,9 +31,9 @@ class TestActionToolOrchestrator:
         orchestrator = ActionToolOrchestrator()
 
         # Should initialize without error
-        assert (
-            orchestrator is not None
-        ), "ActionToolOrchestrator should initialize successfully"
+        assert orchestrator is not None, (
+            "ActionToolOrchestrator should initialize successfully"
+        )
 
     # =============================================================================
     # Test: Validate action request
@@ -78,9 +78,9 @@ class TestActionToolOrchestrator:
 
         result = await orchestrator.execute(request)
 
-        assert isinstance(
-            result, ActionToolResponse
-        ), f"Expected ActionToolResponse, got {type(result)}"
+        assert isinstance(result, ActionToolResponse), (
+            f"Expected ActionToolResponse, got {type(result)}"
+        )
         assert result.success is True, f"Expected success=True, got {result.success}"
         assert result.message is not None, "Response message should not be None"
 

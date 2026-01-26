@@ -144,9 +144,12 @@ async def test_context_injection_retrieves_relevant_memories():
 @pytest.mark.asyncio
 async def test_session_learning_extraction():
     """Session learning extraction should store multiple memory types."""
-    with patch(
-        "src.routes.memory.save_memory_handler", new_callable=AsyncMock
-    ) as mock_save, patch("src.routes.memory.execute", new_callable=AsyncMock):
+    with (
+        patch(
+            "src.routes.memory.save_memory_handler", new_callable=AsyncMock
+        ) as mock_save,
+        patch("src.routes.memory.execute", new_callable=AsyncMock),
+    ):
         mock_save.return_value = {"id": 1}
 
         from src.routes.memory import extract_session_learnings
@@ -169,9 +172,12 @@ async def test_session_learning_extraction():
 @pytest.mark.asyncio
 async def test_proactive_suggestions():
     """Proactive suggestions should surface relevant past experiences."""
-    with patch(
-        "src.routes.memory.search_memory_handler", new_callable=AsyncMock
-    ) as mock_search, patch("src.routes.memory.execute", new_callable=AsyncMock):
+    with (
+        patch(
+            "src.routes.memory.search_memory_handler", new_callable=AsyncMock
+        ) as mock_search,
+        patch("src.routes.memory.execute", new_callable=AsyncMock),
+    ):
         mock_search.return_value = {
             "results": [
                 {
@@ -238,9 +244,12 @@ async def test_temporal_query():
 @pytest.mark.asyncio
 async def test_save_with_confidence():
     """Save with confidence should scale importance and add tags."""
-    with patch(
-        "src.routes.memory.save_memory_handler", new_callable=AsyncMock
-    ) as mock_save, patch("src.routes.memory.execute", new_callable=AsyncMock):
+    with (
+        patch(
+            "src.routes.memory.save_memory_handler", new_callable=AsyncMock
+        ) as mock_save,
+        patch("src.routes.memory.execute", new_callable=AsyncMock),
+    ):
         mock_save.return_value = {"id": 1, "importance": 0.7}
 
         from src.routes.memory import save_memory_with_confidence

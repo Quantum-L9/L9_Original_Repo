@@ -397,11 +397,7 @@ async def pass_5_integrate_results(state: ResearchState) -> ResearchState:
                 valid_count / len(state.parsed_objects) if state.parsed_objects else 0.0
             ),
             "sources_used": list(
-                {
-                    batch.sources[0]
-                    for batch in state.retrieval_batches
-                    if batch.sources
-                }
+                {batch.sources[0] for batch in state.retrieval_batches if batch.sources}
             ),
             "integration_targets": ["hypergraph", "world_model"],
             "integration_status": "completed",

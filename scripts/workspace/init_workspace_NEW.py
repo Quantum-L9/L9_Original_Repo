@@ -154,8 +154,7 @@ def ensure_cursor_commands_symlink(
             return True, {"link": str(link_path), "target": str(target)}, ""
         if link_path.is_dir() and not link_path.is_symlink():
             _log(
-                f"Removing existing directory at {link_path} "
-                "to replace with symlink.",
+                f"Removing existing directory at {link_path} to replace with symlink.",
                 verbose=verbose,
             )
         else:

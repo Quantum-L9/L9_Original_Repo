@@ -562,7 +562,7 @@ def validate_spec(spec_path: str) -> ValidationResult:
 
 def find_all_specs(repo_root: str) -> list[str]:
     """Find all spec files in the repo."""
-    specs = []
+    specs: list[Path] = []
     for pattern in ["**/spec*.yaml", "**/*_spec.yaml", "**/Module-Spec*.yaml"]:
         specs.extend(Path(repo_root).glob(pattern))
     return [str(p) for p in specs]

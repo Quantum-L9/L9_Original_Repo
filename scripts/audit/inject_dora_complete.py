@@ -809,8 +809,10 @@ class DoraCompleteInjector:
                 for section_name, markers in section_markers.items():
                     if any(
                         stripped_lower.startswith(m)
-                        or (stripped_lower.endswith(":")
-                        and m.rstrip(":") in stripped_lower)
+                        or (
+                            stripped_lower.endswith(":")
+                            and m.rstrip(":") in stripped_lower
+                        )
                         for m in markers
                     ):
                         # Save previous section
@@ -1229,7 +1231,6 @@ class DoraCompleteInjector:
         )  # Before imports
         return re.sub(r"\n{3,}", "\n\n", content)
 
-
     def _format_header_meta(
         self, header: HeaderMeta, file_path: str, modified_at: str
     ) -> str:
@@ -1237,9 +1238,7 @@ class DoraCompleteInjector:
         Path(file_path).stem
 
         # Generate integrates_with from actual file analysis
-        self._generate_integrates_with(
-            file_path, header.domain, header.layer
-        )
+        self._generate_integrates_with(file_path, header.domain, header.layer)
 
         return """# ============================================================================
 """
@@ -1412,17 +1411,20 @@ class DoraCompleteInjector:
                 memory_layers.append("semantic_memory")
 
             # Memory substrate indicators (general memory system usage)
-            if any(
-                p in content
-                for p in [
-                    "memory.substrate",
-                    "MemorySubstrate",
-                    "substrate_service",
-                    "PacketStore",
-                    "PacketEnvelope",
-                    "ingest_packet",
-                ]
-            ) and "working_memory" not in memory_layers:
+            if (
+                any(
+                    p in content
+                    for p in [
+                        "memory.substrate",
+                        "MemorySubstrate",
+                        "substrate_service",
+                        "PacketStore",
+                        "PacketEnvelope",
+                        "ingest_packet",
+                    ]
+                )
+                and "working_memory" not in memory_layers
+            ):
                 memory_layers.append("working_memory")
 
         except (OSError, UnicodeDecodeError):
@@ -1450,9 +1452,7 @@ class DoraCompleteInjector:
             self._generate_smart_tags(
                 file_path, classes, header.domain, header.type, header.layer
             )
-            self._generate_smart_keywords(
-                file_path, classes, header.component_name
-            )
+            self._generate_smart_keywords(file_path, classes, header.component_name)
         else:
             self._generate_tags(header.domain, header.type, header.layer)
             self._generate_keywords(header.component_name, header.domain)

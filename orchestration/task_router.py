@@ -300,7 +300,9 @@ class TaskRouter:
     def __init__(self):
         """Initialize the task router."""
         self._routing_history: list[RoutingDecision] = []
-        self._target_load: dict[ExecutionTarget, int] = dict.fromkeys(ExecutionTarget, 0)
+        self._target_load: dict[ExecutionTarget, int] = dict.fromkeys(
+            ExecutionTarget, 0
+        )
 
         # Compile regex patterns
         self._type_patterns = {

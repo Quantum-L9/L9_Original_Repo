@@ -96,7 +96,9 @@ class GapDetector:
     Example:
         >>> detector = GapDetector()
         >>> entity_graph = {"entity_1": {"entity_2", "entity_3"}}
-        >>> gaps = await detector.detect_all_gaps(["entity_1", "entity_4"], entity_graph)
+        >>> gaps = await detector.detect_all_gaps(
+        ...     ["entity_1", "entity_4"], entity_graph
+        ... )
         >>> print(f"Found {len(gaps)} gaps")
     """
 

@@ -45,8 +45,8 @@ async def benchmark_batch_insert():
         )
         duration = time.time() - start
 
-        print(f"✅ Batch insert: {links_created} links in {duration*1000:.2f}ms")
-        print(f"   Performance: {duration/len(fact_ids)*1000:.2f}ms per link")
+        print(f"✅ Batch insert: {links_created} links in {duration * 1000:.2f}ms")
+        print(f"   Performance: {duration / len(fact_ids) * 1000:.2f}ms per link")
 
         # Cleanup
         async with repo.acquire() as conn:
@@ -86,8 +86,8 @@ async def benchmark_kernel_loading():
     speedup = duration_uncached / duration_cached if duration_cached > 0 else 0
 
     print("✅ Kernel loading:")
-    print(f"   Uncached: {duration_uncached*1000:.2f}ms")
-    print(f"   Cached: {duration_cached*1000:.2f}ms")
+    print(f"   Uncached: {duration_uncached * 1000:.2f}ms")
+    print(f"   Cached: {duration_cached * 1000:.2f}ms")
     print(f"   Speedup: {speedup:.1f}x faster")
 
     return duration_uncached, duration_cached

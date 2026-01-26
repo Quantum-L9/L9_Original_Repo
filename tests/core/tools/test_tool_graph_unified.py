@@ -310,9 +310,9 @@ def test_high_risk_tools_require_approval():
     assert len(high_risk) >= 3  # gmp_run, git_commit, mac_agent_exec_task, etc.
 
     for tool in high_risk:
-        assert (
-            tool.requires_igor_approval is True
-        ), f"High-risk tool {tool.name} should require Igor approval"
+        assert tool.requires_igor_approval is True, (
+            f"High-risk tool {tool.name} should require Igor approval"
+        )
 
 
 # =============================================================================

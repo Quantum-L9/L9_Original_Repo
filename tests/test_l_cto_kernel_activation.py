@@ -46,9 +46,9 @@ class TestLCTOKernelActivation:
         agent = LCTOAgent(agent_id="test-l-cto")
         agent = load_kernels(agent)
 
-        assert (
-            agent.kernel_state == "ACTIVE"
-        ), f"Expected ACTIVE, got: {agent.kernel_state}"
+        assert agent.kernel_state == "ACTIVE", (
+            f"Expected ACTIVE, got: {agent.kernel_state}"
+        )
 
         # Should not raise
         require_kernel_activation(agent)
@@ -66,9 +66,9 @@ class TestLCTOKernelActivation:
 
         # Check that we have at least the master kernel
         master_loaded = any("master" in k for k in agent.kernels)
-        assert (
-            master_loaded
-        ), f"Master kernel not loaded. Keys: {list(agent.kernels.keys())}"
+        assert master_loaded, (
+            f"Master kernel not loaded. Keys: {list(agent.kernels.keys())}"
+        )
 
     def test_system_prompt_from_kernels(self):
         """Verify system prompt is built from kernels."""
@@ -82,9 +82,9 @@ class TestLCTOKernelActivation:
 
         # Should contain key identity markers from kernels
         assert "L" in prompt, "Prompt should contain L identity"
-        assert (
-            "Igor" in prompt or "CTO" in prompt
-        ), "Prompt should reference Igor or CTO role"
+        assert "Igor" in prompt or "CTO" in prompt, (
+            "Prompt should reference Igor or CTO role"
+        )
 
         # Should not be the fallback prompt
         assert "degraded mode" not in prompt.lower(), "Should not be fallback prompt"

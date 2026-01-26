@@ -62,7 +62,7 @@ def extract_files(content: str, output_dir: str = ".") -> list[dict]:
     - ## `path/to/file.py`
     """
 
-    files_extracted = []
+    files_extracted: list[dict[str, str | int]] = []
 
     # Pattern 1: ```language:filepath or ```filepath
     pattern1 = r"```(?:python|yaml|json|markdown|bash|sh)?:?([\w\/\.\-_]+\.(?:py|yaml|yml|json|md|sh|txt))\n(.*?)```"

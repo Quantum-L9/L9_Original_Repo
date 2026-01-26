@@ -157,7 +157,6 @@ class RetentionManager:
         # For now, return empty stats
 
 
-
 # ============================================================================
 # GDPR RIGHT-TO-DELETE (ERASURE)
 # ============================================================================
@@ -536,7 +535,6 @@ class ComplianceExporter:
             ],
         )
 
-
     async def export_audit_trail_report(
         self,
         aggregate_id: str,
@@ -565,7 +563,6 @@ class ComplianceExporter:
                 for e in events
             ],
         )
-
 
 
 # ============================================================================

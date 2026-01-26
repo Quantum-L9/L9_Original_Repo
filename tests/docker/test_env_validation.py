@@ -30,12 +30,12 @@ class TestEnvironmentVariables:
         # Check both possible env vars
         for name, url in [("DATABASE_URL", database_url), ("MEMORY_DSN", memory_dsn)]:
             if url:
-                assert (
-                    "127.0.0.1" not in url
-                ), f"{name} contains 127.0.0.1 - use Docker service name instead (e.g., postgres:5432)"
-                assert (
-                    "localhost:5432" not in url
-                ), f"{name} contains localhost - use Docker service name instead (e.g., postgres:5432)"
+                assert "127.0.0.1" not in url, (
+                    f"{name} contains 127.0.0.1 - use Docker service name instead (e.g., postgres:5432)"
+                )
+                assert "localhost:5432" not in url, (
+                    f"{name} contains localhost - use Docker service name instead (e.g., postgres:5432)"
+                )
 
     def test_no_placeholder_values(self):
         """
@@ -62,9 +62,9 @@ class TestEnvironmentVariables:
             value = os.environ.get(var, "")
             if value:
                 for pattern in placeholder_patterns:
-                    assert not re.search(
-                        pattern, value, re.IGNORECASE
-                    ), f"{var} contains placeholder text: {value[:20]}..."
+                    assert not re.search(pattern, value, re.IGNORECASE), (
+                        f"{var} contains placeholder text: {value[:20]}..."
+                    )
 
     def test_openai_key_format(self):
         """
@@ -74,9 +74,9 @@ class TestEnvironmentVariables:
 
         if key:
             # OpenAI keys start with 'sk-'
-            assert key.startswith(
-                "sk-"
-            ), f"OPENAI_API_KEY should start with 'sk-', got: {key[:10]}..."
+            assert key.startswith("sk-"), (
+                f"OPENAI_API_KEY should start with 'sk-', got: {key[:10]}..."
+            )
 
             # Keys are typically 40+ characters
             assert len(key) > 40, f"OPENAI_API_KEY seems too short ({len(key)} chars)"
@@ -89,9 +89,9 @@ class TestEnvironmentVariables:
 
         if url:
             # Should be PostgreSQL
-            assert url.startswith("postgresql://") or url.startswith(
-                "postgres://"
-            ), f"DATABASE_URL should start with postgresql://, got: {url[:30]}..."
+            assert url.startswith("postgresql://") or url.startswith("postgres://"), (
+                f"DATABASE_URL should start with postgresql://, got: {url[:30]}..."
+            )
 
             # Should contain user:password@host:port/db
             pattern = r"postgres(ql)?://\w+:[^@]+@[\w.-]+:\d+/\w+"
@@ -109,9 +109,9 @@ class TestEnvironmentVariables:
                 assert value.isdigit(), f"{var} should be numeric, got: {value}"
 
                 port = int(value)
-                assert (
-                    1 <= port <= 65535
-                ), f"{var} should be valid port (1-65535), got: {port}"
+                assert 1 <= port <= 65535, (
+                    f"{var} should be valid port (1-65535), got: {port}"
+                )
 
 
 class TestDockerNetworkConfig:
@@ -124,12 +124,12 @@ class TestDockerNetworkConfig:
         url = os.environ.get("MEMORY_API_BASE_URL", "")
 
         if url:
-            assert (
-                "localhost" not in url
-            ), f"MEMORY_API_BASE_URL should use Docker service name, not localhost: {url}"
-            assert (
-                "127.0.0.1" not in url
-            ), f"MEMORY_API_BASE_URL should use Docker service name, not 127.0.0.1: {url}"
+            assert "localhost" not in url, (
+                f"MEMORY_API_BASE_URL should use Docker service name, not localhost: {url}"
+            )
+            assert "127.0.0.1" not in url, (
+                f"MEMORY_API_BASE_URL should use Docker service name, not 127.0.0.1: {url}"
+            )
 
     def test_redis_host_uses_service_name(self):
         """
@@ -138,12 +138,12 @@ class TestDockerNetworkConfig:
         host = os.environ.get("REDIS_HOST", "")
 
         if host and os.environ.get("DOCKER_ENV", ""):
-            assert (
-                host != "localhost"
-            ), "REDIS_HOST should be Docker service name 'redis', not localhost"
-            assert (
-                host != "127.0.0.1"
-            ), "REDIS_HOST should be Docker service name 'redis', not 127.0.0.1"
+            assert host != "localhost", (
+                "REDIS_HOST should be Docker service name 'redis', not localhost"
+            )
+            assert host != "127.0.0.1", (
+                "REDIS_HOST should be Docker service name 'redis', not 127.0.0.1"
+            )
 
 
 class TestRequiredVariables:

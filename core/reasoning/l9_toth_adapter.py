@@ -243,7 +243,6 @@ class L9ToThAdapter:
         # Synthesize board decision
         return self._synthesize_board_decision(perspectives, query)
 
-
     async def ceo_reasoning(
         self, query: str, temporal_context: dict[str, str], context: L9ReasoningContext
     ) -> dict[str, Any]:
@@ -304,7 +303,6 @@ class L9ToThAdapter:
 
         # Synthesize CEO decision
         return self._synthesize_ceo_decision(temporal_reasoning, query)
-
 
     async def research_reasoning(
         self, hypothesis: str, evidence: list[str], context: L9ReasoningContext
@@ -394,7 +392,6 @@ class L9ToThAdapter:
                 hypothesis, alt_result, validation_result, pattern_result
             ),
         }
-
 
     async def _enrich_query_with_memory(
         self, query: str, context: L9ReasoningContext

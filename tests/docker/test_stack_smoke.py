@@ -250,12 +250,12 @@ class TestDatabaseConnectivity:
         # At least one should be set
         url = database_url or memory_dsn
         if url:
-            assert (
-                "127.0.0.1" not in url
-            ), f"DATABASE_URL contains localhost (127.0.0.1): {url}"
-            assert (
-                "localhost:5432" not in url
-            ), f"DATABASE_URL contains localhost: {url}"
+            assert "127.0.0.1" not in url, (
+                f"DATABASE_URL contains localhost (127.0.0.1): {url}"
+            )
+            assert "localhost:5432" not in url, (
+                f"DATABASE_URL contains localhost: {url}"
+            )
 
     @pytest.mark.asyncio
     async def test_database_connection(self):

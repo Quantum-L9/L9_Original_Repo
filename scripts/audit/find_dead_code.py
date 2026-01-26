@@ -153,7 +153,14 @@ def run_vulture(
 
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "vulture", "--min-confidence", str(min_confidence), *file_paths],
+            [
+                sys.executable,
+                "-m",
+                "vulture",
+                "--min-confidence",
+                str(min_confidence),
+                *file_paths,
+            ],
             capture_output=True,
             text=True,
             cwd=REPO_ROOT,
@@ -241,7 +248,15 @@ def run_ruff(files: list[Path]) -> list[DeadCodeFinding]:
 
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "--select=F401,F841,ARG", "--output-format=json", *file_paths],
+            [
+                sys.executable,
+                "-m",
+                "ruff",
+                "check",
+                "--select=F401,F841,ARG",
+                "--output-format=json",
+                *file_paths,
+            ],
             capture_output=True,
             text=True,
             cwd=REPO_ROOT,
@@ -1668,7 +1683,9 @@ def scan_file_for_dataclass_fields(filepath: Path) -> list[DataclassFieldInfo]:
     return extract_dataclass_fields(filepath)
 
 
-def get_python_files(repo_root: Path, exclude_dirs: set[str] | None = None) -> list[Path]:
+def get_python_files(
+    repo_root: Path, exclude_dirs: set[str] | None = None
+) -> list[Path]:
     """Get all Python files in the repo."""
     exclude_dirs = exclude_dirs or EXCLUDE_DIRS
     files = []
@@ -1974,7 +1991,6 @@ def generate_sarif_output(
             }
         ],
     }
-
 
 
 # =============================================================================

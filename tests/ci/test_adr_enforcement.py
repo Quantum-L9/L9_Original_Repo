@@ -80,7 +80,7 @@ def get_python_files(directories: list[str]) -> list[Path]:
         List of Path objects for Python files
     """
     repo_root = Path(__file__).parent.parent.parent
-    python_files = []
+    python_files: list[Path] = []
 
     for directory in directories:
         dir_path = repo_root / directory
@@ -159,13 +159,20 @@ class ManualSingletonVisitor(ast.NodeVisitor):
 
         # Check for @singleton or @register_singleton decorator
         for decorator in node.decorator_list:
-            if (isinstance(decorator, ast.Name) and decorator.id in (
-                "singleton",
-                "register_singleton",
-            )) or (isinstance(decorator, ast.Call) and (
-                isinstance(decorator.func, ast.Name)
-                and decorator.func.id == "register_singleton"
-            )):
+            if (
+                isinstance(decorator, ast.Name)
+                and decorator.id
+                in (
+                    "singleton",
+                    "register_singleton",
+                )
+            ) or (
+                isinstance(decorator, ast.Call)
+                and (
+                    isinstance(decorator.func, ast.Name)
+                    and decorator.func.id == "register_singleton"
+                )
+            ):
                 has_singleton_decorator = True
 
         # Check for _instance class variable
@@ -620,7 +627,7 @@ class MissingSingletonVisitor(ast.NodeVisitor):
     """
 
     def __init__(self, content: str):
-        self.violations = []
+        self.violations: list[str] = []
         self.content = content
 
     def visit_ClassDef(self, node):

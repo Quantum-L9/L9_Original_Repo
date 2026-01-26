@@ -115,9 +115,9 @@ class TestToolDiscoveryIntegration:
             except ImportError:
                 continue
 
-        assert (
-            total >= expected_min
-        ), f"Expected at least {expected_min} tools, found {total}"
+        assert total >= expected_min, (
+            f"Expected at least {expected_min} tools, found {total}"
+        )
 
 
 class TestToolRegistryIntegration:

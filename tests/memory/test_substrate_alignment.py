@@ -53,9 +53,9 @@ class TestSubstrateAlignment:
 
         report = await checker.check_postgres_to_neo4j(limit=100)
 
-        assert (
-            report.alignment_percentage >= 90.0
-        ), f"Alignment below threshold: {report.alignment_percentage}%"
+        assert report.alignment_percentage >= 90.0, (
+            f"Alignment below threshold: {report.alignment_percentage}%"
+        )
 
     @pytest.mark.asyncio
     async def test_neo4j_to_postgres_alignment(self, substrate_service, graph_client):

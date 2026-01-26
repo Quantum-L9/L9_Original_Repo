@@ -198,7 +198,7 @@ def extract_class_methods(file_path: Path) -> dict[str, list[str]]:
 
 def extract_function_names(file_path: Path) -> list[str]:
     """Extract all top-level function names from a Python file."""
-    functions = []
+    functions: list[str] = []
 
     try:
         content = file_path.read_text()

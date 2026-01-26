@@ -79,9 +79,9 @@ class TestDAGNodeCoverage:
         ]
 
         for node in expected_nodes:
-            assert (
-                f'graph.add_node("{node}"' in source
-            ), f"Missing node registration: {node}"
+            assert f'graph.add_node("{node}"' in source, (
+                f"Missing node registration: {node}"
+            )
 
     def test_graph_has_correct_edge_definitions(self):
         """Verify graph builder has expected edge definitions."""
@@ -194,9 +194,9 @@ class TestGMP42EmbeddingFilter:
         from memory.substrate_dag import SKIP_EMBEDDING_PATTERNS, _should_skip_embedding
 
         for pattern in SKIP_EMBEDDING_PATTERNS:
-            assert _should_skip_embedding(
-                pattern
-            ), f"GMP-42 pattern should be skipped: {pattern[:50]}"
+            assert _should_skip_embedding(pattern), (
+                f"GMP-42 pattern should be skipped: {pattern[:50]}"
+            )
 
     def test_short_text_skipped(self):
         """Text <10 chars should not be embedded."""
@@ -225,9 +225,9 @@ class TestGMP42EmbeddingFilter:
         ]
 
         for variant in error_variants:
-            assert _should_skip_embedding(
-                variant
-            ), f"Error variant should be skipped: {variant[:50]}"
+            assert _should_skip_embedding(variant), (
+                f"Error variant should be skipped: {variant[:50]}"
+            )
 
     @pytest.mark.asyncio
     async def test_semantic_embed_node_respects_skip_filter(self):
@@ -348,9 +348,9 @@ class TestDualPipelineArchitecture:
         ]
 
         for feature in pipeline_features:
-            assert hasattr(
-                IngestionPipeline, feature
-            ), f"IngestionPipeline missing: {feature}"
+            assert hasattr(IngestionPipeline, feature), (
+                f"IngestionPipeline missing: {feature}"
+            )
 
         # SubstrateDAG features (reasoning, insights, world model)
         from memory.substrate_dag import (
@@ -559,9 +559,9 @@ class TestCrossSubstrateConsistency:
         assert prepare_embed_pos > 0, "Embedding preparation should exist"
 
         # Embedding prep should be before transaction (fail-fast pattern)
-        assert (
-            prepare_embed_pos < transaction_pos
-        ), "Embedding preparation should happen before transaction"
+        assert prepare_embed_pos < transaction_pos, (
+            "Embedding preparation should happen before transaction"
+        )
 
     def test_storage_tables_documented(self):
         """Verify all storage tables are modeled."""

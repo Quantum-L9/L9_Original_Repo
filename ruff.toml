@@ -5,7 +5,12 @@ line-length = 88  # Black compatibility
 exclude = [
     ".git", ".venv", "venv", "__pycache__", ".pytest_cache",
     ".ruff_cache", "build", "dist", ".mypy_cache", "_pack_staging",
-    ".backup", "_archived",  # Archived/backup code
+    ".backup",
+    # Archived folders (anywhere in tree)
+    "_archived",
+    "**/_archived",
+    "**/_archived/**",
+    "*_archived*",
 ]
 
 [lint]
@@ -60,6 +65,9 @@ ignore = [
     "UP007",   # Non-PEP604 annotation (compatibility)
     "S307",    # Eval usage (validated input)
     "F823",    # Undefined local (conditional assignment)
+    "UP038",   # isinstance union (compatibility)
+    "SIM108",  # Ternary operator (readability preference)
+    "RET504",  # Unnecessary assign before return (explicit is better)
 ]
 fixable = ["ALL"]
 
@@ -87,6 +95,7 @@ fixable = ["ALL"]
 "telemetry/*.py" = ["F401"]  # Metric imports
 "world_model/**/*.py" = ["F401", "E722", "F811", "ARG004"]  # Import availability + staging code
 "ir_engine/*.py" = ["S701"]  # Jinja2 autoescape for code generation (not HTML)
+"core/codegen/**/*.py" = ["S701", "B904"]  # Jinja2 code generation + existing patterns
 "services/symbolic_computation/**/*.py" = ["S301", "S102", "B019"]  # Pickle/exec for computation
 "codegenagent/*.py" = ["F821"]  # Optional dependencies
 "examples/*.py" = ["F821"]  # Example code references

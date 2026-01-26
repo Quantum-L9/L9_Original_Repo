@@ -249,8 +249,12 @@ async def run_migration(dry_run: bool = False, delete_legacy: bool = False) -> d
             tool_id = rel.get("tool_name") or rel.get("tool_id_alt")
             props = rel.get("props", {})
 
-            if agent_id and tool_id and await migrate_relationship(
-                driver, agent_id, tool_id, props, dry_run
+            if (
+                agent_id
+                and tool_id
+                and await migrate_relationship(
+                    driver, agent_id, tool_id, props, dry_run
+                )
             ):
                 migrated += 1
 

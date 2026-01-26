@@ -176,7 +176,6 @@ class L9SpecGenerator:
             created_by="L_architect",
         )
 
-
     def _build_task_description(self, concept: ConceptSpec) -> str:
         """Build task description from concept."""
         desc = f"{concept.one_sentence}\n\n"

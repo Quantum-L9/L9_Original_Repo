@@ -40,7 +40,10 @@ class MockEmbeddingProvider:
     """Mock implementation of EmbeddingProvider."""
 
     def __init__(
-        self, provider_type: str = "openai", model: str = "test", api_key: str | None = None
+        self,
+        provider_type: str = "openai",
+        model: str = "test",
+        api_key: str | None = None,
     ):
         self.provider_type = provider_type
         self.model = model

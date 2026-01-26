@@ -314,7 +314,6 @@ class SecurityMetricsCollector:
         # Clamp to 0-100
         return max(0.0, min(100.0, base_score))
 
-
     def get_grafana_dashboard_json(self) -> dict[str, Any]:
         """
         Generate Grafana dashboard configuration.
@@ -391,7 +390,6 @@ class SecurityMetricsCollector:
                 ],
             }
         }
-
 
 
 # =============================================================================

@@ -416,9 +416,9 @@ class TestStrategyMemoryPerformance:
         max_time = max(times)
 
         # SLA: P50 < 100ms, P99 < 500ms
-        assert (
-            avg_time < 100
-        ), f"Average retrieval time {avg_time:.1f}ms exceeds 100ms SLA"
+        assert avg_time < 100, (
+            f"Average retrieval time {avg_time:.1f}ms exceeds 100ms SLA"
+        )
         assert max_time < 500, f"Max retrieval time {max_time:.1f}ms exceeds 500ms SLA"
 
 
@@ -609,9 +609,9 @@ class TestAutoCaptureIntegration:
                 cleanup_test_strategies.append(c.strategy_id)
 
         # Should be exactly 1 (the original, no auto-capture duplicate)
-        assert (
-            len(existing_kind_strategies) == 1
-        ), "Should not auto-capture when strategy was used"
+        assert len(existing_kind_strategies) == 1, (
+            "Should not auto-capture when strategy was used"
+        )
 
     @pytest.mark.asyncio
     async def test_auto_capture_skipped_below_threshold(

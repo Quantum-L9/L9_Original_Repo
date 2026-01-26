@@ -259,7 +259,6 @@ def html_to_text(html: str) -> str:
         text = re.sub(r"\n\s*\n", "\n\n", text)
         return text.strip()
 
-
     try:
         # Use html.parser for better extraction
         class HTMLToTextParser(HTMLParser):

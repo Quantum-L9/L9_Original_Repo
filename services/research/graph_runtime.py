@@ -118,7 +118,6 @@ class ResearchGraphRuntime:
             thread_id=thread_id,
         )
 
-
     async def resume(
         self,
         thread_id: str,

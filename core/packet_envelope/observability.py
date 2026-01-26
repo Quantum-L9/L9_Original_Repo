@@ -348,7 +348,9 @@ class PacketEnvelopeObservability:
 
         return {}
 
-    def inject_trace_context(self, headers: dict[str, str] | None = None) -> dict[str, str]:
+    def inject_trace_context(
+        self, headers: dict[str, str] | None = None
+    ) -> dict[str, str]:
         """
         Inject W3C Trace Context into headers for downstream propagation
         """

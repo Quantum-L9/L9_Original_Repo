@@ -176,9 +176,9 @@ class TestDefaultTemplates:
             assert template.description, f"{name} missing description"
             assert template.query, f"{name} missing query"
             assert template.category, f"{name} missing category"
-            assert isinstance(
-                template.parameters, dict
-            ), f"{name} has invalid parameters"
+            assert isinstance(template.parameters, dict), (
+                f"{name} has invalid parameters"
+            )
 
     def test_traversal_templates_have_depth_limits(self):
         """Ensure traversal templates don't allow unbounded traversal."""
@@ -193,16 +193,16 @@ class TestDefaultTemplates:
             query = template.query.lower()
             if "*" in query:
                 # Should have a limit like *..15 or *1..5
-                assert (
-                    ".." in query or "limit" in query
-                ), f"{template.name} has unbounded traversal"
+                assert ".." in query or "limit" in query, (
+                    f"{template.name} has unbounded traversal"
+                )
 
     def test_all_templates_return_something(self):
         """Verify all templates have RETURN clause."""
         for name, template in CYPHER_TEMPLATES.items():
-            assert (
-                "RETURN" in template.query.upper() or "return" in template.query
-            ), f"{name} missing RETURN clause"
+            assert "RETURN" in template.query.upper() or "return" in template.query, (
+                f"{name} missing RETURN clause"
+            )
 
 
 class TestSingletonFactory:

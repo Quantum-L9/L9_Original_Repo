@@ -1,8 +1,6 @@
 # Cursor Memory Client
 
-> **File:** `agents/cursor/cursor_memory_client.py`
-> **API:** `https://l9.quantumaipartners.com`
-> **Last Verified:** 2026-01-18
+> **File:** `agents/cursor/cursor_memory_client.py` > **API:** `https://l9.quantumaipartners.com` > **Last Verified:** 2026-01-18
 
 ---
 

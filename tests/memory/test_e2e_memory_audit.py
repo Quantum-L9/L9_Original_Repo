@@ -852,9 +852,9 @@ async def test_e2e_flow_audit(memory_service):
 async def test_full_memory_audit(memory_service):
     """Run full memory audit suite."""
     audit_results = await run_full_audit()
-    assert (
-        audit_results["overall_status"] == "PASSED"
-    ), f"Full audit failed: {audit_results['summary']}"
+    assert audit_results["overall_status"] == "PASSED", (
+        f"Full audit failed: {audit_results['summary']}"
+    )
 
 
 # =============================================================================

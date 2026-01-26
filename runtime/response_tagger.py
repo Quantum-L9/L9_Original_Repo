@@ -160,7 +160,9 @@ def tag_claim(
         Tagged claim string
 
     Examples:
-        >>> tag_claim("Python is a programming language", 0.99, EpistemicStatus.VERIFIED)
+        >>> tag_claim(
+        ...     "Python is a programming language", 0.99, EpistemicStatus.VERIFIED
+        ... )
         'Python is a programming language ([VERIFIED], 99%)'
 
         >>> tag_claim(

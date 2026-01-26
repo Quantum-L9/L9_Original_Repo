@@ -120,7 +120,6 @@ async def get_agent_capabilities(agent_id: str) -> list[ToolDefinition]:
     ]
 
 
-
 async def bind_tools_and_capabilities(
     instance: BootstrapInstanceData,
     substrate_service: MemorySubstrateService,

@@ -1,22 +1,47 @@
-# ============================================================================
-# DORA META - AUTO-GENERATED
-# ============================================================================
-# component_name: "Docker-Compose"
-# module_version: "1.0.0"
-# created_by: "Igor Beylin"
-# created_at: "2026-01-25T04:08:31Z"
-# updated_at: "2026-01-25T04:08:24Z"
-# layer: "operations"
-# domain: "deploy"
-# file_name: "docker-compose"
-# type: "utility"
-# status: "active"
-# ============================================================================
-
-version: '3.9'
+# =============================================================================
+# L9 Docker Compose for C1 (Development/Testing)
+# =============================================================================
+# Version: 2.0.0 - Complete stack with all services
+#
+# Usage:
+#   docker compose up -d                # Start all services
+#   docker compose up -d --build        # Build and start
+#   docker compose logs -f l9-api       # Follow API logs
+#   docker compose down -v              # Stop and remove volumes
+#
+# This mirrors the K8s deployment but runs via docker-compose.
+# For production, use the K8s manifests in manifests/ directory.
+# =============================================================================
 
 services:
-  # Neo4j - Graph Database for agent memories
+  # ===========================================================================
+  # PostgreSQL - Memory Substrate (PacketStore + pgvector)
+  # ===========================================================================
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: l9-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: l9_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-l9_secure_password}
+      POSTGRES_DB: l9_memory
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # Mount migrations for initialization
+      - ../../migrations:/docker-entrypoint-initdb.d/migrations:ro
+    networks:
+      - l9-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U l9_user -d l9_memory"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ===========================================================================
+  # Neo4j - Knowledge Graph
+  # ===========================================================================
   neo4j:
     image: neo4j:5.15
     container_name: l9-neo4j
@@ -24,7 +49,7 @@ services:
       - "7687:7687"
       - "7474:7474"
     environment:
-      NEO4J_AUTH: neo4j/password
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-neo4j_secure_password}
       NEO4J_PLUGINS: '["apoc"]'
       NEO4J_dbms_memory_heap_max__size: "2G"
       NEO4J_dbms_memory_pagecache_size: "1G"
@@ -38,8 +63,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 60s
 
-  # Redis - Vector Pub/Sub and caching
+  # ===========================================================================
+  # Redis - Task Queue, Caching, Pub/Sub
+  # ===========================================================================
   redis:
     image: redis:7-alpine
     container_name: l9-redis
@@ -56,83 +84,143 @@ services:
       timeout: 5s
       retries: 5
 
-  # Prometheus - Metrics collection
+  # ===========================================================================
+  # L9 API - Main Application
+  # ===========================================================================
+  l9-api:
+    build:
+      context: ../../../..
+      dockerfile: deploy/k8s/c1/Dockerfile
+    container_name: l9-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Database
+      DATABASE_URL: postgresql://l9_user:${POSTGRES_PASSWORD:-l9_secure_password}@postgres:5432/l9_memory
+      MEMORY_DSN: postgresql://l9_user:${POSTGRES_PASSWORD:-l9_secure_password}@postgres:5432/l9_memory
+      # Neo4j
+      NEO4J_URL: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:-neo4j_secure_password}
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_URL: redis://redis:6379
+      # OpenAI (from host environment or .env)
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: gpt-4-turbo
+      # Embedding
+      EMBEDDING_PROVIDER: openai
+      EMBEDDING_MODEL: text-embedding-3-large
+      # Logging
+      LOG_LEVEL: INFO
+      LOG_FORMAT: json
+      # Feature flags
+      L9_USE_KERNELS: "true"
+      L9_ENABLE_LEGACY_CHAT: "false"
+      L9_ENABLE_LEGACY_SLACK_ROUTER: "false"
+      MAC_AGENT_ENABLED: "false"
+      # Server
+      API_HOST: 0.0.0.0
+      API_PORT: 8000
+    volumes:
+      - l9_logs:/app/logs
+      - l9_data:/app/data
+    networks:
+      - l9-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ===========================================================================
+  # MCP Memory Server
+  # ===========================================================================
+  mcp-memory:
+    build:
+      context: ../../../..
+      dockerfile: deploy/k8s/c1/Dockerfile.mcp-memory
+    container_name: l9-mcp-memory
+    ports:
+      - "9000:9000"
+    environment:
+      DATABASE_URL: postgresql://l9_user:${POSTGRES_PASSWORD:-l9_secure_password}@postgres:5432/l9_memory
+      REDIS_URL: redis://redis:6379
+      LOG_LEVEL: INFO
+    networks:
+      - l9-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # ===========================================================================
+  # Prometheus - Metrics Collection
+  # ===========================================================================
   prometheus:
     image: prom/prometheus:latest
     container_name: l9-prometheus
     ports:
       - "9090:9090"
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
     networks:
       - l9-network
     depends_on:
-      - orchestrator
+      - l9-api
 
+  # ===========================================================================
   # Grafana - Visualization
+  # ===========================================================================
   grafana:
     image: grafana/grafana:latest
     container_name: l9-grafana
     ports:
       - "3000:3000"
     environment:
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
-      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
     networks:
       - l9-network
     depends_on:
       - prometheus
 
-  # L9 AIOS Orchestrator
-  orchestrator:
-    build:
-      context: .
-      dockerfile: Dockerfile.orchestrator
-    container_name: l9-orchestrator
-    ports:
-      - "8000:8000"
-    environment:
-      NEO4J_URI: bolt://neo4j:7687
-      NEO4J_USER: neo4j
-      NEO4J_PASSWORD: password
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      TORCH_DEVICE: cpu
-      LOG_LEVEL: INFO
-    volumes:
-      - ./core:/app/core
-      - ./logs:/app/logs
-    networks:
-      - l9-network
-    depends_on:
-      neo4j:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: python -m core.aios_v5_orchestrator
-
 volumes:
+  postgres_data:
   neo4j_data:
   neo4j_logs:
   redis_data:
   prometheus_data:
   grafana_data:
+  l9_logs:
+  l9_data:
 
 networks:
   l9-network:
     driver: bridge
-
-# ============================================================================
-# DORA FOOTER - AUTO-GENERATED
-# ============================================================================
-# tags: ["agent-config", "configuration", "database-config", "deploy", "operations", "redis-config", "utility"]
-# keywords: ["compose", "docker", "networks", "services", "version", "volumes"]
-# last_modified: "2026-01-25T04:08:24Z"
-# ============================================================================

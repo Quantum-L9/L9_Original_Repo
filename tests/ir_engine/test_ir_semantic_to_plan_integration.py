@@ -59,9 +59,9 @@ class TestSemanticToPlanHappyPath:
         # Assert: Compilation produced content
         assert len(graph.intents) > 0, "Should have at least one intent"
         assert len(graph.actions) > 0, "Should have at least one action"
-        assert (
-            graph.status == IRStatus.COMPILED
-        ), "Status should be COMPILED after compilation"
+        assert graph.status == IRStatus.COMPILED, (
+            "Status should be COMPILED after compilation"
+        )
 
         # Act: Validate
         validation_result = validator.validate_and_update_status(graph)
@@ -191,9 +191,9 @@ class TestPlanGeneration:
         # The validated_graph fixture has a constraint "Must be unit tested"
         # which should appear in the action's constraints
         step_with_constraints = [s for s in plan.steps if s.constraints]
-        assert (
-            len(step_with_constraints) > 0
-        ), "At least one step should have constraints"
+        assert len(step_with_constraints) > 0, (
+            "At least one step should have constraints"
+        )
 
         # Find the constraint text
         all_constraints = []

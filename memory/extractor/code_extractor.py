@@ -158,12 +158,18 @@ class CodeExtractor(BaseExtractor):
                 code_lines.append(line)
 
             # Stop conditions
-            if not in_code_block and (
-                line.strip() == ""
-                or (line.strip().startswith("#")
-                and not line.strip().startswith("# "))
-                or any(re.match(p[0], line.strip()) for p in self.PATTERNS)
-            ) and len(code_lines) > 3:  # Minimum 3 lines for valid code
+            if (
+                not in_code_block
+                and (
+                    line.strip() == ""
+                    or (
+                        line.strip().startswith("#")
+                        and not line.strip().startswith("# ")
+                    )
+                    or any(re.match(p[0], line.strip()) for p in self.PATTERNS)
+                )
+                and len(code_lines) > 3
+            ):  # Minimum 3 lines for valid code
                 break
 
             i += 1

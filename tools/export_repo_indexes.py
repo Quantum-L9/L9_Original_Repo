@@ -1543,9 +1543,7 @@ def generate_route_handlers():
         r'@(?:app|router)\.(?:api_route|get|post|put|delete|patch|websocket|options|head)\s*\(\s*["\']([^"\']+)["\']',
         re.MULTILINE,
     )
-    re.compile(
-        r"@(?:app|router)\.(get|post|put|delete|patch|websocket|options|head)"
-    )
+    re.compile(r"@(?:app|router)\.(get|post|put|delete|patch|websocket|options|head)")
     re.compile(r"(?:async\s+)?def\s+(\w+)\s*\(")
 
     for root, dirs, files in os.walk(REPO_DIR):

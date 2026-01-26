@@ -77,7 +77,6 @@ def analyze_pr(changed_files: set[str], code_map: dict) -> dict[str, list[str]]:
         if not changed_file or changed_file == "":
             continue
 
-
         # Check each subsystem
         for subsystem_name, subsystem_info in code_map.get("subsystems", {}).items():
             touched_subsystems.add(subsystem_name)

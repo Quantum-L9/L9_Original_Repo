@@ -16,7 +16,7 @@ from collaborative_cells.cell_registry import (
 
 
 @pytest.fixture(autouse=True)
-def clear_registries():
+def _clear_registries():
     """Clear all registries before and after each test."""
     cell_registry.clear()
     yield

@@ -123,9 +123,9 @@ def test_bootstrap_has_load_settings():
     if Bootstrap is None:
         pytest.skip("Bootstrap class not found")
 
-    assert hasattr(
-        Bootstrap, "load_settings"
-    ), "Bootstrap should have load_settings method"
+    assert hasattr(Bootstrap, "load_settings"), (
+        "Bootstrap should have load_settings method"
+    )
 
 
 def test_bootstrap_has_init_controller():
@@ -141,9 +141,9 @@ def test_bootstrap_has_init_controller():
     if Bootstrap is None:
         pytest.skip("Bootstrap class not found")
 
-    assert hasattr(
-        Bootstrap, "init_controller"
-    ), "Bootstrap should have init_controller method"
+    assert hasattr(Bootstrap, "init_controller"), (
+        "Bootstrap should have init_controller method"
+    )
 
 
 def test_bootstrap_has_init_router():

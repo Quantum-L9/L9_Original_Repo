@@ -72,7 +72,7 @@ def get_python_files(directories: list[str]) -> list[Path]:
         List of Path objects for Python files
     """
     repo_root = Path(__file__).parent.parent.parent
-    python_files = []
+    python_files: list[Path] = []
 
     for directory in directories:
         dir_path = repo_root / directory

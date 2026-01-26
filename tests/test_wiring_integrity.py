@@ -36,9 +36,9 @@ async def test_memory_substrate_service_canonical_export():
 
     # Verify return type annotation
     sig = inspect.signature(get_service)
-    assert (
-        sig.return_annotation.__name__ == "MemorySubstrateService"
-    ), "get_service must return MemorySubstrateService"
+    assert sig.return_annotation.__name__ == "MemorySubstrateService", (
+        "get_service must return MemorySubstrateService"
+    )
 
 
 @pytest.mark.asyncio
@@ -46,12 +46,12 @@ async def test_memory_substrate_service_legacy_alias():
     """Verify deprecated get_memory_substrate_service() alias exists for backward compatibility."""
     from memory.substrate_service import get_memory_substrate_service
 
-    assert callable(
-        get_memory_substrate_service
-    ), "get_memory_substrate_service alias must exist"
-    assert inspect.iscoroutinefunction(
-        get_memory_substrate_service
-    ), "get_memory_substrate_service must be async"
+    assert callable(get_memory_substrate_service), (
+        "get_memory_substrate_service alias must exist"
+    )
+    assert inspect.iscoroutinefunction(get_memory_substrate_service), (
+        "get_memory_substrate_service must be async"
+    )
 
 
 @pytest.mark.asyncio
@@ -62,9 +62,9 @@ async def test_memory_substrate_service_signature_compatibility():
     sig_canonical = inspect.signature(get_service)
     sig_legacy = inspect.signature(get_memory_substrate_service)
 
-    assert (
-        sig_canonical.return_annotation == sig_legacy.return_annotation
-    ), "Both functions must return same type"
+    assert sig_canonical.return_annotation == sig_legacy.return_annotation, (
+        "Both functions must return same type"
+    )
 
 
 @pytest.mark.asyncio
@@ -88,12 +88,12 @@ async def test_memory_substrate_service_deprecation_warning():
 
         # Verify warning was raised
         assert len(w) == 1, "Should emit exactly one warning"
-        assert issubclass(
-            w[0].category, DeprecationWarning
-        ), "Warning must be DeprecationWarning"
-        assert "get_service()" in str(
-            w[0].message
-        ), "Warning must mention get_service() as replacement"
+        assert issubclass(w[0].category, DeprecationWarning), (
+            "Warning must be DeprecationWarning"
+        )
+        assert "get_service()" in str(w[0].message), (
+            "Warning must mention get_service() as replacement"
+        )
 
 
 # =============================================================================
@@ -129,14 +129,14 @@ def test_input_segmenter_business_value_not_truncated():
     assert len(business_value) > 20, "business_value too short (likely truncated)"
 
     # Check for known truncation artifacts
-    assert (
-        "segmenter = Input" not in business_value
-    ), "business_value appears truncated (contains 'segmenter = Input')"
+    assert "segmenter = Input" not in business_value, (
+        "business_value appears truncated (contains 'segmenter = Input')"
+    )
 
     # Check for proper sentence structure
-    assert business_value.endswith(
-        "."
-    ), "business_value should be complete sentence ending with period"
+    assert business_value.endswith("."), (
+        "business_value should be complete sentence ending with period"
+    )
 
 
 def test_input_segmenter_file_syntax_valid():
@@ -225,14 +225,14 @@ def test_singleton_registry_contains_memory_service():
         from core.singleton_auto_registry import _registry
 
         # Check if memory_substrate_service is registered
-        assert (
-            "memory_substrate_service" in _registry
-        ), "memory_substrate_service not found in singleton registry"
+        assert "memory_substrate_service" in _registry, (
+            "memory_substrate_service not found in singleton registry"
+        )
 
         service_entry = _registry["memory_substrate_service"]
-        assert (
-            service_entry["factory"].__name__ == "get_service"
-        ), "Registry should point to get_service function"
+        assert service_entry["factory"].__name__ == "get_service", (
+            "Registry should point to get_service function"
+        )
 
     except ImportError:
         pytest.skip("Singleton registry not available - skipping test")

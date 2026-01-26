@@ -79,7 +79,6 @@ def inject_recent_change(content: str, entry: str) -> str:
     return content[:marker_pos] + new_after_marker
 
 
-
 def inject_next_steps_pr(
     content: str, pr_num: int, title: str, status: str = "ANALYZING"
 ) -> str:
@@ -160,7 +159,6 @@ def inject_recent_session(content: str, entry: str) -> str:
 
     new_after_marker = "\n".join(lines)
     return content[: marker_pos + len(marker)] + new_after_marker
-
 
 
 def mark_session_complete(content: str, pr_num: int) -> str:

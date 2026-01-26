@@ -18,7 +18,7 @@ from core.schemas.upcaster_registry import (
 
 
 @pytest.fixture(autouse=True)
-def clear_registries():
+def _clear_registries():
     """Clear all registries before and after each test."""
     upcaster_registry.clear()
     yield

@@ -59,12 +59,12 @@ class TestAuthValidation:
             with pytest.raises(HTTPException) as exc_info:
                 verify_api_key(authorization=f"Bearer {wrong_key}")
 
-            assert (
-                exc_info.value.status_code == 401
-            ), f"Expected 401 Unauthorized, got {exc_info.value.status_code}"
-            assert (
-                "Unauthorized" in exc_info.value.detail
-            ), f"Expected 'Unauthorized' in detail, got: {exc_info.value.detail}"
+            assert exc_info.value.status_code == 401, (
+                f"Expected 401 Unauthorized, got {exc_info.value.status_code}"
+            )
+            assert "Unauthorized" in exc_info.value.detail, (
+                f"Expected 'Unauthorized' in detail, got: {exc_info.value.detail}"
+            )
 
     # =============================================================================
     # Test: Missing auth header fails
@@ -82,12 +82,12 @@ class TestAuthValidation:
             with pytest.raises(HTTPException) as exc_info:
                 verify_api_key(authorization=None)
 
-            assert (
-                exc_info.value.status_code == 401
-            ), f"Expected 401 Unauthorized, got {exc_info.value.status_code}"
-            assert (
-                "Unauthorized" in exc_info.value.detail
-            ), f"Expected 'Unauthorized' in detail, got: {exc_info.value.detail}"
+            assert exc_info.value.status_code == 401, (
+                f"Expected 401 Unauthorized, got {exc_info.value.status_code}"
+            )
+            assert "Unauthorized" in exc_info.value.detail, (
+                f"Expected 'Unauthorized' in detail, got: {exc_info.value.detail}"
+            )
 
     # =============================================================================
     # Test: Missing executor key config fails
@@ -113,12 +113,12 @@ class TestAuthValidation:
             with pytest.raises(HTTPException) as exc_info:
                 api.auth.verify_api_key(authorization="Bearer some-key")
 
-            assert (
-                exc_info.value.status_code == 500
-            ), f"Expected 500 Internal Server Error, got {exc_info.value.status_code}"
-            assert (
-                "not configured" in exc_info.value.detail
-            ), f"Expected 'not configured' in detail, got: {exc_info.value.detail}"
+            assert exc_info.value.status_code == 500, (
+                f"Expected 500 Internal Server Error, got {exc_info.value.status_code}"
+            )
+            assert "not configured" in exc_info.value.detail, (
+                f"Expected 'not configured' in detail, got: {exc_info.value.detail}"
+            )
 
     # =============================================================================
     # Test: Malformed bearer token fails
@@ -142,9 +142,9 @@ class TestAuthValidation:
             with pytest.raises(HTTPException) as exc_info:
                 api.auth.verify_api_key(authorization=test_key)
 
-            assert (
-                exc_info.value.status_code == 401
-            ), f"Expected 401 Unauthorized for malformed token, got {exc_info.value.status_code}"
+            assert exc_info.value.status_code == 401, (
+                f"Expected 401 Unauthorized for malformed token, got {exc_info.value.status_code}"
+            )
 
     # =============================================================================
     # Edge Case Tests
@@ -162,9 +162,9 @@ class TestAuthValidation:
             with pytest.raises(HTTPException) as exc_info:
                 verify_api_key(authorization="Bearer ")
 
-            assert (
-                exc_info.value.status_code == 401
-            ), f"Expected 401 Unauthorized, got {exc_info.value.status_code}"
+            assert exc_info.value.status_code == 401, (
+                f"Expected 401 Unauthorized, got {exc_info.value.status_code}"
+            )
 
     def test_auth_whitespace_token(self):
         """
@@ -178,9 +178,9 @@ class TestAuthValidation:
             with pytest.raises(HTTPException) as exc_info:
                 verify_api_key(authorization="Bearer    ")
 
-            assert (
-                exc_info.value.status_code == 401
-            ), f"Expected 401 Unauthorized, got {exc_info.value.status_code}"
+            assert exc_info.value.status_code == 401, (
+                f"Expected 401 Unauthorized, got {exc_info.value.status_code}"
+            )
 
     def test_auth_very_long_token(self):
         """
@@ -195,6 +195,6 @@ class TestAuthValidation:
             with pytest.raises(HTTPException) as exc_info:
                 verify_api_key(authorization=f"Bearer {very_long_token}")
 
-            assert (
-                exc_info.value.status_code == 401
-            ), f"Expected 401 Unauthorized, got {exc_info.value.status_code}"
+            assert exc_info.value.status_code == 401, (
+                f"Expected 401 Unauthorized, got {exc_info.value.status_code}"
+            )

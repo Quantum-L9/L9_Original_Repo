@@ -176,9 +176,9 @@ class TestCursorScopeRestrictions:
 
                 # CRITICAL: No l-private scope in results for Cursor
                 for mem in memories:
-                    assert (
-                        mem.get("scope") != "l-private"
-                    ), f"Cursor received l-private memory: {mem}"
+                    assert mem.get("scope") != "l-private", (
+                        f"Cursor received l-private memory: {mem}"
+                    )
 
 
 # =============================================================================
@@ -209,14 +209,14 @@ class TestProjectIsolation:
         from mcp_memory.src.routes.memory_unified import search_memory_handler
 
         sig = inspect.signature(search_memory_handler)
-        assert (
-            "project_id" in sig.parameters
-        ), "search_memory_handler must accept project_id parameter"
+        assert "project_id" in sig.parameters, (
+            "search_memory_handler must accept project_id parameter"
+        )
 
         # Verify default is 'l9'
-        assert (
-            sig.parameters["project_id"].default == "l9"
-        ), "project_id default must be 'l9'"
+        assert sig.parameters["project_id"].default == "l9", (
+            "project_id default must be 'l9'"
+        )
 
 
 # =============================================================================
@@ -382,9 +382,9 @@ class TestSQLInjectionPrevention:
 
         # Check function signature includes allowed_scopes
         sig = inspect.signature(query_temporal)
-        assert (
-            "allowed_scopes" in sig.parameters
-        ), "query_temporal must accept allowed_scopes parameter"
+        assert "allowed_scopes" in sig.parameters, (
+            "query_temporal must accept allowed_scopes parameter"
+        )
 
         # The implementation uses = ANY($N) which is parameterized
         # We verify the parameter exists; full SQL injection testing
@@ -398,9 +398,9 @@ class TestSQLInjectionPrevention:
 
         # Verify project_id is a parameter
         sig = inspect.signature(search_memory_handler)
-        assert (
-            "project_id" in sig.parameters
-        ), "search_memory_handler must accept project_id parameter"
+        assert "project_id" in sig.parameters, (
+            "search_memory_handler must accept project_id parameter"
+        )
 
 
 if __name__ == "__main__":

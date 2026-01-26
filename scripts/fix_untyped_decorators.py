@@ -335,7 +335,6 @@ def fix_with_paramspec(code: str, func_name: str) -> str:
     )
 
 
-
 def fix_add_return_type(code: str, func_name: str) -> str:
     """
     Add return type to a decorator factory.
@@ -360,7 +359,6 @@ def fix_add_return_type(code: str, func_name: str) -> str:
         r"def \1(func: Callable[P, R]) -> Callable[P, R]:",
         code,
     )
-
 
 
 def check_and_add_imports(file_path: Path, imports_needed: set[str]) -> str | None:

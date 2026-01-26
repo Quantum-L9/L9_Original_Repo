@@ -33,7 +33,6 @@ def slugify(text: str) -> str:
     return text.strip("-")
 
 
-
 def generate_adr(
     adr_dir: Path,
     number: str,

@@ -117,7 +117,7 @@ def container():
 
 
 @pytest.fixture(autouse=True)
-def reset_global_container():
+def _reset_global_container():
     """Reset global container after each test."""
     yield
     reset_di_container()

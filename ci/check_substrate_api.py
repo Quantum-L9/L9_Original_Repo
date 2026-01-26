@@ -155,7 +155,9 @@ def lint_file(file_path: Path) -> LintResult:
     return result
 
 
-def find_python_files(root: Path, specific_files: list[str] | None = None) -> list[Path]:
+def find_python_files(
+    root: Path, specific_files: list[str] | None = None
+) -> list[Path]:
     """Find all Python files to lint."""
     if specific_files:
         files = []

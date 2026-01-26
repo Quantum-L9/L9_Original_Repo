@@ -1208,9 +1208,7 @@ class SubstrateRepository:
                 # Handle optional fields (post-0014 schema)
                 reason = row.get("reason") if "reason" in row else None
                 checkpoint_number = (
-                    row.get("checkpoint_number")
-                    if "checkpoint_number" in row
-                    else None
+                    row.get("checkpoint_number") if "checkpoint_number" in row else None
                 )
 
                 checkpoints.append(

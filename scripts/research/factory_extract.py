@@ -67,17 +67,16 @@ import structlog
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from core.security.path_safety import (
+    PathSafetyError,
+    resolve_base_dir,
+    safe_resolve_path,
+)
 from services.research_factory import (
     UniversalExtractor,
     load_glue_config,
     parse_schema,
     validate_schema,
-)
-
-from core.security.path_safety import (
-    PathSafetyError,
-    resolve_base_dir,
-    safe_resolve_path,
 )
 
 logger = structlog.get_logger(__name__)

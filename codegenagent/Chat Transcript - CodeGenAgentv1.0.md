@@ -193,7 +193,7 @@ Here's a high-level design for a truly advanced system:
 | File Stitcher | | Annotator / | | Override Manager |
 | (Track edits) | | Comment Blocker | | (User inserts) |
 +---------+---------+ +---------+---------+ +---------+---------+
-\_********\_\_\_********|**********\_**********/
+\_**\*\*\*\***\_\_\_**\*\*\*\***|\***\*\*\*\*\***\_\***\*\*\*\*\***/
 |
 +-------v-------+
 | Artifact Store|
@@ -3146,9 +3146,9 @@ output: List[CodeBlock] → filename, language, content
 code: |
 import re
 
-def expand_code_blocks(meta: dict):
+def expand*code_blocks(meta: dict):
 raw_yaml = meta.get("raw_yaml", "")
-pattern = re.compile(r"'''yaml._?filename: (?P<fname>._?)\\n._?code: \\|\\n(?P<code>._?)'''", re.DOTALL)
+pattern = re.compile(r"'''yaml.*?filename: (?P<fname>._?)\\n._?code: \\|\\n(?P<code>.\_?)'''", re.DOTALL)
 blocks = {}
 for match in pattern.finditer(raw_yaml):
 filename = match.group("fname").strip()
@@ -4130,7 +4130,7 @@ Watches orchestrator graphs and compares them against memory-state meta-contract
 Rebuilds or patches DAGs on drift, and logs changes to sync_report.json + rollback.
 
 wiring:
-reads: - orchestrator_registry.yaml - agents/\*_/meta.yaml - orchestration/dags/_
+reads: - orchestrator\*registry.yaml - agents/\*\*/meta.yaml - orchestration/dags/\_
 emits: - orchestrator_diff.yaml - dag_patch.py - sync_report.json
 triggers: - on_boot - on_meta_contract_updated - periodic_check (15m)
 
@@ -7655,8 +7655,8 @@ Emits route handlers and OpenAPI docs from construct schemas.
 Automatically generates FastAPI-compatible endpoints and docs.
 
 wiring:
-inputs: - schema: construct_features.bind_openapi_routes = true - path: schemas/agents/_.yaml
-outputs: - path: routes/generated/_.py - path: routes/openapi_specs/\*.json
+inputs: - schema: construct*features.bind_openapi_routes = true - path: schemas/agents/*.yaml
+outputs: - path: routes/generated/\_.py - path: routes/openapi_specs/\*.json
 triggers: - construct_emitted - route_autogen_flag
 
 code: |

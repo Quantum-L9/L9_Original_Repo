@@ -19,7 +19,7 @@ from core.governance.policy_registry import (
 
 
 @pytest.fixture(autouse=True)
-def clear_registries():
+def _clear_registries():
     """Clear all registries before and after each test."""
     policy_source_registry.clear()
     yield
