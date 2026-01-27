@@ -100,14 +100,14 @@ twilio>=8.10.0
 # =============================================================================
 # Scientific Computing (for symbolic computation service)
 # =============================================================================
-sympy>=1.12
+# sympy>=1.12                   # Only if symbolic_computation service is active
 numpy>=1.24.0
 
 # Cross-encoder reranking (for hybrid retrieval)
 # Force CPU-only PyTorch (VPS has no GPU)
---extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.5.0+cpu
-sentence-transformers>=2.2.0
+# --extra-index-url https://download.pytorch.org/whl/cpu
+# torch==2.5.0+cpu
+# sentence-transformers>=2.2.0  # Only if using local embeddings
 
 # =============================================================================
 # Pin urllib3 to avoid LibreSSL warnings
