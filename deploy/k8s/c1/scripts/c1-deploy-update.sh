@@ -225,18 +225,18 @@ REMOTE_SCRIPT
 # PHASE 3: VERIFY ENV FILES (VPS-managed, never overwrite from local)
 # =============================================================================
 verify_env_files() {
-    log_step "PHASE 3: VERIFY ENV FILES"
+    log_step "PHASE 3: VERIFY ENV FILES & SECRETS"
 
     # IMPORTANT: Env files are managed ON THE VPS, not synced from local.
     # This phase only verifies they exist and sets up symlinks.
     # To update env files, SSH to VPS and edit directly.
 
     if $DRY_RUN; then
-        log_info "[DRY RUN] Would verify VPS env files"
+        log_info "[DRY RUN] Would verify VPS env files and secrets"
         return
     fi
 
-    log_info "Verifying VPS env files exist (NOT syncing from local)..."
+    log_info "Verifying VPS env files and K8s secrets (NOT syncing from local)..."
 
     ssh_cmd bash << 'REMOTE_SCRIPT'
 set -e
@@ -252,14 +252,28 @@ OPTIONAL_FILES=(
     "/opt/l9/mcp_memory/.env"
 )
 
+# Required env vars that containers need (check in .env.production)
+REQUIRED_ENV_VARS=(
+    "POSTGRES_PASSWORD"
+    "NEO4J_PASSWORD"
+    "OPENAI_API_KEY"
+)
+
+OPTIONAL_ENV_VARS=(
+    "GRAFANA_PASSWORD"
+    "MCP_API_KEY"
+    "SLACK_BOT_TOKEN"
+    "TWILIO_AUTH_TOKEN"
+)
+
 echo "=== REQUIRED ENV FILES ==="
-missing=0
+missing_files=0
 for f in "${REQUIRED_FILES[@]}"; do
     if [[ -f "$f" ]]; then
         echo "  ✓ $f ($(stat -c%s "$f" 2>/dev/null || stat -f%z "$f") bytes)"
     else
         echo "  ✗ $f MISSING"
-        missing=$((missing + 1))
+        missing_files=$((missing_files + 1))
     fi
 done
 
@@ -273,11 +287,75 @@ for f in "${OPTIONAL_FILES[@]}"; do
     fi
 done
 
-if [[ $missing -gt 0 ]]; then
+# Check required env vars in .env.production
+echo ""
+echo "=== REQUIRED ENV VARIABLES (in .env.production) ==="
+missing_vars=0
+if [[ -f "/opt/l9/.env.production" ]]; then
+    for var in "${REQUIRED_ENV_VARS[@]}"; do
+        if grep -q "^${var}=" /opt/l9/.env.production 2>/dev/null; then
+            # Check if it has a non-empty value
+            val=$(grep "^${var}=" /opt/l9/.env.production | cut -d'=' -f2-)
+            if [[ -n "$val" && "$val" != '""' && "$val" != "''" ]]; then
+                echo "  ✓ $var (set)"
+            else
+                echo "  ⚠ $var (defined but EMPTY)"
+                missing_vars=$((missing_vars + 1))
+            fi
+        else
+            echo "  ✗ $var MISSING"
+            missing_vars=$((missing_vars + 1))
+        fi
+    done
+else
+    echo "  ✗ Cannot check - .env.production missing"
+    missing_vars=${#REQUIRED_ENV_VARS[@]}
+fi
+
+echo ""
+echo "=== OPTIONAL ENV VARIABLES ==="
+if [[ -f "/opt/l9/.env.production" ]]; then
+    for var in "${OPTIONAL_ENV_VARS[@]}"; do
+        if grep -q "^${var}=" /opt/l9/.env.production 2>/dev/null; then
+            echo "  ✓ $var (set)"
+        else
+            echo "  - $var (not set)"
+        fi
+    done
+fi
+
+# Check K8s secrets exist
+echo ""
+echo "=== K8S SECRETS ==="
+if kubectl get secret l9-secrets -n l9-c1 &>/dev/null; then
+    echo "  ✓ l9-secrets exists"
+    # Check required keys in secret
+    secret_keys=$(kubectl get secret l9-secrets -n l9-c1 -o jsonpath='{.data}' | tr ',' '\n' | grep -oE '"[^"]+":' | tr -d '":')
+    required_secret_keys=("postgres-user" "postgres-password" "neo4j-user" "neo4j-password")
+    for key in "${required_secret_keys[@]}"; do
+        if echo "$secret_keys" | grep -q "$key"; then
+            echo "    ✓ $key"
+        else
+            echo "    ✗ $key MISSING in secret"
+        fi
+    done
+else
+    echo "  ✗ l9-secrets NOT FOUND in l9-c1 namespace"
+    echo "    Run: kubectl apply -f deploy/k8s/c1/manifests/c1-secrets.yaml"
+fi
+
+if [[ $missing_files -gt 0 ]]; then
     echo ""
-    echo "ERROR: $missing required env file(s) missing on VPS!"
+    echo "ERROR: $missing_files required env file(s) missing on VPS!"
     echo "SSH to VPS and create them manually."
     exit 1
+fi
+
+if [[ $missing_vars -gt 0 ]]; then
+    echo ""
+    echo "WARNING: $missing_vars required env var(s) missing or empty!"
+    echo "Edit /opt/l9/.env.production on VPS to add them."
+    # Don't exit - just warn, some may be in K8s secrets instead
 fi
 
 # Ensure symlinks are correct
@@ -293,10 +371,10 @@ if [[ -d /opt/l9-build/L9 ]]; then
 fi
 
 echo ""
-echo "Env files verified on VPS."
+echo "Env verification complete."
 REMOTE_SCRIPT
 
-    log_success "VPS env files verified"
+    log_success "VPS env files and secrets verified"
 }
 
 # =============================================================================
