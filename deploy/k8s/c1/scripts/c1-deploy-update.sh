@@ -13,7 +13,7 @@
 # WORKFLOW:
 #   Phase 1:  Connect & Verify
 #   Phase 2:  Pull Latest Code
-#   Phase 3:  Sync Env Files
+#   Phase 3:  Verify Env Files (VPS-managed, never synced from local)
 #   Phase 4:  Run Database Migrations (PostgreSQL)
 #   Phase 5:  Run Neo4j Migrations (Cypher)
 #   Phase 6:  Rebuild Containers
@@ -23,8 +23,8 @@
 #   Phase 10: Final Status
 #
 # PREREQUISITES:
-#   - SSH key at ~/.ssh/Hetzner-C1
-#   - Local .env files configured
+#   - SSH key at ~/.ssh/Hetzner-C1-nopass (passwordless)
+#   - VPS has .env.production configured (NOT synced from local)
 #   - C1 already has base infrastructure (k3s, docker)
 # =============================================================================
 
@@ -121,9 +121,7 @@ ssh_cmd() {
     ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 -i "$SSH_KEY_FILE" root@"$C1_IP" "$@"
 }
 
-scp_cmd() {
-    scp -o StrictHostKeyChecking=no -i "$SSH_KEY_FILE" "$@"
-}
+# Note: scp_cmd removed - env files are VPS-managed, not synced from local
 
 # =============================================================================
 # PHASE 1: CONNECT & VERIFY
@@ -181,11 +179,9 @@ pull_latest_code() {
     ssh_cmd bash << 'REMOTE_SCRIPT'
 set -e
 
-cd /opt/l9
-
-# Clone if doesn't exist, otherwise pull
-if [[ -d "L9" ]]; then
-    cd L9
+# Check if repo exists at /opt/l9
+if [[ -d "/opt/l9/.git" ]]; then
+    cd /opt/l9
     echo "Current commit: $(git rev-parse --short HEAD)"
     echo "Current branch: $(git branch --show-current)"
 
@@ -198,9 +194,9 @@ if [[ -d "L9" ]]; then
 
     echo "Updated to: $(git rev-parse --short HEAD)"
 else
-    echo "Cloning L9 repository..."
-    git clone https://github.com/cryptoxdog/L9.git L9
-    cd L9
+    echo "Cloning L9 repository to /opt/l9..."
+    git clone https://github.com/cryptoxdog/L9.git /opt/l9
+    cd /opt/l9
     echo "Cloned at: $(git rev-parse --short HEAD)"
 fi
 
@@ -355,12 +351,6 @@ echo ""
 echo "=== SYMLINKS ==="
 ln -sf /opt/l9/.env.production /opt/l9/.env
 echo "  ✓ /opt/l9/.env -> .env.production"
-
-# Copy to build directory if it exists
-if [[ -d /opt/l9 ]]; then
-    cp /opt/l9/.env.production /opt/l9/.env 2>/dev/null || true
-    echo "  ✓ Copied to /opt/l9/.env"
-fi
 
 echo ""
 echo "Env verification complete."
@@ -540,6 +530,17 @@ fi
 
 echo "=== Verifying images ==="
 docker images | grep -E "(l9-api|l9-mcp)" | head -10
+
+echo "=== Importing images to containerd (for k3s) ==="
+# k3s uses containerd, not Docker - must import images
+echo "Importing l9-api:latest..."
+docker save l9-api:latest | k3s ctr images import -
+echo "Importing l9-mcp-memory:latest..."
+docker save l9-mcp-memory:latest 2>/dev/null | k3s ctr images import - || echo "  (l9-mcp-memory image not found, skipping)"
+
+echo ""
+echo "=== containerd images ==="
+k3s crictl images | grep l9 || echo "  (checking crictl)"
 
 echo "=== Quick dependency check ==="
 docker run --rm l9-api:latest python -c "
