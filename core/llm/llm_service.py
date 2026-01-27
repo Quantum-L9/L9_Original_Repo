@@ -270,6 +270,7 @@ class OpenAILLMService:
         response = await client.embeddings.create(
             model=model_name,
             input=text,
+            dimensions=1536,  # Truncate to match DB VECTOR(1536) schema
         )
 
         embedding = response.data[0].embedding

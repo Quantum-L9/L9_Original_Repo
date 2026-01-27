@@ -115,6 +115,7 @@ async def embed_tool_description(description: str) -> list[float] | None:
         response = await client.embeddings.create(
             model=EMBEDDING_MODEL,
             input=description,
+            dimensions=EMBEDDING_DIMENSION,  # Truncate to match DB VECTOR(1536) schema
         )
         return response.data[0].embedding
     except Exception as e:
