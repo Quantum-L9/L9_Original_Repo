@@ -41,7 +41,7 @@ LOG_FILE="$SCRIPT_DIR/deploy-update-$(date +%Y%m%d-%H%M%S).log"
 C1_IP="46.62.243.82"
 SSH_KEY_FILE="$HOME/.ssh/Hetzner-C1-nopass"
 VPS_L9_DIR="/opt/l9"
-VPS_BUILD_DIR="/opt/l9-build/L9"
+VPS_BUILD_DIR="/opt/l9"
 
 # Ports for health checks (parallel arrays for macOS bash 3.x compatibility)
 SERVICE_NAMES=("L9 API" "MCP Memory" "PostgreSQL" "Neo4j Browser" "Neo4j Bolt" "Grafana" "Prometheus" "Redis")
@@ -181,7 +181,7 @@ pull_latest_code() {
     ssh_cmd bash << 'REMOTE_SCRIPT'
 set -e
 
-cd /opt/l9-build
+cd /opt/l9
 
 # Clone if doesn't exist, otherwise pull
 if [[ -d "L9" ]]; then
@@ -357,9 +357,9 @@ ln -sf /opt/l9/.env.production /opt/l9/.env
 echo "  ✓ /opt/l9/.env -> .env.production"
 
 # Copy to build directory if it exists
-if [[ -d /opt/l9-build/L9 ]]; then
-    cp /opt/l9/.env.production /opt/l9-build/L9/.env 2>/dev/null || true
-    echo "  ✓ Copied to /opt/l9-build/L9/.env"
+if [[ -d /opt/l9 ]]; then
+    cp /opt/l9/.env.production /opt/l9/.env 2>/dev/null || true
+    echo "  ✓ Copied to /opt/l9/.env"
 fi
 
 echo ""
@@ -389,7 +389,7 @@ run_postgres_migrations() {
 
     ssh_cmd bash << 'REMOTE_SCRIPT'
 set -e
-cd /opt/l9-build/L9
+cd /opt/l9
 
 # Load environment
 source /opt/l9/.env.production 2>/dev/null || true
@@ -409,7 +409,7 @@ import os
 import sys
 
 # Add repo to path
-sys.path.insert(0, '/opt/l9-build/L9')
+sys.path.insert(0, '/opt/l9')
 
 async def run():
     from memory.migration_runner import run_migrations
@@ -467,7 +467,7 @@ run_neo4j_migrations() {
 
     ssh_cmd bash << 'REMOTE_SCRIPT'
 set -e
-cd /opt/l9-build/L9
+cd /opt/l9
 
 # Load environment
 source /opt/l9/.env.production 2>/dev/null || true
@@ -518,7 +518,7 @@ rebuild_containers() {
 
     ssh_cmd bash << 'REMOTE_SCRIPT'
 set -e
-cd /opt/l9-build/L9
+cd /opt/l9
 
 echo "=== Building L9 API image ==="
 docker build \
@@ -710,7 +710,7 @@ final_status() {
 echo "=== DEPLOYMENT SUMMARY ==="
 echo ""
 
-echo "Git Commit: $(cd /opt/l9-build/L9 && git rev-parse --short HEAD)"
+echo "Git Commit: $(cd /opt/l9 && git rev-parse --short HEAD)"
 echo "Deployed:   $(date)"
 echo ""
 
