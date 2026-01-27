@@ -104,6 +104,9 @@ sympy>=1.12
 numpy>=1.24.0
 
 # Cross-encoder reranking (for hybrid retrieval)
+# Force CPU-only PyTorch (VPS has no GPU)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.5.0+cpu
 sentence-transformers>=2.2.0
 
 # =============================================================================
