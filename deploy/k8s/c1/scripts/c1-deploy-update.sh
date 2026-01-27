@@ -39,7 +39,7 @@ LOG_FILE="$SCRIPT_DIR/deploy-update-$(date +%Y%m%d-%H%M%S).log"
 
 # VPS Config
 C1_IP="46.62.243.82"
-SSH_KEY_FILE="$HOME/.ssh/Hetzner-C1"
+SSH_KEY_FILE="$HOME/.ssh/Hetzner-C1-nopass"
 VPS_L9_DIR="/opt/l9"
 VPS_BUILD_DIR="/opt/l9-build/L9"
 
