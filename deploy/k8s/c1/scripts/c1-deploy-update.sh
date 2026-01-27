@@ -43,17 +43,9 @@ SSH_KEY_FILE="$HOME/.ssh/Hetzner-C1"
 VPS_L9_DIR="/opt/l9"
 VPS_BUILD_DIR="/opt/l9-build/L9"
 
-# Ports for health checks (keys without spaces for macOS bash compatibility)
-declare -A SERVICE_PORTS=(
-    ["L9_API"]=30080
-    ["MCP_Memory"]=30902
-    ["PostgreSQL"]=30432
-    ["Neo4j_Browser"]=30474
-    ["Neo4j_Bolt"]=30687
-    ["Grafana"]=30300
-    ["Prometheus"]=30909
-    ["Redis"]=30379
-)
+# Ports for health checks (parallel arrays for macOS bash 3.x compatibility)
+SERVICE_NAMES=("L9 API" "MCP Memory" "PostgreSQL" "Neo4j Browser" "Neo4j Bolt" "Grafana" "Prometheus" "Redis")
+SERVICE_PORTS=(30080 30902 30432 30474 30687 30300 30909 30379)
 
 # Colors
 RED='\033[0;31m'
@@ -610,14 +602,15 @@ health_checks() {
 
     local all_healthy=true
 
-    for service in "${!SERVICE_PORTS[@]}"; do
-        local port="${SERVICE_PORTS[$service]}"
-        local display_name="${service//_/ }"  # Replace underscores with spaces for display
+    # Use index-based iteration for macOS bash 3.x compatibility
+    for i in "${!SERVICE_NAMES[@]}"; do
+        local service="${SERVICE_NAMES[$i]}"
+        local port="${SERVICE_PORTS[$i]}"
 
         if nc -z -w5 "$C1_IP" "$port" 2>/dev/null; then
-            log_success "  ✓ $display_name (port $port): UP"
+            log_success "  ✓ $service (port $port): UP"
         else
-            log_warn "  ✗ $display_name (port $port): DOWN or not exposed"
+            log_warn "  ✗ $service (port $port): DOWN or not exposed"
             all_healthy=false
         fi
     done
