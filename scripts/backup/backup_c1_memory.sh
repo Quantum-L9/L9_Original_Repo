@@ -4,7 +4,7 @@
 # Version: 1.0.0
 #
 # Backs up C1 Hetzner Server (46.62.243.82) PostgreSQL + Neo4j to S3.
-# Designed for 12-hour intervals, 3-day local retention, 30-day S3 retention.
+# Designed for 24-hour intervals, 7-day local retention, 30-day S3 retention.
 #
 # C1 is the PRIMARY memory server per 03-mcp-memory.mdc:
 #   - PostgreSQL: 46.62.243.82:30432
@@ -53,7 +53,7 @@ S3_PREFIX="${S3_PREFIX:-c1}"  # Prefix for C1 backups
 S3_REGION="${S3_REGION:-us-east-1}"
 
 # Retention
-LOCAL_RETENTION_DAYS=3      # Keep 6 backups locally (12hr × 6 = 3 days)
+LOCAL_RETENTION_DAYS=7      # Keep 7 backups locally (24hr × 7 = 7 days)
 S3_RETENTION_DAYS=30        # S3 lifecycle policy handles this
 
 # Timestamp
@@ -339,8 +339,8 @@ Environment Variables (OPTIONAL):
     S3_REGION               AWS region (default: us-east-1)
     BACKUP_DIR              Local backup directory (default: ~/.l9/backups/c1)
 
-Schedule (cron every 12 hours):
-    0 */12 * * * C1_POSTGRES_PASSWORD='xxx' $HOME/Projects/L9/scripts/backup/backup_c1_memory.sh >> ~/.l9/logs/c1-backup.log 2>&1
+Schedule (cron daily):
+    0 2 * * * C1_POSTGRES_PASSWORD='xxx' $HOME/Projects/L9/scripts/backup/backup_c1_memory.sh >> ~/.l9/logs/c1-backup.log 2>&1
 
 EOF
 }

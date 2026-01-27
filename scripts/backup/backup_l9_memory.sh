@@ -4,7 +4,7 @@
 # Version: 1.0.0
 #
 # Backs up PostgreSQL (memories, embeddings), Neo4j (graph), and configs.
-# Designed for 12-hour intervals, 3-day local retention, 30-day S3 retention.
+# Designed for 24-hour intervals, 7-day local retention, 30-day S3 retention.
 #
 # GOVERNANCE: IGOR_ONLY for cron setup and S3 configuration
 # CURSOR_SAFE: true (read-only backup operations)
@@ -29,7 +29,7 @@ S3_BUCKET="${S3_BUCKET:-l9-backups}"
 S3_REGION="${S3_REGION:-us-east-1}"
 
 # Retention
-LOCAL_RETENTION_DAYS=3      # Keep 6 backups locally (12hr × 6 = 3 days)
+LOCAL_RETENTION_DAYS=7      # Keep 7 backups locally (24hr × 7 = 7 days)
 S3_RETENTION_DAYS=30        # S3 lifecycle policy handles this
 
 # Database Configuration
@@ -283,8 +283,8 @@ Environment Variables:
     BACKUP_DIR      Local backup directory (default: /opt/l9/backups)
     L9_DIR          L9 installation directory (default: /opt/l9)
 
-Schedule (cron every 12 hours):
-    0 */12 * * * /opt/l9/scripts/backup/backup_l9_memory.sh >> /var/log/l9-backup.log 2>&1
+Schedule (cron daily):
+    0 2 * * * /opt/l9/scripts/backup/backup_l9_memory.sh >> /var/log/l9-backup.log 2>&1
 
 EOF
 }
