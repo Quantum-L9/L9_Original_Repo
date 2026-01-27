@@ -43,13 +43,13 @@ SSH_KEY_FILE="$HOME/.ssh/Hetzner-C1"
 VPS_L9_DIR="/opt/l9"
 VPS_BUILD_DIR="/opt/l9-build/L9"
 
-# Ports for health checks
+# Ports for health checks (keys without spaces for macOS bash compatibility)
 declare -A SERVICE_PORTS=(
-    ["L9 API"]=30080
-    ["MCP Memory"]=30902
+    ["L9_API"]=30080
+    ["MCP_Memory"]=30902
     ["PostgreSQL"]=30432
-    ["Neo4j Browser"]=30474
-    ["Neo4j Bolt"]=30687
+    ["Neo4j_Browser"]=30474
+    ["Neo4j_Bolt"]=30687
     ["Grafana"]=30300
     ["Prometheus"]=30909
     ["Redis"]=30379
@@ -222,60 +222,81 @@ REMOTE_SCRIPT
 }
 
 # =============================================================================
-# PHASE 3: SYNC ENV FILES
+# PHASE 3: VERIFY ENV FILES (VPS-managed, never overwrite from local)
 # =============================================================================
-sync_env_files() {
-    log_step "PHASE 3: SYNC ENV FILES"
+verify_env_files() {
+    log_step "PHASE 3: VERIFY ENV FILES"
+
+    # IMPORTANT: Env files are managed ON THE VPS, not synced from local.
+    # This phase only verifies they exist and sets up symlinks.
+    # To update env files, SSH to VPS and edit directly.
 
     if $DRY_RUN; then
-        log_info "[DRY RUN] Would sync env files"
+        log_info "[DRY RUN] Would verify VPS env files"
         return
     fi
 
-    log_info "Syncing local .env files to C1..."
+    log_info "Verifying VPS env files exist (NOT syncing from local)..."
 
-    # Create directories
-    ssh_cmd "mkdir -p /opt/l9/mcp_memory /opt/l9/services"
-
-    # Env file mappings
-    declare -a ENV_FILES=(
-        "$REPO_ROOT/.env:/opt/l9/.env.production"
-        "$REPO_ROOT/.env.docker:/opt/l9/.env.docker"
-        "$REPO_ROOT/.env.vps:/opt/l9/.env.vps"
-        "$REPO_ROOT/mcp_memory/.env:/opt/l9/mcp_memory/.env"
-    )
-
-    local synced=0
-    for mapping in "${ENV_FILES[@]}"; do
-        local local_path="${mapping%%:*}"
-        local remote_path="${mapping##*:}"
-
-        if [[ -f "$local_path" ]]; then
-            log_info "  Syncing: $(basename "$local_path")"
-            scp_cmd "$local_path" "root@$C1_IP:$remote_path"
-            ssh_cmd "chmod 600 '$remote_path'"
-            ((synced++))
-        else
-            log_warn "  Missing: $local_path"
-        fi
-    done
-
-    # Create symlink and copy to build dir
     ssh_cmd bash << 'REMOTE_SCRIPT'
-# Create symlink for docker-compose
-ln -sf /opt/l9/.env.production /opt/l9/.env
+set -e
 
-# Copy to build directory
-if [[ -d /opt/l9-build/L9 ]]; then
-    cp /opt/l9/.env.production /opt/l9-build/L9/.env 2>/dev/null || true
-    cp /opt/l9/mcp_memory/.env /opt/l9-build/L9/mcp_memory/.env 2>/dev/null || true
+# Required env files on VPS
+REQUIRED_FILES=(
+    "/opt/l9/.env.production"
+    "/opt/l9/.env.docker"
+)
+
+OPTIONAL_FILES=(
+    "/opt/l9/.env.vps"
+    "/opt/l9/mcp_memory/.env"
+)
+
+echo "=== REQUIRED ENV FILES ==="
+missing=0
+for f in "${REQUIRED_FILES[@]}"; do
+    if [[ -f "$f" ]]; then
+        echo "  ✓ $f ($(stat -c%s "$f" 2>/dev/null || stat -f%z "$f") bytes)"
+    else
+        echo "  ✗ $f MISSING"
+        missing=$((missing + 1))
+    fi
+done
+
+echo ""
+echo "=== OPTIONAL ENV FILES ==="
+for f in "${OPTIONAL_FILES[@]}"; do
+    if [[ -f "$f" ]]; then
+        echo "  ✓ $f"
+    else
+        echo "  - $f (not present)"
+    fi
+done
+
+if [[ $missing -gt 0 ]]; then
+    echo ""
+    echo "ERROR: $missing required env file(s) missing on VPS!"
+    echo "SSH to VPS and create them manually."
+    exit 1
 fi
 
-echo "Env files synced:"
-ls -la /opt/l9/.env* 2>/dev/null
+# Ensure symlinks are correct
+echo ""
+echo "=== SYMLINKS ==="
+ln -sf /opt/l9/.env.production /opt/l9/.env
+echo "  ✓ /opt/l9/.env -> .env.production"
+
+# Copy to build directory if it exists
+if [[ -d /opt/l9-build/L9 ]]; then
+    cp /opt/l9/.env.production /opt/l9-build/L9/.env 2>/dev/null || true
+    echo "  ✓ Copied to /opt/l9-build/L9/.env"
+fi
+
+echo ""
+echo "Env files verified on VPS."
 REMOTE_SCRIPT
 
-    log_success "Synced $synced env files"
+    log_success "VPS env files verified"
 }
 
 # =============================================================================
@@ -513,11 +534,12 @@ health_checks() {
 
     for service in "${!SERVICE_PORTS[@]}"; do
         local port="${SERVICE_PORTS[$service]}"
+        local display_name="${service//_/ }"  # Replace underscores with spaces for display
 
         if nc -z -w5 "$C1_IP" "$port" 2>/dev/null; then
-            log_success "  ✓ $service (port $port): UP"
+            log_success "  ✓ $display_name (port $port): UP"
         else
-            log_warn "  ✗ $service (port $port): DOWN or not exposed"
+            log_warn "  ✗ $display_name (port $port): DOWN or not exposed"
             all_healthy=false
         fi
     done
@@ -670,7 +692,7 @@ main() {
 
     connect_and_verify
     pull_latest_code
-    sync_env_files
+    verify_env_files
     run_postgres_migrations
     run_neo4j_migrations
     rebuild_containers
