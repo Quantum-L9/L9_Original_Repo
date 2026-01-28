@@ -51,7 +51,7 @@ deploy/k8s/c1/
 
 | Service       | URL                       | Credentials                 |
 | ------------- | ------------------------- | --------------------------- |
-| Grafana       | http://46.62.243.82:30300 | C1_admin / C1_Grafana-2026! |
+| Grafana       | http://46.62.243.82:30300 | admin / C1_Grafana-2026! |
 | Prometheus    | http://46.62.243.82:30909 | -                           |
 | Neo4j Browser | http://46.62.243.82:30474 | neo4j / C1_Neo4j-2026!      |
 | L9 API        | http://46.62.243.82:30080 | -                           |
