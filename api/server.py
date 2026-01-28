@@ -319,12 +319,13 @@ except ImportError:
     _has_governance = False
 
 # Optional: Symbolic Computation Service (v2.9+ / GMP-SYMPY-TASK4)
-try:
-    from services.symbolic_computation.api.routes import router as symbolic_router
-
-    _has_symbolic = True
-except ImportError:
-    _has_symbolic = False
+# DISABLED: sympy commented out in requirements-production.txt to reduce VPS bloat
+_has_symbolic = False
+# try:
+#     from services.symbolic_computation.api.routes import router as symbolic_router
+#     _has_symbolic = True
+# except Exception:
+#     _has_symbolic = False
 
 # Optional: Observability Router (GMP-91)
 try:
