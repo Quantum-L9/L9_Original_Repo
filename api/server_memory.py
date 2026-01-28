@@ -25,8 +25,6 @@ import structlog
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
-import api.db as db
-
 # Local dev mode flag
 LOCAL_DEV = os.getenv("LOCAL_DEV", "false").lower() == "true"
 from openai import OpenAI
@@ -39,9 +37,8 @@ from config.settings import settings
 
 logger = structlog.get_logger(__name__)
 
-# Initialize DB ONCE at boot
-if not LOCAL_DEV:
-    db.init_db()
+# NOTE: DB init is handled by the main api/server.py lifespan
+# Do NOT call db.init_db() here - it's async and runs in server.py startup
 
 # Create unified app (wraps the base server)
 app = FastAPI(title="L9 Phase 2 Secure AI OS")

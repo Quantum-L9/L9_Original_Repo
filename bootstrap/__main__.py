@@ -1,8 +1,10 @@
-# l9/bootstrap/__main__.py
+# bootstrap/__main__.py
 """
 Canonical L9 Bootstrap Entrypoint
 Runs exactly once. Fails hard. Writes bootstrap artifact.
 """
+
+from __future__ import annotations
 
 import asyncio
 import json
@@ -29,12 +31,26 @@ BOOTSTRAP_VERSION = "2026-01-28"
 # ---- UTIL ----
 
 
-def fatal(msg: str):
+def fatal(msg: str) -> None:
     print(f"[BOOTSTRAP:FATAL] {msg}", file=sys.stderr)
     sys.exit(1)
 
 
-def check_env():
+def ensure_asyncpg_url(url: str) -> str:
+    """
+    Ensure DATABASE_URL uses asyncpg driver for SQLAlchemy.
+    Converts postgresql:// to postgresql+asyncpg://
+    """
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+asyncpg://", 1)
+    if "+asyncpg" not in url:
+        fatal(f"DATABASE_URL must use asyncpg driver, got: {url[:50]}...")
+    return url
+
+
+def check_env() -> None:
     missing = [k for k in REQUIRED_ENV if not os.getenv(k)]
     if missing:
         fatal(f"Missing required env vars: {missing}")
@@ -118,10 +134,11 @@ async def write_bootstrap_artifact(engine):
 # ---- MAIN ----
 
 
-async def main():
+async def main() -> None:
     check_env()
 
-    db_url = os.environ["DATABASE_URL"]
+    # Ensure asyncpg driver for SQLAlchemy
+    db_url = ensure_asyncpg_url(os.environ["DATABASE_URL"])
     engine = create_async_engine(db_url, echo=False)
 
     async with engine.begin() as conn:

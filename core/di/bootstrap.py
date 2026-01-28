@@ -91,20 +91,9 @@ def bootstrap_di_container(container: Any) -> dict[str, int]:
     # Layer 1: Database Clients (Foundation)
     # =========================================================================
 
-    # PostgreSQL Client
-    try:
-        from api.db import get_db_client
-
-        container.bind_singleton(type(get_db_client()), lambda: get_db_client())
-        registered_count += 1
-        logger.debug("di_bootstrap.registered", service="PostgresClient")
-    except Exception as e:
-        logger.warning(
-            "di_bootstrap.optional_service_skipped",
-            service="PostgresClient",
-            reason=str(e),
-        )
-        optional_skipped += 1
+    # PostgreSQL Client - REMOVED: api.db now uses async functions only
+    # DB initialization handled by api/server.py lifespan via asyncpg
+    # No sync client to register here
 
     # Neo4j Client
     try:

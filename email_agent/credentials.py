@@ -8,6 +8,8 @@ Supports multi-account mode (igor, l) with backward compatibility.
 Version: 2.0.0
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Credentials",

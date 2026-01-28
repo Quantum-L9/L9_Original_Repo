@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Db",
-    "module_version": "1.0.0",
+    "module_version": "2.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2025-12-09T01:02:49Z",
-    "updated_at": "2026-01-07T13:35:57Z",
+    "updated_at": "2026-01-28T12:00:00Z",
     "layer": "operations",
     "domain": "api_gateway",
     "module_name": "db",
@@ -21,7 +23,7 @@ __dora_meta__ = {
 
 import os
 
-import psycopg
+import asyncpg
 
 # Get DSN from environment - NEVER hardcode localhost in Docker!
 # Inside containers, use service DNS (l9-postgres:5432)
@@ -34,28 +36,40 @@ MEMORY_DSN = os.getenv(
 )
 
 
-def init_db():
-    with psycopg.connect(MEMORY_DSN, autocommit=True) as conn, conn.cursor() as cur:
-        cur.execute("CREATE SCHEMA IF NOT EXISTS memory;")
-        cur.execute("""
-                CREATE TABLE IF NOT EXISTS memory.embeddings (
-                    id SERIAL PRIMARY KEY,
-                    source TEXT,
-                    content TEXT,
-                    vector VECTOR(1536)
-                );
-            """)
+async def init_db() -> None:
+    """Initialize database schema (async, uses asyncpg)."""
+    conn = await asyncpg.connect(MEMORY_DSN)
+    try:
+        await conn.execute("CREATE SCHEMA IF NOT EXISTS memory;")
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS memory.embeddings (
+                id SERIAL PRIMARY KEY,
+                source TEXT,
+                content TEXT,
+                vector VECTOR(1536)
+            );
+        """)
+    finally:
+        await conn.close()
 
 
-def insert_embedding(source, content, vector=None):
-    with psycopg.connect(MEMORY_DSN, autocommit=True) as conn, conn.cursor() as cur:
-        cur.execute(
+async def insert_embedding(
+    source: str, content: str, vector: list | None = None
+) -> None:
+    """Insert embedding into database (async, uses asyncpg)."""
+    conn = await asyncpg.connect(MEMORY_DSN)
+    try:
+        await conn.execute(
             """
-                INSERT INTO memory.embeddings (source, content, vector)
-                VALUES (%s, %s, %s);
+            INSERT INTO memory.embeddings (source, content, vector)
+            VALUES ($1, $2, $3);
             """,
-            (source, content, vector),
+            source,
+            content,
+            vector,
         )
+    finally:
+        await conn.close()
 
 
 # ============================================================================
