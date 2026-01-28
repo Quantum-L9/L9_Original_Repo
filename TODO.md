@@ -14,6 +14,16 @@
 | #29 | Observability Infrastructure   | ✅ MERGED |
 | #30 | Memory & Governance            | ✅ MERGED |
 
+### Fix Pydantic v2 Validator Syntax (symbolic_computation)
+
+- [ ] **Fix `@validator` → `@field_validator`** in `services/symbolic_computation/models.py`
+  - Error: `PydanticUserError: @validator cannot be applied to instance methods`
+  - Pydantic v2 requires `@field_validator` with `@classmethod`
+  - Currently disabled in `api/server.py` to unblock VPS
+  - Re-enable import after fix
+
+---
+
 ### Post-Merge Wiring Tasks
 
 - [x] **Wire `DeduplicationEngine`** into `memory/consolidation.py` `_run_deduplication()` ✅ COMPLETE
