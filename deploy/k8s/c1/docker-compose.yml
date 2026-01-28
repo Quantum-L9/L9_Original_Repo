@@ -19,7 +19,6 @@ services:
   # ===========================================================================
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: l9-postgres
     ports:
       - "5432:5432"
     environment:
@@ -44,7 +43,6 @@ services:
   # ===========================================================================
   neo4j:
     image: neo4j:5.15
-    container_name: l9-neo4j
     ports:
       - "7687:7687"
       - "7474:7474"
@@ -70,7 +68,6 @@ services:
   # ===========================================================================
   redis:
     image: redis:7-alpine
-    container_name: l9-redis
     ports:
       - "6379:6379"
     command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
@@ -91,7 +88,6 @@ services:
     build:
       context: ../../../..
       dockerfile: deploy/k8s/c1/Dockerfile
-    container_name: l9-api
     ports:
       - "8000:8000"
     environment:
@@ -149,7 +145,6 @@ services:
     build:
       context: ../../../..
       dockerfile: deploy/k8s/c1/Dockerfile.mcp-memory
-    container_name: l9-mcp-memory
     ports:
       - "9000:9000"
     environment:
@@ -175,7 +170,6 @@ services:
   # ===========================================================================
   prometheus:
     image: prom/prometheus:latest
-    container_name: l9-prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -195,7 +189,6 @@ services:
   # ===========================================================================
   grafana:
     image: grafana/grafana:latest
-    container_name: l9-grafana
     ports:
       - "3000:3000"
     environment:
