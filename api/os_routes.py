@@ -62,6 +62,25 @@ async def os_status():
     }
 
 
+@router.get("/readiness")
+@must_stay_async("FastAPI/ASGI route handler")
+async def os_readiness():
+    """
+    Readiness probe endpoint.
+    Returns 200 if bootstrap completed, 503 otherwise.
+    Used by K8s readinessProbe.
+    """
+    from fastapi import HTTPException
+
+    try:
+        from api.startup_guard import ensure_bootstrap
+
+        await ensure_bootstrap()
+        return {"status": "ready"}
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=str(e)) from e
+
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

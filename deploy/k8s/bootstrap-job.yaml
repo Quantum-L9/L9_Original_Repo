@@ -1,0 +1,49 @@
+# L9 Bootstrap Job + API Deployment with readiness probe
+# Bootstrap runs once, API waits for /os/readiness
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: l9-bootstrap
+  namespace: l9
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: bootstrap
+          image: l9-api:latest
+          command: ["python", "-m", "bootstrap"]
+          envFrom:
+            - secretRef:
+                name: l9-secrets
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: l9-api
+  namespace: l9
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: l9-api
+  template:
+    metadata:
+      labels:
+        app: l9-api
+    spec:
+      containers:
+        - name: api
+          image: l9-api:latest
+          command: ["python", "-m", "l9.api"]
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: l9-secrets
+          readinessProbe:
+            httpGet:
+              path: /os/readiness
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 5

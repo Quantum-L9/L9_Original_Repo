@@ -1,0 +1,154 @@
+# l9/bootstrap/__main__.py
+"""
+Canonical L9 Bootstrap Entrypoint
+Runs exactly once. Fails hard. Writes bootstrap artifact.
+"""
+
+import asyncio
+import json
+import os
+import sys
+from datetime import datetime
+
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
+
+# ---- CONFIG ----
+
+REQUIRED_ENV = [
+    "DATABASE_URL",
+    "REDIS_URL",
+    "NEO4J_URI",
+    "NEO4J_USER",
+    "NEO4J_PASSWORD",
+]
+
+BOOTSTRAP_KEY = "l9.bootstrap"
+BOOTSTRAP_VERSION = "2026-01-28"
+
+# ---- UTIL ----
+
+
+def fatal(msg: str):
+    print(f"[BOOTSTRAP:FATAL] {msg}", file=sys.stderr)
+    sys.exit(1)
+
+
+def check_env():
+    missing = [k for k in REQUIRED_ENV if not os.getenv(k)]
+    if missing:
+        fatal(f"Missing required env vars: {missing}")
+
+
+# ---- BOOTSTRAP STEPS ----
+
+
+async def run_migrations(engine):
+    from memory.migration_runner import run_migrations as _run_migrations
+
+    db_url = os.environ["DATABASE_URL"]
+    await _run_migrations(db_url)
+
+
+async def init_memory_substrate():
+    from memory.substrate_service import init_service
+
+    await init_service()
+
+
+async def init_neo4j():
+    from memory.graph_client import get_neo4j_client
+
+    client = await get_neo4j_client()
+    await client.verify_connectivity()
+
+
+async def bootstrap_agent():
+    """
+    Bootstrap the primary L9 agent using 7-phase ceremony.
+    Requires substrate service to be initialized first.
+    """
+    from core.agents.bootstrap.orchestrator import bootstrap_agent as _bootstrap_agent
+    from core.agents.schemas import AgentConfig
+    from memory.substrate_service import get_service
+
+    # Get initialized substrate service
+    substrate_service = await get_service()
+
+    # Create default agent config for L9 primary agent
+    config = AgentConfig(
+        agent_id="l9-primary",
+        name="L9 Primary Agent",
+        personality_id="l9-standard-v1",
+        model="gpt-4o",
+        temperature=0.3,
+        max_tokens=4000,
+    )
+
+    # Run 7-phase bootstrap ceremony
+    await _bootstrap_agent(config, substrate_service)
+
+
+async def write_bootstrap_artifact(engine):
+    payload = {
+        "version": BOOTSTRAP_VERSION,
+        "timestamp": datetime.utcnow().isoformat(),
+    }
+
+    async with engine.begin() as conn:
+        await conn.execute(
+            text("""
+            CREATE TABLE IF NOT EXISTS system_state (
+                key TEXT PRIMARY KEY,
+                value JSONB,
+                created_at TIMESTAMPTZ DEFAULT now()
+            )
+        """)
+        )
+        await conn.execute(
+            text("""
+                INSERT INTO system_state (key, value)
+                VALUES (:key, :value)
+                ON CONFLICT (key) DO NOTHING
+            """),
+            {"key": BOOTSTRAP_KEY, "value": json.dumps(payload)},
+        )
+
+
+# ---- MAIN ----
+
+
+async def main():
+    check_env()
+
+    db_url = os.environ["DATABASE_URL"]
+    engine = create_async_engine(db_url, echo=False)
+
+    async with engine.begin() as conn:
+        result = await conn.execute(
+            text("SELECT 1 FROM system_state WHERE key = :key"),
+            {"key": BOOTSTRAP_KEY},
+        )
+        if result.first():
+            fatal("Bootstrap already completed. Refusing to run twice.")
+
+    print("[BOOTSTRAP] Running migrations")
+    await run_migrations(engine)
+
+    print("[BOOTSTRAP] Initializing memory substrate")
+    await init_memory_substrate()
+
+    print("[BOOTSTRAP] Initializing Neo4j")
+    await init_neo4j()
+
+    print("[BOOTSTRAP] Bootstrapping agent")
+    await bootstrap_agent()
+
+    print("[BOOTSTRAP] Writing bootstrap artifact")
+    await write_bootstrap_artifact(engine)
+
+    print("[BOOTSTRAP] SUCCESS")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
