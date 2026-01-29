@@ -74,7 +74,7 @@ class DocumentClassifier:
     """Classifies documents based on schema hints."""
 
     def __init__(self, schemas: list[Schema]) -> None:
-        """Initialize classifier with schemas."""
+        """Initialize classifier with schema definitions."""
         self.schemas = schemas
 
     def classify(self, text: str) -> Schema | None:
@@ -119,7 +119,6 @@ class ConstraintExtractor(ArtifactExtractor):
 
     def _extract_id(self, text: str, prefix: str) -> str | None:
         """Extract constraint ID from text."""
-        # Look for explicit IDs or generate from content
         match = re.search(
             r"(?:constraint[_\s]?id|id):\s*([A-Z0-9\-]+)", text, re.IGNORECASE
         )
@@ -129,7 +128,6 @@ class ConstraintExtractor(ArtifactExtractor):
 
     def _extract_rule(self, text: str) -> str | None:
         """Extract rule definition from text."""
-        # Look for rule definitions
         match = re.search(r"(?:rule|constraint):\s*([^\n]+)", text, re.IGNORECASE)
         if match:
             return match.group(1).strip()
@@ -162,7 +160,6 @@ class ProtocolExtractor(ArtifactExtractor):
     """Extracts protocol/workflow definitions."""
 
     def extract(self, text: str, schema: Schema) -> dict[str, Any]:
-        """Extract protocol data from text."""
         result = {
             "protocol_id": self._extract_id(text),
             "name": self._extract_name(text),
@@ -188,9 +185,8 @@ class ProtocolExtractor(ArtifactExtractor):
         return None
 
     def _extract_steps(self, text: str) -> list[str]:
-        """Extract protocol steps from text."""
+        """Extract workflow steps from text."""
         steps = []
-        # Look for numbered lists or bullet points
         for match in re.finditer(r"(?:^|\n)\s*(?:\d+\.|\-|\*)\s*([^\n]+)", text):
             step = match.group(1).strip()
             if len(step) > 3:  # Filter out noise
@@ -208,7 +204,6 @@ class PatternExtractor(ArtifactExtractor):
     """Extracts architectural pattern definitions."""
 
     def extract(self, text: str, schema: Schema) -> dict[str, Any]:
-        """Extract pattern data from text."""
         result = {
             "pattern_id": self._extract_id(text),
             "name": self._extract_name(text),
@@ -221,7 +216,6 @@ class PatternExtractor(ArtifactExtractor):
 
     def _extract_id(self, text: str) -> str | None:
         """Extract pattern ID from text."""
-        # Look for common pattern names
         patterns = ["MVC", "CQRS", "Hexagonal", "Event-Driven", "Microservices"]
         for pattern in patterns:
             if pattern.lower() in text.lower():
@@ -274,7 +268,6 @@ class HeuristicExtractor(ArtifactExtractor):
     """Extracts heuristic/judgment rules."""
 
     def extract(self, text: str, schema: Schema) -> dict[str, Any]:
-        """Extract heuristic data from text."""
         result = {
             "heuristic_id": self._extract_id(text),
             "rule": self._extract_rule(text),
@@ -301,7 +294,7 @@ class HeuristicExtractor(ArtifactExtractor):
         return None
 
     def _extract_rationale(self, text: str) -> str | None:
-        """Extract rationale from text."""
+        """Extract heuristic rationale from text."""
         match = re.search(r"(?:rationale|why):\s*([^\n]+)", text, re.IGNORECASE)
         if match:
             return match.group(1).strip()
@@ -328,7 +321,8 @@ class HeuristicExtractor(ArtifactExtractor):
 class L9Compiler:
     """Main compiler that orchestrates the compilation process."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize compiler with schemas and extractors."""
         self.schemas = self._load_schemas()
         self.classifier = DocumentClassifier(self.schemas)
         self.extractors = {

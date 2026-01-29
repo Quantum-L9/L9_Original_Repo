@@ -354,15 +354,30 @@ class SingletonRegistry:
         return results
 
     def list_all(self) -> list[SingletonEntry]:
-        """List all registered singletons."""
+        """List all registered singletons.
+
+        Returns:
+            List of all SingletonEntry objects in the registry.
+        """
         return list(self._singletons.values())
 
     def list_initialized(self) -> list[SingletonEntry]:
-        """List all initialized singletons."""
+        """List all initialized singletons.
+
+        Returns:
+            List of SingletonEntry objects that have been initialized.
+        """
         return [e for e in self._singletons.values() if e.is_initialized()]
 
     def get_entry(self, name: str) -> SingletonEntry | None:
-        """Get registry entry for a singleton."""
+        """Get registry entry for a singleton.
+
+        Args:
+            name: Singleton name to look up.
+
+        Returns:
+            SingletonEntry if found, None otherwise.
+        """
         return self._singletons.get(name)
 
     def reset(self) -> None:

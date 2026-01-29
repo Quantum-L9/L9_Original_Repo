@@ -143,7 +143,8 @@ class AgentGraphLoader:
     - Full audit trail in Neo4j
     """
 
-    def __init__(self, neo4j_driver: AsyncDriver):
+    def __init__(self, neo4j_driver: AsyncDriver) -> None:
+        """Initialize loader with Neo4j driver."""
         self.driver = neo4j_driver
         self._cache: dict[str, AgentGraphState] = {}
 

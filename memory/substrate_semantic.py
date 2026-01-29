@@ -160,6 +160,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         client = self._get_client()
 
         async def _embed() -> list[float]:
+            """Inner function to call OpenAI embeddings API."""
             response = await client.embeddings.create(
                 model=self._model,
                 input=text,
@@ -174,6 +175,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         client = self._get_client()
 
         async def _embed() -> list[list[float]]:
+            """Inner function to call OpenAI batch embeddings API."""
             response = await client.embeddings.create(
                 model=self._model,
                 input=texts,
@@ -197,7 +199,8 @@ class StubEmbeddingProvider(EmbeddingProvider):
     Generates deterministic pseudo-random vectors based on text hash.
     """
 
-    def __init__(self, dimensions: int = 1536):
+    def __init__(self, dimensions: int = 1536) -> None:
+        """Initialize stub provider with specified dimensions."""
         self._dimensions = dimensions
 
     @must_stay_async("callers use await")

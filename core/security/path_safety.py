@@ -171,7 +171,6 @@ def validate_filename(
 
 
 def _normalize_user_path(raw: str, *, max_length: int) -> str:
-    """Normalize user-supplied path string."""
     if not isinstance(raw, str):
         raise PathSafetyError("invalid_type", "Path must be a string")
     if "\x00" in raw:
@@ -190,12 +189,12 @@ def _normalize_user_path(raw: str, *, max_length: int) -> str:
 
 
 def _contains_surrogates(value: str) -> bool:
-    """Check if string contains surrogate code points."""
+    """Check if string contains UTF-16 surrogate code points."""
     return any(0xD800 <= ord(ch) <= 0xDFFF for ch in value)
 
 
 def _is_absolute_like(value: str) -> bool:
-    """Check if path looks like an absolute path."""
+    """Check if path appears to be absolute (Unix, Windows, or UNC)."""
     if value.startswith(("/", "\\")):
         return True
     if value.startswith(_UNC_PREFIXES):
@@ -204,24 +203,24 @@ def _is_absolute_like(value: str) -> bool:
 
 
 def _split_parts(value: str) -> list[str]:
-    """Split path into parts by separators."""
+    """Split path into non-empty parts on forward/back slashes."""
     return [part for part in re.split(r"[\\/]+", value) if part != ""]
 
 
 def _has_traversal(parts: Iterable[str]) -> bool:
-    """Check if parts contain traversal segments."""
+    """Check if any path part is a traversal token (. or ..)."""
     return any(part in {".", ".."} for part in parts)
 
 
 def _contains_tilde(parts: Iterable[str]) -> bool:
-    """Check if parts contain tilde expansion."""
+    """Check if any path part starts with tilde (home expansion)."""
     return any(part.startswith("~") for part in parts)
 
 
 def _join_candidate(
     root: Path, normalized: str, parts: list[str], *, allow_abs: bool
 ) -> Path:
-    """Join path parts to root directory."""
+    """Join path parts under root, handling absolute paths if allowed."""
     if _is_absolute_like(normalized):
         candidate = Path(normalized)
         if not allow_abs:
@@ -231,17 +230,17 @@ def _join_candidate(
 
 
 def _strip_zero_width(value: str) -> str:
-    """Remove zero-width characters from string."""
+    """Remove zero-width Unicode characters from string."""
     return re.sub(r"[\u200B-\u200D\uFEFF]", "", value)
 
 
 def _has_control_chars(value: str) -> bool:
-    """Check if string contains control characters."""
+    """Check if string contains ASCII control characters."""
     return any(ord(ch) < 32 for ch in value)
 
 
 def _is_windows_reserved(value: str) -> bool:
-    """Check if filename is a reserved Windows name."""
+    """Check if filename is a Windows reserved device name."""
     stem = value.split(".", 1)[0]
     if not stem:
         return False
@@ -257,7 +256,7 @@ def _is_windows_reserved(value: str) -> bool:
 
 
 def _ensure_no_symlink(root: Path, parts: Iterable[str]) -> None:
-    """Ensure path contains no symlinks."""
+    """Verify no path component is a symlink."""
     if _has_dir_fd_support():
         _ensure_no_symlink_dirfd(root, parts)
         return
@@ -265,7 +264,7 @@ def _ensure_no_symlink(root: Path, parts: Iterable[str]) -> None:
 
 
 def _has_dir_fd_support() -> bool:
-    """Check if OS supports dir_fd operations."""
+    """Check if OS supports dir_fd for race-free symlink checks."""
     if not (hasattr(os, "open") and hasattr(os, "stat") and hasattr(os, "O_RDONLY")):
         return False
     supports_dir_fd = getattr(os, "supports_dir_fd", set())
@@ -273,7 +272,7 @@ def _has_dir_fd_support() -> bool:
 
 
 def _ensure_no_symlink_dirfd(root: Path, parts: Iterable[str]) -> None:
-    """Check for symlinks using dir_fd operations."""
+    """Race-free symlink check using dir_fd (Linux/macOS)."""
     try:
         with _open_dir_fd(root) as root_fd:
             current_fd = root_fd
@@ -301,7 +300,7 @@ def _ensure_no_symlink_dirfd(root: Path, parts: Iterable[str]) -> None:
 
 
 def _ensure_no_symlink_fallback(root: Path, parts: Iterable[str]) -> None:
-    """Check for symlinks using fallback method."""
+    """Fallback symlink check when dir_fd is unavailable."""
     current = root
     for part in parts:
         current = current / part
@@ -311,7 +310,7 @@ def _ensure_no_symlink_fallback(root: Path, parts: Iterable[str]) -> None:
 
 @contextmanager
 def _open_dir_fd(path: Path) -> Iterator[int]:
-    """Open directory and yield file descriptor."""
+    """Context manager for opening directory file descriptor."""
     fd = os.open(path, _dir_open_flags())
     try:
         yield fd
@@ -320,7 +319,7 @@ def _open_dir_fd(path: Path) -> Iterator[int]:
 
 
 def _dir_open_flags() -> int:
-    """Get flags for opening a directory."""
+    """Get flags for opening directory (O_RDONLY | O_NOFOLLOW)."""
     flags = os.O_RDONLY
     if hasattr(os, "O_NOFOLLOW"):
         flags |= os.O_NOFOLLOW

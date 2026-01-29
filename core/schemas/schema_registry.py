@@ -107,7 +107,8 @@ class _SchemaRegistry:
     - Chained migration paths
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize registry with empty upcaster graph."""
         self._upcasters: dict[str, Callable[[dict], dict]] = {}
         self._migration_graph: dict[str, list[str]] = {}
         self._register_builtin_upcasters()
@@ -118,6 +119,7 @@ class _SchemaRegistry:
         # v1.0.0 → v1.0.1 (no changes, just version bump)
         @self.register("1.0.0", "1.0.1")
         def upcast_1_0_0_to_1_0_1(packet: dict) -> dict:
+            """Upcast v1.0.0 to v1.0.1 (version bump only)."""
             if "metadata" not in packet or packet["metadata"] is None:
                 packet["metadata"] = {}
             packet["metadata"]["schema_version"] = "1.0.1"
@@ -126,6 +128,7 @@ class _SchemaRegistry:
         # v1.0.1 → v1.1.0 (add thread_id, lineage, tags, ttl)
         @self.register("1.0.1", "1.1.0")
         def upcast_1_0_1_to_1_1_0(packet: dict) -> dict:
+            """Upcast v1.0.1 to v1.1.0 (add thread_id, lineage, tags, ttl)."""
             # Add new v1.1.0 fields with defaults
             packet.setdefault("thread_id", None)
             packet.setdefault("lineage", None)
@@ -141,6 +144,7 @@ class _SchemaRegistry:
         # v1.1.0 → v1.1.1 (add model_config immutability - no data change)
         @self.register("1.1.0", "1.1.1")
         def upcast_1_1_0_to_1_1_1(packet: dict) -> dict:
+            """Upcast v1.1.0 to v1.1.1 (model_config immutability)."""
             if "metadata" not in packet or packet["metadata"] is None:
                 packet["metadata"] = {}
             packet["metadata"]["schema_version"] = "1.1.1"
@@ -149,6 +153,7 @@ class _SchemaRegistry:
         # v1.1.1 → v2.0.0 (add content_hash field)
         @self.register("1.1.1", "2.0.0")
         def upcast_1_1_1_to_2_0_0(packet: dict) -> dict:
+            """Upcast v1.1.1 to v2.0.0 (add content_hash field)."""
             if "metadata" not in packet or packet["metadata"] is None:
                 packet["metadata"] = {}
             packet["metadata"]["schema_version"] = "2.0.0"

@@ -93,7 +93,8 @@ class BatchIngestionEngine:
         batch_size: int = 1000,
         max_concurrent_batches: int = 10,
         db_pool_size: int = 20,
-    ):
+    ) -> None:
+        """Initialize batch ingestion engine with throughput settings."""
         self.batch_size = batch_size
         self.max_concurrent_batches = max_concurrent_batches
         self.db_pool_size = db_pool_size
@@ -135,7 +136,8 @@ class BatchIngestionEngine:
             # Process in parallel
             semaphore = asyncio.Semaphore(self.max_concurrent_batches)
 
-            async def process_sub_batch(packets: list):
+            async def process_sub_batch(packets: list) -> dict[str, Any]:
+                """Process sub-batch with semaphore-limited concurrency."""
                 async with semaphore:
                     return await self._process_sub_batch(packets)
 
@@ -278,7 +280,8 @@ class Event:
 class CommandHandler:
     """Handles commands and produces events"""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize command handler."""
         self.logger = logger
 
     async def handle_command(self, command: Command) -> list[Event]:
@@ -338,7 +341,8 @@ class ReadModel:
     Updated by event handlers
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize empty read model projections."""
         self.packets: dict[str, dict] = {}
         self.lineage_graph: dict[str, list[str]] = {}
         self.logger = logger
@@ -391,7 +395,8 @@ class StreamConsumer:
         self,
         consumer_group: str,
         event_handlers: list[Callable[[Event], Awaitable[None]]],
-    ):
+    ) -> None:
+        """Initialize stream consumer with handlers."""
         self.consumer_group = consumer_group
         self.event_handlers = event_handlers
         self.logger = logger
@@ -467,7 +472,8 @@ class EventStore:
     Enables efficient aggregate reconstruction
     """
 
-    def __init__(self, snapshot_interval: int = 100):
+    def __init__(self, snapshot_interval: int = 100) -> None:
+        """Initialize event store with snapshot configuration."""
         self.events: list[Event] = []
         self.snapshots: dict[str, Snapshot] = {}
         self.snapshot_interval = snapshot_interval

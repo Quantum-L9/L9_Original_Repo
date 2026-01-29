@@ -69,7 +69,7 @@ async def instrument_agent_executor(executor_service: Any) -> None:
     original_start_task = executor_service.start_agent_task
 
     async def traced_start_task(*args: Any, **kwargs: Any) -> Any:
-        """Traced wrapper for start_agent_task."""
+        """Traced wrapper that initializes trace context for agent tasks."""
         from .service import ObservabilityService
 
         # Initialize trace context for this task
@@ -82,7 +82,7 @@ async def instrument_agent_executor(executor_service: Any) -> None:
         # Wrap the actual call with a span
         @trace_span("agent.start_task", kind=SpanKind.INTERNAL)
         async def _start_task() -> Any:
-            """Execute traced start task."""
+            """Inner span-wrapped task starter."""
             return await original_start_task(*args, **kwargs)
 
         return await _start_task()
@@ -120,7 +120,7 @@ async def instrument_tool_registry(tool_registry: Any) -> None:
 
         @trace_tool_call(tool_id)
         async def _dispatch() -> Any:
-            """Execute traced tool dispatch."""
+            """Inner span-wrapped tool dispatch."""
             return await original_dispatch(tool_id, arguments, context)
 
         return await _dispatch()
@@ -158,7 +158,7 @@ async def instrument_governance_engine(governance_engine: Any) -> None:
 
         @trace_governance_check(policy_name)
         async def _evaluate() -> Any:
-            """Execute traced governance evaluation."""
+            """Inner span-wrapped governance evaluation."""
             return await original_evaluate(request)
 
         return await _evaluate()
@@ -191,7 +191,7 @@ async def instrument_memory_substrate(substrate_service: Any) -> None:
 
             @trace_span("substrate.write_packet", kind=SpanKind.CLIENT)
             async def _write_packet() -> Any:
-                """Execute traced write packet."""
+                """Inner span-wrapped packet write."""
                 return await original_write_packet(*args, **kwargs)
 
             return await _write_packet()
@@ -209,7 +209,7 @@ async def instrument_memory_substrate(substrate_service: Any) -> None:
 
             @trace_span("substrate.semantic_search", kind=SpanKind.CLIENT)
             async def _semantic_search() -> Any:
-                """Execute traced semantic search."""
+                """Inner span-wrapped semantic search."""
                 return await original_semantic_search(request)
 
             return await _semantic_search()
@@ -227,7 +227,7 @@ async def instrument_memory_substrate(substrate_service: Any) -> None:
 
             @trace_span("substrate.get_packet", kind=SpanKind.CLIENT)
             async def _get_packet() -> Any:
-                """Execute traced get packet."""
+                """Inner span-wrapped packet retrieval."""
                 return await original_get_packet(packet_id)
 
             return await _get_packet()
@@ -245,7 +245,7 @@ async def instrument_memory_substrate(substrate_service: Any) -> None:
 
             @trace_span("substrate.query_packets", kind=SpanKind.CLIENT)
             async def _query_packets() -> Any:
-                """Execute traced query packets."""
+                """Inner span-wrapped packet query."""
                 return await original_query_packets(*args, **kwargs)
 
             return await _query_packets()
@@ -280,7 +280,7 @@ async def instrument_aios_runtime(runtime_service: Any) -> None:
 
             @trace_span("aios.execute_reasoning", kind=SpanKind.INTERNAL)
             async def _execute_reasoning() -> Any:
-                """Execute traced reasoning."""
+                """Inner span-wrapped reasoning execution."""
                 return await original_execute_reasoning(*args, **kwargs)
 
             return await _execute_reasoning()

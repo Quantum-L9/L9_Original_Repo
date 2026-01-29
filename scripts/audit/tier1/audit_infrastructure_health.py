@@ -215,7 +215,8 @@ class HealthProbe:
 class TCPHealthProbe(HealthProbe):
     """TCP connectivity health probe."""
 
-    def __init__(self, service_name: str, host: str, port: int, timeout: float = 5.0):
+    def __init__(self, service_name: str, host: str, port: int, timeout: float = 5.0) -> None:
+        """Initialize TCP probe with connection parameters."""
         self.service_name = service_name
         self.host = host
         self.port = port
@@ -270,7 +271,8 @@ class HTTPHealthProbe(HealthProbe):
         base_url: str,
         endpoints: list[str],
         timeout: float = 3.0,
-    ):
+    ) -> None:
+        """Initialize HTTP probe with endpoint configuration."""
         self.service_name = service_name
         self.base_url = base_url
         self.endpoints = endpoints
@@ -325,7 +327,8 @@ class PythonModuleHealthProbe(HealthProbe):
 
     def __init__(
         self, service_name: str, module: str, function: str, timeout: float = 5.0
-    ):
+    ) -> None:
+        """Initialize Python module probe with import parameters."""
         self.service_name = service_name
         self.module = module
         self.function = function

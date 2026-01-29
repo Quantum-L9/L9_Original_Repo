@@ -89,6 +89,7 @@ class DeadCodeFinding:
     context: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert finding to dictionary."""
         return asdict(self)
 
 
@@ -114,6 +115,7 @@ class AuditResult:
     errors: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert audit result to dictionary."""
         return {
             "total_files_scanned": self.total_files_scanned,
             "total_findings": len(self.findings),
@@ -312,13 +314,15 @@ def _ruff_code_to_type(code: str) -> str:
 class DataclassFieldVisitor(ast.NodeVisitor):
     """Extract dataclass fields from Python AST."""
 
-    def __init__(self, filepath: str):
+    def __init__(self, filepath: str) -> None:
+        """Initialize dataclass field visitor."""
         self.filepath = filepath
         self.fields: list[DataclassFieldInfo] = []
         self.current_class: str | None = None
         self.in_dataclass = False
 
-    def visit_ClassDef(self, node: ast.ClassDef):
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        """Visit class definition node."""
         # Check if decorated with @dataclass
         is_dataclass = any(
             (isinstance(d, ast.Name) and d.id == "dataclass")

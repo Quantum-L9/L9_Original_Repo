@@ -887,25 +887,61 @@ class Neo4jClient:
 _neo4j_client: Neo4jClient | None = None
 
 
-@register_singleton(
-    name="neo4j_client",
-    lifecycle="startup",
-    description="Neo4j graph database client for knowledge graph operations",
-)
-async def get_neo4j_client() -> Neo4jClient | None:
+async def init_neo4j_client(
+    client: Neo4jClient | None = None,
+) -> Neo4jClient | None:
     """
-    Get or create singleton Neo4j client.
+    Initialize the Neo4j client singleton.
+
+    GMP-90: Separated initialization from accessor for proper lifecycle control.
+
+    Args:
+        client: Optional pre-initialized client for dependency injection.
+                When provided, uses this instance instead of creating a new one.
 
     Returns:
         Neo4jClient instance or None if unavailable
     """
     global _neo4j_client
 
+    if client is not None:
+        _neo4j_client = client
+        return _neo4j_client
+
     if _neo4j_client is None:
         _neo4j_client = Neo4jClient()
         await _neo4j_client.connect()
 
     return _neo4j_client if _neo4j_client.is_available() else None
+
+
+@register_singleton(
+    name="neo4j_client",
+    lifecycle="startup",
+    description="Neo4j graph database client for knowledge graph operations",
+)
+async def get_neo4j_client(
+    client: Neo4jClient | None = None,
+) -> Neo4jClient | None:
+    """
+    Get singleton Neo4j client, or use injected instance.
+
+    Args:
+        client: Optional pre-initialized client for dependency injection.
+                When provided, returns this instance directly (enables testing).
+                When None, returns the singleton instance.
+
+    Returns:
+        Neo4jClient instance or None if unavailable
+
+    Note:
+        Call init_neo4j_client() during startup to initialize the singleton.
+        This accessor does NOT create the client if it doesn't exist.
+    """
+    # GMP-90: Support dependency injection for testability
+    if client is not None:
+        return client
+    return _neo4j_client if _neo4j_client and _neo4j_client.is_available() else None
 
 
 @register_singleton_closer("neo4j_client")
@@ -917,7 +953,7 @@ async def close_neo4j_client() -> None:
         _neo4j_client = None
 
 
-__all__ = ["Neo4jClient", "close_neo4j_client", "get_neo4j_client"]
+__all__ = ["Neo4jClient", "close_neo4j_client", "get_neo4j_client", "init_neo4j_client"]
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

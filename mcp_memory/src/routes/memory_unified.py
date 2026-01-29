@@ -225,9 +225,13 @@ async def _save_via_main_pipeline(
     # Calculate TTL based on duration
     ttl = None
     if duration == "short":
-        ttl = datetime.now(timezone.utc) + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
+        ttl = datetime.now(timezone.utc) + timedelta(
+            hours=settings.MEMORY_SHORT_TERM_HOURS
+        )
     elif duration == "medium":
-        ttl = datetime.now(timezone.utc) + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
+        ttl = datetime.now(timezone.utc) + timedelta(
+            hours=settings.MEMORY_MEDIUM_TERM_HOURS
+        )
 
     # Build metadata dict (not PacketMetadata model - that's for envelope metadata)
     envelope_metadata = {
@@ -591,7 +595,7 @@ async def get_memory_stats(
             query = f"""
             SELECT COUNT(*) as cnt
             FROM packet_store
-            WHERE packet_type LIKE 'memory_write_%'
+            WHERE packet_type LIKE 'memory.%'
             AND ttl IS NOT NULL
             AND ttl > CURRENT_TIMESTAMP
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '24 hours'
@@ -604,7 +608,7 @@ async def get_memory_stats(
             query = f"""
             SELECT COUNT(*) as cnt
             FROM packet_store
-            WHERE packet_type LIKE 'memory_write_%'
+            WHERE packet_type LIKE 'memory.%'
             AND ttl IS NOT NULL
             AND ttl > CURRENT_TIMESTAMP
             AND ttl < CURRENT_TIMESTAMP + INTERVAL '7 days'
@@ -622,7 +626,7 @@ async def get_memory_stats(
                 COUNT(DISTINCT envelope->'metadata'->>'caller') as users,
                 AVG(importance_score) as avg_imp
             FROM packet_store
-            WHERE packet_type LIKE 'memory_write_%'
+            WHERE packet_type LIKE 'memory.%'
             AND (ttl IS NULL OR ttl > CURRENT_TIMESTAMP + INTERVAL '7 days')
             {user_filter}
             """
@@ -667,7 +671,7 @@ async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
         count_query = """
         SELECT COUNT(*) as cnt
         FROM packet_store
-        WHERE packet_type LIKE 'memory_write_%'
+        WHERE packet_type LIKE 'memory.%'
         AND ttl IS NOT NULL
         AND ttl < CURRENT_TIMESTAMP
         """
@@ -678,7 +682,7 @@ async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
             # Delete expired packets (embeddings deleted via CASCADE)
             await execute("""
                 DELETE FROM packet_store
-                WHERE packet_type LIKE 'memory_write_%'
+                WHERE packet_type LIKE 'memory.%'
                 AND ttl IS NOT NULL
                 AND ttl < CURRENT_TIMESTAMP
                 """)
@@ -719,7 +723,7 @@ async def compound_similar_memories(
             me.vector
         FROM packet_store ps
         INNER JOIN memory_embeddings me ON ps.packet_id = me.packet_id
-        WHERE ps.packet_type LIKE 'memory_write_%'
+        WHERE ps.packet_type LIKE 'memory.%'
         AND (ps.ttl IS NULL OR ps.ttl > CURRENT_TIMESTAMP + INTERVAL '7 days')
         AND me.embedding_type = 'content'
         AND ps.envelope->'metadata'->>'user_id' = $1
@@ -850,7 +854,7 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
         count_query = """
         SELECT COUNT(*) as cnt
         FROM packet_store
-        WHERE packet_type LIKE 'memory_write_%'
+        WHERE packet_type LIKE 'memory.%'
         AND (last_accessed IS NULL OR last_accessed < NOW() - INTERVAL '1 day')
         AND importance_score > 0.01
         """
@@ -865,7 +869,7 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
                     {decay_factor},
                     EXTRACT(EPOCH FROM (NOW() - COALESCE(last_accessed, timestamp))) / 86400
                 )
-                WHERE packet_type LIKE 'memory_write_%'
+                WHERE packet_type LIKE 'memory.%'
                 AND (last_accessed IS NULL OR last_accessed < NOW() - INTERVAL '1 day')
                 AND importance_score > 0.01
                 """)
@@ -972,7 +976,7 @@ async def get_context_injection(
                 ps.importance_score,
                 ps.tags
             FROM packet_store ps
-            WHERE ps.packet_type LIKE 'memory_write_%'
+            WHERE ps.packet_type LIKE 'memory.%'
             AND ps.envelope->'metadata'->>'user_id' = $1
             AND ps.timestamp > NOW() - INTERVAL '24 hours'
             ORDER BY ps.timestamp DESC
@@ -1241,11 +1245,13 @@ async def query_temporal(
             if since
             else datetime.now(timezone.utc) - timedelta(days=7)
         )
-        until_dt = datetime.fromisoformat(until) if until else datetime.now(timezone.utc)
+        until_dt = (
+            datetime.fromisoformat(until) if until else datetime.now(timezone.utc)
+        )
 
         # Build WHERE clause
         where_parts = [
-            "ps.packet_type LIKE 'memory_write_%'",
+            "ps.packet_type LIKE 'memory.%'",
             "ps.envelope->'metadata'->>'user_id' = $1",
             "ps.timestamp >= $2",
             "ps.timestamp <= $3",

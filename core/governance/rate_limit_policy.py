@@ -380,9 +380,11 @@ class _StubRateLimiter:
     """Stub rate limiter when real one isn't available."""
 
     async def get_usage(self, key: str) -> int:
+        """Get current usage count (stub returns 0)."""
         return 0
 
     async def check_and_increment(self, key: str, limit: int) -> bool:
+        """Check and increment rate limit (stub always allows)."""
         return True
 
 
@@ -413,8 +415,10 @@ def rate_limit(
     """
 
     def decorator(func: F) -> F:
+        """Wrap function with rate limiting."""
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Execute rate-limited function."""
             policy = RateLimitPolicy.get_instance()
 
             # Extract unique key if extractor provided
@@ -569,6 +573,7 @@ class RateLimitExceeded(Exception):
     """Exception raised when rate limit is exceeded."""
 
     def __init__(self, policy_key: str, retry_after: int) -> None:
+        """Initialize rate limit exceeded exception."""
         self.policy_key = policy_key
         self.retry_after = retry_after
         super().__init__(
