@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS episodic_events (
 
     -- Session/thread grouping
     session_id UUID,  -- Group events by session
-    thread_id UUID REFERENCES packet_store(thread_id) ON DELETE SET NULL,
+    thread_id UUID,  -- Link to packet thread (no FK - thread_id is not unique in packet_store)
 
     -- Decay and retention
     decay_factor DOUBLE PRECISION DEFAULT 1.0,  -- Starts at 1.0, decays over time

@@ -10,14 +10,20 @@
 
 BEGIN;
 
--- Enum for mutation status
-CREATE TYPE mutation_status AS ENUM (
-    'pending',
-    'in_progress',
-    'success',
-    'failure',
-    'rolled_back'
-);
+-- Enum for mutation status (create only if not exists)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'mutation_status') THEN
+        CREATE TYPE mutation_status AS ENUM (
+            'pending',
+            'in_progress',
+            'success',
+            'failure',
+            'rolled_back'
+        );
+    END IF;
+END
+$$;
 
 -- Main mutations table
 CREATE TABLE IF NOT EXISTS cmts_mutations (
