@@ -50,33 +50,60 @@ except ImportError:
 
     # Stub classes for when prometheus_client is not installed
     class Counter:
-        def __init__(self, *args, **kwargs):
+        """Stub Counter class for when prometheus_client is not installed.
+
+        Provides a no-op implementation that allows code to run without
+        the prometheus_client dependency.
+        """
+
+        def __init__(self, *args, **kwargs) -> None:
+            """Initialize stub Counter (no-op)."""
             pass
 
-        def labels(self, **kwargs):
+        def labels(self, **kwargs) -> "Counter":
+            """Return self for method chaining (no-op)."""
             return self
 
-        def inc(self, amount=1):
+        def inc(self, amount: int = 1) -> None:
+            """Increment counter (no-op)."""
             pass
 
     class Histogram:
-        def __init__(self, *args, **kwargs):
+        """Stub Histogram class for when prometheus_client is not installed.
+
+        Provides a no-op implementation that allows code to run without
+        the prometheus_client dependency.
+        """
+
+        def __init__(self, *args, **kwargs) -> None:
+            """Initialize stub Histogram (no-op)."""
             pass
 
-        def labels(self, **kwargs):
+        def labels(self, **kwargs) -> "Histogram":
+            """Return self for method chaining (no-op)."""
             return self
 
-        def observe(self, value):
+        def observe(self, value: float) -> None:
+            """Record observation (no-op)."""
             pass
 
     class Gauge:
-        def __init__(self, *args, **kwargs):
+        """Stub Gauge class for when prometheus_client is not installed.
+
+        Provides a no-op implementation that allows code to run without
+        the prometheus_client dependency.
+        """
+
+        def __init__(self, *args, **kwargs) -> None:
+            """Initialize stub Gauge (no-op)."""
             pass
 
-        def labels(self, **kwargs):
+        def labels(self, **kwargs) -> "Gauge":
+            """Return self for method chaining (no-op)."""
             return self
 
-        def set(self, value):
+        def set(self, value: float) -> None:
+            """Set gauge value (no-op)."""
             pass
 
 
