@@ -81,6 +81,18 @@ logger = logging.getLogger(__name__)
 
 
 class ReasoningMode(Enum):
+    """Enumeration of supported reasoning modes for the ToTh engine.
+
+    Each mode represents a different logical approach to analyzing
+    queries and deriving conclusions.
+
+    Attributes:
+        ABDUCTIVE: Inference to the best explanation from observations.
+        DEDUCTIVE: Logical derivation from premises to conclusions.
+        INDUCTIVE: Pattern recognition and generalization from examples.
+        HYBRID: Combined multi-modal reasoning using all approaches.
+    """
+
     ABDUCTIVE = "abductive"
     DEDUCTIVE = "deductive"
     INDUCTIVE = "inductive"
@@ -88,6 +100,19 @@ class ReasoningMode(Enum):
 
 
 class ModelProvider(Enum):
+    """Enumeration of supported language model providers.
+
+    Defines the available backends for generating reasoning responses,
+    including cloud APIs and local fallback options.
+
+    Attributes:
+        OPENAI: OpenAI GPT models via API.
+        ANTHROPIC: Anthropic Claude models via API.
+        HUGGINGFACE: HuggingFace hosted models.
+        LOCAL: Locally hosted models.
+        MOCK: Mock provider for testing without API calls.
+    """
+
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     HUGGINGFACE = "huggingface"
@@ -110,14 +135,32 @@ class ToThConfig:
     cache_ttl: int = 3600
     fallback_provider: ModelProvider | None = ModelProvider.MOCK
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Initialize API key from environment if not provided.
+
+        Attempts to load the API key from OPENAI_API_KEY or ANTHROPIC_API_KEY
+        environment variables when not explicitly configured.
+        """
         if self.api_key is None:
             self.api_key = os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY")
 
 
 @dataclass
 class ReasoningStep:
-    """Individual reasoning step"""
+    """Individual step in a reasoning chain.
+
+    Represents a single logical step with its premise, conclusion,
+    confidence score, and supporting evidence.
+
+    Attributes:
+        step_id: Unique identifier for this reasoning step.
+        reasoning_type: The reasoning mode used for this step.
+        premise: The input statement or observation being analyzed.
+        conclusion: The derived conclusion from this step.
+        confidence: Confidence score from 0.0 to 1.0.
+        evidence: List of supporting evidence strings.
+        timestamp: When this step was generated.
+    """
 
     step_id: str
     reasoning_type: ReasoningMode
@@ -127,7 +170,12 @@ class ReasoningStep:
     evidence: list[str] = None
     timestamp: datetime = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Initialize default values for evidence and timestamp.
+
+        Sets evidence to an empty list and timestamp to current time
+        if not provided during construction.
+        """
         if self.evidence is None:
             self.evidence = []
         if self.timestamp is None:
@@ -136,7 +184,21 @@ class ReasoningStep:
 
 @dataclass
 class ReasoningResult:
-    """Complete reasoning result"""
+    """Complete result from a reasoning operation.
+
+    Contains the full reasoning chain including all steps, the final
+    conclusion, confidence metrics, and execution metadata.
+
+    Attributes:
+        query: The original query that was analyzed.
+        reasoning_mode: The reasoning mode used for analysis.
+        steps: List of reasoning steps in the chain.
+        final_conclusion: The ultimate conclusion derived.
+        overall_confidence: Aggregate confidence score from 0.0 to 1.0.
+        reasoning_graph: Dictionary representation of the reasoning graph.
+        execution_time: Total time in seconds for reasoning.
+        model_used: Identifier of the model that generated the result.
+    """
 
     query: str
     reasoning_mode: ReasoningMode
@@ -147,7 +209,12 @@ class ReasoningResult:
     execution_time: float = 0.0
     model_used: str = ""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Initialize default value for reasoning graph.
+
+        Sets reasoning_graph to an empty dictionary if not provided
+        during construction.
+        """
         if self.reasoning_graph is None:
             self.reasoning_graph = {}
 
@@ -155,7 +222,15 @@ class ReasoningResult:
 class FormalReasoningGraph:
     """Lightweight reasoning graph without heavy dependencies"""
 
-    def __init__(self, steps: list[ReasoningStep]):
+    def __init__(self, steps: list[ReasoningStep]) -> None:
+        """Initialize the reasoning graph from a list of steps.
+
+        Creates a directed graph structure and builds edges between
+        sequential reasoning steps.
+
+        Args:
+            steps: List of reasoning steps to include in the graph.
+        """
         self.graph = nx.DiGraph()
         self.steps = steps
         self.build_graph()
@@ -214,12 +289,28 @@ class FormalReasoningGraph:
 class CloudModelClient:
     """Client for cloud-based language models"""
 
-    def __init__(self, config: ToThConfig):
+    def __init__(self, config: ToThConfig) -> None:
+        """Initialize the cloud model client.
+
+        Sets up the configuration and prepares the HTTP session
+        and response cache for API interactions.
+
+        Args:
+            config: ToTh configuration specifying provider and settings.
+        """
         self.config = config
         self.session: aiohttp.ClientSession | None = None
         self.cache: dict[str, Any] = {}
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> "CloudModelClient":
+        """Enter async context and initialize HTTP session if needed.
+
+        Creates an aiohttp ClientSession for providers that require
+        network access (OpenAI, Anthropic).
+
+        Returns:
+            Self for use in async with statements.
+        """
         if self._needs_network():
             if not _AIOHTTP_AVAILABLE:
                 logger.warning(
@@ -229,7 +320,17 @@ class CloudModelClient:
             self.session = aiohttp.ClientSession()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        """Exit async context and close HTTP session.
+
+        Ensures proper cleanup of the aiohttp ClientSession
+        when exiting the context manager.
+
+        Args:
+            exc_type: Exception type if an error occurred.
+            exc_val: Exception value if an error occurred.
+            exc_tb: Exception traceback if an error occurred.
+        """
         if self.session:
             await self.session.close()
 
@@ -287,6 +388,14 @@ class CloudModelClient:
             raise
 
     def _ensure_session(self) -> None:
+        """Ensure an HTTP session is available for API calls.
+
+        Creates a new aiohttp ClientSession if one doesn't exist.
+        Raises RuntimeError if aiohttp is not installed.
+
+        Raises:
+            RuntimeError: If aiohttp is not available.
+        """
         if not self.session:
             if not _AIOHTTP_AVAILABLE:
                 raise RuntimeError(
@@ -296,6 +405,11 @@ class CloudModelClient:
             self.session = aiohttp.ClientSession()
 
     def _needs_network(self) -> bool:
+        """Check if the configured provider requires network access.
+
+        Returns:
+            True if the provider is OpenAI or Anthropic, False otherwise.
+        """
         return self.config.model_provider in {
             ModelProvider.OPENAI,
             ModelProvider.ANTHROPIC,
@@ -510,9 +624,26 @@ class ReasoningStepParser:
 
 
 class ProductionToThEngine:
-    """Production-ready ToTh reasoning engine"""
+    """Production-ready ToTh reasoning engine.
 
-    def __init__(self, config: ToThConfig = None):
+    Provides multi-modal reasoning capabilities using cloud-based language
+    models with caching, metrics tracking, and result validation.
+
+    Attributes:
+        config: ToTh configuration for model provider and settings.
+        reasoning_history: List of past reasoning results.
+        performance_metrics: Dictionary of performance statistics.
+    """
+
+    def __init__(self, config: ToThConfig | None = None) -> None:
+        """Initialize the production ToTh engine.
+
+        Sets up the configuration, initializes the reasoning history,
+        and prepares performance metrics tracking.
+
+        Args:
+            config: Optional ToTh configuration. Uses defaults if not provided.
+        """
         self.config = config or ToThConfig()
         self.reasoning_history: list[ReasoningResult] = []
         self.performance_metrics: dict[str, Any] = {
@@ -776,9 +907,24 @@ class ProductionToThEngine:
 
 # Integration with L9 Components
 class L9ToThIntegration:
-    """Integration layer between L9 components and ToTh engine"""
+    """Integration layer between L9 components and ToTh engine.
 
-    def __init__(self, config: ToThConfig = None):
+    Provides high-level methods for integrating ToTh reasoning with
+    L9 pattern detection, decision making, and analysis workflows.
+
+    Attributes:
+        toth_engine: The underlying ProductionToThEngine instance.
+    """
+
+    def __init__(self, config: ToThConfig | None = None) -> None:
+        """Initialize the L9 ToTh integration layer.
+
+        Creates a ProductionToThEngine instance with the provided
+        or default configuration.
+
+        Args:
+            config: Optional ToTh configuration. Uses defaults if not provided.
+        """
         self.toth_engine = ProductionToThEngine(config)
 
     async def enhance_pattern_detection(
