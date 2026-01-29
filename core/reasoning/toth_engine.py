@@ -235,8 +235,12 @@ class FormalReasoningGraph:
         self.steps = steps
         self.build_graph()
 
-    def build_graph(self):
-        """Build reasoning graph from steps"""
+    def build_graph(self) -> None:
+        """Build reasoning graph from steps.
+
+        Adds nodes for each reasoning step and connects them
+        sequentially to form a directed graph.
+        """
         for i, step in enumerate(self.steps):
             self.graph.add_node(
                 step.step_id,
@@ -251,8 +255,12 @@ class FormalReasoningGraph:
                 prev_step = self.steps[i - 1]
                 self.graph.add_edge(prev_step.step_id, step.step_id)
 
-    def propagate_confidence(self):
-        """Propagate confidence through the graph"""
+    def propagate_confidence(self) -> None:
+        """Propagate confidence through the graph.
+
+        Updates confidence scores by averaging predecessor confidences
+        with each node's own confidence score.
+        """
         # Simple confidence propagation
         for node in nx.topological_sort(self.graph):
             predecessors = list(self.graph.predecessors(node))
@@ -270,7 +278,11 @@ class FormalReasoningGraph:
                 ) / 2
 
     def get_confidence_score(self) -> float:
-        """Get overall confidence score"""
+        """Get overall confidence score.
+
+        Returns:
+            Average confidence across all nodes, or 0.0 if graph is empty.
+        """
         if not self.graph.nodes:
             return 0.0
 
@@ -278,7 +290,11 @@ class FormalReasoningGraph:
         return sum(confidences) / len(confidences)
 
     def get_reasoning_path(self) -> list[tuple[str, float]]:
-        """Get reasoning path with confidences"""
+        """Get reasoning path with confidences.
+
+        Returns:
+            List of (conclusion, confidence) tuples in topological order.
+        """
         path = []
         for node in nx.topological_sort(self.graph):
             data = self.graph.nodes[node]
@@ -793,7 +809,14 @@ class ProductionToThEngine:
         return prompts.get(reasoning_mode, prompts[ReasoningMode.HYBRID])
 
     def _graph_to_dict(self, graph: FormalReasoningGraph) -> dict[str, Any]:
-        """Convert reasoning graph to dictionary"""
+        """Convert reasoning graph to dictionary.
+
+        Args:
+            graph: FormalReasoningGraph to convert.
+
+        Returns:
+            Dictionary with nodes, edges, confidence score, and reasoning path.
+        """
         return {
             "nodes": dict(graph.graph.nodes(data=True)),
             "edges": list(graph.graph.edges()),
@@ -801,8 +824,12 @@ class ProductionToThEngine:
             "reasoning_path": graph.get_reasoning_path(),
         }
 
-    def _update_metrics(self, result: ReasoningResult):
-        """Update performance metrics"""
+    def _update_metrics(self, result: ReasoningResult) -> None:
+        """Update performance metrics.
+
+        Args:
+            result: ReasoningResult to incorporate into metrics.
+        """
         self.performance_metrics["total_queries"] += 1
 
         # Update average response time

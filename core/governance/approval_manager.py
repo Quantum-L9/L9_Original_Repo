@@ -147,7 +147,14 @@ class ApprovalManager:
         self._permanent_approvals: dict[str, ApprovalDecision] = {}
 
     def requires_approval(self, tool_id: str) -> bool:
-        """Check if tool requires Igor approval"""
+        """Check if tool requires Igor approval.
+
+        Args:
+            tool_id: Tool identifier to check.
+
+        Returns:
+            True if tool is classified as high-risk and requires approval.
+        """
         return tool_id in self.HIGH_RISK_TOOLS
 
     async def request_approval(
@@ -411,8 +418,18 @@ class ApprovalManager:
         rejected_by: str = "igor",
         reason: str | None = None,
     ) -> ApprovalDecision:
-        """
-        Reject a pending request.
+        """Reject a pending request.
+
+        Args:
+            request_id: Request to reject.
+            rejected_by: Who rejected (default: igor).
+            reason: Optional rejection reason.
+
+        Returns:
+            ApprovalDecision with REJECTED status.
+
+        Raises:
+            ValueError: If request not found.
         """
         request = self._pending.get(request_id)
         if not request:
@@ -439,7 +456,11 @@ class ApprovalManager:
         return decision
 
     async def _notify_slack(self, request: ApprovalRequest) -> None:
-        """Send Slack notification for approval request"""
+        """Send Slack notification for approval request.
+
+        Args:
+            request: ApprovalRequest to notify about.
+        """
         if not self.slack_client:
             return
 
@@ -459,7 +480,13 @@ class ApprovalManager:
         )
 
     def get_pending_requests(self) -> list[ApprovalRequest]:
-        """Get all pending approval requests"""
+        """Get all pending approval requests.
+
+        Cleans up expired requests before returning.
+
+        Returns:
+            List of non-expired pending ApprovalRequest objects.
+        """
         # Clean up expired requests
         datetime.now(timezone.utc)
         expired = [req_id for req_id, req in self._pending.items() if req.is_expired()]
@@ -468,8 +495,13 @@ class ApprovalManager:
 
         return list(self._pending.values())
 
-    def get_metrics(self) -> dict:
-        """Get approval manager metrics"""
+    def get_metrics(self) -> dict[str, Any]:
+        """Get approval manager metrics.
+
+        Returns:
+            Dictionary with pending_count, decided_count, permanent_approvals,
+            and high_risk_tools list.
+        """
         return {
             "pending_count": len(self._pending),
             "decided_count": len(self._decisions),

@@ -63,15 +63,19 @@ try:
 except ImportError:
     # Stub functions when telemetry not available
     def record_slack_request(*args, **kwargs):
+        """Stub for recording Slack request metrics when telemetry unavailable."""
         pass
 
     def record_signature_verification(*args, **kwargs):
+        """Stub for recording signature verification metrics when telemetry unavailable."""
         pass
 
     def record_slack_processing(*args, **kwargs):
+        """Stub for recording Slack processing metrics when telemetry unavailable."""
         pass
 
     def record_rate_limit_hit(*args, **kwargs):
+        """Stub for recording rate limit hit metrics when telemetry unavailable."""
         pass
 
 

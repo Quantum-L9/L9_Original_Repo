@@ -667,7 +667,14 @@ async def _sync_kernels_to_graph(agent: Any, kernel_paths: list[str]) -> None:
 
 
 def _extract_kernel_rules(kernel_data: dict[str, Any]) -> list[str]:
-    """Extract key rule names from kernel data for graph storage."""
+    """Extract key rule names from kernel data for graph storage.
+
+    Args:
+        kernel_data: Parsed kernel YAML data.
+
+    Returns:
+        List of rule names (up to 20) for graph storage.
+    """
     rules = []
 
     # Look for common kernel structures

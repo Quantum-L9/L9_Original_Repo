@@ -97,6 +97,14 @@ class AnalyticsResponse(BaseModel):
 
 # Dependency to get engine
 def get_gmp_engine() -> GMPMetaLearningEngine:
+    """Get GMP meta-learning engine from app state.
+
+    Returns:
+        GMPMetaLearningEngine instance.
+
+    Raises:
+        HTTPException: 503 if engine not initialized.
+    """
     from api.server import gmp_learning_engine
 
     if gmp_learning_engine is None:

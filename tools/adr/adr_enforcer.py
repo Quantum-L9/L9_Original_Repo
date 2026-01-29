@@ -261,7 +261,14 @@ class ADREnforcementValidator:
     # ===== ADR-0001: Path safety =====
 
     def check_adr_0001(self, path: Path) -> list[Violation]:
-        """Sandboxed path resolution."""
+        """Check ADR-0001: Sandboxed path resolution.
+
+        Args:
+            path: Path to the file to check.
+
+        Returns:
+            List of violations found.
+        """
         violations: list[Violation] = []
         text = self._read(path)
         lines = text.splitlines()
@@ -365,6 +372,14 @@ class ADREnforcementValidator:
         return bool(isinstance(test, ast.Attribute) and test.attr == "TYPE_CHECKING")
 
     def _detect_cycles(self, graph: dict[str, set[str]]) -> list[list[str]]:
+        """Detect circular dependencies in import graph.
+
+        Args:
+            graph: Import graph mapping modules to their imports.
+
+        Returns:
+            List of cycles, each cycle is a list of module names.
+        """
         visited: set[str] = set()
         stack: set[str] = set()
         path: list[str] = []
@@ -398,7 +413,11 @@ class ADREnforcementValidator:
         return cycles
 
     def check_adr_0002(self) -> list[Violation]:
-        """Circular import prevention."""
+        """Check ADR-0002: Circular import prevention.
+
+        Returns:
+            List of violations found.
+        """
         violations: list[Violation] = []
         graph = self._build_import_graph()
         cycles = self._detect_cycles(graph)
@@ -568,10 +587,16 @@ class ADREnforcementValidator:
     }
 
     def check_adr_0010(self, path: Path) -> list[Violation]:
-        """Async functions must not contain blocking calls.
+        """Check ADR-0010: Async functions must not contain blocking calls.
 
         Only flags specific blocking patterns like time.sleep, requests.*
         Does NOT flag dict.get(), router.post(), asyncio.sleep(), etc.
+
+        Args:
+            path: Path to the file to check.
+
+        Returns:
+            List of violations found.
         """
         violations: list[Violation] = []
 

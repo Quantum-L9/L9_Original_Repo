@@ -125,6 +125,14 @@ class RateLimiter:
             )
 
     def _get_bucket(self, ip: str) -> RateLimitBucket:
+        """Get or create a rate limit bucket for an IP.
+
+        Args:
+            ip: IP address to get bucket for.
+
+        Returns:
+            RateLimitBucket for the IP.
+        """
         bucket = self._buckets.get(ip)
         if bucket is None:
             bucket = RateLimitBucket()
@@ -138,6 +146,14 @@ class RateLimiter:
         window_seconds: int,
         bucket_type: str,
     ) -> None:
+        """Remove expired timestamps from a bucket.
+
+        Args:
+            bucket: RateLimitBucket to prune.
+            now: Current timestamp.
+            window_seconds: Window duration in seconds.
+            bucket_type: 'request' or 'failed_auth'.
+        """
         cutoff = now - window_seconds
         timestamps = (
             bucket.request_timestamps
@@ -155,6 +171,15 @@ class RateLimiter:
 
     @staticmethod
     def _assert_version(bucket: RateLimitBucket, expected_version: int) -> None:
+        """Assert bucket version matches expected to detect concurrent mutation.
+
+        Args:
+            bucket: RateLimitBucket to check.
+            expected_version: Expected version number.
+
+        Raises:
+            RuntimeError: If version mismatch detected.
+        """
         if bucket.version != expected_version:
             raise RuntimeError(
                 "Rate limiter bucket version mismatch; concurrent mutation detected."
