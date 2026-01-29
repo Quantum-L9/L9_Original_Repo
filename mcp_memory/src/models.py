@@ -30,6 +30,8 @@ from pydantic import BaseModel
 
 
 class SaveMemoryRequest(BaseModel):
+    """Request model for saving a memory entry."""
+
     content: str
     kind: str
     scope: str = "user"
@@ -41,6 +43,8 @@ class SaveMemoryRequest(BaseModel):
 
 
 class MemoryResponse(BaseModel):
+    """Response model for a memory entry."""
+
     id: int
     user_id: str
     kind: str
@@ -52,6 +56,8 @@ class MemoryResponse(BaseModel):
 
 
 class SearchMemoryRequest(BaseModel):
+    """Request model for searching memories."""
+
     query: str
     user_id: str
     scopes: list[str] | None = ["user", "project", "global"]
@@ -63,6 +69,8 @@ class SearchMemoryRequest(BaseModel):
 
 
 class SearchMemoryResponse(BaseModel):
+    """Response model for memory search results."""
+
     results: list[MemoryResponse]
     query_embedding_time_ms: float
     search_time_ms: float
@@ -70,6 +78,8 @@ class SearchMemoryResponse(BaseModel):
 
 
 class MemoryStatsResponse(BaseModel):
+    """Response model for memory statistics."""
+
     short_term_count: int
     medium_term_count: int
     long_term_count: int
@@ -79,6 +89,8 @@ class MemoryStatsResponse(BaseModel):
 
 
 class CompoundResult(BaseModel):
+    """Response model for memory compounding results."""
+
     memories_analyzed: int
     clusters_found: int
     memories_merged: int

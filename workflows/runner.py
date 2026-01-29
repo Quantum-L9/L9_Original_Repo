@@ -144,7 +144,8 @@ class WorkflowState:
 class StepExecutor:
     """Execute different types of workflow steps."""
 
-    def __init__(self, working_dir: Path, variables: dict[str, Any]):
+    def __init__(self, working_dir: Path, variables: dict[str, Any]) -> None:
+        """Initialize step executor with working directory."""
         self.working_dir = working_dir
         self.variables = variables
 
@@ -187,6 +188,7 @@ class StepExecutor:
         """Resolve ${var} placeholders in text."""
 
         def replacer(match):
+            """Replace variable placeholder with value."""
             var_name = match.group(1)
             return str(self.variables.get(var_name, match.group(0)))
 

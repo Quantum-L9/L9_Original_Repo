@@ -169,6 +169,7 @@ class RepeatedToolFailurePattern(GapDetectionPattern):
     target_kernel = "execution"
 
     def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
+        """Detect repeated tool failures."""
         # Count tool failures by tool_id
         tool_failures: dict[str, int] = {}
         for call in context.tool_calls:
@@ -204,6 +205,7 @@ class GovernanceBlockPattern(GapDetectionPattern):
     target_kernel = "safety"
 
     def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
+        """Detect governance blocks on legitimate actions."""
         if not context.governance_blocks:
             return None
 
@@ -241,6 +243,7 @@ class UserCorrectionPattern(GapDetectionPattern):
     target_kernel = "behavioral"
 
     def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
+        """Detect user corrections indicating gaps."""
         if not context.user_corrections:
             return None
 
@@ -275,6 +278,7 @@ class ExcessiveIterationPattern(GapDetectionPattern):
     target_kernel = "cognitive"
 
     def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
+        """Detect excessive iteration count."""
         # Configurable threshold for excessive iterations
         if context.iterations > ITERATION_THRESHOLD:
             return BehaviorGap(

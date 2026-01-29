@@ -50,39 +50,56 @@ except ImportError:
 
     # Stub classes for when prometheus_client is not installed
     class Counter:
-        def __init__(self, *args, **kwargs):
+        """Stub Counter when prometheus_client is unavailable."""
+
+        def __init__(self, *args, **kwargs) -> None:
+            """Initialize stub counter."""
             pass
 
         def labels(self, **kwargs):
+            """Return self for chaining."""
             return self
 
-        def inc(self, amount=1):
+        def inc(self, amount=1) -> None:
+            """Increment counter (no-op)."""
             pass
 
     class Histogram:
-        def __init__(self, *args, **kwargs):
+        """Stub Histogram when prometheus_client is unavailable."""
+
+        def __init__(self, *args, **kwargs) -> None:
+            """Initialize stub histogram."""
             pass
 
         def labels(self, **kwargs):
+            """Return self for chaining."""
             return self
 
-        def observe(self, value):
+        def observe(self, value) -> None:
+            """Observe value (no-op)."""
             pass
 
     class Gauge:
-        def __init__(self, *args, **kwargs):
+        """Stub Gauge when prometheus_client is unavailable."""
+
+        def __init__(self, *args, **kwargs) -> None:
+            """Initialize stub gauge."""
             pass
 
         def labels(self, **kwargs):
+            """Return self for chaining."""
             return self
 
-        def set(self, value):
+        def set(self, value) -> None:
+            """Set gauge value (no-op)."""
             pass
 
-        def inc(self, amount=1):
+        def inc(self, amount=1) -> None:
+            """Increment gauge (no-op)."""
             pass
 
-        def dec(self, amount=1):
+        def dec(self, amount=1) -> None:
+            """Decrement gauge (no-op)."""
             pass
 
 

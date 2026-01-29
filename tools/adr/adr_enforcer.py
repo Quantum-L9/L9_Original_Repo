@@ -189,12 +189,14 @@ class ADREnforcementValidator:
     }
 
     def __init__(self, repo_root: Path | None = None) -> None:
+        """Initialize validator with repository root."""
         self.repo_root = repo_root or Path.cwd()
         self._file_cache: dict[Path, str] = {}
 
     # ===== Helper methods =====
 
     def _read(self, path: Path) -> str:
+        """Read file content with caching."""
         if path not in self._file_cache:
             # Guard against directories named .py (edge case)
             if not path.is_file():
@@ -206,11 +208,13 @@ class ADREnforcementValidator:
         return self._file_cache[path]
 
     def _should_skip(self, path: Path) -> bool:
+        """Check if path should be skipped."""
         parts = set(path.parts)
         return any(skip in parts for skip in self.SKIP_PARTS)
 
     @staticmethod
     def _call_name(node: ast.Call) -> str:
+        """Extract function name from call node."""
         func = node.func
         if isinstance(func, ast.Name):
             return func.id

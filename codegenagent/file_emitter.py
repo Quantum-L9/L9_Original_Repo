@@ -68,7 +68,8 @@ class FileChange:
         action: str,  # create, modify, delete
         old_content: str | None = None,
         new_content: str | None = None,
-    ):
+    ) -> None:
+        """Initialize file change tracker."""
         self.path = path
         self.action = action
         self.old_content = old_content
@@ -76,13 +77,15 @@ class FileChange:
         self.timestamp = datetime.now(timezone.utc)
 
     def __repr__(self) -> str:
+        """Return string representation."""
         return f"FileChange({self.action}: {self.path})"
 
 
 class EmissionResult:
     """Result of file emission operation."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize emission result."""
         self.created_files: list[str] = []
         self.modified_files: list[str] = []
         self.skipped_files: list[str] = []
@@ -91,13 +94,16 @@ class EmissionResult:
 
     @property
     def success(self) -> bool:
+        """Check if emission was successful."""
         return len(self.errors) == 0
 
     @property
     def file_count(self) -> int:
+        """Get total number of files affected."""
         return len(self.created_files) + len(self.modified_files)
 
     def to_summary(self) -> dict[str, Any]:
+        """Convert result to summary dictionary."""
         return {
             "success": self.success,
             "created": len(self.created_files),

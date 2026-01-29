@@ -217,34 +217,39 @@ class AuditReport:
 class CallGraphBuilder(ast.NodeVisitor):
     """Build call graph from AST."""
 
-    def __init__(self, filepath: str):
+    def __init__(self, filepath: str) -> None:
+        """Initialize call graph builder for a file."""
         self.filepath = filepath
         self.calls: list[CallGraphEdge] = []
         self.definitions: dict[str, tuple[int, str]] = {}  # name -> (line, type)
         self.current_scope = None
 
-    def visit_FunctionDef(self, node: ast.FunctionDef):
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        """Visit function definition node."""
         self.definitions[node.name] = (node.lineno, "function")
         old_scope = self.current_scope
         self.current_scope = node.name
         self.generic_visit(node)
         self.current_scope = old_scope
 
-    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        """Visit async function definition node."""
         self.definitions[node.name] = (node.lineno, "function")
         old_scope = self.current_scope
         self.current_scope = node.name
         self.generic_visit(node)
         self.current_scope = old_scope
 
-    def visit_ClassDef(self, node: ast.ClassDef):
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        """Visit class definition node."""
         self.definitions[node.name] = (node.lineno, "class")
         old_scope = self.current_scope
         self.current_scope = node.name
         self.generic_visit(node)
         self.current_scope = old_scope
 
-    def visit_Call(self, node: ast.Call):
+    def visit_Call(self, node: ast.Call) -> None:
+        """Visit call expression node."""
         # Track function calls
         callee = None
         if isinstance(node.func, ast.Name):
@@ -267,7 +272,8 @@ class CallGraphBuilder(ast.NodeVisitor):
 
         self.generic_visit(node)
 
-    def visit_Attribute(self, node: ast.Attribute):
+    def visit_Attribute(self, node: ast.Attribute) -> None:
+        """Visit attribute access node."""
         # Track method references
         if isinstance(node.value, ast.Name):
             self.calls.append(
@@ -294,7 +300,8 @@ class StubDetector(ast.NodeVisitor):
         r"#\s*NOT IMPLEMENTED",
     ]
 
-    def __init__(self, source_code: str):
+    def __init__(self, source_code: str) -> None:
+        """Initialize stub detector with source code."""
         self.source_code = source_code
         self.source_lines = source_code.splitlines()
         self.stubs: dict[str, tuple[bool, str | None]] = {}

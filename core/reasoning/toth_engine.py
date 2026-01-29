@@ -81,6 +81,8 @@ logger = logging.getLogger(__name__)
 
 
 class ReasoningMode(Enum):
+    """Enumeration of supported reasoning modes."""
+
     ABDUCTIVE = "abductive"
     DEDUCTIVE = "deductive"
     INDUCTIVE = "inductive"
@@ -88,6 +90,8 @@ class ReasoningMode(Enum):
 
 
 class ModelProvider(Enum):
+    """Enumeration of supported model providers."""
+
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     HUGGINGFACE = "huggingface"
@@ -110,7 +114,8 @@ class ToThConfig:
     cache_ttl: int = 3600
     fallback_provider: ModelProvider | None = ModelProvider.MOCK
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Initialize API key from environment if not provided."""
         if self.api_key is None:
             self.api_key = os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY")
 
@@ -127,7 +132,8 @@ class ReasoningStep:
     evidence: list[str] = None
     timestamp: datetime = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Initialize default values for evidence and timestamp."""
         if self.evidence is None:
             self.evidence = []
         if self.timestamp is None:
@@ -147,7 +153,8 @@ class ReasoningResult:
     execution_time: float = 0.0
     model_used: str = ""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
+        """Initialize default reasoning graph."""
         if self.reasoning_graph is None:
             self.reasoning_graph = {}
 
@@ -155,7 +162,8 @@ class ReasoningResult:
 class FormalReasoningGraph:
     """Lightweight reasoning graph without heavy dependencies"""
 
-    def __init__(self, steps: list[ReasoningStep]):
+    def __init__(self, steps: list[ReasoningStep]) -> None:
+        """Initialize reasoning graph from steps."""
         self.graph = nx.DiGraph()
         self.steps = steps
         self.build_graph()
@@ -214,7 +222,8 @@ class FormalReasoningGraph:
 class CloudModelClient:
     """Client for cloud-based language models"""
 
-    def __init__(self, config: ToThConfig):
+    def __init__(self, config: ToThConfig) -> None:
+        """Initialize cloud model client with configuration."""
         self.config = config
         self.session: aiohttp.ClientSession | None = None
         self.cache: dict[str, Any] = {}
@@ -512,7 +521,8 @@ class ReasoningStepParser:
 class ProductionToThEngine:
     """Production-ready ToTh reasoning engine"""
 
-    def __init__(self, config: ToThConfig = None):
+    def __init__(self, config: ToThConfig = None) -> None:
+        """Initialize ToTh engine with configuration."""
         self.config = config or ToThConfig()
         self.reasoning_history: list[ReasoningResult] = []
         self.performance_metrics: dict[str, Any] = {
@@ -670,8 +680,8 @@ class ProductionToThEngine:
             "reasoning_path": graph.get_reasoning_path(),
         }
 
-    def _update_metrics(self, result: ReasoningResult):
-        """Update performance metrics"""
+    def _update_metrics(self, result: ReasoningResult) -> None:
+        """Update performance metrics after reasoning."""
         self.performance_metrics["total_queries"] += 1
 
         # Update average response time
@@ -778,7 +788,8 @@ class ProductionToThEngine:
 class L9ToThIntegration:
     """Integration layer between L9 components and ToTh engine"""
 
-    def __init__(self, config: ToThConfig = None):
+    def __init__(self, config: ToThConfig = None) -> None:
+        """Initialize L9 integration with ToTh engine."""
         self.toth_engine = ProductionToThEngine(config)
 
     async def enhance_pattern_detection(

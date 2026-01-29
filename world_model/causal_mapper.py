@@ -93,6 +93,7 @@ class CausalNode:
     value: Any | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert node to dictionary representation."""
         return {
             "node_id": self.node_id,
             "node_type": self.node_type,
@@ -116,6 +117,7 @@ class CausalEdge:
     attributes: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert edge to dictionary representation."""
         return {
             "edge_id": self.edge_id,
             "source_id": self.source_id,
@@ -137,6 +139,7 @@ class CausalPath:
     path_type: str = "direct"  # direct, indirect, confounded
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert path to dictionary representation."""
         return {
             "path_id": str(self.path_id),
             "nodes": self.nodes,
@@ -193,6 +196,7 @@ class Decision:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert decision to dictionary representation."""
         return {
             "decision_id": self.decision_id,
             "description": self.description,
@@ -223,6 +227,7 @@ class Outcome:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert outcome to dictionary representation."""
         return {
             "outcome_id": self.outcome_id,
             "outcome_type": self.outcome_type,
@@ -249,6 +254,7 @@ class CausalLink:
     created_at: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert causal link to dictionary representation."""
         return {
             "link_id": self.link_id,
             "decision_id": self.decision_id,

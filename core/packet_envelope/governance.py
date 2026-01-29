@@ -101,7 +101,8 @@ class RetentionManager:
     Handles expiration, deletion, and anonymization
     """
 
-    def __init__(self, config: DataRetentionConfig = None):
+    def __init__(self, config: DataRetentionConfig = None) -> None:
+        """Initialize retention manager with config."""
         self.config = config or DataRetentionConfig()
         self.logger = logger
         self.retention_registry: dict[str, RetentionPolicy] = {}
@@ -202,7 +203,8 @@ class ErasureEngine:
     Handles data erasure with audit trail
     """
 
-    def __init__(self, config: DataRetentionConfig = None):
+    def __init__(self, config: DataRetentionConfig = None) -> None:
+        """Initialize erasure engine with config."""
         self.config = config or DataRetentionConfig()
         self.logger = logger
         self.deletion_requests: dict[str, DeletionRequest] = {}

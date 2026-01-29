@@ -69,6 +69,7 @@ def trace_span(
 
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> T:
+                """Async wrapper that creates and exports spans."""
                 from .service import ObservabilityService
 
                 service = ObservabilityService.get()
@@ -98,6 +99,7 @@ def trace_span(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> T:
+            """Sync wrapper that creates and exports spans."""
             from .service import ObservabilityService
 
             service = ObservabilityService.get()
@@ -141,12 +143,14 @@ def trace_llm_call(
     """
 
     def decorator(func: Callable) -> Callable:
+        """Decorator function for LLM call tracing."""
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
 
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                """Async wrapper that traces LLM generation calls."""
                 from .service import ObservabilityService
 
                 service = ObservabilityService.get()
@@ -176,6 +180,7 @@ def trace_llm_call(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Sync wrapper that traces LLM generation calls."""
             from .service import ObservabilityService
 
             service = ObservabilityService.get()
@@ -219,12 +224,14 @@ def trace_tool_call(
     """
 
     def decorator(func: Callable) -> Callable:
+        """Decorator function for tool call tracing."""
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
 
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                """Async wrapper that traces tool invocations."""
                 from .service import ObservabilityService
 
                 service = ObservabilityService.get()
@@ -257,6 +264,7 @@ def trace_tool_call(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Sync wrapper that traces tool invocations."""
             from .service import ObservabilityService
 
             service = ObservabilityService.get()
@@ -303,12 +311,14 @@ def trace_governance_check(
     """
 
     def decorator(func: Callable) -> Callable:
+        """Decorator function for governance check tracing."""
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
 
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                """Async wrapper that traces governance policy checks."""
                 from .service import ObservabilityService
 
                 service = ObservabilityService.get()
@@ -341,6 +351,7 @@ def trace_governance_check(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Sync wrapper that traces governance policy checks."""
             from .service import ObservabilityService
 
             service = ObservabilityService.get()
