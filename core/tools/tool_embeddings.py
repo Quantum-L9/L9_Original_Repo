@@ -90,13 +90,28 @@ async def _get_openai_client():
 
 
 async def _get_db_pool():
-    """Get database connection pool."""
+    """Get database connection pool via the repository singleton."""
     try:
-        from memory.substrate_repository import get_pool
+        # Import the correct singleton accessor (not get_pool which doesn't exist)
+        from memory.substrate_repository import get_repository
 
-        return await get_pool()
-    except ImportError as exc:
-        raise RuntimeError("Database pool not available") from exc
+        # Get the initialized repository instance
+        repository = get_repository()
+
+        # Return the underlying asyncpg pool
+        if repository._pool is None:
+            # Pool not initialized - repository.connect() must be called at startup
+            await repository.connect()
+
+        return repository._pool
+
+    except (ImportError, RuntimeError) as exc:
+        logger.error(
+            "Failed to get database pool for tool embeddings",
+            error=str(exc),
+            exc_info=True,
+        )
+        raise RuntimeError("Database pool not available for tool embeddings") from exc
 
 
 async def embed_tool_description(description: str) -> list[float] | None:
