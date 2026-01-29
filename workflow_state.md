@@ -74,6 +74,7 @@
 
 ## Recent Changes (digest)
 
+- [2026-01-28] **GMP-126: Tool Embeddings Wiring Fix (Tool RAG)** — Fixed critical wiring failure in Tool RAG pipeline. Root cause: init_repository() was never called during API lifespan, making get_repository() single
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 - [2026-01-28] **✅ GMP-78 CRITICAL FIX** — Tool embeddings wiring repaired. Root cause: `init_repository()` was never called during API lifespan, so `get_repository()` singleton was unavailable. Fixed by adding `init_repository(database_url)` after `init_service()` in server.py lifespan. Result: 116/116 tools synced, Tool RAG operational.
