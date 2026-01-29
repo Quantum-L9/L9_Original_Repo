@@ -875,7 +875,9 @@ async def query_temporal(
             if since
             else datetime.now(timezone.utc) - timedelta(days=7)
         )
-        until_dt = datetime.fromisoformat(until) if until else datetime.now(timezone.utc)
+        until_dt = (
+            datetime.fromisoformat(until) if until else datetime.now(timezone.utc)
+        )
 
         # Build WHERE clause
         where_parts = ["user_id = $1", "created_at >= $2", "created_at <= $3"]

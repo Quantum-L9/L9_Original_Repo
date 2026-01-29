@@ -193,7 +193,8 @@ class GraphHydrator:
         self,
         neo4j_driver: AsyncDriver,
         kernel_stack: KernelStack | None = None,
-    ):
+    ) -> None:
+        """Initialize hydrator with Neo4j driver and optional kernel stack."""
         self.loader = AgentGraphLoader(neo4j_driver)
         self.kernel_stack = kernel_stack
 

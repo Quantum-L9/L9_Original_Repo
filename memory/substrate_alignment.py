@@ -79,10 +79,17 @@ class SubstrateAlignmentChecker:
     """
 
     def __init__(self, repository, graph_client) -> None:
+        """Initialize checker with repository and graph client.
+
+        Args:
+            repository: SubstrateRepository for Postgres access.
+            graph_client: Neo4j graph client for node queries.
+        """
         self._repository = repository
         self._graph_client = graph_client
 
     async def _fetch_postgres_packet_ids(self, limit: int) -> set[UUID]:
+        """Fetch recent packet IDs from Postgres."""
         async with self._repository.acquire() as conn:
             rows = await conn.fetch(
                 "SELECT packet_id FROM packet_store ORDER BY timestamp DESC LIMIT $1",
@@ -92,6 +99,7 @@ class SubstrateAlignmentChecker:
 
     @must_stay_async("callers use await")
     async def _neo4j_available(self) -> bool:
+        """Check if Neo4j client is available."""
         if not self._graph_client:
             return False
         is_available = getattr(self._graph_client, "is_available", None)
@@ -100,6 +108,7 @@ class SubstrateAlignmentChecker:
         return True
 
     async def _neo4j_event_exists(self, event_id: str) -> bool:
+        """Check if an Event node exists in Neo4j."""
         if not await self._neo4j_available():
             return False
         results = await self._graph_client.run_query(
@@ -109,6 +118,7 @@ class SubstrateAlignmentChecker:
         return bool(results)
 
     async def _fetch_neo4j_event_ids(self, limit: int) -> list[str]:
+        """Fetch recent Event node IDs from Neo4j."""
         if not await self._neo4j_available():
             return []
         results = await self._graph_client.run_query(

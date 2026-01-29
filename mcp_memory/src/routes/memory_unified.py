@@ -225,9 +225,13 @@ async def _save_via_main_pipeline(
     # Calculate TTL based on duration
     ttl = None
     if duration == "short":
-        ttl = datetime.now(timezone.utc) + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
+        ttl = datetime.now(timezone.utc) + timedelta(
+            hours=settings.MEMORY_SHORT_TERM_HOURS
+        )
     elif duration == "medium":
-        ttl = datetime.now(timezone.utc) + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
+        ttl = datetime.now(timezone.utc) + timedelta(
+            hours=settings.MEMORY_MEDIUM_TERM_HOURS
+        )
 
     # Build metadata dict (not PacketMetadata model - that's for envelope metadata)
     envelope_metadata = {
@@ -1241,7 +1245,9 @@ async def query_temporal(
             if since
             else datetime.now(timezone.utc) - timedelta(days=7)
         )
-        until_dt = datetime.fromisoformat(until) if until else datetime.now(timezone.utc)
+        until_dt = (
+            datetime.fromisoformat(until) if until else datetime.now(timezone.utc)
+        )
 
         # Build WHERE clause
         where_parts = [

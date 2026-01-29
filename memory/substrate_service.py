@@ -1329,6 +1329,7 @@ async def get_service(
         ```python
         # Standard usage (singleton)
         from memory.substrate_service import get_service
+
         service = await get_service()
         await service.write_packet(packet)
 

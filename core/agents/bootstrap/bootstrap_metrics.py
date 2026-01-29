@@ -60,7 +60,7 @@ except ImportError:
             """Initialize stub Counter (no-op)."""
             pass
 
-        def labels(self, **kwargs) -> "Counter":
+        def labels(self, **kwargs) -> Counter:
             """Return self for method chaining (no-op)."""
             return self
 
@@ -79,7 +79,7 @@ except ImportError:
             """Initialize stub Histogram (no-op)."""
             pass
 
-        def labels(self, **kwargs) -> "Histogram":
+        def labels(self, **kwargs) -> Histogram:
             """Return self for method chaining (no-op)."""
             return self
 
@@ -98,7 +98,7 @@ except ImportError:
             """Initialize stub Gauge (no-op)."""
             pass
 
-        def labels(self, **kwargs) -> "Gauge":
+        def labels(self, **kwargs) -> Gauge:
             """Return self for method chaining (no-op)."""
             return self
 

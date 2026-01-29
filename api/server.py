@@ -125,33 +125,16 @@ try:
 except ImportError:
     _has_world_model = False
 
-# World Model Query Routes (GMP-18)
-try:
-    from api.routes.worldmodel import router as worldmodel_query_router
-
-    _has_worldmodel_query = True
-except ImportError:
-    _has_worldmodel_query = False
-
 # Optional: Slack Adapter (v2.0+)
 try:
     import httpx
 
-    from api.routes.slack import router as slack_router
     from api.slack_adapter import SlackRequestValidator
     from api.slack_client import SlackAPIClient
 
     _has_slack = True
 except ImportError:
     _has_slack = False
-
-# Optional: Modules Status Router (GMP-45)
-try:
-    from api.routes.modules import router as modules_router
-
-    _has_modules_router = True
-except ImportError:
-    _has_modules_router = False
 
 # Optional: Quantum Research Factory (v2.1+)
 try:

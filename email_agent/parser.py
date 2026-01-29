@@ -95,7 +95,7 @@ def parse_body(payload: dict[str, Any]) -> dict[str, str]:
     text_body = ""
     html_body = ""
 
-    def extract_from_part(part: dict[str, Any]):
+    def extract_from_part(part: dict[str, Any]) -> None:
         """Recursively extract body from message parts."""
         nonlocal text_body, html_body
 
@@ -149,7 +149,7 @@ def parse_attachments(
     """
     attachments = []
 
-    def extract_from_part(part: dict[str, Any], parent_path: str = ""):
+    def extract_from_part(part: dict[str, Any], parent_path: str = "") -> None:
         """Recursively extract attachments from message parts."""
         mime_type = part.get("mimeType", "")
         body_data = part.get("body", {})
@@ -262,13 +262,15 @@ def html_to_text(html: str) -> str:
     try:
         # Use html.parser for better extraction
         class HTMLToTextParser(HTMLParser):
-            def __init__(self):
+            def __init__(self) -> None:
+                """Initialize parser state."""
                 super().__init__()
                 self.text = []
                 self.in_script = False
                 self.in_style = False
 
-            def handle_starttag(self, tag, attrs):
+            def handle_starttag(self, tag, attrs) -> None:
+                """Handle opening HTML tags."""
                 if tag.lower() in ["script", "style"]:
                     if tag.lower() == "script":
                         self.in_script = True
@@ -280,7 +282,8 @@ def html_to_text(html: str) -> str:
                     if self.text and not self.text[-1].endswith("\n"):
                         self.text.append("\n")
 
-            def handle_endtag(self, tag):
+            def handle_endtag(self, tag) -> None:
+                """Handle closing HTML tags."""
                 if tag.lower() in ["script", "style"]:
                     if tag.lower() == "script":
                         self.in_script = False
@@ -290,11 +293,13 @@ def html_to_text(html: str) -> str:
                     if self.text and not self.text[-1].endswith("\n"):
                         self.text.append("\n")
 
-            def handle_data(self, data):
+            def handle_data(self, data) -> None:
+                """Handle text content between tags."""
                 if not self.in_script and not self.in_style:
                     self.text.append(data)
 
-            def get_text(self):
+            def get_text(self) -> str:
+                """Return extracted plain text."""
                 text = "".join(self.text)
                 # Clean up whitespace
                 text = re.sub(r"\n\s*\n", "\n\n", text)
