@@ -53,11 +53,14 @@ __dora_meta__ = {
 
 import os
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from core.decorators import must_stay_async
+
+if TYPE_CHECKING:
+    from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
 
@@ -89,21 +92,36 @@ async def _get_openai_client():
         raise RuntimeError("OpenAI client not available") from exc
 
 
-async def _get_db_pool():
-    """Get database connection pool via the repository singleton."""
+async def _get_db_pool(repository: SubstrateRepository | None = None):
+    """
+    Get database connection pool.
+
+    Args:
+        repository: Optional SubstrateRepository instance. If provided, uses its pool.
+                   If None, falls back to singleton access via get_repository().
+
+    Returns:
+        asyncpg connection pool
+
+    Raises:
+        RuntimeError: If repository not available (singleton not initialized)
+    """
     try:
-        # Import the correct singleton accessor
+        if repository is not None:
+            # Use injected repository (DI pattern)
+            if repository._pool is None:
+                await repository.connect()
+            return repository._pool
+
+        # Fall back to singleton access
         from memory.substrate_repository import get_repository
 
-        # Get the initialized repository instance
-        repository = get_repository()
+        repo = get_repository()
 
-        # Return the underlying asyncpg pool
-        if repository._pool is None:
-            # Pool not initialized - repository.connect() must be called at startup
-            await repository.connect()
+        if repo._pool is None:
+            await repo.connect()
 
-        return repository._pool
+        return repo._pool
 
     except (ImportError, RuntimeError) as exc:
         logger.error(
@@ -144,6 +162,7 @@ async def store_tool_embedding(
     category: str = "general",
     negative_constraints: list[str] | None = None,
     metadata: dict[str, Any] | None = None,
+    repository: SubstrateRepository | None = None,
 ) -> bool:
     """
     Store a tool's embedding in the database.
@@ -154,11 +173,12 @@ async def store_tool_embedding(
         category: Tool category for filtering
         negative_constraints: List of "don't use when X" guidance
         metadata: Additional tool metadata
+        repository: Optional SubstrateRepository for dependency injection
 
     Returns:
         True if stored successfully
     """
-    pool = await _get_db_pool()
+    pool = await _get_db_pool(repository)
 
     # Generate embedding
     embedding = await embed_tool_description(description)
@@ -199,6 +219,7 @@ async def find_relevant_tools(
     top_k: int = 5,
     exclude_categories: list[str] | None = None,
     min_similarity: float = 0.3,
+    repository: SubstrateRepository | None = None,
 ) -> list[ToolEmbeddingResult]:
     """
     Find tools relevant to a query using semantic search.
@@ -208,11 +229,12 @@ async def find_relevant_tools(
         top_k: Maximum number of tools to return
         exclude_categories: Categories to exclude from results
         min_similarity: Minimum cosine similarity threshold
+        repository: Optional SubstrateRepository for dependency injection
 
     Returns:
         List of ToolEmbeddingResult ordered by relevance
     """
-    pool = await _get_db_pool()
+    pool = await _get_db_pool(repository)
 
     # Generate query embedding
     query_embedding = await embed_tool_description(query)
@@ -272,6 +294,7 @@ async def find_tools_keyword(
     query: str,
     top_k: int = 10,
     min_rank: float = 0.0,
+    repository: SubstrateRepository | None = None,
 ) -> list[ToolEmbeddingResult]:
     """
     Find tools using BM25 keyword search (PostgreSQL full-text).
@@ -282,11 +305,12 @@ async def find_tools_keyword(
         query: Search query (keywords)
         top_k: Maximum results
         min_rank: Minimum ts_rank threshold
+        repository: Optional SubstrateRepository for dependency injection
 
     Returns:
         List of ToolEmbeddingResult ordered by BM25 rank
     """
-    pool = await _get_db_pool()
+    pool = await _get_db_pool(repository)
 
     try:
         async with pool.acquire() as conn:
@@ -340,6 +364,7 @@ async def find_tools_hybrid(
     semantic_weight: float = 0.6,
     keyword_weight: float = 0.4,
     min_similarity: float = 0.3,
+    repository: SubstrateRepository | None = None,
 ) -> list[ToolEmbeddingResult]:
     """
     Hybrid tool discovery combining semantic + keyword (BM25) search.
@@ -356,18 +381,21 @@ async def find_tools_hybrid(
         semantic_weight: Weight for semantic scores (default 0.6)
         keyword_weight: Weight for keyword scores (default 0.4)
         min_similarity: Minimum combined score threshold
+        repository: Optional SubstrateRepository for dependency injection
 
     Returns:
         List of ToolEmbeddingResult with hybrid ranking
     """
     # Semantic search
     semantic_results = await find_relevant_tools(
-        query, top_k=top_k * 2, min_similarity=0.1
+        query, top_k=top_k * 2, min_similarity=0.1, repository=repository
     )
     semantic_scores = {r.tool_name: r.similarity for r in semantic_results}
 
     # Keyword search (BM25)
-    keyword_results = await find_tools_keyword(query, top_k=top_k * 2)
+    keyword_results = await find_tools_keyword(
+        query, top_k=top_k * 2, repository=repository
+    )
     # Normalize BM25 ranks to 0-1 range
     max_rank = max((r.similarity for r in keyword_results), default=1.0) or 1.0
     keyword_scores = {r.tool_name: r.similarity / max_rank for r in keyword_results}
@@ -411,12 +439,17 @@ async def find_tools_hybrid(
     return results
 
 
-async def sync_all_tool_embeddings() -> int:
+async def sync_all_tool_embeddings(
+    repository: SubstrateRepository | None = None,
+) -> int:
     """
     Sync all tool definitions to the embeddings table.
 
     Reads from L_INTERNAL_TOOLS and stores embeddings for each.
     Should be called at startup to ensure embeddings are current.
+
+    Args:
+        repository: Optional SubstrateRepository for dependency injection
 
     Returns:
         Number of tools synced
@@ -453,6 +486,7 @@ async def sync_all_tool_embeddings() -> int:
                 category=tool.category,
                 negative_constraints=negative_constraints,
                 metadata=metadata,
+                repository=repository,
             )
 
             if success:
@@ -468,17 +502,21 @@ async def sync_all_tool_embeddings() -> int:
         raise
 
 
-async def get_tool_embedding(tool_name: str) -> ToolEmbeddingResult | None:
+async def get_tool_embedding(
+    tool_name: str,
+    repository: SubstrateRepository | None = None,
+) -> ToolEmbeddingResult | None:
     """
     Get a single tool's embedding data.
 
     Args:
         tool_name: Tool identifier
+        repository: Optional SubstrateRepository for dependency injection
 
     Returns:
         ToolEmbeddingResult or None if not found
     """
-    pool = await _get_db_pool()
+    pool = await _get_db_pool(repository)
 
     try:
         async with pool.acquire() as conn:
@@ -508,17 +546,21 @@ async def get_tool_embedding(tool_name: str) -> ToolEmbeddingResult | None:
         raise
 
 
-async def delete_tool_embedding(tool_name: str) -> bool:
+async def delete_tool_embedding(
+    tool_name: str,
+    repository: SubstrateRepository | None = None,
+) -> bool:
     """
     Delete a tool's embedding from the database.
 
     Args:
         tool_name: Tool identifier
+        repository: Optional SubstrateRepository for dependency injection
 
     Returns:
         True if deleted successfully
     """
-    pool = await _get_db_pool()
+    pool = await _get_db_pool(repository)
 
     try:
         async with pool.acquire() as conn:
