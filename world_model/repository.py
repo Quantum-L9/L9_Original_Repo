@@ -953,9 +953,26 @@ _repository: WorldModelRepository | None = None
     lifecycle="lazy",
     description="World model data repository",
 )
-def get_world_model_repository() -> WorldModelRepository:
-    """Get or create singleton repository."""
+def get_world_model_repository(
+    repository: WorldModelRepository | None = None,
+) -> WorldModelRepository:
+    """
+    Get world model repository singleton, or use injected instance.
+
+    GMP-132: Supports dependency injection for testability and CLI tools.
+
+    Args:
+        repository: Optional pre-initialized repository instance for dependency injection.
+                    When provided, returns this instance directly (enables testing/CLI use).
+                    When None, returns the singleton instance.
+
+    Returns:
+        WorldModelRepository: Initialized singleton instance or injected instance
+    """
     global _repository
+    # GMP-132: Support dependency injection for testability
+    if repository is not None:
+        return repository
     if _repository is None:
         _repository = WorldModelRepository()
     return _repository

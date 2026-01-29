@@ -656,9 +656,26 @@ _service: WorldModelService | None = None
     lifecycle="lazy",
     description="World model service layer",
 )
-def get_world_model_service() -> WorldModelService:
-    """Get or create singleton service."""
+def get_world_model_service(
+    service: WorldModelService | None = None,
+) -> WorldModelService:
+    """
+    Get world model service singleton, or use injected instance.
+
+    GMP-131: Supports dependency injection for testability and CLI tools.
+
+    Args:
+        service: Optional pre-initialized service instance for dependency injection.
+                 When provided, returns this instance directly (enables testing/CLI use).
+                 When None, returns the singleton instance.
+
+    Returns:
+        WorldModelService: Initialized singleton instance or injected instance
+    """
     global _service
+    # GMP-131: Support dependency injection for testability
+    if service is not None:
+        return service
     if _service is None:
         _service = WorldModelService()
     return _service

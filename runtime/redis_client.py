@@ -533,14 +533,27 @@ _redis_client: RedisClient | None = None
     lifecycle="startup",
     description="Redis cache/queue client for task queue and rate limiting",
 )
-async def get_redis_client() -> RedisClient | None:
+async def get_redis_client(
+    client: RedisClient | None = None,
+) -> RedisClient | None:
     """
-    Get or create singleton Redis client.
+    Get Redis client singleton, or use injected instance.
+
+    GMP-133: Supports dependency injection for testability and CLI tools.
+
+    Args:
+        client: Optional pre-initialized client instance for dependency injection.
+                When provided, returns this instance directly (enables testing/CLI use).
+                When None, returns the singleton instance.
 
     Returns:
         RedisClient instance or None if unavailable
     """
     global _redis_client
+
+    # GMP-133: Support dependency injection for testability
+    if client is not None:
+        return client
 
     if _redis_client is None:
         _redis_client = RedisClient()
