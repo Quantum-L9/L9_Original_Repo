@@ -169,105 +169,229 @@ def validate_subsystem_config(key: str, config: dict[str, Any]) -> list[str]:
 
 
 # ============================================================================
-# Code Extraction
+# Code Extraction (using enhanced ast_scanner)
 # ============================================================================
+
+# Add repo root to path for importing ast_scanner
+_repo_root = Path(__file__).parent.parent
+if str(_repo_root) not in sys.path:
+    sys.path.insert(0, str(_repo_root))
+
+# Try to import the enhanced ast_scanner module
+try:
+    from tools.superpack_reports.ast_scanner import scan_module as ast_scan_module
+
+    AST_SCANNER_AVAILABLE = True
+except ImportError as e:
+    AST_SCANNER_AVAILABLE = False
+    print(f"WARNING: ast_scanner module not available ({e}), using fallback extraction")
 
 
 @dataclass
 class ClassInfo:
+    """Class information for README generation."""
+
     name: str
     file: str
     line_start: int
     line_end: int
     docstring: str
     methods: list[str] = field(default_factory=list)
+    method_details: list[dict] = field(default_factory=list)  # NEW: Rich method info
     is_async: bool = False
+    decorators: list[str] = field(default_factory=list)  # NEW
 
 
 @dataclass
 class FunctionInfo:
+    """Function information for README generation."""
+
     name: str
     file: str
     line: int
     signature: str
     docstring: str
     is_async: bool = False
+    return_type: str | None = None  # NEW
+    decorators: list[str] = field(default_factory=list)  # NEW
 
 
 @dataclass
 class SubsystemFacts:
+    """Aggregated facts about a subsystem."""
+
     path: str
     classes: list[ClassInfo] = field(default_factory=list)
     functions: list[FunctionInfo] = field(default_factory=list)
     files: list[str] = field(default_factory=list)
     imports: list[str] = field(default_factory=list)
+    # NEW: High-value extractions
+    exports: list[str] = field(default_factory=list)  # __all__ contents
+    constants: list[tuple[str, str, int]] = field(
+        default_factory=list
+    )  # (name, value, line)
+    global_vars: list[tuple[str, str | None, int]] = field(
+        default_factory=list
+    )  # (name, type, line)
+    module_docstrings: dict[str, str] = field(default_factory=dict)  # file -> docstring
 
 
 def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFacts:
-    """Extract code facts from a subsystem using AST."""
+    """
+    Extract code facts from a subsystem using enhanced AST scanner.
+
+    Uses tools/superpack_reports/ast_scanner.py for rich extraction including:
+    - Docstrings (module, class, method, function)
+    - Line numbers (start/end)
+    - Return types
+    - __all__ exports
+    - Constants and global variables
+    """
     facts = SubsystemFacts(path=subsystem_path)
     full_path = repo_root / subsystem_path
 
     if not full_path.exists():
         return facts
 
+    all_imports = []
+    all_exports = []
+    all_constants = []
+    all_global_vars = []
+
     for py_file in full_path.rglob("*.py"):
+        if "__pycache__" in py_file.parts:
+            continue
+
         rel_path = str(py_file.relative_to(repo_root))
         facts.files.append(rel_path)
 
-        try:
-            content = py_file.read_text()
-            tree = ast.parse(content)
+        if AST_SCANNER_AVAILABLE:
+            # Use enhanced ast_scanner
+            module_info = ast_scan_module(py_file, repo_root)
+            if module_info is None:
+                continue
 
-            for node in ast.walk(tree):
-                # Extract classes
-                if isinstance(node, ast.ClassDef):
-                    methods = [
-                        m.name
-                        for m in node.body
-                        if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef))
-                    ]
-                    facts.classes.append(
-                        ClassInfo(
-                            name=node.name,
-                            file=rel_path,
-                            line_start=node.lineno,
-                            line_end=node.end_lineno or node.lineno,
-                            docstring=ast.get_docstring(node) or "",
-                            methods=methods,
-                        )
+            # Store module docstring
+            if module_info.docstring:
+                facts.module_docstrings[rel_path] = module_info.docstring
+
+            # Collect exports
+            all_exports.extend(module_info.exports)
+
+            # Collect constants
+            for const in module_info.constants:
+                all_constants.append((const.name, const.value_repr or "", const.line))
+
+            # Collect global vars
+            for gvar in module_info.global_vars:
+                all_global_vars.append((gvar.name, gvar.type_hint, gvar.line))
+
+            # Collect imports
+            all_imports.extend(module_info.imports)
+
+            # Convert classes
+            for cls in module_info.classes:
+                method_names = [m.name for m in cls.methods]
+                method_details = [
+                    {
+                        "name": m.name,
+                        "is_async": m.is_async,
+                        "return_type": m.return_type,
+                        "docstring": m.docstring,
+                        "args": m.args,
+                        "line_start": m.line_start,
+                        "line_end": m.line_end,
+                    }
+                    for m in cls.methods
+                ]
+                facts.classes.append(
+                    ClassInfo(
+                        name=cls.name,
+                        file=rel_path,
+                        line_start=cls.line_start,
+                        line_end=cls.line_end or cls.line_start,
+                        docstring=cls.docstring or "",
+                        methods=method_names,
+                        method_details=method_details,
+                        decorators=cls.decorators,
                     )
+                )
 
-                # Extract top-level functions
-                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                    if node.col_offset == 0:
-                        args = [arg.arg for arg in node.args.args]
-                        sig = f"def {node.name}({', '.join(args)})"
-                        if isinstance(node, ast.AsyncFunctionDef):
-                            sig = "async " + sig
+            # Convert functions
+            for func in module_info.functions:
+                args_str = ", ".join(func.args)
+                ret_str = f" -> {func.return_type}" if func.return_type else ""
+                sig = f"def {func.name}({args_str}){ret_str}"
+                if func.is_async:
+                    sig = "async " + sig
 
-                        facts.functions.append(
-                            FunctionInfo(
+                facts.functions.append(
+                    FunctionInfo(
+                        name=func.name,
+                        file=rel_path,
+                        line=func.line_start,
+                        signature=sig,
+                        docstring=func.docstring or "",
+                        is_async=func.is_async,
+                        return_type=func.return_type,
+                        decorators=func.decorators,
+                    )
+                )
+        else:
+            # Fallback: basic AST extraction
+            try:
+                content = py_file.read_text()
+                tree = ast.parse(content)
+
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.ClassDef):
+                        methods = [
+                            m.name
+                            for m in node.body
+                            if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef))
+                        ]
+                        facts.classes.append(
+                            ClassInfo(
                                 name=node.name,
                                 file=rel_path,
-                                line=node.lineno,
-                                signature=sig,
+                                line_start=node.lineno,
+                                line_end=node.end_lineno or node.lineno,
                                 docstring=ast.get_docstring(node) or "",
-                                is_async=isinstance(node, ast.AsyncFunctionDef),
+                                methods=methods,
                             )
                         )
 
-                # Extract imports
-                if isinstance(node, ast.Import):
-                    for alias in node.names:
-                        facts.imports.append(alias.name)
-                elif isinstance(node, ast.ImportFrom) and node.module:
-                    facts.imports.append(node.module)
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        if node.col_offset == 0:
+                            args = [arg.arg for arg in node.args.args]
+                            sig = f"def {node.name}({', '.join(args)})"
+                            if isinstance(node, ast.AsyncFunctionDef):
+                                sig = "async " + sig
 
-        except Exception as e:
-            print(f"WARNING: Could not parse {py_file}: {e}")
+                            facts.functions.append(
+                                FunctionInfo(
+                                    name=node.name,
+                                    file=rel_path,
+                                    line=node.lineno,
+                                    signature=sig,
+                                    docstring=ast.get_docstring(node) or "",
+                                    is_async=isinstance(node, ast.AsyncFunctionDef),
+                                )
+                            )
 
-    facts.imports = sorted(set(facts.imports))
+                    if isinstance(node, ast.Import):
+                        for alias in node.names:
+                            all_imports.append(alias.name)
+                    elif isinstance(node, ast.ImportFrom) and node.module:
+                        all_imports.append(node.module)
+
+            except Exception as e:
+                print(f"WARNING: Could not parse {py_file}: {e}")
+
+    facts.imports = sorted(set(all_imports))
+    facts.exports = sorted(set(all_exports))
+    facts.constants = all_constants
+    facts.global_vars = all_global_vars
     return facts
 
 
@@ -565,7 +689,7 @@ def generate_readme(
 - **Constants:** `UPPER_SNAKE_CASE`
 - **Private:** `_prefixed` for internal methods"""
 
-    # Build components section with richer detail
+    # Build components section with richer detail (using enhanced AST data)
     components_lines = []
     for cls in facts.classes[:5]:
         docstring_first_line = (
@@ -573,18 +697,23 @@ def generate_readme(
         )
         components_lines.append(f"### `{cls.file.split('/')[-1]}` — {cls.name}\n")
 
-        # Add async marker if applicable
-        [
-            m
-            for m in cls.methods
-            if m.startswith("async_") or m in ["execute", "run", "start"]
-        ]
-
         components_lines.append(
-            f'```python\nclass {cls.name}:\n    """{docstring_first_line}"""\n    \n    # Key methods:\n'
+            f'```python\nclass {cls.name}:\n    """{docstring_first_line}"""\n\n    # Key methods:\n'
         )
-        for method in cls.methods[:5]:
-            components_lines.append(f"    async def {method}(self, ...): ...\n")
+
+        # Use method_details if available (from enhanced ast_scanner)
+        if cls.method_details:
+            for method in cls.method_details[:5]:
+                async_prefix = "async " if method.get("is_async") else ""
+                ret_type = method.get("return_type")
+                ret_str = f" -> {ret_type}" if ret_type else ""
+                components_lines.append(
+                    f"    {async_prefix}def {method['name']}(self, ...){ret_str}: ...\n"
+                )
+        else:
+            # Fallback to basic method names
+            for method in cls.methods[:5]:
+                components_lines.append(f"    async def {method}(self, ...): ...\n")
         components_lines.append("```\n")
 
         if cls.methods[:5]:
@@ -630,12 +759,14 @@ def generate_readme(
         ]
     invariants = "\n".join([f"- **{inv}**" for inv in inv_list])
 
-    # Build data models section
+    # Build data models section (enhanced with exports and constants)
     data_models = config.get("data_models")
     if data_models:
         data_models_str = data_models
     else:
-        # Auto-generate from facts
+        dm_lines = []
+
+        # Auto-generate from facts - data model classes
         if facts.classes:
             data_model_classes = [
                 c
@@ -646,16 +777,36 @@ def generate_readme(
                 or "Response" in c.name
             ]
             if data_model_classes:
-                dm_lines = [
+                dm_lines.append(
                     "The following data models define the contracts for this subsystem:\n"
-                ]
+                )
                 for dm in data_model_classes[:3]:
                     dm_lines.append(
                         f"- **`{dm.name}`** — {dm.docstring.split(chr(10))[0] if dm.docstring else 'Data model'}"
                     )
-                data_models_str = "\n".join(dm_lines)
-            else:
-                data_models_str = "Data models are defined in `schemas.py` or inline within service classes."
+
+        # NEW: Add exports (__all__) if available
+        if facts.exports:
+            dm_lines.append("\n### Exported Symbols (`__all__`)\n")
+            export_sample = facts.exports[:10]
+            dm_lines.append(f"`{'`, `'.join(export_sample)}`")
+            if len(facts.exports) > 10:
+                dm_lines.append(f"\n*...and {len(facts.exports) - 10} more*")
+
+        # NEW: Add constants if available
+        if facts.constants:
+            dm_lines.append("\n### Module Constants\n")
+            dm_lines.append("| Constant | Value | Line |")
+            dm_lines.append("|----------|-------|------|")
+            for name, value, line in facts.constants[:8]:
+                # Truncate long values
+                val_display = value[:40] + "..." if len(value) > 40 else value
+                dm_lines.append(f"| `{name}` | `{val_display}` | {line} |")
+            if len(facts.constants) > 8:
+                dm_lines.append(f"\n*...and {len(facts.constants) - 8} more constants*")
+
+        if dm_lines:
+            data_models_str = "\n".join(dm_lines)
         else:
             data_models_str = "See source files for data model definitions."
 
@@ -797,12 +948,12 @@ class {subsystem_name.title().replace("_", "")}Response(BaseModel):
 3. **Dependency unavailable:** Required service down → Retry with exponential backoff, then fail gracefully.
 4. **Resource exhaustion:** Memory/connections exceeded → Reject new requests, log alert."""
 
-    # Build API surface
+    # Build API surface (using enhanced function data)
     api_surface = config.get("api_surface")
     if api_surface:
         api_surface_str = api_surface
     else:
-        # Auto-generate from functions
+        # Auto-generate from functions with rich signature data
         public_funcs = [f for f in facts.functions if not f.name.startswith("_")][:5]
         if public_funcs:
             api_lines = ["### Public Functions\n"]
@@ -817,7 +968,11 @@ class {subsystem_name.title().replace("_", "")}Response(BaseModel):
                 api_lines.append(
                     f"- **File:** `{func.file.split('/')[-1]}:{func.line}`"
                 )
-                api_lines.append(f"- **Async:** {'Yes' if func.is_async else 'No'}\n")
+                api_lines.append(f"- **Async:** {'Yes' if func.is_async else 'No'}")
+                # NEW: Show return type if available
+                if func.return_type:
+                    api_lines.append(f"- **Returns:** `{func.return_type}`")
+                api_lines.append("")
             api_surface_str = "\n".join(api_lines)
         else:
             api_surface_str = "See key components for public API details."

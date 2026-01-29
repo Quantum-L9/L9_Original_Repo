@@ -53,22 +53,60 @@ app = FastAPI(title="L9 CTO Agent", version="1.0")
 
 
 class ShellTask(BaseModel):
+    """Request model for shell command execution tasks.
+
+    Attributes:
+        type: Task type identifier, must be "shell".
+        command: Shell command to execute.
+        working_dir: Working directory for command execution.
+    """
+
     type: Literal["shell"]
     command: str
     working_dir: str | None = "/opt/l9"
 
 
 class MemoryHealthTask(BaseModel):
+    """Request model for memory health check tasks.
+
+    Attributes:
+        type: Task type identifier, must be "memory_health".
+    """
+
     type: Literal["memory_health"]
 
 
 class CompositeTask(BaseModel):
+    """Request model for composite task execution.
+
+    Supports multiple task types (shell, memory_health) with a unified
+    interface for the /agent/exec endpoint.
+
+    Attributes:
+        type: Task type identifier (shell, memory_health).
+        command: Shell command for shell tasks, None for other types.
+        working_dir: Working directory for command execution.
+    """
+
     type: str
     command: str | None = None
     working_dir: str | None = "/opt/l9"
 
 
 def check_auth(authorization: str = Header(...)) -> None:
+    """Validate Bearer token authorization header.
+
+    Verifies the provided authorization header contains a valid Bearer
+    token matching the configured L9_EXECUTOR_API_KEY.
+
+    Args:
+        authorization: HTTP Authorization header value.
+
+    Raises:
+        HTTPException: 500 if API key not configured on server.
+        HTTPException: 401 if authorization header format is invalid.
+        HTTPException: 403 if token doesn't match configured key.
+    """
     if not EXECUTOR_KEY:
         raise HTTPException(
             status_code=500, detail="L9_EXECUTOR_API_KEY not configured on server"
@@ -81,6 +119,17 @@ def check_auth(authorization: str = Header(...)) -> None:
 
 
 def is_allowed_command(cmd: str) -> bool:
+    """Check if a command is in the allowed whitelist.
+
+    Only commands starting with approved prefixes (journalctl, systemctl status,
+    ls, cat, tail, head, df, du, ps, grep, curl) are permitted.
+
+    Args:
+        cmd: Shell command to validate.
+
+    Returns:
+        True if command starts with an allowed prefix, False otherwise.
+    """
     stripped = cmd.strip()
     if not stripped:
         return False
@@ -88,6 +137,21 @@ def is_allowed_command(cmd: str) -> bool:
 
 
 def run_shell(command: str, cwd: str = "/opt/l9") -> dict:
+    """Execute a whitelisted shell command safely.
+
+    Uses shlex.split for safe command parsing to prevent shell injection.
+    Commands are executed with a 30-second timeout.
+
+    Args:
+        command: Shell command to execute (must be whitelisted).
+        cwd: Working directory for command execution.
+
+    Returns:
+        Dict with ok (bool), exit_code (int), stdout (str), stderr (str).
+
+    Raises:
+        HTTPException: 400 if command is not in the allowed whitelist.
+    """
     if not is_allowed_command(command):
         raise HTTPException(
             status_code=400,
@@ -124,6 +188,17 @@ def run_shell(command: str, cwd: str = "/opt/l9") -> dict:
 
 
 def memory_health() -> dict:
+    """Check memory service health via internal API call.
+
+    Makes an authenticated request to the memory stats endpoint
+    to verify the memory service is operational.
+
+    Returns:
+        Dict with status_code (int) and body (str) from the response.
+
+    Raises:
+        HTTPException: 502 if the memory health call fails.
+    """
     try:
         resp = requests.get(
             MEMORY_HEALTH_URL,
@@ -142,12 +217,33 @@ def memory_health() -> dict:
 
 
 @app.get("/agent/health")
-def agent_health():
+def agent_health() -> dict:
+    """Health check endpoint for the CTO agent service.
+
+    Returns:
+        Dict with status, role, and mode information.
+    """
     return {"status": "ok", "role": "cto_agent", "mode": "read_only"}
 
 
 @app.post("/agent/exec")
-def agent_exec(task: CompositeTask, authorization: str = Header(...)):
+def agent_exec(task: CompositeTask, authorization: str = Header(...)) -> dict:
+    """Execute a task on the CTO agent.
+
+    Supports shell command execution and memory health checks.
+    Requires valid Bearer token authorization.
+
+    Args:
+        task: Task specification with type and optional command.
+        authorization: HTTP Authorization header with Bearer token.
+
+    Returns:
+        Dict with mode, command (if applicable), and result.
+
+    Raises:
+        HTTPException: 400 if task type unsupported or command missing.
+        HTTPException: 401/403 if authorization fails.
+    """
     check_auth(authorization)
 
     if task.type == "shell":

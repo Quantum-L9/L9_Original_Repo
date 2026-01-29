@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Model Context Protocol server for memory operations
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                        | Purpose             |
-| ----------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -93,13 +93,13 @@ mcp_memory/
 └── ... (20 more files)
 ```
 
-| File                 | Purpose                                         |
-| -------------------- | ----------------------------------------------- |
-| `src/server.py`      | Core module (PROTECTED)                         |
-| `__init__.py`        | Core module (PROTECTED)                         |
-| `test_all_layers.py` | Tests for Redis connection and operations.      |
+| File | Purpose |
+|------|---------|
+| `src/server.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `test_all_layers.py` | Tests for Redis connection and operations. |
 | `test_all_layers.py` | Tests for PostgreSQL connection and operations. |
-| `test_all_layers.py` | Tests for Neo4j connection and operations.      |
+| `test_all_layers.py` | Tests for Neo4j connection and operations. |
 
 ### Naming Conventions
 
@@ -212,6 +212,7 @@ class Config:
 
 **Lines:** 57-76 in `verify_main_pipeline_e2e.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -221,6 +222,27 @@ The following data models define the contracts for this subsystem:
 - **`TestRateLimitHTTPResponses`** — Test HTTP response behavior when rate limited.
 - **`SaveMemoryRequest`** — Data model
 - **`MemoryResponse`** — Data model
+
+### Exported Symbols (`__all__`)
+
+`AbstractMemoryRepository`, `AuditLogger`, `FeatureFlagService`, `MemoryRecord`, `Orchestrator`, `OrchestratorConfig`, `PACKET_TYPES`, `PacketEnvelope`, `PacketEnvelopeV2`, `PacketMetadata`
+
+*...and 26 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `POSTGRES_DSN` | `os.getenv('MEMORY_DSN', os.getenv('DATAB...` | 44 |
+| `REDIS_HOST` | `os.getenv('REDIS_HOST', '127.0.0.1')` | 50 |
+| `REDIS_PORT` | `int(os.getenv('REDIS_PORT', '6379'))` | 51 |
+| `NEO4J_URI` | `os.getenv('NEO4J_URL', os.getenv('NEO4J_...` | 54 |
+| `NEO4J_USER` | `os.getenv('NEO4J_USER', 'neo4j')` | 55 |
+| `NEO4J_PASSWORD` | `os.getenv('NEO4J_PASSWORD', '')` | 56 |
+| `MAX_RETRIES` | `3` | 44 |
+| `BASE_BACKOFF` | `0.5` | 45 |
+
+*...and 6 more constants*
 
 ### Key Schemas
 
@@ -286,9 +308,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Mcp_Memory feature flags
-L9_ENABLE_MCP_MEMORY_TRACING: true # Enable detailed tracing
-L9_ENABLE_MCP_MEMORY_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_MCP_MEMORY_AUDIT: true # Enable audit logging
+L9_ENABLE_MCP_MEMORY_TRACING: true  # Enable detailed tracing
+L9_ENABLE_MCP_MEMORY_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_MCP_MEMORY_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -331,24 +353,25 @@ Test that save_memory_handler falls back to direct DB when substrate_service is 
 
 #### `async def test_save_via_main_pipeline_creates_correct_packet_envelope()`
 
-Test that \_save_via_main_pipeline creates PacketEnvelopeIn with correct structure.
+Test that _save_via_main_pipeline creates PacketEnvelopeIn with correct structure.
 
 - **File:** `test_main_pipeline_integration.py:129`
 - **Async:** Yes
 
 #### `async def test_save_via_main_pipeline_handles_ttl_correctly()`
 
-Test that \_save_via_main_pipeline calculates TTL based on duration.
+Test that _save_via_main_pipeline calculates TTL based on duration.
 
 - **File:** `test_main_pipeline_integration.py:188`
 - **Async:** Yes
 
 #### `async def test_save_via_main_pipeline_handles_errors_gracefully()`
 
-Test that \_save_via_main_pipeline raises HTTPException on write failure.
+Test that _save_via_main_pipeline raises HTTPException on write failure.
 
 - **File:** `test_main_pipeline_integration.py:230`
 - **Async:** Yes
+
 
 ### Usage Example
 
@@ -379,7 +402,7 @@ Mcp Memory operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "mcp_memory",
   "message": "Operation completed",
@@ -390,7 +413,6 @@ Mcp Memory operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -398,12 +420,12 @@ Mcp Memory operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                             | Type      | Description                    |
-| ---------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `mcp_memory_operation_duration_ms` | Histogram | Operation latency distribution |
-| `mcp_memory_operation_total`       | Counter   | Total operations processed     |
-| `mcp_memory_error_total`           | Counter   | Total errors encountered       |
-| `mcp_memory_active_connections`    | Gauge     | Current active connections     |
+| `mcp_memory_operation_total` | Counter | Total operations processed |
+| `mcp_memory_error_total` | Counter | Total errors encountered |
+| `mcp_memory_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -421,7 +443,6 @@ Mcp Memory emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/mcp_memory/`:
-
 - `test_mcp_memory.py` — Core unit tests
 - `test_mcp_memory_integration.py` — Integration tests (if applicable)
 
@@ -467,7 +488,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

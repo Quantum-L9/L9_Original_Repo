@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,16 +59,16 @@ Kernel loading, validation, and integrity verification
 
 ### Inbound Dependencies
 
-| Module                     | Purpose          |
-| -------------------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `runtime/kernel_loader.py` | Uses this module |
-| `core/agents/executor.py`  | Uses this module |
+| `core/agents/executor.py` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module             | Purpose             |
-| ------------------ | ------------------- |
-| `config/kernels/`  | Required dependency |
+| Module | Purpose |
+|--------|---------|
+| `config/kernels/` | Required dependency |
 | `private/kernels/` | Required dependency |
 
 ---
@@ -84,13 +84,13 @@ core/kernels/
 ├── schemas.py
 ```
 
-| File                  | Purpose                                            |
-| --------------------- | -------------------------------------------------- |
-| `kernel_validator.py` | Core module (PROTECTED)                            |
-| `__init__.py`         | Core module (PROTECTED)                            |
-| `kernelloader.py`     | Protocol for agents that can absorb kernels.       |
-| `kernelloader.py`     | Result of a kernel hot-reload operation.           |
-| `schemas.py`          | Base model that allows extra fields for forward co |
+| File | Purpose |
+|------|---------|
+| `kernel_validator.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `kernelloader.py` | Protocol for agents that can absorb kernels. |
+| `kernelloader.py` | Result of a kernel hot-reload operation. |
+| `schemas.py` | Base model that allows extra fields for forward co |
 
 ### Naming Conventions
 
@@ -111,15 +111,15 @@ class KernelAwareAgent:
 
     # Key methods:
 
-    async def absorb_kernel(self, ...): ...
+    def absorb_kernel(self, ...) -> None: ...
 
-    async def set_system_context(self, ...): ...
+    def set_system_context(self, ...) -> None: ...
 
 ```
 
 **Public Methods:** `absorb_kernel`, `set_system_context`
 
-**Lines:** 189-201 in `kernelloader.py`
+**Lines:** 196-208 in `kernelloader.py`
 
 ### `kernelloader.py` — KernelReloadResult
 
@@ -129,13 +129,13 @@ class KernelReloadResult:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
 ```
 
 **Public Methods:** `__init__`
 
-**Lines:** 828-845 in `kernelloader.py`
+**Lines:** 832-849 in `kernelloader.py`
 
 ### `schemas.py` — FlexibleModel
 
@@ -173,6 +173,7 @@ class KernelState:
 
 **Lines:** 88-95 in `schemas.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -181,6 +182,25 @@ The following data models define the contracts for this subsystem:
 
 - **`FlexibleModel`** — Base model that allows extra fields for forward compatibility.
 - **`WorldModelKernelData`** — World model kernel specific data.
+
+### Exported Symbols (`__all__`)
+
+`BehavioralKernelData`, `CognitiveKernelData`, `DEFAULT_KERNEL_PATH`, `DeveloperKernelData`, `ExecutionKernelData`, `GuardrailConfig`, `IdentityConfig`, `IdentityKernelData`, `IntegrityChange`, `KERNEL_EXTENSIONS`
+
+*...and 55 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `DEFAULT_KERNEL_PATH` | `'private'` | 156 |
+| `KERNEL_EXTENSIONS` | `('.yaml', '.yml')` | 157 |
+| `KERNEL_ORDER` | `['private/kernels/00_system/01_master_ke...` | 160 |
+| `KERNEL_ID_MAP` | `{'master': '01_master_kernel.yaml', 'ide...` | 174 |
+| `REQUIRED_KERNEL_COUNT` | `10` | 188 |
+| `KERNEL_HASH_FILE` | `Path('private/kernel_hashes.json')` | 66 |
+| `HASH_ALGORITHM` | `'sha256'` | 67 |
+| `KERNEL_EXTENSIONS` | `('.yaml', '.yml')` | 68 |
 
 ### Key Schemas
 
@@ -246,9 +266,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Kernels feature flags
-L9_ENABLE_CORE_KERNELS_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_KERNELS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_KERNELS_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_KERNELS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_KERNELS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_KERNELS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -275,40 +295,46 @@ CORE_KERNELS_ENABLED=true
 
 ### Public Functions
 
-#### `def get_kernel_stack()`
+#### `def get_kernel_stack() -> KernelStack`
 
 Get or load the kernel stack (singleton). CACHED.
 
 - **File:** `prompt_builder.py:51`
 - **Async:** No
+- **Returns:** `KernelStack`
 
-#### `def build_identity_section(identity_kernel)`
+#### `def build_identity_section(identity_kernel) -> str`
 
 Build identity section from identity kernel.
 
 - **File:** `prompt_builder.py:58`
 - **Async:** No
+- **Returns:** `str`
 
-#### `def build_behavioral_section(behavioral_kernel)`
+#### `def build_behavioral_section(behavioral_kernel) -> str`
 
 Build behavioral rules from behavioral kernel.
 
 - **File:** `prompt_builder.py:93`
 - **Async:** No
+- **Returns:** `str`
 
-#### `def build_cognitive_section(cognitive_kernel)`
+#### `def build_cognitive_section(cognitive_kernel) -> str`
 
 Build cognitive patterns from cognitive kernel.
 
 - **File:** `prompt_builder.py:145`
 - **Async:** No
+- **Returns:** `str`
 
-#### `def build_execution_section(execution_kernel)`
+#### `def build_execution_section(execution_kernel) -> str`
 
 Build execution rules from execution kernel.
 
 - **File:** `prompt_builder.py:182`
 - **Async:** No
+- **Returns:** `str`
+
 
 ### Usage Example
 
@@ -339,7 +365,7 @@ Core Kernels operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.kernels",
   "message": "Operation completed",
@@ -350,7 +376,6 @@ Core Kernels operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -358,12 +383,12 @@ Core Kernels operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                               | Type      | Description                    |
-| ------------------------------------ | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_kernels_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_kernels_operation_total`       | Counter   | Total operations processed     |
-| `core_kernels_error_total`           | Counter   | Total errors encountered       |
-| `core_kernels_active_connections`    | Gauge     | Current active connections     |
+| `core_kernels_operation_total` | Counter | Total operations processed |
+| `core_kernels_error_total` | Counter | Total errors encountered |
+| `core_kernels_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -381,7 +406,6 @@ Core Kernels emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_kernels/`:
-
 - `test_core_kernels.py` — Core unit tests
 - `test_core_kernels_integration.py` — Integration tests (if applicable)
 
@@ -426,7 +450,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

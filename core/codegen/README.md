@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -81,6 +81,8 @@ core/codegen/
 ├── compiler/module_compiler_v2.py
 ├── gatekeeper/codegen_gatekeeper.py
 ├── gatekeeper/codegen_gatekeeper_v2.py
+├── spec/__init__.py
+├── spec/spec_normalizer_v2.py
 ├── utilities.py
 ```
 
@@ -112,7 +114,7 @@ class ValidationGate:
 
 ```
 
-**Lines:** 30-37 in `utilities.py`
+**Lines:** 49-57 in `utilities.py`
 
 ### `utilities.py` — ValidationReport
 
@@ -124,7 +126,7 @@ class ValidationReport:
 
 ```
 
-**Lines:** 40-46 in `utilities.py`
+**Lines:** 60-67 in `utilities.py`
 
 ### `utilities.py` — CodeValidator
 
@@ -134,21 +136,21 @@ class CodeValidator:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def validate_all(self, ...): ...
+    async def validate_all(self, ...) -> dict[str, Any]: ...
 
-    async def _gate_1_syntax(self, ...): ...
+    async def _gate_1_syntax(self, ...) -> ValidationGate: ...
 
-    async def _gate_2_type_safety(self, ...): ...
+    async def _gate_2_type_safety(self, ...) -> ValidationGate: ...
 
-    async def _gate_3_imports(self, ...): ...
+    async def _gate_3_imports(self, ...) -> ValidationGate: ...
 
 ```
 
 **Public Methods:** `__init__`, `validate_all`, `_gate_1_syntax`, `_gate_2_type_safety`, `_gate_3_imports`
 
-**Lines:** 49-321 in `utilities.py`
+**Lines:** 70-344 in `utilities.py`
 
 ### `utilities.py` — DORABlock
 
@@ -160,7 +162,7 @@ class DORABlock:
 
 ```
 
-**Lines:** 328-333 in `utilities.py`
+**Lines:** 352-358 in `utilities.py`
 
 ### `utilities.py` — DORABlockGenerator
 
@@ -170,11 +172,11 @@ class DORABlockGenerator:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def add_dora_block(self, ...): ...
+    async def add_dora_block(self, ...) -> DORABlock: ...
 
-    async def _calculate_file_hash(self, ...): ...
+    def _calculate_file_hash(self, ...) -> str: ...
 
     async def _append_dora_block_to_file(self, ...): ...
 
@@ -182,14 +184,34 @@ class DORABlockGenerator:
 
 **Public Methods:** `__init__`, `add_dora_block`, `_calculate_file_hash`, `_append_dora_block_to_file`
 
-**Lines:** 336-458 in `utilities.py`
+**Lines:** 361-480 in `utilities.py`
 
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+The following data models define the contracts for this subsystem:
+
+- **`MetadataModel`** — Validated metadata section
+- **`GovernanceModel`** — Validated governance section
+- **`SystemModel`** — Validated system section
+
+### Exported Symbols (`__all__`)
+
+`BlindSpot`, `CodeGenGatekeeperAgent`, `CodeGenOutput`, `CompilationResult`, `ContractType`, `ModuleCompiler`, `NormalizedSpec`, `ResearchFinding`, `SpecNormalizer`, `SpecParseError`
+
+*...and 1 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `TEMPLATE_AGENT_CORE` | `'"""  \n{{metadata.name}} - L9 Agent\n{{...` | 65 |
+| `TEMPLATE_CONFIG` | `'"""  \n{{metadata.name}} - Configuratio...` | 305 |
+| `TEMPLATE_MODELS` | `'"""  \n{{metadata.name}} - Data Models\...` | 330 |
+| `TEMPLATE_TOOL_YAML` | `'# Tool Configuration for {{metadata.nam...` | 351 |
+| `TEMPLATE_TESTS` | `'"""  \nTests for {{metadata.name}}\n"""...` | 403 |
 
 ### Key Schemas
 
@@ -287,28 +309,28 @@ CORE_CODEGEN_ENABLED=true
 
 Unified CodeGen System - Generate production-ready code from specs
 
-- **File:** `cli.py:26`
+- **File:** `cli.py:24`
 - **Async:** No
 
 #### `def generate(input, type, output, research, min_confidence)`
 
 Generate code from a spec file
 
-- **File:** `cli.py:37`
+- **File:** `cli.py:49`
 - **Async:** No
 
 #### `def validate(files)`
 
 Validate generated code
 
-- **File:** `cli.py:91`
+- **File:** `cli.py:110`
 - **Async:** No
 
 #### `def research(query)`
 
 Research a topic using Perplexity
 
-- **File:** `cli.py:134`
+- **File:** `cli.py:155`
 - **Async:** No
 
 
@@ -341,7 +363,7 @@ Core Codegen operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.codegen",
   "message": "Operation completed",

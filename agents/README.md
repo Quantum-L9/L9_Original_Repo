@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Collection of specialized agents for different domains
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                        | Purpose             |
-| ----------------------------- | ------------------- |
-| `core/agents/executor.py`     | Required dependency |
+| Module | Purpose |
+|--------|---------|
+| `core/agents/executor.py` | Required dependency |
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -94,11 +94,11 @@ agents/
 └── ... (35 more files)
 ```
 
-| File                     | Purpose                                            |
-| ------------------------ | -------------------------------------------------- |
-| `__init__.py`            | Core module (PROTECTED)                            |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
 | `research_agent_impl.py` | Represents a single prompt variation for multi-per |
-| `research_agent_impl.py` | Structured response from Perplexity API.           |
+| `research_agent_impl.py` | Structured response from Perplexity API. |
 | `research_agent_impl.py` | Result from fast synthesis (Super-Prompt Pack styl |
 
 ### Naming Conventions
@@ -122,7 +122,7 @@ class PromptVariation:
 
 ```
 
-**Lines:** 77-85 in `research_agent_impl.py`
+**Lines:** 78-86 in `research_agent_impl.py`
 
 ### `research_agent_impl.py` — ResearchResponse
 
@@ -134,7 +134,7 @@ class ResearchResponse:
 
 ```
 
-**Lines:** 89-97 in `research_agent_impl.py`
+**Lines:** 90-98 in `research_agent_impl.py`
 
 ### `research_agent_impl.py` — SynthesisResult
 
@@ -146,7 +146,7 @@ class SynthesisResult:
 
 ```
 
-**Lines:** 101-110 in `research_agent_impl.py`
+**Lines:** 102-111 in `research_agent_impl.py`
 
 ### `research_agent_impl.py` — DiscoveryResult
 
@@ -158,7 +158,7 @@ class DiscoveryResult:
 
 ```
 
-**Lines:** 114-124 in `research_agent_impl.py`
+**Lines:** 115-125 in `research_agent_impl.py`
 
 ### `research_agent_impl.py` — ResearchTask
 
@@ -170,7 +170,8 @@ class ResearchTask:
 
 ```
 
-**Lines:** 128-143 in `research_agent_impl.py`
+**Lines:** 129-144 in `research_agent_impl.py`
+
 
 ---
 
@@ -181,6 +182,27 @@ The following data models define the contracts for this subsystem:
 - **`ResearchResponse`** — Structured response from Perplexity API.
 - **`ResponseProcessor`** — Extracts structured insights from Perplexity responses.
 - **`AgentResponse`** — Response from an agent.
+
+### Exported Symbols (`__all__`)
+
+`AgentConfig`, `AgentMessage`, `AgentResponse`, `AgentRole`, `ArchitectAgentA`, `ArchitectAgentB`, `AutonomyController`, `AutonomyGraduationMetrics`, `AutonomyLevel`, `BaseAgent`
+
+*...and 76 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `PERPLEXITY_API_URL` | `'https://api.perplexity.ai/chat/completi...` | 65 |
+| `PERPLEXITY_MODEL_FAST` | `'sonar-reasoning'` | 66 |
+| `PERPLEXITY_MODEL_DEEP` | `'sonar-reasoning'` | 67 |
+| `CODEGEN_SPECS_DIR` | `Path(__file__).parent.parent / 'codegen'...` | 69 |
+| `DEFAULT_PROMPT_VARIATIONS` | `[PromptVariation(id='v1_pragmatic', name...` | 173 |
+| `RESEARCH_OVERLAY_PATH` | `'config/agents/L-CTO-Research-Overlay.ya...` | 630 |
+| `SYSTEM_PROMPT` | `"You are the Reflection Agent for L9, re...` | 47 |
+| `SYSTEM_PROMPT` | `'You are the QA Agent for L9, responsibl...` | 47 |
+
+*...and 48 more constants*
 
 ### Key Schemas
 
@@ -246,9 +268,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Agents feature flags
-L9_ENABLE_AGENTS_TRACING: true # Enable detailed tracing
-L9_ENABLE_AGENTS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_AGENTS_AUDIT: true # Enable audit logging
+L9_ENABLE_AGENTS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_AGENTS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_AGENTS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -279,15 +301,16 @@ AGENTS_ENABLED=true
 
 CLI entry point.
 
-- **File:** `research_agent_impl.py:1070`
+- **File:** `research_agent_impl.py:1071`
 - **Async:** Yes
 
-#### `def create_research_agent(api_key, prompt_variations)`
+#### `def create_research_agent(api_key, prompt_variations) -> ResearchAgent`
 
 Factory function to create a ResearchAgent instance.
 
-- **File:** `research_agent_impl.py:1112`
+- **File:** `research_agent_impl.py:1113`
 - **Async:** No
+- **Returns:** `ResearchAgent`
 
 #### `def register_agent(name, role, category, priority)`
 
@@ -296,19 +319,22 @@ Decorator to register an agent class for auto-discovery.
 - **File:** `agent_registry.py:63`
 - **Async:** No
 
-#### `def discover_agents(package)`
+#### `def discover_agents(package) -> int`
 
 Automatically discover all agents in the specified package.
 
 - **File:** `agent_registry.py:115`
 - **Async:** No
+- **Returns:** `int`
 
-#### `def get_all_agents()`
+#### `def get_all_agents() -> dict[str, type]`
 
 Get all registered agent classes as a dictionary.
 
 - **File:** `agent_registry.py:131`
 - **Async:** No
+- **Returns:** `dict[str, type]`
+
 
 ### Usage Example
 
@@ -339,7 +365,7 @@ Agents operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "agents",
   "message": "Operation completed",
@@ -350,7 +376,6 @@ Agents operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -358,12 +383,12 @@ Agents operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                         | Type      | Description                    |
-| ------------------------------ | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `agents_operation_duration_ms` | Histogram | Operation latency distribution |
-| `agents_operation_total`       | Counter   | Total operations processed     |
-| `agents_error_total`           | Counter   | Total errors encountered       |
-| `agents_active_connections`    | Gauge     | Current active connections     |
+| `agents_operation_total` | Counter | Total operations processed |
+| `agents_error_total` | Counter | Total errors encountered |
+| `agents_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -381,7 +406,6 @@ Agents emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/agents/`:
-
 - `test_agents.py` — Core unit tests
 - `test_agents_integration.py` — Integration tests (if applicable)
 
@@ -424,7 +448,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

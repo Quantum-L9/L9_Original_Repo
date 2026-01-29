@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Protocol definitions and abstract interfaces
 
 ### Inbound Dependencies
 
-| Module        | Purpose          |
-| ------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `all modules` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -90,11 +90,11 @@ core/protocols/
 ├── validation_protocols.py
 ```
 
-| File                         | Purpose                                         |
-| ---------------------------- | ----------------------------------------------- |
-| `__init__.py`                | Core module (PROTECTED)                         |
-| `observability_protocols.py` | Span kind enumeration.                          |
-| `observability_protocols.py` | Span status enumeration.                        |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `observability_protocols.py` | Span kind enumeration. |
+| `observability_protocols.py` | Span status enumeration. |
 | `observability_protocols.py` | Protocol for distributed tracing span emission. |
 
 ### Naming Conventions
@@ -140,13 +140,13 @@ class SpanEmitter:
 
     # Key methods:
 
-    async def start_span(self, ...): ...
+    def start_span(self, ...) -> Any: ...
 
-    async def finish_span(self, ...): ...
+    def finish_span(self, ...) -> None: ...
 
-    async def emit_span(self, ...): ...
+    def emit_span(self, ...) -> None: ...
 
-    async def add_span_event(self, ...): ...
+    def add_span_event(self, ...) -> None: ...
 
 ```
 
@@ -162,13 +162,13 @@ class MetricsCollector:
 
     # Key methods:
 
-    async def increment_counter(self, ...): ...
+    def increment_counter(self, ...) -> None: ...
 
-    async def set_gauge(self, ...): ...
+    def set_gauge(self, ...) -> None: ...
 
-    async def record_histogram(self, ...): ...
+    def record_histogram(self, ...) -> None: ...
 
-    async def get_metrics(self, ...): ...
+    def get_metrics(self, ...) -> dict[str, Any]: ...
 
 ```
 
@@ -184,15 +184,15 @@ class TraceContext:
 
     # Key methods:
 
-    async def trace_id(self, ...): ...
+    def trace_id(self, ...) -> str: ...
 
-    async def span_id(self, ...): ...
+    def span_id(self, ...) -> str: ...
 
-    async def parent_span_id(self, ...): ...
+    def parent_span_id(self, ...) -> str | None: ...
 
-    async def to_headers(self, ...): ...
+    def to_headers(self, ...) -> dict[str, str]: ...
 
-    async def from_headers(self, ...): ...
+    def from_headers(self, ...) -> TraceContext: ...
 
 ```
 
@@ -200,11 +200,25 @@ class TraceContext:
 
 **Lines:** 219-267 in `observability_protocols.py`
 
+
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`ActivatableAgent`, `AgentContext`, `AgentOrchestrator`, `AgentRegistry`, `AgentState`, `BackoffStrategy`, `CacheClient`, `ConnectionPoolProtocol`, `ConnectionProtocol`, `ConnectionState`
+
+*...and 52 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `T` | `TypeVar('T')` | 44 |
+| `P` | `TypeVar('P')` | 45 |
+| `T` | `TypeVar('T', bound=Callable[..., Any])` | 534 |
 
 ### Key Schemas
 
@@ -269,9 +283,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Protocols feature flags
-L9_ENABLE_CORE_PROTOCOLS_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_PROTOCOLS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_PROTOCOLS_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_PROTOCOLS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_PROTOCOLS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_PROTOCOLS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -298,33 +312,37 @@ CORE_PROTOCOLS_ENABLED=true
 
 ### Public Functions
 
-#### `def with_retry(policy)`
+#### `def with_retry(policy) -> Callable[[Callable[..., Awaitable[T]]], Callable[..., Awaitable[T]]]`
 
 Decorator for async functions to add automatic retry behavior.
 
-- **File:** `retry_protocols.py:319`
+- **File:** `retry_protocols.py:340`
 - **Async:** No
+- **Returns:** `Callable[[Callable[..., Awaitable[T]]], Callable[..., Awaitable[T]]]`
 
 #### `async def with_error_handling(handler, max_retries, backoff_factor, correlation_id, metadata)`
 
 Async context manager for error handling with automatic retry logic.
 
-- **File:** `error_handling_protocols.py:437`
+- **File:** `error_handling_protocols.py:458`
 - **Async:** Yes
 
-#### `def validate_input(schema, validator)`
+#### `def validate_input(schema, validator) -> Callable[[T], T]`
 
 Decorator for automatic input validation of async functions.
 
-- **File:** `validation_protocols.py:516`
+- **File:** `validation_protocols.py:537`
 - **Async:** No
+- **Returns:** `Callable[[T], T]`
 
-#### `def rate_limited(key_func, policy)`
+#### `def rate_limited(key_func, policy) -> Callable[[Callable[..., Coroutine[Any, Any, Any]]], Callable[..., Coroutine[Any, Any, Any]]]`
 
 Decorator for applying rate limiting to async functions.
 
-- **File:** `rate_limiting_protocols.py:448`
+- **File:** `rate_limiting_protocols.py:469`
 - **Async:** No
+- **Returns:** `Callable[[Callable[..., Coroutine[Any, Any, Any]]], Callable[..., Coroutine[Any, Any, Any]]]`
+
 
 ### Usage Example
 
@@ -355,7 +373,7 @@ Core Protocols operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.protocols",
   "message": "Operation completed",
@@ -366,7 +384,6 @@ Core Protocols operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -374,12 +391,12 @@ Core Protocols operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                 | Type      | Description                    |
-| -------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_protocols_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_protocols_operation_total`       | Counter   | Total operations processed     |
-| `core_protocols_error_total`           | Counter   | Total errors encountered       |
-| `core_protocols_active_connections`    | Gauge     | Current active connections     |
+| `core_protocols_operation_total` | Counter | Total operations processed |
+| `core_protocols_error_total` | Counter | Total errors encountered |
+| `core_protocols_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -397,7 +414,6 @@ Core Protocols emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_protocols/`:
-
 - `test_core_protocols.py` — Core unit tests
 - `test_core_protocols_integration.py` — Integration tests (if applicable)
 
@@ -440,7 +456,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

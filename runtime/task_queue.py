@@ -124,7 +124,11 @@ class QueuedTask:
     approval_reason: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        """Serialize to dict."""
+        """Serialize task to dictionary for Redis storage.
+
+        Returns:
+            Dict with all task fields, timestamps as ISO strings.
+        """
         return {
             "task_id": self.task_id,
             "name": self.name,
@@ -144,7 +148,14 @@ class QueuedTask:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> QueuedTask:
-        """Deserialize from dict."""
+        """Deserialize task from dictionary.
+
+        Args:
+            data: Dict with task fields from Redis.
+
+        Returns:
+            QueuedTask instance.
+        """
         return cls(
             task_id=data["task_id"],
             name=data["name"],
@@ -200,7 +211,14 @@ class TaskQueue:
         logger.info(f"TaskQueue initialized with Redis support (queue: {queue_name})")
 
     async def _ensure_redis(self) -> bool:
-        """Ensure Redis client is connected."""
+        """Ensure Redis client is connected and available.
+
+        Returns:
+            True if Redis is available.
+
+        Raises:
+            RuntimeError: If Redis is unavailable or disabled.
+        """
         if not self._use_redis:
             raise RuntimeError("TaskQueue requires Redis; in-memory mode is disabled")
 
@@ -291,12 +309,23 @@ class TaskQueue:
             raise RuntimeError(f"Redis dequeue failed: {e}") from e
 
     async def peek(self) -> QueuedTask | None:
-        """Return the next task without removing it."""
+        """Return the next task without removing it.
+
+        Raises:
+            RuntimeError: Always raised; peek not supported for Redis.
+        """
         await self._ensure_redis()
         raise RuntimeError("TaskQueue.peek is not supported for Redis-backed queues")
 
     async def size(self) -> int:
-        """Return current queue size."""
+        """Return current queue size.
+
+        Returns:
+            Number of tasks in the queue.
+
+        Raises:
+            RuntimeError: If Redis operation fails.
+        """
         await self._ensure_redis()
         try:
             return await self._redis_client.queue_size(self._queue_name)

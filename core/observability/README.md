@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Metrics, tracing, and structured logging
 
 ### Inbound Dependencies
 
-| Module        | Purpose          |
-| ------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `all modules` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -93,12 +93,12 @@ core/observability/
 └── ... (1 more files)
 ```
 
-| File                     | Purpose                                            |
-| ------------------------ | -------------------------------------------------- |
-| `__init__.py`            | Core module (PROTECTED)                            |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
 | `prometheus_exporter.py` | Exports Five-Tier Observability metrics to Prometh |
-| `jaeger_exporter.py`     | Exports spans to Jaeger via OTLP.                  |
-| `service.py`             | Main service for observability subsystem.          |
+| `jaeger_exporter.py` | Exports spans to Jaeger via OTLP. |
+| `service.py` | Main service for observability subsystem. |
 
 ### Naming Conventions
 
@@ -119,15 +119,15 @@ class ObservabilityPrometheusExporter:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def record_span(self, ...): ...
+    def record_span(self, ...) -> None: ...
 
-    async def record_failure_signal(self, ...): ...
+    def record_failure_signal(self, ...) -> None: ...
 
-    async def update_sre_metrics(self, ...): ...
+    def update_sre_metrics(self, ...) -> None: ...
 
-    async def update_agent_kpi(self, ...): ...
+    def update_agent_kpi(self, ...) -> None: ...
 
 ```
 
@@ -143,21 +143,21 @@ class JaegerExporter:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def export_span(self, ...): ...
+    def export_span(self, ...) -> None: ...
 
-    async def _map_span_kind(self, ...): ...
+    def _map_span_kind(self, ...) -> Any: ...
 
-    async def export(self, ...): ...
+    def export(self, ...) -> None: ...
 
-    async def export_async(self, ...): ...
+    async def export_async(self, ...) -> None: ...
 
 ```
 
 **Public Methods:** `__init__`, `export_span`, `_map_span_kind`, `export`, `export_async`
 
-**Lines:** 57-239 in `jaeger_exporter.py`
+**Lines:** 56-237 in `jaeger_exporter.py`
 
 ### `service.py` — ObservabilityService
 
@@ -167,21 +167,21 @@ class ObservabilityService:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def _setup_logging(self, ...): ...
+    def _setup_logging(self, ...) -> None: ...
 
-    async def get(self, ...): ...
+    def get(self, ...) -> Optional['ObservabilityService']: ...
 
-    async def set_global(self, ...): ...
+    def set_global(self, ...) -> None: ...
 
-    async def initialize_exporters(self, ...): ...
+    async def initialize_exporters(self, ...) -> None: ...
 
 ```
 
 **Public Methods:** `__init__`, `_setup_logging`, `get`, `set_global`, `initialize_exporters`
 
-**Lines:** 50-376 in `service.py`
+**Lines:** 50-374 in `service.py`
 
 ### `aggregation.py` — MetricsAggregator
 
@@ -191,13 +191,13 @@ class MetricsAggregator:
 
     # Key methods:
 
-    async def compute_sre_metrics(self, ...): ...
+    def compute_sre_metrics(self, ...) -> dict[str, Any]: ...
 
-    async def compute_agent_kpis(self, ...): ...
+    def compute_agent_kpis(self, ...) -> dict[str, float]: ...
 
-    async def detect_regressions(self, ...): ...
+    def detect_regressions(self, ...) -> list[dict[str, Any]]: ...
 
-    async def compute_cost_breakdown(self, ...): ...
+    def compute_cost_breakdown(self, ...) -> dict[str, float]: ...
 
 ```
 
@@ -213,25 +213,38 @@ class KPITracker:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def record_kpi(self, ...): ...
+    def record_kpi(self, ...) -> None: ...
 
-    async def get_trend(self, ...): ...
+    def get_trend(self, ...) -> str | None: ...
 
-    async def get_alerts(self, ...): ...
+    def get_alerts(self, ...) -> list[dict[str, Any]]: ...
 
 ```
 
 **Public Methods:** `__init__`, `record_kpi`, `get_trend`, `get_alerts`
 
-**Lines:** 191-259 in `aggregation.py`
+**Lines:** 191-258 in `aggregation.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`AdaptiveStrategySelector`, `AgentKPI`, `AgentTrajectorySpan`, `AsyncSpanExporter`, `CircuitBreaker`, `CircuitBreakerConfig`, `CircuitBreakerState`, `CircuitOpenError`, `CompositeExporter`, `ConsoleExporter`
+
+*...and 56 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `T` | `TypeVar('T')` | 46 |
+| `FAILURE_RECOVERY_MAP` | `{FailureClass.TOOL_TIMEOUT: [Remediation...` | 229 |
 
 ### Key Schemas
 
@@ -297,9 +310,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Observability feature flags
-L9_ENABLE_CORE_OBSERVABILITY_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_OBSERVABILITY_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_OBSERVABILITY_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_OBSERVABILITY_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_OBSERVABILITY_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_OBSERVABILITY_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -326,40 +339,46 @@ CORE_OBSERVABILITY_ENABLED=true
 
 ### Public Functions
 
-#### `def get_exporter()`
+#### `def get_exporter() -> ObservabilityPrometheusExporter | None`
 
 Get the global Prometheus exporter instance.
 
 - **File:** `prometheus_exporter.py:307`
 - **Async:** No
+- **Returns:** `ObservabilityPrometheusExporter | None`
 
-#### `def initialize_exporter()`
+#### `def initialize_exporter() -> ObservabilityPrometheusExporter | None`
 
 Initialize the global Prometheus exporter.
 
 - **File:** `prometheus_exporter.py:312`
 - **Async:** No
+- **Returns:** `ObservabilityPrometheusExporter | None`
 
-#### `def get_jaeger_exporter()`
+#### `def get_jaeger_exporter() -> JaegerExporter | None`
 
 Get the global Jaeger exporter instance.
 
-- **File:** `jaeger_exporter.py:246`
+- **File:** `jaeger_exporter.py:244`
 - **Async:** No
+- **Returns:** `JaegerExporter | None`
 
-#### `def initialize_jaeger_exporter(jaeger_endpoint, service_name)`
+#### `def initialize_jaeger_exporter(jaeger_endpoint, service_name) -> JaegerExporter | None`
 
 Initialize the global Jaeger exporter.
 
-- **File:** `jaeger_exporter.py:251`
+- **File:** `jaeger_exporter.py:249`
 - **Async:** No
+- **Returns:** `JaegerExporter | None`
 
-#### `async def initialize_observability(config, substrate_service)`
+#### `async def initialize_observability(config, substrate_service) -> ObservabilityService`
 
 Initialize and return global observability service.
 
-- **File:** `service.py:379`
+- **File:** `service.py:377`
 - **Async:** Yes
+- **Returns:** `ObservabilityService`
+
 
 ### Usage Example
 
@@ -390,7 +409,7 @@ Core Observability operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.observability",
   "message": "Operation completed",
@@ -401,7 +420,6 @@ Core Observability operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -409,12 +427,12 @@ Core Observability operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                     | Type      | Description                    |
-| ------------------------------------------ | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_observability_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_observability_operation_total`       | Counter   | Total operations processed     |
-| `core_observability_error_total`           | Counter   | Total errors encountered       |
-| `core_observability_active_connections`    | Gauge     | Current active connections     |
+| `core_observability_operation_total` | Counter | Total operations processed |
+| `core_observability_error_total` | Counter | Total errors encountered |
+| `core_observability_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -432,7 +450,6 @@ Core Observability emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_observability/`:
-
 - `test_core_observability.py` — Core unit tests
 - `test_core_observability_integration.py` — Integration tests (if applicable)
 
@@ -475,7 +492,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

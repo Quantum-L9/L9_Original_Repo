@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Event bus, coordination primitives, and inter-module communication
 
 ### Inbound Dependencies
 
-| Module           | Purpose          |
-| ---------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `orchestrators/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module                    | Purpose             |
-| ------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `runtime/redis_client.py` | Required dependency |
 
 ---
@@ -80,12 +80,12 @@ core/coordination/
 ├── event_queue.py
 ```
 
-| File                | Purpose                                            |
-| ------------------- | -------------------------------------------------- |
-| `__init__.py`       | Core module (PROTECTED)                            |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
 | `agent_mediator.py` | Message structure for agent-to-agent communication |
-| `agent_mediator.py` | Track message delivery status.                     |
-| `agent_mediator.py` | Mediator for agent-to-agent communication.         |
+| `agent_mediator.py` | Track message delivery status. |
+| `agent_mediator.py` | Mediator for agent-to-agent communication. |
 
 ### Naming Conventions
 
@@ -130,15 +130,15 @@ class AgentMediator:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def register_agent(self, ...): ...
+    def register_agent(self, ...) -> None: ...
 
-    async def unregister_agent(self, ...): ...
+    def unregister_agent(self, ...) -> None: ...
 
-    async def subscribe(self, ...): ...
+    def subscribe(self, ...) -> None: ...
 
-    async def unsubscribe(self, ...): ...
+    def unsubscribe(self, ...) -> None: ...
 
 ```
 
@@ -156,7 +156,7 @@ class EventKind:
 
 ```
 
-**Lines:** 45-54 in `event_queue.py`
+**Lines:** 46-60 in `event_queue.py`
 
 ### `event_queue.py` — Event
 
@@ -166,19 +166,23 @@ class Event:
 
     # Key methods:
 
-    async def __post_init__(self, ...): ...
+    def __post_init__(self, ...): ...
 
 ```
 
 **Public Methods:** `__post_init__`
 
-**Lines:** 58-72 in `event_queue.py`
+**Lines:** 64-78 in `event_queue.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`Event`, `EventKind`, `EventQueue`, `EventRouter`, `init_event_driven_coordination`
 
 ### Key Schemas
 
@@ -244,9 +248,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Coordination feature flags
-L9_ENABLE_CORE_COORDINATION_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_COORDINATION_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_COORDINATION_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_COORDINATION_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_COORDINATION_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_COORDINATION_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -273,33 +277,38 @@ CORE_COORDINATION_ENABLED=true
 
 ### Public Functions
 
-#### `async def get_agent_mediator()`
+#### `async def get_agent_mediator() -> AgentMediator`
 
 Get the singleton AgentMediator instance.
 
 - **File:** `agent_mediator.py:461`
 - **Async:** Yes
+- **Returns:** `AgentMediator`
 
-#### `async def close_agent_mediator()`
+#### `async def close_agent_mediator() -> None`
 
 Close the AgentMediator singleton.
 
 - **File:** `agent_mediator.py:477`
 - **Async:** Yes
+- **Returns:** `None`
 
-#### `async def init_event_driven_coordination(app_state)`
+#### `async def init_event_driven_coordination(app_state) -> EventQueue`
 
 Initialize event-driven coordination at startup
 
-- **File:** `event_queue.py:218`
+- **File:** `event_queue.py:224`
 - **Async:** Yes
+- **Returns:** `EventQueue`
 
-#### `async def event_queue_health(event_queue)`
+#### `async def event_queue_health(event_queue) -> dict`
 
 Health check for event queue
 
-- **File:** `event_queue.py:234`
+- **File:** `event_queue.py:240`
 - **Async:** Yes
+- **Returns:** `dict`
+
 
 ### Usage Example
 
@@ -330,7 +339,7 @@ Core Coordination operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.coordination",
   "message": "Operation completed",
@@ -341,7 +350,6 @@ Core Coordination operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -349,12 +357,12 @@ Core Coordination operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                    | Type      | Description                    |
-| ----------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_coordination_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_coordination_operation_total`       | Counter   | Total operations processed     |
-| `core_coordination_error_total`           | Counter   | Total errors encountered       |
-| `core_coordination_active_connections`    | Gauge     | Current active connections     |
+| `core_coordination_operation_total` | Counter | Total operations processed |
+| `core_coordination_error_total` | Counter | Total errors encountered |
+| `core_coordination_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -372,7 +380,6 @@ Core Coordination emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_coordination/`:
-
 - `test_core_coordination.py` — Core unit tests
 - `test_core_coordination_integration.py` — Integration tests (if applicable)
 
@@ -415,7 +422,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -63,12 +63,21 @@ def trace_span(
     """
 
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        """Inner decorator that wraps the target function.
+
+        Args:
+            func: The function to wrap with span tracing.
+
+        Returns:
+            Wrapped function with automatic span creation.
+        """
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
 
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> T:
+                """Async wrapper that creates and exports spans."""
                 from .service import ObservabilityService
 
                 service = ObservabilityService.get()
@@ -98,6 +107,7 @@ def trace_span(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> T:
+            """Sync wrapper that creates and exports spans."""
             from .service import ObservabilityService
 
             service = ObservabilityService.get()
@@ -141,12 +151,21 @@ def trace_llm_call(
     """
 
     def decorator(func: Callable) -> Callable:
+        """Inner decorator that wraps the target function.
+
+        Args:
+            func: The function to wrap with LLM call tracing.
+
+        Returns:
+            Wrapped function with automatic LLM span creation.
+        """
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
 
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                """Async wrapper that creates and exports LLM spans."""
                 from .service import ObservabilityService
 
                 service = ObservabilityService.get()
@@ -176,6 +195,7 @@ def trace_llm_call(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Sync wrapper that creates and exports LLM spans."""
             from .service import ObservabilityService
 
             service = ObservabilityService.get()
@@ -219,12 +239,21 @@ def trace_tool_call(
     """
 
     def decorator(func: Callable) -> Callable:
+        """Inner decorator that wraps the target function.
+
+        Args:
+            func: The function to wrap with tool call tracing.
+
+        Returns:
+            Wrapped function with automatic tool span creation.
+        """
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
 
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                """Async wrapper that creates and exports tool spans."""
                 from .service import ObservabilityService
 
                 service = ObservabilityService.get()
@@ -257,6 +286,7 @@ def trace_tool_call(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Sync wrapper that creates and exports tool spans."""
             from .service import ObservabilityService
 
             service = ObservabilityService.get()
@@ -303,12 +333,21 @@ def trace_governance_check(
     """
 
     def decorator(func: Callable) -> Callable:
+        """Inner decorator that wraps the target function.
+
+        Args:
+            func: The function to wrap with governance check tracing.
+
+        Returns:
+            Wrapped function with automatic governance span creation.
+        """
         is_async = asyncio.iscoroutinefunction(func)
 
         if is_async:
 
             @functools.wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                """Async wrapper that creates and exports governance spans."""
                 from .service import ObservabilityService
 
                 service = ObservabilityService.get()
@@ -341,6 +380,7 @@ def trace_governance_check(
 
         @functools.wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """Sync wrapper that creates and exports governance spans."""
             from .service import ObservabilityService
 
             service = ObservabilityService.get()

@@ -38,6 +38,11 @@ class ModuleInfo:
     imports: list[str] = field(default_factory=list)
     is_async: bool = False
     loc: int = 0
+    # NEW: High-value extractions
+    docstring: str | None = None
+    exports: list[str] = field(default_factory=list)  # __all__ contents
+    global_vars: list[GlobalVarInfo] = field(default_factory=list)
+    constants: list[ConstantInfo] = field(default_factory=list)
 
 
 @dataclass
@@ -46,10 +51,28 @@ class ClassInfo:
 
     name: str
     bases: list[str]
-    methods: list[str]
+    methods: list[MethodInfo] = field(default_factory=list)
     is_pydantic: bool = False
     is_dataclass: bool = False
     decorators: list[str] = field(default_factory=list)
+    # NEW: High-value extractions
+    docstring: str | None = None
+    line_start: int = 0
+    line_end: int | None = None
+
+
+@dataclass
+class MethodInfo:
+    """Information about a class method."""
+
+    name: str
+    is_async: bool = False
+    args: list[str] = field(default_factory=list)
+    return_type: str | None = None
+    decorators: list[str] = field(default_factory=list)
+    docstring: str | None = None
+    line_start: int = 0
+    line_end: int | None = None
 
 
 @dataclass
@@ -63,6 +86,29 @@ class FunctionInfo:
     is_route: bool = False
     route_method: str | None = None
     route_path: str | None = None
+    # NEW: High-value extractions
+    return_type: str | None = None
+    docstring: str | None = None
+    line_start: int = 0
+    line_end: int | None = None
+
+
+@dataclass
+class GlobalVarInfo:
+    """Information about a module-level global variable."""
+
+    name: str
+    type_hint: str | None = None
+    line: int = 0
+
+
+@dataclass
+class ConstantInfo:
+    """Information about a module-level constant (UPPER_CASE assignment)."""
+
+    name: str
+    value_repr: str | None = None  # String representation of value
+    line: int = 0
 
 
 def _base_name(base: ast.expr) -> str:
@@ -85,11 +131,64 @@ def _get_decorator_name(dec: ast.expr) -> str:
     return "<unknown>"
 
 
+def _get_type_annotation(node: ast.expr | None) -> str | None:
+    """Extract type annotation as string from AST node."""
+    if node is None:
+        return None
+    try:
+        return ast.unparse(node)
+    except Exception:
+        return "<complex>"
+
+
+def _is_constant_name(name: str) -> bool:
+    """Check if name follows CONSTANT_CASE convention."""
+    return name.isupper() and not name.startswith("_")
+
+
+def _get_value_repr(node: ast.expr) -> str | None:
+    """Get string representation of a value node (truncated for safety)."""
+    try:
+        unparsed = ast.unparse(node)
+        # Truncate long values
+        if len(unparsed) > 100:
+            return unparsed[:100] + "..."
+        return unparsed
+    except Exception:
+        return None
+
+
+def _extract_all_names(node: ast.Assign) -> list[str] | None:
+    """Extract names from __all__ assignment."""
+    if not isinstance(node.value, (ast.List, ast.Tuple)):
+        return None
+    names = []
+    for elt in node.value.elts:
+        if isinstance(elt, ast.Constant) and isinstance(elt.value, str):
+            names.append(elt.value)
+    return names
+
+
 ROUTE_DECORATORS = {"get", "post", "put", "delete", "patch", "websocket"}
 
 
 def scan_module(path: Path, root: Path) -> ModuleInfo | None:
-    """Scan a Python module and extract structural information."""
+    """
+    Scan a Python module and extract structural information.
+
+    Extracts:
+    - Module docstring and __all__ exports
+    - Classes with docstrings, methods, line numbers
+    - Functions with docstrings, return types, line numbers
+    - Global variables and constants
+
+    Args:
+        path: Path to the Python file
+        root: Root directory for relative path calculation
+
+    Returns:
+        ModuleInfo or None if file cannot be parsed
+    """
     try:
         source = path.read_text(encoding="utf-8")
     except OSError:
@@ -107,6 +206,7 @@ def scan_module(path: Path, root: Path) -> ModuleInfo | None:
         path=path,
         module_name=module_name,
         loc=len(source.splitlines()),
+        docstring=ast.get_docstring(tree),
     )
 
     for node in tree.body:
@@ -118,6 +218,56 @@ def scan_module(path: Path, root: Path) -> ModuleInfo | None:
             if node.module:
                 info.imports.append(node.module)
 
+        # Assignments: __all__, globals, constants
+        elif isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    name = target.id
+                    # __all__ exports
+                    if name == "__all__":
+                        all_names = _extract_all_names(node)
+                        if all_names:
+                            info.exports = all_names
+                    # Constants (UPPER_CASE)
+                    elif _is_constant_name(name):
+                        info.constants.append(
+                            ConstantInfo(
+                                name=name,
+                                value_repr=_get_value_repr(node.value),
+                                line=node.lineno,
+                            )
+                        )
+                    # Global variables (lower_case at module level)
+                    elif not name.startswith("_"):
+                        info.global_vars.append(
+                            GlobalVarInfo(
+                                name=name,
+                                type_hint=None,
+                                line=node.lineno,
+                            )
+                        )
+
+        # Annotated assignments (typed globals)
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            name = node.target.id
+            type_hint = _get_type_annotation(node.annotation)
+            if _is_constant_name(name):
+                info.constants.append(
+                    ConstantInfo(
+                        name=name,
+                        value_repr=_get_value_repr(node.value) if node.value else None,
+                        line=node.lineno,
+                    )
+                )
+            elif not name.startswith("_"):
+                info.global_vars.append(
+                    GlobalVarInfo(
+                        name=name,
+                        type_hint=type_hint,
+                        line=node.lineno,
+                    )
+                )
+
         # Classes
         elif isinstance(node, ast.ClassDef):
             bases = [_base_name(b) for b in node.bases]
@@ -126,7 +276,21 @@ def scan_module(path: Path, root: Path) -> ModuleInfo | None:
             methods = []
             for item in node.body:
                 if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                    methods.append(item.name)
+                    method_decorators = [
+                        _get_decorator_name(d) for d in item.decorator_list
+                    ]
+                    methods.append(
+                        MethodInfo(
+                            name=item.name,
+                            is_async=isinstance(item, ast.AsyncFunctionDef),
+                            args=[a.arg for a in item.args.args],
+                            return_type=_get_type_annotation(item.returns),
+                            decorators=method_decorators,
+                            docstring=ast.get_docstring(item),
+                            line_start=item.lineno,
+                            line_end=getattr(item, "end_lineno", None),
+                        )
+                    )
 
             cls_info = ClassInfo(
                 name=node.name,
@@ -135,6 +299,9 @@ def scan_module(path: Path, root: Path) -> ModuleInfo | None:
                 is_pydantic="BaseModel" in bases,
                 is_dataclass="dataclass" in decorators,
                 decorators=decorators,
+                docstring=ast.get_docstring(node),
+                line_start=node.lineno,
+                line_end=getattr(node, "end_lineno", None),
             )
             info.classes.append(cls_info)
 
@@ -172,6 +339,10 @@ def scan_module(path: Path, root: Path) -> ModuleInfo | None:
                 is_route=is_route,
                 route_method=route_method,
                 route_path=route_path,
+                return_type=_get_type_annotation(node.returns),
+                docstring=ast.get_docstring(node),
+                line_start=node.lineno,
+                line_end=getattr(node, "end_lineno", None),
             )
             info.functions.append(func_info)
 

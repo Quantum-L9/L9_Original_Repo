@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Shared data models and schemas
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -79,9 +79,9 @@ core/models/
 ├── l9_base_model.py
 ```
 
-| File               | Purpose                              |
-| ------------------ | ------------------------------------ |
-| `__init__.py`      | Core module (PROTECTED)              |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
 | `l9_base_model.py` | Unified base model for all L9 types. |
 
 ### Naming Conventions
@@ -103,21 +103,22 @@ class L9BaseModel:
 
     # Key methods:
 
-    async def _get_dora_meta(self, ...): ...
+    def _get_dora_meta(self, ...) -> dict[str, Any]: ...
 
-    async def _get_dora_footer(self, ...): ...
+    def _get_dora_footer(self, ...) -> dict[str, Any]: ...
 
-    async def compute_content_hash(self, ...): ...
+    def compute_content_hash(self, ...) -> str: ...
 
-    async def verify_content_hash(self, ...): ...
+    def verify_content_hash(self, ...) -> bool: ...
 
-    async def model_dump_json_streaming(self, ...): ...
+    def model_dump_json_streaming(self, ...) -> Any: ...
 
 ```
 
 **Public Methods:** `_get_dora_meta`, `_get_dora_footer`, `compute_content_hash`, `verify_content_hash`, `model_dump_json_streaming`
 
 **Lines:** 53-208 in `l9_base_model.py`
+
 
 ---
 
@@ -126,6 +127,10 @@ class L9BaseModel:
 The following data models define the contracts for this subsystem:
 
 - **`L9BaseModel`** — Unified base model for all L9 types.
+
+### Exported Symbols (`__all__`)
+
+`L9BaseModel`
 
 ### Key Schemas
 
@@ -190,9 +195,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Models feature flags
-L9_ENABLE_CORE_MODELS_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_MODELS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_MODELS_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_MODELS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_MODELS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_MODELS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -248,7 +253,7 @@ Core Models operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.models",
   "message": "Operation completed",
@@ -259,7 +264,6 @@ Core Models operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -267,12 +271,12 @@ Core Models operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                              | Type      | Description                    |
-| ----------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_models_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_models_operation_total`       | Counter   | Total operations processed     |
-| `core_models_error_total`           | Counter   | Total errors encountered       |
-| `core_models_active_connections`    | Gauge     | Current active connections     |
+| `core_models_operation_total` | Counter | Total operations processed |
+| `core_models_error_total` | Counter | Total errors encountered |
+| `core_models_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -290,7 +294,6 @@ Core Models emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_models/`:
-
 - `test_core_models.py` — Core unit tests
 - `test_core_models_integration.py` — Integration tests (if applicable)
 
@@ -333,7 +336,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

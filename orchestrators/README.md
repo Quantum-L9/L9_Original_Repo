@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,16 +59,16 @@ Domain-specific orchestration patterns for agents, memory, reasoning, and world 
 
 ### Inbound Dependencies
 
-| Module        | Purpose          |
-| ------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `api/routes/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module                                | Purpose             |
-| ------------------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `orchestration/unified_controller.py` | Required dependency |
-| `core/agents/executor.py`             | Required dependency |
+| `core/agents/executor.py` | Required dependency |
 
 ---
 
@@ -94,12 +94,12 @@ orchestrators/
 └── ... (26 more files)
 ```
 
-| File           | Purpose                                            |
-| -------------- | -------------------------------------------------- |
-| `__init__.py`  | Core module (PROTECTED)                            |
-| `ws_bridge.py` | Phase 3: Configuration for the WS bridge.          |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `ws_bridge.py` | Phase 3: Configuration for the WS bridge. |
 | `ws_bridge.py` | Phase 3: Extensible event router with handler regi |
-| `validator.py` | Result of tool validation.                         |
+| `validator.py` | Result of tool validation. |
 
 ### Naming Conventions
 
@@ -120,13 +120,13 @@ class WSBridgeConfig:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
 ```
 
 **Public Methods:** `__init__`
 
-**Lines:** 234-254 in `ws_bridge.py`
+**Lines:** 233-253 in `ws_bridge.py`
 
 ### `ws_bridge.py` — WSEventRouter
 
@@ -136,17 +136,17 @@ class WSEventRouter:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def register_handler(self, ...): ...
+    def register_handler(self, ...) -> None: ...
 
-    async def route(self, ...): ...
+    def route(self, ...) -> TaskEnvelope | None: ...
 
 ```
 
 **Public Methods:** `__init__`, `register_handler`, `route`
 
-**Lines:** 257-279 in `ws_bridge.py`
+**Lines:** 256-278 in `ws_bridge.py`
 
 ### `validator.py` — ValidationResult
 
@@ -156,15 +156,15 @@ class ValidationResult:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def to_dict(self, ...): ...
+    def to_dict(self, ...) -> dict[str, Any]: ...
 
 ```
 
 **Public Methods:** `__init__`, `to_dict`
 
-**Lines:** 47-74 in `validator.py`
+**Lines:** 50-77 in `validator.py`
 
 ### `validator.py` — Validator
 
@@ -174,21 +174,21 @@ class Validator:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def _get_registry(self, ...): ...
+    async def _get_registry(self, ...) -> Any | None: ...
 
-    async def process(self, ...): ...
+    async def process(self, ...) -> dict[str, Any]: ...
 
-    async def validate_tool(self, ...): ...
+    async def validate_tool(self, ...) -> ValidationResult: ...
 
-    async def _assess_safety_level(self, ...): ...
+    def _assess_safety_level(self, ...) -> str: ...
 
 ```
 
 **Public Methods:** `__init__`, `_get_registry`, `process`, `validate_tool`, `_assess_safety_level`
 
-**Lines:** 77-248 in `validator.py`
+**Lines:** 80-248 in `validator.py`
 
 ### `interface.py` — ToolSafetyLevel
 
@@ -202,6 +202,7 @@ class ToolSafetyLevel:
 
 **Lines:** 37-42 in `interface.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -211,6 +212,27 @@ The following data models define the contracts for this subsystem:
 - **`ActionToolRequest`** — Request to action_tool orchestrator.
 - **`ActionToolResponse`** — Response from action_tool orchestrator.
 - **`MemoryRequest`** — Request to memory orchestrator.
+
+### Exported Symbols (`__all__`)
+
+`ActionToolOrchestrator`, `ActionToolRequest`, `ActionToolResponse`, `AdapterNode`, `AgentExecutionOrchestrator`, `AgentExecutionRequest`, `AgentExecutionResponse`, `ApplyEngine`, `Blueprint`, `BlueprintAdapter`
+
+*...and 63 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `HIGH_RISK_TOOLS` | `get_high_risk_tools()` | 45 |
+| `IGOR_APPROVAL_REQUIRED` | `get_igor_approval_tools()` | 46 |
+| `SAFE_TOOLS` | `get_safe_tools()` | 47 |
+| `DEFAULT_MAX_RETRIES` | `3` | 50 |
+| `INITIAL_BACKOFF_SECONDS` | `1.0` | 51 |
+| `MAX_BACKOFF_SECONDS` | `30.0` | 52 |
+| `BACKOFF_MULTIPLIER` | `2.0` | 53 |
+| `TASKS_DIR` | `Path(os.path.expanduser('~/.l9/mac_tasks...` | 69 |
+
+*...and 2 more constants*
 
 ### Key Schemas
 
@@ -275,9 +297,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Orchestrators feature flags
-L9_ENABLE_ORCHESTRATORS_TRACING: true # Enable detailed tracing
-L9_ENABLE_ORCHESTRATORS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_ORCHESTRATORS_AUDIT: true # Enable audit logging
+L9_ENABLE_ORCHESTRATORS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_ORCHESTRATORS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_ORCHESTRATORS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -311,33 +333,38 @@ Decorator to register an orchestrator class for auto-discovery.
 - **File:** `orchestrator_registry.py:65`
 - **Async:** No
 
-#### `def discover_orchestrators(package)`
+#### `def discover_orchestrators(package) -> int`
 
 Automatically discover all orchestrators in the specified package.
 
 - **File:** `orchestrator_registry.py:117`
 - **Async:** No
+- **Returns:** `int`
 
-#### `def get_all_orchestrators()`
+#### `def get_all_orchestrators() -> dict[str, type]`
 
 Get all registered orchestrator classes as a dictionary.
 
 - **File:** `orchestrator_registry.py:133`
 - **Async:** No
+- **Returns:** `dict[str, type]`
 
-#### `def get_orchestrators_by_domain(domain)`
+#### `def get_orchestrators_by_domain(domain) -> dict[str, type]`
 
 Get all orchestrator classes in a specific domain.
 
 - **File:** `orchestrator_registry.py:160`
 - **Async:** No
+- **Returns:** `dict[str, type]`
 
-#### `def get_orchestrators_by_category(category)`
+#### `def get_orchestrators_by_category(category) -> dict[str, type]`
 
 Get all orchestrator classes in a specific category.
 
 - **File:** `orchestrator_registry.py:185`
 - **Async:** No
+- **Returns:** `dict[str, type]`
+
 
 ### Usage Example
 
@@ -368,7 +395,7 @@ Orchestrators operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "orchestrators",
   "message": "Operation completed",
@@ -379,7 +406,6 @@ Orchestrators operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -387,12 +413,12 @@ Orchestrators operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                | Type      | Description                    |
-| ------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `orchestrators_operation_duration_ms` | Histogram | Operation latency distribution |
-| `orchestrators_operation_total`       | Counter   | Total operations processed     |
-| `orchestrators_error_total`           | Counter   | Total errors encountered       |
-| `orchestrators_active_connections`    | Gauge     | Current active connections     |
+| `orchestrators_operation_total` | Counter | Total operations processed |
+| `orchestrators_error_total` | Counter | Total errors encountered |
+| `orchestrators_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -410,7 +436,6 @@ Orchestrators emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/orchestrators/`:
-
 - `test_orchestrators.py` — Core unit tests
 - `test_orchestrators_integration.py` — Integration tests (if applicable)
 
@@ -457,7 +482,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

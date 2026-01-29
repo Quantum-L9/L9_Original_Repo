@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Bridge for domain-specific tensor operations and validation
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -93,11 +93,11 @@ domain_tensor_bridge/
 └── ... (17 more files)
 ```
 
-| File                     | Purpose                            |
-| ------------------------ | ---------------------------------- |
-| `__init__.py`            | Core module (PROTECTED)            |
-| `reasoning_engine.py`    | Result from reasoning execution.   |
-| `reasoning_engine.py`    | Multi-modal reasoning engine.      |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `reasoning_engine.py` | Result from reasoning execution. |
+| `reasoning_engine.py` | Multi-modal reasoning engine. |
 | `embedding_processor.py` | Processed embedding with metadata. |
 
 ### Naming Conventions
@@ -121,7 +121,7 @@ class ReasoningResult:
 
 ```
 
-**Lines:** 37-44 in `reasoning_engine.py`
+**Lines:** 58-65 in `reasoning_engine.py`
 
 ### `reasoning_engine.py` — ReasoningEngine
 
@@ -131,21 +131,21 @@ class ReasoningEngine:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def initialize(self, ...): ...
+    async def initialize(self, ...) -> None: ...
 
-    async def execute_reasoning(self, ...): ...
+    async def execute_reasoning(self, ...) -> ReasoningResult: ...
 
-    async def apply_causal_reasoning(self, ...): ...
+    async def apply_causal_reasoning(self, ...) -> dict[str, Any]: ...
 
-    async def apply_analogical_reasoning(self, ...): ...
+    async def apply_analogical_reasoning(self, ...) -> dict[str, Any]: ...
 
 ```
 
 **Public Methods:** `__init__`, `initialize`, `execute_reasoning`, `apply_causal_reasoning`, `apply_analogical_reasoning`
 
-**Lines:** 47-225 in `reasoning_engine.py`
+**Lines:** 68-254 in `reasoning_engine.py`
 
 ### `embedding_processor.py` — ProcessedEmbedding
 
@@ -157,7 +157,7 @@ class ProcessedEmbedding:
 
 ```
 
-**Lines:** 35-40 in `embedding_processor.py`
+**Lines:** 54-60 in `embedding_processor.py`
 
 ### `embedding_processor.py` — EmbeddingProcessor
 
@@ -167,17 +167,17 @@ class EmbeddingProcessor:
 
     # Key methods:
 
-    async def process_embeddings(self, ...): ...
+    def process_embeddings(self, ...) -> ProcessedEmbedding: ...
 
-    async def _normalize(self, ...): ...
+    def _normalize(self, ...) -> list[float]: ...
 
-    async def compute_similarity(self, ...): ...
+    def compute_similarity(self, ...) -> float: ...
 
 ```
 
 **Public Methods:** `process_embeddings`, `_normalize`, `compute_similarity`
 
-**Lines:** 43-75 in `embedding_processor.py`
+**Lines:** 63-97 in `embedding_processor.py`
 
 ### `agent_controller.py` — AgentController
 
@@ -187,21 +187,22 @@ class AgentController:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def initialize(self, ...): ...
+    async def initialize(self, ...) -> None: ...
 
-    async def process_packet(self, ...): ...
+    async def process_packet(self, ...) -> PacketEnvelope: ...
 
-    async def _create_success_response(self, ...): ...
+    def _create_success_response(self, ...) -> PacketEnvelope: ...
 
-    async def _create_blocked_response(self, ...): ...
+    def _create_blocked_response(self, ...) -> PacketEnvelope: ...
 
 ```
 
 **Public Methods:** `__init__`, `initialize`, `process_packet`, `_create_success_response`, `_create_blocked_response`
 
-**Lines:** 37-169 in `agent_controller.py`
+**Lines:** 59-195 in `agent_controller.py`
+
 
 ---
 
@@ -212,6 +213,12 @@ The following data models define the contracts for this subsystem:
 - **`AnomalyResponse`** — Response to anomaly.
 - **`WorldModelBridge`** — Interface to world model layer.
 - **`TestWorldModelQuery`** — Tests for world model querying.
+
+### Exported Symbols (`__all__`)
+
+`AgentController`, `AnalogicalReasoner`, `Analogy`, `AnomalyFlag`, `AnomalyHandler`, `AnomalyResponse`, `AnomalySeverity`, `AuditResult`, `CausalFactor`, `CausalReasoner`
+
+*...and 42 more*
 
 ### Key Schemas
 
@@ -277,9 +284,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Domain_Tensor_Bridge feature flags
-L9_ENABLE_DOMAIN_TENSOR_BRIDGE_TRACING: true # Enable detailed tracing
-L9_ENABLE_DOMAIN_TENSOR_BRIDGE_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_DOMAIN_TENSOR_BRIDGE_AUDIT: true # Enable audit logging
+L9_ENABLE_DOMAIN_TENSOR_BRIDGE_TRACING: true  # Enable detailed tracing
+L9_ENABLE_DOMAIN_TENSOR_BRIDGE_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_DOMAIN_TENSOR_BRIDGE_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -306,12 +313,13 @@ DOMAIN_TENSOR_BRIDGE_ENABLED=true
 
 ### Public Functions
 
-#### `async def process_packet(packet)`
+#### `async def process_packet(packet) -> PacketEnvelope`
 
 Convenience function to process a packet using default controller.
 
-- **File:** `agent_controller.py:172`
+- **File:** `agent_controller.py:198`
 - **Async:** Yes
+- **Returns:** `PacketEnvelope`
 
 #### `def mock_packet()`
 
@@ -338,8 +346,9 @@ Create memory bridge with mocked substrate.
 
 Create controller for API testing.
 
-- **File:** `test_api_surfaces.py:15`
+- **File:** `test_api_surfaces.py:13`
 - **Async:** No
+
 
 ### Usage Example
 
@@ -370,7 +379,7 @@ Domain Tensor Bridge operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "domain_tensor_bridge",
   "message": "Operation completed",
@@ -381,7 +390,6 @@ Domain Tensor Bridge operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -389,12 +397,12 @@ Domain Tensor Bridge operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                       | Type      | Description                    |
-| -------------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `domain_tensor_bridge_operation_duration_ms` | Histogram | Operation latency distribution |
-| `domain_tensor_bridge_operation_total`       | Counter   | Total operations processed     |
-| `domain_tensor_bridge_error_total`           | Counter   | Total errors encountered       |
-| `domain_tensor_bridge_active_connections`    | Gauge     | Current active connections     |
+| `domain_tensor_bridge_operation_total` | Counter | Total operations processed |
+| `domain_tensor_bridge_error_total` | Counter | Total errors encountered |
+| `domain_tensor_bridge_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -412,7 +420,6 @@ Domain Tensor Bridge emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/domain_tensor_bridge/`:
-
 - `test_domain_tensor_bridge.py` — Core unit tests
 - `test_domain_tensor_bridge_integration.py` — Integration tests (if applicable)
 
@@ -455,7 +462,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

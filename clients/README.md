@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Client implementations for external APIs
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -80,12 +80,12 @@ clients/
 ├── world_model_client.py
 ```
 
-| File               | Purpose                              |
-| ------------------ | ------------------------------------ |
-| `__init__.py`      | Core module (PROTECTED)              |
-| `memory_client.py` | Input structure for packet writes.   |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `memory_client.py` | Input structure for packet writes. |
 | `memory_client.py` | Response from packet write endpoint. |
-| `memory_client.py` | Request for semantic search.         |
+| `memory_client.py` | Request for semantic search. |
 
 ### Naming Conventions
 
@@ -158,6 +158,7 @@ class SemanticSearchResult:
 
 **Lines:** 131-135 in `memory_client.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -166,6 +167,22 @@ The following data models define the contracts for this subsystem:
 
 - **`SemanticSearchRequest`** — Request for semantic search.
 - **`WorldModelClient`** — Async HTTP client for L9 World Model API.
+
+### Exported Symbols (`__all__`)
+
+`MemoryClient`, `PacketWriteResult`, `get_memory_client`
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `VPS_MEMORY_URL` | `'http://l9-memory-api:8080'` | 61 |
+| `DOCKER_FALLBACK_URL` | `'http://l9-api:8000'` | 62 |
+| `DEFAULT_BASE_URL` | `VPS_MEMORY_URL` | 64 |
+| `DEFAULT_TIMEOUT` | `30.0` | 65 |
+| `FALLBACK_ENABLED` | `True` | 66 |
+| `DEFAULT_BASE_URL` | `'http://l9-api:8000'` | 75 |
+| `DEFAULT_TIMEOUT` | `30.0` | 76 |
 
 ### Key Schemas
 
@@ -231,9 +248,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Clients feature flags
-L9_ENABLE_CLIENTS_TRACING: true # Enable detailed tracing
-L9_ENABLE_CLIENTS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CLIENTS_AUDIT: true # Enable audit logging
+L9_ENABLE_CLIENTS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CLIENTS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CLIENTS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -260,33 +277,38 @@ CLIENTS_ENABLED=true
 
 ### Public Functions
 
-#### `def get_memory_client()`
+#### `def get_memory_client() -> MemoryClient`
 
 Get or create singleton MemoryClient instance.
 
 - **File:** `memory_client.py:628`
 - **Async:** No
+- **Returns:** `MemoryClient`
 
-#### `async def close_memory_client()`
+#### `async def close_memory_client() -> None`
 
 Close the singleton memory client.
 
 - **File:** `memory_client.py:641`
 - **Async:** Yes
+- **Returns:** `None`
 
-#### `def get_world_model_client()`
+#### `def get_world_model_client() -> WorldModelClient`
 
 Get or create singleton client.
 
 - **File:** `world_model_client.py:470`
 - **Async:** No
+- **Returns:** `WorldModelClient`
 
-#### `async def close_world_model_client()`
+#### `async def close_world_model_client() -> None`
 
 Close singleton client.
 
 - **File:** `world_model_client.py:478`
 - **Async:** Yes
+- **Returns:** `None`
+
 
 ### Usage Example
 
@@ -317,7 +339,7 @@ Clients operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "clients",
   "message": "Operation completed",
@@ -328,7 +350,6 @@ Clients operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -336,12 +357,12 @@ Clients operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                          | Type      | Description                    |
-| ------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `clients_operation_duration_ms` | Histogram | Operation latency distribution |
-| `clients_operation_total`       | Counter   | Total operations processed     |
-| `clients_error_total`           | Counter   | Total errors encountered       |
-| `clients_active_connections`    | Gauge     | Current active connections     |
+| `clients_operation_total` | Counter | Total operations processed |
+| `clients_error_total` | Counter | Total errors encountered |
+| `clients_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -359,7 +380,6 @@ Clients emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/clients/`:
-
 - `test_clients.py` — Core unit tests
 - `test_clients_integration.py` — Integration tests (if applicable)
 
@@ -402,7 +422,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

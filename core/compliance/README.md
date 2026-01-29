@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Compliance checking and policy enforcement
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module             | Purpose             |
-| ------------------ | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/governance/` | Required dependency |
 
 ---
@@ -80,12 +80,12 @@ core/compliance/
 ├── audit_reporter.py
 ```
 
-| File                | Purpose                                            |
-| ------------------- | -------------------------------------------------- |
-| `__init__.py`       | Core module (PROTECTED)                            |
-| `audit_reporter.py` | Compliance report for a time period.               |
-| `audit_reporter.py` | Generates compliance reports from audit trail.     |
-| `audit_log.py`      | Audit logger for Igor commands and high-risk opera |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `audit_reporter.py` | Compliance report for a time period. |
+| `audit_reporter.py` | Generates compliance reports from audit trail. |
+| `audit_log.py` | Audit logger for Igor commands and high-risk opera |
 
 ### Naming Conventions
 
@@ -106,7 +106,7 @@ class ComplianceReport:
 
     # Key methods:
 
-    async def to_dict(self, ...): ...
+    def to_dict(self, ...) -> dict[str, Any]: ...
 
 ```
 
@@ -122,15 +122,15 @@ class ComplianceReporter:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def generate_daily_report(self, ...): ...
+    async def generate_daily_report(self, ...) -> ComplianceReport: ...
 
-    async def generate_report(self, ...): ...
+    async def generate_report(self, ...) -> ComplianceReport: ...
 
-    async def _process_commands(self, ...): ...
+    async def _process_commands(self, ...) -> None: ...
 
-    async def _process_tool_calls(self, ...): ...
+    async def _process_tool_calls(self, ...) -> None: ...
 
 ```
 
@@ -146,15 +146,15 @@ class AuditLogger:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def log_command(self, ...): ...
+    async def log_command(self, ...) -> bool: ...
 
-    async def log_approval(self, ...): ...
+    async def log_approval(self, ...) -> bool: ...
 
-    async def log_tool_execution(self, ...): ...
+    async def log_tool_execution(self, ...) -> bool: ...
 
-    async def log_memory_write(self, ...): ...
+    async def log_memory_write(self, ...) -> bool: ...
 
 ```
 
@@ -162,11 +162,15 @@ class AuditLogger:
 
 **Lines:** 56-351 in `audit_log.py`
 
+
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`AuditLogger`, `ComplianceReport`, `ComplianceReporter`, `log_command_to_audit`
 
 ### Key Schemas
 
@@ -231,9 +235,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Compliance feature flags
-L9_ENABLE_CORE_COMPLIANCE_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_COMPLIANCE_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_COMPLIANCE_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_COMPLIANCE_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_COMPLIANCE_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_COMPLIANCE_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -260,12 +264,14 @@ CORE_COMPLIANCE_ENABLED=true
 
 ### Public Functions
 
-#### `async def log_command_to_audit(substrate_service, command_id, command_type, user_id, action, risk_level, raw_text, result, error)`
+#### `async def log_command_to_audit(substrate_service, command_id, command_type, user_id, action, risk_level, raw_text, result, error) -> bool`
 
 Convenience function to log a command to audit trail.
 
 - **File:** `audit_log.py:354`
 - **Async:** Yes
+- **Returns:** `bool`
+
 
 ### Usage Example
 
@@ -296,7 +302,7 @@ Core Compliance operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.compliance",
   "message": "Operation completed",
@@ -307,7 +313,6 @@ Core Compliance operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -315,12 +320,12 @@ Core Compliance operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                  | Type      | Description                    |
-| --------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_compliance_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_compliance_operation_total`       | Counter   | Total operations processed     |
-| `core_compliance_error_total`           | Counter   | Total errors encountered       |
-| `core_compliance_active_connections`    | Gauge     | Current active connections     |
+| `core_compliance_operation_total` | Counter | Total operations processed |
+| `core_compliance_error_total` | Counter | Total errors encountered |
+| `core_compliance_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -338,7 +343,6 @@ Core Compliance emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_compliance/`:
-
 - `test_core_compliance.py` — Core unit tests
 - `test_core_compliance_integration.py` — Integration tests (if applicable)
 
@@ -381,7 +385,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change
