@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -60,16 +60,16 @@ DAG-based workflow execution engine with session management
 
 ### Inbound Dependencies
 
-| Module        | Purpose          |
-| ------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `api/routes/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module                        | Purpose             |
-| ----------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `memory/substrate_service.py` | Required dependency |
-| `core/agents/executor.py`     | Required dependency |
+| `core/agents/executor.py` | Required dependency |
 
 ---
 
@@ -90,26 +90,26 @@ workflows/
 ├── session/__init__.py
 ├── session/dags/__init__.py
 ├── session/dags/harvest_deploy_dag.py
+├── session/dags/readme_pipeline_dag.py
 ├── session/dags/refactoring_dag.py
-├── session/interface.py
-└── ... (2 more files)
+└── ... (3 more files)
 ```
 
-| File                          | Purpose                                               |
-| ----------------------------- | ----------------------------------------------------- |
-| `state.py`                    | Workflow state management and persistence (PROTECTED) |
-| `runner.py`                   | Workflow execution engine (PROTECTED)                 |
-| `harvest_deploy.py`           | Harvest-to-deploy workflow implementation             |
-| `nodes/extract.py`            | Extraction node for content harvesting                |
-| `nodes/validate.py`           | Validation node for quality checks                    |
-| `nodes/deploy.py`             | Deployment node for output generation                 |
-| `nodes/inject.py`             | Context injection node                                |
-| `nodes/checkpoint.py`         | Checkpoint node for state persistence                 |
-| `nodes/report.py`             | Report generation node                                |
-| `session/interface.py`        | Session interface definition                          |
-| `session/registry.py`         | Session registry and discovery                        |
-| `defs/harvest-deploy.yaml`    | Harvest-deploy workflow definition                    |
-| `defs/workflow-template.yaml` | Template for new workflows                            |
+| File | Purpose |
+|------|---------|
+| `state.py` | Workflow state management and persistence (PROTECTED) |
+| `runner.py` | Workflow execution engine (PROTECTED) |
+| `harvest_deploy.py` | Harvest-to-deploy workflow implementation |
+| `nodes/extract.py` | Extraction node for content harvesting |
+| `nodes/validate.py` | Validation node for quality checks |
+| `nodes/deploy.py` | Deployment node for output generation |
+| `nodes/inject.py` | Context injection node |
+| `nodes/checkpoint.py` | Checkpoint node for state persistence |
+| `nodes/report.py` | Report generation node |
+| `session/interface.py` | Session interface definition |
+| `session/registry.py` | Session registry and discovery |
+| `defs/harvest-deploy.yaml` | Harvest-deploy workflow definition |
+| `defs/workflow-template.yaml` | Template for new workflows |
 
 ### Naming Conventions
 
@@ -132,7 +132,7 @@ class StepStatus:
 
 ```
 
-**Lines:** 55-62 in `runner.py`
+**Lines:** 75-83 in `runner.py`
 
 ### `runner.py` — StepType
 
@@ -144,7 +144,7 @@ class StepType:
 
 ```
 
-**Lines:** 65-74 in `runner.py`
+**Lines:** 86-96 in `runner.py`
 
 ### `runner.py` — StepResult
 
@@ -156,7 +156,7 @@ class StepResult:
 
 ```
 
-**Lines:** 78-84 in `runner.py`
+**Lines:** 100-107 in `runner.py`
 
 ### `runner.py` — Step
 
@@ -168,7 +168,7 @@ class Step:
 
 ```
 
-**Lines:** 88-98 in `runner.py`
+**Lines:** 111-122 in `runner.py`
 
 ### `runner.py` — WorkflowState
 
@@ -180,13 +180,27 @@ class WorkflowState:
 
 ```
 
-**Lines:** 102-111 in `runner.py`
+**Lines:** 126-136 in `runner.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`ExtractionPattern`, `FileMapping`, `GateType`, `HARVEST_DEPLOY_DAG`, `NodeType`, `README_PIPELINE_DAG`, `REFACTORING_DAG`, `SessionDAG`, `SessionEdge`, `SessionNode`
+
+*...and 16 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `README_PIPELINE_DAG` | `SessionDAG(id='readme-pipeline-v1', name...` | 31 |
+| `HARVEST_DEPLOY_DAG` | `SessionDAG(id='harvest-deploy-v1', name=...` | 31 |
+| `REFACTORING_DAG` | `SessionDAG(id='refactoring-v1', name='Re...` | 31 |
 
 ### Key Schemas
 
@@ -253,9 +267,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Workflows feature flags
-L9_ENABLE_WORKFLOWS_TRACING: true # Enable detailed tracing
-L9_ENABLE_WORKFLOWS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_WORKFLOWS_AUDIT: true # Enable audit logging
+L9_ENABLE_WORKFLOWS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_WORKFLOWS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_WORKFLOWS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -286,36 +300,41 @@ WORKFLOWS_ENABLED=true
 
 No description
 
-- **File:** `runner.py:684`
+- **File:** `runner.py:722`
 - **Async:** No
 
-#### `def route_after_extract(state)`
+#### `def route_after_extract(state) -> Literal['deploy', 'report']`
 
 Route after extraction: deploy if successful, report otherwise.
 
-- **File:** `harvest_deploy.py:96`
+- **File:** `harvest_deploy.py:95`
 - **Async:** No
+- **Returns:** `Literal['deploy', 'report']`
 
-#### `def route_after_deploy(state)`
+#### `def route_after_deploy(state) -> Literal['inject', 'validate', 'report']`
 
 Route after deploy: inject if needed, else validate.
 
-- **File:** `harvest_deploy.py:103`
+- **File:** `harvest_deploy.py:102`
 - **Async:** No
+- **Returns:** `Literal['inject', 'validate', 'report']`
 
-#### `def route_after_inject(state)`
+#### `def route_after_inject(state) -> Literal['validate', 'report']`
 
 Route after inject: validate if successful, report otherwise.
 
-- **File:** `harvest_deploy.py:115`
+- **File:** `harvest_deploy.py:114`
 - **Async:** No
+- **Returns:** `Literal['validate', 'report']`
 
-#### `def route_after_validate(state)`
+#### `def route_after_validate(state) -> Literal['report']`
 
 Route after validate: always go to report.
 
-- **File:** `harvest_deploy.py:122`
+- **File:** `harvest_deploy.py:121`
 - **Async:** No
+- **Returns:** `Literal['report']`
+
 
 ### Usage Example
 
@@ -346,7 +365,7 @@ Workflows operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "workflows",
   "message": "Operation completed",
@@ -357,7 +376,6 @@ Workflows operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -365,12 +383,12 @@ Workflows operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                            | Type      | Description                    |
-| --------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `workflows_operation_duration_ms` | Histogram | Operation latency distribution |
-| `workflows_operation_total`       | Counter   | Total operations processed     |
-| `workflows_error_total`           | Counter   | Total errors encountered       |
-| `workflows_active_connections`    | Gauge     | Current active connections     |
+| `workflows_operation_total` | Counter | Total operations processed |
+| `workflows_error_total` | Counter | Total errors encountered |
+| `workflows_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -388,7 +406,6 @@ Workflows emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/workflows/`:
-
 - `test_workflows.py` — Core unit tests
 - `test_workflows_integration.py` — Integration tests (if applicable)
 
@@ -436,7 +453,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

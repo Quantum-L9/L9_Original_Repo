@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Metrics collection and emission
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                | Purpose             |
-| --------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/observability/` | Required dependency |
 
 ---
@@ -76,13 +76,16 @@ Metrics collection and emission
 ```
 telemetry/
 ├── __init__.py
+├── calibration_dashboard.py
 ├── memory_metrics.py
 ├── slack_metrics.py
 ```
 
-| File          | Purpose                 |
-| ------------- | ----------------------- |
+| File | Purpose |
+|------|---------|
 | `__init__.py` | Core module (PROTECTED) |
+| `calibration_dashboard.py` | Calibration quality metrics |
+| `calibration_dashboard.py` | Monitoring and visualization for probabilistic gov |
 
 ### Naming Conventions
 
@@ -95,13 +98,53 @@ telemetry/
 
 ## Key Components
 
-See source files for component details.
+### `calibration_dashboard.py` — CalibrationMetrics
+
+```python
+class CalibrationMetrics:
+    """Calibration quality metrics"""
+
+    # Key methods:
+
+```
+
+**Lines:** 96-105 in `calibration_dashboard.py`
+
+### `calibration_dashboard.py` — CalibrationDashboard
+
+```python
+class CalibrationDashboard:
+    """Monitoring and visualization for probabilistic governance."""
+
+    # Key methods:
+
+    def __init__(self, ...): ...
+
+    def _load_decisions(self, ...): ...
+
+    def generate_weekly_report(self, ...) -> str: ...
+
+    def _calculate_metrics(self, ...) -> CalibrationMetrics: ...
+
+    def _calculate_ece(self, ...) -> float: ...
+
+```
+
+**Public Methods:** `__init__`, `_load_decisions`, `generate_weekly_report`, `_calculate_metrics`, `_calculate_ece`
+
+**Lines:** 108-524 in `calibration_dashboard.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-See source files for data model definitions.
+
+### Exported Symbols (`__all__`)
+
+`PROMETHEUS_AVAILABLE`, `init_metrics`, `init_slack_metrics`, `record_aios_call`, `record_idempotent_hit`, `record_latency`, `record_memory_dedup`, `record_memory_enrichment`, `record_memory_ingest`, `record_memory_poison_suspect`
+
+*...and 15 more*
 
 ### Key Schemas
 
@@ -166,9 +209,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Telemetry feature flags
-L9_ENABLE_TELEMETRY_TRACING: true # Enable detailed tracing
-L9_ENABLE_TELEMETRY_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_TELEMETRY_AUDIT: true # Enable audit logging
+L9_ENABLE_TELEMETRY_TRACING: true  # Enable detailed tracing
+L9_ENABLE_TELEMETRY_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_TELEMETRY_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -195,40 +238,45 @@ TELEMETRY_ENABLED=true
 
 ### Public Functions
 
-#### `def record_memory_write(segment, status, duration_seconds)`
+#### `def generate_weekly_report()`
+
+Entry point for scheduled weekly report generation
+
+- **File:** `calibration_dashboard.py:527`
+- **Async:** No
+
+#### `def record_memory_write(segment, status, duration_seconds) -> None`
 
 Record a memory write operation.
 
-- **File:** `memory_metrics.py:247`
+- **File:** `memory_metrics.py:269`
 - **Async:** No
+- **Returns:** `None`
 
-#### `def record_memory_search(segment, hit_count, search_type)`
+#### `def record_memory_search(segment, hit_count, search_type) -> None`
 
 Record a memory search operation.
 
-- **File:** `memory_metrics.py:271`
+- **File:** `memory_metrics.py:293`
 - **Async:** No
+- **Returns:** `None`
 
-#### `def record_tool_invocation(tool_id, status, duration_ms)`
+#### `def record_tool_invocation(tool_id, status, duration_ms) -> None`
 
 Record a tool invocation.
 
-- **File:** `memory_metrics.py:294`
+- **File:** `memory_metrics.py:316`
 - **Async:** No
+- **Returns:** `None`
 
-#### `def set_memory_substrate_health(healthy)`
+#### `def set_memory_substrate_health(healthy) -> None`
 
 Set the memory substrate health gauge.
 
-- **File:** `memory_metrics.py:317`
+- **File:** `memory_metrics.py:339`
 - **Async:** No
+- **Returns:** `None`
 
-#### `def update_packet_store_size(segment, count)`
-
-Update the packet store size gauge for a segment.
-
-- **File:** `memory_metrics.py:333`
-- **Async:** No
 
 ### Usage Example
 
@@ -259,7 +307,7 @@ Telemetry operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "telemetry",
   "message": "Operation completed",
@@ -270,7 +318,6 @@ Telemetry operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -278,12 +325,12 @@ Telemetry operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                            | Type      | Description                    |
-| --------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `telemetry_operation_duration_ms` | Histogram | Operation latency distribution |
-| `telemetry_operation_total`       | Counter   | Total operations processed     |
-| `telemetry_error_total`           | Counter   | Total errors encountered       |
-| `telemetry_active_connections`    | Gauge     | Current active connections     |
+| `telemetry_operation_total` | Counter | Total operations processed |
+| `telemetry_error_total` | Counter | Total errors encountered |
+| `telemetry_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -301,7 +348,6 @@ Telemetry emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/telemetry/`:
-
 - `test_telemetry.py` — Core unit tests
 - `test_telemetry_integration.py` — Integration tests (if applicable)
 
@@ -344,7 +390,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

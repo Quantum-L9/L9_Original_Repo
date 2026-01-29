@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Intermediate representation compiler and semantic compilation
 
 ### Inbound Dependencies
 
-| Module           | Purpose          |
-| ---------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `orchestrators/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -90,14 +90,14 @@ ir_engine/
 ├── simulation_router.py
 ```
 
-| File                   | Purpose                           |
-| ---------------------- | --------------------------------- |
-| `ir_generator.py`      | Core module (PROTECTED)           |
-| `semantic_compiler.py` | Core module (PROTECTED)           |
-| `__init__.py`          | Core module (PROTECTED)           |
-| `meta_ir.py`           | Module tier classification (0-7). |
-| `meta_ir.py`           | Team responsible for the module.  |
-| `meta_ir.py`           | Which service the module runs in. |
+| File | Purpose |
+|------|---------|
+| `ir_generator.py` | Core module (PROTECTED) |
+| `semantic_compiler.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `meta_ir.py` | Module tier classification (0-7). |
+| `meta_ir.py` | Team responsible for the module. |
+| `meta_ir.py` | Which service the module runs in. |
 
 ### Naming Conventions
 
@@ -170,6 +170,7 @@ class CallableFrom:
 
 **Lines:** 117-121 in `meta_ir.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -179,6 +180,27 @@ The following data models define the contracts for this subsystem:
 - **`SchemaValidationError`** — Raised when schema validation fails.
 - **`SchemaValidator`** — Validates YAML specs against Module-Spec-v2.4.0 constraints.
 - **`SimulationRequest`** — Request to simulate an IR graph.
+
+### Exported Symbols (`__all__`)
+
+`AcceptanceSpec`, `ActionNode`, `BootImpact`, `ConstraintChallenger`, `ConstraintNode`, `DeliberationCell`, `DependencyEdge`, `DependencySpec`, `EnvironmentSpec`, `ErrorPolicy`
+
+*...and 42 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `FORBIDDEN_PATTERNS` | `['if applicable', 'when needed', 'as req...` | 64 |
+| `REQUIRED_SECTIONS` | `['metadata', 'ownership', 'runtime_wirin...` | 81 |
+| `INTENT_EXTRACTION_PROMPT` | `'You are an intent extraction system. An...` | 71 |
+| `PRODUCER_PROMPT` | `'You are IR Producer Agent. Your role is...` | 99 |
+| `CRITIC_PROMPT` | `'You are IR Critic Agent. Your role is t...` | 130 |
+| `CHALLENGE_PROMPT` | `'You are a constraint analysis expert. R...` | 53 |
+| `ADAPTER_TEMPLATE` | `'"""\n{{ module_name }} Adapter\n{{ \'=\...` | 77 |
+| `ROUTE_TEMPLATE` | `'"""\n{{ module_name }} Routes\n{{ \'=\'...` | 161 |
+
+*...and 5 more constants*
 
 ### Key Schemas
 
@@ -244,9 +266,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Ir_Engine feature flags
-L9_ENABLE_IR_ENGINE_TRACING: true # Enable detailed tracing
-L9_ENABLE_IR_ENGINE_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_IR_ENGINE_AUDIT: true # Enable audit logging
+L9_ENABLE_IR_ENGINE_TRACING: true  # Enable detailed tracing
+L9_ENABLE_IR_ENGINE_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_IR_ENGINE_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -273,40 +295,46 @@ IR_ENGINE_ENABLED=true
 
 ### Public Functions
 
-#### `def validate_schema(yaml_path, strict)`
+#### `def validate_schema(yaml_path, strict) -> MetaContractValidationResult`
 
 Validate a YAML schema file.
 
-- **File:** `schema_validator.py:397`
+- **File:** `schema_validator.py:400`
 - **Async:** No
+- **Returns:** `MetaContractValidationResult`
 
-#### `def validate_and_parse(yaml_path, strict)`
+#### `def validate_and_parse(yaml_path, strict) -> MetaContract`
 
 Validate and parse a YAML schema file.
 
-- **File:** `schema_validator.py:414`
+- **File:** `schema_validator.py:417`
 - **Async:** No
+- **Returns:** `MetaContract`
 
-#### `def compile_meta_to_ir(yaml_path)`
+#### `def compile_meta_to_ir(yaml_path) -> ModuleIR`
 
 Compile a YAML meta specification to IR.
 
-- **File:** `compile_meta_to_ir.py:533`
+- **File:** `compile_meta_to_ir.py:530`
 - **Async:** No
+- **Returns:** `ModuleIR`
 
-#### `def compile_contract_to_ir(contract)`
+#### `def compile_contract_to_ir(contract) -> ModuleIR`
 
 Compile a MetaContract to IR.
 
-- **File:** `compile_meta_to_ir.py:547`
+- **File:** `compile_meta_to_ir.py:544`
 - **Async:** No
+- **Returns:** `ModuleIR`
 
-#### `def compile_ir_to_python(ir)`
+#### `def compile_ir_to_python(ir) -> dict[str, str]`
 
 Compile ModuleIR to Python source files.
 
-- **File:** `ir_to_python.py:954`
+- **File:** `ir_to_python.py:952`
 - **Async:** No
+- **Returns:** `dict[str, str]`
+
 
 ### Usage Example
 
@@ -337,7 +365,7 @@ Ir Engine operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "ir_engine",
   "message": "Operation completed",
@@ -348,7 +376,6 @@ Ir Engine operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -356,12 +383,12 @@ Ir Engine operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                            | Type      | Description                    |
-| --------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `ir_engine_operation_duration_ms` | Histogram | Operation latency distribution |
-| `ir_engine_operation_total`       | Counter   | Total operations processed     |
-| `ir_engine_error_total`           | Counter   | Total errors encountered       |
-| `ir_engine_active_connections`    | Gauge     | Current active connections     |
+| `ir_engine_operation_total` | Counter | Total operations processed |
+| `ir_engine_error_total` | Counter | Total errors encountered |
+| `ir_engine_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -379,7 +406,6 @@ Ir Engine emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/ir_engine/`:
-
 - `test_ir_engine.py` — Core unit tests
 - `test_ir_engine_integration.py` — Integration tests (if applicable)
 
@@ -429,7 +455,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

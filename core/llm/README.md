@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ LLM provider clients and abstraction layer
 
 ### Inbound Dependencies
 
-| Module                    | Purpose          |
-| ------------------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/agents/executor.py` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module    | Purpose             |
-| --------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `config/` | Required dependency |
 
 ---
@@ -79,11 +79,11 @@ core/llm/
 ├── llm_service.py
 ```
 
-| File             | Purpose                                     |
-| ---------------- | ------------------------------------------- |
-| `__init__.py`    | Core module (PROTECTED)                     |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
 | `llm_service.py` | LLMService implementation using OpenAI API. |
-| `llm_service.py` | Mock LLMService for testing.                |
+| `llm_service.py` | Mock LLMService for testing. |
 
 ### Naming Conventions
 
@@ -104,21 +104,21 @@ class OpenAILLMService:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...) -> None: ...
 
-    async def _get_client(self, ...): ...
+    def _get_client(self, ...) -> AsyncOpenAI: ...
 
-    async def complete(self, ...): ...
+    async def complete(self, ...) -> str: ...
 
-    async def chat(self, ...): ...
+    async def chat(self, ...) -> str: ...
 
-    async def embed(self, ...): ...
+    async def embed(self, ...) -> list[float]: ...
 
 ```
 
 **Public Methods:** `__init__`, `_get_client`, `complete`, `chat`, `embed`
 
-**Lines:** 65-283 in `llm_service.py`
+**Lines:** 65-284 in `llm_service.py`
 
 ### `llm_service.py` — MockLLMService
 
@@ -128,25 +128,36 @@ class MockLLMService:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...) -> None: ...
 
-    async def complete(self, ...): ...
+    async def complete(self, ...) -> str: ...
 
-    async def chat(self, ...): ...
+    async def chat(self, ...) -> str: ...
 
-    async def embed(self, ...): ...
+    async def embed(self, ...) -> list[float]: ...
 
 ```
 
 **Public Methods:** `__init__`, `complete`, `chat`, `embed`
 
-**Lines:** 286-344 in `llm_service.py`
+**Lines:** 287-345 in `llm_service.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`DEFAULT_CHAT_MODEL`, `DEFAULT_EMBEDDING_MODEL`, `MockLLMService`, `OpenAILLMService`, `create_llm_service`, `get_default_model`
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `DEFAULT_CHAT_MODEL` | `'gpt-4o'` | 56 |
+| `DEFAULT_EMBEDDING_MODEL` | `'text-embedding-3-large'` | 57 |
 
 ### Key Schemas
 
@@ -212,9 +223,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Llm feature flags
-L9_ENABLE_CORE_LLM_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_LLM_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_LLM_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_LLM_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_LLM_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_LLM_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -241,19 +252,22 @@ CORE_LLM_ENABLED=true
 
 ### Public Functions
 
-#### `def get_default_model()`
+#### `def get_default_model() -> str`
 
 Get the default chat model.
 
 - **File:** `llm_service.py:60`
 - **Async:** No
+- **Returns:** `str`
 
-#### `def create_llm_service(provider, api_key)`
+#### `def create_llm_service(provider, api_key) -> LLMService`
 
 Factory function to create LLMService implementation.
 
-- **File:** `llm_service.py:347`
+- **File:** `llm_service.py:348`
 - **Async:** No
+- **Returns:** `LLMService`
+
 
 ### Usage Example
 
@@ -284,7 +298,7 @@ Core Llm operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.llm",
   "message": "Operation completed",
@@ -295,7 +309,6 @@ Core Llm operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -303,12 +316,12 @@ Core Llm operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                           | Type      | Description                    |
-| -------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_llm_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_llm_operation_total`       | Counter   | Total operations processed     |
-| `core_llm_error_total`           | Counter   | Total errors encountered       |
-| `core_llm_active_connections`    | Gauge     | Current active connections     |
+| `core_llm_operation_total` | Counter | Total operations processed |
+| `core_llm_error_total` | Counter | Total errors encountered |
+| `core_llm_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -326,7 +339,6 @@ Core Llm emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_llm/`:
-
 - `test_core_llm.py` — Core unit tests
 - `test_core_llm_integration.py` — Integration tests (if applicable)
 
@@ -369,7 +381,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

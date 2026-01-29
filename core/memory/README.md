@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Memory abstractions and utilities
 
 ### Inbound Dependencies
 
-| Module    | Purpose          |
-| --------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `memory/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -80,12 +80,12 @@ core/memory/
 ├── virtual_context.py
 ```
 
-| File                 | Purpose                                            |
-| -------------------- | -------------------------------------------------- |
-| `__init__.py`        | Core module (PROTECTED)                            |
-| `runtime.py`         | Represents a kernel evolution event for logging.   |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `runtime.py` | Represents a kernel evolution event for logging. |
 | `virtual_context.py` | Memory organization tiers (like OS virtual memory) |
-| `virtual_context.py` | Single memory chunk                                |
+| `virtual_context.py` | Single memory chunk |
 
 ### Naming Conventions
 
@@ -106,9 +106,9 @@ class KernelEvolutionEvent:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def to_packet_payload(self, ...): ...
+    def to_packet_payload(self, ...) -> dict[str, Any]: ...
 
 ```
 
@@ -160,27 +160,31 @@ class VirtualContextManager:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def load_context(self, ...): ...
+    async def load_context(self, ...) -> Context: ...
 
-    async def page_fault_handler(self, ...): ...
+    async def page_fault_handler(self, ...) -> list[Memory]: ...
 
-    async def evict_to_archival(self, ...): ...
+    async def evict_to_archival(self, ...) -> None: ...
 
-    async def _evict_lru(self, ...): ...
+    async def _evict_lru(self, ...) -> None: ...
 
 ```
 
 **Public Methods:** `__init__`, `load_context`, `page_fault_handler`, `evict_to_archival`, `_evict_lru`
 
-**Lines:** 77-236 in `virtual_context.py`
+**Lines:** 77-305 in `virtual_context.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`KernelEvolutionEvent`, `get_kernel_evolution_history`, `log_kernel_evolution`
 
 ### Key Schemas
 
@@ -246,9 +250,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Memory feature flags
-L9_ENABLE_CORE_MEMORY_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_MEMORY_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_MEMORY_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_MEMORY_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_MEMORY_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_MEMORY_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -275,19 +279,22 @@ CORE_MEMORY_ENABLED=true
 
 ### Public Functions
 
-#### `async def log_kernel_evolution(event_type, agent_id, kernel_ids, previous_hashes, new_hashes, modified_kernels, trigger, success, errors, metadata)`
+#### `async def log_kernel_evolution(event_type, agent_id, kernel_ids, previous_hashes, new_hashes, modified_kernels, trigger, success, errors, metadata) -> str | None`
 
 Log a kernel evolution event to the memory substrate.
 
 - **File:** `runtime.py:101`
 - **Async:** Yes
+- **Returns:** `str | None`
 
-#### `async def get_kernel_evolution_history(agent_id, event_type, limit)`
+#### `async def get_kernel_evolution_history(agent_id, event_type, limit) -> list[dict[str, Any]]`
 
 Retrieve kernel evolution history from the memory substrate.
 
-- **File:** `runtime.py:221`
+- **File:** `runtime.py:220`
 - **Async:** Yes
+- **Returns:** `list[dict[str, Any]]`
+
 
 ### Usage Example
 
@@ -318,7 +325,7 @@ Core Memory operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.memory",
   "message": "Operation completed",
@@ -329,7 +336,6 @@ Core Memory operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -337,12 +343,12 @@ Core Memory operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                              | Type      | Description                    |
-| ----------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_memory_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_memory_operation_total`       | Counter   | Total operations processed     |
-| `core_memory_error_total`           | Counter   | Total errors encountered       |
-| `core_memory_active_connections`    | Gauge     | Current active connections     |
+| `core_memory_operation_total` | Counter | Total operations processed |
+| `core_memory_error_total` | Counter | Total errors encountered |
+| `core_memory_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -360,7 +366,6 @@ Core Memory emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_memory/`:
-
 - `test_core_memory.py` — Core unit tests
 - `test_core_memory_integration.py` — Integration tests (if applicable)
 
@@ -403,7 +408,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

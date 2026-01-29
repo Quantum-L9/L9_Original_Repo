@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Agent and output evaluation framework
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module         | Purpose             |
-| -------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/agents/` | Required dependency |
 
 ---
@@ -76,15 +76,16 @@ Agent and output evaluation framework
 ```
 core/evaluation/
 ├── __init__.py
+├── eval_sets.py
 ├── evaluator.py
 ```
 
-| File           | Purpose                           |
-| -------------- | --------------------------------- |
-| `__init__.py`  | Core module (PROTECTED)           |
-| `evaluator.py` | Single evaluation case            |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `evaluator.py` | Single evaluation case |
 | `evaluator.py` | Collection of evaluation examples |
-| `evaluator.py` | Result of evaluation run          |
+| `evaluator.py` | Result of evaluation run |
 
 ### Naming Conventions
 
@@ -129,7 +130,7 @@ class EvaluationResult:
 
     # Key methods:
 
-    async def task_success_rate(self, ...): ...
+    def task_success_rate(self, ...) -> float: ...
 
 ```
 
@@ -145,21 +146,21 @@ class Evaluator:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def define_eval_set(self, ...): ...
+    def define_eval_set(self, ...) -> None: ...
 
-    async def run_eval(self, ...): ...
+    async def run_eval(self, ...) -> EvaluationResult: ...
 
-    async def _compute_tool_accuracy(self, ...): ...
+    def _compute_tool_accuracy(self, ...) -> float: ...
 
-    async def compare_to_baseline(self, ...): ...
+    async def _judge_output(self, ...) -> float: ...
 
 ```
 
-**Public Methods:** `__init__`, `define_eval_set`, `run_eval`, `_compute_tool_accuracy`, `compare_to_baseline`
+**Public Methods:** `__init__`, `define_eval_set`, `run_eval`, `_compute_tool_accuracy`, `_judge_output`
 
-**Lines:** 92-255 in `evaluator.py`
+**Lines:** 92-451 in `evaluator.py`
 
 ### `evaluator.py` — RegressionError
 
@@ -171,13 +172,30 @@ class RegressionError:
 
 ```
 
-**Lines:** 258-261 in `evaluator.py`
+**Lines:** 454-457 in `evaluator.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`ALL_EVAL_SETS`, `CODE_ANALYSIS_EXAMPLES`, `EVAL_SET_DESCRIPTIONS`, `EvaluationExample`, `EvaluationResult`, `EvaluationSet`, `Evaluator`, `INFORMATION_RETRIEVAL_EXAMPLES`, `MEMORY_OPERATIONS_EXAMPLES`, `MULTI_TOOL_EXAMPLES`
+
+*...and 3 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `INFORMATION_RETRIEVAL_EXAMPLES` | `[EvaluationExample(input_text='What is t...` | 51 |
+| `CODE_ANALYSIS_EXAMPLES` | `[EvaluationExample(input_text='What does...` | 110 |
+| `MULTI_TOOL_EXAMPLES` | `[EvaluationExample(input_text='Search fo...` | 171 |
+| `MEMORY_OPERATIONS_EXAMPLES` | `[EvaluationExample(input_text='Remember ...` | 230 |
+| `ALL_EVAL_SETS` | `{'information_retrieval': INFORMATION_RE...` | 329 |
+| `EVAL_SET_DESCRIPTIONS` | `{'information_retrieval': 'Web search, f...` | 336 |
 
 ### Key Schemas
 
@@ -242,9 +260,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Evaluation feature flags
-L9_ENABLE_CORE_EVALUATION_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_EVALUATION_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_EVALUATION_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_EVALUATION_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_EVALUATION_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_EVALUATION_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -271,12 +289,22 @@ CORE_EVALUATION_ENABLED=true
 
 ### Public Functions
 
-#### `async def ci_eval_gate(agent_id, eval_set_name, evaluator, thresholds)`
+#### `def load_default_eval_sets(evaluator) -> None`
+
+Load all default evaluation sets into an evaluator instance.
+
+- **File:** `eval_sets.py:289`
+- **Async:** No
+- **Returns:** `None`
+
+#### `async def ci_eval_gate(agent_id, eval_set_name, evaluator, thresholds) -> None`
 
 Block PRs that regress eval scores
 
-- **File:** `evaluator.py:264`
+- **File:** `evaluator.py:460`
 - **Async:** Yes
+- **Returns:** `None`
+
 
 ### Usage Example
 
@@ -307,7 +335,7 @@ Core Evaluation operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.evaluation",
   "message": "Operation completed",
@@ -318,7 +346,6 @@ Core Evaluation operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -326,12 +353,12 @@ Core Evaluation operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                  | Type      | Description                    |
-| --------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_evaluation_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_evaluation_operation_total`       | Counter   | Total operations processed     |
-| `core_evaluation_error_total`           | Counter   | Total errors encountered       |
-| `core_evaluation_active_connections`    | Gauge     | Current active connections     |
+| `core_evaluation_operation_total` | Counter | Total operations processed |
+| `core_evaluation_error_total` | Counter | Total errors encountered |
+| `core_evaluation_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -349,7 +376,6 @@ Core Evaluation emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_evaluation/`:
-
 - `test_core_evaluation.py` — Core unit tests
 - `test_core_evaluation_integration.py` — Integration tests (if applicable)
 
@@ -392,7 +418,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Background job workers for async processing
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                  | Purpose             |
-| ----------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `runtime/task_queue.py` | Required dependency |
 
 ---
@@ -83,11 +83,11 @@ workers/
 ├── violation_tracker_service.py
 ```
 
-| File                    | Purpose                           |
-| ----------------------- | --------------------------------- |
-| `__init__.py`           | Core module (PROTECTED)           |
-| `anomaly_classifier.py` | Anomaly severity levels.          |
-| `anomaly_classifier.py` | Types of anomalies detected.      |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `anomaly_classifier.py` | Anomaly severity levels. |
+| `anomaly_classifier.py` | Types of anomalies detected. |
 | `anomaly_classifier.py` | A rule for classifying anomalies. |
 
 ### Naming Conventions
@@ -161,6 +161,7 @@ class ClassificationResult:
 
 **Lines:** 114-123 in `anomaly_classifier.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -170,6 +171,27 @@ The following data models define the contracts for this subsystem:
 - **`AnomalyClassifierRequest`** — Input request for AnomalyClassifier.
 - **`AnomalyClassifierResponse`** — Output response from AnomalyClassifier.
 - **`ViolationPatternsRequest`** — Input request for ViolationPatterns.
+
+### Exported Symbols (`__all__`)
+
+`AnomalyClassifier`, `AnomalyClassifierRequest`, `AnomalyClassifierResponse`, `AnomalyResponseMonitor`, `AnomalyResponseMonitorRequest`, `AnomalyResponseMonitorResponse`, `AnomalySeverity`, `AnomalyType`, `ClassificationResult`, `ClassificationRule`
+
+*...and 26 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `MODULE_ID` | `'anomaly_classifier'` | 56 |
+| `MODULE_NAME` | `'Anomaly Classifier'` | 57 |
+| `MODULE_ID` | `'violation_patterns'` | 55 |
+| `MODULE_NAME` | `'Violation Patterns'` | 56 |
+| `DEFAULT_PATTERNS` | `[ViolationPattern(pattern='Library/Appli...` | 84 |
+| `MODULE_ID` | `'remediation_engine'` | 55 |
+| `MODULE_NAME` | `'Remediation Engine'` | 56 |
+| `MODULE_ID` | `'violation_tracker_service'` | 69 |
+
+*...and 7 more constants*
 
 ### Key Schemas
 
@@ -234,9 +256,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Workers feature flags
-L9_ENABLE_WORKERS_TRACING: true # Enable detailed tracing
-L9_ENABLE_WORKERS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_WORKERS_AUDIT: true # Enable audit logging
+L9_ENABLE_WORKERS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_WORKERS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_WORKERS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -263,40 +285,46 @@ WORKERS_ENABLED=true
 
 ### Public Functions
 
-#### `def create_anomaly_classifier(custom_rules)`
+#### `def create_anomaly_classifier(custom_rules) -> AnomalyClassifier`
 
 Factory function to create AnomalyClassifier.
 
-- **File:** `anomaly_classifier.py:421`
+- **File:** `anomaly_classifier.py:420`
 - **Async:** No
+- **Returns:** `AnomalyClassifier`
 
-#### `def create_violation_patterns(custom_patterns)`
+#### `def create_violation_patterns(custom_patterns) -> ViolationPatterns`
 
 Factory function to create ViolationPatterns.
 
-- **File:** `violation_patterns.py:445`
+- **File:** `violation_patterns.py:444`
 - **Async:** No
+- **Returns:** `ViolationPatterns`
 
-#### `def create_remediation_engine(rollback_endpoint, escalation_endpoint)`
+#### `def create_remediation_engine(rollback_endpoint, escalation_endpoint) -> RemediationEngine`
 
 Factory function to create RemediationEngine.
 
-- **File:** `remediation_engine.py:481`
+- **File:** `remediation_engine.py:480`
 - **Async:** No
+- **Returns:** `RemediationEngine`
 
-#### `def create_violation_tracker_service(pattern_matcher, mcp_enabled)`
+#### `def create_violation_tracker_service(pattern_matcher, mcp_enabled) -> ViolationTrackerService`
 
 Factory function to create ViolationTrackerService.
 
-- **File:** `violation_tracker_service.py:560`
+- **File:** `violation_tracker_service.py:563`
 - **Async:** No
+- **Returns:** `ViolationTrackerService`
 
-#### `def create_anomaly_response_monitor(classifier, remediation_engine, poll_interval_seconds)`
+#### `def create_anomaly_response_monitor(classifier, remediation_engine, poll_interval_seconds) -> AnomalyResponseMonitor`
 
 Factory function to create AnomalyResponseMonitor.
 
-- **File:** `anomaly_response_monitor.py:541`
+- **File:** `anomaly_response_monitor.py:538`
 - **Async:** No
+- **Returns:** `AnomalyResponseMonitor`
+
 
 ### Usage Example
 
@@ -327,7 +355,7 @@ Workers operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "workers",
   "message": "Operation completed",
@@ -338,7 +366,6 @@ Workers operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -346,12 +373,12 @@ Workers operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                          | Type      | Description                    |
-| ------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `workers_operation_duration_ms` | Histogram | Operation latency distribution |
-| `workers_operation_total`       | Counter   | Total operations processed     |
-| `workers_error_total`           | Counter   | Total errors encountered       |
-| `workers_active_connections`    | Gauge     | Current active connections     |
+| `workers_operation_total` | Counter | Total operations processed |
+| `workers_error_total` | Counter | Total errors encountered |
+| `workers_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -369,7 +396,6 @@ Workers emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/workers/`:
-
 - `test_workers.py` — Core unit tests
 - `test_workers_integration.py` — Integration tests (if applicable)
 
@@ -412,7 +438,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

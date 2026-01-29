@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Unified controller, task router, and plan executor
 
 ### Inbound Dependencies
 
-| Module        | Purpose          |
-| ------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `api/routes/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module                        | Purpose             |
-| ----------------------------- | ------------------- |
-| `core/agents/executor.py`     | Required dependency |
+| Module | Purpose |
+|--------|---------|
+| `core/agents/executor.py` | Required dependency |
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -90,14 +90,14 @@ orchestration/
 ├── ws_task_router.py
 ```
 
-| File                      | Purpose                                            |
-| ------------------------- | -------------------------------------------------- |
-| `unified_controller.py`   | Core module (PROTECTED)                            |
-| `task_router.py`          | Core module (PROTECTED)                            |
-| `__init__.py`             | Core module (PROTECTED)                            |
-| `quantum_swarm_loader.py` | Exception raised when swarm loading fails.         |
+| File | Purpose |
+|------|---------|
+| `unified_controller.py` | Core module (PROTECTED) |
+| `task_router.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `quantum_swarm_loader.py` | Exception raised when swarm loading fails. |
 | `quantum_swarm_loader.py` | Loads and executes quantum swarm capsules for para |
-| `input_segmenter.py`      | Configuration for input segmentation.              |
+| `input_segmenter.py` | Configuration for input segmentation. |
 
 ### Naming Conventions
 
@@ -130,15 +130,15 @@ class QuantumSwarmLoader:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def load_quantum_swarm(self, ...): ...
+    async def load_quantum_swarm(self, ...) -> dict[str, Any]: ...
 
-    async def _load_capsule(self, ...): ...
+    def _load_capsule(self, ...) -> dict[str, Any]: ...
 
-    async def _warmup_cache(self, ...): ...
+    async def _warmup_cache(self, ...) -> None: ...
 
-    async def get_stats(self, ...): ...
+    def get_stats(self, ...) -> dict[str, Any]: ...
 
 ```
 
@@ -156,7 +156,7 @@ class SegmenterConfig:
 
 ```
 
-**Lines:** 45-78 in `input_segmenter.py`
+**Lines:** 73-106 in `input_segmenter.py`
 
 ### `input_segmenter.py` — SegmentResult
 
@@ -166,15 +166,15 @@ class SegmentResult:
 
     # Key methods:
 
-    async def __iter__(self, ...): ...
+    def __iter__(self, ...): ...
 
-    async def __len__(self, ...): ...
+    def __len__(self, ...): ...
 
 ```
 
 **Public Methods:** `__iter__`, `__len__`
 
-**Lines:** 87-100 in `input_segmenter.py`
+**Lines:** 115-128 in `input_segmenter.py`
 
 ### `input_segmenter.py` — InputSegmenter
 
@@ -184,27 +184,45 @@ class InputSegmenter:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def segment(self, ...): ...
+    def segment(self, ...) -> SegmentResult: ...
 
-    async def _split_on_separators(self, ...): ...
+    def _split_on_separators(self, ...) -> list[str]: ...
 
-    async def _is_separator(self, ...): ...
+    def _is_separator(self, ...) -> bool: ...
 
-    async def _normalize(self, ...): ...
+    def _normalize(self, ...) -> str: ...
 
 ```
 
 **Public Methods:** `__init__`, `segment`, `_split_on_separators`, `_is_separator`, `_normalize`
 
-**Lines:** 108-332 in `input_segmenter.py`
+**Lines:** 136-358 in `input_segmenter.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`CellOrchestrator`, `CellStep`, `CellWorkflow`, `ChainStatus`, `ChainStep`, `ControllerConfig`, `ControllerPhase`, `ControllerResult`, `ControllerState`, `ExecutionChain`
+
+*...and 39 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `LLM_MODEL` | `os.getenv('L9_LLM_MODEL', 'gpt-4o-mini')` | 50 |
+| `TASK_TYPE_PATTERNS` | `{TaskType.DESIGN: ['\\b(design|architect...` | 193 |
+| `COMPLEXITY_INDICATORS` | `{'high': ['\\b(entire|whole|complete|all...` | 233 |
+| `RISK_INDICATORS` | `{'critical': ['\\b(production|live|custo...` | 253 |
+| `VALID_PHASE_TRANSITIONS` | `{KernelPhase.IDLE: [KernelPhase.INGEST],...` | 96 |
+| `MODEL` | `os.getenv('L9_LLM_MODEL', 'gpt-4o-mini')` | 40 |
+| `MODEL` | `os.getenv('L9_LLM_MODEL', 'gpt-4o-mini')` | 40 |
 
 ### Key Schemas
 
@@ -270,9 +288,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Orchestration feature flags
-L9_ENABLE_ORCHESTRATION_TRACING: true # Enable detailed tracing
-L9_ENABLE_ORCHESTRATION_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_ORCHESTRATION_AUDIT: true # Enable audit logging
+L9_ENABLE_ORCHESTRATION_TRACING: true  # Enable detailed tracing
+L9_ENABLE_ORCHESTRATION_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_ORCHESTRATION_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -299,40 +317,46 @@ ORCHESTRATION_ENABLED=true
 
 ### Public Functions
 
-#### `async def load_quantum_swarm(capsule_path)`
+#### `async def load_quantum_swarm(capsule_path) -> dict[str, Any]`
 
 Convenience function to load and execute a quantum swarm.
 
 - **File:** `quantum_swarm_loader.py:259`
 - **Async:** Yes
+- **Returns:** `dict[str, Any]`
 
-#### `def get_segmenter()`
+#### `def get_segmenter() -> InputSegmenter`
 
 Get or create the default segmenter instance.
 
-- **File:** `input_segmenter.py:343`
+- **File:** `input_segmenter.py:369`
 - **Async:** No
+- **Returns:** `InputSegmenter`
 
-#### `def segment_input(input_text)`
+#### `def segment_input(input_text) -> SegmentResult`
 
 Segment input using default segmenter.
 
-- **File:** `input_segmenter.py:351`
+- **File:** `input_segmenter.py:377`
 - **Async:** No
+- **Returns:** `SegmentResult`
 
-#### `def segment_to_tasks(input_text, context)`
+#### `def segment_to_tasks(input_text, context) -> list[dict[str, Any]]`
 
 Segment input to task dicts using default segmenter.
 
-- **File:** `input_segmenter.py:366`
+- **File:** `input_segmenter.py:392`
 - **Async:** No
+- **Returns:** `list[dict[str, Any]]`
 
-#### `async def generate_artifact_with_llm(artifact_type, goal, constraints, context, max_tokens)`
+#### `async def generate_artifact_with_llm(artifact_type, goal, constraints, context, max_tokens) -> str | None`
 
 Generate an artifact (plan, code, docs) using LLM.
 
 - **File:** `long_plan_graph.py:58`
 - **Async:** Yes
+- **Returns:** `str | None`
+
 
 ### Usage Example
 
@@ -363,7 +387,7 @@ Orchestration operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "orchestration",
   "message": "Operation completed",
@@ -374,7 +398,6 @@ Orchestration operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -382,12 +405,12 @@ Orchestration operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                | Type      | Description                    |
-| ------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `orchestration_operation_duration_ms` | Histogram | Operation latency distribution |
-| `orchestration_operation_total`       | Counter   | Total operations processed     |
-| `orchestration_error_total`           | Counter   | Total errors encountered       |
-| `orchestration_active_connections`    | Gauge     | Current active connections     |
+| `orchestration_operation_total` | Counter | Total operations processed |
+| `orchestration_error_total` | Counter | Total errors encountered |
+| `orchestration_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -405,7 +428,6 @@ Orchestration emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/orchestration/`:
-
 - `test_orchestration.py` — Core unit tests
 - `test_orchestration_integration.py` — Integration tests (if applicable)
 
@@ -452,7 +474,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

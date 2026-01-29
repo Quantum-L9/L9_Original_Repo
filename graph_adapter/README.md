@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Neo4j graph database adapter
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module    | Purpose             |
-| --------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `memory/` | Required dependency |
 
 ---
@@ -79,9 +79,9 @@ graph_adapter/
 ├── packet_node_adapter.py
 ```
 
-| File                     | Purpose                                            |
-| ------------------------ | -------------------------------------------------- |
-| `__init__.py`            | Core module (PROTECTED)                            |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
 | `packet_node_adapter.py` | Wraps a node function, ensuring its input/output a |
 
 ### Naming Conventions
@@ -103,21 +103,25 @@ class PacketNodeAdapter:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...) -> None: ...
 
-    async def __call__(self, ...): ...
+    async def __call__(self, ...) -> GraphState: ...
 
 ```
 
 **Public Methods:** `__init__`, `__call__`
 
-**Lines:** 53-109 in `packet_node_adapter.py`
+**Lines:** 54-110 in `packet_node_adapter.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`PacketNodeAdapter`
 
 ### Key Schemas
 
@@ -182,9 +186,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Graph_Adapter feature flags
-L9_ENABLE_GRAPH_ADAPTER_TRACING: true # Enable detailed tracing
-L9_ENABLE_GRAPH_ADAPTER_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_GRAPH_ADAPTER_AUDIT: true # Enable audit logging
+L9_ENABLE_GRAPH_ADAPTER_TRACING: true  # Enable detailed tracing
+L9_ENABLE_GRAPH_ADAPTER_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_GRAPH_ADAPTER_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -240,7 +244,7 @@ Graph Adapter operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "graph_adapter",
   "message": "Operation completed",
@@ -251,7 +255,6 @@ Graph Adapter operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -259,12 +262,12 @@ Graph Adapter operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                | Type      | Description                    |
-| ------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `graph_adapter_operation_duration_ms` | Histogram | Operation latency distribution |
-| `graph_adapter_operation_total`       | Counter   | Total operations processed     |
-| `graph_adapter_error_total`           | Counter   | Total errors encountered       |
-| `graph_adapter_active_connections`    | Gauge     | Current active connections     |
+| `graph_adapter_operation_total` | Counter | Total operations processed |
+| `graph_adapter_error_total` | Counter | Total errors encountered |
+| `graph_adapter_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -282,7 +285,6 @@ Graph Adapter emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/graph_adapter/`:
-
 - `test_graph_adapter.py` — Core unit tests
 - `test_graph_adapter_integration.py` — Integration tests (if applicable)
 
@@ -325,7 +327,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Gmail integration agent for email triage and processing
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                    | Purpose             |
-| ------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/agents/executor.py` | Required dependency |
 
 ---
@@ -86,13 +86,13 @@ email_agent/
 ├── triage.py
 ```
 
-| File              | Purpose                                            |
-| ----------------- | -------------------------------------------------- |
-| `credentials.py`  | Core module (PROTECTED)                            |
-| `__init__.py`     | Core module (PROTECTED)                            |
-| `config.py`       | Configuration for a Gmail account.                 |
+| File | Purpose |
+|------|---------|
+| `credentials.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `config.py` | Configuration for a Gmail account. |
 | `gmail_client.py` | Gmail API client wrapper with multi-account suppor |
-| `oauth_server.py` | HTTP handler for OAuth flow.                       |
+| `oauth_server.py` | HTTP handler for OAuth flow. |
 
 ### Naming Conventions
 
@@ -113,19 +113,19 @@ class AccountConfig:
 
     # Key methods:
 
-    async def __post_init__(self, ...): ...
+    def __post_init__(self, ...): ...
 
-    async def tokens_file(self, ...): ...
+    def tokens_file(self, ...) -> Path: ...
 
-    async def client_secret_file(self, ...): ...
+    def client_secret_file(self, ...) -> Path: ...
 
-    async def attachments_dir(self, ...): ...
+    def attachments_dir(self, ...) -> Path: ...
 
 ```
 
 **Public Methods:** `__post_init__`, `tokens_file`, `client_secret_file`, `attachments_dir`
 
-**Lines:** 49-78 in `config.py`
+**Lines:** 48-77 in `config.py`
 
 ### `gmail_client.py` — GmailClient
 
@@ -135,15 +135,15 @@ class GmailClient:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def _authenticate(self, ...): ...
+    def _authenticate(self, ...): ...
 
-    async def list_messages(self, ...): ...
+    def list_messages(self, ...) -> list[dict[str, Any]]: ...
 
-    async def get_message(self, ...): ...
+    def get_message(self, ...) -> dict[str, Any] | None: ...
 
-    async def send_email(self, ...): ...
+    def send_email(self, ...) -> dict[str, Any] | None: ...
 
 ```
 
@@ -159,43 +159,19 @@ class OAuthHandler:
 
     # Key methods:
 
-    async def do_GET(self, ...): ...
+    def do_GET(self, ...): ...
 
-    async def handle_start(self, ...): ...
+    def handle_start(self, ...): ...
 
-    async def handle_callback(self, ...): ...
+    def handle_callback(self, ...): ...
 
-    async def log_message(self, ...): ...
+    def log_message(self, ...): ...
 
 ```
 
 **Public Methods:** `do_GET`, `handle_start`, `handle_callback`, `log_message`
 
-**Lines:** 57-184 in `oauth_server.py`
-
-### `parser.py` — HTMLToTextParser
-
-```python
-class HTMLToTextParser:
-    """No description"""
-
-    # Key methods:
-
-    async def __init__(self, ...): ...
-
-    async def handle_starttag(self, ...): ...
-
-    async def handle_endtag(self, ...): ...
-
-    async def handle_data(self, ...): ...
-
-    async def get_text(self, ...): ...
-
-```
-
-**Public Methods:** `__init__`, `handle_starttag`, `handle_endtag`, `handle_data`, `get_text`
-
-**Lines:** 266-303 in `parser.py`
+**Lines:** 56-185 in `oauth_server.py`
 
 ### `router.py` — QueryRequest
 
@@ -209,6 +185,19 @@ class QueryRequest:
 
 **Lines:** 93-97 in `router.py`
 
+### `router.py` — GetRequest
+
+```python
+class GetRequest:
+    """Request model for getting email."""
+
+    # Key methods:
+
+```
+
+**Lines:** 100-103 in `router.py`
+
+
 ---
 
 ## Data Models and Contracts
@@ -218,6 +207,25 @@ The following data models define the contracts for this subsystem:
 - **`QueryRequest`** — Request model for email query.
 - **`GetRequest`** — Request model for getting email.
 - **`DraftRequest`** — Request model for email draft.
+
+### Exported Symbols (`__all__`)
+
+`GmailClient`, `create_flow`, `exchange_code_for_tokens`, `execute_email_task`, `load_client_secrets`, `load_tokens`, `run_daily_digest`, `save_tokens`, `summarize_inbox`
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `L9_EMAIL_MULTI_ACCOUNT` | `os.getenv('L9_EMAIL_MULTI_ACCOUNT', 'tru...` | 44 |
+| `ACCOUNTS` | `{'igor': AccountConfig(name='igor', emai...` | 81 |
+| `VALID_ACCOUNTS` | `list(ACCOUNTS.keys())` | 95 |
+| `GMAIL_DATA_ROOT` | `Path(_data_root) / 'gmail'` | 111 |
+| `TOKENS_FILE` | `GMAIL_DATA_ROOT / 'tokens.json'` | 114 |
+| `CLIENT_SECRET_FILE` | `GMAIL_DATA_ROOT / 'client_secret.json'` | 115 |
+| `ATTACHMENTS_DIR` | `GMAIL_DATA_ROOT / 'attachments'` | 116 |
+| `GMAIL_ACCOUNT` | `'nc@scrapmanagement.com'` | 119 |
+
+*...and 4 more constants*
 
 ### Key Schemas
 
@@ -283,9 +291,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Email_Agent feature flags
-L9_ENABLE_EMAIL_AGENT_TRACING: true # Enable detailed tracing
-L9_ENABLE_EMAIL_AGENT_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_EMAIL_AGENT_AUDIT: true # Enable audit logging
+L9_ENABLE_EMAIL_AGENT_TRACING: true  # Enable detailed tracing
+L9_ENABLE_EMAIL_AGENT_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_EMAIL_AGENT_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -312,40 +320,45 @@ EMAIL_AGENT_ENABLED=true
 
 ### Public Functions
 
-#### `def get_account_config(account)`
+#### `def get_account_config(account) -> AccountConfig`
 
 Get account configuration by name.
 
-- **File:** `config.py:130`
+- **File:** `config.py:129`
 - **Async:** No
+- **Returns:** `AccountConfig`
 
 #### `def ensure_dirs(account)`
 
 Ensure all required directories exist.
 
-- **File:** `config.py:148`
+- **File:** `config.py:147`
 - **Async:** No
 
-#### `def load_client_secrets(account)`
+#### `def load_client_secrets(account) -> dict[str, Any] | None`
 
 Load OAuth client secrets.
 
-- **File:** `credentials.py:61`
+- **File:** `credentials.py:68`
 - **Async:** No
+- **Returns:** `dict[str, Any] | None`
 
-#### `def create_flow(redirect_uri, account)`
+#### `def create_flow(redirect_uri, account) -> Any | None`
 
 Create OAuth2 flow for Gmail authentication.
 
-- **File:** `credentials.py:96`
+- **File:** `credentials.py:103`
 - **Async:** No
+- **Returns:** `Any | None`
 
-#### `def exchange_code_for_tokens(authorization_code, redirect_uri, account)`
+#### `def exchange_code_for_tokens(authorization_code, redirect_uri, account) -> Credentials | None`
 
 Exchange authorization code for access/refresh tokens.
 
-- **File:** `credentials.py:134`
+- **File:** `credentials.py:140`
 - **Async:** No
+- **Returns:** `Credentials | None`
+
 
 ### Usage Example
 
@@ -376,7 +389,7 @@ Email Agent operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "email_agent",
   "message": "Operation completed",
@@ -387,7 +400,6 @@ Email Agent operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -395,12 +407,12 @@ Email Agent operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                              | Type      | Description                    |
-| ----------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `email_agent_operation_duration_ms` | Histogram | Operation latency distribution |
-| `email_agent_operation_total`       | Counter   | Total operations processed     |
-| `email_agent_error_total`           | Counter   | Total errors encountered       |
-| `email_agent_active_connections`    | Gauge     | Current active connections     |
+| `email_agent_operation_total` | Counter | Total operations processed |
+| `email_agent_error_total` | Counter | Total errors encountered |
+| `email_agent_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -418,7 +430,6 @@ Email Agent emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/email_agent/`:
-
 - `test_email_agent.py` — Core unit tests
 - `test_email_agent_integration.py` — Integration tests (if applicable)
 
@@ -466,7 +477,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -179,21 +179,7 @@ if str(_repo_root) not in sys.path:
 
 # Try to import the enhanced ast_scanner module
 try:
-    from tools.superpack_reports.ast_scanner import (
-        ClassInfo as ASTClassInfo,
-    )
-    from tools.superpack_reports.ast_scanner import (
-        ConstantInfo,
-        GlobalVarInfo,
-        MethodInfo,
-        ModuleInfo,
-    )
-    from tools.superpack_reports.ast_scanner import (
-        FunctionInfo as ASTFunctionInfo,
-    )
-    from tools.superpack_reports.ast_scanner import (
-        scan_module as ast_scan_module,
-    )
+    from tools.superpack_reports.ast_scanner import scan_module as ast_scan_module
 
     AST_SCANNER_AVAILABLE = True
 except ImportError as e:

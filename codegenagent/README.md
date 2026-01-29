@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Code generation agent and specifications
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module         | Purpose             |
-| -------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/agents/` | Required dependency |
 
 ---
@@ -84,12 +84,12 @@ codegenagent/
 ├── readme_generator.py
 ```
 
-| File              | Purpose                                            |
-| ----------------- | -------------------------------------------------- |
-| `__init__.py`     | Core module (PROTECTED)                            |
-| `c_gmp_engine.py` | Exception raised when code generation fails.       |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `c_gmp_engine.py` | Exception raised when code generation fails. |
 | `c_gmp_engine.py` | Code Generation and Mathematical Processing Engine |
-| `meta_loader.py`  | Exception raised when meta loading fails.          |
+| `meta_loader.py` | Exception raised when meta loading fails. |
 
 ### Naming Conventions
 
@@ -112,7 +112,7 @@ class CGMPEngineError:
 
 ```
 
-**Lines:** 31-33 in `c_gmp_engine.py`
+**Lines:** 52-55 in `c_gmp_engine.py`
 
 ### `c_gmp_engine.py` — CGMPEngine
 
@@ -122,21 +122,21 @@ class CGMPEngine:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def expand_code_blocks(self, ...): ...
+    async def expand_code_blocks(self, ...) -> list[dict[str, Any]]: ...
 
-    async def _is_mathematical(self, ...): ...
+    def _is_mathematical(self, ...) -> bool: ...
 
-    async def _expand_mathematical(self, ...): ...
+    async def _expand_mathematical(self, ...) -> dict[str, Any]: ...
 
-    async def _expand_template(self, ...): ...
+    def _expand_template(self, ...) -> dict[str, Any]: ...
 
 ```
 
 **Public Methods:** `__init__`, `expand_code_blocks`, `_is_mathematical`, `_expand_mathematical`, `_expand_template`
 
-**Lines:** 36-442 in `c_gmp_engine.py`
+**Lines:** 58-488 in `c_gmp_engine.py`
 
 ### `meta_loader.py` — MetaLoaderError
 
@@ -148,7 +148,7 @@ class MetaLoaderError:
 
 ```
 
-**Lines:** 31-33 in `meta_loader.py`
+**Lines:** 52-55 in `meta_loader.py`
 
 ### `meta_loader.py` — MetaLoader
 
@@ -158,21 +158,21 @@ class MetaLoader:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def load_meta(self, ...): ...
+    def load_meta(self, ...) -> dict[str, Any]: ...
 
-    async def load_as_contract(self, ...): ...
+    def load_as_contract(self, ...) -> MetaContract: ...
 
-    async def validate_meta(self, ...): ...
+    def validate_meta(self, ...) -> MetaContractValidationResult: ...
 
-    async def load_all_specs(self, ...): ...
+    def load_all_specs(self, ...) -> list[dict[str, Any]]: ...
 
 ```
 
 **Public Methods:** `__init__`, `load_meta`, `load_as_contract`, `validate_meta`, `load_all_specs`
 
-**Lines:** 36-306 in `meta_loader.py`
+**Lines:** 58-327 in `meta_loader.py`
 
 ### `readme_generator.py` — ReadmeSection
 
@@ -184,13 +184,26 @@ class ReadmeSection:
 
 ```
 
-**Lines:** 30-35 in `readme_generator.py`
+**Lines:** 49-55 in `readme_generator.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`BatchResult`, `CGMPEngine`, `CGMPEngineError`, `CodeGenAgent`, `DryRunResult`, `EmissionResult`, `FileChange`, `FileEmitter`, `GeneratedReadme`, `GenerationResult`
+
+*...and 12 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `PATCH_TYPES` | `['registry_patch', 'router_patch', 'sing...` | 23 |
+| `PATCH_FILENAME_PATTERNS` | `['_patch', 'patch_', '/patch/', 'patch.'...` | 42 |
 
 ### Key Schemas
 
@@ -255,9 +268,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Codegenagent feature flags
-L9_ENABLE_CODEGENAGENT_TRACING: true # Enable detailed tracing
-L9_ENABLE_CODEGENAGENT_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CODEGENAGENT_AUDIT: true # Enable audit logging
+L9_ENABLE_CODEGENAGENT_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CODEGENAGENT_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CODEGENAGENT_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -284,40 +297,46 @@ CODEGENAGENT_ENABLED=true
 
 ### Public Functions
 
-#### `def load_meta(path)`
+#### `def load_meta(path) -> dict[str, Any]`
 
 Load a YAML meta specification.
 
-- **File:** `meta_loader.py:311`
+- **File:** `meta_loader.py:333`
 - **Async:** No
+- **Returns:** `dict[str, Any]`
 
-#### `def load_as_contract(path)`
+#### `def load_as_contract(path) -> MetaContract`
 
 Load a YAML meta specification as MetaContract.
 
-- **File:** `meta_loader.py:325`
+- **File:** `meta_loader.py:347`
 - **Async:** No
+- **Returns:** `MetaContract`
 
-#### `def is_patch(yaml_content, filename)`
+#### `def is_patch(yaml_content, filename) -> bool`
 
 Determine if a YAML spec is a patch.
 
-- **File:** `extract_yaml_specs.py:33`
+- **File:** `extract_yaml_specs.py:45`
 - **Async:** No
+- **Returns:** `bool`
 
-#### `def extract_yaml_blocks(content)`
+#### `def extract_yaml_blocks(content) -> list`
 
 Extract all '''yaml blocks from the content.
 
-- **File:** `extract_yaml_specs.py:52`
+- **File:** `extract_yaml_specs.py:60`
 - **Async:** No
+- **Returns:** `list`
 
-#### `def sanitize_filename(filename)`
+#### `def sanitize_filename(filename) -> str`
 
 Convert a path-like filename to a safe filename.
 
-- **File:** `extract_yaml_specs.py:96`
+- **File:** `extract_yaml_specs.py:106`
 - **Async:** No
+- **Returns:** `str`
+
 
 ### Usage Example
 
@@ -348,7 +367,7 @@ Codegenagent operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "codegenagent",
   "message": "Operation completed",
@@ -359,7 +378,6 @@ Codegenagent operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -367,12 +385,12 @@ Codegenagent operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                               | Type      | Description                    |
-| ------------------------------------ | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `codegenagent_operation_duration_ms` | Histogram | Operation latency distribution |
-| `codegenagent_operation_total`       | Counter   | Total operations processed     |
-| `codegenagent_error_total`           | Counter   | Total errors encountered       |
-| `codegenagent_active_connections`    | Gauge     | Current active connections     |
+| `codegenagent_operation_total` | Counter | Total operations processed |
+| `codegenagent_error_total` | Counter | Total errors encountered |
+| `codegenagent_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -390,7 +408,6 @@ Codegenagent emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/codegenagent/`:
-
 - `test_codegenagent.py` — Core unit tests
 - `test_codegenagent_integration.py` — Integration tests (if applicable)
 
@@ -434,7 +451,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

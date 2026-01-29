@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -61,16 +61,16 @@ HTTP and WebSocket interfaces for L9 Secure AI OS
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                              | Purpose             |
-| ----------------------------------- | ------------------- |
-| `core/agents/executor.py`           | Required dependency |
-| `memory/substrate_service.py`       | Required dependency |
+| Module | Purpose |
+|--------|---------|
+| `core/agents/executor.py` | Required dependency |
+| `memory/substrate_service.py` | Required dependency |
 | `runtime/websocket_orchestrator.py` | Required dependency |
 
 ---
@@ -94,18 +94,18 @@ api/
 ├── middleware/websocket_tracing.py
 ├── openapi_config.py
 ├── os_routes.py
-└── ... (32 more files)
+└── ... (35 more files)
 ```
 
-| File               | Purpose                                                    |
-| ------------------ | ---------------------------------------------------------- |
-| `server.py`        | FastAPI app initialization, route registration (PROTECTED) |
-| `auth.py`          | Authentication and authorization middleware (PROTECTED)    |
-| `agent_routes.py`  | Agent execution endpoints (/agents, /tasks)                |
-| `os_routes.py`     | OS-level operations and health checks                      |
-| `routes/`          | Domain-specific route modules                              |
-| `memory/router.py` | Memory API endpoints (/memory/search, /memory/ingest)      |
-| `tools/router.py`  | Tool API endpoints (/tools/invoke)                         |
+| File | Purpose |
+|------|---------|
+| `server.py` | FastAPI app initialization, route registration (PROTECTED) |
+| `auth.py` | Authentication and authorization middleware (PROTECTED) |
+| `agent_routes.py` | Agent execution endpoints (/agents, /tasks) |
+| `os_routes.py` | OS-level operations and health checks |
+| `routes/` | Domain-specific route modules |
+| `memory/router.py` | Memory API endpoints (/memory/search, /memory/ingest) |
+| `tools/router.py` | Tool API endpoints (/tools/invoke) |
 
 ### Naming Conventions
 
@@ -140,7 +140,7 @@ class KernelReloadRequest:
 
 ```
 
-**Lines:** 2890-2893 in `server.py`
+**Lines:** 3051-3054 in `server.py`
 
 ### `server.py` — KernelReloadResponse
 
@@ -152,7 +152,7 @@ class KernelReloadResponse:
 
 ```
 
-**Lines:** 2896-2903 in `server.py`
+**Lines:** 3057-3064 in `server.py`
 
 ### `server.py` — ChatRequest
 
@@ -164,7 +164,7 @@ class ChatRequest:
 
 ```
 
-**Lines:** 3128-3130 in `server.py`
+**Lines:** 3287-3289 in `server.py`
 
 ### `server.py` — ChatResponse
 
@@ -176,7 +176,8 @@ class ChatResponse:
 
 ```
 
-**Lines:** 3133-3134 in `server.py`
+**Lines:** 3292-3293 in `server.py`
+
 
 ---
 
@@ -187,6 +188,27 @@ The following data models define the contracts for this subsystem:
 - **`KernelReloadRequest`** — Request body for kernel reload.
 - **`KernelReloadResponse`** — Response from kernel reload.
 - **`ChatRequest`** — Data model
+
+### Exported Symbols (`__all__`)
+
+`TraceContext`, `WebSocketTracingMiddleware`, `get_agent_executor`, `get_aios_runtime`, `get_anomaly_monitor`, `get_consolidation_service`, `get_evaluator`, `get_governance_engine`, `get_memory_state_manager`, `get_neo4j_client`
+
+*...and 11 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `EXECUTOR_API_KEY_L` | `os.environ.get('L9_EXECUTOR_API_KEY_L')` | 42 |
+| `EXECUTOR_API_KEY_C` | `os.environ.get('L9_EXECUTOR_API_KEY_C') ...` | 43 |
+| `MEMORY_DSN` | `os.getenv('MEMORY_DSN', os.getenv('DATAB...` | 31 |
+| `L9_NEW_AGENT_INIT` | `settings.l9_new_agent_init` | 378 |
+| `L9_STAGE3_MODULES` | `settings.l9_stage3_modules` | 379 |
+| `L9_GRAPH_AGENT_STATE` | `settings.l9_graph_agent_state` | 380 |
+| `L9_OBSERVABILITY` | `settings.l9_observability` | 406 |
+| `LOCAL_DEV` | `settings.local_dev` | 513 |
+
+*...and 35 more constants*
 
 ### Key Schemas
 
@@ -228,6 +250,7 @@ class ApiResponse(BaseModel):
 3. **Routes:** All routers mounted to app.
 4. **Lifespan:** Startup events connect to Redis, PostgreSQL.
 
+
 ### Main Execution
 
 1. **Request:** Receive HTTP/WebSocket request.
@@ -235,12 +258,14 @@ class ApiResponse(BaseModel):
 3. **Rate check:** Verify rate limit not exceeded.
 4. **Dispatch:** Route to handler, execute, return response.
 
+
 ### Shutdown
 
 1. **Drain:** Stop accepting new requests.
 2. **Pending:** Wait for in-flight requests to complete.
 3. **Cleanup:** Close database pools, Redis connections.
 4. **Log:** Emit graceful shutdown event.
+
 
 ### Background Tasks
 
@@ -254,9 +279,9 @@ Background tasks via Starlette BackgroundTasks for non-blocking operations.
 
 ```yaml
 # Api feature flags
-L9_ENABLE_API_TRACING: true # Enable detailed tracing
-L9_ENABLE_API_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_API_AUDIT: true # Enable audit logging
+L9_ENABLE_API_TRACING: true  # Enable detailed tracing
+L9_ENABLE_API_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_API_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -283,19 +308,21 @@ API_ENABLED=true
 
 ### Public Functions
 
-#### `def verify_api_key(authorization)`
+#### `def verify_api_key(authorization) -> CallerIdentity`
 
 Verify API key and return caller identity.
 
 - **File:** `auth.py:56`
 - **Async:** No
+- **Returns:** `CallerIdentity`
 
-#### `async def verify_api_key_with_rate_limit(request, authorization)`
+#### `async def verify_api_key_with_rate_limit(request, authorization) -> CallerIdentity`
 
 Verify API key with rate limiting protection.
 
 - **File:** `auth.py:88`
 - **Async:** Yes
+- **Returns:** `CallerIdentity`
 
 #### `async def os_health()`
 
@@ -311,12 +338,13 @@ System status endpoint.
 - **File:** `os_routes.py:53`
 - **Async:** Yes
 
-#### `def init_db()`
+#### `async def os_readiness()`
 
-No description
+Readiness probe endpoint.
 
-- **File:** `db.py:37`
-- **Async:** No
+- **File:** `os_routes.py:67`
+- **Async:** Yes
+
 
 ### Usage Example
 
@@ -350,6 +378,7 @@ async with websockets.connect("ws://localhost:8000/ws") as ws:
     print(json.loads(response))
 ```
 
+
 ---
 
 ## Observability
@@ -360,7 +389,7 @@ Api operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "api",
   "message": "Operation completed",
@@ -371,7 +400,6 @@ Api operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -379,12 +407,12 @@ Api operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                      | Type      | Description                    |
-| --------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `api_operation_duration_ms` | Histogram | Operation latency distribution |
-| `api_operation_total`       | Counter   | Total operations processed     |
-| `api_error_total`           | Counter   | Total errors encountered       |
-| `api_active_connections`    | Gauge     | Current active connections     |
+| `api_operation_total` | Counter | Total operations processed |
+| `api_error_total` | Counter | Total errors encountered |
+| `api_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -402,7 +430,6 @@ Api emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/api/`:
-
 - `test_api.py` — Core unit tests
 - `test_api_integration.py` — Integration tests (if applicable)
 
@@ -456,7 +483,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

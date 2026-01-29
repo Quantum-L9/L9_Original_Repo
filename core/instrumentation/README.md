@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Code instrumentation for observability
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                | Purpose             |
-| --------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/observability/` | Required dependency |
 
 ---
@@ -79,8 +79,8 @@ core/instrumentation/
 ├── decorators.py
 ```
 
-| File          | Purpose                 |
-| ------------- | ----------------------- |
+| File | Purpose |
+|------|---------|
 | `__init__.py` | Core module (PROTECTED) |
 
 ### Naming Conventions
@@ -100,7 +100,16 @@ See source files for component details.
 
 ## Data Models and Contracts
 
-See source files for data model definitions.
+
+### Exported Symbols (`__all__`)
+
+`capture_source_location`, `get_current_correlation_id`, `get_current_trace_id`, `logged`, `set_correlation_id`, `set_trace_id`, `timed`, `traced`, `with_source_location`
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `F` | `TypeVar('F', bound=Callable[..., Any])` | 62 |
 
 ### Key Schemas
 
@@ -165,9 +174,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Instrumentation feature flags
-L9_ENABLE_CORE_INSTRUMENTATION_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_INSTRUMENTATION_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_INSTRUMENTATION_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_INSTRUMENTATION_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_INSTRUMENTATION_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_INSTRUMENTATION_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -194,40 +203,46 @@ CORE_INSTRUMENTATION_ENABLED=true
 
 ### Public Functions
 
-#### `def get_current_trace_id()`
+#### `def get_current_trace_id() -> str | None`
 
 Get current trace_id from context.
 
-- **File:** `decorators.py:72`
+- **File:** `decorators.py:76`
 - **Async:** No
+- **Returns:** `str | None`
 
-#### `def set_trace_id(trace_id)`
+#### `def set_trace_id(trace_id) -> None`
 
 Set trace_id in current context.
 
-- **File:** `decorators.py:87`
+- **File:** `decorators.py:91`
 - **Async:** No
+- **Returns:** `None`
 
-#### `def get_current_correlation_id()`
+#### `def get_current_correlation_id() -> str | None`
 
 Get current correlation_id from context.
 
-- **File:** `decorators.py:101`
+- **File:** `decorators.py:105`
 - **Async:** No
+- **Returns:** `str | None`
 
-#### `def set_correlation_id(correlation_id)`
+#### `def set_correlation_id(correlation_id) -> None`
 
 Set correlation_id in current context.
 
-- **File:** `decorators.py:111`
+- **File:** `decorators.py:115`
 - **Async:** No
+- **Returns:** `None`
 
-#### `def capture_source_location(frame)`
+#### `def capture_source_location(frame) -> dict[str, Any]`
 
 Capture source code location from call stack.
 
-- **File:** `decorators.py:126`
+- **File:** `decorators.py:130`
 - **Async:** No
+- **Returns:** `dict[str, Any]`
+
 
 ### Usage Example
 
@@ -258,7 +273,7 @@ Core Instrumentation operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.instrumentation",
   "message": "Operation completed",
@@ -269,7 +284,6 @@ Core Instrumentation operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -277,12 +291,12 @@ Core Instrumentation operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                       | Type      | Description                    |
-| -------------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_instrumentation_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_instrumentation_operation_total`       | Counter   | Total operations processed     |
-| `core_instrumentation_error_total`           | Counter   | Total errors encountered       |
-| `core_instrumentation_active_connections`    | Gauge     | Current active connections     |
+| `core_instrumentation_operation_total` | Counter | Total operations processed |
+| `core_instrumentation_error_total` | Counter | Total errors encountered |
+| `core_instrumentation_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -300,7 +314,6 @@ Core Instrumentation emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_instrumentation/`:
-
 - `test_core_instrumentation.py` — Core unit tests
 - `test_core_instrumentation_integration.py` — Integration tests (if applicable)
 
@@ -343,7 +356,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

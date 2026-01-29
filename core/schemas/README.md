@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ JSON schemas and validation utilities
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -78,6 +78,7 @@ core/schemas/
 ├── __init__.py
 ├── capabilities.py
 ├── event_stream.py
+├── hypergraph.py
 ├── l_tools.py
 ├── packet_envelope.py
 ├── packet_envelope_v2.py
@@ -89,16 +90,15 @@ core/schemas/
 ├── tests/__init__.py
 ├── tests/test_discriminators.py
 ├── tests/test_packet_envelope.py
-├── tests/test_research_factory.py
-└── ... (3 more files)
+└── ... (4 more files)
 ```
 
-| File                 | Purpose                                    |
-| -------------------- | ------------------------------------------ |
-| `__init__.py`        | Core module (PROTECTED)                    |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
 | `packet_envelope.py` | Kind of packet for routing/classification. |
-| `packet_envelope.py` | Token usage tracking for LLM calls.        |
-| `packet_envelope.py` | Simple text content wrapper.               |
+| `packet_envelope.py` | Token usage tracking for LLM calls. |
+| `packet_envelope.py` | Simple text content wrapper. |
 
 ### Naming Conventions
 
@@ -169,7 +169,8 @@ class PacketConfidence:
 
 ```
 
-**Lines:** 136-146 in `packet_envelope.py`
+**Lines:** 136-144 in `packet_envelope.py`
+
 
 ---
 
@@ -180,6 +181,27 @@ The following data models define the contracts for this subsystem:
 - **`SemanticSearchRequest`** — Request to search semantic memory.
 - **`InvalidSchemaVersionError`** — Raised when a schema version is malformed or unsupported.
 - **`_SchemaRegistry`** — Central registry for PacketEnvelope schema versions and upcasters.
+
+### Exported Symbols (`__all__`)
+
+`AgentCapabilities`, `AgentHandshake`, `AgentHeartbeat`, `AgentTask`, `Capability`, `CapabilityViolation`, `DEFAULT_ARCHITECT_CAPABILITIES`, `DEFAULT_CODER_CAPABILITIES`, `DEFAULT_L_CAPABILITIES`, `DEFAULT_READER_CAPABILITIES`
+
+*...and 59 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `SCHEMA_VERSION` | `'1.0.1'` | 132 |
+| `MODULE_VERSION` | `'1.0.0'` | 133 |
+| `GENERATED_BY` | `'L9_MASTER_SCHEMA_EXTRACTOR v3.0'` | 134 |
+| `SOURCE_SCHEMAS` | `['Memory.yaml (packet_envelope.v1.0.1, a...` | 135 |
+| `DEFAULT_READER_CAPABILITIES` | `AgentCapabilities(agent_id='default_read...` | 221 |
+| `DEFAULT_CODER_CAPABILITIES` | `AgentCapabilities(agent_id='default_code...` | 231 |
+| `DEFAULT_ARCHITECT_CAPABILITIES` | `AgentCapabilities(agent_id='default_arch...` | 246 |
+| `DEFAULT_L_CAPABILITIES` | `AgentCapabilities(agent_id='L', capabili...` | 260 |
+
+*...and 6 more constants*
 
 ### Key Schemas
 
@@ -244,9 +266,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Schemas feature flags
-L9_ENABLE_CORE_SCHEMAS_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_SCHEMAS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_SCHEMAS_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_SCHEMAS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_SCHEMAS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_SCHEMAS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -273,40 +295,46 @@ CORE_SCHEMAS_ENABLED=true
 
 ### Public Functions
 
-#### `async def pass_1_plan_queries(state)`
+#### `async def pass_1_plan_queries(state) -> ResearchState`
 
 Pass 1 — Derive research plan from job specification.
 
-- **File:** `research_factory_nodes.py:69`
+- **File:** `research_factory_nodes.py:74`
 - **Async:** Yes
+- **Returns:** `ResearchState`
 
-#### `async def pass_2_build_superprompts(state)`
+#### `async def pass_2_build_superprompts(state) -> ResearchState`
 
 Pass 2 — Construct optimized prompts from query plan.
 
-- **File:** `research_factory_nodes.py:148`
+- **File:** `research_factory_nodes.py:153`
 - **Async:** Yes
+- **Returns:** `ResearchState`
 
-#### `async def pass_3_execute_retrieval(state, retrieval_backend)`
+#### `async def pass_3_execute_retrieval(state, retrieval_backend) -> ResearchState`
 
 Pass 3 — Call research backend(s) with superprompts.
 
-- **File:** `research_factory_nodes.py:217`
+- **File:** `research_factory_nodes.py:222`
 - **Async:** Yes
+- **Returns:** `ResearchState`
 
-#### `async def pass_4_extract_results(state, extraction_backend)`
+#### `async def pass_4_extract_results(state, extraction_backend) -> ResearchState`
 
 Pass 4 — Transform raw JSON into validated objects.
 
-- **File:** `research_factory_nodes.py:285`
+- **File:** `research_factory_nodes.py:290`
 - **Async:** Yes
+- **Returns:** `ResearchState`
 
-#### `async def pass_5_integrate_results(state)`
+#### `async def pass_5_integrate_results(state) -> ResearchState`
 
 Pass 5 — Persist output to hypergraph and world model.
 
-- **File:** `research_factory_nodes.py:363`
+- **File:** `research_factory_nodes.py:368`
 - **Async:** Yes
+- **Returns:** `ResearchState`
+
 
 ### Usage Example
 
@@ -337,7 +365,7 @@ Core Schemas operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.schemas",
   "message": "Operation completed",
@@ -348,7 +376,6 @@ Core Schemas operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -356,12 +383,12 @@ Core Schemas operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                               | Type      | Description                    |
-| ------------------------------------ | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_schemas_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_schemas_operation_total`       | Counter   | Total operations processed     |
-| `core_schemas_error_total`           | Counter   | Total errors encountered       |
-| `core_schemas_active_connections`    | Gauge     | Current active connections     |
+| `core_schemas_operation_total` | Counter | Total operations processed |
+| `core_schemas_error_total` | Counter | Total errors encountered |
+| `core_schemas_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -379,7 +406,6 @@ Core Schemas emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_schemas/`:
-
 - `test_core_schemas.py` — Core unit tests
 - `test_core_schemas_integration.py` — Integration tests (if applicable)
 
@@ -422,7 +448,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Mac automation agent for system tasks and WebSocket communication
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                              | Purpose             |
-| ----------------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `runtime/websocket_orchestrator.py` | Required dependency |
 
 ---
@@ -84,12 +84,12 @@ mac_agent/
 ├── websocket_client.py
 ```
 
-| File                  | Purpose                                            |
-| --------------------- | -------------------------------------------------- |
-| `executor.py`         | Core module (PROTECTED)                            |
-| `__init__.py`         | Core module (PROTECTED)                            |
-| `config.py`           | Configuration for Mac Agent V2.                    |
-| `websocket_client.py` | Configuration for the Mac Agent WebSocket client.  |
+| File | Purpose |
+|------|---------|
+| `executor.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `config.py` | Configuration for Mac Agent V2. |
+| `websocket_client.py` | Configuration for the Mac Agent WebSocket client. |
 | `websocket_client.py` | Event type constants matching server EventType enu |
 
 ### Naming Conventions
@@ -111,13 +111,13 @@ class MacAgentConfig:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
 ```
 
 **Public Methods:** `__init__`
 
-**Lines:** 37-82 in `config.py`
+**Lines:** 36-81 in `config.py`
 
 ### `websocket_client.py` — AgentConfig
 
@@ -127,13 +127,13 @@ class AgentConfig:
 
     # Key methods:
 
-    async def from_env(self, ...): ...
+    def from_env(self, ...) -> AgentConfig: ...
 
 ```
 
 **Public Methods:** `from_env`
 
-**Lines:** 85-132 in `websocket_client.py`
+**Lines:** 86-133 in `websocket_client.py`
 
 ### `websocket_client.py` — EventType
 
@@ -145,7 +145,7 @@ class EventType:
 
 ```
 
-**Lines:** 140-149 in `websocket_client.py`
+**Lines:** 141-150 in `websocket_client.py`
 
 ### `websocket_client.py` — TaskExecutor
 
@@ -155,21 +155,21 @@ class TaskExecutor:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def running_count(self, ...): ...
+    def running_count(self, ...) -> int: ...
 
-    async def execute(self, ...): ...
+    async def execute(self, ...) -> dict[str, Any]: ...
 
-    async def _execute_shell(self, ...): ...
+    async def _execute_shell(self, ...) -> dict[str, Any]: ...
 
-    async def _execute_browser(self, ...): ...
+    async def _execute_browser(self, ...) -> dict[str, Any]: ...
 
 ```
 
 **Public Methods:** `__init__`, `running_count`, `execute`, `_execute_shell`, `_execute_browser`
 
-**Lines:** 243-596 in `websocket_client.py`
+**Lines:** 244-595 in `websocket_client.py`
 
 ### `websocket_client.py` — MacAgentClient
 
@@ -179,27 +179,39 @@ class MacAgentClient:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def run(self, ...): ...
+    async def run(self, ...) -> None: ...
 
-    async def shutdown(self, ...): ...
+    async def shutdown(self, ...) -> None: ...
 
-    async def is_connected(self, ...): ...
+    def is_connected(self, ...) -> bool: ...
 
-    async def _connect_and_run(self, ...): ...
+    async def _connect_and_run(self, ...) -> None: ...
 
 ```
 
 **Public Methods:** `__init__`, `run`, `shutdown`, `is_connected`, `_connect_and_run`
 
-**Lines:** 604-1039 in `websocket_client.py`
+**Lines:** 603-1036 in `websocket_client.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`AgentConfig`, `AutomationExecutor`, `EventType`, `MacAgentClient`, `TaskExecutor`
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `L9_BASE_URL` | `config.l9_base_url` | 63 |
+| `L9_API_KEY` | `config.l9_api_key` | 64 |
+| `POLL_INTERVAL` | `4` | 65 |
 
 ### Key Schemas
 
@@ -265,9 +277,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Mac_Agent feature flags
-L9_ENABLE_MAC_AGENT_TRACING: true # Enable detailed tracing
-L9_ENABLE_MAC_AGENT_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_MAC_AGENT_AUDIT: true # Enable audit logging
+L9_ENABLE_MAC_AGENT_TRACING: true  # Enable detailed tracing
+L9_ENABLE_MAC_AGENT_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_MAC_AGENT_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -294,40 +306,44 @@ MAC_AGENT_ENABLED=true
 
 ### Public Functions
 
-#### `def execute_command(command)`
+#### `def execute_command(command) -> tuple[str, str]`
 
 Execute a shell command locally (legacy support).
 
-- **File:** `runner.py:67`
+- **File:** `runner.py:68`
 - **Async:** No
+- **Returns:** `tuple[str, str]`
 
-#### `async def execute_steps(task)`
+#### `async def execute_steps(task) -> dict`
 
 Execute automation steps using Playwright.
 
-- **File:** `runner.py:109`
+- **File:** `runner.py:107`
 - **Async:** Yes
+- **Returns:** `dict`
 
-#### `def format_result(result)`
+#### `def format_result(result) -> str`
 
 Format execution result as string for API.
 
-- **File:** `runner.py:133`
+- **File:** `runner.py:131`
 - **Async:** No
+- **Returns:** `str`
 
 #### `async def poll_and_execute()`
 
 Main polling loop (file-based task system).
 
-- **File:** `runner.py:155`
+- **File:** `runner.py:153`
 - **Async:** Yes
 
 #### `def main()`
 
 Entry point.
 
-- **File:** `runner.py:365`
+- **File:** `runner.py:367`
 - **Async:** No
+
 
 ### Usage Example
 
@@ -358,7 +374,7 @@ Mac Agent operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "mac_agent",
   "message": "Operation completed",
@@ -369,7 +385,6 @@ Mac Agent operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -377,12 +392,12 @@ Mac Agent operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                            | Type      | Description                    |
-| --------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `mac_agent_operation_duration_ms` | Histogram | Operation latency distribution |
-| `mac_agent_operation_total`       | Counter   | Total operations processed     |
-| `mac_agent_error_total`           | Counter   | Total errors encountered       |
-| `mac_agent_active_connections`    | Gauge     | Current active connections     |
+| `mac_agent_operation_total` | Counter | Total operations processed |
+| `mac_agent_error_total` | Counter | Total errors encountered |
+| `mac_agent_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -400,7 +415,6 @@ Mac Agent emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/mac_agent/`:
-
 - `test_mac_agent.py` — Core unit tests
 - `test_mac_agent_integration.py` — Integration tests (if applicable)
 
@@ -447,7 +461,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

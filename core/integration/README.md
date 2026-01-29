@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Cross-subsystem integration utilities
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -81,12 +81,12 @@ core/integration/
 ├── wm_to_graph_sync.py
 ```
 
-| File                        | Purpose                                            |
-| --------------------------- | -------------------------------------------------- |
-| `__init__.py`               | Core module (PROTECTED)                            |
-| `graph_to_wm_sync.py`       | Service to sync agent state from Neo4j to World Mo |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `graph_to_wm_sync.py` | Service to sync agent state from Neo4j to World Mo |
 | `tool_pattern_extractor.py` | Service to extract tool usage patterns and feed to |
-| `wm_to_graph_sync.py`       | Syncs World Model causal data to Neo4j graph.      |
+| `wm_to_graph_sync.py` | Syncs World Model causal data to Neo4j graph. |
 
 ### Naming Conventions
 
@@ -107,21 +107,21 @@ class GraphToWorldModelSync:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def start(self, ...): ...
+    async def start(self, ...) -> None: ...
 
-    async def stop(self, ...): ...
+    async def stop(self, ...) -> None: ...
 
-    async def _sync_loop(self, ...): ...
+    async def _sync_loop(self, ...) -> None: ...
 
-    async def sync_agent(self, ...): ...
+    async def sync_agent(self, ...) -> dict[str, Any]: ...
 
 ```
 
 **Public Methods:** `__init__`, `start`, `stop`, `_sync_loop`, `sync_agent`
 
-**Lines:** 61-344 in `graph_to_wm_sync.py`
+**Lines:** 62-343 in `graph_to_wm_sync.py`
 
 ### `tool_pattern_extractor.py` — ToolPatternExtractor
 
@@ -131,21 +131,21 @@ class ToolPatternExtractor:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def start(self, ...): ...
+    async def start(self, ...) -> None: ...
 
-    async def stop(self, ...): ...
+    async def stop(self, ...) -> None: ...
 
-    async def _extraction_loop(self, ...): ...
+    async def _extraction_loop(self, ...) -> None: ...
 
-    async def run_extraction(self, ...): ...
+    async def run_extraction(self, ...) -> dict[str, Any]: ...
 
 ```
 
 **Public Methods:** `__init__`, `start`, `stop`, `_extraction_loop`, `run_extraction`
 
-**Lines:** 65-430 in `tool_pattern_extractor.py`
+**Lines:** 66-429 in `tool_pattern_extractor.py`
 
 ### `wm_to_graph_sync.py` — WMToGraphSync
 
@@ -155,21 +155,22 @@ class WMToGraphSync:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def start(self, ...): ...
+    async def start(self, ...) -> None: ...
 
-    async def stop(self, ...): ...
+    async def stop(self, ...) -> None: ...
 
-    async def _sync_loop(self, ...): ...
+    async def _sync_loop(self, ...) -> None: ...
 
-    async def sync_all(self, ...): ...
+    async def sync_all(self, ...) -> dict[str, int]: ...
 
 ```
 
 **Public Methods:** `__init__`, `start`, `stop`, `_sync_loop`, `sync_all`
 
-**Lines:** 64-304 in `wm_to_graph_sync.py`
+**Lines:** 66-304 in `wm_to_graph_sync.py`
+
 
 ---
 
@@ -178,6 +179,19 @@ class WMToGraphSync:
 The following data models define the contracts for this subsystem:
 
 - **`GraphToWorldModelSync`** — Service to sync agent state from Neo4j to World Model.
+
+### Exported Symbols (`__all__`)
+
+`GraphToWorldModelSync`, `ToolPatternExtractor`, `WMToGraphSync`, `start_wm_graph_sync`, `stop_wm_graph_sync`
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `L9_GRAPH_WM_SYNC` | `os.getenv('L9_GRAPH_WM_SYNC', 'true').lo...` | 59 |
+| `L9_TOOL_PATTERN_EXTRACTION` | `os.getenv('L9_TOOL_PATTERN_EXTRACTION', ...` | 58 |
+| `DEFAULT_EXTRACTION_INTERVAL_HOURS` | `6` | 63 |
+| `L9_WM_GRAPH_SYNC` | `os.getenv('L9_WM_GRAPH_SYNC', 'true').lo...` | 63 |
 
 ### Key Schemas
 
@@ -243,9 +257,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Integration feature flags
-L9_ENABLE_CORE_INTEGRATION_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_INTEGRATION_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_INTEGRATION_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_INTEGRATION_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_INTEGRATION_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_INTEGRATION_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -272,40 +286,46 @@ CORE_INTEGRATION_ENABLED=true
 
 ### Public Functions
 
-#### `def get_graph_wm_sync(neo4j_driver)`
+#### `def get_graph_wm_sync(neo4j_driver) -> GraphToWorldModelSync`
 
 Get the global GraphToWorldModelSync instance.
 
-- **File:** `graph_to_wm_sync.py:351`
+- **File:** `graph_to_wm_sync.py:350`
 - **Async:** No
+- **Returns:** `GraphToWorldModelSync`
 
-#### `async def start_graph_wm_sync(neo4j_driver)`
+#### `async def start_graph_wm_sync(neo4j_driver) -> None`
 
 Start the global sync service.
 
-- **File:** `graph_to_wm_sync.py:366`
+- **File:** `graph_to_wm_sync.py:365`
 - **Async:** Yes
+- **Returns:** `None`
 
-#### `async def stop_graph_wm_sync()`
+#### `async def stop_graph_wm_sync() -> None`
 
 Stop the global sync service.
 
-- **File:** `graph_to_wm_sync.py:379`
+- **File:** `graph_to_wm_sync.py:378`
 - **Async:** Yes
+- **Returns:** `None`
 
-#### `def get_tool_pattern_extractor()`
+#### `def get_tool_pattern_extractor() -> ToolPatternExtractor`
 
 Get the global ToolPatternExtractor instance.
 
-- **File:** `tool_pattern_extractor.py:437`
+- **File:** `tool_pattern_extractor.py:436`
 - **Async:** No
+- **Returns:** `ToolPatternExtractor`
 
-#### `async def start_tool_pattern_extraction()`
+#### `async def start_tool_pattern_extraction() -> None`
 
 Start the global extractor.
 
-- **File:** `tool_pattern_extractor.py:445`
+- **File:** `tool_pattern_extractor.py:444`
 - **Async:** Yes
+- **Returns:** `None`
+
 
 ### Usage Example
 
@@ -336,7 +356,7 @@ Core Integration operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.integration",
   "message": "Operation completed",
@@ -347,7 +367,6 @@ Core Integration operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -355,12 +374,12 @@ Core Integration operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                   | Type      | Description                    |
-| ---------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_integration_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_integration_operation_total`       | Counter   | Total operations processed     |
-| `core_integration_error_total`           | Counter   | Total errors encountered       |
-| `core_integration_active_connections`    | Gauge     | Current active connections     |
+| `core_integration_operation_total` | Counter | Total operations processed |
+| `core_integration_error_total` | Counter | Total errors encountered |
+| `core_integration_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -378,7 +397,6 @@ Core Integration emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_integration/`:
-
 - `test_core_integration.py` — Core unit tests
 - `test_core_integration_integration.py` — Integration tests (if applicable)
 
@@ -421,7 +439,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

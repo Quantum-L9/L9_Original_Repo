@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -61,18 +61,18 @@ Multi-layer memory with PacketEnvelope storage, semantic search, and audit trail
 
 ### Inbound Dependencies
 
-| Module                    | Purpose          |
-| ------------------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/agents/executor.py` | Uses this module |
-| `api/memory/router.py`    | Uses this module |
-| `mcp_memory/src/`         | Uses this module |
+| `api/memory/router.py` | Uses this module |
+| `mcp_memory/src/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module                    | Purpose             |
-| ------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `runtime/redis_client.py` | Required dependency |
-| `config/di_config.py`     | Required dependency |
+| `config/di_config.py` | Required dependency |
 
 ---
 
@@ -98,18 +98,18 @@ memory/
 └── ... (65 more files)
 ```
 
-| File                    | Purpose                                                                |
-| ----------------------- | ---------------------------------------------------------------------- |
-| `substrate_service.py`  | MemorySubstrateService - core ingestion, search, retrieval (PROTECTED) |
-| `substrate_dag.py`      | Ingestion DAG and processing pipeline (PROTECTED)                      |
-| `substrate_models.py`   | PacketEnvelope and data models (PROTECTED)                             |
-| `retrieval.py`          | Memory retrieval strategies and ranking                                |
-| `semantic_search.py`    | Vector-based semantic search implementation                            |
-| `context_builder.py`    | Context assembly for agent execution                                   |
-| `insight_extraction.py` | Pattern recognition and insight mining                                 |
-| `consolidation.py`      | Memory consolidation and cleanup workflows                             |
-| `deduplication.py`      | Deduplication engine for packet uniqueness                             |
-| `graph_memory.py`       | Neo4j graph memory adapter                                             |
+| File | Purpose |
+|------|---------|
+| `substrate_service.py` | MemorySubstrateService - core ingestion, search, retrieval (PROTECTED) |
+| `substrate_dag.py` | Ingestion DAG and processing pipeline (PROTECTED) |
+| `substrate_models.py` | PacketEnvelope and data models (PROTECTED) |
+| `retrieval.py` | Memory retrieval strategies and ranking |
+| `semantic_search.py` | Vector-based semantic search implementation |
+| `context_builder.py` | Context assembly for agent execution |
+| `insight_extraction.py` | Pattern recognition and insight mining |
+| `consolidation.py` | Memory consolidation and cleanup workflows |
+| `deduplication.py` | Deduplication engine for packet uniqueness |
+| `graph_memory.py` | Neo4j graph memory adapter |
 
 ### Naming Conventions
 
@@ -154,15 +154,15 @@ class CrossEncoderReranker:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def is_available(self, ...): ...
+    def is_available(self, ...) -> bool: ...
 
-    async def _load_model(self, ...): ...
+    def _load_model(self, ...) -> bool: ...
 
-    async def rerank(self, ...): ...
+    def rerank(self, ...) -> RerankingResult: ...
 
-    async def _extract_text(self, ...): ...
+    def _extract_text(self, ...) -> str: ...
 
 ```
 
@@ -194,6 +194,7 @@ class KnowledgeGap:
 
 **Lines:** 61-72 in `warming_models.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -203,6 +204,27 @@ The following data models define the contracts for this subsystem:
 - **`StrategyRetrievalRequest`** — Request parameters for strategy retrieval.
 - **`SchemaSnapshot`** — Complete schema snapshot.
 - **`SchemaIntrospector`** — Unified schema introspector for both PostgreSQL and Neo4j.
+
+### Exported Symbols (`__all__`)
+
+`ACTIVE_CHECKPOINTS`, `ActionProposal`, `ActiveMemoryEncoder`, `AgentConfigExtractor`, `AlignmentReport`, `AttentionConfig`, `AuditLoggingHook`, `AuditReport`, `CHECKPOINT_CORRUPTION_DETECTED`, `CHECKPOINT_CREATE_LATENCY`
+
+*...and 209 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `DEFAULT_CONFIG` | `CrossEncoderConfig()` | 97 |
+| `MODEL_PRESETS` | `{'fast': 'cross-encoder/ms-marco-MiniLM-...` | 100 |
+| `CHECKPOINT_CREATE_LATENCY` | `Histogram('l9_checkpoint_create_latency_...` | 97 |
+| `CHECKPOINT_RESTORE_LATENCY` | `Histogram('l9_checkpoint_restore_latency...` | 104 |
+| `CHECKPOINT_VALIDATE_LATENCY` | `Histogram('l9_checkpoint_validate_latenc...` | 111 |
+| `CHECKPOINT_CREATE_TOTAL` | `Counter('l9_checkpoint_create_total', 'T...` | 119 |
+| `CHECKPOINT_RESTORE_TOTAL` | `Counter('l9_checkpoint_restore_total', '...` | 125 |
+| `CHECKPOINT_DELETE_TOTAL` | `Counter('l9_checkpoint_delete_total', 'T...` | 131 |
+
+*...and 38 more constants*
 
 ### Key Schemas
 
@@ -245,6 +267,7 @@ class MemoryResponse(BaseModel):
 3. **Index loading:** Load vector indices for semantic search.
 4. **Ready:** Service ready to accept ingestion and search requests.
 
+
 ### Main Execution
 
 1. **Ingestion:** Receive PacketEnvelope → validate → check dedup → store.
@@ -252,11 +275,13 @@ class MemoryResponse(BaseModel):
 3. **Graph sync:** Sync to Neo4j if graph_memory enabled.
 4. **Search:** Vector search → rank results → return with metadata.
 
+
 ### Shutdown
 
 1. **Flush:** Complete pending writes.
 2. **Disconnect:** Close database connections gracefully.
 3. **Log:** Emit shutdown complete event.
+
 
 ### Background Tasks
 
@@ -270,9 +295,9 @@ Embedding generation, graph sync, and consolidation run as background tasks.
 
 ```yaml
 # Memory feature flags
-L9_ENABLE_MEMORY_TRACING: true # Enable detailed tracing
-L9_ENABLE_MEMORY_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_MEMORY_AUDIT: true # Enable audit logging
+L9_ENABLE_MEMORY_TRACING: true  # Enable detailed tracing
+L9_ENABLE_MEMORY_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_MEMORY_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -299,40 +324,46 @@ MEMORY_ENABLED=true
 
 ### Public Functions
 
-#### `def get_cross_encoder_reranker()`
+#### `def get_cross_encoder_reranker() -> CrossEncoderReranker`
 
 Get or create the CrossEncoderReranker singleton.
 
 - **File:** `cross_encoder_reranker.py:348`
 - **Async:** No
+- **Returns:** `CrossEncoderReranker`
 
-#### `def create_reranker_with_model(model_preset)`
+#### `def create_reranker_with_model(model_preset) -> CrossEncoderReranker`
 
 Create a reranker with a specific model preset.
 
 - **File:** `cross_encoder_reranker.py:356`
 - **Async:** No
+- **Returns:** `CrossEncoderReranker`
 
-#### `def is_cross_encoder_available()`
+#### `def is_cross_encoder_available() -> bool`
 
 Check if cross-encoder re-ranking is available.
 
 - **File:** `cross_encoder_reranker.py:371`
 - **Async:** No
+- **Returns:** `bool`
 
-#### `async def smoke_test()`
+#### `async def smoke_test() -> dict[str, any]`
 
 Run smoke test to verify memory system.
 
 - **File:** `smoke_test.py:48`
 - **Async:** Yes
+- **Returns:** `dict[str, any]`
 
-#### `async def main()`
+#### `async def main() -> None`
 
 Main entrypoint for smoke test.
 
 - **File:** `smoke_test.py:136`
 - **Async:** Yes
+- **Returns:** `None`
+
 
 ### Usage Example
 
@@ -364,6 +395,7 @@ for r in results:
     print(r.packet_id, r.similarity, r.payload)
 ```
 
+
 ---
 
 ## Observability
@@ -374,7 +406,7 @@ Memory operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "memory",
   "message": "Operation completed",
@@ -385,7 +417,6 @@ Memory operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -393,12 +424,12 @@ Memory operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                         | Type      | Description                    |
-| ------------------------------ | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `memory_operation_duration_ms` | Histogram | Operation latency distribution |
-| `memory_operation_total`       | Counter   | Total operations processed     |
-| `memory_error_total`           | Counter   | Total errors encountered       |
-| `memory_active_connections`    | Gauge     | Current active connections     |
+| `memory_operation_total` | Counter | Total operations processed |
+| `memory_error_total` | Counter | Total errors encountered |
+| `memory_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -416,7 +447,6 @@ Memory emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/memory/`:
-
 - `test_memory.py` — Core unit tests
 - `test_memory_integration.py` — Integration tests (if applicable)
 
@@ -473,7 +503,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,16 +59,16 @@ Circuit breakers, retry logic, and fault tolerance
 
 ### Inbound Dependencies
 
-| Module         | Purpose          |
-| -------------- | ---------------- |
-| `runtime/`     | Uses this module |
+| Module | Purpose |
+|--------|---------|
+| `runtime/` | Uses this module |
 | `core/agents/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -82,12 +82,12 @@ core/resilience/
 ├── retry.py
 ```
 
-| File           | Purpose                                            |
-| -------------- | -------------------------------------------------- |
-| `__init__.py`  | Core module (PROTECTED)                            |
-| `mixin.py`     | Mixin providing standard retry + circuit breaker + |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `mixin.py` | Mixin providing standard retry + circuit breaker + |
 | `protocols.py` | Protocol for services that support resilience patt |
-| `retry.py`     | Raised when all retry attempts have been exhausted |
+| `retry.py` | Raised when all retry attempts have been exhausted |
 
 ### Naming Conventions
 
@@ -108,13 +108,13 @@ class ResilienceMixin:
 
     # Key methods:
 
-    async def with_resilience(self, ...): ...
+    async def with_resilience(self, ...) -> Any: ...
 
 ```
 
 **Public Methods:** `with_resilience`
 
-**Lines:** 66-222 in `mixin.py`
+**Lines:** 67-223 in `mixin.py`
 
 ### `protocols.py` — ResilientService
 
@@ -136,13 +136,13 @@ class RetryExhaustedError:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
 ```
 
 **Public Methods:** `__init__`
 
-**Lines:** 67-75 in `retry.py`
+**Lines:** 68-76 in `retry.py`
 
 ### `retry.py` — AsyncRetryConfig
 
@@ -152,19 +152,30 @@ class AsyncRetryConfig:
 
     # Key methods:
 
-    async def calculate_delay(self, ...): ...
+    def calculate_delay(self, ...) -> float: ...
 
 ```
 
 **Public Methods:** `calculate_delay`
 
-**Lines:** 79-105 in `retry.py`
+**Lines:** 80-106 in `retry.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`AsyncRetryConfig`, `ResilienceMixin`, `ResilientService`, `RetryExhaustedError`, `async_retry`
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `T` | `TypeVar('T')` | 65 |
+| `DEFAULT_RETRY_CONFIG` | `AsyncRetryConfig()` | 110 |
 
 ### Key Schemas
 
@@ -229,9 +240,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Resilience feature flags
-L9_ENABLE_CORE_RESILIENCE_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_RESILIENCE_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_RESILIENCE_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_RESILIENCE_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_RESILIENCE_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_RESILIENCE_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -258,12 +269,14 @@ CORE_RESILIENCE_ENABLED=true
 
 ### Public Functions
 
-#### `async def async_retry(coro_func)`
+#### `async def async_retry(coro_func) -> T`
 
 Execute async function with retry logic and exponential backoff.
 
-- **File:** `retry.py:112`
+- **File:** `retry.py:113`
 - **Async:** Yes
+- **Returns:** `T`
+
 
 ### Usage Example
 
@@ -294,7 +307,7 @@ Core Resilience operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.resilience",
   "message": "Operation completed",
@@ -305,7 +318,6 @@ Core Resilience operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -313,12 +325,12 @@ Core Resilience operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                  | Type      | Description                    |
-| --------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_resilience_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_resilience_operation_total`       | Counter   | Total operations processed     |
-| `core_resilience_error_total`           | Counter   | Total errors encountered       |
-| `core_resilience_active_connections`    | Gauge     | Current active connections     |
+| `core_resilience_operation_total` | Counter | Total operations processed |
+| `core_resilience_error_total` | Counter | Total errors encountered |
+| `core_resilience_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -336,7 +348,6 @@ Core Resilience emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_resilience/`:
-
 - `test_core_resilience.py` — Core unit tests
 - `test_core_resilience_integration.py` — Integration tests (if applicable)
 
@@ -379,7 +390,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

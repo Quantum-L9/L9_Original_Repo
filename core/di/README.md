@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Dependency injection container and utilities
 
 ### Inbound Dependencies
 
-| Module                | Purpose          |
-| --------------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `config/di_config.py` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -81,9 +81,9 @@ core/di/
 ├── container.py
 ```
 
-| File           | Purpose                 |
-| -------------- | ----------------------- |
-| `__init__.py`  | Core module (PROTECTED) |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
 | `container.py` | Core module (PROTECTED) |
 
 ### Naming Conventions
@@ -107,7 +107,7 @@ class DIContainerError:
 
 ```
 
-**Lines:** 74-77 in `container.py`
+**Lines:** 73-76 in `container.py`
 
 ### `container.py` — CircularDependencyError
 
@@ -119,7 +119,7 @@ class CircularDependencyError:
 
 ```
 
-**Lines:** 80-83 in `container.py`
+**Lines:** 79-82 in `container.py`
 
 ### `container.py` — BindingNotFoundError
 
@@ -131,7 +131,7 @@ class BindingNotFoundError:
 
 ```
 
-**Lines:** 86-89 in `container.py`
+**Lines:** 85-88 in `container.py`
 
 ### `container.py` — ResolutionError
 
@@ -143,7 +143,7 @@ class ResolutionError:
 
 ```
 
-**Lines:** 92-95 in `container.py`
+**Lines:** 91-94 in `container.py`
 
 ### `container.py` — DIContainer
 
@@ -153,27 +153,39 @@ class DIContainer:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def bind_singleton(self, ...): ...
+    def bind_singleton(self, ...) -> None: ...
 
-    async def bind_transient(self, ...): ...
+    def bind_transient(self, ...) -> None: ...
 
-    async def bind_instance(self, ...): ...
+    def bind_instance(self, ...) -> None: ...
 
-    async def resolve(self, ...): ...
+    def resolve(self, ...) -> T: ...
 
 ```
 
 **Public Methods:** `__init__`, `bind_singleton`, `bind_transient`, `bind_instance`, `resolve`
 
-**Lines:** 98-534 in `container.py`
+**Lines:** 97-533 in `container.py`
+
 
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`BindingNotFoundError`, `CircularDependencyError`, `DIContainer`, `DIContainerError`, `MemorySubstrateContainer`, `ResolutionError`, `bootstrap_di_container`, `get_container`, `get_di_container`, `reset_di_container`
+
+*...and 1 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `T` | `TypeVar('T')` | 70 |
 
 ### Key Schemas
 
@@ -238,9 +250,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Di feature flags
-L9_ENABLE_CORE_DI_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_DI_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_DI_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_DI_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_DI_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_DI_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -267,40 +279,46 @@ CORE_DI_ENABLED=true
 
 ### Public Functions
 
-#### `def bootstrap_di_container(container)`
+#### `def bootstrap_di_container(container) -> dict[str, int]`
 
 Bootstrap DIContainer with all core service registrations.
 
 - **File:** `bootstrap.py:59`
 - **Async:** No
+- **Returns:** `dict[str, int]`
 
-#### `def get_di_container()`
+#### `def get_di_container() -> DIContainer`
 
 Get global DI container instance.
 
-- **File:** `container.py:542`
+- **File:** `container.py:541`
 - **Async:** No
+- **Returns:** `DIContainer`
 
-#### `def reset_di_container()`
+#### `def reset_di_container() -> None`
 
 Reset global DI container.
 
-- **File:** `container.py:562`
+- **File:** `container.py:561`
 - **Async:** No
+- **Returns:** `None`
 
-#### `async def bootstrap_di_container()`
+#### `async def bootstrap_di_container() -> DIContainer`
 
 Bootstrap the DI container with all core services.
 
-- **File:** `bootstrap_integration.py:49`
+- **File:** `bootstrap_integration.py:52`
 - **Async:** Yes
+- **Returns:** `DIContainer`
 
-#### `async def shutdown_di_container()`
+#### `async def shutdown_di_container() -> None`
 
 Shutdown the DI container and cleanup resources.
 
-- **File:** `bootstrap_integration.py:258`
+- **File:** `bootstrap_integration.py:261`
 - **Async:** Yes
+- **Returns:** `None`
+
 
 ### Usage Example
 
@@ -331,7 +349,7 @@ Core Di operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.di",
   "message": "Operation completed",
@@ -342,7 +360,6 @@ Core Di operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -350,12 +367,12 @@ Core Di operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                          | Type      | Description                    |
-| ------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_di_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_di_operation_total`       | Counter   | Total operations processed     |
-| `core_di_error_total`           | Counter   | Total errors encountered       |
-| `core_di_active_connections`    | Gauge     | Current active connections     |
+| `core_di_operation_total` | Counter | Total operations processed |
+| `core_di_error_total` | Counter | Total errors encountered |
+| `core_di_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -373,7 +390,6 @@ Core Di emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_di/`:
-
 - `test_core_di.py` — Core unit tests
 - `test_core_di_integration.py` — Integration tests (if applicable)
 
@@ -418,7 +434,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change
