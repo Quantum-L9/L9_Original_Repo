@@ -10,7 +10,7 @@ Tests cover:
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import timezone, datetime, timedelta
 
 import pytest
 

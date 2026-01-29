@@ -38,7 +38,7 @@ import os
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class EvidenceStrength(str, Enum):

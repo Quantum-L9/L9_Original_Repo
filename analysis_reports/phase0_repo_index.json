@@ -1,0 +1,431 @@
+{
+  "metadata": {
+    "repo_path": "/home/ubuntu/L9",
+    "scan_timestamp": "2026-01-28T23:00:00Z",
+    "phase": 0,
+    "next_phase": 1,
+    "total_python_files": 1221,
+    "total_lines_of_code": 426417,
+    "total_yaml_files": 217
+  },
+  "directory_structure": {
+    "api/": {
+      "description": "FastAPI routes and HTTP handlers",
+      "files": ["server.py", "auth.py", "db.py", "agent_routes.py", "os_routes.py", "dependencies.py", "openapi_config.py"],
+      "subdirs": {
+        "routes/": ["commands.py", "compliance.py", "cursor.py", "evaluation.py", "factory.py", "gmp_learning.py", "mcp.py", "modules.py", "observability.py", "pattern.py", "reasoning.py", "reflection_agent.py", "registry.py", "research.py", "research_agent.py", "simulation.py", "slack.py", "tensor_bridge.py", "upgrades.py"],
+        "memory/": ["router.py", "cache.py", "graph.py"],
+        "middleware/": ["websocket_tracing.py"],
+        "tools/": ["router.py"],
+        "adapters/slack_adapter/": []
+      },
+      "routes_defined": [
+        "GET /",
+        "GET /health",
+        "GET /health/startup",
+        "POST /kernels/reload",
+        "GET /health/neo4j",
+        "GET /health/services",
+        "POST /lchat",
+        "POST /chat",
+        "GET /os/health",
+        "GET /os/status",
+        "GET /os/metrics",
+        "POST /agent/execute",
+        "GET /agent/result/{task_id}",
+        "GET /agent/status",
+        "POST /memory/ingest",
+        "GET /memory/search",
+        "GET /memory/retrieve/{packet_id}",
+        "POST /memory/batch",
+        "GET /world-model/entity/{entity_id}",
+        "GET /world-model/search",
+        "GET /world-model/path",
+        "GET /ws/agent"
+      ],
+      "critical_files": ["server.py (lifespan entry point)", "dependencies.py (DI injection)"]
+    },
+    "core/": {
+      "description": "Core orchestration, governance, agents, tools",
+      "subdirs": {
+        "agents/": ["executor.py", "schemas.py", "agent_instance.py", "registry.py", "kernel_registry.py", "prompt_builder.py", "selfreflection.py"],
+        "agents/bootstrap/": ["orchestrator.py", "phase_0_validate.py", "phase_1_load_kernels.py", "phase_2_instantiate.py", "phase_3_bind_kernels.py", "phase_4_load_identity.py", "phase_5_bind_tools.py", "phase_6_wire_governance.py", "phase_7_verify_and_lock.py", "models.py", "bootstrap_metrics.py"],
+        "governance/": ["engine.py", "approval_manager.py", "loader.py", "policy_registry.py"],
+        "tools/": ["base_registry.py", "registry_adapter.py", "tool_graph.py", "tool_embeddings.py", "memory_tools.py", "research_tools.py", "reflection_tools.py", "semantic_discovery.py"],
+        "kernel_wiring/": ["master_wiring.py", "behavioral_wiring.py"],
+        "observability/": ["circuit_breaker.py", "service.py", "instrumentation.py", "prometheus_exporter.py", "jaeger_exporter.py", "security_metrics.py"],
+        "resilience/": ["retry.py", "mixin.py", "protocols.py"],
+        "coordination/": ["event_queue.py", "agent_mediator.py"],
+        "schemas/": ["packet_envelope.py", "research_factory_models.py"],
+        "protocols/": [],
+        "di/": ["container.py", "bootstrap.py"]
+      }
+    },
+    "memory/": {
+      "description": "Memory substrate, DAG pipeline, persistence, vector embeddings",
+      "files": ["substrate_service.py", "substrate_repository.py", "substrate_models.py", "substrate_semantic.py", "enrichment_dag.py", "saga.py", "saga_patterns.py", "graph_client.py", "graph_memory.py", "agent_persistence.py", "consolidation.py", "checkpoint_manager.py", "migration_runner.py", "timeline_service.py", "state_manager.py", "governance_gate.py", "governance_hooks.py", "dead_letter_queue.py", "retention_engine.py", "reasoning_replay.py", "query_classifier.py", "hybrid_rag.py", "cross_encoder_reranker.py", "context_builder.py", "importance_manager.py", "housekeeping.py"],
+      "subdirs": {
+        "checkpoint/": ["cursor_checkpoint_manager.py", "postgres_saver.py"],
+        "consolidation/": [],
+        "extractor/": [],
+        "validators/": ["packet_validator.py"]
+      },
+      "critical_components": ["MemorySubstrateService", "SubstrateRepository", "EnrichmentDAG", "SemanticService", "SagaExecutor"]
+    },
+    "world_model/": {
+      "description": "Graph engine, causal mapping, reflection, knowledge ingestion",
+      "files": ["engine.py", "causal_mapper.py", "causal_graph.py", "reflection_memory.py", "knowledge_ingestor.py", "loader.py", "query_engine.py", "registry.py", "repository.py", "runtime.py", "seed_loader.py", "service.py", "state.py", "updater.py", "world_model_service.py", "interfaces.py"],
+      "subdirs": {
+        "nodes/": [],
+        "_pack_staging/": []
+      }
+    },
+    "runtime/": {
+      "description": "Runtime orchestration, task queue, kernel loading, tools",
+      "files": ["kernel_loader.py", "kernel_config_loader.py", "kernel_state.py", "task_queue.py", "background_tasks.py", "tool_registry.py", "mcp_server_registry.py", "mcp_client.py", "mcp_tools.py", "redis_client.py", "redis_tools.py", "websocket_orchestrator.py", "rate_limiter.py", "auth_rate_limiter.py", "execution_gate.py", "l_tools.py", "dora.py", "introspection.py", "response_renderer.py", "superprompt_emitter.py"]
+    },
+    "agents/": {
+      "description": "Agent implementations",
+      "files": ["base_agent.py", "research_agent_impl.py", "reflection_agent.py", "agent_registry.py"],
+      "subdirs": {
+        "cursor/": ["cursor_memory_client.py", "cursor_memory_kernel.py", "cursor_neo4j_query.py", "gmp_meta_learning.py"],
+        "cursor/integrations/": ["cursor_executor.py", "cursor_gateway.py", "cursor_langgraph.py"],
+        "research_agent/": ["research_facade.py"],
+        "architect_agent/": [],
+        "coder_agent/": []
+      }
+    },
+    "orchestrators/": {
+      "description": "Orchestrator implementations for various domains",
+      "subdirs": {
+        "reasoning/": ["orchestrator.py"],
+        "research_swarm/": ["orchestrator.py"],
+        "pattern/": [],
+        "memory/": [],
+        "world_model/": [],
+        "evolution/": [],
+        "meta/": [],
+        "action_tool/": [],
+        "agent_execution/": []
+      }
+    },
+    "config/": {
+      "description": "System settings, agent configs, kernel definitions",
+      "files": ["settings.py", "cursor_langgraph_config.py", "mcp_servers.yaml"],
+      "subdirs": {
+        "agents/": ["L-CTO-Agent.yaml", "L-CTO-Research-Overlay.yaml", "l9-standard-v1.yaml", "reflection-agent-v1.yaml", "research-agent-v1.yaml"],
+        "policies/": [],
+        "schemas/": [],
+        "patterns/": []
+      }
+    },
+    "private/": {
+      "description": "Private kernel files (READ-ONLY)",
+      "subdirs": {
+        "kernels/00_system/": ["01_master_kernel.yaml", "02_identity_kernel.yaml", "03_cognitive_kernel.yaml", "04_behavioral_kernel.yaml", "05_memory_kernel.yaml", "06_worldmodel_kernel.yaml", "07_execution_kernel.yaml", "08_safety_kernel.yaml", "09_developer_kernel.yaml", "10_packet_protocol_kernel.yaml"],
+        "kernels/bootstrap/": [],
+        "security/": []
+      }
+    },
+    "tests/": {
+      "description": "Pytest test suite",
+      "subdirs": {
+        "core/bootstrap/": [],
+        "core/agents/": [],
+        "memory/": [],
+        "integration/": [],
+        "api/": [],
+        "runtime/": [],
+        "world_model/": []
+      }
+    },
+    "migrations/": {
+      "description": "PostgreSQL and Neo4j schema migrations",
+      "files": ["0001_init_memory_substrate.sql", "0002_add_packet_store.sql", "0003_add_reasoning_traces.sql", "0004_add_checkpoints.sql", "0014_multi_checkpoint_support.sql", "0018_semantic_facts.sql", "0019_episodic_events.sql", "0020_optimize_vector_search.sql", "0021_gmp_learning.sql", "0025_tool_embeddings.sql", "0027_eval_results.sql", "0023_strategy_memory_schema.cypher"]
+    }
+  },
+  "import_dependency_graph": {
+    "api/server.py": {
+      "imports": ["fastapi", "uvicorn", "structlog", "openai", "pydantic", "config.settings", "memory.substrate_service", "memory.migration_runner", "memory.state_manager", "memory.timeline_service", "core.agents.executor", "core.agents.schemas", "core.governance.engine", "core.singleton_auto_registry", "core.singleton_registry", "core.event_type_registry", "runtime.background_tasks", "runtime.mcp_server_registry", "runtime.tool_registry", "api.routes.registry", "api.auth", "api.db", "api.agent_routes", "api.os_routes", "world_model.runtime", "agents.agent_registry", "orchestrators.orchestrator_registry", "collaborative_cells.cell_registry", "core.governance.policy_registry"],
+      "exported": ["app (FastAPI instance)", "lifespan()"]
+    },
+    "core/agents/executor.py": {
+      "imports": ["memory.substrate_service", "core.agents.schemas", "core.tools.base_registry", "core.tools.registry_adapter", "core.governance.engine", "core.observability.circuit_breaker", "structlog", "asyncio", "openai"],
+      "exported": ["AgentExecutorService"]
+    },
+    "core/agents/bootstrap/orchestrator.py": {
+      "imports": ["structlog", "core.agents.bootstrap.models", "core.agents.bootstrap.phase_0_validate", "core.agents.bootstrap.phase_1_load_kernels", "core.agents.bootstrap.phase_2_instantiate", "core.agents.bootstrap.phase_3_bind_kernels", "core.agents.bootstrap.phase_4_load_identity", "core.agents.bootstrap.phase_5_bind_tools", "core.agents.bootstrap.phase_6_wire_governance", "core.agents.bootstrap.phase_7_verify_and_lock"],
+      "exported": ["AgentBootstrapOrchestrator", "bootstrap_agent()"]
+    },
+    "memory/substrate_service.py": {
+      "imports": ["structlog", "memory.substrate_repository", "memory.substrate_semantic", "memory.enrichment_dag", "memory.saga", "memory.saga_patterns", "memory.governance_gate", "memory.consolidation", "memory.retention_engine", "memory.reasoning_replay", "memory.query_classifier", "memory.validators.packet_validator", "core.schemas", "core.decorators", "core.observability.circuit_breaker", "core.singleton_auto_registry", "telemetry.memory_metrics"],
+      "exported": ["MemorySubstrateService", "init_service()", "close_service()", "get_service()"]
+    },
+    "world_model/engine.py": {
+      "imports": ["structlog", "world_model.state", "world_model.loader", "world_model.causal_graph", "world_model.registry", "core.singleton_auto_registry"],
+      "exported": ["WorldModelEngine", "get_engine()"]
+    },
+    "runtime/kernel_loader.py": {
+      "imports": ["structlog", "yaml", "pathlib", "runtime.kernel_state", "runtime.kernel_config_loader"],
+      "exported": ["KernelLoader", "load_kernels()"]
+    }
+  },
+  "entry_points": [
+    {
+      "name": "API Server",
+      "location": "api/server.py:lifespan()",
+      "invocation": "uvicorn api.server:app",
+      "critical_path": "lifespan() → ensure_bootstrap() → run_migrations() → init_service() → bootstrap_agent()"
+    },
+    {
+      "name": "Bootstrap Main",
+      "location": "bootstrap/__main__.py:main()",
+      "invocation": "python -m bootstrap",
+      "critical_path": "main() → bootstrap_agent() → 7-phase ceremony"
+    },
+    {
+      "name": "Cursor Memory Client",
+      "location": "agents/cursor/cursor_memory_client.py:main()",
+      "invocation": "python agents/cursor/cursor_memory_client.py",
+      "critical_path": "main() → CursorMemoryClient.run()"
+    },
+    {
+      "name": "Research Agent",
+      "location": "agents/research_agent_impl.py:main()",
+      "invocation": "python -m agents.research_agent_impl",
+      "critical_path": "main() → ResearchAgent.execute()"
+    }
+  ],
+  "singleton_locations": [
+    {
+      "name": "_service (MemorySubstrateService)",
+      "location": "memory/substrate_service.py:get_service()",
+      "registration": "core/singleton_auto_registry.py:@register_singleton",
+      "initialization": "api/server.py:lifespan() → init_service()"
+    },
+    {
+      "name": "_repository (SubstrateRepository)",
+      "location": "memory/substrate_repository.py:get_repository()",
+      "registration": "core/singleton_auto_registry.py:@register_singleton",
+      "initialization": "api/server.py:lifespan() → init_repository()"
+    },
+    {
+      "name": "_world_model_engine",
+      "location": "world_model/engine.py:get_engine()",
+      "registration": "core/singleton_auto_registry.py:@register_singleton",
+      "initialization": "api/server.py:lifespan()"
+    },
+    {
+      "name": "_neo4j_client",
+      "location": "memory/graph_client.py:get_neo4j_client()",
+      "registration": "api/memory/graph.py",
+      "initialization": "api/server.py:lifespan()"
+    },
+    {
+      "name": "_redis_client",
+      "location": "runtime/redis_client.py:get_redis_client()",
+      "registration": "api/memory/cache.py",
+      "initialization": "api/server.py:lifespan()"
+    },
+    {
+      "name": "_ws_orchestrator",
+      "location": "runtime/websocket_orchestrator.py:get_orchestrator()",
+      "registration": "api/server.py",
+      "initialization": "api/server.py:lifespan()"
+    },
+    {
+      "name": "singleton_registry",
+      "location": "core/singleton_registry.py:get_singleton_registry()",
+      "registration": "core/singleton_auto_registry.py",
+      "initialization": "api/server.py:lifespan() → wire_singletons_to_registry()"
+    },
+    {
+      "name": "router_registry",
+      "location": "api/routes/registry.py:router_registry",
+      "registration": "api/routes/registry.py",
+      "initialization": "api/server.py:lifespan() → discover_routers()"
+    },
+    {
+      "name": "background_tasks",
+      "location": "runtime/background_tasks.py:BackgroundTaskRegistry",
+      "registration": "api/server.py:app.state.background_tasks",
+      "initialization": "api/server.py:lifespan()"
+    }
+  ],
+  "critical_files": {
+    "bootstrap": [
+      "api/server.py",
+      "bootstrap/__main__.py",
+      "core/agents/bootstrap/orchestrator.py",
+      "core/agents/bootstrap/phase_0_validate.py",
+      "core/agents/bootstrap/phase_1_load_kernels.py",
+      "core/agents/bootstrap/phase_2_instantiate.py",
+      "core/agents/bootstrap/phase_3_bind_kernels.py",
+      "core/agents/bootstrap/phase_4_load_identity.py",
+      "core/agents/bootstrap/phase_5_bind_tools.py",
+      "core/agents/bootstrap/phase_6_wire_governance.py",
+      "core/agents/bootstrap/phase_7_verify_and_lock.py",
+      "core/singleton_auto_registry.py"
+    ],
+    "memory_dag": [
+      "memory/substrate_service.py",
+      "memory/substrate_repository.py",
+      "memory/substrate_models.py",
+      "memory/substrate_semantic.py",
+      "memory/enrichment_dag.py",
+      "memory/saga.py",
+      "memory/saga_patterns.py",
+      "memory/governance_gate.py"
+    ],
+    "world_model": [
+      "world_model/engine.py",
+      "world_model/causal_mapper.py",
+      "world_model/reflection_memory.py",
+      "world_model/knowledge_ingestor.py",
+      "world_model/runtime.py",
+      "world_model/service.py"
+    ],
+    "executor": [
+      "core/agents/executor.py",
+      "core/agents/schemas.py",
+      "core/agents/agent_instance.py",
+      "core/tools/base_registry.py",
+      "core/tools/registry_adapter.py"
+    ],
+    "api": [
+      "api/server.py",
+      "api/agent_routes.py",
+      "api/memory/router.py",
+      "api/routes/registry.py",
+      "api/dependencies.py"
+    ],
+    "async_coordination": [
+      "core/coordination/event_queue.py",
+      "core/resilience/retry.py",
+      "core/observability/circuit_breaker.py",
+      "runtime/task_queue.py",
+      "runtime/websocket_orchestrator.py"
+    ],
+    "kernels": [
+      "private/kernels/00_system/01_master_kernel.yaml",
+      "private/kernels/00_system/02_identity_kernel.yaml",
+      "private/kernels/00_system/03_cognitive_kernel.yaml",
+      "private/kernels/00_system/04_behavioral_kernel.yaml",
+      "private/kernels/00_system/05_memory_kernel.yaml",
+      "private/kernels/00_system/06_worldmodel_kernel.yaml",
+      "private/kernels/00_system/07_execution_kernel.yaml",
+      "private/kernels/00_system/08_safety_kernel.yaml",
+      "private/kernels/00_system/09_developer_kernel.yaml",
+      "private/kernels/00_system/10_packet_protocol_kernel.yaml"
+    ]
+  },
+  "database_schema_locations": [
+    {
+      "name": "PostgreSQL migrations",
+      "location": "migrations/*.sql",
+      "tables": ["agent_memory_events", "semantic_memory", "agent_log", "reasoning_traces", "checkpoints", "packet_store", "knowledge_facts", "episodic_events", "gmp_learning_events", "tool_embeddings", "eval_results"],
+      "extensions": ["uuid-ossp", "vector (pgvector)"]
+    },
+    {
+      "name": "Neo4j schema",
+      "location": "scripts/memory/bootstrap_neo4j_schema.py",
+      "indices": ["Entity(id)", "Entity(type)", "Relationship(created_at)"],
+      "cypher_migrations": ["migrations/0023_strategy_memory_schema.cypher"]
+    }
+  ],
+  "configuration_files": [
+    {
+      "name": "Agent config: L-CTO",
+      "location": "config/agents/L-CTO-Agent.yaml",
+      "schema": "AgentConfig Pydantic model"
+    },
+    {
+      "name": "Agent config: Standard",
+      "location": "config/agents/l9-standard-v1.yaml",
+      "schema": "AgentConfig Pydantic model"
+    },
+    {
+      "name": "Agent config: Research",
+      "location": "config/agents/research-agent-v1.yaml",
+      "schema": "AgentConfig Pydantic model"
+    },
+    {
+      "name": "Agent config: Reflection",
+      "location": "config/agents/reflection-agent-v1.yaml",
+      "schema": "AgentConfig Pydantic model"
+    },
+    {
+      "name": "Kernel definitions",
+      "location": "private/kernels/00_system/*.yaml",
+      "count": 10
+    },
+    {
+      "name": "MCP servers",
+      "location": "config/mcp_servers.yaml",
+      "schema": "MCPServerConfig"
+    },
+    {
+      "name": "Settings",
+      "location": "config/settings.py",
+      "variables": ["OPENAI_API_KEY", "MEMORY_DSN", "DATABASE_URL", "SLACK_BOT_TOKEN", "NEO4J_URI", "REDIS_URL", "LOCAL_DEV"]
+    }
+  ],
+  "api_endpoints_summary": {
+    "os_routes": [
+      "GET /os/health",
+      "GET /os/status",
+      "GET /os/metrics"
+    ],
+    "agent_routes": [
+      "POST /agent/execute",
+      "GET /agent/result/{task_id}",
+      "GET /agent/status"
+    ],
+    "memory_routes": [
+      "POST /memory/ingest",
+      "GET /memory/search",
+      "GET /memory/retrieve/{packet_id}",
+      "POST /memory/batch",
+      "GET /memory/timeline",
+      "POST /memory/semantic/search"
+    ],
+    "world_model_routes": [
+      "GET /world-model/entity/{entity_id}",
+      "GET /world-model/search",
+      "GET /world-model/path",
+      "POST /world-model/ingest"
+    ],
+    "commands_routes": [
+      "POST /commands/execute",
+      "GET /commands/status"
+    ],
+    "factory_routes": [
+      "POST /factory/create",
+      "GET /factory/status/{task_id}"
+    ],
+    "research_routes": [
+      "POST /research/execute",
+      "GET /research/status"
+    ],
+    "observability_routes": [
+      "GET /observability/metrics",
+      "GET /observability/traces",
+      "GET /observability/health"
+    ],
+    "websocket": [
+      "GET /ws/agent (upgrade to WebSocket)"
+    ]
+  },
+  "top_imports_by_frequency": [
+    {"module": "structlog", "count": 275},
+    {"module": "typing.Any", "count": 213},
+    {"module": "datetime.datetime", "count": 122},
+    {"module": "enum.Enum", "count": 81},
+    {"module": "core.decorators.must_stay_async", "count": 77},
+    {"module": "dataclasses.dataclass", "count": 64},
+    {"module": "pathlib.Path", "count": 57},
+    {"module": "pydantic.BaseModel", "count": 43},
+    {"module": "uuid.uuid4", "count": 38}
+  ],
+  "next_phase_instructions": "Phase 1 will validate bootstrap and initialization spine. Provide this index to Phase 1 scanner. Focus on: lifespan() entry point, service initialization order, singleton registration verification, and 7-phase bootstrap ceremony."
+}

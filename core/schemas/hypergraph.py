@@ -41,7 +41,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set
 from enum import Enum
 from uuid import UUID, uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class NodeType(str, Enum):

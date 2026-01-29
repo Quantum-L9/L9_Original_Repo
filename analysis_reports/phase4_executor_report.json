@@ -1,0 +1,353 @@
+{
+  "metadata": {
+    "phase": 4,
+    "repo_path": "/home/ubuntu/L9",
+    "timestamp": "2026-01-28T23:55:00Z",
+    "previous_phases": ["phase0_repo_index.json", "phase1_bootstrap_report.json", "phase2_memory_report.json", "phase3_world_model_report.json"]
+  },
+  "agent_executor_service": {
+    "status": "PASS",
+    "location": "core/agents/executor.py",
+    "class": "AgentExecutorService",
+    "version": "1.0.0",
+    "responsibilities": [
+      "Instantiate agents based on registered configurations",
+      "Bind governance-approved tools to agent instances",
+      "Run execution loop (reasoning ↔ tool_use state machine)",
+      "Dispatch tool calls through tool registry",
+      "Store reasoning traces and results via memory substrate"
+    ],
+    "dependencies_injected": [
+      {
+        "name": "aios_runtime",
+        "type": "AIOSRuntime",
+        "purpose": "AIOS runtime for reasoning"
+      },
+      {
+        "name": "tool_registry",
+        "type": "ToolRegistryProtocol",
+        "purpose": "Tool registry for dispatching"
+      },
+      {
+        "name": "substrate_service",
+        "type": "SubstrateServiceProtocol",
+        "purpose": "Memory substrate for persistence"
+      },
+      {
+        "name": "agent_registry",
+        "type": "AgentRegistryProtocol",
+        "purpose": "Agent registry for configs"
+      },
+      {
+        "name": "agent_persistence",
+        "type": "AgentPersistenceService",
+        "purpose": "Checkpoint management (optional)"
+      }
+    ],
+    "optional_integrations": [
+      {
+        "name": "kernel_aware_agent",
+        "setter": "set_kernel_aware_agent()",
+        "purpose": "Kernel-aware tool dispatch via guarded_execute"
+      },
+      {
+        "name": "memory_warming_service",
+        "setter": "set_memory_warming_service()",
+        "purpose": "Stage 5: Predictive cache warming"
+      },
+      {
+        "name": "graph_hydrator",
+        "setter": "set_graph_hydrator()",
+        "purpose": "Stage 5: Load agent context from Neo4j"
+      },
+      {
+        "name": "tensor_bridge",
+        "setter": "set_tensor_bridge()",
+        "purpose": "Stage 6: Domain Tensor Bridge for tensor reasoning"
+      },
+      {
+        "name": "virtual_context_manager",
+        "setter": "set_virtual_context_manager()",
+        "purpose": "Stage 7: Tiered memory (main/working/archival)"
+      },
+      {
+        "name": "event_queue",
+        "setter": "set_event_queue()",
+        "purpose": "Stage 7: Async agent coordination"
+      },
+      {
+        "name": "tool_audit_service",
+        "setter": "set_tool_audit_service()",
+        "purpose": "Stage 7: Execution tracking"
+      },
+      {
+        "name": "calibration_service",
+        "setter": "set_calibration_service()",
+        "purpose": "Stage 8: Bayesian confidence calibration (GMP-32)"
+      }
+    ],
+    "configuration": {
+      "default_agent_id": "l9-standard-v1 (from DEFAULT_AGENT_ID env)",
+      "max_iterations": "10 (from AGENT_MAX_ITERATIONS env)"
+    },
+    "idempotency": {
+      "type": "in-memory cache",
+      "limitation": "Cleared on process restart - NOT durable",
+      "roadmap": "Substrate-backed idempotency in v1.2"
+    },
+    "graceful_degradation": true,
+    "optional_imports": [
+      "CalibrationService (GMP-32)",
+      "VirtualContextManager",
+      "EventQueue",
+      "ToolAuditService",
+      "DTBReasoningEngine",
+      "MemoryWarmingService",
+      "prompt_defense",
+      "prompt_builder",
+      "self_reflection"
+    ]
+  },
+  "tool_registry": {
+    "status": "PASS",
+    "base_registry": {
+      "location": "core/tools/base_registry.py",
+      "class": "ToolRegistry (via get_tool_registry())",
+      "version": "2.1.0",
+      "purpose": "Universal in-memory tool registry for ALL L9 tools",
+      "features": [
+        "Time-based sliding window rate limiting",
+        "Tool schema support for OpenAI function calling",
+        "Async execution with timeout handling"
+      ],
+      "tool_types": ["SEARCH", "HTTP", "PERPLEXITY", "MOCK", "CUSTOM"],
+      "singleton_registration": "@register_singleton"
+    },
+    "registry_adapter": {
+      "location": "core/tools/registry_adapter.py",
+      "class": "ExecutorToolRegistry",
+      "version": "2.1.0",
+      "purpose": "Wraps base registry for governance + OpenAI format",
+      "features": [
+        "Governance integration (is_tool_approved)",
+        "High-risk tool gating",
+        "Audit trail to memory substrate",
+        "Tool argument sanitization (GMP-45)",
+        "Tool registry caching (GMP-124)"
+      ],
+      "execution_flow": [
+        "1. Sanitize arguments (GMP-45)",
+        "2. Check risk level (high_risk_tools.yaml)",
+        "3. Check approval status (is_tool_approved)",
+        "4. Execute via executor function",
+        "5. Log audit trail to memory substrate"
+      ]
+    },
+    "tool_metadata": {
+      "fields": ["id", "name", "description", "tool_type", "allowed_roles", "rate_limit", "timeout_seconds", "enabled", "requires_api_key", "input_schema"]
+    },
+    "rate_limiting": {
+      "type": "Sliding window",
+      "default_window": "60 seconds",
+      "default_limit": "60 calls per minute"
+    }
+  },
+  "governance_engine": {
+    "status": "PASS",
+    "location": "core/governance/engine.py",
+    "class": "GovernanceEngineService",
+    "version": "1.0.0",
+    "purpose": "Stateless policy evaluation engine with deny-by-default",
+    "features": [
+      "Load policies from YAML manifests",
+      "First-match-wins evaluation strategy",
+      "Deny-by-default for unmatched requests",
+      "Emit evaluation traces to memory substrate"
+    ],
+    "configuration": {
+      "policy_dir": "POLICY_MANIFEST_DIR env or config/policies",
+      "default_effect": "DENY"
+    },
+    "policy_loader": {
+      "location": "core/governance/loader.py",
+      "class": "PolicyLoader",
+      "purpose": "Load and validate policy YAML files"
+    },
+    "policy_schemas": {
+      "location": "core/governance/schemas.py",
+      "models": ["Policy", "EvaluationRequest", "EvaluationResult", "PolicyEffect"]
+    },
+    "tool_risk_policy": {
+      "location": "core/governance/tool_risk_policy.py",
+      "purpose": "Load high-risk and side-effect tools from config",
+      "config_file": "config/policies/high_risk_tools.yaml"
+    }
+  },
+  "agent_registry": {
+    "status": "PASS",
+    "location": "core/agents/registry.py",
+    "class": "AgentRegistry",
+    "version": "1.0.0",
+    "purpose": "Agent registration, discovery, and configuration management",
+    "features": [
+      "Load agent configurations from YAML files",
+      "Runtime registration of new agents",
+      "Lookup by agent ID",
+      "Integration with Research Factory for extracted agents"
+    ],
+    "configuration": {
+      "config_dir": "config/agents",
+      "default_agent_id": "l9-standard-v1"
+    },
+    "kernel_integration": {
+      "env_var": "L9_USE_KERNELS (default: true)",
+      "prompt_builder": "core/kernels/prompt_builder.py:build_system_prompt_from_kernels()"
+    }
+  },
+  "kernel_aware_registry": {
+    "status": "PASS",
+    "location": "core/agents/registry.py",
+    "class": "KernelAwareAgentRegistry",
+    "purpose": "Agent registry with kernel loading and binding",
+    "factory": "create_kernel_aware_registry()",
+    "features": [
+      "Load 10 governance kernels from private/kernels/00_system/",
+      "Bind kernels to agents via GOVERNED_BY relationships",
+      "Provide kernel-aware L-CTO agent",
+      "Track kernel state (ACTIVE, INACTIVE, LOADING)"
+    ],
+    "methods": [
+      "get_l_cto_agent() → kernel-aware agent",
+      "get_kernel_state() → kernel state string"
+    ]
+  },
+  "tool_graph": {
+    "status": "PASS",
+    "location": "core/tools/tool_graph.py",
+    "class": "ToolGraph",
+    "purpose": "Graph-based tool relationships and discovery",
+    "features": [
+      "Tool dependency tracking",
+      "Tool capability mapping",
+      "Graph-based tool search"
+    ]
+  },
+  "tool_embeddings": {
+    "status": "PASS",
+    "location": "core/tools/tool_embeddings.py",
+    "class": "ToolEmbeddingService",
+    "purpose": "Semantic tool discovery via embeddings",
+    "features": [
+      "Tool description embeddings",
+      "Semantic tool search",
+      "Tool similarity scoring"
+    ]
+  },
+  "semantic_discovery": {
+    "status": "PASS",
+    "location": "core/tools/semantic_discovery.py",
+    "class": "SemanticToolDiscovery",
+    "purpose": "Natural language tool discovery",
+    "features": [
+      "Query-based tool finding",
+      "Intent matching",
+      "Tool recommendation"
+    ]
+  },
+  "prompt_defense": {
+    "status": "PASS",
+    "location": "core/agents/prompt_defense.py",
+    "purpose": "GMP-60: Runtime hardening against prompt injection",
+    "features": [
+      "detect_prompt_injection()",
+      "should_block_request()",
+      "get_blocked_response()"
+    ],
+    "graceful_degradation": true
+  },
+  "prompt_builder": {
+    "status": "PASS",
+    "location": "core/agents/prompt_builder.py",
+    "purpose": "GMP-60: Kernel-aware prompt construction",
+    "features": [
+      "build_kernel_system_prompt()",
+      "build_runtime_prompt()"
+    ],
+    "graceful_degradation": true
+  },
+  "approval_manager": {
+    "status": "PASS",
+    "location": "core/governance/approvals.py",
+    "class": "ApprovalManager",
+    "purpose": "Manage tool approval requests and status",
+    "features": [
+      "Request approval for high-risk tools",
+      "Check approval status",
+      "Approval expiration"
+    ]
+  },
+  "tool_sanitizer": {
+    "status": "PASS",
+    "location": "core/tools/sanitizer.py",
+    "class": "ToolInputSanitizer",
+    "purpose": "GMP-45: Tool argument sanitization gate",
+    "features": [
+      "Input validation",
+      "Dangerous pattern detection",
+      "Argument normalization"
+    ]
+  },
+  "circuit_breaker": {
+    "status": "PASS",
+    "location": "core/observability/circuit_breaker.py",
+    "class": "CircuitBreaker",
+    "purpose": "Fault tolerance for tool execution",
+    "features": [
+      "Failure threshold tracking",
+      "Circuit state management (CLOSED, OPEN, HALF_OPEN)",
+      "Automatic recovery"
+    ],
+    "configuration": {
+      "failure_threshold": "configurable",
+      "window_seconds": "configurable",
+      "reset_timeout": "configurable"
+    }
+  },
+  "critical_findings": [
+    {
+      "severity": "INFO",
+      "type": "Idempotency Cache Limitation",
+      "location": "core/agents/executor.py",
+      "issue": "In-memory idempotency cache cleared on process restart",
+      "impact": "Duplicate tasks may re-execute after restart",
+      "fix": "Implement substrate-backed idempotency (roadmap v1.2)",
+      "adr_reference": "N/A"
+    },
+    {
+      "severity": "LOW",
+      "type": "Registry Adapter Deprecation",
+      "location": "core/tools/registry_adapter.py",
+      "issue": "ExecutorToolRegistry marked as deprecated",
+      "impact": "May be removed in future versions",
+      "fix": "Document migration path to new architecture",
+      "adr_reference": "N/A"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "MEDIUM",
+      "action": "Implement substrate-backed idempotency for task deduplication",
+      "file": "core/agents/executor.py",
+      "code_snippet": "# Add to __init__:\nself._idempotency_store = await substrate_service.get_idempotency_store()"
+    },
+    {
+      "priority": "LOW",
+      "action": "Document registry adapter migration path",
+      "file": "readme/MIGRATION.md",
+      "code_snippet": "## Tool Registry Migration\nExecutorToolRegistry is deprecated. Migrate to new ToolRegistry pattern."
+    }
+  ],
+  "compliance_score": 95,
+  "status": "PASS (2 issues: 1 LOW, 1 INFO)",
+  "next_phase": "Phase 5: API Router & FastAPI Coherence"
+}

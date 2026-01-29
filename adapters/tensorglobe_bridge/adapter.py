@@ -25,7 +25,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import structlog
-from datetime import datetime
+from datetime import datetime, timezone
 
 from core.boundary.enforcer import BoundaryEnforcer
 from core.eos import AccountabilityEngine

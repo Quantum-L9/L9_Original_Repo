@@ -16,7 +16,7 @@ Created: 2025-12-20
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 
 

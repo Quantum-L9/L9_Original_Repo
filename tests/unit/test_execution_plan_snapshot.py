@@ -7,7 +7,7 @@ Tests execution plan snapshot functionality.
 Mutation Testing Target: 85%+ score
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 

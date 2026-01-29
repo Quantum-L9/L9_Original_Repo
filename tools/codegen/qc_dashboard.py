@@ -245,7 +245,7 @@ class QCDashboard:
         """Approve a concept."""
         notes = input("📝 Review notes (optional): ").strip()
 
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         review = ConceptReview(
             concept_id=concept["concept_id"],

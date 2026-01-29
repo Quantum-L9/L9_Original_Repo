@@ -83,7 +83,7 @@ __dora_meta__ = {
 
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timezone, datetime, timedelta
 import json
 from pathlib import Path
 from collections import defaultdict

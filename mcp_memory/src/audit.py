@@ -34,7 +34,7 @@ __dora_meta__ = {
 
 import json
 from collections.abc import Awaitable, Callable
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 

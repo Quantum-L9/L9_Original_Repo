@@ -40,7 +40,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid5

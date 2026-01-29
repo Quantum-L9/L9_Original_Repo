@@ -18,7 +18,7 @@ Run with: pytest tests/memory/test_e2e_memory_audit.py -v
 import asyncio
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 

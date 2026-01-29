@@ -129,7 +129,7 @@ class SubstrateAlignmentChecker:
 
     async def check_postgres_to_neo4j(self, limit: int = 1000) -> AlignmentReport:
         """Verify all Postgres packets have Neo4j nodes."""
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         report = AlignmentReport(checked_at=datetime.now(timezone.utc).isoformat())
 

@@ -39,7 +39,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid4, uuid5
 

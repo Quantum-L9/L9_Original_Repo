@@ -33,7 +33,7 @@ __dora_meta__ = {
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from enum import Enum
 from typing import Any
 

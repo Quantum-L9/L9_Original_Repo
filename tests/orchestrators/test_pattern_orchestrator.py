@@ -138,7 +138,7 @@ class TestInterfaceModels:
 
     def test_pipeline_result_creation(self):
         """Test PipelineResult model creation."""
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         result = PipelineResult(
             trace_id=uuid4(),

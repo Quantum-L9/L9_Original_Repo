@@ -21,7 +21,7 @@ except Exception:
     pass  # Ignore if unavailable - tests will fail gracefully
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from unittest.mock import MagicMock, patch
 

@@ -44,7 +44,7 @@ import contextlib
 import hashlib
 import json
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import structlog

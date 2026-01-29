@@ -7,7 +7,7 @@ Tests for audit logging, compliance reporting, and export.
 Version: 1.0.0
 """
 
-from datetime import datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

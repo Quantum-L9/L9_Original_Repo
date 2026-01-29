@@ -218,7 +218,7 @@ def handle_governance_result(
             state.decisions[-1]["approval_id"] = escalation_result.request_id
 
         # Add reasoning block
-        from datetime import datetime
+        from datetime import datetime, timezone
         from uuid import uuid4
 
         from core.schemas import StructuredReasoningBlock

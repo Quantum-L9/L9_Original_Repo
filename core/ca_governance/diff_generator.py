@@ -15,7 +15,7 @@ Created: 2025-12-20
 
 import difflib
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 

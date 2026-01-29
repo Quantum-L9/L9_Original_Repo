@@ -20,7 +20,7 @@ GMP: GMP-122 AWS Secrets Manager Integration
 from __future__ import annotations
 
 import os
-from datetime import datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from typing import Any
 
 import structlog

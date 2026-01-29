@@ -41,7 +41,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 

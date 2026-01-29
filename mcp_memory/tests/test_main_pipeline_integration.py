@@ -200,7 +200,7 @@ async def test_save_via_main_pipeline_handles_ttl_correctly():
     mock_service.write_packet.return_value = mock_result
 
     # Test short duration
-    from datetime import datetime, timedelta
+    from datetime import timezone, datetime, timedelta
 
     from src.config import settings
 

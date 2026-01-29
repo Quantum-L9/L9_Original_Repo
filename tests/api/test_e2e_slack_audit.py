@@ -21,7 +21,7 @@ import hmac
 import os
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import structlog

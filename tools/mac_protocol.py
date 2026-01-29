@@ -90,7 +90,7 @@ def create_mac_response(
     timestamp: str | None = None,
 ) -> dict[str, Any]:
     """Create Mac protocol response dict."""
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     if timestamp is None:
         timestamp = datetime.now(timezone.utc).isoformat()

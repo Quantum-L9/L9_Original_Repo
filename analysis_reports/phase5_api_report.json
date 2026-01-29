@@ -1,0 +1,409 @@
+{
+  "metadata": {
+    "phase": 5,
+    "repo_path": "/home/ubuntu/L9",
+    "timestamp": "2026-01-29T00:05:00Z",
+    "previous_phases": ["phase0_repo_index.json", "phase1_bootstrap_report.json", "phase2_memory_report.json", "phase3_world_model_report.json", "phase4_executor_report.json"]
+  },
+  "fastapi_server": {
+    "status": "PASS",
+    "location": "api/server.py",
+    "version": "0.5.0 (Research Factory Integration)",
+    "framework": "FastAPI",
+    "lifespan_manager": {
+      "type": "asynccontextmanager",
+      "startup_sequence": [
+        "1. Bootstrap verification (ensure_bootstrap)",
+        "2. Environment variable validation",
+        "3. Database migrations (run_migrations)",
+        "4. Memory substrate initialization (init_service)",
+        "5. Singleton discovery and wiring",
+        "6. Event type registration",
+        "7. Router auto-discovery",
+        "8. Background task registration",
+        "9. Optional service initialization (Neo4j, Research, World Model, etc.)"
+      ],
+      "shutdown_sequence": [
+        "1. Background task shutdown",
+        "2. Memory substrate close (close_service)",
+        "3. Neo4j client close",
+        "4. Research runtime shutdown",
+        "5. World model runtime shutdown"
+      ]
+    },
+    "optional_features": [
+      {
+        "name": "World Model API",
+        "flag": "_has_world_model",
+        "router": "world_model_router"
+      },
+      {
+        "name": "Slack Adapter",
+        "flag": "_has_slack",
+        "components": ["SlackRequestValidator", "SlackAPIClient"]
+      },
+      {
+        "name": "Research Factory",
+        "flag": "_has_research",
+        "router": "research_router"
+      },
+      {
+        "name": "Agent Executor",
+        "flag": "_has_agent_executor",
+        "components": ["AgentExecutorService"]
+      },
+      {
+        "name": "AIOS Runtime",
+        "flag": "_has_aios_runtime",
+        "components": ["AIOSRuntime"]
+      },
+      {
+        "name": "Tool Registry",
+        "flag": "_has_tool_registry",
+        "components": ["ExecutorToolRegistry"]
+      },
+      {
+        "name": "Prometheus Metrics",
+        "flag": "_has_prometheus",
+        "endpoint": "/metrics"
+      },
+      {
+        "name": "Email Agent",
+        "flag": "_has_email_agent",
+        "router": "email_agent_router"
+      },
+      {
+        "name": "Bayesian Calibration",
+        "flag": "_has_calibration",
+        "components": ["CalibrationService", "GatingPolicyService"]
+      },
+      {
+        "name": "Observability",
+        "flag": "_has_observability",
+        "components": ["ObservabilityService"]
+      }
+    ],
+    "feature_flags": {
+      "L9_NEW_AGENT_INIT": "settings.l9_new_agent_init",
+      "L9_STAGE3_MODULES": "settings.l9_stage3_modules",
+      "L9_GRAPH_AGENT_STATE": "settings.l9_graph_agent_state",
+      "L9_OBSERVABILITY": "settings.l9_observability"
+    }
+  },
+  "router_registry": {
+    "status": "PASS",
+    "location": "api/routes/registry.py",
+    "class": "RouterRegistry",
+    "version": "1.0.0",
+    "purpose": "Auto-discovery and registration for FastAPI routers",
+    "features": [
+      "Zero boilerplate in server.py",
+      "Routers self-describe their configuration",
+      "Automatic module registry integration",
+      "Fail-safe error handling",
+      "Observability via snapshot()"
+    ],
+    "registration_pattern": {
+      "method": "router_registry.register()",
+      "parameters": ["router", "prefix", "tags", "module_id", "display_name", "dependencies"]
+    },
+    "wiring_pattern": {
+      "method": "router_registry.wire_all(app)",
+      "returns": "router_count"
+    }
+  },
+  "api_routers": {
+    "status": "PASS",
+    "total_routers": 20,
+    "routers": [
+      {
+        "file": "api/agent_routes.py",
+        "prefix": "/agent",
+        "purpose": "Agent execution endpoints"
+      },
+      {
+        "file": "api/os_routes.py",
+        "prefix": "/os",
+        "purpose": "OS-level operations"
+      },
+      {
+        "file": "api/memory/router.py",
+        "prefix": "/memory",
+        "purpose": "Memory substrate operations"
+      },
+      {
+        "file": "api/routes/commands.py",
+        "prefix": "/commands",
+        "purpose": "Command execution"
+      },
+      {
+        "file": "api/routes/compliance.py",
+        "prefix": "/compliance",
+        "purpose": "Compliance and audit"
+      },
+      {
+        "file": "api/routes/cursor.py",
+        "prefix": "/cursor",
+        "purpose": "Cursor IDE integration"
+      },
+      {
+        "file": "api/routes/evaluation.py",
+        "prefix": "/evaluation",
+        "purpose": "Agent evaluation"
+      },
+      {
+        "file": "api/routes/factory.py",
+        "prefix": "/factory",
+        "purpose": "Agent factory operations"
+      },
+      {
+        "file": "api/routes/gmp_learning.py",
+        "prefix": "/gmp",
+        "purpose": "GMP meta-learning"
+      },
+      {
+        "file": "api/routes/mcp.py",
+        "prefix": "/mcp",
+        "purpose": "Model Context Protocol"
+      },
+      {
+        "file": "api/routes/modules.py",
+        "prefix": "/modules",
+        "purpose": "Module management"
+      },
+      {
+        "file": "api/routes/observability.py",
+        "prefix": "/observability",
+        "purpose": "Observability endpoints"
+      },
+      {
+        "file": "api/routes/pattern.py",
+        "prefix": "/pattern",
+        "purpose": "Pattern matching"
+      },
+      {
+        "file": "api/routes/reasoning.py",
+        "prefix": "/reasoning",
+        "purpose": "Reasoning orchestrator"
+      },
+      {
+        "file": "api/routes/reflection_agent.py",
+        "prefix": "/reflection",
+        "purpose": "Reflection agent"
+      },
+      {
+        "file": "api/routes/research.py",
+        "prefix": "/research",
+        "purpose": "Research operations"
+      },
+      {
+        "file": "api/routes/research_agent.py",
+        "prefix": "/research-agent",
+        "purpose": "Research agent"
+      },
+      {
+        "file": "api/routes/simulation.py",
+        "prefix": "/simulation",
+        "purpose": "Simulation engine"
+      },
+      {
+        "file": "api/routes/slack.py",
+        "prefix": "/slack",
+        "purpose": "Slack integration"
+      },
+      {
+        "file": "api/routes/tensor_bridge.py",
+        "prefix": "/tensor",
+        "purpose": "Domain Tensor Bridge"
+      }
+    ]
+  },
+  "authentication": {
+    "status": "PASS",
+    "location": "api/auth.py",
+    "version": "1.1.0",
+    "methods": [
+      {
+        "name": "verify_api_key()",
+        "type": "sync",
+        "purpose": "Basic API key verification",
+        "header": "Authorization: Bearer <token>"
+      },
+      {
+        "name": "verify_api_key_with_rate_limit()",
+        "type": "async",
+        "purpose": "Rate-limited API key verification",
+        "protection": "5 failed attempts → 15 minute lockout"
+      }
+    ],
+    "caller_identities": [
+      {
+        "caller_id": "L",
+        "env_var": "L9_EXECUTOR_API_KEY_L",
+        "scopes": ["developer", "global", "l-private"],
+        "creator": "L-CTO"
+      },
+      {
+        "caller_id": "C",
+        "env_var": "L9_EXECUTOR_API_KEY_C",
+        "scopes": ["developer", "global"],
+        "creator": "Cursor-IDE"
+      }
+    ],
+    "rate_limiter": {
+      "location": "runtime/auth_rate_limiter.py",
+      "purpose": "Prevent brute force attacks"
+    }
+  },
+  "openapi_documentation": {
+    "status": "PASS",
+    "location": "api/openapi_config.py",
+    "version": "1.0.0",
+    "title": "L9 Agentic Intelligence Platform API",
+    "api_version": "2.5.0",
+    "features": [
+      "Enhanced metadata and documentation",
+      "Security schemes (API Key authentication)",
+      "Custom Swagger UI configuration",
+      "ReDoc alternative documentation",
+      "Example requests and responses"
+    ],
+    "endpoints": {
+      "swagger_ui": "/docs",
+      "redoc": "/redoc",
+      "openapi_json": "/openapi.json"
+    }
+  },
+  "memory_api": {
+    "status": "PASS",
+    "location": "api/memory/router.py",
+    "version": "1.2.0 (GMP-68: Governance Gate)",
+    "endpoints": [
+      "POST /memory/test",
+      "POST /memory/packet",
+      "POST /memory/semantic/search",
+      "GET /memory/stats",
+      "GET /memory/packet/{packet_id}",
+      "GET /memory/thread/{thread_id}",
+      "GET /memory/lineage/{packet_id}",
+      "POST /memory/hybrid/search",
+      "GET /memory/facts",
+      "GET /memory/insights"
+    ],
+    "governance_integration": {
+      "dependency": "memory_governance_context_dependency",
+      "context_builder": "build_governance_context()",
+      "context_manager": "governance_context()"
+    }
+  },
+  "middleware": {
+    "status": "PASS",
+    "components": [
+      {
+        "name": "CORS",
+        "location": "api/server.py",
+        "purpose": "Cross-Origin Resource Sharing"
+      },
+      {
+        "name": "Governance Context",
+        "location": "memory/governance_gate.py",
+        "purpose": "RLS and scope enforcement"
+      },
+      {
+        "name": "Observability Context",
+        "location": "core/observability/__init__.py",
+        "purpose": "Distributed tracing"
+      },
+      {
+        "name": "Rate Limiting",
+        "location": "runtime/auth_rate_limiter.py",
+        "purpose": "Request throttling"
+      }
+    ]
+  },
+  "error_handling": {
+    "status": "PASS",
+    "patterns": [
+      {
+        "type": "HTTPException",
+        "usage": "Standard FastAPI error responses",
+        "status_codes": ["400 Bad Request", "401 Unauthorized", "404 Not Found", "500 Internal Server Error"]
+      },
+      {
+        "type": "Circuit Breaker",
+        "location": "core/observability/circuit_breaker.py",
+        "purpose": "Fault tolerance for external services"
+      },
+      {
+        "type": "Graceful Degradation",
+        "pattern": "try/except ImportError with _has_* flags",
+        "purpose": "Optional feature handling"
+      }
+    ]
+  },
+  "health_endpoints": {
+    "status": "PASS",
+    "endpoints": [
+      {
+        "path": "GET /",
+        "purpose": "Root endpoint"
+      },
+      {
+        "path": "GET /health",
+        "purpose": "Basic health check"
+      },
+      {
+        "path": "GET /health/startup",
+        "purpose": "Startup verification"
+      },
+      {
+        "path": "GET /health/neo4j",
+        "purpose": "Neo4j connection health"
+      },
+      {
+        "path": "GET /health/services",
+        "purpose": "All services health"
+      }
+    ]
+  },
+  "websocket": {
+    "status": "PASS",
+    "location": "api/server.py",
+    "endpoint": "/ws",
+    "purpose": "Real-time agent communication",
+    "authentication": "Token-based via query parameter"
+  },
+  "dependencies": {
+    "status": "PASS",
+    "location": "api/dependencies.py",
+    "purpose": "FastAPI dependency injection",
+    "components": [
+      "get_memory_service()",
+      "get_agent_executor()",
+      "get_tool_registry()",
+      "get_governance_engine()"
+    ]
+  },
+  "critical_findings": [
+    {
+      "severity": "INFO",
+      "type": "Many Optional Features",
+      "location": "api/server.py",
+      "issue": "20+ optional feature flags with graceful degradation",
+      "impact": "Complex startup logic, but provides flexibility",
+      "fix": "Document feature dependencies clearly",
+      "adr_reference": "N/A"
+    }
+  ],
+  "recommendations": [
+    {
+      "priority": "LOW",
+      "action": "Create feature dependency matrix documentation",
+      "file": "readme/FEATURES.md",
+      "code_snippet": "## Feature Dependencies\n| Feature | Requires | Env Vars |\n|---------|----------|----------|\n| Research | Neo4j | NEO4J_URL |"
+    }
+  ],
+  "compliance_score": 97,
+  "status": "PASS (1 issue: INFO)",
+  "next_phase": "Phase 6: Async Coherence & End-to-End Traceability"
+}

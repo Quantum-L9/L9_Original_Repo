@@ -6,7 +6,7 @@ Tests for monitoring state size and memory usage.
 """
 
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TypedDict
 
 
