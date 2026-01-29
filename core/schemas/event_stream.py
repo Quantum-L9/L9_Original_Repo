@@ -37,7 +37,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -132,7 +132,8 @@ class AgentHandshake(BaseModel):
     # Session tracking
     session_id: UUID = Field(default_factory=uuid4, description="Session identifier")
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Handshake timestamp"
+        default_factory=lambda: datetime.now(UTC),
+        description="Handshake timestamp",
     )
 
     # Handshake state
@@ -200,7 +201,8 @@ class HandshakeResponse(BaseModel):
     rejection_reason: str | None = Field(None, description="Reason if rejected")
 
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Response timestamp"
+        default_factory=lambda: datetime.now(UTC),
+        description="Response timestamp",
     )
 
 
@@ -241,7 +243,8 @@ class SecurityEvent(BaseModel):
 
     # Timing
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Event timestamp"
+        default_factory=lambda: datetime.now(UTC),
+        description="Event timestamp",
     )
 
     # Correlation
@@ -291,7 +294,8 @@ class CapabilityViolation(BaseModel):
 
     # Timing
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Violation timestamp"
+        default_factory=lambda: datetime.now(UTC),
+        description="Violation timestamp",
     )
 
     model_config = {"frozen": True}

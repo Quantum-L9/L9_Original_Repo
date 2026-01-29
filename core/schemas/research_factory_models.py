@@ -41,7 +41,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -89,7 +89,7 @@ class ResearchJobSpec(BaseModel):
     max_results: int = Field(
         default=50, ge=1, le=1000, description="Maximum results to retrieve"
     )
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"frozen": True}
 
@@ -139,7 +139,7 @@ class QueryPlan(BaseModel):
     constraints: dict[str, Any] = Field(
         default_factory=dict, description="Plan constraints"
     )
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"frozen": True}
 
@@ -162,7 +162,7 @@ class Superprompt(BaseModel):
     variables: dict[str, Any] = Field(..., description="Template variables")
     context: str | None = Field(None, description="Additional context")
     rendered: str = Field(..., description="Final rendered prompt")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"frozen": True}
 
@@ -190,7 +190,7 @@ class RetrievalBatch(BaseModel):
     metadata: dict[str, Any] = Field(
         default_factory=dict, description="Additional metadata"
     )
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"frozen": True}
 
@@ -217,7 +217,7 @@ class ParsedObject(BaseModel):
     errors: list[str] = Field(
         default_factory=list, description="Validation errors if any"
     )
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"frozen": True}
 
@@ -268,7 +268,7 @@ class IntegrationResult(BaseModel):
     )
     metrics: ResearchMetrics = Field(..., description="Execution metrics")
     status: str = Field(default="completed", description="Final status")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"frozen": True}
 

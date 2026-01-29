@@ -3,7 +3,7 @@ EOS Core Schemas — L9 Epistemic Operating System
 Pydantic models derived from core/eos/schemas.yaml
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -118,7 +118,7 @@ class Provenance(BaseModel):
     """Provenance tracking for epistemic objects"""
 
     ledger_ref: str | None = Field(None, description="Hash reference to ledger")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     created_by: str = Field(..., description="Agent ID that created this")
 
 
@@ -194,7 +194,7 @@ class ActionEnvelope(BaseModel):
     simulation_ref: str | None = None
     signature: str = Field(..., description="Cryptographic signature")
     signing_key_id: str = Field(...)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     class Config:
         use_enum_values = True
@@ -235,7 +235,7 @@ class Verdict(BaseModel):
     issuing_authority: str = Field(..., description="Authority or quorum that issued")
     justification_refs: list[str] = Field(default_factory=list)
     ledger_ref: str | None = Field(None, description="Immutable ledger reference")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     class Config:
         use_enum_values = True
@@ -254,7 +254,7 @@ class Evidence(BaseModel):
     content: str = Field(...)
     source_id: str = Field(..., description="Where this evidence came from")
     confidence: float = Field(default=1.0, ge=0.0, le=1.0)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
@@ -269,7 +269,7 @@ class LedgerEntry(BaseModel):
     entry_id: str = Field(default_factory=lambda: str(uuid4()))
     hash: str = Field(..., description="Content hash")
     signer: str = Field(..., description="Who signed this entry")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     action_ref: str | None = None
     verdict_ref: str | None = None
     payload: dict[str, Any] = Field(default_factory=dict)

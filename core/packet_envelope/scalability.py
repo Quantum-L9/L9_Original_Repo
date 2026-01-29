@@ -45,7 +45,7 @@ import asyncio
 import logging
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -79,7 +79,7 @@ class BatchIngestResult:
     failed_packets: int
     errors: list[dict[str, Any]] = field(default_factory=list)
     duration_ms: float = 0.0
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 class BatchIngestionEngine:
@@ -153,7 +153,7 @@ class BatchIngestionEngine:
                     result.errors.append(
                         {
                             "error": str(sub_result),
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                         }
                     )
                 else:
@@ -261,7 +261,7 @@ class Command:
     command_type: CommandType
     aggregate_id: str  # Usually packet_id
     data: dict[str, Any]
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     user_id: str | None = None
 
 
@@ -273,7 +273,7 @@ class Event:
     event_type: str
     aggregate_id: str
     data: dict[str, Any]
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     command_id: str | None = None
 
 
@@ -463,7 +463,7 @@ class Snapshot:
     aggregate_id: str
     aggregate_version: int
     state: dict[str, Any]
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 class EventStore:
