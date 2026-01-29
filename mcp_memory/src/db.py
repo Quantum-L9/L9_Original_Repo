@@ -46,7 +46,8 @@ async def _init_connection(conn: asyncpg.Connection) -> None:
     )
 
 
-async def init_db():
+async def init_db() -> None:
+    """Initialize database connection pool with pgvector extension."""
     global pool
     pool = await asyncpg.create_pool(
         dsn=settings.MEMORY_DSN,
@@ -59,7 +60,8 @@ async def init_db():
     logger.info("Database pool initialized with JSON codecs")
 
 
-async def close_db():
+async def close_db() -> None:
+    """Close database connection pool."""
     global pool
     if pool:
         await pool.close()
@@ -67,7 +69,8 @@ async def close_db():
         logger.info("Database pool closed")
 
 
-async def execute(query: str, *args) -> Any:
+async def execute(query: str, *args: Any) -> Any:
+    """Execute a query and return result status."""
     if not pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.execute")
@@ -75,7 +78,8 @@ async def execute(query: str, *args) -> Any:
         return await conn.execute(query, *args)
 
 
-async def fetch_one(query: str, *args) -> dict[str, Any] | None:
+async def fetch_one(query: str, *args: Any) -> dict[str, Any] | None:
+    """Fetch a single row as a dictionary."""
     if not pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.fetch_one")
@@ -84,7 +88,8 @@ async def fetch_one(query: str, *args) -> dict[str, Any] | None:
         return dict(row) if row else None
 
 
-async def fetch_all(query: str, *args) -> list[dict[str, Any]]:
+async def fetch_all(query: str, *args: Any) -> list[dict[str, Any]]:
+    """Fetch all rows as a list of dictionaries."""
     if not pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.fetch_all")
@@ -94,6 +99,7 @@ async def fetch_all(query: str, *args) -> list[dict[str, Any]]:
 
 
 async def insert_many(query: str, args_list: list[tuple]) -> int:
+    """Execute batch insert and return affected row count."""
     if not pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.insert_many")

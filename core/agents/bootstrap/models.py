@@ -166,7 +166,8 @@ class AgentBootstrapError(Exception):
         agent_id: str | None,
         root_cause: Exception,
         init_signature: str | None = None,
-    ):
+    ) -> None:
+        """Initialize bootstrap error with phase context."""
         self.phase = phase
         self.phase_name = phase_name
         self.agent_id = agent_id
