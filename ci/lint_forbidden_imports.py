@@ -79,15 +79,28 @@ class LintResult:
     """Result of linting a file."""
 
     def __init__(self, file_path: str):
+        """Initialize lint result for a file.
+
+        Args:
+            file_path: Path to the linted file.
+        """
         self.file_path = file_path
         self.errors: list[tuple[int, str, str]] = []  # (line_num, pattern, message)
         self.fixed = False
 
     def add_error(self, line_num: int, pattern: str, message: str):
+        """Add a lint error to the result.
+
+        Args:
+            line_num: Line number where error was found.
+            pattern: Pattern or import that matched.
+            message: Error message describing the issue.
+        """
         self.errors.append((line_num, pattern, message))
 
     @property
     def has_errors(self) -> bool:
+        """Check if any errors were found."""
         return len(self.errors) > 0
 
 

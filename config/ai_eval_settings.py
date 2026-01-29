@@ -39,7 +39,14 @@ from pydantic_settings import BaseSettings
 
 
 class HallucinationSettings(BaseSettings):
-    """Hallucination detection settings."""
+    """Hallucination detection settings.
+
+    Attributes:
+        enabled: Enable hallucination checks.
+        confidence_threshold: Minimum confidence score to pass.
+        kb_endpoint: Knowledge base endpoint for fact verification.
+        use_kb_verification: Use KB for fact checking.
+    """
 
     enabled: bool = Field(default=True, description="Enable hallucination checks")
     confidence_threshold: float = Field(
@@ -59,7 +66,13 @@ class HallucinationSettings(BaseSettings):
 
 
 class BiasSettings(BaseSettings):
-    """Bias detection settings."""
+    """Bias detection settings.
+
+    Attributes:
+        enabled: Enable bias checks.
+        sensitive_attributes: Attributes to test for bias.
+        divergence_threshold: Maximum allowed score divergence.
+    """
 
     enabled: bool = Field(default=True, description="Enable bias checks")
     sensitive_attributes: list[str] = Field(
@@ -75,7 +88,14 @@ class BiasSettings(BaseSettings):
 
 
 class EvalSettings(BaseSettings):
-    """Golden dataset evaluation settings."""
+    """Golden dataset evaluation settings.
+
+    Attributes:
+        enabled: Enable evaluation suite.
+        golden_dataset_path: Path to golden dataset.
+        pass_rate_threshold: Minimum pass rate to succeed.
+        grading_rubric: Default grading rubric.
+    """
 
     enabled: bool = Field(default=True, description="Enable evaluation suite")
     golden_dataset_path: str = Field(
@@ -93,7 +113,14 @@ class EvalSettings(BaseSettings):
 
 
 class SecuritySettings(BaseSettings):
-    """Security check settings."""
+    """Security check settings.
+
+    Attributes:
+        enabled: Enable security checks.
+        prompt_injection_enabled: Enable prompt injection tests.
+        pii_scan_enabled: Enable PII scanning.
+        pii_patterns: Regex patterns for PII detection.
+    """
 
     enabled: bool = Field(default=True, description="Enable security checks")
     prompt_injection_enabled: bool = Field(

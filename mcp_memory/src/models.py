@@ -706,8 +706,8 @@ class GraphCreateEventArgs(BaseModel):
     Attributes:
         event_id: Unique event identifier.
         event_type: Event type (e.g., 'user_action', 'agent_response').
-        timestamp: ISO timestamp when the event occurred.
-        properties: Optional dictionary of event properties.
+        timestamp: ISO timestamp for the event.
+        properties: Optional event properties dictionary.
         parent_event_id: Optional parent event ID for causality chain.
     """
 
@@ -745,8 +745,8 @@ class GraphGetTemporalEventsArgs(BaseModel):
 
     Attributes:
         entity: Entity ID to get events for.
-        start: Optional ISO timestamp start.
-        end: Optional ISO timestamp end.
+        start: Optional ISO timestamp for range start.
+        end: Optional ISO timestamp for range end.
     """
 
     entity: str  # Entity ID to get events for

@@ -101,6 +101,15 @@ class ADRViolation:
         violation_type: str = "missing_pattern",
         details: str = "",
     ):
+        """Initialize an ADR violation record.
+
+        Args:
+            adr_num: ADR number (e.g., "0002").
+            filepath: Path to the violating file.
+            line_num: Line number of the violation.
+            violation_type: Type of violation (missing_pattern or anti_pattern).
+            details: Human-readable violation details.
+        """
         self.adr_num = adr_num
         self.filepath = filepath
         self.line_num = line_num
@@ -108,6 +117,11 @@ class ADRViolation:
         self.details = details
 
     def to_dict(self):
+        """Convert violation to dictionary for JSON serialization.
+
+        Returns:
+            Dict with adr, file, line, type, and details.
+        """
         return {
             "adr": self.adr_num,
             "file": self.filepath,
@@ -121,6 +135,11 @@ class ADRComplianceChecker:
     """Checks codebase for ADR compliance."""
 
     def __init__(self, repo_root: Path):
+        """Initialize the ADR compliance checker.
+
+        Args:
+            repo_root: Path to the repository root directory.
+        """
         self.repo_root = repo_root
         self.violations: list[ADRViolation] = []
         self.stats = defaultdict(lambda: {"compliant": 0, "violations": 0})
@@ -315,6 +334,11 @@ class ADRComplianceChecker:
 
 
 def main():
+    """CLI entry point for ADR compliance checking.
+
+    Scans the codebase for ADR compliance and generates a report.
+    Returns 1 if strict mode is enabled and compliance is below threshold.
+    """
     parser = argparse.ArgumentParser(description="Check ADR compliance")
     parser.add_argument(
         "--strict", action="store_true", help="Fail if compliance < 80%"

@@ -84,12 +84,25 @@ class LintResult:
     """Result of linting a file."""
 
     def __init__(self, file_path: str):
+        """Initialize lint result for a file.
+
+        Args:
+            file_path: Path to the linted file.
+        """
         self.file_path = file_path
         self.errors: list[
             tuple[int, str, str, str]
         ] = []  # (line_num, pattern, message, correct)
 
     def add_error(self, line_num: int, pattern: str, message: str, correct: str):
+        """Add a lint error to the result.
+
+        Args:
+            line_num: Line number where error was found.
+            pattern: Regex pattern that matched.
+            message: Error message describing the issue.
+            correct: Suggested correct usage.
+        """
         self.errors.append((line_num, pattern, message, correct))
 
     @property

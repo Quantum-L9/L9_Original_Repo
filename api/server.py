@@ -3545,12 +3545,22 @@ if _has_prometheus:
 # NOTE: Migrations and memory init are handled in lifespan() above
 @app.on_event("startup")
 async def on_startup():
+    """Handle FastAPI startup event.
+
+    Invokes agent_routes.startup() if available to initialize
+    agent-specific resources after the main lifespan startup.
+    """
     if hasattr(agent_routes, "startup"):
         await agent_routes.startup()
 
 
 @app.on_event("shutdown")
 async def on_shutdown():
+    """Handle FastAPI shutdown event.
+
+    Invokes agent_routes.shutdown() if available to cleanup
+    agent-specific resources before the main lifespan shutdown.
+    """
     if hasattr(agent_routes, "shutdown"):
         await agent_routes.shutdown()
 
