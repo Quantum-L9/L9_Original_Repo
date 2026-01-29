@@ -59,6 +59,17 @@ router = APIRouter(dependencies=[Depends(_legacy_memory_disabled)])
 
 @router.post("/save", response_model=MemoryResponse)
 async def save_memory(req: SaveMemoryRequest) -> MemoryResponse:
+    """Save a memory entry to the appropriate duration-based table.
+
+    Args:
+        req: Save memory request with content, kind, scope, and metadata.
+
+    Returns:
+        MemoryResponse with the saved memory ID and metadata.
+
+    Raises:
+        HTTPException: 410 if legacy routes are disabled.
+    """
     return await save_memory_handler(
         user_id=req.user_id,
         content=req.content,
@@ -179,6 +190,17 @@ async def save_memory_handler(
 
 @router.post("/search", response_model=SearchMemoryResponse)
 async def search_memory(req: SearchMemoryRequest) -> SearchMemoryResponse:
+    """Search memories using semantic similarity.
+
+    Args:
+        req: Search request with query, scopes, kinds, and filters.
+
+    Returns:
+        SearchMemoryResponse with matching memories and timing metrics.
+
+    Raises:
+        HTTPException: 410 if legacy routes are disabled.
+    """
     return await search_memory_handler(
         user_id=req.user_id,
         query=req.query,
@@ -201,6 +223,27 @@ async def search_memory_handler(
     duration: str = "all",
     track_access: bool = False,
 ) -> dict[str, Any]:
+    """Search memories using vector similarity across duration tables.
+
+    Performs semantic search using pgvector embeddings across short-term,
+    medium-term, and long-term memory tables based on duration filter.
+
+    Args:
+        user_id: User identifier for scoping the search.
+        query: Natural language query to embed and search.
+        scopes: Optional list of scopes to filter (long-term only).
+        kinds: Optional list of memory kinds to filter.
+        top_k: Maximum number of results to return.
+        threshold: Minimum similarity threshold (0.0-1.0).
+        duration: Duration filter (short, medium, long, or all).
+        track_access: Whether to update access timestamps.
+
+    Returns:
+        Dict with results, timing metrics, and total count.
+
+    Raises:
+        HTTPException: 500 on database or embedding errors.
+    """
     try:
         embed_start = time.time()
         query_embedding = await embed_text(query)
@@ -286,6 +329,18 @@ async def search_memory_handler(
 async def get_memory_stats(
     user_id: str | None = Query(None), duration: str = Query("all")
 ) -> MemoryStatsResponse:
+    """Get memory statistics across duration tables.
+
+    Args:
+        user_id: Optional user ID to filter stats.
+        duration: Duration filter (short, medium, long, or all).
+
+    Returns:
+        MemoryStatsResponse with counts and average importance.
+
+    Raises:
+        HTTPException: 500 on database errors.
+    """
     try:
         short_count = medium_count = long_count = unique_users = 0
         avg_importance = 0.0
