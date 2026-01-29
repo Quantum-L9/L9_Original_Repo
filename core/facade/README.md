@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Simplified interfaces to complex subsystems
 
 ### Inbound Dependencies
 
-| Module | Purpose          |
-| ------ | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `api/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -79,9 +79,9 @@ core/facade/
 ├── l9_facade.py
 ```
 
-| File           | Purpose                        |
-| -------------- | ------------------------------ |
-| `__init__.py`  | Core module (PROTECTED)        |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
 | `l9_facade.py` | Simplified facade for L9 AIOS. |
 
 ### Naming Conventions
@@ -103,15 +103,15 @@ class L9Facade:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def initialize(self, ...): ...
+    async def initialize(self, ...) -> None: ...
 
-    async def register_agent(self, ...): ...
+    def register_agent(self, ...) -> None: ...
 
-    async def run_task(self, ...): ...
+    async def run_task(self, ...) -> Any: ...
 
-    async def send_message(self, ...): ...
+    async def send_message(self, ...) -> str: ...
 
 ```
 
@@ -119,11 +119,15 @@ class L9Facade:
 
 **Lines:** 90-419 in `l9_facade.py`
 
+
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`L9Facade`, `execute_tool`, `get_l9_facade`, `query_memory`, `run_task`
 
 ### Key Schemas
 
@@ -189,9 +193,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Facade feature flags
-L9_ENABLE_CORE_FACADE_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_FACADE_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_FACADE_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_FACADE_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_FACADE_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_FACADE_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -218,40 +222,46 @@ CORE_FACADE_ENABLED=true
 
 ### Public Functions
 
-#### `async def get_l9_facade()`
+#### `async def get_l9_facade() -> L9Facade`
 
 Get the singleton L9Facade instance.
 
 - **File:** `l9_facade.py:436`
 - **Async:** Yes
+- **Returns:** `L9Facade`
 
-#### `async def close_l9_facade()`
+#### `async def close_l9_facade() -> None`
 
 Close the L9Facade singleton.
 
 - **File:** `l9_facade.py:452`
 - **Async:** Yes
+- **Returns:** `None`
 
-#### `async def run_task(task, agent)`
+#### `async def run_task(task, agent) -> Any`
 
 Quick function to run a task with L9.
 
 - **File:** `l9_facade.py:466`
 - **Async:** Yes
+- **Returns:** `Any`
 
-#### `async def execute_tool(tool_name)`
+#### `async def execute_tool(tool_name) -> Any`
 
 Quick function to execute a tool.
 
 - **File:** `l9_facade.py:484`
 - **Async:** Yes
+- **Returns:** `Any`
 
-#### `async def query_memory(query, agent_id)`
+#### `async def query_memory(query, agent_id) -> list[dict[str, Any]]`
 
 Quick function to query memory.
 
 - **File:** `l9_facade.py:501`
 - **Async:** Yes
+- **Returns:** `list[dict[str, Any]]`
+
 
 ### Usage Example
 
@@ -282,7 +292,7 @@ Core Facade operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.facade",
   "message": "Operation completed",
@@ -293,7 +303,6 @@ Core Facade operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -301,12 +310,12 @@ Core Facade operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                              | Type      | Description                    |
-| ----------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_facade_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_facade_operation_total`       | Counter   | Total operations processed     |
-| `core_facade_error_total`           | Counter   | Total errors encountered       |
-| `core_facade_active_connections`    | Gauge     | Current active connections     |
+| `core_facade_operation_total` | Counter | Total operations processed |
+| `core_facade_error_total` | Counter | Total errors encountered |
+| `core_facade_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -324,7 +333,6 @@ Core Facade emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_facade/`:
-
 - `test_core_facade.py` — Core unit tests
 - `test_core_facade_integration.py` — Integration tests (if applicable)
 
@@ -367,7 +375,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -93,7 +93,11 @@ class CausalNode:
     value: Any | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert node to dictionary representation."""
+        """Convert node to dictionary representation.
+
+        Returns:
+            Dict containing node_id, node_type, name, attributes, observed, and value.
+        """
         return {
             "node_id": self.node_id,
             "node_type": self.node_type,
@@ -117,7 +121,11 @@ class CausalEdge:
     attributes: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert edge to dictionary representation."""
+        """Convert edge to dictionary representation.
+
+        Returns:
+            Dict containing edge_id, source_id, target_id, relation_type, strength, and confidence.
+        """
         return {
             "edge_id": self.edge_id,
             "source_id": self.source_id,
@@ -139,7 +147,11 @@ class CausalPath:
     path_type: str = "direct"  # direct, indirect, confounded
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert path to dictionary representation."""
+        """Convert path to dictionary representation.
+
+        Returns:
+            Dict containing path_id, nodes, edges, total_strength, and path_type.
+        """
         return {
             "path_id": str(self.path_id),
             "nodes": self.nodes,
@@ -196,7 +208,12 @@ class Decision:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert decision to dictionary representation."""
+        """Convert decision to dictionary representation.
+
+        Returns:
+            Dict containing decision_id, description, decision_type, code_changes,
+            related_intents, and created_at timestamp.
+        """
         return {
             "decision_id": self.decision_id,
             "description": self.description,
@@ -227,7 +244,12 @@ class Outcome:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert outcome to dictionary representation."""
+        """Convert outcome to dictionary representation.
+
+        Returns:
+            Dict containing outcome_id, outcome_type, description, result,
+            metrics, related_decisions, and created_at timestamp.
+        """
         return {
             "outcome_id": self.outcome_id,
             "outcome_type": self.outcome_type,
@@ -254,7 +276,11 @@ class CausalLink:
     created_at: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert causal link to dictionary representation."""
+        """Convert causal link to dictionary representation.
+
+        Returns:
+            Dict containing link_id, decision_id, outcome_id, link_type, and confidence.
+        """
         return {
             "link_id": self.link_id,
             "decision_id": self.decision_id,

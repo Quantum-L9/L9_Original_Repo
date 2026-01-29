@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Local development dashboard
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose             |
-| ------ | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `api/` | Required dependency |
 
 ---
@@ -78,8 +78,8 @@ local_dashboard/
 ├── app.py
 ```
 
-| File          | Purpose                 |
-| ------------- | ----------------------- |
+| File | Purpose |
+|------|---------|
 | `__init__.py` | Core module (PROTECTED) |
 
 ### Naming Conventions
@@ -99,7 +99,16 @@ See source files for component details.
 
 ## Data Models and Contracts
 
-See source files for data model definitions.
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `L9_API_URL` | `os.getenv('L9_API_URL', 'http://localhos...` | 63 |
+| `L9_API_KEY` | `os.getenv('L9_API_KEY', '9c4753df3b7ee85...` | 64 |
+| `LOCAL_HOST` | `'127.0.0.1'` | 69 |
+| `LOCAL_PORT` | `5050` | 70 |
+| `HTML_TEMPLATE` | `'\n<!DOCTYPE html>\n<html lang="en">\n<h...` | 85 |
 
 ### Key Schemas
 
@@ -165,9 +174,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Local_Dashboard feature flags
-L9_ENABLE_LOCAL_DASHBOARD_TRACING: true # Enable detailed tracing
-L9_ENABLE_LOCAL_DASHBOARD_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_LOCAL_DASHBOARD_AUDIT: true # Enable audit logging
+L9_ENABLE_LOCAL_DASHBOARD_TRACING: true  # Enable detailed tracing
+L9_ENABLE_LOCAL_DASHBOARD_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_LOCAL_DASHBOARD_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -212,8 +221,9 @@ Send message to L9 Agent Executor in Docker.
 
 Local health check.
 
-- **File:** `app.py:611`
+- **File:** `app.py:613`
 - **Async:** Yes
+
 
 ### Usage Example
 
@@ -244,7 +254,7 @@ Local Dashboard operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "local_dashboard",
   "message": "Operation completed",
@@ -255,7 +265,6 @@ Local Dashboard operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -263,12 +272,12 @@ Local Dashboard operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                  | Type      | Description                    |
-| --------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `local_dashboard_operation_duration_ms` | Histogram | Operation latency distribution |
-| `local_dashboard_operation_total`       | Counter   | Total operations processed     |
-| `local_dashboard_error_total`           | Counter   | Total errors encountered       |
-| `local_dashboard_active_connections`    | Gauge     | Current active connections     |
+| `local_dashboard_operation_total` | Counter | Total operations processed |
+| `local_dashboard_error_total` | Counter | Total errors encountered |
+| `local_dashboard_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -286,7 +295,6 @@ Local Dashboard emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/local_dashboard/`:
-
 - `test_local_dashboard.py` — Core unit tests
 - `test_local_dashboard_integration.py` — Integration tests (if applicable)
 
@@ -329,7 +337,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

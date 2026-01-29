@@ -32,6 +32,11 @@ BOOTSTRAP_VERSION = "2026-01-28"
 
 
 def fatal(msg: str) -> None:
+    """Print fatal error message and exit with status 1.
+
+    Args:
+        msg: Error message to print to stderr.
+    """
     print(f"[BOOTSTRAP:FATAL] {msg}", file=sys.stderr)
     sys.exit(1)
 
@@ -51,6 +56,11 @@ def ensure_asyncpg_url(url: str) -> str:
 
 
 def check_env() -> None:
+    """Verify all required environment variables are set.
+
+    Raises:
+        SystemExit: If any required environment variables are missing.
+    """
     missing = [k for k in REQUIRED_ENV if not os.getenv(k)]
     if missing:
         fatal(f"Missing required env vars: {missing}")
@@ -59,20 +69,27 @@ def check_env() -> None:
 # ---- BOOTSTRAP STEPS ----
 
 
-async def run_migrations(engine):
+async def run_migrations(engine) -> None:
+    """Run database migrations using the migration runner.
+
+    Args:
+        engine: SQLAlchemy async engine (unused, URL from env).
+    """
     from memory.migration_runner import run_migrations as _run_migrations
 
     db_url = os.environ["DATABASE_URL"]
     await _run_migrations(db_url)
 
 
-async def init_memory_substrate():
+async def init_memory_substrate() -> None:
+    """Initialize the memory substrate service."""
     from memory.substrate_service import init_service
 
     await init_service()
 
 
-async def init_neo4j():
+async def init_neo4j() -> None:
+    """Initialize and verify Neo4j graph database connection."""
     from memory.graph_client import get_neo4j_client
 
     client = await get_neo4j_client()
@@ -105,7 +122,16 @@ async def bootstrap_agent():
     await _bootstrap_agent(config, substrate_service)
 
 
-async def write_bootstrap_artifact(engine):
+async def write_bootstrap_artifact(engine) -> None:
+    """Write bootstrap completion artifact to system_state table.
+
+    Creates the system_state table if needed and records bootstrap
+    version and timestamp. Uses ON CONFLICT DO NOTHING to prevent
+    duplicate entries.
+
+    Args:
+        engine: SQLAlchemy async engine for database operations.
+    """
     payload = {
         "version": BOOTSTRAP_VERSION,
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -135,6 +161,14 @@ async def write_bootstrap_artifact(engine):
 
 
 async def main() -> None:
+    """Execute the L9 bootstrap sequence.
+
+    Runs exactly once, failing hard if bootstrap was already completed.
+    Sequence: check env -> migrations -> memory substrate -> Neo4j -> agent -> artifact.
+
+    Raises:
+        SystemExit: If bootstrap already completed or required env vars missing.
+    """
     check_env()
 
     # Ensure asyncpg driver for SQLAlchemy

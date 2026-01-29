@@ -61,7 +61,13 @@ _PATH_LIKE_KEY_RE = re.compile(r"(path|file|filename|directory|dir)$", re.IGNORE
 class ToolInputSanitizationError(ValueError):
     """Raised when tool input cannot be sanitized/validated."""
 
-    def __init__(self, tool_id: str, reasons: list[str]):
+    def __init__(self, tool_id: str, reasons: list[str]) -> None:
+        """Initialize sanitization error with tool ID and failure reasons.
+
+        Args:
+            tool_id: Identifier of the tool that failed validation.
+            reasons: List of validation failure reasons.
+        """
         super().__init__(f"Tool input rejected for '{tool_id}': " + "; ".join(reasons))
         self.tool_id = tool_id
         self.reasons = reasons
@@ -85,7 +91,11 @@ class ToolInputSanitizer:
     """
 
     def __init__(self, config: ToolInputSanitizerConfig | None = None) -> None:
-        """Initialize sanitizer with configuration."""
+        """Initialize sanitizer with optional configuration.
+
+        Args:
+            config: Resource limits and settings. Uses defaults if None.
+        """
         self._config = config or ToolInputSanitizerConfig()
 
     def sanitize(
@@ -169,7 +179,7 @@ class ToolInputSanitizer:
         expected: dict[str, Any] | None,
         reasons: list[str],
     ) -> Any:
-        """Sanitize a single value based on schema expectations."""
+        """Sanitize a single value based on expected schema type."""
         expected_type = None
         if isinstance(expected, dict):
             expected_type = expected.get("type")
@@ -250,7 +260,7 @@ class ToolInputSanitizer:
     def _enforce_resource_limits(
         self, tool_id: str, obj: Any, reasons: list[str]
     ) -> None:
-        """Enforce resource limits on tool arguments."""
+        """Check object against depth, size, and length limits."""
         # Depth + structural limits
         if self._exceeds_depth(obj, max_depth=self._config.max_depth):
             reasons.append(f"input nesting exceeds max_depth={self._config.max_depth}")
@@ -284,7 +294,7 @@ class ToolInputSanitizer:
 
     @staticmethod
     def _exceeds_depth(obj: Any, max_depth: int) -> bool:
-        """Check if object exceeds maximum nesting depth."""
+        """Check if object nesting exceeds maximum depth."""
         def _walk(o: Any, depth: int) -> bool:
             if depth > max_depth:
                 return True
@@ -298,7 +308,7 @@ class ToolInputSanitizer:
 
     @staticmethod
     def _exceeds_list_length(obj: Any, max_len: int) -> bool:
-        """Check if any list exceeds maximum length."""
+        """Check if any list in object exceeds maximum length."""
         def _walk(o: Any) -> bool:
             if isinstance(o, list):
                 if len(o) > max_len:
@@ -312,7 +322,7 @@ class ToolInputSanitizer:
 
     @staticmethod
     def _exceeds_string_length(obj: Any, max_len: int) -> bool:
-        """Check if any string exceeds maximum length."""
+        """Check if any string in object exceeds maximum length."""
         def _walk(o: Any) -> bool:
             if isinstance(o, str):
                 return len(o) > max_len
@@ -326,7 +336,7 @@ class ToolInputSanitizer:
 
     @staticmethod
     def _has_path_traversal(path: str) -> bool:
-        """Check if path contains traversal segments."""
+        """Check if path contains directory traversal (..) segments."""
         # Split on both Unix and Windows separators.
         parts = re.split(r"[\\/]+", path)
         return any(p == ".." for p in parts)

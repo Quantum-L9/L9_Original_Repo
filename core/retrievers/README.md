@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Memory and knowledge retrieval strategies
 
 ### Inbound Dependencies
 
-| Module         | Purpose          |
-| -------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/agents/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module    | Purpose             |
-| --------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `memory/` | Required dependency |
 
 ---
@@ -79,9 +79,9 @@ core/retrievers/
 ├── substrate_retriever.py
 ```
 
-| File                     | Purpose                                            |
-| ------------------------ | -------------------------------------------------- |
-| `__init__.py`            | Core module (PROTECTED)                            |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
 | `substrate_retriever.py` | LangChain retriever wrapper over MemorySubstrateSe |
 
 ### Naming Conventions
@@ -103,11 +103,11 @@ class SubstrateRetriever:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...) -> None: ...
 
-    async def _aget_relevant_documents(self, ...): ...
+    async def _aget_relevant_documents(self, ...) -> list[Document]: ...
 
-    async def _get_relevant_documents(self, ...): ...
+    def _get_relevant_documents(self, ...) -> list[Document]: ...
 
 ```
 
@@ -115,11 +115,15 @@ class SubstrateRetriever:
 
 **Lines:** 41-94 in `substrate_retriever.py`
 
+
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`SubstrateRetriever`
 
 ### Key Schemas
 
@@ -184,9 +188,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Retrievers feature flags
-L9_ENABLE_CORE_RETRIEVERS_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_RETRIEVERS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_RETRIEVERS_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_RETRIEVERS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_RETRIEVERS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_RETRIEVERS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -242,7 +246,7 @@ Core Retrievers operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.retrievers",
   "message": "Operation completed",
@@ -253,7 +257,6 @@ Core Retrievers operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -261,12 +264,12 @@ Core Retrievers operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                  | Type      | Description                    |
-| --------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_retrievers_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_retrievers_operation_total`       | Counter   | Total operations processed     |
-| `core_retrievers_error_total`           | Counter   | Total errors encountered       |
-| `core_retrievers_active_connections`    | Gauge     | Current active connections     |
+| `core_retrievers_operation_total` | Counter | Total operations processed |
+| `core_retrievers_error_total` | Counter | Total errors encountered |
+| `core_retrievers_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -284,7 +287,6 @@ Core Retrievers emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_retrievers/`:
-
 - `test_core_retrievers.py` — Core unit tests
 - `test_core_retrievers_integration.py` — Integration tests (if applicable)
 
@@ -327,7 +329,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Dependency injection, settings, and configuration management
 
 ### Inbound Dependencies
 
-| Module        | Purpose          |
-| ------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `all modules` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -88,14 +88,14 @@ config/
 ├── settings.py
 ```
 
-| File                   | Purpose                                            |
-| ---------------------- | -------------------------------------------------- |
-| `di_config.py`         | Core module (PROTECTED)                            |
-| `settings.py`          | Core module (PROTECTED)                            |
-| `__init__.py`          | Core module (PROTECTED)                            |
+| File | Purpose |
+|------|---------|
+| `di_config.py` | Core module (PROTECTED) |
+| `settings.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
 | `di_runtime_config.py` | Raised when DI config loading or validation fails. |
 | `di_runtime_config.py` | Load DI configuration from YAML with environment v |
-| `rls_config.py`        | RLS Configuration with deterministic UUID generati |
+| `rls_config.py` | RLS Configuration with deterministic UUID generati |
 
 ### Naming Conventions
 
@@ -128,15 +128,15 @@ class DIRuntimeConfigLoader:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def load(self, ...): ...
+    def load(self, ...) -> dict[str, Any]: ...
 
-    async def _interpolate_env_vars(self, ...): ...
+    def _interpolate_env_vars(self, ...) -> Any: ...
 
-    async def _get_default_config(self, ...): ...
+    def _get_default_config(self, ...) -> dict[str, Any]: ...
 
-    async def get_memory_substrate_config(self, ...): ...
+    def get_memory_substrate_config(self, ...) -> dict[str, Any]: ...
 
 ```
 
@@ -152,29 +152,17 @@ class RLSConfig:
 
     # Key methods:
 
-    async def tenant_uuid(self, ...): ...
+    def tenant_uuid(self, ...) -> str: ...
 
-    async def org_uuid(self, ...): ...
+    def org_uuid(self, ...) -> str: ...
 
-    async def user_uuid(self, ...): ...
+    def user_uuid(self, ...) -> str: ...
 
 ```
 
 **Public Methods:** `tenant_uuid`, `org_uuid`, `user_uuid`
 
 **Lines:** 76-111 in `rls_config.py`
-
-### `rls_config.py` — Config
-
-```python
-class Config:
-    """No description"""
-
-    # Key methods:
-
-```
-
-**Lines:** 93-96 in `rls_config.py`
 
 ### `ai_eval_settings.py` — HallucinationSettings
 
@@ -188,11 +176,36 @@ class HallucinationSettings:
 
 **Lines:** 41-58 in `ai_eval_settings.py`
 
+### `ai_eval_settings.py` — BiasSettings
+
+```python
+class BiasSettings:
+    """Bias detection settings."""
+
+    # Key methods:
+
+```
+
+**Lines:** 61-74 in `ai_eval_settings.py`
+
+
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`AIEvalSettings`, `AsyncDIContainer`, `DIConfigError`, `DIRuntimeConfigLoader`, `IntegrationSettings`, `MemorySubstrateSettings`, `ResearchSettings`, `SCHEMAS_DIR`, `async_cache_client_factory`, `async_memory_substrate_factory`
+
+*...and 28 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `RLS_UUID_NAMESPACE` | `uuid.NAMESPACE_DNS` | 55 |
+| `SCHEMAS_DIR` | `Path(__file__).parent` | 33 |
 
 ### Key Schemas
 
@@ -258,9 +271,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Config feature flags
-L9_ENABLE_CONFIG_TRACING: true # Enable detailed tracing
-L9_ENABLE_CONFIG_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CONFIG_AUDIT: true # Enable audit logging
+L9_ENABLE_CONFIG_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CONFIG_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CONFIG_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -287,40 +300,46 @@ CONFIG_ENABLED=true
 
 ### Public Functions
 
-#### `def get_runtime_config_loader(config_path)`
+#### `def get_runtime_config_loader(config_path) -> DIRuntimeConfigLoader`
 
 Get or create singleton DI runtime config loader.
 
 - **File:** `di_runtime_config.py:310`
 - **Async:** No
+- **Returns:** `DIRuntimeConfigLoader`
 
-#### `def reset_runtime_config_loader()`
+#### `def reset_runtime_config_loader() -> None`
 
 Reset singleton loader (for testing).
 
 - **File:** `di_runtime_config.py:335`
 - **Async:** No
+- **Returns:** `None`
 
-#### `def generate_deterministic_uuid(identifier)`
+#### `def generate_deterministic_uuid(identifier) -> str`
 
 Generate a deterministic UUID from a string identifier.
 
 - **File:** `rls_config.py:58`
 - **Async:** No
+- **Returns:** `str`
 
-#### `def get_rls_config()`
+#### `def get_rls_config() -> RLSConfig`
 
 Get or create RLS config singleton. CACHED.
 
 - **File:** `rls_config.py:115`
 - **Async:** No
+- **Returns:** `RLSConfig`
 
-#### `def get_rls_uuids()`
+#### `def get_rls_uuids() -> tuple[str, str, str]`
 
 Get RLS UUIDs for PostgreSQL RLS session variables.
 
 - **File:** `rls_config.py:130`
 - **Async:** No
+- **Returns:** `tuple[str, str, str]`
+
 
 ### Usage Example
 
@@ -351,7 +370,7 @@ Config operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "config",
   "message": "Operation completed",
@@ -362,7 +381,6 @@ Config operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -370,12 +388,12 @@ Config operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                         | Type      | Description                    |
-| ------------------------------ | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `config_operation_duration_ms` | Histogram | Operation latency distribution |
-| `config_operation_total`       | Counter   | Total operations processed     |
-| `config_error_total`           | Counter   | Total errors encountered       |
-| `config_active_connections`    | Gauge     | Current active connections     |
+| `config_operation_total` | Counter | Total operations processed |
+| `config_error_total` | Counter | Total errors encountered |
+| `config_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -393,7 +411,6 @@ Config emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/config/`:
-
 - `test_config.py` — Core unit tests
 - `test_config_integration.py` — Integration tests (if applicable)
 
@@ -443,7 +460,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

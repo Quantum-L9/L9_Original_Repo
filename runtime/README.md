@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,16 +59,16 @@ Task queue, Redis client, rate limiter, kernel loader, and background workers
 
 ### Inbound Dependencies
 
-| Module                        | Purpose          |
-| ----------------------------- | ---------------- |
-| `core/agents/executor.py`     | Uses this module |
-| `api/server.py`               | Uses this module |
+| Module | Purpose |
+|--------|---------|
+| `core/agents/executor.py` | Uses this module |
+| `api/server.py` | Uses this module |
 | `memory/substrate_service.py` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module                | Purpose             |
-| --------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `config/di_config.py` | Required dependency |
 
 ---
@@ -95,15 +95,15 @@ runtime/
 └── ... (18 more files)
 ```
 
-| File               | Purpose                                            |
-| ------------------ | -------------------------------------------------- |
-| `kernel_loader.py` | Core module (PROTECTED)                            |
-| `task_queue.py`    | Core module (PROTECTED)                            |
-| `redis_client.py`  | Core module (PROTECTED)                            |
-| `__init__.py`      | Core module (PROTECTED)                            |
-| `dora.py`          | Metrics captured during execution.                 |
-| `dora.py`          | Execution graph (nodes/edges for call flow visuali |
-| `dora.py`          | The DORA Block schema (L9_TRACE_TEMPLATE).         |
+| File | Purpose |
+|------|---------|
+| `kernel_loader.py` | Core module (PROTECTED) |
+| `task_queue.py` | Core module (PROTECTED) |
+| `redis_client.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `dora.py` | Metrics captured during execution. |
+| `dora.py` | Execution graph (nodes/edges for call flow visuali |
+| `dora.py` | The DORA Block schema (L9_TRACE_TEMPLATE). |
 
 ### Naming Conventions
 
@@ -126,7 +126,7 @@ class DoraMetrics:
 
 ```
 
-**Lines:** 69-75 in `dora.py`
+**Lines:** 70-76 in `dora.py`
 
 ### `dora.py` — DoraGraph
 
@@ -138,7 +138,7 @@ class DoraGraph:
 
 ```
 
-**Lines:** 79-83 in `dora.py`
+**Lines:** 80-84 in `dora.py`
 
 ### `dora.py` — DoraTraceBlock
 
@@ -148,17 +148,17 @@ class DoraTraceBlock:
 
     # Key methods:
 
-    async def to_dict(self, ...): ...
+    def to_dict(self, ...) -> dict[str, Any]: ...
 
-    async def create(self, ...): ...
+    def create(self, ...) -> DoraTraceBlock: ...
 
-    async def _sanitize_for_json(self, ...): ...
+    def _sanitize_for_json(self, ...) -> Any: ...
 
 ```
 
 **Public Methods:** `to_dict`, `create`, `_sanitize_for_json`
 
-**Lines:** 87-164 in `dora.py`
+**Lines:** 88-165 in `dora.py`
 
 ### `response_renderer.py` — ResponseRenderer
 
@@ -168,15 +168,15 @@ class ResponseRenderer:
 
     # Key methods:
 
-    async def render(self, ...): ...
+    def render(self, ...) -> str: ...
 
-    async def _format_confidence(self, ...): ...
+    def _format_confidence(self, ...) -> str: ...
 
-    async def _format_kernel_status(self, ...): ...
+    def _format_kernel_status(self, ...) -> str: ...
 
-    async def render_minimal(self, ...): ...
+    def render_minimal(self, ...) -> str: ...
 
-    async def render_escalation(self, ...): ...
+    def render_escalation(self, ...) -> str: ...
 
 ```
 
@@ -192,21 +192,22 @@ class ResponseBuilder:
 
     # Key methods:
 
-    async def __init__(self, ...): ...
+    def __init__(self, ...): ...
 
-    async def opening(self, ...): ...
+    def opening(self, ...) -> ResponseBuilder: ...
 
-    async def section(self, ...): ...
+    def section(self, ...) -> ResponseBuilder: ...
 
-    async def confidence(self, ...): ...
+    def confidence(self, ...) -> ResponseBuilder: ...
 
-    async def from_claims(self, ...): ...
+    def from_claims(self, ...) -> ResponseBuilder: ...
 
 ```
 
 **Public Methods:** `__init__`, `opening`, `section`, `confidence`, `from_claims`
 
 **Lines:** 270-345 in `response_renderer.py`
+
 
 ---
 
@@ -216,6 +217,27 @@ The following data models define the contracts for this subsystem:
 
 - **`ResponseRenderer`** — Render responses with the 5-section GODMODE template.
 - **`ResponseBuilder`** — Builder pattern for constructing responses.
+
+### Exported Symbols (`__all__`)
+
+`ALL_SEGMENTS`, `AuthAttemptResult`, `AuthRateLimitConfig`, `AuthRateLimiter`, `BackgroundTaskRegistry`, `ClaimCollection`, `ConfidenceLevel`, `DEFAULT_KERNEL_PATH`, `DEFAULT_TOOL_AUTHORIZATION`, `DoraGraph`
+
+*...and 117 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `DORA_BLOCK_START_PY` | `re.compile('^# ={10,}\\n# L9 DORA BLOCK ...` | 174 |
+| `DORA_BLOCK_END_PY` | `re.compile('^# ={10,}\\n# END L9 DORA BL...` | 177 |
+| `DORA_BLOCK_PATTERN_PY` | `re.compile('(# ={10,}\\n# L9 DORA BLOCK ...` | 181 |
+| `F` | `TypeVar('F', bound=Callable[..., Any])` | 281 |
+| `GIT_QUEUE` | `TaskQueue(queue_name='l9:git_commits', u...` | 46 |
+| `MEMORY_SEGMENT_GOVERNANCE_META` | `'governance_meta'` | 59 |
+| `MEMORY_SEGMENT_PROJECT_HISTORY` | `'project_history'` | 60 |
+| `MEMORY_SEGMENT_TOOL_AUDIT` | `'tool_audit'` | 61 |
+
+*...and 21 more constants*
 
 ### Key Schemas
 
@@ -282,9 +304,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Runtime feature flags
-L9_ENABLE_RUNTIME_TRACING: true # Enable detailed tracing
-L9_ENABLE_RUNTIME_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_RUNTIME_AUDIT: true # Enable audit logging
+L9_ENABLE_RUNTIME_TRACING: true  # Enable detailed tracing
+L9_ENABLE_RUNTIME_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_RUNTIME_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -311,40 +333,46 @@ RUNTIME_ENABLED=true
 
 ### Public Functions
 
-#### `async def gmp_run_tool(gmp_markdown, repo_root, caller, metadata)`
+#### `async def gmp_run_tool(gmp_markdown, repo_root, caller, metadata) -> dict[str, Any]`
 
 GMP run tool implementation.
 
 - **File:** `gmp_tool.py:45`
 - **Async:** Yes
+- **Returns:** `dict[str, Any]`
 
-#### `def format_dora_block_python(trace)`
+#### `def format_dora_block_python(trace) -> str`
 
 Format DORA block for Python files.
 
-- **File:** `dora.py:188`
+- **File:** `dora.py:189`
 - **Async:** No
+- **Returns:** `str`
 
-#### `def update_dora_block_in_file(file_path, trace)`
+#### `def update_dora_block_in_file(file_path, trace) -> bool`
 
 Update the DORA block at the end of a file.
 
-- **File:** `dora.py:215`
+- **File:** `dora.py:214`
 - **Async:** No
+- **Returns:** `bool`
 
-#### `def l9_traced(func)`
+#### `def l9_traced(func) -> F | Callable[[F], F]`
 
 Decorator to trace function execution for DORA Block.
 
-- **File:** `dora.py:285`
+- **File:** `dora.py:284`
 - **Async:** No
+- **Returns:** `F | Callable[[F], F]`
 
-#### `async def emit_executor_trace(task_id, task_name, agent_id, inputs, outputs, duration_ms, errors, patterns, source_file)`
+#### `async def emit_executor_trace(task_id, task_name, agent_id, inputs, outputs, duration_ms, errors, patterns, source_file) -> DoraTraceBlock`
 
 Create and emit a DORA trace from the executor.
 
-- **File:** `dora.py:445`
+- **File:** `dora.py:442`
 - **Async:** Yes
+- **Returns:** `DoraTraceBlock`
+
 
 ### Usage Example
 
@@ -375,7 +403,7 @@ Runtime operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "runtime",
   "message": "Operation completed",
@@ -386,7 +414,6 @@ Runtime operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -394,12 +421,12 @@ Runtime operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                          | Type      | Description                    |
-| ------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `runtime_operation_duration_ms` | Histogram | Operation latency distribution |
-| `runtime_operation_total`       | Counter   | Total operations processed     |
-| `runtime_error_total`           | Counter   | Total errors encountered       |
-| `runtime_active_connections`    | Gauge     | Current active connections     |
+| `runtime_operation_total` | Counter | Total operations processed |
+| `runtime_error_total` | Counter | Total errors encountered |
+| `runtime_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -417,7 +444,6 @@ Runtime emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/runtime/`:
-
 - `test_runtime.py` — Core unit tests
 - `test_runtime_integration.py` — Integration tests (if applicable)
 
@@ -468,7 +494,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

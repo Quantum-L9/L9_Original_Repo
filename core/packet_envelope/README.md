@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,16 +59,16 @@ PacketEnvelope data structure and utilities
 
 ### Inbound Dependencies
 
-| Module         | Purpose          |
-| -------------- | ---------------- |
-| `memory/`      | Uses this module |
+| Module | Purpose |
+|--------|---------|
+| `memory/` | Uses this module |
 | `core/agents/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -85,13 +85,13 @@ core/packet_envelope/
 ├── standardization.py
 ```
 
-| File          | Purpose                             |
-| ------------- | ----------------------------------- |
-| `__init__.py` | Core module (PROTECTED)             |
-| `envelope.py` | Core module (PROTECTED)             |
-| `config.py`   | Jaeger tracing configuration        |
-| `config.py`   | Prometheus metrics configuration    |
-| `config.py`   | Phase 2 observability configuration |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `envelope.py` | Core module (PROTECTED) |
+| `config.py` | Jaeger tracing configuration |
+| `config.py` | Prometheus metrics configuration |
+| `config.py` | Phase 2 observability configuration |
 
 ### Naming Conventions
 
@@ -164,6 +164,7 @@ class BatchIngestionConfig:
 
 **Lines:** 124-135 in `config.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -173,6 +174,10 @@ The following data models define the contracts for this subsystem:
 - **`EventSchema`** — Event schema definition
 - **`SchemaRegistry`** — Event schema registry
 - **`BatchIngestRequest`** — Batch ingestion request
+
+### Exported Symbols (`__all__`)
+
+`PacketEnvelopeAdapter`, `PacketEnvelopeUpgradeEngine`, `PacketEnvelopeUpgradePhase`, `UpgradeState`, `validate_deployment`
 
 ### Key Schemas
 
@@ -238,9 +243,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Packet_Envelope feature flags
-L9_ENABLE_CORE_PACKET_ENVELOPE_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_PACKET_ENVELOPE_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_PACKET_ENVELOPE_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_PACKET_ENVELOPE_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_PACKET_ENVELOPE_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_PACKET_ENVELOPE_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -267,40 +272,46 @@ CORE_PACKET_ENVELOPE_ENABLED=true
 
 ### Public Functions
 
-#### `def get_config()`
+#### `def get_config() -> PacketEnvelopeUpgradeConfig`
 
 Get singleton configuration instance
 
 - **File:** `config.py:238`
 - **Async:** No
+- **Returns:** `PacketEnvelopeUpgradeConfig`
 
-#### `def reload_config()`
+#### `def reload_config() -> PacketEnvelopeUpgradeConfig`
 
 Reload configuration from environment
 
 - **File:** `config.py:246`
 - **Async:** No
+- **Returns:** `PacketEnvelopeUpgradeConfig`
 
-#### `def create_packet_ingested_event(packet_id, source, packet_data, trace_id, user_id)`
+#### `def create_packet_ingested_event(packet_id, source, packet_data, trace_id, user_id) -> CloudEvent`
 
 Factory for packet ingested events
 
 - **File:** `standardization.py:429`
 - **Async:** No
+- **Returns:** `CloudEvent`
 
-#### `def create_observability(enabled)`
+#### `def create_observability(enabled) -> PacketEnvelopeObservability`
 
 Factory function for observability
 
-- **File:** `observability.py:494`
+- **File:** `observability.py:497`
 - **Async:** No
+- **Returns:** `PacketEnvelopeObservability`
 
-#### `async def validate_deployment()`
+#### `async def validate_deployment() -> dict[str, Any]`
 
 Validate deployment readiness for phases 2-5
 
-- **File:** `integration.py:399`
+- **File:** `integration.py:408`
 - **Async:** Yes
+- **Returns:** `dict[str, Any]`
+
 
 ### Usage Example
 
@@ -331,7 +342,7 @@ Core Packet Envelope operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "core.packet_envelope",
   "message": "Operation completed",
@@ -342,7 +353,6 @@ Core Packet Envelope operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -350,12 +360,12 @@ Core Packet Envelope operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                       | Type      | Description                    |
-| -------------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_packet_envelope_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_packet_envelope_operation_total`       | Counter   | Total operations processed     |
-| `core_packet_envelope_error_total`           | Counter   | Total errors encountered       |
-| `core_packet_envelope_active_connections`    | Gauge     | Current active connections     |
+| `core_packet_envelope_operation_total` | Counter | Total operations processed |
+| `core_packet_envelope_error_total` | Counter | Total errors encountered |
+| `core_packet_envelope_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -373,7 +383,6 @@ Core Packet Envelope emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_packet_envelope/`:
-
 - `test_core_packet_envelope.py` — Core unit tests
 - `test_core_packet_envelope_integration.py` — Integration tests (if applicable)
 
@@ -418,7 +427,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

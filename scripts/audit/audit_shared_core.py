@@ -161,7 +161,11 @@ class CallGraphBuilder(ast.NodeVisitor):
     """Build call graph from Python AST."""
 
     def __init__(self, filepath: str) -> None:
-        """Initialize call graph builder for a file."""
+        """Initialize call graph builder for a file.
+
+        Args:
+            filepath: Path to the Python file being analyzed.
+        """
         self.filepath = filepath
         self.calls: list[CallGraphEdge] = []
         self.definitions: dict[str, tuple[int, str]] = {}
@@ -169,7 +173,7 @@ class CallGraphBuilder(ast.NodeVisitor):
         self.current_class = None
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-        """Visit function definition node."""
+        """Visit function definition and track scope."""
         self.definitions[node.name] = (node.lineno, "function")
         old_scope = self.current_scope
         self.current_scope = node.name
@@ -177,7 +181,7 @@ class CallGraphBuilder(ast.NodeVisitor):
         self.current_scope = old_scope
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
-        """Visit async function definition node."""
+        """Visit async function definition and track scope."""
         self.definitions[node.name] = (node.lineno, "function")
         old_scope = self.current_scope
         self.current_scope = node.name
@@ -185,7 +189,7 @@ class CallGraphBuilder(ast.NodeVisitor):
         self.current_scope = old_scope
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
-        """Visit class definition node."""
+        """Visit class definition and track scope."""
         self.definitions[node.name] = (node.lineno, "class")
         old_scope = self.current_scope
         old_class = self.current_class
@@ -196,7 +200,7 @@ class CallGraphBuilder(ast.NodeVisitor):
         self.current_class = old_class
 
     def visit_Call(self, node: ast.Call) -> None:
-        """Visit call expression node."""
+        """Visit call expression and record caller-callee edge."""
         # Track function calls
         callee = None
         if isinstance(node.func, ast.Name):
@@ -227,8 +231,7 @@ class CallGraphBuilder(ast.NodeVisitor):
 class Reporter:
     """Generate audit reports in multiple formats."""
 
-    def __init__(self, audit_name: str, repo_root: Path) -> None:
-        """Initialize reporter with audit name and repo root."""
+    def __init__(self, audit_name: str, repo_root: Path):
         self.audit_name = audit_name
         self.repo_root = repo_root
         self.report_dir = repo_root / "reports"

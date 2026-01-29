@@ -50,55 +50,67 @@ except ImportError:
 
     # Stub classes for when prometheus_client is not installed
     class Counter:
-        """Stub Counter when prometheus_client is unavailable."""
+        """Stub Counter class for when prometheus_client is not installed.
+
+        Provides a no-op implementation that allows code to run without
+        the prometheus_client dependency.
+        """
 
         def __init__(self, *args, **kwargs) -> None:
-            """Initialize stub counter."""
+            """Initialize stub Counter (no-op)."""
             pass
 
-        def labels(self, **kwargs):
-            """Return self for chaining."""
+        def labels(self, **kwargs) -> Counter:
+            """Return self for method chaining (no-op)."""
             return self
 
-        def inc(self, amount=1) -> None:
+        def inc(self, amount: int = 1) -> None:
             """Increment counter (no-op)."""
             pass
 
     class Histogram:
-        """Stub Histogram when prometheus_client is unavailable."""
+        """Stub Histogram class for when prometheus_client is not installed.
+
+        Provides a no-op implementation that allows code to run without
+        the prometheus_client dependency.
+        """
 
         def __init__(self, *args, **kwargs) -> None:
-            """Initialize stub histogram."""
+            """Initialize stub Histogram (no-op)."""
             pass
 
-        def labels(self, **kwargs):
-            """Return self for chaining."""
+        def labels(self, **kwargs) -> Histogram:
+            """Return self for method chaining (no-op)."""
             return self
 
-        def observe(self, value) -> None:
-            """Observe value (no-op)."""
+        def observe(self, value: float) -> None:
+            """Record observation (no-op)."""
             pass
 
     class Gauge:
-        """Stub Gauge when prometheus_client is unavailable."""
+        """Stub Gauge class for when prometheus_client is not installed.
+
+        Provides a no-op implementation that allows code to run without
+        the prometheus_client dependency.
+        """
 
         def __init__(self, *args, **kwargs) -> None:
-            """Initialize stub gauge."""
+            """Initialize stub Gauge (no-op)."""
             pass
 
-        def labels(self, **kwargs):
-            """Return self for chaining."""
+        def labels(self, **kwargs) -> Gauge:
+            """Return self for method chaining (no-op)."""
             return self
 
-        def set(self, value) -> None:
+        def set(self, value: float) -> None:
             """Set gauge value (no-op)."""
             pass
 
-        def inc(self, amount=1) -> None:
+        def inc(self, amount: int = 1) -> None:
             """Increment gauge (no-op)."""
             pass
 
-        def dec(self, amount=1) -> None:
+        def dec(self, amount: int = 1) -> None:
             """Decrement gauge (no-op)."""
             pass
 

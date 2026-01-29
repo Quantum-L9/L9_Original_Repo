@@ -93,6 +93,11 @@ class Violation:
     code_snippet: str = ""
 
     def to_dict(self) -> dict:
+        """Convert violation to dictionary representation.
+
+        Returns:
+            Dict containing all violation fields.
+        """
         return asdict(self)
 
 
@@ -109,6 +114,11 @@ class ValidationReport:
     high_priority_violations: list[Violation] = field(default_factory=list)
 
     def to_dict(self) -> dict:
+        """Convert validation report to dictionary representation.
+
+        Returns:
+            Dict containing report summary and all violations.
+        """
         return {
             "timestamp": self.timestamp,
             "total_violations": self.total_violations,
@@ -189,14 +199,26 @@ class ADREnforcementValidator:
     }
 
     def __init__(self, repo_root: Path | None = None) -> None:
-        """Initialize validator with repository root."""
+        """Initialize the ADR enforcement validator.
+
+        Args:
+            repo_root: Root directory of the repository to scan.
+                      Defaults to current working directory.
+        """
         self.repo_root = repo_root or Path.cwd()
         self._file_cache: dict[Path, str] = {}
 
     # ===== Helper methods =====
 
     def _read(self, path: Path) -> str:
-        """Read file content with caching."""
+        """Read and cache file contents.
+
+        Args:
+            path: Path to the file to read.
+
+        Returns:
+            File contents as string, or empty string if path is a directory.
+        """
         if path not in self._file_cache:
             # Guard against directories named .py (edge case)
             if not path.is_file():
@@ -208,13 +230,27 @@ class ADREnforcementValidator:
         return self._file_cache[path]
 
     def _should_skip(self, path: Path) -> bool:
-        """Check if path should be skipped."""
+        """Check if a path should be skipped during scanning.
+
+        Args:
+            path: Path to check.
+
+        Returns:
+            True if path contains any skip patterns, False otherwise.
+        """
         parts = set(path.parts)
         return any(skip in parts for skip in self.SKIP_PARTS)
 
     @staticmethod
     def _call_name(node: ast.Call) -> str:
-        """Extract function name from call node."""
+        """Extract the function name from a Call AST node.
+
+        Args:
+            node: AST Call node to extract name from.
+
+        Returns:
+            Function or method name, or empty string if not extractable.
+        """
         func = node.func
         if isinstance(func, ast.Name):
             return func.id

@@ -218,14 +218,18 @@ class CallGraphBuilder(ast.NodeVisitor):
     """Build call graph from AST."""
 
     def __init__(self, filepath: str) -> None:
-        """Initialize call graph builder for a file."""
+        """Initialize the call graph builder.
+
+        Args:
+            filepath: Path to the source file being analyzed.
+        """
         self.filepath = filepath
         self.calls: list[CallGraphEdge] = []
         self.definitions: dict[str, tuple[int, str]] = {}  # name -> (line, type)
         self.current_scope = None
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-        """Visit function definition node."""
+        """Visit a function definition node and record it."""
         self.definitions[node.name] = (node.lineno, "function")
         old_scope = self.current_scope
         self.current_scope = node.name
@@ -233,7 +237,7 @@ class CallGraphBuilder(ast.NodeVisitor):
         self.current_scope = old_scope
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
-        """Visit async function definition node."""
+        """Visit an async function definition node and record it."""
         self.definitions[node.name] = (node.lineno, "function")
         old_scope = self.current_scope
         self.current_scope = node.name
@@ -241,7 +245,7 @@ class CallGraphBuilder(ast.NodeVisitor):
         self.current_scope = old_scope
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
-        """Visit class definition node."""
+        """Visit a class definition node and record it."""
         self.definitions[node.name] = (node.lineno, "class")
         old_scope = self.current_scope
         self.current_scope = node.name
@@ -249,7 +253,7 @@ class CallGraphBuilder(ast.NodeVisitor):
         self.current_scope = old_scope
 
     def visit_Call(self, node: ast.Call) -> None:
-        """Visit call expression node."""
+        """Visit a call node and record the caller-callee relationship."""
         # Track function calls
         callee = None
         if isinstance(node.func, ast.Name):
@@ -273,7 +277,7 @@ class CallGraphBuilder(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_Attribute(self, node: ast.Attribute) -> None:
-        """Visit attribute access node."""
+        """Visit an attribute access node and record method references."""
         # Track method references
         if isinstance(node.value, ast.Name):
             self.calls.append(
@@ -301,7 +305,11 @@ class StubDetector(ast.NodeVisitor):
     ]
 
     def __init__(self, source_code: str) -> None:
-        """Initialize stub detector with source code."""
+        """Initialize the stub detector.
+
+        Args:
+            source_code: Full source code of the file to analyze.
+        """
         self.source_code = source_code
         self.source_lines = source_code.splitlines()
         self.stubs: dict[str, tuple[bool, str | None]] = {}

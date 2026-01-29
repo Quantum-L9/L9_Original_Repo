@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-25 19:42:30 UTC"
+  generated: "2026-01-29 03:05:45 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (UNVERIFIED - no API response)"
+  time_verified: "system clock (verification skipped)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Simulation and testing infrastructure
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -81,11 +81,11 @@ simulation/
 ├── simulation_engine.py
 ```
 
-| File                   | Purpose                        |
-| ---------------------- | ------------------------------ |
-| `__init__.py`          | Core module (PROTECTED)        |
-| `outcome_evaluator.py` | Types of evaluation criteria.  |
-| `outcome_evaluator.py` | Evaluation verdicts.           |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `outcome_evaluator.py` | Types of evaluation criteria. |
+| `outcome_evaluator.py` | Evaluation verdicts. |
 | `outcome_evaluator.py` | A single evaluation criterion. |
 
 ### Naming Conventions
@@ -131,7 +131,7 @@ class EvaluationCriteria:
 
     # Key methods:
 
-    async def evaluate(self, ...): ...
+    def evaluate(self, ...) -> tuple[bool, float]: ...
 
 ```
 
@@ -159,7 +159,7 @@ class EvaluationResult:
 
     # Key methods:
 
-    async def to_dict(self, ...): ...
+    def to_dict(self, ...) -> dict[str, Any]: ...
 
 ```
 
@@ -167,11 +167,15 @@ class EvaluationResult:
 
 **Lines:** 128-159 in `outcome_evaluator.py`
 
+
 ---
 
 ## Data Models and Contracts
 
-Data models are defined in `schemas.py` or inline within service classes.
+
+### Exported Symbols (`__all__`)
+
+`EvaluationCriteria`, `EvaluationResult`, `OutcomeEvaluator`, `Scenario`, `ScenarioLoader`, `ScenarioType`, `SimulationConfig`, `SimulationEngine`, `SimulationMetrics`, `SimulationRun`
 
 ### Key Schemas
 
@@ -237,9 +241,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Simulation feature flags
-L9_ENABLE_SIMULATION_TRACING: true # Enable detailed tracing
-L9_ENABLE_SIMULATION_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_SIMULATION_AUDIT: true # Enable audit logging
+L9_ENABLE_SIMULATION_TRACING: true  # Enable detailed tracing
+L9_ENABLE_SIMULATION_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_SIMULATION_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -266,12 +270,14 @@ SIMULATION_ENABLED=true
 
 ### Public Functions
 
-#### `def set_memory_substrate(substrate)`
+#### `def set_memory_substrate(substrate) -> None`
 
 Set the memory substrate for packet emission.
 
 - **File:** `simulation_engine.py:65`
 - **Async:** No
+- **Returns:** `None`
+
 
 ### Usage Example
 
@@ -302,7 +308,7 @@ Simulation operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-25T19:42:30Z",
+  "timestamp": "2026-01-29T03:05:45Z",
   "level": "INFO",
   "module": "simulation",
   "message": "Operation completed",
@@ -313,7 +319,6 @@ Simulation operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -321,12 +326,12 @@ Simulation operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                             | Type      | Description                    |
-| ---------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `simulation_operation_duration_ms` | Histogram | Operation latency distribution |
-| `simulation_operation_total`       | Counter   | Total operations processed     |
-| `simulation_error_total`           | Counter   | Total errors encountered       |
-| `simulation_active_connections`    | Gauge     | Current active connections     |
+| `simulation_operation_total` | Counter | Total operations processed |
+| `simulation_error_total` | Counter | Total errors encountered |
+| `simulation_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -344,7 +349,6 @@ Simulation emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/simulation/`:
-
 - `test_simulation.py` — Core unit tests
 - `test_simulation_integration.py` — Integration tests (if applicable)
 
@@ -387,7 +391,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

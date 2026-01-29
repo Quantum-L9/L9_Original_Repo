@@ -99,6 +99,7 @@ class Reflection:
     last_accessed: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize reflection to dictionary."""
         return {
             "reflection_id": str(self.reflection_id),
             "reflection_type": self.reflection_type.value,
@@ -114,6 +115,7 @@ class Reflection:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Reflection:
+        """Deserialize reflection from dictionary."""
         return cls(
             reflection_id=(
                 UUID(data["reflection_id"]) if "reflection_id" in data else uuid4()
@@ -146,6 +148,7 @@ class Pattern:
     last_seen: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize pattern to dictionary."""
         return {
             "pattern_id": str(self.pattern_id),
             "name": self.name,
@@ -172,6 +175,7 @@ class Improvement:
     implemented_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize improvement to dictionary."""
         return {
             "improvement_id": str(self.improvement_id),
             "area": self.area,
@@ -215,6 +219,7 @@ class TaskReflection:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        """Serialize task reflection to dictionary."""
         return {
             "task_id": self.task_id,
             "reflection_id": str(self.reflection_id),
@@ -233,6 +238,7 @@ class TaskReflection:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> TaskReflection:
+        """Deserialize task reflection from dictionary."""
         return cls(
             task_id=data.get("task_id", ""),
             reflection_id=(

@@ -92,9 +92,26 @@ DATABASE_URL = os.getenv(
 _pool = None
 
 
-async def get_pool():
-    """Get or create connection pool."""
+async def get_pool(
+    pool: asyncpg.Pool | None = None,
+) -> asyncpg.Pool:
+    """
+    Get connection pool, or use injected pool.
+
+    GMP-90: Supports dependency injection for testability and CLI tools.
+
+    Args:
+        pool: Optional pre-initialized pool for dependency injection.
+              When provided, returns this pool directly.
+              When None, returns or creates the singleton pool.
+
+    Returns:
+        asyncpg.Pool: Database connection pool
+    """
     global _pool
+    # GMP-90: Support dependency injection
+    if pool is not None:
+        return pool
     if _pool is None:
         _pool = await asyncpg.create_pool(
             DATABASE_URL,
@@ -132,7 +149,18 @@ class WorldModelEntityRow:
         created_at: datetime,
         updated_at: datetime,
         version: int,
-    ):
+    ) -> None:
+        """Initialize entity row from database values.
+
+        Args:
+            entity_id: Unique entity identifier.
+            entity_type: Type classification of the entity.
+            attributes: JSON attributes dictionary.
+            confidence: Confidence score (0.0-1.0).
+            created_at: Creation timestamp.
+            updated_at: Last update timestamp.
+            version: Optimistic locking version number.
+        """
         self.entity_id = entity_id
         self.entity_type = entity_type
         self.attributes = attributes
@@ -142,6 +170,11 @@ class WorldModelEntityRow:
         self.version = version
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert entity row to dictionary representation.
+
+        Returns:
+            Dict with entity fields, timestamps as ISO strings.
+        """
         return {
             "entity_id": self.entity_id,
             "entity_type": self.entity_type,
@@ -154,6 +187,14 @@ class WorldModelEntityRow:
 
     @classmethod
     def from_row(cls, row) -> WorldModelEntityRow:
+        """Create entity row from database record.
+
+        Args:
+            row: asyncpg Record from database query.
+
+        Returns:
+            WorldModelEntityRow instance.
+        """
         attributes = row["attributes"]
         if isinstance(attributes, str):
             attributes = json.loads(attributes)
@@ -196,6 +237,11 @@ class WorldModelUpdateRow:
         self.state_version_after = state_version_after
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert update row to dictionary representation.
+
+        Returns:
+            Dict with update fields, UUIDs and timestamps as strings.
+        """
         return {
             "update_id": str(self.update_id),
             "insight_id": str(self.insight_id) if self.insight_id else None,
@@ -234,6 +280,11 @@ class WorldModelSnapshotRow:
         self.created_by = created_by
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert snapshot row to dictionary representation.
+
+        Returns:
+            Dict with snapshot fields, UUIDs and timestamps as strings.
+        """
         return {
             "snapshot_id": str(self.snapshot_id),
             "snapshot": self.snapshot,
@@ -276,6 +327,16 @@ class WorldModelRepository:
         org_id: str | None,
         user_id: str | None,
     ) -> None:
+        """Validate that RLS scope parameters are provided.
+
+        Args:
+            tenant_id: Tenant UUID for RLS.
+            org_id: Organization UUID for RLS.
+            user_id: User UUID for RLS.
+
+        Raises:
+            RuntimeError: If any scope parameter is missing.
+        """
         if not tenant_id or not org_id or not user_id:
             raise RuntimeError(
                 "RLS scope required for WorldModelRepository "
