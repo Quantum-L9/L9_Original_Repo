@@ -76,6 +76,8 @@
 
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
+- [2026-01-28] **✅ GMP-78 CRITICAL FIX** — Tool embeddings wiring repaired. Root cause: `init_repository()` was never called during API lifespan, so `get_repository()` singleton was unavailable. Fixed by adding `init_repository(database_url)` after `init_service()` in server.py lifespan. Result: 116/116 tools synced, Tool RAG operational.
+- [2026-01-28] **Accumulated changes deployed** — 315 files committed including new bayesian/calibration/learning modules.
 - [2026-01-25] **✅ GMP-125 Complete** — Status: PASS. Report: `reports/GMP-Report-125-*.md`
 - [2026-01-25] **✅ GMP-124 Complete** — Status: PASS. Report: `reports/GMP-Report-124-*.md`
 - [2026-01-25] **Cursor Memory Kernel** — Created `agents/cursor/cursor_memory_kernel.yaml` — formalizes memory stack hierarchy (MCP→Redis→Neo4j→file), session lifecycle, write/read rules, 5-layer context injection, and degraded mode. Registered as required startup file.
@@ -127,7 +129,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-01-25 (Local Python 3.12 verified + Cursor Memory Kernel + GMP-S3-INFRASTRUCTURE + GMP-78 Dynamic Tool Discovery)_
+_Last updated: 2026-01-28 (GMP-78 Critical Fix — Tool RAG wiring repaired, 116 tools synced)_
 
 ## Next Steps (Current Session)
 
@@ -158,14 +160,17 @@ PR #51 (Spring Cleaning) — MERGED ✅
 
 **Recent Sessions (7-day window):**
 
+- ✅ 2026-01-28: **GMP-78 CRITICAL FIX** — Tool RAG wiring repaired:
+  - `tool_embeddings.py`: Fixed `_get_db_pool()` to use `get_repository()` singleton
+  - `api/server.py`: Added `init_repository()` call in lifespan (was missing!)
+  - Verified: **116/116 tool embeddings synced** — Dynamic tool selection OPERATIONAL
+  - Commits: `96f0f80c`, `2f88bad8`, `68b9605e`, `c07d0c96`
+  - Memory stored: C1 SSH access (`~/.ssh/Hetzner-C1-nopass`), container rebuild rules
 - 2026-01-25: **Cursor Memory Kernel** — `cursor_memory_kernel.yaml` created + registered in session_startup.py
-- 2026-01-25: **GMP-S3-INFRASTRUCTURE COMPLETE** — C1 backup scripts, S3 blob store, Slack S3 backend (`8cec1524`)
 - ✅ 2026-01-25: **GMP-78 Phase 2 COMPLETE** — Dynamic Tool Discovery wired, Python 3.12 standardization, ADR-0064 updated
 - ✅ 2026-01-25: PR status audit — PRs #28-30 confirmed MERGED, wiring tasks identified
 - ✅ 2026-01-24: sentence-transformers analysis (leave as-is), PR #45 + #52 closed, GMP-114-116 service protocols
 - ✅ 2026-01-23: PR Cleanup (#41, #42, #44), Tenant ID standardization
-- ✅ 2026-01-21: PRs #28-30 Analysis (now merged)
-- ✅ 2026-01-20: World Model Pipeline Unification, GMP-106 PR #22
 
 ---
 
