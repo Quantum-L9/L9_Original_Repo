@@ -2917,7 +2917,15 @@ if _has_evaluation_router:
 
 
 # Add security schemes to OpenAPI schema
-def custom_openapi():
+def custom_openapi() -> dict:
+    """Generate custom OpenAPI schema with security schemes.
+
+    Adds API key authentication to all non-health endpoints
+    and caches the schema for subsequent requests.
+
+    Returns:
+        OpenAPI schema dictionary with security schemes applied.
+    """
     if app.openapi_schema:
         return app.openapi_schema
 
@@ -2985,7 +2993,12 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # Basic Root
 @app.get("/")
-def root():
+def root() -> dict:
+    """Root endpoint returning L9 API status and feature flags.
+
+    Returns:
+        Dict with status, version, and enabled features.
+    """
     return {
         "status": "L9 Phase 2 AI OS",
         "version": "0.5.0",
