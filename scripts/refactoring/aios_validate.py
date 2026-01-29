@@ -67,7 +67,8 @@ SKIP_DIRS = {
 class AOISCompliance(ast.NodeVisitor):
     """Verify AIOS architectural patterns"""
 
-    def __init__(self, filename: str):
+    def __init__(self, filename: str) -> None:
+        """Initialize compliance checker for a file."""
         self.filename = filename
         self.violations: list[str] = []
         self.has_pydantic = False
@@ -75,6 +76,7 @@ class AOISCompliance(ast.NodeVisitor):
         self.functions: list[tuple] = []
 
     def visit_ImportFrom(self, node: ast.ImportFrom) -> None:
+        """Visit import-from statement node."""
         if node.module == "pydantic":
             self.has_pydantic = True
         if "json_logger" in str(node.module or ""):
@@ -82,6 +84,7 @@ class AOISCompliance(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        """Visit async function definition node."""
         self.functions.append(("async", node.name))
         # Check for type hints on public async functions
         if not node.name.startswith("_") and not node.returns:
@@ -89,6 +92,7 @@ class AOISCompliance(ast.NodeVisitor):
         self.generic_visit(node)
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        """Visit function definition node."""
         # Only track public methods/module functions
         if not node.name.startswith("_"):
             if node.name not in ["__init__", "__repr__", "__str__"]:
