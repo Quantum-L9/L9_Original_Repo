@@ -1304,27 +1304,42 @@ _service: MemorySubstrateService | None = None
     lifecycle="startup",
     description="Memory substrate service orchestrating repository, semantic, and graph layers",
 )
-async def get_service() -> MemorySubstrateService:
+async def get_service(
+    service: MemorySubstrateService | None = None,
+) -> MemorySubstrateService:
     """
-    Get memory substrate service singleton (must be initialized first).
+    Get memory substrate service singleton, or use injected instance.
 
     CANONICAL NAME: This is the preferred function name as of v1.0.0.
     LEGACY ALIAS: get_memory_substrate_service() available for backward compatibility.
 
+    Args:
+        service: Optional pre-initialized service instance for dependency injection.
+                 When provided, returns this instance directly (enables testing/CLI use).
+                 When None, returns the singleton instance.
+
     Returns:
-        MemorySubstrateService: Initialized singleton instance
+        MemorySubstrateService: Initialized singleton instance or injected instance
 
     Raises:
-        RuntimeError: If service not initialized. Call init_service() first.
+        RuntimeError: If service not initialized and no instance injected.
+                      Call init_service() first.
 
     Example:
         ```python
+        # Standard usage (singleton)
         from memory.substrate_service import get_service
-
         service = await get_service()
         await service.write_packet(packet)
+
+        # Dependency injection (testing/CLI)
+        mock_service = MockMemorySubstrateService()
+        service = await get_service(service=mock_service)
         ```
     """
+    # GMP-90: Support dependency injection for testability and CLI tools
+    if service is not None:
+        return service
     if _service is None:
         raise RuntimeError("Service not initialized. Call init_service() first.")
     return _service

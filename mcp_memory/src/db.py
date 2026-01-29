@@ -67,37 +67,61 @@ async def close_db():
         logger.info("Database pool closed")
 
 
-async def execute(query: str, *args) -> Any:
-    if not pool:
+async def execute(
+    query: str,
+    *args,
+    db_pool: asyncpg.Pool | None = None,
+) -> Any:
+    """Execute a query. Accepts optional db_pool for dependency injection."""
+    _pool = db_pool or pool
+    if not _pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.execute")
-    async with pool.acquire() as conn:
+    async with _pool.acquire() as conn:
         return await conn.execute(query, *args)
 
 
-async def fetch_one(query: str, *args) -> dict[str, Any] | None:
-    if not pool:
+async def fetch_one(
+    query: str,
+    *args,
+    db_pool: asyncpg.Pool | None = None,
+) -> dict[str, Any] | None:
+    """Fetch one row. Accepts optional db_pool for dependency injection."""
+    _pool = db_pool or pool
+    if not _pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.fetch_one")
-    async with pool.acquire() as conn:
+    async with _pool.acquire() as conn:
         row = await conn.fetchrow(query, *args)
         return dict(row) if row else None
 
 
-async def fetch_all(query: str, *args) -> list[dict[str, Any]]:
-    if not pool:
+async def fetch_all(
+    query: str,
+    *args,
+    db_pool: asyncpg.Pool | None = None,
+) -> list[dict[str, Any]]:
+    """Fetch all rows. Accepts optional db_pool for dependency injection."""
+    _pool = db_pool or pool
+    if not _pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.fetch_all")
-    async with pool.acquire() as conn:
+    async with _pool.acquire() as conn:
         rows = await conn.fetch(query, *args)
         return [dict(row) for row in rows]
 
 
-async def insert_many(query: str, args_list: list[tuple]) -> int:
-    if not pool:
+async def insert_many(
+    query: str,
+    args_list: list[tuple],
+    db_pool: asyncpg.Pool | None = None,
+) -> int:
+    """Insert many rows. Accepts optional db_pool for dependency injection."""
+    _pool = db_pool or pool
+    if not _pool:
         raise RuntimeError("Database pool not initialized")
     require_governance_context("mcp_memory.insert_many")
-    async with pool.acquire() as conn:
+    async with _pool.acquire() as conn:
         result = await conn.executemany(query, args_list)
     return int(result.split()[-1]) if result else 0
 
