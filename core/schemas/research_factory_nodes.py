@@ -240,7 +240,7 @@ async def pass_3_execute_retrieval(
         retrieval_batches = []
 
         for prompt in state.superprompts:
-            start_time = datetime.utcnow()
+            start_time = datetime.now(timezone.utc)
 
             # Use injected backend or default mock
             if retrieval_backend:
@@ -252,11 +252,11 @@ async def pass_3_execute_retrieval(
                         "source": "mock_database",
                         "data": {"result": f"Mock result for query {prompt.query_id}"},
                         "confidence": 0.85,
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                     }
                 ]
 
-            end_time = datetime.utcnow()
+            end_time = datetime.now(timezone.utc)
             latency_ms = (end_time - start_time).total_seconds() * 1000
 
             retrieval_batches.append(
@@ -318,7 +318,7 @@ async def pass_4_extract_results(
                         "source": raw.get("source", "unknown"),
                         "data": raw.get("data", {}),
                         "timestamp": raw.get(
-                            "timestamp", datetime.utcnow().isoformat()
+                            "timestamp", datetime.now(timezone.utc).isoformat()
                         ),
                     }
                     confidence = raw.get("confidence", 0.5)

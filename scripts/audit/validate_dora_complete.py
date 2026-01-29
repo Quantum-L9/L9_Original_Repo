@@ -404,7 +404,7 @@ class DoraCompleteValidator:
         ]
 
         report = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
             "total_files": len(self.results),
             "compliant": len(compliant),
             "non_compliant": len(non_compliant),

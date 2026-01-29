@@ -197,7 +197,7 @@ class SimulationEngine:
             graph_id=UUID(graph_data.get("graph_id", str(uuid4()))),
             config=self._config,
             status="running",
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
         )
 
         self._runs[run.run_id] = run
@@ -211,7 +211,7 @@ class SimulationEngine:
             if not actions:
                 run.status = "completed"
                 run.score = 0.5  # Neutral score for empty graph
-                run.completed_at = datetime.utcnow()
+                run.completed_at = datetime.now(timezone.utc)
                 return run
 
             # Build dependency graph
@@ -235,7 +235,7 @@ class SimulationEngine:
             run.failure_modes.append(str(e))
             run.score = 0.0
 
-        run.completed_at = datetime.utcnow()
+        run.completed_at = datetime.now(timezone.utc)
         run.metrics.total_duration_ms = int(
             (run.completed_at - run.started_at).total_seconds() * 1000
         )
@@ -445,7 +445,7 @@ class SimulationEngine:
         step = SimulationStep(
             action_id=UUID(action.get("node_id", str(uuid4()))),
             action_type=action.get("action_type", "unknown"),
-            start_time=datetime.utcnow(),
+            start_time=datetime.now(timezone.utc),
         )
 
         # Estimate duration
@@ -464,7 +464,7 @@ class SimulationEngine:
         else:
             step.status = "completed"
 
-        step.end_time = datetime.utcnow()
+        step.end_time = datetime.now(timezone.utc)
         step.duration_ms = duration
         step.resource_used = self._estimate_resources(action)
 

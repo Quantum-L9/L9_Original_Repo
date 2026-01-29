@@ -149,7 +149,7 @@ class ApprovalManager:
                     "operation_summary": operation_summary,
                     "arguments": arguments,
                     "status": "pending",
-                    "created_at": datetime.utcnow().isoformat(),
+                    "created_at": datetime.now(timezone.utc).isoformat(),
                 },
                 metadata=PacketMetadata(agent="approval_manager"),
             )
@@ -248,7 +248,7 @@ class ApprovalManager:
                 payload={
                     "tool_id": tool_id,
                     "approved_by": approved_by,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 },
                 metadata=PacketMetadata(agent="approval_manager"),
             )
@@ -293,7 +293,7 @@ class ApprovalManager:
                 payload={
                     "task_id": task_id,
                     "approved_by": approved_by,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "reason": reason or "",
                 },
                 metadata=PacketMetadata(agent="approval_manager"),
@@ -349,7 +349,7 @@ class ApprovalManager:
                 payload={
                     "task_id": task_id,
                     "rejected_by": rejected_by,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "reason": reason,
                 },
                 metadata=PacketMetadata(agent="approval_manager"),

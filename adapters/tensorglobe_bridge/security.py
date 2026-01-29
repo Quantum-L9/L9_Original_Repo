@@ -30,10 +30,10 @@ __dora_meta__ = {
 
 import hashlib
 import hmac
-import logging
+import structlog
 from datetime import timedelta
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class SignatureVerifier:

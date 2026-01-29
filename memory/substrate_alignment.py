@@ -121,7 +121,7 @@ class SubstrateAlignmentChecker:
         """Verify all Postgres packets have Neo4j nodes."""
         from datetime import datetime
 
-        report = AlignmentReport(checked_at=datetime.utcnow().isoformat())
+        report = AlignmentReport(checked_at=datetime.now(timezone.utc).isoformat())
 
         try:
             postgres_ids = await self._fetch_postgres_packet_ids(limit)
@@ -152,7 +152,7 @@ class SubstrateAlignmentChecker:
         """Verify all Neo4j memory nodes have Postgres packets."""
         from datetime import datetime
 
-        report = AlignmentReport(checked_at=datetime.utcnow().isoformat())
+        report = AlignmentReport(checked_at=datetime.now(timezone.utc).isoformat())
 
         try:
             if not await self._neo4j_available():
@@ -200,7 +200,7 @@ class SubstrateAlignmentChecker:
             neo4j_count=neo_report.neo4j_count,
             missing_in_neo4j=pg_report.missing_in_neo4j,
             missing_in_postgres=neo_report.missing_in_postgres,
-            checked_at=datetime.utcnow().isoformat(),
+            checked_at=datetime.now(timezone.utc).isoformat(),
             errors=pg_report.errors + neo_report.errors,
         )
 

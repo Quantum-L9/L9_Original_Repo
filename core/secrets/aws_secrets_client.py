@@ -139,7 +139,7 @@ class AwsSecretsClient:
     def _is_cache_valid(self, cached_at: datetime) -> bool:
         """Check if cached secret is still valid."""
         ttl = timedelta(seconds=self._cache_ttl_seconds)
-        return datetime.utcnow() - cached_at < ttl
+        return datetime.now(timezone.utc) - cached_at < ttl
 
     def get_secret(self, key: str) -> str | None:
         """
@@ -175,7 +175,7 @@ class AwsSecretsClient:
                 if "SecretString" in response:
                     value = response["SecretString"]
                     # Cache the value
-                    self._cache[key] = (value, datetime.utcnow())
+                    self._cache[key] = (value, datetime.now(timezone.utc))
                     logger.info(
                         "secret_retrieved_from_aws",
                         key=key,
@@ -206,7 +206,7 @@ class AwsSecretsClient:
             if env_value:
                 logger.info("secret_from_env_fallback", key=key)
                 # Cache the env value too
-                self._cache[key] = (env_value, datetime.utcnow())
+                self._cache[key] = (env_value, datetime.now(timezone.utc))
                 return env_value
 
         logger.warning("secret_not_found", key=key)
@@ -236,7 +236,7 @@ class AwsSecretsClient:
                 SecretString=value,
             )
             # Update cache
-            self._cache[key] = (value, datetime.utcnow())
+            self._cache[key] = (value, datetime.now(timezone.utc))
             logger.info("secret_updated_in_aws", key=key)
             return True
 

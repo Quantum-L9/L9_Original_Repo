@@ -292,7 +292,7 @@ class PacketEnvelopeUpgradeEngine:
             "phases": [],
             "completed": 0,
             "failed": 0,
-            "activated_at": datetime.utcnow().isoformat(),
+            "activated_at": datetime.now(timezone.utc).isoformat(),
         }
 
         for phase_num in [2, 3, 4, 5]:
@@ -339,7 +339,7 @@ class PacketEnvelopeUpgradeEngine:
             "enabled_features": self.state.enabled_features,
             "backward_compatible": self.state.backward_compatible,
             "progress_percent": (len(self.state.completed_phases) / 5) * 100,
-            "status_timestamp": datetime.utcnow().isoformat(),
+            "status_timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
 
@@ -366,13 +366,13 @@ class PacketEnvelopeAdapter:
         if not self.upgrade_engine.state.enabled_features.get("batch_ingestion"):
             # Fallback to legacy ingestion
             self.logger.info("Using legacy ingestion (Phase 4 not active)")
-            return f"packet-{datetime.utcnow().timestamp()}"
+            return f"packet-{datetime.now(timezone.utc).timestamp()}"
 
         # Use new batch ingestion
         from core.packet_envelope.scalability import BatchIngestRequest
 
         batch_request = BatchIngestRequest(
-            batch_id=f"batch-{datetime.utcnow().timestamp()}",
+            batch_id=f"batch-{datetime.now(timezone.utc).timestamp()}",
             packets=[packet_data],
         )
 

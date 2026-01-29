@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 import structlog
@@ -173,7 +173,7 @@ async def bind_tools_and_capabilities(
                         "risk_level": tool_def.risk_level,
                         "requires_approval": tool_def.requires_igor_approval,
                         "is_destructive": tool_def.is_destructive,
-                        "registered_at": datetime.utcnow().isoformat(),
+                        "registered_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
 
@@ -189,7 +189,7 @@ async def bind_tools_and_capabilities(
                     {
                         "instance_id": instance.instance_id,
                         "tool_id": tool_def.tool_id,
-                        "bound_at": datetime.utcnow().isoformat(),
+                        "bound_at": datetime.now(timezone.utc).isoformat(),
                         "requires_approval": tool_def.requires_igor_approval,
                     },
                 )

@@ -99,7 +99,7 @@ class AuditLogger:
         Returns:
             True if logged successfully, False otherwise
         """
-        timestamp = timestamp or datetime.utcnow().isoformat()
+        timestamp = timestamp or datetime.now(timezone.utc).isoformat()
 
         audit_entry = {
             "audit_type": "command",
@@ -167,7 +167,7 @@ class AuditLogger:
         Returns:
             True if logged successfully, False otherwise
         """
-        timestamp = timestamp or datetime.utcnow().isoformat()
+        timestamp = timestamp or datetime.now(timezone.utc).isoformat()
 
         audit_entry = {
             "audit_type": "approval",
@@ -236,7 +236,7 @@ class AuditLogger:
         Returns:
             True if logged successfully, False otherwise
         """
-        execution_timestamp = execution_timestamp or datetime.utcnow().isoformat()
+        execution_timestamp = execution_timestamp or datetime.now(timezone.utc).isoformat()
 
         audit_entry = {
             "audit_type": "tool_execution",
@@ -305,7 +305,7 @@ class AuditLogger:
         Returns:
             True if logged successfully, False otherwise
         """
-        timestamp = timestamp or datetime.utcnow().isoformat()
+        timestamp = timestamp or datetime.now(timezone.utc).isoformat()
 
         audit_entry = {
             "audit_type": "memory_write",

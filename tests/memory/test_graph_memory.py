@@ -305,7 +305,7 @@ class TestConversationGraphMemoryWithNeo4j:
                     "id": str(uuid4()),
                     "content": "Test message",
                     "role": "user",
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "session_id": str(uuid4()),
                 }
             ]

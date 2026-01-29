@@ -37,7 +37,7 @@ class TestVersionDetection:
             "packet_id": str(uuid4()),
             "packet_type": "event",
             "payload": {"data": "test"},
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         version = detect_version(raw)
         assert version == "1.0.0"
@@ -98,7 +98,7 @@ class TestUpcasting:
             "packet_id": str(uuid4()),
             "packet_type": "event",
             "payload": {"original": "data"},
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         result = upcast(raw, "2.0.0")
@@ -188,7 +188,7 @@ class TestReadPacket:
             "packet_id": str(uuid4()),
             "packet_type": "event",
             "payload": {"original": "data"},
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         packet = read_packet(raw)

@@ -752,7 +752,7 @@ async def gmp_run(
             payload={
                 "gmp_id": gmp_id,
                 "params": params,
-                "queued_at": datetime.utcnow().isoformat(),
+                "queued_at": datetime.now(timezone.utc).isoformat(),
             },
             agent_id=kwargs.get("agent_id", "L"),
         )
@@ -764,7 +764,7 @@ async def gmp_run(
             "gmp_id": gmp_id,
             "task_id": task_id,
             "params": params,
-            "queued_at": datetime.utcnow().isoformat(),
+            "queued_at": datetime.now(timezone.utc).isoformat(),
         }
     except Exception as e:
         logger.error(f"GMP run failed: {e}")
@@ -807,7 +807,7 @@ async def git_commit(
             payload={
                 "message": message,
                 "files": files,
-                "queued_at": datetime.utcnow().isoformat(),
+                "queued_at": datetime.now(timezone.utc).isoformat(),
             },
             agent_id=kwargs.get("agent_id", "L"),
         )
@@ -819,7 +819,7 @@ async def git_commit(
             "task_id": task_id,
             "message": message,
             "files": files,
-            "queued_at": datetime.utcnow().isoformat(),
+            "queued_at": datetime.now(timezone.utc).isoformat(),
         }
     except Exception as e:
         logger.error(f"Git commit failed: {e}")

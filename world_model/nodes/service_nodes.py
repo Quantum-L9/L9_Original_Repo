@@ -219,7 +219,7 @@ async def world_model_snapshot_node(
     try:
         # Generate description if not provided
         if description is None:
-            description = f"LangGraph snapshot at {datetime.utcnow().isoformat()}"
+            description = f"LangGraph snapshot at {datetime.now(timezone.utc).isoformat()}"
 
         # Create snapshot
         snapshot = await world_model_service.create_snapshot(

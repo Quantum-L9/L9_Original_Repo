@@ -145,7 +145,7 @@ def apply_temporal_decay(
         Decayed score value
 
     Example:
-        >>> now = datetime.utcnow()
+        >>> now = datetime.now(timezone.utc)
         >>> recent_score = apply_temporal_decay(1.0, now, half_life_days=30)
         >>> # recent_score ≈ 1.0
         >>> old = now - timedelta(days=30)
@@ -153,7 +153,7 @@ def apply_temporal_decay(
         >>> # old_score ≈ 0.5
     """
     if reference_time is None:
-        reference_time = datetime.utcnow()
+        reference_time = datetime.now(timezone.utc)
 
     age_days = (reference_time - timestamp).total_seconds() / 86400.0
 

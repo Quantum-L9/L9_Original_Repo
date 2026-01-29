@@ -47,7 +47,7 @@ class TestExecutionPlanSnapshot:
             plan_id="plan1",
             checkpoint_id="cp1",
             status=PlanStatus.RUNNING,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
         )
 
         assert snapshot.snapshot_id == "snap1"
@@ -60,7 +60,7 @@ class TestExecutionPlanSnapshot:
             plan_id="plan1",
             checkpoint_id="cp1",
             status=PlanStatus.RUNNING,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             total_steps=10,
             completed_steps=5,
         )

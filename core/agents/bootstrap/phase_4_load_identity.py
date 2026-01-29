@@ -28,7 +28,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -122,7 +122,7 @@ async def load_identity_persona(
                         "authority": identity_chunk["authority_level"],
                         "allegiance": identity_chunk["allegiance"],
                         "agent_id": instance.agent_id,
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                     },
                     metadata={"agent": instance.agent_id, "schema_version": "1.0.0"},
                 )
@@ -159,7 +159,7 @@ async def load_identity_persona(
                             "role": identity_chunk["role"],
                             "mission": identity_chunk["mission"],
                             "authority": identity_chunk["authority_level"],
-                            "loaded_at": datetime.utcnow().isoformat(),
+                            "loaded_at": datetime.now(timezone.utc).isoformat(),
                         },
                     )
             except Exception as e:

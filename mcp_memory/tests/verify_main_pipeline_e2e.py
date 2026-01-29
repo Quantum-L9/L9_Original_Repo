@@ -71,7 +71,7 @@ class Config:
     MEMORY_DSN = os.getenv("MEMORY_DSN") or os.getenv("DATABASE_URL")
 
     # Test content
-    TEST_CONTENT = f"E2E Test Memory - Main Pipeline Verification - {datetime.utcnow().isoformat()}"
+    TEST_CONTENT = f"E2E Test Memory - Main Pipeline Verification - {datetime.now(timezone.utc).isoformat()}"
     TEST_KIND = "preference"
     TEST_SCOPE = "developer"
 

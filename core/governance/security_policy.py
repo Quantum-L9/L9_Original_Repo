@@ -78,7 +78,7 @@ class SecurityViolation:
 
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow()
+            self.timestamp = datetime.now(timezone.utc)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for logging/storage."""
@@ -310,7 +310,7 @@ class SecurityPolicyService:
                 expires = allowed.get("expires")
                 if expires:
                     expiry_date = datetime.fromisoformat(expires)
-                    if datetime.utcnow() > expiry_date:
+                    if datetime.now(timezone.utc) > expiry_date:
                         logger.warning(
                             "Allowlist exception expired",
                             extra={
@@ -397,7 +397,7 @@ class SecurityPolicyService:
             return
 
         audit_entry = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "decision": decision,
             "scan_result": scan_result.to_dict(),
             "environment": self.environment,

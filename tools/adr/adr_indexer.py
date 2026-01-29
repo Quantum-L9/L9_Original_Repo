@@ -132,7 +132,7 @@ def build_index(adr_dir: Path) -> dict:
 
     return {
         "version": "1.0.0",
-        "last_updated": datetime.utcnow().isoformat() + "Z",
+        "last_updated": datetime.now(timezone.utc).isoformat() + "Z",
         "adrs": adrs,
     }
 
@@ -194,7 +194,7 @@ def update_index_entry(index_path: Path, adr_id: str, updates: dict) -> bool:
             adr.update(updates)
 
             # Update last_updated timestamp
-            index["last_updated"] = datetime.utcnow().isoformat() + "Z"
+            index["last_updated"] = datetime.now(timezone.utc).isoformat() + "Z"
 
             # Write updated index
             with open(index_path, "w") as f:

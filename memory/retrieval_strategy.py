@@ -372,7 +372,7 @@ class StrategyBasedRetriever:
         Returns:
             StrategyResult with retrieved items and metadata
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Create context if not provided
         if context is None:
@@ -388,7 +388,7 @@ class StrategyBasedRetriever:
         results = await self._execute_strategy(strategy, context, max_results)
 
         # Calculate execution time
-        execution_time_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+        execution_time_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
 
         return StrategyResult(
             strategy=strategy,

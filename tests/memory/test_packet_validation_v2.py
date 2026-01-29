@@ -125,7 +125,7 @@ class TestProvenanceValidation:
 
     def test_source_timestamp_in_past_accepted(self):
         """source_timestamp in the past is valid."""
-        past_time = datetime.utcnow() - timedelta(hours=1)
+        past_time = datetime.now(timezone.utc) - timedelta(hours=1)
         packet = PacketEnvelopeIn(
             packet_type="event",
             payload={"test": "data"},
@@ -136,7 +136,7 @@ class TestProvenanceValidation:
 
     def test_source_timestamp_in_future_rejected(self):
         """source_timestamp in the future raises PacketValidationError."""
-        future_time = datetime.utcnow() + timedelta(hours=1)
+        future_time = datetime.now(timezone.utc) + timedelta(hours=1)
         packet = PacketEnvelopeIn(
             packet_type="event",
             payload={"test": "data"},
@@ -183,7 +183,7 @@ class TestTTLValidation:
 
     def test_ttl_in_future_accepted(self):
         """TTL in the future is valid."""
-        future_ttl = datetime.utcnow() + timedelta(days=7)
+        future_ttl = datetime.now(timezone.utc) + timedelta(days=7)
         packet = PacketEnvelopeIn(
             packet_type="event",
             payload={"test": "data"},
@@ -194,7 +194,7 @@ class TestTTLValidation:
 
     def test_ttl_in_past_rejected(self):
         """TTL in the past raises PacketValidationError."""
-        past_ttl = datetime.utcnow() - timedelta(hours=1)
+        past_ttl = datetime.now(timezone.utc) - timedelta(hours=1)
         packet = PacketEnvelopeIn(
             packet_type="event",
             payload={"test": "data"},

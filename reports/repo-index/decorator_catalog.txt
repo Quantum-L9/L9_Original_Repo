@@ -7,21 +7,21 @@
 |-----------|-------|---------------|
 | `@abstractmethod` | 48 | agents/base_agent.py, collaborative_cells/base_cell.py, core/observability/context_strategies.py |
 | `@async_retry(...)` | 1 | core/codegen/gatekeeper/codegen_gatekeeper_v2.py |
-| `@asynccontextmanager` | 38 | api/server.py, config/di_async_config.py, core/governance/rate_limit_policy.py |
-| `@asyncio` | 1237 | _archived/symbolic_computation/test_symbolic_computation.py, codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py, codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/tests/test_calendar_adapter.py |
+| `@asynccontextmanager` | 36 | api/server.py, config/di_async_config.py, core/governance/rate_limit_policy.py |
+| `@asyncio` | 1346 | _archived/symbolic_computation/test_symbolic_computation.py, codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py, codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/tests/test_calendar_adapter.py |
 | `@benchmark(...)` | 9 | tests/performance/test_memory_benchmarks.py |
-| `@classmethod` | 76 | agents/codegenagent/cursor_context_sync_engine.py, agents/codegenagent/cursor_sync.py, codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/config.py |
+| `@classmethod` | 78 | agents/codegenagent/cursor_context_sync_engine.py, agents/codegenagent/cursor_sync.py, codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/config.py |
 | `@command(...)` | 6 | core/codegen/cli.py, tools/l9_cli.py |
 | `@contextmanager` | 9 | core/agents/bootstrap/bootstrap_metrics.py, core/security/path_safety.py, memory/checkpoint_metrics.py |
-| `@dataclass` | 649 | adapters/tensorglobe_bridge/anomaly_guard.py, agents/base_agent.py, agents/codegenagent/ap_generator.py |
-| `@dataclass(...)` | 22 | api/auth.py, core/moduleregistry.py, core/tools/sanitizer.py |
+| `@dataclass` | 665 | adapters/tensorglobe_bridge/anomaly_guard.py, agents/base_agent.py, agents/codegenagent/ap_generator.py |
+| `@dataclass(...)` | 23 | api/auth.py, core/codegen/spec/spec_normalizer_v2.py, core/moduleregistry.py |
 | `@delete(...)` | 3 | api/memory/cache.py, api/memory/graph.py, api/routes/reflection_agent.py |
 | `@dict(...)` | 16 | tests/api/test_agent_auth.py, tests/api/test_websocket_auth.py, tests/unit/test_di_runtime_config.py |
 | `@exception_handler(...)` | 8 | api/server.py, current_work/DONE/GMP Stage 1 - Tools/server.py, current_work/DONE/Slack-Debug-2/server.py |
-| `@field_validator(...)` | 7 | codegen/code-gen-files/schema_parser.py, core/kernels/schemas.py, core/schemas/research_factory_models.py |
-| `@fixture` | 364 | _archived/symbolic_computation/test_symbolic_computation.py, codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py, codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/tests/conftest.py |
-| `@fixture(...)` | 26 | current_work/DONE/AUTOWIRING/test_cell_registry.py, current_work/DONE/AUTOWIRING/test_event_type_registry.py, current_work/DONE/AUTOWIRING/test_policy_registry.py |
-| `@get(...)` | 128 | api/agent_routes.py, api/memory/cache.py, api/memory/graph.py |
+| `@field_validator(...)` | 10 | codegen/code-gen-files/schema_parser.py, core/calibration/schemas.py, core/kernels/schemas.py |
+| `@fixture` | 419 | _archived/symbolic_computation/test_symbolic_computation.py, codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py, codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/tests/conftest.py |
+| `@fixture(...)` | 20 | current_work/DONE/AUTOWIRING/test_cell_registry.py, current_work/DONE/AUTOWIRING/test_event_type_registry.py, current_work/DONE/AUTOWIRING/test_policy_registry.py |
+| `@get(...)` | 135 | api/agent_routes.py, api/memory/cache.py, api/memory/graph.py |
 | `@group(...)` | 2 | core/codegen/cli.py, tools/l9_cli.py |
 | `@integration` | 8 | tests/cursor/test_gmp_meta_learning.py, tests/memory/test_query_cache_and_vector.py, tests/runtime/test_slack_tools.py |
 | `@l9_traced(...)` | 8 | codegen/templates/python/dora-template.py, tests/runtime/test_dora_auto_update.py |
@@ -30,30 +30,30 @@
 | `@lru(...)` | 4 | memory/substrate_repository_cached.py, tests/memory/test_query_cache_and_vector.py |
 | `@lru_cache` | 1 | config/ai_eval_settings.py |
 | `@lru_cache(...)` | 25 | _archived/symbolic_computation/core.py, api/routes/upgrades.py, codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py |
-| `@model_validator(...)` | 7 | core/models/l9_base_model.py, core/observability/config.py, current_work/01-25-2026/C  Gap Filling/1_l9_base_model.py |
-| `@must_stay_async(...)` | 350 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/cursor_context_sync_engine.py |
-| `@on_event(...)` | 6 | api/server.py, current_work/DONE/GMP Stage 1 - Tools/server.py, current_work/DONE/Slack-Debug-2/server.py |
+| `@model_validator(...)` | 6 | core/models/l9_base_model.py, core/observability/config.py, current_work/01-25-2026/C  Gap Filling/1_l9_base_model.py |
+| `@must_stay_async(...)` | 360 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/cursor_context_sync_engine.py |
+| `@on_event(...)` | 7 | api/server.py, current_work/Agent Initialization - Paradigm Shift/harvested-files/bootstrap/main_integration.py, current_work/DONE/GMP Stage 1 - Tools/server.py |
 | `@option(...)` | 10 | core/codegen/cli.py, tools/l9_cli.py |
 | `@parametrize(...)` | 8 | tests/core/security/test_path_safety.py, tests/docker/test_env_validation.py, tests/email_agent/test_email_router.py |
 | `@patch(...)` | 10 | tests/test_research_graph.py, tests/unit/test_executor_composer.py |
-| `@post(...)` | 113 | api/agent_routes.py, api/memory/cache.py, api/memory/graph.py |
-| `@property` | 189 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/compliance_auditor.py |
+| `@post(...)` | 118 | api/agent_routes.py, api/memory/cache.py, api/memory/graph.py |
+| `@property` | 199 | agents/base_agent.py, agents/codegenagent/codegen_agent.py, agents/codegenagent/compliance_auditor.py |
 | `@rate_limit(...)` | 4 | agents/base_agent.py, core/codegen/gatekeeper/codegen_gatekeeper_v2.py, memory/ingestion.py |
 | `@recurrence_memo(...)` | 3 | _archived/symbolic_computation/utils.py, codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_utils.py, services/symbolic_computation/utils.py |
 | `@register(...)` | 4 | core/schemas/schema_registry.py |
 | `@register_agent(...)` | 32 | current_work/DONE/AUTOWIRING/test_agent_registry.py, tests/agents/test_agent_registry.py |
 | `@register_cell(...)` | 1 | current_work/DONE/AUTOWIRING/test_cell_registry.py |
-| `@register_singleton(...)` | 33 | agents/cursor/cursor_memory_kernel.py, core/coordination/agent_mediator.py, core/facade/l9_facade.py |
+| `@register_singleton(...)` | 34 | agents/cursor/cursor_memory_kernel.py, core/coordination/agent_mediator.py, core/facade/l9_facade.py |
 | `@register_singleton_closer(...)` | 8 | core/coordination/agent_mediator.py, core/facade/l9_facade.py, current_work/DONE/AUTOWIRING/test_singleton_auto_registry.py |
-| `@register_tool(...)` | 140 | core/tools/base_registry.py, core/tools/reflection_tools.py, core/tools/research_tools.py |
+| `@register_tool(...)` | 197 | core/tools/base_registry.py, core/tools/reflection_tools.py, core/tools/research_tools.py |
 | `@register_upcaster(...)` | 1 | current_work/DONE/AUTOWIRING/test_upcaster_registry.py |
 | `@retry(...)` | 2 | codegen/Perplexity-Search-Pack/autonomous-research-agent.py, codegen/scripts/generate_spec.py |
-| `@runtime_checkable` | 44 | core/protocols/agent_protocols.py, core/protocols/error_handling_protocols.py, core/protocols/kernel_protocols.py |
-| `@setter` | 6 | current_work/01-20-2026/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py, current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py |
-| `@skip(...)` | 10 | tests/cursor/test_gmp_meta_learning.py, tests/integration/test_graph_state_integration.py, tests/integration/test_l_bootstrap.py |
+| `@runtime_checkable` | 38 | core/protocols/agent_protocols.py, core/protocols/error_handling_protocols.py, core/protocols/kernel_protocols.py |
+| `@setter` | 9 | core/l_agent_runtime/agent_state.py, current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/agent_state.py, current_work/DONE/governance_layers/l_agent_runtime/agent_state.py |
+| `@skip(...)` | 13 | tests/core/agents/test_agent_executor_bootstrap_bridge.py, tests/cursor/test_gmp_meta_learning.py, tests/integration/test_graph_state_integration.py |
 | `@skipif(...)` | 15 | tests/agents/codegenagent/test_symbolic_verification.py, tests/memory/test_checkpoint_metrics_pool.py, tests/memory/test_governance_invariants.py |
 | `@slow` | 2 | tests/memory/test_strategy_memory_integration.py, tests/memory/test_unified_pipeline.py |
-| `@staticmethod` | 151 | _archived/symbolic_computation/utils.py, agents/cursor/gmp_meta_learning.py, agents/research_agent_impl.py |
+| `@staticmethod` | 156 | _archived/symbolic_computation/utils.py, agents/cursor/gmp_meta_learning.py, agents/research_agent_impl.py |
 | `@timed` | 5 | tests/unit/test_instrumentation_decorators.py |
 | `@timed(...)` | 2 | tests/unit/test_instrumentation_decorators.py |
 | `@trace_governance_check(...)` | 2 | core/observability/l9_integration.py, current_work/DONE/Observability/observability_l9_integration.py |
@@ -62,10 +62,10 @@
 | `@traced` | 8 | tests/unit/test_instrumentation_decorators.py |
 | `@traced(...)` | 3 | tests/unit/test_instrumentation_decorators.py |
 | `@ttl(...)` | 8 | memory/substrate_repository_cached.py, scripts/benchmark_caching_and_vector.py, tests/memory/test_query_cache_and_vector.py |
-| `@validator(...)` | 10 | _archived/symbolic_computation/models.py, codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py, current_work/01-25-2026/RLM-Reference-Level Memory/002-rlm-data-models.py |
+| `@validator(...)` | 12 | _archived/symbolic_computation/models.py, codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py, current_work/01-25-2026/L9-refactoring-plan/harvested-files/02_packet_envelope.py |
 | `@version_option(...)` | 1 | core/codegen/cli.py |
 | `@websocket(...)` | 5 | api/server.py, current_work/DONE/GMP Stage 1 - Tools/server.py, current_work/DONE/Slack-Debug-2/server.py |
 | `@with_source_location` | 3 | tests/unit/test_instrumentation_decorators.py |
-| `@wraps(...)` | 41 | core/governance/rate_limit_policy.py, core/instrumentation/decorators.py, core/observability/instrumentation.py |
+| `@wraps(...)` | 36 | core/governance/rate_limit_policy.py, core/instrumentation/decorators.py, core/observability/instrumentation.py |
 
 # Total: 62 unique decorators

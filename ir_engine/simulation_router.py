@@ -200,7 +200,7 @@ class SimulationRouter:
         """
         logger.info(f"Routing simulation request {request.request_id}")
 
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         try:
             if self._engine is None:
@@ -212,7 +212,7 @@ class SimulationRouter:
 
             # Calculate execution time
             result.execution_time_ms = int(
-                (datetime.utcnow() - start_time).total_seconds() * 1000
+                (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
             )
 
         except Exception as e:

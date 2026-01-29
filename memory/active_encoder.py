@@ -397,7 +397,7 @@ class ActiveMemoryEncoder:
         Returns:
             EncodingResult with encoding statistics
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         result = EncodingResult()
 
         logger.info(
@@ -439,7 +439,7 @@ class ActiveMemoryEncoder:
 
         finally:
             result.execution_time_ms = (
-                datetime.utcnow() - start_time
+                datetime.now(timezone.utc) - start_time
             ).total_seconds() * 1000
             logger.info(
                 "Task completion processing complete",

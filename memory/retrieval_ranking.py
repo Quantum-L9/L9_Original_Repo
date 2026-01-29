@@ -241,7 +241,7 @@ class MultiFactorRanker:
             return []
 
         if reference_time is None:
-            reference_time = datetime.utcnow()
+            reference_time = datetime.now(timezone.utc)
 
         # Compute scores for each item
         for item in items:

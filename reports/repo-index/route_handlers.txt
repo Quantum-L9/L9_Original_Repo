@@ -26,11 +26,12 @@ GET /config → get_pattern_config() @ api/routes/pattern.py
 GET /context/{agent_id} → get_world_model_context() @ api/routes/worldmodel.py
 GET /context/{domain} → get_domain_context() @ api/memory/graph.py
 GET /data → get_data() @ config/di_async_config.py
-GET /data → get_data() @ current_work/01-25-2026/di-Runtime/HARVESTED_ASYNC_DI.py
+GET /data → get_data() @ current_work/DONE/di-Runtime/HARVESTED_ASYNC_DI.py
 GET /di/services → list_di_services() @ examples/fastapi_lifespan_di_bootstrap.py
 GET /entities → list_entities() @ api/world_model_api.py
 GET /entities/{entity_id} → get_entity() @ api/world_model_api.py
 GET /entity/{entity_type}/{entity_id} → get_entity() @ api/memory/graph.py
+GET /eos/status → eos_status() @ api/routes/tensor_bridge.py
 GET /executor/info → get_executor_info() @ examples/fastapi_lifespan_di_bootstrap.py
 GET /facts → get_facts() @ api/memory/router.py
 GET /facts → get_facts() @ igor/DONE!/audit-memory/api_memory_router.py
@@ -42,6 +43,7 @@ GET /graduation-status → get_graduation_status() @ api/routes/gmp_learning.py
 GET /graph/{graph_id} → get_runs_for_graph() @ api/routes/simulation.py
 GET /health → agent_health() @ api/agent_routes.py
 GET /health → cache_health() @ api/memory/cache.py
+GET /health → eval_health() @ api/routes/evaluation.py
 GET /health → factory_health() @ api/routes/factory.py
 GET /health → get_health() @ api/routes/observability.py
 GET /health → get_workers_health() @ api/routes/workers.py
@@ -66,6 +68,7 @@ GET /health → health_check() @ mcp_memory/src/routes/health.py
 GET /health → health_check() @ services/symbolic_computation/api/routes.py
 GET /health → os_health() @ api/os_routes.py
 GET /health → simulation_health() @ api/routes/simulation.py
+GET /health → tensor_bridge_health() @ api/routes/tensor_bridge.py
 GET /health → tool_graph_health() @ api/tools/router.py
 GET /health → upgrade_health() @ api/routes/upgrades.py
 GET /health → world_model_health() @ api/world_model_api.py
@@ -103,12 +106,15 @@ GET /packet/{packet_id} → get_packet() @ api/memory/router.py
 GET /packet/{packet_id} → get_packet() @ igor/DONE!/audit-memory/api_memory_router.py
 GET /path → _infer_governance_level() @ scripts/audit/inject_dora_complete.py
 GET /rate-limit/{key} → get_rate_limit() @ api/memory/cache.py
+GET /readiness → os_readiness() @ api/os_routes.py
+GET /reasoning-modes → list_reasoning_modes() @ api/routes/tensor_bridge.py
 GET /relationships/{entity_type}/{entity_id} → get_relationships() @ api/memory/graph.py
 GET /report → get_compliance_report() @ api/routes/compliance.py
 GET /report/daily → get_daily_compliance_report() @ api/routes/compliance.py
 GET /session-graph/{session_id} → get_session_graph() @ api/memory/graph.py
 GET /session/context/{session_id} → get_session_context() @ api/memory/cache.py
 GET /session/list → list_sessions() @ api/memory/cache.py
+GET /sets → list_eval_sets() @ api/routes/evaluation.py
 GET /snapshots → list_snapshots() @ api/world_model_api.py
 GET /spans → get_spans() @ api/routes/observability.py
 GET /state-version → get_state_version() @ api/world_model_api.py
@@ -118,6 +124,7 @@ GET /stats → get_memory_stats() @ mcp_memory/src/routes/memory_unified.py
 GET /stats → get_stats() @ api/memory/router.py
 GET /stats → get_stats() @ igor/DONE!/audit-memory/api_memory_router.py
 GET /status → agent_status() @ api/agent_routes.py
+GET /status → get_bridge_status() @ api/routes/tensor_bridge.py
 GET /status → get_modules_status() @ api/routes/modules.py
 GET /status → os_status() @ api/os_routes.py
 GET /status → reflection_agent_status() @ api/routes/reflection_agent.py
@@ -155,11 +162,13 @@ POST /calendar/webhook → handle_calendar_adapter() @ codegen/code-gen-files/Mo
 POST /chat → chat() @ api/server_memory.py
 POST /chat → chat() @ current_work/DONE/GMP Stage 1 - Tools/server.py
 POST /chat → chat() @ current_work/DONE/Slack-Debug-2/server.py
+POST /ci/eval_gate → ci_gate() @ current_work/Agent Initialization - Paradigm Shift/harvested-files/7_ci_cd_integration.py
 POST /commands → slack_commands() @ api/routes/slack.py
 POST /commands → slack_commands() @ current_work/DONE/Slack-Debug-2/slack.py
 POST /compact → compact_storage() @ api/memory/router.py
 POST /compact → compact_storage() @ igor/DONE!/audit-memory/api_memory_router.py
 POST /compare → compare_approaches() @ api/routes/reflection_agent.py
+POST /compare → compare_to_baseline() @ api/routes/evaluation.py
 POST /consolidation/run → run_consolidation() @ api/memory/router.py
 POST /discover → discover() @ api/routes/research_agent.py
 POST /email/webhook → handle_email_adapter() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/routes/email_adapter.py
@@ -188,6 +197,7 @@ POST /governance/feedback → record_approval_feedback() @ api/routes/commands.p
 POST /graduate → graduate_to_next_level() @ api/routes/gmp_learning.py
 POST /hybrid/search → hybrid_search() @ api/memory/router.py
 POST /hybrid/search → hybrid_search() @ igor/DONE!/audit-memory/api_memory_router.py
+POST /infer → tensor_inference() @ api/routes/tensor_bridge.py
 POST /ingest → ingest() @ core/governance/rate_limit_policy.py
 POST /ingest → ingest() @ core/governance/rate_limit_policy.py
 POST /insights → submit_insights() @ api/world_model_api.py
@@ -209,6 +219,7 @@ POST /packet-envelope/activate/phase-3 → activate_phase_3() @ api/routes/upgra
 POST /packet-envelope/activate/phase-4 → activate_phase_4() @ api/routes/upgrades.py
 POST /packet-envelope/activate/phase-5 → activate_phase_5() @ api/routes/upgrades.py
 POST /parse → parse_command_endpoint() @ api/routes/commands.py
+POST /process-packet → process_domain_packet() @ api/routes/tensor_bridge.py
 POST /query → run_query() @ api/memory/graph.py
 POST /rate-limit/{key}/increment → increment_rate_limit() @ api/memory/cache.py
 POST /reasoning/replay → reasoning_replay() @ api/memory/router.py
@@ -218,6 +229,7 @@ POST /research-to-code → research_to_code() @ api/routes/research_agent.py
 POST /restore → restore_from_snapshot() @ api/world_model_api.py
 POST /resume → cursor_resume() @ api/routes/cursor.py
 POST /resume/{thread_id} → resume_research() @ services/research/research_api.py
+POST /run → run_evaluation() @ api/routes/evaluation.py
 POST /run → run_simulation() @ api/routes/simulation.py
 POST /saga/correlate-timeline → saga_correlate_timeline() @ api/memory/router.py
 POST /saga/enrich-entities → saga_enrich_entities() @ api/memory/router.py
@@ -267,4 +279,4 @@ WEBSOCKET /ws/agent → agent_ws_endpoint() @ api/server.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ current_work/DONE/GMP Stage 1 - Tools/server.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ current_work/DONE/Slack-Debug-2/server.py
 
-# Total: 263 route handlers
+# Total: 275 route handlers

@@ -108,7 +108,7 @@ async def tensor_bridge_health() -> dict[str, Any]:
             "tensorglobe_adapter": "available",
             "eos_gate": "available",
         },
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 
@@ -130,7 +130,7 @@ async def get_bridge_status() -> BridgeStatusResponse:
             "accountability_engine": "active",
             "verdicts_cached": 0,
         },
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
     )
 
 

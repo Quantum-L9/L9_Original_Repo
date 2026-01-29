@@ -621,7 +621,7 @@ class ModuleCompilerV2:
             responsibilities=responsibilities,
             packet_type=f"agent.{module_id}.result",
             description_line="=" * len(metadata.get("name", "")),
-            timestamp=datetime.utcnow().isoformat() + "Z",
+            timestamp=datetime.now(timezone.utc).isoformat() + "Z",
         )
 
         file_path = output_dir / "core.py"

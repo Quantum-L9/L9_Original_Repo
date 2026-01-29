@@ -20,11 +20,14 @@
 - `tests/core/bootstrap/test_graph_state.py` (13 tests)
 - `tests/core/bootstrap/test_bootstrap_phases.py` (16 tests)
 - `tests/core/bootstrap/test_agent_self_modify.py` (14 tests)
-- `tests/core/bootstrap/test_executor.py` (18 tests)
+- `tests/core/bootstrap/test_executor.py` (22 tests)
 - `tests/core/bootstrap/test_prompt_builder.py` (25 tests)
 - `tests/core/security/test_path_safety.py` (10 tests)
 - `tests/core/security/test_permission_graph.py` (2 tests)
 - `tests/core/aios/test_runtime.py` (2 tests)
+- `tests/core/agents/test_agent_executor_bootstrap_bridge.py` (3 tests)
+- `tests/core/agents/bootstrap/test_orchestrator.py` (5 tests)
+- `tests/core/agents/bootstrap/test_phase4_identity_view.py` (3 tests)
 - `tests/core/observability/test_observability_integration.py` (32 tests)
 - `tests/core/schemas/test_content_hash_integrity.py` (14 tests)
 - `tests/core/schemas/test_upcaster_registry.py` (4 tests)
@@ -32,7 +35,9 @@
 - `tests/core/governance/test_engine.py` (15 tests)
 - `tests/core/governance/test_policy_registry.py` (4 tests)
 - `tests/core/governance/test_validation.py` (12 tests)
+- `tests/core/bayesian/test_bayesian_kernel.py` (16 tests)
 - `tests/core/protocols/test_secrets_protocols.py` (7 tests)
+- `tests/core/eos/test_eos_clients.py` (21 tests)
 
 ### tests/integration/
 
@@ -105,7 +110,7 @@
 - `tests/memory/test_packet_envelope_immutability.py` (14 tests)
 - `tests/memory/test_blob_offload.py` (6 tests)
 - `tests/memory/test_consolidation_graph.py` (11 tests)
-- `tests/memory/test_reasoning_replay.py` (11 tests)
+- `tests/memory/test_reasoning_replay.py` (12 tests)
 - `tests/memory/test_vector_index.py` (5 tests)
 - `tests/memory/test_frontier_memory_pipeline.py` (35 tests)
 - `tests/memory/test_predictive_warming.py` (17 tests)
@@ -133,8 +138,8 @@
 
 ## Summary
 
-- **Total test files**: 112
-- **Total test functions**: 1375
+- **Total test files**: 117
+- **Total test functions**: 1428
 
 ## Running Tests
 

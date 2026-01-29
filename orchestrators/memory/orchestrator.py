@@ -179,7 +179,7 @@ class MemoryOrchestrator(IMemoryOrchestrator):
             # Query recent packets with RLS context
             result = await substrate.query_packets(
                 limit=100,
-                since=datetime.utcnow() - timedelta(days=7),
+                since=datetime.now(timezone.utc) - timedelta(days=7),
                 tenant_id=request.tenant_id,
                 org_id=request.org_id,
                 user_id=request.user_id,

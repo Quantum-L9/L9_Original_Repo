@@ -79,7 +79,7 @@ def init_workspace(workspace_root: Path, verbose: bool = False) -> InitResult:
     Returns:
         InitResult with complete status
     """
-    start_time = datetime.utcnow()
+    start_time = datetime.now(timezone.utc)
     errors: list[str] = []
     warnings: list[str] = []
 
@@ -197,7 +197,7 @@ def init_workspace(workspace_root: Path, verbose: bool = False) -> InitResult:
     else:
         status = "READY"
 
-    duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+    duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
     return InitResult(
         status=status,

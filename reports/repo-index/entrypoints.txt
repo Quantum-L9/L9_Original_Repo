@@ -39,7 +39,7 @@ api/middleware/websocket_tracing.py
     - WEBSOCKET /ws
 api/server.py
   Type: FastAPI
-  Routes (10):
+  Routes (12):
     - GET /
     - GET /health
     - GET /health/startup
@@ -50,6 +50,7 @@ api/server.py
     - POST /lchat
     - WEBSOCKET /ws/agent
     - WEBSOCKET /lws
+    ... and 2 more
 api/server_memory.py
   Type: FastAPI
   Title: L9 Phase 2 Secure AI OS
@@ -65,6 +66,9 @@ api/vps_executor.py
   Routes (2):
     - GET /agent/health
     - POST /agent/exec
+bootstrap/__main__.py
+  Type: Script
+  Has __main__ block: Yes
 ci/ai_guardrails/runner.py
   Type: Script
   Has __main__ block: Yes
@@ -72,6 +76,9 @@ ci/check_dependency_patterns.py
   Type: Script
   Has __main__ block: Yes
 ci/check_no_deprecated_services.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_packet_type_naming.py
   Type: Script
   Has __main__ block: Yes
 ci/check_schema_deprecation.py
@@ -98,6 +105,9 @@ ci/lint_forbidden_imports.py
 ci/validate_codegen.py
   Type: Script
   Has __main__ block: Yes
+ci/validate_dora_blocks.py
+  Type: Script
+  Has __main__ block: Yes
 ci/validate_spec_v25.py
   Type: Script
   Has __main__ block: Yes
@@ -108,12 +118,33 @@ config/di_async_config.py
   Type: FastAPI
   Routes (1):
     - GET /data
+core/bayesian/hybrid_kernel.py
+  Type: Script
+  Has __main__ block: Yes
+core/bayesian/probabilistic_engine.py
+  Type: Script
+  Has __main__ block: Yes
+core/bayesian/subjective_logic.py
+  Type: Script
+  Has __main__ block: Yes
+core/bayesian/uncertainty.py
+  Type: Script
+  Has __main__ block: Yes
+core/evaluation/eval_sets.py
+  Type: Script
+  Has __main__ block: Yes
 core/fastapi_lifespan.py
   Type: FastAPI
 core/governance/policy_generator.py
   Type: Script
   Has __main__ block: Yes
 core/governance/subsystem_detector.py
+  Type: Script
+  Has __main__ block: Yes
+core/learning/auto_calibrator.py
+  Type: Script
+  Has __main__ block: Yes
+core/learning/feedback_collector.py
   Type: Script
   Has __main__ block: Yes
 core/reasoning/toth_engine.py
@@ -306,6 +337,9 @@ scripts/memory/index_preferences.py
 scripts/memory/index_tool_usage.py
   Type: Script
   Has __main__ block: Yes
+scripts/memory/ingest_chat_transcript.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/memory/inspect_embeddings.py
   Type: Script
   Has __main__ block: Yes
@@ -376,6 +410,9 @@ scripts/workspace/rename_l_to_l_cto.py
   Type: Script
   Has __main__ block: Yes
 services/symbolic_computation/health_check.py
+  Type: Script
+  Has __main__ block: Yes
+telemetry/calibration_dashboard.py
   Type: Script
   Has __main__ block: Yes
 tools/adr/adr_cli.py

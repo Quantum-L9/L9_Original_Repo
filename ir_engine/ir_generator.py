@@ -230,7 +230,7 @@ class IRGenerator:
 
         return {
             "plan_id": str(graph.graph_id),
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
             "total_steps": len(steps),
             "estimated_duration_ms": sum(
                 a.estimated_duration_ms or 0 for a in ordered_actions

@@ -204,7 +204,7 @@ async def tool_graph_health(request: Request) -> dict:
         "neo4j_available": is_healthy,
         "impact": None if is_healthy else "No blast radius/dependency queries",
         "tools_executable": True,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

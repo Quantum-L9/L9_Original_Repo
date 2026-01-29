@@ -554,7 +554,7 @@ Natural language:
                     raw_text=command.raw_text,
                     result=result.dict() if result else None,
                     error=error,
-                    timestamp=datetime.utcnow().isoformat(),
+                    timestamp=datetime.now(timezone.utc).isoformat(),
                 )
             except Exception as e:
                 logger.warning("Failed to log command to audit", error=str(e))

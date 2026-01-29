@@ -104,7 +104,7 @@ class ViolationTrackerServiceRequest(BaseModel):
     """Input request for ViolationTrackerService."""
 
     request_id: str = Field(
-        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.utcnow())))
+        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc))))
     )
     content: str = Field(..., description="Content to scan for violations")
     source: str = Field(
@@ -234,7 +234,7 @@ class ViolationTrackerService:
         Returns:
             ViolationTrackerServiceResponse with violations found and actions taken
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         violations: list[ViolationRecord] = []
         escalated_lessons: list[str] = []
 
@@ -374,7 +374,7 @@ class ViolationTrackerService:
     ) -> None:
         """Write violation to audit log."""
         entry = {
-            "timestamp_utc": datetime.utcnow().isoformat(),
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
             "change_type": "lesson_violation",
             "trigger_source": "violation_tracker",
             "outcome": "detected",
@@ -470,7 +470,7 @@ class ViolationTrackerService:
 
         # Log escalation to audit
         entry = {
-            "timestamp_utc": datetime.utcnow().isoformat(),
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
             "change_type": "escalation",
             "trigger_source": "violation_tracker",
             "outcome": "escalated",
@@ -514,7 +514,7 @@ class ViolationTrackerService:
 
     def _calc_duration(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
     # =========================================================================
     # Utility Methods

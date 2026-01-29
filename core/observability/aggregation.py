@@ -52,7 +52,7 @@ class MetricsAggregator:
                 "p99_latency_ms": 0,
                 "avg_latency_ms": 0,
                 "max_latency_ms": 0,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         # Latency analysis
@@ -80,7 +80,7 @@ class MetricsAggregator:
             "avg_latency_ms": mean(durations) if durations else 0,
             "max_latency_ms": max(durations) if durations else 0,
             "errors_by_type": error_by_type,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     @staticmethod

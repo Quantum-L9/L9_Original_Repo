@@ -216,7 +216,7 @@ class CrossEncoderReranker:
         Returns:
             RerankingResult with re-ranked candidates
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         fallback_text_keys = fallback_text_keys or [
             "content",
             "observation",
@@ -295,7 +295,7 @@ class CrossEncoderReranker:
 
         # Calculate timing
         result.reranking_time_ms = (
-            datetime.utcnow() - start_time
+            datetime.now(timezone.utc) - start_time
         ).total_seconds() * 1000
 
         logger.debug(

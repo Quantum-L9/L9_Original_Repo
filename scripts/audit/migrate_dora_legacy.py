@@ -124,7 +124,7 @@ class DoraLegacyMigrator:
 
     def _format_new_footer(self, legacy_data: dict) -> str:
         """Format new __dora_footer__ from legacy data."""
-        datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         return """
 
@@ -325,7 +325,7 @@ class DoraMultiFormatMigrator:
             content = re.sub(r"\n*l9_dora:\n(?:  .*\n)+# ={10,}\n*", "\n", content)
 
             # Parse legacy data (simplified - actual implementation would use yaml.safe_load)
-            timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+            timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
             # Add new three-block format
             new_header = f"""dora_meta:

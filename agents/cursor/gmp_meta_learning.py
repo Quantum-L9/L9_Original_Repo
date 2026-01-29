@@ -325,7 +325,7 @@ class GMPMetaLearningEngine:
         try:
             async with self.async_session() as session:
                 # Get all executions from past 30 days
-                threshold_date = datetime.utcnow() - timedelta(days=30)
+                threshold_date = datetime.now(timezone.utc) - timedelta(days=30)
 
                 stmt = select(GMPExecutionHistoryDB).where(
                     GMPExecutionHistoryDB.created_at >= threshold_date
@@ -383,7 +383,7 @@ class GMPMetaLearningEngine:
 
         try:
             async with self.async_session() as session:
-                threshold_date = datetime.utcnow() - timedelta(days=30)
+                threshold_date = datetime.now(timezone.utc) - timedelta(days=30)
 
                 stmt = select(GMPExecutionHistoryDB).where(
                     GMPExecutionHistoryDB.created_at >= threshold_date
@@ -583,7 +583,7 @@ class GMPMetaLearningEngine:
                     if metrics.consistency_score_l3 >= 0.95:
                         metrics.l3_to_l4_ready = True
 
-                metrics.last_updated = datetime.utcnow()
+                metrics.last_updated = datetime.now(timezone.utc)
                 await session.commit()
 
                 # Refresh to get updated values
@@ -782,7 +782,7 @@ class AutonomyController:
                 else:
                     return False, "Already at maximum level L5"
 
-                metrics.last_updated = datetime.utcnow()
+                metrics.last_updated = datetime.now(timezone.utc)
                 await session.commit()
 
                 self._logger.info(f"Graduated to autonomy level {new_level}")

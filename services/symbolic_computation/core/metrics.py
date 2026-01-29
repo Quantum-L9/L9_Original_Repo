@@ -120,7 +120,7 @@ class MetricsCollector:
             cache_hit: Whether result was from cache
         """
         expr_hash = self._hash_expression(expr)
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(timezone.utc)
 
         metric = {
             "expr_hash": expr_hash,
@@ -173,7 +173,7 @@ class MetricsCollector:
             success: Whether generation succeeded
         """
         expr_hash = self._hash_expression(expr)
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(timezone.utc)
 
         metric = {
             "expr_hash": expr_hash,
@@ -296,7 +296,7 @@ class MetricsCollector:
 
     async def _get_postgres_summary(self, last_hours: int) -> MetricsSummary:
         """Get metrics summary from PostgreSQL."""
-        cutoff = datetime.utcnow() - timedelta(hours=last_hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=last_hours)
 
         try:
             # Query evaluation metrics

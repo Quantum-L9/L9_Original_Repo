@@ -295,7 +295,7 @@ class AccountabilityEngine:
                 f"{action_envelope.action_id}:{verdict.verdict_id}".encode()
             ).hexdigest(),
             signer="accountability_engine",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             action_ref=action_envelope.action_id,
             verdict_ref=verdict.verdict_id,
             payload={

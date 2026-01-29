@@ -67,7 +67,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -463,7 +463,7 @@ class UnifiedController:
         self._ensure_components()
 
         # Reset state
-        self._state = ControllerState(started_at=datetime.utcnow())
+        self._state = ControllerState(started_at=datetime.now(timezone.utc))
         result = ControllerResult()
 
         logger.info(
@@ -645,7 +645,7 @@ class UnifiedController:
     ) -> None:
         """Phase 1: Route task to appropriate execution path."""
         self._state.phase = ControllerPhase.ROUTING
-        phase_start = datetime.utcnow()
+        phase_start = datetime.now(timezone.utc)
 
         logger.info("Phase ROUTING: Analyzing task")
 
@@ -686,7 +686,7 @@ class UnifiedController:
         """Phases 2-4: Compile, Validate, Challenge."""
         # Phase 2: Compile
         self._state.phase = ControllerPhase.COMPILING
-        phase_start = datetime.utcnow()
+        phase_start = datetime.now(timezone.utc)
 
         logger.info("Phase COMPILING: Converting to IR")
 
@@ -697,7 +697,7 @@ class UnifiedController:
 
         # Phase 3: Validate
         self._state.phase = ControllerPhase.VALIDATING
-        phase_start = datetime.utcnow()
+        phase_start = datetime.now(timezone.utc)
 
         logger.info("Phase VALIDATING: Checking IR structure")
 
@@ -715,7 +715,7 @@ class UnifiedController:
 
         # Phase 4: Challenge
         self._state.phase = ControllerPhase.CHALLENGING
-        phase_start = datetime.utcnow()
+        phase_start = datetime.now(timezone.utc)
 
         logger.info("Phase CHALLENGING: Checking constraints")
 
@@ -739,7 +739,7 @@ class UnifiedController:
     ) -> None:
         """Phase 5: Agent deliberation for IR refinement."""
         self._state.phase = ControllerPhase.DELIBERATING
-        phase_start = datetime.utcnow()
+        phase_start = datetime.now(timezone.utc)
 
         logger.info("Phase DELIBERATING: Multi-agent refinement")
 
@@ -771,7 +771,7 @@ class UnifiedController:
     ) -> None:
         """Phase 6: Simulate execution."""
         self._state.phase = ControllerPhase.SIMULATING
-        phase_start = datetime.utcnow()
+        phase_start = datetime.now(timezone.utc)
 
         logger.info("Phase SIMULATING: Evaluating plan viability")
 
@@ -805,7 +805,7 @@ class UnifiedController:
     ) -> None:
         """Phase 7: Generate execution plan."""
         self._state.phase = ControllerPhase.PLANNING
-        phase_start = datetime.utcnow()
+        phase_start = datetime.now(timezone.utc)
 
         logger.info("Phase PLANNING: Generating execution plan")
 
@@ -832,7 +832,7 @@ class UnifiedController:
     ) -> None:
         """Phase 8: Execute the plan."""
         self._state.phase = ControllerPhase.EXECUTING
-        phase_start = datetime.utcnow()
+        phase_start = datetime.now(timezone.utc)
 
         logger.info("Phase EXECUTING: Running plan")
 
@@ -870,7 +870,7 @@ class UnifiedController:
     ) -> None:
         """Phase 9: Reflect and update memory/world model."""
         self._state.phase = ControllerPhase.REFLECTING
-        phase_start = datetime.utcnow()
+        phase_start = datetime.now(timezone.utc)
 
         logger.info("Phase REFLECTING: Updating memory")
 
@@ -1116,7 +1116,7 @@ class UnifiedController:
 
     def _elapsed_ms(self, start: datetime) -> int:
         """Calculate elapsed milliseconds from start time."""
-        return int((datetime.utcnow() - start).total_seconds() * 1000)
+        return int((datetime.now(timezone.utc) - start).total_seconds() * 1000)
 
     def get_state(self) -> ControllerState:
         """Get current controller state."""

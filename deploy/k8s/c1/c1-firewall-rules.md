@@ -1,25 +1,26 @@
 # C1 Hetzner Firewall Configuration
 
-## Required Firewall Rules
+**Last Updated:** 2026-01-28
+**Status:** Active and verified
 
-Apply these rules via Hetzner Console → Firewalls → firewall-1 (or create new)
+## Current Firewall Rules (Applied)
+
+These rules are currently active on C1 via Hetzner Console.
 
 ### Inbound Rules
 
-| Description    | Protocol | Port  | Source         | Priority |
-| -------------- | -------- | ----- | -------------- | -------- |
-| SSH            | TCP      | 22    | Any IPv4/IPv6  | 1        |
-| ICMP (ping)    | ICMP     | -     | Any IPv4/IPv6  | 2        |
-| HTTP           | TCP      | 80    | Any IPv4/IPv6  | 3        |
-| HTTPS          | TCP      | 443   | Any IPv4/IPv6  | 4        |
-| L9 API         | TCP      | 30080 | Any IPv4/IPv6  | 5        |
-| MCP Memory     | TCP      | 30902 | Any IPv4/IPv6  | 6        |
-| PostgreSQL     | TCP      | 30432 | Admin IPs only | 7        |
-| Grafana        | TCP      | 30300 | Any IPv4/IPv6  | 8        |
-| Neo4j Browser  | TCP      | 30474 | Any IPv4/IPv6  | 9        |
-| Neo4j Bolt     | TCP      | 30687 | Any IPv4/IPv6  | 10       |
-| Prometheus     | TCP      | 30909 | Any IPv4/IPv6  | 11       |
-| Kubernetes API | TCP      | 6443  | Admin IPs only | 12       |
+| Description    | Protocol | Port  | Source        | Status |
+| -------------- | -------- | ----- | ------------- | ------ |
+| SSH            | TCP      | 22    | Any IPv4/IPv6 | ✅     |
+| Ping           | ICMP     | -     | Any IPv4/IPv6 | ✅     |
+| K8s API        | TCP      | 6443  | Any IPv4/IPv6 | ✅     |
+| L9 API         | TCP      | 30080 | Any IPv4/IPv6 | ✅     |
+| Grafana        | TCP      | 30300 | Any IPv4/IPv6 | ✅     |
+| PostgreSQL     | TCP      | 30432 | Any IPv4/IPv6 | ✅     |
+| Neo4j Browser  | TCP      | 30474 | Any IPv4/IPv6 | ✅     |
+| Neo4j Bolt     | TCP      | 30687 | Any IPv4/IPv6 | ✅     |
+| MCP Memory     | TCP      | 30902 | Any IPv4/IPv6 | ✅     |
+| Prometheus     | TCP      | 30909 | Any IPv4/IPv6 | ✅     |
 
 ### Outbound Rules
 
@@ -110,14 +111,20 @@ nc -zv 46.62.243.82 30909  # Prometheus
 
 ---
 
-## Current firewall-1 Rules (L9 Server)
+## Verification
 
-From screenshots, existing rules on firewall-1:
+All ports verified working on 2026-01-28:
 
-- TCP 22 (SSH)
-- ICMP
-- TCP 80 (HTTP)
-- TCP 443 (HTTPS)
-- TCP 9001
+```bash
+# Test from local machine
+curl http://46.62.243.82:30080/health  # L9 API ✅
+curl http://46.62.243.82:30902/health  # MCP Memory ✅
+```
 
-**Note:** firewall-1 is applied to L9 server. Create separate firewall-c1 for C1 to avoid conflicts.
+## History
+
+| Date       | Change                                    |
+| ---------- | ----------------------------------------- |
+| 2026-01-28 | Added all required ports (30080-30909)    |
+| 2026-01-28 | Fixed docker port bindings (127.0.0.1 → 0.0.0.0) |
+| 2026-01-28 | Removed conflicting k8s NodePort services |

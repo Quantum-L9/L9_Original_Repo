@@ -184,7 +184,7 @@ class PolicyGenerator:
         policy_type: str = "policy",
     ) -> str:
         """Generate DORA metadata header."""
-        now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         return f"""# ============================================================================
 # DORA META - AUTO-GENERATED
 # ============================================================================
@@ -203,7 +203,7 @@ class PolicyGenerator:
 
     def _generate_dora_footer(self, tags: list[str], keywords: list[str]) -> str:
         """Generate DORA metadata footer."""
-        now = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         tags_str = ", ".join(f'"{t}"' for t in tags)
         keywords_str = ", ".join(f'"{k}"' for k in keywords)
         return f"""

@@ -197,7 +197,7 @@ class TestUpcastingWithContentHash:
             "packet_id": str(uuid4()),
             "packet_type": "event",
             "payload": {"data": "test"},
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         result = upcast(raw, "2.0.0")

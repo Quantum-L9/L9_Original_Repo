@@ -59,7 +59,7 @@ def create_initial_state(
         final_summary="",
         final_output={},
         errors=[],
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
         packet_id=None,
         stored_insights=[],
     )

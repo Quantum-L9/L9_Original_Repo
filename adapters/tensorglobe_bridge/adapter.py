@@ -24,7 +24,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import structlog
 from datetime import datetime
 
 from core.boundary.enforcer import BoundaryEnforcer
@@ -41,7 +41,7 @@ from .anomaly_guard import AnomalyDetector
 from .schemas import TensorRequest, TensorResponse
 from .security import SignatureVerifier
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class TensorGlobeBridgeAdapter:
@@ -255,7 +255,7 @@ class TensorGlobeBridgeAdapter:
     ) -> None:
         """Emit accountability event to ledger"""
         event = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "event_type": event_type,
             **kwargs,
         }

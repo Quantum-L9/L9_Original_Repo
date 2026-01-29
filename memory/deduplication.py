@@ -211,7 +211,7 @@ class DeduplicationEngine:
         Returns:
             Tuple of (duplicate_groups, report)
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         report = DeduplicationReport(total_packets_analyzed=len(packets))
 
         logger.info(
@@ -255,7 +255,7 @@ class DeduplicationEngine:
                     report.errors.append(error_msg)
                     logger.error("deduplication.merge_error", error=error_msg)
 
-            end_time = datetime.utcnow()
+            end_time = datetime.now(timezone.utc)
             report.execution_time_seconds = (end_time - start_time).total_seconds()
 
             logger.info(
@@ -270,7 +270,7 @@ class DeduplicationEngine:
             report.errors.append(error_msg)
             logger.error("deduplication.error", error=error_msg)
 
-            end_time = datetime.utcnow()
+            end_time = datetime.now(timezone.utc)
             report.execution_time_seconds = (end_time - start_time).total_seconds()
 
             return [], report

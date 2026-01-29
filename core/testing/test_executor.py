@@ -144,7 +144,7 @@ class TestExecutor:
         Returns:
             TestResults with execution results
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Create temp directory for test execution
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -182,7 +182,7 @@ def mock_substrate():
                 )
 
         # Calculate duration
-        results.duration_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+        results.duration_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
 
         return results
 

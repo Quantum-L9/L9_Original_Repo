@@ -222,7 +222,7 @@ class PacketEnvelope(BaseModel):
             update={
                 "packet_id": uuid4(),
                 "provenance": new_provenance,
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(timezone.utc),
                 **updates,
             }
         )
@@ -248,7 +248,7 @@ class PacketEnvelopeIn(BaseModel):
             packet_id=uuid4(),
             packet_type=self.packet_type,
             payload=self.payload,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             metadata=PacketMetadata(**self.metadata) if self.metadata else None,
             provenance=PacketProvenance(**self.provenance) if self.provenance else None,
             confidence=PacketConfidence(**self.confidence) if self.confidence else None,

@@ -396,7 +396,7 @@ class DORABlockGenerator:
             dora_metadata={
                 "file_id": str(file_path.stem),
                 "last_updated_by": "codegen_agent",
-                "last_updated_timestamp": datetime.utcnow().isoformat() + "Z",
+                "last_updated_timestamp": datetime.now(timezone.utc).isoformat() + "Z",
                 "version": "1.0.0",
                 "change_type": "create",
                 "codegen_trace_id": f"codegen-{spec_id}",
@@ -511,7 +511,7 @@ class GitSafetyManager:
         Returns:
             Branch name
         """
-        timestamp = datetime.utcnow().strftime("%Y%m%d-%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
         branch_name = f"codegen-{task_name}-{timestamp}"
 
         # Get current commit (baseline)

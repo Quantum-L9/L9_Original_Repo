@@ -55,7 +55,7 @@ class ReActStep:
         self.action = action
         self.action_input = action_input
         self.observation = observation
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(timezone.utc)
 
 
 class ReActRuntime:
@@ -95,7 +95,7 @@ class ReActRuntime:
         Returns:
             ExecutionResult with final response
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         steps: list[ReActStep] = []
 
         # Initial context
@@ -204,7 +204,7 @@ Input: [tool input or final answer]
         }
 
     def _duration_ms(self, start_time: datetime) -> int:
-        return int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
 
 def create_react_runtime(

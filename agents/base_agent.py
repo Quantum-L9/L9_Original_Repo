@@ -240,7 +240,7 @@ class BaseAgent(ABC):
             RateLimitExceeded: If rate limit is exceeded
         """
         client = self._ensure_client()
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Build message list with system prompt
         api_messages = [{"role": "system", "content": self.get_system_prompt()}]
@@ -281,7 +281,7 @@ class BaseAgent(ABC):
             content = response.choices[0].message.content or ""
             tokens = response.usage.total_tokens if response.usage else 0
 
-            duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+            duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
             # Parse JSON if in json_mode
             structured_output = None
@@ -302,7 +302,7 @@ class BaseAgent(ABC):
 
         except Exception as e:
             logger.error(f"LLM call failed for {self._agent_id} after retries: {e}")
-            duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+            duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
             return AgentResponse(
                 agent_id=self._agent_id,

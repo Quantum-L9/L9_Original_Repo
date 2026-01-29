@@ -144,7 +144,7 @@ class WorldModelEngine:
         self._updater: WorldModelUpdater = WorldModelUpdater(self._registry)
         self._initialized: bool = False
         self._spec_paths: list[str] = []
-        self._created_at: datetime = datetime.utcnow()
+        self._created_at: datetime = datetime.now(timezone.utc)
         self._version: int = 0
         self._lock: asyncio.Lock = asyncio.Lock()
 
@@ -709,7 +709,7 @@ class WorldModelEngine:
         """
         snapshot_data: dict[str, Any] = {
             "version": self._version,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "initialized": self._initialized,
         }
 

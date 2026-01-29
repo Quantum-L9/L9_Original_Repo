@@ -81,7 +81,7 @@ class WorldModelScheduler:
         Returns:
             True to proceed with update, False to queue
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Count high-confidence insights
         high_confidence = sum(

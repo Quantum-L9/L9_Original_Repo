@@ -192,7 +192,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
 
         rollback_result = await self._engine.rollback(upgrade_id)
         execution.status = UpgradeStatus.ROLLED_BACK
-        execution.completed_at = datetime.utcnow()
+        execution.completed_at = datetime.now(timezone.utc)
 
         return rollback_result
 
@@ -208,7 +208,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
         execution = UpgradeExecution(
             upgrade_id=upgrade.id,
             status=UpgradeStatus.APPLYING,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
             steps_completed=[],
             steps_remaining=[f"Step {i + 1}" for i in range(len(upgrade.changes))],
         )
@@ -227,7 +227,7 @@ class EvolutionOrchestrator(IEvolutionOrchestrator):
             execution.status = UpgradeStatus.FAILED
             execution.error = str(e)
 
-        execution.completed_at = datetime.utcnow()
+        execution.completed_at = datetime.now(timezone.utc)
         return execution
 
     def _sort_by_dependencies(self, upgrades: list[Upgrade]) -> list[Upgrade]:

@@ -592,7 +592,7 @@ class AgentPersistenceService:
                     "checkpoint_id": str(checkpoint_id) if checkpoint_id else None,
                     "reason": reason,
                     "state_keys": state_keys,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 },
                 metadata={
                     "agent": agent_id,

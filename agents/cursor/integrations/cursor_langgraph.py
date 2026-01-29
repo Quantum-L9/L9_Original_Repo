@@ -161,7 +161,7 @@ class CursorPlanningNode:
         # Create reasoning block
         reasoning_block = {
             "step_id": str(uuid4()),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "reasoning_type": "planning",
             "content": f"Planning task: {refined_task}",
             "confidence": 0.8,
@@ -371,7 +371,7 @@ class CursorErrorRecoveryNode:
         # Add reasoning block
         reasoning_block = {
             "step_id": str(uuid4()),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "reasoning_type": "error_recovery",
             "content": f"Recovery suggestions: {', '.join(recovery_suggestions)}",
             "confidence": 0.7,

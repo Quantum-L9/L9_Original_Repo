@@ -95,7 +95,7 @@ class ApprovalRequest:
             self.expires_at = self.created_at + timedelta(hours=1)
 
     def is_expired(self) -> bool:
-        return datetime.utcnow() > self.expires_at
+        return datetime.now(timezone.utc) > self.expires_at
 
 
 @dataclass
@@ -310,7 +310,7 @@ class ApprovalManager:
             request_id=request_id,
             status=ApprovalStatus.APPROVED,
             approved_by=approved_by,
-            approved_at=datetime.utcnow(),
+            approved_at=datetime.now(timezone.utc),
             scope=scope,
         )
 
@@ -422,7 +422,7 @@ class ApprovalManager:
             request_id=request_id,
             status=ApprovalStatus.REJECTED,
             approved_by=rejected_by,
-            approved_at=datetime.utcnow(),
+            approved_at=datetime.now(timezone.utc),
             rejection_reason=reason,
         )
 
@@ -461,7 +461,7 @@ class ApprovalManager:
     def get_pending_requests(self) -> list[ApprovalRequest]:
         """Get all pending approval requests"""
         # Clean up expired requests
-        datetime.utcnow()
+        datetime.now(timezone.utc)
         expired = [req_id for req_id, req in self._pending.items() if req.is_expired()]
         for req_id in expired:
             del self._pending[req_id]

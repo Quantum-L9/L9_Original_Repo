@@ -123,7 +123,7 @@ class WorldModelRegistry:
         self._entity_types: dict[str, EntityTypeSchema] = {}
         self._relation_types: dict[str, RelationTypeSchema] = {}
         self._type_hierarchy: dict[str, list[str]] = {}  # type → [subtypes]
-        self._created_at: datetime = datetime.utcnow()
+        self._created_at: datetime = datetime.now(timezone.utc)
 
     # =========================================================================
     # Entity Type Operations

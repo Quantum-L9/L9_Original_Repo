@@ -165,7 +165,7 @@ class ToolGraph:
                 properties={
                     "agent_id": agent_id,
                     "status": "ACTIVE",
-                    "created_at": datetime.utcnow().isoformat(),
+                    "created_at": datetime.now(timezone.utc).isoformat(),
                 },
             )
             return True
@@ -214,7 +214,7 @@ class ToolGraph:
                     "scope": tool.scope,
                     "risk_level": tool.risk_level,
                     "requires_igor_approval": tool.requires_igor_approval,
-                    "registered_at": datetime.utcnow().isoformat(),
+                    "registered_at": datetime.now(timezone.utc).isoformat(),
                     "tenant_id": DEFAULT_TENANT_ID,  # Tenant isolation
                 },
             )
@@ -503,7 +503,7 @@ class ToolGraph:
             await neo4j.create_event(
                 event_id=event_id,
                 event_type="tool_call",
-                timestamp=datetime.utcnow().isoformat(),
+                timestamp=datetime.now(timezone.utc).isoformat(),
                 properties={
                     "tool_name": tool_name,
                     "agent_id": agent_id,

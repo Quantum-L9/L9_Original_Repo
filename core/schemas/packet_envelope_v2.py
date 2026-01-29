@@ -315,7 +315,7 @@ class PacketEnvelope(BaseModel):
         return self.model_copy(
             update={
                 "packet_id": uuid4(),
-                "timestamp": datetime.utcnow(),
+                "timestamp": datetime.now(timezone.utc),
                 "lineage": new_lineage,
                 "metadata": new_metadata,
                 **updates,
@@ -412,7 +412,7 @@ class PacketEnvelopeIn(BaseModel):
             packet_id=self.packet_id or uuid4(),
             packet_type=self.packet_type,
             payload=self.payload,
-            timestamp=self.timestamp or datetime.utcnow(),
+            timestamp=self.timestamp or datetime.now(timezone.utc),
             metadata=(
                 PacketMetadata(**self.metadata) if self.metadata else PacketMetadata()
             ),

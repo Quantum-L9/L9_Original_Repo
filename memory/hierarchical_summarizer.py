@@ -188,7 +188,7 @@ class HierarchicalSummarizer:
         Returns:
             Dict mapping tiers to generated summaries
         """
-        cutoff_time = cutoff_time or datetime.utcnow()
+        cutoff_time = cutoff_time or datetime.now(timezone.utc)
         results: dict[SummaryTier, list[SummaryResult]] = {}
 
         logger.info(

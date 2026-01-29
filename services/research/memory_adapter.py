@@ -116,7 +116,7 @@ class ResearchMemoryAdapter:
         return PacketEnvelope(
             packet_id=uuid4(),
             packet_type=packet_type,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             payload=payload,
             metadata=PacketMetadata(
                 schema_version="1.0.0",
@@ -171,7 +171,7 @@ class ResearchMemoryAdapter:
             final_summary=payload.get("final_summary", ""),
             final_output=payload.get("final_output", {}),
             errors=payload.get("errors", []),
-            timestamp=payload.get("timestamp", datetime.utcnow().isoformat()),
+            timestamp=payload.get("timestamp", datetime.now(timezone.utc).isoformat()),
             packet_id=str(envelope.packet_id),
         )
 
@@ -307,7 +307,7 @@ class ResearchMemoryAdapter:
             decision_tokens=[],
             confidence_scores={"overall": confidence},
             memory_write_ops=[],
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         # Add agent_id as attribute for repository

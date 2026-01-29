@@ -142,7 +142,7 @@ class IRNodeBase(BaseModel):
 
     def update_timestamp(self) -> None:
         """Update the updated_at timestamp."""
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
 
 
 class IntentNode(IRNodeBase):
@@ -295,21 +295,21 @@ class IRGraph(BaseModel):
         """Add an intent node to the graph."""
         self.intents[intent.node_id] = intent
         self._log_event("intent_added", {"intent_id": str(intent.node_id)})
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
         return intent.node_id
 
     def add_constraint(self, constraint: ConstraintNode) -> UUID:
         """Add a constraint node to the graph."""
         self.constraints[constraint.node_id] = constraint
         self._log_event("constraint_added", {"constraint_id": str(constraint.node_id)})
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
         return constraint.node_id
 
     def add_action(self, action: ActionNode) -> UUID:
         """Add an action node to the graph."""
         self.actions[action.node_id] = action
         self._log_event("action_added", {"action_id": str(action.node_id)})
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
         return action.node_id
 
     def get_intent(self, intent_id: UUID) -> IntentNode | None:
@@ -329,7 +329,7 @@ class IRGraph(BaseModel):
         if intent_id in self.intents:
             del self.intents[intent_id]
             self._log_event("intent_removed", {"intent_id": str(intent_id)})
-            self.updated_at = datetime.utcnow()
+            self.updated_at = datetime.now(timezone.utc)
             return True
         return False
 
@@ -338,7 +338,7 @@ class IRGraph(BaseModel):
         if constraint_id in self.constraints:
             del self.constraints[constraint_id]
             self._log_event("constraint_removed", {"constraint_id": str(constraint_id)})
-            self.updated_at = datetime.utcnow()
+            self.updated_at = datetime.now(timezone.utc)
             return True
         return False
 
@@ -347,7 +347,7 @@ class IRGraph(BaseModel):
         if action_id in self.actions:
             del self.actions[action_id]
             self._log_event("action_removed", {"action_id": str(action_id)})
-            self.updated_at = datetime.utcnow()
+            self.updated_at = datetime.now(timezone.utc)
             return True
         return False
 
@@ -407,14 +407,14 @@ class IRGraph(BaseModel):
         old_status = self.status
         self.status = status
         self._log_event("status_changed", {"old": old_status, "new": status})
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(timezone.utc)
 
     def _log_event(self, event_type: str, details: dict[str, Any]) -> None:
         """Log a processing event."""
         self.processing_log.append(
             {
                 "event": event_type,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "details": details,
             }
         )

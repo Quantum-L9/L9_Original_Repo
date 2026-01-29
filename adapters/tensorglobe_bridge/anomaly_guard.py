@@ -30,7 +30,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import structlog
 from collections import deque
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -39,7 +39,7 @@ from typing import Any
 
 import numpy as np
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class AnomalySeverity(str, Enum):

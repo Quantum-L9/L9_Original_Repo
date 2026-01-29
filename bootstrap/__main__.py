@@ -108,7 +108,7 @@ async def bootstrap_agent():
 async def write_bootstrap_artifact(engine):
     payload = {
         "version": BOOTSTRAP_VERSION,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
     async with engine.begin() as conn:

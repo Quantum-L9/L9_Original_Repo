@@ -178,7 +178,7 @@ class SeedLoader:
                 "data_type": data_type,
                 "content": data,
             },
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             metadata=PacketMetadata(
                 schema_version="1.0.1",
                 agent="seed_loader",

@@ -284,7 +284,7 @@ class ExecutionPlanSnapshotManager:
             plan_id=plan_id,
             checkpoint_id=checkpoint_id,
             status=status,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
             steps=step_snapshots,
             current_step_index=current_step_index,
             total_steps=len(step_snapshots),
@@ -396,7 +396,7 @@ class ExecutionPlanSnapshotManager:
             "metadata": {
                 **snapshot.metadata,
                 "recovered_from_snapshot": snapshot_id,
-                "recovery_timestamp": datetime.utcnow().isoformat(),
+                "recovery_timestamp": datetime.now(timezone.utc).isoformat(),
             },
         }
 
@@ -476,7 +476,7 @@ class ExecutionPlanSnapshotManager:
         Returns:
             Number of snapshots deleted
         """
-        cutoff_date = datetime.utcnow().timestamp() - (max_age_days * 86400)
+        cutoff_date = datetime.now(timezone.utc).timestamp() - (max_age_days * 86400)
 
         snapshots_to_delete = [
             snapshot_id

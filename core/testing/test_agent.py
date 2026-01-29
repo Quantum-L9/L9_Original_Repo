@@ -120,7 +120,7 @@ class TestAgent:
         Returns:
             TestAgentResult with validation outcome
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         run_id = uuid4()
 
         logger.info(
@@ -153,8 +153,8 @@ class TestAgent:
                     tests_failed=0,
                     tests_skipped=0,
                     coverage_percent=None,
-                    duration_ms=(datetime.utcnow() - start_time).total_seconds() * 1000,
-                    timestamp=datetime.utcnow(),
+                    duration_ms=(datetime.now(timezone.utc) - start_time).total_seconds() * 1000,
+                    timestamp=datetime.now(timezone.utc),
                     recommendations=["No testable code found in proposal"],
                     test_results=None,
                     success=True,  # No tests needed
@@ -174,7 +174,7 @@ class TestAgent:
             recommendations = self._generate_recommendations(test_results)
 
             # Calculate duration
-            duration_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+            duration_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
 
             result = TestAgentResult(
                 run_id=run_id,
@@ -185,7 +185,7 @@ class TestAgent:
                 tests_skipped=test_results.skipped,
                 coverage_percent=test_results.coverage_percent,
                 duration_ms=duration_ms,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 recommendations=recommendations,
                 test_results=test_results,
                 success=test_results.failed == 0,
@@ -216,8 +216,8 @@ class TestAgent:
                 tests_failed=0,
                 tests_skipped=0,
                 coverage_percent=None,
-                duration_ms=(datetime.utcnow() - start_time).total_seconds() * 1000,
-                timestamp=datetime.utcnow(),
+                duration_ms=(datetime.now(timezone.utc) - start_time).total_seconds() * 1000,
+                timestamp=datetime.now(timezone.utc),
                 recommendations=["Test generation/execution failed"],
                 test_results=None,
                 success=False,

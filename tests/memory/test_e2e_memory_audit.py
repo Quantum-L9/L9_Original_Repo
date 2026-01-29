@@ -215,7 +215,7 @@ async def audit_neo4j() -> AuditResult:
         entity_result = await neo4j.create_entity(
             entity_type="AuditTest",
             entity_id=test_entity_id,
-            properties={"created_at": datetime.utcnow().isoformat(), "audit": True},
+            properties={"created_at": datetime.now(timezone.utc).isoformat(), "audit": True},
         )
         result.add_check(
             "entity_creation",
@@ -243,7 +243,7 @@ async def audit_neo4j() -> AuditResult:
         await neo4j.create_event(
             event_id=event_id,
             event_type="audit_test",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             properties={"test": True},
         )
         rel_result = await neo4j.create_relationship(
@@ -411,7 +411,7 @@ async def audit_ingestion_pipeline() -> AuditResult:
             packet_type="e2e_audit_test",
             payload={
                 "audit_id": str(uuid4()),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "message": "E2E memory audit test packet",
                 "text": "This is semantic content for embedding",
             },
@@ -691,7 +691,7 @@ async def run_full_audit() -> dict[str, Any]:
     """Run all audit checks."""
     print("\n" + "=" * 80)
     print("L9 MEMORY E2E AUDIT")
-    print(f"Timestamp: {datetime.utcnow().isoformat()}")
+    print(f"Timestamp: {datetime.now(timezone.utc).isoformat()}")
     print("=" * 80 + "\n")
 
     results = {}
@@ -752,7 +752,7 @@ async def run_full_audit() -> dict[str, Any]:
     print("=" * 80 + "\n")
 
     return {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "overall_status": overall,
         "summary": {
             "passed": passed,

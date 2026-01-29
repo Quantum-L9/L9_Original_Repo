@@ -224,7 +224,7 @@ class DeliberationCell:
             DeliberationResult with final graph
         """
         session_id = uuid4()
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         logger.info(f"Starting deliberation session {session_id}")
 
@@ -288,7 +288,7 @@ class DeliberationCell:
         if validation.valid:
             current_graph.set_status(IRStatus.VALIDATED)
 
-        duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
         result = DeliberationResult(
             session_id=session_id,

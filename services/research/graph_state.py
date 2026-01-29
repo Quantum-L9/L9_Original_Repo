@@ -192,7 +192,7 @@ def create_initial_state(
         # Errors
         errors=[],
         # Metadata
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
         packet_id=None,
         # Memory Substrate Integration
         stored_insights=[],

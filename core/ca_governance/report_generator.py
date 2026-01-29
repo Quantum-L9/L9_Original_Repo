@@ -89,7 +89,7 @@ class ReportGenerator:
         """
         return ChangeReport(
             metadata={
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "task": task,
                 "confidence": confidence,
                 "agent": self.agent_id,

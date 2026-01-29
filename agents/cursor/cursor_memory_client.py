@@ -135,8 +135,11 @@ if env_path.exists():
             key, _, value = line.partition("=")
             os.environ.setdefault(key.strip(), value.strip())
 
-# PRODUCTION: VPS (always). Local Docker testing requires explicit override.
-L9_API_URL = os.getenv("L9_API_URL", "https://l9.quantumaipartners.com")
+# PRODUCTION: C1 Hetzner (PRIMARY). Use mcp.quantumaipartners.com to bypass Cloudflare WAF.
+# Legacy l9.quantumaipartners.com (157.180.73.53) is OFF LIMITS.
+L9_API_URL = os.getenv("L9_API_URL", "http://mcp.quantumaipartners.com:30080")
+# MCP Memory Server (separate from L9 API)
+MCP_URL = os.getenv("MCP_URL", "http://mcp.quantumaipartners.com:30902")
 # MCP_API_KEY_C is the correct key for Cursor (not L9_EXECUTOR_API_KEY)
 # Fallback chain: MCP_API_KEY_C -> L9_EXECUTOR_API_KEY (legacy)
 L9_EXECUTOR_API_KEY = os.getenv("MCP_API_KEY_C") or os.getenv("L9_EXECUTOR_API_KEY", "")
@@ -160,7 +163,7 @@ def mcp_call_tool(tool_name: str, arguments: dict) -> dict:
     if not L9_EXECUTOR_API_KEY:
         return {"error": "L9_EXECUTOR_API_KEY not set. Add to .env or environment."}
 
-    url = f"{L9_API_URL}/mcp/call"
+    url = f"{MCP_URL}/mcp/call"
     headers = {
         "Authorization": f"Bearer {L9_EXECUTOR_API_KEY}",
         "Content-Type": "application/json",

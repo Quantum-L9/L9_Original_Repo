@@ -112,7 +112,7 @@ class DeadLetterQueue:
                 type(error).__name__ if isinstance(error, Exception) else "string"
             ),
             "attempts": str(attempts),
-            "failed_at": datetime.utcnow().isoformat(),
+            "failed_at": datetime.now(timezone.utc).isoformat(),
             "original_envelope": json.dumps(envelope),
         }
 

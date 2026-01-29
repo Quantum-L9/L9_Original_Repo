@@ -88,7 +88,7 @@ router_registry.register(
     tags=["slack"],
     module_id="slack",
     display_name="Slack Adapter",
-    dependencies=["slack_validator"],
+    dependencies=[],  # Runtime validation via Depends(get_slack_validator)
 )
 
 
@@ -240,7 +240,7 @@ async def slack_events(
             await neo4j_client.create_event(
                 event_id=f"slack:{payload.get('event_id', uuid4())}",
                 event_type="slack_event",
-                timestamp=datetime.utcnow().isoformat(),
+                timestamp=datetime.now(timezone.utc).isoformat(),
                 properties={
                     "team_id": payload.get("team_id"),
                     "user_id": payload.get("event", {}).get("user"),

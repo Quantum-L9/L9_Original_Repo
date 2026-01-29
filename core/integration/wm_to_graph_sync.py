@@ -176,7 +176,7 @@ class WMToGraphSync:
                         "name": node.name,
                         "observed": node.observed,
                         "value": str(node.value) if node.value else None,
-                        "synced_at": datetime.utcnow().isoformat(),
+                        "synced_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
                 count += 1
@@ -205,7 +205,7 @@ class WMToGraphSync:
                         "edge_id": edge.edge_id,
                         "strength": edge.strength.value,
                         "confidence": edge.confidence,
-                        "synced_at": datetime.utcnow().isoformat(),
+                        "synced_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
                 count += 1
@@ -233,7 +233,7 @@ class WMToGraphSync:
                         "rationale": decision.rationale,
                         "status": decision.status,
                         "created_at": decision.created_at.isoformat(),
-                        "synced_at": datetime.utcnow().isoformat(),
+                        "synced_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
                 count += 1
@@ -259,7 +259,7 @@ class WMToGraphSync:
                         "description": outcome.description,
                         "result": outcome.result,
                         "created_at": outcome.created_at.isoformat(),
-                        "synced_at": datetime.utcnow().isoformat(),
+                        "synced_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
 
@@ -297,7 +297,7 @@ class WMToGraphSync:
                         "link_id": link.link_id,
                         "link_type": link.link_type,
                         "confidence": link.confidence,
-                        "synced_at": datetime.utcnow().isoformat(),
+                        "synced_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
                 count += 1

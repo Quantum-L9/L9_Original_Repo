@@ -326,7 +326,7 @@ class ImportanceManager:
             return []
 
         updates = []
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         try:
             async with self._repository.acquire() as conn:

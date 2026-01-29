@@ -163,7 +163,7 @@ class HousekeepingEngine:
         )
         self._stats["tags_gc"] += results["tags_gc"]
         self._stats["artifacts_cleaned"] += results["artifacts_cleaned"]
-        self._last_run = datetime.utcnow()
+        self._last_run = datetime.now(timezone.utc)
 
         total_cleaned = sum(v for k, v in results.items() if isinstance(v, int))
         logger.info(f"GC cycle complete: {total_cleaned} items cleaned")
@@ -171,7 +171,7 @@ class HousekeepingEngine:
         return {
             "status": "ok" if not results["errors"] else "partial",
             "cleaned": results,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     async def evict_expired_ttl(self) -> int:
@@ -264,7 +264,7 @@ class HousekeepingEngine:
         exclude_types = exclude_types or ["root", "session_start", "thread_start"]
 
         async with self._repository.acquire() as conn:
-            cutoff = datetime.utcnow() - timedelta(hours=max_age_hours)
+            cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
 
             result = await conn.execute(
                 """

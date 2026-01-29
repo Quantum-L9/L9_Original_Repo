@@ -28,7 +28,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 import structlog
@@ -93,7 +93,7 @@ async def wire_governance_gates(
                     """,
                         {
                             "tool_id": tool_id,
-                            "wired_at": datetime.utcnow().isoformat(),
+                            "wired_at": datetime.now(timezone.utc).isoformat(),
                         },
                     )
 
@@ -113,7 +113,7 @@ async def wire_governance_gates(
                 """,
                     {
                         "tool_id": tool_id,
-                        "wired_at": datetime.utcnow().isoformat(),
+                        "wired_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
 

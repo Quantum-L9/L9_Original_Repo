@@ -261,7 +261,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
         6. Calculate confidence score
         7. Return normalized spec
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Step 1: Parse contract
         parsed_contract = await self._parse_contract(contract, contract_type)
@@ -304,7 +304,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
             confidence=confidence,
         )
 
-        processing_time = (datetime.utcnow() - start_time).total_seconds()
+        processing_time = (datetime.now(timezone.utc) - start_time).total_seconds()
 
         self.logger.info(
             "Contract processed",
@@ -575,7 +575,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
             "schema_version": "2.6",
             "meta": {
                 "schema_version": "2.6.0",
-                "created_at": datetime.utcnow().isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat(),
                 "created_by": "codegen_gatekeeper",
             },
             "metadata": {},
@@ -762,7 +762,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
         7. Run tests
         8. Generate documentation
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         options = options or {}
 
         # Import generation modules (lazy import to avoid circular dependencies)
@@ -817,7 +817,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
         # Step 6: Calculate coverage (mock for now)
         coverage = validation_report.get("coverage", 0.0)
 
-        generation_time = (datetime.utcnow() - start_time).total_seconds()
+        generation_time = (datetime.now(timezone.utc) - start_time).total_seconds()
 
         return CodeGenOutput(
             output_dir=output_dir,

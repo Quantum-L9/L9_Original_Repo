@@ -48,7 +48,7 @@ __dora_meta__ = {
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -137,7 +137,7 @@ class ExecutionChain:
     status: ChainStatus = ChainStatus.PENDING
     current_step: int = 0
     context: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     started_at: datetime | None = None
     completed_at: datetime | None = None
 
@@ -387,7 +387,7 @@ class OrchestratorKernel:
         transition_record = {
             "from": current.value,
             "to": new_phase.value,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "context": context or {},
         }
         self._state.phase_history.append(transition_record)
@@ -431,7 +431,7 @@ class OrchestratorKernel:
         self._ensure_components()
 
         result = IRPipelineResult()
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         context = context or {}
 
         logger.info(f"Starting IR pipeline for task: {task[:100]}...")
@@ -439,7 +439,7 @@ class OrchestratorKernel:
         try:
             # Phase 1: INGEST
             self._transition_phase(KernelPhase.INGEST, {"task_length": len(task)})
-            phase_start = datetime.utcnow()
+            phase_start = datetime.now(timezone.utc)
             normalized_task, normalized_context = await self._phase_ingest(
                 task, context
             )
@@ -447,21 +447,21 @@ class OrchestratorKernel:
 
             # Phase 2: COMPILE
             self._transition_phase(KernelPhase.COMPILE)
-            phase_start = datetime.utcnow()
+            phase_start = datetime.now(timezone.utc)
             graph = await self._phase_compile(normalized_task, normalized_context)
             result.graph = graph
             result.phase_times["compile"] = self._elapsed_ms(phase_start)
 
             # Phase 3: VALIDATE
             self._transition_phase(KernelPhase.VALIDATE)
-            phase_start = datetime.utcnow()
+            phase_start = datetime.now(timezone.utc)
             await self._phase_validate(graph)
             result.phase_times["validate"] = self._elapsed_ms(phase_start)
 
             # Phase 4: CHALLENGE
             if self._config.auto_challenge_constraints:
                 self._transition_phase(KernelPhase.CHALLENGE)
-                phase_start = datetime.utcnow()
+                phase_start = datetime.now(timezone.utc)
                 challenge_stats = await self._phase_challenge(graph)
                 result.constraints_challenged = challenge_stats.get("challenged", 0)
                 result.constraints_invalidated = challenge_stats.get("invalidated", 0)
@@ -471,7 +471,7 @@ class OrchestratorKernel:
             # Phase 5: SIMULATE (optional)
             if self._config.require_simulation and not skip_simulation:
                 self._transition_phase(KernelPhase.SIMULATE)
-                phase_start = datetime.utcnow()
+                phase_start = datetime.now(timezone.utc)
                 sim_result = await self._phase_simulate(graph)
                 result.simulation_score = sim_result.get("score", 0.0)
                 result.simulation_metrics = sim_result.get("metrics", {})
@@ -490,14 +490,14 @@ class OrchestratorKernel:
             # Phase 6: PLAN
             if self._state.phase != KernelPhase.PLAN:
                 self._transition_phase(KernelPhase.PLAN)
-            phase_start = datetime.utcnow()
+            phase_start = datetime.now(timezone.utc)
             plan = await self._phase_plan(graph)
             result.plan = plan
             result.phase_times["plan"] = self._elapsed_ms(phase_start)
 
             # Phase 7: EXECUTE
             self._transition_phase(KernelPhase.EXECUTE)
-            phase_start = datetime.utcnow()
+            phase_start = datetime.now(timezone.utc)
             exec_result = await self._phase_execute(plan, context)
             result.steps_executed = exec_result.get("completed", 0)
             result.steps_failed = exec_result.get("failed", 0)
@@ -506,7 +506,7 @@ class OrchestratorKernel:
 
             # Phase 8: REFLECT
             self._transition_phase(KernelPhase.REFLECT)
-            phase_start = datetime.utcnow()
+            phase_start = datetime.now(timezone.utc)
             packets = await self._phase_reflect(result, context)
             result.packets_emitted = packets
             result.phase_times["reflect"] = self._elapsed_ms(phase_start)
@@ -564,7 +564,7 @@ class OrchestratorKernel:
             "session_id": context.get("session_id", str(uuid4())),
             "user_id": context.get("user_id"),
             "agent_id": context.get("agent_id"),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             **context,
         }
 
@@ -888,7 +888,7 @@ class OrchestratorKernel:
             raise ValueError(f"Chain {chain_id} already running")
 
         chain.status = ChainStatus.RUNNING
-        chain.started_at = datetime.utcnow()
+        chain.started_at = datetime.now(timezone.utc)
 
         logger.info(f"Executing chain {chain_id}")
 
@@ -934,7 +934,7 @@ class OrchestratorKernel:
             chain.status = ChainStatus.FAILED
             self._state.failed_chains.append(chain_id)
 
-        chain.completed_at = datetime.utcnow()
+        chain.completed_at = datetime.now(timezone.utc)
 
         if chain_id in self._state.active_chains:
             del self._state.active_chains[chain_id]
@@ -950,7 +950,7 @@ class OrchestratorKernel:
     ) -> None:
         """Execute a single chain step."""
         step.status = "running"
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         logger.debug(f"Executing step: {step.name}")
 
@@ -986,7 +986,7 @@ class OrchestratorKernel:
             "chain_id": str(chain.chain_id),
             "current_step": chain.current_step,
             "context": chain.context.copy(),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         self._state.checkpoints.append(checkpoint)
         logger.debug(
@@ -1032,7 +1032,7 @@ class OrchestratorKernel:
 
     def _elapsed_ms(self, start: datetime) -> int:
         """Calculate elapsed milliseconds from start time."""
-        return int((datetime.utcnow() - start).total_seconds() * 1000)
+        return int((datetime.now(timezone.utc) - start).total_seconds() * 1000)
 
 
 # ============================================================================

@@ -19,7 +19,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -101,7 +101,7 @@ class AgentBootstrapContext:
     governance_gates: dict[str, Any] = field(default_factory=dict)
     init_signature: str | None = None
     status: str = "INITIALIZING"
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def add_phase_result(self, result: PhaseResult) -> None:
         """Record phase result and merge context_delta."""

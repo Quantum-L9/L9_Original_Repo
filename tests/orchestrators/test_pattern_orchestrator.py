@@ -144,7 +144,7 @@ class TestInterfaceModels:
             trace_id=uuid4(),
             subsystem="test",
             status=PipelineStatus.SUCCESS,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
         )
 
         assert result.is_success is True

@@ -101,7 +101,7 @@ async def log_tool_invocation(
             "agent_id": agent_id,
             "status": status,
             "duration_ms": duration_ms,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         if task_id:
@@ -138,7 +138,7 @@ async def log_tool_invocation(
                 f"agent:{agent_id}",
                 f"status:{status}",
             ],
-            ttl=datetime.utcnow() + timedelta(hours=TOOL_AUDIT_TTL_HOURS),
+            ttl=datetime.now(timezone.utc) + timedelta(hours=TOOL_AUDIT_TTL_HOURS),
         )
 
         # Fire-and-forget ingestion (don't await in main path)
@@ -249,7 +249,7 @@ async def _write_to_audit_table(
                 0,  # tokens_used
                 0.0,  # cost_usd (could be calculated)
                 error,
-                datetime.utcnow(),
+                datetime.now(timezone.utc),
                 call_id,  # Pass UUID directly, not str()
             )
             logger.debug(

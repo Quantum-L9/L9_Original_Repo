@@ -143,7 +143,7 @@ class ResearcherAgent(BaseAgent):
             source=step.get("step_id", "unknown"),
             content=response.get("findings", "No findings"),
             confidence=float(response.get("confidence", 0.5)),
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             metadata={
                 "key_facts": response.get("key_facts", []),
                 "sources": response.get("sources", []),

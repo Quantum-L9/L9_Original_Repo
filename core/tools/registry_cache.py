@@ -123,11 +123,11 @@ class CacheEntry:
         """Check if entry is expired (TTL)."""
         if self.ttl_expires_at is None:
             return False
-        return datetime.utcnow() > self.ttl_expires_at
+        return datetime.now(timezone.utc) > self.ttl_expires_at
 
     def touch(self) -> None:
         """Update access metadata."""
-        self.last_accessed_at = datetime.utcnow()
+        self.last_accessed_at = datetime.now(timezone.utc)
         self.access_count += 1
 
 
@@ -288,7 +288,7 @@ class ToolRegistryCache:
         # Create new entry
         ttl_expires_at = None
         if self.config.strategy == CacheStrategy.TTL:
-            ttl_expires_at = datetime.utcnow() + timedelta(
+            ttl_expires_at = datetime.now(timezone.utc) + timedelta(
                 seconds=self.config.ttl_seconds
             )
 

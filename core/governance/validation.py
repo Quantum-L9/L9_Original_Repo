@@ -245,7 +245,7 @@ def audit_log(
         metadata: Optional additional metadata
     """
     entry = {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "agent_id": agent_id,
         "action": action,
         "success": success,

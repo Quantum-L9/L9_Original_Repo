@@ -281,7 +281,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                     "action": "orchestrator_error",
                                     "status": "error",
                                     "details": str(e),
-                                    "timestamp": datetime.utcnow().isoformat(),
+                                    "timestamp": datetime.now(timezone.utc).isoformat(),
                                 }
                             ],
                             "screenshots": [],

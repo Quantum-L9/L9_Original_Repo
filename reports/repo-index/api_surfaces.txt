@@ -8,6 +8,7 @@
   api/routes/commands.py::router
   api/routes/compliance.py::router
   api/routes/cursor.py::router
+  api/routes/evaluation.py::router
   api/routes/factory.py::router
   api/routes/gmp_learning.py::router
   api/routes/mcp.py::router
@@ -19,7 +20,6 @@
   api/routes/registry.py::router
   api/routes/research.py::router
   api/routes/research_agent.py::router
-  api/routes/simulation.py::router
 
 # SERVICES Surface:
   services/research/research_api.py::router

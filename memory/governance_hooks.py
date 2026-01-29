@@ -345,7 +345,7 @@ class AuditLoggingHook(GovernanceHook):
         return HookResult.allow(
             metadata={
                 "audit_logged": True,
-                "audit_timestamp": datetime.utcnow().isoformat(),
+                "audit_timestamp": datetime.now(timezone.utc).isoformat(),
             }
         )
 
@@ -369,7 +369,7 @@ class RateLimitingHook(GovernanceHook):
     async def execute(self, context: HookContext) -> HookResult:
         """Check rate limit for caller."""
         caller_id = context.caller_id
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Initialize tracker for caller
         if caller_id not in self._rate_tracker:

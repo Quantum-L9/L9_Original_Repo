@@ -172,7 +172,7 @@ class L9SpecGenerator:
             definition_of_done=definition_of_done,
             agent_rules=agent_rules,
             context=context,
-            created_at=datetime.utcnow().isoformat() + "Z",
+            created_at=datetime.now(timezone.utc).isoformat() + "Z",
             created_by="L_architect",
         )
 

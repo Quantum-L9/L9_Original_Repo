@@ -385,11 +385,17 @@ cd /opt/l9 && sudo bash ops/vps_release_gate.sh
 curl -sS http://127.0.0.1:8000/health | jq .
 ```
 
-**VPS Details:**
+**Server Configuration (Environment Variables):**
 
-- IP: 157.180.73.53
-- Domain: l9.quantumaipartners.com (Cloudflare proxied)
-- Ports: 8000 (l9-api), 9001 (mcp-memory)
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `L9_API_URL` | `http://mcp.quantumaipartners.com:30080` | L9 API endpoint |
+| `L9_MCP_URL` | `http://mcp.quantumaipartners.com:30902` | MCP Memory endpoint |
+| `L9_WS_URL` | `wss://mcp.quantumaipartners.com/ws/agent` | WebSocket endpoint |
+| `L9_PUBLIC_URL` | `https://mcp.quantumaipartners.com` | Public-facing URL |
+| `MCP_API_KEY_C` | (required) | Cursor API key |
+
+**Current Server:** C1 Hetzner (46.62.243.82) - configured via env vars, not hardcoded
 
 ---
 

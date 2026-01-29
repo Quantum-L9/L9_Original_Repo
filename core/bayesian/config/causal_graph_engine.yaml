@@ -1,0 +1,112 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Bayesian Causal Graph Engine"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2025-11-29T13:40:37Z"
+# updated_at: "2026-01-21T21:57:31Z"
+# layer: "operations"
+# domain: "current_work"
+# file_name: "bayesian_causal_graph_engine"
+# type: "engine"
+# status: "active"
+# ============================================================================
+
+---
+file: bayesian_causal_graph_engine.yaml
+version: "1.0.0"
+timestamp: "2025-01-29T00:00:00Z"
+type: "engine"
+scope: "reasoning"
+ring: "R1"
+description: >
+  Bayesian causal graph engine for probabilistic causal reasoning.
+  Provides capabilities for building causal models, performing
+  causal inference, and updating beliefs based on evidence.
+
+purpose: >
+  Enable probabilistic causal reasoning, causal model construction,
+  and evidence-based belief updating using Bayesian methods.
+
+rules:
+  - name: "causal_structure_learning"
+    condition: "data_available"
+    action: "learn_causal_structure_from_data"
+    
+  - name: "causal_inference"
+    condition: "causal_question_posed"
+    action: "perform_causal_inference"
+    
+  - name: "belief_update"
+    condition: "new_evidence_available"
+    action: "update_beliefs_bayesian"
+    
+  - name: "causal_validation"
+    condition: "causal_model_updated"
+    action: "validate_causal_structure"
+
+modes:
+  - name: "learning_mode"
+    trigger: "causal_structure_learning_requested"
+    behavior: >
+      Analyze data, identify causal patterns, construct
+      causal graph, validate structure
+    
+  - name: "inference_mode"
+    trigger: "causal_inference_requested"
+    behavior: >
+      Use causal model, perform inference, calculate
+      probabilities, provide results
+    
+  - name: "update_mode"
+    trigger: "evidence_received"
+    behavior: >
+      Update causal model, revise probabilities, propagate
+      beliefs, validate consistency
+
+hooks:
+  - name: "pre_inference"
+    location: "before_causal_inference"
+    action: "prepare_causal_model"
+    
+  - name: "post_update"
+    location: "after_belief_update"
+    action: "validate_updated_model"
+
+enforcement:
+  - principle: "causal_validity"
+    level: "critical"
+    mechanism: "causal_structure_validation_required"
+    
+  - principle: "probabilistic_consistency"
+    level: "high"
+    mechanism: "probability_distribution_validation"
+
+schema:
+  causal_graph:
+    - nodes: "array of entities"
+    - edges: "array of causal_relationships"
+    - conditional_probabilities: "object"
+    - prior_probabilities: "object"
+    
+  causal_relationship:
+    - source_node: "string"
+    - target_node: "string"
+    - causal_strength: "float"
+    - conditions: "array"
+    - confidence: "float"
+    
+  inference_result:
+    - query: "string"
+    - posterior_probability: "float"
+    - confidence_interval: "array"
+    - reasoning_chain: "array"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["current-work", "engine", "model-config", "operations", "schema"]
+# keywords: ["bayesian", "causal", "description", "engine", "file", "graph"]
+# last_modified: "2026-01-21T21:57:31Z"
+# ============================================================================

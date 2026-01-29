@@ -22,6 +22,7 @@ exclude = [
 select = [
     "E", "F", "I", "N", "W", "UP", "B", "C4", "SIM", "RUF",
     "ASYNC", "S", "PT", "RET", "ARG",
+    "DTZ",  # flake8-datetimez: enforce timezone-aware datetime (no utcnow)
 ]
 ignore = [
     "E501",    # Line too long (formatter handles)

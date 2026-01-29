@@ -174,7 +174,7 @@ class TestComplianceReporter:
         # Mock substrate with sample data
         mock_substrate = AsyncMock()
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Mock command entries
         mock_substrate.search_packets_by_type = AsyncMock(
@@ -247,7 +247,7 @@ class TestComplianceReporter:
         from core.compliance.audit_reporter import ComplianceReporter
 
         mock_substrate = AsyncMock()
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         # Mock with unapproved gmprun
         mock_substrate.search_packets_by_type = AsyncMock(
@@ -288,7 +288,7 @@ class TestComplianceReporter:
         from core.compliance.audit_reporter import ComplianceReporter
 
         mock_substrate = AsyncMock()
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         mock_substrate.search_packets_by_type = AsyncMock(
             return_value=[
@@ -321,7 +321,7 @@ class TestDateRangeFiltering:
 
         reporter = ComplianceReporter()
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         from_date = now - timedelta(hours=1)
         to_date = now + timedelta(hours=1)
 
@@ -340,7 +340,7 @@ class TestDateRangeFiltering:
 
         reporter = ComplianceReporter()
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         from_date = now + timedelta(hours=1)
         to_date = now + timedelta(hours=2)
 
@@ -359,7 +359,7 @@ class TestDateRangeFiltering:
 
         reporter = ComplianceReporter()
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         assert (
             reporter._in_date_range(

@@ -211,7 +211,7 @@ class EOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",  # Computed during write
             signer="accountability_engine",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             action_ref=action_id,
             verdict_ref=verdict_id,
             payload={
@@ -252,7 +252,7 @@ class EOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",
             signer=agent_id,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             action_ref=action_id,
             verdict_ref=None,
             payload={
@@ -293,7 +293,7 @@ class EOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",
             signer="anomaly_detector",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             action_ref=None,
             verdict_ref=None,
             payload={

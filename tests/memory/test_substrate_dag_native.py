@@ -50,7 +50,7 @@ def make_test_envelope(
         packet_id=uuid4(),
         packet_type=packet_type,
         payload={"text": text, "key": "value"},
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         metadata={
             "schema_version": "1.0.0",
             "agent": "test_agent",

@@ -463,7 +463,7 @@ class TestImportanceManager:
         manager = ImportanceManager()
 
         # 30 days ago = half-life, so importance should halve
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         thirty_days_ago = now - timedelta(days=30)
 
         decayed = manager._calculate_decay(1.0, thirty_days_ago, now)
@@ -477,7 +477,7 @@ class TestImportanceManager:
         manager = ImportanceManager()
 
         # Very old access = should hit floor
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         ancient = now - timedelta(days=365)
 
         decayed = manager._calculate_decay(0.5, ancient, now)

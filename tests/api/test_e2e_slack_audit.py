@@ -668,7 +668,7 @@ async def run_full_audit() -> dict[str, Any]:
     """Run all audit checks."""
     print("\n" + "=" * 80)
     print("L9 SLACK E2E AUDIT")
-    print(f"Timestamp: {datetime.utcnow().isoformat()}")
+    print(f"Timestamp: {datetime.now(timezone.utc).isoformat()}")
     print("=" * 80 + "\n")
 
     results = {}
@@ -730,7 +730,7 @@ async def run_full_audit() -> dict[str, Any]:
     print("=" * 80 + "\n")
 
     return {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "overall_status": overall,
         "summary": {
             "passed": passed,

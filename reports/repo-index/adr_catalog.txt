@@ -1,5 +1,5 @@
 # L9 Architecture Decision Record (ADR) Catalog
-# Generated: 2026-01-25
+# Generated: 2026-01-28
 # Total: 71 ADRs
 #
 # Format: ADR_NUMBER | STATUS | TITLE | PATH
@@ -92,8 +92,8 @@
 # DO NOT duplicate validation elsewhere:** (ADR-0012)
 # do NOT validate packets (they may not emit packets at all) (ADR-0012)
 # DO NOT place before docstring (ADR-0014)
-# do not implement | `# DEPRECATED - DO NOT IMPLEMENT` | (ADR-0037)
+# do not implement     | `# DEPRECATED - DO NOT IMPLEMENT` | (ADR-0037)
 # DO NOT IMPLEMENT (ADR-0037)
 # Do NOT catch and return None (ADR-0055)
+# DO NOT rules     | (ADR-0069)
 # DO NOT** manually edit files in `reports/repo-index/` — they are auto-generated (ADR-0069)
-# DO NOT** manually edit files in `reports/architecture/` — regenerate instead (ADR-0069)

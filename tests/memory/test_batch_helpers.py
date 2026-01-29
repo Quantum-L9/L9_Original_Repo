@@ -39,7 +39,7 @@ async def sample_packets(substrate_repo):
                 packet_id,
                 "test",
                 '{"test": true}',
-                datetime.utcnow(),
+                datetime.now(timezone.utc),
                 tenant_id,
                 ["test"],
             )
@@ -88,7 +88,7 @@ async def test_get_packets_with_children_batch(batch_helpers, substrate_repo):
             parent_id,
             "parent",
             '{"type": "parent"}',
-            datetime.utcnow(),
+            datetime.now(timezone.utc),
             tenant_id,
             [],
         )
@@ -106,7 +106,7 @@ async def test_get_packets_with_children_batch(batch_helpers, substrate_repo):
                 child_id,
                 "child",
                 '{"type": "child"}',
-                datetime.utcnow(),
+                datetime.now(timezone.utc),
                 tenant_id,
                 [parent_id],
             )
@@ -223,7 +223,7 @@ async def test_tenant_isolation(batch_helpers, substrate_repo):
             packet_a,
             "test",
             "{}",
-            datetime.utcnow(),
+            datetime.now(timezone.utc),
             tenant_a,
         )
         await conn.execute(
@@ -236,7 +236,7 @@ async def test_tenant_isolation(batch_helpers, substrate_repo):
             packet_b,
             "test",
             "{}",
-            datetime.utcnow(),
+            datetime.now(timezone.utc),
             tenant_b,
         )
 

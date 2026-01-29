@@ -50,7 +50,7 @@ class TestPacketEnvelope:
 
         packet_id = uuid4()
         parent_id = uuid4()
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(timezone.utc)
 
         packet = PacketEnvelope(
             packet_id=packet_id,
@@ -283,7 +283,7 @@ class TestDAGNodes:
                 "packet_id": str(uuid4()),
                 "packet_type": "event",
                 "payload": {"key": "value"},
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             },
             "reasoning_block": None,
             "written_tables": [],
@@ -308,7 +308,7 @@ class TestDAGNodes:
                 "packet_id": str(uuid4()),
                 "packet_type": "event",
                 "payload": {"test": "data"},
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "metadata": {"agent": "test"},
             },
             "reasoning_block": {

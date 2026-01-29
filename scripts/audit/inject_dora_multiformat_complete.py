@@ -285,7 +285,7 @@ class DoraMultiFormatInjector:
         domain = self._infer_domain(file_path)
         comp_type = self._infer_type(file_path, file_type)
         governance_level = self._infer_governance_level(domain, layer, file_path)
-        timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         component_id = self._generate_component_id(file_path, layer)
         component_name = (

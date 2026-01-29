@@ -134,7 +134,7 @@ class Housekeeping:
                 }
 
         try:
-            cutoff_date = datetime.utcnow() - timedelta(days=threshold_days)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=threshold_days)
 
             # Delete old packets via repository (age-based)
             if hasattr(repository, "delete_packets_before"):
@@ -387,7 +387,7 @@ class Housekeeping:
             "success": all_ok,
             "status": "healthy" if all_ok else "degraded",
             "procedures": results,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     async def run_consolidation(
@@ -445,7 +445,7 @@ class Housekeeping:
                 "success": len(report.errors) == 0,
                 "status": "complete",
                 "report": report_dict,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
         except Exception as e:
@@ -454,7 +454,7 @@ class Housekeeping:
                 "success": False,
                 "status": "error",
                 "message": str(e),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
 

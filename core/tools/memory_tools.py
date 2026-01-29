@@ -242,7 +242,7 @@ async def memory_write(
             "chunk_type": segment,
             "content": content,
             "agent_id": agent_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         if metadata:

@@ -133,7 +133,7 @@ class ComplianceReporter:
         Returns:
             ComplianceReport
         """
-        date = date or datetime.utcnow()
+        date = date or datetime.now(timezone.utc)
         from_date = datetime(date.year, date.month, date.day, 0, 0, 0)
         to_date = from_date + timedelta(days=1)
 

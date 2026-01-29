@@ -247,5 +247,5 @@ def mock_bootstrap_instance(mock_agent_config):
         config=mock_agent_config,
         kernel_state="LOADING",
         status="INITIALIZING",
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
     )

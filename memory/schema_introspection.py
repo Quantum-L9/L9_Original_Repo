@@ -613,7 +613,7 @@ class SchemaIntrospector:
             indexes=indexes,
             labels=labels,
             relationship_types=rel_types,
-            captured_at=datetime.utcnow(),
+            captured_at=datetime.now(timezone.utc),
             postgres_version=postgres_version,
             neo4j_version=neo4j_version,
         )
@@ -634,7 +634,7 @@ class SchemaIntrospector:
             Dict with postgres and neo4j summaries
         """
         summary = {
-            "captured_at": datetime.utcnow().isoformat(),
+            "captured_at": datetime.now(timezone.utc).isoformat(),
             "postgres": None,
             "neo4j": None,
         }

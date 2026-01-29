@@ -245,7 +245,7 @@ async def confirm_intent(
             command_id=intent.id,
             confirmed_by="system",
             reason="Low-risk command, no confirmation required",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
 
     # Log confirmation request
@@ -286,7 +286,7 @@ async def confirm_intent(
         command_id=command.id,
         confirmed_by="pending",
         reason=f"Awaiting Igor confirmation: {action_description}",
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
     )
 
 

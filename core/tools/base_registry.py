@@ -53,7 +53,7 @@ __dora_meta__ = {
 
 import asyncio
 from collections import defaultdict
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
@@ -145,7 +145,7 @@ class RateLimitWindow:
         Returns:
             True if allowed, False if rate limited
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cutoff = now - timedelta(seconds=self._window_seconds)
 
         # Prune old calls
@@ -161,7 +161,7 @@ class RateLimitWindow:
 
     def get_remaining(self, key: str, limit: int) -> int:
         """Get remaining calls in current window."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cutoff = now - timedelta(seconds=self._window_seconds)
         current = len([t for t in self._calls[key] if t > cutoff])
         return max(0, limit - current)
@@ -317,7 +317,7 @@ class ToolRegistry:
         Returns:
             Dict with success, result/error, duration_ms
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         metadata = self._tools.get(tool_id)
         if not metadata:
@@ -388,7 +388,7 @@ class ToolRegistry:
                     "duration_ms": 0,
                 }
 
-            duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+            duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
             logger.info(f"Tool {tool_id} completed in {duration_ms}ms")
 
@@ -399,7 +399,7 @@ class ToolRegistry:
             }
 
         except TimeoutError:
-            duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+            duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
             logger.warning(f"Tool {tool_id} timed out after {timeout}s")
             return {
                 "success": False,
@@ -407,7 +407,7 @@ class ToolRegistry:
                 "duration_ms": duration_ms,
             }
         except Exception as e:
-            duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+            duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
             logger.exception(f"Tool {tool_id} failed: {e}")
             return {
                 "success": False,
@@ -992,7 +992,7 @@ async def saga_timeline_correlation(
     Returns:
         Dict with timeline events and causal relationships
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime, timedelta, timezone
 
     import structlog
 
@@ -1024,7 +1024,7 @@ async def saga_timeline_correlation(
 
             substrate = await get_service()
             if substrate:
-                datetime.utcnow() - timedelta(hours=time_range_hours)
+                datetime.now(timezone.utc) - timedelta(hours=time_range_hours)
 
                 # Search for events related to entity
                 search_results = await substrate.search_packets_by_type(

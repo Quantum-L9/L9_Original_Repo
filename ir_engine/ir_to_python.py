@@ -507,7 +507,7 @@ MODULE_NAME = "{{ module_name }}"
 class {{ class_name }}Request(BaseModel):
     """Input request for {{ class_name }}."""
 
-    request_id: str = Field(default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.utcnow()))))
+    request_id: str = Field(default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc)))))
     payload: Dict[str, Any] = Field(default_factory=dict)
     context: Dict[str, Any] = Field(default_factory=dict)
     source_id: str = Field(default="internal")
@@ -584,7 +584,7 @@ class {{ class_name }}:
         Returns:
             {{ class_name }}Response with result or error
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         try:
             logger.info(
@@ -647,7 +647,7 @@ class {{ class_name }}:
 
     def _calc_duration(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
     # =========================================================================
     # Health Check

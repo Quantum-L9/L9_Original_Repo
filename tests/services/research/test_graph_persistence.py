@@ -71,7 +71,7 @@ def test_research_finding_structure():
         source_agent="researcher",
         key_facts=["uses events", "has store"],
         tags=["architecture", "events"],
-        timestamp=datetime.utcnow().isoformat(),
+        timestamp=datetime.now(timezone.utc).isoformat(),
         metadata={"extra": "data"},
     )
 

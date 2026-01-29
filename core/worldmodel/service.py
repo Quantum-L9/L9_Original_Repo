@@ -35,6 +35,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -207,7 +208,7 @@ class WorldModelService:
                 name="caddy",
                 infra_type=InfrastructureType.REVERSE_PROXY,
                 status="running",
-                endpoints=["https://l9.quantumaipartners.com"],
+                endpoints=[os.getenv("L9_PUBLIC_URL", "https://mcp.quantumaipartners.com")],
                 port=443,
             ),
         ]
@@ -603,14 +604,14 @@ class WorldModelService:
         if tool_id and tool_id in self._tools:
             tool = self._tools[tool_id]
             tool.use_count += 1
-            tool.last_used = datetime.utcnow()
+            tool.last_used = datetime.now(timezone.utc)
 
     @must_stay_async("callers use await")
     async def update_agent_activity(self, agent_name: str) -> None:
         """Update agent last activity timestamp."""
         agent_id = self._agents_by_name.get(agent_name)
         if agent_id and agent_id in self._agents:
-            self._agents[agent_id].last_active = datetime.utcnow()
+            self._agents[agent_id].last_active = datetime.now(timezone.utc)
 
     @must_stay_async("health endpoint")
     async def update_infrastructure_status(

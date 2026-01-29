@@ -38,7 +38,7 @@ class BatchDiff:
 
     diffs: list[FileDiff]
     summary: dict[str, int]
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 class DiffGenerator:

@@ -229,7 +229,7 @@ async def poll_and_execute():
                                 "action": "email_task",
                                 "status": "error",
                                 "details": str(e),
-                                "timestamp": datetime.utcnow().isoformat(),
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
                             }
                         ],
                         "screenshots": [],
@@ -308,7 +308,7 @@ async def poll_and_execute():
                                 "action": "runner_error",
                                 "status": "error",
                                 "details": str(e),
-                                "timestamp": datetime.utcnow().isoformat(),
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
                             }
                         ],
                         "screenshots": [],

@@ -222,7 +222,7 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
 
         strategy_id = f"str_{uuid.uuid4().hex[:12]}"
         graph_signature = self._compute_graph_signature(plan_payload)
-        now = datetime.utcnow().isoformat()
+        now = datetime.now(timezone.utc).isoformat()
 
         # Extract task_kind from payload if available
         task_kind = plan_payload.get("task_kind", "unknown")
@@ -341,7 +341,7 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
             "failure_reason": feedback.metadata.get("failure_reason"),
             "was_adapted": feedback.was_adapted,
             "adaptation_distance": feedback.adaptation_distance,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "execution_id": f"exec_{uuid.uuid4().hex[:12]}",
             "alpha": alpha,
         }

@@ -151,7 +151,7 @@ class BatchIngestionEngine:
                     result.errors.append(
                         {
                             "error": str(sub_result),
-                            "timestamp": datetime.utcnow().isoformat(),
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
                         }
                     )
                 else:

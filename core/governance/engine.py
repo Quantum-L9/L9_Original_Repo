@@ -171,7 +171,7 @@ class GovernanceEngineService:
         Returns:
             EvaluationResult with allow/deny decision
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         logger.debug(
             "governance.engine.evaluation.start: subject=%s, action=%s, resource=%s",
@@ -250,7 +250,7 @@ class GovernanceEngineService:
         Returns:
             EvaluationResult
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         for policy in self._loader.policies:
             if policy.matches(
@@ -356,7 +356,7 @@ class GovernanceEngineService:
 
     def _calculate_duration_ms(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
     async def _emit_trace(
         self,

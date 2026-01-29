@@ -139,7 +139,7 @@ class RateLimiter:
                 )
 
         # Fallback to in-memory
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cutoff = now - timedelta(seconds=self._window_seconds)
 
         # Prune old calls
@@ -184,7 +184,7 @@ class RateLimiter:
                 pass
 
         # Fallback to in-memory
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cutoff = now - timedelta(seconds=self._window_seconds)
         current = len([t for t in self._calls[key] if t > cutoff])
         return max(0, limit - current)
@@ -208,7 +208,7 @@ class RateLimiter:
                 pass
 
         # Fallback to in-memory
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         cutoff = now - timedelta(seconds=self._window_seconds)
         return len([t for t in self._calls[key] if t > cutoff])
 
@@ -275,7 +275,7 @@ class RateLimiter:
             await neo4j.create_event(
                 event_id=event_id,
                 event_type="rate_limit",
-                timestamp=datetime.utcnow().isoformat(),
+                timestamp=datetime.now(timezone.utc).isoformat(),
                 properties={
                     "key": key,
                     "endpoint": endpoint,

@@ -49,6 +49,8 @@ exclude = [
     "l9_private/kernels",
     "readme",
     "_archived",
+    ".backup",
+    "current_work",
     ".venv",
     "venv",
     "__pycache__",
@@ -68,6 +70,7 @@ select = [
     "UP",     # pyupgrade (modern Python syntax)
     "TCH",    # flake8-type-checking (TYPE_CHECKING imports) - ADR-0002
     "S",      # flake8-bandit (security) - replaces standalone bandit
+    "DTZ",    # flake8-datetimez: enforce timezone-aware datetime (no utcnow)
 ]
 ignore = [
     "E402",   # Module level import not at top (DORA metadata pattern - ADR-0014)

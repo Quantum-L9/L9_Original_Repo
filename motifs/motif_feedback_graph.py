@@ -6,7 +6,7 @@ Provides audit trail for reasoning patterns across domain packets.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -27,7 +27,7 @@ class MotifEvent:
     outcome: str = ""
     confidence: float = 0.0
     governance_flags: dict[str, Any] = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
 
 @dataclass

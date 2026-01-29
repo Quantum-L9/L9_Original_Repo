@@ -68,7 +68,7 @@ class ConsolidationReport:
         self.summarized_count = 0
         self.expired_count = 0
         self.errors: list[str] = []
-        self.start_time = datetime.utcnow()
+        self.start_time = datetime.now(timezone.utc)
         self.end_time: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -223,7 +223,7 @@ class ConsolidationPipeline:
             report.errors.append(f"Pipeline error: {e!s}")
 
         finally:
-            report.end_time = datetime.utcnow()
+            report.end_time = datetime.now(timezone.utc)
             logger.info(
                 "Consolidation pipeline complete",
                 report=report.to_dict(),
@@ -430,7 +430,7 @@ class ConsolidationPipeline:
             return 0
 
         archived = 0
-        cutoff_date = datetime.utcnow() - timedelta(days=90)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=90)
 
         try:
             async with self._repository.acquire() as conn:
@@ -663,7 +663,7 @@ class ConsolidationPipeline:
             return 0
 
         expired = 0
-        grace_cutoff = datetime.utcnow() - timedelta(hours=24)
+        grace_cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
 
         try:
             async with self._repository.acquire() as conn:

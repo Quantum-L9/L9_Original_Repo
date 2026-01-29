@@ -94,7 +94,7 @@ class AnomalyClassifierRequest(BaseModel):
     """Input request for AnomalyClassifier."""
 
     request_id: str = Field(
-        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.utcnow())))
+        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc))))
     )
     anomaly_id: str = Field(..., description="Unique anomaly identifier")
     source: str = Field(
@@ -260,7 +260,7 @@ class AnomalyClassifier:
         Returns:
             AnomalyClassifierResponse with classification result
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         try:
             logger.info(
@@ -395,7 +395,7 @@ class AnomalyClassifier:
 
     def _calc_duration(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
     # =========================================================================
     # Health Check

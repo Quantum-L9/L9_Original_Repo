@@ -341,7 +341,7 @@ class AgentSelfModifyTool:
                 payload={
                     "action": action,
                     "details": details,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                 },
                 provenance={"source": f"agent_self_modify:{agent_id}"},
                 metadata={"agent": agent_id},

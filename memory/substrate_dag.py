@@ -234,7 +234,7 @@ async def intake_node(
 
     # Ensure timestamp
     if not envelope.get("timestamp"):
-        envelope["timestamp"] = datetime.utcnow().isoformat()
+        envelope["timestamp"] = datetime.now(timezone.utc).isoformat()
 
     # Ensure metadata structure
     if not envelope.get("metadata"):
@@ -305,7 +305,7 @@ async def reasoning_node(
     reasoning_block = {
         "block_id": str(uuid4()),
         "packet_id": packet_id,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         # Feature extraction (simplified - would be LLM-powered in production)
         "extracted_features": {
             "packet_type": packet_type,
@@ -462,7 +462,7 @@ async def graph_sync_node(
 
         packet_id = envelope.get("packet_id", str(uuid4()))
         packet_type = envelope.get("packet_type", "unknown")
-        timestamp = envelope.get("timestamp", datetime.utcnow().isoformat())
+        timestamp = envelope.get("timestamp", datetime.now(timezone.utc).isoformat())
         metadata = envelope.get("metadata", {})
         agent_id = metadata.get("agent") if metadata else None
         thread_id = (
@@ -662,7 +662,7 @@ async def checkpoint_node(
                 "packet_type": envelope.get("packet_type"),
                 "written_tables": written_tables,
                 "errors": errors,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             },
         )
         written_tables.append("graph_checkpoints")
@@ -738,7 +738,7 @@ async def extract_insights_node(
             "object": object_value,
             "confidence": 0.8,
             "source_packet": source_packet_str,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
         facts.append(fact)
 

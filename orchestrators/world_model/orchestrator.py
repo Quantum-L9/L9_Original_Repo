@@ -132,7 +132,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
                 "entities": insight.get("entities", []),
                 "content": insight.get("content"),
                 "confidence": insight.get("confidence", 0.7),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
             updates.append(update)
 
@@ -178,7 +178,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
             self._entity_store[entity_id] = {
                 **self._entity_store.get(entity_id, {}),
                 **update,
-                "last_update": datetime.utcnow().isoformat(),
+                "last_update": datetime.now(timezone.utc).isoformat(),
             }
             affected.append(entity_id)
 
@@ -221,7 +221,7 @@ class WorldModelOrchestrator(IWorldModelOrchestrator):
     @must_stay_async("callers use await")
     async def _snapshot(self) -> WorldModelResponse:
         """Create snapshot of current world model state."""
-        snapshot_id = f"snapshot_{self._state_version}_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
+        snapshot_id = f"snapshot_{self._state_version}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
 
         # In production, this would persist to storage
         logger.info(f"Created snapshot: {snapshot_id}")

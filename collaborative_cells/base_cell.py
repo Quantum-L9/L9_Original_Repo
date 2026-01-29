@@ -273,7 +273,7 @@ class BaseCell(ABC):
         Returns:
             CellResult with output and metadata
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         context = context or {}
         rounds: list[CellRound] = []
         current_output: dict[str, Any] | None = None
@@ -353,7 +353,7 @@ class BaseCell(ABC):
             logger.error(f"Cell execution failed: {e}")
             errors.append(str(e))
 
-        duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
         return CellResult(
             cell_id=self._cell_id,

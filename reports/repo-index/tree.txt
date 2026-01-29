@@ -10,6 +10,11 @@ L9/
 ├── .migrations_applied
 ├── .pre-commit-config.yaml
 ├── ... (35 more files)
+├── .backup/
+│   └── bootstrap-7phase/
+│       ├── orchestrator.py
+│       ├── phase_4_load_identity.py
+│       ├── phase_7_verify_and_lock.py
 ├── .cursorrules/
 │   ├── 00-global.mdc
 │   ├── 01-vps-rules.mdc
@@ -50,33 +55,6 @@ L9/
 │   ├── baseline.json
 ├── .sec/
 │   ├── semgrep.yaml
-├── _archived/
-│   ├── deprecated_backup_scripts/
-│   │   ├── backup_database.sh
-│   │   ├── test_backup_restore.sh
-│   ├── legacy_deploy/
-│   │   ├── deploy-old.sh
-│   │   ├── l9-deploy-runner.sh
-│   │   ├── vps-deploy-helper.sh
-│   ├── readme_gold_standard_2026-01-25/
-│   │   ├── L-CTO-ABILITIES.md
-│   │   ├── MANIFEST.md
-│   │   ├── README.gold-standard.md
-│   │   ├── ai-super-prompt.md
-│   │   ├── executive-summary.md
-│   │   ├── quick-reference.md
-│   │   ├── readme-integration-guide.md
-│   │   ├── subsystem-template.md
-│   │   ├── suite-index.md
-│   └── symbolic_computation/
-│       ├── __init__.py
-│       ├── config.py
-│       ├── core.py
-│       ├── exceptions.py
-│       ├── logger.py
-│       ├── models.py
-│       ├── test_symbolic_computation.py
-│       ├── utils.py
 ├── adapters/
 │   ├── README.md
 │   ├── __init__.py
@@ -130,17 +108,17 @@ L9/
 │       ├── research_facade.py
 │       └── prompts/
 ├── api/
-│   ├── README-SLACK-COMPREHENSIVE.md
-│   ├── README-SLACK.md
 │   ├── README.md
-│   ├── SLACK_INTEGRATION.md
 │   ├── __init__.py
 │   ├── agent_routes.py
 │   ├── auth.py
 │   ├── db.py
 │   ├── dependencies.py
 │   ├── e2e_slack_audit.py
-│   ├── ... (14 more files)
+│   ├── llm.py
+│   ├── logging.conf
+│   ├── openapi_config.py
+│   ├── ... (12 more files)
 │   ├── adapters/
 │   │   └── slack_adapter/
 │   ├── memory/
@@ -156,28 +134,31 @@ L9/
 │   │   ├── commands.py
 │   │   ├── compliance.py
 │   │   ├── cursor.py
+│   │   ├── evaluation.py
 │   │   ├── factory.py
 │   │   ├── gmp_learning.py
 │   │   ├── mcp.py
 │   │   ├── modules.py
 │   │   ├── observability.py
-│   │   ├── pattern.py
-│   │   ├── ... (10 more files)
+│   │   ├── ... (12 more files)
 │   └── tools/
 │       ├── __init__.py
 │       ├── router.py
+├── bootstrap/
+│   ├── __init__.py
+│   ├── __main__.py
 ├── ci/
 │   ├── README.md
 │   ├── STRICT_MODE.md
 │   ├── __init__.py
 │   ├── check_dependency_patterns.py
 │   ├── check_no_deprecated_services.py
+│   ├── check_packet_type_naming.py
 │   ├── check_schema_deprecation.py
 │   ├── check_substrate_api.py
 │   ├── check_syntax.py
 │   ├── check_tool_naming.py
-│   ├── check_tool_wiring.py
-│   ├── ... (5 more files)
+│   ├── ... (7 more files)
 │   └── ai_guardrails/
 │       ├── __init__.py
 │       ├── runner.py
@@ -272,9 +253,10 @@ L9/
 │   ├── error_tracking.py
 │   ├── event_type_registry.py
 │   ├── fastapi_lifespan.py
+│   ├── governance_integration.py
 │   ├── moduleregistry.py
 │   ├── singleton_auto_registry.py
-│   ├── singleton_registry.py
+│   ├── ... (1 more files)
 │   ├── accountability/
 │   │   ├── README.md
 │   │   ├── __init__.py
@@ -297,10 +279,32 @@ L9/
 │   │   ├── README.md
 │   │   ├── __init__.py
 │   │   ├── runtime.py
+│   ├── bayesian/
+│   │   ├── __init__.py
+│   │   ├── bayesian_kernel.py
+│   │   ├── hybrid_kernel.py
+│   │   ├── probabilistic_engine.py
+│   │   ├── subjective_logic.py
+│   │   ├── uncertainty.py
+│   │   └── config/
 │   ├── boundary/
 │   │   ├── README.md
 │   │   ├── __init__.py
 │   │   ├── enforcer.py
+│   ├── ca_governance/
+│   │   ├── __init__.py
+│   │   ├── ca_code_change.py
+│   │   ├── constraint_validator.py
+│   │   ├── diff_generator.py
+│   │   ├── report_generator.py
+│   ├── calibration/
+│   │   ├── __init__.py
+│   │   ├── config.py
+│   │   ├── methods.py
+│   │   ├── metrics.py
+│   │   ├── schemas.py
+│   │   ├── service.py
+│   │   ├── uncertainty.py
 │   ├── commands/
 │   │   ├── README.md
 │   │   ├── __init__.py
@@ -327,10 +331,15 @@ L9/
 │   ├── eos/
 │   │   ├── README.md
 │   │   ├── __init__.py
+│   │   ├── accountability_engine.py
+│   │   ├── hypergraph_client.py
+│   │   ├── ledger_writer.py
+│   │   ├── schemas.py
 │   │   ├── schemas.yaml
 │   ├── evaluation/
 │   │   ├── README.md
 │   │   ├── __init__.py
+│   │   ├── eval_sets.py
 │   │   ├── evaluator.py
 │   ├── facade/
 │   │   ├── README.md
@@ -384,6 +393,17 @@ L9/
 │   │   ├── kernelloader.py
 │   │   ├── prompt_builder.py
 │   │   ├── schemas.py
+│   ├── l_agent_runtime/
+│   │   ├── __init__.py
+│   │   ├── action_registry.py
+│   │   ├── agent_state.py
+│   │   ├── foresight_engine.py
+│   │   ├── memory_adapter.py
+│   │   ├── reflection_engine.py
+│   ├── learning/
+│   │   ├── __init__.py
+│   │   ├── auto_calibrator.py
+│   │   ├── feedback_collector.py
 │   ├── llm/
 │   │   ├── README.md
 │   │   ├── __init__.py
@@ -455,13 +475,13 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── capabilities.py
 │   │   ├── event_stream.py
+│   │   ├── hypergraph.py
 │   │   ├── l_tools.py
 │   │   ├── packet_envelope.py
 │   │   ├── packet_envelope_v2.py
 │   │   ├── research_factory_models.py
 │   │   ├── research_factory_nodes.py
-│   │   ├── research_factory_state.py
-│   │   ├── ... (5 more files)
+│   │   ├── ... (6 more files)
 │   │   └── tests/
 │   ├── security/
 │   │   ├── README.md
@@ -503,8 +523,18 @@ L9/
 │   │   ├── docker-compose.production.yml
 │   ├── helm/
 │   │   └── l9-platform/
-│   └── k8s/
-│       └── c1/
+│   ├── k8s/
+│   │   ├── bootstrap-job.yaml
+│   │   └── c1/
+│   └── notes/
+│       ├── 1.md
+│       ├── 2.md
+│       ├── C1-DNS-CONFIGURATION.md
+│       ├── MRI-C1-1.md
+│       ├── MRI-C1-2.md
+│       ├── MRI-Results.md
+│       ├── dockerfile locations.md
+│       ├── files-to-harvest.md
 ├── dev/
 │   ├── README.md
 │   ├── __init__.py
@@ -651,7 +681,6 @@ L9/
 │   │   ├── INSTANTIATION_PLAN.md
 │   │   ├── MEMORY_USAGE_GUIDE.md
 │   │   ├── memory-substrate-setup5-GMP.md
-│   │   └── _archived/
 │   ├── src/
 │   │   ├── __init__.py
 │   │   ├── audit.py
@@ -718,8 +747,13 @@ L9/
 │   ├── 0008_memory_substrate_10x.sql
 │   ├── 0009_feedback_and_effectiveness.sql
 │   ├── 0010_add_fact_deprecation.sql
-│   ├── ... (19 more files)
+│   ├── ... (20 more files)
 ├── modules/
+├── motifs/
+│   ├── __init__.py
+│   ├── motif_feedback_graph.py
+│   ├── multimodal_plan_ranker.py
+│   ├── tensor_motif_linker.py
 ├── ops/
 │   ├── setup-git-hooks.sh
 │   ├── vps_release_gate.sh
@@ -832,13 +866,6 @@ L9/
 │   ├── DEPLOYMENT_CANONICAL.md
 │   ├── DI_BOOTSTRAP_GUIDE.md
 │   ├── ... (18 more files)
-│   ├── L-CTO/
-│   │   ├── L-CTO-ABILITIES.md
-│   │   ├── L-CTO-ARCHITECTURE.md
-│   │   ├── L-CTO-MEMORY.md
-│   │   ├── L-Graph-Backed Agent State.v1.0.md
-│   │   ├── L-YAML.yaml
-│   │   ├── l9_operator_handbook_v2.yaml
 │   ├── SOLID Principals Framework/
 │   │   ├── SOLID-Pincipals.md
 │   │   ├── Solid Principals Blog.md
@@ -853,19 +880,72 @@ L9/
 │   │   ├── 0007-seven-phase-bootstrap.md
 │   │   ├── 0008-feature-flag-gating.md
 │   │   ├── 0009-circuit-breaker-resilience.md
-│   │   ├── ... (63 more files)
-│   └── diagrams/
-│       ├── 01-memory-substrate.mmd
-│       ├── 01-memory-substrate.png
-│       ├── 02-governance-system.mmd
-│       ├── 02-governance-system.png
-│       ├── 03-kernel-runtime.mmd
-│       ├── 03-kernel-runtime.png
-│       ├── 04-agent-execution.mmd
-│       ├── 04-agent-execution.png
-│       ├── 05-world-model.mmd
-│       ├── 05-world-model.png
-│       ├── ... (17 more files)
+│   │   ├── ... (64 more files)
+│   ├── diagrams/
+│   │   ├── 01-memory-substrate.mmd
+│   │   ├── 01-memory-substrate.png
+│   │   ├── 02-governance-system.mmd
+│   │   ├── 02-governance-system.png
+│   │   ├── 03-kernel-runtime.mmd
+│   │   ├── 03-kernel-runtime.png
+│   │   ├── 04-agent-execution.mmd
+│   │   ├── 04-agent-execution.png
+│   │   ├── 05-world-model.mmd
+│   │   ├── 05-world-model.png
+│   │   ├── ... (17 more files)
+│   └── dora/
+│       ├── DORA-ENFORCEMENT-QUICKSTART.md
+│       ├── DORA-ENFORCEMENT-SUMMARY.md
+│       ├── Dora-Block.md
+│       ├── dora-block-enforcement-contract.md
+├── reports/
+│   ├── GMP-Report-111-Fix-Pr-23-Python-39-Compatibility-Code-Quality.md
+│   ├── GMP-Report-112-Merge-Pr-24-Fix-Python-39-Compatibility.md
+│   ├── GMP-Report-113-Mutation-Testing-CI-Integration.md
+│   ├── GMP-Report-114-High-Level-Service-Protocols.md
+│   ├── GMP-Report-115-116-Service-Protocol-Implementations.md
+│   ├── GMP-Report-115-PR45-Anti-Pattern-Regression-Tests.md
+│   ├── GMP-Report-116-PR51-Spring-Cleaning-TODO-Tracking.md
+│   ├── GMP-Report-116-PR52-DI-DIP-Three-Track-Refactoring.md
+│   ├── GMP-Report-117-PR-Batch-Analysis-36-46-48-49-50-51-53-54.md
+│   ├── GMP-Report-118-PR-Batch-36-46-48-49-50-Spring-Cleaning.md
+│   ├── ... (14 more files)
+│   ├── architecture/
+│   │   ├── api_route_inventory.txt
+│   │   ├── architecture.txt
+│   │   ├── async_function_map.txt
+│   │   ├── class_definitions.txt
+│   │   ├── client_entrypoints.txt
+│   │   ├── config_files.txt
+│   │   ├── experiments_inventory.txt
+│   │   ├── file_metrics.txt
+│   │   ├── function_signatures.txt
+│   │   ├── governance_invariants.txt
+│   │   ├── ... (9 more files)
+│   ├── audit_runs/
+│   │   ├── Audit_Duplicate_Classes.md
+│   │   ├── audit_infrastructure_health.json
+│   │   ├── audit_run_audit_run_20260106_185009_61c6ec09.html
+│   │   ├── audit_run_audit_run_20260106_185009_61c6ec09.json
+│   │   ├── audit_run_audit_run_20260106_185743_d10c38c1.html
+│   │   ├── audit_run_audit_run_20260106_185743_d10c38c1.json
+│   │   ├── audit_run_audit_run_20260106_192337_4c29281f.html
+│   │   ├── audit_run_audit_run_20260106_192337_4c29281f.json
+│   │   ├── audit_run_audit_run_20260106_193241_0c979f9c.html
+│   │   ├── audit_run_audit_run_20260106_193241_0c979f9c.json
+│   │   ├── ... (45 more files)
+│   └── repo-index/
+│       ├── adr_catalog.txt
+│       ├── agent_catalog.txt
+│       ├── api_surfaces.txt
+│       ├── architecture.txt
+│       ├── async_function_map.txt
+│       ├── bootstrap_phases.txt
+│       ├── class_definitions.txt
+│       ├── config_files.txt
+│       ├── decorator_catalog.txt
+│       ├── dependencies.txt
+│       ├── ... (25 more files)
 ├── runtime/
 │   ├── Dockerfile
 │   ├── README.md
@@ -924,6 +1004,7 @@ L9/
 │   │   ├── deploy_agent_executor.sh
 │   │   ├── fix_env_sync.sh
 │   │   ├── pull_to_vps.sh
+│   │   ├── pull_to_vps_simple.sh
 │   │   ├── rollback_vps.sh
 │   │   ├── sync_env_vars.sh
 │   │   ├── sync_local_env_to_vps.sh
@@ -957,7 +1038,7 @@ L9/
 │   │   ├── cleanup_trash_embeddings.py
 │   │   ├── cleanup_trash_embeddings_via_api.py
 │   │   ├── delete_trash_embeddings.py
-│   │   ├── ... (16 more files)
+│   │   ├── ... (17 more files)
 │   ├── pr_review/
 │   │   ├── gemini_auto_editor.py
 │   │   ├── perplexity_reviewer.py
@@ -966,6 +1047,8 @@ L9/
 │   │   ├── aios_validate.py
 │   │   ├── bootstrap_refactor.py
 │   │   ├── run_mutation_tests.sh
+│   ├── reports/
+│   │   ├── audit_infrastructure_health.json
 │   ├── research/
 │   │   ├── delegate_deep_research.py
 │   │   ├── extract_perplexity_pack.py
@@ -1036,6 +1119,7 @@ L9/
 ├── telemetry/
 │   ├── README.md
 │   ├── __init__.py
+│   ├── calibration_dashboard.py
 │   ├── memory_metrics.py
 │   ├── slack_metrics.py
 ├── tests/
@@ -1049,7 +1133,7 @@ L9/
 │   ├── test_imports.py
 │   ├── test_l_cto_kernel_activation.py
 │   ├── test_memory_adapter.py
-│   ├── ... (7 more files)
+│   ├── ... (9 more files)
 │   ├── adapters/
 │   │   ├── __init__.py
 │   │   └── tensorglobe_bridge/
@@ -1098,8 +1182,11 @@ L9/
 │   │   ├── test_moduleregistry.py
 │   │   ├── test_resilience_mixin.py
 │   │   ├── test_singleton_auto_registry.py
+│   │   ├── agents/
 │   │   ├── aios/
+│   │   ├── bayesian/
 │   │   ├── bootstrap/
+│   │   ├── eos/
 │   │   ├── governance/
 │   │   ├── observability/
 │   │   ├── protocols/
@@ -1218,7 +1305,13 @@ L9/
 │   │   ├── conftest.py
 │   │   ├── test_memory_metrics.py
 │   ├── tools/
+│   │   ├── conftest.py
 │   │   ├── test_l9_cli.py
+│   │   ├── test_mcp_tools.py
+│   │   ├── test_memory_tools.py
+│   │   ├── test_redis_tools.py
+│   │   ├── test_tool_discovery.py
+│   │   ├── test_tool_packages.py
 │   ├── unit/
 │   │   ├── __init__.py
 │   │   ├── conftest.py
@@ -1307,6 +1400,7 @@ L9/
 │   ├── state.py
 │   ├── defs/
 │   │   ├── harvest-deploy.yaml
+│   │   ├── readme-pipeline.yaml
 │   │   ├── workflow-template.yaml
 │   ├── nodes/
 │   │   ├── __init__.py

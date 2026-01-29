@@ -177,8 +177,8 @@ class NeuralDecayScheduler:
         Returns:
             DecayResult with statistics
         """
-        reference_time = reference_time or datetime.utcnow()
-        start_time = datetime.utcnow()
+        reference_time = reference_time or datetime.now(timezone.utc)
+        start_time = datetime.now(timezone.utc)
         result = DecayResult()
 
         logger.info(
@@ -211,7 +211,7 @@ class NeuralDecayScheduler:
             logger.error(f"Facts decay failed: {e}", exc_info=True)
             result.errors.append(f"Facts decay: {e!s}")
 
-        result.duration_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+        result.duration_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
 
         logger.info(
             "Neural decay pass complete",
@@ -460,7 +460,7 @@ class NeuralDecayScheduler:
         if self._repository is None:
             return {"error": "No repository configured"}
 
-        reference_time = datetime.utcnow()
+        reference_time = datetime.now(timezone.utc)
 
         try:
             async with self._repository.acquire() as conn:

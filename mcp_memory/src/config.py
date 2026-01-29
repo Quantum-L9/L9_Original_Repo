@@ -32,15 +32,19 @@ logger = structlog.get_logger(__name__)
 
 class Settings(BaseSettings):
     # Server Configuration
-    # Single source of truth for MCP server host/port/env
-    # UNIFIED ARCHITECTURE: MCP endpoints live inside l9-api (port 8000)
-    # Public URL: https://l9.quantumaipartners.com or https://157.180.73.53:9001
-    # Port 8000 = l9-api Docker container (unified - handles all traffic)
-    # Port 9001 = Alternate HTTPS front door (IP-based), routes to 8000
-    # NOTE: Port 9002 is DEPRECATED and never deployed - do not use
-    MCP_HOST: str = "127.0.0.1"  # Default: localhost only (Caddy reverse proxy)
+    # ========================================================================
+    # Environment variables for server URLs (no hardcoded IPs/domains):
+    #   L9_API_URL:  API endpoint (default: http://mcp.quantumaipartners.com:30080)
+    #   L9_MCP_URL:  MCP endpoint (default: http://mcp.quantumaipartners.com:30902)
+    #   L9_SERVER_IP: Server IP for direct access (default: from L9_API_URL)
+    #
+    # UNIFIED ARCHITECTURE: MCP endpoints live inside l9-api container
+    # Port 30080 = L9 API (NodePort)
+    # Port 30902 = MCP Memory (NodePort)
+    # ========================================================================
+    MCP_HOST: str = "0.0.0.0"  # Bind address when running as server
     MCP_PORT: int = (
-        8000  # Default: 8000 (unified l9-api) - NOTE: Not used when running in Docker
+        8000  # Internal container port - external access via L9_MCP_URL
     )
     MCP_ENV: str = "production"  # Default: production
     LOG_LEVEL: str = "INFO"

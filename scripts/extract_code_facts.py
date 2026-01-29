@@ -298,7 +298,7 @@ def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> dict[str
     """Generate CODE-MAP.yaml structure."""
     code_map = {
         "version": "1.0",
-        "last_verified": datetime.utcnow().isoformat() + "Z",
+        "last_verified": datetime.now(timezone.utc).isoformat() + "Z",
         "subsystems": {},
     }
 
@@ -358,7 +358,7 @@ def generate_meta_yaml(subsystem_name: str) -> dict[str, Any]:
             "subsystem": subsystem_name,
             "modulepath": subsystem_path,
             "owner": "Igor",
-            "lastupdated": datetime.utcnow().isoformat() + "Z",
+            "lastupdated": datetime.now(timezone.utc).isoformat() + "Z",
             "purpose": f"Documents the {subsystem_name} subsystem, contracts, and AI collaboration rules.",
         },
         "sections": {

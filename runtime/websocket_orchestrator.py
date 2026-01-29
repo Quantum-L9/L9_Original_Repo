@@ -44,7 +44,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import structlog
@@ -158,7 +158,7 @@ class WebSocketOrchestrator:
         """
         self._connections[agent_id] = websocket
         self._metadata[agent_id] = metadata or {}
-        self._connected_at[agent_id] = datetime.utcnow()
+        self._connected_at[agent_id] = datetime.now(timezone.utc)
         logger.info(
             "Agent %s registered (metadata=%s)",
             agent_id,

@@ -363,15 +363,17 @@ class MCPClient:
         logger.info("Memory MCP server configured")
 
         # ========================================================================
-        # L9 Memory MCP (Active as of 2026-01-09)
+        # L9 Memory MCP
         # ========================================================================
-        # MCP server is live at https://l9.quantumaipartners.com/mcp
+        # MCP server URL configured via environment variables:
+        #   - L9_MCP_URL: Full MCP endpoint (default: http://mcp.quantumaipartners.com:30902)
+        #   - L9_API_URL: Full API endpoint (default: http://mcp.quantumaipartners.com:30080)
+        #
         # Uses unified substrate (packet_store + memory_embeddings)
         # All memory operations go through MCP tools (save_memory, search_memory, etc.)
         # See: mcp_memory/README.md for details
         #
         # Cursor integration:
-        #   - mcp.json configured with l9-memory server (SSE connection)
         #   - cursor_memory_client.py uses MCP tools via /mcp/call endpoint
         #   - /mem command uses MCP exclusively
         # ========================================================================

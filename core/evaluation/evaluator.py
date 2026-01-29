@@ -205,7 +205,7 @@ class Evaluator:
         result = EvaluationResult(
             agent_id=agent_id,
             eval_set_name=eval_set_name,
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
             version=version,
             examples_run=len(eval_set.examples),
             examples_passed=passed,

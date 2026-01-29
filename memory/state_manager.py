@@ -129,7 +129,7 @@ class MemoryStateManager:
             "thread_id": str(thread_id),
             "step_name": step_name,
             "thoughts": thoughts,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
         if extra:
             payload["extra"] = extra
@@ -212,7 +212,7 @@ class MemoryStateManager:
         """
         self._flags[flag_name] = {
             "value": value,
-            "set_at": datetime.utcnow().isoformat(),
+            "set_at": datetime.now(timezone.utc).isoformat(),
             "ttl": ttl,
         }
         await self._persist_state()
@@ -280,7 +280,7 @@ class MemoryStateManager:
                 "subject": subject,
                 "predicate": predicate,
                 "conflicting_objects": conflicting_objects,
-                "detected_at": datetime.utcnow().isoformat(),
+                "detected_at": datetime.now(timezone.utc).isoformat(),
             },
             metadata={"source_packet": str(source_packet) if source_packet else None},
         )
@@ -409,7 +409,7 @@ class MemoryStateManager:
         checkpoint_data = {
             "_flags": self._flags,
             "_state": self._state,
-            "_persisted_at": datetime.utcnow().isoformat(),
+            "_persisted_at": datetime.now(timezone.utc).isoformat(),
         }
         await self.save_checkpoint(checkpoint_data)
 

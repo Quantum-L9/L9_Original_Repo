@@ -47,7 +47,7 @@ class TestPacketEnvelopeImmutability:
                 generation=1,
             ),
             tags=["test", "immutability"],
-            ttl=datetime.utcnow() + timedelta(days=7),
+            ttl=datetime.now(timezone.utc) + timedelta(days=7),
             metadata=PacketMetadata(agent="test_agent"),
             confidence=PacketConfidence(score=0.95, rationale="High confidence test"),
         )
@@ -138,7 +138,7 @@ class TestPacketEnvelopeImmutability:
         )
 
         with pytest.raises(ValidationError):
-            packet.timestamp = datetime.utcnow()
+            packet.timestamp = datetime.now(timezone.utc)
 
     def test_cannot_mutate_packet_type(self):
         """packet.packet_type = "new_type" → MUST RAISE ValidationError."""

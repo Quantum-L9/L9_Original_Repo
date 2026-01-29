@@ -107,12 +107,12 @@ async def save_memory_handler(
 
         if duration == "short":
             table = "memory.short_term"
-            expires_at = datetime.utcnow() + timedelta(
+            expires_at = datetime.now(timezone.utc) + timedelta(
                 hours=settings.MEMORY_SHORT_TERM_HOURS
             )
         elif duration == "medium":
             table = "memory.medium_term"
-            expires_at = datetime.utcnow() + timedelta(
+            expires_at = datetime.now(timezone.utc) + timedelta(
                 hours=settings.MEMORY_MEDIUM_TERM_HOURS
             )
         else:
@@ -818,9 +818,9 @@ async def query_temporal(
         since_dt = (
             datetime.fromisoformat(since)
             if since
-            else datetime.utcnow() - timedelta(days=7)
+            else datetime.now(timezone.utc) - timedelta(days=7)
         )
-        until_dt = datetime.fromisoformat(until) if until else datetime.utcnow()
+        until_dt = datetime.fromisoformat(until) if until else datetime.now(timezone.utc)
 
         # Build WHERE clause
         where_parts = ["user_id = $1", "created_at >= $2", "created_at <= $3"]

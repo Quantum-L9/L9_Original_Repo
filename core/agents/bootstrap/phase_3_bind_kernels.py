@@ -28,7 +28,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 import structlog
@@ -75,7 +75,7 @@ async def bind_kernels_to_agent(
                         "name": kernel_name,
                         "version": kernel_parsed.version,
                         "hash": kernel_parsed.hash,
-                        "activated_at": datetime.utcnow().isoformat(),
+                        "activated_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
 
@@ -90,7 +90,7 @@ async def bind_kernels_to_agent(
                     {
                         "instance_id": instance.instance_id,
                         "kernel_name": kernel_name,
-                        "activated_at": datetime.utcnow().isoformat(),
+                        "activated_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
 

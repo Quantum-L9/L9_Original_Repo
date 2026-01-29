@@ -371,6 +371,57 @@ class GraphGetContextArgs(BaseModel):
 
 
 # =============================================================================
+# Graph Event (Neo4j Event nodes) MCP Tool Argument Validation Models
+# =============================================================================
+
+
+class GraphCreateEventArgs(BaseModel):
+    """Validation model for graph_create_event tool arguments."""
+
+    event_id: str  # Unique event identifier
+    event_type: str  # Event type (e.g., 'user_action', 'agent_response')
+    timestamp: str  # ISO timestamp
+    properties: dict[str, Any] | None = None  # Event properties
+    parent_event_id: str | None = None  # Optional parent for causality chain
+
+    class Config:
+        extra = "forbid"
+
+
+class GraphGetEventTimelineArgs(BaseModel):
+    """Validation model for graph_get_event_timeline tool arguments."""
+
+    start_time: str | None = None  # ISO timestamp start (optional)
+    end_time: str | None = None  # ISO timestamp end (optional)
+    event_type: str | None = None  # Filter by event type (optional)
+    limit: int | None = 100  # Maximum events to return
+
+    class Config:
+        extra = "forbid"
+
+
+class GraphGetTemporalEventsArgs(BaseModel):
+    """Validation model for graph_get_temporal_events tool arguments."""
+
+    entity: str  # Entity ID to get events for
+    start: str | None = None  # ISO timestamp start (optional)
+    end: str | None = None  # ISO timestamp end (optional)
+
+    class Config:
+        extra = "forbid"
+
+
+class GraphGetEventSequenceArgs(BaseModel):
+    """Validation model for graph_get_event_sequence tool arguments."""
+
+    entity: str  # Entity ID
+    limit: int | None = 50  # Maximum events to return
+
+    class Config:
+        extra = "forbid"
+
+
+# =============================================================================
 # Cache (Redis) MCP Tool Argument Validation Models
 # =============================================================================
 

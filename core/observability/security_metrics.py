@@ -71,7 +71,7 @@ class SecurityMetric:
 
     def __post_init__(self):
         if self.timestamp is None:
-            self.timestamp = datetime.utcnow()
+            self.timestamp = datetime.now(timezone.utc)
 
 
 class SecurityMetricsCollector:

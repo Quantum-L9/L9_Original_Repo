@@ -200,7 +200,7 @@ class SingletonRegistry:
 
                 entry.instance = entry.getter()
                 if entry.instance:
-                    entry.initialized_at = datetime.utcnow()
+                    entry.initialized_at = datetime.now(timezone.utc)
                     if name not in self._initialization_order:
                         self._initialization_order.append(name)
                     logger.debug(f"Initialized singleton: {name}")
@@ -237,7 +237,7 @@ class SingletonRegistry:
                     entry.instance = entry.getter()
 
                 if entry.instance:
-                    entry.initialized_at = datetime.utcnow()
+                    entry.initialized_at = datetime.now(timezone.utc)
                     if name not in self._initialization_order:
                         self._initialization_order.append(name)
                     logger.debug(f"Initialized singleton: {name}")

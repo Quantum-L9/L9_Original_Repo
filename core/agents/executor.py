@@ -52,7 +52,7 @@ __dora_meta__ = {
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Protocol
 from uuid import UUID, uuid4
 
@@ -78,6 +78,18 @@ from core.tools.tool_graph import ToolGraph
 from core.worldmodel.insight_emitter import get_insight_emitter
 from memory.agent_persistence import AgentPersistenceService
 from runtime.dora import emit_executor_trace, update_dora_block_in_file
+
+# Optional: Calibration Services (Bayesian Upgrade - GMP-32)
+# Uses simplified interface that adapts to L9 executor patterns
+try:
+    from core.calibration import (
+        CalibrationService,
+        GatingPolicyService,
+    )
+
+    _has_calibration = True
+except ImportError:
+    _has_calibration = False
 
 # Virtual Context Manager import (optional - graceful degradation)
 try:
@@ -478,6 +490,11 @@ class AgentExecutorService:
         # Stage 7: Tool Audit Service for execution tracking (optional)
         self._tool_audit_service: Any | None = None
 
+        # Stage 8: Calibration Services for confidence calibration (optional)
+        # Bayesian Upgrade - GMP-32
+        self._calibration_service: Any | None = None
+        self._gating_service: Any | None = None
+
         logger.info(
             "agent.executor.init: default_agent_id=%s, max_iterations=%d, persistence=%s",
             self._default_agent_id,
@@ -606,6 +623,38 @@ class AgentExecutorService:
             service is not None,
         )
 
+    def set_calibration_service(self, service: Any) -> None:
+        """
+        Set the calibration service for confidence calibration.
+
+        Stage 8: Bayesian Calibration (GMP-32).
+        Calibrates model confidence scores before decision-making.
+
+        Args:
+            service: CalibrationService instance
+        """
+        self._calibration_service = service
+        logger.info(
+            "agent.executor.calibration_set: enabled=%s",
+            service is not None,
+        )
+
+    def set_gating_service(self, service: Any) -> None:
+        """
+        Set the gating policy service for tool dispatch gating.
+
+        Stage 8: Bayesian Gating (GMP-32).
+        Gates tool execution based on calibrated confidence thresholds.
+
+        Args:
+            service: GatingPolicyService instance
+        """
+        self._gating_service = service
+        logger.info(
+            "agent.executor.gating_set: enabled=%s",
+            service is not None,
+        )
+
     async def shutdown(self) -> None:
         """
         Shutdown the executor service, creating checkpoints for agent state.
@@ -633,7 +682,7 @@ class AgentExecutorService:
                 "kernel_agent_state": getattr(
                     self._kernel_aware_agent, "kernel_state", None
                 ),
-                "shutdown_timestamp": datetime.utcnow().isoformat(),
+                "shutdown_timestamp": datetime.now(timezone.utc).isoformat(),
             }
 
             checkpoint_id = await self._agent_persistence.create_checkpoint(
@@ -700,7 +749,7 @@ class AgentExecutorService:
         Returns:
             ExecutionResult or DuplicateTaskResponse if duplicate
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         task_id_str = str(task.id)
 
         # Log start
@@ -778,7 +827,7 @@ class AgentExecutorService:
                         result=blocked_message,
                         iterations=0,
                         duration_ms=int(
-                            (datetime.utcnow() - start_time).total_seconds() * 1000
+                            (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
                         ),
                         error="Prompt injection detected",
                     )
@@ -1498,7 +1547,7 @@ class AgentExecutorService:
         Returns:
             ExecutionResult
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Pre-execution governance validation
         try:
@@ -1535,7 +1584,7 @@ class AgentExecutorService:
                     error=f"Authority violation: {authority_check.get('violation')}",
                     iterations=0,
                     duration_ms=int(
-                        (datetime.utcnow() - start_time).total_seconds() * 1000
+                        (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
                     ),
                     governance_blocks=instance.governance_blocks,
                 )
@@ -1564,7 +1613,7 @@ class AgentExecutorService:
                     error=f"Safety violation: {safety_check.get('violation')}",
                     iterations=0,
                     duration_ms=int(
-                        (datetime.utcnow() - start_time).total_seconds() * 1000
+                        (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
                     ),
                     governance_blocks=instance.governance_blocks,
                 )
@@ -1580,7 +1629,7 @@ class AgentExecutorService:
                 error="Governance validation unavailable. Execution blocked.",
                 iterations=0,
                 duration_ms=int(
-                    (datetime.utcnow() - start_time).total_seconds() * 1000
+                    (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
                 ),
                 governance_blocks=instance.governance_blocks,
             )
@@ -1597,7 +1646,7 @@ class AgentExecutorService:
                 error=f"Governance validation failed: {e}",
                 iterations=0,
                 duration_ms=int(
-                    (datetime.utcnow() - start_time).total_seconds() * 1000
+                    (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
                 ),
                 governance_blocks=instance.governance_blocks,
             )
@@ -1627,9 +1676,17 @@ class AgentExecutorService:
         if user_message:
             instance.add_user_message(user_message)
 
-        # GMP-78: Semantic tool shortlisting
+        # GMP-78: Semantic tool shortlisting (skip if dynamic discovery enabled)
         # Instead of binding all 100+ tools, find the most relevant ones
-        if user_message and hasattr(self._tool_registry, "get_relevant_tools"):
+        # GMP-78-FIX: If dynamic discovery is enabled, skip semantic pool (uses prepare_dynamic_tools instead)
+        _use_semantic_pool = False
+        try:
+            from core.tools.dynamic_discovery import is_dynamic_discovery_enabled
+            _use_semantic_pool = not is_dynamic_discovery_enabled()
+        except ImportError:
+            _use_semantic_pool = True  # Fall back to semantic pool if dynamic discovery unavailable
+
+        if _use_semantic_pool and user_message and hasattr(self._tool_registry, "get_relevant_tools"):
             try:
                 # principal_id may be in task context or payload
                 principal_id = (
@@ -1652,22 +1709,13 @@ class AgentExecutorService:
                         tools=[t.tool_id for t in relevant_tools],
                     )
             except Exception as e:
-                # Tool shortlisting failed - BLOCK (fail-closed)
-                logger.error(
-                    "agent.executor.tools.shortlisting_failed",
+                # Tool shortlisting failed - log warning and continue (dynamic discovery will handle it)
+                logger.warning(
+                    "agent.executor.tools.shortlisting_failed_fallback_to_dynamic",
                     task_id=str(instance.task.id),
                     error=str(e),
                 )
-                return ExecutionResult(
-                    task_id=instance.task.id,
-                    status="blocked",
-                    error=f"Tool shortlisting failed: {e}",
-                    iterations=0,
-                    duration_ms=int(
-                        (datetime.utcnow() - start_time).total_seconds() * 1000
-                    ),
-                    governance_blocks=instance.governance_blocks,
-                )
+                # Don't block - let prepare_dynamic_tools() handle tool discovery later
 
         # Transition to reasoning
         instance.transition_to(ExecutorState.REASONING)
@@ -1761,6 +1809,33 @@ class AgentExecutorService:
                 aios_result = AIOSResult.error_result(str(aios_exc))
 
             instance.add_tokens(aios_result.tokens_used)
+
+            # Stage 8: Calibrate confidence on AIOS result (GMP-32)
+            # Uses simplified interface that adapts to L9 executor patterns
+            if _has_calibration and self._calibration_service is not None:
+                try:
+                    raw_confidence = getattr(aios_result, "confidence", 0.8)
+                    calibration_result = await self._calibration_service.calibrate_simple(
+                        confidence=raw_confidence,
+                        task_id=str(instance.task.id),
+                    )
+                    # Attach calibrated confidence to result
+                    aios_result.calibrated_confidence = (
+                        calibration_result.calibrated_confidence
+                    )
+                    aios_result.uncertainty = calibration_result.uncertainty
+                    # Store for gating check
+                    instance.last_confidence = aios_result.calibrated_confidence
+                    logger.debug(
+                        "agent.executor.confidence_calibrated",
+                        task_id=str(instance.task.id),
+                        raw=raw_confidence,
+                        calibrated=aios_result.calibrated_confidence,
+                    )
+                except Exception as cal_err:
+                    logger.warning(
+                        "agent.executor.calibration_failed: %s", str(cal_err)
+                    )
 
             # GMP-88: ReAct THOUGHT logging
             # Emit structured packet for reasoning transparency
@@ -1899,7 +1974,7 @@ class AgentExecutorService:
             error = f"Max iterations exceeded ({max_iterations})"
 
         # Calculate duration
-        duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
         # Determine final status
         if instance.state == ExecutorState.COMPLETED:
@@ -2038,6 +2113,52 @@ class AgentExecutorService:
                 f"Loaded memory context for task {instance.task.id}: {len(memory_context)} keys"
             )
 
+        # Stage 8: Gate tool call based on calibrated confidence (GMP-32)
+        # Uses simplified interface that adapts to L9 executor patterns
+        if _has_calibration and self._gating_service is not None:
+            try:
+                gate_confidence = getattr(instance, "last_confidence", 0.8)
+                gate_result = await self._gating_service.evaluate_simple(
+                    confidence=gate_confidence,
+                    tool_id=tool_call.tool_id,
+                    task_id=str(instance.task.id),
+                )
+                if not gate_result.approved:
+                    logger.info(
+                        "agent.executor.tool_gated",
+                        task_id=str(instance.task.id),
+                        tool_id=tool_call.tool_id,
+                        confidence=gate_confidence,
+                        threshold=gate_result.threshold,
+                        reason=gate_result.reason,
+                    )
+                    # Track gating block for self-reflection
+                    instance.add_governance_block(
+                        block_type="confidence_gating_block",
+                        tool_id=tool_call.tool_id,
+                        metadata={
+                            "confidence": gate_confidence,
+                            "threshold": gate_result.threshold,
+                            "reason": gate_result.reason,
+                        },
+                    )
+                    return ToolCallResult(
+                        call_id=tool_call.call_id,
+                        tool_id=tool_call.tool_id,
+                        success=False,
+                        error="CONFIDENCE_BELOW_THRESHOLD",
+                        result={
+                            "status": "gated",
+                            "confidence": gate_confidence,
+                            "threshold": gate_result.threshold,
+                            "reason": gate_result.reason,
+                        },
+                    )
+            except Exception as gate_err:
+                logger.warning(
+                    "agent.executor.gating_check_failed: %s", str(gate_err)
+                )
+
         # Check if tool requires Igor approval
         catalog = await ToolGraph.get_l_tool_catalog()
         tool_def = next((t for t in catalog if t["name"] == tool_call.tool_id), None)
@@ -2134,7 +2255,7 @@ class AgentExecutorService:
                     "status": "completed" if result.success else "failed",
                     "error": result.error,
                     "duration_ms": result.duration_ms or 0,
-                    "completed_at": datetime.utcnow().isoformat(),
+                    "completed_at": datetime.now(timezone.utc).isoformat(),
                 },
             )
 
@@ -2630,7 +2751,7 @@ class AgentExecutorService:
         Returns:
             ExecutionResult with error
         """
-        duration_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
+        duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
         # Emit error packet
         await self._emit_packet(

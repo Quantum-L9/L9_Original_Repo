@@ -559,7 +559,7 @@ class WorldModelRepository:
                 entities=entities,
                 content=content,
                 confidence=confidence,
-                applied_at=datetime.utcnow(),
+                applied_at=datetime.now(timezone.utc),
                 source_packet=source_packet,
                 state_version_before=state_version_before,
                 state_version_after=state_version_after,
@@ -711,7 +711,7 @@ class WorldModelRepository:
                 state_version=state_version,
                 entity_count=entity_count,
                 relation_count=relation_count,
-                created_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
                 description=description,
                 created_by=created_by,
             )

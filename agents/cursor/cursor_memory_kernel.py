@@ -402,7 +402,7 @@ def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
         "kernel_id": kernel_id,
         "session_id": session_id,
         "activated_by": "cursor",
-        "activated_at": datetime.utcnow().isoformat(),
+        "activated_at": datetime.now(timezone.utc).isoformat(),
         "behaviors_enabled": [
             "todo_tracker",
             "confidence_logic",
@@ -459,7 +459,7 @@ def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
             }
             for t in todos
         ],
-        "updated_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
     }
     envelope = {
         "payload": payload,
@@ -530,7 +530,7 @@ class CursorMemoryKernel:
         5. Return session state
         """
         if session_id is None:
-            session_id = f"cursor-session-{datetime.utcnow().strftime('%Y%m%d-%H%M%S')}"
+            session_id = f"cursor-session-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
 
         # Write activation
         write_kernel_activation(session_id, self.kernel_id)
@@ -549,7 +549,7 @@ class CursorMemoryKernel:
             lessons=lessons,
             todos=todos,
             prompt_count=0,
-            activated_at=datetime.utcnow(),
+            activated_at=datetime.now(timezone.utc),
         )
 
         logger.info(

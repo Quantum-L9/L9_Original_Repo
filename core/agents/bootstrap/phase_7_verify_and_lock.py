@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -118,7 +118,7 @@ async def verify_and_lock(
     signature_data = (
         f"{instance.instance_id}|"
         f"{instance.agent_id}|"
-        f"{datetime.utcnow().isoformat()}|"
+        f"{datetime.now(timezone.utc).isoformat()}|"
         f"{len(kernels)}kernels|"
         f"{instance.designation or 'unknown'}"
     )
@@ -126,7 +126,7 @@ async def verify_and_lock(
 
     # Update instance
     instance.initialization_signature = signature
-    instance.initialized_at = datetime.utcnow()
+    instance.initialized_at = datetime.now(timezone.utc)
     instance.kernel_state = "ACTIVE"
     instance.status = "READY"
 
@@ -138,7 +138,7 @@ async def verify_and_lock(
         "kernel_count": len(kernels),
         "initialization_signature": signature,
         "verification_results": verification_results,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "status": "READY",
     }
 
@@ -200,7 +200,7 @@ async def verify_and_lock(
                     {
                         "instance_id": instance.instance_id,
                         "signature": signature,
-                        "initialized_at": datetime.utcnow().isoformat(),
+                        "initialized_at": datetime.now(timezone.utc).isoformat(),
                     },
                 )
         except Exception as e:
@@ -248,7 +248,7 @@ async def verify_and_lock_view(
           - context_delta: dict (additional context to merge)
           - error: Exception | None
     """
-    start = datetime.utcnow()
+    start = datetime.now(timezone.utc)
 
     try:
         # Validate critical fields
@@ -272,7 +272,7 @@ async def verify_and_lock_view(
             init_signature=init_signature[:16],  # First 16 chars for logging
         )
 
-        duration = (datetime.utcnow() - start).total_seconds() * 1000
+        duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
 
         return {
             "success": True,

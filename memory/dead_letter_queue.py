@@ -157,7 +157,7 @@ class DeadLetterQueue:
         """
         try:
             packet_id = str(packet.packet_id) if packet.packet_id else "unknown"
-            now = datetime.utcnow().isoformat()
+            now = datetime.now(timezone.utc).isoformat()
 
             # Calculate retry backoff
             backoff_seconds = min(
@@ -165,7 +165,7 @@ class DeadLetterQueue:
                 self.MAX_BACKOFF_SECONDS,
             )
             retry_after = (
-                datetime.utcnow() + timedelta(seconds=backoff_seconds)
+                datetime.now(timezone.utc) + timedelta(seconds=backoff_seconds)
             ).isoformat()
 
             # Create DLQ entry
@@ -235,7 +235,7 @@ class DeadLetterQueue:
             # Check if retry time has passed
             if wait_for_retry:
                 retry_after = datetime.fromisoformat(entry.retry_after)
-                if datetime.utcnow() < retry_after:
+                if datetime.now(timezone.utc) < retry_after:
                     # Not ready yet, push back to queue
                     await self._redis.rpush(self.QUEUE_KEY, entry_json)
                     return None

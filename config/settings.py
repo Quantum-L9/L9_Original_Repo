@@ -206,6 +206,63 @@ class IntegrationSettings(BaseSettings):
     )
 
     # ------------------------------------------------------------------
+    # Core Runtime Settings (ADR-0008 centralization)
+    # ------------------------------------------------------------------
+    l9_executor_api_key: str | None = Field(
+        default=None,
+        alias="L9_EXECUTOR_API_KEY",
+        description="API key for L9 executor authentication.",
+    )
+
+    l9_llm_model: str = Field(
+        default="gpt-4o",
+        alias="L9_LLM_MODEL",
+        description="Default LLM model for agent reasoning (gpt-4o, claude-3-opus, etc).",
+    )
+
+    l9_project_id: str = Field(
+        default="l9-default",
+        alias="L9_PROJECT_ID",
+        description="Project identifier for multi-tenant deployments.",
+    )
+
+    l9_use_kernels: bool = Field(
+        default=True,
+        alias="L9_USE_KERNELS",
+        description="Enable kernel stack loading from YAML files.",
+    )
+
+    l9_api_url: str = Field(
+        default="http://localhost:8000",
+        alias="L9_API_URL",
+        description="Base URL for L9 API server.",
+    )
+
+    l9_memory_scope: str = Field(
+        default="user",
+        alias="L9_MEMORY_SCOPE",
+        description="Memory scope: 'user', 'tenant', or 'global'.",
+    )
+
+    l9_repo_root: str = Field(
+        default="",
+        alias="L9_REPO_ROOT",
+        description="Repository root path (auto-detected if not set).",
+    )
+
+    l9_env: str = Field(
+        default="development",
+        alias="L9_ENV",
+        description="Environment: 'development', 'staging', or 'production'.",
+    )
+
+    l9_tenant_id: str = Field(
+        default="73350468-3158-5d0f-9b8c-9b193d96fc4b",
+        alias="L9_TENANT_ID",
+        description="Default tenant UUID for RLS.",
+    )
+
+    # ------------------------------------------------------------------
     # Tool Feedback Learning (GMP-TFL-001)
     # ------------------------------------------------------------------
     l9_tool_feedback_enabled: bool = True

@@ -376,7 +376,7 @@ class SagaExecutor:
             saga_id=saga_id,
             saga_name=saga.name,
             status=SagaStatus.RUNNING,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
         )
 
         logger.info(f"Starting saga: {saga.name}", saga_id=str(saga_id))
@@ -436,7 +436,7 @@ class SagaExecutor:
                 logger.error(f"Compensation failed: {comp_error}")
 
         finally:
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
             result.total_duration_ms = (time.time() - start_time) * 1000
 
             logger.info(
@@ -464,13 +464,13 @@ class SagaExecutor:
             step_name=step.name,
             status=SagaStepStatus.PENDING,
             database=step.database,
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(timezone.utc),
         )
 
         # Check condition
         if step.condition_fn and not step.condition_fn(context):
             result.status = SagaStepStatus.SKIPPED
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
             result.duration_ms = (time.time() - start_time) * 1000
             logger.debug(f"Step skipped (condition not met): {step.name}")
             return result
@@ -517,7 +517,7 @@ class SagaExecutor:
             result.status = SagaStepStatus.FAILED
             result.error = last_error
 
-        result.completed_at = datetime.utcnow()
+        result.completed_at = datetime.now(timezone.utc)
         result.duration_ms = (time.time() - start_time) * 1000
 
         return result

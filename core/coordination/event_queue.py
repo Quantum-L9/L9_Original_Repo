@@ -75,7 +75,7 @@ class Event:
         if not self.request_id:
             self.request_id = str(uuid4())
         if not self.timestamp:
-            self.timestamp = datetime.utcnow().isoformat()
+            self.timestamp = datetime.now(timezone.utc).isoformat()
 
 
 class EventQueue:

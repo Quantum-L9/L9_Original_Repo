@@ -223,7 +223,7 @@ class IdentityTierService:
             fact_tags.extend(tags)
 
         # Set validation if provided
-        datetime.utcnow() if validated_by else None
+        datetime.now(timezone.utc) if validated_by else None
 
         # Create fact via repository
         fact_id = await self._repository.insert_semantic_fact(

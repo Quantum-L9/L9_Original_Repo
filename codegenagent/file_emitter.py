@@ -73,7 +73,7 @@ class FileChange:
         self.action = action
         self.old_content = old_content
         self.new_content = new_content
-        self.timestamp = datetime.utcnow()
+        self.timestamp = datetime.now(timezone.utc)
 
     def __repr__(self) -> str:
         return f"FileChange({self.action}: {self.path})"

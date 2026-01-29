@@ -251,7 +251,7 @@ class QCDashboard:
             concept_id=concept["concept_id"],
             status="approved",
             reviewer_notes=notes,
-            reviewed_at=datetime.utcnow().isoformat() + "Z",
+            reviewed_at=datetime.now(timezone.utc).isoformat() + "Z",
         )
 
         self._save_review(review)
@@ -275,7 +275,7 @@ class QCDashboard:
             concept_id=concept["concept_id"],
             status="rejected",
             reviewer_notes=reason,
-            reviewed_at=datetime.utcnow().isoformat() + "Z",
+            reviewed_at=datetime.now(timezone.utc).isoformat() + "Z",
         )
 
         self._save_review(review)
@@ -303,7 +303,7 @@ class QCDashboard:
             concept_id=concept["concept_id"],
             status="edited",
             reviewer_notes="Manually edited YAML",
-            reviewed_at=datetime.utcnow().isoformat() + "Z",
+            reviewed_at=datetime.now(timezone.utc).isoformat() + "Z",
         )
 
         self._save_review(review)
@@ -390,7 +390,7 @@ class QCDashboard:
                     concept_id=concept["concept_id"],
                     status="approved",
                     reviewer_notes=f"Batch approved (confidence >= {threshold})",
-                    reviewed_at=datetime.utcnow().isoformat() + "Z",
+                    reviewed_at=datetime.now(timezone.utc).isoformat() + "Z",
                 )
                 self._save_review(review)
 
@@ -457,7 +457,7 @@ class QCDashboard:
 
         from datetime import datetime
 
-        summary += f"**Generated:** {datetime.utcnow().isoformat()}Z\n\n"
+        summary += f"**Generated:** {datetime.now(timezone.utc).isoformat()}Z\n\n"
 
         approved = [
             c

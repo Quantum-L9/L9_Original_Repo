@@ -93,7 +93,7 @@ def create_mac_response(
     from datetime import datetime
 
     if timestamp is None:
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now(timezone.utc).isoformat()
 
     response = MacResponse(
         success=success,

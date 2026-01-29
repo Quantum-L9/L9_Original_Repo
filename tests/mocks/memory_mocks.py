@@ -111,7 +111,7 @@ class MockMemoryAdapter:
 
         packet = {
             "packet_id": packet_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             **data,
         }
 
@@ -216,7 +216,7 @@ class MockMemoryAdapter:
         checkpoint_id = str(uuid4())
         self.checkpoints[checkpoint_id] = {
             "id": checkpoint_id,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             **data,
         }
         return checkpoint_id

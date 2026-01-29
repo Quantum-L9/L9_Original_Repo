@@ -281,7 +281,7 @@ class ConceptExtractor:
                 "match_position": match.start(),
                 "match_pattern": match.re.pattern,
             },
-            created_at=datetime.utcnow().isoformat() + "Z",
+            created_at=datetime.now(timezone.utc).isoformat() + "Z",
         )
 
     def _extract_from_headers(
@@ -330,7 +330,7 @@ class ConceptExtractor:
                         confidence=confidence,
                         extracted_content=context,
                         metadata={"source": "header"},
-                        created_at=datetime.utcnow().isoformat() + "Z",
+                        created_at=datetime.now(timezone.utc).isoformat() + "Z",
                     )
                 )
 
@@ -367,7 +367,7 @@ class ConceptExtractor:
                         confidence=0.9,  # High confidence for structured YAML
                         extracted_content=content,
                         metadata={"source": "yaml_structure"},
-                        created_at=datetime.utcnow().isoformat() + "Z",
+                        created_at=datetime.now(timezone.utc).isoformat() + "Z",
                     )
                 )
 
@@ -671,7 +671,7 @@ class KnowledgeHarvester:
     ) -> str:
         """Generate harvest summary report."""
         summary = "# Knowledge Harvest Summary\n\n"
-        summary += f"**Generated:** {datetime.utcnow().isoformat()}Z\n\n"
+        summary += f"**Generated:** {datetime.now(timezone.utc).isoformat()}Z\n\n"
         summary += f"**Total Concepts Extracted:** {len(concepts)}\n\n"
 
         # Category breakdown

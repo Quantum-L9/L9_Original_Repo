@@ -191,7 +191,7 @@ class GMPWorker:
         Returns:
             Result dictionary with success, output, error, and execution details
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Validate inputs
         if not gmp_markdown:
@@ -216,7 +216,7 @@ class GMPWorker:
         cursor_dir.mkdir(parents=True, exist_ok=True)
 
         gmp_file = (
-            cursor_dir / f"gmp_task_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.md"
+            cursor_dir / f"gmp_task_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.md"
         )
 
         try:
@@ -266,14 +266,14 @@ class GMPWorker:
                     "output": None,
                     "traceback": None,
                     "duration_seconds": (
-                        datetime.utcnow() - start_time
+                        datetime.now(timezone.utc) - start_time
                     ).total_seconds(),
                 }
 
             stdout_str = stdout.decode("utf-8", errors="replace") if stdout else ""
             stderr_str = stderr.decode("utf-8", errors="replace") if stderr else ""
 
-            duration = (datetime.utcnow() - start_time).total_seconds()
+            duration = (datetime.now(timezone.utc) - start_time).total_seconds()
 
             if proc.returncode == 0:
                 logger.info(
@@ -318,7 +318,7 @@ class GMPWorker:
                 "error": str(e),
                 "output": None,
                 "traceback": str(e),
-                "duration_seconds": (datetime.utcnow() - start_time).total_seconds(),
+                "duration_seconds": (datetime.now(timezone.utc) - start_time).total_seconds(),
             }
         finally:
             # Optionally clean up GMP file after execution
@@ -431,7 +431,7 @@ async def approve_and_enqueue(task_id: str) -> bool:
     # Update payload to mark as approved
     task.payload["approved_by_igor"] = True
     task.payload["status"] = "approved"
-    task.payload["approved_at"] = datetime.utcnow().isoformat()
+    task.payload["approved_at"] = datetime.now(timezone.utc).isoformat()
 
     # Remove from pending
     await remove_pending_task(task_id)

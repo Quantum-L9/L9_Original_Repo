@@ -225,7 +225,7 @@ class TaskEnvelope(BaseModel):
             Self with updated assignment
         """
         self.agent_id = agent_id
-        self.assigned_at = datetime.utcnow()
+        self.assigned_at = datetime.now(timezone.utc)
         return self
 
     def to_dict(self) -> dict[str, Any]:

@@ -171,7 +171,7 @@ class ToolPatternExtractor:
             # 3. Store in World Model
             await self._store_patterns(patterns)
 
-            self._last_extraction = datetime.utcnow()
+            self._last_extraction = datetime.now(timezone.utc)
             self._extraction_count += 1
 
             logger.info(
@@ -213,7 +213,7 @@ class ToolPatternExtractor:
 
             try:
                 # Query recent tool invocations
-                lookback = datetime.utcnow() - timedelta(hours=self.lookback_hours)
+                lookback = datetime.now(timezone.utc) - timedelta(hours=self.lookback_hours)
 
                 query = """
                     SELECT
@@ -321,7 +321,7 @@ class ToolPatternExtractor:
             ),
             "total_cost_usd": total_cost,
             "lookback_hours": self.lookback_hours,
-            "extracted_at": datetime.utcnow().isoformat(),
+            "extracted_at": datetime.now(timezone.utc).isoformat(),
         }
 
     async def _store_patterns(self, patterns: dict[str, Any]) -> None:

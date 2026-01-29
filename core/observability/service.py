@@ -242,7 +242,7 @@ class ObservabilityService:
             "p50_latency_ms": durations[p50_idx] if p50_idx < len(durations) else 0,
             "p95_latency_ms": durations[p95_idx] if p95_idx < len(durations) else 0,
             "p99_latency_ms": durations[p99_idx] if p99_idx < len(durations) else 0,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         # Update Prometheus metrics

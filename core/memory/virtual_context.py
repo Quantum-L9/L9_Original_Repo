@@ -457,7 +457,7 @@ Facts only, no explanations or numbering."""
             # Create snapshot (graph_state is AgentGraphState dataclass)
             snapshot = {
                 "agent_id": agent_id,
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "responsibilities": [r.title for r in graph_state.responsibilities],
                 "directives_count": len(graph_state.directives),
                 "tools_count": len(graph_state.tools),

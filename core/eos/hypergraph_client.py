@@ -325,7 +325,7 @@ class EOSHypergraphClient:
                 decision=decision,
                 agent_id=agent_id,
                 justification=justification or [],
-                created_at=datetime.utcnow().isoformat(),
+                created_at=datetime.now(timezone.utc).isoformat(),
             )
 
             self.logger.info(

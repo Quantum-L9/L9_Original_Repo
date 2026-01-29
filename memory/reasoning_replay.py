@@ -66,7 +66,7 @@ class ReasoningChain:
         self.packets = packets
         self.depth = depth
         self.is_complete = is_complete
-        self.created_at = datetime.utcnow()
+        self.created_at = datetime.now(timezone.utc)
 
 
 class ReasoningReplayPipeline:

@@ -35,7 +35,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from uuid import UUID, uuid4
 
@@ -141,8 +141,8 @@ class ResearchState(BaseModel):
     )
 
     # === Timestamps ===
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     model_config = {"extra": "allow"}  # Allow LangGraph to add fields
 
@@ -151,13 +151,13 @@ class ResearchState(BaseModel):
         pass_key = f"pass_{pass_num}"
         new_metadata = self.pass_metadata.copy()
         new_metadata[pass_key] = PassMetadata(
-            status=PassStatus.RUNNING, started_at=datetime.utcnow()
+            status=PassStatus.RUNNING, started_at=datetime.now(timezone.utc)
         )
         return self.model_copy(
             update={
                 "current_pass": pass_num,
                 "pass_metadata": new_metadata,
-                "updated_at": datetime.utcnow(),
+                "updated_at": datetime.now(timezone.utc),
             }
         )
 
@@ -166,7 +166,7 @@ class ResearchState(BaseModel):
         pass_key = f"pass_{pass_num}"
         current_meta = self.pass_metadata.get(pass_key, PassMetadata())
 
-        completed_at = datetime.utcnow()
+        completed_at = datetime.now(timezone.utc)
         duration_ms = None
         if current_meta.started_at:
             duration_ms = (
@@ -190,14 +190,14 @@ class ResearchState(BaseModel):
             update={
                 "pass_metadata": new_metadata,
                 "errors": errors,
-                "updated_at": datetime.utcnow(),
+                "updated_at": datetime.now(timezone.utc),
             }
         )
 
     def add_error(self, error: str) -> "ResearchState":
         """Add an error to the state."""
         return self.model_copy(
-            update={"errors": [*self.errors, error], "updated_at": datetime.utcnow()}
+            update={"errors": [*self.errors, error], "updated_at": datetime.now(timezone.utc)}
         )
 
     def add_warning(self, warning: str) -> "ResearchState":
@@ -205,7 +205,7 @@ class ResearchState(BaseModel):
         return self.model_copy(
             update={
                 "warnings": [*self.warnings, warning],
-                "updated_at": datetime.utcnow(),
+                "updated_at": datetime.now(timezone.utc),
             }
         )
 

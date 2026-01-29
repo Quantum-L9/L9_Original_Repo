@@ -89,7 +89,7 @@ class AgentConfig:
     # Connection
     ws_url: str = field(
         default_factory=lambda: os.getenv(
-            "L9_WS_URL", "wss://l9.quantumaipartners.com/ws/agent"
+            "L9_WS_URL", "wss://mcp.quantumaipartners.com/ws/agent"
         )
     )
     agent_id: str = field(
@@ -185,7 +185,7 @@ def create_heartbeat(
             "load_avg": load_avg,
             "memory_usage_mb": memory_usage_mb,
             "cpu_percent": cpu_percent,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         },
     }
 
@@ -209,7 +209,7 @@ def create_task_result(
             "status": status,
             "result": output,
             "error": error,
-            "completed_at": datetime.utcnow().isoformat(),
+            "completed_at": datetime.now(timezone.utc).isoformat(),
         },
     }
 
@@ -231,7 +231,7 @@ def create_error_event(
             "message": message,
             "details": details or {},
             "recoverable": recoverable,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         },
     }
 

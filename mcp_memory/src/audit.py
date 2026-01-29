@@ -130,7 +130,7 @@ class AuditLogger:
             RuntimeError: If audit cannot be recorded to either DB or fallback file
         """
         event = {
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "tool_name": tool_name,
             "agent_id": agent_id,
             "caller_id": caller_id,

@@ -159,7 +159,7 @@ class PacketValidator:
             )
 
         # TTL must be in future (if provided)
-        if packet_in.ttl and packet_in.ttl < datetime.utcnow():
+        if packet_in.ttl and packet_in.ttl < datetime.now(timezone.utc):
             raise PacketValidationError(
                 f"ttl must be in the future, got {packet_in.ttl}",
                 field="ttl",
@@ -236,7 +236,7 @@ class PacketValidator:
                         error_code="INVALID_SOURCE_TIMESTAMP_FORMAT",
                     ) from None
 
-            if source_timestamp > datetime.utcnow():
+            if source_timestamp > datetime.now(timezone.utc):
                 raise PacketValidationError(
                     f"source_timestamp cannot be in the future, got {source_timestamp}",
                     field="provenance.source_timestamp",

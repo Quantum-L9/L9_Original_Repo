@@ -32,7 +32,7 @@ from typing import Any
 
 def ts() -> str:
     """Get current timestamp in ISO format."""
-    return datetime.utcnow().isoformat()
+    return datetime.now(timezone.utc).isoformat()
 
 
 def log_step(

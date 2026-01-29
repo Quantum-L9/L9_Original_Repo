@@ -225,7 +225,7 @@ def handle_governance_result(
 
         reasoning_block = StructuredReasoningBlock(
             step_id=str(uuid4()),
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             reasoning_type="governance",
             content=f"Decision approved by Igor: {escalation_result.rationale}",
             confidence=0.9,
@@ -253,7 +253,7 @@ def handle_governance_result(
 
         reasoning_block = StructuredReasoningBlock(
             step_id=str(uuid4()),
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             reasoning_type="governance",
             content=f"Decision rejected: {escalation_result.rationale}",
             confidence=0.9,

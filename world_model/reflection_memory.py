@@ -374,7 +374,7 @@ class ReflectionMemory:
         reflection = self._reflections.get(reflection_id)
         if reflection:
             reflection.access_count += 1
-            reflection.last_accessed = datetime.utcnow()
+            reflection.last_accessed = datetime.now(timezone.utc)
         return reflection
 
     def update_reflection(
@@ -458,7 +458,7 @@ class ReflectionMemory:
         existing = self.find_pattern_by_name(name)
         if existing:
             existing.frequency += 1
-            existing.last_seen = datetime.utcnow()
+            existing.last_seen = datetime.now(timezone.utc)
             existing.confidence = min(1.0, existing.confidence + 0.05)
             return existing
 
@@ -533,7 +533,7 @@ class ReflectionMemory:
 
         improvement.status = status
         if status == "implemented":
-            improvement.implemented_at = datetime.utcnow()
+            improvement.implemented_at = datetime.now(timezone.utc)
         if actual_impact:
             improvement.actual_impact = actual_impact
 

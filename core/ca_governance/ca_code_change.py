@@ -226,7 +226,7 @@ class CACodeChange:
         # Generate timestamp-based filename
         from datetime import datetime
 
-        timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
 
         # Save diff
         diff_path = output_dir / f"diff_{timestamp}.md"

@@ -118,7 +118,7 @@ class CheckpointValidator:
             **state,
             self.CHECKSUM_FIELD: checksum,
             self.SCHEMA_VERSION_FIELD: SchemaVersion.current().value,
-            self.CHECKSUM_TIMESTAMP_FIELD: datetime.utcnow().isoformat(),
+            self.CHECKSUM_TIMESTAMP_FIELD: datetime.now(timezone.utc).isoformat(),
         }
 
     def validate_checksum(

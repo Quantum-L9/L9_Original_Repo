@@ -44,7 +44,7 @@ import json
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -558,7 +558,7 @@ class SubstrateRepository:
                 """,
                 event_id,
                 agent_id,
-                timestamp or datetime.utcnow(),
+                timestamp or datetime.now(timezone.utc),
                 packet_id,
                 event_type,
                 content,  # Dict, not json.dumps() - asyncpg codec serializes JSONB
@@ -575,7 +575,7 @@ class SubstrateRepository:
                     """,
                 event_id,
                 agent_id,
-                timestamp or datetime.utcnow(),
+                timestamp or datetime.now(timezone.utc),
                 packet_id,
                 event_type,
                 content,  # Dict, not json.dumps() - asyncpg codec serializes JSONB
@@ -786,7 +786,7 @@ class SubstrateRepository:
         if fact_id is None:
             fact_id = uuid4()
 
-        created_at = datetime.utcnow()
+        created_at = datetime.now(timezone.utc)
 
         # Serialize object_value to JSON (always required for JSONB column)
         # Even strings must be JSON-encoded (wrapped in quotes) for PostgreSQL
@@ -991,7 +991,7 @@ class SubstrateRepository:
             agent_id,
             vector_str,
             json.dumps(payload),
-            datetime.utcnow(),
+            datetime.now(timezone.utc),
             scope,
         )
         logger.debug(f"Inserted semantic embedding {embedding_id} with scope={scope}")
@@ -1125,7 +1125,7 @@ class SubstrateRepository:
                 agent_id,
                 json.dumps(graph_state),
                 reason,
-                datetime.utcnow(),
+                datetime.now(timezone.utc),
             )
         except Exception as e:
             # Fallback: pre-0014 schema without reason column (upsert)
@@ -1143,7 +1143,7 @@ class SubstrateRepository:
                     checkpoint_id,
                     agent_id,
                     json.dumps(graph_state),
-                    datetime.utcnow(),
+                    datetime.now(timezone.utc),
                 )
             else:
                 raise
@@ -1306,7 +1306,7 @@ class SubstrateRepository:
                 VALUES ($1, $2, $3, $4, $5, $6)
                 """,
                 log_id,
-                datetime.utcnow(),
+                datetime.now(timezone.utc),
                 agent_id,
                 level.upper(),
                 message,
@@ -2337,7 +2337,7 @@ class SubstrateRepository:
         Returns:
             UUID of the new fact
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
 
         async with self.acquire() as conn, conn.transaction():
             # Get the old fact

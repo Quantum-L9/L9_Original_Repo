@@ -311,7 +311,7 @@ class WorldModelService:
                     attributes = {
                         "last_insight_type": insight_type,
                         "last_insight_content": content[:500] if content else None,
-                        "last_insight_at": datetime.utcnow().isoformat(),
+                        "last_insight_at": datetime.now(timezone.utc).isoformat(),
                     }
 
                     # Extract facts if present
@@ -414,7 +414,7 @@ class WorldModelService:
         snapshot_data = {
             "entities": [e.to_dict() for e in entities],
             "state_version": self._state_version,
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
 
         # Save to database

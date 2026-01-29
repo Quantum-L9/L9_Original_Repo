@@ -72,6 +72,15 @@ from config.settings import settings
 from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 from memory.substrate_service import MemorySubstrateService
 
+# Governance context for memory operations (required on C1 with RLS enabled)
+import os
+try:
+    from config.rls_config import get_rls_config
+    from memory.governance_gate import build_governance_context, governance_context
+    _has_governance = True
+except ImportError:
+    _has_governance = False
+
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import get_segmenter
 
@@ -197,7 +206,25 @@ async def handle_slack_with_l_agent(
         )
 
         # Execute task via AgentExecutorService
-        result = await agent_executor.start_agent_task(task)
+        # Wrap with governance context for RLS-enabled memory operations
+        if _has_governance:
+            rls_config = get_rls_config()
+            gov_ctx = build_governance_context(
+                caller_id="slack_ingest",
+                role="service",
+                scope="agent",
+                project_id=os.getenv("L9_PROJECT_ID", "l9"),
+                allowed_scopes=["agent", "memory", "slack"],
+                tenant_id=rls_config.tenant_uuid,
+                org_id=rls_config.org_uuid,
+                user_id=rls_config.user_uuid,
+                creator="slack",
+                source="slack_ingest",
+            )
+            async with governance_context(gov_ctx):
+                result = await agent_executor.start_agent_task(task)
+        else:
+            result = await agent_executor.start_agent_task(task)
 
         # Handle duplicate detection
         if isinstance(result, DuplicateTaskResponse):

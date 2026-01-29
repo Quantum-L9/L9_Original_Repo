@@ -13,9 +13,11 @@ How to make AI follow SOLID principles
 Here are a few tips:
 
 Use clear prompts when generating code with AI tools (e.g., Write a class that follows the Single Responsibility Principle).
+
 Design your system architecture with SOLID principles, especially when integrating AI models.
 Separate concerns in your AI pipeline (e.g., data preprocessing, model training, deployment).
 Use interfaces and abstractions to keep your system flexible and testable.
+
 AI systems don’t follow SOLID principles automatically. It’s up to developers to apply these principles when building AI-powered software. With thoughtful design and clear guidance, you can create systems that are modular, maintainable, and scalable, even when powered by AI.
 
 SOLID principles in AI development
@@ -167,7 +169,6 @@ Syncfusion Ad
 
 Supercharge your cross-platform apps with Syncfusion's robust .NET MAUI controls.
 
-Try it Now FREE
 Conclusion
 AI is reshaping software development, but it doesn’t replace good architecture. Tools like ChatGPT and Copilot generate code fast, but without guidance, they often ignore SOLID principles, leading to fragile, unscalable systems. SOLID isn’t outdated; it’s underutilized in AI workflows. By applying these principles through prompt engineering and modular design, developers can regain control over code quality and maintainability.
 

@@ -178,7 +178,7 @@ def save_kernel_hashes(
     data = {
         "version": "1.0.0",
         "algorithm": HASH_ALGORITHM,
-        "updated_at": datetime.utcnow().isoformat(),
+        "updated_at": datetime.now(timezone.utc).isoformat(),
         "hashes": hashes,
     }
 

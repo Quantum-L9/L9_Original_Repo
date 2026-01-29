@@ -348,7 +348,7 @@ class AgentMediator:
             # Update delivery status
             status = self.delivery_status[message.id]
             status.delivered = True
-            status.delivery_time = datetime.utcnow()
+            status.delivery_time = datetime.now(timezone.utc)
 
             logger.debug(f"Message delivered to {agent_id}", message_id=message.id)
         except Exception as e:

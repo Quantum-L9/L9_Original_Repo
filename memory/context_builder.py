@@ -291,7 +291,7 @@ class HierarchicalContextBuilder:
         )
 
         # Filter by recency
-        cutoff = datetime.utcnow() - timedelta(hours=24)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
         recent_facts = [f for f in facts if f.created_at and f.created_at > cutoff]
 
         if not recent_facts:

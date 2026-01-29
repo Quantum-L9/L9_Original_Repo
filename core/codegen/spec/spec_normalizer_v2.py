@@ -183,7 +183,7 @@ class NormalizedSpec:
     memory_substrates: tuple[str, ...] = field(default_factory=tuple)
 
     # Metadata
-    normalized_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    normalized_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     normalized_from: str = "unknown"  # 'yaml', 'json', 'dict'
 
     def to_dict(self) -> dict[str, Any]:

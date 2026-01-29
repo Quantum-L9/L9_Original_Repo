@@ -72,7 +72,7 @@ class ReflectionEngine:
                 total_accuracy += result.prediction_accuracy
 
         # Update last reflection timestamp
-        self.state.last_reflection_timestamp = datetime.utcnow().isoformat()
+        self.state.last_reflection_timestamp = datetime.now(timezone.utc).isoformat()
 
         # Calculate average accuracy
         avg_accuracy = total_accuracy / reflected_count if reflected_count > 0 else 0.0
@@ -117,7 +117,7 @@ class ReflectionEngine:
             "comparison": comparison,
             "learning": learning,
             "adjustments": adjustments,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         return ReflectionResult(
@@ -230,7 +230,7 @@ class ReflectionEngine:
                     "success_rate_last_20": success_rate,
                     "prediction_accuracy": prediction_accuracy,
                     "surprise_rate": 1.0 - prediction_accuracy,
-                    "last_updated": datetime.utcnow().isoformat(),
+                    "last_updated": datetime.now(timezone.utc).isoformat(),
                 }
             )
 

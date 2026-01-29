@@ -400,6 +400,107 @@ def get_mcp_tools() -> list[MCPTool]:
             },
         ),
         # =============================================================================
+        # Graph Event (Neo4j Event nodes) Tools
+        # =============================================================================
+        MCPTool(
+            name="graph_create_event",
+            description="Create an Event node in Neo4j timeline. Use for logging actions, agent responses, and building causality chains.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "event_id": {
+                        "type": "string",
+                        "description": "Unique event identifier (e.g., UUID)",
+                    },
+                    "event_type": {
+                        "type": "string",
+                        "description": "Event type (e.g., 'user_action', 'agent_response', 'tool_call')",
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "description": "ISO timestamp (e.g., '2026-01-28T12:00:00Z')",
+                    },
+                    "properties": {
+                        "type": "object",
+                        "description": "Additional event properties (content, metadata, etc.)",
+                    },
+                    "parent_event_id": {
+                        "type": "string",
+                        "description": "Optional parent event ID for causality chain (creates TRIGGERED relationship)",
+                    },
+                },
+                "required": ["event_id", "event_type", "timestamp"],
+            },
+        ),
+        MCPTool(
+            name="graph_get_event_timeline",
+            description="Get Event nodes from Neo4j in a time range. Use for reviewing history and temporal analysis.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "start_time": {
+                        "type": "string",
+                        "description": "ISO timestamp start (optional)",
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "description": "ISO timestamp end (optional)",
+                    },
+                    "event_type": {
+                        "type": "string",
+                        "description": "Filter by event type (optional)",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "default": 100,
+                        "description": "Maximum events to return",
+                    },
+                },
+                "required": [],
+            },
+        ),
+        MCPTool(
+            name="graph_get_temporal_events",
+            description="Get Event nodes related to a specific entity within a time range. Use for entity-centric timeline queries.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "entity": {
+                        "type": "string",
+                        "description": "Entity ID to get events for",
+                    },
+                    "start": {
+                        "type": "string",
+                        "description": "ISO timestamp start (optional)",
+                    },
+                    "end": {
+                        "type": "string",
+                        "description": "ISO timestamp end (optional)",
+                    },
+                },
+                "required": ["entity"],
+            },
+        ),
+        MCPTool(
+            name="graph_get_event_sequence",
+            description="Get ordered sequence of Event nodes for an entity. Use for tracing causality and understanding event flow.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "entity": {
+                        "type": "string",
+                        "description": "Entity ID to get event sequence for",
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "default": 50,
+                        "description": "Maximum events to return",
+                    },
+                },
+                "required": ["entity"],
+            },
+        ),
+        # =============================================================================
         # Cache (Redis) Tools
         # =============================================================================
         MCPTool(
@@ -489,8 +590,12 @@ async def handle_tool_call(
         GetContextArgs,
         GetMemoryStatsArgs,
         GetProactiveSuggestionsArgs,
+        GraphCreateEventArgs,
         GraphGetContextArgs,
         GraphGetEntityArgs,
+        GraphGetEventSequenceArgs,
+        GraphGetEventTimelineArgs,
+        GraphGetTemporalEventsArgs,
         GraphQueryArgs,
         QueryTemporalArgs,
         SaveMemoryArgs,
@@ -547,6 +652,15 @@ async def handle_tool_call(
             validated_args = GraphGetEntityArgs(**tool.arguments)
         elif tool.name == "graph_get_context":
             validated_args = GraphGetContextArgs(**tool.arguments)
+        # Graph Event (Neo4j Event nodes) tools
+        elif tool.name == "graph_create_event":
+            validated_args = GraphCreateEventArgs(**tool.arguments)
+        elif tool.name == "graph_get_event_timeline":
+            validated_args = GraphGetEventTimelineArgs(**tool.arguments)
+        elif tool.name == "graph_get_temporal_events":
+            validated_args = GraphGetTemporalEventsArgs(**tool.arguments)
+        elif tool.name == "graph_get_event_sequence":
+            validated_args = GraphGetEventSequenceArgs(**tool.arguments)
         # Cache (Redis) tools
         elif tool.name == "cache_get":
             validated_args = CacheGetArgs(**tool.arguments)
@@ -867,6 +981,112 @@ async def handle_tool_call(
                     "relationships": [],
                     "error": str(e),
                 }
+
+        # =============================================================================
+        # Graph Event (Neo4j Event nodes) Tool Handlers
+        # =============================================================================
+        elif tool.name == "graph_create_event":
+            try:
+                from api.memory.graph import get_neo4j
+
+                client = await get_neo4j()
+                if client is None or not client.is_available():
+                    result = {"error": "Neo4j not available", "available": False}
+                else:
+                    event_id = await client.create_event(
+                        event_id=validated_args.event_id,
+                        event_type=validated_args.event_type,
+                        timestamp=validated_args.timestamp,
+                        properties=validated_args.properties or {},
+                        parent_event_id=validated_args.parent_event_id,
+                    )
+                    if event_id:
+                        result = {
+                            "success": True,
+                            "event_id": event_id,
+                            "event_type": validated_args.event_type,
+                            "message": f"Event {event_id} created",
+                        }
+                    else:
+                        result = {"success": False, "error": "Failed to create event"}
+            except ImportError:
+                result = {"error": "Neo4j client not configured", "available": False}
+            except Exception as e:
+                result = {"error": str(e), "available": False}
+
+        elif tool.name == "graph_get_event_timeline":
+            try:
+                from api.memory.graph import get_neo4j
+
+                client = await get_neo4j()
+                if client is None or not client.is_available():
+                    result = {"error": "Neo4j not available", "available": False}
+                else:
+                    events = await client.get_event_timeline(
+                        start_time=validated_args.start_time,
+                        end_time=validated_args.end_time,
+                        event_type=validated_args.event_type,
+                        limit=validated_args.limit or 100,
+                    )
+                    result = {
+                        "success": True,
+                        "events": events,
+                        "count": len(events),
+                        "available": True,
+                    }
+            except ImportError:
+                result = {"error": "Neo4j client not configured", "available": False}
+            except Exception as e:
+                result = {"error": str(e), "available": False}
+
+        elif tool.name == "graph_get_temporal_events":
+            try:
+                from api.memory.graph import get_neo4j
+
+                client = await get_neo4j()
+                if client is None or not client.is_available():
+                    result = {"error": "Neo4j not available", "available": False}
+                else:
+                    events = await client.get_temporal_events(
+                        entity=validated_args.entity,
+                        start=validated_args.start,
+                        end=validated_args.end,
+                    )
+                    result = {
+                        "success": True,
+                        "entity": validated_args.entity,
+                        "events": events,
+                        "count": len(events),
+                        "available": True,
+                    }
+            except ImportError:
+                result = {"error": "Neo4j client not configured", "available": False}
+            except Exception as e:
+                result = {"error": str(e), "available": False}
+
+        elif tool.name == "graph_get_event_sequence":
+            try:
+                from api.memory.graph import get_neo4j
+
+                client = await get_neo4j()
+                if client is None or not client.is_available():
+                    result = {"error": "Neo4j not available", "available": False}
+                else:
+                    events = await client.get_event_sequence(
+                        entity=validated_args.entity,
+                        limit=validated_args.limit or 50,
+                    )
+                    result = {
+                        "success": True,
+                        "entity": validated_args.entity,
+                        "events": events,
+                        "count": len(events),
+                        "available": True,
+                    }
+            except ImportError:
+                result = {"error": "Neo4j client not configured", "available": False}
+            except Exception as e:
+                result = {"error": str(e), "available": False}
 
         # =============================================================================
         # Cache (Redis) Tool Handlers

@@ -249,7 +249,7 @@ class CodeGenAgent:
                         result.errors.append(f"{path}: {error}")
 
             result.success = len(result.errors) == 0
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
 
             logger.info(
                 "generation_complete",
@@ -258,7 +258,7 @@ class CodeGenAgent:
 
         except Exception as e:
             result.errors.append(str(e))
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
             logger.error(
                 "generation_failed",
                 module_id=contract.metadata.module_id,
@@ -305,15 +305,15 @@ class CodeGenAgent:
             result.generated_code = gen_result.generated_code
             result.errors = gen_result.errors
             result.warnings = gen_result.warnings
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
 
         except MetaLoaderError as e:
             result.errors.append(f"Load error: {e}")
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
             logger.error("meta_load_failed", path=meta_path, error=str(e))
         except Exception as e:
             result.errors.append(str(e))
-            result.completed_at = datetime.utcnow()
+            result.completed_at = datetime.now(timezone.utc)
             logger.error("generation_failed", path=meta_path, error=str(e))
 
         return result

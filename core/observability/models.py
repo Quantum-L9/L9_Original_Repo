@@ -30,7 +30,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -130,7 +130,7 @@ class Span(BaseModel):
         self, status: SpanStatus = SpanStatus.OK, error: str | None = None
     ) -> None:
         """Mark span as finished."""
-        self.end_time = datetime.utcnow()
+        self.end_time = datetime.now(timezone.utc)
         self.duration_ms = (self.end_time - self.start_time).total_seconds() * 1000
         self.status = status
         self.error = error
@@ -158,7 +158,7 @@ class Span(BaseModel):
             "parent_span_id": parent_span_id,
             "name": name,
             "kind": kind,
-            "start_time": datetime.utcnow(),
+            "start_time": datetime.now(timezone.utc),
         }
 
         # Extract subclass-specific fields from attributes
@@ -281,7 +281,7 @@ class KernelLifecycleSpan(Span):
             parent_span_id=parent_span_id,
             name=name,
             kind=kind,
-            start_time=datetime.utcnow(),
+            start_time=datetime.now(timezone.utc),
             kernel_id=kernel_id,
             **kwargs,
         )
@@ -293,7 +293,7 @@ class FailureSignal(BaseModel):
     failure_class: FailureClass
     span_id: str
     trace_id: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     context: dict[str, Any] = Field(default_factory=dict)
     auto_recovery_applied: bool = False
     recovery_action: str | None = None
@@ -313,7 +313,7 @@ class SREMetric(BaseModel):
     """SRE-level metric."""
 
     metric_name: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     value: float
     unit: str = ""
     dimensions: dict[str, str] = Field(default_factory=dict)
@@ -325,7 +325,7 @@ class AgentKPI(BaseModel):
     agent_name: str
     metric_name: str
     value: float
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     period: str = "1h"  # 1h, 1d, 1w
 
 

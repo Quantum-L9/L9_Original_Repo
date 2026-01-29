@@ -102,7 +102,7 @@ class ModuleCompiler:
         Returns:
             List of generated file paths
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         # Extract metadata
         metadata = spec.get("metadata", {})
@@ -174,7 +174,7 @@ class ModuleCompiler:
             env_file = await self._generate_env_example(spec, module_dir)
             generated_files.append(env_file)
 
-            compilation_time = (datetime.utcnow() - start_time).total_seconds()
+            compilation_time = (datetime.now(timezone.utc) - start_time).total_seconds()
 
             self.logger.info(
                 f"Module compiled successfully: {module_id}",

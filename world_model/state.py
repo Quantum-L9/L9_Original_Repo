@@ -130,8 +130,8 @@ class WorldModelState:
         self._entity_relations: dict[str, list[str]] = {}
         self._causal_graph: CausalGraph | None = None
         self._version: int = 0
-        self._created_at: datetime = datetime.utcnow()
-        self._updated_at: datetime = datetime.utcnow()
+        self._created_at: datetime = datetime.now(timezone.utc)
+        self._updated_at: datetime = datetime.now(timezone.utc)
 
     # =========================================================================
     # Entity Operations
@@ -165,7 +165,7 @@ class WorldModelState:
         self._entities[entity.entity_id] = entity
         self._entity_relations[entity.entity_id] = []
         self._version += 1
-        self._updated_at = datetime.utcnow()
+        self._updated_at = datetime.now(timezone.utc)
 
     def update_entity(self, entity_id: str, updates: dict[str, Any]) -> Entity | None:
         """
@@ -193,10 +193,10 @@ class WorldModelState:
             elif hasattr(entity, key):
                 setattr(entity, key, value)
 
-        entity.updated_at = datetime.utcnow()
+        entity.updated_at = datetime.now(timezone.utc)
         entity.version += 1
         self._version += 1
-        self._updated_at = datetime.utcnow()
+        self._updated_at = datetime.now(timezone.utc)
 
         return entity
 
@@ -234,7 +234,7 @@ class WorldModelState:
         del self._entities[entity_id]
         del self._entity_relations[entity_id]
         self._version += 1
-        self._updated_at = datetime.utcnow()
+        self._updated_at = datetime.now(timezone.utc)
 
         return True
 
@@ -296,7 +296,7 @@ class WorldModelState:
         self._entity_relations[relation.target_id].append(relation.relation_id)
 
         self._version += 1
-        self._updated_at = datetime.utcnow()
+        self._updated_at = datetime.now(timezone.utc)
 
     def remove_relation(self, relation_id: str) -> bool:
         """
@@ -326,7 +326,7 @@ class WorldModelState:
 
         del self._relations[relation_id]
         self._version += 1
-        self._updated_at = datetime.utcnow()
+        self._updated_at = datetime.now(timezone.utc)
 
         return True
 
@@ -343,7 +343,7 @@ class WorldModelState:
         """
         self._causal_graph = graph
         self._version += 1
-        self._updated_at = datetime.utcnow()
+        self._updated_at = datetime.now(timezone.utc)
 
     def get_causal_graph(self) -> CausalGraph | None:
         """
@@ -439,12 +439,12 @@ class WorldModelState:
                 created_at=(
                     datetime.fromisoformat(entity_data["created_at"])
                     if "created_at" in entity_data
-                    else datetime.utcnow()
+                    else datetime.now(timezone.utc)
                 ),
                 updated_at=(
                     datetime.fromisoformat(entity_data["updated_at"])
                     if "updated_at" in entity_data
-                    else datetime.utcnow()
+                    else datetime.now(timezone.utc)
                 ),
                 version=entity_data.get("version", 1),
             )
@@ -461,7 +461,7 @@ class WorldModelState:
                 created_at=(
                     datetime.fromisoformat(relation_data["created_at"])
                     if "created_at" in relation_data
-                    else datetime.utcnow()
+                    else datetime.now(timezone.utc)
                 ),
             )
 

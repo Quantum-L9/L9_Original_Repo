@@ -225,9 +225,9 @@ async def _save_via_main_pipeline(
     # Calculate TTL based on duration
     ttl = None
     if duration == "short":
-        ttl = datetime.utcnow() + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
+        ttl = datetime.now(timezone.utc) + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
     elif duration == "medium":
-        ttl = datetime.utcnow() + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
+        ttl = datetime.now(timezone.utc) + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
 
     # Build metadata dict (not PacketMetadata model - that's for envelope metadata)
     envelope_metadata = {
@@ -302,7 +302,7 @@ async def _save_via_main_pipeline(
         "scope": scope,
         "content": content[:100] + "..." if len(content) > 100 else content,
         "importance": importance,
-        "created_at": datetime.utcnow().isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
         "written_tables": result.written_tables,
         "ingest_time_ms": ingest_time_ms,
         # Enrichment visibility (v2.1.0 - GMP-67)
@@ -1239,9 +1239,9 @@ async def query_temporal(
         since_dt = (
             datetime.fromisoformat(since)
             if since
-            else datetime.utcnow() - timedelta(days=7)
+            else datetime.now(timezone.utc) - timedelta(days=7)
         )
-        until_dt = datetime.fromisoformat(until) if until else datetime.utcnow()
+        until_dt = datetime.fromisoformat(until) if until else datetime.now(timezone.utc)
 
         # Build WHERE clause
         where_parts = [

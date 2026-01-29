@@ -269,7 +269,7 @@ class ToolRouter:
                 return cached
             if vector is not None and self._cache_embeddings:
                 self._embedding_cache[tool_name] = vector
-            embedding.embedded_at = datetime.utcnow()
+            embedding.embedded_at = datetime.now(timezone.utc)
             self._tool_cache[tool_name] = embedding
             self._cache_version += 1
 

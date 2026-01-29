@@ -443,7 +443,7 @@ def create_packet_ingested_event(
         data={
             "packet_id": packet_id,
             "size_bytes": len(json.dumps(packet_data)),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         },
         subject=f"packet/{packet_id}",
     )

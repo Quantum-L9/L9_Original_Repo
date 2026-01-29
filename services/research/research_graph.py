@@ -283,7 +283,7 @@ async def finalize_node(state: ResearchGraphState) -> ResearchGraphState:
         "quality_score": state.get("critic_score", 0.0),
         "feedback": state.get("critic_feedback", ""),
         "thread_id": state.get("thread_id", ""),
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
     # Save checkpoint to memory substrate

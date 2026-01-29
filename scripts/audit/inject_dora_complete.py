@@ -957,7 +957,7 @@ class DoraCompleteInjector:
                 )
                 return modified, modified  # Use mtime for both
             except OSError:
-                timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+                timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
                 return timestamp, timestamp
 
     def _get_git_author(self, file_path: str) -> str:

@@ -384,7 +384,7 @@ class WorldModelRuntime:
         self._checkpoints: dict[int, dict[str, Any]] = {}
         self._triggers: dict[str, list[Callable]] = {}
         self._stats = RuntimeStats()
-        self._started_at = datetime.utcnow()
+        self._started_at = datetime.now(timezone.utc)
         self._lock = asyncio.Lock()
 
         # Event loop state
@@ -471,7 +471,7 @@ class WorldModelRuntime:
                 - errors: list[str]
         """
         self._mode = RuntimeMode.LOADING_SEEDS
-        load_start = datetime.utcnow()
+        load_start = datetime.now(timezone.utc)
         errors: list[str] = []
 
         patterns_loaded = 0
@@ -552,7 +552,7 @@ class WorldModelRuntime:
 
         self._mode = RuntimeMode.RUNNING
 
-        load_duration = (datetime.utcnow() - load_start).total_seconds()
+        load_duration = (datetime.now(timezone.utc) - load_start).total_seconds()
 
         return {
             "success": len(errors) == 0,
@@ -727,7 +727,7 @@ class WorldModelRuntime:
             Build result
         """
         self._mode = RuntimeMode.BUILDING
-        build_start = datetime.utcnow()
+        build_start = datetime.now(timezone.utc)
 
         entities_created = 0
         relations_created = 0
@@ -766,7 +766,7 @@ class WorldModelRuntime:
         self._mode = RuntimeMode.RUNNING
         self._version += 1
 
-        build_duration = (datetime.utcnow() - build_start).total_seconds()
+        build_duration = (datetime.now(timezone.utc) - build_start).total_seconds()
 
         logger.info(
             f"Build complete: {entities_created} entities, "
@@ -913,7 +913,7 @@ class WorldModelRuntime:
 
                 self._version += 1
                 self._stats.updates_applied += 1
-                self._stats.last_update_at = datetime.utcnow()
+                self._stats.last_update_at = datetime.now(timezone.utc)
 
             except Exception as e:
                 logger.error(f"Update from packet failed: {e}")
@@ -1511,7 +1511,7 @@ class WorldModelRuntime:
                     if entity:
                         old_value = entity.attributes.copy()
                         entity.attributes.update(data.get("attributes", {}))
-                        entity.updated_at = datetime.utcnow()
+                        entity.updated_at = datetime.now(timezone.utc)
 
                 elif update_type == "entity_delete":
                     entity = self._state.get_entity(target_id)
@@ -1635,7 +1635,7 @@ class WorldModelRuntime:
         """Create a checkpoint."""
         checkpoint = {
             "version": self._version,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "state_snapshot": self._state.to_dict() if self._state else {},
             "entity_count": self._state.entity_count if self._state else 0,
             "relation_count": self._state.relation_count if self._state else 0,
@@ -1685,7 +1685,7 @@ class WorldModelRuntime:
     def get_stats(self) -> RuntimeStats:
         """Get runtime statistics."""
         self._stats.uptime_seconds = (
-            datetime.utcnow() - self._started_at
+            datetime.now(timezone.utc) - self._started_at
         ).total_seconds()
         return self._stats
 
@@ -1745,7 +1745,7 @@ class WorldModelRuntime:
                 - errors: list[str]
                 - duration_ms: float
         """
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
         self._run_iteration += 1
 
         packets_processed = 0
@@ -1763,7 +1763,7 @@ class WorldModelRuntime:
                 since=self._last_poll_time,
             )
 
-            self._last_poll_time = datetime.utcnow()
+            self._last_poll_time = datetime.now(timezone.utc)
 
             # Process each packet
             for packet in packets:
@@ -1793,7 +1793,7 @@ class WorldModelRuntime:
             errors.append(f"run_once failed: {e}")
             logger.error(f"run_once iteration {self._run_iteration} failed: {e}")
 
-        duration_ms = (datetime.utcnow() - start_time).total_seconds() * 1000
+        duration_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
 
         return {
             "success": len(errors) == 0,
@@ -1904,8 +1904,8 @@ class WorldModelRuntime:
             self._shutdown_event.set()
 
         # Wait for loop to exit
-        deadline = datetime.utcnow().timestamp() + timeout
-        while self._running and datetime.utcnow().timestamp() < deadline:
+        deadline = datetime.now(timezone.utc).timestamp() + timeout
+        while self._running and datetime.now(timezone.utc).timestamp() < deadline:
             await asyncio.sleep(0.1)
 
         if self._running:

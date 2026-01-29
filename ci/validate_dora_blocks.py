@@ -301,7 +301,7 @@ def validate_directory(directory: str = ".") -> tuple[int, int, list[dict]]:
                 registry[result["component_id"]] = {
                     "file_path": str(file_path),
                     "governance_level": result["governance_level"],
-                    "last_validated": datetime.utcnow().isoformat(),
+                    "last_validated": datetime.now(timezone.utc).isoformat(),
                 }
 
     # Update registry file

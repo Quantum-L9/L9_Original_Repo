@@ -154,7 +154,7 @@ class QueuedTask:
             priority=data.get("priority", 5),
             tags=data.get("tags", []),
             created_at=datetime.fromisoformat(
-                data.get("created_at", datetime.utcnow().isoformat())
+                data.get("created_at", datetime.now(timezone.utc).isoformat())
             ),
             status=data.get("status", "pending_igor_approval"),
             approved_by=data.get("approved_by"),

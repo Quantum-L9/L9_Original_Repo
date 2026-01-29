@@ -220,7 +220,7 @@ class MistakePrevention:
             if matches:
                 # Track occurrence
                 rule.occurrences += 1
-                rule.last_triggered = datetime.utcnow()
+                rule.last_triggered = datetime.now(timezone.utc)
 
                 # Create violation for each match
                 for match in matches[:3]:  # Limit to first 3 matches
