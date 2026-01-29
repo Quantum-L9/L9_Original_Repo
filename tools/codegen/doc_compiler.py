@@ -73,7 +73,8 @@ class Schema:
 class DocumentClassifier:
     """Classifies documents based on schema hints."""
 
-    def __init__(self, schemas: list[Schema]):
+    def __init__(self, schemas: list[Schema]) -> None:
+        """Initialize classifier with schemas."""
         self.schemas = schemas
 
     def classify(self, text: str) -> Schema | None:
@@ -117,6 +118,7 @@ class ConstraintExtractor(ArtifactExtractor):
         return {k: v for k, v in result.items() if v is not None}
 
     def _extract_id(self, text: str, prefix: str) -> str | None:
+        """Extract constraint ID from text."""
         # Look for explicit IDs or generate from content
         match = re.search(
             r"(?:constraint[_\s]?id|id):\s*([A-Z0-9\-]+)", text, re.IGNORECASE
@@ -126,6 +128,7 @@ class ConstraintExtractor(ArtifactExtractor):
         return None
 
     def _extract_rule(self, text: str) -> str | None:
+        """Extract rule definition from text."""
         # Look for rule definitions
         match = re.search(r"(?:rule|constraint):\s*([^\n]+)", text, re.IGNORECASE)
         if match:
@@ -133,12 +136,14 @@ class ConstraintExtractor(ArtifactExtractor):
         return None
 
     def _extract_scope(self, text: str) -> str | None:
+        """Extract scope from text."""
         match = re.search(r"scope:\s*([^\n]+)", text, re.IGNORECASE)
         if match:
             return match.group(1).strip()
         return "code"
 
     def _extract_severity(self, text: str) -> str:
+        """Extract severity level from text."""
         if re.search(r"\b(blocking|critical|must)\b", text, re.IGNORECASE):
             return "blocking"
         if re.search(r"\b(warning|should)\b", text, re.IGNORECASE):
@@ -146,6 +151,7 @@ class ConstraintExtractor(ArtifactExtractor):
         return "info"
 
     def _extract_rationale(self, text: str) -> str | None:
+        """Extract rationale from text."""
         match = re.search(r"(?:rationale|why|reason):\s*([^\n]+)", text, re.IGNORECASE)
         if match:
             return match.group(1).strip()
@@ -156,6 +162,7 @@ class ProtocolExtractor(ArtifactExtractor):
     """Extracts protocol/workflow definitions."""
 
     def extract(self, text: str, schema: Schema) -> dict[str, Any]:
+        """Extract protocol data from text."""
         result = {
             "protocol_id": self._extract_id(text),
             "name": self._extract_name(text),
@@ -165,6 +172,7 @@ class ProtocolExtractor(ArtifactExtractor):
         return {k: v for k, v in result.items() if v is not None}
 
     def _extract_id(self, text: str) -> str | None:
+        """Extract protocol ID from text."""
         match = re.search(
             r"(?:protocol[_\s]?id|id):\s*([A-Z0-9\-]+)", text, re.IGNORECASE
         )
@@ -173,12 +181,14 @@ class ProtocolExtractor(ArtifactExtractor):
         return None
 
     def _extract_name(self, text: str) -> str | None:
+        """Extract protocol name from text."""
         match = re.search(r"(?:name|protocol):\s*([^\n]+)", text, re.IGNORECASE)
         if match:
             return match.group(1).strip()
         return None
 
     def _extract_steps(self, text: str) -> list[str]:
+        """Extract protocol steps from text."""
         steps = []
         # Look for numbered lists or bullet points
         for match in re.finditer(r"(?:^|\n)\s*(?:\d+\.|\-|\*)\s*([^\n]+)", text):
@@ -188,6 +198,7 @@ class ProtocolExtractor(ArtifactExtractor):
         return steps if steps else []
 
     def _extract_enforcement(self, text: str) -> str:
+        """Extract enforcement level from text."""
         if re.search(r"\b(required|must|mandatory)\b", text, re.IGNORECASE):
             return "required"
         return "recommended"
@@ -197,6 +208,7 @@ class PatternExtractor(ArtifactExtractor):
     """Extracts architectural pattern definitions."""
 
     def extract(self, text: str, schema: Schema) -> dict[str, Any]:
+        """Extract pattern data from text."""
         result = {
             "pattern_id": self._extract_id(text),
             "name": self._extract_name(text),
@@ -208,6 +220,7 @@ class PatternExtractor(ArtifactExtractor):
         return {k: v for k, v in result.items() if v is not None}
 
     def _extract_id(self, text: str) -> str | None:
+        """Extract pattern ID from text."""
         # Look for common pattern names
         patterns = ["MVC", "CQRS", "Hexagonal", "Event-Driven", "Microservices"]
         for pattern in patterns:
@@ -216,18 +229,21 @@ class PatternExtractor(ArtifactExtractor):
         return None
 
     def _extract_name(self, text: str) -> str | None:
+        """Extract pattern name from text."""
         match = re.search(r"(?:pattern|name):\s*([^\n]+)", text, re.IGNORECASE)
         if match:
             return match.group(1).strip()
         return None
 
     def _extract_intent(self, text: str) -> str | None:
+        """Extract pattern intent from text."""
         match = re.search(r"(?:intent|purpose|goal):\s*([^\n]+)", text, re.IGNORECASE)
         if match:
             return match.group(1).strip()
         return None
 
     def _extract_applicability(self, text: str) -> str | None:
+        """Extract applicability from text."""
         match = re.search(
             r"(?:when to use|applicability):\s*([^\n]+)", text, re.IGNORECASE
         )
@@ -236,6 +252,7 @@ class PatternExtractor(ArtifactExtractor):
         return None
 
     def _extract_constraints(self, text: str) -> list[str]:
+        """Extract constraints from text."""
         constraints = []
         for match in re.finditer(
             r"(?:constraint|rule):\s*([^\n]+)", text, re.IGNORECASE
@@ -244,6 +261,7 @@ class PatternExtractor(ArtifactExtractor):
         return constraints
 
     def _extract_failure_modes(self, text: str) -> list[str]:
+        """Extract failure modes from text."""
         modes = []
         for match in re.finditer(
             r"(?:failure|anti-pattern|avoid):\s*([^\n]+)", text, re.IGNORECASE
@@ -256,6 +274,7 @@ class HeuristicExtractor(ArtifactExtractor):
     """Extracts heuristic/judgment rules."""
 
     def extract(self, text: str, schema: Schema) -> dict[str, Any]:
+        """Extract heuristic data from text."""
         result = {
             "heuristic_id": self._extract_id(text),
             "rule": self._extract_rule(text),
@@ -266,6 +285,7 @@ class HeuristicExtractor(ArtifactExtractor):
         return {k: v for k, v in result.items() if v is not None}
 
     def _extract_id(self, text: str) -> str | None:
+        """Extract heuristic ID from text."""
         match = re.search(
             r"(?:heuristic[_\s]?id|id):\s*([A-Z0-9\-]+)", text, re.IGNORECASE
         )
@@ -274,18 +294,21 @@ class HeuristicExtractor(ArtifactExtractor):
         return None
 
     def _extract_rule(self, text: str) -> str | None:
+        """Extract heuristic rule from text."""
         match = re.search(r"(?:rule|heuristic):\s*([^\n]+)", text, re.IGNORECASE)
         if match:
             return match.group(1).strip()
         return None
 
     def _extract_rationale(self, text: str) -> str | None:
+        """Extract rationale from text."""
         match = re.search(r"(?:rationale|why):\s*([^\n]+)", text, re.IGNORECASE)
         if match:
             return match.group(1).strip()
         return None
 
     def _extract_violations(self, text: str) -> list[str]:
+        """Extract violation signals from text."""
         violations = []
         for match in re.finditer(
             r"(?:violation|signal|indicator):\s*([^\n]+)", text, re.IGNORECASE
@@ -294,6 +317,7 @@ class HeuristicExtractor(ArtifactExtractor):
         return violations
 
     def _extract_severity(self, text: str) -> str:
+        """Extract severity level from text."""
         if re.search(r"\b(critical|blocking)\b", text, re.IGNORECASE):
             return "critical"
         if re.search(r"\b(warning|important)\b", text, re.IGNORECASE):

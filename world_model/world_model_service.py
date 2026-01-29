@@ -102,6 +102,7 @@ class WorldContext:
     stats: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert context to dictionary."""
         return {
             "context_id": self.context_id,
             "timestamp": self.timestamp.isoformat(),
@@ -141,6 +142,7 @@ class ConstraintSet:
     false_constraints: list[dict[str, Any]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert constraint set to dictionary."""
         return {
             "constraint_set_id": self.constraint_set_id,
             "explicit_constraints": self.explicit_constraints,
@@ -173,6 +175,7 @@ class PatternMatch:
     example_uses: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert pattern match to dictionary."""
         return {
             "pattern_id": self.pattern_id,
             "name": self.name,
@@ -202,6 +205,7 @@ class HeuristicMatch:
     confidence: float = 1.0
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert heuristic match to dictionary."""
         return {
             "heuristic_id": self.heuristic_id,
             "rule": self.rule,

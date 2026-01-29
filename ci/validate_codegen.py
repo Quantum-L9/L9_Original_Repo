@@ -86,19 +86,23 @@ REQUIRED_PATTERNS = {
 class CodeValidationResult:
     """Accumulates code validation errors."""
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize validation result container."""
         self.errors: list[str] = []
         self.warnings: list[str] = []
         self.files_checked: list[str] = []
 
     def add_error(self, error: str) -> None:
+        """Add an error to the result."""
         self.errors.append(error)
 
     def add_warning(self, warning: str) -> None:
+        """Add a warning to the result."""
         self.warnings.append(warning)
 
     @property
     def is_valid(self) -> bool:
+        """Check if validation passed."""
         return len(self.errors) == 0
 
     def print_report(self) -> None:

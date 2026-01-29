@@ -127,7 +127,8 @@ class PacketEnvelopeObservability:
     Integrates trace context, metrics, and structured logging
     """
 
-    def __init__(self, config: ObservabilityConfig = None):
+    def __init__(self, config: ObservabilityConfig = None) -> None:
+        """Initialize observability engine with config."""
         self.config = config or ObservabilityConfig()
         self.logger = logger
 
@@ -225,7 +226,8 @@ class PacketEnvelopeObservability:
 
         def decorator(func: Callable):
             @wraps(func)
-            async def async_wrapper(*args, **kwargs):
+            async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                """Async wrapper with tracing."""
                 if not should_trace or not self.config.enabled:
                     return await func(*args, **kwargs)
 
@@ -271,7 +273,8 @@ class PacketEnvelopeObservability:
                         )
 
             @wraps(func)
-            def sync_wrapper(*args, **kwargs):
+            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+                """Sync wrapper with tracing."""
                 if not should_trace or not self.config.enabled:
                     return func(*args, **kwargs)
 

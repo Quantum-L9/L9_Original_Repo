@@ -62,7 +62,8 @@ class BackgroundTaskRegistry:
         await bg_tasks.shutdown_all()
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
+        """Initialize background task registry."""
         self._tasks: dict[str, asyncio.Task] = {}
         self._configs: dict[str, dict[str, Any]] = {}
         logger.info("BackgroundTaskRegistry initialized")
@@ -106,7 +107,8 @@ class BackgroundTaskRegistry:
             return False
 
         # Create task loop
-        async def task_loop():
+        async def task_loop() -> None:
+            """Run task periodically until cancelled."""
             if not run_immediately:
                 await asyncio.sleep(interval_seconds)
 
@@ -168,7 +170,8 @@ class BackgroundTaskRegistry:
             logger.warning(f"Task '{name}' already registered")
             return False
 
-        async def oneshot_wrapper():
+        async def oneshot_wrapper() -> None:
+            """Run one-shot task and log result."""
             try:
                 await coro()
                 logger.info(f"One-shot task '{name}' completed")
@@ -246,9 +249,11 @@ class BackgroundTaskRegistry:
         }
 
     def __len__(self) -> int:
+        """Return number of registered tasks."""
         return len(self._tasks)
 
     def __repr__(self) -> str:
+        """Return string representation of registry."""
         running = sum(1 for t in self._tasks.values() if not t.done())
         return f"BackgroundTaskRegistry(total={len(self)}, running={running})"
 
