@@ -92,9 +92,26 @@ DATABASE_URL = os.getenv(
 _pool = None
 
 
-async def get_pool():
-    """Get or create connection pool."""
+async def get_pool(
+    pool: asyncpg.Pool | None = None,
+) -> asyncpg.Pool:
+    """
+    Get connection pool, or use injected pool.
+
+    GMP-90: Supports dependency injection for testability and CLI tools.
+
+    Args:
+        pool: Optional pre-initialized pool for dependency injection.
+              When provided, returns this pool directly.
+              When None, returns or creates the singleton pool.
+
+    Returns:
+        asyncpg.Pool: Database connection pool
+    """
     global _pool
+    # GMP-90: Support dependency injection
+    if pool is not None:
+        return pool
     if _pool is None:
         _pool = await asyncpg.create_pool(
             DATABASE_URL,
