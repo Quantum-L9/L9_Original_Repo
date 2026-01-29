@@ -90,20 +90,17 @@ async def _get_openai_client():
 
 
 async def _get_db_pool():
-    """Get database connection pool via the repository singleton."""
+    """Get database connection pool via the memory substrate service singleton."""
     try:
-        # Import the correct singleton accessor (not get_pool which doesn't exist)
-        from memory.substrate_repository import get_repository
+        # Use get_service() which is initialized by API server lifespan
+        # (NOT get_repository() which requires separate init_repository() call)
+        from memory.substrate_service import get_service
 
-        # Get the initialized repository instance
-        repository = get_repository()
+        # Get the initialized service instance
+        service = await get_service()
 
-        # Return the underlying asyncpg pool
-        if repository._pool is None:
-            # Pool not initialized - repository.connect() must be called at startup
-            await repository.connect()
-
-        return repository._pool
+        # Access the repository's pool through the service
+        return service._repository._pool
 
     except (ImportError, RuntimeError) as exc:
         logger.error(
