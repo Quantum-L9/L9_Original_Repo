@@ -85,6 +85,7 @@ class DeliberationResult:
     duration_ms: int
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert result to dictionary."""
         return {
             "session_id": str(self.session_id),
             "graph_id": str(self.final_graph.graph_id),
@@ -477,6 +478,7 @@ class DeliberationCell:
     # ==========================================================================
 
     def _parse_intent_type(self, value: str) -> IntentType:
+        """Parse string to IntentType enum."""
         mapping = {
             "create": IntentType.CREATE,
             "modify": IntentType.MODIFY,
@@ -490,6 +492,7 @@ class DeliberationCell:
         return mapping.get(value.lower(), IntentType.EXECUTE)
 
     def _parse_constraint_type(self, value: str) -> ConstraintType:
+        """Parse string to ConstraintType enum."""
         mapping = {
             "explicit": ConstraintType.EXPLICIT,
             "implicit": ConstraintType.IMPLICIT,
@@ -500,6 +503,7 @@ class DeliberationCell:
         return mapping.get(value.lower(), ConstraintType.EXPLICIT)
 
     def _parse_action_type(self, value: str) -> ActionType:
+        """Parse string to ActionType enum."""
         mapping = {
             "code_write": ActionType.CODE_WRITE,
             "code_read": ActionType.CODE_READ,
@@ -514,6 +518,7 @@ class DeliberationCell:
         return mapping.get(value.lower(), ActionType.CODE_WRITE)
 
     def _parse_priority(self, value: str) -> NodePriority:
+        """Parse string to NodePriority enum."""
         mapping = {
             "critical": NodePriority.CRITICAL,
             "high": NodePriority.HIGH,

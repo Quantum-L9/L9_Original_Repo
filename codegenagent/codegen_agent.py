@@ -89,11 +89,13 @@ class GenerationResult:
 
     @property
     def duration_ms(self) -> float | None:
+        """Calculate duration in milliseconds."""
         if self.completed_at:
             return (self.completed_at - self.started_at).total_seconds() * 1000
         return None
 
     def to_summary(self) -> dict[str, Any]:
+        """Convert result to summary dictionary."""
         return {
             "success": self.success,
             "module_id": self.module_id,
@@ -126,10 +128,12 @@ class DryRunResult:
 
     @property
     def would_create(self) -> int:
+        """Count of files that would be created."""
         return len(self.new_files)
 
     @property
     def would_modify(self) -> int:
+        """Count of files that would be modified."""
         return len(self.modified_files)
 
 
@@ -146,6 +150,7 @@ class BatchResult:
 
     @property
     def success(self) -> bool:
+        """Check if batch completed without failures."""
         return self.failed == 0
 
 

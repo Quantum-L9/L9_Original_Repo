@@ -44,6 +44,7 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 def iter_python_files() -> list[Path]:
+    """Iterate over Python files in the repository."""
     ignored = {"tests", ".venv", "venv", "migrations", "private"}
     files: list[Path] = []
 
@@ -57,11 +58,13 @@ def iter_python_files() -> list[Path]:
 
 
 class GlobalStateVisitor(ast.NodeVisitor):
-    def __init__(self, filename: Path):
+    def __init__(self, filename: Path) -> None:
+        """Initialize visitor with filename."""
         self.filename = filename
         self.suspicious: list[tuple[int, str]] = []
 
-    def visit_Assign(self, node: ast.Assign):
+    def visit_Assign(self, node: ast.Assign) -> None:
+        """Visit assignment node and check for suspicious patterns."""
         # Only look at module-level assignments
         if not isinstance(getattr(node, "parent", None), ast.Module):
             return
@@ -90,13 +93,15 @@ class GlobalStateVisitor(ast.NodeVisitor):
             for name in target_names:
                 self.suspicious.append((line, name))
 
-    def generic_visit(self, node):
+    def generic_visit(self, node: ast.AST) -> None:
+        """Visit child nodes and set parent references."""
         for child in ast.iter_child_nodes(node):
             child.parent = node  # type: ignore[attr-defined]
             self.visit(child)
 
 
-def main():
+def main() -> None:
+    """Run global state audit on repository."""
     files = iter_python_files()
     logger.info(f"[L9 STATE AUDIT] Scanning {len(files)} Python files under {ROOT}")
 

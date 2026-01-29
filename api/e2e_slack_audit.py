@@ -55,7 +55,8 @@ logger = structlog.get_logger(__name__)
 class AuditResult:
     """Container for audit results."""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
+        """Initialize audit result with name."""
         self.name = name
         self.status = "pending"
         self.checks: list[dict[str, Any]] = []
@@ -63,18 +64,22 @@ class AuditResult:
         self.errors: list[str] = []
         self.recommendations: list[str] = []
 
-    def add_check(self, name: str, passed: bool, details: str = ""):
+    def add_check(self, name: str, passed: bool, details: str = "") -> None:
+        """Add a check result to the audit."""
         self.checks.append({"name": name, "passed": passed, "details": details})
         if not passed:
             self.errors.append(f"{name}: {details}")
 
-    def add_warning(self, warning: str):
+    def add_warning(self, warning: str) -> None:
+        """Add a warning to the audit."""
         self.warnings.append(warning)
 
-    def add_recommendation(self, recommendation: str):
+    def add_recommendation(self, recommendation: str) -> None:
+        """Add a recommendation to the audit."""
         self.recommendations.append(recommendation)
 
-    def finalize(self):
+    def finalize(self) -> None:
+        """Finalize audit and set status."""
         if self.errors:
             self.status = "FAILED"
         elif self.warnings:
