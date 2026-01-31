@@ -47,6 +47,17 @@ logger = structlog.get_logger(__name__)
 
 @dataclass
 class ToolHealthSnapshot:
+    """
+    Represents a snapshot of tool health metrics used for self-improvement analysis within the tool learning engine.
+
+    Args:
+        tool_name: Name of the tool being monitored.
+        task_type: Optional type of task associated with the tool.
+        success_rate: Proportion of successful executions.
+        avg_latency_ms: Average execution latency in milliseconds.
+        usage_count: Total number of times the tool was used.
+    """
+
     tool_name: str
     task_type: str | None
     success_rate: float

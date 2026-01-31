@@ -39,10 +39,20 @@ def _get_kernels():
 
 
 def get_identity_profile() -> dict:
+    """Returns the identity profile dictionary containing persona and style settings from the identity wiring module."""
     return _get_kernels().get_kernel("identity") or {}
 
 
 def apply_identity_to_response(text: str) -> str:
+    """
+    Performs identity-based formatting on response text within the persona management context.
+
+    Args:
+        text: The original response text to be processed.
+
+    Returns:
+        The formatted response text after applying identity profile settings.
+    """
     identity = get_identity_profile()
     # Example: enforce tone, brevity, etc.
     identity.get("style", {})

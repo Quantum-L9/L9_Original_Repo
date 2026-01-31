@@ -39,6 +39,7 @@ def _get_kernels():
 
 
 def get_worldmodel_schema() -> dict:
+    """Returns the schema dictionary for the world model from the kernel repository, or an empty dict if not available."""
     return _get_kernels().get_kernel("worldmodel") or {}
 
 

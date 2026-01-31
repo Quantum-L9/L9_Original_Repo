@@ -474,6 +474,16 @@ def run_verification(verbose: bool = False, fix_suggestions: bool = False) -> bo
 
 
 def main():
+    """
+    Performs verification of memory spec v3.0 YAML file to ensure uniqueness, completeness, and proper implementation of required modules and methods.
+
+
+
+    Raises:
+        FileNotFoundError: If the memory spec YAML file is missing.
+        ValueError: If the spec contains duplicates or incomplete modules.
+        NotImplementedError: If required methods are not implemented in modules.
+    """
     parser = argparse.ArgumentParser(
         description="Verify memory spec v3.0 implementation"
     )

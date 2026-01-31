@@ -62,6 +62,8 @@ class HallucinationSettings(BaseSettings):
     )
 
     class Config:
+        """Settings class for AI evaluation guardrails, managing environment variables prefixed with AI_EVAL_ to configure bias detection, hallucination checks, and related AI safety parameters."""
+
         env_prefix = "AI_EVAL_HALLUCINATION_"
 
 
@@ -84,6 +86,21 @@ class BiasSettings(BaseSettings):
     )
 
     class Config:
+        """
+        Represents configuration settings for AI evaluation guardrails, including environment variable mappings and evaluation parameters.
+
+        Args:
+            enabled (bool): Flag to enable or disable the evaluation suite.
+            golden_dataset_path (str): Filesystem path to the golden dataset used for benchmarking.
+            pass_rate_threshold (float): Minimum acceptable pass rate for evaluation success.
+
+        Returns:
+            None
+
+        Raises:
+            pydantic.ValidationError: If provided settings are invalid or missing required fields.
+        """
+
         env_prefix = "AI_EVAL_BIAS_"
 
 
@@ -109,6 +126,16 @@ class EvalSettings(BaseSettings):
     )
 
     class Config:
+        """
+        Represents AI evaluation settings configured via environment variables for AI guardrails CI checks.
+
+        Args:
+            env_prefix: Prefix for environment variables to load settings, default is "AI_EVAL_EVAL_".
+
+        Returns:
+            An instance of the Config class with settings loaded from environment variables.
+        """
+
         env_prefix = "AI_EVAL_EVAL_"
 
 
@@ -137,6 +164,8 @@ class SecuritySettings(BaseSettings):
     )
 
     class Config:
+        """Master configuration class for AI evaluation guardrails, managing environment-based settings for AI safety checks and behavior controls."""
+
         env_prefix = "AI_EVAL_SECURITY_"
 
 
@@ -180,6 +209,17 @@ class AIEvalSettings(BaseSettings):
     )
 
     class Config:
+        """
+        Represents Pydantic settings for AI guardrails CI checks with environment variable support.
+
+        Args:
+            env_prefix: Prefix for environment variables, default "AI_EVAL_".
+            env_nested_delimiter: Delimiter for nested env vars, default "__".
+
+        Returns:
+            Config class with environment variable configuration for AI evaluation settings.
+        """
+
         env_prefix = "AI_EVAL_"
         env_nested_delimiter = "__"
 

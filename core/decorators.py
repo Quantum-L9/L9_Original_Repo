@@ -71,6 +71,13 @@ def must_stay_async(reason: str) -> Callable[[F], F]:
     """
 
     def decorator(func: F) -> F:
+        """
+        Marks a function as requiring to stay asynchronous within the L9 codebase.
+        Args:
+            func: The function to be decorated, indicating it must remain async.
+        Returns:
+            The decorated function with added attributes for async enforcement.
+        """
         func._must_stay_async = reason  # type: ignore[attr-defined]
         func._must_stay_async_marker = True  # type: ignore[attr-defined]
         return func

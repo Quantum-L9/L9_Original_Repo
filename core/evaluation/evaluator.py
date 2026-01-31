@@ -31,7 +31,7 @@ __dora_meta__ = {
 import statistics
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -84,6 +84,7 @@ class EvaluationResult:
 
     @property
     def task_success_rate(self) -> float:
+        """Returns the proportion of successfully completed tasks in the evaluation run, representing the agent's success rate."""
         return (
             self.examples_passed / self.examples_run if self.examples_run > 0 else 0.0
         )
@@ -98,6 +99,13 @@ class Evaluator:
         llm_service: Any = None,
         agent_service: Any = None,
     ):
+        """
+        Initializes the Evaluator with services for agent performance assessment within the evaluation framework.
+        Args:
+            substrate_service: MemorySubstrateService instance managing memory and context storage.
+            llm_service: Optional language model service for scoring and judgment.
+            agent_service: Optional service managing agent interactions and execution.
+        """
         self.substrate = substrate_service
         self.llm = llm_service
         self.agent_service = agent_service
@@ -205,7 +213,7 @@ class Evaluator:
         result = EvaluationResult(
             agent_id=agent_id,
             eval_set_name=eval_set_name,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             version=version,
             examples_run=len(eval_set.examples),
             examples_passed=passed,

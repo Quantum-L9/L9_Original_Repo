@@ -383,6 +383,15 @@ def redact_pii(payload: Any) -> tuple[Any, int, tuple[str, ...]]:
     pii_types: set[str] = set()
 
     def _redact_value(value: Any) -> Any:
+        """
+        Performs redaction of sensitive values to prevent data leaks during audit processing.
+
+        Args:
+            value: The input data that may contain personally identifiable information (PII) to be redacted.
+
+        Returns:
+            The input data with PII replaced by redaction markers.
+        """
         nonlocal redaction_count
         if isinstance(value, str):
             redacted = value

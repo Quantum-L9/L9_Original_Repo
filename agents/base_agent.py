@@ -51,7 +51,7 @@ __dora_meta__ = {
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -120,6 +120,7 @@ class AgentResponse:
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
+        """Returns a dictionary representation of the agent response, including response ID, agent ID, truncated content, and success status."""
         return {
             "response_id": str(self.response_id),
             "agent_id": self.agent_id,
@@ -240,7 +241,7 @@ class BaseAgent(ABC):
             RateLimitExceeded: If rate limit is exceeded
         """
         client = self._ensure_client()
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Build message list with system prompt
         api_messages = [{"role": "system", "content": self.get_system_prompt()}]
@@ -282,7 +283,7 @@ class BaseAgent(ABC):
             tokens = response.usage.total_tokens if response.usage else 0
 
             duration_ms = int(
-                (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+                (datetime.now(UTC) - start_time).total_seconds() * 1000
             )
 
             # Parse JSON if in json_mode
@@ -305,7 +306,7 @@ class BaseAgent(ABC):
         except Exception as e:
             logger.error(f"LLM call failed for {self._agent_id} after retries: {e}")
             duration_ms = int(
-                (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+                (datetime.now(UTC) - start_time).total_seconds() * 1000
             )
 
             return AgentResponse(

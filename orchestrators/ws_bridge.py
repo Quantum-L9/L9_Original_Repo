@@ -247,6 +247,14 @@ class WSBridgeConfig:
         error_priority: int = 2,
         control_priority: int = 1,
     ):
+        """
+        Initializes WSBridgeConfig with customizable control event handling and priority settings for WebSocket message routing.
+        Args:
+            enable_control_events: Enables processing of control event messages.
+            default_priority: Default priority level for message routing.
+            error_priority: Priority level assigned to error messages.
+            control_priority: Priority level for control messages.
+        """
         self.enable_control_events = enable_control_events
         self.default_priority = default_priority
         self.error_priority = error_priority
@@ -264,6 +272,16 @@ class WSEventRouter:
     """
 
     def __init__(self, config: WSBridgeConfig | None = None):
+        """
+        Initializes the WebSocket event router with optional configuration for handling inbound EventMessages and registering custom event handlers.
+
+        Args:
+            config: Optional WSBridgeConfig object to customize router behavior; defaults to None which creates a new WSBridgeConfig instance.
+
+
+        Raises:
+            TypeError: If config is not a WSBridgeConfig instance or None.
+        """
         self._config = config or WSBridgeConfig()
         self._handlers: dict = {}
 

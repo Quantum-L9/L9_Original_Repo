@@ -43,6 +43,12 @@ class TimelineService:
     """
 
     def __init__(self, repository: SubstrateRepository) -> None:
+        """
+        Initializes the TimelineService with a repository for reconstructing ordered memory event timelines for an agent.
+
+        Args:
+            repository: SubstrateRepository instance used to access memory events.
+        """
         self._repository = repository
 
     async def get_recent_events(

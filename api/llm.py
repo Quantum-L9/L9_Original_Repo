@@ -43,6 +43,18 @@ USE_KERNELS = os.getenv("L9_USE_KERNELS", "true").lower() in ("true", "1", "yes"
 
 
 def get_client() -> OpenAI:
+    """
+    Returns an OpenAI client configured with the API key from environment variables.
+
+    Args:
+        None
+
+    Returns:
+        OpenAI: An instance configured with the API key for interacting with OpenAI models.
+
+    Raises:
+        RuntimeError: If the OPENAI_API_KEY environment variable is not set.
+    """
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY not set")

@@ -35,7 +35,7 @@ import argparse
 import json
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 # ============================================================================
@@ -46,6 +46,16 @@ class DoraLegacyMigrator:
     """Migrates legacy __dora_block__ to three-block format."""
 
     def __init__(self, repo_path: str):
+        """
+        Performs initialization of the DoraLegacyMigrator with the repository path to manage legacy __dora_block__ migration.
+
+        Args:
+            repo_path: Path to the repository containing files to be migrated.
+
+
+        Raises:
+            ValueError: If the provided repo_path is invalid or does not exist.
+        """
         self.repo_path = Path(repo_path)
         self.legacy_files: list[str] = []
 
@@ -124,7 +134,7 @@ class DoraLegacyMigrator:
 
     def _format_new_footer(self, legacy_data: dict) -> str:
         """Format new __dora_footer__ from legacy data."""
-        datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         return """
 
@@ -261,6 +271,12 @@ class DoraMultiFormatMigrator:
     """Migrates legacy l9_dora to three-block format in YAML/JSON/MD files."""
 
     def __init__(self, repo_path: str):
+        """
+        Performs initialization of the DoraMultiFormatMigrator with the repository path for legacy DORA file migration.
+
+        Args:
+            repo_path: Path to the repository containing legacy DORA files.
+        """
         self.repo_path = Path(repo_path)
         self.legacy_files: dict[str, str] = {}  # file_path -> file_type
 
@@ -325,7 +341,7 @@ class DoraMultiFormatMigrator:
             content = re.sub(r"\n*l9_dora:\n(?:  .*\n)+# ={10,}\n*", "\n", content)
 
             # Parse legacy data (simplified - actual implementation would use yaml.safe_load)
-            timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+            timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
             # Add new three-block format
             new_header = f"""dora_meta:
@@ -416,6 +432,15 @@ l9_trace:
 
 
 def main():
+    """
+    Performs the migration of legacy __dora_block__ structures to a standardized three-block format in DORA contract files.
+
+
+
+    Raises:
+        FileNotFoundError: If the specified repository path does not exist.
+        argparse.ArgumentError: If command-line arguments are invalid.
+    """
     parser = argparse.ArgumentParser(
         description="Migrate legacy DORA blocks to contract-compliant three-block format"
     )

@@ -187,6 +187,16 @@ class AutoRegistry[T]:
         def decorator(
             component: T | Callable[[], T],
         ) -> T | Callable[[], T]:
+            """
+            Performs automatic discovery and registration of L9 components, ensuring type safety and avoiding duplicates.
+            Args:
+                component: The component or factory function to register, either as an instance or callable.
+            Returns:
+                The registered component or factory function, maintaining type integrity.
+            Raises:
+                DuplicateRegistrationError: If the component is already registered.
+                ValidationError: If the component fails validation checks.
+            """
             # Determine component name
             component_name = name
             if component_name is None:

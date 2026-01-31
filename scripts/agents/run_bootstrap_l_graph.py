@@ -48,6 +48,14 @@ from neo4j import AsyncGraphDatabase
 
 
 async def main():
+    """
+    Performs the main execution flow for bootstrapping L's agent graph in Neo4j, including environment setup and database initialization.
+
+
+
+    Raises:
+        Exception: If environment variables are missing or Neo4j connection fails
+    """
     # Get Neo4j credentials from environment
     # Check both NEO4J_URI and NEO4J_URL (docker-compose uses URL)
     neo4j_uri = os.getenv("NEO4J_URI") or os.getenv(

@@ -314,6 +314,15 @@ class TokenOverusePattern(GapDetectionPattern):
     target_kernel = "memory"
 
     def detect(self, context: TaskExecutionContext) -> BehaviorGap | None:
+        """
+        Detects behavioral gaps related to token overuse in kernel-aware agent task execution.
+
+        Args:
+            context: The current task execution context containing token usage data.
+
+        Returns:
+            A BehaviorGap instance indicating a performance gap if token overuse exceeds threshold; otherwise, None.
+        """
         # Configurable threshold for token overuse
         if context.tokens_used > TOKEN_THRESHOLD:
             return BehaviorGap(

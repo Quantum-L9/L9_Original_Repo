@@ -510,6 +510,18 @@ def run_mypy_check(root_path: Path, files: list[Path] | None = None) -> tuple[in
 
 
 def main():
+    """
+    Fixes untyped decorators in Python scripts to ensure mypy compliance by parsing command-line arguments and applying necessary code modifications.
+
+    Args:
+        args: Namespace object containing parsed command-line arguments, including command and dry-run options.
+        cwd: Current working directory path used for resolving file locations.
+        generate_single_fix: Function that creates a fix object for a specific decorator.
+        apply_fixes: Function that applies a list of fixes to the codebase.
+        parse_args: Function that processes command-line arguments.
+        len: Built-in function to determine the number of items in a collection.
+        append: List method to add new items to a list.
+    """
     parser = argparse.ArgumentParser(
         description="Fix untyped decorators for mypy compliance"
     )

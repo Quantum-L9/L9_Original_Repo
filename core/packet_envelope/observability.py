@@ -225,6 +225,16 @@ class PacketEnvelopeObservability:
         """
 
         def decorator(func: Callable):
+            """
+            Performs tracing instrumentation for asynchronous functions within the PacketEnvelope observability framework.
+
+            Args:
+                func: The asynchronous function to be wrapped with tracing logic.
+
+            Returns:
+                A wrapped version of the input function with added tracing capabilities.
+            """
+
             @wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
                 """Async wrapper with tracing."""
@@ -452,6 +462,11 @@ class WebSocketTracePropagator:
     """
 
     def __init__(self, observability: PacketEnvelopeObservability):
+        """
+        Initializes WebSocketTracePropagator with observability for end-to-end WebSocket tracing.
+        Args:
+            observability: PacketEnvelopeObservability instance providing observability configuration and metrics.
+        """
         self.obs = observability
         self.logger = logger
 

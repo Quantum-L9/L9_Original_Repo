@@ -31,6 +31,16 @@ logger = structlog.get_logger(__name__)
 
 
 class Settings(BaseSettings):
+    """
+    Provides configuration settings for the L9 MCP Memory Server, including environment-based URLs and memory options.
+
+    Args:
+        env_file: Path to the environment file for loading settings.
+
+    Returns:
+        An instance of Settings with configured server parameters.
+    """
+
     # Server Configuration
     # ========================================================================
     # Environment variables for server URLs (no hardcoded IPs/domains):
@@ -43,9 +53,7 @@ class Settings(BaseSettings):
     # Port 30902 = MCP Memory (NodePort)
     # ========================================================================
     MCP_HOST: str = "0.0.0.0"  # Bind address when running as server
-    MCP_PORT: int = (
-        8000  # Internal container port - external access via L9_MCP_URL
-    )
+    MCP_PORT: int = 8000  # Internal container port - external access via L9_MCP_URL
     MCP_ENV: str = "production"  # Default: production
     LOG_LEVEL: str = "INFO"
 
@@ -146,6 +154,14 @@ class Settings(BaseSettings):
     AUDIT_CIRCUIT_BREAKER_TIMEOUT: int = 60
 
     class Config:
+        """
+        Configuration class for L9 MCP Memory Server environment settings, supporting HNSW and memory optimization features.
+
+        Args:
+            env_file: Path to the environment variables file, default is ".env".
+            extra: Policy for handling unknown environment variables, default is "ignore".
+        """
+
         env_file = ".env"
         extra = "ignore"
 

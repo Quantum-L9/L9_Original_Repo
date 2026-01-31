@@ -172,6 +172,18 @@ def fix_file(file_path: Path, repo_root: Path, dry_run: bool = False) -> bool:
 
 
 def main():
+    """
+    Performs DORA compliance checks on Python and YAML files, auto-injecting missing DORA blocks as needed.
+
+    Args:
+        args: Command-line arguments specifying check options and file paths.
+
+    Returns:
+        None, exits with status code based on compliance check results.
+
+    Raises:
+        RuntimeError: If an unexpected error occurs during the check process.
+    """
     parser = argparse.ArgumentParser(
         description="DORA Compliance CI Check",
         formatter_class=argparse.RawDescriptionHelpFormatter,

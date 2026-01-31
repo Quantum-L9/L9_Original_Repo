@@ -39,7 +39,7 @@ import json
 import re
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 # ============================================================================
@@ -141,6 +141,11 @@ class DoraMultiFormatInjector:
     }
 
     def __init__(self, repo_path: str):
+        """
+        Initializes the DORA multi-format block injector with the repository path.
+        Args:
+            repo_path: Path to the root directory of the repository to process.
+        """
         self.repo_path = Path(repo_path)
         self.files_to_process: dict[str, str] = {}  # file_path -> file_type
         self.component_id_counter: dict[str, int] = {}
@@ -285,7 +290,7 @@ class DoraMultiFormatInjector:
         domain = self._infer_domain(file_path)
         comp_type = self._infer_type(file_path, file_type)
         governance_level = self._infer_governance_level(domain, layer, file_path)
-        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
         component_id = self._generate_component_id(file_path, layer)
         component_name = (
@@ -825,6 +830,14 @@ l9_trace:
 
 
 def main():
+    """
+    Performs the main execution flow for injecting DORA multi-format contract blocks into files based on provided arguments.
+
+
+
+    Raises:
+        SystemExit: If argument parsing fails or required arguments are missing
+    """
     parser = argparse.ArgumentParser(
         description="Inject contract-compliant DORA blocks into multi-format files"
     )

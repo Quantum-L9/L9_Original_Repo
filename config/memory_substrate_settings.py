@@ -103,6 +103,19 @@ class MemorySubstrateSettings(BaseSettings):
     )
 
     class Config:
+        """
+        Config class manages environment variable settings for the Memory Substrate, ensuring proper configuration loading.
+
+        Args:
+            env_file: Path to the environment file, defaulting to ".env".
+            env_file_encoding: Encoding for the environment file, default "utf-8".
+            case_sensitive: Whether environment variable names are case-sensitive, default False.
+            extra: How to handle unknown environment variables, default "ignore".
+
+        Returns:
+            A pydantic BaseSettings subclass instance with loaded configuration.
+        """
+
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False

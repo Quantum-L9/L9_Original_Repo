@@ -369,6 +369,15 @@ class StubDetector(ast.NodeVisitor):
         return False, None
 
     def visit_ClassDef(self, node: ast.ClassDef):
+        """
+        Checks if a class definition in the AST is a stub implementation and records the result.
+
+        Args:
+            node: ast.ClassDef object representing the class to analyze.
+
+        Returns:
+            None; updates the internal stubs dictionary with stub status and reason.
+        """
         is_stub, reason = self.check_is_stub(node)
         self.stubs[node.name] = (is_stub, reason)
         self.generic_visit(node)
@@ -383,6 +392,16 @@ class CacheManager:
     """Manage incremental audit cache."""
 
     def __init__(self, cache_dir: Path = CACHE_DIR):
+        """
+        Initializes CacheManager to handle incremental audit cache storage in the specified directory.
+
+        Args:
+            cache_dir: Path to the directory where cache files are stored; defaults to CACHE_DIR.
+
+
+        Raises:
+            OSError: If the cache directory cannot be created or accessed.
+        """
         self.cache_dir = cache_dir
         self.cache_dir.mkdir(exist_ok=True)
 
@@ -514,6 +533,15 @@ class CacheManager:
 
             # Convert to serializable format (convert Path to str)
             def serialize(obj):
+                """
+                Performs serialization of an object for code integrity auditing, converting complex types to serializable formats.
+
+                Args:
+                    obj: The object to serialize, potentially containing complex data types like Path.
+
+                Returns:
+                    A dictionary representation of the object with Path objects converted to strings.
+                """
                 d = asdict(obj)
                 for k, v in d.items():
                     if isinstance(v, Path):
@@ -738,6 +766,16 @@ def detect_circular_imports(root: Path) -> list[CircularImport]:
     cycles: list[CircularImport] = []
 
     def dfs(node: str, path: list[str]) -> bool:
+        """
+        Performs depth-first search on the call graph to detect uncalled functions or orphan classes in code integrity analysis.
+
+        Args:
+            node: The current node (function or class) being visited in the call graph.
+            path: The list tracking the traversal path for cycle detection.
+
+        Returns:
+            True if a cycle or uncalled entity is detected; otherwise, False.
+        """
         visited.add(node)
         rec_stack.add(node)
         path.append(node)

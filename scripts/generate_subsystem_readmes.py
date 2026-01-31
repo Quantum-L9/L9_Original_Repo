@@ -1205,6 +1205,15 @@ def list_subsystems(config: dict[str, Any]) -> None:
 
 
 def main():
+    """
+    Generate subsystem READMEs from code facts and YAML configuration, serving as the single source of truth for subsystem documentation.
+
+    Args:
+        subsystem: Optional key for generating documentation for a specific subsystem from the config.
+
+    Returns:
+        None, but performs file generation and updates for subsystem README files.
+    """
     parser = argparse.ArgumentParser(
         description="Generate subsystem READMEs from code facts and YAML config"
     )

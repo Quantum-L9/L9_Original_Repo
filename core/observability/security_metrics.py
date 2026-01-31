@@ -32,7 +32,7 @@ __dora_meta__ = {
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -70,8 +70,14 @@ class SecurityMetric:
     timestamp: datetime = None
 
     def __post_init__(self):
+        """
+        Initializes the timestamp for a security metric if not already set, ensuring accurate time tracking for security event logging.
+
+        Args:
+            self: Instance of SecurityMetric with optional timestamp attribute.
+        """
         if self.timestamp is None:
-            self.timestamp = datetime.now(timezone.utc)
+            self.timestamp = datetime.now(UTC)
 
 
 class SecurityMetricsCollector:

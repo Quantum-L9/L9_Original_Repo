@@ -39,7 +39,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import UUID
 
@@ -61,12 +61,22 @@ class ReasoningChain:
         depth: int,
         is_complete: bool,
     ):
+        """
+        Initializes a ReasoningChain object representing a reconstructed decision and reasoning trace within the memory replay pipeline.
+
+        Args:
+            chain_id: Unique identifier for the reasoning chain.
+            start_packet_id: Identifier of the initial packet in the chain.
+            packets: List of packets containing reasoning data.
+            depth: Depth level of the reasoning chain.
+            is_complete: Boolean indicating if the chain is fully reconstructed.
+        """
         self.chain_id = chain_id
         self.start_packet_id = start_packet_id
         self.packets = packets
         self.depth = depth
         self.is_complete = is_complete
-        self.created_at = datetime.now(timezone.utc)
+        self.created_at = datetime.now(UTC)
 
 
 class ReasoningReplayPipeline:

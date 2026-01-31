@@ -114,6 +114,18 @@ except ImportError:
     _has_prometheus = False
 
     def init_metrics():
+        """
+        Initializes and configures metrics for the L9 API server.
+
+        Args:
+            None
+
+        Returns:
+            bool: Indicates successful metric initialization (currently always False).
+
+        Raises:
+            None
+        """
         return False
 
 
@@ -1426,6 +1438,18 @@ async def lifespan(app: FastAPI):
 
                     # 5. Build LangGraph app (using a deps object)
                     class CursorGraphDeps:
+                        """
+                        Represents dependencies for Cursor Graph operations within the L9 API server.
+
+                        Args:
+                            memory_gateway: Interface for memory management and data access.
+                            approval_manager: Component handling approval workflows.
+                            checkpoint_manager: Manages checkpoint creation and restoration.
+
+                        Returns:
+                            An instance of CursorGraphDeps with assigned dependency attributes.
+                        """
+
                         pass
 
                     deps = CursorGraphDeps()
@@ -3250,11 +3274,32 @@ async def checkpoint_health():
 
 # Chat endpoint (from server_memory.py for compatibility)
 class ChatRequest(BaseModel):
+    """
+    Represents a chat request message for the L9 Secure AI OS API.
+
+    Args:
+        message (str): The user's input message to the AI system.
+        system_prompt (str | None): Optional system prompt to guide the AI response.
+
+    Returns:
+        None
+
+    Raises:
+        None
+    """
+
     message: str
     system_prompt: str | None = None
 
 
 class ChatResponse(BaseModel):
+    """
+    Represents a chat response message in the L9 AI OS API.
+
+    Args:
+        reply (str): The generated reply text from the AI agent.
+    """
+
     reply: str
 
 

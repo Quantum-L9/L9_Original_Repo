@@ -42,11 +42,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Union
 
 import structlog
 from jinja2 import Template
@@ -477,6 +476,16 @@ class ModuleCompilerV2:
     """
 
     def __init__(self):
+        """
+        Performs compilation of a Module-Spec v2.6 into an L9-integrated Python module, producing a CompilerOutput.
+
+        Args:
+            spec: The module specification, either as a raw dictionary or a NormalizedSpec object.
+            output_dir: Directory path where the generated module files will be saved.
+
+        Returns:
+            CompilerOutput object containing details of the compilation process.
+        """
         self.logger = logger
         self.normalizer = SpecNormalizer()  # Substrate service
 
@@ -615,7 +624,7 @@ class ModuleCompilerV2:
             responsibilities=responsibilities,
             packet_type=f"agent.{module_id}.result",
             description_line="=" * len(metadata.get("name", "")),
-            timestamp=datetime.now(timezone.utc).isoformat() + "Z",
+            timestamp=datetime.now(UTC).isoformat() + "Z",
         )
 
         file_path = output_dir / "core.py"
@@ -849,12 +858,11 @@ pytest tests/test_{module_id}_agent.py -v
 
         if "architect" in role_lower:
             return "ARCHITECT_PRIMARY"
-        elif "coder" in role_lower or "code" in role_lower:
+        if "coder" in role_lower or "code" in role_lower:
             return "CODER_PRIMARY"
-        elif "qa" in role_lower or "quality" in role_lower:
+        if "qa" in role_lower or "quality" in role_lower:
             return "QA"
-        else:
-            return "REFLECTION"
+        return "REFLECTION"
 
 
 from uuid import uuid4

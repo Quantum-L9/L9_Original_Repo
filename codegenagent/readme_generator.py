@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -359,6 +359,14 @@ class ReadmeGenerator:
         default_owner: str = "L9 CodeGenAgent",
         default_license: str = "MIT License",
     ):
+        """
+        Initializes the ReadmeGenerator with optional template directory and default metadata for generating standardized README files for CodeGenAgent outputs.
+
+        Args:
+            templates_dir: Optional path to custom templates directory.
+            default_owner: Default owner name for generated README files.
+            default_license: Default license type for generated README files.
+        """
         self.templates_dir = templates_dir or str(
             Path(__file__).parent.parent.parent / "codegen" / "templates" / "readme"
         )

@@ -204,6 +204,14 @@ def process_file(filepath: str, dry_run: bool = True) -> dict:
 
 
 def main():
+    """
+    Finds Python files with old async decorator comments, removes comments, and adds import statement.
+
+
+
+    Raises:
+        OSError: If file operations fail during processing.
+    """
     dry_run = "--dry-run" in sys.argv
 
     if dry_run:

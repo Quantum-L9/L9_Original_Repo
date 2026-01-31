@@ -66,6 +66,14 @@ def mcp_call(tool_name: str, arguments: dict) -> dict:
 
 
 def main():
+    """
+    Performs memory search diagnostics to identify issues with empty search results despite successful writes.
+
+
+
+    Raises:
+        Exception: If any errors occur during diagnostic steps.
+    """
     print("=" * 60)
     print("MEMORY SEARCH DIAGNOSTIC")
     print("=" * 60)

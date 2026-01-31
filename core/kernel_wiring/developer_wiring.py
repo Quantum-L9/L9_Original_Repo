@@ -39,6 +39,7 @@ def _get_kernels():
 
 
 def get_dev_policies() -> dict:
+    """Returns a dictionary of developer-specific policies from the kernel configuration."""
     return _get_kernels().get_kernel("developer") or {}
 
 

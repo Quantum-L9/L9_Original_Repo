@@ -141,6 +141,19 @@ def format_results(result: dict) -> str:
 
 
 def main():
+    """
+    Performs main execution flow for querying Neo4j graph database with command-line arguments.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        argparse.ArgumentError: If argument parsing fails.
+        Exception: For general execution errors.
+    """
     parser = argparse.ArgumentParser(description="Query L9's Neo4j graph database")
     parser.add_argument(
         "query",

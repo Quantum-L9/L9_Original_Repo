@@ -96,6 +96,18 @@ class ResearchJobSpec(BaseModel):
     @field_validator("regions")
     @classmethod
     def validate_regions(cls, v: list[str]) -> list[str]:
+        """
+        Validates and normalizes the list of region codes for research job specifications by ensuring at least one region is provided and converting all region codes to uppercase.
+
+        Args:
+            v: List of region codes to validate and normalize.
+
+        Returns:
+            List of uppercase region codes.
+
+        Raises:
+            ValueError: If no regions are provided.
+        """
         if not v:
             raise ValueError("At least one region must be specified")
         return [r.upper() for r in v]  # Normalize to uppercase

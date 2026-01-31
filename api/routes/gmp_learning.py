@@ -69,24 +69,96 @@ router_registry.register(
 
 # Response models
 class AutonomyLevelResponse(BaseModel):
+    """
+    Represents the user's current autonomy level, graduation status, and related heuristics within the GMP meta-learning system.
+
+    Args:
+        current_level (str): The current autonomy level of the system.
+        description (str): Description of the current autonomy state.
+        capabilities (list[str]): List of capabilities associated with the current level.
+
+    Returns:
+        AutonomyLevelResponse: Data structure encapsulating autonomy level details.
+
+    Raises:
+        None
+    """
+
     current_level: str
+    """
+    Represents the response structure for heuristics-related API endpoints in GMP v2.0 meta-learning system.
+
+    Args:
+        count: Number of heuristics returned.
+        heuristics: List of heuristics details as dictionaries.
+
+    Returns:
+        An instance of HeuristicsResponse containing heuristics data and count.
+    """
     description: str
     capabilities: list[str]
 
 
 class GraduationStatusResponse(BaseModel):
+    """
+    Represents the response data for a user's graduation status within the GMP v2.0 meta-learning system.
+
+    Args:
+        can_graduate: Indicates if the user is eligible to graduate based on current progress.
+        reason: Explains the rationale behind the graduation eligibility decision.
+        current_level: The user's current autonomy or learning level.
+        next_level: The subsequent level the user can progress to, if applicable.
+
+    Returns:
+        An instance of GraduationStatusResponse containing graduation eligibility details.
+    """
+
     can_graduate: bool
+    """
+    Represents the response data for GMP meta-learning analytics, including execution metrics and task breakdowns.
+
+    Args:
+        total_executions (int): Total number of executed tasks.
+        avg_execution_time (float): Average time taken per execution.
+        avg_confidence (float): Average confidence level across tasks.
+        error_rate (float): Proportion of failed executions.
+        pass_rate (float): Proportion of successful executions.
+        by_task_type (dict[str, Any]): Metrics categorized by task type.
+    """
     reason: str
     current_level: str
     next_level: str | None
 
 
 class HeuristicsResponse(BaseModel):
+    """
+    Represents the response structure for heuristics-related API endpoints in the GMP v2.0 meta-learning system.
+
+    Args:
+        count: Number of heuristics returned.
+        heuristics: List of heuristic details as dictionaries.
+
+    Returns:
+        An instance of HeuristicsResponse containing heuristics data and count.
+    """
+
     count: int
     heuristics: list[dict[str, Any]]
 
 
 class AnalyticsResponse(BaseModel):
+    """
+    Represents the response data structure for GMP meta-learning analytics results.
+
+    Args:
+        total_executions: Total number of task executions recorded.
+        avg_execution_time: Average time taken per execution.
+        avg_confidence: Average confidence score across tasks.
+        error_rate: Proportion of failed task executions.
+        pass_rate: Proportion of successful task executions.
+        by_task_type: Dictionary summarizing metrics per task type.
+    """
+
     total_executions: int
     avg_execution_time: float
     avg_confidence: float

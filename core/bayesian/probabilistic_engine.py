@@ -78,14 +78,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
 import json
-import time
 import math
-from pathlib import Path
+import time
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 from enum import Enum
+from pathlib import Path
+
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -121,6 +121,14 @@ class SubjectiveLogic:
     uncertainty: float  # Ambiguous or missing evidence
 
     def __post_init__(self):
+        """
+        Performs validation of the trust, disbelief, and uncertainty values in SubjectiveLogic to ensure their sum is approximately 1.0.
+
+
+
+        Raises:
+            ValueError: If the sum of trust, disbelief, and uncertainty deviates from 1.0 beyond acceptable tolerance
+        """
         total = self.trust + self.disbelief + self.uncertainty
         if not (0.99 <= total <= 1.01):
             raise ValueError(
@@ -136,7 +144,7 @@ class ProbabilisticAssessment:
     confidence: float
     risk_level: RiskLevel
     subjective_logic: SubjectiveLogic
-    evidence_breakdown: Dict[str, float]
+    evidence_breakdown: dict[str, float]
     recommended_action: str
     reasoning: str
     model_used: str
@@ -161,6 +169,13 @@ class CursorProbabilisticEngine:
         registry_path: str = "foundation/logic/rule-registry.json",
         telemetry_path: str = "telemetry/logs/probabilistic_decisions.jsonl",
     ):
+        """
+        Initializes the probabilistic inference engine with specified registry and telemetry paths for Cursor governance.
+
+        Args:
+            registry_path: Path to the rule registry JSON file, defaults to a standard location.
+            telemetry_path: Path to telemetry logs for decision tracking, defaults to a standard location.
+        """
         self.registry_path = Path(registry_path)
         self.telemetry_path = Path(telemetry_path)
 
@@ -190,7 +205,7 @@ class CursorProbabilisticEngine:
             "calibration_parameters", self._get_default_calibration()
         )
 
-    def _get_default_registry(self) -> Dict:
+    def _get_default_registry(self) -> dict:
         """Default configuration if registry not found"""
         return {
             "probabilistic_models": {},
@@ -198,7 +213,7 @@ class CursorProbabilisticEngine:
             "calibration_parameters": self._get_default_calibration(),
         }
 
-    def _get_default_thresholds(self) -> Dict:
+    def _get_default_thresholds(self) -> dict:
         """Default threshold configuration"""
         return {
             "high_risk": {"value": 0.85, "target_precision": 0.90, "auto_adjust": True},
@@ -210,7 +225,7 @@ class CursorProbabilisticEngine:
             "low_risk": {"value": 0.40, "target_precision": 0.60, "auto_adjust": True},
         }
 
-    def _get_default_calibration(self) -> Dict:
+    def _get_default_calibration(self) -> dict:
         """Default calibration parameters"""
         return {
             "temperature": {"value": 1.0, "target_ece": 0.05},
@@ -224,7 +239,7 @@ class CursorProbabilisticEngine:
     def assess_file_compliance_risk(
         self,
         file_path: str,
-        file_type: Optional[str] = None,
+        file_type: str | None = None,
         edit_frequency: float = 0.0,
         user_correction_count: int = 0,
         references_count: int = 0,
@@ -319,7 +334,7 @@ class CursorProbabilisticEngine:
             reasoning=reasoning,
             model_used="PM-001-FileComplianceRisk",
             execution_time_ms=round(execution_time, 2),
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
         # Log decision for learning
@@ -327,7 +342,7 @@ class CursorProbabilisticEngine:
 
         return assessment
 
-    def _weighted_combination(self, evidence: List[Evidence]) -> float:
+    def _weighted_combination(self, evidence: list[Evidence]) -> float:
         """Calculate weighted average of evidence"""
         total_weight = sum(e.weight for e in evidence)
         if total_weight == 0:
@@ -345,7 +360,7 @@ class CursorProbabilisticEngine:
         calibrated = 1 / (1 + math.exp(-scaled_logit))
         return max(0.0, min(1.0, calibrated))
 
-    def _calculate_confidence(self, evidence: List[Evidence]) -> float:
+    def _calculate_confidence(self, evidence: list[Evidence]) -> float:
         """Calculate confidence based on evidence quality and completeness"""
         # Completeness: How many evidence sources available
         completeness = sum(1 for e in evidence if e.value is not None) / len(evidence)
@@ -364,7 +379,7 @@ class CursorProbabilisticEngine:
         confidence = (completeness * 0.6) + (consistency * 0.4)
         return confidence
 
-    def _decompose_subjective_logic(self, evidence: List[Evidence]) -> SubjectiveLogic:
+    def _decompose_subjective_logic(self, evidence: list[Evidence]) -> SubjectiveLogic:
         """Decompose into trust/disbelief/uncertainty using subjective logic"""
         total_evidence = len(evidence)
 
@@ -398,7 +413,7 @@ class CursorProbabilisticEngine:
 
     def _classify_risk(
         self, probability: float, subjective: SubjectiveLogic
-    ) -> Tuple[RiskLevel, str]:
+    ) -> tuple[RiskLevel, str]:
         """Classify risk level and determine action"""
         # High uncertainty overrides probability
         if subjective.uncertainty > 0.40:
@@ -407,16 +422,15 @@ class CursorProbabilisticEngine:
         # Probability-based classification
         if probability >= self.thresholds["high_risk"]["value"]:
             return RiskLevel.HIGH, "BLOCK_OR_REQUIRE_REVIEW"
-        elif probability >= self.thresholds["medium_risk"]["value"]:
+        if probability >= self.thresholds["medium_risk"]["value"]:
             return RiskLevel.MEDIUM, "WARN_AND_LOG"
-        elif probability >= self.thresholds["low_risk"]["value"]:
+        if probability >= self.thresholds["low_risk"]["value"]:
             return RiskLevel.LOW, "LOG_ONLY"
-        else:
-            return RiskLevel.MINIMAL, "ALLOW_SILENTLY"
+        return RiskLevel.MINIMAL, "ALLOW_SILENTLY"
 
     def _build_reasoning(
         self,
-        evidence: List[Evidence],
+        evidence: list[Evidence],
         raw_prob: float,
         calibrated_prob: float,
         subjective: SubjectiveLogic,
@@ -433,7 +447,7 @@ class CursorProbabilisticEngine:
         reasoning_parts.append(
             f"Subjective logic: Trust={subjective.trust}, Disbelief={subjective.disbelief}, Uncertainty={subjective.uncertainty}"
         )
-        reasoning_parts.append(f"Top risk factors:")
+        reasoning_parts.append("Top risk factors:")
 
         for e in top_factors:
             direction = "increases" if e.value > 0.5 else "decreases"
@@ -449,22 +463,21 @@ class CursorProbabilisticEngine:
 
         if "foundation/logic" in path_lower:
             return 0.95
-        elif "foundation/security" in path_lower:
+        if "foundation/security" in path_lower:
             return 0.90
-        elif "foundation/" in path_lower:
+        if "foundation/" in path_lower:
             return 0.85
-        elif "intelligence/" in path_lower:
+        if "intelligence/" in path_lower:
             return 0.80
-        elif "execution/" in path_lower:
+        if "execution/" in path_lower:
             return 0.70
-        elif "operations/" in path_lower:
+        if "operations/" in path_lower:
             return 0.65
-        elif "telemetry/" in path_lower:
+        if "telemetry/" in path_lower:
             return 0.55
-        elif "work files/" in path_lower or "documents/" in path_lower:
+        if "work files/" in path_lower or "documents/" in path_lower:
             return 0.20
-        else:
-            return 0.40
+        return 0.40
 
     def _calculate_file_type_risk(self, file_type: str) -> float:
         """Calculate risk based on file type"""
@@ -487,63 +500,59 @@ class CursorProbabilisticEngine:
 
         if "governance" in path_lower or "rule" in path_lower:
             return "governance"
-        elif "security" in path_lower or "auth" in path_lower:
+        if "security" in path_lower or "auth" in path_lower:
             return "security"
-        elif file_path.endswith(".json") or file_path.endswith(".yaml"):
+        if file_path.endswith(".json") or file_path.endswith(".yaml"):
             return "config"
-        elif "command" in path_lower:
+        if "command" in path_lower:
             return "command"
-        elif "api" in path_lower:
+        if "api" in path_lower:
             return "api"
-        elif "template" in path_lower:
+        if "template" in path_lower:
             return "template"
-        elif file_path.endswith(".md"):
+        if file_path.endswith(".md"):
             return "markdown"
-        else:
-            return "user_content"
+        return "user_content"
 
     def _calculate_frequency_risk(self, frequency: float) -> float:
         """Calculate risk from edit frequency"""
         if frequency >= 20:
             return 0.85
-        elif frequency >= 11:
+        if frequency >= 11:
             return 0.75
-        elif frequency >= 6:
+        if frequency >= 6:
             return 0.65
-        elif frequency >= 2:
+        if frequency >= 2:
             return 0.50
-        else:
-            return 0.35
+        return 0.35
 
     def _calculate_correction_adjustment(self, correction_count: int) -> float:
         """Calculate trust adjustment from user corrections"""
         # More corrections = more trust in user's judgment = lower risk
         if correction_count >= 5:
             return 0.20
-        elif correction_count >= 3:
+        if correction_count >= 3:
             return 0.35
-        elif correction_count >= 1:
+        if correction_count >= 1:
             return 0.50
-        else:
-            return 0.60
+        return 0.60
 
     def _calculate_cascading_risk(self, references: int) -> float:
         """Calculate risk from cascading impact"""
         if references >= 20:
             return 0.90
-        elif references >= 10:
+        if references >= 10:
             return 0.75
-        elif references >= 5:
+        if references >= 5:
             return 0.65
-        elif references >= 2:
+        if references >= 2:
             return 0.50
-        else:
-            return 0.30
+        return 0.30
 
     def _log_decision(
         self,
         assessment: ProbabilisticAssessment,
-        evidence: List[Evidence],
+        evidence: list[Evidence],
         file_path: str,
     ):
         """Log decision to telemetry for learning"""
@@ -579,7 +588,7 @@ class CursorProbabilisticEngine:
         self.decision_history.append(decision_record)
 
     def record_outcome(
-        self, decision_id: str, outcome: str, feedback: Optional[str] = None
+        self, decision_id: str, outcome: str, feedback: str | None = None
     ):
         """
         Record outcome of a decision for learning.
@@ -603,7 +612,7 @@ class CursorProbabilisticEngine:
         """Get current threshold value"""
         return self.thresholds.get(threshold_name, {}).get("value", 0.5)
 
-    def calculate_ece(self, decisions: Optional[List[Dict]] = None) -> float:
+    def calculate_ece(self, decisions: list[dict] | None = None) -> float:
         """
         Calculate Expected Calibration Error.
 
@@ -695,12 +704,12 @@ class CursorProbabilisticEngine:
         # Update calibration parameters
         self.calibration_params["temperature"]["value"] = best_temp
         self.calibration_params["temperature"]["last_optimized"] = datetime.now(
-            timezone.utc
+            UTC
         ).isoformat()
 
         return best_temp
 
-    def _calculate_ece_for_decisions(self, decisions: List[Dict]) -> float:
+    def _calculate_ece_for_decisions(self, decisions: list[dict]) -> float:
         """Helper to calculate ECE for a list of decisions"""
         num_bins = 10
         bins = [[] for _ in range(num_bins)]

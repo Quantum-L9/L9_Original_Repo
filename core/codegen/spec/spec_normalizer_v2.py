@@ -48,15 +48,15 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass, field, asdict
-from datetime import datetime, timezone
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Union
 from uuid import uuid4
 
 import structlog
 import yaml
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 logger = structlog.get_logger(__name__)
 
@@ -89,8 +89,8 @@ class MetadataModel(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     description: str = Field(..., min_length=10, max_length=2048)
     version: str = Field(default="1.0.0")
-    domain: Optional[str] = Field(default="general")
-    role: Optional[str] = Field(default="General Agent")
+    domain: str | None = Field(default="general")
+    role: str | None = Field(default="General Agent")
 
 
 class GovernanceModel(BaseModel):
@@ -105,7 +105,7 @@ class GovernanceModel(BaseModel):
 class SystemModel(BaseModel):
     """Validated system section"""
 
-    role: Optional[str] = Field(default="General Agent")
+    role: str | None = Field(default="General Agent")
     capabilities: list[str] = Field(default_factory=list)
     constraints: list[str] = Field(default_factory=list)
 
@@ -184,7 +184,7 @@ class NormalizedSpec:
 
     # Metadata
     normalized_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
     normalized_from: str = "unknown"  # 'yaml', 'json', 'dict'
 
@@ -211,6 +211,15 @@ class SpecNormalizer:
     """
 
     def __init__(self):
+        """
+        Loads and normalizes a spec from a file, converting it into a validated NormalizedSpec object.
+
+        Args:
+            file_path: Path to the YAML or JSON spec file to be loaded and normalized.
+
+        Returns:
+            A NormalizedSpec object representing the validated and normalized specification.
+        """
         self.logger = logger
 
     async def normalize_from_file(self, file_path: Union[str, Path]) -> NormalizedSpec:
@@ -240,10 +249,9 @@ class SpecNormalizer:
         # Detect format
         if file_path.suffix == ".yaml" or file_path.suffix == ".yml":
             return await self.normalize_from_yaml(content)
-        elif file_path.suffix == ".json":
+        if file_path.suffix == ".json":
             return await self.normalize_from_json(content)
-        else:
-            raise SpecParseError(f"Unsupported file format: {file_path.suffix}")
+        raise SpecParseError(f"Unsupported file format: {file_path.suffix}")
 
     async def normalize_from_yaml(self, yaml_content: str) -> NormalizedSpec:
         """
@@ -369,7 +377,7 @@ class SpecNormalizer:
             self.logger.error("Spec validation failed", error=str(e), exc_info=True)
             raise SpecValidationError(f"Invalid spec: {e}")
 
-    def _generate_module_id(self, name: str, override: Optional[str] = None) -> str:
+    def _generate_module_id(self, name: str, override: str | None = None) -> str:
         """
         Generate deterministic module ID from name.
 

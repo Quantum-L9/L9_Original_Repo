@@ -66,6 +66,16 @@ async def benchmark_query_caching():
     # Without caching
     @cache.ttl(ttl=300)
     async def cached_query():
+        """
+        Performs an asynchronous cached database query to measure caching performance in vector search optimization.
+
+
+        Returns:
+            The result of the slow_query, typically a data retrieval operation
+
+        Raises:
+            Exception: Propagates any exceptions raised during the database query execution
+        """
         return await db.slow_query(delay=0.01)
 
     # Benchmark uncached

@@ -99,6 +99,13 @@ class BoundarySpec:
         redaction_patterns: list[tuple] | None = None,
         protected_fields: list[str] | None = None,
     ):
+        """
+        Initializes a BoundarySpec instance with raw content and optional redaction rules for enforcing private data boundaries.
+        Args:
+            raw_content: String content to be processed for boundary enforcement.
+            redaction_patterns: List of patterns for redacting sensitive information.
+            protected_fields: List of field names to be protected at the boundary.
+        """
         self.raw_content = raw_content
         self.redaction_patterns = redaction_patterns or []
         self.protected_fields = protected_fields or []

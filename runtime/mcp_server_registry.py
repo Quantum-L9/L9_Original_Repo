@@ -61,6 +61,17 @@ class MCPServerConfig:
         priority: int = 0,
         **metadata: Any,
     ):
+        """
+        Initializes an MCPServerConfig object with server-specific settings for MCP server registration.
+
+        Args:
+            server_id: Unique identifier for the MCP server.
+            command: List of command-line arguments to start the server.
+            env: Optional environment variables for the server process.
+            enabled: Flag indicating if the server is enabled.
+            priority: Integer representing server registration priority.
+            **metadata: Additional metadata for server configuration.
+        """
         self.server_id = server_id
         self.command = command
         self.env = env or {}

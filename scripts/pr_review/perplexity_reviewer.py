@@ -42,7 +42,24 @@ PROTECTED_FILES = {
 
 
 class PerplexityAuditor:
+    """
+    PerplexityAuditor performs security, performance, and architecture audits of PRs using Perplexity AI API.
+
+
+
+    Raises:
+        EnvironmentError: If API key is missing or invalid during initialization.
+    """
+
     def __init__(self):
+        """
+        Initializes PerplexityAuditor with environment variables for API key and audit mode, setting up API endpoint for security and performance analysis.
+
+
+
+        Raises:
+            EnvironmentError: If PERPLEXITY_API_KEY is not set in environment variables.
+        """
         self.api_key = os.getenv("PERPLEXITY_API_KEY")
         self.audit_mode = os.getenv("AUDIT_MODE", "full")
         self.base_url = "https://api.perplexity.ai/chat/completions"

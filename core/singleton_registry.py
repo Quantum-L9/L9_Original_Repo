@@ -81,7 +81,7 @@ __dora_meta__ = {
 import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -117,6 +117,7 @@ class SingletonEntry:
         return self.instance is not None
 
     def __repr__(self) -> str:
+        """Returns a string representation of the singleton registry entry indicating its initialization status, name, and module path."""
         status = "✓" if self.is_initialized() else "○"
         return f"{status} {self.name} ({self.module_path})"
 
@@ -200,7 +201,7 @@ class SingletonRegistry:
 
                 entry.instance = entry.getter()
                 if entry.instance:
-                    entry.initialized_at = datetime.now(timezone.utc)
+                    entry.initialized_at = datetime.now(UTC)
                     if name not in self._initialization_order:
                         self._initialization_order.append(name)
                     logger.debug(f"Initialized singleton: {name}")
@@ -237,7 +238,7 @@ class SingletonRegistry:
                     entry.instance = entry.getter()
 
                 if entry.instance:
-                    entry.initialized_at = datetime.now(timezone.utc)
+                    entry.initialized_at = datetime.now(UTC)
                     if name not in self._initialization_order:
                         self._initialization_order.append(name)
                     logger.debug(f"Initialized singleton: {name}")
@@ -665,9 +666,18 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
         from runtime.websocket_orchestrator import ws_orchestrator
 
         def get_ws_orchestrator():
+            """Returns the singleton WebSocket orchestrator instance managing WebSocket connections within the L9 enterprise registry."""
             return ws_orchestrator
 
         def close_ws_orchestrator():
+            """
+            Performs cleanup of WebSocket orchestrator connections by clearing internal connection and metadata caches.
+
+
+
+            Raises:
+                AttributeError: If ws_orchestrator lacks expected attributes during cleanup.
+            """
             # WebSocket orchestrator doesn't have explicit close, but we can clear connections
             if hasattr(ws_orchestrator, "_connections"):
                 ws_orchestrator._connections.clear()
@@ -829,6 +839,15 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
         )
         registered_count += 1
     except (ImportError, AttributeError) as e:
+        """
+        Performs cleanup by closing the world model engine in the singleton registry.
+
+        Args: None
+
+        Returns: None
+
+        Raises: None
+        """
         logger.debug(f"Could not register world_model_service: {e}")
 
     # World Model Engine
@@ -836,6 +855,14 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
         from world_model.engine import get_world_model_engine, reset_world_model_engine
 
         def close_world_model_engine():
+            """
+            Performs cleanup by closing the world model engine in the singleton registry.
+
+
+
+            Raises:
+                Exception: If closing the engine fails or an error occurs during reset
+            """
             reset_world_model_engine()
 
         registry.register(
@@ -998,16 +1025,33 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
         )
         registered_count += 1
     except (ImportError, AttributeError) as e:
+        """Performs cleanup of research settings by invoking reset_research_settings to ensure proper shutdown of singleton instances."""
         logger.debug(f"Could not register research_graph_runtime: {e}")
 
     # Research Settings
     try:
+        """
+        Performs cleanup of research settings in the singleton registry.
+
+
+
+        Raises:
+            Exception: If resetting research settings fails.
+        """
         from config.research_settings import (
             get_research_settings,
             reset_research_settings,
         )
 
         def close_research_settings():
+            """
+            Performs cleanup of research settings in the singleton registry.
+
+
+
+            Raises:
+                Exception: If resetting research settings fails.
+            """
             reset_research_settings()
 
         registry.register(
@@ -1020,6 +1064,13 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
         )
         registered_count += 1
     except (ImportError, AttributeError) as e:
+        """
+        Returns the active or newly created cursor memory kernel for managing kernel state in the L9 singleton registry.
+
+
+        Returns:
+            The active or newly created kernel instance used for cursor memory management.
+        """
         logger.debug(f"Could not register research_settings: {e}")
 
     # =============================================================================
@@ -1028,12 +1079,14 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
 
     # Cursor Memory Kernel
     try:
+        """Returns the active cursor memory kernel, creating a new one if none exists, for managing singleton kernel instances in the L9 registry."""
         from agents.cursor.cursor_memory_kernel import (
             create_cursor_memory_kernel,
             get_active_kernel,
         )
 
         def get_cursor_memory_kernel():
+            """Returns the active or newly created cursor memory kernel for managing singleton instances in the L9 registry."""
             # Try to get active kernel first, fallback to creating new one
             kernel = get_active_kernel()
             if kernel is None:

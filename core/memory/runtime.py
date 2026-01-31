@@ -62,6 +62,21 @@ class KernelEvolutionEvent:
         errors: list[str] | None = None,
         metadata: dict[str, Any] | None = None,
     ):
+        """
+        Represents a kernel evolution event for logging kernel lifecycle changes in the memory substrate.
+
+        Args:
+            event_type: Type of event such as RELOAD, MODIFY, EVOLVE, or ROLLBACK.
+            agent_id: Identifier of the agent performing the event.
+            kernel_ids: List of kernel identifiers involved in the event.
+            previous_hashes: Mapping of kernel IDs to their previous hashes.
+            new_hashes: Mapping of kernel IDs to their new hashes.
+            modified_kernels: List of kernels that were modified.
+            trigger: Cause of the event, e.g., manual or auto.
+            success: Boolean indicating if the event succeeded.
+            errors: List of error messages if any occurred.
+            metadata: Additional metadata related to the event.
+        """
         self.event_id = str(uuid4())
         self.timestamp = datetime.now(UTC)
         self.event_type = event_type

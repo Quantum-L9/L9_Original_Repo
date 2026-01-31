@@ -40,7 +40,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -79,6 +79,7 @@ class SimulationResult:
     completed_at: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
+        """Returns a dictionary representation of the simulation result, including identifiers, success status, score, metrics, and failure modes for further processing or logging."""
         return {
             "request_id": str(self.request_id),
             "graph_id": str(self.graph_id),
@@ -200,7 +201,7 @@ class SimulationRouter:
         """
         logger.info(f"Routing simulation request {request.request_id}")
 
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             if self._engine is None:
@@ -212,7 +213,7 @@ class SimulationRouter:
 
             # Calculate execution time
             result.execution_time_ms = int(
-                (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+                (datetime.now(UTC) - start_time).total_seconds() * 1000
             )
 
         except Exception as e:

@@ -39,6 +39,7 @@ def _get_kernels():
 
 
 def get_output_verbosity() -> str:
+    """Returns the current output verbosity setting from behavioral rules, defaulting to "minimal" if not specified."""
     return _get_kernels().get_rule(
         "behavioral",
         "output.verbosity",
@@ -47,6 +48,15 @@ def get_output_verbosity() -> str:
 
 
 def is_topic_blocked(topic: str) -> bool:
+    """
+    Checks if a given topic is listed as prohibited in behavioral kernel rules.
+
+    Args:
+        topic: The topic string to verify against prohibited topics list.
+
+    Returns:
+        True if the topic is blocked based on behavioral rules, otherwise False.
+    """
     blocked = (
         _get_kernels().get_rule("behavioral", "prohibited_topics", default=[]) or []
     )

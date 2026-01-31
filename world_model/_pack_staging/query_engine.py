@@ -133,6 +133,15 @@ class QueryEngine:
         """
 
         def matches(entity):
+            """
+            Performs a type and attribute filter check on a given entity within the World Model Query Engine.
+
+            Args:
+                entity: The entity object to evaluate against type and attribute criteria.
+
+            Returns:
+                Boolean indicating whether the entity matches the specified filters.
+            """
             # Type filter
             if entity_type and entity.type != entity_type:
                 return False

@@ -53,7 +53,7 @@ __dora_meta__ = {
 
 import asyncio
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -84,6 +84,17 @@ class ToolSchema(BaseModel):
     required: list[str] = Field(default_factory=list)
 
     class Config:
+        """
+        Represents metadata for a registered tool in the L9 core tools registry, including capabilities, access control, and rate limits.
+
+        Args:
+            id: Unique identifier for the tool, ensuring canonical recognition.
+            name: Human-readable name of the tool.
+
+        Returns:
+            An instance of ToolMetadata containing the tool's descriptive and operational details.
+        """
+
         extra = "allow"
 
 
@@ -105,6 +116,11 @@ class ToolMetadata(BaseModel):
         default=60, description="Max calls per minute (sliding window)"
     )
     timeout_seconds: int = Field(default=30, description="Timeout for tool execution")
+    """
+    Config class for managing registry settings in L9 Core Tools.
+    Args:
+        use_enum_values: If True, enums are represented by their values in configurations.
+    """
     enabled: bool = Field(default=True, description="Whether tool is enabled")
     requires_api_key: bool = Field(
         default=False, description="Whether tool requires API key"
@@ -114,6 +130,15 @@ class ToolMetadata(BaseModel):
     )
 
     class Config:
+        """
+        Config class for L9 Core Tools registry configuration, managing registry behavior.
+
+        Args:
+            use_enum_values: Boolean indicating if enum values should be used instead of enum instances.
+
+        No return value.
+        """
+
         use_enum_values = True
 
 
@@ -145,7 +170,7 @@ class RateLimitWindow:
         Returns:
             True if allowed, False if rate limited
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         cutoff = now - timedelta(seconds=self._window_seconds)
 
         # Prune old calls
@@ -161,7 +186,7 @@ class RateLimitWindow:
 
     def get_remaining(self, key: str, limit: int) -> int:
         """Get remaining calls in current window."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         cutoff = now - timedelta(seconds=self._window_seconds)
         current = len([t for t in self._calls[key] if t > cutoff])
         return max(0, limit - current)
@@ -317,7 +342,7 @@ class ToolRegistry:
         Returns:
             Dict with success, result/error, duration_ms
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         metadata = self._tools.get(tool_id)
         if not metadata:
@@ -388,7 +413,9 @@ class ToolRegistry:
                     "duration_ms": 0,
                 }
 
-            duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+            duration_ms = int(
+                (datetime.now(UTC) - start_time).total_seconds() * 1000
+            )
 
             logger.info(f"Tool {tool_id} completed in {duration_ms}ms")
 
@@ -399,7 +426,9 @@ class ToolRegistry:
             }
 
         except TimeoutError:
-            duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+            duration_ms = int(
+                (datetime.now(UTC) - start_time).total_seconds() * 1000
+            )
             logger.warning(f"Tool {tool_id} timed out after {timeout}s")
             return {
                 "success": False,
@@ -407,7 +436,9 @@ class ToolRegistry:
                 "duration_ms": duration_ms,
             }
         except Exception as e:
-            duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+            duration_ms = int(
+                (datetime.now(UTC) - start_time).total_seconds() * 1000
+            )
             logger.exception(f"Tool {tool_id} failed: {e}")
             return {
                 "success": False,
@@ -548,6 +579,18 @@ def _initialize_default_tools(registry: ToolRegistry) -> None:
             type="object",
             properties={
                 "expression": {
+                    """
+                    Calculates the result of a safe literal expression evaluation within the L9 Core Tools registry.
+
+                    Args:
+                        expression: str representing the literal expression to evaluate.
+
+                    Returns:
+                        dict containing the original expression and its evaluated result.
+
+                    Raises:
+                        ValueError: if the expression cannot be safely evaluated.
+                    """
                     "type": "string",
                     "description": "Mathematical expression to evaluate",
                 },
@@ -558,6 +601,18 @@ def _initialize_default_tools(registry: ToolRegistry) -> None:
 
     # Simple calculator executor
     def calculate_executor(expression: str) -> dict:
+        """
+        Calculates the result of a safe literal expression evaluation within the L9 Core Tools registry.
+
+        Args:
+            expression: str representing a literal expression to evaluate.
+
+        Returns:
+            dict containing the original expression and its evaluated result.
+
+        Raises:
+            ValueError: if the expression cannot be safely evaluated.
+        """
         try:
             # Safe evaluation using ast.literal_eval (only allows literals)
             import ast
@@ -992,7 +1047,7 @@ async def saga_timeline_correlation(
     Returns:
         Dict with timeline events and causal relationships
     """
-    from datetime import datetime, timedelta, timezone
+    from datetime import datetime, timedelta
 
     import structlog
 
@@ -1024,7 +1079,7 @@ async def saga_timeline_correlation(
 
             substrate = await get_service()
             if substrate:
-                datetime.now(timezone.utc) - timedelta(hours=time_range_hours)
+                datetime.now(UTC) - timedelta(hours=time_range_hours)
 
                 # Search for events related to entity
                 search_results = await substrate.search_packets_by_type(

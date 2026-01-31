@@ -60,6 +60,12 @@ class EventTypeConfig:
     metadata: dict[str, Any] = None
 
     def __post_init__(self):
+        """
+        Initializes EventTypeConfig by ensuring metadata is a dictionary.
+
+        Args:
+            self: The instance of EventTypeConfig being initialized.
+        """
         if self.metadata is None:
             self.metadata = {}
 

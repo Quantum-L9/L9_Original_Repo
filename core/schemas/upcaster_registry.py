@@ -118,6 +118,13 @@ def register_upcaster(
     """
 
     def decorator(func: Callable[[dict], dict]) -> Callable[[dict], dict]:
+        """
+        Performs as a decorator to register schema upcaster functions within the schema evolution system.
+        Args:
+            func: A callable that takes a schema version dictionary and returns an updated schema dictionary.
+        Returns:
+            A wrapped callable with registration metadata for automatic upcaster discovery.
+        """
         config = UpcasterConfig(
             from_version=from_version,
             to_version=to_version,

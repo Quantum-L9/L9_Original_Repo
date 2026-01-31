@@ -9,11 +9,30 @@ from .filesystem import open_report
 
 
 def _module_from_path(layout: RepoLayout, path: Path) -> str:
+    """
+    Returns the module name derived from a file path relative to the repository root, formatted as a dotted module path.
+
+    Args:
+        layout: RepoLayout object containing repository structure details.
+        path: Path to the Python file within the repository.
+
+    Returns:
+        str: The dotted module name corresponding to the file path.
+    """
     rel = path.relative_to(layout.root)
     return ".".join(rel.with_suffix("").parts)
 
 
 def _is_pydantic_base(base: ast.expr) -> bool:
+    """
+    Checks if the given AST expression represents a Pydantic BaseModel subclass.
+
+    Args:
+        base: AST expression node to evaluate.
+
+    Returns:
+        True if the expression corresponds to a Pydantic BaseModel, otherwise False.
+    """
     if isinstance(base, ast.Name):
         return base.id in {"BaseModel"}
     if isinstance(base, ast.Attribute):

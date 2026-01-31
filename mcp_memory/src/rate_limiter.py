@@ -57,6 +57,15 @@ class RateLimiter:
         failed_auth_limit: int,
         failed_auth_block_seconds: int,
     ) -> None:
+        """
+        Initializes a RateLimiter instance with specified limits for request rate and failed authentication blocking, ensuring thread-safe in-memory request tracking.
+
+        Args:
+            request_limit: Maximum number of requests allowed within the request window.
+            request_window_seconds: Duration in seconds for the request rate window.
+            failed_auth_limit: Allowed number of failed auth attempts before blocking.
+            failed_auth_block_seconds: Duration in seconds to block after exceeding failed auth limit.
+        """
         self._request_limit = request_limit
         self._request_window_seconds = request_window_seconds
         self._failed_auth_limit = failed_auth_limit

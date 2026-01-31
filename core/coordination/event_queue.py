@@ -31,7 +31,7 @@ __dora_meta__ = {
 import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -72,16 +72,37 @@ class Event:
     timestamp: str | None = None
 
     def __post_init__(self):
+        """
+        Initializes the Event object by assigning a unique request ID and timestamp if they are not already set, ensuring proper event tracking in the async coordination system.
+
+        Args:
+            self: The Event instance being initialized.
+        """
         if not self.request_id:
             self.request_id = str(uuid4())
         if not self.timestamp:
-            self.timestamp = datetime.now(timezone.utc).isoformat()
+            self.timestamp = datetime.now(UTC).isoformat()
 
 
 class EventQueue:
+    """
+    Initializes an EventQueue for async agent coordination with configurable size and backpressure control.
+
+    Args:
+        max_size: Maximum number of messages the queue can hold before blocking or dropping.
+        backpressure_enabled: Whether to apply backpressure when the queue is full to prevent overload.
+    """
+
     """Async message queue for agent coordination"""
 
     def __init__(self, max_size: int = 10000, backpressure_enabled: bool = True):
+        """
+        Initializes an EventQueue for async agent coordination with configurable size and backpressure control.
+
+        Args:
+            max_size: Maximum number of messages the queue can hold.
+            backpressure_enabled: Whether backpressure is enabled to prevent overload.
+        """
         self.queue: asyncio.Queue = asyncio.Queue(maxsize=max_size)
         self.subscribers: dict[str, list[Callable]] = {}  # agent_id → handlers
         self.backpressure_enabled = backpressure_enabled
@@ -188,6 +209,11 @@ class EventQueue:
         self._running = False
 
     def get_metrics(self) -> dict:
+        """
+        Initializes the EventRouter with an EventQueue for managing event-driven coordination.
+        Args:
+            event_queue: The EventQueue instance used for asynchronous message handling.
+        """
         """Get event queue metrics"""
         return {
             **self.metrics,
@@ -197,9 +223,25 @@ class EventQueue:
 
 
 class EventRouter:
+    """
+    Initializes the EventRouter with an event queue for coordinating event handling in the async message-driven system.
+
+    Args:
+        event_queue: The EventQueue instance used to enqueue and process events.
+
+    Raises:
+        TypeError: If event_queue is not an instance of EventQueue.
+    """
+
     """Routes events to correct handlers based on rules"""
 
     def __init__(self, event_queue: EventQueue):
+        """
+        Initializes the EventRouter with an event queue for coordinating asynchronous event handling in the event-driven system.
+
+        Args:
+            event_queue: The EventQueue instance used to manage and dispatch events within the router.
+        """
         self.queue = event_queue
         self.routes: dict[EventKind, list[Callable]] = {}
 

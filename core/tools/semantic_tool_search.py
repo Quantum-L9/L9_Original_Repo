@@ -65,6 +65,7 @@ class SemanticToolSearchAdapter:
     """
 
     def __init__(self):
+        """Initializes the SemanticToolSearchAdapter for managing semantic tool search with deferred loading."""
         self.tools_catalog: dict[str, dict[str, Any]] = {}
         self._always_available: list[str] = []
 

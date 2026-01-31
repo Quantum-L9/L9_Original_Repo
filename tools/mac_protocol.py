@@ -25,6 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from datetime import UTC
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -43,6 +44,17 @@ class MacMessage(BaseModel):
     timeout: int | None = Field(None, description="Command timeout in seconds")
 
     class Config:
+        """
+        Represents configuration schema for L9 Mac Protocol reverse tunnel communications.
+
+        Args:
+            json_schema_extra (dict): Additional schema details, including example message structure.
+
+
+        Raises:
+            KeyError: If required schema keys are missing in the configuration.
+        """
+
         json_schema_extra = {
             "example": {
                 "token": "abc123",
@@ -66,6 +78,17 @@ class MacResponse(BaseModel):
     timestamp: str = Field(..., description="ISO8601 timestamp")
 
     class Config:
+        """
+        Represents configuration schema details for the L9 Mac Protocol's reverse tunnel JSON messages.
+
+        Args:
+            json_schema_extra: Dictionary containing example schema data for validation and documentation purposes.
+
+
+        Raises:
+            KeyError: If expected schema keys are missing in json_schema_extra.
+        """
+
         json_schema_extra = {
             "example": {
                 "success": True,
@@ -90,10 +113,10 @@ def create_mac_response(
     timestamp: str | None = None,
 ) -> dict[str, Any]:
     """Create Mac protocol response dict."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     if timestamp is None:
-        timestamp = datetime.now(timezone.utc).isoformat()
+        timestamp = datetime.now(UTC).isoformat()
 
     response = MacResponse(
         success=success,

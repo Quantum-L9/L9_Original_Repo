@@ -47,6 +47,14 @@ async def _init_connection(conn: asyncpg.Connection) -> None:
 
 
 async def init_db():
+    """
+    Initializes the PostgreSQL async connection pool with pgvector support for the database client.
+
+
+
+    Raises:
+        asyncpg.PostgresError: If connection or extension setup fails.
+    """
     global pool
     pool = await asyncpg.create_pool(
         dsn=settings.MEMORY_DSN,
@@ -60,6 +68,7 @@ async def init_db():
 
 
 async def close_db():
+    """Performs cleanup of the PostgreSQL connection pool used in async database operations."""
     global pool
     if pool:
         await pool.close()

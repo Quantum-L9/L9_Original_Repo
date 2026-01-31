@@ -81,12 +81,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Dict, Optional, List
-from dataclasses import dataclass
-from datetime import datetime, timezone
 import json
-from pathlib import Path
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from enum import Enum
+from pathlib import Path
+
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -107,7 +107,7 @@ class FeedbackEvent:
 
     decision_id: str
     feedback_type: FeedbackType
-    context: Dict
+    context: dict
     timestamp: str
     immediate_action_taken: str
 
@@ -128,6 +128,14 @@ class FeedbackCollector:
         telemetry_path: str = "telemetry/logs/probabilistic_decisions.jsonl",
         feedback_log_path: str = "telemetry/logs/user_feedback.jsonl",
     ):
+        """
+        Initializes the FeedbackCollector with paths to registry, telemetry, and feedback log files for managing user feedback on governance decisions.
+
+        Args:
+            registry_path: Path to the rule registry JSON file.
+            telemetry_path: Path to the telemetry logs for probabilistic decisions.
+            feedback_log_path: Path to the user feedback log file.
+        """
         self.registry_path = Path(registry_path)
         self.telemetry_path = Path(telemetry_path)
         self.feedback_log_path = Path(feedback_log_path)
@@ -163,7 +171,7 @@ class FeedbackCollector:
                     continue
 
     def record_explicit_feedback(
-        self, decision_id: str, feedback: str, context: Optional[Dict] = None
+        self, decision_id: str, feedback: str, context: dict | None = None
     ) -> FeedbackEvent:
         """
         Record explicit user feedback.
@@ -181,7 +189,7 @@ class FeedbackCollector:
             decision_id=decision_id,
             feedback_type=feedback_type,
             context=context or {},
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             immediate_action_taken="pending",
         )
 
@@ -198,8 +206,8 @@ class FeedbackCollector:
         return event
 
     def record_implicit_feedback(
-        self, decision_id: str, user_action: str, decision_context: Dict
-    ) -> Optional[FeedbackEvent]:
+        self, decision_id: str, user_action: str, decision_context: dict
+    ) -> FeedbackEvent | None:
         """
         Infer feedback from user behavior.
 
@@ -223,7 +231,7 @@ class FeedbackCollector:
                 "user_action": user_action,
                 **decision_context,
             },
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             immediate_action_taken="pending",
         )
 
@@ -243,12 +251,12 @@ class FeedbackCollector:
             word in text_lower for word in ["correct", "right", "good", "fine", "yes"]
         ):
             return FeedbackType.CORRECT
-        elif any(
+        if any(
             word in text_lower
             for word in ["too strict", "too harsh", "unnecessary", "false alarm"]
         ):
             return FeedbackType.TOO_STRICT
-        elif any(
+        if any(
             word in text_lower
             for word in [
                 "too lenient",
@@ -258,12 +266,11 @@ class FeedbackCollector:
             ]
         ):
             return FeedbackType.TOO_LENIENT
-        else:
-            return FeedbackType.UNCLEAR
+        return FeedbackType.UNCLEAR
 
     def _infer_feedback_from_behavior(
-        self, user_action: str, context: Dict
-    ) -> Optional[FeedbackType]:
+        self, user_action: str, context: dict
+    ) -> FeedbackType | None:
         """Infer feedback from user behavior"""
         decision_action = context.get("decision_action", "")
 
@@ -271,19 +278,19 @@ class FeedbackCollector:
         if decision_action == "WARN_AND_LOG":
             if user_action == "edited_file":
                 return FeedbackType.CORRECT  # Warning was valid
-            elif user_action == "said_fine":
+            if user_action == "said_fine":
                 return FeedbackType.TOO_STRICT  # Warning unnecessary
 
         elif decision_action == "BLOCK_OR_REQUIRE_REVIEW":
             if user_action == "added_header":
                 return FeedbackType.CORRECT  # Block was appropriate
-            elif user_action == "overrode":
+            if user_action == "overrode":
                 return FeedbackType.TOO_STRICT  # Block unnecessary
 
         elif decision_action == "LOG_ONLY":
             if user_action == "error_occurred":
                 return FeedbackType.TOO_LENIENT  # Should have warned
-            elif user_action == "no_issues":
+            if user_action == "no_issues":
                 return FeedbackType.CORRECT  # Was right to allow
 
         return None  # Ambiguous
@@ -353,7 +360,7 @@ class FeedbackCollector:
 
         return f"temperature_{direction}_{magnitude}"
 
-    def _detect_systematic_pattern(self, event: FeedbackEvent) -> Optional[str]:
+    def _detect_systematic_pattern(self, event: FeedbackEvent) -> str | None:
         """
         Detect if this feedback is part of a systematic pattern.
 
@@ -393,7 +400,7 @@ class FeedbackCollector:
     def _log_pattern_to_meta_learning(self, pattern: str, event: FeedbackEvent):
         """Log detected pattern to meta-learning log"""
         log_entry = f"""
-## {datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")} - Pattern Detected in Probabilistic Governance
+## {datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")} - Pattern Detected in Probabilistic Governance
 
 **Pattern:** {pattern}
 **Feedback Type:** {event.feedback_type.value}
@@ -442,7 +449,7 @@ class FeedbackCollector:
                     if decision.get("decision_id") == decision_id:
                         decision["outcome"] = outcome
                         decision["outcome_timestamp"] = datetime.now(
-                            timezone.utc
+                            UTC
                         ).isoformat()
                     decisions.append(decision)
                 except json.JSONDecodeError:
@@ -461,7 +468,7 @@ class FeedbackCollector:
         except Exception as e:
             logger.error("Error saving registry", error=str(e))
 
-    def get_feedback_summary(self, days: int = 7) -> Dict:
+    def get_feedback_summary(self, days: int = 7) -> dict:
         """
         Generate summary of recent feedback.
 

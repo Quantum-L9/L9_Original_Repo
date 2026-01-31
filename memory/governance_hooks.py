@@ -50,7 +50,7 @@ __dora_meta__ = {
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -232,6 +232,18 @@ class SchemaValidationHook(GovernanceHook):
     """
 
     def __init__(self):
+        """
+        Validates packet schema before write to enforce governance policy compliance.
+
+        Args:
+            context: The hook execution context containing packet data to validate.
+
+        Returns:
+            A HookResult indicating success or failure of schema validation.
+
+        Raises:
+            SchemaValidationError: If the packet schema does not conform to expected standards.
+        """
         super().__init__(
             hook_id="schema_validation",
             hook_type=HookType.PRE_WRITE,
@@ -270,6 +282,14 @@ class ScopeAuthorizationHook(GovernanceHook):
     """
 
     def __init__(self):
+        """
+        Initializes the ScopeAuthorizationHook to enforce scope-based access control during governance policy enforcement.
+
+
+
+        Raises:
+            NotImplementedError: If the superclass __init__ method is not properly implemented.
+        """
         super().__init__(
             hook_id="scope_authorization",
             hook_type=HookType.PRE_WRITE,
@@ -321,6 +341,14 @@ class AuditLoggingHook(GovernanceHook):
     """
 
     def __init__(self):
+        """
+        Initializes the AuditLoggingHook for recording memory operation details after write actions.
+
+
+
+        Raises:
+            Exception: If superclass initialization fails or invalid hook configuration occurs.
+        """
         super().__init__(
             hook_id="audit_logging",
             hook_type=HookType.POST_WRITE,
@@ -345,7 +373,7 @@ class AuditLoggingHook(GovernanceHook):
         return HookResult.allow(
             metadata={
                 "audit_logged": True,
-                "audit_timestamp": datetime.now(timezone.utc).isoformat(),
+                "audit_timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -358,6 +386,12 @@ class RateLimitingHook(GovernanceHook):
     """
 
     def __init__(self, max_ops_per_minute: int = 1000):
+        """
+        Initializes a RateLimitingHook to enforce maximum memory operations per minute for fair resource usage.
+
+        Args:
+            max_ops_per_minute: The maximum number of memory operations allowed per caller per minute, defaulting to 1000.
+        """
         super().__init__(
             hook_id="rate_limiting",
             hook_type=HookType.PRE_WRITE,
@@ -369,7 +403,7 @@ class RateLimitingHook(GovernanceHook):
     async def execute(self, context: HookContext) -> HookResult:
         """Check rate limit for caller."""
         caller_id = context.caller_id
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Initialize tracker for caller
         if caller_id not in self._rate_tracker:

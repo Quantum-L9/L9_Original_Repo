@@ -69,6 +69,12 @@ class SingletonServiceConfig:
     category: str = "general"
 
     def __post_init__(self):
+        """
+        Performs post-initialization setup for SingletonServiceConfig, ensuring dependencies list is initialized.
+
+        Args:
+            self: Instance of SingletonServiceConfig to set up dependencies.
+        """
         if self.dependencies is None:
             self.dependencies = []
 
@@ -216,6 +222,15 @@ def register_singleton(
     """
 
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
+        """
+        Performs automatic registration of singleton services by decorating functions within the singleton auto-registration system.
+
+        Args:
+            func: The service provider function to be registered as a singleton.
+
+        Returns:
+            A wrapped function that registers the service as a singleton upon invocation.
+        """
         # Determine singleton name
         singleton_name = name
         if not singleton_name:
@@ -267,6 +282,13 @@ def register_singleton_closer(
     """
 
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
+        """
+        Registers a singleton service cleanup function in the auto-registration system.
+        Args:
+            func: Callable cleanup function to be registered as the singleton's closer.
+        Returns:
+            Callable: The same function, registered for automatic cleanup.
+        """
         # Find the singleton config
         config = singleton_service_registry.get(singleton_name)
         if config:

@@ -61,7 +61,7 @@ import fnmatch
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -215,6 +215,15 @@ class MemorySubstratePacketSource(PacketSource):
         org_id: str | None,
         user_id: str | None,
     ) -> None:
+        """
+        Ensures that the scope parameters are provided for MemorySubstratePacketSource to operate correctly within the runtime's access control.
+        Args:
+            tenant_id: Identifier for the tenant, used for multi-tenancy isolation.
+            org_id: Identifier for the organization, used for organizational context.
+            user_id: Identifier for the user, used for user-specific access control.
+        Raises:
+            RuntimeError: If any of the scope identifiers are missing or invalid.
+        """
         if not tenant_id or not org_id or not user_id:
             raise RuntimeError(
                 "RLS scope required for MemorySubstratePacketSource "
@@ -272,6 +281,7 @@ class UpdateRecord:
     source: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        """Returns a dictionary representation of the UpdateRecord instance with stringified identifiers and ISO-formatted timestamp for serialization or logging purposes."""
         return {
             "update_id": str(self.update_id),
             "update_type": self.update_type,
@@ -384,7 +394,7 @@ class WorldModelRuntime:
         self._checkpoints: dict[int, dict[str, Any]] = {}
         self._triggers: dict[str, list[Callable]] = {}
         self._stats = RuntimeStats()
-        self._started_at = datetime.now(timezone.utc)
+        self._started_at = datetime.now(UTC)
         self._lock = asyncio.Lock()
 
         # Event loop state
@@ -471,7 +481,7 @@ class WorldModelRuntime:
                 - errors: list[str]
         """
         self._mode = RuntimeMode.LOADING_SEEDS
-        load_start = datetime.now(timezone.utc)
+        load_start = datetime.now(UTC)
         errors: list[str] = []
 
         patterns_loaded = 0
@@ -552,7 +562,7 @@ class WorldModelRuntime:
 
         self._mode = RuntimeMode.RUNNING
 
-        load_duration = (datetime.now(timezone.utc) - load_start).total_seconds()
+        load_duration = (datetime.now(UTC) - load_start).total_seconds()
 
         return {
             "success": len(errors) == 0,
@@ -727,7 +737,7 @@ class WorldModelRuntime:
             Build result
         """
         self._mode = RuntimeMode.BUILDING
-        build_start = datetime.now(timezone.utc)
+        build_start = datetime.now(UTC)
 
         entities_created = 0
         relations_created = 0
@@ -766,7 +776,7 @@ class WorldModelRuntime:
         self._mode = RuntimeMode.RUNNING
         self._version += 1
 
-        build_duration = (datetime.now(timezone.utc) - build_start).total_seconds()
+        build_duration = (datetime.now(UTC) - build_start).total_seconds()
 
         logger.info(
             f"Build complete: {entities_created} entities, "
@@ -913,7 +923,7 @@ class WorldModelRuntime:
 
                 self._version += 1
                 self._stats.updates_applied += 1
-                self._stats.last_update_at = datetime.now(timezone.utc)
+                self._stats.last_update_at = datetime.now(UTC)
 
             except Exception as e:
                 logger.error(f"Update from packet failed: {e}")
@@ -1511,7 +1521,7 @@ class WorldModelRuntime:
                     if entity:
                         old_value = entity.attributes.copy()
                         entity.attributes.update(data.get("attributes", {}))
-                        entity.updated_at = datetime.now(timezone.utc)
+                        entity.updated_at = datetime.now(UTC)
 
                 elif update_type == "entity_delete":
                     entity = self._state.get_entity(target_id)
@@ -1635,7 +1645,7 @@ class WorldModelRuntime:
         """Create a checkpoint."""
         checkpoint = {
             "version": self._version,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "state_snapshot": self._state.to_dict() if self._state else {},
             "entity_count": self._state.entity_count if self._state else 0,
             "relation_count": self._state.relation_count if self._state else 0,
@@ -1685,7 +1695,7 @@ class WorldModelRuntime:
     def get_stats(self) -> RuntimeStats:
         """Get runtime statistics."""
         self._stats.uptime_seconds = (
-            datetime.now(timezone.utc) - self._started_at
+            datetime.now(UTC) - self._started_at
         ).total_seconds()
         return self._stats
 
@@ -1745,7 +1755,7 @@ class WorldModelRuntime:
                 - errors: list[str]
                 - duration_ms: float
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         self._run_iteration += 1
 
         packets_processed = 0
@@ -1763,7 +1773,7 @@ class WorldModelRuntime:
                 since=self._last_poll_time,
             )
 
-            self._last_poll_time = datetime.now(timezone.utc)
+            self._last_poll_time = datetime.now(UTC)
 
             # Process each packet
             for packet in packets:
@@ -1793,7 +1803,7 @@ class WorldModelRuntime:
             errors.append(f"run_once failed: {e}")
             logger.error(f"run_once iteration {self._run_iteration} failed: {e}")
 
-        duration_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        duration_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         return {
             "success": len(errors) == 0,
@@ -1904,8 +1914,8 @@ class WorldModelRuntime:
             self._shutdown_event.set()
 
         # Wait for loop to exit
-        deadline = datetime.now(timezone.utc).timestamp() + timeout
-        while self._running and datetime.now(timezone.utc).timestamp() < deadline:
+        deadline = datetime.now(UTC).timestamp() + timeout
+        while self._running and datetime.now(UTC).timestamp() < deadline:
             await asyncio.sleep(0.1)
 
         if self._running:

@@ -31,7 +31,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 __dora_meta__ = {
@@ -194,6 +194,11 @@ def generate_task_report(
 
 
 def main():
+    """
+    Generates GMP reports for PR analysis or task execution based on command-line arguments.
+    Returns:
+        None, but executes report generation or displays errors based on input arguments.
+    """
     parser = argparse.ArgumentParser(
         description="Generate GMP report (PR or task mode)",
         formatter_class=argparse.RawDescriptionHelpFormatter,

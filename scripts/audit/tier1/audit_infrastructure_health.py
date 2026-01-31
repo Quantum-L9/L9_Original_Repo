@@ -209,13 +209,25 @@ class HealthProbe:
 
     @must_stay_async("callers use await")
     async def check(self) -> HealthCheck:
+        """
+        Performs an asynchronous health check of the infrastructure, ensuring service connectivity and system health.
+
+
+        Returns:
+            HealthCheck object representing the current health status of the infrastructure.
+
+        Raises:
+            NotImplementedError: If the method is not implemented in subclasses.
+        """
         raise NotImplementedError
 
 
 class TCPHealthProbe(HealthProbe):
     """TCP connectivity health probe."""
 
-    def __init__(self, service_name: str, host: str, port: int, timeout: float = 5.0) -> None:
+    def __init__(
+        self, service_name: str, host: str, port: int, timeout: float = 5.0
+    ) -> None:
         """Initialize TCP probe with connection parameters."""
         self.service_name = service_name
         self.host = host
@@ -223,6 +235,21 @@ class TCPHealthProbe(HealthProbe):
         self.timeout = timeout
 
     async def check(self) -> HealthCheck:
+        """
+        Performs an asynchronous TCP connectivity health check to verify service availability.
+
+        Args:
+            host: The target hostname or IP address to connect to.
+            port: The port number on the target host.
+            timeout: Maximum time to wait for connection establishment.
+
+        Returns:
+            HealthCheck object indicating the success or failure of the TCP connection.
+
+        Raises:
+            asyncio.TimeoutError: If connection attempt exceeds the specified timeout.
+            ConnectionRefusedError: If the connection is refused by the target service.
+        """
         import time
 
         start = time.time()
@@ -279,6 +306,18 @@ class HTTPHealthProbe(HealthProbe):
         self.timeout = timeout
 
     async def check(self) -> HealthCheck:
+        """
+        Performs an asynchronous health check of HTTP endpoints to monitor infrastructure health.
+
+        Args:
+            self: Instance of HTTPHealthProbe containing configuration for endpoints and base URL.
+
+        Returns:
+            HealthCheck object indicating the status of the HTTP health probes.
+
+        Raises:
+            httpx.RequestError: If an HTTP request fails during the health check.
+        """
         import time
 
         start = time.time()
@@ -335,6 +374,18 @@ class PythonModuleHealthProbe(HealthProbe):
         self.timeout = timeout
 
     async def check(self) -> HealthCheck:
+        """
+        Performs an asynchronous health check by importing and invoking a specified Python module function to verify module importability and function responsiveness.
+
+        Args:
+            self: Instance of PythonModuleHealthProbe containing module and function names.
+        Returns:
+            HealthCheck: Result object indicating the success or failure of the health probe.
+        Raises:
+            ImportError: If the module cannot be imported.
+            AttributeError: If the specified function is not found in the module.
+            Exception: If the function invocation fails or raises an error.
+        """
         import time
 
         start = time.time()

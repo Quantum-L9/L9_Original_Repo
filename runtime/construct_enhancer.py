@@ -94,10 +94,22 @@ class EnhancementResult:
 
     @property
     def gaps_filled(self) -> int:
+        """
+        Calculates the number of gaps filled during the construct enhancement process.
+        Args:
+            self: Instance of EnhancementResult containing gap metrics.
+        Returns:
+            int: The count of gaps filled, representing progress in construct enhancement.
+        """
         return self.original_gaps - self.remaining_gaps
 
     @property
     def fill_rate(self) -> float:
+        """
+        Calculates the fill rate of gaps filled during construct enhancement.
+        Returns:
+            float: The ratio of gaps filled to original gaps, representing enhancement completeness.
+        """
         if self.original_gaps == 0:
             return 1.0
         return self.gaps_filled / self.original_gaps
@@ -338,6 +350,7 @@ class BatchEnhancementResult:
 
     @property
     def success_rate(self) -> float:
+        """Returns the success rate of batch code enhancements as a float between 0.0 and 1.0, representing the proportion of successful enhancements."""
         if self.total_specs == 0:
             return 0.0
         return self.successful / self.total_specs

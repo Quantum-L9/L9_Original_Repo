@@ -31,7 +31,7 @@ import os
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
@@ -46,27 +46,79 @@ except ModuleNotFoundError:  # pragma: no cover - handled explicitly
         """Runtime stub mimicking aiohttp.ClientSession"""
 
         async def __aenter__(self):
+            """
+            Performs asynchronous context management for the _StubClientSession, enabling resource handling in cloud API interactions.
+
+            Args:
+                self: Instance of _StubClientSession for managing session lifecycle.
+
+            Returns:
+                self: The session instance to be used within an async context.
+
+            Raises:
+                RuntimeError: If session methods like get or post are called outside proper context.
+            """
             return self
 
         async def __aexit__(self, exc_type, exc, tb):
+            """
+            Performs an HTTP POST operation but raises RuntimeError if aiohttp is not installed.
+
+            Args:
+                *args: Positional arguments for the POST request.
+                **kwargs: Keyword arguments for the POST request.
+
+            Raises:
+                RuntimeError: Always, indicating aiohttp is missing and POST is unavailable.
+            """
             await self.close()
 
         async def close(self) -> None:
-            return None
+            """
+            Performs cleanup of the stub client session without closing resources.
+
+
+
+            Raises:
+                RuntimeError: If called when the session is already closed or invalid.
+            """
+            return
 
         def get(self, *args, **kwargs):
+            """
+            Performs an HTTP GET request but raises RuntimeError if aiohttp is not installed.
+
+            Args:
+                *args: Positional arguments for the HTTP GET request.
+                **kwargs: Keyword arguments for the HTTP GET request.
+
+            Raises:
+                RuntimeError: Always raised indicating aiohttp is unavailable for live endpoint polling.
+            """
             raise RuntimeError(
                 "aiohttp is not installed; HTTP GET operations are unavailable. "
                 "Install aiohttp to enable live endpoint polling"
             )
 
         def post(self, *args, **kwargs):
+            """
+            Performs an HTTP POST operation but raises RuntimeError if aiohttp is not installed.
+
+            Args:
+                *args: Positional arguments for the POST request.
+                **kwargs: Keyword arguments for the POST request.
+
+            Raises:
+                RuntimeError: Always raised indicating aiohttp is unavailable for live endpoint polling.
+            """
             raise RuntimeError(
                 "aiohttp is not installed; HTTP POST operations are unavailable. "
                 "Install aiohttp to enable live endpoint polling"
             )
 
     class _StubAioHttpModule:  # pragma: no cover - runtime fallback container
+        """Stub aiohttp module for runtime fallback when aiohttp is not installed."""
+
         IS_STUB = True
         ClientSession = _StubClientSession  # type: ignore[misc]
 
@@ -81,6 +133,15 @@ logger = logging.getLogger(__name__)
 
 
 class ReasoningMode(Enum):
+    """Defines reasoning modes for the ToTh engine."""
+
+    """
+    Represents a stub module for aiohttp to ensure compatibility in the ToTh engine environment.
+
+
+    Returns:
+        An object mimicking the aiohttp module with a stub ClientSession class.
+    """
     """Enumeration of supported reasoning modes for the ToTh engine.
 
     Each mode represents a different logical approach to analyzing

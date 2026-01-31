@@ -43,6 +43,12 @@ class CheckpointManager:
     """
 
     def __init__(self, service: MemorySubstrateService) -> None:
+        """
+        Initializes the CheckpointManager with a MemorySubstrateService to handle checkpoint persistence for agents.
+
+        Args:
+            service: An instance of MemorySubstrateService responsible for saving and loading checkpoints.
+        """
         self._service = service
 
     async def save(self, agent_id: str, state: dict[str, Any]) -> None:

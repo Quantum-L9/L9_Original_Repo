@@ -103,12 +103,22 @@ class ChallengeResult:
         hidden_found: list[ConstraintNode],
         recommendations: list[str],
     ):
+        """
+        Initializes a ChallengeResult instance summarizing constraint analysis outcomes.
+
+        Args:
+            challenged: List of tuples identifying constraints challenged with reasons and alternatives.
+            invalidated: List of tuples marking constraints invalidated during analysis.
+            hidden_found: List of ConstraintNode objects representing detected hidden constraints.
+            recommendations: List of suggested actions based on the analysis.
+        """
         self.challenged = challenged  # (id, reason, alternative)
         self.invalidated = invalidated  # (id, reason)
         self.hidden_found = hidden_found
         self.recommendations = recommendations
 
     def to_dict(self) -> dict[str, Any]:
+        """Returns a dictionary summarizing the constraint challenge analysis, including counts of challenged, invalidated, and hidden constraints, along with recommendations."""
         return {
             "challenged_count": len(self.challenged),
             "invalidated_count": len(self.invalidated),

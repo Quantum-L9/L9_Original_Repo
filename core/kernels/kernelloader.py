@@ -841,6 +841,17 @@ class KernelReloadResult:
         previous_hashes: dict[str, str],
         new_hashes: dict[str, str],
     ):
+        """
+        Initializes a KernelReloadResult object representing the outcome of a kernel hot-reload operation within the L9 Kernel Loader.
+
+        Args:
+            success: Indicates if the reload was successful.
+            kernels_reloaded: Number of kernels reloaded during the operation.
+            modified_kernels: List of kernel identifiers that were modified.
+            errors: List of error messages encountered during reload.
+            previous_hashes: Mapping of kernel identifiers to their hashes before reload.
+            new_hashes: Mapping of kernel identifiers to their hashes after reload.
+        """
         self.success = success
         self.kernels_reloaded = kernels_reloaded
         self.modified_kernels = modified_kernels

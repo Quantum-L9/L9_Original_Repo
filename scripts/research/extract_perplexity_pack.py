@@ -157,6 +157,16 @@ def write_files(files: list[dict], output_dir: str, dry_run: bool = False) -> No
 
 
 def main():
+    """
+    Extracts multi-file outputs from Perplexity into individual files for easier management and analysis.
+
+    Args:
+        args: Command-line arguments parsed by argparse, including output directory and other options.
+
+
+    Raises:
+        SystemExit: If argument parsing fails or required arguments are missing.
+    """
     parser = argparse.ArgumentParser(
         description="Extract multi-file packs from Perplexity output"
     )

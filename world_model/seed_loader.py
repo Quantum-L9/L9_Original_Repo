@@ -36,7 +36,7 @@ __dora_meta__ = {
 
 import asyncio
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -178,7 +178,7 @@ class SeedLoader:
                 "data_type": data_type,
                 "content": data,
             },
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             metadata=PacketMetadata(
                 schema_version="1.0.1",
                 agent="seed_loader",
@@ -773,6 +773,22 @@ if __name__ == "__main__":
 
     # Run loader
     async def main():
+        """
+        Performs the main execution flow for loading seed YAML files into the memory substrate and updating the world model state.
+
+        Args:
+            args: Command-line arguments containing configuration such as database URL.
+            knowledge_ingestor: Component responsible for ingesting knowledge data.
+            seed_loader: Loader for seed YAML files.
+            world_model_state: Manages the current state of the world model.
+            get_substrate_repository: Function to retrieve the substrate repository.
+            info: Logging function for informational messages.
+            run: Function to execute asynchronous tasks.
+
+
+        Raises:
+            Exception: If errors occur during component initialization or data loading.
+        """
         from memory.substrate_repository import get_substrate_repository
         from world_model.state import WorldModelState
 

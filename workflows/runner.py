@@ -60,7 +60,7 @@ import subprocess
 import sys
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -476,6 +476,13 @@ class DAGRunner:
     """Execute a workflow DAG."""
 
     def __init__(self, workflow_path: Path, working_dir: Path | None = None):
+        """
+        Initializes a DAGRunner instance for executing workflow DAGs based on a specified workflow file.
+
+        Args:
+            workflow_path: Path to the YAML or JSON file defining the workflow DAG.
+            working_dir: Optional directory for execution context; defaults to current working directory if None.
+        """
         self.workflow_path = workflow_path
         self.working_dir = working_dir or Path.cwd()
         self.workflow: dict = {}
@@ -553,6 +560,18 @@ class DAGRunner:
         order = []
 
         def visit(step_id: str):
+            """
+            Performs a depth-first traversal of workflow steps to determine execution order based on dependencies.
+
+            Args:
+                step_id: Identifier of the workflow step to visit.
+
+            Returns:
+                None; updates internal visitation state and execution order.
+
+            Raises:
+                KeyError: If the specified step_id does not exist in the workflow steps.
+            """
             if step_id in visited:
                 return
             visited.add(step_id)
@@ -722,6 +741,15 @@ class DAGRunner:
 
 
 def main():
+    """
+    Main entry point for the L9 DAG Workflow Runner that initializes argument parsing and executes workflows.
+    Args:
+        args: Command-line arguments parsed for workflow execution and configuration.
+    Returns:
+        Exit status code indicating success or failure.
+    Raises:
+        SystemExit: If argument parsing fails or the program exits intentionally.
+    """
     parser = argparse.ArgumentParser(
         description="L9 DAG Workflow Runner",
         formatter_class=argparse.RawDescriptionHelpFormatter,

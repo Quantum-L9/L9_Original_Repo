@@ -138,6 +138,13 @@ def scan_directory(base_path: Path) -> dict[str, list[str]]:
 
 
 def main() -> int:
+    """
+    Performs AIOS compliance validation for L9 codebase, checking for architectural pattern adherence.
+
+
+    Returns:
+        Exit status code as integer indicating success (0) or failure (non-zero) in validation process.
+    """
     parser = argparse.ArgumentParser(description="AIOS Compliance Validator for L9")
     parser.add_argument(
         "--path",

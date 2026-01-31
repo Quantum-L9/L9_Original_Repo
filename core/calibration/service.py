@@ -11,21 +11,19 @@ Reference: L9-Confidence-Calibration-Spec.md §2.1.2, Roadmap §B.2
 """
 
 import logging
-from typing import Any, Optional, Protocol
-from uuid import UUID
+from typing import Any, Protocol
 
 import numpy as np
 
 from core.calibration.schemas import (
     CalibrateRequest,
-    CalibrationResult,
+    CalibrationConfig,
     CalibrationMethod,
+    CalibrationResult,
     GateRequest,
     GateResult,
     GatingAction,
     GatingPolicyConfig,
-    CalibrationConfig,
-    UncertaintyDecompositionMethod,
     # Simplified types for executor integration
     SimpleCalibrationResult,
     SimpleGateResult,
@@ -48,8 +46,19 @@ class CalibrationService:
     def __init__(
         self,
         config: CalibrationConfig,
-        substrate_service: Optional[SubstrateServiceProtocol] = None,
+        substrate_service: SubstrateServiceProtocol | None = None,
     ):
+        """
+        Initializes the CalibrationService with configuration and optional substrate service for model output calibration and uncertainty decomposition.
+
+        Args:
+            config: CalibrationConfig object containing calibration parameters.
+            substrate_service: Optional substrate service for model interactions.
+
+
+        Raises:
+            ValueError: If configuration parameters are invalid.
+        """
         self.config = config
         self.substrate = substrate_service
         logger.info(
@@ -101,9 +110,7 @@ class CalibrationService:
                 task_id=req.task_id,
                 predicted_class=req.predicted_class,
                 calibrated_probabilities=calibrated_probs.tolist(),
-                predicted_class_confidence=float(
-                    calibrated_probs[req.predicted_class]
-                ),
+                predicted_class_confidence=float(calibrated_probs[req.predicted_class]),
                 aleatoric_uncertainty=float(u_ale),
                 epistemic_uncertainty=float(u_epi),
                 total_uncertainty=float(np.sqrt(u_ale**2 + u_epi**2)),
@@ -125,7 +132,7 @@ class CalibrationService:
                             "quality": result.quality_score,
                         },
                     )
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     logger.warning("calibration.substrate_emit_failed: %s", e)
 
             logger.info(
@@ -136,7 +143,7 @@ class CalibrationService:
             )
             return result
 
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.error("calibration.error: %s", e, exc_info=True)
             raise
 
@@ -180,14 +187,14 @@ class CalibrationService:
     ) -> SimpleCalibrationResult:
         """
         Simplified calibration for executor integration.
-        
+
         Adapts to what L9 executor naturally provides: a single confidence value.
         Rule: New code adapts to L9, not the other way around.
-        
+
         Args:
             confidence: Raw model confidence (0.0-1.0)
             task_id: Optional task identifier
-            
+
         Returns:
             SimpleCalibrationResult with calibrated confidence and uncertainty
         """
@@ -235,8 +242,14 @@ class CalibrationService:
             )
 
     async def shutdown(self) -> None:
+        """
+        Initializes GatingPolicyService with configuration and optional substrate service for evaluating gating decisions based on confidence and uncertainty.
+        Args:
+            config: GatingPolicyConfig object containing gating parameters and settings.
+            substrate_service: Optional SubstrateServiceProtocol for external substrate interactions.
+        """
         """Cleanup."""
-        return None
+        return
 
 
 class GatingPolicyService:
@@ -245,8 +258,14 @@ class GatingPolicyService:
     def __init__(
         self,
         config: GatingPolicyConfig,
-        substrate_service: Optional[SubstrateServiceProtocol] = None,
+        substrate_service: SubstrateServiceProtocol | None = None,
     ):
+        """
+        Initializes GatingPolicyService with configuration and optional substrate service for evaluating gating decisions based on confidence and uncertainty.
+        Args:
+            config: GatingPolicyConfig object containing gating parameters and settings.
+            substrate_service: Optional SubstrateServiceProtocol for external substrate interactions.
+        """
         self.config = config
         self.substrate = substrate_service
         logger.info("gating_service.init: enabled=%s", config.enabled)
@@ -262,7 +281,7 @@ class GatingPolicyService:
 
         try:
             violated: list[str] = []
-            fallback: Optional[str] = None
+            fallback: str | None = None
 
             # Decision tree from Spec §1.4 (RQ4)
             if (
@@ -279,9 +298,7 @@ class GatingPolicyService:
             elif req.confidence_score < 0.5:
                 action = GatingAction.ROUTE_TO_FALLBACK
                 violated.append("low_confidence")
-                reason = (
-                    f"Confidence {req.confidence_score:.3f} below fallback threshold 0.5"
-                )
+                reason = f"Confidence {req.confidence_score:.3f} below fallback threshold 0.5"
                 fallback = "safe_default"
 
             elif req.action_is_high_stakes and (
@@ -347,7 +364,7 @@ class GatingPolicyService:
                             "violated": violated,
                         },
                     )
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     logger.warning("gating.substrate_emit_failed: %s", e)
 
             logger.info(
@@ -357,7 +374,7 @@ class GatingPolicyService:
             )
             return result
 
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             logger.error("gating.error: %s", e, exc_info=True)
             raise
 
@@ -369,15 +386,15 @@ class GatingPolicyService:
     ) -> SimpleGateResult:
         """
         Simplified gating for executor integration.
-        
+
         Adapts to what L9 executor naturally provides: confidence and tool_id.
         Rule: New code adapts to L9, not the other way around.
-        
+
         Args:
             confidence: Calibrated confidence (0.0-1.0)
             tool_id: Tool being called
             task_id: Optional task identifier
-            
+
         Returns:
             SimpleGateResult with approval decision
         """
@@ -387,8 +404,12 @@ class GatingPolicyService:
 
             # High-stakes tools have stricter thresholds
             high_risk_tools = {
-                "MACAGENTEXEC", "GITCOMMIT", "GMPRUN", "database_write",
-                "file_delete", "server_restart",
+                "MACAGENTEXEC",
+                "GITCOMMIT",
+                "GMPRUN",
+                "database_write",
+                "file_delete",
+                "server_restart",
             }
             if tool_id.upper() in high_risk_tools or tool_id in high_risk_tools:
                 threshold = max(threshold, 0.85)
@@ -429,4 +450,4 @@ class GatingPolicyService:
 
     async def shutdown(self) -> None:
         """Cleanup."""
-        return None
+        return

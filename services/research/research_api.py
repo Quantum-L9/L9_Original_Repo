@@ -63,6 +63,13 @@ class ResearchRequest(BaseModel):
     thread_id: str | None = Field(None, description="Optional thread ID for tracking")
 
     class Config:
+        """
+        Represents configuration settings for the research API, including JSON schema customization.
+
+        Args:
+            json_schema_extra: Dictionary containing example data for API schema validation.
+        """
+
         json_schema_extra = {
             "example": {
                 "query": "What are the latest advances in plastic recycling technology?",
@@ -89,6 +96,12 @@ class ResearchResponse(BaseModel):
     error: str | None = Field(None, description="Error message if failed")
 
     class Config:
+        """
+        Config class for specifying JSON schema customization in the research API.
+        Args:
+            json_schema_extra: Dictionary containing additional schema details, such as example payloads.
+        """
+
         json_schema_extra = {
             "example": {
                 "thread_id": "abc123",

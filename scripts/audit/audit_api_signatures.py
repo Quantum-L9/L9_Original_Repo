@@ -48,6 +48,19 @@ sys.path.insert(0, str(REPO_ROOT))
 
 
 class SeverityLevel(str, Enum):
+    """
+    Represents the severity level of API signature mismatches in the audit system.
+
+    Args:
+        value (str): The string value indicating the severity level, e.g., 'critical', 'high'.
+
+    Returns:
+        str: The severity level as a string, inheriting from str and Enum.
+
+    Raises:
+        ValueError: If an invalid severity level is assigned.
+    """
+
     CRITICAL = "critical"  # Will cause runtime errors
     HIGH = "high"  # Likely to cause errors
     MEDIUM = "medium"  # May cause issues
@@ -126,6 +139,16 @@ class SignatureAnalyzer(ast.NodeVisitor):
     """AST visitor that checks for API signature mismatches."""
 
     def __init__(self, filepath: str, source: str):
+        """
+        Initializes SignatureAnalyzer with file path and source code for AST-based API signature mismatch detection.
+
+        Args:
+            filepath: Path to the source file being analyzed.
+            source: Source code content as a string.
+
+        Returns:
+            None, sets up internal state for signature mismatch analysis.
+        """
         self.filepath = filepath
         self.source = source
         self.mismatches: list[SignatureMismatch] = []

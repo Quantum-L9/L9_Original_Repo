@@ -59,6 +59,17 @@ class ValidationResult:
         errors: list[str] | None = None,
         warnings: list[str] | None = None,
     ):
+        """
+        Represents the outcome of validating a tool within the action_tool orchestration, including safety and approval status.
+
+        Args:
+            valid: Indicates if the tool passed validation checks.
+            tool_id: Unique identifier of the tool being validated.
+            safety_level: Safety classification of the tool (e.g., "safe", "unsafe").
+            requires_approval: Whether the tool requires manual approval.
+            errors: List of validation error messages, if any.
+            warnings: List of validation warning messages, if any.
+        """
         self.valid = valid
         self.tool_id = tool_id
         self.safety_level = safety_level
@@ -67,6 +78,7 @@ class ValidationResult:
         self.warnings = warnings or []
 
     def to_dict(self) -> dict[str, Any]:
+        """Returns a dictionary representation of the ValidationResult, including validation status, tool identifier, safety level, approval requirement, errors, and warnings."""
         return {
             "valid": self.valid,
             "tool_id": self.tool_id,

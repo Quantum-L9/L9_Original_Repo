@@ -184,6 +184,19 @@ class ValidationResult:
     """Accumulates validation errors."""
 
     def __init__(self, spec_path: str):
+        """
+        Initializes ValidationResult with the path to the module specification file for schema validation.
+
+        Args:
+            spec_path: Path to the module specification file to be validated.
+
+        Returns:
+            None
+
+        Raises:
+            FileNotFoundError: If the spec_path does not exist.
+            ValueError: If the spec_path is invalid or unreadable.
+        """
         self.spec_path = spec_path
         self.errors: list[str] = []
         self.warnings: list[str] = []
@@ -206,6 +219,13 @@ class ValidationResult:
 
     @property
     def is_valid(self) -> bool:
+        """
+        Checks if the validation results are error-free, indicating a valid module specification.
+
+
+        Returns:
+            bool: True if no validation errors are present, False otherwise.
+        """
         return len(self.errors) == 0
 
     def _get_schema_version(self) -> str:

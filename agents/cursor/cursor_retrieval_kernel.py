@@ -16,6 +16,22 @@ if TYPE_CHECKING:
 
 
 class RetrievalSource(str, Enum):
+    """
+    Decision engine managing cursor context retrieval order, ensuring cache and memory checks precede repository scans for efficient knowledge access.
+
+    Args:
+        retrieval_source (RetrievalSource): The current source from which to retrieve cursor context.
+        cache (dict): In-memory cache of retrieved data.
+        memory (dict): Long-term memory storage for cursor contexts.
+        repo (Repository): Repository interface for scanning external sources.
+
+    Returns:
+        str: The selected retrieval source based on current cache and memory state.
+
+    Raises:
+        ValueError: If an invalid retrieval source is provided.
+    """
+
     WORKING_MEMORY = "working_memory"
     LONG_TERM_MEMORY = "long_term_memory"
     REPO_SCAN = "repo_scan"

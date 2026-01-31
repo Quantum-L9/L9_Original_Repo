@@ -574,10 +574,32 @@ def validate_input(
     val = validator or StandardValidator()
 
     def decorator(func: T) -> T:
+        """
+        Performs validation of asynchronous and synchronous functions within the L9 async-first codebase, ensuring type safety and proper error handling.
+        Args:
+            func: The function to be decorated, which may be synchronous or asynchronous.
+        Returns:
+            A wrapped version of the input function with validation logic.
+        Raises:
+            ValueError: If validation fails during function execution.
+        """
         if iscoroutinefunction(func):
 
             @wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+                """
+                Performs asynchronous validation by wrapping a function to ensure data integrity within the L9 async-first validation framework.
+
+                Args:
+                    *args: Positional arguments for the wrapped function.
+                    **kwargs: Keyword arguments for the wrapped function.
+
+                Returns:
+                    The result of the wrapped function, potentially after validation.
+
+                Raises:
+                    ValueError: If validation fails or invalid data is encountered.
+                """
                 # Build data dict from function arguments
                 data = {**kwargs}
                 if args:
@@ -608,6 +630,19 @@ def validate_input(
 
         @wraps(func)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """
+            Performs synchronous validation of functions within the L9 async-first codebase, ensuring type safety and proper error handling.
+
+            Args:
+                *args: Positional arguments for the wrapped function.
+                **kwargs: Keyword arguments for the wrapped function.
+
+            Returns:
+                The result of the wrapped function execution.
+
+            Raises:
+                ValueError: If validation fails or invalid data is encountered.
+            """
             # For sync functions, we need to run validation synchronously
             import asyncio
             import inspect

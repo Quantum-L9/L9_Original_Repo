@@ -33,7 +33,7 @@ __dora_meta__ = {
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -77,8 +77,14 @@ class SecurityViolation:
     timestamp: datetime = None
 
     def __post_init__(self):
+        """
+        Initializes the security violation timestamp if not already set, ensuring accurate logging of violation occurrence.
+
+        Args:
+            self: The SecurityViolation instance being initialized.
+        """
         if self.timestamp is None:
-            self.timestamp = datetime.now(timezone.utc)
+            self.timestamp = datetime.now(UTC)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for logging/storage."""
@@ -310,7 +316,7 @@ class SecurityPolicyService:
                 expires = allowed.get("expires")
                 if expires:
                     expiry_date = datetime.fromisoformat(expires)
-                    if datetime.now(timezone.utc) > expiry_date:
+                    if datetime.now(UTC) > expiry_date:
                         logger.warning(
                             "Allowlist exception expired",
                             extra={
@@ -397,7 +403,7 @@ class SecurityPolicyService:
             return
 
         audit_entry = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "decision": decision,
             "scan_result": scan_result.to_dict(),
             "environment": self.environment,

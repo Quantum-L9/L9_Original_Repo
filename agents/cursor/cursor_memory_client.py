@@ -1444,6 +1444,18 @@ def cmd_cache_list_sessions():
 
 
 def main():
+    """
+    Performs main execution flow for Cursor Memory Client CLI, parsing commands to interact with L9 Memory Substrate via MCP tools.
+
+    Args:
+        args: List of command-line arguments to process.
+
+    Returns:
+        None, executes command actions based on parsed arguments.
+
+    Raises:
+        SystemExit: If argument parsing fails or help is requested.
+    """
     parser = argparse.ArgumentParser(
         description="Cursor Memory Client (PacketEnvelope v2.0)"
     )

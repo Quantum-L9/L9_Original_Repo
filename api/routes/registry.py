@@ -50,6 +50,15 @@ class RouterDefinition:
     dependencies: list[str] = None
 
     def __post_init__(self):
+        """
+        Initializes the RouterDefinition by ensuring dependencies list is set.
+        Args:
+            self: Instance of RouterDefinition being initialized.
+        Returns:
+            None.
+        Raises:
+            None.
+        """
         if self.dependencies is None:
             self.dependencies = []
 
@@ -96,6 +105,7 @@ class RouterRegistry:
     """
 
     def __init__(self):
+        """Initializes the RouterRegistry for auto-discovering and managing FastAPI routers within the L9 API system."""
         self._routers: dict[str, RouterDefinition] = {}
         self._wired: dict[str, bool] = {}
         logger.info("RouterRegistry initialized")

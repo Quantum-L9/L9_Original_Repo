@@ -45,7 +45,7 @@ __dora_meta__ = {
 
 import asyncio
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -80,6 +80,18 @@ class WMToGraphSync:
         sync_interval_seconds: int = 300,
         enabled: bool | None = None,
     ):
+        """
+        Initializes WMToGraphSync to facilitate synchronization of causal data from the World Model to Neo4j.
+
+        Args:
+            neo4j_driver: Driver instance for connecting to Neo4j database.
+            causal_mapper: CausalMapper object for mapping causal relationships.
+            sync_interval_seconds: Interval in seconds between sync operations.
+            enabled: Flag to enable or disable synchronization.
+
+        Raises:
+            ValueError: If neo4j_driver is None.
+        """
         if neo4j_driver is None:
             raise ValueError("WMToGraphSync requires neo4j_driver")
 
@@ -176,7 +188,7 @@ class WMToGraphSync:
                         "name": node.name,
                         "observed": node.observed,
                         "value": str(node.value) if node.value else None,
-                        "synced_at": datetime.now(timezone.utc).isoformat(),
+                        "synced_at": datetime.now(UTC).isoformat(),
                     },
                 )
                 count += 1
@@ -205,7 +217,7 @@ class WMToGraphSync:
                         "edge_id": edge.edge_id,
                         "strength": edge.strength.value,
                         "confidence": edge.confidence,
-                        "synced_at": datetime.now(timezone.utc).isoformat(),
+                        "synced_at": datetime.now(UTC).isoformat(),
                     },
                 )
                 count += 1
@@ -233,7 +245,7 @@ class WMToGraphSync:
                         "rationale": decision.rationale,
                         "status": decision.status,
                         "created_at": decision.created_at.isoformat(),
-                        "synced_at": datetime.now(timezone.utc).isoformat(),
+                        "synced_at": datetime.now(UTC).isoformat(),
                     },
                 )
                 count += 1
@@ -259,7 +271,7 @@ class WMToGraphSync:
                         "description": outcome.description,
                         "result": outcome.result,
                         "created_at": outcome.created_at.isoformat(),
-                        "synced_at": datetime.now(timezone.utc).isoformat(),
+                        "synced_at": datetime.now(UTC).isoformat(),
                     },
                 )
 
@@ -297,7 +309,7 @@ class WMToGraphSync:
                         "link_id": link.link_id,
                         "link_type": link.link_type,
                         "confidence": link.confidence,
-                        "synced_at": datetime.now(timezone.utc).isoformat(),
+                        "synced_at": datetime.now(UTC).isoformat(),
                     },
                 )
                 count += 1

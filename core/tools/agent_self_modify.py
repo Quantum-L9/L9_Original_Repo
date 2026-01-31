@@ -42,7 +42,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
 import structlog
@@ -69,6 +69,12 @@ class AgentSelfModifyTool:
         neo4j_driver: AsyncDriver,
         substrate_service: MemorySubstrateService | None = None,
     ):
+        """
+        Initializes the AgentSelfModifyTool to enable agents to modify their graph state within governance constraints.
+        Args:
+            neo4j_driver: AsyncDriver instance for asynchronous Neo4j database interactions.
+            substrate_service: Optional MemorySubstrateService for in-memory state management.
+        """
         self.neo4j = neo4j_driver
         self.substrate = substrate_service
 
@@ -341,7 +347,7 @@ class AgentSelfModifyTool:
                 payload={
                     "action": action,
                     "details": details,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 },
                 provenance={"source": f"agent_self_modify:{agent_id}"},
                 metadata={"agent": agent_id},

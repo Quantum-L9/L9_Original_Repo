@@ -67,6 +67,14 @@ logger = structlog.get_logger(__name__)
 
 
 def _log(msg: str, *, level: str = "INFO", verbose: bool = True) -> None:
+    """
+    Performs logging of messages within the Cursor Governance workspace setup process.
+
+    Args:
+        msg: The message string to be logged.
+        level: The severity level of the log message, defaults to "INFO".
+        verbose: If False and level is "INFO", suppresses logging; otherwise, logs the message.
+    """
     if not verbose and level == "INFO":
         return
     logger.info(f"[{level}] {msg}")
@@ -375,6 +383,13 @@ def start_new_workspace(
 
 
 def main() -> int:
+    """
+    Starts or upgrades a Cursor Governance workspace by configuring symlinks, syncing settings, and running setup phases.
+
+
+    Returns:
+        Exit status code indicating success or failure of the workspace setup.
+    """
     parser = argparse.ArgumentParser(
         description=(
             "Start or upgrade a Cursor Governance workspace by wiring the "

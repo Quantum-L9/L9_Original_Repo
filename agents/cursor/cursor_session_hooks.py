@@ -27,12 +27,27 @@ class CursorSessionHooks:
         memory_service,  # from L9 memory substrate
         logger=None,
     ):
+        """
+        Initializes CursorSessionHooks for non-invasive lifecycle management of Cursor sessions, maintaining session state without modifying AgentExecutor.
+
+        Args:
+            wmc: CursorWorkingMemoryService instance managing session memory.
+            memory_service: Underlying memory substrate for session data.
+            logger: Optional logger for debugging and tracing session events; defaults to no-op.
+        """
         self.wmc = wmc
         self.memory = memory_service
         self.logger = logger or self._noop_logger
 
     @staticmethod
     def _noop_logger(*args, **kwargs):
+        """
+        Performs no operation; used as a placeholder logger within Cursor session hooks.
+
+        Args:
+            *args: Positional arguments passed to the logger.
+            **kwargs: Keyword arguments passed to the logger.
+        """
         pass
 
     # === SESSION LIFECYCLE ===
@@ -149,7 +164,10 @@ class CursorSessionHooks:
         """
         files = []
 
-        if tool_id in ["read_file", "get_file_contents"] or tool_id in ["write_file", "create_or_update_file"]:
+        if tool_id in ["read_file", "get_file_contents"] or tool_id in [
+            "write_file",
+            "create_or_update_file",
+        ]:
             if "path" in args:
                 files.append(args["path"])
 

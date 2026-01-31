@@ -51,11 +51,35 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 
 class ChatRequest(BaseModel):
+    """
+    Represents a chat request in the conversational AI system, encapsulating user message and optional system prompt.
+
+    Args:
+        message (str): The user's message to be processed.
+        system_prompt (str | None): Optional system prompt to guide the conversation.
+
+    Returns:
+        None
+
+    Raises:
+        ValidationError: If provided data does not conform to the model schema.
+    """
+
     message: str
     system_prompt: str | None = None
 
 
 class ChatResponse(BaseModel):
+    """
+    Represents a chat response containing the reply message.
+
+    Args:
+        reply (str): The generated reply message from the chat model.
+
+    Returns:
+        str: The reply message to be sent to the user.
+    """
+
     reply: str
 
 

@@ -35,6 +35,17 @@ from typing import Any
 
 
 class DiscoveryPhase(Enum):
+    """
+    Represents the stages of the discovery process within the observability framework for tool discovery.
+
+    Args:
+        phase (DiscoveryPhase): The current stage in the discovery workflow, such as discovery, selection, loading, or execution.
+
+
+    Raises:
+        ValueError: If an invalid phase is provided.
+    """
+
     DISCOVERY = "discovery"
     SELECTION = "selection"
     LOADING = "loading"
@@ -50,6 +61,12 @@ class DiscoveryTrace:
     query: str
     num_results: int
     num_selected: int
+    """
+    Records a discovery trace within the DiscoveryTracer for observability of tool discovery operations.
+
+    Args:
+        trace: An instance of DiscoveryTrace representing the discovery event to be logged.
+    """
     tokens_used: int
     latency_ms: float
     success: bool
@@ -60,6 +77,12 @@ class DiscoveryTracer:
     """Trace and log discovery operations"""
 
     def __init__(self):
+        """
+        Records a discovery trace within the DiscoveryTracer for observability of tool discovery processes.
+
+        Args:
+            trace: An instance of DiscoveryTrace representing the discovery event to log.
+        """
         self.logger = logging.getLogger("l9.discovery")
         self.traces: list[DiscoveryTrace] = []
 

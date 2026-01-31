@@ -31,7 +31,7 @@ import os
 import re
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import UUID, uuid5
 
@@ -181,9 +181,26 @@ def chunk_messages(
     start_seq = 1
 
     def format_message(m: Message) -> str:
+        """
+        Performs formatting of a chat message for ingestion into the L9 memory substrate.
+
+        Args:
+            m: Message object containing message details such as sequence, role, and content.
+
+        Returns:
+            A string formatted with sequence, role, and content suitable for storage.
+        """
         return f"#SEQ:{m.seq}\nROLE:{m.role}\n{m.content}"
 
     def flush_buffer():
+        """
+        Performs flushing of the chat transcript buffer into the L9 memory substrate, ensuring data persistence.
+
+
+
+        Raises:
+            re.error: If regex search for sequence number fails during processing.
+        """
         nonlocal buffer, buffer_len, start_seq
         if not buffer:
             return
@@ -313,7 +330,7 @@ async def ingest_to_memory(
                     "chunk_count": len(chunks),
                     "parser": "ingest_chat_transcript.py",
                 },
-                datetime.now(timezone.utc),
+                datetime.now(UTC),
                 "shared",
                 rls_config.tenant_uuid,
                 rls_config.org_uuid,
@@ -348,7 +365,7 @@ async def ingest_to_memory(
                         "content": msg.content,
                         "content_sha256": sha256(msg.content),
                     },
-                    datetime.now(timezone.utc),
+                    datetime.now(UTC),
                     [parent_id],  # Link to conversation
                     "shared",
                     rls_config.tenant_uuid,
@@ -385,7 +402,7 @@ async def ingest_to_memory(
                         "chunk_text": chunk.text,
                         "source_file": transcript_path,
                     },
-                    datetime.now(timezone.utc),
+                    datetime.now(UTC),
                     "shared",
                     rls_config.tenant_uuid,
                     rls_config.org_uuid,

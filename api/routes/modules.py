@@ -49,8 +49,33 @@ router_registry.register(
 
 
 def _get_module_registry(request: Request):
+    """
+    Gets the module registry from the request context, providing runtime visibility into wired modules and their status.
+
+    Args:
+        request: The incoming HTTP request containing application state.
+
+    Returns:
+        The module registry object used for module management.
+
+    Raises:
+        HTTPException: If the module registry is not initialized in the application state.
+    """
     registry = getattr(request.app.state, "module_registry", None)
     if registry is None:
+        """
+        Performs asynchronous retrieval of module statuses from the core registry, providing runtime visibility into module wiring and health.
+
+        Args:
+            request: FastAPI request object for context and dependency injection.
+            _: bool: Dependency-injected API key verification result.
+
+        Returns:
+            Module status information indicating current wiring and operational state.
+
+        Raises:
+            ImportError: If core.moduleregistry or ModuleStatus cannot be imported.
+        """
         raise HTTPException(
             status_code=503,
             detail="ModuleRegistry not initialized. Check server logs.",
@@ -64,6 +89,16 @@ async def get_modules_status(
     request: Request,
     _: bool = Depends(verify_api_key),
 ):
+    """
+    Gets the current status of all modules in the ModuleRegistry for runtime visibility.
+
+    Args:
+        request: FastAPI Request object for context and dependency injection.
+        _: bool: Dependency-injected flag for API key verification.
+
+    Returns:
+        A list or dict representing the status of each module, suitable for monitoring or debugging.
+    """
     registry = _get_module_registry(request)
     try:
         from core.moduleregistry import ModuleStatus

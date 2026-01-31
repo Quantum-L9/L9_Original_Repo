@@ -151,6 +151,19 @@ def validate_no_deprecated_paths(cache_dir: Path) -> list[str]:
 
 
 class AuditType(str, Enum):
+    """
+    Represents different types of frontier-grade audits used in the L9 Audit Master Runner for orchestrating comprehensive infrastructure and code quality assessments.
+
+    Args:
+        value (str): The string identifier for the specific audit type.
+
+    Returns:
+        str: The string value of the audit type.
+
+    Raises:
+        ValueError: If an invalid audit type is provided.
+    """
+
     CODE_INTEGRITY = "code_integrity"
     INFRASTRUCTURE_HEALTH = "infrastructure_health"
     CAPABILITY_INVENTORY = "capability_inventory"
@@ -206,6 +219,15 @@ class AuditOrchestrator:
         parallel_jobs: int = 4,
         output_formats: list[str] | None = None,
     ):
+        """
+        Initializes the AuditOrchestrator for managing frontier-grade audits with caching and parallel execution.
+
+        Args:
+            repo_root: Path to the root directory of the repository.
+            cache_enabled: Whether to enable caching for audit runs.
+            parallel_jobs: Number of parallel audit processes.
+            output_formats: List of output formats for reporting, or None for defaults.
+        """
         self.repo_root = repo_root
         self.audit_dir = repo_root / "scripts" / "audit"
         self.cache_enabled = cache_enabled
@@ -226,7 +248,7 @@ class AuditOrchestrator:
     def _generate_run_id(self) -> str:
         """Generate unique run ID."""
         import uuid
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         uid = str(uuid.uuid4())[:8]
@@ -424,6 +446,15 @@ class AuditOrchestrator:
 
             # Run probes async
             async def run_probes():
+                """
+                Performs asynchronous execution of all frontier-grade audit probes with caching and reporting integration.
+
+                Args:
+                    probes: List of audit probe objects each with an async check() method to perform individual audits.
+
+                Returns:
+                    List of results from each probe's check, representing audit outcomes.
+                """
                 results = []
                 for probe in probes:
                     result = await probe.check()
@@ -566,7 +597,7 @@ class AuditOrchestrator:
           Phase 4: generate_gmp_todos.auto_fix_dead_code() - Auto-fix + GMP report
         """
         try:
-            from datetime import datetime, timezone
+            from datetime import datetime
 
             from categorize_dead_code import categorize_dead_code
             from find_dead_code import run_dead_code_audit as find_dead_code_baseline

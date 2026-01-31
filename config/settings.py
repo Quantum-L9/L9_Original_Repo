@@ -365,6 +365,19 @@ class IntegrationSettings(BaseSettings):
     )
 
     class Config:
+        """
+        Config class manages centralized external integration toggles via environment variables for the L9 Unified Integration system.
+
+        Args:
+            env_file: Path to the environment file containing configuration variables.
+            env_file_encoding: Encoding used to read the environment file.
+            case_sensitive: Whether environment variable names are case-sensitive.
+            extra: Policy for handling unknown environment variables.
+
+        Returns:
+            An instance of Config with loaded settings for integration toggles.
+        """
+
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False

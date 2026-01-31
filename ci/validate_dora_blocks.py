@@ -12,7 +12,7 @@ import logging
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
@@ -301,7 +301,7 @@ def validate_directory(directory: str = ".") -> tuple[int, int, list[dict]]:
                 registry[result["component_id"]] = {
                     "file_path": str(file_path),
                     "governance_level": result["governance_level"],
-                    "last_validated": datetime.now(timezone.utc).isoformat(),
+                    "last_validated": datetime.now(UTC).isoformat(),
                 }
 
     # Update registry file
@@ -322,6 +322,18 @@ def validate_directory(directory: str = ".") -> tuple[int, int, list[dict]]:
 
 
 def main():
+    """
+    Validates DORA blocks within generated files to ensure compliance with standards.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        SystemExit: If argument parsing fails or validation encounters a critical error.
+    """
     import argparse
 
     parser = argparse.ArgumentParser(

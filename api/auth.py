@@ -47,6 +47,22 @@ EXECUTOR_API_KEY_C = os.environ.get("L9_EXECUTOR_API_KEY_C") or os.environ.get(
 
 @dataclass(frozen=True)
 class CallerIdentity:
+    """
+    Represents the identity of a caller in the authentication system, including their scope and source information.
+
+    Args:
+        caller_id: Unique identifier of the caller.
+        allowed_scopes: List of scopes permitted for the caller.
+        creator: Entity that created the caller identity.
+        source: Origin of the caller request.
+
+    Returns:
+        An instance of CallerIdentity containing caller details.
+
+    Raises:
+        None
+    """
+
     caller_id: str
     allowed_scopes: Sequence[str]
     creator: str

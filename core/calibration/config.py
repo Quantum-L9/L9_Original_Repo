@@ -10,23 +10,29 @@ Reference: L9-Confidence-Calibration-Spec.md §5
 
 import os
 from pathlib import Path
-from typing import Optional
 
 import yaml
 
 from core.calibration.schemas import (
     CalibrationConfig,
-    GatingPolicyConfig,
     CalibrationMethod,
+    GatingPolicyConfig,
     UncertaintyDecompositionMethod,
 )
 
 
 def _str_to_bool(value: str) -> bool:
+    """
+    Converts a string representation to a boolean value for calibration configuration parsing.
+    Args:
+        value: String input from environment variable or YAML file indicating boolean state.
+    Returns:
+        Boolean value corresponding to the input string.
+    """
     return value.lower() in {"1", "true", "yes", "y", "on"}
 
 
-def load_calibration_config(config_file: Optional[str] = None) -> CalibrationConfig:
+def load_calibration_config(config_file: str | None = None) -> CalibrationConfig:
     """Load CalibrationConfig from YAML file or environment variables."""
     if config_file:
         path = Path(config_file)
@@ -66,7 +72,7 @@ def load_calibration_config(config_file: Optional[str] = None) -> CalibrationCon
     )
 
 
-def load_gating_config(config_file: Optional[str] = None) -> GatingPolicyConfig:
+def load_gating_config(config_file: str | None = None) -> GatingPolicyConfig:
     """Load GatingPolicyConfig from YAML file or environment variables."""
     if config_file:
         path = Path(config_file)

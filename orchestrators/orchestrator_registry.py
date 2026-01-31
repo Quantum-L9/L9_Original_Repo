@@ -100,6 +100,16 @@ def register_orchestrator(
         tags.append(category)
 
     def decorator(cls: type) -> type:
+        """
+        Registers an orchestrator class for automatic discovery within the orchestrator registry.
+        Args:
+            cls: The orchestrator class to be registered.
+            name: Optional custom name for the orchestrator; defaults to class name.
+            priority: Optional registration priority; determines registration order.
+            tags: Optional list of tags for categorization.
+        Returns:
+            The registered class type.
+        """
         # Register the class directly (not as a factory)
         orch_name = name or cls.__name__
         orchestrator_registry.register_instance(

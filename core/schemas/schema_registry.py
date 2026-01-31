@@ -55,7 +55,7 @@ import hashlib
 import json
 from collections.abc import Callable
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime
 from functools import lru_cache
 from uuid import UUID
 
@@ -199,6 +199,18 @@ class _SchemaRegistry:
         key = f"{from_version}->{to_version}"
 
         def decorator(func: Callable[[dict], dict]) -> Callable[[dict], dict]:
+            """
+            Performs registration of an upcaster function for a specific schema version key in the schema registry.
+
+            Args:
+                func: Callable that transforms a schema dictionary to handle version upcasting.
+
+            Returns:
+                The registered upcaster function.
+
+            Raises:
+                ValueError: If an upcaster for the given key is already registered.
+            """
             if key in self._upcasters:
                 raise ValueError(
                     f"Upcaster already registered for {key}. "

@@ -60,6 +60,16 @@ class PolicyLoadError(Exception):
     """Raised when policy loading fails."""
 
     def __init__(self, file_path: str, message: str):
+        """
+        Initializes a PolicyLoadError with details about the failure to load a governance policy from a YAML file.
+
+        Args:
+            file_path: Path to the YAML policy file that failed to load.
+            message: Description of the error encountered during loading.
+
+        Raises:
+            PolicyLoadError: Always raised with a message indicating the file and error details.
+        """
         self.file_path = file_path
         self.message = message
         super().__init__(f"Failed to load policy from {file_path}: {message}")
@@ -89,6 +99,13 @@ class PolicyLoader:
     """
 
     def __init__(self) -> None:
+        """
+        Initializes the PolicyLoader responsible for loading governance policies from YAML manifest files in the core policy management system.
+
+        Args: None
+
+        Returns: None
+        """
         self._policies: list[Policy] = []
         self._loaded_files: list[str] = []
 

@@ -161,8 +161,28 @@ class QueryCache:
         """
 
         def decorator(func: Callable):
+            """
+            Performs caching of asynchronous database query functions to optimize performance using TTL and LRU strategies.
+
+            Args:
+                func: The asynchronous function to be decorated with caching logic.
+
+            Returns:
+                The wrapped function with caching capabilities.
+            """
+
             @wraps(func)
             async def wrapper(*args, **kwargs):
+                """
+                Performs caching of database query results using TTL and LRU strategies to optimize query performance.
+
+                Args:
+                    *args: Positional arguments for the decorated function.
+                    **kwargs: Keyword arguments for the decorated function.
+
+                Returns:
+                    The result of the decorated asynchronous function, possibly retrieved from cache.
+                """
                 if not self.enabled:
                     return await func(*args, **kwargs)
 
@@ -240,8 +260,31 @@ class QueryCache:
         """
 
         def decorator(func: Callable):
+            """
+            Performs caching of asynchronous database query functions to optimize performance using TTL and LRU strategies.
+
+            Args:
+                func: The asynchronous query function to be decorated with caching behavior.
+
+            Returns:
+                The wrapped function with caching applied.
+            """
+
             @wraps(func)
             async def wrapper(*args, **kwargs):
+                """
+                Performs asynchronous caching of database query results using TTL and LRU strategies to optimize query performance.
+
+                Args:
+                    *args: Positional arguments for the decorated function.
+                    **kwargs: Keyword arguments for the decorated function.
+                    key_func: Optional function to generate custom cache keys.
+                    debug: Optional flag to enable debugging logs.
+                    func: The database query function being wrapped.
+
+                Returns:
+                    The result of the database query, retrieved from cache if available.
+                """
                 if not self.enabled:
                     return await func(*args, **kwargs)
 

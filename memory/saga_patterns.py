@@ -501,6 +501,17 @@ def create_entity_enrichment_saga() -> Saga:
     """
 
     async def lookup_entities(context: SagaContext, neo4j: Any = None, **kwargs):
+        """
+        Performs entity lookup within a saga context using Neo4j; returns a list of entities or an empty list if Neo4j is unavailable.
+
+        Args:
+            context: SagaContext containing input data for entity retrieval.
+            neo4j: Neo4j database client used for querying entities.
+            **kwargs: Additional keyword arguments for customization.
+
+        Returns:
+            List of retrieved entities or an empty list if Neo4j is unavailable.
+        """
         entity_ids = context.input_data.get("entity_ids", [])
         entity_type = context.input_data.get("entity_type", "Entity")
 
@@ -603,6 +614,12 @@ class SagaPatterns:
     """
 
     def __init__(self, executor: SagaExecutor):
+        """
+        Initializes SagaPatterns with a SagaExecutor to manage pre-built saga workflows for cross-DB operations.
+
+        Args:
+            executor: SagaExecutor instance responsible for executing saga steps and managing workflow state.
+        """
         self._executor = executor
         self._sagas = {
             "fetch_and_enrich": create_fetch_and_enrich_saga(),

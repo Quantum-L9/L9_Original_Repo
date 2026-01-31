@@ -36,7 +36,7 @@ __dora_meta__ = {
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -102,6 +102,14 @@ class PacketEnvelopeUpgradeEngine:
     """
 
     def __init__(self):
+        """
+        Initializes the PacketEnvelopeUpgradeEngine to orchestrate upgrade phases with integrated observability and state management.
+
+
+
+        Raises:
+            Exception: If initialization of upgrade state or observability components fails.
+        """
         self.logger = logger
         self.state = UpgradeState(
             current_phase=PacketEnvelopeUpgradePhase.PHASE_1_COMPLETE,
@@ -292,7 +300,7 @@ class PacketEnvelopeUpgradeEngine:
             "phases": [],
             "completed": 0,
             "failed": 0,
-            "activated_at": datetime.now(timezone.utc).isoformat(),
+            "activated_at": datetime.now(UTC).isoformat(),
         }
 
         for phase_num in [2, 3, 4, 5]:
@@ -339,7 +347,7 @@ class PacketEnvelopeUpgradeEngine:
             "enabled_features": self.state.enabled_features,
             "backward_compatible": self.state.backward_compatible,
             "progress_percent": (len(self.state.completed_phases) / 5) * 100,
-            "status_timestamp": datetime.now(timezone.utc).isoformat(),
+            "status_timestamp": datetime.now(UTC).isoformat(),
         }
 
 
@@ -350,11 +358,24 @@ class PacketEnvelopeUpgradeEngine:
 
 class PacketEnvelopeAdapter:
     """
+    Initializes the PacketEnvelopeAdapter with an upgrade engine to facilitate legacy packet ingestion and compatibility with new upgrade phases.
+
+    Args:
+        upgrade_engine: Instance managing packet envelope upgrade processes.
+    """
+
+    """
     Adapter layer for backward compatibility
     Bridges legacy PacketEnvelope with new upgrade phases
     """
 
     def __init__(self, upgrade_engine: PacketEnvelopeUpgradeEngine):
+        """
+        Initializes the PacketEnvelopeAdapter with an upgrade engine to support legacy packet ingestion and upgrade phases.
+
+        Args:
+            upgrade_engine: An instance of PacketEnvelopeUpgradeEngine responsible for managing packet upgrades and compatibility.
+        """
         self.upgrade_engine = upgrade_engine
         self.logger = logger
 
@@ -366,13 +387,13 @@ class PacketEnvelopeAdapter:
         if not self.upgrade_engine.state.enabled_features.get("batch_ingestion"):
             # Fallback to legacy ingestion
             self.logger.info("Using legacy ingestion (Phase 4 not active)")
-            return f"packet-{datetime.now(timezone.utc).timestamp()}"
+            return f"packet-{datetime.now(UTC).timestamp()}"
 
         # Use new batch ingestion
         from core.packet_envelope.scalability import BatchIngestRequest
 
         batch_request = BatchIngestRequest(
-            batch_id=f"batch-{datetime.now(timezone.utc).timestamp()}",
+            batch_id=f"batch-{datetime.now(UTC).timestamp()}",
             packets=[packet_data],
         )
 

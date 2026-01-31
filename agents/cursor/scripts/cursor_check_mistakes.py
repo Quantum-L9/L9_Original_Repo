@@ -68,6 +68,19 @@ def format_violation(v: Violation) -> str:
 
 
 def main():
+    """
+    Checks content against L9's mistake prevention rules to ensure code correctness and adherence to best practices.
+
+    Args:
+        content: Optional inline content to be checked.
+        file: Optional path to a file containing content to be validated.
+
+    Returns:
+        None
+
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+    """
     parser = argparse.ArgumentParser(
         description="Check content against L9 mistake prevention rules"
     )

@@ -151,6 +151,12 @@ class SubstrateState(BaseModel):
     errors: list[str] = Field(default_factory=list)
 
     class Config:
+        """
+        Config class for customizing Pydantic model behavior in substrate memory models.
+        Args:
+            arbitrary_types_allowed: Enables use of arbitrary types in model fields.
+        """
+
         arbitrary_types_allowed = True
 
 

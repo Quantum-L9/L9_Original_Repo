@@ -40,6 +40,11 @@ def generate_all_reports(layout: RepoLayout | None = None) -> None:
 
 
 def main() -> None:
+    """
+    Generates architecture reports based on command-line arguments.
+    Raises:
+        argparse.ArgumentError: If invalid arguments are provided.
+    """
     parser = argparse.ArgumentParser(
         description="Generate L9 architecture reports under reports/architecture/."
     )

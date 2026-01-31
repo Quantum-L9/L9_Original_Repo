@@ -52,7 +52,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 # ============================================================================
@@ -217,6 +217,12 @@ class DoraCompleteInjector:
     }
 
     def __init__(self, repo_path: str):
+        """
+        Initializes the DORA Complete Block Injector with the repository path to enable contract-compliant injection of required blocks.
+
+        Args:
+            repo_path: Path to the repository directory containing code to process.
+        """
         self.repo_path = Path(repo_path)
         self.classes_found: list[ClassInfo] = []
         self.files_to_process: dict[str, list[ClassInfo]] = {}
@@ -957,7 +963,7 @@ class DoraCompleteInjector:
                 )
                 return modified, modified  # Use mtime for both
             except OSError:
-                timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+                timestamp = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
                 return timestamp, timestamp
 
     def _get_git_author(self, file_path: str) -> str:
@@ -2187,6 +2193,14 @@ class DoraCompleteInjector:
 
 
 def main():
+    """
+    Performs argument parsing and initiates the injection process for DORA-compliant blocks in Python files.
+    Args:
+        repo: Path to the L9 repository containing target files.
+        dry_run: If True, simulates changes without modifying files.
+    Returns:
+        Exit status code indicating success or failure.
+    """
     parser = argparse.ArgumentParser(
         description="Inject contract-compliant DORA blocks into Python files"
     )

@@ -835,18 +835,50 @@ class KernelStack:
         hashes: dict[str, str],
         base_dir: Path,
     ) -> None:
+        """
+        Initializes a KernelStack object with kernel metadata for system kernel management.
+
+        Args:
+            kernels_by_id: Dictionary mapping kernel IDs to their metadata.
+            kernels_by_file: Dictionary mapping kernel file paths to metadata.
+            hashes: Dictionary of kernel file hashes for integrity verification.
+            base_dir: Path object representing the base directory for kernels.
+        """
         self.kernels_by_id = kernels_by_id
         self.kernels_by_file = kernels_by_file
         self.hashes = hashes
         self.base_dir = base_dir
 
     def get_kernel(self, kernel_id: str) -> dict[str, Any] | None:
+        """
+        Retrieves a kernel dictionary by its unique identifier from the kernel loader system.
+        Args:
+            kernel_id: The unique identifier of the kernel to retrieve.
+        Returns:
+            A dictionary representing the kernel's data if found; otherwise, None.
+        """
         return self.kernels_by_id.get(kernel_id)
 
     def get_hash(self, filename: str) -> str | None:
+        """
+        Returns the stored hash for a given kernel filename if available, aiding in kernel integrity verification.
+
+        Args:
+            filename: The kernel file name to retrieve the hash for.
+
+        Returns:
+            The hash string associated with the filename or None if not found.
+        """
         return self.hashes.get(filename)
 
     def as_dict(self) -> dict[str, Any]:
+        """
+        Returns a dictionary representation of the KernelStack with kernel identifiers, file mappings, hashes, and base directory for system kernel management.
+
+
+        Returns:
+            A dict containing kernel data, file mappings, hashes, and base directory as a string.
+        """
         return {
             "kernels_by_id": self.kernels_by_id,
             "kernels_by_file": self.kernels_by_file,
@@ -1113,6 +1145,15 @@ def load_all_private_kernels(
 
     # Sort kernels by (layer_order, kernel.priority)
     def _sort_key(k: dict[str, Any]) -> tuple[int, int]:
+        """
+        Returns a tuple used for sorting kernels based on their layer order and priority, ensuring correct kernel loading sequence.
+
+        Args:
+            k: Dictionary representing kernel metadata, including optional layer order and priority information.
+
+        Returns:
+            A tuple of integers (layer_order, priority) used as a sort key in kernel loading.
+        """
         layer_order = 50
         meta = k.get("_meta") or {}
         if isinstance(meta, dict):

@@ -297,6 +297,14 @@ async def run_migration(dry_run: bool = False) -> dict:
 
 
 async def main():
+    """
+    Performs the main execution for merging duplicate Agent nodes in Neo4j, supporting dry-run and verification options.
+
+
+
+    Raises:
+        Exception: If errors occur during argument parsing or Neo4j operations.
+    """
     parser = argparse.ArgumentParser(description="Merge duplicate Agent nodes in Neo4j")
     parser.add_argument(
         "--dry-run",

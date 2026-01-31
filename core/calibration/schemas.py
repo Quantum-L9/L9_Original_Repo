@@ -12,13 +12,12 @@ All numeric fields have constraints: Field(..., ge=0.0, le=1.0)
 Reference: L9-Confidence-Calibration-Spec.md §2.1.1
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
-from typing import Any, Optional, Literal
+from typing import Any, Literal
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, field_validator
-
 
 # ─────────────────────────────────────────────────────────────────
 # ENUMS
@@ -69,13 +68,25 @@ class CalibrateRequest(BaseModel):
     predicted_class: int = Field(..., ge=0)
     logits: list[float]
     class_probabilities: list[float]
-    model_outputs: Optional[dict[str, Any]] = None
-    domain_context: Optional[str] = None
-    metadata: Optional[dict[str, Any]] = None
+    model_outputs: dict[str, Any] | None = None
+    domain_context: str | None = None
+    metadata: dict[str, Any] | None = None
 
     @field_validator("logits", "class_probabilities")
     @classmethod
     def validate_probability_like(cls, v: list[float]) -> list[float]:
+        """
+        Validates that a list of probability-like values is non-empty and contains at least two elements, ensuring proper input for calibration processes.
+
+        Args:
+            v: List of probability-like floats to validate.
+
+        Returns:
+            The validated list of probability-like floats.
+
+        Raises:
+            ValueError: If the list is empty or contains fewer than two elements.
+        """
         if not v:
             raise ValueError("Must not be empty")
         if len(v) < 2:
@@ -95,10 +106,22 @@ class CalibrationResult(BaseModel):
     # Calibrated confidence scores
     calibrated_probabilities: list[float]
     predicted_class_confidence: float = Field(..., ge=0.0, le=1.0)
-    top_k_confidence: Optional[list[tuple[int, float]]] = None
+    top_k_confidence: list[tuple[int, float]] | None = None
 
     # Uncertainty decomposition
     aleatoric_uncertainty: float = Field(..., ge=0.0, le=1.0)
+    """
+    Validates that a probability distribution sums approximately to 1.0, ensuring proper calibration of confidence scores.
+
+    Args:
+        v: List of probability values to validate.
+
+    Returns:
+        The input list if the probabilities sum to approximately 1.0.
+
+    Raises:
+        ValueError: If the sum of probabilities is outside the acceptable range.
+    """
     epistemic_uncertainty: float = Field(..., ge=0.0, le=1.0)
     total_uncertainty: float = Field(..., ge=0.0, le=1.0)
 
@@ -111,6 +134,18 @@ class CalibrationResult(BaseModel):
     @field_validator("calibrated_probabilities")
     @classmethod
     def validate_probability_distribution(cls, v: list[float]) -> list[float]:
+        """
+        Validates that a probability distribution sums approximately to 1.0, ensuring proper calibration of confidence scores.
+
+        Args:
+            v: List of probability values to validate.
+
+        Returns:
+            The input list if the sum of probabilities is within the acceptable range.
+
+        Raises:
+            ValueError: If the probabilities do not sum to approximately 1.0.
+        """
         total = sum(v)
         if not (0.99 <= total <= 1.01):
             raise ValueError(f"Probabilities must sum to ~1.0, got {total}")
@@ -129,11 +164,11 @@ class GateRequest(BaseModel):
     confidence_score: float = Field(..., ge=0.0, le=1.0)
     aleatoric_uncertainty: float = Field(..., ge=0.0, le=1.0)
     epistemic_uncertainty: float = Field(..., ge=0.0, le=1.0)
-    domain_context: Optional[str] = None
+    domain_context: str | None = None
     action_is_high_stakes: bool = False
     action_is_exploratory: bool = False
-    symbolic_constraints_met: Optional[int] = None
-    metadata: Optional[dict[str, Any]] = None
+    symbolic_constraints_met: int | None = None
+    metadata: dict[str, Any] | None = None
 
     model_config = {"extra": "forbid"}
 
@@ -142,6 +177,19 @@ class GateResult(BaseModel):
     """Decision from gating policy."""
 
     gating_id: UUID = Field(default_factory=uuid4)
+    """
+    Validates the consistency of the 'approved' flag based on gating action context in decision gating policies.
+
+    Args:
+        v: Boolean indicating whether approval is granted.
+        info: Contextual data containing gating action details.
+
+    Returns:
+        Boolean confirming if the approval status aligns with gating action expectations.
+
+    Raises:
+        ValueError: If approval status does not match expected gating action.
+    """
     task_id: UUID
     action: str
 
@@ -157,14 +205,27 @@ class GateResult(BaseModel):
     decision_reason: str = Field(..., min_length=1, max_length=500)
 
     # Recommendations
-    recommended_fallback: Optional[str] = None
-    requested_approval_type: Optional[str] = None
-    next_step: Optional[str] = None
+    recommended_fallback: str | None = None
+    requested_approval_type: str | None = None
+    next_step: str | None = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
 
     @field_validator("approved")
     @classmethod
     def validate_approved_consistency(cls, v: bool, info) -> bool:
+        """
+        Validates that the gating approval status is consistent with the gating action in the gating policy.
+
+        Args:
+            v: Boolean indicating whether the gating result is approved.
+            info: Contextual data containing gating action details.
+
+        Returns:
+            Boolean confirming the approval status matches the gating action.
+
+        Raises:
+            ValueError: If the approval status does not align with the gating action.
+        """
         if "gating_action" in info.data:
             action = info.data["gating_action"]
             expected = action in [GatingAction.PROCEED, GatingAction.REQUIRE_APPROVAL]
@@ -265,7 +326,7 @@ class SimpleCalibrationRequest(BaseModel):
     """
 
     confidence: float = Field(..., ge=0.0, le=1.0, description="Raw model confidence")
-    task_id: Optional[str] = None
+    task_id: str | None = None
     method: CalibrationMethod = CalibrationMethod.TEMPERATURE_SCALING
 
     model_config = {"extra": "forbid"}
@@ -284,7 +345,7 @@ class SimpleCalibrationResult(BaseModel):
     calibrated_confidence: float = Field(..., ge=0.0, le=1.0)
     uncertainty: float = Field(default=0.0, ge=0.0, le=1.0)
     should_proceed: bool = True
-    reason: Optional[str] = None
+    reason: str | None = None
 
     model_config = {"extra": "forbid"}
 
@@ -301,8 +362,8 @@ class SimpleGateRequest(BaseModel):
 
     confidence: float = Field(..., ge=0.0, le=1.0)
     tool_id: str
-    task_id: Optional[str] = None
-    context: Optional[dict[str, Any]] = None
+    task_id: str | None = None
+    context: dict[str, Any] | None = None
 
     model_config = {"extra": "forbid"}
 

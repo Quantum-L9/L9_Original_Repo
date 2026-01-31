@@ -40,7 +40,7 @@ import subprocess
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -1908,6 +1908,15 @@ def generate_sarif_output(
 
     # Confidence to SARIF level mapping
     def confidence_to_level(conf: float) -> str:
+        """
+        Returns the confidence level as a string based on the provided confidence score, used in dead code detection thresholds.
+
+        Args:
+            conf: A float representing the confidence score for dead code detection.
+
+        Returns:
+            A string indicating the confidence level: "error" for high confidence, "warning" for moderate, or "note" for low confidence.
+        """
         if conf >= 0.85:
             return "error"
         if conf >= 0.70:

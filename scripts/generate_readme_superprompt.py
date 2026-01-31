@@ -734,6 +734,13 @@ def generate_superprompt(
 
 
 def main():
+    """
+    Generates a README superprompt for Perplexity by extracting code facts using AST analysis.
+
+
+    Returns:
+        None, but performs file operations and generates output files.
+    """
     parser = argparse.ArgumentParser(
         description="Generate README superprompt for Perplexity",
         epilog="""

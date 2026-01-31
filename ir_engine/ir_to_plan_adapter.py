@@ -41,7 +41,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -75,6 +75,15 @@ class ExecutionStep:
     completed_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """
+        Converts an ExecutionStep instance into a dictionary format suitable for IR-to-plan translation.
+
+        Args:
+            self: The ExecutionStep object to be serialized into a dictionary.
+
+        Returns:
+            A dictionary representing the execution step with keys like 'step_id', 'step_number', 'action_type', 'description', 'target', and 'parameters'.
+        """
         return {
             "step_id": str(self.step_id),
             "step_number": self.step_number,
@@ -104,6 +113,7 @@ class ExecutionPlan:
     current_step: int = 0
 
     def to_dict(self) -> dict[str, Any]:
+        """Returns a dictionary representation of the execution plan, including plan ID, source graph ID, status, current step, total steps, and other relevant details for IR to plan conversion."""
         return {
             "plan_id": str(self.plan_id),
             "source_graph_id": str(self.source_graph_id),

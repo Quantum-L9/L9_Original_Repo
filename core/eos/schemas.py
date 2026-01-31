@@ -163,6 +163,12 @@ class EpistemicObject(BaseModel):
     provenance: Provenance | None = None
 
     class Config:
+        """
+        Config class for EOS Core Schemas, specifying Pydantic configuration options.
+        Args:
+            use_enum_values (bool): Whether to serialize enums using their values.
+        """
+
         use_enum_values = True
 
 
@@ -188,6 +194,8 @@ class ExecutableDoctrine(BaseModel):
     authority_required: AuthorityLevel = Field(default=AuthorityLevel.L)
 
     class Config:
+        """Config class for EOS Core schemas, specifying Pydantic configuration options."""
+
         use_enum_values = True
 
 
@@ -217,6 +225,17 @@ class ActionEnvelope(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     class Config:
+        """
+        Represents configuration settings for the EOS Core schemas, enabling enum value usage during model validation.
+
+        Args:
+            use_enum_values (bool): If True, serializes enum members using their values instead of names.
+
+
+        Raises:
+            AttributeError: If invalid attributes are set in the configuration.
+        """
+
         use_enum_values = True
 
 
@@ -234,6 +253,11 @@ class Condition(BaseModel):
     satisfied: bool = Field(default=False)
 
     class Config:
+        """
+        Config class for EOS Core Schemas that specifies Pydantic configuration options.
+        use_enum_values (bool): If True, serializes enum members using their values instead of names.
+        """
+
         use_enum_values = True
 
 
@@ -258,6 +282,14 @@ class Verdict(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     class Config:
+        """
+        Config class for customizing Pydantic model behavior within EOS Core schemas.
+        Args:
+            use_enum_values (bool): If True, enum values are serialized as their values instead of enum instances.
+        Raises:
+            AttributeError: If an invalid attribute is set in the configuration.
+        """
+
         use_enum_values = True
 
 

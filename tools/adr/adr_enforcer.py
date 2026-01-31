@@ -62,7 +62,7 @@ import json
 import re
 import sys
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 try:
@@ -386,6 +386,15 @@ class ADREnforcementValidator:
         cycles: list[list[str]] = []
 
         def dfs(node: str) -> None:
+            """
+            Performs depth-first search traversal on the ADR dependency graph to identify compliance issues.
+
+            Args:
+                node: The current ADR node being visited in the dependency graph.
+
+            Raises:
+                KeyError: If the node is not found in the graph during traversal.
+            """
             visited.add(node)
             stack.add(node)
             path.append(node)
@@ -1361,6 +1370,15 @@ class ADREnforcementValidator:
     # ===== Scanning =====
 
     def scan_file(self, path: Path) -> list[Violation]:
+        """
+        Performs ADR compliance checks on a Python file, identifying violations based on enforced ADR standards.
+
+        Args:
+            path: Path object representing the file to be scanned.
+
+        Returns:
+            List of Violation instances indicating detected ADR violations in the file.
+        """
         if path.suffix != ".py" or self._should_skip(path):
             return []
 
@@ -1392,6 +1410,13 @@ class ADREnforcementValidator:
         return violations
 
     def scan_repo(self) -> ValidationReport:
+        """
+        Performs a comprehensive scan of the repository to enforce ADR compliance across Python files.
+
+
+        Returns:
+            ValidationReport object summarizing compliance violations and scan results.
+        """
         logger.info(f"ADR enforcement scan started: {self.repo_root}")
 
         all_violations: list[Violation] = []
@@ -1414,6 +1439,14 @@ class ADREnforcementValidator:
     def _build_report(
         violations: list[Violation], files_scanned: int
     ) -> ValidationReport:
+        """
+        Builds a comprehensive validation report summarizing ADR violations and scan statistics.
+        Args:
+            violations: List of detected ADR violations during code analysis.
+            files_scanned: Total number of files processed in the scan.
+        Returns:
+            ValidationReport object encapsulating violation summaries and scan metadata.
+        """
         by_adr: dict[str, int] = {}
         by_severity: dict[str, int] = {}
         high_priority: list[Violation] = []
@@ -1439,6 +1472,13 @@ class ADREnforcementValidator:
 
 
 def main() -> int:
+    """
+    Performs ADR compliance validation across the L9 codebase, enforcing specific ADR standards.
+
+
+    Returns:
+        Exit status code as an integer indicating success (0) or failure (non-zero).
+    """
     import argparse
 
     parser = argparse.ArgumentParser(

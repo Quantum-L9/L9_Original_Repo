@@ -57,12 +57,33 @@ REPO_ROOT = Path(__file__).parent.parent.parent
 
 
 class RiskLevel(str, Enum):
+    """
+    Represents risk levels for dead code findings in the L9 Dead Code Audit, Phase 3: Risk Categorization.
+
+
+    Returns:
+        A string indicating the risk level: 'high', 'medium', or 'low'.
+
+    Raises:
+        ValueError: If an invalid risk level is assigned.
+    """
+
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
 
 
 class FixAction(str, Enum):
+    """
+    Represents possible fix actions for dead code findings in the L9 Dead Code Audit, categorizing strategies based on risk and fixability.
+
+    Args:
+        value (str): The string value representing the specific fix action.
+
+    Returns:
+        FixAction: The corresponding enum member for the fix strategy.
+    """
+
     WIRE_UP = "WIRE_UP"  # Connect config field to functionality
     DELETE = "DELETE"  # Remove dead code
     NOQA = "NOQA"  # Add noqa comment (intentional)
@@ -95,6 +116,15 @@ class CategorizedFinding:
     proposed_fix: str = ""
 
     def to_dict(self) -> dict[str, Any]:
+        """
+        Returns a dictionary representation of the CategorizedFinding, including risk level and action details.
+
+        Args:
+            self: The CategorizedFinding instance to convert.
+
+        Returns:
+            A dictionary with the finding's attributes, risk level, and action as string values.
+        """
         d = asdict(self)
         d["risk_level"] = self.risk_level.value
         d["action"] = self.action.value
@@ -113,6 +143,7 @@ class CategorizationResult:
     manual_review_count: int = 0
 
     def to_dict(self) -> dict[str, Any]:
+        """Returns a dictionary representation of the CategorizationResult, summarizing total findings and counts by risk level."""
         return {
             "total_findings": self.total_findings,
             "summary": {

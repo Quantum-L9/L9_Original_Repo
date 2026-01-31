@@ -80,6 +80,11 @@ class GapAnalysis:
 
     @property
     def has_critical_gaps(self) -> bool:
+        """
+        Checks if the spec has any critical gaps that prevent reliable code generation.
+        Args: None
+        Returns: True if critical gaps exist, otherwise False.
+        """
         return self.critical_gaps > 0
 
     @property

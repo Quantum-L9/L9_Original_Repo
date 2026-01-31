@@ -50,7 +50,7 @@ __dora_meta__ = {
 from collections import OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -123,11 +123,11 @@ class CacheEntry:
         """Check if entry is expired (TTL)."""
         if self.ttl_expires_at is None:
             return False
-        return datetime.now(timezone.utc) > self.ttl_expires_at
+        return datetime.now(UTC) > self.ttl_expires_at
 
     def touch(self) -> None:
         """Update access metadata."""
-        self.last_accessed_at = datetime.now(timezone.utc)
+        self.last_accessed_at = datetime.now(UTC)
         self.access_count += 1
 
 
@@ -288,7 +288,7 @@ class ToolRegistryCache:
         # Create new entry
         ttl_expires_at = None
         if self.config.strategy == CacheStrategy.TTL:
-            ttl_expires_at = datetime.now(timezone.utc) + timedelta(
+            ttl_expires_at = datetime.now(UTC) + timedelta(
                 seconds=self.config.ttl_seconds
             )
 
@@ -550,6 +550,11 @@ class CachedToolRegistry:
         """Warm cache with all tools from registry."""
 
         def loader() -> dict[str, Any]:
+            """
+            Returns a dictionary mapping tool IDs to tool details from the registry cache.
+            Returns:
+                dict[str, Any]: Cached tools with tool IDs as keys and tool info as values.
+            """
             tools = self._registry.list_tools()
             return {tool["tool_id"]: tool for tool in tools}
 

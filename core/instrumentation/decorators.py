@@ -197,8 +197,28 @@ def traced[F: Callable[..., Any]](
     """
 
     def decorator(f: F) -> F:
+        """
+        Performs automatic instrumentation by wrapping functions to enable tracing and logging within the L9 Core Instrumentation framework.
+
+        Args:
+            f: The function to be decorated for auto-instrumentation.
+
+        Returns:
+            The wrapped function with added tracing and observability features.
+        """
+
         @functools.wraps(f)
         async def async_wrapper(*args, **kwargs):
+            """
+            Performs asynchronous tracing and correlation ID management for auto-instrumentation in observability pipelines.
+
+            Args:
+                *args: Positional arguments passed to the wrapped asynchronous function.
+                **kwargs: Keyword arguments passed to the wrapped asynchronous function.
+
+            Returns:
+                The result of the wrapped asynchronous function execution.
+            """
             # Get or generate trace IDs
             current_trace_id = trace_id or get_current_trace_id() or str(uuid4())
             current_correlation_id = (
@@ -245,6 +265,16 @@ def traced[F: Callable[..., Any]](
 
         @functools.wraps(f)
         def sync_wrapper(*args, **kwargs):
+            """
+            Performs synchronization wrapper for auto-instrumentation in tracing and observability.
+
+            Args:
+                *args: Positional arguments passed to the wrapped function.
+                **kwargs: Keyword arguments passed to the wrapped function.
+
+            Returns:
+                The result of the wrapped function execution.
+            """
             # Get or generate trace IDs
             current_trace_id = trace_id or get_current_trace_id() or str(uuid4())
             current_correlation_id = (
@@ -330,8 +360,28 @@ def timed[F: Callable[..., Any]](
     """
 
     def decorator(f: F) -> F:
+        """
+        Performs automatic instrumentation by wrapping functions for tracing and observability within the core instrumentation decorators.
+
+        Args:
+            f: The function to be decorated for automatic tracing and logging.
+
+        Returns:
+            The wrapped function with added instrumentation for observability.
+        """
+
         @functools.wraps(f)
         async def async_wrapper(*args, **kwargs):
+            """
+            Performs asynchronous tracing and timing of a function execution within the core instrumentation decorators.
+
+            Args:
+                *args: Positional arguments for the wrapped asynchronous function.
+                **kwargs: Keyword arguments for the wrapped asynchronous function.
+
+            Returns:
+                The result of the wrapped asynchronous function execution.
+            """
             start_time = time.perf_counter()
 
             try:
@@ -350,6 +400,16 @@ def timed[F: Callable[..., Any]](
 
         @functools.wraps(f)
         def sync_wrapper(*args, **kwargs):
+            """
+            Performs synchronous function execution with timing and logging for observability in auto-instrumentation.
+
+            Args:
+                *args: Positional arguments for the wrapped function.
+                **kwargs: Keyword arguments for the wrapped function.
+
+            Returns:
+                The result of the wrapped function execution.
+            """
             start_time = time.perf_counter()
 
             try:
@@ -405,10 +465,29 @@ def logged[F: Callable[..., Any]](
     """
 
     def decorator(f: F) -> F:
+        """
+        Performs automatic tracing and logging for decorated asynchronous or synchronous functions within the core instrumentation framework.
+
+        Args:
+            f: The function to be decorated for automatic observability.
+
+        Returns:
+            The wrapped function with integrated tracing and logging capabilities.
+        """
         log_func = getattr(logger, level, logger.info)
 
         @functools.wraps(f)
         async def async_wrapper(*args, **kwargs):
+            """
+            Performs asynchronous function wrapping for auto-instrumentation in observability frameworks.
+
+            Args:
+                *args: Positional arguments for the wrapped asynchronous function.
+                **kwargs: Keyword arguments for the wrapped asynchronous function.
+
+            Returns:
+                The result of the wrapped asynchronous function execution.
+            """
             log_data = {
                 "function": f.__name__,
                 "module": f.__module__,
@@ -432,6 +511,16 @@ def logged[F: Callable[..., Any]](
 
         @functools.wraps(f)
         def sync_wrapper(*args, **kwargs):
+            """
+            Performs synchronization wrapper for auto-instrumentation, enabling tracing and logging of function calls within the observability framework.
+
+            Args:
+                *args: Positional arguments passed to the wrapped function.
+                **kwargs: Keyword arguments passed to the wrapped function.
+
+            Returns:
+                The result of the wrapped function execution.
+            """
             log_data = {
                 "function": f.__name__,
                 "module": f.__module__,
@@ -488,6 +577,16 @@ def with_source_location[F: Callable[..., Any]](func: F) -> F:
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        """
+        Performs source location capture and context injection for auto-instrumentation decorators in L9 Core.
+
+        Args:
+            *args: Positional arguments passed to the decorated function.
+            **kwargs: Keyword arguments passed to the decorated function.
+
+        Returns:
+            The result of the decorated function execution.
+        """
         # Capture source location
         stack = inspect.stack()
         if len(stack) > 1:

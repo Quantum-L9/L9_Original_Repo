@@ -109,6 +109,12 @@ class CacheMetrics(BaseModel):
 
     @property
     def cache_hit_ratio(self) -> float:
+        """
+        Calculates the cache hit ratio for the predictive warming memory system.
+
+        Returns:
+            float: The ratio of cache hits to total cache accesses, representing cache efficiency.
+        """
         total = self.cache_hits + self.cache_misses
         return self.cache_hits / total if total > 0 else 0.0
 
@@ -167,6 +173,20 @@ class MemoryContext:
 
 
 class PredictiveCacheConfig(BaseModel):
+    """
+    PredictiveCacheConfig encapsulates configuration settings for the predictive warming cache system, including Redis connection, cache lifetime, and resource limits.
+
+    Args:
+        redis_url: URL for connecting to the Redis cache server.
+        cache_ttl_seconds: Duration in seconds before cache entries expire.
+        max_subgraph_neighbors: Max number of neighboring nodes in subgraph caching.
+        max_cache_entries: Upper limit on total cache entries.
+        max_connection_pool_size: Size of the Redis connection pool.
+
+    Returns:
+        An instance of PredictiveCacheConfig with specified cache parameters.
+    """
+
     redis_url: str = "redis://localhost:6379/0"
     cache_ttl_seconds: int = Field(300, ge=10, le=3600)
     max_subgraph_neighbors: int = Field(20, ge=5, le=100)

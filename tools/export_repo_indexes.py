@@ -122,6 +122,19 @@ def generate_tree():
     gitignore_patterns = load_gitignore_patterns()
 
     def walk_dir(path, prefix="", max_depth=3, current_depth=0, rel_path_prefix=""):
+        """
+        Performs a recursive directory traversal to generate repository index files for LLM context understanding.
+
+        Args:
+            path: The directory path to start traversal.
+            prefix: String prefix for indexing or naming conventions.
+            max_depth: Maximum depth for recursion to limit traversal scope.
+            current_depth: Current recursion depth, used internally.
+            rel_path_prefix: Relative path prefix for maintaining directory structure.
+
+        Returns:
+            A list of file paths or index data collected during traversal.
+        """
         if current_depth >= max_depth:
             return
         try:
@@ -1879,7 +1892,7 @@ def generate_decorator_catalog():
 
 def generate_adr_catalog():
     """Generate catalog of Architecture Decision Records (ADRs)."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     lines = [
         "# L9 Architecture Decision Record (ADR) Catalog",
@@ -1990,7 +2003,7 @@ def generate_adr_catalog():
 
 def generate_readme_manifest():
     """Generate manifest of all README.md files with descriptions for AI reference."""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     lines = [
         "# L9 README File Manifest",

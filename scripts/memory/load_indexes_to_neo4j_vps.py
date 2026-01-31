@@ -42,7 +42,7 @@ __dora_meta__ = {
 
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -75,6 +75,12 @@ class VPSRepoGraphLoader:
     """Loads L9 repository indexes into VPS Neo4j via HTTP API."""
 
     def __init__(self, dry_run: bool = False, verbose: bool = False):
+        """
+        Initializes VPSRepoGraphLoader with configuration options for loading repository indexes into VPS Neo4j.
+        Args:
+            dry_run: If True, simulates actions without making changes.
+            verbose: If True, outputs detailed logs during execution.
+        """
         self.dry_run = dry_run
         self.verbose = verbose
         self.stats = {
@@ -608,6 +614,14 @@ USAGE: At session start, this summary provides instant repo context.
 
 
 async def main():
+    """
+    Loads repository index files into VPS Neo4j via HTTP API for graph data management.
+
+
+
+    Raises:
+        SystemExit: If argument parsing fails or required arguments are missing.
+    """
     import argparse
 
     parser = argparse.ArgumentParser(

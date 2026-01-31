@@ -23,6 +23,16 @@ from services.tool_learning_engine import ToolLearningEngine
 
 
 async def register_tool_learning_jobs(scheduler):
+    """
+    Performs registration of daily tool feedback learning jobs in the scheduler based on integration settings.
+
+    Args:
+        scheduler: The scheduler instance to which jobs will be added.
+
+
+    Raises:
+        Exception: If job registration fails due to scheduler issues or missing settings.
+    """
     settings = get_integration_settings()
     if not settings.l9_tool_feedback_enabled:
         return

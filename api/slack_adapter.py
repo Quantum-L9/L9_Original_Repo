@@ -62,6 +62,20 @@ class SlackSignatureVerificationError(Exception):
     """Raised when Slack signature verification fails."""
 
     def __init__(self, reason: str, http_status: int = 401):
+        """
+        Validates Slack webhook request signatures to ensure authenticity and integrity.
+
+        Args:
+            request_body: The raw request payload received from Slack.
+            headers: Dictionary of request headers, including Slack signature headers.
+            signing_secret: The Slack app's signing secret used for HMAC verification.
+
+        Returns:
+            bool: True if the request signature is valid; otherwise, False.
+
+        Raises:
+            SlackSignatureVerificationError: If signature verification fails due to invalid signature or missing headers.
+        """
         self.reason = reason
         self.http_status = http_status
         super().__init__(reason)

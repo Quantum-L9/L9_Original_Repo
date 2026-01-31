@@ -99,6 +99,7 @@ class ResolvedFinding:
     accessed_via: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
+        """Returns a dictionary representation of the ResolvedFinding instance, including all its fields for dead code cross-reference resolution."""
         return asdict(self)
 
 
@@ -112,6 +113,13 @@ class ResolutionResult:
     remaining_findings: int = 0
 
     def to_dict(self) -> dict[str, Any]:
+        """
+        Returns a dictionary representation of the ResolutionResult, summarizing dead code false positive elimination metrics.
+
+
+        Returns:
+            A dictionary with total input findings, eliminated false positives, remaining findings, and resolved findings as nested dictionaries or lists.
+        """
         return {
             "total_input_findings": self.total_input_findings,
             "false_positives_eliminated": self.false_positives_eliminated,
@@ -129,6 +137,12 @@ class FalsePositiveDetector:
     """Detect and filter false positive dead code findings."""
 
     def __init__(self, repo_root: Path = REPO_ROOT):
+        """
+        Initializes the FalsePositiveDetector with the repository root path for dead code cross-reference analysis.
+
+        Args:
+            repo_root: Path to the root directory of the code repository to analyze.
+        """
         self.repo_root = repo_root
         self._codebase_content: str | None = None
         self._registry_patterns: set[str] = set()

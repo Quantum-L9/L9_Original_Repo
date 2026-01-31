@@ -46,7 +46,7 @@ __dora_meta__ = {
 
 import ast
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -188,6 +188,15 @@ class CodeFactExtractor:
     """Extract code facts using Python AST."""
 
     def __init__(self, repo_root: Path):
+        """
+        Initializes the CodeFactExtractor with the root directory of the repository for extracting code facts from Python AST.
+
+        Args:
+            repo_root: Path to the root directory of the code repository.
+
+        Raises:
+            ValueError: If the provided repo_root is not a valid directory.
+        """
         self.repo_root = repo_root
 
     def extract_function_signature(self, node: ast.FunctionDef) -> str:
@@ -298,7 +307,7 @@ def generate_code_map(repo_root: Path, extractor: CodeFactExtractor) -> dict[str
     """Generate CODE-MAP.yaml structure."""
     code_map = {
         "version": "1.0",
-        "last_verified": datetime.now(timezone.utc).isoformat() + "Z",
+        "last_verified": datetime.now(UTC).isoformat() + "Z",
         "subsystems": {},
     }
 
@@ -358,7 +367,7 @@ def generate_meta_yaml(subsystem_name: str) -> dict[str, Any]:
             "subsystem": subsystem_name,
             "modulepath": subsystem_path,
             "owner": "Igor",
-            "lastupdated": datetime.now(timezone.utc).isoformat() + "Z",
+            "lastupdated": datetime.now(UTC).isoformat() + "Z",
             "purpose": f"Documents the {subsystem_name} subsystem, contracts, and AI collaboration rules.",
         },
         "sections": {

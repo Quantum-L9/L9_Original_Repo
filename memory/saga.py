@@ -53,7 +53,7 @@ __dora_meta__ = {
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any, TypeVar
 from uuid import UUID, uuid4
@@ -135,6 +135,13 @@ class SagaStepResult:
 
     @property
     def is_success(self) -> bool:
+        """
+        Checks if the saga step execution was successful based on its status.
+        Args:
+            self: The SagaStepResult instance to evaluate.
+        Returns:
+            True if the step completed successfully; otherwise, False.
+        """
         return self.status == SagaStepStatus.COMPLETED
 
 
@@ -376,7 +383,7 @@ class SagaExecutor:
             saga_id=saga_id,
             saga_name=saga.name,
             status=SagaStatus.RUNNING,
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
         )
 
         logger.info(f"Starting saga: {saga.name}", saga_id=str(saga_id))
@@ -436,7 +443,7 @@ class SagaExecutor:
                 logger.error(f"Compensation failed: {comp_error}")
 
         finally:
-            result.completed_at = datetime.now(timezone.utc)
+            result.completed_at = datetime.now(UTC)
             result.total_duration_ms = (time.time() - start_time) * 1000
 
             logger.info(
@@ -464,13 +471,13 @@ class SagaExecutor:
             step_name=step.name,
             status=SagaStepStatus.PENDING,
             database=step.database,
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
         )
 
         # Check condition
         if step.condition_fn and not step.condition_fn(context):
             result.status = SagaStepStatus.SKIPPED
-            result.completed_at = datetime.now(timezone.utc)
+            result.completed_at = datetime.now(UTC)
             result.duration_ms = (time.time() - start_time) * 1000
             logger.debug(f"Step skipped (condition not met): {step.name}")
             return result
@@ -517,7 +524,7 @@ class SagaExecutor:
             result.status = SagaStepStatus.FAILED
             result.error = last_error
 
-        result.completed_at = datetime.now(timezone.utc)
+        result.completed_at = datetime.now(UTC)
         result.duration_ms = (time.time() - start_time) * 1000
 
         return result
@@ -649,6 +656,13 @@ class SagaBuilder:
     """
 
     def __init__(self, name: str, description: str = ""):
+        """
+        Initializes a SagaBuilder instance for constructing multi-stage sagas in the cross-DB Saga Pattern.
+
+        Args:
+            name: Unique identifier for the saga.
+            description: Optional textual description of the saga.
+        """
         self._name = name
         self._description = description
         self._steps: list[SagaStep] = []

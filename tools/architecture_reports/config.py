@@ -28,6 +28,17 @@ from pathlib import Path
 
 @dataclass(frozen=True)
 class RepoLayout:
+    """
+    Represents the layout configuration of a repository, including key directory paths.
+
+    Args:
+        root: The root directory of the repository.
+        src_dirs: Tuple of source code directories within the repo.
+        api_dirs: Tuple of API directories in the repo.
+        config_dirs: Tuple of configuration directories.
+        reports_dir: Directory designated for reports.
+    """
+
     root: Path
     src_dirs: tuple[Path, ...]
     api_dirs: tuple[Path, ...]
@@ -49,6 +60,13 @@ def detect_root(start: Path | None = None) -> Path:
 
 
 def default_layout() -> RepoLayout:
+    """
+    Returns the default project layout based on the detected root directory.
+
+
+    Returns:
+        A RepoLayout object representing the standard directory structure for the repository.
+    """
     root = detect_root()
     src_dirs: tuple[Path, ...] = (
         root / "core",

@@ -109,6 +109,7 @@ class IngestResult:
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     def to_dict(self) -> dict[str, Any]:
+        """Returns a dictionary representation of the IngestResult, including ingestion ID, source type, success status, and entity counts for domain-specific knowledge ingestion."""
         return {
             "ingest_id": str(self.ingest_id),
             "source_type": self.source_type.value,

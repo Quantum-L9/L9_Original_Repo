@@ -95,6 +95,15 @@ def register_tool(
     """
 
     def decorator(func: Callable[P, R]) -> Callable[P, R]:
+        """
+        Performs registration of a tool executor function in the auto-registration system.
+        Args:
+            func: The tool executor function to be registered.
+            name: Optional custom name for the tool; defaults to function's __name__.
+            prio: Optional priority level for registration.
+        Returns:
+            The registered function, now registered in the tool executor registry.
+        """
         # Register the function directly (not as a factory)
         tool_name = name or func.__name__
         tool_executor_registry.register_instance(

@@ -56,7 +56,7 @@ __dora_meta__ = {
 import asyncio
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -269,7 +269,7 @@ class ToolRouter:
                 return cached
             if vector is not None and self._cache_embeddings:
                 self._embedding_cache[tool_name] = vector
-            embedding.embedded_at = datetime.now(timezone.utc)
+            embedding.embedded_at = datetime.now(UTC)
             self._tool_cache[tool_name] = embedding
             self._cache_version += 1
 
@@ -458,6 +458,13 @@ class ToolRouter:
     async def _snapshot_cache(
         self,
     ) -> tuple[dict[str, ToolEmbedding], dict[str, list[float]], bool, int]:
+        """
+        Retrieves a cached snapshot of tool embeddings, descriptions, and status for semantic tool routing.
+
+
+        Returns:
+            A tuple containing the tool cache, embedding cache, a boolean indicating if tools are embedded, and an integer version number.
+        """
         async with self._cache_lock:
             return (
                 dict(self._tool_cache),

@@ -44,7 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
@@ -108,6 +108,12 @@ class ContextSection:
     fact_count: int = 0
 
     def __post_init__(self):
+        """
+        Calculates the token count for a context section if it is not already set, based on its content length.
+
+        Args:
+            self: The ContextSection instance whose token count is being initialized.
+        """
         if not self.token_count and self.content:
             # Rough token estimate (4 chars per token)
             self.token_count = len(self.content) // 4
@@ -291,7 +297,7 @@ class HierarchicalContextBuilder:
         )
 
         # Filter by recency
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+        cutoff = datetime.now(UTC) - timedelta(hours=24)
         recent_facts = [f for f in facts if f.created_at and f.created_at > cutoff]
 
         if not recent_facts:

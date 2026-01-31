@@ -115,6 +115,14 @@ def fix_file(filepath: Path, dry_run: bool = False) -> tuple[bool, str]:
 
 
 def main():
+    """
+    Performs argument parsing and initiates the process to fix missing 'timezone' imports in the L9 codebase.
+
+
+
+    Raises:
+        argparse.ArgumentError: If argument parsing encounters an error.
+    """
     import argparse
 
     parser = argparse.ArgumentParser(description="Fix timezone imports in L9 codebase")

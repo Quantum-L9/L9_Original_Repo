@@ -12,6 +12,16 @@ from .adr_enforcer import ADREnforcementValidator
 
 
 def main() -> int:
+    """
+    Performs ADR repository scanning using ADREnforcementValidator with CLI options.
+
+
+    Returns:
+        Exit status code as integer, where 0 indicates success.
+
+    Raises:
+        argparse.ArgumentError: If argument parsing fails.
+    """
     import argparse
 
     parser = argparse.ArgumentParser(description="L9 ADR Repository Scanner")

@@ -115,6 +115,15 @@ class FileAnalysis:
 
     @property
     def needs_fix(self) -> bool:
+        """
+        Checks if the file requires fixing by verifying if module-level logger usage lacks proper instantiation.
+
+        Args:
+            self: Instance of FileAnalysis representing the analyzed file.
+
+        Returns:
+            True if the file uses a module-level logger without proper instantiation and needs correction; otherwise, False.
+        """
         # Only needs fix if using module-level logger without instantiation
         # Instance loggers (self.logger) are typically set up in __init__
         return self.has_module_logger_usage and not self.has_logger_instantiation
@@ -353,6 +362,16 @@ def scan_directory(root_path: Path) -> list[FileAnalysis]:
 
 
 def main():
+    """
+    Ensures that Python files using logger.* have proper logger instantiation to maintain logging consistency across modules.
+
+    Args:
+        args: Command-line arguments parsed for script execution options.
+
+
+    Raises:
+        SystemExit: If argument parsing fails or script encounters a critical error.
+    """
     parser = argparse.ArgumentParser(
         description="Ensure logger is instantiated in Python files that use it"
     )

@@ -80,6 +80,7 @@ class TestResult:
     details: str = ""
 
     def __str__(self) -> str:
+        """Returns a string representation of the TestResult, including test ID, pass/fail status, score, and details, for use in AI model quality gate reporting."""
         status = "✅ PASS" if self.passed else "❌ FAIL"
         return f"{self.test_id}: {status} (score={self.score:.2f}) {self.details}"
 
@@ -96,9 +97,19 @@ class CheckResult:
 
     @property
     def pass_rate(self) -> float:
+        """
+        Calculates the pass rate of a specific AI model quality check category, indicating the proportion of passed tests.
+
+        Args:
+            None
+
+        Returns:
+            float: The ratio of passed tests to total tests, or 0.0 if no tests were conducted.
+        """
         return self.passed_count / self.total if self.total > 0 else 0.0
 
     def __str__(self) -> str:
+        """Returns a string representation of the CheckResult indicating check status, pass count, total, and pass rate."""
         status = "✅ PASS" if self.passed else "❌ FAIL"
         return f"{self.check_name}: {status} ({self.passed_count}/{self.total} = {self.pass_rate:.0%})"
 

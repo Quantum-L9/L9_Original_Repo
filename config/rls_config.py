@@ -91,6 +91,21 @@ class RLSConfig(BaseSettings):
     rls_user_id: str = "l9-shared"
 
     class Config:
+        """
+        Represents RLS (Row-Level Security) configuration for multi-tenant isolation using deterministic UUIDs.
+
+        Args:
+            env_file: Path to the environment configuration file.
+            env_file_encoding: Encoding of the environment file.
+            extra: Policy for handling extra fields in configuration.
+
+        Returns:
+            None
+
+        Raises:
+            NotImplementedError: If an unsupported configuration option is used.
+        """
+
         env_file = ".env"
         env_file_encoding = "utf-8"
         extra = "ignore"

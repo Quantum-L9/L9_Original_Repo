@@ -262,6 +262,14 @@ def html_to_text(html: str) -> str:
     try:
         # Use html.parser for better extraction
         class HTMLToTextParser(HTMLParser):
+            """
+            Parses HTML content to extract plain text, handling script and style tags appropriately for email payload processing.
+
+
+            Returns:
+                The extracted plain text from the HTML content.
+            """
+
             def __init__(self) -> None:
                 """Initialize parser state."""
                 super().__init__()

@@ -68,6 +68,16 @@ def generate(input: str, type: str, output: str, research: bool, min_confidence:
 
     # Run generation
     async def run():
+        """
+        Performs the main execution flow for the CodeGen CLI, coordinating task submission and result handling.
+
+
+        Returns:
+            The result of the gatekeeper run, indicating success status and output details.
+
+        Raises:
+            Exception: If an error occurs during task execution or result processing.
+        """
         result = await gatekeeper.run(
             task={
                 "contract": contract,
@@ -124,6 +134,14 @@ def validate(files: str):
     validator = CodeValidator()
 
     async def run():
+        """
+        Performs the main execution flow of the CodeGen CLI, including validation and reporting.
+
+
+
+        Raises:
+            Exception: If validation or reporting encounters an error.
+        """
         report = await validator.validate_all(file_list, {})
 
         click.echo("\n📊 Validation Report")
@@ -162,6 +180,14 @@ def research(query: str):
     gatekeeper = CodeGenGatekeeperAgent()
 
     async def run():
+        """
+        Performs the main execution flow of the CodeGen CLI, managing research blind spot analysis.
+
+
+
+        Raises:
+            Exception: If an error occurs during blind spot analysis or command execution.
+        """
         blind_spot = BlindSpot(
             category="research",
             description=query,

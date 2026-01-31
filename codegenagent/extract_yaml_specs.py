@@ -116,6 +116,19 @@ def sanitize_filename(filename: str) -> str:
 
 
 def main():
+    """
+    Parses the Markdown transcript to extract YAML specifications and segregate patches based on type and filename criteria.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        FileNotFoundError: If the transcript file does not exist.
+        OSError: If directory creation fails.
+    """
     script_dir = Path(__file__).parent
     transcript_path = script_dir / "Chat Transcript - CodeGenAgentv1.0.md"
 

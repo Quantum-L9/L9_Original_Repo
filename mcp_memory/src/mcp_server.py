@@ -36,17 +36,45 @@ logger = structlog.get_logger(__name__)
 
 
 class MCPTool(BaseModel):
+    """
+    Provides a representation of MCP (Model Context Protocol) tools and their invocation details within the MCP server framework.
+
+    Args:
+        name: The name identifier of the MCP tool.
+        description: A brief description of the MCP tool's purpose.
+        inputSchema: A dictionary defining the expected input structure for the tool.
+
+    Args:
+        name: The name of the MCP tool call to execute.
+        arguments: A dictionary of arguments to pass to the MCP tool.
+
+    Returns:
+        A list of MCPTool instances representing available MCP tools.
+    """
+
     name: str
     description: str
     inputSchema: dict[str, Any]
 
 
 class MCPToolCall(BaseModel):
+    """
+    Represents a call to a specific tool within the MCP (Model Context Protocol) server, encapsulating tool name and arguments.
+
+    Args:
+        name: The identifier of the MCP tool to invoke.
+        arguments: A dictionary of parameters to pass to the tool.
+
+    Returns:
+        An instance of MCPToolCall with specified tool name and arguments.
+    """
+
     name: str
     arguments: dict[str, Any]
 
 
 def get_mcp_tools() -> list[MCPTool]:
+    """Returns a list of MCPTool instances representing available MCP tools for model context management."""
     return [
         MCPTool(
             name="save_memory",

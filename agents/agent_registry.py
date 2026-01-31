@@ -98,6 +98,18 @@ def register_agent(
         tags.append(category)
 
     def decorator(cls: type) -> type:
+        """
+        Registers an agent class for automatic discovery within the agent registry system.
+
+        Args:
+            cls: The agent class to be registered.
+            name: Optional custom name for the agent; defaults to class name.
+            priority: Registration priority level.
+            tags: List of tags associated with the agent.
+
+        Returns:
+            The registered agent class.
+        """
         # Register the class directly (not as a factory)
         agent_name = name or cls.__name__
         agent_registry.register_instance(

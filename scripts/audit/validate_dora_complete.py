@@ -40,7 +40,7 @@ import json
 import re
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 # ============================================================================
@@ -154,6 +154,12 @@ class DoraCompleteValidator:
     """Contract-compliant DORA block validator."""
 
     def __init__(self, repo_path: str, strict: bool = False):
+        """
+        Initializes the DORA complete validator with repository path and validation strictness.
+        Args:
+            repo_path: Path to the repository to validate.
+            strict: Whether to enforce strict validation rules.
+        """
         self.repo_path = Path(repo_path)
         self.strict = strict
         self.results: list[ValidationResult] = []
@@ -404,7 +410,7 @@ class DoraCompleteValidator:
         ]
 
         report = {
-            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+            "timestamp": datetime.now(UTC).isoformat() + "Z",
             "total_files": len(self.results),
             "compliant": len(compliant),
             "non_compliant": len(non_compliant),
@@ -509,6 +515,14 @@ class DoraCompleteValidator:
 
 
 def main():
+    """
+    Validates DORA contract compliance by checking all required blocks in the YAML configuration.
+
+
+
+    Raises:
+        SystemExit: If validation fails or arguments are invalid
+    """
     parser = argparse.ArgumentParser(
         description="Validate DORA blocks against contract"
     )

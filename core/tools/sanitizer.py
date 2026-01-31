@@ -75,6 +75,16 @@ class ToolInputSanitizationError(ValueError):
 
 @dataclass(frozen=True)
 class ToolInputSanitizerConfig:
+    """
+    Configuration class for tool input sanitization parameters to prevent unsafe arguments.
+    Args:
+        max_total_bytes: Maximum total size in bytes allowed for input data.
+        max_depth: Maximum allowed nesting depth of input structures.
+        max_list_length: Maximum length permitted for input lists.
+        max_string_length: Maximum length allowed for input strings.
+        internal_context_keys: Set of internal context keys to exclude from validation.
+    """
+
     max_total_bytes: int = _DEFAULT_MAX_TOTAL_BYTES
     max_depth: int = _DEFAULT_MAX_DEPTH
     max_list_length: int = _DEFAULT_MAX_LIST_LENGTH
@@ -288,14 +298,43 @@ class ToolInputSanitizer:
             return
 
         if len(raw.encode("utf-8")) > self._config.max_total_bytes:
+            """
+            Performs recursive validation to prevent unsafe tool arguments in the sanitizer module.
+
+            Args:
+                o: The object to validate, which can be a dict, list, or other types.
+                depth: Current recursion depth to limit nested validation.
+
+            Returns:
+                True if the object exceeds maximum allowed depth or contains unsafe structures; otherwise, False.
+            """
             reasons.append(
                 f"payload exceeds max_total_bytes={self._config.max_total_bytes}"
             )
 
     @staticmethod
     def _exceeds_depth(obj: Any, max_depth: int) -> bool:
+        """
+        Performs recursive validation to detect unsafe or oversized tool call arguments in the sanitizer module.
+
+        Args:
+            o: The object to validate, which can be a list, dict, or other types.
+
+        Returns:
+            True if an unsafe or oversized argument is found; otherwise, False.
+        """
         """Check if object nesting exceeds maximum depth."""
+
         def _walk(o: Any, depth: int) -> bool:
+            """
+            Performs recursive validation of tool call arguments to prevent unsafe data.
+
+            Args:
+                o: The argument object to validate, which can be a string, list, or dictionary.
+
+            Returns:
+                True if the argument passes validation checks; False otherwise.
+            """
             if depth > max_depth:
                 return True
             if isinstance(o, dict):
@@ -309,12 +348,31 @@ class ToolInputSanitizer:
     @staticmethod
     def _exceeds_list_length(obj: Any, max_len: int) -> bool:
         """Check if any list in object exceeds maximum length."""
+
         def _walk(o: Any) -> bool:
+            """
+            Performs recursive validation to detect unsafe or excessively large tool arguments in sanitization processes.
+
+            Args:
+                o: The object to validate, which can be a list, dict, or other types.
+
+            Returns:
+                True if an unsafe or oversized argument is detected; otherwise, False.
+            """
             if isinstance(o, list):
                 if len(o) > max_len:
                     return True
                 return any(_walk(v) for v in o)
             if isinstance(o, dict):
+                """
+                Performs recursive validation of tool call arguments to prevent unsafe data.
+
+                Args:
+                    o: The argument object to validate, which can be a string, list, or dictionary.
+
+                Returns:
+                    True if the argument or any nested element exceeds the maximum length; otherwise, False.
+                """
                 return any(_walk(v) for v in o.values())
             return False
 
@@ -323,7 +381,17 @@ class ToolInputSanitizer:
     @staticmethod
     def _exceeds_string_length(obj: Any, max_len: int) -> bool:
         """Check if any string in object exceeds maximum length."""
+
         def _walk(o: Any) -> bool:
+            """
+            Performs recursive validation of tool call arguments to prevent unsafe data.
+
+            Args:
+                o: The argument object to validate, which can be a string, list, or dictionary.
+
+            Returns:
+                True if the argument or any nested element exceeds the maximum length, indicating potential unsafe content.
+            """
             if isinstance(o, str):
                 return len(o) > max_len
             if isinstance(o, list):

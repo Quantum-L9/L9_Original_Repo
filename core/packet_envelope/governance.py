@@ -45,7 +45,7 @@ import hashlib
 import json
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
@@ -125,7 +125,7 @@ class RetentionManager:
             return False
 
         expiration = created_at + timedelta(days=ttl_days)
-        return datetime.now(timezone.utc) > expiration
+        return datetime.now(UTC) > expiration
 
     def get_expiration_date(
         self, aggregate_id: str, created_at: datetime
@@ -151,7 +151,7 @@ class RetentionManager:
             "deleted_count": 0,
             "anonymized_count": 0,
             "errors": [],
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         # TODO(GMP-101): Query all aggregates, check expiration
@@ -171,7 +171,7 @@ class DeletionRequest:
     aggregate_id: str
     reason: str  # e.g., "user_requested", "retention_expired"
     requested_by: str
-    requested_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    requested_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Approval chain
     approved_by: str | None = None
@@ -215,7 +215,7 @@ class ErasureEngine:
         self, aggregate_id: str, reason: str, requested_by: str
     ) -> DeletionRequest:
         """Submit erasure request"""
-        request_id = f"del-{datetime.now(timezone.utc).timestamp()}"
+        request_id = f"del-{datetime.now(UTC).timestamp()}"
 
         deletion_req = DeletionRequest(
             request_id=request_id,
@@ -246,7 +246,7 @@ class ErasureEngine:
 
         deletion_req = self.deletion_requests[request_id]
         deletion_req.approved_by = approved_by
-        deletion_req.approved_at = datetime.now(timezone.utc)
+        deletion_req.approved_at = datetime.now(UTC)
 
         self.logger.info(f"Erasure request approved: {request_id} by {approved_by}")
 
@@ -273,7 +273,7 @@ class ErasureEngine:
         ).hexdigest()
 
         deletion_req.proof_hash = data_hash
-        deletion_req.executed_at = datetime.now(timezone.utc)
+        deletion_req.executed_at = datetime.now(UTC)
 
         # Handle cascading deletes (lineage, relationships)
         if self.config.enable_cascading_delete:
@@ -315,7 +315,10 @@ class ErasureEngine:
     async def _fetch_aggregate(self, aggregate_id: str) -> dict:
         """Fetch aggregate data"""
         # TODO(GMP-102): Query data store
-        return {"id": aggregate_id, "created_at": datetime.now(timezone.utc).isoformat()}
+        return {
+            "id": aggregate_id,
+            "created_at": datetime.now(UTC).isoformat(),
+        }
 
     @must_stay_async("callers use await")
     async def _find_cascading_deletes(self, aggregate_id: str) -> list[str]:
@@ -368,6 +371,7 @@ class AnonymizationEngine:
     """
 
     def __init__(self):
+        """Initializes the AnonymizationEngine for GDPR-compliant PII anonymization to support analytics while respecting privacy."""
         self.logger = logger
         self.rules: dict[str, AnonymizationRule] = {}
 
@@ -419,7 +423,7 @@ class ComplianceEvent:
     event_type: str  # deletion, anonymization, export, access
     aggregate_id: str
     user_id: str
-    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     details: dict[str, Any] = field(default_factory=dict)
     proof_hash: str | None = None
 
@@ -431,6 +435,13 @@ class ComplianceAuditLog:
     """
 
     def __init__(self):
+        """
+        Initializes the ComplianceAuditLog for recording data access and modification events in compliance monitoring.
+
+
+        Returns:
+            An instance of ComplianceAuditLog with an empty event list and logger setup.
+        """
         self.logger = logger
         self.events: list[ComplianceEvent] = []
 
@@ -445,7 +456,7 @@ class ComplianceAuditLog:
     ) -> ComplianceEvent:
         """Log compliance event"""
         event = ComplianceEvent(
-            event_id=f"evt-{datetime.now(timezone.utc).timestamp()}",
+            event_id=f"evt-{datetime.now(UTC).timestamp()}",
             event_type=event_type,
             aggregate_id=aggregate_id,
             user_id=user_id,
@@ -491,7 +502,7 @@ class ComplianceReport:
 
     report_id: str
     report_type: str  # gdpr, ccpa, audit_trail
-    generated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     period_start: datetime | None = None
     period_end: datetime | None = None
     data: list[dict[str, Any]] = field(default_factory=list)
@@ -500,11 +511,24 @@ class ComplianceReport:
 
 class ComplianceExporter:
     """
+    Initializes the ComplianceExporter with an audit log for generating GDPR and compliance reports.
+
+    Args:
+        audit_log: An instance of ComplianceAuditLog used to record audit trail data.
+    """
+
+    """
     Generate compliance reports
     GDPR subject access request, CCPA data disclosure, etc.
     """
 
     def __init__(self, audit_log: ComplianceAuditLog):
+        """
+        Initializes the ComplianceExporter with an audit log for GDPR and compliance reporting.
+
+        Args:
+            audit_log: An instance of ComplianceAuditLog used to generate audit and compliance reports.
+        """
         self.audit_log = audit_log
         self.logger = logger
 
@@ -522,7 +546,7 @@ class ComplianceExporter:
         events = await self.audit_log.export_audit_trail(user_id, start_date, end_date)
 
         return ComplianceReport(
-            report_id=f"gdpr-{datetime.now(timezone.utc).timestamp()}",
+            report_id=f"gdpr-{datetime.now(UTC).timestamp()}",
             report_type="gdpr_sar",
             period_start=start_date,
             period_end=end_date,
@@ -549,7 +573,7 @@ class ComplianceExporter:
         )
 
         return ComplianceReport(
-            report_id=f"audit-{datetime.now(timezone.utc).timestamp()}",
+            report_id=f"audit-{datetime.now(UTC).timestamp()}",
             report_type="audit_trail",
             period_start=start_date,
             period_end=end_date,

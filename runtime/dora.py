@@ -322,6 +322,15 @@ def l9_traced[F: Callable[..., Any]](
     """
 
     def decorator(fn: F) -> F:
+        """
+        Performs a decorator that manages DORA block auto-updating within the L9 DORA runtime.
+
+        Args:
+            fn: The function to be decorated with DORA block management.
+
+        Returns:
+            The decorated function with DORA auto-update capabilities.
+        """
         # Determine source file for DORA block updates
         _source_file = source_file
         if _source_file is None and update_source:
@@ -332,6 +341,16 @@ def l9_traced[F: Callable[..., Any]](
 
         @functools.wraps(fn)
         def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """
+            Performs input binding and default application within the DORA runtime tracing context.
+
+            Args:
+                *args: Positional arguments to be bound to the target function.
+                **kwargs: Keyword arguments to be bound to the target function.
+
+            Returns:
+                The result of the wrapped function execution after input processing.
+            """
             # Capture inputs
             sig = inspect.signature(fn)
             bound = sig.bind_partial(*args, **kwargs)
@@ -378,6 +397,16 @@ def l9_traced[F: Callable[..., Any]](
 
         @functools.wraps(fn)
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
+            """
+            Performs asynchronous execution with input binding and default application within the DORA runtime environment.
+
+            Args:
+                *args: Positional arguments for the wrapped function.
+                **kwargs: Keyword arguments for the wrapped function.
+
+            Returns:
+                The result of the wrapped asynchronous function execution.
+            """
             # Capture inputs
             sig = inspect.signature(fn)
             bound = sig.bind_partial(*args, **kwargs)

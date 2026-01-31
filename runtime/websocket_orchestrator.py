@@ -44,7 +44,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -132,6 +132,7 @@ class WebSocketOrchestrator:
     """
 
     def __init__(self) -> None:
+        """Initializes the WebSocketOrchestrator for managing L9 agent WebSocket connections."""
         self._connections: dict[str, WebSocket] = {}
         self._metadata: dict[str, dict[str, Any]] = {}
         self._connected_at: dict[str, datetime] = {}
@@ -158,7 +159,7 @@ class WebSocketOrchestrator:
         """
         self._connections[agent_id] = websocket
         self._metadata[agent_id] = metadata or {}
-        self._connected_at[agent_id] = datetime.now(timezone.utc)
+        self._connected_at[agent_id] = datetime.now(UTC)
         logger.info(
             "Agent %s registered (metadata=%s)",
             agent_id,

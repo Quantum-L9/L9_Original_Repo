@@ -36,7 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -285,6 +285,16 @@ def export_session_memory(kernel_state: Any) -> dict[str, Any]:
 
     # Run introspection first
     class MockAgent:
+        """
+        Performs post-execution introspection and session management for the MockAgent to facilitate self-audit and state tracking.
+
+        Args:
+            mock: An instance of MockAgent representing the agent to be introspected.
+
+        Returns:
+            A dictionary containing export timestamp, version, and session metadata for auditing purposes.
+        """
+
         pass
 
     mock = MockAgent()

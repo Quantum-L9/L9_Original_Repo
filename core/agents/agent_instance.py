@@ -83,7 +83,7 @@ __dora_meta__ = {
 
 import hashlib
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -133,7 +133,7 @@ class AgentInstance:
         self._iteration = 0
         self._history: list[dict[str, Any]] = []
         self._tool_results: list[dict[str, Any]] = []
-        self._created_at = datetime.now(timezone.utc)
+        self._created_at = datetime.now(UTC)
         self._total_tokens = 0
         self._tool_name_map: dict[str, str] = {}
         self._tool_name_reverse_map: dict[str, str] = {}
@@ -258,7 +258,7 @@ class AgentInstance:
             {
                 "correction": correction,
                 "iteration": self._iteration,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "metadata": metadata or {},
             }
         )
@@ -294,7 +294,7 @@ class AgentInstance:
         block = {
             "type": block_type,
             "agent_id": self._config.agent_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "iteration": self._iteration,
         }
         if violation:
@@ -496,6 +496,7 @@ class AgentInstance:
         return self._tool_name_map.get(tool_name, tool_name)
 
     def _build_tool_name_map(self) -> None:
+        """Builds a mapping of tool names to their identifiers for quick lookup."""
         if self._tool_name_map:
             return
 
@@ -538,7 +539,7 @@ class AgentInstance:
                 "role": "user",
                 "content": content,
                 "metadata": metadata or {},
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -557,7 +558,7 @@ class AgentInstance:
                 "role": "assistant",
                 "content": content,
                 "metadata": metadata or {},
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -584,7 +585,7 @@ class AgentInstance:
                 "content": content,
                 "tool_calls": tool_calls,
                 "metadata": metadata or {},
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 
@@ -629,7 +630,7 @@ class AgentInstance:
                 "call_id": call_id,
                 "result": result,  # Store original for internal use
                 "success": success,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "truncated": was_truncated,
             }
         )
@@ -645,7 +646,7 @@ class AgentInstance:
                     "success": success,
                     "truncated": was_truncated,
                 },
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
         )
 

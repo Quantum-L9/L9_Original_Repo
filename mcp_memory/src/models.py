@@ -403,6 +403,15 @@ class SaveMemoryArgs(BaseModel):
     metadata: dict[str, Any] | None = None
 
     class Config:
+        """
+        Config class defines configuration settings for request/response models in the metadata handling system.
+
+        Args:
+            extra: Specifies whether to allow or forbid extra fields in metadata; default is "forbid".
+
+        No return value.
+        """
+
         # Allow extra fields in metadata but validate known fields strictly
         extra = "forbid"
 
@@ -432,6 +441,12 @@ class SearchMemoryArgs(BaseModel):
     duration: str | None = "all"  # Enum: short, medium, long, all
 
     class Config:
+        """
+        Config class defines configuration settings for request/response models in the API.
+        Args:
+            extra: Specifies how to handle unexpected attributes, set to "forbid" to disallow extra fields.
+        """
+
         extra = "forbid"
 
 
@@ -449,6 +464,12 @@ class GetMemoryStatsArgs(BaseModel):
     duration: str | None = "all"  # Enum: short, medium, long, all
 
     class Config:
+        """
+        Config class defines configuration settings for request/response models in the memory management domain.
+        Args:
+            extra: Specifies how to handle unexpected attributes, set to "forbid" to disallow extra fields.
+        """
+
         extra = "forbid"
 
 
@@ -465,6 +486,17 @@ class DeleteExpiredMemoriesArgs(BaseModel):
     dry_run: bool | None = True
 
     class Config:
+        """
+        Config class enforces strict configuration settings for request/response models in the system.
+
+        Args:
+            extra: Specifies behavior for unexpected attributes, set to "forbid" to disallow extra fields.
+
+
+        Raises:
+            AttributeError: If invalid configuration attributes are set.
+        """
+
         extra = "forbid"
 
 
@@ -483,6 +515,13 @@ class CompoundMemoriesArgs(BaseModel):
     threshold: float | None = 0.92
 
     class Config:
+        """
+        Validation model for configuration settings in request/response handling.
+
+        Class Config:
+            extra: Specifies that additional attributes are forbidden in models, ensuring strict validation.
+        """
+
         extra = "forbid"
 
 
@@ -499,6 +538,8 @@ class ApplyDecayArgs(BaseModel):
     dry_run: bool | None = True
 
     class Config:
+        """Validation model for request arguments used in context injection to retrieve relevant memories for system prompt augmentation."""
+
         extra = "forbid"
 
 
@@ -523,6 +564,16 @@ class GetContextArgs(BaseModel):
     kinds: list[str] | None = None
 
     class Config:
+        """
+        Validation model for request parameters related to extracting session learnings in the MCP tool.
+
+        Args:
+            session_id: Identifier for the specific session to extract learnings from.
+            include_decisions: Whether to include decision data in the extraction.
+            include_errors: Whether to include error information.
+            include_successes: Whether to include successful outcomes.
+        """
+
         extra = "forbid"
 
 
@@ -549,6 +600,12 @@ class ExtractSessionLearningsArgs(BaseModel):
     successes: list[str] | None = None
 
     class Config:
+        """
+        Config class defines configuration settings for request/response models in the API.
+        Args:
+            extra: Specifies how to handle unexpected fields, default is "forbid".
+        """
+
         extra = "forbid"
 
 
@@ -573,6 +630,15 @@ class GetProactiveSuggestionsArgs(BaseModel):
     top_k: int | None = 3
 
     class Config:
+        """
+        Validation model for query_temporal MCP tool arguments used to specify time-based memory query parameters.
+
+        Args:
+            user_id: Identifier for the user initiating the query.
+            start_time: Beginning of the time window for memory evolution analysis.
+            end_time: End of the time window for memory evolution analysis.
+        """
+
         extra = "forbid"
 
 
@@ -597,6 +663,17 @@ class QueryTemporalArgs(BaseModel):
     operation: str | None = "changes"  # Enum: changes, timeline, diff
 
     class Config:
+        """
+        Config class defines configuration settings for request/response models in the application.
+
+        Args:
+            extra: Specifies behavior for unexpected attributes, set to "forbid" to disallow extra fields.
+
+
+        Raises:
+            AttributeError: If invalid configuration attribute is set.
+        """
+
         extra = "forbid"
 
 
@@ -633,6 +710,14 @@ class SaveMemoryWithConfidenceArgs(BaseModel):
     metadata: dict[str, Any] | None = None
 
     class Config:
+        """
+        Config class enforces strict configuration settings for models in the request/response framework.
+        Args:
+            extra: Specifies that no additional attributes are allowed beyond defined fields.
+        Raises:
+            AttributeError: If an attempt is made to set an attribute outside the allowed configuration.
+        """
+
         extra = "forbid"
 
 
@@ -656,6 +741,13 @@ class GraphQueryArgs(BaseModel):
     parameters: dict[str, Any] | None = None  # Query parameters
 
     class Config:
+        """
+        Config class defines configuration settings for request/response models in the knowledge graph API.
+
+        Args:
+            extra: Specifies behavior for unexpected attributes, set to "forbid" to disallow extra fields.
+        """
+
         extra = "forbid"
 
 
@@ -674,6 +766,14 @@ class GraphGetEntityArgs(BaseModel):
     entity_id: str  # Entity identifier
 
     class Config:
+        """
+        Validation model for arguments used in retrieving contextual information from the knowledge graph.
+
+        Args:
+            domain: The specific domain within the knowledge graph to fetch context from.
+            other_param: Additional parameter relevant to the context retrieval process.
+        """
+
         extra = "forbid"
 
 
@@ -692,6 +792,13 @@ class GraphGetContextArgs(BaseModel):
     limit: int | None = 10  # Max results
 
     class Config:
+        """
+        Config class defines configuration settings for request/response models in the domain.
+
+        Args:
+            extra: Specifies behavior for unexpected attributes, defaulting to "forbid" to prevent extra data.
+        """
+
         extra = "forbid"
 
 
@@ -718,6 +825,13 @@ class GraphCreateEventArgs(BaseModel):
     parent_event_id: str | None = None  # Optional parent for causality chain
 
     class Config:
+        """
+        Config class defines configuration settings for request/response models in the domain.
+
+        Args:
+            extra: Specifies behavior for unexpected attributes, set to "forbid" to disallow extra fields.
+        """
+
         extra = "forbid"
 
 
@@ -737,6 +851,12 @@ class GraphGetEventTimelineArgs(BaseModel):
     limit: int | None = 100  # Maximum events to return
 
     class Config:
+        """
+        Config class defines validation rules for request and response models in the API.
+        Args:
+            extra: Specifies behavior for unexpected fields, set to "forbid" to disallow extra data.
+        """
+
         extra = "forbid"
 
 
@@ -754,6 +874,14 @@ class GraphGetTemporalEventsArgs(BaseModel):
     end: str | None = None  # ISO timestamp end (optional)
 
     class Config:
+        """
+        Validation model for arguments used in retrieving a sequence of events related to a specific entity within the graph analysis domain.
+
+        Args:
+            entity: Entity ID for which the event sequence is fetched.
+            limit: Maximum number of events to return in the sequence.
+        """
+
         extra = "forbid"
 
 
@@ -769,6 +897,12 @@ class GraphGetEventSequenceArgs(BaseModel):
     limit: int | None = 50  # Maximum events to return
 
     class Config:
+        """
+        Config class defines configuration settings for request/response models in the application.
+        Args:
+            extra: Specifies how to handle unexpected attributes, defaulting to "forbid" to prevent additional data.
+        """
+
         extra = "forbid"
 
 
@@ -789,6 +923,11 @@ class CacheGetArgs(BaseModel):
     key: str  # Cache key
 
     class Config:
+        """
+        Config class defines validation rules for request/response models in the API framework.
+        extra: Specifies behavior for unknown attributes, set to "forbid" to disallow extra fields.
+        """
+
         extra = "forbid"
 
 
@@ -809,6 +948,12 @@ class CacheSetArgs(BaseModel):
     ttl: int | None = None  # TTL in seconds
 
     class Config:
+        """
+        Config class defines configuration settings for request/response models in the API.
+        Args:
+            extra: Specifies how to handle unexpected attributes, set to "forbid" to disallow extra fields.
+        """
+
         extra = "forbid"
 
 
@@ -825,6 +970,12 @@ class CacheGetSessionContextArgs(BaseModel):
     session_id: str | None = None  # Session ID (defaults to daily session)
 
     class Config:
+        """
+        Config class enforces strict validation rules for request/response models in the API.
+        Args:
+            extra: Specifies behavior for unexpected fields, set to "forbid" to disallow extra data.
+        """
+
         extra = "forbid"
 
 

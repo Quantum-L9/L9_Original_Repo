@@ -9,6 +9,16 @@ from .filesystem import open_report
 
 
 def _module_from_path(layout: RepoLayout, path: Path) -> str:
+    """
+    Converts a file path to a module name relative to the repository layout.
+
+    Args:
+        layout: The repository layout containing the root directory.
+        path: The file path to convert into a module name.
+
+    Returns:
+        The module name as a dot-separated string suitable for import statements.
+    """
     rel = path.relative_to(layout.root)
     return ".".join(rel.with_suffix("").parts)
 

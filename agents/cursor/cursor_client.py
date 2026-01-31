@@ -37,6 +37,20 @@ class CursorClient:
     """Client for Cursor remote API."""
 
     def __init__(self, host: str = "127.0.0.1", port: int = 3000, timeout: int = 30):
+        """
+        Performs an HTTP request to the Cursor remote API endpoint with specified method and data.
+
+        Args:
+            endpoint: API endpoint path for the request.
+            method: HTTP method to use, default is "POST".
+            data: Payload data sent with the request.
+
+        Returns:
+            Response object from the HTTP request.
+
+        Raises:
+            requests.RequestException: If the request fails due to network issues or invalid responses.
+        """
         self.host = host
         self.port = port
         self.timeout = timeout

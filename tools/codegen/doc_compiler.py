@@ -108,6 +108,16 @@ class ConstraintExtractor(ArtifactExtractor):
     """Extracts constraint definitions from documents."""
 
     def extract(self, text: str, schema: Schema) -> dict[str, Any]:
+        """
+        Performs extraction of constraint-related information from legal or policy documents based on a provided schema.
+
+        Args:
+            text: The human-authored document containing constraint definitions.
+            schema: The schema guiding extraction rules and validation.
+
+        Returns:
+            A dictionary with extracted constraint attributes such as ID, rule, scope, and severity.
+        """
         result = {
             "constraint_id": self._extract_id(text, "constraint"),
             "rule": self._extract_rule(text),
@@ -160,6 +170,16 @@ class ProtocolExtractor(ArtifactExtractor):
     """Extracts protocol/workflow definitions."""
 
     def extract(self, text: str, schema: Schema) -> dict[str, Any]:
+        """
+        Extracts protocol definitions from human-authored artifacts into structured runtime law components.
+
+        Args:
+            text: The artifact text containing protocol details.
+            schema: The schema guiding extraction rules.
+
+        Returns:
+            A dictionary with protocol_id, name, steps, and enforcement details.
+        """
         result = {
             "protocol_id": self._extract_id(text),
             "name": self._extract_name(text),
@@ -204,6 +224,14 @@ class PatternExtractor(ArtifactExtractor):
     """Extracts architectural pattern definitions."""
 
     def extract(self, text: str, schema: Schema) -> dict[str, Any]:
+        """
+        Extracts architectural pattern details from text based on schema definitions.
+        Args:
+            text: Human-authored artifact containing pattern information.
+            schema: Schema object defining expected pattern structure.
+        Returns:
+            Dictionary with extracted pattern attributes such as id, name, intent, and applicability.
+        """
         result = {
             "pattern_id": self._extract_id(text),
             "name": self._extract_name(text),
@@ -268,6 +296,16 @@ class HeuristicExtractor(ArtifactExtractor):
     """Extracts heuristic/judgment rules."""
 
     def extract(self, text: str, schema: Schema) -> dict[str, Any]:
+        """
+        Extracts heuristic and judgment rules from human-authored artifacts for runtime law enforcement.
+
+        Args:
+            text: The artifact text containing heuristic information.
+            schema: The schema guiding extraction based on domain rules.
+
+        Returns:
+            A dictionary with extracted heuristic ID, rule, rationale, severity, and violation signals.
+        """
         result = {
             "heuristic_id": self._extract_id(text),
             "rule": self._extract_rule(text),

@@ -84,6 +84,11 @@ class ToolFeedbackService:
     """
 
     def __init__(self, substrate_service: MemorySubstrateService) -> None:
+        """
+        Initializes the ToolFeedbackService with a substrate for persisting tool execution feedback and managing the feedback buffer.
+        Args:
+            substrate_service: MemorySubstrateService instance used for storing feedback data.
+        """
         self.substrate = substrate_service
         self._buffer: list[ToolFeedbackEntry] = []
         self._buffer_size = get_integration_settings().l9_tool_feedback_buffer_size

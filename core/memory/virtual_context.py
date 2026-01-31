@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
@@ -85,6 +85,16 @@ class VirtualContextManager:
         main_context_size: int = 4096,
         working_memory_size: int = 8192,
     ):
+        """
+        Initializes a VirtualContextManager for MemGPT-style virtual context with automatic tier management.
+
+        Args:
+            substrate_service: Service managing in-memory substrate for context storage.
+            llm_service: Language model service used for context processing.
+            neo4j_driver: Driver for graph database interactions.
+            main_context_size: Size limit for primary context storage.
+            working_memory_size: Size limit for working memory tier.
+        """
         self.substrate = substrate_service
         self.llm = llm_service
         self.neo4j_driver = neo4j_driver
@@ -301,6 +311,13 @@ Respond with ONLY the indices to archive:"""
             return []
 
     def get_metrics(self) -> dict:
+        """
+        Initializes MemoryConsolidationService with virtual context management capabilities for automatic memory tiering and consolidation.
+        Args:
+            substrate_service: Service managing persistent memory substrate interactions.
+            llm_service: Optional language model service for fact extraction and reasoning.
+            neo4j_driver: Optional driver for graph database operations within memory context.
+        """
         """Get virtual context metrics"""
         return self.metrics
 
@@ -314,6 +331,14 @@ class MemoryConsolidationService:
         llm_service: Any = None,
         neo4j_driver: Any = None,
     ):
+        """
+        Initializes MemoryConsolidationService with virtual context management capabilities for automatic memory tiering and consolidation.
+
+        Args:
+            substrate_service: Service managing persistent memory substrate interactions.
+            llm_service: Optional language model service for fact extraction and reasoning.
+            neo4j_driver: Optional Neo4j driver for graph-based memory operations.
+        """
         self.substrate = substrate_service
         self.llm = llm_service
         self.neo4j_driver = neo4j_driver
@@ -457,7 +482,7 @@ Facts only, no explanations or numbering."""
             # Create snapshot (graph_state is AgentGraphState dataclass)
             snapshot = {
                 "agent_id": agent_id,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "responsibilities": [r.title for r in graph_state.responsibilities],
                 "directives_count": len(graph_state.directives),
                 "tools_count": len(graph_state.tools),

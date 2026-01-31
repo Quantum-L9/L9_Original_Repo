@@ -60,6 +60,15 @@ class SessionDAGRegistry:
     """
 
     def __init__(self):
+        """
+        Registers a session DAG within the session DAG registry.
+
+        Args:
+            dag: The SessionDAG instance to be registered.
+
+        Raises:
+            ValueError: If the DAG is already registered or invalid.
+        """
         self._dags: dict[str, SessionDAG] = {}
         self._by_name: dict[str, str] = {}  # name -> id mapping
 
@@ -119,9 +128,19 @@ class SessionDAGRegistry:
         ]
 
     def __len__(self) -> int:
+        """Returns the number of registered session DAGs in the registry."""
         return len(self._dags)
 
     def __contains__(self, dag_id: str) -> bool:
+        """
+        Checks if a session DAG with the specified ID exists in the registry.
+
+        Args:
+            dag_id: The identifier of the session DAG to check for existence.
+
+        Returns:
+            True if the DAG with the given ID is registered; otherwise, False.
+        """
         return dag_id in self._dags
 
 

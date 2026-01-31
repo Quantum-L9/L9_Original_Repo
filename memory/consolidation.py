@@ -43,7 +43,7 @@ __dora_meta__ = {
 
 import asyncio
 import re
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -63,12 +63,13 @@ class ConsolidationReport:
     """Consolidation execution report."""
 
     def __init__(self):
+        """Initializes a ConsolidationReport instance to track deduplication, archival, summarization, and TTL expiration metrics during memory consolidation processes."""
         self.deduplication_count = 0
         self.archived_count = 0
         self.summarized_count = 0
         self.expired_count = 0
         self.errors: list[str] = []
-        self.start_time = datetime.now(timezone.utc)
+        self.start_time = datetime.now(UTC)
         self.end_time: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -223,7 +224,7 @@ class ConsolidationPipeline:
             report.errors.append(f"Pipeline error: {e!s}")
 
         finally:
-            report.end_time = datetime.now(timezone.utc)
+            report.end_time = datetime.now(UTC)
             logger.info(
                 "Consolidation pipeline complete",
                 report=report.to_dict(),
@@ -430,7 +431,7 @@ class ConsolidationPipeline:
             return 0
 
         archived = 0
-        cutoff_date = datetime.now(timezone.utc) - timedelta(days=90)
+        cutoff_date = datetime.now(UTC) - timedelta(days=90)
 
         try:
             async with self._repository.acquire() as conn:
@@ -663,7 +664,7 @@ class ConsolidationPipeline:
             return 0
 
         expired = 0
-        grace_cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
+        grace_cutoff = datetime.now(UTC) - timedelta(hours=24)
 
         try:
             async with self._repository.acquire() as conn:

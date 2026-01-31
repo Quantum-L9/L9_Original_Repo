@@ -597,6 +597,18 @@ class CausalMapper:
             strength: float,
             depth: int,
         ) -> None:
+            """
+            Performs depth-first search to explore causal relationships in the world model.
+
+            Args:
+                current: The current node in the causal graph.
+                target: The target node to reach.
+                visited: Set of nodes already visited to avoid cycles.
+                path_nodes: List of nodes along the current path.
+                path_edges: List of edges along the current path.
+                strength: Cumulative strength of causal links.
+                depth: Current depth in the search to limit recursion.
+            """
             if depth > max_depth:
                 return
 
@@ -647,6 +659,16 @@ class CausalMapper:
         visited = set()
 
         def dfs(current: str) -> None:
+            """
+            Performs depth-first search to traverse causal relationships starting from the current node in the causal graph.
+
+            Args:
+                current: The identifier of the node from which to start the traversal.
+
+
+            Raises:
+                KeyError: If the current node is not found in the adjacency mapping.
+            """
             for edge_id in self._adjacency.get(current, []):
                 edge = self._edges.get(edge_id)
                 if edge and edge.target_id not in visited:
@@ -663,6 +685,12 @@ class CausalMapper:
         visited = set()
 
         def dfs(current: str) -> None:
+            """
+            Performs depth-first search to traverse causal relationships in the world model starting from the current node.
+
+            Args:
+                current: The identifier of the current node in the causal graph to begin traversal.
+            """
             for edge_id in self._reverse_adjacency.get(current, []):
                 edge = self._edges.get(edge_id)
                 if edge and edge.source_id not in visited:

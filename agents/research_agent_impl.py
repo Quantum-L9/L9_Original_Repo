@@ -41,7 +41,7 @@ import json
 import os
 import re
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -253,6 +253,13 @@ class PerplexityClient:
     """
 
     def __init__(self, api_key: str | None = None):
+        """
+        Initializes PerplexityClient with an API key for legacy research and query services.
+        Args:
+            api_key (str | None): API key for authenticating requests; defaults to environment variable if None.
+        Raises:
+            ValueError: If no API key is provided or found in environment variables.
+        """
         self.api_key = api_key or os.getenv("PERPLEXITY_API_KEY")
         if not self.api_key:
             raise ValueError(
@@ -380,9 +387,28 @@ class ResponseProcessor:
 
 
 class SynthesisEngine:
+    """
+    Initializes the SynthesisEngine with a list of research responses for aggregating multi-prompt research findings.
+
+    Args:
+        responses (list[ResearchResponse]): List of research response objects to synthesize.
+
+    Returns:
+        None
+
+    Raises:
+        TypeError: If responses is not a list of ResearchResponse objects.
+    """
+
     """Aggregates multi-prompt research findings."""
 
     def __init__(self, responses: list[ResearchResponse]):
+        """
+        Initializes the SynthesisEngine with a list of research responses for aggregating multi-prompt research findings.
+
+        Args:
+            responses: List of ResearchResponse objects containing individual research data.
+        """
         self.responses = responses
         self.log = logger.bind(engine="synthesis")
 

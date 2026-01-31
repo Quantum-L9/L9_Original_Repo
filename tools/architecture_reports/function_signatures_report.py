@@ -9,9 +9,23 @@ from .filesystem import open_report
 
 
 def _format_args(node: ast.arguments) -> str:
+    """
+    Converts an ast.arguments node into a formatted string representing function parameters.
+    Args:
+        node: An ast.arguments object containing function argument details.
+    Returns:
+        A string representing the formatted list of function arguments with defaults.
+    """
     parts: list[str] = []
 
     def add_arg(a: ast.arg, default: str | None = None) -> None:
+        """
+        Adds an argument name and default value to the function signature report.
+
+        Args:
+            a: AST node representing the argument to be added.
+            default: Optional default value for the argument, as a string or None.
+        """
         if default is not None:
             parts.append(f"{a.arg}={default}")
         else:
@@ -42,6 +56,14 @@ def _format_args(node: ast.arguments) -> str:
 
 
 def _module_from_path(layout: RepoLayout, path: Path) -> str:
+    """
+    Converts a file path to a module name based on repository layout.
+    Args:
+        layout: RepoLayout object containing repository root information.
+        path: Path to the Python file within the repository.
+    Returns:
+        The module name as a dot-separated string corresponding to the file's location.
+    """
     rel = path.relative_to(layout.root)
     return ".".join(rel.with_suffix("").parts)
 

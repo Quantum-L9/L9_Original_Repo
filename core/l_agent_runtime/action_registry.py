@@ -29,6 +29,7 @@ class ActionResult:
     metadata: dict = None
 
     def __post_init__(self):
+        """Initializes the ActionRegistry for managing executable actions within the L agent system."""
         if self.metadata is None:
             self.metadata = {}
 
@@ -59,6 +60,15 @@ class ActionRegistry:
         """
 
         def decorator(func: Callable) -> Callable:
+            """
+            Registers a function as an executable action within the L agent system, associating it with specific metadata for runtime execution.
+
+            Args:
+                func: Callable function to be registered as an action.
+
+            Returns:
+                Callable that wraps the original function, now registered in the action registry.
+            """
             self.actions[action_type] = func
             self.metadata[action_type] = {
                 "description": description,

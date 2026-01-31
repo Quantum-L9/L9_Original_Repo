@@ -225,6 +225,16 @@ class TaggedClaim:
         sources: list[str] | None = None,
         reasoning: str | None = None,
     ):
+        """
+        Initializes a TaggedClaim instance representing a structured, annotated epistemic claim with confidence, status, sources, and reasoning details.
+
+        Args:
+            text: The claim text to be tagged.
+            confidence: Numeric confidence level of the claim.
+            status: Epistemic status indicating claim certainty or evidence.
+            sources: Optional list of sources supporting the claim.
+            reasoning: Optional explanation for the claim's tagging.
+        """
         self.text = text
         self.confidence = confidence
         self.status = status
@@ -264,6 +274,13 @@ class ClaimCollection:
     """
 
     def __init__(self):
+        """
+        Initializes a ClaimCollection instance for managing tagged claims within response epistemic status and confidence analysis.
+
+
+        Returns:
+            A new ClaimCollection object with an empty list of claims.
+        """
         self.claims: list[TaggedClaim] = []
 
     def add(

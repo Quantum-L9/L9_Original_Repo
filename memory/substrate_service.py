@@ -169,6 +169,18 @@ class MemorySubstrateService:
         logger.info("MemorySubstrateService initialized")
 
     def _require_rls_context(self, operation: str) -> Any:
+        """
+        Performs RLS context validation for memory operations within the Memory Substrate service.
+
+        Args:
+            operation: The name of the memory operation requiring RLS validation.
+
+        Returns:
+            The governance context object if validation passes.
+
+        Raises:
+            RuntimeError: If tenant_id, org_id, or user_id are missing in the context.
+        """
         ctx = require_governance_context(operation)
         if not ctx.tenant_id or not ctx.org_id or not ctx.user_id:
             raise RuntimeError(f"RLS scope required for memory operation: {operation}")

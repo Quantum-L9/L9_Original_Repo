@@ -33,7 +33,7 @@ __dora_meta__ = {
 import json
 import os
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -134,6 +134,14 @@ class CodeGenGatekeeperAgent(BaseAgent):
         min_confidence: float = 85.0,
         **kwargs,
     ):
+        """
+        Initializes the CodeGenGatekeeperAgent, the main orchestrator for contract validation and code generation.
+        Args:
+            agent_id: Unique identifier for the agent instance.
+            perplexity_api_key: Optional API key for external language model services.
+            research_enabled: Flag to enable or disable research features.
+            min_confidence: Minimum confidence threshold for contract validation.
+        """
         super().__init__(agent_id=agent_id, **kwargs)
 
         self.perplexity_api_key = perplexity_api_key or os.getenv("PERPLEXITY_API_KEY")
@@ -261,7 +269,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
         6. Calculate confidence score
         7. Return normalized spec
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Step 1: Parse contract
         parsed_contract = await self._parse_contract(contract, contract_type)
@@ -304,7 +312,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
             confidence=confidence,
         )
 
-        processing_time = (datetime.now(timezone.utc) - start_time).total_seconds()
+        processing_time = (datetime.now(UTC) - start_time).total_seconds()
 
         self.logger.info(
             "Contract processed",
@@ -575,7 +583,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
             "schema_version": "2.6",
             "meta": {
                 "schema_version": "2.6.0",
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
                 "created_by": "codegen_gatekeeper",
             },
             "metadata": {},
@@ -762,7 +770,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
         7. Run tests
         8. Generate documentation
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         options = options or {}
 
         # Import generation modules (lazy import to avoid circular dependencies)
@@ -817,7 +825,7 @@ class CodeGenGatekeeperAgent(BaseAgent):
         # Step 6: Calculate coverage (mock for now)
         coverage = validation_report.get("coverage", 0.0)
 
-        generation_time = (datetime.now(timezone.utc) - start_time).total_seconds()
+        generation_time = (datetime.now(UTC) - start_time).total_seconds()
 
         return CodeGenOutput(
             output_dir=output_dir,

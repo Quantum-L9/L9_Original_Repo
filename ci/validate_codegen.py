@@ -153,6 +153,15 @@ def validate_file_manifest(
 
     # Expand templates in allowed files
     def expand_template(template: str) -> str:
+        """
+        Generates a code template by replacing placeholders with module-specific identifiers.
+
+        Args:
+            template: String containing placeholders to be replaced with module identifiers.
+
+        Returns:
+            The expanded template string with placeholders substituted by module-specific values.
+        """
         return (
             template.replace("{{module}}", module_id)
             .replace("{{Module}}", module_name.replace(" ", ""))

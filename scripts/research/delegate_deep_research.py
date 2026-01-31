@@ -231,6 +231,14 @@ async def process_module(module_name: str, api_key: str, dry_run: bool = False) 
 
 
 async def main():
+    """
+    Performs asynchronous delegation of module specifications to Perplexity Deep Research with rate limiting.
+
+
+
+    Raises:
+        argparse.ArgumentError: If argument parsing fails or invalid arguments are provided.
+    """
     parser = argparse.ArgumentParser(
         description="Delegate module specs to Perplexity Deep Research"
     )

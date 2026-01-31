@@ -64,6 +64,14 @@ def load_file(path: Path) -> str:
 
 
 def main():
+    """
+    Performs initialization and setup for sending a Perplexity specification request, including loading API keys and context files.
+
+
+
+    Raises:
+        SystemExit: If the API key is not found in environment variables or .env file.
+    """
     # Load API key
     api_key = load_env()
     if not api_key:

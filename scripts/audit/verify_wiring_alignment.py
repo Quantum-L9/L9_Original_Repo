@@ -156,6 +156,14 @@ class VerificationResult:
 
     @property
     def is_green(self) -> bool:
+        """
+        Checks if the wiring verification result is considered healthy, indicating no broken documents or deprecated references.
+
+        Args: None
+
+        Returns:
+            True if all wiring checks pass, False otherwise.
+        """
         return len(self.broken_docs) == 0 and len(self.deprecated_refs) == 0
 
 

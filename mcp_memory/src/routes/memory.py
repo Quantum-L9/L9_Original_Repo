@@ -27,7 +27,7 @@ __dora_meta__ = {
 import asyncio
 import json
 import time
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
 import structlog
@@ -118,12 +118,12 @@ async def save_memory_handler(
 
         if duration == "short":
             table = "memory.short_term"
-            expires_at = datetime.now(timezone.utc) + timedelta(
+            expires_at = datetime.now(UTC) + timedelta(
                 hours=settings.MEMORY_SHORT_TERM_HOURS
             )
         elif duration == "medium":
             table = "memory.medium_term"
-            expires_at = datetime.now(timezone.utc) + timedelta(
+            expires_at = datetime.now(UTC) + timedelta(
                 hours=settings.MEMORY_MEDIUM_TERM_HOURS
             )
         else:
@@ -388,6 +388,15 @@ async def get_memory_stats(
 
 
 async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
+    """
+    Deletes expired memories from short-term and medium-term storage in the memory management system.
+
+    Args:
+        dry_run: If True, simulates deletion without making changes, useful for testing.
+
+    Returns:
+        A dictionary containing counts of deleted memories and operation details.
+    """
     short_r = await fetch_one(
         "SELECT COUNT(*) as cnt FROM memory.short_term WHERE expires_at < CURRENT_TIMESTAMP"
     )
@@ -427,6 +436,16 @@ async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
 async def compound_similar_memories(
     user_id: str, threshold: float = 0.92
 ) -> dict[str, Any]:
+    """
+    Performs memory compounding by merging similar memories based on a similarity threshold in the memory management system.
+
+    Args:
+        user_id: Identifier for the user whose memories are being processed.
+        threshold: Similarity score threshold for merging memories (default 0.92).
+
+    Returns:
+        A dictionary containing the status and details of the compounding operation.
+    """
     if not settings.COMPOUNDING_ENABLED:
         return {"status": "disabled", "message": "Memory compounding is disabled"}
 
@@ -503,6 +522,15 @@ async def compound_similar_memories(
 
 
 async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
+    """
+    Performs importance decay on memory entries based on decay rate settings.
+
+    Args:
+        dry_run: If True, simulates decay without applying changes.
+
+    Returns:
+        A dictionary with the decay operation status and details.
+    """
     if not settings.DECAY_ENABLED:
         return {"status": "disabled", "message": "Importance decay is disabled"}
 
@@ -532,6 +560,14 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
 
 
 async def cleanup_task():
+    """
+    Performs periodic cleanup of expired memory entries in the memory management system.
+
+
+
+    Raises:
+        Exception: Propagates exceptions from asyncio or database operations during cleanup.
+    """
     while True:
         try:
             await asyncio.sleep(settings.MEMORY_CLEANUP_INTERVAL_MINUTES * 60)
@@ -873,10 +909,10 @@ async def query_temporal(
         since_dt = (
             datetime.fromisoformat(since)
             if since
-            else datetime.now(timezone.utc) - timedelta(days=7)
+            else datetime.now(UTC) - timedelta(days=7)
         )
         until_dt = (
-            datetime.fromisoformat(until) if until else datetime.now(timezone.utc)
+            datetime.fromisoformat(until) if until else datetime.now(UTC)
         )
 
         # Build WHERE clause

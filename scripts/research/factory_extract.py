@@ -141,6 +141,14 @@ def print_extraction_result(result, verbose: bool = False):
 
 
 async def main():
+    """
+    Extracts production code from YAML agent schemas within the L9 Research Factory CLI.
+
+
+
+    Raises:
+        Exception: If an error occurs during schema processing or extraction.
+    """
     parser = argparse.ArgumentParser(
         description="L9 Research Factory - Extract code from YAML schemas",
         formatter_class=argparse.RawDescriptionHelpFormatter,

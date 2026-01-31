@@ -13,7 +13,7 @@ Part of /pr and /gmp slash command automation.
 
 import argparse
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 __dora_meta__ = {
@@ -240,6 +240,14 @@ def cmd_gmp_complete(args):
 
 
 def main():
+    """
+    Performs command-line argument parsing for the Workflow State Updater tool, setting up subcommands and options for managing workflow states.
+
+
+
+    Raises:
+        argparse.ArgumentError: If argument parsing encounters invalid input.
+    """
     parser = argparse.ArgumentParser(description="Workflow State Updater")
     subparsers = parser.add_subparsers(dest="command", help="Commands")
 

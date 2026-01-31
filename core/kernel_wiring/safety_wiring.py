@@ -39,10 +39,26 @@ def _get_kernels():
 
 
 def get_safety_policies() -> dict:
+    """
+    Retrieves the safety policies defined in the safety kernel for validation and enforcement.
+
+
+    Returns:
+        A dictionary containing safety-related policies and rules from the safety kernel.
+    """
     return _get_kernels().get_kernel("safety") or {}
 
 
 def is_destructive_action(action: str) -> bool:
+    """
+    Checks if the given action is classified as destructive within the safety kernel.
+
+    Args:
+        action: The action string to evaluate against destructive rules.
+
+    Returns:
+        True if the action is considered destructive according to safety rules, False otherwise.
+    """
     destructive = (
         _get_kernels().get_rule("safety", "destructive.actions", default=[]) or []
     )

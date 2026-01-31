@@ -181,6 +181,15 @@ class QueryEngine:
         """
 
         def matches(entity: Entity) -> bool:
+            """
+            Performs a type and attribute filter check on an Entity within the WorldModelState query engine.
+
+            Args:
+                entity: The Entity object to evaluate against filter criteria.
+
+            Returns:
+                True if the entity matches the specified type and attribute filters; otherwise, False.
+            """
             # Type filter
             if entity_type and entity.entity_type != entity_type:
                 return False

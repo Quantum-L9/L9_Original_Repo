@@ -56,6 +56,7 @@ class PathSafetyError(ValueError):
     message: str
 
     def __str__(self) -> str:  # pragma: no cover - trivial formatting
+        """Returns a string representation of the PathSafetyError, including its code and message for debugging purposes."""
         return f"{self.code}: {self.message}"
 
 
@@ -171,6 +172,19 @@ def validate_filename(
 
 
 def _normalize_user_path(raw: str, *, max_length: int) -> str:
+    """
+    Performs normalization and validation of user-provided filesystem paths within sandboxed environments, ensuring safety and compliance with allowlist constraints.
+
+    Args:
+        raw: The user-supplied path string to be normalized and validated.
+        max_length: The maximum allowed length for the path string.
+
+    Returns:
+        The normalized and sanitized path string suitable for sandboxed filesystem access.
+
+    Raises:
+        PathSafetyError: If the path contains invalid characters, exceeds length limits, or is of incorrect type.
+    """
     if not isinstance(raw, str):
         raise PathSafetyError("invalid_type", "Path must be a string")
     if "\x00" in raw:

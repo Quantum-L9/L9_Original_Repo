@@ -33,7 +33,7 @@ __dora_meta__ = {
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
@@ -73,8 +73,14 @@ class SecurityAlert:
     timestamp: datetime = None
 
     def __post_init__(self):
+        """
+        Initializes the timestamp for a security alert if not already set, ensuring accurate event timing.
+
+        Args:
+            self: Instance of SecurityAlert with alert details.
+        """
         if self.timestamp is None:
-            self.timestamp = datetime.now(timezone.utc)
+            self.timestamp = datetime.now(UTC)
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -164,7 +170,7 @@ class SecurityAlertService:
 
     def _is_duplicate(self, alert: SecurityAlert) -> bool:
         """Check if alert is a duplicate within dedup window."""
-        cutoff_time = datetime.now(timezone.utc) - self.dedup_window
+        cutoff_time = datetime.now(UTC) - self.dedup_window
 
         for historical_alert in self.alert_history:
             if historical_alert.timestamp < cutoff_time:
@@ -373,7 +379,7 @@ Details:
             channels = [AlertChannel.SLACK]
 
         return SecurityAlert(
-            alert_id=f"{scan_type}_{severity}_{int(datetime.now(timezone.utc).timestamp())}",
+            alert_id=f"{scan_type}_{severity}_{int(datetime.now(UTC).timestamp())}",
             alert_type=f"{scan_type}_vulnerability",
             severity=alert_severity,
             title=f"{count} {severity.upper()} {scan_type} vulnerabilities detected",
@@ -397,7 +403,7 @@ Details:
             SecurityAlert instance
         """
         return SecurityAlert(
-            alert_id=f"secret_{secret_type}_{int(datetime.now(timezone.utc).timestamp())}",
+            alert_id=f"secret_{secret_type}_{int(datetime.now(UTC).timestamp())}",
             alert_type="secret_detected",
             severity=AlertSeverity.CRITICAL,
             title=f"{secret_type} secret detected in code",
@@ -423,7 +429,7 @@ Details:
         severity = AlertSeverity.HIGH if action == "block" else AlertSeverity.MEDIUM
 
         return SecurityAlert(
-            alert_id=f"policy_{policy_type}_{int(datetime.now(timezone.utc).timestamp())}",
+            alert_id=f"policy_{policy_type}_{int(datetime.now(UTC).timestamp())}",
             alert_type="policy_violation",
             severity=severity,
             title=f"Security policy violation: {policy_type}",

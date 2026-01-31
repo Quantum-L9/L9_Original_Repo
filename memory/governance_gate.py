@@ -175,6 +175,15 @@ class MemoryGovernanceContext:
     source: str | None = None
 
     def __post_init__(self) -> None:
+        """
+        Performs validation of caller and project identifiers to enforce memory governance policies.
+
+        Args:
+            self: Instance of MemoryGovernanceContext containing governance attributes.
+
+        Raises:
+            RuntimeError: If caller_id, project_id, or allowed_scope are missing or invalid.
+        """
         if not self.caller_id:
             raise RuntimeError("caller_id is required for governance enforcement")
         if not self.project_id:

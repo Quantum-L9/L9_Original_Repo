@@ -115,6 +115,11 @@ def run_phase(phase_num: int, verbose: bool = False) -> tuple[bool, str]:
 
 
 def main():
+    """
+    Performs the main execution of the dead code audit process, orchestrating all phases in sequence.
+    Raises:
+        Exception: If an error occurs during argument parsing or execution.
+    """
     import argparse
 
     parser = argparse.ArgumentParser(

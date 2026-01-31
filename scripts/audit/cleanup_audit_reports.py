@@ -56,7 +56,7 @@ import argparse
 import shutil
 import sys
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).parent.parent.parent
@@ -227,6 +227,11 @@ def delete_files(files: list[Path], dry_run: bool = False) -> int:
 
 
 def main():
+    """
+    Main function to clean up old L9 audit reports by archiving or deleting outdated files based on report type and age.
+    Returns:
+        None, performs file operations and user interactions.
+    """
     parser = argparse.ArgumentParser(
         description="Clean up old L9 audit reports",
         formatter_class=argparse.RawDescriptionHelpFormatter,

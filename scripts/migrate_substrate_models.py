@@ -215,6 +215,14 @@ def migrate_file(path: Path, dry_run: bool = True) -> tuple[bool, str]:
 
 
 def main():
+    """
+    Performs the main migration process from memory.substrate_models to core.schemas.packet_envelope_v2 in the substrate models migration script.
+
+
+
+    Raises:
+        Exception: If errors occur during file processing or migration steps.
+    """
     dry_run = "--dry-run" in sys.argv
 
     # Find project root (parent of scripts/)

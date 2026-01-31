@@ -30,7 +30,7 @@ __dora_meta__ = {
     "status": "active",
 }
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -51,14 +51,31 @@ class ReActStep:
         action_input: dict[str, Any] | None = None,
         observation: str | None = None,
     ):
+        """
+        Initializes a ReActStep instance representing a single reasoning and acting cycle in the ReAct framework.
+
+        Args:
+            thought: The agent's current reasoning or thought process.
+            action: The action the agent plans to take, if any.
+            action_input: Input data required for the action, if any.
+            observation: The observation received after the action, if any.
+        """
         self.thought = thought
         self.action = action
         self.action_input = action_input
         self.observation = observation
-        self.timestamp = datetime.now(timezone.utc)
+        self.timestamp = datetime.now(UTC)
 
 
 class ReActRuntime:
+    """
+    Initializes the ReAct runtime for agent task execution using the Think → Act → Observe pattern.
+    Args:
+        aios_runtime: AIOSRuntime instance managing asynchronous operations for the agent.
+        tool_registry: Registry of tools or executors available for agent actions.
+        max_iterations: Maximum number of reasoning and acting cycles to prevent infinite loops.
+    """
+
     """
     ReAct (Reason + Act) runtime for agent task execution.
 
@@ -71,6 +88,13 @@ class ReActRuntime:
         tool_registry: Any,  # ExecutorToolRegistry
         max_iterations: int = 10,
     ):
+        """
+        Initializes the ReAct runtime for agent task execution following the Think → Act → Observe pattern.
+        Args:
+            aios_runtime: AIOSRuntime instance managing asynchronous runtime operations.
+            tool_registry: Registry of tools and executors used during agent reasoning.
+            max_iterations: Maximum number of reasoning cycles before termination.
+        """
         self._aios = aios_runtime
         self._tools = tool_registry
         self._max_iterations = max_iterations
@@ -95,7 +119,7 @@ class ReActRuntime:
         Returns:
             ExecutionResult with final response
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         steps: list[ReActStep] = []
 
         # Initial context
@@ -204,7 +228,16 @@ Input: [tool input or final answer]
         }
 
     def _duration_ms(self, start_time: datetime) -> int:
-        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        """
+        Calculates the elapsed duration in milliseconds since the provided start_time for ReAct runtime timing.
+
+        Args:
+            start_time: The datetime when the timing measurement begins.
+
+        Returns:
+            The elapsed time in milliseconds as an integer.
+        """
+        return int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
 
 def create_react_runtime(

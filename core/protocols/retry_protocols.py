@@ -209,6 +209,18 @@ class StandardRetryHandler:
         self._attempt = 0
 
         async def _execute_with_timeout() -> T:
+            """
+            Performs an asynchronous execution of a coroutine with an optional timeout based on retry policy.
+            Args:
+                coro_func: The coroutine function to execute with retry logic.
+                args: Positional arguments for the coroutine.
+                kwargs: Keyword arguments for the coroutine.
+                self: Instance containing the retry policy with timeout settings.
+            Returns:
+                The result of the coroutine execution if successful within the timeout.
+            Raises:
+                asyncio.TimeoutError: If the execution exceeds the specified timeout.
+            """
             if self.policy.timeout:
                 return await asyncio.wait_for(
                     coro_func(*args, **kwargs),
@@ -378,7 +390,27 @@ def with_retry(
     def decorator(
         func: Callable[..., Awaitable[T]],
     ) -> Callable[..., Awaitable[T]]:
+        """
+        Performs asynchronous retry logic for Python 3.12+ applications using configurable backoff strategies and exception handling.
+
+        Args:
+            func: The asynchronous function to be decorated with retry capabilities.
+
+        Returns:
+            A wrapped asynchronous function that executes with retry logic applied.
+        """
+
         async def wrapper(*args: object, **kwargs: object) -> T:
+            """
+            Performs asynchronous retry logic using configurable backoff strategies and exception handling for core protocol operations.
+
+            Args:
+                *args: Positional arguments for the wrapped function.
+                **kwargs: Keyword arguments for the wrapped function.
+
+            Returns:
+                The result of the wrapped function after retry attempts.
+            """
             handler = StandardRetryHandler(policy)
             return await handler.execute_with_retry(func, *args, **kwargs)
 

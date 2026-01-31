@@ -46,7 +46,7 @@ import logging
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -364,6 +364,13 @@ class SchemaRegistry:
     """
 
     def __init__(self):
+        """
+        Initializes the SchemaRegistry for managing and validating event schemas in the CloudEvents standard.
+
+
+        Returns:
+            An instance of SchemaRegistry with an empty schema store and logger initialized.
+        """
         self.schemas: dict[str, list[EventSchema]] = {}
         self.logger = logger
 
@@ -443,7 +450,7 @@ def create_packet_ingested_event(
         data={
             "packet_id": packet_id,
             "size_bytes": len(json.dumps(packet_data)),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         },
         subject=f"packet/{packet_id}",
     )

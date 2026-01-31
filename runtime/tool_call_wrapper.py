@@ -156,7 +156,30 @@ def wrap_tool_function(
     """
 
     def decorator(func: Callable[..., Coroutine[Any, Any, Any]]) -> Callable:
+        """
+        Performs a decorator that wraps tool functions to ensure all calls are logged via ToolGraph.log_tool_call for consistent audit logging.
+
+        Args:
+            func: The asynchronous tool function to be decorated for logging.
+
+        Returns:
+            A wrapped asynchronous function that logs each call before execution.
+        """
+
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
+            """
+            Performs asynchronous logging of tool calls to ensure consistent audit records within the ToolCallWrapper context.
+
+            Args:
+                *args: Positional arguments to pass to the wrapped tool function.
+                **kwargs: Keyword arguments to pass to the wrapped tool function.
+                tool_name: Name identifier for the tool being invoked.
+                tool_func: The actual tool function to execute.
+                agent_id: Identifier for the agent initiating the call.
+
+            Returns:
+                The result of the tool function execution, wrapped with logging.
+            """
             return await tool_call_wrapper(
                 tool_name=tool_name,
                 tool_func=func,

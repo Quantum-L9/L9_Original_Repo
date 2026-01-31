@@ -36,7 +36,7 @@ import json
 import os
 import subprocess
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import structlog
@@ -402,7 +402,7 @@ def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
         "kernel_id": kernel_id,
         "session_id": session_id,
         "activated_by": "cursor",
-        "activated_at": datetime.now(timezone.utc).isoformat(),
+        "activated_at": datetime.now(UTC).isoformat(),
         "behaviors_enabled": [
             "todo_tracker",
             "confidence_logic",
@@ -459,7 +459,7 @@ def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
             }
             for t in todos
         ],
-        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(UTC).isoformat(),
     }
     envelope = {
         "payload": payload,
@@ -496,6 +496,16 @@ class CursorMemoryKernel:
     """
 
     def __init__(self, config_path: Path = KERNEL_CONFIG_PATH):
+        """
+        Initializes CursorMemoryKernel with configuration for session memory and TODO tracking.
+        Args:
+            config_path: Path to the YAML configuration file defining kernel behavior.
+        Returns:
+            None.
+        Raises:
+            FileNotFoundError: If the configuration file does not exist.
+            YAMLParsingError: If the configuration file contains invalid YAML.
+        """
         self.config_path = config_path
         self.config: dict = {}
         self.session_state: SessionState | None = None
@@ -531,7 +541,7 @@ class CursorMemoryKernel:
         """
         if session_id is None:
             session_id = (
-                f"cursor-session-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+                f"cursor-session-{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}"
             )
 
         # Write activation
@@ -551,7 +561,7 @@ class CursorMemoryKernel:
             lessons=lessons,
             todos=todos,
             prompt_count=0,
-            activated_at=datetime.now(timezone.utc),
+            activated_at=datetime.now(UTC),
         )
 
         logger.info(

@@ -97,6 +97,15 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
         max_retries: int = 3,
         base_backoff: float = 0.5,
     ):
+        """
+        Initializes an OpenAI embedding provider for generating text embeddings using the specified model and configuration.
+        Args:
+            model: Name of the embedding model, defaults to "text-embedding-3-large".
+            dimensions: Size of the embedding vectors, typically 1536.
+            api_key: Optional API key for OpenAI authentication; uses environment variable if None.
+            max_retries: Number of retry attempts for API calls.
+            base_backoff: Initial backoff time in seconds between retries.
+        """
         self._model = model
         self._dimensions = dimensions
         self._api_key = api_key
@@ -189,6 +198,14 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
 
     @property
     def dimensions(self) -> int:
+        """
+        Returns the dimensionality of the embedding vectors used by the provider.
+
+        Args: None
+
+        Returns:
+            An integer representing the size of the embedding vectors.
+        """
         return self._dimensions
 
 
@@ -228,6 +245,7 @@ class StubEmbeddingProvider(EmbeddingProvider):
 
     @property
     def dimensions(self) -> int:
+        """Returns the number of dimensions used in the embedding vectors for semantic representations."""
         return self._dimensions
 
 
@@ -571,6 +589,15 @@ class SemanticService:
         recency_weight = context.get("recency_weight", 0.1)
 
         def score_hit(hit: dict[str, Any]) -> float:
+            """
+            Calculates a relevance score for a search hit based on embedding type and payload attributes.
+
+            Args:
+                hit: Dictionary representing a search result hit with score and payload data.
+
+            Returns:
+                A float representing the computed relevance score for the hit.
+            """
             base_score = hit.get("score", 0.5)
             payload = hit.get("payload", {})
 

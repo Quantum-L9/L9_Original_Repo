@@ -133,6 +133,18 @@ def check_all_files(base_path: Path) -> list[dict]:
 
 
 def main():
+    """
+    Performs CI check to enforce OpenAI tool ID naming conventions, ensuring only allowed characters are used.
+
+    Args:
+        None
+
+    Returns:
+        None
+
+    Raises:
+        AssertionError: If any tool ID violates naming rules.
+    """
     parser = argparse.ArgumentParser(
         description="Check tool IDs for OpenAI naming compliance"
     )

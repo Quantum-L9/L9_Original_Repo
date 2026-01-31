@@ -26,7 +26,7 @@ __dora_meta__ = {
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 from core.reasoning.toth_engine import (
@@ -53,6 +53,11 @@ class L9ReasoningContext:
     constraints: list[str] | None = None
 
     def __post_init__(self):
+        """
+        Performs post-initialization setup for L9 reasoning context, ensuring constraints and memory contexts are initialized.
+        Args:
+            self: Instance of L9ReasoningContext that requires default setup.
+        """
         if self.constraints is None:
             self.constraints = []
         if self.memory_context is None:

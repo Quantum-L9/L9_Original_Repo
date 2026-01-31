@@ -196,6 +196,18 @@ async def factory_health() -> HealthResponse:
 
 
 def _safe_output_dir(output_dir: str) -> str:
+    """
+    Performs a security-checked resolution of the output directory path within the research factory environment.
+
+    Args:
+        output_dir: The user-specified directory path for output, which needs validation and safety checks.
+
+    Returns:
+        A safe, resolved absolute path for the output directory.
+
+    Raises:
+        HTTPException: If path resolution or safety validation fails.
+    """
     from core.security.path_safety import (
         PathSafetyError,
         resolve_base_dir,

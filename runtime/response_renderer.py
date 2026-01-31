@@ -282,6 +282,7 @@ class ResponseBuilder:
     """
 
     def __init__(self):
+        """Initializes a ResponseBuilder instance with default response template settings."""
         self._opening = ""
         self._sections: dict[str, str] = {}
         self._confidence: dict[str, Any] = {"overall": 0.5}

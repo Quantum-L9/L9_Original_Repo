@@ -37,7 +37,7 @@ import hashlib
 import json
 from collections import defaultdict
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -62,6 +62,11 @@ class CacheManager:
     """Manage incremental audit caching."""
 
     def __init__(self, cache_dir: Path):
+        """
+        Initializes CacheManager for managing incremental audit caching in the specified cache directory.
+        Args:
+            cache_dir: Path object representing the directory where cache and manifest files are stored.
+        """
         self.cache_dir = cache_dir
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.manifest_file = cache_dir / "manifest.json"
@@ -232,6 +237,13 @@ class Reporter:
     """Generate audit reports in multiple formats."""
 
     def __init__(self, audit_name: str, repo_root: Path):
+        """
+        Initializes the Reporter with audit-specific settings and prepares the report directory for storing audit reports.
+
+        Args:
+            audit_name: Name identifier for the specific audit run.
+            repo_root: Path to the root directory of the repository containing audit data.
+        """
         self.audit_name = audit_name
         self.repo_root = repo_root
         self.report_dir = repo_root / "reports"
@@ -357,6 +369,15 @@ class GMPIntegration:
     """Generate GMP TODO plans from audit findings."""
 
     def __init__(self, audit_name: str):
+        """
+        Initializes GMPIntegration with the specified audit name for generating GMP TODO plans based on audit findings.
+
+        Args:
+            audit_name: The name identifying the specific audit instance.
+
+        Returns:
+            An instance of GMPIntegration with an empty list of TODO items.
+        """
         self.audit_name = audit_name
         self.todos: list[GMPTODOItem] = []
 
@@ -423,6 +444,7 @@ class ConfigValidator:
     """Validate configuration against rules."""
 
     def __init__(self):
+        """Initializes a ConfigValidator instance with an empty set of validation rules for auditing configuration compliance."""
         self.rules: dict[str, ValidationRule] = {}
 
     def add_rule(self, rule: ValidationRule):
@@ -476,6 +498,11 @@ class ObservabilityHooks:
     """Integration with L9 observability layer."""
 
     def __init__(self, substrate_enabled: bool = False):
+        """
+        Initializes the ObservabilityHooks with optional substrate integration for L9 observability layer.
+        Args:
+            substrate_enabled: Boolean flag to enable or disable substrate-based observability features.
+        """
         self.substrate_enabled = substrate_enabled
         self.spans: list[dict[str, Any]] = []
 

@@ -37,7 +37,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
@@ -87,6 +87,13 @@ class ComputationResult(BaseModel):
     error: str | None = Field(default=None, description="Error message if failed")
 
     class Config:
+        """
+        Class Config defines custom JSON encoding for datetime objects within the SymPy symbolic computation models.
+
+        Args:
+            json_encoders: Dictionary mapping data types to encoder functions, here used to serialize datetime as ISO format.
+        """
+
         json_encoders = {datetime: lambda v: v.isoformat()}
 
 

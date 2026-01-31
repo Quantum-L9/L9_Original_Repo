@@ -74,6 +74,13 @@ class PromptCachingStrategy:
     """
 
     def __init__(self):
+        """
+        Builds and returns the cached system prompt used in the two-tier prompt caching strategy for tool-heavy agents.
+
+
+        Returns:
+            str: The cached system prompt string used across multiple queries in the session.
+        """
         self._cached_system_prompt: str | None = None
         self._system_prompt_tokens: int = 0
 
@@ -240,11 +247,14 @@ For any task:
 
 
 class CachingMetricsCollector:
+    """Initializes the CachingMetricsCollector for tracking cache performance metrics in prompt caching strategy."""
+
     """
     Collect and report caching metrics for observability.
     """
 
     def __init__(self):
+        """Initializes the CachingMetricsCollector for tracking cache performance metrics in the prompt caching strategy."""
         self.metrics = CacheMetrics()
         self._latencies: list[float] = []
 

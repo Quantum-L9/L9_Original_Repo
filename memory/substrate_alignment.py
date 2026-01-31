@@ -31,6 +31,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
+from datetime import UTC
 from uuid import UUID
 
 import structlog
@@ -53,10 +54,24 @@ class AlignmentReport:
 
     @property
     def is_aligned(self) -> bool:
+        """
+        Checks if the alignment report indicates complete consistency between Postgres packet_store and Neo4j Event nodes.
+
+
+        Returns:
+            True if there are no missing entries in either data source, indicating perfect alignment.
+        """
         return len(self.missing_in_neo4j) == 0 and len(self.missing_in_postgres) == 0
 
     @property
     def alignment_percentage(self) -> float:
+        """
+        Calculates the percentage of aligned packets between Postgres and Neo4j substrates in the cross-substrate alignment report.
+
+
+        Returns:
+            float: The percentage of aligned packets, ranging from 0 to 100.
+        """
         total = self.postgres_count + self.neo4j_count
         if total == 0:
             return 100.0
@@ -131,7 +146,7 @@ class SubstrateAlignmentChecker:
         """Verify all Postgres packets have Neo4j nodes."""
         from datetime import datetime, timezone
 
-        report = AlignmentReport(checked_at=datetime.now(timezone.utc).isoformat())
+        report = AlignmentReport(checked_at=datetime.now(UTC).isoformat())
 
         try:
             postgres_ids = await self._fetch_postgres_packet_ids(limit)
@@ -162,7 +177,7 @@ class SubstrateAlignmentChecker:
         """Verify all Neo4j memory nodes have Postgres packets."""
         from datetime import datetime, timezone
 
-        report = AlignmentReport(checked_at=datetime.now(timezone.utc).isoformat())
+        report = AlignmentReport(checked_at=datetime.now(UTC).isoformat())
 
         try:
             if not await self._neo4j_available():
@@ -210,7 +225,7 @@ class SubstrateAlignmentChecker:
             neo4j_count=neo_report.neo4j_count,
             missing_in_neo4j=pg_report.missing_in_neo4j,
             missing_in_postgres=neo_report.missing_in_postgres,
-            checked_at=datetime.now(timezone.utc).isoformat(),
+            checked_at=datetime.now(UTC).isoformat(),
             errors=pg_report.errors + neo_report.errors,
         )
 

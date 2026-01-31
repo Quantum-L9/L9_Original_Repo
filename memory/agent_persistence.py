@@ -43,7 +43,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
@@ -71,6 +71,16 @@ class Checkpoint:
         reason: str,
         created_at: datetime,
     ):
+        """
+        Initializes a Checkpoint instance with agent persistence data for checkpoint management and state serialization.
+
+        Args:
+            checkpoint_id: Unique identifier for the checkpoint.
+            agent_id: Identifier of the agent associated with the checkpoint.
+            state: Serialized agent state at the checkpoint.
+            reason: Explanation for creating this checkpoint.
+            created_at: Timestamp when the checkpoint was created.
+        """
         self.checkpoint_id = checkpoint_id
         self.agent_id = agent_id
         self.state = state
@@ -592,7 +602,7 @@ class AgentPersistenceService:
                     "checkpoint_id": str(checkpoint_id) if checkpoint_id else None,
                     "reason": reason,
                     "state_keys": state_keys,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 },
                 metadata={
                     "agent": agent_id,

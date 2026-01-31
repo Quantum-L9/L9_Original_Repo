@@ -54,7 +54,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -146,6 +146,11 @@ class GMPReportGenerator:
     """Generates canonical GMP reports."""
 
     def __init__(self, reports_dir: Path = REPORTS_DIR):
+        """
+        Initializes the GMPReportGenerator with the directory for storing GMP reports.
+        Args:
+            reports_dir: Path object specifying the directory where reports will be saved, created if it does not exist.
+        """
         self.reports_dir = reports_dir
         self.reports_dir.mkdir(parents=True, exist_ok=True)
 
@@ -626,6 +631,14 @@ def run_verification(filepath: Path, quiet: bool = False) -> bool:
 
 
 def main():
+    """
+    Generates the GMP report based on command-line arguments following the gmp-report-contract.yaml specification.
+
+
+
+    Raises:
+        argparse.ArgumentError: If argument parsing fails or invalid arguments are provided.
+    """
     parser = argparse.ArgumentParser(
         description="Generate canonical GMP reports following gmp-report-contract.yaml"
     )

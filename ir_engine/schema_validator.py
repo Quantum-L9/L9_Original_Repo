@@ -104,6 +104,13 @@ class SchemaValidationError(Exception):
     """Raised when schema validation fails."""
 
     def __init__(self, message: str, errors: list[MetaContractValidationError]):
+        """
+        Validates schema specifications against Module-Spec-v2.4.0 constraints to ensure compliance.
+
+        Args:
+            message: Error message describing validation failure.
+            errors: List of MetaContractValidationError instances detailing specific issues.
+        """
         super().__init__(message)
         self.errors = errors
 

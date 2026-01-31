@@ -32,7 +32,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -69,6 +69,15 @@ class ModuleCompiler:
     """
 
     def __init__(self, templates_dir: Path | None = None):
+        """
+        Initializes the ModuleCompiler with optional templates directory for deterministic Python code generation from Module-Spec v2.6 YAML files.
+
+        Args:
+            templates_dir: Optional path to custom templates directory; defaults to internal templates if None.
+
+        Returns:
+            Instance of ModuleCompiler with configured templates path.
+        """
         self.logger = get_logger(__name__)
 
         # Templates directory
@@ -102,7 +111,7 @@ class ModuleCompiler:
         Returns:
             List of generated file paths
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Extract metadata
         metadata = spec.get("metadata", {})
@@ -174,7 +183,7 @@ class ModuleCompiler:
             env_file = await self._generate_env_example(spec, module_dir)
             generated_files.append(env_file)
 
-            compilation_time = (datetime.now(timezone.utc) - start_time).total_seconds()
+            compilation_time = (datetime.now(UTC) - start_time).total_seconds()
 
             self.logger.info(
                 f"Module compiled successfully: {module_id}",

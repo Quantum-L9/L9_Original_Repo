@@ -51,6 +51,16 @@ class N1DetectorVisitor(ast.NodeVisitor):
     """AST visitor to detect N+1 query patterns"""
 
     def __init__(self, filename: str):
+        """
+        Initializes the N1DetectorVisitor with the filename to analyze for N+1 query patterns in Python code.
+
+        Args:
+            filename: The name of the file being analyzed for database query patterns.
+
+
+        Raises:
+            ValueError: If filename is not a string.
+        """
         self.filename = filename
         self.issues: list[tuple[int, str, str]] = []
         self.in_loop = False
@@ -275,6 +285,14 @@ def format_issue(filepath: Path, line: int, issue_type: str, description: str) -
 
 
 def main():
+    """
+    Detects potential N+1 query patterns in Python code by analyzing database query usage.
+
+
+
+    Raises:
+        SyntaxError: If the provided files contain invalid Python syntax.
+    """
     parser = argparse.ArgumentParser(
         description="Detect potential N+1 query patterns in Python code"
     )

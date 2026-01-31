@@ -78,6 +78,17 @@ class RepoGraphLoader:
         dry_run: bool = False,
         verbose: bool = False,
     ):
+        """
+        Initializes RepoGraphLoader with Neo4j connection details for loading repository indexes into the graph database.
+
+        Args:
+            uri: Neo4j URI, defaults to environment variable if None.
+            user: Username for Neo4j authentication, defaults to environment variable if None.
+            password: Password for Neo4j authentication, defaults to environment variable if None.
+            database: Name of the Neo4j database, defaults to "neo4j".
+            dry_run: If True, performs a dry run without making changes.
+            verbose: If True, enables detailed logging during loading process.
+        """
         self.uri = (
             uri
             or os.getenv("NEO4J_URL")
@@ -521,6 +532,16 @@ class RepoGraphLoader:
 
 
 def main():
+    """
+    Performs the main execution for loading repository indexes into Neo4j for graph-based code navigation.
+
+    Args:
+        args: Command-line arguments parsed by argparse that configure the loading process.
+
+
+    Raises:
+        SystemExit: If argument parsing fails or required conditions are not met.
+    """
     parser = argparse.ArgumentParser(
         description="Load L9 repository indexes into Neo4j graph database"
     )

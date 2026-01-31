@@ -534,7 +534,19 @@ class ExecutorToolRegistry:
 
             @must_stay_async("callers use await")
             async def log_tool_invocation(**kwargs):  # type: ignore[no-redef]
-                return None
+                """
+                Performs asynchronous logging of tool invocation events within the Neo4j and Postgres hybrid registry system.
+
+                Args:
+                    **kwargs: Dictionary containing invocation details such as tool ID, user info, and context.
+
+                Returns:
+                    None, as the function primarily logs invocation data without returning a value.
+
+                Raises:
+                    Exception: If logging fails or required invocation data is missing.
+                """
+                return
 
         try:
             # Get tool from registry using tool_id

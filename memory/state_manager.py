@@ -33,7 +33,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -57,6 +57,12 @@ class MemoryStateManager:
     """
 
     def __init__(self, service: MemorySubstrateService, agent_id: str) -> None:
+        """
+        Initializes MemoryStateManager with a service and agent ID for managing agent and graph state in memory.
+        Args:
+            service: MemorySubstrateService instance used for persistent memory operations.
+            agent_id: Unique identifier for the agent associated with this state manager.
+        """
         self._service = service
         self._agent_id = agent_id
         # In-memory flag storage (persisted via checkpoint)
@@ -66,6 +72,7 @@ class MemoryStateManager:
 
     @property
     def agent_id(self) -> str:
+        """Returns the agent's unique identifier used in the state management system."""
         return self._agent_id
 
     async def append_event(
@@ -129,7 +136,7 @@ class MemoryStateManager:
             "thread_id": str(thread_id),
             "step_name": step_name,
             "thoughts": thoughts,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
         if extra:
             payload["extra"] = extra
@@ -212,7 +219,7 @@ class MemoryStateManager:
         """
         self._flags[flag_name] = {
             "value": value,
-            "set_at": datetime.now(timezone.utc).isoformat(),
+            "set_at": datetime.now(UTC).isoformat(),
             "ttl": ttl,
         }
         await self._persist_state()
@@ -280,7 +287,7 @@ class MemoryStateManager:
                 "subject": subject,
                 "predicate": predicate,
                 "conflicting_objects": conflicting_objects,
-                "detected_at": datetime.now(timezone.utc).isoformat(),
+                "detected_at": datetime.now(UTC).isoformat(),
             },
             metadata={"source_packet": str(source_packet) if source_packet else None},
         )
@@ -409,7 +416,7 @@ class MemoryStateManager:
         checkpoint_data = {
             "_flags": self._flags,
             "_state": self._state,
-            "_persisted_at": datetime.now(timezone.utc).isoformat(),
+            "_persisted_at": datetime.now(UTC).isoformat(),
         }
         await self.save_checkpoint(checkpoint_data)
 

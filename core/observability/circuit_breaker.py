@@ -109,6 +109,16 @@ class CircuitOpenError(Exception):
     """Raised when an operation is blocked by an open circuit breaker."""
 
     def __init__(self, message: str, circuit_name: str = "default"):
+        """
+        Performs initialization of a CircuitOpenError with a message and optional circuit name for circuit breaker observability.
+
+        Args:
+            message: Description of the error or reason for circuit open state.
+            circuit_name: Identifier for the specific circuit, defaults to "default".
+
+        Raises:
+            CircuitOpenError: Always raised with provided message and circuit name.
+        """
         self.circuit_name = circuit_name
         super().__init__(message)
 
@@ -298,6 +308,7 @@ class CircuitBreaker:
         self._failures = []
 
     def __repr__(self) -> str:
+        """Returns a string representation of the CircuitBreaker instance, including its name, current state, and failure count for debugging and observability purposes."""
         return (
             f"CircuitBreaker(name={self.config.name!r}, "
             f"state={self._state.value!r}, "

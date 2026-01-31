@@ -39,6 +39,7 @@ def _get_kernels():
 
 
 def get_active_mode() -> str:
+    """Returns the current active mode from the master kernel's configuration, indicating the operational state of the orchestrator."""
     return _get_kernels().get_rule("master", "modes.default", default="Developer_Mode")
 
 

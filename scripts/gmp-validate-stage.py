@@ -72,6 +72,14 @@ class GMPStageValidator:
     )
 
     def __init__(self, stage_id: int, report_path: Path, config_path: Path):
+        """
+        Initializes GMPStageValidator with stage-specific report and configuration paths for GMP stage compliance checks.
+
+        Args:
+            stage_id: Identifier for the GMP stage to validate.
+            report_path: Filesystem path to the stage report file.
+            config_path: Filesystem path to the YAML configuration file.
+        """
         self.stage_id = stage_id
         self.report_path = report_path
         self.config_path = config_path
@@ -308,6 +316,14 @@ class GMPStageValidator:
 
 
 def main():
+    """
+    Performs GMP stage validation by parsing command-line arguments and executing stage success checks.
+
+
+
+    Raises:
+        SystemExit: If argument parsing fails or validation encounters a critical error.
+    """
     parser = argparse.ArgumentParser(description="Validate GMP stage execution")
     parser.add_argument("--stage", type=int, required=True, help="Stage number (2-8)")
     parser.add_argument(

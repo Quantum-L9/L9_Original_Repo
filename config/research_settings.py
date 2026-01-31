@@ -125,6 +125,15 @@ class ResearchSettings(BaseSettings):
     )
 
     class Config:
+        """
+        Config class defines the Pydantic settings for the L9 Research Factory service, utilizing the Memory Substrate for persistence without a separate database connection.
+        Args:
+            env_file: Path to the environment variables file, defaulting to ".env".
+            env_file_encoding: Encoding for the environment file, defaulting to "utf-8".
+            case_sensitive: Whether environment variable names are case-sensitive, default False.
+            extra: How to handle extra environment variables, set to "ignore".
+        """
+
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False

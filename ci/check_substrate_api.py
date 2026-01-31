@@ -107,6 +107,15 @@ class LintResult:
 
     @property
     def has_errors(self) -> bool:
+        """
+        Checks if the linter found any substrate API usage errors in the file.
+
+        Args:
+            None
+
+        Returns:
+            bool: True if errors are present, False otherwise.
+        """
         return len(self.errors) > 0
 
 

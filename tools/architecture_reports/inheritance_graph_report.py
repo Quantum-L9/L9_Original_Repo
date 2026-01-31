@@ -8,11 +8,30 @@ from .filesystem import open_report
 
 
 def _module_from_path(layout: RepoLayout, path: Path) -> str:
+    """
+    Generates a module name string from a file path relative to the repository layout.
+
+    Args:
+        layout: Repository layout object containing the root directory.
+        path: Path to the source file within the repository.
+
+    Returns:
+        Dot-separated module name corresponding to the file path within the repository.
+    """
     rel = path.relative_to(layout.root)
     return ".".join(rel.with_suffix("").parts)
 
 
 def _base_name(base: ast.expr) -> str:
+    """
+    Returns the string representation of a base class expression in the AST.
+
+    Args:
+        base: An AST expression node representing a base class in class inheritance.
+
+    Returns:
+        A string name or attribute path of the base class for reporting purposes.
+    """
     if isinstance(base, ast.Name):
         return base.id
     if isinstance(base, ast.Attribute):

@@ -31,6 +31,16 @@ router = APIRouter()
 
 @router.get("/health")
 async def health_check():
+    """
+    Performs a health check of the database connection in the FastAPI health endpoint.
+
+
+    Returns:
+        A dictionary indicating the health status of the database connection.
+
+    Raises:
+        Exception: If an unexpected error occurs during the health check.
+    """
     db_ok = db.pool is not None
     db_connected = False
     db_error = None

@@ -48,6 +48,16 @@ from typing import Any
 
 
 class Language(Enum):
+    """
+    Represents supported programming languages for AI-enabled refactoring tools within the modernization suite.
+
+    Args:
+        language: The programming language to be refactored, as defined in the Language enum.
+        tools: List of tool names applicable for the specified language.
+        install_cmd: Command string to install the necessary tools.
+        config_files: Dictionary mapping configuration file names to their paths or contents.
+    """
+
     PYTHON = "python"
     TYPESCRIPT = "typescript"
     JAVA = "java"
@@ -68,6 +78,13 @@ class RefactoringBootstrap:
     """Main orchestrator for refactoring pipeline setup"""
 
     def __init__(self, project_root: str, language: Language, verbose: bool = False):
+        """
+        Initializes the RefactoringBootstrap instance, setting up paths and configuration for automated codebase modernization.
+        Args:
+            project_root: Path to the root directory of the project to be refactored.
+            language: Language object specifying the target programming language.
+            verbose: Boolean flag to enable detailed logging during setup.
+        """
         self.project_root = Path(project_root)
         self.language = language
         self.verbose = verbose
@@ -706,6 +723,14 @@ quarterly_review:
 
 
 def main():
+    """
+    Performs initialization and argument parsing for the AI-enabled refactoring bootstrap suite.
+
+
+
+    Raises:
+        SystemExit: If argument parsing fails or help is requested.
+    """
     parser = argparse.ArgumentParser(
         description="Bootstrap AI-enabled automated refactoring suite"
     )

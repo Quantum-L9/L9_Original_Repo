@@ -29,12 +29,30 @@ from .filesystem import open_report
 
 @dataclass
 class FileMetrics:
+    """
+    Calculates and stores code metrics for a source file, including relative path, lines of code, and complexity.
+
+    Args:
+        rel_path: The relative file path within the project.
+        loc: The total number of lines of code in the file.
+        complexity: The cyclomatic complexity measure of the file.
+    """
+
     rel_path: str
     loc: int
     complexity: int
 
 
 def _compute_loc(text: str) -> int:
+    """
+    Calculates the number of lines of code in a source text excluding comments and blank lines for code metrics analysis.
+
+    Args:
+        text: The source code as a string to analyze.
+
+    Returns:
+        The count of code lines excluding comments and empty lines.
+    """
     count = 0
     for line in text.splitlines():
         stripped = line.strip()

@@ -30,7 +30,7 @@ __dora_meta__ = {
 
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
@@ -242,7 +242,7 @@ async def memory_write(
             "chunk_type": segment,
             "content": content,
             "agent_id": agent_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         if metadata:
@@ -365,6 +365,16 @@ async def register_memory_tools(
     async def memory_search_executor(
         agent_id: str, **kwargs
     ) -> list[MemorySearchResult]:
+        """
+        Performs an asynchronous memory search for an agent within the self-query memory tools module.
+
+        Args:
+            agent_id: Unique identifier of the agent performing the search.
+            **kwargs: Optional search parameters such as query, segment, and limit.
+
+        Returns:
+            A list of MemorySearchResult objects matching the search criteria.
+        """
         return await memory_search(
             agent_id=agent_id,
             query=kwargs.get("query", ""),
@@ -374,6 +384,16 @@ async def register_memory_tools(
         )
 
     async def memory_write_executor(agent_id: str, **kwargs) -> MemoryWriteResult:
+        """
+        Performs an asynchronous memory write operation for an agent in the self-query memory system.
+
+        Args:
+            agent_id: Unique identifier of the agent performing the memory write.
+            kwargs: Additional parameters including content, segment, and metadata for the memory entry.
+
+        Returns:
+            MemoryWriteResult object indicating the outcome of the memory write operation.
+        """
         return await memory_write(
             agent_id=agent_id,
             content=kwargs.get("content", ""),

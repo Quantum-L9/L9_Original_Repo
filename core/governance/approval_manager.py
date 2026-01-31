@@ -49,7 +49,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
@@ -90,12 +90,24 @@ class ApprovalRequest:
     status: ApprovalStatus = ApprovalStatus.PENDING
 
     def __post_init__(self):
+        """
+        Initializes the expiration timestamp for an approval request, setting it to one hour after creation if not already specified.
+        Args:
+            self: The ApprovalRequest instance being initialized.
+        """
         if self.expires_at is None:
             # Default 1 hour expiration
             self.expires_at = self.created_at + timedelta(hours=1)
 
     def is_expired(self) -> bool:
-        return datetime.now(timezone.utc) > self.expires_at
+        """
+        Checks if the approval request has expired based on the current UTC time.
+
+
+        Returns:
+            bool: True if the current time is past the expiration time, indicating the approval request has expired.
+        """
+        return datetime.now(UTC) > self.expires_at
 
 
 @dataclass
@@ -111,6 +123,14 @@ class ApprovalDecision:
 
     @property
     def is_approved(self) -> bool:
+        """
+        Checks if the current approval decision is granted.
+
+        Args: None
+
+        Returns:
+            True if the approval status is approved, otherwise False.
+        """
         return self.status == ApprovalStatus.APPROVED
 
 
@@ -135,6 +155,14 @@ class ApprovalManager:
         slack_client: Any | None = None,
         notification_channel: str | None = None,
     ):
+        """
+        Initializes the ApprovalManager for handling Igor approval workflows for high-risk tool executions.
+
+        Args:
+            substrate_service: Optional service for storing and retrieving approval data.
+            slack_client: Optional client for sending notifications to Slack.
+            notification_channel: Optional Slack channel for approval alerts.
+        """
         self.substrate = substrate_service
         self.slack_client = slack_client
         self.notification_channel = notification_channel
@@ -317,7 +345,7 @@ class ApprovalManager:
             request_id=request_id,
             status=ApprovalStatus.APPROVED,
             approved_by=approved_by,
-            approved_at=datetime.now(timezone.utc),
+            approved_at=datetime.now(UTC),
             scope=scope,
         )
 
@@ -439,7 +467,7 @@ class ApprovalManager:
             request_id=request_id,
             status=ApprovalStatus.REJECTED,
             approved_by=rejected_by,
-            approved_at=datetime.now(timezone.utc),
+            approved_at=datetime.now(UTC),
             rejection_reason=reason,
         )
 
@@ -488,7 +516,7 @@ class ApprovalManager:
             List of non-expired pending ApprovalRequest objects.
         """
         # Clean up expired requests
-        datetime.now(timezone.utc)
+        datetime.now(UTC)
         expired = [req_id for req_id, req in self._pending.items() if req.is_expired()]
         for req_id in expired:
             del self._pending[req_id]

@@ -32,7 +32,7 @@ import asyncio
 import json
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
@@ -68,8 +68,13 @@ class ToolAuditEntry:
     request_id: str | None = None
 
     def __post_init__(self):
+        """
+        Initializes missing timestamp and request ID for a ToolAuditEntry instance.
+        Args:
+            self: The ToolAuditEntry object being initialized.
+        """
         if not self.timestamp:
-            self.timestamp = datetime.now(timezone.utc).isoformat()
+            self.timestamp = datetime.now(UTC).isoformat()
         if not self.request_id:
             self.request_id = str(uuid4())
 
@@ -101,6 +106,18 @@ class ToolCostEstimator:
 
 
 class ToolAuditService:
+    """
+    Initializes the ToolAuditService for tracking tool execution history and cost estimation within the audit trail system.
+
+    Args:
+        substrate_service: MemorySubstrateService instance for storing audit data.
+        buffer_size: Maximum number of audit entries before auto-flush.
+
+
+    Raises:
+        TypeError: If substrate_service is not a MemorySubstrateService instance.
+    """
+
     """Audit trail for all tool executions"""
 
     def __init__(
@@ -108,6 +125,17 @@ class ToolAuditService:
         substrate_service: MemorySubstrateService,
         buffer_size: int = 100,
     ):
+        """
+        Initializes the ToolAuditService for tracking tool execution history and cost estimation within the audit trail system.
+
+        Args:
+            substrate_service: MemorySubstrateService instance for storing audit data.
+            buffer_size: Maximum number of audit entries to buffer before flushing.
+
+
+        Raises:
+            TypeError: If substrate_service is not an instance of MemorySubstrateService.
+        """
         self.substrate = substrate_service
         self.buffer_size = buffer_size
         self.local_buffer: list[ToolAuditEntry] = []

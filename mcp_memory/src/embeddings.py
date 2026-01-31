@@ -94,6 +94,13 @@ async def embed_text(text: str) -> list[float]:
     """Generate embedding for single text with retry logic."""
 
     async def _embed() -> list[float]:
+        """
+        Generates an OpenAI embedding for text with retry logic.
+
+
+        Returns:
+            A list of floats representing the generated embedding vector.
+        """
         response = await client.embeddings.create(
             model=settings.OPENAI_EMBED_MODEL,
             input=text,
@@ -108,6 +115,15 @@ async def embed_texts(texts: list[str]) -> list[list[float]]:
     """Generate embeddings for batch of texts with retry logic."""
 
     async def _embed() -> list[list[float]]:
+        """
+        Generates OpenAI embeddings for input texts with retry logic to handle transient errors.
+
+        Args:
+            texts: List of strings to generate embeddings for.
+
+        Returns:
+            A list of embedding vectors corresponding to each input text.
+        """
         response = await client.embeddings.create(
             model=settings.OPENAI_EMBED_MODEL,
             input=texts,

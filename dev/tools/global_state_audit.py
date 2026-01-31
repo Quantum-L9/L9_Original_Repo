@@ -58,6 +58,17 @@ def iter_python_files() -> list[Path]:
 
 
 class GlobalStateVisitor(ast.NodeVisitor):
+    """
+    Performs static analysis of Python files to detect suspicious module-level mutable state patterns, aiding in global state audit.
+
+    Args:
+        filename: Path to the Python file being analyzed.
+
+
+    Raises:
+        SyntaxError: If the analyzed file contains invalid Python syntax.
+    """
+
     def __init__(self, filename: Path) -> None:
         """Initialize visitor with filename."""
         self.filename = filename

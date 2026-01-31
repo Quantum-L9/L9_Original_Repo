@@ -51,7 +51,7 @@ __dora_meta__ = {
 
 import json
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -225,6 +225,21 @@ class WorldModelUpdateRow:
         state_version_before: int | None = None,
         state_version_after: int | None = None,
     ):
+        """
+        Initializes a WorldModelUpdateRow instance with metadata for world model persistence.
+
+        Args:
+            update_id: Unique identifier for the update event.
+            insight_id: Optional identifier linking to related insight.
+            insight_type: Optional type categorizing the insight.
+            entities: List of entity identifiers involved in the update.
+            content: Dictionary containing update details.
+            confidence: Confidence score of the update.
+            applied_at: Timestamp when the update was applied.
+            source_packet: Optional source packet UUID.
+            state_version_before: Optional state version prior to update.
+            state_version_after: Optional state version after update.
+        """
         self.update_id = update_id
         self.insight_id = insight_id
         self.insight_type = insight_type
@@ -270,6 +285,19 @@ class WorldModelSnapshotRow:
         description: str | None = None,
         created_by: str = "system",
     ):
+        """
+        Initializes a WorldModelSnapshotRow instance representing a snapshot record in the world model database.
+
+        Args:
+            snapshot_id: Unique identifier for the snapshot.
+            snapshot: Dictionary containing the snapshot data.
+            state_version: Version number of the world model state.
+            entity_count: Number of entities in the snapshot.
+            relation_count: Number of relations in the snapshot.
+            created_at: Timestamp when the snapshot was created.
+            description: Optional description of the snapshot.
+            created_by: Identifier of the creator, defaults to "system".
+        """
         self.snapshot_id = snapshot_id
         self.snapshot = snapshot
         self.state_version = state_version
@@ -620,7 +648,7 @@ class WorldModelRepository:
                 entities=entities,
                 content=content,
                 confidence=confidence,
-                applied_at=datetime.now(timezone.utc),
+                applied_at=datetime.now(UTC),
                 source_packet=source_packet,
                 state_version_before=state_version_before,
                 state_version_after=state_version_after,
@@ -772,7 +800,7 @@ class WorldModelRepository:
                 state_version=state_version,
                 entity_count=entity_count,
                 relation_count=relation_count,
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
                 description=description,
                 created_by=created_by,
             )

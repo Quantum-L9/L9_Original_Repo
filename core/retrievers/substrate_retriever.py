@@ -49,6 +49,14 @@ class SubstrateRetriever(BaseRetriever):
         agent_id: str | None = None,
         top_k: int = 5,
     ) -> None:
+        """
+        Performs initialization of the SubstrateRetriever with a MemorySubstrateService for semantic search in the substrate memory.
+
+        Args:
+            service: Instance of MemorySubstrateService used to perform semantic searches.
+            agent_id: Optional identifier for the agent, used to scope searches.
+            top_k: Number of top relevant documents to retrieve during search.
+        """
         super().__init__()
         self._service = service
         self._agent_id = agent_id

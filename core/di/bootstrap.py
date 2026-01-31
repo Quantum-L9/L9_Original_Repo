@@ -175,6 +175,15 @@ def bootstrap_di_container(container: Any) -> dict[str, int]:
         from memory.substrate_service import create_substrate_service
 
         def _create_memory_service() -> MemoryService:
+            """
+            Creates and registers the MemoryService singleton in the dependency injection container.
+            Args:
+                container: DI container to register the service in.
+                registered_count: Current count of registered services, incremented after registration.
+                logger: Logger for debug messages.
+            Returns:
+                Updated count of registered services after adding MemoryService.
+            """
             substrate = create_substrate_service()
             return MemoryServiceAdapter(substrate)
 
@@ -191,12 +200,32 @@ def bootstrap_di_container(container: Any) -> dict[str, int]:
 
     # LLMService Protocol (GMP-116)
     try:
+        """
+        Creates and returns an LLMService instance based on environment configuration for dependency injection in the core bootstrap process.
+
+
+        Returns:
+            An instance of LLMService, either OpenAILLMService with API key or a fallback service.
+
+        Raises:
+            EnvironmentError: If the API key is missing and fallback fails.
+        """
         import os
 
         from core.llm import MockLLMService, OpenAILLMService
         from core.protocols import LLMService
 
         def _create_llm_service() -> LLMService:
+            """
+            Creates and returns an LLMService instance based on environment configuration for dependency injection in core services.
+
+
+            Returns:
+                An instance of LLMService, either OpenAILLMService with API key or a fallback service.
+
+            Raises:
+                EnvironmentError: If required environment variables are missing or invalid.
+            """
             api_key = os.getenv("OPENAI_API_KEY")
             if api_key:
                 return OpenAILLMService(api_key=api_key)

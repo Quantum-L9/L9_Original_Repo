@@ -42,7 +42,28 @@ PROTECTED_FILES = {
 
 
 class GeminiAutoEditor:
+    """
+    Performs automated editing of code files using Gemini suggestions for L9 PR review.
+
+    Args:
+        filepath: Path to the file to check for protection status.
+
+    Returns:
+        Boolean indicating whether the file is protected.
+
+    Raises:
+        EnvironmentError: If GEMINI_API_KEY environment variable is missing.
+    """
+
     def __init__(self):
+        """
+        Initializes the GeminiAutoEditor with API credentials for automating Gemini suggestions application.
+
+
+
+        Raises:
+            EnvironmentError: If GEMINI_API_KEY environment variable is not set.
+        """
         self.api_key = os.getenv("GEMINI_API_KEY")
         self.base_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent"
 

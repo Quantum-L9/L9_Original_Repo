@@ -9,11 +9,28 @@ from .filesystem import open_report
 
 
 def _module_from_path(layout: RepoLayout, path: Path) -> str:
+    """
+    Returns the module name derived from a file path relative to the repository root.
+
+    Args:
+        layout: RepoLayout object containing repository structure details.
+        path: Path to the source file within the repository.
+
+    Returns:
+        The dotted module name corresponding to the file path within the repository.
+    """
     rel = path.relative_to(layout.root)
     return ".".join(rel.with_suffix("").parts)
 
 
 def _base_name(base: ast.expr) -> str:
+    """
+    Returns the base name from an AST expression node, used in Python class analysis.
+    Args:
+        base: An AST expression node representing a class base or attribute.
+    Returns:
+        A string with the base name, or a fallback representation if unrecognized.
+    """
     if isinstance(base, ast.Name):
         return base.id
     if isinstance(base, ast.Attribute):

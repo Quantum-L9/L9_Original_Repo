@@ -135,6 +135,14 @@ async def verify_migration() -> dict:
 
 
 async def main():
+    """
+    Performs the migration of YAML kernels to populate the Neo4j graph with agent state for graph-backed agent features.
+
+
+
+    Raises:
+        Exception: If migration fails due to connection or data errors
+    """
     parser = argparse.ArgumentParser(description="Migrate YAML kernels to Neo4j graph")
     parser.add_argument(
         "--verify",

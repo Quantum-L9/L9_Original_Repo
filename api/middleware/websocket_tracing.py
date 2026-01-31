@@ -78,6 +78,20 @@ class TraceContext:
         correlation_id: str | None = None,
         connection_id: str | None = None,
     ):
+        """
+        Initializes a TraceContext object for WebSocket tracing, setting unique identifiers for distributed tracing and correlation.
+
+        Args:
+            trace_id: Optional UUID for distributed trace identification; generated if None.
+            correlation_id: Optional ID for correlating related WebSocket messages; defaults to trace_id if None.
+            connection_id: Optional unique WebSocket connection identifier; can be provided or auto-generated.
+
+        Returns:
+            An instance of TraceContext with assigned trace and correlation IDs.
+
+        Raises:
+            None
+        """
         self.trace_id = trace_id or str(uuid4())
         self.correlation_id = correlation_id or self.trace_id
         self.connection_id = connection_id or str(uuid4())

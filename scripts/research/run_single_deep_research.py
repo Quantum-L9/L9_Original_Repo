@@ -37,6 +37,16 @@ logger = structlog.get_logger(__name__)
 
 
 def get_api_key():
+    """
+    Retrieves the API key from the environment file for authentication in deep research requests.
+
+
+    Returns:
+        The API key string if found; otherwise, None.
+
+    Raises:
+        FileNotFoundError: If the environment file does not exist.
+    """
     env_path = "/Users/ib-mac/Projects/L9/.env"
     with open(env_path) as f:
         for line in f:

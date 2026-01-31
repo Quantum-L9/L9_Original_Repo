@@ -28,10 +28,10 @@ Usage:
 # ============================================================================
 __dora_meta__ = {
     "component_name": "L9 Docstring Injector",
-    "module_version": "1.0.0",
+    "module_version": "2.0.0",  # v2: AST-enriched context
     "created_by": "L9_Codegen_Engine",
     "created_at": "2026-01-29T12:00:00Z",
-    "updated_at": "2026-01-29T12:00:00Z",
+    "updated_at": "2026-01-31T09:00:00Z",
     "layer": "operations",
     "domain": "tools",
     "module_name": "docstring_injector",
@@ -48,9 +48,7 @@ __dora_meta__ = {
 
 import argparse
 import ast
-import os
 import sys
-import textwrap
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -82,9 +80,136 @@ SKIP_FILES = {
 }
 
 
+# =============================================================================
+# AST Body Analysis Helpers (for enriched context)
+# =============================================================================
+
+
+def _extract_body_info(func_node: ast.FunctionDef | ast.AsyncFunctionDef) -> dict:
+    """Extract raises, returns, and calls from function body via AST walk.
+
+    Args:
+        func_node: The function AST node to analyze.
+
+    Returns:
+        Dict with 'raises' (list), 'returns_value' (bool), 'calls_made' (list).
+    """
+    raises = set()
+    returns_value = False
+    calls = set()
+
+    for node in ast.walk(func_node):
+        # Find raise statements
+        if isinstance(node, ast.Raise):
+            if node.exc:
+                if isinstance(node.exc, ast.Call):
+                    if isinstance(node.exc.func, ast.Name):
+                        raises.add(node.exc.func.id)
+                    elif isinstance(node.exc.func, ast.Attribute):
+                        raises.add(node.exc.func.attr)
+                elif isinstance(node.exc, ast.Name):
+                    raises.add(node.exc.id)
+
+        # Find return statements with values
+        if isinstance(node, ast.Return) and node.value is not None:
+            returns_value = True
+
+        # Find function calls (for context)
+        if isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Name):
+                calls.add(node.func.id)
+            elif isinstance(node.func, ast.Attribute):
+                calls.add(node.func.attr)
+
+    return {
+        "raises": sorted(raises),
+        "returns_value": returns_value,
+        "calls_made": sorted(calls)[:10],  # Limit to top 10
+    }
+
+
+def _extract_class_context(
+    class_node: ast.ClassDef,
+    method_name: str,
+) -> dict:
+    """Extract class-level context for a method.
+
+    Args:
+        class_node: The class AST node.
+        method_name: Name of the method we're documenting.
+
+    Returns:
+        Dict with 'class_docstring', 'class_bases', 'sibling_methods'.
+    """
+    return {
+        "class_docstring": ast.get_docstring(class_node),
+        "class_bases": [
+            ast.unparse(b) if hasattr(ast, "unparse") else "<base>"
+            for b in class_node.bases
+        ],
+        "sibling_methods": [
+            item.name
+            for item in class_node.body
+            if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and item.name != method_name
+        ][:10],
+    }
+
+
+def _extract_decorator_flags(decorators: list[ast.expr]) -> dict:
+    """Extract boolean flags from decorators.
+
+    Args:
+        decorators: List of decorator AST nodes.
+
+    Returns:
+        Dict with 'is_property', 'is_classmethod', 'is_staticmethod'.
+    """
+    is_property = False
+    is_classmethod = False
+    is_staticmethod = False
+
+    for dec in decorators:
+        if isinstance(dec, ast.Name):
+            if dec.id == "property":
+                is_property = True
+            elif dec.id == "classmethod":
+                is_classmethod = True
+            elif dec.id == "staticmethod":
+                is_staticmethod = True
+        elif isinstance(dec, ast.Attribute):
+            if dec.attr == "setter":
+                is_property = True
+
+    return {
+        "is_property": is_property,
+        "is_classmethod": is_classmethod,
+        "is_staticmethod": is_staticmethod,
+    }
+
+
+def _extract_args_with_types(
+    func_node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> list[tuple[str, str | None]]:
+    """Extract argument names with their type annotations.
+
+    Args:
+        func_node: The function AST node.
+
+    Returns:
+        List of (name, type_hint) tuples, excluding self/cls.
+    """
+    args_with_types = []
+    for arg in func_node.args.args:
+        if arg.arg not in ("self", "cls"):
+            type_hint = ast.unparse(arg.annotation) if arg.annotation else None
+            args_with_types.append((arg.arg, type_hint))
+    return args_with_types
+
+
 @dataclass
 class MissingDocstring:
-    """Represents a function/class missing a docstring."""
+    """Represents a function/class missing a docstring with enriched AST context."""
 
     filepath: Path
     name: str
@@ -95,20 +220,100 @@ class MissingDocstring:
     parent_class: str | None = None
     decorators: list[str] = field(default_factory=list)
 
+    # === ENRICHED AST CONTEXT (v2) ===
+    # Type information
+    args_with_types: list[tuple[str, str | None]] = field(default_factory=list)
+    return_type: str | None = None
+
+    # Module/class context
+    module_docstring: str | None = None
+    class_docstring: str | None = None
+    class_bases: list[str] = field(default_factory=list)
+
+    # Code analysis from AST walk
+    raises: list[str] = field(default_factory=list)
+    returns_value: bool = False
+    calls_made: list[str] = field(default_factory=list)
+
+    # Decorator flags
+    is_async: bool = False
+    is_property: bool = False
+    is_classmethod: bool = False
+    is_staticmethod: bool = False
+
+    # Sibling context
+    sibling_methods: list[str] = field(default_factory=list)
+
     def to_prompt_context(self) -> str:
-        """Generate context string for LLM prompt.
+        """Generate enriched context string for LLM prompt.
 
         Returns:
-            Formatted context string with signature and body preview.
+            Formatted context string with full AST-extracted information.
         """
-        context = f"Type: {self.node_type}\n"
+        lines = []
+
+        # File context
+        lines.append(f"**File:** {self.filepath.name}")
+        if self.module_docstring:
+            lines.append(f"**Module purpose:** {self.module_docstring[:200]}")
+
+        # Type information
+        lines.append(f"\n**Type:** {self.node_type}")
+        lines.append(f"**Signature:** {self.signature}")
+
+        # Class context (for methods)
         if self.parent_class:
-            context += f"Class: {self.parent_class}\n"
+            lines.append(f"\n**Class:** {self.parent_class}")
+            if self.class_docstring:
+                lines.append(f"**Class purpose:** {self.class_docstring[:150]}")
+            if self.class_bases:
+                lines.append(f"**Inherits from:** {', '.join(self.class_bases)}")
+            if self.sibling_methods:
+                lines.append(
+                    f"**Sibling methods:** {', '.join(self.sibling_methods[:5])}"
+                )
+
+        # Decorators and flags
         if self.decorators:
-            context += f"Decorators: {', '.join(self.decorators)}\n"
-        context += f"Signature: {self.signature}\n"
-        context += f"Body preview:\n{self.body_preview}"
-        return context
+            lines.append(f"\n**Decorators:** {', '.join(self.decorators)}")
+
+        flags = []
+        if self.is_async:
+            flags.append("async")
+        if self.is_property:
+            flags.append("property")
+        if self.is_classmethod:
+            flags.append("classmethod")
+        if self.is_staticmethod:
+            flags.append("staticmethod")
+        if flags:
+            lines.append(f"**Flags:** {', '.join(flags)}")
+
+        # Arguments with types
+        if self.args_with_types:
+            args_str = ", ".join(
+                f"{name}: {typ}" if typ else name for name, typ in self.args_with_types
+            )
+            lines.append(f"\n**Arguments:** {args_str}")
+
+        # Return type
+        if self.return_type:
+            lines.append(f"**Return type:** {self.return_type}")
+        elif self.returns_value:
+            lines.append("**Returns:** Yes (type not annotated)")
+
+        # Exceptions raised
+        if self.raises:
+            lines.append(f"**Raises:** {', '.join(self.raises)}")
+
+        # Functions called (for context)
+        if self.calls_made:
+            lines.append(f"**Calls:** {', '.join(self.calls_made[:8])}")
+
+        # Body preview (truncated)
+        lines.append(f"\n**Body preview:**\n{self.body_preview[:400]}")
+
+        return "\n".join(lines)
 
 
 @dataclass
@@ -151,13 +356,13 @@ class DocstringScanner:
         self.missing: list[MissingDocstring] = []
 
     def scan_file(self, filepath: Path) -> list[MissingDocstring]:
-        """Scan a single Python file for missing docstrings.
+        """Scan a single Python file for missing docstrings with enriched AST context.
 
         Args:
             filepath: Path to the Python file to scan.
 
         Returns:
-            List of MissingDocstring objects for items without docstrings.
+            List of MissingDocstring objects with full AST-extracted context.
         """
         try:
             source = filepath.read_text(encoding="utf-8")
@@ -169,21 +374,36 @@ class DocstringScanner:
         missing = []
         source_lines = source.splitlines()
 
+        # Extract module-level docstring for context
+        module_docstring = ast.get_docstring(tree)
+
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
                 if not ast.get_docstring(node):
                     missing.append(
                         self._create_missing(
-                            filepath, node, "class", source_lines, None
+                            filepath,
+                            node,
+                            "class",
+                            source_lines,
+                            parent_class=None,
+                            class_node=None,
+                            module_docstring=module_docstring,
                         )
                     )
-                # Check methods within the class
+                # Check methods within the class - pass class node for context
                 for item in node.body:
                     if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
                         if not ast.get_docstring(item):
                             missing.append(
                                 self._create_missing(
-                                    filepath, item, "method", source_lines, node.name
+                                    filepath,
+                                    item,
+                                    "method",
+                                    source_lines,
+                                    parent_class=node.name,
+                                    class_node=node,
+                                    module_docstring=module_docstring,
                                 )
                             )
 
@@ -192,7 +412,13 @@ class DocstringScanner:
                 if not ast.get_docstring(node) and not self._is_method(node, tree):
                     missing.append(
                         self._create_missing(
-                            filepath, node, "function", source_lines, None
+                            filepath,
+                            node,
+                            "function",
+                            source_lines,
+                            parent_class=None,
+                            class_node=None,
+                            module_docstring=module_docstring,
                         )
                     )
 
@@ -222,8 +448,10 @@ class DocstringScanner:
         node_type: str,
         source_lines: list[str],
         parent_class: str | None,
+        class_node: ast.ClassDef | None = None,
+        module_docstring: str | None = None,
     ) -> MissingDocstring:
-        """Create a MissingDocstring object from an AST node.
+        """Create a MissingDocstring object with enriched AST context.
 
         Args:
             filepath: Path to the source file.
@@ -231,26 +459,50 @@ class DocstringScanner:
             node_type: Type of node ("function", "method", "class").
             source_lines: List of source code lines.
             parent_class: Name of parent class if this is a method.
+            class_node: The parent class AST node (for extracting class context).
+            module_docstring: Module-level docstring for context.
 
         Returns:
-            MissingDocstring object with extracted information.
+            MissingDocstring object with full AST-extracted information.
         """
-        # Extract signature
+        # Extract signature and decorators
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             signature = self._extract_function_signature(node)
-            decorators = [
-                self._decorator_to_str(d) for d in node.decorator_list
-            ]
-        else:
-            signature = f"class {node.name}"
-            decorators = [
-                self._decorator_to_str(d) for d in node.decorator_list
-            ]
+            decorators = [self._decorator_to_str(d) for d in node.decorator_list]
 
-        # Extract body preview (first 10 lines of body)
+            # Extract enriched context for functions/methods
+            args_with_types = _extract_args_with_types(node)
+            return_type = ast.unparse(node.returns) if node.returns else None
+            body_info = _extract_body_info(node)
+            decorator_flags = _extract_decorator_flags(node.decorator_list)
+            is_async = isinstance(node, ast.AsyncFunctionDef)
+        else:
+            # Class node
+            signature = f"class {node.name}"
+            decorators = [self._decorator_to_str(d) for d in node.decorator_list]
+            args_with_types = []
+            return_type = None
+            body_info = {"raises": [], "returns_value": False, "calls_made": []}
+            decorator_flags = {
+                "is_property": False,
+                "is_classmethod": False,
+                "is_staticmethod": False,
+            }
+            is_async = False
+
+        # Extract body preview (first 15 lines of body)
         start_line = node.lineno - 1
         end_line = min(start_line + 15, len(source_lines))
         body_preview = "\n".join(source_lines[start_line:end_line])
+
+        # Extract class context if this is a method
+        class_context = {
+            "class_docstring": None,
+            "class_bases": [],
+            "sibling_methods": [],
+        }
+        if class_node is not None:
+            class_context = _extract_class_context(class_node, node.name)
 
         return MissingDocstring(
             filepath=filepath,
@@ -261,6 +513,20 @@ class DocstringScanner:
             body_preview=body_preview,
             parent_class=parent_class,
             decorators=decorators,
+            # Enriched fields
+            args_with_types=args_with_types,
+            return_type=return_type,
+            module_docstring=module_docstring,
+            class_docstring=class_context["class_docstring"],
+            class_bases=class_context["class_bases"],
+            raises=body_info["raises"],
+            returns_value=body_info["returns_value"],
+            calls_made=body_info["calls_made"],
+            is_async=is_async,
+            is_property=decorator_flags["is_property"],
+            is_classmethod=decorator_flags["is_classmethod"],
+            is_staticmethod=decorator_flags["is_staticmethod"],
+            sibling_methods=class_context["sibling_methods"],
         )
 
     def _extract_function_signature(
@@ -275,7 +541,7 @@ class DocstringScanner:
             String representation of the function signature.
         """
         args = []
-        
+
         # Handle positional-only args (Python 3.8+)
         for arg in node.args.posonlyargs:
             args.append(self._format_arg(arg))
@@ -426,6 +692,7 @@ class DocstringGenerator:
         """
         if self._client is None:
             from openai import OpenAI
+
             self._client = OpenAI()
         return self._client
 
@@ -447,55 +714,141 @@ class DocstringGenerator:
                     {
                         "role": "system",
                         "content": (
-                            "You are a Python documentation expert. Generate concise, "
-                            "accurate Google-style docstrings. Return ONLY the docstring "
-                            "content without triple quotes. Include Args, Returns, and "
-                            "Raises sections only when applicable. Be precise and brief."
+                            "You are a Python documentation expert. Generate concise Google-style docstrings.\n\n"
+                            "CRITICAL FORMATTING RULES:\n"
+                            "1. Return ONLY plain text - NO triple quotes, NO markdown\n"
+                            "2. NO leading indentation on any line\n"
+                            "3. NEVER include 'Args: None' or 'Returns: None' sections\n"
+                            "4. Args/Returns sections ONLY if there are actual parameters/return values\n"
+                            "5. Keep descriptions on single lines - no line breaks within a description\n"
+                            "6. First line is always a brief one-sentence summary\n"
+                            "7. Max 8 lines total"
                         ),
                     },
                     {"role": "user", "content": prompt},
                 ],
-                temperature=0.3,
-                max_tokens=500,
+                temperature=0.2,  # Lower temperature for more consistent formatting
+                max_tokens=400,
             )
             docstring = response.choices[0].message.content.strip()
             # Remove any triple quotes if the model included them
             docstring = docstring.strip('"""').strip("'''").strip()
             return docstring
         except Exception as e:
-            logger.error("Failed to generate docstring", error=str(e), name=missing.name)
+            logger.error(
+                "Failed to generate docstring", error=str(e), name=missing.name
+            )
             raise
 
     def _build_prompt(self, missing: MissingDocstring) -> str:
-        """Build the LLM prompt for docstring generation.
+        """Build LLM prompt with enriched AST context for high-quality docstring generation.
 
         Args:
-            missing: MissingDocstring object with context.
+            missing: MissingDocstring object with full AST-extracted context.
 
         Returns:
-            Formatted prompt string.
+            Formatted prompt string optimized for domain-aware generation.
         """
-        return f"""Generate a Google-style docstring for the following Python {missing.node_type}.
+        # Build structured context from enriched fields
+        context_parts = []
 
-{missing.to_prompt_context()}
+        # File and module context
+        context_parts.append("## CONTEXT (from AST analysis)\n")
+        context_parts.append(f"**File:** {missing.filepath.name}")
+        if missing.module_docstring:
+            context_parts.append(
+                f"**Module purpose:** {missing.module_docstring[:200]}"
+            )
 
-Requirements:
-1. First line: Brief one-sentence description
-2. Args section: Only if there are parameters (exclude self/cls)
-3. Returns section: Only if the function returns something meaningful
-4. Raises section: Only if exceptions are explicitly raised
-5. Keep it concise - no more than 10 lines total
-6. Do NOT include the triple quotes
+        # Signature
+        context_parts.append(f"\n**Signature:** `{missing.signature}`")
+
+        # Class context (critical for methods)
+        if missing.parent_class:
+            context_parts.append(f"\n**Class:** {missing.parent_class}")
+            if missing.class_docstring:
+                context_parts.append(
+                    f"**Class purpose:** {missing.class_docstring[:150]}"
+                )
+            if missing.class_bases:
+                context_parts.append(
+                    f"**Inherits from:** {', '.join(missing.class_bases)}"
+                )
+            if missing.sibling_methods:
+                context_parts.append(
+                    f"**Sibling methods:** {', '.join(missing.sibling_methods[:5])}"
+                )
+
+        # Decorators and flags
+        if missing.decorators:
+            context_parts.append(f"\n**Decorators:** {', '.join(missing.decorators)}")
+
+        flags = []
+        if missing.is_async:
+            flags.append("async")
+        if missing.is_property:
+            flags.append("property")
+        if missing.is_classmethod:
+            flags.append("classmethod")
+        if missing.is_staticmethod:
+            flags.append("staticmethod")
+        if flags:
+            context_parts.append(f"**Flags:** {', '.join(flags)}")
+
+        # Arguments (with types from AST)
+        if missing.args_with_types:
+            args_lines = []
+            for name, typ in missing.args_with_types:
+                args_lines.append(f"  - `{name}`: {typ or 'untyped'}")
+            context_parts.append("\n**Arguments:**\n" + "\n".join(args_lines))
+
+        # Return info
+        if missing.return_type and missing.return_type not in ("None", "NoReturn"):
+            context_parts.append(f"**Return type:** `{missing.return_type}`")
+        elif missing.returns_value:
+            context_parts.append("**Returns:** Yes (type not annotated)")
+
+        # Exceptions (from AST walk)
+        if missing.raises:
+            context_parts.append(f"**Raises:** {', '.join(missing.raises)}")
+
+        # Functions called (helps LLM understand purpose)
+        if missing.calls_made:
+            context_parts.append(f"**Calls:** {', '.join(missing.calls_made[:8])}")
+
+        # Body preview (truncated)
+        context_parts.append(
+            f"\n**Body preview:**\n```python\n{missing.body_preview[:300]}\n```"
+        )
+
+        context_str = "\n".join(context_parts)
+
+        return f"""Generate a Google-style docstring for this Python {missing.node_type}.
+
+{context_str}
+
+## REQUIREMENTS
+
+1. **First line:** Clear, specific description using domain context from the class/module
+2. **Args:** Document each parameter with its purpose (NOT just type repetition)
+3. **Returns:** Document return value if not None, include what the value represents
+4. **Raises:** Document exceptions if any were detected in the body
+5. **Keep it concise** - max 10 lines total
+6. **NO triple quotes** in output - just the docstring content
+7. **Use domain keywords** from class/module context for searchability
 
 Example format:
-Brief description of what this does.
+Brief description using domain-specific terms.
 
 Args:
-    param1: Description of param1.
-    param2: Description of param2.
+    param1: What this parameter controls or represents.
+    param2: Purpose of this parameter.
 
 Returns:
-    Description of return value.
+    What the return value represents in the domain context.
+
+Raises:
+    ExceptionType: When this exception is raised.
 """
 
 
@@ -541,19 +894,45 @@ class DocstringInjector:
 
             # Find the colon and determine indentation
             def_line = lines[def_line_idx]
-            
-            # Handle multi-line signatures
+
+            # Handle multi-line signatures - find the function/class closing colon
+            # Track parentheses balance to find the actual end of signature
             colon_line_idx = def_line_idx
-            while ":" not in lines[colon_line_idx] or lines[colon_line_idx].rstrip().endswith(","):
+            paren_balance = 0
+            found_open_paren = False
+
+            while colon_line_idx < len(lines):
+                line_content = lines[colon_line_idx]
+
+                # Count parentheses (ignore those in strings/comments for simplicity)
+                for char in line_content:
+                    if char == "(":
+                        paren_balance += 1
+                        found_open_paren = True
+                    elif char == ")":
+                        paren_balance -= 1
+
+                line_stripped = line_content.rstrip()
+
+                # Found the signature end: line ends with colon and parens are balanced
+                if line_stripped.endswith(":"):
+                    if not found_open_paren:
+                        # Simple signature like "class Foo:" or "def bar():"
+                        break
+                    if paren_balance <= 0:
+                        # Multi-line signature complete, parens balanced
+                        break
+
                 colon_line_idx += 1
-                if colon_line_idx >= len(lines):
-                    return InjectionResult(
-                        filepath=missing.filepath,
-                        name=missing.name,
-                        lineno=missing.lineno,
-                        success=False,
-                        error="Could not find end of signature",
-                    )
+
+            if colon_line_idx >= len(lines):
+                return InjectionResult(
+                    filepath=missing.filepath,
+                    name=missing.name,
+                    lineno=missing.lineno,
+                    success=False,
+                    error="Could not find end of signature",
+                )
 
             # Calculate indentation (body indentation)
             next_line_idx = colon_line_idx + 1
@@ -564,7 +943,7 @@ class DocstringInjector:
                     next_line_idx += 1
                     if next_line_idx < len(lines):
                         next_line = lines[next_line_idx]
-                
+
                 indent = len(next_line) - len(next_line.lstrip())
             else:
                 # Default to 4 spaces more than the def line
@@ -625,27 +1004,128 @@ class DocstringInjector:
         Returns:
             Formatted docstring with triple quotes and proper indentation.
         """
+        # Clean up LLM output artifacts
+        docstring = self._clean_docstring(docstring)
+
         lines = docstring.strip().splitlines()
-        
+
         if len(lines) == 1:
             # Single-line docstring
-            return f'{indent}"""{lines[0]}"""\n'
-        
-        # Multi-line docstring
-        formatted_lines = [f'{indent}"""']
+            return f'{indent}"""{lines[0].strip()}"""\n'
+
+        # Multi-line docstring - normalize indentation
+        # First, dedent all lines to remove any LLM-added indentation
+        dedented_lines = []
         for line in lines:
-            if line.strip():
-                formatted_lines.append(f"{indent}{line}")
-            else:
+            stripped = line.strip()
+            dedented_lines.append(stripped)
+
+        # Now apply consistent indentation based on content
+        formatted_lines = [f'{indent}"""']
+        for line in dedented_lines:
+            if not line:
                 formatted_lines.append("")
+            elif line.startswith(
+                (
+                    "Args:",
+                    "Returns:",
+                    "Raises:",
+                    "Yields:",
+                    "Examples:",
+                    "Example:",
+                    "Note:",
+                    "Notes:",
+                    "Attributes:",
+                    "Warning:",
+                    "Warnings:",
+                )
+            ):
+                # Section headers - no extra indent
+                formatted_lines.append(f"{indent}{line}")
+            elif dedented_lines.index(line) > 0 and any(
+                dedented_lines[dedented_lines.index(line) - 1].startswith(prefix)
+                for prefix in ("Args:", "Returns:", "Raises:", "Yields:", "Attributes:")
+            ):
+                # First line after section header - add one level of indent
+                formatted_lines.append(f"{indent}    {line}")
+            elif len(formatted_lines) > 1 and formatted_lines[-1].strip().endswith(":"):
+                # Line after a colon (like a section header or param) - indent
+                formatted_lines.append(f"{indent}    {line}")
+            elif len(formatted_lines) > 1 and formatted_lines[-1].startswith(
+                f"{indent}    "
+            ):
+                # Continue indentation from previous indented line
+                formatted_lines.append(f"{indent}    {line}")
+            else:
+                # Regular line
+                formatted_lines.append(f"{indent}{line}")
+
         formatted_lines.append(f'{indent}"""')
-        
+
         return "\n".join(formatted_lines) + "\n"
+
+    def _clean_docstring(self, docstring: str) -> str:
+        """Clean up LLM-generated docstring artifacts.
+
+        Args:
+            docstring: Raw docstring from LLM.
+
+        Returns:
+            Cleaned docstring with consistent formatting.
+        """
+        # Remove any triple quotes the LLM might have included
+        docstring = docstring.strip('"""').strip("'''").strip()
+
+        # Remove markdown-style trailing spaces
+        lines = docstring.splitlines()
+        cleaned_lines = [line.rstrip() for line in lines]
+
+        # Remove "Args:  \n    None" patterns - they're noise
+        result_lines = []
+        skip_next = False
+        for i, line in enumerate(cleaned_lines):
+            if skip_next:
+                skip_next = False
+                continue
+            stripped = line.strip()
+            # Skip "None" or "N/A" as standalone arg/return descriptions
+            if stripped in ("None", "N/A", "None.", "N/A."):
+                # Check if this follows an "Args:" or "Returns:" with nothing after
+                if i > 0 and cleaned_lines[i - 1].strip() in (
+                    "Args:",
+                    "Returns:",
+                    "Raises:",
+                ):
+                    # Remove the section header too
+                    if result_lines and result_lines[-1].strip() in (
+                        "Args:",
+                        "Returns:",
+                        "Raises:",
+                    ):
+                        result_lines.pop()
+                continue
+            # Skip empty sections like "Returns:\n    None"
+            if stripped in ("Args:", "Returns:", "Raises:"):
+                # Check if next line is just "None"
+                if i + 1 < len(cleaned_lines) and cleaned_lines[i + 1].strip() in (
+                    "None",
+                    "N/A",
+                    "None.",
+                    "N/A.",
+                ):
+                    skip_next = True
+                    continue
+            result_lines.append(line)
+
+        return "\n".join(result_lines)
 
     def process_batch(
         self, missing_list: list[MissingDocstring], limit: int | None = None
     ) -> list[InjectionResult]:
         """Process a batch of missing docstrings.
+
+        Groups items by file and processes in reverse line order to avoid
+        line number invalidation from earlier injections.
 
         Args:
             missing_list: List of MissingDocstring objects to process.
@@ -657,10 +1137,27 @@ class DocstringInjector:
         if limit:
             missing_list = missing_list[:limit]
 
-        results = []
-        total = len(missing_list)
+        # Group by file and sort by line number (descending within each file)
+        # This ensures injections don't shift line numbers for subsequent items
+        from collections import defaultdict
 
-        for i, missing in enumerate(missing_list, 1):
+        by_file: dict[Path, list[MissingDocstring]] = defaultdict(list)
+        for missing in missing_list:
+            by_file[missing.filepath].append(missing)
+
+        # Sort each file's items by line number descending (process bottom-up)
+        for filepath in by_file:
+            by_file[filepath].sort(key=lambda m: m.lineno, reverse=True)
+
+        # Flatten back to a list, maintaining file grouping
+        ordered_list = []
+        for filepath in by_file:
+            ordered_list.extend(by_file[filepath])
+
+        results = []
+        total = len(ordered_list)
+
+        for i, missing in enumerate(ordered_list, 1):
             logger.info(
                 "Processing",
                 progress=f"{i}/{total}",
@@ -807,7 +1304,134 @@ def main() -> int:
     report = injector.generate_report()
     print(report)
 
+    # Validation step - verify quality of injected docstrings
+    if args.apply and injector.results:
+        print("\n" + "=" * 70)
+        print("VALIDATION: Checking quality of injected docstrings")
+        print("=" * 70)
+
+        validation_results = validate_injected_docstrings(injector.results, repo_root)
+        print(validation_results)
+
     return 0
+
+
+def validate_injected_docstrings(
+    results: list[InjectionResult], repo_root: Path
+) -> str:
+    """Validate quality of injected docstrings.
+
+    Args:
+        results: List of injection results to validate.
+        repo_root: Root directory of the repository.
+
+    Returns:
+        Validation report string.
+    """
+    successful = [r for r in results if r.success]
+    if not successful:
+        return "No successful injections to validate."
+
+    # Quality metrics
+    metrics = {
+        "total_validated": 0,
+        "has_first_line": 0,
+        "has_args": 0,
+        "has_returns": 0,
+        "proper_length": 0,  # 1-10 lines
+        "syntax_valid": 0,
+        "quality_scores": [],
+    }
+
+    issues = []
+
+    for result in successful[:20]:  # Validate first 20
+        if not result.docstring:
+            continue
+
+        metrics["total_validated"] += 1
+        score = 0
+        docstring = result.docstring
+        lines = docstring.strip().splitlines()
+
+        # Check first line exists and is brief
+        if lines and len(lines[0]) < 200:
+            metrics["has_first_line"] += 1
+            score += 30
+        else:
+            issues.append(f"{result.name}: Missing or overly long first line")
+
+        # Check for Args section when appropriate
+        if "Args:" in docstring:
+            metrics["has_args"] += 1
+            score += 20
+
+        # Check for Returns section
+        if "Returns:" in docstring:
+            metrics["has_returns"] += 1
+            score += 20
+
+        # Check length (1-10 lines is ideal)
+        if 1 <= len(lines) <= 10:
+            metrics["proper_length"] += 1
+            score += 15
+        elif len(lines) > 10:
+            issues.append(f"{result.name}: Docstring too long ({len(lines)} lines)")
+
+        # Verify file still has valid syntax
+        try:
+            source = result.filepath.read_text()
+            ast.parse(source)
+            metrics["syntax_valid"] += 1
+            score += 15
+        except SyntaxError:
+            issues.append(f"{result.name}: File has syntax error after injection!")
+            score -= 50
+
+        metrics["quality_scores"].append(score)
+
+    # Calculate averages
+    total = metrics["total_validated"]
+    if total == 0:
+        return "No docstrings to validate."
+
+    avg_score = (
+        sum(metrics["quality_scores"]) / len(metrics["quality_scores"])
+        if metrics["quality_scores"]
+        else 0
+    )
+
+    report_lines = [
+        f"\nValidated: {total} docstrings",
+        "",
+        "Quality Metrics:",
+        f"  - Has clear first line:  {metrics['has_first_line']}/{total} ({metrics['has_first_line'] * 100 // total}%)",
+        f"  - Has Args section:      {metrics['has_args']}/{total} ({metrics['has_args'] * 100 // total}%)",
+        f"  - Has Returns section:   {metrics['has_returns']}/{total} ({metrics['has_returns'] * 100 // total}%)",
+        f"  - Proper length (1-10):  {metrics['proper_length']}/{total} ({metrics['proper_length'] * 100 // total}%)",
+        f"  - Syntax valid:          {metrics['syntax_valid']}/{total} ({metrics['syntax_valid'] * 100 // total}%)",
+        "",
+        f"Average Quality Score: {avg_score:.1f}/100",
+        "",
+    ]
+
+    if avg_score >= 90:
+        report_lines.append("✅ EXCELLENT - Docstrings are high quality")
+    elif avg_score >= 75:
+        report_lines.append("✅ GOOD - Docstrings meet quality standards")
+    elif avg_score >= 60:
+        report_lines.append("⚠️  ACCEPTABLE - Some improvements needed")
+    else:
+        report_lines.append("❌ NEEDS WORK - Quality below standards")
+
+    if issues:
+        report_lines.append(f"\nIssues found ({len(issues)}):")
+        for issue in issues[:10]:
+            report_lines.append(f"  - {issue}")
+        if len(issues) > 10:
+            report_lines.append(f"  ... and {len(issues) - 10} more")
+
+    return "\n".join(report_lines)
 
 
 if __name__ == "__main__":

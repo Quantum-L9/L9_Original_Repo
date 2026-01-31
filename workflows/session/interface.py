@@ -101,6 +101,15 @@ class SessionNode:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
+        """
+        Performs post-initialization setup for SessionNode, ensuring default gate_type assignment for GATE nodes.
+
+        Args:
+            self: The SessionNode instance being initialized.
+
+        Raises:
+            AssertionError: If node_type is GATE and gate_type is already set.
+        """
         if self.node_type == NodeType.GATE and self.gate_type is None:
             self.gate_type = GateType.USER_CONFIRM
 
@@ -142,6 +151,14 @@ class SessionDAG:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
+        """
+        Builds lookup structures for efficient node and edge access within the SessionDAG.
+
+
+
+        Raises:
+            KeyError: If an edge references a non-existent node during adjacency construction.
+        """
         # Build node lookup
         self._node_map: dict[str, SessionNode] = {n.id: n for n in self.nodes}
         # Build adjacency list

@@ -65,12 +65,22 @@ class SyntaxIssue:
     def __init__(
         self, file_path: str, line_num: int, message: str, code: str | None = None
     ):
+        """
+        Initializes a SyntaxIssue instance with details about a specific syntax error in a Python file.
+
+        Args:
+            file_path: Path to the file containing the syntax error.
+            line_num: Line number where the syntax issue was detected.
+            message: Description of the syntax error.
+            code: Optional code snippet related to the error.
+        """
         self.file_path = file_path
         self.line_num = line_num
         self.message = message
         self.code = code
 
     def __str__(self):
+        """Returns a string representation of the SyntaxIssue, including file path, line number, message, and code snippet if available."""
         if self.code:
             return f"{self.file_path}:{self.line_num}: {self.message}\n    {self.code}"
         return f"{self.file_path}:{self.line_num}: {self.message}"

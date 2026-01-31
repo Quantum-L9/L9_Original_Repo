@@ -47,6 +47,15 @@ class IndexSyncer:
     """
 
     def __init__(self, repository: SubstrateRepository) -> None:
+        """
+        Performs runtime checks to verify Postgres and pgvector extension readiness for index synchronization.
+
+        Args:
+            repository: SubstrateRepository instance managing database interactions.
+
+        Returns:
+            None; initializes the IndexSyncer with repository dependency.
+        """
         self._repository = repository
 
     async def verify_pgvector_extension(self) -> bool:

@@ -71,6 +71,14 @@ class RetryExhaustedError(Exception):
     def __init__(
         self, message: str, last_error: Exception | None = None, attempts: int = 0
     ):
+        """
+        Initializes a RetryExhaustedError with a message, last error, and attempt count for async retry failure handling.
+
+        Args:
+            message: Description of the retry exhaustion event.
+            last_error: The last exception encountered during retries, if any.
+            attempts: Number of retry attempts made before failure.
+        """
         super().__init__(message)
         self.last_error = last_error
         self.attempts = attempts

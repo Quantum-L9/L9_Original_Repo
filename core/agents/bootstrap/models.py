@@ -19,7 +19,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -73,6 +73,16 @@ class PhaseResult:
     duration_ms: float = 0.0
 
     def __post_init__(self) -> None:
+        """
+        Performs post-initialization checks and auto-generates an error code if the bootstrap phase failed without an error code.
+
+        Args:
+            self: The PhaseResult instance being initialized.
+
+
+        Raises:
+            AttributeError: If required attributes are missing during post-initialization.
+        """
         if not self.success and self.error and not self.error_code:
             # Auto-generate error code if missing
             self.error_code = f"BOOTSTRAP_PHASE{self.phase}_{self.name.upper()}_FAILED"
@@ -101,7 +111,7 @@ class AgentBootstrapContext:
     governance_gates: dict[str, Any] = field(default_factory=dict)
     init_signature: str | None = None
     status: str = "INITIALIZING"
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def add_phase_result(self, result: PhaseResult) -> None:
         """Record phase result and merge context_delta."""

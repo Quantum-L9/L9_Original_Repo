@@ -35,7 +35,7 @@ __dora_meta__ = {
 import hashlib
 import json
 import subprocess
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -89,6 +89,13 @@ class CodeValidator:
     """
 
     def __init__(self):
+        """
+        Initializes the CodeValidator with its sequence of validation gates for the 14-step code validation pipeline.
+
+
+        Returns:
+            An instance of CodeValidator with configured validation gates.
+        """
         self.gates = [
             self._gate_1_syntax,
             self._gate_2_type_safety,
@@ -370,6 +377,7 @@ class DORABlockGenerator:
     """
 
     def __init__(self):
+        """Performs initialization for the DORABlockGenerator responsible for creating DORA blocks in code files."""
         pass
 
     async def add_dora_block(
@@ -396,7 +404,7 @@ class DORABlockGenerator:
             dora_metadata={
                 "file_id": str(file_path.stem),
                 "last_updated_by": "codegen_agent",
-                "last_updated_timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+                "last_updated_timestamp": datetime.now(UTC).isoformat() + "Z",
                 "version": "1.0.0",
                 "change_type": "create",
                 "codegen_trace_id": f"codegen-{spec_id}",
@@ -497,6 +505,15 @@ class GitSafetyManager:
     """
 
     def __init__(self, repo_root: Path):
+        """
+        Initializes the GitSafetyManager with the repository root path for managing git safety and rollback operations.
+
+        Args:
+            repo_root: Path to the root directory of the git repository.
+
+        Raises:
+            ValueError: If repo_root is not a valid directory.
+        """
         self.repo_root = repo_root
         self.baseline_commit: str | None = None
         self.current_branch: str | None = None
@@ -511,7 +528,7 @@ class GitSafetyManager:
         Returns:
             Branch name
         """
-        timestamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+        timestamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
         branch_name = f"codegen-{task_name}-{timestamp}"
 
         # Get current commit (baseline)

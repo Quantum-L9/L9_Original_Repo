@@ -41,6 +41,11 @@ def generate_all_superpacks(layout: SuperpackLayout | None = None) -> None:
 
 
 def main() -> None:
+    """
+    Generates L9 superpack reports based on command-line arguments.
+    Raises:
+        argparse.ArgumentError: If invalid arguments are provided.
+    """
     parser = argparse.ArgumentParser(
         description="Generate L9 superpack reports under reports/."
     )

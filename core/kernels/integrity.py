@@ -50,7 +50,7 @@ __dora_meta__ = {
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
 
@@ -178,7 +178,7 @@ def save_kernel_hashes(
     data = {
         "version": "1.0.0",
         "algorithm": HASH_ALGORITHM,
-        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "updated_at": datetime.now(UTC).isoformat(),
         "hashes": hashes,
     }
 
@@ -209,12 +209,31 @@ class IntegrityChange:
         old_hash: str | None = None,
         new_hash: str | None = None,
     ):
+        """
+        Initializes an IntegrityChange instance representing a detected kernel integrity modification.
+
+        Args:
+            path: Filesystem path of the affected kernel YAML file.
+            change_type: Type of integrity change detected (e.g., modification, addition, removal).
+            old_hash: Previous SHA256 hash of the kernel file, if available.
+            new_hash: Current SHA256 hash of the kernel file, if available.
+        """
         self.path = path
         self.change_type = change_type
         self.old_hash = old_hash
         self.new_hash = new_hash
 
     def __repr__(self) -> str:
+        """
+        Checks the integrity of kernel YAML files by comparing current hashes with stored values to detect tampering.
+
+        Args:
+            base_path: Directory path where kernel files are located, defaults to "private".
+            auto_update: Whether to automatically update stored hashes if discrepancies are found, defaults to True.
+
+        Returns:
+            A dictionary mapping file paths to their integrity status or updated hashes.
+        """
         return f"IntegrityChange({self.path!r}, {self.change_type!r})"
 
 
