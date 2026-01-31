@@ -1,7 +1,7 @@
 # =============================================================================
 # L9 Docker Compose for C1 (Development/Testing)
 # =============================================================================
-# Version: 2.0.0 - Complete stack with all services
+# Version: 2.1.0 - Complete stack with all services
 #
 # Usage:
 #   docker compose up -d                # Start all services
@@ -9,15 +9,25 @@
 #   docker compose logs -f l9-api       # Follow API logs
 #   docker compose down -v              # Stop and remove volumes
 #
+# Clean rebuild:
+#   docker compose down
+#   docker system prune -f
+#   docker rmi $(docker images -q 'l9-*') 2>/dev/null || true
+#   docker compose up -d --build
+#
 # This mirrors the K8s deployment but runs via docker-compose.
 # For production, use the K8s manifests in manifests/ directory.
 # =============================================================================
+
+# Project name prefix (set via COMPOSE_PROJECT_NAME env or -p flag)
+# Default: directory name. Override with: COMPOSE_PROJECT_NAME=l9c1
 
 services:
   # ===========================================================================
   # PostgreSQL - Memory Substrate (PacketStore + pgvector)
   # ===========================================================================
   postgres:
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-postgres
     image: pgvector/pgvector:pg16
     ports:
       - "5432:5432"
@@ -42,6 +52,7 @@ services:
   # Neo4j - Knowledge Graph
   # ===========================================================================
   neo4j:
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-neo4j
     image: neo4j:5.15
     ports:
       - "7687:7687"
@@ -67,6 +78,7 @@ services:
   # Redis - Task Queue, Caching, Pub/Sub
   # ===========================================================================
   redis:
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-redis
     image: redis:7-alpine
     ports:
       - "6379:6379"
@@ -85,6 +97,7 @@ services:
   # L9 API - Main Application
   # ===========================================================================
   l9-api:
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-api
     build:
       context: ../../../..
       dockerfile: deploy/k8s/c1/Dockerfile
@@ -142,6 +155,7 @@ services:
   # MCP Memory Server
   # ===========================================================================
   mcp-memory:
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-mcp-memory
     build:
       context: ../../../..
       dockerfile: deploy/k8s/c1/Dockerfile.mcp-memory
@@ -174,6 +188,7 @@ services:
   # Prometheus - Metrics Collection
   # ===========================================================================
   prometheus:
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-prometheus
     image: prom/prometheus:latest
     ports:
       - "9090:9090"
@@ -193,6 +208,7 @@ services:
   # Grafana - Visualization
   # ===========================================================================
   grafana:
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-grafana
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
