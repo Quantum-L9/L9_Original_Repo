@@ -166,6 +166,20 @@ services:
     networks:
       - l9-network
 
+  nginx:
+    image: nginx:alpine
+    container_name: l9-nginx
+    restart: unless-stopped
+    depends_on:
+      - l9-api
+      - l9-mcp-memory
+    ports:
+      - "0.0.0.0:80:80"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - l9-network
+
 volumes:
   postgres_data:
   redis_data:
