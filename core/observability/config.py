@@ -30,6 +30,8 @@ __dora_meta__ = {
 # ============================================================================
 
 
+import os
+
 from pydantic import Field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -88,7 +90,7 @@ class ObservabilitySettings(BaseSettings):
         description="Logging level: DEBUG, INFO, WARNING, ERROR",
     )
     file_export_path: str = Field(
-        default="/tmp/l9_spans.jsonl",
+        default_factory=lambda: os.getenv("L9_SPANS_PATH", "/tmp/l9_spans.jsonl"),
         description="Path for file exporter output",
     )
     substrate_enabled: bool = Field(

@@ -25,6 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import os
 from abc import ABC, abstractmethod  # noqa: ADR-0026 - AsyncSpanExporter has default flush()
 from typing import Any
 
@@ -79,8 +80,10 @@ class ConsoleExporter(SpanExporter):
 class JSONFileExporter(SpanExporter):
     """Export spans to JSON Lines file."""
 
-    def __init__(self, file_path: str = "/tmp/l9_spans.jsonl"):
+    def __init__(self, file_path: str | None = None):
         """Initialize file exporter."""
+        if file_path is None:
+            file_path = os.getenv("L9_SPANS_PATH", "/tmp/l9_spans.jsonl")
         self.file_path = file_path
 
     def export(self, spans: list[Span]) -> None:
