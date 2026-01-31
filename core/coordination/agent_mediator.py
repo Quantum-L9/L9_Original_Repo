@@ -305,18 +305,20 @@ class AgentMediator:
             recipient_count=len(self.agents) - len(exclude),
         )
 
-        message_ids = []
-        for agent_id in self.agents:
-            if agent_id not in exclude:
-                msg_id = await self.send_message(
-                    from_agent=from_agent,
-                    to_agent=agent_id,
-                    message=message,
-                    message_type=message_type,
-                )
-                message_ids.append(msg_id)
+        # PERFORMANCE: Use asyncio.gather for parallel message sending
+        tasks = [
+            self.send_message(
+                from_agent=from_agent,
+                to_agent=agent_id,
+                message=message,
+                message_type=message_type,
+            )
+            for agent_id in self.agents
+            if agent_id not in exclude
+        ]
+        message_ids = await asyncio.gather(*tasks)
 
-        return message_ids
+        return list(message_ids)
 
     async def acknowledge_message(self, message_id: str, agent_id: str) -> None:
         """
@@ -372,8 +374,8 @@ class AgentMediator:
         messages = self.message_queue[agent_id]
         logger.info(f"Delivering {len(messages)} queued messages to {agent_id}")
 
-        for message in messages:
-            await self._deliver_message(agent_id, message)
+        # PERFORMANCE: Use asyncio.gather for parallel message delivery
+        await asyncio.gather(*[self._deliver_message(agent_id, message) for message in messages])
 
         # Clear queue
         del self.message_queue[agent_id]
