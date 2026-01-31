@@ -70,6 +70,35 @@ exclude = [
 
 Mypy is temporarily disabled in pre-commit (1369 errors in 325 files) until a dedicated type coverage initiative. This is documented, tracked, and runs in CI reporting mode.
 
+### Shell Script Error Handling
+
+**Do NOT suppress errors in hooks/scripts with `2>/dev/null || true` patterns.**
+
+```bash
+# ❌ BAD - Hides the real problem
+echo "$FILES" | xargs ruff format 2>/dev/null || true
+
+# ✅ GOOD - Shows errors, handles known non-fatal cases explicitly
+echo "$FILES" | xargs ruff format || true  # format is advisory, errors visible
+```
+
+**Valid suppression patterns:**
+- `mkdir -p ... || true` — Directory may exist, that's expected
+- `grep -q ... || true` — No match is valid outcome, not an error
+- `curl ... 2>/dev/null` — External service metrics, non-blocking
+
+**Invalid suppression patterns:**
+- `2>/dev/null` on core tool execution (ruff, mypy, pytest) — Hides real failures
+- `|| true` on commands that SHOULD fail the hook — Defeats the purpose
+- `.gitignore` patterns that are too broad — Catches unintended files (e.g., `codegen/` matching `core/codegen/`)
+
+**Root Cause Analysis Required:**
+When a hook/script fails, investigate WHY before adding suppression:
+1. Is the error legitimate? → Fix the underlying issue
+2. Is the pattern too broad? → Make it more specific (e.g., `/codegen/` not `codegen/`)
+3. Is the tool misconfigured? → Fix the config
+4. Is it truly non-critical? → Document WHY suppression is acceptable
+
 ## Consequences
 
 ### Positive
@@ -77,6 +106,7 @@ Mypy is temporarily disabled in pre-commit (1369 errors in 325 files) until a de
 - Clear understanding of codebase health
 - Exclusions are intentional and documented
 - Gradual improvement possible with tracking
+- Shell scripts fail loudly on real issues
 
 ### Negative
 - Initial cleanup requires more effort
