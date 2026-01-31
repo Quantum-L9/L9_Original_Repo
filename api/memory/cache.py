@@ -66,10 +66,15 @@ router_registry.register(
 _redis_client = None
 
 
+import asyncio
+_redis_client_lock = asyncio.Lock()
+
 async def get_redis():
     """Get Redis client singleton."""
     global _redis_client
     if _redis_client is None:
+        async with _redis_client_lock:
+            if _redis_client is None:
         try:
             from runtime.redis_client import get_redis_client
 
@@ -251,7 +256,7 @@ async def set_session_context(
 
     try:
         key = f"cursor:session:{request.session_id}:context"
-        value = json.dumps(request.context)
+        value = request.context if isinstance(request.context, str) else json.dumps(request.context)
         result = await client.set(key, value, ttl=request.ttl)
         return CacheResponse(success=result, data={"key": key})
     except Exception as e:

@@ -117,8 +117,8 @@ def extract_pdf(path: str, summarize: bool = True) -> dict[str, Any]:
                                                     )
                                                     if key and value:
                                                         fields[key] = value
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            logger.warning(f"Failed to extract form fields: {e}")
             except Exception as e:
                 logger.warning(f"pdfplumber extraction failed: {e}, trying pypdf")
                 PDFPLUMBER_AVAILABLE = False  # Force fallback
@@ -157,6 +157,8 @@ def extract_pdf(path: str, summarize: bool = True) -> dict[str, Any]:
 
                 summary = response.choices[0].message.content.strip()
                 logger.info(f"Generated PDF summary for {path}")
+            except ImportError as e:
+                logger.error(f"OpenAI library not installed: {e}")
             except Exception as e:
                 logger.warning(f"Failed to generate PDF summary: {e}")
 

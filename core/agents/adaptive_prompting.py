@@ -105,7 +105,7 @@ def _extract_lessons_from_rejections(rejections: list[dict[str, Any]]) -> str:
         reason = pattern.get("reason", "")
         tool_name = pattern.get("tool_name", "")
 
-        for condition in conditions:
+        for condition in set(conditions):
             if condition not in seen_conditions:
                 seen_conditions.add(condition)
 
@@ -157,7 +157,7 @@ def _extract_lessons_from_approvals(approvals: list[dict[str, Any]]) -> str:
         conditions = pattern.get("conditions", [])
         tool_name = pattern.get("tool_name", "")
 
-        for condition in conditions:
+        for condition in set(conditions):
             if condition not in seen_conditions:
                 seen_conditions.add(condition)
 
@@ -202,9 +202,12 @@ async def get_adaptive_context_for_tool(tool_name: str) -> str:
 
         return generate_adaptive_context(patterns)
 
+    except ImportError as e:
+        logger.error(f"Missing dependency for adaptive context: {e}")
+        raise
     except Exception as e:
-        logger.warning(f"Failed to get adaptive context for {tool_name}: {e}")
-        return ""
+        logger.error(f"Failed to get adaptive context for {tool_name}: {e}", exc_info=True)
+        raise
 
 
 async def get_world_model_context_for_agent(agent_name: str = "L") -> str:
@@ -226,9 +229,12 @@ async def get_world_model_context_for_agent(agent_name: str = "L") -> str:
         service = get_world_model_service()
         return await service.get_world_model_context(agent_name)
 
+    except ImportError as e:
+        logger.error(f"Missing dependency for world model context: {e}")
+        raise
     except Exception as e:
-        logger.warning(f"Failed to get world model context for {agent_name}: {e}")
-        return ""
+        logger.error(f"Failed to get world model context for {agent_name}: {e}", exc_info=True)
+        raise
 
 
 async def get_combined_adaptive_context(
@@ -306,9 +312,12 @@ async def get_test_failure_context(task_id: str) -> str:
 
         return "\n".join(context_parts)
 
+    except ImportError as e:
+        logger.error(f"Missing dependency for test failure context: {e}")
+        raise
     except Exception as e:
-        logger.warning(f"Failed to get test failure context: {e}")
-        return ""
+        logger.error(f"Failed to get test failure context: {e}", exc_info=True)
+        raise
 
 
 # =============================================================================

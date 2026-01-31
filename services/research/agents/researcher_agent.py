@@ -94,7 +94,8 @@ class ResearcherAgent(BaseAgent):
         Returns:
             Evidence gathered from this step
         """
-        logger.info(f"Researcher executing step: {step.get('step_id')}")
+        step_id = step.get('step_id', 'unknown_step')
+        logger.info(f"Researcher executing step: {step_id}")
 
         query = step.get("query", "")
         tools = step.get("tools", [])
@@ -107,8 +108,12 @@ class ResearcherAgent(BaseAgent):
                     result = await self._execute_tool(tool_name, query)
                     if result:
                         tool_results.append({"tool": tool_name, "result": result})
+                except (ValueError, TypeError, KeyError) as e:
+                    logger.warning(f"Tool {tool_name} failed with data error: {e}")
+                except (ConnectionError, TimeoutError) as e:
+                    logger.error(f"Could not connect to the graph database: {e}")
                 except Exception as e:
-                    logger.warning(f"Tool {tool_name} failed: {e}")
+                    logger.error(f"An unexpected error occurred in tool {tool_name}: {e}")
 
         # Build context from previous evidence
         context = ""
@@ -160,7 +165,9 @@ class ResearcherAgent(BaseAgent):
                     source_query=query,
                     source_agent=self.agent_id,
                 )
-            except Exception as e:
+            except (ConnectionError, TimeoutError) as e:
+                    logger.error(f"Could not connect to the graph database: {e}")
+                except Exception as e:
                 # Don't fail the research if persistence fails
                 logger.warning(
                     f"Failed to persist finding to graph: {e}",
@@ -192,7 +199,9 @@ class ResearcherAgent(BaseAgent):
             if tool:
                 result = await tool.execute({"query": query})
                 return str(result)
-        except Exception as e:
+        except (ConnectionError, TimeoutError) as e:
+                    logger.error(f"Could not connect to the graph database: {e}")
+                except Exception as e:
             logger.error(f"Tool execution failed: {e}")
 
         return None

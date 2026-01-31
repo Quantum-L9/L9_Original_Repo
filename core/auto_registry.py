@@ -357,13 +357,13 @@ class AutoRegistry[T]:
                         registry=self.name,
                         module=module_name,
                     )
-                except Exception as e:
-                    logger.warning(
-                        "registry.module_import_failed",
-                        registry=self.name,
-                        module=module_name,
-                        error=str(e),
-                    )
+except ImportError as e:
+                logger.error(
+                    "registry.discovery_error",
+                    registry=self.name,
+                    module=module_info.name,
+                    error=str(e),
+                )
 
         logger.info(
             "registry.discovery_complete",
@@ -408,13 +408,13 @@ class AutoRegistry[T]:
                     registry=self.name,
                     factory=factory_name,
                 )
-            except Exception as e:
-                logger.error(
-                    "registry.factory_failed",
-                    registry=self.name,
-                    factory=factory_name,
-                    error=str(e),
-                )
+except (ValidationError, TypeError, ValueError) as e:
+                    logger.error(
+                        "registry.factory_init_failed",
+                        registry=self.name,
+                        factory=name,
+                        error=str(e),
+                    )
 
         logger.info(
             "registry.factories_initialized",
@@ -499,7 +499,9 @@ class AutoRegistry[T]:
     def _matches_pattern(self, module_name: str, pattern: str) -> bool:
         """Check if a module name matches a pattern."""
         # Simple pattern matching (can be enhanced with fnmatch if needed)
-        return pattern in module_name
+        import fnmatch
+
+        return fnmatch.fnmatch(module_name, pattern)
 
 
 # =============================================================================

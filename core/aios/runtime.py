@@ -138,6 +138,10 @@ class AIOSRuntime:
         # Initialize client (lazy)
         self._client: AsyncOpenAI | None = None
 
+    async def close(self):
+        if self._client:
+            await self._client.close()
+
         logger.info(
             "AIOSRuntime initialized: model=%s, temperature=%.1f, max_tokens=%d",
             self._model,

@@ -85,6 +85,7 @@ import hashlib
 import re
 from datetime import UTC, datetime
 from typing import Any
+from collections import deque
 from uuid import UUID, uuid4
 
 import structlog
@@ -131,14 +132,14 @@ class AgentInstance:
         self._task = task
         self._state = ExecutorState.INITIALIZING
         self._iteration = 0
-        self._history: list[dict[str, Any]] = []
-        self._tool_results: list[dict[str, Any]] = []
+        self._history: deque[dict[str, Any]] = deque(maxlen=100)
+        self._tool_results: deque[dict[str, Any]] = deque(maxlen=50)
         self._created_at = datetime.now(UTC)
         self._total_tokens = 0
         self._tool_name_map: dict[str, str] = {}
         self._tool_name_reverse_map: dict[str, str] = {}
-        self._user_corrections: list[dict[str, Any]] = []
-        self._governance_blocks: list[dict[str, Any]] = []
+        self._user_corrections: deque[dict[str, Any]] = deque(maxlen=50)
+        self._governance_blocks: deque[dict[str, Any]] = deque(maxlen=50)
         self._discovered_tools: list[dict[str, Any]] | None = (
             None  # Dynamic discovery cache
         )
@@ -706,17 +707,20 @@ class AgentInstance:
             Formatted context string, or empty string if no context available.
         """
         task_context = self._task.context or {}
-        thread_context = task_context.get("thread_context", {})
-        semantic_hits = task_context.get("semantic_hits", {})
+        thread_context = task_context.get("thread_context")
+        semantic_hits = task_context.get("semantic_hits")
 
         sections = []
 
         # Thread context: past messages in this conversation
-        packets = thread_context.get("packets", [])
-        if packets:
+        if isinstance(thread_context, dict):
+            packets = thread_context.get("packets")
+            if isinstance(packets, list):
             section_lines = ["## Recent Conversation History"]
-            for packet in packets[-5:]:  # Last 5 messages
+            for packet in packets[-5:]:
+                if isinstance(packet, dict):  # Last 5 messages
                 payload = packet.get("payload", {})
+                    if isinstance(payload, dict):
                 # Normalize: support both 'content' and 'text' field names
                 text = (payload.get("content") or payload.get("text", ""))[:300]
                 user_id = payload.get("user_id", "unknown")

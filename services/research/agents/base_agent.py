@@ -123,7 +123,7 @@ class BaseAgent(ABC):
 
         except Exception as e:
             logger.error(f"LLM call failed for {self.agent_id}: {e}")
-            raise
+            raise e
 
     async def call_llm_json(
         self,
@@ -175,8 +175,8 @@ class BaseAgent(ABC):
             if start >= 0 and end > start:
                 json_str = text[start:end]
                 return json.loads(json_str)
-        except json.JSONDecodeError:
-            pass
+        except json.JSONDecodeError as e:
+            logger.debug(f"Could not extract JSON from response: {e}")
 
         logger.warning("Could not extract JSON from response, returning empty dict")
         return {}

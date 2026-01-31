@@ -140,7 +140,7 @@ class PlannerAgent(BaseAgent):
                     step_id="step_1",
                     agent="researcher",
                     description="Research the query",
-                    query=response.get("query", "research"),
+                    query=response.get("query") or "research",
                     tools=["perplexity_search"],
                     status="pending",
                     result=None,

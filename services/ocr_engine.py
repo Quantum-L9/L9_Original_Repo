@@ -92,8 +92,10 @@ def ocr_image(path: str) -> dict[str, Any]:
             if word.strip():
                 conf = ocr_data.get("conf", [])[i]
                 if conf != "-1":  # -1 means no confidence data
-                    with contextlib.suppress(ValueError, TypeError):
+                    try:
                         confidences.append(float(conf))
+                    except (ValueError, TypeError):
+                        logger.warning(f"Could not convert confidence score to float: {conf}")
                 tokens.append(word.strip())
 
         # Calculate average confidence
@@ -155,8 +157,10 @@ def ocr_pdf_first_page(path: str) -> dict[str, Any]:
                 result = ocr_image(str(temp_image))
 
                 # Clean up temp file
-                with contextlib.suppress(Exception):
+                try:
                     temp_image.unlink()
+                except Exception as e:
+                    logger.warning(f"Failed to delete temporary file: {temp_image}, error: {e}")
 
                 return result
         except ImportError:

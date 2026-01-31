@@ -129,7 +129,7 @@ class CriticAgent(BaseAgent):
         # Parse evaluation
         score = float(response.get("score", 0.5))
         feedback = response.get("feedback", "No feedback provided")
-        approved = response.get("approved", score >= self.approval_threshold)
+        approved = score >= self.approval_threshold
 
         # Override approval based on threshold
         if score < self.approval_threshold:
