@@ -177,7 +177,15 @@ class CompoundResult(BaseModel):
 
 
 class ContextInjectionRequest(BaseModel):
-    """Request for auto context injection before a task."""
+    """Request for auto context injection before a task.
+
+    Attributes:
+        task_description: Description of the task requiring context.
+        user_id: Identifier of the user for personalized context.
+        top_k: Maximum number of context memories to retrieve.
+        include_recent: Whether to include recent (24h) context.
+        kinds: Optional filter for specific memory categories.
+    """
 
     task_description: str
     user_id: str
@@ -187,7 +195,14 @@ class ContextInjectionRequest(BaseModel):
 
 
 class ContextInjectionResponse(BaseModel):
-    """Context memories to inject into system prompt."""
+    """Context memories to inject into system prompt.
+
+    Attributes:
+        memories: List of contextually relevant memory entries.
+        recent_context: List of recent (24h) context memories.
+        total_injected: Total number of memories injected.
+        retrieval_time_ms: Time to retrieve context in milliseconds.
+    """
 
     memories: list[MemoryResponse]
     recent_context: list[MemoryResponse]
@@ -686,7 +701,15 @@ class GraphGetContextArgs(BaseModel):
 
 
 class GraphCreateEventArgs(BaseModel):
-    """Validation model for graph_create_event tool arguments."""
+    """Validation model for graph_create_event tool arguments.
+
+    Attributes:
+        event_id: Unique event identifier.
+        event_type: Event type (e.g., 'user_action', 'agent_response').
+        timestamp: ISO timestamp when the event occurred.
+        properties: Optional dictionary of event properties.
+        parent_event_id: Optional parent event ID for causality chain.
+    """
 
     event_id: str  # Unique event identifier
     event_type: str  # Event type (e.g., 'user_action', 'agent_response')
@@ -699,7 +722,14 @@ class GraphCreateEventArgs(BaseModel):
 
 
 class GraphGetEventTimelineArgs(BaseModel):
-    """Validation model for graph_get_event_timeline tool arguments."""
+    """Validation model for graph_get_event_timeline tool arguments.
+
+    Attributes:
+        start_time: Optional ISO timestamp for timeline start.
+        end_time: Optional ISO timestamp for timeline end.
+        event_type: Optional filter by event type.
+        limit: Maximum events to return.
+    """
 
     start_time: str | None = None  # ISO timestamp start (optional)
     end_time: str | None = None  # ISO timestamp end (optional)
@@ -711,7 +741,13 @@ class GraphGetEventTimelineArgs(BaseModel):
 
 
 class GraphGetTemporalEventsArgs(BaseModel):
-    """Validation model for graph_get_temporal_events tool arguments."""
+    """Validation model for graph_get_temporal_events tool arguments.
+
+    Attributes:
+        entity: Entity ID to get events for.
+        start: Optional ISO timestamp start.
+        end: Optional ISO timestamp end.
+    """
 
     entity: str  # Entity ID to get events for
     start: str | None = None  # ISO timestamp start (optional)
@@ -722,7 +758,12 @@ class GraphGetTemporalEventsArgs(BaseModel):
 
 
 class GraphGetEventSequenceArgs(BaseModel):
-    """Validation model for graph_get_event_sequence tool arguments."""
+    """Validation model for graph_get_event_sequence tool arguments.
+
+    Attributes:
+        entity: Entity ID to get event sequence for.
+        limit: Maximum events to return.
+    """
 
     entity: str  # Entity ID
     limit: int | None = 50  # Maximum events to return

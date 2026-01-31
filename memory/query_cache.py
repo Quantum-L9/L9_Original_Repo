@@ -362,15 +362,23 @@ _global_cache: QueryCache | None = None
 
 
 def get_cache() -> QueryCache:
-    """Get or create global cache instance."""
+    """Get or create global cache instance.
+
+    Returns:
+        Global QueryCache singleton instance.
+    """
     global _global_cache
     if _global_cache is None:
         _global_cache = QueryCache()
     return _global_cache
 
 
-def reset_cache():
-    """Reset global cache instance (for testing)."""
+def reset_cache() -> None:
+    """Reset global cache instance (for testing).
+
+    Clears the global cache singleton, allowing a fresh instance
+    to be created on the next get_cache() call.
+    """
     global _global_cache
     _global_cache = None
 

@@ -189,9 +189,19 @@ class ValidationResult:
         self.warnings: list[str] = []
 
     def add_error(self, error: str) -> None:
+        """Add a validation error.
+
+        Args:
+            error: Error message to add.
+        """
         self.errors.append(error)
 
     def add_warning(self, warning: str) -> None:
+        """Add a validation warning.
+
+        Args:
+            warning: Warning message to add.
+        """
         self.warnings.append(warning)
 
     @property
@@ -208,7 +218,11 @@ class ValidationResult:
             return "unknown"
 
     def print_report(self) -> None:
-        """Print validation report."""
+        """Print validation report.
+
+        Outputs a formatted report showing pass/fail status,
+        all errors, and any warnings.
+        """
         logger.info(f"\n{'=' * 70}")
         logger.info(f"SPEC VALIDATION: {self.spec_path}")
         logger.info(f"{'=' * 70}")
@@ -561,7 +575,14 @@ def validate_spec(spec_path: str) -> ValidationResult:
 
 
 def find_all_specs(repo_root: str) -> list[str]:
-    """Find all spec files in the repo."""
+    """Find all spec files in the repo.
+
+    Args:
+        repo_root: Root directory to search from.
+
+    Returns:
+        List of paths to spec YAML files.
+    """
     specs: list[Path] = []
     for pattern in ["**/spec*.yaml", "**/*_spec.yaml", "**/Module-Spec*.yaml"]:
         specs.extend(Path(repo_root).glob(pattern))

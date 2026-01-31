@@ -61,11 +61,21 @@ class ChatResponse(BaseModel):
 
 @app.get("/")
 def root():
+    """Root endpoint returning service status.
+
+    Returns:
+        Dict with status and version information.
+    """
     return {"status": "L9 Phase 2 AI OS", "version": "0.3.0"}
 
 
 @app.get("/health")
 def health():
+    """Health check endpoint.
+
+    Returns:
+        Dict with service health status and component states.
+    """
     return {
         "status": "healthy",
         "service": "L9 Phase 2 Memory System",

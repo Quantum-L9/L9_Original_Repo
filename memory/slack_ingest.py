@@ -95,15 +95,19 @@ try:
 except ImportError:
     # Stub functions when telemetry not available
     def record_aios_call(*args, **kwargs):
+        """Stub for recording AIOS call metrics when telemetry unavailable."""
         pass
 
     def record_idempotent_hit(*args, **kwargs):
+        """Stub for recording idempotent hit metrics when telemetry unavailable."""
         pass
 
     def record_packet_write_error(*args, **kwargs):
+        """Stub for recording packet write error metrics when telemetry unavailable."""
         pass
 
     def record_slack_reply_error(*args, **kwargs):
+        """Stub for recording Slack reply error metrics when telemetry unavailable."""
         pass
 
 

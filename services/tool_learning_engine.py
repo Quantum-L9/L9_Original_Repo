@@ -58,9 +58,19 @@ class ToolLearningEngine:
     """Daily analysis engine over tool_execution_feedback and success rates."""
 
     def __init__(self, substrate_service: MemorySubstrateService) -> None:
+        """Initialize the tool learning engine.
+
+        Args:
+            substrate_service: Memory substrate service for database access.
+        """
         self.substrate = substrate_service
 
     async def _refresh_materialized_view(self) -> None:
+        """Refresh the tool_success_rates_24h materialized view.
+
+        Calls the refresh_tool_success_rates() stored procedure.
+        Silently skips if no postgres_pool is available.
+        """
         if not getattr(self.substrate, "postgres_pool", None):
             logger.debug("Tool learning: no postgres_pool, skipping MV refresh")
             return
@@ -75,6 +85,11 @@ class ToolLearningEngine:
             )
 
     async def _load_health_snapshots(self) -> list[ToolHealthSnapshot]:
+        """Load tool health snapshots from the materialized view.
+
+        Returns:
+            List of ToolHealthSnapshot objects from tool_success_rates_24h.
+        """
         if not getattr(self.substrate, "postgres_pool", None):
             return []
 
@@ -117,6 +132,15 @@ class ToolLearningEngine:
         snapshot: ToolHealthSnapshot,
         message: str,
     ) -> None:
+        """Insert a tool learning alert into the database.
+
+        Args:
+            tool_name: Name of the tool.
+            alert_type: Type of alert (e.g., 'degraded').
+            severity: Alert severity (e.g., 'warning').
+            snapshot: ToolHealthSnapshot with current metrics.
+            message: Human-readable alert message.
+        """
         if not getattr(self.substrate, "postgres_pool", None):
             return
 
