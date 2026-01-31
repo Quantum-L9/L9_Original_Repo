@@ -1,4 +1,4 @@
-# ADR-0064: Explicit Approval for Destructive Operations
+# ADR-0078: Explicit Approval for Destructive Operations
 
 **Status:** Accepted  
 **Date:** 2026-01-31  

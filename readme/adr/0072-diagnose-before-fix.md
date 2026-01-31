@@ -1,4 +1,4 @@
-# ADR-0058: Diagnose Before Fix
+# ADR-0072: Diagnose Before Fix
 
 **Status:** Accepted  
 **Date:** 2026-01-31  
@@ -85,4 +85,4 @@ command || {
 - Requires deeper investigation
 
 ## Related
-- ADR-0057: Fix Violations, Don't Exclude
+- ADR-0071: Fix Violations, Don't Exclude

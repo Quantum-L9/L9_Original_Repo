@@ -1,4 +1,4 @@
-# ADR-0060: Surgical Edits Only
+# ADR-0074: Surgical Edits Only
 
 **Status:** Accepted  
 **Date:** 2026-01-31  
@@ -89,5 +89,5 @@ If more edits needed: "This file needs significant changes. Should I proceed wit
 - Requires more careful planning
 
 ## Related
-- ADR-0058: Diagnose Before Fix
-- ADR-0059: Evidence-Based Claims
+- ADR-0072: Diagnose Before Fix
+- ADR-0073: Evidence-Based Claims

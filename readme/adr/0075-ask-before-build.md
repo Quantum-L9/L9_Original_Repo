@@ -1,4 +1,4 @@
-# ADR-0061: Ask Before Build
+# ADR-0075: Ask Before Build
 
 **Status:** Accepted  
 **Date:** 2026-01-31  
@@ -101,4 +101,4 @@ Once I understand these, I'll create a plan for your review before implementing.
 - Requires patience
 
 ## Related
-- ADR-0060: Surgical Edits Only
+- ADR-0074: Surgical Edits Only

@@ -1,4 +1,4 @@
-# ADR-0057: Fix Violations, Don't Exclude
+# ADR-0071: Fix Violations, Don't Exclude
 
 **Status:** Accepted  
 **Date:** 2026-01-26  

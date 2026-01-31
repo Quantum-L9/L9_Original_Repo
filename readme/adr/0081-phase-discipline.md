@@ -1,4 +1,4 @@
-# ADR-0067: Phase Discipline
+# ADR-0081: Phase Discipline
 
 **Status:** Accepted  
 **Date:** 2026-01-31  
@@ -137,6 +137,6 @@ Tests: test_file1.py, test_file2.py
 - Feels slower (but prevents rework)
 
 ## Related
-- ADR-0058: Diagnose Before Fix
-- ADR-0059: Evidence-Based Claims
-- ADR-0061: Ask Before Build
+- ADR-0072: Diagnose Before Fix
+- ADR-0073: Evidence-Based Claims
+- ADR-0075: Ask Before Build

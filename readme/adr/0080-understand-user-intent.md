@@ -1,4 +1,4 @@
-# ADR-0066: Understand User Intent
+# ADR-0080: Understand User Intent
 
 **Status:** Accepted  
 **Date:** 2026-01-31  
@@ -105,4 +105,4 @@ For simple requests, quick confirm:
 - Requires empathy and interpretation
 
 ## Related
-- ADR-0061: Ask Before Build
+- ADR-0075: Ask Before Build

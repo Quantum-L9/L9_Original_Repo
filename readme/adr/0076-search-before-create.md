@@ -1,4 +1,4 @@
-# ADR-0062: Search Before Create
+# ADR-0076: Search Before Create
 
 **Status:** Accepted  
 **Date:** 2026-01-31  
@@ -113,4 +113,4 @@ If PR creates new file with similar name to existing:
 - Existing code may need refactoring to accept enhancement
 
 ## Related
-- ADR-0061: Ask Before Build
+- ADR-0075: Ask Before Build

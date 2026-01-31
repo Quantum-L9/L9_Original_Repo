@@ -1,4 +1,4 @@
-# ADR-0063: No Silent Changes
+# ADR-0077: No Silent Changes
 
 **Status:** Accepted  
 **Date:** 2026-01-31  
@@ -103,4 +103,4 @@ Flag for review if:
 - Can't "quickly fix" things noticed along the way
 
 ## Related
-- ADR-0060: Surgical Edits Only
+- ADR-0074: Surgical Edits Only

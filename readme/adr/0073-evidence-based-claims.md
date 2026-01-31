@@ -1,4 +1,4 @@
-# ADR-0059: Evidence-Based Claims
+# ADR-0073: Evidence-Based Claims
 
 **Status:** Accepted  
 **Date:** 2026-01-31  
@@ -95,4 +95,4 @@ fix(module): brief description
 - Requires running verification commands
 
 ## Related
-- ADR-0058: Diagnose Before Fix
+- ADR-0072: Diagnose Before Fix
