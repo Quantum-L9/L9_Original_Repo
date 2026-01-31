@@ -542,7 +542,8 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
 
     if not dry_run:
         await execute(
-            f"UPDATE memory.long_term SET importance = importance * POWER({decay_factor}, EXTRACT(EPOCH FROM (NOW() - last_accessed_at)) / 86400), updated_at = CURRENT_TIMESTAMP WHERE last_accessed_at < NOW() - INTERVAL '1 day';"
+            "UPDATE memory.long_term SET importance = importance * POWER($1, EXTRACT(EPOCH FROM (NOW() - last_accessed_at)) / 86400), updated_at = CURRENT_TIMESTAMP WHERE last_accessed_at < NOW() - INTERVAL '1 day';",
+            decay_factor
         )
         await execute(
             "INSERT INTO memory.audit_log (operation, status, details) VALUES ($1, $2, $3)",

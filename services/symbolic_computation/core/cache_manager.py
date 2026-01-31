@@ -250,7 +250,8 @@ class CacheManager:
     async def _cache_l2_result(self, key: str, value: Any) -> None:
         """Cache result in L2 (Redis)."""
         try:
-            serialized = pickle.dumps(value)
+            # SECURITY: Using JSON instead of pickle to prevent deserialization attacks
+            serialized = json.dumps(value, default=str)
             await self.redis_client.setex(
                 key,
                 self.config.redis_cache_ttl,
@@ -267,7 +268,8 @@ class CacheManager:
         try:
             serialized = await self.redis_client.get(key)
             if serialized:
-                return pickle.loads(serialized)
+                # SECURITY: Using JSON instead of pickle to prevent deserialization attacks
+                return json.loads(serialized)
             return None
         except Exception as e:
             self.logger.warning(
