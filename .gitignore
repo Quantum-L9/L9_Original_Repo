@@ -124,10 +124,8 @@ codegen/extractions/
 *.egg-info/
 
 # CodeGen folder (specs, schemas, templates - not production)
-codegen/
-# BUT include production codegen modules
-!tools/codegen/
-!config/schemas/codegen/
+# Use /codegen/ to match ONLY root-level, not nested dirs like core/codegen/
+/codegen/
 .tmp.driveupload/
 tests/agents/codegenagent/
 tests/codegen/email_agent/private_auth/
