@@ -7,7 +7,7 @@ Tests for test generation, execution, and integration with approvals.
 Version: 1.0.0
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest

@@ -39,7 +39,7 @@ __dora_meta__ = {
 import asyncio
 import contextlib
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -216,7 +216,8 @@ class GMPWorker:
         cursor_dir.mkdir(parents=True, exist_ok=True)
 
         gmp_file = (
-            cursor_dir / f"gmp_task_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.md"
+            cursor_dir
+            / f"gmp_task_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.md"
         )
 
         try:
@@ -318,7 +319,9 @@ class GMPWorker:
                 "error": str(e),
                 "output": None,
                 "traceback": str(e),
-                "duration_seconds": (datetime.now(timezone.utc) - start_time).total_seconds(),
+                "duration_seconds": (
+                    datetime.now(timezone.utc) - start_time
+                ).total_seconds(),
             }
         finally:
             # Optionally clean up GMP file after execution

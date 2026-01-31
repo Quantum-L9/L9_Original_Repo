@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
@@ -94,7 +94,9 @@ class AnomalyClassifierRequest(BaseModel):
     """Input request for AnomalyClassifier."""
 
     request_id: str = Field(
-        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc))))
+        default_factory=lambda: str(
+            uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc)))
+        )
     )
     anomaly_id: str = Field(..., description="Unique anomaly identifier")
     source: str = Field(

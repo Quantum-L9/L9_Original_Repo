@@ -12,7 +12,7 @@ GMP: Research Graph Persistence
 
 # Import via direct module load to avoid chain imports
 import importlib.util
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 

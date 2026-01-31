@@ -117,13 +117,8 @@ except ImportError:
         return False
 
 
-# Optional: World Model API (v1.1.0+)
-try:
-    from api.world_model_api import router as world_model_router
-
-    _has_world_model = True
-except ImportError:
-    _has_world_model = False
+# World Model API availability (auto-registered via router_registry)
+_has_world_model = True
 
 # Optional: Slack Adapter (v2.0+)
 try:
@@ -205,33 +200,11 @@ except Exception as e:
     logger.error(f"Unexpected error importing Tool Registry: {e}", exc_info=True)
     _has_tool_registry = False
 
-# Optional: Research Factory (v2.3+)
-try:
-    from api.routes.factory import router as factory_router
-
-    _has_factory = True
-except ImportError:
-    _has_factory = False
-
-# Optional: Igor Command Interface (v2.7+ / GMP-11)
-try:
-    from api.routes.commands import router as commands_router
-
-    _has_commands = True
-except ImportError:
-    _has_commands = False
-
-# Optional: Tools Router (v2.8+ / Wire Orchestrators)
-try:
-    from api.tools.router import router as tools_router
-
-    _has_tools_router = True
-except ImportError:
-    _has_tools_router = False
+# Tools Router availability (auto-registered via router_registry)
+_has_tools_router = True
 
 # Optional: Reasoning Orchestrator (v3.5+ / Stage 2.6 Phase 2)
 try:
-    from api.routes.reasoning import router as reasoning_router
     from orchestrators.reasoning.orchestrator import ReasoningOrchestrator
 
     _has_reasoning = True
@@ -240,7 +213,6 @@ except ImportError:
 
 # Optional: Pattern Orchestrator (v4.0+ / Agent Pattern System)
 try:
-    from api.routes.pattern import router as pattern_router
     from orchestrators.pattern import CellAgentAdapter, PatternOrchestrator
 
     _has_pattern = True
@@ -249,7 +221,6 @@ except ImportError:
 
 # Optional: ResearchSwarm Orchestrator (v3.5+ / Stage 2.6 Phase 3)
 try:
-    from api.routes.research import router as research_swarm_router
     from orchestrators.research_swarm.orchestrator import ResearchSwarmOrchestrator
 
     _has_research_swarm = True
@@ -259,7 +230,6 @@ except ImportError:
 # Optional: ResearchAgent (Perplexity-based unified research-to-code agent)
 try:
     from agents.research_agent_impl import ResearchAgent, create_research_agent
-    from api.routes.research_agent import router as research_agent_router
 
     _has_research_agent = True
 except ImportError as e:
@@ -269,7 +239,6 @@ except ImportError as e:
 # Optional: ReflectionAgent (Meta-reasoning and self-improvement agent)
 try:
     from agents.reflection_agent import ReflectionAgent, create_reflection_agent
-    from api.routes.reflection_agent import router as reflection_agent_router
 
     _has_reflection_agent = True
 except ImportError as e:
@@ -281,7 +250,6 @@ try:
     from agents.cursor.integrations.cursor_executor import CursorExecutor
     from agents.cursor.integrations.cursor_gateway import CursorMemoryGateway
     from agents.cursor.integrations.cursor_langgraph import build_cursor_langgraph
-    from api.routes.cursor import router as cursor_router
     from config.cursor_langgraph_config import get_cursor_langgraph_config
     from core.governance.approval_manager import ApprovalManager
     from memory.checkpoint.cursor_checkpoint_manager import CursorCheckpointManager
@@ -309,22 +277,6 @@ _has_symbolic = False
 #     _has_symbolic = True
 # except Exception:
 #     _has_symbolic = False
-
-# Optional: Observability Router (GMP-91)
-try:
-    from api.routes.observability import router as observability_router
-
-    _has_observability_router = True
-except ImportError:
-    _has_observability_router = False
-
-# Optional: Evaluation Router (GMP-WIRE-VC-EQ)
-try:
-    from api.routes.evaluation import router as evaluation_router
-
-    _has_evaluation_router = True
-except ImportError:
-    _has_evaluation_router = False
 
 # Optional: Kernel-Aware Agent Registry (v2.5+)
 try:
@@ -452,18 +404,10 @@ try:
 except ImportError:
     _has_evaluator = False
 
-# Optional: Email Agent (Gmail multi-account)
+# Email Agent availability (auto-registered via router_registry if enabled)
 # Toggleable via EMAIL_AGENT_ENABLED=false in .env
-_has_email_agent = False
-if settings.email_agent_enabled:
-    try:
-        from email_agent.router import router as email_agent_router
-
-        _has_email_agent = True
-    except ImportError as e:
-        logger.warning(f"Email Agent import failed: {e}")
-        _has_email_agent = False
-else:
+_has_email_agent = settings.email_agent_enabled
+if not _has_email_agent:
     logger.info("Email Agent DISABLED via EMAIL_AGENT_ENABLED=false")
 
 # Note: Slack handled by api/routes/slack.py → memory/slack_ingest.py
@@ -3452,84 +3396,6 @@ try:
         logger.info(f"Auto-wired {auto_wired_count} routers via router_registry")
 except Exception as e:
     logger.warning(f"Router auto-wiring failed: {e}")
-
-# Legacy manual router registrations (will be migrated to auto-registration)
-# NOTE: os_routes now auto-wired via router_registry — see api/os_routes.py
-
-# NOTE: agent_routes now auto-wired via router_registry — see api/agent_routes.py
-
-# Modules status router (GMP-45)
-# NOTE: Now auto-wired via router_registry — see api/routes/modules.py
-
-# NOTE: memory_router now auto-wired via router_registry — see api/memory/router.py
-
-# NOTE: graph_router now auto-wired via router_registry — see api/memory/graph.py
-
-# NOTE: cache_router now auto-wired via router_registry — see api/memory/cache.py
-
-# NOTE: world_model_router now auto-wired via router_registry — see api/world_model_api.py
-
-# NOTE: worldmodel_query_router now auto-wired via router_registry — see api/routes/worldmodel.py
-
-# Slack adapter router (v2.0+)
-# NOTE: Now auto-wired via router_registry — see api/routes/slack.py
-
-# NOTE: research_router now auto-wired via router_registry — see services/research/research_api.py
-
-# NOTE: factory_router now auto-wired via router_registry — see api/routes/factory.py
-
-# Igor Command Interface router (v2.7+ / GMP-11)
-# NOTE: Now auto-wired via router_registry — see api/routes/commands.py
-
-# NOTE: tools_router now auto-wired via router_registry — see api/tools/router.py
-
-# Reasoning router (Stage 2.6 Phase 2)
-# NOTE: Now auto-wired via router_registry — see api/routes/reasoning.py
-# Legacy manual registration removed (GMP Auto-Wiring Phase 2)
-
-# Pattern router (Agent Pattern System v4.0+)
-# NOTE: Now auto-wired via router_registry — see api/routes/pattern.py
-# Legacy manual registration removed (GMP Auto-Wiring Phase 2)
-
-# GMP Learning router (GMP v2.0 Meta-Learning)
-# NOTE: Now auto-wired via router_registry — see api/routes/gmp_learning.py
-
-# ResearchSwarm router (Stage 2.6 Phase 3)
-# NOTE: Now auto-wired via router_registry — see api/routes/research.py
-
-# ResearchAgent router (Perplexity-based unified research-to-code)
-# NOTE: Now auto-wired via router_registry — see api/routes/research_agent.py
-
-# NOTE: reflection_agent_router now auto-wired via router_registry — see api/routes/reflection_agent.py
-
-# Cursor Executor router (GMP-48)
-# NOTE: Now auto-wired via router_registry — see api/routes/cursor.py
-
-# Compliance router (GMP-21)
-# NOTE: Now auto-wired via router_registry — see api/routes/compliance.py
-
-# NOTE: simulation_router now auto-wired via router_registry — see api/routes/simulation.py
-
-# NOTE: symbolic_router now auto-wired via router_registry — see services/symbolic_computation/api/routes.py
-
-# Observability Router (GMP-91)
-# NOTE: Now auto-wired via router_registry — see api/routes/observability.py
-
-# Slack Webhook Adapter (v2.6+) - NOT USED (using slack_router v2.0+ instead)
-# Legacy webhook router - NOT USED (using slack_router v2.0+ instead)
-
-# NOTE: mac_agent_router now auto-wired via router_registry — see api/webhook_mac_agent.py
-
-# WABA (WhatsApp Business Account) — NOT IN USE
-# Legacy Meta WhatsApp integration disabled. Router exists at api/webhook_waba.py
-# but requires WABA env vars and is not actively used.
-
-# NOTE: email_agent_router now auto-wired via router_registry — see email_agent/router.py
-
-# NOTE: upgrades_router now auto-wired via router_registry — see api/routes/upgrades.py
-
-# MCP Memory Router (MCP Protocol endpoints)
-# NOTE: Now auto-wired via router_registry — see api/routes/mcp.py
 
 # Prometheus metrics endpoint
 if _has_prometheus:

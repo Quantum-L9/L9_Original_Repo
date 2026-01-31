@@ -5,7 +5,7 @@ Endpoints for Domain Tensor Bridge and TensorGlobe adapter.
 Provides HTTP access to tensor reasoning capabilities.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import structlog

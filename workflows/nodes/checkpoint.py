@@ -7,7 +7,7 @@ Pauses workflow for user confirmation before proceeding.
 from __future__ import annotations
 
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 import structlog
 

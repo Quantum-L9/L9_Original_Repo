@@ -1879,7 +1879,7 @@ def generate_decorator_catalog():
 
 def generate_adr_catalog():
     """Generate catalog of Architecture Decision Records (ADRs)."""
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     lines = [
         "# L9 Architecture Decision Record (ADR) Catalog",
@@ -1990,7 +1990,7 @@ def generate_adr_catalog():
 
 def generate_readme_manifest():
     """Generate manifest of all README.md files with descriptions for AI reference."""
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     lines = [
         "# L9 README File Manifest",

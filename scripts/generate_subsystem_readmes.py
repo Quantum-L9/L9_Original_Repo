@@ -819,7 +819,7 @@ def generate_readme(
         data_schemas_str = f"""```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class {subsystem_name.title().replace("_", "")}Request(BaseModel):
     \"\"\"Request model for {subsystem_name} operations.\"\"\"

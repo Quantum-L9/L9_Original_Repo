@@ -38,11 +38,12 @@ import os
 from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 from enum import Enum
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class EvidenceStrength(str, Enum):
     """Classification of evidence strength."""
+
     STRONG = "strong"
     MODERATE = "moderate"
     WEAK = "weak"
@@ -52,6 +53,7 @@ class EvidenceStrength(str, Enum):
 @dataclass
 class BeliefState:
     """Represents current belief about a variable."""
+
     variable: str
     prior: Dict[str, float]  # Prior probability distribution
     posterior: Dict[str, float]  # Posterior after updates
@@ -63,28 +65,30 @@ class BeliefState:
 class BayesianKernel:
     """
     Bayesian Reasoning Kernel for L9.
-    
+
     Provides:
     - Belief state management
     - Evidence processing
     - Posterior belief computation
     - Uncertainty quantification
-    
+
     Feature Flag: L9_ENABLE_BAYESIAN_REASONING
     Status: EXPERIMENTAL - controlled activation only
     """
-    
+
     def __init__(self):
         """Initialize kernel."""
-        self.enabled = os.environ.get("L9_ENABLE_BAYESIAN_REASONING", "false").lower() == "true"
+        self.enabled = (
+            os.environ.get("L9_ENABLE_BAYESIAN_REASONING", "false").lower() == "true"
+        )
         self.belief_states: Dict[str, BeliefState] = {}
         self.system_prompt_section = self._build_system_prompt()
-    
+
     def _build_system_prompt(self) -> str:
         """Build system prompt section for Bayesian reasoning."""
         if not self.enabled:
             return ""  # Return empty if disabled
-        
+
         return """
 # Bayesian Reasoning Capabilities
 
@@ -118,7 +122,7 @@ Format reasoning as:
 **Posterior**: [Final assessment with confidence]
 **Uncertainty**: [Residual doubt/what would change this]
 """
-    
+
     def create_belief_state(
         self,
         variable: str,
@@ -127,8 +131,10 @@ Format reasoning as:
     ) -> BeliefState:
         """Create new belief state for a variable."""
         if not self.enabled:
-            raise RuntimeError("Bayesian reasoning disabled (L9_ENABLE_BAYESIAN_REASONING=false)")
-        
+            raise RuntimeError(
+                "Bayesian reasoning disabled (L9_ENABLE_BAYESIAN_REASONING=false)"
+            )
+
         belief = BeliefState(
             variable=variable,
             prior=prior,
@@ -139,7 +145,7 @@ Format reasoning as:
         )
         self.belief_states[variable] = belief
         return belief
-    
+
     def add_evidence(
         self,
         variable: str,
@@ -150,16 +156,18 @@ Format reasoning as:
         """Add evidence to a belief state."""
         if not self.enabled:
             raise RuntimeError("Bayesian reasoning disabled")
-        
+
         if variable not in self.belief_states:
             raise ValueError(f"Belief state for '{variable}' not found")
-        
-        self.belief_states[variable].evidence.append({
-            "description": description,
-            "strength": strength.value,
-            "source": source,
-        })
-    
+
+        self.belief_states[variable].evidence.append(
+            {
+                "description": description,
+                "strength": strength.value,
+                "source": source,
+            }
+        )
+
     def update_posterior(
         self,
         variable: str,
@@ -168,36 +176,36 @@ Format reasoning as:
         """Update posterior belief using Bayes rule."""
         if not self.enabled:
             raise RuntimeError("Bayesian reasoning disabled")
-        
+
         if variable not in self.belief_states:
             raise ValueError(f"Belief state for '{variable}' not found")
-        
+
         belief = self.belief_states[variable]
         belief.posterior = new_posterior
         belief.confidence = self._calculate_confidence(new_posterior)
         belief.updated_at = self._timestamp()
-        
+
         return belief
-    
+
     @staticmethod
     def _calculate_confidence(distribution: Dict[str, float]) -> float:
         """Calculate confidence from probability distribution."""
         if not distribution:
             return 0.5
-        
+
         # Confidence is max(probability values) - higher max = higher confidence
         max_prob = max(distribution.values())
         return min(1.0, max(0.0, max_prob))
-    
+
     @staticmethod
     def _timestamp() -> str:
         """Get current ISO timestamp."""
         return datetime.now(timezone.utc).isoformat() + "Z"
-    
+
     def get_belief_state(self, variable: str) -> Optional[BeliefState]:
         """Get belief state for a variable."""
         return self.belief_states.get(variable)
-    
+
     def is_enabled(self) -> bool:
         """Check if Bayesian reasoning is enabled."""
         return self.enabled
@@ -220,6 +228,7 @@ def reset_bayesian_kernel() -> None:
     global _bayesian_kernel
     _bayesian_kernel = None
 
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -230,7 +239,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["auth", "data-models", "dataclass", "operations", "testing"],
-    "keywords": ["agent", "bayesian", "belief", "create", "enabled", "evidence", "kernel", "posterior"],
+    "keywords": [
+        "agent",
+        "bayesian",
+        "belief",
+        "create",
+        "enabled",
+        "evidence",
+        "kernel",
+        "posterior",
+    ],
     "business_value": "Provides bayesian kernel components including EvidenceStrength, BeliefState, BayesianKernel",
     "last_modified": "2026-01-21T21:57:31Z",
     "modified_by": "L9_Codegen_Engine",

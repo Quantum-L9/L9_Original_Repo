@@ -12,7 +12,7 @@ All numeric fields have constraints: Field(..., ge=0.0, le=1.0)
 Reference: L9-Confidence-Calibration-Spec.md §2.1.1
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Optional, Literal
 from uuid import UUID, uuid4
@@ -255,11 +255,11 @@ class GatingPolicyConfig(BaseModel):
 class SimpleCalibrationRequest(BaseModel):
     """
     Simplified calibration request for executor integration.
-    
+
     Works with what executor naturally provides:
     - A single confidence value (0.0-1.0)
     - Optional task context
-    
+
     This adapts to L9's existing patterns rather than forcing
     executor changes.
     """
@@ -274,7 +274,7 @@ class SimpleCalibrationRequest(BaseModel):
 class SimpleCalibrationResult(BaseModel):
     """
     Simplified calibration result for executor integration.
-    
+
     Returns only what the executor needs:
     - Calibrated confidence
     - Uncertainty estimate
@@ -292,7 +292,7 @@ class SimpleCalibrationResult(BaseModel):
 class SimpleGateRequest(BaseModel):
     """
     Simplified gating request for executor integration.
-    
+
     Works with what executor naturally provides:
     - Confidence value
     - Tool being called
@@ -310,7 +310,7 @@ class SimpleGateRequest(BaseModel):
 class SimpleGateResult(BaseModel):
     """
     Simplified gating result for executor integration.
-    
+
     Returns only what executor needs:
     - Approved or not
     - Threshold used

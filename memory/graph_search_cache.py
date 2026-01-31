@@ -35,7 +35,7 @@ __dora_meta__ = {
 import hashlib
 import json
 import random
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Literal
 
 import structlog

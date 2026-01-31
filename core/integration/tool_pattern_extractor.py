@@ -45,7 +45,7 @@ __dora_meta__ = {
 import asyncio
 import contextlib
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Any
 
 import structlog
@@ -213,7 +213,9 @@ class ToolPatternExtractor:
 
             try:
                 # Query recent tool invocations
-                lookback = datetime.now(timezone.utc) - timedelta(hours=self.lookback_hours)
+                lookback = datetime.now(timezone.utc) - timedelta(
+                    hours=self.lookback_hours
+                )
 
                 query = """
                     SELECT

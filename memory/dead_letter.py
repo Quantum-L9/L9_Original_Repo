@@ -36,7 +36,7 @@ __dora_meta__ = {
 
 import json
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import structlog

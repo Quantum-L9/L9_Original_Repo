@@ -13,7 +13,7 @@ Part of /pr and /gmp slash command automation.
 
 import argparse
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 __dora_meta__ = {

@@ -58,7 +58,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 

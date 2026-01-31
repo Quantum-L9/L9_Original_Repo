@@ -29,7 +29,7 @@
 
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
-**COMPLETED THIS SESSION (2026-01-25)**:
+**COMPLETED (2026-01-25 session, archived)**:
 
 - ✅ **Cursor Memory Kernel** — Created `agents/cursor/cursor_memory_kernel.yaml` (508 lines) — binding contract for memory utilization. Registered in `session_startup.py` as `CURSOR-KERNEL-002`. Kernel check now validates both workflow + memory kernels.
 - ✅ **GMP-123: AWS Secrets Manager Comprehensive Setup** — setup_secrets_manager.sh, 0067-aws-secrets-manager-integration.md. Report: `GMP-Report-123-Aws-Secrets-Manager-Comprehensive-Setup.md`
@@ -74,6 +74,7 @@
 
 ## Recent Changes (digest)
 
+- [2026-01-29] **Session Housekeeping** — Verified wiring tasks complete, fixed Pydantic v2 validators, synced state files, installed sympy/pydantic locally.
 - [2026-01-28] **GMP-126: Tool Embeddings Wiring Fix (Tool RAG)** — Fixed critical wiring failure in Tool RAG pipeline. Root cause: init_repository() was never called during API lifespan, making get_repository() single
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
@@ -130,7 +131,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-01-28 (GMP-78 Critical Fix — Tool RAG wiring repaired, 116 tools synced)_
+_Last updated: 2026-01-29 (Session housekeeping — state sync, Pydantic v2 fix, wiring verification)_
 
 ## Next Steps (Current Session)
 
@@ -147,12 +148,13 @@ _Last updated: 2026-01-28 (GMP-78 Critical Fix — Tool RAG wiring repaired, 116
 - PR #29: Observability Infrastructure - Tracing & Instrumentation — MERGED
 - PR #30: Memory & Governance Enhancements — MERGED
 
-### 🔴 POST-MERGE WIRING: Remaining Tasks
+### ✅ POST-MERGE WIRING: Complete
 
 | Task                     | File                             | Status      |
 | ------------------------ | -------------------------------- | ----------- |
-| Wire DeduplicationEngine | `memory/consolidation.py`        | ❌ NOT DONE |
-| Wire RegistryCache       | `core/tools/registry_adapter.py` | ❌ NOT DONE |
+| Wire DeduplicationEngine | `memory/consolidation.py`        | ✅ COMPLETE |
+| Wire RegistryCache       | `core/tools/registry_adapter.py` | ✅ COMPLETE |
+| Fix Pydantic v2 validators | `services/symbolic_computation/models.py` | ✅ COMPLETE |
 
 ### 🔵 CLOSED: PR Analysis (No Longer Active)
 
@@ -161,6 +163,12 @@ PR #51 (Spring Cleaning) — MERGED ✅
 
 **Recent Sessions (7-day window):**
 
+- 2026-01-29: **Session Housekeeping** — State sync + Pydantic v2 fix:
+  - Verified: DeduplicationEngine wiring ✅ COMPLETE
+  - Verified: RegistryCache wiring ✅ COMPLETE
+  - Fixed: Pydantic v2 `@validator` → `@field_validator` in `symbolic_computation/models.py`
+  - Installed: sympy 1.14.0, pydantic 2.12.5 locally
+  - Synced: workflow_state.md with TODO.md
 - ✅ 2026-01-28: **GMP-78 CRITICAL FIX** — Tool RAG wiring repaired:
   - `tool_embeddings.py`: Fixed `_get_db_pool()` to use `get_repository()` singleton
   - `api/server.py`: Added `init_repository()` call in lifespan (was missing!)
@@ -206,4 +214,4 @@ PR #51 (Spring Cleaning) — MERGED ✅
 
 ---
 
-_Last updated: 2026-01-25_
+_Last updated: 2026-01-29_

@@ -7,7 +7,7 @@ Unit tests for core/gmp/meta_learning_engine.py
 Run with: pytest tests/gmp/test_meta_learning.py -v
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 

@@ -35,7 +35,7 @@ __dora_meta__ = {
 import contextlib
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
@@ -173,7 +173,9 @@ class ViolationPatternsRequest(BaseModel):
     """Input request for ViolationPatterns."""
 
     request_id: str = Field(
-        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc))))
+        default_factory=lambda: str(
+            uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc)))
+        )
     )
     content: str = Field(..., description="Content to scan for violations")
     source: str = Field(default="unknown", description="Source of the content")

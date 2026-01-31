@@ -39,7 +39,7 @@ import asyncio
 import os
 import tempfile
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
@@ -182,7 +182,9 @@ def mock_substrate():
                 )
 
         # Calculate duration
-        results.duration_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        results.duration_ms = (
+            datetime.now(timezone.utc) - start_time
+        ).total_seconds() * 1000
 
         return results
 

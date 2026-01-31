@@ -41,7 +41,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 

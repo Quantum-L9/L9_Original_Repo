@@ -41,7 +41,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import uuid as uuid_module
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import Any
 

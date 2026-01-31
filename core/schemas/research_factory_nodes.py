@@ -39,7 +39,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from collections.abc import Callable
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import structlog

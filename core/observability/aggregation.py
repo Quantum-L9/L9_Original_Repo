@@ -25,7 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import datetime, timezone
 from statistics import mean
 from typing import Any
 

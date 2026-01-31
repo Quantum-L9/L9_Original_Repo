@@ -45,7 +45,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import structlog
@@ -236,7 +236,9 @@ class AuditLogger:
         Returns:
             True if logged successfully, False otherwise
         """
-        execution_timestamp = execution_timestamp or datetime.now(timezone.utc).isoformat()
+        execution_timestamp = (
+            execution_timestamp or datetime.now(timezone.utc).isoformat()
+        )
 
         audit_entry = {
             "audit_type": "tool_execution",

@@ -47,7 +47,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, TypedDict
 
@@ -523,7 +523,9 @@ class ResearchGraphPersistence:
                 source_agent=source_agent,
                 key_facts=evidence.get("metadata", {}).get("key_facts", []),
                 tags=evidence.get("metadata", {}).get("sources", []),
-                timestamp=evidence.get("timestamp", datetime.now(timezone.utc).isoformat()),
+                timestamp=evidence.get(
+                    "timestamp", datetime.now(timezone.utc).isoformat()
+                ),
             )
 
             try:

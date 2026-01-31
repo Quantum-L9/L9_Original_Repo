@@ -48,7 +48,7 @@ __dora_meta__ = {
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -316,7 +316,9 @@ class AIOSRuntime:
 
             # No tool call - return response
             content = message.content or ""
-            duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+            duration_ms = int(
+                (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            )
 
             logger.info(
                 "AIOS response completed",
@@ -334,7 +336,9 @@ class AIOSRuntime:
             )
 
         except Exception as e:
-            duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+            duration_ms = int(
+                (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            )
             logger.exception(
                 "AIOS reasoning failed", error=str(e), duration_ms=duration_ms
             )

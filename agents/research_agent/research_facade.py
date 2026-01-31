@@ -300,7 +300,7 @@ def save_perplexity_output(
             filename="README-core-agents.md"
         )
     """
-    from datetime import datetime
+    from datetime import datetime, timezone
 
     # Build path per SOP
     repo_root = Path(__file__).parent.parent.parent

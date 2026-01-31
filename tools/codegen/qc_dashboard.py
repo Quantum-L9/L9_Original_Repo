@@ -245,7 +245,7 @@ class QCDashboard:
         """Approve a concept."""
         notes = input("📝 Review notes (optional): ").strip()
 
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         review = ConceptReview(
             concept_id=concept["concept_id"],
@@ -269,7 +269,7 @@ class QCDashboard:
         """Reject a concept."""
         reason = input("❌ Rejection reason: ").strip()
 
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         review = ConceptReview(
             concept_id=concept["concept_id"],
@@ -297,7 +297,7 @@ class QCDashboard:
         subprocess.call([editor, str(yaml_file)])
 
         # Mark as edited
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         review = ConceptReview(
             concept_id=concept["concept_id"],
@@ -383,7 +383,7 @@ class QCDashboard:
         confirm = input("✅ Approve all? (y/n): ").strip().lower()
 
         if confirm == "y":
-            from datetime import datetime
+            from datetime import datetime, timezone
 
             for concept in high_conf:
                 review = ConceptReview(
@@ -455,7 +455,7 @@ class QCDashboard:
         """Export summary report."""
         summary = "# QC Review Summary\n\n"
 
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         summary += f"**Generated:** {datetime.now(timezone.utc).isoformat()}Z\n\n"
 

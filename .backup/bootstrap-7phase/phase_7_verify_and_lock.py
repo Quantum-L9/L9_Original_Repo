@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
 import structlog

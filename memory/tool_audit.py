@@ -43,7 +43,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from uuid import UUID, uuid4
 
 import structlog

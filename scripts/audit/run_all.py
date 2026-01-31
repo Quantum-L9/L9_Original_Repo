@@ -226,7 +226,7 @@ class AuditOrchestrator:
     def _generate_run_id(self) -> str:
         """Generate unique run ID."""
         import uuid
-        from datetime import datetime
+        from datetime import datetime, timezone
 
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         uid = str(uuid.uuid4())[:8]
@@ -566,7 +566,7 @@ class AuditOrchestrator:
           Phase 4: generate_gmp_todos.auto_fix_dead_code() - Auto-fix + GMP report
         """
         try:
-            from datetime import datetime
+            from datetime import datetime, timezone
 
             from categorize_dead_code import categorize_dead_code
             from find_dead_code import run_dead_code_audit as find_dead_code_baseline

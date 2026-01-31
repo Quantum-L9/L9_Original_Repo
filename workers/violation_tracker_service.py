@@ -40,7 +40,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
@@ -104,7 +104,9 @@ class ViolationTrackerServiceRequest(BaseModel):
     """Input request for ViolationTrackerService."""
 
     request_id: str = Field(
-        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc))))
+        default_factory=lambda: str(
+            uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc)))
+        )
     )
     content: str = Field(..., description="Content to scan for violations")
     source: str = Field(

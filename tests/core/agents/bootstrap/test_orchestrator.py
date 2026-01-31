@@ -5,7 +5,7 @@ L9 Bootstrap Tests – Orchestrator
 Tests for AgentBootstrapOrchestrator: 7-phase pipeline execution.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest

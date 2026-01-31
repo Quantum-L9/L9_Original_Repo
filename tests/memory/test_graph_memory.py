@@ -4,7 +4,7 @@ Tests for Conversational Graph Memory (GMP-58)
 Tests the Neo4j-backed conversation history storage.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 

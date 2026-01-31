@@ -14,13 +14,13 @@
 | #29 | Observability Infrastructure   | ✅ MERGED |
 | #30 | Memory & Governance            | ✅ MERGED |
 
-### Fix Pydantic v2 Validator Syntax (symbolic_computation)
+### ✅ Fix Pydantic v2 Validator Syntax (symbolic_computation)
 
-- [ ] **Fix `@validator` → `@field_validator`** in `services/symbolic_computation/models.py`
-  - Error: `PydanticUserError: @validator cannot be applied to instance methods`
-  - Pydantic v2 requires `@field_validator` with `@classmethod`
-  - Currently disabled in `api/server.py` to unblock VPS
-  - Re-enable import after fix
+- [x] **Fix `@validator` → `@field_validator`** in `services/symbolic_computation/models.py`
+  - ✅ FIXED 2026-01-29: Migrated to Pydantic v2 syntax
+  - Changed import: `validator` → `field_validator`
+  - Added `@classmethod` decorators
+  - Changed `self` → `cls` in method signatures
 
 ---
 

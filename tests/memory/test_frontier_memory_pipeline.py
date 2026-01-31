@@ -10,7 +10,7 @@ Integration tests for the GMP-80 frontier memory retrieval architecture:
 These tests verify the complete pipeline without requiring a live database.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from uuid import uuid4
 
 import pytest

@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 # GMP v2.0 Meta-Configuration
 gmp_version = "2.0.0"

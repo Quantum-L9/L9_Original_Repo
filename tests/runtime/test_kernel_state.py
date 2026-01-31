@@ -7,7 +7,7 @@ operations (GODMODE Part 1.1 + Part 7.2).
 Version: 1.0.0
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class TestKernelStateCreation:

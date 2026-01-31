@@ -35,7 +35,7 @@ __dora_meta__ = {
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -289,7 +289,9 @@ class DeliberationCell:
         if validation.valid:
             current_graph.set_status(IRStatus.VALIDATED)
 
-        duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        duration_ms = int(
+            (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        )
 
         result = DeliberationResult(
             session_id=session_id,

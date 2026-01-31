@@ -36,7 +36,7 @@ import json
 import os
 import subprocess
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import structlog
@@ -530,7 +530,9 @@ class CursorMemoryKernel:
         5. Return session state
         """
         if session_id is None:
-            session_id = f"cursor-session-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+            session_id = (
+                f"cursor-session-{datetime.now(timezone.utc).strftime('%Y%m%d-%H%M%S')}"
+            )
 
         # Write activation
         write_kernel_activation(session_id, self.kernel_id)

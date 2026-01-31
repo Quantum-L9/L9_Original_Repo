@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -208,7 +208,9 @@ class WorldModelService:
                 name="caddy",
                 infra_type=InfrastructureType.REVERSE_PROXY,
                 status="running",
-                endpoints=[os.getenv("L9_PUBLIC_URL", "https://mcp.quantumaipartners.com")],
+                endpoints=[
+                    os.getenv("L9_PUBLIC_URL", "https://mcp.quantumaipartners.com")
+                ],
                 port=443,
             ),
         ]

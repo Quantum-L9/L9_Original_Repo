@@ -28,7 +28,7 @@ __dora_meta__ = {
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class BackendType(str, Enum):
@@ -70,15 +70,17 @@ class ComputationRequest(BaseModel):
         default=True, description="Enable memoization for performance"
     )
 
-    @validator("expression")
-    def validate_expression(self, v: str) -> str:
+    @field_validator("expression")
+    @classmethod
+    def validate_expression(cls, v: str) -> str:
         """Validate expression is not empty."""
         if not v.strip():
             raise ValueError("Expression cannot be empty")
         return v.strip()
 
-    @validator("variables")
-    def validate_variables(self, v: list[str]) -> list[str]:
+    @field_validator("variables")
+    @classmethod
+    def validate_variables(cls, v: list[str]) -> list[str]:
         """Validate variables list."""
         if not v:
             raise ValueError("At least one variable must be specified")

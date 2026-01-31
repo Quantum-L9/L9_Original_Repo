@@ -15,7 +15,7 @@ Created: 2025-12-20
 
 import difflib
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -38,7 +38,9 @@ class BatchDiff:
 
     diffs: list[FileDiff]
     summary: dict[str, int]
-    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
 
 
 class DiffGenerator:

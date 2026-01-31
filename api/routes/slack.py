@@ -238,7 +238,7 @@ async def slack_events(
     neo4j_client = getattr(request.app.state, "neo4j_client", None)
     if neo4j_client:
         try:
-            from datetime import datetime
+            from datetime import datetime, timezone
             from uuid import uuid4
 
             await neo4j_client.create_event(

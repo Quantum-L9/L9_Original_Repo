@@ -39,7 +39,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid4, uuid5
 
@@ -87,7 +87,9 @@ class AnomalyResponseMonitorRequest(BaseModel):
     """Input request for AnomalyResponseMonitor."""
 
     request_id: str = Field(
-        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc))))
+        default_factory=lambda: str(
+            uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc)))
+        )
     )
     telemetry_events: list[TelemetryEvent] = Field(
         default_factory=list,

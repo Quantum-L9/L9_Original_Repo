@@ -5,7 +5,7 @@ These tests verify that batch query helpers prevent N+1 patterns
 and correctly fetch related data.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest

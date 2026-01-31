@@ -31,7 +31,7 @@ __dora_meta__ = {
 import statistics
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 import structlog

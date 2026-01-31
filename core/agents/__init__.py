@@ -36,6 +36,10 @@ def __getattr__(name: str):
         from core.agents.executor import AgentExecutorService
 
         return AgentExecutorService
+    if name == "IdempotencyStore":
+        from core.agents.idempotency_store import IdempotencyStore
+
+        return IdempotencyStore
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -45,6 +49,7 @@ __all__ = [
     "AgentExecutorService",
     # Classes
     "AgentInstance",
+    "IdempotencyStore",
     # Schemas
     "AgentTask",
     "ExecutorState",

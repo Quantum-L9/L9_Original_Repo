@@ -200,7 +200,7 @@ async def test_save_via_main_pipeline_handles_ttl_correctly():
     mock_service.write_packet.return_value = mock_result
 
     # Test short duration
-    from datetime import datetime, timedelta
+    from datetime import datetime, timezone, timedelta
 
     from src.config import settings
 
@@ -222,7 +222,9 @@ async def test_save_via_main_pipeline_handles_ttl_correctly():
     call_args = mock_service.write_packet.call_args[0][0]
     assert call_args.ttl is not None
     # TTL should be approximately now + MEMORY_SHORT_TERM_HOURS
-    expected_ttl = datetime.now(timezone.utc) + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
+    expected_ttl = datetime.now(timezone.utc) + timedelta(
+        hours=settings.MEMORY_SHORT_TERM_HOURS
+    )
     assert abs((call_args.ttl - expected_ttl).total_seconds()) < 5  # Within 5 seconds
 
 

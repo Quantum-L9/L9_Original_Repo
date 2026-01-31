@@ -42,7 +42,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
@@ -388,7 +388,9 @@ class StrategyBasedRetriever:
         results = await self._execute_strategy(strategy, context, max_results)
 
         # Calculate execution time
-        execution_time_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        execution_time_ms = (
+            datetime.now(timezone.utc) - start_time
+        ).total_seconds() * 1000
 
         return StrategyResult(
             strategy=strategy,

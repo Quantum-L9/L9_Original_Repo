@@ -41,11 +41,12 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set
 from enum import Enum
 from uuid import UUID, uuid4
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class NodeType(str, Enum):
     """Node type enumeration."""
+
     TASK = "task"
     REASONING = "reasoning"
     BAYESIAN = "bayesian"
@@ -57,6 +58,7 @@ class NodeType(str, Enum):
 
 class NodeStatus(str, Enum):
     """Node execution status."""
+
     PENDING = "pending"
     EXECUTING = "executing"
     COMPLETED = "completed"
@@ -69,7 +71,7 @@ class NodeStatus(str, Enum):
 class HypergraphNode:
     """
     Base node in L9 hypergraph (directed acyclic graph).
-    
+
     Properties:
     - node_id: Unique identifier within graph
     - node_type: Type of node (task, reasoning, bayesian, etc.)
@@ -82,36 +84,36 @@ class HypergraphNode:
     - started_at: When execution began (optional)
     - completed_at: When execution finished (optional)
     """
-    
+
     node_id: UUID = field(default_factory=uuid4)
     node_type: NodeType = NodeType.TASK
     status: NodeStatus = NodeStatus.PENDING
-    
+
     # Graph structure
     input_edges: Set[UUID] = field(default_factory=set)
     output_edges: Set[UUID] = field(default_factory=set)
-    
+
     # Execution data
     payload: Dict[str, Any] = field(default_factory=dict)
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+
     # Timestamps
     created_at: datetime = field(default_factory=datetime.utcnow)
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-    
+
     def add_input_edge(self, source_node_id: UUID) -> None:
         """Add dependency edge from source node."""
         self.input_edges.add(source_node_id)
-    
+
     def add_output_edge(self, target_node_id: UUID) -> None:
         """Add edge to target node."""
         self.output_edges.add(target_node_id)
-    
+
     def is_ready(self) -> bool:
         """Check if all dependencies are completed."""
         return len(self.input_edges) == 0 or self.status == NodeStatus.EXECUTING
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """Convert node to dictionary."""
         return {
@@ -124,7 +126,9 @@ class HypergraphNode:
             "metadata": self.metadata,
             "created_at": self.created_at.isoformat(),
             "started_at": self.started_at.isoformat() if self.started_at else None,
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "completed_at": self.completed_at.isoformat()
+            if self.completed_at
+            else None,
         }
 
 
@@ -132,7 +136,7 @@ class HypergraphNode:
 class ReasoningNode(HypergraphNode):
     """
     Reasoning step node in task graph.
-    
+
     Additional properties:
     - reasoning_type: Type of reasoning (query, analysis, planning, etc.)
     - agent_id: Agent responsible for this reasoning step
@@ -140,13 +144,13 @@ class ReasoningNode(HypergraphNode):
     - result: Reasoning output
     - confidence: Confidence level [0.0, 1.0]
     """
-    
+
     reasoning_type: str = "analysis"
     agent_id: str = ""
     context: Dict[str, Any] = field(default_factory=dict)
     result: Optional[str] = None
     confidence: float = 0.5
-    
+
     def __post_init__(self):
         """Set node type to REASONING."""
         self.node_type = NodeType.REASONING
@@ -156,10 +160,10 @@ class ReasoningNode(HypergraphNode):
 class BayesianNode(HypergraphNode):
     """
     Bayesian belief state tracking node.
-    
+
     Represents a point in the reasoning chain where probabilistic
     belief updates occur.
-    
+
     Additional properties:
     - belief_variable: What we're reasoning about
     - prior_belief: Initial probability distribution
@@ -168,35 +172,42 @@ class BayesianNode(HypergraphNode):
     - update_method: How belief was updated (bayes_rule, etc.)
     - uncertainty: Confidence in the posterior
     """
-    
+
     belief_variable: str = ""
     prior_belief: Dict[str, float] = field(default_factory=dict)
-    
+
     @dataclass
     class Evidence:
         """Evidence item with strength assessment."""
+
         description: str
         strength: str  # "strong", "moderate", "weak", "conflicting"
         source: Optional[str] = None
-    
+
     evidence: List[Evidence] = field(default_factory=list)
     posterior_belief: Dict[str, float] = field(default_factory=dict)
     update_method: str = "bayes_rule"
     uncertainty: float = 0.5  # Confidence in posterior [0, 1]
-    
+
     def __post_init__(self):
         """Set node type to BAYESIAN."""
         self.node_type = NodeType.BAYESIAN
-    
-    def add_evidence(self, description: str, strength: str, source: Optional[str] = None) -> None:
+
+    def add_evidence(
+        self, description: str, strength: str, source: Optional[str] = None
+    ) -> None:
         """Add evidence to this belief node."""
-        self.evidence.append(self.Evidence(
-            description=description,
-            strength=strength,
-            source=source,
-        ))
-    
-    def update_posterior(self, new_posterior: Dict[str, float], uncertainty: float) -> None:
+        self.evidence.append(
+            self.Evidence(
+                description=description,
+                strength=strength,
+                source=source,
+            )
+        )
+
+    def update_posterior(
+        self, new_posterior: Dict[str, float], uncertainty: float
+    ) -> None:
         """Update posterior belief distribution."""
         self.posterior_belief = new_posterior
         self.uncertainty = uncertainty
@@ -208,17 +219,17 @@ class BayesianNode(HypergraphNode):
 class NodeTemplate:
     """
     Template for creating nodes of specific types.
-    
+
     Used by graph builders and orchestrators to create
     consistent nodes with predefined properties.
     """
-    
+
     template_id: str
     node_type: NodeType
     default_payload: Dict[str, Any] = field(default_factory=dict)
     default_metadata: Dict[str, Any] = field(default_factory=dict)
     required_fields: List[str] = field(default_factory=list)
-    
+
     def create_node(self, **kwargs) -> HypergraphNode:
         """Create a node from this template."""
         if self.node_type == NodeType.REASONING:
@@ -273,7 +284,16 @@ __dora_footer__ = {
     "audit_trail": True,
     "dependencies": [],
     "tags": ["data-models", "dataclass", "operations", "queue"],
-    "keywords": ["agent", "bayesian", "create", "edge", "evidence", "executor", "graph", "hypergraph"],
+    "keywords": [
+        "agent",
+        "bayesian",
+        "create",
+        "edge",
+        "evidence",
+        "executor",
+        "graph",
+        "hypergraph",
+    ],
     "business_value": "Provides hypergraph components including NodeType, NodeStatus, HypergraphNode",
     "last_modified": "2026-01-21T21:57:31Z",
     "modified_by": "L9_Codegen_Engine",

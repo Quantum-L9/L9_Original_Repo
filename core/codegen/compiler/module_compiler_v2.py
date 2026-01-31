@@ -44,7 +44,7 @@ __dora_meta__ = {
 
 import os
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -333,7 +333,7 @@ TEMPLATE_MODELS = """\"\"\"
 
 from pydantic import BaseModel, Field
 from typing import Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID, uuid4
 
 
@@ -481,9 +481,7 @@ class ModuleCompilerV2:
         self.normalizer = SpecNormalizer()  # Substrate service
 
     async def compile(
-        self, 
-        spec: Union[dict[str, Any], NormalizedSpec], 
-        output_dir: str | Path
+        self, spec: Union[dict[str, Any], NormalizedSpec], output_dir: str | Path
     ) -> CompilerOutput:
         """
         Compile Module-Spec v2.6 into L9-integrated agent.
@@ -572,11 +570,7 @@ class ModuleCompilerV2:
         )
 
     async def _generate_agent_core(
-        self, 
-        spec: dict, 
-        metadata: dict,
-        normalized: NormalizedSpec,
-        output_dir: Path
+        self, spec: dict, metadata: dict, normalized: NormalizedSpec, output_dir: Path
     ) -> str:
         """Generate core agent file (inherits from BaseAgent)"""
         module_id = normalized.module_id
@@ -629,7 +623,9 @@ class ModuleCompilerV2:
 
         return str(file_path)
 
-    async def _generate_config(self, spec: dict, metadata: dict, output_dir: Path) -> str:
+    async def _generate_config(
+        self, spec: dict, metadata: dict, output_dir: Path
+    ) -> str:
         """Generate config file"""
         module_id = metadata.get("module_id") or self._generate_module_id(
             metadata.get("name", "")
@@ -642,7 +638,9 @@ class ModuleCompilerV2:
         for service in spec.get("dependency_contract", {}).get("external_services", []):
             service_name = service.get("name", "").upper()
             if service_name:
-                config_fields.append(f"    {service_name}_API_KEY: Optional[str] = None")
+                config_fields.append(
+                    f"    {service_name}_API_KEY: Optional[str] = None"
+                )
 
         if not config_fields:
             config_fields.append("    # Add configuration fields here")
@@ -661,7 +659,9 @@ class ModuleCompilerV2:
 
         return str(file_path)
 
-    async def _generate_models(self, spec: dict, metadata: dict, output_dir: Path) -> str:
+    async def _generate_models(
+        self, spec: dict, metadata: dict, output_dir: Path
+    ) -> str:
         """Generate models file"""
         module_id = metadata.get("module_id") or self._generate_module_id(
             metadata.get("name", "")
@@ -669,7 +669,9 @@ class ModuleCompilerV2:
         class_name = self._to_class_name(module_id)
 
         template = Template(TEMPLATE_MODELS)
-        content = template.render(metadata=metadata, module_id=module_id, class_name=class_name)
+        content = template.render(
+            metadata=metadata, module_id=module_id, class_name=class_name
+        )
 
         file_path = output_dir / "models.py"
         file_path.write_text(content)
@@ -677,11 +679,7 @@ class ModuleCompilerV2:
         return str(file_path)
 
     async def _generate_tool_yaml(
-        self, 
-        spec: dict, 
-        metadata: dict,
-        normalized: NormalizedSpec,
-        output_dir: Path
+        self, spec: dict, metadata: dict, normalized: NormalizedSpec, output_dir: Path
     ) -> str:
         """Generate tool YAML config for Neo4j registry"""
         module_id = normalized.module_id
@@ -728,7 +726,9 @@ class ModuleCompilerV2:
 
         return str(file_path)
 
-    async def _generate_tests(self, spec: dict, metadata: dict, output_dir: Path) -> str:
+    async def _generate_tests(
+        self, spec: dict, metadata: dict, output_dir: Path
+    ) -> str:
         """Generate test file"""
         module_id = metadata.get("module_id") or self._generate_module_id(
             metadata.get("name", "")
@@ -738,7 +738,10 @@ class ModuleCompilerV2:
 
         template = Template(TEMPLATE_TESTS)
         content = template.render(
-            metadata=metadata, module_id=module_id, class_name=class_name, module_path=module_path
+            metadata=metadata,
+            module_id=module_id,
+            class_name=class_name,
+            module_path=module_path,
         )
 
         tests_dir = output_dir / "tests"
@@ -773,10 +776,7 @@ __all__ = ["{class_name}Agent", "{class_name}Request", "{class_name}Config"]
         return str(file_path)
 
     async def _generate_readme(
-        self, 
-        metadata: dict, 
-        normalized: NormalizedSpec,
-        output_dir: Path
+        self, metadata: dict, normalized: NormalizedSpec, output_dir: Path
     ) -> str:
         """Generate README"""
         module_id = normalized.module_id
@@ -838,6 +838,7 @@ pytest tests/test_{module_id}_agent.py -v
     def _generate_module_id(self, name: str) -> str:
         """Generate module ID from name"""
         import re
+
         module_id = re.sub(r"[^a-z0-9_]", "_", name.lower())
         module_id = re.sub(r"_+", "_", module_id)
         return module_id.strip("_") or f"module_{uuid4().hex[:8]}"

@@ -306,7 +306,7 @@ class EOSHypergraphClient:
             return False
 
         try:
-            from datetime import datetime
+            from datetime import datetime, timezone
 
             query = """
             MERGE (v:Verdict {id: $verdict_id})

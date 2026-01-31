@@ -54,7 +54,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import math
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 from uuid import UUID

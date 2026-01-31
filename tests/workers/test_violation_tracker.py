@@ -9,7 +9,7 @@ GMP: GMP-Workers-Wiring
 Phase: 4 (VALIDATE)
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest

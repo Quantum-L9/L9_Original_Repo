@@ -44,7 +44,7 @@ __dora_meta__ = {
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, TypeVar
 from uuid import UUID, uuid4
@@ -353,7 +353,9 @@ class BaseCell(ABC):
             logger.error(f"Cell execution failed: {e}")
             errors.append(str(e))
 
-        duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        duration_ms = int(
+            (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        )
 
         return CellResult(
             cell_id=self._cell_id,

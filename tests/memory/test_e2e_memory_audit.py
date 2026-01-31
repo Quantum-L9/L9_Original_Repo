@@ -18,7 +18,7 @@ Run with: pytest tests/memory/test_e2e_memory_audit.py -v
 import asyncio
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -215,7 +215,10 @@ async def audit_neo4j() -> AuditResult:
         entity_result = await neo4j.create_entity(
             entity_type="AuditTest",
             entity_id=test_entity_id,
-            properties={"created_at": datetime.now(timezone.utc).isoformat(), "audit": True},
+            properties={
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "audit": True,
+            },
         )
         result.add_check(
             "entity_creation",

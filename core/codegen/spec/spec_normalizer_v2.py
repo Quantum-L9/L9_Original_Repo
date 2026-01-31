@@ -49,7 +49,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, field, asdict
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional, Union
 from uuid import uuid4
@@ -183,7 +183,9 @@ class NormalizedSpec:
     memory_substrates: tuple[str, ...] = field(default_factory=tuple)
 
     # Metadata
-    normalized_at: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    normalized_at: str = field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+    )
     normalized_from: str = "unknown"  # 'yaml', 'json', 'dict'
 
     def to_dict(self) -> dict[str, Any]:
@@ -291,7 +293,9 @@ class SpecNormalizer:
 
         return await self.normalize_from_dict(data, source="json")
 
-    async def normalize_from_dict(self, data: dict, source: str = "dict") -> NormalizedSpec:
+    async def normalize_from_dict(
+        self, data: dict, source: str = "dict"
+    ) -> NormalizedSpec:
         """
         Parse and normalize from dictionary (main normalization logic).
 
@@ -340,9 +344,15 @@ class SpecNormalizer:
                 memory_access=validated.integration.memory_access,
                 tool_registry=validated.integration.tool_registry,
                 # Dependencies
-                external_services=tuple(validated.dependency_contract.external_services),
-                kernel_requirements=tuple(validated.dependency_contract.kernel_requirements),
-                memory_substrates=tuple(validated.dependency_contract.memory_substrates),
+                external_services=tuple(
+                    validated.dependency_contract.external_services
+                ),
+                kernel_requirements=tuple(
+                    validated.dependency_contract.kernel_requirements
+                ),
+                memory_substrates=tuple(
+                    validated.dependency_contract.memory_substrates
+                ),
                 normalized_from=source,
             )
 

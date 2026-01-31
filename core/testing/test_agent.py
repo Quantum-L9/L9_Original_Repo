@@ -34,7 +34,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -153,7 +153,10 @@ class TestAgent:
                     tests_failed=0,
                     tests_skipped=0,
                     coverage_percent=None,
-                    duration_ms=(datetime.now(timezone.utc) - start_time).total_seconds() * 1000,
+                    duration_ms=(
+                        datetime.now(timezone.utc) - start_time
+                    ).total_seconds()
+                    * 1000,
                     timestamp=datetime.now(timezone.utc),
                     recommendations=["No testable code found in proposal"],
                     test_results=None,
@@ -174,7 +177,9 @@ class TestAgent:
             recommendations = self._generate_recommendations(test_results)
 
             # Calculate duration
-            duration_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            duration_ms = (
+                datetime.now(timezone.utc) - start_time
+            ).total_seconds() * 1000
 
             result = TestAgentResult(
                 run_id=run_id,
@@ -216,7 +221,8 @@ class TestAgent:
                 tests_failed=0,
                 tests_skipped=0,
                 coverage_percent=None,
-                duration_ms=(datetime.now(timezone.utc) - start_time).total_seconds() * 1000,
+                duration_ms=(datetime.now(timezone.utc) - start_time).total_seconds()
+                * 1000,
                 timestamp=datetime.now(timezone.utc),
                 recommendations=["Test generation/execution failed"],
                 test_results=None,
