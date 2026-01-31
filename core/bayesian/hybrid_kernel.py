@@ -179,7 +179,7 @@ class HybridInferenceKernel:
             ).total_seconds() * 1000
 
             return GovernanceDecision(
-                decision_id=f"GOV-{int(start_time.timestamp())}",
+                decision_id=f"GOV-{start_time.timestamp()}",
                 rule_type="deterministic",
                 result=False,  # Blocked
                 confidence=1.0,  # Deterministic = 100% confident
@@ -471,7 +471,10 @@ class HybridInferenceKernel:
             if threshold_name and self.prob_engine:
                 comparison_value = self.prob_engine.get_threshold(threshold_name)
             elif literal_value:
-                comparison_value = float(literal_value)
+                try:
+                    comparison_value = float(literal_value)
+                except (ValueError, TypeError):
+                    comparison_value = 0.5
             else:
                 comparison_value = 0.5
 
@@ -505,14 +508,17 @@ class HybridInferenceKernel:
         # Now evaluate resolved FOL (all predicates replaced with True/False)
         # TODO: Implement full FOL evaluation
         # For now, simple boolean evaluation
-        final_result = "True" in resolved_fol
+        try:
+            final_result = eval(resolved_fol)
+        except:
+            final_result = False
 
         execution_time = (
             datetime.now(UTC) - start_time
         ).total_seconds() * 1000
 
         return GovernanceDecision(
-            decision_id=f"GOV-{int(start_time.timestamp())}",
+            decision_id=f"GOV-{start_time.timestamp()}",
             rule_type="hybrid",
             result=final_result,
             confidence=0.85,

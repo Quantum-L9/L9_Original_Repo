@@ -287,7 +287,7 @@ async def execute_task(
                     max_iterations=body.max_iterations,
                 )
 
-                if first_task_id is None:
+                if i == 0:
                     first_task_id = str(task.id)
 
                 logger.info(

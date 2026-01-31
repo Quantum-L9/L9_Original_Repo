@@ -169,7 +169,7 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
             # Create async client for this call
             slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
             if slack_bot_token:
-                http_client = httpx.AsyncClient()
+                async with httpx.AsyncClient() as http_client:
                 slack_client = SlackAPIClient(
                     bot_token=slack_bot_token, http_client=http_client
                 )
@@ -199,7 +199,7 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
 
                 message = "\n".join(message_parts)
                 await slack_client.post_message(channel=task.channel, text=message)
-                await http_client.aclose()
+                
                 logger.info(
                     f"[MAC-AGENT] Posted result for task {task_id} to Slack channel {task.channel}"
                 )
