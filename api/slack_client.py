@@ -365,6 +365,10 @@ async def post_result_async(
         slack_client = SlackAPIClient(
             bot_token=slack_bot_token, http_client=http_client
         )
+        # Note: http_client should be closed after use
+        _created_client = True
+    else:
+        _created_client = False
 
     try:
         task_id = task.get(
