@@ -167,7 +167,7 @@ async def create_entity(
         return GraphResponse(success=True, data={"entity_id": result})
     except Exception as e:
         logger.error(f"Create entity failed: {e}", exc_info=True)
-        return GraphResponse(success=False, error=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/entity/{entity_type}/{entity_id}", response_model=GraphResponse)
@@ -185,11 +185,11 @@ async def get_entity(
     try:
         result = await client.get_entity(entity_type, entity_id)
         if result is None:
-            return GraphResponse(success=False, error="Entity not found")
+            raise HTTPException(status_code=404, detail="Entity not found")
         return GraphResponse(success=True, data=result)
     except Exception as e:
         logger.error(f"Get entity failed: {e}", exc_info=True)
-        return GraphResponse(success=False, error=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/entity/{entity_type}/{entity_id}", response_model=GraphResponse)
@@ -209,7 +209,7 @@ async def delete_entity(
         return GraphResponse(success=result)
     except Exception as e:
         logger.error(f"Delete entity failed: {e}", exc_info=True)
-        return GraphResponse(success=False, error=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ============================================================================
@@ -240,7 +240,7 @@ async def create_relationship(
         return GraphResponse(success=result)
     except Exception as e:
         logger.error(f"Create relationship failed: {e}", exc_info=True)
-        return GraphResponse(success=False, error=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/relationships/{entity_type}/{entity_id}", response_model=GraphResponse)
@@ -267,7 +267,7 @@ async def get_relationships(
         return GraphResponse(success=True, data=result)
     except Exception as e:
         logger.error(f"Get relationships failed: {e}", exc_info=True)
-        return GraphResponse(success=False, error=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ============================================================================
@@ -294,7 +294,7 @@ async def run_query(
         return GraphResponse(success=True, data=result)
     except Exception as e:
         logger.error(f"Query failed: {e}", exc_info=True)
-        return GraphResponse(success=False, error=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ============================================================================
