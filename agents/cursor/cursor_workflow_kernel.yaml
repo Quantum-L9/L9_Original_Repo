@@ -55,12 +55,24 @@ init:
       fallback: search_memory_for_lessons
 
 # ============================================================================
-# MEMORY OPERATIONS (T1: MCP Tool Mapping)
+# MEMORY OPERATIONS (T1: MCP Tool Mapping) - Updated 2026-01-31
 # ============================================================================
 memory_ops:
-  # MCP tools via /mcp/call endpoint
-  mcp_endpoint: /mcp/call
-  user_id: l9-shared # Shared namespace for L + Cursor
+  # C1 Connection (CRITICAL: Use direct IP to bypass Cloudflare)
+  mcp_base_url: "http://46.62.243.82/memory"
+  mcp_endpoint: "/mcp/call"  # Full: http://46.62.243.82/memory/mcp/call
+  api_key_env: "MCP_API_KEY_C"
+  api_key_value: "4836ea7e0f46c81fd6860c05f1be94577fbb99970fb378c49901cc6cffb9dd07"
+  
+  # RLS Configuration
+  user_id: "l9-shared"  # Shared namespace for L + Cursor
+  caller_id: "C"        # Cursor IDE identifier
+  allowed_scopes: [developer, global]  # C cannot access l-private
+  
+  # IMPORTANT: Use /mcp/call, NOT REST endpoints
+  # REST endpoints (/search, /save) don't set governance context
+  use_rest_endpoints: false
+  use_mcp_call: true
 
   read:
     session_state:
@@ -75,7 +87,7 @@ memory_ops:
       kinds: [preference]
       top_k: 10
     workflow_state:
-      tool: file_read # Local file, not MCP
+      tool: file_read  # Local file, not MCP
       path: workflow_state.md
     mistake_patterns:
       tool: search_memory
@@ -85,6 +97,8 @@ memory_ops:
       top_k: 10
 
   write:
+    # PacketEnvelope v2.0 schema
+    schema_version: "2.0.0"
     derived_specifications:
       tool: save_memory
       kind: insight
@@ -105,7 +119,8 @@ memory_ops:
     - prefer_structured_state
     - no_overwriting_without_versioning
     - maintain_semantic_consistency
-    - dedupe_before_write # Check similarity > 0.8 before saving
+    - dedupe_before_write  # Check similarity > 0.8 before saving
+    - use_mcp_call_not_rest  # Governance context required
 
 # ============================================================================
 # ERROR RECOVERY (T2: Resilience for VPS downtime)
@@ -136,6 +151,18 @@ error_recovery:
     reduce_by_percent: 20
     min_confidence: 0.50
     require_extra_validation: true
+
+  # Cloudflare blocking (error code 1010)
+  cloudflare_blocked:
+    symptom: "error code: 1010"
+    cause: "Domain goes through Cloudflare which blocks Python user-agent"
+    fix: "Use direct IP 46.62.243.82 instead of l9.quantumaipartners.com"
+    
+  # Governance context missing
+  governance_context_required:
+    symptom: "Governance context required for memory operation"
+    cause: "Using REST endpoint instead of MCP /mcp/call"
+    fix: "Always use /mcp/call endpoint for memory operations"
 
 # ============================================================================
 # TODO TRACKING

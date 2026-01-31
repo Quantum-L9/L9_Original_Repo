@@ -47,10 +47,22 @@ Cursor Memory Client — Access L9 Memory Substrate via MCP Tools
     MCP_API_KEY_C: API key for Cursor (PRIMARY)
         - This key identifies caller as "C" (Cursor IDE)
         - Required for all MCP operations
+        - Value: 4836ea7e0f46c81fd6860c05f1be94577fbb99970fb378c49901cc6cffb9dd07
 
-    L9_API_URL: Server URL
-        - VPS: https://l9.quantumaipartners.com (production)
+    MCP_URL: MCP Memory endpoint
+        - MUST use direct IP: http://46.62.243.82/memory
+        - Domain (l9.quantumaipartners.com) is BLOCKED by Cloudflare for Python
+        - nginx routes /memory/* to l9-mcp-memory:9002/*
+
+    L9_API_URL: L9 API endpoint (fallback for graph/cache)
+        - Direct IP: http://46.62.243.82
         - Local: http://127.0.0.1:8000 (Docker)
+
+## QUICK START
+
+    export MCP_API_KEY_C="4836ea7e0f46c81fd6860c05f1be94577fbb99970fb378c49901cc6cffb9dd07"
+    export MCP_URL="http://46.62.243.82/memory"
+    python3 agents/cursor/cursor_memory_client.py health
 
 ## SCHEMA
 
@@ -135,12 +147,26 @@ if env_path.exists():
             key, _, value = line.partition("=")
             os.environ.setdefault(key.strip(), value.strip())
 
-# PRODUCTION: C1 Hetzner (PRIMARY). Use mcp.quantumaipartners.com to bypass Cloudflare WAF.
-# Legacy l9.quantumaipartners.com (157.180.73.53) is OFF LIMITS.
-L9_API_URL = os.getenv("L9_API_URL", "http://mcp.quantumaipartners.com:30080")
-# MCP Memory Server (separate from L9 API)
-MCP_URL = os.getenv("MCP_URL", "http://mcp.quantumaipartners.com:30902")
-# MCP_API_KEY_C is the correct key for Cursor (not L9_EXECUTOR_API_KEY)
+# =============================================================================
+# C1 HETZNER CONNECTION (Updated 2026-01-31)
+# =============================================================================
+# CRITICAL: Use direct IP to bypass Cloudflare (blocks Python user-agent)
+#
+# nginx on C1 routes:
+#   /memory/* -> l9-mcp-memory:9002/* (strips /memory/ prefix)
+#   /*        -> l9-api:8000/*
+#
+# Domain l9.quantumaipartners.com goes through Cloudflare which blocks Python.
+# Direct IP 46.62.243.82 bypasses Cloudflare.
+# =============================================================================
+
+# MCP Memory endpoint (PRIMARY) - use direct IP to bypass Cloudflare
+MCP_URL = os.getenv("MCP_URL", "http://46.62.243.82/memory")
+
+# L9 API URL (FALLBACK for graph/cache) - also use direct IP
+L9_API_URL = os.getenv("L9_API_URL", "http://46.62.243.82")
+
+# MCP_API_KEY_C is the correct key for Cursor (caller_id: "C")
 # Fallback chain: MCP_API_KEY_C -> L9_EXECUTOR_API_KEY (legacy)
 L9_EXECUTOR_API_KEY = os.getenv("MCP_API_KEY_C") or os.getenv("L9_EXECUTOR_API_KEY", "")
 

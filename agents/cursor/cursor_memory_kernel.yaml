@@ -48,12 +48,99 @@ init:
     fallback_on_failure: degraded_mode
 
 # ============================================================================
+# C1 SERVER CONNECTION (BINDING - Updated 2026-01-31)
+# ============================================================================
+connection:
+  # CRITICAL: Use direct IP to bypass Cloudflare (blocks Python user-agent)
+  primary_endpoint: "http://46.62.243.82/memory"
+  domain_endpoint: "http://l9.quantumaipartners.com/memory"  # BLOCKED by Cloudflare for Python
+  
+  # API Key for Cursor IDE (caller_id: "C")
+  api_key_env: "MCP_API_KEY_C"
+  api_key_value: "4836ea7e0f46c81fd6860c05f1be94577fbb99970fb378c49901cc6cffb9dd07"
+  
+  # nginx routing: /memory/* -> strips prefix -> l9-mcp-memory:9002/*
+  mcp_call_path: "/mcp/call"
+  health_path: "/health"
+  
+  env_setup: |
+    export MCP_API_KEY_C="4836ea7e0f46c81fd6860c05f1be94577fbb99970fb378c49901cc6cffb9dd07"
+    export MCP_URL="http://46.62.243.82/memory"
+
+# ============================================================================
+# RLS (Row-Level Security) CONFIGURATION (BINDING)
+# ============================================================================
+rls:
+  # Shared namespace for L + Cursor operations
+  user_id: "l9-shared"
+  
+  # RLS UUIDs (deterministic, generated from config/rls_config.py)
+  tenant_uuid: "73350468-3158-5d0f-9b8c-9b193d96fc4b"
+  org_uuid: "14910cef-fea1-51d7-9a28-05579e6c0c18"
+  user_uuid: "2f00c090-3816-51a0-806c-34d32522a070"
+  
+  # Caller identity determines scope access
+  caller_identities:
+    C:  # Cursor IDE
+      allowed_scopes: [developer, global]
+      cannot_access: [l-private]
+    L:  # L-CTO kernel
+      allowed_scopes: [developer, global, l-private]
+
+# ============================================================================
+# GOVERNANCE CONTEXT (BINDING)
+# ============================================================================
+governance:
+  # All memory operations require governance context
+  required_for:
+    - fetch_all
+    - execute
+    - search_memory
+    - save_memory
+  
+  # Context is set automatically by MCP /mcp/call endpoint
+  # REST endpoints (/search, /save) do NOT set context - use /mcp/call instead
+  use_mcp_call: true
+  avoid_rest_endpoints: true
+  
+  # Scope enforcement
+  scope_filtering:
+    cursor_cannot_see: l-private
+    default_scopes: [developer, global]
+
+# ============================================================================
+# PACKETENVELOPE v2.0 SCHEMA (BINDING)
+# ============================================================================
+packet_schema:
+  version: "2.0.0"
+  supported_versions: ["1.0.0", "1.0.1", "1.1.0", "1.1.1", "2.0.0"]
+  
+  required_fields:
+    - packet_id        # UUID, auto-generated
+    - source_id        # "cursor_session"
+    - agent_id         # "cursor"
+    - thread_id        # Daily session UUID
+    - kind             # REASONING, TOOL_CALL, DECISION, MEMORY_WRITE
+    - payload          # dict with content
+    - metadata         # timestamps, creator, project_id
+    - content_hash     # SHA-256 for integrity
+  
+  payload_structure:
+    content: "string"  # The actual memory content
+    kind: "string"     # preference, lesson, error, insight, note, context
+    scope: "string"    # developer, global, l-private
+    duration: "string" # short (24h), medium (30d), long (permanent)
+    tags: ["list"]     # Optional L9 hierarchical tags
+    importance: 0.0-1.0
+
+# ============================================================================
 # MEMORY STACK HIERARCHY
 # ============================================================================
 memory_stack:
   primary:
     name: mcp_memory
     description: "PacketStore + pgvector on C1 via MCP tools"
+    endpoint: "http://46.62.243.82/memory/mcp/call"
     use_for:
       - persistent_lessons
       - preferences
@@ -520,6 +607,31 @@ degraded_mode:
     - Using file-based context only (workflow_state.md)
     - Memory writes disabled until MCP restored
     - Run `python3 agents/cursor/cursor_memory_client.py health` to check status
+
+# ============================================================================
+# TROUBLESHOOTING (Common Issues)
+# ============================================================================
+troubleshooting:
+  error_code_1010:
+    cause: "Cloudflare blocking Python user-agent"
+    fix: "Use direct IP 46.62.243.82 instead of domain"
+    
+  governance_context_required:
+    cause: "REST endpoint doesn't set governance context"
+    fix: "Use /mcp/call endpoint, not /search or /save directly"
+    
+  content_null_in_search:
+    cause: "Old data has double-encoded JSONB payload"
+    fix: "New writes (after 2026-01-31) are correct. Old data needs migration."
+    
+  invalid_api_key:
+    cause: "Wrong API key or missing Authorization header"
+    fix: "Set MCP_API_KEY_C env var with Cursor's API key"
+    
+  container_needs_rebuild:
+    command: |
+      ssh -i ~/.ssh/Hetzner-C1-nopass root@46.62.243.82 \
+        "cd /opt/l9 && git pull origin main && docker compose build l9-mcp-memory && docker compose up -d l9-mcp-memory"
 
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
