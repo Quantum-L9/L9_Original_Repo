@@ -1892,11 +1892,11 @@ def generate_decorator_catalog():
 
 def generate_adr_catalog():
     """Generate catalog of Architecture Decision Records (ADRs)."""
-    from datetime import datetime
+    from datetime import UTC, datetime
 
     lines = [
         "# L9 Architecture Decision Record (ADR) Catalog",
-        f"# Generated: {datetime.now().strftime('%Y-%m-%d')}",
+        f"# Generated: {datetime.now(UTC).strftime('%Y-%m-%d')}",
     ]
 
     adr_dir = os.path.join(REPO_DIR, "readme", "adr")
@@ -2003,11 +2003,11 @@ def generate_adr_catalog():
 
 def generate_readme_manifest():
     """Generate manifest of all README.md files with descriptions for AI reference."""
-    from datetime import datetime
+    from datetime import UTC, datetime
 
     lines = [
         "# L9 README File Manifest",
-        f"# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M')}",
+        f"# Generated: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M')}",
         "#",
         "# AI Reference: Quick lookup for module documentation",
         "# Each entry shows: PATH | TITLE | DESCRIPTION",
@@ -2323,6 +2323,77 @@ def main():
     logger.info("   8. migration_catalog.txt - schema evolution")
     logger.info("   9. tree.txt - directory structure")
     logger.info("   10. test_catalog.txt - test coverage")
+
+    # Phase 2: Ingest to Memory (pgvector)
+    logger.info("\n" + "=" * 60)
+    logger.info("🧠 PHASE 2: Ingesting indexes to L9 Memory...")
+    logger.info("=" * 60)
+    try:
+        import subprocess
+
+        result = subprocess.run(
+            [sys.executable, "scripts/memory/ingest_repo_indexes.py", "--verbose"],
+            capture_output=True,
+            text=True,
+            cwd=REPO_DIR,
+        )
+        if result.returncode == 0:
+            logger.info("✅ Memory ingestion complete")
+            # Show summary from output
+            for line in result.stdout.split("\n"):
+                if "Ingested" in line or "📄" in line:
+                    logger.info(f"   {line.strip()}")
+        else:
+            logger.warning(f"⚠️ Memory ingestion failed: {result.stderr[:200]}")
+    except Exception as e:
+        logger.warning(f"⚠️ Memory ingestion skipped: {e}")
+
+    # Phase 3: Load to Neo4j (graph)
+    logger.info("\n" + "=" * 60)
+    logger.info("🔷 PHASE 3: Loading indexes to Neo4j graph...")
+    logger.info("=" * 60)
+    try:
+        # Check if Neo4j credentials are available
+        # Prefer C1 external URL for local script execution
+        neo4j_url = os.getenv("NEO4J_URL") or os.getenv("NEO4J_URI")
+        neo4j_password = os.getenv("NEO4J_PASSWORD")
+
+        # If using Docker internal URL, switch to C1 external
+        if neo4j_url and "neo4j:7687" in neo4j_url:
+            neo4j_url = "bolt://46.62.243.82:30687"
+            os.environ["NEO4J_URL"] = neo4j_url
+            logger.info(f"   Using C1 external Neo4j: {neo4j_url}")
+
+        if neo4j_url and neo4j_password:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "scripts/memory/load_indexes_to_neo4j.py",
+                    "--verbose",
+                ],
+                capture_output=True,
+                text=True,
+                cwd=REPO_DIR,
+            )
+            if result.returncode == 0:
+                logger.info("✅ Neo4j loading complete")
+                for line in result.stdout.split("\n"):
+                    if "Loaded" in line or "nodes" in line or "relationships" in line:
+                        logger.info(f"   {line.strip()}")
+            else:
+                logger.warning(f"⚠️ Neo4j loading failed: {result.stderr[:200]}")
+        else:
+            logger.info("⏭️ Neo4j loading skipped (NEO4J_URL or NEO4J_PASSWORD not set)")
+            logger.info("   Set environment variables to enable graph loading")
+    except Exception as e:
+        logger.warning(f"⚠️ Neo4j loading skipped: {e}")
+
+    logger.info("\n" + "=" * 60)
+    logger.info("✨ FULL PIPELINE COMPLETE")
+    logger.info("=" * 60)
+    logger.info("📂 Files: reports/repo-index/")
+    logger.info("🧠 Memory: pgvector embeddings (semantic search)")
+    logger.info("🔷 Graph: Neo4j (relationship queries)")
 
 
 if __name__ == "__main__":

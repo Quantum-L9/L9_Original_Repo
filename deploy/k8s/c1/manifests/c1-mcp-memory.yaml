@@ -83,6 +83,23 @@ spec:
                   key: mcp-api-key
                   optional: true
 
+            # Neo4j Graph Database (REQUIRED per ADR-0082)
+            - name: NEO4J_URL
+              value: "bolt://l9-neo4j:7687"
+            - name: NEO4J_URI
+              value: "bolt://l9-neo4j:7687"
+            - name: NEO4J_USER
+              valueFrom:
+                secretKeyRef:
+                  name: l9-secrets
+                  key: neo4j-user
+                  optional: true
+            - name: NEO4J_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: l9-secrets
+                  key: neo4j-password
+
             # OpenAI Embeddings
             - name: OPENAI_API_KEY
               valueFrom:

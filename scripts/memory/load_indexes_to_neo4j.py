@@ -6,10 +6,24 @@ load_indexes_to_neo4j.py - L9 Repository Graph Loader
 Loads repository index files into Neo4j for graph-based code navigation.
 
 Created: 2026-01-06
-Version: 1.0.0
+Version: 1.1.0
+
+CONNECTION METHODS (in priority order):
+1. MCP via HTTP proxy (--mcp): Uses graph_query MCP tool via nginx
+   - Works through reverse proxy: http://46.62.243.82/memory/mcp/call
+   - No direct Neo4j connection needed
+   - Requires: MCP_URL, MCP_API_KEY_C env vars
+
+2. Direct Bolt (default): Connects directly to Neo4j bolt port
+   - Requires: NEO4J_URL, NEO4J_PASSWORD env vars
+   - For local or when bolt port is accessible
 
 Usage:
-    python3 scripts/load_indexes_to_neo4j.py [--dry-run] [--verbose]
+    # Via MCP proxy (recommended for remote access)
+    python3 scripts/memory/load_indexes_to_neo4j.py --mcp --verbose
+
+    # Via direct bolt connection
+    python3 scripts/memory/load_indexes_to_neo4j.py --verbose
 
 Loads:
     - class_definitions.txt → Class nodes
@@ -43,9 +57,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import argparse
+import json
 import os
 import re
+import ssl
 import sys
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 import structlog
@@ -54,16 +72,83 @@ logger = structlog.get_logger(__name__)
 
 # Configuration - use relative path from script location
 REPO_DIR = Path(__file__).parent.parent.parent
-INDEX_DIR = REPO_DIR / "readme" / "repo-index"
+INDEX_DIR = REPO_DIR / "reports" / "repo-index"  # Fixed: was readme/repo-index
 
-# Try to import Neo4j
+# MCP Configuration (for HTTP proxy method)
+MCP_URL = os.getenv("MCP_URL", "http://46.62.243.82/memory")
+MCP_API_KEY = os.getenv("MCP_API_KEY_C") or os.getenv("L9_EXECUTOR_API_KEY")
+
+# Try to import Neo4j (for direct bolt method)
 try:
-    from neo4j import GraphDatabase, basic_auth
+    from neo4j import Driver, GraphDatabase, basic_auth
 
     HAS_NEO4J = True
 except ImportError:
     HAS_NEO4J = False
+    Driver = None  # type: ignore[misc,assignment]
     logger.warning("Neo4j driver not installed. Run: pip install neo4j")
+
+
+# =============================================================================
+# MCP Client for Neo4j (HTTP Proxy Method)
+# =============================================================================
+
+
+def mcp_graph_query(cypher: str, parameters: dict | None = None) -> list[dict]:
+    """
+    Execute Cypher query via MCP graph_query tool.
+
+    Uses HTTP proxy to access Neo4j without direct bolt connection.
+    """
+    if not MCP_API_KEY:
+        logger.error("MCP_API_KEY_C not set")
+        return []
+
+    url = f"{MCP_URL}/mcp/call"
+    headers = {
+        "Authorization": f"Bearer {MCP_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    payload = {
+        "tool_name": "graph_query",
+        "arguments": {
+            "query": cypher,
+            "parameters": parameters or {},
+        },
+    }
+
+    body = json.dumps(payload).encode()
+    req = urllib.request.Request(url, data=body, headers=headers, method="POST")
+
+    # SSL context for HTTPS
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+
+    try:
+        with urllib.request.urlopen(req, timeout=30, context=ssl_context) as response:
+            result = json.loads(response.read().decode())
+            if result.get("status") == "success":
+                inner = result.get("result", {})
+                if inner.get("error"):
+                    logger.error(f"MCP graph_query error: {inner.get('error')}")
+                    return []
+                return inner.get("records", [])
+            logger.error(f"MCP call failed: {result}")
+            return []
+    except urllib.error.URLError as e:
+        logger.error(f"MCP connection error: {e}")
+        return []
+    except Exception as e:
+        logger.error(f"MCP graph_query failed: {e}")
+        return []
+
+
+def check_mcp_neo4j_available() -> bool:
+    """Check if Neo4j is available via MCP."""
+    result = mcp_graph_query("RETURN 1 as test")
+    return len(result) > 0
 
 
 class RepoGraphLoader:
@@ -99,7 +184,7 @@ class RepoGraphLoader:
         self.database = database
         self.dry_run = dry_run
         self.verbose = verbose
-        self.driver = None
+        self.driver: Driver | None = None
         self.stats = {
             "files": 0,
             "classes": 0,
@@ -127,6 +212,10 @@ class RepoGraphLoader:
             return False
 
         try:
+            # Type guard - we checked password above, uri/user have defaults
+            assert self.uri is not None
+            assert self.user is not None
+            assert self.password is not None
             self.driver = GraphDatabase.driver(
                 self.uri,
                 auth=basic_auth(self.user, self.password),
@@ -531,6 +620,175 @@ class RepoGraphLoader:
             logger.info("✅ Graph loaded to Neo4j")
 
 
+# =============================================================================
+# MCP-Based Graph Loader (HTTP Proxy Method)
+# =============================================================================
+
+
+class MCPRepoGraphLoader:
+    """
+    Loads repository indexes via MCP HTTP proxy.
+
+    Uses graph_query MCP tool instead of direct bolt connection.
+    """
+
+    def __init__(self, dry_run: bool = False, verbose: bool = False):
+        self.dry_run = dry_run
+        self.verbose = verbose
+        self.stats = {
+            "files": 0,
+            "classes": 0,
+            "functions": 0,
+            "methods": 0,
+            "routes": 0,
+            "pydantic_models": 0,
+            "extends_rels": 0,
+            "has_method_rels": 0,
+            "handled_by_rels": 0,
+        }
+
+    def _run_query(self, cypher: str, parameters: dict | None = None) -> list:
+        """Execute Cypher via MCP."""
+        if self.dry_run:
+            if self.verbose:
+                logger.debug(f"DRY RUN: {cypher[:100]}...")
+            return []
+        return mcp_graph_query(cypher, parameters)
+
+    def load_classes(self) -> int:
+        """Load class definitions via MCP."""
+        filepath = INDEX_DIR / "class_definitions.txt"
+        if not filepath.exists():
+            return 0
+
+        count = 0
+        with open(filepath) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                # Format: path::ClassName or path::ClassName(bases)
+                if "::" not in line:
+                    continue
+                parts = line.split("::")
+                if len(parts) < 2:
+                    continue
+                path = parts[0]
+                class_info = parts[1]
+                class_name = class_info.split("(")[0].strip()
+
+                cypher = """
+                MERGE (c:Class {name: $name})
+                SET c.file_path = $path, c.updated_at = datetime()
+                """
+                self._run_query(cypher, {"name": class_name, "path": path})
+                count += 1
+
+        self.stats["classes"] = count
+        if self.verbose:
+            logger.info(f"Loaded {count} classes")
+        return count
+
+    def load_functions(self) -> int:
+        """Load function signatures via MCP."""
+        filepath = INDEX_DIR / "function_signatures.txt"
+        if not filepath.exists():
+            return 0
+
+        count = 0
+        with open(filepath) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                # Format: def function_name(args) -> return_type @ path:line
+                match = re.match(r"def\s+(\w+)\s*\(([^)]*)\).*@\s*(.+):(\d+)", line)
+                if not match:
+                    continue
+                func_name, args, path, line_num = match.groups()
+
+                cypher = """
+                MERGE (f:Function {name: $name, file_path: $path})
+                SET f.args = $args, f.line = $line, f.updated_at = datetime()
+                """
+                self._run_query(
+                    cypher,
+                    {
+                        "name": func_name,
+                        "path": path,
+                        "args": args,
+                        "line": int(line_num),
+                    },
+                )
+                count += 1
+
+        self.stats["functions"] = count
+        if self.verbose:
+            logger.info(f"Loaded {count} functions")
+        return count
+
+    def load_inheritance(self) -> int:
+        """Load inheritance relationships via MCP."""
+        filepath = INDEX_DIR / "inheritance_graph.txt"
+        if not filepath.exists():
+            return 0
+
+        count = 0
+        with open(filepath) as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                # Format: ChildClass → ParentClass
+                if "→" not in line:
+                    continue
+                parts = line.split("→")
+                if len(parts) != 2:
+                    continue
+                child = parts[0].strip()
+                parent = parts[1].strip()
+
+                cypher = """
+                MERGE (child:Class {name: $child})
+                MERGE (parent:Class {name: $parent})
+                MERGE (child)-[:EXTENDS]->(parent)
+                """
+                self._run_query(cypher, {"child": child, "parent": parent})
+                count += 1
+
+        self.stats["extends_rels"] = count
+        if self.verbose:
+            logger.info(f"Loaded {count} inheritance relationships")
+        return count
+
+    def load_all(self) -> bool:
+        """Load all indexes via MCP."""
+        try:
+            self.load_classes()
+            self.load_functions()
+            self.load_inheritance()
+            return True
+        except Exception as e:
+            logger.error(f"MCP load failed: {e}")
+            return False
+
+    def print_summary(self):
+        """Print loading summary."""
+        logger.info("")
+        logger.info("=" * 60)
+        logger.info("L9 REPO GRAPH - MCP LOAD SUMMARY")
+        logger.info("=" * 60)
+        logger.info(f"  Classes:         {self.stats['classes']}")
+        logger.info(f"  Functions:       {self.stats['functions']}")
+        logger.info("------------------------------------------------------------")
+        logger.info(f"  EXTENDS rels:    {self.stats['extends_rels']}")
+        logger.info("=" * 60)
+        if self.dry_run:
+            logger.info("⚠️  DRY RUN - no data was loaded to Neo4j")
+        else:
+            logger.info("✅ Graph loaded to Neo4j via MCP")
+
+
 def main():
     """
     Performs the main execution for loading repository indexes into Neo4j for graph-based code navigation.
@@ -567,6 +825,11 @@ def main():
         help="Neo4j database name (default: neo4j)",
     )
     parser.add_argument(
+        "--mcp",
+        action="store_true",
+        help="Use MCP HTTP proxy (recommended for remote access, no direct bolt needed)",
+    )
+    parser.add_argument(
         "--vps",
         action="store_true",
         help="Load to VPS Neo4j (requires SSH tunnel: ssh -L 7687:127.0.0.1:7687 root@157.180.73.53)",
@@ -585,7 +848,33 @@ def main():
         logger.info("Run 'python3 tools/export_repo_indexes.py' first")
         sys.exit(1)
 
-    # Determine Neo4j URI
+    # MCP mode - use HTTP proxy instead of direct bolt
+    if args.mcp:
+        logger.info("Using MCP HTTP proxy for Neo4j access")
+        logger.info(f"MCP URL: {MCP_URL}")
+
+        if not MCP_API_KEY:
+            logger.error("MCP_API_KEY_C not set")
+            sys.exit(1)
+
+        # Check if Neo4j is available via MCP
+        if not check_mcp_neo4j_available():
+            logger.error("Neo4j not available via MCP")
+            logger.info("Check that Neo4j is configured in MCP server on C1")
+            sys.exit(1)
+
+        logger.info("✅ Neo4j available via MCP proxy")
+
+        # Use MCP-based loader
+        loader = MCPRepoGraphLoader(
+            dry_run=args.dry_run,
+            verbose=args.verbose,
+        )
+        success = loader.load_all()
+        loader.print_summary()
+        sys.exit(0 if success else 1)
+
+    # Direct bolt mode
     uri = args.uri
     if args.vps and not uri:
         # VPS Neo4j via SSH tunnel: ssh -L 7687:127.0.0.1:7687 root@157.180.73.53
