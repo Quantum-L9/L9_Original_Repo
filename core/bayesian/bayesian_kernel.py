@@ -200,7 +200,7 @@ Format reasoning as:
     @staticmethod
     def _timestamp() -> str:
         """Get current ISO timestamp."""
-        return datetime.now(timezone.utc).isoformat() + "Z"
+        return datetime.now(timezone.utc).isoformat()
 
     def get_belief_state(self, variable: str) -> Optional[BeliefState]:
         """Get belief state for a variable."""
@@ -215,10 +215,16 @@ Format reasoning as:
 _bayesian_kernel: Optional[BayesianKernel] = None
 
 
+import threading
+
+_kernel_lock = threading.Lock()
+
 def get_bayesian_kernel() -> BayesianKernel:
     """Get or create global Bayesian kernel instance."""
     global _bayesian_kernel
     if _bayesian_kernel is None:
+        with _kernel_lock:
+            if _bayesian_kernel is None:
         _bayesian_kernel = BayesianKernel()
     return _bayesian_kernel
 

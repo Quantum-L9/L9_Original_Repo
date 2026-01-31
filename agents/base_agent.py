@@ -54,6 +54,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
+import threading
 from uuid import UUID, uuid4
 
 import structlog
@@ -98,7 +99,7 @@ class AgentMessage:
     role: str = "user"  # system, user, assistant
     content: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, str]:
         """Convert to OpenAI message format."""
@@ -117,7 +118,7 @@ class AgentResponse:
     duration_ms: int = 0
     success: bool = True
     error: str | None = None
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Returns a dictionary representation of the agent response, including response ID, agent ID, truncated content, and success status."""
@@ -178,7 +179,9 @@ class BaseAgent(ABC):
     def _ensure_client(self) -> AsyncOpenAI:
         """Ensure OpenAI client is initialized."""
         if self._client is None:
-            self._client = AsyncOpenAI(api_key=self._config.api_key)
+            with threading.Lock():
+                if self._client is None:
+                    self._client = AsyncOpenAI(api_key=self._config.api_key)
         return self._client
 
     # ==========================================================================
@@ -291,7 +294,8 @@ class BaseAgent(ABC):
             if json_mode:
                 try:
                     structured_output = json.loads(content)
-                except json.JSONDecodeError:
+                except json.JSONDecodeError as e:
+                    logger.warning("Failed to decode JSON from LLM response", error=str(e), response_text=content)
                     structured_output = self._extract_json(content)
 
             return AgentResponse(
@@ -303,7 +307,7 @@ class BaseAgent(ABC):
                 success=True,
             )
 
-        except Exception as e:
+        except (openai.APIError, openai.Timeout) as e:
             logger.error(f"LLM call failed for {self._agent_id} after retries: {e}")
             duration_ms = int(
                 (datetime.now(UTC) - start_time).total_seconds() * 1000
@@ -424,7 +428,7 @@ class BaseAgent(ABC):
                 "model": self._config.model,
                 "error": response.error,
             }
-        except Exception as e:
+        except (openai.APIError, openai.Timeout) as e:
             return {
                 "status": "unhealthy",
                 "agent_id": self._agent_id,

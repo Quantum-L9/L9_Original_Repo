@@ -83,7 +83,7 @@ class PhaseResult:
         Raises:
             AttributeError: If required attributes are missing during post-initialization.
         """
-        if not self.success and self.error and not self.error_code:
+        if not self.success and isinstance(self.error, Exception) and not self.error_code:
             # Auto-generate error code if missing
             self.error_code = f"BOOTSTRAP_PHASE{self.phase}_{self.name.upper()}_FAILED"
 
@@ -128,15 +128,10 @@ class AgentBootstrapContext:
         """
         # Safe serialization that handles non-serializable config
         config_dict = {}
-        if hasattr(self.config, "__dict__"):
-            config_dict = {
-                k: v
-                for k, v in self.config.__dict__.items()
-                if not k.startswith("_")
-                and isinstance(v, (str, int, float, bool, list, dict, type(None)))
-            }
-        elif isinstance(self.config, dict):
-            config_dict = self.config
+        try:
+            config_dict = json.loads(self.config.json(exclude_unset=True, by_alias=True))
+        except Exception:
+            config_dict = {}
 
         data = {
             "agent_id": self.agent_id,

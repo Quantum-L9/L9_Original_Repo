@@ -41,6 +41,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
+import asyncio
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -106,6 +107,7 @@ class OpenAILLMService:
 
         # Lazy client initialization
         self._client: AsyncOpenAI | None = None
+        self._lock = asyncio.Lock()
 
         logger.info(
             "OpenAILLMService initialized",
@@ -113,9 +115,11 @@ class OpenAILLMService:
             embedding_model=self._default_embedding_model,
         )
 
-    def _get_client(self) -> AsyncOpenAI:
+    async def _get_client(self) -> AsyncOpenAI:
         """Get or create AsyncOpenAI client."""
         if self._client is None:
+            async with self._lock:
+                if self._client is None:
             try:
                 from openai import AsyncOpenAI
 
@@ -147,7 +151,7 @@ class OpenAILLMService:
         Returns:
             Generated text
         """
-        client = self._get_client()
+        client = await self._get_client()
         model_name = model or self._default_model
 
         logger.debug(
@@ -198,7 +202,7 @@ class OpenAILLMService:
         Returns:
             Generated response text
         """
-        client = self._get_client()
+        client = await self._get_client()
         model_name = model or self._default_model
 
         logger.debug(
@@ -258,7 +262,7 @@ class OpenAILLMService:
         Returns:
             Embedding vector as list of floats
         """
-        client = self._get_client()
+        client = await self._get_client()
         model_name = model or self._default_embedding_model
 
         logger.debug(

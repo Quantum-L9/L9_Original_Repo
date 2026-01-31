@@ -47,6 +47,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import uuid
+import threading
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, TypedDict
@@ -283,7 +284,7 @@ class ResearchGraphPersistence:
                 error=str(e),
                 exc_info=True,
             )
-            raise
+            raise e
 
     @must_stay_async("callers use await")
     async def link_finding_to_query(
@@ -625,13 +626,18 @@ def get_graph_persistence() -> ResearchGraphPersistence | None:
     return _persistence
 
 
+_persistence_lock = threading.Lock()
+
 def init_graph_persistence(
     neo4j_client: Any,
     config: GraphPersistenceConfig | None = None,
 ) -> ResearchGraphPersistence:
     """Initialize the singleton persistence instance."""
     global _persistence
-    _persistence = create_graph_persistence(neo4j_client, config)
+    if _persistence is None:
+        with _persistence_lock:
+            if _persistence is None:
+                _persistence = create_graph_persistence(neo4j_client, config)
     return _persistence
 
 

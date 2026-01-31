@@ -35,6 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from typing import Any
+import threading
 
 import structlog
 
@@ -58,6 +59,7 @@ def _validate_agent_class(cls: type) -> bool:
 agent_registry = AutoRegistry[type](
     name="agents", validator=_validate_agent_class, allow_duplicates=False
 )
+agent_registry_lock = threading.Lock()
 
 
 def register_agent(
@@ -112,6 +114,7 @@ def register_agent(
         """
         # Register the class directly (not as a factory)
         agent_name = name or cls.__name__
+        with agent_registry_lock:
         agent_registry.register_instance(
             component_id=agent_name,
             component=cls,
@@ -302,7 +305,8 @@ def register_legacy_agents() -> int:
                 agent_cls = getattr(mod, agent_name, None)
 
                 if agent_cls:
-                    agent_registry.register_instance(
+                    with agent_registry_lock:
+        agent_registry.register_instance(
                         component_id=agent_name,
                         component=agent_cls,
                         priority=10 if role == "cto" else 5,
@@ -313,7 +317,7 @@ def register_legacy_agents() -> int:
                     )
                     registered += 1
                     logger.debug("legacy_agent_registered", agent=agent_name, role=role)
-        except Exception as e:
+        except (ImportError, AttributeError) as e:
             logger.debug("legacy_agent_skip", agent=agent_name, error=str(e))
 
     if registered > 0:

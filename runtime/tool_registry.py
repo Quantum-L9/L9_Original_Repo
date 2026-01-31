@@ -35,6 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from collections.abc import Callable
+import threading
 from typing import Any, ParamSpec, TypeVar
 
 import structlog
@@ -62,6 +63,7 @@ def _validate_tool_executor(func: Callable) -> bool:
 tool_executor_registry = AutoRegistry[Callable](
     name="tool_executors", validator=_validate_tool_executor, allow_duplicates=False
 )
+_tool_registry_lock = threading.Lock()
 
 
 def register_tool(
@@ -106,7 +108,8 @@ def register_tool(
         """
         # Register the function directly (not as a factory)
         tool_name = name or func.__name__
-        tool_executor_registry.register_instance(
+        with _tool_registry_lock:
+            tool_executor_registry.register_instance(
             component_id=tool_name,
             component=func,
             priority=priority,

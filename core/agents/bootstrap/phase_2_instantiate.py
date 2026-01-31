@@ -210,7 +210,7 @@ async def _init_redis_working_memory(
         # Set with TTL (24 hours)
         await redis.set(
             key,
-            json.dumps(initial_state),
+            json.dumps(initial_state, default=str),
             ex=WORKING_MEMORY_TTL_SECONDS,
         )
 
