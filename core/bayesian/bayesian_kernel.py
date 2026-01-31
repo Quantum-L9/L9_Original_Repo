@@ -35,10 +35,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Dict, Any, Optional, List
+import threading
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from enum import Enum
-from datetime import datetime, timezone
+from typing import Any
 
 
 class EvidenceStrength(str, Enum):
@@ -55,9 +56,9 @@ class BeliefState:
     """Represents current belief about a variable."""
 
     variable: str
-    prior: Dict[str, float]  # Prior probability distribution
-    posterior: Dict[str, float]  # Posterior after updates
-    evidence: List[Dict[str, Any]]  # Evidence items
+    prior: dict[str, float]  # Prior probability distribution
+    posterior: dict[str, float]  # Posterior after updates
+    evidence: list[dict[str, Any]]  # Evidence items
     confidence: float  # Confidence in posterior [0, 1]
     updated_at: str  # Timestamp of last update
 
@@ -81,7 +82,7 @@ class BayesianKernel:
         self.enabled = (
             os.environ.get("L9_ENABLE_BAYESIAN_REASONING", "false").lower() == "true"
         )
-        self.belief_states: Dict[str, BeliefState] = {}
+        self.belief_states: dict[str, BeliefState] = {}
         self.system_prompt_section = self._build_system_prompt()
 
     def _build_system_prompt(self) -> str:
@@ -126,8 +127,8 @@ Format reasoning as:
     def create_belief_state(
         self,
         variable: str,
-        prior: Dict[str, float],
-        metadata: Optional[Dict[str, Any]] = None,
+        prior: dict[str, float],
+        metadata: dict[str, Any] | None = None,
     ) -> BeliefState:
         """Create new belief state for a variable."""
         if not self.enabled:
@@ -151,7 +152,7 @@ Format reasoning as:
         variable: str,
         description: str,
         strength: EvidenceStrength,
-        source: Optional[str] = None,
+        source: str | None = None,
     ) -> None:
         """Add evidence to a belief state."""
         if not self.enabled:
@@ -171,7 +172,7 @@ Format reasoning as:
     def update_posterior(
         self,
         variable: str,
-        new_posterior: Dict[str, float],
+        new_posterior: dict[str, float],
     ) -> BeliefState:
         """Update posterior belief using Bayes rule."""
         if not self.enabled:
@@ -188,7 +189,7 @@ Format reasoning as:
         return belief
 
     @staticmethod
-    def _calculate_confidence(distribution: Dict[str, float]) -> float:
+    def _calculate_confidence(distribution: dict[str, float]) -> float:
         """Calculate confidence from probability distribution."""
         if not distribution:
             return 0.5
@@ -200,9 +201,10 @@ Format reasoning as:
     @staticmethod
     def _timestamp() -> str:
         """Get current ISO timestamp."""
-        return datetime.now(timezone.utc).isoformat() + "Z"
+        # isoformat() with timezone.utc already produces +00:00 suffix
+        return datetime.now(UTC).isoformat()
 
-    def get_belief_state(self, variable: str) -> Optional[BeliefState]:
+    def get_belief_state(self, variable: str) -> BeliefState | None:
         """Get belief state for a variable."""
         return self.belief_states.get(variable)
 
@@ -212,14 +214,17 @@ Format reasoning as:
 
 
 # Global singleton instance
-_bayesian_kernel: Optional[BayesianKernel] = None
+_bayesian_kernel: BayesianKernel | None = None
+_kernel_lock = threading.Lock()
 
 
 def get_bayesian_kernel() -> BayesianKernel:
-    """Get or create global Bayesian kernel instance."""
+    """Get or create global Bayesian kernel instance (thread-safe)."""
     global _bayesian_kernel
     if _bayesian_kernel is None:
-        _bayesian_kernel = BayesianKernel()
+        with _kernel_lock:
+            if _bayesian_kernel is None:
+                _bayesian_kernel = BayesianKernel()
     return _bayesian_kernel
 
 

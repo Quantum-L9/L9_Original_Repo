@@ -295,10 +295,17 @@ Respond with ONLY the indices to archive:"""
         limit: int,
         task_id: str | None = None,
     ) -> list[Memory]:
-        """Load memories from specific tier"""
+        """
+        Load memories from specific tier.
 
+        Note: Tier filtering is not yet implemented in the substrate service.
+        Currently returns all memories for agent_id regardless of tier.
+        TODO: Add tier filter when substrate.memory_search supports filters parameter.
+        """
         try:
             if hasattr(self.substrate, "memory_search"):
+                # TODO: Pass tier filter when available:
+                # filters={"tier": tier.value}
                 results = await self.substrate.memory_search(
                     agent_id=agent_id,
                     limit=limit,
