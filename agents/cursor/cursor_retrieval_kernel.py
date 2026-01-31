@@ -34,12 +34,20 @@ class CursorRetrievalKernel:
         memory_service,
         logger=None,
     ):
+        """Initialize the retrieval kernel.
+
+        Args:
+            wmc: Working memory cache service.
+            memory_service: Long-term memory service for semantic search.
+            logger: Optional logging function.
+        """
         self.wmc = wmc
         self.memory = memory_service
         self.logger = logger or self._noop_logger
 
     @staticmethod
     def _noop_logger(*args, **kwargs):
+        """No-op logger for when no logger is provided."""
         pass
 
     async def retrieve_context(

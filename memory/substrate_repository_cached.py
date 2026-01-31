@@ -100,6 +100,7 @@ class CachedSubstrateRepository:
 
         @self._cache.lru(maxsize=256)
         async def _get_packet_cached(pid: UUID):
+            """Inner cached function for packet retrieval."""
             return await self.repo.get_packet(pid)
 
         return await _get_packet_cached(packet_id)
@@ -117,6 +118,7 @@ class CachedSubstrateRepository:
 
         @self._cache.ttl(ttl=60)  # 1 minute TTL
         async def _get_checkpoint_cached(aid: str):
+            """Inner cached function for checkpoint retrieval."""
             return await self.repo.get_checkpoint(aid)
 
         return await _get_checkpoint_cached(agent_id)
@@ -141,6 +143,7 @@ class CachedSubstrateRepository:
 
         @self._cache.ttl(ttl=300)  # 5 minute TTL
         async def _get_memory_events_cached(aid: str, lim: int, off: int):
+            """Inner cached function for memory events retrieval."""
             return await self.repo.get_memory_events(aid, lim, off)
 
         return await _get_memory_events_cached(agent_id, limit, offset)
@@ -163,6 +166,7 @@ class CachedSubstrateRepository:
 
         @self._cache.ttl(ttl=300)  # 5 minute TTL
         async def _get_knowledge_facts_cached(lim: int, off: int):
+            """Inner cached function for knowledge facts retrieval."""
             return await self.repo.get_knowledge_facts(lim, off)
 
         return await _get_knowledge_facts_cached(limit, offset)

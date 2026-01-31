@@ -16,7 +16,11 @@ from pydantic import BaseModel, Field
 
 
 class EpistemicObjectType(str, Enum):
-    """Types of epistemic objects"""
+    """Types of epistemic objects.
+
+    Defines the fundamental categories of knowledge primitives
+    in the Epistemic Operating System.
+    """
 
     FACT = "fact"
     BELIEF = "belief"
@@ -28,7 +32,11 @@ class EpistemicObjectType(str, Enum):
 
 
 class Enforceability(str, Enum):
-    """Enforceability levels"""
+    """Enforceability levels.
+
+    Defines how strictly a rule or constraint is enforced
+    by the governance system.
+    """
 
     HARD = "hard"
     SOFT = "soft"
@@ -36,7 +44,11 @@ class Enforceability(str, Enum):
 
 
 class ActionType(str, Enum):
-    """Types of actions that require accountability"""
+    """Types of actions that require accountability.
+
+    Categorizes state-changing operations that must pass
+    through the accountability verification system.
+    """
 
     TOOL_CALL = "tool_call"
     CODE_DIFF = "code_diff"
@@ -47,7 +59,11 @@ class ActionType(str, Enum):
 
 
 class Environment(str, Enum):
-    """Execution environments"""
+    """Execution environments.
+
+    Defines the deployment context for actions and policies,
+    affecting risk assessment and enforcement levels.
+    """
 
     DEV = "dev"
     STAGING = "staging"
@@ -55,7 +71,11 @@ class Environment(str, Enum):
 
 
 class RiskClass(str, Enum):
-    """Risk classification levels"""
+    """Risk classification levels.
+
+    Categorizes actions by potential impact to determine
+    required approval authority and evidence thresholds.
+    """
 
     LOW = "low"
     MEDIUM = "medium"

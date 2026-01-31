@@ -93,6 +93,11 @@ class ValidationIssue:
     line: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert issue to dictionary for JSON serialization.
+
+        Returns:
+            Dict with severity, section, message, and line number.
+        """
         return {
             "severity": self.severity,
             "section": self.section,
@@ -123,6 +128,11 @@ class ValidationResult:
     validation_count: int = 0
 
     def to_dict(self) -> dict[str, Any]:
+        """Convert result to dictionary for JSON serialization.
+
+        Returns:
+            Dict with filepath, validity, issues, extracted data, and summary.
+        """
         return {
             "filepath": self.filepath,
             "valid": self.valid,
@@ -173,6 +183,11 @@ class GMPReportValidator:
     """Validates GMP reports against the contract."""
 
     def __init__(self, strict: bool = False):
+        """Initialize the GMP report validator.
+
+        Args:
+            strict: If True, treat warnings as errors.
+        """
         self.strict = strict
         self.contract = load_contract()
 
@@ -743,6 +758,11 @@ def print_result(result: ValidationResult, verbose: bool = False):
 
 
 def main():
+    """CLI entry point for GMP report validation.
+
+    Parses arguments and validates specified report files
+    against the GMP report contract.
+    """
     parser = argparse.ArgumentParser(
         description="Validate GMP reports against gmp-report-contract.yaml"
     )

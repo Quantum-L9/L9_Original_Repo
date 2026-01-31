@@ -113,6 +113,14 @@ async def should_fail_hardening_disabled_async(
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """FastAPI lifespan context manager.
+
+    Handles startup (database init, migrations, substrate service)
+    and shutdown (cleanup) for the MCP Memory Server.
+
+    Args:
+        app: FastAPI application instance.
+    """
     if await should_fail_hardening_disabled_async(
         settings.MCP_ENV, settings.GOVERNANCE_HARDENING_ENABLED
     ):
@@ -425,6 +433,11 @@ async def verify_api_key(
 @app.get("/")
 @must_stay_async("FastAPI/ASGI route handler")
 async def root():
+    """Root endpoint returning server status and version info.
+
+    Returns:
+        Dict with status, version, and MCP protocol version.
+    """
     return {
         "status": "L9 MCP Memory Server",
         "version": "1.0.0",
@@ -434,6 +447,11 @@ async def root():
 
 @app.get("/health")
 async def health_check():
+    """Health check endpoint for monitoring and load balancers.
+
+    Returns:
+        Health status from the health module.
+    """
     return await health.health_check()
 
 
@@ -442,6 +460,15 @@ async def health_check():
 async def list_tools(
     request: Request, caller: CallerIdentity = Depends(verify_api_key)
 ):
+    """List available MCP tools for the authenticated caller.
+
+    Args:
+        request: FastAPI request object.
+        caller: Authenticated caller identity from API key.
+
+    Returns:
+        Dict with available tools and caller ID.
+    """
     return {"tools": get_mcp_tools(), "caller": caller.caller_id}
 
 

@@ -30,10 +30,14 @@ from .filesystem import open_report
 
 
 class AsyncCallVisitor(ast.NodeVisitor):
+    """AST visitor that collects awaited function calls."""
+
     def __init__(self) -> None:
+        """Initialize the visitor with an empty call set."""
         self.calls: set[str] = set()
 
     def visit_Await(self, node: ast.Await) -> None:
+        """Visit await expressions and record the awaited function name."""
         if isinstance(node.value, ast.Call):
             func = node.value.func
             if isinstance(func, ast.Attribute):
@@ -44,6 +48,15 @@ class AsyncCallVisitor(ast.NodeVisitor):
 
 
 def _module_from_path(layout: RepoLayout, path: Path) -> str:
+    """Convert a file path to a Python module path.
+
+    Args:
+        layout: Repository layout configuration.
+        path: File path to convert.
+
+    Returns:
+        Dotted module path string.
+    """
     rel = path.relative_to(layout.root)
     return ".".join(rel.with_suffix("").parts)
 

@@ -159,6 +159,11 @@ class TokenBucketLimiter:
     """Token bucket rate limiter for API calls"""
 
     def __init__(self, rate_per_minute: int = 50):
+        """Initialize token bucket rate limiter.
+
+        Args:
+            rate_per_minute: Maximum requests per minute.
+        """
         self.rate = rate_per_minute / 60.0  # Tokens per second
         self.tokens = rate_per_minute  # Start full
         self.max_tokens = rate_per_minute
@@ -196,6 +201,11 @@ class PerplexityBatchClient:
     """Async Perplexity client with rate limiting and retry"""
 
     def __init__(self, config: BatchConfig):
+        """Initialize Perplexity batch client.
+
+        Args:
+            config: Batch processing configuration.
+        """
         self.config = config
         self.limiter = TokenBucketLimiter(rate_per_minute=50)
         self.base_url = "https://api.perplexity.ai/chat/completions"
@@ -274,6 +284,11 @@ class BatchSpecGenerator:
     """Orchestrates batch spec generation"""
 
     def __init__(self, config: BatchConfig):
+        """Initialize batch spec generator.
+
+        Args:
+            config: Batch processing configuration.
+        """
         self.config = config
         self.client = PerplexityBatchClient(config)
         self.results = []
@@ -415,6 +430,11 @@ def parse_modules_file(path: Path) -> list[tuple]:
 
 
 async def main():
+    """CLI entry point for batch module spec generation.
+
+    Parses arguments and orchestrates batch spec generation
+    using the Perplexity API.
+    """
     parser = argparse.ArgumentParser(description="Batch generate module specs")
     parser.add_argument("--modules", type=Path, help="File with module list")
     parser.add_argument("--module", type=str, help="Single module name")
