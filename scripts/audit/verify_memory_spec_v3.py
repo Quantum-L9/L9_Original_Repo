@@ -396,79 +396,97 @@ def check_contracts(spec: dict, verbose: bool = False) -> tuple[bool, list[str]]
 # =============================================================================
 
 
-def run_verification(verbose: bool = False, fix_suggestions: bool = False) -> bool:
+def run_verification(
+    verbose: bool = False, fix_suggestions: bool = False, quiet: bool = False
+) -> bool:
     """Run all verification checks."""
-    print("=" * 60)
-    print("Memory Spec v3.0 Verification")
-    print("=" * 60)
-    print(f"Spec file: {SPEC_FILE.relative_to(REPO_ROOT)}")
-    print()
+    if not quiet:
+        print("=" * 60)
+        print("Memory Spec v3.0 Verification")
+        print("=" * 60)
+        print(f"Spec file: {SPEC_FILE.relative_to(REPO_ROOT)}")
+        print()
 
     spec = load_spec()
     all_passed = True
 
     # Check 1: No duplicates
-    print("▶ Check 1: No Duplicate Specs")
+    if not quiet:
+        print("▶ Check 1: No Duplicate Specs")
     passed, issues = check_no_duplicate_specs(verbose)
     if passed:
-        print("  ✅ PASS - No deprecated specs found")
+        if not quiet:
+            print("  ✅ PASS - No deprecated specs found")
     else:
         print("  ❌ FAIL")
         for issue in issues:
             print(f"    - {issue}")
         all_passed = False
-    print()
+    if not quiet:
+        print()
 
     # Check 2: Required modules
-    print("▶ Check 2: Required Modules Exist")
+    if not quiet:
+        print("▶ Check 2: Required Modules Exist")
     passed, issues = check_required_modules(spec, verbose)
     if passed:
-        print("  ✅ PASS - All modules exist")
+        if not quiet:
+            print("  ✅ PASS - All modules exist")
     else:
         print("  ❌ FAIL")
         for issue in issues:
             print(f"    - {issue}")
         all_passed = False
-    print()
+    if not quiet:
+        print()
 
     # Check 3: Required methods
-    print("▶ Check 3: Required Methods Implemented")
+    if not quiet:
+        print("▶ Check 3: Required Methods Implemented")
     passed, issues = check_required_methods(spec, verbose)
     if passed:
-        print("  ✅ PASS - All required methods found")
+        if not quiet:
+            print("  ✅ PASS - All required methods found")
     else:
         print("  ⚠️  PARTIAL")
         for issue in issues:
             print(f"    - {issue}")
         # Don't fail on missing methods - spec may be aspirational
-    print()
+    if not quiet:
+        print()
 
     # Check 4: Feature flags
-    print("▶ Check 4: Feature Flags (Informational)")
+    if not quiet:
+        print("▶ Check 4: Feature Flags (Informational)")
     passed, issues = check_feature_flags(spec, verbose)
-    print("  ℹ️  INFO - Feature flag check complete")
-    print()
+    if not quiet:
+        print("  ℹ️  INFO - Feature flag check complete")
+        print()
 
     # Check 5: Contracts
-    print("▶ Check 5: Contract Validation")
+    if not quiet:
+        print("▶ Check 5: Contract Validation")
     passed, issues = check_contracts(spec, verbose)
     if passed:
-        print("  ✅ PASS - Contracts validated")
+        if not quiet:
+            print("  ✅ PASS - Contracts validated")
     else:
         print("  ⚠️  PARTIAL")
         for issue in issues:
             print(f"    - {issue}")
-    print()
+    if not quiet:
+        print()
 
     # Summary
-    print("=" * 60)
-    if all_passed:
-        print("✅ VERIFICATION PASSED")
-        print("   memory_spec_v3.0.yaml is the sole active spec")
-    else:
-        print("❌ VERIFICATION FAILED")
-        print("   See issues above")
-    print("=" * 60)
+    if not quiet:
+        print("=" * 60)
+        if all_passed:
+            print("✅ VERIFICATION PASSED")
+            print("   memory_spec_v3.0.yaml is the sole active spec")
+        else:
+            print("❌ VERIFICATION FAILED")
+            print("   See issues above")
+        print("=" * 60)
 
     return all_passed
 
@@ -493,10 +511,13 @@ def main():
     parser.add_argument(
         "--fix-suggestions", action="store_true", help="Show fix suggestions"
     )
+    parser.add_argument(
+        "--quiet", "-q", action="store_true", help="Suppress non-error output"
+    )
     args = parser.parse_args()
 
     success = run_verification(
-        verbose=args.verbose, fix_suggestions=args.fix_suggestions
+        verbose=args.verbose, fix_suggestions=args.fix_suggestions, quiet=args.quiet
     )
     sys.exit(0 if success else 1)
 
