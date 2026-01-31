@@ -527,7 +527,8 @@ def cmd_mcp_test():
     else:
         # Server returns "results" key, not "memories"
         memories = search_result.get("results", []) or search_result.get("memories", [])
-        found = any(test_id in m.get("content", "") for m in memories)
+        # Handle None content gracefully - use empty string if content is None
+        found = any(test_id in (m.get("content") or "") for m in memories)
 
         results["steps"]["search"] = {
             "status": "success" if found else "not_found",

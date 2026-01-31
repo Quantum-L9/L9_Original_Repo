@@ -37,7 +37,7 @@ __dora_meta__ = {
 import json
 import os
 import time
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any
 
 import asyncpg
@@ -225,11 +225,11 @@ async def _save_via_main_pipeline(
     # Calculate TTL based on duration
     ttl = None
     if duration == "short":
-        ttl = datetime.now(timezone.utc) + timedelta(
+        ttl = datetime.now(UTC) + timedelta(
             hours=settings.MEMORY_SHORT_TERM_HOURS
         )
     elif duration == "medium":
-        ttl = datetime.now(timezone.utc) + timedelta(
+        ttl = datetime.now(UTC) + timedelta(
             hours=settings.MEMORY_MEDIUM_TERM_HOURS
         )
 
@@ -306,7 +306,7 @@ async def _save_via_main_pipeline(
         "scope": scope,
         "content": content[:100] + "..." if len(content) > 100 else content,
         "importance": importance,
-        "created_at": datetime.now(timezone.utc).isoformat(),
+        "created_at": datetime.now(UTC).isoformat(),
         "written_tables": result.written_tables,
         "ingest_time_ms": ingest_time_ms,
         # Enrichment visibility (v2.1.0 - GMP-67)
@@ -383,13 +383,24 @@ async def search_memory_handler(
         scope_placeholders = ", ".join([f"${i}" for i in range(4, 4 + len(db_scopes))])
         params.extend(db_scopes)
 
+        # GMP-FIX: Enhanced content extraction from multiple payload structures:
+        # 1. payload->>'_text' - L9 DAG enriched content (raw text that was embedded)
+        # 2. payload->>'content' - Direct content field from MCP save_memory
+        # 3. payload->'source_payload'->>'content' - Legacy nested structure
         search_query = f"""
         SELECT
             sm.embedding_id,
             sm.payload->>'packet_id' as packet_id,
             sm.payload->>'packet_type' as packet_type,
-            sm.payload->'source_payload'->>'kind' as kind,
-            COALESCE(sm.payload->>'_text', sm.payload->'source_payload'->>'content') as chunk_text,
+            COALESCE(
+                sm.payload->>'kind',
+                sm.payload->'source_payload'->>'kind'
+            ) as kind,
+            COALESCE(
+                sm.payload->>'_text',
+                sm.payload->>'content',
+                sm.payload->'source_payload'->>'content'
+            ) as chunk_text,
             sm.scope as db_scope,
             sm.created_at as timestamp,
             sm.importance_score,
@@ -1243,10 +1254,10 @@ async def query_temporal(
         since_dt = (
             datetime.fromisoformat(since)
             if since
-            else datetime.now(timezone.utc) - timedelta(days=7)
+            else datetime.now(UTC) - timedelta(days=7)
         )
         until_dt = (
-            datetime.fromisoformat(until) if until else datetime.now(timezone.utc)
+            datetime.fromisoformat(until) if until else datetime.now(UTC)
         )
 
         # Build WHERE clause

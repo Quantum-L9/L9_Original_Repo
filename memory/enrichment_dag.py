@@ -461,13 +461,34 @@ class EnrichmentDAG:
             # Step 1: Semantic embedding and search
             if self._config.enable_semantic_enrichment and self._semantic_service:
                 try:
+                    # GMP-FIX: Extract actual content string for embedding, not stringified dict
+                    # Priority: content > text > description > summary > message > fallback to str(payload)
+                    payload_dict = (
+                        envelope.payload if isinstance(envelope.payload, dict) else {}
+                    )
+                    text_to_embed = (
+                        payload_dict.get("content")
+                        or payload_dict.get("text")
+                        or payload_dict.get("description")
+                        or payload_dict.get("summary")
+                        or payload_dict.get("message")
+                        or str(envelope.payload)
+                    )
+                    if not isinstance(text_to_embed, str):
+                        text_to_embed = str(text_to_embed)
+
+                    # GMP-FIX: Include content and kind in payload for search retrieval
+                    embedding_payload = {
+                        "packet_id": str(envelope.packet_id),
+                        "packet_type": envelope.packet_type,
+                        "content": text_to_embed,  # Store actual content for retrieval
+                        "kind": payload_dict.get("kind"),
+                    }
+
                     embedding_id = await asyncio.wait_for(
                         self._semantic_service.embed_and_store(
-                            text=str(envelope.payload),
-                            payload={
-                                "packet_id": str(envelope.packet_id),
-                                "packet_type": envelope.packet_type,
-                            },
+                            text=text_to_embed,
+                            payload=embedding_payload,
                         ),
                         timeout=self._config.semantic_timeout_seconds,
                     )
