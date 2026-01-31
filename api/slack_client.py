@@ -78,7 +78,7 @@ class SlackAPIClient:
         )
     """
 
-    def __init__(self, bot_token: str, http_client: httpx.AsyncClient):
+    def __init__(self, bot_token: str, http_client: httpx.AsyncClient) -> None:
         """
         Args:
             bot_token: Slack bot token (from Settings > Install App)
