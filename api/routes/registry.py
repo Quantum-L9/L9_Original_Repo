@@ -49,7 +49,7 @@ class RouterDefinition:
     display_name: str
     dependencies: list[str] = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """
         Initializes the RouterDefinition by ensuring dependencies list is set.
         Args:
@@ -104,7 +104,7 @@ class RouterRegistry:
         - Observability via snapshot()
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initializes the RouterRegistry for auto-discovering and managing FastAPI routers within the L9 API system."""
         self._routers: dict[str, RouterDefinition] = {}
         self._wired: dict[str, bool] = {}
