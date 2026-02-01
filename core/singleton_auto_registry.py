@@ -335,7 +335,7 @@ def get_all_singleton_services() -> dict[str, SingletonServiceConfig]:
     Example:
         services = get_all_singleton_services()
         for name, config in services.items():
-            print(f"Singleton: {name}, Module: {config.module_path}")
+            print(f"Singleton: {name}, Module: {config.module_path}")  # noqa: ADR-0019
     """
     singleton_service_registry.initialize_factories()
 
@@ -420,7 +420,7 @@ def wire_singletons_to_registry(registry) -> int:
         # Wire them to the main registry
         registry = get_singleton_registry()
         count = wire_singletons_to_registry(registry)
-        print(f"Wired {count} singletons")
+        print(f"Wired {count} singletons")  # noqa: ADR-0019
     """
     services = get_all_singleton_services()
     wired_count = 0

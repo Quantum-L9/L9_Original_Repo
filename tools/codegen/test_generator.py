@@ -23,16 +23,16 @@ Phase 1 Target:
 """
 
 import json
-import logging
+import logging  # noqa: ADR-0019
+import sys
 import textwrap
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-import ast
-import sys
+from typing import Any
 
 import yaml
+
 try:
     import jsonschema
 except ImportError:
@@ -48,37 +48,42 @@ log = logging.getLogger(__name__)
 @dataclass
 class GenerationConfig:
     """Configuration for code generation."""
+
     spec_file: Path
     output_dir: Path
     mode: str = "check"  # check, write, diff, dry-run
     context_lines: int = 3
     force_write: bool = False  # Skip confirmation prompt
     run_tests: bool = False
-    test_executor_config: Optional[Path] = None
+    test_executor_config: Path | None = None
 
 
 @dataclass
 class GenerationResult:
     """Result of a generation run."""
+
     success: bool
-    test_files: Dict[str, str]  # filepath -> code
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    metrics: Dict[str, Any] = field(default_factory=dict)  # count, coverage, etc.
+    test_files: dict[str, str]  # filepath -> code
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    metrics: dict[str, Any] = field(default_factory=dict)  # count, coverage, etc.
 
 
 class SpecValidationError(Exception):
     """Raised when spec is invalid."""
+
     pass
 
 
 class StrategyNotApplicableError(Exception):
     """Raised when strategy doesn't apply to module."""
+
     pass
 
 
 class CodeGenerationError(Exception):
     """Raised when code generation fails."""
+
     pass
 
 
@@ -88,60 +93,66 @@ class CodeGenerationError(Exception):
 
 # TODO: Move to tools/codegen/models/spec_models.py in Phase 1
 
+
 @dataclass
 class FixtureSpec:
     """Fixture specification."""
+
     name: str
     scope: str  # function, class, module, session
-    source: Optional[str] = None  # Pre-existing fixture reference
-    generator: Optional[str] = None  # monkeypatch, tmpdir, custom
+    source: str | None = None  # Pre-existing fixture reference
+    generator: str | None = None  # monkeypatch, tmpdir, custom
     description: str = ""
 
 
 @dataclass
 class AssertionSpec:
     """Single assertion specification."""
+
     type: str  # return_success, raises, string_contains, invariant, etc.
-    expected: Optional[Any] = None
-    exception: Optional[str] = None
-    message_contains: Optional[List[str]] = None
-    predicate: Optional[str] = None
-    invariant_name: Optional[str] = None
+    expected: Any | None = None
+    exception: str | None = None
+    message_contains: list[str] | None = None
+    predicate: str | None = None
+    invariant_name: str | None = None
 
 
 @dataclass
 class ScenarioSpec:
     """Single test scenario (happy path, error case, edge case)."""
+
     scenario_id: str
     condition: str
-    setup: List[Dict[str, Any]] = field(default_factory=list)
-    mocks: List[Dict[str, Any]] = field(default_factory=list)
-    execute: Dict[str, Any] = field(default_factory=dict)
-    assertions: List[AssertionSpec] = field(default_factory=list)
+    setup: list[dict[str, Any]] = field(default_factory=list)
+    mocks: list[dict[str, Any]] = field(default_factory=list)
+    execute: dict[str, Any] = field(default_factory=dict)
+    assertions: list[AssertionSpec] = field(default_factory=list)
 
 
 @dataclass
 class UnitTestSpec:
     """Single unit test specification."""
+
     test_id: str
     name: str
     type: str  # filesystem_io, async, decorator, integration, resilience
     description: str = ""
-    scenarios: List[ScenarioSpec] = field(default_factory=list)
+    scenarios: list[ScenarioSpec] = field(default_factory=list)
 
 
 @dataclass
 class TestSuiteSpec:
     """Top-level test suite specification."""
+
     suite_id: str
     module: str  # e.g., core.kernels.kernelloader
     strategy: str  # e.g., two_phase_loader
     priority: str = "p1"  # p0, p1, p2
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    fixtures: List[FixtureSpec] = field(default_factory=list)
-    unit_tests: List[UnitTestSpec] = field(default_factory=list)
-    integration_tests: List[UnitTestSpec] = field(default_factory=list)
-    resilience_tests: List[UnitTestSpec] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    fixtures: list[FixtureSpec] = field(default_factory=list)
+    unit_tests: list[UnitTestSpec] = field(default_factory=list)
+    integration_tests: list[UnitTestSpec] = field(default_factory=list)
+    resilience_tests: list[UnitTestSpec] = field(default_factory=list)
 
 
 # ============================================================================
@@ -150,44 +161,45 @@ class TestSuiteSpec:
 
 # TODO: Move to tools/codegen/strategies/base.py in Phase 1
 
+
 class BaseStrategy(ABC):
     """
     Abstract base for test generation strategies.
-    
+
     Each strategy encodes:
       - How to inspect module code facts
       - Pattern-specific test idioms
       - Governance invariants
-    
+
     Concrete strategies must implement:
       - validate_applicability: Can I generate tests for this module?
       - extract_module_facts: What are the module's signatures, types, errors?
       - generate_*: Imports, fixtures, test functions
       - validate_generated_code: Is the code syntactically correct?
     """
-    
+
     def __init__(self, engine: "TestTemplateEngine"):
         self.engine = engine
         self.name = self.__class__.__name__
-    
+
     @abstractmethod
-    def validate_applicability(self, module_path: str) -> Tuple[bool, Optional[str]]:
+    def validate_applicability(self, module_path: str) -> tuple[bool, str | None]:
         """
         Check if this strategy applies to the given module.
-        
+
         Returns:
             (is_applicable, error_message_if_not)
-        
+
         Example:
             TwoPhaseLoaderStrategy checks: Does module have load_X + phase1 logic?
         """
         pass
-    
+
     @abstractmethod
-    def extract_module_facts(self, module_path: str) -> Dict[str, Any]:
+    def extract_module_facts(self, module_path: str) -> dict[str, Any]:
         """
         Introspect module to extract signatures, return types, error types, etc.
-        
+
         Returns:
             {
               "functions": {"load_kernels": {"params": [...], "returns": ...}},
@@ -197,17 +209,17 @@ class BaseStrategy(ABC):
             }
         """
         pass
-    
+
     @abstractmethod
     def generate_imports(self) -> str:
         """Generate pytest imports, fixtures, etc."""
         pass
-    
+
     @abstractmethod
-    def generate_fixtures(self, fixtures: List[FixtureSpec]) -> str:
+    def generate_fixtures(self, fixtures: list[FixtureSpec]) -> str:
         """Generate @pytest.fixture definitions."""
         pass
-    
+
     @abstractmethod
     def generate_test_function(
         self,
@@ -216,12 +228,12 @@ class BaseStrategy(ABC):
     ) -> str:
         """Generate a single test function."""
         pass
-    
+
     @abstractmethod
-    def validate_generated_code(self, code: str) -> Tuple[bool, Optional[str]]:
+    def validate_generated_code(self, code: str) -> tuple[bool, str | None]:
         """
         Validate generated code before emitting.
-        
+
         Returns:
             (is_valid, error_message_if_not)
         """
@@ -232,10 +244,11 @@ class BaseStrategy(ABC):
 # SCAFFOLD 3: Test Template Engine (Core)
 # ============================================================================
 
+
 class TestTemplateEngine:
     """
     Deterministic test code generator from YAML specs.
-    
+
     Workflow:
       1. Load spec(s)
       2. Validate against schema
@@ -244,14 +257,14 @@ class TestTemplateEngine:
       5. Validate generated code
       6. Emit to file or diff
     """
-    
+
     # Strategy registry (populated as strategies are implemented)
-    STRATEGIES: Dict[str, type] = {}
-    
+    STRATEGIES: dict[str, type] = {}
+
     def __init__(self, repo_root: Path):
         """
         Initialize engine.
-        
+
         Args:
             repo_root: Root of L9 repo
         """
@@ -259,133 +272,137 @@ class TestTemplateEngine:
         self.spec_dir = repo_root / "private" / "specs"
         self.test_dir = repo_root / "tests"
         self.schema_file = Path(__file__).parent / "fixtures" / "spec_schema_v1.0.json"
-        
+
         # Load JSON schema
         self.schema = self._load_schema()
-        
+
         # Instantiate strategies
         self.strategies = {}
         # TODO: Import and instantiate concrete strategies here
         # from tools.codegen.strategies.two_phase_loader import TwoPhaseLoaderStrategy
         # self.strategies["two_phase_loader"] = TwoPhaseLoaderStrategy(self)
-    
-    def _load_schema(self) -> Dict[str, Any]:
+
+    def _load_schema(self) -> dict[str, Any]:
         """Load JSON schema for validation."""
         try:
             with open(self.schema_file) as f:
                 return json.load(f)
         except FileNotFoundError:
-            log.warning(f"Schema file not found: {self.schema_file}; skipping schema validation")
+            log.warning(
+                f"Schema file not found: {self.schema_file}; skipping schema validation"
+            )
             return {}
-    
+
     def generate(
         self,
         config: GenerationConfig,
     ) -> GenerationResult:
         """
         Main entry point: load spec, generate tests, return result.
-        
+
         Args:
             config: Generation configuration
-        
+
         Returns:
             GenerationResult with generated code or errors
         """
         result = GenerationResult(success=False, test_files={})
-        
+
         try:
             # Phase 1: Load and validate spec
             specs = self._load_and_validate_spec(config.spec_file)
             log.info(f"Loaded spec: {config.spec_file}")
-            
+
             # Phase 2: Generate test code for each suite
             for suite_spec in specs.get("test_suites", []):
                 test_code = self._generate_suite(suite_spec)
                 test_file = self._module_to_test_path(suite_spec["module"])
                 result.test_files[str(test_file)] = test_code
                 log.info(f"Generated: {test_file}")
-            
+
             # Phase 3: Apply mode (check, write, diff, etc.)
             self._apply_mode(config, result)
-            
+
             result.success = True
             result.metrics = {
                 "spec_file": str(config.spec_file),
                 "num_test_files": len(result.test_files),
                 "mode": config.mode,
             }
-            
+
             return result
-        
+
         except Exception as e:
             result.success = False
             result.errors.append(str(e))
             log.error(f"Generation failed: {e}", exc_info=True)
             return result
-    
-    def _load_and_validate_spec(self, spec_file: Path) -> Dict[str, Any]:
+
+    def _load_and_validate_spec(self, spec_file: Path) -> dict[str, Any]:
         """
         Load YAML spec and validate against schema.
-        
+
         Raises:
             SpecValidationError if spec is invalid
         """
         with open(spec_file) as f:
             spec = yaml.safe_load(f)
-        
+
         # Validate against JSON schema (if available)
         if self.schema and jsonschema:
             try:
                 jsonschema.validate(spec, self.schema)
-                log.info(f"Spec validated against schema")
+                log.info("Spec validated against schema")
             except jsonschema.ValidationError as e:
                 raise SpecValidationError(f"Schema validation failed: {e}")
-        
+
         return spec
-    
-    def _generate_suite(self, suite_spec: Dict[str, Any]) -> str:
+
+    def _generate_suite(self, suite_spec: dict[str, Any]) -> str:
         """
         Generate all test functions for a suite.
-        
+
         Args:
             suite_spec: Suite specification dict
-        
+
         Returns:
             Complete test file code as string
         """
         module_path = suite_spec["module"]
         strategy_name = suite_spec["strategy"]
-        
+
         # Get strategy
         if strategy_name not in self.strategies:
             raise CodeGenerationError(f"Unknown strategy: {strategy_name}")
-        
+
         strategy = self.strategies[strategy_name]
-        
+
         # Validate applicability
         is_applicable, error = strategy.validate_applicability(module_path)
         if not is_applicable:
             raise StrategyNotApplicableError(
                 f"Strategy {strategy_name} not applicable to {module_path}: {error}"
             )
-        
+
         # Extract module facts
         module_facts = strategy.extract_module_facts(module_path)
-        log.info(f"Extracted module facts from {module_path}: {len(module_facts.get('functions', {}))} functions")
-        
+        log.info(
+            f"Extracted module facts from {module_path}: {len(module_facts.get('functions', {}))} functions"
+        )
+
         # Generate code
         code_parts = []
-        
+
         # Header comment (genealogy)
         header = self._generate_header(suite_spec, strategy_name)
         code_parts.append(header)
         code_parts.append("")
-        
+
         # Imports
         imports = strategy.generate_imports()
         code_parts.append(imports)
         code_parts.append("")
-        
+
         # Fixtures
         fixtures = suite_spec.get("fixtures", [])
         if fixtures:
@@ -393,77 +410,77 @@ class TestTemplateEngine:
             if fixtures_code:
                 code_parts.append(fixtures_code)
                 code_parts.append("")
-        
+
         # Test functions
         for test_spec in suite_spec.get("unit_tests", []):
             for scenario in test_spec.get("scenarios", []):
                 test_code = strategy.generate_test_function(test_spec, scenario)
                 code_parts.append(test_code)
                 code_parts.append("")
-        
+
         # For integration + resilience tests
         for test_spec in suite_spec.get("integration_tests", []):
             for scenario in test_spec.get("scenarios", []):
                 test_code = strategy.generate_test_function(test_spec, scenario)
                 code_parts.append(test_code)
                 code_parts.append("")
-        
+
         for test_spec in suite_spec.get("resilience_tests", []):
             for scenario in test_spec.get("scenarios", []):
                 test_code = strategy.generate_test_function(test_spec, scenario)
                 code_parts.append(test_code)
                 code_parts.append("")
-        
+
         full_code = "\n".join(code_parts)
-        
+
         # Validate
         is_valid, error = strategy.validate_generated_code(full_code)
         if not is_valid:
             raise CodeGenerationError(f"Generated code validation failed: {error}")
-        
+
         return full_code
-    
-    def _generate_header(self, suite_spec: Dict[str, Any], strategy_name: str) -> str:
+
+    def _generate_header(self, suite_spec: dict[str, Any], strategy_name: str) -> str:
         """Generate header comment with genealogy."""
         from datetime import datetime
-        
+
         now = datetime.now().isoformat()
         module = suite_spec["module"]
-        
-        return textwrap.dedent(f'''
+
+        return textwrap.dedent(f"""
             # =============================================================================
             # AUTO-GENERATED TEST FILE
-            # Spec: {suite_spec.get('spec_file', 'unknown')}
+            # Spec: {suite_spec.get("spec_file", "unknown")}
             # Strategy: {strategy_name}
             # Module: {module}
             # Generated: {now}
             # DO NOT EDIT - Update spec and regenerate
             # =============================================================================
-        ''').strip()
-    
+        """).strip()
+
     def _module_to_test_path(self, module_path: str) -> Path:
         """Map core.kernels.kernelloader → tests/core/kernels/test_kernelloader.py"""
         parts = module_path.split(".")
         test_file = f"test_{parts[-1]}.py"
         return self.test_dir / Path(*parts[:-1]) / test_file
-    
+
     def _apply_mode(self, config: GenerationConfig, result: GenerationResult) -> None:
         """Apply mode: check, write, diff, etc."""
         if config.mode == "check":
             log.info("Mode=check: validation passed; no files written")
-        
+
         elif config.mode == "write":
             if not config.force_write:
                 # Prompt user
                 print(f"\n📝 Generated {len(result.test_files)} test file(s):")
                 for filepath in result.test_files:
                     print(f"  • {filepath}")
-                
+
                 response = input("\nWrite changes? (y/n): ").strip().lower()
                 if response != "y":
                     log.info("Write cancelled by user")
                     return
-            
+
             # Write files
             for filepath, code in result.test_files.items():
                 path = Path(filepath)
@@ -471,7 +488,7 @@ class TestTemplateEngine:
                 with open(path, "w") as f:
                     f.write(code)
                 log.info(f"✓ Wrote {filepath}")
-        
+
         elif config.mode == "diff":
             # Show diffs (requires existing test files)
             for filepath, code in result.test_files.items():
@@ -479,24 +496,24 @@ class TestTemplateEngine:
                 if path.exists():
                     with open(path) as f:
                         old_code = f.read()
-                    
+
                     # Compute unified diff
                     diff = self._compute_diff(old_code, code, str(filepath))
                     print(diff)
                 else:
                     print(f"[NEW FILE] {filepath}")
                     print(code)
-        
+
         elif config.mode == "dry-run":
             log.info("Mode=dry-run: spec validation passed")
-    
+
     def _compute_diff(self, old: str, new: str, filepath: str) -> str:
         """Compute unified diff between old and new code."""
         import difflib
-        
+
         old_lines = old.splitlines(keepends=True)
         new_lines = new.splitlines(keepends=True)
-        
+
         diff_lines = difflib.unified_diff(
             old_lines,
             new_lines,
@@ -504,7 +521,7 @@ class TestTemplateEngine:
             tofile=filepath,
             n=3,
         )
-        
+
         return "".join(diff_lines)
 
 
@@ -512,10 +529,11 @@ class TestTemplateEngine:
 # SCAFFOLD 4: CLI Entry Point
 # ============================================================================
 
+
 def main():
     """CLI entry point."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(
         description="Autonomous test generator for L9",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -532,9 +550,9 @@ def main():
               
               # Batch generate from all specs
               %(prog)s --spec-glob "private/specs/*.yaml" --mode check
-        """)
+        """),
     )
-    
+
     parser.add_argument(
         "--spec",
         type=Path,
@@ -584,22 +602,22 @@ def main():
         action="store_true",
         help="Verbose logging",
     )
-    
+
     args = parser.parse_args()
-    
+
     # Setup logging
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(
         level=log_level,
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
-    
+
     # Determine repo root
     repo_root = Path.cwd()
-    
+
     # Create engine
     engine = TestTemplateEngine(repo_root)
-    
+
     # Generate
     if args.spec:
         config = GenerationConfig(
@@ -612,17 +630,18 @@ def main():
             test_executor_config=args.test_executor_config,
         )
         result = engine.generate(config)
-        
+
         if not result.success:
-            print(f"❌ Generation failed:")
+            print("❌ Generation failed:")
             for error in result.errors:
                 print(f"  • {error}")
             sys.exit(1)
-        
+
         print(f"✓ Generated {len(result.test_files)} test file(s)")
-    
+
     elif args.spec_glob:
         import glob
+
         spec_files = glob.glob(args.spec_glob)
         for spec_file in spec_files:
             config = GenerationConfig(
@@ -635,11 +654,11 @@ def main():
                 test_executor_config=args.test_executor_config,
             )
             result = engine.generate(config)
-            
+
             if not result.success:
                 print(f"❌ {spec_file}: {result.errors}")
                 sys.exit(1)
-    
+
     else:
         parser.print_help()
         sys.exit(1)

@@ -26,14 +26,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 import os
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
+
+import structlog
 
 try:  # pragma: no cover - import guard
     import aiohttp  # type: ignore
@@ -1187,18 +1188,18 @@ async def main():
     try:
         result = await engine.reason(args.query, ReasoningMode(args.mode))
 
-        print(f"Query: {result.query}")
-        print(f"Mode: {result.reasoning_mode.value}")
-        print(f"Conclusion: {result.final_conclusion}")
-        print(f"Confidence: {result.overall_confidence:.3f}")
-        print(f"Execution Time: {result.execution_time:.2f}s")
-        print(f"Steps: {len(result.steps)}")
+        print(f"Query: {result.query}")  # noqa: ADR-0019
+        print(f"Mode: {result.reasoning_mode.value}")  # noqa: ADR-0019
+        print(f"Conclusion: {result.final_conclusion}")  # noqa: ADR-0019
+        print(f"Confidence: {result.overall_confidence:.3f}")  # noqa: ADR-0019
+        print(f"Execution Time: {result.execution_time:.2f}s")  # noqa: ADR-0019
+        print(f"Steps: {len(result.steps)}")  # noqa: ADR-0019
 
         for i, step in enumerate(result.steps, 1):
-            print(f"  Step {i}: {step.conclusion}")
+            print(f"  Step {i}: {step.conclusion}")  # noqa: ADR-0019
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error: {e}")  # noqa: ADR-0019
         return 1
 
     return 0

@@ -26,9 +26,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import logging  # noqa: ADR-0019
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 import yaml

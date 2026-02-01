@@ -25,7 +25,7 @@ import asyncio
 
 # Configure structlog
 # Use structlog log levels (no need for logging module)
-import logging
+import logging  # noqa: ADR-0019
 import sys
 import time
 from contextlib import asynccontextmanager

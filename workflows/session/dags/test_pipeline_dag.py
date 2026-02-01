@@ -540,22 +540,34 @@ git log -1 --oneline""",
         SessionEdge("start", "gap_analysis"),
         SessionEdge("gap_analysis", "gate_gaps"),
         # Gap gate decisions
-        SessionEdge("gate_gaps", "spec_generation", condition="continue", label="Generate specs"),
-        SessionEdge("gate_gaps", "validate_tests", condition="skip", label="Skip to validation"),
+        SessionEdge(
+            "gate_gaps", "spec_generation", condition="continue", label="Generate specs"
+        ),
+        SessionEdge(
+            "gate_gaps", "validate_tests", condition="skip", label="Skip to validation"
+        ),
         SessionEdge("gate_gaps", "end", condition="abort", label="Abort"),
         # Spec generation -> Validation
         SessionEdge("spec_generation", "validate_specs"),
         SessionEdge("validate_specs", "gate_specs"),
         # Spec gate decisions
-        SessionEdge("gate_specs", "generate_tests", condition="generate", label="Generate"),
-        SessionEdge("gate_specs", "spec_generation", condition="edit", label="Edit specs"),
+        SessionEdge(
+            "gate_specs", "generate_tests", condition="generate", label="Generate"
+        ),
+        SessionEdge(
+            "gate_specs", "spec_generation", condition="edit", label="Edit specs"
+        ),
         SessionEdge("gate_specs", "end", condition="abort", label="Abort"),
         # Test generation -> Validation
         SessionEdge("generate_tests", "validate_tests"),
         SessionEdge("validate_tests", "gate_validation"),
         # Validation gate decisions
-        SessionEdge("gate_validation", "coverage_check", condition="continue", label="Continue"),
-        SessionEdge("gate_validation", "generate_tests", condition="fix", label="Fix issues"),
+        SessionEdge(
+            "gate_validation", "coverage_check", condition="continue", label="Continue"
+        ),
+        SessionEdge(
+            "gate_validation", "generate_tests", condition="fix", label="Fix issues"
+        ),
         SessionEdge("gate_validation", "end", condition="abort", label="Abort"),
         # Coverage -> Report
         SessionEdge("coverage_check", "generate_report"),
@@ -581,4 +593,4 @@ def get_test_pipeline_dag() -> SessionDAG:
 
 # Generate Mermaid diagram for documentation
 if __name__ == "__main__":
-    print(TEST_PIPELINE_DAG.to_markdown())
+    print(TEST_PIPELINE_DAG.to_markdown())  # noqa: ADR-0019

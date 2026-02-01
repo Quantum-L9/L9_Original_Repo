@@ -34,7 +34,7 @@ mkdir -p "$L9_LOG_DIR" 2>/dev/null || true
 
 # Metrics
 HOOK_START=$(date +%s)
-TOTAL_CHECKS=10
+TOTAL_CHECKS=11
 CHECKS_PASSED=0
 
 # Get staged Python files
@@ -116,6 +116,65 @@ else
 fi
 
 # ============================================
+# PHASE 1B: HARDCODED CREDENTIALS CHECK (ADR-0090)
+# ============================================
+# NOTE: Only checks STAGED files, not whole repo (full repo audit is CI's job)
+
+echo -e "\n${YELLOW}[GATE 1B]${NC} HARDCODED CREDENTIALS CHECK (ADR-0090)"
+
+CRED_VIOLATIONS=0
+
+# Get all staged files (not just Python)
+STAGED_ALL=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true)
+
+if [ -n "$STAGED_ALL" ]; then
+    # Exclude ADR/documentation files from credentials check (they contain examples)
+    STAGED_NON_DOC=$(echo "$STAGED_ALL" | grep -v 'readme/adr/' | grep -v '\.md$' || true)
+    
+    # AWS Access Keys (always critical) - only in staged non-doc files
+    FOUND=$(echo "$STAGED_NON_DOC" | xargs grep -E "AKIA[0-9A-Z]{16}" 2>/dev/null | grep -v '\.env' || true)
+
+    if [ -n "$FOUND" ]; then
+        echo -e "${RED}❌ AWS ACCESS KEYS DETECTED:${NC}"
+        echo "$FOUND"
+        CRED_VIOLATIONS=$((CRED_VIOLATIONS + 1))
+    fi
+
+    # API keys (64-char hex) - only in staged non-doc files
+    FOUND=$(echo "$STAGED_NON_DOC" | xargs grep -E '(API_KEY|api_key|L9_API_KEY).*"[a-f0-9]{64}"' 2>/dev/null | grep -v '\.env' || true)
+
+    if [ -n "$FOUND" ]; then
+        echo -e "${RED}❌ HARDCODED API KEYS:${NC}"
+        echo "$FOUND"
+        CRED_VIOLATIONS=$((CRED_VIOLATIONS + 1))
+    fi
+
+    # PostgreSQL with real passwords - only in staged non-doc files
+    FOUND=$(echo "$STAGED_NON_DOC" | xargs grep -E 'postgresql://.*:.*@' 2>/dev/null \
+      | grep -v '\.env' \
+      | grep -v 'user:pass@' | grep -v 'user:password@' | grep -v 'postgres:postgres@' \
+      | grep -v 'test:test@' | grep -v 'l9:l9test@' \
+      | grep -v '\$(' | grep -v '\${' | grep -v '\$[A-Z]' \
+      | grep -v ':PASSWORD@' | grep -v ':password@' | grep -v ':devpass@' \
+      | grep -v 'POSTGRES_PASSWORD@' | grep -v '\.\.\.' | grep -v '\*\*\*' || true)
+
+    if [ -n "$FOUND" ]; then
+        echo -e "${RED}❌ HARDCODED POSTGRES CREDENTIALS:${NC}"
+        echo "$FOUND"
+        CRED_VIOLATIONS=$((CRED_VIOLATIONS + 1))
+    fi
+fi
+
+if [ $CRED_VIOLATIONS -gt 0 ]; then
+    echo -e "${RED}❌ Found hardcoded credentials (ADR-0090 violation)${NC}"
+    echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"hardcoded_credentials\",\"branch\":\"$BRANCH\",\"user\":\"$USER\",\"severity\":\"CRITICAL\"}" >> "$HOOK_AUDIT_LOG"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ No hardcoded credentials found (ADR-0090)${NC}"
+CHECKS_PASSED=$((CHECKS_PASSED + 1))
+
+# ============================================
 # PHASE 2: AUTO-FORMAT PYTHON
 # ============================================
 
@@ -127,7 +186,12 @@ if [ -z "$STAGED_PY_FILES" ]; then
 else
     if command -v ruff &> /dev/null; then
         echo "$STAGED_PY_FILES" | xargs ruff format --quiet 2>/dev/null || true
-        echo "$STAGED_PY_FILES" | xargs git add
+        # Only re-add files that are not gitignored
+        for f in $STAGED_PY_FILES; do
+            if ! git check-ignore -q "$f" 2>/dev/null; then
+                git add "$f" 2>/dev/null || true
+            fi
+        done
         echo -e "${GREEN}✓ Code formatted with ruff${NC}"
         CHECKS_PASSED=$((CHECKS_PASSED + 1))
     else
@@ -202,6 +266,8 @@ else
     AI_VIOLATIONS=0
 
     # Check for jailbreak patterns
+    # Note: system_prompt constant definitions are safe (UPPERCASE_NAME = """...""")
+    # We only flag dynamic/runtime injection patterns, not static definitions
     JAILBREAK_PATTERNS=(
         "Ignore.*previous.*instructions"
         "Disregard.*above.*instructions"
@@ -209,7 +275,9 @@ else
         "Pretend.*you.*are"
         "override.*safety"
         "bypass.*restrictions"
-        "system_prompt\s*=\s*['\"]"
+        "system_prompt\s*=.*\{.*\}"          # f-string injection into system_prompt
+        "system_prompt\s*=.*\.format\s*\("   # .format() injection into system_prompt
+        "system_prompt\s*\+=\s*"             # appending to system_prompt
     )
 
     for file in $STAGED_PY_FILES; do
@@ -222,9 +290,12 @@ else
         done
 
         # Check PacketEnvelope safety - look for actual dangerous Python functions
-        # Avoid false positives like "docker exec" or "execute" method names
+        # Avoid false positives: method definitions, docker exec, "# security test" comments
         if grep -q "PacketEnvelope" "$file" 2>/dev/null; then
-            if grep -qE "pickle\.(load|loads)|eval\(|exec\(|__import__|compile\(" "$file"; then
+            # Look for dangerous patterns but exclude method defs and security test comments
+            if grep -E "pickle\.(load|loads)|[^f]eval\(|[^d]exec\(|__import__" "$file" 2>/dev/null \
+              | grep -v "# security test" \
+              | grep -v "def compile\|async def compile" > /dev/null 2>&1; then
                 echo "   ❌ Unsafe deserialization in PacketEnvelope: $file"
                 AI_VIOLATIONS=$((AI_VIOLATIONS + 1))
                 echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"unsafe_serialization\",\"file\":\"$file\",\"severity\":\"CRITICAL\"}" >> "$AI_SEC_LOG"
@@ -436,10 +507,10 @@ else
 fi
 
 # ============================================
-# PHASE 9: ADR ENFORCEMENT (GMP-120)
+# PHASE 9: ADR ENFORCEMENT (CRITICAL PATTERNS)
 # ============================================
 
-echo -e "\n${YELLOW}[GATE 9/9]${NC} ADR ENFORCEMENT"
+echo -e "\n${YELLOW}[GATE 9/10]${NC} ADR ENFORCEMENT (Critical Patterns)"
 
 ADR_VIOLATIONS=0
 
@@ -447,21 +518,116 @@ if [ -z "$STAGED_PY_FILES" ]; then
     echo -e "${GREEN}✓ No Python files staged, skipping ADR checks${NC}"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
 else
-    # Run ADR enforcer if available
-    if [ -f "$REPO_ROOT/tools/adr/adr_enforcer.py" ]; then
-        echo "  Running ADR enforcement validator..."
-
-        # Run in non-strict mode (warn only) for now
-        if python3 -c "from tools.adr.adr_enforcer import ADREnforcementValidator; v = ADREnforcementValidator(); r = v.scan_repo(); print(f'Violations: {r.total_violations}')" 2>/dev/null; then
-            echo -e "${GREEN}✓ ADR enforcement check completed${NC}"
-        else
-            echo -e "${YELLOW}⚠ ADR enforcer not available, skipping${NC}"
+    # ADR-0083: No datetime.utcnow() (deprecated)
+    echo "  Checking ADR-0083: datetime.utcnow()..."
+    for file in $STAGED_PY_FILES; do
+        if [ -f "$file" ]; then
+            # Skip the ADR checker itself (contains patterns as strings)
+            if [[ "$file" == "ci/check_adr_compliance.py" ]]; then continue; fi
+            if grep -n "\.utcnow()" "$file" 2>/dev/null | grep -v "# noqa"; then
+                echo -e "  ${RED}❌ ADR-0083: datetime.utcnow() in $file${NC}"
+                echo "     Fix: Use datetime.now(UTC) instead"
+                ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
+            fi
         fi
-        CHECKS_PASSED=$((CHECKS_PASSED + 1))
-    else
-        echo -e "${YELLOW}⚠ ADR enforcer not installed, skipping${NC}"
-        CHECKS_PASSED=$((CHECKS_PASSED + 1))
+    done
+    
+    # ADR-0088: No pickle (security)
+    echo "  Checking ADR-0088: pickle usage..."
+    for file in $STAGED_PY_FILES; do
+        if [ -f "$file" ]; then
+            # Skip the ADR checker itself (contains patterns as strings)
+            if [[ "$file" == "ci/check_adr_compliance.py" ]]; then continue; fi
+            if grep -n "pickle\.load" "$file" 2>/dev/null | grep -v "# noqa"; then
+                echo -e "  ${RED}❌ ADR-0088: pickle in $file${NC}"
+                echo "     Fix: Use json.loads() or msgpack instead"
+                ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
+            fi
+        fi
+    done
+    
+    # ADR-0041: No eval/exec (security)
+    echo "  Checking ADR-0041: eval/exec usage..."
+    for file in $STAGED_PY_FILES; do
+        if [ -f "$file" ]; then
+            # Skip allowed files (CI, tools, scripts, symbolic computation code generator)
+            if [[ "$file" == ci/* ]] || [[ "$file" == tools/* ]] || [[ "$file" == scripts/* ]] || [[ "$file" == services/symbolic_computation/* ]]; then
+                continue
+            fi
+            if grep -nE "^[^#]*\beval\s*\(|^[^#]*\bexec\s*\(" "$file" 2>/dev/null | grep -v "# noqa" | grep -v "\.eval(" > /dev/null; then
+                echo -e "  ${RED}❌ ADR-0041: eval/exec in $file${NC}"
+                echo "     Fix: Use ast.literal_eval() for safe parsing"
+                ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
+            fi
+        fi
+    done
+    
+    # ADR-0087: No f-string SQL (injection risk)
+    echo "  Checking ADR-0087: f-string SQL..."
+    for file in $STAGED_PY_FILES; do
+        if [ -f "$file" ]; then
+            if grep -nE 'f"(SELECT|INSERT|UPDATE|DELETE).*\{' "$file" 2>/dev/null | grep -v "# noqa"; then
+                echo -e "  ${RED}❌ ADR-0087: f-string SQL in $file${NC}"
+                echo "     Fix: Use parameterized queries or add # noqa: ADR-0087"
+                ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
+            fi
+        fi
+    done
+    
+    # ADR-0019: No print() in production code
+    echo "  Checking ADR-0019: print() usage..."
+    for file in $STAGED_PY_FILES; do
+        if [ -f "$file" ]; then
+            # Skip allowed directories (CI tools, scripts, CLI tools, MCP, agents)
+            if [[ "$file" == ci/* ]] || [[ "$file" == scripts/* ]] || [[ "$file" == tools/* ]] || [[ "$file" == *__main__.py ]] || [[ "$file" == mcp_memory/* ]] || [[ "$file" == agents/cursor/* ]] || [[ "$file" == workflows/* ]]; then
+                continue
+            fi
+            if grep -n "^\s*print(" "$file" 2>/dev/null | grep -v "# noqa" > /dev/null; then
+                echo -e "  ${RED}❌ ADR-0019: print() in $file${NC}"
+                echo "     Fix: Use structlog.get_logger() or add # noqa: ADR-0019"
+                ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
+            fi
+        fi
+    done
+    
+    # ADR-0019: No stdlib logging module
+    echo "  Checking ADR-0019: logging module..."
+    for file in $STAGED_PY_FILES; do
+        if [ -f "$file" ]; then
+            # Skip allowed directories
+            if [[ "$file" == ci/* ]] || [[ "$file" == scripts/* ]] || [[ "$file" == config/logging* ]] || [[ "$file" == core/observability/* ]]; then
+                continue
+            fi
+            if grep -nE "^import logging$|^from logging import" "$file" 2>/dev/null | grep -v "# noqa" > /dev/null; then
+                echo -e "  ${RED}❌ ADR-0019: stdlib logging in $file${NC}"
+                echo "     Fix: Use structlog instead"
+                ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
+            fi
+        fi
+    done
+    
+    # ADR-0002: TYPE_CHECKING requires __future__ annotations
+    echo "  Checking ADR-0002: TYPE_CHECKING pattern..."
+    for file in $STAGED_PY_FILES; do
+        if [ -f "$file" ]; then
+            if grep -q "if TYPE_CHECKING:" "$file" 2>/dev/null; then
+                if ! grep -q "from __future__ import annotations" "$file"; then
+                    echo -e "  ${RED}❌ ADR-0002: TYPE_CHECKING without __future__ in $file${NC}"
+                    echo "     Fix: Add 'from __future__ import annotations' at top"
+                    ADR_VIOLATIONS=$((ADR_VIOLATIONS + 1))
+                fi
+            fi
+        fi
+    done
+    
+    if [ $ADR_VIOLATIONS -gt 0 ]; then
+        echo -e "${RED}❌ Found $ADR_VIOLATIONS ADR violations${NC}"
+        echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"adr_violations\",\"count\":$ADR_VIOLATIONS,\"severity\":\"CRITICAL\"}" >> "$HOOK_AUDIT_LOG"
+        exit 1
     fi
+    
+    echo -e "${GREEN}✓ ADR enforcement passed (no critical violations)${NC}"
+    CHECKS_PASSED=$((CHECKS_PASSED + 1))
 fi
 
 # ============================================

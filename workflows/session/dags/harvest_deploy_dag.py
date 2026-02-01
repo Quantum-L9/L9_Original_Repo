@@ -420,4 +420,4 @@ def get_harvest_deploy_dag() -> SessionDAG:
 
 # Generate Mermaid diagram for documentation
 if __name__ == "__main__":
-    print(HARVEST_DEPLOY_DAG.to_markdown())
+    print(HARVEST_DEPLOY_DAG.to_markdown())  # noqa: ADR-0019

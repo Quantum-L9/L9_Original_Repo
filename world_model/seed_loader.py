@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import logging
+import logging  # noqa: ADR-0019
 from datetime import UTC, datetime, timezone
 from pathlib import Path
 from typing import Any

@@ -194,7 +194,12 @@ Check for PROTECTED FILES:
 ⚠️ If semantic refusal triggered → STOP → escalate to /gmp
 ⚠️ If protected file touched → STOP → escalate to /gmp""",
             validation="Component classified, no semantic refusals, no protected files",
-            outputs=["component_type", "required_structure", "semantic_check", "protected_check"],
+            outputs=[
+                "component_type",
+                "required_structure",
+                "semantic_check",
+                "protected_check",
+            ],
         ),
         SessionNode(
             id="gate_analysis",
@@ -615,13 +620,19 @@ To verify runtime correctness → /verify-component {component}""",
         # Discovery -> Gate
         SessionEdge("discovery", "gate_discovery"),
         # Discovery gate decisions
-        SessionEdge("gate_discovery", "analysis", condition="continue", label="Continue"),
-        SessionEdge("gate_discovery", "end", condition="abort", label="Unused component"),
+        SessionEdge(
+            "gate_discovery", "analysis", condition="continue", label="Continue"
+        ),
+        SessionEdge(
+            "gate_discovery", "end", condition="abort", label="Unused component"
+        ),
         # Analysis -> Gate
         SessionEdge("analysis", "gate_analysis"),
         # Analysis gate decisions
         SessionEdge("gate_analysis", "plan", condition="continue", label="Continue"),
-        SessionEdge("gate_analysis", "end", condition="escalate", label="Escalate to /gmp"),
+        SessionEdge(
+            "gate_analysis", "end", condition="escalate", label="Escalate to /gmp"
+        ),
         SessionEdge("gate_analysis", "end", condition="abort", label="Abort"),
         # Plan -> Gate
         SessionEdge("plan", "gate_plan"),
@@ -635,7 +646,9 @@ To verify runtime correctness → /verify-component {component}""",
         # Validate -> Gate
         SessionEdge("validate", "gate_validation"),
         # Validation gate decisions
-        SessionEdge("gate_validation", "rediscovery", condition="continue", label="Validated"),
+        SessionEdge(
+            "gate_validation", "rediscovery", condition="continue", label="Validated"
+        ),
         SessionEdge("gate_validation", "execute", condition="fix", label="Fix issues"),
         SessionEdge("gate_validation", "end", condition="abort", label="Abort"),
         # Re-discovery -> Confirm Wiring
@@ -643,7 +656,12 @@ To verify runtime correctness → /verify-component {component}""",
         # Confirm Wiring -> Gate
         SessionEdge("confirm_wiring", "gate_confirm"),
         # Confirm gate decisions
-        SessionEdge("gate_confirm", "generate_report", condition="report", label="Generate Report"),
+        SessionEdge(
+            "gate_confirm",
+            "generate_report",
+            condition="report",
+            label="Generate Report",
+        ),
         SessionEdge("gate_confirm", "execute", condition="fix", label="Fix issues"),
         SessionEdge("gate_confirm", "end", condition="abort", label="Abort"),
         # Report -> Commit Gate
@@ -669,4 +687,4 @@ def get_wire_dag() -> SessionDAG:
 
 # Generate Mermaid diagram for documentation
 if __name__ == "__main__":
-    print(WIRE_DAG.to_markdown())
+    print(WIRE_DAG.to_markdown())  # noqa: ADR-0019

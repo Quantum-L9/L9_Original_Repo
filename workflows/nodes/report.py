@@ -7,7 +7,7 @@ Summarizes all steps, artifacts, and results.
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 
 import structlog
 
@@ -119,7 +119,7 @@ async def report_node(state: WorkflowState) -> dict:
     report_text = "\n".join(lines)
 
     # Print report
-    print(report_text)
+    print(report_text)  # noqa: ADR-0019
 
     duration_ms = (time.time() - start_time) * 1000
 

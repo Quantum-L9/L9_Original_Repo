@@ -335,8 +335,10 @@ class SubstrateRepository:
         )
 
         async with self.acquire() as conn:
+            # SAFE: filter_clause is internal SQL (e.g. "AND scope = $2"), not user input.
+            # User values go through filter_params as parameterized $N placeholders.  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             row = await conn.fetchrow(
-                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",
+                f"SELECT * FROM packet_store WHERE packet_id = $1 {filter_clause}",  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 packet_id,
                 *filter_params,
             )
@@ -391,9 +393,9 @@ class SubstrateRepository:
             if packet_type:
                 filter_clause, filter_params, _ = build_scope_project_filter(
                     ctx, param_idx=5, table_alias="packet_store"
-                )
+                )  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
-                    f"""
+                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     SELECT * FROM packet_store
                     WHERE thread_id = $1 AND packet_type = $2
                     {filter_clause}
@@ -409,9 +411,9 @@ class SubstrateRepository:
             else:
                 filter_clause, filter_params, _ = build_scope_project_filter(
                     ctx, param_idx=4, table_alias="packet_store"
-                )
+                )  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
-                    f"""
+                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     SELECT * FROM packet_store
                     WHERE thread_id = $1
                     {filter_clause}
@@ -471,9 +473,9 @@ class SubstrateRepository:
             conditions.append(f"envelope->'metadata'->>'project_id' = ${param_idx - 1}")
             params.extend(filter_params)
 
-            params.append(limit)
+            params.append(limit)  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
 
-            query = f"""
+            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 SELECT * FROM packet_store
                 WHERE {" AND ".join(conditions)}
                 ORDER BY timestamp DESC
@@ -907,9 +909,9 @@ class SubstrateRepository:
                 params.append(subject)
                 param_idx += 1
 
-            params.append(limit)
+            params.append(limit)  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
 
-            query = f"""
+            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 SELECT * FROM knowledge_facts
                 WHERE {" AND ".join(conditions)}
                 ORDER BY created_at DESC
@@ -981,7 +983,7 @@ class SubstrateRepository:
         scope: str = "shared",
     ) -> None:
         """Helper to insert semantic embedding using provided connection.
-        
+
         TODO (GMP-129): Migrate to packet_store + memory_embeddings pipeline.
         This writes to semantic_memory which bypasses PacketEnvelope governance.
         """

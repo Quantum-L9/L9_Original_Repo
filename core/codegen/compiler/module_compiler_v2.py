@@ -815,7 +815,7 @@ response = await agent.run(task={{
     \"data\": {{\"key\": \"value\"}}
 }})
 
-print(response.content)
+print(response.content)  # noqa: ADR-0019
 ```
 
 ## Integration

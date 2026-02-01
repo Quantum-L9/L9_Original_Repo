@@ -178,7 +178,7 @@ SKIP if:
    ```python
    from workflows.session.dags.{dag} import DAG_CONSTANT
    for node in DAG_CONSTANT.nodes:
-       print(f"{node.id}: {len(node.action)} chars")
+       print(f"{node.id}: {len(node.action)} chars")  # noqa: ADR-0019
    ```
 
 5. **Document:**
@@ -349,7 +349,7 @@ SUCCESS CRITERIA:
    from workflows.session.dags.{dag} import DAG_CONSTANT
    for node in DAG_CONSTANT.nodes:
        if node.action and len(node.action) > 50:
-           print(f"- {node.name}: {len(node.action)} chars")
+           print(f"- {node.name}: {len(node.action)} chars")  # noqa: ADR-0019
    ```
 
 3. **Verify coverage:**

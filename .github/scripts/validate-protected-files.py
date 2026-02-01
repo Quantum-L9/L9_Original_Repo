@@ -75,7 +75,7 @@ def validate_protected_files() -> bool:
     violations = changed & ALL_PROTECTED
 
     if violations:
-        print("❌ PROTECTED FILES MODIFIED:")
+        print("❌ PROTECTED FILES MODIFIED:")  # noqa: ADR-0019
         for f in sorted(violations):
             subsystem = None
             for sub, files in SUBSYSTEM_PROTECTED.items():
@@ -84,22 +84,22 @@ def validate_protected_files() -> bool:
                     break
 
             lcto = " (LCTO-controlled)" if f in PROTECTED_BY_LCTO else ""
-            print(f"   - {f}{lcto}{subsystem or ''}")
+            print(f"   - {f}{lcto}{subsystem or ''}")  # noqa: ADR-0019
 
-        print("\n📋 To modify protected files, you must:")
-        print("   1. Get approval from L (CTO)")
-        print("   2. Open an issue documenting the change")
-        print("   3. Include risk assessment and rollback plan")
+        print("\n📋 To modify protected files, you must:")  # noqa: ADR-0019
+        print("   1. Get approval from L (CTO)")  # noqa: ADR-0019
+        print("   2. Open an issue documenting the change")  # noqa: ADR-0019
+        print("   3. Include risk assessment and rollback plan")  # noqa: ADR-0019
         return False
 
-    print("✅ No protected files modified")
+    print("✅ No protected files modified")  # noqa: ADR-0019
     return True
 
 
 def main():
     if not validate_protected_files():
         sys.exit(1)
-    print("\n✨ Protected file validation passed!")
+    print("\n✨ Protected file validation passed!")  # noqa: ADR-0019
     return 0
 
 

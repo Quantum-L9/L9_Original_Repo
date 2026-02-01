@@ -174,7 +174,7 @@ def get_all_upcasters() -> dict[str, UpcasterConfig]:
     Example:
         upcasters = get_all_upcasters()
         for key, config in upcasters.items():
-            print(f"Upcaster: {key}, Module: {config.module_path}")
+            print(f"Upcaster: {key}, Module: {config.module_path}")  # noqa: ADR-0019
     """
     upcaster_registry.initialize_factories()
 
@@ -226,7 +226,7 @@ def wire_upcasters_to_schema_registry(schema_registry) -> int:
 
         # Wire them to the main registry
         count = wire_upcasters_to_schema_registry(SchemaRegistry)
-        print(f"Wired {count} upcasters")
+        print(f"Wired {count} upcasters")  # noqa: ADR-0019
     """
     upcasters = get_all_upcasters()
     wired_count = 0

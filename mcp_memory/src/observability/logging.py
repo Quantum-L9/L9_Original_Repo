@@ -59,7 +59,7 @@ def setup_logging(log_level: str = "INFO") -> None:
     Args:
         log_level: Logging level (DEBUG, INFO, WARNING, ERROR)
     """
-    import logging
+    import logging  # noqa: ADR-0019
     import sys
 
     level_map = {

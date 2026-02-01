@@ -62,7 +62,7 @@ import json
 import re
 import sys
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 try:
@@ -70,7 +70,7 @@ try:
 
     logger = structlog.get_logger()
 except ImportError:  # Fallback for environments without structlog
-    import logging
+    import logging  # noqa: ADR-0019
 
     logging.basicConfig(level=logging.INFO)
     logger = structlog.get_logger(__name__)

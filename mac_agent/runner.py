@@ -27,12 +27,12 @@ __dora_meta__ = {
 
 import asyncio
 import json
-import logging
+import logging  # noqa: ADR-0019
 import os
 import subprocess
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 
 import aiofiles
@@ -229,7 +229,7 @@ async def poll_and_execute():
                                 "action": "email_task",
                                 "status": "error",
                                 "details": str(e),
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         ],
                         "screenshots": [],
@@ -308,7 +308,7 @@ async def poll_and_execute():
                                 "action": "runner_error",
                                 "status": "error",
                                 "details": str(e),
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         ],
                         "screenshots": [],

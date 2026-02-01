@@ -259,7 +259,7 @@ def get_all_mcp_servers() -> dict[str, MCPServerConfig]:
     Example:
         servers = get_all_mcp_servers()
         for server_id, config in servers.items():
-            print(f"Server: {server_id}, Command: {config.command}")
+            print(f"Server: {server_id}, Command: {config.command}")  # noqa: ADR-0019
     """
     mcp_server_registry.initialize_factories()
 

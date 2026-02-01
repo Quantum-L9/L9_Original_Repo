@@ -179,12 +179,12 @@ def main():
     code_map = load_code_map()
 
     if not code_map:
-        print("⚠️  CODE-MAP.yaml not found. Run: python scripts/extract_code_facts.py")
+        print("⚠️  CODE-MAP.yaml not found. Run: python scripts/extract_code_facts.py")  # noqa: ADR-0019
         return 1
 
     analysis = analyze_pr(changed, code_map)
     report = format_report(analysis, changed)
-    print(report)
+    print(report)  # noqa: ADR-0019
 
     # Return non-zero if protected files touched (will trigger PR comment)
     return 1 if analysis["protected"] else 0

@@ -58,7 +58,7 @@ async def run_research(
 
     Example:
         result = await run_research("What are LLM memory architectures?")
-        print(result["summary"])
+        print(result["summary"])  # noqa: ADR-0019
     """
     from services.research import run_research as _run_research
 
@@ -201,7 +201,7 @@ def extract_facts(path: str) -> dict[str, Any]:
 
     Example:
         facts = extract_facts("core/agents")
-        print(f"Found {len(facts['classes'])} classes")
+        print(f"Found {len(facts['classes'])} classes")  # noqa: ADR-0019
     """
     import sys
 
@@ -300,7 +300,7 @@ def save_perplexity_output(
             filename="README-core-agents.md"
         )
     """
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     # Build path per SOP
     repo_root = Path(__file__).parent.parent.parent
@@ -357,25 +357,25 @@ def main():
 
     if args.command == "research":
         result = asyncio.run(run_research(args.query, deep=args.deep))
-        print(result.get("summary", "No summary"))
+        print(result.get("summary", "No summary"))  # noqa: ADR-0019
 
     elif args.command == "quick":
         answer = asyncio.run(run_quick_research(args.query))
-        print(answer)
+        print(answer)  # noqa: ADR-0019
 
     elif args.command == "superprompt":
         prompt = generate_superprompt(args.path)
         if args.output:
             Path(args.output).write_text(prompt)
-            print(f"Written to {args.output}")
+            print(f"Written to {args.output}")  # noqa: ADR-0019
         else:
-            print(prompt)
+            print(prompt)  # noqa: ADR-0019
 
     elif args.command == "facts":
         import json
 
         facts = extract_facts(args.path)
-        print(json.dumps(facts, indent=2, default=str))
+        print(json.dumps(facts, indent=2, default=str))  # noqa: ADR-0019
 
     else:
         parser.print_help()

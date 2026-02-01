@@ -210,30 +210,30 @@ def main():
     CURRENT_PORT = args.port
 
     # Display account info
-    print("\n" + "=" * 60)
-    print("Gmail OAuth Server")
-    print("=" * 60)
+    print("\n" + "=" * 60)  # noqa: ADR-0019
+    print("Gmail OAuth Server")  # noqa: ADR-0019
+    print("=" * 60)  # noqa: ADR-0019
 
     if CURRENT_ACCOUNT:
         from email_agent.config import get_account_config
 
         config = get_account_config(CURRENT_ACCOUNT)
-        print(f"Account:       {CURRENT_ACCOUNT}")
-        print(f"Email:         {config.email}")
-        print(f"Client Secret: {config.client_secret_file}")
-        print(f"Tokens:        {config.tokens_file}")
+        print(f"Account:       {CURRENT_ACCOUNT}")  # noqa: ADR-0019
+        print(f"Email:         {config.email}")  # noqa: ADR-0019
+        print(f"Client Secret: {config.client_secret_file}")  # noqa: ADR-0019
+        print(f"Tokens:        {config.tokens_file}")  # noqa: ADR-0019
     else:
         from email_agent.config import CLIENT_SECRET_FILE, GMAIL_ACCOUNT, TOKENS_FILE
 
-        print("Mode:          LEGACY (no account specified)")
-        print(f"Email:         {GMAIL_ACCOUNT}")
-        print(f"Client Secret: {CLIENT_SECRET_FILE}")
-        print(f"Tokens:        {TOKENS_FILE}")
+        print("Mode:          LEGACY (no account specified)")  # noqa: ADR-0019
+        print(f"Email:         {GMAIL_ACCOUNT}")  # noqa: ADR-0019
+        print(f"Client Secret: {CLIENT_SECRET_FILE}")  # noqa: ADR-0019
+        print(f"Tokens:        {TOKENS_FILE}")  # noqa: ADR-0019
 
-    print("=" * 60)
-    print(f"\n🌐 Server: http://localhost:{CURRENT_PORT}")
-    print(f"📋 Open:   http://localhost:{CURRENT_PORT}/oauth/start")
-    print("\nPress Ctrl+C to stop\n")
+    print("=" * 60)  # noqa: ADR-0019
+    print(f"\n🌐 Server: http://localhost:{CURRENT_PORT}")  # noqa: ADR-0019
+    print(f"📋 Open:   http://localhost:{CURRENT_PORT}/oauth/start")  # noqa: ADR-0019
+    print("\nPress Ctrl+C to stop\n")  # noqa: ADR-0019
 
     server_address = ("", CURRENT_PORT)
     httpd = HTTPServer(server_address, OAuthHandler)
@@ -241,7 +241,7 @@ def main():
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print("\n\nServer stopped.")
+        print("\n\nServer stopped.")  # noqa: ADR-0019
         httpd.shutdown()
 
 

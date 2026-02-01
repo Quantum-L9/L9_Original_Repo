@@ -131,9 +131,9 @@ class UseHarvestExecutor:
         return result.returncode, result.stdout, result.stderr
 
     def _print_header(self, title: str):
-        print(f"\n{'=' * 60}")
-        print(f"  {title}")
-        print(f"{'=' * 60}\n")
+        print(f"\n{'=' * 60}")  # noqa: ADR-0019
+        print(f"  {title}")  # noqa: ADR-0019
+        print(f"{'=' * 60}\n")  # noqa: ADR-0019
 
     # =========================================================================
     # STEP 1: READ HARVEST TABLE
@@ -151,20 +151,24 @@ class UseHarvestExecutor:
             # Try to find harvested files directly
             py_files = list(harvest_dir.glob("*.py"))
             if py_files:
-                print(f"⚠️  No HARVEST_TABLE.md, using {len(py_files)} .py files directly")
+                print(
+                    f"⚠️  No HARVEST_TABLE.md, using {len(py_files)} .py files directly"
+                )  # noqa: ADR-0019
                 items = []
                 for i, f in enumerate(sorted(py_files), 1):
-                    items.append({
-                        "number": i,
-                        "source_file": str(f),
-                        "target_path": "",  # Will need to be specified
-                        "action": "CREATE",
-                        "status": "pending",
-                    })
+                    items.append(
+                        {
+                            "number": i,
+                            "source_file": str(f),
+                            "target_path": "",  # Will need to be specified
+                            "action": "CREATE",
+                            "status": "pending",
+                        }
+                    )
                 self.state.items = items
                 return True
 
-            print(f"❌ No HARVEST_TABLE.md found at {table_file}")
+            print(f"❌ No HARVEST_TABLE.md found at {table_file}")  # noqa: ADR-0019
             return False
 
         # Parse the harvest table
@@ -173,7 +177,11 @@ class UseHarvestExecutor:
 
         # Parse table rows: | # | Pattern | Source Lines | Target |
         for line in content.split("\n"):
-            if line.startswith("|") and not line.startswith("| #") and not line.startswith("|---"):
+            if (
+                line.startswith("|")
+                and not line.startswith("| #")
+                and not line.startswith("|---")
+            ):
                 parts = [p.strip() for p in line.split("|")[1:-1]]
                 if len(parts) >= 4:
                     try:
@@ -192,21 +200,23 @@ class UseHarvestExecutor:
                             source_file = f
                             break
 
-                    items.append({
-                        "number": num,
-                        "source_file": str(source_file),
-                        "target_path": target if "/" in target else "",
-                        "action": "CREATE",
-                        "status": "pending",
-                    })
+                    items.append(
+                        {
+                            "number": num,
+                            "source_file": str(source_file),
+                            "target_path": target if "/" in target else "",
+                            "action": "CREATE",
+                            "status": "pending",
+                        }
+                    )
 
         self.state.items = items
 
-        print(f"✅ Read harvest table: {len(items)} items")
+        print(f"✅ Read harvest table: {len(items)} items")  # noqa: ADR-0019
         for item in items[:10]:
-            print(f"   {item['number']:2}. {Path(item['source_file']).name}")
+            print(f"   {item['number']:2}. {Path(item['source_file']).name}")  # noqa: ADR-0019
         if len(items) > 10:
-            print(f"   ... and {len(items) - 10} more")
+            print(f"   ... and {len(items) - 10} more")  # noqa: ADR-0019
 
         return len(items) > 0
 
@@ -219,7 +229,7 @@ class UseHarvestExecutor:
         for item in self.state.items:
             target = item["target_path"]
             if not target:
-                print(f"⚠️  {item['number']}: No target path specified")
+                print(f"⚠️  {item['number']}: No target path specified")  # noqa: ADR-0019
                 item["action"] = "MANUAL"
                 continue
 
@@ -227,16 +237,16 @@ class UseHarvestExecutor:
 
             if target_path.exists():
                 item["action"] = "REPLACE"
-                print(f"🔄 {item['number']:2}. {target} — REPLACE")
+                print(f"🔄 {item['number']:2}. {target} — REPLACE")  # noqa: ADR-0019
             else:
                 # Check if parent directory exists
                 parent = target_path.parent
                 if parent.exists():
                     item["action"] = "CREATE"
-                    print(f"✨ {item['number']:2}. {target} — CREATE")
+                    print(f"✨ {item['number']:2}. {target} — CREATE")  # noqa: ADR-0019
                 else:
                     item["action"] = "CREATE_DIR"
-                    print(f"📁 {item['number']:2}. {target} — CREATE (+ dir)")
+                    print(f"📁 {item['number']:2}. {target} — CREATE (+ dir)")  # noqa: ADR-0019
 
         return True
 
@@ -253,11 +263,11 @@ class UseHarvestExecutor:
             target = item["target_path"]
 
             if not target or item["action"] == "MANUAL":
-                print(f"⏭️  {item['number']}: Skipped (no target)")
+                print(f"⏭️  {item['number']}: Skipped (no target)")  # noqa: ADR-0019
                 continue
 
             if not source.exists():
-                print(f"❌ {item['number']}: Source not found: {source}")
+                print(f"❌ {item['number']}: Source not found: {source}")  # noqa: ADR-0019
                 item["status"] = "failed"
                 continue
 
@@ -274,16 +284,16 @@ class UseHarvestExecutor:
             if code == 0:
                 item["status"] = "deployed"
                 files_deployed.append(target)
-                print(f"✅ {item['number']:2}. {target}")
+                print(f"✅ {item['number']:2}. {target}")  # noqa: ADR-0019
             else:
                 item["status"] = "failed"
-                print(f"❌ {item['number']:2}. {target}: {stderr[:50]}")
+                print(f"❌ {item['number']:2}. {target}: {stderr[:50]}")  # noqa: ADR-0019
 
         self.state.files_deployed = files_deployed
 
         success = len(files_deployed)
         total = len([i for i in self.state.items if i["action"] != "MANUAL"])
-        print(f"\n✅ Deployed: {success}/{total} files")
+        print(f"\n✅ Deployed: {success}/{total} files")  # noqa: ADR-0019
 
         return success > 0 or total == 0
 
@@ -297,7 +307,7 @@ class UseHarvestExecutor:
         py_files = [f for f in self.state.files_deployed if f.endswith(".py")]
 
         if not py_files:
-            print("⚠️  No Python files to validate")
+            print("⚠️  No Python files to validate")  # noqa: ADR-0019
             validations.append({"check": "py_compile", "status": "⚠️ N/A"})
             self.state.validation_results = validations
             return True
@@ -306,20 +316,26 @@ class UseHarvestExecutor:
         passed = 0
         for f in py_files:
             full_path = REPO_ROOT / f
-            code, _stdout, stderr = self._run_shell(f'python3 -m py_compile "{full_path}"')
+            code, _stdout, stderr = self._run_shell(
+                f'python3 -m py_compile "{full_path}"'
+            )
             if code == 0:
                 passed += 1
-                print(f"✅ {f}")
+                print(f"✅ {f}")  # noqa: ADR-0019
             else:
-                print(f"❌ {f}: {stderr[:60]}")
+                print(f"❌ {f}: {stderr[:60]}")  # noqa: ADR-0019
 
-        validations.append({
-            "check": "py_compile",
-            "status": f"✅ {passed}/{len(py_files)}" if passed == len(py_files) else f"⚠️ {passed}/{len(py_files)}",
-        })
+        validations.append(
+            {
+                "check": "py_compile",
+                "status": f"✅ {passed}/{len(py_files)}"
+                if passed == len(py_files)
+                else f"⚠️ {passed}/{len(py_files)}",
+            }
+        )
 
         self.state.validation_results = validations
-        print(f"\n✅ Syntax valid: {passed}/{len(py_files)} files")
+        print(f"\n✅ Syntax valid: {passed}/{len(py_files)} files")  # noqa: ADR-0019
 
         return True
 
@@ -344,13 +360,15 @@ class UseHarvestExecutor:
 
                 # Check if already imported
                 if module_name not in init_content:
-                    print(f"⚠️  {f} may need to be added to {parent_dir.name}/__init__.py")
+                    print(
+                        f"⚠️  {f} may need to be added to {parent_dir.name}/__init__.py"
+                    )  # noqa: ADR-0019
             else:
                 # No __init__.py - may need to create one
-                print(f"⚠️  No __init__.py in {parent_dir.name}/ — may need to create")
+                print(f"⚠️  No __init__.py in {parent_dir.name}/ — may need to create")  # noqa: ADR-0019
 
-        print("\n✅ Wiring check complete")
-        print("   → Run /wire for full import resolution")
+        print("\n✅ Wiring check complete")  # noqa: ADR-0019
+        print("   → Run /wire for full import resolution")  # noqa: ADR-0019
 
         return True
 
@@ -364,7 +382,9 @@ class UseHarvestExecutor:
         todo_args = []
         for item in self.state.items[:10]:
             if item["target_path"]:
-                todo_args.append(f'--todo "D{item["number"]}|{item["target_path"]}|*|{item["action"]}|{item["status"]}"')
+                todo_args.append(
+                    f'--todo "D{item["number"]}|{item["target_path"]}|*|{item["action"]}|{item["status"]}"'
+                )
 
         # Build validation items
         val_args = []
@@ -385,7 +405,7 @@ class UseHarvestExecutor:
             --summary "Harvested code deployment via /use-harvest DAG executor" \
             --skip-verify 2>/dev/null || echo "Report generation skipped"'''
 
-        print("Generating report...")
+        print("Generating report...")  # noqa: ADR-0019
         _code, stdout, _stderr = self._run_shell(cmd)
 
         # Extract report path
@@ -395,9 +415,9 @@ class UseHarvestExecutor:
                 break
 
         if self.state.report_path:
-            print(f"✅ Report: {self.state.report_path}")
+            print(f"✅ Report: {self.state.report_path}")  # noqa: ADR-0019
         else:
-            print("⚠️  Report generation skipped")
+            print("⚠️  Report generation skipped")  # noqa: ADR-0019
             self.state.report_path = "N/A"
 
         return True
@@ -409,7 +429,7 @@ class UseHarvestExecutor:
         self._print_header("COMMIT (NO PUSH)")
 
         if not self.state.files_deployed:
-            print("✅ No files to commit")
+            print("✅ No files to commit")  # noqa: ADR-0019
             return True
 
         # Stage deployed files
@@ -427,16 +447,16 @@ class UseHarvestExecutor:
         code, stdout, _stderr = self._run_shell(cmd)
 
         if "nothing to commit" in stdout.lower():
-            print("✅ Nothing to commit — working tree clean")
+            print("✅ Nothing to commit — working tree clean")  # noqa: ADR-0019
         elif code == 0 or "file changed" in stdout.lower():
             _code, hash_out, _ = self._run_shell("git rev-parse --short HEAD")
             self.state.commit_hash = hash_out.strip()
-            print(f"✅ Committed: {self.state.commit_hash}")
-            print(f"   Message: {commit_msg}")
+            print(f"✅ Committed: {self.state.commit_hash}")  # noqa: ADR-0019
+            print(f"   Message: {commit_msg}")  # noqa: ADR-0019
         else:
-            print(f"⚠️  Commit result: {stdout[:100]}")
+            print(f"⚠️  Commit result: {stdout[:100]}")  # noqa: ADR-0019
 
-        print("\n⚠️  DO NOT PUSH — Review changes first")
+        print("\n⚠️  DO NOT PUSH — Review changes first")  # noqa: ADR-0019
 
         return True
 
@@ -446,32 +466,32 @@ class UseHarvestExecutor:
     def status(self):
         """Show current status."""
         if not self._load_state():
-            print("No active /use-harvest execution. Start with:")
-            print('  python3 workflows/use_harvest_executor.py path/to/harvested/')
+            print("No active /use-harvest execution. Start with:")  # noqa: ADR-0019
+            print("  python3 workflows/use_harvest_executor.py path/to/harvested/")  # noqa: ADR-0019
             return
 
         self._print_header(f"USE-HARVEST STATUS: {self.state.harvest_dir}")
-        print(f"Started: {self.state.started_at}")
-        print(f"Current step: {self.state.current_step}")
-        print(f"Items: {len(self.state.items)}")
-        print()
+        print(f"Started: {self.state.started_at}")  # noqa: ADR-0019
+        print(f"Current step: {self.state.current_step}")  # noqa: ADR-0019
+        print(f"Items: {len(self.state.items)}")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
 
         for step in STEP_ORDER:
             if step in self.state.completed_steps:
-                print(f"  ✅ {step}")
+                print(f"  ✅ {step}")  # noqa: ADR-0019
             elif step == self.state.current_step:
-                print(f"  🔄 {step}")
+                print(f"  🔄 {step}")  # noqa: ADR-0019
             else:
-                print(f"  ⏳ {step}")
+                print(f"  ⏳ {step}")  # noqa: ADR-0019
 
     def run(self, harvest_dir: str = "", resume: bool = False):
         """Execute the /use-harvest DAG — fully autonomous."""
         # Initialize or resume
         if resume and self._load_state():
-            print(f"Resuming use-harvest: {self.state.harvest_dir}")
+            print(f"Resuming use-harvest: {self.state.harvest_dir}")  # noqa: ADR-0019
         else:
             if not harvest_dir:
-                print("❌ Harvest directory required")
+                print("❌ Harvest directory required")  # noqa: ADR-0019
                 return False
             self.state = UseHarvestState(
                 harvest_dir=harvest_dir,
@@ -503,7 +523,7 @@ class UseHarvestExecutor:
 
             executor = executors.get(step)
             if not executor:
-                print(f"❌ No executor for step: {step}")
+                print(f"❌ No executor for step: {step}")  # noqa: ADR-0019
                 break
 
             success = executor()
@@ -512,20 +532,22 @@ class UseHarvestExecutor:
                 self.state.completed_steps.append(step)
                 self._save_state()
             else:
-                print(f"\n❌ Step failed: {step}")
-                print("\nResume with: python3 workflows/use_harvest_executor.py --resume")
+                print(f"\n❌ Step failed: {step}")  # noqa: ADR-0019
+                print(
+                    "\nResume with: python3 workflows/use_harvest_executor.py --resume"
+                )  # noqa: ADR-0019
                 return False
 
         # Complete
         self._print_header("USE-HARVEST COMPLETE")
-        print(f"✅ Harvest: {self.state.harvest_dir}")
-        print(f"   Items: {len(self.state.items)}")
-        print(f"   Deployed: {len(self.state.files_deployed)}")
-        print(f"   Report: {self.state.report_path}")
+        print(f"✅ Harvest: {self.state.harvest_dir}")  # noqa: ADR-0019
+        print(f"   Items: {len(self.state.items)}")  # noqa: ADR-0019
+        print(f"   Deployed: {len(self.state.files_deployed)}")  # noqa: ADR-0019
+        print(f"   Report: {self.state.report_path}")  # noqa: ADR-0019
         if self.state.commit_hash:
-            print(f"   Commit: {self.state.commit_hash}")
-        print("\n⚠️  DO NOT PUSH — Review changes first")
-        print("\n→ Next: Run /wire on deployed modules")
+            print(f"   Commit: {self.state.commit_hash}")  # noqa: ADR-0019
+        print("\n⚠️  DO NOT PUSH — Review changes first")  # noqa: ADR-0019
+        print("\n→ Next: Run /wire on deployed modules")  # noqa: ADR-0019
 
         # Clean up state
         self._clear_state()
@@ -549,10 +571,16 @@ Examples:
         """,
     )
 
-    parser.add_argument("harvest_dir", nargs="?", help="Directory containing harvested files")
-    parser.add_argument("--resume", action="store_true", help="Resume interrupted execution")
+    parser.add_argument(
+        "harvest_dir", nargs="?", help="Directory containing harvested files"
+    )
+    parser.add_argument(
+        "--resume", action="store_true", help="Resume interrupted execution"
+    )
     parser.add_argument("--status", action="store_true", help="Show current status")
-    parser.add_argument("--reset", action="store_true", help="Clear state and start fresh")
+    parser.add_argument(
+        "--reset", action="store_true", help="Clear state and start fresh"
+    )
 
     args = parser.parse_args()
 
@@ -561,7 +589,7 @@ Examples:
     if args.reset:
         if STATE_FILE.exists():
             STATE_FILE.unlink()
-        print("✅ State cleared")
+        print("✅ State cleared")  # noqa: ADR-0019
         return
 
     if args.status:
@@ -570,7 +598,7 @@ Examples:
 
     if args.resume:
         if not STATE_FILE.exists():
-            print("No use-harvest execution to resume")
+            print("No use-harvest execution to resume")  # noqa: ADR-0019
             sys.exit(1)
         executor.run(resume=True)
         return

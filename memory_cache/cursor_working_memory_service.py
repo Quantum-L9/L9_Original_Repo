@@ -12,7 +12,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 
@@ -55,7 +55,7 @@ class WorkingMemorySnapshot:
         if self.open_hypotheses is None:
             self.open_hypotheses = []
         if self.created_at is None:
-            self.created_at = datetime.utcnow().isoformat()
+            self.created_at = datetime.now(UTC).isoformat()
         if self.updated_at is None:
             self.updated_at = self.created_at
 
@@ -147,10 +147,10 @@ class CursorWorkingMemoryService:
 
         if action:
             snapshot.recent_decisions.append(
-                {"action": action, "timestamp": datetime.utcnow().isoformat()}
+                {"action": action, "timestamp": datetime.now(UTC).isoformat()}
             )
             snapshot.last_action_type = action.get("type", "unknown")
-            snapshot.last_action_timestamp = datetime.utcnow().isoformat()
+            snapshot.last_action_timestamp = datetime.now(UTC).isoformat()
 
         if files_touched:
             snapshot.files_touched.extend(files_touched)
@@ -166,13 +166,13 @@ class CursorWorkingMemoryService:
 
         if error:
             snapshot.recent_errors.append(
-                {"error": error, "timestamp": datetime.utcnow().isoformat()}
+                {"error": error, "timestamp": datetime.now(UTC).isoformat()}
             )
 
         if repo_state_hash:
             snapshot.repo_state_hash = repo_state_hash
 
-        snapshot.updated_at = datetime.utcnow().isoformat()
+        snapshot.updated_at = datetime.now(UTC).isoformat()
 
         # Persist with TTL
         ttl_seconds = int(self.ttl_hours * 3600)

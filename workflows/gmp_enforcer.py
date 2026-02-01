@@ -11,13 +11,13 @@ This script enforces GMP step ordering by:
 Usage:
     # Check current state and get next required step
     python3 workflows/gmp_enforcer.py status
-    
+
     # Mark a step as complete
     python3 workflows/gmp_enforcer.py complete memory_read
-    
+
     # Get the prompt for the next required step
     python3 workflows/gmp_enforcer.py next
-    
+
     # Reset workflow state
     python3 workflows/gmp_enforcer.py reset
 
@@ -33,19 +33,20 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
 
-
 # =============================================================================
 # Data Models
 # =============================================================================
 
+
 class StepStatus(str, Enum):
     """Status of a GMP step."""
+
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
@@ -56,6 +57,7 @@ class StepStatus(str, Enum):
 @dataclass
 class GMPStep:
     """A single step in the GMP workflow."""
+
     id: str
     name: str
     description: str
@@ -70,13 +72,14 @@ class GMPStep:
 @dataclass
 class GMPState:
     """Persistent state of GMP execution."""
+
     gmp_id: str
     tier: str
     task_description: str
     started_at: str
     steps: dict[str, GMPStep] = field(default_factory=dict)
     current_step: str | None = None
-    
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to serializable dict."""
         result = asdict(self)
@@ -85,9 +88,9 @@ class GMPState:
             if isinstance(step_data["status"], StepStatus):
                 step_data["status"] = step_data["status"].value
         return result
-    
+
     @classmethod
-    def from_dict(cls, data: dict[str, Any]) -> "GMPState":
+    def from_dict(cls, data: dict[str, Any]) -> GMPState:
         """Create from dict."""
         steps = {}
         for step_id, step_data in data.get("steps", {}).items():
@@ -347,31 +350,32 @@ Mark complete with: `python3 workflows/gmp_enforcer.py complete finalize`
 # GMP Enforcer
 # =============================================================================
 
+
 class GMPEnforcer:
     """Enforces GMP step ordering."""
-    
+
     STATE_FILE = Path(".gmp_state.json")
-    
+
     def __init__(self, working_dir: Path | None = None):
         """Initialize enforcer."""
         self.working_dir = working_dir or Path.cwd()
         self.state_file = self.working_dir / self.STATE_FILE
         self.state: GMPState | None = None
         self._load_state()
-    
+
     def _load_state(self) -> None:
         """Load state from file."""
         if self.state_file.exists():
             with open(self.state_file) as f:
                 data = json.load(f)
             self.state = GMPState.from_dict(data)
-    
+
     def _save_state(self) -> None:
         """Save state to file."""
         if self.state:
             with open(self.state_file, "w") as f:
                 json.dump(self.state.to_dict(), f, indent=2)
-    
+
     def initialize(self, gmp_id: str, tier: str, task_description: str) -> None:
         """Initialize a new GMP execution."""
         steps = {step.id: step for step in GMP_WORKFLOW}
@@ -384,24 +388,26 @@ class GMPEnforcer:
             current_step="memory_read",
         )
         self._save_state()
-        print(f"✅ GMP initialized: {gmp_id}")
-        print(f"   Tier: {tier}")
-        print(f"   Task: {task_description}")
-        print(f"\n📍 First step: memory_read")
-    
+        print(f"✅ GMP initialized: {gmp_id}")  # noqa: ADR-0019
+        print(f"   Tier: {tier}")  # noqa: ADR-0019
+        print(f"   Task: {task_description}")  # noqa: ADR-0019
+        print("\n📍 First step: memory_read")  # noqa: ADR-0019
+
     def status(self) -> None:
         """Print current status."""
         if not self.state:
-            print("❌ No active GMP. Initialize with:")
-            print("   python3 workflows/gmp_enforcer.py init GMP-XXX RUNTIME 'task description'")
+            print("❌ No active GMP. Initialize with:")  # noqa: ADR-0019
+            print(  # noqa: ADR-0019
+                "   python3 workflows/gmp_enforcer.py init GMP-XXX RUNTIME 'task description'"
+            )
             return
-        
-        print(f"\n{'=' * 60}")
-        print(f"GMP: {self.state.gmp_id} ({self.state.tier})")
-        print(f"Task: {self.state.task_description}")
-        print(f"Started: {self.state.started_at}")
-        print(f"{'=' * 60}")
-        
+
+        print(f"\n{'=' * 60}")  # noqa: ADR-0019
+        print(f"GMP: {self.state.gmp_id} ({self.state.tier})")  # noqa: ADR-0019
+        print(f"Task: {self.state.task_description}")  # noqa: ADR-0019
+        print(f"Started: {self.state.started_at}")  # noqa: ADR-0019
+        print(f"{'=' * 60}")  # noqa: ADR-0019
+
         for step in GMP_WORKFLOW:
             state_step = self.state.steps.get(step.id)
             if state_step:
@@ -412,66 +418,70 @@ class GMPEnforcer:
                     StepStatus.SKIPPED: "⏭️",
                     StepStatus.FAILED: "❌",
                 }.get(state_step.status, "❓")
-                
+
                 current = " ← CURRENT" if step.id == self.state.current_step else ""
-                print(f"  {status_icon} {step.name}{current}")
-        
-        print(f"{'=' * 60}\n")
-    
+                print(f"  {status_icon} {step.name}{current}")  # noqa: ADR-0019
+
+        print(f"{'=' * 60}\n")  # noqa: ADR-0019
+
     def next_step(self) -> None:
         """Get prompt for next required step."""
         if not self.state:
-            print("❌ No active GMP")
+            print("❌ No active GMP")  # noqa: ADR-0019
             return
-        
+
         current = self.state.current_step
         if not current:
-            print("✅ All steps complete!")
+            print("✅ All steps complete!")  # noqa: ADR-0019
             return
-        
+
         step = self.state.steps.get(current)
         if not step:
-            print(f"❌ Unknown step: {current}")
+            print(f"❌ Unknown step: {current}")  # noqa: ADR-0019
             return
-        
+
         # Check dependencies
         for dep in step.depends_on:
             dep_step = self.state.steps.get(dep)
             if dep_step and dep_step.status != StepStatus.COMPLETED:
-                print(f"❌ BLOCKED: Step '{current}' requires '{dep}' to be completed first!")
-                print(f"\nComplete '{dep}' first with:")
-                print(f"   python3 workflows/gmp_enforcer.py complete {dep}")
+                print(  # noqa: ADR-0019
+                    f"❌ BLOCKED: Step '{current}' requires '{dep}' to be completed first!"
+                )
+                print(f"\nComplete '{dep}' first with:")  # noqa: ADR-0019
+                print(f"   python3 workflows/gmp_enforcer.py complete {dep}")  # noqa: ADR-0019
                 return
-        
+
         # Show prompt
-        print(f"\n{'=' * 60}")
-        print(f"NEXT REQUIRED STEP: {step.name}")
-        print(f"{'=' * 60}")
-        print(step.prompt)
-    
+        print(f"\n{'=' * 60}")  # noqa: ADR-0019
+        print(f"NEXT REQUIRED STEP: {step.name}")  # noqa: ADR-0019
+        print(f"{'=' * 60}")  # noqa: ADR-0019
+        print(step.prompt)  # noqa: ADR-0019
+
     def complete_step(self, step_id: str, output: str = "") -> None:
         """Mark a step as complete."""
         if not self.state:
-            print("❌ No active GMP")
+            print("❌ No active GMP")  # noqa: ADR-0019
             return
-        
+
         step = self.state.steps.get(step_id)
         if not step:
-            print(f"❌ Unknown step: {step_id}")
+            print(f"❌ Unknown step: {step_id}")  # noqa: ADR-0019
             return
-        
+
         # Check dependencies
         for dep in step.depends_on:
             dep_step = self.state.steps.get(dep)
             if dep_step and dep_step.status != StepStatus.COMPLETED:
-                print(f"❌ BLOCKED: Cannot complete '{step_id}' — requires '{dep}' first!")
+                print(  # noqa: ADR-0019
+                    f"❌ BLOCKED: Cannot complete '{step_id}' — requires '{dep}' first!"
+                )
                 return
-        
+
         # Mark complete
         step.status = StepStatus.COMPLETED
         step.completed_at = datetime.now().isoformat()
         step.output = output
-        
+
         # Find next step
         for workflow_step in GMP_WORKFLOW:
             state_step = self.state.steps.get(workflow_step.id)
@@ -480,26 +490,27 @@ class GMPEnforcer:
                 break
         else:
             self.state.current_step = None
-        
+
         self._save_state()
-        print(f"✅ Step '{step_id}' completed!")
-        
+        print(f"✅ Step '{step_id}' completed!")  # noqa: ADR-0019
+
         if self.state.current_step:
-            print(f"📍 Next step: {self.state.current_step}")
+            print(f"📍 Next step: {self.state.current_step}")  # noqa: ADR-0019
         else:
-            print("🎉 All steps complete!")
-    
+            print("🎉 All steps complete!")  # noqa: ADR-0019
+
     def reset(self) -> None:
         """Reset workflow state."""
         if self.state_file.exists():
             self.state_file.unlink()
         self.state = None
-        print("✅ GMP state reset")
+        print("✅ GMP state reset")  # noqa: ADR-0019
 
 
 # =============================================================================
 # CLI
 # =============================================================================
+
 
 def main():
     """CLI entry point."""
@@ -515,37 +526,37 @@ Examples:
     python3 workflows/gmp_enforcer.py reset
         """,
     )
-    
+
     subparsers = parser.add_subparsers(dest="command", help="Command")
-    
+
     # Init
     init_parser = subparsers.add_parser("init", help="Initialize GMP")
     init_parser.add_argument("gmp_id", help="GMP ID (e.g., GMP-123)")
     init_parser.add_argument("tier", choices=["KERNEL", "RUNTIME", "INFRA", "UX"])
     init_parser.add_argument("task", help="Task description")
-    
+
     # Status
     subparsers.add_parser("status", help="Show current status")
-    
+
     # Next
     subparsers.add_parser("next", help="Get next required step")
-    
+
     # Complete
     complete_parser = subparsers.add_parser("complete", help="Mark step complete")
     complete_parser.add_argument("step_id", help="Step ID to mark complete")
     complete_parser.add_argument("--output", "-o", default="", help="Step output")
-    
+
     # Reset
     subparsers.add_parser("reset", help="Reset workflow state")
-    
+
     args = parser.parse_args()
-    
+
     if not args.command:
         parser.print_help()
         sys.exit(1)
-    
+
     enforcer = GMPEnforcer()
-    
+
     if args.command == "init":
         enforcer.initialize(args.gmp_id, args.tier, args.task)
     elif args.command == "status":

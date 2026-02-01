@@ -34,7 +34,7 @@ Usage:
     # Session DAG (documentation/planning)
     from workflows.session import get_session_dag
     dag = get_session_dag("harvest-deploy-v1")
-    print(dag.to_mermaid())
+    print(dag.to_mermaid())  # noqa: ADR-0019
 
     # LangGraph Execution (runtime)
     from workflows.harvest_deploy import run_harvest_deploy

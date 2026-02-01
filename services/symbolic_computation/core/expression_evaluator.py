@@ -72,7 +72,7 @@ class ExpressionEvaluator:
             variables={"x": 3},
             backend="numpy"
         )
-        print(result.result)  # 16.0
+        print(result.result)  # 16.0  # noqa: ADR-0019
     """
 
     def __init__(

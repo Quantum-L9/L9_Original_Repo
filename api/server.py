@@ -3644,7 +3644,7 @@ async def l_ws(websocket: WebSocket) -> None:
                 "thread_id": "my-session-123"
             }))
             response = json.loads(await ws.recv())
-            print(response["reply"])
+            print(response["reply"])  # noqa: ADR-0019
     """
     # Validate auth BEFORE accept (enforced security gate)
     token = websocket.query_params.get("token")

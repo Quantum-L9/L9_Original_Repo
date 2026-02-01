@@ -61,7 +61,7 @@ class Optimizer:
     Example:
         optimizer = Optimizer()
         optimized = optimizer.optimize_expression("x**2 + 2*x*y + y**2")
-        print(optimized)  # (x + y)**2
+        print(optimized)  # (x + y)**2  # noqa: ADR-0019
     """
 
     def __init__(

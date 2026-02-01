@@ -320,7 +320,7 @@ def get_subsystem_context(
 
 if __name__ == "__main__":
     # Test detection
-    print("=== Subsystem Detection Tests ===\n")
+    print("=== Subsystem Detection Tests ===\n")  # noqa: ADR-0019
 
     tests = [
         ({"files": ["api/auth.py"]}, "auth"),
@@ -334,9 +334,9 @@ if __name__ == "__main__":
     for kwargs, expected in tests:
         result = detect_subsystem(**kwargs)
         status = "✅" if result == expected else "❌"
-        print(f"{status} {kwargs} -> {result} (expected: {expected})")
+        print(f"{status} {kwargs} -> {result} (expected: {expected})")  # noqa: ADR-0019
 
-    print("\n=== Subsystem Context ===\n")
+    print("\n=== Subsystem Context ===\n")  # noqa: ADR-0019
     ctx = get_subsystem_context(prompt="Add authentication middleware")
     for k, v in ctx.items():
-        print(f"  {k}: {v}")
+        print(f"  {k}: {v}")  # noqa: ADR-0019

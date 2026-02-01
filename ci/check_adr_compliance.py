@@ -10,6 +10,9 @@ Enforces Architecture Decision Records:
 - ADR-0027: LRU cache must have maxsize
 - ADR-0033: Async context managers with try/finally
 - ADR-0041: No eval()/exec() usage (security)
+- ADR-0083: datetime.utcnow() deprecated (use datetime.now(UTC))  # noqa: ADR-0083
+- ADR-0087: SQL parameterization (no f-string SQL)
+- ADR-0088: No pickle serialization (security)  # noqa: ADR-0088
 
 Usage:
     python ci/check_adr_compliance.py              # Show all violations
@@ -91,15 +94,29 @@ ALLOWED_EXCEPTIONS = {
 }
 
 # ADRs that are enforced as errors (block CI)
-ERROR_ADRS = {"ADR-0041", "ADR-0026"}  # Security + Protocol enforcement (all existing fixed)
+ERROR_ADRS = {
+    "ADR-0002",  # TYPE_CHECKING pattern - ENFORCED
+    "ADR-0019",  # structlog logging - ENFORCED
+    "ADR-0041",  # No eval/exec (security) - CRITICAL
+    "ADR-0083",  # datetime.utcnow() deprecated
+    "ADR-0087",  # SQL parameterization - ENFORCED
+    "ADR-0088",  # No pickle (security) - CRITICAL
+}
 
 # ADRs enforced as warnings (tracked but don't block default CI)
-WARNING_ADRS = {"ADR-0002", "ADR-0019", "ADR-0023", "ADR-0026", "ADR-0027", "ADR-0033", "ADR-0055"}
+WARNING_ADRS = {
+    "ADR-0023",  # Error packet pattern
+    "ADR-0026",  # Protocol-based (3 violations to fix)
+    "ADR-0027",  # LRU cache maxsize
+    "ADR-0033",  # Async context managers
+    "ADR-0055",  # Fail-loudly
+}
 
 
 @dataclass
 class Violation:
     """ADR violation record."""
+
     adr: str
     file: Path
     line: int
@@ -109,7 +126,7 @@ class Violation:
 
 class ADRChecker(ast.NodeVisitor):
     """AST visitor that checks for ADR violations."""
-    
+
     def __init__(self, filepath: Path, content: str, strict: bool = False):
         self.filepath = filepath
         self.content = content
@@ -121,68 +138,84 @@ class ADRChecker(ast.NodeVisitor):
         self._has_type_checking_import = False
         self._current_function: str | None = None
         self._lines = content.splitlines()
-    
+
     def _has_noqa(self, lineno: int, adr: str) -> bool:
         """Check if line has # noqa: ADR-XXXX comment."""
         if lineno < 1 or lineno > len(self._lines):
             return False
         line = self._lines[lineno - 1]
-        # Check for # noqa: ADR-0026 or # noqa: ADR-0026 - reason
-        return f"# noqa: {adr}" in line or "# noqa: all" in line
-    
+        # Check for:
+        # - # noqa: ADR-0026
+        # - # noqa: ADR-0019, ADR-0026 (comma-separated)
+        # - # noqa: all
+        if "# noqa: all" in line:
+            return True
+        if f"# noqa: {adr}" in line:
+            return True
+        # Handle comma-separated: # noqa: ADR-0019
+        if f", {adr}" in line and "# noqa:" in line:
+            return True
+        return False
+
     def _is_allowed(self, category: str) -> bool:
         """Check if file is allowed to use pattern."""
-        rel_path = str(self.filepath.relative_to(L9_ROOT)) if self.filepath.is_relative_to(L9_ROOT) else str(self.filepath)
+        rel_path = (
+            str(self.filepath.relative_to(L9_ROOT))
+            if self.filepath.is_relative_to(L9_ROOT)
+            else str(self.filepath)
+        )
         allowed = ALLOWED_EXCEPTIONS.get(category, set())
         return any(rel_path.startswith(a) for a in allowed)
-    
-    def _add_violation(self, adr: str, line: int, message: str, default_severity: str = "warning"):
+
+    def _add_violation(
+        self, adr: str, line: int, message: str, default_severity: str = "warning"
+    ):
         """Add a violation with appropriate severity."""
         # Skip if line has # noqa: ADR-XXXX comment
         if self._has_noqa(line, adr):
             return
-        
+
         # In strict mode, all violations are errors
-        if self.strict:
-            severity = "error"
-        # Security ADRs are always errors
-        elif adr in ERROR_ADRS:
+        if self.strict or adr in ERROR_ADRS:
             severity = "error"
         else:
             severity = default_severity
-        
-        self.violations.append(Violation(
-            adr=adr,
-            file=self.filepath,
-            line=line,
-            message=message,
-            severity=severity,
-        ))
-    
+
+        self.violations.append(
+            Violation(
+                adr=adr,
+                file=self.filepath,
+                line=line,
+                message=message,
+                severity=severity,
+            )
+        )
+
     def visit_ImportFrom(self, node: ast.ImportFrom):
         """Check from-import statements."""
         module = node.module or ""
-        
+
         # Track __future__ annotations import
         if module == "__future__":
             for alias in node.names:
                 if alias.name == "annotations":
                     self._has_future_annotations = True
-        
+
         # Track TYPE_CHECKING import
         if module == "typing":
             for alias in node.names:
                 if alias.name == "TYPE_CHECKING":
                     self._has_type_checking_import = True
-        
-        # ADR-0019: Detect logging module import
+
+        # ADR-0019: Detect logging module import (unless noqa)
         if module == "logging" and not self._is_allowed("logging_module"):
-            self._has_logging_import = True
-        
-        # Detect structlog import  
+            if not self._has_noqa(node.lineno, "ADR-0019"):
+                self._has_logging_import = True
+
+        # Detect structlog import
         if module == "structlog":
             self._has_structlog_import = True
-        
+
         # ADR-0026: Detect ABC import for interface definition
         if module == "abc":
             for alias in node.names:
@@ -192,24 +225,25 @@ class ADRChecker(ast.NodeVisitor):
                         node.lineno,
                         "Use typing.Protocol instead of abc.ABC for interfaces",
                     )
-        
+
         self.generic_visit(node)
-    
+
     def visit_Import(self, node: ast.Import):
         """Check import statements."""
         for alias in node.names:
             name = alias.name
-            
-            # ADR-0019: Detect logging module import
+
+            # ADR-0019: Detect logging module import (unless noqa)
             if name == "logging" and not self._is_allowed("logging_module"):
-                self._has_logging_import = True
-            
+                if not self._has_noqa(node.lineno, "ADR-0019"):
+                    self._has_logging_import = True
+
             # Detect structlog import
             if name == "structlog":
                 self._has_structlog_import = True
-        
+
         self.generic_visit(node)
-    
+
     def visit_If(self, node: ast.If):
         """Check if statements for TYPE_CHECKING pattern."""
         # ADR-0002: Check for TYPE_CHECKING usage
@@ -220,9 +254,9 @@ class ADRChecker(ast.NodeVisitor):
                     node.lineno,
                     "TYPE_CHECKING block requires 'from __future__ import annotations' at file top",
                 )
-        
+
         self.generic_visit(node)
-    
+
     def visit_Call(self, node: ast.Call):
         """Check function calls."""
         func_name = None
@@ -230,26 +264,78 @@ class ADRChecker(ast.NodeVisitor):
             func_name = node.func.id
         elif isinstance(node.func, ast.Attribute):
             func_name = node.func.attr
-        
+
         # ADR-0041: No eval() or exec() - ALWAYS ERROR (security)
         is_method_call = isinstance(node.func, ast.Attribute)
-        if func_name in ("eval", "exec") and not self._is_allowed("eval") and not is_method_call:
+        if (
+            func_name in ("eval", "exec")
+            and not self._is_allowed("eval")
+            and not is_method_call
+        ):
             self._add_violation(
                 "ADR-0041",
                 node.lineno,
                 f"Use of {func_name}() is forbidden (security risk). Use ast.literal_eval() for safe parsing.",
                 "error",
             )
-        
+
         # ADR-0041: No __import__() - ALWAYS ERROR (security)
         if func_name == "__import__" and not self._is_allowed("eval"):
             self._add_violation(
-                "ADR-0041", 
+                "ADR-0041",
                 node.lineno,
                 "Use of __import__() is forbidden. Use static imports instead.",
                 "error",
             )
-        
+
+        # ADR-0083: No datetime.utcnow() - deprecated in Python 3.12
+        if isinstance(node.func, ast.Attribute):
+            if func_name == "utcnow":
+                if (
+                    isinstance(node.func.value, ast.Name)
+                    and node.func.value.id == "datetime"
+                ):
+                    self._add_violation(
+                        "ADR-0083",
+                        node.lineno,
+                        "datetime.utcnow() is deprecated. Use datetime.now(UTC) instead.",
+                        "error",
+                    )
+                elif isinstance(node.func.value, ast.Attribute):
+                    # datetime.datetime.utcnow()
+                    if node.func.value.attr == "datetime":
+                        self._add_violation(
+                            "ADR-0083",
+                            node.lineno,
+                            "datetime.datetime.utcnow() is deprecated. Use datetime.now(UTC) instead.",
+                            "error",
+                        )
+
+        # ADR-0088: No pickle.loads() - security vulnerability
+        if isinstance(node.func, ast.Attribute):
+            if func_name == "loads":
+                if (
+                    isinstance(node.func.value, ast.Name)
+                    and node.func.value.id == "pickle"
+                ):
+                    self._add_violation(
+                        "ADR-0088",
+                        node.lineno,
+                        "pickle.loads() is forbidden (security). Use json.loads() or msgpack instead.",
+                        "error",
+                    )
+            if func_name == "load":
+                if (
+                    isinstance(node.func.value, ast.Name)
+                    and node.func.value.id == "pickle"
+                ):
+                    self._add_violation(
+                        "ADR-0088",
+                        node.lineno,
+                        "pickle.load() is forbidden (security). Use json.load() instead.",
+                        "error",
+                    )
+
         # ADR-0019: No print() in production code
         if func_name == "print" and not self._is_allowed("print"):
             self._add_violation(
@@ -257,52 +343,61 @@ class ADRChecker(ast.NodeVisitor):
                 node.lineno,
                 "Use structlog.get_logger() instead of print()",
             )
-        
+
         # ADR-0019: Detect logging.getLogger usage
         if isinstance(node.func, ast.Attribute):
             if isinstance(node.func.value, ast.Name):
-                if node.func.value.id == "logging" and node.func.attr in ("getLogger", "info", "debug", "warning", "error", "critical"):
+                if node.func.value.id == "logging" and node.func.attr in (
+                    "getLogger",
+                    "info",
+                    "debug",
+                    "warning",
+                    "error",
+                    "critical",
+                ):
                     if not self._is_allowed("logging_module"):
                         self._add_violation(
                             "ADR-0019",
                             node.lineno,
                             "Use structlog.get_logger() instead of logging module",
                         )
-        
+
         self.generic_visit(node)
-    
+
     def visit_FunctionDef(self, node: ast.FunctionDef):
         """Check function definitions."""
         self._current_function = node.name
         self._check_decorators(node)
         self.generic_visit(node)
         self._current_function = None
-    
+
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
         """Check async function definitions."""
         self._current_function = node.name
         self._check_decorators(node)
-        
+
         # Check for @asynccontextmanager decorator
         is_context_manager = any(
-            (isinstance(d, ast.Name) and d.id == "asynccontextmanager") or
-            (isinstance(d, ast.Attribute) and d.attr == "asynccontextmanager")
+            (isinstance(d, ast.Name) and d.id == "asynccontextmanager")
+            or (isinstance(d, ast.Attribute) and d.attr == "asynccontextmanager")
             for d in node.decorator_list
         )
-        
+
         # ADR-0033: Async context managers should have try/finally
-        if is_context_manager and node.name not in ("lifespan", "ensure_governance_context", "with_error_handling"):
+        if is_context_manager and node.name not in (
+            "lifespan",
+            "ensure_governance_context",
+            "with_error_handling",
+        ):
             has_try_finally = any(
-                isinstance(stmt, ast.Try) and stmt.finalbody
-                for stmt in ast.walk(node)
+                isinstance(stmt, ast.Try) and stmt.finalbody for stmt in ast.walk(node)
             )
             has_try_except_else = any(
                 isinstance(stmt, ast.Try) and stmt.handlers and stmt.orelse
                 for stmt in ast.walk(node)
             )
             has_async_with = any(
-                isinstance(stmt, ast.AsyncWith)
-                for stmt in ast.walk(node)
+                isinstance(stmt, ast.AsyncWith) for stmt in ast.walk(node)
             )
             if not has_try_finally and not has_try_except_else and not has_async_with:
                 self._add_violation(
@@ -310,10 +405,10 @@ class ADRChecker(ast.NodeVisitor):
                     node.lineno,
                     f"Async context manager '{node.name}' should have try/finally for cleanup",
                 )
-        
+
         self.generic_visit(node)
         self._current_function = None
-    
+
     def _check_decorators(self, node: ast.FunctionDef | ast.AsyncFunctionDef):
         """Check decorators on function definitions."""
         for decorator in node.decorator_list:
@@ -325,32 +420,82 @@ class ADRChecker(ast.NodeVisitor):
                     f"@lru_cache on '{node.name}' should have explicit maxsize: @lru_cache(maxsize=N)",
                 )
             elif isinstance(decorator, ast.Call):
-                if isinstance(decorator.func, ast.Name) and decorator.func.id == "lru_cache":
-                    has_maxsize = any(
-                        kw.arg == "maxsize" for kw in decorator.keywords
-                    ) or len(decorator.args) > 0
+                if (
+                    isinstance(decorator.func, ast.Name)
+                    and decorator.func.id == "lru_cache"
+                ):
+                    has_maxsize = (
+                        any(kw.arg == "maxsize" for kw in decorator.keywords)
+                        or len(decorator.args) > 0
+                    )
                     if not has_maxsize:
                         self._add_violation(
                             "ADR-0027",
                             decorator.lineno,
                             f"@lru_cache on '{node.name}' should have explicit maxsize",
                         )
-    
+
     def visit_ClassDef(self, node: ast.ClassDef):
         """Check class definitions."""
         # ADR-0026: Detect ABC inheritance for interfaces
         for base in node.bases:
             if isinstance(base, ast.Name) and base.id == "ABC":
                 rel_path = str(self.filepath)
-                if "abstractions" in rel_path or "protocols" in rel_path or "interfaces" in rel_path:
+                if (
+                    "abstractions" in rel_path
+                    or "protocols" in rel_path
+                    or "interfaces" in rel_path
+                ):
                     self._add_violation(
                         "ADR-0026",
                         node.lineno,
                         f"Class '{node.name}' inherits from ABC. Use Protocol for interfaces.",
                     )
-        
+
         self.generic_visit(node)
-    
+
+    def visit_JoinedStr(self, node: ast.JoinedStr):
+        """Check f-strings for SQL injection vulnerabilities."""
+        # ADR-0087: No f-string SQL
+        # Get the string content to check for SQL keywords
+        parts = []
+        for value in node.values:
+            if isinstance(value, ast.Constant):
+                parts.append(str(value.value))
+
+        combined = "".join(parts).upper()
+
+        # Only match ACTUAL SQL statements, not log messages like "Inserted packet"
+        # Pattern: SQL keyword followed by table-like context
+        import re
+
+        sql_patterns = [
+            r"\bSELECT\s+.+\s+FROM\b",  # SELECT ... FROM
+            r"\bINSERT\s+INTO\b",  # INSERT INTO
+            r"\bUPDATE\s+\w+\s+SET\b",  # UPDATE table SET
+            r"\bDELETE\s+FROM\b",  # DELETE FROM
+            r"\bDROP\s+(TABLE|INDEX|DATABASE)\b",  # DROP TABLE/INDEX/DATABASE
+            r"\bCREATE\s+(TABLE|INDEX|DATABASE)\b",  # CREATE TABLE/INDEX/DATABASE
+            r"\bALTER\s+TABLE\b",  # ALTER TABLE
+        ]
+
+        is_sql = any(re.search(pattern, combined) for pattern in sql_patterns)
+
+        if is_sql:
+            # Check if there are any interpolated values (format specs)
+            has_interpolation = any(
+                isinstance(v, ast.FormattedValue) for v in node.values
+            )
+            if has_interpolation:
+                self._add_violation(
+                    "ADR-0087",
+                    node.lineno,
+                    "SQL queries must use parameterized queries, not f-strings (SQL injection risk).",
+                    "error",
+                )
+
+        self.generic_visit(node)
+
     def visit_ExceptHandler(self, node: ast.ExceptHandler):
         """Check exception handlers."""
         # ADR-0055: Detect bare except
@@ -361,7 +506,7 @@ class ADRChecker(ast.NodeVisitor):
                     node.lineno,
                     "Bare 'except:' catches all exceptions including KeyboardInterrupt. Specify exception type.",
                 )
-        
+
         # ADR-0023: Check for except: pass (silent failure)
         if len(node.body) == 1 and isinstance(node.body[0], ast.Pass):
             if not self._is_allowed("bare_except"):
@@ -370,7 +515,7 @@ class ADRChecker(ast.NodeVisitor):
                     node.lineno,
                     "Silent 'except: pass' hides errors. Log or emit error packet per ADR-0023.",
                 )
-        
+
         # Check for except Exception: pass
         if node.type and len(node.body) == 1 and isinstance(node.body[0], ast.Pass):
             if isinstance(node.type, ast.Name) and node.type.id == "Exception":
@@ -380,7 +525,7 @@ class ADRChecker(ast.NodeVisitor):
                         node.lineno,
                         "Silent 'except Exception: pass' hides errors. Handle or re-raise.",
                     )
-        
+
         self.generic_visit(node)
 
 
@@ -391,10 +536,10 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
         tree = ast.parse(content)
     except Exception:
         return []
-    
+
     checker = ADRChecker(filepath, content, strict=strict)
     checker.visit(tree)
-    
+
     # Post-visit checks
     if checker._has_logging_import and not checker._has_structlog_import:
         if not checker._is_allowed("logging_module"):
@@ -403,7 +548,7 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
                 1,
                 "File imports 'logging' module. Use structlog instead per ADR-0019.",
             )
-    
+
     return checker.violations
 
 
@@ -412,12 +557,24 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Check ADR compliance")
     parser.add_argument("--list", "-l", action="store_true", help="List enforced ADRs")
     parser.add_argument("--verbose", "-v", action="store_true", help="Show summary")
-    parser.add_argument("--errors-only", "-e", action="store_true", help="Show only errors (default CI mode)")
-    parser.add_argument("--strict", "-s", action="store_true", help="Strict mode: all violations are errors")
+    parser.add_argument(
+        "--errors-only",
+        "-e",
+        action="store_true",
+        help="Show only errors (default CI mode)",
+    )
+    parser.add_argument(
+        "--strict",
+        "-s",
+        action="store_true",
+        help="Strict mode: all violations are errors",
+    )
     parser.add_argument("--json", action="store_true", help="Output as JSON")
-    parser.add_argument("files", nargs="*", help="Specific files to check (default: all)")
+    parser.add_argument(
+        "files", nargs="*", help="Specific files to check (default: all)"
+    )
     args = parser.parse_args()
-    
+
     if args.list:
         print("=" * 70)
         print("L9 ADR COMPLIANCE CHECKER")
@@ -429,10 +586,24 @@ def main() -> int:
         print("            - No eval(), exec(), __import__()")
         print("            - Use ast.literal_eval() for safe parsing")
         print()
+        print("  ADR-0083  Datetime UTC Standard")
+        print("            - No datetime.utcnow() (deprecated Python 3.12)")
+        print("            - Use datetime.now(UTC) instead")
+        print()
+        print("  ADR-0087  SQL Parameterization")
+        print("            - No f-string SQL queries (injection risk)")
+        print("            - Use parameterized queries: $1, :param")
+        print()
+        print("  ADR-0088  No Pickle Serialization")
+        print("            - No pickle.loads() or pickle.load()")
+        print("            - Use json.loads() or msgpack instead")
+        print()
         print("CODE QUALITY (Warning in default mode, Error in --strict):")
         print("-" * 40)
         print("  ADR-0002  TYPE_CHECKING Pattern")
-        print("            - TYPE_CHECKING requires 'from __future__ import annotations'")
+        print(
+            "            - TYPE_CHECKING requires 'from __future__ import annotations'"
+        )
         print()
         print("  ADR-0019  structlog Logging Standard")
         print("            - No print() in production code")
@@ -459,7 +630,7 @@ def main() -> int:
         print("  --strict       All violations are errors (full enforcement)")
         print("=" * 70)
         return 0
-    
+
     if args.files:
         files = [Path(f) for f in args.files if f.endswith(".py")]
     else:
@@ -468,19 +639,20 @@ def main() -> int:
             for f in L9_ROOT.rglob("*.py")
             if f.is_file() and not any(d in f.parts for d in SKIP_DIRS)
         ]
-    
+
     all_violations: list[Violation] = []
-    
+
     for filepath in sorted(files):
         violations = check_file(filepath, strict=args.strict)
         all_violations.extend(violations)
-    
+
     # Filter if errors-only
     if args.errors_only:
         all_violations = [v for v in all_violations if v.severity == "error"]
-    
+
     if args.json:
         import json
+
         output = {
             "total_files": len(files),
             "total_violations": len(all_violations),
@@ -489,7 +661,11 @@ def main() -> int:
             "violations": [
                 {
                     "adr": v.adr,
-                    "file": str(v.file.relative_to(L9_ROOT) if v.file.is_relative_to(L9_ROOT) else v.file),
+                    "file": str(
+                        v.file.relative_to(L9_ROOT)
+                        if v.file.is_relative_to(L9_ROOT)
+                        else v.file
+                    ),
                     "line": v.line,
                     "message": v.message,
                     "severity": v.severity,
@@ -500,40 +676,50 @@ def main() -> int:
         print(json.dumps(output, indent=2))
         errors = output["errors"]
         return 1 if errors > 0 else 0
-    
+
     if all_violations:
         by_adr: dict[str, list[Violation]] = {}
         for v in all_violations:
             if v.adr not in by_adr:
                 by_adr[v.adr] = []
             by_adr[v.adr].append(v)
-        
+
         errors = sum(1 for v in all_violations if v.severity == "error")
         warnings = sum(1 for v in all_violations if v.severity == "warning")
-        
+
         mode_str = "[STRICT MODE]" if args.strict else "[DEFAULT MODE]"
-        print(f"❌ ADR violations found {mode_str}: {errors} errors, {warnings} warnings\n")
-        
+        print(
+            f"❌ ADR violations found {mode_str}: {errors} errors, {warnings} warnings\n"
+        )
+
         for adr in sorted(by_adr.keys()):
             violations = by_adr[adr]
             adr_errors = sum(1 for v in violations if v.severity == "error")
             adr_warnings = sum(1 for v in violations if v.severity == "warning")
-            status = f"{adr_errors}E/{adr_warnings}W" if not args.strict else f"{len(violations)}E"
+            status = (
+                f"{adr_errors}E/{adr_warnings}W"
+                if not args.strict
+                else f"{len(violations)}E"
+            )
             print(f"=== {adr} ({status}) ===\n")
             for v in violations[:10]:
-                rel = v.file.relative_to(L9_ROOT) if v.file.is_relative_to(L9_ROOT) else v.file
+                rel = (
+                    v.file.relative_to(L9_ROOT)
+                    if v.file.is_relative_to(L9_ROOT)
+                    else v.file
+                )
                 severity_icon = "❌" if v.severity == "error" else "⚠️"
                 print(f"  {severity_icon} {rel}:{v.line}")
                 print(f"     {v.message}\n")
             if len(violations) > 10:
                 print(f"  ... and {len(violations) - 10} more\n")
-        
+
         return 1 if errors > 0 else 0
-    
+
     if args.verbose:
         mode_str = "[STRICT]" if args.strict else "[DEFAULT]"
         print(f"✅ {mode_str} Checked {len(files)} files - no ADR violations")
-    
+
     return 0
 
 

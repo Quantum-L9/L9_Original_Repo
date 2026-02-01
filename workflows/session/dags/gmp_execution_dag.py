@@ -441,7 +441,9 @@ git log -1 --oneline""",
         SessionEdge(
             "gate_validation", "memory_write", condition="continue", label="Validated"
         ),
-        SessionEdge("gate_validation", "implement", condition="fix", label="Fix Issues"),
+        SessionEdge(
+            "gate_validation", "implement", condition="fix", label="Fix Issues"
+        ),
         SessionEdge("gate_validation", "end", condition="abort", label="Abort"),
         # Memory Write (MANDATORY) -> Finalize
         SessionEdge("memory_write", "finalize"),
@@ -468,4 +470,4 @@ def get_gmp_execution_dag() -> SessionDAG:
 
 # Generate Mermaid diagram for documentation
 if __name__ == "__main__":
-    print(GMP_EXECUTION_DAG.to_markdown())
+    print(GMP_EXECUTION_DAG.to_markdown())  # noqa: ADR-0019

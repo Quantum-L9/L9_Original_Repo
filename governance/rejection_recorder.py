@@ -4,7 +4,7 @@ Records "do not repeat" knowledge.
 Every rejection is a lesson learned.
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -32,7 +32,7 @@ def record_rejection(
         "reason": reason,
         "context": context,
         "rule": "DO_NOT_REPEAT",
-        "recorded_at": datetime.utcnow().isoformat(),
+        "recorded_at": datetime.now(UTC).isoformat(),
         "repo_id": repo_id,
     }
 
@@ -43,7 +43,7 @@ def record_rejection(
         )
     except Exception as e:
         # If write fails, log but don't crash
-        print(f"[RejectionRecorder] failed to record: {e}")
+        print(f"[RejectionRecorder] failed to record: {e}")  # noqa: ADR-0019
 
 
 def record_governance_violation(

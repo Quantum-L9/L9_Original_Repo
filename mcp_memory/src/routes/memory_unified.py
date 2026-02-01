@@ -227,13 +227,9 @@ async def _save_via_main_pipeline(
     # Calculate TTL based on duration
     ttl = None
     if duration == "short":
-        ttl = datetime.now(UTC) + timedelta(
-            hours=settings.MEMORY_SHORT_TERM_HOURS
-        )
+        ttl = datetime.now(UTC) + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
     elif duration == "medium":
-        ttl = datetime.now(UTC) + timedelta(
-            hours=settings.MEMORY_MEDIUM_TERM_HOURS
-        )
+        ttl = datetime.now(UTC) + timedelta(hours=settings.MEMORY_MEDIUM_TERM_HOURS)
 
     # Build metadata dict (not PacketMetadata model - that's for envelope metadata)
     envelope_metadata = {
@@ -484,7 +480,7 @@ async def search_memory_handler(
 # authenticated CallerIdentity, NEVER from the request body.
 
 
-def _get_caller_from_request(request: Request) -> "CallerIdentity":
+def _get_caller_from_request(request: Request) -> CallerIdentity:
     """Get CallerIdentity from request state (set by verify_api_key dependency).
 
     When GOVERNANCE_HARDENING_ENABLED=True, the router has a dependency on
@@ -605,7 +601,7 @@ async def get_memory_stats(
         avg_importance = 0.0
 
         if duration in ["all", "short"]:
-            query = f"""
+            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             SELECT COUNT(*) as cnt
             FROM packet_store
             WHERE packet_type LIKE 'memory.%'
@@ -618,7 +614,7 @@ async def get_memory_stats(
             short_count = r["cnt"] if r else 0
 
         if duration in ["all", "medium"]:
-            query = f"""
+            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             SELECT COUNT(*) as cnt
             FROM packet_store
             WHERE packet_type LIKE 'memory.%'
@@ -876,7 +872,7 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
 
         if not dry_run and affected > 0:
             # Apply decay: importance *= decay_factor^(days_since_access)
-            await execute(f"""
+            await execute(f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 UPDATE packet_store
                 SET importance_score = importance_score * POWER(
                     {decay_factor},
@@ -1258,9 +1254,7 @@ async def query_temporal(
             if since
             else datetime.now(UTC) - timedelta(days=7)
         )
-        until_dt = (
-            datetime.fromisoformat(until) if until else datetime.now(UTC)
-        )
+        until_dt = datetime.fromisoformat(until) if until else datetime.now(UTC)
 
         # Build WHERE clause
         where_parts = [

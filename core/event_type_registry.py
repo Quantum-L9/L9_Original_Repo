@@ -199,7 +199,7 @@ def get_all_event_types() -> dict[str, EventTypeConfig]:
     Example:
         event_types = get_all_event_types()
         for name, config in event_types.items():
-            print(f"Event: {name}, Category: {config.category}")
+            print(f"Event: {name}, Category: {config.category}")  # noqa: ADR-0019
     """
     event_type_registry.initialize_factories()
 
@@ -275,7 +275,7 @@ def create_dynamic_event_enum(category: str | None = None) -> type:
         # Create enum for all coordination events
         CoordinationEvent = create_dynamic_event_enum("coordination")
         event = CoordinationEvent.AGENT_REQUEST
-        print(event.value)  # "agent_request"
+        print(event.value)  # "agent_request"  # noqa: ADR-0019
 
         # Create enum for all events
         AllEvents = create_dynamic_event_enum()

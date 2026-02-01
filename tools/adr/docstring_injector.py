@@ -44,7 +44,7 @@ try:
 
     logger = structlog.get_logger(__name__)
 except ImportError:
-    import logging
+    import logging  # noqa: ADR-0019
 
     logging.basicConfig(level=logging.INFO)
     logger = structlog.get_logger(__name__)
@@ -227,29 +227,31 @@ class DocstringInjector:
         # Add appropriate ending
         if is_class:
             return f"{words}."
-        else:
-            # Make it sound like an action
-            first_word = words.split()[0].lower()
-            if first_word in ("get", "fetch", "load", "read", "find", "search", "query"):
-                return f"{words}."
-            elif first_word in ("set", "update", "write", "save", "store", "put"):
-                return f"{words}."
-            elif first_word in ("is", "has", "can", "should", "check", "validate"):
-                return f"{words}."
-            elif first_word in ("create", "build", "make", "generate", "produce"):
-                return f"{words}."
-            elif first_word in ("delete", "remove", "clear", "reset", "destroy"):
-                return f"{words}."
-            elif first_word in ("start", "stop", "run", "execute", "process"):
-                return f"{words}."
-            elif first_word in ("init", "initialize", "setup", "configure"):
-                return f"{words}."
-            elif first_word in ("parse", "convert", "transform", "format"):
-                return f"{words}."
-            elif first_word == "to":
-                return f"Convert {words[3:]}." if len(words) > 3 else f"{words}."
-            else:
-                return f"{words}."
+        # Make it sound like an action
+        first_word = words.split()[0].lower()
+        if (
+            first_word
+            in (
+                "get",
+                "fetch",
+                "load",
+                "read",
+                "find",
+                "search",
+                "query",
+            )
+            or first_word in ("set", "update", "write", "save", "store", "put")
+            or first_word in ("is", "has", "can", "should", "check", "validate")
+            or first_word in ("create", "build", "make", "generate", "produce")
+            or first_word in ("delete", "remove", "clear", "reset", "destroy")
+            or first_word in ("start", "stop", "run", "execute", "process")
+            or first_word in ("init", "initialize", "setup", "configure")
+            or first_word in ("parse", "convert", "transform", "format")
+        ):
+            return f"{words}."
+        if first_word == "to":
+            return f"Convert {words[3:]}." if len(words) > 3 else f"{words}."
+        return f"{words}."
 
     def _get_type_str(self, annotation: ast.expr | None) -> str:
         """
@@ -266,23 +268,22 @@ class DocstringInjector:
 
         if isinstance(annotation, ast.Name):
             return annotation.id
-        elif isinstance(annotation, ast.Constant):
+        if isinstance(annotation, ast.Constant):
             return str(annotation.value)
-        elif isinstance(annotation, ast.Subscript):
+        if isinstance(annotation, ast.Subscript):
             # Handle generics like List[str], Optional[int], etc.
             if isinstance(annotation.value, ast.Name):
                 base = annotation.value.id
                 if isinstance(annotation.slice, ast.Name):
                     return f"{base}[{annotation.slice.id}]"
-                elif isinstance(annotation.slice, ast.Constant):
+                if isinstance(annotation.slice, ast.Constant):
                     return f"{base}[{annotation.slice.value}]"
-                elif isinstance(annotation.slice, ast.Tuple):
+                if isinstance(annotation.slice, ast.Tuple):
                     parts = [self._get_type_str(elt) for elt in annotation.slice.elts]
                     return f"{base}[{', '.join(parts)}]"
-                else:
-                    return base
+                return base
             return "Any"
-        elif isinstance(annotation, ast.BinOp):
+        if isinstance(annotation, ast.BinOp):
             # Handle Union types with | syntax
             if isinstance(annotation.op, ast.BitOr):
                 left = self._get_type_str(annotation.left)
@@ -466,7 +467,11 @@ class DocstringInjector:
             insert_line = 0
             for i, line in enumerate(lines):
                 stripped = line.strip()
-                if stripped.startswith("#") or stripped.startswith("'''") or not stripped:
+                if (
+                    stripped.startswith("#")
+                    or stripped.startswith("'''")
+                    or not stripped
+                ):
                     insert_line = i + 1
                 else:
                     break
@@ -477,7 +482,11 @@ class DocstringInjector:
         for node in ast.walk(tree):
             # Skip private items
             node_name = getattr(node, "name", None)
-            if node_name and node_name.startswith("_") and not node_name.startswith("__"):
+            if (
+                node_name
+                and node_name.startswith("_")
+                and not node_name.startswith("__")
+            ):
                 continue
 
             if isinstance(node, ast.ClassDef):
@@ -513,7 +522,9 @@ class DocstringInjector:
                     # Determine indentation (function body indent)
                     base_indent = ""
                     if insert_line < len(lines):
-                        next_line = lines[insert_line] if insert_line < len(lines) else ""
+                        next_line = (
+                            lines[insert_line] if insert_line < len(lines) else ""
+                        )
                         match = re.match(r"^(\s*)", next_line)
                         if match:
                             base_indent = match.group(1)

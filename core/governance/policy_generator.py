@@ -56,7 +56,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -184,7 +184,7 @@ class PolicyGenerator:
         policy_type: str = "policy",
     ) -> str:
         """Generate DORA metadata header."""
-        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         return f"""# ============================================================================
 # DORA META - AUTO-GENERATED
 # ============================================================================
@@ -203,7 +203,7 @@ class PolicyGenerator:
 
     def _generate_dora_footer(self, tags: list[str], keywords: list[str]) -> str:
         """Generate DORA metadata footer."""
-        now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        now = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         tags_str = ", ".join(f'"{t}"' for t in tags)
         keywords_str = ", ".join(f'"{k}"' for k in keywords)
         return f"""
@@ -748,7 +748,7 @@ Examples:
     output_path = output_dir / f"{args.file_name}.yaml"
 
     gen.write_policy_file(content, output_path, overwrite=args.overwrite)
-    print(f"Generated: {output_path}")
+    print(f"Generated: {output_path}")  # noqa: ADR-0019
 
 
 if __name__ == "__main__":

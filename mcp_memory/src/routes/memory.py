@@ -136,7 +136,7 @@ async def save_memory_handler(
             expires_at = None
 
         if duration in ["short", "medium"]:
-            query = f"""
+            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             INSERT INTO {table} (user_id, kind, content, embedding, importance, metadata, expires_at)
             VALUES ($1, $2, $3, $4::vector, $5, $6, $7)
             RETURNING id, user_id, kind, content, importance, created_at;
@@ -290,7 +290,7 @@ async def search_memory_handler(
             )
             params.extend([query_embedding, threshold, top_k])
 
-            query_sql = f"""
+            query_sql = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             SELECT {cols}, 1 - (embedding <-> ${param_idx}::vector) as similarity
             FROM {table}
             WHERE user_id = $1 {where} {scope_clause} {kind_clause}
@@ -548,7 +548,7 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
     if not dry_run:
         await execute(
             "UPDATE memory.long_term SET importance = importance * POWER($1, EXTRACT(EPOCH FROM (NOW() - last_accessed_at)) / 86400), updated_at = CURRENT_TIMESTAMP WHERE last_accessed_at < NOW() - INTERVAL '1 day';",
-            decay_factor
+            decay_factor,
         )
         await execute(
             "INSERT INTO memory.audit_log (operation, status, details) VALUES ($1, $2, $3)",
@@ -917,9 +917,7 @@ async def query_temporal(
             if since
             else datetime.now(UTC) - timedelta(days=7)
         )
-        until_dt = (
-            datetime.fromisoformat(until) if until else datetime.now(UTC)
-        )
+        until_dt = datetime.fromisoformat(until) if until else datetime.now(UTC)
 
         # Build WHERE clause
         where_parts = ["user_id = $1", "created_at >= $2", "created_at <= $3"]
@@ -937,7 +935,7 @@ async def query_temporal(
 
         if operation == "changes":
             # Get all memories created or updated in the period
-            query = f"""
+            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             SELECT id, user_id, kind, content, importance, tags, created_at, updated_at
             FROM memory.long_term
             WHERE {where_clause}
@@ -953,7 +951,7 @@ async def query_temporal(
 
         elif operation == "timeline":
             # Get timeline of memory creation
-            query = f"""
+            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             SELECT id, user_id, kind, content, importance, tags, created_at
             FROM memory.long_term
             WHERE {where_clause}
@@ -965,7 +963,7 @@ async def query_temporal(
 
         else:  # diff
             # Get memories with differences (updated != created)
-            query = f"""
+            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             SELECT id, user_id, kind, content, importance, tags, created_at, updated_at
             FROM memory.long_term
             WHERE {where_clause} AND updated_at > created_at

@@ -10,7 +10,7 @@ import asyncio
 import json
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine
@@ -37,7 +37,7 @@ def fatal(msg: str) -> None:
     Args:
         msg: Error message to print to stderr.
     """
-    print(f"[BOOTSTRAP:FATAL] {msg}", file=sys.stderr)
+    print(f"[BOOTSTRAP:FATAL] {msg}", file=sys.stderr)  # noqa: ADR-0019
     sys.exit(1)
 
 
@@ -134,7 +134,7 @@ async def write_bootstrap_artifact(engine) -> None:
     """
     payload = {
         "version": BOOTSTRAP_VERSION,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
     async with engine.begin() as conn:
@@ -183,22 +183,22 @@ async def main() -> None:
         if result.first():
             fatal("Bootstrap already completed. Refusing to run twice.")
 
-    print("[BOOTSTRAP] Running migrations")
+    print("[BOOTSTRAP] Running migrations")  # noqa: ADR-0019
     await run_migrations(engine)
 
-    print("[BOOTSTRAP] Initializing memory substrate")
+    print("[BOOTSTRAP] Initializing memory substrate")  # noqa: ADR-0019
     await init_memory_substrate()
 
-    print("[BOOTSTRAP] Initializing Neo4j")
+    print("[BOOTSTRAP] Initializing Neo4j")  # noqa: ADR-0019
     await init_neo4j()
 
-    print("[BOOTSTRAP] Bootstrapping agent")
+    print("[BOOTSTRAP] Bootstrapping agent")  # noqa: ADR-0019
     await bootstrap_agent()
 
-    print("[BOOTSTRAP] Writing bootstrap artifact")
+    print("[BOOTSTRAP] Writing bootstrap artifact")  # noqa: ADR-0019
     await write_bootstrap_artifact(engine)
 
-    print("[BOOTSTRAP] SUCCESS")
+    print("[BOOTSTRAP] SUCCESS")  # noqa: ADR-0019
 
 
 if __name__ == "__main__":

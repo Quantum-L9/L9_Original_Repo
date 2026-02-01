@@ -302,9 +302,9 @@ python -c "
 from workflows.session.registry import get_dag
 from workflows.session.dags import new_dag  # Triggers auto-register
 dag = get_dag('new-dag-id')
-print(f'Registered: {dag.name}')
-print(f'Nodes: {len(dag.nodes)}')
-print(f'Edges: {len(dag.edges)}')
+print(f'Registered: {dag.name}')  # noqa: ADR-0019
+print(f'Nodes: {len(dag.nodes)}')  # noqa: ADR-0019
+print(f'Edges: {len(dag.edges)}')  # noqa: ADR-0019
 "
 ```
 

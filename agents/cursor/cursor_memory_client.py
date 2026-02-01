@@ -47,7 +47,7 @@ Cursor Memory Client — Access L9 Memory Substrate via MCP Tools
     MCP_API_KEY_C: API key for Cursor (PRIMARY)
         - This key identifies caller as "C" (Cursor IDE)
         - Required for all MCP operations
-        - Value: 4836ea7e0f46c81fd6860c05f1be94577fbb99970fb378c49901cc6cffb9dd07
+        - Value: Set in .env file (NEVER hardcode)
 
     MCP_URL: MCP Memory endpoint
         - MUST use direct IP: http://46.62.243.82/memory
@@ -60,7 +60,8 @@ Cursor Memory Client — Access L9 Memory Substrate via MCP Tools
 
 ## QUICK START
 
-    export MCP_API_KEY_C="4836ea7e0f46c81fd6860c05f1be94577fbb99970fb378c49901cc6cffb9dd07"
+    # Load from .env or set manually (get value from .env file)
+    export MCP_API_KEY_C="${MCP_API_KEY_C}"
     export MCP_URL="http://46.62.243.82/memory"
     python3 agents/cursor/cursor_memory_client.py health
 

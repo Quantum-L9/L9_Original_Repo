@@ -42,7 +42,7 @@ import hmac
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
@@ -694,10 +694,10 @@ async def audit_slack_e2e_flow() -> AuditResult:
 
 async def run_full_audit() -> dict[str, Any]:
     """Run all audit checks."""
-    print("\n" + "=" * 80)
-    print("L9 SLACK E2E AUDIT")
-    print(f"Timestamp: {datetime.now(timezone.utc).isoformat()}")
-    print("=" * 80 + "\n")
+    print("\n" + "=" * 80)  # noqa: ADR-0019
+    print("L9 SLACK E2E AUDIT")  # noqa: ADR-0019
+    print(f"Timestamp: {datetime.now(UTC).isoformat()}")  # noqa: ADR-0019
+    print("=" * 80 + "\n")  # noqa: ADR-0019
 
     results = {}
 
@@ -713,7 +713,7 @@ async def run_full_audit() -> dict[str, Any]:
     ]
 
     for name, audit_func in audits:
-        print(f"\n--- {name} Audit ---")
+        print(f"\n--- {name} Audit ---")  # noqa: ADR-0019
         result = await audit_func()
         results[name] = result
 
@@ -723,42 +723,42 @@ async def run_full_audit() -> dict[str, Any]:
             "PASSED_WITH_WARNINGS": "⚠️",
             "FAILED": "❌",
         }.get(result.status, "❓")
-        print(f"Status: {status_icon} {result.status}")
+        print(f"Status: {status_icon} {result.status}")  # noqa: ADR-0019
 
         for check in result.checks:
             icon = "✓" if check["passed"] else "✗"
-            print(f"  {icon} {check['name']}: {check['details']}")
+            print(f"  {icon} {check['name']}: {check['details']}")  # noqa: ADR-0019
 
         if result.warnings:
-            print("  Warnings:")
+            print("  Warnings:")  # noqa: ADR-0019
             for w in result.warnings:
-                print(f"    ⚠️ {w}")
+                print(f"    ⚠️ {w}")  # noqa: ADR-0019
 
         if result.recommendations:
-            print("  Recommendations:")
+            print("  Recommendations:")  # noqa: ADR-0019
             for r in result.recommendations:
-                print(f"    💡 {r}")
+                print(f"    💡 {r}")  # noqa: ADR-0019
 
     # Summary
-    print("\n" + "=" * 80)
-    print("AUDIT SUMMARY")
-    print("=" * 80)
+    print("\n" + "=" * 80)  # noqa: ADR-0019
+    print("AUDIT SUMMARY")  # noqa: ADR-0019
+    print("=" * 80)  # noqa: ADR-0019
 
     passed = sum(1 for r in results.values() if r.status == "PASSED")
     warnings = sum(1 for r in results.values() if r.status == "PASSED_WITH_WARNINGS")
     failed = sum(1 for r in results.values() if r.status == "FAILED")
 
-    print(f"✅ Passed: {passed}")
-    print(f"⚠️ Passed with warnings: {warnings}")
-    print(f"❌ Failed: {failed}")
-    print(f"Total: {len(results)}")
+    print(f"✅ Passed: {passed}")  # noqa: ADR-0019
+    print(f"⚠️ Passed with warnings: {warnings}")  # noqa: ADR-0019
+    print(f"❌ Failed: {failed}")  # noqa: ADR-0019
+    print(f"Total: {len(results)}")  # noqa: ADR-0019
 
     overall = "PASSED" if failed == 0 else "FAILED"
-    print(f"\nOverall Status: {overall}")
-    print("=" * 80 + "\n")
+    print(f"\nOverall Status: {overall}")  # noqa: ADR-0019
+    print("=" * 80 + "\n")  # noqa: ADR-0019
 
     return {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "overall_status": overall,
         "summary": {
             "passed": passed,

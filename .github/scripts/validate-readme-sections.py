@@ -45,7 +45,7 @@ def load_config() -> dict[str, Any]:
     """Load subsystem configuration from YAML."""
     config_file = Path(CONFIG_PATH)
     if not config_file.exists():
-        print(f"❌ Config file not found: {config_file}")
+        print(f"❌ Config file not found: {config_file}")  # noqa: ADR-0019
         sys.exit(1)
 
     with open(config_file) as f:
@@ -60,7 +60,7 @@ def validate_readme_for_subsystem(
     readme_file = Path(f"{subsystem_path}/README.md")
 
     if not readme_file.exists():
-        print(f"❌ {key}: README.md missing at {subsystem_path}/README.md")
+        print(f"❌ {key}: README.md missing at {subsystem_path}/README.md")  # noqa: ADR-0019
         return False
 
     # Get section requirements (from subsystem config or defaults)
@@ -68,7 +68,7 @@ def validate_readme_for_subsystem(
 
     if not sections_config:
         # No section requirements defined, pass
-        print(f"✅ {key}: No section requirements defined (pass)")
+        print(f"✅ {key}: No section requirements defined (pass)")  # noqa: ADR-0019
         return True
 
     # Parse README
@@ -111,11 +111,11 @@ def validate_readme_for_subsystem(
             missing.append(req)
 
     if missing:
-        print(f"❌ {key}: Missing required sections: {', '.join(missing)}")
-        print(f"   Found sections: {', '.join(sorted(readme_sections))}")
+        print(f"❌ {key}: Missing required sections: {', '.join(missing)}")  # noqa: ADR-0019
+        print(f"   Found sections: {', '.join(sorted(readme_sections))}")  # noqa: ADR-0019
         return False
 
-    print(f"✅ {key}: All required sections present")
+    print(f"✅ {key}: All required sections present")  # noqa: ADR-0019
     return True
 
 
@@ -125,7 +125,7 @@ def main():
     subsystems = config.get("subsystems", {})
 
     if not subsystems:
-        print("❌ No subsystems defined in config")
+        print("❌ No subsystems defined in config")  # noqa: ADR-0019
         return 1
 
     results = []
@@ -137,13 +137,13 @@ def main():
     passed = sum(results)
     failed = len(results) - passed
 
-    print(f"\n📊 Results: {passed} passed, {failed} failed")
+    print(f"\n📊 Results: {passed} passed, {failed} failed")  # noqa: ADR-0019
 
     if not all(results):
-        print("\n❌ Some README.md files missing required sections!")
+        print("\n❌ Some README.md files missing required sections!")  # noqa: ADR-0019
         return 1
 
-    print("\n✨ All README.md files match configuration!")
+    print("\n✨ All README.md files match configuration!")  # noqa: ADR-0019
     return 0
 
 

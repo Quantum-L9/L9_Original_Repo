@@ -39,7 +39,7 @@ __dora_meta__ = {
 
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
@@ -326,7 +326,7 @@ class ImportanceManager:
             return []
 
         updates = []
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         try:
             async with self._repository.acquire() as conn:
@@ -447,7 +447,7 @@ class ImportanceManager:
                 if dry_run:
                     # Just count candidates
                     row = await conn.fetchrow(
-                        f"""
+                        f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                         SELECT COUNT(*) as count
                         FROM semantic_facts
                         WHERE tier != ALL($1::text[])
@@ -463,7 +463,7 @@ class ImportanceManager:
 
                 # Actually prune
                 result = await conn.execute(
-                    f"""
+                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     DELETE FROM semantic_facts
                     WHERE fact_id IN (
                         SELECT fact_id

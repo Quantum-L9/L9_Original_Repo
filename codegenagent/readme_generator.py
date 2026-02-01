@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -350,7 +350,7 @@ class ReadmeGenerator:
                 {"name": "compute", "signature": "async def compute(...)", "description": "..."}
             ],
         )
-        print(readme.content)
+        print(readme.content)  # noqa: ADR-0019
     """
 
     def __init__(

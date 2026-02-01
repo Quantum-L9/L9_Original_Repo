@@ -11,5 +11,5 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 
-# --- Documentation (local only) ---
-/docs/
+# --- Infrastructure (not actively used) ---
+deploy/k8s/

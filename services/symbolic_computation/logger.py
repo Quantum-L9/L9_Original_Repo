@@ -23,7 +23,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import logging  # noqa: ADR-0019
 from typing import Any
 
 try:

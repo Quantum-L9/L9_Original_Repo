@@ -54,7 +54,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import math
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 from uuid import UUID
@@ -153,7 +153,7 @@ def apply_temporal_decay(
         >>> # old_score ≈ 0.5
     """
     if reference_time is None:
-        reference_time = datetime.now(timezone.utc)
+        reference_time = datetime.now(UTC)
 
     age_days = (reference_time - timestamp).total_seconds() / 86400.0
 
@@ -666,7 +666,7 @@ class RetrievalPipeline:
             order_clause = "ASC" if order == "asc" else "DESC"
 
             rows = await conn.fetch(
-                f"""
+                f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 SELECT * FROM packet_store
                 WHERE thread_id = $1
                 {filter_clause}
@@ -757,7 +757,7 @@ class RetrievalPipeline:
                 # Traverse down to children (with scope filter)
                 async with self._repository.acquire() as conn:
                     rows = await conn.fetch(
-                        f"""
+                        f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                         SELECT packet_id FROM packet_store
                         WHERE $1 = ANY(parent_ids)
                         {filter_clause}
@@ -819,7 +819,7 @@ class RetrievalPipeline:
             # Fetch recent facts (with scope filter via JOIN)
             async with self._repository.acquire() as conn:
                 rows = await conn.fetch(
-                    f"""
+                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     SELECT knowledge_facts.*
                     FROM knowledge_facts
                     INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
@@ -876,7 +876,7 @@ class RetrievalPipeline:
         async with self._repository.acquire() as conn:
             if packet_id:
                 rows = await conn.fetch(
-                    f"""
+                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     SELECT * FROM packet_store
                     WHERE packet_type = 'insight'
                     AND envelope->>'source_packet' = $1
@@ -890,7 +890,7 @@ class RetrievalPipeline:
                 )
             elif insight_type:
                 rows = await conn.fetch(
-                    f"""
+                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     SELECT * FROM packet_store
                     WHERE packet_type = 'insight'
                     AND envelope->'payload'->>'insight_type' = $1
@@ -907,7 +907,7 @@ class RetrievalPipeline:
                     ctx, param_idx=2, table_alias="packet_store"
                 )
                 rows = await conn.fetch(
-                    f"""
+                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     SELECT * FROM packet_store
                     WHERE packet_type = 'insight'
                     {filter_clause_2}

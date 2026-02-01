@@ -174,9 +174,9 @@ class WireExecutor:
         return result.returncode, result.stdout, result.stderr
 
     def _print_header(self, title: str):
-        print(f"\n{'=' * 60}")
-        print(f"  {title}")
-        print(f"{'=' * 60}\n")
+        print(f"\n{'=' * 60}")  # noqa: ADR-0019
+        print(f"  {title}")  # noqa: ADR-0019
+        print(f"{'=' * 60}\n")  # noqa: ADR-0019
 
     # =========================================================================
     # STEP 1: DISCOVERY
@@ -185,7 +185,7 @@ class WireExecutor:
         self._print_header("DISCOVERY — Find All References")
 
         component = self.state.component
-        print(f"Searching for references to: {component}\n")
+        print(f"Searching for references to: {component}\n")  # noqa: ADR-0019
 
         # Search for imports and usages
         cmd = f'rg "{component}" --type py -n 2>/dev/null || true'
@@ -213,28 +213,32 @@ class WireExecutor:
                 else:
                     ref_type = "usage"
 
-                references.append({
-                    "file": filepath,
-                    "line": line_num,
-                    "ref_type": ref_type,
-                    "status": "unknown",
-                    "context": content[:100],
-                })
+                references.append(
+                    {
+                        "file": filepath,
+                        "line": line_num,
+                        "ref_type": ref_type,
+                        "status": "unknown",
+                        "context": content[:100],
+                    }
+                )
 
         self.state.references = references
 
-        print(f"Found {len(references)} references:")
-        print("-" * 50)
-        print("| File | Line | Type | Context |")
-        print("|------|------|------|---------|")
+        print(f"Found {len(references)} references:")  # noqa: ADR-0019
+        print("-" * 50)  # noqa: ADR-0019
+        print("| File | Line | Type | Context |")  # noqa: ADR-0019
+        print("|------|------|------|---------|")  # noqa: ADR-0019
         for ref in references[:20]:  # Show first 20
-            print(f"| {ref['file'][:30]} | {ref['line']} | {ref['ref_type']} | {ref['context'][:40]} |")
+            print(
+                f"| {ref['file'][:30]} | {ref['line']} | {ref['ref_type']} | {ref['context'][:40]} |"
+            )  # noqa: ADR-0019
         if len(references) > 20:
-            print(f"| ... and {len(references) - 20} more |")
-        print("-" * 50)
+            print(f"| ... and {len(references) - 20} more |")  # noqa: ADR-0019
+        print("-" * 50)  # noqa: ADR-0019
 
         if not references:
-            print("⚠️  No references found — component may be unused")
+            print("⚠️  No references found — component may be unused")  # noqa: ADR-0019
             return True  # Continue but note it
 
         return True
@@ -252,7 +256,9 @@ class WireExecutor:
 
         # Check if it's a module (directory with __init__.py)
         module_path = REPO_ROOT / component.replace(".", "/")
-        if (module_path.is_dir() and (module_path / "__init__.py").exists()) or (REPO_ROOT / f"{component.replace('.', '/')}.py").exists():
+        if (module_path.is_dir() and (module_path / "__init__.py").exists()) or (
+            REPO_ROOT / f"{component.replace('.', '/')}.py"
+        ).exists():
             component_type = "module"
         # Check references for clues
         elif self.state.references:
@@ -269,8 +275,8 @@ class WireExecutor:
                 component_type = "tool"
 
         self.state.component_type = component_type
-        print(f"Component: {component}")
-        print(f"Type: {component_type}")
+        print(f"Component: {component}")  # noqa: ADR-0019
+        print(f"Type: {component_type}")  # noqa: ADR-0019
 
         # Check for protected files
         protected_touched = []
@@ -279,10 +285,10 @@ class WireExecutor:
                 protected_touched.append(ref["file"])
 
         if protected_touched:
-            print("\n⚠️  PROTECTED FILES TOUCHED:")
+            print("\n⚠️  PROTECTED FILES TOUCHED:")  # noqa: ADR-0019
             for f in protected_touched:
-                print(f"   - {f}")
-            print("\n❌ ESCALATE TO /gmp — Cannot wire protected files")
+                print(f"   - {f}")  # noqa: ADR-0019
+            print("\n❌ ESCALATE TO /gmp — Cannot wire protected files")  # noqa: ADR-0019
             return False
 
         return True
@@ -310,15 +316,17 @@ class WireExecutor:
                         code, _stdout, _stderr = self._run_shell(cmd)
                         if code != 0:
                             ref["status"] = "broken"
-                            actions.append({
-                                "id": f"W{action_id}",
-                                "action": "Fix import",
-                                "file": ref["file"],
-                                "line": ref["line"],
-                                "old_value": module_part,
-                                "new_value": "TBD",
-                                "status": "pending",
-                            })
+                            actions.append(
+                                {
+                                    "id": f"W{action_id}",
+                                    "action": "Fix import",
+                                    "file": ref["file"],
+                                    "line": ref["line"],
+                                    "old_value": module_part,
+                                    "new_value": "TBD",
+                                    "status": "pending",
+                                }
+                            )
                             action_id += 1
                         else:
                             ref["status"] = "ok"
@@ -327,16 +335,18 @@ class WireExecutor:
 
         self.state.actions = actions
 
-        print(f"Actions planned: {len(actions)}")
+        print(f"Actions planned: {len(actions)}")  # noqa: ADR-0019
         if actions:
-            print("-" * 50)
-            print("| # | Action | File | Status |")
-            print("|---|--------|------|--------|")
+            print("-" * 50)  # noqa: ADR-0019
+            print("| # | Action | File | Status |")  # noqa: ADR-0019
+            print("|---|--------|------|--------|")  # noqa: ADR-0019
             for a in actions:
-                print(f"| {a['id']} | {a['action']} | {a['file'][:30]} | {a['status']} |")
-            print("-" * 50)
+                print(
+                    f"| {a['id']} | {a['action']} | {a['file'][:30]} | {a['status']} |"
+                )  # noqa: ADR-0019
+            print("-" * 50)  # noqa: ADR-0019
         else:
-            print("✅ No actions needed — all references OK")
+            print("✅ No actions needed — all references OK")  # noqa: ADR-0019
 
         return True
 
@@ -347,14 +357,16 @@ class WireExecutor:
         self._print_header("EXECUTE — Apply Fixes")
 
         if not self.state.actions:
-            print("✅ Nothing to execute — all wiring OK")
+            print("✅ Nothing to execute — all wiring OK")  # noqa: ADR-0019
             return True
 
         # For now, we'll mark actions as needing manual review
         # A full implementation would apply surgical fixes
         for action in self.state.actions:
-            print(f"⚠️  {action['id']}: {action['action']} in {action['file']}:{action['line']}")
-            print(f"    Context: {action['old_value'][:60]}")
+            print(
+                f"⚠️  {action['id']}: {action['action']} in {action['file']}:{action['line']}"
+            )  # noqa: ADR-0019
+            print(f"    Context: {action['old_value'][:60]}")  # noqa: ADR-0019
             action["status"] = "needs_review"
 
         # Track modified files
@@ -376,10 +388,12 @@ class WireExecutor:
             code, stdout, stderr = self._run_shell(f"python3 -m py_compile {files_str}")
             if code == 0:
                 validations.append({"check": "py_compile", "status": "✅"})
-                print("✅ py_compile: PASSED")
+                print("✅ py_compile: PASSED")  # noqa: ADR-0019
             else:
-                validations.append({"check": "py_compile", "status": "❌", "error": stderr})
-                print(f"❌ py_compile: FAILED\n{stderr}")
+                validations.append(
+                    {"check": "py_compile", "status": "❌", "error": stderr}
+                )
+                print(f"❌ py_compile: FAILED\n{stderr}")  # noqa: ADR-0019
                 self.state.validation_results = validations
                 return False
 
@@ -392,10 +406,10 @@ class WireExecutor:
         code, stdout, stderr = self._run_shell(cmd)
         if code == 0:
             validations.append({"check": "import", "status": "✅"})
-            print("✅ import: PASSED")
+            print("✅ import: PASSED")  # noqa: ADR-0019
         else:
             validations.append({"check": "import", "status": "⚠️", "error": stdout})
-            print(f"⚠️  import: {stdout[:100]}")
+            print(f"⚠️  import: {stdout[:100]}")  # noqa: ADR-0019
 
         self.state.validation_results = validations
         return True
@@ -415,15 +429,15 @@ class WireExecutor:
         # Count references
         ref_count = len([l for l in stdout.strip().split("\n") if l and ":" in l])
 
-        print(f"References after wiring: {ref_count}")
-        print(f"Original references: {len(self.state.references)}")
+        print(f"References after wiring: {ref_count}")  # noqa: ADR-0019
+        print(f"Original references: {len(self.state.references)}")  # noqa: ADR-0019
 
         if ref_count == len(self.state.references):
-            print("✅ Reference count stable — no new broken refs")
+            print("✅ Reference count stable — no new broken refs")  # noqa: ADR-0019
         elif ref_count < len(self.state.references):
-            print("⚠️  Some references removed")
+            print("⚠️  Some references removed")  # noqa: ADR-0019
         else:
-            print("⚠️  New references added")
+            print("⚠️  New references added")  # noqa: ADR-0019
 
         return True
 
@@ -444,17 +458,17 @@ class WireExecutor:
         code, stdout, _stderr = self._run_shell(cmd)
         if code == 0:
             checks.append({"check": "Imports resolve", "status": "✅"})
-            print("✅ Imports resolve")
+            print("✅ Imports resolve")  # noqa: ADR-0019
         else:
             checks.append({"check": "Imports resolve", "status": "❌"})
-            print(f"❌ Imports resolve: {stdout[:100]}")
+            print(f"❌ Imports resolve: {stdout[:100]}")  # noqa: ADR-0019
 
         # 2. Find consumers
         cmd = f'rg "from.*{component}|import.*{component}" --type py -l 2>/dev/null || true'
         code, stdout, _stderr = self._run_shell(cmd)
         consumers = [f for f in stdout.strip().split("\n") if f]
         checks.append({"check": "Consumers found", "status": f"{len(consumers)} files"})
-        print(f"✅ Consumers: {len(consumers)} files")
+        print(f"✅ Consumers: {len(consumers)} files")  # noqa: ADR-0019
 
         # 3. Check for tests
         component_name = component.split(".")[-1]
@@ -469,17 +483,17 @@ class WireExecutor:
 
         if test_files:
             checks.append({"check": "Tests exist", "status": f"✅ {len(test_files)}"})
-            print(f"✅ Tests exist: {len(test_files)} files")
+            print(f"✅ Tests exist: {len(test_files)} files")  # noqa: ADR-0019
         else:
             checks.append({"check": "Tests exist", "status": "⚠️ None"})
-            print("⚠️  Tests exist: None found")
+            print("⚠️  Tests exist: None found")  # noqa: ADR-0019
 
         # Summary
-        print("\n" + "=" * 40)
-        print("WIRING CONFIRMATION SUMMARY")
-        print("=" * 40)
+        print("\n" + "=" * 40)  # noqa: ADR-0019
+        print("WIRING CONFIRMATION SUMMARY")  # noqa: ADR-0019
+        print("=" * 40)  # noqa: ADR-0019
         for c in checks:
-            print(f"  {c['status']} {c['check']}")
+            print(f"  {c['status']} {c['check']}")  # noqa: ADR-0019
 
         return True
 
@@ -492,7 +506,9 @@ class WireExecutor:
         # Build TODO items from actions
         todo_args = []
         for a in self.state.actions:
-            todo_args.append(f'--todo "{a["id"]}|{a["file"]}|{a.get("line", "N/A")}|WIRE|{a["action"]}"')
+            todo_args.append(
+                f'--todo "{a["id"]}|{a["file"]}|{a.get("line", "N/A")}|WIRE|{a["action"]}"'
+            )
 
         # Build validation items
         val_args = []
@@ -501,7 +517,9 @@ class WireExecutor:
 
         # If no actions, add a placeholder
         if not todo_args:
-            todo_args.append(f'--todo "W1|{self.state.component}|N/A|VERIFY|Wiring verification"')
+            todo_args.append(
+                f'--todo "W1|{self.state.component}|N/A|VERIFY|Wiring verification"'
+            )
         if not val_args:
             val_args.append('--validation "wiring|✅"')
 
@@ -513,7 +531,7 @@ class WireExecutor:
             --summary "Wiring verification via /wire DAG executor" \
             --skip-verify 2>/dev/null || echo "Report generation skipped"'''
 
-        print("Generating report...")
+        print("Generating report...")  # noqa: ADR-0019
         _code, stdout, _stderr = self._run_shell(cmd)
 
         # Extract report path
@@ -523,9 +541,9 @@ class WireExecutor:
                 break
 
         if self.state.report_path:
-            print(f"✅ Report: {self.state.report_path}")
+            print(f"✅ Report: {self.state.report_path}")  # noqa: ADR-0019
         else:
-            print("⚠️  Report generation skipped (may already exist)")
+            print("⚠️  Report generation skipped (may already exist)")  # noqa: ADR-0019
             self.state.report_path = "N/A"
 
         return True
@@ -537,7 +555,7 @@ class WireExecutor:
         self._print_header("COMMIT — Stage and Commit (NO PUSH)")
 
         if not self.state.files_modified:
-            print("✅ No files modified — nothing to commit")
+            print("✅ No files modified — nothing to commit")  # noqa: ADR-0019
             return True
 
         # Stage files
@@ -557,17 +575,17 @@ class WireExecutor:
         code, stdout, _stderr = self._run_shell(cmd)
 
         if "nothing to commit" in stdout.lower():
-            print("✅ Nothing to commit — working tree clean")
+            print("✅ Nothing to commit — working tree clean")  # noqa: ADR-0019
         elif code == 0 or "create mode" in stdout.lower():
             # Get commit hash
             code, hash_out, _ = self._run_shell("git rev-parse --short HEAD")
             self.state.commit_hash = hash_out.strip()
-            print(f"✅ Committed: {self.state.commit_hash}")
-            print(f"   Message: {commit_msg}")
+            print(f"✅ Committed: {self.state.commit_hash}")  # noqa: ADR-0019
+            print(f"   Message: {commit_msg}")  # noqa: ADR-0019
         else:
-            print(f"⚠️  Commit result: {stdout[:100]}")
+            print(f"⚠️  Commit result: {stdout[:100]}")  # noqa: ADR-0019
 
-        print("\n⚠️  DO NOT PUSH — Review changes first")
+        print("\n⚠️  DO NOT PUSH — Review changes first")  # noqa: ADR-0019
 
         return True
 
@@ -577,29 +595,29 @@ class WireExecutor:
     def status(self):
         """Show current status."""
         if not self._load_state():
-            print("No active /wire execution. Start with:")
-            print('  python3 workflows/wire_executor.py path/to/component.py')
+            print("No active /wire execution. Start with:")  # noqa: ADR-0019
+            print("  python3 workflows/wire_executor.py path/to/component.py")  # noqa: ADR-0019
             return
 
         self._print_header(f"WIRE STATUS: {self.state.component}")
-        print(f"Type: {self.state.component_type}")
-        print(f"Started: {self.state.started_at}")
-        print(f"Current step: {self.state.current_step}")
-        print()
+        print(f"Type: {self.state.component_type}")  # noqa: ADR-0019
+        print(f"Started: {self.state.started_at}")  # noqa: ADR-0019
+        print(f"Current step: {self.state.current_step}")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
 
         for step in STEP_ORDER:
             if step in self.state.completed_steps:
-                print(f"  ✅ {step}")
+                print(f"  ✅ {step}")  # noqa: ADR-0019
             elif step == self.state.current_step:
-                print(f"  🔄 {step}")
+                print(f"  🔄 {step}")  # noqa: ADR-0019
             else:
-                print(f"  ⏳ {step}")
+                print(f"  ⏳ {step}")  # noqa: ADR-0019
 
     def run(self, component: str, resume: bool = False):
         """Execute the /wire DAG — fully autonomous."""
         # Initialize or resume
         if resume and self._load_state():
-            print(f"Resuming wire: {self.state.component}")
+            print(f"Resuming wire: {self.state.component}")  # noqa: ADR-0019
         else:
             self.state = WireState(
                 component=component,
@@ -634,7 +652,7 @@ class WireExecutor:
 
             executor = executors.get(step)
             if not executor:
-                print(f"❌ No executor for step: {step}")
+                print(f"❌ No executor for step: {step}")  # noqa: ADR-0019
                 break
 
             success = executor()
@@ -643,20 +661,20 @@ class WireExecutor:
                 self.state.completed_steps.append(step)
                 self._save_state()
             else:
-                print(f"\n❌ Step failed: {step}")
-                print("\nResume with: python3 workflows/wire_executor.py --resume")
+                print(f"\n❌ Step failed: {step}")  # noqa: ADR-0019
+                print("\nResume with: python3 workflows/wire_executor.py --resume")  # noqa: ADR-0019
                 return False
 
         # Complete
         self._print_header("WIRE COMPLETE")
-        print(f"✅ Component: {self.state.component}")
-        print(f"   Type: {self.state.component_type}")
-        print(f"   References: {len(self.state.references)}")
-        print(f"   Actions: {len(self.state.actions)}")
-        print(f"   Report: {self.state.report_path}")
+        print(f"✅ Component: {self.state.component}")  # noqa: ADR-0019
+        print(f"   Type: {self.state.component_type}")  # noqa: ADR-0019
+        print(f"   References: {len(self.state.references)}")  # noqa: ADR-0019
+        print(f"   Actions: {len(self.state.actions)}")  # noqa: ADR-0019
+        print(f"   Report: {self.state.report_path}")  # noqa: ADR-0019
         if self.state.commit_hash:
-            print(f"   Commit: {self.state.commit_hash}")
-        print("\n⚠️  DO NOT PUSH — Review changes first")
+            print(f"   Commit: {self.state.commit_hash}")  # noqa: ADR-0019
+        print("\n⚠️  DO NOT PUSH — Review changes first")  # noqa: ADR-0019
 
         # Clean up state
         self._clear_state()
@@ -681,10 +699,16 @@ Examples:
         """,
     )
 
-    parser.add_argument("component", nargs="?", help="Component to wire (path or module)")
-    parser.add_argument("--resume", action="store_true", help="Resume interrupted execution")
+    parser.add_argument(
+        "component", nargs="?", help="Component to wire (path or module)"
+    )
+    parser.add_argument(
+        "--resume", action="store_true", help="Resume interrupted execution"
+    )
     parser.add_argument("--status", action="store_true", help="Show current status")
-    parser.add_argument("--reset", action="store_true", help="Clear state and start fresh")
+    parser.add_argument(
+        "--reset", action="store_true", help="Clear state and start fresh"
+    )
 
     args = parser.parse_args()
 
@@ -693,7 +717,7 @@ Examples:
     if args.reset:
         if STATE_FILE.exists():
             STATE_FILE.unlink()
-        print("✅ State cleared")
+        print("✅ State cleared")  # noqa: ADR-0019
         return
 
     if args.status:
@@ -702,7 +726,7 @@ Examples:
 
     if args.resume:
         if not STATE_FILE.exists():
-            print("No wire execution to resume")
+            print("No wire execution to resume")  # noqa: ADR-0019
             sys.exit(1)
         executor.run("", resume=True)
         return

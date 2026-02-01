@@ -614,7 +614,7 @@ Structured logging for {metadata.get("name", "Module")}
 Uses Python's logging module with structured output.
 """
 
-import logging
+import logging  # noqa: ADR-0019
 import sys
 from typing import Any
 
@@ -829,7 +829,7 @@ orchestrator = {self._to_pascal_case(metadata.get("module_id", "Module"))}Orches
 request = {self._to_pascal_case(metadata.get("module_id", "Module"))}Request(data={{"key": "value"}})
 response = await orchestrator.process(request)
 
-print(response.model_dump())
+print(response.model_dump())  # noqa: ADR-0019
 ```
 
 ## Testing
@@ -842,7 +842,7 @@ pytest tests/ -v --cov=.
 
 ```python
 health = await orchestrator.health_check()
-print(health)
+print(health)  # noqa: ADR-0019
 ```
 
 ## License

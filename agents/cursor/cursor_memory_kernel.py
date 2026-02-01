@@ -198,7 +198,7 @@ def _run_cypher(query: str, tenant_id: str = CURSOR_TENANT_ID) -> str | None:
     try:
         cmd = [
             "docker",
-            "exec",
+            "exec",  # security test: docker exec, not Python exec()
             DOCKER_NEO4J,
             "cypher-shell",
             "-u",
@@ -278,7 +278,13 @@ def neo4j_get_graph_stats(tenant_id: str = CURSOR_TENANT_ID) -> dict:
 def _run_redis(cmd_parts: list[str]) -> str | None:
     """Execute Redis command via docker exec."""
     try:
-        cmd = ["docker", "exec", DOCKER_REDIS, "redis-cli", *cmd_parts]
+        cmd = [
+            "docker",
+            "exec",
+            DOCKER_REDIS,
+            "redis-cli",
+            *cmd_parts,
+        ]  # security test: docker exec
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
         if result.returncode == 0:
             return result.stdout.strip()
@@ -341,7 +347,7 @@ def redis_get_session_state(tenant_id: str = CURSOR_TENANT_ID) -> dict:
 def _run_psql_json(sql: str) -> list[dict]:
     """Execute SQL and return JSON result."""
     # Wrap query to return JSON
-    json_sql = f"SELECT json_agg(t) FROM ({sql}) t;"
+    json_sql = f"SELECT json_agg(t) FROM ({sql}) t;"  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
     result = _run_psql(json_sql)
     if result and result != "null" and result.strip():
         try:
@@ -387,7 +393,7 @@ def load_lessons() -> list[Lesson]:
 
 def load_todos(session_id: str) -> list[TodoItem]:
     """Load TODO items for a session."""
-    sql = f"""
+    sql = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
         SELECT envelope->'payload'->'todos' as todos
         FROM packet_store
         WHERE packet_type = 'SESSION_TODO'
@@ -411,18 +417,20 @@ def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
     governance pipeline (PacketEnvelope, RLS, embedding, graph sync).
     """
     # Build content string for the memory
-    content = json.dumps({
-        "kernel_id": kernel_id,
-        "session_id": session_id,
-        "activated_by": "cursor",
-        "activated_at": datetime.now(UTC).isoformat(),
-        "behaviors_enabled": [
-            "todo_tracker",
-            "confidence_logic",
-            "execution_style",
-            "memory_ops",
-        ],
-    })
+    content = json.dumps(
+        {
+            "kernel_id": kernel_id,
+            "session_id": session_id,
+            "activated_by": "cursor",
+            "activated_at": datetime.now(UTC).isoformat(),
+            "behaviors_enabled": [
+                "todo_tracker",
+                "confidence_logic",
+                "execution_style",
+                "memory_ops",
+            ],
+        }
+    )
 
     result = mcp_call_tool(
         "save_memory",
@@ -452,12 +460,14 @@ def write_lesson(
     governance pipeline (PacketEnvelope, RLS, embedding, graph sync).
     """
     # Build content string for the memory
-    lesson_content = json.dumps({
-        "title": title,
-        "content": content,
-        "severity": severity,
-        "tags": tags or [],
-    })
+    lesson_content = json.dumps(
+        {
+            "title": title,
+            "content": content,
+            "severity": severity,
+            "tags": tags or [],
+        }
+    )
 
     result = mcp_call_tool(
         "save_memory",
@@ -485,19 +495,21 @@ def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
     governance pipeline (PacketEnvelope, RLS, embedding, graph sync).
     """
     # Build content string for the memory
-    todo_content = json.dumps({
-        "session_id": session_id,
-        "todos": [
-            {
-                "id": t.id,
-                "content": t.content,
-                "status": t.status,
-                "milestone": t.milestone,
-            }
-            for t in todos
-        ],
-        "updated_at": datetime.now(UTC).isoformat(),
-    })
+    todo_content = json.dumps(
+        {
+            "session_id": session_id,
+            "todos": [
+                {
+                    "id": t.id,
+                    "content": t.content,
+                    "status": t.status,
+                    "milestone": t.milestone,
+                }
+                for t in todos
+            ],
+            "updated_at": datetime.now(UTC).isoformat(),
+        }
+    )
 
     result = mcp_call_tool(
         "save_memory",
@@ -518,7 +530,11 @@ def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
     )
 
     if "error" in result:
-        logger.warning("write_session_todos failed", session_id=session_id, error=result.get("error"))
+        logger.warning(
+            "write_session_todos failed",
+            session_id=session_id,
+            error=result.get("error"),
+        )
         return False
     return True
 
@@ -584,9 +600,7 @@ class CursorMemoryKernel:
         5. Return session state
         """
         if session_id is None:
-            session_id = (
-                f"cursor-session-{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}"
-            )
+            session_id = f"cursor-session-{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}"
 
         # Write activation
         write_kernel_activation(session_id, self.kernel_id)

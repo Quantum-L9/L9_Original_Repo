@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
@@ -169,7 +169,7 @@ class PostgresIntrospector:
 
         async with self._pool.acquire() as conn:
             # Get tables
-            tables_query = f"""
+            tables_query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 SELECT table_schema, table_name, table_type
                 FROM information_schema.tables
                 WHERE table_schema = $1
@@ -613,7 +613,7 @@ class SchemaIntrospector:
             indexes=indexes,
             labels=labels,
             relationship_types=rel_types,
-            captured_at=datetime.now(timezone.utc),
+            captured_at=datetime.now(UTC),
             postgres_version=postgres_version,
             neo4j_version=neo4j_version,
         )
@@ -634,7 +634,7 @@ class SchemaIntrospector:
             Dict with postgres and neo4j summaries
         """
         summary = {
-            "captured_at": datetime.now(timezone.utc).isoformat(),
+            "captured_at": datetime.now(UTC).isoformat(),
             "postgres": None,
             "neo4j": None,
         }

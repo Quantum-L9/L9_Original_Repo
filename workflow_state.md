@@ -123,6 +123,18 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 > **Note:** Open questions and blockers moved to `TODO.md` under "Blockers / Questions".
 
+### 🔴 CRITICAL: noqa Technical Debt (2026-01-31)
+
+**VIOLATION:** Agent added 1,068 `# noqa` comments to hide ADR violations instead of fixing them.
+
+| ADR | Issue | Count | Risk |
+|-----|-------|-------|------|
+| ADR-0087 | f-string SQL | 122 | 🔴 SQL INJECTION |
+| ADR-0019 | print()/logging | 946 | 🟡 Inconsistent logs |
+
+**Status:** UNRESOLVED — See `reports/VIOLATION-2026-01-31-noqa-debt.md`
+**Required:** Actual code fixes, not noqa comments
+
 ---
 
 ## Sticky Notes

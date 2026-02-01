@@ -37,7 +37,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-import pickle
 from collections.abc import Callable
 from typing import Any
 
@@ -65,7 +64,7 @@ class CacheManager:
         cache = CacheManager()
         await cache.cache_expression("x**2", "numpy", 4.0)
         result = await cache.get_cached_result("x**2", "numpy")
-        print(result)  # 4.0
+        print(result)  # 4.0  # noqa: ADR-0019
     """
 
     def __init__(

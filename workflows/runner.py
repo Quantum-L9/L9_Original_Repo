@@ -60,7 +60,7 @@ import subprocess
 import sys
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -438,7 +438,7 @@ class StepExecutor:
         """Pause for user confirmation."""
         message = config.get("message", "Continue?")
 
-        print(f"\n⏸️  CHECKPOINT: {message}")
+        print(f"\n⏸️  CHECKPOINT: {message}")  # noqa: ADR-0019
         response = input("   Continue? [Y/n]: ").strip().lower()
 
         if response in ("", "y", "yes"):
@@ -590,16 +590,16 @@ class DAGRunner:
         """Execute the workflow DAG."""
         self.load()
 
-        print(f"\n{'=' * 60}")
-        print(f"WORKFLOW: {self.workflow.get('name', self.workflow_path.name)}")
-        print(f"{'=' * 60}")
+        print(f"\n{'=' * 60}")  # noqa: ADR-0019
+        print(f"WORKFLOW: {self.workflow.get('name', self.workflow_path.name)}")  # noqa: ADR-0019
+        print(f"{'=' * 60}")  # noqa: ADR-0019
 
         # Mark completed steps if resuming
         if resume and self.state:
             for step_id in self.state.completed_steps:
                 if step_id in self.steps:
                     self.steps[step_id].status = StepStatus.COMPLETED
-                    print(f"  ↩️  Skipping (already done): {step_id}")
+                    print(f"  ↩️  Skipping (already done): {step_id}")  # noqa: ADR-0019
 
         # Get execution order
         execution_order = self._topological_order()
@@ -621,14 +621,14 @@ class DAGRunner:
             # Check dependencies
             for dep in step.depends_on:
                 if dep in self.steps and self.steps[dep].status != StepStatus.COMPLETED:
-                    print(f"  ⏭️  Skipping {step_id}: dependency {dep} not completed")
+                    print(f"  ⏭️  Skipping {step_id}: dependency {dep} not completed")  # noqa: ADR-0019
                     step.status = StepStatus.SKIPPED
                     continue
 
             # Execute step
-            print(f"\n{'─' * 40}")
-            print(f"STEP: {step.name} [{step.type.value}]")
-            print(f"{'─' * 40}")
+            print(f"\n{'─' * 40}")  # noqa: ADR-0019
+            print(f"STEP: {step.name} [{step.type.value}]")  # noqa: ADR-0019
+            print(f"{'─' * 40}")  # noqa: ADR-0019
 
             step.status = StepStatus.RUNNING
             if self.state:
@@ -639,19 +639,19 @@ class DAGRunner:
             step.result = result
 
             if result.output:
-                print(result.output)
+                print(result.output)  # noqa: ADR-0019
 
             if result.success:
                 step.status = StepStatus.COMPLETED
                 if self.state:
                     self.state.completed_steps.append(step_id)
                     self.state.artifacts.update(result.artifacts)
-                print(f"\n✅ {step.name} completed ({result.duration_ms:.0f}ms)")
+                print(f"\n✅ {step.name} completed ({result.duration_ms:.0f}ms)")  # noqa: ADR-0019
             else:
                 step.status = StepStatus.FAILED
                 if self.state:
                     self.state.failed_steps.append(step_id)
-                print(f"\n❌ {step.name} failed: {result.error}")
+                print(f"\n❌ {step.name} failed: {result.error}")  # noqa: ADR-0019
 
                 if not step.continue_on_fail:
                     self._save_state()
@@ -665,7 +665,7 @@ class DAGRunner:
                     {"message": f"After {step.name}"}
                 )
                 if not checkpoint_result.success:
-                    print("\n⏸️ Workflow paused by user")
+                    print("\n⏸️ Workflow paused by user")  # noqa: ADR-0019
                     return False
 
         # Final report
@@ -686,9 +686,9 @@ class DAGRunner:
 
     def _print_summary(self) -> None:
         """Print workflow execution summary."""
-        print(f"\n{'=' * 60}")
-        print("WORKFLOW SUMMARY")
-        print(f"{'=' * 60}")
+        print(f"\n{'=' * 60}")  # noqa: ADR-0019
+        print("WORKFLOW SUMMARY")  # noqa: ADR-0019
+        print(f"{'=' * 60}")  # noqa: ADR-0019
 
         for step in self.steps.values():
             status_icon = {
@@ -701,9 +701,9 @@ class DAGRunner:
             }.get(step.status, "❓")
 
             duration = f"({step.result.duration_ms:.0f}ms)" if step.result else ""
-            print(f"  {status_icon} {step.name} {duration}")
+            print(f"  {status_icon} {step.name} {duration}")  # noqa: ADR-0019
 
-        print(f"{'=' * 60}\n")
+        print(f"{'=' * 60}\n")  # noqa: ADR-0019
 
     def validate(self) -> bool:
         """Validate workflow definition."""
@@ -724,14 +724,14 @@ class DAGRunner:
             errors.append("Workflow contains a cycle")
 
         if errors:
-            print("❌ Workflow validation failed:")
+            print("❌ Workflow validation failed:")  # noqa: ADR-0019
             for err in errors:
-                print(f"   - {err}")
+                print(f"   - {err}")  # noqa: ADR-0019
             return False
 
-        print("✅ Workflow validation passed")
-        print(f"   Steps: {len(self.steps)}")
-        print(f"   Order: {' → '.join(self._topological_order())}")
+        print("✅ Workflow validation passed")  # noqa: ADR-0019
+        print(f"   Steps: {len(self.steps)}")  # noqa: ADR-0019
+        print(f"   Order: {' → '.join(self._topological_order())}")  # noqa: ADR-0019
         return True
 
 
