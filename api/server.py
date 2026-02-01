@@ -2926,9 +2926,14 @@ async def global_exception_handler(request: Request, exc: Exception):
             )
         )
     except ImportError:
-        pass  # Error tracking not available
-    except Exception:
-        pass  # Don't fail request due to error tracking
+        pass  # Error tracking module not available - expected in minimal deployments
+    except Exception as e:
+        # Log but don't fail request due to error tracking issues
+        logger.debug(
+            "api.exception_handler.error_tracking_failed",
+            error=str(e),
+            endpoint=str(request.url.path),
+        )
 
     # Standard error response
     logger.error(f"Unhandled exception at {request.url.path}: {exc}", exc_info=True)

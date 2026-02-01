@@ -192,7 +192,7 @@ class MCPServerProcess:
                     )
 
         except asyncio.CancelledError:
-            pass
+            pass  # Expected during graceful shutdown - no action needed
         except Exception as e:
             logger.error(
                 "MCP response reader error", server_id=self.server_id, error=str(e)
