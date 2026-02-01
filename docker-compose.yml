@@ -61,8 +61,8 @@ services:
     image: neo4j:5-community
     container_name: ${COMPOSE_PROJECT_NAME:-l9}-neo4j
     restart: unless-stopped
-    env_file:
-      - .env
+    # NOTE: Do NOT use env_file for neo4j - Neo4j 5.x strict validation
+    # treats ALL NEO4J_* env vars as config options and fails on unknown ones
     environment:
       NEO4J_AUTH: ${NEO4J_USER}/${NEO4J_PASSWORD}
       NEO4J_PLUGINS: '["apoc"]'
