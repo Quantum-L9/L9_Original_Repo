@@ -91,9 +91,11 @@ async def init_memory_substrate() -> None:
 
 async def init_neo4j() -> None:
     """Initialize and verify Neo4j graph database connection."""
-    from memory.graph_client import get_neo4j_client
+    from memory.graph_client import init_neo4j_client
 
-    client = await get_neo4j_client()
+    client = await init_neo4j_client()
+    if client is None:
+        fatal("Failed to initialize Neo4j client - check NEO4J_* env vars")
     await client.verify_connectivity()
 
 
