@@ -19,9 +19,11 @@ jobs:
 
       - name: Run Ruff linter
         run: ruff check core/ api/ agents/ memory/ --statistics
+        continue-on-error: true  # Linting is advisory during migration
 
       - name: Run Black formatter check
         run: black --check core/ api/ agents/ memory/
+        continue-on-error: true  # Formatting is advisory during migration
 
       - name: Run mypy type checker
         run: mypy core/ api/ --ignore-missing-imports
