@@ -175,13 +175,23 @@ async def main() -> None:
     db_url = ensure_asyncpg_url(os.environ["DATABASE_URL"])
     engine = create_async_engine(db_url, echo=False)
 
+    # Check if bootstrap already completed (skip if table doesn't exist yet)
     async with engine.begin() as conn:
-        result = await conn.execute(
-            text("SELECT 1 FROM system_state WHERE key = :key"),
-            {"key": BOOTSTRAP_KEY},
-        )
-        if result.first():
-            fatal("Bootstrap already completed. Refusing to run twice.")
+        try:
+            result = await conn.execute(
+                text("SELECT 1 FROM system_state WHERE key = :key"),
+                {"key": BOOTSTRAP_KEY},
+            )
+            if result.first():
+                fatal("Bootstrap already completed. Refusing to run twice.")
+        except Exception as e:
+            # Table doesn't exist yet - this is expected on first run
+            if "system_state" in str(e) and (
+                "does not exist" in str(e) or "UndefinedTable" in str(e)
+            ):
+                print("[BOOTSTRAP] First run - system_state table will be created")  # noqa: ADR-0019
+            else:
+                raise
 
     print("[BOOTSTRAP] Running migrations")  # noqa: ADR-0019
     await run_migrations(engine)
