@@ -549,6 +549,32 @@ gate_15_packet_type_naming() {
 }
 
 # =============================================================================
+# GATE 16: PROTECTED FILES CHECK (HIL REQUIRED)
+# =============================================================================
+
+gate_16_protected_files() {
+    log_header "GATE 16: PROTECTED FILES CHECK (HIL Required)"
+
+    if [ ! -f "$SCRIPT_DIR/check_protected_files.py" ]; then
+        log_warn "Protected files checker not found, skipping"
+        return 0
+    fi
+
+    log_info "Checking for unauthorized modifications to protected files..."
+    log_info "Protected files require HIL_APPROVED marker in commit message"
+
+    if ! python3 "$SCRIPT_DIR/check_protected_files.py"; then
+        log_error "PROTECTED FILES CHECK FAILED"
+        log_error "Add 'HIL_APPROVED: <reason>' to commit message or revert changes"
+        log_error "Protected files: docker-compose.yml, docker-compose.prod.yml, executor.py, etc."
+        return 1
+    fi
+
+    log_info "✅ Protected files check passed"
+    return 0
+}
+
+# =============================================================================
 # MAIN
 # =============================================================================
 
@@ -590,6 +616,7 @@ main() {
     local files=("$@")
 
     # Run all gates in sequence - fail fast
+    gate_16_protected_files || exit 1  # CHECK FIRST - protected files require HIL approval
     run_spec_validation "$spec_file" || exit 1
     run_code_validation "$spec_file" "${files[@]}" || exit 1
     run_syntax_check "${files[@]}" || exit 1
