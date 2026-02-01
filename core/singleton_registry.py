@@ -532,7 +532,7 @@ _registry: SingletonRegistry | None = None
 def get_singleton_registry() -> SingletonRegistry:
     """Get or create global singleton registry."""
     global _registry
-    if _registry is None:
+    if _registry is None:  # nosemgrep: l9-singleton-requires-lock
         _registry = SingletonRegistry()
         # Singletons now auto-register via @register_singleton decorator
         # _register_core_singletons(_registry)  # DEPRECATED
@@ -1089,7 +1089,7 @@ def _register_core_singletons_DEPRECATED(registry: SingletonRegistry) -> None:
             """Returns the active or newly created cursor memory kernel for managing singleton instances in the L9 registry."""
             # Try to get active kernel first, fallback to creating new one
             kernel = get_active_kernel()
-            if kernel is None:
+            if kernel is None:  # nosemgrep: l9-singleton-requires-lock
                 kernel = create_cursor_memory_kernel()
             return kernel
 

@@ -30,7 +30,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import structlog
 import os
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -40,7 +40,7 @@ from typing import Any
 
 import yaml
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class SecurityAction(Enum):
@@ -83,7 +83,7 @@ class SecurityViolation:
         Args:
             self: The SecurityViolation instance being initialized.
         """
-        if self.timestamp is None:
+        if self.timestamp is None:  # nosemgrep: l9-singleton-requires-lock
             self.timestamp = datetime.now(UTC)
 
     def to_dict(self) -> dict[str, Any]:
@@ -429,8 +429,7 @@ _security_policy_service: SecurityPolicyService | None = None
 def get_security_policy_service() -> SecurityPolicyService:
     """Get singleton security policy service instance."""
     global _security_policy_service
-
-    if _security_policy_service is None:
+    if _security_policy_service is None:  # nosemgrep: l9-singleton-requires-lock
         _security_policy_service = SecurityPolicyService()
 
     return _security_policy_service

@@ -43,7 +43,7 @@ __dora_meta__ = {
 
 import hashlib
 import json
-import logging
+import structlog
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum
@@ -51,7 +51,7 @@ from typing import Any
 
 from core.decorators import must_stay_async
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # ============================================================================
 # RETENTION POLICY

@@ -34,7 +34,7 @@ Now add to TODO.md:
 | Item                      | Status        | Change                                              |
 | ------------------------- | ------------- | --------------------------------------------------- |
 | **mac_agent Docker**      | ❌ NOT NEEDED | Runs locally on Mac (pyautogui needs screen access) |
-| **mcp_memory/Dockerfile** | ✅ FIXED      | Now uses `mcp_memory/requirements.txt`              |
+| **Dockerfile.mcp-memory** (root) | Canonical | Uses `requirements-mcp-memory.txt` at root (ADR-0089) |
 | **symbolic_computation**  | ✅ DISABLED   | CMD now just echoes message, TODO added             |
 | **Root requirements.txt** | ✅ FIXED      | Added `mcp>=1.0.0`                                  |
 
@@ -59,8 +59,8 @@ The `mcp` package was only in `mcp_memory/requirements.txt`, but since the Docke
 
 | Dockerfiles                                | Count | Purpose                |
 | ------------------------------------------ | ----- | ---------------------- |
-| `runtime/Dockerfile`                       | 1     | Main l9-api server     |
-| `mcp_memory/Dockerfile`                    | 1     | MCP memory server      |
+| `Dockerfile` (root)                       | 1     | Main l9-api server     |
+| `Dockerfile.mcp-memory` (root)             | 1     | MCP memory server      |
 | `services/symbolic_computation/Dockerfile` | 1     | Test runner (DISABLED) |
 | **Total**                                  | **3** |                        |
 

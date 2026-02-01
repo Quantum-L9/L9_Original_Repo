@@ -180,8 +180,12 @@ class RateLimiter:
                 redis_key = f"rate_limit:{key}"
                 current = await self._redis_client.get_rate_limit(redis_key)
                 return max(0, limit - current)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(
+                    "rate_limiter.get_remaining.redis_fallback",
+                    key=key,
+                    error=str(e),
+                )
 
         # Fallback to in-memory
         now = datetime.now(timezone.utc)
@@ -204,8 +208,12 @@ class RateLimiter:
             try:
                 redis_key = f"rate_limit:{key}"
                 return await self._redis_client.get_rate_limit(redis_key)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(
+                    "rate_limiter.get_usage.redis_fallback",
+                    key=key,
+                    error=str(e),
+                )
 
         # Fallback to in-memory
         now = datetime.now(timezone.utc)
@@ -231,8 +239,12 @@ class RateLimiter:
                     for k in keys:
                         await self._redis_client.delete(k)
                 return
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(
+                    "rate_limiter.reset.redis_fallback",
+                    key=key,
+                    error=str(e),
+                )
 
         # Fallback to in-memory
         if key:

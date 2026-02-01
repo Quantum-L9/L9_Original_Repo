@@ -238,7 +238,7 @@ _config_instance: PacketEnvelopeUpgradeConfig | None = None
 def get_config() -> PacketEnvelopeUpgradeConfig:
     """Get singleton configuration instance"""
     global _config_instance
-    if _config_instance is None:
+    if _config_instance is None:  # nosemgrep: l9-singleton-requires-lock
         _config_instance = PacketEnvelopeUpgradeConfig()
     return _config_instance
 

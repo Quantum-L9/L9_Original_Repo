@@ -75,7 +75,7 @@ class TensorGlobeBridgeAdapter:
         self.signature_verifier = SignatureVerifier()
         self.anomaly_detector = AnomalyDetector()
 
-        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger = logger.bind(component=self.__class__.__name__)
 
     async def handle_tensor_request(
         self,
@@ -101,7 +101,7 @@ class TensorGlobeBridgeAdapter:
             if not await self._verify_request_signature(request, requester_agent_id):
                 raise ValueError("Request signature verification failed")
 
-            self.logger.debug(f"Request {request.request_id} validated")
+            self.logger.debug("request.validated", request_id=request.request_id)
 
             # Step 2: Submit to EOS gate (ActionEnvelope)
             action_envelope = ActionEnvelope(
@@ -132,7 +132,7 @@ class TensorGlobeBridgeAdapter:
                     f"EOS gate denied: {violations[0] if violations else 'unknown'}",
                 )
 
-            self.logger.info(f"EOS APPROVED request {request.request_id}")
+            self.logger.info("eos.approved", request_id=request.request_id)
 
             # Step 3: Call TensorGlobe (sandboxed)
             response = await self._call_tensorglobe(request)
@@ -148,7 +148,7 @@ class TensorGlobeBridgeAdapter:
             anomalies = await self.anomaly_detector.detect(request, response)
             if anomalies:
                 for anomaly in anomalies:
-                    self.logger.warning(f"Anomaly detected: {anomaly.anomaly_type}")
+                    self.logger.warning("anomaly.detected", anomaly_type=anomaly.anomaly_type)
 
                     # Suspend provider if critical anomaly repeated
                     if anomaly.severity == "critical":
@@ -167,12 +167,13 @@ class TensorGlobeBridgeAdapter:
             )
 
             self.logger.info(
-                f"TensorRequest {request.request_id} completed successfully"
+                "tensor_request.completed",
+                request_id=request.request_id,
             )
             return True, response, None
 
         except Exception as e:
-            self.logger.error(f"TensorRequest {request.request_id} failed: {e}")
+            self.logger.error("tensor_request.failed", request_id=request.request_id, error=str(e))
             await self._emit_ledger_event(
                 "tensor_request_failed",
                 request_id=request.request_id,
@@ -186,7 +187,7 @@ class TensorGlobeBridgeAdapter:
             # Pydantic validation happens on model creation
             return True
         except Exception as e:
-            self.logger.error(f"Request validation failed: {e}")
+            self.logger.error("request.validation_failed", error=str(e))
             return False
 
     async def _verify_request_signature(
@@ -200,7 +201,7 @@ class TensorGlobeBridgeAdapter:
             # TODO: Fetch public key for agent_id, verify signature
             return True  # Placeholder
         except Exception as e:
-            self.logger.error(f"Request signature verification failed: {e}")
+            self.logger.error("request.signature_verification_failed", error=str(e))
             return False
 
     async def _call_tensorglobe(self, request: TensorRequest) -> TensorResponse:
@@ -231,7 +232,7 @@ class TensorGlobeBridgeAdapter:
         try:
             return True  # Pydantic validation
         except Exception as e:
-            self.logger.error(f"Response validation failed: {e}")
+            self.logger.error("response.validation_failed", error=str(e))
             return False
 
     async def _verify_response_signature(self, response: TensorResponse) -> bool:
@@ -240,7 +241,7 @@ class TensorGlobeBridgeAdapter:
             # TODO: Verify TensorGlobe signature
             return True  # Placeholder
         except Exception as e:
-            self.logger.error(f"Response signature verification failed: {e}")
+            self.logger.error("response.signature_verification_failed", error=str(e))
             return False
 
     async def _suspend_provider(self) -> None:

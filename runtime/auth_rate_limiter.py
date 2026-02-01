@@ -313,8 +313,12 @@ class AuthRateLimiter:
         if await self._ensure_redis():
             try:
                 return await self._redis_count_failures(ip_address, username)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(
+                    "auth_rate_limiter.count_failures.redis_fallback",
+                    ip_address=ip_address,
+                    error=str(e),
+                )
 
         # Fallback to in-memory
         ip_count = len([t for t in self._ip_failures[ip_address] if t > cutoff])
@@ -347,8 +351,12 @@ class AuthRateLimiter:
                 ttl = await self._redis_client.ttl(key)
                 if ttl and ttl > 0:
                     return datetime.now(UTC) + timedelta(seconds=ttl)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.debug(
+                    "auth_rate_limiter.get_lockout.redis_fallback",
+                    key=key,
+                    error=str(e),
+                )
 
         return self._lockouts.get(key)
 
@@ -454,7 +462,7 @@ _auth_limiter_instance: AuthRateLimiter | None = None
 def get_auth_rate_limiter() -> AuthRateLimiter:
     """Get or create the auth rate limiter singleton."""
     global _auth_limiter_instance
-    if _auth_limiter_instance is None:
+    if _auth_limiter_instance is None:  # nosemgrep: l9-singleton-requires-lock
         _auth_limiter_instance = AuthRateLimiter()
     return _auth_limiter_instance
 

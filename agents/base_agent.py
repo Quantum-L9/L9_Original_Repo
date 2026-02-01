@@ -49,7 +49,8 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from abc import ABC, abstractmethod
+import threading
+from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
@@ -98,7 +99,7 @@ class AgentMessage:
     role: str = "user"  # system, user, assistant
     content: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, str]:
         """Convert to OpenAI message format."""
@@ -117,7 +118,7 @@ class AgentResponse:
     duration_ms: int = 0
     success: bool = True
     error: str | None = None
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Returns a dictionary representation of the agent response, including response ID, agent ID, truncated content, and success status."""
@@ -175,10 +176,14 @@ class BaseAgent(ABC):
         """Get agent configuration."""
         return self._config
 
+    _client_lock = threading.Lock()
+
     def _ensure_client(self) -> AsyncOpenAI:
-        """Ensure OpenAI client is initialized."""
+        """Ensure OpenAI client is initialized (thread-safe)."""
         if self._client is None:
-            self._client = AsyncOpenAI(api_key=self._config.api_key)
+            with self._client_lock:
+                if self._client is None:
+                    self._client = AsyncOpenAI(api_key=self._config.api_key)
         return self._client
 
     # ==========================================================================
@@ -304,7 +309,7 @@ class BaseAgent(ABC):
             )
 
         except Exception as e:
-            logger.error(f"LLM call failed for {self._agent_id} after retries: {e}")
+            logger.error("LLM call failed after retries", agent_id=self._agent_id, exc_info=True)
             duration_ms = int(
                 (datetime.now(UTC) - start_time).total_seconds() * 1000
             )

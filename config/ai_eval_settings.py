@@ -224,7 +224,7 @@ class AIEvalSettings(BaseSettings):
         env_nested_delimiter = "__"
 
 
-@lru_cache
+@lru_cache(maxsize=1)
 def get_ai_eval_settings() -> AIEvalSettings:
     """Get cached AI evaluation settings."""
     return AIEvalSettings()

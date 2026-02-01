@@ -57,7 +57,7 @@ class SignatureVerifier:
         self.tensorglobe_public_keys = tensorglobe_public_keys or {}
         self.signature_algorithm = signature_algorithm
         self.max_signature_age = timedelta(seconds=max_signature_age_seconds)
-        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger = logger.bind(component=self.__class__.__name__)
 
     def verify_request_signature(
         self,
@@ -91,12 +91,14 @@ class SignatureVerifier:
             # TODO: Implement actual cryptographic verification
             # For now, placeholder that allows all (dev mode)
             self.logger.debug(
-                f"Request signature verification for {agent_id}: PLACEHOLDER_PASS"
+                "request.signature_verification",
+                agent_id=agent_id,
+                status="PLACEHOLDER_PASS",
             )
             return True
 
         except Exception as e:
-            self.logger.error(f"Request signature verification failed: {e}")
+            self.logger.error("request.signature_verification_failed", error=str(e))
             return False
 
     def verify_response_signature(
@@ -121,7 +123,8 @@ class SignatureVerifier:
             public_key = self._get_tensorglobe_public_key(signing_key_id)
             if not public_key:
                 self.logger.error(
-                    f"No TensorGlobe public key found for key {signing_key_id}"
+                    "tensorglobe.public_key_not_found",
+                    signing_key_id=signing_key_id,
                 )
                 return False
 
@@ -131,7 +134,7 @@ class SignatureVerifier:
             return True
 
         except Exception as e:
-            self.logger.error(f"Response signature verification failed: {e}")
+            self.logger.error("response.signature_verification_failed", error=str(e))
             return False
 
     def _get_l9_public_key(self, agent_id: str, key_id: str) -> bytes | None:

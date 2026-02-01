@@ -33,6 +33,8 @@ Created: 2026-01-06
 Updated: 2026-01-06 (GMP-34: Added Kernel, GOVERNED_BY, GUARDED_BY, REPORTS_TO)
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Bootstrap Neo4J Schema",

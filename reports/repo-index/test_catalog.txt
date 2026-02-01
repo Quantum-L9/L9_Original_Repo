@@ -13,14 +13,17 @@
 - `tests/core/test_auto_registry.py` (11 tests)
 - `tests/core/test_fail_closed_registry.py` (8 tests)
 - `tests/core/test_resilience_mixin.py` (16 tests)
+- `tests/core/kernels/test_integrity.py` (5 tests)
 - `tests/core/tools/test_tool_graph.py` (2 tests)
 - `tests/core/tools/test_tool_graph_unified.py` (16 tests)
 - `tests/core/bootstrap/test_executor_governance.py` (5 tests)
+- `tests/core/bootstrap/test_phase_7_verify_and_lock.py` (11 tests)
 - `tests/core/bootstrap/test_prompt_defense.py` (31 tests)
 - `tests/core/bootstrap/test_graph_state.py` (13 tests)
 - `tests/core/bootstrap/test_bootstrap_phases.py` (16 tests)
 - `tests/core/bootstrap/test_agent_self_modify.py` (14 tests)
 - `tests/core/bootstrap/test_executor.py` (22 tests)
+- `tests/core/bootstrap/test_executor_idempotency.py` (7 tests)
 - `tests/core/bootstrap/test_prompt_builder.py` (25 tests)
 - `tests/core/security/test_path_safety.py` (10 tests)
 - `tests/core/security/test_permission_graph.py` (2 tests)
@@ -29,6 +32,7 @@
 - `tests/core/agents/bootstrap/test_orchestrator.py` (5 tests)
 - `tests/core/agents/bootstrap/test_phase4_identity_view.py` (3 tests)
 - `tests/core/observability/test_observability_integration.py` (32 tests)
+- `tests/core/kernel_wiring/test_master_wiring.py` (2 tests)
 - `tests/core/schemas/test_content_hash_integrity.py` (14 tests)
 - `tests/core/schemas/test_upcaster_registry.py` (4 tests)
 - `tests/core/schemas/test_schema_registry.py` (20 tests)
@@ -119,6 +123,7 @@
 - `tests/memory/test_tool_audit.py` (27 tests)
 - `tests/memory/test_cypher_templates.py` (14 tests)
 - `tests/memory/tests/memory/test_mcp_hardening_startup.py` (3 tests)
+- `tests/memory/consolidation/test_promotion_rules.py` (29 tests)
 
 ### tests/telemetry/
 
@@ -130,6 +135,7 @@
 - `tests/api/test_agent_auth.py` (6 tests)
 - `tests/api/test_auth.py` (8 tests)
 - `tests/api/test_factory_path_safety.py` (3 tests)
+- `tests/api/test_bootstrap_fail_fast.py` (7 tests)
 - `tests/api/test_slack_adapter.py` (26 tests)
 - `tests/api/test_websocket_auth.py` (5 tests)
 - `tests/api/test_auth_api_key_enforcement.py` (2 tests)
@@ -138,8 +144,8 @@
 
 ## Summary
 
-- **Total test files**: 117
-- **Total test functions**: 1428
+- **Total test files**: 123
+- **Total test functions**: 1489
 
 ## Running Tests
 

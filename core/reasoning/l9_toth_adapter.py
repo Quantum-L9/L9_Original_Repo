@@ -24,9 +24,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import structlog
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from core.reasoning.toth_engine import (
@@ -37,7 +37,7 @@ from core.reasoning.toth_engine import (
 )
 
 # Configure logging
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @dataclass

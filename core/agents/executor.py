@@ -107,6 +107,16 @@ try:
     _has_event_queue = True
 except ImportError:
     _has_event_queue = False
+
+# Substrate-backed IdempotencyStore (optional - graceful degradation)
+# GMP Phase 0 Enhancement: Persistent idempotency across restarts
+try:
+    from core.agents.idempotency_store import IdempotencyStore
+
+    _has_idempotency_store = True
+except ImportError:
+    _has_idempotency_store = False
+    IdempotencyStore = None  # type: ignore
     EventQueue = None  # type: ignore
     Event = None  # type: ignore
     EventKind = None  # type: ignore
@@ -463,11 +473,23 @@ class AgentExecutorService:
             os.getenv("AGENT_MAX_ITERATIONS", "10")
         )
 
-        # Idempotency cache
-        # LIMITATION: In-memory only - cleared on process restart.
-        # NOT durable: If executor restarts, duplicate tasks will re-execute.
-        # For substrate-backed idempotency, see roadmap v1.2.
+        # Idempotency cache (two-tier: in-memory + substrate-backed)
+        # Tier 1: In-memory fast cache (cleared on process restart)
         self._processed_tasks: dict[str, ExecutionResult] = {}
+        
+        # Tier 2: Substrate-backed durable cache (persists across restarts)
+        # GMP Phase 0 Enhancement: Uses Redis for cross-restart idempotency
+        self._idempotency_store: IdempotencyStore | None = None
+        if _has_idempotency_store and IdempotencyStore is not None:
+            try:
+                self._idempotency_store = IdempotencyStore(substrate_service)
+                logger.info("agent.executor.idempotency_store: substrate-backed enabled")
+            except Exception as e:
+                logger.warning(
+                    "agent.executor.idempotency_store: init failed, using in-memory only",
+                    error=str(e),
+                )
+                self._idempotency_store = None
 
         # Kernel-aware agent reference (for guarded execution)
         self._kernel_aware_agent: Any | None = None
@@ -760,11 +782,27 @@ class AgentExecutorService:
             str(task.get_thread_id()),
         )
 
-        # Idempotency check
+        # Idempotency check (two-tier: in-memory fast check + substrate durable check)
         dedupe_key = task.get_dedupe_key()
+        
+        # Tier 1: Fast in-memory check
         if dedupe_key in self._processed_tasks:
-            logger.info("agent.executor.duplicate: task_id=%s", task_id_str)
+            logger.info("agent.executor.duplicate: task_id=%s (in-memory)", task_id_str)
             return DuplicateTaskResponse(task_id=task.id)
+        
+        # Tier 2: Substrate-backed check (survives restarts)
+        if self._idempotency_store is not None:
+            try:
+                if await self._idempotency_store.check_executed_by_key(dedupe_key):
+                    logger.info("agent.executor.duplicate: task_id=%s (substrate)", task_id_str)
+                    return DuplicateTaskResponse(task_id=task.id)
+            except Exception as e:
+                # Non-fatal: continue with execution if substrate check fails
+                logger.warning(
+                    "agent.executor.idempotency_check_failed",
+                    task_id=task_id_str,
+                    error=str(e),
+                )
 
         try:
             # Validate task
@@ -1020,8 +1058,28 @@ class AgentExecutorService:
             # Run execution loop
             result = await self._run_execution_loop(instance)
 
-            # Cache result for idempotency
+            # Cache result for idempotency (two-tier)
+            # Tier 1: In-memory fast cache
             self._processed_tasks[dedupe_key] = result
+            
+            # Tier 2: Substrate-backed durable cache
+            if self._idempotency_store is not None:
+                try:
+                    await self._idempotency_store.mark_executed_by_key(
+                        dedupe_key,
+                        {
+                            "task_id": task_id_str,
+                            "status": result.status,
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                        },
+                    )
+                except Exception as e:
+                    # Non-fatal: log and continue
+                    logger.warning(
+                        "agent.executor.idempotency_mark_failed",
+                        task_id=task_id_str,
+                        error=str(e),
+                    )
 
             # Emit result packet (with agent_id in payload for metadata extraction)
             await self._emit_packet(

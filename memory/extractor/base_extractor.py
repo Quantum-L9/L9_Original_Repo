@@ -26,7 +26,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
 from pathlib import Path
 from typing import Any
 

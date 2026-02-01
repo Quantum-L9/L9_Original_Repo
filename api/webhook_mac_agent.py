@@ -169,40 +169,39 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
             # Create async client for this call
             slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
             if slack_bot_token:
-                http_client = httpx.AsyncClient()
-                slack_client = SlackAPIClient(
-                    bot_token=slack_bot_token, http_client=http_client
-                )
-
-                status_emoji = "✅" if payload.status == "done" else "❌"
-
-                # Build message with enhanced V2 info
-                message_parts = [
-                    f"{status_emoji} Mac task {task_id} finished with status `{payload.status}`"
-                ]
-
-                if payload.logs:
-                    # Include last few logs
-                    recent_logs = (
-                        payload.logs[-5:] if len(payload.logs) > 5 else payload.logs
+                async with httpx.AsyncClient() as http_client:
+                    slack_client = SlackAPIClient(
+                        bot_token=slack_bot_token, http_client=http_client
                     )
-                    message_parts.append("\nRecent logs:")
-                    for log in recent_logs:
-                        message_parts.append(f"  • {log}")
 
-                message_parts.append(
-                    f"\n```\n{payload.result[:500]}{'...' if len(payload.result) > 500 else ''}\n```"
-                )
+                    status_emoji = "✅" if payload.status == "done" else "❌"
 
-                if payload.screenshot_path:
-                    message_parts.append(f"\n📸 Screenshot: {payload.screenshot_path}")
+                    # Build message with enhanced V2 info
+                    message_parts = [
+                        f"{status_emoji} Mac task {task_id} finished with status `{payload.status}`"
+                    ]
 
-                message = "\n".join(message_parts)
-                await slack_client.post_message(channel=task.channel, text=message)
-                await http_client.aclose()
-                logger.info(
-                    f"[MAC-AGENT] Posted result for task {task_id} to Slack channel {task.channel}"
-                )
+                    if payload.logs:
+                        # Include last few logs
+                        recent_logs = (
+                            payload.logs[-5:] if len(payload.logs) > 5 else payload.logs
+                        )
+                        message_parts.append("\nRecent logs:")
+                        for log in recent_logs:
+                            message_parts.append(f"  • {log}")
+
+                    message_parts.append(
+                        f"\n```\n{payload.result[:500]}{'...' if len(payload.result) > 500 else ''}\n```"
+                    )
+
+                    if payload.screenshot_path:
+                        message_parts.append(f"\n📸 Screenshot: {payload.screenshot_path}")
+
+                    message = "\n".join(message_parts)
+                    await slack_client.post_message(channel=task.channel, text=message)
+                    logger.info(
+                        f"[MAC-AGENT] Posted result for task {task_id} to Slack channel {task.channel}"
+                    )
         except Exception as e:
             logger.error(f"[MAC-AGENT] Failed to post result to Slack: {e}")
             # Don't fail the request if Slack posting fails

@@ -1,11 +1,11 @@
 # L9 README File Manifest
-# Generated: 2026-01-28 18:01
+# Generated: 2026-01-31 22:41
 #
 # AI Reference: Quick lookup for module documentation
 # Each entry shows: PATH | TITLE | DESCRIPTION
 # ============================================================================
 
-# Total: 79 README files across 35 directories
+# Total: 84 README files across 36 directories
 
 # ============================================================================
 # ADAPTERS (1 files)
@@ -68,6 +68,26 @@ TITLE: API Clients
 DESC: > **Tier:** INFRASTRUCTURE | **Path:** `clients` | **Owner:** Igor
 
 # ============================================================================
+# CODEGEN (4 files)
+# ============================================================================
+
+PATH: codegen/Perplexity-Search-Pack/perplexity-c-superprompt-pack/README.md
+TITLE: Perplexity C Integration Superprompt Pack
+DESC: **Status:** ✅ Ready to Download & Use **Version:** 1.0 **Last Updated:** January 15, 2026
+
+PATH: codegen/README.md
+TITLE: L9 CodeGen System
+DESC: Autonomous code generation from YAML specifications.
+
+PATH: codegen/codegenAgent Spec/Spec-codegen+codegenAgent/README.md
+TITLE: CodeGenAgent (CGA) — L9 Autonomous Code Generation System
+DESC: **CodeGenAgent (CGA)** is the autonomous "Head of Code Generation" for L9 and all company projects. It receives contracts and specifications from L...
+
+PATH: codegen/process/README.md
+TITLE: CodeGen Process Pipeline
+DESC: This folder contains the YAML definitions that orchestrate the code generation pipeline.
+
+# ============================================================================
 # CODEGENAGENT (2 files)
 # ============================================================================
 
@@ -100,7 +120,7 @@ TITLE: L9 Agent Configurations
 DESC: Agent YAML manifests defining identity, capabilities, tools, and governance for L9 AI agents.
 
 # ============================================================================
-# CORE (33 files)
+# CORE (34 files)
 # ============================================================================
 
 PATH: core/README.md
@@ -122,6 +142,10 @@ DESC: > **Tier:** CORE | **Path:** `core/aios` | **Owner:** Igor
 PATH: core/boundary/README.md
 TITLE: Boundary Enforcement
 DESC: > **Tier:** CORE | **Path:** `core/boundary` | **Owner:** Igor
+
+PATH: core/codegen/README.md
+TITLE: Code Generation Core
+DESC: > **Tier:** CORE | **Path:** `core/codegen` | **Owner:** Igor
 
 PATH: core/commands/README.md
 TITLE: Command System

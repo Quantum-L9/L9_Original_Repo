@@ -112,8 +112,14 @@ logger.info(f"Processing {item_id}")  # Use kwargs instead
 # ❌ WRONG — Generic logger name
 logger = structlog.get_logger("mylogger")  # Use __name__
 
+# ❌ WRONG — Using stdlib getChild() with structlog
+self.logger = logger.getChild(self.__class__.__name__)  # structlog doesn't have getChild()
+
 # ✅ CORRECT — Structured logging with kwargs
 logger.info("item.processing", item_id=item_id, status="started")
+
+# ✅ CORRECT — Use bind() for component context
+self.logger = logger.bind(component=self.__class__.__name__)
 ```
 
 ## Event Naming Convention

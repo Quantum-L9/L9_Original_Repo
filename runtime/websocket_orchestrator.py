@@ -334,7 +334,7 @@ class WebSocketOrchestrator:
                     },
                 )
 
-                if first_task_id is None:
+                if first_task_id is None:  # nosemgrep: l9-singleton-requires-lock
                     first_task_id = str(task.id)
 
                 try:

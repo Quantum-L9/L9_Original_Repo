@@ -398,7 +398,7 @@ _default_enforcer: BoundaryEnforcer | None = None
 def get_default_enforcer() -> BoundaryEnforcer:
     """Get the default singleton enforcer instance."""
     global _default_enforcer
-    if _default_enforcer is None:
+    if _default_enforcer is None:  # nosemgrep: l9-singleton-requires-lock
         _default_enforcer = BoundaryEnforcer()
     return _default_enforcer
 

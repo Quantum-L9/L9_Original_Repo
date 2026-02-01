@@ -20,6 +20,17 @@ logger = structlog.get_logger(__name__)
 
 router = APIRouter(prefix="/eval", tags=["evaluation"])
 
+# AUTO-REGISTRATION (ARCH-01 Migration)
+from api.routes.registry import router_registry
+
+router_registry.register(
+    router=router,
+    prefix="/eval",
+    tags=["evaluation"],
+    display_name="Agent Evaluation",
+    dependencies=["evaluator"],  # Depends on the evaluator service
+)
+
 
 # =============================================================================
 # REQUEST/RESPONSE MODELS

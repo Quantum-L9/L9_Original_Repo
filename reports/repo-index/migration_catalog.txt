@@ -32,6 +32,7 @@
 | `0025_tool_embeddings.sql` | Migration: 0025_tool_embeddings.sql |
 | `0026_tool_bm25_index.sql` | Migration: 0026_tool_bm25_index.sql |
 | `0027_eval_results.sql` | Migration: 0027_eval_results.sql |
+| `0028_optimize_vector_indexing.sql` | ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
 | `20260125_tool_feedback_learning.sql` | ============================================================ |
 
 ## Key Tables Created

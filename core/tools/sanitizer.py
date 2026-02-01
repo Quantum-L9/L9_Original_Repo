@@ -227,6 +227,7 @@ class ToolInputSanitizer:
                 reasons.append(f"{key}: expected number, got bool")
                 return value
             if isinstance(value, (int, float)):
+                # nosemgrep: l9-float-requires-try-except (isinstance already validated)
                 return float(value)
             if isinstance(value, str):
                 try:

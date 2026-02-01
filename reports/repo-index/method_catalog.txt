@@ -3,6 +3,19 @@
 # Format: ClassName::method_name(arg1, arg2) @ path/to/file.py
 # Load into Neo4j as (Class)-[:HAS_METHOD]->(Method) relationships
 
+ADRChecker::__init__(filepath, content, strict) @ ci/check_adr_compliance.py
+ADRChecker::_add_violation(adr, line, message, default_severity) @ ci/check_adr_compliance.py
+ADRChecker::_check_decorators(node) @ ci/check_adr_compliance.py
+ADRChecker::_has_noqa(lineno, adr) @ ci/check_adr_compliance.py
+ADRChecker::_is_allowed(category) @ ci/check_adr_compliance.py
+ADRChecker::visit_AsyncFunctionDef(node) @ ci/check_adr_compliance.py
+ADRChecker::visit_Call(node) @ ci/check_adr_compliance.py
+ADRChecker::visit_ClassDef(node) @ ci/check_adr_compliance.py
+ADRChecker::visit_ExceptHandler(node) @ ci/check_adr_compliance.py
+ADRChecker::visit_FunctionDef(node) @ ci/check_adr_compliance.py
+ADRChecker::visit_If(node) @ ci/check_adr_compliance.py
+ADRChecker::visit_Import(node) @ ci/check_adr_compliance.py
+ADRChecker::visit_ImportFrom(node) @ ci/check_adr_compliance.py
 ADRComplianceChecker::__init__(repo_root) @ tools/adr/adr_compliance_check_enhanced.py
 ADRComplianceChecker::_calculate_overall_compliance() @ tools/adr/adr_compliance_check_enhanced.py
 ADRComplianceChecker::_check_rule(content, rule, filepath, adr_num) @ tools/adr/adr_compliance_check_enhanced.py
@@ -52,6 +65,7 @@ AIOSResult::response(cls, content, tokens_used) @ core/agents/schemas.py
 AIOSResult::tool_request(cls, tool_call, tokens_used) @ core/agents/schemas.py
 AIOSRuntime::__init__(api_key, model, temperature, max_tokens, default_system_prompt) @ core/aios/runtime.py
 AIOSRuntime::_get_client() @ core/aios/runtime.py
+AIOSRuntime::async close() @ core/aios/runtime.py
 AIOSRuntime::async execute_reasoning(context) @ core/agents/executor.py
 AIOSRuntime::async execute_reasoning(context) @ core/aios/runtime.py
 AIOSRuntime::async execute_reasoning(context) @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
@@ -157,49 +171,38 @@ AgendaAssembler::get_execution_plan(agenda) @ igor/DONE!/tokenizer/core/tokenize
 AgendaAssembler::merge_agendas(agendas) @ igor/DONE!/tokenizer/core/tokenizer/assembler.py
 AgendaAssembler::split_by_module(agenda) @ igor/DONE!/tokenizer/core/tokenizer/assembler.py
 AgentBootstrapContext::add_phase_result(result) @ core/agents/bootstrap/models.py
-AgentBootstrapContext::add_phase_result(result) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapContext::compute_init_signature() @ core/agents/bootstrap/models.py
-AgentBootstrapContext::compute_init_signature() @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapContext::to_canonical_json() @ core/agents/bootstrap/models.py
-AgentBootstrapContext::to_canonical_json() @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapError::__init__(phase, phase_name, agent_id, root_cause, init_signature) @ core/agents/bootstrap/models.py
-AgentBootstrapError::__init__(phase, phase_name, agent_id, root_cause, init_signature) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::__init__(substrate_service) @ .backup/bootstrap-7phase/orchestrator.py
 AgentBootstrapOrchestrator::__init__(substrate_service) @ current_work/Agent Initialization - Paradigm Shift/harvested-files/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::__init__(world_model_service, memory_substrate_service, tool_registry, feature_flags) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::__init__(world_model_service, memory_substrate_service, tool_registry, feature_flags, substrate_service) @ core/agents/bootstrap/orchestrator.py
 AgentBootstrapOrchestrator::async _phase0_validate(ctx, kernel_paths) @ core/agents/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::async _phase0_validate(ctx, kernel_paths) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::async _phase1_load_kernels(ctx, kernel_paths) @ core/agents/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::async _phase1_load_kernels(ctx, kernel_paths) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::async _phase2_instantiate(ctx, kernel_paths) @ core/agents/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::async _phase2_instantiate(ctx, kernel_paths) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::async _phase3_bind_kernels(ctx, kernel_paths) @ core/agents/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::async _phase3_bind_kernels(ctx, kernel_paths) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::async _phase4_load_identity(ctx, kernel_paths) @ core/agents/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::async _phase4_load_identity(ctx, kernel_paths) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::async _phase5_bind_tools(ctx, kernel_paths) @ core/agents/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::async _phase5_bind_tools(ctx, kernel_paths) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::async _phase6_wire_governance(ctx, kernel_paths) @ core/agents/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::async _phase6_wire_governance(ctx, kernel_paths) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::async _phase7_verify_and_lock(ctx, kernel_paths) @ core/agents/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::async _phase7_verify_and_lock(ctx, kernel_paths) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::async _rollback_agent_init(agent_id, reason, phase) @ core/agents/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::async _rollback_agent_init(agent_id, reason, phase) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 AgentBootstrapOrchestrator::async bootstrap_agent(config) @ current_work/Agent Initialization - Paradigm Shift/harvested-files/bootstrap/orchestrator.py
 AgentBootstrapOrchestrator::async bootstrap_agent(config, kernel_dir) @ .backup/bootstrap-7phase/orchestrator.py
 AgentBootstrapOrchestrator::async bootstrap_agent(config, kernel_dir) @ core/agents/bootstrap/orchestrator.py
 AgentBootstrapOrchestrator::async run(agent_id, config, kernel_paths) @ core/agents/bootstrap/orchestrator.py
-AgentBootstrapOrchestrator::async run(agent_id, config, kernel_paths) @ current_work/01-26-2026/harvested-files/1_orchestrator.py
+AgentCapabilities::get_capability(tool) @ .backup/mcp-tools-20260131/capabilities.py
 AgentCapabilities::get_capability(tool) @ core/schemas/capabilities.py
 AgentCapabilities::get_capability(tool) @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
 AgentCapabilities::get_capability(tool) @ igor/DONE!/audit-tools/core_schemas_capabilities.py
+AgentCapabilities::is_tool_allowed(tool) @ .backup/mcp-tools-20260131/capabilities.py
 AgentCapabilities::is_tool_allowed(tool) @ core/schemas/capabilities.py
 AgentCapabilities::is_tool_allowed(tool) @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
 AgentCapabilities::is_tool_allowed(tool) @ igor/DONE!/audit-tools/core_schemas_capabilities.py
+AgentCapabilities::list_allowed_tools() @ .backup/mcp-tools-20260131/capabilities.py
 AgentCapabilities::list_allowed_tools() @ core/schemas/capabilities.py
 AgentCapabilities::list_allowed_tools() @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
 AgentCapabilities::list_allowed_tools() @ igor/DONE!/audit-tools/core_schemas_capabilities.py
+AgentCapabilities::list_denied_tools() @ .backup/mcp-tools-20260131/capabilities.py
 AgentCapabilities::list_denied_tools() @ core/schemas/capabilities.py
 AgentCapabilities::list_denied_tools() @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
 AgentCapabilities::list_denied_tools() @ igor/DONE!/audit-tools/core_schemas_capabilities.py
@@ -321,7 +324,6 @@ AgentInstance::clear_discovered_tools() @ core/agents/agent_instance.py
 AgentInstance::config() @ core/agents/agent_instance.py
 AgentInstance::config() @ current_work/DONE/GMP Stage 1 - Tools/agent_instance.py
 AgentInstance::config() @ current_work/DONE/GMP Stage 2 - Tools & Memory/agent_instance.py
-AgentInstance::from_bootstrap_context(cls, agent_id, config, identity_view, kernels, tools, init_signature, status) @ current_work/01-26-2026/harvested-files/3_agent_instance.py
 AgentInstance::get_bound_tools() @ core/agents/agent_instance.py
 AgentInstance::get_bound_tools() @ current_work/DONE/GMP Stage 1 - Tools/agent_instance.py
 AgentInstance::get_bound_tools() @ current_work/DONE/GMP Stage 2 - Tools & Memory/agent_instance.py
@@ -357,7 +359,6 @@ AgentInstance::task() @ current_work/DONE/GMP Stage 2 - Tools & Memory/agent_ins
 AgentInstance::thread_id() @ core/agents/agent_instance.py
 AgentInstance::thread_id() @ current_work/DONE/GMP Stage 1 - Tools/agent_instance.py
 AgentInstance::thread_id() @ current_work/DONE/GMP Stage 2 - Tools & Memory/agent_instance.py
-AgentInstance::to_dict() @ current_work/01-26-2026/harvested-files/3_agent_instance.py
 AgentInstance::to_trace_dict() @ core/agents/agent_instance.py
 AgentInstance::to_trace_dict() @ current_work/DONE/GMP Stage 1 - Tools/agent_instance.py
 AgentInstance::to_trace_dict() @ current_work/DONE/GMP Stage 2 - Tools & Memory/agent_instance.py
@@ -794,13 +795,21 @@ AutonomyController::async can_graduate_to_next_level() @ current_work/DONE/GMP-E
 AutonomyController::async get_current_autonomy_level() @ agents/cursor/gmp_meta_learning.py
 AutonomyController::async get_current_autonomy_level() @ current_work/DONE/GMP-Evolution-Super-Prompt/gmp_meta_learning_engine.py
 AutonomyController::async graduate_to_next_level() @ agents/cursor/gmp_meta_learning.py
+BackgroundTaskRegistry::__init__() @ .backup/mcp-tools-20260131/background_tasks.py
 BackgroundTaskRegistry::__init__() @ runtime/background_tasks.py
+BackgroundTaskRegistry::__len__() @ .backup/mcp-tools-20260131/background_tasks.py
 BackgroundTaskRegistry::__len__() @ runtime/background_tasks.py
+BackgroundTaskRegistry::__repr__() @ .backup/mcp-tools-20260131/background_tasks.py
 BackgroundTaskRegistry::__repr__() @ runtime/background_tasks.py
+BackgroundTaskRegistry::async shutdown_all(timeout) @ .backup/mcp-tools-20260131/background_tasks.py
 BackgroundTaskRegistry::async shutdown_all(timeout) @ runtime/background_tasks.py
+BackgroundTaskRegistry::get_status(name) @ .backup/mcp-tools-20260131/background_tasks.py
 BackgroundTaskRegistry::get_status(name) @ runtime/background_tasks.py
+BackgroundTaskRegistry::register(name, coro, interval_seconds, enabled_flag, run_immediately) @ .backup/mcp-tools-20260131/background_tasks.py
 BackgroundTaskRegistry::register(name, coro, interval_seconds, enabled_flag, run_immediately) @ runtime/background_tasks.py
+BackgroundTaskRegistry::register_oneshot(name, coro, enabled_flag) @ .backup/mcp-tools-20260131/background_tasks.py
 BackgroundTaskRegistry::register_oneshot(name, coro, enabled_flag) @ runtime/background_tasks.py
+BackgroundTaskRegistry::snapshot() @ .backup/mcp-tools-20260131/background_tasks.py
 BackgroundTaskRegistry::snapshot() @ runtime/background_tasks.py
 BareExceptVisitor::__init__() @ tests/ci/test_anti_patterns.py
 BareExceptVisitor::visit_Try(node) @ tests/ci/test_anti_patterns.py
@@ -851,6 +860,13 @@ BaseExtractor::get_config(key) @ igor/DONE!/audit-memory/memory_extractor_base_e
 BaseExtractor::get_config(key) @ memory/extractor/base_extractor.py
 BaseExtractor::is_enabled() @ igor/DONE!/audit-memory/memory_extractor_base_extractor.py
 BaseExtractor::is_enabled() @ memory/extractor/base_extractor.py
+BaseStrategy::__init__(engine) @ tools/codegen/test_generator.py
+BaseStrategy::extract_module_facts(module_path) @ tools/codegen/test_generator.py
+BaseStrategy::generate_fixtures(fixtures) @ tools/codegen/test_generator.py
+BaseStrategy::generate_imports() @ tools/codegen/test_generator.py
+BaseStrategy::generate_test_function(test_spec, scenario) @ tools/codegen/test_generator.py
+BaseStrategy::validate_applicability(module_path) @ tools/codegen/test_generator.py
+BaseStrategy::validate_generated_code(code) @ tools/codegen/test_generator.py
 BaseTool::async execute(args) @ igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py
 BaseTool::async execute(args) @ services/research/tools/tool_wrappers.py
 BatchEnhancementResult::success_rate() @ runtime/construct_enhancer.py
@@ -1175,6 +1191,7 @@ CandidateVerifier::_check_equivalence(candidate_expr, target_behavior, variables
 CandidateVerifier::_check_invariants(expr, invariants, variables) @ codegen/symbolic/verifier.py
 CandidateVerifier::verify(candidate, spec) @ codegen/symbolic/verifier.py
 CandidateVerifier::verify_all(candidates, spec) @ codegen/symbolic/verifier.py
+Capability::requires_igor_approval() @ .backup/mcp-tools-20260131/capabilities.py
 Capability::requires_igor_approval() @ core/schemas/capabilities.py
 Capability::requires_igor_approval() @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
 Capability::requires_igor_approval() @ igor/DONE!/audit-tools/core_schemas_capabilities.py
@@ -1589,10 +1606,10 @@ CompositeSubstrate::async search_packets(query, segment, agent_id, limit) @ curr
 CompositeSubstrate::async write_packet(packet) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 ComputationRequest::validate_expression(cls, v) @ _archived/symbolic_computation/models.py
 ComputationRequest::validate_expression(cls, v) @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
-ComputationRequest::validate_expression(v) @ services/symbolic_computation/models.py
+ComputationRequest::validate_expression(cls, v) @ services/symbolic_computation/models.py
 ComputationRequest::validate_variables(cls, v) @ _archived/symbolic_computation/models.py
 ComputationRequest::validate_variables(cls, v) @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
-ComputationRequest::validate_variables(v) @ services/symbolic_computation/models.py
+ComputationRequest::validate_variables(cls, v) @ services/symbolic_computation/models.py
 ConceptExtractor::__init__(aggressive) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
 ConceptExtractor::__init__(aggressive) @ tools/codegen/knowledge_harvester.py
 ConceptExtractor::_calculate_confidence(name, context, category) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/knowledge_harvester_system/l9_knowledge_harvester.py
@@ -1893,8 +1910,31 @@ CursorRLMSessionExtractor::_load_session_yaml(yaml_path) @ current_work/01-25-20
 CursorRLMSessionExtractor::async batch_ingest_sessions(sessions_dir, pattern) @ current_work/01-25-2026/RLM-Reference-Level Memory/007-cursor-rlm-session-extractor.py
 CursorRLMSessionExtractor::async extract_and_ingest_session(session_yaml_path) @ current_work/01-25-2026/RLM-Reference-Level Memory/007-cursor-rlm-session-extractor.py
 CursorRLMSessionExtractor::async watch_cursor_sessions_directory(sessions_dir, poll_interval_seconds) @ current_work/01-25-2026/RLM-Reference-Level Memory/007-cursor-rlm-session-extractor.py
+CursorRetrievalKernel::__init__(wmc, memory_service, logger) @ agents/cursor/cursor_retrieval_kernel.py
+CursorRetrievalKernel::_noop_logger() @ agents/cursor/cursor_retrieval_kernel.py
+CursorRetrievalKernel::async _check_long_term_memory(query, context_type) @ agents/cursor/cursor_retrieval_kernel.py
+CursorRetrievalKernel::async _check_working_memory(repo_id, branch, query) @ agents/cursor/cursor_retrieval_kernel.py
+CursorRetrievalKernel::async retrieve_context(repo_id, branch, query, context_type) @ agents/cursor/cursor_retrieval_kernel.py
+CursorRetrievalKernel::mark_repo_scan_necessary(query, reason) @ agents/cursor/cursor_retrieval_kernel.py
+CursorSessionHooks::__init__(wmc, memory_service, logger) @ agents/cursor/cursor_session_hooks.py
+CursorSessionHooks::_extract_files_from_action(tool_id, args) @ agents/cursor/cursor_session_hooks.py
+CursorSessionHooks::_noop_logger() @ agents/cursor/cursor_session_hooks.py
+CursorSessionHooks::_summarize_args(args, max_len) @ agents/cursor/cursor_session_hooks.py
+CursorSessionHooks::async _promote_to_memory(repo_id, snapshot) @ agents/cursor/cursor_session_hooks.py
+CursorSessionHooks::async on_action(repo_id, branch, tool_id, args, success, error, repo_state_hash) @ agents/cursor/cursor_session_hooks.py
+CursorSessionHooks::async on_session_end(repo_id, branch, promote) @ agents/cursor/cursor_session_hooks.py
+CursorSessionHooks::async on_session_start(repo_id, branch) @ agents/cursor/cursor_session_hooks.py
 CursorStack::from_dict(cls, data) @ agents/codegenagent/cursor_context_sync_engine.py
 CursorStack::to_dict() @ agents/codegenagent/cursor_context_sync_engine.py
+CursorWorkingMemoryService::__init__(redis_client, default_ttl_hours) @ memory_cache/cursor_working_memory_service.py
+CursorWorkingMemoryService::_hash_files(files) @ memory_cache/cursor_working_memory_service.py
+CursorWorkingMemoryService::_key(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
+CursorWorkingMemoryService::async clear(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
+CursorWorkingMemoryService::async expire_soon(repo_id, branch, seconds) @ memory_cache/cursor_working_memory_service.py
+CursorWorkingMemoryService::async hydrate(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
+CursorWorkingMemoryService::async stats(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
+CursorWorkingMemoryService::async ttl_remaining(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
+CursorWorkingMemoryService::async update(repo_id, branch, intent, action, files_touched, hypothesis, error, repo_state_hash) @ memory_cache/cursor_working_memory_service.py
 CypherTemplateLibrary::__init__(templates) @ memory/cypher_templates.py
 CypherTemplateLibrary::_substitute_label_params(query, params) @ memory/cypher_templates.py
 CypherTemplateLibrary::add_template(template) @ memory/cypher_templates.py
@@ -2068,6 +2108,35 @@ DistributedIntuitionCache::async update_from_learning(learning) @ current_work/T
 DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/TODO/swarm_sync.py
+DocstringGenerator::__init__(model) @ tools/codegen/docstring_injector.py
+DocstringGenerator::_build_prompt(missing) @ tools/codegen/docstring_injector.py
+DocstringGenerator::client() @ tools/codegen/docstring_injector.py
+DocstringGenerator::generate_docstring(missing) @ tools/codegen/docstring_injector.py
+DocstringInjector::__init__(repo_root) @ tools/adr/docstring_injector.py
+DocstringInjector::__init__(scanner, generator, dry_run) @ tools/codegen/docstring_injector.py
+DocstringInjector::_clean_docstring(docstring) @ tools/codegen/docstring_injector.py
+DocstringInjector::_format_docstring(docstring, indent) @ tools/codegen/docstring_injector.py
+DocstringInjector::_get_param_description(param_name, param_type) @ tools/adr/docstring_injector.py
+DocstringInjector::_get_return_description(return_type) @ tools/adr/docstring_injector.py
+DocstringInjector::_get_type_str(annotation) @ tools/adr/docstring_injector.py
+DocstringInjector::_name_to_description(name, is_class) @ tools/adr/docstring_injector.py
+DocstringInjector::_should_skip(path) @ tools/adr/docstring_injector.py
+DocstringInjector::generate_class_docstring(node, indent) @ tools/adr/docstring_injector.py
+DocstringInjector::generate_function_docstring(node, indent) @ tools/adr/docstring_injector.py
+DocstringInjector::generate_module_docstring(filepath) @ tools/adr/docstring_injector.py
+DocstringInjector::generate_report() @ tools/codegen/docstring_injector.py
+DocstringInjector::inject_docstring(missing, docstring) @ tools/codegen/docstring_injector.py
+DocstringInjector::inject_docstrings(filepath, dry_run) @ tools/adr/docstring_injector.py
+DocstringInjector::process_batch(missing_list, limit) @ tools/codegen/docstring_injector.py
+DocstringInjector::scan_repo(dry_run) @ tools/adr/docstring_injector.py
+DocstringScanner::__init__(repo_root) @ tools/codegen/docstring_injector.py
+DocstringScanner::_create_missing(filepath, node, node_type, source_lines, parent_class, class_node, module_docstring) @ tools/codegen/docstring_injector.py
+DocstringScanner::_decorator_to_str(decorator) @ tools/codegen/docstring_injector.py
+DocstringScanner::_extract_function_signature(node) @ tools/codegen/docstring_injector.py
+DocstringScanner::_format_arg(arg) @ tools/codegen/docstring_injector.py
+DocstringScanner::_is_method(func_node, tree) @ tools/codegen/docstring_injector.py
+DocstringScanner::scan_directory(scan_dirs) @ tools/codegen/docstring_injector.py
+DocstringScanner::scan_file(filepath) @ tools/codegen/docstring_injector.py
 DocumentClassifier::__init__(schemas) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
 DocumentClassifier::__init__(schemas) @ tools/codegen/doc_compiler.py
 DocumentClassifier::classify(text) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/compiler/l9_doc_compiler.py
@@ -2861,11 +2930,16 @@ GovernancePattern::to_packet_payload() @ memory/governance_patterns.py
 GovernanceService::async check_policy(action) @ core/protocols/service_protocols.py
 GovernanceService::async enforce_limits(resource) @ core/protocols/service_protocols.py
 GovernanceService::async request_approval(action) @ core/protocols/service_protocols.py
+GraphClient::__init__(config) @ current_work/DONE/IVFFlat Vector Indexing/graph_client_new.py
 GraphClient::async close() @ core/protocols/memory_protocols.py
+GraphClient::async close() @ current_work/DONE/IVFFlat Vector Indexing/graph_client_new.py
 GraphClient::async create_node(labels, properties) @ core/protocols/memory_protocols.py
 GraphClient::async create_relationship(from_node_id, to_node_id, rel_type, properties) @ core/protocols/memory_protocols.py
 GraphClient::async execute_query(query, parameters) @ core/protocols/memory_protocols.py
 GraphClient::async get_node(node_id) @ core/protocols/memory_protocols.py
+GraphClient::async health_check() @ current_work/DONE/IVFFlat Vector Indexing/graph_client_new.py
+GraphClient::async query_entities(query, params) @ current_work/DONE/IVFFlat Vector Indexing/graph_client_new.py
+GraphClient::has_neo4j() @ current_work/DONE/IVFFlat Vector Indexing/graph_client_new.py
 GraphEnricher::__init__(neo4j_client) @ memory/hybrid_rag.py
 GraphEnricher::async _get_causal_chain(event_id) @ memory/hybrid_rag.py
 GraphEnricher::async _get_direct_neighbors(entity_type, entity_id, limit) @ memory/hybrid_rag.py
@@ -3120,6 +3194,20 @@ IWorldModelState::restore(snapshot) @ world_model/interfaces.py
 IWorldModelState::snapshot() @ world_model/interfaces.py
 IWorldModelUpdater::apply_update(state, update) @ world_model/interfaces.py
 IWorldModelUpdater::validate_update(update) @ world_model/interfaces.py
+IdempotencyStore::__init__(substrate, ttl) @ core/agents/idempotency_store.py
+IdempotencyStore::__init__(substrate, ttl) @ current_work/DONE/IVFFlat Vector Indexing/idempotency_store.py
+IdempotencyStore::_compute_key(packet) @ core/agents/idempotency_store.py
+IdempotencyStore::_compute_key(packet) @ current_work/DONE/IVFFlat Vector Indexing/idempotency_store.py
+IdempotencyStore::async _get_redis() @ core/agents/idempotency_store.py
+IdempotencyStore::async _get_redis() @ current_work/DONE/IVFFlat Vector Indexing/idempotency_store.py
+IdempotencyStore::async check_executed(packet) @ core/agents/idempotency_store.py
+IdempotencyStore::async check_executed(packet) @ current_work/DONE/IVFFlat Vector Indexing/idempotency_store.py
+IdempotencyStore::async check_executed_by_key(dedupe_key) @ core/agents/idempotency_store.py
+IdempotencyStore::async get_execution_record(packet) @ core/agents/idempotency_store.py
+IdempotencyStore::async get_execution_record(packet) @ current_work/DONE/IVFFlat Vector Indexing/idempotency_store.py
+IdempotencyStore::async mark_executed(packet, result) @ core/agents/idempotency_store.py
+IdempotencyStore::async mark_executed(packet, result) @ current_work/DONE/IVFFlat Vector Indexing/idempotency_store.py
+IdempotencyStore::async mark_executed_by_key(dedupe_key, result) @ core/agents/idempotency_store.py
 IdentityFact::__post_init__() @ memory/identity_tier.py
 IdentityTierService::__init__(repository) @ memory/identity_tier.py
 IdentityTierService::async create_identity_fact(fact_text, triplet, category, source, tags, importance, confidence, validated_by, agent_id, tenant_id, org_id, user_id) @ memory/identity_tier.py
@@ -3192,6 +3280,7 @@ IngestionPipeline::set_semantic_service(service) @ igor/DONE!/audit-memory/memor
 IngestionPipeline::set_semantic_service(service) @ memory/ingestion.py
 IngestionPipeline::validate_content(content) @ core/protocols/memory_protocols.py
 InjectionDetectionResult::to_dict() @ core/agents/prompt_defense.py
+InjectionResult::to_dict() @ tools/codegen/docstring_injector.py
 InputSegmenter::__init__(config) @ orchestration/input_segmenter.py
 InputSegmenter::_is_separator(text) @ orchestration/input_segmenter.py
 InputSegmenter::_normalize(segment) @ orchestration/input_segmenter.py
@@ -3588,42 +3677,65 @@ LogExporter::warning(message) @ core/protocols/observability_protocols.py
 Logger::log(message) @ tests/unit/di/test_container.py
 LowPriorityHook::__init__() @ tests/unit/test_governance_hooks.py
 LowPriorityHook::async execute(ctx) @ tests/unit/test_governance_hooks.py
+MCPClient::__init__() @ .backup/mcp-tools-20260131/mcp_client.py
 MCPClient::__init__() @ current_work/DONE/GMP Stage 1 - Tools/mcp_client.py
 MCPClient::__init__() @ current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py
 MCPClient::__init__() @ runtime/mcp_client.py
 MCPClient::__init__(base_url, api_key) @ mcp_memory/tests/verify_main_pipeline_e2e.py
+MCPClient::_load_servers() @ .backup/mcp-tools-20260131/mcp_client.py
 MCPClient::_load_servers() @ current_work/DONE/GMP Stage 1 - Tools/mcp_client.py
 MCPClient::_load_servers() @ current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py
 MCPClient::_load_servers() @ runtime/mcp_client.py
+MCPClient::async _call_http_tool(server_id, tool_name, arguments) @ .backup/mcp-tools-20260131/mcp_client.py
 MCPClient::async _call_http_tool(server_id, tool_name, arguments) @ runtime/mcp_client.py
+MCPClient::async _get_or_start_server(server_id) @ .backup/mcp-tools-20260131/mcp_client.py
 MCPClient::async _get_or_start_server(server_id) @ runtime/mcp_client.py
+MCPClient::async call_tool(server_id, tool_name, arguments) @ .backup/mcp-tools-20260131/mcp_client.py
 MCPClient::async call_tool(server_id, tool_name, arguments) @ current_work/DONE/GMP Stage 1 - Tools/mcp_client.py
 MCPClient::async call_tool(server_id, tool_name, arguments) @ current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py
 MCPClient::async call_tool(server_id, tool_name, arguments) @ runtime/mcp_client.py
+MCPClient::async list_tools(server_id) @ .backup/mcp-tools-20260131/mcp_client.py
 MCPClient::async list_tools(server_id) @ current_work/DONE/GMP Stage 1 - Tools/mcp_client.py
 MCPClient::async list_tools(server_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py
 MCPClient::async list_tools(server_id) @ runtime/mcp_client.py
 MCPClient::async save_memory(content, kind, scope, duration, tags) @ mcp_memory/tests/verify_main_pipeline_e2e.py
 MCPClient::async search_memory(query, top_k, threshold) @ mcp_memory/tests/verify_main_pipeline_e2e.py
+MCPClient::async stop_all_servers() @ .backup/mcp-tools-20260131/mcp_client.py
 MCPClient::async stop_all_servers() @ runtime/mcp_client.py
+MCPClient::get_allowed_tools(server_id) @ .backup/mcp-tools-20260131/mcp_client.py
 MCPClient::get_allowed_tools(server_id) @ current_work/DONE/GMP Stage 1 - Tools/mcp_client.py
 MCPClient::get_allowed_tools(server_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py
 MCPClient::get_allowed_tools(server_id) @ runtime/mcp_client.py
+MCPClient::is_server_available(server_id) @ .backup/mcp-tools-20260131/mcp_client.py
 MCPClient::is_server_available(server_id) @ current_work/DONE/GMP Stage 1 - Tools/mcp_client.py
 MCPClient::is_server_available(server_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py
 MCPClient::is_server_available(server_id) @ runtime/mcp_client.py
+MCPClient::is_tool_allowed(server_id, tool_name) @ .backup/mcp-tools-20260131/mcp_client.py
 MCPClient::is_tool_allowed(server_id, tool_name) @ current_work/DONE/GMP Stage 1 - Tools/mcp_client.py
 MCPClient::is_tool_allowed(server_id, tool_name) @ current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py
 MCPClient::is_tool_allowed(server_id, tool_name) @ runtime/mcp_client.py
+MCPRepoGraphLoader::__init__(dry_run, verbose) @ scripts/memory/load_indexes_to_neo4j.py
+MCPRepoGraphLoader::_run_query(cypher, parameters) @ scripts/memory/load_indexes_to_neo4j.py
+MCPRepoGraphLoader::load_all() @ scripts/memory/load_indexes_to_neo4j.py
+MCPRepoGraphLoader::load_classes() @ scripts/memory/load_indexes_to_neo4j.py
+MCPRepoGraphLoader::load_functions() @ scripts/memory/load_indexes_to_neo4j.py
+MCPRepoGraphLoader::load_inheritance() @ scripts/memory/load_indexes_to_neo4j.py
+MCPRepoGraphLoader::print_summary() @ scripts/memory/load_indexes_to_neo4j.py
 MCPServerConfig::__init__(server_id, command, env, enabled, priority) @ current_work/DONE/AUTOWIRING/mcp_server_registry.py
 MCPServerConfig::__init__(server_id, command, env, enabled, priority) @ runtime/mcp_server_registry.py
 MCPServerConfig::to_dict() @ current_work/DONE/AUTOWIRING/mcp_server_registry.py
 MCPServerConfig::to_dict() @ runtime/mcp_server_registry.py
+MCPServerProcess::__init__(server_id, command, env) @ .backup/mcp-tools-20260131/mcp_client.py
 MCPServerProcess::__init__(server_id, command, env) @ runtime/mcp_client.py
+MCPServerProcess::async _read_responses() @ .backup/mcp-tools-20260131/mcp_client.py
 MCPServerProcess::async _read_responses() @ runtime/mcp_client.py
+MCPServerProcess::async send_request(method, params, timeout) @ .backup/mcp-tools-20260131/mcp_client.py
 MCPServerProcess::async send_request(method, params, timeout) @ runtime/mcp_client.py
+MCPServerProcess::async start() @ .backup/mcp-tools-20260131/mcp_client.py
 MCPServerProcess::async start() @ runtime/mcp_client.py
+MCPServerProcess::async stop() @ .backup/mcp-tools-20260131/mcp_client.py
 MCPServerProcess::async stop() @ runtime/mcp_client.py
+MCPServerProcess::is_running() @ .backup/mcp-tools-20260131/mcp_client.py
 MCPServerProcess::is_running() @ runtime/mcp_client.py
 MacAgentClient::__init__(config) @ mac_agent/websocket_client.py
 MacAgentClient::_setup_signal_handlers() @ mac_agent/websocket_client.py
@@ -3983,6 +4095,7 @@ MinimalApprovalManager::format_approval_request_with_tests(task_id, proposal_sum
 MissingAsyncContextManagerVisitor::__init__() @ tests/ci/test_anti_patterns.py
 MissingAsyncContextManagerVisitor::visit_AsyncFunctionDef(node) @ tests/ci/test_anti_patterns.py
 MissingAsyncContextManagerVisitor::visit_With(node) @ tests/ci/test_anti_patterns.py
+MissingDocstring::to_prompt_context() @ tools/codegen/docstring_injector.py
 MissingSingletonVisitor::__init__(content) @ tests/ci/test_adr_enforcement.py
 MissingSingletonVisitor::visit_ClassDef(node) @ tests/ci/test_adr_enforcement.py
 MissingTypeHintsVisitor::__init__() @ tests/ci/test_anti_patterns.py
@@ -4007,6 +4120,7 @@ MockAIOSRuntime::get_last_context() @ tests/core/bootstrap/test_executor.py
 MockAIOSRuntime::set_responses(responses) @ current_work/DONE/GMP Stage 2 - Tools & Memory/test_executor.py
 MockAIOSRuntime::set_responses(responses) @ tests/core/bootstrap/test_executor.py
 MockAgentConfig::__init__(agent_id, name, kernel_refs) @ tests/core/bootstrap/test_bootstrap_phases.py
+MockAgentConfig::__init__(agent_id, name, kernel_refs) @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
 MockAgentRegistry::__init__() @ current_work/DONE/GMP Stage 2 - Tools & Memory/test_executor.py
 MockAgentRegistry::__init__() @ tests/core/bootstrap/test_executor.py
 MockAgentRegistry::agent_exists(agent_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/test_executor.py
@@ -4150,6 +4264,7 @@ MockSubstrateService::__init__() @ tests/core/eos/test_eos_clients.py
 MockSubstrateService::__init__() @ tests/integration/test_orchestrator_memory_integration.py
 MockSubstrateService::__init__() @ tests/unit/test_service_adapters.py
 MockSubstrateService::__init__(ready) @ tests/core/bootstrap/test_bootstrap_phases.py
+MockSubstrateService::__init__(ready) @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
 MockSubstrateService::async get_packet(packet_id) @ tests/unit/test_service_adapters.py
 MockSubstrateService::async ingest_packet(packet) @ tests/core/eos/test_eos_clients.py
 MockSubstrateService::async search_packets() @ tests/integration/test_orchestrator_memory_integration.py
@@ -4163,6 +4278,7 @@ MockSubstrateService::async search_packets_by_type(packet_type, limit) @ tests/c
 MockSubstrateService::async semantic_search(request) @ tests/unit/test_service_adapters.py
 MockSubstrateService::async write_packet(packet) @ tests/core/bootstrap/conftest.py
 MockSubstrateService::async write_packet(packet) @ tests/core/bootstrap/test_bootstrap_phases.py
+MockSubstrateService::async write_packet(packet) @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
 MockSubstrateService::async write_packet(packet) @ tests/integration/test_orchestrator_memory_integration.py
 MockSubstrateService::async write_packet(packet_in) @ current_work/DONE/GMP Stage 2 - Tools & Memory/test_executor.py
 MockSubstrateService::async write_packet(packet_in) @ tests/core/bootstrap/test_executor.py
@@ -4493,8 +4609,9 @@ OpenAIEmbeddingProvider::async embed_text(text) @ memory/substrate_semantic.py
 OpenAIEmbeddingProvider::dimensions() @ igor/DONE!/audit-memory/memory_substrate_semantic.py
 OpenAIEmbeddingProvider::dimensions() @ memory/substrate_semantic.py
 OpenAILLMService::__init__(api_key, default_model, default_embedding_model) @ core/llm/llm_service.py
-OpenAILLMService::_get_client() @ core/llm/llm_service.py
+OpenAILLMService::async _get_client() @ core/llm/llm_service.py
 OpenAILLMService::async chat(messages) @ core/llm/llm_service.py
+OpenAILLMService::async close() @ core/llm/llm_service.py
 OpenAILLMService::async complete(prompt) @ core/llm/llm_service.py
 OpenAILLMService::async embed(text) @ core/llm/llm_service.py
 Optimizer::__init__(config) @ services/symbolic_computation/core/optimizer.py
@@ -4776,8 +4893,14 @@ Phase0Orchestrator::validate_ci_gates() @ data/l9-phase0-to-pr-example.py
 Phase0Orchestrator::validate_ci_gates() @ data/l9-phase0-to-pr.py
 Phase0Orchestrator::validate_dora_compliance() @ data/l9-phase0-to-pr-example.py
 Phase0Orchestrator::validate_dora_compliance() @ data/l9-phase0-to-pr.py
+Phase7VerifyAndLock::__init__(container) @ current_work/DONE/IVFFlat Vector Indexing/phase_7_verify_and_lock_new.py
+Phase7VerifyAndLock::_should_fail_fast() @ current_work/DONE/IVFFlat Vector Indexing/phase_7_verify_and_lock_new.py
+Phase7VerifyAndLock::async _verify_kernel_binding() @ current_work/DONE/IVFFlat Vector Indexing/phase_7_verify_and_lock_new.py
+Phase7VerifyAndLock::async _verify_migrations() @ current_work/DONE/IVFFlat Vector Indexing/phase_7_verify_and_lock_new.py
+Phase7VerifyAndLock::async _verify_substrate_health() @ current_work/DONE/IVFFlat Vector Indexing/phase_7_verify_and_lock_new.py
+Phase7VerifyAndLock::async execute() @ current_work/DONE/IVFFlat Vector Indexing/phase_7_verify_and_lock_new.py
+Phase7VerifyAndLock::get_verification_results() @ current_work/DONE/IVFFlat Vector Indexing/phase_7_verify_and_lock_new.py
 PhaseResult::__post_init__() @ core/agents/bootstrap/models.py
-PhaseResult::__post_init__() @ current_work/01-26-2026/harvested-files/1_orchestrator.py
 PipelineResult::is_success() @ orchestrators/pattern/interface.py
 PipelineResult::nodes_completed() @ orchestrators/pattern/interface.py
 PipelineTracer::__init__(dsn) @ mcp_memory/tests/verify_main_pipeline_e2e.py
@@ -5971,11 +6094,17 @@ SemanticService::async search(query, top_k, agent_id) @ memory/substrate_semanti
 SemanticService::async store_embedding(vector, metadata, embedding_type) @ memory/substrate_semantic.py
 SemanticServiceProtocol::async embed_and_store(text, payload, agent_id) @ core/protocols/substrate_protocols.py
 SemanticServiceProtocol::async search(query, top_k, agent_id) @ core/protocols/substrate_protocols.py
+SemanticToolSearchAdapter::__init__() @ .backup/mcp-tools-20260131/semantic_tool_search.py
 SemanticToolSearchAdapter::__init__() @ core/tools/semantic_tool_search.py
+SemanticToolSearchAdapter::async search_tools(query, top_k, min_similarity) @ .backup/mcp-tools-20260131/semantic_tool_search.py
 SemanticToolSearchAdapter::async search_tools(query, top_k, min_similarity) @ core/tools/semantic_tool_search.py
+SemanticToolSearchAdapter::build_tools_list(defer_loading, always_available) @ .backup/mcp-tools-20260131/semantic_tool_search.py
 SemanticToolSearchAdapter::build_tools_list(defer_loading, always_available) @ core/tools/semantic_tool_search.py
+SemanticToolSearchAdapter::get_tool(tool_name) @ .backup/mcp-tools-20260131/semantic_tool_search.py
 SemanticToolSearchAdapter::get_tool(tool_name) @ core/tools/semantic_tool_search.py
+SemanticToolSearchAdapter::register_tools(tools) @ .backup/mcp-tools-20260131/semantic_tool_search.py
 SemanticToolSearchAdapter::register_tools(tools) @ core/tools/semantic_tool_search.py
+SemanticToolSearchAdapter::set_always_available(tool_names) @ .backup/mcp-tools-20260131/semantic_tool_search.py
 SemanticToolSearchAdapter::set_always_available(tool_names) @ core/tools/semantic_tool_search.py
 Service::process() @ tests/unit/di/test_container.py
 ServiceB::__init__(dep_a) @ tests/unit/test_di_container_audit.py
@@ -6437,6 +6566,7 @@ SubstrateService::async semantic_search(embedding, segment, agent_id, limit) @ c
 SubstrateService::async write_packet(packet) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 SubstrateService::get_repository() @ mcp_memory/src/memory_substrate/service.py
 SubstrateServiceProtocol::async emit_packet(packet_type, payload) @ core/calibration/service.py
+SubstrateServiceProtocol::async get_redis_client() @ core/agents/idempotency_store.py
 SubstrateServiceProtocol::async search_packets(thread_id, limit) @ core/agents/executor.py
 SubstrateServiceProtocol::async search_packets(thread_id, limit) @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
 SubstrateServiceProtocol::async search_packets_by_thread(thread_id, packet_type, limit) @ core/agents/executor.py
@@ -7303,6 +7433,11 @@ TestEnrichmentGraph::async test_enrich_validates_packet_id() @ tests/memory/test
 TestEnrichmentResultSchema::test_enrichment_result_fields() @ tests/memory/test_unified_pipeline.py
 TestEnrichmentStrategy::test_strategies_exist() @ tests/memory/test_hybrid_rag.py
 TestEnrichmentTimeout::async test_enrichment_timeout_logs_and_continues(mock_repository, mock_semantic_service, sample_packet_in) @ tests/memory/test_unified_pipeline.py
+TestEnsureAsyncpgUrl::test_converts_postgres_to_asyncpg() @ tests/api/test_bootstrap_fail_fast.py
+TestEnsureAsyncpgUrl::test_converts_postgresql_to_asyncpg() @ tests/api/test_bootstrap_fail_fast.py
+TestEnsureAsyncpgUrl::test_leaves_asyncpg_url_unchanged() @ tests/api/test_bootstrap_fail_fast.py
+TestEnsureBootstrap::async test_bootstrap_fails_when_key_missing() @ tests/api/test_bootstrap_fail_fast.py
+TestEnsureBootstrap::async test_bootstrap_succeeds_when_key_exists() @ tests/api/test_bootstrap_fail_fast.py
 TestEntityExtractor::async test_deduplication() @ tests/memory/test_hybrid_rag.py
 TestEntityExtractor::async test_extract_file_paths() @ tests/memory/test_hybrid_rag.py
 TestEntityExtractor::async test_extract_from_metadata() @ tests/memory/test_hybrid_rag.py
@@ -7896,6 +8031,8 @@ TestLearnedHeuristic::test_invalid_confidence_out_of_range() @ tests/cursor/test
 TestLearnedHeuristic::test_valid_heuristic() @ tests/cursor/test_gmp_meta_learning.py
 TestLengthValidation::test_exceeds_limit() @ tests/services/symbolic_computation/test_validator.py
 TestLengthValidation::test_within_limit() @ tests/services/symbolic_computation/test_validator.py
+TestLifespanBootstrapIntegration::async test_bootstrap_failure_is_caught_in_lifespan() @ tests/api/test_bootstrap_fail_fast.py
+TestLifespanBootstrapIntegration::async test_lifespan_calls_ensure_bootstrap() @ tests/api/test_bootstrap_fail_fast.py
 TestListCheckpoints::async test_list_empty_config(basic_saver) @ tests/memory/test_checkpoint_retry.py
 TestListCheckpoints::async test_list_fallback_on_missing_method(basic_saver, valid_config) @ tests/memory/test_checkpoint_retry.py
 TestListCheckpoints::async test_list_handles_exception(basic_saver, mock_repository, valid_config) @ tests/memory/test_checkpoint_retry.py
@@ -9093,6 +9230,15 @@ TestTaskQueueFailClosed::async test_size_raises_on_redis_failure() @ tests/runti
 TestTaskQueueFailClosed::test_task_queue_raises_without_redis_client() @ tests/runtime/test_fail_closed_task_queue.py
 TestTaskQueueFailClosed::test_task_queue_rejects_in_memory_mode() @ tests/runtime/test_fail_closed_task_queue.py
 TestTaskQueueFormat::test_to_task_queue_format(validated_graph) @ tests/ir_engine/test_ir_semantic_to_plan_integration.py
+TestTemplateEngine::__init__(repo_root) @ tools/codegen/test_generator.py
+TestTemplateEngine::_apply_mode(config, result) @ tools/codegen/test_generator.py
+TestTemplateEngine::_compute_diff(old, new, filepath) @ tools/codegen/test_generator.py
+TestTemplateEngine::_generate_header(suite_spec, strategy_name) @ tools/codegen/test_generator.py
+TestTemplateEngine::_generate_suite(suite_spec) @ tools/codegen/test_generator.py
+TestTemplateEngine::_load_and_validate_spec(spec_file) @ tools/codegen/test_generator.py
+TestTemplateEngine::_load_schema() @ tools/codegen/test_generator.py
+TestTemplateEngine::_module_to_test_path(module_path) @ tools/codegen/test_generator.py
+TestTemplateEngine::generate(config) @ tools/codegen/test_generator.py
 TestTemporalDecay::test_future_timestamp_no_decay() @ tests/memory/test_retrieval_audit.py
 TestTemporalDecay::test_half_decay_at_half_life() @ tests/memory/test_retrieval_audit.py
 TestTemporalDecay::test_no_decay_for_recent() @ tests/memory/test_retrieval_audit.py
@@ -9369,6 +9515,17 @@ TestVerification::test_verify_kernel_activation_no_kernels(mock_agent) @ tests/u
 TestVerification::test_verify_kernel_activation_success(mock_agent, temp_kernel_dir) @ tests/unit/test_kernel_loader_activation.py
 TestVerification::test_verify_kernel_activation_wrong_state(mock_agent) @ tests/unit/test_kernel_loader_activation.py
 TestVerificationReport::test_report_serialization_to_json() @ codegen/dev_layer/tests/test_e2e_diff_generation.py
+TestVerifyAndLock::async test_verify_returns_signature(mock_instance, mock_kernels, mock_substrate) @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
+TestVerifyAndLock::async test_verify_sets_initialized_at(mock_instance, mock_kernels, mock_substrate) @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
+TestVerifyAndLock::async test_verify_with_no_designation(mock_substrate, mock_kernels) @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
+TestVerifyAndLock::async test_verify_with_no_kernels(mock_instance, mock_substrate) @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
+TestVerifyAndLock::async test_verify_writes_audit_packet(mock_instance, mock_kernels, mock_substrate) @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
+TestVerifyAndLockView::async test_view_fails_with_no_kernels() @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
+TestVerifyAndLockView::async test_view_fails_without_agent_id() @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
+TestVerifyAndLockView::async test_view_fails_without_identity() @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
+TestVerifyAndLockView::async test_view_fails_without_signature() @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
+TestVerifyAndLockView::async test_view_includes_duration_metric() @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
+TestVerifyAndLockView::async test_view_success_with_valid_inputs() @ tests/core/bootstrap/test_phase_7_verify_and_lock.py
 TestVerifyIntegrity::test_verify_integrity_no_hash_returns_false() @ tests/core/schemas/test_content_hash_integrity.py
 TestVerifyIntegrity::test_verify_integrity_valid_packet() @ tests/core/schemas/test_content_hash_integrity.py
 TestVerifyIntegrity::test_verify_integrity_wrong_hash_returns_false() @ tests/core/schemas/test_content_hash_integrity.py
@@ -9488,6 +9645,14 @@ ToolAuditService::async start() @ core/tools/tool_audit.py
 ToolAuditService::async start() @ current_work/Agent Initialization - Paradigm Shift/harvested-files/2_tool_audit.py
 ToolAuditService::async stop() @ core/tools/tool_audit.py
 ToolAuditService::async stop() @ current_work/Agent Initialization - Paradigm Shift/harvested-files/2_tool_audit.py
+ToolCapabilities::__init__(agent_role, allowed_tags) @ core/schemas/tool_role_capabilities.py
+ToolCapabilities::_check_tag_permissions(tool_tags) @ core/schemas/tool_role_capabilities.py
+ToolCapabilities::_infer_allowed_tags(role) @ core/schemas/tool_role_capabilities.py
+ToolCapabilities::get_capability(tool_id) @ core/schemas/tool_role_capabilities.py
+ToolCapabilities::is_tool_allowed(tool_id) @ core/schemas/tool_role_capabilities.py
+ToolCapabilities::list_allowed_tools(tool_ids) @ core/schemas/tool_role_capabilities.py
+ToolCapabilities::list_denied_tools(tool_ids) @ core/schemas/tool_role_capabilities.py
+ToolCapabilities::requires_igor_approval(tool_id) @ core/schemas/tool_role_capabilities.py
 ToolContextFormatter::format_openai_tools(tools) @ core/tools/semantic_discovery.py
 ToolContextFormatter::format_tools_for_prompt(tools, max_chars) @ core/tools/semantic_discovery.py
 ToolCostEstimator::estimate(tool_name, input_data, output_data) @ core/tools/tool_audit.py
@@ -9566,9 +9731,11 @@ ToolLearningEngine::async _refresh_materialized_view() @ services/tool_learning_
 ToolLearningEngine::async daily_analysis() @ current_work/DONE/Tool Discovery/harvested-files/3_tool_learning_engine.py
 ToolLearningEngine::async daily_analysis() @ services/tool_learning_engine.py
 ToolMatch::to_prompt_format() @ memory/tool_router.py
+ToolMeta::__init__(name, description, input_schema) @ .backup/mcp-tools-20260131/mcp_client.py
 ToolMeta::__init__(name, description, input_schema) @ current_work/DONE/GMP Stage 1 - Tools/mcp_client.py
 ToolMeta::__init__(name, description, input_schema) @ current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py
 ToolMeta::__init__(name, description, input_schema) @ runtime/mcp_client.py
+ToolMeta::to_dict() @ .backup/mcp-tools-20260131/mcp_client.py
 ToolMeta::to_dict() @ current_work/DONE/GMP Stage 1 - Tools/mcp_client.py
 ToolMeta::to_dict() @ current_work/DONE/GMP Stage 2 - Tools & Memory/mcp_client.py
 ToolMeta::to_dict() @ runtime/mcp_client.py
@@ -9665,8 +9832,11 @@ ToolRouter::async get_stats() @ memory/tool_router.py
 ToolRouter::async get_tools_for_task(task_description, limit) @ memory/tool_router.py
 ToolRouter::async list_embedded_tools() @ memory/tool_router.py
 ToolRouter::get_tool_context(result, include_metadata) @ memory/tool_router.py
+ToolSearchOptimizer::add_semantic_keywords(tools) @ .backup/mcp-tools-20260131/semantic_tool_search.py
 ToolSearchOptimizer::add_semantic_keywords(tools) @ core/tools/semantic_tool_search.py
+ToolSearchOptimizer::get_optimal_always_available(tool_usage_stats, top_n) @ .backup/mcp-tools-20260131/semantic_tool_search.py
 ToolSearchOptimizer::get_optimal_always_available(tool_usage_stats, top_n) @ core/tools/semantic_tool_search.py
+ToolSearchOptimizer::validate_tool_search_coverage(tools, test_queries) @ .backup/mcp-tools-20260131/semantic_tool_search.py
 ToolSearchOptimizer::validate_tool_search_coverage(tools, test_queries) @ core/tools/semantic_tool_search.py
 ToolSearchResult::to_prompt_context() @ memory/tool_router.py
 ToolService::__init__(kernel) @ current_work/01-25-2026/L9-refactoring-plan/harvested-files/41_tool_service.py
@@ -9969,6 +10139,7 @@ Workflow::add_condition(condition, if_true, if_false) @ current_work/01-25-2026/
 Workflow::add_parallel(steps) @ current_work/01-25-2026/L9-refactoring-plan/harvested-files/40_orchestration_service.py
 Workflow::add_step(name, orchestrator, depends_on, retry, timeout) @ current_work/01-25-2026/L9-refactoring-plan/harvested-files/40_orchestration_service.py
 WorkflowResult::to_dict() @ orchestration/cell_orchestrator.py
+WorkingMemorySnapshot::__post_init__() @ memory_cache/cursor_working_memory_service.py
 WorldContext::to_dict() @ world_model/world_model_service.py
 WorldModelBridge::__init__(world_model_url) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
 WorldModelBridge::__init__(world_model_url) @ domain_tensor_bridge/world_model_bridge.py
@@ -10343,4 +10514,4 @@ _StubClientSession::post() @ core/reasoning/toth_engine.py
 _StubRateLimiter::async check_and_increment(key, limit) @ core/governance/rate_limit_policy.py
 _StubRateLimiter::async get_usage(key) @ core/governance/rate_limit_policy.py
 
-# Total: 10339 class methods
+# Total: 10510 class methods

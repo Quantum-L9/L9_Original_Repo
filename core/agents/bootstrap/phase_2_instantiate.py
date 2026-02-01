@@ -43,7 +43,7 @@ __dora_meta__ = {
 import json
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 
 import structlog
@@ -78,7 +78,7 @@ class BootstrapInstanceData:
     config: AgentConfig
     kernel_state: str = "LOADING"
     status: str = "INITIALIZING"
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     initialized_at: datetime | None = None
     initialization_signature: str | None = None
     designation: str | None = None
@@ -108,7 +108,7 @@ async def instantiate_agent(
         name=config.name,
         config=config,
         kernel_state="LOADING",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
     # Register in Neo4j if available (lazy import to avoid test collection issues)
@@ -202,15 +202,15 @@ async def _init_redis_working_memory(
             "kernel_state": "LOADING",
             "status": "INITIALIZING",
             "current_task": None,
-            "last_activity": datetime.now(timezone.utc).isoformat(),
+            "last_activity": datetime.now(UTC).isoformat(),
             "session_context": {},
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
 
         # Set with TTL (24 hours)
         await redis.set(
             key,
-            json.dumps(initial_state),
+            json.dumps(initial_state, default=str),
             ex=WORKING_MEMORY_TTL_SECONDS,
         )
 

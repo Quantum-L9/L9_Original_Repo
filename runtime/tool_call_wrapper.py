@@ -38,6 +38,7 @@ __dora_meta__ = {
 
 import time
 from collections.abc import Callable, Coroutine
+from functools import wraps
 from typing import Any
 
 import structlog
@@ -135,6 +136,15 @@ async def tool_call_wrapper(
         except Exception as log_err:
             logger.warning(f"Failed to log tool call: {log_err}")
 
+        # Record observability metrics (Enhancement from GMP MCP-Tools)
+        _record_tool_execution_metric(
+            tool_name=tool_name,
+            agent_id=agent_id,
+            duration_ms=duration_ms,
+            status="success" if success else "error",
+            error_type=type(error).__name__ if error and not isinstance(error, str) else None,
+        )
+
     return result
 
 
@@ -166,6 +176,7 @@ def wrap_tool_function(
             A wrapped asynchronous function that logs each call before execution.
         """
 
+        @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             """
             Performs asynchronous logging of tool calls to ensure consistent audit records within the ToolCallWrapper context.

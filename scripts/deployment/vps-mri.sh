@@ -185,7 +185,7 @@ done
 echo ""
 
 header "E4. DOCKERFILE"
-for path in /opt/l9/runtime/Dockerfile /opt/l9/docker/Dockerfile /opt/l9/Dockerfile; do
+for path in /opt/l9/Dockerfile /opt/l9/docker/Dockerfile; do
     if [ -f "$path" ]; then
         check "Found: $path"
         cat "$path"

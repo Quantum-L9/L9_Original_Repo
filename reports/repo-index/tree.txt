@@ -11,10 +11,17 @@ L9/
 ├── .pre-commit-config.yaml
 ├── ... (35 more files)
 ├── .backup/
-│   └── bootstrap-7phase/
-│       ├── orchestrator.py
-│       ├── phase_4_load_identity.py
-│       ├── phase_7_verify_and_lock.py
+│   ├── bootstrap-7phase/
+│   │   ├── orchestrator.py
+│   │   ├── phase_4_load_identity.py
+│   │   ├── phase_7_verify_and_lock.py
+│   └── mcp-tools-20260131/
+│       ├── background_tasks.py
+│       ├── capabilities.py
+│       ├── mcp_client.py
+│       ├── semantic_tool_search.py
+│       ├── tool_call_wrapper.py
+│       ├── tool_registry.py
 ├── .cursorrules/
 │   ├── 00-global.mdc
 │   ├── 01-vps-rules.mdc
@@ -26,7 +33,7 @@ L9/
 │   ├── 25-python-dora-header.mdc
 │   ├── 30-framework-react.mdc
 │   ├── 40-domain-autonomy.mdc
-│   ├── ... (22 more files)
+│   ├── ... (23 more files)
 ├── .gemini/
 │   ├── styleguide.md
 ├── .github/
@@ -55,6 +62,9 @@ L9/
 │   ├── baseline.json
 ├── .sec/
 │   ├── semgrep.yaml
+├── .semgrep/
+│   ├── l9-rules.yaml
+├── .tmp.drivedownload/
 ├── adapters/
 │   ├── README.md
 │   ├── __init__.py
@@ -82,6 +92,7 @@ L9/
 │   │   ├── coder_agent_a.py
 │   │   ├── coder_agent_b.py
 │   ├── cursor/
+│   │   ├── MEMORY_ACCESS.md
 │   │   ├── README.md
 │   │   ├── __init__.py
 │   │   ├── cursor_client.py
@@ -89,10 +100,9 @@ L9/
 │   │   ├── cursor_memory_kernel.py
 │   │   ├── cursor_memory_kernel.yaml
 │   │   ├── cursor_neo4j_query.py
-│   │   ├── cursor_system_prompt.md
-│   │   ├── cursor_workflow_kernel.yaml
-│   │   ├── gmp_meta_learning.py
-│   │   ├── ... (1 more files)
+│   │   ├── cursor_retrieval_kernel.py
+│   │   ├── cursor_session_hooks.py
+│   │   ├── ... (4 more files)
 │   │   ├── GMP-v2.0-Perplex-Py-Scripts/
 │   │   ├── docs/
 │   │   ├── extractors/
@@ -151,14 +161,14 @@ L9/
 │   ├── README.md
 │   ├── STRICT_MODE.md
 │   ├── __init__.py
+│   ├── check_adr_compliance.py
 │   ├── check_dependency_patterns.py
+│   ├── check_imports.py
 │   ├── check_no_deprecated_services.py
 │   ├── check_packet_type_naming.py
 │   ├── check_schema_deprecation.py
 │   ├── check_substrate_api.py
-│   ├── check_syntax.py
-│   ├── check_tool_naming.py
-│   ├── ... (7 more files)
+│   ├── ... (9 more files)
 │   └── ai_guardrails/
 │       ├── __init__.py
 │       ├── runner.py
@@ -167,6 +177,169 @@ L9/
 │   ├── __init__.py
 │   ├── memory_client.py
 │   ├── world_model_client.py
+├── codegen/
+│   ├── Chat Transcript - CodeGenAgentv1.0.md
+│   ├── README.md
+│   ├── ai-to-api-sonar-superprompt.md
+│   ├── export_repo_indexes.py
+│   ├── CodeGen Engine/
+│   │   ├── README.meta.yaml.md
+│   │   ├── ci.yaml.md
+│   │   ├── ci_meta_check_and_tests.py.md
+│   │   ├── meta.yaml & CI.md
+│   │   ├── meta.yaml.md
+│   │   ├── symcode-engine-spec.md
+│   ├── Emma - Perplexity Super Prompt System/
+│   │   ├── L9-god-mode-prompt.md
+│   │   ├── MANIFEST.md
+│   │   ├── Perplexity Super Prompt System.md
+│   │   ├── SPEC_graph_decay_confidence_provenance_v20251229_205131.yaml
+│   │   ├── SPEC_workflow_similarity_approval_inheritance_v20251229_205131.yaml
+│   │   ├── deployment-quick-start.md
+│   │   ├── emma-meta-spec-templates.md
+│   │   ├── quick-reference-card.md
+│   │   ├── research-agent-playbooks.md
+│   │   ├── system-overview-index.md
+│   ├── Perplexity-Search-Pack/
+│   │   ├── Canonical Template - Ingestion Engine.yaml
+│   │   ├── Canonical Template - Memory.yaml
+│   │   ├── Canonical Template - Persistent Memory Engine.yaml
+│   │   ├── Canonical Template - module spec.yaml
+│   │   ├── HOW_TO_USE_SUPER_PROMPT.py
+│   │   ├── Perplexity Super God Prompt.md
+│   │   ├── Research Paper Reviewer & Integration Synthesizer.md
+│   │   ├── SUPER_PROMPT_TEMPLATE.py
+│   │   ├── autonomous-research-agent.py
+│   │   ├── production-config.py
+│   │   ├── CodeGen - Super Prompt Pack/
+│   │   ├── Super Prompt-L9/
+│   │   └── perplexity-c-superprompt-pack/
+│   ├── README-CodeGen/
+│   │   ├── MANIFEST.md
+│   │   ├── README-executive-summary.md
+│   │   ├── README-integration-guide.md
+│   │   ├── README-quick-reference.md
+│   │   ├── README-suite-complete-index.md
+│   │   ├── README.gold-standard.md
+│   │   ├── labs-research-super-prompt.md
+│   │   ├── subsystem-readmes-complete.md
+│   ├── Symbolic CodeGen/
+│   │   ├── codegen-integration-guide.md
+│   │   ├── codegen-symbolic-package.md
+│   │   └── Supplemental Files/
+│   ├── code-gen-files/
+│   │   ├── STRICT_MODE.md
+│   │   ├── __init__.py
+│   │   ├── examples_symbolic_computation.py
+│   │   ├── extractor.py
+│   │   ├── glue_resolver.py
+│   │   ├── run_ci_gates.sh
+│   │   ├── schema_parser.py
+│   │   ├── schema_validator.py
+│   │   ├── validate_codegen.py
+│   │   ├── validate_spec_v25.py
+│   │   └── jinja2-templates/
+│   ├── codegenAgent Spec/
+│   │   ├── PERPLEXITY_CODEGEN_AGENT_SUPERPROMPT.md
+│   │   ├── run_codegen_superprompt.py
+│   │   └── Spec-codegen+codegenAgent/
+│   ├── codex/
+│   │   ├── Codex.Explained.md
+│   │   ├── Codex.Githug.com
+│   │   └── CODEX STAGED AUDIT SUPERPROMPT/
+│   ├── compiler/
+│   │   ├── __init__.py
+│   │   ├── classifier.py
+│   │   ├── repo-map.md
+│   │   ├── schemas.py
+│   │   ├── transcript_compiler.py
+│   │   ├── validator_bridge.py
+│   │   ├── emitters/
+│   │   └── schemas/
+│   ├── dev_layer/
+│   │   ├── Dev Layer - GMP.md
+│   │   ├── SOP.md
+│   │   ├── __init__.py
+│   │   ├── am_engine/
+│   │   ├── artifacts/
+│   │   ├── governance/
+│   │   ├── modules/
+│   │   ├── runtime/
+│   │   └── tests/
+│   ├── meta/
+│   │   ├── ci-integration.md
+│   │   ├── ci-meta-check.md
+│   │   ├── ci-meta-yaml.md
+│   │   ├── doc-tree-meta.md
+│   │   ├── github-runners.md
+│   │   ├── meta-yaml-reference.md
+│   │   └── archive/
+│   ├── meta-yaml/
+│   │   ├── CODEGEN_INTEGRATION_AND_DEPLOYMENT_GUIDE_v6.0.md
+│   │   ├── DELIVERY_SUMMARY.md
+│   │   ├── README_QUICKSTART.md
+│   │   ├── meta.codegen.schema.yaml
+│   │   ├── meta.dependency.integration (1).yaml
+│   │   ├── meta.dependency.integration.yaml
+│   │   ├── meta.extraction.sequence.yaml
+│   │   ├── meta.validation.checklist.yaml
+│   ├── process/
+│   │   ├── README.md
+│   │   ├── meta.codegen.schema.yaml
+│   │   ├── meta.dependency.integration.yaml
+│   │   ├── meta.extraction.sequence.yaml
+│   │   ├── meta.validation.checklist.yaml
+│   │   ├── spec.symbolic_computation_service_extraction.yaml
+│   │   ├── symbolic_codegen_kernel_v2.yaml
+│   │   ├── sympy_extraction_glue.yaml
+│   │   └── PERPLEXITY-SUPERPROMPT-Explained/
+│   ├── prompts/
+│   ├── schemas/
+│   │   ├── Module-Prompt-CURSOR-v2.0.yaml
+│   │   ├── Module-Spec-v2.4.yaml
+│   │   ├── Module-registry.yaml
+│   │   ├── Schema-Driven Code Generation Pipeline.md
+│   │   ├── config_loader_schema.yaml
+│   │   ├── domain_adapter.yaml
+│   │   ├── glue_layer.yaml
+│   │   ├── orchestrator.yaml
+│   │   ├── preference_extractor_schema.yaml
+│   │   ├── simple_agent.yaml
+│   │   ├── ... (1 more files)
+│   │   ├── samples/
+│   │   └── specs/
+│   ├── scripts/
+│   │   ├── generate_spec.py
+│   │   ├── requirements.txt
+│   ├── specs/
+│   │   ├── anomaly_response_monitor_20260116_001347.yaml
+│   │   ├── unknown_20260116_001402.yaml
+│   │   ├── violation_tracker_service_20260116_001412.yaml
+│   ├── symbolic/
+│   │   ├── analyzer.py
+│   │   ├── candidates.py
+│   │   ├── pipeline.py
+│   │   ├── selector.py
+│   │   ├── spec.py
+│   │   ├── verifier.py
+│   ├── sympy.supplemental.artifacts/
+│   │   ├── CODEGEN VISION.md
+│   │   ├── CODEGEN_SYSTEM_ANALYSIS.md
+│   │   ├── DELIVERY_SUMMARY.md
+│   │   ├── DEPLOYMENT_CHECKLIST.md
+│   │   ├── INTEGRATION_GUIDE.md
+│   │   ├── MODULE_MANIFEST.md
+│   │   ├── QUICKSTART.md
+│   │   ├── USAGE_GUIDE.md
+│   │   ├── complete_interaction_answer.md
+│   │   ├── connection_points_detailed.md
+│   │   ├── ... (6 more files)
+│   └── templates/
+│       ├── README.template.meta.yaml
+│       ├── dora.meta.yaml
+│       ├── _spec-files-to-build/
+│       ├── prompts/
+│       └── python/
 ├── codegenagent/
 │   ├── Chat Transcript - CodeGenAgentv1.0.md
 │   ├── README.md
@@ -238,6 +411,7 @@ L9/
 │   ├── schemas/
 │   │   ├── __init__.py
 │   │   ├── adr_schema.yaml
+│   │   └── codegen/
 │   └── subsystems/
 │       ├── auth.yaml
 │       ├── code_mutation.yaml
@@ -268,11 +442,11 @@ L9/
 │   │   ├── agent_instance.py
 │   │   ├── executor.py
 │   │   ├── executor_composer.py
+│   │   ├── idempotency_store.py
 │   │   ├── kernel_registry.py
 │   │   ├── kernelevolution.py
 │   │   ├── prompt_builder.py
-│   │   ├── prompt_defense.py
-│   │   ├── ... (3 more files)
+│   │   ├── ... (4 more files)
 │   │   ├── bootstrap/
 │   │   └── graph_state/
 │   ├── aios/
@@ -305,6 +479,19 @@ L9/
 │   │   ├── schemas.py
 │   │   ├── service.py
 │   │   ├── uncertainty.py
+│   ├── codegen/
+│   │   ├── DELIVERY_MANIFEST.md
+│   │   ├── QUICKSTART.md
+│   │   ├── README.md
+│   │   ├── README_V2.md
+│   │   ├── __init__.py
+│   │   ├── cli.py
+│   │   ├── requirements.txt
+│   │   ├── utilities.py
+│   │   ├── compiler/
+│   │   ├── examples/
+│   │   ├── gatekeeper/
+│   │   └── spec/
 │   ├── commands/
 │   │   ├── README.md
 │   │   ├── __init__.py
@@ -481,7 +668,7 @@ L9/
 │   │   ├── packet_envelope_v2.py
 │   │   ├── research_factory_models.py
 │   │   ├── research_factory_nodes.py
-│   │   ├── ... (6 more files)
+│   │   ├── ... (7 more files)
 │   │   └── tests/
 │   ├── security/
 │   │   ├── README.md
@@ -526,6 +713,8 @@ L9/
 │   ├── k8s/
 │   │   ├── bootstrap-job.yaml
 │   │   └── c1/
+│   ├── nginx/
+│   │   ├── nginx.conf
 │   └── notes/
 │       ├── 1.md
 │       ├── 2.md
@@ -535,6 +724,7 @@ L9/
 │       ├── MRI-Results.md
 │       ├── dockerfile locations.md
 │       ├── files-to-harvest.md
+│       ├── nginx.md
 ├── dev/
 │   ├── README.md
 │   ├── __init__.py
@@ -554,7 +744,7 @@ L9/
 │   ├── GOD-MODE-ORCHESTRATOR.md
 │   ├── GRACEFUL_DEGRADATION_VS_FAIL_LOUDLY.md
 │   ├── L9-Vision-thesis_excerpt.md
-│   ├── ... (6 more files)
+│   ├── ... (7 more files)
 │   ├── architecture/
 │   │   ├── di-container-guide.md
 │   │   ├── migration-checklist.md
@@ -575,7 +765,7 @@ L9/
 │       ├── 25-python-dora-header.mdc
 │       ├── 30-framework-react.mdc
 │       ├── 40-domain-autonomy.mdc
-│       ├── ... (22 more files)
+│       ├── ... (23 more files)
 ├── domain_tensor_bridge/
 │   ├── README.md
 │   ├── __init__.py
@@ -619,6 +809,9 @@ L9/
 ├── engines/
 ├── examples/
 │   ├── fastapi_lifespan_di_bootstrap.py
+├── governance/
+│   ├── __init__.py
+│   ├── rejection_recorder.py
 ├── grafana/
 │   └── provisioning/
 │       ├── dashboards/
@@ -725,6 +918,9 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── cursor_checkpoint_manager.py
 │   │   ├── postgres_saver.py
+│   ├── consolidation/
+│   │   ├── __init__.py
+│   │   ├── promotion_rules.py
 │   ├── extractor/
 │   │   ├── __init__.py
 │   │   ├── agent_config_extractor.py
@@ -736,6 +932,9 @@ L9/
 │   └── validators/
 │       ├── __init__.py
 │       ├── packet_validator.py
+├── memory_cache/
+│   ├── __init__.py
+│   ├── cursor_working_memory_service.py
 ├── migrations/
 │   ├── 0001_init_memory_substrate.sql
 │   ├── 0002_enhance_packet_store.sql
@@ -747,9 +946,10 @@ L9/
 │   ├── 0008_memory_substrate_10x.sql
 │   ├── 0009_feedback_and_effectiveness.sql
 │   ├── 0010_add_fact_deprecation.sql
-│   ├── ... (20 more files)
+│   ├── ... (21 more files)
 ├── modules/
 ├── motifs/
+│   ├── TODO-Motifs.md
 │   ├── __init__.py
 │   ├── motif_feedback_graph.py
 │   ├── multimodal_plan_ranker.py
@@ -826,9 +1026,11 @@ L9/
 │   ├── kernels/
 │   │   ├── 00_system/
 │   │   └── bootstrap/
-│   └── security/
-│       ├── __init__.py
-│       ├── l9_security_kernel.yaml
+│   ├── security/
+│   │   ├── __init__.py
+│   │   ├── l9_security_kernel.yaml
+│   └── specs/
+│       ├── core_kernels_tests.yaml
 ├── prompts/
 │   ├── Perplexity_spaces_v1.0.md
 │   ├── README.md
@@ -880,7 +1082,7 @@ L9/
 │   │   ├── 0007-seven-phase-bootstrap.md
 │   │   ├── 0008-feature-flag-gating.md
 │   │   ├── 0009-circuit-breaker-resilience.md
-│   │   ├── ... (64 more files)
+│   │   ├── ... (81 more files)
 │   ├── diagrams/
 │   │   ├── 01-memory-substrate.mmd
 │   │   ├── 01-memory-substrate.png
@@ -899,6 +1101,7 @@ L9/
 │       ├── Dora-Block.md
 │       ├── dora-block-enforcement-contract.md
 ├── reports/
+│   ├── .index_hashes.json
 │   ├── GMP-Report-111-Fix-Pr-23-Python-39-Compatibility-Code-Quality.md
 │   ├── GMP-Report-112-Merge-Pr-24-Fix-Python-39-Compatibility.md
 │   ├── GMP-Report-113-Mutation-Testing-CI-Integration.md
@@ -908,8 +1111,7 @@ L9/
 │   ├── GMP-Report-116-PR51-Spring-Cleaning-TODO-Tracking.md
 │   ├── GMP-Report-116-PR52-DI-DIP-Three-Track-Refactoring.md
 │   ├── GMP-Report-117-PR-Batch-Analysis-36-46-48-49-50-51-53-54.md
-│   ├── GMP-Report-118-PR-Batch-36-46-48-49-50-Spring-Cleaning.md
-│   ├── ... (14 more files)
+│   ├── ... (19 more files)
 │   ├── architecture/
 │   │   ├── api_route_inventory.txt
 │   │   ├── architecture.txt
@@ -969,7 +1171,7 @@ L9/
 │   ├── check_n_plus_1.py
 │   ├── cursor-start-session
 │   ├── dev_layer_compile.sh
-│   ├── ... (17 more files)
+│   ├── ... (19 more files)
 │   ├── agents/
 │   │   ├── neo4j_merge_agent_nodes.py
 │   │   ├── neo4j_unify_relationships.py
@@ -1038,7 +1240,7 @@ L9/
 │   │   ├── cleanup_trash_embeddings.py
 │   │   ├── cleanup_trash_embeddings_via_api.py
 │   │   ├── delete_trash_embeddings.py
-│   │   ├── ... (17 more files)
+│   │   ├── ... (18 more files)
 │   ├── pr_review/
 │   │   ├── gemini_auto_editor.py
 │   │   ├── perplexity_reviewer.py
@@ -1154,6 +1356,7 @@ L9/
 │   │   ├── test_agent_auth.py
 │   │   ├── test_auth.py
 │   │   ├── test_auth_api_key_enforcement.py
+│   │   ├── test_bootstrap_fail_fast.py
 │   │   ├── test_e2e_slack_audit.py
 │   │   ├── test_factory_path_safety.py
 │   │   ├── test_server_health.py
@@ -1167,6 +1370,11 @@ L9/
 │   ├── clients/
 │   │   ├── __init__.py
 │   │   ├── test_memory_client.py
+│   ├── codegen/
+│   │   ├── __init__.py
+│   │   ├── conftest.py
+│   │   ├── test_codegen_pipeline.py
+│   │   ├── test_sample_schemas.py
 │   ├── collaborative_cells/
 │   │   ├── __init__.py
 │   │   ├── test_base_cell.py
@@ -1188,6 +1396,8 @@ L9/
 │   │   ├── bootstrap/
 │   │   ├── eos/
 │   │   ├── governance/
+│   │   ├── kernel_wiring/
+│   │   ├── kernels/
 │   │   ├── observability/
 │   │   ├── protocols/
 │   │   ├── schemas/
@@ -1206,6 +1416,8 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── test_email_router.py
 │   │   ├── test_email_triage.py
+│   ├── governance/
+│   │   ├── test_rejection_recorder.py
 │   ├── integration/
 │   │   ├── __init__.py
 │   │   ├── test_api_agent_integration.py
@@ -1250,6 +1462,7 @@ L9/
 │   │   ├── test_consolidation.py
 │   │   ├── test_consolidation_graph.py
 │   │   ├── ... (40 more files)
+│   │   ├── consolidation/
 │   │   └── tests/
 │   ├── mocks/
 │   │   ├── __init__.py
@@ -1360,6 +1573,7 @@ L9/
 │   │   ├── adr_indexer.py
 │   │   ├── adr_scanner.py
 │   │   ├── adr_validator.py
+│   │   ├── docstring_injector.py
 │   ├── architecture_reports/
 │   │   ├── __init__.py
 │   │   ├── architecture_report.py
@@ -1372,6 +1586,16 @@ L9/
 │   │   ├── function_signatures_report.py
 │   │   ├── imports_report.py
 │   │   ├── ... (4 more files)
+│   ├── codegen/
+│   │   ├── __init__.py
+│   │   ├── doc_compiler.py
+│   │   ├── docstring_ab_test.py
+│   │   ├── docstring_injector.py
+│   │   ├── knowledge_harvester.py
+│   │   ├── qc_dashboard.py
+│   │   ├── spec_generator.py
+│   │   ├── test_generator.py
+│   │   ├── text_to_code.py
 │   └── superpack_reports/
 │       ├── __init__.py
 │       ├── api_report.py

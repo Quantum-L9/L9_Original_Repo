@@ -48,7 +48,7 @@ __dora_meta__ = {
 import asyncio
 import contextlib
 import json
-import logging
+import structlog
 import os
 import platform
 import signal
@@ -1051,7 +1051,7 @@ async def main():
     )
 
     # Reduce noise from websockets library
-    logging.getLogger("websockets").setLevel(logging.WARNING)
+    structlog.get_logger("websockets").setLevel(logging.WARNING)
 
     # Load config and run
     config = AgentConfig.from_env()

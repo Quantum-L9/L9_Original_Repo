@@ -79,16 +79,16 @@ class CursorClient:
             }
 
         except requests.exceptions.Timeout:
-            logger.error(f"Cursor API timeout: {url}")
+            logger.error("Cursor API timeout", url=url)
             return {"success": False, "error": "Request timeout"}
         except requests.exceptions.ConnectionError:
-            logger.error(f"Cursor API connection error: {url}")
+            logger.error("Cursor API connection error", url=url)
             return {"success": False, "error": "Connection failed"}
         except requests.exceptions.RequestException as e:
-            logger.error(f"Cursor API error: {e}")
+            logger.error("Cursor API error", url=url, exc_info=True)
             return {"success": False, "error": str(e)}
         except Exception as e:
-            logger.error(f"Unexpected error: {e}")
+            logger.error("Unexpected error in Cursor API", url=url, exc_info=True)
             return {"success": False, "error": str(e)}
 
     def send_code(self, code: str) -> dict[str, Any]:

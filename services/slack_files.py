@@ -686,6 +686,7 @@ async def get_file_info(file_id: str) -> dict[str, Any]:
     from api.slack_client import SlackAPIClient
 
     # Create async client for this call
+    # nosemgrep: l9-httpx-async-context-required (closed in finally block at L705)
     http_client = httpx.AsyncClient()
     slack_client = SlackAPIClient(bot_token=SLACK_BOT_TOKEN, http_client=http_client)
 

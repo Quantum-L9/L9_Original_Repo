@@ -14,9 +14,9 @@ Author: Manus AI
 Created: 2025-12-20
 """
 
-import logging
+import structlog
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class MemoryAdapter:
@@ -183,6 +183,7 @@ class MemoryAdapter:
         hash_val = int(hashlib.md5(context_str.encode()).hexdigest(), 16)
 
         # Convert to normalized vector (dummy implementation)
+        # nosemgrep: l9-float-requires-try-except (bit shift result always 0 or 1)
         return [float((hash_val >> i) & 1) for i in range(128)]
 
     def _detect_simple_patterns(self) -> list[dict]:

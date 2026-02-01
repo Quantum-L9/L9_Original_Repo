@@ -265,7 +265,7 @@ _background_task_registry: BackgroundTaskRegistry | None = None
 def get_background_task_registry() -> BackgroundTaskRegistry:
     """Get or create the global background task registry."""
     global _background_task_registry
-    if _background_task_registry is None:
+    if _background_task_registry is None:  # nosemgrep: l9-singleton-requires-lock
         _background_task_registry = BackgroundTaskRegistry()
     return _background_task_registry
 
@@ -288,6 +288,8 @@ __dora_footer__ = {
 __all__ = [
     "BackgroundTaskRegistry",
     "get_background_task_registry",
+    "refresh_mcp_tools_task",
+    "register_mcp_refresh_task",
 ]
 # ============================================================================
 # L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT

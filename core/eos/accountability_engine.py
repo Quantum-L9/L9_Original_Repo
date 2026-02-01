@@ -9,7 +9,7 @@ No verdict → no execution.
 No ledger entry → no verdict.
 """
 
-import logging
+import structlog
 from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
@@ -26,7 +26,7 @@ from .schemas import (
     VerdictDecision,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class AccountabilityEngine:
@@ -60,7 +60,7 @@ class AccountabilityEngine:
         self.hypergraph = hypergraph_client
         self.ledger = ledger_writer
         self.verifier = signature_verifier
-        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger = logger.bind(component=self.__class__.__name__)
 
         # In-memory verdict cache (production: use Redis)
         self._verdict_cache: dict[str, Verdict] = {}

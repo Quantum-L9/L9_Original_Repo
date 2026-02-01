@@ -1047,7 +1047,7 @@ async def saga_timeline_correlation(
     Returns:
         Dict with timeline events and causal relationships
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime, timezone, timedelta
 
     import structlog
 

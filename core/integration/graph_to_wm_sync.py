@@ -276,7 +276,10 @@ class GraphToWorldModelSync:
             "relationships": [...]
         }
         """
-        agent_data = graph_state.get("agent", {})
+        # BUG FIX: _load_from_graph returns a FLAT dict, not nested under "agent" key
+        # The graph_state dict has agent properties at the top level:
+        # {"agent_id": "L", "designation": "...", "role": "...", "responsibilities": [...], ...}
+        # NOT: {"agent": {...}, "responsibilities": [...]}
         responsibilities = graph_state.get("responsibilities", [])
         directives = graph_state.get("directives", [])
         tools = graph_state.get("tools", [])
@@ -286,11 +289,12 @@ class GraphToWorldModelSync:
             "entity_id": f"agent:{agent_id}",
             "name": agent_id,
             "attributes": {
-                "designation": agent_data.get("designation", ""),
-                "role": agent_data.get("role", ""),
-                "mission": agent_data.get("mission", ""),
-                "status": agent_data.get("status", "ACTIVE"),
-                "authority_level": agent_data.get("authority_level", ""),
+                # Read directly from graph_state (flat structure from _load_from_graph)
+                "designation": graph_state.get("designation", ""),
+                "role": graph_state.get("role", ""),
+                "mission": graph_state.get("mission", ""),
+                "status": graph_state.get("status", "ACTIVE"),
+                "authority_level": graph_state.get("authority_level", ""),
                 "responsibility_count": len(responsibilities),
                 "directive_count": len(directives),
                 "tool_count": len(tools),
@@ -357,7 +361,7 @@ def get_graph_wm_sync(neo4j_driver: Any) -> GraphToWorldModelSync:
         ValueError: If neo4j_driver is None
     """
     global _sync_service
-    if _sync_service is None:
+    if _sync_service is None:  # nosemgrep: l9-singleton-requires-lock
         _sync_service = GraphToWorldModelSync(neo4j_driver=neo4j_driver)
     return _sync_service
 

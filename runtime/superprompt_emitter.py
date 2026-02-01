@@ -334,7 +334,7 @@ Module-Spec-v2.4 requires:
         Returns:
             SuperPrompt ready for LLM submission
         """
-        if gap_analysis is None:
+        if gap_analysis is None:  # nosemgrep: l9-singleton-requires-lock
             gap_analysis = self._gap_detector.analyze(spec)
 
         module_id = spec.get("metadata", {}).get("module_id", "unknown")

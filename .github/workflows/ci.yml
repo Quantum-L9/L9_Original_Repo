@@ -85,7 +85,43 @@ jobs:
           ./ci/run_ci_gates.sh --all || true
 
   # ===========================================================================
-  # JOB 1A: CRYPTO-GUARD — Ban Weak Cryptography (MD5, SHA1)
+  # JOB 1A: ADR-COMPLIANCE — Architecture Decision Records Enforcement
+  # ===========================================================================
+  adr-compliance:
+    name: ADR Compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Check ADR compliance (errors only)
+        run: |
+          echo "📋 Checking ADR compliance..."
+          python3 ci/check_adr_compliance.py --errors-only --verbose
+
+      - name: Check missing imports
+        run: |
+          echo "📦 Checking for missing imports..."
+          python3 ci/check_imports.py
+
+      - name: Check memory pipeline bypass (GMP-129)
+        run: |
+          echo "🛡️ Checking for memory pipeline bypass violations..."
+          python3 ci/check_memory_bypass.py
+
+      - name: Check GMP report naming convention
+        run: |
+          echo "📝 Checking GMP report naming convention..."
+          python3 ci/check_report_naming.py
+
+  # ===========================================================================
+  # JOB 1B: CRYPTO-GUARD — Ban Weak Cryptography (MD5, SHA1)
   # ===========================================================================
   crypto-guard:
     name: Crypto Guard
@@ -371,6 +407,38 @@ jobs:
           semgrep --config .sec/semgrep.yaml api/routes scripts/research core/security
 
   # ===========================================================================
+  # JOB 3C: L9-PATTERNS — Architecture Pattern Enforcement (ADR-0083-0088)
+  # ===========================================================================
+  l9-patterns:
+    name: L9 Pattern Enforcement
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install Semgrep
+        run: |
+          python -m pip install --upgrade pip
+          pip install semgrep
+
+      - name: Run L9 Pattern Rules
+        run: |
+          echo "🔍 Running L9 pattern enforcement (ADR-0083 to ADR-0088)..."
+          semgrep --config .semgrep/l9-rules.yaml \
+            --error \
+            --exclude tests/ \
+            --exclude scripts/ \
+            api/ core/ runtime/ services/ agents/ memory/ || exit 1
+          echo "✅ All L9 patterns pass"
+
+  # ===========================================================================
   # JOB 4: DOCKER-SMOKE — Full Docker Smoke Test
   # ===========================================================================
   docker-smoke:
@@ -414,7 +482,7 @@ jobs:
             l9-api:
               build:
                 context: .
-                dockerfile: runtime/Dockerfile
+                dockerfile: Dockerfile
               environment:
                 DATABASE_URL: postgresql://l9:l9test@postgres:5432/l9
                 REDIS_URL: redis://redis:6379
@@ -593,6 +661,8 @@ jobs:
     needs:
       [
         validate,
+        adr-compliance,
+        l9-patterns,
         crypto-guard,
         dora-check,
         docker-check,
@@ -613,6 +683,8 @@ jobs:
           echo ""
           echo "Jobs:"
           echo "  ├─ Validate:       ${{ needs.validate.result }}"
+          echo "  ├─ ADR Compliance: ${{ needs.adr-compliance.result }}"
+          echo "  ├─ L9 Patterns:    ${{ needs.l9-patterns.result }}"
           echo "  ├─ Crypto Guard:   ${{ needs.crypto-guard.result }}"
           echo "  ├─ DORA Check:     ${{ needs.dora-check.result }}"
           echo "  ├─ Docker Check:   ${{ needs.docker-check.result }}"
@@ -626,6 +698,16 @@ jobs:
           # Fail if critical jobs failed
           if [[ "${{ needs.validate.result }}" == "failure" ]]; then
             echo "❌ CI Gates failed"
+            exit 1
+          fi
+
+          if [[ "${{ needs.adr-compliance.result }}" == "failure" ]]; then
+            echo "❌ ADR Compliance failed (security or import violations)"
+            exit 1
+          fi
+
+          if [[ "${{ needs.l9-patterns.result }}" == "failure" ]]; then
+            echo "❌ L9 Patterns failed (ADR-0083 to ADR-0088 violations)"
             exit 1
           fi
 

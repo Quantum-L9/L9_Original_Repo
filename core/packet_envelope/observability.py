@@ -43,7 +43,7 @@ __dora_meta__ = {
 
 import asyncio
 import json
-import logging
+import structlog
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -79,7 +79,7 @@ except ImportError:
     PrometheusMetricReader = None
     PROMETHEUS_EXPORTER_AVAILABLE = False
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # ============================================================================
 # CONFIGURATION

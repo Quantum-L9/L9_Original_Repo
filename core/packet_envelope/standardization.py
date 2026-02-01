@@ -42,15 +42,15 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import logging
+import structlog
 import uuid
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod  # TODO(ADR-0026): Convert to Protocol - no shared impl
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # ============================================================================
 # CLOUDEVENTS STANDARD

@@ -95,7 +95,7 @@ class AnomalyDetector:
     HISTORY_WINDOW_SIZE = 100
 
     def __init__(self):
-        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger = logger.bind(component=self.__class__.__name__)
 
         # Historical data for statistical analysis
         self.latency_history: deque = deque(maxlen=self.HISTORY_WINDOW_SIZE)

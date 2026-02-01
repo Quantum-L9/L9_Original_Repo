@@ -211,7 +211,7 @@ def enqueue_task(task_dict: dict[str, Any]) -> str:
     task_dict["created_at"] = datetime.now(UTC).isoformat()
 
     try:
-        with open(task_file, "w") as f:
+        with open(task_file, "w", encoding="utf-8") as f:
             json.dump(task_dict, f, indent=2)
         logger.info(f"Enqueued task {task_id} to {task_file}")
 
