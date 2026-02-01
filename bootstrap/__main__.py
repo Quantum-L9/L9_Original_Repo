@@ -85,7 +85,8 @@ async def init_memory_substrate() -> None:
     """Initialize the memory substrate service."""
     from memory.substrate_service import init_service
 
-    await init_service()
+    db_url = os.environ["DATABASE_URL"]
+    await init_service(db_url)
 
 
 async def init_neo4j() -> None:
