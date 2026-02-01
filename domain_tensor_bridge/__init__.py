@@ -24,6 +24,27 @@ Extended Metadata:
 ================================================================================
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "  Init  ",
+    "module_version": "1.0.0",
+    "created_by": "cryptoxdog",
+    "created_at": "2026-01-23T15:07:20Z",
+    "updated_at": "2026-01-31T22:21:51Z",
+    "layer": "operations",
+    "domain": "domain_tensor_bridge",
+    "module_name": "__init__",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from .agent_controller import AgentController, process_packet
 from .decision_synthesizer import DecisionSynthesizer
 from .governance_bridge import GovernanceBridge
@@ -90,3 +111,19 @@ __l9_trace__ = {
 # ============================================================================
 # END L9 DORA BLOCK
 # ============================================================================
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "DOM-OPER-006",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["domain-tensor-bridge", "operations", "tracing", "utility"],
+    "keywords": [],
+    "business_value": "Utility module for   init  ",
+    "last_modified": "2026-01-31T22:21:51Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}

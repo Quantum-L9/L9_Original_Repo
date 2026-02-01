@@ -6,6 +6,27 @@ Summarizes all steps, artifacts, and results.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Report",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T14:45:56Z",
+    "updated_at": "2026-01-31T22:27:11Z",
+    "layer": "operations",
+    "domain": "workflows",
+    "module_name": "report",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["workflows.nodes.__init__"],
+    },
+}
+# ============================================================================
+
 import time
 from datetime import datetime
 
@@ -154,3 +175,38 @@ async def report_node(state: WorkflowState) -> dict:
         "artifacts": {"report": report_text},
         "messages": [{"role": "assistant", "content": "Workflow report generated"}],
     }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-022",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["async", "logging", "messaging", "operations", "service", "workflows"],
+    "keywords": ["report"],
+    "business_value": "Utility module for report",
+    "last_modified": "2026-01-31T22:27:11Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -60,6 +60,20 @@ from pathlib import Path
 
 
 @dataclass
+class FunctionInfo:
+    """Information about a discovered function."""
+
+    name: str
+    file_path: str
+    line_number: int
+    module_path: str
+    is_async: bool = False
+    decorators: list[str] = field(default_factory=list)
+    args: list[str] = field(default_factory=list)
+    returns: str | None = None
+
+
+@dataclass
 class ClassInfo:
     """Information about a discovered class."""
 
@@ -68,6 +82,7 @@ class ClassInfo:
     line_number: int
     module_path: str
     bases: list[str] = field(default_factory=list)  # Base class names
+    methods: list[str] = field(default_factory=list)  # Method names
 
 
 @dataclass
@@ -225,7 +240,9 @@ class DoraCompleteInjector:
         """
         self.repo_path = Path(repo_path)
         self.classes_found: list[ClassInfo] = []
+        self.functions_found: list[FunctionInfo] = []
         self.files_to_process: dict[str, list[ClassInfo]] = {}
+        self.file_functions: dict[str, list[FunctionInfo]] = {}
         self.component_id_counter: dict[str, int] = {}
 
     def scan_repository(
@@ -239,11 +256,15 @@ class DoraCompleteInjector:
             if file_path.exists() and file_path.suffix in (".py", ".yaml", ".yml"):
                 if file_path.suffix == ".py":
                     classes = self._extract_classes(file_path)
+                    functions = self._extract_functions(file_path)
                 else:
                     classes = []  # YAML files don't have classes
+                    functions = []
                 # Process file even if no classes (function-only modules or YAML)
                 self.files_to_process[str(file_path)] = classes
+                self.file_functions[str(file_path)] = functions
                 self.classes_found.extend(classes)
+                self.functions_found.extend(functions)
             print(f"🔍 Processing single file: {single_file}")
             return
 
@@ -257,6 +278,11 @@ class DoraCompleteInjector:
             "node_modules",
             ".git",
             "tests",
+            "deploy",
+            ".cursor-commands",
+            ".backup",
+            "current_work",
+            "codegen",
         ]
 
         # Scan Python files
@@ -264,25 +290,30 @@ class DoraCompleteInjector:
             if any(skip in str(py_file) for skip in skip_dirs):
                 continue
             classes = self._extract_classes(py_file)
-            if classes:
-                self.files_to_process[str(py_file)] = classes
-                self.classes_found.extend(classes)
+            functions = self._extract_functions(py_file)
+            # Process all Python files (not just those with classes)
+            self.files_to_process[str(py_file)] = classes
+            self.file_functions[str(py_file)] = functions
+            self.classes_found.extend(classes)
+            self.functions_found.extend(functions)
 
         # Scan YAML files
         for yaml_file in self.repo_path.rglob("*.yaml"):
             if any(skip in str(yaml_file) for skip in skip_dirs):
                 continue
             self.files_to_process[str(yaml_file)] = []
+            self.file_functions[str(yaml_file)] = []
 
         for yml_file in self.repo_path.rglob("*.yml"):
             if any(skip in str(yml_file) for skip in skip_dirs):
                 continue
             self.files_to_process[str(yml_file)] = []
+            self.file_functions[str(yml_file)] = []
 
         py_count = sum(1 for f in self.files_to_process if f.endswith(".py"))
         yaml_count = len(self.files_to_process) - py_count
         print(
-            f"✅ Found {len(self.classes_found)} classes in {py_count} Python files, {yaml_count} YAML files"
+            f"✅ Found {len(self.classes_found)} classes, {len(self.functions_found)} functions in {py_count} Python files, {yaml_count} YAML files"
         )
 
     def _extract_classes(self, file_path: Path) -> list[ClassInfo]:
@@ -304,6 +335,11 @@ class DoraCompleteInjector:
                             bases.append(base.id)
                         elif isinstance(base, ast.Attribute):
                             bases.append(base.attr)
+                    # Extract method names
+                    methods = []
+                    for item in node.body:
+                        if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                            methods.append(item.name)
                     classes.append(
                         ClassInfo(
                             name=node.name,
@@ -311,12 +347,68 @@ class DoraCompleteInjector:
                             line_number=node.lineno,
                             module_path=module_path,
                             bases=bases,
+                            methods=methods,
                         )
                     )
 
             return classes
         except Exception as e:
             print(f"⚠️  Error parsing {file_path}: {e}")
+            return []
+
+    def _extract_functions(self, file_path: Path) -> list[FunctionInfo]:
+        """Extract top-level function definitions from a Python file."""
+        try:
+            with open(file_path, encoding="utf-8") as f:
+                content = f.read()
+
+            tree = ast.parse(content, filename=str(file_path))
+            functions = []
+            module_path = self._get_module_path(file_path)
+
+            # Only get top-level functions (not methods inside classes)
+            for node in tree.body:
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    # Extract decorators
+                    decorators = []
+                    for dec in node.decorator_list:
+                        if isinstance(dec, ast.Name):
+                            decorators.append(dec.id)
+                        elif isinstance(dec, ast.Attribute):
+                            decorators.append(dec.attr)
+                        elif isinstance(dec, ast.Call):
+                            if isinstance(dec.func, ast.Name):
+                                decorators.append(dec.func.id)
+                            elif isinstance(dec.func, ast.Attribute):
+                                decorators.append(dec.func.attr)
+
+                    # Extract arguments
+                    args = [arg.arg for arg in node.args.args]
+
+                    # Extract return type
+                    returns = None
+                    if node.returns:
+                        if isinstance(node.returns, ast.Name):
+                            returns = node.returns.id
+                        elif isinstance(node.returns, ast.Constant):
+                            returns = str(node.returns.value)
+
+                    functions.append(
+                        FunctionInfo(
+                            name=node.name,
+                            file_path=str(file_path),
+                            line_number=node.lineno,
+                            module_path=module_path,
+                            is_async=isinstance(node, ast.AsyncFunctionDef),
+                            decorators=decorators,
+                            args=args,
+                            returns=returns,
+                        )
+                    )
+
+            return functions
+        except Exception as e:
+            print(f"⚠️  Error parsing functions in {file_path}: {e}")
             return []
 
     def _get_module_path(self, file_path: Path) -> str:
@@ -1241,13 +1333,34 @@ class DoraCompleteInjector:
         self, header: HeaderMeta, file_path: str, modified_at: str
     ) -> str:
         """Format Header Meta block for Python file (TOP)."""
-        Path(file_path).stem
+        module_name = Path(file_path).stem
 
         # Generate integrates_with from actual file analysis
-        self._generate_integrates_with(file_path, header.domain, header.layer)
+        integrates_with = self._generate_integrates_with(
+            file_path, header.domain, header.layer
+        )
 
-        return """# ============================================================================
-"""
+        return f'''# ============================================================================
+__dora_meta__ = {{
+    "component_name": "{header.component_name}",
+    "module_version": "{header.module_version}",
+    "created_by": "{header.created_by}",
+    "created_at": "{header.created_at}",
+    "updated_at": "{modified_at}",
+    "layer": "{header.layer}",
+    "domain": "{header.domain}",
+    "module_name": "{module_name}",
+    "type": "{header.type}",
+    "status": "{header.status}",
+    "integrates_with": {{
+        "api_endpoints": {json.dumps(integrates_with.get("api_endpoints", []))},
+        "datasources": {json.dumps(integrates_with.get("datasources", []))},
+        "memory_layers": {json.dumps(integrates_with.get("memory_layers", []))},
+        "imported_by": {json.dumps(integrates_with.get("imported_by", []))},
+    }},
+}}
+# ============================================================================
+'''
 
     def _format_header_meta_yaml(
         self, header: HeaderMeta, file_path: str, modified_at: str
@@ -1455,16 +1568,39 @@ class DoraCompleteInjector:
 
         # Generate smart tags from content analysis (or fallback to basic)
         if file_path:
-            self._generate_smart_tags(
+            tags = self._generate_smart_tags(
                 file_path, classes, header.domain, header.type, header.layer
             )
-            self._generate_smart_keywords(file_path, classes, header.component_name)
+            keywords = self._generate_smart_keywords(
+                file_path, classes, header.component_name
+            )
         else:
-            self._generate_tags(header.domain, header.type, header.layer)
-            self._generate_keywords(header.component_name, header.domain)
+            tags = self._generate_tags(header.domain, header.type, header.layer)
+            keywords = self._generate_keywords(header.component_name, header.domain)
 
-        return """
-"""
+        # Generate purpose/business value
+        purpose = (
+            self._generate_purpose(classes, file_path) if file_path else header.purpose
+        )
+
+        return f'''
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {{
+    "component_id": "{footer.component_id}",
+    "governance_level": "{header.governance_level}",
+    "compliance_required": {header.compliance_required!s},
+    "audit_trail": {header.audit_trail!s},
+    "dependencies": {json.dumps(header.dependencies)},
+    "tags": {json.dumps(tags)},
+    "keywords": {json.dumps(keywords)},
+    "business_value": "{purpose[:200]}",
+    "last_modified": "{footer.last_modified}",
+    "modified_by": "{footer.modified_by}",
+    "change_summary": "{footer.change_summary}",
+}}
+'''
 
     def _generate_tags(self, domain: str, comp_type: str, layer: str) -> list[str]:
         """Generate tags based on domain, type, and layer."""
@@ -1962,6 +2098,23 @@ class DoraCompleteInjector:
     def _format_trace_block(self, trace: DoraTraceBlock) -> str:
         """Format DORA Trace Block for Python file (VERY END)."""
         return """
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================
 """
 
     def _find_insertion_point(self, content: str) -> int:

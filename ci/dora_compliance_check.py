@@ -24,6 +24,27 @@ Exit codes:
     2 - Error during execution
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Dora Compliance Check",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-18T03:39:59Z",
+    "updated_at": "2026-01-31T22:21:50Z",
+    "layer": "operations",
+    "domain": "ci",
+    "module_name": "dora_compliance_check",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import subprocess
 import sys
@@ -313,3 +334,55 @@ def main():
 
 if __name__ == "__main__":
     main()
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CI-OPER-012",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "caching",
+        "ci",
+        "cli",
+        "filesystem",
+        "migration",
+        "operations",
+        "subprocess",
+        "testing",
+        "tracing",
+    ],
+    "keywords": [
+        "blocks",
+        "check",
+        "compliance",
+        "dora",
+        "files",
+        "fix",
+        "scan",
+        "should",
+    ],
+    "business_value": "Utility module for dora compliance check",
+    "last_modified": "2026-01-31T22:21:50Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -12,6 +12,27 @@ This module implements frontier-lab grade agent initialization:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Atomic 7-Phase Initialization",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-31T22:21:46Z",
+    "layer": "foundation",
+    "domain": "agent_execution",
+    "module_name": "__init__",
+    "type": "schema",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from .bootstrap_metrics import PROMETHEUS_AVAILABLE as BOOTSTRAP_PROMETHEUS_AVAILABLE
 from .bootstrap_metrics import BootstrapMetrics, get_bootstrap_metrics
 from .models import (
@@ -59,3 +80,45 @@ __all__ = [
     "verify_and_lock_view",
     "wire_governance_gates",
 ]
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-232",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["agent-execution", "api", "audit-tool", "foundation", "metrics", "schema"],
+    "keywords": [
+        "agent",
+        "atomic",
+        "audit",
+        "bootstrap",
+        "governance",
+        "initialization",
+        "module",
+        "phase",
+    ],
+    "business_value": "All phases succeed atomically or roll back entirely Kernels, identity, tools, governance wired at startup Full audit trail with initialization signature",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -15,6 +15,27 @@ Usage:
     python3 scripts/memory/ingest_repo_indexes.py [--dry-run] [--verbose] [--force]
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Ingest L9 Repo Indexes to Memory",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-31T17:12:49Z",
+    "updated_at": "2026-01-31T22:21:56Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "ingest_repo_indexes",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import asyncio
 import hashlib
@@ -318,3 +339,56 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-035",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "caching",
+        "cli",
+        "filesystem",
+        "memory-substrate",
+        "operations",
+        "rest-api",
+        "security",
+        "serialization",
+    ],
+    "keywords": [
+        "cache",
+        "changed",
+        "chunk",
+        "compute",
+        "hash",
+        "index",
+        "indexes",
+        "ingest",
+    ],
+    "business_value": "1. export_repo_indexes.py → Generate index files 2. ingest_repo_indexes.py → Store in pgvector (semantic search) 3. load_indexes_to_neo4j.py → Store in Neo4j (graph queries) python3 scripts/memory/ing",
+    "last_modified": "2026-01-31T22:21:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -28,6 +28,27 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Subsystem Detector",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-20T14:03:16Z",
+    "updated_at": "2026-01-31T22:27:11Z",
+    "layer": "foundation",
+    "domain": "governance",
+    "module_name": "subsystem_detector",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": ["core.governance.subsystem_detector"],
+    },
+}
+# ============================================================================
+
 import re
 from pathlib import Path
 from typing import Any
@@ -340,3 +361,56 @@ if __name__ == "__main__":
     ctx = get_subsystem_context(prompt="Add authentication middleware")
     for k, v in ctx.items():
         print(f"  {k}: {v}")  # noqa: ADR-0019
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-171",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "authorization",
+        "cli",
+        "config",
+        "debugging",
+        "filesystem",
+        "foundation",
+        "governance",
+        "logging",
+        "profiling",
+    ],
+    "keywords": [
+        "approval",
+        "core",
+        "detect",
+        "detector",
+        "governance",
+        "high",
+        "human",
+        "middleware",
+    ],
+    "business_value": "This enables automatic policy enforcement without manual subsystem selection. from core.governance.subsystem_detector import detect_subsystem, get_subsystem_policy # From file paths subsystem = detect",
+    "last_modified": "2026-01-31T22:27:11Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

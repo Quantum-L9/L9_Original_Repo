@@ -15,6 +15,27 @@ Purpose: Technical debt tracking, not debt hiding
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Add Noqa To Violations",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-31T22:35:22Z",
+    "updated_at": "2026-01-31T22:51:33Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "add_noqa_to_violations",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import re
 import sys
@@ -228,3 +249,36 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-055",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["caching", "cli", "filesystem", "operations", "scripts", "testing"],
+    "keywords": ["allowed", "fix", "logging", "noqa", "print", "should", "skip", "sql"],
+    "business_value": "This grandfathers existing violations so CI passes while tracking debt. New code must comply; old code gets fixed incrementally. python scripts/ci/add_noqa_to_violations.py --dry-run  # Preview change",
+    "last_modified": "2026-01-31T22:51:33Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

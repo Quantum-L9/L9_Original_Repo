@@ -1,3 +1,15 @@
+
+# component_name: "Docker-Compose.Prod"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-31T20:27:26Z"
+# updated_at: "2026-01-31T22:13:45Z"
+# layer: "operations"
+# domain: "docker-compose.prod.yml"
+# file_name: "docker-compose.prod"
+# type: "utility"
+# status: "active"
+
 # =============================================================================
 # L9 Docker Compose - PRODUCTION OVERLAY (Security-Hardened)
 # =============================================================================
@@ -307,3 +319,8 @@ services:
 #   - Monitor failed auth attempts: docker compose exec redis redis-cli --scan
 #   - Alert on firewall rule changes: auditd on /etc/ufw/
 # =============================================================================
+
+# tags: ["api-config", "configuration", "database-config", "docker-compose.prod.yml", "kernel", "model-config", "openai", "operations"]
+# keywords: ["compose.prod", "docker", "services"]
+# last_modified: "2026-01-31T22:13:45Z"
+# ============================================================================

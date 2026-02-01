@@ -27,6 +27,27 @@ Exit codes:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Check Adr Compliance",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-31T20:27:26Z",
+    "updated_at": "2026-01-31T22:51:33Z",
+    "layer": "operations",
+    "domain": "ci",
+    "module_name": "check_adr_compliance",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import ast
 import sys
@@ -71,6 +92,7 @@ ALLOWED_EXCEPTIONS = {
         "ci/",  # CI scripts output to console
         "scripts/",  # CLI scripts
         "tools/",  # CLI tools
+        "workflows/",  # CLI workflow executors (gmp_executor, harvest_executor, etc.)
         "__main__.py",  # Entry points
         ".cursor/",  # Archived cursor commands
         "agents/codegenagent/",  # Codegen agent CLI
@@ -725,3 +747,47 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CI-OPER-018",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "ast",
+        "caching",
+        "ci",
+        "cli",
+        "code-quality",
+        "dataclass",
+        "debugging",
+        "filesystem",
+        "messaging",
+        "operations",
+    ],
+    "keywords": ["adr", "check", "checker", "compliance", "violation"],
+    "business_value": "Provides check adr compliance components including Violation, ADRChecker",
+    "last_modified": "2026-01-31T22:51:33Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

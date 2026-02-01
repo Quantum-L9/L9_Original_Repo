@@ -6,6 +6,27 @@ Pauses workflow for user confirmation before proceeding.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Checkpoint",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T14:45:56Z",
+    "updated_at": "2026-01-31T22:27:11Z",
+    "layer": "operations",
+    "domain": "workflows",
+    "module_name": "checkpoint",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["workflows.nodes.__init__"],
+    },
+}
+# ============================================================================
+
 import time
 from datetime import datetime
 
@@ -134,3 +155,46 @@ async def cli_checkpoint_node(state: WorkflowState) -> dict:
     if response in ("", "y", "yes"):
         return await checkpoint_node({**state, "user_confirmed": True})
     return await checkpoint_node({**state, "user_confirmed": False})
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-017",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "async",
+        "logging",
+        "messaging",
+        "operations",
+        "service",
+        "workflows",
+    ],
+    "keywords": ["checkpoint", "cli", "confirmation"],
+    "business_value": "Utility module for checkpoint",
+    "last_modified": "2026-01-31T22:27:11Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

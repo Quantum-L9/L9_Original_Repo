@@ -209,3 +209,36 @@ __all__ = [
     "get_secrets_client",
     "reset_secrets_client",
 ]
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-074",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.protocols.secrets_protocols", "core.secrets.aws_secrets_client", "core.secrets.env_secrets_client"],
+    "tags": ["caching", "core", "debugging", "foundation", "logging", "migration", "security", "testing", "utility"],
+    "keywords": ["based", "cache", "client", "configuration", "default", "env", "factory", "manager"],
+    "business_value": "Provides factory function for creating SecretsClient implementations based on configuration, supporting env-based and AWS Secrets Manager backends. L9_SECRETS_PROVIDER: "env" | "aws" (default: "env") ",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -32,6 +32,27 @@ Quick start:
     # All subsequent calls are automatically traced!
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Production-ready auto-tracing and metrics.",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-06T15:07:54Z",
+    "updated_at": "2026-01-31T22:21:47Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "__init__",
+    "type": "engine",
+    "status": "production",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from .aggregation import KPITracker, MetricsAggregator
 from .circuit_breaker import (
     CircuitBreaker,
@@ -198,3 +219,45 @@ __all__ = [
     "trace_span",
     "trace_tool_call",
 ]
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-111",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["core", "engine", "foundation", "metrics", "tracing"],
+    "keywords": [
+        "agent",
+        "auto",
+        "await",
+        "core",
+        "detection",
+        "management",
+        "metrics",
+        "metrics.",
+    ],
+    "business_value": "Distributed tracing with W3C Trace Context standard Automatic instrumentation via decorators Failure detection and recovery Context window management strategies Multi-backend span export (console, fil",
+    "last_modified": "2026-01-31T22:21:47Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

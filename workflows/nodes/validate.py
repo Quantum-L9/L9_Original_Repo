@@ -6,9 +6,30 @@ Supports: py_compile, exists, grep, shell, import checks.
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Validate",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T14:45:56Z",
+    "updated_at": "2026-01-31T22:21:53Z",
+    "layer": "operations",
+    "domain": "workflows",
+    "module_name": "validate",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["workflows.nodes.__init__"],
+    },
+}
+# ============================================================================
+
 import asyncio
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 import structlog
@@ -219,3 +240,46 @@ def _auto_generate_checks(state: WorkflowState) -> list[ValidationCheck]:
         )
 
     return checks
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-019",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "filesystem",
+        "logging",
+        "messaging",
+        "operations",
+        "service",
+        "workflows",
+    ],
+    "keywords": ["checks", "validate"],
+    "business_value": "Utility module for validate",
+    "last_modified": "2026-01-31T22:21:53Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

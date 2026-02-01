@@ -16,11 +16,29 @@ Prevents common anti-patterns from being reintroduced into the codebase.
 Version: 1.0.0
 """
 
+# =============================================================================
+# PERFORMANCE NOTE: This file uses the `parsed_codebase` fixture from conftest.py
+# which parses all Python files ONCE per test session (~10x speedup).
+# See: tests/conftest.py::parsed_codebase
+# =============================================================================
+
 import ast
 import re
+
+# Pre-compiled regex patterns for performance
+import re as _re_module
 from pathlib import Path
 
 import pytest
+
+HARDCODED_MACOS_PATH = _re_module.compile(r"/Users/[a-zA-Z0-9_-]+")
+HARDCODED_LINUX_PATH = _re_module.compile(r"/home/[a-zA-Z0-9_-]+(?!/ubuntu)")
+HARDCODED_WINDOWS_PATH = _re_module.compile(r"C:\\Users\\[a-zA-Z0-9_-]+")
+STDLIB_LOGGING_IMPORT = _re_module.compile(r"^import logging$", _re_module.MULTILINE)
+STDLIB_LOGGING_FROM = _re_module.compile(r"^from logging import", _re_module.MULTILINE)
+UNTRACKED_TODO_PATTERN = _re_module.compile(
+    r"#\s*(TODO|FIXME)(?!\([A-Z]+-\d+\))[:\s]", _re_module.IGNORECASE
+)
 
 # ============================================================================
 # Configuration
@@ -159,7 +177,7 @@ class FrozenModelMutationVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def test_no_frozen_model_mutation():
+def test_no_frozen_model_mutation(parsed_codebase):
     """
     Test 1: Detect frozen model mutation (GMP-58).
 
@@ -205,7 +223,7 @@ def test_no_frozen_model_mutation():
 # ============================================================================
 
 
-def test_no_hardcoded_user_paths():
+def test_no_hardcoded_user_paths(parsed_codebase):
     """
     Test 2: Detect hardcoded user paths.
 
@@ -282,7 +300,7 @@ class BareExceptVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def test_no_bare_except_in_core():
+def test_no_bare_except_in_core(parsed_codebase):
     """
     Test 3: Detect bare except blocks.
 
@@ -348,7 +366,7 @@ class PrintStatementVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def test_no_print_in_core_modules():
+def test_no_print_in_core_modules(parsed_codebase):
     """
     Test 4: Detect print() in core modules.
 
@@ -394,7 +412,7 @@ def test_no_print_in_core_modules():
 # ============================================================================
 
 
-def test_no_stdlib_logging_in_core():
+def test_no_stdlib_logging_in_core(parsed_codebase):
     """
     Test 5: Detect stdlib logging vs structlog.
 
@@ -486,7 +504,7 @@ class SyncBlockingCallVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def test_no_sync_blocking_in_async():
+def test_no_sync_blocking_in_async(parsed_codebase):
     """
     Test 6: Detect synchronous blocking calls in async code.
 
@@ -577,7 +595,7 @@ class MissingAsyncContextManagerVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def test_no_missing_async_context_managers():
+def test_no_missing_async_context_managers(parsed_codebase):
     """
     Test 7: Detect missing async context managers.
 
@@ -627,7 +645,7 @@ def test_no_missing_async_context_managers():
 # ============================================================================
 
 
-def test_no_requests_library():
+def test_no_requests_library(parsed_codebase):
     """
     Test 8: Detect deprecated requests library usage.
 
@@ -705,7 +723,7 @@ class MissingTypeHintsVisitor(ast.NodeVisitor):
         self.visit_FunctionDef(node)
 
 
-def test_no_missing_type_hints_in_core():
+def test_no_missing_type_hints_in_core(parsed_codebase):
     """
     Test 9: Detect missing type hints in core modules.
 
@@ -758,7 +776,7 @@ def test_no_missing_type_hints_in_core():
 # ============================================================================
 
 
-def test_no_untracked_todos():
+def test_no_untracked_todos(parsed_codebase):
     """
     Test 10: Detect TODO/FIXME without ticket reference.
 
@@ -810,7 +828,7 @@ def test_no_untracked_todos():
 # ============================================================================
 
 
-def test_anti_pattern_summary():
+def test_anti_pattern_summary(parsed_codebase):
     """
     Summary test: Run all anti-pattern checks and report counts.
 

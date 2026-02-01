@@ -1,3 +1,15 @@
+
+# component_name: "Docker-Compose"
+# module_version: "1.0.0"
+# created_by: "Igor"
+# created_at: "2025-12-26T23:48:00Z"
+# updated_at: "2026-01-31T22:53:39Z"
+# layer: "operations"
+# domain: "docker-compose.yml"
+# file_name: "docker-compose"
+# type: "utility"
+# status: "active"
+
 # =============================================================================
 # L9 Docker Compose - BASE INFRASTRUCTURE
 # =============================================================================
@@ -219,3 +231,8 @@ networks:
   l9-network:
     driver: bridge
     name: ${COMPOSE_PROJECT_NAME:-l9}-network
+
+# tags: ["api-config", "configuration", "docker-compose.yml", "openai", "operations", "redis-config", "utility"]
+# keywords: ["compose", "docker", "networks", "services", "volumes"]
+# last_modified: "2026-01-31T22:53:39Z"
+# ============================================================================

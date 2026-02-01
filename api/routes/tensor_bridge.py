@@ -5,7 +5,35 @@ Endpoints for Domain Tensor Bridge and TensorGlobe adapter.
 Provides HTTP access to tensor reasoning capabilities.
 """
 
-from datetime import datetime, timezone
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tensor Bridge",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-26T11:14:45Z",
+    "updated_at": "2026-01-31T22:21:57Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "tensor_bridge",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [
+            "GET /health",
+            "GET /status",
+            "POST /infer",
+            "POST /process-packet",
+            "GET /reasoning-modes",
+            "GET /eos/status",
+        ],
+        "datasources": [],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -108,7 +136,7 @@ async def tensor_bridge_health() -> dict[str, Any]:
             "tensorglobe_adapter": "available",
             "eos_gate": "available",
         },
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -130,7 +158,7 @@ async def get_bridge_status() -> BridgeStatusResponse:
             "accountability_engine": "active",
             "verdicts_cached": 0,
         },
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
     )
 
 
@@ -337,3 +365,58 @@ async def eos_status() -> dict[str, Any]:
             "status": "error",
             "error": str(e),
         }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-042",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.routes.registry", "core.eos"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "caching",
+        "endpoint",
+        "logging",
+        "operations",
+        "pydantic",
+        "router",
+        "tracing",
+    ],
+    "keywords": [
+        "bridge",
+        "domain",
+        "eos",
+        "health",
+        "inference",
+        "modes",
+        "packet",
+        "process",
+    ],
+    "business_value": "Provides HTTP access to tensor reasoning capabilities.",
+    "last_modified": "2026-01-31T22:21:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

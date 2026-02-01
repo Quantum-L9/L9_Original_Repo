@@ -30,6 +30,27 @@ Created: 2026-01-31
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Check Report Naming",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-31T20:27:26Z",
+    "updated_at": "2026-01-31T22:21:50Z",
+    "layer": "operations",
+    "domain": "ci",
+    "module_name": "check_report_naming",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import re
 import sys
@@ -41,7 +62,10 @@ CORRECT_PATTERN = re.compile(r"^GMP-Report-[A-Za-z0-9]+-[A-Za-z0-9-]+\.md$")
 # Invalid patterns to detect and reject (case-sensitive to catch wrong casing)
 INVALID_PATTERNS = [
     (re.compile(r"^Report_GMP"), "Report_GMP format is wrong - use GMP-Report-"),
-    (re.compile(r"^Report_gmp", re.IGNORECASE), "Report_ prefix is wrong - use GMP-Report-"),
+    (
+        re.compile(r"^Report_gmp", re.IGNORECASE),
+        "Report_ prefix is wrong - use GMP-Report-",
+    ),
     (re.compile(r"^GMP_Report"), "GMP_Report with underscore - use GMP-Report-"),
     (re.compile(r"^report-gmp"), "Lowercase report-gmp - use GMP-Report-"),
     (re.compile(r"^gmp-report-"), "Lowercase gmp-report - use GMP-Report-"),
@@ -88,10 +112,7 @@ def check_reports_dir(reports_dir: Path) -> list[NamingViolation]:
             continue
 
         # Skip files that don't look like GMP reports
-        if not any(
-            keyword in filename.lower()
-            for keyword in ["gmp", "report"]
-        ):
+        if not any(keyword in filename.lower() for keyword in ["gmp", "report"]):
             continue
 
         # Check for invalid patterns first
@@ -116,9 +137,7 @@ def check_reports_dir(reports_dir: Path) -> list[NamingViolation]:
 
 def main() -> int:
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Check GMP report naming convention"
-    )
+    parser = argparse.ArgumentParser(description="Check GMP report naming convention")
     parser.add_argument(
         "--base-path",
         type=Path,
@@ -169,3 +188,36 @@ Wrong formats:
 
 if __name__ == "__main__":
     sys.exit(main())
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CI-OPER-007",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["ci", "cli", "filesystem", "operations"],
+    "keywords": ["check", "dir", "naming", "report", "reports", "violation"],
+    "business_value": "Implements NamingViolation for check report naming functionality",
+    "last_modified": "2026-01-31T22:21:50Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

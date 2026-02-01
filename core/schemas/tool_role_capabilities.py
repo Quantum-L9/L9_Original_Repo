@@ -7,6 +7,27 @@ Enhancements:
 - Integration with governance for approval requirements
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Capabilities with role-based filtering.",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-31T20:27:26Z",
+    "updated_at": "2026-01-31T22:51:33Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "tool_role_capabilities",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["core.schemas.__init__"],
+    },
+}
+# ============================================================================
+
 import logging  # noqa: ADR-0019
 from dataclasses import dataclass
 
@@ -203,3 +224,47 @@ def filter_tools_by_capabilities(
     """
     capabilities = ToolCapabilities(agent_role=agent_role)
     return capabilities.list_allowed_tools(tool_ids)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-148",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["runtime.tool_registry"],
+    "tags": ["authorization", "core", "dataclass", "foundation", "rest-api"],
+    "keywords": [
+        "allowed",
+        "approval",
+        "based",
+        "capabilities",
+        "capability",
+        "denied",
+        "filter",
+        "filtering.",
+    ],
+    "business_value": "Provides tool role capabilities components including ToolCapability, ToolCapabilities",
+    "last_modified": "2026-01-31T22:51:33Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

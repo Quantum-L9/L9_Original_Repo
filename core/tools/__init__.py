@@ -19,6 +19,27 @@ Breaking Changes (v2.0.0):
 - Set L9_DYNAMIC_TOOL_DISCOVERY=false to revert (temporary)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Tool Management",
+    "module_version": "2.0.0 (GMP-78 Dynamic Tool Discovery)",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-31T22:21:46Z",
+    "layer": "foundation",
+    "domain": "tool_registry",
+    "module_name": "__init__",
+    "type": "adapter",
+    "status": "deprecated",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "Redis"],
+        "memory_layers": ["semantic_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 # GMP-78 Phase 2: Dynamic Tool Discovery (PREFERRED)
 # GMP-79: Multi-Turn Tool Caching (Redis)
 # GMP-TD: Advanced Tool Discovery (Harvested 2026-01-25)
@@ -128,3 +149,51 @@ __all__ = [
     "register_l9_tools",
     "sync_all_tool_embeddings",
 ]
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-034",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.tools.discovery_tracing",
+        "core.tools.dynamic_discovery",
+        "core.tools.prompt_caching",
+        "core.tools.registry_adapter",
+        "core.tools.registry_cache",
+    ],
+    "tags": ["adapter", "caching", "foundation", "metrics", "tool-registry", "tracing"],
+    "keywords": [
+        "agent",
+        "discovery",
+        "dynamic",
+        "executor",
+        "governance",
+        "management",
+        "phase",
+        "semantic",
+    ],
+    "business_value": "Provides tool registration, selection, and dispatch for the agent executor. registry_adapter: Adapter that wraps existing tool registry for executor use tool_graph: Neo4j-backed tool dependency tracki",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

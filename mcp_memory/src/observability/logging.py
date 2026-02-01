@@ -4,6 +4,27 @@ Provides correlation ID injection and structured logging exports.
 All modules use get_logger() to retrieve logger instance.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Logging",
+    "module_version": "1.0.0",
+    "created_by": "cryptoxdog",
+    "created_at": "2026-01-25T06:01:10Z",
+    "updated_at": "2026-01-31T22:27:11Z",
+    "layer": "integration",
+    "domain": "mcp_integration",
+    "module_name": "logging",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from contextvars import ContextVar
 
 import structlog
@@ -98,3 +119,46 @@ __all__ = [
     "set_correlation_context",
     "setup_logging",
 ]
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MCP-INTE-012",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "caching",
+        "debugging",
+        "integration",
+        "logging",
+        "mcp-integration",
+        "messaging",
+        "streaming",
+        "tracing",
+        "utility",
+    ],
+    "keywords": ["correlation", "logger", "logging", "setup", "structured"],
+    "business_value": "Provides correlation ID injection and structured logging exports. All modules use get_logger() to retrieve logger instance.",
+    "last_modified": "2026-01-31T22:27:11Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

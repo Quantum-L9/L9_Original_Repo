@@ -193,3 +193,56 @@ def manage_debt(path: str):
 
 if __name__ == "__main__":
     cli()
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TOO-OPER-004",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "auth",
+        "caching",
+        "cli",
+        "code-quality",
+        "filesystem",
+        "metrics",
+        "operations",
+        "security",
+        "tools",
+    ],
+    "keywords": [
+        "debt",
+        "manage",
+        "management",
+        "quality",
+        "scan",
+        "secrets",
+        "security",
+        "technical",
+    ],
+    "business_value": "Utility module for l9 cli",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

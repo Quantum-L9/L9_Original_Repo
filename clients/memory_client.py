@@ -12,6 +12,8 @@ Endpoints:
   - POST /api/v1/memory/semantic/search → semantic_search()
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Memory Client",
@@ -225,7 +227,7 @@ class MemoryClient:
             self._client = None
 
     @must_stay_async("async context manager protocol")
-    async def __aenter__(self) -> "MemoryClient":
+    async def __aenter__(self) -> MemoryClient:
         """Async context manager entry."""
         return self
 

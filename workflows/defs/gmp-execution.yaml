@@ -1,3 +1,15 @@
+
+# component_name: "Gmp-Execution"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-31T20:27:26Z"
+# updated_at: "2026-01-31T20:47:23Z"
+# layer: "operations"
+# domain: "workflows"
+# file_name: "gmp-execution"
+# type: "utility"
+# status: "active"
+
 # GMP Execution Workflow — Enforced Step Ordering
 # ================================================
 #
@@ -200,3 +212,8 @@ steps:
     config:
       commands:
         - "echo '✅ GMP workflow complete'"
+
+# tags: ["agent-config", "configuration", "operations", "tool-config", "utility", "workflow", "workflows"]
+# keywords: ["description", "execution", "gmp", "name", "steps", "variables"]
+# last_modified: "2026-01-31T20:47:23Z"
+# ============================================================================

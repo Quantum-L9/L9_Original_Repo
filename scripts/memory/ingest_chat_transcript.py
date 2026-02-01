@@ -24,6 +24,27 @@ Examples:
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Ingest Chat Transcript",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-26T11:14:45Z",
+    "updated_at": "2026-01-31T22:21:56Z",
+    "layer": "operations",
+    "domain": "memory_substrate",
+    "module_name": "ingest_chat_transcript",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Anthropic API", "PostgreSQL"],
+        "memory_layers": ["episodic_memory", "semantic_memory", "working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import asyncio
 import hashlib
@@ -519,3 +540,36 @@ def main():
 
 if __name__ == "__main__":
     main()
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-031",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.substrate_repository"],
+    "tags": ["api", "async", "cli", "dataclass", "debugging", "filesystem", "logging", "memory-substrate", "messaging", "operations"],
+    "keywords": ["buffer", "chat", "chunk", "deterministic", "flush", "format", "generate", "ingest"],
+    "business_value": "the L9 memory substrate (PostgreSQL + pgvector). Parses "You said:" / "ChatGPT said:" / "Human:" / "Assistant:" formats Creates conversation records with message sequence Chunks messages for embedding",
+    "last_modified": "2026-01-31T22:21:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

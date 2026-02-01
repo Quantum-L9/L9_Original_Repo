@@ -1,3 +1,15 @@
+
+# component_name: "L9-Rules"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-31T20:27:26Z"
+# updated_at: "2026-01-31T20:47:23Z"
+# layer: "operations"
+# domain: ".semgrep"
+# file_name: "l9-rules"
+# type: "utility"
+# status: "active"
+
 rules:
   # =============================================================================
   # L9 CI POLICY RULES - Regression Prevention
@@ -267,3 +279,8 @@ rules:
         - "**/*.py"
       exclude:
         - "tests/**"
+
+# tags: [".semgrep", "agent-config", "api-config", "model-config", "operations", "utility"]
+# keywords: ["rules"]
+# last_modified: "2026-01-31T20:47:23Z"
+# ============================================================================

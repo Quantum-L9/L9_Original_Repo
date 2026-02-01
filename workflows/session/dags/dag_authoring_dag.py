@@ -20,6 +20,27 @@ Phases:
 Version: 1.0.0
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Dag Authoring Dag",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-31T20:27:26Z",
+    "updated_at": "2026-01-31T22:27:11Z",
+    "layer": "operations",
+    "domain": "workflows",
+    "module_name": "dag_authoring_dag",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": ["workflows.session.dags.__init__"],
+    },
+}
+# ============================================================================
+
 from workflows.session.interface import (
     GateType,
     NodeType,
@@ -477,3 +498,45 @@ def register():
 
 # Auto-register on import
 register()
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-026",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["operations", "testing", "utility", "workflows"],
+    "keywords": [
+        "action",
+        "authoring",
+        "between",
+        "command",
+        "create",
+        "dag",
+        "dags",
+        "detailed",
+    ],
+    "business_value": "This DAG enforces the proper pattern for creating and updating DAGs. DAGs contain ALL detailed instructions in node `action` fields Slash commands are MINIMAL TRIGGERS (~30 lines) NEVER duplicate inst",
+    "last_modified": "2026-01-31T22:27:11Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

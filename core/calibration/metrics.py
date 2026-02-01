@@ -10,8 +10,29 @@ Measures of calibration quality:
 Reference: L9-Calibration-Implementation-Roadmap.md §B.4, Spec §4.1
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Metrics",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-28T21:06:46Z",
+    "updated_at": "2026-01-31T22:21:46Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "metrics",
+    "type": "tracker",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
+
 import numpy as np
-from typing import Tuple
 
 
 def compute_ece(
@@ -142,7 +163,7 @@ def compute_reliability_diagram(
     predicted_probs: np.ndarray,
     true_labels: np.ndarray,
     num_bins: int = 10,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Compute reliability diagram points.
 
@@ -174,10 +195,16 @@ def compute_reliability_diagram(
     for bin_idx in range(num_bins):
         mask = bin_indices == bin_idx
         if np.sum(mask) > 0:
-            confidences.append(float(np.mean(max_prob[mask])))  # nosemgrep: l9-float-requires-try-except
-            accuracies.append(float(np.mean(correct[mask])))  # nosemgrep: l9-float-requires-try-except
+            confidences.append(
+                float(np.mean(max_prob[mask]))
+            )  # nosemgrep: l9-float-requires-try-except
+            accuracies.append(
+                float(np.mean(correct[mask]))
+            )  # nosemgrep: l9-float-requires-try-except
         else:
-            confidences.append(float(bin_edges[bin_idx]))  # nosemgrep: l9-float-requires-try-except
+            confidences.append(
+                float(bin_edges[bin_idx])
+            )  # nosemgrep: l9-float-requires-try-except
             accuracies.append(float("nan"))  # nosemgrep: l9-float-requires-try-except
 
     return np.array(confidences), np.array(accuracies)
@@ -188,7 +215,7 @@ def compute_uncertainty_quality(
     epistemic_unc: np.ndarray,
     prediction_entropy: np.ndarray,
     ensemble_disagreement: np.ndarray,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """
     Compute how well uncertainty estimates capture actual properties.
 
@@ -205,8 +232,12 @@ def compute_uncertainty_quality(
     prediction_entropy = np.asarray(prediction_entropy).flatten()
     ensemble_disagreement = np.asarray(ensemble_disagreement).flatten()
 
-    aleatoric_quality = float(np.corrcoef(aleatoric_unc, prediction_entropy)[0, 1])  # nosemgrep: l9-float-requires-try-except
-    epistemic_quality = float(np.corrcoef(epistemic_unc, ensemble_disagreement)[0, 1])  # nosemgrep: l9-float-requires-try-except
+    aleatoric_quality = float(
+        np.corrcoef(aleatoric_unc, prediction_entropy)[0, 1]
+    )  # nosemgrep: l9-float-requires-try-except
+    epistemic_quality = float(
+        np.corrcoef(epistemic_unc, ensemble_disagreement)[0, 1]
+    )  # nosemgrep: l9-float-requires-try-except
 
     if np.isnan(aleatoric_quality):
         aleatoric_quality = 0.0
@@ -223,7 +254,7 @@ def compute_selective_accuracy(
     predicted_probs: np.ndarray,
     true_labels: np.ndarray,
     confidence_threshold: float = 0.7,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """
     Selective Prediction: accuracy when deferring low-confidence cases.
 
@@ -243,7 +274,55 @@ def compute_selective_accuracy(
     if np.sum(mask) == 0:
         return 0.0, 0.0
 
-    coverage = float(np.sum(mask) / len(predicted_probs))  # nosemgrep: l9-float-requires-try-except
-    selected_accuracy = float(np.mean(predicted_class[mask] == true_labels[mask]))  # nosemgrep: l9-float-requires-try-except
+    coverage = float(
+        np.sum(mask) / len(predicted_probs)
+    )  # nosemgrep: l9-float-requires-try-except
+    selected_accuracy = float(
+        np.mean(predicted_class[mask] == true_labels[mask])
+    )  # nosemgrep: l9-float-requires-try-except
 
     return coverage, selected_accuracy
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-058",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["core", "foundation", "metrics", "tracker"],
+    "keywords": [
+        "accuracy",
+        "brier",
+        "calibration",
+        "compute",
+        "diagram",
+        "ece",
+        "mce",
+        "metrics",
+    ],
+    "business_value": "Utility module for metrics",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

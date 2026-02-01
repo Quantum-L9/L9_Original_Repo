@@ -9,8 +9,29 @@ Implements:
 Reference: L9-Calibration-Implementation-Roadmap.md §B.2
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Methods",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-28T21:06:46Z",
+    "updated_at": "2026-01-31T22:21:46Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "methods",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
+
 import numpy as np
-from typing import Optional
 
 
 def temperature_scaling(
@@ -148,7 +169,7 @@ def evidential_calibration(
 
 def conformal_calibration(
     probabilities: np.ndarray,
-    calibration_scores: Optional[np.ndarray] = None,
+    calibration_scores: np.ndarray | None = None,
     confidence_level: float = 0.9,
 ) -> np.ndarray:
     """
@@ -166,3 +187,47 @@ def conformal_calibration(
 
     # Placeholder: full conformal requires calibration dataset; for now, pass-through
     return np.ones(probabilities.shape[0]).astype(np.float32)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-061",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["batch-processing", "core", "foundation", "utility"],
+    "keywords": [
+        "calibration",
+        "conformal",
+        "dropout",
+        "ensemble",
+        "evidential",
+        "methods",
+        "scaling",
+        "temperature",
+    ],
+    "business_value": "Temperature Scaling (Guo et al. 2017) Ensemble Averaging (Lakshminarayanan et al. 2017) MC-Dropout (Gal & Ghahramani 2016) Reference: L9-Calibration-Implementation-Roadmap.md §B.2",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -13,7 +13,7 @@ Part of /pr and /gmp slash command automation.
 
 import argparse
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 __dora_meta__ = {
@@ -292,3 +292,45 @@ def main():
 
 if __name__ == "__main__":
     main()
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "SCR-OPER-081",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["cli", "filesystem", "operations", "scripts"],
+    "keywords": [
+        "change",
+        "cmd",
+        "complete",
+        "current",
+        "date",
+        "gmp",
+        "inject",
+        "mark",
+    ],
+    "business_value": "Utility module for update workflow state",
+    "last_modified": "2026-01-31T22:21:56Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

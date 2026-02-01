@@ -16,6 +16,27 @@ Or natural language: "@L what's the current VPS state?"
 Version: 1.0.0 (GMP-11)
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "  Init  ",
+    "module_version": "1.0.0 (GMP-11)",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-31T22:21:47Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "__init__",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["OpenAI API", "Slack API"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 
 # Lazy imports to avoid circular dependencies
 def parse_command(text: str):
@@ -82,3 +103,50 @@ __all__ = [
     # Functions
     "parse_command",
 ]
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-190",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "core.commands.executor",
+        "core.commands.intent_extractor",
+        "core.commands.parser",
+        "core.commands.schemas",
+    ],
+    "tags": ["async", "core", "foundation", "service"],
+    "keywords": [
+        "command",
+        "confirm",
+        "execute",
+        "extract",
+        "igor",
+        "intent",
+        "parse",
+        "state",
+    ],
+    "business_value": "Provides structured command syntax and NLP-based intent extraction for Igor to instruct L imperatively. @L propose gmp: <description> @L analyze <entity> @L approve <task_id> @L rollback <change_id> O",
+    "last_modified": "2026-01-31T22:21:47Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

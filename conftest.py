@@ -6,6 +6,27 @@ This conftest.py at the project root ensures PYTHONPATH is set correctly
 before any test imports happen.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Conftest",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2025-12-20T15:08:40Z",
+    "updated_at": "2026-01-31T22:21:45Z",
+    "layer": "operations",
+    "domain": "conftest.py",
+    "module_name": "conftest",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import sys
 import warnings
@@ -123,3 +144,50 @@ try:
     )
 except Exception:
     pass  # Will be handled as test failure where needed
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "L9-OPER-001",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [
+        "agents.l_cto",
+        "api.routes.registry",
+        "core.packet_envelope",
+        "memory.graph_client",
+        "runtime.execution_gate",
+    ],
+    "tags": [
+        "api",
+        "conftest.py",
+        "filesystem",
+        "messaging",
+        "operations",
+        "testing",
+        "utility",
+    ],
+    "keywords": ["conftest", "root", "test"],
+    "business_value": "This conftest.py at the project root ensures PYTHONPATH is set correctly before any test imports happen.",
+    "last_modified": "2026-01-31T22:21:45Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

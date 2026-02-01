@@ -18,6 +18,27 @@ Version: 1.0.0
 Based on: DAG-Harvest-1.md transcript analysis
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Gmp Execution Dag",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-31T20:27:26Z",
+    "updated_at": "2026-01-31T22:27:11Z",
+    "layer": "operations",
+    "domain": "workflows",
+    "module_name": "gmp_execution_dag",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["semantic_memory", "working_memory"],
+        "imported_by": ["workflows.session.dags.__init__"],
+    },
+}
+# ============================================================================
+
 from workflows.session.interface import (
     GateType,
     NodeType,
@@ -471,3 +492,54 @@ def get_gmp_execution_dag() -> SessionDAG:
 # Generate Mermaid diagram for documentation
 if __name__ == "__main__":
     print(GMP_EXECUTION_DAG.to_markdown())  # noqa: ADR-0019
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "WOR-OPER-027",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "cli",
+        "linting",
+        "messaging",
+        "operations",
+        "realtime",
+        "security",
+        "testing",
+        "workflows",
+    ],
+    "keywords": [
+        "agent",
+        "analysis",
+        "based",
+        "before",
+        "cannot",
+        "dag",
+        "enforced",
+        "execution",
+    ],
+    "business_value": "This DAG enforces the /gmp workflow with MANDATORY steps that cannot be skipped.",
+    "last_modified": "2026-01-31T22:27:11Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

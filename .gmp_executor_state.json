@@ -1,0 +1,56 @@
+{
+  "gmp_id": "GMP-132",
+  "tier": "RUNTIME",
+  "task": "Add @l9_traced decorator to key production functions to enable DORA block auto-updates",
+  "started_at": "2026-01-31T22:35:47.202278",
+  "current_step": "user_gate",
+  "completed_steps": [
+    "memory_read",
+    "scope_lock"
+  ],
+  "todo_plan": [
+    {
+      "id": "T1",
+      "file": "runtime/kernel_loader.py",
+      "lines": "115-120",
+      "action": "INSERT",
+      "description": "Add @l9_traced decorator and import"
+    },
+    {
+      "id": "T2",
+      "file": "core/agents/executor.py",
+      "lines": "150-160",
+      "action": "INSERT",
+      "description": "Add @l9_traced decorator and import"
+    },
+    {
+      "id": "T3",
+      "file": "memory/substrate_repository.py",
+      "lines": "200-210",
+      "action": "INSERT",
+      "description": "Add @l9_traced decorator and import"
+    },
+    {
+      "id": "T4",
+      "file": "orchestrators/agent_execution/task_queue.py",
+      "lines": "100-110",
+      "action": "INSERT",
+      "description": "Add @l9_traced decorator and import"
+    },
+    {
+      "id": "T5",
+      "file": "api/server.py",
+      "lines": "100-110",
+      "action": "INSERT",
+      "description": "Add @l9_traced decorator to lifespan"
+    }
+  ],
+  "changes_made": [],
+  "validations": [],
+  "memory_context": "Query: \"Add @l9_traced decorator to key production functions to enable DORA block auto-updates\"\n{\n  \"query\": \"Add @l9_traced decorator to key production functions to enable DORA block auto-updates\",\n  \"hits\": [\n    {\n      \"packet_id\": \"24558fbe-5a61-5dc2-b8d5-2b2f9e21be1a\",\n      \"embedding_id\": \"c5f1efdc-c515-480b-9bf5-ff3431a36670\",\n      \"content\": \"[REPO-INDEX:decorator_catalog] L9 Repo Index: decorator_catalog.txt L9 index: decorator_catalog.txt Total entries: 71\",\n      \"kind\": \"index\",\n      \"scope\": \"developer\",\n      \"similarity\": 0.3480692000347858,\n      \"importance\": 0.5,\n    \n\nQuery: \"lessons errors Add\"\n{\n  \"query\": \"lessons errors Add\",\n  \"hits\": [\n    {\n      \"packet_id\": \"4186996d-4abc-53ae-ad16-634432634969\",\n      \"embedding_id\": \"cc68c7f5-17b2-4bc1-9577-54b078833ae9\",\n      \"content\": \"LESSON 21: TRACE ALL DEPENDENCIES - After ANY change, grep for ALL code that references the changed entity and update it. 95% done = NOT DONE. Example: Adding --requirepass to Redis but missing healthcheck update = broken container in prod. Checklist: 1) What did I change? 2) What else references this? 3) U\n\nQuery: \"gmp patterns\"\n{\n  \"query\": \"gmp patterns\",\n  \"hits\": [\n    {\n      \"packet_id\": \"56753c0b-67a1-5e1e-b78f-a1b0fcf1bfd4\",\n      \"embedding_id\": \"81e316d4-71ba-4ea3-a579-5a60d6b63eb1\",\n      \"content\": \"GMP-ADR-FP-001: Added noqa pattern support to check_adr_compliance.py. Fixed 13 ADR-0026 false positives (ABC with implementation, not pure interfaces). Pattern: # noqa: ADR-XXXX. Tags: adr, compliance, noqa\",\n      \"kind\": \"lesson\",\n      \"scope\": \"developer\",\n      \"similarity\": 0.41692230600581803,\n      \"impo\n",
+  "report_path": "",
+  "needs_tests": false,
+  "needs_readme": false,
+  "generated_tests": [],
+  "generated_readmes": []
+}

@@ -13,9 +13,30 @@ Author: Manus AI
 Created: 2025-12-20
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Diff Generator",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T17:47:23Z",
+    "updated_at": "2026-01-31T22:21:46Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "diff_generator",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import difflib
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 
@@ -39,7 +60,7 @@ class BatchDiff:
     diffs: list[FileDiff]
     summary: dict[str, int]
     timestamp: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
 
 
@@ -228,3 +249,54 @@ class DiffGenerator:
         """
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(self.format_for_review(batch_diff))
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-079",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "auth",
+        "batch-processing",
+        "core",
+        "dataclass",
+        "filesystem",
+        "foundation",
+    ],
+    "keywords": [
+        "agent",
+        "batch",
+        "changes",
+        "diff",
+        "diffs",
+        "format",
+        "generate",
+        "generator",
+    ],
+    "business_value": "Tracked with full diffs Reviewable by humans Compliant with file editing constraints Version: 1.0.0 Author: Manus AI Created: 2025-12-20",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -388,3 +388,73 @@ def slack_disabled(monkeypatch):
     Sets SLACK_APP_ENABLED=false.
     """
     monkeypatch.setenv("SLACK_APP_ENABLED", "false")
+
+
+# =============================================================================
+# AST Caching Fixtures (Performance Optimization)
+# =============================================================================
+
+# Directories scanned by CI tests
+CORE_MODULES_FOR_SCANNING = [
+    "core",
+    "memory",
+    "orchestration",
+    "runtime",
+    "api",
+    "agents",
+]
+
+
+def _get_python_files_for_cache(directories: list[str]) -> list[Path]:
+    """Get all Python files in specified directories."""
+    python_files: list[Path] = []
+    for directory in directories:
+        dir_path = PROJECT_ROOT.parent / directory
+        if dir_path.exists():
+            python_files.extend(dir_path.rglob("*.py"))
+    return python_files
+
+
+def _parse_python_file_for_cache(file_path: Path) -> tuple | None:
+    """Parse Python file into AST with error handling."""
+    import ast
+
+    try:
+        content = file_path.read_text(encoding="utf-8")
+        tree = ast.parse(content, filename=str(file_path))
+        return (tree, content)
+    except (SyntaxError, UnicodeDecodeError):
+        return None
+
+
+@pytest.fixture(scope="session")
+def parsed_codebase() -> dict[Path, tuple | None]:
+    """
+    Parse all Python files ONCE per test session.
+
+    This fixture provides a cached AST + content for all Python files
+    in core modules. Tests that scan the codebase should use this
+    instead of parsing files themselves.
+
+    Usage:
+        def test_something(parsed_codebase):
+            for file_path, parsed in parsed_codebase.items():
+                if parsed is None:
+                    continue
+                tree, content = parsed
+                # Use tree and content...
+
+    Performance: ~10x speedup for CI tests that scan codebase.
+    """
+    files = _get_python_files_for_cache(CORE_MODULES_FOR_SCANNING)
+    return {f: _parse_python_file_for_cache(f) for f in files}
+
+
+@pytest.fixture(scope="session")
+def python_files_list() -> list[Path]:
+    """
+    Get list of all Python files in core modules.
+
+    Use this when you only need file paths, not parsed AST.
+    """
+    return _get_python_files_for_cache(CORE_MODULES_FOR_SCANNING)

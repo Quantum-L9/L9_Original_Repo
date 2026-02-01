@@ -9,10 +9,32 @@ No verdict → no execution.
 No ledger entry → no verdict.
 """
 
-import structlog
-from datetime import datetime, timezone
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Accountability Engine",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-26T11:14:45Z",
+    "updated_at": "2026-01-31T22:21:48Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "accountability_engine",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Neo4j", "Redis"],
+        "memory_layers": [],
+        "imported_by": ["config.di_async_config"],
+    },
+}
+# ============================================================================
+
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
+
+import structlog
 
 from .schemas import (
     ActionEnvelope,
@@ -295,7 +317,7 @@ class AccountabilityEngine:
                 f"{action_envelope.action_id}:{verdict.verdict_id}".encode()
             ).hexdigest(),
             signer="accountability_engine",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             action_ref=action_envelope.action_id,
             verdict_ref=verdict.verdict_id,
             payload={
@@ -335,3 +357,56 @@ class AccountabilityEngine:
 # -----------------------------------------------------------------------------
 
 __all__ = ["AccountabilityEngine"]
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-217",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "auth",
+        "caching",
+        "core",
+        "debugging",
+        "engine",
+        "foundation",
+        "logging",
+        "messaging",
+        "security",
+    ],
+    "keywords": [
+        "accountability",
+        "action",
+        "enforcement",
+        "engine",
+        "evaluate",
+        "evidence",
+        "execution",
+        "gate",
+    ],
+    "business_value": "The Accountability Engine is the runtime enforcement gate. Execution kernels cannot bypass this engine. Every action must pass through accountability verification. No verdict → no execution. No ledger",
+    "last_modified": "2026-01-31T22:21:48Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

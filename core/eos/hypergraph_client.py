@@ -36,6 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from datetime import UTC
 from typing import Any
 
 import structlog
@@ -306,7 +307,7 @@ class EOSHypergraphClient:
             return False
 
         try:
-            from datetime import datetime, timezone
+            from datetime import datetime
 
             query = """
             MERGE (v:Verdict {id: $verdict_id})
@@ -325,7 +326,7 @@ class EOSHypergraphClient:
                 decision=decision,
                 agent_id=agent_id,
                 justification=justification or [],
-                created_at=datetime.now(timezone.utc).isoformat(),
+                created_at=datetime.now(UTC).isoformat(),
             )
 
             self.logger.info(
@@ -380,3 +381,56 @@ __all__ = [
     "EOSHypergraphClient",
     "create_eos_hypergraph_client",
 ]
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-214",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["memory.graph_client"],
+    "tags": [
+        "async",
+        "auth",
+        "authorization",
+        "client",
+        "core",
+        "debugging",
+        "foundation",
+        "logging",
+        "messaging",
+        "service",
+    ],
+    "keywords": [
+        "action",
+        "active",
+        "agent",
+        "available",
+        "capabilities",
+        "check",
+        "client",
+        "constraint",
+    ],
+    "business_value": "Permission edges (agent)-[:HAS_CAPABILITY]->(capability) Constraint edges (action)-[:VIOLATES]->(prohibition) Obligation edges (action)-[:REQUIRES]->(evidence) Causal edges (action)-[:CAUSED]->(state_",
+    "last_modified": "2026-01-31T22:21:48Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -10,10 +10,31 @@ Both services integrate with L9's memory substrate for audit trails.
 Reference: L9-Confidence-Calibration-Spec.md §2.1.2, Roadmap §B.2
 """
 
-import structlog
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Service",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-28T21:06:46Z",
+    "updated_at": "2026-01-31T22:21:46Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "service",
+    "type": "service",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": ["core.calibration.__init__"],
+    },
+}
+# ============================================================================
+
 from typing import Any, Protocol
 
 import numpy as np
+import structlog
 
 from core.calibration.schemas import (
     CalibrateRequest,
@@ -162,7 +183,9 @@ class CalibrationService:
         max_entropy = np.log(len(probs))
 
         # Aleatoric: portion from data distribution width
-        u_ale = float(entropy / max_entropy) * 0.5  # nosemgrep: l9-float-requires-try-except
+        u_ale = (
+            float(entropy / max_entropy) * 0.5
+        )  # nosemgrep: l9-float-requires-try-except
 
         # Epistemic: margin to top prediction (how confident we are)
         sorted_probs = np.sort(probs)[::-1]
@@ -452,3 +475,56 @@ class GatingPolicyService:
     async def shutdown(self) -> None:
         """Cleanup."""
         return
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-059",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.calibration.schemas"],
+    "tags": [
+        "async",
+        "audit-tool",
+        "core",
+        "debugging",
+        "foundation",
+        "logging",
+        "rest-api",
+        "service",
+    ],
+    "keywords": [
+        "audit",
+        "calibrate",
+        "calibration",
+        "emit",
+        "evaluate",
+        "gating",
+        "memory",
+        "packet",
+    ],
+    "business_value": "Provides service components including SubstrateServiceProtocol, CalibrationService, GatingPolicyService",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

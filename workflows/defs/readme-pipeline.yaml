@@ -1,3 +1,15 @@
+
+# component_name: "Readme-Pipeline"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-26T11:14:45Z"
+# updated_at: "2026-01-26T12:08:34Z"
+# layer: "operations"
+# domain: "workflows"
+# file_name: "readme-pipeline"
+# type: "utility"
+# status: "active"
+
 # README Pipeline Workflow Definition
 # ===================================
 # Systematic generation and validation of subsystem READMEs
@@ -195,3 +207,8 @@ diagram: |
     gate_validation -->|Yes| report[Generate Report]
     gate_validation -->|No| enrich_config
     report --> end_node([End])
+
+# tags: ["configuration", "operations", "pipeline", "utility", "workflow", "workflows"]
+# keywords: ["artifacts", "description", "diagram", "edges", "name", "nodes"]
+# last_modified: "2026-01-26T12:08:34Z"
+# ============================================================================

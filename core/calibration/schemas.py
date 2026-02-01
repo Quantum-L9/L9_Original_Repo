@@ -12,6 +12,31 @@ All numeric fields have constraints: Field(..., ge=0.0, le=1.0)
 Reference: L9-Confidence-Calibration-Spec.md §2.1.1
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Schemas",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-28T21:06:46Z",
+    "updated_at": "2026-01-31T22:21:46Z",
+    "layer": "foundation",
+    "domain": "data_models",
+    "module_name": "schemas",
+    "type": "enum",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [
+            "core.calibration.__init__",
+            "core.calibration.config",
+            "core.calibration.service",
+        ],
+    },
+}
+# ============================================================================
+
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal
@@ -384,3 +409,47 @@ class SimpleGateResult(BaseModel):
     action: GatingAction = GatingAction.PROCEED
 
     model_config = {"extra": "forbid"}
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-064",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["data-models", "enum", "foundation", "pydantic", "validation"],
+    "keywords": [
+        "action",
+        "approved",
+        "calibrate",
+        "calibration",
+        "confidence",
+        "consistency",
+        "decomposition",
+        "distribution",
+    ],
+    "business_value": "Provides schemas components including CalibrationMethod, UncertaintyDecompositionMethod, GatingAction",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

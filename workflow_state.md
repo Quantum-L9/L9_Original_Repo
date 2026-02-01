@@ -83,6 +83,8 @@
 
 ## Recent Changes (digest)
 
+- [2026-01-31] **Python 3.12 Pytest Fix** — Fixed conftest import errors: PEP 695 syntax in `core/decorators.py`, Pydantic union types in `clients/memory_client.py` + `api/routes/registry.py`. Added `from __future__ import annotations`. Configured pytest alias for Python 3.12.
+- [2026-01-31] **Deploy Docs Cleanup** — Deleted 7 obsolete C1 deployment docs (100KB): CADDY_CONFIG.md, DEPLOYMENT_GUIDE.md, dockerfile locations.md, FIREWALL.md, L9-MCP-IMPL.md, nginx.md, VPS_DEPLOYMENT_GUIDE.md. Kept 4 active docs.
 - [2026-01-31] **GMP-128: Adapt MCP Tools Enhancements to L9 APIs** — Integrated 5 harvested MCP tool enhancements (namespace isolation, live refresh, auth management, observability, role-based filtering) into existing L
 - [2026-01-31] **Docstring Injector Enhancement + Bulk Injection** — Fixed multi-line signature detection, reverse-order processing, AST-enriched context. **488 docstrings injected**, 0 remaining. Quality: 85-93/100. Report: `reports/docstring_quality_comparison.md`
 - [2026-01-29] **Session Housekeeping** — Verified wiring tasks complete, fixed Pydantic v2 validators, synced state files, installed sympy/pydantic locally.
@@ -155,9 +157,21 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-01-31 (Docstring injector enhancement — 488 docstrings, quality comparison report)_
+_Last updated: 2026-02-01 (C1 security hardening, Neo4j fix)_
+
+## Recent Sessions (7-day window)
+
+- 2026-02-01: **C1 Security Hardening + Neo4j Fix** — Fixed Neo4j crash loop (removed `env_file` that passed invalid `NEO4J_*` env vars to Neo4j 5.x strict validation). Added Redis auth (`--requirepass`). Added Nginx TCP stream proxying for Redis/Postgres/Neo4j external access. Created ADR-0000 (Core Philosophy), ADR-0091 (Definition of Done), CI gates for protected files and DoD enforcement. **C1 Status:** Neo4j ✅, Redis ✅, Postgres ✅, MCP-Memory ✅. **OPEN:** l9-api has Agent Executor startup issue (separate from security work).
+- ✅ 2026-01-31: **Python 3.12 Pytest Fix + Deploy Cleanup** — Fixed conftest import errors (PEP 695 syntax in `core/decorators.py`, Pydantic union types in `clients/memory_client.py`, `api/routes/registry.py`). Added pytest alias to `~/.zshrc` for Python 3.12. Deleted 7 obsolete deploy docs (100KB). Identified 7 archive folders safe to delete (~920K).
+- ✅ 2026-01-31: **ADR Enforcement Cleanup** — Fixed ADR-0087 checker (was flagging log messages), removed 150 false positive noqa comments, documented 33 SAFE SQL patterns with explanations, added Lesson #37 to repeated-mistakes.md
+- ✅ 2026-01-31: Docstring injector enhancement — 488 docstrings, quality comparison report
 
 ## Next Steps (Current Session)
+
+### 🔴 CRITICAL: Fix l9-api Agent Executor Startup on C1
+- **Error:** `RuntimeError: Agent Executor required for Slack routing but failed to initialize`
+- **Workaround:** Set `L9_MINIMAL_MODE=true` in .env to start in minimal mode
+- **Proper fix:** Debug Agent Executor initialization dependencies
 
 ### 🚨 EXECUTE migrations at next Docker rebuild!!!
 - Run deploy script **without** `--skip-migrations` so Phase 4 (PostgreSQL) and Phase 5 (Neo4j) run.
@@ -250,4 +264,4 @@ PR #51 (Spring Cleaning) — MERGED ✅
 
 ---
 
-_Last updated: 2026-01-31_
+_Last updated: 2026-02-01_

@@ -10,6 +10,27 @@ GMP: GMP-WIRE-VC-EQ
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Evaluation",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-26T10:07:39Z",
+    "updated_at": "2026-01-31T22:21:57Z",
+    "layer": "operations",
+    "domain": "api_gateway",
+    "module_name": "evaluation",
+    "type": "router",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": ["GET /sets", "POST /run", "POST /compare", "GET /health"],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from typing import Any
 
 import structlog
@@ -249,3 +270,57 @@ async def eval_health(request: Request) -> dict[str, Any]:
         "llm_available": evaluator.llm is not None if evaluator else False,
         "eval_sets": list(evaluator.eval_sets.keys()) if evaluator else [],
     }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "API-OPER-035",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["api.routes.registry"],
+    "tags": [
+        "api",
+        "api-gateway",
+        "async",
+        "endpoint",
+        "logging",
+        "metrics",
+        "migration",
+        "operations",
+        "pydantic",
+        "router",
+    ],
+    "keywords": [
+        "agent",
+        "baseline",
+        "compare",
+        "eval",
+        "evaluation",
+        "health",
+        "sets",
+    ],
+    "business_value": "Provides endpoints for running agent evaluations, viewing results, and managing evaluation sets. Version: 1.0.0 GMP: GMP-WIRE-VC-EQ",
+    "last_modified": "2026-01-31T22:21:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

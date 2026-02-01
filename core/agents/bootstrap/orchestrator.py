@@ -48,7 +48,7 @@ __dora_meta__ = {
 
 import os
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -278,13 +278,13 @@ class AgentBootstrapOrchestrator:
         """Phase 0: Validate agent blueprint and check uniqueness."""
         from . import phase_0_validate
 
-        start = datetime.now(timezone.utc)
+        start = datetime.now(UTC)
         try:
             # Call existing phase function
             success, error = await phase_0_validate.validate_agent_blueprint(
                 ctx.config, self._memory_substrate
             )
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
             return PhaseResult(
                 phase=0,
@@ -295,7 +295,7 @@ class AgentBootstrapOrchestrator:
                 duration_ms=duration,
             )
         except Exception as e:
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
             return PhaseResult(
                 phase=0,
                 name="validate",
@@ -310,7 +310,7 @@ class AgentBootstrapOrchestrator:
         """Phase 1: Load and parse 10 governance YAML kernels."""
         from . import phase_1_load_kernels
 
-        start = datetime.now(timezone.utc)
+        start = datetime.now(UTC)
         try:
             # Use kernel_paths if provided, otherwise use default dir
             if kernel_paths:
@@ -325,7 +325,7 @@ class AgentBootstrapOrchestrator:
                 kernel_dir = "private/kernels/00_system"
 
             kernels = await phase_1_load_kernels.load_and_parse_kernels(kernel_dir)
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
             # Convert kernels to dict format for context
             kernels_dict = (
@@ -340,7 +340,7 @@ class AgentBootstrapOrchestrator:
                 duration_ms=duration,
             )
         except Exception as e:
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
             return PhaseResult(
                 phase=1,
                 name="load_kernels",
@@ -355,12 +355,12 @@ class AgentBootstrapOrchestrator:
         """Phase 2: Instantiate AgentInstance, register in Neo4j."""
         from . import phase_2_instantiate
 
-        start = datetime.now(timezone.utc)
+        start = datetime.now(UTC)
         try:
             instance = await phase_2_instantiate.instantiate_agent(
                 ctx.config, self._memory_substrate
             )
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
             return PhaseResult(
                 phase=2,
@@ -370,7 +370,7 @@ class AgentBootstrapOrchestrator:
                 duration_ms=duration,
             )
         except Exception as e:
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
             return PhaseResult(
                 phase=2,
                 name="instantiate",
@@ -385,7 +385,7 @@ class AgentBootstrapOrchestrator:
         """Phase 3: Bind kernels via GOVERNEDBY edges."""
         from . import phase_3_bind_kernels
 
-        start = datetime.now(timezone.utc)
+        start = datetime.now(UTC)
         try:
             instance = ctx.phase_results[-1].context_delta.get("instance")
             # Get raw kernels list from phase 1
@@ -393,7 +393,7 @@ class AgentBootstrapOrchestrator:
             await phase_3_bind_kernels.bind_kernels_to_agent(
                 instance, kernels_list, self._memory_substrate
             )
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
             return PhaseResult(
                 phase=3,
@@ -403,7 +403,7 @@ class AgentBootstrapOrchestrator:
                 duration_ms=duration,
             )
         except Exception as e:
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
             return PhaseResult(
                 phase=3,
                 name="bind_kernels",
@@ -422,7 +422,7 @@ class AgentBootstrapOrchestrator:
         """
         from . import phase_4_load_identity
 
-        start = datetime.now(timezone.utc)
+        start = datetime.now(UTC)
         try:
             instance = ctx.phase_results[-2].context_delta.get("instance")
 
@@ -433,7 +433,7 @@ class AgentBootstrapOrchestrator:
                     identity_kernel=ctx.kernels.get("02-identity", {}),
                     kernel_paths=kernel_paths,
                 )
-                duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+                duration = (datetime.now(UTC) - start).total_seconds() * 1000
                 return PhaseResult(
                     phase=4,
                     name="load_identity",
@@ -447,7 +447,7 @@ class AgentBootstrapOrchestrator:
             await phase_4_load_identity.load_identity_persona(
                 instance, self._memory_substrate
             )
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
             # Create IdentityView from instance data
             identity_view = IdentityView(
@@ -468,7 +468,7 @@ class AgentBootstrapOrchestrator:
                 duration_ms=duration,
             )
         except Exception as e:
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
             return PhaseResult(
                 phase=4,
                 name="load_identity",
@@ -483,7 +483,7 @@ class AgentBootstrapOrchestrator:
         """Phase 5: Bind tools and capabilities."""
         from . import phase_5_bind_tools
 
-        start = datetime.now(timezone.utc)
+        start = datetime.now(UTC)
         try:
             instance = None
             for pr in reversed(ctx.phase_results):
@@ -494,7 +494,7 @@ class AgentBootstrapOrchestrator:
             tool_count = await phase_5_bind_tools.bind_tools_and_capabilities(
                 instance, self._memory_substrate
             )
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
             return PhaseResult(
                 phase=5,
@@ -504,7 +504,7 @@ class AgentBootstrapOrchestrator:
                 duration_ms=duration,
             )
         except Exception as e:
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
             return PhaseResult(
                 phase=5,
                 name="bind_tools",
@@ -519,7 +519,7 @@ class AgentBootstrapOrchestrator:
         """Phase 6: Wire governance gates from safety kernel."""
         from . import phase_6_wire_governance
 
-        start = datetime.now(timezone.utc)
+        start = datetime.now(UTC)
         try:
             instance = None
             for pr in reversed(ctx.phase_results):
@@ -532,7 +532,7 @@ class AgentBootstrapOrchestrator:
                 self._memory_substrate,
                 [],  # kernels list
             )
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
             return PhaseResult(
                 phase=6,
@@ -542,7 +542,7 @@ class AgentBootstrapOrchestrator:
                 duration_ms=duration,
             )
         except Exception as e:
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
             return PhaseResult(
                 phase=6,
                 name="wire_governance",
@@ -560,7 +560,7 @@ class AgentBootstrapOrchestrator:
         """
         from . import phase_7_verify_and_lock
 
-        start = datetime.now(timezone.utc)
+        start = datetime.now(UTC)
         try:
             # Verify all previous phases succeeded
             if any(not result.success for result in ctx.phase_results):
@@ -587,7 +587,7 @@ class AgentBootstrapOrchestrator:
                     governance_gates=ctx.governance_gates,
                     init_signature=init_signature,
                 )
-                duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+                duration = (datetime.now(UTC) - start).total_seconds() * 1000
                 return PhaseResult(
                     phase=7,
                     name="verify_and_lock",
@@ -607,7 +607,7 @@ class AgentBootstrapOrchestrator:
                 self._memory_substrate,
                 [],  # kernels list
             )
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
 
             return PhaseResult(
                 phase=7,
@@ -621,7 +621,7 @@ class AgentBootstrapOrchestrator:
                 duration_ms=duration,
             )
         except Exception as e:
-            duration = (datetime.now(timezone.utc) - start).total_seconds() * 1000
+            duration = (datetime.now(UTC) - start).total_seconds() * 1000
             return PhaseResult(
                 phase=7,
                 name="verify_and_lock",
@@ -927,4 +927,21 @@ __dora_footer__ = {
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "View pattern implementation with backward compatibility",
 }
+# ============================================================================
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
 # ============================================================================

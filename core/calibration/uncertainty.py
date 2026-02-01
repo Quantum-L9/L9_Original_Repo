@@ -12,14 +12,35 @@ Methods:
 Reference: L9-Calibration-Implementation-Roadmap.md §B.3
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Uncertainty",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-28T21:06:46Z",
+    "updated_at": "2026-01-31T22:21:46Z",
+    "layer": "foundation",
+    "domain": "core",
+    "module_name": "uncertainty",
+    "type": "utility",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
+
 import numpy as np
-from typing import Optional, Tuple
 
 
 def decompose_uncertainty_heteroscedastic(
     mean_prediction: np.ndarray,
     variance: np.ndarray,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Decompose using heteroscedastic head output.
 
@@ -56,7 +77,7 @@ def decompose_uncertainty_heteroscedastic(
 
 def decompose_uncertainty_ensemble(
     predictions: list[np.ndarray],
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Decompose using ensemble disagreement.
 
@@ -94,7 +115,7 @@ def decompose_uncertainty_ensemble(
 
 def decompose_uncertainty_mc_dropout(
     mc_samples: list[np.ndarray],
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Decompose using MC-Dropout variance.
 
@@ -132,10 +153,10 @@ def decompose_uncertainty_mc_dropout(
 
 def decompose_uncertainty_hybrid(
     mean_prediction: np.ndarray,
-    ensemble_predictions: Optional[list[np.ndarray]] = None,
-    mc_samples: Optional[list[np.ndarray]] = None,
-    heteroscedastic_variance: Optional[np.ndarray] = None,
-) -> Tuple[np.ndarray, np.ndarray]:
+    ensemble_predictions: list[np.ndarray] | None = None,
+    mc_samples: list[np.ndarray] | None = None,
+    heteroscedastic_variance: np.ndarray | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Hybrid decomposition using all available sources.
 
@@ -175,3 +196,47 @@ def decompose_uncertainty_hybrid(
     epistemic = np.clip(epistemic, 0.0, 1.0)
 
     return aleatoric.astype(np.float32), epistemic.astype(np.float32)
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-063",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["batch-processing", "core", "foundation", "utility"],
+    "keywords": [
+        "aleatoric",
+        "decompose",
+        "dropout",
+        "ensemble",
+        "epistemic",
+        "heteroscedastic",
+        "hybrid",
+        "model",
+    ],
+    "business_value": "Utility module for uncertainty",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

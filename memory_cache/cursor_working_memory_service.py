@@ -1,3 +1,29 @@
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Cursor Working Memory Service",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-28T22:45:42Z",
+    "updated_at": "2026-01-31T22:27:11Z",
+    "layer": "operations",
+    "domain": "data_models",
+    "module_name": "cursor_working_memory_service",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Redis"],
+        "memory_layers": ["working_memory", "semantic_memory"],
+        "imported_by": [
+            "agents.cursor.cursor_retrieval_kernel",
+            "agents.cursor.cursor_session_hooks",
+            "memory_cache.__init__",
+            "runtime.redis_client",
+        ],
+    },
+}
+# ============================================================================
+
 # memory_cache/cursor_working_memory_service.py
 """
 Repo-scoped, TTL-based working memory for Cursor.
@@ -227,3 +253,58 @@ class CursorWorkingMemoryService:
             "ttl_remaining_seconds": await self.ttl_remaining(repo_id, branch),
             "last_updated": snapshot.updated_at,
         }
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MEM-OPER-002",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["runtime.redis_client"],
+    "tags": [
+        "async",
+        "cache",
+        "caching",
+        "data-models",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "operations",
+        "security",
+        "serialization",
+    ],
+    "keywords": [
+        "clear",
+        "cursor",
+        "event",
+        "expire",
+        "hydrate",
+        "memory",
+        "remaining",
+        "service",
+    ],
+    "business_value": "Provides cursor working memory service components including MemoryEventType, WorkingMemorySnapshot, CursorWorkingMemoryService",
+    "last_modified": "2026-01-31T22:27:11Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

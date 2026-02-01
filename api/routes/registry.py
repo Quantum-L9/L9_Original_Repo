@@ -9,6 +9,8 @@ Created: 2026-01-18
 Author: L9 Auto-Wiring System
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Router Registry",

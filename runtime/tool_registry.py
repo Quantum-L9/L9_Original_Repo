@@ -254,10 +254,10 @@ def register_mcp_tool(
 ) -> str:
     """
     Register an MCP tool with namespace isolation.
-    
+
     MCP tools are namespaced as {server_id}__{tool_name} to prevent
     collisions between servers that expose tools with the same name.
-    
+
     Args:
         name: Original tool name from MCP server
         server_id: MCP server identifier
@@ -267,13 +267,13 @@ def register_mcp_tool(
         risk_level: Risk classification ("low", "medium", "high")
         requires_approval: Whether requires Igor approval
         **metadata: Additional metadata
-        
+
     Returns:
         Namespaced tool ID (e.g., "vercel__deploy")
     """
     # Create namespaced tool ID
     tool_id = f"{server_id}__{name}"
-    
+
     # Register with existing registry
     tool_executor_registry.register_instance(
         component_id=tool_id,
@@ -287,7 +287,7 @@ def register_mcp_tool(
         requires_approval=requires_approval,
         **metadata,
     )
-    
+
     # Track metadata for namespace resolution
     _mcp_tool_metadata[tool_id] = {
         "server_id": server_id,
@@ -296,7 +296,7 @@ def register_mcp_tool(
         "risk_level": risk_level,
         "requires_approval": requires_approval,
     }
-    
+
     logger.info(
         "mcp_tool.registered",
         tool_id=tool_id,
@@ -304,7 +304,7 @@ def register_mcp_tool(
         original_name=name,
         tags=tags,
     )
-    
+
     return tool_id
 
 
@@ -314,16 +314,16 @@ def register_mcp_tools_batch(
 ) -> list[str]:
     """
     Batch register MCP tools from a server with automatic namespacing.
-    
+
     Args:
         tools: List of tool definitions with name, executor, etc.
         server_id: MCP server identifier
-        
+
     Returns:
         List of registered namespaced tool IDs
     """
     registered_ids = []
-    
+
     for tool_def in tools:
         tool_id = register_mcp_tool(
             name=tool_def["name"],
@@ -336,34 +336,34 @@ def register_mcp_tools_batch(
             description=tool_def.get("description", ""),
         )
         registered_ids.append(tool_id)
-    
+
     logger.info(
         "mcp_tools.batch_registered",
         server_id=server_id,
         count=len(registered_ids),
     )
-    
+
     return registered_ids
 
 
 def get_tools_by_server(server_id: str) -> dict[str, Callable]:
     """
     Get all tools registered from a specific MCP server.
-    
+
     Args:
         server_id: MCP server identifier
-        
+
     Returns:
         Dictionary mapping namespaced tool IDs to executors
     """
     result: dict[str, Callable] = {}
-    
+
     for tool_id, meta in _mcp_tool_metadata.items():
         if meta["server_id"] == server_id:
             executor = tool_executor_registry.get(tool_id)
             if executor:
                 result[tool_id] = executor
-    
+
     return result
 
 
@@ -375,11 +375,11 @@ def get_mcp_tool_metadata(tool_id: str) -> dict[str, Any] | None:
 def resolve_mcp_tool_name(server_id: str, original_name: str) -> str | None:
     """
     Resolve original tool name to namespaced ID.
-    
+
     Args:
         server_id: MCP server identifier
         original_name: Original tool name
-        
+
     Returns:
         Namespaced tool ID or None if not found
     """
@@ -392,15 +392,15 @@ def resolve_mcp_tool_name(server_id: str, original_name: str) -> str | None:
 def get_tools_by_tags(tags: list[str]) -> dict[str, Callable]:
     """
     Get all tools that have ALL specified tags.
-    
+
     Args:
         tags: List of tags to filter by
-        
+
     Returns:
         Dictionary mapping tool IDs to executors
     """
     result: dict[str, Callable] = {}
-    
+
     # Check MCP tools
     for tool_id, meta in _mcp_tool_metadata.items():
         tool_tags = meta.get("tags", [])
@@ -408,7 +408,7 @@ def get_tools_by_tags(tags: list[str]) -> dict[str, Callable]:
             executor = tool_executor_registry.get(tool_id)
             if executor:
                 result[tool_id] = executor
-    
+
     # Also check regular tools via registry
     for tool_id in tool_executor_registry.list_ids():
         if tool_id not in result:
@@ -417,7 +417,7 @@ def get_tools_by_tags(tags: list[str]) -> dict[str, Callable]:
                 # Check if tool has tags in metadata
                 # (AutoRegistry stores tags during registration)
                 result[tool_id] = executor
-    
+
     return result
 
 
@@ -431,4 +431,21 @@ __dora_footer__ = {
     "performance_tested": True,
     "last_audit": "2026-01-31T00:00:00Z",
 }
+# ============================================================================
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
 # ============================================================================

@@ -33,6 +33,27 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
      Subfolder naming: MM-DD-YYYY - <description>
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Generate Readme Superprompt",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-18T17:12:30Z",
+    "updated_at": "2026-01-31T22:21:56Z",
+    "layer": "operations",
+    "domain": "scripts",
+    "module_name": "generate_readme_superprompt",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": ["Perplexity API"],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import ast
 import sys

@@ -1,6 +1,27 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Index Report",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-25T14:50:13Z",
+    "updated_at": "2026-01-31T22:21:46Z",
+    "layer": "operations",
+    "domain": "tools",
+    "module_name": "index_report",
+    "type": "repository",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": ["working_memory"],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
+from datetime import datetime
 
 from .config import SuperpackLayout
 from .filesystem import open_report
@@ -89,3 +110,38 @@ def generate_superpack_index(layout: SuperpackLayout) -> None:
         f.write("---\n\n")
         now = datetime.now().strftime("%Y-%m-%d %H:%M")
         f.write(f"*Auto-generated: {now} | `tools/superpack_reports/`*\n")
+
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "TOO-OPER-035",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["api", "ast", "auth", "operations", "repository", "tools"],
+    "keywords": ["generate", "index", "report", "superpack"],
+    "business_value": "Utility module for index report",
+    "last_modified": "2026-01-31T22:21:46Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -5,8 +5,29 @@ Track motif activations, decisions, and outcomes in a traceable graph structure.
 Provides audit trail for reasoning patterns across domain packets.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Motif Feedback Graph",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-26T11:14:45Z",
+    "updated_at": "2026-01-31T22:21:54Z",
+    "layer": "operations",
+    "domain": "motifs",
+    "module_name": "motif_feedback_graph",
+    "type": "dataclass",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -27,7 +48,9 @@ class MotifEvent:
     outcome: str = ""
     confidence: float = 0.0
     governance_flags: dict[str, Any] = field(default_factory=dict)
-    timestamp: str = field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
+    timestamp: str = field(
+        default_factory=lambda: datetime.now(UTC).isoformat()
+    )
 
 
 @dataclass
@@ -198,3 +221,56 @@ class MotifFeedbackGraph:
 
 
 __all__ = ["MotifEvent", "MotifFeedbackGraph", "MotifTrace"]
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "MOT-OPER-004",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "async",
+        "audit-tool",
+        "dataclass",
+        "debugging",
+        "event-driven",
+        "logging",
+        "metrics",
+        "motifs",
+        "operations",
+        "tracing",
+    ],
+    "keywords": [
+        "audit",
+        "event",
+        "feedback",
+        "graph",
+        "motif",
+        "packet",
+        "record",
+        "statistics",
+    ],
+    "business_value": "Provides audit trail for reasoning patterns across domain packets.",
+    "last_modified": "2026-01-31T22:21:54Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

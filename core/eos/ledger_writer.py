@@ -39,7 +39,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import hashlib
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -211,7 +211,7 @@ class EOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",  # Computed during write
             signer="accountability_engine",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             action_ref=action_id,
             verdict_ref=verdict_id,
             payload={
@@ -252,7 +252,7 @@ class EOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",
             signer=agent_id,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             action_ref=action_id,
             verdict_ref=None,
             payload={
@@ -293,7 +293,7 @@ class EOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",
             signer="anomaly_detector",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             action_ref=None,
             verdict_ref=None,
             payload={
@@ -449,3 +449,56 @@ __all__ = [
     "EOSLedgerWriter",
     "create_eos_ledger_writer",
 ]
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "COR-FOUN-215",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": ["core.eos.schemas", "memory.substrate_service"],
+    "tags": [
+        "async",
+        "audit-tool",
+        "core",
+        "event-driven",
+        "foundation",
+        "logging",
+        "messaging",
+        "security",
+        "serialization",
+        "service",
+    ],
+    "keywords": [
+        "accountability",
+        "action",
+        "anomaly",
+        "audit",
+        "available",
+        "chain",
+        "create",
+        "detection",
+    ],
+    "business_value": "Implements EOSLedgerWriter for ledger writer functionality",
+    "last_modified": "2026-01-31T22:21:48Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

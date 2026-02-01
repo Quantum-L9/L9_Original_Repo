@@ -20,11 +20,31 @@ ADR: ADR-0091 (Definition of Done)
 
 from __future__ import annotations
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "Check Definition Of Done",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-31T22:13:26Z",
+    "updated_at": "2026-01-31T22:21:50Z",
+    "layer": "operations",
+    "domain": "ci",
+    "module_name": "check_definition_of_done",
+    "type": "cli",
+    "status": "draft",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import argparse
 import re
 import subprocess
 import sys
-from pathlib import Path
 
 # =============================================================================
 # INCOMPLETE MARKERS — Block if found in diff
@@ -42,7 +62,7 @@ INCOMPLETE_MARKERS = [
 # Markers that are allowed with justification comment
 ALLOWED_WITH_JUSTIFICATION = [
     r"#\s*TODO:\s*\(DEFERRED:",  # Explicitly deferred
-    r"#\s*FIXME:\s*\(KNOWN:",    # Known issue, tracked
+    r"#\s*FIXME:\s*\(KNOWN:",  # Known issue, tracked
 ]
 
 # =============================================================================
@@ -82,9 +102,7 @@ SKIP_PATTERNS = [
 class DoDViolation:
     """Represents a Definition of Done violation."""
 
-    def __init__(
-        self, file: str, line_num: int, line: str, marker: str, reason: str
-    ):
+    def __init__(self, file: str, line_num: int, line: str, marker: str, reason: str):
         self.file = file
         self.line_num = line_num
         self.line = line.strip()[:80]
@@ -148,7 +166,7 @@ def get_diff_lines(base_ref: str = "origin/main") -> list[tuple[str, int, str]]:
 
 
 def check_incomplete_markers(
-    diff_lines: list[tuple[str, int, str]]
+    diff_lines: list[tuple[str, int, str]],
 ) -> list[DoDViolation]:
     """Check for incomplete markers in diff."""
     violations = []
@@ -166,7 +184,7 @@ def check_incomplete_markers(
 
 
 def check_auth_healthcheck_consistency(
-    diff_lines: list[tuple[str, int, str]]
+    diff_lines: list[tuple[str, int, str]],
 ) -> list[str]:
     """Check if auth changes have corresponding healthcheck updates."""
     warnings = []
@@ -269,3 +287,56 @@ To defer a TODO intentionally:
 
 if __name__ == "__main__":
     sys.exit(main())
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "CI-OPER-008",
+    "governance_level": "medium",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": [
+        "api",
+        "auth",
+        "caching",
+        "ci",
+        "cli",
+        "filesystem",
+        "migration",
+        "operations",
+        "security",
+        "subprocess",
+    ],
+    "keywords": [
+        "auth",
+        "check",
+        "consistency",
+        "definition",
+        "diff",
+        "done",
+        "healthcheck",
+        "incomplete",
+    ],
+    "business_value": "Implements DoDViolation for check definition of done functionality",
+    "last_modified": "2026-01-31T22:21:50Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================
