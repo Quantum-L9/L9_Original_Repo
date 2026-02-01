@@ -436,7 +436,7 @@ class SynthesisEngine:
             if len(instances) >= 3:  # At least 3 variations agree
                 consensus[key] = {
                     "count": len(instances),
-                    "confidence": len(instances) / len(self.responses),
+                    "confidence": len(instances) / len(self.responses) if self.responses else 0.0,
                     "variations": [i["variation"] for i in instances],
                 }
         return consensus
