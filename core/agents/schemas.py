@@ -53,7 +53,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import NAMESPACE_DNS, UUID, uuid4, uuid5
@@ -167,7 +167,7 @@ class AgentTask(BaseModel):
         default_factory=dict, description="Additional execution context"
     )
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Creation timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Creation timestamp"
     )
     timeout_ms: int = Field(
         default=120000, ge=1000, description="Execution timeout (ms)"

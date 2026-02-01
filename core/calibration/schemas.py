@@ -12,7 +12,7 @@ All numeric fields have constraints: Field(..., ge=0.0, le=1.0)
 Reference: L9-Confidence-Calibration-Spec.md §2.1.1
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal
 from uuid import UUID, uuid4
@@ -129,7 +129,7 @@ class CalibrationResult(BaseModel):
     calibration_method: CalibrationMethod
     decomposition_method: UncertaintyDecompositionMethod
     quality_score: float = Field(..., ge=0.0, le=1.0)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @field_validator("calibrated_probabilities")
     @classmethod
@@ -208,7 +208,7 @@ class GateResult(BaseModel):
     recommended_fallback: str | None = None
     requested_approval_type: str | None = None
     next_step: str | None = None
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     @field_validator("approved")
     @classmethod
