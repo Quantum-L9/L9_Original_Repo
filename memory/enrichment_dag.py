@@ -622,13 +622,48 @@ class EnrichmentDAG:
 
     async def _run_tier_2(self, envelope: PacketEnvelope) -> EnrichmentResult:
         """
-        Tier 2: Core-only write (skip enrichment).
+        Tier 2: Core-only write with best-effort embedding.
 
-        Write packet to core repository tables only.
-        Skip semantic, entity extraction, graph.
+        Write packet to core repository tables.
+        GMP-130: Added best-effort embedding to prevent embedding gaps.
         """
         try:
             await self._repository.insert_packet(envelope)
+
+            # GMP-130: Best-effort embedding in Tier 2 to prevent gaps
+            if self._semantic_service:
+                try:
+                    payload_dict = (
+                        envelope.payload if isinstance(envelope.payload, dict) else {}
+                    )
+                    text_to_embed = (
+                        payload_dict.get("content")
+                        or payload_dict.get("text")
+                        or payload_dict.get("description")
+                        or payload_dict.get("message")
+                        or payload_dict.get("summary")
+                    )
+                    if text_to_embed and len(str(text_to_embed)) >= 10:
+                        await self._semantic_service.embed_and_store(
+                            text=str(text_to_embed),
+                            payload={
+                                "packet_id": str(envelope.packet_id),
+                                "packet_type": envelope.packet_type,
+                                "tier": "tier_2_best_effort",
+                            },
+                        )
+                        logger.debug(
+                            "enrichment_tier_2_best_effort_embedding",
+                            packet_id=str(envelope.packet_id),
+                        )
+                except Exception as embed_err:
+                    # Best-effort: don't fail Tier 2 if embedding fails
+                    logger.warning(
+                        "enrichment_tier_2_embedding_skipped",
+                        packet_id=str(envelope.packet_id),
+                        error=str(embed_err),
+                    )
+
             return EnrichmentResult(
                 status=EnrichmentStatus.SUCCESS,
                 tier_used=EnrichmentTier.CORE_ONLY,

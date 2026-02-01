@@ -562,12 +562,20 @@ async def semantic_embed_node(
     packet_type = envelope.get("packet_type", "")
 
     # Determine if embedding should be generated
+    # GMP-130: Expanded to include more packet types for semantic search
     should_embed = (
         "semantic" in packet_type.lower()
         or "memory" in packet_type.lower()
+        or "response" in packet_type.lower()
+        or "decision" in packet_type.lower()
+        or "insight" in packet_type.lower()
+        or "agent" in packet_type.lower()
         or "text" in payload
         or "content" in payload
         or "description" in payload
+        or "message" in payload
+        or "summary" in payload
+        or "result" in payload
     )
 
     if not should_embed:
@@ -575,10 +583,14 @@ async def semantic_embed_node(
         return state
 
     # Extract text to embed
+    # GMP-130: Expanded text extraction to include more payload fields
     text_to_embed = (
         payload.get("text")
         or payload.get("content")
         or payload.get("description")
+        or payload.get("message")
+        or payload.get("summary")
+        or payload.get("result")
         or str(payload)[:1000]  # Fallback to stringified payload
     )
 
@@ -1017,12 +1029,20 @@ def route_after_memory_write(state: SubstrateGraphState) -> str:
         packet_type = envelope.get("packet_type", "")
 
         # Check if content type is embeddable
+        # GMP-130: Expanded to include more packet types for semantic search
         should_embed = (
             "semantic" in packet_type.lower()
             or "memory" in packet_type.lower()
+            or "response" in packet_type.lower()
+            or "decision" in packet_type.lower()
+            or "insight" in packet_type.lower()
+            or "agent" in packet_type.lower()
             or "text" in payload
             or "content" in payload
             or "description" in payload
+            or "message" in payload
+            or "summary" in payload
+            or "result" in payload
         )
 
         if not should_embed:
