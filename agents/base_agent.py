@@ -309,7 +309,7 @@ class BaseAgent(ABC):
             )
 
         except Exception as e:
-            logger.error(f"LLM call failed for {self._agent_id} after retries: {e}")
+            logger.error("LLM call failed after retries", agent_id=self._agent_id, exc_info=True)
             duration_ms = int(
                 (datetime.now(UTC) - start_time).total_seconds() * 1000
             )

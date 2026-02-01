@@ -127,6 +127,24 @@ spec:
       nodePort: 30432 # PostgreSQL: 46.62.243.82:30432
       name: postgres
 ---
+# Redis External Access (for tool caching and session state)
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-external
+  namespace: l9-c1
+  labels:
+    app: l9-redis
+spec:
+  type: NodePort
+  selector:
+    app: l9-redis
+  ports:
+    - port: 6379
+      targetPort: 6379
+      nodePort: 30379 # Redis: 46.62.243.82:30379
+      name: redis
+---
 # Option 2: Traefik IngressRoute (if using k3s default Traefik)
 # Uncomment if you want domain-based routing later
 #

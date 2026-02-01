@@ -1617,8 +1617,9 @@ async def lifespan(app: FastAPI):
     # Neo4j is OPTIONAL - app continues in degraded mode if unavailable
     import asyncio
 
-    neo4j_max_retries = 5  # 10 retries = ~30 seconds total
-    neo4j_retry_delay = 3  # Start with 3 seconds
+    # Neo4j connection retry configuration (configurable via env vars)
+    neo4j_max_retries = int(os.getenv("NEO4J_MAX_RETRIES", "5"))
+    neo4j_retry_delay = float(os.getenv("NEO4J_RETRY_DELAY", "3.0"))
 
     try:
         from memory.graph_client import close_neo4j_client, get_neo4j_client
@@ -2926,9 +2927,14 @@ async def global_exception_handler(request: Request, exc: Exception):
             )
         )
     except ImportError:
-        pass  # Error tracking not available
-    except Exception:
-        pass  # Don't fail request due to error tracking
+        pass  # Error tracking module not available - expected in minimal deployments
+    except Exception as e:
+        # Log but don't fail request due to error tracking issues
+        logger.debug(
+            "api.exception_handler.error_tracking_failed",
+            error=str(e),
+            endpoint=str(request.url.path),
+        )
 
     # Standard error response
     logger.error(f"Unhandled exception at {request.url.path}: {exc}", exc_info=True)
