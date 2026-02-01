@@ -184,7 +184,7 @@ def _run_psql(sql: str, with_rls: bool = True) -> str | None:
         logger.warning("psql error", stderr=result.stderr)
         return None
     except Exception as e:
-        logger.error("psql failed", error=str(e))
+        logger.error("psql failed", exc_info=True)
         return None
 
 
@@ -213,7 +213,7 @@ def _run_cypher(query: str, tenant_id: str = CURSOR_TENANT_ID) -> str | None:
         logger.warning("cypher error", stderr=result.stderr)
         return None
     except Exception as e:
-        logger.error("cypher failed", error=str(e))
+        logger.error("cypher failed", exc_info=True)
         return None
 
 
@@ -285,7 +285,7 @@ def _run_redis(cmd_parts: list[str]) -> str | None:
         logger.warning("redis error", stderr=result.stderr)
         return None
     except Exception as e:
-        logger.error("redis failed", error=str(e))
+        logger.error("redis failed", exc_info=True)
         return None
 
 
