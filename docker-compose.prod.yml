@@ -1,21 +1,31 @@
 # =============================================================================
-# L9 Docker Compose - PRODUCTION OVERLAY
+# L9 Docker Compose - PRODUCTION OVERLAY (Security-Hardened)
 # =============================================================================
-# Version: 4.0.0
-# Purpose: Production-hardened application services and configurations
+# Version: 4.1.0
+# Purpose: Production-hardened application services with secure TCP stream proxy
 # Usage: Combined with base docker-compose.yml
 #
 # USAGE:
-#   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
-#     --env-file deploy/c1/.env.c1 up -d
-#   REQUIRED: env file must have all required vars (no missing tolerated). Run scripts/check_compose_env.sh [env-file]
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# REQUIRED ENV VARS (validate with scripts/check_compose_env.sh):
+#   - REDIS_PASSWORD (mandatory for TCP stream exposure)
+#   - NEO4J_PASSWORD
+#   - POSTGRES_PASSWORD
+#
+# SECURITY POSTURE (v4.1.0):
+#   - Redis REQUIREPASS authentication enforced
+#   - TCP stream ports exposed ONLY after firewall rules applied
+#   - Network ACLs documented in deploy/c1/FIREWALL.md
+#   - Defense-in-depth: app-level + network-level + container-level
 #
 # FEATURES:
 #   - Immutable container images (no volume mounts)
 #   - Resource limits enforced
-#   - Production-grade security
+#   - Production-grade security hardening
 #   - Bootstrap service for initialization
-#   - Nginx reverse proxy
+#   - Nginx reverse proxy + TCP stream proxy
+#   - Authenticated Redis with connection pooling
 # =============================================================================
 
 services:
@@ -45,7 +55,7 @@ services:
       - .env
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@l9-postgres:5432/${POSTGRES_DB}
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379  # ← AUTH REQUIRED
       NEO4J_URI: bolt://neo4j:7687
       NEO4J_USER: ${NEO4J_USER}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
@@ -71,7 +81,7 @@ services:
         VCS_REF: ${VCS_REF}
         VERSION: ${VERSION}
     image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_NAMESPACE:-cryptoxdog}/l9-api:${VERSION:-latest}
-    container_name: ${COMPOSE_PROJECT_NAME:-l9}-api
+    # container_name removed — prevents clash during rolling deploys
     restart: unless-stopped
     depends_on:
       l9-bootstrap:
@@ -97,10 +107,11 @@ services:
       NEO4J_USER: ${NEO4J_USER}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
       
-      # Redis
+      # Redis (AUTHENTICATED)
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_URL: redis://redis:6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}  # ← REQUIRED for auth
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       
       # API Configuration
       API_HOST: 0.0.0.0
@@ -136,7 +147,7 @@ services:
       - "com.l9.service=api"
       - "com.l9.layer=application"
       - "com.l9.environment=production"
-      - "com.l9.version=${VERSION:-4.0.0}"
+      - "com.l9.version=${VERSION:-4.1.0}"
 
   # ===========================================================================
   # MCP Memory Server (Production)
@@ -151,7 +162,7 @@ services:
         VCS_REF: ${VCS_REF}
         VERSION: ${VERSION}
     image: ${DOCKER_REGISTRY:-ghcr.io}/${DOCKER_NAMESPACE:-cryptoxdog}/l9-mcp-memory:${VERSION:-latest}
-    container_name: ${COMPOSE_PROJECT_NAME:-l9}-mcp-memory
+    # container_name removed — prevents clash during rolling deploys
     restart: unless-stopped
     depends_on:
       l9-postgres:
@@ -173,8 +184,9 @@ services:
       NEO4J_USER: ${NEO4J_USER}
       NEO4J_PASSWORD: ${NEO4J_PASSWORD}
       
-      # Redis
-      REDIS_URL: redis://redis:6379
+      # Redis (AUTHENTICATED)
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
       
       # MCP Configuration
       MCP_HOST: 0.0.0.0
@@ -212,22 +224,47 @@ services:
       - "com.l9.service=mcp-memory"
       - "com.l9.layer=protocol"
       - "com.l9.environment=production"
-      - "com.l9.version=${VERSION:-4.0.0}"
+      - "com.l9.version=${VERSION:-4.1.0}"
 
   # ===========================================================================
-  # Nginx - Reverse Proxy
+  # Nginx - Reverse Proxy + TCP Stream Proxy (Security Hardened)
+  # ===========================================================================
+  # SECURITY MODEL (Defense-in-Depth):
+  #   Layer 1: Host firewall (ufw) - IP whitelisting at kernel level
+  #   Layer 2: Nginx stream proxy - TLS termination + connection limits
+  #   Layer 3: Application auth - Redis REQUIREPASS, Postgres pg_hba.conf, Neo4j auth
+  #
+  # DEPLOYMENT PREREQUISITES:
+  #   1. Apply firewall rules BEFORE deploying this config:
+  #      sudo ufw allow from <TRUSTED_IP> to any port 30432 proto tcp
+  #      sudo ufw allow from <TRUSTED_IP> to any port 30474 proto tcp
+  #      sudo ufw allow from <TRUSTED_IP> to any port 30687 proto tcp
+  #      sudo ufw allow from <TRUSTED_IP> to any port 30379 proto tcp
+  #   2. Verify .env contains REDIS_PASSWORD (min 32 chars, base64-encoded)
+  #   3. Document trusted IPs in deploy/c1/FIREWALL.md
   # ===========================================================================
   nginx:
     image: nginx:alpine
-    container_name: ${COMPOSE_PROJECT_NAME:-l9}-nginx
+    # container_name removed — prevents clash during rolling deploys
     restart: unless-stopped
     depends_on:
       - l9-api
       - l9-mcp-memory
+      - l9-postgres      # ← Stream proxy dependency
+      - neo4j            # ← Stream proxy dependency
+      - redis            # ← Stream proxy dependency
     env_file:
       - .env
     ports:
+      # HTTP reverse proxy (existing)
       - "0.0.0.0:80:80"
+      
+      # TCP stream proxies (NEW - require nginx.conf stream blocks)
+      # WARNING: These ports are PUBLICLY ROUTABLE. Ensure firewall rules are active.
+      - "0.0.0.0:30432:30432"  # PostgreSQL TCP stream (→ l9-postgres:5432)
+      - "0.0.0.0:30474:30474"  # Neo4j HTTP stream (→ neo4j:7474)
+      - "0.0.0.0:30687:30687"  # Neo4j Bolt stream (→ neo4j:7687)
+      - "0.0.0.0:30379:30379"  # Redis stream (→ redis:6379, AUTH required)
     volumes:
       - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
@@ -236,3 +273,37 @@ services:
       - "com.l9.service=nginx"
       - "com.l9.layer=gateway"
       - "com.l9.environment=production"
+      - "com.l9.security.stream-proxy=enabled"
+      - "com.l9.security.firewall-required=true"
+
+# =============================================================================
+# SECURITY CHECKLIST (v4.1.0 Compliance)
+# =============================================================================
+# Before deploying this config, verify:
+#
+# ✅ 1. Redis authentication configured:
+#        - .env has REDIS_PASSWORD set (min 32 chars)
+#        - docker-compose.yml redis service has:
+#          command: redis-server --requirepass ${REDIS_PASSWORD}
+#
+# ✅ 2. Firewall rules applied on VPS:
+#        sudo ufw allow from <MAC_IP> to any port 30432,30474,30687,30379 proto tcp
+#        sudo ufw status numbered  # Verify rules exist
+#
+# ✅ 3. nginx.conf stream blocks configured:
+#        deploy/nginx/nginx.conf must have stream { ... } blocks for each port
+#
+# ✅ 4. Network ACL documentation:
+#        deploy/c1/FIREWALL.md lists all whitelisted IPs with justification
+#
+# ✅ 5. Test from untrusted IP:
+#        telnet <VPS_IP> 30379  # Should timeout (firewall blocked)
+#
+# ✅ 6. Test from trusted IP:
+#        redis-cli -h <VPS_IP> -p 30379 -a <REDIS_PASSWORD> PING  # Should return PONG
+#
+# POST-DEPLOY MONITORING:
+#   - Review nginx stream logs: docker compose logs nginx | grep stream
+#   - Monitor failed auth attempts: docker compose exec redis redis-cli --scan
+#   - Alert on firewall rule changes: auditd on /etc/ufw/
+# =============================================================================

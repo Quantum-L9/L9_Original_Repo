@@ -575,6 +575,32 @@ gate_16_protected_files() {
 }
 
 # =============================================================================
+# GATE 17: DEFINITION OF DONE (ADR-0091)
+# =============================================================================
+
+gate_17_definition_of_done() {
+    log_header "GATE 17: DEFINITION OF DONE CHECK (ADR-0091)"
+
+    if [ ! -f "$SCRIPT_DIR/check_definition_of_done.py" ]; then
+        log_warn "Definition of Done checker not found, skipping"
+        return 0
+    fi
+
+    log_info "Checking Definition of Done criteria..."
+    log_info "  - No incomplete markers (TODO, FIXME)"
+    log_info "  - Auth changes have healthcheck updates"
+
+    if ! python3 "$SCRIPT_DIR/check_definition_of_done.py"; then
+        log_error "DEFINITION OF DONE CHECK FAILED"
+        log_error "See ADR-0091 for requirements"
+        return 1
+    fi
+
+    log_info "✅ Definition of Done check passed"
+    return 0
+}
+
+# =============================================================================
 # MAIN
 # =============================================================================
 
@@ -617,6 +643,7 @@ main() {
 
     # Run all gates in sequence - fail fast
     gate_16_protected_files || exit 1  # CHECK FIRST - protected files require HIL approval
+    gate_17_definition_of_done || exit 1  # Definition of Done (ADR-0091)
     run_spec_validation "$spec_file" || exit 1
     run_code_validation "$spec_file" "${files[@]}" || exit 1
     run_syntax_check "${files[@]}" || exit 1

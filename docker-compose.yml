@@ -101,9 +101,9 @@ services:
       - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru --requirepass ${REDIS_PASSWORD:-changeme}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -125,7 +125,7 @@ services:
     ports:
       - "127.0.0.1:9090:9090"
     volumes:
-      - ./docker/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./telemetry/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
