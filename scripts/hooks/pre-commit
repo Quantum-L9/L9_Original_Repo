@@ -221,9 +221,10 @@ else
             fi
         done
 
-        # Check PacketEnvelope safety
+        # Check PacketEnvelope safety - look for actual dangerous Python functions
+        # Avoid false positives like "docker exec" or "execute" method names
         if grep -q "PacketEnvelope" "$file" 2>/dev/null; then
-            if grep -q "pickle\|eval\|exec" "$file"; then
+            if grep -qE "pickle\.(load|loads)|eval\(|exec\(|__import__|compile\(" "$file"; then
                 echo "   ❌ Unsafe deserialization in PacketEnvelope: $file"
                 AI_VIOLATIONS=$((AI_VIOLATIONS + 1))
                 echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"unsafe_serialization\",\"file\":\"$file\",\"severity\":\"CRITICAL\"}" >> "$AI_SEC_LOG"
