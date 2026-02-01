@@ -25,8 +25,8 @@ I've checked all possible causes for container loading failures in L9. Here are 
 
 ### 2. Dockerfiles ✅
 
-- **runtime/Dockerfile:** Clean, Python 3.12, proper healthcheck
-- **mcp_memory/Dockerfile:** Clean, Python 3.12, proper healthcheck
+- **Dockerfile** (root): L9 API, Python 3.12, proper healthcheck
+- **Dockerfile.mcp-memory** (root): MCP Memory, Python 3.12, proper healthcheck
 - **Both use:** Non-root users, proper WORKDIR, EXPOSE ports
 
 ### 3. Requirements ✅
@@ -409,8 +409,8 @@ tests/
 
 ### Modified Files (2)
 
-1. `runtime/Dockerfile` (exclude playwright)
-2. `mcp_memory/Dockerfile` (exclude playwright)
+1. Root `Dockerfile` (production target excludes playwright)
+2. Root `Dockerfile.mcp-memory` (production target)
 
 ---
 
@@ -469,8 +469,7 @@ docker compose exec l9-api python -c "import asyncpg; print('asyncpg OK')"
 
 - **docker-compose.yml** - Main compose file
 - **.env.example** - Environment variable template
-- **runtime/Dockerfile** - L9 API Dockerfile
-- **mcp_memory/Dockerfile** - MCP Memory Dockerfile
+- **Dockerfile** (root) - L9 API; **Dockerfile.mcp-memory** (root) - MCP Memory
 - **requirements.txt** - Python dependencies
 
 ---

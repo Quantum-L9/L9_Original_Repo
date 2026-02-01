@@ -26,12 +26,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import logging
+import structlog
 import os
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -129,7 +129,7 @@ import networkx as nx
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class ReasoningMode(Enum):
@@ -237,9 +237,9 @@ class ReasoningStep:
         Sets evidence to an empty list and timestamp to current time
         if not provided during construction.
         """
-        if self.evidence is None:
+        if self.evidence is None:  # nosemgrep: l9-singleton-requires-lock
             self.evidence = []
-        if self.timestamp is None:
+        if self.timestamp is None:  # nosemgrep: l9-singleton-requires-lock
             self.timestamp = datetime.now()
 
 

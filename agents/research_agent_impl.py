@@ -41,7 +41,7 @@ import json
 import os
 import re
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -436,7 +436,7 @@ class SynthesisEngine:
             if len(instances) >= 3:  # At least 3 variations agree
                 consensus[key] = {
                     "count": len(instances),
-                    "confidence": len(instances) / len(self.responses),
+                    "confidence": len(instances) / len(self.responses) if self.responses else 0.0,
                     "variations": [i["variation"] for i in instances],
                 }
         return consensus

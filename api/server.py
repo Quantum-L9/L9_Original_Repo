@@ -1570,6 +1570,7 @@ async def lifespan(app: FastAPI):
 
                     # Initialize Slack components
                     validator = SlackRequestValidator(slack_signing_secret)
+                    # nosemgrep: l9-httpx-async-context-required (lifecycle client, closed in shutdown at L2800)
                     http_client = httpx.AsyncClient()
                     slack_client = SlackAPIClient(
                         bot_token=slack_bot_token,
@@ -1616,8 +1617,9 @@ async def lifespan(app: FastAPI):
     # Neo4j is OPTIONAL - app continues in degraded mode if unavailable
     import asyncio
 
-    neo4j_max_retries = 5  # 10 retries = ~30 seconds total
-    neo4j_retry_delay = 3  # Start with 3 seconds
+    # Neo4j connection retry configuration (configurable via env vars)
+    neo4j_max_retries = int(os.getenv("NEO4J_MAX_RETRIES", "5"))
+    neo4j_retry_delay = float(os.getenv("NEO4J_RETRY_DELAY", "3.0"))
 
     try:
         from memory.graph_client import close_neo4j_client, get_neo4j_client
@@ -2857,14 +2859,9 @@ app = FastAPI(
 # =============================================================================
 # ROUTE REGISTRATION
 # =============================================================================
-
-# Register Observability Router (GMP-91)
-if _has_observability_router:
-    app.include_router(observability_router, prefix="/api")
-
-# Register Evaluation Router (GMP-WIRE-VC-EQ)
-if _has_evaluation_router:
-    app.include_router(evaluation_router, prefix="/api")
+# NOTE: All routers now use auto-registration via RouterRegistry (ARCH-01 complete)
+# The observability_router and evaluation_router are auto-registered in their respective
+# route files using router_registry.register()
 
 
 # Add security schemes to OpenAPI schema
@@ -2930,9 +2927,14 @@ async def global_exception_handler(request: Request, exc: Exception):
             )
         )
     except ImportError:
-        pass  # Error tracking not available
-    except Exception:
-        pass  # Don't fail request due to error tracking
+        pass  # Error tracking module not available - expected in minimal deployments
+    except Exception as e:
+        # Log but don't fail request due to error tracking issues
+        logger.debug(
+            "api.exception_handler.error_tracking_failed",
+            error=str(e),
+            endpoint=str(request.url.path),
+        )
 
     # Standard error response
     logger.error(f"Unhandled exception at {request.url.path}: {exc}", exc_info=True)

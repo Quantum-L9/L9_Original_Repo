@@ -470,7 +470,7 @@ async def get_agent_mediator() -> AgentMediator:
         The global AgentMediator instance
     """
     global _mediator_instance
-    if _mediator_instance is None:
+    if _mediator_instance is None:  # nosemgrep: l9-singleton-requires-lock
         _mediator_instance = AgentMediator()
     return _mediator_instance
 

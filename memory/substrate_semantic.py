@@ -34,7 +34,7 @@ __dora_meta__ = {
 
 import asyncio
 import random
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
 from typing import Any
 
 import structlog

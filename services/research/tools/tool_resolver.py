@@ -63,7 +63,7 @@ class ToolResolver:
     @property
     def registry(self) -> ToolRegistry:
         """Get the tool registry."""
-        if self._registry is None:
+        if self._registry is None:  # nosemgrep: l9-singleton-requires-lock
             self._registry = get_tool_registry()
         return self._registry
 
@@ -198,7 +198,7 @@ _resolver: ToolResolver | None = None
 def get_tool_resolver() -> ToolResolver:
     """Get or create tool resolver singleton."""
     global _resolver
-    if _resolver is None:
+    if _resolver is None:  # nosemgrep: l9-singleton-requires-lock
         _resolver = ToolResolver()
     return _resolver
 

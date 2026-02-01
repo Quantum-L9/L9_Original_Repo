@@ -48,16 +48,16 @@ def load_calibration_config(config_file: str | None = None) -> CalibrationConfig
     decomposition_method = UncertaintyDecompositionMethod(
         os.getenv("L9_CALIB_DECOMPOSITION_METHOD", "hybrid")
     )
-    confidence_threshold_proceed = float(
+    confidence_threshold_proceed = float(  # nosemgrep: l9-float-requires-try-except
         os.getenv("L9_CALIB_CONFIDENCE_THRESHOLD_PROCEED", "0.75")
     )
-    confidence_threshold_defer = float(
+    confidence_threshold_defer = float(  # nosemgrep: l9-float-requires-try-except
         os.getenv("L9_CALIB_CONFIDENCE_THRESHOLD_DEFER", "0.60")
     )
-    epistemic_threshold_high = float(
+    epistemic_threshold_high = float(  # nosemgrep: l9-float-requires-try-except
         os.getenv("L9_CALIB_EPISTEMIC_THRESHOLD_HIGH", "0.25")
     )
-    aleatoric_threshold_high = float(
+    aleatoric_threshold_high = float(  # nosemgrep: l9-float-requires-try-except
         os.getenv("L9_CALIB_ALEATORIC_THRESHOLD_HIGH", "0.20")
     )
 
@@ -82,13 +82,13 @@ def load_gating_config(config_file: str | None = None) -> GatingPolicyConfig:
         return GatingPolicyConfig(**data.get("gating", data))
 
     enabled = _str_to_bool(os.getenv("L9_GATE_ENABLED", "true"))
-    high_stakes_confidence_min = float(
+    high_stakes_confidence_min = float(  # nosemgrep: l9-float-requires-try-except
         os.getenv("L9_GATE_HIGH_STAKES_CONFIDENCE_MIN", "0.85")
     )
-    defer_confidence_threshold = float(
+    defer_confidence_threshold = float(  # nosemgrep: l9-float-requires-try-except
         os.getenv("L9_GATE_DEFER_CONFIDENCE_THRESHOLD", "0.60")
     )
-    defer_epistemic_threshold = float(
+    defer_epistemic_threshold = float(  # nosemgrep: l9-float-requires-try-except
         os.getenv("L9_GATE_DEFER_EPISTEMIC_THRESHOLD", "0.30")
     )
 

@@ -234,6 +234,194 @@ def register_extension_tool_executors() -> int:
 
 
 # =============================================================================
+# MCP NAMESPACE ISOLATION (Enhancement from GMP MCP-Tools)
+# =============================================================================
+# MCP tools are namespaced as {server_id}__{tool_name} to prevent collisions
+
+# Track MCP tool metadata for namespace resolution
+_mcp_tool_metadata: dict[str, dict[str, Any]] = {}
+
+
+def register_mcp_tool(
+    name: str,
+    server_id: str,
+    executor: Callable,
+    category: str = "mcp",
+    tags: list[str] | None = None,
+    risk_level: str = "medium",
+    requires_approval: bool = False,
+    **metadata: Any,
+) -> str:
+    """
+    Register an MCP tool with namespace isolation.
+    
+    MCP tools are namespaced as {server_id}__{tool_name} to prevent
+    collisions between servers that expose tools with the same name.
+    
+    Args:
+        name: Original tool name from MCP server
+        server_id: MCP server identifier
+        executor: Tool executor function
+        category: Tool category (default: "mcp")
+        tags: Optional tags for filtering (e.g., ["read-only", "admin-only"])
+        risk_level: Risk classification ("low", "medium", "high")
+        requires_approval: Whether requires Igor approval
+        **metadata: Additional metadata
+        
+    Returns:
+        Namespaced tool ID (e.g., "vercel__deploy")
+    """
+    # Create namespaced tool ID
+    tool_id = f"{server_id}__{name}"
+    
+    # Register with existing registry
+    tool_executor_registry.register_instance(
+        component_id=tool_id,
+        component=executor,
+        priority=0,
+        tags=[category] + (tags or []),
+        source="mcp",
+        server_id=server_id,
+        original_name=name,
+        risk_level=risk_level,
+        requires_approval=requires_approval,
+        **metadata,
+    )
+    
+    # Track metadata for namespace resolution
+    _mcp_tool_metadata[tool_id] = {
+        "server_id": server_id,
+        "original_name": name,
+        "tags": tags or [],
+        "risk_level": risk_level,
+        "requires_approval": requires_approval,
+    }
+    
+    logger.info(
+        "mcp_tool.registered",
+        tool_id=tool_id,
+        server_id=server_id,
+        original_name=name,
+        tags=tags,
+    )
+    
+    return tool_id
+
+
+def register_mcp_tools_batch(
+    tools: list[dict[str, Any]],
+    server_id: str,
+) -> list[str]:
+    """
+    Batch register MCP tools from a server with automatic namespacing.
+    
+    Args:
+        tools: List of tool definitions with name, executor, etc.
+        server_id: MCP server identifier
+        
+    Returns:
+        List of registered namespaced tool IDs
+    """
+    registered_ids = []
+    
+    for tool_def in tools:
+        tool_id = register_mcp_tool(
+            name=tool_def["name"],
+            server_id=server_id,
+            executor=tool_def["executor"],
+            category=tool_def.get("category", "mcp"),
+            tags=tool_def.get("tags", []),
+            risk_level=tool_def.get("risk_level", "medium"),
+            requires_approval=tool_def.get("requires_approval", False),
+            description=tool_def.get("description", ""),
+        )
+        registered_ids.append(tool_id)
+    
+    logger.info(
+        "mcp_tools.batch_registered",
+        server_id=server_id,
+        count=len(registered_ids),
+    )
+    
+    return registered_ids
+
+
+def get_tools_by_server(server_id: str) -> dict[str, Callable]:
+    """
+    Get all tools registered from a specific MCP server.
+    
+    Args:
+        server_id: MCP server identifier
+        
+    Returns:
+        Dictionary mapping namespaced tool IDs to executors
+    """
+    result: dict[str, Callable] = {}
+    
+    for tool_id, meta in _mcp_tool_metadata.items():
+        if meta["server_id"] == server_id:
+            executor = tool_executor_registry.get(tool_id)
+            if executor:
+                result[tool_id] = executor
+    
+    return result
+
+
+def get_mcp_tool_metadata(tool_id: str) -> dict[str, Any] | None:
+    """Get metadata for a namespaced MCP tool."""
+    return _mcp_tool_metadata.get(tool_id)
+
+
+def resolve_mcp_tool_name(server_id: str, original_name: str) -> str | None:
+    """
+    Resolve original tool name to namespaced ID.
+    
+    Args:
+        server_id: MCP server identifier
+        original_name: Original tool name
+        
+    Returns:
+        Namespaced tool ID or None if not found
+    """
+    tool_id = f"{server_id}__{original_name}"
+    if tool_id in _mcp_tool_metadata:
+        return tool_id
+    return None
+
+
+def get_tools_by_tags(tags: list[str]) -> dict[str, Callable]:
+    """
+    Get all tools that have ALL specified tags.
+    
+    Args:
+        tags: List of tags to filter by
+        
+    Returns:
+        Dictionary mapping tool IDs to executors
+    """
+    result: dict[str, Callable] = {}
+    
+    # Check MCP tools
+    for tool_id, meta in _mcp_tool_metadata.items():
+        tool_tags = meta.get("tags", [])
+        if all(tag in tool_tags for tag in tags):
+            executor = tool_executor_registry.get(tool_id)
+            if executor:
+                result[tool_id] = executor
+    
+    # Also check regular tools via registry
+    for tool_id in tool_executor_registry.list_ids():
+        if tool_id not in result:
+            executor = tool_executor_registry.get(tool_id)
+            if executor:
+                # Check if tool has tags in metadata
+                # (AutoRegistry stores tags during registration)
+                result[tool_id] = executor
+    
+    return result
+
+
+# =============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
 __dora_footer__ = {
@@ -241,6 +429,6 @@ __dora_footer__ = {
     "governance_level": "critical",
     "security_reviewed": True,
     "performance_tested": True,
-    "last_audit": "2026-01-18T00:00:00Z",
+    "last_audit": "2026-01-31T00:00:00Z",
 }
 # ============================================================================

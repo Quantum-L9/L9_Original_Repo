@@ -30,14 +30,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import structlog
 from dataclasses import dataclass
 from typing import Any
 
 from world_model.interfaces import Entity, Relation
 from world_model.state import WorldModelState
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @dataclass

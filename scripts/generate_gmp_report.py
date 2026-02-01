@@ -54,7 +54,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -63,7 +63,7 @@ from zoneinfo import ZoneInfo
 # ============================================================================
 
 REPO_ROOT = Path(os.getenv("L9_REPO_ROOT", "/Users/ib-mac/Projects/L9"))
-REPORTS_DIR = REPO_ROOT / "reports"
+REPORTS_DIR = REPO_ROOT / "reports" / "GMP Reports"
 WORKFLOW_STATE_PATH = REPO_ROOT / "workflow_state.md"
 
 VALID_TIERS = ["KERNEL_TIER", "RUNTIME_TIER", "INFRA_TIER", "UX_TIER"]
@@ -158,12 +158,13 @@ class GMPReportGenerator:
         """Find the next sequential GMP ID."""
         max_id = 0
 
-        # Check both reports/ and reports/GMP Reports/ for existing IDs
-        for pattern in ["GMP-Report-*.md", "GMP_Report_*.md", "GMP Reports/GMP*.md"]:
+        # All GMP reports are now in reports/GMP Reports/
+        # Match various naming conventions used historically
+        for pattern in ["GMP-Report-*.md", "GMP_Report_*.md", "Report_GMP-*.md", "GMP*.md"]:
             for path in self.reports_dir.glob(pattern):
                 # Extract number from filename
                 match = re.search(
-                    r"(?:GMP-Report-|GMP_Report_GMP-|GMP-)(\d+)", path.name
+                    r"(?:GMP-Report-|GMP_Report_GMP-|GMP-|Report_GMP-)(\d+)", path.name
                 )
                 if match:
                     try:

@@ -980,8 +980,13 @@ class SubstrateRepository:
         agent_id: str | None,
         scope: str = "shared",
     ) -> None:
-        """Helper to insert semantic embedding using provided connection."""
+        """Helper to insert semantic embedding using provided connection.
+        
+        TODO (GMP-129): Migrate to packet_store + memory_embeddings pipeline.
+        This writes to semantic_memory which bypasses PacketEnvelope governance.
+        """
         vector_str = f"[{','.join(str(v) for v in vector)}]"
+        # MEMORY_BYPASS_ALLOWED: Legacy semantic_memory path - pending migration to packet_store
         await conn.execute(
             """
             INSERT INTO semantic_memory (embedding_id, agent_id, vector, payload, created_at, scope)

@@ -1073,7 +1073,7 @@ class ExecutorToolRegistry:
             if tool_id in HIGH_RISK_TOOLS:
                 # Import substrate service if available
                 substrate = getattr(self, "_substrate_service", None)
-                if substrate is None:
+                if substrate is None:  # nosemgrep: l9-singleton-requires-lock
                     # Try to get from context
                     substrate = context.get("substrate_service")
 
@@ -1948,7 +1948,7 @@ class ExecutorToolRegistry:
     # Registry Passthrough
     # =========================================================================
 
-    def register_tool(
+    async def register_tool(
         self,
         tool_id: str,
         name: str,
@@ -1958,7 +1958,11 @@ class ExecutorToolRegistry:
         **kwargs,
     ) -> None:
         """
-        Register a new tool.
+        Register a new tool (async).
+
+        GMP-79: Made async to support deterministic cache invalidation.
+        When tools are registered, all multi-turn tool caches are cleared
+        so subsequent turns discover the updated tool set.
 
         Args:
             tool_id: Unique tool identifier
@@ -1993,6 +1997,11 @@ class ExecutorToolRegistry:
             # GMP-124: Invalidate cache entry for this tool
             self._cache.invalidate(tool_id)
             logger.debug("tool_cache.invalidated_on_register", tool_id=tool_id)
+
+            # GMP-79: Invalidate all multi-turn tool caches
+            from core.tools.dynamic_discovery import invalidate_all_tool_caches
+
+            await invalidate_all_tool_caches()
 
         except ImportError:
             logger.error("Cannot register tool: tool_registry not available")

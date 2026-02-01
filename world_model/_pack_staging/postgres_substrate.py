@@ -31,7 +31,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import logging
+import structlog
 from dataclasses import dataclass
 
 from world_model.interfaces import (
@@ -42,7 +42,7 @@ from world_model.interfaces import (
 )
 from world_model.state import WorldModelState
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @dataclass

@@ -979,6 +979,40 @@ class CacheGetSessionContextArgs(BaseModel):
         extra = "forbid"
 
 
+class CacheDeleteArgs(BaseModel):
+    """Validation model for cache_delete MCP tool arguments.
+
+    Validates parameters for deleting a key from the Redis cache.
+
+    Attributes:
+        key: Cache key to delete.
+    """
+
+    key: str  # Cache key to delete
+
+    class Config:
+        """Config class enforces strict validation."""
+
+        extra = "forbid"
+
+
+class CacheKeysArgs(BaseModel):
+    """Validation model for cache_keys MCP tool arguments.
+
+    Validates parameters for listing keys matching a pattern from Redis cache.
+
+    Attributes:
+        pattern: Redis key pattern (e.g., 'l9:tool_cache:*').
+    """
+
+    pattern: str  # Key pattern to match
+
+    class Config:
+        """Config class enforces strict validation."""
+
+        extra = "forbid"
+
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

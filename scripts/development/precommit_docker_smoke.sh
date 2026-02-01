@@ -24,7 +24,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 PROJECT_NAME="l9_precommit_$(date +%s)"
-COMPOSE_FILE="$PROJECT_ROOT/docker-compose.yml"
+# ADR-0089: base + dev overlay (required: .env with all vars, no missing tolerated)
+COMPOSE_FILES="-f $PROJECT_ROOT/docker-compose.yml -f $PROJECT_ROOT/docker-compose.dev.yml"
+ENV_FILE="${ENV_FILE:-$PROJECT_ROOT/.env}"
 HEALTH_TIMEOUT=120  # seconds
 HEALTH_INTERVAL=2   # seconds
 
@@ -49,11 +51,11 @@ cleanup() {
     # Capture logs on failure before teardown
     if [ $exit_code -ne 0 ]; then
         log_warn "Capturing service logs before teardown..."
-        docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs --tail=50 2>/dev/null || true
+        docker compose -p "$PROJECT_NAME" $COMPOSE_FILES --env-file "$ENV_FILE" logs --tail=50 2>/dev/null || true
     fi
 
     # Tear down with no residue
-    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" down -v --remove-orphans 2>/dev/null || true
+    docker compose -p "$PROJECT_NAME" $COMPOSE_FILES --env-file "$ENV_FILE" down -v --remove-orphans 2>/dev/null || true
 
     # Remove any dangling resources from this project
     docker network rm "${PROJECT_NAME}_l9-network" 2>/dev/null || true
@@ -78,7 +80,7 @@ wait_for_healthy() {
 
     while [ $elapsed -lt $timeout ]; do
         local health
-        health=$(docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" ps --format json "$service" 2>/dev/null | \
+        health=$(docker compose -p "$PROJECT_NAME" $COMPOSE_FILES --env-file "$ENV_FILE" ps --format json "$service" 2>/dev/null | \
             python3 -c "import sys, json; data=json.load(sys.stdin) if sys.stdin.read(1) else {}; print(data.get('Health', 'unknown'))" 2>/dev/null || echo "unknown")
 
         if [ "$health" = "healthy" ]; then
@@ -91,18 +93,18 @@ wait_for_healthy() {
 
         # Check if container is running at all
         local state
-        state=$(docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" ps --format json "$service" 2>/dev/null | \
+        state=$(docker compose -p "$PROJECT_NAME" $COMPOSE_FILES --env-file "$ENV_FILE" ps --format json "$service" 2>/dev/null | \
             python3 -c "import sys, json; data=json.load(sys.stdin) if sys.stdin.read(1) else {}; print(data.get('State', 'unknown'))" 2>/dev/null || echo "unknown")
 
         if [ "$state" = "exited" ]; then
             log_error "$service exited unexpectedly"
-            docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs "$service" --tail=30
+            docker compose -p "$PROJECT_NAME" $COMPOSE_FILES --env-file "$ENV_FILE" logs "$service" --tail=30
             return 1
         fi
     done
 
     log_error "$service failed to become healthy within ${timeout}s"
-    docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" logs "$service" --tail=50
+    docker compose -p "$PROJECT_NAME" $COMPOSE_FILES --env-file "$ENV_FILE" logs "$service" --tail=50
     return 1
 }
 
@@ -120,17 +122,28 @@ run_container_healthcheck() {
 main() {
     log_info "=== L9 Docker Pre-Commit Smoke Test ==="
     log_info "Project: $PROJECT_NAME"
-    log_info "Compose: $COMPOSE_FILE"
+    log_info "Compose: base + dev overlay, env: $ENV_FILE"
 
     cd "$PROJECT_ROOT"
 
     # ==========================================================================
+    # Gate 0: Env file required (no missing vars tolerated)
+    # ==========================================================================
+    if [ ! -f "$ENV_FILE" ]; then
+        log_error ".env required. Create: cp .env.template .env ; edit .env ; ./scripts/check_compose_env.sh .env"
+        exit 1
+    fi
+    if ! "$PROJECT_ROOT/scripts/check_compose_env.sh" "$ENV_FILE"; then
+        log_error "Required env vars missing. NO MISSING VARIABLES TOLERATED."
+        exit 1
+    fi
+
+    # ==========================================================================
     # Gate 1: Compose Validation
     # ==========================================================================
-    log_info "Gate 1: Validating docker-compose.yml..."
-
-    if ! docker compose -f "$COMPOSE_FILE" config -q; then
-        log_error "docker-compose.yml validation failed"
+    log_info "Gate 1: Validating compose (base + dev overlay)..."
+    if ! docker compose $COMPOSE_FILES --env-file "$ENV_FILE" config -q; then
+        log_error "Compose validation failed"
         exit 1
     fi
     log_success "Compose file is valid"
@@ -140,7 +153,7 @@ main() {
     # ==========================================================================
     log_info "Gate 2: Building Docker images..."
 
-    if ! docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" build --quiet; then
+    if ! docker compose -p "$PROJECT_NAME" $COMPOSE_FILES --env-file "$ENV_FILE" build --quiet; then
         log_error "Docker build failed"
         exit 2
     fi
@@ -151,7 +164,7 @@ main() {
     # ==========================================================================
     log_info "Gate 3: Starting stack..."
 
-    if ! docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" up -d; then
+    if ! docker compose -p "$PROJECT_NAME" $COMPOSE_FILES --env-file "$ENV_FILE" up -d; then
         log_error "Failed to start stack"
         exit 3
     fi
@@ -160,18 +173,18 @@ main() {
     log_info "Waiting for services to become healthy..."
 
     # Postgres first (other services depend on it)
-    if ! wait_for_healthy "postgres" 60; then
+    if ! wait_for_healthy "l9-postgres" 60; then
         log_error "Postgres failed to start"
         exit 3
     fi
 
-    # Memory API (depends on postgres)
-    if ! wait_for_healthy "l9-memory-api" 90; then
-        log_error "Memory API failed to start"
+    # MCP Memory (depends on postgres)
+    if ! wait_for_healthy "l9-mcp-memory" 90; then
+        log_error "MCP Memory failed to start"
         exit 3
     fi
 
-    # Main API (depends on postgres and memory-api)
+    # Main API (depends on postgres and mcp-memory)
     if ! wait_for_healthy "l9-api" 90; then
         log_error "Main API failed to start"
         exit 3
@@ -188,7 +201,7 @@ main() {
     # First, check if test file exists
     if [ -f "$PROJECT_ROOT/tests/docker/test_stack_smoke.py" ]; then
         # Run tests using pytest in the l9-api container
-        if ! docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T l9-api \
+        if ! docker compose -p "$PROJECT_NAME" $COMPOSE_FILES --env-file "$ENV_FILE" exec -T l9-api \
             python -m pytest /app/tests/docker/test_stack_smoke.py -v --tb=short; then
             log_error "Smoke tests failed"
             exit 4
@@ -239,7 +252,7 @@ main() {
     log_info "Gate 5: Validating DB connectivity..."
 
     # Check that API can reach postgres via service DNS
-    if ! docker compose -p "$PROJECT_NAME" -f "$COMPOSE_FILE" exec -T l9-api \
+    if ! docker compose -p "$PROJECT_NAME" $COMPOSE_FILES --env-file "$ENV_FILE" exec -T l9-api \
         python -c "
 import os
 import asyncio

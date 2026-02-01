@@ -61,7 +61,7 @@ SLACK_THREAD_NAMESPACE = uuid5(NAMESPACE_DNS, "slack.l9.internal")
 class SlackSignatureVerificationError(Exception):
     """Raised when Slack signature verification fails."""
 
-    def __init__(self, reason: str, http_status: int = 401):
+    def __init__(self, reason: str, http_status: int = 401) -> None:
         """
         Validates Slack webhook request signatures to ensure authenticity and integrity.
 
@@ -101,7 +101,7 @@ class SlackRequestValidator:
     TOLERANCE_SECONDS: int = 300
     SIGNATURE_VERSION: str = "v0"
 
-    def __init__(self, signing_secret: str):
+    def __init__(self, signing_secret: str) -> None:
         """
         Args:
             signing_secret: Slack app signing secret (from Settings > Basic Information)

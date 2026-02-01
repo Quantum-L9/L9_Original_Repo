@@ -15,7 +15,7 @@ Public API unchanged - existing PacketEnvelope semantics preserved.
 
 from __future__ import annotations
 
-import logging
+import structlog
 import hashlib
 import json
 from datetime import timedelta
@@ -35,7 +35,7 @@ class SubstrateServiceProtocol(Protocol):
         ...
 
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class IdempotencyStore:
@@ -197,6 +197,63 @@ class IdempotencyStore:
         except Exception as e:
             logger.warning(f"Failed to retrieve execution record: {e}")
             return None
+
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    # Key-based methods for AgentTask integration
+    # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+    async def check_executed_by_key(self, dedupe_key: str) -> bool:
+        """
+        Check if task has already been executed using a pre-computed key.
+
+        Args:
+            dedupe_key: Pre-computed idempotency key (e.g., from AgentTask.get_dedupe_key())
+
+        Returns:
+            True if task was previously executed (within TTL window), False otherwise
+        """
+        try:
+            redis = await self._get_redis()
+            key = f"{self.KEY_PREFIX}{dedupe_key}"
+
+            exists = await redis.exists(key)
+
+            if exists:
+                logger.info(f"Task already executed (idempotent): {key}")
+                return True
+
+            return False
+
+        except Exception as e:
+            logger.warning(f"Idempotency check failed, assuming not executed: {e}")
+            return False
+
+    async def mark_executed_by_key(
+        self, dedupe_key: str, result: Dict[str, Any]
+    ) -> None:
+        """
+        Mark task as executed using a pre-computed key.
+
+        Args:
+            dedupe_key: Pre-computed idempotency key
+            result: Execution result metadata
+        """
+        try:
+            redis = await self._get_redis()
+            key = f"{self.KEY_PREFIX}{dedupe_key}"
+
+            record = {
+                "executed_at": result.get("timestamp"),
+                "status": result.get("status", "success"),
+                "task_id": result.get("task_id"),
+            }
+
+            await redis.setex(key, self.ttl, json.dumps(record))
+
+            logger.debug(f"Marked task as executed: {key} (TTL: {self.ttl})")
+
+        except Exception as e:
+            logger.warning(f"Failed to mark task as executed: {e}")
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

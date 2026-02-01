@@ -42,7 +42,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import logging
+import structlog
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timezone
@@ -51,7 +51,7 @@ from typing import Any
 
 from core.decorators import must_stay_async
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # ============================================================================
 # BATCH INGESTION

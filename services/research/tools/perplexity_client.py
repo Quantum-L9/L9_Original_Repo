@@ -184,6 +184,7 @@ class PerplexityClient:
     @must_stay_async("async context manager protocol")
     async def __aenter__(self):
         """Async context manager entry."""
+        # nosemgrep: l9-httpx-async-context-required (context manager impl, closed in __aexit__)
         self._client = httpx.AsyncClient(
             timeout=httpx.Timeout(300.0, connect=10.0)  # 5 min for deep research
         )
@@ -193,6 +194,17 @@ class PerplexityClient:
         """Async context manager exit."""
         if self._client:
             await self._client.aclose()
+            self._client = None
+
+    async def close(self):
+        """Explicitly close the HTTP client (ADR-0084: Resource cleanup).
+        
+        Call this if not using the async context manager pattern.
+        Prefer: async with PerplexityClient(api_key) as client: ...
+        """
+        if self._client:
+            await self._client.aclose()
+            self._client = None
 
     @rate_limit("llm.perplexity")
     async def search(self, request: PerplexityRequest) -> PerplexityResponse:
@@ -229,6 +241,12 @@ class PerplexityClient:
 
         try:
             if not self._client:
+                # ADR-0084: Warn about resource leak risk when not using context manager
+                log.warning(
+                    "perplexity_client_fallback_init",
+                    message="Client created outside context manager - use 'async with PerplexityClient() as client:' for proper cleanup",
+                )
+                # nosemgrep: l9-httpx-async-context-required (fallback, close() method available)
                 self._client = httpx.AsyncClient(timeout=300.0)
 
             async def _make_request():

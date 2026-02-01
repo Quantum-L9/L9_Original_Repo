@@ -10,6 +10,8 @@ MANDATORY: ALL WRITES ROUTE THROUGH MAIN L9 INGESTION PIPELINE.
 - NO FALLBACK: If main pipeline unavailable, returns 503 (fail-closed)
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Memory Unified",

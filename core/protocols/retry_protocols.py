@@ -31,6 +31,7 @@ import asyncio
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import wraps
 from typing import (
     Protocol,
     TypeVar,
@@ -400,6 +401,7 @@ def with_retry(
             A wrapped asynchronous function that executes with retry logic applied.
         """
 
+        @wraps(func)
         async def wrapper(*args: object, **kwargs: object) -> T:
             """
             Performs asynchronous retry logic using configurable backoff strategies and exception handling for core protocol operations.
@@ -414,10 +416,7 @@ def with_retry(
             handler = StandardRetryHandler(policy)
             return await handler.execute_with_retry(func, *args, **kwargs)
 
-        wrapper.__name__ = func.__name__
-        wrapper.__qualname__ = func.__qualname__
-        wrapper.__doc__ = func.__doc__
-        wrapper.__module__ = func.__module__
+        # @wraps handles __name__, __qualname__, __doc__, __module__ automatically
         wrapper.__annotations__ = func.__annotations__
 
         return wrapper

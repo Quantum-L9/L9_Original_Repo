@@ -40,6 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import asyncio
 import os
 from typing import TYPE_CHECKING, Any
 
@@ -104,8 +105,9 @@ class OpenAILLMService:
             "OPENAI_EMBED_MODEL", DEFAULT_EMBEDDING_MODEL
         )
 
-        # Lazy client initialization
+        # Lazy client initialization with thread-safe lock
         self._client: AsyncOpenAI | None = None
+        self._client_lock = asyncio.Lock()
 
         logger.info(
             "OpenAILLMService initialized",
@@ -113,19 +115,28 @@ class OpenAILLMService:
             embedding_model=self._default_embedding_model,
         )
 
-    def _get_client(self) -> AsyncOpenAI:
-        """Get or create AsyncOpenAI client."""
+    async def _get_client(self) -> AsyncOpenAI:
+        """Get or create AsyncOpenAI client (thread-safe)."""
         if self._client is None:
-            try:
-                from openai import AsyncOpenAI
+            async with self._client_lock:
+                if self._client is None:
+                    try:
+                        from openai import AsyncOpenAI
 
-                self._client = AsyncOpenAI(api_key=self._api_key)
-            except ImportError as e:
-                raise RuntimeError(
-                    "openai package required for OpenAILLMService. "
-                    "Install with: pip install openai"
-                ) from e
+                        self._client = AsyncOpenAI(api_key=self._api_key)
+                    except ImportError as e:
+                        raise RuntimeError(
+                            "openai package required for OpenAILLMService. "
+                            "Install with: pip install openai"
+                        ) from e
         return self._client
+
+    async def close(self) -> None:
+        """Close the underlying OpenAI client to release resources."""
+        if self._client is not None:
+            await self._client.close()
+            self._client = None
+            logger.info("OpenAILLMService client closed")
 
     async def complete(
         self,
@@ -198,7 +209,7 @@ class OpenAILLMService:
         Returns:
             Generated response text
         """
-        client = self._get_client()
+        client = await self._get_client()
         model_name = model or self._default_model
 
         logger.debug(
@@ -258,7 +269,7 @@ class OpenAILLMService:
         Returns:
             Embedding vector as list of floats
         """
-        client = self._get_client()
+        client = await self._get_client()
         model_name = model or self._default_embedding_model
 
         logger.debug(

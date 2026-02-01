@@ -50,7 +50,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import structlog
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any
@@ -58,7 +58,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from fastapi import FastAPI
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 # ============================================================================

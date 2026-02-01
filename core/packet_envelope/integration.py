@@ -34,7 +34,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import structlog
 from dataclasses import dataclass
 from datetime import UTC, datetime, timezone
 from enum import Enum
@@ -67,7 +67,7 @@ from core.packet_envelope.standardization import (
     SchemaRegistry,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 # ============================================================================
 # INTEGRATED PACKET ENVELOPE ENGINE

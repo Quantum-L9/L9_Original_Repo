@@ -1,6 +1,11 @@
 """Memory CRUD, search, compounding, and decay routes.
 
 NOTE: Legacy routes disabled (GMP-68). Use memory_unified.py instead.
+
+MEMORY_BYPASS_ALLOWED: Legacy-disabled-code
+This entire file is DISABLED via _legacy_memory_disabled() dependency.
+All routes return HTTP 410 Gone and direct to memory_unified.py.
+Code retained for reference/rollback only. Not executed in production.
 """
 
 # ============================================================================

@@ -274,6 +274,7 @@ def mock_substrate():
         # Parse coverage if present
         cov_match = re.search(r"TOTAL\s+\d+\s+\d+\s+(\d+)%", stdout)
         if cov_match:
+            # nosemgrep: l9-float-requires-try-except (regex \d+ only matches digits)
             results.coverage_percent = float(cov_match.group(1))
 
         # Parse individual test results

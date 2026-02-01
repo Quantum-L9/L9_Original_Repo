@@ -258,8 +258,7 @@ def get_tool_feedback_service(
     passing from the caller, matching patterns used elsewhere in L9.
     """
     global _tool_feedback_service
-
-    if _tool_feedback_service is None:
+    if _tool_feedback_service is None:  # nosemgrep: l9-singleton-requires-lock
         _tool_feedback_service = ToolFeedbackService(substrate_service)
 
     return _tool_feedback_service

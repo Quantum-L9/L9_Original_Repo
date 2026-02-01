@@ -32,7 +32,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum

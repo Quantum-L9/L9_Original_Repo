@@ -123,7 +123,7 @@ class WebSocketTracingMiddleware:
         >>> app.add_middleware(WebSocketTracingMiddleware)
     """
 
-    def __init__(self, app: ASGIApp):
+    def __init__(self, app: ASGIApp) -> None:
         """
         Initialize middleware.
 

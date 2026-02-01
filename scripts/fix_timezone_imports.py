@@ -149,6 +149,8 @@ def main():
     errors = []
 
     for filepath in sorted(L9_ROOT.rglob("*.py")):
+        if not filepath.is_file():
+            continue  # Skip directories that happen to end in .py
         if should_skip_file(filepath):
             continue
 

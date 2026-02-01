@@ -83,7 +83,11 @@ class PhaseResult:
         Raises:
             AttributeError: If required attributes are missing during post-initialization.
         """
-        if not self.success and self.error and not self.error_code:
+        if (
+            not self.success
+            and isinstance(self.error, Exception)
+            and not self.error_code
+        ):
             # Auto-generate error code if missing
             self.error_code = f"BOOTSTRAP_PHASE{self.phase}_{self.name.upper()}_FAILED"
 
