@@ -1,10 +1,18 @@
+# bootstrap/__main__.py
+"""
+Canonical L9 Bootstrap Entrypoint
+Runs exactly once. Fails hard. Writes bootstrap artifact.
+"""
+
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "  Main  ",
     "module_version": "1.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-28T12:26:24Z",
-    "updated_at": "2026-01-31T23:18:42Z",
+    "updated_at": "2026-01-31T23:23:32Z",
     "layer": "operations",
     "domain": "bootstrap",
     "module_name": "__main__",
@@ -18,14 +26,6 @@ __dora_meta__ = {
     },
 }
 # ============================================================================
-
-# bootstrap/__main__.py
-"""
-Canonical L9 Bootstrap Entrypoint
-Runs exactly once. Fails hard. Writes bootstrap artifact.
-"""
-
-from __future__ import annotations
 
 import asyncio
 import json
