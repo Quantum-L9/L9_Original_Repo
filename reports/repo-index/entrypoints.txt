@@ -39,7 +39,7 @@ api/middleware/websocket_tracing.py
     - WEBSOCKET /ws
 api/server.py
   Type: FastAPI
-  Routes (12):
+  Routes (10):
     - GET /
     - GET /health
     - GET /health/startup
@@ -50,7 +50,6 @@ api/server.py
     - POST /lchat
     - WEBSOCKET /ws/agent
     - WEBSOCKET /lws
-    ... and 2 more
 api/server_memory.py
   Type: FastAPI
   Title: L9 Phase 2 Secure AI OS
@@ -72,7 +71,13 @@ bootstrap/__main__.py
 ci/ai_guardrails/runner.py
   Type: Script
   Has __main__ block: Yes
+ci/check_adr_compliance.py
+  Type: Script
+  Has __main__ block: Yes
 ci/check_dependency_patterns.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_imports.py
   Type: Script
   Has __main__ block: Yes
 ci/check_no_deprecated_services.py
@@ -111,6 +116,39 @@ ci/validate_dora_blocks.py
 ci/validate_spec_v25.py
   Type: Script
   Has __main__ block: Yes
+codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py
+  Type: Script
+  Has __main__ block: Yes
+codegen/Perplexity-Search-Pack/SUPER_PROMPT_TEMPLATE.py
+  Type: Script
+  Has __main__ block: Yes
+codegen/Perplexity-Search-Pack/autonomous-research-agent.py
+  Type: Script
+  Has __main__ block: Yes
+codegen/Perplexity-Search-Pack/production-config.py
+  Type: Script
+  Has __main__ block: Yes
+codegen/code-gen-files/examples_symbolic_computation.py
+  Type: Script
+  Has __main__ block: Yes
+codegen/code-gen-files/validate_codegen.py
+  Type: Script
+  Has __main__ block: Yes
+codegen/code-gen-files/validate_spec_v25.py
+  Type: Script
+  Has __main__ block: Yes
+codegen/codegenAgent Spec/run_codegen_superprompt.py
+  Type: Script
+  Has __main__ block: Yes
+codegen/dev_layer/am_engine/compile.py
+  Type: Script
+  Has __main__ block: Yes
+codegen/export_repo_indexes.py
+  Type: Script
+  Has __main__ block: Yes
+codegen/scripts/generate_spec.py
+  Type: Script
+  Has __main__ block: Yes
 codegenagent/extract_yaml_specs.py
   Type: Script
   Has __main__ block: Yes
@@ -128,6 +166,9 @@ core/bayesian/subjective_logic.py
   Type: Script
   Has __main__ block: Yes
 core/bayesian/uncertainty.py
+  Type: Script
+  Has __main__ block: Yes
+core/codegen/cli.py
   Type: Script
   Has __main__ block: Yes
 core/evaluation/eval_sets.py
@@ -277,6 +318,12 @@ scripts/extract_code_facts.py
 scripts/fix_async_decorators.py
   Type: Script
   Has __main__ block: Yes
+scripts/fix_logging_to_structlog.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/fix_timezone_imports.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/fix_untyped_decorators.py
   Type: Script
   Has __main__ block: Yes
@@ -338,6 +385,9 @@ scripts/memory/index_tool_usage.py
   Type: Script
   Has __main__ block: Yes
 scripts/memory/ingest_chat_transcript.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/memory/ingest_repo_indexes.py
   Type: Script
   Has __main__ block: Yes
 scripts/memory/inspect_embeddings.py
@@ -427,7 +477,28 @@ tools/adr/adr_enforcer.py
 tools/adr/adr_scanner.py
   Type: Script
   Has __main__ block: Yes
+tools/adr/docstring_injector.py
+  Type: Script
+  Has __main__ block: Yes
 tools/architecture_reports/main.py
+  Type: Script
+  Has __main__ block: Yes
+tools/codegen/doc_compiler.py
+  Type: Script
+  Has __main__ block: Yes
+tools/codegen/docstring_injector.py
+  Type: Script
+  Has __main__ block: Yes
+tools/codegen/knowledge_harvester.py
+  Type: Script
+  Has __main__ block: Yes
+tools/codegen/qc_dashboard.py
+  Type: Script
+  Has __main__ block: Yes
+tools/codegen/spec_generator.py
+  Type: Script
+  Has __main__ block: Yes
+tools/codegen/text_to_code.py
   Type: Script
   Has __main__ block: Yes
 tools/export_repo_indexes.py

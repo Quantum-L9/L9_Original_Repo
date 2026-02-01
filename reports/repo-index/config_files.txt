@@ -7356,6 +7356,8 @@
 .mypy_cache/3.12/scripts/audit/tier1.meta.json
 .mypy_cache/3.12/scripts/audit/validate_dora_complete.data.json
 .mypy_cache/3.12/scripts/audit/validate_dora_complete.meta.json
+.mypy_cache/3.12/scripts/audit/verify_memory_spec_v3.data.json
+.mypy_cache/3.12/scripts/audit/verify_memory_spec_v3.meta.json
 .mypy_cache/3.12/scripts/batch.data.json
 .mypy_cache/3.12/scripts/batch.meta.json
 .mypy_cache/3.12/scripts/benchmark_standalone.data.json
@@ -7368,6 +7370,8 @@
 .mypy_cache/3.12/scripts/fix_untyped_decorators.meta.json
 .mypy_cache/3.12/scripts/generate_gmp_report.data.json
 .mypy_cache/3.12/scripts/generate_gmp_report.meta.json
+.mypy_cache/3.12/scripts/generate_subsystem_readmes.data.json
+.mypy_cache/3.12/scripts/generate_subsystem_readmes.meta.json
 .mypy_cache/3.12/scripts/memory/__init__.data.json
 .mypy_cache/3.12/scripts/memory/__init__.meta.json
 .mypy_cache/3.12/scripts/memory/check_embeddings_via_api.data.json
@@ -7382,8 +7386,12 @@
 .mypy_cache/3.12/scripts/memory/generate_delete_sql.meta.json
 .mypy_cache/3.12/scripts/memory/index_tool_usage.data.json
 .mypy_cache/3.12/scripts/memory/index_tool_usage.meta.json
+.mypy_cache/3.12/scripts/memory/ingest_repo_indexes.data.json
+.mypy_cache/3.12/scripts/memory/ingest_repo_indexes.meta.json
 .mypy_cache/3.12/scripts/memory/load_gmp_reports_to_graph.data.json
 .mypy_cache/3.12/scripts/memory/load_gmp_reports_to_graph.meta.json
+.mypy_cache/3.12/scripts/memory/load_indexes_to_neo4j.data.json
+.mypy_cache/3.12/scripts/memory/load_indexes_to_neo4j.meta.json
 .mypy_cache/3.12/scripts/memory/test_all_graphs_access.data.json
 .mypy_cache/3.12/scripts/memory/test_all_graphs_access.meta.json
 .mypy_cache/3.12/scripts/migrate_substrate_models.data.json
@@ -8532,6 +8540,8 @@
 .mypy_cache/3.12/tools/architecture_reports/imports_report.meta.json
 .mypy_cache/3.12/tools/architecture_reports/pydantic_models_report.data.json
 .mypy_cache/3.12/tools/architecture_reports/pydantic_models_report.meta.json
+.mypy_cache/3.12/tools/export_repo_indexes.data.json
+.mypy_cache/3.12/tools/export_repo_indexes.meta.json
 .mypy_cache/3.12/tools/mac_protocol.data.json
 .mypy_cache/3.12/tools/mac_protocol.meta.json
 .mypy_cache/3.12/tools/superpack_reports/__init__.data.json
@@ -23255,6 +23265,7 @@
 .refactor-reports/backlog.json
 .refactor-reports/baseline.json
 .sec/semgrep.yaml
+.semgrep/l9-rules.yaml
 .suite6-config.json
 VPS-Repo-Files/docker/docker-Dockerfile
 VPS-Repo-Files/runtime/*runtime-Dockerfile
@@ -23673,9 +23684,8 @@ current_work/01-25-2026/L9-refactoring-plan/harvested-files/46_MONOLITHIC_REFACT
 current_work/01-25-2026/L9-refactoring-plan/harvested-files/60_coverage_targets.yaml
 current_work/01-25-2026/L9-refactoring-plan/harvested-files/61_mypy_override.yaml
 current_work/01-25-2026/state.yaml
-current_work/01-26-2026/L-CTO/l9_operator_handbook_v2.yaml
-current_work/01-26-2026/Web Lead Triage - FIN.json
-current_work/01-26-2026/cognito-forms-rest-api.json
+current_work/01-31-2026/Cognito-Forms (Plastic)/Web Lead Triage - FIN.json
+current_work/01-31-2026/Cognito-Forms (Plastic)/cognito-forms-rest-api.json
 current_work/Bayesian Upgrade/bayesian_kernel.yaml
 current_work/Bayesian Upgrade/bayesian_tree_reasoner.yaml
 current_work/Bayesian Upgrade/causal_graph/bayesian_causal_graph_engine.yaml
@@ -23715,6 +23725,7 @@ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_neo4j_statef
 current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_network_policy.yaml
 current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_orchestrator_deployment.yaml
 current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/k8s_redis_statefulset.yaml
+current_work/DONE/L-CTO/l9_operator_handbook_v2.yaml
 current_work/DONE/Tool Discovery/harvested-wiring-fixes/4_ci_workflow.yml
 current_work/DONE/Tool Discovery/harvested-wiring-fixes/6_pre_commit_config.yaml
 current_work/Motif Spec/motif_tensor_bridge_codegen_spec_ENHANCED_v2.1.yaml
@@ -23817,9 +23828,11 @@ private/kernels/00_system/_archived/10_packet_protocol_enforcement_kernel.yaml
 private/kernels/00_system/_archived/11_identity_kernel.yaml
 private/kernels/bootstrap/kernel_manifest.yaml
 private/security/l9_security_kernel.yaml
+private/specs/core_kernels_tests.yaml
 prompts/.stage-config/stage-2-consolidation.yaml
 pyproject.toml
 pytest.ini
+reports/.index_hashes.json
 reports/_archived/wiring_audit.json
 reports/audit_runs/audit_infrastructure_health.json
 reports/audit_runs/audit_run_audit_run_20260106_185009_61c6ec09.json

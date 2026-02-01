@@ -217,7 +217,7 @@ class StandardRateLimiter:
         )
         self._sliding_window_state: dict[str, list[float]] = defaultdict(list)
         self._token_bucket_state: dict[str, tuple[float, float]] = defaultdict(
-            lambda: (float(self.policy.burst_size), time.monotonic())
+            lambda: (float(self.policy.burst_size), time.monotonic())  # nosemgrep: l9-float-requires-try-except
         )
         self._leaky_bucket_state: dict[str, tuple[float, float]] = defaultdict(
             lambda: (0.0, time.monotonic())

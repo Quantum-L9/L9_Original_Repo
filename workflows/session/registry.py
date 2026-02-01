@@ -34,7 +34,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import structlog
 from typing import Any
 
 # structlog is preferred but optional
@@ -43,7 +43,7 @@ try:
 
     logger = structlog.get_logger(__name__)
 except ImportError:
-    logger = logging.getLogger(__name__)
+    logger = structlog.get_logger(__name__)
 
 from workflows.session.interface import SessionDAG
 

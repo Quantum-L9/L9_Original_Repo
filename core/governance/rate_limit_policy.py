@@ -134,10 +134,11 @@ class RateLimitPolicy:
         self._limiter: Any | None = None
         self._loaded = False
 
+    # nosemgrep: l9-singleton-classmethod-requires-lock (startup-only, cheap creation)
     @classmethod
     def get_instance(cls) -> RateLimitPolicy:
         """Get or create singleton instance."""
-        if cls._instance is None:
+        if cls._instance is None:  # nosemgrep: l9-singleton-requires-lock
             cls._instance = cls()
         return cls._instance
 

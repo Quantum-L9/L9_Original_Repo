@@ -489,9 +489,12 @@ class CachedToolRegistry:
         """
         return self._registry.list_tools()
 
-    def register_tool(self, tool_id: str, tool_def: dict[str, Any]) -> None:
+    async def register_tool(self, tool_id: str, tool_def: dict[str, Any]) -> None:
         """
-        Register tool and invalidate cache.
+        Register tool and invalidate cache (async).
+
+        GMP-79: Made async to support deterministic cache invalidation.
+        When tools are registered, all multi-turn tool caches are cleared.
 
         Args:
             tool_id: Tool identifier
@@ -502,11 +505,19 @@ class CachedToolRegistry:
         # Invalidate cache entry
         self._cache.invalidate(tool_id)
 
+        # GMP-79: Invalidate all multi-turn tool caches
+        from core.tools.dynamic_discovery import invalidate_all_tool_caches
+
+        await invalidate_all_tool_caches()
+
         logger.debug("cached_tool_registry.registered", tool_id=tool_id)
 
-    def unregister_tool(self, tool_id: str) -> bool:
+    async def unregister_tool(self, tool_id: str) -> bool:
         """
-        Unregister tool and invalidate cache.
+        Unregister tool and invalidate cache (async).
+
+        GMP-79: Made async to support deterministic cache invalidation.
+        When tools are unregistered, all multi-turn tool caches are cleared.
 
         Args:
             tool_id: Tool identifier
@@ -518,6 +529,11 @@ class CachedToolRegistry:
 
         # Invalidate cache entry
         self._cache.invalidate(tool_id)
+
+        # GMP-79: Invalidate all multi-turn tool caches
+        from core.tools.dynamic_discovery import invalidate_all_tool_caches
+
+        await invalidate_all_tool_caches()
 
         logger.debug("cached_tool_registry.unregistered", tool_id=tool_id)
 

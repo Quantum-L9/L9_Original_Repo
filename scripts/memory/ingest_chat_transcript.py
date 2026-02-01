@@ -306,6 +306,10 @@ async def ingest_to_memory(
 
     try:
         async with repo.acquire() as conn:
+            # MEMORY_BYPASS_ALLOWED: Bulk-ingestion-script-for-chat-transcript-import
+            # This script is for one-time bulk imports, not regular API traffic.
+            # It writes directly to packet_store for performance on large transcripts.
+
             # Insert conversation metadata as a packet
             conv_packet_id = generate_deterministic_id(f"{conversation_id}_metadata")
 

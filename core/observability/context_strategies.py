@@ -25,7 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod  # TODO(ADR-0026): Convert to Protocol - no shared impl
 from typing import Any
 
 import structlog

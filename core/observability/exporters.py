@@ -25,7 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod  # noqa: ADR-0026 - AsyncSpanExporter has default flush()
 from typing import Any
 
 import structlog
@@ -38,7 +38,7 @@ from .models import Span
 logger = structlog.get_logger(__name__)
 
 
-class SpanExporter(ABC):
+class SpanExporter(ABC):  # TODO(ADR-0026): Convert to Protocol - no shared impl
     """Abstract base class for span exporters."""
 
     @abstractmethod

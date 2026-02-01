@@ -220,6 +220,7 @@ _kernel_lock = threading.Lock()
 
 def get_bayesian_kernel() -> BayesianKernel:
     """Get or create global Bayesian kernel instance (thread-safe)."""
+    # nosemgrep: l9-singleton-requires-lock (already has double-checked locking below)
     global _bayesian_kernel
     if _bayesian_kernel is None:
         with _kernel_lock:

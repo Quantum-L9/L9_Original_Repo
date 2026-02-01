@@ -13,7 +13,9 @@
 - Research Overlay: `create_l_cto_research_agent()` factory wired
 - Test Coverage: 86 tests pass (bootstrap + L-CTO + kernel runtime)
 
-**PRIMARY FOCUS**: **VPS Governance Activation** — Migrations pending next Docker rebuild, `GOVERNANCE_HARDENING_ENABLED=True` already set.
+**PRIMARY FOCUS**: **VPS Governance Activation** — **EXECUTE migrations at next Docker rebuild!!!** `GOVERNANCE_HARDENING_ENABLED=True` already set.
+
+**Session startup (this run):** Inject returned 0 items in structured layers (empty); search results above used as context.
 
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
 
@@ -25,9 +27,16 @@
 
 ## Active Work
 
-**PRIMARY FOCUS**: **VPS Governance Verification** — Migrations will run at next Docker rebuild, governance flag already enabled.
+**PRIMARY FOCUS**: **VPS Governance Verification** — **EXECUTE migrations at next Docker rebuild!!!** Governance flag already enabled.
 
 **SECONDARY**: CodeGenAgent (CGA) system — deferred until governance verified on VPS.
+
+**COMPLETED (2026-01-31 session):**
+
+- ✅ **Docstring Injection Complete** — 488 Google-style docstrings injected across codebase
+  - `tools/codegen/docstring_injector.py` enhanced with AST context, validation
+  - Quality: 85-93/100 (vs Manus manual: 92/100)
+  - Report: `reports/docstring_quality_comparison.md`
 
 **COMPLETED (2026-01-25 session, archived)**:
 
@@ -74,6 +83,8 @@
 
 ## Recent Changes (digest)
 
+- [2026-01-31] **GMP-128: Adapt MCP Tools Enhancements to L9 APIs** — Integrated 5 harvested MCP tool enhancements (namespace isolation, live refresh, auth management, observability, role-based filtering) into existing L
+- [2026-01-31] **Docstring Injector Enhancement + Bulk Injection** — Fixed multi-line signature detection, reverse-order processing, AST-enriched context. **488 docstrings injected**, 0 remaining. Quality: 85-93/100. Report: `reports/docstring_quality_comparison.md`
 - [2026-01-29] **Session Housekeeping** — Verified wiring tasks complete, fixed Pydantic v2 validators, synced state files, installed sympy/pydantic locally.
 - [2026-01-28] **GMP-126: Tool Embeddings Wiring Fix (Tool RAG)** — Fixed critical wiring failure in Tool RAG pipeline. Root cause: init_repository() was never called during API lifespan, making get_repository() single
 Full history: `reports/Workflow_State_Archive_2026-01-08.md`
@@ -116,6 +127,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ## Sticky Notes
 
+- **🚨 EXECUTE MIGRATIONS at next Docker rebuild!!!** (PostgreSQL + Neo4j via deploy script Phase 4/5)
 - **✅ VPS DEPLOYED**: 2026-01-15 commit `960b2de7` (106 files, governance hardening + RLS)
 - VPS IP: 157.180.73.53, User: admin, L9 dir: /opt/l9
 - **C1 (PRIMARY)**: 46.62.243.82 — PostgreSQL :30432, Neo4j :30474, MCP :30902
@@ -131,9 +143,13 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-01-29 (Session housekeeping — state sync, Pydantic v2 fix, wiring verification)_
+_Last updated: 2026-01-31 (Docstring injector enhancement — 488 docstrings, quality comparison report)_
 
 ## Next Steps (Current Session)
+
+### 🚨 EXECUTE migrations at next Docker rebuild!!!
+- Run deploy script **without** `--skip-migrations` so Phase 4 (PostgreSQL) and Phase 5 (Neo4j) run.
+- Path: `deploy/k8s/c1/scripts/c1-deploy-update.sh`.
 
 ### 🟢 COMPLETED: PR Cleanup
 
@@ -163,6 +179,14 @@ PR #51 (Spring Cleaning) — MERGED ✅
 
 **Recent Sessions (7-day window):**
 
+- 2026-01-31: **Session startup:** Inject returned 0 items in structured layers (empty); search results used as context. **Action: EXECUTE migrations at next Docker rebuild!!!**
+- 2026-01-31: **Docstring Injector Enhancement** — Major improvements to `tools/codegen/docstring_injector.py`:
+  - Fixed multi-line signature detection (parentheses balance tracking)
+  - Fixed line number invalidation (reverse-order processing within files)
+  - Added AST-enriched context for higher quality docstrings
+  - Added validation step with quality metrics
+  - **Result:** 488 docstrings injected, 0 remaining, 100% success rate (last batches)
+  - Quality comparison: Manus (92/100) vs Script (85/100) — `reports/docstring_quality_comparison.md`
 - 2026-01-29: **Session Housekeeping** — State sync + Pydantic v2 fix:
   - Verified: DeduplicationEngine wiring ✅ COMPLETE
   - Verified: RegistryCache wiring ✅ COMPLETE
@@ -214,4 +238,4 @@ PR #51 (Spring Cleaning) — MERGED ✅
 
 ---
 
-_Last updated: 2026-01-29_
+_Last updated: 2026-01-31_

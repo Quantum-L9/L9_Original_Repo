@@ -17,12 +17,12 @@ Author: Manus AI
 Created: 2025-12-20
 """
 
-import logging
+import structlog
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import Enum
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class DecisionMode(Enum):

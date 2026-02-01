@@ -33,6 +33,12 @@ try:
 except ImportError:
     pass  # Will be reported as test failure
 
+# Pre-import adapters.tensorglobe_bridge for pytest adapter tests
+try:
+    import adapters.tensorglobe_bridge
+except ImportError:
+    pass  # Will be handled as test failure where needed
+
 # Pre-import api.routes.registry for pytest router registry tests
 try:
     import api.routes.registry

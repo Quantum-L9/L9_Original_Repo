@@ -650,9 +650,11 @@ class EnrichmentDAG:
         Tier 3: Direct DB write (emergency fallback).
 
         Raw insert bypassing ORM, for maximum reliability.
+        This is the last-resort fallback when Tiers 1-2 fail.
         """
         try:
             async with self._repository.acquire() as conn:
+                # MEMORY_BYPASS_ALLOWED: Tier-3-emergency-fallback-when-enrichment-pipeline-fails
                 await conn.execute(
                     """
                     INSERT INTO packets (packet_id, packet_type, payload, timestamp)

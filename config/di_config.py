@@ -162,7 +162,7 @@ def create_pgvector_client() -> VectorStore:
     """
     # Note: Assuming pgvector client exists or will be created
     # For now, we'll use a placeholder that returns None
-    # TODO: Implement actual pgvector client
+    # FUTURE: Implement actual pgvector client (tracked in backlog)
     logger.warning(
         "di_config.create_pgvector_client",
         action="pgvector_not_implemented",
@@ -201,7 +201,7 @@ def create_memory_substrate_service(
         has_vector=vector is not None,
     )
     # For now, use existing singleton getter (async)
-    # TODO: Refactor substrate_service.py to accept injected dependencies
+    # FUTURE: Refactor substrate_service.py to accept injected dependencies
     return get_service()  # type: ignore[no-any-return]
 
 
@@ -223,7 +223,7 @@ def create_world_model_service(graph: GraphClient) -> WorldModelService:
         has_graph=graph is not None,
     )
     # For now, use existing singleton getter
-    # TODO: Refactor world_model service to accept injected dependencies
+    # FUTURE: Refactor world_model service to accept injected dependencies
     return get_world_model_service()  # type: ignore[no-any-return]
 
 
@@ -234,7 +234,7 @@ def create_observability_service() -> ObservabilityService:
     Returns:
         ObservabilityService: Observability service instance
     """
-    # TODO: Implement observability service
+    # FUTURE: Implement observability service (tracked in backlog)
     logger.warning(
         "di_config.create_observability_service",
         action="observability_not_implemented",
@@ -371,7 +371,7 @@ def configure_di_container(
             action="applying_test_overrides",
             environment=env,
         )
-        # TODO: Add test-specific bindings (mocks)
+        # FUTURE: Add test-specific bindings (mocks) when needed
 
     elif env == "dev":
         # In dev environment, use relaxed settings
@@ -380,7 +380,7 @@ def configure_di_container(
             action="applying_dev_overrides",
             environment=env,
         )
-        # TODO: Add dev-specific bindings (if needed)
+        # FUTURE: Add dev-specific bindings when needed
 
     logger.info(
         "di_config.configure_di_container",

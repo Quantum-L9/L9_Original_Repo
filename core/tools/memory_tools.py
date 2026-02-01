@@ -431,7 +431,8 @@ async def register_memory_tools(
 
                 if "tool_id" in params or len(params) >= 4:
                     # ExecutorToolRegistry: register_tool(tool_id, name, description, executor)
-                    tool_registry.register_tool(
+                    # GMP-79: register_tool is now async for cache invalidation
+                    await tool_registry.register_tool(
                         tool_id=tool_id,
                         name=name,
                         description=description,

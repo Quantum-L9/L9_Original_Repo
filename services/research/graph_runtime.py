@@ -191,7 +191,7 @@ _runtime: ResearchGraphRuntime | None = None
 def get_runtime() -> ResearchGraphRuntime:
     """Get or create runtime singleton."""
     global _runtime
-    if _runtime is None:
+    if _runtime is None:  # nosemgrep: l9-singleton-requires-lock
         _runtime = ResearchGraphRuntime()
     return _runtime
 

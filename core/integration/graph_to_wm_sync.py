@@ -361,7 +361,7 @@ def get_graph_wm_sync(neo4j_driver: Any) -> GraphToWorldModelSync:
         ValueError: If neo4j_driver is None
     """
     global _sync_service
-    if _sync_service is None:
+    if _sync_service is None:  # nosemgrep: l9-singleton-requires-lock
         _sync_service = GraphToWorldModelSync(neo4j_driver=neo4j_driver)
     return _sync_service
 

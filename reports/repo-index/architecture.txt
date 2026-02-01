@@ -89,6 +89,7 @@ dev/tools/ - No module docstring
 domain_tensor_bridge/ - 
 domain_tensor_bridge/tests/domain_tensor_bridge/ - No module docstring
 email_agent/ - L9 Email Agent - Gmail API integration.
+governance/ - 
 graph_adapter/ - L9 LangGraph Integration - PacketNodeAdapter for memory-logg
 igor/DONE!/tokenizer/core/tokenizer/ - 
 igor/DONE!/tokenizer/core/tokenizer/tests/ - 
@@ -105,9 +106,11 @@ mcp_memory/src/safety/ - L9 Safety - Policy Enforcement & Security Event Managem
 mcp_memory/tests/ - L9 MCP Memory Server Tests.
 memory/ - 
 memory/checkpoint/ - 
+memory/consolidation/ - 
 memory/extractor/ - 
 memory/extractor/ingestion/ - Memory extractor ingestion module.
 memory/validators/ - L9 Memory Validators
+memory_cache/ - 
 motifs/ - 
 orchestration/ - 
 orchestrators/ - 

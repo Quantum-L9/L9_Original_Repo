@@ -78,7 +78,7 @@ class SlackAPIClient:
         )
     """
 
-    def __init__(self, bot_token: str, http_client: httpx.AsyncClient):
+    def __init__(self, bot_token: str, http_client: httpx.AsyncClient) -> None:
         """
         Args:
             bot_token: Slack bot token (from Settings > Install App)
@@ -348,6 +348,9 @@ async def post_result_async(
     Note: This is the async replacement for services.slack_client.post_result()
     """
     # Create client if not provided
+    http_client_owned = False  # Track if we created the client (ADR-0084)
+    http_client = None
+    
     if slack_client is None:
         slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
         slack_app_enabled = os.getenv("SLACK_APP_ENABLED", "true").lower() == "true"
@@ -356,7 +359,9 @@ async def post_result_async(
             logger.debug("[SLACK] No client; skipping result post")
             return None
 
+        # nosemgrep: l9-httpx-async-context-required (closed in finally block below)
         http_client = httpx.AsyncClient()
+        http_client_owned = True  # We own this client, must close it
         slack_client = SlackAPIClient(
             bot_token=slack_bot_token, http_client=http_client
         )
@@ -608,6 +613,10 @@ async def post_result_async(
         logger.error(f"[SLACK] Error posting result: {e}", exc_info=True)
         # Don't raise - fail silently (matching legacy behavior)
         return None
+    finally:
+        # Close HTTP client if we created it (ADR-0084: Resource cleanup)
+        if http_client_owned and http_client:
+            await http_client.aclose()
 
 
 # ============================================================================

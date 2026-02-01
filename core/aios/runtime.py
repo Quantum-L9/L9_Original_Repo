@@ -145,6 +145,13 @@ class AIOSRuntime:
             self._max_tokens,
         )
 
+    async def close(self) -> None:
+        """Close the underlying OpenAI client to release resources."""
+        if self._client is not None:
+            await self._client.close()
+            self._client = None
+            logger.info("AIOSRuntime client closed")
+
     # =========================================================================
     # Properties
     # =========================================================================

@@ -28,7 +28,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import logging
+import structlog
 from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import Any
@@ -83,7 +83,7 @@ class DiscoveryTracer:
         Args:
             trace: An instance of DiscoveryTrace representing the discovery event to log.
         """
-        self.logger = logging.getLogger("l9.discovery")
+        self.logger = structlog.get_logger("l9.discovery")
         self.traces: list[DiscoveryTrace] = []
 
     def trace_discovery(self, trace: DiscoveryTrace):

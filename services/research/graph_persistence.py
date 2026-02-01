@@ -46,6 +46,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import threading
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
@@ -625,13 +626,19 @@ def get_graph_persistence() -> ResearchGraphPersistence | None:
     return _persistence
 
 
+_persistence_lock = threading.Lock()
+
+
 def init_graph_persistence(
     neo4j_client: Any,
     config: GraphPersistenceConfig | None = None,
 ) -> ResearchGraphPersistence:
-    """Initialize the singleton persistence instance."""
+    """Initialize the singleton persistence instance (thread-safe)."""
     global _persistence
-    _persistence = create_graph_persistence(neo4j_client, config)
+    if _persistence is None:  # nosemgrep: l9-singleton-requires-lock
+        with _persistence_lock:
+            if _persistence is None:
+                _persistence = create_graph_persistence(neo4j_client, config)
     return _persistence
 
 

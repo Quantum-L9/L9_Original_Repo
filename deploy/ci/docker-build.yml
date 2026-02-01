@@ -83,7 +83,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./deploy/docker-production/Dockerfile.l9-api
+          file: ./Dockerfile
+          target: production
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -135,7 +136,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./deploy/docker-production/Dockerfile.mcp-memory
+          file: ./Dockerfile.mcp-memory
+          target: production
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

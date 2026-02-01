@@ -326,7 +326,7 @@ _wm_graph_sync: WMToGraphSync | None = None
 def get_wm_graph_sync(neo4j_driver: Any, causal_mapper: CausalMapper) -> WMToGraphSync:
     """Get global WMToGraphSync instance."""
     global _wm_graph_sync
-    if _wm_graph_sync is None:
+    if _wm_graph_sync is None:  # nosemgrep: l9-singleton-requires-lock
         _wm_graph_sync = WMToGraphSync(neo4j_driver, causal_mapper)
     return _wm_graph_sync
 

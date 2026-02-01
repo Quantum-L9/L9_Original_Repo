@@ -72,11 +72,13 @@ class TensorRequest(BaseModel):
 
     def compute_canonical(self) -> str:
         """Canonical form for signature verification"""
+        # Handle both enum and string (use_enum_values=True returns string)
+        operation_value = self.operation.value if hasattr(self.operation, 'value') else self.operation
         parts = [
             self.request_id,
             self.domain_id,
             ",".join(sorted(self.entities)),
-            self.operation.value,
+            operation_value,
             self.requester_agent_id,
         ]
         return "|".join(parts)
@@ -126,7 +128,9 @@ class TensorResponse(BaseModel):
 
     def to_evidence_object(self, request: TensorRequest) -> EpistemicObject:
         """Convert response to L9 Evidence object"""
-        content = f"TensorGlobe {request.operation.value}: {len(self.results)} results"
+        # Handle both enum and string (use_enum_values=True returns string)
+        operation_value = request.operation.value if hasattr(request.operation, 'value') else request.operation
+        content = f"TensorGlobe {operation_value}: {len(self.results)} results"
 
         return EpistemicObject(
             type=EpistemicObjectType.EVIDENCE,

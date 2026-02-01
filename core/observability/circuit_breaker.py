@@ -28,6 +28,8 @@ Usage:
     cb = CircuitBreaker.from_settings(settings)
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Circuit Breaker",

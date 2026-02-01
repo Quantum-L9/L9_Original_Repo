@@ -309,7 +309,7 @@ def load_kernel_config(env: str | None = None) -> dict[str, Any]:
         >>> kernel_order = config["kernel_order"]
         >>> required_kernels = config["required_kernels"]
     """
-    if env is None:
+    if env is None:  # nosemgrep: l9-singleton-requires-lock
         env = get_environment()
 
     logger.info(

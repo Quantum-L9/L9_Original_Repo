@@ -35,7 +35,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import structlog
 from enum import Enum
 from typing import Any
 
@@ -45,7 +45,7 @@ from world_model.postgres_substrate import PostgresConfig, PostgresSubstrate
 from world_model.redis_substrate import RedisConfig, RedisSubstrate
 from world_model.state import WorldModelState
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class ConsistencyMode(Enum):

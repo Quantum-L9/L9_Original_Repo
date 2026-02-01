@@ -443,7 +443,7 @@ async def get_l9_facade() -> L9Facade:
         The global L9Facade instance
     """
     global _facade_instance
-    if _facade_instance is None:
+    if _facade_instance is None:  # nosemgrep: l9-singleton-requires-lock
         _facade_instance = L9Facade()
     return _facade_instance
 

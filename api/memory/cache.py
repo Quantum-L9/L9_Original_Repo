@@ -63,20 +63,25 @@ router_registry.register(
 )
 
 # Lazy import Redis client
+import asyncio
+
 _redis_client = None
+_redis_client_lock = asyncio.Lock()
 
 
 async def get_redis():
-    """Get Redis client singleton."""
+    """Get Redis client singleton (thread-safe)."""
     global _redis_client
     if _redis_client is None:
-        try:
-            from runtime.redis_client import get_redis_client
+        async with _redis_client_lock:
+            if _redis_client is None:
+                try:
+                    from runtime.redis_client import get_redis_client
 
-            _redis_client = await get_redis_client()
-        except ImportError:
-            logger.warning("Redis client not available")
-            return None
+                    _redis_client = await get_redis_client()
+                except ImportError:
+                    logger.warning("Redis client not available")
+                    return None
     return _redis_client
 
 

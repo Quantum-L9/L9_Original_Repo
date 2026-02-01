@@ -1,0 +1,269 @@
+rules:
+  # =============================================================================
+  # L9 CI POLICY RULES - Regression Prevention
+  # =============================================================================
+  # These rules enforce patterns learned from bug fixes in PRs #81-86
+  # Violations will fail CI.
+  #
+  # Created: 2026-01-31
+  # Source: Bug audit phases 1-6
+  # =============================================================================
+
+  # ---------------------------------------------------------------------------
+  # RULE 1: No deprecated datetime.utcnow()
+  # ---------------------------------------------------------------------------
+  # ADR: ADR-0083 (Datetime UTC Standard)
+  # Fixed in: PR #81
+  # Rationale: datetime.utcnow() is deprecated in Python 3.12
+  # ---------------------------------------------------------------------------
+  - id: l9-no-datetime-utcnow
+    pattern: datetime.utcnow()
+    message: |
+      datetime.utcnow() is deprecated. Use datetime.now(UTC) instead.
+      
+      Fix:
+        from datetime import UTC, datetime
+        timestamp = datetime.now(UTC)
+      
+      Reference: ADR-0083
+    languages: [python]
+    severity: ERROR
+    paths:
+      include:
+        - "api/**/*.py"
+        - "core/**/*.py"
+        - "runtime/**/*.py"
+        - "services/**/*.py"
+        - "agents/**/*.py"
+        - "memory/**/*.py"
+      exclude:
+        - "tests/**"
+        - "scripts/**"
+
+  # ---------------------------------------------------------------------------
+  # RULE 2: httpx.AsyncClient must use async context manager
+  # ---------------------------------------------------------------------------
+  # ADR: ADR-0084 (Async Resource Cleanup)
+  # Fixed in: PR #83
+  # Rationale: Without context manager, client is not closed (resource leak)
+  # ---------------------------------------------------------------------------
+  - id: l9-httpx-async-context-required
+    patterns:
+      - pattern: $CLIENT = httpx.AsyncClient(...)
+      - pattern-not-inside: |
+          async with httpx.AsyncClient(...) as $CLIENT:
+              ...
+    message: |
+      httpx.AsyncClient() must use async context manager for proper cleanup.
+      
+      Bad:
+        client = httpx.AsyncClient()
+        # ... use client ...
+        await client.aclose()  # Easy to forget!
+      
+      Good:
+        async with httpx.AsyncClient() as client:
+            # ... use client ...
+            # Auto-closed on exit
+      
+      Reference: ADR-0084
+    languages: [python]
+    severity: ERROR
+    paths:
+      include:
+        - "api/**/*.py"
+        - "core/**/*.py"
+        - "services/**/*.py"
+      exclude:
+        - "tests/**"
+
+  # ---------------------------------------------------------------------------
+  # RULE 3: Singleton pattern must use lock for thread safety
+  # ---------------------------------------------------------------------------
+  # ADR: ADR-0085 (Thread-Safe Singletons)
+  # Fixed in: PR #81
+  # Rationale: Race condition when multiple threads init singleton
+  # ---------------------------------------------------------------------------
+  - id: l9-singleton-requires-lock
+    patterns:
+      - pattern: |
+          if $_INSTANCE is None:
+              $_INSTANCE = $FACTORY(...)
+      - pattern-not-inside: |
+          with $_LOCK:
+              ...
+    message: |
+      Singleton initialization must use a lock for thread safety.
+      
+      Bad:
+        if _instance is None:
+            _instance = create_instance()
+      
+      Good:
+        if _instance is None:
+            with _lock:
+                if _instance is None:  # Double-check
+                    _instance = create_instance()
+      
+      Reference: ADR-0085
+    languages: [python]
+    severity: WARNING
+    paths:
+      include:
+        - "core/**/*.py"
+        - "runtime/**/*.py"
+        - "services/**/*.py"
+      exclude:
+        - "tests/**"
+
+  # ---------------------------------------------------------------------------
+  # RULE 4: float() conversion should handle ValueError
+  # ---------------------------------------------------------------------------
+  # ADR: ADR-0086 (Safe Type Conversion)
+  # Fixed in: PR #83
+  # Rationale: float() raises ValueError on invalid input
+  # ---------------------------------------------------------------------------
+  - id: l9-float-requires-try-except
+    patterns:
+      - pattern: float($VAR)
+      - pattern-not-inside: |
+          try:
+              ...
+          except ...:
+              ...
+    message: |
+      float() conversion should handle ValueError for invalid input.
+      
+      Bad:
+        value = float(user_input)  # Crashes on "abc"
+      
+      Good:
+        try:
+            value = float(user_input)
+        except (ValueError, TypeError):
+            value = default_value
+      
+      Reference: ADR-0086
+    languages: [python]
+    severity: WARNING
+    paths:
+      include:
+        - "api/**/*.py"
+        - "core/**/*.py"
+      exclude:
+        - "tests/**"
+
+  # ---------------------------------------------------------------------------
+  # RULE 5: No eval() - Security vulnerability
+  # ---------------------------------------------------------------------------
+  # ADR: ADR-0041 (Unsafe eval() Remediation)
+  # Existing rule - reinforced
+  # Rationale: eval() allows arbitrary code execution
+  # ---------------------------------------------------------------------------
+  - id: l9-no-eval
+    patterns:
+      - pattern: eval(...)
+      - pattern-not: $OBJ.eval(...)  # Allow tensor.eval(), model.eval()
+    message: |
+      eval() is forbidden - security vulnerability (ADR-0041).
+      
+      Use safe alternatives:
+        - json.loads() for JSON
+        - ast.literal_eval() for Python literals
+        - Custom parser for DSL
+      
+      Reference: ADR-0041
+    languages: [python]
+    severity: ERROR
+    paths:
+      include:
+        - "**/*.py"
+      exclude:
+        - "tests/**"
+        - "scripts/**"
+
+  # ---------------------------------------------------------------------------
+  # RULE 6: SQL queries must use parameterized queries
+  # ---------------------------------------------------------------------------
+  # ADR: ADR-0087 (SQL Parameterization)
+  # Fixed in: PR #84
+  # Rationale: f-string SQL is vulnerable to injection
+  # ---------------------------------------------------------------------------
+  - id: l9-no-sql-fstring
+    patterns:
+      - pattern-either:
+          - pattern: f"SELECT ... {$VAR} ..."
+          - pattern: f"INSERT ... {$VAR} ..."
+          - pattern: f"UPDATE ... {$VAR} ..."
+          - pattern: f"DELETE ... {$VAR} ..."
+    message: |
+      SQL queries must use parameterized queries, not f-strings.
+      
+      Bad:
+        query = f"SELECT * FROM users WHERE id = '{user_id}'"
+      
+      Good:
+        query = "SELECT * FROM users WHERE id = $1"
+        await conn.fetch(query, user_id)
+      
+      Reference: ADR-0087
+    languages: [python]
+    severity: ERROR
+    paths:
+      include:
+        - "**/*.py"
+      exclude:
+        - "tests/**"
+
+  # ---------------------------------------------------------------------------
+  # RULE 7: No pickle for serialization - Security
+  # ---------------------------------------------------------------------------
+  # ADR: ADR-0088 (No Pickle Serialization)
+  # Fixed in: PR #84
+  # Rationale: pickle.loads() can execute arbitrary code
+  # ---------------------------------------------------------------------------
+  - id: l9-no-pickle-loads
+    pattern: pickle.loads(...)
+    message: |
+      pickle.loads() is forbidden - deserialization vulnerability.
+      
+      Use safe alternatives:
+        - json.loads() for JSON data
+        - msgpack for binary data
+        - Protocol Buffers for structured data
+      
+      Reference: ADR-0088
+    languages: [python]
+    severity: ERROR
+    paths:
+      include:
+        - "**/*.py"
+      exclude:
+        - "tests/**"
+
+  # ---------------------------------------------------------------------------
+  # RULE 8: No logger.getChild() with structlog
+  # ---------------------------------------------------------------------------
+  # ADR: ADR-0019 (structlog Logging Standard)
+  # Fixed in: PR #TBD (TensorGlobe adapter tests)
+  # Rationale: structlog doesn't have getChild() - use bind() instead
+  # ---------------------------------------------------------------------------
+  - id: l9-no-structlog-getchild
+    pattern: $LOGGER.getChild(...)
+    message: |
+      structlog doesn't support getChild(). Use bind() instead.
+      
+      Bad:
+        self.logger = logger.getChild(self.__class__.__name__)
+      
+      Good:
+        self.logger = logger.bind(component=self.__class__.__name__)
+      
+      Reference: ADR-0019
+    languages: [python]
+    severity: ERROR
+    paths:
+      include:
+        - "**/*.py"
+      exclude:
+        - "tests/**"

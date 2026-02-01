@@ -11,13 +11,19 @@
 #   make rollback      - Rollback to previous version
 # =============================================================================
 
-.PHONY: help dev test smoke lint deploy rollback logs clean ci-validate ci-spec ci-code docker-setup architecture-reports
+.PHONY: help dev test smoke lint deploy rollback logs clean ci-validate ci-spec ci-code docker-setup docker-env-check docker-up docker-up-prod docker-build-prod docker-down docker-logs docker-clean architecture-reports
 
 # Configuration
 VPS_HOST := 157.180.73.53
 VPS_USER := admin
 VPS_PATH := /opt/l9
-COMPOSE_PROJECT := l9
+COMPOSE_PROJECT_NAME ?= l9
+# Hierarchical compose (ADR-0089): base + overlay, --env-file required (no missing vars tolerated)
+COMPOSE_FILES_DEV := -f docker-compose.yml -f docker-compose.dev.yml
+COMPOSE_FILES_PROD := -f docker-compose.yml -f docker-compose.prod.yml
+ENV_FILE ?= .env
+# Use python3 when python isn't in PATH (e.g. macOS homebrew)
+PYTHON ?= python3
 
 # Colors
 GREEN := \033[0;32m
@@ -39,13 +45,15 @@ help:
 	@echo "  make lint          Run linters (ruff)"
 	@echo "  make typecheck     Run mypy type checking"
 	@echo ""
-	@echo "$(YELLOW)Docker:$(NC)"
-	@echo "  make docker-setup  Setup Docker environment (.env from template)"
-	@echo "  make smoke         Run Docker smoke test (pre-commit)"
-	@echo "  make docker-up     Start Docker stack locally"
-	@echo "  make docker-down   Stop Docker stack"
-	@echo "  make docker-logs   Tail Docker logs"
-	@echo "  make docker-clean  Remove all L9 Docker resources"
+	@echo "$(YELLOW)Docker (ADR-0089: base + dev/prod overlay, --env-file required):$(NC)"
+	@echo "  make docker-setup     Setup .env from .env.template (no missing vars tolerated)"
+	@echo "  make docker-up       Start dev stack (base + dev overlay)"
+	@echo "  make docker-up-prod  Start prod stack (base + prod overlay)"
+	@echo "  make docker-down     Stop dev stack"
+	@echo "  make docker-logs     Tail dev stack logs"
+	@echo "  make docker-build-prod  Build prod images (root Dockerfile, Dockerfile.mcp-memory)"
+	@echo "  make docker-clean   Remove all L9 Docker resources"
+	@echo "  make smoke          Run Docker smoke test (pre-commit)"
 	@echo ""
 	@echo "$(YELLOW)Deployment:$(NC)"
 	@echo "  make deploy        Deploy to VPS (builds, syncs, restarts)"
@@ -103,24 +111,24 @@ dev:
 
 test:
 	@echo "$(GREEN)Running all tests...$(NC)"
-	@python -m pytest tests/ -v --tb=short
+	@$(PYTHON) -m pytest tests/ -v --tb=short
 
 test-fast:
 	@echo "$(GREEN)Running fast tests (no slow markers)...$(NC)"
-	@python -m pytest tests/ -v --tb=short -m "not slow"
+	@$(PYTHON) -m pytest tests/ -v --tb=short -m "not slow"
 
 test-smoke:
 	@echo "$(GREEN)Running smoke tests only...$(NC)"
-	@python -m pytest tests/docker/test_stack_smoke.py -v --tb=short
+	@$(PYTHON) -m pytest tests/docker/test_stack_smoke.py -v --tb=short
 
 lint:
 	@echo "$(GREEN)Running ruff linter...$(NC)"
-	@python -m ruff check . --fix || true
-	@python -m ruff format . || true
+	@$(PYTHON) -m ruff check . --fix || true
+	@$(PYTHON) -m ruff format . || true
 
 typecheck:
 	@echo "$(GREEN)Running mypy type checker...$(NC)"
-	@python -m mypy api/ core/ memory/ --ignore-missing-imports || true
+	@$(PYTHON) -m mypy api/ core/ memory/ --ignore-missing-imports || true
 
 # =============================================================================
 # Docker (Local)
@@ -131,34 +139,48 @@ smoke:
 	@./scripts/precommit_docker_smoke.sh
 
 docker-setup:
-	@echo "$(GREEN)Setting up Docker environment...$(NC)"
-	@if [ ! -f .env ]; then \
-		echo "$(YELLOW)Creating .env from .env.docker template...$(NC)"; \
-		cp .env.docker .env; \
-		echo "$(RED)IMPORTANT: Edit .env and replace placeholder values!$(NC)"; \
+	@echo "$(GREEN)Setting up Docker environment (ADR-0089)...$(NC)"
+	@if [ ! -f $(ENV_FILE) ]; then \
+		echo "$(YELLOW)Creating $(ENV_FILE) from .env.template...$(NC)"; \
+		cp .env.template $(ENV_FILE); \
+		echo "$(RED)IMPORTANT: Edit $(ENV_FILE) and set ALL required vars (POSTGRES_PASSWORD, NEO4J_PASSWORD, GRAFANA_PASSWORD, OPENAI_API_KEY, L9_API_KEY). NO MISSING VARIABLES TOLERATED.$(NC)"; \
 	else \
-		echo "$(YELLOW).env already exists. To reset: rm .env && make docker-setup$(NC)"; \
+		echo "$(YELLOW)$(ENV_FILE) already exists. To reset: rm $(ENV_FILE) && make docker-setup$(NC)"; \
 	fi
-	@chmod +x scripts/setup-docker-env.sh 2>/dev/null || true
-	@echo "$(GREEN)Run ./scripts/setup-docker-env.sh for interactive setup$(NC)"
+	@chmod +x scripts/check_compose_env.sh 2>/dev/null || true
+	@echo "$(GREEN)Validate: ./scripts/check_compose_env.sh $(ENV_FILE)$(NC)"
 
-docker-up:
-	@echo "$(GREEN)Starting Docker stack...$(NC)"
-	@docker compose up -d
+docker-env-check:
+	@./scripts/check_compose_env.sh $(ENV_FILE)
+
+docker-up: docker-env-check
+	@echo "$(GREEN)Starting Docker stack (dev: base + dev overlay)...$(NC)"
+	@docker compose $(COMPOSE_FILES_DEV) --env-file $(ENV_FILE) up -d
 	@echo "$(GREEN)Waiting for services to be healthy...$(NC)"
 	@sleep 5
-	@docker compose ps
+	@docker compose $(COMPOSE_FILES_DEV) --env-file $(ENV_FILE) ps
+
+docker-up-prod: docker-env-check
+	@echo "$(GREEN)Starting Docker stack (prod: base + prod overlay)...$(NC)"
+	@docker compose $(COMPOSE_FILES_PROD) --env-file $(ENV_FILE) up -d
+	@sleep 5
+	@docker compose $(COMPOSE_FILES_PROD) --env-file $(ENV_FILE) ps
+
+docker-build-prod:
+	@echo "$(GREEN)Building prod images (root Dockerfile, Dockerfile.mcp-memory)...$(NC)"
+	@docker compose $(COMPOSE_FILES_PROD) --env-file $(ENV_FILE) build
 
 docker-down:
-	@echo "$(YELLOW)Stopping Docker stack...$(NC)"
-	@docker compose down
+	@echo "$(YELLOW)Stopping Docker stack (dev)...$(NC)"
+	@docker compose $(COMPOSE_FILES_DEV) --env-file $(ENV_FILE) down
 
 docker-logs:
-	@docker compose logs -f --tail=100
+	@docker compose $(COMPOSE_FILES_DEV) --env-file $(ENV_FILE) logs -f --tail=100
 
 docker-clean:
 	@echo "$(RED)Removing all L9 Docker resources...$(NC)"
-	@docker compose down -v --remove-orphans
+	@docker compose $(COMPOSE_FILES_DEV) --env-file $(ENV_FILE) down -v --remove-orphans 2>/dev/null || true
+	@docker compose $(COMPOSE_FILES_PROD) --env-file $(ENV_FILE) down -v --remove-orphans 2>/dev/null || true
 	@docker system prune -f --filter "label=com.l9.*"
 
 # =============================================================================
@@ -186,12 +208,15 @@ rollback:
 	@echo "$(RED)Rolling back to previous version...$(NC)"
 	@./scripts/rollback_vps.sh
 
+# On VPS use prod overlay and .env.c1 (align with deploy/c1/deploy.sh)
+VPS_ENV_FILE ?= .env.c1
+
 vps-logs:
-	@ssh $(VPS_USER)@$(VPS_HOST) "cd $(VPS_PATH) && docker compose logs -f --tail=100"
+	@ssh $(VPS_USER)@$(VPS_HOST) "cd $(VPS_PATH) && docker compose $(COMPOSE_FILES_PROD) --env-file $(VPS_ENV_FILE) logs -f --tail=100"
 
 vps-status:
 	@echo "$(GREEN)VPS Service Status:$(NC)"
-	@ssh $(VPS_USER)@$(VPS_HOST) "cd $(VPS_PATH) && docker compose ps && echo '' && curl -sf http://localhost:8000/health || echo 'API not responding'"
+	@ssh $(VPS_USER)@$(VPS_HOST) "cd $(VPS_PATH) && docker compose $(COMPOSE_FILES_PROD) --env-file $(VPS_ENV_FILE) ps && echo '' && curl -sf http://localhost:8000/health || echo 'API not responding'"
 
 # =============================================================================
 # Database
@@ -199,11 +224,11 @@ vps-status:
 
 migrate:
 	@echo "$(GREEN)Running migrations on VPS...$(NC)"
-	@ssh $(VPS_USER)@$(VPS_HOST) "cd $(VPS_PATH) && docker compose exec -T l9-api python -c 'from memory.migration_runner import run_migrations; import asyncio; asyncio.run(run_migrations())'"
+	@ssh $(VPS_USER)@$(VPS_HOST) "cd $(VPS_PATH) && docker compose $(COMPOSE_FILES_PROD) --env-file $(VPS_ENV_FILE) exec -T l9-api python -c 'from memory.migration_runner import run_migrations; import asyncio; asyncio.run(run_migrations())'"
 
 migrate-local:
 	@echo "$(GREEN)Running migrations locally...$(NC)"
-	@python -c "from memory.migration_runner import run_migrations; import asyncio; asyncio.run(run_migrations())"
+	@$(PYTHON) -c "from memory.migration_runner import run_migrations; import asyncio; asyncio.run(run_migrations())"
 
 # =============================================================================
 # Utilities

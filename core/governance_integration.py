@@ -33,7 +33,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import structlog
 from pathlib import Path
 
 # Import CA governance
@@ -50,7 +50,7 @@ from core.l_agent_runtime import (
     registry,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class GovernanceIntegration:

@@ -612,7 +612,7 @@ class MemorySubstrateService:
                     )
                 )
             except ImportError:
-                pass
+                pass  # Error tracking module not available - expected in minimal deployments
             raise
 
     # =========================================================================
@@ -876,7 +876,7 @@ class MemorySubstrateService:
                     )
                 )
             except ImportError:
-                pass
+                pass  # Error tracking module not available - expected in minimal deployments
             return {
                 "status": "error",
                 "error": str(e),

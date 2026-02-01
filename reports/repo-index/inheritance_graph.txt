@@ -3,6 +3,7 @@
 # Format: ChildClass::parent1,parent2 @ path/to/file.py
 # Load into Neo4j as (Class)-[:EXTENDS]->(ParentClass) relationships
 
+ADRChecker::NodeVisitor @ ci/check_adr_compliance.py
 AIEvalSettings::BaseSettings @ config/ai_eval_settings.py
 AIOSCall::BaseModel @ ir_engine/meta_ir.py
 AIOSResult::BaseModel @ core/agents/schemas.py
@@ -26,7 +27,7 @@ ActionType::str,Enum @ core/eos/schemas.py
 ActionType::str,Enum @ ir_engine/ir_schema.py
 ActivatableAgent::Protocol @ core/protocols/agent_protocols.py
 AgentBootstrapError::Exception @ core/agents/bootstrap/models.py
-AgentBootstrapError::Exception @ current_work/01-26-2026/harvested-files/1_orchestrator.py
+AgentCapabilities::BaseModel @ .backup/mcp-tools-20260131/capabilities.py
 AgentCapabilities::BaseModel @ core/schemas/capabilities.py
 AgentCapabilities::BaseModel @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
 AgentCapabilities::BaseModel @ igor/DONE!/audit-tools/core_schemas_capabilities.py
@@ -119,6 +120,7 @@ BaseAgent::ABC @ services/research/agents/base_agent.py
 BaseCell::ABC @ collaborative_cells/base_cell.py
 BaseExtractor::ABC @ igor/DONE!/audit-memory/memory_extractor_base_extractor.py
 BaseExtractor::ABC @ memory/extractor/base_extractor.py
+BaseStrategy::ABC @ tools/codegen/test_generator.py
 BaseTool::ABC @ igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py
 BaseTool::ABC @ services/research/tools/tool_wrappers.py
 BatchRequest::BaseModel @ api/memory/router.py
@@ -137,6 +139,7 @@ BlueprintScore::BaseModel @ orchestrators/meta/interface.py
 BlueprintType::str,Enum @ orchestrators/meta/interface.py
 BootImpact::BaseModel @ ir_engine/meta_ir.py
 BootImpactLevel::str,Enum @ ir_engine/meta_ir.py
+BootstrapVerificationError::Exception @ current_work/DONE/IVFFlat Vector Indexing/phase_7_verify_and_lock_new.py
 BridgeStatusResponse::BaseModel @ api/routes/tensor_bridge.py
 CGMPEngineError::Exception @ agents/codegenagent/CodeGenAgent Engine.py
 CGMPEngineError::Exception @ agents/codegenagent/c_gmp_engine.py
@@ -163,6 +166,7 @@ CalibrationResult::BaseModel @ core/calibration/schemas.py
 CallGraphBuilder::NodeVisitor @ scripts/audit/audit_shared_core.py
 CallGraphBuilder::NodeVisitor @ scripts/audit/tier1/audit_code_integrity.py
 CallableFrom::str,Enum @ ir_engine/meta_ir.py
+Capability::BaseModel @ .backup/mcp-tools-20260131/capabilities.py
 Capability::BaseModel @ core/schemas/capabilities.py
 Capability::BaseModel @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
 Capability::BaseModel @ igor/DONE!/audit-tools/core_schemas_capabilities.py
@@ -208,6 +212,7 @@ CodeGenResult::BaseModel @ _archived/symbolic_computation/models.py
 CodeGenResult::BaseModel @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py
 CodeGenResult::BaseModel @ services/symbolic_computation/core/models.py
 CodeGenResult::BaseModel @ services/symbolic_computation/models.py
+CodeGenerationError::Exception @ tools/codegen/test_generator.py
 CodeGenerationError::SymbolicComputationError @ _archived/symbolic_computation/exceptions.py
 CodeGenerationError::SymbolicComputationError @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
 CodeGenerationError::SymbolicComputationError @ services/symbolic_computation/exceptions.py
@@ -504,8 +509,12 @@ GraduationStatusResponse::BaseModel @ api/routes/gmp_learning.py
 GraphCheckpointRow::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 GraphCheckpointRow::BaseModel @ memory/substrate_models.py
 GraphClient::Protocol @ core/protocols/memory_protocols.py
+GraphCreateEventArgs::BaseModel @ mcp_memory/src/models.py
 GraphGetContextArgs::BaseModel @ mcp_memory/src/models.py
 GraphGetEntityArgs::BaseModel @ mcp_memory/src/models.py
+GraphGetEventSequenceArgs::BaseModel @ mcp_memory/src/models.py
+GraphGetEventTimelineArgs::BaseModel @ mcp_memory/src/models.py
+GraphGetTemporalEventsArgs::BaseModel @ mcp_memory/src/models.py
 GraphQueryArgs::BaseModel @ mcp_memory/src/models.py
 GraphResponse::BaseModel @ api/memory/graph.py
 GraphSearchContext::BaseModel @ memory/graph_search_cache.py
@@ -697,6 +706,7 @@ MasterExecutionResult::BaseModel @ orchestrators/pattern/master_orchestrator.py
 MasterKernelData::FlexibleModel @ core/kernels/schemas.py
 MemoryBackendsConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
 MemoryError::Exception @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
+MemoryEventType::str,Enum @ memory_cache/cursor_working_memory_service.py
 MemoryExtractor::BaseExtractor @ igor/DONE!/audit-memory/memory_extractor_memory_extractor.py
 MemoryExtractor::BaseExtractor @ memory/extractor/memory_extractor.py
 MemoryHealthTask::BaseModel @ api/vps_executor.py
@@ -846,7 +856,6 @@ PacketResponse::BaseModel @ igor/DONE!/audit-memory/api_memory_router.py
 PacketStatusEnum::str,Enum @ current_work/01-25-2026/RLM-Reference-Level Memory/002-rlm-data-models.py
 PacketStoreRow::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
 PacketStoreRow::BaseModel @ memory/substrate_models.py
-PacketType::str,Enum @ current_work/01-26-2026/harvested-files/4_packet_protocol_addition.py
 PacketValidationError::Exception @ igor/DONE!/L9 Memory Substrate Audit/packet_validator.py
 PacketValidationError::Exception @ igor/DONE!/audit-memory/memory_validators_packet_validator.py
 PacketValidationError::Exception @ memory/validators/packet_validator.py
@@ -895,6 +904,7 @@ ProactivityLevel::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester +
 ProactivityLevel::Enum @ current_work/DONE/governance_layers/l_agent_runtime/agent_state.py
 ProcessedAnomaly::BaseModel @ workers/anomaly_response_monitor.py
 Prohibition::FlexibleModel @ core/kernels/schemas.py
+PromotionSignal::str,Enum @ memory/consolidation/promotion_rules.py
 PromptStyle::str,Enum @ agents/codegenagent/ap_generator.py
 ProtocolBinding::ABC @ core/packet_envelope/standardization.py
 ProtocolBinding::ABC @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
@@ -996,6 +1006,7 @@ RestoreResult::BaseModel @ clients/world_model_client.py
 RetentionPolicy::Enum @ core/packet_envelope/governance.py
 RetentionPolicy::Enum @ current_work/packetEnvelope - Phase 2-5/phase_5_governance.py
 RetrievalBatch::BaseModel @ core/schemas/research_factory_models.py
+RetrievalSource::str,Enum @ agents/cursor/cursor_retrieval_kernel.py
 RetrievalStrategy::Protocol @ core/protocols/memory_protocols.py
 RetrievalStrategy::str,Enum @ memory/retrieval_strategy.py
 RetryConfig::BaseModel @ ir_engine/meta_ir.py
@@ -1135,6 +1146,7 @@ SpecParseError::Exception @ core/codegen/spec/spec_normalizer_v2.py
 SpecValidationError::Exception @ ci/validate_spec_v25.py
 SpecValidationError::Exception @ codegen/code-gen-files/validate_spec_v25.py
 SpecValidationError::Exception @ core/codegen/spec/spec_normalizer_v2.py
+SpecValidationError::Exception @ tools/codegen/test_generator.py
 StandardsSpec::BaseModel @ ir_engine/meta_ir.py
 StartupPhase::str,Enum @ ir_engine/meta_ir.py
 StateMachineConfig::FlexibleModel @ core/kernels/schemas.py
@@ -1155,6 +1167,7 @@ StrategyFeedbackMetadata::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harve
 StrategyFeedbackPayload::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
 StrategyMemoryService::IStrategyMemoryService @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
 StrategyMemoryService::IStrategyMemoryService @ memory/strategymemory.py
+StrategyNotApplicableError::Exception @ tools/codegen/test_generator.py
 StrategyRequestMetadata::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
 StrategyRequestPayload::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
 StrategyResponseMetadata::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategy_packet_models.py
@@ -1187,6 +1200,7 @@ SubstrateRetriever::BaseRetriever @ core/retrievers/substrate_retriever.py
 SubstrateService::ABC @ mcp_memory/src/memory_substrate/service.py
 SubstrateService::Protocol @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/substrate_service.py
 SubstrateServiceProtocol::Protocol @ core/agents/executor.py
+SubstrateServiceProtocol::Protocol @ core/agents/idempotency_store.py
 SubstrateServiceProtocol::Protocol @ core/calibration/service.py
 SubstrateServiceProtocol::Protocol @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
 SubstrateState::BaseModel @ igor/DONE!/audit-memory/memory_substrate_models.py
@@ -1280,6 +1294,7 @@ ToolInputSanitizationError::ValueError @ core/tools/sanitizer.py
 ToolMetadata::BaseModel @ core/tools/base_registry.py
 ToolMetadata::BaseModel @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_registry.py
 ToolMetadata::BaseModel @ igor/DONE!/audit-tools/services_research_tools_tool_registry.py
+ToolName::str,Enum @ .backup/mcp-tools-20260131/capabilities.py
 ToolName::str,Enum @ core/schemas/capabilities.py
 ToolName::str,Enum @ current_work/DONE/GMP Stage 1 - Tools/capabilities.py
 ToolName::str,Enum @ igor/DONE!/audit-tools/core_schemas_capabilities.py
@@ -1378,4 +1393,4 @@ WorldModelState::IWorldModelState @ world_model/_pack_staging/state.py
 WorldModelUpdater::IWorldModelUpdater @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py
 WorldModelUpdater::IWorldModelUpdater @ world_model/_pack_staging/updater.py
 
-# Total: 1374 classes with inheritance
+# Total: 1389 classes with inheritance

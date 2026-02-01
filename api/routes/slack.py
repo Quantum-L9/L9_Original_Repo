@@ -204,13 +204,14 @@ async def slack_events(
         )
         return {"challenge": challenge}
 
-    # Rate limit check (100 events per minute per team)
+    # Rate limit check (configurable events per minute per team)
     rate_limiter = getattr(request.app.state, "rate_limiter", None)
     if rate_limiter:
         team_id = payload.get("team_id", "unknown")
         rate_key = f"slack:events:{team_id}"
+        events_rate_limit = int(os.getenv("SLACK_EVENTS_RATE_LIMIT", "100"))
         try:
-            is_allowed = await rate_limiter.check_and_increment(rate_key, limit=100)
+            is_allowed = await rate_limiter.check_and_increment(rate_key, limit=events_rate_limit)
             if not is_allowed:
                 logger.warning("slack_rate_limit_exceeded", team_id=team_id)
                 record_rate_limit_hit(team_id=team_id)
@@ -374,13 +375,14 @@ async def slack_commands(
         logger.warning("slack_invalid_form_data", error=str(e))
         raise HTTPException(status_code=400, detail="Invalid form data") from e
 
-    # Rate limit check (50 commands per minute per user)
+    # Rate limit check (configurable commands per minute per user)
     rate_limiter = getattr(request.app.state, "rate_limiter", None)
     if rate_limiter:
         user_id = payload.get("user_id", "unknown")
         rate_key = f"slack:commands:{user_id}"
+        commands_rate_limit = int(os.getenv("SLACK_COMMANDS_RATE_LIMIT", "50"))
         try:
-            is_allowed = await rate_limiter.check_and_increment(rate_key, limit=50)
+            is_allowed = await rate_limiter.check_and_increment(rate_key, limit=commands_rate_limit)
             if not is_allowed:
                 logger.warning("slack_command_rate_limit_exceeded", user_id=user_id)
                 return {
