@@ -7,6 +7,12 @@ Provides session-start memory loading, TODO tracking, and confidence logic.
 Factory: create_cursor_memory_kernel()
 
 Config: .cursor/cursor-memory/l9.workflow_todo_kernel.v2.yaml
+
+GMP-131: Migrated write operations from shell subprocess to MCP HTTP API.
+- write_kernel_activation() -> mcp_call_tool("save_memory")
+- write_lesson() -> mcp_call_tool("save_memory")
+- write_session_todos() -> mcp_call_tool("save_memory")
+- Read operations still use shell (read-only, no governance concern)
 """
 
 from __future__ import annotations
@@ -42,6 +48,8 @@ from pathlib import Path
 import structlog
 import yaml
 
+# GMP-131: Import MCP client for governed memory writes
+from agents.cursor.cursor_memory_client import mcp_call_tool
 from core.singleton_auto_registry import register_singleton
 
 logger = structlog.get_logger(__name__)
@@ -397,8 +405,13 @@ def load_todos(session_id: str) -> list[TodoItem]:
 
 
 def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
-    """Write kernel activation packet."""
-    payload = {
+    """Write kernel activation packet via MCP API (GMP-131).
+
+    Uses mcp_call_tool("save_memory") which routes through the full L9
+    governance pipeline (PacketEnvelope, RLS, embedding, graph sync).
+    """
+    # Build content string for the memory
+    content = json.dumps({
         "kernel_id": kernel_id,
         "session_id": session_id,
         "activated_by": "cursor",
@@ -409,46 +422,70 @@ def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
             "execution_style",
             "memory_ops",
         ],
-    }
-    envelope = {
-        "payload": payload,
-        "metadata": {"agent": "cursor", "domain": "l9", "schema_version": "1.0.0"},
-    }
+    })
 
-    sql = f"""
-        INSERT INTO packet_store (packet_id, packet_type, envelope, timestamp, scope, importance_score)
-        VALUES (gen_random_uuid(), 'KERNEL_ACTIVATION', '{json.dumps(envelope)}'::jsonb, NOW(), 'shared', 1.0)
-    """
-    result = _run_psql(sql)
-    return result is not None
+    result = mcp_call_tool(
+        "save_memory",
+        {
+            "content": content,
+            "kind": "kernel_activation",
+            "scope": "developer",  # Cursor writes to developer scope
+            "duration": "long",
+            "tags": ["cursor", "kernel", session_id],
+            "importance": 1.0,
+            "metadata": {"agent": "cursor", "domain": "l9", "schema_version": "1.0.0"},
+        },
+    )
+
+    if "error" in result:
+        logger.warning("write_kernel_activation failed", error=result.get("error"))
+        return False
+    return True
 
 
 def write_lesson(
     title: str, content: str, severity: str = "INFO", tags: list[str] | None = None
 ) -> bool:
-    """Write a new lesson to memory."""
-    payload = {
+    """Write a new lesson to memory via MCP API (GMP-131).
+
+    Uses mcp_call_tool("save_memory") which routes through the full L9
+    governance pipeline (PacketEnvelope, RLS, embedding, graph sync).
+    """
+    # Build content string for the memory
+    lesson_content = json.dumps({
         "title": title,
         "content": content,
         "severity": severity,
         "tags": tags or [],
-    }
-    envelope = {
-        "payload": payload,
-        "metadata": {"agent": "cursor", "domain": "l9", "schema_version": "1.0.0"},
-    }
+    })
 
-    sql = f"""
-        INSERT INTO packet_store (packet_id, packet_type, envelope, timestamp, scope, importance_score)
-        VALUES (gen_random_uuid(), 'LESSON', '{json.dumps(envelope)}'::jsonb, NOW(), 'shared', 0.9)
-    """
-    result = _run_psql(sql)
-    return result is not None
+    result = mcp_call_tool(
+        "save_memory",
+        {
+            "content": lesson_content,
+            "kind": "lesson",
+            "scope": "developer",  # Cursor writes to developer scope
+            "duration": "long",
+            "tags": ["cursor", "lesson", severity.lower()] + (tags or []),
+            "importance": 0.9,
+            "metadata": {"agent": "cursor", "domain": "l9", "schema_version": "1.0.0"},
+        },
+    )
+
+    if "error" in result:
+        logger.warning("write_lesson failed", title=title, error=result.get("error"))
+        return False
+    return True
 
 
 def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
-    """Write/update session TODOs."""
-    payload = {
+    """Write/update session TODOs via MCP API (GMP-131).
+
+    Uses mcp_call_tool("save_memory") which routes through the full L9
+    governance pipeline (PacketEnvelope, RLS, embedding, graph sync).
+    """
+    # Build content string for the memory
+    todo_content = json.dumps({
         "session_id": session_id,
         "todos": [
             {
@@ -460,23 +497,30 @@ def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
             for t in todos
         ],
         "updated_at": datetime.now(UTC).isoformat(),
-    }
-    envelope = {
-        "payload": payload,
-        "metadata": {
-            "agent": "cursor",
-            "domain": "l9",
-            "schema_version": "1.0.0",
-            "kernel": "l9.workflow_todo_kernel.v2",
-        },
-    }
+    })
 
-    sql = f"""
-        INSERT INTO packet_store (packet_id, packet_type, envelope, timestamp, scope, importance_score)
-        VALUES (gen_random_uuid(), 'SESSION_TODO', '{json.dumps(envelope)}'::jsonb, NOW(), 'shared', 0.9)
-    """
-    result = _run_psql(sql)
-    return result is not None
+    result = mcp_call_tool(
+        "save_memory",
+        {
+            "content": todo_content,
+            "kind": "session_todo",
+            "scope": "developer",  # Cursor writes to developer scope
+            "duration": "medium",  # TODOs are session-scoped
+            "tags": ["cursor", "todo", session_id],
+            "importance": 0.9,
+            "metadata": {
+                "agent": "cursor",
+                "domain": "l9",
+                "schema_version": "1.0.0",
+                "kernel": "l9.workflow_todo_kernel.v2",
+            },
+        },
+    )
+
+    if "error" in result:
+        logger.warning("write_session_todos failed", session_id=session_id, error=result.get("error"))
+        return False
+    return True
 
 
 # =============================================================================

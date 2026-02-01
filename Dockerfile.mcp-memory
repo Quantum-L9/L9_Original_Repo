@@ -1,0 +1,128 @@
+# =============================================================================
+# L9 MCP Memory Server Dockerfile - PRODUCTION & DEVELOPMENT
+# =============================================================================
+# Version: 4.0.0
+# Created: 2026-01-31
+# Purpose: Consolidated Dockerfile for MCP Memory Server with multi-stage builds
+#
+# STAGES:
+#   - base: Common dependencies and user setup
+#   - development: Hot-reload friendly, includes dev tools
+#   - production: Optimized, immutable, security-hardened
+#
+# USAGE:
+#   Development:
+#     docker build --target development -t l9-mcp-memory:dev -f Dockerfile.mcp-memory .
+#
+#   Production:
+#     docker build --target production \
+#       --build-arg BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ") \
+#       --build-arg VCS_REF=$(git rev-parse --short HEAD) \
+#       --build-arg VERSION=4.0.0 \
+#       -t l9-mcp-memory:4.0.0 -f Dockerfile.mcp-memory .
+# =============================================================================
+
+# =============================================================================
+# BASE STAGE - Common dependencies
+# =============================================================================
+FROM python:3.12-slim AS base
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app:/app/mcp_memory
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    postgresql-client \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for security
+RUN useradd -m -u 1000 l9user && \
+    chown -R l9user:l9user /app
+
+# =============================================================================
+# DEVELOPMENT STAGE - Hot-reload friendly
+# =============================================================================
+FROM base AS development
+
+# Copy MCP-specific requirements from ROOT (ADR-0089: exclusively root)
+COPY requirements-mcp-memory.txt /app/
+
+# Install Python dependencies (includes dev tools)
+RUN pip install --no-cache-dir -r requirements-mcp-memory.txt
+
+# Copy application code (will be overridden by volume mounts in dev)
+COPY --chown=l9user:l9user mcp_memory/ /app/mcp_memory/
+COPY --chown=l9user:l9user core/ /app/core/
+COPY --chown=l9user:l9user memory/ /app/memory/
+COPY --chown=l9user:l9user config/ /app/config/
+COPY --chown=l9user:l9user telemetry/ /app/telemetry/
+COPY --chown=l9user:l9user private/ /app/private/
+COPY --chown=l9user:l9user migrations/ /app/migrations/
+
+USER l9user
+
+EXPOSE 9002
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=5 \
+    CMD curl -f http://localhost:9002/health || exit 1
+
+CMD ["uvicorn", "mcp_memory.src.main:app", "--host", "0.0.0.0", "--port", "9002", "--reload"]
+
+# =============================================================================
+# PRODUCTION STAGE - Immutable, optimized
+# =============================================================================
+FROM base AS production
+
+# Build arguments for image metadata
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VERSION=4.0.0
+
+# Image metadata (OCI standard)
+LABEL org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.authors="QuantumAI Partners" \
+      org.opencontainers.image.url="https://github.com/cryptoxdog/L9" \
+      org.opencontainers.image.source="https://github.com/cryptoxdog/L9" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.title="L9 MCP Memory Server" \
+      org.opencontainers.image.description="L9 Secure AI OS - Model Context Protocol Memory Server" \
+      com.l9.component="mcp-memory" \
+      com.l9.layer="protocol"
+
+# Copy MCP-specific requirements from ROOT (ADR-0089: exclusively root)
+COPY requirements-mcp-memory.txt /app/
+
+# Install Python dependencies (production only, no dev tools)
+RUN pip install --no-cache-dir -r requirements-mcp-memory.txt && \
+    pip cache purge
+
+# Copy application code
+COPY --chown=l9user:l9user mcp_memory/ /app/mcp_memory/
+COPY --chown=l9user:l9user core/ /app/core/
+COPY --chown=l9user:l9user memory/ /app/memory/
+COPY --chown=l9user:l9user config/ /app/config/
+COPY --chown=l9user:l9user telemetry/ /app/telemetry/
+COPY --chown=l9user:l9user private/ /app/private/
+COPY --chown=l9user:l9user migrations/ /app/migrations/
+
+# Validation: Ensure critical files exist
+RUN test -f /app/mcp_memory/src/main.py || (echo "ERROR: mcp_memory/src/main.py not found" && exit 1) && \
+    test -f /app/requirements-mcp-memory.txt || (echo "ERROR: requirements-mcp-memory.txt not found" && exit 1)
+
+USER l9user
+
+EXPOSE 9002
+
+# Production healthcheck (stricter timing)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:9002/health || exit 1
+
+# Production command (no --reload, optimized workers)
+CMD ["uvicorn", "mcp_memory.src.main:app", "--host", "0.0.0.0", "--port", "9002", \
+     "--workers", "2", "--loop", "uvloop", "--log-level", "info"]

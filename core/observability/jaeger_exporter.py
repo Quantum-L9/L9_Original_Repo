@@ -4,6 +4,8 @@ Jaeger exporter for Five-Tier Observability spans.
 Exports spans to Jaeger via OTLP (OpenTelemetry Protocol) for distributed tracing visualization.
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Jaeger Exporter",

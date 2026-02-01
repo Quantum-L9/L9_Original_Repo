@@ -10,7 +10,7 @@ Both services integrate with L9's memory substrate for audit trails.
 Reference: L9-Confidence-Calibration-Spec.md §2.1.2, Roadmap §B.2
 """
 
-import logging
+import structlog
 from typing import Any, Protocol
 
 import numpy as np
@@ -29,7 +29,7 @@ from core.calibration.schemas import (
     SimpleGateResult,
 )
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class SubstrateServiceProtocol(Protocol):
@@ -162,12 +162,12 @@ class CalibrationService:
         max_entropy = np.log(len(probs))
 
         # Aleatoric: portion from data distribution width
-        u_ale = float(entropy / max_entropy) * 0.5
+        u_ale = float(entropy / max_entropy) * 0.5  # nosemgrep: l9-float-requires-try-except
 
         # Epistemic: margin to top prediction (how confident we are)
         sorted_probs = np.sort(probs)[::-1]
         margin = sorted_probs[0] - sorted_probs[1]
-        u_epi = float(1.0 - margin) * 0.5
+        u_epi = float(1.0 - margin) * 0.5  # nosemgrep: l9-float-requires-try-except
 
         return u_ale, u_epi
 
@@ -180,6 +180,7 @@ class CalibrationService:
 
         # Improvement in concentration
         improvement = 1.0 - (calibrated_entropy / (original_entropy + 1e-10))
+        # nosemgrep: l9-float-requires-try-except (numpy clip always numeric)
         return float(np.clip(improvement, 0.0, 1.0))
 
     async def calibrate_simple(

@@ -28,11 +28,14 @@ class TestEnsureBootstrap:
 
         mock_conn = AsyncMock()
         mock_conn.execute = AsyncMock(return_value=mock_result)
-        mock_conn.__aenter__ = AsyncMock(return_value=mock_conn)
-        mock_conn.__aexit__ = AsyncMock()
+
+        # Create async context manager for engine.begin()
+        mock_begin_ctx = AsyncMock()
+        mock_begin_ctx.__aenter__ = AsyncMock(return_value=mock_conn)
+        mock_begin_ctx.__aexit__ = AsyncMock(return_value=None)
 
         mock_engine = MagicMock()
-        mock_engine.begin.return_value = mock_conn
+        mock_engine.begin.return_value = mock_begin_ctx
         mock_engine.dispose = AsyncMock()
 
         with patch.dict(
@@ -55,11 +58,14 @@ class TestEnsureBootstrap:
 
         mock_conn = AsyncMock()
         mock_conn.execute = AsyncMock(return_value=mock_result)
-        mock_conn.__aenter__ = AsyncMock(return_value=mock_conn)
-        mock_conn.__aexit__ = AsyncMock()
+
+        # Create async context manager for engine.begin()
+        mock_begin_ctx = AsyncMock()
+        mock_begin_ctx.__aenter__ = AsyncMock(return_value=mock_conn)
+        mock_begin_ctx.__aexit__ = AsyncMock(return_value=None)
 
         mock_engine = MagicMock()
-        mock_engine.begin.return_value = mock_conn
+        mock_engine.begin.return_value = mock_begin_ctx
         mock_engine.dispose = AsyncMock()
 
         with patch.dict(

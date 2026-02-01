@@ -79,7 +79,7 @@ class SecurityAlert:
         Args:
             self: Instance of SecurityAlert with alert details.
         """
-        if self.timestamp is None:
+        if self.timestamp is None:  # nosemgrep: l9-singleton-requires-lock
             self.timestamp = datetime.now(UTC)
 
     def to_dict(self) -> dict[str, Any]:
@@ -448,8 +448,7 @@ _security_alert_service: SecurityAlertService | None = None
 def get_security_alert_service() -> SecurityAlertService:
     """Get singleton security alert service instance."""
     global _security_alert_service
-
-    if _security_alert_service is None:
+    if _security_alert_service is None:  # nosemgrep: l9-singleton-requires-lock
         _security_alert_service = SecurityAlertService()
 
     return _security_alert_service

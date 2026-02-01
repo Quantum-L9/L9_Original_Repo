@@ -1570,6 +1570,7 @@ async def lifespan(app: FastAPI):
 
                     # Initialize Slack components
                     validator = SlackRequestValidator(slack_signing_secret)
+                    # nosemgrep: l9-httpx-async-context-required (lifecycle client, closed in shutdown at L2800)
                     http_client = httpx.AsyncClient()
                     slack_client = SlackAPIClient(
                         bot_token=slack_bot_token,
@@ -2857,14 +2858,9 @@ app = FastAPI(
 # =============================================================================
 # ROUTE REGISTRATION
 # =============================================================================
-
-# Register Observability Router (GMP-91)
-if _has_observability_router:
-    app.include_router(observability_router, prefix="/api")
-
-# Register Evaluation Router (GMP-WIRE-VC-EQ)
-if _has_evaluation_router:
-    app.include_router(evaluation_router, prefix="/api")
+# NOTE: All routers now use auto-registration via RouterRegistry (ARCH-01 complete)
+# The observability_router and evaluation_router are auto-registered in their respective
+# route files using router_registry.register()
 
 
 # Add security schemes to OpenAPI schema

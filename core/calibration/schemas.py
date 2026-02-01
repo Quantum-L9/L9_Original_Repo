@@ -12,7 +12,7 @@ All numeric fields have constraints: Field(..., ge=0.0, le=1.0)
 Reference: L9-Confidence-Calibration-Spec.md §2.1.1
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Literal
 from uuid import UUID, uuid4

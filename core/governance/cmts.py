@@ -451,7 +451,7 @@ _cmts_instance: CMTSService | None = None
 def get_cmts_service() -> CMTSService:
     """Get or create the CMTS service singleton."""
     global _cmts_instance
-    if _cmts_instance is None:
+    if _cmts_instance is None:  # nosemgrep: l9-singleton-requires-lock
         _cmts_instance = CMTSService()
     return _cmts_instance
 

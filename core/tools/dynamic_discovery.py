@@ -412,8 +412,9 @@ async def get_discovery_stats() -> dict[str, Any]:
 
 
 # =============================================================================
-# Multi-Turn Tool Caching (GMP-79)
+# Multi-Turn Tool Caching (GMP-79 + GMP-130)
 # =============================================================================
+# GMP-130: Route through MCP (primary) with direct Redis fallback
 
 
 def _get_tool_cache_key(task_id: str) -> str:
@@ -421,9 +422,94 @@ def _get_tool_cache_key(task_id: str) -> str:
     return f"l9:tool_cache:{task_id}"
 
 
+async def _mcp_cache_call(tool_name: str, arguments: dict[str, Any]) -> dict[str, Any] | None:
+    """
+    Call MCP cache tool via HTTP API.
+
+    GMP-130: Primary method for cache operations - routes through C1 MCP server.
+
+    Args:
+        tool_name: MCP tool name (cache_get, cache_set, cache_delete, cache_keys)
+        arguments: Tool arguments
+
+    Returns:
+        Tool result dict or None if MCP unavailable
+    """
+    import json
+    import os
+    import ssl
+    import urllib.error
+    import urllib.request
+
+    # MCP endpoint configuration
+    mcp_url = os.getenv("MCP_URL", "http://mcp.quantumaipartners.com:30902")
+    mcp_api_key = os.getenv("MCP_API_KEY_C", "")
+
+    if not mcp_api_key:
+        logger.debug("MCP_API_KEY_C not set, skipping MCP cache call")
+        return None
+
+    try:
+        url = f"{mcp_url}/mcp/call"
+        payload = json.dumps({
+            "tool_name": tool_name,
+            "arguments": arguments,
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {mcp_api_key}",
+            },
+            method="POST",
+        )
+
+        # Create SSL context that doesn't verify (for dev/internal)
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+        with urllib.request.urlopen(req, timeout=10, context=ctx) as resp:
+            response = json.loads(resp.read().decode("utf-8"))
+            # MCP wraps result: {"status": "success", "result": {...}, "caller": "C"}
+            # Extract the inner result
+            if response.get("status") == "success":
+                result = response.get("result", {})
+                # Check if Redis was available on the MCP server
+                if result.get("available") is False or result.get("error"):
+                    logger.debug(f"MCP cache call: Redis not available on server", error=result.get("error"))
+                    return None
+                logger.debug(f"MCP cache call success: {tool_name}", result_keys=list(result.keys()))
+                return result
+            else:
+                logger.debug(f"MCP cache call failed: status={response.get('status')}")
+                return None
+
+    except urllib.error.URLError as e:
+        logger.debug(f"MCP cache call failed (network): {e}")
+        return None
+    except Exception as e:
+        logger.debug(f"MCP cache call failed: {e}")
+        return None
+
+
+async def _direct_redis_available() -> bool:
+    """Check if direct Redis connection is available."""
+    try:
+        from runtime.redis_client import get_redis_client
+        redis = await get_redis_client()
+        return redis is not None and redis.is_available()
+    except Exception:
+        return False
+
+
 async def get_cached_tools(task_id: str) -> list[dict[str, Any]] | None:
     """
-    Retrieve cached tool definitions from Redis for multi-turn optimization.
+    Retrieve cached tool definitions for multi-turn optimization.
+
+    GMP-130: Tries MCP first, falls back to direct Redis.
 
     Args:
         task_id: The task/conversation ID
@@ -431,6 +517,23 @@ async def get_cached_tools(task_id: str) -> list[dict[str, Any]] | None:
     Returns:
         List of cached tool definitions, or None if not cached
     """
+    import json
+
+    cache_key = _get_tool_cache_key(task_id)
+
+    # 1. Try MCP cache_get (PRIMARY - GMP-130)
+    mcp_result = await _mcp_cache_call("cache_get", {"key": cache_key})
+    if mcp_result and mcp_result.get("success"):
+        tools = mcp_result.get("data")
+        if tools:
+            logger.debug(
+                "Tool cache hit (MCP)",
+                task_id=task_id,
+                tools_cached=len(tools) if isinstance(tools, list) else 1,
+            )
+            return tools if isinstance(tools, list) else None
+
+    # 2. Fallback to direct Redis (LEGACY)
     try:
         from runtime.redis_client import get_redis_client
 
@@ -438,15 +541,11 @@ async def get_cached_tools(task_id: str) -> list[dict[str, Any]] | None:
         if not redis:
             return None
 
-        import json
-
-        cache_key = _get_tool_cache_key(task_id)
         cached = await redis.get(cache_key)
-
         if cached:
             tools = json.loads(cached)
             logger.debug(
-                "Tool cache hit",
+                "Tool cache hit (Redis direct)",
                 task_id=task_id,
                 tools_cached=len(tools),
             )
@@ -461,7 +560,9 @@ async def get_cached_tools(task_id: str) -> list[dict[str, Any]] | None:
 
 async def cache_tools(task_id: str, tools: list[dict[str, Any]]) -> bool:
     """
-    Cache discovered tools in Redis for multi-turn reuse.
+    Cache discovered tools for multi-turn reuse.
+
+    GMP-130: Tries MCP first, falls back to direct Redis.
 
     Args:
         task_id: The task/conversation ID
@@ -473,6 +574,28 @@ async def cache_tools(task_id: str, tools: list[dict[str, Any]]) -> bool:
     if not tools:
         return False
 
+    import json
+
+    settings = get_integration_settings()
+    cache_key = _get_tool_cache_key(task_id)
+    ttl = settings.l9_tool_cache_ttl
+
+    # 1. Try MCP cache_set (PRIMARY - GMP-130)
+    mcp_result = await _mcp_cache_call("cache_set", {
+        "key": cache_key,
+        "value": tools,
+        "ttl": ttl,
+    })
+    if mcp_result and mcp_result.get("success"):
+        logger.debug(
+            "Tools cached for multi-turn (MCP)",
+            task_id=task_id,
+            tools_count=len(tools),
+            ttl_seconds=ttl,
+        )
+        return True
+
+    # 2. Fallback to direct Redis (LEGACY)
     try:
         from runtime.redis_client import get_redis_client
 
@@ -480,16 +603,10 @@ async def cache_tools(task_id: str, tools: list[dict[str, Any]]) -> bool:
         if not redis:
             return False
 
-        import json
-
-        settings = get_integration_settings()
-        cache_key = _get_tool_cache_key(task_id)
-        ttl = settings.l9_tool_cache_ttl
-
         await redis.set(cache_key, json.dumps(tools), ex=ttl)
 
         logger.debug(
-            "Tools cached for multi-turn",
+            "Tools cached for multi-turn (Redis direct)",
             task_id=task_id,
             tools_count=len(tools),
             ttl_seconds=ttl,
@@ -505,12 +622,23 @@ async def invalidate_tool_cache(task_id: str) -> bool:
     """
     Invalidate cached tools for a task (e.g., on tool set change).
 
+    GMP-130: Tries MCP first, falls back to direct Redis.
+
     Args:
         task_id: The task/conversation ID
 
     Returns:
         True if invalidated successfully
     """
+    cache_key = _get_tool_cache_key(task_id)
+
+    # 1. Try MCP cache_delete (PRIMARY - GMP-130)
+    mcp_result = await _mcp_cache_call("cache_delete", {"key": cache_key})
+    if mcp_result and mcp_result.get("success"):
+        logger.debug("Tool cache invalidated (MCP)", task_id=task_id)
+        return True
+
+    # 2. Fallback to direct Redis (LEGACY)
     try:
         from runtime.redis_client import get_redis_client
 
@@ -518,15 +646,68 @@ async def invalidate_tool_cache(task_id: str) -> bool:
         if not redis:
             return False
 
-        cache_key = _get_tool_cache_key(task_id)
         await redis.delete(cache_key)
-
-        logger.debug("Tool cache invalidated", task_id=task_id)
+        logger.debug("Tool cache invalidated (Redis direct)", task_id=task_id)
         return True
 
     except Exception as e:
         logger.debug(f"Tool cache invalidation failed: {e}")
         return False
+
+
+async def invalidate_all_tool_caches() -> int:
+    """
+    Invalidate ALL cached tool sets (GMP-79 + GMP-130).
+
+    Called when the tool registry changes (register/unregister) to ensure
+    no task uses stale tool definitions on subsequent turns.
+
+    GMP-130: Tries MCP first, falls back to direct Redis.
+
+    Returns:
+        Number of cache entries invalidated
+    """
+    # 1. Try MCP cache_keys + cache_delete (PRIMARY - GMP-130)
+    mcp_keys_result = await _mcp_cache_call("cache_keys", {"pattern": "l9:tool_cache:*"})
+    if mcp_keys_result and mcp_keys_result.get("success"):
+        keys = mcp_keys_result.get("keys", [])
+        if not keys:
+            return 0
+
+        count = 0
+        for key in keys:
+            delete_result = await _mcp_cache_call("cache_delete", {"key": key})
+            if delete_result and delete_result.get("success"):
+                count += 1
+
+        logger.debug("tool_cache.invalidated_all (MCP)", count=count, keys_found=len(keys))
+        return count
+
+    # 2. Fallback to direct Redis (LEGACY)
+    try:
+        from runtime.redis_client import get_redis_client
+
+        redis = await get_redis_client()
+        if not redis:
+            return 0
+
+        # Get all tool cache keys for this tenant (raw=False adds tenant prefix)
+        keys = await redis.keys("l9:tool_cache:*", raw=False)
+        if not keys:
+            return 0
+
+        # Delete each key (raw=True because keys are already fully qualified)
+        count = 0
+        for key in keys:
+            if await redis.delete(key, raw=True):
+                count += 1
+
+        logger.debug("tool_cache.invalidated_all (Redis direct)", count=count, keys_found=len(keys))
+        return count
+
+    except Exception as e:
+        logger.debug(f"Tool cache bulk invalidation failed: {e}")
+        return 0
 
 
 __all__ = [
@@ -535,6 +716,7 @@ __all__ = [
     # Multi-turn caching (GMP-79)
     "get_cached_tools",
     "get_discovery_stats",
+    "invalidate_all_tool_caches",
     "invalidate_tool_cache",
     "is_dynamic_discovery_enabled",
 ]

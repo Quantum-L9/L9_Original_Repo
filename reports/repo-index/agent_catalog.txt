@@ -4,9 +4,6 @@
 
 ## Core Agents (agents/)
 
-- **for** (`base_agent.py`)
-  - from __future__ import annotations
-
 - **LCTOAgent** (`l_cto.py`)
   - L - The CTO Agent for Igor.
 

@@ -1,5 +1,7 @@
 # test_l_cto_yaml.py
 
+import asyncio
+
 import yaml
 
 from agents.l_cto import LCTOAgent

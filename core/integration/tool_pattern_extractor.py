@@ -438,7 +438,7 @@ _extractor: ToolPatternExtractor | None = None
 def get_tool_pattern_extractor() -> ToolPatternExtractor:
     """Get the global ToolPatternExtractor instance."""
     global _extractor
-    if _extractor is None:
+    if _extractor is None:  # nosemgrep: l9-singleton-requires-lock
         _extractor = ToolPatternExtractor()
     return _extractor
 

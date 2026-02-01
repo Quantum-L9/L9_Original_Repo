@@ -32,7 +32,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod  # noqa: ADR-0026 - shared impl: __init__, call_llm, call_llm_json
 from typing import Any
 
 import structlog

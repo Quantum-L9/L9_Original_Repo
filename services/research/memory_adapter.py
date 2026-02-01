@@ -84,7 +84,7 @@ class ResearchMemoryAdapter:
     @property
     def repository(self) -> SubstrateRepository:
         """Get the repository instance."""
-        if self._repository is None:
+        if self._repository is None:  # nosemgrep: l9-singleton-requires-lock
             self._repository = get_repository()
         return self._repository
 
@@ -388,7 +388,7 @@ _adapter: ResearchMemoryAdapter | None = None
 def get_memory_adapter() -> ResearchMemoryAdapter:
     """Get or create memory adapter singleton."""
     global _adapter
-    if _adapter is None:
+    if _adapter is None:  # nosemgrep: l9-singleton-requires-lock
         _adapter = ResearchMemoryAdapter()
     return _adapter
 

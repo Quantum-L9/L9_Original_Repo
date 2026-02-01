@@ -471,7 +471,10 @@ class HybridInferenceKernel:
             if threshold_name and self.prob_engine:
                 comparison_value = self.prob_engine.get_threshold(threshold_name)
             elif literal_value:
-                comparison_value = float(literal_value)
+                try:
+                    comparison_value = float(literal_value)
+                except (ValueError, TypeError):
+                    comparison_value = 0.5  # Default if conversion fails
             else:
                 comparison_value = 0.5
 

@@ -16,12 +16,12 @@ Created: 2025-12-20
 """
 
 import json
-import logging
+import structlog
 from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class ProactivityLevel(Enum):

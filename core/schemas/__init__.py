@@ -25,6 +25,14 @@ from core.schemas.capabilities import (
     Capability,
     ToolName,
 )
+
+# Role-Based Tool Capabilities (Enhancement from GMP MCP-Tools)
+from core.schemas.tool_role_capabilities import (
+    ToolCapabilities,
+    ToolCapability,
+    filter_tools_by_capabilities,
+)
+
 from core.schemas.event_stream import (
     AgentHandshake,
     CapabilityViolation,
@@ -154,6 +162,10 @@ __all__ = [
     "TaskStatus",
     # Security - Capabilities
     "ToolName",
+    # Role-Based Tool Capabilities (GMP MCP-Tools)
+    "ToolCapabilities",
+    "ToolCapability",
+    "filter_tools_by_capabilities",
     "ValidationStatus",
     "create_handshake_event",
     "create_violation_event",

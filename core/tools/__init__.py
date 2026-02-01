@@ -30,6 +30,7 @@ from core.tools.discovery_tracing import (
 )
 
 # GMP-TD-WIRE: Discovery result types + tracer
+# GMP-79: Multi-turn cache invalidation
 from core.tools.dynamic_discovery import (
     DiscoveryMethod,
     DiscoveryResult,
@@ -38,6 +39,7 @@ from core.tools.dynamic_discovery import (
     get_cached_tools,
     get_discovery_stats,
     get_discovery_tracer,
+    invalidate_all_tool_caches,
     invalidate_tool_cache,
     is_dynamic_discovery_enabled,
 )
@@ -110,7 +112,7 @@ __all__ = [
     "ToolSearchOptimizer",
     "ToolSearchResult",
     "ToolStatus",
-    # Dynamic Discovery (GMP-78 + GMP-TD-WIRE)
+    # Dynamic Discovery (GMP-78 + GMP-TD-WIRE + GMP-79)
     "cache_tools",
     "create_executor_tool_registry",
     "discover_tools_for_task",
@@ -120,6 +122,7 @@ __all__ = [
     "get_cached_tools",
     "get_discovery_stats",
     "get_discovery_tracer",
+    "invalidate_all_tool_caches",
     "invalidate_tool_cache",
     "is_dynamic_discovery_enabled",
     "register_l9_tools",

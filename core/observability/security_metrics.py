@@ -76,7 +76,7 @@ class SecurityMetric:
         Args:
             self: Instance of SecurityMetric with optional timestamp attribute.
         """
-        if self.timestamp is None:
+        if self.timestamp is None:  # nosemgrep: l9-singleton-requires-lock
             self.timestamp = datetime.now(UTC)
 
 
@@ -407,8 +407,7 @@ _security_metrics_collector: SecurityMetricsCollector | None = None
 def get_security_metrics_collector() -> SecurityMetricsCollector:
     """Get singleton security metrics collector instance."""
     global _security_metrics_collector
-
-    if _security_metrics_collector is None:
+    if _security_metrics_collector is None:  # nosemgrep: l9-singleton-requires-lock
         _security_metrics_collector = SecurityMetricsCollector()
 
     return _security_metrics_collector

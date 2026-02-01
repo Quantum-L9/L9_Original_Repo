@@ -57,7 +57,7 @@ class SignatureVerifier:
         self.tensorglobe_public_keys = tensorglobe_public_keys or {}
         self.signature_algorithm = signature_algorithm
         self.max_signature_age = timedelta(seconds=max_signature_age_seconds)
-        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger = logger.bind(component=self.__class__.__name__)
 
     def verify_request_signature(
         self,

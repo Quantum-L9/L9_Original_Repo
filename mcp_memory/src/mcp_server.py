@@ -581,6 +581,34 @@ def get_mcp_tools() -> list[MCPTool]:
                 "required": [],
             },
         ),
+        MCPTool(
+            name="cache_delete",
+            description="Delete a key from Redis cache.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "description": "Cache key to delete",
+                    },
+                },
+                "required": ["key"],
+            },
+        ),
+        MCPTool(
+            name="cache_keys",
+            description="Get all keys matching a pattern from Redis cache.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "pattern": {
+                        "type": "string",
+                        "description": "Redis key pattern (e.g., 'l9:tool_cache:*')",
+                    },
+                },
+                "required": ["pattern"],
+            },
+        ),
     ]
 
 
@@ -609,8 +637,10 @@ async def handle_tool_call(
     from src.db import execute
     from src.models import (  # Graph (Neo4j) tool args; Cache (Redis) tool args
         ApplyDecayArgs,
+        CacheDeleteArgs,
         CacheGetArgs,
         CacheGetSessionContextArgs,
+        CacheKeysArgs,
         CacheSetArgs,
         CompoundMemoriesArgs,
         DeleteExpiredMemoriesArgs,
@@ -696,6 +726,10 @@ async def handle_tool_call(
             validated_args = CacheSetArgs(**tool.arguments)
         elif tool.name == "cache_get_session_context":
             validated_args = CacheGetSessionContextArgs(**tool.arguments)
+        elif tool.name == "cache_delete":
+            validated_args = CacheDeleteArgs(**tool.arguments)
+        elif tool.name == "cache_keys":
+            validated_args = CacheKeysArgs(**tool.arguments)
         else:
             raise ValueError(f"Unknown tool: {tool.name}")
     except ValidationError as e:
@@ -1213,6 +1247,36 @@ async def handle_tool_call(
                             "data": context,
                             "session_id": session_id,
                         }
+            except ImportError:
+                result = {"error": "Redis client not configured", "available": False}
+            except Exception as e:
+                result = {"error": str(e), "available": False}
+
+        elif tool.name == "cache_delete":
+            try:
+                from api.memory.cache import get_redis
+
+                client = await get_redis()
+                if client is None or not client.is_available():
+                    result = {"error": "Redis not available", "available": False}
+                else:
+                    delete_result = await client.delete(validated_args.key)
+                    result = {"success": delete_result, "key": validated_args.key}
+            except ImportError:
+                result = {"error": "Redis client not configured", "available": False}
+            except Exception as e:
+                result = {"error": str(e), "available": False}
+
+        elif tool.name == "cache_keys":
+            try:
+                from api.memory.cache import get_redis
+
+                client = await get_redis()
+                if client is None or not client.is_available():
+                    result = {"error": "Redis not available", "available": False}
+                else:
+                    keys = await client.keys(validated_args.pattern)
+                    result = {"success": True, "keys": keys, "count": len(keys)}
             except ImportError:
                 result = {"error": "Redis client not configured", "available": False}
             except Exception as e:

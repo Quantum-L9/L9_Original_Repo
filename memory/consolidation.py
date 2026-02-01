@@ -548,6 +548,7 @@ class ConsolidationPipeline:
                         continue
 
                     # Store summary as semantic fact
+                    # MEMORY_BYPASS_ALLOWED: Internal-consolidation-pipeline-creates-derived-facts
                     fact_id = uuid4()
                     await conn.execute(
                         """

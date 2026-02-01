@@ -23,8 +23,8 @@ ERRORS=0
 echo "🐳 L9 Docker Validator"
 echo "======================"
 
-# Check Dockerfiles exist (L9 uses runtime/Dockerfile and mcp_memory/Dockerfile)
-DOCKERFILES=("runtime/Dockerfile" "mcp_memory/Dockerfile")
+# Check Dockerfiles exist (ADR-0089: canonical at repo root only)
+DOCKERFILES=("Dockerfile" "Dockerfile.mcp-memory")
 FOUND_ANY=0
 
 for df in "${DOCKERFILES[@]}"; do
@@ -43,7 +43,7 @@ for df in "${DOCKERFILES[@]}"; do
 done
 
 if [ $FOUND_ANY -eq 0 ]; then
-    echo "❌ No Dockerfiles found (expected runtime/Dockerfile or mcp_memory/Dockerfile)"
+    echo "❌ No Dockerfiles found (expected root Dockerfile and Dockerfile.mcp-memory)"
     ERRORS=$((ERRORS + 1))
 fi
 

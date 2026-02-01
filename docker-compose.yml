@@ -1,29 +1,75 @@
+# =============================================================================
+# L9 Docker Compose - BASE INFRASTRUCTURE
+# =============================================================================
+# Version: 4.0.0
+# Purpose: Core infrastructure services (PostgreSQL, Neo4j, Redis, Monitoring)
+# Usage: Base file for all environments, combined with overlays
+#
+# REQUIRED: .env (or --env-file) MUST contain ALL required variables.
+# NO MISSING VARIABLES TOLERATED. Required: POSTGRES_PASSWORD, NEO4J_PASSWORD,
+# GRAFANA_PASSWORD, OPENAI_API_KEY, L9_API_KEY. Validate: scripts/check_compose_env.sh [.env]
+#
+# USAGE PATTERNS:
+#   Development:
+#     docker compose -f docker-compose.yml -f docker-compose.dev.yml --env-file .env up
+#
+#   Production:
+#     docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+#       --env-file deploy/c1/.env.c1 up -d
+#
+# PHILOSOPHY:
+#   - This file contains ONLY infrastructure (no L9 application services)
+#   - Application services (l9-api, l9-mcp-memory) are in overlay files
+#   - All services use env_file directive for automatic variable injection
+#   - No hardcoded secrets - everything from .env files
+# =============================================================================
+
 services:
-  redis:
-    image: redis:7-alpine
-    container_name: l9-redis
+  # ===========================================================================
+  # PostgreSQL - Memory Substrate (PacketStore + pgvector)
+  # ===========================================================================
+  l9-postgres:
+    image: pgvector/pgvector:pg16
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-postgres
     restart: unless-stopped
-    ports:
-      - "127.0.0.1:6379:6379"
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_INITDB_ARGS: "-E UTF8 --locale=en_US.UTF-8"
     volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 5s
       timeout: 5s
       retries: 5
     networks:
       - l9-network
+    labels:
+      - "com.l9.service=postgres"
+      - "com.l9.layer=substrate"
 
+  # ===========================================================================
+  # Neo4j - Knowledge Graph
+  # ===========================================================================
   neo4j:
     image: neo4j:5-community
-    container_name: l9-neo4j
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-neo4j
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       NEO4J_AUTH: ${NEO4J_USER}/${NEO4J_PASSWORD}
       NEO4J_PLUGINS: '["apoc"]'
       NEO4J_dbms_security_procedures_unrestricted: apoc.*
+      NEO4J_dbms_memory_heap_initial__size: 512m
+      NEO4J_dbms_memory_heap_max__size: 1G
+      NEO4J_dbms_memory_pagecache_size: 512m
     ports:
       - "127.0.0.1:7474:7474"
       - "127.0.0.1:7687:7687"
@@ -38,77 +84,44 @@ services:
       start_period: 30s
     networks:
       - l9-network
+    labels:
+      - "com.l9.service=neo4j"
+      - "com.l9.layer=substrate"
 
-  l9-postgres:
-    image: pgvector/pgvector:pg16
-    container_name: l9-postgres
+  # ===========================================================================
+  # Redis - Task Queue, Caching, Pub/Sub
+  # ===========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-redis
     restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:6379:6379"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "127.0.0.1:5432:5432"
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    networks:
-      - l9-network
-
-  l9-api:
-    build:
-      context: .
-      dockerfile: runtime/Dockerfile
-    container_name: l9-api
-    restart: unless-stopped
-    depends_on:
-      l9-postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      neo4j:
-        condition: service_healthy
-    env_file: .env
-    ports:
-      - "127.0.0.1:8000:8000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 20s
     networks:
       - l9-network
+    labels:
+      - "com.l9.service=redis"
+      - "com.l9.layer=substrate"
 
-  l9-mcp-memory:
-    build:
-      context: .
-      dockerfile: mcp_memory/Dockerfile
-    container_name: l9-mcp-memory
-    restart: unless-stopped
-    depends_on:
-      l9-postgres:
-        condition: service_healthy
-    env_file: .env
-    ports:
-      - "127.0.0.1:9002:9002"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9002/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    networks:
-      - l9-network
-
+  # ===========================================================================
+  # Prometheus - Metrics Collection
+  # ===========================================================================
   prometheus:
     image: prom/prometheus:v2.48.0
-    container_name: l9-prometheus
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-prometheus
     restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - "127.0.0.1:9090:9090"
     volumes:
@@ -117,6 +130,8 @@ services:
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
       interval: 10s
@@ -124,18 +139,27 @@ services:
       retries: 5
     networks:
       - l9-network
+    labels:
+      - "com.l9.service=prometheus"
+      - "com.l9.layer=observability"
 
+  # ===========================================================================
+  # Grafana - Visualization
+  # ===========================================================================
   grafana:
     image: grafana/grafana:10.2.0
-    container_name: l9-grafana
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-grafana
     restart: unless-stopped
     depends_on:
       prometheus:
         condition: service_healthy
+    env_file:
+      - .env
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3000}
     ports:
       - "127.0.0.1:3000:3000"
     volumes:
@@ -147,11 +171,19 @@ services:
       retries: 5
     networks:
       - l9-network
+    labels:
+      - "com.l9.service=grafana"
+      - "com.l9.layer=observability"
 
+  # ===========================================================================
+  # Jaeger - Distributed Tracing
+  # ===========================================================================
   jaeger:
     image: jaegertracing/all-in-one:1.52
-    container_name: l9-jaeger
+    container_name: ${COMPOSE_PROJECT_NAME:-l9}-jaeger
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
     ports:
@@ -165,28 +197,25 @@ services:
       retries: 5
     networks:
       - l9-network
-
-  nginx:
-    image: nginx:alpine
-    container_name: l9-nginx
-    restart: unless-stopped
-    depends_on:
-      - l9-api
-      - l9-mcp-memory
-    ports:
-      - "0.0.0.0:80:80"
-    volumes:
-      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    networks:
-      - l9-network
+    labels:
+      - "com.l9.service=jaeger"
+      - "com.l9.layer=observability"
 
 volumes:
   postgres_data:
+    name: ${COMPOSE_PROJECT_NAME:-l9}-postgres-data
   redis_data:
+    name: ${COMPOSE_PROJECT_NAME:-l9}-redis-data
   neo4j_data:
+    name: ${COMPOSE_PROJECT_NAME:-l9}-neo4j-data
   neo4j_logs:
+    name: ${COMPOSE_PROJECT_NAME:-l9}-neo4j-logs
   prometheus_data:
+    name: ${COMPOSE_PROJECT_NAME:-l9}-prometheus-data
   grafana_data:
+    name: ${COMPOSE_PROJECT_NAME:-l9}-grafana-data
 
 networks:
   l9-network:
+    driver: bridge
+    name: ${COMPOSE_PROJECT_NAME:-l9}-network

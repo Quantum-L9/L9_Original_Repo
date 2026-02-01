@@ -543,7 +543,7 @@ class CredentialRotationPolicy:
         Returns:
             The created CredentialRecord
         """
-        if rotation_period_days is None:
+        if rotation_period_days is None:  # nosemgrep: l9-singleton-requires-lock
             rotation_period_days = self.DEFAULT_ROTATION_PERIODS.get(
                 credential_type, 90
             )

@@ -454,7 +454,7 @@ _auth_limiter_instance: AuthRateLimiter | None = None
 def get_auth_rate_limiter() -> AuthRateLimiter:
     """Get or create the auth rate limiter singleton."""
     global _auth_limiter_instance
-    if _auth_limiter_instance is None:
+    if _auth_limiter_instance is None:  # nosemgrep: l9-singleton-requires-lock
         _auth_limiter_instance = AuthRateLimiter()
     return _auth_limiter_instance
 

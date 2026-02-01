@@ -1,6 +1,6 @@
 # L9 Architecture Decision Record (ADR) Catalog
-# Generated: 2026-01-28
-# Total: 71 ADRs
+# Generated: 2026-01-31
+# Total: 89 ADRs
 #
 # Format: ADR_NUMBER | STATUS | TITLE | PATH
 # ============================================================================
@@ -80,7 +80,25 @@
 0067 | Unknown | AWS Secrets Manager Integration | readme/adr/0067-aws-secrets-manager-integration.md
 0068 | Accepted | Unified Resilience Protocol Layer | readme/adr/0068-unified-resilience-protocol-layer.md
 0069 | Accepted | Automated Documentation Generation System | readme/adr/0069-automated-documentation-generation.md
-0069 | Unknown | Unknown | readme/adr/0069-session-dag-workflow-orchestration.md
+0070 | Unknown | Unknown | readme/adr/0070-session-dag-workflow-orchestration.md
+0071 | Unknown | Unknown | readme/adr/0071-fix-violations-not-exclude.md
+0072 | Unknown | Unknown | readme/adr/0072-diagnose-before-fix.md
+0073 | Unknown | Unknown | readme/adr/0073-evidence-based-claims.md
+0074 | Unknown | Unknown | readme/adr/0074-surgical-edits-only.md
+0075 | Unknown | Unknown | readme/adr/0075-ask-before-build.md
+0076 | Unknown | Unknown | readme/adr/0076-search-before-create.md
+0077 | Unknown | Unknown | readme/adr/0077-no-silent-changes.md
+0078 | Unknown | Unknown | readme/adr/0078-explicit-approval-destructive-ops.md
+0079 | Unknown | Unknown | readme/adr/0079-real-data-only.md
+0080 | Unknown | Unknown | readme/adr/0080-understand-user-intent.md
+0081 | Unknown | Unknown | readme/adr/0081-phase-discipline.md
+0082 | Unknown | Unknown | readme/adr/0082-neo4j-required-not-optional.md
+0083 | Unknown | Unknown | readme/adr/0083-datetime-utc-standard.md
+0084 | Unknown | Unknown | readme/adr/0084-async-resource-cleanup.md
+0085 | Unknown | Unknown | readme/adr/0085-thread-safe-singletons.md
+0086 | Unknown | Unknown | readme/adr/0086-safe-type-conversion.md
+0087 | Unknown | Unknown | readme/adr/0087-sql-parameterization.md
+0088 | Unknown | Unknown | readme/adr/0088-no-pickle-serialization.md
 
 # ============================================================================
 # AI QUICK REFERENCE - KEY DO NOT's
@@ -97,3 +115,5 @@
 # Do NOT catch and return None (ADR-0055)
 # DO NOT rules     | (ADR-0069)
 # DO NOT** manually edit files in `reports/repo-index/` — they are auto-generated (ADR-0069)
+# Do NOT suppress errors in hooks/scripts with `2>/dev/null || true` patterns (ADR-0071)
+# Do NOT proceed to Phase 5 (ADR-0081)

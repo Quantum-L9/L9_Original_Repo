@@ -19,6 +19,8 @@ Author: L9 System
 Created: 2026-01-06
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Load Gmp Reports To Graph",

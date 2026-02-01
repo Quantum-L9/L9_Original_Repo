@@ -135,6 +135,15 @@ async def tool_call_wrapper(
         except Exception as log_err:
             logger.warning(f"Failed to log tool call: {log_err}")
 
+        # Record observability metrics (Enhancement from GMP MCP-Tools)
+        _record_tool_execution_metric(
+            tool_name=tool_name,
+            agent_id=agent_id,
+            duration_ms=duration_ms,
+            status="success" if success else "error",
+            error_type=type(error).__name__ if error and not isinstance(error, str) else None,
+        )
+
     return result
 
 

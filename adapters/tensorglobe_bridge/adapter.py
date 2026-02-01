@@ -75,7 +75,7 @@ class TensorGlobeBridgeAdapter:
         self.signature_verifier = SignatureVerifier()
         self.anomaly_detector = AnomalyDetector()
 
-        self.logger = logger.getChild(self.__class__.__name__)
+        self.logger = logger.bind(component=self.__class__.__name__)
 
     async def handle_tensor_request(
         self,

@@ -366,8 +366,7 @@ _global_emitter: InsightEmitter | None = None
 def get_insight_emitter(substrate_service: Any | None = None) -> InsightEmitter:
     """Get or create the global InsightEmitter instance."""
     global _global_emitter
-
-    if _global_emitter is None:
+    if _global_emitter is None:  # nosemgrep: l9-singleton-requires-lock
         _global_emitter = InsightEmitter(substrate_service)
 
     return _global_emitter

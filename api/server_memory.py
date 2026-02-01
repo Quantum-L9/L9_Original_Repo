@@ -204,6 +204,7 @@ if settings.slack_app_enabled:
             from api.slack_client import SlackAPIClient
 
             validator = SlackRequestValidator(slack_signing_secret)
+            # nosemgrep: l9-httpx-async-context-required (lifecycle client, closed in shutdown_http_client)
             http_client = httpx.AsyncClient()
             slack_client = SlackAPIClient(
                 bot_token=slack_bot_token,
@@ -274,6 +275,18 @@ if settings.email_enabled:
         app.include_router(email_agent_router)
     except Exception as e:
         logger.error(f"WARNING: Failed to load Email Agent router: {e}")
+
+# === Shutdown handler for HTTP client cleanup (ADR-0084) ===
+@app.on_event("shutdown")
+async def shutdown_http_client():
+    """Close HTTP client to prevent resource leaks."""
+    if hasattr(app.state, "http_client") and app.state.http_client:
+        try:
+            await app.state.http_client.aclose()
+            logger.info("HTTP client closed on shutdown")
+        except Exception as e:
+            logger.warning(f"Error closing HTTP client: {e}")
+
 
 # === Debug: Print integration toggles at startup ===
 logger.info(

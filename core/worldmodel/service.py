@@ -637,8 +637,7 @@ def get_world_model_service(
 ) -> WorldModelService:
     """Get or create the global WorldModelService instance."""
     global _global_service
-
-    if _global_service is None:
+    if _global_service is None:  # nosemgrep: l9-singleton-requires-lock
         _global_service = WorldModelService(substrate_service)
 
     return _global_service

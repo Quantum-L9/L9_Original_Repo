@@ -48,7 +48,6 @@
   .convergence
   .core
   .credentials_policy
-  .cross_domain_motif_classifier
   .decision_synthesizer
   .diff_generator
   .doc_compiler
@@ -119,7 +118,6 @@
   .readme_generator
   .reasoning.orchestrator
   .reasoning_engine
-  .reasoning_governor
   .reflection_engine
   .report_generator
   .research_swarm.orchestrator
@@ -128,7 +126,6 @@
   .schema
   .schemas
   .security
-  .self_healing_plan_synthesizer
   .service
   .spec_generator
   .spec_normalizer_v2
@@ -284,19 +281,15 @@
   core.agents.base_agent
   core.agents.bootstrap.models
   core.agents.bootstrap.orchestrator
-  core.agents.bootstrap.phase0_validate
   core.agents.bootstrap.phase1_loadkernels
-  core.agents.bootstrap.phase2_instantiate
-  core.agents.bootstrap.phase3_bindkernels
-  core.agents.bootstrap.phase4_loadidentity
-  core.agents.bootstrap.phase5_bindtools
-  core.agents.bootstrap.phase6_wiregovernance
-  core.agents.bootstrap.phase7_verifyandlock
   core.agents.bootstrap.phase_4_load_identity
+  core.agents.bootstrap.phase_7_verify_and_lock
   core.agents.executor
   core.agents.executor_composer
   core.agents.graph_state.agent_graph_loader
   core.agents.graph_state.schema
+  core.agents.idempotency_store
+  core.agents.kernel_registry
   core.agents.kernelevolution
   core.agents.prompt_builder
   core.agents.prompt_defense
@@ -344,7 +337,9 @@
   core.governance.tool_risk_policy
   core.governance.validation
   core.instrumentation.decorators
+  core.kernel_wiring
   core.kernel_wiring.packet_protocol_wiring
+  core.kernels
   core.kernels.bayesian_kernel
   core.kernels.integrity
   core.kernels.kernelloader
@@ -405,6 +400,7 @@
   core.schemas.research_factory_state
   core.schemas.schema_registry
   core.schemas.tasks
+  core.schemas.tool_role_capabilities
   core.schemas.upcaster_registry
   core.schemas.ws_event_stream
   core.secrets.env_secrets_client
@@ -486,6 +482,8 @@
   generate_module_code
 # glob
   glob
+# governance
+  governance.rejection_recorder
 # graph_adapter
   graph_adapter.packet_node_adapter
 # hashlib
@@ -561,6 +559,7 @@
   memory.checkpoint_metrics
   memory.checkpoint_validator
   memory.consolidation
+  memory.consolidation.promotion_rules
   memory.cross_encoder_reranker
   memory.cypher_templates
   memory.dead_letter
@@ -615,6 +614,8 @@
   memory.vector_search_config
   memory.warming_models
   memory.warming_service
+# memory_cache
+  memory_cache.cursor_working_memory_service
 # memory_substrate
   memory_substrate.repository
   memory_substrate.service
@@ -870,6 +871,7 @@
   tools.adr.adr_generator
   tools.adr.adr_indexer
   tools.adr.adr_validator
+  tools.superpack_reports.ast_scanner
 # torch
   torch
   torch.nn

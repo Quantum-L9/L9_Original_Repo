@@ -171,7 +171,7 @@ export DOCKER_BUILDKIT=1
 docker compose build
 
 # Or use requirements-docker.txt (excludes playwright)
-# Already configured in runtime/Dockerfile
+# Root Dockerfile (canonical) uses production target
 ```
 
 ---
@@ -313,9 +313,8 @@ docker network prune -f
 
 For production deployment, see:
 
-- `deploy/docker-production/` - Production-optimized Dockerfiles
-- `deploy/helm/` - Kubernetes Helm charts
-- `DEPLOYMENT_GUIDE.md` - Complete deployment documentation
+- Root `Dockerfile` and `Dockerfile.mcp-memory` + `docker-compose.prod.yml` (ADR-0089)
+- `deploy/c1/README.md` and `deploy/DEPLOYMENT_GUIDE.md` - C1 and deployment docs
 
 ---
 
@@ -323,8 +322,7 @@ For production deployment, see:
 
 - **docker-compose.yml** - Service definitions
 - **.env.docker** - Environment template
-- **runtime/Dockerfile** - L9 API Dockerfile
-- **mcp_memory/Dockerfile** - MCP Memory Dockerfile
+- **Dockerfile** (root) - L9 API; **Dockerfile.mcp-memory** (root) - MCP Memory
 - **CONTAINER_LOADING_DIAGNOSIS.md** - Detailed troubleshooting
 
 ---

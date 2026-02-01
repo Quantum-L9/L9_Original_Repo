@@ -17,11 +17,11 @@ Author: Manus AI
 Created: 2025-12-20
 """
 
-import logging
+import structlog
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 @dataclass
