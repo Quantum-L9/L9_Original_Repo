@@ -38,6 +38,7 @@ __dora_meta__ = {
 
 import time
 from collections.abc import Callable, Coroutine
+from functools import wraps
 from typing import Any
 
 import structlog
@@ -175,6 +176,7 @@ def wrap_tool_function(
             A wrapped asynchronous function that logs each call before execution.
         """
 
+        @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             """
             Performs asynchronous logging of tool calls to ensure consistent audit records within the ToolCallWrapper context.
