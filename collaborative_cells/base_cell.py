@@ -44,7 +44,7 @@ __dora_meta__ = {
 
 from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, TypeVar
 from uuid import UUID, uuid4
@@ -86,7 +86,7 @@ class AgentMessage:
     agent_id: str
     role: str  # "producer", "critic", "validator"
     content: dict[str, Any]
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     round_number: int = 0
 
 
@@ -99,7 +99,7 @@ class CellRound:
     consensus_score: float = 0.0
     consensus_reached: bool = False
     revisions: list[str] = field(default_factory=list)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 T = TypeVar("T")
