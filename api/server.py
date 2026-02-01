@@ -1617,8 +1617,9 @@ async def lifespan(app: FastAPI):
     # Neo4j is OPTIONAL - app continues in degraded mode if unavailable
     import asyncio
 
-    neo4j_max_retries = 5  # 10 retries = ~30 seconds total
-    neo4j_retry_delay = 3  # Start with 3 seconds
+    # Neo4j connection retry configuration (configurable via env vars)
+    neo4j_max_retries = int(os.getenv("NEO4J_MAX_RETRIES", "5"))
+    neo4j_retry_delay = float(os.getenv("NEO4J_RETRY_DELAY", "3.0"))
 
     try:
         from memory.graph_client import close_neo4j_client, get_neo4j_client
