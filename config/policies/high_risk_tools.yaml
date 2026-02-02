@@ -32,17 +32,10 @@
 # - core/compliance/audit_reporter.py
 # - scripts/memory/bootstrap_neo4j_schema.py
 # - ci/check_tool_wiring.py
-
+id: high_risk_tools
+version: "1.0"
 tool_risk_classification:
-  # ==========================================================================
-  # HIGH RISK TOOLS
-  # ==========================================================================
-  # These tools can modify system state, files, or external resources.
-  # Require explicit approval before execution.
-  #
-  # NOTE: Only includes tools that EXIST in the codebase.
-  # Placeholder/aspirational tools removed (database_write, database_migrate).
-  high_risk:
+high_risk:
     - tool_id: shell_exec
       description: "Execute shell commands"
       risk_level: critical

@@ -12,7 +12,6 @@
 # type: "policy"
 # status: "active"
 # ============================================================================
-
 # L9 Governance - Memory Scope Access Policies
 # =============================================
 # Declarative policies controlling which callers can access which memory scopes.
@@ -28,13 +27,13 @@
 #
 # GMP-103: Unifies hardcoded checks from MemoryGovernanceContext.__post_init__
 # into declarative policy format.
-
 # -----------------------------------------------------------------------------
 # SCOPE ACCESS MATRIX (loaded at module import time for sync validation)
 # -----------------------------------------------------------------------------
 # This matrix is read by memory/governance_gate.py to validate scope access.
 # Format: caller_id -> list of allowed scopes
-
+id: memory_scope
+version: "1.0"
 scope_access_matrix:
   # L-CTO: Full access to all scopes
   L:

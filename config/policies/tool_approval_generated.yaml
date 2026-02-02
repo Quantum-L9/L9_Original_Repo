@@ -16,7 +16,8 @@
 # Tool approval policies.
 # High-risk: gmprun, gitcommit, macagent, shell_exec
 # Auto-approve: search, read, list, memory_read
-
+id: tool_approval_generated
+version: "1.0"
 policies:
   - id: auto-approve-safe-tools
     name: Auto-Approve Safe Tools

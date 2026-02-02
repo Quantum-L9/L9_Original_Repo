@@ -12,14 +12,14 @@
 # type: "utility"
 # status: "active"
 # ============================================================================
-
 # L9 Governance - Default Policies
 # =================================
 # These policies define the baseline security posture.
 # IMPORTANT: Deny-by-default is enforced even without explicit deny policies.
 #
 # Policy evaluation is first-match-wins, sorted by priority (highest first).
-
+id: defaults
+version: "1.0"
 policies:
   # Default deny-all policy (lowest priority, matches everything)
   - id: "default-deny-all"

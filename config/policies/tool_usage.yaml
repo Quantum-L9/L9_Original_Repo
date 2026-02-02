@@ -1,3 +1,4 @@
+
 # ============================================================================
 # DORA META - AUTO-GENERATED
 # ============================================================================
@@ -21,7 +22,8 @@
 # - Low: Information retrieval (search, read)
 # - Medium: External communication (http requests)
 # - High: System modification (file write, shell exec, database write)
-
+id: tool_usage
+version: "1.0"
 policies:
   # Allow all agents to use low-risk tools
   - id: "allow-low-risk-tools"

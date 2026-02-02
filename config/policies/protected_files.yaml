@@ -1,3 +1,4 @@
+
 # ============================================================================
 # DORA META - AUTO-GENERATED
 # ============================================================================
@@ -12,7 +13,6 @@
 # type: "policy"
 # status: "active"
 # ============================================================================
-
 # L9 Governance - Protected Files Policy
 # =======================================
 # Single source of truth for protected file definitions.
@@ -24,7 +24,8 @@
 #   - L (CTO): LCTO-controlled surfaces
 #   - Igor (Boss): Any file (with audit trail)
 #   - Cursor (IDE): Non-protected files only
-
+id: protected_files
+version: "1.0"
 protected_files:
   # ==========================================================================
   # LCTO-CONTROLLED FILES
