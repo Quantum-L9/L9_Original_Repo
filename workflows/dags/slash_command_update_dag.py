@@ -37,7 +37,7 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["workflows.session.dags.__init__"],
+        "imported_by": ["workflows.dags.__init__"],
     },
 }
 # ============================================================================
@@ -85,7 +85,7 @@ version: "1.0.0"
 description: "Brief description"
 auto_chain: ynp
 dag: dag-id
-dag_file: workflows/session/dags/dag_file.py
+dag_file: workflows/dags/dag_file.py
 
 # /command — Title
 
@@ -103,7 +103,7 @@ The DAG contains all instructions. Follow each node's action field exactly.
 
 KEY FILES:
 - Commands: .cursor-commands/commands/*.md
-- DAGs: workflows/session/dags/*.py
+- DAGs: workflows/dags/*.py
 - Registry: .cursor/rules/02-slash-commands.mdc
 """,
     tags=["meta", "command", "update", "minimal", "trigger", "efficiency"],
@@ -189,7 +189,7 @@ SKIP if:
 
 2. **Read DAG file:**
    ```bash
-   cat workflows/session/dags/{dag_file}.py | head -100
+   cat workflows/dags/{dag_file}.py | head -100
    ```
 
 3. **Verify DAG contains instructions:**
@@ -197,14 +197,14 @@ SKIP if:
 
 4. **List node actions:**
    ```python
-   from workflows.session.dags.{dag} import DAG_CONSTANT
+   from workflows.dags.{dag} import DAG_CONSTANT
    for node in DAG_CONSTANT.nodes:
        print(f"{node.id}: {len(node.action)} chars")  # noqa: ADR-0019
    ```
 
 5. **Document:**
    ```python
-   state["dag_path"] = "workflows/session/dags/example_dag.py"
+   state["dag_path"] = "workflows/dags/example_dag.py"
    state["dag_has_instructions"] = True  # node actions are detailed
    ```
 
@@ -212,7 +212,7 @@ SKIP if:
    - DON'T reduce command file
    - Instead, MOVE instructions from command to DAG first
 
-Pre-reading: workflows/session/dags/{dag_file}.py""",
+Pre-reading: workflows/dags/{dag_file}.py""",
             outputs=["dag_path", "dag_has_instructions"],
         ),
         # === GATE: DAG HAS INSTRUCTIONS? ===
@@ -266,7 +266,7 @@ version: "1.0.0"
 description: "Brief description"
 auto_chain: ynp
 dag: {dag-id}
-dag_file: workflows/session/dags/{dag_file}.py
+dag_file: workflows/dags/{dag_file}.py
 
 # /{command} — {Title}
 
@@ -284,7 +284,7 @@ dag_file: workflows/session/dags/{dag_file}.py
 Load and execute the DAG:
 
 ```python
-from workflows.session.dags import {DAG_CONSTANT}
+from workflows.dags import {DAG_CONSTANT}
 # Follow each node's action field in sequence
 ```
 
@@ -324,7 +324,7 @@ Output: .cursor-commands/commands/{command}.md (reduced)""",
 
 3. **Verify DAG reference valid:**
    ```python
-   python -c "from workflows.session.dags.{dag} import DAG_CONSTANT; print(DAG_CONSTANT.id)"
+   python -c "from workflows.dags.{dag} import DAG_CONSTANT; print(DAG_CONSTANT.id)"
    ```
 
 4. **Check key sections present:**
@@ -367,7 +367,7 @@ SUCCESS CRITERIA:
 
 2. **List what's in DAG:**
    ```python
-   from workflows.session.dags.{dag} import DAG_CONSTANT
+   from workflows.dags.{dag} import DAG_CONSTANT
    for node in DAG_CONSTANT.nodes:
        if node.action and len(node.action) > 50:
            print(f"- {node.name}: {len(node.action)} chars")  # noqa: ADR-0019

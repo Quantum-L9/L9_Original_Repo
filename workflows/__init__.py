@@ -89,6 +89,8 @@ except ImportError:
     pass
 
 # === Session DAG System ===
+# Trigger DAG auto-registration
+from workflows import dags as _dags
 from workflows.session import (
     GateType,
     NodeType,
@@ -101,9 +103,6 @@ from workflows.session import (
     register_session_dag,
     session_dag_registry,
 )
-
-# Trigger DAG auto-registration
-from workflows.session import dags as _dags
 
 __all__ = [
     "ExtractionPattern",

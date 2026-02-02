@@ -36,7 +36,7 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["workflows.session.dags.__init__"],
+        "imported_by": ["workflows.dags.__init__"],
     },
 }
 # ============================================================================
@@ -94,7 +94,7 @@ Include:
 ```
 
 KEY FILES:
-- DAGs: workflows/session/dags/*.py
+- DAGs: workflows/dags/*.py
 - Interface: workflows/session/interface.py
 - Registry: workflows/session/registry.py
 - Commands: .cursor-commands/commands/*.md
@@ -138,11 +138,11 @@ KEY FILES:
 
 4. **Check for existing DAGs:**
    ```bash
-   ls workflows/session/dags/*.py
+   ls workflows/dags/*.py
    ```
    Is there a similar DAG to use as template?
 
-Pre-reading: workflows/session/dags/*.py (pick one as reference)""",
+Pre-reading: workflows/dags/*.py (pick one as reference)""",
             outputs=["workflow_name", "phases", "gates", "key_files", "reference_dag"],
         ),
         # === PHASE 2: STRUCTURE ===
@@ -246,7 +246,7 @@ GATE TYPE GUIDE:
 ✅ DO: Include exact commands, file paths, expected outputs
 ❌ DON'T: Leave vague instructions like "do the thing"
 
-Pre-reading: workflows/session/dags/readme_pipeline_dag.py (good example)""",
+Pre-reading: workflows/dags/readme_pipeline_dag.py (good example)""",
             outputs=["nodes_written"],
         ),
         # === PHASE 4: WRITE EDGES ===
@@ -309,19 +309,19 @@ COMPLETENESS CHECK:
 
 1. **Syntax check:**
 ```bash
-python -m py_compile workflows/session/dags/new_dag.py
+python -m py_compile workflows/dags/new_dag.py
 ```
 
 2. **Import test:**
 ```python
-python -c "from workflows.session.dags.new_dag import NEW_DAG; print(f'ID: {NEW_DAG.id}')"
+python -c "from workflows.dags.new_dag import NEW_DAG; print(f'ID: {NEW_DAG.id}')"
 ```
 
 3. **Registration test:**
 ```python
 python -c "
 from workflows.session.registry import get_dag
-from workflows.session.dags import new_dag  # Triggers auto-register
+from workflows.dags import new_dag  # Triggers auto-register
 dag = get_dag('new-dag-id')
 print(f'Registered: {dag.name}')  # noqa: ADR-0019
 print(f'Nodes: {len(dag.nodes)}')  # noqa: ADR-0019
@@ -336,8 +336,8 @@ print(f'Edges: {len(dag.edges)}')  # noqa: ADR-0019
 
 5. **Update __init__.py:**
 ```python
-# Add to workflows/session/dags/__init__.py
-from workflows.session.dags.new_dag import NEW_DAG
+# Add to workflows/dags/__init__.py
+from workflows.dags.new_dag import NEW_DAG
 ```
 
 SUCCESS CRITERIA:
@@ -375,7 +375,7 @@ version: "1.0.0"
 description: "One-line description"
 auto_chain: ynp
 dag: {dag-id}
-dag_file: workflows/session/dags/{dag_file}.py
+dag_file: workflows/dags/{dag_file}.py
 
 # /{command} — {Human Title}
 
@@ -393,7 +393,7 @@ dag_file: workflows/session/dags/{dag_file}.py
 Load and execute the DAG:
 
 ```python
-from workflows.session.dags import {DAG_CONSTANT}
+from workflows.dags import {DAG_CONSTANT}
 # Follow each node's action field in sequence
 ```
 
@@ -401,7 +401,7 @@ The DAG contains all instructions. Follow each node's `action` field exactly.
 
 ## Key Files
 
-- **DAG**: `workflows/session/dags/{dag_file}.py`
+- **DAG**: `workflows/dags/{dag_file}.py`
 - **Other relevant files**
 ```
 

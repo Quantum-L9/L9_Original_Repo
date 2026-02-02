@@ -27,15 +27,16 @@ __dora_meta__ = {
         "memory_layers": [],
         "imported_by": [
             "workflows.session.__init__",
-            "workflows.session.dags.harvest_deploy_dag",
-            "workflows.session.dags.refactoring_dag",
+            "workflows.dags.harvest_deploy_dag",
+            "workflows.dags.refactoring_dag",
         ],
     },
 }
 # ============================================================================
 
-import structlog
 from typing import Any
+
+import structlog
 
 # structlog is preferred but optional
 try:

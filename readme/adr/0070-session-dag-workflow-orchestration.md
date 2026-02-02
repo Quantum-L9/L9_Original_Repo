@@ -145,7 +145,7 @@ graph TD
 **In a Cursor session:**
 
 ```
-Follow the Refactoring DAG at workflows/session/dags/REFACTORING_DAG.md
+Follow the Refactoring DAG at workflows/dags/REFACTORING_DAG.md
 
 Document: @path/to/migration-doc.md
 ```
@@ -210,6 +210,6 @@ Session DAGs guide human+AI collaboration patterns, not runtime agent coordinati
 
 ## References
 
-- `workflows/session/dags/REFACTORING_DAG.md` - Human reference
-- `workflows/session/dags/refactoring_dag.py` - Python definition
+- `workflows/dags/REFACTORING_DAG.md` - Human reference
+- `workflows/dags/refactoring_dag.py` - Python definition
 - Router Migration session (2026-01-25) - Origin workflow

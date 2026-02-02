@@ -32,7 +32,7 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["workflows.session.dags.__init__"],
+        "imported_by": ["workflows.dags.__init__"],
     },
 }
 # ============================================================================

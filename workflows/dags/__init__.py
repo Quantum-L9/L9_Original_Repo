@@ -36,22 +36,22 @@ __dora_meta__ = {
 # ============================================================================
 
 # Legacy DAGs (dataclass-based documentation)
-from workflows.session.dags.dag_authoring_dag import DAG_AUTHORING_DAG
-from workflows.session.dags.gmp_execution_dag import GMP_EXECUTION_DAG
-from workflows.session.dags.harvest_deploy_dag import HARVEST_DEPLOY_DAG
+from workflows.dags.dag_authoring_dag import DAG_AUTHORING_DAG
+from workflows.dags.gmp_execution_dag import GMP_EXECUTION_DAG
+from workflows.dags.harvest_deploy_dag import HARVEST_DEPLOY_DAG
 
 # Real LangGraph DAGs (executable)
-from workflows.session.dags.inspect_dag import (
+from workflows.dags.inspect_dag import (
     INSPECT_DAG,
     InspectState,
     build_inspect_graph,
     run_inspect,
 )
-from workflows.session.dags.readme_pipeline_dag import README_PIPELINE_DAG
-from workflows.session.dags.refactoring_dag import REFACTORING_DAG
-from workflows.session.dags.slash_command_update_dag import SLASH_COMMAND_UPDATE_DAG
-from workflows.session.dags.test_pipeline_dag import TEST_PIPELINE_DAG
-from workflows.session.dags.wire_dag import WIRE_DAG
+from workflows.dags.readme_pipeline_dag import README_PIPELINE_DAG
+from workflows.dags.refactoring_dag import REFACTORING_DAG
+from workflows.dags.slash_command_update_dag import SLASH_COMMAND_UPDATE_DAG
+from workflows.dags.test_pipeline_dag import TEST_PIPELINE_DAG
+from workflows.dags.wire_dag import WIRE_DAG
 
 __all__ = [
     # Real LangGraph (use these)

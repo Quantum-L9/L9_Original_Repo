@@ -968,7 +968,7 @@ workflows/session/
     └── REFACTORING_DAG.md
 ```
 
-Reference: `workflows/session/dags/REFACTORING_DAG.md`
+Reference: `workflows/dags/REFACTORING_DAG.md`
 
 ---
 

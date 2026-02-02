@@ -39,7 +39,7 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": ["Redis"],
         "memory_layers": ["semantic_memory", "working_memory"],
-        "imported_by": ["workflows.session.dags.__init__"],
+        "imported_by": ["workflows.dags.__init__"],
     },
 }
 # ============================================================================

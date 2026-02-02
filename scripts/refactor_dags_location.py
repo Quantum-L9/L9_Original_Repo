@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Refactor Script: Move workflows/session/dags/ → workflows/dags/
+Refactor Script: Move workflows/dags/ → workflows/dags/
 
 This script:
 1. Creates workflows/dags/ directory
@@ -30,9 +30,9 @@ DST_DIR = PROJECT_ROOT / "workflows" / "dags"
 # Patterns to replace
 REPLACEMENTS = [
     # Python imports (dotted)
-    ("workflows.session.dags", "workflows.dags"),
+    ("workflows.dags", "workflows.dags"),
     # File paths (slashed)
-    ("workflows/session/dags", "workflows/dags"),
+    ("workflows/dags", "workflows/dags"),
 ]
 
 # Files to update (beyond the moved files)
@@ -87,7 +87,7 @@ def update_file_content(filepath: Path, dry_run: bool = True) -> tuple[bool, lis
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Move workflows/session/dags/ to workflows/dags/"
+        description="Move workflows/dags/ to workflows/dags/"
     )
     parser.add_argument(
         "--dry-run", action="store_true", help="Preview changes without executing"
