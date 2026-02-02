@@ -63,8 +63,10 @@ BlueprintEvaluation @ orchestrators/meta/interface.py - Complete evaluation of a
 BlueprintScore @ orchestrators/meta/interface.py - Score for a single criterion.
 BootImpact @ ir_engine/meta_ir.py - Section 19: Boot impact level and reason.
 BridgeStatusResponse @ api/routes/tensor_bridge.py - Status of tensor bridge components.
+CacheDeleteArgs @ mcp_memory/src/models.py - Validation model for cache_delete MCP tool argumen
 CacheGetArgs @ mcp_memory/src/models.py - Validation model for cache_get MCP tool arguments.
 CacheGetSessionContextArgs @ mcp_memory/src/models.py - Validation model for cache_get_session_context MCP
+CacheKeysArgs @ mcp_memory/src/models.py - Validation model for cache_keys MCP tool arguments
 CacheMetrics @ memory/warming_models.py - Metrics tracking cache performance.
 CacheResponse @ api/memory/cache.py - Standard cache response.
 CacheSetArgs @ mcp_memory/src/models.py - Validation model for cache_set MCP tool arguments.
@@ -271,6 +273,7 @@ InsightInput @ api/world_model_api.py - Single insight for world model update.
 InsightsRequest @ api/world_model_api.py - Submit insights for update request.
 InsightsResponse @ api/world_model_api.py - Insights processing result.
 InsightsResult @ clients/world_model_client.py - Insights submission result.
+InspectState @ workflows/session/dags/inspect_dag.py - State flowing through inspect graph.
 IntegrationBlock @ codegen/code-gen-files/schema_parser.py - Dependencies and wiring points.
 IntegrationModel @ core/codegen/spec/spec_normalizer_v2.py - Validated integration section
 IntegrationResult @ core/schemas/research_factory_models.py - Final output of the 5-pass Research Factory pipeli
@@ -667,4 +670,4 @@ WorldModelQueryInput @ igor/DONE!/audit-tools/core_schemas_l_tools.py - Input sc
 WorldModelRequest @ orchestrators/world_model/interface.py - Request to world_model orchestrator.
 WorldModelResponse @ orchestrators/world_model/interface.py - Response from world_model orchestrator.
 
-# Total: 663 Pydantic models
+# Total: 666 Pydantic models

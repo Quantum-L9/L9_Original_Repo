@@ -15,7 +15,7 @@ api/memory/ - Memory API module.
 api/middleware/ - No module docstring
 api/routes/ - API routes package.
 api/tools/ - 
-bootstrap/ - L9 Bootstrap Package
+bootstrap/ - No module docstring
 ci/ - 
 ci/ai_guardrails/ - L9 AI Guardrails CI Suite.
 clients/ - 
@@ -84,12 +84,10 @@ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete Syst
 current_work/DONE/AUTOWIRING/ - 
 current_work/DONE/governance_layers/ca_governance/ - 
 current_work/DONE/governance_layers/l_agent_runtime/ - 
-dev/ - No module docstring
-dev/tools/ - No module docstring
 domain_tensor_bridge/ - 
 domain_tensor_bridge/tests/domain_tensor_bridge/ - No module docstring
 email_agent/ - L9 Email Agent - Gmail API integration.
-governance/ - 
+governance/ - No module docstring
 graph_adapter/ - L9 LangGraph Integration - PacketNodeAdapter for memory-logg
 igor/DONE!/tokenizer/core/tokenizer/ - 
 igor/DONE!/tokenizer/core/tokenizer/tests/ - 
@@ -106,11 +104,11 @@ mcp_memory/src/safety/ - L9 Safety - Policy Enforcement & Security Event Managem
 mcp_memory/tests/ - L9 MCP Memory Server Tests.
 memory/ - 
 memory/checkpoint/ - 
-memory/consolidation/ - 
+memory/consolidation/ - No module docstring
 memory/extractor/ - 
 memory/extractor/ingestion/ - Memory extractor ingestion module.
 memory/validators/ - L9 Memory Validators
-memory_cache/ - 
+memory_cache/ - No module docstring
 motifs/ - 
 orchestration/ - 
 orchestrators/ - 
@@ -151,6 +149,7 @@ tests/ci/ - No module docstring
 tests/clients/ - 
 tests/codegen/ - Tests for CodeGenAgent and IR Engine code generation.
 tests/collaborative_cells/ - 
+tests/core/ - No module docstring
 tests/core/agents/ - No module docstring
 tests/core/agents/bootstrap/ - No module docstring
 tests/core/aios/ - 

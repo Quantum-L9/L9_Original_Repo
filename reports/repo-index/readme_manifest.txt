@@ -1,11 +1,19 @@
 # L9 README File Manifest
-# Generated: 2026-01-31 22:41
+# Generated: 2026-02-02 16:24
 #
 # AI Reference: Quick lookup for module documentation
 # Each entry shows: PATH | TITLE | DESCRIPTION
 # ============================================================================
 
-# Total: 84 README files across 36 directories
+# Total: 83 README files across 35 directories
+
+# ============================================================================
+# .SEMGREP (1 files)
+# ============================================================================
+
+PATH: .semgrep/README.md
+TITLE: L9 Semgrep Rules
+DESC: Custom static analysis rules enforcing L9 architectural patterns.
 
 # ============================================================================
 # ADAPTERS (1 files)
@@ -263,17 +271,9 @@ DESC: > **Tier:** CORE | **Path:** `core/worldmodel` | **Owner:** Igor
 # DEPLOY (1 files)
 # ============================================================================
 
-PATH: deploy/k8s/c1/README.md
+PATH: deploy/c1/README.md
 TITLE: C1 Kubernetes Deployment
 DESC: Target: **C1 Hetzner Server** (46.62.243.82) Type: CPX32 (8GB RAM, 4 vCPU, 160GB SSD) OS: Ubuntu 24.04 LTS K8s: k3s
-
-# ============================================================================
-# DEV (1 files)
-# ============================================================================
-
-PATH: dev/README.md
-TITLE: Development Utilities
-DESC: > **Tier:** INFRASTRUCTURE | **Path:** `dev` | **Owner:** Igor
 
 # ============================================================================
 # DOMAIN_TENSOR_BRIDGE (1 files)
@@ -330,14 +330,6 @@ DESC: > **Tier:** INFRASTRUCTURE | **Path:** `local_dashboard` | **Owner:** Igor
 PATH: mac_agent/README.md
 TITLE: Mac Agent
 DESC: > **Tier:** AGENTS | **Path:** `mac_agent` | **Owner:** Igor
-
-# ============================================================================
-# MCP_MEMORY (1 files)
-# ============================================================================
-
-PATH: mcp_memory/README.md
-TITLE: MCP Memory Server
-DESC: > **Tier:** API | **Path:** `mcp_memory` | **Owner:** Igor
 
 # ============================================================================
 # MEMORY (1 files)
@@ -512,7 +504,7 @@ DESC: > **Tier:** SERVICES | **Path:** `world_model` | **Owner:** Igor
 #   orchestration/README.md: Unified Orchestration
 
 # deploy/ - Deployment configurations
-#   deploy/k8s/c1/README.md: C1 Kubernetes Deployment
+#   deploy/c1/README.md: C1 Kubernetes Deployment
 
 # config/ - YAML configurations and DI
 #   config/README.md: Configuration

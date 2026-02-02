@@ -40,7 +40,7 @@ import subprocess
 import sys
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -1135,6 +1135,213 @@ def find_unwired_app_state(repo_root: Path) -> list[DeadCodeFinding]:
     return findings
 
 
+def find_export_discrepancies(repo_root: Path) -> list[DeadCodeFinding]:
+    """
+    Find modules where __all__ exports aren't re-exported in parent __init__.py.
+
+    Detects:
+    - Module has symbol in __all__, but parent __init__.py doesn't re-export it
+    - Symbol exported but never consumed anywhere in codebase (orphan export)
+
+    This catches wiring issues like:
+        runtime/redis_client.py: __all__ = ["RedisClient", "get_cursor_wmc", ...]
+        runtime/__init__.py: only re-exports ["RedisClient", ...] (missing get_cursor_wmc)
+    """
+    findings = []
+
+    # Directories to scan for export discrepancies
+    scan_dirs = [
+        "api",
+        "core",
+        "runtime",
+        "memory",
+        "orchestrators",
+        "services",
+        "agents",
+        "tools",
+        "workers",
+        "workflows",
+    ]
+
+    python_files = get_python_files(repo_root)
+
+    # Build full content for usage checking
+    all_content = ""
+    for filepath in python_files:
+        try:
+            all_content += filepath.read_text(encoding="utf-8", errors="ignore") + "\n"
+        except Exception:
+            continue
+
+    for scan_dir in scan_dirs:
+        dir_path = repo_root / scan_dir
+        if not dir_path.exists():
+            continue
+
+        # Find all Python modules (not __init__.py)
+        for module_path in dir_path.rglob("*.py"):
+            if module_path.name == "__init__.py":
+                continue
+            if "__pycache__" in str(module_path):
+                continue
+
+            try:
+                module_content = module_path.read_text(
+                    encoding="utf-8", errors="ignore"
+                )
+            except Exception:
+                continue
+
+            # Extract __all__ from module
+            module_all = _extract_all_list(module_content)
+            if not module_all:
+                continue
+
+            # Find parent __init__.py
+            init_path = module_path.parent / "__init__.py"
+            if not init_path.exists():
+                continue
+
+            try:
+                init_content = init_path.read_text(encoding="utf-8", errors="ignore")
+            except Exception:
+                continue
+
+            # Extract __all__ from __init__.py
+            init_all = _extract_all_list(init_content)
+
+            # Also check for direct imports in __init__.py
+            # Pattern: from .module import X or from .module import X, Y, Z
+            module_name = module_path.stem
+            import_pattern = re.compile(
+                rf"from\s+\.{re.escape(module_name)}\s+import\s+([^#\n]+)"
+            )
+            imported_symbols: set[str] = set()
+            for match in import_pattern.finditer(init_content):
+                imports_str = match.group(1)
+                # Handle parenthesized imports
+                imports_str = imports_str.replace("(", "").replace(")", "")
+                for sym in imports_str.split(","):
+                    sym = sym.strip()
+                    if " as " in sym:
+                        sym = sym.split(" as ")[0].strip()
+                    if sym:
+                        imported_symbols.add(sym)
+
+            # Combine init_all and imported_symbols for "what's re-exported"
+            reexported = set(init_all) | imported_symbols
+
+            rel_module_path = str(module_path.relative_to(repo_root))
+            rel_init_path = str(init_path.relative_to(repo_root))
+
+            # Find line number of __all__ in module
+            all_line = 1
+            for i, line in enumerate(module_content.split("\n"), 1):
+                if "__all__" in line and "=" in line:
+                    all_line = i
+                    break
+
+            # Check each exported symbol
+            for symbol in module_all:
+                # Issue 1: Not re-exported in __init__.py
+                if symbol not in reexported:
+                    findings.append(
+                        DeadCodeFinding(
+                            file=rel_module_path,
+                            line=all_line,
+                            symbol=symbol,
+                            symbol_type="export_not_reexported",
+                            confidence=0.85,
+                            source="wiring_scan",
+                            message=f"'{symbol}' in {module_path.name}.__all__ but not re-exported in {rel_init_path}",
+                            context=f"Add to {rel_init_path} __all__ or import from .{module_name}",
+                        )
+                    )
+
+                # Issue 2: Orphan export (defined but never consumed)
+                # Count occurrences (subtract 1 for definition, 1 for __all__ entry)
+                usage_pattern = rf"\b{re.escape(symbol)}\b"
+                usage_count = len(re.findall(usage_pattern, all_content))
+
+                # Symbol appears in: definition, __all__, possibly __init__.py import
+                # If only 2-3 occurrences, likely not actually used
+                if usage_count <= 3:
+                    # Verify it's actually unused by checking for call/instantiation patterns
+                    call_pattern = rf"\b{re.escape(symbol)}\s*\("
+                    type_hint_pattern = rf":\s*{re.escape(symbol)}\b"
+                    inherit_pattern = rf"\({re.escape(symbol)}\)"
+
+                    has_call = bool(re.search(call_pattern, all_content))
+                    has_type_hint = bool(re.search(type_hint_pattern, all_content))
+                    has_inherit = bool(re.search(inherit_pattern, all_content))
+
+                    if not (has_call or has_type_hint or has_inherit):
+                        findings.append(
+                            DeadCodeFinding(
+                                file=rel_module_path,
+                                line=all_line,
+                                symbol=symbol,
+                                symbol_type="orphan_export",
+                                confidence=0.75,
+                                source="wiring_scan",
+                                message=f"'{symbol}' exported in __all__ but never consumed in codebase",
+                                context=f"Consider removing from {module_path.name}.__all__ or implementing usage",
+                            )
+                        )
+
+    return findings
+
+
+def _extract_all_list(content: str) -> list[str]:
+    """
+    Extract __all__ list from Python source code.
+
+    Handles:
+    - __all__ = ["a", "b", "c"]
+    - __all__ = [
+          "a",
+          "b",
+      ]
+    - __all__: list[str] = [...]
+    """
+    # Try AST parsing first (most reliable)
+    try:
+        tree = ast.parse(content)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Assign):
+                for target in node.targets:
+                    if isinstance(target, ast.Name) and target.id == "__all__":
+                        if isinstance(node.value, ast.List):
+                            return [
+                                elt.value
+                                for elt in node.value.elts
+                                if isinstance(elt, ast.Constant)
+                                and isinstance(elt.value, str)
+                            ]
+            # Handle annotated assignment: __all__: list[str] = [...]
+            if isinstance(node, ast.AnnAssign):
+                if isinstance(node.target, ast.Name) and node.target.id == "__all__":
+                    if node.value and isinstance(node.value, ast.List):
+                        return [
+                            elt.value
+                            for elt in node.value.elts
+                            if isinstance(elt, ast.Constant)
+                            and isinstance(elt.value, str)
+                        ]
+    except SyntaxError:
+        pass
+
+    # Fallback to regex for files with syntax errors
+    pattern = re.compile(r"__all__\s*(?::\s*[^=]+)?\s*=\s*\[(.*?)\]", re.DOTALL)
+    match = pattern.search(content)
+    if match:
+        items_str = match.group(1)
+        # Extract quoted strings
+        return re.findall(r'["\']([^"\']+)["\']', items_str)
+
+    return []
+
+
 # =============================================================================
 # TIER 2: MEDIUM PRIORITY WIRING CHECKS (L9-specific)
 # =============================================================================
@@ -1810,6 +2017,10 @@ def run_dead_code_audit(
     result.findings.extend(app_state_findings)
     logger.info(f"  Unwired app.state: {len(app_state_findings)}")
 
+    export_findings = find_export_discrepancies(repo_root)
+    result.findings.extend(export_findings)
+    logger.info(f"  Export discrepancies: {len(export_findings)}")
+
     # Tier 2: MEDIUM Priority (L9-specific)
     kernel_findings = find_unwired_kernels(repo_root)
     result.findings.extend(kernel_findings)
@@ -1904,6 +2115,8 @@ def generate_sarif_output(
         "unwired_middleware": "L9-WI011",
         "unwired_websocket": "L9-WI012",
         "unwired_app_state": "L9-WI013",
+        "export_not_reexported": "L9-WI014",
+        "orphan_export": "L9-WI015",
     }
 
     # Confidence to SARIF level mapping

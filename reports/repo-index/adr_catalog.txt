@@ -1,12 +1,12 @@
 # L9 Architecture Decision Record (ADR) Catalog
-# Generated: 2026-01-31
-# Total: 89 ADRs
+# Generated: 2026-02-02
+# Total: 92 ADRs
 #
 # Format: ADR_NUMBER | STATUS | TITLE | PATH
 # ============================================================================
 
 # FOUNDATION (0001-0013)
-0000 | Accepted | L9 Core Philosophy — Automation-First, 100% Done | readme/adr/0000-core-philosophy.md
+0000 | Unknown | Unknown | readme/adr/0000-core-philosophy.md
 0001 | Accepted | Sandboxed Path Resolution for Research Factory | readme/adr/0001-path-safety.md
 0002 | Accepted | Circular Import Prevention via TYPE_CHECKING Pattern | readme/adr/0002-circular-import-prevention.md
 0003 | Accepted | Documentation Standards for AI-Readable Codebase | readme/adr/0003-documentation-standards.md
@@ -99,6 +99,9 @@
 0086 | Unknown | Unknown | readme/adr/0086-safe-type-conversion.md
 0087 | Unknown | Unknown | readme/adr/0087-sql-parameterization.md
 0088 | Unknown | Unknown | readme/adr/0088-no-pickle-serialization.md
+0089 | Unknown | Unknown | readme/adr/0089-hierarchical-compose-symlinks.md
+0090 | Unknown | No Hardcoded Credentials in Cursor Rules | readme/adr/0090-no-hardcoded-credentials-in-rules.md
+0091 | Unknown | Unknown | readme/adr/0091-definition-of-done.md
 
 # ============================================================================
 # AI QUICK REFERENCE - KEY DO NOT's
@@ -117,3 +120,4 @@
 # DO NOT** manually edit files in `reports/repo-index/` — they are auto-generated (ADR-0069)
 # Do NOT suppress errors in hooks/scripts with `2>/dev/null || true` patterns (ADR-0071)
 # Do NOT proceed to Phase 5 (ADR-0081)
+# do NOT need try/except: (ADR-0086)

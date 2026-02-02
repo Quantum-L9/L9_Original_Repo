@@ -308,8 +308,13 @@ ci/ai_guardrails/runner.py::CheckResult - Result of a check category (e.g., hall
 ci/ai_guardrails/runner.py::TestResult - Single test result.
 ci/check_adr_compliance.py::ADRChecker - AST visitor that checks for ADR violations.
 ci/check_adr_compliance.py::Violation - ADR violation record.
+ci/check_definition_of_done.py::DoDViolation - Represents a Definition of Done violation.
+ci/check_global_state.py::GlobalStateVisitor - Performs static analysis of Python files to detect suspiciou
+ci/check_memory_bypass.py::BypassViolation - Represents a memory bypass violation.
 ci/check_no_deprecated_services.py::Violation - A single violation found in the codebase.
 ci/check_packet_type_naming.py::Violation - A single violation found in the code.
+ci/check_protected_files.py::ProtectedFileViolation - Represents a protected file modification without approval.
+ci/check_report_naming.py::NamingViolation - Represents a report naming violation.
 ci/check_schema_deprecation.py::Violation - A single deprecated import violation.
 ci/check_substrate_api.py::LintResult - Result of linting a file.
 ci/check_syntax.py::SyntaxIssue - Represents a syntax error in a file.
@@ -1254,7 +1259,7 @@ core/testing/test_agent.py::TestAgentResult - Result of test agent execution.
 core/testing/test_executor.py::TestExecutor - Executes tests in a sandbox environment.
 core/testing/test_executor.py::TestResult - Result of a single test.
 core/testing/test_executor.py::TestResults - Results of a test run.
-core/testing/test_generator.py::TestGenerator - Generates tests from code proposals.
+core/testing/test_generator.py::TestGenerator - Generates tests from code proposals using AST analysis + LLM
 core/tools/agent_self_modify.py::AgentSelfModifyTool - Allow agents to modify their own graph state.
 core/tools/base_registry.py::Config - Config class for L9 Core Tools registry configuration, manag
 core/tools/base_registry.py::Config - Represents metadata for a registered tool in the L9 core too
@@ -1795,7 +1800,6 @@ data/l9-phase0-to-6-execution.py::L9MasterExecutor - No docstring
 data/l9-phase0-to-6-execution.py::Phase0Lock - No docstring
 data/l9-phase0-to-pr-example.py::Phase0Orchestrator - Orchestrates Phase 0 TODO LOCK → Draft PR with CI-validated 
 data/l9-phase0-to-pr.py::Phase0Orchestrator - Orchestrates Phase 0 TODO LOCK → Draft PR with CI-validated 
-dev/tools/global_state_audit.py::GlobalStateVisitor - Performs static analysis of Python files to detect suspiciou
 domain_tensor_bridge/agent_controller.py::AgentController - Main controller for Domain-Tensor Bridge.
 domain_tensor_bridge/analogical_reasoner.py::AnalogicalReasoner - Finds cross-domain analogies.
 domain_tensor_bridge/analogical_reasoner.py::Analogy - Cross-domain analogy.
@@ -2199,8 +2203,10 @@ mcp_memory/src/memory_substrate/service.py::MemoryRecord - Result from memory se
 mcp_memory/src/memory_substrate/service.py::SubstrateConfig - Configuration for substrate.
 mcp_memory/src/memory_substrate/service.py::SubstrateService - Main interface for Memory Substrate.
 mcp_memory/src/models.py::ApplyDecayArgs - Validation model for apply_decay MCP tool arguments.
+mcp_memory/src/models.py::CacheDeleteArgs - Validation model for cache_delete MCP tool arguments.
 mcp_memory/src/models.py::CacheGetArgs - Validation model for cache_get MCP tool arguments.
 mcp_memory/src/models.py::CacheGetSessionContextArgs - Validation model for cache_get_session_context MCP tool argu
+mcp_memory/src/models.py::CacheKeysArgs - Validation model for cache_keys MCP tool arguments.
 mcp_memory/src/models.py::CacheSetArgs - Validation model for cache_set MCP tool arguments.
 mcp_memory/src/models.py::CompoundMemoriesArgs - Validation model for compound_memories MCP tool arguments.
 mcp_memory/src/models.py::CompoundResult - Response model for memory compounding operations.
@@ -2219,6 +2225,8 @@ mcp_memory/src/models.py::Config - Config class defines validation rules for req
 mcp_memory/src/models.py::Config - Config class enforces strict configuration settings for mode
 mcp_memory/src/models.py::Config - Config class enforces strict configuration settings for requ
 mcp_memory/src/models.py::Config - Config class enforces strict validation rules for request/re
+mcp_memory/src/models.py::Config - Config class enforces strict validation.
+mcp_memory/src/models.py::Config - Config class enforces strict validation.
 mcp_memory/src/models.py::Config - Validation model for arguments used in retrieving a sequence
 mcp_memory/src/models.py::Config - Validation model for arguments used in retrieving contextual
 mcp_memory/src/models.py::Config - Validation model for configuration settings in request/respo
@@ -2479,9 +2487,9 @@ memory/warming_models.py::ReasoningPhase - Phases of the reasoning cycle.
 memory/warming_models.py::SubgraphEntry - Represents a cached subgraph entry.
 memory/warming_models.py::ThinkingOutput - Output from thinking phase.
 memory/warming_service.py::MemoryWarmingService - Orchestrates predictive memory warming for AI agent operatin
-memory_cache/cursor_working_memory_service.py::CursorWorkingMemoryService - Manages ephemeral, repo-scoped working memory for Cursor.
-memory_cache/cursor_working_memory_service.py::MemoryEventType - No docstring
-memory_cache/cursor_working_memory_service.py::WorkingMemorySnapshot - Single immutable working memory state.
+memory_cache/working_memory_service.py::MemoryEventType - No docstring
+memory_cache/working_memory_service.py::WorkingMemoryService - Manages ephemeral, repo-scoped working memory for L9 agents.
+memory_cache/working_memory_service.py::WorkingMemorySnapshot - Single immutable working memory state.
 motifs/motif_feedback_graph.py::MotifEvent - A single motif activation event.
 motifs/motif_feedback_graph.py::MotifFeedbackGraph - Track motif activations, decisions, and outcomes in a tracea
 motifs/motif_feedback_graph.py::MotifTrace - Complete trace of motif events for a packet.
@@ -2693,6 +2701,7 @@ scripts/audit/inject_dora_complete.py::ClassInfo - Information about a discovere
 scripts/audit/inject_dora_complete.py::DoraCompleteInjector - Contract-compliant DORA block injection engine.
 scripts/audit/inject_dora_complete.py::DoraTraceBlock - DORA Block - L9_TRACE_TEMPLATE (runtime trace).
 scripts/audit/inject_dora_complete.py::FooterMeta - Footer Meta - Extended metadata that header references.
+scripts/audit/inject_dora_complete.py::FunctionInfo - Information about a discovered function.
 scripts/audit/inject_dora_complete.py::HeaderMeta - Header Meta - 14 mandatory fields per contract.
 scripts/audit/inject_dora_multiformat_complete.py::DoraMultiFormatInjector - Contract-compliant multi-format DORA block injection engine.
 scripts/audit/inject_dora_multiformat_complete.py::DoraTraceBlock - DORA Block - L9_TRACE_TEMPLATE.
@@ -2744,6 +2753,7 @@ scripts/batch/batch_generate_specs.py::TokenBucketLimiter - Token bucket rate li
 scripts/benchmark_caching_and_vector.py::MockDatabase - Mock database for benchmarking.
 scripts/check_n_plus_1.py::N1DetectorVisitor - AST visitor to detect N+1 query patterns
 scripts/extract_code_facts.py::CodeFactExtractor - Extract code facts using Python AST.
+scripts/fix_decorator_wraps.py::DecoratorAnalyzer - Find inner functions in decorators that need @wraps.
 scripts/fix_untyped_decorators.py::DecoratorFix - A fix to apply to a decorator.
 scripts/fix_untyped_decorators.py::DecoratorIssue - Represents an untyped decorator that needs fixing.
 scripts/generate_gmp_report.py::ChangeItem - A change made during implementation.
@@ -2763,8 +2773,6 @@ scripts/generate_subsystem_readmes.py::FunctionInfo - Function information for R
 scripts/generate_subsystem_readmes.py::SubsystemFacts - Aggregated facts about a subsystem.
 scripts/gmp-validate-stage.py::GMPStageValidator - Validates GMP stage execution against canonical requirements
 scripts/gmp-validate-stage.py::ValidationResult - Result of a single validation check.
-scripts/memory/ingest_chat_transcript.py::Chunk - Chunk of messages for embedding.
-scripts/memory/ingest_chat_transcript.py::Message - Parsed chat message.
 scripts/memory/load_indexes_to_neo4j.py::MCPRepoGraphLoader - Loads repository indexes via MCP HTTP proxy.
 scripts/memory/load_indexes_to_neo4j.py::RepoGraphLoader - Loads L9 repository indexes into Neo4j graph database.
 scripts/memory/load_indexes_to_neo4j_vps.py::VPSRepoGraphLoader - Loads L9 repository indexes into VPS Neo4j via HTTP API.
@@ -3221,6 +3229,17 @@ tests/memory/test_dag_orchestrator_resilience.py::TestRetryBehavior - Test retry
 tests/memory/test_dag_orchestrator_resilience.py::TestRetryPolicy - Test RetryPolicy configuration.
 tests/memory/test_e2e_memory_audit.py::AuditResult - Container for audit results.
 tests/memory/test_embedding_filter.py::TestShouldSkipEmbedding - Tests for _should_skip_embedding filter function.
+tests/memory/test_enrichment_dag.py::TestCircuitBreaker - Test circuit breaker behavior.
+tests/memory/test_enrichment_dag.py::TestDeadLetterQueue - Test Dead-Letter Queue handling.
+tests/memory/test_enrichment_dag.py::TestEdgeCases - Test edge cases and error handling.
+tests/memory/test_enrichment_dag.py::TestEnrichmentConfig - Test EnrichmentConfig dataclass.
+tests/memory/test_enrichment_dag.py::TestEnrichmentDAGInit - Test EnrichmentDAG initialization.
+tests/memory/test_enrichment_dag.py::TestEnrichmentEnums - Test EnrichmentTier and EnrichmentStatus enums.
+tests/memory/test_enrichment_dag.py::TestEnrichmentResult - Test EnrichmentResult dataclass.
+tests/memory/test_enrichment_dag.py::TestMetricsRecording - Test telemetry metrics are recorded.
+tests/memory/test_enrichment_dag.py::TestTier1FullEnrichment - Test Tier 1 full enrichment pipeline.
+tests/memory/test_enrichment_dag.py::TestTier2CoreOnly - Test Tier 2 core-only fallback.
+tests/memory/test_enrichment_dag.py::TestTier3DirectDB - Test Tier 3 direct DB emergency fallback.
 tests/memory/test_frontier_memory_pipeline.py::TestActiveEncoder - Tests for Active Memory Encoder (GMP-80-A7).
 tests/memory/test_frontier_memory_pipeline.py::TestIdentityTier - Tests for Identity Tier service (GMP-80-A5).
 tests/memory/test_frontier_memory_pipeline.py::TestImportanceManager - Tests for Importance Manager (GMP-80-A7).
@@ -3579,7 +3598,10 @@ tests/unit/test_di_container_audit.py::TestService - No docstring
 tests/unit/test_di_container_audit.py::TestService - No docstring
 tests/unit/test_di_container_audit.py::TransientService - No docstring
 tests/unit/test_dynamic_tool_discovery.py::TestAgentInstanceDynamicDiscovery - Tests for AgentInstance.prepare_dynamic_tools()
+tests/unit/test_dynamic_tool_discovery.py::TestCachedToolRegistryAsyncMethods - Tests for CachedToolRegistry async register_tool/unregister_
 tests/unit/test_dynamic_tool_discovery.py::TestDynamicDiscovery - Tests for core/tools/dynamic_discovery.py
+tests/unit/test_dynamic_tool_discovery.py::TestExecutorToolRegistryAsyncRegisterTool - Tests for ExecutorToolRegistry.register_tool async + GMP-79 
+tests/unit/test_dynamic_tool_discovery.py::TestInvalidateAllToolCaches - Tests for invalidate_all_tool_caches() (GMP-79).
 tests/unit/test_dynamic_tool_discovery.py::TestSettingsIntegration - Tests for config/settings.py dynamic discovery settings.
 tests/unit/test_execution_plan_snapshot.py::TestExecutionPlanSnapshot - Test ExecutionPlanSnapshot.
 tests/unit/test_execution_plan_snapshot.py::TestExecutionPlanSnapshotManager - Test ExecutionPlanSnapshotManager.
@@ -3789,6 +3811,24 @@ workers/violation_tracker_service.py::ViolationRecord - A recorded violation.
 workers/violation_tracker_service.py::ViolationTrackerService - Violation Tracker Service.
 workers/violation_tracker_service.py::ViolationTrackerServiceRequest - Input request for ViolationTrackerService.
 workers/violation_tracker_service.py::ViolationTrackerServiceResponse - Output response from ViolationTrackerService.
+workflows/gmp_enforcer.py::GMPEnforcer - Enforces GMP step ordering.
+workflows/gmp_enforcer.py::GMPState - Persistent state of GMP execution.
+workflows/gmp_enforcer.py::GMPStep - A single step in the GMP workflow.
+workflows/gmp_enforcer.py::StepStatus - Status of a GMP step.
+workflows/gmp_executor.py::GMPExecutor - Executes the GMP DAG.
+workflows/gmp_executor.py::GMPState - No docstring
+workflows/gmp_executor.py::StepResult - No docstring
+workflows/gmp_executor.py::StepStatus - No docstring
+workflows/gmp_executor.py::StepType - No docstring
+workflows/harvest_executor.py::HarvestExecutor - Executes the /harvest DAG — fully autonomous, no user gates.
+workflows/harvest_executor.py::HarvestItem - No docstring
+workflows/harvest_executor.py::HarvestState - No docstring
+workflows/lint_fix_executor.py::LintError - No docstring
+workflows/lint_fix_executor.py::LintFixExecutor - Executes the /lint-fix DAG — fully autonomous, no user gates
+workflows/lint_fix_executor.py::LintFixState - No docstring
+workflows/migrate_executor.py::MigrateExecutor - Executes the /migrate DAG — fully autonomous, no user gates.
+workflows/migrate_executor.py::MigrateState - No docstring
+workflows/migrate_executor.py::MigrationMatch - No docstring
 workflows/runner.py::DAGRunner - Execute a workflow DAG.
 workflows/runner.py::Step - A single step in the workflow DAG.
 workflows/runner.py::StepExecutor - Execute different types of workflow steps.
@@ -3796,6 +3836,7 @@ workflows/runner.py::StepResult - Result of executing a step.
 workflows/runner.py::StepStatus - Status of a workflow step.
 workflows/runner.py::StepType - Type of workflow step.
 workflows/runner.py::WorkflowState - Persistent state of a workflow execution.
+workflows/session/dags/inspect_dag.py::InspectState - State flowing through inspect graph.
 workflows/session/interface.py::GateType - Type of gate (decision point).
 workflows/session/interface.py::NodeType - Type of session node.
 workflows/session/interface.py::SessionDAG - A complete session workflow DAG.
@@ -3809,6 +3850,15 @@ workflows/state.py::StepResult - Result of executing a workflow step.
 workflows/state.py::StepStatus - Status of a workflow step.
 workflows/state.py::ValidationCheck - A validation check to run.
 workflows/state.py::WorkflowState - Central state for harvest-deploy workflows.
+workflows/use_harvest_executor.py::DeployItem - No docstring
+workflows/use_harvest_executor.py::UseHarvestExecutor - Executes the /use-harvest DAG — fully autonomous, no user ga
+workflows/use_harvest_executor.py::UseHarvestState - No docstring
+workflows/wire_executor.py::RefStatus - No docstring
+workflows/wire_executor.py::Reference - No docstring
+workflows/wire_executor.py::StepStatus - No docstring
+workflows/wire_executor.py::WireAction - No docstring
+workflows/wire_executor.py::WireExecutor - Executes the /wire DAG — fully autonomous, no user gates.
+workflows/wire_executor.py::WireState - No docstring
 world_model/_pack_staging/loader.py::WorldModelLoader - Loader for World Model specifications from YAML files.
 world_model/_pack_staging/neo4j_substrate.py::Neo4jConfig - Neo4j connection config.
 world_model/_pack_staging/neo4j_substrate.py::Neo4jSubstrate - Neo4j graph-native persistence layer for World Model.

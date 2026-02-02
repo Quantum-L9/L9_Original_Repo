@@ -162,6 +162,7 @@ async _detect_fuzzy_duplicates(packets) @ memory/deduplication.py
 async _detect_hybrid_duplicates(packets) @ memory/deduplication.py
 async _detect_semantic_duplicates(packets) @ memory/deduplication.py
 async _determine_generation_strategy(contract_type, spec, confidence) @ core/codegen/gatekeeper/codegen_gatekeeper.py
+async _direct_redis_available() @ core/tools/dynamic_discovery.py
 async _dispatch() @ core/observability/l9_integration.py
 async _dispatch_tool_call(instance, tool_call) @ core/agents/executor.py
 async _dispatch_tool_call(instance, tool_call) @ current_work/DONE/GMP Stage 2 - Tools & Memory/executor.py
@@ -448,6 +449,7 @@ async _log_to_violations(violation) @ workers/violation_tracker_service.py
 async _make_llm_call() @ agents/base_agent.py
 async _make_request() @ services/research/tools/perplexity_client.py
 async _maybe_capture_strategy(plan, result, context) @ orchestration/plan_executor.py
+async _mcp_cache_call(tool_name, arguments) @ core/tools/dynamic_discovery.py
 async _merge_duplicate_group(group, packets) @ memory/deduplication.py
 async _message_listener() @ mac_agent/websocket_client.py
 async _missing() @ igor/DONE!/audit-tools/runtime_l_tools.py
@@ -1010,6 +1012,7 @@ async checkpoint_node(state, repository) @ igor/DONE!/audit-memory/memory_substr
 async ci_eval_gate(agent_id, eval_set_name, evaluator, thresholds) @ core/evaluation/evaluator.py
 async ci_eval_gate(agent_id, eval_set_name, evaluator, thresholds) @ current_work/Agent Initialization - Paradigm Shift/harvested-files/5_evaluator.py
 async ci_gate(agent_id, eval_set) @ current_work/Agent Initialization - Paradigm Shift/harvested-files/7_ci_cd_integration.py
+async classify_node(state) @ workflows/session/dags/inspect_dag.py
 async cleanup_all_agents() @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/summarizer.py
 async cleanup_expired() @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/memory_api.py
 async cleanup_memory_system(postgres, neo4j, redis) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/bootstrap.py
@@ -1026,7 +1029,7 @@ async cleanup_task() @ mcp_memory/src/routes/memory.py
 async cleanup_task() @ mcp_memory/src/routes/memory_unified.py
 async cleanup_test_strategies(neo4j_client) @ tests/memory/test_strategy_memory_integration.py
 async cleanup_trash_embeddings(database_url, dry_run, verbose) @ scripts/memory/cleanup_trash_embeddings.py
-async clear(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
+async clear(repo_id, branch) @ memory_cache/working_memory_service.py
 async clear_cache() @ services/symbolic_computation/api/routes.py
 async clear_expired() @ memory/predictive_cache.py
 async clear_lessons_learned(authorization, _, agent) @ api/routes/reflection_agent.py
@@ -1066,6 +1069,7 @@ async close() @ domain_tensor_bridge/tensoraios_bridge.py
 async close() @ domain_tensor_bridge/world_model_bridge.py
 async close() @ mcp_memory/src/memory_substrate/service.py
 async close() @ mcp_memory/tests/verify_main_pipeline_e2e.py
+async close() @ services/research/tools/perplexity_client.py
 async close() @ tests/world_model/test_world_model_repository_basic.py
 async close(code) @ tests/runtime/test_websocket_orchestrator_basic.py
 async close_agent_mediator() @ core/coordination/agent_mediator.py
@@ -1112,6 +1116,7 @@ async complete(prompt) @ core/llm/llm_service.py
 async complete(prompt) @ core/protocols/service_protocols.py
 async complete_mutation(tracking_id, status, commit_sha, branch_name, pr_url, pr_number, files_created, files_modified, files_deleted, error_message) @ core/governance/cmts.py
 async complete_session(session_id, status, confidence_final) @ current_work/01-25-2026/RLM-Reference-Level Memory/003-rlm-substrate-service.py
+async compliance_node(state) @ workflows/session/dags/inspect_dag.py
 async compound_similar_memories(user_id, threshold) @ igor/DONE!/audit-memory/mcp_memory_src_routes_memory.py
 async compound_similar_memories(user_id, threshold) @ mcp_memory/src/routes/memory.py
 async compound_similar_memories(user_id, threshold) @ mcp_memory/src/routes/memory_unified.py
@@ -1557,7 +1562,7 @@ async expand_code_blocks(meta) @ agents/codegenagent/c_gmp_engine.py
 async expand_code_blocks(meta) @ codegenagent/c_gmp_engine.py
 async expensive_operation(value) @ tests/memory/test_query_cache_and_vector.py
 async expire(key, ttl) @ core/protocols/memory_protocols.py
-async expire_soon(repo_id, branch, seconds) @ memory_cache/cursor_working_memory_service.py
+async expire_soon(repo_id, branch, seconds) @ memory_cache/working_memory_service.py
 async explain_decision(packet_id, format) @ memory/reasoning_replay.py
 async export_async(spans) @ core/observability/exporters.py
 async export_async(spans) @ core/observability/exporters.py
@@ -2242,10 +2247,11 @@ async hybrid_search(query, top_k, filters, agent_id, min_score, rrf_k, temporal_
 async hybrid_search(request, query, top_k, min_score, agent_id, authorization, _) @ igor/DONE!/audit-memory/api_memory_router.py
 async hybrid_search(semantic_service, neo4j_client, query, limit, strategy) @ memory/hybrid_rag.py
 async hydrate(agent_id, include_kernels) @ core/agents/graph_state/graph_hydrator.py
-async hydrate(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
+async hydrate(repo_id, branch) @ memory_cache/working_memory_service.py
 async hydrate_memory_node(state) @ current_work/DONE/GMP Stage 1 - Tools/long_plan_graph.py
 async hydrate_memory_node(state) @ current_work/DONE/GMP Stage 2 - Tools & Memory/long_plan_graph.py
 async hydrate_memory_node(state) @ orchestration/long_plan_graph.py
+async impact_node(state) @ workflows/session/dags/inspect_dag.py
 async implement(specification, language, framework, existing_code) @ collaborative_cells/coder_cell.py
 async implement_class(name, purpose, interface) @ agents/coder_agent/coder_agent_a.py
 async implement_function(name, signature, description, examples) @ agents/coder_agent/coder_agent_a.py
@@ -2283,7 +2289,6 @@ async ingest_packet(packet_in, service) @ igor/DONE!/audit-memory/memory_ingesti
 async ingest_packet(packet_in, service) @ memory/ingestion.py
 async ingest_packet_legacy(packet_data) @ core/packet_envelope/integration.py
 async ingest_packet_legacy(packet_data) @ current_work/packetEnvelope - Phase 2-5/integration.py
-async ingest_to_memory(transcript_path, messages, chunks, dry_run) @ scripts/memory/ingest_chat_transcript.py
 async init_db() @ api/db.py
 async init_db() @ igor/DONE!/audit-memory/mcp_memory_src_db.py
 async init_db() @ mcp_memory/src/db.py
@@ -2369,6 +2374,7 @@ async instrument_tool_registry(tool_registry) @ core/observability/l9_integratio
 async instrument_tool_registry(tool_registry) @ current_work/DONE/Observability/observability_l9_integration.py
 async intake_node(state, config) @ memory/substrate_dag.py
 async intake_node(state, repository) @ igor/DONE!/audit-memory/memory_substrate_graph.py
+async invalidate_all_tool_caches() @ core/tools/dynamic_discovery.py
 async invalidate_segment(segment, agent_id) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/redis_cache.py
 async invalidate_tool_cache(task_id) @ core/tools/dynamic_discovery.py
 async invoke(role, prompt, input_data, context) @ orchestrators/pattern/cell_adapter.py
@@ -2747,6 +2753,7 @@ async oneshot_wrapper() @ runtime/background_tasks.py
 async operation(x) @ tests/memory/test_query_cache_and_vector.py
 async operation(x) @ tests/memory/test_query_cache_and_vector.py
 async optimize_expression(request, optimizer, validator) @ services/symbolic_computation/api/routes.py
+async orient_node(state) @ workflows/session/dags/inspect_dag.py
 async os_health() @ api/os_routes.py
 async os_readiness() @ api/os_routes.py
 async os_status() @ api/os_routes.py
@@ -2998,6 +3005,8 @@ async register_tool(tool) @ core/tools/tool_graph.py
 async register_tool(tool) @ current_work/DONE/GMP Stage 1 - Tools/tool_graph.py
 async register_tool(tool) @ current_work/DONE/GMP Stage 2 - Tools & Memory/tool_graph.py
 async register_tool(tool) @ igor/DONE!/audit-tools/core_tools_tool_graph.py
+async register_tool(tool_id, name, description, executor, tool_type) @ core/tools/registry_adapter.py
+async register_tool(tool_id, tool_def) @ core/tools/registry_cache.py
 async register_tool_learning_jobs(scheduler) @ current_work/DONE/Tool Discovery/harvested-files/15_diff_scheduler_wiring.py
 async register_tool_learning_jobs(scheduler) @ services/tool_learning_scheduler.py
 async register_tool_with_metadata(name, description, category, scope, risk_level, is_destructive, requires_confirmation, external_apis, internal_dependencies, agent_id) @ core/tools/tool_graph.py
@@ -3026,6 +3035,7 @@ async replay_chain(start_packet_id, end_packet_id, include_reasoning) @ igor/DON
 async replay_chain(start_packet_id, end_packet_id, include_reasoning) @ memory/retrieval.py
 async reply_email(request, account, _) @ email_agent/router.py
 async report_node(state) @ workflows/nodes/report.py
+async report_node(state) @ workflows/session/dags/inspect_dag.py
 async repository(db_url) @ tests/test_memory_substrate_basic.py
 async request_approval(action) @ core/protocols/service_protocols.py
 async request_approval(tool_id, agent_id, task_id, arguments, operation_summary) @ core/governance/approval_manager.py
@@ -3103,6 +3113,7 @@ async route_event(event) @ current_work/Agent Initialization - Paradigm Shift/ha
 async route_packet(packet) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/packet_router.py
 async route_packet(packet) @ domain_tensor_bridge/packet_router.py
 async route_task(task, constraints) @ core/protocols/agent_protocols.py
+async routing_node(state) @ workflows/session/dags/inspect_dag.py
 async run() @ core/codegen/cli.py
 async run() @ core/codegen/cli.py
 async run() @ core/codegen/cli.py
@@ -3170,6 +3181,7 @@ async run_gc() @ clients/memory_client.py
 async run_gc(authorization, _) @ api/memory/router.py
 async run_gc(authorization, _) @ igor/DONE!/audit-memory/api_memory_router.py
 async run_harvest_deploy(source_document, harvest_directory, working_directory, extraction_patterns, file_mappings, validation_checks, plan_document, workflow_id) @ workflows/harvest_deploy.py
+async run_inspect(target) @ workflows/session/dags/inspect_dag.py
 async run_memory_audit() @ scripts/memory/load_indexes_to_neo4j_vps.py
 async run_migration(dry_run) @ scripts/agents/neo4j_merge_agent_nodes.py
 async run_migration(dry_run, delete_legacy) @ scripts/agents/neo4j_unify_relationships.py
@@ -3379,6 +3391,7 @@ async shutdown() @ workers/violation_tracker_service.py
 async shutdown_all(timeout) @ .backup/mcp-tools-20260131/background_tasks.py
 async shutdown_all(timeout) @ runtime/background_tasks.py
 async shutdown_di_container() @ core/di/bootstrap_integration.py
+async shutdown_http_client() @ api/server_memory.py
 async shutdown_lifespan() @ config/di_async_config.py
 async shutdown_runtime() @ services/research/graph_runtime.py
 async shutdown_workers() @ api/routes/workers.py
@@ -3454,7 +3467,7 @@ async startup() @ workers/violation_tracker_service.py
 async startup_health() @ api/server.py
 async startup_health() @ current_work/DONE/Slack-Debug-2/server.py
 async startup_lifespan() @ config/di_async_config.py
-async stats(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
+async stats(repo_id, branch) @ memory_cache/working_memory_service.py
 async steer_resources() @ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 async steer_resources() @ current_work/Neural-Symbolic Orchestration/governance.py
 async steer_resources() @ current_work/TODO/governance.py
@@ -3519,6 +3532,7 @@ async store_tool_embedding(tool_name, description, category, negative_constraint
 async strategy_memory_service(neo4j_client) @ tests/memory/test_strategy_memory_integration.py
 async strategy_search(query, context, max_results, use_ranking) @ memory/retrieval.py
 async stress_test_design(design, scenarios) @ agents/architect_agent/architect_agent_b.py
+async structure_node(state) @ workflows/session/dags/inspect_dag.py
 async submit_insights(request) @ api/world_model_api.py
 async submit_task(payload, _) @ api/agent_routes.py
 async submit_task_result(task_id, payload) @ api/webhook_mac_agent.py
@@ -3686,7 +3700,9 @@ async test_checkpoint_timestamp(adapter) @ tests/performance/test_restart_recove
 async test_circuit_breaker_open_enqueues_to_dlq() @ tests/core/test_resilience_mixin.py
 async test_circuit_breaker_open_rejects_immediately() @ tests/core/test_resilience_mixin.py
 async test_circuit_breaker_opens_after_failures() @ tests/memory/test_substrate_alignment.py
+async test_circuit_breaker_opens_after_failures(mock_repository, mock_semantic_service, sample_envelope) @ tests/memory/test_enrichment_dag.py
 async test_circuit_breaker_resets_on_success() @ tests/memory/test_substrate_alignment.py
+async test_circuit_breaker_skips_tier_1_when_open(mock_repository, mock_semantic_service, sample_envelope) @ tests/memory/test_enrichment_dag.py
 async test_circuit_closed_allows_request() @ tests/memory/test_dag_orchestrator_resilience.py
 async test_circuit_open_also_dlqs_packet() @ tests/memory/test_dag_orchestrator_resilience.py
 async test_circuit_open_rejects_immediately() @ tests/memory/test_dag_orchestrator_resilience.py
@@ -3704,6 +3720,7 @@ async test_compliance_audit_logging() @ tests/upgrades/test_packet_envelope_phas
 async test_compute(engine) @ _archived/symbolic_computation/test_symbolic_computation.py
 async test_compute(engine) @ codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py
 async test_compute(engine) @ services/symbolic_computation/test_symbolic_computation.py
+async test_concurrent_enrichments(enrichment_dag, sample_envelope) @ tests/memory/test_enrichment_dag.py
 async test_concurrent_metric_recording() @ tests/integration/test_tool_observability_integration.py
 async test_concurrent_reasoning() @ tests/test_toth_integration.py
 async test_confidence_calculation(engine) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_reasoning_engine.py
@@ -3788,6 +3805,7 @@ async test_discover_tools_for_task_returns_openai_format(mock_tool_embedding_res
 async test_discover_tools_respects_token_budget(mock_tool_embedding_results) @ tests/unit/test_dynamic_tool_discovery.py
 async test_dispatch_failure_propagates(mock_agent) @ tests/unit/test_guarded_execution.py
 async test_dispatch_tool_call_rejects_unknown_args_before_executor_runs() @ tests/unit/test_registry_adapter_sanitization.py
+async test_dlq_push_on_all_tiers_failed(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
 async test_dlq_receives_envelope_dict() @ tests/core/test_resilience_mixin.py
 async test_dlq_receives_failed_packet() @ tests/memory/test_dag_orchestrator_resilience.py
 async test_drift_detection_triggers_on_low_success_rate() @ tests/integration/test_l_cto_memory_governance_integration.py
@@ -3852,6 +3870,7 @@ async test_empty_entities(coordinator) @ codegen/extractions/domain_tensor_bridg
 async test_empty_entities(coordinator) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py
 async test_empty_graph_simulation(empty_graph) @ tests/ir_engine/test_ir_simulation_router_integration.py
 async test_empty_input_handling(batch_helpers) @ tests/memory/test_batch_helpers.py
+async test_empty_payload(enrichment_dag) @ tests/memory/test_enrichment_dag.py
 async test_empty_query() @ tests/test_toth_integration.py
 async test_end_to_end_codegen() @ _archived/symbolic_computation/test_symbolic_computation.py
 async test_end_to_end_codegen() @ codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py
@@ -4042,6 +4061,16 @@ async test_generate_python_multi_var(generator) @ tests/services/symbolic_comput
 async test_generate_python_simple(generator) @ tests/services/symbolic_computation/test_code_generator.py
 async test_generate_report_with_mock_data() @ tests/integration/test_compliance_audit.py
 async test_generate_summary_empty_items() @ tests/memory/test_hierarchical_consolidation.py
+async test_generate_tasks_from_query_case_insensitivity() @ tests/core/agents/test_executor.py
+async test_generate_tasks_from_query_edge_case_long_query() @ tests/core/agents/test_executor.py
+async test_generate_tasks_from_query_empty_query() @ tests/core/agents/test_executor.py
+async test_generate_tasks_from_query_happy_path_git() @ tests/core/agents/test_executor.py
+async test_generate_tasks_from_query_happy_path_gmp() @ tests/core/agents/test_executor.py
+async test_generate_tasks_from_query_happy_path_long_plan() @ tests/core/agents/test_executor.py
+async test_generate_tasks_from_query_leading_trailing_spaces() @ tests/core/agents/test_executor.py
+async test_generate_tasks_from_query_multiple_keywords() @ tests/core/agents/test_executor.py
+async test_generate_tasks_from_query_none_query() @ tests/core/agents/test_executor.py
+async test_generate_tasks_from_query_unrecognized_query() @ tests/core/agents/test_executor.py
 async test_generate_without_input_code(codegen_agent, mock_pipeline_result) @ tests/agents/codegenagent/test_symbolic_verification.py
 async test_get_adaptive_context_for_tool() @ tests/integration/test_closed_loop_learning.py
 async test_get_agent_capabilities() @ tests/integration/test_world_model.py
@@ -4241,8 +4270,12 @@ async test_intake_detects_duplicate() @ tests/memory/test_substrate_dag_native.p
 async test_intake_handles_check_exception() @ tests/memory/test_substrate_dag_native.py
 async test_intake_handles_missing_check_method() @ tests/memory/test_substrate_dag_native.py
 async test_intake_node() @ tests/test_memory_substrate_basic.py
+async test_intake_node_missing_packet_type() @ tests/memory/test_substrate_dag.py
+async test_intake_node_missing_payload() @ tests/memory/test_substrate_dag.py
 async test_intake_node_missing_required() @ tests/test_memory_substrate_basic.py
 async test_intake_node_receives_config() @ tests/memory/test_substrate_dag_native.py
+async test_intake_node_valid_input() @ tests/memory/test_substrate_dag.py
+async test_intake_node_with_duplicate_packet() @ tests/memory/test_substrate_dag.py
 async test_intuition_cache_update() @ current_work/DONE/Infro As Code - IaC - K8s/test_c1_hetzner.py
 async test_intuition_cache_update() @ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 async test_intuition_cache_update() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
@@ -4254,6 +4287,9 @@ async test_invalid_expression(evaluator) @ services/symbolic_computation/test_sy
 async test_invalid_expression(evaluator) @ tests/services/symbolic_computation/test_expression_evaluator.py
 async test_invalid_expression(generator) @ tests/services/symbolic_computation/test_code_generator.py
 async test_invalid_reasoning_mode() @ tests/test_toth_integration.py
+async test_invalidate_all_tool_caches_deletes_matching_keys() @ tests/unit/test_dynamic_tool_discovery.py
+async test_invalidate_all_tool_caches_returns_zero_when_no_keys() @ tests/unit/test_dynamic_tool_discovery.py
+async test_invalidate_all_tool_caches_returns_zero_when_redis_unavailable() @ tests/unit/test_dynamic_tool_discovery.py
 async test_invariants_passed_to_pipeline(codegen_agent, mock_pipeline_result) @ tests/agents/codegenagent/test_symbolic_verification.py
 async test_is_dynamic_discovery_enabled_checks_settings() @ tests/unit/test_dynamic_tool_discovery.py
 async test_kernel_absorption() @ tests/config/test_l_cto_yaml.py
@@ -4268,6 +4304,7 @@ async test_l_can_read_cursor_developer_scope() @ tests/memory/test_cross_client_
 async test_l_can_read_cursor_global_scope() @ tests/memory/test_cross_client_consistency.py
 async test_large_content_auto_offload(memory_adapter) @ igor/DONE!/audit-memory/tests_memory_test_blob_offload.py
 async test_large_content_auto_offload(memory_adapter) @ tests/memory/test_blob_offload.py
+async test_large_payload(enrichment_dag) @ tests/memory/test_enrichment_dag.py
 async test_latest_checkpoint_returned(adapter) @ tests/performance/test_restart_recovery.py
 async test_lifespan_calls_ensure_bootstrap() @ tests/api/test_bootstrap_fail_fast.py
 async test_link_finding_to_agent_success(persistence) @ tests/services/research/test_graph_persistence.py
@@ -4378,6 +4415,8 @@ async test_memory_write_packet_contract() @ tests/memory/test_memory_adapter_bas
 async test_memory_write_success() @ tests/tools/test_memory_tools.py
 async test_metadata_creator_preserved_on_read() @ tests/memory/test_cross_client_consistency.py
 async test_metrics_failure_does_not_block_audit() @ tests/integration/test_tool_observability_integration.py
+async test_metrics_recorded_on_fallback(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
+async test_metrics_recorded_on_success(enrichment_dag, sample_envelope) @ tests/memory/test_enrichment_dag.py
 async test_metrics_track_hits_and_misses(cache) @ tests/memory/test_predictive_warming.py
 async test_middleware_extracts_trace_id_from_headers() @ tests/unit/test_websocket_tracing.py
 async test_middleware_extracts_trace_id_from_query_params() @ tests/unit/test_websocket_tracing.py
@@ -4630,6 +4669,8 @@ async test_redis_task_queue(redis_client) @ mcp_memory/tests/test_all_layers.py
 async test_refactor_requires_input_code(codegen_agent, mock_pipeline_result) @ tests/agents/codegenagent/test_symbolic_verification.py
 async test_reflection_includes_patterns_observed(failed_task_context) @ tests/integration/test_kernel_evolution_flow.py
 async test_register_and_is_connected() @ tests/runtime/test_websocket_orchestrator_basic.py
+async test_register_tool_calls_invalidate_all() @ tests/unit/test_dynamic_tool_discovery.py
+async test_register_tool_calls_invalidate_all_tool_caches() @ tests/unit/test_dynamic_tool_discovery.py
 async test_register_tool_ensures_agent_first() @ tests/integration/test_unified_graph.py
 async test_register_tool_mock() @ igor/DONE!/audit-tools/tests_core_tools_test_tool_graph.py
 async test_register_tool_mock() @ tests/core/tools/test_tool_graph.py
@@ -4764,7 +4805,9 @@ async test_service_metrics(sample_entity_graph) @ tests/memory/test_predictive_w
 async test_session_learning_extraction() @ igor/DONE!/audit-memory/mcp_memory_tests_test_memory.py
 async test_session_learning_extraction() @ mcp_memory/tests/test_memory.py
 async test_set_secret_not_supported() @ tests/core/protocols/test_secrets_protocols.py
+async test_set_session_scope(service) @ tests/memory/test_substrate_service.py
 async test_set_session_scope_executes_rls_call() @ tests/world_model/test_wm_scope.py
+async test_set_session_scope_with_exception(service) @ tests/memory/test_substrate_service.py
 async test_set_tensor_bridge(executor) @ tests/core/bootstrap/test_executor.py
 async test_set_working_memory(memory_bridge) @ codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_memory_integration.py
 async test_set_working_memory(memory_bridge) @ domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py
@@ -4842,6 +4885,12 @@ async test_text_match_fallback() @ tests/memory/test_tool_router.py
 async test_thread_uuid_deterministic(adapter) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/tests/test_calendar_adapter.py
 async test_thread_uuid_deterministic(adapter) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/tests/test_email_adapter.py
 async test_thread_uuid_deterministic(adapter) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/tests/test_twilio_adapter.py
+async test_tier_1_semantic_called(enrichment_dag, sample_envelope, mock_semantic_service) @ tests/memory/test_enrichment_dag.py
+async test_tier_1_semantic_failure_triggers_fallback(enrichment_dag, sample_envelope, mock_semantic_service) @ tests/memory/test_enrichment_dag.py
+async test_tier_1_success(enrichment_dag, sample_envelope) @ tests/memory/test_enrichment_dag.py
+async test_tier_2_repository_insert_called(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
+async test_tier_2_success_after_tier_1_failure(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
+async test_tier_3_success_after_tier_2_failure(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
 async test_timed_async_function() @ tests/unit/test_instrumentation_decorators.py
 async test_timed_logs_even_on_exception() @ tests/unit/test_instrumentation_decorators.py
 async test_timed_threshold_comparison() @ tests/unit/test_instrumentation_decorators.py
@@ -4897,6 +4946,7 @@ async test_unknown_defaults_to_moderate() @ tests/workers/test_anomaly_classifie
 async test_unknown_message_type_handled() @ tests/integration/test_ws_task_routing_integration.py
 async test_unmatched_request_is_denied_by_default(temp_policy_dir, simple_allow_policy) @ tests/core/governance/test_engine.py
 async test_unregister_clears_state() @ tests/runtime/test_websocket_orchestrator_basic.py
+async test_unregister_tool_calls_invalidate_all() @ tests/unit/test_dynamic_tool_discovery.py
 async test_update_packets_status_batch(batch_helpers, sample_packets) @ tests/memory/test_batch_helpers.py
 async test_update_responsibility_not_found() @ tests/core/bootstrap/test_agent_self_modify.py
 async test_update_responsibility_success() @ tests/core/bootstrap/test_agent_self_modify.py
@@ -5034,7 +5084,7 @@ async trigger_heuristic_generation(engine) @ api/routes/gmp_learning.py
 async trigger_session_start(session_id) @ agents/codegenagent/cursor_context_sync_engine.py
 async trigger_world_model_update(insights) @ igor/DONE!/audit-memory/memory_substrate_service.py
 async trigger_world_model_update(insights, tenant_id, org_id, user_id, role) @ memory/substrate_service.py
-async ttl_remaining(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
+async ttl_remaining(repo_id, branch) @ memory_cache/working_memory_service.py
 async twilio_calls_create(data) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/clients/twilio_adapter_client.py
 async twilio_messages_create(data) @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/clients/twilio_adapter_client.py
 async twilio_webhook(request, x_twilio_signature) @ api/webhook_twilio.py
@@ -5042,7 +5092,8 @@ async unlink(source_id, target_id, edge_type) @ tests/mocks/world_model_mocks.py
 async unregister(agent_id) @ current_work/DONE/GMP Stage 2 - Tools & Memory/websocket_orchestrator.py
 async unregister(agent_id) @ runtime/websocket_orchestrator.py
 async unregister_agent(agent_id) @ core/protocols/agent_protocols.py
-async update(repo_id, branch, intent, action, files_touched, hypothesis, error, repo_state_hash) @ memory_cache/cursor_working_memory_service.py
+async unregister_tool(tool_id) @ core/tools/registry_cache.py
+async update(repo_id, branch, intent, action, files_touched, hypothesis, error, repo_state_hash) @ memory_cache/working_memory_service.py
 async update_agent_activity(agent_name) @ core/worldmodel/service.py
 async update_agent_kpis() @ core/observability/service.py
 async update_agent_state(patch) @ memory/state_manager.py
@@ -5230,4 +5281,4 @@ async write_topology_node(node, session_id) @ current_work/01-25-2026/RLM-Refere
 async write_topology_nodes_batch(nodes, session_id) @ current_work/01-25-2026/RLM-Reference-Level Memory/003-rlm-substrate-service.py
 async write_verdict_entry(verdict_id, action_id, decision, agent_id, risk_class, justification) @ core/eos/ledger_writer.py
 
-# Total: 5226 async functions
+# Total: 5277 async functions

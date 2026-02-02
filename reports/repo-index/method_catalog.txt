@@ -16,6 +16,7 @@ ADRChecker::visit_FunctionDef(node) @ ci/check_adr_compliance.py
 ADRChecker::visit_If(node) @ ci/check_adr_compliance.py
 ADRChecker::visit_Import(node) @ ci/check_adr_compliance.py
 ADRChecker::visit_ImportFrom(node) @ ci/check_adr_compliance.py
+ADRChecker::visit_JoinedStr(node) @ ci/check_adr_compliance.py
 ADRComplianceChecker::__init__(repo_root) @ tools/adr/adr_compliance_check_enhanced.py
 ADRComplianceChecker::_calculate_overall_compliance() @ tools/adr/adr_compliance_check_enhanced.py
 ADRComplianceChecker::_check_rule(content, rule, filepath, adr_num) @ tools/adr/adr_compliance_check_enhanced.py
@@ -964,6 +965,8 @@ BoundaryEnforcer::has_spec() @ core/boundary/enforcer.py
 BoundaryEnforcer::reload_spec() @ core/boundary/enforcer.py
 BoundarySpec::__init__(raw_content, redaction_patterns, protected_fields) @ core/boundary/enforcer.py
 BoundarySpec::apply_redactions(text) @ core/boundary/enforcer.py
+BypassViolation::__init__(file, line_num, line, pattern, reason) @ ci/check_memory_bypass.py
+BypassViolation::__str__() @ ci/check_memory_bypass.py
 CACodeChange::__init__(repo_root, governance_loader, confidence_threshold) @ core/ca_governance/ca_code_change.py
 CACodeChange::__init__(repo_root, governance_loader, confidence_threshold) @ current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ca_code_change.py
 CACodeChange::__init__(repo_root, governance_loader, confidence_threshold) @ current_work/DONE/governance_layers/ca_governance/ca_code_change.py
@@ -1086,12 +1089,12 @@ CachedSubstrateRepository::get_cache_stats() @ memory/substrate_repository_cache
 CachedSubstrateRepository::transaction() @ memory/substrate_repository_cached.py
 CachedToolRegistry::__init__(registry, cache_config) @ core/tools/registry_cache.py
 CachedToolRegistry::_warm_cache() @ core/tools/registry_cache.py
+CachedToolRegistry::async register_tool(tool_id, tool_def) @ core/tools/registry_cache.py
+CachedToolRegistry::async unregister_tool(tool_id) @ core/tools/registry_cache.py
 CachedToolRegistry::get_cache_metrics() @ core/tools/registry_cache.py
 CachedToolRegistry::get_tool(tool_id) @ core/tools/registry_cache.py
 CachedToolRegistry::invalidate_cache(tool_id) @ core/tools/registry_cache.py
 CachedToolRegistry::list_tools() @ core/tools/registry_cache.py
-CachedToolRegistry::register_tool(tool_id, tool_def) @ core/tools/registry_cache.py
-CachedToolRegistry::unregister_tool(tool_id) @ core/tools/registry_cache.py
 CachingMetricsCollector::__init__() @ core/tools/prompt_caching.py
 CachingMetricsCollector::get_metrics() @ core/tools/prompt_caching.py
 CachingMetricsCollector::record_cache_hit(tokens_saved) @ core/tools/prompt_caching.py
@@ -1926,15 +1929,6 @@ CursorSessionHooks::async on_session_end(repo_id, branch, promote) @ agents/curs
 CursorSessionHooks::async on_session_start(repo_id, branch) @ agents/cursor/cursor_session_hooks.py
 CursorStack::from_dict(cls, data) @ agents/codegenagent/cursor_context_sync_engine.py
 CursorStack::to_dict() @ agents/codegenagent/cursor_context_sync_engine.py
-CursorWorkingMemoryService::__init__(redis_client, default_ttl_hours) @ memory_cache/cursor_working_memory_service.py
-CursorWorkingMemoryService::_hash_files(files) @ memory_cache/cursor_working_memory_service.py
-CursorWorkingMemoryService::_key(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
-CursorWorkingMemoryService::async clear(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
-CursorWorkingMemoryService::async expire_soon(repo_id, branch, seconds) @ memory_cache/cursor_working_memory_service.py
-CursorWorkingMemoryService::async hydrate(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
-CursorWorkingMemoryService::async stats(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
-CursorWorkingMemoryService::async ttl_remaining(repo_id, branch) @ memory_cache/cursor_working_memory_service.py
-CursorWorkingMemoryService::async update(repo_id, branch, intent, action, files_touched, hypothesis, error, repo_state_hash) @ memory_cache/cursor_working_memory_service.py
 CypherTemplateLibrary::__init__(templates) @ memory/cypher_templates.py
 CypherTemplateLibrary::_substitute_label_params(query, params) @ memory/cypher_templates.py
 CypherTemplateLibrary::add_template(template) @ memory/cypher_templates.py
@@ -2018,6 +2012,10 @@ DecisionSynthesizer::_resolve_conflicts(conflicts) @ codegen/extractions/domain_
 DecisionSynthesizer::_resolve_conflicts(conflicts) @ domain_tensor_bridge/decision_synthesizer.py
 DecisionSynthesizer::async synthesize_decision(reasoning_outputs) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/decision_synthesizer.py
 DecisionSynthesizer::async synthesize_decision(reasoning_outputs) @ domain_tensor_bridge/decision_synthesizer.py
+DecoratorAnalyzer::__init__() @ scripts/fix_decorator_wraps.py
+DecoratorAnalyzer::_check_decorator_pattern(node) @ scripts/fix_decorator_wraps.py
+DecoratorAnalyzer::visit_AsyncFunctionDef(node) @ scripts/fix_decorator_wraps.py
+DecoratorAnalyzer::visit_FunctionDef(node) @ scripts/fix_decorator_wraps.py
 DecoratorWithoutWrapsVisitor::__init__() @ tests/ci/test_adr_enforcement.py
 DecoratorWithoutWrapsVisitor::_check_decorator(node) @ tests/ci/test_adr_enforcement.py
 DecoratorWithoutWrapsVisitor::visit_AsyncFunctionDef(node) @ tests/ci/test_adr_enforcement.py
@@ -2108,6 +2106,8 @@ DistributedIntuitionCache::async update_from_learning(learning) @ current_work/T
 DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/swarm_sync.py
 DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/Neural-Symbolic Orchestration/swarm_sync.py
 DistributedIntuitionCache::get_cached_intuition(source_agent) @ current_work/TODO/swarm_sync.py
+DoDViolation::__init__(file, line_num, line, marker, reason) @ ci/check_definition_of_done.py
+DoDViolation::__str__() @ ci/check_definition_of_done.py
 DocstringGenerator::__init__(model) @ tools/codegen/docstring_injector.py
 DocstringGenerator::_build_prompt(missing) @ tools/codegen/docstring_injector.py
 DocstringGenerator::client() @ tools/codegen/docstring_injector.py
@@ -2161,6 +2161,7 @@ DoraCompleteInjector::_detect_datasources_from_content(file_path) @ scripts/audi
 DoraCompleteInjector::_detect_type_from_content(file_path, classes) @ scripts/audit/inject_dora_complete.py
 DoraCompleteInjector::_extract_classes(file_path) @ scripts/audit/inject_dora_complete.py
 DoraCompleteInjector::_extract_dependencies(file_path) @ scripts/audit/inject_dora_complete.py
+DoraCompleteInjector::_extract_functions(file_path) @ scripts/audit/inject_dora_complete.py
 DoraCompleteInjector::_find_insertion_point(content) @ scripts/audit/inject_dora_complete.py
 DoraCompleteInjector::_find_test_coverage(file_path) @ scripts/audit/inject_dora_complete.py
 DoraCompleteInjector::_format_footer_meta(footer, header, file_path, classes) @ scripts/audit/inject_dora_complete.py
@@ -2519,13 +2520,13 @@ ExecutorToolRegistry::async dispatch_tool_call(tool_id, arguments, context) @ co
 ExecutorToolRegistry::async dispatch_tool_call(tool_id, arguments, context) @ igor/DONE!/audit-tools/core_tools_registry_adapter.py
 ExecutorToolRegistry::async get_relevant_tools(agent_id, principal_id, query, top_k) @ core/tools/registry_adapter.py
 ExecutorToolRegistry::async guarded_execute(agent, tool_id, arguments, context, principal_id) @ core/tools/registry_adapter.py
+ExecutorToolRegistry::async register_tool(tool_id, name, description, executor, tool_type) @ core/tools/registry_adapter.py
 ExecutorToolRegistry::get_approved_tools(agent_id, principal_id) @ core/tools/registry_adapter.py
 ExecutorToolRegistry::get_approved_tools(agent_id, principal_id) @ igor/DONE!/audit-tools/core_tools_registry_adapter.py
 ExecutorToolRegistry::get_cache_metrics() @ core/tools/registry_adapter.py
 ExecutorToolRegistry::invalidate_cache(tool_id) @ core/tools/registry_adapter.py
 ExecutorToolRegistry::list_tools() @ core/tools/registry_adapter.py
 ExecutorToolRegistry::list_tools() @ igor/DONE!/audit-tools/core_tools_registry_adapter.py
-ExecutorToolRegistry::register_tool(tool_id, name, description, executor, tool_type) @ core/tools/registry_adapter.py
 ExecutorToolRegistry::register_tool(tool_id, name, description, executor, tool_type) @ igor/DONE!/audit-tools/core_tools_registry_adapter.py
 ExecutorToolRegistry::revoke_tool(agent_id, tool_id) @ core/tools/registry_adapter.py
 ExecutorToolRegistry::revoke_tool(agent_id, tool_id) @ igor/DONE!/audit-tools/core_tools_registry_adapter.py
@@ -2711,6 +2712,37 @@ FormalReasoningGraph::get_reasoning_path() @ core/reasoning/toth_engine.py
 FormalReasoningGraph::propagate_confidence() @ core/reasoning/toth_engine.py
 FrozenModelMutationVisitor::__init__() @ tests/ci/test_anti_patterns.py
 FrozenModelMutationVisitor::visit_Subscript(node) @ tests/ci/test_anti_patterns.py
+GMPEnforcer::__init__(working_dir) @ workflows/gmp_enforcer.py
+GMPEnforcer::_load_state() @ workflows/gmp_enforcer.py
+GMPEnforcer::_save_state() @ workflows/gmp_enforcer.py
+GMPEnforcer::complete_step(step_id, output) @ workflows/gmp_enforcer.py
+GMPEnforcer::initialize(gmp_id, tier, task_description) @ workflows/gmp_enforcer.py
+GMPEnforcer::next_step() @ workflows/gmp_enforcer.py
+GMPEnforcer::reset() @ workflows/gmp_enforcer.py
+GMPEnforcer::status() @ workflows/gmp_enforcer.py
+GMPExecutor::__init__() @ workflows/gmp_executor.py
+GMPExecutor::_clear_state() @ workflows/gmp_executor.py
+GMPExecutor::_generate_simple_readme(dir_path, readme_path) @ workflows/gmp_executor.py
+GMPExecutor::_get_step_executor(step) @ workflows/gmp_executor.py
+GMPExecutor::_load_state() @ workflows/gmp_executor.py
+GMPExecutor::_next_step() @ workflows/gmp_executor.py
+GMPExecutor::_print_header(title) @ workflows/gmp_executor.py
+GMPExecutor::_print_step(step, status) @ workflows/gmp_executor.py
+GMPExecutor::_run_shell(cmd, capture) @ workflows/gmp_executor.py
+GMPExecutor::_save_state() @ workflows/gmp_executor.py
+GMPExecutor::_step_baseline() @ workflows/gmp_executor.py
+GMPExecutor::_step_commit_gate() @ workflows/gmp_executor.py
+GMPExecutor::_step_generate_readme() @ workflows/gmp_executor.py
+GMPExecutor::_step_generate_report() @ workflows/gmp_executor.py
+GMPExecutor::_step_generate_tests() @ workflows/gmp_executor.py
+GMPExecutor::_step_implement() @ workflows/gmp_executor.py
+GMPExecutor::_step_memory_read() @ workflows/gmp_executor.py
+GMPExecutor::_step_memory_write() @ workflows/gmp_executor.py
+GMPExecutor::_step_scope_lock() @ workflows/gmp_executor.py
+GMPExecutor::_step_user_gate() @ workflows/gmp_executor.py
+GMPExecutor::_step_validate() @ workflows/gmp_executor.py
+GMPExecutor::run(task, tier, resume) @ workflows/gmp_executor.py
+GMPExecutor::status() @ workflows/gmp_executor.py
 GMPIntegration::__init__(audit_name) @ scripts/audit/audit_shared_core.py
 GMPIntegration::add_todo(file_path, line_start, line_end, action, target, behavior, imports) @ scripts/audit/audit_shared_core.py
 GMPIntegration::generate_plan() @ scripts/audit/audit_shared_core.py
@@ -2759,6 +2791,10 @@ GMPStageValidator::validate_protected_systems() @ scripts/gmp-validate-stage.py
 GMPStageValidator::validate_report_structure() @ scripts/gmp-validate-stage.py
 GMPStageValidator::validate_test_coverage() @ scripts/gmp-validate-stage.py
 GMPStageValidator::validate_todo_hash_integrity() @ scripts/gmp-validate-stage.py
+GMPState::from_dict(cls, d) @ workflows/gmp_executor.py
+GMPState::from_dict(cls, data) @ workflows/gmp_enforcer.py
+GMPState::to_dict() @ workflows/gmp_enforcer.py
+GMPState::to_dict() @ workflows/gmp_executor.py
 GMPWorker::__init__(poll_interval) @ current_work/DONE/GMP Stage 1 - Tools/gmp_worker.py
 GMPWorker::__init__(poll_interval) @ current_work/DONE/GMP Stage 2 - Tools & Memory/gmp_worker.py
 GMPWorker::__init__(poll_interval) @ runtime/gmp_worker.py
@@ -2837,9 +2873,9 @@ GitSafetyManager::async create_feature_branch(task_name) @ core/codegen/utilitie
 GitSafetyManager::async delete_branch() @ core/codegen/utilities.py
 GitSafetyManager::async rollback_to_baseline() @ core/codegen/utilities.py
 GlobalInvariantsAck::validate_all_true() @ ir_engine/meta_ir.py
-GlobalStateVisitor::__init__(filename) @ dev/tools/global_state_audit.py
-GlobalStateVisitor::generic_visit(node) @ dev/tools/global_state_audit.py
-GlobalStateVisitor::visit_Assign(node) @ dev/tools/global_state_audit.py
+GlobalStateVisitor::__init__(filename) @ ci/check_global_state.py
+GlobalStateVisitor::generic_visit(node) @ ci/check_global_state.py
+GlobalStateVisitor::visit_Assign(node) @ ci/check_global_state.py
 GlueConfig::model_validate(cls, data) @ tests/api/test_factory_path_safety.py
 GlueResolver::__init__(config) @ codegen/code-gen-files/glue_resolver.py
 GlueResolver::_build_dependency_graph() @ codegen/code-gen-files/glue_resolver.py
@@ -2978,6 +3014,23 @@ HTTPStructuredBinding::serialize(event) @ core/packet_envelope/standardization.p
 HTTPStructuredBinding::serialize(event) @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
 HTTPTool::async execute(args) @ igor/DONE!/audit-tools/services_research_tools_tool_wrappers.py
 HTTPTool::async execute(args) @ services/research/tools/tool_wrappers.py
+HarvestExecutor::__init__() @ workflows/harvest_executor.py
+HarvestExecutor::_clear_state() @ workflows/harvest_executor.py
+HarvestExecutor::_load_state() @ workflows/harvest_executor.py
+HarvestExecutor::_print_header(title) @ workflows/harvest_executor.py
+HarvestExecutor::_run_shell(cmd, capture) @ workflows/harvest_executor.py
+HarvestExecutor::_save_state() @ workflows/harvest_executor.py
+HarvestExecutor::_step_commit() @ workflows/harvest_executor.py
+HarvestExecutor::_step_create_harvest_table() @ workflows/harvest_executor.py
+HarvestExecutor::_step_extract_files() @ workflows/harvest_executor.py
+HarvestExecutor::_step_generate_report() @ workflows/harvest_executor.py
+HarvestExecutor::_step_parse_code_blocks() @ workflows/harvest_executor.py
+HarvestExecutor::_step_read_document() @ workflows/harvest_executor.py
+HarvestExecutor::_step_validate_syntax() @ workflows/harvest_executor.py
+HarvestExecutor::run(source_document, resume) @ workflows/harvest_executor.py
+HarvestExecutor::status() @ workflows/harvest_executor.py
+HarvestState::from_dict(cls, d) @ workflows/harvest_executor.py
+HarvestState::to_dict() @ workflows/harvest_executor.py
 HealthChecker::async check_component(component_name) @ core/protocols/observability_protocols.py
 HealthChecker::async check_health() @ core/protocols/observability_protocols.py
 HealthChecker::get_health_summary() @ core/protocols/observability_protocols.py
@@ -3656,6 +3709,25 @@ LearningExtractor::_classify_learning(text, outcome) @ memory/active_encoder.py
 LearningExtractor::_compute_importance(learning, outcome) @ memory/active_encoder.py
 LearningExtractor::_extract_implicit_learnings(outcome) @ memory/active_encoder.py
 LearningExtractor::extract_learnings(outcome) @ memory/active_encoder.py
+LintFixExecutor::__init__() @ workflows/lint_fix_executor.py
+LintFixExecutor::_clear_state() @ workflows/lint_fix_executor.py
+LintFixExecutor::_load_state() @ workflows/lint_fix_executor.py
+LintFixExecutor::_parse_ruff_output(output) @ workflows/lint_fix_executor.py
+LintFixExecutor::_print_header(title) @ workflows/lint_fix_executor.py
+LintFixExecutor::_run_shell(cmd, capture) @ workflows/lint_fix_executor.py
+LintFixExecutor::_save_state() @ workflows/lint_fix_executor.py
+LintFixExecutor::_step_apply_auto_fixes() @ workflows/lint_fix_executor.py
+LintFixExecutor::_step_apply_semi_fixes() @ workflows/lint_fix_executor.py
+LintFixExecutor::_step_categorize() @ workflows/lint_fix_executor.py
+LintFixExecutor::_step_commit() @ workflows/lint_fix_executor.py
+LintFixExecutor::_step_generate_report() @ workflows/lint_fix_executor.py
+LintFixExecutor::_step_rescan() @ workflows/lint_fix_executor.py
+LintFixExecutor::_step_scan_errors() @ workflows/lint_fix_executor.py
+LintFixExecutor::_step_validate() @ workflows/lint_fix_executor.py
+LintFixExecutor::run(target_codes, resume) @ workflows/lint_fix_executor.py
+LintFixExecutor::status() @ workflows/lint_fix_executor.py
+LintFixState::from_dict(cls, d) @ workflows/lint_fix_executor.py
+LintFixState::to_dict() @ workflows/lint_fix_executor.py
 LintResult::__init__(file_path) @ ci/check_substrate_api.py
 LintResult::__init__(file_path) @ ci/lint_forbidden_imports.py
 LintResult::add_error(line_num, pattern, message) @ ci/lint_forbidden_imports.py
@@ -4071,6 +4143,25 @@ MetricsCollector::increment_counter(name, value, labels) @ core/protocols/observ
 MetricsCollector::record_histogram(name, value, labels) @ core/protocols/observability_protocols.py
 MetricsCollector::reset() @ services/symbolic_computation/core/metrics.py
 MetricsCollector::set_gauge(name, value, labels) @ core/protocols/observability_protocols.py
+MigrateExecutor::__init__() @ workflows/migrate_executor.py
+MigrateExecutor::_clear_state() @ workflows/migrate_executor.py
+MigrateExecutor::_load_state() @ workflows/migrate_executor.py
+MigrateExecutor::_print_header(title) @ workflows/migrate_executor.py
+MigrateExecutor::_run_shell(cmd, capture) @ workflows/migrate_executor.py
+MigrateExecutor::_save_state() @ workflows/migrate_executor.py
+MigrateExecutor::_step_apply_changes() @ workflows/migrate_executor.py
+MigrateExecutor::_step_batch_generate() @ workflows/migrate_executor.py
+MigrateExecutor::_step_commit() @ workflows/migrate_executor.py
+MigrateExecutor::_step_confirm_wiring() @ workflows/migrate_executor.py
+MigrateExecutor::_step_generate_report() @ workflows/migrate_executor.py
+MigrateExecutor::_step_index_analysis() @ workflows/migrate_executor.py
+MigrateExecutor::_step_pattern_extract() @ workflows/migrate_executor.py
+MigrateExecutor::_step_validate() @ workflows/migrate_executor.py
+MigrateExecutor::_step_wire_refs() @ workflows/migrate_executor.py
+MigrateExecutor::run(old_pattern, new_pattern, resume) @ workflows/migrate_executor.py
+MigrateExecutor::status() @ workflows/migrate_executor.py
+MigrateState::from_dict(cls, d) @ workflows/migrate_executor.py
+MigrateState::to_dict() @ workflows/migrate_executor.py
 MigrationRunner::__init__(database_url, migrations_dir) @ igor/DONE!/audit-memory/memory_migration_runner.py
 MigrationRunner::__init__(database_url, migrations_dir) @ memory/migration_runner.py
 MigrationRunner::async connect() @ igor/DONE!/audit-memory/memory_migration_runner.py
@@ -4431,6 +4522,8 @@ N1DetectorVisitor::visit_ListComp(node) @ scripts/check_n_plus_1.py
 N1DetectorVisitor::visit_While(node) @ scripts/check_n_plus_1.py
 NaiveTruncationStrategy::async assemble(conversation, knowledge_base, max_tokens) @ core/observability/context_strategies.py
 NaiveTruncationStrategy::async assemble(conversation, knowledge_base, max_tokens) @ current_work/DONE/Observability/observability_context_strategies.py
+NamingViolation::__init__(filename, reason) @ ci/check_report_naming.py
+NamingViolation::__str__() @ ci/check_report_naming.py
 Neo4jBackend::__init__(uri, user, password, database) @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
 Neo4jBackend::async _create_indexes() @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
 Neo4jBackend::async close() @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/neo4j_backend.py
@@ -4853,6 +4946,7 @@ PerplexityClient::async __aexit__() @ services/research/tools/perplexity_client.
 PerplexityClient::async _get_client() @ agents/research_agent_impl.py
 PerplexityClient::async analyze(query) @ igor/DONE!/audit-tools/services_research_tools_perplexity_client.py
 PerplexityClient::async analyze(query) @ services/research/tools/perplexity_client.py
+PerplexityClient::async close() @ services/research/tools/perplexity_client.py
 PerplexityClient::async deep_research(prompt, timeout) @ agents/research_agent_impl.py
 PerplexityClient::async deep_research(query) @ igor/DONE!/audit-tools/services_research_tools_perplexity_client.py
 PerplexityClient::async deep_research(query) @ services/research/tools/perplexity_client.py
@@ -5089,6 +5183,8 @@ PromptCachingStrategy::build_cached_system_prompt() @ core/tools/prompt_caching.
 PromptCachingStrategy::build_dynamic_tool_context(discovered_tools, task, conversation_history) @ core/tools/prompt_caching.py
 PromptCachingStrategy::build_full_prompt(discovered_tools, task, conversation_history) @ core/tools/prompt_caching.py
 PromptCachingStrategy::estimate_token_savings(num_requests) @ core/tools/prompt_caching.py
+ProtectedFileViolation::__init__(file, status) @ ci/check_protected_files.py
+ProtectedFileViolation::__str__() @ ci/check_protected_files.py
 ProtocolBinding::deserialize(data) @ core/packet_envelope/standardization.py
 ProtocolBinding::deserialize(data) @ current_work/packetEnvelope - Phase 2-5/phase_3_standardization.py
 ProtocolBinding::serialize(event) @ core/packet_envelope/standardization.py
@@ -7078,6 +7174,8 @@ TestCacheMetrics::test_get_hit_rate() @ tests/unit/test_tool_registry_cache.py
 TestCacheMetrics::test_metrics_initialization() @ tests/unit/test_tool_registry_cache.py
 TestCachedToolRegistry::test_cached_registry_initialization() @ tests/unit/test_tool_registry_cache.py
 TestCachedToolRegistry::test_get_tool_from_cache() @ tests/unit/test_tool_registry_cache.py
+TestCachedToolRegistryAsyncMethods::async test_register_tool_calls_invalidate_all() @ tests/unit/test_dynamic_tool_discovery.py
+TestCachedToolRegistryAsyncMethods::async test_unregister_tool_calls_invalidate_all() @ tests/unit/test_dynamic_tool_discovery.py
 TestCaching::async test_cache_hit(cache_mock) @ tests/services/symbolic_computation/test_expression_evaluator.py
 TestCaching::async test_cache_miss_then_store(evaluator, cache_mock) @ tests/services/symbolic_computation/test_expression_evaluator.py
 TestCaching::cache_mock() @ tests/services/symbolic_computation/test_expression_evaluator.py
@@ -7097,6 +7195,8 @@ TestCellAgentAdapter::test_adapter_register_role() @ tests/orchestrators/test_pa
 TestCellAgentAdapter::test_adapter_role_mapping() @ tests/orchestrators/test_pattern_orchestrator.py
 TestCellAgentAdapter::test_adapter_unknown_role_raises() @ tests/orchestrators/test_pattern_orchestrator.py
 TestCheckpointAndResumeThread::async test_checkpoint_and_resume_thread() @ tests/integration/test_cursor_langgraph_integration.py
+TestCircuitBreaker::async test_circuit_breaker_opens_after_failures(mock_repository, mock_semantic_service, sample_envelope) @ tests/memory/test_enrichment_dag.py
+TestCircuitBreaker::async test_circuit_breaker_skips_tier_1_when_open(mock_repository, mock_semantic_service, sample_envelope) @ tests/memory/test_enrichment_dag.py
 TestCircuitBreakerIntegration::async test_circuit_breaker_open_enqueues_to_dlq() @ tests/core/test_resilience_mixin.py
 TestCircuitBreakerIntegration::async test_circuit_breaker_open_rejects_immediately() @ tests/core/test_resilience_mixin.py
 TestCircuitBreakerIntegration::async test_circuit_breaker_opens_after_failures() @ tests/memory/test_substrate_alignment.py
@@ -7308,6 +7408,7 @@ TestDatabaseConnectivity::test_database_url_not_localhost() @ tests/docker/test_
 TestDateRangeFiltering::test_in_date_range_before() @ tests/integration/test_compliance_audit.py
 TestDateRangeFiltering::test_in_date_range_empty() @ tests/integration/test_compliance_audit.py
 TestDateRangeFiltering::test_in_date_range_valid() @ tests/integration/test_compliance_audit.py
+TestDeadLetterQueue::async test_dlq_push_on_all_tiers_failed(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
 TestDeadLetterQueue::async test_dlq_receives_envelope_dict() @ tests/core/test_resilience_mixin.py
 TestDeadLetterQueue::async test_exhausted_retries_enqueue_to_dlq() @ tests/core/test_resilience_mixin.py
 TestDeadLetterQueue::async test_no_dlq_still_raises_error() @ tests/core/test_resilience_mixin.py
@@ -7399,9 +7500,12 @@ TestEOSLedgerWriter::async test_write_unavailable() @ tests/core/eos/test_eos_cl
 TestEOSLedgerWriter::async test_write_verdict_entry(ledger_writer, mock_substrate) @ tests/core/eos/test_eos_clients.py
 TestEOSLedgerWriter::test_init_with_substrate(mock_substrate) @ tests/core/eos/test_eos_clients.py
 TestEOSLedgerWriter::test_init_without_substrate() @ tests/core/eos/test_eos_clients.py
+TestEdgeCases::async test_concurrent_enrichments(enrichment_dag, sample_envelope) @ tests/memory/test_enrichment_dag.py
 TestEdgeCases::async test_decay_preview_no_repository() @ tests/memory/test_hierarchical_consolidation.py
 TestEdgeCases::async test_default_retry_policy() @ tests/core/test_resilience_mixin.py
+TestEdgeCases::async test_empty_payload(enrichment_dag) @ tests/memory/test_enrichment_dag.py
 TestEdgeCases::async test_envelope_with_model_dump() @ tests/core/test_resilience_mixin.py
+TestEdgeCases::async test_large_payload(enrichment_dag) @ tests/memory/test_enrichment_dag.py
 TestEdgeCases::async test_zero_retries_fails_immediately() @ tests/core/test_resilience_mixin.py
 TestEdgeCases::test_absorption_error_handling(temp_kernel_dir) @ tests/unit/test_kernel_loader_activation.py
 TestEdgeCases::test_agent_with_custom_config() @ tests/unit/test_lcto_bootstrap.py
@@ -7426,10 +7530,18 @@ TestEndpoints::test_send_requires_fields_for_direct(client, auth_headers, mock_g
 TestEndpoints::test_send_returns_message_id(client, auth_headers, mock_gmail_client, mock_memory_ingest) @ tests/email_agent/test_email_router.py
 TestEngineIntegration::async test_full_flow() @ tests/cursor/test_gmp_meta_learning.py
 TestEngineIntegration::async test_graduation_flow() @ tests/cursor/test_gmp_meta_learning.py
+TestEnrichmentConfig::test_config_custom_values() @ tests/memory/test_enrichment_dag.py
+TestEnrichmentConfig::test_config_default_values() @ tests/memory/test_enrichment_dag.py
+TestEnrichmentDAGInit::test_dag_instantiation(mock_repository, mock_semantic_service) @ tests/memory/test_enrichment_dag.py
+TestEnrichmentDAGInit::test_dag_with_custom_config(mock_repository, mock_semantic_service) @ tests/memory/test_enrichment_dag.py
+TestEnrichmentEnums::test_enrichment_status_values() @ tests/memory/test_enrichment_dag.py
+TestEnrichmentEnums::test_enrichment_tier_values() @ tests/memory/test_enrichment_dag.py
 TestEnrichmentFailureNonBlocking::async test_enrichment_exception_does_not_block_core(mock_repository, mock_semantic_service, sample_packet_in) @ tests/memory/test_unified_pipeline.py
 TestEnrichmentFailureNonBlocking::async test_enrichment_failure_logged_with_error(mock_repository, mock_semantic_service, sample_packet_in) @ tests/memory/test_unified_pipeline.py
 TestEnrichmentGraph::async test_enrich_success() @ tests/memory/test_substrate_dag_native.py
 TestEnrichmentGraph::async test_enrich_validates_packet_id() @ tests/memory/test_substrate_dag_native.py
+TestEnrichmentResult::test_result_to_packet_result_failure() @ tests/memory/test_enrichment_dag.py
+TestEnrichmentResult::test_result_to_packet_result_success() @ tests/memory/test_enrichment_dag.py
 TestEnrichmentResultSchema::test_enrichment_result_fields() @ tests/memory/test_unified_pipeline.py
 TestEnrichmentStrategy::test_strategies_exist() @ tests/memory/test_hybrid_rag.py
 TestEnrichmentTimeout::async test_enrichment_timeout_logs_and_continues(mock_repository, mock_semantic_service, sample_packet_in) @ tests/memory/test_unified_pipeline.py
@@ -7557,6 +7669,7 @@ TestExecutorIntegration::async test_self_reflection_does_not_fail_task() @ tests
 TestExecutorKernelEnforcement::async test_executor_blocks_when_kernel_agent_missing() @ tests/unit/test_guarded_execution.py
 TestExecutorRegistryWiring::test_registry_imports_audit_function() @ tests/integration/test_tool_observability_integration.py
 TestExecutorRegistryWiring::test_registry_imports_tool_audit() @ tests/integration/test_tool_observability_integration.py
+TestExecutorToolRegistryAsyncRegisterTool::async test_register_tool_calls_invalidate_all_tool_caches() @ tests/unit/test_dynamic_tool_discovery.py
 TestExponentialSmoothing::async test_exponential_smoothing_formula(strategy_memory_service, mock_neo4j_client) @ tests/memory/test_strategy_memory.py
 TestExporters::test_console_exporter_export() @ tests/core/observability/test_observability_integration.py
 TestExporters::test_json_file_exporter_creation() @ tests/core/observability/test_observability_integration.py
@@ -7656,14 +7769,21 @@ TestGapDetector::sample_entity_graph() @ tests/memory/test_predictive_warming.py
 TestGapDetector::test_update_gap_frequency(detector) @ tests/memory/test_predictive_warming.py
 TestGeneratedReadme::test_generated_readme_creation() @ tests/agents/codegenagent/test_readme_generator.py
 TestGeneratedReadme::test_generated_readme_with_metadata() @ tests/agents/codegenagent/test_readme_generator.py
-TestGenerator::__init__(use_llm, llm_client) @ core/testing/test_generator.py
+TestGenerator::__init__(use_llm, llm_client, model, preset, inject_l9_context) @ core/testing/test_generator.py
+TestGenerator::_create_llm_client() @ core/testing/test_generator.py
+TestGenerator::_extract_ast_info(tree) @ core/testing/test_generator.py
 TestGenerator::_generate_async_flow_test(module_name) @ core/testing/test_generator.py
 TestGenerator::_generate_class_tests(cls, module_name) @ core/testing/test_generator.py
 TestGenerator::_generate_dependency_test(dependency, module_name) @ core/testing/test_generator.py
 TestGenerator::_generate_error_handling_test(module_name) @ core/testing/test_generator.py
 TestGenerator::_generate_function_tests(func, module_name) @ core/testing/test_generator.py
 TestGenerator::_generate_import_test(module_name) @ core/testing/test_generator.py
+TestGenerator::_generate_stub_tests(tree, module_name) @ core/testing/test_generator.py
 TestGenerator::_generate_syntax_test(code_proposal, module_name) @ core/testing/test_generator.py
+TestGenerator::_generate_tests_with_llm(code, module_name, ast_info, test_type, dependencies) @ core/testing/test_generator.py
+TestGenerator::_load_l9_context() @ core/testing/test_generator.py
+TestGenerator::_strip_markdown(code) @ core/testing/test_generator.py
+TestGenerator::generate_complete_test_file(code_proposal, module_name, dependencies) @ core/testing/test_generator.py
 TestGenerator::generate_integration_tests(code_proposal, dependencies, module_name) @ core/testing/test_generator.py
 TestGenerator::generate_unit_tests(code_proposal, module_name) @ core/testing/test_generator.py
 TestGetHookRegistry::test_get_hook_registry_has_built_in_hooks() @ tests/unit/test_governance_hooks.py
@@ -7908,6 +8028,9 @@ TestInterfaceModels::test_node_result_creation() @ tests/orchestrators/test_patt
 TestInterfaceModels::test_node_status_enum() @ tests/orchestrators/test_pattern_orchestrator.py
 TestInterfaceModels::test_pipeline_result_creation() @ tests/orchestrators/test_pattern_orchestrator.py
 TestInterfaceModels::test_pipeline_status_enum() @ tests/orchestrators/test_pattern_orchestrator.py
+TestInvalidateAllToolCaches::async test_invalidate_all_tool_caches_deletes_matching_keys() @ tests/unit/test_dynamic_tool_discovery.py
+TestInvalidateAllToolCaches::async test_invalidate_all_tool_caches_returns_zero_when_no_keys() @ tests/unit/test_dynamic_tool_discovery.py
+TestInvalidateAllToolCaches::async test_invalidate_all_tool_caches_returns_zero_when_redis_unavailable() @ tests/unit/test_dynamic_tool_discovery.py
 TestInvariantCoverage::test_all_subsystems_have_invariants(readme_config) @ tests/test_code_facts_extraction.py
 TestKernelAgentActivationIntegration::test_agent_receives_kernel_prompt() @ tests/integration/test_kernel_agent_activation_integration.py
 TestKernelAgentActivationIntegration::test_kernel_files_exist() @ tests/integration/test_kernel_agent_activation_integration.py
@@ -8177,6 +8300,8 @@ TestMetricsEndpointIntegration::test_prometheus_make_asgi_app_available() @ test
 TestMetricsIntegration::async test_evaluation_records_metrics(evaluator, metrics) @ tests/services/symbolic_computation/test_integration.py
 TestMetricsIntegration::evaluator(metrics) @ tests/services/symbolic_computation/test_integration.py
 TestMetricsIntegration::metrics() @ tests/services/symbolic_computation/test_integration.py
+TestMetricsRecording::async test_metrics_recorded_on_fallback(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
+TestMetricsRecording::async test_metrics_recorded_on_success(enrichment_dag, sample_envelope) @ tests/memory/test_enrichment_dag.py
 TestMigrationFileStructure::test_migrations_are_numbered() @ tests/docker/test_migrations.py
 TestMigrationFileStructure::test_migrations_are_sequential() @ tests/docker/test_migrations.py
 TestMigrationFileStructure::test_migrations_directory_exists() @ tests/docker/test_migrations.py
@@ -9264,12 +9389,17 @@ TestTestResults::test_test_results_creation() @ tests/integration/test_recursive
 TestTestResults::test_test_results_to_dict() @ tests/integration/test_recursive_self_testing.py
 TestThreadSafety::test_concurrent_binding(container) @ tests/unit/di/test_container.py
 TestThreadSafety::test_concurrent_resolution(container) @ tests/unit/di/test_container.py
+TestTier1FullEnrichment::async test_tier_1_semantic_called(enrichment_dag, sample_envelope, mock_semantic_service) @ tests/memory/test_enrichment_dag.py
+TestTier1FullEnrichment::async test_tier_1_semantic_failure_triggers_fallback(enrichment_dag, sample_envelope, mock_semantic_service) @ tests/memory/test_enrichment_dag.py
+TestTier1FullEnrichment::async test_tier_1_success(enrichment_dag, sample_envelope) @ tests/memory/test_enrichment_dag.py
 TestTier1MemoryEvolution::async test_gnn_kernel_encoding() @ current_work/DONE/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier1MemoryEvolution::async test_gnn_kernel_encoding() @ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier1MemoryEvolution::async test_gnn_kernel_encoding() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
 TestTier1MemoryEvolution::async test_schema_discovery() @ current_work/DONE/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier1MemoryEvolution::async test_schema_discovery() @ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier1MemoryEvolution::async test_schema_discovery() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier2CoreOnly::async test_tier_2_repository_insert_called(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
+TestTier2CoreOnly::async test_tier_2_success_after_tier_1_failure(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
 TestTier2SwarmSync::async test_conflict_superposition() @ current_work/DONE/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier2SwarmSync::async test_conflict_superposition() @ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier2SwarmSync::async test_conflict_superposition() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
@@ -9279,6 +9409,7 @@ TestTier2SwarmSync::async test_intuition_cache_update() @ current_work/Neural-Sy
 TestTier2SwarmSync::async test_vector_pubsub_publish() @ current_work/DONE/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier2SwarmSync::async test_vector_pubsub_publish() @ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier2SwarmSync::async test_vector_pubsub_publish() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
+TestTier3DirectDB::async test_tier_3_success_after_tier_2_failure(mock_repository, mock_semantic_service, sample_envelope, default_config) @ tests/memory/test_enrichment_dag.py
 TestTier3Governance::async test_agent_promotion() @ current_work/DONE/Infro As Code - IaC - K8s/test_c1_hetzner.py
 TestTier3Governance::async test_agent_promotion() @ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/test_l9_aios_v5.py
 TestTier3Governance::async test_agent_promotion() @ current_work/Neural-Symbolic Orchestration/test_l9_aios_v5.py
@@ -9938,6 +10069,23 @@ UpcasterConfig::get_key() @ current_work/DONE/AUTOWIRING/upcaster_registry.py
 UpcasterConfig::to_dict() @ core/schemas/upcaster_registry.py
 UpcasterConfig::to_dict() @ current_work/DONE/AUTOWIRING/upcaster_registry.py
 UpdateRecord::to_dict() @ world_model/runtime.py
+UseHarvestExecutor::__init__() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_clear_state() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_load_state() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_print_header(title) @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_run_shell(cmd, capture) @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_save_state() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_step_commit() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_step_deploy_files() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_step_generate_report() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_step_read_harvest_table() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_step_validate_syntax() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_step_verify_targets() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::_step_wire_imports() @ workflows/use_harvest_executor.py
+UseHarvestExecutor::run(harvest_dir, resume) @ workflows/use_harvest_executor.py
+UseHarvestExecutor::status() @ workflows/use_harvest_executor.py
+UseHarvestState::from_dict(cls, d) @ workflows/use_harvest_executor.py
+UseHarvestState::to_dict() @ workflows/use_harvest_executor.py
 UserCorrectionPattern::detect(context) @ core/agents/selfreflection.py
 UtilityScorer::__init__(neo4j_driver) @ current_work/DONE/Infro As Code - IaC - Kubernetes - AIOS-(K8s)/governance.py
 UtilityScorer::__init__(neo4j_driver) @ current_work/Neural-Symbolic Orchestration/governance.py
@@ -10135,11 +10283,39 @@ WebSocketTracingMiddleware::__init__(app) @ api/middleware/websocket_tracing.py
 WebSocketTracingMiddleware::_extract_trace_context(scope) @ api/middleware/websocket_tracing.py
 WebSocketTracingMiddleware::_parse_query_string(query_string) @ api/middleware/websocket_tracing.py
 WebSocketTracingMiddleware::async __call__(scope, receive, send) @ api/middleware/websocket_tracing.py
+WireExecutor::__init__() @ workflows/wire_executor.py
+WireExecutor::_clear_state() @ workflows/wire_executor.py
+WireExecutor::_load_state() @ workflows/wire_executor.py
+WireExecutor::_print_header(title) @ workflows/wire_executor.py
+WireExecutor::_run_shell(cmd, capture) @ workflows/wire_executor.py
+WireExecutor::_save_state() @ workflows/wire_executor.py
+WireExecutor::_step_analysis() @ workflows/wire_executor.py
+WireExecutor::_step_commit() @ workflows/wire_executor.py
+WireExecutor::_step_confirm_wiring() @ workflows/wire_executor.py
+WireExecutor::_step_discovery() @ workflows/wire_executor.py
+WireExecutor::_step_execute() @ workflows/wire_executor.py
+WireExecutor::_step_generate_report() @ workflows/wire_executor.py
+WireExecutor::_step_plan() @ workflows/wire_executor.py
+WireExecutor::_step_re_discovery() @ workflows/wire_executor.py
+WireExecutor::_step_validate() @ workflows/wire_executor.py
+WireExecutor::run(component, resume) @ workflows/wire_executor.py
+WireExecutor::status() @ workflows/wire_executor.py
+WireState::from_dict(cls, d) @ workflows/wire_executor.py
+WireState::to_dict() @ workflows/wire_executor.py
 Workflow::add_condition(condition, if_true, if_false) @ current_work/01-25-2026/L9-refactoring-plan/harvested-files/40_orchestration_service.py
 Workflow::add_parallel(steps) @ current_work/01-25-2026/L9-refactoring-plan/harvested-files/40_orchestration_service.py
 Workflow::add_step(name, orchestrator, depends_on, retry, timeout) @ current_work/01-25-2026/L9-refactoring-plan/harvested-files/40_orchestration_service.py
 WorkflowResult::to_dict() @ orchestration/cell_orchestrator.py
-WorkingMemorySnapshot::__post_init__() @ memory_cache/cursor_working_memory_service.py
+WorkingMemoryService::__init__(redis_client, default_ttl_hours) @ memory_cache/working_memory_service.py
+WorkingMemoryService::_hash_files(files) @ memory_cache/working_memory_service.py
+WorkingMemoryService::_key(repo_id, branch) @ memory_cache/working_memory_service.py
+WorkingMemoryService::async clear(repo_id, branch) @ memory_cache/working_memory_service.py
+WorkingMemoryService::async expire_soon(repo_id, branch, seconds) @ memory_cache/working_memory_service.py
+WorkingMemoryService::async hydrate(repo_id, branch) @ memory_cache/working_memory_service.py
+WorkingMemoryService::async stats(repo_id, branch) @ memory_cache/working_memory_service.py
+WorkingMemoryService::async ttl_remaining(repo_id, branch) @ memory_cache/working_memory_service.py
+WorkingMemoryService::async update(repo_id, branch, intent, action, files_touched, hypothesis, error, repo_state_hash) @ memory_cache/working_memory_service.py
+WorkingMemorySnapshot::__post_init__() @ memory_cache/working_memory_service.py
 WorldContext::to_dict() @ world_model/world_model_service.py
 WorldModelBridge::__init__(world_model_url) @ codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/world_model_bridge.py
 WorldModelBridge::__init__(world_model_url) @ domain_tensor_bridge/world_model_bridge.py
@@ -10514,4 +10690,4 @@ _StubClientSession::post() @ core/reasoning/toth_engine.py
 _StubRateLimiter::async check_and_increment(key, limit) @ core/governance/rate_limit_policy.py
 _StubRateLimiter::async get_usage(key) @ core/governance/rate_limit_policy.py
 
-# Total: 10510 class methods
+# Total: 10686 class methods

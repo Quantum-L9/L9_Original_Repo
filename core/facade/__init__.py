@@ -27,7 +27,21 @@ __dora_meta__ = {
 # ============================================================================
 
 from core.facade.l9_facade import (
+    CheckpointsInterface,
+    ComplianceInterface,
+    GovernanceInterface,
+    # Main facade
     L9Facade,
+    # P2: Advanced interfaces (Nice to Have)
+    LearningInterface,
+    MCPInterface,
+    ObservabilityInterface,
+    ReasoningInterface,
+    # P1: Operational interfaces (Should Have)
+    TaskQueueInterface,
+    # P0: Core interfaces (Must Have)
+    WorldModelInterface,
+    # Convenience functions
     execute_tool,
     get_l9_facade,
     query_memory,
@@ -35,11 +49,25 @@ from core.facade.l9_facade import (
 )
 
 __all__ = [
+    # Main facade
     "L9Facade",
-    "execute_tool",
     "get_l9_facade",
+    # Convenience functions
+    "execute_tool",
     "query_memory",
     "run_task",
+    # P0: Core interfaces
+    "WorldModelInterface",
+    "GovernanceInterface",
+    "ObservabilityInterface",
+    # P1: Operational interfaces
+    "TaskQueueInterface",
+    "CheckpointsInterface",
+    "MCPInterface",
+    # P2: Advanced interfaces
+    "LearningInterface",
+    "ComplianceInterface",
+    "ReasoningInterface",
 ]
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

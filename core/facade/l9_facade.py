@@ -83,6 +83,519 @@ logger = structlog.get_logger(__name__)
 
 
 # =============================================================================
+# P0: World Model Interface
+# =============================================================================
+
+
+class WorldModelInterface:
+    """Interface to L9 World Model - entity state and beliefs."""
+
+    def __init__(self, facade: L9Facade):
+        self._facade = facade
+        self._service: Any | None = None
+
+    async def _get_service(self) -> Any:
+        """Lazy load world model service."""
+        if self._service is None:
+            try:
+                from core.worldmodel.service import WorldModelService
+
+                self._service = WorldModelService()
+            except ImportError:
+                logger.warning("WorldModelService not available")
+        return self._service
+
+    async def get_entity(self, entity_id: str) -> dict[str, Any] | None:
+        """Get entity state from world model."""
+        service = await self._get_service()
+        if not service:
+            return None
+        return await service.get_entity(entity_id)
+
+    async def update_belief(
+        self, entity_id: str, belief: dict[str, Any], confidence: float = 0.8
+    ) -> bool:
+        """Update belief about an entity."""
+        service = await self._get_service()
+        if not service:
+            return False
+        return await service.update_belief(entity_id, belief, confidence)
+
+    async def get_relationships(
+        self, entity_id: str, relationship_type: str | None = None
+    ) -> list[dict[str, Any]]:
+        """Get entity relationships from world model graph."""
+        service = await self._get_service()
+        if not service:
+            return []
+        return await service.get_relationships(entity_id, relationship_type)
+
+    async def query(self, cypher_query: str) -> list[dict[str, Any]]:
+        """Execute raw Cypher query on world model."""
+        service = await self._get_service()
+        if not service:
+            return []
+        return await service.query(cypher_query)
+
+
+# =============================================================================
+# P0: Governance Interface
+# =============================================================================
+
+
+class GovernanceInterface:
+    """Interface to L9 Governance - approvals and permissions."""
+
+    def __init__(self, facade: L9Facade):
+        self._facade = facade
+        self._approval_manager: Any | None = None
+
+    async def _get_manager(self) -> Any:
+        """Lazy load approval manager."""
+        if self._approval_manager is None:
+            try:
+                from core.governance.approval_manager import ApprovalManager
+
+                self._approval_manager = ApprovalManager()
+            except ImportError:
+                logger.warning("ApprovalManager not available")
+        return self._approval_manager
+
+    async def request_approval(
+        self,
+        action: str,
+        context: dict[str, Any] | None = None,
+        requester: str = "l9-facade",
+    ) -> str | None:
+        """Request human approval for an action."""
+        manager = await self._get_manager()
+        if not manager:
+            return None
+        return await manager.request_approval(
+            action=action, context=context or {}, requester=requester
+        )
+
+    async def check_approval(self, approval_id: str) -> dict[str, Any]:
+        """Check approval status."""
+        manager = await self._get_manager()
+        if not manager:
+            return {"status": "unknown", "error": "manager_unavailable"}
+        return await manager.get_approval_status(approval_id)
+
+    async def get_permissions(self, agent_id: str) -> list[str]:
+        """Get current permissions for an agent."""
+        manager = await self._get_manager()
+        if not manager:
+            return []
+        return await manager.get_agent_permissions(agent_id)
+
+    async def is_action_allowed(self, action: str, agent_id: str) -> bool:
+        """Check if an action is allowed for an agent."""
+        manager = await self._get_manager()
+        if not manager:
+            return False
+        return await manager.is_allowed(action, agent_id)
+
+
+# =============================================================================
+# P0: Observability Interface
+# =============================================================================
+
+
+class ObservabilityInterface:
+    """Interface to L9 Observability - tracing and metrics."""
+
+    def __init__(self, facade: L9Facade):
+        self._facade = facade
+
+    def get_trace_context(self) -> dict[str, str]:
+        """Get current trace context (trace_id, span_id)."""
+        try:
+            from core.observability.context import get_trace_context
+
+            return get_trace_context()
+        except ImportError:
+            return {"trace_id": "", "span_id": ""}
+
+    async def emit_event(
+        self,
+        event_name: str,
+        payload: dict[str, Any],
+        level: str = "info",
+    ) -> None:
+        """Emit a structured event."""
+        log_fn = getattr(logger, level, logger.info)
+        log_fn(event_name, **payload)
+
+    def get_metrics(self) -> dict[str, Any]:
+        """Get current Prometheus metrics."""
+        try:
+            from core.observability.metrics import get_metrics_snapshot
+
+            return get_metrics_snapshot()
+        except ImportError:
+            return {}
+
+    def create_span(self, name: str, attributes: dict[str, Any] | None = None) -> Any:
+        """Create a new trace span."""
+        try:
+            from core.observability.tracing import create_span
+
+            return create_span(name, attributes or {})
+        except ImportError:
+            return None
+
+
+# =============================================================================
+# P1: Task Queue Interface
+# =============================================================================
+
+
+class TaskQueueInterface:
+    """Interface to L9 Task Queue - background jobs."""
+
+    def __init__(self, facade: L9Facade):
+        self._facade = facade
+        self._task_queue: Any | None = None
+
+    async def _get_queue(self) -> Any:
+        """Lazy load task queue."""
+        if self._task_queue is None:
+            try:
+                from runtime.task_queue import get_task_queue
+
+                self._task_queue = await get_task_queue()
+            except ImportError:
+                logger.warning("TaskQueue not available")
+        return self._task_queue
+
+    async def enqueue(
+        self,
+        task_name: str,
+        payload: dict[str, Any] | None = None,
+        priority: str = "normal",
+        delay_seconds: int = 0,
+    ) -> str | None:
+        """Enqueue a background task."""
+        queue = await self._get_queue()
+        if not queue:
+            return None
+        return await queue.enqueue(
+            task_name=task_name,
+            payload=payload or {},
+            priority=priority,
+            delay_seconds=delay_seconds,
+        )
+
+    async def get_status(self, task_id: str) -> dict[str, Any]:
+        """Get task status."""
+        queue = await self._get_queue()
+        if not queue:
+            return {"status": "unknown", "error": "queue_unavailable"}
+        return await queue.get_task_status(task_id)
+
+    async def cancel(self, task_id: str) -> bool:
+        """Cancel a queued task."""
+        queue = await self._get_queue()
+        if not queue:
+            return False
+        return await queue.cancel_task(task_id)
+
+    async def list_pending(self, limit: int = 100) -> list[dict[str, Any]]:
+        """List pending tasks."""
+        queue = await self._get_queue()
+        if not queue:
+            return []
+        return await queue.list_pending(limit=limit)
+
+
+# =============================================================================
+# P1: Checkpoints Interface
+# =============================================================================
+
+
+class CheckpointsInterface:
+    """Interface to L9 Checkpoints - state persistence."""
+
+    def __init__(self, facade: L9Facade):
+        self._facade = facade
+        self._checkpoint_manager: Any | None = None
+
+    async def _get_manager(self) -> Any:
+        """Lazy load checkpoint manager."""
+        if self._checkpoint_manager is None:
+            try:
+                from memory.checkpoint_manager import CheckpointManager
+
+                self._checkpoint_manager = CheckpointManager()
+            except ImportError:
+                logger.warning("CheckpointManager not available")
+        return self._checkpoint_manager
+
+    async def save(
+        self,
+        checkpoint_id: str,
+        state: dict[str, Any],
+        metadata: dict[str, Any] | None = None,
+    ) -> bool:
+        """Save a checkpoint."""
+        manager = await self._get_manager()
+        if not manager:
+            return False
+        return await manager.save_checkpoint(
+            checkpoint_id=checkpoint_id, state=state, metadata=metadata or {}
+        )
+
+    async def restore(self, checkpoint_id: str) -> dict[str, Any] | None:
+        """Restore from a checkpoint."""
+        manager = await self._get_manager()
+        if not manager:
+            return None
+        return await manager.restore_checkpoint(checkpoint_id)
+
+    async def list_checkpoints(
+        self, agent_id: str | None = None, limit: int = 50
+    ) -> list[dict[str, Any]]:
+        """List available checkpoints."""
+        manager = await self._get_manager()
+        if not manager:
+            return []
+        return await manager.list_checkpoints(agent_id=agent_id, limit=limit)
+
+    async def delete(self, checkpoint_id: str) -> bool:
+        """Delete a checkpoint."""
+        manager = await self._get_manager()
+        if not manager:
+            return False
+        return await manager.delete_checkpoint(checkpoint_id)
+
+
+# =============================================================================
+# P1: MCP Interface
+# =============================================================================
+
+
+class MCPInterface:
+    """Interface to MCP (Model Context Protocol) - external tools/resources."""
+
+    def __init__(self, facade: L9Facade):
+        self._facade = facade
+        self._mcp_client: Any | None = None
+
+    async def _get_client(self) -> Any:
+        """Lazy load MCP client."""
+        if self._mcp_client is None:
+            try:
+                from runtime.mcp_client import get_mcp_client
+
+                self._mcp_client = await get_mcp_client()
+            except ImportError:
+                logger.warning("MCP client not available")
+        return self._mcp_client
+
+    async def call_tool(
+        self,
+        server: str,
+        tool_name: str,
+        arguments: dict[str, Any] | None = None,
+    ) -> Any:
+        """Call an MCP tool."""
+        client = await self._get_client()
+        if not client:
+            return {"error": "mcp_unavailable"}
+        return await client.call_tool(
+            server=server, tool_name=tool_name, arguments=arguments or {}
+        )
+
+    async def list_servers(self) -> list[str]:
+        """List available MCP servers."""
+        client = await self._get_client()
+        if not client:
+            return []
+        return await client.list_servers()
+
+    async def list_tools(self, server: str) -> list[dict[str, Any]]:
+        """List tools available on an MCP server."""
+        client = await self._get_client()
+        if not client:
+            return []
+        return await client.list_tools(server)
+
+    async def list_resources(self, server: str) -> list[dict[str, Any]]:
+        """List resources available on an MCP server."""
+        client = await self._get_client()
+        if not client:
+            return []
+        return await client.list_resources(server)
+
+    async def fetch_resource(self, server: str, uri: str) -> Any:
+        """Fetch an MCP resource."""
+        client = await self._get_client()
+        if not client:
+            return None
+        return await client.fetch_resource(server=server, uri=uri)
+
+
+# =============================================================================
+# P2: Learning Interface
+# =============================================================================
+
+
+class LearningInterface:
+    """Interface to L9 Learning - feedback and adaptation."""
+
+    def __init__(self, facade: L9Facade):
+        self._facade = facade
+
+    async def submit_feedback(
+        self,
+        feedback_type: str,
+        content: str,
+        context: dict[str, Any] | None = None,
+        rating: int | None = None,
+    ) -> str | None:
+        """Submit human feedback for learning."""
+        try:
+            from core.learning.feedback import submit_feedback
+
+            return await submit_feedback(
+                feedback_type=feedback_type,
+                content=content,
+                context=context or {},
+                rating=rating,
+            )
+        except ImportError:
+            logger.warning("Learning module not available")
+            return None
+
+    async def get_learning_status(self) -> dict[str, Any]:
+        """Get current learning/adaptation status."""
+        try:
+            from core.learning.status import get_learning_status
+
+            return await get_learning_status()
+        except ImportError:
+            return {"status": "unavailable"}
+
+    async def get_improvement_suggestions(
+        self, domain: str | None = None
+    ) -> list[dict[str, Any]]:
+        """Get AI-generated improvement suggestions."""
+        try:
+            from core.learning.suggestions import get_suggestions
+
+            return await get_suggestions(domain=domain)
+        except ImportError:
+            return []
+
+
+# =============================================================================
+# P2: Compliance Interface
+# =============================================================================
+
+
+class ComplianceInterface:
+    """Interface to L9 Compliance - audit and regulatory."""
+
+    def __init__(self, facade: L9Facade):
+        self._facade = facade
+
+    async def get_audit_log(
+        self,
+        start_time: str | None = None,
+        end_time: str | None = None,
+        agent_id: str | None = None,
+        action_type: str | None = None,
+        limit: int = 100,
+    ) -> list[dict[str, Any]]:
+        """Get audit log entries."""
+        try:
+            from core.compliance.audit_log import get_audit_log
+
+            return await get_audit_log(
+                start_time=start_time,
+                end_time=end_time,
+                agent_id=agent_id,
+                action_type=action_type,
+                limit=limit,
+            )
+        except ImportError:
+            return []
+
+    async def check_compliance(
+        self, action: str, context: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Pre-check if an action is compliant."""
+        try:
+            from core.compliance.checker import check_compliance
+
+            return await check_compliance(action=action, context=context or {})
+        except ImportError:
+            return {"compliant": True, "checks": [], "warnings": []}
+
+    async def generate_compliance_report(
+        self, report_type: str = "summary"
+    ) -> dict[str, Any]:
+        """Generate a compliance report."""
+        try:
+            from core.compliance.audit_reporter import generate_report
+
+            return await generate_report(report_type=report_type)
+        except ImportError:
+            return {"error": "reporter_unavailable"}
+
+
+# =============================================================================
+# P2: Reasoning Interface
+# =============================================================================
+
+
+class ReasoningInterface:
+    """Interface to L9 Reasoning - Bayesian and causal inference."""
+
+    def __init__(self, facade: L9Facade):
+        self._facade = facade
+
+    async def probabilistic_query(
+        self, query: str, evidence: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Execute a probabilistic query."""
+        try:
+            from core.bayesian.probabilistic_engine import probabilistic_query
+
+            return await probabilistic_query(query=query, evidence=evidence or {})
+        except ImportError:
+            return {"error": "bayesian_engine_unavailable"}
+
+    async def causal_analysis(
+        self,
+        cause: str,
+        effect: str,
+        context: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Perform causal analysis between two events."""
+        try:
+            from core.reasoning.toth_engine import causal_analysis
+
+            return await causal_analysis(
+                cause=cause, effect=effect, context=context or {}
+            )
+        except ImportError:
+            return {"error": "reasoning_engine_unavailable"}
+
+    async def update_prior(
+        self, belief_id: str, new_evidence: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Update a prior belief with new evidence (Bayesian update)."""
+        try:
+            from core.bayesian.uncertainty import update_prior
+
+            return await update_prior(belief_id=belief_id, evidence=new_evidence)
+        except ImportError:
+            return {"error": "bayesian_update_unavailable"}
+
+
+# =============================================================================
 # L9 Facade Service
 # =============================================================================
 
@@ -95,6 +608,17 @@ class L9Facade:
     requiring deep knowledge of internal subsystems.
 
     This is a singleton service - use get_l9_facade() to obtain instance.
+
+    Interfaces available:
+        - world_model: Entity state and beliefs (P0)
+        - governance: Approvals and permissions (P0)
+        - observability: Tracing and metrics (P0)
+        - tasks: Background job queue (P1)
+        - checkpoints: State persistence (P1)
+        - mcp: External MCP tools/resources (P1)
+        - learning: Feedback and adaptation (P2)
+        - compliance: Audit and regulatory (P2)
+        - reasoning: Bayesian and causal inference (P2)
     """
 
     def __init__(self):
@@ -105,7 +629,71 @@ class L9Facade:
         self._memory_client: Any | None = None
         self._initialized = False
 
-        logger.info("L9Facade initialized")
+        # P0: Core interfaces (Must Have)
+        self._world_model = WorldModelInterface(self)
+        self._governance = GovernanceInterface(self)
+        self._observability = ObservabilityInterface(self)
+
+        # P1: Operational interfaces (Should Have)
+        self._tasks = TaskQueueInterface(self)
+        self._checkpoints = CheckpointsInterface(self)
+        self._mcp = MCPInterface(self)
+
+        # P2: Advanced interfaces (Nice to Have)
+        self._learning = LearningInterface(self)
+        self._compliance = ComplianceInterface(self)
+        self._reasoning = ReasoningInterface(self)
+
+        logger.info("L9Facade initialized with P0/P1/P2 interfaces")
+
+    # =========================================================================
+    # Interface Properties
+    # =========================================================================
+
+    @property
+    def world_model(self) -> WorldModelInterface:
+        """P0: World Model interface - entity state and beliefs."""
+        return self._world_model
+
+    @property
+    def governance(self) -> GovernanceInterface:
+        """P0: Governance interface - approvals and permissions."""
+        return self._governance
+
+    @property
+    def observability(self) -> ObservabilityInterface:
+        """P0: Observability interface - tracing and metrics."""
+        return self._observability
+
+    @property
+    def tasks(self) -> TaskQueueInterface:
+        """P1: Task Queue interface - background jobs."""
+        return self._tasks
+
+    @property
+    def checkpoints(self) -> CheckpointsInterface:
+        """P1: Checkpoints interface - state persistence."""
+        return self._checkpoints
+
+    @property
+    def mcp(self) -> MCPInterface:
+        """P1: MCP interface - external tools/resources."""
+        return self._mcp
+
+    @property
+    def learning(self) -> LearningInterface:
+        """P2: Learning interface - feedback and adaptation."""
+        return self._learning
+
+    @property
+    def compliance(self) -> ComplianceInterface:
+        """P2: Compliance interface - audit and regulatory."""
+        return self._compliance
+
+    @property
+    def reasoning(self) -> ReasoningInterface:
+        """P2: Reasoning interface - Bayesian and causal inference."""
+        return self._reasoning
 
     async def initialize(
         self,

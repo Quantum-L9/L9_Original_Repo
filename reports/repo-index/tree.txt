@@ -7,8 +7,8 @@ L9/
 ├── .gitignore
 ├── .gitleaks.toml
 ├── .gitleaksignore
+├── .gmp_executor_state.json
 ├── .migrations_applied
-├── .pre-commit-config.yaml
 ├── ... (35 more files)
 ├── .backup/
 │   ├── bootstrap-7phase/
@@ -63,6 +63,7 @@ L9/
 ├── .sec/
 │   ├── semgrep.yaml
 ├── .semgrep/
+│   ├── README.md
 │   ├── l9-rules.yaml
 ├── .tmp.drivedownload/
 ├── adapters/
@@ -92,7 +93,6 @@ L9/
 │   │   ├── coder_agent_a.py
 │   │   ├── coder_agent_b.py
 │   ├── cursor/
-│   │   ├── MEMORY_ACCESS.md
 │   │   ├── README.md
 │   │   ├── __init__.py
 │   │   ├── cursor_client.py
@@ -102,7 +102,8 @@ L9/
 │   │   ├── cursor_neo4j_query.py
 │   │   ├── cursor_retrieval_kernel.py
 │   │   ├── cursor_session_hooks.py
-│   │   ├── ... (4 more files)
+│   │   ├── cursor_system_prompt.md
+│   │   ├── ... (3 more files)
 │   │   ├── GMP-v2.0-Perplex-Py-Scripts/
 │   │   ├── docs/
 │   │   ├── extractors/
@@ -162,13 +163,13 @@ L9/
 │   ├── STRICT_MODE.md
 │   ├── __init__.py
 │   ├── check_adr_compliance.py
+│   ├── check_definition_of_done.py
 │   ├── check_dependency_patterns.py
+│   ├── check_global_state.py
 │   ├── check_imports.py
+│   ├── check_memory_bypass.py
 │   ├── check_no_deprecated_services.py
-│   ├── check_packet_type_naming.py
-│   ├── check_schema_deprecation.py
-│   ├── check_substrate_api.py
-│   ├── ... (9 more files)
+│   ├── ... (14 more files)
 │   └── ai_guardrails/
 │       ├── __init__.py
 │       ├── runner.py
@@ -700,39 +701,26 @@ L9/
 │       ├── l9_schema.py
 │       ├── service.py
 ├── deploy/
-│   ├── DEPLOYMENT_GUIDE.md
-│   ├── ci/
-│   │   ├── docker-build.yml
-│   │   ├── k8s-deploy.yml
-│   ├── docker-production/
-│   │   ├── Dockerfile.l9-api
-│   │   ├── Dockerfile.mcp-memory
-│   │   ├── docker-compose.production.yml
-│   ├── helm/
-│   │   └── l9-platform/
+│   ├── c1/
+│   │   ├── Bootstrap.md
+│   │   ├── C1-DEPLOYMENT-PLAN.md
+│   │   ├── C1-DNS-CONFIGURATION.md
+│   │   ├── C1-QUICK-REFERENCE.md
+│   │   ├── MRI-2.md
+│   │   ├── MRI-C1-1.md
+│   │   ├── MRI-Result-1.md
+│   │   ├── README.md
+│   │   ├── c1-firewall-rules.md
+│   │   ├── monitoring/
+│   │   └── scripts/
 │   ├── k8s/
+│   │   ├── K8s-files-to-harvest.md
 │   │   ├── bootstrap-job.yaml
-│   │   └── c1/
-│   ├── nginx/
-│   │   ├── nginx.conf
-│   └── notes/
-│       ├── 1.md
-│       ├── 2.md
-│       ├── C1-DNS-CONFIGURATION.md
-│       ├── MRI-C1-1.md
-│       ├── MRI-C1-2.md
-│       ├── MRI-Results.md
-│       ├── dockerfile locations.md
-│       ├── files-to-harvest.md
-│       ├── nginx.md
-├── dev/
-│   ├── README.md
-│   ├── __init__.py
-│   └── tools/
-│       ├── __init__.py
-│       ├── global_state_audit.py
-├── docker/
-│   ├── prometheus.yml
+│   │   ├── ci/
+│   │   ├── helm/
+│   │   └── manifests/
+│   └── nginx/
+│       ├── nginx.conf
 ├── docs/
 │   ├── AUTO_WIRING_PHASE2_GUIDE.md
 │   ├── CAPABILITY_ENABLING_PATTERN.md
@@ -745,27 +733,10 @@ L9/
 │   ├── GRACEFUL_DEGRADATION_VS_FAIL_LOUDLY.md
 │   ├── L9-Vision-thesis_excerpt.md
 │   ├── ... (7 more files)
-│   ├── architecture/
-│   │   ├── di-container-guide.md
-│   │   ├── migration-checklist.md
-│   │   ├── protocol-catalog.md
-│   ├── audits/
-│   │   ├── AUTOREGISTRY_MIGRATION_AUDIT.md
-│   │   ├── L9_SLACK_INTEGRATION_AUDIT_V3.md
-│   │   ├── LAZY_LOADING_ANALYSIS.md
-│   │   ├── TOOL_EXECUTOR_MIGRATION_COMPLETE.md
-│   └── cursor rules/
-│       ├── 00-global.mdc
-│       ├── 01-vps-rules.mdc
-│       ├── 02-slash-commands.mdc
-│       ├── 03-mcp-memory.mdc
-│       ├── 05-ask-mode.mdc
-│       ├── 10-lang-typescript.mdc
-│       ├── 20-lang-python.mdc
-│       ├── 25-python-dora-header.mdc
-│       ├── 30-framework-react.mdc
-│       ├── 40-domain-autonomy.mdc
-│       ├── ... (23 more files)
+│   └── architecture/
+│       ├── di-container-guide.md
+│       ├── migration-checklist.md
+│       ├── protocol-catalog.md
 ├── domain_tensor_bridge/
 │   ├── README.md
 │   ├── __init__.py
@@ -806,7 +777,6 @@ L9/
 │   ├── parser.py
 │   ├── router.py
 │   ├── triage.py
-├── engines/
 ├── examples/
 │   ├── fastapi_lifespan_di_bootstrap.py
 ├── governance/
@@ -835,7 +805,6 @@ L9/
 ├── langgraph/
 │   ├── README.md
 │   ├── TYPEDDICT_VS_PYDANTIC.md
-├── layers/
 ├── local_dashboard/
 │   ├── README.md
 │   ├── app.py
@@ -856,24 +825,9 @@ L9/
 │       ├── logging.py
 ├── mcp_memory/
 │   ├── .gitignore
-│   ├── Dockerfile
 │   ├── MEMORY_FORMAT.md
 │   ├── QUICK_REFERENCE.md
-│   ├── README.md
 │   ├── bootstrap.sh
-│   ├── requirements.txt
-│   ├── deploy/
-│   │   ├── CADDY_CONFIG.md
-│   │   ├── L9-MCP-IMPL.md
-│   │   ├── VPS_DEPLOYMENT_GUIDE.md
-│   │   └── scripts/
-│   ├── docs/
-│   │   └── adr/
-│   ├── mcp-memory-architecture/
-│   │   ├── ARCHITECTURE.md
-│   │   ├── INSTANTIATION_PLAN.md
-│   │   ├── MEMORY_USAGE_GUIDE.md
-│   │   ├── memory-substrate-setup5-GMP.md
 │   ├── src/
 │   │   ├── __init__.py
 │   │   ├── audit.py
@@ -934,7 +888,7 @@ L9/
 │       ├── packet_validator.py
 ├── memory_cache/
 │   ├── __init__.py
-│   ├── cursor_working_memory_service.py
+│   ├── working_memory_service.py
 ├── migrations/
 │   ├── 0001_init_memory_substrate.sql
 │   ├── 0002_enhance_packet_store.sql
@@ -947,7 +901,6 @@ L9/
 │   ├── 0009_feedback_and_effectiveness.sql
 │   ├── 0010_add_fact_deprecation.sql
 │   ├── ... (21 more files)
-├── modules/
 ├── motifs/
 │   ├── TODO-Motifs.md
 │   ├── __init__.py
@@ -1057,6 +1010,7 @@ L9/
 │       ├── n8_git_mutation.txt
 │       ├── ... (1 more files)
 ├── readme/
+│   ├── 001-modular-monolith-architecture.md
 │   ├── AGENTS-README.md
 │   ├── AGENT_PR_GUIDELINES.md
 │   ├── AI_PR_REVIEW_WORKFLOW.md
@@ -1066,13 +1020,12 @@ L9/
 │   ├── CI-MUTATION-TESTING.md
 │   ├── DEPLOYMENT-PHILOSOPHY.md
 │   ├── DEPLOYMENT_CANONICAL.md
-│   ├── DI_BOOTSTRAP_GUIDE.md
 │   ├── ... (18 more files)
 │   ├── SOLID Principals Framework/
 │   │   ├── SOLID-Pincipals.md
 │   │   ├── Solid Principals Blog.md
 │   ├── adr/
-│   │   ├── 0000-l9-philosophy.md
+│   │   ├── 0000-core-philosophy.md
 │   │   ├── 0001-path-safety.md
 │   │   ├── 0002-circular-import-prevention.md
 │   │   ├── 0003-documentation-standards.md
@@ -1082,7 +1035,7 @@ L9/
 │   │   ├── 0007-seven-phase-bootstrap.md
 │   │   ├── 0008-feature-flag-gating.md
 │   │   ├── 0009-circuit-breaker-resilience.md
-│   │   ├── ... (81 more files)
+│   │   ├── ... (84 more files)
 │   ├── diagrams/
 │   │   ├── 01-memory-substrate.mmd
 │   │   ├── 01-memory-substrate.png
@@ -1102,16 +1055,9 @@ L9/
 │       ├── dora-block-enforcement-contract.md
 ├── reports/
 │   ├── .index_hashes.json
-│   ├── GMP-Report-111-Fix-Pr-23-Python-39-Compatibility-Code-Quality.md
-│   ├── GMP-Report-112-Merge-Pr-24-Fix-Python-39-Compatibility.md
-│   ├── GMP-Report-113-Mutation-Testing-CI-Integration.md
-│   ├── GMP-Report-114-High-Level-Service-Protocols.md
-│   ├── GMP-Report-115-116-Service-Protocol-Implementations.md
-│   ├── GMP-Report-115-PR45-Anti-Pattern-Regression-Tests.md
-│   ├── GMP-Report-116-PR51-Spring-Cleaning-TODO-Tracking.md
-│   ├── GMP-Report-116-PR52-DI-DIP-Three-Track-Refactoring.md
-│   ├── GMP-Report-117-PR-Batch-Analysis-36-46-48-49-50-51-53-54.md
-│   ├── ... (19 more files)
+│   ├── VIOLATION-2026-01-31-noqa-debt.md
+│   ├── WIRE-Report-DuplicatePacketDetection-20260123.md
+│   ├── docstring_quality_comparison.md
 │   ├── architecture/
 │   │   ├── api_route_inventory.txt
 │   │   ├── architecture.txt
@@ -1149,7 +1095,6 @@ L9/
 │       ├── dependencies.txt
 │       ├── ... (25 more files)
 ├── runtime/
-│   ├── Dockerfile
 │   ├── README.md
 │   ├── __init__.py
 │   ├── auth_rate_limiter.py
@@ -1159,7 +1104,8 @@ L9/
 │   ├── execution_gate.py
 │   ├── git_tool.py
 │   ├── gmp_approval.py
-│   ├── ... (25 more files)
+│   ├── gmp_tool.py
+│   ├── ... (24 more files)
 ├── scripts/
 │   ├── 10x_deploy.sh
 │   ├── ORGANIZATION_PROPOSAL.md
@@ -1168,10 +1114,10 @@ L9/
 │   ├── benchmark_caching_and_vector.py
 │   ├── benchmark_performance.py
 │   ├── benchmark_standalone.py
+│   ├── check_compose_env.sh
 │   ├── check_n_plus_1.py
 │   ├── cursor-start-session
-│   ├── dev_layer_compile.sh
-│   ├── ... (19 more files)
+│   ├── ... (24 more files)
 │   ├── agents/
 │   │   ├── neo4j_merge_agent_nodes.py
 │   │   ├── neo4j_unify_relationships.py
@@ -1201,6 +1147,8 @@ L9/
 │   │   ├── setup_s3_bucket.sh
 │   ├── batch/
 │   │   ├── batch_generate_specs.py
+│   ├── ci/
+│   │   ├── add_noqa_to_violations.py
 │   ├── deployment/
 │   │   ├── 10X_Deploy_Script.sh
 │   │   ├── deploy_agent_executor.sh
@@ -1274,6 +1222,8 @@ L9/
 │       ├── init_workspace.py
 │       ├── init_workspace_NEW.py
 │       ├── rename_l_to_l_cto.py
+├── seed/
+│   ├── coding_heuristics.yaml
 ├── services/
 │   ├── __init__.py
 │   ├── mac_tasks.py
@@ -1317,12 +1267,12 @@ L9/
 │   ├── outcome_evaluator.py
 │   ├── scenario_loader.py
 │   ├── simulation_engine.py
-├── specs/
 ├── telemetry/
 │   ├── README.md
 │   ├── __init__.py
 │   ├── calibration_dashboard.py
 │   ├── memory_metrics.py
+│   ├── prometheus.yml
 │   ├── slack_metrics.py
 ├── tests/
 │   ├── __init__.py
@@ -1383,6 +1333,7 @@ L9/
 │   │   ├── test_di_async_config.py
 │   │   ├── test_l_cto_yaml.py
 │   ├── core/
+│   │   ├── __init__.py
 │   │   ├── test_auto_registry.py
 │   │   ├── test_event_type_registry.py
 │   │   ├── test_fail_closed_executor.py
@@ -1461,7 +1412,7 @@ L9/
 │   │   ├── test_checkpoint_retry.py
 │   │   ├── test_consolidation.py
 │   │   ├── test_consolidation_graph.py
-│   │   ├── ... (40 more files)
+│   │   ├── ... (43 more files)
 │   │   ├── consolidation/
 │   │   └── tests/
 │   ├── mocks/
@@ -1619,10 +1570,24 @@ L9/
 ├── workflows/
 │   ├── README.md
 │   ├── __init__.py
+│   ├── gmp_enforcer.py
+│   ├── gmp_executor.py
 │   ├── harvest_deploy.py
+│   ├── harvest_executor.py
+│   ├── lint_fix_executor.py
+│   ├── migrate_executor.py
 │   ├── runner.py
 │   ├── state.py
+│   ├── ... (2 more files)
+│   ├── Dags-Harvest/
+│   │   ├── DAG-Harvest-1.md
+│   │   ├── DAG-Harvest-2.md
+│   │   ├── DAG-Harvest-3.md
+│   │   ├── DAG-Harvest-4.md
+│   │   ├── DAG-Harvest-5.md
+│   │   ├── DAG-Harvest-6-MAKE DAGS.md
 │   ├── defs/
+│   │   ├── gmp-execution.yaml
 │   │   ├── harvest-deploy.yaml
 │   │   ├── readme-pipeline.yaml
 │   │   ├── workflow-template.yaml
@@ -1662,7 +1627,12 @@ L9/
     │   ├── state.py
     │   ├── test_integration.py
     │   ├── updater.py
-    └── nodes/
-        ├── __init__.py
-        ├── service_nodes.py
-        ├── update_world_model_node.py
+    ├── nodes/
+    │   ├── __init__.py
+    │   ├── service_nodes.py
+    │   ├── update_world_model_node.py
+    └── seed/
+        ├── architectural_patterns.yaml
+        ├── coding_heuristics.yaml
+        ├── cross_task_graph.yaml
+        ├── reflection_memory.yaml

@@ -74,16 +74,31 @@ ci/ai_guardrails/runner.py
 ci/check_adr_compliance.py
   Type: Script
   Has __main__ block: Yes
+ci/check_definition_of_done.py
+  Type: Script
+  Has __main__ block: Yes
 ci/check_dependency_patterns.py
   Type: Script
   Has __main__ block: Yes
+ci/check_global_state.py
+  Type: Script
+  Has __main__ block: Yes
 ci/check_imports.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_memory_bypass.py
   Type: Script
   Has __main__ block: Yes
 ci/check_no_deprecated_services.py
   Type: Script
   Has __main__ block: Yes
 ci/check_packet_type_naming.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_protected_files.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_report_naming.py
   Type: Script
   Has __main__ block: Yes
 ci/check_schema_deprecation.py
@@ -189,9 +204,6 @@ core/learning/feedback_collector.py
   Type: Script
   Has __main__ block: Yes
 core/reasoning/toth_engine.py
-  Type: Script
-  Has __main__ block: Yes
-dev/tools/global_state_audit.py
   Type: Script
   Has __main__ block: Yes
 email_agent/oauth_server.py
@@ -309,6 +321,9 @@ scripts/benchmark_performance.py
 scripts/check_n_plus_1.py
   Type: Script
   Has __main__ block: Yes
+scripts/ci/add_noqa_to_violations.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/diagnose_memory_search.py
   Type: Script
   Has __main__ block: Yes
@@ -316,6 +331,9 @@ scripts/extract_code_facts.py
   Type: Script
   Has __main__ block: Yes
 scripts/fix_async_decorators.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/fix_decorator_wraps.py
   Type: Script
   Has __main__ block: Yes
 scripts/fix_logging_to_structlog.py
@@ -417,6 +435,9 @@ scripts/pr_review/gemini_auto_editor.py
 scripts/pr_review/perplexity_reviewer.py
   Type: Script
   Has __main__ block: Yes
+scripts/refactor_dags_location.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/refactoring/aios_validate.py
   Type: Script
   Has __main__ block: Yes
@@ -510,13 +531,40 @@ tools/l9_cli.py
 tools/superpack_reports/main.py
   Type: Script
   Has __main__ block: Yes
+workflows/gmp_enforcer.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/gmp_executor.py
+  Type: Script
+  Has __main__ block: Yes
 workflows/harvest_deploy.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/harvest_executor.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/lint_fix_executor.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/migrate_executor.py
   Type: Script
   Has __main__ block: Yes
 workflows/runner.py
   Type: Script
   Has __main__ block: Yes
+workflows/session/dags/gmp_execution_dag.py
+  Type: Script
+  Has __main__ block: Yes
 workflows/session/dags/harvest_deploy_dag.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/session/dags/wire_dag.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/use_harvest_executor.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/wire_executor.py
   Type: Script
   Has __main__ block: Yes
 world_model/seed_loader.py

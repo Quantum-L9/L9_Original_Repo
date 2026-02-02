@@ -146,11 +146,13 @@ CGMPEngineError::Exception @ agents/codegenagent/c_gmp_engine.py
 CGMPEngineError::Exception @ codegenagent/c_gmp_engine.py
 CacheClient::Protocol @ core/protocols/memory_protocols.py
 CacheClient::Protocol @ tests/unit/di/test_container.py
+CacheDeleteArgs::BaseModel @ mcp_memory/src/models.py
 CacheError::SymbolicComputationError @ _archived/symbolic_computation/exceptions.py
 CacheError::SymbolicComputationError @ codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_exceptions.py
 CacheError::SymbolicComputationError @ services/symbolic_computation/exceptions.py
 CacheGetArgs::BaseModel @ mcp_memory/src/models.py
 CacheGetSessionContextArgs::BaseModel @ mcp_memory/src/models.py
+CacheKeysArgs::BaseModel @ mcp_memory/src/models.py
 CacheMetrics::BaseModel @ memory/warming_models.py
 CacheResponse::BaseModel @ api/memory/cache.py
 CacheSetArgs::BaseModel @ mcp_memory/src/models.py
@@ -329,6 +331,7 @@ DecisionMode::Enum @ current_work/Compiler + Dev Layer/Knowledge Harvester + Com
 DecisionMode::Enum @ current_work/DONE/governance_layers/l_agent_runtime/foresight_engine.py
 DecisionType::str,Enum @ igor/DONE!/audit-memory/memory_governance_patterns.py
 DecisionType::str,Enum @ memory/governance_patterns.py
+DecoratorAnalyzer::NodeVisitor @ scripts/fix_decorator_wraps.py
 DecoratorFix::NamedTuple @ scripts/fix_untyped_decorators.py
 DecoratorWithoutWrapsVisitor::NodeVisitor @ tests/ci/test_adr_enforcement.py
 DeleteExpiredMemoriesArgs::BaseModel @ mcp_memory/src/models.py
@@ -490,7 +493,7 @@ GetRequest::BaseModel @ email_agent/router.py
 GitCommitInput::BaseModel @ core/schemas/l_tools.py
 GitCommitInput::BaseModel @ igor/DONE!/audit-tools/core_schemas_l_tools.py
 GlobalInvariantsAck::BaseModel @ ir_engine/meta_ir.py
-GlobalStateVisitor::NodeVisitor @ dev/tools/global_state_audit.py
+GlobalStateVisitor::NodeVisitor @ ci/check_global_state.py
 GlueConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
 GoalsSpec::BaseModel @ ir_engine/meta_ir.py
 GovernanceBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
@@ -592,6 +595,7 @@ InsightInput::BaseModel @ api/world_model_api.py
 InsightsRequest::BaseModel @ api/world_model_api.py
 InsightsResponse::BaseModel @ api/world_model_api.py
 InsightsResult::BaseModel @ clients/world_model_client.py
+InspectState::BaseModel @ workflows/session/dags/inspect_dag.py
 IntegrationBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 IntegrationModel::BaseModel @ core/codegen/spec/spec_normalizer_v2.py
 IntegrationResult::BaseModel @ core/schemas/research_factory_models.py
@@ -706,7 +710,7 @@ MasterExecutionResult::BaseModel @ orchestrators/pattern/master_orchestrator.py
 MasterKernelData::FlexibleModel @ core/kernels/schemas.py
 MemoryBackendsConfig::BaseModel @ codegen/code-gen-files/glue_resolver.py
 MemoryError::Exception @ current_work/DONE/Phased Upgrades/Stage 1 - Phase 1-6/segments.py
-MemoryEventType::str,Enum @ memory_cache/cursor_working_memory_service.py
+MemoryEventType::str,Enum @ memory_cache/working_memory_service.py
 MemoryExtractor::BaseExtractor @ igor/DONE!/audit-memory/memory_extractor_memory_extractor.py
 MemoryExtractor::BaseExtractor @ memory/extractor/memory_extractor.py
 MemoryHealthTask::BaseModel @ api/vps_executor.py
@@ -956,6 +960,7 @@ RecencyBiasedWindowStrategy::ContextStrategy @ current_work/DONE/Observability/o
 RecoveryAction::str,Enum @ core/observability/failures.py
 RecoveryAction::str,Enum @ current_work/DONE/Observability/observability_failures.py
 RedisConnectionError::CursorSyncError @ agents/codegenagent/cursor_context_sync_engine.py
+RefStatus::str,Enum @ workflows/wire_executor.py
 ReflectRequest::BaseModel @ api/routes/reflection_agent.py
 ReflectResponse::BaseModel @ api/routes/reflection_agent.py
 ReflectionAgent::BaseAgent @ agents/reflection_agent.py
@@ -1157,8 +1162,12 @@ StepResult::TypedDict @ workflows/state.py
 StepStatus::Enum @ workflows/runner.py
 StepStatus::str,Enum @ memory/execution_plan_snapshot.py
 StepStatus::str,Enum @ orchestration/plan_executor.py
+StepStatus::str,Enum @ workflows/gmp_enforcer.py
+StepStatus::str,Enum @ workflows/gmp_executor.py
 StepStatus::str,Enum @ workflows/state.py
+StepStatus::str,Enum @ workflows/wire_executor.py
 StepType::Enum @ workflows/runner.py
+StepType::str,Enum @ workflows/gmp_executor.py
 StrategyCandidate::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
 StrategyCandidate::BaseModel @ memory/strategymemory.py
 StrategyFeedback::BaseModel @ igor/DONE!/Memory - Strategic Memory/Harvested Files/strategymemory_interface.py
@@ -1393,4 +1402,4 @@ WorldModelState::IWorldModelState @ world_model/_pack_staging/state.py
 WorldModelUpdater::IWorldModelUpdater @ current_work/DONE/WORLD_MODEL STUB IMPLEMENTATION/updater.py
 WorldModelUpdater::IWorldModelUpdater @ world_model/_pack_staging/updater.py
 
-# Total: 1389 classes with inheritance
+# Total: 1398 classes with inheritance

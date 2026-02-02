@@ -383,9 +383,9 @@ agents/cursor/cursor_memory_kernel.py::redis_hset(key, field, value, tenant_id) 
 agents/cursor/cursor_memory_kernel.py::redis_key(key, tenant_id) - Generate tenant-prefixed Redis key.
 agents/cursor/cursor_memory_kernel.py::redis_set(key, value, tenant_id, ttl) - Set value in Redis (tenant-isolated).
 agents/cursor/cursor_memory_kernel.py::should_display_todos(self) - Check if TODOs should be displayed based
-agents/cursor/cursor_memory_kernel.py::write_kernel_activation(session_id, kernel_id) - Write kernel activation packet.
-agents/cursor/cursor_memory_kernel.py::write_lesson(title, content, severity, tags) - Write a new lesson to memory.
-agents/cursor/cursor_memory_kernel.py::write_session_todos(session_id, todos) - Write/update session TODOs.
+agents/cursor/cursor_memory_kernel.py::write_kernel_activation(session_id, kernel_id) - Write kernel activation packet via MCP A
+agents/cursor/cursor_memory_kernel.py::write_lesson(title, content, severity, tags) - Write a new lesson to memory via MCP API
+agents/cursor/cursor_memory_kernel.py::write_session_todos(session_id, todos) - Write/update session TODOs via MCP API (
 agents/cursor/cursor_neo4j_query.py::format_results(result) - Format Neo4j results for display.
 agents/cursor/cursor_neo4j_query.py::main() - Performs main execution flow for queryin
 agents/cursor/cursor_neo4j_query.py::query_neo4j(cypher) - Execute a Cypher query against Neo4j.
@@ -590,12 +590,34 @@ ci/check_adr_compliance.py::visit_FunctionDef(self, node) - Check function defin
 ci/check_adr_compliance.py::visit_If(self, node) - Check if statements for TYPE_CHECKING pa
 ci/check_adr_compliance.py::visit_Import(self, node) - Check import statements.
 ci/check_adr_compliance.py::visit_ImportFrom(self, node) - Check from-import statements.
+ci/check_adr_compliance.py::visit_JoinedStr(self, node) - Check f-strings for SQL injection vulner
+ci/check_definition_of_done.py::__init__(self, file, line_num, line, marker, reason) - 
+ci/check_definition_of_done.py::__str__(self) - 
+ci/check_definition_of_done.py::check_auth_healthcheck_consistency(diff_lines) - Check if auth changes have corresponding
+ci/check_definition_of_done.py::check_incomplete_markers(diff_lines) - Check for incomplete markers in diff.
+ci/check_definition_of_done.py::get_diff_lines(base_ref) - Get added lines from git diff.
+ci/check_definition_of_done.py::has_justification(line) - Check if incomplete marker has explicit 
+ci/check_definition_of_done.py::main() - Main entry point.
+ci/check_definition_of_done.py::should_skip_file(filepath) - Check if file should be skipped.
 ci/check_dependency_patterns.py::check_file(filepath) - Check a single file for pattern violatio
 ci/check_dependency_patterns.py::main() - Run the dependency pattern check.
+ci/check_global_state.py::__init__(self, filename) - Initialize visitor with filename.
+ci/check_global_state.py::generic_visit(self, node) - Visit child nodes and set parent referen
+ci/check_global_state.py::iter_python_files() - Iterate over Python files in the reposit
+ci/check_global_state.py::main() - Run global state audit on repository.
+ci/check_global_state.py::visit_Assign(self, node) - Visit assignment node and check for susp
 ci/check_imports.py::check_file(filepath, patterns) - Check a file for missing imports.
 ci/check_imports.py::get_imported_names(tree) - Extract all imported names from AST.
 ci/check_imports.py::get_module_attr_usage(tree) - Find all module.attribute patterns in th
 ci/check_imports.py::main() - Run import checks on L9 codebase.
+ci/check_memory_bypass.py::__init__(self, file, line_num, line, pattern, reason) - 
+ci/check_memory_bypass.py::__str__(self) - 
+ci/check_memory_bypass.py::check_file(filepath) - Check a single file for bypass violation
+ci/check_memory_bypass.py::has_bypass_marker(line) - Check if line has explicit bypass marker
+ci/check_memory_bypass.py::has_file_level_bypass(content) - Check if file has file-level bypass mark
+ci/check_memory_bypass.py::main() - Main entry point.
+ci/check_memory_bypass.py::scan_directory(base_path, scan_dirs) - Scan directories for bypass violations.
+ci/check_memory_bypass.py::should_skip_file(filepath) - Check if file should be skipped based on
 ci/check_no_deprecated_services.py::check_no_deprecated_services() - Check that no deprecated services are re
 ci/check_no_deprecated_services.py::main() - Main entry point.
 ci/check_no_deprecated_services.py::scan_file(file_path) - Scan a single file for forbidden pattern
@@ -605,6 +627,17 @@ ci/check_packet_type_naming.py::find_python_files(root) - Find all Python files 
 ci/check_packet_type_naming.py::is_allowed_usage(line) - Check if the line contains an allowed us
 ci/check_packet_type_naming.py::main() - Main entry point.
 ci/check_packet_type_naming.py::should_skip_path(path) - Check if path should be skipped.
+ci/check_protected_files.py::__init__(self, file, status) - 
+ci/check_protected_files.py::__str__(self) - 
+ci/check_protected_files.py::check_protected_files(changes, commit_msg) - Check if any protected files are modifie
+ci/check_protected_files.py::get_changed_files(base_ref) - Get list of changed files compared to ba
+ci/check_protected_files.py::get_commit_message() - Get the current commit message (HEAD or 
+ci/check_protected_files.py::has_approval_marker(commit_msg) - Check if commit message contains approva
+ci/check_protected_files.py::main() - Main entry point.
+ci/check_report_naming.py::__init__(self, filename, reason) - 
+ci/check_report_naming.py::__str__(self) - 
+ci/check_report_naming.py::check_reports_dir(reports_dir) - Check all files in reports/ for naming v
+ci/check_report_naming.py::main() - Main entry point.
 ci/check_schema_deprecation.py::find_python_files() - Find all Python files in the project.
 ci/check_schema_deprecation.py::get_current_phase() - Determine current enforcement phase base
 ci/check_schema_deprecation.py::get_phase_description(phase) - Get human-readable phase description.
@@ -2706,17 +2739,25 @@ core/testing/test_agent.py::to_dict(self) - Convert to dictionary for memory sto
 core/testing/test_executor.py::__init__(self, use_docker, timeout_seconds, coverage_enabled) - Initialize TestExecutor.
 core/testing/test_executor.py::_parse_pytest_output(self, stdout, stderr, returncode) - Parse pytest output into TestResults.
 core/testing/test_executor.py::to_dict(self) - Convert to dictionary for storage.
-core/testing/test_generator.py::__init__(self, use_llm, llm_client) - Initialize TestGenerator.
+core/testing/test_generator.py::__init__(self, use_llm, llm_client, model, preset, inject_l9_context) - Initialize TestGenerator.
+core/testing/test_generator.py::_create_llm_client(self) - Create OpenAI client for LLM generation.
+core/testing/test_generator.py::_extract_ast_info(self, tree) - Extract structured info from AST for LLM
 core/testing/test_generator.py::_generate_async_flow_test(self, module_name) - Generate an async flow test.
 core/testing/test_generator.py::_generate_class_tests(self, cls, module_name) - Generate tests for a class.
 core/testing/test_generator.py::_generate_dependency_test(self, dependency, module_name) - Generate a dependency integration test.
 core/testing/test_generator.py::_generate_error_handling_test(self, module_name) - Generate an error handling test.
 core/testing/test_generator.py::_generate_function_tests(self, func, module_name) - Generate tests for a function.
 core/testing/test_generator.py::_generate_import_test(self, module_name) - Generate an import test.
+core/testing/test_generator.py::_generate_stub_tests(self, tree, module_name) - Legacy: Generate TODO stub tests (fallba
 core/testing/test_generator.py::_generate_syntax_test(self, code_proposal, module_name) - Generate a basic syntax validation test.
-core/testing/test_generator.py::generate_integration_tests(code_proposal, dependencies, module_name) - Convenience function to generate integra
+core/testing/test_generator.py::_generate_tests_with_llm(self, code, module_name, ast_info, test_type, dependencies) - Generate full test implementations using
+core/testing/test_generator.py::_load_l9_context(self) - Load L9-specific context from ADRs and p
+core/testing/test_generator.py::_strip_markdown(self, code) - Strip markdown code blocks from LLM resp
+core/testing/test_generator.py::generate_complete_test_file(self, code_proposal, module_name, dependencies) - Generate a complete, runnable test file.
+core/testing/test_generator.py::generate_integration_tests(code_proposal, dependencies, module_name, use_llm) - Convenience function to generate integra
 core/testing/test_generator.py::generate_integration_tests(self, code_proposal, dependencies, module_name) - Generate integration tests for a code pr
-core/testing/test_generator.py::generate_unit_tests(code_proposal, module_name) - Convenience function to generate unit te
+core/testing/test_generator.py::generate_test_file(code_proposal, module_name, dependencies, use_llm, preset) - Generate a complete test file for a modu
+core/testing/test_generator.py::generate_unit_tests(code_proposal, module_name, use_llm) - Convenience function to generate unit te
 core/testing/test_generator.py::generate_unit_tests(self, code_proposal, module_name) - Generate unit tests for a code proposal.
 core/tools/agent_self_modify.py::__init__(self, neo4j_driver, substrate_service) - Initializes the AgentSelfModifyTool to e
 core/tools/agent_self_modify.py::create_self_modify_tool(neo4j_driver, substrate_service) - Factory function to create AgentSelfModi
@@ -2773,7 +2814,6 @@ core/tools/registry_adapter.py::get_cache_metrics(self) - Get tool registry cach
 core/tools/registry_adapter.py::get_tool_registry_adapter() - Get a default ExecutorToolRegistry insta
 core/tools/registry_adapter.py::invalidate_cache(self, tool_id) - Invalidate cache entries.
 core/tools/registry_adapter.py::list_tools(self) - List all registered tools.
-core/tools/registry_adapter.py::register_tool(self, tool_id, name, description, executor, tool_type) - Register a new tool.
 core/tools/registry_adapter.py::revoke_tool(self, agent_id, tool_id) - Revoke approval for a tool.
 core/tools/registry_adapter.py::set_governance_engine(self, engine) - Attach a governance engine for policy ev
 core/tools/registry_cache.py::__init__(self, config) - Initialize tool registry cache.
@@ -2791,11 +2831,9 @@ core/tools/registry_cache.py::invalidate_cache(self, tool_id) - Invalidate cache
 core/tools/registry_cache.py::is_expired(self) - Check if entry is expired (TTL).
 core/tools/registry_cache.py::list_tools(self) - List all tools.
 core/tools/registry_cache.py::loader() - Returns a dictionary mapping tool IDs to
-core/tools/registry_cache.py::register_tool(self, tool_id, tool_def) - Register tool and invalidate cache.
 core/tools/registry_cache.py::set(self, key, value) - Set value in cache.
 core/tools/registry_cache.py::to_dict(self) - Export as dict.
 core/tools/registry_cache.py::touch(self) - Update access metadata.
-core/tools/registry_cache.py::unregister_tool(self, tool_id) - Unregister tool and invalidate cache.
 core/tools/registry_cache.py::warm_cache(self, loader) - Warm cache with initial data.
 core/tools/research_tools.py::_get_research_agent() - Load ResearchAgent singleton on first ac
 core/tools/sanitizer.py::__init__(self, config) - Initialize sanitizer with optional confi
@@ -4152,11 +4190,6 @@ data/l9-phase0-to-pr.py::generate_pr_body(self) - Generate PR body from scope.
 data/l9-phase0-to-pr.py::run(self) - Execute full Phase 0 → Draft PR pipeline
 data/l9-phase0-to-pr.py::validate_ci_gates(self) - Run L9 CI gates locally before creating 
 data/l9-phase0-to-pr.py::validate_dora_compliance(self) - Check DORA metadata compliance.
-dev/tools/global_state_audit.py::__init__(self, filename) - Initialize visitor with filename.
-dev/tools/global_state_audit.py::generic_visit(self, node) - Visit child nodes and set parent referen
-dev/tools/global_state_audit.py::iter_python_files() - Iterate over Python files in the reposit
-dev/tools/global_state_audit.py::main() - Run global state audit on repository.
-dev/tools/global_state_audit.py::visit_Assign(self, node) - Visit assignment node and check for susp
 domain_tensor_bridge/agent_controller.py::__init__(self, reasoning_engine, packet_router, governance_bridge) - 
 domain_tensor_bridge/agent_controller.py::_create_blocked_response(self, original_packet, reason) - Create governance-blocked response packe
 domain_tensor_bridge/agent_controller.py::_create_success_response(self, original_packet, result) - Create successful response packet.
@@ -5337,10 +5370,10 @@ memory/warming_service.py::__init__(self, gap_detector, cache, config, graph_cli
 memory/warming_service.py::_format_cache_metrics(self) - Format cache metrics for response.
 memory/warming_service.py::get_service_metrics(self) - Get comprehensive service-level metrics.
 memory/warming_service.py::set_entity_graph(self, entity_graph) - Update the entity graph used for gap det
-memory_cache/cursor_working_memory_service.py::__init__(self, redis_client, default_ttl_hours) - 
-memory_cache/cursor_working_memory_service.py::__post_init__(self) - 
-memory_cache/cursor_working_memory_service.py::_hash_files(self, files) - Deterministic hash of file list for stat
-memory_cache/cursor_working_memory_service.py::_key(self, repo_id, branch) - Consistent Redis key generation.
+memory_cache/working_memory_service.py::__init__(self, redis_client, default_ttl_hours) - 
+memory_cache/working_memory_service.py::__post_init__(self) - 
+memory_cache/working_memory_service.py::_hash_files(self, files) - Deterministic hash of file list for stat
+memory_cache/working_memory_service.py::_key(self, repo_id, branch) - Consistent Redis key generation.
 motifs/motif_feedback_graph.py::__init__(self) - Initialize the motif feedback graph.
 motifs/motif_feedback_graph.py::__len__(self) - Return total number of events.
 motifs/motif_feedback_graph.py::get_event(self, event_id) - Get a specific event by ID.
@@ -5702,7 +5735,7 @@ runtime/mcp_server_registry.py::to_dict(self) - Convert to dictionary.
 runtime/rate_limiter.py::__init__(self, window_seconds, use_redis) - Initialize rate limiter.
 runtime/redis_client.py::__init__(self, host, port, db, password, decode_responses) - Initialize Redis client.
 runtime/redis_client.py::_prefixed_key(self, key, tenant_id) - Create a tenant-prefixed key for multi-t
-runtime/redis_client.py::get_cursor_wmc() - Singleton for Cursor working memory cach
+runtime/redis_client.py::get_wmc() - Singleton for L9 working memory cache.
 runtime/redis_client.py::is_available(self) - Check if Redis is available.
 runtime/response_renderer.py::__init__(self) - Initializes a ResponseBuilder instance w
 runtime/response_renderer.py::_format_confidence(summary) - Format confidence summary section.
@@ -5906,6 +5939,7 @@ scripts/audit/inject_dora_complete.py::_detect_datasources_from_content(self, fi
 scripts/audit/inject_dora_complete.py::_detect_type_from_content(self, file_path, classes) - Detect file type from decorators, base c
 scripts/audit/inject_dora_complete.py::_extract_classes(self, file_path) - Extract class definitions from a Python 
 scripts/audit/inject_dora_complete.py::_extract_dependencies(self, file_path) - Extract import dependencies from file.
+scripts/audit/inject_dora_complete.py::_extract_functions(self, file_path) - Extract top-level function definitions f
 scripts/audit/inject_dora_complete.py::_find_insertion_point(self, content) - Find the correct insertion point for hea
 scripts/audit/inject_dora_complete.py::_find_test_coverage(self, file_path) - Find associated test files and estimate 
 scripts/audit/inject_dora_complete.py::_format_footer_meta(self, footer, header, file_path, classes) - Format Footer Meta block for Python file
@@ -6122,6 +6156,14 @@ scripts/check_n_plus_1.py::visit_Call(self, node) - Visit function call
 scripts/check_n_plus_1.py::visit_For(self, node) - Visit for loop
 scripts/check_n_plus_1.py::visit_ListComp(self, node) - Visit list comprehension
 scripts/check_n_plus_1.py::visit_While(self, node) - Visit while loop
+scripts/ci/add_noqa_to_violations.py::add_noqa_to_line(line, adr) - Add # noqa: ADR-XXXX to end of line if n
+scripts/ci/add_noqa_to_violations.py::fix_file_logging(filepath, dry_run) - Fix logging module violations in a file.
+scripts/ci/add_noqa_to_violations.py::fix_file_print(filepath, dry_run) - Fix print() violations in a file.
+scripts/ci/add_noqa_to_violations.py::fix_file_sql(filepath, dry_run) - Fix f-string SQL violations in a file.
+scripts/ci/add_noqa_to_violations.py::is_allowed_logging(filepath) - Check if file is allowed to use logging 
+scripts/ci/add_noqa_to_violations.py::is_allowed_print(filepath) - Check if file is allowed to use print().
+scripts/ci/add_noqa_to_violations.py::main() - 
+scripts/ci/add_noqa_to_violations.py::should_skip(filepath) - Check if file should be skipped.
 scripts/diagnose_memory_search.py::main() - Performs memory search diagnostics to id
 scripts/diagnose_memory_search.py::mcp_call(tool_name, arguments) - Call MCP tool.
 scripts/extract_code_facts.py::__init__(self, repo_root) - Initializes the CodeFactExtractor with t
@@ -6136,8 +6178,22 @@ scripts/fix_async_decorators.py::find_import_insert_position(lines) - Find the b
 scripts/fix_async_decorators.py::has_import(lines, import_line) - Check if the import already exists.
 scripts/fix_async_decorators.py::main() - Finds Python files with old async decora
 scripts/fix_async_decorators.py::process_file(filepath, dry_run) - Process a single file, removing comments
+scripts/fix_decorator_wraps.py::__init__(self) - 
+scripts/fix_decorator_wraps.py::_check_decorator_pattern(self, node) - Check if this function is a decorator wi
+scripts/fix_decorator_wraps.py::ensure_wraps_import(content) - Ensure 'from functools import wraps' is 
+scripts/fix_decorator_wraps.py::fix_file(filepath, dry_run) - Fix a file by adding @wraps to decorator
+scripts/fix_decorator_wraps.py::main() - Fix all files with decorator violations.
+scripts/fix_decorator_wraps.py::visit_AsyncFunctionDef(self, node) - 
+scripts/fix_decorator_wraps.py::visit_FunctionDef(self, node) - 
 scripts/fix_logging_to_structlog.py::fix_file(filepath, dry_run) - Fix logging to structlog in a single fil
 scripts/fix_logging_to_structlog.py::main() - 
+scripts/fix_test_performance.py::add_fixture_to_test_functions(content) - Add parsed_codebase fixture parameter to
+scripts/fix_test_performance.py::add_precompiled_regex(content) - Add pre-compiled regex patterns at modul
+scripts/fix_test_performance.py::add_usage_comment(content) - Add comment about using parsed_codebase 
+scripts/fix_test_performance.py::check_file_exists(path) - Check if file exists.
+scripts/fix_test_performance.py::fix_file(path, dry_run) - Apply all performance fixes to a test fi
+scripts/fix_test_performance.py::main() - Run the performance fixer.
+scripts/fix_test_performance.py::replace_signature(match) - 
 scripts/fix_timezone_imports.py::file_already_has_timezone(content) - Check if file already imports timezone.
 scripts/fix_timezone_imports.py::file_uses_timezone(content) - Check if file uses timezone (e.g., timez
 scripts/fix_timezone_imports.py::fix_file(filepath, dry_run) - Fix timezone import in a single file.
@@ -6210,13 +6266,6 @@ scripts/memory/index_architecture.py::extract_architecture_from_code(file_path) 
 scripts/memory/index_architecture.py::extract_architecture_from_gmp_reports() - Extract architectural decisions from GMP
 scripts/memory/index_error_patterns.py::extract_error_type(error_message) - Extract error type from error message.
 scripts/memory/index_gmp_reports.py::parse_gmp_report(file_path) - Parse a GMP report markdown file and ext
-scripts/memory/ingest_chat_transcript.py::chunk_messages(messages, max_chars, overlap_messages) - Chunk messages for embedding.
-scripts/memory/ingest_chat_transcript.py::flush_buffer() - Performs flushing of the chat transcript
-scripts/memory/ingest_chat_transcript.py::format_message(m) - Performs formatting of a chat message fo
-scripts/memory/ingest_chat_transcript.py::generate_deterministic_id(identifier) - Generate deterministic UUID from string.
-scripts/memory/ingest_chat_transcript.py::main() - CLI entrypoint.
-scripts/memory/ingest_chat_transcript.py::parse_transcript(content) - Parse chat transcript into messages.
-scripts/memory/ingest_chat_transcript.py::sha256(s) - Generate SHA256 hash of string.
 scripts/memory/ingest_repo_indexes.py::chunk_index_file(content, filename, max_chunk_size) - Chunk an index file into memory-sized pi
 scripts/memory/ingest_repo_indexes.py::compute_file_hash(filepath) - Compute MD5 hash of file content.
 scripts/memory/ingest_repo_indexes.py::has_file_changed(filepath, hash_cache) - Check if file has changed since last ing
@@ -6270,6 +6319,9 @@ scripts/pr_review/perplexity_reviewer.py::generate_audit_report(self, audit) - G
 scripts/pr_review/perplexity_reviewer.py::get_file_content(self, filepath) - Get full file content for deep analysis
 scripts/pr_review/perplexity_reviewer.py::get_pr_diff(self) - Fetch PR diff
 scripts/pr_review/perplexity_reviewer.py::run(self) - Main execution
+scripts/refactor_dags_location.py::find_files_with_pattern(root, pattern, extensions) - Find all files containing pattern.
+scripts/refactor_dags_location.py::main() - 
+scripts/refactor_dags_location.py::update_file_content(filepath, dry_run) - Update file content with replacements. R
 scripts/refactoring/aios_validate.py::__init__(self, filename) - Initialize compliance checker for a file
 scripts/refactoring/aios_validate.py::check_file(self) - Run compliance checks
 scripts/refactoring/aios_validate.py::main() - Performs AIOS compliance validation for 
@@ -6747,14 +6799,14 @@ tests/ci/test_adr_enforcement.py::_check_decorator(self, node) -
 tests/ci/test_adr_enforcement.py::get_python_files(directories) - Get all Python files in specified direct
 tests/ci/test_adr_enforcement.py::is_allowed_exception(file_path, exception_type) - Check if file is in allowed exceptions l
 tests/ci/test_adr_enforcement.py::parse_python_file(file_path) - Parse Python file into AST.
-tests/ci/test_adr_enforcement.py::test_adr_enforcement_summary() - Summary test: Run all ADR enforcement ch
-tests/ci/test_adr_enforcement.py::test_complex_subsystem_access_informational() - Test 14: Detect complex subsystem access
-tests/ci/test_adr_enforcement.py::test_decorator_metadata_preservation() - Test 12: Detect decorators without @wrap
-tests/ci/test_adr_enforcement.py::test_factory_function_naming_informational() - Test 15: Report factory function count (
-tests/ci/test_adr_enforcement.py::test_missing_singleton_registration() - Test 16: Detect classes that should have
-tests/ci/test_adr_enforcement.py::test_no_direct_agent_communication() - Test 13: Detect direct agent-to-agent co
-tests/ci/test_adr_enforcement.py::test_no_manual_singleton_implementation() - Test 11: Detect manual singleton impleme
-tests/ci/test_adr_enforcement.py::test_observer_pattern_opportunity() - Test 17: Detect polling patterns (INFORM
+tests/ci/test_adr_enforcement.py::test_adr_enforcement_summary(parsed_codebase) - Summary test: Run all ADR enforcement ch
+tests/ci/test_adr_enforcement.py::test_complex_subsystem_access_informational(parsed_codebase) - Test 14: Detect complex subsystem access
+tests/ci/test_adr_enforcement.py::test_decorator_metadata_preservation(parsed_codebase) - Test 12: Detect decorators without @wrap
+tests/ci/test_adr_enforcement.py::test_factory_function_naming_informational(parsed_codebase) - Test 15: Report factory function count (
+tests/ci/test_adr_enforcement.py::test_missing_singleton_registration(parsed_codebase) - Test 16: Detect classes that should have
+tests/ci/test_adr_enforcement.py::test_no_direct_agent_communication(parsed_codebase) - Test 13: Detect direct agent-to-agent co
+tests/ci/test_adr_enforcement.py::test_no_manual_singleton_implementation(parsed_codebase) - Test 11: Detect manual singleton impleme
+tests/ci/test_adr_enforcement.py::test_observer_pattern_opportunity(parsed_codebase) - Test 17: Detect polling patterns (INFORM
 tests/ci/test_adr_enforcement.py::visit_AsyncFunctionDef(self, node) - 
 tests/ci/test_adr_enforcement.py::visit_Call(self, node) - 
 tests/ci/test_adr_enforcement.py::visit_ClassDef(self, node) - 
@@ -6771,17 +6823,17 @@ tests/ci/test_anti_patterns.py::__init__(self) -
 tests/ci/test_anti_patterns.py::get_python_files(directories) - Get all Python files in specified direct
 tests/ci/test_anti_patterns.py::is_allowed_exception(file_path, exception_type) - Check if file is in allowed exceptions l
 tests/ci/test_anti_patterns.py::parse_python_file(file_path) - Parse Python file into AST.
-tests/ci/test_anti_patterns.py::test_anti_pattern_summary() - Summary test: Run all anti-pattern check
-tests/ci/test_anti_patterns.py::test_no_bare_except_in_core() - Test 3: Detect bare except blocks.
-tests/ci/test_anti_patterns.py::test_no_frozen_model_mutation() - Test 1: Detect frozen model mutation (GM
-tests/ci/test_anti_patterns.py::test_no_hardcoded_user_paths() - Test 2: Detect hardcoded user paths.
-tests/ci/test_anti_patterns.py::test_no_missing_async_context_managers() - Test 7: Detect missing async context man
-tests/ci/test_anti_patterns.py::test_no_missing_type_hints_in_core() - Test 9: Detect missing type hints in cor
-tests/ci/test_anti_patterns.py::test_no_print_in_core_modules() - Test 4: Detect print() in core modules.
-tests/ci/test_anti_patterns.py::test_no_requests_library() - Test 8: Detect deprecated requests libra
-tests/ci/test_anti_patterns.py::test_no_stdlib_logging_in_core() - Test 5: Detect stdlib logging vs structl
-tests/ci/test_anti_patterns.py::test_no_sync_blocking_in_async() - Test 6: Detect synchronous blocking call
-tests/ci/test_anti_patterns.py::test_no_untracked_todos() - Test 10: Detect TODO/FIXME without ticke
+tests/ci/test_anti_patterns.py::test_anti_pattern_summary(parsed_codebase) - Summary test: Run all anti-pattern check
+tests/ci/test_anti_patterns.py::test_no_bare_except_in_core(parsed_codebase) - Test 3: Detect bare except blocks.
+tests/ci/test_anti_patterns.py::test_no_frozen_model_mutation(parsed_codebase) - Test 1: Detect frozen model mutation (GM
+tests/ci/test_anti_patterns.py::test_no_hardcoded_user_paths(parsed_codebase) - Test 2: Detect hardcoded user paths.
+tests/ci/test_anti_patterns.py::test_no_missing_async_context_managers(parsed_codebase) - Test 7: Detect missing async context man
+tests/ci/test_anti_patterns.py::test_no_missing_type_hints_in_core(parsed_codebase) - Test 9: Detect missing type hints in cor
+tests/ci/test_anti_patterns.py::test_no_print_in_core_modules(parsed_codebase) - Test 4: Detect print() in core modules.
+tests/ci/test_anti_patterns.py::test_no_requests_library(parsed_codebase) - Test 8: Detect deprecated requests libra
+tests/ci/test_anti_patterns.py::test_no_stdlib_logging_in_core(parsed_codebase) - Test 5: Detect stdlib logging vs structl
+tests/ci/test_anti_patterns.py::test_no_sync_blocking_in_async(parsed_codebase) - Test 6: Detect synchronous blocking call
+tests/ci/test_anti_patterns.py::test_no_untracked_todos(parsed_codebase) - Test 10: Detect TODO/FIXME without ticke
 tests/ci/test_anti_patterns.py::visit_AsyncFunctionDef(self, node) - Check async functions too.
 tests/ci/test_anti_patterns.py::visit_AsyncFunctionDef(self, node) - Track when we're inside an async functio
 tests/ci/test_anti_patterns.py::visit_AsyncFunctionDef(self, node) - Track when we're inside an async functio
@@ -6864,6 +6916,8 @@ tests/conftest.py::__init__(self) -
 tests/conftest.py::__init__(self) - 
 tests/conftest.py::__init__(self) - 
 tests/conftest.py::__init__(self) - 
+tests/conftest.py::_get_python_files_for_cache(directories) - Get all Python files in specified direct
+tests/conftest.py::_parse_python_file_for_cache(file_path) - Parse Python file into AST with error ha
 tests/conftest.py::adapter(memory_adapter) - Alias for memory_adapter fixture.
 tests/conftest.py::agent_kernel() - Provide agent kernel config.
 tests/conftest.py::async_postgres_cursor() - Postgres cursor mock returning ivfflat i
@@ -6878,7 +6932,9 @@ tests/conftest.py::large_content() - Provide large content for blob testing.
 tests/conftest.py::memory_adapter() - Provide a mock memory adapter.
 tests/conftest.py::mock_substrate_service() - Shared mock substrate service for memory
 tests/conftest.py::mock_tool_registry() - Shared mock tool registry for orchestrat
+tests/conftest.py::parsed_codebase() - Parse all Python files ONCE per test ses
 tests/conftest.py::postgres_cursor() - Provide a mock PostgreSQL cursor.
+tests/conftest.py::python_files_list() - Get list of all Python files in core mod
 tests/conftest.py::redis() - Provide a mock Redis client.
 tests/conftest.py::sample_checkpoint() - Provide a sample checkpoint for testing.
 tests/conftest.py::sample_packet() - Provide a sample packet for testing.
@@ -7386,7 +7442,9 @@ tests/integration/test_graph_wm_sync.py::test_sync_service_custom_interval() - T
 tests/integration/test_graph_wm_sync.py::test_sync_service_defaults() - Test default configuration.
 tests/integration/test_graph_wm_sync.py::test_sync_service_enabled_override() - Test enabled flag override.
 tests/integration/test_graph_wm_sync.py::test_sync_service_import() - Test that sync service can be imported.
+tests/integration/test_graph_wm_sync.py::test_sync_service_requires_neo4j_driver() - Test that neo4j_driver is required (GMP-
 tests/integration/test_graph_wm_sync.py::test_transform_handles_empty_state() - Test transformation with minimal/empty s
+tests/integration/test_graph_wm_sync.py::test_transform_preserves_actual_data_not_empty() - REGRESSION TEST: Verify attributes are N
 tests/integration/test_graph_wm_sync.py::test_transform_to_wm_entity() - Test transformation from graph state to 
 tests/integration/test_igor_commands.py::mock_agent_executor() - Mock agent executor for testing.
 tests/integration/test_igor_commands.py::mock_substrate() - Mock substrate service for testing.
@@ -7738,6 +7796,20 @@ tests/memory/test_embedding_filter.py::test_skip_exact_error_patterns(self) - Kn
 tests/memory/test_embedding_filter.py::test_skip_patterns_are_strings(self) - All skip patterns should be non-empty st
 tests/memory/test_embedding_filter.py::test_skip_patterns_list_not_empty(self) - SKIP_EMBEDDING_PATTERNS should contain p
 tests/memory/test_embedding_filter.py::test_skip_very_short_content(self) - Content under 10 chars should be skipped
+tests/memory/test_enrichment_dag.py::default_config() - Default EnrichmentConfig for tests.
+tests/memory/test_enrichment_dag.py::enrichment_dag(mock_repository, mock_semantic_service, mock_saga_executor, default_config) - EnrichmentDAG instance with mocked depen
+tests/memory/test_enrichment_dag.py::mock_repository() - Mock SubstrateRepository.
+tests/memory/test_enrichment_dag.py::mock_saga_executor() - Mock SagaExecutor.
+tests/memory/test_enrichment_dag.py::mock_semantic_service() - Mock SemanticService.
+tests/memory/test_enrichment_dag.py::sample_envelope() - Sample PacketEnvelope for testing.
+tests/memory/test_enrichment_dag.py::test_config_custom_values(self) - Test EnrichmentConfig with custom values
+tests/memory/test_enrichment_dag.py::test_config_default_values(self) - Test EnrichmentConfig default values.
+tests/memory/test_enrichment_dag.py::test_dag_instantiation(self, mock_repository, mock_semantic_service) - Test EnrichmentDAG can be instantiated.
+tests/memory/test_enrichment_dag.py::test_dag_with_custom_config(self, mock_repository, mock_semantic_service) - Test EnrichmentDAG with custom config.
+tests/memory/test_enrichment_dag.py::test_enrichment_status_values(self) - Test EnrichmentStatus enum values.
+tests/memory/test_enrichment_dag.py::test_enrichment_tier_values(self) - Test EnrichmentTier enum values.
+tests/memory/test_enrichment_dag.py::test_result_to_packet_result_failure(self) - Test EnrichmentResult.to_packet_result f
+tests/memory/test_enrichment_dag.py::test_result_to_packet_result_success(self) - Test EnrichmentResult.to_packet_result f
 tests/memory/test_frontier_memory_pipeline.py::test_active_encoder_initialization(self) - Test ActiveMemoryEncoder can be instanti
 tests/memory/test_frontier_memory_pipeline.py::test_determine_retrieval_strategy_identity(self) - Test determine_retrieval_strategy for id
 tests/memory/test_frontier_memory_pipeline.py::test_determine_retrieval_strategy_temporal(self) - Test determine_retrieval_strategy for te
@@ -7994,6 +8066,13 @@ tests/memory/test_strategy_memory.py::test_compute_tag_similarity_partial_match(
 tests/memory/test_strategy_memory.py::test_create_neo4j_strategy_memory(self, mock_neo4j_client) - Factory should create configured service
 tests/memory/test_strategy_memory.py::test_neo4j_implements_interface(self, mock_neo4j_client) - Neo4j implementation should implement IS
 tests/memory/test_strategy_memory.py::test_stub_implements_interface(self) - Stub implementation should implement ISt
+tests/memory/test_substrate_dag.py::test_default_state() - Test _default_state function returns the
+tests/memory/test_substrate_dag.py::test_get_config_dependency_with_empty_config() - Test _get_config_dependency with empty c
+tests/memory/test_substrate_dag.py::test_get_config_dependency_with_invalid_key() - Test _get_config_dependency with invalid
+tests/memory/test_substrate_dag.py::test_get_config_dependency_with_none() - Test _get_config_dependency with None co
+tests/memory/test_substrate_dag.py::test_get_config_dependency_with_valid_key() - Test _get_config_dependency with valid k
+tests/memory/test_substrate_dag.py::test_should_skip_embedding(text, expected) - Test _should_skip_embedding function for
+tests/memory/test_substrate_dag.py::test_substrate_graph_state() - Test instantiation of SubstrateGraphStat
 tests/memory/test_substrate_dag_native.py::make_mock_repository() - Create a mock repository with async meth
 tests/memory/test_substrate_dag_native.py::make_mock_semantic_service() - Create a mock semantic service.
 tests/memory/test_substrate_dag_native.py::make_mock_world_model_service() - Create a mock world model service.
@@ -8023,6 +8102,16 @@ tests/memory/test_substrate_dag_native.py::test_with_valid_config(self) - Config
 tests/memory/test_substrate_semantic.py::mock_batch_response(self) - Create a mock OpenAI batch embedding res
 tests/memory/test_substrate_semantic.py::mock_embedding_response(self) - Create a mock OpenAI embedding response.
 tests/memory/test_substrate_semantic.py::provider(self) - Create provider with short backoff for f
+tests/memory/test_substrate_service.py::mock_embedding_provider() - 
+tests/memory/test_substrate_service.py::mock_repository() - 
+tests/memory/test_substrate_service.py::service(mock_repository, mock_embedding_provider) - 
+tests/memory/test_substrate_service.py::test_memory_substrate_service_initialization_with_stub_provider(mock_repository) - 
+tests/memory/test_substrate_service.py::test_memory_substrate_service_initialization_with_valid_provider(mock_repository, mock_embedding_provider) - 
+tests/memory/test_substrate_service.py::test_memory_substrate_service_initialization_without_embedding_provider(mock_repository) - 
+tests/memory/test_substrate_service.py::test_require_rls_context_missing_org_id(service) - 
+tests/memory/test_substrate_service.py::test_require_rls_context_missing_tenant_id(service) - 
+tests/memory/test_substrate_service.py::test_require_rls_context_missing_user_id(service) - 
+tests/memory/test_substrate_service.py::test_require_rls_context_valid(service) - 
 tests/memory/test_tool_audit.py::test_all_exports(self) - Contract: __all__ contains expected expo
 tests/memory/test_tool_audit.py::test_exports_log_tool_invocation(self) - Contract: log_tool_invocation is exporte
 tests/memory/test_tool_audit.py::test_exports_ttl_constant(self) - Contract: TOOL_AUDIT_TTL_HOURS is export
@@ -9521,12 +9610,107 @@ workers/violation_tracker_service.py::create_violation_tracker_service(pattern_m
 workers/violation_tracker_service.py::get_all_violation_counts(self) - Get all violation counts.
 workers/violation_tracker_service.py::get_violation_count(self, lesson_id) - Get current violation count for a lesson
 workers/violation_tracker_service.py::reset_violation_count(self, lesson_id) - Reset violation count for a lesson (afte
+workflows/gmp_enforcer.py::__init__(self, working_dir) - Initialize enforcer.
+workflows/gmp_enforcer.py::_load_state(self) - Load state from file.
+workflows/gmp_enforcer.py::_save_state(self) - Save state to file.
+workflows/gmp_enforcer.py::complete_step(self, step_id, output) - Mark a step as complete.
+workflows/gmp_enforcer.py::from_dict(cls, data) - Create from dict.
+workflows/gmp_enforcer.py::initialize(self, gmp_id, tier, task_description) - Initialize a new GMP execution.
+workflows/gmp_enforcer.py::main() - CLI entry point.
+workflows/gmp_enforcer.py::next_step(self) - Get prompt for next required step.
+workflows/gmp_enforcer.py::reset(self) - Reset workflow state.
+workflows/gmp_enforcer.py::status(self) - Print current status.
+workflows/gmp_enforcer.py::to_dict(self) - Convert to serializable dict.
+workflows/gmp_executor.py::__init__(self) - 
+workflows/gmp_executor.py::_clear_state(self) - 
+workflows/gmp_executor.py::_generate_simple_readme(self, dir_path, readme_path) - Generate a simple README for a directory
+workflows/gmp_executor.py::_get_step_executor(self, step) - Get the executor function for a step.
+workflows/gmp_executor.py::_load_state(self) - 
+workflows/gmp_executor.py::_next_step(self) - Get the next step to execute.
+workflows/gmp_executor.py::_print_header(self, title) - 
+workflows/gmp_executor.py::_print_step(self, step, status) - 
+workflows/gmp_executor.py::_run_shell(self, cmd, capture) - Run shell command.
+workflows/gmp_executor.py::_save_state(self) - 
+workflows/gmp_executor.py::_step_baseline(self) - 
+workflows/gmp_executor.py::_step_commit_gate(self) - 
+workflows/gmp_executor.py::_step_generate_readme(self) - Generate README for new modules.
+workflows/gmp_executor.py::_step_generate_report(self) - 
+workflows/gmp_executor.py::_step_generate_tests(self) - Generate tests for new/modified Python f
+workflows/gmp_executor.py::_step_implement(self) - 
+workflows/gmp_executor.py::_step_memory_read(self) - 
+workflows/gmp_executor.py::_step_memory_write(self) - 
+workflows/gmp_executor.py::_step_scope_lock(self) - 
+workflows/gmp_executor.py::_step_user_gate(self) - 
+workflows/gmp_executor.py::_step_validate(self) - 
+workflows/gmp_executor.py::from_dict(cls, d) - 
+workflows/gmp_executor.py::main() - 
+workflows/gmp_executor.py::run(self, task, tier, resume) - Execute the GMP DAG.
+workflows/gmp_executor.py::status(self) - Show current status.
+workflows/gmp_executor.py::to_dict(self) - 
 workflows/harvest_deploy.py::_parse_args() - Parse CLI arguments.
 workflows/harvest_deploy.py::create_harvest_deploy_graph() - Create the Harvest-Deploy workflow graph
 workflows/harvest_deploy.py::route_after_deploy(state) - Route after deploy: inject if needed, el
 workflows/harvest_deploy.py::route_after_extract(state) - Route after extraction: deploy if succes
 workflows/harvest_deploy.py::route_after_inject(state) - Route after inject: validate if successf
 workflows/harvest_deploy.py::route_after_validate(state) - Route after validate: always go to repor
+workflows/harvest_executor.py::__init__(self) - 
+workflows/harvest_executor.py::_clear_state(self) - 
+workflows/harvest_executor.py::_load_state(self) - 
+workflows/harvest_executor.py::_print_header(self, title) - 
+workflows/harvest_executor.py::_run_shell(self, cmd, capture) - Run shell command.
+workflows/harvest_executor.py::_save_state(self) - 
+workflows/harvest_executor.py::_step_commit(self) - 
+workflows/harvest_executor.py::_step_create_harvest_table(self) - 
+workflows/harvest_executor.py::_step_extract_files(self) - 
+workflows/harvest_executor.py::_step_generate_report(self) - 
+workflows/harvest_executor.py::_step_parse_code_blocks(self) - 
+workflows/harvest_executor.py::_step_read_document(self) - 
+workflows/harvest_executor.py::_step_validate_syntax(self) - 
+workflows/harvest_executor.py::from_dict(cls, d) - 
+workflows/harvest_executor.py::main() - 
+workflows/harvest_executor.py::run(self, source_document, resume) - Execute the /harvest DAG — fully autonom
+workflows/harvest_executor.py::status(self) - Show current status.
+workflows/harvest_executor.py::to_dict(self) - 
+workflows/lint_fix_executor.py::__init__(self) - 
+workflows/lint_fix_executor.py::_clear_state(self) - 
+workflows/lint_fix_executor.py::_load_state(self) - 
+workflows/lint_fix_executor.py::_parse_ruff_output(self, output) - Parse ruff output into structured errors
+workflows/lint_fix_executor.py::_print_header(self, title) - 
+workflows/lint_fix_executor.py::_run_shell(self, cmd, capture) - Run shell command.
+workflows/lint_fix_executor.py::_save_state(self) - 
+workflows/lint_fix_executor.py::_step_apply_auto_fixes(self) - 
+workflows/lint_fix_executor.py::_step_apply_semi_fixes(self) - 
+workflows/lint_fix_executor.py::_step_categorize(self) - 
+workflows/lint_fix_executor.py::_step_commit(self) - 
+workflows/lint_fix_executor.py::_step_generate_report(self) - 
+workflows/lint_fix_executor.py::_step_rescan(self) - 
+workflows/lint_fix_executor.py::_step_scan_errors(self) - 
+workflows/lint_fix_executor.py::_step_validate(self) - 
+workflows/lint_fix_executor.py::from_dict(cls, d) - 
+workflows/lint_fix_executor.py::main() - 
+workflows/lint_fix_executor.py::run(self, target_codes, resume) - Execute the /lint-fix DAG — fully autono
+workflows/lint_fix_executor.py::status(self) - Show current status.
+workflows/lint_fix_executor.py::to_dict(self) - 
+workflows/migrate_executor.py::__init__(self) - 
+workflows/migrate_executor.py::_clear_state(self) - 
+workflows/migrate_executor.py::_load_state(self) - 
+workflows/migrate_executor.py::_print_header(self, title) - 
+workflows/migrate_executor.py::_run_shell(self, cmd, capture) - Run shell command.
+workflows/migrate_executor.py::_save_state(self) - 
+workflows/migrate_executor.py::_step_apply_changes(self) - 
+workflows/migrate_executor.py::_step_batch_generate(self) - 
+workflows/migrate_executor.py::_step_commit(self) - 
+workflows/migrate_executor.py::_step_confirm_wiring(self) - 
+workflows/migrate_executor.py::_step_generate_report(self) - 
+workflows/migrate_executor.py::_step_index_analysis(self) - 
+workflows/migrate_executor.py::_step_pattern_extract(self) - 
+workflows/migrate_executor.py::_step_validate(self) - 
+workflows/migrate_executor.py::_step_wire_refs(self) - 
+workflows/migrate_executor.py::from_dict(cls, d) - 
+workflows/migrate_executor.py::main() - 
+workflows/migrate_executor.py::run(self, old_pattern, new_pattern, resume) - Execute the /migrate DAG — fully autonom
+workflows/migrate_executor.py::status(self) - Show current status.
+workflows/migrate_executor.py::to_dict(self) - 
 workflows/nodes/validate.py::_auto_generate_checks(state) - Auto-generate validation checks from dep
 workflows/runner.py::__init__(self, workflow_path, working_dir) - Initializes a DAGRunner instance for exe
 workflows/runner.py::__init__(self, working_dir, variables) - Initialize step executor with working di
@@ -9552,9 +9736,15 @@ workflows/runner.py::replacer(match) - Replace variable placeholder with value.
 workflows/runner.py::run(self, resume) - Execute the workflow DAG.
 workflows/runner.py::validate(self) - Validate workflow definition.
 workflows/runner.py::visit(step_id) - Performs a depth-first traversal of work
+workflows/session/dags/dag_authoring_dag.py::register() - Register the DAG authoring DAG.
+workflows/session/dags/gmp_execution_dag.py::get_gmp_execution_dag() - Get the GMP execution DAG.
 workflows/session/dags/harvest_deploy_dag.py::get_harvest_deploy_dag() - Get the harvest-deploy DAG.
+workflows/session/dags/inspect_dag.py::build_inspect_graph() - Build and compile the inspect graph.
 workflows/session/dags/readme_pipeline_dag.py::register() - Register the README pipeline DAG.
 workflows/session/dags/refactoring_dag.py::get_refactoring_dag() - Get the refactoring DAG.
+workflows/session/dags/slash_command_update_dag.py::register() - Register the slash command update DAG.
+workflows/session/dags/test_pipeline_dag.py::get_test_pipeline_dag() - Get the test pipeline DAG.
+workflows/session/dags/wire_dag.py::get_wire_dag() - Get the wire DAG.
 workflows/session/interface.py::__post_init__(self) - Builds lookup structures for efficient n
 workflows/session/interface.py::__post_init__(self) - Performs post-initialization setup for S
 workflows/session/interface.py::_get_mermaid_shape(self, node_type) - Get Mermaid shape brackets for node type
@@ -9579,6 +9769,44 @@ workflows/state.py::create_initial_state(workflow_id, source_document, harvest_d
 workflows/state.py::merge_artifacts(existing, new) - Reducer: Merge artifact dictionaries.
 workflows/state.py::merge_files(existing, new) - Reducer: Append files (deduplicated).
 workflows/state.py::merge_results(existing, new) - Reducer: Append new results to existing.
+workflows/use_harvest_executor.py::__init__(self) - 
+workflows/use_harvest_executor.py::_clear_state(self) - 
+workflows/use_harvest_executor.py::_load_state(self) - 
+workflows/use_harvest_executor.py::_print_header(self, title) - 
+workflows/use_harvest_executor.py::_run_shell(self, cmd, capture) - Run shell command.
+workflows/use_harvest_executor.py::_save_state(self) - 
+workflows/use_harvest_executor.py::_step_commit(self) - 
+workflows/use_harvest_executor.py::_step_deploy_files(self) - 
+workflows/use_harvest_executor.py::_step_generate_report(self) - 
+workflows/use_harvest_executor.py::_step_read_harvest_table(self) - 
+workflows/use_harvest_executor.py::_step_validate_syntax(self) - 
+workflows/use_harvest_executor.py::_step_verify_targets(self) - 
+workflows/use_harvest_executor.py::_step_wire_imports(self) - 
+workflows/use_harvest_executor.py::from_dict(cls, d) - 
+workflows/use_harvest_executor.py::main() - 
+workflows/use_harvest_executor.py::run(self, harvest_dir, resume) - Execute the /use-harvest DAG — fully aut
+workflows/use_harvest_executor.py::status(self) - Show current status.
+workflows/use_harvest_executor.py::to_dict(self) - 
+workflows/wire_executor.py::__init__(self) - 
+workflows/wire_executor.py::_clear_state(self) - 
+workflows/wire_executor.py::_load_state(self) - 
+workflows/wire_executor.py::_print_header(self, title) - 
+workflows/wire_executor.py::_run_shell(self, cmd, capture) - Run shell command.
+workflows/wire_executor.py::_save_state(self) - 
+workflows/wire_executor.py::_step_analysis(self) - 
+workflows/wire_executor.py::_step_commit(self) - 
+workflows/wire_executor.py::_step_confirm_wiring(self) - 
+workflows/wire_executor.py::_step_discovery(self) - 
+workflows/wire_executor.py::_step_execute(self) - 
+workflows/wire_executor.py::_step_generate_report(self) - 
+workflows/wire_executor.py::_step_plan(self) - 
+workflows/wire_executor.py::_step_re_discovery(self) - 
+workflows/wire_executor.py::_step_validate(self) - 
+workflows/wire_executor.py::from_dict(cls, d) - 
+workflows/wire_executor.py::main() - 
+workflows/wire_executor.py::run(self, component, resume) - Execute the /wire DAG — fully autonomous
+workflows/wire_executor.py::status(self) - Show current status.
+workflows/wire_executor.py::to_dict(self) - 
 world_model/_pack_staging/loader.py::_deep_merge(base, overlay) - Deep merge two dicts (overlay overwrites
 world_model/_pack_staging/loader.py::load_causal_graph(path) - Load causal graph from YAML.
 world_model/_pack_staging/loader.py::load_causal_structure(data) - Load causal graph structure from YAML.

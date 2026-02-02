@@ -178,6 +178,7 @@
   agents.coder_agent.coder_agent_a
   agents.coder_agent.coder_agent_b
   agents.cursor.cursor_client
+  agents.cursor.cursor_memory_client
   agents.cursor.cursor_memory_kernel
   agents.cursor.gmp_meta_learning
   agents.cursor.integrations.cursor_gateway
@@ -408,6 +409,7 @@
   core.services.new_service
   core.singleton_auto_registry
   core.singleton_registry
+  core.testing
   core.testing.test_agent
   core.testing.test_executor
   core.testing.test_generator
@@ -615,7 +617,7 @@
   memory.warming_models
   memory.warming_service
 # memory_cache
-  memory_cache.cursor_working_memory_service
+  memory_cache.working_memory_service
 # memory_substrate
   memory_substrate.repository
   memory_substrate.service
@@ -694,8 +696,6 @@
   phase_4_scalability
 # phase_5_governance
   phase_5_governance
-# pickle
-  pickle
 # pkgutil
   pkgutil
 # platform
@@ -871,6 +871,7 @@
   tools.adr.adr_generator
   tools.adr.adr_indexer
   tools.adr.adr_validator
+  tools.codegen.test_generator
   tools.superpack_reports.ast_scanner
 # torch
   torch
@@ -917,9 +918,17 @@
   workflows.nodes.report
   workflows.nodes.validate
   workflows.session
+  workflows.session.dags
+  workflows.session.dags.dag_authoring_dag
+  workflows.session.dags.gmp_execution_dag
   workflows.session.dags.harvest_deploy_dag
+  workflows.session.dags.inspect_dag
+  workflows.session.dags.new_dag
   workflows.session.dags.readme_pipeline_dag
   workflows.session.dags.refactoring_dag
+  workflows.session.dags.slash_command_update_dag
+  workflows.session.dags.test_pipeline_dag
+  workflows.session.dags.wire_dag
   workflows.session.interface
   workflows.session.registry
   workflows.state

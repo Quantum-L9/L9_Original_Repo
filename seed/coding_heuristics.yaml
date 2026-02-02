@@ -1,0 +1,425 @@
+# L9 Coding Heuristics Library
+# ============================
+# Seed file for World Model - loaded at startup
+# These heuristics guide code quality and review decisions
+#
+# Version: 1.0.0
+# Last Updated: 2026-02-02
+
+type: coding_heuristics_library
+version: "1.0"
+metadata:
+  source: "L9 Cursor Rules and ADRs"
+  domain: "python_fastapi_async"
+  governance_level: "high"
+
+heuristics:
+  # =========================================================================
+  # Error Handling
+  # =========================================================================
+
+  - id: no_bare_except
+    rule: "Never use bare except: or except Exception:"
+    severity: critical
+    category: "error_handling"
+    description: |
+      All exception handling must catch specific exception types.
+      Bare except catches SystemExit and KeyboardInterrupt, hiding
+      real errors. Always catch known types and let unknown propagate.
+    example_good: |
+      try:
+          result = risky_operation()
+      except ValueError as exc:
+          logger.error("Invalid value", exc_info=True)
+          raise DomainValidationError("Invalid value") from exc
+      except TimeoutError as exc:
+          logger.warning("Operation timed out", exc_info=True)
+          raise
+    example_bad: |
+      try:
+          result = risky_operation()
+      except:
+          return None  # Swallows ALL errors including KeyboardInterrupt
+    auto_fix_strategy:
+      - "Identify specific exceptions that can be raised"
+      - "Add explicit except clauses for each"
+      - "Re-raise or transform to domain exception"
+    related_patterns:
+      - "packet_envelope"
+
+  - id: explicit_error_types
+    rule: "Define custom exceptions for each domain"
+    severity: high
+    category: "error_handling"
+    description: |
+      Create domain-specific exception classes rather than using
+      generic Exception. This enables precise error handling and
+      better error messages for users.
+    example_good: |
+      class MemoryIngestionError(Exception):
+          """Raised when packet ingestion fails."""
+          pass
+      
+      class ApprovalRequiredError(Exception):
+          """Raised when operation requires Igor approval."""
+          pass
+    example_bad: |
+      raise Exception("Something went wrong")  # Generic, unhelpful
+    auto_fix_strategy:
+      - "Create exception class in module's exceptions.py"
+      - "Include descriptive docstring"
+      - "Add error code if applicable"
+    related_patterns:
+      - "packet_envelope"
+
+  - id: error_packet_emission
+    rule: "Every error emits a PacketEnvelope with recovery action"
+    severity: high
+    category: "error_handling"
+    description: |
+      When an error occurs, emit a packet with kind=FAILURE that
+      includes root cause, stack trace, and proposed recovery action
+      (retry, escalate, rollback, skip).
+    example_good: |
+      except ToolExecutionError as e:
+          await emit_packet(
+              kind="FAILURE",
+              payload={
+                  "error": str(e),
+                  "recovery_action": "retry",
+                  "max_retries": 3,
+              },
+              metadata={"stack_trace": traceback.format_exc()},
+          )
+    example_bad: |
+      except Exception as e:
+          logger.error(f"Error: {e}")  # No packet, no recovery action
+    auto_fix_strategy:
+      - "Wrap error handling with packet emission"
+      - "Include recovery_action field"
+      - "Log stack trace in metadata"
+    related_patterns:
+      - "packet_envelope"
+
+  # =========================================================================
+  # Async Patterns
+  # =========================================================================
+
+  - id: all_io_async
+    rule: "All I/O operations must use async/await"
+    severity: critical
+    category: "async"
+    description: |
+      HTTP, database, Redis, file I/O - all must be async. Never use
+      blocking calls like requests.get() or time.sleep() in async
+      functions. Use httpx, aiofiles, asyncio.sleep() instead.
+    example_good: |
+      async def fetch_data(url: str) -> dict:
+          async with httpx.AsyncClient() as client:
+              response = await client.get(url, timeout=30.0)
+              return response.json()
+    example_bad: |
+      async def fetch_data(url: str) -> dict:
+          response = requests.get(url)  # BLOCKS event loop!
+          return response.json()
+    auto_fix_strategy:
+      - "Replace requests with httpx"
+      - "Replace time.sleep with asyncio.sleep"
+      - "Replace open() with aiofiles.open()"
+    related_patterns:
+      - "websocket_orchestrator"
+
+  - id: explicit_timeouts
+    rule: "All external calls must have explicit timeouts"
+    severity: critical
+    category: "async"
+    description: |
+      Every HTTP request, database query, and external service call
+      must have a timeout. Default is 30s for HTTP, 60s for agent
+      calls. Use asyncio.wait_for() to wrap awaits with timeout.
+    example_good: |
+      async with httpx.AsyncClient(timeout=30.0) as client:
+          response = await client.get(url)
+      
+      # Or with asyncio
+      result = await asyncio.wait_for(
+          external_service.call(),
+          timeout=30.0
+      )
+    example_bad: |
+      # No timeout - can hang forever
+      response = await client.get(url)
+    auto_fix_strategy:
+      - "Add timeout parameter to HTTP client"
+      - "Wrap awaits with asyncio.wait_for()"
+      - "Use 30s for HTTP, 60s for agent calls"
+    related_patterns:
+      - "graceful_degradation"
+
+  - id: async_context_managers
+    rule: "Use async context managers for resource cleanup"
+    severity: high
+    category: "async"
+    description: |
+      All resource acquisition uses async with for automatic cleanup.
+      Database connections, HTTP clients, file handles all need
+      proper lifecycle management.
+    example_good: |
+      async with db.pool.acquire() as conn:
+          result = await conn.fetch(query)
+      
+      async with aiofiles.open(path) as f:
+          content = await f.read()
+    example_bad: |
+      conn = await db.pool.acquire()
+      result = await conn.fetch(query)
+      # Connection never released if exception occurs!
+    auto_fix_strategy:
+      - "Convert to async with pattern"
+      - "Move cleanup to finally block if context manager not available"
+    related_patterns:
+      - "memory_substrate"
+
+  # =========================================================================
+  # Type Safety
+  # =========================================================================
+
+  - id: type_annotations_required
+    rule: "All function signatures must have type annotations"
+    severity: high
+    category: "type_safety"
+    description: |
+      Include parameter types and return type on all functions.
+      Use Optional[T] or T | None for nullable types. No untyped
+      parameters or return values.
+    example_good: |
+      async def process_packet(
+          packet: PacketEnvelope,
+          options: dict[str, Any] | None = None,
+      ) -> ProcessingResult:
+          ...
+    example_bad: |
+      async def process_packet(packet, options=None):
+          ...  # No types - mypy can't help
+    auto_fix_strategy:
+      - "Add parameter type annotations"
+      - "Add return type annotation"
+      - "Run mypy to verify"
+    related_patterns: []
+
+  - id: type_checking_imports
+    rule: "Use TYPE_CHECKING for circular import prevention"
+    severity: high
+    category: "type_safety"
+    description: |
+      When imports are needed only for type hints, use
+      if TYPE_CHECKING block. This prevents circular imports
+      at runtime while preserving type information for mypy.
+    example_good: |
+      from typing import TYPE_CHECKING
+      
+      if TYPE_CHECKING:
+          from memory.substrate_service import MemorySubstrateService
+      
+      def process(substrate: "MemorySubstrateService") -> None:
+          ...
+    example_bad: |
+      from memory.substrate_service import MemorySubstrateService
+      # May cause circular import if substrate_service imports this module
+    auto_fix_strategy:
+      - "Move import into TYPE_CHECKING block"
+      - "Use string annotation for the type"
+    related_patterns: []
+
+  # =========================================================================
+  # Logging
+  # =========================================================================
+
+  - id: use_structlog
+    rule: "Use structlog, not standard logging module"
+    severity: high
+    category: "logging"
+    description: |
+      All logging must use structlog for structured JSON output.
+      Include context (agent_id, task_id, thread_id) in every log.
+      Never use print() for logging.
+    example_good: |
+      import structlog
+      logger = structlog.get_logger(__name__)
+      
+      logger.info(
+          "Packet processed",
+          packet_id=str(packet.id),
+          agent_id=agent_id,
+          duration_ms=elapsed,
+      )
+    example_bad: |
+      import logging
+      logger = logging.getLogger(__name__)
+      logger.info(f"Packet {packet.id} processed")  # Not structured
+      
+      print(f"Debug: {value}")  # Never use print
+    auto_fix_strategy:
+      - "Replace logging import with structlog"
+      - "Convert f-string messages to structured kwargs"
+      - "Add context fields (agent_id, task_id)"
+    related_patterns:
+      - "structured_logging"
+      - "packet_envelope"
+
+  # =========================================================================
+  # Security
+  # =========================================================================
+
+  - id: parameterized_queries
+    rule: "Always use parameterized queries for SQL"
+    severity: critical
+    category: "security"
+    description: |
+      Never construct SQL with string formatting or f-strings.
+      Use parameterized queries with $1, $2 placeholders (asyncpg)
+      or :param style (SQLAlchemy) to prevent SQL injection.
+    example_good: |
+      query = "SELECT * FROM users WHERE id = $1 AND org_id = $2"
+      result = await conn.fetch(query, user_id, org_id)
+    example_bad: |
+      query = f"SELECT * FROM users WHERE id = {user_id}"
+      result = await conn.fetch(query)  # SQL INJECTION VULNERABLE
+    auto_fix_strategy:
+      - "Convert f-string to parameterized query"
+      - "Use $1, $2 placeholders for asyncpg"
+      - "Use :param style for SQLAlchemy"
+    related_patterns:
+      - "rls_scoping"
+
+  - id: no_hardcoded_secrets
+    rule: "Never hardcode secrets, API keys, or credentials"
+    severity: critical
+    category: "security"
+    description: |
+      All secrets must come from environment variables or secure
+      secret management. Never commit credentials to code.
+      Fail fast at startup if required secrets are missing.
+    example_good: |
+      import os
+      
+      API_KEY = os.environ["OPENAI_API_KEY"]
+      if not API_KEY:
+          raise RuntimeError("OPENAI_API_KEY environment variable required")
+    example_bad: |
+      API_KEY = "sk-abc123..."  # NEVER hardcode secrets
+    auto_fix_strategy:
+      - "Move secret to environment variable"
+      - "Add startup check for required env vars"
+      - "Add to .env.example (not .env)"
+    related_patterns: []
+
+  - id: input_validation
+    rule: "Validate all external input with Pydantic models"
+    severity: high
+    category: "security"
+    description: |
+      All API endpoints must validate input using Pydantic models.
+      Never trust raw request data. This prevents injection attacks
+      and ensures type safety.
+    example_good: |
+      class CreateUserRequest(BaseModel):
+          email: EmailStr
+          password: constr(min_length=8)
+      
+      @app.post("/users")
+      async def create_user(request: CreateUserRequest) -> UserResponse:
+          ...
+    example_bad: |
+      @app.post("/users")
+      async def create_user(email: str, password: str):
+          # No validation - accepts any input
+          ...
+    auto_fix_strategy:
+      - "Create Pydantic request model"
+      - "Add field validators"
+      - "Use model as endpoint parameter"
+    related_patterns:
+      - "approval_gates"
+
+  # =========================================================================
+  # Architecture
+  # =========================================================================
+
+  - id: idempotent_writes
+    rule: "All memory writes must be idempotent with dedup_key"
+    severity: high
+    category: "architecture"
+    description: |
+      Use dedup_key (content hash or UUID) for all packet writes.
+      Writing the same packet twice should be a no-op. This enables
+      safe retries and replay.
+    example_good: |
+      packet = PacketEnvelope(
+          packet_id=uuid4(),
+          dedup_key=hashlib.sha256(content.encode()).hexdigest(),
+          ...
+      )
+      await substrate.ingest_packet(packet)  # Safe to retry
+    example_bad: |
+      # No dedup_key - retries create duplicates
+      await substrate.ingest_packet(packet)
+    auto_fix_strategy:
+      - "Add dedup_key field to packet"
+      - "Use content hash or UUID"
+      - "Handle duplicate gracefully in ingestion"
+    related_patterns:
+      - "idempotent_operations"
+      - "packet_envelope"
+
+  - id: single_responsibility
+    rule: "Separate API routes from business logic"
+    severity: medium
+    category: "architecture"
+    description: |
+      FastAPI route handlers should only handle HTTP concerns.
+      Business logic goes in service classes. This enables testing
+      business logic without HTTP overhead.
+    example_good: |
+      @app.post("/users", response_model=UserResponse)
+      async def create_user(request: CreateUserRequest) -> UserResponse:
+          return await user_service.create_user(request)
+    example_bad: |
+      @app.post("/users")
+      async def create_user(email: str, password: str):
+          # All logic in route handler - hard to test
+          hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+          await db.execute("INSERT ...", {"email": email, "password": hashed})
+          return {"email": email}
+    auto_fix_strategy:
+      - "Extract business logic to service class"
+      - "Create service method"
+      - "Call service from route handler"
+    related_patterns:
+      - "dag_pipeline"
+
+  - id: dora_metadata_required
+    rule: "Every module needs DORA metadata block"
+    severity: medium
+    category: "architecture"
+    description: |
+      All Python modules must have __dora_meta__ dict with
+      component_name, version, status, and integrates_with.
+      This enables automated documentation and dependency tracking.
+    example_good: |
+      __dora_meta__ = {
+          "component_name": "Memory Ingestion",
+          "module_version": "1.0.0",
+          "status": "active",
+          "integrates_with": {
+              "imported_by": ["api.server"],
+              "datasources": ["PostgreSQL"],
+          },
+      }
+    example_bad: |
+      # Module without DORA metadata - invisible to tooling
+    auto_fix_strategy:
+      - "Add __dora_meta__ dict at module top"
+      - "Fill in component_name and version"
+      - "Document integrations"
+    related_patterns: []

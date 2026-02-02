@@ -29,6 +29,7 @@
 - `tests/core/security/test_permission_graph.py` (2 tests)
 - `tests/core/aios/test_runtime.py` (2 tests)
 - `tests/core/agents/test_agent_executor_bootstrap_bridge.py` (3 tests)
+- `tests/core/agents/test_executor.py` (10 tests)
 - `tests/core/agents/bootstrap/test_orchestrator.py` (5 tests)
 - `tests/core/agents/bootstrap/test_phase4_identity_view.py` (3 tests)
 - `tests/core/observability/test_observability_integration.py` (32 tests)
@@ -59,7 +60,7 @@
 - `tests/integration/test_slack_dispatch_integration.py` (3 tests)
 - `tests/integration/test_l_cto_end_to_end.py` (12 tests)
 - `tests/integration/test_kernel_hot_reload.py` (13 tests)
-- `tests/integration/test_graph_wm_sync.py` (16 tests)
+- `tests/integration/test_graph_wm_sync.py` (18 tests)
 - `tests/integration/test_l_bootstrap.py` (8 tests)
 - `tests/integration/test_world_model_repository_integration.py` (3 tests)
 - `tests/integration/test_world_model.py` (19 tests)
@@ -106,6 +107,7 @@
 - `tests/memory/test_packet_envelope.py` (2 tests)
 - `tests/memory/test_memory_ingestion.py` (10 tests)
 - `tests/memory/test_vector_search.py` (1 tests)
+- `tests/memory/test_substrate_service.py` (9 tests)
 - `tests/memory/test_checkpoint_metrics_pool.py` (14 tests)
 - `tests/memory/test_query_cache_and_vector.py` (12 tests)
 - `tests/memory/test_dag_orchestrator_resilience.py` (27 tests)
@@ -113,6 +115,7 @@
 - `tests/memory/test_extraction_pipeline.py` (3 tests)
 - `tests/memory/test_packet_envelope_immutability.py` (14 tests)
 - `tests/memory/test_blob_offload.py` (6 tests)
+- `tests/memory/test_substrate_dag.py` (11 tests)
 - `tests/memory/test_consolidation_graph.py` (11 tests)
 - `tests/memory/test_reasoning_replay.py` (12 tests)
 - `tests/memory/test_vector_index.py` (5 tests)
@@ -122,6 +125,7 @@
 - `tests/memory/test_substrate_dag_native.py` (37 tests)
 - `tests/memory/test_tool_audit.py` (27 tests)
 - `tests/memory/test_cypher_templates.py` (14 tests)
+- `tests/memory/test_enrichment_dag.py` (22 tests)
 - `tests/memory/tests/memory/test_mcp_hardening_startup.py` (3 tests)
 - `tests/memory/consolidation/test_promotion_rules.py` (29 tests)
 
@@ -144,8 +148,8 @@
 
 ## Summary
 
-- **Total test files**: 123
-- **Total test functions**: 1489
+- **Total test files**: 127
+- **Total test functions**: 1543
 
 ## Running Tests
 
