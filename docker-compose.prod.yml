@@ -143,10 +143,10 @@ services:
       resources:
         limits:
           cpus: "2.0"
-          memory: 2G
+          memory: 4G
         reservations:
           cpus: "0.5"
-          memory: 1G
+          memory: 2G
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
