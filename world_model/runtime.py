@@ -424,10 +424,15 @@ class WorldModelRuntime:
         self._world_model_service: WorldModelService | None = None
 
         if isinstance(self._packet_source, MemorySubstratePacketSource):
-            self._packet_source.tenant_id = self._config.tenant_id
-            self._packet_source.org_id = self._config.org_id
-            self._packet_source.user_id = self._config.user_id
-            self._packet_source.role = self._config.role
+            # Only override if config has values (don't overwrite with None)
+            if self._config.tenant_id:
+                self._packet_source.tenant_id = self._config.tenant_id
+            if self._config.org_id:
+                self._packet_source.org_id = self._config.org_id
+            if self._config.user_id:
+                self._packet_source.user_id = self._config.user_id
+            if self._config.role:
+                self._packet_source.role = self._config.role
 
         logger.info("WorldModelRuntime initialized (v2.1.0 with DB sync)")
 
