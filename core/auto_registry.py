@@ -205,11 +205,15 @@ class AutoRegistry[T]:
                 else:
                     component_name = component.__class__.__name__
 
-            # Check for duplicates
+            # Check for duplicates - warn and skip instead of raising error
             if not self._allow_duplicates and component_name in self._components:
-                raise DuplicateRegistrationError(
-                    f"Component '{component_name}' already registered in {self.name}"
+                logger.warning(
+                    "registry.duplicate_skipped",
+                    registry=self.name,
+                    component=component_name,
+                    message=f"Component '{component_name}' already registered, skipping",
                 )
+                return component  # Return existing, don't re-register
 
             # Determine if this is a factory or instance
             if callable(component) and not inspect.isclass(component):
@@ -267,13 +271,20 @@ class AutoRegistry[T]:
             **metadata: Additional metadata
 
         Raises:
-            DuplicateRegistrationError: If component already registered
             ValidationError: If component fails validation
+
+        Note:
+            Duplicate registrations are now idempotent - they log a warning
+            and skip re-registration instead of raising an error.
         """
         if not self._allow_duplicates and component_id in self._components:
-            raise DuplicateRegistrationError(
-                f"Component '{component_id}' already registered in {self.name}"
+            logger.warning(
+                "registry.duplicate_instance_skipped",
+                registry=self.name,
+                component=component_id,
+                message=f"Component '{component_id}' already registered, skipping",
             )
+            return  # Skip re-registration
 
         if self._validator and not self._validator(component):
             raise ValidationError(f"Component '{component_id}' failed validation")
