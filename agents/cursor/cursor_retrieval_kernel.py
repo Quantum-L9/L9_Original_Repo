@@ -33,7 +33,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from memory_cache.cursor_working_memory_service import CursorWorkingMemoryService
+    from memory_cache.working_memory_service import WorkingMemoryService
 
 
 class RetrievalSource(str, Enum):
@@ -67,7 +67,7 @@ class CursorRetrievalKernel:
 
     def __init__(
         self,
-        wmc: CursorWorkingMemoryService,
+        wmc: WorkingMemoryService,
         memory_service,
         logger=None,
     ):

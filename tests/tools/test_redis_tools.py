@@ -27,7 +27,7 @@ class TestRedisGet:
         mock_redis.get = AsyncMock(return_value="test_value")
 
         with patch(
-            "runtime.redis_tools.get_redis_client", AsyncMock(return_value=mock_redis)
+            "runtime.redis_client.get_redis_client", AsyncMock(return_value=mock_redis)
         ):
             result = await redis_get(key="test_key")
 
@@ -46,7 +46,7 @@ class TestRedisGet:
         mock_redis.get = AsyncMock(return_value=None)
 
         with patch(
-            "runtime.redis_tools.get_redis_client", AsyncMock(return_value=mock_redis)
+            "runtime.redis_client.get_redis_client", AsyncMock(return_value=mock_redis)
         ):
             result = await redis_get(key="missing_key")
 
@@ -63,7 +63,7 @@ class TestRedisGet:
         mock_redis.is_available.return_value = False
 
         with patch(
-            "runtime.redis_tools.get_redis_client", AsyncMock(return_value=mock_redis)
+            "runtime.redis_client.get_redis_client", AsyncMock(return_value=mock_redis)
         ):
             result = await redis_get(key="any_key")
 
@@ -84,7 +84,7 @@ class TestRedisSet:
         mock_redis.set = AsyncMock()
 
         with patch(
-            "runtime.redis_tools.get_redis_client", AsyncMock(return_value=mock_redis)
+            "runtime.redis_client.get_redis_client", AsyncMock(return_value=mock_redis)
         ):
             result = await redis_set(key="test_key", value="test_value")
 
@@ -101,7 +101,7 @@ class TestRedisSet:
         mock_redis.set = AsyncMock()
 
         with patch(
-            "runtime.redis_tools.get_redis_client", AsyncMock(return_value=mock_redis)
+            "runtime.redis_client.get_redis_client", AsyncMock(return_value=mock_redis)
         ):
             result = await redis_set(
                 key="test_key", value="test_value", ttl_seconds=300
@@ -125,7 +125,7 @@ class TestRedisEnqueueTask:
         mock_redis.enqueue_task = AsyncMock(return_value="task-uuid-123")
 
         with patch(
-            "runtime.redis_tools.get_redis_client", AsyncMock(return_value=mock_redis)
+            "runtime.redis_client.get_redis_client", AsyncMock(return_value=mock_redis)
         ):
             result = await redis_enqueue_task(
                 queue_name="test_queue",
@@ -153,7 +153,7 @@ class TestRedisDequeueTask:
         )
 
         with patch(
-            "runtime.redis_tools.get_redis_client", AsyncMock(return_value=mock_redis)
+            "runtime.redis_client.get_redis_client", AsyncMock(return_value=mock_redis)
         ):
             result = await redis_dequeue_task(queue_name="test_queue")
 
@@ -170,7 +170,7 @@ class TestRedisDequeueTask:
         mock_redis.dequeue_task = AsyncMock(return_value=None)
 
         with patch(
-            "runtime.redis_tools.get_redis_client", AsyncMock(return_value=mock_redis)
+            "runtime.redis_client.get_redis_client", AsyncMock(return_value=mock_redis)
         ):
             result = await redis_dequeue_task(queue_name="empty_queue")
 

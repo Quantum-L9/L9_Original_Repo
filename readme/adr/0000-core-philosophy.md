@@ -1,24 +1,110 @@
-# ADR-0000: Core Philosophy — 100% Done or Not Done
+# ADR-0000: L9 Core Philosophy — Automation-First, 100% Done
 
 **Status:** Accepted  
-**Date:** 2026-02-01  
+**Date:** 2026-02-02  
 **Author:** Igor Beylin  
 **Priority:** ULTRA-CRITICAL  
 
-## Context
+## Summary
 
-Work completed to 95% is **NOT DONE**. It's broken code waiting to fail in production.
+L9 is built on two non-negotiable principles:
 
-**Incident that prompted this ADR:**
-- 2026-01-31: Agent added `--requirepass` to Redis but didn't update the healthcheck
-- Result: Healthcheck would fail → container marked unhealthy → service won't start
-- Root cause: Made point change without tracing downstream dependencies
+1. **Automation-First** — Every manual process must be automated
+2. **100% Done** — Work completed to 95% is NOT DONE
 
-This pattern repeats: edit the requested line, miss the implicit requirements, leave code broken.
+---
 
-## Decision
+## Part 1: Automation-First Philosophy
+
+### Core Principle
+
+Automation is not a feature — it is the foundation upon which L9 is built. Every aspect of the system should trend toward full automation.
+
+| Layer          | Manual Today           | Automated Tomorrow              |
+| -------------- | ---------------------- | ------------------------------- |
+| **Reports**    | Token-consuming drafts | Script-generated, verified      |
+| **Reviews**    | Human-only reviews     | AI + human hybrid               |
+| **Indexes**    | Manual catalog updates | Auto-generated on session start |
+| **Compliance** | Manual DORA checks     | CI-enforced DORA validation     |
+| **Migrations** | Manual SQL execution   | Auto-applied at startup         |
+| **Memory**     | Manual context loading | MCP-injected context            |
+| **Tests**      | Manual stub completion | LLM-generated full tests        |
+
+### Automation Improvement Cycle
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                 L9 AUTOMATION CYCLE                             │
+│                                                                 │
+│   ┌──────────┐    ┌──────────┐    ┌──────────┐                │
+│   │ IDENTIFY │ → │ AUTOMATE │ → │ IMPROVE  │ → (repeat)      │
+│   └──────────┘    └──────────┘    └──────────┘                │
+│                                                                 │
+│   Manual process? → Create script → Measure & enhance          │
+│   Existing script? → Profile it → Optimize or replace          │
+│   New capability? → Can it auto-run? → Add to pipeline         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### AI Code Reviews Must Suggest Automation
+
+**This is a hard requirement.** When reviewing code, AI agents MUST actively look for:
+
+1. **Repetitive patterns** → Suggest abstraction into reusable function
+2. **Manual data entry** → Suggest code generation or configuration
+3. **Copy-paste patterns** → Suggest template or factory
+4. **Manual verification** → Suggest automated validation script
+5. **Human decision points** → Suggest decision automation or ML-based routing
+6. **Manual triggers** → Suggest scheduled jobs or event-driven automation
+
+### Automation Tiers
+
+**Tier 1: Must Be Automated (Day 0)**
+- GMP report generation
+- Code validation (py_compile, import test, lint)
+- Session startup (load governance, workflow state)
+- Pre-commit hooks (security, format, type-check)
+
+**Tier 2: Should Be Automated (Sprint N)**
+- Code review suggestions
+- Documentation generation
+- Test scaffolding
+- Dependency updates
+
+**Tier 3: Can Be Automated (Future)**
+- Architecture decision suggestions
+- Refactoring recommendations
+- Performance optimization detection
+- Security vulnerability prediction
+
+### The Automation Efficiency Principle
+
+> **"If a tool generates stubs that need manual completion, the tool is 50% done. Finish the automation."**
+
+| Status | Description | Reality |
+|--------|-------------|---------|
+| Stub generator | Creates TODO placeholders | 50% tool, 50% manual work |
+| **Full generator** | Creates runnable code | 100% automation |
+
+**Cost Comparison (Test Generation Example):**
+
+| Approach | Per File | 200 Files | Quality |
+|----------|----------|-----------|---------|
+| Manual Cursor | $5-50 | $1,000-10,000 | Variable |
+| LLM API | $0.01-0.10 | $2-20 | Consistent |
+| **Savings** | **99%** | **$998-9,980** | Better |
+
+> **"Don't pay dollars for what costs pennies. If there's an LLM-automatable step, automate it."**
+
+---
+
+## Part 2: 100% Done Philosophy
+
+### Core Principle
 
 **Policy: 100% Done or it's NOT DONE. There is no 95%.**
+
+Work completed to 95% is broken code waiting to fail in production.
 
 ### The Completion Ladder
 
@@ -86,242 +172,6 @@ healthcheck:
 
 **The lesson:** Every change has ripples. Trace them ALL.
 
-## Enforcement
-
-### 1. Pre-Commit Hook (Automated)
-
-```bash
-# .git/hooks/pre-commit addition
-# Check for incomplete auth changes
-if git diff --cached | grep -q "requirepass\|password"; then
-  if ! git diff --cached | grep -q "healthcheck"; then
-    echo "⚠️ WARNING: Auth change detected but no healthcheck update"
-    echo "Run CVP checklist before committing"
-  fi
-fi
-```
-
-### 2. CI Gate (Automated)
-
-Add to `ci/check_completion.py`:
-- Scan for common incomplete patterns
-- Require CVP checklist in PR description
-- Block merge if verification missing
-
-### 3. Agent Rules (Behavioral)
-
-Added to `repeated-mistakes.md`:
-- Lesson #21: TRACE ALL DEPENDENCIES
-- After ANY change, grep for all references to changed entity
-- Update each reference or document why it doesn't need updating
-
-### 4. PR Template (Process)
-
-```markdown
-## Completion Verification
-
-### Files Changed
-- [ ] `file1.py` — reason
-- [ ] `file2.py` — reason
-
-### Downstream Impact Verified
-- [ ] Healthchecks updated (if auth/config changed)
-- [ ] Tests updated (if behavior changed)
-- [ ] Docs updated (if API changed)
-
-### Evidence
-\`\`\`
-<paste actual test output here>
-\`\`\`
-```
-
-## Consequences
-
-### Positive
-- No more "fixed but broken" deployments
-- Downstream dependencies always traced
-- Clear verification trail
-- Trust maintained
-
-### Negative
-- Changes take longer (but less rework)
-- More verification steps (but fewer production bugs)
-- More rigorous process (but higher quality)
-
-## Implementation Checklist
-
-- [x] Created ADR-0000 (this document)
-- [ ] Add Lesson #21 to repeated-mistakes.md
-- [ ] Create ci/check_completion.py
-- [ ] Update PR template
-- [ ] Add pre-commit hook for auth changes
-
-## Mantra
-
-> **"If you changed X, what else uses X? Update ALL of them."**
-
----
-
-## Addendum: The Automation Efficiency Principle
-
-**Incident:** 2026-02-01 — Test Generator Anti-Pattern
-
-### The Problem
-
-The `core/testing/test_generator.py` had a fundamental design flaw:
-1. AST parsing extracted function/class structure ✅
-2. Generated TODO stub tests ❌
-3. Required manual completion of each test ❌
-
-**Result:** Every test file cost $5-50+ in Cursor tokens for manual completion.
-
-### The WRONG Approach (What We Had)
-
-```python
-# test_generator.py - WRONG
-def _generate_function_tests(self, func):
-    return f'''
-def test_{func.name}_happy_path():
-    """Test {func.name} with valid inputs."""
-    # TODO(GMP-109): Add appropriate test inputs  ← HUMAN MUST FINISH
-    pass
-'''
-```
-
-**Cost per test file:** $5-50 (Cursor tokens for manual completion)
-**200 missing test files:** $1,000-10,000+ in wasted tokens
-
-### The RIGHT Approach (What We Fixed)
-
-```python
-# test_generator.py - RIGHT
-def generate_unit_tests(self, code_proposal, module_name):
-    # 1. AST parse → extract structure (FREE)
-    ast_info = self._extract_ast_info(ast.parse(code_proposal))
-    
-    # 2. LLM generates FULL implementations (PENNIES)
-    if self._use_llm and self._llm_client:
-        return self._generate_tests_with_llm(code_proposal, ast_info)
-    
-    # 3. Fallback to stubs only if no LLM available
-    return self._generate_stub_tests(...)
-```
-
-**Cost per test file:** $0.01-0.10 (LLM API)
-**200 test files:** $2-20 total
-
-### Cost Comparison
-
-| Approach | Per File | 200 Files | Quality |
-|----------|----------|-----------|---------|
-| Manual Cursor | $5-50 | $1,000-10,000 | Variable |
-| LLM API | $0.01-0.10 | $2-20 | Consistent |
-| **Savings** | **99%** | **$998-9,980** | Better |
-
-### The Design Principle
-
-> **"If a tool generates stubs that need manual completion, 
-> the tool is 50% done. Finish the automation."**
-
-| Status | Description | Reality |
-|--------|-------------|---------|
-| Stub generator | Creates TODO placeholders | 50% tool, 50% manual work |
-| **Full generator** | Creates runnable code | 100% automation |
-
-### Implementation Pattern
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                      CORRECT AUTOMATION PIPELINE                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-     ┌──────────────────────────────┼──────────────────────────────┐
-     │                              │                              │
-     ▼                              ▼                              ▼
-┌─────────────┐            ┌─────────────────┐           ┌─────────────────┐
-│ AST Parse   │            │ Build Context   │           │ LLM Generate    │
-│ (FREE)      │     →      │ (FREE)          │     →     │ ($0.01/file)    │
-│             │            │                 │           │                 │
-│ Extract:    │            │ Create prompt:  │           │ Output:         │
-│ - functions │            │ - signatures    │           │ - full tests    │
-│ - classes   │            │ - dependencies  │           │ - assertions    │
-│ - methods   │            │ - patterns      │           │ - mocks         │
-└─────────────┘            └─────────────────┘           └─────────────────┘
-```
-
-### Applied to Test Generation
-
-**Before (WRONG):**
-```bash
-# Generate stubs → manually complete each
-python -c "from core.testing import generate_unit_tests; ..."
-# Output: TODO stubs requiring $50 of Cursor work
-```
-
-**After (RIGHT):**
-```bash
-# Generate complete tests automatically  
-python -c "
-from core.testing import generate_test_file
-from pathlib import Path
-
-code = Path('memory/enrichment_dag.py').read_text()
-tests = generate_test_file(code, 'memory.enrichment_dag')
-Path('tests/memory/test_enrichment_dag.py').write_text(tests)
-"
-# Output: Complete, runnable tests for $0.05
-```
-
-### The Mantra
-
-> **"Don't pay dollars for what costs pennies. 
-> If there's an LLM-automatable step, automate it."**
-
----
-
-## Addendum: 100% DONE Enforcement (2026-01-31)
-
-### The Problem: 95% Done ≠ Done
-
-Tasks left at 95% completion are NOT DONE. Examples:
-- Tests generated but not run → NOT DONE
-- Code written but not validated → NOT DONE
-- Feature implemented but tests fail → NOT DONE
-
-### Enforcement Mechanisms
-
-**1. CI Gate: All Tests Must Pass**
-```yaml
-# .github/workflows/ci.yml
-- name: Test Gate
-  run: pytest --tb=short
-  # Fails CI if ANY test fails
-```
-
-**2. Pre-commit Hook: Syntax Validation**
-```bash
-# .git/hooks/pre-commit
-python -m py_compile $file || exit 1
-```
-
-**3. Definition of Done Checklist (DoD-Gate)**
-Before marking COMPLETE, verify:
-- [ ] All tests pass (`pytest` exits 0)
-- [ ] No linter errors (`ruff check .`)
-- [ ] Type checks pass (`mypy`)
-- [ ] Evidence provided (test output, exit code)
-
-**4. Agent Rule: Verify Before Claiming Done**
-
-```
-CRITICAL: Do NOT claim "fixed" or "done" without:
-1. Running the actual command/test
-2. Showing the output/exit code
-3. Confirming success evidence
-
-Saying "it should work" is NOT evidence.
-```
-
 ### The Formula
 
 ```
@@ -330,23 +180,99 @@ Saying "it should work" is NOT evidence.
 90% DONE = Code + TODO Stubs = NOT DONE
 ```
 
-### Lessons
+---
 
-| Pattern | Status | Fix |
-|---------|--------|-----|
-| Tests generated but 2 fail | NOT DONE | Fix failures, run again |
-| Code written, tests not run | NOT DONE | Run tests, show output |
-| "Should work" claim | NOT DONE | Provide evidence |
+## Rules (Enforcement)
+
+### Automation Rules
+
+1. Every GMP report MUST be generated by `scripts/generate_gmp_report.py` — never manually drafted
+2. Every code review MUST include at least one automation suggestion if applicable
+3. Every new script MUST have automated verification (no "trust me, it works")
+4. Every manual process that occurs more than twice MUST have an issue filed to automate it
+5. Every automation MUST be measured (timing, success rate, error rate)
+6. NEVER accept "it's too complex to automate" without exploring options first
+
+### Completion Rules
+
+7. NEVER claim "fixed" or "done" without running actual tests and showing evidence
+8. ALWAYS trace ALL files that reference a changed entity
+9. ALWAYS update healthchecks, tests, configs when changing auth/config
+10. ALWAYS provide verification evidence (command, output, exit code)
 
 ---
 
-## Related
+## AI Guidance
 
-- **ADR-0091: Definition of Done** ← Enforceable checklist (CI Gate 17)
-- ADR-0072: Diagnose Before Fix
-- ADR-0073: Evidence-Based Claims
-- ADR-0074: Surgical Edits Only
-- Lesson #20: Verify Paths Exist
-- Lesson #21: Trace All Dependencies
-- Lesson #22: Definition of Done
-- **Lesson #23: Automate All The Way** ← NEW: Stub generators are 50% done
+**DO:**
+- Suggest automation opportunities in every code review
+- Create scripts for repetitive tasks before doing them manually
+- Add `--dry-run` and `--verify` flags to all automation scripts
+- Chain automations together (e.g., generate → validate → update state)
+- Measure automation effectiveness with timing and success metrics
+- Trace ALL dependencies when making changes
+- Provide evidence (test output, exit codes) before claiming done
+
+**DO NOT:**
+- Manually draft reports, indexes, or catalogs that can be generated
+- Accept manual processes without questioning if they can be automated
+- Create automation without verification/validation steps
+- Skip the automation improvement cycle ("it works, don't touch it")
+- Consume tokens on tasks that scripts should handle
+- Make point changes without checking downstream dependencies
+- Claim "should work" without evidence
+
+---
+
+## Files
+
+- `scripts/generate_gmp_report.py` - Auto-generates GMP reports
+- `scripts/validate_gmp_report.py` - Auto-validates reports
+- `tools/export_repo_indexes.py` - Auto-generates 34 repo index files
+- `.cursor-commands/startup/session_startup.py` - Auto-loads governance context
+- `ci/dora_compliance_check.py` - Auto-enforces DORA metadata
+- `scripts/hooks/pre-commit` - Auto-runs 8 security gates
+- `core/testing/test_generator.py` - LLM-powered test generation
+
+---
+
+## Metrics for Health
+
+| Metric                            | Target | How to Measure                   |
+| --------------------------------- | ------ | -------------------------------- |
+| Manual report drafts              | 0      | Count reports not in `reports/`  |
+| Automation coverage               | >80%   | Scripts / Total processes        |
+| Automation suggestions per review | ≥1     | Track in code review logs        |
+| Script verification rate          | 100%   | Scripts with `--verify` or tests |
+| Automation failure rate           | <5%    | Failed runs / Total runs         |
+| Incomplete changes caught         | 100%   | CVP checklist enforcement        |
+| 95% done incidents                | 0      | Production failures from incomplete work |
+
+---
+
+## Mantras
+
+> **"If you changed X, what else uses X? Update ALL of them."**
+
+> **"Don't pay dollars for what costs pennies. Automate all the way."**
+
+> **"100% DONE = Code + Tests Pass + Evidence"**
+
+---
+
+## Related ADRs
+
+- [ADR-0004: Singleton Auto-Registry](0004-singleton-auto-registry.md) - Auto-registration pattern
+- [ADR-0012: Memory DAG Pipeline](0012-memory-dag-pipeline.md) - Automated packet processing
+- [ADR-0035: ADR Bootstrap Protocol](0035-adr-bootstrap-protocol.md) - Automated ADR creation
+- [ADR-0072: Diagnose Before Fix](0072-diagnose-before-fix.md)
+- [ADR-0073: Evidence-Based Claims](0073-evidence-based-claims.md)
+- [ADR-0074: Surgical Edits Only](0074-surgical-edits-only.md)
+- [ADR-0091: Definition of Done](0091-definition-of-done.md) - CI Gate 17
+
+## Changelog
+
+- 2026-02-02: Consolidated from 0000-l9-philosophy.md and 0000-core-philosophy.md
+- 2026-02-01: Added automation efficiency principle (test generator lesson)
+- 2026-01-31: Added 100% done enforcement
+- 2026-01-20: Initial creation — automation-first philosophy

@@ -572,38 +572,47 @@ async def close_redis_client() -> None:
 
 
 # =============================================================================
-# Cursor Working Memory Cache Singleton
+# Working Memory Cache Singleton (for ALL L9 agents)
 # =============================================================================
 
-_cursor_wmc_service = None
+_wmc_service = None
 
 
-def get_cursor_wmc():
+def get_wmc():
     """
-    Singleton for Cursor working memory cache.
+    Singleton for L9 working memory cache.
 
+    Shared across all agents (L-CTO, Cursor, future agents) on same repo/branch.
     Uses Redis client for TTL-based ephemeral session state.
     Cache expires naturally (4 hours default) - no auto-promotion.
     """
-    global _cursor_wmc_service
-    if _cursor_wmc_service is None:
-        from memory_cache.cursor_working_memory_service import (
-            CursorWorkingMemoryService,
-        )
+    global _wmc_service
+    if _wmc_service is None:
+        from memory_cache.working_memory_service import WorkingMemoryService
 
         redis = _redis_client
         if redis is None or not redis.is_available():
             logger.warning("Redis unavailable - WMC will not function")
             return None
-        _cursor_wmc_service = CursorWorkingMemoryService(
+        _wmc_service = WorkingMemoryService(
             redis_client=redis,
             default_ttl_hours=4,
         )
-        logger.info("CursorWorkingMemoryService initialized")
-    return _cursor_wmc_service
+        logger.info("WorkingMemoryService initialized")
+    return _wmc_service
 
 
-__all__ = ["RedisClient", "close_redis_client", "get_cursor_wmc", "get_redis_client"]
+# Backwards compatibility alias
+get_cursor_wmc = get_wmc
+
+
+__all__ = [
+    "RedisClient",
+    "close_redis_client",
+    "get_cursor_wmc",
+    "get_redis_client",
+    "get_wmc",
+]
 
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

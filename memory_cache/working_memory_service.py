@@ -1,13 +1,13 @@
 # ============================================================================
 __dora_meta__ = {
-    "component_name": "Cursor Working Memory Service",
-    "module_version": "1.0.0",
+    "component_name": "Working Memory Service",
+    "module_version": "1.1.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-28T22:45:42Z",
-    "updated_at": "2026-01-31T22:27:11Z",
+    "updated_at": "2026-02-02T10:45:00Z",
     "layer": "operations",
     "domain": "data_models",
-    "module_name": "cursor_working_memory_service",
+    "module_name": "working_memory_service",
     "type": "dataclass",
     "status": "active",
     "integrates_with": {
@@ -24,12 +24,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-# memory_cache/cursor_working_memory_service.py
+# memory_cache/working_memory_service.py
 """
-Repo-scoped, TTL-based working memory for Cursor.
+Repo-scoped, TTL-based working memory for L9 agents.
 No embeddings. No insights. Only ephemeral operational state.
 Backing: Redis. TTL: 4 hours (configurable).
 
+Shared across all agents (L-CTO, Cursor, future agents) on same repo/branch.
 Adapted for L9 async architecture.
 """
 
@@ -86,9 +87,12 @@ class WorkingMemorySnapshot:
             self.updated_at = self.created_at
 
 
-class CursorWorkingMemoryService:
+class WorkingMemoryService:
     """
-    Manages ephemeral, repo-scoped working memory for Cursor.
+    Manages ephemeral, repo-scoped working memory for L9 agents.
+
+    Shared across all agents on the same repo/branch - enables collaboration
+    between L-CTO, Cursor, and future agents.
 
     Principles:
     - No auto-promotion (cache must earn permanence)
@@ -129,7 +133,7 @@ class CursorWorkingMemoryService:
         branch: str,
     ) -> WorkingMemorySnapshot | None:
         """
-        Retrieve working memory for a Cursor session.
+        Retrieve working memory for an agent session.
 
         Called: on_session_start()
         Returns: None if expired or never set
@@ -255,6 +259,10 @@ class CursorWorkingMemoryService:
         }
 
 
+# Backwards compatibility alias
+CursorWorkingMemoryService = WorkingMemoryService
+
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -278,18 +286,18 @@ __dora_footer__ = {
     ],
     "keywords": [
         "clear",
-        "cursor",
         "event",
         "expire",
         "hydrate",
         "memory",
         "remaining",
         "service",
+        "working",
     ],
-    "business_value": "Provides cursor working memory service components including MemoryEventType, WorkingMemorySnapshot, CursorWorkingMemoryService",
-    "last_modified": "2026-01-31T22:27:11Z",
+    "business_value": "Provides working memory service components including MemoryEventType, WorkingMemorySnapshot, WorkingMemoryService",
+    "last_modified": "2026-02-02T10:45:00Z",
     "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
+    "change_summary": "Renamed from CursorWorkingMemoryService to WorkingMemoryService for agent-agnostic usage",
 }
 # ============================================================================
 # L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT

@@ -21,21 +21,24 @@ __dora_meta__ = {
 
 # memory_cache/__init__.py
 """
-Memory Cache Module - Ephemeral working memory for Cursor sessions.
+Memory Cache Module - Ephemeral working memory for L9 agents.
 
 Provides TTL-based, Redis-backed working memory that expires naturally.
+Shared across all agents (L-CTO, Cursor, future agents) on same repo/branch.
 No auto-promotion to long-term memory without explicit signals.
 """
 
-from memory_cache.cursor_working_memory_service import (
-    CursorWorkingMemoryService,
+from memory_cache.working_memory_service import (
+    CursorWorkingMemoryService,  # Backwards compatibility alias
     MemoryEventType,
+    WorkingMemoryService,
     WorkingMemorySnapshot,
 )
 
 __all__ = [
-    "CursorWorkingMemoryService",
+    "CursorWorkingMemoryService",  # Backwards compatibility alias
     "MemoryEventType",
+    "WorkingMemoryService",
     "WorkingMemorySnapshot",
 ]
 # ============================================================================

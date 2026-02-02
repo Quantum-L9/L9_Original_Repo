@@ -32,7 +32,7 @@ __dora_meta__ = {
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from memory_cache.cursor_working_memory_service import CursorWorkingMemoryService
+    from memory_cache.working_memory_service import WorkingMemoryService
 
 
 class CursorSessionHooks:
@@ -44,7 +44,7 @@ class CursorSessionHooks:
 
     def __init__(
         self,
-        wmc: CursorWorkingMemoryService,
+        wmc: WorkingMemoryService,
         memory_service,  # from L9 memory substrate
         logger=None,
     ):
@@ -52,7 +52,7 @@ class CursorSessionHooks:
         Initializes CursorSessionHooks for non-invasive lifecycle management of Cursor sessions, maintaining session state without modifying AgentExecutor.
 
         Args:
-            wmc: CursorWorkingMemoryService instance managing session memory.
+            wmc: WorkingMemoryService instance managing session memory.
             memory_service: Underlying memory substrate for session data.
             logger: Optional logger for debugging and tracing session events; defaults to no-op.
         """

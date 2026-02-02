@@ -1,0 +1,351 @@
+# L9 Architectural Pattern Library
+# =================================
+# Seed file for World Model - loaded at startup
+# These patterns guide agent decision-making and code generation
+#
+# Version: 1.0.0
+# Last Updated: 2026-02-02
+
+type: architectural_pattern_library
+version: "1.0"
+metadata:
+  source: "L9 Codebase ADRs and Cursor Rules"
+  domain: "autonomous_agent_runtime"
+  governance_level: "high"
+
+patterns:
+  # =========================================================================
+  # Core Runtime Patterns
+  # =========================================================================
+  
+  - id: packet_envelope
+    name: "PacketEnvelope Audit Trail"
+    category: "observability"
+    description: |
+      All meaningful operations emit a PacketEnvelope for audit trail.
+      Every agent decision, tool call, and memory write is captured as
+      an immutable packet with source_id, agent_id, thread_id, kind,
+      payload, metadata, and confidence score.
+    applicable_when:
+      - "Agent performs any reasoning step"
+      - "Tool is executed"
+      - "Memory is written or updated"
+      - "Decision is made that affects system state"
+    anti_applicable_when:
+      - "Pure read operations with no side effects"
+      - "Health checks and ping endpoints"
+    tradeoffs:
+      pros:
+        - "Complete audit trail for debugging"
+        - "Replay capability for testing"
+        - "Compliance with governance requirements"
+      cons:
+        - "Storage overhead for high-volume operations"
+        - "Slight latency for packet creation"
+    example_files:
+      - "core/schemas/packet_envelope_v2.py"
+      - "memory/ingestion.py"
+    related_patterns:
+      - "memory_substrate"
+      - "idempotent_operations"
+
+  - id: kernel_stack
+    name: "10-Kernel Identity Stack"
+    category: "identity"
+    description: |
+      Agent identity is composed of 10 governance/behavior kernels loaded
+      from YAML configs: Master, Identity, Cognitive, Behavioral, Memory,
+      WorldModel, Execution, Safety, Developer, and Packet Protocol.
+      Kernels are loaded in order and compose the agent's system prompt.
+    applicable_when:
+      - "Creating new agent types"
+      - "Modifying agent behavior systematically"
+      - "Adding governance constraints"
+    anti_applicable_when:
+      - "One-off tool additions"
+      - "Simple configuration changes"
+    tradeoffs:
+      pros:
+        - "Modular identity composition"
+        - "Governance constraints enforced at identity level"
+        - "Easy to audit agent capabilities"
+      cons:
+        - "Complexity in kernel interaction"
+        - "Startup overhead for kernel loading"
+    example_files:
+      - "runtime/kernel_loader.py"
+      - "private/kernels/00_system/"
+    related_patterns:
+      - "approval_gates"
+
+  - id: approval_gates
+    name: "Approval Gates for High-Risk Operations"
+    category: "governance"
+    description: |
+      High-risk tools (GITCOMMIT, MACAGENTEXEC, database writes, etc.)
+      require explicit approval before execution. The executor checks
+      AgentCapabilities and GovernanceApprovals before dispatch.
+      Missing approval emits BLOCKED packet with escalation path.
+    applicable_when:
+      - "Tool can modify external state"
+      - "Tool can commit code"
+      - "Tool can execute shell commands"
+      - "Tool accesses sensitive data"
+    anti_applicable_when:
+      - "Read-only operations"
+      - "Local computation with no side effects"
+    tradeoffs:
+      pros:
+        - "Prevents accidental destructive operations"
+        - "Audit trail of who approved what"
+        - "Human-in-the-loop for critical decisions"
+      cons:
+        - "Adds latency for approval workflow"
+        - "Can block automated pipelines"
+    example_files:
+      - "core/governance/"
+      - "core/tools/registry_adapter.py"
+    related_patterns:
+      - "packet_envelope"
+      - "kernel_stack"
+
+  # =========================================================================
+  # Data Layer Patterns
+  # =========================================================================
+
+  - id: memory_substrate
+    name: "Multi-Layer Memory Substrate"
+    category: "data"
+    description: |
+      Memory is stored across multiple layers: PostgreSQL (PacketStore +
+      pgvector for embeddings), Neo4j (knowledge graph), and Redis
+      (session cache). Each layer serves different query patterns.
+      PostgreSQL is the single source of truth; Neo4j is derived view.
+    applicable_when:
+      - "Storing agent memories and learnings"
+      - "Semantic search over past experiences"
+      - "Graph queries for relationships"
+      - "Session state caching"
+    anti_applicable_when:
+      - "Ephemeral computation results"
+      - "Temporary variables"
+    tradeoffs:
+      pros:
+        - "Optimized storage for different query types"
+        - "Semantic search via pgvector"
+        - "Graph traversal via Neo4j"
+      cons:
+        - "Operational complexity of three data stores"
+        - "Consistency challenges across layers"
+    example_files:
+      - "memory/substrate_service.py"
+      - "memory/substrate_repository.py"
+    related_patterns:
+      - "packet_envelope"
+      - "dag_pipeline"
+
+  - id: rls_scoping
+    name: "Row-Level Security Scoping"
+    category: "security"
+    description: |
+      All database queries are scoped by tenant_id, org_id, user_id,
+      and role. RLS policies enforce data isolation at the database
+      level. Config is loaded from environment and propagated to all
+      queries via RLSConfig context.
+    applicable_when:
+      - "Multi-tenant deployments"
+      - "User-specific data access"
+      - "Audit queries scoped to actor"
+    anti_applicable_when:
+      - "System-level administrative queries"
+      - "Cross-tenant analytics (requires elevated role)"
+    tradeoffs:
+      pros:
+        - "Data isolation enforced at DB level"
+        - "Consistent security across all queries"
+      cons:
+        - "Query complexity for cross-tenant operations"
+        - "Configuration overhead"
+    example_files:
+      - "config/rls_config.py"
+      - "memory/substrate_repository.py"
+    related_patterns:
+      - "memory_substrate"
+
+  # =========================================================================
+  # Orchestration Patterns
+  # =========================================================================
+
+  - id: dag_pipeline
+    name: "DAG Pipeline Orchestration"
+    category: "orchestration"
+    description: |
+      Complex workflows are modeled as directed acyclic graphs (DAGs)
+      using LangGraph. Each node is a processing step with explicit
+      inputs/outputs. Validation happens in intake_node only - no
+      duplicate validation downstream.
+    applicable_when:
+      - "Multi-step processing workflows"
+      - "Conditional branching logic"
+      - "Parallel task execution"
+    anti_applicable_when:
+      - "Simple single-step operations"
+      - "Linear sequential processing"
+    tradeoffs:
+      pros:
+        - "Clear visualization of workflow"
+        - "Parallel execution where possible"
+        - "Checkpoint/resume capability"
+      cons:
+        - "Overhead for simple flows"
+        - "Debugging complexity"
+    example_files:
+      - "memory/substrate_dag.py"
+      - "orchestrators/"
+    related_patterns:
+      - "memory_substrate"
+
+  - id: singleton_registry
+    name: "Auto-Registration Singleton Pattern"
+    category: "initialization"
+    description: |
+      Services are registered as singletons using @register_singleton
+      decorator. Registration includes category, lifecycle (LAZY, STARTUP,
+      MANUAL), dependencies, and description. Closers are registered via
+      @register_singleton_closer for graceful shutdown.
+    applicable_when:
+      - "Creating new singleton services"
+      - "Services with startup/shutdown lifecycle"
+      - "Services with dependencies on other singletons"
+    anti_applicable_when:
+      - "Request-scoped objects"
+      - "Stateless utility functions"
+    tradeoffs:
+      pros:
+        - "Automatic dependency injection"
+        - "Graceful shutdown coordination"
+        - "Clear lifecycle management"
+      cons:
+        - "Global state concerns"
+        - "Testing requires mocking"
+    example_files:
+      - "core/singleton_auto_registry.py"
+      - "core/singleton_registry.py"
+    related_patterns:
+      - "graceful_degradation"
+
+  # =========================================================================
+  # Resilience Patterns
+  # =========================================================================
+
+  - id: graceful_degradation
+    name: "Graceful Degradation with Feature Flags"
+    category: "resilience"
+    description: |
+      Optional features are guarded by feature flags (L9_ENABLE_*).
+      If a feature fails to initialize or its dependency is unavailable,
+      the system continues with reduced functionality rather than failing
+      entirely. All degradations are logged.
+    applicable_when:
+      - "Optional integrations (Slack, research agents, etc.)"
+      - "Features with external dependencies"
+      - "Gradual rollout of new features"
+    anti_applicable_when:
+      - "Core functionality that must work"
+      - "Security-critical features"
+    tradeoffs:
+      pros:
+        - "System stays operational despite partial failures"
+        - "Easier testing of isolated components"
+      cons:
+        - "Complexity in understanding what's enabled"
+        - "Silent degradation may hide issues"
+    example_files:
+      - "api/server.py"
+    related_patterns:
+      - "singleton_registry"
+
+  - id: idempotent_operations
+    name: "Idempotent Operations with Dedup Keys"
+    category: "resilience"
+    description: |
+      All memory writes use dedup_key (content hash or UUID). Writing
+      the same packet twice is a no-op. This enables safe retries and
+      replay without duplicating data.
+    applicable_when:
+      - "Memory writes that may be retried"
+      - "Event processing that may see duplicates"
+      - "Distributed operations with at-least-once delivery"
+    anti_applicable_when:
+      - "Intentional duplicate records"
+      - "Append-only logs where duplicates are meaningful"
+    tradeoffs:
+      pros:
+        - "Safe retries"
+        - "Consistent state after replay"
+      cons:
+        - "Dedup key computation overhead"
+        - "Storage for dedup tracking"
+    example_files:
+      - "memory/ingestion.py"
+      - "memory/validators/packet_validator.py"
+    related_patterns:
+      - "packet_envelope"
+      - "memory_substrate"
+
+  # =========================================================================
+  # Communication Patterns
+  # =========================================================================
+
+  - id: websocket_orchestrator
+    name: "WebSocket Real-Time Communication"
+    category: "communication"
+    description: |
+      Real-time bidirectional communication uses WebSocket with
+      EventMessage envelope schema. Heartbeat handling is mandatory.
+      Auto-reconnect with exponential backoff (max 5 retries).
+      Falls back to HTTP if WebSocket unavailable.
+    applicable_when:
+      - "Real-time agent status updates"
+      - "Interactive chat interfaces"
+      - "Live debugging consoles"
+    anti_applicable_when:
+      - "Batch processing"
+      - "One-way notifications (use HTTP POST)"
+    tradeoffs:
+      pros:
+        - "Low latency updates"
+        - "Bidirectional communication"
+      cons:
+        - "Connection management complexity"
+        - "Stateful connections harder to scale"
+    example_files:
+      - "runtime/websocket_orchestrator.py"
+      - "api/ws_router.py"
+    related_patterns:
+      - "graceful_degradation"
+
+  - id: structured_logging
+    name: "Structured Logging with structlog"
+    category: "observability"
+    description: |
+      All logging uses structlog (not standard logging). Logs include
+      context (agent_id, task_id, thread_id) at every step. JSON format
+      in production. Avoid generic print() statements.
+    applicable_when:
+      - "Any log statement"
+      - "Error reporting"
+      - "Debug output"
+    anti_applicable_when:
+      - "Never - always use structlog"
+    tradeoffs:
+      pros:
+        - "Searchable structured logs"
+        - "Consistent context across logs"
+        - "Easy aggregation in log systems"
+      cons:
+        - "Slightly more verbose than print()"
+    example_files:
+      - "All Python files"
+    related_patterns:
+      - "packet_envelope"

@@ -6,7 +6,7 @@
 # ============================================================================
 
 # FOUNDATION (0001-0013)
-0000 | Accepted | L9 Philosophy — Foundational Principles | readme/adr/0000-l9-philosophy.md
+0000 | Accepted | L9 Core Philosophy — Automation-First, 100% Done | readme/adr/0000-core-philosophy.md
 0001 | Accepted | Sandboxed Path Resolution for Research Factory | readme/adr/0001-path-safety.md
 0002 | Accepted | Circular Import Prevention via TYPE_CHECKING Pattern | readme/adr/0002-circular-import-prevention.md
 0003 | Accepted | Documentation Standards for AI-Readable Codebase | readme/adr/0003-documentation-standards.md

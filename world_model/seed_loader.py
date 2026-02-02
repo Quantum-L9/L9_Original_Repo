@@ -110,8 +110,8 @@ class SeedLoader:
 
         # Default seed directory
         if seed_dir is None:
-            # Relative to L9 root
-            self.seed_dir = Path(__file__).parent.parent / "seed"
+            # Relative to world_model module
+            self.seed_dir = Path(__file__).parent / "seed"
         else:
             self.seed_dir = Path(seed_dir)
 

@@ -1,0 +1,228 @@
+# L9 Reflection Memory Seeds
+# ===========================
+# Pre-loaded lessons, patterns, and improvements for the World Model
+#
+# Version: 1.0.0
+# Last Updated: 2026-02-02
+
+type: reflection_memory
+version: "1.0"
+metadata:
+  source: "L9 Operational Lessons"
+  domain: "autonomous_agent_runtime"
+
+# =========================================================================
+# Lessons Learned
+# =========================================================================
+reflections:
+  - content: "Always search existing codebase before creating new files - duplicates create integration debt"
+    type: lesson
+    context: "Code generation and refactoring"
+    priority: high
+    confidence: 0.95
+    tags:
+      - code_generation
+      - deduplication
+      - best_practice
+    metadata:
+      learned_from: "PR integration issues"
+      applies_to: "all_agents"
+
+  - content: "Surgical edits are safer than full file rewrites - preserves existing formatting and reduces merge conflicts"
+    type: lesson
+    context: "Code modification"
+    priority: high
+    confidence: 0.95
+    tags:
+      - editing
+      - safety
+      - merge_conflicts
+    metadata:
+      learned_from: "Code review feedback"
+
+  - content: "Run commands proactively and show results - users want to see actual output, not instructions"
+    type: lesson
+    context: "User interaction"
+    priority: high
+    confidence: 0.90
+    tags:
+      - user_experience
+      - proactive
+      - communication
+    metadata:
+      learned_from: "User feedback patterns"
+
+  - content: "Always provide clickable file paths - users should never hunt through folder trees"
+    type: lesson
+    context: "User interaction"
+    priority: medium
+    confidence: 0.90
+    tags:
+      - user_experience
+      - navigation
+    metadata:
+      learned_from: "User workflow observation"
+
+  - content: "Ask strategic questions before building complex features - 5 minutes of clarification saves 4 hours of rework"
+    type: lesson
+    context: "Feature development"
+    priority: critical
+    confidence: 0.95
+    tags:
+      - planning
+      - requirements
+      - efficiency
+    metadata:
+      learned_from: "Repeated rework cycles"
+
+  - content: "Never claim fixed without proof - show command outputs, test results, or file contents as evidence"
+    type: lesson
+    context: "Verification"
+    priority: high
+    confidence: 0.95
+    tags:
+      - verification
+      - trust
+      - evidence
+    metadata:
+      learned_from: "False positive fixes"
+
+  - content: "Use $HOME in paths, never hardcoded usernames - enables portability across environments"
+    type: lesson
+    context: "Configuration"
+    priority: high
+    confidence: 0.95
+    tags:
+      - portability
+      - configuration
+      - paths
+    metadata:
+      learned_from: "Cross-environment failures"
+
+  - content: "Memory client is network-only - no local fallback mode exists, 404 means operation failed"
+    type: lesson
+    context: "Memory architecture"
+    priority: high
+    confidence: 1.0
+    tags:
+      - memory
+      - architecture
+      - error_handling
+    metadata:
+      learned_from: "Architecture documentation"
+
+  - content: "Never add noqa comments to hide violations - fix the actual code, noqa is debt not a fix"
+    type: lesson
+    context: "Code quality"
+    priority: critical
+    confidence: 0.95
+    tags:
+      - code_quality
+      - compliance
+      - technical_debt
+    metadata:
+      learned_from: "Security audit findings"
+
+  - content: "Never delete folders without explicit user approval - orphaned code may be intentionally preserved"
+    type: lesson
+    context: "File operations"
+    priority: critical
+    confidence: 1.0
+    tags:
+      - safety
+      - file_operations
+      - approval
+    metadata:
+      learned_from: "Accidental deletions"
+
+# =========================================================================
+# Recognized Patterns (Positive and Negative)
+# =========================================================================
+patterns:
+  - name: "Evidence-Based Verification"
+    description: "Solutions with proof (exit codes, test output, file contents) build trust"
+    impact: positive
+    triggers:
+      - "Claiming a fix is complete"
+      - "Verifying deployment success"
+    outcomes:
+      - "User trust increases"
+      - "Fewer follow-up questions"
+      - "Faster iteration cycles"
+
+  - name: "Proactive Execution"
+    description: "Running commands and showing results instead of telling user to run them"
+    impact: positive
+    triggers:
+      - "User asks about system state"
+      - "Debugging requires output"
+    outcomes:
+      - "Faster problem resolution"
+      - "Better user experience"
+
+  - name: "Assumption Without Search"
+    description: "Creating new code without checking if similar functionality exists"
+    impact: negative
+    triggers:
+      - "Implementing new feature"
+      - "Adding utility function"
+    outcomes:
+      - "Duplicate code"
+      - "Integration work required"
+      - "Technical debt"
+
+  - name: "Silent Placeholder Addition"
+    description: "Adding aspirational/placeholder items without explicit disclosure"
+    impact: negative
+    triggers:
+      - "Config file updates"
+      - "Policy definitions"
+    outcomes:
+      - "User confusion"
+      - "False expectations"
+      - "Trust erosion"
+
+  - name: "Repeat Mistake Signal"
+    description: "User phrases like 'I told you', 'again', 'still happening' indicate known mistake being repeated"
+    impact: negative
+    triggers:
+      - "User expresses frustration"
+      - "User references prior discussion"
+    outcomes:
+      - "Must stop and correct"
+      - "Search known mistakes"
+      - "Ask for correct approach"
+
+# =========================================================================
+# Proposed Improvements
+# =========================================================================
+improvements:
+  - area: "Pre-edit Verification"
+    description: "Always read target file before editing to understand current state"
+    action_required: "Add file read step to edit workflow"
+    priority: high
+    expected_impact: "Fewer edit conflicts and better context"
+
+  - area: "Search-First Development"
+    description: "Search codebase for similar patterns before implementing new code"
+    action_required: "Add search step to development workflow"
+    priority: high
+    expected_impact: "Reduced duplication, better integration"
+
+  - area: "Memory Context Loading"
+    description: "Load relevant lessons from memory before starting complex tasks"
+    action_required: "Add memory search to task initialization"
+    priority: medium
+    expected_impact: "Avoid repeating known mistakes"
+
+# =========================================================================
+# Task Reflections (Examples)
+# =========================================================================
+task_reflections:
+  - task_id: "seed-library-creation"
+    outcome: "success"
+    learnings:
+      - "Seed files should live with their consuming module (world_model/seed not L9/seed)"
+      - "Create all related files together to avoid partial implementations"
+    improvements_for_next_time:
+      - "Ask about file organization preferences upfront"

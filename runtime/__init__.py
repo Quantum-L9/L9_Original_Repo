@@ -99,7 +99,13 @@ from runtime.kernel_state import KernelState, create_kernel_state
 from runtime.rate_limiter import RateLimiter
 
 # Redis Client
-from runtime.redis_client import RedisClient, close_redis_client, get_redis_client
+from runtime.redis_client import (
+    RedisClient,
+    close_redis_client,
+    get_cursor_wmc,  # Backwards compatibility alias
+    get_redis_client,
+    get_wmc,
+)
 
 # Task Queue
 from runtime.task_queue import QueuedTask, TaskQueue
@@ -143,6 +149,10 @@ __all__ = [
     "WebSocketOrchestrator",
     "close_redis_client",
     "create_kernel_state",
+    # Working Memory Cache (backwards compat alias)
+    "get_cursor_wmc",
+    # Working Memory Cache (new canonical name)
+    "get_wmc",
     "discover_from_packages",
     "emit_executor_trace",
     "escalate_to_igor",
