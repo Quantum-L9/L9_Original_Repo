@@ -190,7 +190,7 @@ async def memory_get_packet(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="memory", priority=10, description="memory_query_packets tool")
+# Note: memory_query_packets is registered in core/tools/registry_adapter.py
 async def memory_query_packets(
     filters: dict[str, Any],
     limit: int = 50,
