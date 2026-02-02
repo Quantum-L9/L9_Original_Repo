@@ -34,65 +34,50 @@
 # - ci/check_tool_wiring.py
 id: high_risk_tools
 version: "1.0"
+
 tool_risk_classification:
-high_risk:
+  high_risk:
     - tool_id: shell_exec
       description: "Execute shell commands"
       risk_level: critical
-
     - tool_id: file_write
       description: "Write files to filesystem"
       risk_level: high
-
     - tool_id: file_delete
       description: "Delete files from filesystem"
       risk_level: critical
-
     - tool_id: git_commit
       description: "Commit changes to git repository"
       risk_level: high
-
     - tool_id: git_push
       description: "Push changes to remote repository"
       risk_level: critical
-
     - tool_id: gmp_run
       description: "Execute GMP protocol (code changes)"
       risk_level: critical
-
     - tool_id: gmprun
       description: "Execute GMP protocol (legacy name)"
       risk_level: critical
-
     - tool_id: mac_agent_exec
       description: "Execute commands on Mac agent"
       risk_level: critical
-
     - tool_id: mac_agent_exec_task
       description: "Execute task on Mac agent"
       risk_level: critical
-
     - tool_id: deploy
       description: "Deploy to production environment"
       risk_level: critical
-
     - tool_id: github_create_pull_request
       description: "Create GitHub pull request"
       risk_level: high
-
     - tool_id: github_merge_pull_request
       description: "Merge GitHub pull request"
       risk_level: critical
-
     - tool_id: vercel_trigger_deploy
       description: "Trigger Vercel deployment"
       risk_level: critical
 
-  # ==========================================================================
-  # IGOR APPROVAL REQUIRED
-  # ==========================================================================
   # Subset of high-risk tools that MUST have Igor's explicit approval.
-  # Other high-risk tools may use automated approval workflows.
   igor_approval_required:
     - gmp_run
     - gmprun
@@ -103,9 +88,6 @@ high_risk:
     - github_merge_pull_request
     - vercel_trigger_deploy
 
-  # ==========================================================================
-  # SAFE TOOLS
-  # ==========================================================================
   # Read-only tools that can execute without approval.
   safe:
     - file_read
@@ -118,11 +100,7 @@ high_risk:
     - perplexity_search
     - web_search
 
-  # ==========================================================================
-  # SIDE EFFECT TOOLS
-  # ==========================================================================
   # Tools that have external side effects but aren't necessarily high-risk.
-  # May require governance review but not Igor approval.
   side_effect:
     - http_request
     - api_call
