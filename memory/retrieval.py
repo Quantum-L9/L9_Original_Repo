@@ -665,8 +665,9 @@ class RetrievalPipeline:
         async with self._repository.acquire() as conn:
             order_clause = "ASC" if order == "asc" else "DESC"
 
+            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             rows = await conn.fetch(
-                f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                f"""
                 SELECT * FROM packet_store
                 WHERE thread_id = $1
                 {filter_clause}
@@ -756,8 +757,9 @@ class RetrievalPipeline:
             else:
                 # Traverse down to children (with scope filter)
                 async with self._repository.acquire() as conn:
+                    # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     rows = await conn.fetch(
-                        f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                        f"""
                         SELECT packet_id FROM packet_store
                         WHERE $1 = ANY(parent_ids)
                         {filter_clause}
@@ -818,8 +820,9 @@ class RetrievalPipeline:
         else:
             # Fetch recent facts (with scope filter via JOIN)
             async with self._repository.acquire() as conn:
+                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
-                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                    f"""
                     SELECT knowledge_facts.*
                     FROM knowledge_facts
                     INNER JOIN packet_store ON packet_store.packet_id = knowledge_facts.source_packet
@@ -875,8 +878,9 @@ class RetrievalPipeline:
 
         async with self._repository.acquire() as conn:
             if packet_id:
+                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
-                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                    f"""
                     SELECT * FROM packet_store
                     WHERE packet_type = 'insight'
                     AND envelope->>'source_packet' = $1
@@ -889,8 +893,9 @@ class RetrievalPipeline:
                     *filter_params,
                 )
             elif insight_type:
+                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
-                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                    f"""
                     SELECT * FROM packet_store
                     WHERE packet_type = 'insight'
                     AND envelope->'payload'->>'insight_type' = $1
@@ -906,8 +911,9 @@ class RetrievalPipeline:
                 filter_clause_2, filter_params_2, _ = build_scope_project_filter(
                     ctx, param_idx=2, table_alias="packet_store"
                 )
+                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
-                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                    f"""
                     SELECT * FROM packet_store
                     WHERE packet_type = 'insight'
                     {filter_clause_2}

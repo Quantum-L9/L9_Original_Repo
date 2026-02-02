@@ -37,7 +37,7 @@ __dora_meta__ = {
 
 import json
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
 import structlog
@@ -157,7 +157,7 @@ class DeadLetterQueue:
         """
         try:
             packet_id = str(packet.packet_id) if packet.packet_id else "unknown"
-            now = datetime.now(timezone.utc).isoformat()
+            now = datetime.now(UTC).isoformat()
 
             # Calculate retry backoff
             backoff_seconds = min(
@@ -165,7 +165,7 @@ class DeadLetterQueue:
                 self.MAX_BACKOFF_SECONDS,
             )
             retry_after = (
-                datetime.now(timezone.utc) + timedelta(seconds=backoff_seconds)
+                datetime.now(UTC) + timedelta(seconds=backoff_seconds)
             ).isoformat()
 
             # Create DLQ entry
@@ -235,7 +235,7 @@ class DeadLetterQueue:
             # Check if retry time has passed
             if wait_for_retry:
                 retry_after = datetime.fromisoformat(entry.retry_after)
-                if datetime.now(timezone.utc) < retry_after:
+                if datetime.now(UTC) < retry_after:
                     # Not ready yet, push back to queue
                     await self._redis.rpush(self.QUEUE_KEY, entry_json)
                     return None
@@ -351,6 +351,66 @@ class DeadLetterQueue:
             return await self._redis.llen(self.QUEUE_KEY)
         except Exception:
             return 0
+
+
+# =============================================================================
+# Factory Function
+# =============================================================================
+
+_dlq_instance: DeadLetterQueue | None = None
+
+
+def get_dlq() -> DeadLetterQueue | None:
+    """
+    Get the global DLQ instance.
+
+    Returns the singleton DeadLetterQueue if Redis is available,
+    or None if Redis is not configured.
+
+    Returns:
+        DeadLetterQueue instance or None
+    """
+    global _dlq_instance
+
+    if _dlq_instance is not None:
+        return _dlq_instance
+
+    try:
+        from runtime.redis_client import get_redis_client_sync
+
+        redis = get_redis_client_sync()
+        if redis and redis.is_available():
+            _dlq_instance = DeadLetterQueue(redis)
+            return _dlq_instance
+    except Exception as e:
+        logger.warning(f"DLQ not available: {e}")
+
+    return None
+
+
+async def get_dlq_async() -> DeadLetterQueue | None:
+    """
+    Get the global DLQ instance (async version).
+
+    Returns:
+        DeadLetterQueue instance or None
+    """
+    global _dlq_instance
+
+    if _dlq_instance is not None:
+        return _dlq_instance
+
+    try:
+        from runtime.redis_client import get_redis_client
+
+        redis = await get_redis_client()
+        if redis and redis.is_available():
+            _dlq_instance = DeadLetterQueue(redis)
+            return _dlq_instance
+    except Exception as e:
+        logger.warning(f"DLQ not available: {e}")
+
+    return None
 
 
 # =============================================================================

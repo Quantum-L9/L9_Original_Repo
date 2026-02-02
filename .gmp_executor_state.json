@@ -1,8 +1,8 @@
 {
   "gmp_id": "GMP-132",
   "tier": "RUNTIME",
-  "task": "Fix Neo4j 'unavailable' status - connection URL issue where Neo4j is running but code cannot connect, likely using wrong URL (localhost vs bolt://neo4j:7687)",
-  "started_at": "2026-02-02T15:26:18.307349",
+  "task": "Fix 4 critical issues: 1) packet_store_scope_check DB constraint violation on seed data 2) relation 'packets' does not exist - missing table 3) cannot import 'get_dlq' from memory.dead_letter_queue 4) syntax error near '#' in SQL query",
+  "started_at": "2026-02-02T17:07:37.085143",
   "current_step": "scope_lock",
   "completed_steps": [
     "memory_read"
@@ -10,7 +10,7 @@
   "todo_plan": [],
   "changes_made": [],
   "validations": [],
-  "memory_context": "Query: \"Fix Neo4j 'unavailable' status - connection URL issue where Neo4j is running but code cannot connect, likely using wrong URL (localhost vs bolt://neo4j:7687)\"\n{\n  \"query\": \"Fix Neo4j 'unavailable' status - connection URL issue where Neo4j is running but code cannot connect, likely using wrong URL (localhost vs bolt://neo4j:7687)\",\n  \"hits\": [],\n  \"count\": 0,\n  \"min_confidence\": 0.0,\n  \"sort_by\": \"relevance\"\n}\n\nQuery: \"lessons errors Fix\"\n{\n  \"query\": \"lessons errors Fix\",\n  \"hits\": [],\n  \"count\": 0,\n  \"min_confidence\": 0.0,\n  \"sort_by\": \"relevance\"\n}\n\nQuery: \"gmp patterns\"\n{\n  \"query\": \"gmp patterns\",\n  \"hits\": [],\n  \"count\": 0,\n  \"min_confidence\": 0.0,\n  \"sort_by\": \"relevance\"\n}\n",
+  "memory_context": "Query: \"Fix 4 critical issues: 1) packet_store_scope_check DB constraint violation on seed data 2) relation 'packets' does not exist - missing table 3) cannot import 'get_dlq' from memory.dead_letter_queue 4) syntax error near '#' in SQL query\"\n{\n  \"query\": \"Fix 4 critical issues: 1) packet_store_scope_check DB constraint violation on seed data 2) relation 'packets' does not exist - missing table 3) cannot import 'get_dlq' from memory.dead_letter_queue 4) syntax error near '#' in SQL query\",\n  \"hits\": [\n    {\n      \"packet_id\": \"f039b8b2-842c-5fa3-9312-f4a27b884289\",\n      \"embedding_id\": \"7ca17fe3-55e2-4e39-99f4-095f606e1166\",\n      \"content\": \"SESSION: 2026-02-02. WORK: Fixed C1 deployment blockers - Neo4j connection (get_neo4j_clien\n\nQuery: \"lessons errors Fix\"\n{\n  \"query\": \"lessons errors Fix\",\n  \"hits\": [\n    {\n      \"packet_id\": \"f039b8b2-842c-5fa3-9312-f4a27b884289\",\n      \"embedding_id\": \"7ca17fe3-55e2-4e39-99f4-095f606e1166\",\n      \"content\": \"SESSION: 2026-02-02. WORK: Fixed C1 deployment blockers - Neo4j connection (get_neo4j_client\\u2192init_neo4j_client in api/server.py), governance context (added governance_context wrappers in world_model/runtime.py and seed_loader.py), removed 8 duplicate @register_tool decorators from runtime/l_tools.py. L\n\nQuery: \"gmp patterns\"\n{\n  \"query\": \"gmp patterns\",\n  \"hits\": [\n    {\n      \"packet_id\": \"5ede3960-f9d7-56bf-9314-6a820fe839fe\",\n      \"embedding_id\": \"7e4dcbeb-7b31-47a9-8acb-48423c958c82\",\n      \"content\": \"[REPO-INDEX:readme_manifest:chunk-1] L9 Index readme_manifest.txt (part 1/5): # L9 README File Manifest # Generated: 2026-02-02 16:24 # # AI Reference: Quick lookup for module documentation # Each entry shows: PATH | TITLE | DESCRIPTION # ===========================================================================\n",
   "report_path": "",
   "needs_tests": false,
   "needs_readme": false,

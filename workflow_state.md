@@ -157,10 +157,17 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-02-02 (L9Facade SDK extension, GMP-133)_
+_Last updated: 2026-02-02 (C1 deployment fixes, duplicate tools, governance context)_
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-02: **C1 Deployment Fixes** — Fixed critical blockers for C1 deployment:
+  - Neo4j connection: `get_neo4j_client()` → `init_neo4j_client()` in `api/server.py`
+  - Governance context: Added `governance_context` wrappers in `world_model/runtime.py` and `world_model/seed_loader.py`
+  - Duplicate tool registrations: Removed 8 duplicate `@register_tool` decorators from `runtime/l_tools.py` (memory_search, memory_write, memory_get_packet, mcp_list_tools, redis_set_rate_limit, memory_query_packets, memory_search_by_thread, redis_get_rate_limit)
+  - Duplicate research tool: Removed duplicate decorator from `core/tools/research_tools.py`
+  - **C1 Status:** API ✅ healthy, Neo4j ✅ connected, Governance ✅ no errors
+  - **Remaining:** ~60 duplicate tool decorators in l_tools.py (non-fatal warnings)
 - 2026-02-02: **GMP-133: L9Facade SDK Extension** — Added 9 capability interfaces (P0/P1/P2) to `core/facade/l9_facade.py`. P0: WorldModel, Governance, Observability. P1: TaskQueue, Checkpoints, MCP. P2: Learning, Compliance, Reasoning. Also: relocated DAGs to `workflows/dags/`, added `seed/coding_heuristics.yaml`, updated repo indexes. Commits: `ffe15936`, `c3ab6a4c`.
 - 2026-02-01: **C1 Security Hardening + Neo4j Fix** — Fixed Neo4j crash loop (removed `env_file` that passed invalid `NEO4J_*` env vars to Neo4j 5.x strict validation). Added Redis auth (`--requirepass`). Added Nginx TCP stream proxying for Redis/Postgres/Neo4j external access. Created ADR-0000 (Core Philosophy), ADR-0091 (Definition of Done), CI gates for protected files and DoD enforcement. **C1 Status:** Neo4j ✅, Redis ✅, Postgres ✅, MCP-Memory ✅. **OPEN:** l9-api has Agent Executor startup issue (separate from security work).
 - ✅ 2026-01-31: **Python 3.12 Pytest Fix + Deploy Cleanup** — Fixed conftest import errors (PEP 695 syntax in `core/decorators.py`, Pydantic union types in `clients/memory_client.py`, `api/routes/registry.py`). Added pytest alias to `~/.zshrc` for Python 3.12. Deleted 7 obsolete deploy docs (100KB). Identified 7 archive folders safe to delete (~920K).
@@ -169,10 +176,16 @@ _Last updated: 2026-02-02 (L9Facade SDK extension, GMP-133)_
 
 ## Next Steps (Current Session)
 
-### 🔴 CRITICAL: Fix l9-api Agent Executor Startup on C1
-- **Error:** `RuntimeError: Agent Executor required for Slack routing but failed to initialize`
-- **Workaround:** Set `L9_MINIMAL_MODE=true` in .env to start in minimal mode
-- **Proper fix:** Debug Agent Executor initialization dependencies
+### ✅ COMPLETED: C1 l9-api Deployment Blockers Fixed
+- Neo4j connection: ✅ Fixed (`init_neo4j_client()`)
+- Governance context: ✅ Fixed (World Model + Seed Loader)
+- Duplicate tool registrations: ✅ Fixed (8 critical ones)
+- **C1 API Status:** HEALTHY
+
+### 🟡 NON-CRITICAL: Remaining Duplicate Tool Decorators
+- ~60 `@register_tool` decorators in `runtime/l_tools.py` are duplicates of `registry_adapter.py`
+- **Impact:** Startup warnings only, API works fine
+- **Fix:** Remove all decorators from l_tools.py OR make registration idempotent in `core/auto_registry.py`
 
 ### 🚨 EXECUTE migrations at next Docker rebuild!!!
 - Run deploy script **without** `--skip-migrations` so Phase 4 (PostgreSQL) and Phase 5 (Neo4j) run.

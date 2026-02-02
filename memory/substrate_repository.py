@@ -394,8 +394,9 @@ class SubstrateRepository:
                 filter_clause, filter_params, _ = build_scope_project_filter(
                     ctx, param_idx=5, table_alias="packet_store"
                 )  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
-                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                    f"""
                     SELECT * FROM packet_store
                     WHERE thread_id = $1 AND packet_type = $2
                     {filter_clause}
@@ -412,8 +413,9 @@ class SubstrateRepository:
                 filter_clause, filter_params, _ = build_scope_project_filter(
                     ctx, param_idx=4, table_alias="packet_store"
                 )  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
-                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                    f"""
                     SELECT * FROM packet_store
                     WHERE thread_id = $1
                     {filter_clause}
@@ -473,9 +475,10 @@ class SubstrateRepository:
             conditions.append(f"envelope->'metadata'->>'project_id' = ${param_idx - 1}")
             params.extend(filter_params)
 
-            params.append(limit)  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            params.append(limit)
 
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            query = f"""
                 SELECT * FROM packet_store
                 WHERE {" AND ".join(conditions)}
                 ORDER BY timestamp DESC
@@ -909,9 +912,10 @@ class SubstrateRepository:
                 params.append(subject)
                 param_idx += 1
 
-            params.append(limit)  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            params.append(limit)
 
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            query = f"""
                 SELECT * FROM knowledge_facts
                 WHERE {" AND ".join(conditions)}
                 ORDER BY created_at DESC

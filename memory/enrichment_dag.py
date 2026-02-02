@@ -692,7 +692,7 @@ class EnrichmentDAG:
                 # MEMORY_BYPASS_ALLOWED: Tier-3-emergency-fallback-when-enrichment-pipeline-fails
                 await conn.execute(
                     """
-                    INSERT INTO packets (packet_id, packet_type, payload, timestamp)
+                    INSERT INTO packet_store (packet_id, packet_type, envelope, timestamp)
                     VALUES ($1, $2, $3, $4)
                     """,
                     envelope.packet_id,

@@ -169,7 +169,8 @@ class PostgresIntrospector:
 
         async with self._pool.acquire() as conn:
             # Get tables
-            tables_query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            tables_query = f"""
                 SELECT table_schema, table_name, table_type
                 FROM information_schema.tables
                 WHERE table_schema = $1

@@ -446,8 +446,9 @@ class ImportanceManager:
             async with self._repository.acquire() as conn:
                 if dry_run:
                     # Just count candidates
+                    # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     row = await conn.fetchrow(
-                        f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                        f"""
                         SELECT COUNT(*) as count
                         FROM semantic_facts
                         WHERE tier != ALL($1::text[])
@@ -462,8 +463,9 @@ class ImportanceManager:
                     return count
 
                 # Actually prune
+                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 result = await conn.execute(
-                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                    f"""
                     DELETE FROM semantic_facts
                     WHERE fact_id IN (
                         SELECT fact_id
