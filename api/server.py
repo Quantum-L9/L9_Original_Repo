@@ -284,6 +284,10 @@ except ImportError:
 # Optional: Symbolic Computation Service (v2.9+ / GMP-SYMPY-TASK4)
 # DISABLED: sympy commented out in requirements-production.txt to reduce VPS bloat
 _has_symbolic = False
+
+# Deprecated/removed features - set to False for compatibility
+_has_factory = False  # research_factory removed
+_has_commands = False  # commands_interface removed
 # try:
 #     from services.symbolic_computation.api.routes import router as symbolic_router
 #     _has_symbolic = True
@@ -315,7 +319,10 @@ try:
         startup_path = Path(__file__).parent.parent / ".cursor-commands" / "startup"
         if startup_path.exists():
             sys.path.insert(0, str(startup_path.parent))
-            from startup.session_startup import SessionStartup, StartupResult
+            from startup.session_startup import (  # type: ignore[import-not-found]
+                SessionStartup,
+                StartupResult,
+            )
         else:
             from core.governance.session_startup import SessionStartup, StartupResult
     except ImportError:
@@ -968,8 +975,10 @@ async def lifespan(app: FastAPI):
             if str(mcp_path) not in sys.path:
                 sys.path.insert(0, str(mcp_path))
 
-            from src.config import settings as mcp_settings
-            from src.db import init_db as mcp_init_db
+            from src.config import (
+                settings as mcp_settings,  # type: ignore[import-not-found]
+            )
+            from src.db import init_db as mcp_init_db  # type: ignore[import-not-found]
 
             # Set MCP config to use same database
             mcp_settings.MEMORY_DSN = database_url
@@ -1618,8 +1627,9 @@ async def lifespan(app: FastAPI):
     import asyncio
 
     # Neo4j connection retry configuration (configurable via env vars)
-    neo4j_max_retries = int(os.getenv("NEO4J_MAX_RETRIES", "5"))
-    neo4j_retry_delay = float(os.getenv("NEO4J_RETRY_DELAY", "3.0"))
+    # GMP-132: Increased defaults to handle Docker DNS resolution timing
+    neo4j_max_retries = int(os.getenv("NEO4J_MAX_RETRIES", "10"))
+    neo4j_retry_delay = float(os.getenv("NEO4J_RETRY_DELAY", "5.0"))
 
     try:
         from memory.graph_client import (
@@ -1687,7 +1697,9 @@ async def lifespan(app: FastAPI):
         if neo4j and neo4j.is_available():
             # Bootstrap governance schema (creates Responsibility, Directive, SOP labels)
             try:
-                from scripts.bootstrap_neo4j_schema import bootstrap_l_governance
+                from scripts.bootstrap_neo4j_schema import (
+                    bootstrap_l_governance,  # type: ignore[import-not-found]
+                )
 
                 bootstrap_result = await bootstrap_l_governance(neo4j.driver)
                 if bootstrap_result.get("success"):
@@ -2843,7 +2855,9 @@ async def lifespan(app: FastAPI):
     # Cleanup MCP Memory DB pool
     if getattr(app.state, "mcp_db_initialized", False):
         try:
-            from src.db import close_db as mcp_close_db
+            from src.db import (
+                close_db as mcp_close_db,  # type: ignore[import-not-found]
+            )
 
             await mcp_close_db()
             logger.info("MCP Memory DB pool closed")

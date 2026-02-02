@@ -83,6 +83,7 @@
 
 ## Recent Changes (digest)
 
+- [2026-02-02] **C1 Deployment Plan Complete** — Applied Fix 2 (Neo4j retry config: 5→10 retries, 3.0→5.0s delay). Verified Fixes 1,3,4 already applied. Fixed 7 linter errors in api/server.py (undefined `_has_factory`/`_has_commands`, dynamic import warnings). Files: `api/server.py`.
 - [2026-01-31] **Python 3.12 Pytest Fix** — Fixed conftest import errors: PEP 695 syntax in `core/decorators.py`, Pydantic union types in `clients/memory_client.py` + `api/routes/registry.py`. Added `from __future__ import annotations`. Configured pytest alias for Python 3.12.
 - [2026-01-31] **Deploy Docs Cleanup** — Deleted 7 obsolete C1 deployment docs (100KB): CADDY_CONFIG.md, DEPLOYMENT_GUIDE.md, dockerfile locations.md, FIREWALL.md, L9-MCP-IMPL.md, nginx.md, VPS_DEPLOYMENT_GUIDE.md. Kept 4 active docs.
 - [2026-01-31] **GMP-128: Adapt MCP Tools Enhancements to L9 APIs** — Integrated 5 harvested MCP tool enhancements (namespace isolation, live refresh, auth management, observability, role-based filtering) into existing L
@@ -157,10 +158,11 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-02-02 (C1 deployment fixes, duplicate tools, governance context)_
+_Last updated: 2026-02-02 (Neo4j retry config, linter fixes, deployment plan complete)_
 
 ## Recent Sessions (7-day window)
 
+- ✅ 2026-02-02: **C1 Deployment Plan Implementation + Linter Fixes** — Implemented remaining fix from deployment plan (Neo4j retry: 5→10 retries, 3.0→5.0s delay). Fixed 7 linter errors in api/server.py (added `_has_factory`, `_has_commands` declarations; added `# type: ignore` for dynamic imports). Verified Fixes 1,3,4 were already applied. All 4 deployment blockers resolved.
 - 2026-02-02: **C1 Deployment Fixes** — Fixed critical blockers for C1 deployment:
   - Neo4j connection: `get_neo4j_client()` → `init_neo4j_client()` in `api/server.py`
   - Governance context: Added `governance_context` wrappers in `world_model/runtime.py` and `world_model/seed_loader.py`
