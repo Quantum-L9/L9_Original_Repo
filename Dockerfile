@@ -53,7 +53,10 @@ FROM base AS development
 COPY requirements-docker.txt /app/
 
 # Install Python dependencies (includes dev tools)
+# NOTE: Install CPU-only PyTorch FIRST to avoid 3GB+ CUDA dependencies
+# sentence-transformers depends on torch, but we don't need GPU support
 RUN python -m pip install -U pip setuptools wheel && \
+    pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r requirements-docker.txt
 
 # Copy application code (will be overridden by volume mounts in dev)
@@ -94,7 +97,10 @@ LABEL org.opencontainers.image.created="${BUILD_DATE}" \
 COPY requirements-docker.txt /app/
 
 # Install Python dependencies (production only, no dev tools)
+# NOTE: Install CPU-only PyTorch FIRST to avoid 3GB+ CUDA dependencies
+# sentence-transformers depends on torch, but we don't need GPU support
 RUN python -m pip install -U pip setuptools wheel && \
+    pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir -r requirements-docker.txt && \
     pip cache purge
 
