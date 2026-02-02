@@ -157,10 +157,11 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-02-01 (C1 security hardening, Neo4j fix)_
+_Last updated: 2026-02-02 (L9Facade SDK extension, GMP-133)_
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-02: **GMP-133: L9Facade SDK Extension** — Added 9 capability interfaces (P0/P1/P2) to `core/facade/l9_facade.py`. P0: WorldModel, Governance, Observability. P1: TaskQueue, Checkpoints, MCP. P2: Learning, Compliance, Reasoning. Also: relocated DAGs to `workflows/dags/`, added `seed/coding_heuristics.yaml`, updated repo indexes. Commits: `ffe15936`, `c3ab6a4c`.
 - 2026-02-01: **C1 Security Hardening + Neo4j Fix** — Fixed Neo4j crash loop (removed `env_file` that passed invalid `NEO4J_*` env vars to Neo4j 5.x strict validation). Added Redis auth (`--requirepass`). Added Nginx TCP stream proxying for Redis/Postgres/Neo4j external access. Created ADR-0000 (Core Philosophy), ADR-0091 (Definition of Done), CI gates for protected files and DoD enforcement. **C1 Status:** Neo4j ✅, Redis ✅, Postgres ✅, MCP-Memory ✅. **OPEN:** l9-api has Agent Executor startup issue (separate from security work).
 - ✅ 2026-01-31: **Python 3.12 Pytest Fix + Deploy Cleanup** — Fixed conftest import errors (PEP 695 syntax in `core/decorators.py`, Pydantic union types in `clients/memory_client.py`, `api/routes/registry.py`). Added pytest alias to `~/.zshrc` for Python 3.12. Deleted 7 obsolete deploy docs (100KB). Identified 7 archive folders safe to delete (~920K).
 - ✅ 2026-01-31: **ADR Enforcement Cleanup** — Fixed ADR-0087 checker (was flagging log messages), removed 150 false positive noqa comments, documented 33 SAFE SQL patterns with explanations, added Lesson #37 to repeated-mistakes.md
@@ -264,4 +265,4 @@ PR #51 (Spring Cleaning) — MERGED ✅
 
 ---
 
-_Last updated: 2026-02-01_
+_Last updated: 2026-02-02_
