@@ -2,16 +2,17 @@
 
 ## Status
 
-Accepted
+Accepted (Updated 2026-02-02)
 
 ## Pattern
 
-Unified facade (`L9Facade`) providing simplified access to L9 subsystems without exposing internal complexity.
+Unified facade (`L9`) providing simplified access to L9 subsystems without exposing internal complexity.
 
 ## Files
 
-- `core/facade/l9_facade.py` - Implementation
-- `core/facade/__init__.py` - Exports
+- `l9/facade.py` - Implementation (canonical location)
+- `l9/__init__.py` - SDK exports
+- `core/facade/` - Backwards compatibility shims (deprecated)
 
 ## Context
 
@@ -37,13 +38,17 @@ The Facade pattern provides a single, simplified entry point.
 ## Import Block
 
 ```python
-from core.facade import (
-    L9Facade,
-    get_l9_facade,
+# Preferred (SDK at root level)
+from l9 import (
+    L9,
+    get_l9,
     run_task,
     execute_tool,
     query_memory,
 )
+
+# Legacy (backwards compatible, deprecated)
+from core.facade import L9Facade, get_l9_facade
 ```
 
 ## Minimal Implementation
@@ -124,10 +129,10 @@ class L9Facade:
 ## Usage Example
 
 ```python
-from core.facade import get_l9_facade
+from l9 import get_l9
 
 # Get singleton facade
-l9 = await get_l9_facade()
+l9 = await get_l9()
 await l9.initialize()
 
 # Simple API — no subsystem knowledge required
@@ -137,7 +142,7 @@ await l9.execute_tool("slack_send", channel="#general", message="Done!")
 await l9.send_message("research", "l-cto", {"status": "complete"})
 
 # Quick functions for even simpler access
-from core.facade import run_task, query_memory
+from l9 import run_task, query_memory
 result = await run_task("Analyze code")
 memories = await query_memory("patterns")
 ```

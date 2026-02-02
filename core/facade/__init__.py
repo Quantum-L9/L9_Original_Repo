@@ -1,22 +1,31 @@
 """
-L9 Facade Module
-================
+L9 Facade Module (DEPRECATED - use `l9` package instead)
+========================================================
 
-Provides a simplified, unified API for L9 AIOS operations.
+This module is maintained for backwards compatibility only.
+All exports are re-exported from the canonical `l9/` package.
+
+MIGRATION:
+    # Old (deprecated)
+    from core.facade import L9Facade, get_l9_facade
+
+    # New (preferred)
+    from l9 import L9, get_l9
 """
 
 # ============================================================================
 __dora_meta__ = {
-    "component_name": "  Init  ",
-    "module_version": "1.0.0",
-    "created_by": "Igor Beylin",
+    "component_name": "L9 Facade (Backwards Compat)",
+    "module_version": "2.0.0",
+    "created_by": "GMP-134",
     "created_at": "2026-01-24T13:25:14Z",
-    "updated_at": "2026-01-31T22:21:46Z",
+    "updated_at": "2026-02-02T18:50:00Z",
     "layer": "foundation",
     "domain": "core",
     "module_name": "__init__",
     "type": "utility",
-    "status": "active",
+    "status": "deprecated",
+    "deprecation_notice": "Use 'from l9 import L9, get_l9' instead",
     "integrates_with": {
         "api_endpoints": [],
         "datasources": [],
@@ -26,21 +35,23 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from core.facade.l9_facade import (
+# Re-export everything from the canonical l9 package location
+from l9 import (
+    # P1: Operational interfaces (Should Have)
     CheckpointsInterface,
+    # P2: Advanced interfaces (Nice to Have)
     ComplianceInterface,
+    # P0: Core interfaces (Must Have)
     GovernanceInterface,
     # Main facade
     L9Facade,
-    # P2: Advanced interfaces (Nice to Have)
     LearningInterface,
     MCPInterface,
     ObservabilityInterface,
     ReasoningInterface,
-    # P1: Operational interfaces (Should Have)
     TaskQueueInterface,
-    # P0: Core interfaces (Must Have)
     WorldModelInterface,
+    close_l9_facade,
     # Convenience functions
     execute_tool,
     get_l9_facade,
@@ -52,6 +63,7 @@ __all__ = [
     # Main facade
     "L9Facade",
     "get_l9_facade",
+    "close_l9_facade",
     # Convenience functions
     "execute_tool",
     "query_memory",
@@ -69,36 +81,3 @@ __all__ = [
     "ComplianceInterface",
     "ReasoningInterface",
 ]
-# ============================================================================
-# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
-# ============================================================================
-__dora_footer__ = {
-    "component_id": "COR-FOUN-086",
-    "governance_level": "critical",
-    "compliance_required": True,
-    "audit_trail": True,
-    "dependencies": ["core.facade.l9_facade"],
-    "tags": ["api", "core", "foundation", "utility"],
-    "keywords": ["module"],
-    "business_value": "Provides a simplified, unified API for L9 AIOS operations.",
-    "last_modified": "2026-01-31T22:21:46Z",
-    "modified_by": "L9_Codegen_Engine",
-    "change_summary": "Initial generation with DORA compliance",
-}
-# ============================================================================
-# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
-# Runtime execution trace - updated automatically on every execution
-# ============================================================================
-__l9_trace__ = {
-    "trace_id": "",
-    "task": "",
-    "timestamp": "",
-    "patterns_used": [],
-    "graph": {"nodes": [], "edges": []},
-    "inputs": {},
-    "outputs": {},
-    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
-}
-# ============================================================================
-# END L9 DORA BLOCK
-# ============================================================================

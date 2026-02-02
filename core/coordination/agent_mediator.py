@@ -64,7 +64,7 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["core.facade.l9_facade"],
+        "imported_by": ["l9.facade", "core.facade.l9_facade"],
     },
 }
 # ============================================================================
@@ -73,7 +73,7 @@ import asyncio
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -350,7 +350,7 @@ class AgentMediator:
             # Update delivery status
             status = self.delivery_status[message.id]
             status.delivered = True
-            status.delivery_time = datetime.now(timezone.utc)
+            status.delivery_time = datetime.now(UTC)
 
             logger.debug(f"Message delivered to {agent_id}", message_id=message.id)
         except Exception as e:
@@ -375,7 +375,9 @@ class AgentMediator:
         logger.info(f"Delivering {len(messages)} queued messages to {agent_id}")
 
         # PERFORMANCE: Use asyncio.gather for parallel message delivery
-        await asyncio.gather(*[self._deliver_message(agent_id, message) for message in messages])
+        await asyncio.gather(
+            *[self._deliver_message(agent_id, message) for message in messages]
+        )
 
         # Clear queue
         del self.message_queue[agent_id]
