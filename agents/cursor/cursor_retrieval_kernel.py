@@ -1,10 +1,20 @@
+# agents/cursor/cursor_retrieval_kernel.py
+"""
+Enforces: Check working memory → long-term memory → repo (no skipping)
+This is the core of eliminating grepping.
+
+Async-compatible for L9 architecture.
+"""
+
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cursor Retrieval Kernel",
     "module_version": "1.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-28T22:45:42Z",
-    "updated_at": "2026-01-31T22:21:54Z",
+    "updated_at": "2026-02-02T10:35:00Z",
     "layer": "intelligence",
     "domain": "data_models",
     "module_name": "cursor_retrieval_kernel",
@@ -18,16 +28,6 @@ __dora_meta__ = {
     },
 }
 # ============================================================================
-
-# agents/cursor/cursor_retrieval_kernel.py
-"""
-Enforces: Check working memory → long-term memory → repo (no skipping)
-This is the core of eliminating grepping.
-
-Async-compatible for L9 architecture.
-"""
-
-from __future__ import annotations
 
 from enum import Enum
 from typing import TYPE_CHECKING, Any

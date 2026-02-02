@@ -1,10 +1,20 @@
+# agents/cursor/cursor_session_hooks.py
+"""
+Hooks into Cursor session start/action/end.
+Maintains working memory without modifying AgentExecutor.
+
+Async-compatible for L9 architecture.
+"""
+
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cursor Session Hooks",
     "module_version": "1.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-28T22:45:42Z",
-    "updated_at": "2026-01-31T22:21:54Z",
+    "updated_at": "2026-02-02T10:35:00Z",
     "layer": "intelligence",
     "domain": "agent_execution",
     "module_name": "cursor_session_hooks",
@@ -18,16 +28,6 @@ __dora_meta__ = {
     },
 }
 # ============================================================================
-
-# agents/cursor/cursor_session_hooks.py
-"""
-Hooks into Cursor session start/action/end.
-Maintains working memory without modifying AgentExecutor.
-
-Async-compatible for L9 architecture.
-"""
-
-from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 

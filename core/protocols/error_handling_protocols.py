@@ -1,10 +1,20 @@
+# core/protocols/error_handling_protocols.py
+"""
+Error handling protocols and implementations for L9 async-first codebase.
+
+This module provides a production-ready error handling system using typing.Protocol,
+structlog for structured logging, and Python 3.12 async/await syntax.
+"""
+
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Error Handling Protocols",
     "module_version": "1.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-25T08:48:24Z",
-    "updated_at": "2026-01-25T08:58:45Z",
+    "updated_at": "2026-02-02T10:35:00Z",
     "layer": "foundation",
     "domain": "data_models",
     "module_name": "error_handling_protocols",
@@ -19,23 +29,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-# core/protocols/error_handling_protocols.py
-"""
-Error handling protocols and implementations for L9 async-first codebase.
-
-This module provides a production-ready error handling system using typing.Protocol,
-structlog for structured logging, and Python 3.12 async/await syntax.
-"""
-
-from __future__ import annotations
-
 import asyncio
 import dataclasses
 import enum
 import traceback
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Protocol, runtime_checkable
 
 import structlog
