@@ -77,7 +77,6 @@ def _get_research_agent():
 
 
 @register_tool(category="research", priority=10, description="run_research_query tool")
-@register_tool(category="research", priority=10, description="run_research_query tool")
 async def run_research_query(
     query: str,
     user_id: str = "l_agent",

@@ -152,9 +152,9 @@ async def memory_write(
 
 # ============================================================================
 # MEMORY SUBSTRATE DIRECT ACCESS (Batch 1 - GMP-31)
+# Note: memory_get_packet is registered in core/tools/registry_adapter.py
 
 
-@register_tool(category="memory", priority=10, description="memory_get_packet tool")
 async def memory_get_packet(
     packet_id: str,
     **kwargs: Any,
@@ -910,7 +910,7 @@ async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="mcp", priority=10, description="mcp_list_tools tool")
+# Note: mcp_list_tools is registered in core/tools/registry_adapter.py
 async def mcp_list_tools(
     server_id: str,
     **kwargs: Any,
@@ -1253,7 +1253,7 @@ async def redis_get_rate_limit(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(category="redis", priority=10, description="redis_set_rate_limit tool")
+# Note: redis_set_rate_limit is registered in core/tools/registry_adapter.py
 async def redis_set_rate_limit(
     key: str,
     count: int,
