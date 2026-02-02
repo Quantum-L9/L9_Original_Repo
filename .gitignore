@@ -34,9 +34,8 @@ production/
 neo4j/data/
 
 # --- Editor / Agent tooling (Mac-local only, symlinks to Dropbox) ---
-.cursor-commands/
-!.cursor-commands/learning/
-!.cursor-commands/learning/**
+.cursor-commands
+.cursorrules
 .cursor/
 .dora/
 
