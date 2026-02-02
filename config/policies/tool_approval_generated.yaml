@@ -51,10 +51,7 @@ policies:
     resources:
       - "*"
     enabled: true
-    conditions:
-      requires_approval: true
-      approvers:
-        - Igor
+    # Note: requires_approval logic handled by deny effect + priority
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================
