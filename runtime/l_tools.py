@@ -35,7 +35,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -53,9 +53,9 @@ logger = structlog.get_logger(__name__)
 
 # ============================================================================
 # MEMORY SUBSTRATE TOOLS
+# Note: memory_search is registered in core/tools/memory_tools.py
 
 
-@register_tool(category="memory", priority=10, description="memory_search tool")
 async def memory_search(
     query: str,
     segment: str = "all",
@@ -752,7 +752,7 @@ async def gmp_run(
             payload={
                 "gmp_id": gmp_id,
                 "params": params,
-                "queued_at": datetime.now(timezone.utc).isoformat(),
+                "queued_at": datetime.now(UTC).isoformat(),
             },
             agent_id=kwargs.get("agent_id", "L"),
         )
@@ -764,7 +764,7 @@ async def gmp_run(
             "gmp_id": gmp_id,
             "task_id": task_id,
             "params": params,
-            "queued_at": datetime.now(timezone.utc).isoformat(),
+            "queued_at": datetime.now(UTC).isoformat(),
         }
     except Exception as e:
         logger.error(f"GMP run failed: {e}")
@@ -807,7 +807,7 @@ async def git_commit(
             payload={
                 "message": message,
                 "files": files,
-                "queued_at": datetime.now(timezone.utc).isoformat(),
+                "queued_at": datetime.now(UTC).isoformat(),
             },
             agent_id=kwargs.get("agent_id", "L"),
         )
@@ -819,7 +819,7 @@ async def git_commit(
             "task_id": task_id,
             "message": message,
             "files": files,
-            "queued_at": datetime.now(timezone.utc).isoformat(),
+            "queued_at": datetime.now(UTC).isoformat(),
         }
     except Exception as e:
         logger.error(f"Git commit failed: {e}")
@@ -871,10 +871,10 @@ async def mac_agent_exec_task(
 
 # ============================================================================
 # EXTERNAL PROTOCOL TOOLS (MCP)
+# Note: mcp_list_servers is registered in runtime/mcp_tools.py
 
 
 @must_stay_async("callers use await")
-@register_tool(category="mcp", priority=10, description="mcp_list_servers tool")
 async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
     """
     List all configured MCP servers.
@@ -1221,9 +1221,9 @@ async def mcp_stop_all_servers(**kwargs: Any) -> dict[str, Any]:
 
 # ============================================================================
 # RATE LIMITING TOOLS (GMP-32 Batch 7)
+# Note: redis_get_rate_limit is registered in runtime/redis_tools.py
 
 
-@register_tool(category="redis", priority=10, description="redis_get_rate_limit tool")
 async def redis_get_rate_limit(
     key: str,
     **kwargs: Any,
