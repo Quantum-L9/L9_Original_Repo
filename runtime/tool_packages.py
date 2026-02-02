@@ -62,7 +62,7 @@ logger = structlog.get_logger(__name__)
 
 TOOL_PACKAGES: list[str] = [
     # === MIGRATED (from l_tools.py) ===
-    "runtime.redis_tools",  # GMP-122: Redis cache & queue tools (13)
+    # "runtime.redis_tools",  # GMP-122: DISABLED - not needed per Igor
     "runtime.mcp_tools",  # GMP-123: MCP server tools (7)
     # === EXISTING (already use @register_tool) ===
     "core.tools.research_tools",  # Research tools (4)
