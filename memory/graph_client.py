@@ -131,6 +131,12 @@ class Neo4jClient:
             return False
 
         try:
+            logger.debug(
+                "Attempting Neo4j connection",
+                uri=self._uri,
+                user=self._user,
+                database=self._database,
+            )
             self._driver = AsyncGraphDatabase.driver(
                 self._uri,
                 auth=basic_auth(self._user, self._password),
@@ -144,12 +150,22 @@ class Neo4jClient:
             logger.info(f"Neo4j connected: {self._uri}/{self._database}")
             return True
         except (ServiceUnavailable, AuthError) as e:
-            logger.warning(f"Neo4j connection failed: {e}")
+            logger.warning(
+                f"Neo4j connection failed: {e}",
+                uri=self._uri,
+                user=self._user,
+                has_password=bool(self._password),
+            )
             self._driver = None
             self._available = False
             return False
         except Exception as e:
-            logger.warning(f"Neo4j connection failed: {e}")
+            logger.warning(
+                f"Neo4j connection failed: {e}",
+                uri=self._uri,
+                user=self._user,
+                has_password=bool(self._password),
+            )
             self._driver = None
             self._available = False
             return False

@@ -58,6 +58,7 @@ __dora_meta__ = {
 
 import asyncio
 import fnmatch
+import os
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -247,15 +248,35 @@ class MemorySubstratePacketSource(PacketSource):
             # Filter by packet types if specified
             type_filter = list(packet_types) if packet_types else None
 
-            result = await self.substrate_service.query_packets(
-                packet_types=type_filter,
-                limit=limit,
-                since=since,
+            # GMP-132: Wrap with governance context for background operations
+            from memory.governance_gate import (
+                build_governance_context,
+                governance_context,
+            )
+
+            gov_ctx = build_governance_context(
+                caller_id="world_model_runtime",
+                role="system",
+                scope="agent",
+                project_id=os.getenv("L9_PROJECT_ID", "l9"),
+                allowed_scopes=["agent", "memory", "global"],
                 tenant_id=self.tenant_id,
                 org_id=self.org_id,
                 user_id=self.user_id,
-                role=self.role,
+                creator="world_model",
+                source="runtime_fetch",
             )
+
+            async with governance_context(gov_ctx):
+                result = await self.substrate_service.query_packets(
+                    packet_types=type_filter,
+                    limit=limit,
+                    since=since,
+                    tenant_id=self.tenant_id,
+                    org_id=self.org_id,
+                    user_id=self.user_id,
+                    role=self.role,
+                )
 
             # Convert to dicts
             return [

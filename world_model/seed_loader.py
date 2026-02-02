@@ -213,6 +213,29 @@ class SeedLoader:
             True if successful
         """
         try:
+            # GMP-132: Wrap with governance context for background operations
+            import os
+
+            from config.rls_config import get_rls_config
+            from memory.governance_gate import (
+                build_governance_context,
+                governance_context,
+            )
+
+            rls_config = get_rls_config()
+            gov_ctx = build_governance_context(
+                caller_id="seed_loader",
+                role="system",
+                scope="agent",
+                project_id=os.getenv("L9_PROJECT_ID", "l9"),
+                allowed_scopes=["agent", "memory", "global"],
+                tenant_id=rls_config.tenant_uuid,
+                org_id=rls_config.org_uuid,
+                user_id=rls_config.user_uuid,
+                creator="seed_loader",
+                source="write_packet",
+            )
+
             packet_in = PacketEnvelopeIn(
                 packet_type=packet.packet_type,
                 payload=packet.payload,
@@ -222,7 +245,8 @@ class SeedLoader:
                 ),
             )
 
-            result = await self.substrate.write_packet(packet_in)
+            async with governance_context(gov_ctx):
+                result = await self.substrate.write_packet(packet_in)
 
             if result.status == "ok":
                 logger.info(f"Wrote packet {packet.packet_id} to substrate")

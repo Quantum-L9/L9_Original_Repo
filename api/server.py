@@ -1622,7 +1622,11 @@ async def lifespan(app: FastAPI):
     neo4j_retry_delay = float(os.getenv("NEO4J_RETRY_DELAY", "3.0"))
 
     try:
-        from memory.graph_client import close_neo4j_client, get_neo4j_client
+        from memory.graph_client import (
+            close_neo4j_client,
+            get_neo4j_client,
+            init_neo4j_client,
+        )
 
         neo4j = None
         for attempt in range(neo4j_max_retries):
@@ -1634,7 +1638,9 @@ async def lifespan(app: FastAPI):
                     except Exception:
                         pass  # Ignore errors closing non-existent client
 
-                neo4j = await get_neo4j_client()
+                # Use init_neo4j_client() on first attempt to CREATE the singleton
+                # GMP-132: get_neo4j_client() only retrieves existing client, does not create
+                neo4j = await init_neo4j_client()
                 if neo4j and neo4j.is_available():
                     app.state.neo4j_client = neo4j
                     logger.info(

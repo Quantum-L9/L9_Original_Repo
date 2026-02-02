@@ -104,7 +104,7 @@ async def memory_search(
         return {"error": str(e), "hits": []}
 
 
-@register_tool(category="memory", priority=10, description="memory_write tool")
+# Note: memory_write is registered in core/tools/memory_tools.py
 async def memory_write(
     packet: dict[str, Any],
     segment: str,
