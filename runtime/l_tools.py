@@ -225,9 +225,7 @@ async def memory_query_packets(
         return {"error": str(e), "status": "error"}
 
 
-@register_tool(
-    category="memory", priority=10, description="memory_search_by_thread tool"
-)
+# Note: memory_search_by_thread is registered in core/tools/registry_adapter.py
 async def memory_search_by_thread(
     thread_id: str,
     limit: int = 50,
