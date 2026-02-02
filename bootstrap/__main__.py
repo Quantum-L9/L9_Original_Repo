@@ -206,7 +206,13 @@ async def main() -> None:
                 {"key": BOOTSTRAP_KEY},
             )
             if result.first():
-                fatal("Bootstrap already completed. Refusing to run twice.")
+                # Exit 0 (success) - "already completed" is expected, not an error
+                # This allows service_completed_successfully dependencies to work
+                print(
+                    "[BOOTSTRAP:OK] Bootstrap already completed. Skipping.",
+                    file=sys.stderr,
+                )  # noqa: ADR-0019
+                sys.exit(0)
         except Exception as e:
             # Table doesn't exist yet - this is expected on first run
             if "system_state" in str(e) and (
