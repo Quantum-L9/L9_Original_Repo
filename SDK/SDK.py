@@ -2,8 +2,8 @@
 L9 SDK - Simplified API for L9 AIOS
 ===================================
 
-The canonical SDK for L9 Secure AI OS. Implements the Facade design pattern
-to provide a simple, unified interface to complex L9 subsystems.
+The canonical SDK for L9 Secure AI OS. Provides a simple, unified interface
+to complex L9 subsystems.
 
 Benefits:
 - Simple, intuitive API for common operations
@@ -13,7 +13,7 @@ Benefits:
 - Easier to maintain and evolve internal architecture
 
 Usage:
-    from l9 import L9, get_l9
+    from SDK import L9, get_l9
 
     # Get singleton instance (via L9 registry)
     l9 = await get_l9()
@@ -40,9 +40,9 @@ Usage:
         message="Task complete!"
     )
 
-Version: 2.0.0
-Location: l9/ (root-level SDK)
-Relocated from: core/facade/ (GMP-134)
+Version: 2.1.0
+Location: SDK/ (root-level)
+Relocated from: l9/facade.py → core/facade/ (GMP-134, GMP-135)
 """
 
 from __future__ import annotations

@@ -6,7 +6,7 @@ The official SDK for interacting with L9 Secure AI OS.
 Provides a simplified, unified API for all L9 operations.
 
 Usage:
-    from l9 import L9, get_l9
+    from SDK import L9, get_l9
 
     # Get singleton instance
     l9 = await get_l9()
@@ -18,7 +18,7 @@ Usage:
     await l9.execute_tool("slack_send", channel="#general", message="Done!")
 
 Quick functions:
-    from l9 import run_task, query_memory, execute_tool
+    from SDK import run_task, query_memory, execute_tool
 
     result = await run_task("Analyze code")
     memories = await query_memory("patterns")
@@ -46,28 +46,28 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from l9.facade import (
-    # P1: Operational interfaces (Should Have)
-    CheckpointsInterface,
-    # P2: Advanced interfaces (Nice to Have)
-    ComplianceInterface,
-    # P0: Core interfaces (Must Have)
-    GovernanceInterface,
+from SDK.SDK import (
     # Main SDK class
     L9Facade,
-    LearningInterface,
-    MCPInterface,
-    ObservabilityInterface,
-    ReasoningInterface,
-    TaskQueueInterface,
-    WorldModelInterface,
     # Singleton accessors
+    get_l9_facade,
     close_l9_facade,
     # Convenience functions
-    execute_tool,
-    get_l9_facade,
-    query_memory,
     run_task,
+    execute_tool,
+    query_memory,
+    # P0: Core interfaces (Must Have)
+    WorldModelInterface,
+    GovernanceInterface,
+    ObservabilityInterface,
+    # P1: Operational interfaces (Should Have)
+    TaskQueueInterface,
+    CheckpointsInterface,
+    MCPInterface,
+    # P2: Advanced interfaces (Nice to Have)
+    LearningInterface,
+    ComplianceInterface,
+    ReasoningInterface,
 )
 
 # =============================================================================
