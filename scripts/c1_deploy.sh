@@ -173,8 +173,17 @@ c1 "docker image prune -a -f" 2>/dev/null || true
 echo "  ✅ Pruned"
 echo ""
 
-echo "[3/3] Building & starting (${NO_CACHE:-cached})..."
-c1 "cd $C1_PATH && $COMPOSE up -d --build $NO_CACHE"
+if [ -n "$NO_CACHE" ]; then
+    echo "[3/4] Building images (--no-cache)..."
+    c1 "cd $C1_PATH && $COMPOSE build --no-cache"
+    echo "  ✅ Built"
+    echo ""
+    echo "[4/4] Starting containers..."
+    c1 "cd $C1_PATH && $COMPOSE up -d"
+else
+    echo "[3/3] Building & starting (cached)..."
+    c1 "cd $C1_PATH && $COMPOSE up -d --build"
+fi
 echo "  ✅ Started"
 echo ""
 

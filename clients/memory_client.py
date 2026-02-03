@@ -12,7 +12,9 @@ Endpoints:
   - POST /api/v1/memory/semantic/search → semantic_search()
 """
 
-from __future__ import annotations
+# NOTE: Do NOT add `from __future__ import annotations` here.
+# Pydantic needs to evaluate type annotations at runtime, and
+# deferred annotations cause "Unable to evaluate type annotation" errors.
 
 # ============================================================================
 __dora_meta__ = {
