@@ -45,7 +45,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from typing import Any
+from typing import Any, Optional
 from uuid import UUID
 
 import httpx
@@ -626,7 +626,7 @@ class MemoryClient:
 # Singleton / Factory
 # =============================================================================
 
-_client: MemoryClient | None = None
+_client: Optional["MemoryClient"] = None
 
 
 def get_memory_client() -> MemoryClient:
