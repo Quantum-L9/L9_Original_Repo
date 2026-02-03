@@ -3,3 +3,8 @@
 # Format: commit:file:rule:line fingerprint
 
 # Note: Path-based ignores should go in .gitleaks.toml [allowlist] paths
+
+# False positives: Localhost Neo4j URLs in MRI result documentation
+# These are connection strings to localhost, not passwords
+deploy/c1/MRI-Result-1.md:neo4j-password:179
+deploy/c1/MRI-Result-1.md:neo4j-password:522
