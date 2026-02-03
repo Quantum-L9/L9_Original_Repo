@@ -167,8 +167,9 @@ c1 "cd $C1_PATH && $COMPOSE down"
 echo "  ✅ Stopped"
 echo ""
 
-echo "[2/3] Pruning build cache..."
+echo "[2/3] Pruning build cache + all unused images..."
 c1 "docker builder prune -f" 2>/dev/null || true
+c1 "docker image prune -a -f" 2>/dev/null || true
 echo "  ✅ Pruned"
 echo ""
 
@@ -178,28 +179,184 @@ echo "  ✅ Started"
 echo ""
 
 # ─────────────────────────────────────────────────────────────────────
-# PHASE 4: MRI (Diagnostics)
+# PHASE 4: COMPREHENSIVE MRI (Medical Readiness Inspection)
 # ─────────────────────────────────────────────────────────────────────
 echo "┌─────────────────────────────────────────────────────────────────┐"
-echo "│ PHASE 4: MRI (Post-Deploy Diagnostics)                         │"
+echo "│ PHASE 4: COMPREHENSIVE MRI                                     │"
 echo "└─────────────────────────────────────────────────────────────────┘"
 echo ""
 
-echo "[1/3] Waiting for services (10s)..."
-sleep 10
+echo "Waiting for services to initialize (15s)..."
+sleep 15
 echo ""
 
-echo "[2/3] Container status:"
-c1 "cd $C1_PATH && $COMPOSE ps"
+# Run comprehensive MRI on C1
+c1 "cd $C1_PATH && bash -s" << 'MRI_SCRIPT'
+COMPOSE="docker compose -f docker-compose.yml -f docker-compose.prod.yml"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 1: INFRASTRUCTURE BASELINE
+# ═══════════════════════════════════════════════════════════════════════════════
+echo "═══════════════════════════════════════════════════════════════"
+echo "SECTION 1: INFRASTRUCTURE BASELINE"
+echo "═══════════════════════════════════════════════════════════════"
+
+echo -e "\n[1.1] SYSTEM RESOURCES"
+free -h
+echo ""
+df -h / /var/lib/docker 2>/dev/null || df -h /
+echo ""
+uptime
+
+echo -e "\n[1.2] GIT STATUS"
+echo "Commit: $(git rev-parse --short HEAD 2>/dev/null || echo 'N/A')"
+echo "Branch: $(git branch --show-current 2>/dev/null || echo 'N/A')"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 2: CONTAINER STATUS
+# ═══════════════════════════════════════════════════════════════════════════════
+echo -e "\n═══════════════════════════════════════════════════════════════"
+echo "SECTION 2: CONTAINER STATUS"
+echo "═══════════════════════════════════════════════════════════════"
+
+echo -e "\n[2.1] ALL CONTAINERS"
+$COMPOSE ps -a
+
+echo -e "\n[2.2] CONTAINER DETAILS"
+docker ps -a --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | head -20
+
+echo -e "\n[2.3] IMAGES IN USE"
+docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedSince}}" | grep -E "l9|postgres|neo4j|redis|NAME"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 3: SERVICE HEALTH CHECKS
+# ═══════════════════════════════════════════════════════════════════════════════
+echo -e "\n═══════════════════════════════════════════════════════════════"
+echo "SECTION 3: SERVICE HEALTH CHECKS"
+echo "═══════════════════════════════════════════════════════════════"
+
+echo -e "\n[3.1] L9 API HEALTH"
+curl -sf http://127.0.0.1:8000/health 2>/dev/null && echo "" || echo "❌ API not responding"
+
+echo -e "\n[3.2] POSTGRESQL HEALTH"
+docker exec l9-postgres pg_isready -U l9_user -d l9_memory 2>/dev/null && echo "✅ PostgreSQL ready" || echo "❌ PostgreSQL not ready"
+
+echo -e "\n[3.3] NEO4J HEALTH"
+curl -sf http://127.0.0.1:7474 2>/dev/null && echo "✅ Neo4j browser accessible" || echo "❌ Neo4j browser not responding"
+
+echo -e "\n[3.4] REDIS HEALTH"
+docker exec l9-redis redis-cli ping 2>/dev/null && echo "✅ Redis responding" || echo "❌ Redis not responding"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 4: NETWORK & PORTS
+# ═══════════════════════════════════════════════════════════════════════════════
+echo -e "\n═══════════════════════════════════════════════════════════════"
+echo "SECTION 4: NETWORK & PORTS"
+echo "═══════════════════════════════════════════════════════════════"
+
+echo -e "\n[4.1] LISTENING PORTS"
+ss -tlnp 2>/dev/null | grep -E "LISTEN|State" | head -20 || netstat -tlnp 2>/dev/null | head -20
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 5: LOGS & ERRORS (last 5 min)
+# ═══════════════════════════════════════════════════════════════════════════════
+echo -e "\n═══════════════════════════════════════════════════════════════"
+echo "SECTION 5: LOGS & ERRORS (last 5 min)"
+echo "═══════════════════════════════════════════════════════════════"
+
+echo -e "\n[5.1] L9 API ERRORS"
+$COMPOSE logs l9-api --since 5m 2>/dev/null | grep -iE "error|exception|traceback|fatal|critical" | tail -15 || echo "(no recent errors)"
+
+echo -e "\n[5.2] BOOTSTRAP STATUS"
+$COMPOSE ps -a 2>/dev/null | grep -E "bootstrap|NAME"
+$COMPOSE logs l9-bootstrap --tail=20 2>/dev/null | tail -10 || echo "(bootstrap logs N/A)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 6: DATA PERSISTENCE
+# ═══════════════════════════════════════════════════════════════════════════════
+echo -e "\n═══════════════════════════════════════════════════════════════"
+echo "SECTION 6: DATA PERSISTENCE (VOLUMES)"
+echo "═══════════════════════════════════════════════════════════════"
+
+echo -e "\n[6.1] DOCKER VOLUMES"
+docker volume ls | grep -E "l9|NAME"
+
+echo -e "\n[6.2] POSTGRESQL DATA"
+docker exec l9-postgres psql -U l9_user -d l9_memory -c "SELECT count(*) as packet_count FROM packets;" 2>/dev/null || echo "(query failed)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 7: API ENDPOINT TESTS
+# ═══════════════════════════════════════════════════════════════════════════════
+echo -e "\n═══════════════════════════════════════════════════════════════"
+echo "SECTION 7: API ENDPOINT TESTS"
+echo "═══════════════════════════════════════════════════════════════"
+
+echo -e "\n[7.1] CRITICAL ENDPOINTS"
+for ep in "http://127.0.0.1:8000/health" "http://127.0.0.1:8000/docs" "http://127.0.0.1:8000/openapi.json"; do
+    status=$(curl -sf -o /dev/null -w "%{http_code}" "$ep" 2>/dev/null || echo "000")
+    if [ "$status" = "200" ]; then
+        echo "✅ $ep ($status)"
+    else
+        echo "❌ $ep ($status)"
+    fi
+done
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 8: ENVIRONMENT VALIDATION
+# ═══════════════════════════════════════════════════════════════════════════════
+echo -e "\n═══════════════════════════════════════════════════════════════"
+echo "SECTION 8: ENVIRONMENT VALIDATION"
+echo "═══════════════════════════════════════════════════════════════"
+
+echo -e "\n[8.1] REQUIRED ENV VARS"
+for var in DATABASE_URL REDIS_URL NEO4J_URL OPENAI_API_KEY; do
+    if grep -q "^${var}=" .env 2>/dev/null; then
+        echo "✅ $var is set"
+    else
+        echo "❌ $var is MISSING"
+    fi
+done
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SECTION 9: MRI SUMMARY
+# ═══════════════════════════════════════════════════════════════════════════════
+echo -e "\n═══════════════════════════════════════════════════════════════"
+echo "SECTION 9: MRI SUMMARY"
+echo "═══════════════════════════════════════════════════════════════"
+
+echo -e "\nTimestamp: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+echo "Hostname: $(hostname)"
+echo "Git commit: $(git rev-parse --short HEAD 2>/dev/null || echo 'N/A')"
 echo ""
 
-echo "[3/3] Bootstrap logs (last 30 lines):"
-c1 "cd $C1_PATH && $COMPOSE logs l9-bootstrap --tail=30" 2>/dev/null || echo "  (bootstrap container not found or exited)"
+echo "SERVICE STATUS SUMMARY:"
+echo "───────────────────────"
+api_ok=$(curl -sf http://127.0.0.1:8000/health >/dev/null 2>&1 && echo "✅" || echo "❌")
+pg_ok=$(docker exec l9-postgres pg_isready -U l9_user >/dev/null 2>&1 && echo "✅" || echo "❌")
+neo_ok=$(curl -sf http://127.0.0.1:7474 >/dev/null 2>&1 && echo "✅" || echo "❌")
+redis_ok=$(docker exec l9-redis redis-cli ping >/dev/null 2>&1 && echo "✅" || echo "❌")
+
+echo "  L9 API:     $api_ok"
+echo "  PostgreSQL: $pg_ok"
+echo "  Neo4j:      $neo_ok"
+echo "  Redis:      $redis_ok"
 echo ""
+
+if [ "$api_ok" = "✅" ] && [ "$pg_ok" = "✅" ] && [ "$redis_ok" = "✅" ]; then
+    echo "╔═══════════════════════════════════════════════════════════════╗"
+    echo "║  ✅ MRI PASSED - Core services healthy                       ║"
+    echo "╚═══════════════════════════════════════════════════════════════╝"
+else
+    echo "╔═══════════════════════════════════════════════════════════════╗"
+    echo "║  ❌ MRI FAILED - Check sections above for issues             ║"
+    echo "╚═══════════════════════════════════════════════════════════════╝"
+fi
+MRI_SCRIPT
 
 # ─────────────────────────────────────────────────────────────────────
 # FINAL STATUS
 # ─────────────────────────────────────────────────────────────────────
+echo ""
 echo "┌─────────────────────────────────────────────────────────────────┐"
 echo "│ FINAL STATUS                                                   │"
 echo "└─────────────────────────────────────────────────────────────────┘"
@@ -210,14 +367,9 @@ echo "  Local:  $LOCAL_SHA"
 echo "  C1:     $C1_SHA"
 echo ""
 
-# Quick health check
-API_HEALTH=$(c1 "curl -sf http://127.0.0.1:8000/health 2>/dev/null | head -c 50" || echo "DOWN")
-echo "  API Health: $API_HEALTH"
-echo ""
-
 if [ "$LOCAL_SHA" = "$C1_SHA" ]; then
     echo "╔═══════════════════════════════════════════════════════════════╗"
-    echo "║  ✅ DEPLOY SUCCESS                                           ║"
+    echo "║  ✅ DEPLOY SUCCESS - All systems in sync                     ║"
     echo "╚═══════════════════════════════════════════════════════════════╝"
 else
     echo "╔═══════════════════════════════════════════════════════════════╗"
