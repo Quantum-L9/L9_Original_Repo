@@ -229,7 +229,7 @@ class MemoryClient:
             self._client = None
 
     @must_stay_async("async context manager protocol")
-    async def __aenter__(self) -> MemoryClient:
+    async def __aenter__(self) -> "MemoryClient":
         """Async context manager entry."""
         return self
 

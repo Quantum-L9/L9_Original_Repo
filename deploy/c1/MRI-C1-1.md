@@ -74,16 +74,16 @@ curl -sf http://127.0.0.1:8000/api/v1/status 2>/dev/null | head -c 500 || echo "
 # 3.2 PostgreSQL
 echo -e "\n[3.2] POSTGRESQL HEALTH"
 echo "───────────────────────"
-docker exec l9-postgres pg_isready -U l9_user -d l9_memory 2>/dev/null && echo "✅ PostgreSQL ready" || echo "❌ PostgreSQL not ready"
-docker exec l9-postgres psql -U l9_user -d l9_memory -c "SELECT count(*) as packet_count FROM packets;" 2>/dev/null || echo "(query failed)"
+docker exec l9-postgres pg_isready -U postgres -d l9_memory 2>/dev/null && echo "✅ PostgreSQL ready" || echo "❌ PostgreSQL not ready"
+docker exec l9-postgres psql -U postgres -d l9_memory -c "SELECT count(*) as packet_count FROM packets;" 2>/dev/null || echo "(query failed)"
 
 # 3.3 Neo4j
 echo -e "\n[3.3] NEO4J HEALTH"
 echo "──────────────────"
-curl -sf http://127.0.0.1:7474 2>/dev/null && echo "✅ Neo4j browser accessible" || echo "❌ Neo4j browser not responding"
+curl -sf http://127.0.0.1:7474 >/dev/null 2>&1 && echo "✅ Neo4j browser accessible" || echo "❌ Neo4j browser not responding"
 curl -sf -u neo4j:${NEO4J_PASSWORD:-password} http://127.0.0.1:7474/db/neo4j/tx/commit \
   -H "Content-Type: application/json" \
-  -d '{"statements":[{"statement":"RETURN 1 as test"}]}' 2>/dev/null | head -c 200 || echo "(Cypher query failed)"
+  -d '{"statements":[{"statement":"RETURN 1 as test"}]}' >/dev/null 2>&1 && echo "✅ Cypher query OK" || echo "❌ Cypher query failed"
 
 # 3.4 Redis
 echo -e "\n[3.4] REDIS HEALTH"
@@ -174,7 +174,7 @@ done
 # 6.3 PostgreSQL table counts
 echo -e "\n[6.3] POSTGRESQL DATA SUMMARY"
 echo "──────────────────────────────"
-docker exec l9-postgres psql -U l9_user -d l9_memory -c "
+docker exec l9-postgres psql -U postgres -d l9_memory -c "
 SELECT 
   (SELECT count(*) FROM packets) as packets,
   (SELECT count(*) FROM memory_packets) as memory_packets,
@@ -226,7 +226,7 @@ echo "════════════════════════�
 # 8.1 Required env vars (existence check, secrets redacted)
 echo -e "\n[8.1] REQUIRED ENV VARS"
 echo "───────────────────────"
-required_vars="DATABASE_URL REDIS_URL NEO4J_URL OPENAI_API_KEY"
+required_vars="POSTGRES_PASSWORD NEO4J_PASSWORD OPENAI_API_KEY L9_API_KEY"
 for var in $required_vars; do
   if grep -q "^${var}=" .env 2>/dev/null; then
     echo "✅ $var is set"
@@ -238,7 +238,12 @@ done
 # 8.2 Env file preview (secrets redacted)
 echo -e "\n[8.2] ENV FILE (redacted)"
 echo "─────────────────────────"
-cat .env 2>/dev/null | sed 's/\(PASSWORD\|KEY\|SECRET\|TOKEN\)=.*/\1=***REDACTED***/g' | head -30
+cat .env 2>/dev/null | sed \
+  -e 's/\(PASSWORD\|KEY\|SECRET\|TOKEN\)=.*/\1=***REDACTED***/g' \
+  -e 's|\(postgresql://[^:]*:\)[^@]*@|\1***@|g' \
+  -e 's|\(bolt://[^:]*:\)[^@]*@|\1***@|g' \
+  -e 's|\(redis://[^:]*:\)[^@]*@|\1***@|g' \
+  | head -30
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SECTION 9: SUMMARY

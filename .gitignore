@@ -134,3 +134,4 @@ email_agent/private_auth/
 # Archived content
 _archived/
 .env copy
+deploy/c1/MRI-Result-*.md

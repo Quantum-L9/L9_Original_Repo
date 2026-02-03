@@ -98,21 +98,31 @@ echo "│ PHASE 1: LOCAL (Commit & Push)                                 │"
 echo "└─────────────────────────────────────────────────────────────────┘"
 echo ""
 
-echo "[1/3] Current state:"
+echo "[1/4] Current state:"
 echo "  Branch: $(git branch --show-current)"
 echo "  Commit: $(git rev-parse --short HEAD)"
-CHANGES=$(git status --porcelain | wc -l | tr -d ' ')
-echo "  Changes: $CHANGES file(s)"
 echo ""
 
-# Stage and commit
+# Show all pending changes (tracked + untracked)
+echo "[2/4] Pending changes:"
+MODIFIED=$(git status --porcelain | grep -E '^ ?M' | wc -l | tr -d ' ')
+ADDED=$(git status --porcelain | grep -E '^\?\?' | wc -l | tr -d ' ')
+DELETED=$(git status --porcelain | grep -E '^ ?D' | wc -l | tr -d ' ')
+STAGED_ALREADY=$(git status --porcelain | grep -E '^[MADRC]' | wc -l | tr -d ' ')
+echo "  Modified: $MODIFIED, New: $ADDED, Deleted: $DELETED, Already staged: $STAGED_ALREADY"
+echo ""
+
+# Stage ALL changes (tracked + untracked)
+echo "[3/4] Staging all changes..."
 git add -A
+
+# Check what's now staged
 STAGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
 
 if [ "$STAGED" -gt 0 ]; then
-    echo "[2/3] Staging $STAGED file(s):"
-    git diff --cached --name-only | head -10 | sed 's/^/    /'
-    [ "$STAGED" -gt 10 ] && echo "    ... and $((STAGED - 10)) more"
+    echo "  Staged $STAGED file(s):"
+    git diff --cached --name-only | head -15 | sed 's/^/    /'
+    [ "$STAGED" -gt 15 ] && echo "    ... and $((STAGED - 15)) more"
     echo ""
     
     # Commit message
@@ -120,10 +130,11 @@ if [ "$STAGED" -gt 0 ]; then
         COMMIT_MSG="deploy: $(date '+%Y-%m-%d %H:%M') - $STAGED file(s)"
     fi
     
+    echo "[4/4] Committing..."
     git commit -m "$COMMIT_MSG"
     echo "  ✅ Committed: $COMMIT_MSG"
 else
-    echo "[2/3] No changes to commit"
+    echo "  No new changes to commit (already up to date)"
 fi
 echo ""
 
@@ -248,7 +259,7 @@ echo -e "\n[3.1] L9 API HEALTH"
 curl -sf http://127.0.0.1:8000/health 2>/dev/null && echo "" || echo "❌ API not responding"
 
 echo -e "\n[3.2] POSTGRESQL HEALTH"
-docker exec l9-postgres pg_isready -U l9_user -d l9_memory 2>/dev/null && echo "✅ PostgreSQL ready" || echo "❌ PostgreSQL not ready"
+docker exec l9-postgres pg_isready -U postgres -d l9_memory 2>/dev/null && echo "✅ PostgreSQL ready" || echo "❌ PostgreSQL not ready"
 
 echo -e "\n[3.3] NEO4J HEALTH"
 curl -sf http://127.0.0.1:7474 2>/dev/null && echo "✅ Neo4j browser accessible" || echo "❌ Neo4j browser not responding"
@@ -291,7 +302,7 @@ echo -e "\n[6.1] DOCKER VOLUMES"
 docker volume ls | grep -E "l9|NAME"
 
 echo -e "\n[6.2] POSTGRESQL DATA"
-docker exec l9-postgres psql -U l9_user -d l9_memory -c "SELECT count(*) as packet_count FROM packets;" 2>/dev/null || echo "(query failed)"
+docker exec l9-postgres psql -U postgres -d l9_memory -c "SELECT count(*) as packet_count FROM packets;" 2>/dev/null || echo "(query failed)"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SECTION 7: API ENDPOINT TESTS
@@ -318,7 +329,7 @@ echo "SECTION 8: ENVIRONMENT VALIDATION"
 echo "═══════════════════════════════════════════════════════════════"
 
 echo -e "\n[8.1] REQUIRED ENV VARS"
-for var in DATABASE_URL REDIS_URL NEO4J_URL OPENAI_API_KEY; do
+for var in POSTGRES_PASSWORD NEO4J_PASSWORD OPENAI_API_KEY L9_API_KEY; do
     if grep -q "^${var}=" .env 2>/dev/null; then
         echo "✅ $var is set"
     else
@@ -341,7 +352,7 @@ echo ""
 echo "SERVICE STATUS SUMMARY:"
 echo "───────────────────────"
 api_ok=$(curl -sf http://127.0.0.1:8000/health >/dev/null 2>&1 && echo "✅" || echo "❌")
-pg_ok=$(docker exec l9-postgres pg_isready -U l9_user >/dev/null 2>&1 && echo "✅" || echo "❌")
+pg_ok=$(docker exec l9-postgres pg_isready -U postgres >/dev/null 2>&1 && echo "✅" || echo "❌")
 neo_ok=$(curl -sf http://127.0.0.1:7474 >/dev/null 2>&1 && echo "✅" || echo "❌")
 redis_ok=$(docker exec l9-redis redis-cli ping >/dev/null 2>&1 && echo "✅" || echo "❌")
 
