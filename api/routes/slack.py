@@ -42,6 +42,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
+import os
 from time import time as current_time
 from typing import Any
 
@@ -302,8 +303,9 @@ async def slack_events(
             duration_seconds=elapsed_seconds,
             status="error",
         )
-        # Return 200 to prevent Slack redelivery, but log error for investigation
-        return {"ok": True, "error_logged": True}
+        raise HTTPException(
+            status_code=500, detail="Slack event processing failed"
+        ) from e
 
 
 @router.post("/commands")
