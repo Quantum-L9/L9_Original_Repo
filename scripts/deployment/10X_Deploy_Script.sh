@@ -29,7 +29,7 @@ set -euo pipefail
 
 ### CONFIG (edit once, use forever)
 
-VPS_HOST_DEFAULT="root@46.62.243.82"
+VPS_HOST_DEFAULT="c1"
 VPS_REPO_DEFAULT="/opt/l9"
 BRANCH_DEFAULT="main"
 COMPOSE_FILE_DEFAULT="docker-compose.prod.yml"
