@@ -178,7 +178,7 @@ sync_env_vps_to_server() {
   if ! $DRY_RUN; then
     local local_hash remote_hash
     local_hash="$(shasum -a 256 "$local_env" | awk '{print $1}')"
-    remote_hash="$(ssh $SSH_OPTS "$VPS_HOST" \"shasum -a 256 '$remote_env' | awk '{print \\$1}'\")"
+    remote_hash="$(ssh $SSH_OPTS "$VPS_HOST" "shasum -a 256 '$remote_env' | awk '{print \$1}'")"
     [[ "$local_hash" == "$remote_hash" ]] || die "Env sync mismatch (local $local_hash != remote $remote_hash)"
     echo " ✅ Env synced (sha256 match)"
   fi
