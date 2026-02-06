@@ -289,11 +289,23 @@ class SemanticService:
 
         Returns:
             embedding_id as string
+
+        Raises:
+            RuntimeError: If embedding generation fails or returns null/empty
         """
         logger.debug(f"Generating embedding for text: {text[:100]}...")
 
         # Generate embedding
         vector = await self._provider.embed_text(text)
+
+        # VALIDATION: Reject null/empty embeddings (GMP-132)
+        if vector is None or len(vector) == 0:
+            logger.error(
+                "Attempted to store null/empty embedding, skipping",
+                payload=payload,
+                text_preview=text[:100],
+            )
+            raise RuntimeError("Embedding generation returned null/empty vector")
 
         # Enrich payload with original text
         enriched_payload = {
@@ -323,8 +335,24 @@ class SemanticService:
         Generate an embedding and return vector + enriched payload.
 
         This is useful for transactional write paths where insertion is deferred.
+
+        Returns:
+            tuple of (vector, enriched_payload, agent_id)
+
+        Raises:
+            RuntimeError: If embedding generation returns null/empty vector
         """
         vector = await self._provider.embed_text(text)
+        
+        # VALIDATION: Reject null/empty embeddings (GMP-132)
+        if vector is None or len(vector) == 0:
+            logger.error(
+                "generate_embedding returned null/empty vector",
+                payload=payload,
+                text_preview=text[:100],
+            )
+            raise RuntimeError("Embedding generation returned null/empty vector")
+        
         enriched_payload = {
             **payload,
             "_text": text,
@@ -380,9 +408,24 @@ class SemanticService:
 
         Returns:
             List of embedding_ids
+
+        Raises:
+            RuntimeError: If any embedding generation returns null/empty vector
         """
         texts = [item[text_key] for item in items]
         vectors = await self._provider.embed_batch(texts)
+
+        # VALIDATION: Reject null/empty embeddings (GMP-132)
+        for idx, vector in enumerate(vectors):
+            if vector is None or len(vector) == 0:
+                logger.error(
+                    "batch_embed_and_store returned null/empty vector",
+                    item_index=idx,
+                    text_preview=texts[idx][:100],
+                )
+                raise RuntimeError(
+                    f"Embedding generation returned null/empty vector for item {idx}"
+                )
 
         embedding_ids = []
         for item, vector in zip(items, vectors, strict=False):

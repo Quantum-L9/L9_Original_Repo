@@ -276,7 +276,7 @@ MAC_REPO="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 cd "$MAC_REPO"
 
 echo "╔═══════════════════════════════════════════════════════════════╗"
-echo "║ L9 10X Deploy (GitHub SSOT + Env Sync)                      ║"
+echo "║ L9 10X Deploy (GitHub SSOT + Env Sync)                        ║"
 echo "╚═══════════════════════════════════════════════════════════════╝"
 echo ""
 echo "[LOCAL] Repo:   $MAC_REPO"
