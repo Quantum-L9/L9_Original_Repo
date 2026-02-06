@@ -66,6 +66,8 @@ from fastapi import (
     FastAPI,
     Header,
     HTTPException,
+    Request,
+    Response,
     WebSocket,
     WebSocketDisconnect,
 )
@@ -2876,6 +2878,30 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+# ============================================================================
+# ECHO / LIVENESS PROBE
+# ============================================================================
+@app.get("/_echo", tags=["system"])
+async def echo() -> dict:
+    """
+    Minimal authoritative liveness probe.
+
+    Purpose:
+    - Proves the L9 API process is alive and reachable
+    - Provides a stable anchor for debugging Slack, memory, agents, and bootstrap
+    - Safe to call at any time (no dependencies)
+    """
+    now = datetime.now(UTC)
+    return {
+        "system": "L9",
+        "component": "api-server",
+        "status": "alive",
+        "version": __dora_meta__["module_version"],
+        "timestamp": now.isoformat(),
+    }
+
+
 # =============================================================================
 # ROUTE REGISTRATION
 # =============================================================================
@@ -2920,7 +2946,6 @@ app.openapi = custom_openapi
 # =============================================================================
 # Global Exception Handler with Neo4j Error Tracking
 # =============================================================================
-from fastapi import Request
 from fastapi.responses import JSONResponse
 
 

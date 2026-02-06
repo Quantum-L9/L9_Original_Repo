@@ -271,13 +271,23 @@ echo "  PostgreSQL: $pg_ok"
 echo "  Neo4j:      $neo_ok"
 echo "  Redis:      $redis_ok"
 echo ""
+  
+echo "╔═══════════════════════════════════════════════════════════════╗"
+echo "║  ✅ Docker Compose - 50 Logs                                  ║"
+echo "╚═══════════════════════════════════════════════════════════════╝"
+ls -la
+ls -la docker-compose.prod.yml
+docker compose -f docker-compose.prod.yml config | head -n 50
+echo "SNIPER ERROR LOCATOR ->"
+docker compose -f docker-compose.prod.yml config
 
 if [ "$api_ok" = "✅" ] && [ "$pg_ok" = "✅" ] && [ "$redis_ok" = "✅" ]; then
   echo "╔═══════════════════════════════════════════════════════════════╗"
-  echo "║  ✅ MRI PASSED - Core services healthy                       ║"
+  echo "║  ✅ MRI PASSED - Core services healthy                        ║"
   echo "╚═══════════════════════════════════════════════════════════════╝"
 else
   echo "╔═══════════════════════════════════════════════════════════════╗"
-  echo "║  ❌ MRI FAILED - Check sections above for issues             ║"
+  echo "║  ❌ MRI FAILED - Check sections above for issues              ║"
   echo "╚═══════════════════════════════════════════════════════════════╝"
-fi
+
+

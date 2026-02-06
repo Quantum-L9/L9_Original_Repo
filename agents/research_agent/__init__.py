@@ -1,6 +1,6 @@
 """
-L9 Research Agent Facade
-========================
+L9 Research Agent SDK
+=====================
 
 Simplified interface to L9's research infrastructure.
 
@@ -10,7 +10,7 @@ This module provides:
 - CLI commands for research tasks
 
 Architecture:
-- This is a FACADE over `services.research/` (production implementation)
+- This is an SDK over `services.research/` (production implementation)
 - Does NOT duplicate LangGraph logic, memory integration, etc.
 - Provides simpler entry points for common use cases
 
@@ -50,8 +50,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-# Facade functions (simple interface)
-from agents.research_agent.research_facade import (
+# SDK functions (simple interface)
+from agents.research_agent.research_sdk import (
     extract_facts,
     generate_superprompt,
     run_quick_research,
@@ -91,7 +91,7 @@ __all__ = [
     "get_runtime",
     "init_runtime",
     "run_quick_research",
-    # Facade (simple)
+    # SDK (simple)
     "run_research",
     "run_research_full",
     "shutdown_runtime",
@@ -106,19 +106,19 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["agents.research_agent.research_facade"],
+    "dependencies": ["agents.research_agent.research_sdk"],
     "tags": ["agent-execution", "intelligence", "utility"],
     "keywords": [
         "agent",
         "agents",
         "codegen",
         "cursor",
-        "facade",
+        "sdk",
         "full",
         "generation",
         "implementation",
     ],
-    "business_value": "Easy-to-use research functions for Cursor/scripts Superprompt generation for Perplexity workflows CLI commands for research tasks This is a FACADE over `services.research/` (production implementation)",
+    "business_value": "Easy-to-use research functions for Cursor/scripts Superprompt generation for Perplexity workflows CLI commands for research tasks This is an SDK over `services.research/` (production implementation)",
     "last_modified": "2026-01-31T22:21:54Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

@@ -84,7 +84,7 @@ SKIP_PATTERNS = [
     # Standalone utility scripts (ADR-0019 exemption for CLI tools)
     "agents/cursor/GMP-v2.0-Perplex-Py-Scripts/",  # GMP generation scripts
     "agents/cursor/cursor_memory_client.py",  # CLI client tool
-    "agents/research_agent/research_facade.py",  # CLI research tool
+    "agents/research_agent/research_sdk.py",  # CLI research tool
     # Audit and diagnostic tools (CLI output is expected)
     "api/e2e_slack_audit.py",  # CLI audit tool
     # Governance tools that reference print() as a pattern to detect

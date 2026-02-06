@@ -135,3 +135,6 @@ email_agent/private_auth/
 _archived/
 .env copy
 deploy/c1/MRI-Result-*.md
+
+# Allow committing the VPS env template (placeholders only)
+!.env.vps.template

@@ -1,10 +1,10 @@
 """
-L9 Research Agent Facade
-========================
+L9 Research Agent SDK
+=====================
 
 Simplified interface to L9's research infrastructure.
 
-This facade provides easy-to-use functions for:
+This SDK provides easy-to-use functions for:
 1. Running research queries
 2. Generating superprompts for Perplexity
 3. Extracting code facts from modules
@@ -12,19 +12,19 @@ This facade provides easy-to-use functions for:
 Architecture Note:
 - This is a thin wrapper over `services.research/`
 - The heavy lifting is done by the LangGraph-based research system
-- This facade simplifies common workflows
+- This SDK simplifies common workflows
 """
 
 # ============================================================================
 __dora_meta__ = {
-    "component_name": "Research Facade",
+    "component_name": "Research SDK",
     "module_version": "1.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-18T17:12:30Z",
-    "updated_at": "2026-01-31T22:27:11Z",
+    "updated_at": "2026-02-02T22:50:00Z",
     "layer": "intelligence",
     "domain": "agent_execution",
-    "module_name": "research_facade",
+    "module_name": "research_sdk",
     "type": "adapter",
     "status": "active",
     "integrates_with": {
@@ -83,7 +83,7 @@ async def run_research(
     """
     from services.research import run_research as _run_research
 
-    log.info("Starting research via facade", query=query[:50], deep=deep)
+    log.info("Starting research via SDK", query=query[:50], deep=deep)
 
     return await _run_research(
         query=query,
@@ -427,7 +427,7 @@ __dora_footer__ = {
     "keywords": [
         "agent",
         "extract",
-        "facade",
+        "sdk",
         "facts",
         "generate",
         "perplexity",

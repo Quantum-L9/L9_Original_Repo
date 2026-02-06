@@ -288,6 +288,10 @@ services:
       - "com.l9.security.stream-proxy=enabled"
       - "com.l9.security.firewall-required=true"
 
+networks:
+  l9-network:
+    driver: bridge
+
 # =============================================================================
 # SECURITY CHECKLIST (v4.1.0 Compliance)
 # =============================================================================

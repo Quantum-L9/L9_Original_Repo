@@ -64,7 +64,7 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": ["l9.facade", "core.facade.l9_facade"],
+        "imported_by": ["SDK.SDK", "SDK"],
     },
 }
 # ============================================================================

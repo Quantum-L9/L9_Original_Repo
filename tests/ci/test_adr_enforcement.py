@@ -516,10 +516,10 @@ def test_no_direct_agent_communication(parsed_codebase):
 
 class ComplexSubsystemAccessVisitor(ast.NodeVisitor):
     """
-    Detect complex subsystem access without facade (informational).
+    Detect complex subsystem access without SDK (informational).
 
     Note: This is informational only. Internal modules legitimately
-    access subsystems directly. The L9Facade is for external/simple use.
+    access subsystems directly. The L9SDK is for external/simple use.
     """
 
     def __init__(self):
@@ -539,7 +539,7 @@ class ComplexSubsystemAccessVisitor(ast.NodeVisitor):
                 {
                     "line": node.lineno,
                     "module": node.module,
-                    "pattern": "Deep subsystem import (consider L9Facade for simple use cases)",
+                    "pattern": "Deep subsystem import (consider L9SDK for simple use cases)",
                 }
             )
 
@@ -554,12 +554,12 @@ def test_complex_subsystem_access_informational(parsed_codebase):
     ADR: ADR-0061 (L9 Facade Pattern for Simplified API)
 
     Note: Many internal modules legitimately access subsystems directly.
-    This test is informational to encourage using L9Facade for simple cases.
+    This test is informational to encourage using L9SDK for simple cases.
 
     Simple use case fix:
-        from core.facade import get_l9_facade
+        from SDK import get_l9_sdk
 
-        l9 = await get_l9_facade()
+        l9 = await get_l9_sdk()
         result = await l9.run_task("Research async patterns")
     """
     python_files = get_python_files(CORE_MODULES)
@@ -582,7 +582,9 @@ def test_complex_subsystem_access_informational(parsed_codebase):
             )
 
     if suggestions:
-        info_msg = "\n🟢 LOW: Deep subsystem imports detected (consider L9Facade - ADR-0061)\n\n"
+        info_msg = (
+            "\n🟢 LOW: Deep subsystem imports detected (consider L9SDK - ADR-0061)\n\n"
+        )
         for item in suggestions[:5]:  # Limit to first 5
             info_msg += f"File: {item['file']}\n"
             for v in item["violations"]:

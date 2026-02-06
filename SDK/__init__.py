@@ -36,7 +36,7 @@ __dora_meta__ = {
     "module_name": "__init__",
     "type": "package",
     "status": "active",
-    "source": "Relocated from core/facade/ for cleaner SDK access",
+    "source": "Relocated from core/sdk/ for cleaner SDK access",
     "integrates_with": {
         "api_endpoints": [],
         "datasources": ["memory_substrate"],
@@ -47,27 +47,31 @@ __dora_meta__ = {
 # ============================================================================
 
 from SDK.SDK import (
-    # Main SDK class
-    L9Facade,
-    # Singleton accessors
-    get_l9_facade,
-    close_l9_facade,
-    # Convenience functions
-    run_task,
-    execute_tool,
-    query_memory,
-    # P0: Core interfaces (Must Have)
-    WorldModelInterface,
-    GovernanceInterface,
-    ObservabilityInterface,
-    # P1: Operational interfaces (Should Have)
-    TaskQueueInterface,
+    # Main SDK class (preferred)
+    L9SDK,
     CheckpointsInterface,
-    MCPInterface,
+    ComplianceInterface,
+    GovernanceInterface,
+    # Legacy alias
+    L9Facade,
     # P2: Advanced interfaces (Nice to Have)
     LearningInterface,
-    ComplianceInterface,
+    MCPInterface,
+    ObservabilityInterface,
     ReasoningInterface,
+    # P1: Operational interfaces (Should Have)
+    TaskQueueInterface,
+    # P0: Core interfaces (Must Have)
+    WorldModelInterface,
+    close_l9_facade,
+    close_l9_sdk,
+    execute_tool,
+    # SDK accessors
+    get_l9_facade,
+    get_l9_sdk,
+    query_memory,
+    # Convenience functions
+    run_task,
 )
 
 # =============================================================================
@@ -75,11 +79,11 @@ from SDK.SDK import (
 # =============================================================================
 
 # Primary alias - cleaner name for the main class
-L9 = L9Facade
+L9 = L9SDK
 
 # Primary accessor alias
-get_l9 = get_l9_facade
-close_l9 = close_l9_facade
+get_l9 = get_l9_sdk
+close_l9 = close_l9_sdk
 
 # =============================================================================
 # Exports
@@ -88,8 +92,11 @@ close_l9 = close_l9_facade
 __all__ = [
     # Main SDK (preferred names)
     "L9",
+    "L9SDK",
     "get_l9",
+    "get_l9_sdk",
     "close_l9",
+    "close_l9_sdk",
     # Legacy names (backwards compat)
     "L9Facade",
     "get_l9_facade",

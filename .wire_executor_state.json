@@ -1,0 +1,13 @@
+{
+  "component": "SDK/SDK.py",
+  "component_type": "unknown",
+  "started_at": "2026-02-03T03:47:42.861749+00:00",
+  "current_step": "discovery",
+  "completed_steps": [],
+  "references": [],
+  "actions": [],
+  "files_modified": [],
+  "validation_results": [],
+  "report_path": "",
+  "commit_hash": ""
+}
