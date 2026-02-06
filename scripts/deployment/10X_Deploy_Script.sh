@@ -17,7 +17,7 @@ set -euo pipefail
 # ==============================================================================
 
 # Usage:
-#   ./scripts/deployment/10x_deploy.sh --msg "your message" --no-cache --prune-docker
+#   ./scripts/deployment/10X_Deploy_Script.sh --msg "your message" --no-cache --prune-docker
 #
 # Flags:
 #   --msg ""         Commit message (default: timestamp)
@@ -32,7 +32,8 @@ set -euo pipefail
 VPS_HOST_DEFAULT="c1"
 VPS_REPO_DEFAULT="/opt/l9"
 BRANCH_DEFAULT="main"
-COMPOSE_FILE_DEFAULT="docker-compose.yml -f docker-compose.prod.yml"
+COMPOSE_BASE="docker-compose.yml"
+COMPOSE_PROD="docker-compose.prod.yml"
 
 ENV_EXAMPLE=".env.example"
 ENV_VPS_LOCAL=".env.vps"           # real secrets, MUST be gitignored
@@ -51,7 +52,6 @@ SSH_OPTS="-o BatchMode=yes -o StrictHostKeyChecking=accept-new"
 VPS_HOST="${VPS_HOST:-$VPS_HOST_DEFAULT}"
 VPS_REPO="${VPS_REPO:-$VPS_REPO_DEFAULT}"
 BRANCH="${BRANCH:-$BRANCH_DEFAULT}"
-COMPOSE_FILE="${COMPOSE_FILE:-$COMPOSE_FILE_DEFAULT}"
 
 NO_CACHE=false
 PRUNE_DOCKER=false
@@ -79,7 +79,7 @@ die() {
 
 usage() {
   cat <<'EOF'
-Usage: ./scripts/deployment/10x_deploy.sh [flags]
+Usage: ./scripts/deployment/10X_Deploy_Script.sh [flags]
 
 Flags:
   --msg ""         Commit message
@@ -94,7 +94,6 @@ EOF
 ensure_gitignore_allows_env_template() {
   [[ -f ".gitignore" ]] || return 0
 
-  # If .gitignore has ".env.*" it will ignore .env.vps.template unless explicitly unignored.
   if grep -qE '^[[:space:]]*\.env\.\*' .gitignore; then
     if ! grep -qE '^[[:space:]]*!\.env\.vps\.template' .gitignore; then
       echo " + Patching .gitignore to allow tracking $ENV_VPS_TEMPLATE"
@@ -104,24 +103,13 @@ ensure_gitignore_allows_env_template() {
 }
 
 patch_env_vps_template_from_example() {
-  # Rewrites .env.vps.template to contain ALL keys from .env.example (placeholders only), preserving order.
+  # Rewrites .env.vps.template to contain ALL keys from .env.example (placeholders only).
+  # Compatible with Bash 3.2+ (no associative arrays).
   local repo_root="$1"
   local example_path="$repo_root/$ENV_EXAMPLE"
   local template_path="$repo_root/$ENV_VPS_TEMPLATE"
 
   [[ -f "$example_path" ]] || die "Missing $ENV_EXAMPLE at repo root."
-
-  declare -A tmpl
-
-  if [[ -f "$template_path" ]]; then
-    while IFS= read -r line; do
-      [[ -z "$line" ]] && continue
-      [[ "$line" =~ ^[[:space:]]*# ]] && continue
-      if [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
-        tmpl["${BASH_REMATCH[1]}"]="${BASH_REMATCH[2]}"
-      fi
-    done < "$template_path"
-  fi
 
   local tmp_out
   tmp_out="$(mktemp)"
@@ -134,8 +122,14 @@ patch_env_vps_template_from_example() {
 
     if [[ "$line" =~ ^([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
       local key="${BASH_REMATCH[1]}"
-      if [[ -n "${tmpl[$key]+x}" ]]; then
-        echo "${key}=${tmpl[$key]}" >> "$tmp_out"
+      if [[ -f "$template_path" ]]; then
+        local existing
+        existing="$(grep -E "^${key}=" "$template_path" 2>/dev/null | head -1 || true)"
+        if [[ -n "$existing" ]]; then
+          echo "$existing" >> "$tmp_out"
+        else
+          echo "${key}=" >> "$tmp_out"
+        fi
       else
         echo "${key}=" >> "$tmp_out"
       fi
@@ -146,7 +140,7 @@ patch_env_vps_template_from_example() {
 
   if [[ ! -f "$template_path" ]] || ! cmp -s "$tmp_out" "$template_path"; then
     echo " + Patched $ENV_VPS_TEMPLATE from $ENV_EXAMPLE"
-    run "mv '$tmp_out' '$template_path'"
+    mv "$tmp_out" "$template_path"
   else
     rm -f "$tmp_out"
     echo " = $ENV_VPS_TEMPLATE already up-to-date"
@@ -167,10 +161,11 @@ sync_env_vps_to_server() {
   local stamp
   stamp="$(date +%Y%m%d_%H%M%S)"
 
-  run "ssh $SSH_OPTS '$VPS_HOST' \"cd '$VPS_REPO' && (test -f '$remote_env' && cp -a '$remote_env' '$remote_env.bak.$stamp' || true)\""
+  # Backup existing remote .env
+  ssh $SSH_OPTS "$VPS_HOST" "cd '$VPS_REPO' && (test -f '$remote_env' && cp -a '$remote_env' '$remote_env.bak.$stamp' || true)"
 
   if $DRY_RUN; then
-    echo "DRY: ssh $SSH_OPTS '$VPS_HOST' \"cat > '$remote_env' && chmod 600 '$remote_env'\" < '$local_env'"
+    echo "DRY: streaming $local_env -> $VPS_HOST:$remote_env"
   else
     ssh $SSH_OPTS "$VPS_HOST" "cat > '$remote_env' && chmod 600 '$remote_env'" < "$local_env"
   fi
@@ -178,7 +173,7 @@ sync_env_vps_to_server() {
   if ! $DRY_RUN; then
     local local_hash remote_hash
     local_hash="$(shasum -a 256 "$local_env" | awk '{print $1}')"
-    remote_hash="$(ssh $SSH_OPTS "$VPS_HOST" "shasum -a 256 '$remote_env' | awk '{print \$1}'")"
+    remote_hash="$(ssh $SSH_OPTS "$VPS_HOST" "shasum -a 256 $remote_env" | awk '{print $1}')"
     [[ "$local_hash" == "$remote_hash" ]] || die "Env sync mismatch (local $local_hash != remote $remote_hash)"
     echo " ✅ Env synced (sha256 match)"
   fi
@@ -186,22 +181,22 @@ sync_env_vps_to_server() {
 
 remote_git_hard_reset() {
   echo "[VPS] Hard reset to origin/$BRANCH (SSOT)"
-  run "ssh $SSH_OPTS '$VPS_HOST' \"cd '$VPS_REPO' && git fetch origin '$BRANCH' && git reset --hard 'origin/$BRANCH' && git clean -fd\""
+  ssh $SSH_OPTS "$VPS_HOST" "cd '$VPS_REPO' && git fetch origin '$BRANCH' && git reset --hard 'origin/$BRANCH' && git clean -fd"
 }
 
 remote_rebuild_stack() {
   local build_opts=""
   $NO_CACHE && build_opts="--no-cache"
 
-  echo "[VPS] Rebuild stack ($COMPOSE_FILE) no-cache=$NO_CACHE"
-  run "ssh $SSH_OPTS '$VPS_HOST' \"cd '$VPS_REPO' && docker compose -f '$COMPOSE_FILE' down --remove-orphans\""
-  run "ssh $SSH_OPTS '$VPS_HOST' \"cd '$VPS_REPO' && docker compose -f '$COMPOSE_FILE' build $build_opts\""
-  run "ssh $SSH_OPTS '$VPS_HOST' \"cd '$VPS_REPO' && docker compose -f '$COMPOSE_FILE' up -d --force-recreate --remove-orphans\""
+  echo "[VPS] Rebuild stack (base + prod overlay) no-cache=$NO_CACHE"
+  ssh $SSH_OPTS "$VPS_HOST" "cd '$VPS_REPO' && docker compose -f $COMPOSE_BASE -f $COMPOSE_PROD down --remove-orphans"
+  ssh $SSH_OPTS "$VPS_HOST" "cd '$VPS_REPO' && docker compose -f $COMPOSE_BASE -f $COMPOSE_PROD build $build_opts"
+  ssh $SSH_OPTS "$VPS_HOST" "cd '$VPS_REPO' && docker compose -f $COMPOSE_BASE -f $COMPOSE_PROD up -d --force-recreate --remove-orphans"
 
   if $PRUNE_DOCKER; then
     if [[ "$ALLOW_DOCKER_PRUNE" == "true" ]]; then
       echo "[VPS] Prune docker (no volumes) - L9_ALLOW_DOCKER_PRUNE=true"
-      run "ssh $SSH_OPTS '$VPS_HOST' \"docker system prune -af\""
+      ssh $SSH_OPTS "$VPS_HOST" "docker system prune -af"
     else
       echo "[VPS] --prune-docker requested but L9_ALLOW_DOCKER_PRUNE!=true, skipping prune."
     fi
@@ -210,19 +205,19 @@ remote_rebuild_stack() {
 
 remote_health() {
   echo "[VPS] Health checks"
-  run "ssh $SSH_OPTS '$VPS_HOST' \"cd '$VPS_REPO' && docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}' | sed -n '1,30p'\""
+  ssh $SSH_OPTS "$VPS_HOST" "cd '$VPS_REPO' && docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}' | head -30"
 
   local api_ok=0
   local ctrl_ok=0
 
-  if run "ssh $SSH_OPTS '$VPS_HOST' \"curl -fsS http://127.0.0.1:8000/_echo >/dev/null\""; then
+  if ssh $SSH_OPTS "$VPS_HOST" "curl -fsS http://127.0.0.1:8000/_echo >/dev/null 2>&1"; then
     echo " [HEALTH] API /_echo OK"
     api_ok=1
   else
     echo " [HEALTH] API /_echo FAILED"
   fi
 
-  if run "ssh $SSH_OPTS '$VPS_HOST' \"curl -fsS http://127.0.0.1:8001/health >/dev/null\""; then
+  if ssh $SSH_OPTS "$VPS_HOST" "curl -fsS http://127.0.0.1:8001/health >/dev/null 2>&1"; then
     echo " [HEALTH] Control /health OK"
     ctrl_ok=1
   else
@@ -281,7 +276,7 @@ MAC_REPO="$(git rev-parse --show-toplevel 2>/dev/null || true)"
 cd "$MAC_REPO"
 
 echo "╔═══════════════════════════════════════════════════════════════╗"
-echo "║ L9 10X Deploy (GitHub SSOT + Env Sync)                        ║"
+echo "║ L9 10X Deploy (GitHub SSOT + Env Sync)                      ║"
 echo "╚═══════════════════════════════════════════════════════════════╝"
 echo ""
 echo "[LOCAL] Repo:   $MAC_REPO"
@@ -295,7 +290,7 @@ if [[ "$current_branch" != "$REQUIRED_DEPLOY_BRANCH" && "$ALLOW_NON_MAIN_DEPLOY"
   die "Refusing deploy from branch '$current_branch'. Expected '$REQUIRED_DEPLOY_BRANCH' or L9_ALLOW_NON_MAIN_DEPLOY=true."
 fi
 
-# Dirty-state check (informational; we still commit + push)
+# Dirty-state check (informational)
 echo "[LOCAL] Git status:"
 git status --porcelain || true
 echo ""
@@ -304,14 +299,14 @@ echo ""
 ensure_gitignore_allows_env_template
 patch_env_vps_template_from_example "$MAC_REPO"
 
-# 1) Stage + commit + push
-run "git add -A"
+# 1) Stage + commit + push (bypass git hooks)
+git add -A
 
 if git diff --cached --quiet; then
   echo " = Nothing staged; skipping commit/push"
 else
-  run "git commit --no-verify -m \"${COMMIT_MSG}\""
-  run "git push --no-verify origin HEAD"
+  git commit --no-verify -m "${COMMIT_MSG}"
+  git push --no-verify origin HEAD
 fi
 
 # 2) VPS: hard reset (SSOT), then sync env, then rebuild
