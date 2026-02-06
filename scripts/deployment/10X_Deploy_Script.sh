@@ -32,7 +32,7 @@ set -euo pipefail
 VPS_HOST_DEFAULT="c1"
 VPS_REPO_DEFAULT="/opt/l9"
 BRANCH_DEFAULT="main"
-COMPOSE_FILE_DEFAULT="docker-compose.prod.yml"
+COMPOSE_FILE_DEFAULT="docker-compose.yml -f docker-compose.prod.yml"
 
 ENV_EXAMPLE=".env.example"
 ENV_VPS_LOCAL=".env.vps"           # real secrets, MUST be gitignored
