@@ -105,10 +105,10 @@ echo ""
 
 # Show all pending changes (tracked + untracked)
 echo "[2/4] Pending changes:"
-MODIFIED=$(git status --porcelain | grep -E '^ ?M' | wc -l | tr -d ' ')
-ADDED=$(git status --porcelain | grep -E '^\?\?' | wc -l | tr -d ' ')
-DELETED=$(git status --porcelain | grep -E '^ ?D' | wc -l | tr -d ' ')
-STAGED_ALREADY=$(git status --porcelain | grep -E '^[MADRC]' | wc -l | tr -d ' ')
+MODIFIED=$(git status --porcelain | grep -E '^ ?M' | wc -l | tr -d ' ' || echo "0")
+ADDED=$(git status --porcelain | grep -E '^\?\?' | wc -l | tr -d ' ' || echo "0")
+DELETED=$(git status --porcelain | grep -E '^ ?D' | wc -l | tr -d ' ' || echo "0")
+STAGED_ALREADY=$(git status --porcelain | grep -E '^[MADRC]' | wc -l | tr -d ' ' || echo "0")
 echo "  Modified: $MODIFIED, New: $ADDED, Deleted: $DELETED, Already staged: $STAGED_ALREADY"
 echo ""
 

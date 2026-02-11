@@ -1,5 +1,5 @@
 ╔═══════════════════════════════════════════════════════════════╗
-║ L9 10X Deploy (GitHub SSOT + Env Sync)                      ║
+║ L9 10X Deploy (GitHub SSOT + Env Sync)                        ║
 ╚═══════════════════════════════════════════════════════════════╝
 
 [LOCAL] Repo:   /Users/ib-mac/Projects/l9
