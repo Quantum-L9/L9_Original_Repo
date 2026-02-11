@@ -33,6 +33,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import os
 import random
 from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
 from typing import Any
@@ -42,6 +43,8 @@ import structlog
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
+
+EMBEDDING_DIMENSIONS = 1536
 
 
 class EmbeddingProvider(ABC):
@@ -268,7 +271,25 @@ class SemanticService:
             embedding_provider: Provider for generating embeddings (uses stub if not provided)
             repository: SubstrateRepository instance for DB access (optional)
         """
-        self._provider = embedding_provider or StubEmbeddingProvider()
+        if embedding_provider is None:
+            if os.getenv("L9_ALLOW_STUB_EMBEDDINGS") == "1":
+                logger.warning("Using stub embeddings due to L9_ALLOW_STUB_EMBEDDINGS=1")
+                embedding_provider = StubEmbeddingProvider(
+                    dimensions=EMBEDDING_DIMENSIONS
+                )
+            else:
+                raise RuntimeError(
+                    "Embedding provider required; refusing implicit stub fallback. "
+                    "Set L9_ALLOW_STUB_EMBEDDINGS=1 for explicit local-only stub mode."
+                )
+
+        if embedding_provider.dimensions != EMBEDDING_DIMENSIONS:
+            raise RuntimeError(
+                f"Embedding dimension mismatch: expected {EMBEDDING_DIMENSIONS}, "
+                f"got {embedding_provider.dimensions}"
+            )
+
+        self._provider = embedding_provider
         self._repository = repository
 
     async def embed_and_store(
@@ -306,6 +327,10 @@ class SemanticService:
                 text_preview=text[:100],
             )
             raise RuntimeError("Embedding generation returned null/empty vector")
+        if len(vector) != EMBEDDING_DIMENSIONS:
+            raise RuntimeError(
+                f"Embedding dimension mismatch: expected {EMBEDDING_DIMENSIONS}, got {len(vector)}"
+            )
 
         # Enrich payload with original text
         enriched_payload = {
@@ -381,6 +406,10 @@ class SemanticService:
 
         # Generate query embedding
         query_vector = await self._provider.embed_text(query)
+        if len(query_vector) != EMBEDDING_DIMENSIONS:
+            raise RuntimeError(
+                f"Query embedding dimension mismatch: expected {EMBEDDING_DIMENSIONS}, got {len(query_vector)}"
+            )
 
         # Search database
         hits = await self._repository.search_semantic_memory(
@@ -675,7 +704,7 @@ class SemanticService:
 def create_embedding_provider(
     provider_type: str = "openai",
     model: str = "text-embedding-3-large",
-    dimensions: int = 1536,
+    dimensions: int = EMBEDDING_DIMENSIONS,
     api_key: str | None = None,
 ) -> EmbeddingProvider:
     """

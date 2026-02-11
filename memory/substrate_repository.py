@@ -75,6 +75,7 @@ from memory.governance_gate import (
     build_scope_project_filter,
     require_governance_context,
 )
+from memory.substrate_semantic import EMBEDDING_DIMENSIONS
 from memory.substrate_models import (
     AgentMemoryEventRow,
     EpisodicEventRow,
@@ -991,19 +992,34 @@ class SubstrateRepository:
         TODO (GMP-129): Migrate to packet_store + memory_embeddings pipeline.
         This writes to semantic_memory which bypasses PacketEnvelope governance.
         """
+        if len(vector) != EMBEDDING_DIMENSIONS:
+            raise ValueError(
+                f"Embedding dimension mismatch: expected {EMBEDDING_DIMENSIONS}, got {len(vector)}"
+            )
+
+        ctx = require_governance_context("repository.insert_semantic_embedding")
         vector_str = f"[{','.join(str(v) for v in vector)}]"
         # MEMORY_BYPASS_ALLOWED: Legacy semantic_memory path - pending migration to packet_store
         await conn.execute(
             """
-            INSERT INTO semantic_memory (embedding_id, agent_id, vector, payload, created_at, scope)
-            VALUES ($1, $2, $3::vector, $4, $5, $6)
+            INSERT INTO semantic_memory (
+                embedding_id, agent_id, vector, payload, created_at, scope, tenant_id, org_id, user_id
+            )
+            VALUES ($1, $2, $3::vector, $4, $5, $6, $7::uuid, $8::uuid, $9::uuid)
             """,
             embedding_id,
             agent_id,
             vector_str,
-            payload,  # asyncpg handles dict -> jsonb automatically (don't double-encode)
+            {
+                **payload,
+                "_project_id": ctx.project_id,
+                "_scope": scope,
+            },  # asyncpg handles dict -> jsonb automatically (don't double-encode)
             datetime.now(UTC),
             scope,
+            ctx.tenant_id,
+            ctx.org_id,
+            ctx.user_id,
         )
         logger.debug(f"Inserted semantic embedding {embedding_id} with scope={scope}")
 
@@ -1024,6 +1040,12 @@ class SubstrateRepository:
         Returns:
             List of SemanticHit with embedding_id, score, payload
         """
+        if len(query_embedding) != EMBEDDING_DIMENSIONS:
+            raise ValueError(
+                f"Query embedding dimension mismatch: expected {EMBEDDING_DIMENSIONS}, got {len(query_embedding)}"
+            )
+        ctx = require_governance_context("repository.search_semantic_memory")
+
         async with self.acquire() as conn:
             # Apply vector search optimization
             config = get_vector_config()
@@ -1039,12 +1061,32 @@ class SubstrateRepository:
                         payload,
                         1 - (vector <=> $1::vector) as score
                     FROM semantic_memory
-                    WHERE agent_id = $2
+                    WHERE
+                        agent_id = $2
+                        AND scope = ANY($3)
+                        AND payload->>'_project_id' = $4
+                        AND (
+                            tenant_id IS NULL
+                            OR tenant_id = $5::uuid
+                        )
+                        AND (
+                            org_id IS NULL
+                            OR org_id = $6::uuid
+                        )
+                        AND (
+                            user_id IS NULL
+                            OR user_id = $7::uuid
+                        )
                     ORDER BY vector <=> $1::vector
-                    LIMIT $3
+                    LIMIT $8
                     """,
                     vector_str,
                     agent_id,
+                    list(ctx.allowed_scopes),
+                    ctx.project_id,
+                    ctx.tenant_id,
+                    ctx.org_id,
+                    ctx.user_id,
                     top_k,
                 )
             else:
@@ -1055,10 +1097,30 @@ class SubstrateRepository:
                         payload,
                         1 - (vector <=> $1::vector) as score
                     FROM semantic_memory
+                    WHERE
+                        scope = ANY($2)
+                        AND payload->>'_project_id' = $3
+                        AND (
+                            tenant_id IS NULL
+                            OR tenant_id = $4::uuid
+                        )
+                        AND (
+                            org_id IS NULL
+                            OR org_id = $5::uuid
+                        )
+                        AND (
+                            user_id IS NULL
+                            OR user_id = $6::uuid
+                        )
                     ORDER BY vector <=> $1::vector
-                    LIMIT $2
+                    LIMIT $7
                     """,
                     vector_str,
+                    list(ctx.allowed_scopes),
+                    ctx.project_id,
+                    ctx.tenant_id,
+                    ctx.org_id,
+                    ctx.user_id,
                     top_k,
                 )
 

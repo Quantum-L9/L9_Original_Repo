@@ -950,14 +950,20 @@ async def on_task_completion(
                     # Generate embedding from description
                     context_embedding: list[float] = []
                     try:
-                        from memory.substrate_semantic import SemanticService
+                        from memory.substrate_service import get_service
 
-                        semantic = SemanticService()
-                        context_embedding = await semantic.embed_text(
-                            f"{task_type}: {description}"
+                        substrate_service = await get_service()
+                        context_embedding = (
+                            await substrate_service._embedding_provider.embed_text(
+                                f"{task_type}: {description}"
+                            )
                         )
-                    except Exception:
-                        pass  # Continue without embedding
+                    except Exception as embed_error:
+                        logger.warning(
+                            "Strategy embedding generation failed; continuing without embedding",
+                            error=str(embed_error),
+                            task_type=task_type,
+                        )
 
                     # Record the strategy
                     strategy_id = await strategy_memory.record_new_strategy(

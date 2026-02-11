@@ -84,20 +84,25 @@ async def _vector_search_step(
     try:
         results = await semantic.search(
             query=query,
-            limit=limit,
-            min_similarity=min_similarity,
+            top_k=limit,
         )
+        filtered_results = [
+            r
+            for r in results
+            if ((r.get("similarity") if isinstance(r, dict) else getattr(r, "similarity", None)) or (r.get("score", 0.0) if isinstance(r, dict) else getattr(r, "score", 0.0)))
+            >= min_similarity
+        ]
 
         # Convert to dicts
         hits = []
-        for r in results:
+        for r in filtered_results:
             hit = {
-                "packet_id": str(r.packet_id) if hasattr(r, "packet_id") else None,
-                "content": r.content if hasattr(r, "content") else str(r),
-                "similarity": r.similarity if hasattr(r, "similarity") else 0.0,
-                "kind": r.kind if hasattr(r, "kind") else None,
-                "source_id": r.source_id if hasattr(r, "source_id") else None,
-                "thread_id": r.thread_id if hasattr(r, "thread_id") else None,
+                "packet_id": str(r.get("packet_id")) if isinstance(r, dict) and r.get("packet_id") else (str(r.packet_id) if hasattr(r, "packet_id") else None),
+                "content": (r.get("content") if isinstance(r, dict) else r.content) if (isinstance(r, dict) or hasattr(r, "content")) else str(r),
+                "similarity": (r.get("similarity") if isinstance(r, dict) else r.similarity) if (isinstance(r, dict) or hasattr(r, "similarity")) else (r.get("score", 0.0) if isinstance(r, dict) else 0.0),
+                "kind": r.get("kind") if isinstance(r, dict) else (r.kind if hasattr(r, "kind") else None),
+                "source_id": r.get("source_id") if isinstance(r, dict) else (r.source_id if hasattr(r, "source_id") else None),
+                "thread_id": r.get("thread_id") if isinstance(r, dict) else (r.thread_id if hasattr(r, "thread_id") else None),
             }
             hits.append(hit)
 
