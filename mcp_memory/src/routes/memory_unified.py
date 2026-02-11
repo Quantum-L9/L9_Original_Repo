@@ -350,6 +350,17 @@ async def search_memory_handler(
     if project_id is None:
         project_id = os.getenv("L9_PROJECT_ID", "l9")
 
+    ctx = require_governance_context("mcp_memory.search_memory")
+    if project_id != ctx.project_id:
+        raise HTTPException(
+            status_code=403,
+            detail="project_id must be derived from governance context",
+        )
+
+    allow_legacy_null_scope_rows = (
+        os.getenv("L9_ALLOW_LEGACY_NULL_SCOPE_ROWS", "false").lower() == "true"
+    )
+
     try:
         embed_start = time.time()
         query_embedding = await embed_text(query)
@@ -361,12 +372,20 @@ async def search_memory_handler(
 
         # Map MCP scopes to DB scopes
         # Also include 'shared' for backward compatibility with legacy data
-        db_scopes = [
+        requested_scopes = [
             map_mcp_scope_to_db_scope(s) for s in (scopes or ["developer", "global"])
         ]
-        # IMPORTANT: Include 'shared' scope when 'developer' is requested (legacy data)
-        if "developer" in db_scopes and "shared" not in db_scopes:
-            db_scopes.append("shared")
+        deduped_scopes = list(dict.fromkeys(requested_scopes))
+        allowed_scopes = set(ctx.allowed_scopes)
+        db_scopes = [scope for scope in deduped_scopes if scope in allowed_scopes]
+        if (
+            allow_legacy_null_scope_rows
+            and "developer" in db_scopes
+            and "shared" not in db_scopes
+        ):
+            db_scopes.append("shared")  # Legacy compatibility for old rows
+        if not db_scopes:
+            raise HTTPException(status_code=403, detail="No authorized scopes requested")
 
         search_start = time.time()
 
@@ -374,12 +393,20 @@ async def search_memory_handler(
         # NOTE: Changed from memory_embeddings to semantic_memory (where MCP writes go)
         # semantic_memory.payload contains: packet_id, packet_type, _text, source_payload
         #
-        # Params: $1=vector, $2=threshold, $3=limit, $4+=scopes
+        # Params: $1=vector, $2=threshold, $3=limit, $4+=scopes then governance predicates
         params = [query_embedding_str, threshold, top_k]
 
-        # Build scope filter for semantic_memory
-        scope_placeholders = ", ".join([f"${i}" for i in range(4, 4 + len(db_scopes))])
+        scope_start = 4
+        scope_placeholders = ", ".join(
+            [f"${i}" for i in range(scope_start, scope_start + len(db_scopes))]
+        )
         params.extend(db_scopes)
+
+        project_param = scope_start + len(db_scopes)
+        tenant_param = project_param + 1
+        org_param = tenant_param + 1
+        user_param = org_param + 1
+        params.extend([ctx.project_id, ctx.tenant_id, ctx.org_id, ctx.user_id])
 
         # GMP-FIX: Enhanced content extraction from multiple payload structures:
         # 1. payload->>'_text' - L9 DAG enriched content (raw text that was embedded)
@@ -406,6 +433,10 @@ async def search_memory_handler(
         FROM semantic_memory sm
         WHERE sm.vector IS NOT NULL
         AND sm.scope IN ({scope_placeholders})
+        AND sm.payload->>'_project_id' = ${project_param}
+        AND {"(sm.tenant_id IS NULL OR sm.tenant_id = ${tenant_param}::uuid)" if allow_legacy_null_scope_rows else f"sm.tenant_id = ${tenant_param}::uuid"}
+        AND {"(sm.org_id IS NULL OR sm.org_id = ${org_param}::uuid)" if allow_legacy_null_scope_rows else f"sm.org_id = ${org_param}::uuid"}
+        AND {"(sm.user_id IS NULL OR sm.user_id = ${user_param}::uuid)" if allow_legacy_null_scope_rows else f"sm.user_id = ${user_param}::uuid"}
         AND 1 - (sm.vector <=> $1::vector) >= $2
         ORDER BY similarity DESC
         LIMIT $3;
@@ -558,6 +589,8 @@ async def search_memory_route(
         # Remove l-private from requested scopes for Cursor
         requested_scopes = [s for s in requested_scopes if s != "l-private"]
 
+    ctx = require_governance_context("mcp_memory.search_memory_route")
+
     return await search_memory_handler(
         user_id=caller.user_id,
         query=req["query"],
@@ -567,6 +600,7 @@ async def search_memory_route(
         threshold=req.get("threshold", 0.7),
         duration=req.get("duration", "all"),
         track_access=req.get("track_access", False),
+        project_id=ctx.project_id,
     )
 
 
