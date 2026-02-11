@@ -652,16 +652,17 @@ run_app_checks() {
     fi
     
     # MCP Memory search endpoint (on separate port 9002)
+    # Note: MCP Memory server uses MCP_API_KEY, not L9_EXECUTOR_API_KEY
     info "Testing MCP memory search endpoint..."
     local mcp_memory_search_url="${MCP_MEMORY_URL:-http://127.0.0.1:9002}/memory/search"
     
-    if [[ -n "${L9_EXECUTOR_API_KEY:-}" ]]; then
+    if [[ -n "${MCP_API_KEY:-}" ]]; then
         debug "POST ${mcp_memory_search_url}"
         
-        local memory_payload='{"query":"test","limit":1}'
+        local memory_payload='{"query":"test","top_k":1}'
         
         if response=$(curl -fsS -X POST \
-            -H "Authorization: Bearer ${L9_EXECUTOR_API_KEY}" \
+            -H "Authorization: Bearer ${MCP_API_KEY}" \
             -H "Content-Type: application/json" \
             -d "$memory_payload" \
             "$mcp_memory_search_url" 2>&1); then
@@ -680,8 +681,8 @@ run_app_checks() {
             # Not a hard failure - MCP memory is optional
         fi
     else
-        endpoint_stats+=("⊘ POST :9002/memory/search (no L9_EXECUTOR_API_KEY)")
-        warn "Skipping MCP memory search check (L9_EXECUTOR_API_KEY not set)"
+        endpoint_stats+=("⊘ POST :9002/memory/search (no MCP_API_KEY)")
+        warn "Skipping MCP memory search check (MCP_API_KEY not set)"
     fi
     
     # Summary
