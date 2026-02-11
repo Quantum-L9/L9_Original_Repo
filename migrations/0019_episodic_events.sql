@@ -188,6 +188,11 @@ COMMENT ON FUNCTION apply_episodic_decay IS 'Apply temporal decay to episodic ev
 -- =============================================================================
 ALTER TABLE episodic_events ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist (idempotent)
+DROP POLICY IF EXISTS episodic_events_platform_admin ON episodic_events;
+DROP POLICY IF EXISTS episodic_events_tenant_admin ON episodic_events;
+DROP POLICY IF EXISTS episodic_events_end_user ON episodic_events;
+
 -- Platform admin: full access
 CREATE POLICY episodic_events_platform_admin ON episodic_events
     FOR ALL

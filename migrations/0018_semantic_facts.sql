@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS semantic_facts (
     triplet JSONB DEFAULT '{}'::jsonb,  -- {"subject": "X", "predicate": "is_a", "object": "Y"}
 
     -- Embedding for semantic search
-    embedding vector(3072),  -- text-embedding-3-large dimensions
+    embedding vector(1536),  -- text-embedding-3-small dimensions (L9 standard)
 
     -- Importance and ranking
     importance DOUBLE PRECISION DEFAULT 0.5 CHECK (importance >= 0.0 AND importance <= 1.0),

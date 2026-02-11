@@ -1,4 +1,5 @@
-cd /opt/l9
+<< 'EOF'
+#!/usr/bin/env bash
 source <(grep REDIS_PASSWORD .env | sed 's/^/export /')
 echo "╔════════════════════════════════════════════════════════════════╗"
 echo "║               L9 PRODUCTION MRI - DEEP CHECK                   ║"
@@ -83,3 +84,4 @@ else
   echo "║  ❌ DEGRADED - Review sections above                          ║"
   echo "╚═══════════════════════════════════════════════════════════════╝"
 fi
+EOF
