@@ -246,6 +246,7 @@ validate_required_env_vars() {
     fi
     
     # Required variables (per docker-compose.yml comments)
+    # MCP_API_KEY (or MCP_API_KEY_L) is MANDATORY for MCP memory operations
     local required_vars=(
         "POSTGRES_PASSWORD"
         "NEO4J_PASSWORD"
@@ -253,6 +254,12 @@ validate_required_env_vars() {
         "OPENAI_API_KEY"
         "L9_EXECUTOR_API_KEY"
     )
+    
+    # Check for MCP API key (either MCP_API_KEY_L or MCP_API_KEY)
+    local mcp_key_found=false
+    if [[ -n "${MCP_API_KEY_L:-}" ]] || [[ -n "${MCP_API_KEY:-}" ]]; then
+        mcp_key_found=true
+    fi
     
     local missing_vars=()
     
@@ -270,6 +277,14 @@ validate_required_env_vars() {
             debug "Found required env var: ${var}"
         fi
     done
+    
+    # Check MCP API key after sourcing env file
+    if [[ -z "${MCP_API_KEY_L:-}" ]] && [[ -z "${MCP_API_KEY:-}" ]]; then
+        missing_vars+=("MCP_API_KEY or MCP_API_KEY_L")
+        error "Missing required env var: MCP_API_KEY (or MCP_API_KEY_L) - MANDATORY for MCP memory"
+    else
+        debug "Found MCP API key (MCP_API_KEY_L or MCP_API_KEY)"
+    fi
     
     if [[ ${#missing_vars[@]} -gt 0 ]]; then
         error "Missing ${#missing_vars[@]} required environment variable(s)"
@@ -652,37 +667,55 @@ run_app_checks() {
     fi
     
     # MCP Memory search endpoint (on separate port 9002)
-    # Note: MCP Memory server uses MCP_API_KEY, not L9_EXECUTOR_API_KEY
+    # MANDATORY: MCP Memory is required for L9 to function
+    # Uses MCP_API_KEY (or MCP_API_KEY_L/MCP_API_KEY_C) for auth
+    # Governance context (RLS) is built server-side from config
     info "Testing MCP memory search endpoint..."
     local mcp_memory_search_url="${MCP_MEMORY_URL:-http://127.0.0.1:9002}/memory/search"
     
-    if [[ -n "${MCP_API_KEY:-}" ]]; then
+    # Determine which MCP API key to use (prefer L key, fall back to generic)
+    local mcp_key="${MCP_API_KEY_L:-${MCP_API_KEY:-}}"
+    
+    if [[ -n "${mcp_key}" ]]; then
         debug "POST ${mcp_memory_search_url}"
         
-        local memory_payload='{"query":"test","top_k":1}'
+        # Search payload with proper schema for PacketEnvelope v2 memory search
+        local memory_payload='{"query":"system health test","top_k":3,"scopes":["developer","global"]}'
         
         if response=$(curl -fsS -X POST \
-            -H "Authorization: Bearer ${MCP_API_KEY}" \
+            -H "Authorization: Bearer ${mcp_key}" \
             -H "Content-Type: application/json" \
             -d "$memory_payload" \
             "$mcp_memory_search_url" 2>&1); then
             
-            if echo "$response" | python3 -m json.tool > /dev/null 2>&1; then
+            # Validate response is valid JSON with expected structure
+            if echo "$response" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+# MCP memory search returns: results, query_embedding_time_ms, search_time_ms, total_results
+assert 'results' in data, 'Missing results field'
+assert isinstance(data['results'], list), 'results must be a list'
+print(f'MCP memory search: {len(data[\"results\"])} results, {data.get(\"search_time_ms\", 0):.1f}ms')
+" 2>&1; then
                 endpoint_stats+=("✓ POST :9002/memory/search")
                 success_count=$((success_count + 1))
-                debug "MCP memory search endpoint responsive"
+                debug "MCP memory search endpoint responsive with valid PacketEnvelope v2 response"
             else
-                endpoint_stats+=("⚠ POST :9002/memory/search (invalid JSON)")
-                warn "MCP memory search endpoint returned invalid JSON"
+                endpoint_stats+=("✗ POST :9002/memory/search (invalid response)")
+                error "MCP memory search returned invalid response structure"
+                error "Response: ${response:0:500}"
+                phase_failed=true
             fi
         else
-            endpoint_stats+=("⊘ POST :9002/memory/search (not available)")
-            warn "MCP memory search endpoint not available"
-            # Not a hard failure - MCP memory is optional
+            endpoint_stats+=("✗ POST :9002/memory/search (failed)")
+            error "MCP memory search endpoint failed - MANDATORY for L9 operation"
+            error "Response: ${response:0:500}"
+            phase_failed=true
         fi
     else
-        endpoint_stats+=("⊘ POST :9002/memory/search (no MCP_API_KEY)")
-        warn "Skipping MCP memory search check (MCP_API_KEY not set)"
+        endpoint_stats+=("✗ POST :9002/memory/search (no MCP_API_KEY)")
+        error "MCP_API_KEY not set - MANDATORY for MCP memory operations"
+        phase_failed=true
     fi
     
     # Summary
