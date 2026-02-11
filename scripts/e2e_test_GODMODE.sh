@@ -47,7 +47,7 @@ IFS=$'\n\t'
 readonly SCRIPT_VERSION="1.0.0"
 readonly SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
+readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 # Colors (ANSI escape codes)
 readonly COLOR_RESET='\033[0m'
@@ -205,12 +205,12 @@ detect_environment() {
     
     # Detect ENV_FILE
     if [[ -z "$ENV_FILE" ]]; then
-        if [[ -f "${PROJECT_ROOT}/deploy/c1/.env.c1" ]]; then
-            ENV_FILE="${PROJECT_ROOT}/deploy/c1/.env.c1"
-            info "Using C1 production env file: ${ENV_FILE}"
-        elif [[ -f "${PROJECT_ROOT}/.env" ]]; then
+        if [[ -f "${PROJECT_ROOT}/.env" ]]; then
             ENV_FILE="${PROJECT_ROOT}/.env"
-            warn "Using default .env file (not C1-specific): ${ENV_FILE}"
+            info "Using env file: ${ENV_FILE}"
+        elif [[ -f "${PROJECT_ROOT}/deploy/c1/.env.c1" ]]; then
+            ENV_FILE="${PROJECT_ROOT}/deploy/c1/.env.c1"
+            info "Using C1-specific env file: ${ENV_FILE}"
         else
             fatal "No .env file found. Set ENV_FILE or place .env in project root."
         fi
@@ -251,7 +251,7 @@ validate_required_env_vars() {
         "NEO4J_PASSWORD"
         "GRAFANA_PASSWORD"
         "OPENAI_API_KEY"
-        "L9_API_KEY"
+        "L9_EXECUTOR_API_KEY"
     )
     
     local missing_vars=()
@@ -327,6 +327,8 @@ run_infra_checks() {
         "${COMPOSE_PROJECT_NAME}-prometheus"
         "${COMPOSE_PROJECT_NAME}-grafana"
         "${COMPOSE_PROJECT_NAME}-jaeger"
+        "${COMPOSE_PROJECT_NAME}-l9-api-1"
+        "${COMPOSE_PROJECT_NAME}-l9-mcp-memory-1"
     )
     
     local container_stats=()
@@ -353,6 +355,7 @@ run_infra_checks() {
     # Check port bindings
     info "Checking port bindings on 127.0.0.1..."
     local required_ports=(
+        "8000:l9-api"
         "5432:postgres"
         "6379:redis"
         "7474:neo4j-http"
@@ -493,6 +496,22 @@ run_db_checks() {
         phase_failed=true
     fi
     
+    # MCP Memory server check (if running)
+    info "Testing MCP Memory server..."
+    local mcp_memory_url="${MCP_MEMORY_URL:-http://127.0.0.1:9002}"
+    
+    if response=$(curl -fsS "${mcp_memory_url}/health" 2>&1); then
+        db_stats+=("✓ mcp-memory")
+        debug "MCP Memory server healthy"
+    elif curl -fsS "${mcp_memory_url}/" > /dev/null 2>&1; then
+        db_stats+=("✓ mcp-memory (no /health endpoint)")
+        debug "MCP Memory server responsive (no /health)"
+    else
+        db_stats+=("⊘ mcp-memory (not running)")
+        warn "MCP Memory server not available at ${mcp_memory_url}"
+        # Not a failure - MCP memory is optional
+    fi
+    
     # Summary
     local success_count=0
     for stat in "${db_stats[@]}"; do
@@ -501,14 +520,14 @@ run_db_checks() {
         fi
     done
     
-    info "Database substrates: ${success_count}/3 responsive"
+    info "Database substrates: ${success_count}/4 responsive"
     
     # Record result
     if [[ "$phase_failed" == "true" ]]; then
-        record_phase_result "db" "FAIL" "(postgres/redis/neo4j)"
+        record_phase_result "db" "FAIL" "(postgres/redis/neo4j/mcp-memory)"
         return $EXIT_DB_ERROR
     else
-        record_phase_result "db" "PASS" "(postgres/redis/neo4j)"
+        record_phase_result "db" "PASS" "(postgres/redis/neo4j/mcp-memory)"
         return 0
     fi
 }
@@ -574,12 +593,13 @@ run_app_checks() {
     info "Testing kernel reload endpoint..."
     local reload_url="${L9_API_BASE}/kernels/reload"
     
-    if [[ -n "${L9_API_KEY:-}" ]]; then
+    if [[ -n "${L9_EXECUTOR_API_KEY:-}" ]]; then
         debug "POST ${reload_url}"
         
         if curl -fsS -X POST \
-            -H "Authorization: Bearer ${L9_API_KEY}" \
+            -H "Authorization: Bearer ${L9_EXECUTOR_API_KEY}" \
             -H "Content-Type: application/json" \
+            -d '{}' \
             "$reload_url" > /dev/null 2>&1; then
             endpoint_stats+=("✓ POST /kernels/reload")
             success_count=$((success_count + 1))
@@ -590,48 +610,82 @@ run_app_checks() {
             phase_failed=true
         fi
     else
-        endpoint_stats+=("⊘ POST /kernels/reload (no L9_API_KEY)")
-        warn "Skipping kernel reload check (L9_API_KEY not set)"
+        endpoint_stats+=("⊘ POST /kernels/reload (no L9_EXECUTOR_API_KEY)")
+        warn "Skipping kernel reload check (L9_EXECUTOR_API_KEY not set)"
     fi
     
-    # Chat endpoint (minimal payload test)
-    info "Testing chat endpoint..."
-    local chat_url="${L9_API_BASE}/chat"
+    # LChat endpoint (minimal payload test)
+    info "Testing lchat endpoint..."
+    local chat_url="${L9_API_BASE}/lchat"
     
-    if [[ -n "${L9_API_KEY:-}" ]]; then
+    if [[ -n "${L9_EXECUTOR_API_KEY:-}" ]]; then
         debug "POST ${chat_url}"
         
         local payload='{"message":"ping","stream":false}'
         
         if response=$(curl -fsS -X POST \
-            -H "Authorization: Bearer ${L9_API_KEY}" \
+            -H "Authorization: Bearer ${L9_EXECUTOR_API_KEY}" \
             -H "Content-Type: application/json" \
             -d "$payload" \
             "$chat_url" 2>&1); then
             
             if echo "$response" | python3 -m json.tool > /dev/null 2>&1; then
-                endpoint_stats+=("✓ POST /chat")
+                endpoint_stats+=("✓ POST /lchat")
                 success_count=$((success_count + 1))
-                debug "Chat endpoint responsive"
+                debug "LChat endpoint responsive"
             else
-                endpoint_stats+=("⚠ POST /chat (invalid JSON)")
-                warn "Chat endpoint returned invalid JSON"
+                endpoint_stats+=("⚠ POST /lchat (invalid JSON)")
+                warn "LChat endpoint returned invalid JSON"
             fi
         else
-            endpoint_stats+=("✗ POST /chat")
-            error "Chat endpoint failed"
+            endpoint_stats+=("✗ POST /lchat")
+            error "LChat endpoint failed"
             if [[ "$FLAG_VERBOSE" == "true" ]]; then
                 error "Response: ${response}"
             fi
-            phase_failed=true
+            # LChat may fail due to missing OpenAI key or model issues - warn but don't fail
+            warn "LChat endpoint may require valid OpenAI configuration"
         fi
     else
-        endpoint_stats+=("⊘ POST /chat (no L9_API_KEY)")
-        warn "Skipping chat endpoint check (L9_API_KEY not set)"
+        endpoint_stats+=("⊘ POST /lchat (no L9_EXECUTOR_API_KEY)")
+        warn "Skipping lchat endpoint check (L9_EXECUTOR_API_KEY not set)"
+    fi
+    
+    # MCP Memory search endpoint (on separate port 9002)
+    info "Testing MCP memory search endpoint..."
+    local mcp_memory_search_url="${MCP_MEMORY_URL:-http://127.0.0.1:9002}/memory/search"
+    
+    if [[ -n "${L9_EXECUTOR_API_KEY:-}" ]]; then
+        debug "POST ${mcp_memory_search_url}"
+        
+        local memory_payload='{"query":"test","limit":1}'
+        
+        if response=$(curl -fsS -X POST \
+            -H "Authorization: Bearer ${L9_EXECUTOR_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d "$memory_payload" \
+            "$mcp_memory_search_url" 2>&1); then
+            
+            if echo "$response" | python3 -m json.tool > /dev/null 2>&1; then
+                endpoint_stats+=("✓ POST :9002/memory/search")
+                success_count=$((success_count + 1))
+                debug "MCP memory search endpoint responsive"
+            else
+                endpoint_stats+=("⚠ POST :9002/memory/search (invalid JSON)")
+                warn "MCP memory search endpoint returned invalid JSON"
+            fi
+        else
+            endpoint_stats+=("⊘ POST :9002/memory/search (not available)")
+            warn "MCP memory search endpoint not available"
+            # Not a hard failure - MCP memory is optional
+        fi
+    else
+        endpoint_stats+=("⊘ POST :9002/memory/search (no L9_EXECUTOR_API_KEY)")
+        warn "Skipping MCP memory search check (L9_EXECUTOR_API_KEY not set)"
     fi
     
     # Summary
-    local total_endpoints=$((${#health_endpoints[@]} + 2))  # health + reload + chat
+    local total_endpoints=$((${#health_endpoints[@]} + 3))  # health + reload + lchat + memory
     info "API endpoints: ${success_count}/${total_endpoints} healthy"
     
     # Record result

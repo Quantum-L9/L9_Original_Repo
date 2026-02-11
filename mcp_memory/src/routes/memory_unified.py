@@ -51,7 +51,12 @@ if TYPE_CHECKING:
 
 import asyncio
 
-from memory.governance_gate import require_governance_context
+from config.rls_config import get_rls_config
+from memory.governance_gate import (
+    build_governance_context,
+    governance_context,
+    require_governance_context,
+)
 from src.config import settings
 from src.db import execute, fetch_all, fetch_one
 from src.embeddings import embed_text
@@ -385,7 +390,9 @@ async def search_memory_handler(
         ):
             db_scopes.append("shared")  # Legacy compatibility for old rows
         if not db_scopes:
-            raise HTTPException(status_code=403, detail="No authorized scopes requested")
+            raise HTTPException(
+                status_code=403, detail="No authorized scopes requested"
+            )
 
         search_start = time.time()
 
@@ -553,22 +560,48 @@ async def save_memory_route(
             detail="Cursor cannot write to l-private scope. Only L-CTO can write private memories.",
         )
 
-    return await save_memory_handler(
-        # SERVER-ENFORCED: user_id from authenticated identity
-        user_id=caller.user_id,
-        content=req["content"],
-        kind=req["kind"],
-        scope=requested_scope,
-        duration=req.get("duration", "long"),
-        tags=req.get("tags", []),
-        importance=req.get("importance", 1.0),
-        metadata=req.get("metadata"),
-        # SERVER-ENFORCED: caller identity from token, NEVER from request body
-        caller_id=caller.caller_id,
-        creator=caller.creator,
-        source=caller.source,
-        substrate_service=substrate_service,
+    # GMP-70: Build and set governance context for RLS-enabled memory operations
+    rls = get_rls_config()
+    scope = os.getenv("L9_MEMORY_SCOPE", "developer")
+    project_id = os.getenv("L9_PROJECT_ID", "l9-default")
+
+    # L gets all scopes, C gets developer + global only (no l-private)
+    allowed_scopes = (
+        ["developer", "global", "l-private"]
+        if caller.caller_id == "L"
+        else ["developer", "global"]
     )
+
+    gov_ctx = build_governance_context(
+        caller_id=caller.caller_id,
+        role="end_user",
+        scope=scope,
+        project_id=project_id,
+        allowed_scopes=allowed_scopes,
+        tenant_id=rls.tenant_uuid,
+        org_id=rls.org_uuid,
+        user_id=rls.user_uuid,
+        creator=caller.creator,
+        source="mcp_memory_rest",
+    )
+
+    async with governance_context(gov_ctx):
+        return await save_memory_handler(
+            # SERVER-ENFORCED: user_id from authenticated identity
+            user_id=caller.user_id,
+            content=req["content"],
+            kind=req["kind"],
+            scope=requested_scope,
+            duration=req.get("duration", "long"),
+            tags=req.get("tags", []),
+            importance=req.get("importance", 1.0),
+            metadata=req.get("metadata"),
+            # SERVER-ENFORCED: caller identity from token, NEVER from request body
+            caller_id=caller.caller_id,
+            creator=caller.creator,
+            source=caller.source,
+            substrate_service=substrate_service,
+        )
 
 
 @router.post("/search")
@@ -589,19 +622,43 @@ async def search_memory_route(
         # Remove l-private from requested scopes for Cursor
         requested_scopes = [s for s in requested_scopes if s != "l-private"]
 
-    ctx = require_governance_context("mcp_memory.search_memory_route")
+    # GMP-70: Build and set governance context for RLS-enabled memory operations
+    rls = get_rls_config()
+    scope = os.getenv("L9_MEMORY_SCOPE", "developer")
+    project_id = os.getenv("L9_PROJECT_ID", "l9-default")
 
-    return await search_memory_handler(
-        user_id=caller.user_id,
-        query=req["query"],
-        scopes=requested_scopes,
-        kinds=req.get("kinds"),
-        top_k=req.get("top_k", 5),
-        threshold=req.get("threshold", 0.7),
-        duration=req.get("duration", "all"),
-        track_access=req.get("track_access", False),
-        project_id=ctx.project_id,
+    # L gets all scopes, C gets developer + global only (no l-private)
+    allowed_scopes = (
+        ["developer", "global", "l-private"]
+        if caller.caller_id == "L"
+        else ["developer", "global"]
     )
+
+    gov_ctx = build_governance_context(
+        caller_id=caller.caller_id,
+        role="end_user",
+        scope=scope,
+        project_id=project_id,
+        allowed_scopes=allowed_scopes,
+        tenant_id=rls.tenant_uuid,
+        org_id=rls.org_uuid,
+        user_id=rls.user_uuid,
+        creator=caller.creator,
+        source="mcp_memory_rest",
+    )
+
+    async with governance_context(gov_ctx):
+        return await search_memory_handler(
+            user_id=caller.user_id,
+            query=req["query"],
+            scopes=requested_scopes,
+            kinds=req.get("kinds"),
+            top_k=req.get("top_k", 5),
+            threshold=req.get("threshold", 0.7),
+            duration=req.get("duration", "all"),
+            track_access=req.get("track_access", False),
+            project_id=gov_ctx.project_id,
+        )
 
 
 # =============================================================================

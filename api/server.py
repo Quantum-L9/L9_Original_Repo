@@ -470,6 +470,15 @@ from memory.state_manager import MemoryStateManager
 from memory.substrate_service import close_service, init_service
 from memory.timeline_service import TimelineService
 
+# Governance context for RLS-enabled memory operations (GMP-70)
+try:
+    from config.rls_config import get_rls_config
+    from memory.governance_gate import build_governance_context, governance_context
+
+    _has_governance = True
+except ImportError:
+    _has_governance = False
+
 # Integration settings
 logger = structlog.get_logger(__name__)
 
@@ -3433,8 +3442,26 @@ async def lchat(
     )
 
     # Execute task via AgentExecutorService
+    # Wrap with governance context for RLS-enabled memory operations (GMP-70)
     try:
-        result = await agent_executor.start_agent_task(task)
+        if _has_governance:
+            rls_config = get_rls_config()
+            gov_ctx = build_governance_context(
+                caller_id="lchat",
+                role="service",
+                scope="agent",
+                project_id=os.getenv("L9_PROJECT_ID", "l9"),
+                allowed_scopes=["agent", "memory", "http"],
+                tenant_id=rls_config.tenant_uuid,
+                org_id=rls_config.org_uuid,
+                user_id=rls_config.user_uuid,
+                creator="http",
+                source="lchat",
+            )
+            async with governance_context(gov_ctx):
+                result = await agent_executor.start_agent_task(task)
+        else:
+            result = await agent_executor.start_agent_task(task)
     except Exception as e:
         logger.exception("lchat: execution failed: %s", str(e))
         raise HTTPException(
