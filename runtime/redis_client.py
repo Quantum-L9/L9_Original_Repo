@@ -482,6 +482,43 @@ class RedisClient:
             logger.error(f"Redis set failed: {e}")
             return False
 
+    async def setnx(
+        self,
+        key: str,
+        value: str,
+        ttl: int | None = None,
+        raw: bool = False,
+    ) -> bool:
+        """
+        Set key-value only if key does not exist (SETNX).
+
+        This is atomic and useful for distributed locking/deduplication.
+
+        Args:
+            key: Key to set
+            value: Value to set
+            ttl: Optional TTL in seconds (uses SET NX EX pattern)
+            raw: If True, use key as-is (no tenant prefix)
+
+        Returns:
+            True if key was set (didn't exist)
+            False if key already exists
+        """
+        if not self.is_available():
+            return False
+
+        try:
+            prefixed = key if raw else self._prefixed_key(key)
+            if ttl:
+                # Use SET with NX and EX flags for atomic set-if-not-exists with TTL
+                result = await self._client.set(prefixed, value, nx=True, ex=ttl)
+            else:
+                result = await self._client.setnx(prefixed, value)
+            return bool(result)
+        except Exception as e:
+            logger.error(f"Redis setnx failed: {e}")
+            return False
+
     async def delete(self, key: str, raw: bool = False) -> bool:
         """
         Delete key.

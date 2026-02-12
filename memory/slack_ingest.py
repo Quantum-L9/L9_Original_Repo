@@ -60,6 +60,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+# Governance context for memory operations (required on C1 with RLS enabled)
+import os
 from time import time as current_time
 from typing import Any
 
@@ -72,17 +74,28 @@ from config.settings import settings
 from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 from memory.substrate_service import MemorySubstrateService
 
-# Governance context for memory operations (required on C1 with RLS enabled)
-import os
 try:
     from config.rls_config import get_rls_config
     from memory.governance_gate import build_governance_context, governance_context
+
     _has_governance = True
 except ImportError:
     _has_governance = False
 
 # Input segmenter for multi-part directive support (harvested from tokenizer)
 from orchestration.input_segmenter import get_segmenter
+
+# Redis client for in-flight event tracking (prevents duplicate processing on Slack retries)
+try:
+    from runtime.redis_client import get_redis_client
+
+    _has_redis = True
+except ImportError:
+    _has_redis = False
+
+    async def get_redis_client():
+        return None
+
 
 # Optional telemetry - gracefully degrade if module not available
 try:
@@ -133,6 +146,94 @@ logger = structlog.get_logger(__name__)
 L9_ENABLE_LEGACY_SLACK_ROUTER = getattr(
     settings, "l9_enable_legacy_slack_router", False
 )
+
+# In-flight event TTL (seconds) - how long to block duplicate events
+# Set to 60s to cover Slack's retry window (3 retries over ~30s)
+SLACK_INFLIGHT_TTL = 60
+
+
+# =============================================================================
+# In-Flight Event Tracking (Redis-based)
+# =============================================================================
+
+
+async def _mark_event_inflight(event_id: str) -> bool:
+    """
+    Mark a Slack event as in-flight using Redis SETNX.
+
+    This prevents duplicate processing when Slack retries delivery
+    before the first request has finished processing.
+
+    Args:
+        event_id: Slack event ID (unique per event)
+
+    Returns:
+        True if this is the first request (event was marked)
+        False if event is already being processed (duplicate)
+    """
+    if not _has_redis:
+        return True  # No Redis, allow processing
+
+    try:
+        redis_client = await get_redis_client()
+        if redis_client is None:
+            return True  # Redis unavailable, allow processing
+
+        # Use SETNX (set if not exists) with TTL
+        # Key format: slack:inflight:{event_id}
+        key = f"slack:inflight:{event_id}"
+
+        # Try to set the key - returns True if set, False if already exists
+        result = await redis_client.setnx(key, "1", ttl=SLACK_INFLIGHT_TTL)
+
+        if result:
+            logger.debug("slack_event_marked_inflight", event_id=event_id)
+        else:
+            logger.info(
+                "slack_event_already_inflight",
+                event_id=event_id,
+                reason="redis_setnx_failed",
+            )
+
+        return result
+
+    except Exception as e:
+        logger.warning(
+            "slack_inflight_check_error",
+            event_id=event_id,
+            error=str(e),
+        )
+        # On error, allow processing (fail open)
+        return True
+
+
+async def _clear_event_inflight(event_id: str) -> None:
+    """
+    Clear the in-flight marker after processing completes.
+
+    This allows the event to be reprocessed if needed (e.g., manual retry).
+    Note: The TTL will auto-expire the key anyway, this is just cleanup.
+    """
+    if not _has_redis:
+        return
+
+    try:
+        redis_client = await get_redis_client()
+        if redis_client is None:
+            return
+
+        key = f"slack:inflight:{event_id}"
+        await redis_client.delete(key)
+        logger.debug("slack_event_cleared_inflight", event_id=event_id)
+
+    except Exception as e:
+        # Non-critical, TTL will handle cleanup
+        logger.debug(
+            "slack_inflight_clear_error",
+            event_id=event_id,
+            error=str(e),
+        )
+
 
 # =============================================================================
 # L-CTO Agent Handler (ported from webhook_slack.py)
@@ -592,7 +693,24 @@ async def handle_slack_events(
         )
         return {"ok": True, "ignored": "bot_message"}
 
-    # Dedupe check: look for event_id in recent packets
+    # =========================================================================
+    # IN-FLIGHT CHECK (Redis-based) - MUST be first to prevent Slack retry races
+    # =========================================================================
+    # This uses Redis SETNX to atomically mark the event as "in progress".
+    # If Slack retries the event before we finish, the retry will see the
+    # in-flight marker and return immediately without double-processing.
+    is_first_request = await _mark_event_inflight(event_id)
+    if not is_first_request:
+        logger.info(
+            "slack_dedupe_inflight",
+            event_id=event_id,
+            reason="event_already_processing",
+        )
+        record_idempotent_hit(team_id=team_id)
+        return {"ok": True, "deduplicated": True, "reason": "inflight"}
+
+    # Dedupe check: look for event_id in recent packets (database-level)
+    # This catches events that were already fully processed in a previous request
     try:
         dedupe_result = await _check_duplicate(
             substrate_service=substrate_service,
@@ -613,6 +731,8 @@ async def handle_slack_events(
                 reason=dedupe_result.get("reason"),
             )
             record_idempotent_hit(team_id=team_id)
+            # Clear in-flight marker since we're not processing
+            await _clear_event_inflight(event_id)
             return {"ok": True, "deduplicated": True}
     except Exception as e:
         logger.error(
