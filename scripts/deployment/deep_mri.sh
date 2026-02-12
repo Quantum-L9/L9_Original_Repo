@@ -71,17 +71,27 @@ echo "5. DATABASE SUBSTRATE HEALTH"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 echo "PostgreSQL:"
-docker compose exec -T l9-postgres psql -U l9_user -d l9_prod -c "SELECT version();" 2>/dev/null | head -3 || echo "✗ Query failed"
-docker compose exec -T l9-postgres psql -U l9_user -d l9_prod -c "SELECT count(*) as tables FROM information_schema.tables WHERE table_schema='public';" 2>/dev/null | tail -2 || echo "✗ Table count failed"
+# Load credentials from .env
+PG_USER=$(grep "^POSTGRES_USER=" /opt/l9/.env 2>/dev/null | cut -d= -f2 || echo "postgres")
+PG_DB=$(grep "^POSTGRES_DB=" /opt/l9/.env 2>/dev/null | cut -d= -f2 || echo "l9_memory")
+docker compose exec -T postgres psql -U "$PG_USER" -d "$PG_DB" -c "SELECT version();" 2>/dev/null | head -3 || echo "✗ Query failed"
+docker compose exec -T postgres psql -U "$PG_USER" -d "$PG_DB" -c "SELECT count(*) as tables FROM information_schema.tables WHERE table_schema='public';" 2>/dev/null | tail -2 || echo "✗ Table count failed"
 echo ""
 
 echo "Redis:"
-docker compose exec -T redis redis-cli PING || echo "✗ PING failed"
-docker compose exec -T redis redis-cli INFO stats | grep -E "(total_commands_processed|instantaneous_ops_per_sec)" || echo "✗ Stats failed"
+REDIS_PW=$(grep "^REDIS_PASSWORD=" /opt/l9/.env 2>/dev/null | cut -d= -f2)
+if [ -n "$REDIS_PW" ]; then
+  docker compose exec -T redis redis-cli -a "$REDIS_PW" --no-auth-warning PING || echo "✗ PING failed"
+  docker compose exec -T redis redis-cli -a "$REDIS_PW" --no-auth-warning INFO stats | grep -E "(total_commands_processed|instantaneous_ops_per_sec)" || echo "✗ Stats failed"
+else
+  docker compose exec -T redis redis-cli PING || echo "✗ PING failed"
+  docker compose exec -T redis redis-cli INFO stats | grep -E "(total_commands_processed|instantaneous_ops_per_sec)" || echo "✗ Stats failed"
+fi
 echo ""
 
 echo "Neo4j:"
-curl -s http://127.0.0.1:7474/ | grep -q "Neo4j" && echo "✓ HTTP endpoint responsive" || echo "✗ HTTP endpoint failed"
+NEO4J_PW=$(grep "^NEO4J_PASSWORD=" /opt/l9/.env 2>/dev/null | cut -d= -f2)
+curl -s -u "neo4j:$NEO4J_PW" http://127.0.0.1:7474/ | grep -q "Neo4j" && echo "✓ HTTP endpoint responsive" || echo "✗ HTTP endpoint failed"
 echo ""
 
 echo "MCP Memory Server:"
