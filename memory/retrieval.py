@@ -432,14 +432,24 @@ class RetrievalPipeline:
                 except (ValueError, TypeError):
                     pass
 
-        # Step 3: Apply structured filters
+        # Step 3: Apply structured filters (batch fetch replaces N+1 loop)
         filtered_packets = []
 
         if packet_ids and self._repository:
-            for pid in packet_ids[: top_k * 2]:
-                packet = await self._repository.get_packet(pid)
-                if packet and self._matches_filters(packet, filters):
-                    filtered_packets.append(packet)
+            batch_ids = packet_ids[: top_k * 2]
+            if hasattr(self._repository, "get_packets_batch"):
+                # Single query for all packets (O(1) round-trips)
+                packets_map = await self._repository.get_packets_batch(batch_ids)
+                for pid in batch_ids:
+                    packet = packets_map.get(pid)
+                    if packet and self._matches_filters(packet, filters):
+                        filtered_packets.append(packet)
+            else:
+                # Fallback: legacy N+1 path (remove once get_packets_batch deployed)
+                for pid in batch_ids:
+                    packet = await self._repository.get_packet(pid)
+                    if packet and self._matches_filters(packet, filters):
+                        filtered_packets.append(packet)
 
         # Step 4: Combine and rank with 3-way RRF + temporal decay
         # Build rankings for RRF: semantic, keyword, and filter-match
@@ -964,10 +974,28 @@ class RetrievalPipeline:
         # Get lineage from start
         lineage = await self.fetch_lineage(start_packet_id, "descendants", max_depth=50)
 
+        # Batch-fetch all packets in the lineage chain (replaces N+1 loop)
+        lineage_items = lineage.get("chain", [])
+        all_pids = []
+        for item in lineage_items:
+            try:
+                all_pids.append(UUID(item["packet_id"]))
+            except (ValueError, TypeError):
+                pass
+            if end_packet_id and item.get("packet_id") == str(end_packet_id):
+                break
+
+        packets_map: dict = {}
+        if all_pids and hasattr(self._repository, "get_packets_batch"):
+            packets_map = await self._repository.get_packets_batch(all_pids)
+
         chain = []
-        for item in lineage["chain"]:
+        for item in lineage_items:
             packet_id = UUID(item["packet_id"])
-            packet = await self._repository.get_packet(packet_id)
+            packet = packets_map.get(packet_id)
+            if packet is None and not packets_map:
+                # Fallback: individual fetch if batch not available
+                packet = await self._repository.get_packet(packet_id)
 
             entry = {
                 "packet_id": item["packet_id"],
@@ -1270,6 +1298,178 @@ class RetrievalPipeline:
                 "agent_uncertainty": context.get("agent_uncertainty", 0.5),
             },
         }
+
+    # =========================================================================
+    # Unified Search Dispatcher
+    # =========================================================================
+
+    async def search(
+        self,
+        query: str,
+        agent_id: str | None = None,
+        limit: int = 10,
+        min_similarity: float = 0.5,
+        scope: str = "shared",
+        force_mode: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """
+        Unified search dispatcher with automatic query classification.
+
+        Routes queries through QueryClassifier to select the optimal
+        retrieval strategy. Replaces direct calls to individual search
+        methods for most use cases.
+
+        Classification to Strategy mapping:
+            factual      -> keyword_search()
+            conceptual   -> semantic_search()
+            relational   -> graph_enriched_search()
+            temporal     -> hierarchical_search()
+            ambiguous    -> hybrid_search() (RRF fusion)
+            strategic    -> strategy_search()
+
+        Args:
+            query: Natural language search query.
+            agent_id: Agent context for scoped search.
+            limit: Maximum results to return.
+            min_similarity: Minimum similarity threshold.
+            scope: RLS scope ("shared", "private", etc.).
+            force_mode: Override classification with explicit mode.
+
+        Returns:
+            List of result dicts with scores and metadata.
+        """
+        from memory.query_classifier import QueryClassifier
+
+        # Classify or use forced mode
+        if force_mode:
+            query_type = force_mode
+        else:
+            classifier = QueryClassifier()
+            query_type = classifier.classify_query(query)
+
+        logger.info(
+            "retrieval_search_dispatched",
+            query_type=query_type,
+            query_preview=query[:80],
+            limit=limit,
+        )
+
+        # Route to appropriate strategy based on classify_query() output:
+        # entity_lookup, reasoning_trace, temporal, exploratory, factual, default
+        if query_type == "factual":
+            return await self.keyword_search(
+                query=query, top_k=limit,
+            )
+        elif query_type == "entity_lookup":
+            return await self.graph_enriched_search(
+                query=query, agent_id=agent_id, limit=limit,
+                min_similarity=min_similarity, scope=scope,
+            )
+        elif query_type == "temporal":
+            return await self.hierarchical_search(
+                query=query, max_per_tier=limit,
+            )
+        elif query_type == "reasoning_trace":
+            return await self.strategy_search(
+                query=query, max_results=limit,
+            )
+        elif query_type == "exploratory":
+            return await self.semantic_search(
+                query=query, agent_id=agent_id, top_k=limit,
+            )
+        else:  # "default" or unknown
+            return await self.hybrid_search(
+                query=query, agent_id=agent_id, top_k=limit,
+                min_score=min_similarity,
+            )
+
+    # =========================================================================
+    # Graph-Enriched Search
+    # =========================================================================
+
+    async def graph_enriched_search(
+        self,
+        query: str,
+        agent_id: str | None = None,
+        limit: int = 10,
+        min_similarity: float = 0.5,
+        scope: str = "shared",
+    ) -> list[dict[str, Any]]:
+        """
+        Graph-enriched search: vector similarity + Neo4j relationship context.
+
+        Wraps HybridRAGPipeline.search() into the RetrievalPipeline interface.
+        Results include both semantic similarity AND graph-derived context
+        (related entities, causal chains, relationship paths).
+
+        Args:
+            query: Natural language search query.
+            agent_id: Agent context for scoped search.
+            limit: Maximum results.
+            min_similarity: Minimum vector similarity threshold.
+            scope: RLS scope.
+
+        Returns:
+            List of result dicts with vector + graph enrichment.
+        """
+        from memory.graph_client import get_neo4j_client
+        from memory.hybrid_rag import EnrichmentStrategy, HybridRAGPipeline
+
+        neo4j = await get_neo4j_client()
+        if not neo4j or not neo4j.is_available():
+            logger.info(
+                "graph_enriched_search: Neo4j unavailable, falling back to semantic",
+            )
+            return await self.semantic_search(
+                query=query, agent_id=agent_id, top_k=limit,
+            )
+
+        pipeline = HybridRAGPipeline(
+            semantic_service=self._semantic_service,
+            neo4j_client=neo4j,
+        )
+
+        hybrid_result = await pipeline.search(
+            query=query,
+            limit=limit,
+            min_similarity=min_similarity,
+            strategy=EnrichmentStrategy.EXTENDED,
+            enrich_top_n=min(5, limit),
+        )
+
+        # Convert HybridResult objects to standard result dicts
+        results: list[dict[str, Any]] = []
+        for hr in hybrid_result.results:
+            result_dict: dict[str, Any] = {
+                "packet_id": str(hr.vector_hit.packet_id),
+                "content": hr.vector_hit.content,
+                "similarity": hr.vector_hit.similarity,
+                "combined_score": hr.combined_score,
+                "ranking_factors": hr.ranking_factors,
+                "kind": hr.vector_hit.kind,
+                "source_id": hr.vector_hit.source_id,
+                "thread_id": hr.vector_hit.thread_id,
+                "search_mode": "graph_enriched",
+            }
+
+            if hr.enrichment:
+                result_dict["related_entities"] = hr.enrichment.related_entities
+                result_dict["relationship_paths"] = hr.enrichment.relationship_paths
+                result_dict["causal_chain"] = hr.enrichment.causal_chain
+                result_dict["entity_count"] = hr.enrichment.entity_count
+                result_dict["relationship_count"] = hr.enrichment.relationship_count
+
+            results.append(result_dict)
+
+        logger.info(
+            "graph_enriched_search: Complete",
+            query_preview=query[:50],
+            results_count=len(results),
+            enriched_count=hybrid_result.enriched_count,
+            total_entities=hybrid_result.total_entities_found,
+        )
+
+        return results
 
 
 # =============================================================================

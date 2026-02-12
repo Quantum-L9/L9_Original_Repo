@@ -80,17 +80,28 @@ class IngestionPipeline:
     """
     PacketEnvelope ingestion pipeline.
 
-    .. deprecated:: 1.2.0
-        Use MemorySubstrateService.write_packet() instead, which uses
-        the SubstrateDAG for proper LangGraph-based execution.
+    .. deprecated:: 2.0.0
+        **DEPRECATED as of 2026-02-12 (Memory Pipeline Unification).**
 
-    Handles the full lifecycle of packet ingestion:
-    1. Validation
-    2. Content embedding
-    3. Structured storage
-    4. Vector storage
-    5. Lineage updates
-    6. Tag assignment
+        All production callers now use ``ingest_packet()`` which routes
+        through ``MemorySubstrateService.write_packet()`` → ``SubstrateDAG``.
+
+        The ``IngestionPipeline`` class is retained ONLY for backward
+        compatibility with existing test fixtures. No new code should
+        instantiate or call this class.
+
+        Migration: replace ``pipeline.ingest(packet)`` with
+        ``await ingest_packet(packet)`` from this same module.
+
+        Removal target: next major release.
+
+    Legacy lifecycle (superseded by SubstrateDAG nodes):
+    1. Validation → intake_node
+    2. Content embedding → semantic_embed_node
+    3. Structured storage → memory_write_node
+    4. Vector storage → semantic_embed_node
+    5. Lineage updates → graph_sync_node
+    6. Tag assignment → extract_insights_node
     """
 
     # Critical packet types that trigger checkpoints per memory_spec_v3.0.yaml
@@ -759,7 +770,20 @@ class IngestionPipeline:
     description="Memory ingestion pipeline for packet processing and DAG construction",
 )
 def get_ingestion_pipeline() -> IngestionPipeline:
-    """Get or create the ingestion pipeline singleton. CACHED."""
+    """
+    Get or create the ingestion pipeline singleton. CACHED.
+
+    .. deprecated:: 2.0.0
+        Use ``ingest_packet()`` instead. The IngestionPipeline class is
+        deprecated — all production writes go through SubstrateDAG.
+    """
+    import warnings
+
+    warnings.warn(
+        "get_ingestion_pipeline() is deprecated. Use ingest_packet() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return IngestionPipeline()
 
 
@@ -767,7 +791,20 @@ def init_ingestion_pipeline(
     repository: SubstrateRepository,
     semantic_service: SemanticService | None = None,
 ) -> IngestionPipeline:
-    """Initialize the ingestion pipeline with dependencies."""
+    """
+    Initialize the ingestion pipeline with dependencies.
+
+    .. deprecated:: 2.0.0
+        Use ``ingest_packet()`` instead. The IngestionPipeline class is
+        deprecated — all production writes go through SubstrateDAG.
+    """
+    import warnings
+
+    warnings.warn(
+        "init_ingestion_pipeline() is deprecated. Use ingest_packet() instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     pipeline = get_ingestion_pipeline()
     pipeline.set_repository(repository)
     if semantic_service:

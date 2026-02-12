@@ -351,7 +351,7 @@ class EnrichmentResult(BaseModel):
     Result of SubstrateDAG.enrich() execution (v2.1.0 - GMP-67).
 
     Returned by DAG enrichment when running in enrichment-only mode
-    (after core writes have been completed by IngestionPipeline).
+    (after core writes have been completed by the canonical write path).
 
     Contains extracted facts, insights, reasoning traces, and metrics.
     """

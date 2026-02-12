@@ -100,6 +100,15 @@ def must_stay_async_interface(func: F) -> F:
     return must_stay_async("callers use await")(func)
 
 
+def __getattr__(name: str):
+    """Lazy re-export of register_tool to avoid circular import with runtime."""
+    if name == "register_tool":
+        from runtime.tool_registry import register_tool
+
+        return register_tool
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

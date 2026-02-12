@@ -99,13 +99,14 @@ from memory.deduplication import (
     DeduplicationReport as DeduplicationEngineReport,
 )
 
-# Enrichment DAG (SUPERPROMPTPACK: Multi-tier fallback pipeline)
+# DEPRECATED: EnrichmentDAG superseded by SubstrateDAG (substrate_dag.py)
+# Kept for backward compat with substrate_service.py during transition.
 from memory.enrichment_dag import (
-    EnrichmentConfig,
-    EnrichmentDAG,
-    EnrichmentResult,
-    EnrichmentStatus,
-    EnrichmentTier,
+    EnrichmentConfig,  # deprecated 2.0.0
+    EnrichmentDAG,  # deprecated 2.0.0
+    EnrichmentResult,  # deprecated 2.0.0
+    EnrichmentStatus,  # deprecated 2.0.0
+    EnrichmentTier,  # deprecated 2.0.0
 )
 from memory.gap_detector import GapDetector
 
@@ -167,17 +168,22 @@ from memory.importance_manager import (
     init_importance_manager,
 )
 
-# Task Completion Hook (GMP-80-A7)
+# Task Completion Hook (GMP-80-A7) + deprecated IngestionPipeline re-exports
+# DEPRECATED: IngestionPipeline, get_ingestion_pipeline, init_ingestion_pipeline
+# Use ingest_packet() instead. Kept for backward compat with test fixtures.
 from memory.ingestion import (
-    IngestionPipeline,
-    get_ingestion_pipeline,
-    init_ingestion_pipeline,
+    IngestionPipeline,  # deprecated 2.0.0
+    get_ingestion_pipeline,  # deprecated 2.0.0
+    init_ingestion_pipeline,  # deprecated 2.0.0
     on_task_completion,
 )
+
+# DEPRECATED: InsightExtractionPipeline superseded by extract_insights_node
+# in substrate_dag.py + EntityExtractionService in entity_extraction.py
 from memory.insight_extraction import (
-    InsightExtractionPipeline,
-    get_insight_pipeline,
-    init_insight_pipeline,
+    InsightExtractionPipeline,  # deprecated 2.0.0
+    get_insight_pipeline,  # deprecated 2.0.0
+    init_insight_pipeline,  # deprecated 2.0.0
 )
 from memory.neo4j_strategy_memory import (
     Neo4jStrategyMemoryService,

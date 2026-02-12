@@ -59,6 +59,7 @@ from typing import Any
 import structlog
 
 from config.settings import get_integration_settings
+from core.tools import dynamic_discovery as _discovery
 from core.tools.dynamic_discovery import (
     cache_tools,
     get_cached_tools,
@@ -114,6 +115,7 @@ async def bind_tools_to_agent(
     task_id: str | None = None,
     role: str | None = None,
     force_static: bool = False,
+    task_description: str | None = None,
 ) -> list[dict[str, Any]]:
     """
     Primary entry point: bind tools to an agent (static or dynamic).
@@ -138,15 +140,13 @@ async def bind_tools_to_agent(
         3. If task_id provided AND cached tools exist → return cached tools
         4. Else → dynamic binding (meta-tool only)
     """
-    settings = get_integration_settings()
-
     # Decision point: static vs dynamic
-    if force_static or not settings.l9_dynamic_tool_discovery:
+    if force_static or not _discovery.is_dynamic_discovery_enabled():
         logger.debug(
             "tool_binding.static_mode",
             agent_id=agent_id,
             force_static=force_static,
-            feature_flag=settings.l9_dynamic_tool_discovery,
+            feature_flag=_discovery.is_dynamic_discovery_enabled(),
         )
         return await get_static_tool_bundle(agent_id=agent_id, role=role)
 
@@ -289,9 +289,9 @@ def get_binding_mode_summary() -> dict[str, Any]:
         - feature_flag: Current flag value
         - meta_tool_available: Whether tool_search is registered
     """
-    settings = get_integration_settings()
+    enabled = _discovery.is_dynamic_discovery_enabled()
 
-    mode = "dynamic" if settings.l9_dynamic_tool_discovery else "static"
+    mode = "dynamic" if enabled else "static"
 
     # Check if meta-tool is registered
     meta_tool_available = False
@@ -305,19 +305,111 @@ def get_binding_mode_summary() -> dict[str, Any]:
 
     return {
         "mode": mode,
-        "feature_flag": settings.l9_dynamic_tool_discovery,
+        "feature_flag": enabled,
         "meta_tool_available": meta_tool_available,
         "static_bundle_size": "73+",
         "dynamic_bundle_size": "1 (meta-tool only)",
     }
 
 
+# ============================================================================
+# SPEC-ALIGNED ALIASES (expected by test_dynamic_tool_binding.py)
+# These map the test-spec API to the implementation functions above.
+# ============================================================================
+
+
+async def get_agent_tools(
+    agent_id: str | None = None,
+    task_id: str | None = None,
+) -> list[dict[str, Any]]:
+    """
+    Get the tools currently bound to an agent.
+
+    Alias for bind_tools_to_agent — returns whatever the current
+    binding mode provides (static bundle or dynamic meta-tool).
+
+    Args:
+        agent_id: Agent identifier
+        task_id: Task/conversation ID (for cache lookup)
+
+    Returns:
+        List of tool definitions in OpenAI format
+    """
+    return await bind_tools_to_agent(agent_id=agent_id, task_id=task_id)
+
+
+async def refresh_agent_tools(
+    agent_id: str | None = None,
+    task_id: str | None = None,
+) -> list[dict[str, Any]]:
+    """
+    Force-refresh the tools bound to an agent (bypass cache).
+
+    Args:
+        agent_id: Agent identifier
+        task_id: Task/conversation ID
+
+    Returns:
+        Fresh list of tool definitions
+    """
+    # Clear cache for this task, then re-bind
+    if task_id:
+        from core.tools.dynamic_discovery import invalidate_tool_cache
+
+        await invalidate_tool_cache(task_id)
+
+    return await bind_tools_to_agent(agent_id=agent_id, task_id=task_id)
+
+
+async def get_tool_binding_status() -> dict[str, Any]:
+    """
+    Get the current tool binding status (async wrapper).
+
+    Returns:
+        Dict with mode, feature_flag, meta_tool_available, enabled
+    """
+    summary = get_binding_mode_summary()
+    summary["enabled"] = summary.get("feature_flag", False)
+    return summary
+
+
+async def clear_tool_cache(task_id: str | None = None) -> bool:
+    """
+    Clear cached tools for a task or all tasks.
+
+    Args:
+        task_id: Specific task to clear, or None for all
+
+    Returns:
+        True if cleared successfully
+    """
+    try:
+        from core.tools.dynamic_discovery import (
+            invalidate_all_tool_caches,
+            invalidate_tool_cache,
+        )
+
+        if task_id:
+            return await invalidate_tool_cache(task_id)
+        count = await invalidate_all_tool_caches()
+        return count >= 0
+    except (ImportError, Exception) as e:
+        logger.warning("clear_tool_cache.failed", error=str(e))
+        return False
+
+
 __all__ = [
+    # Original API
     "bind_tools_to_agent",
     "cache_discovered_tools",
     "get_binding_mode_summary",
     "get_dynamic_tool_bundle",
     "get_static_tool_bundle",
+    # Spec-aligned aliases
+    "get_agent_tools",
+    "refresh_agent_tools",
+    "get_tool_binding_status",
+    "clear_tool_cache",
 ]
 
 # ============================================================================

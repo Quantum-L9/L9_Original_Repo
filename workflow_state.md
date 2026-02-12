@@ -83,6 +83,16 @@
 
 ## Recent Changes (digest)
 
+- [2026-02-12] **Tool Test Hardening + 5 Production Bug Fixes** — Ran 136 tests across 7 test files, found 12 failures exposing 5 production bugs. Fixed all 5, aligned with bugfix-diffs.patch. Bugs: (1) `runtime/tool_registry.py` tag filtering returned all tools — now uses `AutoRegistry.get_metadata()`. (2) `core/tools/tool_audit.py` flush lost entries on DB failure — atomic swap + inner-catch pattern. (3) `core/tools/sanitizer.py` validation order wrong — `max_total_bytes` first, report ALL violations. (4-5) `registry_cache.py` + `semantic_discovery.py` unpatchable imports — module-level proxy functions. Tests: 136/136 pass.
+- [2026-02-12] **Memory Pipeline Unification (SuperPack Phases 1.5–4.2)** — Completed remaining SuperPack phases:
+  - **Phase 1.5**: Caller migration verified — all 8 production callers already use `ingest_packet()` (no changes needed)
+  - **Phase 1.6**: `IngestionPipeline` class + factory functions marked deprecated (2.0.0). `enrichment_dag.py` and `insight_extraction.py` archived to `memory/archive/` with compatibility shims
+  - **Phase 3.2**: `get_packets_batch()` wired into `retrieval.py` hybrid_search N+1 loop + lineage chain replay (returns `PacketStoreRow` objects, `SELECT *`)
+  - **Phase 4.2**: `EntityExtractionService` wired into `extract_insights_node` (4-tier: metadata→pattern→heuristic→LLM). Emits entity insights + entity-level facts for knowledge graph
+  - **Archive**: Created `memory/archive/` with `enrichment_dag.py`, `insight_extraction.py`. Shims re-export all symbols with `DeprecationWarning`
+  - **Deprecation**: Marked `IngestionPipeline`, `get_ingestion_pipeline`, `init_ingestion_pipeline`, `EnrichmentDAG`, `InsightExtractionPipeline` as deprecated 2.0.0 in code + `__init__.py`
+  - Tests: 666 memory passed (0 new failures), 71 core DAG/retrieval passed, 155 tool tests passed
+- [2026-02-12] **Memory Pipeline Unification (SuperPack Harvest)** — Phase 2 IMPLEMENT: Created `memory/text_utils.py` (canonical text extraction), `memory/entity_extraction.py` (unified 4-tier entity extraction). Patched `memory/substrate_dag.py` (governance+audit in intake_node, text_utils in semantic_embed_node). Added `get_packets_batch()` to `memory/substrate_repository.py`. Added `search()` dispatcher and `graph_enriched_search()` to `memory/retrieval.py`. Tests: 45 DAG tests pass, 23 tool tests pass, 112 memory tests pass (11 pre-existing failures unrelated).
 - [2026-02-02] **C1 Deployment Plan Complete** — Applied Fix 2 (Neo4j retry config: 5→10 retries, 3.0→5.0s delay). Verified Fixes 1,3,4 already applied. Fixed 7 linter errors in api/server.py (undefined `_has_factory`/`_has_commands`, dynamic import warnings). Files: `api/server.py`.
 - [2026-01-31] **Python 3.12 Pytest Fix** — Fixed conftest import errors: PEP 695 syntax in `core/decorators.py`, Pydantic union types in `clients/memory_client.py` + `api/routes/registry.py`. Added `from __future__ import annotations`. Configured pytest alias for Python 3.12.
 - [2026-01-31] **Deploy Docs Cleanup** — Deleted 7 obsolete C1 deployment docs (100KB): CADDY_CONFIG.md, DEPLOYMENT_GUIDE.md, dockerfile locations.md, FIREWALL.md, L9-MCP-IMPL.md, nginx.md, VPS_DEPLOYMENT_GUIDE.md. Kept 4 active docs.
@@ -158,10 +168,12 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-02-02 (Neo4j retry config, linter fixes, deployment plan complete)_
+_Last updated: 2026-02-12 (Tool Test Hardening — 5 production bugs fixed, 136/136 tests pass)_
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-12: **Tool Test Hardening + Bug Fixes** — Ran 136 tests (7 files), found 12 failures exposing 5 production bugs. Fixed all 5 with patch alignment. Files: `runtime/tool_registry.py`, `core/tools/tool_audit.py`, `core/tools/sanitizer.py`, `core/tools/registry_cache.py`, `core/tools/semantic_discovery.py`, `tests/tools/test_tool_sanitizer.py`. 136/136 pass.
+- 2026-02-12: **Memory Pipeline Unification — Full SuperPack Execution** — Phases 1.5–4.2 complete. Archived `enrichment_dag.py` + `insight_extraction.py` to `memory/archive/`. Deprecated `IngestionPipeline` class (2.0.0). Wired `get_packets_batch()` into retrieval N+1 loops. Wired `EntityExtractionService` into `extract_insights_node`. 666 memory tests pass, 71 DAG tests pass, 0 new failures. Files: `memory/archive/`, `memory/ingestion.py`, `memory/retrieval.py`, `memory/substrate_dag.py`, `memory/substrate_repository.py`, `memory/__init__.py`.
 - ✅ 2026-02-02: **C1 Deployment Plan Implementation + Linter Fixes** — Implemented remaining fix from deployment plan (Neo4j retry: 5→10 retries, 3.0→5.0s delay). Fixed 7 linter errors in api/server.py (added `_has_factory`, `_has_commands` declarations; added `# type: ignore` for dynamic imports). Verified Fixes 1,3,4 were already applied. All 4 deployment blockers resolved.
 - 2026-02-02: **C1 Deployment Fixes** — Fixed critical blockers for C1 deployment:
   - Neo4j connection: `get_neo4j_client()` → `init_neo4j_client()` in `api/server.py`
@@ -178,11 +190,10 @@ _Last updated: 2026-02-02 (Neo4j retry config, linter fixes, deployment plan com
 
 ## Next Steps (Current Session)
 
-### ✅ COMPLETED: C1 l9-api Deployment Blockers Fixed
-- Neo4j connection: ✅ Fixed (`init_neo4j_client()`)
-- Governance context: ✅ Fixed (World Model + Seed Loader)
-- Duplicate tool registrations: ✅ Fixed (8 critical ones)
-- **C1 API Status:** HEALTHY
+### 🟢 Commit & Push Tool Bug Fixes
+- 5 production bug fixes + 1 test fixture fix ready to commit
+- Files: `runtime/tool_registry.py`, `core/tools/tool_audit.py`, `core/tools/sanitizer.py`, `core/tools/registry_cache.py`, `core/tools/semantic_discovery.py`, `tests/tools/test_tool_sanitizer.py`
+- All 136 tests pass
 
 ### 🟡 NON-CRITICAL: Remaining Duplicate Tool Decorators
 - ~60 `@register_tool` decorators in `runtime/l_tools.py` are duplicates of `registry_adapter.py`

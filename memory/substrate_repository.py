@@ -368,6 +368,51 @@ class SubstrateRepository:
             )
             return bool(result)
 
+    async def get_packets_batch(
+        self,
+        packet_ids: list[UUID],
+    ) -> dict[UUID, PacketStoreRow]:
+        """
+        Batch-fetch packets by ID list using a single query.
+
+        Replaces the N+1 pattern where packets are fetched one-by-one
+        in a loop. Uses WHERE packet_id = ANY($1) for O(1) round-trips.
+
+        Args:
+            packet_ids: List of packet UUIDs to fetch.
+
+        Returns:
+            Dict mapping packet_id to PacketStoreRow.
+            Missing IDs are omitted (no KeyError).
+        """
+        if not packet_ids:
+            return {}
+
+        query = """
+            SELECT *
+            FROM packet_store
+            WHERE packet_id = ANY($1::uuid[])
+        """
+
+        async with self.acquire() as conn:
+            rows = await conn.fetch(query, packet_ids)
+
+        result: dict[UUID, PacketStoreRow] = {}
+        for row in rows:
+            pid = row["packet_id"]
+            result[pid] = self._row_to_packet_store(row)
+
+        missing_count = len(packet_ids) - len(result)
+        if missing_count > 0:
+            logger.warning(
+                "get_packets_batch: Some packets not found",
+                requested=len(packet_ids),
+                found=len(result),
+                missing=missing_count,
+            )
+
+        return result
+
     async def search_packets_by_thread(
         self,
         thread_id: UUID,

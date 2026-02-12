@@ -209,34 +209,42 @@ async def intake_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
-    Entry node: validates and normalizes the PacketEnvelope.
+    Entry node: validates, governs, audits, and normalizes the PacketEnvelope.
 
-    - Validates required fields
+    Responsibilities (canonical intake — replaces legacy IngestionPipeline):
+    - Validates required fields (packet_type, payload)
+    - Enforces governance context (GMP-70: fail-closed)
+    - Runs audit preparation (injection marker detection)
     - Ensures packet_id and timestamp are set
     - Checks for duplicate packets (prevents reprocessing)
     - Prepares state for downstream processing
     """
+    from memory.audit_utils import prepare_packet_for_ingest
+    from memory.governance_gate import (
+        enforce_packet_governance,
+        require_governance_context,
+    )
+
     repository = _get_config_dependency(config, "repository")
     logger.debug("intake_node: Processing packet")
 
     envelope = state.get("envelope", {})
     errors = list(state.get("errors", []))
 
-    # Validate required fields
+    # --- Field Validation ---
     if not envelope.get("packet_type"):
         errors.append("Missing required field: packet_type")
     if not envelope.get("payload"):
         errors.append("Missing required field: payload")
 
-    # Ensure packet_id
+    if errors:
+        return {**state, "envelope": envelope, "errors": errors}
+
+    # --- Ensure Defaults ---
     if not envelope.get("packet_id"):
         envelope["packet_id"] = str(uuid4())
-
-    # Ensure timestamp
     if not envelope.get("timestamp"):
         envelope["timestamp"] = datetime.now(timezone.utc).isoformat()
-
-    # Ensure metadata structure
     if not envelope.get("metadata"):
         envelope["metadata"] = {
             "schema_version": "1.0.0",
@@ -245,7 +253,51 @@ async def intake_node(
             "domain": "plastic_brokerage",
         }
 
-    # Check for duplicate packet (prevents reprocessing already-ingested packets)
+    # --- Governance Enforcement (GMP-70: fail-closed) ---
+    try:
+        ctx = require_governance_context("substrate_dag.intake_node")
+        from core.schemas import PacketEnvelopeIn
+
+        packet_in = PacketEnvelopeIn(**{
+            k: v for k, v in envelope.items()
+            if k in PacketEnvelopeIn.model_fields
+        })
+        packet_in = enforce_packet_governance(packet_in, ctx)
+        envelope = packet_in.to_envelope().model_dump(mode="json")
+    except Exception as e:
+        logger.warning(
+            "intake_node: Governance enforcement failed, continuing with original",
+            error=str(e),
+        )
+
+    # --- Audit Preparation (injection marker detection) ---
+    try:
+        from core.schemas import PacketEnvelopeIn
+
+        packet_in_for_audit = PacketEnvelopeIn(**{
+            k: v for k, v in envelope.items()
+            if k in PacketEnvelopeIn.model_fields
+        })
+        audited_packet, audit_report = prepare_packet_for_ingest(packet_in_for_audit)
+
+        if audit_report.has_security_concerns:
+            logger.warning(
+                "intake_node: Injection markers detected",
+                packet_id=envelope.get("packet_id"),
+                concern_count=audit_report.concern_count,
+            )
+            # Flag in metadata so semantic_embed_node can skip
+            metadata = envelope.get("metadata", {})
+            if isinstance(metadata, dict):
+                metadata["_security_skip_embed"] = True
+                envelope["metadata"] = metadata
+    except Exception as e:
+        logger.warning(
+            "intake_node: Audit preparation failed, continuing",
+            error=str(e),
+        )
+
+    # --- Duplicate Detection ---
     packet_id = envelope.get("packet_id")
     if packet_id and repository:
         try:
@@ -258,20 +310,20 @@ async def intake_node(
                         packet_id=str(packet_id),
                     )
         except Exception as e:
-            # Non-fatal: log warning but continue processing
             logger.warning(
-                "intake_node: Failed to check for duplicate",
+                "intake_node: Duplicate check failed",
                 packet_id=str(packet_id),
                 error=str(e),
             )
 
-    logger.debug(f"intake_node: Processed packet {envelope.get('packet_id')}")
+    logger.debug(
+        "intake_node: Processed packet",
+        packet_id=envelope.get("packet_id"),
+        has_governance=True,
+        has_audit=True,
+    )
 
-    return {
-        **state,
-        "envelope": envelope,
-        "errors": errors,
-    }
+    return {**state, "envelope": envelope, "errors": errors}
 
 
 @must_stay_async("callers use await")
@@ -542,9 +594,11 @@ async def semantic_embed_node(
     """
     Semantic embedding node: generates and stores embedding for payload.
 
-    Only embeds if payload contains text content suitable for semantic search.
+    Uses canonical text_utils.extract_embeddable_text() for consistent
+    field priority across all pipelines.
     """
-    # Note: repository not used in this node (embedding via semantic_service)
+    from memory.text_utils import extract_embeddable_text, should_skip_embedding
+
     semantic_service = _get_config_dependency(config, "semantic_service")
     logger.debug("semantic_embed_node: Processing embedding")
 
@@ -553,53 +607,30 @@ async def semantic_embed_node(
     written_tables = list(state.get("written_tables", []))
     embedding_id = None
 
-    # Skip if previous errors
     if errors:
         logger.warning("semantic_embed_node: Skipping due to previous errors")
         return state
 
-    payload = envelope.get("payload", {})
-    packet_type = envelope.get("packet_type", "")
-
-    # Determine if embedding should be generated
-    # GMP-130: Expanded to include more packet types for semantic search
-    should_embed = (
-        "semantic" in packet_type.lower()
-        or "memory" in packet_type.lower()
-        or "response" in packet_type.lower()
-        or "decision" in packet_type.lower()
-        or "insight" in packet_type.lower()
-        or "agent" in packet_type.lower()
-        or "text" in payload
-        or "content" in payload
-        or "description" in payload
-        or "message" in payload
-        or "summary" in payload
-        or "result" in payload
-    )
-
-    if not should_embed:
-        logger.debug("semantic_embed_node: Skipping - no embeddable content")
+    # Security flag: skip if injection markers detected in intake_node
+    metadata = envelope.get("metadata", {})
+    if isinstance(metadata, dict) and metadata.get("_security_skip_embed"):
+        logger.debug("semantic_embed_node: Skipping due to security flag")
         return state
 
-    # Extract text to embed
-    # GMP-130: Expanded text extraction to include more payload fields
-    text_to_embed = (
-        payload.get("text")
-        or payload.get("content")
-        or payload.get("description")
-        or payload.get("message")
-        or payload.get("summary")
-        or payload.get("result")
-        or str(payload)[:1000]  # Fallback to stringified payload
-    )
+    payload = envelope.get("payload", {})
 
-    # GMP-42: Skip embedding for known low-value content patterns
-    if _should_skip_embedding(text_to_embed):
+    # Canonical text extraction (SINGLE SOURCE OF TRUTH)
+    text_to_embed = extract_embeddable_text(payload)
+
+    if text_to_embed is None:
+        logger.debug("semantic_embed_node: No embeddable content found")
+        return state
+
+    # GMP-42: Skip low-value content
+    if should_skip_embedding(text_to_embed):
         logger.debug(
-            "semantic_embed_node: Skipping - low-value content pattern detected",
-            text_preview=text_to_embed[:50] if text_to_embed else None,
-            packet_type=packet_type,
+            "semantic_embed_node: Low-value content skipped",
+            text_preview=text_to_embed[:50],
         )
         return state
 
@@ -608,28 +639,32 @@ async def semantic_embed_node(
         return state
 
     try:
-        metadata = envelope.get("metadata", {})
-        agent_id = metadata.get("agent")
-        # Extract scope from metadata for RLS (default to 'shared' for backward compat)
-        scope = metadata.get("db_scope") or metadata.get("scope") or "shared"
+        agent_id = metadata.get("agent") if isinstance(metadata, dict) else None
+        scope = (
+            (metadata.get("db_scope") or metadata.get("scope") or "shared")
+            if isinstance(metadata, dict)
+            else "shared"
+        )
 
         embedding_id = await semantic_service.embed_and_store(
             text=text_to_embed,
             payload={
                 "packet_id": envelope.get("packet_id"),
-                "packet_type": packet_type,
+                "packet_type": envelope.get("packet_type", ""),
                 "source_payload": payload,
             },
             agent_id=agent_id,
-            scope=scope,  # Pass scope for RLS
+            scope=scope,
         )
         written_tables.append("semantic_memory")
         logger.debug(
-            f"semantic_embed_node: Created embedding {embedding_id} scope={scope}"
+            "semantic_embed_node: Created embedding",
+            embedding_id=str(embedding_id),
+            scope=scope,
         )
 
     except Exception as e:
-        logger.error(f"semantic_embed_node: Embedding failed: {e}")
+        logger.error("semantic_embed_node: Embedding failed", error=str(e))
         errors.append(f"semantic_embed_node error: {e!s}")
 
     return {
@@ -702,14 +737,14 @@ async def extract_insights_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
-    Extract insights from packet payload and reasoning block.
+    Extract insights, facts, and entities from packet payload and reasoning block.
 
-    Uses heuristic pattern matching (no ML) to identify:
-    - Key-value pairs that look like facts
-    - Conclusion-like statements in text
-    - Entity mentions and relationships
+    Combines:
+    - Heuristic key-value fact extraction from structured payload
+    - Reasoning block conclusion extraction
+    - **Unified EntityExtractionService** (4-tier: metadata, pattern, heuristic, LLM)
+      for entity recognition across text, payload, and metadata.
     """
-    # Note: repository not used in this node (extraction is stateless)
     logger.debug("extract_insights_node: Extracting insights")
 
     envelope = state.get("envelope", {})
@@ -724,6 +759,7 @@ async def extract_insights_node(
     payload = envelope.get("payload", {})
     packet_id = envelope.get("packet_id")
     packet_type = envelope.get("packet_type", "")
+    metadata = envelope.get("metadata", {})
 
     insights = []
     facts = []
@@ -768,9 +804,7 @@ async def extract_insights_node(
                         "insight_id": str(uuid4()),
                         "insight_type": "conclusion",
                         "content": f"Reasoning determined {key}={value}",
-                        "entities": [
-                            envelope.get("metadata", {}).get("agent", "unknown")
-                        ],
+                        "entities": [metadata.get("agent", "unknown")],
                         "confidence": confidence_scores.get("routing", 0.7),
                         "source_packet": packet_id,
                         "facts": [],
@@ -787,7 +821,6 @@ async def extract_insights_node(
         or ""
     )
     if text_content and isinstance(text_content, str) and len(text_content) > 50:
-        # Simple pattern: look for "X is Y" or "X has Y" structures
         insight = {
             "insight_id": str(uuid4()),
             "insight_type": "pattern",
@@ -800,8 +833,67 @@ async def extract_insights_node(
         }
         insights.append(insight)
 
+    # ---- Unified Entity Extraction (Phase 4.2) ----
+    # Uses EntityExtractionService for 4-tier entity recognition:
+    # metadata → pattern (regex) → heuristic (payload structure) → LLM (optional)
+    extracted_entities = []
+    try:
+        from memory.entity_extraction import EntityExtractionService
+
+        entity_service = EntityExtractionService(use_llm=False)
+        extracted_entities = await entity_service.extract(
+            text=text_content if isinstance(text_content, str) else None,
+            payload=payload,
+            metadata_context={
+                "agent_id": metadata.get("agent"),
+                "source_id": envelope.get("source_id"),
+                "thread_id": envelope.get("thread_id"),
+            },
+        )
+
+        # Convert extracted entities to insight format for downstream consumers
+        if extracted_entities:
+            entity_names = [e.name for e in extracted_entities[:20]]
+            entity_insight = {
+                "insight_id": str(uuid4()),
+                "insight_type": "entity_extraction",
+                "content": f"Extracted {len(extracted_entities)} entities: {', '.join(entity_names[:5])}{'...' if len(entity_names) > 5 else ''}",
+                "entities": entity_names,
+                "confidence": max(e.confidence for e in extracted_entities) if extracted_entities else 0.5,
+                "source_packet": packet_id,
+                "facts": [],
+                "trigger_world_model": any(
+                    e.entity_type in ("agent", "gmp_reference") for e in extracted_entities
+                ),
+            }
+            insights.append(entity_insight)
+
+            # Also emit entity-level facts for knowledge graph
+            source_packet_str = str(packet_id) if isinstance(packet_id, UUID) else packet_id
+            for entity in extracted_entities[:20]:
+                entity_fact = {
+                    "fact_id": str(uuid4()),
+                    "subject": entity.name,
+                    "predicate": f"is_{entity.entity_type}",
+                    "object": entity.entity_id,
+                    "confidence": entity.confidence,
+                    "source_packet": source_packet_str,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                }
+                facts.append(entity_fact)
+
+    except Exception as exc:
+        # Entity extraction is non-critical — log and continue
+        logger.warning(
+            "extract_insights_node: Entity extraction failed (non-fatal)",
+            error=str(exc),
+        )
+
     logger.debug(
-        f"extract_insights_node: Extracted {len(insights)} insights, {len(facts)} facts"
+        "extract_insights_node: Extraction complete",
+        insights_count=len(insights),
+        facts_count=len(facts),
+        entities_count=len(extracted_entities),
     )
 
     return {
@@ -1280,13 +1372,13 @@ class SubstrateDAG:
         """
         Run ENRICHMENT ONLY pipeline using native LangGraph execution (v2.1.0 - GMP-67).
 
-        SKIPS: intake_node, memory_write_node, semantic_embed_node (already done by IngestionPipeline)
+        SKIPS: intake_node, memory_write_node, semantic_embed_node (already done by core write path)
         RUNS: reasoning_node → extract_insights_node → store_insights_node → world_model_trigger_node
 
         Pre-validation: Envelope must have packet_id, packet_type, payload populated.
         State is pre-hydrated from envelope (no DB reads required).
 
-        This method is designed to be called AFTER IngestionPipeline.ingest() has
+        This method is designed to be called AFTER the core write path has
         completed core writes (packet_store, embeddings, neo4j sync).
 
         Args:
@@ -1317,7 +1409,7 @@ class SubstrateDAG:
             "envelope": envelope.model_dump(mode="json"),
             "reasoning_block": None,
             "written_tables": [],  # Not writing core tables
-            "embedding_id": None,  # Already embedded by IngestionPipeline
+            "embedding_id": None,  # Already embedded by core write path
             "saved_checkpoint_id": None,
             "insights": [],
             "facts": [],

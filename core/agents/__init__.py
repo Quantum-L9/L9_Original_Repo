@@ -43,9 +43,13 @@ from core.agents.agent_instance import AgentInstance
 from core.agents.dynamic_tool_binding import (
     bind_tools_to_agent,
     cache_discovered_tools,
+    clear_tool_cache,
+    get_agent_tools,
     get_binding_mode_summary,
     get_dynamic_tool_bundle,
     get_static_tool_bundle,
+    get_tool_binding_status,
+    refresh_agent_tools,
 )
 
 # Light imports (no heavy dependencies)
@@ -88,9 +92,13 @@ __all__ = [
     # Dynamic Tool Binding (GMP-TS-META)
     "bind_tools_to_agent",
     "cache_discovered_tools",
+    "clear_tool_cache",
+    "get_agent_tools",
     "get_binding_mode_summary",
     "get_dynamic_tool_bundle",
     "get_static_tool_bundle",
+    "get_tool_binding_status",
+    "refresh_agent_tools",
 ]
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
