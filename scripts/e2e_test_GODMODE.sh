@@ -1105,7 +1105,7 @@ run_observability_checks() {
     info "Testing L9 metrics endpoint..."
     local metrics_url="${L9_API_BASE}/metrics"
     
-    if response=$(curl -fsS "$metrics_url" 2>&1); then
+    if response=$(curl -fsSL "$metrics_url" 2>&1); then
         # Check for Prometheus format (contains # TYPE or metric names)
         if echo "$response" | grep -qE '(# TYPE|# HELP|^[a-z_]+{)'; then
             obs_stats+=("✓ l9-metrics")

@@ -102,3 +102,6 @@ networkx>=3.0
 
 # Caching (for query result caching)
 cachetools>=5.3.0
+
+# WebSocket client (for e2e testing)
+websockets>=12.0
