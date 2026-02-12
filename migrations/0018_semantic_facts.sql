@@ -62,10 +62,14 @@ CREATE TABLE IF NOT EXISTS semantic_facts (
 -- INDEXES for semantic_facts
 -- =============================================================================
 
--- Embedding index for vector similarity search (IVFFlat for large datasets)
+-- Embedding index for vector similarity search
+-- Using HNSW instead of IVFFlat because:
+-- 1. HNSW supports any dimension count (IVFFlat limited to 2000)
+-- 2. HNSW has better recall at similar speed
+-- 3. HNSW doesn't require training data
 CREATE INDEX IF NOT EXISTS idx_semantic_facts_embedding
-    ON semantic_facts USING ivfflat (embedding vector_cosine_ops)
-    WITH (lists = 100);
+    ON semantic_facts USING hnsw (embedding vector_cosine_ops)
+    WITH (m = 16, ef_construction = 64);
 
 -- Triplet component indexes for graph-style queries
 CREATE INDEX IF NOT EXISTS idx_semantic_facts_triplet_subject
@@ -124,6 +128,11 @@ CREATE TRIGGER trigger_semantic_facts_updated_at
 -- RLS (Row-Level Security) Policies
 -- =============================================================================
 ALTER TABLE semantic_facts ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist (idempotent)
+DROP POLICY IF EXISTS semantic_facts_platform_admin ON semantic_facts;
+DROP POLICY IF EXISTS semantic_facts_tenant_admin ON semantic_facts;
+DROP POLICY IF EXISTS semantic_facts_end_user ON semantic_facts;
 
 -- Platform admin: full access
 CREATE POLICY semantic_facts_platform_admin ON semantic_facts

@@ -220,6 +220,9 @@ CREATE POLICY episodic_events_end_user ON episodic_events
 -- =============================================================================
 ALTER TABLE episodic_semantic_links ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policy if exists (idempotent)
+DROP POLICY IF EXISTS episodic_semantic_links_access ON episodic_semantic_links;
+
 -- Links inherit access from events (via join)
 CREATE POLICY episodic_semantic_links_access ON episodic_semantic_links
     FOR ALL
