@@ -169,16 +169,15 @@ class ToolAuditService:
         if not self.local_buffer:
             return
 
-        buffer_copy = self.local_buffer.copy()
-        self.local_buffer.clear()
+        # Atomic swap: take current buffer, replace with empty list
+        buffer_copy, self.local_buffer = self.local_buffer, []
 
-        try:
-            # Store in Postgres if available
-            if (
-                hasattr(self.substrate, "postgres_pool")
-                and self.substrate.postgres_pool
-            ):
-                async with self.substrate.postgres_pool.acquire() as conn:
+        flush_error: Exception | None = None
+
+        # Store in Postgres if available
+        if hasattr(self.substrate, "postgres_pool") and self.substrate.postgres_pool:
+            async with self.substrate.postgres_pool.acquire() as conn:
+                try:
                     await conn.executemany(
                         """
                         INSERT INTO tool_audit_log (
@@ -202,13 +201,18 @@ class ToolAuditService:
                             for e in buffer_copy
                         ],
                     )
+                except Exception as exc:
+                    flush_error = exc
 
+        if flush_error is not None:
+            logger.exception(
+                "audit_flush_failed",
+                entry_count=len(buffer_copy),
+            )
+            # Prepend failed entries BEFORE any new ones added during the write
+            self.local_buffer = buffer_copy + self.local_buffer
+        else:
             logger.info("Flushed audit entries", count=len(buffer_copy))
-
-        except Exception as e:
-            logger.error("Failed to flush audit buffer", error=str(e))
-            # Put entries back in buffer to retry
-            self.local_buffer.extend(buffer_copy)
 
     async def _auto_flush(self) -> None:
         """Periodically flush buffer"""

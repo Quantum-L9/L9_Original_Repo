@@ -106,6 +106,17 @@ def register_tool(
         """
         # Register the function directly (not as a factory)
         tool_name = name or func.__name__
+
+        # Attach metadata to the function for introspection by tests and
+        # discovery pipelines (e.g. TOOL_PACKAGES scan for _tool_metadata).
+        func._tool_metadata = {  # type: ignore[attr-defined]
+            "name": tool_name,
+            "category": category or "",
+            "priority": priority,
+            "description": metadata.get("description", ""),
+            **{k: v for k, v in metadata.items() if k != "description"},
+        }
+
         tool_executor_registry.register_instance(
             component_id=tool_name,
             component=func,
@@ -401,7 +412,7 @@ def get_tools_by_tags(tags: list[str]) -> dict[str, Callable]:
     """
     result: dict[str, Callable] = {}
 
-    # Check MCP tools
+    # Check MCP tools (tags tracked in _mcp_tool_metadata)
     for tool_id, meta in _mcp_tool_metadata.items():
         tool_tags = meta.get("tags", [])
         if all(tag in tool_tags for tag in tags):
@@ -409,14 +420,17 @@ def get_tools_by_tags(tags: list[str]) -> dict[str, Callable]:
             if executor:
                 result[tool_id] = executor
 
-    # Also check regular tools via registry
+    # Also check regular (non-MCP) tools via registry tags
     for tool_id in tool_executor_registry.list_ids():
         if tool_id not in result:
-            executor = tool_executor_registry.get(tool_id)
-            if executor:
-                # Check if tool has tags in metadata
-                # (AutoRegistry stores tags during registration)
-                result[tool_id] = executor
+            # Retrieve stored tags from AutoRegistry metadata
+            entry_meta = tool_executor_registry.get_metadata(tool_id)
+            if entry_meta:
+                tool_tags = entry_meta.get("tags", [])
+                if all(tag in tool_tags for tag in tags):
+                    executor = tool_executor_registry.get(tool_id)
+                    if executor:
+                        result[tool_id] = executor
 
     return result
 

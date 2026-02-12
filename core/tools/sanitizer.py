@@ -272,26 +272,7 @@ class ToolInputSanitizer:
         self, tool_id: str, obj: Any, reasons: list[str]
     ) -> None:
         """Check object against depth, size, and length limits."""
-        # Depth + structural limits
-        if self._exceeds_depth(obj, max_depth=self._config.max_depth):
-            reasons.append(f"input nesting exceeds max_depth={self._config.max_depth}")
-            return
-
-        # List length limits (recursive)
-        if self._exceeds_list_length(obj, max_len=self._config.max_list_length):
-            reasons.append(
-                f"list length exceeds max_list_length={self._config.max_list_length}"
-            )
-            return
-
-        # String length limits (recursive)
-        if self._exceeds_string_length(obj, max_len=self._config.max_string_length):
-            reasons.append(
-                f"string length exceeds max_string_length={self._config.max_string_length}"
-            )
-            return
-
-        # Total payload size limit (json-serializable footprint)
+        # Total payload size limit FIRST — cheapest global check, highest severity
         try:
             raw = json.dumps(obj, separators=(",", ":"), ensure_ascii=False)
         except Exception:
@@ -299,18 +280,25 @@ class ToolInputSanitizer:
             return
 
         if len(raw.encode("utf-8")) > self._config.max_total_bytes:
-            """
-            Performs recursive validation to prevent unsafe tool arguments in the sanitizer module.
-
-            Args:
-                o: The object to validate, which can be a dict, list, or other types.
-                depth: Current recursion depth to limit nested validation.
-
-            Returns:
-                True if the object exceeds maximum allowed depth or contains unsafe structures; otherwise, False.
-            """
             reasons.append(
                 f"payload exceeds max_total_bytes={self._config.max_total_bytes}"
+            )
+            return  # Bail on oversized — structural checks are moot
+
+        # Depth + structural limits (no early returns — report ALL violations)
+        if self._exceeds_depth(obj, max_depth=self._config.max_depth):
+            reasons.append(f"input nesting exceeds max_depth={self._config.max_depth}")
+
+        # List length limits (recursive)
+        if self._exceeds_list_length(obj, max_len=self._config.max_list_length):
+            reasons.append(
+                f"list length exceeds max_list_length={self._config.max_list_length}"
+            )
+
+        # String length limits (recursive)
+        if self._exceeds_string_length(obj, max_len=self._config.max_string_length):
+            reasons.append(
+                f"string length exceeds max_string_length={self._config.max_string_length}"
             )
 
     @staticmethod

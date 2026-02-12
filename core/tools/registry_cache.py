@@ -59,6 +59,19 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+async def invalidate_all_tool_caches() -> None:
+    """Proxy to core.tools.dynamic_discovery.invalidate_all_tool_caches.
+
+    Defined at module level so tests can patch
+    ``core.tools.registry_cache.invalidate_all_tool_caches``.
+    """
+    from core.tools.dynamic_discovery import (
+        invalidate_all_tool_caches as _real_invalidate,
+    )
+
+    await _real_invalidate()
+
+
 # =============================================================================
 # Cache Configuration
 # =============================================================================
@@ -506,8 +519,6 @@ class CachedToolRegistry:
         self._cache.invalidate(tool_id)
 
         # GMP-79: Invalidate all multi-turn tool caches
-        from core.tools.dynamic_discovery import invalidate_all_tool_caches
-
         await invalidate_all_tool_caches()
 
         logger.debug("cached_tool_registry.registered", tool_id=tool_id)
@@ -531,8 +542,6 @@ class CachedToolRegistry:
         self._cache.invalidate(tool_id)
 
         # GMP-79: Invalidate all multi-turn tool caches
-        from core.tools.dynamic_discovery import invalidate_all_tool_caches
-
         await invalidate_all_tool_caches()
 
         logger.debug("cached_tool_registry.unregistered", tool_id=tool_id)
@@ -588,6 +597,7 @@ __all__ = [
     "CacheStrategy",
     "CachedToolRegistry",
     "ToolRegistryCache",
+    "invalidate_all_tool_caches",
 ]
 
 # ============================================================================

@@ -44,6 +44,28 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+async def find_tools_hybrid(**kwargs):
+    """Proxy to core.tools.tool_embeddings.find_tools_hybrid.
+
+    Defined at module level so tests can patch
+    ``core.tools.semantic_discovery.find_tools_hybrid``.
+    """
+    from core.tools.tool_embeddings import find_tools_hybrid as _real
+
+    return await _real(**kwargs)
+
+
+async def find_relevant_tools(**kwargs):
+    """Proxy to core.tools.tool_embeddings.find_relevant_tools.
+
+    Defined at module level so tests can patch
+    ``core.tools.semantic_discovery.find_relevant_tools``.
+    """
+    from core.tools.tool_embeddings import find_relevant_tools as _real
+
+    return await _real(**kwargs)
+
+
 class ToolStatus(Enum):
     """Tool availability states"""
 
@@ -165,8 +187,6 @@ class DynamicToolDiscoveryService:
 
         try:
             if use_hybrid:
-                from core.tools.tool_embeddings import find_tools_hybrid
-
                 results = await find_tools_hybrid(
                     query=query,
                     top_k=top_k,
@@ -175,8 +195,6 @@ class DynamicToolDiscoveryService:
                     min_similarity=self.confidence_threshold,
                 )
             else:
-                from core.tools.tool_embeddings import find_relevant_tools
-
                 results = await find_relevant_tools(
                     query=query,
                     top_k=top_k,
