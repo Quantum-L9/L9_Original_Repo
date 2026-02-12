@@ -839,13 +839,15 @@ async def lifespan(app: FastAPI):
         # Discover routers in api/routes/ that use router_registry.register()
         discovered_modules = discover_routers()
 
-        # Wire discovered routers to app (after yield, before legacy registrations)
-        # For now, just log discovery - actual wiring happens after app is created
+        # Wire discovered routers to app (during lifespan, after discovery)
         if len(router_registry) > 0:
+            # Wire any newly discovered routers that weren't wired at module load
+            newly_wired = router_registry.wire_all(app)
             logger.info(
-                "Router auto-registration discovered",
+                "Router auto-registration complete",
                 modules_scanned=discovered_modules,
                 routers_registered=len(router_registry),
+                newly_wired=newly_wired,
             )
         else:
             logger.info(
