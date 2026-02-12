@@ -280,7 +280,7 @@ DEEP_MRI
   if $RUN_GODMODE; then
     echo ""
     echo "═══════════════════════════════════════════════════════════════════"
-    echo "PHASE 2: GOD MODE E2E (scripts/deployment/e2e_test_GODMODE.sh)"
+    echo "PHASE 2: GOD MODE E2E (scripts/e2e_test_GODMODE.sh)"
     echo "═══════════════════════════════════════════════════════════════════"
     echo ""
     
@@ -288,15 +288,15 @@ DEEP_MRI
       cd /opt/l9
       
       # Verify e2e_test_GODMODE.sh exists
-      if [ ! -f scripts/deployment/e2e_test_GODMODE.sh ]; then
-        echo "❌ ERROR: scripts/deployment/e2e_test_GODMODE.sh not found"
-        echo "Expected location: /opt/l9/scripts/deployment/e2e_test_GODMODE.sh"
+      if [ ! -f scripts/e2e_test_GODMODE.sh ]; then
+        echo "❌ ERROR: scripts/e2e_test_GODMODE.sh not found"
+        echo "Expected location: /opt/l9/scripts/e2e_test_GODMODE.sh"
         exit 1
       fi
       
       # Make executable and run smoke test
-      chmod +x scripts/deployment/e2e_test_GODMODE.sh
-      ./scripts/deployment/e2e_test_GODMODE.sh smoke
+      chmod +x scripts/e2e_test_GODMODE.sh
+      ./scripts/e2e_test_GODMODE.sh smoke
 GODMODE
     
     local godmode_exit=$?
