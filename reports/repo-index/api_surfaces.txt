@@ -1,3 +1,12 @@
+# ================================================================
+# Api Surfaces
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 
 # API Surface:
   api/agent_routes.py::router
@@ -20,6 +29,37 @@
   api/routes/registry.py::router
   api/routes/research.py::router
   api/routes/research_agent.py::router
+  api/routes/simulation.py::router
+  api/routes/slack.py::router
+  api/routes/tensor_bridge.py::router
+  api/routes/upgrades.py::router
+  api/routes/workers.py::router
+  api/routes/worldmodel.py::router
+  api/tools/router.py::router
+  api/webhook_mac_agent.py::router
+  api/webhook_twilio.py::router
+  api/webhook_waba.py::router
+  api/world_model_api.py::router
+
+# ORCHESTRATORS Surface:
+  orchestrators/action_tool/interface.py::execute()
+  orchestrators/agent_execution/interface.py::execute()
+  orchestrators/agent_execution/interface.py::poll_and_execute()
+  orchestrators/evolution/interface.py::apply_upgrades()
+  orchestrators/evolution/interface.py::get_upgrade_history()
+  orchestrators/evolution/interface.py::rollback_upgrade()
+  orchestrators/evolution/interface.py::validate_upgrade()
+  orchestrators/memory/interface.py::execute()
+  orchestrators/meta/interface.py::compare_blueprints()
+  orchestrators/meta/interface.py::evaluate_blueprints()
+  orchestrators/meta/interface.py::suggest_improvements()
+  orchestrators/pattern/interface.py::is_success()
+  orchestrators/pattern/interface.py::model_post_init()
+  orchestrators/pattern/interface.py::nodes_completed()
+  orchestrators/reasoning/interface.py::execute()
+  orchestrators/research_swarm/interface.py::execute()
+  orchestrators/world_model/interface.py::execute()
+  orchestrators/world_model/interface.py::update_from_insights()
 
 # SERVICES Surface:
   services/research/research_api.py::router

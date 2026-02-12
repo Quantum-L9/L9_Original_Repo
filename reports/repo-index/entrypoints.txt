@@ -1,3 +1,12 @@
+# ================================================================
+# Entrypoints
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # Entry Points
 
 .github/scripts/generate-ai-collab-report.py
@@ -24,7 +33,7 @@ agents/cursor/gmp_meta_learning.py
 agents/cursor/scripts/cursor_check_mistakes.py
   Type: Script
   Has __main__ block: Yes
-agents/research_agent/research_facade.py
+agents/research_agent/research_sdk.py
   Type: Script
   Has __main__ block: Yes
 agents/research_agent_impl.py
@@ -39,7 +48,8 @@ api/middleware/websocket_tracing.py
     - WEBSOCKET /ws
 api/server.py
   Type: FastAPI
-  Routes (10):
+  Routes (11):
+    - GET /_echo
     - GET /
     - GET /health
     - GET /health/startup
@@ -531,6 +541,21 @@ tools/l9_cli.py
 tools/superpack_reports/main.py
   Type: Script
   Has __main__ block: Yes
+workflows/dags/gmp/executor.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/dags/gmp_execution_dag.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/dags/gmp_langgraph_executor.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/dags/harvest_deploy_dag.py
+  Type: Script
+  Has __main__ block: Yes
+workflows/dags/wire_dag.py
+  Type: Script
+  Has __main__ block: Yes
 workflows/gmp_enforcer.py
   Type: Script
   Has __main__ block: Yes
@@ -550,12 +575,6 @@ workflows/migrate_executor.py
   Type: Script
   Has __main__ block: Yes
 workflows/runner.py
-  Type: Script
-  Has __main__ block: Yes
-workflows/session/dags/gmp_execution_dag.py
-  Type: Script
-  Has __main__ block: Yes
-workflows/session/dags/harvest_deploy_dag.py
   Type: Script
   Has __main__ block: Yes
 workflows/session/dags/wire_dag.py

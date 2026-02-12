@@ -1,3 +1,12 @@
+# ================================================================
+# Route Handlers
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Route Handlers
 # ===================
 # Format: METHOD /path → handler_function @ file.py
@@ -9,10 +18,8 @@ DELETE /lessons-learned → clear_lessons_learned() @ api/routes/reflection_agen
 GET / → index() @ local_dashboard/app.py
 GET / → root() @ api/server.py
 GET / → root() @ api/server_memory.py
-GET / → root() @ current_work/DONE/GMP Stage 1 - Tools/server.py
-GET / → root() @ current_work/DONE/Slack-Debug-2/server.py
-GET / → root() @ igor/DONE!/audit-memory/mcp_memory_src_main.py
 GET / → root() @ mcp_memory/src/main.py
+GET /_echo → echo() @ api/server.py
 GET /agent/health → agent_health() @ api/vps_executor.py
 GET /agent/{agent_id}/capabilities → get_agent_capabilities() @ api/routes/worldmodel.py
 GET /analytics → get_analytics() @ api/routes/gmp_learning.py
@@ -26,7 +33,6 @@ GET /config → get_pattern_config() @ api/routes/pattern.py
 GET /context/{agent_id} → get_world_model_context() @ api/routes/worldmodel.py
 GET /context/{domain} → get_domain_context() @ api/memory/graph.py
 GET /data → get_data() @ config/di_async_config.py
-GET /data → get_data() @ current_work/DONE/di-Runtime/HARVESTED_ASYNC_DI.py
 GET /di/services → list_di_services() @ examples/fastapi_lifespan_di_bootstrap.py
 GET /entities → list_entities() @ api/world_model_api.py
 GET /entities/{entity_id} → get_entity() @ api/world_model_api.py
@@ -34,10 +40,8 @@ GET /entity/{entity_type}/{entity_id} → get_entity() @ api/memory/graph.py
 GET /eos/status → eos_status() @ api/routes/tensor_bridge.py
 GET /executor/info → get_executor_info() @ examples/fastapi_lifespan_di_bootstrap.py
 GET /facts → get_facts() @ api/memory/router.py
-GET /facts → get_facts() @ igor/DONE!/audit-memory/api_memory_router.py
 GET /failures → get_failures() @ api/routes/observability.py
 GET /gc/stats → get_gc_stats() @ api/memory/router.py
-GET /gc/stats → get_gc_stats() @ igor/DONE!/audit-memory/api_memory_router.py
 GET /get/{key} → cache_get() @ api/memory/cache.py
 GET /graduation-status → get_graduation_status() @ api/routes/gmp_learning.py
 GET /graph/{graph_id} → get_runs_for_graph() @ api/routes/simulation.py
@@ -50,18 +54,9 @@ GET /health → get_workers_health() @ api/routes/workers.py
 GET /health → graph_health() @ api/memory/graph.py
 GET /health → health() @ api/server.py
 GET /health → health() @ api/server_memory.py
-GET /health → health() @ current_work/DONE/GMP Stage 1 - Tools/server.py
-GET /health → health() @ current_work/DONE/Slack-Debug-2/server.py
 GET /health → health() @ tests/orchestrators/test_kernel_injection.py
 GET /health → health_check() @ api/memory/router.py
-GET /health → health_check() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/routes/calendar_adapter.py
-GET /health → health_check() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/routes/email_adapter.py
-GET /health → health_check() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/routes/twilio_adapter.py
-GET /health → health_check() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/tools/generate_module_code.py
 GET /health → health_check() @ examples/fastapi_lifespan_di_bootstrap.py
-GET /health → health_check() @ igor/DONE!/audit-memory/api_memory_router.py
-GET /health → health_check() @ igor/DONE!/audit-memory/mcp_memory_src_main.py
-GET /health → health_check() @ igor/DONE!/audit-memory/mcp_memory_src_routes_health.py
 GET /health → health_check() @ ir_engine/ir_to_python.py
 GET /health → health_check() @ mcp_memory/src/main.py
 GET /health → health_check() @ mcp_memory/src/routes/health.py
@@ -74,36 +69,27 @@ GET /health → upgrade_health() @ api/routes/upgrades.py
 GET /health → world_model_health() @ api/world_model_api.py
 GET /health/checkpoint → checkpoint_health() @ api/server.py
 GET /health/neo4j → neo4j_health() @ api/server.py
-GET /health/neo4j → neo4j_health() @ current_work/DONE/GMP Stage 1 - Tools/server.py
-GET /health/neo4j → neo4j_health() @ current_work/DONE/Slack-Debug-2/server.py
-GET /health/rlm → health_rlm() @ current_work/01-25-2026/RLM-Reference-Level Memory/006-rlm-tool-registry-binding.py
 GET /health/services → services_health() @ api/server.py
 GET /health/startup → startup_health() @ api/server.py
-GET /health/startup → startup_health() @ current_work/DONE/Slack-Debug-2/server.py
 GET /help → get_help() @ api/routes/commands.py
 GET /heuristics → get_heuristics() @ api/routes/gmp_learning.py
 GET /infrastructure/status → get_infrastructure_status() @ api/routes/worldmodel.py
 GET /insights → get_insights() @ api/memory/router.py
-GET /insights → get_insights() @ igor/DONE!/audit-memory/api_memory_router.py
 GET /integrations → get_integrations() @ api/routes/worldmodel.py
 GET /kernel → get_kernel() @ tests/orchestrators/test_kernel_injection.py
 GET /keys/{pattern} → cache_keys() @ api/memory/cache.py
 GET /lessons-learned → get_lessons_learned() @ api/routes/reflection_agent.py
 GET /lineage/{packet_id} → get_lineage() @ api/memory/router.py
-GET /lineage/{packet_id} → get_lineage() @ igor/DONE!/audit-memory/api_memory_router.py
 GET /mcp/health → mcp_health_check() @ api/routes/mcp.py
 GET /mcp/tools → list_tools() @ api/routes/mcp.py
-GET /mcp/tools → list_tools() @ igor/DONE!/audit-memory/mcp_memory_src_main.py
 GET /mcp/tools → list_tools() @ mcp_memory/src/main.py
 GET /metrics → get_metrics() @ api/routes/observability.py
 GET /metrics → get_metrics_summary() @ services/symbolic_computation/api/routes.py
 GET /modes → get_reasoning_modes() @ api/routes/reasoning.py
-GET /modes → get_reasoning_modes() @ current_work/DONE/AUTOWIRING/auto_registry/reasoning.py
 GET /packet-envelope/features → get_enabled_features() @ api/routes/upgrades.py
 GET /packet-envelope/status → get_upgrade_status() @ api/routes/upgrades.py
 GET /packet-envelope/validate → validate_upgrade_deployment() @ api/routes/upgrades.py
 GET /packet/{packet_id} → get_packet() @ api/memory/router.py
-GET /packet/{packet_id} → get_packet() @ igor/DONE!/audit-memory/api_memory_router.py
 GET /path → _infer_governance_level() @ scripts/audit/inject_dora_complete.py
 GET /rate-limit/{key} → get_rate_limit() @ api/memory/cache.py
 GET /readiness → os_readiness() @ api/os_routes.py
@@ -118,11 +104,9 @@ GET /sets → list_eval_sets() @ api/routes/evaluation.py
 GET /snapshots → list_snapshots() @ api/world_model_api.py
 GET /spans → get_spans() @ api/routes/observability.py
 GET /state-version → get_state_version() @ api/world_model_api.py
-GET /stats → get_memory_stats() @ igor/DONE!/audit-memory/mcp_memory_src_routes_memory.py
 GET /stats → get_memory_stats() @ mcp_memory/src/routes/memory.py
 GET /stats → get_memory_stats() @ mcp_memory/src/routes/memory_unified.py
 GET /stats → get_stats() @ api/memory/router.py
-GET /stats → get_stats() @ igor/DONE!/audit-memory/api_memory_router.py
 GET /status → agent_status() @ api/agent_routes.py
 GET /status → get_bridge_status() @ api/routes/tensor_bridge.py
 GET /status → get_modules_status() @ api/routes/modules.py
@@ -140,10 +124,8 @@ GET /templates/{template_name} → get_template() @ api/routes/factory.py
 GET /test → cursor_test() @ api/routes/cursor.py
 GET /test → pattern_test() @ api/routes/pattern.py
 GET /test → reasoning_test() @ api/routes/reasoning.py
-GET /test → reasoning_test() @ current_work/DONE/AUTOWIRING/auto_registry/reasoning.py
 GET /test → research_test() @ api/routes/research.py
 GET /thread/{thread_id} → get_thread() @ api/memory/router.py
-GET /thread/{thread_id} → get_thread() @ igor/DONE!/audit-memory/api_memory_router.py
 GET /updates → list_updates() @ api/world_model_api.py
 GET /violations/counts → get_violation_counts() @ api/routes/workers.py
 GET /waba/webhook → verify_waba_webhook() @ api/webhook_waba.py
@@ -153,42 +135,29 @@ POST /agent/exec → agent_exec() @ api/vps_executor.py
 POST /analyze-failure → analyze_failure() @ api/routes/reflection_agent.py
 POST /anomaly/process → process_anomalies() @ api/routes/workers.py
 POST /api/chat → chat() @ local_dashboard/app.py
-POST /batch → batch_ingest() @ igor/DONE!/L9 Memory Substrate Audit/script_2.py
-POST /batch → batch_ingest() @ igor/DONE!/L9 Memory Substrate Audit/script_9.py
 POST /batch → batch_write() @ api/memory/router.py
-POST /batch → batch_write() @ igor/DONE!/audit-memory/api_memory_router.py
 POST /cache/clear → clear_cache() @ services/symbolic_computation/api/routes.py
-POST /calendar/webhook → handle_calendar_adapter() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/routes/calendar_adapter.py
 POST /chat → chat() @ api/server_memory.py
-POST /chat → chat() @ current_work/DONE/GMP Stage 1 - Tools/server.py
-POST /chat → chat() @ current_work/DONE/Slack-Debug-2/server.py
-POST /ci/eval_gate → ci_gate() @ current_work/Agent Initialization - Paradigm Shift/harvested-files/7_ci_cd_integration.py
 POST /commands → slack_commands() @ api/routes/slack.py
-POST /commands → slack_commands() @ current_work/DONE/Slack-Debug-2/slack.py
 POST /compact → compact_storage() @ api/memory/router.py
-POST /compact → compact_storage() @ igor/DONE!/audit-memory/api_memory_router.py
 POST /compare → compare_approaches() @ api/routes/reflection_agent.py
 POST /compare → compare_to_baseline() @ api/routes/evaluation.py
 POST /consolidation/run → run_consolidation() @ api/memory/router.py
 POST /discover → discover() @ api/routes/research_agent.py
-POST /email/webhook → handle_email_adapter() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/routes/email_adapter.py
 POST /entity → create_entity() @ api/memory/graph.py
 POST /evaluate → evaluate_expression() @ services/symbolic_computation/api/routes.py
 POST /events → slack_events() @ api/routes/slack.py
 POST /execute → execute_command() @ api/routes/commands.py
 POST /execute → execute_pattern() @ api/routes/pattern.py
 POST /execute → execute_reasoning() @ api/routes/reasoning.py
-POST /execute → execute_reasoning() @ current_work/DONE/AUTOWIRING/auto_registry/reasoning.py
 POST /execute → execute_research() @ api/routes/research.py
 POST /execute → execute_task() @ api/agent_routes.py
 POST /execute → execute_tool() @ api/tools/router.py
-POST /execute → execute_tool() @ igor/DONE!/audit-tools/api_tools_router.py
 POST /execute-all → execute_all_subsystems() @ api/routes/pattern.py
 POST /extract → extract_agent() @ api/routes/factory.py
 POST /extract-file → extract_agent_file() @ api/routes/factory.py
 POST /extract-patterns → extract_patterns() @ api/routes/reflection_agent.py
 POST /gc/run → run_gc() @ api/memory/router.py
-POST /gc/run → run_gc() @ igor/DONE!/audit-memory/api_memory_router.py
 POST /generate-heuristics → trigger_heuristic_generation() @ api/routes/gmp_learning.py
 POST /generate-improvements → generate_improvements() @ api/routes/reflection_agent.py
 POST /generate-spec → generate_spec() @ api/routes/research_agent.py
@@ -196,23 +165,18 @@ POST /generate_code → generate_code() @ services/symbolic_computation/api/rout
 POST /governance/feedback → record_approval_feedback() @ api/routes/commands.py
 POST /graduate → graduate_to_next_level() @ api/routes/gmp_learning.py
 POST /hybrid/search → hybrid_search() @ api/memory/router.py
-POST /hybrid/search → hybrid_search() @ igor/DONE!/audit-memory/api_memory_router.py
 POST /infer → tensor_inference() @ api/routes/tensor_bridge.py
 POST /ingest → ingest() @ core/governance/rate_limit_policy.py
 POST /ingest → ingest() @ core/governance/rate_limit_policy.py
 POST /insights → submit_insights() @ api/world_model_api.py
 POST /intent → extract_intent_endpoint() @ api/routes/commands.py
 POST /kernels/reload → reload_kernels_endpoint() @ api/server.py
-POST /kernels/reload → reload_kernels_endpoint() @ current_work/DONE/Slack-Debug-2/server.py
 POST /lchat → lchat() @ api/server.py
-POST /lchat → lchat() @ current_work/DONE/Slack-Debug-2/server.py
 POST /log-execution → log_execution() @ api/routes/gmp_learning.py
 POST /mcp/call → call_tool() @ api/routes/mcp.py
-POST /mcp/call → call_tool() @ igor/DONE!/audit-memory/mcp_memory_src_main.py
 POST /mcp/call → call_tool() @ mcp_memory/src/main.py
 POST /optimize → optimize_expression() @ services/symbolic_computation/api/routes.py
 POST /packet → create_packet() @ api/memory/router.py
-POST /packet → create_packet() @ igor/DONE!/audit-memory/api_memory_router.py
 POST /packet-envelope/activate/all → activate_all_phases() @ api/routes/upgrades.py
 POST /packet-envelope/activate/phase-2 → activate_phase_2() @ api/routes/upgrades.py
 POST /packet-envelope/activate/phase-3 → activate_phase_3() @ api/routes/upgrades.py
@@ -234,15 +198,12 @@ POST /run → run_simulation() @ api/routes/simulation.py
 POST /saga/correlate-timeline → saga_correlate_timeline() @ api/memory/router.py
 POST /saga/enrich-entities → saga_enrich_entities() @ api/memory/router.py
 POST /saga/fetch-and-enrich → saga_fetch_and_enrich() @ api/memory/router.py
-POST /save → save_memory() @ igor/DONE!/audit-memory/mcp_memory_src_routes_memory.py
 POST /save → save_memory() @ mcp_memory/src/routes/memory.py
 POST /save → save_memory_route() @ mcp_memory/src/routes/memory_unified.py
-POST /search → search_memory() @ igor/DONE!/audit-memory/mcp_memory_src_routes_memory.py
 POST /search → search_memory() @ mcp_memory/src/routes/memory.py
 POST /search → search_memory_route() @ mcp_memory/src/routes/memory_unified.py
 POST /segment → segment_preview() @ api/agent_routes.py
 POST /semantic/search → semantic_search() @ api/memory/router.py
-POST /semantic/search → semantic_search() @ igor/DONE!/audit-memory/api_memory_router.py
 POST /session/context → set_session_context() @ api/memory/cache.py
 POST /set → cache_set() @ api/memory/cache.py
 POST /snapshot → create_snapshot() @ api/world_model_api.py
@@ -254,10 +215,7 @@ POST /tasks → create_task() @ tests/orchestrators/test_kernel_injection.py
 POST /tasks → create_task() @ tests/orchestrators/test_task_execution.py
 POST /tasks/{task_id}/result → submit_task_result() @ api/webhook_mac_agent.py
 POST /test → memory_test() @ api/memory/router.py
-POST /test → memory_test() @ igor/DONE!/audit-memory/api_memory_router.py
 POST /test → tools_test() @ api/tools/router.py
-POST /test → tools_test() @ igor/DONE!/audit-tools/api_tools_router.py
-POST /twilio/webhook → handle_twilio_adapter() @ codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/routes/twilio_adapter.py
 POST /twilio/webhook → twilio_webhook() @ api/webhook_twilio.py
 POST /validate → validate_expression() @ services/symbolic_computation/api/routes.py
 POST /validate → validate_pattern_config() @ api/routes/pattern.py
@@ -273,10 +231,7 @@ POST /{account}/query → query_emails() @ email_agent/router.py
 POST /{account}/reply → reply_email() @ email_agent/router.py
 POST /{account}/send → send_email() @ email_agent/router.py
 WEBSOCKET /lws → l_ws() @ api/server.py
-WEBSOCKET /lws → l_ws() @ current_work/DONE/Slack-Debug-2/server.py
 WEBSOCKET /ws → inject_trace_into_packet() @ api/middleware/websocket_tracing.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ api/server.py
-WEBSOCKET /ws/agent → agent_ws_endpoint() @ current_work/DONE/GMP Stage 1 - Tools/server.py
-WEBSOCKET /ws/agent → agent_ws_endpoint() @ current_work/DONE/Slack-Debug-2/server.py
 
-# Total: 275 route handlers
+# Total: 221 route handlers

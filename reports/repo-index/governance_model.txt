@@ -1,81 +1,99 @@
+# ================================================================
+# Governance Model
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Governance Model
 # ====================
-# Approval gates, authority hierarchy, and high-risk tool constraints.
+# Auto-discovered from core/governance/ and policy configs.
 
-## Authority Hierarchy
+## Governance Components
 
-```
-IGOR (Human) ──────────────────────────────────
-    │  FULL authority. Can approve/reject all.
-    │  Only IGOR can:
-    │    - Approve high-risk tools
-    │    - Grant permanent approvals
-    │    - Override safety constraints
-    ▼
-L (CTO Agent) ────────────────────────────────
-    │  Autonomous within safety envelope.
-    │  Must request approval for high-risk ops.
-    ▼
-Research/Coder Agents ────────────────────────
-    │  Limited scope. Cannot execute high-risk.
-    ▼
-Mac Agent ────────────────────────────────────
-       Lowest authority. Shell execution only with approval.
-```
+| File | Classes | Purpose |
+|------|---------|---------|
+| `core/governance/approval_gate.py` | EscalationResult | L9 Cursor Approval Gate |
+| `core/governance/approval_manager.py` | ApprovalStatus, ApprovalRequest, ApprovalDecision | Approval Manager (Session-Based) |
+| `core/governance/approvals.py` | ApprovalManager | L9 Core Governance - Approval Manager (Persistent) |
+| `core/governance/cmts.py` | MutationStatus, FileSnapshot, MutationRecord | L9 Code Mutation Tracking System (CMTS) |
+| `core/governance/credentials_policy.py` | SecretType, SecretPattern, SecretViolation | L9 Core Governance - Credentials Policy Enforcer |
+| `core/governance/engine.py` | SubstrateProtocol, GovernanceEngineService | L9 Core Governance - Engine Service |
+| `core/governance/loader.py` | PolicyLoadError, InvalidPolicyError, PolicyLoader | L9 Core Governance - Policy Loader |
+| `core/governance/mistake_prevention.py` | Severity, MistakeRule, Violation | L9 Core Governance - Mistake Prevention Engine |
+| `core/governance/policy_generator.py` | PolicySpec, ScopeAccessSpec, PolicyFileSpec | L9 Core Governance - Policy Generator |
+| `core/governance/policy_registry.py` | PolicySource | L9 Core Governance - Policy Auto-Discovery System |
+| `core/governance/protected_files_policy.py` | - | L9 Core Governance - Protected Files Policy Loader |
+| `core/governance/quick_fixes.py` | QuickFix, FixResult, QuickFixEngine | L9 Core Governance - Quick Fix Engine |
+| `core/governance/rate_limit_policy.py` | RateLimitConfig, RateLimitResult, RateLimitSettings | L9 Unified Rate Limit Policy |
+| `core/governance/schemas.py` | PolicyEffect, ConditionOperator, Condition | L9 Core Governance - Schemas |
+| `core/governance/security_policy.py` | SecurityAction, VulnerabilitySeverity, SecurityViolation | L9 Core Governance - Security Policy Service |
+| `core/governance/session_startup.py` | StartupFile, PreflightResult, KernelReadinessResult | L9 Core Governance - Session Startup Protocol |
+| `core/governance/subsystem_detector.py` | - | L9 Subsystem Detector |
+| `core/governance/tool_risk_policy.py` | - | L9 Core Governance - Tool Risk Policy Loader |
+| `core/governance/validation.py` | - | L9 Core Governance - Validation Layer |
 
-## HIGH_RISK_TOOLS
+## High-Risk Tools (from governance policies)
 
-These tools ALWAYS require Igor approval:
+| Tool |
+|------|
+| `active` |
+| `api_endpoints` |
+| `component_name` |
+| `created_at` |
+| `created_by` |
+| `database_write` |
+| `deploy` |
+| `domain` |
+| `file_mutation` |
+| `foundation` |
+| `git_commit` |
+| `git_push` |
+| `governance` |
+| `high_risk` |
+| `integrates_with` |
+| `irreversible` |
+| `layer` |
+| `module_name` |
+| `module_version` |
+| `pending_count` |
+| `production` |
+| `requires_approval_after` |
+| `secrets` |
+| `shell_exec` |
+| `status` |
+| `tool_execution` |
+| `tool_id` |
+| `tool_name` |
+| `tool_risk_policy` |
+| `type` |
+| `updated_at` |
+| `utility` |
 
-| Tool | Risk Description |
-|------|------------------|
-| `gmp_run` | Execute GMP protocol (code changes) |
-| `git_commit` | Commit changes to git repository |
-| `git_push` | Push changes to remote repository |
-| `file_delete` | Delete files from filesystem |
-| `database_write` | Write to production database |
-| `deploy` | Deploy to production environment |
-| `mac_agent_exec` | Execute commands on Mac agent |
+## Approval Classes
 
-## Approval Flow
-
-```
-Agent requests high-risk tool
-    │
-    ▼
-ApprovalManager.requires_approval(tool_id)
-    │
-    ├── NO → Execute immediately
-    │
-    └── YES → request_approval()
-              │
-              ├── Store approval_request packet
-              ├── Notify Igor via Slack
-              └── Wait for approve_task() or reject_task()
-```
-
-## Igor Commands (@L syntax)
-
-| Command | Description |
-|---------|-------------|
-| `@L propose_gmp <description>` | Propose a GMP |
-| `@L analyze <scope>` | Analyze code/files |
-| `@L approve <task_id>` | Approve pending task |
-| `@L reject <task_id> <reason>` | Reject with reason |
-| `@L rollback <task_id>` | Rollback a change |
-| `@L status` | Get current status |
-| `@L help` | Show available commands |
-
-## Governance Pattern Learning
-
-Every approval/rejection creates a `GovernancePattern` for closed-loop learning:
-
-```python
-GovernancePattern(
-    task_id=...,
-    tool_name=...,
-    decision=APPROVED | REJECTED,
-    reason=...,
-    conditions=[...],  # Extracted from reason
-)
-```
+- `GovernanceIntegration` (core/governance_integration.py) — Unified governance integration for L9.
+- `ApprovalStatus` (core/governance/approval_manager.py) — Approval request status
+- `ApprovalRequest` (core/governance/approval_manager.py) — Request for Igor approval of high-risk operation
+- `ApprovalDecision` (core/governance/approval_manager.py) — Decision on an approval request
+- `ApprovalManager` (core/governance/approval_manager.py) — Manages Igor approval workflow for high-risk tool executions
+- `ApprovalManager` (core/governance/approvals.py) — Manages approval of high-risk tasks.
+- `SecretPattern` (core/governance/credentials_policy.py) — A secret detection pattern.
+- `GovernanceEngineService` (core/governance/engine.py) — Stateless policy evaluation engine.
+- `MemoryGovernanceContext` (memory/governance_gate.py) — Immutable governance context for memory operations.
+- `GovernanceHook` (memory/governance_hooks.py) — Abstract base class for governance hooks.
+- `GovernanceHookRegistry` (memory/governance_hooks.py) — Registry for governance hooks.
+- `GovernancePattern` (memory/governance_patterns.py) — A governance pattern capturing Igor's approval/rejection dec
+- `GovernanceDecision` (domain_tensor_bridge/governance_bridge.py) — Governance check outcomes.
+- `GovernanceResult` (domain_tensor_bridge/governance_bridge.py) — Result of governance check.
+- `GovernanceBridge` (domain_tensor_bridge/governance_bridge.py) — Bridge to L9 governance layer.
+- `TestGovernanceHookRegistry` (tests/unit/test_governance_hooks.py) — Test GovernanceHookRegistry.
+- `TestExecutorGovernanceValidation` (tests/core/bootstrap/test_executor_governance.py) — Test governance validation in executor.
+- `TestAgentInstanceGovernanceTracking` (tests/integration/test_governance_tracking_e2e.py) — Tests for AgentInstance governance block tracking.
+- `TestExecutionResultGovernanceWiring` (tests/integration/test_governance_tracking_e2e.py) — Tests for ExecutionResult carrying governance data.
+- `TestGovernanceBlockPatternDetection` (tests/integration/test_governance_tracking_e2e.py) — Tests for GovernanceBlockPattern firing correctly.
+- `TestUserCorrectionPatternDetection` (tests/integration/test_governance_tracking_e2e.py) — Tests for UserCorrectionPattern firing correctly.
+- `TestGovernanceTrackingEndToEnd` (tests/integration/test_governance_tracking_e2e.py) — End-to-end test of the complete governance tracking flow.
+- `TestMemoryGovernanceIntegration` (tests/integration/test_l_cto_memory_governance_integration.py) — Test memory and governance integration.

@@ -1,13 +1,16 @@
+# ================================================================
+# Imports
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # 
   .
-  ..adapters.
-  ..adapters.calendar_adapter_adapter
-  ..adapters.email_adapter_adapter
-  ..adapters.twilio_adapter_adapter
-  ..config
   ..core
   ..models
-  ..schemas
   .accountability_engine
   .action_registry
   .action_tool.orchestrator
@@ -24,7 +27,6 @@
   .apply_engine
   .approval_manager
   .architecture_report
-  .assembler
   .ast_scanner
   .async_function_map_report
   .base_extractor
@@ -130,11 +132,9 @@
   .spec_generator
   .spec_normalizer_v2
   .subsystem_detector
-  .task
   .task_queue
   .tensor_motif_linker
   .text_to_code
-  .tokenizer
   .tool_pattern_extractor
   .tools_report
   .transcript_compiler
@@ -149,6 +149,8 @@
   2020
 # Neo4j
   Neo4j
+# SDK
+  SDK.SDK
 # SUPER_PROMPT_TEMPLATE
   SUPER_PROMPT_TEMPLATE
 # YAML
@@ -158,12 +160,8 @@
 # abc
   abc
 # adapters
-  adapters.
-  adapters.calendar_adapter_adapter
-  adapters.email_adapter_adapter
   adapters.tensorglobe_bridge.adapter
   adapters.tensorglobe_bridge.schemas
-  adapters.twilio_adapter_adapter
 # agents
   agents.
   agents.agent_registry
@@ -171,22 +169,22 @@
   agents.architect_agent.architect_agent_b
   agents.base_agent
   agents.codegenagent.c_gmp_engine
-  agents.codegenagent.codegen_agent
   agents.codegenagent.file_emitter
   agents.codegenagent.meta_loader
-  agents.codegenagent.readme_generator
   agents.coder_agent.coder_agent_a
   agents.coder_agent.coder_agent_b
   agents.cursor.cursor_client
   agents.cursor.cursor_memory_client
   agents.cursor.cursor_memory_kernel
+  agents.cursor.extractors.base_extractor
+  agents.cursor.extractors.cursor_action_extractor
   agents.cursor.gmp_meta_learning
   agents.cursor.integrations.cursor_gateway
   agents.cursor.integrations.cursor_langgraph
   agents.l_cto
   agents.qa_agent
   agents.reflection_agent
-  agents.research_agent.research_facade
+  agents.research_agent.research_sdk
   agents.research_agent_impl
 # aiofiles
   aiofiles
@@ -194,23 +192,18 @@
   api.
   api.agent_routes
   api.auth
-  api.circuit_breaker
   api.db
   api.dependencies
   api.llm
-  api.memory.cache
-  api.memory.graph
   api.memory.router
   api.middleware.websocket_tracing
   api.openapi_config
-  api.os_routes
   api.routes.registry
+  api.routes.slack
   api.server
   api.slack_adapter
   api.slack_client
   api.tools.router
-# apply_policy_rules
-  apply_policy_rules
 # argparse
   argparse
 # ast
@@ -253,8 +246,6 @@
 # collections
   collections
   collections.abc
-# compile_module_spec
-  compile_module_spec
 # concurrent
   concurrent.futures
 # config
@@ -282,19 +273,15 @@
   core.agents.base_agent
   core.agents.bootstrap.models
   core.agents.bootstrap.orchestrator
-  core.agents.bootstrap.phase1_loadkernels
   core.agents.bootstrap.phase_4_load_identity
-  core.agents.bootstrap.phase_7_verify_and_lock
   core.agents.executor
   core.agents.executor_composer
   core.agents.graph_state.agent_graph_loader
   core.agents.graph_state.schema
   core.agents.idempotency_store
-  core.agents.kernel_registry
   core.agents.kernelevolution
   core.agents.prompt_builder
   core.agents.prompt_defense
-  core.agents.protocols
   core.agents.schemas
   core.agents.selfreflection
   core.aios.runtime
@@ -302,10 +289,6 @@
   core.bayesian.bayesian_kernel
   core.boundary.enforcer
   core.ca_governance
-  core.ca_governance.ca_code_change
-  core.ca_governance.constraint_validator
-  core.ca_governance.diff_generator
-  core.ca_governance.report_generator
   core.calibration.config
   core.calibration.schemas
   core.calibration.service
@@ -322,7 +305,6 @@
   core.eos.ledger_writer
   core.eos.schemas
   core.event_type_registry
-  core.facade.l9_facade
   core.governance
   core.governance.approval_gate
   core.governance.approval_manager
@@ -346,22 +328,15 @@
   core.kernels.kernelloader
   core.kernels.schemas
   core.l_agent_runtime
-  core.l_agent_runtime.action_registry
-  core.l_agent_runtime.agent_state
-  core.l_agent_runtime.foresight_engine
-  core.l_agent_runtime.memory_adapter
-  core.l_agent_runtime.reflection_engine
   core.learning.auto_calibrator
   core.learning.feedback_collector
   core.llm.llm_service
   core.logger
-  core.memory.substrates
   core.models.l9_base_model
   core.moduleregistry
   core.observability
   core.observability.circuit_breaker
   core.observability.models
-  core.observability.observability_context
   core.packet_envelope
   core.packet_envelope.governance
   core.packet_envelope.integration
@@ -384,7 +359,6 @@
   core.reasoning
   core.reasoning.l9_toth_adapter
   core.reasoning.toth_engine
-  core.registry.models
   core.resilience.mixin
   core.resilience.protocols
   core.resilience.retry
@@ -406,20 +380,16 @@
   core.schemas.ws_event_stream
   core.secrets.env_secrets_client
   core.security.path_safety
-  core.services.new_service
   core.singleton_auto_registry
   core.singleton_registry
   core.testing
   core.testing.test_agent
   core.testing.test_executor
   core.testing.test_generator
-  core.tokenizer
   core.tools.base_registry
-  core.tools.capabilities
   core.tools.discovery_tracing
   core.tools.dynamic_discovery
   core.tools.prompt_caching
-  core.tools.query_injection
   core.tools.registry
   core.tools.registry_adapter
   core.tools.registry_cache
@@ -480,10 +450,6 @@
   fnmatch
 # functools
   functools
-# generate_module_code
-  generate_module_code
-# glob
-  glob
 # governance
   governance.rejection_recorder
 # graph_adapter
@@ -501,8 +467,6 @@
   importlib.util
 # inspect
   inspect
-# integration
-  integration
 # ir_engine
   ir_engine.compile_meta_to_ir
   ir_engine.constraint_challenger
@@ -531,8 +495,6 @@
   l9.core.schemas
   l9.core.tools
   l9.core.utils
-  l9.governance.approvals
-  l9.memory.substrate_service
 # langchain
   langchain.tools
 # langchain_core
@@ -540,6 +502,7 @@
   langchain_core.retrievers
   langchain_core.runnables
 # langgraph
+  langgraph.checkpoint.memory
   langgraph.graph
 # logging
   logging
@@ -568,7 +531,6 @@
   memory.deduplication
   memory.enrichment_dag
   memory.execution_plan_snapshot
-  memory.extractors.base_extractor
   memory.gap_detector
   memory.governance_gate
   memory.governance_hooks
@@ -586,7 +548,6 @@
   memory.models
   memory.neo4j_strategy_memory
   memory.neural_decay_scheduler
-  memory.notification_dag
   memory.packet_serializer
   memory.predictive_cache
   memory.query_cache
@@ -604,7 +565,6 @@
   memory.substrate_alignment
   memory.substrate_dag
   memory.substrate_dag_wrapper
-  memory.substrate_graph
   memory.substrate_models
   memory.substrate_repository
   memory.substrate_repository_batch_helpers
@@ -640,23 +600,6 @@
   observability.tracing
 # openai
   openai
-# opentelemetry
-  opentelemetry
-  opentelemetry.baggage.propagation
-  opentelemetry.exporter.jaeger.thrift
-  opentelemetry.exporter.prometheus
-  opentelemetry.propagators.composite
-  opentelemetry.sdk.metrics
-  opentelemetry.sdk.metrics.export
-  opentelemetry.sdk.trace
-  opentelemetry.sdk.trace.export
-  opentelemetry.trace.propagation.tracecontext
-# opt
-  opt.l9.core.agents.tools.rlm_tool_handler
-  opt.l9.core.memory.rlm_data_models
-  opt.l9.core.memory.rlm_knowledge_graph
-  opt.l9.core.memory.rlm_substrate_service
-  opt.l9.core.schemas.packet_protocol
 # orchestration
   orchestration.cell_orchestrator
   orchestration.input_segmenter
@@ -667,8 +610,6 @@
   orchestration.unified_controller
   orchestration.ws_task_router
 # orchestrators
-  orchestrators.action_tool.interface
-  orchestrators.action_tool.orchestrator
   orchestrators.agent_execution.task_queue
   orchestrators.memory.interface
   orchestrators.memory.orchestrator
@@ -684,18 +625,8 @@
   orchestrators.research_swarm.orchestrator
 # os
   os
-# pandas
-  pandas
 # pathlib
   pathlib
-# phase_2_observability
-  phase_2_observability
-# phase_3_standardization
-  phase_3_standardization
-# phase_4_scalability
-  phase_4_scalability
-# phase_5_governance
-  phase_5_governance
 # pkgutil
   pkgutil
 # platform
@@ -714,16 +645,8 @@
   random
 # re
   re
-# redis
-  redis
-  redis.asyncio
 # requests
   requests
-# routes
-  routes.
-  routes.calendar_adapter
-  routes.email_adapter
-  routes.twilio_adapter
 # runtime
   runtime
   runtime.auth_rate_limiter
@@ -735,7 +658,6 @@
   runtime.kernel_loader
   runtime.kernel_state
   runtime.l_tools
-  runtime.long_plan_tool
   runtime.mcp_client
   runtime.mcp_server_registry
   runtime.rate_limiter
@@ -765,7 +687,6 @@
   services.research.research_graph
   services.research.tools
   services.research.tools.perplexity_client
-  services.research.tools.tool_registry
   services.research.tools.tool_resolver
   services.research.tools.tool_wrappers
   services.research_factory
@@ -824,8 +745,6 @@
   stat
 # statistics
   statistics
-# string
-  string
 # structlog
   structlog
 # subprocess
@@ -877,9 +796,6 @@
   torch
   torch.nn
   torch.nn.functional
-# torch_geometric
-  torch_geometric.data
-  torch_geometric.nn
 # traceback
   traceback
 # twilio
@@ -910,6 +826,25 @@
   workers.violation_patterns
   workers.violation_tracker_service
 # workflows
+  workflows
+  workflows.dags
+  workflows.dags.dag_authoring_dag
+  workflows.dags.gmp
+  workflows.dags.gmp.executor
+  workflows.dags.gmp.graph
+  workflows.dags.gmp.nodes
+  workflows.dags.gmp.nodes.core
+  workflows.dags.gmp.routing
+  workflows.dags.gmp.state
+  workflows.dags.gmp_execution_dag
+  workflows.dags.harvest_deploy_dag
+  workflows.dags.inspect_dag
+  workflows.dags.new_dag
+  workflows.dags.readme_pipeline_dag
+  workflows.dags.refactoring_dag
+  workflows.dags.slash_command_update_dag
+  workflows.dags.test_pipeline_dag
+  workflows.dags.wire_dag
   workflows.nodes
   workflows.nodes.checkpoint
   workflows.nodes.deploy
@@ -918,17 +853,6 @@
   workflows.nodes.report
   workflows.nodes.validate
   workflows.session
-  workflows.session.dags
-  workflows.session.dags.dag_authoring_dag
-  workflows.session.dags.gmp_execution_dag
-  workflows.session.dags.harvest_deploy_dag
-  workflows.session.dags.inspect_dag
-  workflows.session.dags.new_dag
-  workflows.session.dags.readme_pipeline_dag
-  workflows.session.dags.refactoring_dag
-  workflows.session.dags.slash_command_update_dag
-  workflows.session.dags.test_pipeline_dag
-  workflows.session.dags.wire_dag
   workflows.session.interface
   workflows.session.registry
   workflows.state

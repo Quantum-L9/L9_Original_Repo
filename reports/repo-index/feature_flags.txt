@@ -1,3 +1,12 @@
+# ================================================================
+# Feature Flags
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Feature Flags
 # ==================
 # Runtime feature flags for L9 capabilities.
@@ -17,16 +26,11 @@
 | `L9_ENABLE_GRAPH` | Feature flag | `false` | scripts/audit/tier1/audit_infrastructure_health.py |
 | `L9_ENABLE_LEGACY_CHAT` | Gate old apiserver.py POST /chat | `false` | agents/cursor/GMP-v2.0-Perplex-Py-Scripts/script_3.py |
 | `L9_ENABLE_LEGACY_SLACK_ROUTER` | Gate old webhookslack.py path | `false` | api/e2e_slack_audit.py |
-| `L9_ENABLE_LONG_PLANS` | Feature flag | `false` | current_work/Bayesian Upgrade/causal_graph/script_3.py |
 | `L9_ENABLE_MEMORY` | Feature flag | `false` | scripts/audit/tier1/audit_infrastructure_health.py |
 | `L9_ENABLE_MEMORY_SUBSTRATE` | Feature flag | `false` | agents/cursor/GMP-v2.0-Perplex-Py-Scripts/script_2.py |
 | `L9_ENABLE_MEMORY_SUBSTRATE_VALIDATION` | Feature flag | `false` | codegen/templates/python/dora-enterprise-template.py |
 | `L9_ENABLE_PERPLEXITY_RESEARCH` | Feature flag | `false` | core/codegen/gatekeeper/codegen_gatekeeper.py |
-| `L9_ENABLE_SEMANTIC_MEMORY` | Feature flag | `false` | current_work/Bayesian Upgrade/causal_graph/script_3.py |
 | `L9_ENABLE_STRICT_MODE` | Feature flag | `false` | codegen/templates/python/dora-enterprise-template.py |
-| `L9_ENABLE_TOOL_AUDIT` | Feature flag | `false` | current_work/Bayesian Upgrade/causal_graph/script_3.py |
-| `L9_ENABLE_WEBHOOK_INGESTION` | Feature flag | `false` | current_work/Bayesian Upgrade/causal_graph/script_3.py |
-| `L9_ENABLE_WORLD_MODEL` | Feature flag | `false` | current_work/Bayesian Upgrade/causal_graph/script_3.py |
 | `L9_ENABLE_WS_ORCHESTRATOR` | WebSocket routes use wstaskrouter | `true` | tools/export_repo_indexes.py |
 | `L9_NEW_AGENT_INIT` | Enable 7-phase bootstrap ceremony | `true` | api/server.py |
 | `L9_USE_KERNELS` | Load kernels from files | `true` | agents/cursor/GMP-v2.0-Perplex-Py-Scripts/script_4.py |

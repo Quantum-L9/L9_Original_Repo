@@ -1,12 +1,20 @@
-_archived/symbolic_computation/ - 
+# ================================================================
+# Architecture
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
+SDK/ - 
 adapters/ - 
 adapters/tensorglobe_bridge/ - 
 agents/ - 
 agents/architect_agent/ - 
-agents/codegenagent/ - 
 agents/coder_agent/ - 
 agents/cursor/ - 
-agents/cursor/extractors/ - No module docstring
+agents/cursor/extractors/ - 
 agents/cursor/integrations/ - No module docstring
 agents/cursor/scripts/ - No module docstring
 agents/research_agent/ - 
@@ -20,9 +28,6 @@ ci/ -
 ci/ai_guardrails/ - L9 AI Guardrails CI Suite.
 clients/ - 
 codegen/code-gen-files/ - 
-codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.calendar_adapter/ - No module docstring
-codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.email_adapter/ - No module docstring
-codegen/code-gen-files/Module Production/Module-Pipeline-Complete/module.twilio_adapter/ - No module docstring
 codegen/code-gen-files/jinja2-templates/ - 
 codegen/compiler/ - 
 codegen/compiler/emitters/ - 
@@ -30,8 +35,6 @@ codegen/dev_layer/ -
 codegen/dev_layer/am_engine/ - 
 codegen/dev_layer/modules/ - 
 codegen/dev_layer/runtime/ - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/ - 
-codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/ - No module docstring
 codegenagent/ - 
 collaborative_cells/ - 
 config/ - L9 Configuration Module.
@@ -54,7 +57,6 @@ core/coordination/ -
 core/di/ - 
 core/eos/ - 
 core/evaluation/ - 
-core/facade/ - 
 core/governance/ - 
 core/graph/query/ - 
 core/instrumentation/ - No module docstring
@@ -79,18 +81,11 @@ core/security/ -
 core/testing/ - 
 core/tools/ - 
 core/worldmodel/ - 
-current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/ca_governance/ - 
-current_work/Compiler + Dev Layer/Knowledge Harvester + Compiler - Complete System/governance_layers/l_agent_runtime/ - 
-current_work/DONE/AUTOWIRING/ - 
-current_work/DONE/governance_layers/ca_governance/ - 
-current_work/DONE/governance_layers/l_agent_runtime/ - 
 domain_tensor_bridge/ - 
 domain_tensor_bridge/tests/domain_tensor_bridge/ - No module docstring
 email_agent/ - L9 Email Agent - Gmail API integration.
 governance/ - No module docstring
 graph_adapter/ - L9 LangGraph Integration - PacketNodeAdapter for memory-logg
-igor/DONE!/tokenizer/core/tokenizer/ - 
-igor/DONE!/tokenizer/core/tokenizer/tests/ - 
 ir_engine/ - 
 mac_agent/ - L9 Mac Agent package.
 mac_agent/helpers/ - Mac Agent helper utilities.
@@ -141,7 +136,6 @@ tests/ -
 tests/adapters/ - No module docstring
 tests/adapters/tensorglobe_bridge/ - No module docstring
 tests/agents/ - Agent tests for L9.
-tests/agents/codegenagent/ - 
 tests/ai/ - L9 AI Guardrails Test Cases Package.
 tests/api/ - 
 tests/api/routes/ - No module docstring
@@ -192,8 +186,10 @@ tools/codegen/ -
 tools/superpack_reports/ - No module docstring
 workers/ - 
 workflows/ - 
+workflows/dags/ - 
+workflows/dags/gmp/ - 
+workflows/dags/gmp/nodes/ - 
 workflows/nodes/ - 
 workflows/session/ - 
-workflows/session/dags/ - 
 world_model/ - 
 world_model/nodes/ - 

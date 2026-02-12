@@ -1,11 +1,20 @@
+# ================================================================
+# Readme Manifest
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 README File Manifest
-# Generated: 2026-02-02 16:24
+# Generated: 2026-02-11 20:18
 #
 # AI Reference: Quick lookup for module documentation
 # Each entry shows: PATH | TITLE | DESCRIPTION
 # ============================================================================
 
-# Total: 83 README files across 35 directories
+# Total: 82 README files across 35 directories
 
 # ============================================================================
 # .SEMGREP (1 files)
@@ -128,7 +137,7 @@ TITLE: L9 Agent Configurations
 DESC: Agent YAML manifests defining identity, capabilities, tools, and governance for L9 AI agents.
 
 # ============================================================================
-# CORE (34 files)
+# CORE (33 files)
 # ============================================================================
 
 PATH: core/README.md
@@ -178,10 +187,6 @@ DESC: > **Tier:** CORE | **Path:** `core/eos` | **Owner:** Igor
 PATH: core/evaluation/README.md
 TITLE: Evaluation Framework
 DESC: > **Tier:** CORE | **Path:** `core/evaluation` | **Owner:** Igor
-
-PATH: core/facade/README.md
-TITLE: Facade Layer
-DESC: > **Tier:** CORE | **Path:** `core/facade` | **Owner:** Igor
 
 PATH: core/governance/README.md
 TITLE: Governance & Approval Gates

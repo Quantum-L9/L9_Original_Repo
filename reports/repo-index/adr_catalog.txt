@@ -1,5 +1,14 @@
+# ================================================================
+# Adr Catalog
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Architecture Decision Record (ADR) Catalog
-# Generated: 2026-02-02
+# Generated: 2026-02-11
 # Total: 92 ADRs
 #
 # Format: ADR_NUMBER | STATUS | TITLE | PATH

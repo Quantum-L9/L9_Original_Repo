@@ -1,155 +1,413 @@
+# ================================================================
+# Test Catalog
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Test Catalog
 # =================
 # All test files with test counts.
 
 ## Test Directory Structure
 
+### other/
+
+- `codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py` (21 tests)
+- `codegen/dev_layer/tests/test_determinism.py` (6 tests)
+- `codegen/dev_layer/tests/test_e2e_diff_generation.py` (6 tests)
+- `core/schemas/tests/test_discriminators.py` (14 tests)
+- `core/schemas/tests/test_packet_envelope.py` (24 tests)
+- `core/schemas/tests/test_research_factory.py` (19 tests)
+- `core/testing/test_agent.py` (0 tests)
+- `core/testing/test_executor.py` (0 tests)
+- `core/testing/test_generator.py` (5 tests)
+- `domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py` (3 tests)
+- `domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py` (6 tests)
+- `domain_tensor_bridge/tests/domain_tensor_bridge/test_context_enrichment.py` (4 tests)
+- `domain_tensor_bridge/tests/domain_tensor_bridge/test_governance_integration.py` (5 tests)
+- `domain_tensor_bridge/tests/domain_tensor_bridge/test_memory_integration.py` (5 tests)
+- `domain_tensor_bridge/tests/domain_tensor_bridge/test_packet_routing.py` (4 tests)
+- `domain_tensor_bridge/tests/domain_tensor_bridge/test_reasoning_engine.py` (6 tests)
+- `domain_tensor_bridge/tests/domain_tensor_bridge/test_tensor_coordination.py` (4 tests)
+- `mcp_memory/tests/test_all_layers.py` (16 tests)
+- `mcp_memory/tests/test_connection.py` (0 tests)
+- `mcp_memory/tests/test_e2e.py` (9 tests)
+- `mcp_memory/tests/test_embeddings.py` (2 tests)
+- `mcp_memory/tests/test_main_pipeline_integration.py` (8 tests)
+- `mcp_memory/tests/test_mcp_server_smoke.py` (7 tests)
+- `mcp_memory/tests/test_memory.py` (8 tests)
+- `mcp_memory/tests/test_rate_limiter.py` (2 tests)
+- `mcp_memory/tests/test_rate_limiting_enforcement.py` (12 tests)
+- `mcp_memory/tests/test_search.py` (2 tests)
+- `scripts/memory/test_all_graphs_access.py` (1 tests)
+- `scripts/research/test_research_factory.py` (1 tests)
+- `services/symbolic_computation/test_symbolic_computation.py` (21 tests)
+- `tools/codegen/test_generator.py` (0 tests)
+- `workflows/dags/test_pipeline_dag.py` (0 tests)
+- `world_model/_pack_staging/test_integration.py` (19 tests)
+
+### tests/
+
+- `tests/test_ci_configuration.py` (20 tests)
+- `tests/test_code_facts_extraction.py` (22 tests)
+- `tests/test_imports.py` (7 tests)
+- `tests/test_l_cto_kernel_activation.py` (12 tests)
+- `tests/test_memory_adapter.py` (12 tests)
+- `tests/test_memory_governance_gate.py` (4 tests)
+- `tests/test_memory_substrate_basic.py` (23 tests)
+- `tests/test_research_graph.py` (11 tests)
+- `tests/test_slack_adapter.py` (15 tests)
+- `tests/test_spec_normalizer_v2.py` (26 tests)
+- `tests/test_tool_registry.py` (19 tests)
+- `tests/test_toth_integration.py` (28 tests)
+- `tests/test_violation_tracker_smoke.py` (0 tests)
+- `tests/test_wiring_integrity.py` (13 tests)
+
+### tests/adapters/
+
+- `tests/adapters/tensorglobe_bridge/test_adapter.py` (12 tests)
+- `tests/adapters/tensorglobe_bridge/test_tensorglobe_eos_gating.py` (2 tests)
+
+### tests/agents/
+
+- `tests/agents/test_agent_registry.py` (8 tests)
+- `tests/agents/test_architect_agents.py` (3 tests)
+- `tests/agents/test_base_agent.py` (4 tests)
+- `tests/agents/test_l_cto_memory_emission.py` (4 tests)
+
+### tests/api/
+
+- `tests/api/routes/test_registry.py` (9 tests)
+- `tests/api/test_agent_auth.py` (6 tests)
+- `tests/api/test_auth.py` (8 tests)
+- `tests/api/test_auth_api_key_enforcement.py` (2 tests)
+- `tests/api/test_bootstrap_fail_fast.py` (7 tests)
+- `tests/api/test_e2e_slack_audit.py` (0 tests)
+- `tests/api/test_factory_path_safety.py` (3 tests)
+- `tests/api/test_server_health.py` (3 tests)
+- `tests/api/test_slack_adapter.py` (26 tests)
+- `tests/api/test_slack_routes.py` (2 tests)
+- `tests/api/test_websocket_auth.py` (5 tests)
+
+### tests/ci/
+
+- `tests/ci/test_adr_enforcement.py` (8 tests)
+- `tests/ci/test_anti_patterns.py` (11 tests)
+
+### tests/clients/
+
+- `tests/clients/test_memory_client.py` (4 tests)
+
+### tests/codegen/
+
+- `tests/codegen/test_codegen_pipeline.py` (21 tests)
+- `tests/codegen/test_sample_schemas.py` (20 tests)
+
+### tests/collaborative_cells/
+
+- `tests/collaborative_cells/test_base_cell.py` (3 tests)
+- `tests/collaborative_cells/test_cell_registry.py` (3 tests)
+
+### tests/config/
+
+- `tests/config/test_di_async_config.py` (13 tests)
+- `tests/config/test_l_cto_yaml.py` (4 tests)
+
 ### tests/core/
 
-- `tests/core/test_event_type_registry.py` (5 tests)
-- `tests/core/test_fail_closed_executor.py` (4 tests)
-- `tests/core/test_singleton_auto_registry.py` (4 tests)
-- `tests/core/test_moduleregistry.py` (11 tests)
-- `tests/core/test_auto_registry.py` (11 tests)
-- `tests/core/test_fail_closed_registry.py` (8 tests)
-- `tests/core/test_resilience_mixin.py` (16 tests)
-- `tests/core/kernels/test_integrity.py` (5 tests)
-- `tests/core/tools/test_tool_graph.py` (2 tests)
-- `tests/core/tools/test_tool_graph_unified.py` (16 tests)
-- `tests/core/bootstrap/test_executor_governance.py` (5 tests)
-- `tests/core/bootstrap/test_phase_7_verify_and_lock.py` (11 tests)
-- `tests/core/bootstrap/test_prompt_defense.py` (31 tests)
-- `tests/core/bootstrap/test_graph_state.py` (13 tests)
-- `tests/core/bootstrap/test_bootstrap_phases.py` (16 tests)
-- `tests/core/bootstrap/test_agent_self_modify.py` (14 tests)
-- `tests/core/bootstrap/test_executor.py` (22 tests)
-- `tests/core/bootstrap/test_executor_idempotency.py` (7 tests)
-- `tests/core/bootstrap/test_prompt_builder.py` (25 tests)
-- `tests/core/security/test_path_safety.py` (10 tests)
-- `tests/core/security/test_permission_graph.py` (2 tests)
-- `tests/core/aios/test_runtime.py` (2 tests)
-- `tests/core/agents/test_agent_executor_bootstrap_bridge.py` (3 tests)
-- `tests/core/agents/test_executor.py` (10 tests)
 - `tests/core/agents/bootstrap/test_orchestrator.py` (5 tests)
 - `tests/core/agents/bootstrap/test_phase4_identity_view.py` (3 tests)
-- `tests/core/observability/test_observability_integration.py` (32 tests)
-- `tests/core/kernel_wiring/test_master_wiring.py` (2 tests)
-- `tests/core/schemas/test_content_hash_integrity.py` (14 tests)
-- `tests/core/schemas/test_upcaster_registry.py` (4 tests)
-- `tests/core/schemas/test_schema_registry.py` (20 tests)
+- `tests/core/agents/test_agent_executor_bootstrap_bridge.py` (3 tests)
+- `tests/core/agents/test_executor.py` (10 tests)
+- `tests/core/aios/test_runtime.py` (2 tests)
+- `tests/core/bayesian/test_bayesian_kernel.py` (16 tests)
+- `tests/core/bootstrap/test_agent_self_modify.py` (14 tests)
+- `tests/core/bootstrap/test_bootstrap_phases.py` (16 tests)
+- `tests/core/bootstrap/test_executor.py` (22 tests)
+- `tests/core/bootstrap/test_executor_governance.py` (5 tests)
+- `tests/core/bootstrap/test_executor_idempotency.py` (7 tests)
+- `tests/core/bootstrap/test_graph_state.py` (13 tests)
+- `tests/core/bootstrap/test_phase_7_verify_and_lock.py` (11 tests)
+- `tests/core/bootstrap/test_prompt_builder.py` (25 tests)
+- `tests/core/bootstrap/test_prompt_defense.py` (31 tests)
+- `tests/core/eos/test_eos_clients.py` (21 tests)
 - `tests/core/governance/test_engine.py` (15 tests)
 - `tests/core/governance/test_policy_registry.py` (4 tests)
 - `tests/core/governance/test_validation.py` (12 tests)
-- `tests/core/bayesian/test_bayesian_kernel.py` (16 tests)
+- `tests/core/kernel_wiring/test_master_wiring.py` (2 tests)
+- `tests/core/kernels/test_integrity.py` (5 tests)
+- `tests/core/observability/test_observability_integration.py` (32 tests)
 - `tests/core/protocols/test_secrets_protocols.py` (7 tests)
-- `tests/core/eos/test_eos_clients.py` (21 tests)
+- `tests/core/schemas/test_content_hash_integrity.py` (14 tests)
+- `tests/core/schemas/test_schema_registry.py` (20 tests)
+- `tests/core/schemas/test_upcaster_registry.py` (4 tests)
+- `tests/core/security/test_path_safety.py` (10 tests)
+- `tests/core/security/test_permission_graph.py` (2 tests)
+- `tests/core/test_auto_registry.py` (11 tests)
+- `tests/core/test_event_type_registry.py` (5 tests)
+- `tests/core/test_fail_closed_executor.py` (4 tests)
+- `tests/core/test_fail_closed_registry.py` (8 tests)
+- `tests/core/test_moduleregistry.py` (11 tests)
+- `tests/core/test_resilience_mixin.py` (16 tests)
+- `tests/core/test_singleton_auto_registry.py` (4 tests)
+- `tests/core/tools/test_tool_graph.py` (2 tests)
+- `tests/core/tools/test_tool_graph_unified.py` (16 tests)
+
+### tests/cursor/
+
+- `tests/cursor/test_gmp_meta_learning.py` (23 tests)
+
+### tests/docker/
+
+- `tests/docker/test_env_validation.py` (8 tests)
+- `tests/docker/test_migrations.py` (9 tests)
+- `tests/docker/test_stack_smoke.py` (16 tests)
+
+### tests/email_agent/
+
+- `tests/email_agent/test_email_router.py` (24 tests)
+- `tests/email_agent/test_email_triage.py` (2 tests)
+
+### tests/governance/
+
+- `tests/governance/test_rejection_recorder.py` (11 tests)
 
 ### tests/integration/
 
-- `tests/integration/test_kernel_router_orchestrator_end_to_end.py` (4 tests)
-- `tests/integration/test_tool_observability_integration.py` (20 tests)
-- `tests/integration/test_tool_patterns.py` (16 tests)
 - `tests/integration/test_api_agent_integration.py` (4 tests)
-- `tests/integration/test_igor_commands.py` (29 tests)
-- `tests/integration/test_graph_state_integration.py` (7 tests)
-- `tests/integration/test_kernel_evolution_flow.py` (20 tests)
-- `tests/integration/test_research_tool_integration.py` (3 tests)
-- `tests/integration/test_orchestrator_memory_integration.py` (3 tests)
-- `tests/integration/test_kernel_agent_activation_integration.py` (4 tests)
 - `tests/integration/test_api_memory_integration.py` (12 tests)
-- `tests/integration/test_slack_dispatch_integration.py` (3 tests)
-- `tests/integration/test_l_cto_end_to_end.py` (12 tests)
-- `tests/integration/test_kernel_hot_reload.py` (13 tests)
-- `tests/integration/test_graph_wm_sync.py` (18 tests)
-- `tests/integration/test_l_bootstrap.py` (8 tests)
-- `tests/integration/test_world_model_repository_integration.py` (3 tests)
-- `tests/integration/test_world_model.py` (19 tests)
+- `tests/integration/test_closed_loop_learning.py` (7 tests)
+- `tests/integration/test_compliance_audit.py` (15 tests)
 - `tests/integration/test_cursor_langgraph_integration.py` (6 tests)
 - `tests/integration/test_governance_tracking_e2e.py` (20 tests)
-- `tests/integration/test_closed_loop_learning.py` (7 tests)
-- `tests/integration/test_ws_task_routing_integration.py` (3 tests)
-- `tests/integration/test_compliance_audit.py` (15 tests)
-- `tests/integration/test_memory_packet_golden_path.py` (1 tests)
+- `tests/integration/test_graph_state_integration.py` (7 tests)
+- `tests/integration/test_graph_wm_sync.py` (18 tests)
+- `tests/integration/test_igor_commands.py` (29 tests)
+- `tests/integration/test_kernel_agent_activation_integration.py` (4 tests)
+- `tests/integration/test_kernel_evolution_flow.py` (20 tests)
+- `tests/integration/test_kernel_hot_reload.py` (13 tests)
+- `tests/integration/test_kernel_router_orchestrator_end_to_end.py` (4 tests)
+- `tests/integration/test_l_bootstrap.py` (8 tests)
+- `tests/integration/test_l_cto_end_to_end.py` (12 tests)
 - `tests/integration/test_l_cto_memory_governance_integration.py` (6 tests)
+- `tests/integration/test_memory_packet_golden_path.py` (1 tests)
+- `tests/integration/test_orchestrator_memory_integration.py` (3 tests)
 - `tests/integration/test_recursive_self_testing.py` (20 tests)
+- `tests/integration/test_research_tool_integration.py` (3 tests)
+- `tests/integration/test_slack_dispatch_integration.py` (3 tests)
+- `tests/integration/test_tool_observability_integration.py` (20 tests)
+- `tests/integration/test_tool_patterns.py` (16 tests)
 - `tests/integration/test_unified_graph.py` (11 tests)
+- `tests/integration/test_world_model.py` (19 tests)
+- `tests/integration/test_world_model_repository_integration.py` (3 tests)
+- `tests/integration/test_ws_task_routing_integration.py` (3 tests)
+
+### tests/ir_engine/
+
+- `tests/ir_engine/test_ir_packet_formats.py` (28 tests)
+- `tests/ir_engine/test_ir_semantic_incremental.py` (10 tests)
+- `tests/ir_engine/test_ir_semantic_to_plan_integration.py` (11 tests)
+- `tests/ir_engine/test_ir_simulation_router_integration.py` (25 tests)
+- `tests/ir_engine/test_ir_validation_and_status.py` (27 tests)
+
+### tests/kernel/
+
+- `tests/kernel/test_kernel_constraints.py` (6 tests)
+- `tests/kernel/test_kernel_loader.py` (10 tests)
+- `tests/kernel/test_kernel_merge.py` (7 tests)
+
+### tests/mac_agent/
+
+- `tests/mac_agent/test_executor.py` (3 tests)
+
+### tests/mcp_memory/
+
+- `tests/mcp_memory/test_legacy_routes_disabled.py` (2 tests)
+- `tests/mcp_memory/test_mcp_server_governance.py` (1 tests)
+- `tests/mcp_memory/test_query_temporal_parameterization.py` (1 tests)
 
 ### tests/memory/
 
-- `tests/memory/test_saga.py` (19 tests)
-- `tests/memory/test_substrate_api.py` (2 tests)
-- `tests/memory/test_hierarchical_consolidation.py` (29 tests)
-- `tests/memory/test_embedding_filter.py` (9 tests)
-- `tests/memory/test_ingestion_transaction.py` (4 tests)
-- `tests/memory/test_mcp_hardening_startup.py` (3 tests)
-- `tests/memory/test_graph_memory.py` (24 tests)
-- `tests/memory/test_cross_client_consistency.py` (11 tests)
-- `tests/memory/test_ingestion_audit.py` (16 tests)
-- `tests/memory/test_governance_invariants.py` (12 tests)
-- `tests/memory/test_strategy_memory_integration.py` (11 tests)
-- `tests/memory/test_tool_router.py` (23 tests)
-- `tests/memory/test_mcp_bypass_compliance.py` (13 tests)
-- `tests/memory/test_pruning.py` (5 tests)
-- `tests/memory/test_query_classifier.py` (15 tests)
-- `tests/memory/test_checkpoint_retry.py` (20 tests)
-- `tests/memory/test_substrate_semantic.py` (6 tests)
-- `tests/memory/test_hybrid_rag.py` (19 tests)
-- `tests/memory/test_rls_isolation.py` (5 tests)
-- `tests/memory/test_memory_adapter_basic.py` (3 tests)
-- `tests/memory/test_consolidation.py` (7 tests)
-- `tests/memory/test_agent_persistence.py` (12 tests)
-- `tests/memory/test_ingestion_pipeline_audit.py` (50 tests)
-- `tests/memory/test_batch_helpers.py` (8 tests)
-- `tests/memory/test_retrieval_audit.py` (12 tests)
-- `tests/memory/test_unified_pipeline.py` (17 tests)
-- `tests/memory/test_strategy_memory.py` (26 tests)
-- `tests/memory/test_e2e_memory_audit.py` (7 tests)
-- `tests/memory/test_packet_envelope.py` (2 tests)
-- `tests/memory/test_memory_ingestion.py` (10 tests)
-- `tests/memory/test_vector_search.py` (1 tests)
-- `tests/memory/test_substrate_service.py` (9 tests)
-- `tests/memory/test_checkpoint_metrics_pool.py` (14 tests)
-- `tests/memory/test_query_cache_and_vector.py` (12 tests)
-- `tests/memory/test_dag_orchestrator_resilience.py` (27 tests)
-- `tests/memory/test_substrate_alignment.py` (8 tests)
-- `tests/memory/test_extraction_pipeline.py` (3 tests)
-- `tests/memory/test_packet_envelope_immutability.py` (14 tests)
-- `tests/memory/test_blob_offload.py` (6 tests)
-- `tests/memory/test_substrate_dag.py` (11 tests)
-- `tests/memory/test_consolidation_graph.py` (11 tests)
-- `tests/memory/test_reasoning_replay.py` (12 tests)
-- `tests/memory/test_vector_index.py` (5 tests)
-- `tests/memory/test_frontier_memory_pipeline.py` (35 tests)
-- `tests/memory/test_predictive_warming.py` (17 tests)
-- `tests/memory/test_packet_validation_v2.py` (23 tests)
-- `tests/memory/test_substrate_dag_native.py` (37 tests)
-- `tests/memory/test_tool_audit.py` (27 tests)
-- `tests/memory/test_cypher_templates.py` (14 tests)
-- `tests/memory/test_enrichment_dag.py` (22 tests)
-- `tests/memory/tests/memory/test_mcp_hardening_startup.py` (3 tests)
 - `tests/memory/consolidation/test_promotion_rules.py` (29 tests)
+- `tests/memory/test_agent_persistence.py` (12 tests)
+- `tests/memory/test_batch_helpers.py` (8 tests)
+- `tests/memory/test_blob_offload.py` (6 tests)
+- `tests/memory/test_checkpoint_metrics_pool.py` (14 tests)
+- `tests/memory/test_checkpoint_retry.py` (20 tests)
+- `tests/memory/test_consolidation.py` (7 tests)
+- `tests/memory/test_consolidation_graph.py` (11 tests)
+- `tests/memory/test_cross_client_consistency.py` (11 tests)
+- `tests/memory/test_cypher_templates.py` (14 tests)
+- `tests/memory/test_dag_orchestrator_resilience.py` (27 tests)
+- `tests/memory/test_e2e_memory_audit.py` (7 tests)
+- `tests/memory/test_embedding_filter.py` (9 tests)
+- `tests/memory/test_enrichment_dag.py` (22 tests)
+- `tests/memory/test_extraction_pipeline.py` (3 tests)
+- `tests/memory/test_frontier_memory_pipeline.py` (35 tests)
+- `tests/memory/test_governance_invariants.py` (12 tests)
+- `tests/memory/test_graph_memory.py` (24 tests)
+- `tests/memory/test_hierarchical_consolidation.py` (29 tests)
+- `tests/memory/test_hybrid_rag.py` (19 tests)
+- `tests/memory/test_ingestion_audit.py` (16 tests)
+- `tests/memory/test_ingestion_pipeline_audit.py` (50 tests)
+- `tests/memory/test_ingestion_transaction.py` (4 tests)
+- `tests/memory/test_mcp_bypass_compliance.py` (13 tests)
+- `tests/memory/test_mcp_hardening_startup.py` (3 tests)
+- `tests/memory/test_memory_adapter_basic.py` (3 tests)
+- `tests/memory/test_memory_ingestion.py` (10 tests)
+- `tests/memory/test_packet_envelope.py` (2 tests)
+- `tests/memory/test_packet_envelope_immutability.py` (14 tests)
+- `tests/memory/test_packet_validation_v2.py` (23 tests)
+- `tests/memory/test_pipeline_alignment_fixes.py` (11 tests)
+- `tests/memory/test_predictive_warming.py` (17 tests)
+- `tests/memory/test_pruning.py` (5 tests)
+- `tests/memory/test_query_cache_and_vector.py` (12 tests)
+- `tests/memory/test_query_classifier.py` (15 tests)
+- `tests/memory/test_reasoning_replay.py` (12 tests)
+- `tests/memory/test_retrieval_audit.py` (12 tests)
+- `tests/memory/test_rls_isolation.py` (5 tests)
+- `tests/memory/test_saga.py` (19 tests)
+- `tests/memory/test_strategy_memory.py` (26 tests)
+- `tests/memory/test_strategy_memory_integration.py` (11 tests)
+- `tests/memory/test_substrate_alignment.py` (8 tests)
+- `tests/memory/test_substrate_api.py` (2 tests)
+- `tests/memory/test_substrate_dag.py` (11 tests)
+- `tests/memory/test_substrate_dag_native.py` (37 tests)
+- `tests/memory/test_substrate_semantic.py` (6 tests)
+- `tests/memory/test_substrate_service.py` (9 tests)
+- `tests/memory/test_tool_audit.py` (27 tests)
+- `tests/memory/test_tool_router.py` (23 tests)
+- `tests/memory/test_unified_pipeline.py` (17 tests)
+- `tests/memory/test_vector_index.py` (5 tests)
+- `tests/memory/test_vector_search.py` (1 tests)
+- `tests/memory/tests/memory/test_mcp_hardening_startup.py` (3 tests)
+
+### tests/orchestration/
+
+- `tests/orchestration/test_input_segmenter.py` (10 tests)
+
+### tests/orchestrators/
+
+- `tests/orchestrators/test_action_tool_orchestrator.py` (8 tests)
+- `tests/orchestrators/test_kernel_injection.py` (6 tests)
+- `tests/orchestrators/test_orchestrator_registry.py` (5 tests)
+- `tests/orchestrators/test_pattern_orchestrator.py` (27 tests)
+- `tests/orchestrators/test_rate_limit_persistence.py` (8 tests)
+- `tests/orchestrators/test_task_execution.py` (7 tests)
+- `tests/orchestrators/test_ws_task_router_routing.py` (3 tests)
+
+### tests/os/
+
+- `tests/os/test_bootstrap.py` (8 tests)
+- `tests/os/test_controller.py` (2 tests)
+
+### tests/performance/
+
+- `tests/performance/test_memory_benchmarks.py` (11 tests)
+- `tests/performance/test_restart_recovery.py` (10 tests)
+- `tests/performance/test_state_bloat.py` (7 tests)
+
+### tests/runtime/
+
+- `tests/runtime/test_dora_auto_update.py` (19 tests)
+- `tests/runtime/test_execution_gate.py` (28 tests)
+- `tests/runtime/test_execution_wiring_sanity.py` (3 tests)
+- `tests/runtime/test_fail_closed_task_queue.py` (8 tests)
+- `tests/runtime/test_kernel_state.py` (20 tests)
+- `tests/runtime/test_mcp_server_registry.py` (9 tests)
+- `tests/runtime/test_packet_envelopes_invariants.py` (5 tests)
+- `tests/runtime/test_slack_tools.py` (10 tests)
+- `tests/runtime/test_tool_registry.py` (9 tests)
+- `tests/runtime/test_websocket_orchestrator_basic.py` (4 tests)
+- `tests/runtime/test_ws_protocol_static.py` (5 tests)
+
+### tests/scripts/
+
+- `tests/scripts/test_factory_extract_cli.py` (2 tests)
+
+### tests/services/
+
+- `tests/services/research/test_graph_persistence.py` (24 tests)
+- `tests/services/symbolic_computation/test_c_gmp_engine.py` (12 tests)
+- `tests/services/symbolic_computation/test_code_generator.py` (6 tests)
+- `tests/services/symbolic_computation/test_expression_evaluator.py` (14 tests)
+- `tests/services/symbolic_computation/test_integration.py` (14 tests)
+- `tests/services/symbolic_computation/test_meta_loader.py` (8 tests)
+- `tests/services/symbolic_computation/test_validator.py` (18 tests)
+- `tests/services/test_tool_feedback_service.py` (2 tests)
+- `tests/services/test_tool_learning_engine.py` (2 tests)
+
+### tests/simulation/
+
+- `tests/simulation/test_simulation_engine.py` (2 tests)
 
 ### tests/telemetry/
 
 - `tests/telemetry/test_memory_metrics.py` (39 tests)
 
-### tests/api/
+### tests/tools/
 
-- `tests/api/test_server_health.py` (3 tests)
-- `tests/api/test_agent_auth.py` (6 tests)
-- `tests/api/test_auth.py` (8 tests)
-- `tests/api/test_factory_path_safety.py` (3 tests)
-- `tests/api/test_bootstrap_fail_fast.py` (7 tests)
-- `tests/api/test_slack_adapter.py` (26 tests)
-- `tests/api/test_websocket_auth.py` (5 tests)
-- `tests/api/test_auth_api_key_enforcement.py` (2 tests)
-- `tests/api/test_e2e_slack_audit.py` (0 tests)
-- `tests/api/routes/test_registry.py` (9 tests)
+- `tests/tools/test_l9_cli.py` (4 tests)
+- `tests/tools/test_mcp_tools.py` (7 tests)
+- `tests/tools/test_memory_tools.py` (7 tests)
+- `tests/tools/test_redis_tools.py` (8 tests)
+- `tests/tools/test_tool_discovery.py` (7 tests)
+- `tests/tools/test_tool_packages.py` (12 tests)
+
+### tests/unit/
+
+- `tests/unit/adr/test_adr_enforcer.py` (1 tests)
+- `tests/unit/adr/test_adr_tooling.py` (17 tests)
+- `tests/unit/di/test_container.py` (20 tests)
+- `tests/unit/di/test_di_config.py` (30 tests)
+- `tests/unit/kernel/test_kernel_config_loader.py` (27 tests)
+- `tests/unit/pr_review/test_pr_review_scripts.py` (5 tests)
+- `tests/unit/test_deduplication.py` (13 tests)
+- `tests/unit/test_di_bootstrap.py` (10 tests)
+- `tests/unit/test_di_container_audit.py` (20 tests)
+- `tests/unit/test_di_runtime_config.py` (14 tests)
+- `tests/unit/test_dynamic_tool_discovery.py` (16 tests)
+- `tests/unit/test_execution_plan_snapshot.py` (7 tests)
+- `tests/unit/test_executor_composer.py` (21 tests)
+- `tests/unit/test_governance_hooks.py` (27 tests)
+- `tests/unit/test_guarded_execution.py` (26 tests)
+- `tests/unit/test_instrumentation_decorators.py` (31 tests)
+- `tests/unit/test_kernel_loader_activation.py` (29 tests)
+- `tests/unit/test_kernel_observability.py` (23 tests)
+- `tests/unit/test_lcto_bootstrap.py` (25 tests)
+- `tests/unit/test_memory_substrate_container.py` (8 tests)
+- `tests/unit/test_registry_adapter_sanitization.py` (1 tests)
+- `tests/unit/test_service_adapters.py` (25 tests)
+- `tests/unit/test_startup_readiness.py` (19 tests)
+- `tests/unit/test_substrate_protocols.py` (7 tests)
+- `tests/unit/test_tool_input_sanitizer.py` (5 tests)
+- `tests/unit/test_tool_registry_cache.py` (15 tests)
+- `tests/unit/test_websocket_tracing.py` (21 tests)
+
+### tests/upgrades/
+
+- `tests/upgrades/test_packet_envelope_phases.py` (27 tests)
+
+### tests/workers/
+
+- `tests/workers/test_anomaly_classifier.py` (13 tests)
+- `tests/workers/test_violation_tracker.py` (14 tests)
+
+### tests/world_model/
+
+- `tests/world_model/test_wm_boot.py` (6 tests)
+- `tests/world_model/test_wm_integrity.py` (10 tests)
+- `tests/world_model/test_wm_nodes.py` (9 tests)
+- `tests/world_model/test_wm_scope.py` (2 tests)
+- `tests/world_model/test_world_model_repository_basic.py` (3 tests)
 
 ## Summary
 
-- **Total test files**: 127
-- **Total test functions**: 1543
+- **Total test files**: 286
+- **Total test functions**: 3280
 
 ## Running Tests
 

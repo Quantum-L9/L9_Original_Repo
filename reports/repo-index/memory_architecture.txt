@@ -1,64 +1,180 @@
+# ================================================================
+# Memory Architecture
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Memory Architecture
 # =======================
-# Multi-layer memory substrate with semantic search, graph relations, and caching.
+# Auto-discovered from memory/ directory and SQL migrations.
 
-## Memory Segments (MemorySegment Enum)
+## Memory Components
 
-| Segment | Purpose | Storage |
-|---------|---------|---------|
-| `PACKETS` | All incoming packets | PostgreSQL packet_store |
-| `REASONING` | Reasoning traces | PostgreSQL reasoning_traces |
-| `SEMANTIC` | Vector embeddings | PostgreSQL semantic_memory (pgvector) |
-| `FACTS` | Extracted facts | PostgreSQL knowledge_facts |
-| `INSIGHTS` | High-level insights | PostgreSQL knowledge_facts |
-| `WORLD_MODEL` | Entity graph | Neo4j + PostgreSQL |
-| `TOOL_AUDIT` | Tool invocation logs | PostgreSQL tool_audit_log |
-| `GOVERNANCE` | Approval patterns | PostgreSQL + Neo4j |
+| File | Classes | Purpose |
+|------|---------|---------|
+| `memory/active_encoder.py` | TaskOutcome, EncodingResult, ExtractedLearning, LearningExtractor | L9 Memory Substrate - Active Memory Encoder |
+| `memory/agent_persistence.py` | Checkpoint, AgentPersistenceService | L9 Memory - Agent Persistence Service |
+| `memory/audit_utils.py` | AuditReport | L9 Memory - Audit Utilities |
+| `memory/blob_store.py` | BlobMetadata, BlobStore | Blob Store — S3 Client for Large Content Offloading |
+| `memory/checkpoint_manager.py` | CheckpointManager | L9 Memory - Checkpoint Manager |
+| `memory/checkpoint_metrics.py` | CheckpointMetrics, Counter, Histogram, Gauge | L9 Memory - Checkpoint Metrics |
+| `memory/checkpoint_validator.py` | SchemaVersion, CheckpointValidator | L9 Memory - Checkpoint Validator |
+| `memory/consolidation.py` | ConsolidationReport, ConsolidationPipeline | L9 Memory - Consolidation Pipeline |
+| `memory/context_builder.py` | MemoryTier, ContextSection, HierarchicalContextBuilder | L9 Memory Substrate - Hierarchical Context Builder |
+| `memory/cross_encoder_reranker.py` | CrossEncoderConfig, RerankingResult, CrossEncoderReranker | L9 Memory - Cross-Encoder Reranker |
+| `memory/cypher_templates.py` | CypherTemplateCategory, CypherTemplate, CypherTemplateLibrary | L9 Memory - Parameterized Cypher Templates |
+| `memory/dead_letter.py` | DeadLetterEntry, DeadLetterQueue | L9 Memory Substrate - Dead Letter Queue |
+| `memory/dead_letter_queue.py` | DLQEntry, DeadLetterQueue | L9 Memory Substrate - Dead-Letter Queue (DLQ) |
+| `memory/deduplication.py` | MergeStrategy, SimilarityMethod, DuplicateGroup, DeduplicationReport | L9 Memory - Deduplication Engine |
+| `memory/enrichment_dag.py` | EnrichmentTier, EnrichmentStatus, EnrichmentConfig, EnrichmentResult | Advanced DAG Enrichment Pipeline |
+| `memory/execution_plan_snapshot.py` | PlanStatus, StepStatus, ExecutionStepSnapshot, ExecutionPlanSnapshot | L9 Memory - Execution Plan Snapshots |
+| `memory/gap_detector.py` | GapDetector | L9 Memory - Knowledge Gap Detector |
+| `memory/governance_gate.py` | MemoryGovernanceContext | Memory Governance Gate |
+| `memory/governance_hooks.py` | HookType, HookPriority, HookContext, HookResult | L9 Memory - Governance Policy Enforcement Hooks |
+| `memory/governance_patterns.py` | DecisionType, GovernancePattern | L9 Memory - Governance Patterns |
+| `memory/graph_client.py` | Neo4jClient | L9 Memory - Neo4j Graph Client |
+| `memory/graph_memory.py` | MessageRole, RelationshipType, GraphMessage, GraphSession | L9 Memory - Conversational Graph Memory |
+| `memory/graph_search_cache.py` | GraphSearchContext, GraphSearchResult | L9 Graph Search Cache |
+| `memory/hierarchical_summarizer.py` | SummaryTier, SummaryConfig, SummaryResult, HierarchicalSummarizer | L9 Memory - Hierarchical Summarizer |
+| `memory/housekeeping.py` | HousekeepingEngine | L9 Memory Substrate - Housekeeping Engine |
+| `memory/hybrid_rag.py` | EnrichmentStrategy, VectorHit, GraphEnrichment, HybridResult | L9 Memory - Hybrid RAG Pipeline (Vector-Graph Bridge) |
+| `memory/identity_tier.py` | IdentityFactSource, IdentityFactCategory, IdentityFact, IdentityTierService | L9 Memory Substrate - Identity Tier Service |
+| `memory/importance_manager.py` | ImportanceConfig, AccessRecord, ImportanceUpdate, ImportanceManager | L9 Memory Substrate - Importance Manager |
+| `memory/index_syncer.py` | IndexSyncer | L9 Memory - Index Syncer |
+| `memory/ingestion.py` | IngestionPipeline | L9 Memory Substrate - Ingestion Pipeline |
+| `memory/insight_extraction.py` | InsightExtractionPipeline | L9 Memory Substrate - Insight Extraction Pipeline |
+| `memory/migration_runner.py` | MigrationRunner | L9 Memory - Migration Runner |
+| `memory/neo4j_strategy_memory.py` | StrategyMemoryConfig, Neo4jStrategyMemoryService | L9 Neo4j Strategy Memory Service |
+| `memory/neural_decay_scheduler.py` | DecayConfig, DecayResult, NeuralDecayScheduler | L9 Memory - Neural Decay Scheduler |
+| `memory/packet_serializer.py` | - | L9 Memory - Packet Serializer |
+| `memory/predictive_cache.py` | PredictiveCache | L9 Memory - Predictive Cache |
+| `memory/query_cache.py` | QueryCache | Query Result Caching Module |
+| `memory/query_classifier.py` | QueryClassifier | L9 Memory - Query Classifier |
+| `memory/reasoning_replay.py` | ReasoningChain, ReasoningReplayPipeline | L9 Memory - Reasoning Replay Pipeline |
+| `memory/retention_engine.py` | RetentionPolicy, RetentionResult, RetentionEngine | L9 Memory - Retention Engine |
+| `memory/retrieval.py` | RetrievalPipeline | L9 Memory Substrate - Retrieval Pipeline |
+| `memory/retrieval_ranking.py` | RankingWeights, RankingItem, MultiFactorRanker | L9 Memory Substrate - Multi-Factor Retrieval Ranking |
+| `memory/retrieval_strategy.py` | RetrievalStrategy, StrategyContext, StrategyResult, StrategyDeterminer | L9 Memory Substrate - Strategy-Based Retrieval |
+| `memory/saga.py` | SagaStepStatus, SagaStatus, DatabaseType, SagaStepResult | L9 Memory - Cross-DB Saga Pattern |
+| `memory/saga_patterns.py` | SagaPatterns | L9 Memory - Pre-built Saga Patterns |
+| `memory/schema_introspection.py` | ColumnInfo, TableInfo, IndexInfo, Neo4jLabelInfo | L9 Memory - Dynamic Schema Introspection |
+| `memory/semantic_search.py` | SearchHit | L9 Cursor Semantic Search Wrapper |
+| `memory/service_adapter.py` | MemoryServiceAdapter | L9 MemoryService Adapter |
+| `memory/slack_ingest.py` | - | Slack Event Ingestion: Core handler for Slack messages. |
+| `memory/smoke_test.py` | - | L9 Memory - Smoke Test |
+| `memory/state_manager.py` | MemoryStateManager | L9 Memory - State Manager |
+| `memory/strategymemory.py` | StrategyCandidate, StrategyRetrievalRequest, StrategyFeedback, IStrategyMemoryService | L9 Strategy Memory Service |
+| `memory/substrate_alignment.py` | AlignmentReport, SubstrateAlignmentChecker | L9 Memory - Cross-Substrate Alignment Checker |
+| `memory/substrate_dag.py` | SubstrateGraphState, SubstrateDAG | L9 Memory Substrate - LangGraph DAG (Ingestion Pipeline) |
+| `memory/substrate_dag_wrapper.py` | RetryPolicy, SubstrateDagOrchestrator | L9 Substrate DAG Orchestrator Wrapper |
+| `memory/substrate_models.py` | MemorySegment, StructuredReasoningBlock, SubstrateState, AgentMemoryEventRow | L9 Memory Substrate - Database DTOs and Memory-Specific Mode |
+| `memory/substrate_repository.py` | SubstrateRepository | L9 Memory Substrate - Repository Layer |
+| `memory/substrate_repository_batch_helpers.py` | BatchQueryHelpers | L9 Memory Substrate - Batch Query Helpers |
+| `memory/substrate_repository_cached.py` | CachedSubstrateRepository | Cached Substrate Repository |
+| `memory/substrate_semantic.py` | EmbeddingProvider, OpenAIEmbeddingProvider, StubEmbeddingProvider, SemanticService | L9 Memory Substrate - Semantic Layer |
+| `memory/substrate_service.py` | MemorySubstrateService | L9 Memory Substrate - Service Layer |
+| `memory/timeline_service.py` | TimelineService | L9 Memory - Timeline Service |
+| `memory/tool_audit.py` | - | L9 Memory Substrate - Tool Audit Logging |
+| `memory/tool_router.py` | ToolEmbedding, ToolMatch, ToolSearchResult, ToolRouter | L9 Memory - Semantic Tool Router |
+| `memory/vector_search_config.py` | VectorSearchConfig | Vector Search Configuration |
+| `memory/warming_models.py` | GapSeverity, KnowledgeGap, AttentionConfig, SubgraphEntry | L9 Memory - Predictive Warming Data Models |
+| `memory/warming_service.py` | MemoryWarmingService | L9 Memory - Warming Service Orchestrator |
+| `memory/working_memory_adapter.py` | WorkingMemoryAdapter | World-model aware working memory adapter. |
 
-## Memory DAG Pipeline
+## Memory Segments
 
-```
-ingest_packet(PacketEnvelopeIn)
-    │
-    ├─→ intake_node()        → Validate & normalize
-    ├─→ reasoning_node()     → Extract reasoning traces
-    ├─→ memory_write_node()  → Write to packet_store
-    ├─→ semantic_embed_node()→ Generate embeddings (pgvector)
-    ├─→ extract_insights()   → LLM insight extraction
-    ├─→ store_insights()     → Write to knowledge_facts
-    ├─→ world_model_trigger()→ Update entity graph
-    └─→ checkpoint_node()    → Persist DAG state
-```
+| Segment | Value |
+|---------|-------|
+| `GOVERNANCE_META` | `governance_meta` |
+| `PROJECT_HISTORY` | `project_history` |
+| `TOOL_AUDIT` | `tool_audit` |
+| `SESSION_CONTEXT` | `session_context` |
+| `IDENTITY` | `identity` |
+| `WORLD_MODEL` | `world_model` |
+| Segment | Value |
+|---------|-------|
+| `GOVERNANCE_META` | `governance_meta` |
+| `PROJECT_HISTORY` | `project_history` |
+| `TOOL_AUDIT` | `tool_audit` |
+| `SESSION_CONTEXT` | `session_context` |
 
-## Memory Tools
+## PacketEnvelope Schema
 
-| Tool | Function | Description |
-|------|----------|-------------|
-| `memory_search` | `execute_memory_search()` | Hybrid semantic + keyword search |
-| `memory_write` | `execute_memory_write()` | Write packet to substrate |
+### PacketEnvelope
 
-## Memory API Endpoints
+| Field | Type |
+|-------|------|
+| `packet_id` | `UUID` |
+| `packet_type` | `str` |
+| `payload` | `dict[str, Any]` |
+| `timestamp` | `datetime` |
+| `metadata` | `PacketMetadata | None` |
+| `provenance` | `PacketProvenance | None` |
+| `confidence` | `PacketConfidence | None` |
+| `reasoning_block` | `dict[str, Any] | None` |
+| `thread_id` | `UUID | None` |
+| `lineage` | `PacketLineage | None` |
+| `tags` | `list[str]` |
+| `ttl` | `datetime | None` |
+| `trace_id` | `str | None` |
+| `correlation_id` | `str | None` |
+| `source_location` | `dict[str, Any] | None` |
+| `content_hash` | `str | None` |
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/memory/ingest` | POST | Ingest new packet |
-| `/memory/search` | POST | Semantic search |
-| `/memory/packet/{id}` | GET | Get specific packet |
-| `/memory/thread/{id}` | GET | Get thread packets |
-| `/memory/facts` | GET | Get knowledge facts |
-| `/memory/insights` | GET | Get insights |
-| `/memory/gc/run` | POST | Run garbage collection |
 
-## PostgreSQL Tables
+## Ingestion Pipeline Nodes
 
-| Table | Purpose |
-|-------|---------|
-| `packet_store` | All packets with JSON payload |
-| `reasoning_traces` | Structured reasoning |
-| `semantic_memory` | Vector embeddings (pgvector) |
-| `knowledge_facts` | Extracted facts |
-| `agent_memory_events` | Agent activity log |
-| `tool_audit_log` | Tool invocation audit |
-| `tasks` | Task queue persistence |
-| `feedback_events` | Feedback for learning |
-| `reflection_store` | Reflections with effectiveness |
+1. `intake_node()` — Entry node: validates and normalizes the PacketEnvelope.
+2. `reasoning_node()` — Reasoning node: generates StructuredReasoningBlock from pack
+3. `memory_write_node()` — Memory write node: persists packet and reasoning to database
+4. `graph_sync_node()` — Neo4j graph sync node: syncs packet to knowledge graph.
+5. `semantic_embed_node()` — Semantic embedding node: generates and stores embedding for 
+6. `checkpoint_node()` — Checkpoint node: saves graph state for recovery.
+7. `extract_insights_node()` — Extract insights from packet payload and reasoning block.
+8. `store_insights_node()` — Store extracted insights and facts to database (v2.1.0 - GMP
+9. `world_model_trigger_node()` — Trigger world model update based on extracted insights.
+
+## PostgreSQL Tables (from migrations)
+
+| Table |
+|-------|
+| `agent_log` |
+| `agent_memory_events` |
+| `autonomy_graduation_metrics` |
+| `buyer_profiles` |
+| `cmts_file_changes` |
+| `cmts_file_snapshots` |
+| `cmts_mutations` |
+| `entity_metadata` |
+| `entity_relationships` |
+| `episodic_events` |
+| `episodic_semantic_links` |
+| `eval_results` |
+| `feedback_events` |
+| `gmp_execution_history` |
+| `graph_checkpoints` |
+| `knowledge_facts` |
+| `learned_heuristics` |
+| `material_edges` |
+| `memory_access_log` |
+| `memory_embeddings` |
+| `memory_summaries` |
+| `packet_store` |
+| `reasoning_traces` |
+| `reflection_store` |
+| `semantic_facts` |
+| `semantic_memory` |
+| `supplier_profiles` |
+| `task_reflections` |
+| `tasks` |
+| `tool_audit_log` |
+| `tool_embeddings` |
+| `tool_execution_feedback` |
+| `tool_learning_alerts` |
+| `transactions` |
+| `world_model_entities` |
+| `world_model_snapshots` |
+| `world_model_updates` |

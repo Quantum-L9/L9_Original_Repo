@@ -1,28 +1,51 @@
+# ================================================================
+# Singleton Registry
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Singleton Registry
 # ======================
-# Key singleton instances and their modules.
+# Auto-discovered singletons using @register_singleton decorator.
+# Pattern: core/singleton_auto_registry.py
 
-## Core Singletons
+## Registered Singletons
 
-| Singleton | Module | Purpose | Init |
-|-----------|--------|---------|------|
-| `ws_orchestrator` | runtime.websocket_orchestrator | WebSocket connection manager | Startup |
-| `_service` | memory.substrate_service | Memory substrate singleton | Lazy |
-| `_repository` | memory.substrate_repository | PostgreSQL connection pool | Lazy |
-| `_world_model_engine` | world_model.engine | World model singleton | Lazy |
-| `_neo4j_client` | memory.graph_client | Neo4j graph database client | Lazy |
-| `_redis_client` | runtime.redis_client | Redis cache/queue client | Lazy |
+| Singleton | Module | Category | Lifecycle | Description |
+|-----------|--------|----------|-----------|-------------|
+| `agent_mediator` | core/coordination/agent_mediator.py | coordination | LAZY | Agent-to-agent message mediator for decoupled comm |
+| `cursor_memory_kernel` | agents/cursor/cursor_memory_kernel.py | - | LAZY | Cursor IDE memory kernel |
+| `housekeeping_engine` | memory/housekeeping.py | - | LAZY | Memory housekeeping engine for cleanup and optimiz |
+| `ingestion_pipeline` | memory/ingestion.py | - | LAZY | Memory ingestion pipeline for packet processing an |
+| `insight_extraction_pipeline` | memory/insight_extraction.py | - | LAZY | Memory insight extraction pipeline for pattern det |
+| `memory_substrate_repository` | core/singleton_auto_registry.py | memory | STARTUP | Memory substrate repository |
+| `memory_substrate_service` | memory/substrate_service.py | - | LAZY | Memory substrate service orchestrating repository, |
+| `neo4j_client` | memory/graph_client.py | - | LAZY | Neo4j graph database client for knowledge graph op |
+| `redis_client` | core/singleton_auto_registry.py | core | STARTUP | Redis cache/queue client |
+| `research_graph_runtime` | services/research/graph_runtime.py | - | LAZY | Research service graph runtime |
+| `research_memory_adapter` | services/research/memory_adapter.py | - | LAZY | Research service memory adapter |
+| `retrieval_pipeline` | memory/retrieval.py | - | LAZY | Memory retrieval pipeline for semantic and graph-b |
+| `tool_registry` | core/tools/base_registry.py | - | LAZY | In-memory registry of available tools with rate li |
+| `tool_resolver` | services/research/tools/tool_resolver.py | - | LAZY | Research service tool resolver |
+| `world_model_engine` | world_model/engine.py | - | LAZY | World model reasoning engine |
+| `world_model_repository` | world_model/repository.py | - | LAZY | World model data repository |
+| `world_model_service` | world_model/service.py | - | LAZY | World model service layer |
 
-## Lifecycle
+# Total: 17 registered singletons
 
-1. **Startup** (`lifespan()` in api/server.py):
-   - `run_migrations()` - Apply SQL migrations
-   - `init_service()` - Initialize memory substrate
-   - `get_neo4j_client()` - Connect to Neo4j
-   - `get_redis_client()` - Connect to Redis
-   - `bootstrap_agent()` - Run 7-phase agent init
+## Registration Pattern
 
-2. **Shutdown** (`lifespan()` exit):
-   - `close_service()` - Close memory substrate
-   - `close_neo4j_client()` - Close Neo4j
-   - `close_redis_client()` - Close Redis
+```python
+from core.singleton_auto_registry import register_singleton
+
+@register_singleton(
+    category="memory",
+    lifecycle=SingletonLifecycle.LAZY,
+    description="Description here"
+)
+async def get_my_service():
+    return MyService()
+```

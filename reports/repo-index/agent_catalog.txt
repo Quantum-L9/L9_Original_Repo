@@ -1,3 +1,12 @@
+# ================================================================
+# Agent Catalog
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Agent Catalog
 # =================
 # All agents with their roles, models, and tool bindings.

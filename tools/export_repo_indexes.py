@@ -13,19 +13,19 @@ Works with distributed API architectures (memory APIs, agent routers, VPS-facing
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Enhanced L9 Repository Index Generator",
-    "module_version": "1.0.0",
+    "module_version": "3.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2025-12-14T12:48:58Z",
-    "updated_at": "2026-01-14T15:03:00Z",
+    "updated_at": "2026-02-11T00:00:00Z",
     "layer": "operations",
     "domain": "tools",
     "module_name": "export_repo_indexes",
-    "type": "test",
+    "type": "tool",
     "status": "active",
     "integrates_with": {
         "api_endpoints": [],
-        "datasources": ["Neo4j", "OpenAI API", "PostgreSQL", "Redis"],
-        "memory_layers": ["semantic_memory", "working_memory"],
+        "datasources": [],
+        "memory_layers": [],
         "imported_by": [],
     },
 }
@@ -35,24 +35,41 @@ import ast
 import fnmatch
 import os
 import re
+import subprocess
 import sys
 from collections import defaultdict
+from datetime import UTC, datetime
+from pathlib import Path
 
 import structlog
+import yaml
 
 # Configuration
 logger = structlog.get_logger(__name__)
 
+# Script version for meta headers
+SCRIPT_VERSION = "3.0.0"
+
 # Use L9_REPO_ROOT env var if set, otherwise fall back to default paths
-_REPO_ROOT = os.getenv("L9_REPO_ROOT", "/Users/ib-mac/Projects/L9")
+_HOME = str(Path.home())
+_REPO_ROOT = os.getenv("L9_REPO_ROOT", os.path.join(_HOME, "Projects", "L9"))
 REPO_DIR = _REPO_ROOT
+REPO_NAME = os.path.basename(os.path.abspath(REPO_DIR))
 REPO_INDEX_DIR = os.path.join(_REPO_ROOT, "reports/repo-index")
 DROPBOX_EXPORT_DIR = os.getenv(
-    "L9_DROPBOX_EXPORT_DIR", "/Users/ib-mac/Dropbox/Repo_Dropbox_IB/L9-index-export"
+    "L9_DROPBOX_EXPORT_DIR",
+    os.path.join(_HOME, "Dropbox", "Repo_Dropbox_IB", "L9-index-export"),
 )
 ICLOUD_EXPORT_DIR = os.getenv(
     "L9_ICLOUD_EXPORT_DIR",
-    "/Users/ib-mac/Library/Mobile Documents/com~apple~CloudDocs/00-LLM-00/L9-repo-index",
+    os.path.join(
+        _HOME,
+        "Library",
+        "Mobile Documents",
+        "com~apple~CloudDocs",
+        "00-LLM-00",
+        "L9-repo-index",
+    ),
 )
 
 # Directories to skip
@@ -111,6 +128,121 @@ def is_ignored(rel_path, patterns, is_dir=False):
     return False
 
 
+def _get_git_branch() -> str:
+    """Get current git branch name."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            capture_output=True,
+            text=True,
+            cwd=REPO_DIR,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return "unknown"
+
+
+def _get_git_short_sha() -> str:
+    """Get current git short SHA."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            cwd=REPO_DIR,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return "unknown"
+
+
+def generate_meta_header(index_name: str) -> str:
+    """Generate a standard meta header for every index file."""
+    now = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
+    branch = _get_git_branch()
+    sha = _get_git_short_sha()
+    return (
+        f"# ================================================================\n"
+        f"# {index_name}\n"
+        f"# ================================================================\n"
+        f"# Repo:      {REPO_NAME}\n"
+        f"# Generated: {now}\n"
+        f"# Branch:    {branch} ({sha})\n"
+        f"# Generator: export_repo_indexes.py v{SCRIPT_VERSION}\n"
+        f"# ================================================================\n"
+    )
+
+
+# Cached gitignore patterns (loaded once, reused by all generators)
+_GITIGNORE_PATTERNS: list | None = None
+
+
+def _get_gitignore_patterns() -> list:
+    """Return cached gitignore patterns."""
+    global _GITIGNORE_PATTERNS
+    if _GITIGNORE_PATTERNS is None:
+        _GITIGNORE_PATTERNS = load_gitignore_patterns()
+    return _GITIGNORE_PATTERNS
+
+
+def walk_python_files():
+    """Walk repo yielding (fpath, rel_path) for every non-ignored .py file.
+
+    This is the single source of truth for which files get indexed.
+    All generators should use this instead of rolling their own os.walk.
+    """
+    gitignore_patterns = _get_gitignore_patterns()
+    for root, dirs, files in os.walk(REPO_DIR):
+        # Filter dirs in-place
+        dirs[:] = [
+            d
+            for d in dirs
+            if d not in SKIP_DIRS
+            and not is_ignored(
+                os.path.relpath(os.path.join(root, d), REPO_DIR),
+                gitignore_patterns,
+                is_dir=True,
+            )
+        ]
+        for fname in sorted(files):
+            if not fname.endswith(".py"):
+                continue
+            fpath = os.path.join(root, fname)
+            rel_path = os.path.relpath(fpath, REPO_DIR)
+            if is_ignored(rel_path, gitignore_patterns, is_dir=False):
+                continue
+            yield fpath, rel_path
+
+
+def walk_all_files():
+    """Walk repo yielding (fpath, rel_path, is_dir) for every non-ignored file.
+
+    Use for generators that need non-.py files (configs, migrations, etc.).
+    """
+    gitignore_patterns = _get_gitignore_patterns()
+    for root, dirs, files in os.walk(REPO_DIR):
+        dirs[:] = [
+            d
+            for d in dirs
+            if d not in SKIP_DIRS
+            and not is_ignored(
+                os.path.relpath(os.path.join(root, d), REPO_DIR),
+                gitignore_patterns,
+                is_dir=True,
+            )
+        ]
+        for fname in sorted(files):
+            fpath = os.path.join(root, fname)
+            rel_path = os.path.relpath(fpath, REPO_DIR)
+            if is_ignored(rel_path, gitignore_patterns, is_dir=False):
+                continue
+            yield fpath, rel_path
+
+
 # =============================================================================
 # ORIGINAL GENERATORS (kept for compatibility)
 # =============================================================================
@@ -153,10 +285,8 @@ def generate_tree():
             filtered_entries.append(e)
         dirs = [e for e in filtered_entries if os.path.isdir(os.path.join(path, e))]
         files = [e for e in filtered_entries if os.path.isfile(os.path.join(path, e))]
-        for f in files[:10]:
+        for f in files:
             lines.append(f"{prefix}├── {f}")
-        if len(files) > 10:
-            lines.append(f"{prefix}├── ... ({len(files) - 10} more files)")
         for i, d in enumerate(dirs):
             is_last = i == len(dirs) - 1
             connector = "└── " if is_last else "├── "
@@ -172,7 +302,7 @@ def generate_tree():
             )
 
     lines.append("L9/")
-    walk_dir(REPO_DIR, "", max_depth=3, current_depth=0, rel_path_prefix="")
+    walk_dir(REPO_DIR, "", max_depth=4, current_depth=0, rel_path_prefix="")
     return "\n".join(lines)
 
 
@@ -181,48 +311,38 @@ def generate_api_surfaces():
     api_surfaces = defaultdict(list)
     router_pattern = re.compile(r"(\w+)\s*=\s*(?:APIRouter|Router)\(")
     callable_pattern = re.compile(r"(?:def|async def)\s+(\w+)\s*\(")
-    surface_types = {
-        "memory": os.path.join(REPO_DIR, "memory"),
-        "agents": os.path.join(REPO_DIR, "agents"),
-        "api": os.path.join(REPO_DIR, "api"),
-        "services": os.path.join(REPO_DIR, "services"),
-        "orchestration": os.path.join(REPO_DIR, "orchestration"),
-    }
-    for surface_name, search_path in surface_types.items():
-        if not os.path.isdir(search_path):
+    surface_dirs = {"memory", "agents", "api", "services", "orchestration", "orchestrators"}
+    for fpath, rel_path in walk_python_files():
+        # Determine which surface this file belongs to
+        top_dir = rel_path.split(os.sep)[0]
+        if top_dir not in surface_dirs:
             continue
-        for root, dirs, files in os.walk(search_path):
-            dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-            for fname in files:
-                if fname.endswith(".py"):
-                    fpath = os.path.join(root, fname)
-                    try:
-                        with open(fpath, encoding="utf-8", errors="ignore") as f:
-                            content = f.read()
-                            routers = router_pattern.findall(content)
-                            if routers:
-                                rel_path = os.path.relpath(fpath, REPO_DIR)
-                                for router in routers:
-                                    api_surfaces[surface_name].append(
-                                        f"  {rel_path}::{router}"
-                                    )
-                            callables = callable_pattern.findall(content)
-                            if callables and (
-                                "handler" in fname or "interface" in fname
-                            ):
-                                rel_path = os.path.relpath(fpath, REPO_DIR)
-                                for callable_name in callables[:3]:
-                                    api_surfaces[surface_name].append(
-                                        f"  {rel_path}::{callable_name}()"
-                                    )
-                    except Exception:
-                        pass
+        surface_name = top_dir
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+                routers = router_pattern.findall(content)
+                if routers:
+                    for router in routers:
+                        api_surfaces[surface_name].append(
+                            f"  {rel_path}::{router}"
+                        )
+                callables = callable_pattern.findall(content)
+                if callables and (
+                    "handler" in os.path.basename(fpath)
+                    or "interface" in os.path.basename(fpath)
+                ):
+                    for callable_name in callables:
+                        api_surfaces[surface_name].append(
+                            f"  {rel_path}::{callable_name}()"
+                        )
+        except Exception:
+            pass
     if api_surfaces:
         lines = []
-        for surface_type in ["api", "agents", "services", "memory", "orchestration"]:
-            if surface_type in api_surfaces:
-                lines.append(f"\n# {surface_type.upper()} Surface:")
-                lines.extend(sorted(set(api_surfaces[surface_type]))[:20])
+        for surface_type in sorted(api_surfaces.keys()):
+            lines.append(f"\n# {surface_type.upper()} Surface:")
+            lines.extend(sorted(set(api_surfaces[surface_type])))
         return "\n".join(lines)
     return "No API surfaces found."
 
@@ -279,7 +399,7 @@ def generate_entrypoints():
                         )
                         routes = route_pattern.findall(content)
                         entry_info["routes"] = [
-                            f"{method.upper()} {path}" for method, path in routes[:15]
+                            f"{method.upper()} {path}" for method, path in routes
                         ]
                         include_pattern = re.compile(
                             r'\.include_router\s*\([^,]+,\s*prefix\s*=\s*["\']([^"\']+)["\']'
@@ -287,7 +407,7 @@ def generate_entrypoints():
                         includes = include_pattern.findall(content)
                         if includes:
                             entry_info["routes"].extend(
-                                [f"ROUTER {prefix}/*" for prefix in includes[:5]]
+                                [f"ROUTER {prefix}/*" for prefix in includes]
                             )
                     uvicorn_match = uvicorn_pattern.search(content)
                     if uvicorn_match:
@@ -315,12 +435,8 @@ def generate_entrypoints():
                             lines_out.append(f"  Address: {addr}")
                         if entry_info["routes"]:
                             lines_out.append(f"  Routes ({len(entry_info['routes'])}):")
-                            for route in entry_info["routes"][:10]:
+                            for route in entry_info["routes"]:
                                 lines_out.append(f"    - {route}")
-                            if len(entry_info["routes"]) > 10:
-                                lines_out.append(
-                                    f"    ... and {len(entry_info['routes']) - 10} more"
-                                )
                         if entry_info["has_main"] and entry_info["type"] != "FastAPI":
                             lines_out.append("  Has __main__ block: Yes")
                         entrypoints.append("\n".join(lines_out))
@@ -341,26 +457,23 @@ def generate_env_refs():
     )
     environ_pattern = re.compile(r'os\.environ\[["\']([A-Za-z_][A-Za-z0-9_]*)["\']')
     dotenv_pattern = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=", re.MULTILINE)
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        content = f.read()
-                        env_vars.update(getenv_pattern.findall(content))
-                        env_vars.update(environ_pattern.findall(content))
-                except Exception:
-                    pass
-            elif fname.startswith(".env"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        content = f.read()
-                        env_vars.update(dotenv_pattern.findall(content))
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_all_files():
+        fname = os.path.basename(fpath)
+        if fname.endswith(".py"):
+            try:
+                with open(fpath, encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                    env_vars.update(getenv_pattern.findall(content))
+                    env_vars.update(environ_pattern.findall(content))
+            except Exception:
+                pass
+        elif fname.startswith(".env"):
+            try:
+                with open(fpath, encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                    env_vars.update(dotenv_pattern.findall(content))
+            except Exception:
+                pass
     if env_vars:
         return "\n".join(sorted(env_vars))
     return "No environment variables found."
@@ -370,20 +483,16 @@ def generate_imports():
     """Extract top-level Python imports from source code."""
     imports = defaultdict(set)
     import_pattern = re.compile(r"^(?:import|from)\s+([\w\.]+)", re.MULTILINE)
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        content = f.read()
-                        matches = import_pattern.findall(content)
-                        for match in matches:
-                            top_level = match.split(".")[0]
-                            imports[top_level].add(match)
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+                matches = import_pattern.findall(content)
+                for match in matches:
+                    top_level = match.split(".")[0]
+                    imports[top_level].add(match)
+        except Exception:
+            pass
     if imports:
         lines = []
         for top_level in sorted(imports.keys()):
@@ -413,52 +522,47 @@ def generate_dependencies():
 def generate_class_definitions():
     """Extract class definitions with docstrings."""
     classes = []
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        tree = ast.parse(f.read())
-                        rel_path = os.path.relpath(fpath, REPO_DIR)
-                        for node in ast.walk(tree):
-                            if isinstance(node, ast.ClassDef):
-                                docstring = ast.get_docstring(node) or "No docstring"
-                                docstring = docstring.split("\n")[0][:60]
-                                classes.append(f"{rel_path}::{node.name} - {docstring}")
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                tree = ast.parse(f.read())
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.ClassDef):
+                        docstring = ast.get_docstring(node) or "No docstring"
+                        docstring = docstring.split("\n")[0][:60]
+                        classes.append(f"{rel_path}::{node.name} - {docstring}")
+        except Exception:
+            pass
     if classes:
         return "\n".join(sorted(classes))
     return "No classes found."
 
 
 def generate_function_signatures():
-    """Extract function names and signatures."""
+    """Extract ALL function names and signatures (sync + async)."""
     functions = []
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        tree = ast.parse(f.read())
-                        rel_path = os.path.relpath(fpath, REPO_DIR)
-                        for node in ast.walk(tree):
-                            if isinstance(node, ast.FunctionDef):
-                                args = [arg.arg for arg in node.args.args]
-                                signature = f"{node.name}({', '.join(args)})"
-                                docstring = ast.get_docstring(node) or ""
-                                docstring = (
-                                    docstring.split("\n")[0][:40] if docstring else ""
-                                )
-                                functions.append(
-                                    f"{rel_path}::{signature} - {docstring}"
-                                )
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                tree = ast.parse(f.read())
+                for node in ast.walk(tree):
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        args = [arg.arg for arg in node.args.args]
+                        prefix = (
+                            "async "
+                            if isinstance(node, ast.AsyncFunctionDef)
+                            else ""
+                        )
+                        signature = f"{prefix}{node.name}({', '.join(args)})"
+                        docstring = ast.get_docstring(node) or ""
+                        docstring = (
+                            docstring.split("\n")[0][:40] if docstring else ""
+                        )
+                        functions.append(
+                            f"{rel_path}::{signature} - {docstring}"
+                        )
+        except Exception:
+            pass
     if functions:
         return "\n".join(sorted(functions))
     return "No functions found."
@@ -477,14 +581,12 @@ def generate_config_files():
         "docker-compose",
     ]
     config_files = []
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if any(
-                fname.endswith(ext) or fname.startswith(ext) for ext in config_patterns
-            ):
-                rel_path = os.path.relpath(os.path.join(root, fname), REPO_DIR)
-                config_files.append(rel_path)
+    for fpath, rel_path in walk_all_files():
+        fname = os.path.basename(fpath)
+        if any(
+            fname.endswith(ext) or fname.startswith(ext) for ext in config_patterns
+        ):
+            config_files.append(rel_path)
     if config_files:
         return "\n".join(sorted(set(config_files)))
     return "No config files found."
@@ -493,8 +595,18 @@ def generate_config_files():
 def generate_module_architecture():
     """Map module structure and purposes from __init__.py docstrings."""
     architecture = []
+    gitignore_patterns = _get_gitignore_patterns()
     for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        dirs[:] = [
+            d
+            for d in dirs
+            if d not in SKIP_DIRS
+            and not is_ignored(
+                os.path.relpath(os.path.join(root, d), REPO_DIR),
+                gitignore_patterns,
+                is_dir=True,
+            )
+        ]
         if "__init__.py" in files:
             rel_path = os.path.relpath(root, REPO_DIR)
             if rel_path == ".":
@@ -523,96 +635,87 @@ def generate_module_architecture():
 
 
 def generate_wiring_map():
-    """Generate high-level wiring/execution spine map."""
+    """Generate wiring map by scanning actual router registrations and server structure."""
     lines = [
         "# L9 Wiring Map",
         "# ==============",
-        "# How components connect: Entrypoint → Orchestration → Memory → Persistence",
+        "# How components connect: Entrypoint → Routers → Memory → Persistence",
+        "# Auto-discovered from router_registry.register() calls and api/server.py",
         "",
-        "## EXECUTION SPINE",
-        "",
-        "```",
-        "uvicorn api.server:app",
-        "    │",
-        "    ▼",
-        "┌─────────────────────────────────────────────────────────┐",
-        "│  api/server.py (FastAPI)                                │",
-        "│                                                         │",
-        "│  lifespan():                                           │",
-        "│    1. run_migrations()  → migrations/*.sql             │",
-        "│    2. init_service()    → memory substrate (Postgres)  │",
-        "│    3. get_neo4j_client() → Neo4j graph DB              │",
-        "│    4. get_redis_client() → Redis cache/queues          │",
-        "│    5. bootstrap_agent()  → 7-phase agent init (NEW!)   │",
-        "└─────────────────────────────────────────────────────────┘",
-        "    │",
-        "    ▼ Routers mounted",
-        "┌─────────────────────────────────────────────────────────┐",
-        "│  ROUTERS                                                │",
-        "│                                                         │",
-        "│  /os/*        → api/os_routes.py         (health)      │",
-        "│  /agent/*     → api/agent_routes.py      (tasks)       │",
-        "│  /memory/*    → api/memory/router.py     (packets)     │",
-        "│  /world-model/* → api/world_model_api.py (entities)    │",
-        "│  /ws/agent    → WebSocket handler        (real-time)   │",
-        "│  /metrics     → Prometheus metrics       (telemetry)   │",
-        "└─────────────────────────────────────────────────────────┘",
-        "```",
-        "",
-        "## AGENT BOOTSTRAP SPINE (7-Phase Ceremony)",
+        "## ENTRYPOINT",
         "",
         "```",
-        "bootstrap_agent(config, substrate)",
-        "    │",
-        "    ├─ Phase 0: validate_agent_blueprint()   → Validate config",
-        "    ├─ Phase 1: load_and_parse_kernels()     → 10 governance kernels",
-        "    ├─ Phase 2: instantiate_agent()          → Create AgentInstance",
-        "    ├─ Phase 3: bind_kernels_to_agent()      → Attach kernels",
-        "    ├─ Phase 4: load_identity_persona()      → Load L identity",
-        "    ├─ Phase 5: bind_tools_and_capabilities()→ Wire tools + memory",
-        "    ├─ Phase 6: wire_governance_gates()      → Approval gates",
-        "    └─ Phase 7: verify_and_lock()            → Lock + signature",
+        "uvicorn api.server:app → FastAPI lifespan() → router auto-wiring",
         "```",
         "",
-        "## MEMORY DAG PIPELINE",
+        "## AUTO-REGISTERED ROUTERS (via router_registry)",
         "",
-        "```",
-        "ingest_packet()",
-        "    │",
-        "    ▼",
-        "┌─────────────────────────────────────────────────────────┐",
-        "│  SubstrateDAG.run()                                     │",
-        "│       │                                                 │",
-        "│       ├→ intake_node                                   │",
-        "│       ├→ reasoning_node                                │",
-        "│       ├→ memory_write_node                             │",
-        "│       ├→ semantic_embed_node                           │",
-        "│       ├→ extract_insights_node                         │",
-        "│       ├→ store_insights_node                           │",
-        "│       ├→ world_model_trigger_node                      │",
-        "│       └→ checkpoint_node                               │",
-        "└─────────────────────────────────────────────────────────┘",
-        "```",
+        "| Prefix | Tags | Module |",
+        "|--------|------|--------|",
+    ]
+    # Scan for router_registry.register() calls across codebase
+    routers = []
+    reg_re = re.compile(
+        r'router_registry\.register\(\s*'
+        r'(?:router\s*=\s*\w+\s*,\s*)?'
+        r'prefix\s*=\s*["\']([^"\']*)["\']'
+        r'.*?tags\s*=\s*\[([^\]]*)\]',
+        re.DOTALL,
+    )
+    for fpath, rel_path in walk_python_files():
+        if "test" in rel_path.lower() or ".backup" in rel_path:
+            continue
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            if "router_registry.register" not in content:
+                continue
+            for match in reg_re.finditer(content):
+                prefix = match.group(1)
+                tags_raw = match.group(2)
+                tags = [t.strip().strip("\"'") for t in tags_raw.split(",") if t.strip()]
+                routers.append((prefix or "(root)", ", ".join(tags), rel_path))
+        except Exception:
+            pass
+
+    for prefix, tags, module in sorted(routers, key=lambda x: x[0]):
+        lines.append(f"| `{prefix}` | {tags} | {module} |")
+
+    lines.extend([
+        "",
+        f"# Total: {len(routers)} auto-registered routers",
         "",
         "## PERSISTENCE LAYER",
         "",
-        "| Service | Container | Port | Purpose |",
-        "|---------|-----------|------|---------|",
-        "| PostgreSQL + pgvector | l9-postgres | 5432 | Packet store, semantic memory |",
-        "| Neo4j Graph DB | l9-neo4j | 7687 | Entity graph, tool registry |",
-        "| Redis | redis | 6379 | Task queue, rate limiting, cache |",
-        "",
-        "## KEY SINGLETONS",
-        "",
-        "| Singleton | Module | Purpose |",
-        "|-----------|--------|---------|",
-        "| ws_orchestrator | runtime.websocket_orchestrator | WebSocket connection manager |",
-        "| _service | memory.substrate_service | Memory substrate singleton |",
-        "| _repository | memory.substrate_repository | PostgreSQL connection pool |",
-        "| _world_model_engine | world_model.engine | World model singleton |",
-        "| _neo4j_client | memory.graph_client | Neo4j graph client |",
-        "| _redis_client | runtime.redis_client | Redis cache/queue client |",
-    ]
+        "| Service | Port | Purpose |",
+        "|---------|------|---------|",
+    ])
+
+    # Scan docker-compose for services
+    compose_file = os.path.join(REPO_DIR, "docker-compose.yml")
+    if not os.path.exists(compose_file):
+        compose_file = os.path.join(REPO_DIR, "docker-compose.yaml")
+    if os.path.exists(compose_file):
+        try:
+            with open(compose_file, encoding="utf-8") as f:
+                compose_data = yaml.safe_load(f)
+            if compose_data and "services" in compose_data:
+                for svc_name, svc_config in sorted(compose_data["services"].items()):
+                    ports = svc_config.get("ports", [])
+                    port_str = ", ".join(str(p).split(":")[0] for p in ports[:3]) if ports else "-"
+                    image = svc_config.get("image", svc_config.get("build", "-"))
+                    if isinstance(image, dict):
+                        image = image.get("context", "-")
+                    lines.append(f"| `{svc_name}` | {port_str} | {image} |")
+        except Exception:
+            lines.append("| (compose parse failed) | - | - |")
+    else:
+        lines.extend([
+            "| PostgreSQL + pgvector | 5432 | Packet store, semantic memory |",
+            "| Neo4j Graph DB | 7687 | Entity graph |",
+            "| Redis | 6379 | Task queue, cache |",
+        ])
+
     return "\n".join(lines)
 
 
@@ -663,8 +766,6 @@ def generate_agent_catalog():
                 fpath = os.path.join(config_agents_dir, fname)
                 try:
                     with open(fpath, encoding="utf-8") as f:
-                        import yaml
-
                         data = yaml.safe_load(f)
                         if data:
                             agent_id = data.get("agent_id") or data.get("id", fname)
@@ -723,8 +824,6 @@ def generate_kernel_catalog():
                 fpath = os.path.join(kernel_dir, fname)
                 try:
                     with open(fpath, encoding="utf-8") as f:
-                        import yaml
-
                         data = yaml.safe_load(f)
                         if data:
                             kernel_id = data.get(
@@ -757,146 +856,363 @@ def generate_kernel_catalog():
 
 
 def generate_tool_catalog():
-    """Generate catalog of all tools with metadata."""
+    """Generate catalog of tools by scanning config/policies/high_risk_tools.yaml."""
     lines = [
         "# L9 Tool Catalog",
         "# ================",
-        "# All tools with category, scope, risk level, and approval requirements.",
+        "# Tools with category, scope, risk level, and approval requirements.",
+        "# Auto-discovered from config/policies/high_risk_tools.yaml and core/tools/.",
         "",
-        "## High-Risk Tools (Require Igor Approval)",
-        "",
-        "| Tool | Description |",
-        "|------|-------------|",
-        "| `gmp_run` | Execute GMP protocol (code changes) |",
-        "| `git_commit` | Commit changes to git repository |",
-        "| `git_push` | Push changes to remote repository |",
-        "| `file_delete` | Delete files from filesystem |",
-        "| `database_write` | Write to production database |",
-        "| `deploy` | Deploy to production environment |",
-        "| `mac_agent_exec` | Execute commands on Mac agent |",
-        "",
-        "## Memory Tools (Registered in Phase 5)",
-        "",
-        "| Tool | Purpose |",
-        "|------|---------|",
-        "| `memory_search` | Search memory substrate (semantic + keyword) |",
-        "| `memory_write` | Write packets to memory substrate |",
-        "",
-        "## Tool Scopes",
-        "",
-        "| Scope | Description |",
-        "|-------|-------------|",
-        "| `internal` | L9-internal operations, no external calls |",
-        "| `external` | Calls external APIs (GitHub, Notion, etc.) |",
-        "| `requires_igor_approval` | High-risk, needs explicit Igor approval |",
     ]
+    # Scan canonical policy YAML
+    policy_file = os.path.join(REPO_DIR, "config", "policies", "high_risk_tools.yaml")
+    if os.path.exists(policy_file):
+        try:
+            with open(policy_file, encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+            classification = data.get("tool_risk_classification", {})
+
+            # High-risk tools
+            high_risk = classification.get("high_risk", [])
+            if high_risk:
+                lines.extend([
+                    "## High-Risk Tools (Require Approval)",
+                    "",
+                    "| Tool | Description | Risk Level |",
+                    "|------|-------------|------------|",
+                ])
+                for item in high_risk:
+                    if isinstance(item, dict):
+                        tid = item.get("tool_id", "?")
+                        desc = item.get("description", "-")
+                        risk = item.get("risk_level", "-")
+                        lines.append(f"| `{tid}` | {desc} | {risk} |")
+                    elif isinstance(item, str):
+                        lines.append(f"| `{item}` | - | high |")
+                lines.append("")
+
+            # Igor approval required
+            igor_req = classification.get("igor_approval_required", [])
+            if igor_req:
+                lines.extend([
+                    "## Igor Approval Required",
+                    "",
+                ])
+                for tool in igor_req:
+                    lines.append(f"- `{tool}`")
+                lines.append("")
+
+            # Safe tools
+            safe = classification.get("safe", [])
+            if safe:
+                lines.extend([
+                    "## Safe Tools (No Approval Needed)",
+                    "",
+                ])
+                for tool in safe:
+                    lines.append(f"- `{tool}`")
+                lines.append("")
+
+            # Side-effect tools
+            side_effect = classification.get("side_effect", [])
+            if side_effect:
+                lines.extend([
+                    "## Side-Effect Tools",
+                    "",
+                ])
+                for tool in side_effect:
+                    lines.append(f"- `{tool}`")
+                lines.append("")
+        except Exception:
+            lines.append("(policy YAML parse error)")
+    else:
+        lines.append("(config/policies/high_risk_tools.yaml not found)")
+
+    # Scan core/tools/ for actual tool implementations
+    lines.extend([
+        "## Tool Implementations (from core/tools/)",
+        "",
+        "| File | Classes/Functions |",
+        "|------|-------------------|",
+    ])
+    tools_dir = os.path.join(REPO_DIR, "core", "tools")
+    if os.path.isdir(tools_dir):
+        for fname in sorted(os.listdir(tools_dir)):
+            if fname.endswith(".py") and not fname.startswith("__"):
+                fpath = os.path.join(tools_dir, fname)
+                try:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
+                        tree = ast.parse(f.read())
+                    items = []
+                    for node in ast.walk(tree):
+                        if isinstance(node, ast.ClassDef) and "tool" in node.name.lower():
+                            items.append(node.name)
+                        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                            if node.name.startswith("execute_"):
+                                items.append(f"{node.name}()")
+                    if items:
+                        lines.append(f"| `core/tools/{fname}` | {', '.join(items[:5])} |")
+                except Exception:
+                    pass
+
     return "\n".join(lines)
 
 
 def generate_orchestrator_catalog():
-    """Generate catalog of all orchestrators."""
+    """Generate catalog of all orchestrators by scanning orchestrators/ directory."""
     lines = [
         "# L9 Orchestrator Catalog",
         "# ========================",
         "# Agent coordination patterns for the L9 platform.",
+        "# Auto-discovered from orchestrators/ directory.",
         "",
         "## Available Orchestrators",
         "",
     ]
-    orchestrators = [
-        ("action_tool", "Tool execution with validation and error handling"),
-        ("evolution", "Self-improvement via feedback loops and pattern adaptation"),
-        ("memory", "Memory housekeeping, garbage collection, and optimization"),
-        ("meta", "Meta-reasoning for strategy selection and reflection"),
-        ("reasoning", "Inference chain coordination with confidence tracking"),
-        ("research_swarm", "Multi-agent research with convergence and synthesis"),
-        ("world_model", "World model updates, scheduling, and causal inference"),
-    ]
-    for name, description in orchestrators:
-        orch_dir = os.path.join(REPO_DIR, "orchestrators", name)
-        if os.path.isdir(orch_dir):
-            files = [
-                f
-                for f in os.listdir(orch_dir)
-                if f.endswith(".py") and not f.startswith("__")
+    orch_root = os.path.join(REPO_DIR, "orchestrators")
+    if not os.path.isdir(orch_root):
+        return "\n".join(lines + ["No orchestrators/ directory found."])
+
+    for entry in sorted(os.listdir(orch_root)):
+        orch_dir = os.path.join(orch_root, entry)
+        if not os.path.isdir(orch_dir) or entry.startswith("__") or entry.startswith("."):
+            continue
+        # Get Python files
+        py_files = sorted(
+            f for f in os.listdir(orch_dir)
+            if f.endswith(".py") and not f.startswith("__")
+        )
+        # Try to extract purpose from __init__.py or orchestrator.py docstring
+        purpose = ""
+        for candidate in ["orchestrator.py", "__init__.py", "interface.py"]:
+            candidate_path = os.path.join(orch_dir, candidate)
+            if os.path.exists(candidate_path):
+                try:
+                    with open(candidate_path, encoding="utf-8", errors="ignore") as f:
+                        tree = ast.parse(f.read())
+                    # Try module docstring first
+                    mod_doc = ast.get_docstring(tree)
+                    if mod_doc:
+                        purpose = mod_doc.split("\n")[0][:80]
+                        break
+                    # Try first class docstring
+                    for node in ast.walk(tree):
+                        if isinstance(node, ast.ClassDef):
+                            cls_doc = ast.get_docstring(node)
+                            if cls_doc:
+                                purpose = cls_doc.split("\n")[0][:80]
+                                break
+                    if purpose:
+                        break
+                except Exception:
+                    pass
+        if not purpose:
+            purpose = "(no docstring)"
+
+        lines.extend(
+            [
+                f"### {entry}/",
+                f"**Purpose:** {purpose}",
+                f"**Files:** {', '.join(py_files)}",
+                "",
             ]
-            lines.extend(
-                [
-                    f"### {name}/",
-                    f"**Purpose:** {description}",
-                    f"**Files:** {', '.join(files)}",
-                    "",
-                ]
-            )
+        )
+
+    # Also list top-level .py files in orchestrators/
+    top_files = sorted(
+        f for f in os.listdir(orch_root)
+        if f.endswith(".py") and not f.startswith("__") and os.path.isfile(os.path.join(orch_root, f))
+    )
+    if top_files:
+        lines.extend(["## Top-Level Files", ""])
+        for f in top_files:
+            lines.append(f"- `orchestrators/{f}`")
+        lines.append("")
+
     return "\n".join(lines)
 
 
 def generate_event_types():
-    """Generate catalog of event types and packet kinds."""
+    """Generate catalog of event types and packet kinds by scanning actual source."""
     lines = [
         "# L9 Event Types",
         "# ===============",
         "# PacketEnvelope kinds, event types, and schema information.",
         "",
-        "## PacketKind Enum",
+        "## PacketKind Enum (from core/schemas/packet_envelope_v2.py)",
         "",
-        "| Kind | Description |",
-        "|------|-------------|",
-        "| `EVENT` | General event |",
-        "| `INSIGHT` | Extracted insight |",
-        "| `RESULT` | Execution result |",
-        "| `ERROR` | Error event |",
-        "| `COMMAND` | Command packet |",
-        "| `QUERY` | Query packet |",
-        "",
-        "## Memory DAG Pipeline Events",
-        "",
-        "| Stage | Event | Description |",
-        "|-------|-------|-------------|",
-        "| 1 | `intake` | Packet received and validated |",
-        "| 2 | `reasoning` | Reasoning trace extracted |",
-        "| 3 | `memory_write` | Packet written to store |",
-        "| 4 | `semantic_embed` | Vector embedding generated |",
-        "| 5 | `extract_insights` | Insights extracted |",
-        "| 6 | `store_insights` | Insights stored |",
-        "| 7 | `world_model_trigger` | World model update triggered |",
-        "| 8 | `checkpoint` | DAG state checkpointed |",
+        "| Kind | Value |",
+        "|------|-------|",
     ]
+    # Dynamically scan PacketKind enum from source
+    packet_schema = os.path.join(REPO_DIR, "core", "schemas", "packet_envelope_v2.py")
+    if os.path.exists(packet_schema):
+        try:
+            with open(packet_schema, encoding="utf-8") as f:
+                tree = ast.parse(f.read())
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef) and node.name == "PacketKind":
+                    for item in node.body:
+                        if isinstance(item, ast.Assign):
+                            for target in item.targets:
+                                if isinstance(target, ast.Name):
+                                    value = ""
+                                    if isinstance(item.value, ast.Constant):
+                                        value = item.value.value
+                                    lines.append(f"| `{target.id}` | `{value}` |")
+        except Exception:
+            lines.append("| (scan failed) | - |")
+    else:
+        lines.append("| (file not found) | - |")
+
+    # Scan for DAG node functions in memory/substrate_dag.py
+    lines.extend(["", "## Memory DAG Pipeline Nodes", ""])
+    dag_file = os.path.join(REPO_DIR, "memory", "substrate_dag.py")
+    if os.path.exists(dag_file):
+        try:
+            with open(dag_file, encoding="utf-8") as f:
+                tree = ast.parse(f.read())
+            stage = 1
+            for node in ast.walk(tree):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    if node.name.endswith("_node") or node.name.startswith("run_"):
+                        docstring = ast.get_docstring(node) or ""
+                        docstring = docstring.split("\n")[0][:60] if docstring else ""
+                        lines.append(f"| {stage} | `{node.name}` | {docstring} |")
+                        stage += 1
+        except Exception:
+            pass
+    if lines[-1] == "## Memory DAG Pipeline Nodes":
+        lines.append("(no DAG nodes found)")
+
+    # Scan for registered event types
+    lines.extend(["", "## Registered Event Types (from core/event_type_registry.py)", ""])
+    event_registry = os.path.join(REPO_DIR, "core", "event_type_registry.py")
+    if os.path.exists(event_registry):
+        try:
+            with open(event_registry, encoding="utf-8") as f:
+                content = f.read()
+            # Find register_event_type() calls with name= parameter
+            for match in re.finditer(
+                r'register_event_type\(\s*name\s*=\s*["\'](\w+)["\'].*?category\s*=\s*["\'](\w+)["\']',
+                content,
+                re.DOTALL,
+            ):
+                name, category = match.groups()
+                lines.append(f"- `{name}` (category: {category})")
+            # Also find batch registrations
+            for match in re.finditer(
+                r'["\'](\w+)["\']:\s*["\']([^"\']+)["\']',
+                content,
+            ):
+                event_name, desc = match.groups()
+                if event_name.islower() and len(event_name) > 3:
+                    lines.append(f"- `{event_name}`: {desc}")
+        except Exception:
+            pass
+
     return "\n".join(lines)
 
 
 def generate_singleton_registry():
-    """Generate registry of key singleton instances."""
+    """Generate registry of singleton instances by scanning @register_singleton usage."""
     lines = [
         "# L9 Singleton Registry",
         "# ======================",
-        "# Key singleton instances and their modules.",
+        "# Auto-discovered singletons using @register_singleton decorator.",
+        "# Pattern: core/singleton_auto_registry.py",
         "",
-        "## Core Singletons",
+        "## Registered Singletons",
         "",
-        "| Singleton | Module | Purpose | Init |",
-        "|-----------|--------|---------|------|",
-        "| `ws_orchestrator` | runtime.websocket_orchestrator | WebSocket connection manager | Startup |",
-        "| `_service` | memory.substrate_service | Memory substrate singleton | Lazy |",
-        "| `_repository` | memory.substrate_repository | PostgreSQL connection pool | Lazy |",
-        "| `_world_model_engine` | world_model.engine | World model singleton | Lazy |",
-        "| `_neo4j_client` | memory.graph_client | Neo4j graph database client | Lazy |",
-        "| `_redis_client` | runtime.redis_client | Redis cache/queue client | Lazy |",
-        "",
-        "## Lifecycle",
-        "",
-        "1. **Startup** (`lifespan()` in api/server.py):",
-        "   - `run_migrations()` - Apply SQL migrations",
-        "   - `init_service()` - Initialize memory substrate",
-        "   - `get_neo4j_client()` - Connect to Neo4j",
-        "   - `get_redis_client()` - Connect to Redis",
-        "   - `bootstrap_agent()` - Run 7-phase agent init",
-        "",
-        "2. **Shutdown** (`lifespan()` exit):",
-        "   - `close_service()` - Close memory substrate",
-        "   - `close_neo4j_client()` - Close Neo4j",
-        "   - `close_redis_client()` - Close Redis",
+        "| Singleton | Module | Category | Lifecycle | Description |",
+        "|-----------|--------|----------|-----------|-------------|",
     ]
+    # Scan for register_singleton() calls
+    reg_pattern = re.compile(
+        r'register_singleton\(\s*(?:name\s*=\s*)?["\'](\w+)["\']',
+    )
+    reg_decorator_pattern = re.compile(
+        r'@register_singleton\(',
+        re.MULTILINE,
+    )
+    singletons = []
+    for fpath, rel_path in walk_python_files():
+        # Skip test and backup files
+        if "test" in rel_path.lower() or ".backup" in rel_path:
+            continue
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            if "register_singleton" not in content:
+                continue
+            # Extract singleton registration details
+            # Pattern 1: register_singleton_service(name="...", ...)
+            for match in re.finditer(
+                r'register_singleton_service\(\s*name\s*=\s*["\'](\w+)["\']',
+                content,
+            ):
+                name = match.group(1)
+                # Try to extract category, lifecycle, description from nearby context
+                ctx_start = max(0, match.start() - 200)
+                ctx_end = min(len(content), match.end() + 500)
+                ctx = content[ctx_start:ctx_end]
+                cat_m = re.search(r'category\s*=\s*["\'](\w+)["\']', ctx)
+                life_m = re.search(r'lifecycle\s*=\s*(?:SingletonLifecycle\.)?(\w+)', ctx)
+                desc_m = re.search(r'description\s*=\s*["\']([^"\']+)["\']', ctx)
+                category = cat_m.group(1) if cat_m else "-"
+                lifecycle = life_m.group(1) if life_m else "LAZY"
+                description = desc_m.group(1)[:50] if desc_m else "-"
+                singletons.append(
+                    (name, rel_path, category, lifecycle, description)
+                )
+            # Pattern 2: @register_singleton(...) decorator
+            if reg_decorator_pattern.search(content):
+                for match in re.finditer(
+                    r'@register_singleton\(([^)]*)\)\s*\n\s*(?:async\s+)?def\s+(\w+)',
+                    content,
+                    re.DOTALL,
+                ):
+                    kwargs_str, func_name = match.groups()
+                    # Extract name from decorator args or infer from function
+                    name_m = re.search(r'name\s*=\s*["\'](\w+)["\']', kwargs_str)
+                    name = name_m.group(1) if name_m else func_name.replace("get_", "")
+                    cat_m = re.search(r'category\s*=\s*["\'](\w+)["\']', kwargs_str)
+                    life_m = re.search(r'lifecycle\s*=\s*(?:SingletonLifecycle\.)?(\w+)', kwargs_str)
+                    desc_m = re.search(r'description\s*=\s*["\']([^"\']+)["\']', kwargs_str)
+                    category = cat_m.group(1) if cat_m else "-"
+                    lifecycle = life_m.group(1) if life_m else "LAZY"
+                    description = desc_m.group(1)[:50] if desc_m else "-"
+                    # Avoid duplicates
+                    if not any(s[0] == name for s in singletons):
+                        singletons.append(
+                            (name, rel_path, category, lifecycle, description)
+                        )
+        except Exception:
+            pass
+
+    for name, module, category, lifecycle, description in sorted(singletons):
+        lines.append(
+            f"| `{name}` | {module} | {category} | {lifecycle} | {description} |"
+        )
+
+    lines.extend([
+        "",
+        f"# Total: {len(singletons)} registered singletons",
+        "",
+        "## Registration Pattern",
+        "",
+        "```python",
+        "from core.singleton_auto_registry import register_singleton",
+        "",
+        "@register_singleton(",
+        '    category="memory",',
+        "    lifecycle=SingletonLifecycle.LAZY,",
+        '    description="Description here"',
+        ")",
+        "async def get_my_service():",
+        "    return MyService()",
+        "```",
+    ])
     return "\n".join(lines)
 
 
@@ -906,230 +1222,303 @@ def generate_singleton_registry():
 
 
 def generate_bootstrap_phases():
-    """Generate catalog of 7-phase agent initialization ceremony."""
+    """Generate catalog of agent bootstrap phases by scanning core/agents/bootstrap/."""
     lines = [
         "# L9 Agent Bootstrap Phases",
         "# ==========================",
-        "# 7-phase atomic agent initialization ceremony.",
-        "# All phases must succeed or entire initialization rolls back.",
+        "# Auto-discovered from core/agents/bootstrap/ directory.",
         "",
-        "## Feature Flag",
+        "## Phase Files",
         "",
-        "| Flag | Description | Default |",
-        "|------|-------------|---------|",
-        "| `L9_NEW_AGENT_INIT` | Enable 7-phase bootstrap | `true` |",
-        "",
-        "## Phase Breakdown",
-        "",
-        "| Phase | File | Function | Purpose |",
-        "|-------|------|----------|---------|",
-        "| 0 | phase_0_validate.py | `validate_agent_blueprint()` | Validate config schema, check agent_id uniqueness |",
-        "| 1 | phase_1_load_kernels.py | `load_and_parse_kernels()` | Load 10 governance YAML kernels |",
-        "| 2 | phase_2_instantiate.py | `instantiate_agent()` | Create AgentInstance, register in Neo4j |",
-        "| 3 | phase_3_bind_kernels.py | `bind_kernels_to_agent()` | Attach kernels via GOVERNED_BY edges |",
-        "| 4 | phase_4_load_identity.py | `load_identity_persona()` | Load L identity from 02-identity kernel |",
-        "| 5 | phase_5_bind_tools.py | `bind_tools_and_capabilities()` | Wire tools + memory_search + memory_write |",
-        "| 6 | phase_6_wire_governance.py | `wire_governance_gates()` | Apply approval gates from safety kernel |",
-        "| 7 | phase_7_verify_and_lock.py | `verify_and_lock()` | Verify all phases, generate init signature |",
-        "",
-        "## Directory Structure",
-        "",
-        "```",
-        "core/agents/bootstrap/",
-        "├── __init__.py",
-        "├── orchestrator.py         # AgentBootstrapOrchestrator",
-        "├── phase_0_validate.py",
-        "├── phase_1_load_kernels.py",
-        "├── phase_2_instantiate.py",
-        "├── phase_3_bind_kernels.py",
-        "├── phase_4_load_identity.py",
-        "├── phase_5_bind_tools.py",
-        "├── phase_6_wire_governance.py",
-        "└── phase_7_verify_and_lock.py",
-        "```",
-        "",
-        "## AgentInstance Schema",
-        "",
-        "```python",
-        "@dataclass",
-        "class AgentInstance:",
-        "    instance_id: str      # UUID",
-        "    agent_id: str         # e.g., 'l-cto'",
-        "    config: AgentConfig",
-        "    identity: dict        # From 02-identity kernel",
-        "    tools: List[str]      # Bound tool IDs",
-        "    kernels: List[str]    # Bound kernel IDs",
-        "    init_signature: str   # SHA256 of init state",
-        "    status: str           # 'INITIALIZING' | 'READY' | 'ERROR'",
-        "    created_at: datetime",
-        "```",
-        "",
-        "## Rollback on Failure",
-        "",
-        "If any phase fails:",
-        "1. Error logged with phase number",
-        "2. Agent node deleted from Neo4j (CASCADE deletes relationships)",
-        "3. RuntimeError raised to caller",
+        "| Phase | File | Functions | Purpose |",
+        "|-------|------|-----------|---------|",
     ]
+    bootstrap_dir = os.path.join(REPO_DIR, "core", "agents", "bootstrap")
+    if os.path.isdir(bootstrap_dir):
+        for fname in sorted(os.listdir(bootstrap_dir)):
+            if not fname.endswith(".py") or fname.startswith("__"):
+                continue
+            fpath = os.path.join(bootstrap_dir, fname)
+            try:
+                with open(fpath, encoding="utf-8", errors="ignore") as f:
+                    tree = ast.parse(f.read())
+                # Extract phase number from filename
+                phase_match = re.search(r"phase_(\d+)", fname)
+                phase_num = phase_match.group(1) if phase_match else "-"
+                # Get public functions
+                funcs = []
+                purpose = ""
+                for node in ast.walk(tree):
+                    if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                        if not node.name.startswith("_"):
+                            funcs.append(node.name)
+                            if not purpose:
+                                doc = ast.get_docstring(node) or ""
+                                purpose = doc.split("\n")[0][:60] if doc else ""
+                # Module docstring as fallback purpose
+                if not purpose:
+                    mod_doc = ast.get_docstring(tree) or ""
+                    purpose = mod_doc.split("\n")[0][:60] if mod_doc else fname
+                func_str = ", ".join(f"`{f}()`" for f in funcs[:3])
+                lines.append(f"| {phase_num} | `{fname}` | {func_str} | {purpose} |")
+            except Exception:
+                lines.append(f"| - | `{fname}` | (parse error) | - |")
+
+        # List all files in bootstrap dir
+        lines.extend(["", "## Directory Contents", ""])
+        all_files = sorted(os.listdir(bootstrap_dir))
+        for f in all_files:
+            if not f.startswith("."):
+                lines.append(f"- `core/agents/bootstrap/{f}`")
+    else:
+        lines.append("(core/agents/bootstrap/ directory not found)")
+
     return "\n".join(lines)
 
 
 def generate_memory_architecture():
-    """Generate comprehensive memory architecture documentation."""
+    """Generate memory architecture by scanning memory/ directory and migrations."""
     lines = [
         "# L9 Memory Architecture",
         "# =======================",
-        "# Multi-layer memory substrate with semantic search, graph relations, and caching.",
+        "# Auto-discovered from memory/ directory and SQL migrations.",
         "",
-        "## Memory Segments (MemorySegment Enum)",
+        "## Memory Components",
         "",
-        "| Segment | Purpose | Storage |",
-        "|---------|---------|---------|",
-        "| `PACKETS` | All incoming packets | PostgreSQL packet_store |",
-        "| `REASONING` | Reasoning traces | PostgreSQL reasoning_traces |",
-        "| `SEMANTIC` | Vector embeddings | PostgreSQL semantic_memory (pgvector) |",
-        "| `FACTS` | Extracted facts | PostgreSQL knowledge_facts |",
-        "| `INSIGHTS` | High-level insights | PostgreSQL knowledge_facts |",
-        "| `WORLD_MODEL` | Entity graph | Neo4j + PostgreSQL |",
-        "| `TOOL_AUDIT` | Tool invocation logs | PostgreSQL tool_audit_log |",
-        "| `GOVERNANCE` | Approval patterns | PostgreSQL + Neo4j |",
-        "",
-        "## Memory DAG Pipeline",
-        "",
-        "```",
-        "ingest_packet(PacketEnvelopeIn)",
-        "    │",
-        "    ├─→ intake_node()        → Validate & normalize",
-        "    ├─→ reasoning_node()     → Extract reasoning traces",
-        "    ├─→ memory_write_node()  → Write to packet_store",
-        "    ├─→ semantic_embed_node()→ Generate embeddings (pgvector)",
-        "    ├─→ extract_insights()   → LLM insight extraction",
-        "    ├─→ store_insights()     → Write to knowledge_facts",
-        "    ├─→ world_model_trigger()→ Update entity graph",
-        "    └─→ checkpoint_node()    → Persist DAG state",
-        "```",
-        "",
-        "## Memory Tools",
-        "",
-        "| Tool | Function | Description |",
-        "|------|----------|-------------|",
-        "| `memory_search` | `execute_memory_search()` | Hybrid semantic + keyword search |",
-        "| `memory_write` | `execute_memory_write()` | Write packet to substrate |",
-        "",
-        "## Memory API Endpoints",
-        "",
-        "| Endpoint | Method | Purpose |",
-        "|----------|--------|---------|",
-        "| `/memory/ingest` | POST | Ingest new packet |",
-        "| `/memory/search` | POST | Semantic search |",
-        "| `/memory/packet/{id}` | GET | Get specific packet |",
-        "| `/memory/thread/{id}` | GET | Get thread packets |",
-        "| `/memory/facts` | GET | Get knowledge facts |",
-        "| `/memory/insights` | GET | Get insights |",
-        "| `/memory/gc/run` | POST | Run garbage collection |",
-        "",
-        "## PostgreSQL Tables",
-        "",
-        "| Table | Purpose |",
-        "|-------|---------|",
-        "| `packet_store` | All packets with JSON payload |",
-        "| `reasoning_traces` | Structured reasoning |",
-        "| `semantic_memory` | Vector embeddings (pgvector) |",
-        "| `knowledge_facts` | Extracted facts |",
-        "| `agent_memory_events` | Agent activity log |",
-        "| `tool_audit_log` | Tool invocation audit |",
-        "| `tasks` | Task queue persistence |",
-        "| `feedback_events` | Feedback for learning |",
-        "| `reflection_store` | Reflections with effectiveness |",
+        "| File | Classes | Purpose |",
+        "|------|---------|---------|",
     ]
+    memory_dir = os.path.join(REPO_DIR, "memory")
+    if os.path.isdir(memory_dir):
+        for fname in sorted(os.listdir(memory_dir)):
+            if not fname.endswith(".py") or fname.startswith("__"):
+                continue
+            fpath = os.path.join(memory_dir, fname)
+            try:
+                with open(fpath, encoding="utf-8", errors="ignore") as f:
+                    tree = ast.parse(f.read())
+                classes = [
+                    n.name for n in ast.walk(tree)
+                    if isinstance(n, ast.ClassDef) and not n.name.startswith("_")
+                ]
+                mod_doc = ast.get_docstring(tree) or ""
+                purpose = mod_doc.split("\n")[0][:60] if mod_doc else "-"
+                class_str = ", ".join(classes[:4]) if classes else "-"
+                lines.append(f"| `memory/{fname}` | {class_str} | {purpose} |")
+            except Exception:
+                lines.append(f"| `memory/{fname}` | (parse error) | - |")
+
+    # Scan for MemorySegment enum
+    lines.extend(["", "## Memory Segments", ""])
+    for fpath, rel_path in walk_python_files():
+        if "memory" not in rel_path:
+            continue
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            if "class MemorySegment" not in content:
+                continue
+            tree = ast.parse(content)
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef) and node.name == "MemorySegment":
+                    lines.append("| Segment | Value |")
+                    lines.append("|---------|-------|")
+                    for item in node.body:
+                        if isinstance(item, ast.Assign):
+                            for target in item.targets:
+                                if isinstance(target, ast.Name):
+                                    val = ""
+                                    if isinstance(item.value, ast.Constant):
+                                        val = item.value.value
+                                    lines.append(f"| `{target.id}` | `{val}` |")
+                    break
+        except Exception:
+            pass
+
+    # Scan for PacketEnvelope fields
+    lines.extend(["", "## PacketEnvelope Schema", ""])
+    schema_file = os.path.join(REPO_DIR, "core", "schemas", "packet_envelope_v2.py")
+    if os.path.exists(schema_file):
+        try:
+            with open(schema_file, encoding="utf-8", errors="ignore") as f:
+                tree = ast.parse(f.read())
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef) and "PacketEnvelope" in node.name and "In" not in node.name:
+                    lines.append(f"### {node.name}")
+                    lines.append("")
+                    lines.append("| Field | Type |")
+                    lines.append("|-------|------|")
+                    for item in node.body:
+                        if isinstance(item, ast.AnnAssign) and isinstance(item.target, ast.Name):
+                            ann = "-"
+                            if hasattr(ast, "unparse") and item.annotation:
+                                ann = ast.unparse(item.annotation)
+                            elif isinstance(item.annotation, ast.Name):
+                                ann = item.annotation.id
+                            lines.append(f"| `{item.target.id}` | `{ann}` |")
+                    lines.append("")
+        except Exception:
+            lines.append("(schema parse error)")
+
+    # Scan for DAG nodes
+    lines.extend(["", "## Ingestion Pipeline Nodes", ""])
+    dag_file = os.path.join(REPO_DIR, "memory", "substrate_dag.py")
+    if os.path.exists(dag_file):
+        try:
+            with open(dag_file, encoding="utf-8", errors="ignore") as f:
+                tree = ast.parse(f.read())
+            stage = 1
+            for node in ast.iter_child_nodes(tree):
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    if node.name.endswith("_node") or node.name.startswith("run_"):
+                        doc = ast.get_docstring(node) or ""
+                        doc = doc.split("\n")[0][:60] if doc else ""
+                        lines.append(f"{stage}. `{node.name}()` — {doc}")
+                        stage += 1
+        except Exception:
+            pass
+
+    # Scan PostgreSQL tables from migrations
+    lines.extend(["", "## PostgreSQL Tables (from migrations)", ""])
+    tables = set()
+    migrations_dir = os.path.join(REPO_DIR, "migrations")
+    if os.path.isdir(migrations_dir):
+        for fname in sorted(os.listdir(migrations_dir)):
+            if fname.endswith(".sql"):
+                fpath = os.path.join(migrations_dir, fname)
+                try:
+                    with open(fpath, encoding="utf-8", errors="ignore") as f:
+                        content = f.read()
+                    for match in re.finditer(
+                        r'CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)',
+                        content,
+                        re.IGNORECASE,
+                    ):
+                        tables.add(match.group(1))
+                except Exception:
+                    pass
+    if tables:
+        lines.append("| Table |")
+        lines.append("|-------|")
+        for table in sorted(tables):
+            lines.append(f"| `{table}` |")
+    else:
+        lines.append("(no tables discovered from migrations)")
+
     return "\n".join(lines)
 
 
 def generate_governance_model():
-    """Generate governance and approval model documentation."""
+    """Generate governance model by scanning core/governance/ directory."""
     lines = [
         "# L9 Governance Model",
         "# ====================",
-        "# Approval gates, authority hierarchy, and high-risk tool constraints.",
+        "# Auto-discovered from core/governance/ and policy configs.",
         "",
-        "## Authority Hierarchy",
+        "## Governance Components",
         "",
-        "```",
-        "IGOR (Human) ──────────────────────────────────",
-        "    │  FULL authority. Can approve/reject all.",
-        "    │  Only IGOR can:",
-        "    │    - Approve high-risk tools",
-        "    │    - Grant permanent approvals",
-        "    │    - Override safety constraints",
-        "    ▼",
-        "L (CTO Agent) ────────────────────────────────",
-        "    │  Autonomous within safety envelope.",
-        "    │  Must request approval for high-risk ops.",
-        "    ▼",
-        "Research/Coder Agents ────────────────────────",
-        "    │  Limited scope. Cannot execute high-risk.",
-        "    ▼",
-        "Mac Agent ────────────────────────────────────",
-        "       Lowest authority. Shell execution only with approval.",
-        "```",
-        "",
-        "## HIGH_RISK_TOOLS",
-        "",
-        "These tools ALWAYS require Igor approval:",
-        "",
-        "| Tool | Risk Description |",
-        "|------|------------------|",
-        "| `gmp_run` | Execute GMP protocol (code changes) |",
-        "| `git_commit` | Commit changes to git repository |",
-        "| `git_push` | Push changes to remote repository |",
-        "| `file_delete` | Delete files from filesystem |",
-        "| `database_write` | Write to production database |",
-        "| `deploy` | Deploy to production environment |",
-        "| `mac_agent_exec` | Execute commands on Mac agent |",
-        "",
-        "## Approval Flow",
-        "",
-        "```",
-        "Agent requests high-risk tool",
-        "    │",
-        "    ▼",
-        "ApprovalManager.requires_approval(tool_id)",
-        "    │",
-        "    ├── NO → Execute immediately",
-        "    │",
-        "    └── YES → request_approval()",
-        "              │",
-        "              ├── Store approval_request packet",
-        "              ├── Notify Igor via Slack",
-        "              └── Wait for approve_task() or reject_task()",
-        "```",
-        "",
-        "## Igor Commands (@L syntax)",
-        "",
-        "| Command | Description |",
-        "|---------|-------------|",
-        "| `@L propose_gmp <description>` | Propose a GMP |",
-        "| `@L analyze <scope>` | Analyze code/files |",
-        "| `@L approve <task_id>` | Approve pending task |",
-        "| `@L reject <task_id> <reason>` | Reject with reason |",
-        "| `@L rollback <task_id>` | Rollback a change |",
-        "| `@L status` | Get current status |",
-        "| `@L help` | Show available commands |",
-        "",
-        "## Governance Pattern Learning",
-        "",
-        "Every approval/rejection creates a `GovernancePattern` for closed-loop learning:",
-        "",
-        "```python",
-        "GovernancePattern(",
-        "    task_id=...,",
-        "    tool_name=...,",
-        "    decision=APPROVED | REJECTED,",
-        "    reason=...,",
-        "    conditions=[...],  # Extracted from reason",
-        ")",
-        "```",
+        "| File | Classes | Purpose |",
+        "|------|---------|---------|",
     ]
+    gov_dir = os.path.join(REPO_DIR, "core", "governance")
+    if os.path.isdir(gov_dir):
+        for fname in sorted(os.listdir(gov_dir)):
+            if not fname.endswith(".py") or fname.startswith("__"):
+                continue
+            fpath = os.path.join(gov_dir, fname)
+            try:
+                with open(fpath, encoding="utf-8", errors="ignore") as f:
+                    tree = ast.parse(f.read())
+                classes = [
+                    n.name for n in ast.walk(tree)
+                    if isinstance(n, ast.ClassDef) and not n.name.startswith("_")
+                ]
+                mod_doc = ast.get_docstring(tree) or ""
+                purpose = mod_doc.split("\n")[0][:60] if mod_doc else "-"
+                class_str = ", ".join(classes[:3]) if classes else "-"
+                lines.append(f"| `core/governance/{fname}` | {class_str} | {purpose} |")
+            except Exception:
+                pass
+
+    # Scan for high-risk tools from governance policies
+    lines.extend(["", "## High-Risk Tools (from governance policies)", ""])
+    high_risk = set()
+    # Scan Python files in governance for HIGH_RISK patterns
+    if os.path.isdir(gov_dir):
+        for fname in os.listdir(gov_dir):
+            if not fname.endswith(".py"):
+                continue
+            fpath = os.path.join(gov_dir, fname)
+            try:
+                with open(fpath, encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+                # Look for high_risk_tools lists/sets/dicts
+                for match in re.finditer(
+                    r'(?:high_risk|HIGH_RISK|requires_approval).*?[\[{(](.*?)[\]})]',
+                    content,
+                    re.DOTALL,
+                ):
+                    for tool in re.findall(r'["\'](\w+)["\']', match.group(1)):
+                        if tool.islower() and len(tool) > 3:
+                            high_risk.add(tool)
+            except Exception:
+                pass
+    # Also scan YAML policies
+    policy_dir = os.path.join(REPO_DIR, "config", "policies")
+    if os.path.isdir(policy_dir):
+        for fname in os.listdir(policy_dir):
+            if fname.endswith((".yaml", ".yml")):
+                fpath = os.path.join(policy_dir, fname)
+                try:
+                    with open(fpath, encoding="utf-8") as f:
+                        data = yaml.safe_load(f)
+                    if data and isinstance(data, dict):
+                        hr = data.get("high_risk_tools", [])
+                        if isinstance(hr, list):
+                            high_risk.update(t for t in hr if isinstance(t, str))
+                        elif isinstance(hr, dict):
+                            high_risk.update(hr.keys())
+                except Exception:
+                    pass
+
+    if high_risk:
+        lines.append("| Tool |")
+        lines.append("|------|")
+        for tool in sorted(high_risk):
+            lines.append(f"| `{tool}` |")
+    else:
+        # Fallback to known list if no governance files found
+        lines.extend([
+            "| Tool |",
+            "|------|",
+            "| `gmp_run` |",
+            "| `git_commit` |",
+            "| `git_push` |",
+            "| `file_delete` |",
+            "| `deploy` |",
+            "| `mac_agent_exec` |",
+        ])
+
+    # Scan for approval-related classes
+    lines.extend(["", "## Approval Classes", ""])
+    for fpath, rel_path in walk_python_files():
+        if "governance" not in rel_path and "approval" not in rel_path.lower():
+            continue
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                tree = ast.parse(f.read())
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef) and (
+                    "approval" in node.name.lower()
+                    or "governance" in node.name.lower()
+                    or "pattern" in node.name.lower()
+                ):
+                    doc = ast.get_docstring(node) or ""
+                    doc = doc.split("\n")[0][:60] if doc else "-"
+                    lines.append(f"- `{node.name}` ({rel_path}) — {doc}")
+        except Exception:
+            pass
+
     return "\n".join(lines)
 
 
@@ -1207,19 +1596,15 @@ def generate_feature_flags():
     # Scan for L9_ENABLE_* and L9_USE_* patterns
     flag_pattern = re.compile(r"(L9_(?:ENABLE|USE|NEW)_[A-Z_]+)")
     flags_found = set()
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        content = f.read()
-                        matches = flag_pattern.findall(content)
-                        for match in matches:
-                            flags_found.add((match, os.path.relpath(fpath, REPO_DIR)))
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+                matches = flag_pattern.findall(content)
+                for match in matches:
+                    flags_found.add((match, rel_path))
+        except Exception:
+            pass
     flag_descriptions = {
         "L9_NEW_AGENT_INIT": ("Enable 7-phase bootstrap ceremony", "true"),
         "L9_ENABLE_LEGACY_CHAT": ("Gate old apiserver.py POST /chat", "false"),
@@ -1265,7 +1650,7 @@ def generate_feature_flags():
 
 
 def generate_test_catalog():
-    """Generate catalog of all tests with coverage stats."""
+    """Generate catalog of all tests with coverage stats (auto-discovers all test dirs)."""
     lines = [
         "# L9 Test Catalog",
         "# =================",
@@ -1274,35 +1659,61 @@ def generate_test_catalog():
         "## Test Directory Structure",
         "",
     ]
-    test_dirs = [
-        "tests/core",
-        "tests/integration",
-        "tests/memory",
-        "tests/telemetry",
-        "tests/api",
-    ]
     total_tests = 0
     total_files = 0
-    for test_dir_rel in test_dirs:
-        test_dir = os.path.join(REPO_DIR, test_dir_rel)
-        if os.path.isdir(test_dir):
-            lines.append(f"### {test_dir_rel}/")
-            lines.append("")
-            for root, _dirs, files in os.walk(test_dir):
-                for fname in files:
-                    if fname.startswith("test_") and fname.endswith(".py"):
-                        fpath = os.path.join(root, fname)
-                        rel_path = os.path.relpath(fpath, REPO_DIR)
-                        try:
-                            with open(fpath, encoding="utf-8") as f:
-                                content = f.read()
-                                test_count = len(re.findall(r"def test_\w+", content))
-                                total_tests += test_count
-                                total_files += 1
-                                lines.append(f"- `{rel_path}` ({test_count} tests)")
-                        except Exception:
-                            lines.append(f"- `{rel_path}` (? tests)")
-            lines.append("")
+    # Auto-discover: walk all .py files under tests/ directory
+    tests_root = os.path.join(REPO_DIR, "tests")
+    gitignore_patterns = _get_gitignore_patterns()
+    # Collect by subdirectory
+    by_dir = defaultdict(list)
+    if os.path.isdir(tests_root):
+        for root, dirs, files in os.walk(tests_root):
+            dirs[:] = [
+                d
+                for d in dirs
+                if d not in SKIP_DIRS
+                and not is_ignored(
+                    os.path.relpath(os.path.join(root, d), REPO_DIR),
+                    gitignore_patterns,
+                    is_dir=True,
+                )
+            ]
+            for fname in sorted(files):
+                if fname.startswith("test_") and fname.endswith(".py"):
+                    fpath = os.path.join(root, fname)
+                    rel_path = os.path.relpath(fpath, REPO_DIR)
+                    # Group by first two path components (tests/core, tests/memory, etc.)
+                    parts = rel_path.split(os.sep)
+                    group_key = os.sep.join(parts[:2]) if len(parts) > 2 else parts[0]
+                    try:
+                        with open(fpath, encoding="utf-8") as f:
+                            content = f.read()
+                            test_count = len(re.findall(r"(?:def|async def) test_\w+", content))
+                            total_tests += test_count
+                            total_files += 1
+                            by_dir[group_key].append(f"- `{rel_path}` ({test_count} tests)")
+                    except Exception:
+                        by_dir[group_key].append(f"- `{rel_path}` (? tests)")
+    # Also scan for test files outside tests/ (e.g., root-level test_*.py)
+    for fpath, rel_path in walk_python_files():
+        fname = os.path.basename(fpath)
+        if fname.startswith("test_") and not rel_path.startswith("tests/"):
+            try:
+                with open(fpath, encoding="utf-8") as f:
+                    content = f.read()
+                    test_count = len(re.findall(r"(?:def|async def) test_\w+", content))
+                    total_tests += test_count
+                    total_files += 1
+                    by_dir["other"].append(f"- `{rel_path}` ({test_count} tests)")
+            except Exception:
+                by_dir["other"].append(f"- `{rel_path}` (? tests)")
+
+    for group_key in sorted(by_dir.keys()):
+        lines.append(f"### {group_key}/")
+        lines.append("")
+        lines.extend(sorted(by_dir[group_key]))
+        lines.append("")
+
     lines.extend(
         [
             "## Summary",
@@ -1383,56 +1794,88 @@ def generate_telemetry_endpoints():
 
 
 def generate_deployment_manifest():
-    """Generate deployment and infrastructure documentation."""
+    """Generate deployment manifest by scanning docker-compose and deploy/ configs."""
     lines = [
         "# L9 Deployment Manifest",
         "# ========================",
-        "# Docker services, ports, VPS configuration.",
+        "# Auto-discovered from docker-compose and deploy/ directory.",
         "",
         "## Docker Services",
         "",
-        "| Service | Image | Port | Purpose |",
-        "|---------|-------|------|---------|",
-        "| `l9-api` | L9 FastAPI | 8000 | Main API server |",
-        "| `l9-postgres` | postgres:15-alpine | 5432 | PostgreSQL + pgvector |",
-        "| `l9-neo4j` | neo4j:5.14 | 7474, 7687 | Graph database |",
-        "| `redis` | redis:7-alpine | 6379 | Cache, task queue |",
-        "| `mcp-memory` | MCP Memory | 9001 | Cursor memory server |",
-        "",
-        "## VPS Configuration",
-        "",
-        "| Setting | Value |",
-        "|---------|-------|",
-        "| VPS IP | `157.180.73.53` |",
-        "| User | `root` |",
-        "| L9 Directory | `/opt/l9` |",
-        "| Domain | `l9.quantumaipartners.com` |",
-        "",
-        "## Cloudflare + Caddy Routing",
-        "",
-        "```",
-        "Internet → Cloudflare (HTTPS) → VPS:443",
-        "    │",
-        "    └→ Caddy reverse proxy",
-        "        ├─ /api/*    → l9-api:8000",
-        "        ├─ /slack/*  → l9-api:8000",
-        "        ├─ /mcp/*    → mcp-memory:9001",
-        "        └─ /metrics  → l9-api:8000",
-        "```",
-        "",
-        "## Environment Variables",
-        "",
-        "| Variable | Purpose |",
-        "|----------|---------|",
-        "| `DATABASE_URL` | PostgreSQL connection |",
-        "| `MEMORY_DSN` | Memory substrate connection |",
-        "| `NEO4J_URI` | Neo4j Bolt URI |",
-        "| `NEO4J_PASSWORD` | Neo4j password |",
-        "| `REDIS_URL` | Redis connection |",
-        "| `OPENAI_API_KEY` | OpenAI API key |",
-        "| `SLACK_BOT_TOKEN` | Slack bot token |",
-        "| `L9_NEW_AGENT_INIT` | Enable 7-phase bootstrap |",
+        "| Service | Image | Ports | Volumes |",
+        "|---------|-------|-------|---------|",
     ]
+    # Scan docker-compose files
+    compose_candidates = [
+        os.path.join(REPO_DIR, "docker-compose.yml"),
+        os.path.join(REPO_DIR, "docker-compose.yaml"),
+        os.path.join(REPO_DIR, "docker-compose.dev.yml"),
+        os.path.join(REPO_DIR, "docker-compose.override.yml"),
+    ]
+    services_found = {}
+    for compose_file in compose_candidates:
+        if os.path.exists(compose_file):
+            try:
+                with open(compose_file, encoding="utf-8") as f:
+                    data = yaml.safe_load(f)
+                if data and "services" in data:
+                    for svc_name, svc_cfg in data["services"].items():
+                        if svc_name not in services_found:
+                            image = svc_cfg.get("image", "")
+                            if not image and "build" in svc_cfg:
+                                build = svc_cfg["build"]
+                                image = f"(build: {build.get('context', '.')})" if isinstance(build, dict) else f"(build: {build})"
+                            ports = svc_cfg.get("ports", [])
+                            port_str = ", ".join(str(p) for p in ports[:3]) if ports else "-"
+                            vols = svc_cfg.get("volumes", [])
+                            vol_str = str(len(vols)) + " mounts" if vols else "-"
+                            services_found[svc_name] = (image, port_str, vol_str)
+            except Exception:
+                pass
+
+    for svc_name, (image, ports, vols) in sorted(services_found.items()):
+        lines.append(f"| `{svc_name}` | {image} | {ports} | {vols} |")
+
+    if not services_found:
+        lines.append("| (no docker-compose found) | - | - | - |")
+
+    # Scan deploy/ directory for deployment scripts and configs
+    lines.extend(["", "## Deployment Scripts", ""])
+    deploy_dir = os.path.join(REPO_DIR, "deploy")
+    if os.path.isdir(deploy_dir):
+        for root, dirs, files in os.walk(deploy_dir):
+            dirs[:] = [d for d in dirs if not d.startswith(".")]
+            for fname in sorted(files):
+                if fname.startswith("."):
+                    continue
+                rel = os.path.relpath(os.path.join(root, fname), REPO_DIR)
+                lines.append(f"- `{rel}`")
+    else:
+        lines.append("(no deploy/ directory found)")
+
+    # Scan .env.example for documented env vars
+    lines.extend(["", "## Environment Variables (from .env.example)", ""])
+    env_example = os.path.join(REPO_DIR, ".env.example")
+    if os.path.exists(env_example):
+        try:
+            with open(env_example, encoding="utf-8") as f:
+                lines.append("| Variable | Default |")
+                lines.append("|----------|---------|")
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        key, _, val = line.partition("=")
+                        key = key.strip()
+                        val = val.strip()
+                        # Mask sensitive values
+                        if any(s in key.lower() for s in ["password", "secret", "key", "token"]):
+                            val = "***"
+                        lines.append(f"| `{key}` | `{val}` |")
+        except Exception:
+            pass
+    else:
+        lines.append("(no .env.example found)")
+
     return "\n".join(lines)
 
 
@@ -1451,29 +1894,24 @@ def generate_inheritance_graph():
         "",
     ]
     inheritance = []
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        tree = ast.parse(f.read())
-                        rel_path = os.path.relpath(fpath, REPO_DIR)
-                        for node in ast.walk(tree):
-                            if isinstance(node, ast.ClassDef):
-                                parents = []
-                                for base in node.bases:
-                                    if isinstance(base, ast.Name):
-                                        parents.append(base.id)
-                                    elif isinstance(base, ast.Attribute):
-                                        parents.append(f"{base.attr}")
-                                if parents:
-                                    inheritance.append(
-                                        f"{node.name}::{','.join(parents)} @ {rel_path}"
-                                    )
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                tree = ast.parse(f.read())
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.ClassDef):
+                        parents = []
+                        for base in node.bases:
+                            if isinstance(base, ast.Name):
+                                parents.append(base.id)
+                            elif isinstance(base, ast.Attribute):
+                                parents.append(f"{base.attr}")
+                        if parents:
+                            inheritance.append(
+                                f"{node.name}::{','.join(parents)} @ {rel_path}"
+                            )
+        except Exception:
+            pass
     if inheritance:
         lines.extend(sorted(inheritance))
         lines.extend(
@@ -1496,40 +1934,35 @@ def generate_method_catalog():
         "",
     ]
     methods = []
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        tree = ast.parse(f.read())
-                        rel_path = os.path.relpath(fpath, REPO_DIR)
-                        for node in ast.walk(tree):
-                            if isinstance(node, ast.ClassDef):
-                                class_name = node.name
-                                for item in node.body:
-                                    if isinstance(
-                                        item, (ast.FunctionDef, ast.AsyncFunctionDef)
-                                    ):
-                                        args = [
-                                            arg.arg
-                                            for arg in item.args.args
-                                            if arg.arg != "self"
-                                        ]
-                                        is_async = (
-                                            "async "
-                                            if isinstance(item, ast.AsyncFunctionDef)
-                                            else ""
-                                        )
-                                        signature = (
-                                            f"{is_async}{item.name}({', '.join(args)})"
-                                        )
-                                        methods.append(
-                                            f"{class_name}::{signature} @ {rel_path}"
-                                        )
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                tree = ast.parse(f.read())
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.ClassDef):
+                        class_name = node.name
+                        for item in node.body:
+                            if isinstance(
+                                item, (ast.FunctionDef, ast.AsyncFunctionDef)
+                            ):
+                                args = [
+                                    arg.arg
+                                    for arg in item.args.args
+                                    if arg.arg != "self"
+                                ]
+                                is_async = (
+                                    "async "
+                                    if isinstance(item, ast.AsyncFunctionDef)
+                                    else ""
+                                )
+                                signature = (
+                                    f"{is_async}{item.name}({', '.join(args)})"
+                                )
+                                methods.append(
+                                    f"{class_name}::{signature} @ {rel_path}"
+                                )
+        except Exception:
+            pass
     if methods:
         lines.extend(sorted(methods))
         lines.extend(
@@ -1552,34 +1985,22 @@ def generate_route_handlers():
         "",
     ]
     routes = []
-    re.compile(
-        r'@(?:app|router)\.(?:api_route|get|post|put|delete|patch|websocket|options|head)\s*\(\s*["\']([^"\']+)["\']',
-        re.MULTILINE,
+    route_re = re.compile(
+        r'@(?:app|router)\.(get|post|put|delete|patch|websocket|options|head)\s*\(\s*["\']([^"\']+)["\'].*?\n(?:@.*?\n)*\s*(?:async\s+)?def\s+(\w+)',
+        re.DOTALL,
     )
-    re.compile(r"@(?:app|router)\.(get|post|put|delete|patch|websocket|options|head)")
-    re.compile(r"(?:async\s+)?def\s+(\w+)\s*\(")
 
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        content = f.read()
-                        rel_path = os.path.relpath(fpath, REPO_DIR)
-                        # Find all route decorators
-                        for match in re.finditer(
-                            r'@(?:app|router)\.(get|post|put|delete|patch|websocket)\s*\(\s*["\']([^"\']+)["\'].*?\n(?:@.*?\n)*\s*(?:async\s+)?def\s+(\w+)',
-                            content,
-                            re.DOTALL,
-                        ):
-                            method, path, func = match.groups()
-                            routes.append(
-                                f"{method.upper()} {path} → {func}() @ {rel_path}"
-                            )
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+                for match in route_re.finditer(content):
+                    method, path, func = match.groups()
+                    routes.append(
+                        f"{method.upper()} {path} → {func}() @ {rel_path}"
+                    )
+        except Exception:
+            pass
     if routes:
         lines.extend(sorted(routes))
         lines.extend(
@@ -1604,41 +2025,36 @@ def generate_file_metrics():
         "|------|-------|---------|-----------|-------|",
     ]
     metrics = []
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        content = f.read()
-                        tree = ast.parse(content)
-                        rel_path = os.path.relpath(fpath, REPO_DIR)
-                        line_count = len(content.split("\n"))
-                        class_count = sum(
-                            1
-                            for node in ast.walk(tree)
-                            if isinstance(node, ast.ClassDef)
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+                tree = ast.parse(content)
+                line_count = len(content.split("\n"))
+                class_count = sum(
+                    1
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.ClassDef)
+                )
+                func_count = sum(
+                    1
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.FunctionDef)
+                )
+                async_count = sum(
+                    1
+                    for node in ast.walk(tree)
+                    if isinstance(node, ast.AsyncFunctionDef)
+                )
+                if line_count > 50:  # Only include substantial files
+                    metrics.append(
+                        (
+                            line_count,
+                            f"| `{rel_path}` | {line_count} | {class_count} | {func_count} | {async_count} |",
                         )
-                        func_count = sum(
-                            1
-                            for node in ast.walk(tree)
-                            if isinstance(node, ast.FunctionDef)
-                        )
-                        async_count = sum(
-                            1
-                            for node in ast.walk(tree)
-                            if isinstance(node, ast.AsyncFunctionDef)
-                        )
-                        if line_count > 50:  # Only include substantial files
-                            metrics.append(
-                                (
-                                    line_count,
-                                    f"| `{rel_path}` | {line_count} | {class_count} | {func_count} | {async_count} |",
-                                )
-                            )
-                except Exception:
-                    pass
+                    )
+        except Exception:
+            pass
     # Sort by line count descending (biggest files first)
     metrics.sort(key=lambda x: x[0], reverse=True)
     lines.extend([m[1] for m in metrics])
@@ -1662,40 +2078,35 @@ def generate_pydantic_models():
         "",
     ]
     models = []
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        tree = ast.parse(f.read())
-                        rel_path = os.path.relpath(fpath, REPO_DIR)
-                        for node in ast.walk(tree):
-                            if isinstance(node, ast.ClassDef):
-                                for base in node.bases:
-                                    base_name = ""
-                                    if isinstance(base, ast.Name):
-                                        base_name = base.id
-                                    elif isinstance(base, ast.Attribute):
-                                        base_name = base.attr
-                                    if base_name in (
-                                        "BaseModel",
-                                        "BaseSettings",
-                                        "BaseConfig",
-                                    ):
-                                        docstring = ast.get_docstring(node) or ""
-                                        docstring = (
-                                            docstring.split("\n")[0][:50]
-                                            if docstring
-                                            else ""
-                                        )
-                                        models.append(
-                                            f"{node.name} @ {rel_path} - {docstring}"
-                                        )
-                                        break
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                tree = ast.parse(f.read())
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.ClassDef):
+                        for base in node.bases:
+                            base_name = ""
+                            if isinstance(base, ast.Name):
+                                base_name = base.id
+                            elif isinstance(base, ast.Attribute):
+                                base_name = base.attr
+                            if base_name in (
+                                "BaseModel",
+                                "BaseSettings",
+                                "BaseConfig",
+                            ):
+                                docstring = ast.get_docstring(node) or ""
+                                docstring = (
+                                    docstring.split("\n")[0][:50]
+                                    if docstring
+                                    else ""
+                                )
+                                models.append(
+                                    f"{node.name} @ {rel_path} - {docstring}"
+                                )
+                                break
+        except Exception:
+            pass
     if models:
         lines.extend(sorted(models))
         lines.extend(
@@ -1720,10 +2131,7 @@ def generate_dynamic_tool_catalog():
         "",
     ]
     tools = []
-    tool_dirs = [
-        os.path.join(REPO_DIR, "core", "tools"),
-        os.path.join(REPO_DIR, "tools"),
-    ]
+    tool_dir_prefixes = ("core/tools/", "tools/")
     # Patterns for tool definitions
     tool_patterns = [
         re.compile(r'name\s*[=:]\s*["\'](\w+)["\']'),
@@ -1732,50 +2140,45 @@ def generate_dynamic_tool_catalog():
         re.compile(r"def\s+(execute_\w+)\s*\("),
     ]
 
-    for tool_dir in tool_dirs:
-        if os.path.isdir(tool_dir):
-            for root, dirs, files in os.walk(tool_dir):
-                dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-                for fname in files:
-                    if fname.endswith(".py") and not fname.startswith("__"):
-                        fpath = os.path.join(root, fname)
-                        try:
-                            with open(fpath, encoding="utf-8", errors="ignore") as f:
-                                content = f.read()
-                                rel_path = os.path.relpath(fpath, REPO_DIR)
-                                for pattern in tool_patterns:
-                                    matches = pattern.findall(content)
-                                    for match in matches:
-                                        if not match.startswith("_"):
-                                            # Determine category from path
-                                            category = (
-                                                "internal"
-                                                if "internal" in rel_path
-                                                else "core"
-                                            )
-                                            # Check for risk indicators
-                                            risk = "low"
-                                            if any(
-                                                kw in content.lower()
-                                                for kw in [
-                                                    "delete",
-                                                    "write",
-                                                    "execute",
-                                                    "shell",
-                                                    "git",
-                                                ]
-                                            ):
-                                                risk = "high"
-                                            elif any(
-                                                kw in content.lower()
-                                                for kw in ["create", "update", "modify"]
-                                            ):
-                                                risk = "medium"
-                                            tools.append(
-                                                f"| `{match}` | {category} | {risk} | {rel_path} |"
-                                            )
-                        except Exception:
-                            pass
+    for fpath, rel_path in walk_python_files():
+        if not any(rel_path.startswith(p) for p in tool_dir_prefixes):
+            continue
+        if os.path.basename(fpath).startswith("__"):
+            continue
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+                for pattern in tool_patterns:
+                    matches = pattern.findall(content)
+                    for match in matches:
+                        if not match.startswith("_"):
+                            category = (
+                                "internal"
+                                if "internal" in rel_path
+                                else "core"
+                            )
+                            risk = "low"
+                            if any(
+                                kw in content.lower()
+                                for kw in [
+                                    "delete",
+                                    "write",
+                                    "execute",
+                                    "shell",
+                                    "git",
+                                ]
+                            ):
+                                risk = "high"
+                            elif any(
+                                kw in content.lower()
+                                for kw in ["create", "update", "modify"]
+                            ):
+                                risk = "medium"
+                            tools.append(
+                                f"| `{match}` | {category} | {risk} | {rel_path} |"
+                            )
+        except Exception:
+            pass
 
     if tools:
         lines.append("| Tool | Category | Risk | File |")
@@ -1801,26 +2204,21 @@ def generate_async_function_map():
         "",
     ]
     async_funcs = []
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        tree = ast.parse(f.read())
-                        rel_path = os.path.relpath(fpath, REPO_DIR)
-                        for node in ast.walk(tree):
-                            if isinstance(node, ast.AsyncFunctionDef):
-                                args = [
-                                    arg.arg
-                                    for arg in node.args.args
-                                    if arg.arg != "self"
-                                ]
-                                signature = f"async {node.name}({', '.join(args)})"
-                                async_funcs.append(f"{signature} @ {rel_path}")
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                tree = ast.parse(f.read())
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.AsyncFunctionDef):
+                        args = [
+                            arg.arg
+                            for arg in node.args.args
+                            if arg.arg != "self"
+                        ]
+                        signature = f"async {node.name}({', '.join(args)})"
+                        async_funcs.append(f"{signature} @ {rel_path}")
+        except Exception:
+            pass
     if async_funcs:
         lines.extend(sorted(async_funcs))
         lines.extend(
@@ -1843,35 +2241,30 @@ def generate_decorator_catalog():
         "",
     ]
     decorators = defaultdict(list)
-    for root, dirs, files in os.walk(REPO_DIR):
-        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
-        for fname in files:
-            if fname.endswith(".py"):
-                fpath = os.path.join(root, fname)
-                try:
-                    with open(fpath, encoding="utf-8", errors="ignore") as f:
-                        tree = ast.parse(f.read())
-                        rel_path = os.path.relpath(fpath, REPO_DIR)
-                        for node in ast.walk(tree):
-                            if isinstance(
-                                node,
-                                (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef),
-                            ):
-                                for decorator in node.decorator_list:
-                                    dec_name = ""
-                                    if isinstance(decorator, ast.Name):
-                                        dec_name = f"@{decorator.id}"
-                                    elif isinstance(decorator, ast.Attribute):
-                                        dec_name = f"@{decorator.attr}"
-                                    elif isinstance(decorator, ast.Call):
-                                        if isinstance(decorator.func, ast.Name):
-                                            dec_name = f"@{decorator.func.id}(...)"
-                                        elif isinstance(decorator.func, ast.Attribute):
-                                            dec_name = f"@{decorator.func.attr}(...)"
-                                    if dec_name:
-                                        decorators[dec_name].append(rel_path)
-                except Exception:
-                    pass
+    for fpath, rel_path in walk_python_files():
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                tree = ast.parse(f.read())
+                for node in ast.walk(tree):
+                    if isinstance(
+                        node,
+                        (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef),
+                    ):
+                        for decorator in node.decorator_list:
+                            dec_name = ""
+                            if isinstance(decorator, ast.Name):
+                                dec_name = f"@{decorator.id}"
+                            elif isinstance(decorator, ast.Attribute):
+                                dec_name = f"@{decorator.attr}"
+                            elif isinstance(decorator, ast.Call):
+                                if isinstance(decorator.func, ast.Name):
+                                    dec_name = f"@{decorator.func.id}(...)"
+                                elif isinstance(decorator.func, ast.Attribute):
+                                    dec_name = f"@{decorator.func.attr}(...)"
+                            if dec_name:
+                                decorators[dec_name].append(rel_path)
+        except Exception:
+            pass
     if decorators:
         lines.append("| Decorator | Count | Example Files |")
         lines.append("|-----------|-------|---------------|")
@@ -1892,8 +2285,6 @@ def generate_decorator_catalog():
 
 def generate_adr_catalog():
     """Generate catalog of Architecture Decision Records (ADRs)."""
-    from datetime import UTC, datetime
-
     lines = [
         "# L9 Architecture Decision Record (ADR) Catalog",
         f"# Generated: {datetime.now(UTC).strftime('%Y-%m-%d')}",
@@ -2003,8 +2394,6 @@ def generate_adr_catalog():
 
 def generate_readme_manifest():
     """Generate manifest of all README.md files with descriptions for AI reference."""
-    from datetime import UTC, datetime
-
     lines = [
         "# L9 README File Manifest",
         f"# Generated: {datetime.now(UTC).strftime('%Y-%m-%d %H:%M')}",
@@ -2264,73 +2653,77 @@ def main():
         "readme_manifest.txt": ("📖 README manifest", generate_readme_manifest),
     }
 
-    logger.info("\n📝 Generating indexes...\n")
+    logger.info("Generating indexes...")
 
     results = {}
     for filename, (emoji_desc, generator) in generators.items():
-        logger.info(f"  {emoji_desc}...", end=" ", flush=True)
         try:
             content = generator()
-            size = len(content.encode("utf-8"))
+            # Prepend meta header to every file
+            index_name = filename.replace(".txt", "").replace("_", " ").title()
+            header = generate_meta_header(index_name)
+            full_content = header + "\n" + content
+            size = len(full_content.encode("utf-8"))
 
             # Write to local repo (required - must succeed)
             repo_file = os.path.join(REPO_INDEX_DIR, filename)
             with open(repo_file, "w", encoding="utf-8") as f:
-                f.write(content)
+                f.write(full_content)
 
             # Write to Dropbox (optional - continue on error)
             try:
                 dropbox_file = os.path.join(DROPBOX_EXPORT_DIR, filename)
                 with open(dropbox_file, "w", encoding="utf-8") as f:
-                    f.write(content)
+                    f.write(full_content)
             except Exception as e:
-                logger.debug(f"Dropbox export failed for {filename}: {e}")
+                logger.debug("Dropbox export failed", filename=filename, error=str(e))
 
             # Write to iCloud (optional - continue on error)
             try:
                 icloud_file = os.path.join(ICLOUD_EXPORT_DIR, filename)
                 with open(icloud_file, "w", encoding="utf-8") as f:
-                    f.write(content)
+                    f.write(full_content)
             except Exception as e:
-                logger.debug(f"iCloud export failed for {filename}: {e}")
+                logger.debug("iCloud export failed", filename=filename, error=str(e))
 
             results[filename] = size
-            logger.info(f"✅ ({size:,} bytes)")
+            logger.info("Generated", file=filename, desc=emoji_desc, bytes=size)
         except Exception as e:
-            logger.info(f"❌ {e}")
+            logger.error("Generation failed", file=filename, error=str(e))
             results[filename] = 0
 
-    logger.info("\n✨ Done! Files exported to:")
-    logger.info(f"   📂 {REPO_INDEX_DIR}")
-    logger.info(f"   ☁️  {DROPBOX_EXPORT_DIR}")
-    logger.info(f"   ☁️  {ICLOUD_EXPORT_DIR}")
-    logger.info("\n📋 Summary:")
-    total_size = 0
-    for filename, size in sorted(results.items()):
-        status = "✅" if size > 0 else "⚠️"
-        logger.info(f"   {status} {filename:30} {size:>12,} bytes")
-        total_size += size
+    total_size = sum(results.values())
+    success_count = sum(1 for s in results.values() if s > 0)
+    fail_count = len(results) - success_count
 
-    logger.info(f"\n   📊 Total: {total_size:,} bytes ({len(results)} files)")
-    logger.info("\n💡 Load order for LLMs (most context-critical first):")
-    logger.info("   1. wiring_map.txt - execution spine & data flow")
-    logger.info("   2. bootstrap_phases.txt - 7-phase agent init ceremony")
-    logger.info("   3. memory_architecture.txt - memory segments & DAG")
-    logger.info("   4. governance_model.txt - approval gates & authority")
-    logger.info("   5. kernel_catalog.txt - 10 governance kernels")
-    logger.info("   6. agent_catalog.txt - agent layers & capabilities")
-    logger.info("   7. tool_catalog.txt - tools & risk levels")
-    logger.info("   8. migration_catalog.txt - schema evolution")
-    logger.info("   9. tree.txt - directory structure")
-    logger.info("   10. test_catalog.txt - test coverage")
+    logger.info(
+        "Index generation complete",
+        total_files=len(results),
+        success=success_count,
+        failed=fail_count,
+        total_bytes=total_size,
+        repo_index_dir=REPO_INDEX_DIR,
+    )
+
+    # Print summary table to stdout for human readability
+    print(f"\n{'='*60}")
+    print(f"  REPO INDEX GENERATION COMPLETE")
+    print(f"{'='*60}")
+    print(f"  Repo:    {REPO_NAME}")
+    print(f"  Output:  {REPO_INDEX_DIR}")
+    print(f"  Files:   {len(results)} ({success_count} OK, {fail_count} failed)")
+    print(f"  Total:   {total_size:,} bytes")
+    print(f"{'='*60}")
+    for filename, size in sorted(results.items()):
+        status = "OK" if size > 0 else "FAIL"
+        print(f"  [{status:>4}] {filename:35} {size:>10,} bytes")
+    print(f"{'='*60}\n")
 
     # Phase 2: Ingest to Memory (pgvector)
     logger.info("\n" + "=" * 60)
     logger.info("🧠 PHASE 2: Ingesting indexes to L9 Memory...")
     logger.info("=" * 60)
     try:
-        import subprocess
-
         result = subprocess.run(
             [sys.executable, "scripts/memory/ingest_repo_indexes.py", "--verbose"],
             capture_output=True,

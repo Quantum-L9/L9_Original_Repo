@@ -1,30 +1,77 @@
+# ================================================================
+# Tool Catalog
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Tool Catalog
 # ================
-# All tools with category, scope, risk level, and approval requirements.
+# Tools with category, scope, risk level, and approval requirements.
+# Auto-discovered from config/policies/high_risk_tools.yaml and core/tools/.
 
-## High-Risk Tools (Require Igor Approval)
+## High-Risk Tools (Require Approval)
 
-| Tool | Description |
-|------|-------------|
-| `gmp_run` | Execute GMP protocol (code changes) |
-| `git_commit` | Commit changes to git repository |
-| `git_push` | Push changes to remote repository |
-| `file_delete` | Delete files from filesystem |
-| `database_write` | Write to production database |
-| `deploy` | Deploy to production environment |
-| `mac_agent_exec` | Execute commands on Mac agent |
+| Tool | Description | Risk Level |
+|------|-------------|------------|
+| `shell_exec` | Execute shell commands | critical |
+| `file_write` | Write files to filesystem | high |
+| `file_delete` | Delete files from filesystem | critical |
+| `git_commit` | Commit changes to git repository | high |
+| `git_push` | Push changes to remote repository | critical |
+| `gmp_run` | Execute GMP protocol (code changes) | critical |
+| `gmprun` | Execute GMP protocol (legacy name) | critical |
+| `mac_agent_exec` | Execute commands on Mac agent | critical |
+| `mac_agent_exec_task` | Execute task on Mac agent | critical |
+| `deploy` | Deploy to production environment | critical |
+| `github_create_pull_request` | Create GitHub pull request | high |
+| `github_merge_pull_request` | Merge GitHub pull request | critical |
+| `vercel_trigger_deploy` | Trigger Vercel deployment | critical |
 
-## Memory Tools (Registered in Phase 5)
+## Igor Approval Required
 
-| Tool | Purpose |
-|------|---------|
-| `memory_search` | Search memory substrate (semantic + keyword) |
-| `memory_write` | Write packets to memory substrate |
+- `gmp_run`
+- `gmprun`
+- `git_push`
+- `deploy`
+- `mac_agent_exec`
+- `mac_agent_exec_task`
+- `github_merge_pull_request`
+- `vercel_trigger_deploy`
 
-## Tool Scopes
+## Safe Tools (No Approval Needed)
 
-| Scope | Description |
-|-------|-------------|
-| `internal` | L9-internal operations, no external calls |
-| `external` | Calls external APIs (GitHub, Notion, etc.) |
-| `requires_igor_approval` | High-risk, needs explicit Igor approval |
+- `file_read`
+- `search`
+- `list_directory`
+- `get_status`
+- `health_check`
+- `memory_search`
+- `memory_read`
+- `perplexity_search`
+- `web_search`
+
+## Side-Effect Tools
+
+- `http_request`
+- `api_call`
+- `send_email`
+- `slack_message`
+
+## Tool Implementations (from core/tools/)
+
+| File | Classes/Functions |
+|------|-------------------|
+| `core/tools/agent_self_modify.py` | AgentSelfModifyTool |
+| `core/tools/base_registry.py` | ToolType, ToolSchema, ToolMetadata, ToolRegistry, execute_tool() |
+| `core/tools/registry_adapter.py` | ToolExecutor, ExecutorToolRegistry |
+| `core/tools/registry_cache.py` | ToolRegistryCache, CachedToolRegistry |
+| `core/tools/sanitizer.py` | ToolInputSanitizationError, ToolInputSanitizerConfig, ToolInputSanitizer |
+| `core/tools/semantic_discovery.py` | ToolStatus, ToolDefinition, DynamicToolDiscoveryService, ToolContextFormatter |
+| `core/tools/semantic_tool_search.py` | ToolSearchResult, SemanticToolSearchAdapter, ToolSearchOptimizer |
+| `core/tools/symbolic_tool.py` | SymbolicComputationTool |
+| `core/tools/tool_audit.py` | ToolAuditEntry, ToolCostEstimator, ToolAuditService, execute_tool_with_audit() |
+| `core/tools/tool_embeddings.py` | ToolEmbeddingResult |
+| `core/tools/tool_graph.py` | ToolDefinition, ToolGraph |

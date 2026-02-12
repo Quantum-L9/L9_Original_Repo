@@ -74,8 +74,8 @@ class SmokeTestResults:
         return len(self.failed) == 0
 
 
-def test_compileall() -> tuple[bool, str]:
-    """Test that all Python files compile (excluding venv/node_modules)."""
+def check_compileall() -> tuple[bool, str]:
+    """Check that all Python files compile (excluding venv/node_modules)."""
     import subprocess
 
     result = subprocess.run(
@@ -98,8 +98,8 @@ def test_compileall() -> tuple[bool, str]:
     return True, ""
 
 
-def test_core_imports() -> tuple[bool, str]:
-    """Test that core imports work without circular import issues."""
+def check_core_imports() -> tuple[bool, str]:
+    """Check that core imports work without circular import issues."""
     try:
         # Orchestrators (no DB required)
         from orchestrators import MetaOrchestrator, WorldModelOrchestrator
@@ -123,8 +123,8 @@ def test_core_imports() -> tuple[bool, str]:
         return False, str(e)
 
 
-def test_langgraph_not_shadowed() -> tuple[bool, str]:
-    """Test that langgraph library is not shadowed by local package."""
+def check_langgraph_not_shadowed() -> tuple[bool, str]:
+    """Check that langgraph library is not shadowed by local package."""
     try:
         # Verify it's the actual library, not our local shim
         from langgraph.graph import END, StateGraph
@@ -143,8 +143,8 @@ def test_langgraph_not_shadowed() -> tuple[bool, str]:
         return True, "langgraph not installed (skipped)"
 
 
-def test_server_module_imports() -> tuple[bool, str]:
-    """Test that server module can be imported (without DB connection)."""
+def check_server_module_imports() -> tuple[bool, str]:
+    """Check that server module can be imported (without DB connection)."""
     try:
         # Core schemas (no DB required)
 
@@ -163,8 +163,8 @@ def test_server_module_imports() -> tuple[bool, str]:
         return False, str(e)
 
 
-def test_migrations_exist() -> tuple[bool, str]:
-    """Test that migrations directory exists and has SQL files."""
+def check_migrations_exist() -> tuple[bool, str]:
+    """Check that migrations directory exists and has SQL files."""
     migrations_dir = REPO_ROOT / "migrations"
     if not migrations_dir.exists():
         return False, "migrations/ directory not found"
@@ -176,8 +176,8 @@ def test_migrations_exist() -> tuple[bool, str]:
     return True, f"{len(sql_files)} migration files found"
 
 
-def test_core_modules_exist() -> tuple[bool, str]:
-    """Test that core module directories exist."""
+def check_core_modules_exist() -> tuple[bool, str]:
+    """Check that core module directories exist."""
     required_dirs = ["memory", "orchestrators", "world_model", "api", "email_agent"]
     missing = [d for d in required_dirs if not (REPO_ROOT / d).exists()]
 
@@ -194,8 +194,8 @@ def test_core_modules_exist() -> tuple[bool, str]:
     return True, ""
 
 
-def test_no_nested_repos() -> tuple[bool, str]:
-    """Test that there are no nested .git directories within project."""
+def check_no_nested_repos() -> tuple[bool, str]:
+    """Check that there are no nested .git directories within project."""
     import subprocess
 
     result = subprocess.run(
@@ -225,8 +225,8 @@ def test_no_nested_repos() -> tuple[bool, str]:
     return True, ""
 
 
-def test_entrypoints_exist() -> tuple[bool, str]:
-    """Test that entrypoints listed in entrypoints.txt exist."""
+def check_entrypoints_exist() -> tuple[bool, str]:
+    """Check that entrypoints listed in entrypoints.txt exist."""
     entrypoints_file = REPO_ROOT / "entrypoints.txt"
     if not entrypoints_file.exists():
         return False, "entrypoints.txt not found"
@@ -250,8 +250,8 @@ def test_entrypoints_exist() -> tuple[bool, str]:
     return True, ""
 
 
-async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
-    """Test that memory pipeline components can be instantiated."""
+async def check_memory_pipeline_dry_run() -> tuple[bool, str]:
+    """Check that memory pipeline components can be instantiated."""
     try:
         from uuid import uuid4
 
@@ -287,8 +287,8 @@ async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
         return False, str(e)
 
 
-async def test_world_model_instantiation() -> tuple[bool, str]:
-    """Test that world model can be instantiated."""
+async def check_world_model_instantiation() -> tuple[bool, str]:
+    """Check that world model can be instantiated."""
     try:
         from world_model.runtime import WorldModelRuntime
 
@@ -308,36 +308,36 @@ def main():
     logger.info("=" * 60)
 
     # Sync tests
-    result, err = test_compileall()
+    result, err = check_compileall()
     results.record("compileall", result, err)
 
-    result, err = test_no_nested_repos()
+    result, err = check_no_nested_repos()
     results.record("no_nested_repos", result, err)
 
-    result, err = test_entrypoints_exist()
+    result, err = check_entrypoints_exist()
     results.record("entrypoints_exist", result, err)
 
-    result, err = test_migrations_exist()
+    result, err = check_migrations_exist()
     results.record("migrations_exist", result, err)
 
-    result, err = test_core_modules_exist()
+    result, err = check_core_modules_exist()
     results.record("core_modules_exist", result, err)
 
-    result, err = test_langgraph_not_shadowed()
+    result, err = check_langgraph_not_shadowed()
     results.record("langgraph_not_shadowed", result, err)
 
-    result, err = test_core_imports()
+    result, err = check_core_imports()
     results.record("core_imports", result, err)
 
-    result, err = test_server_module_imports()
+    result, err = check_server_module_imports()
     results.record("server_module_imports", result, err)
 
     # Async tests
     async def run_async_tests():
-        result, err = await test_memory_pipeline_dry_run()
+        result, err = await check_memory_pipeline_dry_run()
         results.record("memory_pipeline_dry_run", result, err)
 
-        result, err = await test_world_model_instantiation()
+        result, err = await check_world_model_instantiation()
         results.record("world_model_instantiation", result, err)
 
     asyncio.run(run_async_tests())

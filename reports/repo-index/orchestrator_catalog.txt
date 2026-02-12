@@ -1,33 +1,56 @@
+# ================================================================
+# Orchestrator Catalog
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Orchestrator Catalog
 # ========================
 # Agent coordination patterns for the L9 platform.
+# Auto-discovered from orchestrators/ directory.
 
 ## Available Orchestrators
 
 ### action_tool/
-**Purpose:** Tool execution with validation and error handling
-**Files:** validator.py, interface.py, orchestrator.py
+**Purpose:** L9 ActionTool Orchestrator - Implementation
+**Files:** interface.py, orchestrator.py, validator.py
+
+### agent_execution/
+**Purpose:** L9 Agent Execution Orchestrator - Implementation
+**Files:** interface.py, orchestrator.py, task_queue.py
 
 ### evolution/
-**Purpose:** Self-improvement via feedback loops and pattern adaptation
-**Files:** interface.py, apply_engine.py, orchestrator.py
+**Purpose:** L9 Evolution Orchestrator - Implementation
+**Files:** apply_engine.py, interface.py, orchestrator.py
 
 ### memory/
-**Purpose:** Memory housekeeping, garbage collection, and optimization
-**Files:** interface.py, housekeeping.py, orchestrator.py
+**Purpose:** L9 Memory Orchestrator - Implementation
+**Files:** housekeeping.py, interface.py, orchestrator.py
 
 ### meta/
-**Purpose:** Meta-reasoning for strategy selection and reflection
+**Purpose:** L9 Meta Orchestrator - Implementation
 **Files:** adapter.py, interface.py, orchestrator.py
 
+### pattern/
+**Purpose:** L9 Pattern Orchestrator - Universal Architecture Pipeline
+**Files:** cell_adapter.py, interface.py, master_orchestrator.py, metrics.py, orchestrator.py
+
 ### reasoning/
-**Purpose:** Inference chain coordination with confidence tracking
-**Files:** interface.py, orchestrator.py, adapter_node.py
+**Purpose:** L9 Reasoning Orchestrator - Implementation
+**Files:** adapter_node.py, interface.py, orchestrator.py
 
 ### research_swarm/
-**Purpose:** Multi-agent research with convergence and synthesis
+**Purpose:** L9 ResearchSwarm Orchestrator - Implementation
 **Files:** convergence.py, interface.py, orchestrator.py
 
 ### world_model/
-**Purpose:** World model updates, scheduling, and causal inference
+**Purpose:** L9 WorldModel Orchestrator - Implementation
 **Files:** interface.py, orchestrator.py, scheduler.py
+
+## Top-Level Files
+
+- `orchestrators/orchestrator_registry.py`
+- `orchestrators/ws_bridge.py`

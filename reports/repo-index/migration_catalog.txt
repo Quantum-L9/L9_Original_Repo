@@ -1,3 +1,12 @@
+# ================================================================
+# Migration Catalog
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Migration Catalog
 # =====================
 # All SQL migrations for memory substrate schema evolution.
@@ -33,6 +42,8 @@
 | `0026_tool_bm25_index.sql` | Migration: 0026_tool_bm25_index.sql |
 | `0027_eval_results.sql` | Migration: 0027_eval_results.sql |
 | `0028_optimize_vector_indexing.sql` | ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
+| `0029_add_agent_scope.sql` | ============================================================ |
+| `0030_semantic_memory_scope_project_index.sql` | ============================================================ |
 | `20260125_tool_feedback_learning.sql` | ============================================================ |
 
 ## Key Tables Created

@@ -1,87 +1,70 @@
+# ================================================================
+# Wiring Map
+# ================================================================
+# Repo:      L9
+# Generated: 2026-02-11 20:18 UTC
+# Branch:    main (f0aa4f7f)
+# Generator: export_repo_indexes.py v2.2.0
+# ================================================================
+
 # L9 Wiring Map
 # ==============
-# How components connect: Entrypoint → Orchestration → Memory → Persistence
+# How components connect: Entrypoint → Routers → Memory → Persistence
+# Auto-discovered from router_registry.register() calls and api/server.py
 
-## EXECUTION SPINE
-
-```
-uvicorn api.server:app
-    │
-    ▼
-┌─────────────────────────────────────────────────────────┐
-│  api/server.py (FastAPI)                                │
-│                                                         │
-│  lifespan():                                           │
-│    1. run_migrations()  → migrations/*.sql             │
-│    2. init_service()    → memory substrate (Postgres)  │
-│    3. get_neo4j_client() → Neo4j graph DB              │
-│    4. get_redis_client() → Redis cache/queues          │
-│    5. bootstrap_agent()  → 7-phase agent init (NEW!)   │
-└─────────────────────────────────────────────────────────┘
-    │
-    ▼ Routers mounted
-┌─────────────────────────────────────────────────────────┐
-│  ROUTERS                                                │
-│                                                         │
-│  /os/*        → api/os_routes.py         (health)      │
-│  /agent/*     → api/agent_routes.py      (tasks)       │
-│  /memory/*    → api/memory/router.py     (packets)     │
-│  /world-model/* → api/world_model_api.py (entities)    │
-│  /ws/agent    → WebSocket handler        (real-time)   │
-│  /metrics     → Prometheus metrics       (telemetry)   │
-└─────────────────────────────────────────────────────────┘
-```
-
-## AGENT BOOTSTRAP SPINE (7-Phase Ceremony)
+## ENTRYPOINT
 
 ```
-bootstrap_agent(config, substrate)
-    │
-    ├─ Phase 0: validate_agent_blueprint()   → Validate config
-    ├─ Phase 1: load_and_parse_kernels()     → 10 governance kernels
-    ├─ Phase 2: instantiate_agent()          → Create AgentInstance
-    ├─ Phase 3: bind_kernels_to_agent()      → Attach kernels
-    ├─ Phase 4: load_identity_persona()      → Load L identity
-    ├─ Phase 5: bind_tools_and_capabilities()→ Wire tools + memory
-    ├─ Phase 6: wire_governance_gates()      → Approval gates
-    └─ Phase 7: verify_and_lock()            → Lock + signature
+uvicorn api.server:app → FastAPI lifespan() → router auto-wiring
 ```
 
-## MEMORY DAG PIPELINE
+## AUTO-REGISTERED ROUTERS (via router_registry)
 
-```
-ingest_packet()
-    │
-    ▼
-┌─────────────────────────────────────────────────────────┐
-│  SubstrateDAG.run()                                     │
-│       │                                                 │
-│       ├→ intake_node                                   │
-│       ├→ reasoning_node                                │
-│       ├→ memory_write_node                             │
-│       ├→ semantic_embed_node                           │
-│       ├→ extract_insights_node                         │
-│       ├→ store_insights_node                           │
-│       ├→ world_model_trigger_node                      │
-│       └→ checkpoint_node                               │
-└─────────────────────────────────────────────────────────┘
-```
+| Prefix | Tags | Module |
+|--------|------|--------|
+| `(root)` | mac-agent | api/webhook_mac_agent.py |
+| `(root)` | world-model | api/world_model_api.py |
+| `(root)` | commands | api/routes/commands.py |
+| `(root)` | research-factory | api/routes/factory.py |
+| `(root)` | modules | api/routes/modules.py |
+| `(root)` | simulation | api/routes/simulation.py |
+| `(root)` | slack | api/routes/slack.py |
+| `(root)` | worldmodel | api/routes/worldmodel.py |
+| `(root)` | research | services/research/research_api.py |
+| `(root)` | symbolic, computation | services/symbolic_computation/api/routes.py |
+| `/agent` | agent | api/agent_routes.py |
+| `/api/gmp` | gmp-learning | api/routes/gmp_learning.py |
+| `/api/v1` | upgrades | api/routes/upgrades.py |
+| `/api/v1/memory` | memory | api/memory/router.py |
+| `/api/v1/memory/cache` | memory-cache, redis | api/memory/cache.py |
+| `/api/v1/memory/graph` | memory-graph, neo4j | api/memory/graph.py |
+| `/compliance` | compliance | api/routes/compliance.py |
+| `/cursor` | cursor | api/routes/cursor.py |
+| `/email` | email-agent | email_agent/router.py |
+| `/eval` | evaluation | api/routes/evaluation.py |
+| `/mcp` | mcp | api/routes/mcp.py |
+| `/observability` | observability | api/routes/observability.py |
+| `/os` | os | api/os_routes.py |
+| `/pattern` | pattern | api/routes/pattern.py |
+| `/reasoning` | reasoning | api/routes/reasoning.py |
+| `/reasoning` | reasoning | api/routes/registry.py |
+| `/reasoning` | reasoning | api/routes/registry.py |
+| `/reflection/agent` | reflection | api/routes/reflection_agent.py |
+| `/research/agent` | research-agent | api/routes/research_agent.py |
+| `/research/swarm` | research-swarm | api/routes/research.py |
+| `/tensor-bridge` | tensor-bridge, domain-tensor-bridge | api/routes/tensor_bridge.py |
+| `/tools` | tools | api/tools/router.py |
+| `/workers` | workers | api/routes/workers.py |
+
+# Total: 33 auto-registered routers
 
 ## PERSISTENCE LAYER
 
-| Service | Container | Port | Purpose |
-|---------|-----------|------|---------|
-| PostgreSQL + pgvector | l9-postgres | 5432 | Packet store, semantic memory |
-| Neo4j Graph DB | l9-neo4j | 7687 | Entity graph, tool registry |
-| Redis | redis | 6379 | Task queue, rate limiting, cache |
-
-## KEY SINGLETONS
-
-| Singleton | Module | Purpose |
-|-----------|--------|---------|
-| ws_orchestrator | runtime.websocket_orchestrator | WebSocket connection manager |
-| _service | memory.substrate_service | Memory substrate singleton |
-| _repository | memory.substrate_repository | PostgreSQL connection pool |
-| _world_model_engine | world_model.engine | World model singleton |
-| _neo4j_client | memory.graph_client | Neo4j graph client |
-| _redis_client | runtime.redis_client | Redis cache/queue client |
+| Service | Port | Purpose |
+|---------|------|---------|
+| `grafana` | 127.0.0.1 | grafana/grafana:10.2.0 |
+| `jaeger` | 127.0.0.1, 127.0.0.1, 127.0.0.1 | jaegertracing/all-in-one:1.52 |
+| `l9-postgres` | 127.0.0.1 | pgvector/pgvector:pg16 |
+| `neo4j` | 127.0.0.1, 127.0.0.1 | neo4j:5-community |
+| `prometheus` | 127.0.0.1 | prom/prometheus:v2.48.0 |
+| `redis` | 127.0.0.1 | redis:7-alpine |
