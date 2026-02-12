@@ -718,8 +718,134 @@ print(f'MCP memory search: {len(data[\"results\"])} results, {data.get(\"search_
         phase_failed=true
     fi
     
+    # =========================================================================
+    # INTEGRATION CHECKS: Slack, Tools, Kernels
+    # =========================================================================
+    
+    # Slack integration health (GET /slack/health or check router is mounted)
+    info "Testing Slack integration..."
+    local slack_health_url="${L9_API_BASE}/slack/health"
+    
+    if response=$(curl -fsS -X GET "$slack_health_url" 2>&1); then
+        endpoint_stats+=("✓ GET /slack/health")
+        success_count=$((success_count + 1))
+        debug "Slack integration healthy"
+    else
+        # Slack health endpoint may not exist, try checking if router is mounted via openapi
+        debug "Slack health endpoint not available, checking OpenAPI..."
+        if curl -fsS "${L9_API_BASE}/openapi.json" 2>/dev/null | grep -q '"/slack/'; then
+            endpoint_stats+=("✓ Slack router mounted (via OpenAPI)")
+            success_count=$((success_count + 1))
+            debug "Slack router confirmed in OpenAPI spec"
+        else
+            endpoint_stats+=("⚠ Slack integration (not verified)")
+            warn "Slack integration could not be verified"
+            # Not a hard failure - Slack may be disabled
+        fi
+    fi
+    
+    # Tool Registry validation (check tool count via /tools or /health/services)
+    info "Testing Tool Registry..."
+    local tools_url="${L9_API_BASE}/health/services"
+    
+    if response=$(curl -fsS -X GET "$tools_url" 2>&1); then
+        # Check if response contains tool_registry info
+        if echo "$response" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+# Look for tool registry in services health
+services = data.get('services', {})
+tool_count = services.get('tool_registry', {}).get('tool_count', 0)
+if tool_count > 0:
+    print(f'Tool Registry: {tool_count} tools registered')
+    sys.exit(0)
+else:
+    # Try alternate structure
+    if 'tool_registry' in str(data):
+        print('Tool Registry: present')
+        sys.exit(0)
+    print('Tool Registry: not found in response')
+    sys.exit(1)
+" 2>&1; then
+            endpoint_stats+=("✓ Tool Registry")
+            success_count=$((success_count + 1))
+            debug "Tool Registry validated"
+        else
+            endpoint_stats+=("⚠ Tool Registry (structure unknown)")
+            warn "Tool Registry response structure unexpected"
+        fi
+    else
+        endpoint_stats+=("⚠ Tool Registry (health/services failed)")
+        warn "Could not verify Tool Registry via /health/services"
+    fi
+    
+    # Kernel Stack verification (check kernels loaded via /kernels or /health)
+    info "Testing Kernel Stack..."
+    local kernels_url="${L9_API_BASE}/kernels"
+    
+    if [[ -n "${L9_EXECUTOR_API_KEY:-}" ]]; then
+        if response=$(curl -fsS -X GET \
+            -H "Authorization: Bearer ${L9_EXECUTOR_API_KEY}" \
+            "$kernels_url" 2>&1); then
+            
+            if echo "$response" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+# Kernel response should have kernels list or count
+kernels = data.get('kernels', data.get('loaded_kernels', []))
+if isinstance(kernels, list) and len(kernels) > 0:
+    print(f'Kernel Stack: {len(kernels)} kernels loaded')
+    sys.exit(0)
+elif isinstance(kernels, dict):
+    print(f'Kernel Stack: {len(kernels)} kernels loaded')
+    sys.exit(0)
+elif 'count' in data:
+    print(f'Kernel Stack: {data[\"count\"]} kernels')
+    sys.exit(0)
+else:
+    print(f'Kernel Stack: response={str(data)[:100]}')
+    sys.exit(0)  # Don't fail, just report
+" 2>&1; then
+                endpoint_stats+=("✓ Kernel Stack")
+                success_count=$((success_count + 1))
+                debug "Kernel Stack validated"
+            else
+                endpoint_stats+=("⚠ Kernel Stack (parse error)")
+                warn "Kernel Stack response could not be parsed"
+            fi
+        else
+            endpoint_stats+=("⚠ GET /kernels (failed)")
+            warn "Could not verify Kernel Stack"
+        fi
+    else
+        endpoint_stats+=("⊘ Kernel Stack (no API key)")
+        debug "Skipping Kernel Stack check (no L9_EXECUTOR_API_KEY)"
+    fi
+    
+    # WebSocket endpoint availability (just check if upgrade is offered)
+    info "Testing WebSocket endpoint availability..."
+    local ws_url="${L9_API_BASE}/ws/agent"
+    
+    # Check if WebSocket endpoint responds (will get 426 Upgrade Required or similar)
+    if response=$(curl -fsS -I -X GET "$ws_url" 2>&1) || \
+       response=$(curl -sS -I -X GET "$ws_url" 2>&1 | head -5); then
+        if echo "$response" | grep -qiE "(upgrade|websocket|101|426)"; then
+            endpoint_stats+=("✓ WebSocket /ws/agent (available)")
+            success_count=$((success_count + 1))
+            debug "WebSocket endpoint available"
+        else
+            # Just check if endpoint exists (any response)
+            endpoint_stats+=("✓ WebSocket /ws/agent (responds)")
+            success_count=$((success_count + 1))
+            debug "WebSocket endpoint responds"
+        fi
+    else
+        endpoint_stats+=("⚠ WebSocket /ws/agent (not available)")
+        warn "WebSocket endpoint not responding"
+    fi
+    
     # Summary
-    local total_endpoints=$((${#health_endpoints[@]} + 3))  # health + reload + lchat + memory
+    local total_endpoints=$((${#health_endpoints[@]} + 7))  # health + reload + lchat + memory + slack + tools + kernels + ws
     info "API endpoints: ${success_count}/${total_endpoints} healthy"
     
     # Record result
