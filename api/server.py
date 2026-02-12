@@ -3109,6 +3109,98 @@ class KernelReloadResponse(BaseModel):
     message: str
 
 
+@app.get("/kernels")
+async def list_kernels_endpoint(
+    api_key: str = Depends(verify_api_key),
+):
+    """
+    List loaded kernels and their status.
+
+    Returns the current kernel stack configuration.
+    Requires API key authentication.
+    """
+    agent_registry = getattr(app.state, "agent_registry", None)
+
+    if agent_registry is None:
+        return {
+            "status": "degraded",
+            "kernels": [],
+            "count": 0,
+            "message": "Agent registry not available",
+        }
+
+    # Try to get kernel info from L-CTO agent
+    try:
+        l_agent = (
+            agent_registry.get_l_cto_agent()
+            if hasattr(agent_registry, "get_l_cto_agent")
+            else None
+        )
+        if l_agent and hasattr(l_agent, "kernel_state"):
+            kernel_state = l_agent.kernel_state
+            return {
+                "status": "ok",
+                "kernels": list(kernel_state.keys())
+                if isinstance(kernel_state, dict)
+                else [],
+                "count": len(kernel_state) if isinstance(kernel_state, dict) else 0,
+                "agent_id": getattr(l_agent, "agent_id", "l-cto"),
+            }
+    except Exception as e:
+        logger.warning(f"Could not get kernel state: {e}")
+
+    # Fallback: try to get from kernel loader
+    try:
+        from runtime.kernel_loader import get_loaded_kernels
+
+        kernels = get_loaded_kernels()
+        return {
+            "status": "ok",
+            "kernels": kernels,
+            "count": len(kernels),
+        }
+    except ImportError:
+        pass
+
+    return {
+        "status": "unknown",
+        "kernels": [],
+        "count": 0,
+        "message": "Kernel information not available",
+    }
+
+
+@app.get("/tools/health")
+async def tools_health_endpoint():
+    """
+    Tool registry health check.
+
+    Returns tool count and registry status.
+    """
+    tool_registry = getattr(app.state, "tool_registry", None)
+    dynamic_discovery = getattr(app.state, "dynamic_tool_discovery", None)
+
+    tool_count = 0
+    if tool_registry and hasattr(tool_registry, "list_tools"):
+        try:
+            tools = tool_registry.list_tools()
+            tool_count = len(tools) if tools else 0
+        except Exception:
+            pass
+
+    # Also check dynamic discovery
+    dynamic_count = 0
+    if dynamic_discovery and hasattr(dynamic_discovery, "tool_count"):
+        dynamic_count = dynamic_discovery.tool_count
+
+    return {
+        "status": "ok" if tool_count > 0 or dynamic_count > 0 else "degraded",
+        "tool_registry_count": tool_count,
+        "dynamic_discovery_count": dynamic_count,
+        "total_tools": max(tool_count, dynamic_count),
+    }
+
+
 @app.post("/kernels/reload", response_model=KernelReloadResponse)
 async def reload_kernels_endpoint(
     request: KernelReloadRequest,

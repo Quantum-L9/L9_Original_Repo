@@ -85,6 +85,8 @@ logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/slack", tags=["slack"])
 
 # AUTO-REGISTRATION (Phase 2 Auto-Wiring)
+from datetime import UTC
+
 from api.routes.registry import router_registry
 
 router_registry.register(
@@ -105,6 +107,24 @@ async def get_slack_validator(request: Request) -> SlackRequestValidator:
     if not validator:
         raise HTTPException(status_code=500, detail="Slack validator not initialized")
     return validator
+
+
+@router.get("/health")
+async def slack_health(request: Request) -> dict[str, Any]:
+    """
+    Slack integration health check.
+
+    Returns status of Slack validator and configuration.
+    """
+    validator = getattr(request.app.state, "slack_validator", None)
+    slack_client = getattr(request.app.state, "slack_client", None)
+
+    return {
+        "status": "ok" if validator else "degraded",
+        "validator_initialized": validator is not None,
+        "client_initialized": slack_client is not None,
+        "integration": "slack",
+    }
 
 
 @router.post("/events")
@@ -212,7 +232,9 @@ async def slack_events(
         rate_key = f"slack:events:{team_id}"
         events_rate_limit = int(os.getenv("SLACK_EVENTS_RATE_LIMIT", "100"))
         try:
-            is_allowed = await rate_limiter.check_and_increment(rate_key, limit=events_rate_limit)
+            is_allowed = await rate_limiter.check_and_increment(
+                rate_key, limit=events_rate_limit
+            )
             if not is_allowed:
                 logger.warning("slack_rate_limit_exceeded", team_id=team_id)
                 record_rate_limit_hit(team_id=team_id)
@@ -240,13 +262,13 @@ async def slack_events(
     neo4j_client = getattr(request.app.state, "neo4j_client", None)
     if neo4j_client:
         try:
-            from datetime import datetime, timezone
+            from datetime import datetime
             from uuid import uuid4
 
             await neo4j_client.create_event(
                 event_id=f"slack:{payload.get('event_id', uuid4())}",
                 event_type="slack_event",
-                timestamp=datetime.now(timezone.utc).isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
                 properties={
                     "team_id": payload.get("team_id"),
                     "user_id": payload.get("event", {}).get("user"),
@@ -384,7 +406,9 @@ async def slack_commands(
         rate_key = f"slack:commands:{user_id}"
         commands_rate_limit = int(os.getenv("SLACK_COMMANDS_RATE_LIMIT", "50"))
         try:
-            is_allowed = await rate_limiter.check_and_increment(rate_key, limit=commands_rate_limit)
+            is_allowed = await rate_limiter.check_and_increment(
+                rate_key, limit=commands_rate_limit
+            )
             if not is_allowed:
                 logger.warning("slack_command_rate_limit_exceeded", user_id=user_id)
                 return {

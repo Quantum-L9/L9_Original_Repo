@@ -744,39 +744,59 @@ print(f'MCP memory search: {len(data[\"results\"])} results, {data.get(\"search_
         fi
     fi
     
-    # Tool Registry validation (check tool count via /tools or /health/services)
+    # Tool Registry validation (via /tools/health or /health/services)
     info "Testing Tool Registry..."
-    local tools_url="${L9_API_BASE}/health/services"
+    local tools_health_url="${L9_API_BASE}/tools/health"
+    local tools_services_url="${L9_API_BASE}/health/services"
     
-    if response=$(curl -fsS -X GET "$tools_url" 2>&1); then
-        # Check if response contains tool_registry info
+    # Try dedicated /tools/health endpoint first
+    if response=$(curl -fsS -X GET "$tools_health_url" 2>&1); then
         if echo "$response" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
-# Look for tool registry in services health
-services = data.get('services', {})
-tool_count = services.get('tool_registry', {}).get('tool_count', 0)
-if tool_count > 0:
-    print(f'Tool Registry: {tool_count} tools registered')
+total = data.get('total_tools', 0)
+if total > 0:
+    print(f'Tool Registry: {total} tools available')
     sys.exit(0)
 else:
-    # Try alternate structure
-    if 'tool_registry' in str(data):
-        print('Tool Registry: present')
-        sys.exit(0)
-    print('Tool Registry: not found in response')
+    print('Tool Registry: 0 tools (degraded)')
     sys.exit(1)
 " 2>&1; then
-            endpoint_stats+=("✓ Tool Registry")
+            endpoint_stats+=("✓ GET /tools/health")
             success_count=$((success_count + 1))
-            debug "Tool Registry validated"
+            debug "Tool Registry validated via /tools/health"
         else
-            endpoint_stats+=("⚠ Tool Registry (structure unknown)")
-            warn "Tool Registry response structure unexpected"
+            endpoint_stats+=("⚠ Tool Registry (0 tools)")
+            warn "Tool Registry reports 0 tools"
         fi
     else
-        endpoint_stats+=("⚠ Tool Registry (health/services failed)")
-        warn "Could not verify Tool Registry via /health/services"
+        # Fallback to /health/services which includes dynamic_tool_discovery
+        debug "Trying /health/services for tool info..."
+        if response=$(curl -fsS -X GET "$tools_services_url" 2>&1); then
+            if echo "$response" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+services = data.get('services', {})
+dtd = services.get('dynamic_tool_discovery', {})
+tool_count = dtd.get('tool_count', 0)
+if tool_count > 0:
+    print(f'Tool Registry: {tool_count} tools (via dynamic discovery)')
+    sys.exit(0)
+else:
+    print('Tool Registry: not found in services')
+    sys.exit(1)
+" 2>&1; then
+                endpoint_stats+=("✓ Tool Registry (via /health/services)")
+                success_count=$((success_count + 1))
+                debug "Tool Registry validated via /health/services"
+            else
+                endpoint_stats+=("⚠ Tool Registry (not in services)")
+                warn "Tool Registry not found in /health/services"
+            fi
+        else
+            endpoint_stats+=("⚠ Tool Registry (endpoints failed)")
+            warn "Could not verify Tool Registry"
+        fi
     fi
     
     # Kernel Stack verification (check kernels loaded via /kernels or /health)
