@@ -3180,8 +3180,8 @@ async def tools_health_endpoint():
     Returns tool count and registry status.
     """
     tool_registry = getattr(app.state, "tool_registry", None)
-    dynamic_discovery = getattr(app.state, "dynamic_tool_discovery", None)
 
+    # Static tool registry count
     tool_count = 0
     if tool_registry and hasattr(tool_registry, "list_tools"):
         try:
@@ -3190,16 +3190,20 @@ async def tools_health_endpoint():
         except Exception:
             pass
 
-    # Also check dynamic discovery
-    dynamic_count = 0
-    if dynamic_discovery and hasattr(dynamic_discovery, "tool_count"):
-        dynamic_count = dynamic_discovery.tool_count
+    # Dynamic discovery count (from tool embeddings sync at startup)
+    # These are stored in app.state by the lifespan handler
+    dynamic_synced = getattr(app.state, "tool_embeddings_synced", False)
+    dynamic_count = getattr(app.state, "tool_embedding_count", 0)
+
+    # Total is the max of static registry and dynamic discovery
+    total_tools = max(tool_count, dynamic_count)
 
     return {
-        "status": "ok" if tool_count > 0 or dynamic_count > 0 else "degraded",
+        "status": "ok" if total_tools > 0 else "degraded",
         "tool_registry_count": tool_count,
         "dynamic_discovery_count": dynamic_count,
-        "total_tools": max(tool_count, dynamic_count),
+        "dynamic_discovery_synced": dynamic_synced,
+        "total_tools": total_tools,
     }
 
 
