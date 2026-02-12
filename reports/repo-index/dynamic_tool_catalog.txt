@@ -2,213 +2,164 @@
 # Dynamic Tool Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-11 20:18 UTC
-# Branch:    main (f0aa4f7f)
-# Generator: export_repo_indexes.py v2.2.0
+# Generated: 2026-02-12 04:40 UTC
+# Branch:    main (7e10a944)
+# Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 Dynamic Tool Catalog
 # =========================
-# Scanned from actual code (not hardcoded)
-# Format: tool_name | Category | Risk | File
+# Auto-discovered ToolDefinition(...) instances across entire codebase.
+# Includes: core/tools/, runtime/, core/agents/bootstrap/, services/
 
-## Tools Found in core/tools/
+## Registered ToolDefinitions
 
-| Tool | Category | Risk | File |
-|------|----------|------|------|
-| `Calculator` | core | high | core/tools/base_registry.py |
-| `calendar_create` | core | high | core/tools/tool_graph.py |
-| `cypher_template_execute` | core | high | core/tools/tool_graph.py |
-| `cypher_template_list` | core | high | core/tools/tool_graph.py |
-| `email_draft` | core | high | core/tools/tool_graph.py |
-| `email_forward` | core | high | core/tools/tool_graph.py |
-| `email_get` | core | high | core/tools/tool_graph.py |
-| `email_query` | core | high | core/tools/tool_graph.py |
-| `email_reply` | core | high | core/tools/tool_graph.py |
-| `email_send` | core | high | core/tools/tool_graph.py |
-| `execute_tool_with_audit` | core | high | core/tools/tool_audit.py |
-| `execute_tool` | core | high | core/tools/base_registry.py |
-| `git_commit` | core | high | core/tools/registry_adapter.py |
-| `git_commit` | core | high | core/tools/tool_graph.py |
-| `github_create_issue` | core | high | core/tools/tool_graph.py |
-| `github_create_pull_request` | core | high | core/tools/tool_graph.py |
-| `github_merge_pull_request` | core | high | core/tools/tool_graph.py |
-| `gmp_run` | core | high | core/tools/registry_adapter.py |
-| `gmp_run` | core | high | core/tools/tool_graph.py |
-| `godaddy_update_dns_record` | core | high | core/tools/tool_graph.py |
-| `graph_memory_find_related_topics` | core | high | core/tools/tool_graph.py |
-| `graph_memory_get_context` | core | high | core/tools/tool_graph.py |
-| `graph_memory_query_history` | core | high | core/tools/tool_graph.py |
-| `graph_memory_store` | core | high | core/tools/tool_graph.py |
-| `hybrid_rag_search` | core | high | core/tools/tool_graph.py |
-| `kernel_read` | core | high | core/tools/registry_adapter.py |
-| `kernel_read` | core | high | core/tools/tool_graph.py |
-| `llm_chat` | core | high | core/tools/tool_graph.py |
-| `long_plan_execute` | core | high | core/tools/registry_adapter.py |
-| `long_plan_execute` | core | high | core/tools/tool_graph.py |
-| `long_plan_simulate` | core | high | core/tools/registry_adapter.py |
-| `long_plan_simulate` | core | high | core/tools/tool_graph.py |
-| `mac_agent_exec_task` | core | high | core/tools/registry_adapter.py |
-| `mac_agent_exec_task` | core | high | core/tools/tool_graph.py |
-| `mcp_call_tool` | core | high | core/tools/registry_adapter.py |
-| `mcp_call_tool` | core | high | core/tools/tool_graph.py |
-| `mcp_discover_and_register` | core | high | core/tools/registry_adapter.py |
-| `mcp_discover_and_register` | core | high | core/tools/tool_graph.py |
-| `mcp_list_servers` | core | high | core/tools/registry_adapter.py |
-| `mcp_list_servers` | core | high | core/tools/tool_graph.py |
-| `mcp_list_tools` | core | high | core/tools/registry_adapter.py |
-| `mcp_list_tools` | core | high | core/tools/tool_graph.py |
-| `mcp_start_server` | core | high | core/tools/registry_adapter.py |
-| `mcp_start_server` | core | high | core/tools/tool_graph.py |
-| `mcp_stop_all_servers` | core | high | core/tools/registry_adapter.py |
-| `mcp_stop_all_servers` | core | high | core/tools/tool_graph.py |
-| `mcp_stop_server` | core | high | core/tools/registry_adapter.py |
-| `mcp_stop_server` | core | high | core/tools/tool_graph.py |
-| `memory_embed_text` | core | high | core/tools/registry_adapter.py |
-| `memory_embed_text` | core | high | core/tools/tool_graph.py |
-| `memory_fetch_facts_api` | core | high | core/tools/registry_adapter.py |
-| `memory_fetch_facts_api` | core | high | core/tools/tool_graph.py |
-| `memory_fetch_insights` | core | high | core/tools/registry_adapter.py |
-| `memory_fetch_insights` | core | high | core/tools/tool_graph.py |
-| `memory_fetch_lineage` | core | high | core/tools/registry_adapter.py |
-| `memory_fetch_lineage` | core | high | core/tools/tool_graph.py |
-| `memory_fetch_thread` | core | high | core/tools/registry_adapter.py |
-| `memory_fetch_thread` | core | high | core/tools/tool_graph.py |
-| `memory_gc_stats` | core | high | core/tools/registry_adapter.py |
-| `memory_gc_stats` | core | high | core/tools/tool_graph.py |
-| `memory_get_checkpoint` | core | high | core/tools/registry_adapter.py |
-| `memory_get_checkpoint` | core | high | core/tools/tool_graph.py |
-| `memory_get_events` | core | high | core/tools/registry_adapter.py |
-| `memory_get_events` | core | high | core/tools/tool_graph.py |
-| `memory_get_facts` | core | high | core/tools/registry_adapter.py |
-| `memory_get_facts` | core | high | core/tools/tool_graph.py |
-| `memory_get_packet` | core | high | core/tools/registry_adapter.py |
-| `memory_get_packet` | core | high | core/tools/tool_graph.py |
-| `memory_get_reasoning_traces` | core | high | core/tools/registry_adapter.py |
-| `memory_get_reasoning_traces` | core | high | core/tools/tool_graph.py |
-| `memory_health_check` | core | high | core/tools/registry_adapter.py |
-| `memory_health_check` | core | high | core/tools/tool_graph.py |
-| `memory_hybrid_search` | core | high | core/tools/registry_adapter.py |
-| `memory_hybrid_search` | core | high | core/tools/tool_graph.py |
-| `memory_query_packets` | core | high | core/tools/registry_adapter.py |
-| `memory_query_packets` | core | high | core/tools/tool_graph.py |
-| `memory_read` | core | high | core/tools/tool_graph.py |
-| `memory_search_by_thread` | core | high | core/tools/registry_adapter.py |
-| `memory_search_by_thread` | core | high | core/tools/tool_graph.py |
-| `memory_search_by_type` | core | high | core/tools/registry_adapter.py |
-| `memory_search_by_type` | core | high | core/tools/tool_graph.py |
-| `memory_search` | core | high | core/tools/registry_adapter.py |
-| `memory_search` | core | high | core/tools/tool_graph.py |
-| `memory_trigger_world_model_update` | core | high | core/tools/registry_adapter.py |
-| `memory_trigger_world_model_update` | core | high | core/tools/tool_graph.py |
-| `memory_write_insight` | core | high | core/tools/registry_adapter.py |
-| `memory_write_insight` | core | high | core/tools/tool_graph.py |
-| `memory_write` | core | high | core/tools/registry_adapter.py |
-| `memory_write` | core | high | core/tools/tool_graph.py |
-| `neo4j_query` | core | high | core/tools/registry_adapter.py |
-| `neo4j_query` | core | high | core/tools/tool_graph.py |
-| `notion_create_page` | core | high | core/tools/tool_graph.py |
-| `notion_update_page` | core | high | core/tools/tool_graph.py |
-| `redis_decrement_rate_limit` | core | high | core/tools/registry_adapter.py |
-| `redis_decrement_rate_limit` | core | high | core/tools/tool_graph.py |
-| `redis_delete` | core | high | core/tools/registry_adapter.py |
-| `redis_delete` | core | high | core/tools/tool_graph.py |
-| `redis_dequeue_task` | core | high | core/tools/registry_adapter.py |
-| `redis_dequeue_task` | core | high | core/tools/tool_graph.py |
-| `redis_enqueue_task` | core | high | core/tools/registry_adapter.py |
-| `redis_enqueue_task` | core | high | core/tools/tool_graph.py |
-| `redis_get_rate_limit` | core | high | core/tools/registry_adapter.py |
-| `redis_get_rate_limit` | core | high | core/tools/tool_graph.py |
-| `redis_get_task_context` | core | high | core/tools/registry_adapter.py |
-| `redis_get_task_context` | core | high | core/tools/tool_graph.py |
-| `redis_get` | core | high | core/tools/registry_adapter.py |
-| `redis_get` | core | high | core/tools/tool_graph.py |
-| `redis_increment_rate_limit` | core | high | core/tools/registry_adapter.py |
-| `redis_increment_rate_limit` | core | high | core/tools/tool_graph.py |
-| `redis_keys` | core | high | core/tools/registry_adapter.py |
-| `redis_keys` | core | high | core/tools/tool_graph.py |
-| `redis_queue_size` | core | high | core/tools/registry_adapter.py |
-| `redis_queue_size` | core | high | core/tools/tool_graph.py |
-| `redis_set_rate_limit` | core | high | core/tools/registry_adapter.py |
-| `redis_set_rate_limit` | core | high | core/tools/tool_graph.py |
-| `redis_set_task_context` | core | high | core/tools/registry_adapter.py |
-| `redis_set_task_context` | core | high | core/tools/tool_graph.py |
-| `redis_set` | core | high | core/tools/registry_adapter.py |
-| `redis_set` | core | high | core/tools/tool_graph.py |
-| `reflection_agent_analyze_failure` | core | high | core/tools/reflection_tools.py |
-| `reflection_agent_analyze_failure` | core | high | core/tools/tool_graph.py |
-| `reflection_agent_compare_approaches` | core | high | core/tools/reflection_tools.py |
-| `reflection_agent_compare_approaches` | core | high | core/tools/tool_graph.py |
-| `reflection_agent_extract_patterns` | core | high | core/tools/reflection_tools.py |
-| `reflection_agent_extract_patterns` | core | high | core/tools/tool_graph.py |
-| `reflection_agent_generate_improvements` | core | high | core/tools/reflection_tools.py |
-| `reflection_agent_generate_improvements` | core | high | core/tools/tool_graph.py |
-| `reflection_agent_reflect` | core | high | core/tools/reflection_tools.py |
-| `reflection_agent_reflect` | core | high | core/tools/tool_graph.py |
-| `research_agent_discover` | core | high | core/tools/tool_graph.py |
-| `research_agent_generate_spec` | core | high | core/tools/tool_graph.py |
-| `research_agent_synthesize` | core | high | core/tools/tool_graph.py |
-| `run_research_query` | core | high | core/tools/tool_graph.py |
-| `saga_enrich_entities` | core | high | core/tools/tool_graph.py |
-| `saga_execute_custom` | core | high | core/tools/tool_graph.py |
-| `saga_fetch_and_enrich` | core | high | core/tools/tool_graph.py |
-| `saga_timeline_correlation` | core | high | core/tools/tool_graph.py |
-| `schema_introspect_neo4j` | core | high | core/tools/tool_graph.py |
-| `schema_introspect_postgres` | core | high | core/tools/tool_graph.py |
-| `simulation` | core | high | core/tools/registry_adapter.py |
-| `simulation` | core | high | core/tools/tool_graph.py |
-| `slack_send` | core | high | core/tools/tool_graph.py |
-| `symbolic_codegen` | core | high | core/tools/registry_adapter.py |
-| `symbolic_codegen` | core | high | core/tools/tool_graph.py |
-| `symbolic_compute` | core | high | core/tools/registry_adapter.py |
-| `symbolic_compute` | core | high | core/tools/tool_graph.py |
-| `symbolic_optimize` | core | high | core/tools/registry_adapter.py |
-| `symbolic_optimize` | core | high | core/tools/tool_graph.py |
-| `tool_registry` | core | high | core/tools/base_registry.py |
-| `tool_router_find` | core | high | core/tools/tool_graph.py |
-| `tool_router_list` | core | high | core/tools/tool_graph.py |
-| `tools_detect_circular_deps` | core | high | core/tools/registry_adapter.py |
-| `tools_detect_circular_deps` | core | high | core/tools/tool_graph.py |
-| `tools_get_api_dependents` | core | high | core/tools/registry_adapter.py |
-| `tools_get_api_dependents` | core | high | core/tools/tool_graph.py |
-| `tools_get_blast_radius` | core | high | core/tools/registry_adapter.py |
-| `tools_get_blast_radius` | core | high | core/tools/tool_graph.py |
-| `tools_get_by_type` | core | high | core/tools/registry_adapter.py |
-| `tools_get_by_type` | core | high | core/tools/tool_graph.py |
-| `tools_get_catalog` | core | high | core/tools/registry_adapter.py |
-| `tools_get_catalog` | core | high | core/tools/tool_graph.py |
-| `tools_get_dependencies` | core | high | core/tools/registry_adapter.py |
-| `tools_get_dependencies` | core | high | core/tools/tool_graph.py |
-| `tools_get_for_role` | core | high | core/tools/registry_adapter.py |
-| `tools_get_for_role` | core | high | core/tools/tool_graph.py |
-| `tools_get_metadata` | core | high | core/tools/registry_adapter.py |
-| `tools_get_metadata` | core | high | core/tools/tool_graph.py |
-| `tools_get_schema` | core | high | core/tools/registry_adapter.py |
-| `tools_get_schema` | core | high | core/tools/tool_graph.py |
-| `tools_list_all` | core | high | core/tools/registry_adapter.py |
-| `tools_list_all` | core | high | core/tools/tool_graph.py |
-| `tools_list_enabled` | core | high | core/tools/registry_adapter.py |
-| `tools_list_enabled` | core | high | core/tools/tool_graph.py |
-| `vercel_get_deploy_status` | core | high | core/tools/tool_graph.py |
-| `vercel_trigger_deploy` | core | high | core/tools/tool_graph.py |
-| `web_search` | core | high | core/tools/tool_graph.py |
-| `world_model_get_entity` | core | high | core/tools/registry_adapter.py |
-| `world_model_get_entity` | core | high | core/tools/tool_graph.py |
-| `world_model_get_state_version` | core | high | core/tools/registry_adapter.py |
-| `world_model_get_state_version` | core | high | core/tools/tool_graph.py |
-| `world_model_list_entities` | core | high | core/tools/registry_adapter.py |
-| `world_model_list_entities` | core | high | core/tools/tool_graph.py |
-| `world_model_list_snapshots` | core | high | core/tools/registry_adapter.py |
-| `world_model_list_snapshots` | core | high | core/tools/tool_graph.py |
-| `world_model_list_updates` | core | high | core/tools/registry_adapter.py |
-| `world_model_list_updates` | core | high | core/tools/tool_graph.py |
-| `world_model_query` | core | high | core/tools/registry_adapter.py |
-| `world_model_query` | core | high | core/tools/tool_graph.py |
-| `world_model_restore` | core | high | core/tools/registry_adapter.py |
-| `world_model_restore` | core | high | core/tools/tool_graph.py |
-| `world_model_send_insights` | core | high | core/tools/registry_adapter.py |
-| `world_model_send_insights` | core | high | core/tools/tool_graph.py |
-| `world_model_snapshot` | core | high | core/tools/registry_adapter.py |
-| `world_model_snapshot` | core | high | core/tools/tool_graph.py |
+| Tool | Category | Scope | Risk | Igor? | Description | File |
+|------|----------|-------|------|-------|-------------|------|
+| `calendar_create` | scheduling | - | - | - | Create calendar event | core/tools/tool_graph.py |
+| `cypher_template_execute` | - | - | - | - | - | core/tools/tool_graph.py |
+| `cypher_template_list` | introspection | internal | low | - | List available parameterized Cypher templates | core/tools/tool_graph.py |
+| `email_draft` | communication | - | - | - | Create email draft | core/tools/tool_graph.py |
+| `email_forward` | communication | - | - | - | Forward an email message | core/tools/tool_graph.py |
+| `email_get` | communication | - | - | - | Get full email message with body and attachments | core/tools/tool_graph.py |
+| `email_query` | communication | - | - | - | Query emails from Gmail account | core/tools/tool_graph.py |
+| `email_reply` | communication | - | - | - | Reply to an email message | core/tools/tool_graph.py |
+| `email_send` | - | - | - | - | - | core/tools/tool_graph.py |
+| `git_commit` | vcs | requires_igor_approval | high | True | Commit code changes to git repository | core/tools/registry_adapter.py |
+| `github_create_issue` | integration | external | low | - | Create a GitHub issue via MCP | core/tools/tool_graph.py |
+| `github_create_pull_request` | integration | external | medium | - | Create a GitHub pull request via MCP | core/tools/tool_graph.py |
+| `github_merge_pull_request` | integration | external | high | True | Merge a GitHub pull request via MCP | core/tools/tool_graph.py |
+| `gmp_run` | governance | - | high | True | Execute GMP protocol | core/agents/bootstrap/phase_5_bind_tools.py |
+| `godaddy_update_dns_record` | integration | external | high | True | Update a GoDaddy DNS record via MCP | core/tools/tool_graph.py |
+| `graph_memory_find_related_topics` | memory | internal | low | - | Find topics related to a given topic | core/tools/tool_graph.py |
+| `graph_memory_get_context` | memory | internal | low | - | Get conversation context for a session | core/tools/tool_graph.py |
+| `graph_memory_query_history` | memory | internal | low | - | Query user conversation history from graph memory | core/tools/tool_graph.py |
+| `graph_memory_store` | memory | internal | low | - | Store a message in conversational graph memory | core/tools/tool_graph.py |
+| `hybrid_rag_search` | - | - | - | - | - | core/tools/tool_graph.py |
+| `kernel_read` | kernel | internal | low | False | Read a property from a kernel | core/tools/registry_adapter.py |
+| `llm_chat` | ai | - | - | - | Chat with OpenAI models | core/tools/tool_graph.py |
+| `long_plan_execute` | orchestration | internal | medium | False | Execute a long plan through LangGraph DAG | core/tools/registry_adapter.py |
+| `long_plan_simulate` | - | - | - | - | - | core/tools/tool_graph.py |
+| `mac_agent_exec_task` | execution | requires_igor_approval | high | True | Execute command via Mac agent | core/tools/registry_adapter.py |
+| `mcp_call_tool` | - | - | - | - | - | core/tools/tool_graph.py |
+| `mcp_discover_and_register` | integration | internal | low | False | Auto-discover all MCP tools and register them in N | core/tools/registry_adapter.py |
+| `mcp_list_servers` | integration | internal | low | False | List all configured MCP servers and their status | core/tools/registry_adapter.py |
+| `mcp_list_tools` | - | - | - | - | - | core/tools/tool_graph.py |
+| `mcp_start_server` | mcp | internal | medium | False | Start an MCP server process | core/tools/registry_adapter.py |
+| `mcp_stop_all_servers` | mcp | internal | medium | False | Stop all running MCP server processes | core/tools/registry_adapter.py |
+| `mcp_stop_server` | mcp | internal | medium | False | Stop an MCP server process | core/tools/registry_adapter.py |
+| `memory_embed_text` | memory | internal | low | False | Generate embedding vector for text | core/tools/registry_adapter.py |
+| `memory_fetch_facts_api` | memory | internal | low | False | Fetch knowledge facts from memory API | core/tools/registry_adapter.py |
+| `memory_fetch_insights` | memory | internal | low | False | Fetch insights from memory | core/tools/registry_adapter.py |
+| `memory_fetch_lineage` | - | - | - | - | - | core/tools/tool_graph.py |
+| `memory_fetch_thread` | memory | internal | low | False | Fetch all packets in a conversation thread | core/tools/registry_adapter.py |
+| `memory_gc_stats` | memory | internal | low | False | Get garbage collection statistics from memory | core/tools/registry_adapter.py |
+| `memory_get_checkpoint` | memory | internal | low | False | Get the latest checkpoint state for an agent | core/tools/registry_adapter.py |
+| `memory_get_events` | - | - | - | - | - | core/tools/tool_graph.py |
+| `memory_get_facts` | memory | internal | low | False | Get knowledge facts by subject from memory graph | core/tools/registry_adapter.py |
+| `memory_get_packet` | memory | internal | low | False | Get a specific packet by ID from memory substrate | core/tools/registry_adapter.py |
+| `memory_get_reasoning_traces` | memory | internal | low | False | Get L | core/tools/registry_adapter.py |
+| `memory_health_check` | memory | internal | low | False | Check health of all memory substrate components | core/tools/registry_adapter.py |
+| `memory_hybrid_search` | memory | internal | low | False | Hybrid search combining semantic + keyword matchin | core/tools/registry_adapter.py |
+| `memory_query_packets` | memory | internal | low | False | Query packets with complex filters | core/tools/registry_adapter.py |
+| `memory_read` | memory | internal | - | - | Read from L9 memory substrate | core/tools/tool_graph.py |
+| `memory_search` | memory | internal | low | False | Search L | core/tools/registry_adapter.py |
+| `memory_search_by_thread` | memory | internal | low | False | Search packets by conversation thread ID | core/tools/registry_adapter.py |
+| `memory_search_by_type` | - | - | - | - | - | core/tools/tool_graph.py |
+| `memory_trigger_world_model_update` | memory | internal | medium | False | Trigger world model update from insights | core/tools/registry_adapter.py |
+| `memory_write` | memory | internal | medium | False | Write to L | core/tools/registry_adapter.py |
+| `memory_write_insight` | memory | internal | medium | False | Write an insight to memory substrate | core/tools/registry_adapter.py |
+| `neo4j_query` | knowledge | internal | low | - | Run Cypher queries against Neo4j graph for relatio | core/tools/tool_graph.py |
+| `notion_create_page` | integration | external | low | - | Create a Notion page via MCP | core/tools/tool_graph.py |
+| `notion_update_page` | integration | external | low | - | Update a Notion page via MCP | core/tools/tool_graph.py |
+| `redis_decrement_rate_limit` | redis | internal | low | False | Decrement rate limit counter | core/tools/registry_adapter.py |
+| `redis_delete` | cache | internal | medium | False | Delete a key from Redis | core/tools/registry_adapter.py |
+| `redis_dequeue_task` | cache | internal | low | False | Dequeue task from Redis queue | core/tools/registry_adapter.py |
+| `redis_enqueue_task` | cache | internal | medium | False | Enqueue a task to Redis queue | core/tools/registry_adapter.py |
+| `redis_get` | cache | internal | low | False | Get value from Redis cache | core/tools/registry_adapter.py |
+| `redis_get_rate_limit` | redis | internal | low | False | Get current rate limit count for a key | core/tools/registry_adapter.py |
+| `redis_get_task_context` | cache | internal | low | False | Get cached task context from Redis | core/tools/registry_adapter.py |
+| `redis_increment_rate_limit` | redis | internal | low | False | Increment rate limit counter | core/tools/registry_adapter.py |
+| `redis_keys` | cache | internal | low | False | List Redis keys matching a pattern | core/tools/registry_adapter.py |
+| `redis_queue_size` | cache | internal | low | False | Get size of a Redis task queue | core/tools/registry_adapter.py |
+| `redis_set` | cache | internal | low | False | Set value in Redis cache with optional TTL | core/tools/registry_adapter.py |
+| `redis_set_rate_limit` | redis | internal | medium | False | Set rate limit count with TTL | core/tools/registry_adapter.py |
+| `redis_set_task_context` | cache | internal | medium | False | Set task context in Redis cache | core/tools/registry_adapter.py |
+| `reflection_agent_analyze_failure` | reflection | internal | low | - | Deep failure root cause analysis via ReflectionAge | core/tools/tool_graph.py |
+| `reflection_agent_compare_approaches` | - | - | - | - | - | core/tools/tool_graph.py |
+| `reflection_agent_extract_patterns` | reflection | internal | low | - | Extract patterns from examples via ReflectionAgent | core/tools/tool_graph.py |
+| `reflection_agent_generate_improvements` | reflection | internal | low | - | Generate improvement plan from current performance | core/tools/tool_graph.py |
+| `reflection_agent_reflect` | reflection | internal | low | - | Execute reflection on execution history via Reflec | core/tools/tool_graph.py |
+| `research_agent_discover` | - | - | - | - | - | core/tools/tool_graph.py |
+| `research_agent_generate_spec` | research | internal | low | - | Generate Module-Spec-v2.4 YAML via ResearchAgent.  | core/tools/tool_graph.py |
+| `research_agent_synthesize` | - | - | - | - | - | core/tools/tool_graph.py |
+| `run_research_query` | - | - | - | - | - | core/tools/tool_graph.py |
+| `saga_enrich_entities` | memory | internal | low | - | Cross-DB saga: lookup entities by ID → enrich with | core/tools/tool_graph.py |
+| `saga_execute_custom` | memory | internal | medium | - | Execute a custom saga with user-defined steps. Eac | core/tools/tool_graph.py |
+| `saga_fetch_and_enrich` | - | - | - | - | - | core/tools/tool_graph.py |
+| `saga_timeline_correlation` | - | - | - | - | - | core/tools/tool_graph.py |
+| `schema_introspect_neo4j` | - | - | - | - | - | core/tools/tool_graph.py |
+| `schema_introspect_postgres` | - | - | - | - | - | core/tools/tool_graph.py |
+| `simulation` | simulation | internal | low | False | Execute IR graph simulation for agent reasoning tr | core/tools/registry_adapter.py |
+| `slack_send` | communication | - | - | - | Send message to Slack | core/tools/tool_graph.py |
+| `symbolic_codegen` | computation | internal | low | False | Generate compilable C/Fortran/Python code from sym | core/tools/registry_adapter.py |
+| `symbolic_compute` | computation | internal | low | False | Evaluate symbolic mathematical expressions numeric | core/tools/registry_adapter.py |
+| `symbolic_optimize` | computation | internal | low | False | Optimize and simplify symbolic expressions using C | core/tools/registry_adapter.py |
+| `tool_router_find` | introspection | internal | low | - | Find relevant tools for a task using semantic sear | core/tools/tool_graph.py |
+| `tool_router_list` | introspection | internal | low | - | List all available tools in the tool router | core/tools/tool_graph.py |
+| `tools_detect_circular_deps` | tools | internal | low | False | Detect circular dependencies in the tool graph | core/tools/registry_adapter.py |
+| `tools_get_api_dependents` | tools | internal | low | False | Get all tools that depend on an API | core/tools/registry_adapter.py |
+| `tools_get_blast_radius` | tools | internal | low | False | Calculate full blast radius if an API goes down | core/tools/registry_adapter.py |
+| `tools_get_by_type` | introspection | internal | low | False | Get all tools of a specific type | core/tools/registry_adapter.py |
+| `tools_get_catalog` | tools | internal | low | False | Get L | core/tools/registry_adapter.py |
+| `tools_get_dependencies` | tools | internal | low | False | Get all dependencies of a tool | core/tools/registry_adapter.py |
+| `tools_get_for_role` | introspection | internal | low | False | Get all tools available for a role | core/tools/registry_adapter.py |
+| `tools_get_metadata` | introspection | internal | low | False | Get detailed metadata for a tool | core/tools/registry_adapter.py |
+| `tools_get_schema` | introspection | internal | low | False | Get OpenAI function schema for a tool | core/tools/registry_adapter.py |
+| `tools_list_all` | introspection | internal | low | False | List all registered tools | core/tools/registry_adapter.py |
+| `tools_list_enabled` | introspection | internal | low | False | List only enabled tools | core/tools/registry_adapter.py |
+| `vercel_get_deploy_status` | integration | external | low | - | Get Vercel deployment status via MCP | core/tools/tool_graph.py |
+| `vercel_trigger_deploy` | integration | external | high | True | Trigger a Vercel deployment via MCP | core/tools/tool_graph.py |
+| `web_search` | research | - | - | - | Search the web using Firecrawl | core/tools/tool_graph.py |
+| `world_model_get_entity` | knowledge | internal | low | False | Get entity from world model by ID | core/tools/registry_adapter.py |
+| `world_model_get_state_version` | knowledge | internal | low | False | Get current world model state version | core/tools/registry_adapter.py |
+| `world_model_list_entities` | knowledge | internal | low | False | List entities from world model | core/tools/registry_adapter.py |
+| `world_model_list_snapshots` | knowledge | internal | low | False | List recent world model snapshots | core/tools/registry_adapter.py |
+| `world_model_list_updates` | world_model | internal | low | False | List recent world model updates | core/tools/registry_adapter.py |
+| `world_model_query` | world_model | internal | low | False | Query the world model | core/tools/registry_adapter.py |
+| `world_model_restore` | world_model | internal | high | True | Restore world model from a snapshot | core/tools/registry_adapter.py |
+| `world_model_send_insights` | knowledge | internal | medium | False | Send insights for world model update | core/tools/registry_adapter.py |
+| `world_model_snapshot` | knowledge | internal | medium | False | Create snapshot of world model state | core/tools/registry_adapter.py |
 
-# Total: 194 tool definitions found
+# Total: 114 unique ToolDefinitions
+
+## Tool Implementation Classes
+
+| Class | File | Purpose |
+|-------|------|---------|
+| `AgentSelfModifyTool` | core/tools/agent_self_modify.py | Allow agents to modify their own graph state. |
+| `CachedToolRegistry` | core/tools/registry_cache.py | Wrapper for tool registry with caching. |
+| `DynamicToolDiscoveryService` | core/tools/semantic_discovery.py | Production-grade tool discovery using L9's pgvecto |
+| `ExecutorToolRegistry` | core/tools/registry_adapter.py | Tool registry adapter for AgentExecutorService. |
+| `SemanticToolSearchAdapter` | core/tools/semantic_tool_search.py | Adapter for semantic tool search using L9's pgvect |
+| `SymbolicComputationTool` | core/tools/symbolic_tool.py | L9 Tool wrapper for symbolic computation. |
+| `ToolAuditEntry` | core/tools/tool_audit.py | Record of single tool execution |
+| `ToolAuditService` | core/tools/tool_audit.py | Initializes the ToolAuditService for tracking tool |
+| `ToolContextFormatter` | core/tools/semantic_discovery.py | Format discovered tools into LLM-ready prompt sect |
+| `ToolCostEstimator` | core/tools/tool_audit.py | Estimate cost per tool call |
+| `ToolDefinition` | core/tools/semantic_discovery.py | Complete tool specification for discovery. |
+| `ToolDefinition` | core/tools/tool_graph.py | Definition of a tool for graph registration. |
+| `ToolEmbeddingResult` | core/tools/tool_embeddings.py | Result from tool embedding search. |
+| `ToolExecutor` | core/tools/registry_adapter.py | Protocol for tool executors. |
+| `ToolGraph` | core/tools/tool_graph.py | Tool dependency graph backed by Neo4j. |
+| `ToolInputSanitizationError` | core/tools/sanitizer.py | Raised when tool input cannot be sanitized/validat |
+| `ToolInputSanitizer` | core/tools/sanitizer.py | Centralized input sanitization for tool arguments. |
+| `ToolInputSanitizerConfig` | core/tools/sanitizer.py | Configuration class for tool input sanitization pa |
+| `ToolMetadata` | core/tools/base_registry.py | Metadata for a registered tool. |
+| `ToolRegistry` | core/tools/base_registry.py | In-memory registry of available tools. |
+| `ToolRegistryCache` | core/tools/registry_cache.py | High-performance caching layer for tool registry. |
+| `ToolSchema` | core/tools/base_registry.py | JSON Schema for tool parameters (OpenAI function c |
+| `ToolSearchOptimizer` | core/tools/semantic_tool_search.py | Optimize tool availability based on usage patterns |
+| `ToolSearchResult` | core/tools/semantic_tool_search.py | Result from semantic tool search. |
+| `ToolStatus` | core/tools/semantic_discovery.py | Tool availability states |
+| `ToolType` | core/tools/base_registry.py | Types of available tools. |

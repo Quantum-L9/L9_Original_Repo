@@ -2,9 +2,9 @@
 # Async Function Map
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-11 20:18 UTC
-# Branch:    main (f0aa4f7f)
-# Generator: export_repo_indexes.py v2.2.0
+# Generated: 2026-02-12 04:40 UTC
+# Branch:    main (7e10a944)
+# Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 Async Function Map
@@ -109,6 +109,7 @@ async _check_working_memory(repo_id, branch, query) @ agents/cursor/cursor_retri
 async _classify_node(state) @ orchestration/ws_task_router.py
 async _cleanup() @ mac_agent/executor.py
 async _cleanup_all() @ core/protocols/connection_protocols.py
+async _clear_event_inflight(event_id) @ memory/slack_ingest.py
 async _clear_lockout(key) @ runtime/auth_rate_limiter.py
 async _collect_telemetry() @ workers/anomaly_response_monitor.py
 async _compact() @ orchestrators/memory/orchestrator.py
@@ -371,6 +372,7 @@ async _log_to_audit(violation, request) @ workers/violation_tracker_service.py
 async _log_to_violations(violation) @ workers/violation_tracker_service.py
 async _make_llm_call() @ agents/base_agent.py
 async _make_request() @ services/research/tools/perplexity_client.py
+async _mark_event_inflight(event_id) @ memory/slack_ingest.py
 async _maybe_capture_strategy(plan, result, context) @ orchestration/plan_executor.py
 async _mcp_cache_call(tool_name, arguments) @ core/tools/dynamic_discovery.py
 async _merge_duplicate_group(group, packets) @ memory/deduplication.py
@@ -1516,6 +1518,7 @@ async get_recent_events(agent_id, event_type, limit) @ memory/timeline_service.p
 async get_recent_mutations(limit, subsystem) @ core/governance/cmts.py
 async get_redis() @ api/memory/cache.py
 async get_redis_client() @ core/agents/idempotency_store.py
+async get_redis_client() @ memory/slack_ingest.py
 async get_redis_client(client) @ runtime/redis_client.py
 async get_relationship_types() @ memory/schema_introspection.py
 async get_relationships(entity_type, entity_id, rel_type, direction) @ memory/graph_client.py
@@ -1811,6 +1814,7 @@ async list_entities(entity_type, min_confidence, limit, offset) @ clients/world_
 async list_entities(entity_type, min_confidence, limit, offset, tenant_id, org_id, user_id, role) @ world_model/repository.py
 async list_entities(entity_type, min_confidence, limit, offset, tenant_id, org_id, user_id, role) @ world_model/service.py
 async list_eval_sets(request) @ api/routes/evaluation.py
+async list_kernels_endpoint(api_key) @ api/server.py
 async list_pending_gmp_tasks() @ runtime/gmp_approval.py
 async list_pending_tasks() @ runtime/gmp_worker.py
 async list_reasoning_modes() @ api/routes/tensor_bridge.py
@@ -2489,6 +2493,7 @@ async set_state(agent_id, state) @ core/protocols/agent_protocols.py
 async set_task_context(task_id, context, ttl) @ runtime/redis_client.py
 async set_task_context(task_id, context, ttl, authorization, _) @ api/memory/cache.py
 async set_working_memory(key, value, ttl_seconds) @ domain_tensor_bridge/memory_bridge.py
+async setnx(key, value, ttl, raw) @ runtime/redis_client.py
 async should_fail_hardening_disabled_async(env, hardening_enabled) @ mcp_memory/src/main.py
 async shutdown() @ SDK/SDK.py
 async shutdown() @ api/agent_routes.py
@@ -2525,6 +2530,7 @@ async single() @ tests/core/bootstrap/conftest.py
 async size() @ runtime/task_queue.py
 async slack_commands(request, validator, x_slack_signature, x_slack_request_timestamp) @ api/routes/slack.py
 async slack_events(request, validator, x_slack_signature, x_slack_request_timestamp) @ api/routes/slack.py
+async slack_health(request) @ api/routes/slack.py
 async slack_send(channel, text, thread_ts) @ runtime/l_tools.py
 async slow_enrich() @ tests/memory/test_unified_pipeline.py
 async slow_operation(x) @ tests/memory/test_query_cache_and_vector.py
@@ -3886,6 +3892,7 @@ async tools_get_dependencies(tool_name) @ runtime/l_tools.py
 async tools_get_for_role(role) @ runtime/l_tools.py
 async tools_get_metadata(tool_id) @ runtime/l_tools.py
 async tools_get_schema(tool_id) @ runtime/l_tools.py
+async tools_health_endpoint() @ api/server.py
 async tools_list_all() @ runtime/l_tools.py
 async tools_list_enabled() @ runtime/l_tools.py
 async tools_test(authorization, _) @ api/tools/router.py
@@ -4049,4 +4056,4 @@ async write_packet_to_substrate(packet) @ world_model/seed_loader.py
 async write_tests(code, framework) @ agents/coder_agent/coder_agent_b.py
 async write_verdict_entry(verdict_id, action_id, decision, agent_id, risk_class, justification) @ core/eos/ledger_writer.py
 
-# Total: 4036 async functions
+# Total: 4043 async functions

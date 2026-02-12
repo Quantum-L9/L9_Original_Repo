@@ -2,9 +2,9 @@
 # Route Handlers
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-11 20:18 UTC
-# Branch:    main (f0aa4f7f)
-# Generator: export_repo_indexes.py v2.2.0
+# Generated: 2026-02-12 04:40 UTC
+# Branch:    main (7e10a944)
+# Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 Route Handlers
@@ -63,6 +63,7 @@ GET /health → health_check() @ mcp_memory/src/routes/health.py
 GET /health → health_check() @ services/symbolic_computation/api/routes.py
 GET /health → os_health() @ api/os_routes.py
 GET /health → simulation_health() @ api/routes/simulation.py
+GET /health → slack_health() @ api/routes/slack.py
 GET /health → tensor_bridge_health() @ api/routes/tensor_bridge.py
 GET /health → tool_graph_health() @ api/tools/router.py
 GET /health → upgrade_health() @ api/routes/upgrades.py
@@ -77,6 +78,7 @@ GET /infrastructure/status → get_infrastructure_status() @ api/routes/worldmod
 GET /insights → get_insights() @ api/memory/router.py
 GET /integrations → get_integrations() @ api/routes/worldmodel.py
 GET /kernel → get_kernel() @ tests/orchestrators/test_kernel_injection.py
+GET /kernels → list_kernels_endpoint() @ api/server.py
 GET /keys/{pattern} → cache_keys() @ api/memory/cache.py
 GET /lessons-learned → get_lessons_learned() @ api/routes/reflection_agent.py
 GET /lineage/{packet_id} → get_lineage() @ api/memory/router.py
@@ -126,6 +128,7 @@ GET /test → pattern_test() @ api/routes/pattern.py
 GET /test → reasoning_test() @ api/routes/reasoning.py
 GET /test → research_test() @ api/routes/research.py
 GET /thread/{thread_id} → get_thread() @ api/memory/router.py
+GET /tools/health → tools_health_endpoint() @ api/server.py
 GET /updates → list_updates() @ api/world_model_api.py
 GET /violations/counts → get_violation_counts() @ api/routes/workers.py
 GET /waba/webhook → verify_waba_webhook() @ api/webhook_waba.py
@@ -234,4 +237,4 @@ WEBSOCKET /lws → l_ws() @ api/server.py
 WEBSOCKET /ws → inject_trace_into_packet() @ api/middleware/websocket_tracing.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ api/server.py
 
-# Total: 221 route handlers
+# Total: 224 route handlers

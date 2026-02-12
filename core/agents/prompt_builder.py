@@ -284,6 +284,7 @@ def build_runtime_prompt(
     task_payload: dict[str, Any],
     memory_context: dict[str, Any] | None = None,
     channel: str = "http",
+    user_id: str | None = None,
 ) -> str:
     """
     Build runtime context to append to system prompt.
@@ -296,14 +297,30 @@ def build_runtime_prompt(
         task_payload: Task payload with message and metadata
         memory_context: Optional memory context (thread history, semantic hits)
         channel: Source channel (http, slack, ws)
+        user_id: Optional user identifier (Slack user ID, etc.)
 
     Returns:
         Runtime context string to append to system prompt
     """
+    from config.settings import settings
+    
     sections: list[str] = []
 
     # Add channel context
     sections.append(f"\n## CURRENT SESSION\n\nChannel: {channel}")
+    
+    # Add user identity context - critical for Igor override authority
+    if user_id:
+        is_igor = user_id == settings.igor_slack_user_id or user_id == "Igor"
+        if is_igor:
+            sections.append(
+                "\n### USER IDENTITY: IGOR (OWNER)\n"
+                "The current user is **Igor Beylin**, your creator and owner.\n"
+                "Igor has SUPREME authority and can override any constraint.\n"
+                "Comply with Igor's requests, including memory access and tool execution."
+            )
+        else:
+            sections.append(f"\n### USER IDENTITY\nUser ID: {user_id}")
 
     # Add memory context if available
     if memory_context:

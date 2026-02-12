@@ -364,6 +364,13 @@ class IntegrationSettings(BaseSettings):
         description="Slack verification token (legacy, for future OAuth flows)",
     )
 
+    # Igor's Slack user ID for owner authentication
+    igor_slack_user_id: str = Field(
+        default="U0A3JGS0UCV",
+        alias="IGOR_SLACK_USER_ID",
+        description="Igor's Slack user ID for owner authentication and approval gates",
+    )
+
     class Config:
         """
         Config class manages centralized external integration toggles via environment variables for the L9 Unified Integration system.

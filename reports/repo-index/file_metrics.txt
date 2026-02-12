@@ -2,9 +2,9 @@
 # File Metrics
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-11 20:18 UTC
-# Branch:    main (f0aa4f7f)
-# Generator: export_repo_indexes.py v2.2.0
+# Generated: 2026-02-12 04:40 UTC
+# Branch:    main (7e10a944)
+# Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 File Metrics
@@ -14,18 +14,18 @@
 
 | File | Lines | Classes | Functions | Async |
 |------|-------|---------|-----------|-------|
-| `api/server.py` | 3817 | 7 | 3 | 16 |
+| `api/server.py` | 3915 | 7 | 3 | 18 |
 | `core/tools/registry_adapter.py` | 3775 | 3 | 14 | 7 |
 | `core/agents/executor.py` | 2888 | 5 | 15 | 20 |
-| `tools/export_repo_indexes.py` | 2848 | 0 | 45 | 0 |
+| `tools/export_repo_indexes.py` | 2879 | 0 | 45 | 0 |
 | `runtime/l_tools.py` | 2763 | 0 | 2 | 68 |
 | `memory/substrate_repository.py` | 2593 | 1 | 4 | 50 |
 | `scripts/audit/find_dead_code.py` | 2510 | 4 | 34 | 0 |
 | `scripts/audit/inject_dora_complete.py` | 2454 | 6 | 46 | 0 |
 | `world_model/runtime.py` | 2143 | 9 | 32 | 17 |
 | `core/tools/tool_graph.py` | 2076 | 2 | 2 | 13 |
+| `memory/slack_ingest.py` | 1969 | 0 | 6 | 14 |
 | `world_model/knowledge_ingestor.py` | 1858 | 7 | 43 | 1 |
-| `memory/slack_ingest.py` | 1849 | 0 | 6 | 11 |
 | `agents/cursor/cursor_memory_client.py` | 1782 | 0 | 32 | 0 |
 | `world_model/causal_mapper.py` | 1662 | 11 | 46 | 0 |
 | `mcp_memory/src/routes/memory_unified.py` | 1608 | 0 | 4 | 15 |
@@ -134,6 +134,7 @@
 | `simulation/simulation_engine.py` | 711 | 6 | 16 | 6 |
 | `core/worldmodel/service.py` | 708 | 1 | 2 | 16 |
 | `ci/check_imports.py` | 708 | 0 | 4 | 0 |
+| `runtime/redis_client.py` | 707 | 1 | 4 | 18 |
 | `clients/memory_client.py` | 706 | 6 | 3 | 16 |
 | `tools/adr/docstring_injector.py` | 704 | 2 | 12 | 0 |
 | `scripts/fix_untyped_decorators.py` | 704 | 2 | 13 | 0 |
@@ -161,7 +162,6 @@
 | `core/instrumentation/decorators.py` | 673 | 0 | 16 | 3 |
 | `orchestrators/pattern/cell_adapter.py` | 673 | 2 | 9 | 3 |
 | `core/protocols/rate_limiting_protocols.py` | 671 | 5 | 14 | 5 |
-| `runtime/redis_client.py` | 670 | 1 | 4 | 17 |
 | `workflows/dags/test_pipeline_dag.py` | 670 | 0 | 1 | 0 |
 | `tools/codegen/test_generator.py` | 669 | 12 | 17 | 0 |
 | `tests/core/governance/test_engine.py` | 669 | 0 | 13 | 7 |
@@ -295,6 +295,7 @@
 | `memory/retrieval_ranking.py` | 532 | 3 | 15 | 0 |
 | `core/calibration/service.py` | 531 | 3 | 5 | 7 |
 | `scripts/memory/seed_golden_strategies.py` | 531 | 0 | 0 | 6 |
+| `api/routes/slack.py` | 531 | 0 | 4 | 5 |
 | `core/schemas/research_factory_nodes.py` | 529 | 0 | 1 | 5 |
 | `core/agents/kernelevolution.py` | 528 | 2 | 8 | 1 |
 | `memory/reasoning_replay.py` | 528 | 2 | 3 | 6 |
@@ -322,7 +323,6 @@
 | `memory/checkpoint/postgres_saver.py` | 509 | 2 | 4 | 7 |
 | `runtime/response_tagger.py` | 509 | 5 | 20 | 0 |
 | `tests/memory/test_unified_pipeline.py` | 508 | 10 | 9 | 13 |
-| `api/routes/slack.py` | 507 | 0 | 4 | 4 |
 | `codegen/scripts/generate_spec.py` | 506 | 1 | 8 | 3 |
 | `scripts/workspace/init_workspace_NEW.py` | 506 | 0 | 6 | 0 |
 | `core/governance/cmts.py` | 505 | 5 | 2 | 9 |
@@ -1265,4 +1265,4 @@
 | `tools/codegen/__init__.py` | 52 | 0 | 0 | 0 |
 
 # Total: 1249 Python files (>50 lines)
-# Total lines: 485,513
+# Total lines: 485,823

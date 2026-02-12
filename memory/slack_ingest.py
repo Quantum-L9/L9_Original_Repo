@@ -810,7 +810,9 @@ async def handle_slack_events(
                 )
 
                 # Igor is the only authorized user for approvals
-                command_user = "Igor" if user_id == "Igor" else user_id
+                # Check if user_id matches Igor's Slack user ID
+                is_igor = user_id == settings.igor_slack_user_id or user_id == "Igor"
+                command_user = "Igor" if is_igor else user_id
 
                 result = await executor.execute_command(
                     command=parsed,

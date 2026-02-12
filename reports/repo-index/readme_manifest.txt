@@ -2,13 +2,13 @@
 # Readme Manifest
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-11 20:18 UTC
-# Branch:    main (f0aa4f7f)
-# Generator: export_repo_indexes.py v2.2.0
+# Generated: 2026-02-12 04:40 UTC
+# Branch:    main (7e10a944)
+# Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 README File Manifest
-# Generated: 2026-02-11 20:18
+# Generated: 2026-02-12 04:40
 #
 # AI Reference: Quick lookup for module documentation
 # Each entry shows: PATH | TITLE | DESCRIPTION

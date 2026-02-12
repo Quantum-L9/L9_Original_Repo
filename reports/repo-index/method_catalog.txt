@@ -2,9 +2,9 @@
 # Method Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-11 20:18 UTC
-# Branch:    main (f0aa4f7f)
-# Generator: export_repo_indexes.py v2.2.0
+# Generated: 2026-02-12 04:40 UTC
+# Branch:    main (7e10a944)
+# Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 Method Catalog
@@ -4044,6 +4044,7 @@ RedisClient::async queue_size(queue_name) @ runtime/redis_client.py
 RedisClient::async set(key, value, ttl, ex, raw) @ runtime/redis_client.py
 RedisClient::async set_rate_limit(key, value, ttl) @ runtime/redis_client.py
 RedisClient::async set_task_context(task_id, context, ttl) @ runtime/redis_client.py
+RedisClient::async setnx(key, value, ttl, raw) @ runtime/redis_client.py
 RedisClient::is_available() @ runtime/redis_client.py
 RedisSubstrate::__init__(config) @ world_model/_pack_staging/redis_substrate.py
 RedisSubstrate::_entity_key(entity_id) @ world_model/_pack_staging/redis_substrate.py
@@ -8208,4 +8209,4 @@ _StubClientSession::post() @ core/reasoning/toth_engine.py
 _StubRateLimiter::async check_and_increment(key, limit) @ core/governance/rate_limit_policy.py
 _StubRateLimiter::async get_usage(key) @ core/governance/rate_limit_policy.py
 
-# Total: 8195 class methods
+# Total: 8196 class methods

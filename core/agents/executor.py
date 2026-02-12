@@ -1478,10 +1478,16 @@ class AgentExecutorService:
 
                 # Build runtime context from task
                 memory_context = task.context or {}
+                # Extract user_id from payload (Slack messages include this)
+                payload = task.payload or {}
+                slack_info = payload.get("slack", {})
+                user_id = slack_info.get("user_id") or payload.get("user_id")
+                
                 runtime_prompt = build_runtime_prompt(
-                    task_payload=task.payload or {},
+                    task_payload=payload,
                     memory_context=memory_context,
                     channel=task.source_id,
+                    user_id=user_id,
                 )
 
                 # Combine kernel prompt with existing system prompt

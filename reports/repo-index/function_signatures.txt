@@ -2,9 +2,9 @@
 # Function Signatures
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-11 20:18 UTC
-# Branch:    main (f0aa4f7f)
-# Generator: export_repo_indexes.py v2.2.0
+# Generated: 2026-02-12 04:40 UTC
+# Branch:    main (7e10a944)
+# Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 .backup/bootstrap-7phase/orchestrator.py::__init__(self, substrate_service) - 
@@ -627,6 +627,7 @@ api/routes/slack.py::async get_slack_validator(request) - Retrieve validator fro
 api/routes/slack.py::async process_command_async() - Process command asynchronously after ret
 api/routes/slack.py::async slack_commands(request, validator, x_slack_signature, x_slack_request_timestamp) - Slack slash command handler.
 api/routes/slack.py::async slack_events(request, validator, x_slack_signature, x_slack_request_timestamp) - Slack Events API webhook handler.
+api/routes/slack.py::async slack_health(request) - Slack integration health check.
 api/routes/slack.py::record_rate_limit_hit() - Stub for recording rate limit hit metric
 api/routes/slack.py::record_signature_verification() - Stub for recording signature verificatio
 api/routes/slack.py::record_slack_processing() - Stub for recording Slack processing metr
@@ -669,6 +670,7 @@ api/server.py::async health() - Root health check endpoint for Docker he
 api/server.py::async l_ws(websocket) - WebSocket entrypoint for L-CTO agent int
 api/server.py::async lchat(request, authorization, _) - L-CTO agent chat endpoint using AgentExe
 api/server.py::async lifespan(app) - FastAPI lifespan context manager.
+api/server.py::async list_kernels_endpoint(api_key) - List loaded kernels and their status.
 api/server.py::async neo4j_health() - Neo4j graph database health check.
 api/server.py::async on_shutdown() - Handle FastAPI shutdown event.
 api/server.py::async on_startup() - Handle FastAPI startup event.
@@ -676,6 +678,7 @@ api/server.py::async reload_kernels_endpoint(request, api_key) - Hot-reload kern
 api/server.py::async run_consolidation() - Single consolidation pass (called period
 api/server.py::async services_health() - Internal services health check.
 api/server.py::async startup_health() - Detailed startup health check endpoint.
+api/server.py::async tools_health_endpoint() - Tool registry health check.
 api/server.py::async update_observability_metrics() - Single observability metrics update pass
 api/server.py::custom_openapi() - Generate custom OpenAPI schema with secu
 api/server.py::init_metrics() - Initializes and configures metrics for t
@@ -4892,13 +4895,16 @@ memory/service_adapter.py::async store(self, content) - Store content in memory.
 memory/slack_ingest.py::_build_system_prompt(thread_context, semantic_hits, user_id, channel_id) - Build system prompt that includes thread
 memory/slack_ingest.py::_is_email_command(text) - Detect if text is an email-related comma
 memory/slack_ingest.py::async _check_duplicate(substrate_service, event_id, thread_uuid, team_id, channel_id, ts, user_id) - Check if event already processed.
+memory/slack_ingest.py::async _clear_event_inflight(event_id) - Clear the in-flight marker after process
 memory/slack_ingest.py::async _handle_mac_command(text, channel_id, user_id, file_artifacts, slack_client, thread_ts) - Handle !mac commands - route to Mac agen
 memory/slack_ingest.py::async _index_slack_conversation(substrate_service, text, user_id, packet_id, team_id) - Index Slack conversation - extract prefe
+memory/slack_ingest.py::async _mark_event_inflight(event_id) - Mark a Slack event as in-flight using Re
 memory/slack_ingest.py::async _process_file_attachments(files) - Process Slack file attachments (download
 memory/slack_ingest.py::async _retrieve_semantic_hits(substrate_service, query, team_id, limit) - Retrieve semantically similar packets.
 memory/slack_ingest.py::async _retrieve_thread_context(substrate_service, thread_uuid, limit) - Retrieve recent packets in thread (threa
 memory/slack_ingest.py::async _route_to_email_task(text, channel_id, user_id, file_artifacts, slack_client, thread_ts) - Route message to Email Agent task planne
 memory/slack_ingest.py::async _route_to_mac_task(text, channel_id, user_id, file_artifacts, slack_client, thread_ts) - Route message to Mac Agent task planner 
+memory/slack_ingest.py::async get_redis_client() - 
 memory/slack_ingest.py::async handle_slack_commands(payload, substrate_service, slack_client, aios_base_url) - Handle Slack slash command (asynchronous
 memory/slack_ingest.py::async handle_slack_events(request_body, payload, substrate_service, slack_client, aios_base_url, app) - Handle Slack event callback.
 memory/slack_ingest.py::async handle_slack_with_l_agent(app, text, thread_uuid, team_id, channel_id, user_id, context) - Route a Slack message through the L-CTO 
@@ -5868,6 +5874,7 @@ runtime/redis_client.py::async queue_size(self, queue_name) - Get queue size.
 runtime/redis_client.py::async set(self, key, value, ttl, ex, raw) - Set key-value with optional TTL.
 runtime/redis_client.py::async set_rate_limit(self, key, value, ttl) - Set rate limit count with TTL.
 runtime/redis_client.py::async set_task_context(self, task_id, context, ttl) - Cache task context in Redis.
+runtime/redis_client.py::async setnx(self, key, value, ttl, raw) - Set key-value only if key does not exist
 runtime/redis_client.py::get_wmc() - Singleton for L9 working memory cache.
 runtime/redis_client.py::is_available(self) - Check if Redis is available.
 runtime/redis_tools.py::async redis_decrement_rate_limit(key, amount) - Decrement rate limit counter.
@@ -11261,7 +11268,7 @@ tools/export_repo_indexes.py::generate_config_files() - List all configuration f
 tools/export_repo_indexes.py::generate_decorator_catalog() - Catalog all decorators used across the c
 tools/export_repo_indexes.py::generate_dependencies() - Parse requirements.txt and show actual v
 tools/export_repo_indexes.py::generate_deployment_manifest() - Generate deployment manifest by scanning
-tools/export_repo_indexes.py::generate_dynamic_tool_catalog() - Dynamically scan core/tools/ for actual 
+tools/export_repo_indexes.py::generate_dynamic_tool_catalog() - Dynamically scan entire codebase for Too
 tools/export_repo_indexes.py::generate_entrypoints() - Identify app entrypoints with useful met
 tools/export_repo_indexes.py::generate_env_refs() - Extract environment variable references.
 tools/export_repo_indexes.py::generate_event_types() - Generate catalog of event types and pack

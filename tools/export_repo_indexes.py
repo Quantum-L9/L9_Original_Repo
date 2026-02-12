@@ -2120,78 +2120,109 @@ def generate_pydantic_models():
 
 
 def generate_dynamic_tool_catalog():
-    """Dynamically scan core/tools/ for actual tool definitions."""
+    """Dynamically scan entire codebase for ToolDefinition(...) registrations."""
     lines = [
         "# L9 Dynamic Tool Catalog",
         "# =========================",
-        "# Scanned from actual code (not hardcoded)",
-        "# Format: tool_name | Category | Risk | File",
-        "",
-        "## Tools Found in core/tools/",
+        "# Auto-discovered ToolDefinition(...) instances across entire codebase.",
+        "# Includes: core/tools/, runtime/, core/agents/bootstrap/, services/",
         "",
     ]
-    tools = []
-    tool_dir_prefixes = ("core/tools/", "tools/")
-    # Patterns for tool definitions
-    tool_patterns = [
-        re.compile(r'name\s*[=:]\s*["\'](\w+)["\']'),
-        re.compile(r'tool_id\s*[=:]\s*["\'](\w+)["\']'),
-        re.compile(r"class\s+(\w+Tool)\s*\("),
-        re.compile(r"def\s+(execute_\w+)\s*\("),
-    ]
+    # Parse ToolDefinition(...) blocks with full metadata
+    tool_def_re = re.compile(
+        r'ToolDefinition\(\s*(.*?)\)',
+        re.DOTALL,
+    )
+    tools = {}  # name -> {category, scope, risk_level, requires_igor, description, file}
 
     for fpath, rel_path in walk_python_files():
-        if not any(rel_path.startswith(p) for p in tool_dir_prefixes):
+        if "test" in rel_path.lower() or ".backup" in rel_path:
+            continue
+        try:
+            with open(fpath, encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            if "ToolDefinition(" not in content:
+                continue
+            for match in tool_def_re.finditer(content):
+                block = match.group(1)
+                # Extract fields from the ToolDefinition kwargs
+                name_m = re.search(r'name\s*=\s*["\']([^"\']+)["\']', block)
+                if not name_m:
+                    continue
+                name = name_m.group(1)
+                desc_m = re.search(r'description\s*=\s*["\']([^"\']+)["\']', block)
+                cat_m = re.search(r'category\s*=\s*["\']([^"\']+)["\']', block)
+                scope_m = re.search(r'scope\s*=\s*["\']([^"\']+)["\']', block)
+                risk_m = re.search(r'risk_level\s*=\s*["\']([^"\']+)["\']', block)
+                igor_m = re.search(r'requires_igor_approval\s*=\s*(True|False)', block)
+                desc = desc_m.group(1)[:50] if desc_m else "-"
+                category = cat_m.group(1) if cat_m else "-"
+                scope = scope_m.group(1) if scope_m else "-"
+                risk = risk_m.group(1) if risk_m else "-"
+                igor = igor_m.group(1) if igor_m else "-"
+                # Keep first occurrence or the one with most metadata
+                if name not in tools or tools[name]["description"] == "-":
+                    tools[name] = {
+                        "description": desc,
+                        "category": category,
+                        "scope": scope,
+                        "risk_level": risk,
+                        "requires_igor": igor,
+                        "file": rel_path,
+                    }
+        except Exception:
+            pass
+
+    # Also scan for class *Tool patterns and execute_* functions in core/tools/
+    tool_classes = []
+    for fpath, rel_path in walk_python_files():
+        if not rel_path.startswith("core/tools/"):
             continue
         if os.path.basename(fpath).startswith("__"):
             continue
         try:
             with open(fpath, encoding="utf-8", errors="ignore") as f:
-                content = f.read()
-                for pattern in tool_patterns:
-                    matches = pattern.findall(content)
-                    for match in matches:
-                        if not match.startswith("_"):
-                            category = (
-                                "internal"
-                                if "internal" in rel_path
-                                else "core"
-                            )
-                            risk = "low"
-                            if any(
-                                kw in content.lower()
-                                for kw in [
-                                    "delete",
-                                    "write",
-                                    "execute",
-                                    "shell",
-                                    "git",
-                                ]
-                            ):
-                                risk = "high"
-                            elif any(
-                                kw in content.lower()
-                                for kw in ["create", "update", "modify"]
-                            ):
-                                risk = "medium"
-                            tools.append(
-                                f"| `{match}` | {category} | {risk} | {rel_path} |"
-                            )
+                tree = ast.parse(f.read())
+            for node in ast.walk(tree):
+                if isinstance(node, ast.ClassDef) and "Tool" in node.name:
+                    doc = ast.get_docstring(node) or ""
+                    doc = doc.split("\n")[0][:50] if doc else "-"
+                    tool_classes.append((node.name, rel_path, doc))
         except Exception:
             pass
 
+    # Output ToolDefinition table
     if tools:
-        lines.append("| Tool | Category | Risk | File |")
-        lines.append("|------|----------|------|------|")
-        lines.extend(sorted(set(tools)))
-        lines.extend(
-            [
-                "",
-                f"# Total: {len(set(tools))} tool definitions found",
-            ]
-        )
-        return "\n".join(lines)
-    return "No tools found in core/tools/."
+        lines.extend([
+            "## Registered ToolDefinitions",
+            "",
+            "| Tool | Category | Scope | Risk | Igor? | Description | File |",
+            "|------|----------|-------|------|-------|-------------|------|",
+        ])
+        for name in sorted(tools.keys()):
+            t = tools[name]
+            lines.append(
+                f"| `{name}` | {t['category']} | {t['scope']} | {t['risk_level']} "
+                f"| {t['requires_igor']} | {t['description']} | {t['file']} |"
+            )
+        lines.extend(["", f"# Total: {len(tools)} unique ToolDefinitions", ""])
+
+    # Output Tool classes
+    if tool_classes:
+        lines.extend([
+            "## Tool Implementation Classes",
+            "",
+            "| Class | File | Purpose |",
+            "|-------|------|---------|",
+        ])
+        for cls_name, fpath, doc in sorted(tool_classes):
+            lines.append(f"| `{cls_name}` | {fpath} | {doc} |")
+        lines.append("")
+
+    if not tools and not tool_classes:
+        lines.append("No ToolDefinition instances found.")
+
+    return "\n".join(lines)
 
 
 def generate_async_function_map():

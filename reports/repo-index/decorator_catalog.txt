@@ -2,9 +2,9 @@
 # Decorator Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-11 20:18 UTC
-# Branch:    main (f0aa4f7f)
-# Generator: export_repo_indexes.py v2.2.0
+# Generated: 2026-02-12 04:40 UTC
+# Branch:    main (7e10a944)
+# Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 Decorator Catalog
@@ -30,7 +30,7 @@
 | `@field_validator(...)` | 10 | codegen/code-gen-files/schema_parser.py, core/calibration/schemas.py, core/kernels/schemas.py |
 | `@fixture` | 337 | codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py, domain_tensor_bridge/tests/domain_tensor_bridge/test_api_surfaces.py, domain_tensor_bridge/tests/domain_tensor_bridge/test_bridge_controller.py |
 | `@fixture(...)` | 15 | tests/collaborative_cells/test_cell_registry.py, tests/conftest.py, tests/core/governance/test_policy_registry.py |
-| `@get(...)` | 113 | api/agent_routes.py, api/memory/cache.py, api/memory/graph.py |
+| `@get(...)` | 116 | api/agent_routes.py, api/memory/cache.py, api/memory/graph.py |
 | `@group(...)` | 2 | core/codegen/cli.py, tools/l9_cli.py |
 | `@integration` | 8 | tests/cursor/test_gmp_meta_learning.py, tests/memory/test_query_cache_and_vector.py, tests/runtime/test_slack_tools.py |
 | `@l9_traced(...)` | 8 | codegen/templates/python/dora-template.py, tests/runtime/test_dora_auto_update.py |
