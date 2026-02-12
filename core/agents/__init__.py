@@ -39,6 +39,15 @@ __dora_meta__ = {
 
 from core.agents.agent_instance import AgentInstance
 
+# Dynamic Tool Binding (GMP-TS-META: Anthropic Tool Search pattern)
+from core.agents.dynamic_tool_binding import (
+    bind_tools_to_agent,
+    cache_discovered_tools,
+    get_binding_mode_summary,
+    get_dynamic_tool_bundle,
+    get_static_tool_bundle,
+)
+
 # Light imports (no heavy dependencies)
 from core.agents.schemas import (
     AgentConfig,
@@ -76,6 +85,12 @@ __all__ = [
     "ExecutorState",
     "ToolCallRequest",
     "ToolCallResult",
+    # Dynamic Tool Binding (GMP-TS-META)
+    "bind_tools_to_agent",
+    "cache_discovered_tools",
+    "get_binding_mode_summary",
+    "get_dynamic_tool_bundle",
+    "get_static_tool_bundle",
 ]
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY

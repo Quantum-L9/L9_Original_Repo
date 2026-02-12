@@ -9,7 +9,7 @@ This is the central configuration for which modules contain
 @register_tool decorated functions that should be discovered
 during application startup.
 
-Version: 1.0.0
+Version: 1.1.0 (GMP-TS-META: Added tool_search_meta)
 """
 
 from __future__ import annotations
@@ -17,10 +17,10 @@ from __future__ import annotations
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Tool Package Registry",
-    "module_version": "1.0.0",
+    "module_version": "1.1.0",
     "created_by": "GMP-122",
     "created_at": "2026-01-24T00:00:00Z",
-    "updated_at": "2026-01-24T00:00:00Z",
+    "updated_at": "2026-02-12T18:24:00Z",
     "layer": "runtime",
     "domain": "tools",
     "module_name": "tool_packages",
@@ -48,6 +48,7 @@ logger = structlog.get_logger(__name__)
 # Migration Status:
 # - [x] runtime.redis_tools (13 tools) - GMP-122
 # - [x] runtime.mcp_tools (7 tools) - GMP-123
+# - [x] runtime.tool_search_meta (1 tool) - GMP-TS-META (NEW)
 # - [ ] runtime.slack_tools (3 tools) - pending
 # - [ ] runtime.llm_tools (3 tools) - pending
 # - [ ] runtime.governance_tools (4 tools) - pending
@@ -61,6 +62,8 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 TOOL_PACKAGES: list[str] = [
+    # === META-TOOLS (Anthropic Pattern) ===
+    "runtime.tool_search_meta",  # GMP-TS-META: tool_search meta-tool (1)
     # === MIGRATED (from l_tools.py) ===
     # "runtime.redis_tools",  # GMP-122: DISABLED - not needed per Igor
     "runtime.mcp_tools",  # GMP-123: MCP server tools (7)
@@ -168,7 +171,7 @@ __dora_footer__ = {
     "governance_level": "standard",
     "security_reviewed": False,
     "performance_tested": False,
-    "last_audit": "2026-01-24T00:00:00Z",
+    "last_audit": "2026-02-12T18:24:00Z",
 }
 # =============================================================================
 # ============================================================================
