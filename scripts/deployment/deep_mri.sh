@@ -91,8 +91,8 @@ fi
 echo ""
 
 echo "Neo4j:"
-NEO4J_PW=$(grep "^NEO4J_PASSWORD=" /opt/l9/.env 2>/dev/null | cut -d= -f2)
-curl -s -u "neo4j:$NEO4J_PW" http://127.0.0.1:7474/ | grep -q "Neo4j" && echo "✓ HTTP endpoint responsive" || echo "✗ HTTP endpoint failed"
+NEO4J_PW=$(grep "^NEO4J_PASSWORD=" /opt/l9/.env 2>/dev/null | sed 's/^NEO4J_PASSWORD=//')
+curl -s -u "neo4j:$NEO4J_PW" http://127.0.0.1:7474/ | grep -q "neo4j_version" && echo "✓ HTTP endpoint responsive" || echo "✗ HTTP endpoint failed"
 echo ""
 
 echo "MCP Memory Server:"
