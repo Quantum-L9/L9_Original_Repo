@@ -28,7 +28,7 @@ We need a centralized, secure, and extensible way to manage secrets that follows
 
 Chosen option: **Protocol-Based Abstraction**, because it provides the best balance of security, extensibility, and testability. It decouples the application logic from the specific secrets management implementation, allowing for easy swapping of backends and simplified testing.
 
-We will create a `SecretsClient` protocol in `core/abstractions` and provide an initial `EnvSecretsClient` implementation for local development.
+We will create a `SecretsClient` protocol in `core/protocols` and provide an initial `EnvSecretsClient` implementation for local development.
 
 ### Positive Consequences
 

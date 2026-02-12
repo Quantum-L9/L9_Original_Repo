@@ -10,7 +10,7 @@ Use Dependency Injection (DI) and Dependency Inversion Principle (DIP) with prot
 
 ## Files
 
-- `core/abstractions/` — Protocol definitions
+- `core/protocols/` — Protocol definitions
 - `core/di/container.py` — DI container implementation
 - `config/di_config.py` — Substrate bindings configuration
 
@@ -37,7 +37,7 @@ from config.di_config import configure_di_container
 ## Minimal Implementation
 
 ```python
-# 1. Define protocol (core/abstractions/cache_protocols.py)
+# 1. Define protocol (core/protocols/cache_protocols.py)
 from typing import Protocol, runtime_checkable
 
 @runtime_checkable
@@ -130,7 +130,7 @@ cache = get_cache_client()  # Falls back to singleton
 
 **DO:**
 
-- Define protocols in `core/abstractions/`
+- Define protocols in `core/protocols/`
 - Use constructor injection for dependencies
 - Bind implementations in `config/di_config.py`
 - Write tests with mock implementations

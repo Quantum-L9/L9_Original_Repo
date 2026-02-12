@@ -10,10 +10,10 @@ Use `typing.Protocol` for interfaces; structural subtyping; no ABC inheritance r
 
 ## Files
 
-- `core/abstractions/memory_protocols.py` - Memory protocols
-- `core/abstractions/agent_protocols.py` - Agent protocols
-- `core/abstractions/kernel_protocols.py` - Kernel protocols
-- `core/abstractions/observability_protocols.py` - Observability protocols
+- `core/protocols/memory_protocols.py` - Memory protocols
+- `core/protocols/agent_protocols.py` - Agent protocols
+- `core/protocols/kernel_protocols.py` - Kernel protocols
+- `core/protocols/observability_protocols.py` - Observability protocols
 
 ## Import Block
 
@@ -175,7 +175,7 @@ class PacketWriter(Protocol):
 
 1. Use `Protocol` not `ABC` for interfaces
 2. Add `@runtime_checkable` if need `isinstance()`
-3. Keep protocols in `core/abstractions/`
+3. Keep protocols in `core/protocols/`
 4. Methods end with `...` (ellipsis) not `pass`
 5. Document protocol purpose in docstring
 
@@ -193,4 +193,4 @@ class PacketWriter(Protocol):
 - Use `ABC` for new abstractions
 - Require explicit inheritance
 - Implement methods in Protocol
-- Create concrete classes in `core/abstractions/`
+- Create concrete classes in `core/protocols/`
