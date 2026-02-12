@@ -312,19 +312,28 @@ async def handle_slack_with_l_agent(
 
         # Execute task via AgentExecutorService
         # Wrap with governance context for RLS-enabled memory operations
+        # L-CTO gets FULL access (caller_id="L") including l-private scope
+        # This enables L-CTO to access Neo4j memory graph, semantic memory, etc.
         if _has_governance:
             rls_config = get_rls_config()
             gov_ctx = build_governance_context(
-                caller_id="slack_ingest",
-                role="service",
-                scope="agent",
+                caller_id="L",  # L-CTO identity for full memory access
+                role="platform_admin",  # Full admin role
+                scope="global",  # Default to global scope
                 project_id=os.getenv("L9_PROJECT_ID", "l9"),
-                allowed_scopes=["agent", "memory", "slack"],
+                allowed_scopes=[
+                    "developer",
+                    "global",
+                    "l-private",
+                    "agent",
+                    "memory",
+                    "slack",
+                ],
                 tenant_id=rls_config.tenant_uuid,
                 org_id=rls_config.org_uuid,
                 user_id=rls_config.user_uuid,
-                creator="slack",
-                source="slack_ingest",
+                creator="L",
+                source="slack",
             )
             async with governance_context(gov_ctx):
                 result = await agent_executor.start_agent_task(task)

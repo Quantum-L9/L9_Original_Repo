@@ -35,13 +35,16 @@
 id: memory_scope
 version: "1.0"
 scope_access_matrix:
-  # L-CTO: Full access to all scopes
+  # L-CTO: Full access to all scopes (including Slack-originated requests)
   L:
     allowed_scopes:
       - developer
       - global
       - l-private
-    description: "L-CTO kernel has full access to all memory scopes"
+      - agent
+      - memory
+      - slack
+    description: "L-CTO kernel has full access to all memory scopes including agent/memory/slack"
 
   # Cursor IDE: Restricted access (no l-private)
   C:
