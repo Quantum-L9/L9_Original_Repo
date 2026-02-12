@@ -2,8 +2,8 @@
 # Function Signatures
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 04:40 UTC
-# Branch:    main (7e10a944)
+# Generated: 2026-02-12 16:28 UTC
+# Branch:    main (04a3f200)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -1661,7 +1661,7 @@ core/agents/prompt_builder.py::_extract_identity_section(kernels) - Extract iden
 core/agents/prompt_builder.py::_extract_kernel_content(kernel_data, section_keys) - Extract content from kernel data by sect
 core/agents/prompt_builder.py::_extract_safety_section(kernels) - Extract safety constraints from kernels.
 core/agents/prompt_builder.py::build_kernel_system_prompt(agent, include_safety_prefix, include_identity, include_safety, include_behavioral, include_execution) - Build a system prompt from the agent's k
-core/agents/prompt_builder.py::build_runtime_prompt(task_payload, memory_context, channel) - Build runtime context to append to syste
+core/agents/prompt_builder.py::build_runtime_prompt(task_payload, memory_context, channel, user_id) - Build runtime context to append to syste
 core/agents/prompt_builder.py::get_kernel_section(self, section) - Get content from a specific kernel secti
 core/agents/prompt_builder.py::get_safety_prefix() - Get the immutable safety prefix.
 core/agents/prompt_defense.py::_check_patterns(text, patterns) - Check text against a list of regex patte
@@ -6472,6 +6472,14 @@ scripts/gmp-validate-stage.py::validate_protected_systems(self) - Ensure protect
 scripts/gmp-validate-stage.py::validate_report_structure(self) - Ensure report contains all 10 required s
 scripts/gmp-validate-stage.py::validate_test_coverage(self) - Run pytest coverage and check threshold.
 scripts/gmp-validate-stage.py::validate_todo_hash_integrity(self) - Verify TODO plan hash matches locked pla
+scripts/load_agent_world_model.py::async create_directives(tx, directives) - Create directive nodes.
+scripts/load_agent_world_model.py::async create_entities(tx, entities) - Create entity nodes in Neo4j.
+scripts/load_agent_world_model.py::async create_relations(tx, relations) - Create relationship edges in Neo4j.
+scripts/load_agent_world_model.py::async create_responsibilities(tx, responsibilities) - Create responsibility nodes and link to 
+scripts/load_agent_world_model.py::async create_sops(tx, sops) - Create SOP nodes and link to owners.
+scripts/load_agent_world_model.py::async create_tool_capabilities(tx, tool_caps) - Create tool capability bindings.
+scripts/load_agent_world_model.py::async load_seed_data() - Load seed YAML file.
+scripts/load_agent_world_model.py::async main() - Main entry point.
 scripts/memory/audit_graphs.py::async audit_neo4j_graphs() - Audit Neo4j-based graphs.
 scripts/memory/audit_graphs.py::async audit_postgresql_graphs() - Audit PostgreSQL-based graphs.
 scripts/memory/audit_graphs.py::async audit_world_model() - Audit World Model entities.

@@ -310,8 +310,21 @@ def build_runtime_prompt(
     sections.append(f"\n## CURRENT SESSION\n\nChannel: {channel}")
     
     # Add user identity context - critical for Igor override authority
-    if user_id:
-        is_igor = user_id == settings.igor_slack_user_id or user_id == "Igor"
+    # L_CTO_GOVERNANCE_BYPASS=true treats ALL users as Igor (for debugging)
+    governance_bypass = getattr(settings, "l_cto_governance_bypass", False)
+    if governance_bypass:
+        logger.warning(
+            "prompt_builder.governance_bypass_active",
+            user_id=user_id,
+            reason="L_CTO_GOVERNANCE_BYPASS=true",
+        )
+    
+    if user_id or governance_bypass:
+        is_igor = (
+            governance_bypass  # Bypass mode: treat everyone as Igor
+            or user_id == settings.igor_slack_user_id 
+            or user_id == "Igor"
+        )
         if is_igor:
             sections.append(
                 "\n### USER IDENTITY: IGOR (OWNER)\n"

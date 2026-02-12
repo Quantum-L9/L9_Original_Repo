@@ -2,8 +2,8 @@
 # Dynamic Tool Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 04:40 UTC
-# Branch:    main (7e10a944)
+# Generated: 2026-02-12 16:28 UTC
+# Branch:    main (04a3f200)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -35,6 +35,7 @@
 | `graph_memory_get_context` | memory | internal | low | - | Get conversation context for a session | core/tools/tool_graph.py |
 | `graph_memory_query_history` | memory | internal | low | - | Query user conversation history from graph memory | core/tools/tool_graph.py |
 | `graph_memory_store` | memory | internal | low | - | Store a message in conversational graph memory | core/tools/tool_graph.py |
+| `http_request` | - | - | - | - | - | core/tools/registry_adapter.py |
 | `hybrid_rag_search` | - | - | - | - | - | core/tools/tool_graph.py |
 | `kernel_read` | kernel | internal | low | False | Read a property from a kernel | core/tools/registry_adapter.py |
 | `llm_chat` | ai | - | - | - | Chat with OpenAI models | core/tools/tool_graph.py |
@@ -72,6 +73,7 @@
 | `neo4j_query` | knowledge | internal | low | - | Run Cypher queries against Neo4j graph for relatio | core/tools/tool_graph.py |
 | `notion_create_page` | integration | external | low | - | Create a Notion page via MCP | core/tools/tool_graph.py |
 | `notion_update_page` | integration | external | low | - | Update a Notion page via MCP | core/tools/tool_graph.py |
+| `perplexity_search` | research | external | low | False | Search and synthesize information using Perplexity | core/tools/registry_adapter.py |
 | `redis_decrement_rate_limit` | redis | internal | low | False | Decrement rate limit counter | core/tools/registry_adapter.py |
 | `redis_delete` | cache | internal | medium | False | Delete a key from Redis | core/tools/registry_adapter.py |
 | `redis_dequeue_task` | cache | internal | low | False | Dequeue task from Redis queue | core/tools/registry_adapter.py |
@@ -131,7 +133,7 @@
 | `world_model_send_insights` | knowledge | internal | medium | False | Send insights for world model update | core/tools/registry_adapter.py |
 | `world_model_snapshot` | knowledge | internal | medium | False | Create snapshot of world model state | core/tools/registry_adapter.py |
 
-# Total: 114 unique ToolDefinitions
+# Total: 116 unique ToolDefinitions
 
 ## Tool Implementation Classes
 

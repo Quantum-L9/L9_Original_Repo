@@ -2,8 +2,8 @@
 # File Metrics
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 04:40 UTC
-# Branch:    main (7e10a944)
+# Generated: 2026-02-12 16:28 UTC
+# Branch:    main (04a3f200)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -15,8 +15,8 @@
 | File | Lines | Classes | Functions | Async |
 |------|-------|---------|-----------|-------|
 | `api/server.py` | 3915 | 7 | 3 | 18 |
-| `core/tools/registry_adapter.py` | 3775 | 3 | 14 | 7 |
-| `core/agents/executor.py` | 2888 | 5 | 15 | 20 |
+| `core/tools/registry_adapter.py` | 3804 | 3 | 14 | 7 |
+| `core/agents/executor.py` | 2894 | 5 | 15 | 20 |
 | `tools/export_repo_indexes.py` | 2879 | 0 | 45 | 0 |
 | `runtime/l_tools.py` | 2763 | 0 | 2 | 68 |
 | `memory/substrate_repository.py` | 2593 | 1 | 4 | 50 |
@@ -24,7 +24,7 @@
 | `scripts/audit/inject_dora_complete.py` | 2454 | 6 | 46 | 0 |
 | `world_model/runtime.py` | 2143 | 9 | 32 | 17 |
 | `core/tools/tool_graph.py` | 2076 | 2 | 2 | 13 |
-| `memory/slack_ingest.py` | 1969 | 0 | 6 | 14 |
+| `memory/slack_ingest.py` | 1980 | 0 | 6 | 14 |
 | `world_model/knowledge_ingestor.py` | 1858 | 7 | 43 | 1 |
 | `agents/cursor/cursor_memory_client.py` | 1782 | 0 | 32 | 0 |
 | `world_model/causal_mapper.py` | 1662 | 11 | 46 | 0 |
@@ -356,13 +356,13 @@
 | `memory/query_cache.py` | 482 | 1 | 10 | 2 |
 | `codegen/Perplexity-Search-Pack/HOW_TO_USE_SUPER_PROMPT.py` | 482 | 0 | 9 | 0 |
 | `core/aios/runtime.py` | 480 | 1 | 5 | 3 |
+| `config/settings.py` | 480 | 2 | 3 | 0 |
 | `core/tools/tool_audit.py` | 479 | 3 | 3 | 7 |
 | `core/protocols/retry_protocols.py` | 479 | 4 | 7 | 6 |
 | `memory/blob_store.py` | 479 | 2 | 9 | 4 |
 | `api/memory/cache.py` | 477 | 3 | 0 | 13 |
 | `core/boundary/enforcer.py` | 476 | 2 | 14 | 0 |
 | `memory/state_manager.py` | 476 | 1 | 2 | 17 |
-| `config/settings.py` | 473 | 2 | 3 | 0 |
 | `tests/memory/test_saga.py` | 472 | 7 | 12 | 23 |
 | `tests/email_agent/test_email_router.py` | 472 | 7 | 27 | 2 |
 | `core/agents/graph_state/graph_hydrator.py` | 471 | 2 | 4 | 4 |
@@ -463,6 +463,7 @@
 | `core/governance/subsystem_detector.py` | 417 | 0 | 8 | 0 |
 | `orchestrators/agent_execution/task_queue.py` | 417 | 1 | 7 | 0 |
 | `tests/ir_engine/test_ir_semantic_incremental.py` | 415 | 3 | 1 | 10 |
+| `core/agents/prompt_builder.py` | 414 | 1 | 9 | 0 |
 | `email_agent/client.py` | 414 | 0 | 1 | 0 |
 | `codegenagent/meta_loader.py` | 413 | 2 | 12 | 0 |
 | `core/eos/accountability_engine.py` | 413 | 1 | 2 | 10 |
@@ -513,7 +514,6 @@
 | `agents/architect_agent/architect_agent_b.py` | 389 | 1 | 2 | 5 |
 | `tests/memory/test_consolidation_graph.py` | 388 | 0 | 4 | 8 |
 | `tests/runtime/test_execution_gate.py` | 388 | 8 | 30 | 0 |
-| `core/agents/prompt_builder.py` | 387 | 1 | 9 | 0 |
 | `core/agents/bootstrap/bootstrap_metrics.py` | 387 | 4 | 17 | 0 |
 | `core/protocols/service_protocols.py` | 387 | 3 | 0 | 9 |
 | `api/dependencies.py` | 387 | 0 | 16 | 0 |
@@ -691,6 +691,7 @@
 | `services/symbolic_computation/core/optimizer.py` | 295 | 1 | 8 | 0 |
 | `core/l_agent_runtime/agent_state.py` | 294 | 3 | 15 | 0 |
 | `memory/substrate_alignment.py` | 293 | 2 | 3 | 7 |
+| `scripts/load_agent_world_model.py` | 293 | 0 | 0 | 8 |
 | `core/agents/bootstrap/phase_2_instantiate.py` | 292 | 1 | 0 | 2 |
 | `orchestrators/reasoning/orchestrator.py` | 292 | 1 | 2 | 5 |
 | `core/schemas/l_tools.py` | 291 | 8 | 0 | 0 |
@@ -1264,5 +1265,5 @@
 | `mcp_memory/tests/test_search.py` | 53 | 0 | 0 | 2 |
 | `tools/codegen/__init__.py` | 52 | 0 | 0 | 0 |
 
-# Total: 1249 Python files (>50 lines)
-# Total lines: 485,823
+# Total: 1250 Python files (>50 lines)
+# Total lines: 486,196

@@ -2,8 +2,8 @@
 # Async Function Map
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 04:40 UTC
-# Branch:    main (7e10a944)
+# Generated: 2026-02-12 16:28 UTC
+# Branch:    main (04a3f200)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -907,6 +907,8 @@ async create_agent_collaborations(driver) @ scripts/memory/bootstrap_neo4j_schem
 async create_agent_hierarchy(driver) @ scripts/memory/bootstrap_neo4j_schema.py
 async create_checkpoint(agent_id, state, reason) @ memory/agent_persistence.py
 async create_config(application, environment) @ agents/coder_agent/coder_agent_b.py
+async create_directives(tx, directives) @ scripts/load_agent_world_model.py
+async create_entities(tx, entities) @ scripts/load_agent_world_model.py
 async create_entity(entity_type, entity_id, properties) @ memory/graph_client.py
 async create_entity(request, authorization, _) @ api/memory/graph.py
 async create_eos_hypergraph_client() @ core/eos/hypergraph_client.py
@@ -924,19 +926,23 @@ async create_node(labels, properties) @ core/protocols/memory_protocols.py
 async create_node(node_type, data) @ tests/mocks/world_model_mocks.py
 async create_node(t, data) @ tests/conftest.py
 async create_packet(http_request, request, authorization, _) @ api/memory/router.py
+async create_relations(tx, relations) @ scripts/load_agent_world_model.py
 async create_relationship(from_node_id, to_node_id, rel_type, properties) @ core/protocols/memory_protocols.py
 async create_relationship(from_type, from_id, to_type, to_id, rel_type, properties) @ memory/graph_client.py
 async create_relationship(request, authorization, _) @ api/memory/graph.py
 async create_resource(resource_id, resource_type, properties) @ core/security/permission_graph.py
+async create_responsibilities(tx, responsibilities) @ scripts/load_agent_world_model.py
 async create_role(role_id, description, permissions) @ core/security/permission_graph.py
 async create_runtime_with_substrate(substrate_service, engine, config) @ world_model/runtime.py
 async create_schema_constraints(driver) @ scripts/memory/bootstrap_neo4j_schema.py
 async create_snapshot(description, created_by, tenant_id, org_id, user_id, role) @ world_model/service.py
 async create_snapshot(plan_id, checkpoint_id, status, steps, current_step_index, execution_context, metadata) @ memory/execution_plan_snapshot.py
 async create_snapshot(request) @ api/world_model_api.py
+async create_sops(tx, sops) @ scripts/load_agent_world_model.py
 async create_substrate_service(database_url, embedding_provider_type) @ memory/substrate_service.py
 async create_tables() @ agents/cursor/gmp_meta_learning.py
 async create_test_plan(feature, code) @ agents/qa_agent.py
+async create_tool_capabilities(tx, tool_caps) @ scripts/load_agent_world_model.py
 async create_tool_safety_guards(driver) @ scripts/memory/bootstrap_neo4j_schema.py
 async create_user(user_id, properties) @ core/security/permission_graph.py
 async create_warming_service(config, graph_client) @ memory/warming_service.py
@@ -1859,6 +1865,7 @@ async load_quantum_swarm(capsule_path) @ orchestration/quantum_swarm_loader.py
 async load_quantum_swarm(capsule_path) @ orchestration/quantum_swarm_loader.py
 async load_reflection_memory_yaml(path, write_to_substrate) @ world_model/seed_loader.py
 async load_route_handlers() @ scripts/memory/load_indexes_to_neo4j_vps.py
+async load_seed_data() @ scripts/load_agent_world_model.py
 async load_seed_library(seed_dir, write_to_substrate) @ world_model/runtime.py
 async load_snapshot(snapshot_id, tenant_id, org_id, user_id, role) @ world_model/repository.py
 async log(agent_id, level, message, metadata) @ services/research/memory_adapter.py
@@ -1905,6 +1912,7 @@ async main() @ scripts/audit/tier1/audit_infrastructure_health.py
 async main() @ scripts/batch/batch_generate_specs.py
 async main() @ scripts/benchmark_caching_and_vector.py
 async main() @ scripts/benchmark_performance.py
+async main() @ scripts/load_agent_world_model.py
 async main() @ scripts/memory/audit_graphs.py
 async main() @ scripts/memory/audit_graphs_vps.py
 async main() @ scripts/memory/bootstrap_neo4j_schema.py
@@ -4056,4 +4064,4 @@ async write_packet_to_substrate(packet) @ world_model/seed_loader.py
 async write_tests(code, framework) @ agents/coder_agent/coder_agent_b.py
 async write_verdict_entry(verdict_id, action_id, decision, agent_id, risk_class, justification) @ core/eos/ledger_writer.py
 
-# Total: 4043 async functions
+# Total: 4051 async functions

@@ -3650,6 +3650,35 @@ async def register_l_tools() -> int:
             is_destructive=False,
             agent_id="L",
         ),
+        # =====================================================================
+        # External Search & HTTP Tools (unified from base_registry defaults)
+        # Previously only in ToolRegistry._initialize_default_tools(), now
+        # canonical here so they appear in Neo4j graph + dynamic discovery.
+        # =====================================================================
+        ToolDefinition(
+            name="perplexity_search",
+            description="Search and synthesize information using Perplexity AI",
+            category="research",
+            scope="external",
+            risk_level="low",
+            requires_igor_approval=False,
+            requires_confirmation=False,
+            is_destructive=False,
+            external_apis=["perplexity"],
+            agent_id="L",
+        ),
+        ToolDefinition(
+            name="http_request",
+            description="Make HTTP requests to external APIs (GET, POST, PUT, DELETE, PATCH)",
+            category="integration",
+            scope="external",
+            risk_level="medium",
+            requires_igor_approval=False,
+            requires_confirmation=False,
+            is_destructive=False,
+            external_apis=["http"],
+            agent_id="L",
+        ),
     ]
 
     # GMP-44: Populate auto-discovery mapping before registration

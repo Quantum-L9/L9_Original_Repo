@@ -366,9 +366,18 @@ class IntegrationSettings(BaseSettings):
 
     # Igor's Slack user ID for owner authentication
     igor_slack_user_id: str = Field(
-        default="U0A3JGS0UCV",
+        default="",  # NO DEFAULT - must be set in .env
         alias="IGOR_SLACK_USER_ID",
-        description="Igor's Slack user ID for owner authentication and approval gates",
+        description="Igor's Slack user ID for owner authentication and approval gates. Get from Slack profile > More > Copy member ID",
+    )
+
+    # L-CTO governance bypass flag for troubleshooting
+    # When True, L-CTO will treat ALL users as Igor (owner) and bypass approval gates
+    # WARNING: Only enable for debugging - disables security constraints
+    l_cto_governance_bypass: bool = Field(
+        default=False,
+        alias="L_CTO_GOVERNANCE_BYPASS",
+        description="Bypass L-CTO governance constraints (treat all users as Igor). DANGER: Debug only!",
     )
 
     class Config:

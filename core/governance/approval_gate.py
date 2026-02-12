@@ -80,6 +80,19 @@ def is_high_impact_decision(decision: dict[str, Any]) -> bool:
     Returns:
         True if decision requires approval
     """
+    # Check governance bypass flag
+    try:
+        from config.settings import settings
+        if getattr(settings, "l_cto_governance_bypass", False):
+            logger.warning(
+                "approval_gate.governance_bypass_active",
+                decision_type=decision.get("type"),
+                reason="L_CTO_GOVERNANCE_BYPASS=true - all decisions auto-approved",
+            )
+            return False  # No approval needed when bypass is active
+    except ImportError:
+        pass
+    
     # Check decision type
     decision_type = decision.get("type", "")
 
