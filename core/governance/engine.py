@@ -45,8 +45,8 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from datetime import datetime, timezone
-from typing import Any, Protocol
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Protocol
 
 import structlog
 
@@ -58,6 +58,10 @@ from core.governance.schemas import (
     Policy,
     PolicyEffect,
 )
+
+if TYPE_CHECKING:
+    from core.governance.policy_engine import PolicyAuditLogger, PolicyConflictResolver
+    from core.governance.policy_models import GovernanceDecision
 
 logger = structlog.get_logger(__name__)
 
@@ -98,6 +102,8 @@ class GovernanceEngineService:
         policy_dir: str | None = None,
         default_effect: PolicyEffect = PolicyEffect.DENY,
         substrate_service: SubstrateProtocol | None = None,
+        conflict_resolver: PolicyConflictResolver | None = None,
+        audit_logger: PolicyAuditLogger | None = None,
     ) -> None:
         """
         Initialize the governance engine.
@@ -106,6 +112,8 @@ class GovernanceEngineService:
             policy_dir: Directory containing policy YAML files (from env if None)
             default_effect: Effect when no policy matches (default: DENY)
             substrate_service: Optional substrate for emitting trace packets
+            conflict_resolver: Phase 0 Hardening — policy conflict resolution
+            audit_logger: Phase 0 Hardening — policy decision audit logging
 
         Raises:
             PolicyLoadError: If policy directory doesn't exist
@@ -114,6 +122,8 @@ class GovernanceEngineService:
         self._loader = PolicyLoader()
         self._default_effect = default_effect
         self._substrate = substrate_service
+        self._conflict_resolver = conflict_resolver
+        self._audit_logger = audit_logger
 
         # Get policy directory from env if not provided
         policy_directory = policy_dir or os.getenv(
@@ -132,9 +142,10 @@ class GovernanceEngineService:
             raise
 
         logger.info(
-            "governance.engine.init: policy_count=%d, default_effect=%s",
+            "governance.engine.init: policy_count=%d, default_effect=%s, conflict_resolver=%s",
             self._loader.policy_count,
             self._default_effect.value,
+            "enabled" if conflict_resolver else "disabled",
         )
 
     @property
@@ -171,7 +182,7 @@ class GovernanceEngineService:
         Returns:
             EvaluationResult with allow/deny decision
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         logger.debug(
             "governance.engine.evaluation.start: subject=%s, action=%s, resource=%s",
@@ -238,6 +249,101 @@ class GovernanceEngineService:
 
         return result
 
+    async def evaluate_with_conflict_resolution(
+        self, request: EvaluationRequest
+    ) -> GovernanceDecision:
+        """
+        Phase 0 Hardening: Evaluate using priority-based conflict resolution.
+
+        Unlike the standard first-match-wins evaluate(), this method:
+        1. Evaluates ALL matching policies (not just the first)
+        2. Uses PolicyConflictResolver for priority-based resolution
+        3. Detects conflicts at the same priority level
+        4. Logs decisions via PolicyAuditLogger
+
+        Requires conflict_resolver to be set at init time.
+
+        Args:
+            request: Evaluation request with subject, action, resource
+
+        Returns:
+            GovernanceDecision with full conflict resolution details
+
+        Raises:
+            RuntimeError: If conflict_resolver is not configured
+        """
+        if self._conflict_resolver is None:
+            msg = "conflict_resolver not configured — call __init__ with conflict_resolver param"
+            raise RuntimeError(msg)
+
+        from core.governance.policy_models import (
+            PolicyDecision,
+            PolicyPriority,
+            PolicyResult,
+        )
+
+        policy_results: list[PolicyResult] = []
+
+        # Evaluate ALL policies (not first-match-wins)
+        for policy in self._loader.policies:
+            if policy.matches(
+                subject=request.subject,
+                action=request.action,
+                resource=request.resource,
+                context=request.context,
+            ):
+                decision = (
+                    PolicyDecision.ALLOW
+                    if policy.effect == PolicyEffect.ALLOW
+                    else PolicyDecision.DENY
+                )
+
+                # Map policy priority to PolicyPriority enum
+                raw_priority = getattr(policy, "priority", 50)
+                if raw_priority >= 100:
+                    priority = PolicyPriority.CRITICAL
+                elif raw_priority >= 75:
+                    priority = PolicyPriority.HIGH
+                elif raw_priority >= 50:
+                    priority = PolicyPriority.MEDIUM
+                else:
+                    priority = PolicyPriority.LOW
+
+                policy_results.append(
+                    PolicyResult(
+                        decision=decision,
+                        priority=priority,
+                        reason=getattr(policy, "description", policy.id),
+                        policy_name=policy.id,
+                    )
+                )
+
+        # Resolve conflicts
+        governance_decision = self._conflict_resolver.resolve(policy_results)
+
+        # Audit the decision
+        if self._audit_logger is not None:
+            await self._audit_logger.log_decision(
+                governance_decision,
+                {
+                    "request_id": str(request.request_id),
+                    "subject": request.subject,
+                    "action": request.action,
+                    "resource": request.resource,
+                },
+            )
+
+        logger.info(
+            "governance.engine.conflict_resolution: subject=%s, action=%s, decision=%s, conflict=%s, policies_evaluated=%d",
+            request.subject,
+            request.action,
+            governance_decision.final_decision.value,
+            governance_decision.has_conflict,
+            len(policy_results),
+        )
+
+        return governance_decision
+
     def evaluate_sync(self, request: EvaluationRequest) -> EvaluationResult:
         """
         Synchronous version of evaluate (no tracing).
@@ -250,7 +356,7 @@ class GovernanceEngineService:
         Returns:
             EvaluationResult
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         for policy in self._loader.policies:
             if policy.matches(
@@ -356,7 +462,7 @@ class GovernanceEngineService:
 
     def _calculate_duration_ms(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        return int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
     async def _emit_trace(
         self,
@@ -405,6 +511,8 @@ class GovernanceEngineService:
 def create_governance_engine(
     policy_dir: str | None = None,
     substrate_service: SubstrateProtocol | None = None,
+    conflict_resolver: PolicyConflictResolver | None = None,
+    audit_logger: PolicyAuditLogger | None = None,
 ) -> GovernanceEngineService:
     """
     Create a GovernanceEngineService.
@@ -412,6 +520,8 @@ def create_governance_engine(
     Args:
         policy_dir: Policy directory (from env if None)
         substrate_service: Optional substrate for tracing
+        conflict_resolver: Phase 0 Hardening — policy conflict resolution
+        audit_logger: Phase 0 Hardening — policy decision audit logging
 
     Returns:
         Configured GovernanceEngineService
@@ -419,6 +529,8 @@ def create_governance_engine(
     return GovernanceEngineService(
         policy_dir=policy_dir,
         substrate_service=substrate_service,
+        conflict_resolver=conflict_resolver,
+        audit_logger=audit_logger,
     )
 
 

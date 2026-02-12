@@ -191,6 +191,9 @@ from memory.predictive_cache import PredictiveCache
 
 # Retention Engine (GMP-74: Checkpoint lifecycle management)
 from memory.retention_engine import RetentionEngine, RetentionPolicy, RetentionResult
+
+# Reference Counting Service (Phase 0 Hardening)
+from memory.retention_refcount import PacketRefCount, ReferenceCountingService
 from memory.retrieval import (
     RetrievalPipeline,
     get_retrieval_pipeline,
@@ -320,24 +323,17 @@ from memory.warming_service import MemoryWarmingService, create_warming_service
 __all__ = [
     "CHECKPOINT_PROMETHEUS_AVAILABLE",
     "ActionProposal",
-    # Active Memory Encoding (GMP-80-A7)
     "ActiveMemoryEncoder",
-    # Cross-Substrate Alignment (GMP-78)
     "AlignmentReport",
     "AttentionConfig",
-    # Audit Utilities (GMP-58, v2.0)
     "AuditReport",
     "CacheMetrics",
     "CheckpointMetrics",
-    # Checkpoint Validator + Metrics (GMP-PERSIST)
     "CheckpointValidator",
-    # Consolidation Pipeline (GMP-85 + Stage 2)
     "ConsolidationPipeline",
     "ConsolidationReport",
     "ConversationContext",
-    # Conversational Graph Memory (GMP-58)
     "ConversationGraphMemory",
-    # Cypher Templates (GMP-55)
     "CypherTemplate",
     "CypherTemplateCategory",
     "CypherTemplateLibrary",
@@ -346,62 +342,51 @@ __all__ = [
     "DecayResult",
     "EncodingResult",
     "EnrichmentConfig",
-    # Enrichment DAG (SUPERPROMPTPACK: Multi-tier fallback)
     "EnrichmentDAG",
     "EnrichmentResult",
     "EnrichmentStatus",
-    # Hybrid RAG (GMP-55)
     "EnrichmentStrategy",
     "EnrichmentTier",
     "ExtractedInsight",
     "ExtractedLearning",
     "GapDetector",
-    # Stage 5: Predictive Memory Warming (GMP-STAGE5)
     "GapSeverity",
     "GraphMessage",
     "GraphSession",
-    # Hierarchical Summarizer (Stage 2)
     "HierarchicalSummarizer",
-    # v1.1.0+ Pipelines
     "HousekeepingEngine",
     "HybridRAGPipeline",
     "HybridSearchResult",
-    # Strategy Memory (Phase 0-1: GMP-102)
     "IStrategyMemoryService",
     "ImportanceConfig",
-    # Importance Manager (GMP-80-A7)
     "ImportanceManager",
     "ImportanceUpdate",
     "IngestionPipeline",
     "InsightExtractionPipeline",
-    # v1.1.0+ Models
     "KnowledgeFact",
     "KnowledgeFactRow",
     "KnowledgeGap",
     "LearningExtractor",
     "MemoryContext",
-    # Governance Gate (GMP-68)
     "MemoryGovernanceContext",
     "MemoryWarmingService",
     "MessageRole",
     "Neo4jIntrospector",
     "Neo4jStrategyMemoryService",
-    # Neural Decay Scheduler (Stage 2)
     "NeuralDecayScheduler",
-    # Models (always available)
     "PacketEnvelope",
     "PacketEnvelopeIn",
+    "PacketRefCount",
     "PacketWriteResult",
     "PostgresIntrospector",
     "PredictiveCache",
     "PredictiveCacheConfig",
     "ReasoningPhase",
-    # Retention Engine (GMP-74)
+    "ReferenceCountingService",
     "RetentionEngine",
     "RetentionPolicy",
     "RetentionResult",
     "RetrievalPipeline",
-    # Cross-DB Saga Pattern (GMP-56)
     "Saga",
     "SagaBuilder",
     "SagaContext",
@@ -411,7 +396,6 @@ __all__ = [
     "SagaStatus",
     "SagaStep",
     "SagaStepStatus",
-    # Schema Introspection (GMP-55)
     "SchemaIntrospector",
     "SchemaVersion",
     "SemanticHit",
@@ -433,7 +417,6 @@ __all__ = [
     "ThinkingOutput",
     "ToolEmbedding",
     "ToolMatch",
-    # Semantic Tool Router (GMP-57)
     "ToolRouter",
     "ToolSearchResult",
     "TopicExtractor",
@@ -477,19 +460,12 @@ __all__ = [
     "init_tool_router",
     "normalize_payload",
     "normalize_text",
-    # Task Completion Hook (GMP-80-A7)
     "on_task_completion",
     "prepare_packet_for_ingest",
     "query_history",
     "redact_pii",
     "require_governance_context",
     "store_message",
-    # NOTE: These are available via direct import to avoid circular deps:
-    # from memory.service_adapter import MemoryServiceAdapter
-    # from memory.substrate_repository import SubstrateRepository, ...
-    # from memory.substrate_dag import SubstrateDAG, ...
-    # from memory.substrate_service import MemorySubstrateService, ...
-    # from memory.substrate_semantic import SemanticService, ...
 ]
 
 __version__ = "1.1.0"

@@ -33,6 +33,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import os
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -272,6 +273,211 @@ async def test_slack_send_special_characters(mock_env_with_token, mock_slack_cli
     mock_slack_client.post_message.assert_called_once_with(
         channel="C12345678", text=special_text, thread_ts=None
     )
+
+
+# =============================================================================
+# Slack File Upload Tests (GMP: slack_file_tools)
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_slack_file_upload_success(tmp_path):
+    """Test successful file upload to a channel."""
+    # Create a temporary test file
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("Test content")
+
+    from runtime.l_tools import slack_file_upload
+
+    with patch.dict(os.environ, {"SLACK_BOT_TOKEN": "xoxb-test-token"}):
+        with patch("runtime.l_tools.upload_file_to_slack") as mock_upload:
+            mock_upload.return_value = {
+                "file_id": "F12345",
+                "url": "https://files.slack.com/...",
+                "channel": "C12345678",
+                "ts": "1234567890.123456",
+                "title": "test.txt",
+            }
+
+            result = await slack_file_upload(
+                channel="C12345678",
+                file_path=str(test_file),
+                title="Test File",
+            )
+
+    assert result["status"] == "success"
+    assert result["file_id"] == "F12345"
+    assert result["channel"] == "C12345678"
+
+
+@pytest.mark.asyncio
+async def test_slack_file_upload_missing_token(tmp_path):
+    """Test error handling when SLACK_BOT_TOKEN is not configured."""
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("Test content")
+
+    from runtime.l_tools import slack_file_upload
+
+    with patch.dict(os.environ, {}, clear=True):
+        # Ensure SLACK_BOT_TOKEN is not set
+        os.environ.pop("SLACK_BOT_TOKEN", None)
+        result = await slack_file_upload(
+            channel="C12345678",
+            file_path=str(test_file),
+        )
+
+    assert result["status"] == "error"
+    assert result["error"] == "SLACK_BOT_TOKEN not configured"
+
+
+@pytest.mark.asyncio
+async def test_slack_file_upload_file_not_found():
+    """Test error handling when file doesn't exist."""
+    from runtime.l_tools import slack_file_upload
+
+    with patch.dict(os.environ, {"SLACK_BOT_TOKEN": "xoxb-test-token"}):
+        with patch("runtime.l_tools.upload_file_to_slack") as mock_upload:
+            mock_upload.side_effect = ValueError(
+                "File not found: /nonexistent/file.txt"
+            )
+
+            result = await slack_file_upload(
+                channel="C12345678",
+                file_path="/nonexistent/file.txt",
+            )
+
+    assert result["status"] == "error"
+    assert "File not found" in result["error"]
+
+
+# =============================================================================
+# Slack File Fetch Tests (GMP: slack_file_tools)
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_slack_file_fetch_success():
+    """Test successful file fetch by ID."""
+    from runtime.l_tools import slack_file_fetch
+
+    with patch.dict(os.environ, {"SLACK_BOT_TOKEN": "xoxb-test-token"}):
+        with patch("runtime.l_tools.fetch_file_by_id") as mock_fetch:
+            mock_fetch.return_value = {
+                "file_id": "F12345",
+                "filename": "report.pdf",
+                "mimetype": "application/pdf",
+                "size_bytes": 102400,
+                "url_private": "https://files.slack.com/...",
+                "artifact": {"path": "/path/to/saved/file.pdf"},
+            }
+
+            result = await slack_file_fetch(
+                file_id="F12345",
+                save_locally=True,
+                enrich=True,
+            )
+
+    assert result["status"] == "success"
+    assert result["file_id"] == "F12345"
+    assert result["filename"] == "report.pdf"
+    assert "artifact" in result
+
+
+@pytest.mark.asyncio
+async def test_slack_file_fetch_missing_token():
+    """Test error handling when SLACK_BOT_TOKEN is not configured."""
+    from runtime.l_tools import slack_file_fetch
+
+    with patch.dict(os.environ, {}, clear=True):
+        os.environ.pop("SLACK_BOT_TOKEN", None)
+        result = await slack_file_fetch(file_id="F12345")
+
+    assert result["status"] == "error"
+    assert result["error"] == "SLACK_BOT_TOKEN not configured"
+
+
+@pytest.mark.asyncio
+async def test_slack_file_fetch_invalid_file_id():
+    """Test error handling for invalid file ID."""
+    from runtime.l_tools import slack_file_fetch
+
+    with patch.dict(os.environ, {"SLACK_BOT_TOKEN": "xoxb-test-token"}):
+        with patch("runtime.l_tools.fetch_file_by_id") as mock_fetch:
+            mock_fetch.side_effect = Exception("file_not_found")
+
+            result = await slack_file_fetch(file_id="F_INVALID")
+
+    assert result["status"] == "error"
+    assert "file_not_found" in result["error"]
+
+
+# =============================================================================
+# Slack File List Tests (GMP: slack_file_tools)
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_slack_file_list_success():
+    """Test successful file listing for a channel."""
+    from runtime.l_tools import slack_file_list
+
+    with patch.dict(os.environ, {"SLACK_BOT_TOKEN": "xoxb-test-token"}):
+        with patch("runtime.l_tools.list_channel_files") as mock_list:
+            mock_list.return_value = [
+                {
+                    "file_id": "F12345",
+                    "name": "report.pdf",
+                    "mimetype": "application/pdf",
+                    "size": 102400,
+                    "created": 1234567890,
+                },
+                {
+                    "file_id": "F67890",
+                    "name": "image.png",
+                    "mimetype": "image/png",
+                    "size": 51200,
+                    "created": 1234567891,
+                },
+            ]
+
+            result = await slack_file_list(
+                channel="C12345678",
+                count=20,
+            )
+
+    assert result["status"] == "success"
+    assert result["count"] == 2
+    assert len(result["files"]) == 2
+    assert result["files"][0]["file_id"] == "F12345"
+
+
+@pytest.mark.asyncio
+async def test_slack_file_list_missing_token():
+    """Test error handling when SLACK_BOT_TOKEN is not configured."""
+    from runtime.l_tools import slack_file_list
+
+    with patch.dict(os.environ, {}, clear=True):
+        os.environ.pop("SLACK_BOT_TOKEN", None)
+        result = await slack_file_list(channel="C12345678")
+
+    assert result["status"] == "error"
+    assert result["error"] == "SLACK_BOT_TOKEN not configured"
+
+
+@pytest.mark.asyncio
+async def test_slack_file_list_empty_channel():
+    """Test successful listing for channel with no files."""
+    from runtime.l_tools import slack_file_list
+
+    with patch.dict(os.environ, {"SLACK_BOT_TOKEN": "xoxb-test-token"}):
+        with patch("runtime.l_tools.list_channel_files") as mock_list:
+            mock_list.return_value = []
+
+            result = await slack_file_list(channel="C12345678")
+
+    assert result["status"] == "success"
+    assert result["count"] == 0
+    assert result["files"] == []
 
 
 # =============================================================================

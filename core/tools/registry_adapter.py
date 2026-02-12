@@ -3687,6 +3687,25 @@ async def register_l_tools() -> int:
         _TOOL_AGENT_IDS[tool_def.name] = tool_def.agent_id
     logger.info(f"Auto-discovery: populated {len(_TOOL_AGENT_IDS)} tool→agent mappings")
 
+    # Build class-based executor map for tools not in TOOL_EXECUTORS
+    # These use BaseTool subclasses from services.research.tools.tool_wrappers
+    _class_executors: dict[str, Any] = {}
+    try:
+        from services.research.tools.tool_wrappers import HTTPTool, PerplexityTool
+
+        _class_executors["perplexity_search"] = PerplexityTool()
+        _class_executors["http_request"] = HTTPTool()
+    except ImportError:
+        logger.warning(
+            "tool_wrappers unavailable — perplexity_search/http_request will lack executors"
+        )
+
+    # Tool-type overrides for class-based executors (richer than generic CUSTOM)
+    _tool_type_overrides: dict[str, ToolType] = {
+        "perplexity_search": ToolType.PERPLEXITY,
+        "http_request": ToolType.HTTP,
+    }
+
     # Register each tool in BOTH Neo4j AND base registry
     registered_count = 0
     for tool_def in tools_to_register:
@@ -3699,7 +3718,10 @@ async def register_l_tools() -> int:
                 logger.debug(f"Neo4j: skipped {tool_def.name} (unavailable)")
 
             # 2. Register in base registry (for dispatch execution)
-            executor_func = TOOL_EXECUTORS.get(tool_def.name)
+            # Prefer function executors from TOOL_EXECUTORS, fall back to class executors
+            executor_func = TOOL_EXECUTORS.get(tool_def.name) or _class_executors.get(
+                tool_def.name
+            )
             if executor_func:
                 # Get input schema for LLM function calling
                 tool_schema = _get_l_tool_schema_for_registry(tool_def.name)
@@ -3708,7 +3730,7 @@ async def register_l_tools() -> int:
                     id=tool_def.name,
                     name=tool_def.name,
                     description=tool_def.description,
-                    tool_type=ToolType.CUSTOM,
+                    tool_type=_tool_type_overrides.get(tool_def.name, ToolType.CUSTOM),
                     allowed_roles=["l-cto", "researcher", "agent"],
                     rate_limit=60,
                     timeout_seconds=(
@@ -3717,7 +3739,7 @@ async def register_l_tools() -> int:
                         else 30
                     ),
                     enabled=True,
-                    requires_api_key=False,
+                    requires_api_key=tool_def.name == "perplexity_search",
                     input_schema=tool_schema,  # LLM function calling schema
                 )
                 base_registry.register(metadata, executor_func)

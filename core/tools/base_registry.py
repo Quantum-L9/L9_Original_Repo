@@ -413,9 +413,7 @@ class ToolRegistry:
                     "duration_ms": 0,
                 }
 
-            duration_ms = int(
-                (datetime.now(UTC) - start_time).total_seconds() * 1000
-            )
+            duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
             logger.info(f"Tool {tool_id} completed in {duration_ms}ms")
 
@@ -426,9 +424,7 @@ class ToolRegistry:
             }
 
         except TimeoutError:
-            duration_ms = int(
-                (datetime.now(UTC) - start_time).total_seconds() * 1000
-            )
+            duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
             logger.warning(f"Tool {tool_id} timed out after {timeout}s")
             return {
                 "success": False,
@@ -436,9 +432,7 @@ class ToolRegistry:
                 "duration_ms": duration_ms,
             }
         except Exception as e:
-            duration_ms = int(
-                (datetime.now(UTC) - start_time).total_seconds() * 1000
-            )
+            duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
             logger.exception(f"Tool {tool_id} failed: {e}")
             return {
                 "success": False,
@@ -466,83 +460,16 @@ def get_tool_registry() -> ToolRegistry:
 
 
 def _initialize_default_tools(registry: ToolRegistry) -> None:
-    """Initialize default tools in registry with schemas."""
+    """Initialize default tools in registry with schemas.
+
+    NOTE: perplexity_search and http_request are registered dynamically
+    via register_l_tools() in core/tools/registry_adapter.py at startup.
+    Only testing/utility tools that have no dynamic registration path
+    remain here.
+    """
     from services.research.tools.tool_wrappers import (
-        HTTPTool,
         MockSearchTool,
-        PerplexityTool,
     )
-
-    # Perplexity Search
-    perplexity_meta = ToolMetadata(
-        id="perplexity_search",
-        name="Perplexity Search",
-        description="Search and synthesize information using Perplexity AI",
-        tool_type=ToolType.PERPLEXITY,
-        allowed_roles=["researcher", "planner"],
-        rate_limit=20,
-        timeout_seconds=60,
-        requires_api_key=True,
-        input_schema=ToolSchema(
-            type="object",
-            properties={
-                "query": {
-                    "type": "string",
-                    "description": "Search query to send to Perplexity",
-                },
-                "focus": {
-                    "type": "string",
-                    "description": "Search focus area",
-                    "enum": [
-                        "internet",
-                        "academic",
-                        "writing",
-                        "wolfram",
-                        "youtube",
-                        "reddit",
-                    ],
-                },
-            },
-            required=["query"],
-        ),
-    )
-    registry.register(perplexity_meta, PerplexityTool())
-
-    # HTTP Request
-    http_meta = ToolMetadata(
-        id="http_request",
-        name="HTTP Request",
-        description="Make HTTP requests to external APIs",
-        tool_type=ToolType.HTTP,
-        allowed_roles=["researcher"],
-        rate_limit=100,
-        timeout_seconds=30,
-        input_schema=ToolSchema(
-            type="object",
-            properties={
-                "url": {
-                    "type": "string",
-                    "description": "URL to request",
-                },
-                "method": {
-                    "type": "string",
-                    "description": "HTTP method",
-                    "enum": ["GET", "POST", "PUT", "DELETE", "PATCH"],
-                    "default": "GET",
-                },
-                "headers": {
-                    "type": "object",
-                    "description": "Request headers",
-                },
-                "body": {
-                    "type": "object",
-                    "description": "Request body (for POST/PUT/PATCH)",
-                },
-            },
-            required=["url"],
-        ),
-    )
-    registry.register(http_meta, HTTPTool())
 
     # Mock Search (for testing without API keys)
     mock_meta = ToolMetadata(
@@ -1047,7 +974,7 @@ async def saga_timeline_correlation(
     Returns:
         Dict with timeline events and causal relationships
     """
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timedelta
 
     import structlog
 

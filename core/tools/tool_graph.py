@@ -53,7 +53,7 @@ __dora_meta__ = {
 import os
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -165,7 +165,7 @@ class ToolGraph:
                 properties={
                     "agent_id": agent_id,
                     "status": "ACTIVE",
-                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "created_at": datetime.now(UTC).isoformat(),
                 },
             )
             return True
@@ -214,7 +214,7 @@ class ToolGraph:
                     "scope": tool.scope,
                     "risk_level": tool.risk_level,
                     "requires_igor_approval": tool.requires_igor_approval,
-                    "registered_at": datetime.now(timezone.utc).isoformat(),
+                    "registered_at": datetime.now(UTC).isoformat(),
                     "tenant_id": DEFAULT_TENANT_ID,  # Tenant isolation
                 },
             )
@@ -503,7 +503,7 @@ class ToolGraph:
             await neo4j.create_event(
                 event_id=event_id,
                 event_type="tool_call",
-                timestamp=datetime.now(timezone.utc).isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
                 properties={
                     "tool_name": tool_name,
                     "agent_id": agent_id,
@@ -690,13 +690,7 @@ L9_TOOLS = [
         internal_dependencies=["memory_write"],
         category="memory",
     ),
-    # ACTIVE - Executor: runtime/l_tools.py::slack_send
-    ToolDefinition(
-        name="slack_send",
-        description="Send message to Slack",
-        external_apis=["Slack"],
-        category="communication",
-    ),
+    # NOTE: slack_send moved to L_INTERNAL_TOOLS (L-agent-specific, has executor)
     # ========================================================================
     # FUTURE FEATURE - NOT ORPHANED
     # Email Agent Tools (Gmail multi-account via email_agent/)
@@ -1068,6 +1062,63 @@ L_INTERNAL_TOOLS = [
         requires_confirmation=False,
         risk_level="low",
         external_apis=["MCP", "Neo4j"],
+        agent_id="L",
+    ),
+    # ========================================================================
+    # Communication tools - ACTIVE
+    # ========================================================================
+    ToolDefinition(
+        name="slack_send",
+        description="Send a message to a Slack channel or DM. Supports threading via thread_ts.",
+        category="communication",
+        scope="external",
+        risk_level="low",
+        requires_igor_approval=False,
+        requires_confirmation=False,
+        is_destructive=False,
+        external_apis=["Slack"],
+        agent_id="L",
+        negative_constraints=[
+            "Do not send messages to channels without explicit user instruction",
+            "Do not use for file uploads - use slack_file_upload instead",
+        ],
+    ),
+    # Slack File Tools (GMP: slack_file_tools) - closing the inbound/outbound asymmetry
+    ToolDefinition(
+        name="slack_file_upload",
+        description="Upload a file to a Slack channel or thread. Supports images, PDFs, audio, markdown, ZIP, DOCX, and other file types.",
+        category="communication",
+        scope="external",
+        is_destructive=False,
+        requires_confirmation=True,
+        risk_level="medium",
+        external_apis=["Slack"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="slack_file_fetch",
+        description="Fetch a specific file from Slack by file ID with optional local save and enrichment (OCR for images, extraction for PDFs, transcription for audio).",
+        category="communication",
+        scope="external",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Slack"],
+        agent_id="L",
+        negative_constraints=[
+            "Do not use for bulk file downloads - iterate with slack_file_list first",
+            "enrichment requires save_locally=True",
+        ],
+    ),
+    ToolDefinition(
+        name="slack_file_list",
+        description="List files shared in a Slack channel or by a user with optional filters (date range, file types). Returns lightweight metadata - use slack_file_fetch for full content.",
+        category="communication",
+        scope="external",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Slack"],
         agent_id="L",
     ),
     # ========================================================================

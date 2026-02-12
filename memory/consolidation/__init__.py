@@ -53,6 +53,12 @@ else:
     ConsolidationReport = None
 
 # Export promotion rules
+# Phase 0 Hardening: Parallel Pipeline + Adaptive Batching
+from memory.consolidation.adaptive_batching import AdaptiveBatcher
+from memory.consolidation.parallel_pipeline import (
+    ParallelConsolidationPipeline,
+    PhaseResult,
+)
 from memory.consolidation.promotion_rules import (
     PromotionSignal,
     get_promotion_reason,
@@ -61,8 +67,11 @@ from memory.consolidation.promotion_rules import (
 )
 
 __all__ = [
+    "AdaptiveBatcher",
     "ConsolidationPipeline",
     "ConsolidationReport",
+    "ParallelConsolidationPipeline",
+    "PhaseResult",
     "PromotionSignal",
     "get_promotion_reason",
     "promotion_confidence_score",

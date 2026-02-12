@@ -70,7 +70,16 @@ from .cmts import (
     get_cmts_service,
 )
 from .credentials_policy import CredentialsPolicy, create_credentials_policy
+
+# Phase 0 Hardening: Policy Conflict Resolution
+from .policy_engine import PolicyAuditLogger, PolicyConflictResolver
 from .policy_generator import PolicyGenerator, PolicySpec, ScopeAccessSpec
+from .policy_models import (
+    GovernanceDecision,
+    PolicyDecision,
+    PolicyPriority,
+    PolicyResult,
+)
 from .rate_limit_policy import (
     RateLimitConfig,
     RateLimitDep,
@@ -91,26 +100,27 @@ from .subsystem_detector import (
 
 __all__ = [
     "ApprovalDecision",
-    # Approval management
     "ApprovalManager",
     "ApprovalRequest",
     "ApprovalStatus",
-    # Code Mutation Tracking System
     "CMTSService",
     "CredentialsPolicy",
-    # Python governance modules (executable enforcement)
+    "GovernanceDecision",
     "MistakePrevention",
     "MutationQuery",
     "MutationRecord",
     "MutationStatus",
-    # Policy Generator
+    "PolicyAuditLogger",
+    "PolicyConflictResolver",
+    "PolicyDecision",
     "PolicyGenerator",
+    "PolicyPriority",
+    "PolicyResult",
     "PolicySpec",
     "QuickFixEngine",
     "RateLimitConfig",
     "RateLimitDep",
     "RateLimitExceeded",
-    # Unified Rate Limit Policy
     "RateLimitPolicy",
     "RateLimitResult",
     "ScopeAccessSpec",
@@ -120,7 +130,6 @@ __all__ = [
     "create_mistake_prevention",
     "create_quick_fix_engine",
     "create_session_startup",
-    # Subsystem Detection
     "detect_subsystem",
     "get_cmts_service",
     "get_rate_limit_policy",

@@ -1670,6 +1670,181 @@ async def slack_send(
 
 
 # ============================================================================
+# SLACK FILE TOOLS (GMP: slack_file_tools)
+# Closing the inbound/outbound asymmetry
+# ============================================================================
+
+
+@must_stay_async("callers use await")
+async def slack_file_upload(
+    channel: str,
+    file_path: str,
+    title: str | None = None,
+    initial_comment: str | None = None,
+    thread_ts: str | None = None,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """
+    Upload a file to a Slack channel or thread.
+
+    Args:
+        channel: Slack channel ID (C...) or user ID (U...)
+        file_path: Local filesystem path to file
+        title: Optional title for the file
+        initial_comment: Optional message text to accompany file
+        thread_ts: Optional thread timestamp to post in thread
+
+    Returns:
+        Dict with upload result or error
+    """
+    try:
+        import os
+
+        slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
+        if not slack_bot_token:
+            logger.error("slack_file_upload_failed: SLACK_BOT_TOKEN not configured")
+            return {"status": "error", "error": "SLACK_BOT_TOKEN not configured"}
+
+        from services.slack_files import upload_file_to_slack
+
+        result = await upload_file_to_slack(
+            channel_id=channel,
+            file_path=file_path,
+            title=title,
+            initial_comment=initial_comment,
+            thread_ts=thread_ts,
+        )
+
+        logger.info(
+            "slack_file_uploaded",
+            file_id=result.get("file_id"),
+            channel=result.get("channel"),
+            ts=result.get("ts"),
+        )
+
+        return {
+            "status": "success",
+            **result,
+        }
+
+    except Exception as e:
+        logger.error(f"slack_file_upload_failed: {e}")
+        return {"status": "error", "error": str(e)}
+
+
+@must_stay_async("callers use await")
+async def slack_file_fetch(
+    file_id: str,
+    save_locally: bool = True,
+    enrich: bool = True,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """
+    Fetch a specific Slack file by ID with optional local save and enrichment.
+
+    Args:
+        file_id: Slack file ID
+        save_locally: If True, downloads and saves file to local storage
+        enrich: If True, applies OCR/PDF/audio enrichment (requires save_locally=True)
+
+    Returns:
+        Dict with file metadata and optional artifact data
+    """
+    try:
+        import os
+
+        slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
+        if not slack_bot_token:
+            logger.error("slack_file_fetch_failed: SLACK_BOT_TOKEN not configured")
+            return {"status": "error", "error": "SLACK_BOT_TOKEN not configured"}
+
+        from services.slack_files import fetch_file_by_id
+
+        result = await fetch_file_by_id(
+            file_id=file_id,
+            save_locally=save_locally,
+            enrich=enrich,
+        )
+
+        logger.info(
+            "slack_file_fetched",
+            file_id=result.get("file_id"),
+            filename=result.get("filename"),
+            artifact_created=save_locally,
+        )
+
+        return {
+            "status": "success",
+            **result,
+        }
+
+    except Exception as e:
+        logger.error(f"slack_file_fetch_failed: {e}")
+        return {"status": "error", "error": str(e)}
+
+
+@must_stay_async("callers use await")
+async def slack_file_list(
+    channel: str | None = None,
+    user: str | None = None,
+    count: int = 20,
+    ts_from: float | None = None,
+    ts_to: float | None = None,
+    types: str = "all",
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """
+    List files shared in a Slack channel or by a specific user.
+
+    Args:
+        channel: Optional channel ID filter (C...)
+        user: Optional user ID filter (U...)
+        count: Maximum number of files to return (1-1000, default 20)
+        ts_from: Optional start timestamp (Unix time)
+        ts_to: Optional end timestamp (Unix time)
+        types: File types filter ("all", "images", "pdfs", "zips", etc.)
+
+    Returns:
+        Dict with list of file metadata
+    """
+    try:
+        import os
+
+        slack_bot_token = os.getenv("SLACK_BOT_TOKEN")
+        if not slack_bot_token:
+            logger.error("slack_file_list_failed: SLACK_BOT_TOKEN not configured")
+            return {"status": "error", "error": "SLACK_BOT_TOKEN not configured"}
+
+        from services.slack_files import list_channel_files
+
+        files = await list_channel_files(
+            channel_id=channel,
+            user_id=user,
+            count=count,
+            ts_from=ts_from,
+            ts_to=ts_to,
+            types=types,
+        )
+
+        logger.info(
+            "slack_files_listed",
+            channel=channel,
+            user=user,
+            count=len(files),
+        )
+
+        return {
+            "status": "success",
+            "files": files,
+            "count": len(files),
+        }
+
+    except Exception as e:
+        logger.error(f"slack_file_list_failed: {e}")
+        return {"status": "error", "error": str(e)}
+
+
+# ============================================================================
 # LLM TOOLS
 
 

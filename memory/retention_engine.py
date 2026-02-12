@@ -45,6 +45,7 @@ import structlog
 
 if TYPE_CHECKING:
     from memory.agent_persistence import AgentPersistenceService
+    from memory.retention_refcount import ReferenceCountingService
     from memory.substrate_repository import SubstrateRepository
 
 import contextlib
@@ -112,6 +113,7 @@ class RetentionEngine:
         persistence: AgentPersistenceService | None = None,
         repository: SubstrateRepository | None = None,
         policy: RetentionPolicy | None = None,
+        refcount_service: ReferenceCountingService | None = None,
     ):
         """
         Initialize retention engine.
@@ -120,16 +122,19 @@ class RetentionEngine:
             persistence: AgentPersistenceService for checkpoint operations
             repository: SubstrateRepository for direct DB access
             policy: Retention policy (uses defaults if not provided)
+            refcount_service: Phase 0 Hardening — reference counting for safe deletion
         """
         self._persistence = persistence
         self._repository = repository
         self._policy = policy or RetentionPolicy()
+        self._refcount_service = refcount_service
         self._scheduler_task: asyncio.Task | None = None
         self._running = False
 
         logger.info(
             "RetentionEngine initialized",
             policy=self._policy.to_dict(),
+            refcount_enabled=refcount_service is not None,
         )
 
     def set_persistence(self, persistence: AgentPersistenceService) -> None:
@@ -145,11 +150,18 @@ class RetentionEngine:
         self._policy = policy
         logger.info("Retention policy updated", policy=policy.to_dict())
 
+    def set_refcount_service(self, refcount_service: ReferenceCountingService) -> None:
+        """Set or update reference counting service."""
+        self._refcount_service = refcount_service
+        logger.info("Retention refcount service updated")
+
     async def run_cleanup(self, agent_id: str) -> RetentionResult:
         """
         Run retention cleanup for a specific agent.
 
         Deletes checkpoints that exceed the retention policy limits.
+        Phase 0 Hardening: When refcount_service is available, checks
+        reference counts before deletion and soft-expires referenced packets.
 
         Args:
             agent_id: Agent identifier to clean up
@@ -157,7 +169,11 @@ class RetentionEngine:
         Returns:
             RetentionResult with cleanup statistics
         """
-        logger.debug("Starting retention cleanup", agent_id=agent_id)
+        logger.debug(
+            "Starting retention cleanup",
+            agent_id=agent_id,
+            refcount_enabled=self._refcount_service is not None,
+        )
 
         if self._persistence is None:
             return RetentionResult(
@@ -177,11 +193,23 @@ class RetentionEngine:
             )
             checkpoints_before = len(checkpoints)
 
-            # Apply retention policy
-            deleted_count = await self._persistence.delete_old_checkpoints(
-                agent_id=agent_id,
-                keep_last=self._policy.keep_last_n,
-            )
+            # Phase 0 Hardening: If refcount service is available, check
+            # references before deletion to prevent data loss
+            if self._refcount_service is not None:
+                (
+                    deleted_count,
+                    soft_expired_count,
+                ) = await self._run_refcount_aware_cleanup(
+                    agent_id=agent_id,
+                    checkpoints=checkpoints,
+                )
+            else:
+                # Legacy path: bulk delete without refcount checks
+                deleted_count = await self._persistence.delete_old_checkpoints(
+                    agent_id=agent_id,
+                    keep_last=self._policy.keep_last_n,
+                )
+                soft_expired_count = 0
 
             checkpoints_after = checkpoints_before - deleted_count
 
@@ -198,6 +226,7 @@ class RetentionEngine:
                 agent_id=agent_id,
                 before=checkpoints_before,
                 deleted=deleted_count,
+                soft_expired=soft_expired_count,
                 after=checkpoints_after,
             )
 
@@ -218,6 +247,68 @@ class RetentionEngine:
                 policy_applied=self._policy,
                 error=str(e),
             )
+
+    async def _run_refcount_aware_cleanup(
+        self,
+        agent_id: str,
+        checkpoints: list,
+    ) -> tuple[int, int]:
+        """
+        Run cleanup with reference count safety checks.
+
+        Phase 0 Hardening: For each candidate checkpoint beyond keep_last_n,
+        check if it has active references. If referenced, soft-expire instead
+        of deleting to prevent data loss.
+
+        Args:
+            agent_id: Agent identifier
+            checkpoints: List of current checkpoints (sorted newest first)
+
+        Returns:
+            Tuple of (deleted_count, soft_expired_count)
+        """
+        # Candidates for deletion: everything beyond keep_last_n
+        candidates = checkpoints[self._policy.keep_last_n :]
+        if not candidates:
+            return 0, 0
+
+        deleted_count = 0
+        soft_expired_count = 0
+
+        for checkpoint in candidates:
+            checkpoint_id = getattr(checkpoint, "checkpoint_id", None) or getattr(
+                checkpoint, "id", str(checkpoint)
+            )
+
+            try:
+                is_safe = await self._refcount_service.is_safe_to_delete(checkpoint_id)
+
+                if is_safe:
+                    # No references — safe to delete
+                    await self._persistence.delete_checkpoint(
+                        agent_id=agent_id,
+                        checkpoint_id=checkpoint_id,
+                    )
+                    deleted_count += 1
+                else:
+                    # Has active references — soft-expire instead
+                    await self._refcount_service.mark_soft_expired(checkpoint_id)
+                    soft_expired_count += 1
+                    logger.debug(
+                        "Checkpoint soft-expired (has references)",
+                        agent_id=agent_id,
+                        checkpoint_id=checkpoint_id,
+                    )
+            except Exception as e:
+                # On error, skip this checkpoint (safe default: don't delete)
+                logger.warning(
+                    "Refcount check failed, skipping checkpoint",
+                    agent_id=agent_id,
+                    checkpoint_id=checkpoint_id,
+                    error=str(e),
+                )
+
+        return deleted_count, soft_expired_count
 
     async def run_cleanup_all(self, agent_ids: list[str]) -> list[RetentionResult]:
         """
