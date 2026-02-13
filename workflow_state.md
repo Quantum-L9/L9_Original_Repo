@@ -83,6 +83,10 @@
 
 ## Recent Changes (digest)
 
+- [2026-02-13] **GMP-140: ADR-0094 tool registry primary pipeline unification: enforce practical rule and execute 3-step migration plan** — GMP execution via LangGraph DAG. Files:
+- [2026-02-13] [Phase 0/6] Files: `readme/adr/0094-tool-registry-primary-pipeline-unification.md`, `readme/adr/README.md`, `reports/repo-index/adr_catalog.txt` | Action: added ADR-0094 practical rule to standardize tool pipeline dependencies (primary: `create_executor_tool_registry`/`app.state.tool_registry`, `get_tool_registry`, `discover_tools_for_task`) and documented 3-step migration plan with bridge-layer constraint for `runtime.tool_registry` usage | Validation: executed `python3 workflows/dags/gmp_langgraph_executor.py` and `python3 workflows/dags/gmp_langgraph_executor.py "...ADR-0094..." --tier RUNTIME`; second run reached Scope Lock and aborted without interactive TODO confirmation.
+- [2026-02-13] [Phase 2/4] Files: `core/agents/dynamic_tool_binding.py`, `core/schemas/tool_role_capabilities.py` | Action: replaced invalid `from runtime.tool_registry import get_tool_registry` imports with `core.tools.base_registry.get_tool_registry` to resolve AgentExecutor startup import failures | Tests: `py_compile` pass, lints clean, no remaining runtime.tool_registry get_tool_registry imports in repo.
+- [2026-02-13] [Phase 2/4] Files: `core/agents/dynamic_tool_binding.py` | Action: replaced stale imports (`get_tool_binding_mode`, `discover_tools_for_agent`) with `discover_tools_for_task` + `is_dynamic_discovery_enabled` compatibility flow to unblock AgentExecutor import chain | Tests: `py_compile` pass, lints clean, repo search confirms zero stale symbol references.
     - [2026-02-13] **Migration 0032 Dependency Fix** — Updated `migrations/0032_fix_timestamp_timezones.sql` to drop and recreate dependent materialized views (`mv_agent_recent_important`, etc.) to allow altering column types. This resolves the blocking error for `l9-api` startup on VPS.
     - [2026-02-13] **Timestamp Timezone Migration Created** — Created `migrations/0032_fix_timestamp_timezones.sql` to alter 14 naive timestamp columns to `timestamp with time zone`. This resolves the 500 error in memory ingestion caused by the clash between aware datetimes (ADR-0083) and naive DB columns.
     - [2026-02-13] **Global ADR-0083 Sweep Complete** — Replaced all 69 instances of deprecated `datetime.utcnow()` with timezone-aware `datetime.now(UTC)` across 69 files (55 production, 8 agents, 6 archive). Updated imports to include `UTC`. Verified zero occurrences remain in production code. Fixed pre-existing syntax error in `tools/adr/adr_cli.py`.
@@ -186,6 +190,8 @@ _Last updated: 2026-02-13 (end-session: workflow_state + memory pipeline doc; wr
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-13: **/end-session** — Updated end-session slash command to reference `docs/MEMORY_PIPELINE_MAP.md` and document canonical memory path (cursor_memory_client write → MCP save_memory → write_packet → SubstrateDAG); executed session close.
+- ✅ 2026-02-13: End-session closure — Added ADR-0094 (tool registry primary pipeline rule), executed GMP-140 report generation path, audited changed files, and confirmed runtime import fixes are ready while governance artifacts need consistency cleanup before commit.
 - ✅ 2026-02-13: **Migration 0032 Dependency Fix** — Fixed blocking database migration by handling materialized view dependencies. Pushed to main. Ready for re-deploy.
 - ✅ 2026-02-13: **Global ADR-0083 Sweep** — Replaced 69 instances of `datetime.utcnow()` with `datetime.now(UTC)` across 69 files. Fixed syntax error in `tools/adr/adr_cli.py`. Compliance with ADR-0083 at 100%.
 - ✅ 2026-02-13: **GMP-139 Refactor** — Moved `codegenagent` to `core/agents/` and `wire_executor` to `core/codegen/`. Updated imports across 15+ files. Fixed `generate_gmp_report.py` syntax error.
@@ -218,13 +224,11 @@ _Last updated: 2026-02-13 (end-session: workflow_state + memory pipeline doc; wr
 
 ## Next Steps (Next Session)
 
-- [ ] Execute migration 0032 on C1 during next Docker rebuild (Phase 4/5).
-- [ ] Run `python3 scripts/noqa_debt_eliminator.py --generate-specs` to begin clearing logging debt.
-- [ ] Monitor Prometheus for `l9_tech_debt_*` metrics.
-- [ ] Finalize `CodeGenAgent` (CGA) spec generator logic for security findings.
-- [ ] Run targeted security audit on `api/` and `core/governance/`.
-- [ ] Monitor C1 l9-api logs for "Ingestion failed: Target entity not found" errors
-- [ ] Execute migrations at next Docker rebuild (Phase 4/5) if new migrations added
+- [ ] Split commit scope: runtime import fix commit (`core/agents/dynamic_tool_binding.py`, `core/schemas/tool_role_capabilities.py`) separate from ADR/report/index artifacts.
+- [ ] Regenerate ADR index via `python tools/export_repo_indexes.py` (do not manually edit `reports/repo-index/adr_catalog.txt`) and verify ADR-0094 appears.
+- [ ] Correct GMP-140 evidence wording to reflect actual implemented scope (imports + ADR), or execute missing Step-2/Step-3 bridge migration code.
+- [ ] Execute migration 0032 on C1 during next Docker rebuild (Phase 4/5) and capture health proof.
+- [ ] Run targeted follow-up audit for tool pipeline consolidation entry points (`core/tools/registry_adapter.py`, `runtime/tool_registry.py`, `api/server.py`).
 
 **Recent Sessions (7-day window):**
 
@@ -287,4 +291,4 @@ _Last updated: 2026-02-13 (end-session: workflow_state + memory pipeline doc; wr
 
 ---
 
-_Last updated: 2026-02-13_
+_Last updated: 2026-02-13 (end-session)_

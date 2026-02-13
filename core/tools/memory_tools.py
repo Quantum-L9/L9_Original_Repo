@@ -419,7 +419,7 @@ async def register_memory_tools(
             description = tool_def["description"]
             executor = executors.get(tool_id)
 
-            # Skip if tool already registered (by register_l_tools which has proper schemas)
+            # Skip if tool already registered (by bridge sync which has proper schemas)
             if hasattr(tool_registry, "_registry") and tool_registry._registry:
                 existing = tool_registry._registry.get(tool_id)
                 if existing:

@@ -39,12 +39,11 @@ from typing import Any
 import structlog
 
 from config.settings import settings
-from core.tools.base_registry import ToolRegistry
+from core.tools.base_registry import ToolRegistry, get_tool_registry
 from core.tools.dynamic_discovery import (
     discover_tools_for_task,
     is_dynamic_discovery_enabled,
 )
-from runtime.tool_registry import get_tool_registry
 
 logger = structlog.get_logger(__name__)
 

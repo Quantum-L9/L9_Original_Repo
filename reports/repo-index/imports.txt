@@ -2,12 +2,12 @@
 # Imports
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-13 21:22 UTC
+# Branch:    main (58f7d020)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
-#
+# 
   .
   ..core
   ..models
@@ -111,7 +111,9 @@
   .phase_5_bind_tools
   .phase_6_wire_governance
   .phase_7_verify_and_lock
+  .policy_engine
   .policy_generator
+  .policy_models
   .prometheus_exporter
   .pydantic_models_report
   .qc_dashboard
@@ -169,6 +171,7 @@
   agents.architect_agent.architect_agent_b
   agents.base_agent
   agents.codegenagent.c_gmp_engine
+  agents.codegenagent.codegen_agent
   agents.codegenagent.file_emitter
   agents.codegenagent.meta_loader
   agents.coder_agent.coder_agent_a
@@ -226,6 +229,8 @@
   cachetools
 # chat
   chat
+# ci
+  ci.auto_fix_adr
 # click
   click
 # clients
@@ -274,6 +279,12 @@
   core.agents.bootstrap.models
   core.agents.bootstrap.orchestrator
   core.agents.bootstrap.phase_4_load_identity
+  core.agents.codegenagent.c_gmp_engine
+  core.agents.codegenagent.file_emitter
+  core.agents.codegenagent.meta_loader
+  core.agents.codegenagent.readme_generator
+  core.agents.codegenagent.validation_self_corrector
+  core.agents.dynamic_tool_binding
   core.agents.executor
   core.agents.executor_composer
   core.agents.graph_state.agent_graph_loader
@@ -294,6 +305,7 @@
   core.calibration.service
   core.codegen.compiler.module_compiler_v2
   core.codegen.spec
+  core.codegen.wire_executor
   core.commands.schemas
   core.compliance.audit_log
   core.compliance.audit_reporter
@@ -312,6 +324,8 @@
   core.governance.engine
   core.governance.loader
   core.governance.mistake_prevention
+  core.governance.policy_engine
+  core.governance.policy_models
   core.governance.policy_registry
   core.governance.protected_files_policy
   core.governance.rate_limit_policy
@@ -336,6 +350,7 @@
   core.moduleregistry
   core.observability
   core.observability.circuit_breaker
+  core.observability.instrumentation
   core.observability.models
   core.packet_envelope
   core.packet_envelope.governance
@@ -396,6 +411,7 @@
   core.tools.sanitizer
   core.tools.semantic_discovery
   core.tools.semantic_tool_search
+  core.tools.tool_audit
   core.tools.tool_embeddings
   core.tools.tool_graph
   core.worldmodel.insight_emitter
@@ -493,8 +509,8 @@
   l9.core.governance
   l9.core.memory
   l9.core.schemas
-  l9.core.tools
-  l9.core.utils
+  l9.governance.approvals
+  l9.memory.substrate_service
 # langchain
   langchain.tools
 # langchain_core
@@ -518,12 +534,16 @@
   memory
   memory.active_encoder
   memory.agent_persistence
+  memory.archive.enrichment_dag
+  memory.archive.insight_extraction
   memory.audit_utils
   memory.checkpoint.cursor_checkpoint_manager
   memory.checkpoint.postgres_saver
   memory.checkpoint_metrics
   memory.checkpoint_validator
   memory.consolidation
+  memory.consolidation.adaptive_batching
+  memory.consolidation.parallel_pipeline
   memory.consolidation.promotion_rules
   memory.cross_encoder_reranker
   memory.cypher_templates
@@ -554,6 +574,7 @@
   memory.query_classifier
   memory.reasoning_replay
   memory.retention_engine
+  memory.retention_refcount
   memory.retrieval
   memory.saga
   memory.saga_patterns
@@ -577,6 +598,8 @@
   memory.warming_models
   memory.warming_service
 # memory_cache
+  memory_cache.invalidation_hook
+  memory_cache.versioned_snapshots
   memory_cache.working_memory_service
 # memory_substrate
   memory_substrate.repository
@@ -633,6 +656,8 @@
   platform
 # prometheus_client
   prometheus_client
+# psutil
+  psutil
 # pydantic
   pydantic
 # pydantic_settings
@@ -671,6 +696,8 @@
   runtime.websocket_orchestrator
 # safety
   safety.api
+# scripts
+  scripts.cga_spec_generator
 # services
   services.research
   services.research.agents
@@ -745,6 +772,8 @@
   stat
 # statistics
   statistics
+# string
+  string
 # structlog
   structlog
 # subprocess

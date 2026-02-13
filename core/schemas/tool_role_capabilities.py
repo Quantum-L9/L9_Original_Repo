@@ -93,7 +93,7 @@ class ToolCapabilities:
         Enhancement: Considers tags + governance
         """
         try:
-            from runtime.tool_registry import get_tool_registry
+            from core.tools.base_registry import get_tool_registry
 
             registry = get_tool_registry()
             metadata = registry.get_tool_metadata(tool_id)

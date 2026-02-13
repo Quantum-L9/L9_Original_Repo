@@ -1,4 +1,4 @@
-# ADR 0043: Security & Rate Limiting Architecture
+# ADR 0096: Security & Rate Limiting Architecture
 
 **Date**: 2026-01-23
 
@@ -307,7 +307,7 @@ auth:
 | `runtime/execution_gate.py`      | ~400  | Code execution safety       |
 | `core/tools/base_registry.py`    | 1327  | Safe expression evaluation  |
 | `core/di/container.py`           | 577   | Safe type resolution        |
-| `mcp_memory/src/rate_limiter.py` | 207   | MCP rate limiting           |
+| `mcp_memory/src/rate_limiter.py` | 207   | MCP rate limiting            |
 
 ### Configuration Files
 
@@ -329,12 +329,13 @@ auth:
 
 - PR #36: Superseded by existing implementations
 - ADR 0019: Structlog logging standard (includes security logging)
+- [ADR 0095](./0095-unsafe-eval-remediation.md): Unsafe eval() Remediation (code injection)
 - `SECURITY.md`: Public security policy
 
 ## DORA Metadata
 
 ```yaml
-component_id: ADR-0043
+component_id: ADR-0096
 governance_level: high
 compliance_required: true
 audit_trail: true

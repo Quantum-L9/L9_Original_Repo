@@ -2,8 +2,8 @@
 # Migration Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-13 21:22 UTC
+# Branch:    main (58f7d020)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -44,6 +44,8 @@
 | `0028_optimize_vector_indexing.sql` | ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
 | `0029_add_agent_scope.sql` | ============================================================ |
 | `0030_semantic_memory_scope_project_index.sql` | ============================================================ |
+| `0031_add_refcount_columns.sql` | Migration: Add Reference Counting Support for TTL Safety |
+| `0032_fix_timestamp_timezones.sql` | Migration: 0032_fix_timestamp_timezones.sql |
 | `20260125_tool_feedback_learning.sql` | ============================================================ |
 
 ## Key Tables Created

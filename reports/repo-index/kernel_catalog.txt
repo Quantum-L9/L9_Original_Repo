@@ -2,8 +2,8 @@
 # Kernel Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-13 21:22 UTC
+# Branch:    main (58f7d020)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -17,37 +17,37 @@
 - **ID**: 01_master_kernel
 - **Name**: 01_master_kernel
 - **Version**: 1.0.0
-- **Purpose**:
+- **Purpose**: 
 
 ### 02_identity_kernel.yaml
 - **ID**: 02_identity_kernel
 - **Name**: 02_identity_kernel
 - **Version**: 1.0.0
-- **Purpose**:
+- **Purpose**: 
 
 ### 03_cognitive_kernel.yaml
 - **ID**: 03_cognitive_kernel
 - **Name**: 03_cognitive_kernel
 - **Version**: 1.0.0
-- **Purpose**:
+- **Purpose**: 
 
 ### 04_behavioral_kernel.yaml
 - **ID**: 04_behavioral_kernel
 - **Name**: 04_behavioral_kernel
 - **Version**: 1.0.0
-- **Purpose**:
+- **Purpose**: 
 
 ### 05_memory_kernel.yaml
 - **ID**: 05_memory_kernel
 - **Name**: 05_memory_kernel
 - **Version**: 1.0.0
-- **Purpose**:
+- **Purpose**: 
 
 ### 06_worldmodel_kernel.yaml
 - **ID**: 06_worldmodel_kernel
 - **Name**: 06_worldmodel_kernel
 - **Version**: 1.0.0
-- **Purpose**:
+- **Purpose**: 
 
 ### 07_execution_kernel.yaml
 - **ID**: 07_execution_kernel
@@ -65,13 +65,13 @@
 - **ID**: 09_developer_kernel
 - **Name**: 09_developer_kernel
 - **Version**: 1.0.0
-- **Purpose**: Governs engineering-grade execution for AI/agent development: spec-first, schema-first, test-bound,
+- **Purpose**: Governs engineering-grade execution for AI/agent development: spec-first, schema-first, test-bound, 
 
 ### 10_packet_protocol_kernel.yaml
 - **ID**: 10_packet_protocol_kernel
 - **Name**: 10_packet_protocol_kernel
 - **Version**: 1.0.0
-- **Purpose**:
+- **Purpose**: 
 
 
 ## Kernel Loading (7-Phase Bootstrap)

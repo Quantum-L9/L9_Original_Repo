@@ -2,8 +2,8 @@
 # Entrypoints
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-13 21:22 UTC
+# Branch:    main (58f7d020)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -16,6 +16,12 @@
   Type: Script
   Has __main__ block: Yes
 .github/scripts/validate-readme-sections.py
+  Type: Script
+  Has __main__ block: Yes
+agents/codegenagent/__main__.py
+  Type: Script
+  Has __main__ block: Yes
+agents/codegenagent/extract_yaml_specs.py
   Type: Script
   Has __main__ block: Yes
 agents/cursor/cursor_memory_client.py
@@ -83,6 +89,9 @@ bootstrap/__main__.py
 ci/ai_guardrails/runner.py
   Type: Script
   Has __main__ block: Yes
+ci/auto_fix_adr.py
+  Type: Script
+  Has __main__ block: Yes
 ci/check_adr_compliance.py
   Type: Script
   Has __main__ block: Yes
@@ -102,6 +111,9 @@ ci/check_memory_bypass.py
   Type: Script
   Has __main__ block: Yes
 ci/check_no_deprecated_services.py
+  Type: Script
+  Has __main__ block: Yes
+ci/check_noqa_placement.py
   Type: Script
   Has __main__ block: Yes
 ci/check_packet_type_naming.py
@@ -167,6 +179,9 @@ codegen/code-gen-files/validate_spec_v25.py
 codegen/codegenAgent Spec/run_codegen_superprompt.py
   Type: Script
   Has __main__ block: Yes
+codegen/codegen_agent_spec/run_codegen_superprompt.py
+  Type: Script
+  Has __main__ block: Yes
 codegen/dev_layer/am_engine/compile.py
   Type: Script
   Has __main__ block: Yes
@@ -176,13 +191,13 @@ codegen/export_repo_indexes.py
 codegen/scripts/generate_spec.py
   Type: Script
   Has __main__ block: Yes
-codegenagent/extract_yaml_specs.py
-  Type: Script
-  Has __main__ block: Yes
 config/di_async_config.py
   Type: FastAPI
   Routes (1):
     - GET /data
+core/agents/codegenagent/extract_yaml_specs.py
+  Type: Script
+  Has __main__ block: Yes
 core/bayesian/hybrid_kernel.py
   Type: Script
   Has __main__ block: Yes
@@ -196,6 +211,9 @@ core/bayesian/uncertainty.py
   Type: Script
   Has __main__ block: Yes
 core/codegen/cli.py
+  Type: Script
+  Has __main__ block: Yes
+core/codegen/wire_executor.py
   Type: Script
   Has __main__ block: Yes
 core/evaluation/eval_sets.py
@@ -330,6 +348,9 @@ scripts/benchmark_caching_and_vector.py
 scripts/benchmark_performance.py
   Type: Script
   Has __main__ block: Yes
+scripts/cga_spec_generator.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/check_n_plus_1.py
   Type: Script
   Has __main__ block: Yes
@@ -444,6 +465,12 @@ scripts/memory/seed_golden_strategies.py
 scripts/migrate_substrate_models.py
   Type: Script
   Has __main__ block: Yes
+scripts/noqa_debt_eliminator.py
+  Type: Script
+  Has __main__ block: Yes
+scripts/perplexity_audit_agent.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/pr_review/gemini_auto_editor.py
   Type: Script
   Has __main__ block: Yes
@@ -478,9 +505,6 @@ scripts/setup_gmail_accounts.py
   Type: Script
   Has __main__ block: Yes
 scripts/validate_gmp_report.py
-  Type: Script
-  Has __main__ block: Yes
-scripts/workflow/generate_gmp_report.py
   Type: Script
   Has __main__ block: Yes
 scripts/workflow/update_workflow_state.py

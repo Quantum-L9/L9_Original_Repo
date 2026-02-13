@@ -2039,6 +2039,30 @@ L_INTERNAL_TOOLS = [
         external_apis=["Neo4j"],
         agent_id="L",
     ),
+    # ADR-0094: Previously only registered via registry_adapter.register_l_tools().
+    # Added here to ensure Neo4j registration after register_l_tools() removal.
+    ToolDefinition(
+        name="perplexity_search",
+        description="Search and synthesize information using Perplexity AI. Returns structured research results.",
+        category="research",
+        scope="external",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="low",
+        external_apis=["Perplexity"],
+        agent_id="L",
+    ),
+    ToolDefinition(
+        name="http_request",
+        description="Make HTTP requests to external APIs. Supports GET, POST, PUT, DELETE methods.",
+        category="integration",
+        scope="external",
+        is_destructive=False,
+        requires_confirmation=False,
+        risk_level="medium",
+        external_apis=[],
+        agent_id="L",
+    ),
 ]
 
 

@@ -1,4 +1,4 @@
-# ADR 0041: Unsafe eval() Remediation
+# ADR 0095: Unsafe eval() Remediation
 
 **Date**: 2026-01-21
 
@@ -46,15 +46,14 @@ We will remediate these vulnerabilities by replacing the unsafe functions with s
 
 ## DORA Metadata
 
-- **component_id**: ADR-0041
+- **component_id**: ADR-0095
 - **governance_level**: high
 - **compliance_required**: True
 - **audit_trail**: True
 - **dependencies**: ["core.di.container", "core.tools.base_registry", "core.error_tracking"]
 - **tags**: ["adr", "security", "remediation", "eval", "injection"]
-- \*\*keywords": ["adr", "security", "eval", "injection", "remediation"]
-  -mediation"]
-- **business_value**: "Remediates critical security vulnerabilities related to unsafe eval() and **import**() usage, preventing code injection attacks."
+- **keywords**: ["adr", "security", "eval", "injection", "remediation"]
+- **business_value**: "Remediates critical security vulnerabilities related to unsafe eval() and __import__() usage, preventing code injection attacks."
 - **last_modified**: "2026-01-21T19:00:00Z"
 - **modified_by**: "Manus_AI"
-- **change_summary**: "Initial ADR for unsafe eval() remediation"
+- **change_summary**: "Initial ADR for unsafe eval() remediation; renumbered from duplicate 0041 to 0095"

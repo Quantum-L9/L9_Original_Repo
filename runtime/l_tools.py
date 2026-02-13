@@ -41,7 +41,9 @@ from typing import Any
 import structlog
 
 from core.decorators import must_stay_async
-from runtime.tool_registry import get_tool_executors
+
+# ADR-0094: get_tool_executors import removed. All tool dispatch goes through
+# core.tools.base_registry via sync_runtime_tools_to_primary() bridge.
 
 # Lazy import for symbolic tools (requires sympy)
 symbolic_compute = None
@@ -2894,34 +2896,9 @@ async def kernel_read(
 
 
 # ============================================================================
-# TOOL REGISTRY
-
-# Map tool names to executor functions
-# CRITICAL: Populated dynamically by auto-registration in runtime/tool_registry.py
-TOOL_EXECUTORS = get_tool_executors()
-
-
-def get_tool_executor(tool_name: str) -> Any | None:
-    """
-    Get executor function for a tool by name.
-
-    Args:
-        tool_name: Name of the tool
-
-    Returns:
-        Executor function or None if not found
-    """
-    return TOOL_EXECUTORS.get(tool_name)
-
-
-def list_available_tools() -> list[str]:
-    """
-    List all available tool names.
-
-    Returns:
-        List of tool names
-    """
-    return list(TOOL_EXECUTORS.keys())
+# ADR-0094: TOOL_EXECUTORS, get_tool_executor(), list_available_tools() removed.
+# All tool dispatch now goes through core.tools.base_registry.get_tool_registry().
+# ============================================================================
 
 
 # ============================================================================

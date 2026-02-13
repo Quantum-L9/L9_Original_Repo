@@ -43,3 +43,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 docker logs -f l9-bootstrap 2>&1 | head -100
 
 # Press Ctrl+C after bootstrap completes, then check API startup:
+
+======
+
+./scripts/deployment/10X_Deploy_Script.sh --msg "fix: dynamic tool binding import mismatch" --services "l9-api" --no-cache

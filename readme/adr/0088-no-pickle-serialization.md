@@ -47,7 +47,7 @@ data = json.loads(cached_data, object_hook=custom_decoder)
 ## Enforcement
 
 - **Semgrep rule:** `l9-no-pickle-loads` in `.semgrep/l9-rules.yaml`
-- **ADR rule:** ADR-0041 (extended)
+- **ADR rule:** ADR-0095 (extended)
 - **CI gate:** ERROR - Blocks merge
 - **Scope:** All Python files
 

@@ -243,7 +243,7 @@ New singletons use `@register_singleton` decorator from `core/singleton_auto_reg
 | Missing `__dora_meta__` in new module                | Add DORA header dict                                                               | 0014 |
 | Hardcoded secrets in code                            | `os.getenv("SECRET_NAME")` with `.env`                                             | 0090 |
 | Duplicate validation outside `intake_node`           | Validate only in `intake_node`                                                     | 0012 |
-| `eval()` / `exec()` on untrusted input               | Safe alternatives per ADR-0041                                                     | 0041 |
+| `eval()` / `exec()` on untrusted input               | Safe alternatives per ADR-0095                                                     | 0095 |
 
 ---
 

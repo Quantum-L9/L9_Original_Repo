@@ -33,6 +33,7 @@ These ADRs enforce safety, audit, and structural invariants. Violating them brea
 | [0087](./0087-sql-parameterization.md) | SQL Parameterization | Never use f-strings for SQL; always parameterize |
 | [0088](./0088-no-pickle-serialization.md) | No Pickle Serialization | Never use pickle; use JSON/msgpack |
 | [0091](./0091-definition-of-done.md) | Definition of Done | Enforceable DoD for all commits |
+| [0094](./0094-tool-registry-primary-pipeline-unification.md) | Tool Registry Primary Pipeline Unification | New code must use ExecutorToolRegistry/base registry/dynamic discovery primary path |
 
 ### 🟡 IMPORTANT — Read When Working in Related Area
 
@@ -129,7 +130,7 @@ All ADRs MUST follow the structure defined in `config/schemas/adr_schema.yaml`:
 
 ## ➕ Creating New ADRs
 
-1. Use next sequential number: `0092-short-title.md`.
+1. Use next sequential number: `0098-short-title.md`. (Duplicate ADR numbers 0041, 0043, and 0066 were resolved by renumbering the second of each pair to 0095, 0096, 0097.)
 2. Follow the AI-Optimized format.
 3. Update this README and `reports/repo-index/adr_catalog.txt`.
 4. Run `make ci-validate` to ensure schema compliance.

@@ -1,4 +1,4 @@
-## ADR-0066: Governance & Authority Superpack (2026-01-25)
+## ADR-0097: Governance & Authority Superpack (2026-01-25)
 
 **Decision:** Implement comprehensive governance superpack documenting L9 authority model, PacketEnvelope protocol, policy enforcement, and protected surfaces.
 

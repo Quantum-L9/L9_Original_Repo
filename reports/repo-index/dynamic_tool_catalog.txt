@@ -2,8 +2,8 @@
 # Dynamic Tool Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-13 21:23 UTC
+# Branch:    main (58f7d020)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -25,7 +25,7 @@
 | `email_query` | communication | - | - | - | Query emails from Gmail account | core/tools/tool_graph.py |
 | `email_reply` | communication | - | - | - | Reply to an email message | core/tools/tool_graph.py |
 | `email_send` | - | - | - | - | - | core/tools/tool_graph.py |
-| `git_commit` | vcs | requires_igor_approval | high | True | Commit code changes to git repository | core/tools/registry_adapter.py |
+| `git_commit` | execution | requires_igor_approval | high | True | Commit changes to git repository - requires Igor | core/tools/tool_graph.py |
 | `github_create_issue` | integration | external | low | - | Create a GitHub issue via MCP | core/tools/tool_graph.py |
 | `github_create_pull_request` | integration | external | medium | - | Create a GitHub pull request via MCP | core/tools/tool_graph.py |
 | `github_merge_pull_request` | integration | external | high | True | Merge a GitHub pull request via MCP | core/tools/tool_graph.py |
@@ -35,58 +35,58 @@
 | `graph_memory_get_context` | memory | internal | low | - | Get conversation context for a session | core/tools/tool_graph.py |
 | `graph_memory_query_history` | memory | internal | low | - | Query user conversation history from graph memory | core/tools/tool_graph.py |
 | `graph_memory_store` | memory | internal | low | - | Store a message in conversational graph memory | core/tools/tool_graph.py |
-| `http_request` | - | - | - | - | - | core/tools/registry_adapter.py |
+| `http_request` | integration | external | medium | - | Make HTTP requests to external APIs. Supports GET, | core/tools/tool_graph.py |
 | `hybrid_rag_search` | - | - | - | - | - | core/tools/tool_graph.py |
-| `kernel_read` | kernel | internal | low | False | Read a property from a kernel | core/tools/registry_adapter.py |
+| `kernel_read` | knowledge | internal | - | - | Read kernel definitions and constraints | core/tools/tool_graph.py |
 | `llm_chat` | ai | - | - | - | Chat with OpenAI models | core/tools/tool_graph.py |
-| `long_plan_execute` | orchestration | internal | medium | False | Execute a long plan through LangGraph DAG | core/tools/registry_adapter.py |
+| `long_plan_execute` | - | - | - | - | - | core/tools/tool_graph.py |
 | `long_plan_simulate` | - | - | - | - | - | core/tools/tool_graph.py |
-| `mac_agent_exec_task` | execution | requires_igor_approval | high | True | Execute command via Mac agent | core/tools/registry_adapter.py |
+| `mac_agent_exec_task` | - | - | - | - | - | core/tools/tool_graph.py |
 | `mcp_call_tool` | - | - | - | - | - | core/tools/tool_graph.py |
-| `mcp_discover_and_register` | integration | internal | low | False | Auto-discover all MCP tools and register them in N | core/tools/registry_adapter.py |
-| `mcp_list_servers` | integration | internal | low | False | List all configured MCP servers and their status | core/tools/registry_adapter.py |
+| `mcp_discover_and_register` | integration | internal | low | - | Auto-discover all MCP tools and register them in N | core/tools/tool_graph.py |
+| `mcp_list_servers` | integration | internal | low | - | List all configured MCP servers and their status | core/tools/tool_graph.py |
 | `mcp_list_tools` | - | - | - | - | - | core/tools/tool_graph.py |
-| `mcp_start_server` | mcp | internal | medium | False | Start an MCP server process | core/tools/registry_adapter.py |
-| `mcp_stop_all_servers` | mcp | internal | medium | False | Stop all running MCP server processes | core/tools/registry_adapter.py |
-| `mcp_stop_server` | mcp | internal | medium | False | Stop an MCP server process | core/tools/registry_adapter.py |
-| `memory_embed_text` | memory | internal | low | False | Generate embedding vector for text | core/tools/registry_adapter.py |
-| `memory_fetch_facts_api` | memory | internal | low | False | Fetch knowledge facts from memory API | core/tools/registry_adapter.py |
-| `memory_fetch_insights` | memory | internal | low | False | Fetch insights from memory | core/tools/registry_adapter.py |
+| `mcp_start_server` | - | - | - | - | - | core/tools/tool_graph.py |
+| `mcp_stop_all_servers` | mcp | internal | medium | - | Stop all running MCP servers. Use for cleanup or r | core/tools/tool_graph.py |
+| `mcp_stop_server` | mcp | internal | low | - | Stop a specific MCP server by name. Gracefully ter | core/tools/tool_graph.py |
+| `memory_embed_text` | memory | internal | - | - | Generate embedding vector for text | core/tools/tool_graph.py |
+| `memory_fetch_facts_api` | memory | internal | - | - | Fetch knowledge facts from memory API | core/tools/tool_graph.py |
+| `memory_fetch_insights` | memory | internal | - | - | Fetch insights from memory | core/tools/tool_graph.py |
 | `memory_fetch_lineage` | - | - | - | - | - | core/tools/tool_graph.py |
-| `memory_fetch_thread` | memory | internal | low | False | Fetch all packets in a conversation thread | core/tools/registry_adapter.py |
-| `memory_gc_stats` | memory | internal | low | False | Get garbage collection statistics from memory | core/tools/registry_adapter.py |
-| `memory_get_checkpoint` | memory | internal | low | False | Get the latest checkpoint state for an agent | core/tools/registry_adapter.py |
+| `memory_fetch_thread` | memory | internal | - | - | Fetch all packets in a conversation thread | core/tools/tool_graph.py |
+| `memory_gc_stats` | memory | internal | - | - | Get garbage collection statistics from memory | core/tools/tool_graph.py |
+| `memory_get_checkpoint` | memory | internal | low | - | Get current memory checkpoint state. Returns lates | core/tools/tool_graph.py |
 | `memory_get_events` | - | - | - | - | - | core/tools/tool_graph.py |
-| `memory_get_facts` | memory | internal | low | False | Get knowledge facts by subject from memory graph | core/tools/registry_adapter.py |
-| `memory_get_packet` | memory | internal | low | False | Get a specific packet by ID from memory substrate | core/tools/registry_adapter.py |
-| `memory_get_reasoning_traces` | memory | internal | low | False | Get L | core/tools/registry_adapter.py |
-| `memory_health_check` | memory | internal | low | False | Check health of all memory substrate components | core/tools/registry_adapter.py |
-| `memory_hybrid_search` | memory | internal | low | False | Hybrid search combining semantic + keyword matchin | core/tools/registry_adapter.py |
-| `memory_query_packets` | memory | internal | low | False | Query packets with complex filters | core/tools/registry_adapter.py |
+| `memory_get_facts` | memory | internal | - | - | Get knowledge facts by subject from memory graph | core/tools/tool_graph.py |
+| `memory_get_packet` | memory | internal | - | - | Get specific packet by ID from memory substrate | core/tools/tool_graph.py |
+| `memory_get_reasoning_traces` | memory | internal | - | - | Get L | core/tools/tool_graph.py |
+| `memory_health_check` | memory | internal | low | - | Run health check on memory substrate. Verifies Pos | core/tools/tool_graph.py |
+| `memory_hybrid_search` | memory | internal | - | - | Hybrid search combining semantic + keyword matchin | core/tools/tool_graph.py |
+| `memory_query_packets` | memory | internal | - | - | Query packets with complex filters | core/tools/tool_graph.py |
 | `memory_read` | memory | internal | - | - | Read from L9 memory substrate | core/tools/tool_graph.py |
-| `memory_search` | memory | internal | low | False | Search L | core/tools/registry_adapter.py |
-| `memory_search_by_thread` | memory | internal | low | False | Search packets by conversation thread ID | core/tools/registry_adapter.py |
+| `memory_search` | memory | - | - | - | Search L9 memory with embeddings | core/tools/tool_graph.py |
+| `memory_search_by_thread` | memory | internal | - | - | Search packets by conversation thread ID | core/tools/tool_graph.py |
 | `memory_search_by_type` | - | - | - | - | - | core/tools/tool_graph.py |
-| `memory_trigger_world_model_update` | memory | internal | medium | False | Trigger world model update from insights | core/tools/registry_adapter.py |
-| `memory_write` | memory | internal | medium | False | Write to L | core/tools/registry_adapter.py |
-| `memory_write_insight` | memory | internal | medium | False | Write an insight to memory substrate | core/tools/registry_adapter.py |
+| `memory_trigger_world_model_update` | memory | internal | medium | - | Trigger a world model update from accumulated memo | core/tools/tool_graph.py |
+| `memory_write` | memory | - | - | - | Write to L9 memory substrate | core/tools/tool_graph.py |
+| `memory_write_insight` | memory | internal | - | - | Write an insight to memory substrate | core/tools/tool_graph.py |
 | `neo4j_query` | knowledge | internal | low | - | Run Cypher queries against Neo4j graph for relatio | core/tools/tool_graph.py |
 | `notion_create_page` | integration | external | low | - | Create a Notion page via MCP | core/tools/tool_graph.py |
 | `notion_update_page` | integration | external | low | - | Update a Notion page via MCP | core/tools/tool_graph.py |
-| `perplexity_search` | research | external | low | False | Search and synthesize information using Perplexity | core/tools/registry_adapter.py |
-| `redis_decrement_rate_limit` | redis | internal | low | False | Decrement rate limit counter | core/tools/registry_adapter.py |
-| `redis_delete` | cache | internal | medium | False | Delete a key from Redis | core/tools/registry_adapter.py |
-| `redis_dequeue_task` | cache | internal | low | False | Dequeue task from Redis queue | core/tools/registry_adapter.py |
-| `redis_enqueue_task` | cache | internal | medium | False | Enqueue a task to Redis queue | core/tools/registry_adapter.py |
-| `redis_get` | cache | internal | low | False | Get value from Redis cache | core/tools/registry_adapter.py |
-| `redis_get_rate_limit` | redis | internal | low | False | Get current rate limit count for a key | core/tools/registry_adapter.py |
-| `redis_get_task_context` | cache | internal | low | False | Get cached task context from Redis | core/tools/registry_adapter.py |
-| `redis_increment_rate_limit` | redis | internal | low | False | Increment rate limit counter | core/tools/registry_adapter.py |
-| `redis_keys` | cache | internal | low | False | List Redis keys matching a pattern | core/tools/registry_adapter.py |
-| `redis_queue_size` | cache | internal | low | False | Get size of a Redis task queue | core/tools/registry_adapter.py |
-| `redis_set` | cache | internal | low | False | Set value in Redis cache with optional TTL | core/tools/registry_adapter.py |
-| `redis_set_rate_limit` | redis | internal | medium | False | Set rate limit count with TTL | core/tools/registry_adapter.py |
-| `redis_set_task_context` | cache | internal | medium | False | Set task context in Redis cache | core/tools/registry_adapter.py |
+| `perplexity_search` | research | external | low | - | Search and synthesize information using Perplexity | core/tools/tool_graph.py |
+| `redis_decrement_rate_limit` | cache | internal | low | - | Decrement rate limit counter for a key. Returns ne | core/tools/tool_graph.py |
+| `redis_delete` | cache | internal | medium | - | Delete a key from Redis | core/tools/tool_graph.py |
+| `redis_dequeue_task` | cache | internal | low | - | Dequeue task from Redis queue | core/tools/tool_graph.py |
+| `redis_enqueue_task` | cache | internal | medium | - | Enqueue a task to Redis queue | core/tools/tool_graph.py |
+| `redis_get` | cache | internal | low | - | Get value from Redis cache | core/tools/tool_graph.py |
+| `redis_get_rate_limit` | cache | internal | low | - | Get current rate limit counter for a key. Returns  | core/tools/tool_graph.py |
+| `redis_get_task_context` | cache | internal | low | - | Get cached task context from Redis | core/tools/tool_graph.py |
+| `redis_increment_rate_limit` | cache | internal | low | - | Increment rate limit counter for a key. Returns ne | core/tools/tool_graph.py |
+| `redis_keys` | cache | internal | low | - | List Redis keys matching a pattern | core/tools/tool_graph.py |
+| `redis_queue_size` | cache | internal | low | - | Get size of a Redis task queue | core/tools/tool_graph.py |
+| `redis_set` | cache | internal | low | - | Set value in Redis cache with optional TTL | core/tools/tool_graph.py |
+| `redis_set_rate_limit` | cache | internal | low | - | Set rate limit for a key with TTL. Establishes quo | core/tools/tool_graph.py |
+| `redis_set_task_context` | cache | internal | medium | - | Set task context in Redis cache | core/tools/tool_graph.py |
 | `reflection_agent_analyze_failure` | reflection | internal | low | - | Deep failure root cause analysis via ReflectionAge | core/tools/tool_graph.py |
 | `reflection_agent_compare_approaches` | - | - | - | - | - | core/tools/tool_graph.py |
 | `reflection_agent_extract_patterns` | reflection | internal | low | - | Extract patterns from examples via ReflectionAgent | core/tools/tool_graph.py |
@@ -102,38 +102,41 @@
 | `saga_timeline_correlation` | - | - | - | - | - | core/tools/tool_graph.py |
 | `schema_introspect_neo4j` | - | - | - | - | - | core/tools/tool_graph.py |
 | `schema_introspect_postgres` | - | - | - | - | - | core/tools/tool_graph.py |
-| `simulation` | simulation | internal | low | False | Execute IR graph simulation for agent reasoning tr | core/tools/registry_adapter.py |
-| `slack_send` | communication | - | - | - | Send message to Slack | core/tools/tool_graph.py |
-| `symbolic_codegen` | computation | internal | low | False | Generate compilable C/Fortran/Python code from sym | core/tools/registry_adapter.py |
-| `symbolic_compute` | computation | internal | low | False | Evaluate symbolic mathematical expressions numeric | core/tools/registry_adapter.py |
-| `symbolic_optimize` | computation | internal | low | False | Optimize and simplify symbolic expressions using C | core/tools/registry_adapter.py |
+| `simulation` | simulation | internal | low | - | Run simulation with given parameters. Executes dis | core/tools/tool_graph.py |
+| `slack_file_fetch` | - | - | - | - | - | core/tools/tool_graph.py |
+| `slack_file_list` | - | - | - | - | - | core/tools/tool_graph.py |
+| `slack_file_upload` | communication | external | medium | - | Upload a file to a Slack channel or thread. Suppor | core/tools/tool_graph.py |
+| `slack_send` | communication | external | low | False | Send a message to a Slack channel or DM. Supports  | core/tools/tool_graph.py |
+| `symbolic_codegen` | computation | internal | low | - | Generate code from symbolic expressions. Converts  | core/tools/tool_graph.py |
+| `symbolic_compute` | - | - | - | - | - | core/tools/tool_graph.py |
+| `symbolic_optimize` | computation | internal | low | - | Optimize symbolic expressions. Simplifies, factors | core/tools/tool_graph.py |
 | `tool_router_find` | introspection | internal | low | - | Find relevant tools for a task using semantic sear | core/tools/tool_graph.py |
 | `tool_router_list` | introspection | internal | low | - | List all available tools in the tool router | core/tools/tool_graph.py |
-| `tools_detect_circular_deps` | tools | internal | low | False | Detect circular dependencies in the tool graph | core/tools/registry_adapter.py |
-| `tools_get_api_dependents` | tools | internal | low | False | Get all tools that depend on an API | core/tools/registry_adapter.py |
-| `tools_get_blast_radius` | tools | internal | low | False | Calculate full blast radius if an API goes down | core/tools/registry_adapter.py |
-| `tools_get_by_type` | introspection | internal | low | False | Get all tools of a specific type | core/tools/registry_adapter.py |
-| `tools_get_catalog` | tools | internal | low | False | Get L | core/tools/registry_adapter.py |
-| `tools_get_dependencies` | tools | internal | low | False | Get all dependencies of a tool | core/tools/registry_adapter.py |
-| `tools_get_for_role` | introspection | internal | low | False | Get all tools available for a role | core/tools/registry_adapter.py |
-| `tools_get_metadata` | introspection | internal | low | False | Get detailed metadata for a tool | core/tools/registry_adapter.py |
-| `tools_get_schema` | introspection | internal | low | False | Get OpenAI function schema for a tool | core/tools/registry_adapter.py |
-| `tools_list_all` | introspection | internal | low | False | List all registered tools | core/tools/registry_adapter.py |
-| `tools_list_enabled` | introspection | internal | low | False | List only enabled tools | core/tools/registry_adapter.py |
+| `tools_detect_circular_deps` | introspection | internal | low | - | Detect circular dependencies in tool graph. Return | core/tools/tool_graph.py |
+| `tools_get_api_dependents` | introspection | internal | low | - | Get tools that depend on a specific external API.  | core/tools/tool_graph.py |
+| `tools_get_blast_radius` | introspection | internal | low | - | Calculate blast radius for a tool or API change. S | core/tools/tool_graph.py |
+| `tools_get_by_type` | introspection | internal | low | - | Get all tools of a specific type | core/tools/tool_graph.py |
+| `tools_get_catalog` | introspection | internal | low | - | Get full tool catalog with metadata. Returns all r | core/tools/tool_graph.py |
+| `tools_get_dependencies` | introspection | internal | low | - | Get dependencies for a tool. Returns tools that th | core/tools/tool_graph.py |
+| `tools_get_for_role` | introspection | internal | low | - | Get all tools available for a role | core/tools/tool_graph.py |
+| `tools_get_metadata` | introspection | internal | low | - | Get detailed metadata for a tool | core/tools/tool_graph.py |
+| `tools_get_schema` | introspection | internal | low | - | Get OpenAI function schema for a tool | core/tools/tool_graph.py |
+| `tools_list_all` | introspection | internal | low | - | List all registered tools | core/tools/tool_graph.py |
+| `tools_list_enabled` | introspection | internal | low | - | List only enabled tools | core/tools/tool_graph.py |
 | `vercel_get_deploy_status` | integration | external | low | - | Get Vercel deployment status via MCP | core/tools/tool_graph.py |
 | `vercel_trigger_deploy` | integration | external | high | True | Trigger a Vercel deployment via MCP | core/tools/tool_graph.py |
 | `web_search` | research | - | - | - | Search the web using Firecrawl | core/tools/tool_graph.py |
-| `world_model_get_entity` | knowledge | internal | low | False | Get entity from world model by ID | core/tools/registry_adapter.py |
-| `world_model_get_state_version` | knowledge | internal | low | False | Get current world model state version | core/tools/registry_adapter.py |
-| `world_model_list_entities` | knowledge | internal | low | False | List entities from world model | core/tools/registry_adapter.py |
-| `world_model_list_snapshots` | knowledge | internal | low | False | List recent world model snapshots | core/tools/registry_adapter.py |
-| `world_model_list_updates` | world_model | internal | low | False | List recent world model updates | core/tools/registry_adapter.py |
-| `world_model_query` | world_model | internal | low | False | Query the world model | core/tools/registry_adapter.py |
-| `world_model_restore` | world_model | internal | high | True | Restore world model from a snapshot | core/tools/registry_adapter.py |
-| `world_model_send_insights` | knowledge | internal | medium | False | Send insights for world model update | core/tools/registry_adapter.py |
-| `world_model_snapshot` | knowledge | internal | medium | False | Create snapshot of world model state | core/tools/registry_adapter.py |
+| `world_model_get_entity` | knowledge | internal | low | - | Get entity from world model by ID | core/tools/tool_graph.py |
+| `world_model_get_state_version` | knowledge | internal | low | - | Get current world model state version | core/tools/tool_graph.py |
+| `world_model_list_entities` | knowledge | internal | low | - | List entities from world model | core/tools/tool_graph.py |
+| `world_model_list_snapshots` | knowledge | internal | low | - | List recent world model snapshots | core/tools/tool_graph.py |
+| `world_model_list_updates` | knowledge | internal | low | - | List recent world model updates. Returns update hi | core/tools/tool_graph.py |
+| `world_model_query` | knowledge | internal | - | - | Query the world model for knowledge | core/tools/tool_graph.py |
+| `world_model_restore` | knowledge | internal | high | - | Restore world model to a previous snapshot. Revert | core/tools/tool_graph.py |
+| `world_model_send_insights` | knowledge | internal | medium | - | Send insights for world model update | core/tools/tool_graph.py |
+| `world_model_snapshot` | knowledge | internal | medium | - | Create snapshot of world model state | core/tools/tool_graph.py |
 
-# Total: 116 unique ToolDefinitions
+# Total: 119 unique ToolDefinitions
 
 ## Tool Implementation Classes
 

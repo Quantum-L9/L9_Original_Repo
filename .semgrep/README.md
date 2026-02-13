@@ -10,7 +10,7 @@ Custom static analysis rules enforcing L9 architectural patterns.
 | `l9-httpx-async-context-required` | ERROR    | ADR-0084 | ✅ Clean (6 nosemgrep)                   |
 | `l9-singleton-requires-lock`      | WARNING  | ADR-0085 | ⚠️ ~37 warnings (low priority)           |
 | `l9-float-requires-try-except`    | WARNING  | ADR-0086 | ⚠️ ~32 warnings (mostly false positives) |
-| `l9-no-eval`                      | ERROR    | ADR-0041 | ✅ Clean                                 |
+| `l9-no-eval`                      | ERROR    | ADR-0095 | ✅ Clean                                 |
 | `l9-no-sql-fstring`               | ERROR    | ADR-0087 | ✅ Clean                                 |
 | `l9-no-pickle-loads`              | ERROR    | ADR-0088 | ✅ Clean                                 |
 

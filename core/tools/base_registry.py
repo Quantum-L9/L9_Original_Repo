@@ -8,7 +8,7 @@ NO database persistence - tools are registered at startup.
 Architecture:
 - This is the BASE STORAGE layer (singleton via get_tool_registry())
 - ExecutorToolRegistry in registry_adapter.py WRAPS this for governance + OpenAI format
-- L tools are registered via register_l_tools() at server startup
+- L tools are registered via sync_runtime_tools_to_primary() bridge at server startup
 - Research tools (Perplexity, HTTP, Mock) auto-registered on first access
 
 Production-ready features (v2.1.0):
@@ -466,7 +466,7 @@ def _initialize_default_tools(registry: ToolRegistry) -> None:
     """Initialize default tools in registry with schemas.
 
     NOTE: perplexity_search and http_request are registered dynamically
-    via register_l_tools() in core/tools/registry_adapter.py at startup.
+    via sync_runtime_tools_to_primary() bridge at startup (ADR-0094).
     Only testing/utility tools that have no dynamic registration path
     remain here.
     """

@@ -2,94 +2,97 @@
 # Architecture
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-13 21:22 UTC
+# Branch:    main (58f7d020)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
-SDK/ -
-adapters/ -
-adapters/tensorglobe_bridge/ -
-agents/ -
-agents/architect_agent/ -
-agents/coder_agent/ -
-agents/cursor/ -
-agents/cursor/extractors/ -
+SDK/ - 
+adapters/ - 
+adapters/tensorglobe_bridge/ - 
+agents/ - 
+agents/architect_agent/ - 
+agents/codegenagent/ - 
+agents/coder_agent/ - 
+agents/cursor/ - 
+agents/cursor/extractors/ - 
 agents/cursor/integrations/ - No module docstring
 agents/cursor/scripts/ - No module docstring
-agents/research_agent/ -
-api/ -
+agents/research_agent/ - 
+api/ - 
 api/memory/ - Memory API module.
 api/middleware/ - No module docstring
 api/routes/ - API routes package.
-api/tools/ -
+api/tools/ - 
 bootstrap/ - No module docstring
-ci/ -
+ci/ - 
 ci/ai_guardrails/ - L9 AI Guardrails CI Suite.
-clients/ -
-codegen/code-gen-files/ -
-codegen/code-gen-files/jinja2-templates/ -
-codegen/compiler/ -
-codegen/compiler/emitters/ -
-codegen/dev_layer/ -
-codegen/dev_layer/am_engine/ -
-codegen/dev_layer/modules/ -
-codegen/dev_layer/runtime/ -
-codegenagent/ -
-collaborative_cells/ -
+clients/ - 
+codegen/code-gen-files/ - 
+codegen/code-gen-files/jinja2-templates/ - 
+codegen/compiler/ - 
+codegen/compiler/emitters/ - 
+codegen/dev_layer/ - 
+codegen/dev_layer/am_engine/ - 
+codegen/dev_layer/modules/ - 
+codegen/dev_layer/runtime/ - 
+codegen/extractions/domain_tensor_bridge_v6_20260102/domain_tensor_bridge/ - 
+codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/ - No module docstring
+collaborative_cells/ - 
 config/ - L9 Configuration Module.
-config/schemas/ -
-core/ -
+config/schemas/ - 
+core/ - 
 core/accountability/ - No module docstring
-core/agents/ -
-core/agents/bootstrap/ -
-core/agents/graph_state/ -
-core/aios/ -
-core/bayesian/ -
-core/boundary/ -
-core/ca_governance/ -
-core/calibration/ -
-core/codegen/ -
-core/codegen/spec/ -
-core/commands/ -
-core/compliance/ -
-core/coordination/ -
-core/di/ -
-core/eos/ -
-core/evaluation/ -
-core/governance/ -
-core/graph/query/ -
+core/agents/ - 
+core/agents/bootstrap/ - 
+core/agents/codegenagent/ - 
+core/agents/graph_state/ - 
+core/aios/ - 
+core/bayesian/ - 
+core/boundary/ - 
+core/ca_governance/ - 
+core/calibration/ - 
+core/codegen/ - 
+core/codegen/spec/ - 
+core/commands/ - 
+core/compliance/ - 
+core/coordination/ - 
+core/di/ - 
+core/eos/ - 
+core/evaluation/ - 
+core/governance/ - 
+core/graph/query/ - 
 core/instrumentation/ - No module docstring
-core/integration/ -
-core/kernel_wiring/ -
-core/kernels/ -
-core/l_agent_runtime/ -
-core/learning/ -
-core/llm/ -
-core/memory/ -
-core/models/ -
-core/observability/ -
-core/packet_envelope/ -
-core/protocols/ -
-core/reasoning/ -
-core/resilience/ -
+core/integration/ - 
+core/kernel_wiring/ - 
+core/kernels/ - 
+core/l_agent_runtime/ - 
+core/learning/ - 
+core/llm/ - 
+core/memory/ - 
+core/models/ - 
+core/observability/ - 
+core/packet_envelope/ - 
+core/protocols/ - 
+core/reasoning/ - 
+core/resilience/ - 
 core/retrievers/ - L9 Core Retrievers
-core/runtimes/ -
-core/schemas/ -
+core/runtimes/ - 
+core/schemas/ - 
 core/schemas/tests/ - L9 Core Schemas Test Suite.
-core/security/ -
-core/testing/ -
-core/tools/ -
-core/worldmodel/ -
-domain_tensor_bridge/ -
+core/security/ - 
+core/testing/ - 
+core/tools/ - 
+core/worldmodel/ - 
+domain_tensor_bridge/ - 
 domain_tensor_bridge/tests/domain_tensor_bridge/ - No module docstring
 email_agent/ - L9 Email Agent - Gmail API integration.
 governance/ - No module docstring
 graph_adapter/ - L9 LangGraph Integration - PacketNodeAdapter for memory-logg
-ir_engine/ -
+ir_engine/ - 
 mac_agent/ - L9 Mac Agent package.
 mac_agent/helpers/ - Mac Agent helper utilities.
-mcp_memory/src/ -
+mcp_memory/src/ - 
 mcp_memory/src/control_plane/ - L9 Control Plane - Configuration, Secrets, Feature Flags.
 mcp_memory/src/kernel/ - L9 Kernel - Core Orchestration & Packet Protocol.
 mcp_memory/src/memory_substrate/ - L9 Memory Substrate - Semantic Storage & Retrieval.
@@ -97,99 +100,102 @@ mcp_memory/src/observability/ - L9 Observability - Logging, Tracing, Metrics.
 mcp_memory/src/routes/ - Route modules for L9 MCP Memory Server.
 mcp_memory/src/safety/ - L9 Safety - Policy Enforcement & Security Event Management.
 mcp_memory/tests/ - L9 MCP Memory Server Tests.
-memory/ -
-memory/checkpoint/ -
+memory/ - 
+memory/archive/ - 
+memory/checkpoint/ - 
 memory/consolidation/ - No module docstring
-memory/extractor/ -
+memory/extractor/ - 
 memory/extractor/ingestion/ - Memory extractor ingestion module.
 memory/validators/ - L9 Memory Validators
 memory_cache/ - No module docstring
-motifs/ -
-orchestration/ -
-orchestrators/ -
-orchestrators/action_tool/ -
-orchestrators/agent_execution/ -
-orchestrators/evolution/ -
-orchestrators/memory/ -
-orchestrators/meta/ -
-orchestrators/pattern/ -
-orchestrators/reasoning/ -
-orchestrators/research_swarm/ -
-orchestrators/world_model/ -
-private/ -
-private/security/ -
-runtime/ -
+motifs/ - 
+orchestration/ - 
+orchestrators/ - 
+orchestrators/action_tool/ - 
+orchestrators/agent_execution/ - 
+orchestrators/evolution/ - 
+orchestrators/memory/ - 
+orchestrators/meta/ - 
+orchestrators/pattern/ - 
+orchestrators/reasoning/ - 
+orchestrators/research_swarm/ - 
+orchestrators/world_model/ - 
+private/ - 
+private/security/ - 
+runtime/ - 
 scripts/ - No module docstring
 scripts/memory/ - No module docstring
-scripts/refactoring/ -
-services/ -
-services/research/ -
-services/research/agents/ -
-services/research/tools/ -
-services/symbolic_computation/ -
-services/symbolic_computation/api/ -
-services/symbolic_computation/core/ -
-services/symbolic_computation/tools/ -
-simulation/ -
+scripts/refactoring/ - 
+services/ - 
+services/research/ - 
+services/research/agents/ - 
+services/research/tools/ - 
+services/symbolic_computation/ - 
+services/symbolic_computation/api/ - 
+services/symbolic_computation/core/ - 
+services/symbolic_computation/tools/ - 
+simulation/ - 
 telemetry/ - L9 Telemetry module.
-tests/ -
+tests/ - 
 tests/adapters/ - No module docstring
 tests/adapters/tensorglobe_bridge/ - No module docstring
 tests/agents/ - Agent tests for L9.
 tests/ai/ - L9 AI Guardrails Test Cases Package.
-tests/api/ -
+tests/api/ - 
 tests/api/routes/ - No module docstring
 tests/ci/ - No module docstring
-tests/clients/ -
+tests/clients/ - 
 tests/codegen/ - Tests for CodeGenAgent and IR Engine code generation.
-tests/collaborative_cells/ -
+tests/collaborative_cells/ - 
 tests/core/ - No module docstring
 tests/core/agents/ - No module docstring
 tests/core/agents/bootstrap/ - No module docstring
-tests/core/aios/ -
+tests/core/agents/codegenagent/ - 
+tests/core/aios/ - 
 tests/core/bayesian/ - Tests for core.bayesian module.
 tests/core/bootstrap/ - Tests for core.agents module.
 tests/core/eos/ - EOS Tests.
 tests/core/governance/ - Tests for governance engine.
 tests/core/observability/ - Tests for core.observability module.
 tests/core/schemas/ - Tests for core schemas.
-tests/core/security/ -
-tests/core/tools/ -
+tests/core/security/ - 
+tests/core/tools/ - 
 tests/cursor/ - No module docstring
 tests/docker/ - Docker smoke tests for L9 stack validation.
-tests/email_agent/ -
+tests/e2e/ - No module docstring
+tests/email_agent/ - 
 tests/integration/ - Integration tests for L9.
-tests/ir_engine/ -
+tests/ir_engine/ - 
 tests/kernel/ - Kernel Tests
-tests/mac_agent/ -
+tests/mac_agent/ - 
 tests/memory/ - Memory Tests
-tests/mocks/ -
-tests/orchestrators/ -
-tests/os/ -
+tests/mocks/ - 
+tests/orchestrators/ - 
+tests/os/ - 
 tests/performance/ - Performance Tests
 tests/runtime/ - Runtime tests for L9.
 tests/scripts/ - Script tests for L9.
 tests/services/research/ - Tests for research services.
-tests/simulation/ -
-tests/telemetry/ -
+tests/simulation/ - 
+tests/telemetry/ - 
 tests/unit/ - Unit tests for L9.
 tests/unit/adr/ - No module docstring
 tests/unit/di/ - No module docstring
 tests/unit/pr_review/ - Tests for PR review automation
-tests/upgrades/ -
+tests/upgrades/ - 
 tests/workers/ - Tests for workers package.
 tests/world_model/ - World Model Tests
-tools/ -
-tools/adr/ -
+tools/ - 
+tools/adr/ - 
 tools/architecture_reports/ - No module docstring
-tools/codegen/ -
+tools/codegen/ - 
 tools/superpack_reports/ - No module docstring
-workers/ -
-workflows/ -
-workflows/dags/ -
-workflows/dags/gmp/ -
-workflows/dags/gmp/nodes/ -
-workflows/nodes/ -
-workflows/session/ -
-world_model/ -
-world_model/nodes/ -
+workers/ - 
+workflows/ - 
+workflows/dags/ - 
+workflows/dags/gmp/ - 
+workflows/dags/gmp/nodes/ - 
+workflows/nodes/ - 
+workflows/session/ - 
+world_model/ - 
+world_model/nodes/ - 

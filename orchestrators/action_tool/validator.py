@@ -247,10 +247,10 @@ class Validator:
         """Validate tool arguments against schema."""
         errors = []
 
-        # Get schema from registry if available
+        # ADR-0094: Get schema from base registry (populated by bridge)
         registry = await self._get_registry()
-        if registry and hasattr(registry, "_get_tool_schema"):
-            schema = registry._get_tool_schema(tool_id)
+        if registry and hasattr(registry, "_registry"):
+            schema = registry._registry.get_tool_schema(tool_id)
 
             # Check required properties
             required = schema.get("required", [])

@@ -101,9 +101,8 @@ from runtime.mcp_server_registry import (
 )
 
 # Tool Executor Auto-Registration (Phase 1 Auto-Wiring - GMP-95)
-from runtime.tool_registry import (
-    get_tool_executors,
-)
+# NOTE: runtime.tool_registry imports moved to lifespan scope per ADR-0094.
+# Bridge sync handled by sync_runtime_tools_to_primary() in lifespan.
 
 # Telemetry / Prometheus metrics
 try:
@@ -647,7 +646,7 @@ async def lifespan(app: FastAPI):
 
     # ------------------------------------------------------------------------
     # Tool Executor Auto-Registration (GMP-95 Auto-Wiring)
-    # Register all tools: legacy TOOL_EXECUTORS + extension modules + @register_tool
+    # Register all tools: extension modules + @register_tool decorators
     # ------------------------------------------------------------------------
     try:
         from runtime.tool_registry import (
@@ -673,8 +672,25 @@ async def lifespan(app: FastAPI):
             extension_tools=extension_count,
             total_tools=snapshot["component_count"],
         )
+
+        # 4. ADR-0094: Bridge runtime auto-registered tools into primary
+        #    base registry so all dispatch goes through ExecutorToolRegistry.
+        #    Also sets tool_graph_healthy flag (previously set by register_l_tools).
+        try:
+            from core.tools.registry_adapter import sync_runtime_tools_to_primary
+
+            bridge_count = sync_runtime_tools_to_primary()
+            logger.info(
+                "ADR-0094 bridge: runtime tools synced to primary pipeline",
+                synced=bridge_count,
+            )
+            app.state.tool_graph_healthy = bridge_count > 0
+        except Exception as bridge_err:
+            logger.warning("ADR-0094 bridge failed (non-fatal)", error=str(bridge_err))
+            app.state.tool_graph_healthy = False
+
     except Exception as e:
-        # Non-fatal: tools can still be accessed via legacy TOOL_EXECUTORS directly
+        # Non-fatal: tools may still be accessible via base registry if bridge ran
         logger.warning(f"Tool executor auto-registration failed: {e}")
 
     # ------------------------------------------------------------------------
@@ -1951,30 +1967,10 @@ async def lifespan(app: FastAPI):
         logger.warning("STARTUP VALIDATION: Rate limiter not initialized")
 
     # ========================================================================
-    # REGISTER L-CTO TOOLS
+    # ADR-0094: L-CTO tool registration removed. All tools now registered
+    # via sync_runtime_tools_to_primary() bridge in the tool discovery block
+    # above. tool_graph_healthy flag set there.
     # ========================================================================
-    try:
-        from core.tools.registry_adapter import register_l_tools
-
-        tool_count = await register_l_tools()
-        if tool_count > 0:
-            logger.info(f"✓ L-CTO tools registered: {tool_count} tools available")
-            app.state.tool_graph_healthy = True
-        else:
-            logger.warning(
-                "⚠️ Tool registration returned 0 tools. "
-                "System will operate in degraded mode.",
-                extra={"alert": "tool_graph_degraded"},
-            )
-            app.state.tool_graph_healthy = False
-    except Exception as e:
-        logger.error(
-            f"❌ Tool registration failed: {e}. Tool graph unavailable.",
-            exc_info=True,
-            extra={"alert": "tool_graph_failed"},
-        )
-        app.state.tool_graph_healthy = False
-        # Non-fatal: tools still work via direct executor dispatch
 
     # ========================================================================
     # REGISTER MEMORY TOOLS (Agent Self-Query)

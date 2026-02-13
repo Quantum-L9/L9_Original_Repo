@@ -2,8 +2,8 @@
 # Event Types
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-12 16:28 UTC
-# Branch:    main (04a3f200)
+# Generated: 2026-02-13 21:22 UTC
+# Branch:    main (58f7d020)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -33,7 +33,7 @@
 | 4 | `graph_sync_node` | Neo4j graph sync node: syncs packet to knowledge graph. |
 | 5 | `semantic_embed_node` | Semantic embedding node: generates and stores embedding for  |
 | 6 | `checkpoint_node` | Checkpoint node: saves graph state for recovery. |
-| 7 | `extract_insights_node` | Extract insights from packet payload and reasoning block. |
+| 7 | `extract_insights_node` | Extract insights, facts, and entities from packet payload an |
 | 8 | `store_insights_node` | Store extracted insights and facts to database (v2.1.0 - GMP |
 | 9 | `world_model_trigger_node` | Trigger world model update based on extracted insights. |
 
