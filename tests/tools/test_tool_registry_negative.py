@@ -43,7 +43,7 @@ __dora_meta__ = {
 @pytest.fixture(autouse=True)
 def _clean_registry():
     """Reset the AutoRegistry singleton between tests."""
-    from core.tools.auto_registry import AutoRegistry
+    from core.auto_registry import AutoRegistry
 
     registry = AutoRegistry()
     original = dict(registry._tools) if hasattr(registry, "_tools") else {}
@@ -63,7 +63,7 @@ class TestGetToolsByTagsExclusion:
 
     def test_excludes_tools_with_non_matching_tags(self):
         """Tools without the requested tag must NOT appear in results."""
-        from core.tools.auto_registry import AutoRegistry
+        from core.auto_registry import AutoRegistry
 
         registry = AutoRegistry()
         registry.register("memory_write", tags=["memory"])
@@ -78,7 +78,7 @@ class TestGetToolsByTagsExclusion:
 
     def test_result_count_matches_expected(self):
         """Result set size must equal the number of tools that match the tag."""
-        from core.tools.auto_registry import AutoRegistry
+        from core.auto_registry import AutoRegistry
 
         registry = AutoRegistry()
         registry.register("tool_a", tags=["memory"])
@@ -91,7 +91,7 @@ class TestGetToolsByTagsExclusion:
 
     def test_empty_tag_set_returns_empty(self):
         """Requesting tools for an empty tag list must return no tools."""
-        from core.tools.auto_registry import AutoRegistry
+        from core.auto_registry import AutoRegistry
 
         registry = AutoRegistry()
         registry.register("tool_a", tags=["memory"])
@@ -101,7 +101,7 @@ class TestGetToolsByTagsExclusion:
 
     def test_nonexistent_tag_returns_empty(self):
         """A tag not present on any tool must return an empty result set."""
-        from core.tools.auto_registry import AutoRegistry
+        from core.auto_registry import AutoRegistry
 
         registry = AutoRegistry()
         registry.register("tool_a", tags=["memory"])
@@ -111,7 +111,7 @@ class TestGetToolsByTagsExclusion:
 
     def test_multi_tag_intersection(self):
         """When multiple tags are requested, only tools matching ALL tags appear."""
-        from core.tools.auto_registry import AutoRegistry
+        from core.auto_registry import AutoRegistry
 
         registry = AutoRegistry()
         registry.register("tool_full", tags=["memory", "governance"])
@@ -130,7 +130,7 @@ class TestGetToolsByTagsExclusion:
 
     def test_does_not_return_mcp_tools_when_not_requested(self):
         """MCP-registered tools must not leak into non-MCP tag queries."""
-        from core.tools.auto_registry import AutoRegistry
+        from core.auto_registry import AutoRegistry
 
         registry = AutoRegistry()
         registry.register("native_tool", tags=["memory"])
