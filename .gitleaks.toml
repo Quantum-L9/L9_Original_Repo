@@ -50,7 +50,7 @@ keywords = ["neo4j", "graph"]
 [allowlist]
 description = "Paths and patterns to ignore (false positives)"
 
-# Ignore entire directories
+# Ignore entire directories and specific false-positive files
 paths = [
     '''.cursor/''',
     '''.github/scripts/''',
@@ -65,6 +65,11 @@ paths = [
     '''reports/''',
     '''research_results_cursor/''',
     '''tests/''',
+    # Docker Compose files use ${VAR} env substitution, not literal secrets.
+    # The REDIS_URL env var template triggers the redis-connection rule
+    # but contains zero actual credentials — only variable references.
+    '''docker-compose\.prod\.yml''',
+    '''docker-compose\.yml''',
 ]
 
 # Ignore specific file patterns (ONLY truly safe patterns)

@@ -169,7 +169,7 @@ class CodeGenAgent:
 
     def __init__(
         self,
-        repo_root: str = "/Users/ib-mac/Projects/L9",
+        repo_root: str | None = None,
         specs_dir: str | None = None,
         strict_validation: bool = False,
     ):
@@ -181,7 +181,9 @@ class CodeGenAgent:
             specs_dir: Directory containing YAML specs (default: auto-detect)
             strict_validation: Treat validation warnings as errors
         """
-        self.repo_root = Path(repo_root)
+        self.repo_root = (
+            Path(repo_root) if repo_root else Path(__file__).resolve().parent.parent
+        )
         self.specs_dir = (
             Path(specs_dir) if specs_dir else self.repo_root / "codegen" / "specs"
         )
@@ -254,7 +256,7 @@ class CodeGenAgent:
                         result.errors.append(f"{path}: {error}")
 
             result.success = len(result.errors) == 0
-            result.completed_at = datetime.now(timezone.utc)
+            result.completed_at = datetime.now(UTC)
 
             logger.info(
                 "generation_complete",
@@ -263,7 +265,7 @@ class CodeGenAgent:
 
         except Exception as e:
             result.errors.append(str(e))
-            result.completed_at = datetime.now(timezone.utc)
+            result.completed_at = datetime.now(UTC)
             logger.error(
                 "generation_failed",
                 module_id=contract.metadata.module_id,
@@ -310,15 +312,15 @@ class CodeGenAgent:
             result.generated_code = gen_result.generated_code
             result.errors = gen_result.errors
             result.warnings = gen_result.warnings
-            result.completed_at = datetime.now(timezone.utc)
+            result.completed_at = datetime.now(UTC)
 
         except MetaLoaderError as e:
             result.errors.append(f"Load error: {e}")
-            result.completed_at = datetime.now(timezone.utc)
+            result.completed_at = datetime.now(UTC)
             logger.error("meta_load_failed", path=meta_path, error=str(e))
         except Exception as e:
             result.errors.append(str(e))
-            result.completed_at = datetime.now(timezone.utc)
+            result.completed_at = datetime.now(UTC)
             logger.error("generation_failed", path=meta_path, error=str(e))
 
         return result

@@ -43,7 +43,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -74,7 +74,7 @@ class FileChange:
         self.action = action
         self.old_content = old_content
         self.new_content = new_content
-        self.timestamp = datetime.now(timezone.utc)
+        self.timestamp = datetime.now(UTC)
 
     def __repr__(self) -> str:
         """Return string representation."""
@@ -133,7 +133,7 @@ class FileEmitter:
 
     def __init__(
         self,
-        repo_root: str = "/Users/ib-mac/Projects/L9",
+        repo_root: str | None = None,
         dry_run: bool = False,
     ):
         """
@@ -143,7 +143,9 @@ class FileEmitter:
             repo_root: Root path of the repository
             dry_run: If True, don't actually write files
         """
-        self.repo_root = Path(repo_root)
+        self.repo_root = (
+            Path(repo_root) if repo_root else Path(__file__).resolve().parent.parent
+        )
         self.dry_run = dry_run
         self._changes: list[FileChange] = []
 
@@ -461,7 +463,7 @@ class FileEmitter:
 
 def emit_files(
     files: dict[str, str],
-    repo_root: str = "/Users/ib-mac/Projects/L9",
+    repo_root: str | None = None,
     dry_run: bool = False,
 ) -> EmissionResult:
     """
@@ -481,7 +483,7 @@ def emit_files(
 
 def preview_emission(
     files: dict[str, str],
-    repo_root: str = "/Users/ib-mac/Projects/L9",
+    repo_root: str | None = None,
 ) -> dict[str, Any]:
     """
     Preview what would be written.

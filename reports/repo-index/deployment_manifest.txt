@@ -79,8 +79,8 @@
 
 | Variable | Default |
 |----------|---------|
-| `MEMORY_DSN` | `postgresql://postgres:YOUR_PASSWORD@host.docker.internal:5432/l9_memory` |
-| `DATABASE_URL` | `postgresql://postgres:YOUR_PASSWORD@host.docker.internal:5432/l9_memory` |
+| `MEMORY_DSN` | `postgresql://postgres:***@host.docker.internal:5432/l9_memory` |
+| `DATABASE_URL` | `postgresql://postgres:***@host.docker.internal:5432/l9_memory` |
 | `POSTGRES_USER` | `postgres` |
 | `POSTGRES_PASSWORD` | `***` |
 | `POSTGRES_DB` | `l9_memory` |
