@@ -45,7 +45,7 @@ def _clean_registry():
     """Reset the AutoRegistry singleton between tests."""
     from core.auto_registry import AutoRegistry
 
-    registry = AutoRegistry()
+    registry = AutoRegistry(name="test_registry")
     original = dict(registry._tools) if hasattr(registry, "_tools") else {}
     yield
     if hasattr(registry, "_tools"):
@@ -65,7 +65,7 @@ class TestGetToolsByTagsExclusion:
         """Tools without the requested tag must NOT appear in results."""
         from core.auto_registry import AutoRegistry
 
-        registry = AutoRegistry()
+        registry = AutoRegistry(name="test_registry")
         registry.register("memory_write", tags=["memory"])
         registry.register("governance_check", tags=["governance"])
 
@@ -80,7 +80,7 @@ class TestGetToolsByTagsExclusion:
         """Result set size must equal the number of tools that match the tag."""
         from core.auto_registry import AutoRegistry
 
-        registry = AutoRegistry()
+        registry = AutoRegistry(name="test_registry")
         registry.register("tool_a", tags=["memory"])
         registry.register("tool_b", tags=["memory"])
         registry.register("tool_c", tags=["governance"])
@@ -93,7 +93,7 @@ class TestGetToolsByTagsExclusion:
         """Requesting tools for an empty tag list must return no tools."""
         from core.auto_registry import AutoRegistry
 
-        registry = AutoRegistry()
+        registry = AutoRegistry(name="test_registry")
         registry.register("tool_a", tags=["memory"])
 
         result = registry.get_tools_by_tags([])
@@ -103,7 +103,7 @@ class TestGetToolsByTagsExclusion:
         """A tag not present on any tool must return an empty result set."""
         from core.auto_registry import AutoRegistry
 
-        registry = AutoRegistry()
+        registry = AutoRegistry(name="test_registry")
         registry.register("tool_a", tags=["memory"])
 
         result = registry.get_tools_by_tags(["nonexistent_tag"])
@@ -113,7 +113,7 @@ class TestGetToolsByTagsExclusion:
         """When multiple tags are requested, only tools matching ALL tags appear."""
         from core.auto_registry import AutoRegistry
 
-        registry = AutoRegistry()
+        registry = AutoRegistry(name="test_registry")
         registry.register("tool_full", tags=["memory", "governance"])
         registry.register("tool_partial", tags=["memory"])
         registry.register("tool_other", tags=["governance"])
@@ -132,7 +132,7 @@ class TestGetToolsByTagsExclusion:
         """MCP-registered tools must not leak into non-MCP tag queries."""
         from core.auto_registry import AutoRegistry
 
-        registry = AutoRegistry()
+        registry = AutoRegistry(name="test_registry")
         registry.register("native_tool", tags=["memory"])
         if hasattr(registry, "register_mcp_tool"):
             registry.register_mcp_tool("mcp_tool", tags=["mcp", "external"])
