@@ -397,11 +397,12 @@ def _execute_tool(agent: Any, tool_id: str, params: dict[str, Any]) -> Any:
     Raises:
         RuntimeError: If agent has no tool execution capability
     """
-    # Try l_tools.py TOOL_EXECUTORS first
+    # ADR-0094: Use primary base registry for tool executor lookup
     try:
-        from runtime.l_tools import get_tool_executor
+        from core.tools.base_registry import get_tool_registry
 
-        executor = get_tool_executor(tool_id)
+        registry = get_tool_registry()
+        executor = registry.get_executor(tool_id)
         if executor:
             import asyncio
 
