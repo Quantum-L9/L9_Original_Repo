@@ -13,7 +13,7 @@ Test Matrix:
 - Regression: Existing functionality preserved
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from uuid import uuid4
 
 import pytest
@@ -47,7 +47,7 @@ class TestPacketEnvelopeImmutability:
                 generation=1,
             ),
             tags=["test", "immutability"],
-            ttl=datetime.now(timezone.utc) + timedelta(days=7),
+            ttl=datetime.now(UTC) + timedelta(days=7),
             metadata=PacketMetadata(agent="test_agent"),
             confidence=PacketConfidence(score=0.95, rationale="High confidence test"),
         )
@@ -60,7 +60,7 @@ class TestPacketEnvelopeImmutability:
         assert packet.lineage.generation == 1
         assert packet.tags == ["test", "immutability"]
         assert packet.ttl is not None
-        assert packet.metadata.schema_version == "1.1.1"
+        assert packet.metadata.schema_version == "2.0.0"
 
     def test_with_mutation_creates_new_packet(self):
         """with_mutation(payload={"new": "data"}) → Returns NEW packet with lineage."""
@@ -77,8 +77,18 @@ class TestPacketEnvelopeImmutability:
         assert mutated.payload == {"new": "data"}
         # Original unchanged
         assert original.payload == {"original": "data"}
-        # New timestamp
-        assert mutated.timestamp >= original.timestamp
+        # New timestamp (compare as naive UTC — original uses utcnow(), mutated uses now(utc))
+        original_ts = (
+            original.timestamp.replace(tzinfo=None)
+            if original.timestamp.tzinfo
+            else original.timestamp
+        )
+        mutated_ts = (
+            mutated.timestamp.replace(tzinfo=None)
+            if mutated.timestamp.tzinfo
+            else mutated.timestamp
+        )
+        assert mutated_ts >= original_ts
 
     def test_with_mutation_creates_proper_lineage(self):
         """Verify new packet.lineage.parent_ids == [old packet.packet_id]."""
@@ -138,7 +148,7 @@ class TestPacketEnvelopeImmutability:
         )
 
         with pytest.raises(ValidationError):
-            packet.timestamp = datetime.now(timezone.utc)
+            packet.timestamp = datetime.now(UTC)
 
     def test_cannot_mutate_packet_type(self):
         """packet.packet_type = "new_type" → MUST RAISE ValidationError."""

@@ -2,9 +2,9 @@
 Unit Tests: Memory Tools
 ========================
 
-Tests for memory substrate tools.
+Tests for memory substrate tools (in runtime.l_tools).
 
-Version: 1.0.0
+Version: 1.1.0
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ class TestMemorySearch:
     @pytest.mark.asyncio
     async def test_memory_search_success(self):
         """memory_search returns hits on success."""
-        from memory.tools import memory_search
+        from runtime.l_tools import memory_search
 
         mock_client = MagicMock()
         mock_result = MagicMock()
@@ -30,7 +30,7 @@ class TestMemorySearch:
         ]
         mock_client.semantic_search = AsyncMock(return_value=mock_result)
 
-        with patch("memory.tools.get_memory_client", return_value=mock_client):
+        with patch("clients.memory_client.get_memory_client", return_value=mock_client):
             result = await memory_search(query="test query", segment="all", limit=10)
 
         assert result["query"] == "test query"
@@ -41,10 +41,11 @@ class TestMemorySearch:
     @pytest.mark.asyncio
     async def test_memory_search_error_returns_empty_hits(self):
         """memory_search returns error with empty hits on failure."""
-        from memory.tools import memory_search
+        from runtime.l_tools import memory_search
 
         with patch(
-            "memory.tools.get_memory_client", side_effect=Exception("Connection failed")
+            "clients.memory_client.get_memory_client",
+            side_effect=Exception("Connection failed"),
         ):
             result = await memory_search(query="test", segment="all", limit=10)
 
@@ -58,7 +59,7 @@ class TestMemoryWrite:
     @pytest.mark.asyncio
     async def test_memory_write_success(self):
         """memory_write returns packet_id on success."""
-        from memory.tools import memory_write
+        from runtime.l_tools import memory_write
 
         mock_client = MagicMock()
         mock_result = MagicMock()
@@ -67,7 +68,7 @@ class TestMemoryWrite:
         mock_result.written_tables = ["packets", "embeddings"]
         mock_client.write_packet = AsyncMock(return_value=mock_result)
 
-        with patch("memory.tools.get_memory_client", return_value=mock_client):
+        with patch("clients.memory_client.get_memory_client", return_value=mock_client):
             result = await memory_write(
                 packet={"packet_type": "test", "payload": {"data": "value"}},
                 segment="session",
@@ -80,10 +81,11 @@ class TestMemoryWrite:
     @pytest.mark.asyncio
     async def test_memory_write_error(self):
         """memory_write returns error status on failure."""
-        from memory.tools import memory_write
+        from runtime.l_tools import memory_write
 
         with patch(
-            "memory.tools.get_memory_client", side_effect=Exception("Write failed")
+            "clients.memory_client.get_memory_client",
+            side_effect=Exception("Write failed"),
         ):
             result = await memory_write(packet={}, segment="test")
 
@@ -97,7 +99,7 @@ class TestMemoryGetPacket:
     @pytest.mark.asyncio
     async def test_memory_get_packet_found(self):
         """memory_get_packet returns packet when found."""
-        from memory.tools import memory_get_packet
+        from runtime.l_tools import memory_get_packet
 
         mock_substrate = MagicMock()
         mock_packet = MagicMock()
@@ -106,7 +108,10 @@ class TestMemoryGetPacket:
         )
         mock_substrate.get_packet = AsyncMock(return_value=mock_packet)
 
-        with patch("memory.tools.get_substrate_service", return_value=mock_substrate):
+        with patch(
+            "memory.substrate_service.get_substrate_service",
+            return_value=mock_substrate,
+        ):
             result = await memory_get_packet(packet_id="uuid-123")
 
         assert result["status"] == "success"
@@ -115,12 +120,15 @@ class TestMemoryGetPacket:
     @pytest.mark.asyncio
     async def test_memory_get_packet_not_found(self):
         """memory_get_packet returns not_found when packet missing."""
-        from memory.tools import memory_get_packet
+        from runtime.l_tools import memory_get_packet
 
         mock_substrate = MagicMock()
         mock_substrate.get_packet = AsyncMock(return_value=None)
 
-        with patch("memory.tools.get_substrate_service", return_value=mock_substrate):
+        with patch(
+            "memory.substrate_service.get_substrate_service",
+            return_value=mock_substrate,
+        ):
             result = await memory_get_packet(packet_id="nonexistent")
 
         assert result["status"] == "not_found"
@@ -133,15 +141,17 @@ class TestMemoryHealthCheck:
     @pytest.mark.asyncio
     async def test_memory_health_check_success(self):
         """memory_health_check returns health status."""
-        from memory.tools import memory_health_check
+        from runtime.l_tools import memory_health_check
 
         mock_substrate = MagicMock()
         mock_substrate.health_check = AsyncMock(
             return_value={"postgres": "healthy", "redis": "healthy", "neo4j": "healthy"}
         )
 
-        with patch("memory.tools.MemorySubstrateService") as MockService:
-            MockService.get_service.return_value = mock_substrate
+        with patch(
+            "memory.substrate_service.get_substrate_service",
+            return_value=mock_substrate,
+        ):
             result = await memory_health_check()
 
         assert result["status"] == "success"

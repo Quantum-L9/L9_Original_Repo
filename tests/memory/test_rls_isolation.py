@@ -179,14 +179,20 @@ class TestRLSIsolation:
     @pytest.mark.asyncio
     async def test_repository_uses_pool_when_no_rls_connection(self):
         """Verify repository methods use pool when no RLS connection available."""
+        from contextlib import asynccontextmanager
+
         from core.schemas import PacketEnvelope, PacketMetadata, PacketProvenance
         from memory.substrate_repository import SubstrateRepository
 
-        # Mock connection pool
+        # Mock connection pool with proper async context manager
         mock_pool = MagicMock()
         mock_conn = AsyncMock()
-        mock_pool.acquire.return_value.__aenter__ = AsyncMock(return_value=mock_conn)
-        mock_pool.acquire.return_value.__aexit__ = AsyncMock(return_value=None)
+
+        @asynccontextmanager
+        async def _mock_acquire():
+            yield mock_conn
+
+        mock_pool.acquire = MagicMock(return_value=_mock_acquire())
 
         repository = SubstrateRepository("postgresql://test/test")
         repository._pool = mock_pool
@@ -218,21 +224,30 @@ class TestWritePacketWithRLS:
     @pytest.mark.asyncio
     async def test_write_packet_uses_transaction_with_rls(self):
         """Verify write_packet uses transaction when RLS scope provided."""
+        from contextlib import asynccontextmanager
         from unittest.mock import AsyncMock, MagicMock
 
         from core.schemas import PacketEnvelopeIn
         from memory.governance_gate import build_governance_context, governance_context
         from memory.substrate_service import MemorySubstrateService
 
-        # Mock repository with transaction
+        # Mock repository with proper async context managers
         mock_repository = MagicMock()
         mock_transaction = AsyncMock()
-        mock_repository.transaction.return_value.__aenter__ = AsyncMock(
-            return_value=mock_transaction
+        mock_conn = AsyncMock()
+
+        @asynccontextmanager
+        async def _mock_transaction_cm(**kwargs):
+            yield mock_transaction
+
+        @asynccontextmanager
+        async def _mock_acquire():
+            yield mock_conn
+
+        mock_repository.transaction = MagicMock(
+            side_effect=lambda **kw: _mock_transaction_cm(**kw)
         )
-        mock_repository.transaction.return_value.__aexit__ = AsyncMock(
-            return_value=None
-        )
+        mock_repository.acquire = MagicMock(return_value=_mock_acquire())
 
         # Mock DAG
         mock_dag = AsyncMock()
@@ -246,6 +261,7 @@ class TestWritePacketWithRLS:
 
         # Create mock embedding provider (required since GMP-96: fail-closed enforcement)
         mock_embedding_provider = MagicMock()
+        mock_embedding_provider.dimensions = 1536
         mock_embedding_provider.embed_text = AsyncMock(return_value=[0.1] * 1536)
         mock_embedding_provider.embed_batch = AsyncMock(return_value=[[0.1] * 1536])
 

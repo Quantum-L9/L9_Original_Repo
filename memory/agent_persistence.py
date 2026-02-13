@@ -180,18 +180,20 @@ class AgentPersistenceService:
 
             checkpoint_id: UUID | None = None
 
-            if self._service:
-                checkpoint_id = await self._service.save_checkpoint(
-                    agent_id=agent_id,
-                    state=state_with_meta,
-                )
-            elif self._repository:
+            if self._repository:
                 checkpoint_id = await self._repository.save_checkpoint(
                     agent_id=agent_id,
                     graph_state=state_with_meta,
                 )
+            elif self._service and hasattr(self._service, "save_checkpoint"):
+                checkpoint_id = await self._service.save_checkpoint(
+                    agent_id=agent_id,
+                    state=state_with_meta,
+                )
             else:
-                raise RuntimeError("Neither service nor repository set")
+                raise RuntimeError(
+                    "Neither repository nor service with save_checkpoint available"
+                )
 
             # Record checkpoint size metric
             state_size = len(json.dumps(state_with_meta, default=str))

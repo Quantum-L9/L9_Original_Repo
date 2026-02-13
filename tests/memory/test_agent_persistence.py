@@ -4,6 +4,11 @@ Agent Persistence Service Tests
 
 Tests for memory.agent_persistence.AgentPersistenceService.
 Verifies checkpoint management and state serialization.
+
+NOTE: Integration tests — require a reachable PostgreSQL instance.
+Skipped when TEST_DATABASE_URL is not set (DATABASE_URL from .env
+often points to a Docker-internal hostname that is unreachable on
+the host machine).
 """
 
 import os
@@ -14,16 +19,19 @@ import pytest
 from memory.agent_persistence import AgentPersistenceService
 from memory.substrate_service import close_service, init_service
 
-TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
+# Only use an *explicitly* provided test DB URL — do NOT fall back to
+# DATABASE_URL from .env which may point to a Docker-internal hostname.
+TEST_DB_URL = os.getenv("TEST_DATABASE_URL")
+
+pytestmark = pytest.mark.skipif(
+    not TEST_DB_URL,
+    reason="Requires TEST_DATABASE_URL (integration test — set to a reachable PostgreSQL URL)",
+)
 
 
 @pytest.fixture
 async def memory_substrate_service():
     """Provide a memory substrate service for testing."""
-    if not TEST_DB_URL:
-        pytest.skip(
-            "TEST_DATABASE_URL or DATABASE_URL not set; skipping agent persistence tests."
-        )
     service = await init_service(TEST_DB_URL)
     yield service
     await close_service()

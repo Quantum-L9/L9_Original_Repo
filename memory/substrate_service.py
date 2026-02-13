@@ -1387,6 +1387,26 @@ async def get_memory_substrate_service() -> MemorySubstrateService:
     return await get_service()
 
 
+# Alias used by runtime/l_tools.py (sync wrapper for backward compat)
+def get_substrate_service() -> MemorySubstrateService:
+    """
+    Synchronous getter for the substrate service singleton.
+
+    .. deprecated:: 2.0.0
+        Use ``get_service()`` (async) instead.
+
+    Returns the already-initialized singleton without awaiting.
+    Raises RuntimeError if not yet initialized.
+
+    Note: All SQL in this module uses parameterized queries ($1, $2).
+    """
+    if _service is None:
+        raise RuntimeError(
+            "MemorySubstrateService not initialized. Call init_service() first."
+        )
+    return _service
+
+
 async def init_service(
     database_url: str,
     **kwargs,

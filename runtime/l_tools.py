@@ -1401,9 +1401,9 @@ async def memory_health_check(**kwargs: Any) -> dict[str, Any]:
         Dict with health status for each component
     """
     try:
-        from memory.substrate_service import MemorySubstrateService
+        from memory.substrate_service import get_substrate_service
 
-        substrate = MemorySubstrateService.get_service()
+        substrate = get_substrate_service()
         health = await substrate.health_check()
 
         return {

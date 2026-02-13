@@ -4,6 +4,8 @@ Extraction Pipeline Tests
 
 Tests to verify that extraction pipelines (extract_insights_node, store_insights_node)
 execute automatically on packet ingestion and create knowledge facts.
+
+NOTE: Integration tests requiring live PostgreSQL.
 """
 
 import asyncio
@@ -11,19 +13,20 @@ import os
 
 import pytest
 
+TEST_DB_URL = os.getenv("TEST_DATABASE_URL")
+
+pytestmark = pytest.mark.skipif(
+    not TEST_DB_URL,
+    reason="Requires TEST_DATABASE_URL (integration test — set to a reachable PostgreSQL URL)",
+)
+
 from core.schemas import PacketEnvelopeIn
 from memory.substrate_service import MemorySubstrateService, close_service, init_service
-
-TEST_DB_URL = os.getenv("TEST_DATABASE_URL") or os.getenv("DATABASE_URL")
 
 
 @pytest.fixture
 async def memory_substrate_service():
     """Provide a memory substrate service for testing."""
-    if not TEST_DB_URL:
-        pytest.skip(
-            "TEST_DATABASE_URL or DATABASE_URL not set; skipping extraction pipeline tests."
-        )
     service = await init_service(TEST_DB_URL)
     yield service
     await close_service()

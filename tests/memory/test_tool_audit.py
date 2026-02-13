@@ -20,6 +20,16 @@ from uuid import uuid4
 import pytest
 
 
+def _close_coroutine_mock(coro):
+    """Mock for asyncio.create_task that properly closes the coroutine.
+
+    Prevents 'coroutine was never awaited' RuntimeWarning in tests
+    that patch asyncio.create_task.
+    """
+    coro.close()
+    return MagicMock()  # Return a mock Task object
+
+
 class TestSanitizeArguments:
     """Tests for _sanitize_arguments helper."""
 
@@ -157,7 +167,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ) as mock_create_task,
             patch("memory.tool_audit.record_tool_invocation") as mock_record,
         ):
             await log_tool_invocation(
@@ -188,7 +201,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ) as mock_create_task,
             patch("memory.tool_audit.record_tool_invocation") as mock_record,
         ):
             await log_tool_invocation(
@@ -216,7 +232,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task"),
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ),
             patch("memory.tool_audit.record_tool_invocation") as mock_record,
         ):
             await log_tool_invocation(
@@ -241,7 +260,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task"),
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ),
             patch("memory.tool_audit.record_tool_invocation") as mock_record,
         ):
             await log_tool_invocation(
@@ -284,7 +306,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ) as mock_create_task,
             patch("memory.tool_audit.record_tool_invocation"),
         ):
             await log_tool_invocation(
@@ -305,7 +330,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task"),
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ),
             patch("memory.tool_audit.record_tool_invocation"),
         ):
             await log_tool_invocation(
@@ -324,7 +352,10 @@ class TestLogToolInvocation:
         long_error = "Error: " + "x" * 1000
 
         with (
-            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ) as mock_create_task,
             patch("memory.tool_audit.record_tool_invocation"),
         ):
             await log_tool_invocation(
@@ -347,7 +378,10 @@ class TestLogToolInvocation:
         call_id = uuid4()
 
         with (
-            patch("memory.tool_audit.asyncio.create_task"),
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ),
             patch("memory.tool_audit.record_tool_invocation") as mock_record,
         ):
             await log_tool_invocation(
@@ -464,15 +498,12 @@ class TestToolAuditTTL:
         from memory.tool_audit import log_tool_invocation
 
         call_id = uuid4()
-        captured_packet = None
-
-        async def capture_task(coro):
-            nonlocal captured_packet
-            # Extract the packet from the coroutine
-            pass
 
         with (
-            patch("memory.tool_audit.asyncio.create_task") as mock_create_task,
+            patch(
+                "memory.tool_audit.asyncio.create_task",
+                side_effect=_close_coroutine_mock,
+            ) as mock_create_task,
             patch("memory.tool_audit.record_tool_invocation"),
         ):
             await log_tool_invocation(
