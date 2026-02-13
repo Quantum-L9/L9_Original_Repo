@@ -20,7 +20,6 @@ import textwrap
 from pathlib import Path
 
 import pytest
-
 import structlog
 
 logger = structlog.get_logger(__name__)
@@ -82,14 +81,14 @@ class TestYAMLSecretScanning:
                     violations.append(f"{rel}:{i}: {line.strip()[:80]}")
 
         assert not violations, (
-            f"Hardcoded API keys found in YAML files (ADR-0090):\n"
+            "Hardcoded API keys found in YAML files (ADR-0090):\n"
             + "\n".join(violations)
         )
 
 
 # =============================================================================
 # Regression: noqa comments must never appear INSIDE string literals
-# Incident: auto_fix_adr.py added # noqa inside f-string SQL, corrupting queries
+# Incident: auto_fix_adr.py added
 # =============================================================================
 
 
@@ -99,9 +98,9 @@ class TestNoqaInsideStrings:
     def test_no_noqa_inside_fstring_sql(self) -> None:
         """Detect # noqa inside f-string SQL queries — corrupts the SQL."""
         # This is the exact pattern that caused the bug
-        bad_code = textwrap.dedent('''\
+        bad_code = textwrap.dedent("""\
             query = f"SELECT * FROM {table}  # noqa: ADR-0087"
-        ''')
+        """)
 
         # The noqa is between the opening f" and closing "
         pattern = re.compile(
@@ -111,12 +110,12 @@ class TestNoqaInsideStrings:
 
     def test_noqa_outside_string_is_fine(self) -> None:
         """noqa after a string literal (as a comment) is correct."""
-        good_code = textwrap.dedent('''\
+        good_code = textwrap.dedent("""\
             query = f"SELECT * FROM {table}"  # noqa: ADR-0087
-        ''')
+        """)
 
         # The noqa is AFTER the closing quote — this is correct
-        # Check that the string itself doesn't contain # noqa
+        # Check that the string itself doesn't contain
         fstring_content_pattern = re.compile(r'f"([^"]*)"')
         match = fstring_content_pattern.search(good_code)
         assert match is not None
@@ -140,6 +139,11 @@ class TestNoqaInsideStrings:
                 continue
 
             for i, line in enumerate(content.splitlines(), 1):
+                stripped = line.lstrip()
+                # Skip comment lines (they may contain examples of the bad pattern)
+                if stripped.startswith("#"):
+                    continue
+
                 # Look for f-strings containing SQL keywords AND noqa inside the string
                 if not any(kw in line.upper() for kw in sql_keywords):
                     continue
@@ -151,7 +155,7 @@ class TestNoqaInsideStrings:
                     violations.append(f"{rel}:{i}: noqa inside f-string SQL")
 
         assert not violations, (
-            f"Found # noqa INSIDE f-string SQL (corrupts queries):\n"
+            "Found # noqa INSIDE f-string SQL (corrupts queries):\n"
             + "\n".join(violations)
         )
 
@@ -228,7 +232,7 @@ class TestAllowlistIntegrity:
                 missing.append(f"auto_fix_protected_files: {path}")
 
         assert not missing, (
-            f"Allowlisted files that don't exist (stale entries):\n"
+            "Allowlisted files that don't exist (stale entries):\n"
             + "\n".join(missing)
         )
 
@@ -251,7 +255,7 @@ class TestPreCommitHookPortability:
         # %3N, %N, %9N etc. are GNU date extensions not available on macOS
         matches = re.findall(r"date \+.*%\d*N", content)
         assert not matches, (
-            f"Pre-commit hook uses macOS-incompatible date format:\n"
+            "Pre-commit hook uses macOS-incompatible date format:\n"
             + "\n".join(matches)
             + "\nFix: Use $(date +%s) for seconds, not nanoseconds"
         )

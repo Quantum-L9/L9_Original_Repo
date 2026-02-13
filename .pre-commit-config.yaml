@@ -78,6 +78,14 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
+      - id: check-noqa-placement
+        name: Check noqa not inside strings (GMP-CI-2026-02)
+        entry: python3 ci/check_noqa_placement.py
+        language: system
+        types: [python]
+        pass_filenames: false
+        stages: [pre-commit]
+
       - id: check-imports
         name: Check missing imports
         entry: python3 ci/check_imports.py

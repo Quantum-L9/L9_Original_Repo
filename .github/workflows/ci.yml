@@ -318,6 +318,11 @@ jobs:
             echo "✅ No ADR drift detected"
           fi
 
+      - name: Check noqa placement (GMP-CI-2026-02)
+        run: |
+          echo "🔍 Checking for noqa-inside-string bugs..."
+          python3 ci/check_noqa_placement.py
+
       - name: Check GMP report naming convention
         run: |
           echo "📝 Checking GMP report naming convention..."
