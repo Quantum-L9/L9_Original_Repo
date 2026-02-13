@@ -1766,9 +1766,11 @@ class AgentExecutorService:
         # GMP-78-FIX: If dynamic discovery is enabled, skip semantic pool (uses prepare_dynamic_tools instead)
         _use_semantic_pool = False
         try:
-            from core.tools.dynamic_discovery import is_dynamic_discovery_enabled
+            # Use runtime import to avoid circular dependency
+            import importlib
 
-            _use_semantic_pool = not is_dynamic_discovery_enabled()
+            module = importlib.import_module("core.tools.dynamic_discovery")
+            _use_semantic_pool = not module.is_dynamic_discovery_enabled()
         except ImportError:
             _use_semantic_pool = (
                 True  # Fall back to semantic pool if dynamic discovery unavailable

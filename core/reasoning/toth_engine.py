@@ -26,11 +26,12 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import logging
 import os
 import sys
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -208,7 +209,9 @@ class ToThConfig:
         environment variables when not explicitly configured.
         """
         if self.api_key is None:
-            self.api_key = os.getenv("OPENAI_API_KEY") or os.getenv("ANTHROPIC_API_KEY")
+            self.api_key = os.getenv("OPENAI_API_KEY", "") or os.getenv(
+                "ANTHROPIC_API_KEY", ""
+            )
 
 
 @dataclass
@@ -245,7 +248,7 @@ class ReasoningStep:
         if self.evidence is None:  # nosemgrep: l9-singleton-requires-lock
             self.evidence = []
         if self.timestamp is None:  # nosemgrep: l9-singleton-requires-lock
-            self.timestamp = datetime.now()
+            self.timestamp = datetime.now(UTC)
 
 
 @dataclass
@@ -1199,18 +1202,29 @@ async def main():
     try:
         result = await engine.reason(args.query, ReasoningMode(args.mode))
 
-        print(f"Query: {result.query}")  # noqa: ADR-0019
-        print(f"Mode: {result.reasoning_mode.value}")  # noqa: ADR-0019
-        print(f"Conclusion: {result.final_conclusion}")  # noqa: ADR-0019
-        print(f"Confidence: {result.overall_confidence:.3f}")  # noqa: ADR-0019
-        print(f"Execution Time: {result.execution_time:.2f}s")  # noqa: ADR-0019
-        print(f"Steps: {len(result.steps)}")  # noqa: ADR-0019
-
+        logger.info(
+            "toth_query_result",
+            query=result.query,
+            mode=result.reasoning_mode.value,
+            conclusion=result.final_conclusion,
+            confidence=f"{result.overall_confidence:.3f}",
+            execution_time=f"{result.execution_time:.2f}s",
+            steps=len(result.steps),
+        )
         for i, step in enumerate(result.steps, 1):
-            print(f"  Step {i}: {step.conclusion}")  # noqa: ADR-0019
+            logger.debug(f"step_{i}", conclusion=step.conclusion)
+        # print(f"Query: {result.query}")  # noqa: ADR-0019
+        # print(f"Mode: {result.reasoning_mode.value}")  # noqa: ADR-0019
+        # print(f"Conclusion: {result.final_conclusion}")  # noqa: ADR-0019
+        # print(f"Confidence: {result.overall_confidence:.3f}")  # noqa: ADR-0019
+        # print(f"Execution Time: {result.execution_time:.2f}s")  # noqa: ADR-0019
+        # print(f"Steps: {len(result.steps)}")  # noqa: ADR-0019
+        # for i, step in enumerate(result.steps, 1):
+        #     print(f"  Step {i}: {step.conclusion}")  # noqa: ADR-0019
 
     except Exception as e:
-        print(f"Error: {e}")  # noqa: ADR-0019
+        logger.error("toth_query_failed", error=str(e))
+        # print(f"Error: {e}")  # noqa: ADR-0019
         return 1
 
     return 0

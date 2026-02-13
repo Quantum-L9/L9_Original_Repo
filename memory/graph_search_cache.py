@@ -37,7 +37,7 @@ __dora_meta__ = {
 import hashlib
 import json
 import random
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any, Literal
 
 import structlog
@@ -69,7 +69,7 @@ class GraphSearchResult(BaseModel):
 
     results: list[dict[str, Any]] = Field(..., description="Search results")
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Result creation time"
+        default_factory=lambda: datetime.now(UTC), description="Result creation time"
     )
     schema_version: str = Field(..., description="Schema version hash")
     ttl: int = Field(..., description="Time-to-live in seconds")

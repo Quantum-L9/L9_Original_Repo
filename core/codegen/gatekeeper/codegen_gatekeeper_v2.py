@@ -267,7 +267,7 @@ before code generation. Be thorough and precise.
                 ),
                 provenance=PacketProvenance(
                     source_agent=self.agent_id,
-                    source="codegen_gatekeeper",
+                    source="agent",
                     tool="codegen",
                 ),
                 tags=["codegen", "module_generation", compiler_output.module_id],

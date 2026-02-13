@@ -186,7 +186,9 @@ class NoqaDebtEliminator:
         log.info("report_generated", path=str(path))
 
     def generate_cga_specs(
-        self, items: list[NoqaItem], output_dir: str = "codegenagent/patches/noqa_fixes"
+        self,
+        items: list[NoqaItem],
+        output_dir: str = "core/agents/codegenagent/patches/noqa_fixes",
     ):
         """Generate CGA Specs to fix noqa violations."""
         out_dir = Path(output_dir)

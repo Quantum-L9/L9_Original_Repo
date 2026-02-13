@@ -99,7 +99,7 @@ class RemediationEngineRequest(BaseModel):
         default_factory=dict, description="Additional context"
     )
     source_id: str = Field(default="anomaly_classifier")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"extra": "forbid"}
 

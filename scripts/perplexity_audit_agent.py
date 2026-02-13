@@ -841,7 +841,7 @@ class AuditPipeline:
         )
 
         # Generate outputs
-        json_path, md_path = self.reporter.generate(report)
+        json_path, _ = self.reporter.generate(report)
         self.pack_generator.generate(all_findings)
 
         # Generate CGA Specs for P0/P1 findings
@@ -874,7 +874,7 @@ class AuditPipeline:
     @trace_span("audit_agent.run_codegen")
     async def run_codegen(self, spec_paths: list[Path]) -> None:
         """Invoke CodeGenAgent programmatically on generated specs."""
-        from codegenagent.codegen_agent import CodeGenAgent
+        from core.agents.codegenagent.codegen_agent import CodeGenAgent
 
         agent = CodeGenAgent()
         successful = 0

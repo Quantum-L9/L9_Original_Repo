@@ -121,6 +121,7 @@ ALLOWED_EXCEPTIONS = {
         ".cursor/",  # Archived cursor commands
         "agents/codegenagent/",  # Codegen agent CLI
         "agents/cursor/",  # Cursor agent scripts
+        "agents/research_agent/",  # Research agent SDK CLI
         "local_dashboard/",  # Local dashboard
         "mcp_memory/",  # MCP memory server
     },

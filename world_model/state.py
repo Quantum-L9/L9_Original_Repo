@@ -74,8 +74,8 @@ class Entity:
     entity_id: str
     entity_type: str
     attributes: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     version: int = 1
     metadata: dict[str, Any] = field(default_factory=dict)
 
@@ -93,7 +93,7 @@ class Relation:
     source_id: str
     target_id: str
     attributes: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 class WorldModelState:

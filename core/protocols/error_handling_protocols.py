@@ -37,7 +37,7 @@ import enum
 import traceback
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Any, Protocol, runtime_checkable
 
 import structlog
@@ -113,7 +113,7 @@ class ErrorContext:
     message: str = ""
     severity: ErrorSeverity = ErrorSeverity.UNKNOWN
     category: ErrorCategory = ErrorCategory.UNKNOWN
-    timestamp: datetime = dataclasses.field(default_factory=datetime.utcnow)
+    timestamp: datetime = dataclasses.field(default_factory=lambda: datetime.now(UTC))
     traceback_str: str = ""
     source_module: str = ""
     source_function: str = ""

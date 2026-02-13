@@ -67,7 +67,7 @@ class TestResults:
     """Results of a test run."""
 
     run_id: UUID = field(default_factory=uuid4)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     total_tests: int = 0
     passed: int = 0
     failed: int = 0

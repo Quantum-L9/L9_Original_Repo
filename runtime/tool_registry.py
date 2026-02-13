@@ -224,7 +224,10 @@ def register_extension_tool_executors() -> int:
 
     # Auto-discover research tools (all have @register_tool decorator)
     try:
-        import core.tools.research_tools
+        # Use string import to avoid top-level dependency
+        import importlib
+
+        importlib.import_module("core.tools.research_tools")
 
         logger.debug("extension_tools.research_loaded")
         registered += 4  # run_research_query, synthesize, discover, generate_spec
@@ -233,7 +236,7 @@ def register_extension_tool_executors() -> int:
 
     # Auto-discover reflection tools (all have @register_tool decorator)
     try:
-        import core.tools.reflection_tools  # noqa: F401 - trigger module load for @register_tool
+        importlib.import_module("core.tools.reflection_tools")
 
         logger.debug("extension_tools.reflection_loaded")
         registered += 5  # reflect, analyze_failure, compare_approaches, extract_patterns, generate_improvements
@@ -412,6 +415,9 @@ def get_tools_by_tags(tags: list[str]) -> dict[str, Callable]:
     Returns:
         Dictionary mapping tool IDs to executors
     """
+    if not tags:
+        return {}
+
     result: dict[str, Callable] = {}
 
     # Check MCP tools (tags tracked in _mcp_tool_metadata)

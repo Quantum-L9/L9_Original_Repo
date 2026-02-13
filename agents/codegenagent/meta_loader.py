@@ -19,9 +19,9 @@ __dora_meta__ = {
     "component_name": "Meta Loader",
     "module_version": "2.0.0",
     "created_by": "Igor Beylin",
-    "created_at": "2026-01-25T14:50:13Z",
-    "updated_at": "2026-01-25T14:49:28Z",
-    "layer": "operations",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "intelligence",
     "domain": "error_handling",
     "module_name": "meta_loader",
     "type": "exception",
@@ -30,7 +30,11 @@ __dora_meta__ = {
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
-        "imported_by": [],
+        "imported_by": [
+            "orchestration.quantum_swarm_loader",
+            "tests.services.symbolic_computation.test_c_gmp_engine",
+            "tests.services.symbolic_computation.test_meta_loader",
+        ],
     },
 }
 # ============================================================================
@@ -77,7 +81,7 @@ class MetaLoader:
         """
         if specs_dir is None:
             # Default to the codegenagent directory
-            specs_dir = str(Path(__file__).parent)
+            specs_dir = str(Path(__file__).parent)  # noqa: ADR-0001 - internal path
         self.specs_dir = Path(specs_dir)
         self.strict_validation = strict_validation
         self._validator = SchemaValidator(strict=strict_validation)
@@ -102,7 +106,10 @@ class MetaLoader:
         """
         try:
             # Resolve path
-            file_path = Path(path) if os.path.isabs(path) else self.specs_dir / path
+            if os.path.isabs(path):
+                file_path = Path(path)
+            else:
+                file_path = self.specs_dir / path
 
             if not file_path.exists():
                 raise MetaLoaderError(f"Spec file not found: {file_path}")
@@ -172,7 +179,10 @@ class MetaLoader:
         Returns:
             Validation result with errors and warnings
         """
-        file_path = path if os.path.isabs(path) else str(self.specs_dir / path)
+        if os.path.isabs(path):
+            file_path = path
+        else:
+            file_path = str(self.specs_dir / path)
 
         return self._validator.validate_yaml(file_path)
 
@@ -362,8 +372,8 @@ def load_as_contract(path: str) -> MetaContract:
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
 __dora_footer__ = {
-    "component_id": "COD-OPER-002",
-    "governance_level": "medium",
+    "component_id": "AGE-INTE-010",
+    "governance_level": "high",
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": [],
@@ -373,9 +383,9 @@ __dora_footer__ = {
         "error-handling",
         "exception",
         "filesystem",
+        "intelligence",
         "loader",
         "logging",
-        "operations",
         "validation",
     ],
     "keywords": [
@@ -389,7 +399,7 @@ __dora_footer__ = {
         "generation",
     ],
     "business_value": "Provides meta loader components including MetaLoaderError, MetaLoader",
-    "last_modified": "2026-01-25T14:49:28Z",
+    "last_modified": "2026-01-07T13:35:57Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",
 }

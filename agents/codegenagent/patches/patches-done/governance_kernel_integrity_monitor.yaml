@@ -1,0 +1,61 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Governance Kernel Integrity Monitor"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "governance_kernel_integrity_monitor"
+# type: "tracker"
+# status: "active"
+# ============================================================================
+
+# ============================================
+# Kernel Integrity Monitor (Runtime Watchdog)
+# ============================================
+
+filename: governance/kernel_integrity_monitor.py
+type: security_watchdog
+language: python
+
+description: |
+  Continuously monitors YAML kernel files for unauthorized changes.
+  Computes file hashes and validates them against the approved manifest.
+  Can escalate rollback, audit, or reflection triggers upon deviation.
+
+wiring:
+  reads:
+    - kernel_manifest.yaml
+    - kernels/*.yaml
+  emits:
+    - kernel_integrity_report.json
+    - rollback_plan.yaml
+  triggers:
+    - on_patch_applied
+    - nightly_integrity_check
+
+code: |
+  import hashlib
+  import json
+  import os
+
+  def verify_kernel_integrity():
+      manifest = json.load(open("kernel_manifest.yaml"))
+      reports = {}
+      for fname, expected_hash in manifest.items():
+          with open(fname, "rb") as f:
+              file_hash = hashlib.sha256(f.read()).hexdigest()
+          if file_hash != expected_hash:
+              reports[fname] = {"expected": expected_hash, "found": file_hash}
+      json.dump(reports, open("kernel_integrity_report.json", "w"))
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-execution", "intelligence", "kernel", "tracker"]
+# keywords: ["code", "description", "filename", "governance", "integrity", "kernel"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

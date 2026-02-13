@@ -1,0 +1,71 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Mainagent V6 Readme"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "agents_mainagent_v6_README"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================
+# L9 Codegen Spec: Agent Readme
+# ============================
+
+filename: agents/mainagent_v6/README.md
+type: documentation
+language: markdown
+
+description: |
+  Describes MainAgent v6 architecture, responsibilities, reasoning flow,
+  and integration points across L9 substrate.
+
+wiring:
+  linked_to:
+    - mainagent.py
+    - packet_envelope.py
+    - memory_interface.py
+    - world_model.py
+
+code: |
+  ## MainAgent V6 - L9 OS
+
+  **Responsibilities**
+  - Packet enrichment
+  - Tensor interpretation
+  - Symbolic reasoning
+  - Escalation detection
+  - World model updates
+
+  **Interfaces**
+  - `/api/mainagent/v6/packet` : Packet orchestration entrypoint
+
+  **Governance**
+  - Escalation policies from Kernel 08_safety
+  - Audit trails to `reasoning_traces` table
+
+  **Memory Layers**
+  - Redis (working memory)
+  - pgvector (episodic memory)
+  - Neo4j (causal memory)
+
+  **Execution Flow**
+  1. Accept Packet
+  2. Enrich from memory
+  3. Coordinate tensor signals
+  4. Reason through packet
+  5. Escalate or resolve
+  6. Emit result + update world model
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "api-config", "intelligence", "kernel", "model-config", "redis-config", "utility"]
+# keywords: ["agents", "code", "description", "filename", "language", "mainagent"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

@@ -1,0 +1,58 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Cli Cursor Cli Launcher"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "agents_cli_cursor_cli_launcher"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# =====================================
+# Cursor-Aware CLI Agent Launcher
+# =====================================
+
+filename: agents/cli/cursor_cli_launcher.py
+type: agent_launcher
+language: python
+
+description: |
+  CLI tool to launch agents with god mode prompt injection,
+  memory sync, and capsule trace headers.
+
+wiring:
+  inputs:
+    - gmp_manifest.yaml
+    - cursor_context_stack.json
+  hooks:
+    - agents/codegen_agent/cursor_context_sync_engine.py
+  capabilities:
+    - resume memory
+    - inject prompt trace
+    - dispatch to CGA or Swarm
+
+code: |
+  import yaml
+  import subprocess
+
+  def launch_agent_from_gmp(manifest_path):
+      with open(manifest_path) as f:
+          manifest = yaml.safe_load(f)
+
+      agent = manifest["agent_name"]
+      prompt_path = f"capsules/{agent}_gmp_prompt.md"
+
+      subprocess.run(["python", "agents/entrypoint.py", agent, "--prompt", prompt_path])
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "intelligence", "prompt", "tool-config", "utility"]
+# keywords: ["agents", "cli", "code", "cursor", "description", "filename"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

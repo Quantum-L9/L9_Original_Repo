@@ -13,9 +13,32 @@ Outputs:
 NOTE: The transcript uses '''yaml (triple single quotes) as delimiters.
 """
 
+# ============================================================================
+__dora_meta__ = {
+    "component_name": "CodeGenAgentv1.0.md",
+    "module_version": "1.0.0",
+    "created_by": "Igor Beylin",
+    "created_at": "2026-01-02T15:15:57Z",
+    "updated_at": "2026-01-07T13:35:57Z",
+    "layer": "intelligence",
+    "domain": "agent_execution",
+    "module_name": "extract_yaml_specs",
+    "type": "cli",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+# ============================================================================
+
 import os
 import re
 from pathlib import Path
+
+import structlog
 
 # Patch type indicators
 
@@ -64,7 +87,7 @@ def extract_yaml_blocks(content: str) -> list:
     # IMPORTANT: Only match '''yaml that appears at line start or after newline
     # to avoid matching explanatory mentions like "Wrapped in '''yaml for Cursor"
 
-    blocks: list[str] = []
+    blocks = []
 
     # Pattern: '''yaml at start of line, capture until closing '''
     # The (?:^|\n) ensures we only match '''yaml at line boundaries
@@ -110,14 +133,14 @@ def sanitize_filename(filename: str) -> str:
     # Ensure it ends with .yaml
     if not safe_name.endswith(".yaml"):
         # Get extension
-        base, _ext = os.path.splitext(safe_name)
+        base, _ = os.path.splitext(safe_name)
         safe_name = base + ".yaml"
     return safe_name
 
 
 def main():
     """
-    Parses the Markdown transcript to extract YAML specifications and segregate patches based on type and filename criteria.
+    Performs main processing of YAML spec extraction from Chat Transcript Markdown, organizing patches and specs into designated directories.
 
     Args:
         None
@@ -129,7 +152,7 @@ def main():
         FileNotFoundError: If the transcript file does not exist.
         OSError: If directory creation fails.
     """
-    script_dir = Path(__file__).parent
+    script_dir = Path(__file__).parent  # noqa: ADR-0001 - internal path
     transcript_path = script_dir / "Chat Transcript - CodeGenAgentv1.0.md"
 
     # Output directories
@@ -201,3 +224,45 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+# ============================================================================
+# DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
+# ============================================================================
+__dora_footer__ = {
+    "component_id": "AGE-INTE-001",
+    "governance_level": "critical",
+    "compliance_required": True,
+    "audit_trail": True,
+    "dependencies": [],
+    "tags": ["agent-execution", "cli", "debugging", "filesystem", "intelligence"],
+    "keywords": [
+        "blocks",
+        "codegenagentv1.0.md",
+        "extract",
+        "filename",
+        "patch",
+        "sanitize",
+        "yaml",
+    ],
+    "business_value": "Utility module for extract yaml specs",
+    "last_modified": "2026-01-07T13:35:57Z",
+    "modified_by": "L9_Codegen_Engine",
+    "change_summary": "Initial generation with DORA compliance",
+}
+# ============================================================================
+# L9 DORA BLOCK - AUTO-UPDATED - DO NOT EDIT
+# Runtime execution trace - updated automatically on every execution
+# ============================================================================
+__l9_trace__ = {
+    "trace_id": "",
+    "task": "",
+    "timestamp": "",
+    "patterns_used": [],
+    "graph": {"nodes": [], "edges": []},
+    "inputs": {},
+    "outputs": {},
+    "metrics": {"confidence": "", "errors_detected": [], "stability_score": ""},
+}
+# ============================================================================
+# END L9 DORA BLOCK
+# ============================================================================

@@ -55,7 +55,7 @@ import re
 import unicodedata
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any
 from uuid import NAMESPACE_URL, UUID, uuid5
 
@@ -161,7 +161,7 @@ class AuditReport:
     """
 
     packet_id: UUID
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     injection_markers: set[str] = field(default_factory=set)
     regex_matches: list[str] = field(default_factory=list)
     # v2.0 additions

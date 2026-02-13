@@ -296,7 +296,7 @@ class {self._to_pascal_case(module_id)}Request(BaseModel):
     """Request model for {metadata.get("name", "Module")}"""
 
     request_id: str = Field(default_factory=lambda: str(uuid4()), description="Unique request ID")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Request timestamp")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Request timestamp")
 
     # Add your request fields here based on spec
     data: dict[str, Any] = Field(default_factory=dict, description="Request data")
@@ -318,7 +318,7 @@ class {self._to_pascal_case(module_id)}Response(BaseModel):
     success: bool = Field(..., description="Operation success")
     data: dict[str, Any] = Field(default_factory=dict, description="Response data")
     error: Optional[str] = Field(default=None, description="Error message if failed")
-    timestamp: datetime = Field(default_factory=datetime.utcnow, description="Response timestamp")
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Response timestamp")
 
     class Config:
         json_schema_extra = {{

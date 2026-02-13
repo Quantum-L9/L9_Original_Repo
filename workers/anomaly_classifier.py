@@ -106,7 +106,7 @@ class AnomalyClassifierRequest(BaseModel):
     context: dict[str, Any] = Field(
         default_factory=dict, description="Additional context"
     )
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"extra": "forbid"}
 

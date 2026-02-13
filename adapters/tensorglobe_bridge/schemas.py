@@ -23,7 +23,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -68,7 +68,7 @@ class TensorRequest(BaseModel):
     signature: str = Field(..., description="Signed by L9 agent")
     signing_key_id: str = Field(...)
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     def compute_canonical(self) -> str:
         """Canonical form for signature verification"""
@@ -126,7 +126,7 @@ class TensorResponse(BaseModel):
     signature: str = Field(..., description="Signed by TensorGlobe")
     signing_key_id: str = Field(...)
 
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     def to_evidence_object(self, request: TensorRequest) -> EpistemicObject:
         """Convert response to L9 Evidence object"""

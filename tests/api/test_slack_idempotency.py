@@ -73,6 +73,7 @@ class TestSlackEventDeduplication:
         slack_client.post_message = AsyncMock(return_value={"ok": True})
 
         redis_mock = AsyncMock()
+        redis_mock.is_available = MagicMock(return_value=True)
         call_count = 0
 
         @must_stay_async("callers use await")
@@ -82,20 +83,51 @@ class TestSlackEventDeduplication:
                 return b"1"
             return None
 
-        async def mock_redis_set(key, value, **kwargs):
+        async def mock_redis_setnx(key, value, **kwargs):
             nonlocal call_count
+            if call_count > 0:
+                return False
             call_count += 1
+            return True
 
         redis_mock.get = mock_redis_get
-        redis_mock.set = mock_redis_set
+        redis_mock.setnx = mock_redis_setnx
 
         substrate_mock = MagicMock()
         substrate_mock.write_packet = AsyncMock(return_value=MagicMock(packet_id="123"))
+        substrate_mock._repository = MagicMock()
+        substrate_mock._repository.acquire = MagicMock()
 
-        with patch(
-            "memory.slack_ingest.get_redis_client",
-            AsyncMock(return_value=redis_mock),
+        # Mock repository connection context manager
+        mock_conn = AsyncMock()
+        mock_conn.fetchrow = AsyncMock(return_value=None)
+        substrate_mock._repository.acquire.return_value.__aenter__.return_value = (
+            mock_conn
+        )
+
+        with (
+            patch(
+                "memory.slack_ingest.get_redis_client",
+                AsyncMock(return_value=redis_mock),
+            ),
+            patch(
+                "memory.slack_ingest.handle_slack_with_l_agent", new_callable=AsyncMock
+            ) as mock_agent_handler,
+            patch(
+                "memory.slack_ingest._retrieve_thread_context", new_callable=AsyncMock
+            ) as mock_thread_ctx,
+            patch(
+                "memory.slack_ingest._retrieve_semantic_hits", new_callable=AsyncMock
+            ) as mock_semantic_hits,
+            patch(
+                "memory.slack_ingest._index_slack_conversation", new_callable=AsyncMock
+            ) as mock_index,
         ):
+            mock_agent_handler.return_value = ("Mock reply", "completed", [])
+            mock_thread_ctx.return_value = {}
+            mock_semantic_hits.return_value = {}
+            mock_index.return_value = None
+
             for _ in range(3):
                 try:
                     await handle_slack_events(
@@ -104,6 +136,7 @@ class TestSlackEventDeduplication:
                         substrate_service=substrate_mock,
                         slack_client=slack_client,
                         aios_base_url="http://mock",
+                        app=MagicMock(),
                     )
                 except Exception:
                     pass
@@ -131,26 +164,59 @@ class TestSlackEventDeduplication:
 
         substrate_mock = MagicMock()
         substrate_mock.write_packet = AsyncMock(return_value=MagicMock(packet_id="123"))
+        substrate_mock._repository = MagicMock()
+        mock_conn = AsyncMock()
+        mock_conn.fetchrow = AsyncMock(return_value=None)
+        substrate_mock._repository.acquire.return_value.__aenter__.return_value = (
+            mock_conn
+        )
 
         seen_keys: set = set()
         redis_mock = AsyncMock()
+        redis_mock.is_available = MagicMock(return_value=True)
 
         @must_stay_async("callers use await")
         async def mock_redis_get(key):
-            if key in seen_keys:
-                return b"1"
+            # For this test, we assume no inflight collision for different keys
             return None
 
-        async def mock_redis_set(key, value, **kwargs):
+        async def mock_redis_setnx(key, value, **kwargs):
+            if key in seen_keys:
+                return False
             seen_keys.add(key)
+            return True
+
+        async def mock_redis_delete(key):
+            if key in seen_keys:
+                seen_keys.remove(key)
 
         redis_mock.get = mock_redis_get
-        redis_mock.set = mock_redis_set
+        redis_mock.setnx = mock_redis_setnx
+        redis_mock.delete = mock_redis_delete
 
-        with patch(
-            "memory.slack_ingest.get_redis_client",
-            AsyncMock(return_value=redis_mock),
+        with (
+            patch(
+                "memory.slack_ingest.get_redis_client",
+                AsyncMock(return_value=redis_mock),
+            ),
+            patch(
+                "memory.slack_ingest.handle_slack_with_l_agent", new_callable=AsyncMock
+            ) as mock_agent_handler,
+            patch(
+                "memory.slack_ingest._retrieve_thread_context", new_callable=AsyncMock
+            ) as mock_thread_ctx,
+            patch(
+                "memory.slack_ingest._retrieve_semantic_hits", new_callable=AsyncMock
+            ) as mock_semantic_hits,
+            patch(
+                "memory.slack_ingest._index_slack_conversation", new_callable=AsyncMock
+            ) as mock_index,
         ):
+            mock_agent_handler.return_value = ("Mock reply", "completed", [])
+            mock_thread_ctx.return_value = {}
+            mock_semantic_hits.return_value = {}
+            mock_index.return_value = None
+
             for event in [event_a, event_b]:
                 try:
                     await handle_slack_events(
@@ -159,6 +225,7 @@ class TestSlackEventDeduplication:
                         substrate_service=substrate_mock,
                         slack_client=slack_client,
                         aios_base_url="http://mock",
+                        app=MagicMock(),
                     )
                 except Exception:
                     pass
@@ -181,12 +248,47 @@ class TestSlackRedisUnavailable:
 
         event = _make_slack_event(event_id="Ev_NO_REDIS")
 
-        with patch(
-            "memory.slack_ingest.get_redis_client",
-            AsyncMock(return_value=None),
+        substrate_mock = MagicMock()
+        substrate_mock.write_packet = AsyncMock(return_value=MagicMock(packet_id="123"))
+        substrate_mock._repository = MagicMock()
+        mock_conn = AsyncMock()
+        mock_conn.fetchrow = AsyncMock(return_value=None)
+        substrate_mock._repository.acquire.return_value.__aenter__.return_value = (
+            mock_conn
+        )
+
+        slack_client = MagicMock()
+        slack_client.post_message = AsyncMock(return_value={"ok": True})
+
+        with (
+            patch("memory.slack_ingest.get_redis_client", AsyncMock(return_value=None)),
+            patch(
+                "memory.slack_ingest.handle_slack_with_l_agent", new_callable=AsyncMock
+            ) as mock_agent_handler,
+            patch(
+                "memory.slack_ingest._retrieve_thread_context", new_callable=AsyncMock
+            ) as mock_thread_ctx,
+            patch(
+                "memory.slack_ingest._retrieve_semantic_hits", new_callable=AsyncMock
+            ) as mock_semantic_hits,
+            patch(
+                "memory.slack_ingest._index_slack_conversation", new_callable=AsyncMock
+            ) as mock_index,
         ):
+            mock_agent_handler.return_value = ("Mock reply", "completed", [])
+            mock_thread_ctx.return_value = {}
+            mock_semantic_hits.return_value = {}
+            mock_index.return_value = None
+
             try:
-                await handle_slack_events(event)
+                await handle_slack_events(
+                    request_body=b"",
+                    payload=event,
+                    substrate_service=substrate_mock,
+                    slack_client=slack_client,
+                    aios_base_url="http://mock",
+                    app=MagicMock(),
+                )
                 processed = True
             except ConnectionError:
                 processed = False
@@ -210,14 +312,53 @@ class TestSlackRedisUnavailable:
         event = _make_slack_event(event_id="Ev_REDIS_ERR")
 
         redis_mock = AsyncMock()
-        redis_mock.get = AsyncMock(side_effect=ConnectionError("Redis down"))
+        redis_mock.is_available = MagicMock(return_value=True)
+        redis_mock.setnx = AsyncMock(side_effect=ConnectionError("Redis down"))
 
-        with patch(
-            "memory.slack_ingest.get_redis_client",
-            AsyncMock(return_value=redis_mock),
+        substrate_mock = MagicMock()
+        substrate_mock.write_packet = AsyncMock(return_value=MagicMock(packet_id="123"))
+        substrate_mock._repository = MagicMock()
+        mock_conn = AsyncMock()
+        mock_conn.fetchrow = AsyncMock(return_value=None)
+        substrate_mock._repository.acquire.return_value.__aenter__.return_value = (
+            mock_conn
+        )
+
+        slack_client = MagicMock()
+        slack_client.post_message = AsyncMock(return_value={"ok": True})
+
+        with (
+            patch(
+                "memory.slack_ingest.get_redis_client",
+                AsyncMock(return_value=redis_mock),
+            ),
+            patch(
+                "memory.slack_ingest.handle_slack_with_l_agent", new_callable=AsyncMock
+            ) as mock_agent_handler,
+            patch(
+                "memory.slack_ingest._retrieve_thread_context", new_callable=AsyncMock
+            ) as mock_thread_ctx,
+            patch(
+                "memory.slack_ingest._retrieve_semantic_hits", new_callable=AsyncMock
+            ) as mock_semantic_hits,
+            patch(
+                "memory.slack_ingest._index_slack_conversation", new_callable=AsyncMock
+            ) as mock_index,
         ):
+            mock_agent_handler.return_value = ("Mock reply", "completed", [])
+            mock_thread_ctx.return_value = {}
+            mock_semantic_hits.return_value = {}
+            mock_index.return_value = None
+
             try:
-                await handle_slack_events(event)
+                await handle_slack_events(
+                    request_body=b"",
+                    payload=event,
+                    substrate_service=substrate_mock,
+                    slack_client=slack_client,
+                    aios_base_url="http://mock",
+                    app=MagicMock(),
+                )
             except ConnectionError:
                 pytest.fail(
                     "Redis ConnectionError leaked to caller. "

@@ -134,7 +134,7 @@ def cmd_list(args: argparse.Namespace) -> int:
             f"   Status: {adr['status']} | Category: {adr['category']} | Tier: {adr['tier'].upper()}"
         )
         logger.info("   author: {adr['author']} | date: {adr['date']}")
-        logger.info("output", value=)
+        logger.info("output", value=adr)
 
     return 0
 
@@ -276,7 +276,7 @@ def cmd_search(args: argparse.Namespace) -> int:
             f"   Status: {adr['status']} | Category: {adr['category']} | Tier: {adr['tier'].upper()}"
         )
         logger.info("   tags: {', '.join(adr.get('tags', []))}")
-        logger.info("output", value=)
+        logger.info("output", value=adr)
 
     return 0
 

@@ -45,7 +45,7 @@ __dora_meta__ = {
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -94,7 +94,7 @@ class GraphMessage:
     message_id: UUID = field(default_factory=uuid4)
     content: str = ""
     role: MessageRole = MessageRole.USER
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Context
     session_id: UUID | None = None
@@ -114,7 +114,7 @@ class GraphSession:
 
     session_id: UUID = field(default_factory=uuid4)
     user_id: str | None = None
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     ended_at: datetime | None = None
 
     # Summary

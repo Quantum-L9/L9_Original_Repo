@@ -42,8 +42,8 @@ from typing import Any
 import structlog
 import yaml
 
-from agents.codegenagent.c_gmp_engine import CGMPEngine
-from agents.codegenagent.meta_loader import MetaLoader
+from core.agents.codegenagent.c_gmp_engine import CGMPEngine
+from core.agents.codegenagent.meta_loader import MetaLoader
 from services.symbolic_computation import SymbolicComputation
 
 logger = structlog.get_logger(__name__)

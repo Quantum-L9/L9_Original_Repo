@@ -1,0 +1,50 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Governance Agent Overrides"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "governance_agent_overrides"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ======================================
+# AI-CTO / ReflectionAgent Override Mesh
+# ======================================
+
+filename: governance/agent_overrides.py
+type: governance_hooks
+language: python
+
+description: |
+  Provides override + feedback infrastructure between CGA, ReflectionAgent, and AI-CTO.
+  Enables patch escalation, feedback injection, and temporary suppressions.
+
+wiring:
+  listeners:
+    - CodeGenAgent.audit_result
+    - ReflectionAgent.kernel_trace
+    - AI-CTO.prompt_override
+  emits:
+    - override_notice.yaml
+    - prompt_patch.yaml
+
+code: |
+  def handle_override(agent_id, override_payload):
+      path = f"overrides/{agent_id}_prompt_patch.yaml"
+      with open(path, "w") as f:
+          f.write(override_payload)
+      return {"override_written": path}
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "intelligence", "kernel", "prompt", "utility"]
+# keywords: ["agent", "code", "description", "filename", "governance", "language"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

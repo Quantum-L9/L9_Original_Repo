@@ -132,7 +132,11 @@ async def git_commit_tool(
 
         # Log tool call via ToolGraph
         try:
-            from core.tools.tool_graph import ToolGraph
+            # Use runtime import to avoid circular dependency
+            import importlib
+
+            module = importlib.import_module("core.tools.tool_graph")
+            ToolGraph = module.ToolGraph
 
             await ToolGraph.log_tool_call(
                 tool_name="git_commit",
@@ -174,7 +178,11 @@ async def git_commit_tool(
 
         # Log failed tool call
         try:
-            from core.tools.tool_graph import ToolGraph
+            # Use runtime import to avoid circular dependency
+            import importlib
+
+            module = importlib.import_module("core.tools.tool_graph")
+            ToolGraph = module.ToolGraph
 
             await ToolGraph.log_tool_call(
                 tool_name="git_commit",

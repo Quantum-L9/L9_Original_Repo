@@ -750,7 +750,11 @@ async def execute_long_plan(
 
         # Log tool calls for the entire DAG execution
         try:
-            from core.tools.tool_graph import ToolGraph
+            # Use runtime import to avoid circular dependency
+            import importlib
+
+            module = importlib.import_module("core.tools.tool_graph")
+            ToolGraph = module.ToolGraph
 
             await ToolGraph.log_tool_call(
                 tool_name="long_plan_execute",

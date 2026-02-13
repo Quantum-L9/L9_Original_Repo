@@ -84,7 +84,7 @@ class SummaryResult:
     compression_ratio: float = 0.0
     importance_score: float = 0.5
     source_ids: list[UUID] = field(default_factory=list)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = field(default_factory=dict)
 
 

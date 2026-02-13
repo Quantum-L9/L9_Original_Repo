@@ -114,9 +114,11 @@ async def _get_db_pool(repository: SubstrateRepository | None = None):
             return repository._pool
 
         # Fall back to singleton access
-        from memory.substrate_repository import get_repository
+        # Use runtime import to avoid circular dependency
+        import importlib
 
-        repo = get_repository()
+        module = importlib.import_module("memory.substrate_repository")
+        repo = module.get_repository()
 
         if repo._pool is None:
             await repo.connect()
@@ -460,7 +462,12 @@ async def sync_all_tool_embeddings(
         Number of tools synced
     """
     try:
-        from core.tools.tool_graph import L9_TOOLS, L_INTERNAL_TOOLS
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        L9_TOOLS = module.L9_TOOLS
+        L_INTERNAL_TOOLS = module.L_INTERNAL_TOOLS
 
         all_tools = L_INTERNAL_TOOLS + L9_TOOLS
         count = 0

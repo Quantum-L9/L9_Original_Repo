@@ -70,7 +70,7 @@ class DeliberationRound:
     critique: dict[str, Any]
     revisions_made: list[str]
     consensus_reached: bool
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass

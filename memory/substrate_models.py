@@ -59,7 +59,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -126,7 +126,7 @@ class StructuredReasoningBlock(BaseModel):
     memory_write_ops: list[dict[str, Any]] = Field(
         default_factory=list, description="Memory operations to perform"
     )
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 # =============================================================================
@@ -273,7 +273,7 @@ class KnowledgeFact(BaseModel):
         default=0.8, ge=0.0, le=1.0, description="Extraction confidence"
     )
     source_packet: UUID | None = Field(None, description="Originating packet ID")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class KnowledgeFactRow(BaseModel):

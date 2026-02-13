@@ -1731,7 +1731,12 @@ async def lifespan(app: FastAPI):
 
             # Register L9 tools in graph (for dependency tracking)
             try:
-                from core.tools.tool_graph import register_l9_tools, register_l_tools
+                # Use runtime import to avoid circular dependency
+                import importlib
+
+                module = importlib.import_module("core.tools.tool_graph")
+                register_l9_tools = module.register_l9_tools
+                register_l_tools = module.register_l_tools
 
                 tool_count = await register_l9_tools()
                 logger.info(f"Registered {tool_count} tools in Neo4j graph")

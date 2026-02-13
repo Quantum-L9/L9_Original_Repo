@@ -125,7 +125,7 @@ class StrategyContext:
 
     # Time context
     time_window_days: int = 7  # For temporal queries
-    reference_time: datetime = field(default_factory=datetime.utcnow)
+    reference_time: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Entity context (extracted from query)
     entities: list[str] = field(default_factory=list)

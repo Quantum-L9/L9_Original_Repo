@@ -96,7 +96,7 @@ class ViolationRecord(BaseModel):
     description: str
     source: str
     context: str = ""
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
     violation_count: int = 1
 
 
@@ -112,7 +112,7 @@ class ViolationTrackerServiceRequest(BaseModel):
     )
     user_id: str = Field(default="cursor_agent", description="User or agent ID")
     context: dict[str, Any] = Field(default_factory=dict)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"extra": "forbid"}
 

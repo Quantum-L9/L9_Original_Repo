@@ -64,7 +64,7 @@ class ValidationReport(BaseModel):
     overall_score: float = Field(..., ge=0, le=100)
     gates: list[ValidationGate] = Field(default_factory=list)
     coverage: float = Field(default=0.0, ge=0, le=100)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class CodeValidator:

@@ -96,7 +96,7 @@ class OpenAILLMService:
             default_model: Default chat model (defaults to gpt-4o)
             default_embedding_model: Default embedding model
         """
-        self._api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self._api_key = api_key or os.getenv("OPENAI_API_KEY", "")
         if not self._api_key:
             raise RuntimeError(
                 "OpenAI API key required. Set OPENAI_API_KEY or pass api_key parameter."

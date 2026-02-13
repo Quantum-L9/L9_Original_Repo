@@ -113,7 +113,7 @@ class Message:
     to_agent: str | None = None
     message_type: str = "generic"
     payload: dict[str, Any] = field(default_factory=dict)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     priority: int = 5
     requires_ack: bool = False
 

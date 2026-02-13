@@ -629,7 +629,6 @@ class DocstringScanner:
                 "api",
                 "bootstrap",
                 "ci",
-                "codegenagent",
                 "config",
                 "core",
                 "dev",
@@ -732,7 +731,7 @@ class DocstringGenerator:
             )
             docstring = response.choices[0].message.content.strip()
             # Remove any triple quotes if the model included them
-            docstring = docstring.strip('"""').strip("'''").strip()
+            docstring = docstring.strip('"').strip("'").strip()
             return docstring
         except Exception as e:
             logger.error(
@@ -1074,7 +1073,7 @@ class DocstringInjector:
             Cleaned docstring with consistent formatting.
         """
         # Remove any triple quotes the LLM might have included
-        docstring = docstring.strip('"""').strip("'''").strip()
+        docstring = docstring.strip('"').strip("'").strip()
 
         # Remove markdown-style trailing spaces
         lines = docstring.splitlines()
@@ -1306,9 +1305,9 @@ def main() -> int:
 
     # Validation step - verify quality of injected docstrings
     if args.apply and injector.results:
-        logger.info("\n" + "=" * 70")
+        logger.info("-" * 70)
         logger.info("validation: checking quality of injected docstrings")
-        logger.info("=" * 70")
+        logger.info("-" * 70)
 
         validation_results = validate_injected_docstrings(injector.results, repo_root)
         logger.info("output", value=validation_results)

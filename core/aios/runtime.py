@@ -127,7 +127,7 @@ class AIOSRuntime:
             default_system_prompt: Default system prompt
         """
         # Get API key (read at init, not import time per spec)
-        self._api_key = api_key or os.getenv("OPENAI_API_KEY")
+        self._api_key = api_key or os.getenv("OPENAI_API_KEY", "")
         if not self._api_key:
             logger.warning("OPENAI_API_KEY not set - AIOS runtime will fail on calls")
 

@@ -219,7 +219,7 @@ class PacketEnvelope(BaseModel):
         description="Flexible JSON payload. Schema does not enforce shape.",
     )
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(UTC),
         description="UTC timestamp (auto-generated if omitted)",
     )
 

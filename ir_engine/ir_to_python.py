@@ -481,7 +481,7 @@ from core.decorators import must_stay_async
 
 import asyncio
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid5, NAMESPACE_DNS
 
@@ -514,7 +514,7 @@ class {{ class_name }}Request(BaseModel):
     payload: Dict[str, Any] = Field(default_factory=dict)
     context: Dict[str, Any] = Field(default_factory=dict)
     source_id: str = Field(default="internal")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"extra": "forbid"}
 

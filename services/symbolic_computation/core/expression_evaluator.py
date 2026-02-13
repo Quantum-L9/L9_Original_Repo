@@ -74,7 +74,8 @@ class ExpressionEvaluator:
             variables={"x": 3},
             backend="numpy"
         )
-        print(result.result)  # 16.0  # noqa: ADR-0019
+        # print(result.result)  # 16.0  # noqa: ADR-0019
+        logger.debug("expression_evaluated", result=result.result)
     """
 
     def __init__(

@@ -79,7 +79,7 @@ except ImportError:
 
 SUPERPROMPT_FILE = Path(__file__).parent / "PERPLEXITY_CODEGEN_AGENT_SUPERPROMPT.md"  # noqa: ADR-0001 - internal path
 OUTPUT_BASE_DIR = Path(__file__).parent / "generated"  # noqa: ADR-0001 - internal path
-TARGET_DIR = Path("/Users/ib-mac/Projects/L9/agents/codegenagent")
+TARGET_DIR = Path("/Users/ib-mac/Projects/L9/core/agents/codegenagent")
 
 EXPECTED_FILES = [
     "ap_generator.py",

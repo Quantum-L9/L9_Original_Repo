@@ -95,7 +95,7 @@ class TaskOutcome:
 
     # Timestamps
     started_at: datetime | None = None
-    completed_at: datetime = field(default_factory=datetime.utcnow)
+    completed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Metadata
     metadata: dict[str, Any] = field(default_factory=dict)

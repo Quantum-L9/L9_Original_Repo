@@ -39,11 +39,15 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
-from runtime.tool_registry import register_tool
+if TYPE_CHECKING:
+    from runtime.tool_registry import register_tool
+else:
+    # Runtime import via core.decorators proxy to avoid circular dependency
+    from core.decorators import register_tool
 
 logger = structlog.get_logger(__name__)
 

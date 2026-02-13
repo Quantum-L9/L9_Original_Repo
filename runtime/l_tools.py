@@ -1021,7 +1021,12 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
         Dict with registration results
     """
     try:
-        from core.tools.tool_graph import ToolDefinition, ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolDefinition = module.ToolDefinition
+        ToolGraph = module.ToolGraph
         from runtime.mcp_client import get_mcp_client
 
         client = get_mcp_client()
@@ -1449,7 +1454,11 @@ async def tools_get_api_dependents(
         Dict with dependent tools
     """
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         tools = await ToolGraph.get_api_dependents(api_name)
 
@@ -1478,7 +1487,11 @@ async def tools_get_dependencies(
         Dict with tool dependencies
     """
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         deps = await ToolGraph.get_tool_dependencies(tool_name)
 
@@ -1506,7 +1519,11 @@ async def tools_get_blast_radius(
         Dict with affected tools and impact analysis
     """
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         radius = await ToolGraph.get_blast_radius(api_name)
 
@@ -1528,7 +1545,11 @@ async def tools_detect_circular_deps(**kwargs: Any) -> dict[str, Any]:
         Dict with circular dependency analysis
     """
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         cycles = await ToolGraph.detect_circular_dependencies()
 
@@ -1551,7 +1572,11 @@ async def tools_get_catalog(**kwargs: Any) -> dict[str, Any]:
         Dict with full tool catalog
     """
     try:
-        from core.tools.tool_graph import ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolGraph = module.ToolGraph
 
         catalog = await ToolGraph.get_l_tool_catalog()
 

@@ -112,10 +112,10 @@ class SecurityAlertService:
         self.dedup_window = timedelta(minutes=15)  # Deduplicate alerts within 15 min
 
         # Load configuration from environment
-        self.slack_webhook_url = os.getenv("L9_SLACK_WEBHOOK_URL")
-        self.email_smtp_host = os.getenv("L9_EMAIL_SMTP_HOST")
-        self.email_from = os.getenv("L9_EMAIL_FROM")
-        self.pagerduty_key = os.getenv("L9_PAGERDUTY_INTEGRATION_KEY")
+        self.slack_webhook_url = os.getenv("L9_SLACK_WEBHOOK_URL", "")
+        self.email_smtp_host = os.getenv("L9_EMAIL_SMTP_HOST", "")
+        self.email_from = os.getenv("L9_EMAIL_FROM", "")
+        self.pagerduty_key = os.getenv("L9_PAGERDUTY_INTEGRATION_KEY", "")
 
         logger.info("SecurityAlertService initialized")
 
@@ -321,7 +321,7 @@ Details:
 
     def _send_webhook(self, alert: SecurityAlert):
         """Send alert to custom webhook."""
-        webhook_url = os.getenv("L9_SECURITY_WEBHOOK_URL")
+        webhook_url = os.getenv("L9_SECURITY_WEBHOOK_URL", "")
 
         if not webhook_url:
             logger.warning("Security webhook URL not configured")

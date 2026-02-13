@@ -92,6 +92,12 @@ from uuid import UUID, uuid4
 import structlog
 
 from core.agents.schemas import AgentConfig, AgentTask, ExecutorState, ToolBinding
+from core.tools.dynamic_discovery import (
+    cache_tools,
+    discover_tools_for_task,
+    get_cached_tools,
+    is_dynamic_discovery_enabled,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -405,13 +411,6 @@ class AgentInstance:
             Number of tools discovered
         """
         try:
-            from core.tools.dynamic_discovery import (
-                cache_tools,
-                discover_tools_for_task,
-                get_cached_tools,
-                is_dynamic_discovery_enabled,
-            )
-
             if not is_dynamic_discovery_enabled():
                 logger.debug("Dynamic tool discovery disabled, using static binding")
                 return 0

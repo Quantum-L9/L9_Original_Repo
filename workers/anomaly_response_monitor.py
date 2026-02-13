@@ -80,7 +80,7 @@ class TelemetryEvent(BaseModel):
     source: str
     event_type: str
     data: dict[str, Any] = Field(default_factory=dict)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 class AnomalyResponseMonitorRequest(BaseModel):
@@ -95,7 +95,7 @@ class AnomalyResponseMonitorRequest(BaseModel):
     )
     context: dict[str, Any] = Field(default_factory=dict)
     source_id: str = Field(default="telemetry_collector")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"extra": "forbid"}
 

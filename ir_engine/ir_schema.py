@@ -136,8 +136,8 @@ class IRNodeBase(BaseModel):
     """Base class for all IR nodes."""
 
     node_id: UUID = Field(default_factory=uuid4)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     def update_timestamp(self) -> None:
@@ -272,8 +272,8 @@ class IRGraph(BaseModel):
     """
 
     graph_id: UUID = Field(default_factory=uuid4)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     status: IRStatus = Field(default=IRStatus.DRAFT)
 
     # Core nodes
@@ -459,7 +459,7 @@ class IRValidationResult(BaseModel):
     errors: list[ValidationError] = Field(default_factory=list)
     warnings: list[ValidationError] = Field(default_factory=list)
     info: list[ValidationError] = Field(default_factory=list)
-    validated_at: datetime = Field(default_factory=datetime.utcnow)
+    validated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     validator_version: str = Field(default="1.0.0")
 
     def add_error(self, code: str, message: str, node_id: UUID | None = None) -> None:

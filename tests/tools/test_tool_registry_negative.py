@@ -16,6 +16,8 @@ Created: 2026-02-12
 
 from __future__ import annotations
 
+from unittest.mock import MagicMock
+
 import pytest
 
 # ============================================================================
@@ -42,15 +44,29 @@ __dora_meta__ = {
 
 @pytest.fixture(autouse=True)
 def _clean_registry():
-    """Reset the AutoRegistry singleton between tests."""
-    from core.auto_registry import AutoRegistry
+    """Reset the global tool_executor_registry between tests."""
+    from runtime.tool_registry import _mcp_tool_metadata, tool_executor_registry
 
-    registry = AutoRegistry(name="test_registry")
-    original = dict(registry._tools) if hasattr(registry, "_tools") else {}
+    # Backup
+    original_tools = dict(tool_executor_registry._components)
+    original_metadata = dict(tool_executor_registry._metadata)
+    original_mcp = dict(_mcp_tool_metadata)
+
+    # Clear
+    tool_executor_registry._components.clear()
+    tool_executor_registry._metadata.clear()
+    _mcp_tool_metadata.clear()
+
     yield
-    if hasattr(registry, "_tools"):
-        registry._tools.clear()
-        registry._tools.update(original)
+
+    # Restore
+    tool_executor_registry._components.clear()
+    tool_executor_registry._metadata.clear()
+    _mcp_tool_metadata.clear()
+
+    tool_executor_registry._components.update(original_tools)
+    tool_executor_registry._metadata.update(original_metadata)
+    _mcp_tool_metadata.update(original_mcp)
 
 
 # ---------------------------------------------------------------------------
@@ -61,85 +77,95 @@ def _clean_registry():
 class TestGetToolsByTagsExclusion:
     """Assert that get_tools_by_tags returns ONLY tools matching the tag set."""
 
+    def _register_dummy(self, name: str, tags: list[str]):
+        from runtime.tool_registry import tool_executor_registry
+
+        func = MagicMock()
+        func.__name__ = name
+
+        tool_executor_registry.register_instance(
+            component_id=name, component=func, tags=tags, priority=0
+        )
+
     def test_excludes_tools_with_non_matching_tags(self):
         """Tools without the requested tag must NOT appear in results."""
-        from core.auto_registry import AutoRegistry
+        from runtime.tool_registry import get_tools_by_tags
 
-        registry = AutoRegistry(name="test_registry")
-        registry.register("memory_write", tags=["memory"])
-        registry.register("governance_check", tags=["governance"])
+        self._register_dummy("memory_write", tags=["memory"])
+        self._register_dummy("governance_check", tags=["governance"])
 
-        result = registry.get_tools_by_tags(["memory"])
-        result_names = {t.name if hasattr(t, "name") else t for t in result}
+        result = get_tools_by_tags(["memory"])
 
-        assert "governance_check" not in result_names, (
+        assert "memory_write" in result
+        assert "governance_check" not in result, (
             "get_tools_by_tags(['memory']) must NOT return 'governance_check'"
         )
 
     def test_result_count_matches_expected(self):
         """Result set size must equal the number of tools that match the tag."""
-        from core.auto_registry import AutoRegistry
+        from runtime.tool_registry import get_tools_by_tags
 
-        registry = AutoRegistry(name="test_registry")
-        registry.register("tool_a", tags=["memory"])
-        registry.register("tool_b", tags=["memory"])
-        registry.register("tool_c", tags=["governance"])
-        registry.register("tool_d", tags=["search"])
+        self._register_dummy("tool_a", tags=["memory"])
+        self._register_dummy("tool_b", tags=["memory"])
+        self._register_dummy("tool_c", tags=["governance"])
+        self._register_dummy("tool_d", tags=["search"])
 
-        result = registry.get_tools_by_tags(["memory"])
+        result = get_tools_by_tags(["memory"])
         assert len(result) == 2, f"Expected 2 tools tagged 'memory', got {len(result)}"
 
     def test_empty_tag_set_returns_empty(self):
         """Requesting tools for an empty tag list must return no tools."""
-        from core.auto_registry import AutoRegistry
+        from runtime.tool_registry import get_tools_by_tags
 
-        registry = AutoRegistry(name="test_registry")
-        registry.register("tool_a", tags=["memory"])
+        self._register_dummy("tool_a", tags=["memory"])
 
-        result = registry.get_tools_by_tags([])
+        result = get_tools_by_tags([])
         assert len(result) == 0, "Empty tag request must yield empty result"
 
     def test_nonexistent_tag_returns_empty(self):
         """A tag not present on any tool must return an empty result set."""
-        from core.auto_registry import AutoRegistry
+        from runtime.tool_registry import get_tools_by_tags
 
-        registry = AutoRegistry(name="test_registry")
-        registry.register("tool_a", tags=["memory"])
+        self._register_dummy("tool_a", tags=["memory"])
 
-        result = registry.get_tools_by_tags(["nonexistent_tag"])
+        result = get_tools_by_tags(["nonexistent_tag"])
         assert len(result) == 0, "Nonexistent tag must yield empty result"
 
     def test_multi_tag_intersection(self):
         """When multiple tags are requested, only tools matching ALL tags appear."""
-        from core.auto_registry import AutoRegistry
+        from runtime.tool_registry import get_tools_by_tags
 
-        registry = AutoRegistry(name="test_registry")
-        registry.register("tool_full", tags=["memory", "governance"])
-        registry.register("tool_partial", tags=["memory"])
-        registry.register("tool_other", tags=["governance"])
+        self._register_dummy("tool_full", tags=["memory", "governance"])
+        self._register_dummy("tool_partial", tags=["memory"])
+        self._register_dummy("tool_other", tags=["governance"])
 
-        result = registry.get_tools_by_tags(["memory", "governance"])
-        result_names = {t.name if hasattr(t, "name") else t for t in result}
+        result = get_tools_by_tags(["memory", "governance"])
 
-        assert "tool_partial" not in result_names, (
+        assert "tool_full" in result
+        assert "tool_partial" not in result, (
             "tool_partial only has 'memory' tag, must be excluded from multi-tag query"
         )
-        assert "tool_other" not in result_names, (
+        assert "tool_other" not in result, (
             "tool_other only has 'governance' tag, must be excluded"
         )
 
     def test_does_not_return_mcp_tools_when_not_requested(self):
         """MCP-registered tools must not leak into non-MCP tag queries."""
-        from core.auto_registry import AutoRegistry
+        from runtime.tool_registry import get_tools_by_tags, register_mcp_tool
 
-        registry = AutoRegistry(name="test_registry")
-        registry.register("native_tool", tags=["memory"])
-        if hasattr(registry, "register_mcp_tool"):
-            registry.register_mcp_tool("mcp_tool", tags=["mcp", "external"])
+        self._register_dummy("native_tool", tags=["memory"])
 
-        result = registry.get_tools_by_tags(["memory"])
-        result_names = {t.name if hasattr(t, "name") else t for t in result}
-
-        assert "mcp_tool" not in result_names, (
-            "MCP tools must not appear in native tag queries"
+        # Register MCP tool
+        register_mcp_tool(
+            name="mcp_tool",
+            server_id="test_server",
+            executor=MagicMock(),
+            tags=["mcp", "external"],
         )
+
+        result = get_tools_by_tags(["memory"])
+
+        assert "native_tool" in result
+        # MCP tool ID is namespaced: test_server__mcp_tool
+        mcp_id = "test_server__mcp_tool"
+        assert mcp_id not in result, "MCP tools must not appear in native tag queries"

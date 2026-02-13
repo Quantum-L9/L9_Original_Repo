@@ -54,9 +54,10 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
+
 import structlog
 
 # ============================================================================
@@ -383,7 +384,7 @@ class GMPReportGenerator:
             content = WORKFLOW_STATE_PATH.read_text(encoding="utf-8")
 
             # Create entry for Recent Changes section
-            date_str = datetime.now().strftime("%Y-%m-%d")
+            date_str = datetime.now(UTC).strftime("%Y-%m-%d")
             files_summary = ", ".join({t.file.split("/")[-1] for t in data.todos[:3]})
 
             new_entry = f"- [{date_str}] **GMP-{data.gmp_id:03d}: {data.task}** — "
@@ -404,7 +405,7 @@ class GMPReportGenerator:
                 )
 
             # Update "**COMPLETED THIS SESSION" section if it exists
-            session_date = datetime.now().strftime("%Y-%m-%d")
+            session_date = datetime.now(UTC).strftime("%Y-%m-%d")
             session_pattern = rf"\*\*COMPLETED THIS SESSION \({session_date}\)\*\*:"
             if re.search(session_pattern, content):
                 # Add to existing session
@@ -719,7 +720,7 @@ def main():
     generator = GMPReportGenerator()
 
     if args.dry_run:
-        logger.info("\n" + "=" * 60")
+        logger.info("\n" + "=" * 60)
         logger.info("dry run - report would be:")
         logger.info("=" * 60 + "\n")
         logger.info("output", value=generator.generate_report(data))

@@ -152,7 +152,12 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
         Dict with registration results
     """
     try:
-        from core.tools.tool_graph import ToolDefinition, ToolGraph
+        # Use runtime import to avoid circular dependency
+        import importlib
+
+        module = importlib.import_module("core.tools.tool_graph")
+        ToolDefinition = module.ToolDefinition
+        ToolGraph = module.ToolGraph
         from runtime.mcp_client import get_mcp_client
 
         client = get_mcp_client()

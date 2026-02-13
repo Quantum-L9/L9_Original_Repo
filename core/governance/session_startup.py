@@ -142,7 +142,7 @@ class StartupResult:
     files_failed: list[str]
     errors: list[str]
     warnings: list[str]
-    started_at: datetime = field(default_factory=datetime.utcnow)
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     duration_ms: int = 0
     # Kernel readiness (new in v2.0)
     kernels_ready: bool = False

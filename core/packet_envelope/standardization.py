@@ -94,7 +94,7 @@ class CloudEvent:
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Optional but recommended
-    time: datetime | None = field(default_factory=datetime.utcnow)
+    time: datetime | None = field(default_factory=lambda: datetime.now(UTC))
     datacontenttype: str = "application/json"
     dataschema: str | None = None
 
@@ -356,7 +356,7 @@ class EventSchema:
     version: str
     schema: dict[str, Any]  # JSON Schema
     encoding: str = "json"
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     deprecated: bool = False
     deprecated_at: datetime | None = None
 
@@ -471,7 +471,7 @@ class CloudEventBatch:
 
     events: list[CloudEvent]
     batch_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_json(self) -> str:
         """Serialize batch to JSON array"""

@@ -1,0 +1,54 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Templates Canonical-Schema-Template-V6.0"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "templates_Canonical-Schema-Template-v6.0"
+# type: "schema"
+# status: "active"
+# ============================================================================
+
+# ============================================================
+# 1. FORMAL TRIGGER DEFINITIONS – Canonical Schema Extension
+# Filename: canonical_schema_triggers_patch.yaml
+# ============================================================
+
+filename: templates/Canonical-Schema-Template-v6.0.yaml
+patch_type: schema_extension
+language: yaml
+
+patch:
+  triggers:
+    meta_loop:
+      type: recursive_pass
+      enabled: true
+      max_passes: 5
+      evolve_prompt: true
+      target: kernel_memory
+
+    patch_all:
+      type: global_patch_trigger
+      enabled: true
+      permissions_required: "L9_CORE"
+      audit_required: true
+
+    perplexity_prompt:
+      type: external_search
+      enabled: true
+      provider: perplexity
+      templates:
+        - SUPER_PROMPT_TEMPLATE
+      output_map: hypergraph.update
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-execution", "intelligence", "kernel", "prompt", "schema"]
+# keywords: ["canonical", "filename", "language", "patch", "patch_type", "schema"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

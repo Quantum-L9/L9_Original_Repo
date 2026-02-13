@@ -85,7 +85,7 @@ class ApprovalRequest:
     operation_summary: str
     risk_level: str
     arguments: dict[str, Any]
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     expires_at: datetime | None = None
     status: ApprovalStatus = ApprovalStatus.PENDING
 

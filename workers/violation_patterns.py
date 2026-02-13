@@ -178,7 +178,7 @@ class ViolationPatternsRequest(BaseModel):
     content: str = Field(..., description="Content to scan for violations")
     source: str = Field(default="unknown", description="Source of the content")
     context: dict[str, Any] = Field(default_factory=dict)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     model_config = {"extra": "forbid"}
 

@@ -123,7 +123,7 @@ class HookContext:
     packet_id: str | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
     trace_id: str | None = None
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Export context as dict for logging."""

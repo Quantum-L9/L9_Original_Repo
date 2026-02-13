@@ -93,7 +93,7 @@ class Reflection:
     source: str = ""
     tags: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     expires_at: datetime | None = None
     access_count: int = 0
     last_accessed: datetime | None = None
@@ -144,8 +144,8 @@ class Pattern:
     triggers: list[str] = field(default_factory=list)
     outcomes: list[str] = field(default_factory=list)
     confidence: float = 0.5
-    first_seen: datetime = field(default_factory=datetime.utcnow)
-    last_seen: datetime = field(default_factory=datetime.utcnow)
+    first_seen: datetime = field(default_factory=lambda: datetime.now(UTC))
+    last_seen: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Serialize pattern to dictionary."""
@@ -171,7 +171,7 @@ class Improvement:
     priority: ReflectionPriority = ReflectionPriority.MEDIUM
     expected_impact: str = ""
     actual_impact: str | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     implemented_at: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -215,7 +215,7 @@ class TaskReflection:
     recommendations: list[str] = field(default_factory=list)
     related_decisions: list[str] = field(default_factory=list)
     execution_time_ms: float | None = None
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:

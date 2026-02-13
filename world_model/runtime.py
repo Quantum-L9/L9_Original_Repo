@@ -299,7 +299,7 @@ class UpdateRecord:
     target_id: str = ""
     old_value: dict[str, Any] | None = None
     new_value: dict[str, Any] | None = None
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     source: str = ""
 
     def to_dict(self) -> dict[str, Any]:

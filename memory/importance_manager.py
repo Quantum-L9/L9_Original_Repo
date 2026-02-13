@@ -101,7 +101,7 @@ class AccessRecord:
     """
 
     fact_id: UUID
-    accessed_at: datetime = field(default_factory=datetime.utcnow)
+    accessed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     access_type: str = "retrieval"  # retrieval, elevation, reference
     context: str = ""  # What triggered the access
 
@@ -120,7 +120,7 @@ class ImportanceUpdate:
     old_importance: float
     new_importance: float
     reason: str
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 # =============================================================================

@@ -120,7 +120,7 @@ class QueuedTask:
     agent_id: str | None
     priority: int
     tags: list[str]
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     status: str = "pending_igor_approval"
     approved_by: str | None = None
     approval_timestamp: datetime | None = None

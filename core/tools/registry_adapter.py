@@ -2003,9 +2003,11 @@ class ExecutorToolRegistry:
             logger.debug("tool_cache.invalidated_on_register", tool_id=tool_id)
 
             # GMP-79: Invalidate all multi-turn tool caches
-            from core.tools.dynamic_discovery import invalidate_all_tool_caches
+            # Use runtime import to avoid circular dependency
+            import importlib
 
-            await invalidate_all_tool_caches()
+            module = importlib.import_module("core.tools.dynamic_discovery")
+            await module.invalidate_all_tool_caches()
 
         except ImportError:
             logger.error("Cannot register tool: tool_registry not available")
@@ -2849,9 +2851,15 @@ async def register_l_tools() -> int:
     Raises:
         Exception: If registration fails
     """
+    # Use runtime import to avoid circular dependency
+    import importlib
+
     from core.tools.base_registry import ToolMetadata, ToolType, get_tool_registry
-    from core.tools.tool_graph import ToolDefinition, ToolGraph
     from runtime.l_tools import TOOL_EXECUTORS
+
+    tool_graph_module = importlib.import_module("core.tools.tool_graph")
+    ToolDefinition = tool_graph_module.ToolDefinition
+    ToolGraph = tool_graph_module.ToolGraph
 
     # Get base registry for executor registration
     base_registry = get_tool_registry()

@@ -36,7 +36,7 @@ log = structlog.get_logger(__name__)
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
-DEFAULT_PATCH_DIR = "codegenagent/patches"
+DEFAULT_PATCH_DIR = "core/agents/codegenagent/patches"
 MIN_SEVERITY_FOR_AUTO_FIX = "P1"  # Only auto-fix P0 and P1 by default
 
 # ---------------------------------------------------------------------------

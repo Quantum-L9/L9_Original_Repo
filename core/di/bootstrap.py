@@ -226,7 +226,7 @@ def bootstrap_di_container(container: Any) -> dict[str, int]:
             Raises:
                 EnvironmentError: If required environment variables are missing or invalid.
             """
-            api_key = os.getenv("OPENAI_API_KEY")
+            api_key = os.getenv("OPENAI_API_KEY", "")
             if api_key:
                 return OpenAILLMService(api_key=api_key)
             logger.warning(

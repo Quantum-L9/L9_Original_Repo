@@ -44,16 +44,6 @@ __dora_meta__ = {
 # ============================================================================
 
 
-def _skip_if_no_governance():
-    """Skip test if governance_gate module is not available."""
-    try:
-        from memory.governance_gate import governance_context
-
-        return governance_context
-    except ImportError:
-        pytest.skip("governance_gate not available")
-
-
 class TestGovernanceContextPropagation:
     """Governance ContextVar must propagate across async task boundaries."""
 
@@ -61,27 +51,35 @@ class TestGovernanceContextPropagation:
     @must_stay_async("callers use await")
     async def test_context_survives_asyncio_create_task(self):
         """ContextVar set before create_task must be readable inside the task."""
-        gov_ctx = _skip_if_no_governance()
-        from memory.governance_gate import MemoryGovernanceContext
+        try:
+            from memory.governance_gate import (
+                MemoryGovernanceContext,
+                _governance_context,
+                reset_governance_context,
+                set_governance_context,
+            )
+        except ImportError:
+            pytest.skip("governance_gate not available")
 
         ctx = MemoryGovernanceContext(
             caller_id="test-agent",
             role="platform_admin",
             project_id="test-project",
             allowed_scopes=["memory", "developer"],
+            scope="memory",
         )
 
-        token = gov_ctx.set(ctx)
+        token = set_governance_context(ctx)
         captured = []
 
         async def inner_task():
-            captured.append(gov_ctx.get(None))
+            captured.append(_governance_context.get())
 
         try:
             task = asyncio.create_task(inner_task())
             await task
         finally:
-            gov_ctx.reset(token)
+            reset_governance_context(token)
 
         assert captured[0] is not None, (
             "Governance context must propagate into asyncio.create_task(). "
@@ -94,8 +92,15 @@ class TestGovernanceContextPropagation:
     async def test_context_lost_in_thread_pool(self):
         """ContextVar does NOT propagate into run_in_executor (thread pool).
         This documents the known limitation."""
-        gov_ctx = _skip_if_no_governance()
-        from memory.governance_gate import MemoryGovernanceContext
+        try:
+            from memory.governance_gate import (
+                MemoryGovernanceContext,
+                _governance_context,
+                reset_governance_context,
+                set_governance_context,
+            )
+        except ImportError:
+            pytest.skip("governance_gate not available")
 
         ctx = MemoryGovernanceContext(
             caller_id="test-agent",
@@ -105,17 +110,17 @@ class TestGovernanceContextPropagation:
             scope="memory",
         )
 
-        token = gov_ctx.set(ctx)
+        token = set_governance_context(ctx)
         captured = []
 
         def sync_worker():
-            captured.append(gov_ctx.get(None))
+            captured.append(_governance_context.get())
 
         try:
             loop = asyncio.get_running_loop()
             await loop.run_in_executor(None, sync_worker)
         finally:
-            gov_ctx.reset(token)
+            reset_governance_context(token)
 
         assert captured[0] is None, (
             "ContextVar unexpectedly propagated into thread pool. "
@@ -126,8 +131,15 @@ class TestGovernanceContextPropagation:
     @must_stay_async("callers use await")
     async def test_context_propagates_via_copy_context(self):
         """Using copy_context().run() DOES propagate ContextVar into threads."""
-        gov_ctx = _skip_if_no_governance()
-        from memory.governance_gate import MemoryGovernanceContext
+        try:
+            from memory.governance_gate import (
+                MemoryGovernanceContext,
+                _governance_context,
+                reset_governance_context,
+                set_governance_context,
+            )
+        except ImportError:
+            pytest.skip("governance_gate not available")
 
         ctx = MemoryGovernanceContext(
             caller_id="test-agent",
@@ -137,17 +149,19 @@ class TestGovernanceContextPropagation:
             scope="memory",
         )
 
-        token = gov_ctx.set(ctx)
+        token = set_governance_context(ctx)
         captured = []
 
         def sync_worker():
-            captured.append(gov_ctx.get(None))
+            captured.append(_governance_context.get())
 
         try:
             ctx_copy = copy_context()
-            ctx_copy.run(sync_worker)
+            await asyncio.get_running_loop().run_in_executor(
+                None, lambda: ctx_copy.run(sync_worker)
+            )
         finally:
-            gov_ctx.reset(token)
+            reset_governance_context(token)
 
         assert captured[0] is not None, (
             "copy_context().run() must propagate governance ContextVar"
@@ -157,16 +171,26 @@ class TestGovernanceContextPropagation:
     @must_stay_async("callers use await")
     async def test_memory_write_without_governance_raises(self):
         """Memory write with no governance context must raise RuntimeError."""
-        gov_ctx = _skip_if_no_governance()
-        from memory.governance_gate import build_governance_context
+        try:
+            from memory.governance_gate import (
+                build_governance_context,
+                reset_governance_context,
+                set_governance_context,
+            )
+        except ImportError:
+            pytest.skip("governance_gate not available")
 
-        token = gov_ctx.set(None)
+        token = set_governance_context(None)
 
         try:
-            with pytest.raises((RuntimeError, ValueError)):
-                build_governance_context()
+            # build_governance_context creates a context but doesn't check if one is set.
+            # We need to call something that REQUIRES it, like require_governance_context
+            from memory.governance_gate import require_governance_context
+
+            with pytest.raises(RuntimeError):
+                require_governance_context("test_op")
         finally:
-            gov_ctx.reset(token)
+            reset_governance_context(token)
 
     @pytest.mark.asyncio
     @must_stay_async("callers use await")
@@ -183,4 +207,5 @@ class TestGovernanceContextPropagation:
                 role="platform_admin",
                 project_id="test-project",
                 allowed_scopes=["memory"],
+                scope="memory",
             )

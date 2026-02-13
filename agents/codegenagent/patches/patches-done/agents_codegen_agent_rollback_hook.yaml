@@ -1,0 +1,45 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent Rollback Hook"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "agents_codegen_agent_rollback_hook"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ===============================
+# CodeGenAgent Rollback Support
+# ===============================
+
+filename: agents/codegen_agent/rollback_hook.py
+type: fail_safety
+language: python
+
+description: |
+  Integrates with L9 rollback system to register file writes,
+  enabling reversion if generation fails or violates governance.
+
+wiring:
+  dependencies: rollback_system.register_snapshot
+  triggers: on file_emitter success
+
+code: |
+  from agents.rollback_system import register_snapshot
+
+  def setup_reversion(files: dict):
+      snapshot = {name: code for name, code in files.items()}
+      register_snapshot(agent="CodeGenAgent", files=snapshot)
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "intelligence", "utility"]
+# keywords: ["agent", "agents", "code", "codegen", "description", "filename"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

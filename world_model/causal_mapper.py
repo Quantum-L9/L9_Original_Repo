@@ -51,7 +51,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -204,7 +204,7 @@ class Decision:
     context: dict[str, Any] = field(default_factory=dict)
     code_changes: list[str] = field(default_factory=list)  # File paths modified
     related_intents: list[str] = field(default_factory=list)  # Intent IDs
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -240,7 +240,7 @@ class Outcome:
     metrics: dict[str, Any] = field(default_factory=dict)  # Measured values
     related_decisions: list[str] = field(default_factory=list)  # Decision IDs
     execution_id: str | None = None  # Execution plan ID
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -273,7 +273,7 @@ class CausalLink:
     link_type: str = "inferred"  # direct, inferred, probable
     confidence: float = 0.5
     evidence: list[str] = field(default_factory=list)  # Supporting evidence
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert causal link to dictionary representation.

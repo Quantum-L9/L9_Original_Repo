@@ -52,9 +52,9 @@ class ComplianceReport:
     """Compliance report for a time period."""
 
     report_id: UUID = field(default_factory=uuid4)
-    generated_at: datetime = field(default_factory=datetime.utcnow)
-    from_date: datetime = field(default_factory=datetime.utcnow)
-    to_date: datetime = field(default_factory=datetime.utcnow)
+    generated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    from_date: datetime = field(default_factory=lambda: datetime.now(UTC))
+    to_date: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     # Summary counts
     total_commands: int = 0

@@ -1,0 +1,71 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Orchestration Orchestrator Memory Diff Sync"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-07T13:35:57Z"
+# layer: "intelligence"
+# domain: "agent_execution"
+# file_name: "orchestration_orchestrator_memory_diff_sync"
+# type: "controller"
+# status: "active"
+# ============================================================================
+
+# ===================================================
+# Orchestration Engine Memory Diff Sync (Final Wire)
+# ===================================================
+
+filename: orchestration/orchestrator_memory_diff_sync.py
+type: orchestrator_patch_engine
+language: python
+
+description: |
+  Watches orchestrator graphs and compares them against memory-state meta-contracts.
+  Rebuilds or patches DAGs on drift, and logs changes to sync_report.json + rollback.
+
+wiring:
+  reads:
+    - orchestrator_registry.yaml
+    - agents/**/meta.yaml
+    - orchestration/dags/*
+  emits:
+    - orchestrator_diff.yaml
+    - dag_patch.py
+    - sync_report.json
+  triggers:
+    - on_boot
+    - on_meta_contract_updated
+    - periodic_check (15m)
+
+code: |
+  import yaml
+  import os
+  from utils.graph_diff import compare_dags_to_meta, rebuild_dag
+
+  def sync_orchestrator_graphs():
+      with open("orchestrator_registry.yaml") as f:
+          registry = yaml.safe_load(f)
+
+      reports = []
+      for entry in registry["orchestrators"]:
+          meta_path = entry["meta"]
+          dag_path = entry["dag"]
+
+          report = compare_dags_to_meta(meta_path, dag_path)
+          if report["status"] == "drift_detected":
+              rebuild_dag(meta_path, dag_path)
+              reports.append(report)
+
+      with open("sync_report.json", "w") as f:
+          json.dump(reports, f, indent=2)
+      return reports
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "agent-execution", "controller", "intelligence"]
+# keywords: ["code", "description", "diff", "filename", "language", "memory"]
+# last_modified: "2026-01-07T13:35:57Z"
+# ============================================================================

@@ -94,7 +94,7 @@ class GMPExecutionResult(BaseModel):
     )
     audit_result: str = Field(..., description="PASS, CONDITIONAL, or FAIL")
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="Execution timestamp"
+        default_factory=lambda: datetime.now(UTC), description="Execution timestamp"
     )
     l9_kernel_versions: dict[str, str] = Field(
         default_factory=dict, description="Kernel versions at execution"
@@ -122,7 +122,7 @@ class LearnedHeuristic(BaseModel):
     impact_estimate: str = Field(
         ..., description="Expected impact (faster, fewer_errors, safer, etc.)"
     )
-    generated_date: datetime = Field(default_factory=datetime.utcnow)
+    generated_date: datetime = Field(default_factory=lambda: datetime.now(UTC))
     active: bool = Field(True, description="Whether this heuristic is currently used")
 
     def __hash__(self):
@@ -151,7 +151,7 @@ class AutonomyGraduationMetrics(BaseModel):
     l3_to_l4_ready: bool = Field(False, description="Can graduate to L4?")
     l4_to_l5_ready: bool = Field(False, description="Can graduate to L5?")
 
-    last_updated: datetime = Field(default_factory=datetime.utcnow)
+    last_updated: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 # ============================================================================
@@ -180,7 +180,7 @@ class GMPExecutionHistoryDB(Base):
     l9_kernel_versions = Column(JSONB, nullable=False, default=dict)
     feature_flags_enabled = Column(ARRAY(String), nullable=False, default=list)
     created_at = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.utcnow, index=True
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC), index=True
     )
 
     __table_args__ = (
@@ -203,7 +203,7 @@ class LearnedHeuristicDB(Base):
     supporting_gmp_ids = Column(ARRAY(String), nullable=False, default=list)
     impact_estimate = Column(String(50), nullable=False)
     generated_date = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.utcnow, index=True
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC), index=True
     )
     active = Column(Boolean, nullable=False, default=True, index=True)
 
@@ -222,7 +222,7 @@ class AutonomyMetricsDB(Base):
     l3_to_l4_ready = Column(Boolean, nullable=False, default=False)
     l4_to_l5_ready = Column(Boolean, nullable=False, default=False)
     last_updated = Column(
-        DateTime(timezone=True), nullable=False, default=datetime.utcnow
+        DateTime(timezone=True), nullable=False, default=lambda: datetime.now(UTC)
     )
 
 

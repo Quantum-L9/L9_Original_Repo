@@ -37,7 +37,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -85,17 +85,17 @@ def must_stay_async(reason: str) -> Callable[[F], F]:
     return decorator
 
 
-def must_stay_async_route(func: F) -> F:
+def must_stay_async_route[F](func: F) -> F:
     """Shorthand for FastAPI/ASGI route handlers."""
     return must_stay_async("FastAPI/ASGI route handler")(func)
 
 
-def must_stay_async_protocol(func: F) -> F:
+def must_stay_async_protocol[F](func: F) -> F:
     """Shorthand for async protocol methods (__aenter__, __aexit__, __call__)."""
     return must_stay_async("async protocol method")(func)
 
 
-def must_stay_async_interface(func: F) -> F:
+def must_stay_async_interface[F](func: F) -> F:
     """Shorthand for interface methods where callers use await."""
     return must_stay_async("callers use await")(func)
 
@@ -103,8 +103,11 @@ def must_stay_async_interface(func: F) -> F:
 def __getattr__(name: str):
     """Lazy re-export of register_tool to avoid circular import with runtime."""
     if name == "register_tool":
-        from runtime.tool_registry import register_tool
-
+        if TYPE_CHECKING:
+            from runtime.tool_registry import register_tool
+        else:
+            # Runtime import to break cycle
+            from runtime.tool_registry import register_tool
         return register_tool
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 

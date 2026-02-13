@@ -19,8 +19,9 @@ import structlog
 # ---------------------------------------------------------------------------
 __dora_meta__ = {
     "component_name": "validation_self_corrector",
-    "version": "1.0.0",
+    "module_version": "1.0.0",
     "status": "active",
+    "layer": "Core/Agents",
     "owner": "l9-platform",
     "description": "Autonomous self-correction for code generation validation failures",
 }

@@ -15,6 +15,7 @@ Usage:
 __dora_meta__ = {
     "component_name": "DIBootstrapIntegration",
     "module_version": "1.0.0",
+    "status": "active",
     "layer": "Core/DI",
     "adr": "ADR-0052",
     "criticality": "high",

@@ -64,7 +64,7 @@ __dora_meta__ = {
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -108,7 +108,7 @@ class IngestResult:
     patterns_normalized: int = 0
     heuristics_normalized: int = 0
     errors: list[str] = field(default_factory=list)
-    timestamp: datetime = field(default_factory=datetime.utcnow)
+    timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Returns a dictionary representation of the IngestResult, including ingestion ID, source type, success status, and entity counts for domain-specific knowledge ingestion."""

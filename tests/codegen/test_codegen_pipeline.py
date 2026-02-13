@@ -22,11 +22,11 @@ _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
-from agents.codegenagent.file_emitter import FileEmitter
+from core.agents.codegenagent.file_emitter import FileEmitter
 from ir_engine.compile_meta_to_ir import MetaToIRCompiler, ModuleIR
 from ir_engine.ir_to_python import IRToPythonCompiler
 from ir_engine.meta_ir import (

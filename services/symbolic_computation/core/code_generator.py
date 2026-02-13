@@ -71,7 +71,8 @@ class CodeGenerator:
             language="C",
             function_name="quadratic"
         )
-        print(result.source_code)  # noqa: ADR-0019
+        # print(result.source_code)  # noqa: ADR-0019
+        logger.debug("code_generated", source_code=result.source_code)
     """
 
     def __init__(

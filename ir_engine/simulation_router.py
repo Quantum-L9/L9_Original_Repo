@@ -64,7 +64,7 @@ class SimulationRequest:
     parameters: dict[str, Any] = field(default_factory=dict)
     priority: int = 5  # 1-10, higher = more priority
     timeout_ms: int = 30000
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
 
 @dataclass
@@ -78,7 +78,7 @@ class SimulationResult:
     metrics: dict[str, Any] = field(default_factory=dict)
     failure_modes: list[str] = field(default_factory=list)
     execution_time_ms: int = 0
-    completed_at: datetime = field(default_factory=datetime.utcnow)
+    completed_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
         """Returns a dictionary representation of the simulation result, including identifiers, success status, score, metrics, and failure modes for further processing or logging."""

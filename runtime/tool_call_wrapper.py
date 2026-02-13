@@ -48,6 +48,11 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+def _record_tool_execution_metric(*args: Any, **kwargs: Any) -> None:
+    """Placeholder for tool execution metric recording."""
+    pass
+
+
 @must_stay_async("callers use await")
 async def tool_call_wrapper(
     tool_name: str,
@@ -107,7 +112,11 @@ async def tool_call_wrapper(
         duration_ms = int((time.time() - start_time) * 1000)
 
         try:
-            from core.tools.tool_graph import ToolGraph
+            # Use runtime import to avoid circular dependency
+            import importlib
+
+            module = importlib.import_module("core.tools.tool_graph")
+            ToolGraph = module.ToolGraph
 
             await ToolGraph.log_tool_call(
                 tool_name=tool_name,
