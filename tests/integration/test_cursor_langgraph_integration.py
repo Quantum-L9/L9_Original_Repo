@@ -5,7 +5,7 @@ L9 Integration Tests - Cursor LangGraph Integration (GMP-48)
 Tests for Cursor + LangGraph + L9 Memory integration.
 
 Verifies:
-- Decision write to packetstore v2.0.0
+- Decision write to packet_store v2.0.0
 - Semantic search hits pgvector
 - Graph search uses Redis cache
 - Igor high-impact decision escalation
@@ -44,11 +44,11 @@ def create_mock_substrate_service():
     return mock_service
 
 
-class TestDecisionWrittenToPacketstoreV2:
-    """Test that decisions are written to packetstore as PacketEnvelope v2.0.0."""
+class TestDecisionWrittenToPacketStoreV2:
+    """Test that decisions are written to packet_store as PacketEnvelope v2.0.0."""
 
     @pytest.mark.asyncio
-    async def test_decision_written_to_packetstore_v2(self):
+    async def test_decision_written_to_packet_store_v2(self):
         """Run simple Cursor task and assert cursor_decision PacketEnvelope v2.0.0 is written."""
         # Mock dependencies
         from core.schemas import PacketWriteResult

@@ -10,7 +10,7 @@ Features:
 - Parses You said: / ChatGPT said: / Human: / Assistant: formats
 - Creates conversation records with message sequence
 - Chunks messages for embedding (configurable chunk size)
-- Stores in packetstore with proper lineage
+- Stores in packet_store with proper lineage
 
 Usage:
     python scripts/memory/ingest_chat_transcript.py <transcript_path>

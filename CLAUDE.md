@@ -29,6 +29,51 @@ This file provides guidance to Claude Code (claude.ai/code) and all AI agents wh
 
 ---
 
+## 🧠 Memory Stack Hierarchy (5-Layer)
+
+All agents share a unified memory stack. Access via `agents/cursor/cursor_memory_client.py`.
+
+| Layer | Technology | Purpose | Retention |
+|-------|------------|---------|-----------|
+| **L1: MCP** | MCP Server | Primary interface for agents | Persistent |
+| **L2: Cache** | Redis | Session context, real-time state | 4-24 hours |
+| **L3: Graph** | Neo4j | Relationships, repo structure, entities | Persistent |
+| **L4: Store** | PostgreSQL | Canonical PacketStore + pgvector | Persistent |
+| **L5: Local** | Markdown/YAML | Local configs, workflow_state.md | Persistent |
+
+---
+
+## 🔒 Unified Memory Pipeline
+
+**Flow**: `Cursor -> Nginx (Port 80) -> l9-api (Port 8000) -> Substrate (Postgres/Neo4j)`
+
+- **External Access**: Port 80 (Nginx) routes `/memory/*` to MCP server.
+- **Internal Access**: Services talk directly via Docker network.
+- **Validation**: `intake_node` in `substrate_dag.py` is the only validation point.
+
+---
+
+## 🛡️ Governance & Risk Tiers
+
+| Tier | Risk | Approval Required | Examples |
+|------|------|-------------------|----------|
+| **T0** | Critical | **IGOR_APPROVAL** | Kernel changes, memory deletion |
+| **T1** | High | **L_CTO_APPROVAL** | Tool registry updates, schema changes |
+| **T2** | Medium | Auto-Gate | Feature work, refactors, documentation |
+
+---
+
+## 📊 Module Tier Mapping
+
+| Tier | Scope | GMP Module |
+|------|-------|------------|
+| **KERNEL_TIER** | Kernels, Executor, Memory Core | GMP-System + GMP-Audit |
+| **RUNTIME_TIER** | Task Queue, Tool Registry, Agents | GMP-Action + Integration-Tests |
+| **INFRA_TIER** | Docker, K8s, Deploy Scripts | DEPLOYMENT_MANIFEST + Smoke Tests |
+| **UX_TIER** | Frontend, Docs, Glue Scripts | Unit-Test-Quality + Generator |
+
+---
+
 ## Build & Development Commands
 
 ```bash
@@ -112,9 +157,24 @@ All meaningful operations emit `PacketEnvelope` for audit trail. Schema: `core/s
 - Canonical ingestion: `memory/ingestion.py` → `ingest_packet()`
 - DAG pipeline: `memory/substrate_dag.py`
 
-### DORA Metadata Block (ADR-0014)
+### DORA Compliance (ADR-0014)
 
-Every module has a DORA header with `__dora_meta__` dict containing component_name, version, status.
+Every module MUST have a DORA header and footer.
+
+```python
+# Header
+__dora_meta__ = {
+    "component_name": "My Component",
+    "module_version": "1.0.0",
+    "status": "active",
+}
+
+# Footer
+__dora_footer__ = {
+    "governance_level": "medium",
+    "compliance_required": True,
+}
+```
 
 ### 10-Kernel Stack
 
@@ -128,10 +188,6 @@ Interfaces defined as `typing.Protocol` in `core/protocols/`. Concrete implement
 ### Singleton Auto-Registry (ADR-0004)
 
 New singletons use `@register_singleton` decorator from `core/singleton_auto_registry.py`. Do NOT add try/except blocks to `_register_core_singletons()`.
-
-### Governance Engine
-
-Policy conflict resolution via `core/governance/engine.py`. Approval gates for high-risk tools. Authority hierarchy: Igor > L (CTO) > Research agents > Mac agent.
 
 ---
 
@@ -158,90 +214,19 @@ Policy conflict resolution via `core/governance/engine.py`. Approval gates for h
 | `memory/`       | Substrate service, DAG pipeline, ingestion, retrieval, consolidation, validators | `ingestion.py`, `substrate_dag.py` |
 | `memory_cache/` | Working memory service, cache invalidation, versioned snapshots                  | `working_memory_service.py`        |
 | `mcp_memory/`   | MCP Memory server — routes, substrate integration, safety                        | `src/routes/`                      |
-| `migrations/`   | SQL migrations (0001–0030 + extras), applied sequentially                        | `0030_*.sql` (latest numbered)     |
-
-### Orchestration & Agents
-
-| Directory              | Description                                               | Key Files                        |
-| ---------------------- | --------------------------------------------------------- | -------------------------------- |
-| `orchestrators/`       | 9 orchestration patterns + registry                       | See below                        |
-| `orchestration/`       | TaskRouter, PlanExecutor, UnifiedController               | `task_router.py`                 |
-| `agents/`              | L-CTO, architect, coder, research, cursor IDE integration | `cursor/cursor_memory_client.py` |
-| `collaborative_cells/` | Multi-agent collaborative cell orchestration              |                                  |
-
-### Orchestrator Patterns (in `orchestrators/`)
-
-| Pattern            | Orchestrator Class                      | Purpose                          |
-| ------------------ | --------------------------------------- | -------------------------------- |
-| `action_tool/`     | ActionToolOrchestrator                  | Tool execution with validation   |
-| `agent_execution/` | AgentExecutionOrchestrator              | Agent task lifecycle             |
-| `evolution/`       | EvolutionOrchestrator                   | Self-improvement cycles          |
-| `memory/`          | MemoryOrchestrator                      | Memory operations + housekeeping |
-| `meta/`            | MetaOrchestrator                        | Blueprint-driven orchestration   |
-| `pattern/`         | PatternOrchestrator, MasterOrchestrator | Pattern matching + cell agents   |
-| `reasoning/`       | ReasoningOrchestrator                   | Multi-step reasoning chains      |
-| `research_swarm/`  | ResearchSwarmOrchestrator               | Parallel research convergence    |
-| `world_model/`     | WorldModelOrchestrator                  | World model sync + scheduling    |
-
-### Infrastructure & Services
-
-| Directory    | Description                                          |
-| ------------ | ---------------------------------------------------- |
-| `deploy/`    | C1 Kubernetes deployment, Helm charts, nginx configs |
-| `services/`  | Research agents, symbolic computation, tool feedback |
-| `workers/`   | Background workers                                   |
-| `workflows/` | DAG workflows, GMP executor, harvest deploy          |
-| `telemetry/` | Metrics and observability exporters                  |
-| `grafana/`   | Grafana dashboards and datasources                   |
-
-### Domain-Specific
-
-| Directory               | Description                            |
-| ----------------------- | -------------------------------------- |
-| `domain_tensor_bridge/` | Domain tensor bridge, reasoning engine |
-| `world_model/`          | World model engine, nodes, repository  |
-| `ir_engine/`            | Intermediate representation engine     |
-| `motifs/`               | Tensor motif linker, feedback graph    |
-| `simulation/`           | Simulation engine                      |
-| `email_agent/`          | Email agent implementation             |
-| `mac_agent/`            | Mac agent and WebSocket client         |
-
-### Development & Tooling
-
-| Directory  | Description                                          |
-| ---------- | ---------------------------------------------------- |
-| `tests/`   | Unit, integration, smoke tests (~323 test files)     |
-| `scripts/` | Audit, memory, research, refactor scripts            |
-| `tools/`   | ADR tooling, codegen, architecture report generators |
-| `ci/`      | CI checks (ADR, DORA, imports, tool wiring)          |
-| `reports/` | Architecture reports, **34 repo index files**        |
-| `private/` | Protected kernel configs, security specs             |
-| `readme/`  | README pipeline, ADRs                                |
+| `migrations/`   | SQL migrations (0001–0031 + extras), applied sequentially                        | `0031_*.sql` (latest numbered)     |
 
 ---
 
-## Repo Index Files (Use Before Searching!)
+## Slash Command Reference
 
-`reports/repo-index/` contains **34 pre-built indexes**. Query these before grepping the codebase:
-
-| Index                      | Use For                                               |
-| -------------------------- | ----------------------------------------------------- |
-| `class_definitions.txt`    | "Where is class X?" — 1,900+ classes with paths       |
-| `function_signatures.txt`  | "What args does Y take?" — 4,794 functions            |
-| `method_catalog.txt`       | "What methods does X have?" — 5,288 methods           |
-| `inheritance_graph.txt`    | "What extends BaseAgent?" — 802 relationships         |
-| `route_handlers.txt`       | "What handles POST /api/memory?" — 180 routes         |
-| `pydantic_models.txt`      | "What's the schema for X?" — 470 BaseModel subclasses |
-| `async_function_map.txt`   | "Is this function async?" — 2,599 async functions     |
-| `dynamic_tool_catalog.txt` | Tool discovery from core/tools/                       |
-| `agent_catalog.txt`        | All agents                                            |
-| `kernel_catalog.txt`       | All kernels                                           |
-| `orchestrator_catalog.txt` | All orchestrators                                     |
-| `imports.txt`              | Import graph                                          |
-| `wiring_map.txt`           | Module connections                                    |
-| `tree.txt`                 | Full directory tree                                   |
-
-Regenerate with: `python3 tools/export_repo_indexes.py`
+| Command | Purpose |
+|---------|---------|
+| `/analyze_evaluate` | Combined deep analysis of module structure and compliance |
+| `/gmp` | Governance Managed Process - phased execution |
+| `/start-session` | Initialize session context and health check |
+| `/end-session` | Close session, extract learnings, update workflow_state.md |
+| `/index` | Regenerate repo index files |
 
 ---
 
@@ -275,22 +260,6 @@ Regenerate with: `python3 tools/export_repo_indexes.py`
 
 ---
 
-## Database & Migrations
-
-PostgreSQL 16 with pgvector extension. Neo4j for knowledge graph.
-
-- **Migrations directory**: `migrations/`
-- **Total migrations**: 31 SQL + 1 Cypher
-- **Latest numbered**: `0030_semantic_memory_scope_project_index.sql`
-- **Naming convention**: `NNNN_description.sql` (sequential 4-digit prefix)
-- **Runner**: `memory.migration_runner.run_migrations()` (invoked from `api/server.py` lifespan)
-- **Apply locally**: `make migrate-local`
-- **Apply to VPS**: `make migrate`
-
-When creating new migrations, use the next number: **0031**.
-
----
-
 ## Environment Variables
 
 ### Required
@@ -302,69 +271,24 @@ When creating new migrations, use the next number: **0031**.
 | `NEO4J_PASSWORD`    | Neo4j password               |
 | `GRAFANA_PASSWORD`  | Grafana password             |
 
-### Optional
-
-| Variable           | Default      | Purpose                                           |
-| ------------------ | ------------ | ------------------------------------------------- |
-| `OPENAI_API_KEY`   | —            | For embeddings (or use `EMBEDDING_PROVIDER=stub`) |
-| `L9_API_KEY`       | —            | API authentication                                |
-| `L9_OBSERVABILITY` | `true`       | Enable observability                              |
-| `L9_ENV`           | `production` | Environment (`production` / `development`)        |
-
 ### Feature Flags
 
 | Flag                            | Default | Purpose                                  |
 | ------------------------------- | ------- | ---------------------------------------- |
 | `L9_USE_KERNELS`                | `true`  | Load kernels from YAML files             |
-| `L9_USE_KERNEL_CONFIG`          | `true`  | Use kernel config discovery              |
-| `L9_DI_ENABLED`                 | `true`  | Enable dependency injection              |
-| `L9_DI_SUBSTRATES`              | `false` | Enable DI for substrate services         |
-| `L9_OBSERVABILITY`              | `true`  | Enable observability stack               |
-| `L9_MINIMAL_MODE`               | `false` | Minimal startup (skip optional services) |
 | `L9_DYNAMIC_TOOL_DISCOVERY`     | `true`  | Enable dynamic tool discovery            |
-| `L9_MEMORY_WARMING_ENABLED`     | `true`  | Enable memory warming on startup         |
-| `L9_TOOL_PATTERN_EXTRACTION`    | `true`  | Enable tool pattern extraction           |
-| `L9_STAGE3_MODULES`             | `true`  | Enable Stage 3 module loading            |
 | `L9_STAGE4_CONSOLIDATION`       | `true`  | Enable Stage 4 memory consolidation      |
 | `L9_GRAPH_AGENT_STATE`          | `true`  | Enable graph-based agent state           |
-| `L9_GRAPH_WM_SYNC`              | `true`  | Enable world model graph sync            |
-| `L9_NEW_AGENT_INIT`             | `true`  | Use new agent initialization path        |
-| `L9_ENABLE_CALIBRATION`         | `false` | Enable calibration system                |
-| `L9_ENABLE_BAYESIAN_REASONING`  | `false` | Enable Bayesian reasoning kernel         |
-| `L9_GMP_LEARNING_ENABLED`       | `false` | Enable GMP pattern learning              |
-| `L9_SKIP_STARTUP_CHECKS`        | `false` | Skip startup health checks               |
-| `L9_ENABLE_LEGACY_CHAT`         | `false` | Legacy chat endpoint (deprecated)        |
-| `L9_ENABLE_LEGACY_SLACK_ROUTER` | `false` | Legacy Slack router (deprecated)         |
 | `L9_ENABLE_WS_ORCHESTRATOR`     | `true`  | WebSocket orchestrator                   |
-| `L9_ALLOW_STUB_EMBEDDINGS`      | —       | Allow stub embeddings (set to `"1"`)     |
 
 ---
 
-## Key Files for Understanding Codebase
+## Testing Strategy
 
-| File                                     | Purpose                                           |
-| ---------------------------------------- | ------------------------------------------------- |
-| `api/server.py`                          | FastAPI entry point, lifespan, route registration |
-| `core/agents/executor.py`                | Core agent execution loop                         |
-| `core/schemas/packet_envelope_v2.py`     | PacketEnvelope schema                             |
-| `core/governance/engine.py`              | Governance policy evaluation                      |
-| `core/tools/tool_graph.py`               | Tool definitions and dispatch                     |
-| `runtime/kernel_loader.py`               | Kernel YAML loading and validation                |
-| `memory/ingestion.py`                    | `ingest_packet()` — canonical memory ingestion    |
-| `memory/substrate_dag.py`                | Memory DAG pipeline                               |
-| `memory/validators/packet_validator.py`  | Packet validation                                 |
-| `config/settings.py`                     | Application settings and feature flags            |
-| `config/di_config.py`                    | Dependency injection factory functions            |
-| `orchestrators/orchestrator_registry.py` | Orchestrator auto-discovery                       |
-
----
-
-## Testing
-
-- **Test directory**: `tests/` (~323 test files)
-- **Framework**: pytest with `asyncio_mode=auto`
-- **Markers**: `@pytest.mark.slow`, `@pytest.mark.integration`
-- **Run all**: `make test`
-- **Run fast**: `make test-fast` (excludes slow markers)
-- **Run single**: `python3 -m pytest tests/path/to/test.py::test_name -v`
-- **Smoke tests**: `make test-smoke` or `make smoke` (Docker)
+| Test Type | Command | Purpose |
+|-----------|---------|---------|
+| **Unit** | `make test-fast` | Fast validation of individual functions |
+| **Integration** | `make test` | Cross-module flows and database links |
+| **Smoke** | `make smoke` | Docker-level health check |
+| **MRI** | `./scripts/deployment/deep_mri.sh` | Operational health on VPS |
+| **GODMODE** | `./scripts/e2e_test_GODMODE.sh` | Full E2E validation on VPS |

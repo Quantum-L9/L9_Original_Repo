@@ -60,7 +60,6 @@ from memory.audit_utils import prepare_packet_for_ingest
 if TYPE_CHECKING:
     from memory.agent_persistence import AgentPersistenceService
 from memory.consolidation import ConsolidationPipeline
-from memory.substrate_dag import SubstrateDAG
 from memory.governance_gate import (
     enforce_packet_governance,
     ensure_governance_context,
@@ -72,6 +71,7 @@ from memory.reasoning_replay import ReasoningReplayPipeline
 from memory.retention_engine import RetentionEngine
 from memory.saga import SagaExecutor, SagaResult
 from memory.saga_patterns import SagaPatterns
+from memory.substrate_dag import SubstrateDAG
 from memory.substrate_repository import SubstrateRepository
 from memory.substrate_semantic import (
     EmbeddingProvider,

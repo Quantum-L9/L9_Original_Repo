@@ -465,7 +465,13 @@ class ADRChecker(ast.NodeVisitor):
         # ADR-0001: Path safety - detect unsafe path operations
         if isinstance(node.func, ast.Attribute):
             # Check for Path operations that could be unsafe
-            unsafe_path_methods = {"open", "read_text", "read_bytes", "write_text", "write_bytes"}
+            unsafe_path_methods = {
+                "open",
+                "read_text",
+                "read_bytes",
+                "write_text",
+                "write_bytes",
+            }
             if func_name in unsafe_path_methods:
                 # Check if argument contains user input (variable, not literal)
                 if node.args and isinstance(node.args[0], ast.Name):
@@ -481,7 +487,7 @@ class ADRChecker(ast.NodeVisitor):
         # ADR-0001: Check for os.path.join with user input
         if isinstance(node.func, ast.Attribute):
             if func_name == "join" and isinstance(node.func.value, ast.Attribute):
-                if hasattr(node.func.value, 'attr') and node.func.value.attr == "path":
+                if hasattr(node.func.value, "attr") and node.func.value.attr == "path":
                     # os.path.join detected
                     for arg in node.args:
                         if isinstance(arg, ast.Name) and not arg.id.startswith("_"):
@@ -508,7 +514,10 @@ class ADRChecker(ast.NodeVisitor):
 
         # ADR-0032: Neo4j Cypher query pattern - check for f-string Cypher
         if isinstance(node.func, ast.Attribute):
-            if func_name in ("run", "execute", "query") and "neo4j" in str(self.filepath).lower():
+            if (
+                func_name in ("run", "execute", "query")
+                and "neo4j" in str(self.filepath).lower()
+            ):
                 # Check if first argument is an f-string
                 if node.args and isinstance(node.args[0], ast.JoinedStr):
                     self._add_violation(
@@ -564,16 +573,20 @@ class ADRChecker(ast.NodeVisitor):
         # ADR-0010: Check for async functions without await that need @must_stay_async
         has_must_stay_async = any(
             (isinstance(d, ast.Name) and d.id == "must_stay_async")
-            or (isinstance(d, ast.Call) and isinstance(d.func, ast.Name) and d.func.id == "must_stay_async")
+            or (
+                isinstance(d, ast.Call)
+                and isinstance(d.func, ast.Name)
+                and d.func.id == "must_stay_async"
+            )
             for d in node.decorator_list
         )
-        
+
         if not has_must_stay_async and not is_context_manager:
             # Check if function has any await expressions
             has_await = any(isinstance(n, ast.Await) for n in ast.walk(node))
             # Check if it's a simple getter (returns immediately)
             is_simple_getter = (
-                len(node.body) == 1 
+                len(node.body) == 1
                 and isinstance(node.body[0], ast.Return)
                 and node.name.startswith(("get_", "create_", "build_"))
             )
@@ -731,10 +744,12 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
     rel_path = str(filepath)
     skip_dora_dirs = {"tests", "scripts", "tools", "ci", "workflows", "agents/cursor"}
     should_check_dora = not any(d in rel_path for d in skip_dora_dirs)
-    
+
     if should_check_dora and "__dora_meta__" not in content:
         # Only flag production code files
-        if any(d in rel_path for d in ["core/", "api/", "memory/", "services/", "runtime/"]):
+        if any(
+            d in rel_path for d in ["core/", "api/", "memory/", "services/", "runtime/"]
+        ):
             checker._add_violation(
                 "ADR-0014",
                 1,
@@ -743,10 +758,11 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
 
     # ADR-0085: Check for singleton pattern without lock
     import re
+
     singleton_pattern = re.compile(
         r"_instance\s*=\s*None.*?"
         r"if\s+_instance\s+is\s+None:",
-        re.DOTALL
+        re.DOTALL,
     )
     if singleton_pattern.search(content):
         # Check if there's a lock
@@ -764,7 +780,9 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
 
     # ADR-0009: Check for external HTTP calls without circuit breaker
     if "httpx" in content or "aiohttp" in content:
-        has_circuit_breaker = "CircuitBreaker" in content or "circuit_breaker" in content
+        has_circuit_breaker = (
+            "CircuitBreaker" in content or "circuit_breaker" in content
+        )
         if not has_circuit_breaker and "api/" in rel_path:
             checker._add_violation(
                 "ADR-0009",
@@ -775,7 +793,9 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
     # ADR-0006: Check for operations that should emit PacketEnvelope
     # Only check production code that does significant operations
     if any(d in rel_path for d in ["core/agents/", "memory/", "orchestrators/"]):
-        has_packet_envelope = "PacketEnvelope" in content or "packet_envelope" in content
+        has_packet_envelope = (
+            "PacketEnvelope" in content or "packet_envelope" in content
+        )
         has_ingest = "ingest_packet" in content or "emit_packet" in content
         if not has_packet_envelope and not has_ingest:
             # Check if file has significant operations (async functions with DB/API calls)
@@ -816,7 +836,11 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
         has_depends = "Depends(" in content
         if not has_depends:
             for i, line in enumerate(content.splitlines(), 1):
-                if "@router." in line and "def " in content.splitlines()[i] if i < len(content.splitlines()) else False:
+                if (
+                    "@router." in line and "def " in content.splitlines()[i]
+                    if i < len(content.splitlines())
+                    else False
+                ):
                     checker._add_violation(
                         "ADR-0025",
                         i,
@@ -826,7 +850,9 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
 
     # ADR-0031: Check for WebSocket connections without proper handling
     if "websocket" in content.lower():
-        has_proper_handling = "WebSocketDisconnect" in content or "on_disconnect" in content
+        has_proper_handling = (
+            "WebSocketDisconnect" in content or "on_disconnect" in content
+        )
         if not has_proper_handling and "async def" in content:
             for i, line in enumerate(content.splitlines(), 1):
                 if "websocket" in line.lower() and "accept" in line.lower():
@@ -851,23 +877,27 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
 
     # ADR-0090: Check for hardcoded credentials
     import re
+
     credential_patterns = [
         (r'(?:password|passwd|pwd)\s*=\s*["\'][^"\']+["\']', "hardcoded password"),
-        (r'(?:api_key|apikey|API_KEY)\s*=\s*["\'][A-Za-z0-9_-]{20,}["\']', "hardcoded API key"),
+        (
+            r'(?:api_key|apikey|API_KEY)\s*=\s*["\'][A-Za-z0-9_-]{20,}["\']',
+            "hardcoded API key",
+        ),
         (r'(?:secret|SECRET)\s*=\s*["\'][A-Za-z0-9_-]{20,}["\']', "hardcoded secret"),
         (r'(?:token|TOKEN)\s*=\s*["\'][A-Za-z0-9_-]{20,}["\']', "hardcoded token"),
-        (r'AKIA[0-9A-Z]{16}', "AWS access key"),
+        (r"AKIA[0-9A-Z]{16}", "AWS access key"),
     ]
-    
+
     skip_cred_dirs = {"tests", "scripts", ".env", "example", "template", "mock"}
     should_check_creds = not any(d in rel_path.lower() for d in skip_cred_dirs)
-    
+
     if should_check_creds:
         for pattern, desc in credential_patterns:
             matches = list(re.finditer(pattern, content, re.IGNORECASE))
             for match in matches:
                 # Find line number
-                line_num = content[:match.start()].count('\n') + 1
+                line_num = content[: match.start()].count("\n") + 1
                 # Skip if noqa present
                 if not checker._has_noqa(line_num, "ADR-0090"):
                     checker._add_violation(
@@ -878,30 +908,30 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
                     )
 
     # META-CHECK: Detect noqa comments inside string literals
-    # This catches auto_fix_adr.py bugs where # noqa gets inserted into SQL strings
+    # This catches auto_fix_adr.py bugs where
     lines = content.splitlines()
     for i, line in enumerate(lines, 1):
         stripped = line.strip()
-        # Look for lines where # noqa appears inside a string literal
-        # Pattern: a string assignment/expression containing # noqa before the closing quote
+        # Look for lines where
+        # Pattern: a string assignment/expression containing
         # e.g.  query = f"SELECT * FROM {table}  # noqa: ADR-0087"
         #       ^^^^^ the noqa is INSIDE the f-string, corrupting the SQL
         for quote_char in ('"""', "'''", '"', "'"):
-            # Find string literals that contain # noqa
+            # Find string literals that contain
             noqa_in_string = re.search(
-                rf'(?:f?{re.escape(quote_char)})(?:(?!{re.escape(quote_char)}).)*#\s*noqa.*?{re.escape(quote_char)}',
+                rf"(?:f?{re.escape(quote_char)})(?:(?!{re.escape(quote_char)}).)*#\s*noqa.*?{re.escape(quote_char)}",
                 line,
             )
             if noqa_in_string:
                 # Verify this is actually inside a string (not a comment after a string)
                 match_text = noqa_in_string.group()
-                # If the # noqa is between the opening and closing quotes, it's inside the string
+                # If the
                 if match_text.count(quote_char) >= 2:
                     checker._add_violation(
                         "META",
                         i,
-                        f"# noqa comment found INSIDE string literal — corrupts the string value. "
-                        f"Move the noqa comment outside the string.",
+                        "# noqa comment found INSIDE string literal — corrupts the string value. "
+                        "Move the noqa comment outside the string.",
                         "error",
                     )
                     break
@@ -934,11 +964,15 @@ def main() -> int:
 
     if args.list:
         print("=" * 70)  # noqa: ADR-0019 - CLI help output
-        print("L9 ADR Compliance Checker")  # noqa: ADR-0019
+        print("L9 ADR Compliance Checker (27 ADRs enforced)")  # noqa: ADR-0019
         print("=" * 70)  # noqa: ADR-0019
         print()  # noqa: ADR-0019
         print("SECURITY (always error - blocks CI):")  # noqa: ADR-0019
         print("-" * 40)  # noqa: ADR-0019
+        print("  ADR-0001  Path safety")  # noqa: ADR-0019
+        print("            - Sandboxed path resolution required")  # noqa: ADR-0019
+        print("            - Use safe_path_join() for user input")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
         print("  ADR-0041  Unsafe eval() remediation")  # noqa: ADR-0019
         print("            - No eval(), exec(), __import__()")  # noqa: ADR-0019
         print("            - Use ast.literal_eval() for safe parsing")  # noqa: ADR-0019
@@ -952,8 +986,8 @@ def main() -> int:
         print("            - Use parameterized queries: $1, :param")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
         print("  ADR-0088  No pickle serialization")  # noqa: ADR-0019
-        print("            - No pickle.loads() or pickle.load()")  # noqa: ADR-0019
-        print("            - Use json.loads() or msgpack instead")  # noqa: ADR-0019
+        print("            - No pickle.loads()/load()/dumps()")  # noqa: ADR-0019
+        print("            - Use json or msgpack instead")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
         print("  ADR-0090  No hardcoded credentials")  # noqa: ADR-0019
         print("            - No hardcoded passwords, API keys, secrets")  # noqa: ADR-0019
@@ -966,24 +1000,8 @@ def main() -> int:
             "            - TYPE_CHECKING requires 'from __future__ import annotations'"
         )  # noqa: ADR-0019
         print()  # noqa: ADR-0019
-        print("  ADR-0019  structlog logging standard")  # noqa: ADR-0019
-        print("            - No print() in production code")  # noqa: ADR-0019
-        print("            - No stdlib logging module")  # noqa: ADR-0019
-        print()  # noqa: ADR-0019
-        print("  ADR-0023  Error packet pattern")  # noqa: ADR-0019
-        print("            - No silent 'except: pass'")  # noqa: ADR-0019
-        print()  # noqa: ADR-0019
-        print("  ADR-0026  Protocol-based abstractions")  # noqa: ADR-0019
-        print("            - Use typing.Protocol, not abc.ABC")  # noqa: ADR-0019
-        print()  # noqa: ADR-0019
-        print("  ADR-0027  LRU cache pattern")  # noqa: ADR-0019
-        print("            - @lru_cache must have explicit maxsize")  # noqa: ADR-0019
-        print()  # noqa: ADR-0019
-        print("  ADR-0033  Async context manager pattern")  # noqa: ADR-0019
-        print("            - @asynccontextmanager must have try/finally")  # noqa: ADR-0019
-        print()  # noqa: ADR-0019
-        print("  ADR-0055  Fail-loudly policy")  # noqa: ADR-0019
-        print("            - No bare 'except:' (catches KeyboardInterrupt)")  # noqa: ADR-0019
+        print("  ADR-0006  PacketEnvelope audit trail")  # noqa: ADR-0019
+        print("            - Core operations should emit packets")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
         print("  ADR-0009  Circuit breaker resilience")  # noqa: ADR-0019
         print("            - External HTTP calls need circuit breaker")  # noqa: ADR-0019
@@ -993,6 +1011,43 @@ def main() -> int:
         print()  # noqa: ADR-0019
         print("  ADR-0014  DORA metadata block")  # noqa: ADR-0019
         print("            - Production modules need __dora_meta__")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0016  TypedDict vs Pydantic boundary")  # noqa: ADR-0019
+        print("            - Don't mix TypedDict and Pydantic in same file")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0019  structlog logging standard")  # noqa: ADR-0019
+        print("            - No print() in production code")  # noqa: ADR-0019
+        print("            - No stdlib logging module")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0022  Registry pattern")  # noqa: ADR-0019
+        print("            - Use Registry class, not bare dict")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0023  Error packet pattern")  # noqa: ADR-0019
+        print("            - No silent 'except: pass'")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0024  Resilience mixin pattern")  # noqa: ADR-0019
+        print("            - Use ResilienceMixin for retry logic")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0025  FastAPI dependency injection")  # noqa: ADR-0019
+        print("            - Routes should use Depends()")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0026  Protocol-based abstractions")  # noqa: ADR-0019
+        print("            - Use typing.Protocol, not abc.ABC")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0027  LRU cache pattern")  # noqa: ADR-0019
+        print("            - @lru_cache must have explicit maxsize")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0031  WebSocket connection pattern")  # noqa: ADR-0019
+        print("            - Handle disconnection properly")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0032  Neo4j Cypher query pattern")  # noqa: ADR-0019
+        print("            - Use parameterized queries, not f-strings")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0033  Async context manager pattern")  # noqa: ADR-0019
+        print("            - @asynccontextmanager must have try/finally")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0055  Fail-loudly policy")  # noqa: ADR-0019
+        print("            - No bare 'except:' (catches KeyboardInterrupt)")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
         print("  ADR-0084  Async resource cleanup")  # noqa: ADR-0019
         print("            - httpx.AsyncClient() needs 'async with'")  # noqa: ADR-0019
