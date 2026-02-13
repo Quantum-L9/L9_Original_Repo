@@ -3,22 +3,22 @@
 -- Date: 2026-02-12
 -- Description: Adds metadata column and audit table for reference counting
 
--- Add metadata column to packetstore for soft expiration tracking
-ALTER TABLE packetstore
+-- Add metadata column to packet_store for soft expiration tracking
+ALTER TABLE packet_store
 ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
 
 -- Create index on soft_expired flag for efficient querying
 CREATE INDEX IF NOT EXISTS idx_packet_soft_expired
-ON packetstore ((metadata->>'soft_expired'))
+ON packet_store ((metadata->>'soft_expired'))
 WHERE metadata->>'soft_expired' = 'true';
 
 -- Create index on metadata for general queries
 CREATE INDEX IF NOT EXISTS idx_packet_metadata
-ON packetstore USING GIN (metadata);
+ON packet_store USING GIN (metadata);
 
 -- Create audit table for reference count tracking (optional, for debugging)
 CREATE TABLE IF NOT EXISTS packet_refcount_audit (
-    packet_id TEXT PRIMARY KEY,
+    packet_id UUID PRIMARY KEY,
     lineage_refs INT DEFAULT 0,
     fact_refs INT DEFAULT 0,
     checkpoint_refs INT DEFAULT 0,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS packet_refcount_audit (
     last_checked_by TEXT,  -- Which process computed the refcount
     CONSTRAINT fk_packet
         FOREIGN KEY(packet_id)
-        REFERENCES packetstore(packetid)
+        REFERENCES packet_store(packet_id)
         ON DELETE CASCADE
 );
 
@@ -54,7 +54,7 @@ CREATE TRIGGER trigger_refcount_timestamp
 COMMENT ON TABLE packet_refcount_audit IS
 'Tracks reference counts for packets to prevent premature TTL-based deletion. Updated by ReferenceCountingService.';
 
-COMMENT ON COLUMN packetstore.metadata IS
+COMMENT ON COLUMN packet_store.metadata IS
 'JSONB metadata including soft_expired flag, custom tags, and other extensible properties.';
 
 -- Migration complete
