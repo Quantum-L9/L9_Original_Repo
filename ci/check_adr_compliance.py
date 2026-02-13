@@ -26,6 +26,7 @@ Exit codes:
 """
 
 from __future__ import annotations
+
 import structlog
 
 # ============================================================================
@@ -608,59 +609,59 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.list:
-        logger.info("=" * 70")
-        logger.info("l9 adr compliance checker")
-        logger.info("=" * 70")
-        logger.info("output", value=)
-        logger.error("security (always error - blocks ci):")
-        logger.info("-" * 40")
-        logger.info("  adr-0041  unsafe eval() remediation")
-        logger.info("            - no eval(), exec(), __import__()")
-        logger.info("            - use ast.literal_eval() for safe parsing")
-        logger.info("output", value=)
-        logger.info("  adr-0083  datetime utc standard")
-        logger.info("            - no datetime.utcnow() (deprecated python 3.12)")
-        logger.info("            - use datetime.now(utc) instead")
-        logger.info("output", value=)
-        logger.info("  adr-0087  sql parameterization")
-        logger.info("            - no f-string sql queries (injection risk)")
-        logger.info("            - use parameterized queries: $1, :param")
-        logger.info("output", value=)
-        logger.info("  adr-0088  no pickle serialization")
-        logger.info("            - no pickle.loads() or pickle.load()")
-        logger.info("            - use json.loads() or msgpack instead")
-        logger.info("output", value=)
-        logger.error("code quality (warning in default mode, error in --strict):")
-        logger.info("-" * 40")
-        logger.info("  adr-0002  type_checking pattern")
+        print("=" * 70)  # noqa: ADR-0019 - CLI help output
+        print("L9 ADR Compliance Checker")  # noqa: ADR-0019
+        print("=" * 70)  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("SECURITY (always error - blocks CI):")  # noqa: ADR-0019
+        print("-" * 40)  # noqa: ADR-0019
+        print("  ADR-0041  Unsafe eval() remediation")  # noqa: ADR-0019
+        print("            - No eval(), exec(), __import__()")  # noqa: ADR-0019
+        print("            - Use ast.literal_eval() for safe parsing")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0083  datetime UTC standard")  # noqa: ADR-0019
+        print("            - No datetime.utcnow() (deprecated Python 3.12)")  # noqa: ADR-0019
+        print("            - Use datetime.now(UTC) instead")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0087  SQL parameterization")  # noqa: ADR-0019
+        print("            - No f-string SQL queries (injection risk)")  # noqa: ADR-0019
+        print("            - Use parameterized queries: $1, :param")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0088  No pickle serialization")  # noqa: ADR-0019
+        print("            - No pickle.loads() or pickle.load()")  # noqa: ADR-0019
+        print("            - Use json.loads() or msgpack instead")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("CODE QUALITY (warning in default mode, error in --strict):")  # noqa: ADR-0019
+        print("-" * 40)  # noqa: ADR-0019
+        print("  ADR-0002  TYPE_CHECKING pattern")  # noqa: ADR-0019
         print(
             "            - TYPE_CHECKING requires 'from __future__ import annotations'"
-        )
-        logger.info("output", value=)
-        logger.info("  adr-0019  structlog logging standard")
-        logger.info("            - no print() in production code")
-        logger.info("            - no stdlib logging module")
-        logger.info("output", value=)
-        logger.error("  adr-0023  error packet pattern")
-        logger.info("            - no silent 'except: pass")
-        logger.info("output", value=)
-        logger.info("  adr-0026  protocol-based abstractions")
-        logger.info("            - use typing.protocol, not abc.abc")
-        logger.info("output", value=)
-        logger.info("  adr-0027  lru cache pattern")
-        logger.info("            - @lru_cache must have explicit maxsize")
-        logger.info("output", value=)
-        logger.info("  adr-0033  async context manager pattern")
-        logger.info("            - @asynccontextmanager must have try/finally")
-        logger.info("output", value=)
-        logger.error("  adr-0055  fail-loudly policy")
-        logger.info("            - no bare 'except:' (catches keyboardinterrupt)")
-        logger.info("output", value=)
-        logger.info("=" * 70")
-        logger.info("modes:")
-        logger.error("  --errors-only  show only errors (security violations)")
-        logger.error("  --strict       all violations are errors (full enforcement)")
-        logger.info("=" * 70")
+        )  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0019  structlog logging standard")  # noqa: ADR-0019
+        print("            - No print() in production code")  # noqa: ADR-0019
+        print("            - No stdlib logging module")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0023  Error packet pattern")  # noqa: ADR-0019
+        print("            - No silent 'except: pass'")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0026  Protocol-based abstractions")  # noqa: ADR-0019
+        print("            - Use typing.Protocol, not abc.ABC")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0027  LRU cache pattern")  # noqa: ADR-0019
+        print("            - @lru_cache must have explicit maxsize")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0033  Async context manager pattern")  # noqa: ADR-0019
+        print("            - @asynccontextmanager must have try/finally")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("  ADR-0055  Fail-loudly policy")  # noqa: ADR-0019
+        print("            - No bare 'except:' (catches KeyboardInterrupt)")  # noqa: ADR-0019
+        print()  # noqa: ADR-0019
+        print("=" * 70)  # noqa: ADR-0019
+        print("Modes:")  # noqa: ADR-0019
+        print("  --errors-only  Show only errors (security violations)")  # noqa: ADR-0019
+        print("  --strict       All violations are errors (full enforcement)")  # noqa: ADR-0019
+        print("=" * 70)  # noqa: ADR-0019
         return 0
 
     if args.files:
@@ -741,7 +742,9 @@ def main() -> int:
                     else v.file
                 )
                 severity_icon = "❌" if v.severity == "error" else "⚠️"
-                logger.info("  severity icon rel:{v.line}", severity_icon=severity_icon, rel=rel)
+                logger.info(
+                    "  severity icon rel:{v.line}", severity_icon=severity_icon, rel=rel
+                )
                 logger.info("     {v.message}\n")
             if len(violations) > 10:
                 logger.info("  ... and {len(violations) - 10} more\n")
@@ -750,7 +753,10 @@ def main() -> int:
 
     if args.verbose:
         mode_str = "[STRICT]" if args.strict else "[DEFAULT]"
-        logger.info("✅ mode str checked {len(files)} files - no adr violations", mode_str=mode_str)
+        logger.info(
+            "✅ mode str checked {len(files)} files - no adr violations",
+            mode_str=mode_str,
+        )
 
     return 0
 
