@@ -34,17 +34,36 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from typing import Any
+
 import structlog
 
 from config.settings import settings
 from core.tools.base_registry import ToolRegistry
 from core.tools.dynamic_discovery import (
-    discover_tools_for_agent,
-    get_tool_binding_mode,
+    discover_tools_for_task,
+    is_dynamic_discovery_enabled,
 )
 from runtime.tool_registry import get_tool_registry
 
 logger = structlog.get_logger(__name__)
+
+
+def _current_binding_mode() -> str:
+    """Map dynamic-discovery feature flag to binding mode string."""
+    return "dynamic" if is_dynamic_discovery_enabled() else "static"
+
+
+def _extract_tool_name(tool_def: dict) -> str | None:
+    """Extract tool name from OpenAI-format function tool definition."""
+    if not isinstance(tool_def, dict):
+        return None
+    function = tool_def.get("function")
+    if isinstance(function, dict):
+        name = function.get("name")
+        if isinstance(name, str) and name:
+            return name
+    return None
 
 
 async def bind_tools_to_agent(
@@ -69,7 +88,7 @@ async def bind_tools_to_agent(
         List of tool names bound to the agent
     """
     registry = registry or get_tool_registry()
-    mode = get_tool_binding_mode()
+    mode = _current_binding_mode()
 
     if mode == "dynamic":
         # Dynamic binding: use semantic search
@@ -78,12 +97,11 @@ async def bind_tools_to_agent(
             agent_id=agent_id,
             task=task_description[:50],
         )
-        tools = await discover_tools_for_agent(
-            agent_id=agent_id,
-            query=task_description,
-            limit=settings.DYNAMIC_TOOL_LIMIT,
+        tools = await discover_tools_for_task(
+            task_payload=task_description,
+            top_k=settings.DYNAMIC_TOOL_LIMIT,
         )
-        tool_names = [t.name for t in tools]
+        tool_names = [name for tool in tools if (name := _extract_tool_name(tool))]
 
         # Always include meta-tools if available
         meta_tools = ["tool_search", "tool_details"]
@@ -129,7 +147,7 @@ def get_binding_mode_summary() -> dict[str, Any]:
     Returns:
         Dict with mode, limit, and status
     """
-    mode = get_tool_binding_mode()
+    mode = _current_binding_mode()
     return {
         "mode": mode,
         "limit": settings.DYNAMIC_TOOL_LIMIT if mode == "dynamic" else None,
