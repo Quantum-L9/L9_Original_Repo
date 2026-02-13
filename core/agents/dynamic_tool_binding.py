@@ -58,7 +58,6 @@ from typing import Any
 
 import structlog
 
-from config.settings import get_integration_settings
 from core.tools import dynamic_discovery as _discovery
 from core.tools.dynamic_discovery import (
     cache_tools,
@@ -176,67 +175,434 @@ async def get_static_tool_bundle(
     role: str | None = None,
 ) -> list[dict[str, Any]]:
     """
-    Get all tools for static binding (legacy behavior).
+    Get tools for static binding — the fallback when dynamic discovery is off or broken.
 
-    This is the OLD approach: load all tool definitions into agent context.
-    Used when dynamic discovery is disabled or forced.
+    Pulls from the runtime tool_executor_registry (actual @register_tool functions).
+    If the registry is empty or fails, falls back to a hardcoded top-20 tool
+    definition list so agents always have something to work with.
 
     Args:
         agent_id: Agent identifier (for governance filtering)
         role: Agent role (for role-based filtering)
 
     Returns:
-        List of all available tools in OpenAI format (73+ tools)
+        List of tool definitions in OpenAI format
     """
+    all_tools: list[dict[str, Any]] = []
+
+    # --- Source 1: runtime tool_executor_registry (@register_tool functions) ---
     try:
-        from core.tools.base_registry import get_tool_registry
+        from runtime.tool_registry import get_tool_executors
 
-        registry = get_tool_registry()
+        executors = get_tool_executors()
+        for tool_name, func in executors.items():
+            meta = getattr(func, "_tool_metadata", {})
+            desc = meta.get("description", "")
+            if not desc and hasattr(func, "__doc__") and func.__doc__:
+                desc = func.__doc__.strip().split("\n")[0]
 
-        # Get all tools (with governance filtering if agent_id provided)
-        all_tools = []
-        for tool_meta in registry.list_all():
-            # Apply governance filtering
-            if agent_id and hasattr(tool_meta, "agent_id"):
-                if tool_meta.agent_id and tool_meta.agent_id != agent_id:
-                    continue
-
-            # Apply role filtering
-            if role and hasattr(tool_meta, "allowed_roles"):
-                if tool_meta.allowed_roles and role not in tool_meta.allowed_roles:
-                    continue
-
-            # Convert to OpenAI format
             tool_def = {
                 "type": "function",
                 "function": {
-                    "name": tool_meta.id,
-                    "description": tool_meta.description or "No description",
-                    "parameters": tool_meta.input_schema
-                    or {
-                        "type": "object",
-                        "properties": {},
-                    },
+                    "name": tool_name,
+                    "description": desc or f"{tool_name} tool",
+                    "parameters": {"type": "object", "properties": {}},
                 },
             }
             all_tools.append(tool_def)
 
-        logger.info(
-            "tool_binding.static_bundle_created",
-            agent_id=agent_id,
-            role=role,
-            tools_count=len(all_tools),
-        )
-
-        return all_tools
-
     except Exception as e:
-        logger.error(
-            "tool_binding.static_bundle_failed",
+        logger.warning(
+            "tool_binding.registry_read_failed",
             error=str(e),
-            exc_info=True,
         )
-        return []
+
+    # --- Source 2: hardcoded top-20 fallback (always available, no DB needed) ---
+    # These are the highest-priority tools that agents need most often.
+    # They act as a safety net when the registry hasn't loaded yet.
+    seen = {t["function"]["name"] for t in all_tools}
+    for fallback in _STATIC_FALLBACK_TOOLS:
+        if fallback["function"]["name"] not in seen:
+            all_tools.append(fallback)
+
+    logger.info(
+        "tool_binding.static_bundle_created",
+        agent_id=agent_id,
+        role=role,
+        tools_count=len(all_tools),
+        from_registry=len(seen),
+        from_fallback=len(all_tools) - len(seen),
+    )
+
+    return all_tools
+
+
+# =============================================================================
+# HARDCODED TOP-20 FALLBACK TOOLS
+# =============================================================================
+# These definitions are always available even when DB/Redis/registry are down.
+# Selected by priority: memory ops > communication > research > execution.
+# Each has a real executor in the codebase (l_tools.py or @register_tool).
+# =============================================================================
+
+_STATIC_FALLBACK_TOOLS: list[dict[str, Any]] = [
+    # --- Memory (highest priority — core agent capability) ---
+    {
+        "type": "function",
+        "function": {
+            "name": "memory_search",
+            "description": (
+                "Search L9 memory with embeddings. Use for structured data retrieval, "
+                "keyword search, and text similarity."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Search query text"},
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max results (default 10)",
+                        "default": 10,
+                    },
+                },
+                "required": ["query"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "memory_write",
+            "description": "Write a packet to L9 memory substrate.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "content": {"type": "string", "description": "Content to store"},
+                    "kind": {
+                        "type": "string",
+                        "description": "Packet kind (REASONING, DECISION, MEMORY, LESSON)",
+                    },
+                    "tags": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Tags for categorization",
+                    },
+                },
+                "required": ["content"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "memory_get_packet",
+            "description": "Get a specific packet by ID from memory substrate.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "packet_id": {
+                        "type": "string",
+                        "description": "UUID of the packet",
+                    },
+                },
+                "required": ["packet_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "memory_query_packets",
+            "description": "Query packets with complex filters (kind, date range, tags).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "kind": {"type": "string", "description": "Filter by packet kind"},
+                    "limit": {
+                        "type": "integer",
+                        "description": "Max results",
+                        "default": 20,
+                    },
+                },
+                "required": [],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "memory_hybrid_search",
+            "description": "Hybrid search combining semantic embeddings + keyword matching.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Search query"},
+                    "top_k": {
+                        "type": "integer",
+                        "description": "Max results",
+                        "default": 10,
+                    },
+                },
+                "required": ["query"],
+            },
+        },
+    },
+    # --- Communication (Slack — primary user interaction) ---
+    {
+        "type": "function",
+        "function": {
+            "name": "slack_send",
+            "description": "Send a message to a Slack channel or DM. Supports threading via thread_ts.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "channel": {"type": "string", "description": "Channel ID or name"},
+                    "text": {"type": "string", "description": "Message text"},
+                    "thread_ts": {
+                        "type": "string",
+                        "description": "Thread timestamp for replies",
+                    },
+                },
+                "required": ["channel", "text"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "slack_file_upload",
+            "description": "Upload a file to a Slack channel or thread.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "channel": {"type": "string", "description": "Channel ID"},
+                    "file_path": {"type": "string", "description": "Path to file"},
+                    "title": {"type": "string", "description": "File title"},
+                },
+                "required": ["channel", "file_path"],
+            },
+        },
+    },
+    # --- MCP Integration (dynamic tool access) ---
+    {
+        "type": "function",
+        "function": {
+            "name": "mcp_call_tool",
+            "description": "Call any tool on any MCP server (GitHub, Notion, Filesystem, etc.).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "server_name": {"type": "string", "description": "MCP server name"},
+                    "tool_name": {"type": "string", "description": "Tool to call"},
+                    "arguments": {"type": "object", "description": "Tool arguments"},
+                },
+                "required": ["server_name", "tool_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "mcp_list_tools",
+            "description": "List available tools from an MCP server (dynamic discovery).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "server_name": {"type": "string", "description": "MCP server name"},
+                },
+                "required": ["server_name"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "mcp_list_servers",
+            "description": "List all configured MCP servers and their status.",
+            "parameters": {"type": "object", "properties": {}},
+        },
+    },
+    # --- Research (knowledge acquisition) ---
+    {
+        "type": "function",
+        "function": {
+            "name": "run_research_query",
+            "description": "Run a research query using the research agent pipeline.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Research question"},
+                },
+                "required": ["query"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "research_agent_synthesize",
+            "description": "Synthesize research findings into a coherent summary.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "findings": {
+                        "type": "string",
+                        "description": "Raw findings to synthesize",
+                    },
+                },
+                "required": ["findings"],
+            },
+        },
+    },
+    # --- AI / LLM ---
+    {
+        "type": "function",
+        "function": {
+            "name": "llm_chat",
+            "description": "Chat with OpenAI models for reasoning, analysis, or generation.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "prompt": {"type": "string", "description": "User prompt"},
+                    "model": {
+                        "type": "string",
+                        "description": "Model name (default gpt-4o)",
+                        "default": "gpt-4o",
+                    },
+                    "system": {"type": "string", "description": "System prompt"},
+                },
+                "required": ["prompt"],
+            },
+        },
+    },
+    # --- Knowledge Graph ---
+    {
+        "type": "function",
+        "function": {
+            "name": "world_model_query",
+            "description": "Query the world model knowledge graph for entities and relationships.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "Natural language query",
+                    },
+                },
+                "required": ["query"],
+            },
+        },
+    },
+    # --- Reflection / Self-improvement ---
+    {
+        "type": "function",
+        "function": {
+            "name": "reflection_agent_reflect",
+            "description": "Execute reflection on execution history to improve future performance.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "execution_history": {
+                        "type": "string",
+                        "description": "History to reflect on",
+                    },
+                },
+                "required": ["execution_history"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "reflection_agent_analyze_failure",
+            "description": "Deep root cause analysis of a failure.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "failure_description": {
+                        "type": "string",
+                        "description": "What failed",
+                    },
+                    "context": {"type": "string", "description": "Surrounding context"},
+                },
+                "required": ["failure_description"],
+            },
+        },
+    },
+    # --- Redis (task queue + cache — runtime infrastructure) ---
+    {
+        "type": "function",
+        "function": {
+            "name": "redis_get",
+            "description": "Get a value from Redis cache.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "key": {"type": "string", "description": "Redis key"},
+                },
+                "required": ["key"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "redis_set",
+            "description": "Set a value in Redis cache.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "key": {"type": "string", "description": "Redis key"},
+                    "value": {"type": "string", "description": "Value to store"},
+                    "ttl": {"type": "integer", "description": "TTL in seconds"},
+                },
+                "required": ["key", "value"],
+            },
+        },
+    },
+    # --- Execution (high-risk, approval-gated) ---
+    {
+        "type": "function",
+        "function": {
+            "name": "git_commit",
+            "description": "Commit changes to git repository. Requires Igor approval.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "message": {"type": "string", "description": "Commit message"},
+                    "files": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "Files to commit",
+                    },
+                },
+                "required": ["message"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "tool_search",
+            "description": (
+                "Search L9's tool catalog to find tools relevant to a task. "
+                "Use when you need a tool but aren't sure which one."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "What you need to do"},
+                    "top_k": {
+                        "type": "integer",
+                        "description": "Max tools to return",
+                        "default": 5,
+                    },
+                },
+                "required": ["query"],
+            },
+        },
+    },
+]
 
 
 async def get_dynamic_tool_bundle() -> list[dict[str, Any]]:
