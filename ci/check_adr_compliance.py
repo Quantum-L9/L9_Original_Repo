@@ -5,6 +5,7 @@ CI check for ADR compliance in Python files.
 Enforces Architecture Decision Records:
 
 SECURITY (always error):
+- ADR-0001: Path safety (sandboxed path resolution)
 - ADR-0041: No eval()/exec() usage (security)
 - ADR-0083: datetime.utcnow() deprecated (use datetime.now(UTC))  # noqa: ADR-0083
 - ADR-0087: SQL parameterization (no f-string SQL)
@@ -13,13 +14,20 @@ SECURITY (always error):
 
 CODE QUALITY (warning by default, error in --strict):
 - ADR-0002: TYPE_CHECKING pattern (requires __future__ annotations)
+- ADR-0006: PacketEnvelope audit trail (operations emit packets)
 - ADR-0009: Circuit breaker resilience (external HTTP calls)
 - ADR-0010: @must_stay_async decorator (async without await)
 - ADR-0014: DORA metadata block (__dora_meta__ in production modules)
+- ADR-0016: TypedDict vs Pydantic boundary (proper separation)
 - ADR-0019: structlog logging standard (no print/logging module)
+- ADR-0022: Registry pattern (proper registry classes)
 - ADR-0023/0055: No silent exception swallowing (except: pass)
+- ADR-0024: Resilience mixin pattern (use ResilienceMixin)
+- ADR-0025: FastAPI dependency injection (use Depends)
 - ADR-0026: Protocol-based abstractions (no ABC for interfaces)
 - ADR-0027: LRU cache must have maxsize
+- ADR-0031: WebSocket connection pattern (handle disconnects)
+- ADR-0032: Neo4j Cypher query pattern (parameterized queries)
 - ADR-0033: Async context managers with try/finally
 - ADR-0084: Async resource cleanup (httpx.AsyncClient with async with)
 - ADR-0085: Thread-safe singletons (singleton pattern needs lock)
@@ -140,6 +148,7 @@ ERROR_ADRS = {
     "ADR-0087",  # SQL parameterization - ENFORCED
     "ADR-0088",  # No pickle (security) - CRITICAL
     "ADR-0090",  # No hardcoded credentials - CRITICAL
+    "ADR-0001",  # Path safety (security) - CRITICAL
 }
 
 # ADRs enforced as warnings (tracked but don't block default CI)
@@ -157,6 +166,13 @@ WARNING_ADRS = {
     "ADR-0028",  # Database transaction context
     "ADR-0011",  # Lazy initialization pattern
     "ADR-0009",  # Circuit breaker resilience
+    "ADR-0006",  # PacketEnvelope audit trail
+    "ADR-0016",  # TypedDict vs Pydantic boundary
+    "ADR-0022",  # Registry pattern
+    "ADR-0024",  # Resilience mixin pattern
+    "ADR-0025",  # FastAPI dependency injection
+    "ADR-0031",  # WebSocket connection pattern
+    "ADR-0032",  # Neo4j Cypher query pattern
 }
 
 
@@ -446,6 +462,61 @@ class ADRChecker(ast.NodeVisitor):
                             f"{func_name}() on variable '{arg.id}' should use try/except for safety",
                         )
 
+        # ADR-0001: Path safety - detect unsafe path operations
+        if isinstance(node.func, ast.Attribute):
+            # Check for Path operations that could be unsafe
+            unsafe_path_methods = {"open", "read_text", "read_bytes", "write_text", "write_bytes"}
+            if func_name in unsafe_path_methods:
+                # Check if argument contains user input (variable, not literal)
+                if node.args and isinstance(node.args[0], ast.Name):
+                    arg_name = node.args[0].id
+                    # Skip known safe patterns
+                    if not arg_name.startswith("_") and arg_name not in {"self", "cls"}:
+                        self._add_violation(
+                            "ADR-0001",
+                            node.lineno,
+                            f"Path.{func_name}() with variable '{arg_name}' - ensure path is sandboxed",
+                        )
+
+        # ADR-0001: Check for os.path.join with user input
+        if isinstance(node.func, ast.Attribute):
+            if func_name == "join" and isinstance(node.func.value, ast.Attribute):
+                if hasattr(node.func.value, 'attr') and node.func.value.attr == "path":
+                    # os.path.join detected
+                    for arg in node.args:
+                        if isinstance(arg, ast.Name) and not arg.id.startswith("_"):
+                            self._add_violation(
+                                "ADR-0001",
+                                node.lineno,
+                                f"os.path.join() with variable '{arg.id}' - use safe_path_join() instead",
+                            )
+                            break
+
+        # ADR-0088: Check for pickle.dumps() as well
+        if isinstance(node.func, ast.Attribute):
+            if func_name == "dumps":
+                if (
+                    isinstance(node.func.value, ast.Name)
+                    and node.func.value.id == "pickle"
+                ):
+                    self._add_violation(
+                        "ADR-0088",
+                        node.lineno,
+                        "pickle.dumps() is forbidden (security). Use json.dumps() instead.",
+                        "error",
+                    )
+
+        # ADR-0032: Neo4j Cypher query pattern - check for f-string Cypher
+        if isinstance(node.func, ast.Attribute):
+            if func_name in ("run", "execute", "query") and "neo4j" in str(self.filepath).lower():
+                # Check if first argument is an f-string
+                if node.args and isinstance(node.args[0], ast.JoinedStr):
+                    self._add_violation(
+                        "ADR-0032",
+                        node.lineno,
+                        "Neo4j queries should use parameterized queries, not f-strings",
+                    )
+
         self.generic_visit(node)
 
     def visit_FunctionDef(self, node: ast.FunctionDef):
@@ -700,6 +771,83 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
                 1,
                 "External HTTP calls should use circuit breaker pattern for resilience.",
             )
+
+    # ADR-0006: Check for operations that should emit PacketEnvelope
+    # Only check production code that does significant operations
+    if any(d in rel_path for d in ["core/agents/", "memory/", "orchestrators/"]):
+        has_packet_envelope = "PacketEnvelope" in content or "packet_envelope" in content
+        has_ingest = "ingest_packet" in content or "emit_packet" in content
+        if not has_packet_envelope and not has_ingest:
+            # Check if file has significant operations (async functions with DB/API calls)
+            if "async def" in content and ("await" in content or "execute" in content):
+                checker._add_violation(
+                    "ADR-0006",
+                    1,
+                    "Operations in core modules should emit PacketEnvelope for audit trail.",
+                )
+
+    # ADR-0022: Check for registry pattern usage
+    if "_registry" in content.lower() and "Registry" not in content:
+        # File uses registry pattern but doesn't define a proper Registry class
+        for i, line in enumerate(content.splitlines(), 1):
+            if "_registry = {}" in line or "_registry: dict" in line:
+                checker._add_violation(
+                    "ADR-0022",
+                    i,
+                    "Use Registry pattern class instead of bare dict for registries.",
+                )
+                break
+
+    # ADR-0024: Check for resilience patterns without mixin
+    if "retry" in content.lower() and "ResilienceMixin" not in content:
+        if "@retry" in content or "tenacity" in content:
+            for i, line in enumerate(content.splitlines(), 1):
+                if "@retry" in line:
+                    checker._add_violation(
+                        "ADR-0024",
+                        i,
+                        "Use ResilienceMixin for retry logic instead of bare @retry decorator.",
+                    )
+                    break
+
+    # ADR-0025: Check for FastAPI routes without Depends
+    if "fastapi" in content.lower() and "@router" in content:
+        # Check if routes use dependency injection
+        has_depends = "Depends(" in content
+        if not has_depends:
+            for i, line in enumerate(content.splitlines(), 1):
+                if "@router." in line and "def " in content.splitlines()[i] if i < len(content.splitlines()) else False:
+                    checker._add_violation(
+                        "ADR-0025",
+                        i,
+                        "FastAPI routes should use Depends() for dependency injection.",
+                    )
+                    break
+
+    # ADR-0031: Check for WebSocket connections without proper handling
+    if "websocket" in content.lower():
+        has_proper_handling = "WebSocketDisconnect" in content or "on_disconnect" in content
+        if not has_proper_handling and "async def" in content:
+            for i, line in enumerate(content.splitlines(), 1):
+                if "websocket" in line.lower() and "accept" in line.lower():
+                    checker._add_violation(
+                        "ADR-0031",
+                        i,
+                        "WebSocket connections should handle disconnection properly.",
+                    )
+                    break
+
+    # ADR-0016: Check for TypedDict vs Pydantic boundary violations
+    if "TypedDict" in content and "BaseModel" in content:
+        # File mixes TypedDict and Pydantic - check for proper boundary
+        for i, line in enumerate(content.splitlines(), 1):
+            if "TypedDict" in line and "class" in line:
+                # Check if there's a Pydantic model in the same file
+                checker._add_violation(
+                    "ADR-0016",
+                    i,
+                    "Mixing TypedDict and Pydantic in same file. Use Pydantic at API boundaries.",
+                )
 
     # ADR-0090: Check for hardcoded credentials
     import re

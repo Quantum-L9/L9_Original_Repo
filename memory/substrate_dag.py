@@ -209,21 +209,18 @@ async def intake_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
     """
-    Entry node: validates, governs, audits, and normalizes the PacketEnvelope.
+    Entry node: validates and normalizes the PacketEnvelope.
 
-    Responsibilities (canonical intake — replaces legacy IngestionPipeline):
+    Responsibilities (GMP-SDAG Option A — service layer authoritative):
     - Validates required fields (packet_type, payload)
-    - Enforces governance context (GMP-70: fail-closed)
-    - Runs audit preparation (injection marker detection)
     - Ensures packet_id and timestamp are set
     - Checks for duplicate packets (prevents reprocessing)
     - Prepares state for downstream processing
+
+    NOTE: Governance enforcement and audit preparation are handled by
+    substrate_service.write_packet() BEFORE the DAG runs. This node
+    receives already-governed, already-audited envelopes.
     """
-    from memory.audit_utils import prepare_packet_for_ingest
-    from memory.governance_gate import (
-        enforce_packet_governance,
-        require_governance_context,
-    )
 
     repository = _get_config_dependency(config, "repository")
     logger.debug("intake_node: Processing packet")
@@ -250,50 +247,14 @@ async def intake_node(
             "schema_version": "1.0.0",
             "reasoning_mode": None,
             "agent": None,
-            "domain": "plastic_brokerage",
+            "domain": "l9",
         }
 
-    # --- Governance Enforcement (GMP-70: fail-closed) ---
-    try:
-        ctx = require_governance_context("substrate_dag.intake_node")
-        from core.schemas import PacketEnvelopeIn
-
-        packet_in = PacketEnvelopeIn(
-            **{k: v for k, v in envelope.items() if k in PacketEnvelopeIn.model_fields}
-        )
-        packet_in = enforce_packet_governance(packet_in, ctx)
-        envelope = packet_in.to_envelope().model_dump(mode="json")
-    except Exception as e:
-        logger.warning(
-            "intake_node: Governance enforcement failed, continuing with original",
-            error=str(e),
-        )
-
-    # --- Audit Preparation (injection marker detection) ---
-    try:
-        from core.schemas import PacketEnvelopeIn
-
-        packet_in_for_audit = PacketEnvelopeIn(
-            **{k: v for k, v in envelope.items() if k in PacketEnvelopeIn.model_fields}
-        )
-        audited_packet, audit_report = prepare_packet_for_ingest(packet_in_for_audit)
-
-        if audit_report.has_security_concerns:
-            logger.warning(
-                "intake_node: Injection markers detected",
-                packet_id=envelope.get("packet_id"),
-                concern_count=audit_report.concern_count,
-            )
-            # Flag in metadata so semantic_embed_node can skip
-            metadata = envelope.get("metadata", {})
-            if isinstance(metadata, dict):
-                metadata["_security_skip_embed"] = True
-                envelope["metadata"] = metadata
-    except Exception as e:
-        logger.warning(
-            "intake_node: Audit preparation failed, continuing",
-            error=str(e),
-        )
+    # --- Governance & Audit: HANDLED BY substrate_service.write_packet() ---
+    # Option A (GMP-SDAG): Service layer is authoritative for governance enforcement,
+    # audit preparation, and packet validation. intake_node only handles structural
+    # defaults and duplicate detection. This avoids double-governance and eliminates
+    # the soft-fail security gap that existed when governance was in this node.
 
     # --- Duplicate Detection ---
     packet_id = envelope.get("packet_id")
@@ -317,8 +278,6 @@ async def intake_node(
     logger.debug(
         "intake_node: Processed packet",
         packet_id=envelope.get("packet_id"),
-        has_governance=True,
-        has_audit=True,
     )
 
     return {**state, "envelope": envelope, "errors": errors}
@@ -404,6 +363,7 @@ async def reasoning_node(
     }
 
 
+@must_stay_async("callers use await")
 async def memory_write_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -431,13 +391,11 @@ async def memory_write_node(
     # Repository will be injected at runtime
     if repository is None:
         logger.warning("memory_write_node: No repository provided, skipping DB writes")
-        # Still mark what would have been written
-        written_tables.extend(["packet_store", "agent_memory_events"])
-        if reasoning_block:
-            written_tables.append("reasoning_traces")
+        errors.append("memory_write_node: No repository — DB writes skipped")
         return {
             **state,
             "written_tables": written_tables,
+            "errors": errors,
         }
 
     try:
@@ -586,6 +544,7 @@ async def graph_sync_node(
     }
 
 
+@must_stay_async("callers use await")
 async def semantic_embed_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -673,6 +632,7 @@ async def semantic_embed_node(
     }
 
 
+@must_stay_async("callers use await")
 async def checkpoint_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -906,6 +866,7 @@ async def extract_insights_node(
     }
 
 
+@must_stay_async("callers use await")
 async def store_insights_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:

@@ -60,7 +60,7 @@ from memory.audit_utils import prepare_packet_for_ingest
 if TYPE_CHECKING:
     from memory.agent_persistence import AgentPersistenceService
 from memory.consolidation import ConsolidationPipeline
-from memory.enrichment_dag import EnrichmentDAG
+from memory.substrate_dag import SubstrateDAG
 from memory.governance_gate import (
     enforce_packet_governance,
     ensure_governance_context,
@@ -135,11 +135,13 @@ class MemorySubstrateService:
             repository=repository,
         )
 
-        # Initialize DAG (EnrichmentDAG with multi-tier fallback)
-        self._dag = EnrichmentDAG(
+        # Initialize DAG (SubstrateDAG — LangGraph-based pipeline)
+        # GMP-SDAG: Replaced deprecated EnrichmentDAG with SubstrateDAG.
+        # SubstrateDAG uses native LangGraph execution with 8 nodes:
+        #   intake → reasoning → memory_write → graph_sync → [embed?] → insights → world_model → checkpoint
+        self._dag = SubstrateDAG(
             repository=repository,
             semantic_service=self._semantic_service,
-            saga_executor=None,  # Lazy-initialized via _get_saga_executor()
         )
 
         # Initialize circuit breaker for DAG operations

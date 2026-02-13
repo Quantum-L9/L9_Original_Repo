@@ -177,6 +177,7 @@ _Last updated: 2026-02-13 (Fixed .env L9_API_URL → direct IP port 80, updated 
 
 ## Recent Sessions (7-day window)
 
+- ✅ 2026-02-13: **C1 Full Rebuild — 10X Deploy v2.0** — Executed full rebuild on C1 with `--no-cache` and `--godmode`. All 9 containers healthy according to Deep MRI. MCP Memory PRIMARY endpoint restored to healthy status. Verified GOD MODE E2E smoke tests.
 - 2026-02-13: **GMP-138: L-CTO Fixes (Datetime, Governance, Personality)** — Fixed 3 L-CTO issues: (1) Datetime injection in `agents/l_cto.py` and `memory/slack_ingest.py` so L can tell time, (2) Governance context propagation in `core/agents/executor.py` to fix memory write errors from tool calls, (3) Personality-aware fallback prompt when kernels fail to load. Also: deleted duplicate `scripts/workflow/generate_gmp_report.py`, fixed `WORKSPACE_ROOT` path in GMP DAG nodes, updated ADR-0059 references. Report: `reports/GMP Reports/GMP-Report-138-L-Cto-Fixes-Datetime-Injection-Governance-Context.md`.
 - 2026-02-12: **Tool Search Harvest + Memory Pipeline Map** — Harvested 3 Anthropic Tool Search bridge files from Perplexity output: `runtime/tool_search_meta.py` (meta-tool), `core/agents/dynamic_tool_binding.py` (binding layer), `runtime/tool_packages.py` (updated registry). Deployed via /harvest → /use-harvest → /confirm-wiring. Wired into `core/agents/__init__.py`. Confirmed all 5 bugfix-diffs.patch fixes already applied. Mapped all L9 memory pipelines (Ingestion 8-node DAG, Retrieval 5-mode, Consolidation, Deduplication, Tool Discovery). Analyzed 5 bug root causes and CI prevention strategies (negative-case testing). Key finding: `prepare_dynamic_tools()` already wired at executor iteration 0 — `bind_tools_to_agent()` is an alternative Anthropic meta-tool pattern (feature flag gated, no consumer change needed yet).
 - 2026-02-13: **Port 80 Fix for Cursor Memory Access** — Fixed `.env` `L9_API_URL` from `http://mcp.quantumaipartners.com:30080` (dead k8s NodePort) to `http://46.62.243.82` (direct IP, Nginx port 80). Updated `03-mcp-memory.mdc` rule to remove all `:30902`/`:30080` references. Port 30080 was a leftover from k8s era — nothing listens on it. MCP Memory accessed via Nginx `/memory/` location on port 80. Cursor memory client health check: API fallback now healthy. MCP primary has server-side DB error (C1 issue, separate fix needed).
@@ -202,61 +203,12 @@ _Last updated: 2026-02-13 (Fixed .env L9_API_URL → direct IP port 80, updated 
 
 ## Next Steps (Next Session)
 
-### ✅ DONE: Fix C1 MCP Memory Server Database Error
-
-- Fixed 502/500 errors on C1
-- L-CTO datetime/governance/personality fixes deployed
-- Memory writes operational
-
-### 🟡 Fix `tests/memory/test_e2e_memory_audit.py` pre-commit gate
-
-- Pre-existing `print()` calls in CLI runner function trigger ADR-0019 gate
-- Options: add `# noqa: ADR-0019` to print lines, or refactor to structlog, or add `tests/memory/test_e2e_*` to hook skip list
-- Cosmetic `timezone.utc` → `UTC` changes are staged but blocked by this
-
-### ✅ DEPLOYED: GMP-138 L-CTO Fixes + Redis Thread Cache to C1
-
-- All commits through GMP-138 deployed, both images rebuilt
-- l9-api + mcp-memory healthy, all 9 containers green
-- L-CTO datetime injection, governance context propagation, personality fallback — LIVE
-- Redis thread cache live — L-CTO context continuity verified in Slack
-
-### 🟡 NON-CRITICAL: Remaining Duplicate Tool Decorators
-
-- ~60 `@register_tool` decorators in `runtime/l_tools.py` are duplicates of `registry_adapter.py`
-- **Impact:** Startup warnings only, API works fine
-- **Fix:** Remove all decorators from l_tools.py OR make registration idempotent in `core/auto_registry.py`
-
-### 🚨 EXECUTE migrations at next Docker rebuild!!!
-
-- Run deploy script **without** `--skip-migrations` so Phase 4 (PostgreSQL) and Phase 5 (Neo4j) run.
-- Path: `deploy/k8s/c1/scripts/c1-deploy-update.sh`.
-
-### 🟢 COMPLETED: PR Cleanup
-
-- **PR #45:** CLOSED — Anti-Pattern Tests adopted (100%)
-- **PR #52:** CLOSED — DI/DIP Three-Track (70% adopted)
-
-### ✅ COMPLETED: PRs #28, #29, #30 Merged
-
-**Status:** All 3 PRs merged successfully (verified 2026-01-25)
-
-- PR #28: ExecutorComposer Pattern & DIContainer Enhancements — MERGED
-- PR #29: Observability Infrastructure - Tracing & Instrumentation — MERGED
-- PR #30: Memory & Governance Enhancements — MERGED
-
-### ✅ POST-MERGE WIRING: Complete
-
-| Task                       | File                                      | Status      |
-| -------------------------- | ----------------------------------------- | ----------- |
-| Wire DeduplicationEngine   | `memory/consolidation.py`                 | ✅ COMPLETE |
-| Wire RegistryCache         | `core/tools/registry_adapter.py`          | ✅ COMPLETE |
-| Fix Pydantic v2 validators | `services/symbolic_computation/models.py` | ✅ COMPLETE |
-
-### 🔵 CLOSED: PR Analysis (No Longer Active)
-
-PRs #36, #46, #48, #49, #50, #53, #54 — All CLOSED (superseded or abandoned)
-PR #51 (Spring Cleaning) — MERGED ✅
+- [ ] Fix `tests/memory/test_e2e_memory_audit.py` pre-commit gate (ADR-0019 print violation)
+- [ ] Monitor C1 l9-api logs for "Ingestion failed: Target entity not found" errors
+- [ ] Verify multi-turn tool caching (Redis) scope lock
+- [ ] Execute migrations at next Docker rebuild (Phase 4/5)
+- [ ] Investigate 500 error in Cursor memory client write (DLQ enrichment failure)
+- [ ] Finalize CodeGenAgent (CGA) system after governance verification
 
 **Recent Sessions (7-day window):**
 

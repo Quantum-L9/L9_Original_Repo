@@ -126,11 +126,22 @@ class TestNoqaInsideStrings:
         violations: list[str] = []
         sql_keywords = ("SELECT", "INSERT", "UPDATE", "DELETE", "CREATE", "ALTER")
 
+        # CI files that legitimately contain examples of the bad pattern
+        ci_example_files = (
+            "ci/check_noqa_placement.py",  # Has docstring examples
+            "ci/check_adr_compliance.py",  # Has docstring examples
+            "ci/auto_fix_adr.py",          # Constructs noqa strings
+        )
+
         for py_file in L9_ROOT.rglob("*.py"):
             if any(
                 skip in str(py_file)
                 for skip in (".venv", "__pycache__", "node_modules", "tests/")
             ):
+                continue
+
+            # Skip CI files that contain examples of the bad pattern
+            if any(str(py_file).endswith(ci_file) for ci_file in ci_example_files):
                 continue
 
             try:

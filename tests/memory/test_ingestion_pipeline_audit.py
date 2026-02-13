@@ -99,6 +99,8 @@ class TestDAGNodeCoverage:
     @pytest.mark.asyncio
     async def test_substrate_dag_node_execution_flow(self):
         """Verify SubstrateDAG node execution without graph compilation."""
+        from unittest.mock import AsyncMock, MagicMock
+
         from core.schemas import PacketEnvelopeIn
         from memory.substrate_dag import intake_node, memory_write_node, reasoning_node
 
@@ -107,7 +109,14 @@ class TestDAGNodeCoverage:
             payload={"text": "Test content for DAG execution"},
         )
 
-        # Test individual node execution (bypasses Python 3.9 typing issues)
+        # Mock repository for memory_write_node
+        mock_repo = MagicMock()
+        mock_repo.insert_packet = AsyncMock()
+        mock_repo.insert_memory_event = AsyncMock()
+        mock_repo.insert_reasoning_block = AsyncMock()
+        config = {"configurable": {"repository": mock_repo}}
+
+        # Test individual node execution
         state = {
             "envelope": packet.to_envelope().model_dump(mode="json"),
             "reasoning_block": None,
@@ -126,8 +135,7 @@ class TestDAGNodeCoverage:
         state = await reasoning_node(state)
         assert state["reasoning_block"] is not None
 
-        state = await memory_write_node(state)
-        # Without repo, marks tables but doesn't persist
+        state = await memory_write_node(state, config=config)
         assert "packet_store" in state["written_tables"]
         assert "agent_memory_events" in state["written_tables"]
 
@@ -725,6 +733,8 @@ class TestE2EIngestionFlow:
     @pytest.mark.asyncio
     async def test_full_dag_execution_e2e(self):
         """Test full DAG node execution without graph compilation."""
+        from unittest.mock import AsyncMock, MagicMock
+
         from core.schemas import PacketEnvelopeIn
         from memory.substrate_dag import (
             checkpoint_node,
@@ -743,6 +753,15 @@ class TestE2EIngestionFlow:
             },
         )
 
+        # Mock repository for write nodes
+        mock_repo = MagicMock()
+        mock_repo.insert_packet = AsyncMock()
+        mock_repo.insert_memory_event = AsyncMock()
+        mock_repo.insert_reasoning_block = AsyncMock()
+        mock_repo.insert_knowledge_fact = AsyncMock()
+        mock_repo.save_checkpoint = AsyncMock(return_value="ckpt-123")
+        config = {"configurable": {"repository": mock_repo}}
+
         # Execute nodes sequentially (mimics DAG flow)
         state = {
             "envelope": packet.to_envelope().model_dump(mode="json"),
@@ -758,10 +777,10 @@ class TestE2EIngestionFlow:
 
         state = await intake_node(state)
         state = await reasoning_node(state)
-        state = await memory_write_node(state)
+        state = await memory_write_node(state, config=config)
         state = await extract_insights_node(state)
-        state = await store_insights_node(state)
-        state = await checkpoint_node(state)
+        state = await store_insights_node(state, config=config)
+        state = await checkpoint_node(state, config=config)
 
         # Verify E2E execution
         assert state["errors"] == []
