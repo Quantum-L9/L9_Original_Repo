@@ -69,6 +69,15 @@ repos:
   # L9 custom checks
   - repo: local
     hooks:
+      # Auto-fix hooks (run first, before checks)
+      - id: auto-fix-adr
+        name: Auto-fix ADR violations (safe mode)
+        entry: python3 ci/auto_fix_adr.py --all --safe
+        language: system
+        types: [python]
+        pass_filenames: false
+        stages: [pre-commit]
+
       - id: check-imports
         name: Check missing imports
         entry: python3 ci/check_imports.py
