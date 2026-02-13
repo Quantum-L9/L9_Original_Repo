@@ -83,6 +83,7 @@
 
 ## Recent Changes (digest)
 
+    - [2026-02-13] **Migration 0032 Dependency Fix** — Updated `migrations/0032_fix_timestamp_timezones.sql` to drop and recreate dependent materialized views (`mv_agent_recent_important`, etc.) to allow altering column types. This resolves the blocking error for `l9-api` startup on VPS.
     - [2026-02-13] **Timestamp Timezone Migration Created** — Created `migrations/0032_fix_timestamp_timezones.sql` to alter 14 naive timestamp columns to `timestamp with time zone`. This resolves the 500 error in memory ingestion caused by the clash between aware datetimes (ADR-0083) and naive DB columns.
     - [2026-02-13] **Global ADR-0083 Sweep Complete** — Replaced all 69 instances of deprecated `datetime.utcnow()` with timezone-aware `datetime.now(UTC)` across 69 files (55 production, 8 agents, 6 archive). Updated imports to include `UTC`. Verified zero occurrences remain in production code. Fixed pre-existing syntax error in `tools/adr/adr_cli.py`.
     - [2026-02-13] **GMP-139 Refactor Complete** — Moved `codegenagent` to `core/agents/codegenagent` and `wire_executor.py` to `core/codegen/wire_executor.py`. Updated 15+ files for imports and paths. Created shim for `/wire` command. Generated report: `reports/GMP Reports/GMP-Report-139-Move-Codegenagent-To-Coreagents-And-Wire-To.md`.
@@ -185,6 +186,7 @@ _Last updated: 2026-02-13 (end-session: workflow_state + memory pipeline doc; wr
 
 ## Recent Sessions (7-day window)
 
+- ✅ 2026-02-13: **Migration 0032 Dependency Fix** — Fixed blocking database migration by handling materialized view dependencies. Pushed to main. Ready for re-deploy.
 - ✅ 2026-02-13: **Global ADR-0083 Sweep** — Replaced 69 instances of `datetime.utcnow()` with `datetime.now(UTC)` across 69 files. Fixed syntax error in `tools/adr/adr_cli.py`. Compliance with ADR-0083 at 100%.
 - ✅ 2026-02-13: **GMP-139 Refactor** — Moved `codegenagent` to `core/agents/` and `wire_executor` to `core/codegen/`. Updated imports across 15+ files. Fixed `generate_gmp_report.py` syntax error.
 - ✅ 2026-02-13: **Stage, commit, push + /end-session** — Staged all (558 files), committed in 3 commits: tech-debt pipeline (a436ea98) already had bulk; GMP-SDAG message + 2 ruff-auto files (749ccd55); remaining 2 files (d2e75788). Pushed to origin main. Pre-commit passed; first full commit failed at Gate 5 (AI security) on 3 pre-existing files. Documented unified memory pipeline for end-session write (see handoff).
