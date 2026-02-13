@@ -41,7 +41,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
@@ -230,7 +230,7 @@ class IRGenerator:
 
         return {
             "plan_id": str(graph.graph_id),
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "total_steps": len(steps),
             "estimated_duration_ms": sum(
                 a.estimated_duration_ms or 0 for a in ordered_actions

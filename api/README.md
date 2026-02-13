@@ -61,16 +61,16 @@ HTTP and WebSocket interfaces for L9 Secure AI OS
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `core/agents/executor.py` | Required dependency |
-| `memory/substrate_service.py` | Required dependency |
+| Module                              | Purpose             |
+| ----------------------------------- | ------------------- |
+| `core/agents/executor.py`           | Required dependency |
+| `memory/substrate_service.py`       | Required dependency |
 | `runtime/websocket_orchestrator.py` | Required dependency |
 
 ---
@@ -97,15 +97,15 @@ api/
 └── ... (35 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `server.py` | FastAPI app initialization, route registration (PROTECTED) |
-| `auth.py` | Authentication and authorization middleware (PROTECTED) |
-| `agent_routes.py` | Agent execution endpoints (/agents, /tasks) |
-| `os_routes.py` | OS-level operations and health checks |
-| `routes/` | Domain-specific route modules |
-| `memory/router.py` | Memory API endpoints (/memory/search, /memory/ingest) |
-| `tools/router.py` | Tool API endpoints (/tools/invoke) |
+| File               | Purpose                                                    |
+| ------------------ | ---------------------------------------------------------- |
+| `server.py`        | FastAPI app initialization, route registration (PROTECTED) |
+| `auth.py`          | Authentication and authorization middleware (PROTECTED)    |
+| `agent_routes.py`  | Agent execution endpoints (/agents, /tasks)                |
+| `os_routes.py`     | OS-level operations and health checks                      |
+| `routes/`          | Domain-specific route modules                              |
+| `memory/router.py` | Memory API endpoints (/memory/search, /memory/ingest)      |
+| `tools/router.py`  | Tool API endpoints (/tools/invoke)                         |
 
 ### Naming Conventions
 
@@ -178,7 +178,6 @@ class ChatResponse:
 
 **Lines:** 3292-3293 in `server.py`
 
-
 ---
 
 ## Data Models and Contracts
@@ -193,22 +192,22 @@ The following data models define the contracts for this subsystem:
 
 `TraceContext`, `WebSocketTracingMiddleware`, `get_agent_executor`, `get_aios_runtime`, `get_anomaly_monitor`, `get_consolidation_service`, `get_evaluator`, `get_governance_engine`, `get_memory_state_manager`, `get_neo4j_client`
 
-*...and 11 more*
+_...and 11 more_
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `EXECUTOR_API_KEY_L` | `os.environ.get('L9_EXECUTOR_API_KEY_L')` | 42 |
-| `EXECUTOR_API_KEY_C` | `os.environ.get('L9_EXECUTOR_API_KEY_C') ...` | 43 |
-| `MEMORY_DSN` | `os.getenv('MEMORY_DSN', os.getenv('DATAB...` | 31 |
-| `L9_NEW_AGENT_INIT` | `settings.l9_new_agent_init` | 378 |
-| `L9_STAGE3_MODULES` | `settings.l9_stage3_modules` | 379 |
-| `L9_GRAPH_AGENT_STATE` | `settings.l9_graph_agent_state` | 380 |
-| `L9_OBSERVABILITY` | `settings.l9_observability` | 406 |
-| `LOCAL_DEV` | `settings.local_dev` | 513 |
+| Constant               | Value                                         | Line |
+| ---------------------- | --------------------------------------------- | ---- |
+| `EXECUTOR_API_KEY_L`   | `os.environ.get('L9_EXECUTOR_API_KEY_L')`     | 42   |
+| `EXECUTOR_API_KEY_C`   | `os.environ.get('L9_EXECUTOR_API_KEY_C') ...` | 43   |
+| `MEMORY_DSN`           | `os.getenv('MEMORY_DSN', os.getenv('DATAB...` | 31   |
+| `L9_NEW_AGENT_INIT`    | `settings.l9_new_agent_init`                  | 378  |
+| `L9_STAGE3_MODULES`    | `settings.l9_stage3_modules`                  | 379  |
+| `L9_GRAPH_AGENT_STATE` | `settings.l9_graph_agent_state`               | 380  |
+| `L9_OBSERVABILITY`     | `settings.l9_observability`                   | 406  |
+| `LOCAL_DEV`            | `settings.local_dev`                          | 513  |
 
-*...and 35 more constants*
+_...and 35 more constants_
 
 ### Key Schemas
 
@@ -250,7 +249,6 @@ class ApiResponse(BaseModel):
 3. **Routes:** All routers mounted to app.
 4. **Lifespan:** Startup events connect to Redis, PostgreSQL.
 
-
 ### Main Execution
 
 1. **Request:** Receive HTTP/WebSocket request.
@@ -258,14 +256,12 @@ class ApiResponse(BaseModel):
 3. **Rate check:** Verify rate limit not exceeded.
 4. **Dispatch:** Route to handler, execute, return response.
 
-
 ### Shutdown
 
 1. **Drain:** Stop accepting new requests.
 2. **Pending:** Wait for in-flight requests to complete.
 3. **Cleanup:** Close database pools, Redis connections.
 4. **Log:** Emit graceful shutdown event.
-
 
 ### Background Tasks
 
@@ -279,9 +275,9 @@ Background tasks via Starlette BackgroundTasks for non-blocking operations.
 
 ```yaml
 # Api feature flags
-L9_ENABLE_API_TRACING: true  # Enable detailed tracing
-L9_ENABLE_API_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_API_AUDIT: true    # Enable audit logging
+L9_ENABLE_API_TRACING: true # Enable detailed tracing
+L9_ENABLE_API_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_API_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -345,7 +341,6 @@ Readiness probe endpoint.
 - **File:** `os_routes.py:67`
 - **Async:** Yes
 
-
 ### Usage Example
 
 ```python
@@ -378,7 +373,6 @@ async with websockets.connect("ws://localhost:8000/ws") as ws:
     print(json.loads(response))
 ```
 
-
 ---
 
 ## Observability
@@ -400,6 +394,7 @@ Api operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -407,12 +402,12 @@ Api operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                      | Type      | Description                    |
+| --------------------------- | --------- | ------------------------------ |
 | `api_operation_duration_ms` | Histogram | Operation latency distribution |
-| `api_operation_total` | Counter | Total operations processed |
-| `api_error_total` | Counter | Total errors encountered |
-| `api_active_connections` | Gauge | Current active connections |
+| `api_operation_total`       | Counter   | Total operations processed     |
+| `api_error_total`           | Counter   | Total errors encountered       |
+| `api_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -430,6 +425,7 @@ Api emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/api/`:
+
 - `test_api.py` — Core unit tests
 - `test_api_integration.py` — Integration tests (if applicable)
 
@@ -483,6 +479,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

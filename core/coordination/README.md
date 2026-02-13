@@ -59,14 +59,14 @@ Event bus, coordination primitives, and inter-module communication
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module           | Purpose          |
+| ---------------- | ---------------- |
 | `orchestrators/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                    | Purpose             |
+| ------------------------- | ------------------- |
 | `runtime/redis_client.py` | Required dependency |
 
 ---
@@ -80,12 +80,12 @@ core/coordination/
 ├── event_queue.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
+| File                | Purpose                                            |
+| ------------------- | -------------------------------------------------- |
+| `__init__.py`       | Core module (PROTECTED)                            |
 | `agent_mediator.py` | Message structure for agent-to-agent communication |
-| `agent_mediator.py` | Track message delivery status. |
-| `agent_mediator.py` | Mediator for agent-to-agent communication. |
+| `agent_mediator.py` | Track message delivery status.                     |
+| `agent_mediator.py` | Mediator for agent-to-agent communication.         |
 
 ### Naming Conventions
 
@@ -174,11 +174,9 @@ class Event:
 
 **Lines:** 64-78 in `event_queue.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
@@ -248,9 +246,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Coordination feature flags
-L9_ENABLE_CORE_COORDINATION_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_COORDINATION_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_COORDINATION_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_COORDINATION_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_COORDINATION_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_COORDINATION_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -309,7 +307,6 @@ Health check for event queue
 - **Async:** Yes
 - **Returns:** `dict`
 
-
 ### Usage Example
 
 ```python
@@ -350,6 +347,7 @@ Core Coordination operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -357,12 +355,12 @@ Core Coordination operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                    | Type      | Description                    |
+| ----------------------------------------- | --------- | ------------------------------ |
 | `core_coordination_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_coordination_operation_total` | Counter | Total operations processed |
-| `core_coordination_error_total` | Counter | Total errors encountered |
-| `core_coordination_active_connections` | Gauge | Current active connections |
+| `core_coordination_operation_total`       | Counter   | Total operations processed     |
+| `core_coordination_error_total`           | Counter   | Total errors encountered       |
+| `core_coordination_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -380,6 +378,7 @@ Core Coordination emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_coordination/`:
+
 - `test_core_coordination.py` — Core unit tests
 - `test_core_coordination_integration.py` — Integration tests (if applicable)
 
@@ -422,6 +421,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

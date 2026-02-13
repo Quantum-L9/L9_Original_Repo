@@ -59,14 +59,14 @@ ToTH engine, reasoning patterns, and cognitive processing
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                     | Purpose          |
+| -------------------------- | ---------------- |
 | `orchestrators/reasoning/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                    | Purpose             |
+| ------------------------- | ------------------- |
 | `core/agents/executor.py` | Required dependency |
 
 ---
@@ -80,10 +80,10 @@ core/reasoning/
 ├── toth_engine.py
 ```
 
-| File | Purpose |
-|------|---------|
+| File             | Purpose                 |
+| ---------------- | ----------------------- |
 | `toth_engine.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
+| `__init__.py`    | Core module (PROTECTED) |
 
 ### Naming Conventions
 
@@ -168,7 +168,6 @@ class ReasoningResult:
 
 **Lines:** 138-152 in `toth_engine.py`
 
-
 ---
 
 ## Data Models and Contracts
@@ -245,9 +244,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Reasoning feature flags
-L9_ENABLE_CORE_REASONING_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_REASONING_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_REASONING_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_REASONING_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_REASONING_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_REASONING_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -280,7 +279,6 @@ CLI interface for production ToTh engine
 
 - **File:** `toth_engine.py:926`
 - **Async:** Yes
-
 
 ### Usage Example
 
@@ -322,6 +320,7 @@ Core Reasoning operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -329,12 +328,12 @@ Core Reasoning operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                 | Type      | Description                    |
+| -------------------------------------- | --------- | ------------------------------ |
 | `core_reasoning_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_reasoning_operation_total` | Counter | Total operations processed |
-| `core_reasoning_error_total` | Counter | Total errors encountered |
-| `core_reasoning_active_connections` | Gauge | Current active connections |
+| `core_reasoning_operation_total`       | Counter   | Total operations processed     |
+| `core_reasoning_error_total`           | Counter   | Total errors encountered       |
+| `core_reasoning_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -352,6 +351,7 @@ Core Reasoning emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_reasoning/`:
+
 - `test_core_reasoning.py` — Core unit tests
 - `test_core_reasoning_integration.py` — Integration tests (if applicable)
 
@@ -396,6 +396,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

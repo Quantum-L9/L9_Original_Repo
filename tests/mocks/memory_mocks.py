@@ -30,7 +30,7 @@ __dora_meta__ = {
 
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -111,7 +111,7 @@ class MockMemoryAdapter:
 
         packet = {
             "packet_id": packet_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             **data,
         }
 
@@ -216,7 +216,7 @@ class MockMemoryAdapter:
         checkpoint_id = str(uuid4())
         self.checkpoints[checkpoint_id] = {
             "id": checkpoint_id,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             **data,
         }
         return checkpoint_id

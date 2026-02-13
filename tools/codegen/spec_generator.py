@@ -38,7 +38,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import yaml
@@ -172,7 +172,7 @@ class L9SpecGenerator:
             definition_of_done=definition_of_done,
             agent_rules=agent_rules,
             context=context,
-            created_at=datetime.now(timezone.utc).isoformat() + "Z",
+            created_at=datetime.now(UTC).isoformat() + "Z",
             created_by="L_architect",
         )
 

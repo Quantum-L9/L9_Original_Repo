@@ -34,7 +34,7 @@ __dora_meta__ = {
 
 import asyncio
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any, Optional
 
 import structlog
@@ -242,7 +242,7 @@ class ObservabilityService:
             "p50_latency_ms": durations[p50_idx] if p50_idx < len(durations) else 0,
             "p95_latency_ms": durations[p95_idx] if p95_idx < len(durations) else 0,
             "p99_latency_ms": durations[p99_idx] if p99_idx < len(durations) else 0,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         # Update Prometheus metrics

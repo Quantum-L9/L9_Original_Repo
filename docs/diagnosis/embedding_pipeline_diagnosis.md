@@ -1,7 +1,7 @@
 # L9 Embedding Pipeline Diagnosis Report
 
-**Date:** 2026-01-31  
-**Issue:** Packets created but embeddings not appearing in PostgreSQL  
+**Date:** 2026-01-31
+**Issue:** Packets created but embeddings not appearing in PostgreSQL
 **Severity:** Medium-High (affects semantic search capability)
 
 ---
@@ -126,7 +126,7 @@ Run these queries against your PostgreSQL database to diagnose:
 
 ### 1. Check packet_store vs semantic_memory counts
 ```sql
-SELECT 
+SELECT
     (SELECT COUNT(*) FROM packet_store) AS packet_count,
     (SELECT COUNT(*) FROM semantic_memory) AS embedding_count,
     (SELECT COUNT(*) FROM packet_store) - (SELECT COUNT(*) FROM semantic_memory) AS missing_embeddings;
@@ -134,7 +134,7 @@ SELECT
 
 ### 2. Check packet types without embeddings
 ```sql
-SELECT 
+SELECT
     ps.packet_type,
     COUNT(*) AS packet_count,
     COUNT(sm.embedding_id) AS embedding_count
@@ -146,7 +146,7 @@ ORDER BY packet_count DESC;
 
 ### 3. Check recent packets and their embedding status
 ```sql
-SELECT 
+SELECT
     ps.packet_id,
     ps.packet_type,
     ps.timestamp,

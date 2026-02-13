@@ -59,16 +59,16 @@ Circuit breakers, retry logic, and fault tolerance
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `runtime/` | Uses this module |
+| Module         | Purpose          |
+| -------------- | ---------------- |
+| `runtime/`     | Uses this module |
 | `core/agents/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -82,12 +82,12 @@ core/resilience/
 ├── retry.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `mixin.py` | Mixin providing standard retry + circuit breaker + |
+| File           | Purpose                                            |
+| -------------- | -------------------------------------------------- |
+| `__init__.py`  | Core module (PROTECTED)                            |
+| `mixin.py`     | Mixin providing standard retry + circuit breaker + |
 | `protocols.py` | Protocol for services that support resilience patt |
-| `retry.py` | Raised when all retry attempts have been exhausted |
+| `retry.py`     | Raised when all retry attempts have been exhausted |
 
 ### Naming Conventions
 
@@ -160,11 +160,9 @@ class AsyncRetryConfig:
 
 **Lines:** 80-106 in `retry.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
@@ -172,10 +170,10 @@ class AsyncRetryConfig:
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `T` | `TypeVar('T')` | 65 |
-| `DEFAULT_RETRY_CONFIG` | `AsyncRetryConfig()` | 110 |
+| Constant               | Value                | Line |
+| ---------------------- | -------------------- | ---- |
+| `T`                    | `TypeVar('T')`       | 65   |
+| `DEFAULT_RETRY_CONFIG` | `AsyncRetryConfig()` | 110  |
 
 ### Key Schemas
 
@@ -240,9 +238,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Resilience feature flags
-L9_ENABLE_CORE_RESILIENCE_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_RESILIENCE_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_RESILIENCE_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_RESILIENCE_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_RESILIENCE_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_RESILIENCE_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -276,7 +274,6 @@ Execute async function with retry logic and exponential backoff.
 - **File:** `retry.py:113`
 - **Async:** Yes
 - **Returns:** `T`
-
 
 ### Usage Example
 
@@ -318,6 +315,7 @@ Core Resilience operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -325,12 +323,12 @@ Core Resilience operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                  | Type      | Description                    |
+| --------------------------------------- | --------- | ------------------------------ |
 | `core_resilience_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_resilience_operation_total` | Counter | Total operations processed |
-| `core_resilience_error_total` | Counter | Total errors encountered |
-| `core_resilience_active_connections` | Gauge | Current active connections |
+| `core_resilience_operation_total`       | Counter   | Total operations processed     |
+| `core_resilience_error_total`           | Counter   | Total errors encountered       |
+| `core_resilience_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -348,6 +346,7 @@ Core Resilience emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_resilience/`:
+
 - `test_core_resilience.py` — Core unit tests
 - `test_core_resilience_integration.py` — Integration tests (if applicable)
 
@@ -390,6 +389,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

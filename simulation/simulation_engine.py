@@ -44,7 +44,7 @@ __dora_meta__ = {
 import asyncio
 import random
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
@@ -197,7 +197,7 @@ class SimulationEngine:
             graph_id=UUID(graph_data.get("graph_id", str(uuid4()))),
             config=self._config,
             status="running",
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
         )
 
         self._runs[run.run_id] = run
@@ -211,7 +211,7 @@ class SimulationEngine:
             if not actions:
                 run.status = "completed"
                 run.score = 0.5  # Neutral score for empty graph
-                run.completed_at = datetime.now(timezone.utc)
+                run.completed_at = datetime.now(UTC)
                 return run
 
             # Build dependency graph
@@ -235,7 +235,7 @@ class SimulationEngine:
             run.failure_modes.append(str(e))
             run.score = 0.0
 
-        run.completed_at = datetime.now(timezone.utc)
+        run.completed_at = datetime.now(UTC)
         run.metrics.total_duration_ms = int(
             (run.completed_at - run.started_at).total_seconds() * 1000
         )
@@ -445,7 +445,7 @@ class SimulationEngine:
         step = SimulationStep(
             action_id=UUID(action.get("node_id", str(uuid4()))),
             action_type=action.get("action_type", "unknown"),
-            start_time=datetime.now(timezone.utc),
+            start_time=datetime.now(UTC),
         )
 
         # Estimate duration
@@ -464,7 +464,7 @@ class SimulationEngine:
         else:
             step.status = "completed"
 
-        step.end_time = datetime.now(timezone.utc)
+        step.end_time = datetime.now(UTC)
         step.duration_ms = duration
         step.resource_used = self._estimate_resources(action)
 

@@ -7,7 +7,7 @@ Parses chat transcripts (ChatGPT, Claude, etc.) and ingests them into
 the L9 memory substrate (PostgreSQL + pgvector).
 
 Features:
-- Parses "You said:" / "ChatGPT said:" / "Human:" / "Assistant:" formats
+- Parses You said: / ChatGPT said: / Human: / Assistant: formats
 - Creates conversation records with message sequence
 - Chunks messages for embedding (configurable chunk size)
 - Stores in packetstore with proper lineage
@@ -549,9 +549,29 @@ __dora_footer__ = {
     "compliance_required": True,
     "audit_trail": True,
     "dependencies": ["memory.substrate_repository"],
-    "tags": ["api", "async", "cli", "dataclass", "debugging", "filesystem", "logging", "memory-substrate", "messaging", "operations"],
-    "keywords": ["buffer", "chat", "chunk", "deterministic", "flush", "format", "generate", "ingest"],
-    "business_value": "the L9 memory substrate (PostgreSQL + pgvector). Parses "You said:" / "ChatGPT said:" / "Human:" / "Assistant:" formats Creates conversation records with message sequence Chunks messages for embedding",
+    "tags": [
+        "api",
+        "async",
+        "cli",
+        "dataclass",
+        "debugging",
+        "filesystem",
+        "logging",
+        "memory-substrate",
+        "messaging",
+        "operations",
+    ],
+    "keywords": [
+        "buffer",
+        "chat",
+        "chunk",
+        "deterministic",
+        "flush",
+        "format",
+        "generate",
+        "ingest",
+    ],
+    "business_value": "the L9 memory substrate (PostgreSQL + pgvector). Parses You said: / ChatGPT said: / Human: / Assistant: formats Creates conversation records with message sequence Chunks messages for embedding",
     "last_modified": "2026-01-31T22:21:56Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

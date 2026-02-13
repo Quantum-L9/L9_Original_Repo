@@ -28,10 +28,11 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from dataclasses import asdict, dataclass
 from enum import Enum
 from typing import Any
+
+import structlog
 
 
 class DiscoveryPhase(Enum):

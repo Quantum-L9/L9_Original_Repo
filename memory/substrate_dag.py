@@ -48,7 +48,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any, TypedDict
 from uuid import UUID, uuid4
 
@@ -244,7 +244,7 @@ async def intake_node(
     if not envelope.get("packet_id"):
         envelope["packet_id"] = str(uuid4())
     if not envelope.get("timestamp"):
-        envelope["timestamp"] = datetime.now(timezone.utc).isoformat()
+        envelope["timestamp"] = datetime.now(UTC).isoformat()
     if not envelope.get("metadata"):
         envelope["metadata"] = {
             "schema_version": "1.0.0",
@@ -258,10 +258,9 @@ async def intake_node(
         ctx = require_governance_context("substrate_dag.intake_node")
         from core.schemas import PacketEnvelopeIn
 
-        packet_in = PacketEnvelopeIn(**{
-            k: v for k, v in envelope.items()
-            if k in PacketEnvelopeIn.model_fields
-        })
+        packet_in = PacketEnvelopeIn(
+            **{k: v for k, v in envelope.items() if k in PacketEnvelopeIn.model_fields}
+        )
         packet_in = enforce_packet_governance(packet_in, ctx)
         envelope = packet_in.to_envelope().model_dump(mode="json")
     except Exception as e:
@@ -274,10 +273,9 @@ async def intake_node(
     try:
         from core.schemas import PacketEnvelopeIn
 
-        packet_in_for_audit = PacketEnvelopeIn(**{
-            k: v for k, v in envelope.items()
-            if k in PacketEnvelopeIn.model_fields
-        })
+        packet_in_for_audit = PacketEnvelopeIn(
+            **{k: v for k, v in envelope.items() if k in PacketEnvelopeIn.model_fields}
+        )
         audited_packet, audit_report = prepare_packet_for_ingest(packet_in_for_audit)
 
         if audit_report.has_security_concerns:
@@ -357,7 +355,7 @@ async def reasoning_node(
     reasoning_block = {
         "block_id": str(uuid4()),
         "packet_id": packet_id,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         # Feature extraction (simplified - would be LLM-powered in production)
         "extracted_features": {
             "packet_type": packet_type,
@@ -514,7 +512,7 @@ async def graph_sync_node(
 
         packet_id = envelope.get("packet_id", str(uuid4()))
         packet_type = envelope.get("packet_type", "unknown")
-        timestamp = envelope.get("timestamp", datetime.now(timezone.utc).isoformat())
+        timestamp = envelope.get("timestamp", datetime.now(UTC).isoformat())
         metadata = envelope.get("metadata", {})
         agent_id = metadata.get("agent") if metadata else None
         thread_id = (
@@ -709,7 +707,7 @@ async def checkpoint_node(
                 "packet_type": envelope.get("packet_type"),
                 "written_tables": written_tables,
                 "errors": errors,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
         )
         written_tables.append("graph_checkpoints")
@@ -786,7 +784,7 @@ async def extract_insights_node(
             "object": object_value,
             "confidence": 0.8,
             "source_packet": source_packet_str,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
         facts.append(fact)
 
@@ -859,17 +857,22 @@ async def extract_insights_node(
                 "insight_type": "entity_extraction",
                 "content": f"Extracted {len(extracted_entities)} entities: {', '.join(entity_names[:5])}{'...' if len(entity_names) > 5 else ''}",
                 "entities": entity_names,
-                "confidence": max(e.confidence for e in extracted_entities) if extracted_entities else 0.5,
+                "confidence": max(e.confidence for e in extracted_entities)
+                if extracted_entities
+                else 0.5,
                 "source_packet": packet_id,
                 "facts": [],
                 "trigger_world_model": any(
-                    e.entity_type in ("agent", "gmp_reference") for e in extracted_entities
+                    e.entity_type in ("agent", "gmp_reference")
+                    for e in extracted_entities
                 ),
             }
             insights.append(entity_insight)
 
             # Also emit entity-level facts for knowledge graph
-            source_packet_str = str(packet_id) if isinstance(packet_id, UUID) else packet_id
+            source_packet_str = (
+                str(packet_id) if isinstance(packet_id, UUID) else packet_id
+            )
             for entity in extracted_entities[:20]:
                 entity_fact = {
                     "fact_id": str(uuid4()),
@@ -878,7 +881,7 @@ async def extract_insights_node(
                     "object": entity.entity_id,
                     "confidence": entity.confidence,
                     "source_packet": source_packet_str,
-                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "created_at": datetime.now(UTC).isoformat(),
                 }
                 facts.append(entity_fact)
 

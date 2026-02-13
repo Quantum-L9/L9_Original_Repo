@@ -417,6 +417,7 @@ def rate_limit(
 
     def decorator(func: F) -> F:
         """Wrap function with rate limiting."""
+
         @wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             """Execute rate-limited function."""

@@ -276,6 +276,7 @@ if settings.email_enabled:
     except Exception as e:
         logger.error(f"WARNING: Failed to load Email Agent router: {e}")
 
+
 # === Shutdown handler for HTTP client cleanup (ADR-0084) ===
 @app.on_event("shutdown")
 async def shutdown_http_client():

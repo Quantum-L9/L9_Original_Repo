@@ -34,7 +34,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -133,7 +133,7 @@ class ComplianceReporter:
         Returns:
             ComplianceReport
         """
-        date = date or datetime.now(timezone.utc)
+        date = date or datetime.now(UTC)
         from_date = datetime(date.year, date.month, date.day, 0, 0, 0)
         to_date = from_date + timedelta(days=1)
 

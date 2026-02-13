@@ -130,7 +130,7 @@ STAGED_ALL=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true
 if [ -n "$STAGED_ALL" ]; then
     # Exclude ADR/documentation files from credentials check (they contain examples)
     STAGED_NON_DOC=$(echo "$STAGED_ALL" | grep -v 'readme/adr/' | grep -v '\.md$' || true)
-    
+
     # AWS Access Keys (always critical) - only in staged non-doc files
     FOUND=$(echo "$STAGED_NON_DOC" | xargs grep -E "AKIA[0-9A-Z]{16}" 2>/dev/null | grep -v '\.env' || true)
 
@@ -531,7 +531,7 @@ else
             fi
         fi
     done
-    
+
     # ADR-0088: No pickle (security)
     echo "  Checking ADR-0088: pickle usage..."
     for file in $STAGED_PY_FILES; do
@@ -545,7 +545,7 @@ else
             fi
         fi
     done
-    
+
     # ADR-0041: No eval/exec (security)
     echo "  Checking ADR-0041: eval/exec usage..."
     for file in $STAGED_PY_FILES; do
@@ -561,7 +561,7 @@ else
             fi
         fi
     done
-    
+
     # ADR-0087: No f-string SQL (injection risk)
     echo "  Checking ADR-0087: f-string SQL..."
     for file in $STAGED_PY_FILES; do
@@ -573,7 +573,7 @@ else
             fi
         fi
     done
-    
+
     # ADR-0019: No print() in production code
     echo "  Checking ADR-0019: print() usage..."
     for file in $STAGED_PY_FILES; do
@@ -589,7 +589,7 @@ else
             fi
         fi
     done
-    
+
     # ADR-0019: No stdlib logging module
     echo "  Checking ADR-0019: logging module..."
     for file in $STAGED_PY_FILES; do
@@ -605,7 +605,7 @@ else
             fi
         fi
     done
-    
+
     # ADR-0002: TYPE_CHECKING requires __future__ annotations
     echo "  Checking ADR-0002: TYPE_CHECKING pattern..."
     for file in $STAGED_PY_FILES; do
@@ -619,13 +619,13 @@ else
             fi
         fi
     done
-    
+
     if [ $ADR_VIOLATIONS -gt 0 ]; then
         echo -e "${RED}❌ Found $ADR_VIOLATIONS ADR violations${NC}"
         echo "{\"timestamp\":\"$(date -Iseconds)\",\"event\":\"adr_violations\",\"count\":$ADR_VIOLATIONS,\"severity\":\"CRITICAL\"}" >> "$HOOK_AUDIT_LOG"
         exit 1
     fi
-    
+
     echo -e "${GREEN}✓ ADR enforcement passed (no critical violations)${NC}"
     CHECKS_PASSED=$((CHECKS_PASSED + 1))
 fi

@@ -27,13 +27,12 @@ from core.tools.semantic_discovery import (
     ToolStatus,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 def tool_a() -> ToolDefinition:
     return ToolDefinition(
         id="memory_search",
@@ -43,11 +42,16 @@ def tool_a() -> ToolDefinition:
         tags=["search", "read-only"],
         parameters={"query": {"type": "string"}, "limit": {"type": "integer"}},
         status=ToolStatus.AVAILABLE,
-        examples=[{"description": "Find facts about users", "call": 'memory_search(query="user info")'}],
+        examples=[
+            {
+                "description": "Find facts about users",
+                "call": 'memory_search(query="user info")',
+            }
+        ],
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def tool_b() -> ToolDefinition:
     return ToolDefinition(
         id="redis_set",
@@ -55,12 +59,16 @@ def tool_b() -> ToolDefinition:
         description="Store a value in Redis cache.",
         category="redis",
         tags=["write", "cache"],
-        parameters={"key": {"type": "string"}, "value": {"type": "string"}, "ttl": {"type": "integer"}},
+        parameters={
+            "key": {"type": "string"},
+            "value": {"type": "string"},
+            "ttl": {"type": "integer"},
+        },
         status=ToolStatus.AVAILABLE,
     )
 
 
-@pytest.fixture()
+@pytest.fixture
 def service() -> DynamicToolDiscoveryService:
     return DynamicToolDiscoveryService(
         tool_budget_tokens=500,
@@ -100,7 +108,9 @@ class TestToolStatus:
 class TestToolDefinition:
     """Tests for ToolDefinition dataclass."""
 
-    def test_to_embedding_text_includes_description(self, tool_a: ToolDefinition) -> None:
+    def test_to_embedding_text_includes_description(
+        self, tool_a: ToolDefinition
+    ) -> None:
         text = tool_a.to_embedding_text()
         assert "Search through agent memory segments" in text
 
@@ -113,7 +123,9 @@ class TestToolDefinition:
         assert "search" in text
         assert "read-only" in text
 
-    def test_to_embedding_text_includes_parameters(self, tool_a: ToolDefinition) -> None:
+    def test_to_embedding_text_includes_parameters(
+        self, tool_a: ToolDefinition
+    ) -> None:
         text = tool_a.to_embedding_text()
         assert "query" in text
         assert "limit" in text
@@ -183,7 +195,7 @@ class TestDiscoveryServiceRegistration:
 class TestDiscoverTools:
     """Tests for tool discovery using mocked embeddings backend."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_discover_tools_hybrid(
         self, service: DynamicToolDiscoveryService
     ) -> None:
@@ -204,7 +216,7 @@ class TestDiscoverTools:
         assert tools[0]["type"] == "function"
         assert tools[0]["function"]["name"] == "memory_search"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_discover_tools_semantic_only(
         self, service: DynamicToolDiscoveryService
     ) -> None:
@@ -224,7 +236,7 @@ class TestDiscoverTools:
         assert len(tools) == 1
         assert tools[0]["function"]["name"] == "redis_get"
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_discover_tools_raises_on_backend_error(
         self, service: DynamicToolDiscoveryService
     ) -> None:
@@ -238,7 +250,7 @@ class TestDiscoverTools:
         ):
             await service.discover_tools("anything")
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_discover_tools_returns_empty_on_no_results(
         self, service: DynamicToolDiscoveryService
     ) -> None:
@@ -259,7 +271,7 @@ class TestDiscoverTools:
 class TestTokenBudget:
     """Tests for discover_tools_with_budget enforcement."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_budget_limits_results(self) -> None:
         """With a very small budget, only a subset of tools should be returned."""
         svc = DynamicToolDiscoveryService(
@@ -272,7 +284,9 @@ class TestTokenBudget:
         for i in range(5):
             r = MagicMock()
             r.tool_name = f"tool_{i}"
-            r.description = f"Description for tool {i} with some extra text to consume tokens"
+            r.description = (
+                f"Description for tool {i} with some extra text to consume tokens"
+            )
             r.metadata = {"parameters": {"param": {"type": "string"}}}
             mock_results.append(r)
 
@@ -286,7 +300,7 @@ class TestTokenBudget:
         # With 50 token budget, not all 5 tools should fit
         assert len(tools) < 5
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_budget_default_from_init(self) -> None:
         svc = DynamicToolDiscoveryService(tool_budget_tokens=9999)
 
@@ -317,9 +331,7 @@ class TestToolContextFormatter:
         assert "**Category**: memory" in output
         assert "`query`" in output
 
-    def test_format_tools_for_prompt_truncation(
-        self, tool_a: ToolDefinition
-    ) -> None:
+    def test_format_tools_for_prompt_truncation(self, tool_a: ToolDefinition) -> None:
         output = ToolContextFormatter.format_tools_for_prompt([tool_a], max_chars=50)
         assert len(output) <= 50 + len("\n... (truncated)")
         assert "truncated" in output

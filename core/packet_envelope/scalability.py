@@ -42,12 +42,13 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import structlog
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
+
+import structlog
 
 from core.decorators import must_stay_async
 

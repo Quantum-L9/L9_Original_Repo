@@ -59,15 +59,15 @@ Core world model abstractions
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module         | Purpose          |
+| -------------- | ---------------- |
 | `world_model/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -81,12 +81,12 @@ core/worldmodel/
 ├── service.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `service.py` | Service for L9 world model operations. |
+| File           | Purpose                                  |
+| -------------- | ---------------------------------------- |
+| `__init__.py`  | Core module (PROTECTED)                  |
+| `service.py`   | Service for L9 world model operations.   |
 | `l9_schema.py` | Types of entities in the L9 world model. |
-| `l9_schema.py` | Types of infrastructure components. |
+| `l9_schema.py` | Types of infrastructure components.      |
 
 ### Naming Conventions
 
@@ -171,7 +171,6 @@ class ToolRiskLevel:
 
 **Lines:** 85-91 in `l9_schema.py`
 
-
 ---
 
 ## Data Models and Contracts
@@ -184,7 +183,7 @@ The following data models define the contracts for this subsystem:
 
 `ConnectionStatus`, `EntityType`, `InfrastructureType`, `Insight`, `InsightEmitter`, `L9Agent`, `L9ExternalSystem`, `L9Infrastructure`, `L9MemorySegment`, `L9Relationship`
 
-*...and 8 more*
+_...and 8 more_
 
 ### Key Schemas
 
@@ -250,9 +249,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Worldmodel feature flags
-L9_ENABLE_CORE_WORLDMODEL_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_WORLDMODEL_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_WORLDMODEL_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_WORLDMODEL_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_WORLDMODEL_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_WORLDMODEL_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -295,7 +294,6 @@ Get or create the global InsightEmitter instance.
 - **Async:** No
 - **Returns:** `InsightEmitter`
 
-
 ### Usage Example
 
 ```python
@@ -336,6 +334,7 @@ Core Worldmodel operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -343,12 +342,12 @@ Core Worldmodel operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                  | Type      | Description                    |
+| --------------------------------------- | --------- | ------------------------------ |
 | `core_worldmodel_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_worldmodel_operation_total` | Counter | Total operations processed |
-| `core_worldmodel_error_total` | Counter | Total errors encountered |
-| `core_worldmodel_active_connections` | Gauge | Current active connections |
+| `core_worldmodel_operation_total`       | Counter   | Total operations processed     |
+| `core_worldmodel_error_total`           | Counter   | Total errors encountered       |
+| `core_worldmodel_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -366,6 +365,7 @@ Core Worldmodel emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_worldmodel/`:
+
 - `test_core_worldmodel.py` — Core unit tests
 - `test_core_worldmodel_integration.py` — Integration tests (if applicable)
 
@@ -408,6 +408,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

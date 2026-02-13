@@ -10,7 +10,7 @@ Tests cover:
 """
 
 import json
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
@@ -383,11 +383,11 @@ class TestPhase5Governance:
         manager.set_retention_policy("pkt-001", RetentionPolicy.MINIMAL)
 
         # Created 31 days ago - should be expired
-        created_at = datetime.now(timezone.utc) - timedelta(days=31)
+        created_at = datetime.now(UTC) - timedelta(days=31)
         assert manager.is_expired("pkt-001", created_at) is True
 
         # Created 29 days ago - should NOT be expired
-        created_at = datetime.now(timezone.utc) - timedelta(days=29)
+        created_at = datetime.now(UTC) - timedelta(days=29)
         assert manager.is_expired("pkt-001", created_at) is False
 
     def test_retention_policy_permanent(self):
@@ -398,7 +398,7 @@ class TestPhase5Governance:
         manager.set_retention_policy("pkt-002", RetentionPolicy.PERMANENT)
 
         # Even 10 years ago should not expire
-        created_at = datetime.now(timezone.utc) - timedelta(days=3650)
+        created_at = datetime.now(UTC) - timedelta(days=3650)
         assert manager.is_expired("pkt-002", created_at) is False
 
     @pytest.mark.asyncio

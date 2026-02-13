@@ -3,7 +3,7 @@ Tests for memory retrieval utilities - ranking and temporal decay.
 """
 
 import sys
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 
 import pytest
@@ -76,14 +76,14 @@ class TestTemporalDecay:
 
     def test_no_decay_for_recent(self):
         """Very recent items should have minimal decay."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         score = apply_temporal_decay(1.0, now, half_life_days=30)
 
         assert score > 0.99  # Essentially no decay
 
     def test_half_decay_at_half_life(self):
         """Score should be halved at exactly one half-life."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         half_life = 30
         old = now - timedelta(days=half_life)
 
@@ -95,7 +95,7 @@ class TestTemporalDecay:
 
     def test_quarter_decay_at_two_half_lives(self):
         """Score should be quartered at two half-lives."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         half_life = 30
         very_old = now - timedelta(days=half_life * 2)
 
@@ -107,7 +107,7 @@ class TestTemporalDecay:
 
     def test_recent_beats_old(self):
         """Recent items should always score higher than old ones."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         recent = now - timedelta(days=1)
         old = now - timedelta(days=60)
 
@@ -122,7 +122,7 @@ class TestTemporalDecay:
 
     def test_preserves_relative_scores(self):
         """Decay should preserve relative ordering of base scores."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         timestamp = now - timedelta(days=15)
 
         high_decayed = apply_temporal_decay(
@@ -138,7 +138,7 @@ class TestTemporalDecay:
 
     def test_future_timestamp_no_decay(self):
         """Future timestamps should not have negative decay."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         future = now + timedelta(days=10)
 
         score = apply_temporal_decay(1.0, future, half_life_days=30, reference_time=now)

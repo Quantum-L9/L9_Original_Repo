@@ -1,8 +1,8 @@
 # ADR-0089: Hierarchical Compose and C1 Symlinks
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Source:** Perplexity PHASE 0 plan + GMP deploy-docker unification  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Source:** Perplexity PHASE 0 plan + GMP deploy-docker unification
 
 ## Context
 

@@ -208,10 +208,10 @@ async def main() -> None:
             if result.first():
                 # Exit 0 (success) - "already completed" is expected, not an error
                 # This allows service_completed_successfully dependencies to work
-                print(
+                print(  # noqa: ADR-0019 - bootstrap runs before logging configured
                     "[BOOTSTRAP:OK] Bootstrap already completed. Skipping.",
                     file=sys.stderr,
-                )  # noqa: ADR-0019
+                )
                 sys.exit(0)
         except Exception as e:
             # Table doesn't exist yet - this is expected on first run

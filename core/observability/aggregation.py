@@ -25,7 +25,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from statistics import mean
 from typing import Any
 
@@ -52,7 +52,7 @@ class MetricsAggregator:
                 "p99_latency_ms": 0,
                 "avg_latency_ms": 0,
                 "max_latency_ms": 0,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
         # Latency analysis
@@ -80,7 +80,7 @@ class MetricsAggregator:
             "avg_latency_ms": mean(durations) if durations else 0,
             "max_latency_ms": max(durations) if durations else 0,
             "errors_by_type": error_by_type,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     @staticmethod

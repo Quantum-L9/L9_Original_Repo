@@ -35,7 +35,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
@@ -367,7 +367,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
         Returns:
             Dict with checkpoint_id
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         result = await self._execute_with_retry(
             "put",
@@ -378,7 +378,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
             new_versions,
         )
 
-        duration_ms = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+        duration_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         logger.info(
             "checkpoint_saved_with_retry",
@@ -451,7 +451,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
             "pool_available": -1,
             "requests_waiting": -1,
             "monitoring_available": False,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         # Try to get pool stats from repository if available

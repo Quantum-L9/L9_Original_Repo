@@ -59,15 +59,15 @@ Code generation utilities and templates
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module       | Purpose          |
+| ------------ | ---------------- |
 | `ir_engine/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -86,11 +86,11 @@ core/codegen/
 ├── utilities.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `utilities.py` | Single validation gate result |
-| `utilities.py` | Complete validation report |
+| File           | Purpose                                         |
+| -------------- | ----------------------------------------------- |
+| `__init__.py`  | Core module (PROTECTED)                         |
+| `utilities.py` | Single validation gate result                   |
+| `utilities.py` | Complete validation report                      |
 | `utilities.py` | 14-gate validation pipeline for generated code. |
 
 ### Naming Conventions
@@ -186,7 +186,6 @@ class DORABlockGenerator:
 
 **Lines:** 361-480 in `utilities.py`
 
-
 ---
 
 ## Data Models and Contracts
@@ -201,17 +200,17 @@ The following data models define the contracts for this subsystem:
 
 `BlindSpot`, `CodeGenGatekeeperAgent`, `CodeGenOutput`, `CompilationResult`, `ContractType`, `ModuleCompiler`, `NormalizedSpec`, `ResearchFinding`, `SpecNormalizer`, `SpecParseError`
 
-*...and 1 more*
+_...and 1 more_
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `TEMPLATE_AGENT_CORE` | `'"""  \n{{metadata.name}} - L9 Agent\n{{...` | 65 |
-| `TEMPLATE_CONFIG` | `'"""  \n{{metadata.name}} - Configuratio...` | 305 |
-| `TEMPLATE_MODELS` | `'"""  \n{{metadata.name}} - Data Models\...` | 330 |
-| `TEMPLATE_TOOL_YAML` | `'# Tool Configuration for {{metadata.nam...` | 351 |
-| `TEMPLATE_TESTS` | `'"""  \nTests for {{metadata.name}}\n"""...` | 403 |
+| Constant              | Value                                         | Line |
+| --------------------- | --------------------------------------------- | ---- |
+| `TEMPLATE_AGENT_CORE` | `'"""  \n{{metadata.name}} - L9 Agent\n{{...` | 65   |
+| `TEMPLATE_CONFIG`     | `'"""  \n{{metadata.name}} - Configuratio...` | 305  |
+| `TEMPLATE_MODELS`     | `'"""  \n{{metadata.name}} - Data Models\...` | 330  |
+| `TEMPLATE_TOOL_YAML`  | `'# Tool Configuration for {{metadata.nam...` | 351  |
+| `TEMPLATE_TESTS`      | `'"""  \nTests for {{metadata.name}}\n"""...` | 403  |
 
 ### Key Schemas
 
@@ -276,9 +275,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Codegen feature flags
-L9_ENABLE_CORE_CODEGEN_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_CODEGEN_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_CODEGEN_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_CODEGEN_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_CODEGEN_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_CODEGEN_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -333,7 +332,6 @@ Research a topic using Perplexity
 - **File:** `cli.py:155`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -374,6 +372,7 @@ Core Codegen operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -381,12 +380,12 @@ Core Codegen operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                               | Type      | Description                    |
+| ------------------------------------ | --------- | ------------------------------ |
 | `core_codegen_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_codegen_operation_total` | Counter | Total operations processed |
-| `core_codegen_error_total` | Counter | Total errors encountered |
-| `core_codegen_active_connections` | Gauge | Current active connections |
+| `core_codegen_operation_total`       | Counter   | Total operations processed     |
+| `core_codegen_error_total`           | Counter   | Total errors encountered       |
+| `core_codegen_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -404,6 +403,7 @@ Core Codegen emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_codegen/`:
+
 - `test_core_codegen.py` — Core unit tests
 - `test_core_codegen_integration.py` — Integration tests (if applicable)
 
@@ -446,6 +446,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

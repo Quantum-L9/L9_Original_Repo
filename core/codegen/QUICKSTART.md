@@ -60,6 +60,7 @@ python -m l9.core.codegen.cli generate \
 ```
 
 **Output**:
+
 ```
 🚀 Unified CodeGen System v1.0.0
 📄 Input: my_agent.yaml
@@ -84,6 +85,7 @@ ls -la
 ```
 
 **Generated files**:
+
 ```
 module_my_first_agent/
 ├── __init__.py           # Module exports
@@ -112,6 +114,7 @@ pytest tests/ -v --cov=.
 ```
 
 **Output**:
+
 ```
 ============================= test session starts ==============================
 collected 5 items
@@ -221,7 +224,7 @@ All generated code passes through 14 validation gates:
 2. ✅ **Type Safety** - All functions type-hinted
 3. ✅ **Imports** - All imports resolve
 4. ✅ **L9 Patterns** - Follows L9 conventions
-5. ✅ **Feature Flags** - Respects L9_ENABLE_*
+5. ✅ **Feature Flags** - Respects L9*ENABLE*\*
 6. ✅ **Kernel Deps** - Valid kernel references
 7. ✅ **Memory Substrate** - Valid DB schema
 8. ✅ **Tool Registry** - Correct tool bindings
@@ -255,6 +258,7 @@ git merge codegen-my_first_agent-20251231-120000
 ### Issue: "Perplexity API key not set"
 
 **Solution**:
+
 ```bash
 export PERPLEXITY_API_KEY=pplx-your-key-here
 ```
@@ -262,6 +266,7 @@ export PERPLEXITY_API_KEY=pplx-your-key-here
 ### Issue: "Confidence below threshold"
 
 **Solution**: Enable research or lower threshold:
+
 ```bash
 python -m l9.core.codegen.cli generate \
   -i spec.yaml \
@@ -274,6 +279,7 @@ python -m l9.core.codegen.cli generate \
 ### Issue: "Validation failed"
 
 **Solution**: Check validation report:
+
 ```bash
 python -m l9.core.codegen.cli validate --files ./output
 ```
@@ -283,6 +289,7 @@ Fix errors and re-run generation.
 ### Issue: "Import errors in generated code"
 
 **Solution**: Install dependencies:
+
 ```bash
 cd ./output/module_*
 pip install -r requirements.txt

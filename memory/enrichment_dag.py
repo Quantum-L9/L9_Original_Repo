@@ -27,7 +27,7 @@ warnings.warn(
 )
 
 # Re-export everything from the archived module
-from memory.archive.enrichment_dag import (  # noqa: F401
+from memory.archive.enrichment_dag import (
     EnrichmentConfig,
     EnrichmentDAG,
     EnrichmentResult,
@@ -36,7 +36,7 @@ from memory.archive.enrichment_dag import (  # noqa: F401
 )
 
 # Also re-export telemetry function used by tests that patch this module
-from telemetry.memory_metrics import record_memory_enrichment  # noqa: F401
+from telemetry.memory_metrics import record_memory_enrichment
 
 __all__ = [
     "EnrichmentConfig",

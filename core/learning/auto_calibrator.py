@@ -253,9 +253,7 @@ class AutoCalibrator:
             weights_updated=weight_updates,
             correlations_detected=correlations,
             calibration_time_seconds=round(calibration_time, 2),
-            next_calibration=(
-                datetime.now(UTC) + timedelta(days=1)
-            ).isoformat(),
+            next_calibration=(datetime.now(UTC) + timedelta(days=1)).isoformat(),
         )
 
         return report
@@ -365,9 +363,7 @@ class AutoCalibrator:
             if adjustment != 0.0:
                 new_value = max(0.0, min(1.0, threshold_value + adjustment))
                 threshold_config["value"] = new_value
-                threshold_config["last_calibrated"] = datetime.now(
-                    UTC
-                ).isoformat()
+                threshold_config["last_calibrated"] = datetime.now(UTC).isoformat()
 
                 # Update calibration data
                 false_positives = len(above_threshold) - correct_above
@@ -521,7 +517,10 @@ class AutoCalibrator:
         mean1 = sum(values1) / n
         mean2 = sum(values2) / n
 
-        numerator = sum((v1 - mean1) * (v2 - mean2) for v1, v2 in zip(values1, values2))
+        numerator = sum(
+            (v1 - mean1) * (v2 - mean2)
+            for v1, v2 in zip(values1, values2, strict=False)
+        )
         denom1 = math.sqrt(sum((v1 - mean1) ** 2 for v1 in values1))
         denom2 = math.sqrt(sum((v2 - mean2) ** 2 for v2 in values2))
 

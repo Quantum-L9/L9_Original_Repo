@@ -10,7 +10,7 @@ Integration tests for the GMP-80 frontier memory retrieval architecture:
 These tests verify the complete pipeline without requiring a live database.
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from uuid import uuid4
 
 import pytest
@@ -463,7 +463,7 @@ class TestImportanceManager:
         manager = ImportanceManager()
 
         # 30 days ago = half-life, so importance should halve
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         thirty_days_ago = now - timedelta(days=30)
 
         decayed = manager._calculate_decay(1.0, thirty_days_ago, now)
@@ -477,7 +477,7 @@ class TestImportanceManager:
         manager = ImportanceManager()
 
         # Very old access = should hit floor
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         ancient = now - timedelta(days=365)
 
         decayed = manager._calculate_decay(0.5, ancient, now)

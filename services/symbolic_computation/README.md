@@ -59,15 +59,15 @@ SymPy-based symbolic math computation engine
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module        | Purpose          |
+| ------------- | ---------------- |
 | `core/tools/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -93,13 +93,13 @@ services/symbolic_computation/
 └── ... (6 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `computation.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
-| `config.py` | Configuration settings for symbolic computation. |
-| `models.py` | Supported computational backends. |
-| `models.py` | Supported code generation languages. |
+| File             | Purpose                                          |
+| ---------------- | ------------------------------------------------ |
+| `computation.py` | Core module (PROTECTED)                          |
+| `__init__.py`    | Core module (PROTECTED)                          |
+| `config.py`      | Configuration settings for symbolic computation. |
+| `models.py`      | Supported computational backends.                |
+| `models.py`      | Supported code generation languages.             |
 
 ### Naming Conventions
 
@@ -178,7 +178,6 @@ class ComputationResult:
 
 **Lines:** 88-105 in `models.py`
 
-
 ---
 
 ## Data Models and Contracts
@@ -193,7 +192,7 @@ The following data models define the contracts for this subsystem:
 
 `BackendType`, `CacheManager`, `CodeGenRequest`, `CodeGenResult`, `CodeGenerationError`, `CodeGenerator`, `CodeLanguage`, `ComputationRequest`, `ComputationResult`, `EvaluationError`
 
-*...and 10 more*
+_...and 10 more_
 
 ### Key Schemas
 
@@ -258,9 +257,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Services_Symbolic feature flags
-L9_ENABLE_SERVICES_SYMBOLIC_TRACING: true  # Enable detailed tracing
-L9_ENABLE_SERVICES_SYMBOLIC_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_SERVICES_SYMBOLIC_AUDIT: true    # Enable audit logging
+L9_ENABLE_SERVICES_SYMBOLIC_TRACING: true # Enable detailed tracing
+L9_ENABLE_SERVICES_SYMBOLIC_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_SERVICES_SYMBOLIC_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -326,7 +325,6 @@ Extract variable names from expression.
 - **Async:** No
 - **Returns:** `list[str]`
 
-
 ### Usage Example
 
 ```python
@@ -367,6 +365,7 @@ Services Symbolic operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -374,12 +373,12 @@ Services Symbolic operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                    | Type      | Description                    |
+| ----------------------------------------- | --------- | ------------------------------ |
 | `services_symbolic_operation_duration_ms` | Histogram | Operation latency distribution |
-| `services_symbolic_operation_total` | Counter | Total operations processed |
-| `services_symbolic_error_total` | Counter | Total errors encountered |
-| `services_symbolic_active_connections` | Gauge | Current active connections |
+| `services_symbolic_operation_total`       | Counter   | Total operations processed     |
+| `services_symbolic_error_total`           | Counter   | Total errors encountered       |
+| `services_symbolic_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -397,6 +396,7 @@ Services Symbolic emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/services_symbolic_computation/`:
+
 - `test_services_symbolic.py` — Core unit tests
 - `test_services_symbolic_integration.py` — Integration tests (if applicable)
 
@@ -443,6 +443,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

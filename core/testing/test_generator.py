@@ -81,7 +81,7 @@ BEHAVIOR TESTING (CRITICAL):
 
 1. UUID FORMAT: Always use valid UUID format (e.g., "12345678-1234-5678-1234-567812345678")
    NEVER use strings like "test_id", "duplicate_id", "user-123"
-   
+
 2. EXACT ERROR MESSAGES: Don't hardcode exact error strings. Use partial matching:
    - BAD:  assert "Duplicate packet detected" in result["errors"]
    - GOOD: assert any("Duplicate" in err for err in result["errors"])

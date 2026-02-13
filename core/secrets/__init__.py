@@ -6,7 +6,7 @@ Provides factory function for creating SecretsClient implementations
 based on configuration, supporting env-based and AWS Secrets Manager backends.
 
 Configuration via environment variables:
-- L9_SECRETS_PROVIDER: "env" | "aws" (default: "env")
+- L9_SECRETS_PROVIDER: env | aws (default: env)
 - AWS_REGION: AWS region (default: "us-east-1")
 - AWS_SECRETS_PREFIX: Secret name prefix (default: "l9")
 - AWS_SECRETS_CACHE_TTL: Cache TTL in seconds (default: 3600)
@@ -78,7 +78,7 @@ def get_secrets_client() -> SecretsClientType:
     Get or create the secrets client singleton.
 
     Configuration via environment variables:
-    - L9_SECRETS_PROVIDER: "env" | "aws" (default: "env")
+    - L9_SECRETS_PROVIDER: env | aws (default: env)
     - AWS_REGION: AWS region (default: "us-east-1")
     - AWS_SECRETS_PREFIX: Secret name prefix (default: "l9")
     - AWS_SECRETS_CACHE_TTL: Cache TTL in seconds (default: 3600)
@@ -217,10 +217,33 @@ __dora_footer__ = {
     "governance_level": "critical",
     "compliance_required": True,
     "audit_trail": True,
-    "dependencies": ["core.protocols.secrets_protocols", "core.secrets.aws_secrets_client", "core.secrets.env_secrets_client"],
-    "tags": ["caching", "core", "debugging", "foundation", "logging", "migration", "security", "testing", "utility"],
-    "keywords": ["based", "cache", "client", "configuration", "default", "env", "factory", "manager"],
-    "business_value": "Provides factory function for creating SecretsClient implementations based on configuration, supporting env-based and AWS Secrets Manager backends. L9_SECRETS_PROVIDER: "env" | "aws" (default: "env") ",
+    "dependencies": [
+        "core.protocols.secrets_protocols",
+        "core.secrets.aws_secrets_client",
+        "core.secrets.env_secrets_client",
+    ],
+    "tags": [
+        "caching",
+        "core",
+        "debugging",
+        "foundation",
+        "logging",
+        "migration",
+        "security",
+        "testing",
+        "utility",
+    ],
+    "keywords": [
+        "based",
+        "cache",
+        "client",
+        "configuration",
+        "default",
+        "env",
+        "factory",
+        "manager",
+    ],
+    "business_value": "Provides factory function for creating SecretsClient implementations based on configuration, supporting env-based and AWS Secrets Manager backends. L9_SECRETS_PROVIDER: env | aws (default: env) ",
     "last_modified": "2026-01-31T22:21:46Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

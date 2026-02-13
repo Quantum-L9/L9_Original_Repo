@@ -7,7 +7,7 @@ Tests for audit logging, compliance reporting, and export.
 Version: 1.0.0
 """
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -174,7 +174,7 @@ class TestComplianceReporter:
         # Mock substrate with sample data
         mock_substrate = AsyncMock()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Mock command entries
         mock_substrate.search_packets_by_type = AsyncMock(
@@ -247,7 +247,7 @@ class TestComplianceReporter:
         from core.compliance.audit_reporter import ComplianceReporter
 
         mock_substrate = AsyncMock()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Mock with unapproved gmprun
         mock_substrate.search_packets_by_type = AsyncMock(
@@ -288,7 +288,7 @@ class TestComplianceReporter:
         from core.compliance.audit_reporter import ComplianceReporter
 
         mock_substrate = AsyncMock()
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         mock_substrate.search_packets_by_type = AsyncMock(
             return_value=[
@@ -321,7 +321,7 @@ class TestDateRangeFiltering:
 
         reporter = ComplianceReporter()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         from_date = now - timedelta(hours=1)
         to_date = now + timedelta(hours=1)
 
@@ -340,7 +340,7 @@ class TestDateRangeFiltering:
 
         reporter = ComplianceReporter()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         from_date = now + timedelta(hours=1)
         to_date = now + timedelta(hours=2)
 
@@ -359,7 +359,7 @@ class TestDateRangeFiltering:
 
         reporter = ComplianceReporter()
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         assert (
             reporter._in_date_range(

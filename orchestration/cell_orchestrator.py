@@ -44,7 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -110,7 +110,7 @@ class CellWorkflow:
     context: dict[str, Any] = field(default_factory=dict)
     results: dict[str, Any] = field(default_factory=dict)
     current_step: int = 0
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     started_at: datetime | None = None
     completed_at: datetime | None = None
 
@@ -744,7 +744,7 @@ class CellOrchestrator:
             raise ValueError(f"Workflow {workflow_id} not found")
 
         workflow.status = WorkflowStatus.RUNNING
-        workflow.started_at = datetime.now(timezone.utc)
+        workflow.started_at = datetime.now(UTC)
 
         step_results: list[Any] = []
         errors: list[str] = []
@@ -791,7 +791,7 @@ class CellOrchestrator:
             workflow.status = WorkflowStatus.FAILED
             errors.append(str(e))
 
-        workflow.completed_at = datetime.now(timezone.utc)
+        workflow.completed_at = datetime.now(UTC)
         duration_ms = int(
             (workflow.completed_at - workflow.started_at).total_seconds() * 1000
         )
@@ -840,7 +840,7 @@ class CellOrchestrator:
         context: dict[str, Any],
     ) -> Any:
         """Execute a single cell step."""
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         step.status = "running"
 
         logger.debug(f"Executing cell step: {step.cell_type}")
@@ -883,7 +883,7 @@ class CellOrchestrator:
             )
 
         step.result = result
-        step.duration_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        step.duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
         return result
 
@@ -950,7 +950,7 @@ class CellOrchestrator:
             WorkflowStatus.RUNNING,
         ):
             workflow.status = WorkflowStatus.CANCELLED
-            workflow.completed_at = datetime.now(timezone.utc)
+            workflow.completed_at = datetime.now(UTC)
             logger.info(f"Cancelled workflow {workflow_id}")
             return True
         return False

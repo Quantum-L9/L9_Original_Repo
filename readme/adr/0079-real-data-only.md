@@ -1,8 +1,8 @@
 # ADR-0079: Real Data Only
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Author:** Igor Beylin  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Author:** Igor Beylin
 
 ## Context
 
@@ -14,17 +14,17 @@ Fabricating data—making up phone numbers, emails, addresses, metrics, or any o
 
 ### Data Handling Rules
 
-| Situation | Action |
-|-----------|--------|
-| Real data available | Use it |
-| No data available | Leave blank or null |
-| Example needed | Label clearly as "EXAMPLE" or "PLACEHOLDER" |
-| User provides data | Use exactly as provided |
+| Situation           | Action                                      |
+| ------------------- | ------------------------------------------- |
+| Real data available | Use it                                      |
+| No data available   | Leave blank or null                         |
+| Example needed      | Label clearly as "EXAMPLE" or "PLACEHOLDER" |
+| User provides data  | Use exactly as provided                     |
 
 ### Never Fabricate
 
 - Phone numbers
-- Email addresses  
+- Email addresses
 - Physical addresses
 - API keys or credentials
 - Metric values or statistics
@@ -57,23 +57,25 @@ If documentation or tests require example data:
 ### Confirmation Before Using Data
 
 If uncertain about data source:
+
 - "I see [data] in [source]. Is this the correct value to use?"
 - "I don't have access to [data]. Please provide or confirm I should leave blank."
 
 ### Anti-Patterns
 
-| Anti-Pattern | Why It's Wrong |
-|--------------|----------------|
-| "I'll just put something here" | Fabrication |
-| Making up realistic-looking data | Deceptive |
-| Guessing metric values | Misleading |
-| Inventing user information | Trust violation |
+| Anti-Pattern                     | Why It's Wrong  |
+| -------------------------------- | --------------- |
+| "I'll just put something here"   | Fabrication     |
+| Making up realistic-looking data | Deceptive       |
+| Guessing metric values           | Misleading      |
+| Inventing user information       | Trust violation |
 
 ## Implementation
 
 ### Code Review Signals
 
 Flag for review if:
+
 - Data appears in code that wasn't in requirements
 - Metrics or statistics without source citation
 - Contact information without confirmation
@@ -94,14 +96,17 @@ TEST_PHONE = "212-555-1234"  # Could be real number
 ## Consequences
 
 ### Positive
+
 - Data integrity maintained
 - Trust preserved
 - No legal issues with fake PII
 - Clear separation of test vs production data
 
 ### Negative
+
 - May need to ask for data more often
 - Some fields remain blank until provided
 
 ## Related
+
 - ADR-0063: No Silent Changes

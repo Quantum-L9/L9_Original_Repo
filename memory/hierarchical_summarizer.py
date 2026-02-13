@@ -40,7 +40,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -188,7 +188,7 @@ class HierarchicalSummarizer:
         Returns:
             Dict mapping tiers to generated summaries
         """
-        cutoff_time = cutoff_time or datetime.now(timezone.utc)
+        cutoff_time = cutoff_time or datetime.now(UTC)
         results: dict[SummaryTier, list[SummaryResult]] = {}
 
         logger.info(

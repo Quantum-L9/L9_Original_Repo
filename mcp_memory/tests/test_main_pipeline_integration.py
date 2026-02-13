@@ -4,6 +4,7 @@ Verifies that MCP memory uses MemorySubstrateService.write_packet() when availab
 which routes through the full DAG pipeline (graph sync, fact extraction, etc.).
 """
 
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -200,7 +201,7 @@ async def test_save_via_main_pipeline_handles_ttl_correctly():
     mock_service.write_packet.return_value = mock_result
 
     # Test short duration
-    from datetime import datetime, timezone, timedelta
+    from datetime import datetime, timedelta, timezone
 
     from src.config import settings
 
@@ -222,9 +223,7 @@ async def test_save_via_main_pipeline_handles_ttl_correctly():
     call_args = mock_service.write_packet.call_args[0][0]
     assert call_args.ttl is not None
     # TTL should be approximately now + MEMORY_SHORT_TERM_HOURS
-    expected_ttl = datetime.now(timezone.utc) + timedelta(
-        hours=settings.MEMORY_SHORT_TERM_HOURS
-    )
+    expected_ttl = datetime.now(UTC) + timedelta(hours=settings.MEMORY_SHORT_TERM_HOURS)
     assert abs((call_args.ttl - expected_ttl).total_seconds()) < 5  # Within 5 seconds
 
 

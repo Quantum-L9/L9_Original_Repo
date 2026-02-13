@@ -34,7 +34,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
@@ -100,7 +100,7 @@ def execute_email_task(
                         "action": action,
                         "status": "success",
                         "details": f"Found {len(messages)} messages",
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                     }
                 )
                 # Store messages in data
@@ -119,7 +119,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "success",
                                 "details": f"Retrieved message: {message.get('subject', 'No subject')}",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
                         if "data" not in locals():
@@ -132,7 +132,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "error",
                                 "details": f"Message {message_id} not found",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
 
@@ -152,7 +152,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "success",
                                 "details": f"Draft created: {draft_id}",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
                         if "data" not in locals():
@@ -165,7 +165,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "error",
                                 "details": "Failed to create draft",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
 
@@ -199,7 +199,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "success",
                                 "details": f"Email sent: {sent_message.get('id')}",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
                         if "data" not in locals():
@@ -213,7 +213,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "error",
                                 "details": f"Failed to send draft: {e!s}",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
                 elif all([to, subject, body]):
@@ -227,7 +227,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "success",
                                 "details": f"Email sent: {result.get('message_id')}",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
                         if "data" not in locals():
@@ -240,7 +240,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "error",
                                 "details": "Failed to send email",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
                 else:
@@ -250,7 +250,7 @@ def execute_email_task(
                             "action": action,
                             "status": "error",
                             "details": "Missing required fields (to, subject, body) or draft_id",
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                         }
                     )
 
@@ -266,7 +266,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "success",
                                 "details": f"Reply sent: {result.get('message_id')}",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
                         if "data" not in locals():
@@ -279,7 +279,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "error",
                                 "details": "Failed to send reply",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
                 else:
@@ -289,7 +289,7 @@ def execute_email_task(
                             "action": action,
                             "status": "error",
                             "details": "Missing message_id or body",
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                         }
                     )
 
@@ -306,7 +306,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "success",
                                 "details": f"Email forwarded: {result.get('message_id')}",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
                         if "data" not in locals():
@@ -319,7 +319,7 @@ def execute_email_task(
                                 "action": action,
                                 "status": "error",
                                 "details": "Failed to forward email",
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             }
                         )
                 else:
@@ -329,7 +329,7 @@ def execute_email_task(
                             "action": action,
                             "status": "error",
                             "details": "Missing message_id or to",
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                         }
                     )
 
@@ -347,9 +347,9 @@ def execute_email_task(
             "logs": logs,
             "screenshots": [],
             "started_at": (
-                logs[0]["timestamp"] if logs else datetime.now(timezone.utc).isoformat()
+                logs[0]["timestamp"] if logs else datetime.now(UTC).isoformat()
             ),
-            "finished_at": datetime.now(timezone.utc).isoformat(),
+            "finished_at": datetime.now(UTC).isoformat(),
             "data": data if "data" in locals() else {"task_type": "email_task"},
         }
 
@@ -363,7 +363,7 @@ def execute_email_task(
                     "action": "email_task",
                     "status": "error",
                     "details": str(e),
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 }
             ],
             "screenshots": [],

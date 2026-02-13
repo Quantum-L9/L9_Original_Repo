@@ -21,7 +21,7 @@ except Exception:
     pass  # Ignore if unavailable - tests will fail gracefully
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -247,5 +247,5 @@ def mock_bootstrap_instance(mock_agent_config):
         config=mock_agent_config,
         kernel_state="LOADING",
         status="INITIALIZING",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )

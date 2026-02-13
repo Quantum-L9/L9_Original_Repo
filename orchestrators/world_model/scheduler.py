@@ -27,7 +27,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
 import structlog
@@ -81,7 +81,7 @@ class WorldModelScheduler:
         Returns:
             True to proceed with update, False to queue
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Count high-confidence insights
         high_confidence = sum(

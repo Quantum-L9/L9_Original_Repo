@@ -1,14 +1,14 @@
 # ADR-0091: Definition of Done (Enforceable)
 
-**Status:** Accepted  
-**Date:** 2026-02-01  
-**Author:** Igor Beylin  
-**Priority:** CRITICAL  
-**Enforcement:** CI + Pre-commit + PR Template  
+**Status:** Accepted
+**Date:** 2026-02-01
+**Author:** Igor Beylin
+**Priority:** CRITICAL
+**Enforcement:** CI + Pre-commit + PR Template
 
 ## Context
 
-"Done" is not subjective. Work is either complete and verified, or it's not done. 
+"Done" is not subjective. Work is either complete and verified, or it's not done.
 
 This ADR defines **concrete, checkable criteria** that determine when work is actually done — and **CI enforcement** to block incomplete work from merging.
 
@@ -22,33 +22,39 @@ A change is **DONE** when ALL of the following are true:
 ## ✅ DEFINITION OF DONE
 
 ### Code Complete
+
 - [ ] All requested changes implemented
 - [ ] No TODOs, FIXMEs, or placeholders left behind
 - [ ] No commented-out code (unless documented why)
 
 ### Dependencies Traced
+
 - [ ] `grep -r "<changed_entity>"` run
 - [ ] All references to changed code updated
 - [ ] Healthchecks updated (if config/auth changed)
 - [ ] Environment variables documented (if added)
 
 ### Tests
+
 - [ ] Unit tests pass: `pytest tests/unit/`
 - [ ] Integration tests pass (if applicable)
 - [ ] New tests written for new functionality
 - [ ] Edge cases covered
 
 ### Verification Evidence
+
 - [ ] Actual command output provided (not "should work")
 - [ ] Exit code 0 shown
 - [ ] Error conditions verified to not occur
 
 ### Documentation
+
 - [ ] Docstrings added/updated
 - [ ] README updated (if user-facing change)
 - [ ] ADR created (if architectural decision)
 
 ### Security (if applicable)
+
 - [ ] No secrets in code
 - [ ] Auth changes include all consumers
 - [ ] Firewall/network implications documented
@@ -56,21 +62,21 @@ A change is **DONE** when ALL of the following are true:
 
 ### NOT DONE Examples
 
-| Scenario | Why NOT DONE |
-|----------|--------------|
-| "Added --requirepass to Redis" | Healthcheck not updated → container fails |
-| "Fixed the bug" | No test output shown → unverified |
-| "Updated config" | Didn't grep for other references → incomplete |
-| "Should work now" | No evidence → wishful thinking |
-| "Tests pass locally" | No output shown → trust me bro |
+| Scenario                       | Why NOT DONE                                  |
+| ------------------------------ | --------------------------------------------- |
+| "Added --requirepass to Redis" | Healthcheck not updated → container fails     |
+| "Fixed the bug"                | No test output shown → unverified             |
+| "Updated config"               | Didn't grep for other references → incomplete |
+| "Should work now"              | No evidence → wishful thinking                |
+| "Tests pass locally"           | No output shown → trust me bro                |
 
 ### DONE Examples
 
-| Scenario | Why DONE |
-|----------|----------|
+| Scenario                                                              | Why DONE                |
+| --------------------------------------------------------------------- | ----------------------- |
 | "Added --requirepass, updated healthcheck, verified container starts" | All dependencies traced |
-| "Fixed bug, test output: PASSED, exit 0" | Evidence provided |
-| "Updated config, grep shows 3 references, all updated" | Downstream traced |
+| "Fixed bug, test output: PASSED, exit 0"                              | Evidence provided       |
+| "Updated config, grep shows 3 references, all updated"                | Downstream traced       |
 
 ## Enforcement
 
@@ -95,7 +101,7 @@ Exit codes:
 PATTERNS_REQUIRING_HEALTHCHECK = [
     r"--requirepass",
     r"POSTGRES_PASSWORD",
-    r"NEO4J_PASSWORD", 
+    r"NEO4J_PASSWORD",
     r"--auth",
 ]
 
@@ -135,23 +141,28 @@ fi
 ## Definition of Done
 
 ### Code Complete
+
 - [ ] All changes implemented
 - [ ] No TODOs/FIXMEs left
 
 ### Dependencies Traced
+
 - [ ] `grep -r` run for changed entities
 - [ ] All references updated
 
 ### Verification
 ```
+
 <paste actual test output here>
 ```
 
 ### Checklist
+
 - [ ] Tests pass
 - [ ] Docs updated (if needed)
 - [ ] Security reviewed (if auth/config change)
-```
+
+````
 
 ### 4. Agent Behavioral Rule
 
@@ -166,17 +177,19 @@ Added to `repeated-mistakes.md` as **Lesson #22**:
 3. Tests pass (show output)
 4. Evidence provided (not "should work")
 **ADR:** ADR-0091
-```
+````
 
 ## Consequences
 
 ### Positive
+
 - Clear, objective "done" criteria
 - CI blocks incomplete work
 - No more "95% done" surprises
 - Evidence required, not optional
 
 ### Negative
+
 - Slightly more process overhead
 - Must provide verification evidence
 - Can't ship fast and break things

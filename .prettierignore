@@ -1,0 +1,17 @@
+# Helm templates contain Go template syntax, not valid YAML/JSON
+deploy/helm/
+deploy/k8s/helm/
+
+# Generated files
+*.min.js
+*.min.css
+dist/
+build/
+
+# Dependencies
+node_modules/
+.venv/
+venv/
+
+# Private specs (may have special formatting)
+private/specs/

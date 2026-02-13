@@ -1,8 +1,7 @@
 # Cursor Memory Client
 
-> **File:** `agents/cursor/cursor_memory_client.py`  
-> **Server:** C1 Hetzner (`mcp.quantumaipartners.com`)  
-> **Last Verified:** 2026-01-29  
+> **File:** `agents/cursor/cursor_memory_client.py` > **Server:** C1 Hetzner (`mcp.quantumaipartners.com`)
+> **Last Verified:** 2026-01-29
 > **RLS Verified:** 2026-01-29 (13 tables with RLS, `platform_admin` role)
 
 ---
@@ -221,15 +220,15 @@ cmd_inject("memory substrate work")
 
 ## Write Kinds & Durations
 
-| Kind         | Duration | TTL      | Use For                    |
-|--------------|----------|----------|----------------------------|
-| `preference` | long     | Forever  | Igor's preferences         |
-| `lesson`     | long     | Forever  | Lessons learned            |
-| `insight`    | long     | Forever  | Strategic insights         |
-| `fact`       | long     | Forever  | Knowledge facts            |
-| `rule`       | long     | Forever  | Governance rules           |
-| `error`      | medium   | 90 days  | Error patterns             |
-| `note`       | medium   | 90 days  | General notes              |
+| Kind         | Duration | TTL     | Use For            |
+| ------------ | -------- | ------- | ------------------ |
+| `preference` | long     | Forever | Igor's preferences |
+| `lesson`     | long     | Forever | Lessons learned    |
+| `insight`    | long     | Forever | Strategic insights |
+| `fact`       | long     | Forever | Knowledge facts    |
+| `rule`       | long     | Forever | Governance rules   |
+| `error`      | medium   | 90 days | Error patterns     |
+| `note`       | medium   | 90 days | General notes      |
 
 ---
 
@@ -260,19 +259,19 @@ python3 agents/cursor/cursor_memory_client.py search "error" --limit 3
 
 ### Core Memory Commands (6)
 
-| Command    | What It Does                         | Definition              |
-|------------|--------------------------------------|-------------------------|
-| `health`   | Check MCP endpoint + API health      | `cmd_health()` line 249 |
-| `stats`    | Get packet counts, embeddings, facts | `cmd_stats()` line 237  |
-| `search`   | Semantic search with filtering       | `cmd_search()` line 329 |
-| `write`    | Write packet to memory               | `cmd_write()` line 387  |
-| `session`  | Show current daily session UUID      | `cmd_session()` line 431|
-| `mcp-test` | Round-trip test (write + search)     | `cmd_mcp_test()` line 447|
+| Command    | What It Does                         | Definition                |
+| ---------- | ------------------------------------ | ------------------------- |
+| `health`   | Check MCP endpoint + API health      | `cmd_health()` line 249   |
+| `stats`    | Get packet counts, embeddings, facts | `cmd_stats()` line 237    |
+| `search`   | Semantic search with filtering       | `cmd_search()` line 329   |
+| `write`    | Write packet to memory               | `cmd_write()` line 387    |
+| `session`  | Show current daily session UUID      | `cmd_session()` line 431  |
+| `mcp-test` | Round-trip test (write + search)     | `cmd_mcp_test()` line 447 |
 
 ### Session Commands (4)
 
 | Command          | What It Does                           |
-|------------------|----------------------------------------|
+| ---------------- | -------------------------------------- |
 | `session-close`  | Close session, create embedding anchor |
 | `session-resume` | Resume with context from past sessions |
 | `resume-for`     | Resume for specific task by similarity |
@@ -281,7 +280,7 @@ python3 agents/cursor/cursor_memory_client.py search "error" --limit 3
 ### Context Injection Commands (6)
 
 | Command        | What It Does                                       |
-|----------------|----------------------------------------------------|
+| -------------- | -------------------------------------------------- |
 | `inject`       | 5-layer context injection (prefs, lessons, domain) |
 | `warn`         | Surface past mistakes relevant to task             |
 | `suggest`      | Pattern-based next-step suggestions                |
@@ -292,7 +291,7 @@ python3 agents/cursor/cursor_memory_client.py search "error" --limit 3
 ### Graph Commands - Neo4j (5)
 
 | Command         | What It Does                 |
-|-----------------|------------------------------|
+| --------------- | ---------------------------- |
 | `graph-health`  | Check Neo4j health           |
 | `graph-context` | Get context for a domain     |
 | `graph-query`   | Run Cypher query             |
@@ -302,7 +301,7 @@ python3 agents/cursor/cursor_memory_client.py search "error" --limit 3
 ### Cache Commands - Redis (6)
 
 | Command             | What It Does                |
-|---------------------|------------------------------|
+| ------------------- | --------------------------- |
 | `cache-health`      | Check Redis health          |
 | `cache-get`         | Get value by key            |
 | `cache-set`         | Set value with optional TTL |
@@ -351,11 +350,11 @@ All memory tables use PostgreSQL Row-Level Security for multi-tenant isolation.
 
 The client uses deterministic UUIDs generated from string identifiers via `uuid5`:
 
-| Identifier       | String Value  | UUID                                   |
-|------------------|---------------|----------------------------------------|
-| **Tenant**       | `l9`          | `73350468-3158-5d0f-9b8c-9b193d96fc4b` |
-| **Organization** | `quantumai`   | `14910cef-fea1-51d7-9a28-05579e6c0c18` |
-| **User**         | `l9-shared`   | `2f00c090-3816-51a0-806c-34d32522a070` |
+| Identifier       | String Value | UUID                                   |
+| ---------------- | ------------ | -------------------------------------- |
+| **Tenant**       | `l9`         | `73350468-3158-5d0f-9b8c-9b193d96fc4b` |
+| **Organization** | `quantumai`  | `14910cef-fea1-51d7-9a28-05579e6c0c18` |
+| **User**         | `l9-shared`  | `2f00c090-3816-51a0-806c-34d32522a070` |
 
 **Source:** `config/rls_config.py`
 
@@ -386,30 +385,30 @@ memory/substrate_repository.py
 
 ### RLS Roles
 
-| Role             | Access Level                                    |
-|------------------|------------------------------------------------|
-| `platform_admin` | Full access to all data (default for Cursor)   |
-| `tenant_admin`   | Full access within tenant                      |
-| `org_admin`      | Full access within organization                |
-| `end_user`       | Access to own data + shared scope only         |
+| Role             | Access Level                                 |
+| ---------------- | -------------------------------------------- |
+| `platform_admin` | Full access to all data (default for Cursor) |
+| `tenant_admin`   | Full access within tenant                    |
+| `org_admin`      | Full access within organization              |
+| `end_user`       | Access to own data + shared scope only       |
 
 ### Tables with RLS Enabled (13)
 
-| Table                     | Policy Type                              |
-|---------------------------|------------------------------------------|
-| `packet_store`            | tenant + org + scope + admin override    |
-| `semantic_memory`         | tenant + org + scope + admin override    |
-| `knowledge_facts`         | tenant + org + scope + admin override    |
-| `episodic_events`         | tenant + role-based (platform/tenant/end)|
-| `episodic_semantic_links` | inherited from episodic_events           |
-| `memory_embeddings`       | tenant + org + admin override            |
-| `memory_access_log`       | tenant + org + admin override            |
-| `entity_relationships`    | tenant + org + admin override            |
-| `memory_summaries`        | tenant + org + admin override            |
-| `reflection_store`        | tenant + org + admin override            |
-| `task_reflections`        | tenant + org + admin override            |
-| `semantic_facts`          | tenant + role-based                      |
-| `feedback_events`         | tenant + org + admin override            |
+| Table                     | Policy Type                               |
+| ------------------------- | ----------------------------------------- |
+| `packet_store`            | tenant + org + scope + admin override     |
+| `semantic_memory`         | tenant + org + scope + admin override     |
+| `knowledge_facts`         | tenant + org + scope + admin override     |
+| `episodic_events`         | tenant + role-based (platform/tenant/end) |
+| `episodic_semantic_links` | inherited from episodic_events            |
+| `memory_embeddings`       | tenant + org + admin override             |
+| `memory_access_log`       | tenant + org + admin override             |
+| `entity_relationships`    | tenant + org + admin override             |
+| `memory_summaries`        | tenant + org + admin override             |
+| `reflection_store`        | tenant + org + admin override             |
+| `task_reflections`        | tenant + org + admin override             |
+| `semantic_facts`          | tenant + role-based                       |
+| `feedback_events`         | tenant + org + admin override             |
 
 ### Direct PostgreSQL Access (Bypass Client)
 
@@ -487,6 +486,7 @@ curl -X POST http://mcp.quantumaipartners.com:30902/mcp/call \
 ### Search Returns No Content
 
 The search returns embeddings with similarity scores. To get full content:
+
 1. Use the `packet_id` from search results
 2. Query the packets table directly (if needed)
 
@@ -524,14 +524,14 @@ thread_id UUID  -- no FK constraint
 
 ## C1 Endpoints Reference
 
-| Service        | Endpoint                                    | Port  |
-|----------------|---------------------------------------------|-------|
-| **MCP Memory** | `http://mcp.quantumaipartners.com:30902`    | 30902 |
-| **L9 API**     | `http://mcp.quantumaipartners.com:30080`    | 30080 |
-| **PostgreSQL** | `46.62.243.82:30432`                        | 30432 |
-| **Neo4j HTTP** | `http://46.62.243.82:30474`                 | 30474 |
-| **Neo4j Bolt** | `bolt://46.62.243.82:30687`                 | 30687 |
-| **Redis**      | `46.62.243.82:30379`                        | 30379 |
+| Service        | Endpoint                                 | Port  |
+| -------------- | ---------------------------------------- | ----- |
+| **MCP Memory** | `http://mcp.quantumaipartners.com:30902` | 30902 |
+| **L9 API**     | `http://mcp.quantumaipartners.com:30080` | 30080 |
+| **PostgreSQL** | `46.62.243.82:30432`                     | 30432 |
+| **Neo4j HTTP** | `http://46.62.243.82:30474`              | 30474 |
+| **Neo4j Bolt** | `bolt://46.62.243.82:30687`              | 30687 |
+| **Redis**      | `46.62.243.82:30379`                     | 30379 |
 
 ---
 
@@ -539,18 +539,19 @@ thread_id UUID  -- no FK constraint
 
 As of 2026-01-29, the following governance rules are stored:
 
-| Rule                  | Packet ID                              |
-|-----------------------|----------------------------------------|
-| KERNEL_TIER           | `c85492dc-8da9-56cd-a078-3f75a4bdc0d5` |
-| RUNTIME_TIER          | `6ece3805-3968-581a-b12c-e253cf2e59f0` |
-| INFRA_TIER            | `38bf5c64-d6bf-5631-b51d-bc0c1d1ec91f` |
-| UX_TIER               | `db1d2952-7b21-5b73-a018-2aad473307b8` |
-| Required Patterns     | `85e67e52-657c-5cba-a47b-972b6917d91f` |
-| Forbidden Patterns    | `ac596545-65d6-5ed1-9404-08e36203dfe6` |
-| Protected Files List  | `12a97f6f-4893-536a-8741-626aab140a58` |
-| GMP Phases            | `7e4486a2-b3d6-5689-becb-3a0d8b8e4d6c` |
+| Rule                 | Packet ID                              |
+| -------------------- | -------------------------------------- |
+| KERNEL_TIER          | `c85492dc-8da9-56cd-a078-3f75a4bdc0d5` |
+| RUNTIME_TIER         | `6ece3805-3968-581a-b12c-e253cf2e59f0` |
+| INFRA_TIER           | `38bf5c64-d6bf-5631-b51d-bc0c1d1ec91f` |
+| UX_TIER              | `db1d2952-7b21-5b73-a018-2aad473307b8` |
+| Required Patterns    | `85e67e52-657c-5cba-a47b-972b6917d91f` |
+| Forbidden Patterns   | `ac596545-65d6-5ed1-9404-08e36203dfe6` |
+| Protected Files List | `12a97f6f-4893-536a-8741-626aab140a58` |
+| GMP Phases           | `7e4486a2-b3d6-5689-becb-3a0d8b8e4d6c` |
 
 Search with:
+
 ```bash
 python3 agents/cursor/cursor_memory_client.py search "GOVERNANCE RULE"
 python3 agents/cursor/cursor_memory_client.py search "KERNEL_TIER protected"

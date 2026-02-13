@@ -45,7 +45,7 @@ __dora_meta__ = {
 import asyncio
 import os
 import re
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -210,7 +210,7 @@ def parse_gmp_report(file_path: Path) -> dict[str, Any] | None:
     return result
 
 
-async def create_gmp_nodes(driver: "AsyncDriver", reports: list[dict]) -> dict:
+async def create_gmp_nodes(driver: AsyncDriver, reports: list[dict]) -> dict:
     """Create GMP nodes in Neo4j.
 
     Returns dict with creation statistics.
@@ -272,7 +272,7 @@ async def create_gmp_nodes(driver: "AsyncDriver", reports: list[dict]) -> dict:
     return stats
 
 
-async def create_gmp_schema(driver: "AsyncDriver") -> int:
+async def create_gmp_schema(driver: AsyncDriver) -> int:
     """Create GMP-related constraints and indexes.
 
     Returns number of constraints created.
@@ -299,7 +299,7 @@ async def create_gmp_schema(driver: "AsyncDriver") -> int:
     return created
 
 
-async def load_gmp_reports(driver: "AsyncDriver") -> dict:
+async def load_gmp_reports(driver: AsyncDriver) -> dict:
     """Load all GMP reports from reports/ directory into Neo4j.
 
     Returns dict with statistics.

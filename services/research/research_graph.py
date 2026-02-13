@@ -36,7 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Literal
 from uuid import uuid4
 
@@ -283,7 +283,7 @@ async def finalize_node(state: ResearchGraphState) -> ResearchGraphState:
         "quality_score": state.get("critic_score", 0.0),
         "feedback": state.get("critic_feedback", ""),
         "thread_id": state.get("thread_id", ""),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
     # Save checkpoint to memory substrate

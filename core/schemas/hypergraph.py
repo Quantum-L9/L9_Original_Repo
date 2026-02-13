@@ -38,10 +38,10 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set
+from datetime import UTC, datetime
 from enum import Enum
+from typing import Any
 from uuid import UUID, uuid4
-from datetime import datetime, timezone
 
 
 class NodeType(str, Enum):
@@ -90,17 +90,17 @@ class HypergraphNode:
     status: NodeStatus = NodeStatus.PENDING
 
     # Graph structure
-    input_edges: Set[UUID] = field(default_factory=set)
-    output_edges: Set[UUID] = field(default_factory=set)
+    input_edges: set[UUID] = field(default_factory=set)
+    output_edges: set[UUID] = field(default_factory=set)
 
     # Execution data
-    payload: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    payload: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     # Timestamps
     created_at: datetime = field(default_factory=datetime.utcnow)
-    started_at: Optional[datetime] = None
-    completed_at: Optional[datetime] = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
     def add_input_edge(self, source_node_id: UUID) -> None:
         """Add dependency edge from source node."""
@@ -114,7 +114,7 @@ class HypergraphNode:
         """Check if all dependencies are completed."""
         return len(self.input_edges) == 0 or self.status == NodeStatus.EXECUTING
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert node to dictionary."""
         return {
             "node_id": str(self.node_id),
@@ -147,8 +147,8 @@ class ReasoningNode(HypergraphNode):
 
     reasoning_type: str = "analysis"
     agent_id: str = ""
-    context: Dict[str, Any] = field(default_factory=dict)
-    result: Optional[str] = None
+    context: dict[str, Any] = field(default_factory=dict)
+    result: str | None = None
     confidence: float = 0.5
 
     def __post_init__(self):
@@ -174,7 +174,7 @@ class BayesianNode(HypergraphNode):
     """
 
     belief_variable: str = ""
-    prior_belief: Dict[str, float] = field(default_factory=dict)
+    prior_belief: dict[str, float] = field(default_factory=dict)
 
     @dataclass
     class Evidence:
@@ -182,10 +182,10 @@ class BayesianNode(HypergraphNode):
 
         description: str
         strength: str  # "strong", "moderate", "weak", "conflicting"
-        source: Optional[str] = None
+        source: str | None = None
 
-    evidence: List[Evidence] = field(default_factory=list)
-    posterior_belief: Dict[str, float] = field(default_factory=dict)
+    evidence: list[Evidence] = field(default_factory=list)
+    posterior_belief: dict[str, float] = field(default_factory=dict)
     update_method: str = "bayes_rule"
     uncertainty: float = 0.5  # Confidence in posterior [0, 1]
 
@@ -194,7 +194,7 @@ class BayesianNode(HypergraphNode):
         self.node_type = NodeType.BAYESIAN
 
     def add_evidence(
-        self, description: str, strength: str, source: Optional[str] = None
+        self, description: str, strength: str, source: str | None = None
     ) -> None:
         """Add evidence to this belief node."""
         self.evidence.append(
@@ -206,13 +206,13 @@ class BayesianNode(HypergraphNode):
         )
 
     def update_posterior(
-        self, new_posterior: Dict[str, float], uncertainty: float
+        self, new_posterior: dict[str, float], uncertainty: float
     ) -> None:
         """Update posterior belief distribution."""
         self.posterior_belief = new_posterior
         self.uncertainty = uncertainty
         self.status = NodeStatus.COMPLETED
-        self.completed_at = datetime.now(timezone.utc)
+        self.completed_at = datetime.now(UTC)
 
 
 @dataclass
@@ -226,9 +226,9 @@ class NodeTemplate:
 
     template_id: str
     node_type: NodeType
-    default_payload: Dict[str, Any] = field(default_factory=dict)
-    default_metadata: Dict[str, Any] = field(default_factory=dict)
-    required_fields: List[str] = field(default_factory=list)
+    default_payload: dict[str, Any] = field(default_factory=dict)
+    default_metadata: dict[str, Any] = field(default_factory=dict)
+    required_fields: list[str] = field(default_factory=list)
 
     def create_node(self, **kwargs) -> HypergraphNode:
         """Create a node from this template."""
@@ -238,18 +238,17 @@ class NodeTemplate:
                 payload={**self.default_payload, **kwargs},
                 metadata=self.default_metadata,
             )
-        elif self.node_type == NodeType.BAYESIAN:
+        if self.node_type == NodeType.BAYESIAN:
             return BayesianNode(
                 node_type=self.node_type,
                 payload={**self.default_payload, **kwargs},
                 metadata=self.default_metadata,
             )
-        else:
-            return HypergraphNode(
-                node_type=self.node_type,
-                payload={**self.default_payload, **kwargs},
-                metadata=self.default_metadata,
-            )
+        return HypergraphNode(
+            node_type=self.node_type,
+            payload={**self.default_payload, **kwargs},
+            metadata=self.default_metadata,
+        )
 
 
 # Predefined node templates

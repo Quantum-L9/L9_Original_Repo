@@ -42,7 +42,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
@@ -216,7 +216,7 @@ class CrossEncoderReranker:
         Returns:
             RerankingResult with re-ranked candidates
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         fallback_text_keys = fallback_text_keys or [
             "content",
             "observation",
@@ -295,7 +295,7 @@ class CrossEncoderReranker:
 
         # Calculate timing
         result.reranking_time_ms = (
-            datetime.now(timezone.utc) - start_time
+            datetime.now(UTC) - start_time
         ).total_seconds() * 1000
 
         logger.debug(

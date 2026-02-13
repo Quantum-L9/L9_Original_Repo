@@ -19,23 +19,23 @@ jobs:
 
       - name: Run Ruff linter
         run: ruff check core/ api/ agents/ memory/ --statistics
-        continue-on-error: true  # Linting is advisory during migration
+        continue-on-error: true # Linting is advisory during migration
 
       - name: Run Black formatter check
         run: black --check core/ api/ agents/ memory/
-        continue-on-error: true  # Formatting is advisory during migration
+        continue-on-error: true # Formatting is advisory during migration
 
       - name: Run mypy type checker
         run: mypy core/ api/ --ignore-missing-imports
-        continue-on-error: true  # Type checking is advisory during migration
+        continue-on-error: true # Type checking is advisory during migration
 
       - name: Run Bandit security scan
         run: bandit -r core/ api/ -f json | jq '.results | length'
-        continue-on-error: true  # Security scan is advisory
+        continue-on-error: true # Security scan is advisory
 
       - name: Run pytest
         run: pytest tests/ -v --tb=short -x --ignore=tests/integration
-        continue-on-error: true  # Allow PR merge even if some tests fail
+        continue-on-error: true # Allow PR merge even if some tests fail
 
       - name: Report metrics
         run: |

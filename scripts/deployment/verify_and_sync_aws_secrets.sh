@@ -135,7 +135,7 @@ secret_exists_in_aws() {
 sync_secret_to_aws() {
     local name="$1"
     local value="$2"
-    
+
     if secret_exists_in_aws "$name"; then
         aws secretsmanager put-secret-value \
             --region "$AWS_REGION" \
@@ -172,7 +172,7 @@ is_non_secret() {
 # List AWS secrets mode
 if $LIST_AWS; then
     log_header "AWS Secrets Manager Contents (${AWS_PREFIX}/*)"
-    
+
     secrets=$(get_aws_secrets)
     if [[ -z "$secrets" ]]; then
         log_warn "No secrets found with prefix '${AWS_PREFIX}/'"
@@ -211,15 +211,15 @@ for env_file in "${ENV_FILES[@]}"; do
     if [[ -f "$env_file" ]]; then
         rel_path="${env_file#$REPO_ROOT/}"
         log_info "Reading: $rel_path"
-        
+
         while IFS='=' read -r key value; do
             # Skip comments and empty lines
             [[ "$key" =~ ^#.*$ ]] && continue
             [[ -z "$key" ]] && continue
-            
+
             # Clean key (remove export prefix if present)
             key=$(echo "$key" | sed 's/^export //')
-            
+
             # Store variable and its source
             ALL_ENV_VARS["$key"]="$value"
             VAR_SOURCE["$key"]="$rel_path"
@@ -246,7 +246,7 @@ for var in "${!ALL_ENV_VARS[@]}"; do
         SKIPPED_NON_SECRET+=("$var")
         continue
     fi
-    
+
     # Check if in AWS
     if echo "$AWS_SECRETS" | grep -q "^${var}$"; then
         IN_AWS+=("$var")
@@ -286,22 +286,22 @@ done
 # Sync mode
 if $SYNC_MODE && [[ ${#MISSING_IN_AWS[@]} -gt 0 ]]; then
     log_header "Step 4: Syncing Missing Secrets to AWS"
-    
+
     for var in "${MISSING_IN_AWS[@]}"; do
         value="${ALL_ENV_VARS[$var]}"
-        
+
         # Skip empty values
         if [[ -z "$value" ]]; then
             log_warn "Skipping $var (empty value)"
             continue
         fi
-        
+
         # Skip placeholder values
         if [[ "$value" == "your-"* ]] || [[ "$value" == "changeme"* ]] || [[ "$value" == "placeholder"* ]]; then
             log_warn "Skipping $var (placeholder value)"
             continue
         fi
-        
+
         log_info "Syncing: $var"
         result=$(sync_secret_to_aws "$var" "$value")
         log_success "$var → AWS ($result)"

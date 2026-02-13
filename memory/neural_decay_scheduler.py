@@ -47,7 +47,7 @@ __dora_meta__ = {
 import asyncio
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import UUID
 
@@ -177,8 +177,8 @@ class NeuralDecayScheduler:
         Returns:
             DecayResult with statistics
         """
-        reference_time = reference_time or datetime.now(timezone.utc)
-        start_time = datetime.now(timezone.utc)
+        reference_time = reference_time or datetime.now(UTC)
+        start_time = datetime.now(UTC)
         result = DecayResult()
 
         logger.info(
@@ -211,9 +211,7 @@ class NeuralDecayScheduler:
             logger.error(f"Facts decay failed: {e}", exc_info=True)
             result.errors.append(f"Facts decay: {e!s}")
 
-        result.duration_ms = (
-            datetime.now(timezone.utc) - start_time
-        ).total_seconds() * 1000
+        result.duration_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         logger.info(
             "Neural decay pass complete",
@@ -462,7 +460,7 @@ class NeuralDecayScheduler:
         if self._repository is None:
             return {"error": "No repository configured"}
 
-        reference_time = datetime.now(timezone.utc)
+        reference_time = datetime.now(UTC)
 
         try:
             async with self._repository.acquire() as conn:

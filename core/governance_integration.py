@@ -33,8 +33,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from pathlib import Path
+
+import structlog
 
 # Import CA governance
 from core.ca_governance import (

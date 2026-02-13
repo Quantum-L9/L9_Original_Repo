@@ -22,7 +22,6 @@ from unittest.mock import MagicMock
 
 import pytest
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -46,7 +45,7 @@ def _reset_mcp_metadata():
             pass
 
 
-@pytest.fixture()
+@pytest.fixture
 def dummy_executor() -> MagicMock:
     """A callable mock that stands in for an MCP tool executor."""
     return MagicMock(return_value={"status": "ok"})
@@ -116,7 +115,7 @@ class TestRegisterMcpTool:
 
         # Register a native tool first
         @register_tool(name="memory_search", category="memory")
-        async def memory_search(**kwargs):  # noqa: ARG001
+        async def memory_search(**kwargs):
             return {}
 
         # Register an MCP tool with same base name from different server
@@ -152,16 +151,19 @@ class TestRegisterMcpToolsBatch:
         assert "github__create_pr" in ids
         assert "github__merge_pr" in ids
 
-    def test_batch_preserves_per_tool_metadata(
-        self, dummy_executor: MagicMock
-    ) -> None:
+    def test_batch_preserves_per_tool_metadata(self, dummy_executor: MagicMock) -> None:
         from runtime.tool_registry import (
             get_mcp_tool_metadata,
             register_mcp_tools_batch,
         )
 
         tools = [
-            {"name": "delete_repo", "executor": dummy_executor, "risk_level": "high", "requires_approval": True},
+            {
+                "name": "delete_repo",
+                "executor": dummy_executor,
+                "risk_level": "high",
+                "requires_approval": True,
+            },
             {"name": "list_repos", "executor": dummy_executor, "tags": ["read-only"]},
         ]
         register_mcp_tools_batch(tools, server_id="gh")

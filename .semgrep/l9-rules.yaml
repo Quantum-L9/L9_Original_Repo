@@ -1,4 +1,3 @@
-
 # component_name: "L9-Rules"
 # module_version: "1.0.0"
 # created_by: "Igor Beylin"
@@ -32,11 +31,11 @@ rules:
     pattern: datetime.utcnow()
     message: |
       datetime.utcnow() is deprecated. Use datetime.now(UTC) instead.
-      
+
       Fix:
         from datetime import UTC, datetime
         timestamp = datetime.now(UTC)
-      
+
       Reference: ADR-0083
     languages: [python]
     severity: ERROR
@@ -67,17 +66,17 @@ rules:
               ...
     message: |
       httpx.AsyncClient() must use async context manager for proper cleanup.
-      
+
       Bad:
         client = httpx.AsyncClient()
         # ... use client ...
         await client.aclose()  # Easy to forget!
-      
+
       Good:
         async with httpx.AsyncClient() as client:
             # ... use client ...
             # Auto-closed on exit
-      
+
       Reference: ADR-0084
     languages: [python]
     severity: ERROR
@@ -106,17 +105,17 @@ rules:
               ...
     message: |
       Singleton initialization must use a lock for thread safety.
-      
+
       Bad:
         if _instance is None:
             _instance = create_instance()
-      
+
       Good:
         if _instance is None:
             with _lock:
                 if _instance is None:  # Double-check
                     _instance = create_instance()
-      
+
       Reference: ADR-0085
     languages: [python]
     severity: WARNING
@@ -145,16 +144,16 @@ rules:
               ...
     message: |
       float() conversion should handle ValueError for invalid input.
-      
+
       Bad:
         value = float(user_input)  # Crashes on "abc"
-      
+
       Good:
         try:
             value = float(user_input)
         except (ValueError, TypeError):
             value = default_value
-      
+
       Reference: ADR-0086
     languages: [python]
     severity: WARNING
@@ -175,15 +174,15 @@ rules:
   - id: l9-no-eval
     patterns:
       - pattern: eval(...)
-      - pattern-not: $OBJ.eval(...)  # Allow tensor.eval(), model.eval()
+      - pattern-not: $OBJ.eval(...) # Allow tensor.eval(), model.eval()
     message: |
       eval() is forbidden - security vulnerability (ADR-0041).
-      
+
       Use safe alternatives:
         - json.loads() for JSON
         - ast.literal_eval() for Python literals
         - Custom parser for DSL
-      
+
       Reference: ADR-0041
     languages: [python]
     severity: ERROR
@@ -210,14 +209,14 @@ rules:
           - pattern: f"DELETE ... {$VAR} ..."
     message: |
       SQL queries must use parameterized queries, not f-strings.
-      
+
       Bad:
         query = f"SELECT * FROM users WHERE id = '{user_id}'"
-      
+
       Good:
         query = "SELECT * FROM users WHERE id = $1"
         await conn.fetch(query, user_id)
-      
+
       Reference: ADR-0087
     languages: [python]
     severity: ERROR
@@ -238,12 +237,12 @@ rules:
     pattern: pickle.loads(...)
     message: |
       pickle.loads() is forbidden - deserialization vulnerability.
-      
+
       Use safe alternatives:
         - json.loads() for JSON data
         - msgpack for binary data
         - Protocol Buffers for structured data
-      
+
       Reference: ADR-0088
     languages: [python]
     severity: ERROR
@@ -264,13 +263,13 @@ rules:
     pattern: $LOGGER.getChild(...)
     message: |
       structlog doesn't support getChild(). Use bind() instead.
-      
+
       Bad:
         self.logger = logger.getChild(self.__class__.__name__)
-      
+
       Good:
         self.logger = logger.bind(component=self.__class__.__name__)
-      
+
       Reference: ADR-0019
     languages: [python]
     severity: ERROR
@@ -279,7 +278,6 @@ rules:
         - "**/*.py"
       exclude:
         - "tests/**"
-
 # tags: [".semgrep", "agent-config", "api-config", "model-config", "operations", "utility"]
 # keywords: ["rules"]
 # last_modified: "2026-01-31T20:47:23Z"

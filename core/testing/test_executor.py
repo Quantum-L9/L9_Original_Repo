@@ -39,7 +39,7 @@ import asyncio
 import os
 import tempfile
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
@@ -144,7 +144,7 @@ class TestExecutor:
         Returns:
             TestResults with execution results
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Create temp directory for test execution
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -182,9 +182,7 @@ def mock_substrate():
                 )
 
         # Calculate duration
-        results.duration_ms = (
-            datetime.now(timezone.utc) - start_time
-        ).total_seconds() * 1000
+        results.duration_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
         return results
 

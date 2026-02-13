@@ -1,4 +1,3 @@
-
 Below are **5 deliverables**, each clearly bounded and ready to drop in.
 
 ---

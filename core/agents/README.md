@@ -61,19 +61,19 @@ Agent executor, runtime, registry, and task lifecycle management
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `api/agent_routes.py` | Uses this module |
-| `runtime/task_queue.py` | Uses this module |
+| Module                           | Purpose          |
+| -------------------------------- | ---------------- |
+| `api/agent_routes.py`            | Uses this module |
+| `runtime/task_queue.py`          | Uses this module |
 | `orchestrators/agent_execution/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `memory/substrate_service.py` | Required dependency |
+| Module                           | Purpose             |
+| -------------------------------- | ------------------- |
+| `memory/substrate_service.py`    | Required dependency |
 | `core/tools/registry_adapter.py` | Required dependency |
-| `runtime/kernel_loader.py` | Required dependency |
+| `runtime/kernel_loader.py`       | Required dependency |
 
 ---
 
@@ -99,16 +99,16 @@ core/agents/
 └── ... (14 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `executor.py` | Core agent execution loop, context management, and signal handling (PROTECTED) |
-| `registry.py` | Agent type registry and discovery (PROTECTED) |
-| `aios_runtime.py` | AIOS runtime wrapper for agent execution (PROTECTED) |
-| `agent_instance.py` | Agent instance lifecycle and state management |
-| `prompt_builder.py` | Dynamic prompt construction from kernels and context |
-| `schemas.py` | Pydantic models for agent requests/responses |
-| `adaptive_prompting.py` | Context-aware prompt adaptation strategies |
-| `selfreflection.py` | Agent self-reflection and metacognition |
+| File                    | Purpose                                                                        |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| `executor.py`           | Core agent execution loop, context management, and signal handling (PROTECTED) |
+| `registry.py`           | Agent type registry and discovery (PROTECTED)                                  |
+| `aios_runtime.py`       | AIOS runtime wrapper for agent execution (PROTECTED)                           |
+| `agent_instance.py`     | Agent instance lifecycle and state management                                  |
+| `prompt_builder.py`     | Dynamic prompt construction from kernels and context                           |
+| `schemas.py`            | Pydantic models for agent requests/responses                                   |
+| `adaptive_prompting.py` | Context-aware prompt adaptation strategies                                     |
+| `selfreflection.py`     | Agent self-reflection and metacognition                                        |
 
 ### Naming Conventions
 
@@ -221,7 +221,6 @@ class ExecutorState:
 
 **Lines:** 74-82 in `schemas.py`
 
-
 ---
 
 ## Data Models and Contracts
@@ -235,22 +234,22 @@ The following data models define the contracts for this subsystem:
 
 `ACTIVE_BOOTSTRAPS`, `AGENT_EXECUTOR_NAMESPACE`, `AGENT_LABEL`, `AIOSResult`, `AIOSResultType`, `AIOSRuntime`, `AgentBootstrapContext`, `AgentBootstrapError`, `AgentBootstrapOrchestrator`, `AgentConfig`
 
-*...and 93 more*
+_...and 93 more_
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `SAFETY_PREFIX` | `'\n## IMMUTABLE GOVERNANCE CONSTRAINTS\n...` | 57 |
-| `USE_KERNELS` | `os.getenv('L9_USE_KERNELS', 'true').lowe...` | 56 |
-| `DEFAULT_CONFIG_DIR` | `'config/agents'` | 78 |
-| `DEFAULT_AGENT_ID` | `'l9-standard-v1'` | 79 |
-| `USE_KERNELS` | `os.getenv('L9_USE_KERNELS', 'true').lowe...` | 57 |
-| `AGENT_EXECUTOR_NAMESPACE` | `uuid5(NAMESPACE_DNS, 'agent.executor.l9....` | 67 |
-| `ITERATION_THRESHOLD` | `int(os.environ.get('L9_REFLECTION_ITERAT...` | 59 |
-| `TOKEN_THRESHOLD` | `int(os.environ.get('L9_REFLECTION_TOKEN_...` | 62 |
+| Constant                   | Value                                         | Line |
+| -------------------------- | --------------------------------------------- | ---- |
+| `SAFETY_PREFIX`            | `'\n## IMMUTABLE GOVERNANCE CONSTRAINTS\n...` | 57   |
+| `USE_KERNELS`              | `os.getenv('L9_USE_KERNELS', 'true').lowe...` | 56   |
+| `DEFAULT_CONFIG_DIR`       | `'config/agents'`                             | 78   |
+| `DEFAULT_AGENT_ID`         | `'l9-standard-v1'`                            | 79   |
+| `USE_KERNELS`              | `os.getenv('L9_USE_KERNELS', 'true').lowe...` | 57   |
+| `AGENT_EXECUTOR_NAMESPACE` | `uuid5(NAMESPACE_DNS, 'agent.executor.l9....` | 67   |
+| `ITERATION_THRESHOLD`      | `int(os.environ.get('L9_REFLECTION_ITERAT...` | 59   |
+| `TOKEN_THRESHOLD`          | `int(os.environ.get('L9_REFLECTION_TOKEN_...` | 62   |
 
-*...and 49 more constants*
+_...and 49 more constants_
 
 ### Key Schemas
 
@@ -293,7 +292,6 @@ class CoreAgentsResponse(BaseModel):
 3. **Kernel instantiation:** Kernel instance created (lightweight).
 4. **Context creation:** ExecutionContext initialized with correlation_id, user, deadline.
 
-
 ### Main Execution
 
 1. **Planning:** Kernel calls LLM to plan next action.
@@ -301,14 +299,12 @@ class CoreAgentsResponse(BaseModel):
 3. **Memory updates:** Agent reads recent memory and writes findings.
 4. **Iteration:** Repeat until goal achieved or timeout/max-steps.
 
-
 ### Shutdown
 
 1. **Finalization:** Kernel writes remaining state to memory.
 2. **Logging:** Execution trace emitted as structured JSON.
 3. **Cleanup:** Context released, resources freed.
 4. **Result:** AgentResult returned to caller.
-
 
 ### Background Tasks
 
@@ -322,9 +318,9 @@ None. Agents are synchronous from task queue worker perspective.
 
 ```yaml
 # Core_Agents feature flags
-L9_ENABLE_CORE_AGENTS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_AGENTS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_AGENTS_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_AGENTS_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_AGENTS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_AGENTS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -391,7 +387,6 @@ Get adaptive context from test failures for a task.
 - **Async:** Yes
 - **Returns:** `str`
 
-
 ### Usage Example
 
 ```python
@@ -419,7 +414,6 @@ print(result.output)  # Agent's findings
 print(result.tool_invocations)  # Tools called
 ```
 
-
 ---
 
 ## Observability
@@ -441,6 +435,7 @@ Core Agents operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -448,12 +443,12 @@ Core Agents operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                              | Type      | Description                    |
+| ----------------------------------- | --------- | ------------------------------ |
 | `core_agents_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_agents_operation_total` | Counter | Total operations processed |
-| `core_agents_error_total` | Counter | Total errors encountered |
-| `core_agents_active_connections` | Gauge | Current active connections |
+| `core_agents_operation_total`       | Counter   | Total operations processed     |
+| `core_agents_error_total`           | Counter   | Total errors encountered       |
+| `core_agents_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -471,6 +466,7 @@ Core Agents emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_agents/`:
+
 - `test_core_agents.py` — Core unit tests
 - `test_core_agents_integration.py` — Integration tests (if applicable)
 
@@ -526,6 +522,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

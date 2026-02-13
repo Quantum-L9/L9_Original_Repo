@@ -50,7 +50,7 @@ __dora_meta__ = {
 
 import hashlib
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -211,7 +211,7 @@ class DeduplicationEngine:
         Returns:
             Tuple of (duplicate_groups, report)
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         report = DeduplicationReport(total_packets_analyzed=len(packets))
 
         logger.info(
@@ -255,7 +255,7 @@ class DeduplicationEngine:
                     report.errors.append(error_msg)
                     logger.error("deduplication.merge_error", error=error_msg)
 
-            end_time = datetime.now(timezone.utc)
+            end_time = datetime.now(UTC)
             report.execution_time_seconds = (end_time - start_time).total_seconds()
 
             logger.info(
@@ -270,7 +270,7 @@ class DeduplicationEngine:
             report.errors.append(error_msg)
             logger.error("deduplication.error", error=error_msg)
 
-            end_time = datetime.now(timezone.utc)
+            end_time = datetime.now(UTC)
             report.execution_time_seconds = (end_time - start_time).total_seconds()
 
             return [], report

@@ -50,7 +50,10 @@ __dora_meta__ = {
 
 import json
 import threading
-from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
+from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
+    ABC,
+    abstractmethod,
+)
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
@@ -287,9 +290,7 @@ class BaseAgent(ABC):
             content = response.choices[0].message.content or ""
             tokens = response.usage.total_tokens if response.usage else 0
 
-            duration_ms = int(
-                (datetime.now(UTC) - start_time).total_seconds() * 1000
-            )
+            duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
             # Parse JSON if in json_mode
             structured_output = None
@@ -309,10 +310,10 @@ class BaseAgent(ABC):
             )
 
         except Exception as e:
-            logger.error("LLM call failed after retries", agent_id=self._agent_id, exc_info=True)
-            duration_ms = int(
-                (datetime.now(UTC) - start_time).total_seconds() * 1000
+            logger.error(
+                "LLM call failed after retries", agent_id=self._agent_id, exc_info=True
             )
+            duration_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
             return AgentResponse(
                 agent_id=self._agent_id,

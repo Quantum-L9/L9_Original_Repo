@@ -12,7 +12,7 @@ GMP: Research Graph Persistence
 
 # Import via direct module load to avoid chain imports
 import importlib.util
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
@@ -71,7 +71,7 @@ def test_research_finding_structure():
         source_agent="researcher",
         key_facts=["uses events", "has store"],
         tags=["architecture", "events"],
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
         metadata={"extra": "data"},
     )
 

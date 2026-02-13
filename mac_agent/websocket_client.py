@@ -48,7 +48,6 @@ __dora_meta__ = {
 import asyncio
 import contextlib
 import json
-import structlog
 import os
 import platform
 import signal
@@ -56,7 +55,7 @@ import socket
 import sys
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -185,7 +184,7 @@ def create_heartbeat(
             "load_avg": load_avg,
             "memory_usage_mb": memory_usage_mb,
             "cpu_percent": cpu_percent,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         },
     }
 
@@ -209,7 +208,7 @@ def create_task_result(
             "status": status,
             "result": output,
             "error": error,
-            "completed_at": datetime.now(timezone.utc).isoformat(),
+            "completed_at": datetime.now(UTC).isoformat(),
         },
     }
 
@@ -231,7 +230,7 @@ def create_error_event(
             "message": message,
             "details": details or {},
             "recoverable": recoverable,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         },
     }
 

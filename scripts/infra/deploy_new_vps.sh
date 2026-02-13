@@ -32,9 +32,9 @@ L9_BRANCH="${L9_BRANCH:-main}"
 L9_DIR="/opt/l9"
 ADMIN_USER="admin"
 
-# AWS (for S3 backups)
-AWS_ACCESS_KEY="${AWS_ACCESS_KEY:-AKIAQJL4O6D4JOYGSMPB}"
-AWS_SECRET_KEY="${AWS_SECRET_KEY:-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}"
+# AWS (for S3 backups) - MUST be set via environment variables
+AWS_ACCESS_KEY="${AWS_ACCESS_KEY:?ERROR: AWS_ACCESS_KEY must be set}"
+AWS_SECRET_KEY="${AWS_SECRET_KEY:?ERROR: AWS_SECRET_KEY must be set}"
 AWS_REGION="${AWS_REGION:-us-east-1}"
 S3_BUCKET="${S3_BUCKET:-l9-backups}"
 

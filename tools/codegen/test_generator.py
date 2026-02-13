@@ -541,13 +541,13 @@ def main():
             EXAMPLES:
               # Check if spec generates valid tests (no writes)
               %(prog)s --spec private/specs/core_kernels_tests.yaml --mode check
-              
+
               # Show diff of changes
               %(prog)s --spec private/specs/core_kernels_tests.yaml --mode diff
-              
+
               # Generate and write tests
               %(prog)s --spec private/specs/core_kernels_tests.yaml --mode write
-              
+
               # Batch generate from all specs
               %(prog)s --spec-glob "private/specs/*.yaml" --mode check
         """),

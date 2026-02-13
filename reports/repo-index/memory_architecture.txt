@@ -131,7 +131,7 @@
 2. `reasoning_node()` — Reasoning node: generates StructuredReasoningBlock from pack
 3. `memory_write_node()` — Memory write node: persists packet and reasoning to database
 4. `graph_sync_node()` — Neo4j graph sync node: syncs packet to knowledge graph.
-5. `semantic_embed_node()` — Semantic embedding node: generates and stores embedding for 
+5. `semantic_embed_node()` — Semantic embedding node: generates and stores embedding for
 6. `checkpoint_node()` — Checkpoint node: saves graph state for recovery.
 7. `extract_insights_node()` — Extract insights from packet payload and reasoning block.
 8. `store_insights_node()` — Store extracted insights and facts to database (v2.1.0 - GMP

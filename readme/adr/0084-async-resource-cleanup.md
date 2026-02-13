@@ -1,8 +1,8 @@
 # ADR-0084: Async Resource Cleanup Pattern
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Source:** Bug Audit PR #83  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Source:** Bug Audit PR #83
 
 ## Context
 
@@ -40,12 +40,12 @@ async with httpx.AsyncClient() as client:
 
 The semgrep rule cannot detect these valid patterns. Use `# nosemgrep: l9-httpx-async-context-required` with explanation:
 
-| Pattern | Example | Why Allowed |
-|---------|---------|-------------|
-| **Lifecycle clients** | `app.state.http_client` | Stored in app state, closed in `@app.on_event("shutdown")` |
-| **Context manager impl** | `__aenter__` creating client | Closed by corresponding `__aexit__` |
-| **try/finally** | `http_client = httpx.AsyncClient()` with `finally: await http_client.aclose()` | Explicit cleanup in finally |
-| **Fallback with close()** | Lazy init with documented `close()` method | Manual cleanup available |
+| Pattern                   | Example                                                                        | Why Allowed                                                |
+| ------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| **Lifecycle clients**     | `app.state.http_client`                                                        | Stored in app state, closed in `@app.on_event("shutdown")` |
+| **Context manager impl**  | `__aenter__` creating client                                                   | Closed by corresponding `__aexit__`                        |
+| **try/finally**           | `http_client = httpx.AsyncClient()` with `finally: await http_client.aclose()` | Explicit cleanup in finally                                |
+| **Fallback with close()** | Lazy init with documented `close()` method                                     | Manual cleanup available                                   |
 
 ### Suppression Format
 
@@ -56,14 +56,14 @@ http_client = httpx.AsyncClient()
 
 ### Current Approved Locations
 
-| File | Line | Reason |
-|------|------|--------|
-| `api/server.py` | ~1573 | Lifecycle client, shutdown at L2800 |
-| `api/server_memory.py` | ~207 | Lifecycle client, shutdown handler |
-| `api/slack_client.py` | ~362 | try/finally cleanup |
-| `services/research/tools/perplexity_client.py` | ~187 | Context manager `__aenter__` |
-| `services/research/tools/perplexity_client.py` | ~249 | Fallback with `close()` method |
-| `services/slack_files.py` | ~689 | try/finally at L705 |
+| File                                           | Line  | Reason                              |
+| ---------------------------------------------- | ----- | ----------------------------------- |
+| `api/server.py`                                | ~1573 | Lifecycle client, shutdown at L2800 |
+| `api/server_memory.py`                         | ~207  | Lifecycle client, shutdown handler  |
+| `api/slack_client.py`                          | ~362  | try/finally cleanup                 |
+| `services/research/tools/perplexity_client.py` | ~187  | Context manager `__aenter__`        |
+| `services/research/tools/perplexity_client.py` | ~249  | Fallback with `close()` method      |
+| `services/slack_files.py`                      | ~689  | try/finally at L705                 |
 
 ## Consequences
 

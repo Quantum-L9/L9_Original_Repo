@@ -1,8 +1,8 @@
 # ADR-0078: Explicit Approval for Destructive Operations
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Author:** Igor Beylin  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Author:** Igor Beylin
 
 ## Context
 
@@ -18,13 +18,13 @@ Example incident (2026-01-20): Agent deleted `core/symbolic_computation/` (8 fil
 
 ### Destructive Operations (Always Require Approval)
 
-| Category | Operations |
-|----------|------------|
+| Category       | Operations                                 |
+| -------------- | ------------------------------------------ |
 | Infrastructure | Server rebuild, server delete, DNS changes |
-| Files | `rm -rf`, folder deletion, file moves |
-| Database | DROP TABLE, TRUNCATE, DELETE without WHERE |
-| Git | force push, hard reset, branch deletion |
-| Deployment | Production deploy, rollback |
+| Files          | `rm -rf`, folder deletion, file moves      |
+| Database       | DROP TABLE, TRUNCATE, DELETE without WHERE |
+| Git            | force push, hard reset, branch deletion    |
+| Deployment     | Production deploy, rollback                |
 
 ### Approval Protocol
 
@@ -55,6 +55,7 @@ Before ANY destructive operation:
 ### "Nothing imports it" is NOT Approval
 
 Code may be valuable even if not currently imported:
+
 - In-progress work
 - Alternative implementation
 - Intentionally preserved
@@ -63,12 +64,12 @@ Code may be valuable even if not currently imported:
 
 ### Anti-Patterns
 
-| Anti-Pattern | Why It's Wrong |
-|--------------|----------------|
-| "I'll just clean this up" | Destructive without approval |
-| "This looks like a duplicate" | Assumption, not fact |
-| "Nothing uses this" | Not sufficient justification |
-| "I'll rebuild to fix it" | Disproportionate response |
+| Anti-Pattern                  | Why It's Wrong               |
+| ----------------------------- | ---------------------------- |
+| "I'll just clean this up"     | Destructive without approval |
+| "This looks like a duplicate" | Assumption, not fact         |
+| "Nothing uses this"           | Not sufficient justification |
+| "I'll rebuild to fix it"      | Disproportionate response    |
 
 ## Implementation
 
@@ -109,14 +110,17 @@ if input() == "REBUILD":
 ## Consequences
 
 ### Positive
+
 - No accidental data loss
 - User maintains control
 - Clear audit trail
 - Recovery possible (approval = checkpoint)
 
 ### Negative
+
 - Slower execution of destructive tasks
 - Requires explicit interaction
 
 ## Related
+
 - ADR-0063: No Silent Changes

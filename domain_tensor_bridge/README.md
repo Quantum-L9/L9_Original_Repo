@@ -59,15 +59,15 @@ Bridge for domain-specific tensor operations and validation
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -93,11 +93,11 @@ domain_tensor_bridge/
 └── ... (17 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `reasoning_engine.py` | Result from reasoning execution. |
-| `reasoning_engine.py` | Multi-modal reasoning engine. |
+| File                     | Purpose                            |
+| ------------------------ | ---------------------------------- |
+| `__init__.py`            | Core module (PROTECTED)            |
+| `reasoning_engine.py`    | Result from reasoning execution.   |
+| `reasoning_engine.py`    | Multi-modal reasoning engine.      |
 | `embedding_processor.py` | Processed embedding with metadata. |
 
 ### Naming Conventions
@@ -203,7 +203,6 @@ class AgentController:
 
 **Lines:** 59-195 in `agent_controller.py`
 
-
 ---
 
 ## Data Models and Contracts
@@ -218,7 +217,7 @@ The following data models define the contracts for this subsystem:
 
 `AgentController`, `AnalogicalReasoner`, `Analogy`, `AnomalyFlag`, `AnomalyHandler`, `AnomalyResponse`, `AnomalySeverity`, `AuditResult`, `CausalFactor`, `CausalReasoner`
 
-*...and 42 more*
+_...and 42 more_
 
 ### Key Schemas
 
@@ -284,9 +283,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Domain_Tensor_Bridge feature flags
-L9_ENABLE_DOMAIN_TENSOR_BRIDGE_TRACING: true  # Enable detailed tracing
-L9_ENABLE_DOMAIN_TENSOR_BRIDGE_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_DOMAIN_TENSOR_BRIDGE_AUDIT: true    # Enable audit logging
+L9_ENABLE_DOMAIN_TENSOR_BRIDGE_TRACING: true # Enable detailed tracing
+L9_ENABLE_DOMAIN_TENSOR_BRIDGE_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_DOMAIN_TENSOR_BRIDGE_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -349,7 +348,6 @@ Create controller for API testing.
 - **File:** `test_api_surfaces.py:13`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -390,6 +388,7 @@ Domain Tensor Bridge operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -397,12 +396,12 @@ Domain Tensor Bridge operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                       | Type      | Description                    |
+| -------------------------------------------- | --------- | ------------------------------ |
 | `domain_tensor_bridge_operation_duration_ms` | Histogram | Operation latency distribution |
-| `domain_tensor_bridge_operation_total` | Counter | Total operations processed |
-| `domain_tensor_bridge_error_total` | Counter | Total errors encountered |
-| `domain_tensor_bridge_active_connections` | Gauge | Current active connections |
+| `domain_tensor_bridge_operation_total`       | Counter   | Total operations processed     |
+| `domain_tensor_bridge_error_total`           | Counter   | Total errors encountered       |
+| `domain_tensor_bridge_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -420,6 +419,7 @@ Domain Tensor Bridge emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/domain_tensor_bridge/`:
+
 - `test_domain_tensor_bridge.py` — Core unit tests
 - `test_domain_tensor_bridge_integration.py` — Integration tests (if applicable)
 
@@ -462,6 +462,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

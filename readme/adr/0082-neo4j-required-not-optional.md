@@ -14,6 +14,7 @@ L9's architecture depends on Neo4j for:
 4. **Knowledge Graph** — Entity relationships, causal graphs, world model
 
 Without Neo4j, these capabilities are **completely unavailable**, not degraded:
+
 - `tools_get_dependencies()` fails
 - `tools_get_blast_radius()` fails
 - Agent self-modify operations fail
@@ -46,13 +47,13 @@ NEO4J_PASSWORD=<secret>
 
 ### Services That REQUIRE Neo4j
 
-| Service | Dependency | Failure Mode |
-|---------|------------|--------------|
-| Tool Registry | Tool graph queries | All tool introspection fails |
-| Agent Bootstrap | Graph state loading | Agent init fails |
-| `/index` Pipeline | Repo graph loading | Indexes not queryable |
-| Memory Substrate | Knowledge graph | Relationship queries fail |
-| World Model | Causal graph | Reasoning degraded |
+| Service           | Dependency          | Failure Mode                 |
+| ----------------- | ------------------- | ---------------------------- |
+| Tool Registry     | Tool graph queries  | All tool introspection fails |
+| Agent Bootstrap   | Graph state loading | Agent init fails             |
+| `/index` Pipeline | Repo graph loading  | Indexes not queryable        |
+| Memory Substrate  | Knowledge graph     | Relationship queries fail    |
+| World Model       | Causal graph        | Reasoning degraded           |
 
 ## Consequences
 

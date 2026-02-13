@@ -197,10 +197,7 @@ class AdaptiveBatcher:
         metrics = await self.get_system_metrics(db_pool)
 
         # Check if we should adjust (respect cooldown)
-        if (
-            datetime.now(tz=UTC) - self.last_adjustment
-            < self.adjustment_cooldown
-        ):
+        if datetime.now(tz=UTC) - self.last_adjustment < self.adjustment_cooldown:
             return self.current_batch
 
         # If resources are constrained, reduce batch size

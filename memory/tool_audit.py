@@ -43,7 +43,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from uuid import UUID, uuid4
 
 import structlog
@@ -101,7 +101,7 @@ async def log_tool_invocation(
             "agent_id": agent_id,
             "status": status,
             "duration_ms": duration_ms,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         if task_id:
@@ -138,7 +138,7 @@ async def log_tool_invocation(
                 f"agent:{agent_id}",
                 f"status:{status}",
             ],
-            ttl=datetime.now(timezone.utc) + timedelta(hours=TOOL_AUDIT_TTL_HOURS),
+            ttl=datetime.now(UTC) + timedelta(hours=TOOL_AUDIT_TTL_HOURS),
         )
 
         # Fire-and-forget ingestion (don't await in main path)
@@ -249,7 +249,7 @@ async def _write_to_audit_table(
                 0,  # tokens_used
                 0.0,  # cost_usd (could be calculated)
                 error,
-                datetime.now(timezone.utc),
+                datetime.now(UTC),
                 call_id,  # Pass UUID directly, not str()
             )
             logger.debug(

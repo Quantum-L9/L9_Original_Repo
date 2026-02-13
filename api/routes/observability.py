@@ -33,7 +33,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import APIRouter, Query
@@ -158,7 +158,7 @@ async def get_metrics() -> SREMetricsResponse:
     service = get_observability_service()
     if not service:
         return SREMetricsResponse(
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
     metrics = await service.compute_metrics()
@@ -169,7 +169,7 @@ async def get_metrics() -> SREMetricsResponse:
         p50_latency_ms=metrics.get("p50_latency_ms", 0),
         p95_latency_ms=metrics.get("p95_latency_ms", 0),
         p99_latency_ms=metrics.get("p99_latency_ms", 0),
-        timestamp=metrics.get("timestamp", datetime.now(timezone.utc).isoformat()),
+        timestamp=metrics.get("timestamp", datetime.now(UTC).isoformat()),
     )
 
 
@@ -296,7 +296,7 @@ async def get_health() -> HealthResponse:
             jaeger_enabled=False,
             span_count=0,
             failure_count=0,
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
     # Determine health status
@@ -318,7 +318,7 @@ async def get_health() -> HealthResponse:
         jaeger_enabled=service._jaeger_exporter is not None,
         span_count=len(service.spans),
         failure_count=len(service.failures),
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
     )
 
 

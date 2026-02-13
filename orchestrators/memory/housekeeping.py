@@ -27,7 +27,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
 import structlog
@@ -134,7 +134,7 @@ class Housekeeping:
                 }
 
         try:
-            cutoff_date = datetime.now(timezone.utc) - timedelta(days=threshold_days)
+            cutoff_date = datetime.now(UTC) - timedelta(days=threshold_days)
 
             # Delete old packets via repository (age-based)
             if hasattr(repository, "delete_packets_before"):
@@ -387,7 +387,7 @@ class Housekeeping:
             "success": all_ok,
             "status": "healthy" if all_ok else "degraded",
             "procedures": results,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     async def run_consolidation(
@@ -445,7 +445,7 @@ class Housekeeping:
                 "success": len(report.errors) == 0,
                 "status": "complete",
                 "report": report_dict,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
         except Exception as e:
@@ -454,7 +454,7 @@ class Housekeeping:
                 "success": False,
                 "status": "error",
                 "message": str(e),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             }
 
 

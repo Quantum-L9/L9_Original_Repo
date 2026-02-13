@@ -26,7 +26,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -143,7 +143,7 @@ class ResearcherAgent(BaseAgent):
             source=step.get("step_id", "unknown"),
             content=response.get("findings", "No findings"),
             confidence=float(response.get("confidence", 0.5)),
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             metadata={
                 "key_facts": response.get("key_facts", []),
                 "sources": response.get("sources", []),

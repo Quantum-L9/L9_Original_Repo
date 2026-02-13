@@ -2,10 +2,11 @@
 Tests for substrate-backed idempotency in agent executor.
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock
-import json
 import hashlib
+import json
+from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from core.agents.idempotency_store import IdempotencyStore
 from core.schemas.packet_envelope import PacketEnvelope, PacketProvenance

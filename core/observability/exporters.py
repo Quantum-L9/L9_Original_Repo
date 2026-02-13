@@ -26,7 +26,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from abc import ABC, abstractmethod  # noqa: ADR-0026 - AsyncSpanExporter has default flush()
+from abc import (  # noqa: ADR-0026 - AsyncSpanExporter has default flush()
+    ABC,
+    abstractmethod,
+)
 from typing import Any
 
 import structlog

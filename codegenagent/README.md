@@ -59,14 +59,14 @@ Code generation agent and specifications
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module         | Purpose             |
+| -------------- | ------------------- |
 | `core/agents/` | Required dependency |
 
 ---
@@ -84,12 +84,12 @@ codegenagent/
 ├── readme_generator.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `c_gmp_engine.py` | Exception raised when code generation fails. |
+| File              | Purpose                                            |
+| ----------------- | -------------------------------------------------- |
+| `__init__.py`     | Core module (PROTECTED)                            |
+| `c_gmp_engine.py` | Exception raised when code generation fails.       |
 | `c_gmp_engine.py` | Code Generation and Mathematical Processing Engine |
-| `meta_loader.py` | Exception raised when meta loading fails. |
+| `meta_loader.py`  | Exception raised when meta loading fails.          |
 
 ### Naming Conventions
 
@@ -186,24 +186,22 @@ class ReadmeSection:
 
 **Lines:** 49-55 in `readme_generator.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
 `BatchResult`, `CGMPEngine`, `CGMPEngineError`, `CodeGenAgent`, `DryRunResult`, `EmissionResult`, `FileChange`, `FileEmitter`, `GeneratedReadme`, `GenerationResult`
 
-*...and 12 more*
+_...and 12 more_
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `PATCH_TYPES` | `['registry_patch', 'router_patch', 'sing...` | 23 |
-| `PATCH_FILENAME_PATTERNS` | `['_patch', 'patch_', '/patch/', 'patch.'...` | 42 |
+| Constant                  | Value                                         | Line |
+| ------------------------- | --------------------------------------------- | ---- |
+| `PATCH_TYPES`             | `['registry_patch', 'router_patch', 'sing...` | 23   |
+| `PATCH_FILENAME_PATTERNS` | `['_patch', 'patch_', '/patch/', 'patch.'...` | 42   |
 
 ### Key Schemas
 
@@ -268,9 +266,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Codegenagent feature flags
-L9_ENABLE_CODEGENAGENT_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CODEGENAGENT_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CODEGENAGENT_AUDIT: true    # Enable audit logging
+L9_ENABLE_CODEGENAGENT_TRACING: true # Enable detailed tracing
+L9_ENABLE_CODEGENAGENT_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CODEGENAGENT_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -337,7 +335,6 @@ Convert a path-like filename to a safe filename.
 - **Async:** No
 - **Returns:** `str`
 
-
 ### Usage Example
 
 ```python
@@ -378,6 +375,7 @@ Codegenagent operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -385,12 +383,12 @@ Codegenagent operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                               | Type      | Description                    |
+| ------------------------------------ | --------- | ------------------------------ |
 | `codegenagent_operation_duration_ms` | Histogram | Operation latency distribution |
-| `codegenagent_operation_total` | Counter | Total operations processed |
-| `codegenagent_error_total` | Counter | Total errors encountered |
-| `codegenagent_active_connections` | Gauge | Current active connections |
+| `codegenagent_operation_total`       | Counter   | Total operations processed     |
+| `codegenagent_error_total`           | Counter   | Total errors encountered       |
+| `codegenagent_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -408,6 +406,7 @@ Codegenagent emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/codegenagent/`:
+
 - `test_codegenagent.py` — Core unit tests
 - `test_codegenagent_integration.py` — Integration tests (if applicable)
 
@@ -451,6 +450,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

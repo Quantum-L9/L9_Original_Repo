@@ -59,15 +59,15 @@ Dependency injection container and utilities
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                | Purpose          |
+| --------------------- | ---------------- |
 | `config/di_config.py` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -81,9 +81,9 @@ core/di/
 ├── container.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
+| File           | Purpose                 |
+| -------------- | ----------------------- |
+| `__init__.py`  | Core module (PROTECTED) |
 | `container.py` | Core module (PROTECTED) |
 
 ### Naming Conventions
@@ -169,23 +169,21 @@ class DIContainer:
 
 **Lines:** 97-533 in `container.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
 `BindingNotFoundError`, `CircularDependencyError`, `DIContainer`, `DIContainerError`, `MemorySubstrateContainer`, `ResolutionError`, `bootstrap_di_container`, `get_container`, `get_di_container`, `reset_di_container`
 
-*...and 1 more*
+_...and 1 more_
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `T` | `TypeVar('T')` | 70 |
+| Constant | Value          | Line |
+| -------- | -------------- | ---- |
+| `T`      | `TypeVar('T')` | 70   |
 
 ### Key Schemas
 
@@ -250,9 +248,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Di feature flags
-L9_ENABLE_CORE_DI_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_DI_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_DI_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_DI_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_DI_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_DI_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -319,7 +317,6 @@ Shutdown the DI container and cleanup resources.
 - **Async:** Yes
 - **Returns:** `None`
 
-
 ### Usage Example
 
 ```python
@@ -360,6 +357,7 @@ Core Di operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -367,12 +365,12 @@ Core Di operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                          | Type      | Description                    |
+| ------------------------------- | --------- | ------------------------------ |
 | `core_di_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_di_operation_total` | Counter | Total operations processed |
-| `core_di_error_total` | Counter | Total errors encountered |
-| `core_di_active_connections` | Gauge | Current active connections |
+| `core_di_operation_total`       | Counter   | Total operations processed     |
+| `core_di_error_total`           | Counter   | Total errors encountered       |
+| `core_di_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -390,6 +388,7 @@ Core Di emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_di/`:
+
 - `test_core_di.py` — Core unit tests
 - `test_core_di_integration.py` — Integration tests (if applicable)
 
@@ -434,6 +433,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

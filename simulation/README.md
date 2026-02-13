@@ -59,15 +59,15 @@ Simulation and testing infrastructure
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -81,11 +81,11 @@ simulation/
 ├── simulation_engine.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `outcome_evaluator.py` | Types of evaluation criteria. |
-| `outcome_evaluator.py` | Evaluation verdicts. |
+| File                   | Purpose                        |
+| ---------------------- | ------------------------------ |
+| `__init__.py`          | Core module (PROTECTED)        |
+| `outcome_evaluator.py` | Types of evaluation criteria.  |
+| `outcome_evaluator.py` | Evaluation verdicts.           |
 | `outcome_evaluator.py` | A single evaluation criterion. |
 
 ### Naming Conventions
@@ -167,11 +167,9 @@ class EvaluationResult:
 
 **Lines:** 128-159 in `outcome_evaluator.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
@@ -241,9 +239,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Simulation feature flags
-L9_ENABLE_SIMULATION_TRACING: true  # Enable detailed tracing
-L9_ENABLE_SIMULATION_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_SIMULATION_AUDIT: true    # Enable audit logging
+L9_ENABLE_SIMULATION_TRACING: true # Enable detailed tracing
+L9_ENABLE_SIMULATION_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_SIMULATION_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -277,7 +275,6 @@ Set the memory substrate for packet emission.
 - **File:** `simulation_engine.py:65`
 - **Async:** No
 - **Returns:** `None`
-
 
 ### Usage Example
 
@@ -319,6 +316,7 @@ Simulation operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -326,12 +324,12 @@ Simulation operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                             | Type      | Description                    |
+| ---------------------------------- | --------- | ------------------------------ |
 | `simulation_operation_duration_ms` | Histogram | Operation latency distribution |
-| `simulation_operation_total` | Counter | Total operations processed |
-| `simulation_error_total` | Counter | Total errors encountered |
-| `simulation_active_connections` | Gauge | Current active connections |
+| `simulation_operation_total`       | Counter   | Total operations processed     |
+| `simulation_error_total`           | Counter   | Total errors encountered       |
+| `simulation_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -349,6 +347,7 @@ Simulation emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/simulation/`:
+
 - `test_simulation.py` — Core unit tests
 - `test_simulation_integration.py` — Integration tests (if applicable)
 
@@ -391,6 +390,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

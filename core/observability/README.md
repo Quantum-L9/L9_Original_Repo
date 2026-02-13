@@ -59,15 +59,15 @@ Metrics, tracing, and structured logging
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module        | Purpose          |
+| ------------- | ---------------- |
 | `all modules` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -93,12 +93,12 @@ core/observability/
 └── ... (1 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
+| File                     | Purpose                                            |
+| ------------------------ | -------------------------------------------------- |
+| `__init__.py`            | Core module (PROTECTED)                            |
 | `prometheus_exporter.py` | Exports Five-Tier Observability metrics to Prometh |
-| `jaeger_exporter.py` | Exports spans to Jaeger via OTLP. |
-| `service.py` | Main service for observability subsystem. |
+| `jaeger_exporter.py`     | Exports spans to Jaeger via OTLP.                  |
+| `service.py`             | Main service for observability subsystem.          |
 
 ### Naming Conventions
 
@@ -227,24 +227,22 @@ class KPITracker:
 
 **Lines:** 191-258 in `aggregation.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
 `AdaptiveStrategySelector`, `AgentKPI`, `AgentTrajectorySpan`, `AsyncSpanExporter`, `CircuitBreaker`, `CircuitBreakerConfig`, `CircuitBreakerState`, `CircuitOpenError`, `CompositeExporter`, `ConsoleExporter`
 
-*...and 56 more*
+_...and 56 more_
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `T` | `TypeVar('T')` | 46 |
-| `FAILURE_RECOVERY_MAP` | `{FailureClass.TOOL_TIMEOUT: [Remediation...` | 229 |
+| Constant               | Value                                         | Line |
+| ---------------------- | --------------------------------------------- | ---- |
+| `T`                    | `TypeVar('T')`                                | 46   |
+| `FAILURE_RECOVERY_MAP` | `{FailureClass.TOOL_TIMEOUT: [Remediation...` | 229  |
 
 ### Key Schemas
 
@@ -310,9 +308,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Observability feature flags
-L9_ENABLE_CORE_OBSERVABILITY_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_OBSERVABILITY_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_OBSERVABILITY_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_OBSERVABILITY_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_OBSERVABILITY_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_OBSERVABILITY_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -379,7 +377,6 @@ Initialize and return global observability service.
 - **Async:** Yes
 - **Returns:** `ObservabilityService`
 
-
 ### Usage Example
 
 ```python
@@ -420,6 +417,7 @@ Core Observability operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -427,12 +425,12 @@ Core Observability operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                     | Type      | Description                    |
+| ------------------------------------------ | --------- | ------------------------------ |
 | `core_observability_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_observability_operation_total` | Counter | Total operations processed |
-| `core_observability_error_total` | Counter | Total errors encountered |
-| `core_observability_active_connections` | Gauge | Current active connections |
+| `core_observability_operation_total`       | Counter   | Total operations processed     |
+| `core_observability_error_total`           | Counter   | Total errors encountered       |
+| `core_observability_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -450,6 +448,7 @@ Core Observability emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_observability/`:
+
 - `test_core_observability.py` — Core unit tests
 - `test_core_observability_integration.py` — Integration tests (if applicable)
 
@@ -492,6 +491,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

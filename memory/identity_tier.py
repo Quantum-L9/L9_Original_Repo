@@ -44,7 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
@@ -223,7 +223,7 @@ class IdentityTierService:
             fact_tags.extend(tags)
 
         # Set validation if provided
-        datetime.now(timezone.utc) if validated_by else None
+        datetime.now(UTC) if validated_by else None
 
         # Create fact via repository
         fact_id = await self._repository.insert_semantic_fact(

@@ -44,7 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
@@ -397,7 +397,7 @@ class ActiveMemoryEncoder:
         Returns:
             EncodingResult with encoding statistics
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         result = EncodingResult()
 
         logger.info(
@@ -439,7 +439,7 @@ class ActiveMemoryEncoder:
 
         finally:
             result.execution_time_ms = (
-                datetime.now(timezone.utc) - start_time
+                datetime.now(UTC) - start_time
             ).total_seconds() * 1000
             logger.info(
                 "Task completion processing complete",

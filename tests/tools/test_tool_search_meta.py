@@ -22,7 +22,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-
 # ============================================================================
 # FIXTURES
 # ============================================================================
@@ -228,6 +227,7 @@ class TestToolSearchErrorHandling:
     @pytest.mark.asyncio
     async def test_discovery_timeout_handled(self):
         """If discovery times out, tool_search must not hang indefinitely."""
+
         async def slow_discovery(*args, **kwargs):
             await asyncio.sleep(60)  # Simulate hang
             return []
@@ -241,9 +241,7 @@ class TestToolSearchErrorHandling:
 
             # Should either timeout or return within reasonable time
             try:
-                result = await asyncio.wait_for(
-                    tool_search(query="test"), timeout=5.0
-                )
+                result = await asyncio.wait_for(tool_search(query="test"), timeout=5.0)
                 assert isinstance(result, dict)
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 pass  # Acceptable — the tool itself should handle this

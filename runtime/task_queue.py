@@ -50,7 +50,7 @@ import asyncio
 from collections import deque
 from collections.abc import Callable, Coroutine
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 from uuid import uuid4
 
@@ -165,7 +165,7 @@ class QueuedTask:
             priority=data.get("priority", 5),
             tags=data.get("tags", []),
             created_at=datetime.fromisoformat(
-                data.get("created_at", datetime.now(timezone.utc).isoformat())
+                data.get("created_at", datetime.now(UTC).isoformat())
             ),
             status=data.get("status", "pending_igor_approval"),
             approved_by=data.get("approved_by"),

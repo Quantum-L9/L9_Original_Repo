@@ -25,7 +25,7 @@ warnings.warn(
 )
 
 # Re-export everything from the archived module
-from memory.archive.insight_extraction import (  # noqa: F401
+from memory.archive.insight_extraction import (
     InsightExtractionPipeline,
     get_insight_pipeline,
     init_insight_pipeline,

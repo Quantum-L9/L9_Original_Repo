@@ -37,7 +37,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -245,7 +245,7 @@ async def confirm_intent(
             command_id=intent.id,
             confirmed_by="system",
             reason="Low-risk command, no confirmation required",
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
         )
 
     # Log confirmation request
@@ -286,7 +286,7 @@ async def confirm_intent(
         command_id=command.id,
         confirmed_by="pending",
         reason=f"Awaiting Igor confirmation: {action_description}",
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
     )
 
 

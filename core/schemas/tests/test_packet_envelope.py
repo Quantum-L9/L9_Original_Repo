@@ -9,7 +9,7 @@ Validates:
 - Semantic search models
 """
 
-from datetime import datetime, timezone
+from datetime import datetime
 from uuid import uuid4
 
 import pytest

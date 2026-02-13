@@ -59,16 +59,16 @@ Task queue, Redis client, rate limiter, kernel loader, and background workers
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| `core/agents/executor.py` | Uses this module |
-| `api/server.py` | Uses this module |
+| Module                        | Purpose          |
+| ----------------------------- | ---------------- |
+| `core/agents/executor.py`     | Uses this module |
+| `api/server.py`               | Uses this module |
 | `memory/substrate_service.py` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                | Purpose             |
+| --------------------- | ------------------- |
 | `config/di_config.py` | Required dependency |
 
 ---
@@ -95,15 +95,15 @@ runtime/
 └── ... (18 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `kernel_loader.py` | Core module (PROTECTED) |
-| `task_queue.py` | Core module (PROTECTED) |
-| `redis_client.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
-| `dora.py` | Metrics captured during execution. |
-| `dora.py` | Execution graph (nodes/edges for call flow visuali |
-| `dora.py` | The DORA Block schema (L9_TRACE_TEMPLATE). |
+| File               | Purpose                                            |
+| ------------------ | -------------------------------------------------- |
+| `kernel_loader.py` | Core module (PROTECTED)                            |
+| `task_queue.py`    | Core module (PROTECTED)                            |
+| `redis_client.py`  | Core module (PROTECTED)                            |
+| `__init__.py`      | Core module (PROTECTED)                            |
+| `dora.py`          | Metrics captured during execution.                 |
+| `dora.py`          | Execution graph (nodes/edges for call flow visuali |
+| `dora.py`          | The DORA Block schema (L9_TRACE_TEMPLATE).         |
 
 ### Naming Conventions
 
@@ -208,7 +208,6 @@ class ResponseBuilder:
 
 **Lines:** 270-345 in `response_renderer.py`
 
-
 ---
 
 ## Data Models and Contracts
@@ -222,22 +221,22 @@ The following data models define the contracts for this subsystem:
 
 `ALL_SEGMENTS`, `AuthAttemptResult`, `AuthRateLimitConfig`, `AuthRateLimiter`, `BackgroundTaskRegistry`, `ClaimCollection`, `ConfidenceLevel`, `DEFAULT_KERNEL_PATH`, `DEFAULT_TOOL_AUTHORIZATION`, `DoraGraph`
 
-*...and 117 more*
+_...and 117 more_
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `DORA_BLOCK_START_PY` | `re.compile('^# ={10,}\\n# L9 DORA BLOCK ...` | 174 |
-| `DORA_BLOCK_END_PY` | `re.compile('^# ={10,}\\n# END L9 DORA BL...` | 177 |
-| `DORA_BLOCK_PATTERN_PY` | `re.compile('(# ={10,}\\n# L9 DORA BLOCK ...` | 181 |
-| `F` | `TypeVar('F', bound=Callable[..., Any])` | 281 |
-| `GIT_QUEUE` | `TaskQueue(queue_name='l9:git_commits', u...` | 46 |
-| `MEMORY_SEGMENT_GOVERNANCE_META` | `'governance_meta'` | 59 |
-| `MEMORY_SEGMENT_PROJECT_HISTORY` | `'project_history'` | 60 |
-| `MEMORY_SEGMENT_TOOL_AUDIT` | `'tool_audit'` | 61 |
+| Constant                         | Value                                         | Line |
+| -------------------------------- | --------------------------------------------- | ---- |
+| `DORA_BLOCK_START_PY`            | `re.compile('^# ={10,}\\n# L9 DORA BLOCK ...` | 174  |
+| `DORA_BLOCK_END_PY`              | `re.compile('^# ={10,}\\n# END L9 DORA BL...` | 177  |
+| `DORA_BLOCK_PATTERN_PY`          | `re.compile('(# ={10,}\\n# L9 DORA BLOCK ...` | 181  |
+| `F`                              | `TypeVar('F', bound=Callable[..., Any])`      | 281  |
+| `GIT_QUEUE`                      | `TaskQueue(queue_name='l9:git_commits', u...` | 46   |
+| `MEMORY_SEGMENT_GOVERNANCE_META` | `'governance_meta'`                           | 59   |
+| `MEMORY_SEGMENT_PROJECT_HISTORY` | `'project_history'`                           | 60   |
+| `MEMORY_SEGMENT_TOOL_AUDIT`      | `'tool_audit'`                                | 61   |
 
-*...and 21 more constants*
+_...and 21 more constants_
 
 ### Key Schemas
 
@@ -304,9 +303,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Runtime feature flags
-L9_ENABLE_RUNTIME_TRACING: true  # Enable detailed tracing
-L9_ENABLE_RUNTIME_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_RUNTIME_AUDIT: true    # Enable audit logging
+L9_ENABLE_RUNTIME_TRACING: true # Enable detailed tracing
+L9_ENABLE_RUNTIME_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_RUNTIME_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -373,7 +372,6 @@ Create and emit a DORA trace from the executor.
 - **Async:** Yes
 - **Returns:** `DoraTraceBlock`
 
-
 ### Usage Example
 
 ```python
@@ -414,6 +412,7 @@ Runtime operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -421,12 +420,12 @@ Runtime operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                          | Type      | Description                    |
+| ------------------------------- | --------- | ------------------------------ |
 | `runtime_operation_duration_ms` | Histogram | Operation latency distribution |
-| `runtime_operation_total` | Counter | Total operations processed |
-| `runtime_error_total` | Counter | Total errors encountered |
-| `runtime_active_connections` | Gauge | Current active connections |
+| `runtime_operation_total`       | Counter   | Total operations processed     |
+| `runtime_error_total`           | Counter   | Total errors encountered       |
+| `runtime_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -444,6 +443,7 @@ Runtime emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/runtime/`:
+
 - `test_runtime.py` — Core unit tests
 - `test_runtime_integration.py` — Integration tests (if applicable)
 
@@ -494,6 +494,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

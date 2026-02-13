@@ -14,7 +14,7 @@ Verifies:
 
 import hashlib
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -197,7 +197,7 @@ class TestUpcastingWithContentHash:
             "packet_id": str(uuid4()),
             "packet_type": "event",
             "payload": {"data": "test"},
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
         result = upcast(raw, "2.0.0")

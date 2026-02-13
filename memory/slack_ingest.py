@@ -83,6 +83,8 @@ except ImportError:
     _has_governance = False
 
 # Input segmenter for multi-part directive support (harvested from tokenizer)
+from datetime import UTC
+
 from orchestration.input_segmenter import get_segmenter
 
 # Redis client for in-flight event tracking (prevents duplicate processing on Slack retries)
@@ -2064,7 +2066,13 @@ def _build_system_prompt(
     This gives the AIOS model context about the conversation thread and
     any related prior knowledge from the memory substrate.
     """
+    from datetime import datetime, timezone
+
+    # GMP-LCTO-FIXES: Inject current datetime so L can tell time
+    current_time = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S UTC")
+
     parts = [
+        f"Current datetime: {current_time}",
         "You are an AI assistant integrated with Slack. Respond helpfully and concisely.",
         f"User ID: {user_id}",
         f"Channel: {channel_id}",

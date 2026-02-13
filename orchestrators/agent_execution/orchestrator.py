@@ -32,7 +32,7 @@ import json
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 
 import aiofiles
@@ -281,7 +281,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                                     "action": "orchestrator_error",
                                     "status": "error",
                                     "details": str(e),
-                                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                                    "timestamp": datetime.now(UTC).isoformat(),
                                 }
                             ],
                             "screenshots": [],

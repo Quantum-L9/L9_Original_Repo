@@ -59,14 +59,14 @@ Memory and knowledge retrieval strategies
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module         | Purpose          |
+| -------------- | ---------------- |
 | `core/agents/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module    | Purpose             |
+| --------- | ------------------- |
 | `memory/` | Required dependency |
 
 ---
@@ -79,9 +79,9 @@ core/retrievers/
 ├── substrate_retriever.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
+| File                     | Purpose                                            |
+| ------------------------ | -------------------------------------------------- |
+| `__init__.py`            | Core module (PROTECTED)                            |
 | `substrate_retriever.py` | LangChain retriever wrapper over MemorySubstrateSe |
 
 ### Naming Conventions
@@ -115,11 +115,9 @@ class SubstrateRetriever:
 
 **Lines:** 41-94 in `substrate_retriever.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
@@ -188,9 +186,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Retrievers feature flags
-L9_ENABLE_CORE_RETRIEVERS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_RETRIEVERS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_RETRIEVERS_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_RETRIEVERS_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_RETRIEVERS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_RETRIEVERS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -257,6 +255,7 @@ Core Retrievers operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -264,12 +263,12 @@ Core Retrievers operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                  | Type      | Description                    |
+| --------------------------------------- | --------- | ------------------------------ |
 | `core_retrievers_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_retrievers_operation_total` | Counter | Total operations processed |
-| `core_retrievers_error_total` | Counter | Total errors encountered |
-| `core_retrievers_active_connections` | Gauge | Current active connections |
+| `core_retrievers_operation_total`       | Counter   | Total operations processed     |
+| `core_retrievers_error_total`           | Counter   | Total errors encountered       |
+| `core_retrievers_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -287,6 +286,7 @@ Core Retrievers emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_retrievers/`:
+
 - `test_core_retrievers.py` — Core unit tests
 - `test_core_retrievers_integration.py` — Integration tests (if applicable)
 
@@ -329,6 +329,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

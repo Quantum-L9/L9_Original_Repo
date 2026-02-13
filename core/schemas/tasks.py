@@ -44,7 +44,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -225,7 +225,7 @@ class TaskEnvelope(BaseModel):
             Self with updated assignment
         """
         self.agent_id = agent_id
-        self.assigned_at = datetime.now(timezone.utc)
+        self.assigned_at = datetime.now(UTC)
         return self
 
     def to_dict(self) -> dict[str, Any]:

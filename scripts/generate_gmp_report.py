@@ -54,7 +54,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -160,7 +160,12 @@ class GMPReportGenerator:
 
         # All GMP reports are now in reports/GMP Reports/
         # Match various naming conventions used historically
-        for pattern in ["GMP-Report-*.md", "GMP_Report_*.md", "Report_GMP-*.md", "GMP*.md"]:
+        for pattern in [
+            "GMP-Report-*.md",
+            "GMP_Report_*.md",
+            "Report_GMP-*.md",
+            "GMP*.md",
+        ]:
             for path in self.reports_dir.glob(pattern):
                 # Extract number from filename
                 match = re.search(

@@ -123,41 +123,47 @@ class TestToolDiscoveryIntegration:
 
 
 class TestToolRegistryIntegration:
-    """Integration tests for tool registry."""
+    """Integration tests for tool registry.
+
+    NOTE: Tests for legacy tool_executor.py pattern archived 2026-02-12.
+    L9 now uses dynamic tool selection via:
+    - core.tools.base_registry.get_tool_registry() for tool metadata
+    - runtime.tool_registry.get_tool_executors() for callable functions
+    - core.agents.dynamic_tool_binding for runtime tool binding
+    """
 
     @pytest.mark.asyncio
-    async def test_tools_discoverable_via_executor(self):
-        """Tools should be discoverable via tool executor."""
-        try:
-            from runtime.tool_executor import get_tool_executor
+    async def test_tools_discoverable_via_registry(self):
+        """Tools should be discoverable via tool registry."""
+        from core.tools.base_registry import get_tool_registry
 
-            executor = get_tool_executor()
-            tools = executor.list_tools()
+        registry = get_tool_registry()
+        tools = registry.list_all()
 
-            assert len(tools) > 0, "No tools discovered"
+        assert len(tools) > 0, "No tools discovered"
 
-            # Check for key tools
-            tool_names = [t.name for t in tools]
-            assert "memory_search" in tool_names
-            assert "redis_get" in tool_names
-        except ImportError:
-            pytest.skip("Tool executor not available")
+        # Check for key tools
+        tool_ids = [t.id for t in tools]
+        # At minimum, research tools should be registered
+        assert any("search" in tid.lower() for tid in tool_ids), (
+            f"No search tools found in {tool_ids}"
+        )
 
-    @pytest.mark.asyncio
-    async def test_tool_execution_returns_dict(self):
-        """All tool executions should return dict."""
-        try:
-            from runtime.tool_executor import get_tool_executor
+    def test_tool_registry_has_list_methods(self):
+        """Tool registry should have standard list methods."""
+        from core.tools.base_registry import get_tool_registry
 
-            executor = get_tool_executor()
+        registry = get_tool_registry()
 
-            # Test a read-only tool
-            result = await executor.execute("memory_health_check", {})
+        # Verify registry has expected methods
+        assert hasattr(registry, "list_all"), "Registry missing list_all()"
+        assert hasattr(registry, "list_enabled"), "Registry missing list_enabled()"
+        assert hasattr(registry, "get"), "Registry missing get()"
+        assert hasattr(registry, "get_by_type"), "Registry missing get_by_type()"
 
-            assert isinstance(result, dict)
-            assert "status" in result
-        except ImportError:
-            pytest.skip("Tool executor not available")
+        # Verify methods are callable
+        assert callable(registry.list_all)
+        assert callable(registry.list_enabled)
 
 
 class TestForbiddenImports:

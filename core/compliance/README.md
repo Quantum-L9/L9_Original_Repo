@@ -59,14 +59,14 @@ Compliance checking and policy enforcement
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module             | Purpose             |
+| ------------------ | ------------------- |
 | `core/governance/` | Required dependency |
 
 ---
@@ -80,12 +80,12 @@ core/compliance/
 ├── audit_reporter.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `audit_reporter.py` | Compliance report for a time period. |
-| `audit_reporter.py` | Generates compliance reports from audit trail. |
-| `audit_log.py` | Audit logger for Igor commands and high-risk opera |
+| File                | Purpose                                            |
+| ------------------- | -------------------------------------------------- |
+| `__init__.py`       | Core module (PROTECTED)                            |
+| `audit_reporter.py` | Compliance report for a time period.               |
+| `audit_reporter.py` | Generates compliance reports from audit trail.     |
+| `audit_log.py`      | Audit logger for Igor commands and high-risk opera |
 
 ### Naming Conventions
 
@@ -162,11 +162,9 @@ class AuditLogger:
 
 **Lines:** 56-351 in `audit_log.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
@@ -235,9 +233,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Compliance feature flags
-L9_ENABLE_CORE_COMPLIANCE_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_COMPLIANCE_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_COMPLIANCE_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_COMPLIANCE_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_COMPLIANCE_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_COMPLIANCE_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -271,7 +269,6 @@ Convenience function to log a command to audit trail.
 - **File:** `audit_log.py:354`
 - **Async:** Yes
 - **Returns:** `bool`
-
 
 ### Usage Example
 
@@ -313,6 +310,7 @@ Core Compliance operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -320,12 +318,12 @@ Core Compliance operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                  | Type      | Description                    |
+| --------------------------------------- | --------- | ------------------------------ |
 | `core_compliance_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_compliance_operation_total` | Counter | Total operations processed |
-| `core_compliance_error_total` | Counter | Total errors encountered |
-| `core_compliance_active_connections` | Gauge | Current active connections |
+| `core_compliance_operation_total`       | Counter   | Total operations processed     |
+| `core_compliance_error_total`           | Counter   | Total errors encountered       |
+| `core_compliance_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -343,6 +341,7 @@ Core Compliance emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_compliance/`:
+
 - `test_core_compliance.py` — Core unit tests
 - `test_core_compliance_integration.py` — Integration tests (if applicable)
 
@@ -385,6 +384,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -50,7 +50,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -149,7 +149,7 @@ class ApprovalManager:
                     "operation_summary": operation_summary,
                     "arguments": arguments,
                     "status": "pending",
-                    "created_at": datetime.now(timezone.utc).isoformat(),
+                    "created_at": datetime.now(UTC).isoformat(),
                 },
                 metadata=PacketMetadata(agent="approval_manager"),
             )
@@ -248,7 +248,7 @@ class ApprovalManager:
                 payload={
                     "tool_id": tool_id,
                     "approved_by": approved_by,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                 },
                 metadata=PacketMetadata(agent="approval_manager"),
             )
@@ -293,7 +293,7 @@ class ApprovalManager:
                 payload={
                     "task_id": task_id,
                     "approved_by": approved_by,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "reason": reason or "",
                 },
                 metadata=PacketMetadata(agent="approval_manager"),
@@ -349,7 +349,7 @@ class ApprovalManager:
                 payload={
                     "task_id": task_id,
                     "rejected_by": rejected_by,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "reason": reason,
                 },
                 metadata=PacketMetadata(agent="approval_manager"),

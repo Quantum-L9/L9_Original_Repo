@@ -31,7 +31,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
+from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
+    ABC,
+    abstractmethod,
+)
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any

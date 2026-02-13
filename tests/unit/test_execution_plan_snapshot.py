@@ -7,7 +7,7 @@ Tests execution plan snapshot functionality.
 Mutation Testing Target: 85%+ score
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
 import pytest
 
@@ -47,7 +47,7 @@ class TestExecutionPlanSnapshot:
             plan_id="plan1",
             checkpoint_id="cp1",
             status=PlanStatus.RUNNING,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
         assert snapshot.snapshot_id == "snap1"
@@ -60,7 +60,7 @@ class TestExecutionPlanSnapshot:
             plan_id="plan1",
             checkpoint_id="cp1",
             status=PlanStatus.RUNNING,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
             total_steps=10,
             completed_steps=5,
         )

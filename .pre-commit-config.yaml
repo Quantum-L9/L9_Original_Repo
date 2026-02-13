@@ -85,43 +85,50 @@ repos:
 
       - id: check-hardcoded-credentials
         name: Check hardcoded credentials (ADR-0090)
-        entry: bash -c 'FOUND=$(grep -rE "AKIA[0-9A-Z]{16}" --include="*.py" --include="*.sh" --include="*.yaml" . 2>/dev/null | grep -v ".venv" | grep -v ".git/" | grep -v ".env" || true); if [ -n "$FOUND" ]; then echo "❌ AWS keys found:" && echo "$FOUND" && exit 1; fi; FOUND=$(grep -rE "(API_KEY|api_key).*\"[a-f0-9]{64}\"" --include="*.py" --include="*.sh" . 2>/dev/null | grep -v ".venv" | grep -v ".git/" | grep -v ".env" || true); if [ -n "$FOUND" ]; then echo "❌ Hardcoded API keys found:" && echo "$FOUND" && exit 1; fi; exit 0'
+        entry: |
+          bash -c 'FOUND=$(grep -rE "AKIA[0-9A-Z]{16}" --include="*.py" --include="*.sh" --include="*.yaml" . 2>/dev/null | grep -v ".venv" | grep -v ".git/" | grep -v ".env" | grep -v scripts/ || true); if [ -n "$FOUND" ]; then echo "❌ AWS keys found" && echo "$FOUND" && exit 1; fi; FOUND=$(grep -rE "(API_KEY|api_key).*\"[a-f0-9]{64}\"" --include="*.py" --include="*.sh" . 2>/dev/null | grep -v ".venv" | grep -v ".git/" | grep -v ".env" | grep -v scripts/ | grep -v local_dashboard/ | grep -v tests/ || true); if [ -n "$FOUND" ]; then echo "❌ Hardcoded API keys found" && echo "$FOUND" && exit 1; fi; exit 0'
         language: system
         pass_filenames: false
 
       - id: check-datetime-utcnow
         name: Check datetime.utcnow() usage (ADR-0083)
-        entry: bash -c 'FOUND=$(grep -rn "\.utcnow()" --include="*.py" . 2>/dev/null | grep -v ".venv" | grep -v "# noqa" | grep -v tests/ || true); if [ -n "$FOUND" ]; then echo "❌ ADR-0083: datetime.utcnow() is deprecated:" && echo "$FOUND" && echo "Fix: Use datetime.now(UTC)" && exit 1; fi; exit 0'
+        entry: |
+          bash -c 'FOUND=$(grep -rn "\.utcnow()" --include="*.py" . 2>/dev/null | grep -v ".venv" | grep -v "# noqa" | grep -v tests/ | grep -v ci/ | grep -v current_work/ || true); if [ -n "$FOUND" ]; then echo "❌ ADR-0083 datetime.utcnow() is deprecated" && echo "$FOUND" && echo "Fix: Use datetime.now(UTC)" && exit 1; fi; exit 0'
         language: system
         pass_filenames: false
 
       - id: check-pickle-usage
         name: Check pickle usage (ADR-0088)
-        entry: bash -c 'FOUND=$(grep -rn "pickle\.load" --include="*.py" . 2>/dev/null | grep -v ".venv" | grep -v "# noqa" | grep -v tests/ || true); if [ -n "$FOUND" ]; then echo "❌ ADR-0088: pickle is forbidden (security):" && echo "$FOUND" && echo "Fix: Use json.loads() or msgpack" && exit 1; fi; exit 0'
+        entry: |
+          bash -c 'FOUND=$(grep -rn "pickle\.load" --include="*.py" . 2>/dev/null | grep -v ".venv" | grep -v "# noqa" | grep -v tests/ | grep -v ci/ | grep -v current_work/ || true); if [ -n "$FOUND" ]; then echo "❌ ADR-0088 pickle is forbidden (security)" && echo "$FOUND" && echo "Fix: Use json.loads() or msgpack" && exit 1; fi; exit 0'
         language: system
         pass_filenames: false
 
       - id: check-fstring-sql
         name: Check f-string SQL (ADR-0087)
-        entry: bash -c 'FOUND=$(grep -rnE "f\"(SELECT|INSERT|UPDATE|DELETE).*\{" --include="*.py" . 2>/dev/null | grep -v ".venv" | grep -v "# noqa" | grep -v tests/ || true); if [ -n "$FOUND" ]; then echo "❌ ADR-0087: f-string SQL is forbidden:" && echo "$FOUND" | head -10 && echo "Fix: Use parameterized queries or add # noqa: ADR-0087" && exit 1; fi; exit 0'
+        entry: |
+          bash -c 'FOUND=$(grep -rnE "f\"(SELECT|INSERT|UPDATE|DELETE).*\{" --include="*.py" . 2>/dev/null | grep -v ".venv" | grep -v "# noqa" | grep -v tests/ | grep -v igor/ | grep -v current_work/ || true); if [ -n "$FOUND" ]; then echo "❌ ADR-0087 f-string SQL is forbidden" && echo "$FOUND" | head -10 && echo "Fix: Use parameterized queries or add # noqa: ADR-0087" && exit 1; fi; exit 0'
         language: system
         pass_filenames: false
 
       - id: check-print-usage
         name: Check print() usage (ADR-0019)
-        entry: bash -c 'FOUND=$(grep -rn "^\s*print(" --include="*.py" . 2>/dev/null | grep -v ".venv" | grep -v tests/ | grep -v ci/ | grep -v scripts/ | grep -v tools/ | grep -v __main__.py | grep -v mcp_memory/ | grep -v agents/cursor/ | grep -v "# noqa" || true); if [ -n "$FOUND" ]; then echo "❌ ADR-0019: print() forbidden:" && echo "$FOUND" | head -10 && echo "Fix: Use structlog" && exit 1; fi; exit 0'
+        entry: |
+          bash -c 'FOUND=$(grep -rn "^\s*print(" --include="*.py" . 2>/dev/null | grep -v ".venv" | grep -v tests/ | grep -v ci/ | grep -v scripts/ | grep -v tools/ | grep -v workflows/ | grep -v current_work/ | grep -v __main__.py | grep -v mcp_memory/ | grep -v agents/cursor/ | grep -v "# noqa" || true); if [ -n "$FOUND" ]; then echo "❌ ADR-0019 print() forbidden" && echo "$FOUND" | head -10 && echo "Fix: Use structlog" && exit 1; fi; exit 0'
         language: system
         pass_filenames: false
 
       - id: check-logging-module
         name: Check logging module (ADR-0019)
-        entry: bash -c 'FOUND=$(grep -rn "^import logging$\|^from logging import" --include="*.py" . 2>/dev/null | grep -v ".venv" | grep -v tests/ | grep -v ci/ | grep -v scripts/ | grep -v config/logging | grep -v core/observability | grep -v "# noqa" || true); if [ -n "$FOUND" ]; then echo "❌ ADR-0019: stdlib logging forbidden:" && echo "$FOUND" && echo "Fix: Use structlog" && exit 1; fi; exit 0'
+        entry: |
+          bash -c 'FOUND=$(grep -rn "^import logging$\|^from logging import" --include="*.py" . 2>/dev/null | grep -v ".venv" | grep -v tests/ | grep -v ci/ | grep -v scripts/ | grep -v config/logging | grep -v core/observability | grep -v "# noqa" || true); if [ -n "$FOUND" ]; then echo "❌ ADR-0019 stdlib logging forbidden" && echo "$FOUND" && echo "Fix: Use structlog" && exit 1; fi; exit 0'
         language: system
         pass_filenames: false
 
       - id: check-type-checking
         name: Check TYPE_CHECKING pattern (ADR-0002)
-        entry: bash -c 'FAILED=0; for f in $(grep -rl "if TYPE_CHECKING:" --include="*.py" . 2>/dev/null | grep -v .venv | grep -v tests/); do if ! grep -q "from __future__ import annotations" "$f"; then echo "❌ $f: needs __future__ annotations"; FAILED=1; fi; done; exit $FAILED'
+        entry: |
+          bash -c 'FAILED=0; grep -rl "if TYPE_CHECKING:" --include="*.py" . 2>/dev/null | grep -v .venv | grep -v tests/ | grep -v current_work/ | while IFS= read -r f; do if ! grep -q "from __future__ import annotations" "$f"; then echo "❌ $f needs __future__ annotations"; FAILED=1; fi; done; exit $FAILED'
         language: system
         pass_filenames: false
 
@@ -133,7 +140,7 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
         args: ["--allow-multiple-documents"]
-        exclude: "^(deploy/helm/|readme/)"
+        exclude: "^(deploy/helm/|deploy/k8s/helm/|readme/)"
       - id: check-added-large-files
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED

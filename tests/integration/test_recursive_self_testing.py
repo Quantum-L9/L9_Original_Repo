@@ -7,7 +7,7 @@ Tests for test generation, execution, and integration with approvals.
 Version: 1.0.0
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -164,7 +164,7 @@ class TestTestAgentResult:
             tests_skipped=0,
             coverage_percent=80.0,
             duration_ms=1000,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             recommendations=["Fix failing test"],
             test_results=None,
             success=False,
@@ -187,7 +187,7 @@ class TestTestAgentResult:
             tests_skipped=0,
             coverage_percent=90.0,
             duration_ms=500,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             recommendations=["All tests passed"],
             test_results=None,
             success=True,

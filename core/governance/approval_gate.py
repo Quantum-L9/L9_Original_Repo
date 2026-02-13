@@ -32,6 +32,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass
+from datetime import UTC
 from typing import Any
 
 import structlog
@@ -83,6 +84,7 @@ def is_high_impact_decision(decision: dict[str, Any]) -> bool:
     # Check governance bypass flag
     try:
         from config.settings import settings
+
         if getattr(settings, "l_cto_governance_bypass", False):
             logger.warning(
                 "approval_gate.governance_bypass_active",
@@ -92,7 +94,7 @@ def is_high_impact_decision(decision: dict[str, Any]) -> bool:
             return False  # No approval needed when bypass is active
     except ImportError:
         pass
-    
+
     # Check decision type
     decision_type = decision.get("type", "")
 
@@ -231,14 +233,14 @@ def handle_governance_result(
             state.decisions[-1]["approval_id"] = escalation_result.request_id
 
         # Add reasoning block
-        from datetime import datetime, timezone
+        from datetime import datetime
         from uuid import uuid4
 
         from core.schemas import StructuredReasoningBlock
 
         reasoning_block = StructuredReasoningBlock(
             step_id=str(uuid4()),
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             reasoning_type="governance",
             content=f"Decision approved by Igor: {escalation_result.rationale}",
             confidence=0.9,
@@ -259,14 +261,14 @@ def handle_governance_result(
             state.decisions[-1]["rejection_reason"] = escalation_result.rationale
 
         # Add guidance message
-        from datetime import datetime, timezone
+        from datetime import datetime
         from uuid import uuid4
 
         from core.schemas import StructuredReasoningBlock
 
         reasoning_block = StructuredReasoningBlock(
             step_id=str(uuid4()),
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             reasoning_type="governance",
             content=f"Decision rejected: {escalation_result.rationale}",
             confidence=0.9,

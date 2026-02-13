@@ -143,7 +143,7 @@ DomainPacketResponse @ api/routes/tensor_bridge.py - Response from domain packet
 DraftRequest @ email_agent/router.py - Request model for email draft.
 DuplicateTaskResponse @ core/agents/schemas.py - Response when a duplicate task is detected.
 EnrichEntitiesRequest @ api/memory/router.py - Request model for entity enrichment saga.
-EnrichmentResult @ memory/substrate_models.py - Result of SubstrateDAG.enrich() execution (v2.1.0 
+EnrichmentResult @ memory/substrate_models.py - Result of SubstrateDAG.enrich() execution (v2.1.0
 EntityData @ clients/world_model_client.py - Entity data from API.
 EntityListResponse @ api/world_model_api.py - List of entities response.
 EntityRequest @ api/memory/graph.py - Request model for entity operations.
@@ -252,7 +252,7 @@ KernelReadInput @ core/schemas/l_tools.py - Input schema for kernel read.
 KernelReloadRequest @ api/server.py - Request body for kernel reload.
 KernelReloadResponse @ api/server.py - Response from kernel reload.
 KnowledgeFact @ memory/substrate_models.py - A knowledge fact extracted from packet processing.
-KnowledgeFactRow @ memory/substrate_models.py - DTO for knowledge_facts table (v2.0 - all columns 
+KnowledgeFactRow @ memory/substrate_models.py - DTO for knowledge_facts table (v2.0 - all columns
 KnowledgeFusionConfig @ codegen/code-gen-files/schema_parser.py - Knowledge fusion layer configuration.
 L9Agent @ core/worldmodel/l9_schema.py - Agent entity in the L9 world model.
 L9BaseModel @ core/models/l9_base_model.py - Unified base model for all L9 types.
@@ -421,7 +421,7 @@ SecuritySettings @ config/ai_eval_settings.py - Security check settings.
 SegmentPreviewRequest @ api/agent_routes.py - Request model for segment preview.
 SegmentPreviewResponse @ api/agent_routes.py - Response model for segment preview.
 SegmentResult @ api/agent_routes.py - Result for a single segment in multi-part executio
-SemanticFactRow @ memory/substrate_models.py - DTO for semantic_facts table (frontier-grade fact 
+SemanticFactRow @ memory/substrate_models.py - DTO for semantic_facts table (frontier-grade fact
 SemanticHit @ clients/memory_client.py - Single semantic search result.
 SemanticHit @ core/schemas/packet_envelope.py - Single semantic search result.
 SemanticHit @ core/schemas/packet_envelope_v2.py - Single semantic search result.
@@ -487,10 +487,10 @@ TemporalQueryRequest @ mcp_memory/src/models.py - Request model for time-based m
 TemporalQueryResponse @ mcp_memory/src/models.py - Response model for temporal memory queries.
 TensorInferenceRequest @ api/routes/tensor_bridge.py - Request for tensor inference operations.
 TensorInferenceResponse @ api/routes/tensor_bridge.py - Response from tensor inference.
-TensorRequest @ adapters/tensorglobe_bridge/schemas.py - TensorRequest: Untrusted query to external tensor 
+TensorRequest @ adapters/tensorglobe_bridge/schemas.py - TensorRequest: Untrusted query to external tensor
 TensorResponse @ adapters/tensorglobe_bridge/schemas.py - TensorResponse from external provider.
 TensorResult @ adapters/tensorglobe_bridge/schemas.py - Single tensor result (similarity score, prediction
-TestModel @ tests/memory/test_agent_persistence.py - 
+TestModel @ tests/memory/test_agent_persistence.py -
 TestScope @ ir_engine/meta_ir.py - Section 11: Required test coverage.
 TokenUsage @ core/schemas/packet_envelope.py - Token usage tracking for LLM calls.
 ToolBinding @ core/agents/schemas.py - A tool bound to an agent instance.

@@ -30,13 +30,12 @@ from core.tools.tool_audit import (
     execute_tool_with_audit,
 )
 
-
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_substrate() -> MagicMock:
     """Mock MemorySubstrateService with postgres_pool."""
     substrate = MagicMock()
@@ -44,13 +43,13 @@ def mock_substrate() -> MagicMock:
     return substrate
 
 
-@pytest.fixture()
+@pytest.fixture
 def audit_service(mock_substrate: MagicMock) -> ToolAuditService:
     """Create ToolAuditService with small buffer for testing."""
     return ToolAuditService(substrate_service=mock_substrate, buffer_size=3)
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_executor() -> MagicMock:
     """Mock tool executor that returns a dict."""
     executor = MagicMock()
@@ -155,17 +154,15 @@ class TestToolCostEstimator:
 class TestToolAuditServiceBuffer:
     """Tests for buffered audit logging."""
 
-    @pytest.mark.asyncio()
-    async def test_log_execution_buffers(
-        self, audit_service: ToolAuditService
-    ) -> None:
+    @pytest.mark.asyncio
+    async def test_log_execution_buffers(self, audit_service: ToolAuditService) -> None:
         entry = ToolAuditEntry(
             tool_name="t", agent_id="a", input_data={}, output_data={}, duration_ms=1.0
         )
         await audit_service.log_execution(entry)
         assert len(audit_service.local_buffer) == 1
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_auto_flush_on_buffer_full(
         self, audit_service: ToolAuditService
     ) -> None:
@@ -182,7 +179,7 @@ class TestToolAuditServiceBuffer:
         # Buffer should be cleared after flush
         assert len(audit_service.local_buffer) == 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_flush_empty_buffer_is_noop(
         self, audit_service: ToolAuditService
     ) -> None:
@@ -190,7 +187,7 @@ class TestToolAuditServiceBuffer:
         await audit_service.flush()  # Must not raise
         assert len(audit_service.local_buffer) == 0
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_flush_retries_on_failure(
         self, audit_service: ToolAuditService, mock_substrate: MagicMock
     ) -> None:
@@ -220,7 +217,7 @@ class TestToolAuditServiceBuffer:
 class TestToolAuditServiceLifecycle:
     """Tests for start/stop lifecycle."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_start_creates_flush_task(
         self, audit_service: ToolAuditService
     ) -> None:
@@ -229,7 +226,7 @@ class TestToolAuditServiceLifecycle:
         assert not audit_service._flush_task.done()
         await audit_service.stop()
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_stop_cancels_task_and_flushes(
         self, audit_service: ToolAuditService
     ) -> None:
@@ -252,7 +249,7 @@ class TestToolAuditServiceLifecycle:
 class TestExecuteToolWithAuditSuccess:
     """Tests for audit-wrapped tool execution on success."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_returns_tool_output(
         self,
         audit_service: ToolAuditService,
@@ -273,7 +270,7 @@ class TestExecuteToolWithAuditSuccess:
             )
         assert result == {"result": "success", "data": [1, 2, 3]}
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_logs_audit_entry_on_success(
         self,
         audit_service: ToolAuditService,
@@ -307,7 +304,7 @@ class TestExecuteToolWithAuditSuccess:
 class TestExecuteToolWithAuditFailure:
     """Tests for audit-wrapped tool execution on failure."""
 
-    @pytest.mark.asyncio()
+    @pytest.mark.asyncio
     async def test_raises_and_logs_error(
         self,
         audit_service: ToolAuditService,

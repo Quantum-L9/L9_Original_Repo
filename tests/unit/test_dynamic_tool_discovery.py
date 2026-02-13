@@ -415,7 +415,9 @@ class TestCachedToolRegistryAsyncMethods:
             await cache_wrapper.register_tool("tool_id", {"name": "test"})
 
             mock_invalidate.assert_awaited_once()
-            mock_registry.register_tool.assert_called_once_with("tool_id", {"name": "test"})
+            mock_registry.register_tool.assert_called_once_with(
+                "tool_id", {"name": "test"}
+            )
 
     @pytest.mark.asyncio
     async def test_unregister_tool_calls_invalidate_all(self):

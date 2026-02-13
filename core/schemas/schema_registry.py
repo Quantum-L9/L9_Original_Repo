@@ -55,7 +55,7 @@ import hashlib
 import json
 from collections.abc import Callable
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime
 from functools import lru_cache
 from uuid import UUID
 

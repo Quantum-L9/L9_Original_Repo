@@ -50,7 +50,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -380,7 +380,7 @@ class ReflectionMemory:
         reflection = self._reflections.get(reflection_id)
         if reflection:
             reflection.access_count += 1
-            reflection.last_accessed = datetime.now(timezone.utc)
+            reflection.last_accessed = datetime.now(UTC)
         return reflection
 
     def update_reflection(
@@ -464,7 +464,7 @@ class ReflectionMemory:
         existing = self.find_pattern_by_name(name)
         if existing:
             existing.frequency += 1
-            existing.last_seen = datetime.now(timezone.utc)
+            existing.last_seen = datetime.now(UTC)
             existing.confidence = min(1.0, existing.confidence + 0.05)
             return existing
 
@@ -539,7 +539,7 @@ class ReflectionMemory:
 
         improvement.status = status
         if status == "implemented":
-            improvement.implemented_at = datetime.now(timezone.utc)
+            improvement.implemented_at = datetime.now(UTC)
         if actual_impact:
             improvement.actual_impact = actual_impact
 

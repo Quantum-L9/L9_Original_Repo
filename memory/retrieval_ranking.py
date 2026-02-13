@@ -41,7 +41,7 @@ __dora_meta__ = {
 
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
@@ -241,7 +241,7 @@ class MultiFactorRanker:
             return []
 
         if reference_time is None:
-            reference_time = datetime.now(timezone.utc)
+            reference_time = datetime.now(UTC)
 
         # Compute scores for each item
         for item in items:

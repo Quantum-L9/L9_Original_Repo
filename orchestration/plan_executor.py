@@ -55,7 +55,7 @@ __dora_meta__ = {
 import asyncio
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -588,7 +588,7 @@ class PlanExecutor:
         result = ExecutionResult(
             plan_id=plan.plan_id,
             status=ExecutionStatus.RUNNING,
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
         )
 
         self._active_executions[result.execution_id] = result
@@ -625,7 +625,7 @@ class PlanExecutor:
             result.status = ExecutionStatus.FAILED
             result.errors.append(str(e))
 
-        result.completed_at = datetime.now(timezone.utc)
+        result.completed_at = datetime.now(UTC)
 
         # Emit completion packet
         await self._emit_execution_complete_packet(result)
@@ -759,7 +759,7 @@ class PlanExecutor:
         result: ExecutionResult,
     ) -> StepResult:
         """Execute a single step with retries."""
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         retries = 0
 
         while retries <= self._config.max_retries:
@@ -784,7 +784,7 @@ class PlanExecutor:
                     duration_ms=self._elapsed_ms(start_time),
                     retries=retries,
                     started_at=start_time,
-                    completed_at=datetime.now(timezone.utc),
+                    completed_at=datetime.now(UTC),
                 )
 
             except Exception as e:
@@ -805,7 +805,7 @@ class PlanExecutor:
                         duration_ms=self._elapsed_ms(start_time),
                         retries=retries,
                         started_at=start_time,
-                        completed_at=datetime.now(timezone.utc),
+                        completed_at=datetime.now(UTC),
                     )
 
         # Should not reach here
@@ -923,7 +923,7 @@ class PlanExecutor:
             backup_path = None
             if path.exists():
                 backup_path = path.with_suffix(
-                    path.suffix + f".bak.{int(datetime.now(timezone.utc).timestamp())}"
+                    path.suffix + f".bak.{int(datetime.now(UTC).timestamp())}"
                 )
                 path.rename(backup_path)
                 logger.info(f"Backed up existing file to: {backup_path}")
@@ -1250,7 +1250,7 @@ class PlanExecutor:
         if execution_id in self._active_executions:
             result = self._active_executions[execution_id]
             result.status = ExecutionStatus.CANCELLED
-            result.completed_at = datetime.now(timezone.utc)
+            result.completed_at = datetime.now(UTC)
             logger.info(f"Cancelled execution {execution_id}")
             return True
         return False
@@ -1279,7 +1279,7 @@ class PlanExecutor:
 
     def _elapsed_ms(self, start: datetime) -> int:
         """Calculate elapsed milliseconds from start time."""
-        return int((datetime.now(timezone.utc) - start).total_seconds() * 1000)
+        return int((datetime.now(UTC) - start).total_seconds() * 1000)
 
 
 # ============================================================================

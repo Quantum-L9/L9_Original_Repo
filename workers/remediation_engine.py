@@ -35,7 +35,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
@@ -85,9 +85,7 @@ class RemediationEngineRequest(BaseModel):
     """Input request for RemediationEngine."""
 
     request_id: str = Field(
-        default_factory=lambda: str(
-            uuid5(NAMESPACE_DNS, str(datetime.now(timezone.utc)))
-        )
+        default_factory=lambda: str(uuid5(NAMESPACE_DNS, str(datetime.now(UTC))))
     )
     anomaly_id: str = Field(..., description="Unique anomaly identifier")
     severity: str = Field(
@@ -190,7 +188,7 @@ class RemediationEngine:
         Returns:
             RemediationEngineResponse with remediation result
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         try:
             logger.info(
@@ -457,7 +455,7 @@ class RemediationEngine:
 
     def _calc_duration(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        return int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
     # =========================================================================
     # Health Check

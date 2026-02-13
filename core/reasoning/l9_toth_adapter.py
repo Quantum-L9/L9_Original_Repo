@@ -24,10 +24,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
+
+import structlog
 
 from core.reasoning.toth_engine import (
     ProductionToThEngine,

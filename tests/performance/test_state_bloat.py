@@ -6,7 +6,7 @@ Tests for monitoring state size and memory usage.
 """
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TypedDict
 
 
@@ -59,7 +59,7 @@ def create_initial_state(
         final_summary="",
         final_output={},
         errors=[],
-        timestamp=datetime.now(timezone.utc).isoformat(),
+        timestamp=datetime.now(UTC).isoformat(),
         packet_id=None,
         stored_insights=[],
     )

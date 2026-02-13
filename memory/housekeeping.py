@@ -41,7 +41,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta, timezone
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any
 
@@ -163,7 +163,7 @@ class HousekeepingEngine:
         )
         self._stats["tags_gc"] += results["tags_gc"]
         self._stats["artifacts_cleaned"] += results["artifacts_cleaned"]
-        self._last_run = datetime.now(timezone.utc)
+        self._last_run = datetime.now(UTC)
 
         total_cleaned = sum(v for k, v in results.items() if isinstance(v, int))
         logger.info(f"GC cycle complete: {total_cleaned} items cleaned")
@@ -171,7 +171,7 @@ class HousekeepingEngine:
         return {
             "status": "ok" if not results["errors"] else "partial",
             "cleaned": results,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
 
     async def evict_expired_ttl(self) -> int:
@@ -264,7 +264,7 @@ class HousekeepingEngine:
         exclude_types = exclude_types or ["root", "session_start", "thread_start"]
 
         async with self._repository.acquire() as conn:
-            cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
+            cutoff = datetime.now(UTC) - timedelta(hours=max_age_hours)
 
             result = await conn.execute(
                 """

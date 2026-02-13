@@ -51,7 +51,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import UUID
 
@@ -311,7 +311,7 @@ class WorldModelService:
                     attributes = {
                         "last_insight_type": insight_type,
                         "last_insight_content": content[:500] if content else None,
-                        "last_insight_at": datetime.now(timezone.utc).isoformat(),
+                        "last_insight_at": datetime.now(UTC).isoformat(),
                     }
 
                     # Extract facts if present
@@ -414,7 +414,7 @@ class WorldModelService:
         snapshot_data = {
             "entities": [e.to_dict() for e in entities],
             "state_version": self._state_version,
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
         }
 
         # Save to database

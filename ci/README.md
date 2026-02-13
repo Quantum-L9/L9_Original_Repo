@@ -59,15 +59,15 @@ Continuous integration scripts and guardrails
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -93,12 +93,12 @@ ci/
 └── ... (1 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
+| File                          | Purpose                               |
+| ----------------------------- | ------------------------------------- |
+| `__init__.py`                 | Core module (PROTECTED)               |
 | `check_schema_deprecation.py` | A single deprecated import violation. |
-| `check_substrate_api.py` | Result of linting a file. |
-| `validate_codegen.py` | Accumulates code validation errors. |
+| `check_substrate_api.py`      | Result of linting a file.             |
+| `validate_codegen.py`         | Accumulates code validation errors.   |
 
 ### Naming Conventions
 
@@ -203,26 +203,24 @@ class ValidationResult:
 
 **Lines:** 183-229 in `validate_spec_v25.py`
 
-
 ---
 
 ## Data Models and Contracts
 
-
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `VALID_TOOL_ID_PATTERN` | `re.compile('^[a-zA-Z][a-zA-Z0-9_-]*$')` | 50 |
-| `TOOL_ID_PATTERNS` | `[('f["\\\']{\\w+}\\s*\\.\\s*{\\w+', 'f-s...` | 53 |
-| `CHECK_PATHS` | `['core/tools/', 'runtime/l_tools.py', 'c...` | 70 |
-| `SKIP_PATTERNS` | `['__pycache__', '.pyc', 'test_', '_test....` | 78 |
-| `PROJECT_ROOT` | `Path(__file__).parent.parent` | 66 |
-| `DEPRECATED_PATTERNS` | `['from\\s+memory\\.substrate_models\\s+i...` | 71 |
-| `CANONICAL_IMPORT` | `'from core.schemas import PacketEnvelope...` | 86 |
-| `EXCLUDE_PATTERNS` | `['archive/', '_archived/', 'tests/', '__...` | 89 |
+| Constant                | Value                                         | Line |
+| ----------------------- | --------------------------------------------- | ---- |
+| `VALID_TOOL_ID_PATTERN` | `re.compile('^[a-zA-Z][a-zA-Z0-9_-]*$')`      | 50   |
+| `TOOL_ID_PATTERNS`      | `[('f["\\\']{\\w+}\\s*\\.\\s*{\\w+', 'f-s...` | 53   |
+| `CHECK_PATHS`           | `['core/tools/', 'runtime/l_tools.py', 'c...` | 70   |
+| `SKIP_PATTERNS`         | `['__pycache__', '.pyc', 'test_', '_test....` | 78   |
+| `PROJECT_ROOT`          | `Path(__file__).parent.parent`                | 66   |
+| `DEPRECATED_PATTERNS`   | `['from\\s+memory\\.substrate_models\\s+i...` | 71   |
+| `CANONICAL_IMPORT`      | `'from core.schemas import PacketEnvelope...` | 86   |
+| `EXCLUDE_PATTERNS`      | `['archive/', '_archived/', 'tests/', '__...` | 89   |
 
-*...and 55 more constants*
+_...and 55 more constants_
 
 ### Key Schemas
 
@@ -288,9 +286,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Ci feature flags
-L9_ENABLE_CI_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CI_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CI_AUDIT: true    # Enable audit logging
+L9_ENABLE_CI_TRACING: true # Enable detailed tracing
+L9_ENABLE_CI_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CI_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -356,7 +354,6 @@ Determine current enforcement phase based on date.
 - **Async:** No
 - **Returns:** `int`
 
-
 ### Usage Example
 
 ```python
@@ -397,6 +394,7 @@ Ci operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -404,12 +402,12 @@ Ci operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                     | Type      | Description                    |
+| -------------------------- | --------- | ------------------------------ |
 | `ci_operation_duration_ms` | Histogram | Operation latency distribution |
-| `ci_operation_total` | Counter | Total operations processed |
-| `ci_error_total` | Counter | Total errors encountered |
-| `ci_active_connections` | Gauge | Current active connections |
+| `ci_operation_total`       | Counter   | Total operations processed     |
+| `ci_error_total`           | Counter   | Total errors encountered       |
+| `ci_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -427,6 +425,7 @@ Ci emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/ci/`:
+
 - `test_ci.py` — Core unit tests
 - `test_ci_integration.py` — Integration tests (if applicable)
 
@@ -469,6 +468,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

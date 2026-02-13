@@ -230,7 +230,7 @@ L_KERNELS = [
 HIGH_RISK_TOOLS = get_high_risk_tools_list()
 
 
-async def create_schema_constraints(driver: "AsyncDriver") -> int:
+async def create_schema_constraints(driver: AsyncDriver) -> int:
     """Create indexes and constraints for governance labels.
 
     Returns number of constraints created.
@@ -261,9 +261,7 @@ async def create_schema_constraints(driver: "AsyncDriver") -> int:
     return created
 
 
-async def create_governance_entities(
-    driver: "AsyncDriver", agent_id: str = "L"
-) -> dict:
+async def create_governance_entities(driver: AsyncDriver, agent_id: str = "L") -> dict:
     """Create governance entities for an agent.
 
     Returns dict with counts of created entities.
@@ -343,7 +341,7 @@ async def create_governance_entities(
     return stats
 
 
-async def create_kernel_entities(driver: "AsyncDriver", agent_id: str = "L") -> dict:
+async def create_kernel_entities(driver: AsyncDriver, agent_id: str = "L") -> dict:
     """Create Kernel nodes and GOVERNED_BY relationships.
 
     Creates nodes for each of the 10 governance kernels and links them to the agent.
@@ -381,7 +379,7 @@ async def create_kernel_entities(driver: "AsyncDriver", agent_id: str = "L") -> 
     return stats
 
 
-async def create_tool_safety_guards(driver: "AsyncDriver") -> dict:
+async def create_tool_safety_guards(driver: AsyncDriver) -> dict:
     """Create GUARDED_BY relationships between high-risk tools and SafetyKernel.
 
     Links destructive/high-risk tools to the Safety Kernel for governance enforcement.
@@ -407,7 +405,7 @@ async def create_tool_safety_guards(driver: "AsyncDriver") -> dict:
     return stats
 
 
-async def create_agent_hierarchy(driver: "AsyncDriver") -> dict:
+async def create_agent_hierarchy(driver: AsyncDriver) -> dict:
     """Create agent hierarchy relationships (REPORTS_TO).
 
     Establishes the authority chain: L REPORTS_TO igor
@@ -442,7 +440,7 @@ async def create_agent_hierarchy(driver: "AsyncDriver") -> dict:
     return stats
 
 
-async def create_agent_collaborations(driver: "AsyncDriver") -> dict:
+async def create_agent_collaborations(driver: AsyncDriver) -> dict:
     """Create COLLABORATES_WITH relationships between peer agents.
 
     Establishes peer collaboration relationships. Even if no collaborators exist yet,
@@ -491,7 +489,7 @@ async def create_agent_collaborations(driver: "AsyncDriver") -> dict:
     return stats
 
 
-async def bootstrap_l_governance(driver: "AsyncDriver") -> dict:
+async def bootstrap_l_governance(driver: AsyncDriver) -> dict:
     """Bootstrap L agent's complete governance graph.
 
     Creates:

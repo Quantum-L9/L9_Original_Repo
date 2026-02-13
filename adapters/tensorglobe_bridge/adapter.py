@@ -24,8 +24,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from datetime import UTC, datetime
+
 import structlog
-from datetime import datetime, timezone
 
 from core.boundary.enforcer import BoundaryEnforcer
 from core.eos import AccountabilityEngine
@@ -148,7 +149,9 @@ class TensorGlobeBridgeAdapter:
             anomalies = await self.anomaly_detector.detect(request, response)
             if anomalies:
                 for anomaly in anomalies:
-                    self.logger.warning("anomaly.detected", anomaly_type=anomaly.anomaly_type)
+                    self.logger.warning(
+                        "anomaly.detected", anomaly_type=anomaly.anomaly_type
+                    )
 
                     # Suspend provider if critical anomaly repeated
                     if anomaly.severity == "critical":
@@ -173,7 +176,9 @@ class TensorGlobeBridgeAdapter:
             return True, response, None
 
         except Exception as e:
-            self.logger.error("tensor_request.failed", request_id=request.request_id, error=str(e))
+            self.logger.error(
+                "tensor_request.failed", request_id=request.request_id, error=str(e)
+            )
             await self._emit_ledger_event(
                 "tensor_request_failed",
                 request_id=request.request_id,
@@ -256,7 +261,7 @@ class TensorGlobeBridgeAdapter:
     ) -> None:
         """Emit accountability event to ledger"""
         event = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "event_type": event_type,
             **kwargs,
         }

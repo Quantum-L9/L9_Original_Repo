@@ -10,7 +10,7 @@ Version: 1.0.0
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -350,7 +350,7 @@ class TestEOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",
             signer="accountability_engine",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             action_ref="action-001",
             verdict_ref="verdict-001",
             payload={"decision": "allow", "risk_class": "low"},
@@ -443,7 +443,7 @@ class TestEOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",
             signer="test",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             action_ref="action-001",
             verdict_ref=None,
             payload={},
@@ -465,7 +465,7 @@ class TestEOSLedgerWriter:
             entry_id=str(uuid4()),
             hash="",
             signer="test",
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             action_ref="action-001",
             verdict_ref=None,
             payload={},

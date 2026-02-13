@@ -1,8 +1,8 @@
 # ADR-0085: Thread-Safe Singleton Pattern
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Source:** Bug Audit PR #81  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Source:** Bug Audit PR #81
 
 ## Context
 
@@ -71,17 +71,18 @@ async def get_instance():
 
 Many L9 singletons are **initialized during application startup** before the event loop accepts concurrent requests. For these, the race condition is theoretical:
 
-| Risk Level | Pattern | Action |
-|------------|---------|--------|
-| **HIGH** | Lazy init in request handlers | FIX - add locking |
-| **MEDIUM** | Lazy init in background tasks | FIX when practical |
-| **LOW** | Module-level init at import time | ACCEPT - no concurrency |
-| **LOW** | Startup-phase init (lifespan) | ACCEPT - sequential startup |
+| Risk Level | Pattern                          | Action                      |
+| ---------- | -------------------------------- | --------------------------- |
+| **HIGH**   | Lazy init in request handlers    | FIX - add locking           |
+| **MEDIUM** | Lazy init in background tasks    | FIX when practical          |
+| **LOW**    | Module-level init at import time | ACCEPT - no concurrency     |
+| **LOW**    | Startup-phase init (lifespan)    | ACCEPT - sequential startup |
 
 **Current Warning Count:** ~37 singletons flagged
 **Priority:** LOW - most are startup-only patterns
 
 **When to add `# nosemgrep:`:**
+
 - Startup-only patterns in lifespan/startup events
 - Module-level initialization (runs at import)
 - Prefer leaving warnings as technical debt tracking

@@ -61,7 +61,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -605,7 +605,7 @@ class SessionStartup:
         Returns:
             StartupResult with complete status
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Clear state
         self._files_loaded = []
@@ -708,7 +708,7 @@ class SessionStartup:
 
     def _calc_duration_ms(self, start_time: datetime) -> int:
         """Calculate duration in milliseconds."""
-        return int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
+        return int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
 
 # Factory function

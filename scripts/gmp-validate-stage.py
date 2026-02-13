@@ -243,7 +243,13 @@ class GMPStageValidator:
 
         try:
             subprocess.run(
-                [sys.executable, "-m", "pytest", "--cov=memory/consolidation", "--cov-report=json"],
+                [
+                    sys.executable,
+                    "-m",
+                    "pytest",
+                    "--cov=memory/consolidation",
+                    "--cov-report=json",
+                ],
                 capture_output=True,
                 text=True,
                 timeout=60,

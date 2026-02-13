@@ -109,8 +109,8 @@ class TestStaticWiring:
                 violations.append(f"{path}: uses PrintLogger")
             if "import logging" in source and "structlog" not in source:
                 violations.append(f"{path}: uses stdlib logging without structlog")
-        assert not violations, (
-            f"ADR-0019 violations (structlog only):\n" + "\n".join(violations)
+        assert not violations, "ADR-0019 violations (structlog only):\n" + "\n".join(
+            violations
         )
 
 
@@ -132,9 +132,7 @@ class TestRegistrationChain:
                 importlib.import_module(pkg)
             except ImportError as e:
                 failed.append(f"{pkg}: {e}")
-        assert not failed, (
-            f"TOOL_PACKAGES import failures:\n" + "\n".join(failed)
-        )
+        assert not failed, "TOOL_PACKAGES import failures:\n" + "\n".join(failed)
 
     def test_no_duplicate_tool_names(self):
         """No two packages may register a tool with the same name."""
@@ -160,8 +158,8 @@ class TestRegistrationChain:
                     else:
                         seen[tool_name] = pkg
 
-        assert not duplicates, (
-            f"Duplicate tool names across packages:\n" + "\n".join(duplicates)
+        assert not duplicates, "Duplicate tool names across packages:\n" + "\n".join(
+            duplicates
         )
 
     def test_all_registered_tools_have_category(self):
@@ -181,12 +179,10 @@ class TestRegistrationChain:
                 if callable(obj) and hasattr(obj, "_tool_metadata"):
                     meta = obj._tool_metadata
                     if "category" not in meta or not meta["category"]:
-                        missing_category.append(
-                            f"{pkg}::{attr_name} has no category"
-                        )
+                        missing_category.append(f"{pkg}::{attr_name} has no category")
 
-        assert not missing_category, (
-            f"Tools missing category:\n" + "\n".join(missing_category)
+        assert not missing_category, "Tools missing category:\n" + "\n".join(
+            missing_category
         )
 
     def test_all_registered_tools_have_description(self):
@@ -211,8 +207,8 @@ class TestRegistrationChain:
                             f"{pkg}::{attr_name} — description too short: '{desc}'"
                         )
 
-        assert not missing_desc, (
-            f"Tools with inadequate descriptions:\n" + "\n".join(missing_desc)
+        assert not missing_desc, "Tools with inadequate descriptions:\n" + "\n".join(
+            missing_desc
         )
 
     def test_all_registered_tools_are_async(self):
@@ -233,8 +229,8 @@ class TestRegistrationChain:
                     if not inspect.iscoroutinefunction(obj):
                         sync_tools.append(f"{pkg}::{attr_name}")
 
-        assert not sync_tools, (
-            f"Sync tools found (must be async):\n" + "\n".join(sync_tools)
+        assert not sync_tools, "Sync tools found (must be async):\n" + "\n".join(
+            sync_tools
         )
 
 
@@ -270,9 +266,7 @@ class TestDiscoveryPipeline:
 
         # After GMP-TS-META: at minimum we have research(4) + reflection(5)
         # + mcp(7) + tool_search(1) = 17
-        assert total >= 10, (
-            f"Expected at least 10 discoverable tools, found {total}"
-        )
+        assert total >= 10, f"Expected at least 10 discoverable tools, found {total}"
 
     def test_tool_search_discoverable_via_packages(self):
         """tool_search must be discoverable through TOOL_PACKAGES."""
@@ -392,9 +386,7 @@ class TestSystemInvariants:
     def test_no_circular_imports(self):
         """Importing tool_search_meta must not cause circular imports."""
         # Clear module cache for clean import
-        modules_to_clear = [
-            k for k in sys.modules if "tool_search_meta" in k
-        ]
+        modules_to_clear = [k for k in sys.modules if "tool_search_meta" in k]
         for k in modules_to_clear:
             del sys.modules[k]
 
@@ -434,8 +426,8 @@ class TestSystemInvariants:
             except ImportError as e:
                 failed.append(f"{mod_name}: {e}")
 
-        assert not failed, (
-            f"Orphan imports in tool_search_meta.py:\n" + "\n".join(failed)
+        assert not failed, "Orphan imports in tool_search_meta.py:\n" + "\n".join(
+            failed
         )
 
     def test_no_todos_in_new_files(self):
@@ -455,8 +447,8 @@ class TestSystemInvariants:
                 if marker in source:
                     violations.append(f"{path.name}: contains {marker}")
 
-        assert not violations, (
-            f"Forbidden markers in new files:\n" + "\n".join(violations)
+        assert not violations, "Forbidden markers in new files:\n" + "\n".join(
+            violations
         )
 
     def test_structlog_only_in_new_files(self):
@@ -480,8 +472,7 @@ class TestSystemInvariants:
                     violations.append(f"{path.name}:{i}: {stripped}")
 
         assert not violations, (
-            f"ADR-0019 violations (must use structlog):\n"
-            + "\n".join(violations)
+            "ADR-0019 violations (must use structlog):\n" + "\n".join(violations)
         )
 
     def test_dora_meta_in_new_files(self):
@@ -499,9 +490,7 @@ class TestSystemInvariants:
             if "__dora_meta__" not in source:
                 missing.append(path.name)
 
-        assert not missing, (
-            f"Files missing __dora_meta__ block: {missing}"
-        )
+        assert not missing, f"Files missing __dora_meta__ block: {missing}"
 
 
 # ============================================================================
@@ -523,9 +512,7 @@ class TestToolPackagesBackwardCompat:
             "discover_from_packages",
         ]
         for name in expected_api:
-            assert hasattr(tool_packages, name), (
-                f"Public API member missing: {name}"
-            )
+            assert hasattr(tool_packages, name), f"Public API member missing: {name}"
 
     def test_get_tool_packages_returns_list_copy(self):
         """get_tool_packages() must return a list that is a copy."""
@@ -566,9 +553,7 @@ class TestToolPackagesBackwardCompat:
             "discover_from_packages",
         ]
         for name in expected:
-            assert hasattr(runtime, name), (
-                f"runtime.__init__.py missing: {name}"
-            )
+            assert hasattr(runtime, name), f"runtime.__init__.py missing: {name}"
 
     def test_consumers_can_import(self):
         """Known consumers must be able to import TOOL_PACKAGES."""

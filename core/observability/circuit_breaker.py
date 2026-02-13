@@ -159,9 +159,9 @@ class CircuitBreaker:
     @classmethod
     def from_settings(
         cls,
-        settings: "ObservabilitySettings",
+        settings: ObservabilitySettings,
         name: str = "default",
-    ) -> "CircuitBreaker":
+    ) -> CircuitBreaker:
         """Create circuit breaker from ObservabilitySettings.
 
         Args:

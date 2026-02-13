@@ -236,12 +236,20 @@ class BayesianUncertainty:
         is_ood = epistemic_std > self.ood_threshold
 
         result = {
-            "mean": float(calibrated_mean.item())  # nosemgrep: l9-float-requires-try-except
+            "mean": float(
+                calibrated_mean.item()
+            )  # nosemgrep: l9-float-requires-try-except
             if calibrated_mean.numel() == 1
             else calibrated_mean.cpu().numpy(),
-            "epistemic_std": float(epistemic_std.item()),  # nosemgrep: l9-float-requires-try-except
-            "aleatoric_std": float(aleatoric_std.item()),  # nosemgrep: l9-float-requires-try-except
-            "confidence": float(confidence.item()),  # nosemgrep: l9-float-requires-try-except
+            "epistemic_std": float(
+                epistemic_std.item()
+            ),  # nosemgrep: l9-float-requires-try-except
+            "aleatoric_std": float(
+                aleatoric_std.item()
+            ),  # nosemgrep: l9-float-requires-try-except
+            "confidence": float(
+                confidence.item()
+            ),  # nosemgrep: l9-float-requires-try-except
             "is_ood": bool(is_ood.item()),
         }
 

@@ -1,8 +1,8 @@
 # ADR-0087: SQL Parameterization Standard
 
-**Status:** Accepted  
-**Date:** 2026-01-31  
-**Source:** Bug Audit PR #84 (CRITICAL Security Fix)  
+**Status:** Accepted
+**Date:** 2026-01-31
+**Source:** Bug Audit PR #84 (CRITICAL Security Fix)
 
 ## Context
 

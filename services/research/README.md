@@ -59,14 +59,14 @@ Research graph, LangGraph integration, and insight extraction
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                   | Purpose          |
+| ------------------------ | ---------------- |
 | `agents/research_agent/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                        | Purpose             |
+| ----------------------------- | ------------------- |
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -93,13 +93,13 @@ services/research/
 └── ... (2 more files)
 ```
 
-| File | Purpose |
-|------|---------|
-| `research_graph.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
-| `graph_state.py` | Single step in a research plan. |
-| `graph_state.py` | Evidence gathered by a researcher. |
-| `graph_state.py` | Shared state across all research graph nodes. |
+| File                | Purpose                                       |
+| ------------------- | --------------------------------------------- |
+| `research_graph.py` | Core module (PROTECTED)                       |
+| `__init__.py`       | Core module (PROTECTED)                       |
+| `graph_state.py`    | Single step in a research plan.               |
+| `graph_state.py`    | Evidence gathered by a researcher.            |
+| `graph_state.py`    | Shared state across all research graph nodes. |
 
 ### Naming Conventions
 
@@ -184,7 +184,6 @@ class FindingType:
 
 **Lines:** 66-74 in `graph_persistence.py`
 
-
 ---
 
 ## Data Models and Contracts
@@ -199,22 +198,22 @@ The following data models define the contracts for this subsystem:
 
 `BaseAgent`, `BaseTool`, `CriticAgent`, `Evidence`, `FindingType`, `GraphPersistenceConfig`, `HTTPTool`, `MockSearchTool`, `PerplexityClient`, `PerplexityModel`
 
-*...and 31 more*
+_...and 31 more_
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `CREATE_FINDING_QUERY` | `'\nCREATE (f:ResearchFinding {\n    id: ...` | 114 |
-| `LINK_FINDING_TO_QUERY_QUERY` | `'\nMATCH (f:ResearchFinding {id: $findin...` | 130 |
-| `LINK_FINDING_TO_AGENT_QUERY` | `'\nMATCH (f:ResearchFinding {id: $findin...` | 138 |
-| `GET_FINDINGS_BY_TYPE_QUERY` | `'\nMATCH (f:ResearchFinding)\nWHERE f.fi...` | 145 |
-| `GET_FINDINGS_FOR_QUERY_QUERY` | `'\nMATCH (q:ResearchQuery {query: $query...` | 161 |
-| `PERPLEXITY_RETRY_CONFIG` | `AsyncRetryConfig(max_retries=3, base_bac...` | 56 |
-| `RESEARCHER_SYSTEM_PROMPT` | `'You are a research agent. Your job is t...` | 40 |
-| `PLANNER_SYSTEM_PROMPT` | `'You are a research planning agent. Your...` | 39 |
+| Constant                       | Value                                         | Line |
+| ------------------------------ | --------------------------------------------- | ---- |
+| `CREATE_FINDING_QUERY`         | `'\nCREATE (f:ResearchFinding {\n    id: ...` | 114  |
+| `LINK_FINDING_TO_QUERY_QUERY`  | `'\nMATCH (f:ResearchFinding {id: $findin...` | 130  |
+| `LINK_FINDING_TO_AGENT_QUERY`  | `'\nMATCH (f:ResearchFinding {id: $findin...` | 138  |
+| `GET_FINDINGS_BY_TYPE_QUERY`   | `'\nMATCH (f:ResearchFinding)\nWHERE f.fi...` | 145  |
+| `GET_FINDINGS_FOR_QUERY_QUERY` | `'\nMATCH (q:ResearchQuery {query: $query...` | 161  |
+| `PERPLEXITY_RETRY_CONFIG`      | `AsyncRetryConfig(max_retries=3, base_bac...` | 56   |
+| `RESEARCHER_SYSTEM_PROMPT`     | `'You are a research agent. Your job is t...` | 40   |
+| `PLANNER_SYSTEM_PROMPT`        | `'You are a research planning agent. Your...` | 39   |
 
-*...and 1 more constants*
+_...and 1 more constants_
 
 ### Key Schemas
 
@@ -279,9 +278,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Services_Research feature flags
-L9_ENABLE_SERVICES_RESEARCH_TRACING: true  # Enable detailed tracing
-L9_ENABLE_SERVICES_RESEARCH_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_SERVICES_RESEARCH_AUDIT: true    # Enable audit logging
+L9_ENABLE_SERVICES_RESEARCH_TRACING: true # Enable detailed tracing
+L9_ENABLE_SERVICES_RESEARCH_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_SERVICES_RESEARCH_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -348,7 +347,6 @@ Planning node - Decompose query into research steps.
 - **Async:** Yes
 - **Returns:** `ResearchGraphState`
 
-
 ### Usage Example
 
 ```python
@@ -389,6 +387,7 @@ Services Research operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -396,12 +395,12 @@ Services Research operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                    | Type      | Description                    |
+| ----------------------------------------- | --------- | ------------------------------ |
 | `services_research_operation_duration_ms` | Histogram | Operation latency distribution |
-| `services_research_operation_total` | Counter | Total operations processed |
-| `services_research_error_total` | Counter | Total errors encountered |
-| `services_research_active_connections` | Gauge | Current active connections |
+| `services_research_operation_total`       | Counter   | Total operations processed     |
+| `services_research_error_total`           | Counter   | Total errors encountered       |
+| `services_research_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -419,6 +418,7 @@ Services Research emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/services_research/`:
+
 - `test_services_research.py` — Core unit tests
 - `test_services_research_integration.py` — Integration tests (if applicable)
 
@@ -466,6 +466,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

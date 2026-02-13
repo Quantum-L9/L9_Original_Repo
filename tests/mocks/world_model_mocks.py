@@ -29,7 +29,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -46,7 +46,7 @@ def get_wm_status() -> dict[str, Any]:
         "version": "2.0.0",
         "node_count": 0,
         "edge_count": 0,
-        "last_update": datetime.now(timezone.utc).isoformat(),
+        "last_update": datetime.now(UTC).isoformat(),
         "health": {
             "memory_mb": 128,
             "latency_ms": 5,
@@ -158,7 +158,7 @@ class MockWorldModel:
             return False
 
         node.data.update(data)
-        node.updated_at = datetime.now(timezone.utc)
+        node.updated_at = datetime.now(UTC)
         return True
 
     async def delete_node(self, node_id: str) -> bool:

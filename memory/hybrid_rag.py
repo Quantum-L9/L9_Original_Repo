@@ -710,23 +710,57 @@ class HybridRAGPipeline:
             filtered_results = [
                 r
                 for r in results
-                if ((r.get("similarity") if isinstance(r, dict) else getattr(r, "similarity", None)) or (r.get("score", 0.0) if isinstance(r, dict) else getattr(r, "score", 0.0)))
+                if (
+                    (
+                        r.get("similarity")
+                        if isinstance(r, dict)
+                        else getattr(r, "similarity", None)
+                    )
+                    or (
+                        r.get("score", 0.0)
+                        if isinstance(r, dict)
+                        else getattr(r, "score", 0.0)
+                    )
+                )
                 >= min_similarity
             ]
 
             return [
                 VectorHit(
                     packet_id=(
-                        UUID(str(r.get("packet_id") if isinstance(r, dict) else r.packet_id))
-                        if (hasattr(r, "packet_id") or (isinstance(r, dict) and r.get("packet_id")))
+                        UUID(
+                            str(
+                                r.get("packet_id")
+                                if isinstance(r, dict)
+                                else r.packet_id
+                            )
+                        )
+                        if (
+                            hasattr(r, "packet_id")
+                            or (isinstance(r, dict) and r.get("packet_id"))
+                        )
                         else UUID("00000000-0000-0000-0000-000000000000")
                     ),
-                    content=(r.get("content") if isinstance(r, dict) else r.content) if (isinstance(r, dict) or hasattr(r, "content")) else str(r),
-                    similarity=(r.get("similarity") if isinstance(r, dict) else r.similarity) if (isinstance(r, dict) or hasattr(r, "similarity")) else (r.get("score", 0.0) if isinstance(r, dict) else 0.0),
-                    kind=r.get("kind") if isinstance(r, dict) else (r.kind if hasattr(r, "kind") else None),
-                    source_id=r.get("source_id") if isinstance(r, dict) else (r.source_id if hasattr(r, "source_id") else None),
-                    thread_id=r.get("thread_id") if isinstance(r, dict) else (r.thread_id if hasattr(r, "thread_id") else None),
-                    metadata=r.get("metadata", {}) if isinstance(r, dict) else (r.metadata if hasattr(r, "metadata") else {}),
+                    content=(r.get("content") if isinstance(r, dict) else r.content)
+                    if (isinstance(r, dict) or hasattr(r, "content"))
+                    else str(r),
+                    similarity=(
+                        r.get("similarity") if isinstance(r, dict) else r.similarity
+                    )
+                    if (isinstance(r, dict) or hasattr(r, "similarity"))
+                    else (r.get("score", 0.0) if isinstance(r, dict) else 0.0),
+                    kind=r.get("kind")
+                    if isinstance(r, dict)
+                    else (r.kind if hasattr(r, "kind") else None),
+                    source_id=r.get("source_id")
+                    if isinstance(r, dict)
+                    else (r.source_id if hasattr(r, "source_id") else None),
+                    thread_id=r.get("thread_id")
+                    if isinstance(r, dict)
+                    else (r.thread_id if hasattr(r, "thread_id") else None),
+                    metadata=r.get("metadata", {})
+                    if isinstance(r, dict)
+                    else (r.metadata if hasattr(r, "metadata") else {}),
                 )
                 for r in filtered_results
             ]

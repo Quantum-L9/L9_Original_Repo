@@ -34,11 +34,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass
 from datetime import UTC, datetime, timezone
 from enum import Enum
 from typing import Any
+
+import structlog
 
 from core.decorators import must_stay_async
 from core.packet_envelope.governance import (

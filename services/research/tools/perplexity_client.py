@@ -198,7 +198,7 @@ class PerplexityClient:
 
     async def close(self):
         """Explicitly close the HTTP client (ADR-0084: Resource cleanup).
-        
+
         Call this if not using the async context manager pattern.
         Prefer: async with PerplexityClient(api_key) as client: ...
         """

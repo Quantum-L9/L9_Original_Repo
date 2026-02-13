@@ -448,9 +448,7 @@ class FeedbackCollector:
                     decision = json.loads(line.strip())
                     if decision.get("decision_id") == decision_id:
                         decision["outcome"] = outcome
-                        decision["outcome_timestamp"] = datetime.now(
-                            UTC
-                        ).isoformat()
+                        decision["outcome_timestamp"] = datetime.now(UTC).isoformat()
                     decisions.append(decision)
                 except json.JSONDecodeError:
                     continue

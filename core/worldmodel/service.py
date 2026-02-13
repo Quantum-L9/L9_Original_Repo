@@ -36,7 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -606,14 +606,14 @@ class WorldModelService:
         if tool_id and tool_id in self._tools:
             tool = self._tools[tool_id]
             tool.use_count += 1
-            tool.last_used = datetime.now(timezone.utc)
+            tool.last_used = datetime.now(UTC)
 
     @must_stay_async("callers use await")
     async def update_agent_activity(self, agent_name: str) -> None:
         """Update agent last activity timestamp."""
         agent_id = self._agents_by_name.get(agent_name)
         if agent_id and agent_id in self._agents:
-            self._agents[agent_id].last_active = datetime.now(timezone.utc)
+            self._agents[agent_id].last_active = datetime.now(UTC)
 
     @must_stay_async("health endpoint")
     async def update_infrastructure_status(

@@ -35,7 +35,10 @@ __dora_meta__ = {
 import asyncio
 import os
 import random
-from abc import ABC, abstractmethod  # noqa: ADR-0026 - ABC provides shared implementation
+from abc import (  # noqa: ADR-0026 - ABC provides shared implementation
+    ABC,
+    abstractmethod,
+)
 from typing import Any
 
 import structlog
@@ -273,7 +276,9 @@ class SemanticService:
         """
         if embedding_provider is None:
             if os.getenv("L9_ALLOW_STUB_EMBEDDINGS") == "1":
-                logger.warning("Using stub embeddings due to L9_ALLOW_STUB_EMBEDDINGS=1")
+                logger.warning(
+                    "Using stub embeddings due to L9_ALLOW_STUB_EMBEDDINGS=1"
+                )
                 embedding_provider = StubEmbeddingProvider(
                     dimensions=EMBEDDING_DIMENSIONS
                 )
@@ -368,7 +373,7 @@ class SemanticService:
             RuntimeError: If embedding generation returns null/empty vector
         """
         vector = await self._provider.embed_text(text)
-        
+
         # VALIDATION: Reject null/empty embeddings (GMP-132)
         if vector is None or len(vector) == 0:
             logger.error(
@@ -377,7 +382,7 @@ class SemanticService:
                 text_preview=text[:100],
             )
             raise RuntimeError("Embedding generation returned null/empty vector")
-        
+
         enriched_payload = {
             **payload,
             "_text": text,

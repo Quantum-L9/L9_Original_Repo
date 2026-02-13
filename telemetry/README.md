@@ -59,14 +59,14 @@ Metrics collection and emission
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                | Purpose             |
+| --------------------- | ------------------- |
 | `core/observability/` | Required dependency |
 
 ---
@@ -81,10 +81,10 @@ telemetry/
 ├── slack_metrics.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `calibration_dashboard.py` | Calibration quality metrics |
+| File                       | Purpose                                            |
+| -------------------------- | -------------------------------------------------- |
+| `__init__.py`              | Core module (PROTECTED)                            |
+| `calibration_dashboard.py` | Calibration quality metrics                        |
 | `calibration_dashboard.py` | Monitoring and visualization for probabilistic gov |
 
 ### Naming Conventions
@@ -134,17 +134,15 @@ class CalibrationDashboard:
 
 **Lines:** 108-524 in `calibration_dashboard.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
 `PROMETHEUS_AVAILABLE`, `init_metrics`, `init_slack_metrics`, `record_aios_call`, `record_idempotent_hit`, `record_latency`, `record_memory_dedup`, `record_memory_enrichment`, `record_memory_ingest`, `record_memory_poison_suspect`
 
-*...and 15 more*
+_...and 15 more_
 
 ### Key Schemas
 
@@ -209,9 +207,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Telemetry feature flags
-L9_ENABLE_TELEMETRY_TRACING: true  # Enable detailed tracing
-L9_ENABLE_TELEMETRY_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_TELEMETRY_AUDIT: true    # Enable audit logging
+L9_ENABLE_TELEMETRY_TRACING: true # Enable detailed tracing
+L9_ENABLE_TELEMETRY_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_TELEMETRY_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -277,7 +275,6 @@ Set the memory substrate health gauge.
 - **Async:** No
 - **Returns:** `None`
 
-
 ### Usage Example
 
 ```python
@@ -318,6 +315,7 @@ Telemetry operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -325,12 +323,12 @@ Telemetry operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                            | Type      | Description                    |
+| --------------------------------- | --------- | ------------------------------ |
 | `telemetry_operation_duration_ms` | Histogram | Operation latency distribution |
-| `telemetry_operation_total` | Counter | Total operations processed |
-| `telemetry_error_total` | Counter | Total errors encountered |
-| `telemetry_active_connections` | Gauge | Current active connections |
+| `telemetry_operation_total`       | Counter   | Total operations processed     |
+| `telemetry_error_total`           | Counter   | Total errors encountered       |
+| `telemetry_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -348,6 +346,7 @@ Telemetry emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/telemetry/`:
+
 - `test_telemetry.py` — Core unit tests
 - `test_telemetry_integration.py` — Integration tests (if applicable)
 
@@ -390,6 +389,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

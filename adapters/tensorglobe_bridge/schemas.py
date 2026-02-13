@@ -23,7 +23,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 from uuid import uuid4
@@ -73,7 +73,9 @@ class TensorRequest(BaseModel):
     def compute_canonical(self) -> str:
         """Canonical form for signature verification"""
         # Handle both enum and string (use_enum_values=True returns string)
-        operation_value = self.operation.value if hasattr(self.operation, 'value') else self.operation
+        operation_value = (
+            self.operation.value if hasattr(self.operation, "value") else self.operation
+        )
         parts = [
             self.request_id,
             self.domain_id,
@@ -129,7 +131,11 @@ class TensorResponse(BaseModel):
     def to_evidence_object(self, request: TensorRequest) -> EpistemicObject:
         """Convert response to L9 Evidence object"""
         # Handle both enum and string (use_enum_values=True returns string)
-        operation_value = request.operation.value if hasattr(request.operation, 'value') else request.operation
+        operation_value = (
+            request.operation.value
+            if hasattr(request.operation, "value")
+            else request.operation
+        )
         content = f"TensorGlobe {operation_value}: {len(self.results)} results"
 
         return EpistemicObject(

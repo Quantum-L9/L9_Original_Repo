@@ -38,7 +38,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -77,7 +77,7 @@ class PermissionGraph:
             return False
 
         props = properties or {}
-        props["created_at"] = datetime.now(timezone.utc).isoformat()
+        props["created_at"] = datetime.now(UTC).isoformat()
 
         result = await neo4j.create_entity("User", user_id, props)
         return result is not None
@@ -119,7 +119,7 @@ class PermissionGraph:
             {
                 "name": role_id,
                 "description": description or "",
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
             },
         )
 
@@ -168,7 +168,7 @@ class PermissionGraph:
             "Role",
             role_id,
             "HAS",
-            {"granted_at": datetime.now(timezone.utc).isoformat()},
+            {"granted_at": datetime.now(UTC).isoformat()},
         )
 
         if result:
@@ -235,7 +235,7 @@ class PermissionGraph:
 
         props = properties or {}
         props["resource_type"] = resource_type
-        props["created_at"] = datetime.now(timezone.utc).isoformat()
+        props["created_at"] = datetime.now(UTC).isoformat()
 
         result = await neo4j.create_entity("Resource", resource_id, props)
         return result is not None

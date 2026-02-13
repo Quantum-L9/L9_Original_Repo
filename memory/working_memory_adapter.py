@@ -13,8 +13,9 @@ Scope: helper utilities only; no side effects beyond substrate queries.
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
-from typing import Any, Iterable
+from collections.abc import Iterable
+from datetime import UTC, datetime, timedelta, timezone
+from typing import Any
 
 import structlog
 
@@ -71,7 +72,7 @@ class WorkingMemoryAdapter:
         `WorkingMemorySnapshot.recent_decisions`, `open_hypotheses`, etc.
         """
 
-        since = datetime.now(timezone.utc) - timedelta(minutes=lookback_minutes)
+        since = datetime.now(UTC) - timedelta(minutes=lookback_minutes)
 
         packets_result = await self._substrate.query_packets(
             packet_types=["insight", "reflection", "execution_plan"],
@@ -116,7 +117,7 @@ class WorkingMemoryAdapter:
             "summaries": summaries,
             "hypotheses": hypotheses,
             "since": since.isoformat(),
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
         }
 
         return world_model_context

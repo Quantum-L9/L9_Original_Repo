@@ -1,4 +1,3 @@
-
 # component_name: "Gmp-Execution"
 # module_version: "1.0.0"
 # created_by: "Igor Beylin"
@@ -25,7 +24,7 @@ name: GMP Execution Workflow (Enforced)
 version: "1.0.0"
 description: |
   Governance Managed Process with ENFORCED step ordering.
-  
+
   MANDATORY STEPS:
   1. 🧠 Memory Read — REQUIRED before implementation
   2. Scope Lock — Define TODO plan
@@ -65,7 +64,7 @@ steps:
         # Search for patterns
         - |
           python3 ${memory_client} search "${domain} patterns" 2>/dev/null || true
-    checkpoint: false  # Don't pause, but log results
+    checkpoint: false # Don't pause, but log results
 
   # ==========================================================================
   # PHASE 0: SCOPE LOCK
@@ -77,12 +76,12 @@ steps:
     config:
       message: |
         ## SCOPE LOCK REQUIRED
-        
+
         Before proceeding, define the TODO plan:
-        
+
         | T# | File | Lines | Action | Description |
         |----|------|-------|--------|-------------|
-        
+
         Then type CONFIRM to proceed.
 
   # ==========================================================================
@@ -107,15 +106,15 @@ steps:
     config:
       message: |
         ## IMPLEMENTATION PHASE
-        
+
         Execute TODO plan items.
-        
+
         RULES:
         - For /use-harvest: Use sed/cp ONLY — no manual rewriting
         - For semantic changes: Apply targeted edits
         - ALL changes must map 1:1 to TODO items
         - NO scope drift
-        
+
         Type CONTINUE when implementation is complete.
 
   # ==========================================================================
@@ -136,13 +135,13 @@ steps:
     config:
       message: |
         ## VALIDATION RESULTS
-        
+
         Did all checks pass?
         - py_compile: ✅/❌
         - imports: ✅/❌
         - lint: ✅/❌
         - tests: ✅/❌
-        
+
         If PASS: Type CONTINUE
         If FAIL: Type FIX to return to implementation
 
@@ -198,7 +197,7 @@ steps:
     config:
       message: |
         ## Ready to Commit?
-        
+
         Options:
         - YES: Commit changes
         - NO: Exit without commit
@@ -212,7 +211,6 @@ steps:
     config:
       commands:
         - "echo '✅ GMP workflow complete'"
-
 # tags: ["agent-config", "configuration", "operations", "tool-config", "utility", "workflow", "workflows"]
 # keywords: ["description", "execution", "gmp", "name", "steps", "variables"]
 # last_modified: "2026-01-31T20:47:23Z"

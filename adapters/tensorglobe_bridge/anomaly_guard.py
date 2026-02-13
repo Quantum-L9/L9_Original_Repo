@@ -30,14 +30,14 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from collections import deque
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
 import numpy as np
+import structlog
 
 logger = structlog.get_logger(__name__)
 

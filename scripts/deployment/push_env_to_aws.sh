@@ -25,7 +25,7 @@ for arg in "$@"; do
     case $arg in
         --push) PUSH_MODE=true ;;
         --list-aws) LIST_MODE=true ;;
-        --help) 
+        --help)
             echo "Usage: $0 [--push] [--list-aws]"
             echo "  --push      Push missing secrets from .env to AWS"
             echo "  --list-aws  List secrets already in AWS"
@@ -89,18 +89,18 @@ for env_file in $ENV_FILES; do
     if [[ -f "$env_file" ]]; then
         rel="${env_file#$REPO_ROOT/}"
         echo "  Reading: $rel"
-        
+
         grep -v '^#' "$env_file" 2>/dev/null | grep '=' | while IFS='=' read -r key value; do
             # Clean key
             key=$(echo "$key" | sed 's/^export //' | tr -d ' ')
             [[ -z "$key" ]] && continue
-            
+
             # Skip non-secrets
             if is_non_secret "$key"; then
                 echo "$key" >> "$SKIPPED_FILE"
                 continue
             fi
-            
+
             # Check if in AWS
             if grep -qx "$key" "$AWS_SECRETS_FILE" 2>/dev/null; then
                 echo "$key" >> "$EXISTING_FILE"
@@ -149,15 +149,15 @@ if $PUSH_MODE && [[ $MISSING_COUNT -gt 0 ]]; then
     echo "  Pushing to AWS..."
     echo "═══════════════════════════════════════════════════════════"
     echo ""
-    
+
     cat "$VALUES_FILE" 2>/dev/null | while IFS='=' read -r key value; do
         [[ -z "$key" ]] && continue
         [[ -z "$value" ]] && continue
         [[ "$value" == "your-"* ]] && echo "  ⏭️  Skipping $key (placeholder)" && continue
         [[ "$value" == "changeme"* ]] && echo "  ⏭️  Skipping $key (placeholder)" && continue
-        
+
         echo "  Pushing: $key"
-        
+
         # Check if exists (update) or create new
         if aws secretsmanager describe-secret --region "$AWS_REGION" --secret-id "${AWS_PREFIX}/${key}" &>/dev/null; then
             aws secretsmanager put-secret-value \

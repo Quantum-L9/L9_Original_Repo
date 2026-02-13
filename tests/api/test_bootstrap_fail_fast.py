@@ -5,9 +5,9 @@ Aligned with existing ensure_bootstrap() from api/startup_guard.py.
 Tests the startup guard that prevents API from starting without bootstrap completion.
 """
 
-import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
 
 # =============================================================================
 # Tests for ensure_bootstrap() startup guard

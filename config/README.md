@@ -59,15 +59,15 @@ Dependency injection, settings, and configuration management
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module        | Purpose          |
+| ------------- | ---------------- |
 | `all modules` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -88,14 +88,14 @@ config/
 ├── settings.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `di_config.py` | Core module (PROTECTED) |
-| `settings.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
+| File                   | Purpose                                            |
+| ---------------------- | -------------------------------------------------- |
+| `di_config.py`         | Core module (PROTECTED)                            |
+| `settings.py`          | Core module (PROTECTED)                            |
+| `__init__.py`          | Core module (PROTECTED)                            |
 | `di_runtime_config.py` | Raised when DI config loading or validation fails. |
 | `di_runtime_config.py` | Load DI configuration from YAML with environment v |
-| `rls_config.py` | RLS Configuration with deterministic UUID generati |
+| `rls_config.py`        | RLS Configuration with deterministic UUID generati |
 
 ### Naming Conventions
 
@@ -188,24 +188,22 @@ class BiasSettings:
 
 **Lines:** 61-74 in `ai_eval_settings.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
 `AIEvalSettings`, `AsyncDIContainer`, `DIConfigError`, `DIRuntimeConfigLoader`, `IntegrationSettings`, `MemorySubstrateSettings`, `ResearchSettings`, `SCHEMAS_DIR`, `async_cache_client_factory`, `async_memory_substrate_factory`
 
-*...and 28 more*
+_...and 28 more_
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `RLS_UUID_NAMESPACE` | `uuid.NAMESPACE_DNS` | 55 |
-| `SCHEMAS_DIR` | `Path(__file__).parent` | 33 |
+| Constant             | Value                   | Line |
+| -------------------- | ----------------------- | ---- |
+| `RLS_UUID_NAMESPACE` | `uuid.NAMESPACE_DNS`    | 55   |
+| `SCHEMAS_DIR`        | `Path(__file__).parent` | 33   |
 
 ### Key Schemas
 
@@ -271,9 +269,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Config feature flags
-L9_ENABLE_CONFIG_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CONFIG_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CONFIG_AUDIT: true    # Enable audit logging
+L9_ENABLE_CONFIG_TRACING: true # Enable detailed tracing
+L9_ENABLE_CONFIG_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CONFIG_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -340,7 +338,6 @@ Get RLS UUIDs for PostgreSQL RLS session variables.
 - **Async:** No
 - **Returns:** `tuple[str, str, str]`
 
-
 ### Usage Example
 
 ```python
@@ -381,6 +378,7 @@ Config operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -388,12 +386,12 @@ Config operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                         | Type      | Description                    |
+| ------------------------------ | --------- | ------------------------------ |
 | `config_operation_duration_ms` | Histogram | Operation latency distribution |
-| `config_operation_total` | Counter | Total operations processed |
-| `config_error_total` | Counter | Total errors encountered |
-| `config_active_connections` | Gauge | Current active connections |
+| `config_operation_total`       | Counter   | Total operations processed     |
+| `config_error_total`           | Counter   | Total errors encountered       |
+| `config_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -411,6 +409,7 @@ Config emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/config/`:
+
 - `test_config.py` — Core unit tests
 - `test_config_integration.py` — Integration tests (if applicable)
 
@@ -460,6 +459,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

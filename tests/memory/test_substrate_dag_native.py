@@ -12,7 +12,7 @@ Tests:
 Run: pytest tests/memory/test_substrate_dag_native.py -v
 """
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TypedDict
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
@@ -50,7 +50,7 @@ def make_test_envelope(
         packet_id=uuid4(),
         packet_type=packet_type,
         payload={"text": text, "key": "value"},
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         metadata={
             "schema_version": "1.0.0",
             "agent": "test_agent",

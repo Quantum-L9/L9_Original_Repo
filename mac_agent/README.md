@@ -59,14 +59,14 @@ Mac automation agent for system tasks and WebSocket communication
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No inbound dependencies |
+| Module | Purpose                 |
+| ------ | ----------------------- |
+| —      | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module                              | Purpose             |
+| ----------------------------------- | ------------------- |
 | `runtime/websocket_orchestrator.py` | Required dependency |
 
 ---
@@ -84,12 +84,12 @@ mac_agent/
 ├── websocket_client.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `executor.py` | Core module (PROTECTED) |
-| `__init__.py` | Core module (PROTECTED) |
-| `config.py` | Configuration for Mac Agent V2. |
-| `websocket_client.py` | Configuration for the Mac Agent WebSocket client. |
+| File                  | Purpose                                            |
+| --------------------- | -------------------------------------------------- |
+| `executor.py`         | Core module (PROTECTED)                            |
+| `__init__.py`         | Core module (PROTECTED)                            |
+| `config.py`           | Configuration for Mac Agent V2.                    |
+| `websocket_client.py` | Configuration for the Mac Agent WebSocket client.  |
 | `websocket_client.py` | Event type constants matching server EventType enu |
 
 ### Naming Conventions
@@ -195,11 +195,9 @@ class MacAgentClient:
 
 **Lines:** 603-1036 in `websocket_client.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
@@ -207,11 +205,11 @@ class MacAgentClient:
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `L9_BASE_URL` | `config.l9_base_url` | 63 |
-| `L9_API_KEY` | `config.l9_api_key` | 64 |
-| `POLL_INTERVAL` | `4` | 65 |
+| Constant        | Value                | Line |
+| --------------- | -------------------- | ---- |
+| `L9_BASE_URL`   | `config.l9_base_url` | 63   |
+| `L9_API_KEY`    | `config.l9_api_key`  | 64   |
+| `POLL_INTERVAL` | `4`                  | 65   |
 
 ### Key Schemas
 
@@ -277,9 +275,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Mac_Agent feature flags
-L9_ENABLE_MAC_AGENT_TRACING: true  # Enable detailed tracing
-L9_ENABLE_MAC_AGENT_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_MAC_AGENT_AUDIT: true    # Enable audit logging
+L9_ENABLE_MAC_AGENT_TRACING: true # Enable detailed tracing
+L9_ENABLE_MAC_AGENT_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_MAC_AGENT_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -344,7 +342,6 @@ Entry point.
 - **File:** `runner.py:367`
 - **Async:** No
 
-
 ### Usage Example
 
 ```python
@@ -385,6 +382,7 @@ Mac Agent operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -392,12 +390,12 @@ Mac Agent operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                            | Type      | Description                    |
+| --------------------------------- | --------- | ------------------------------ |
 | `mac_agent_operation_duration_ms` | Histogram | Operation latency distribution |
-| `mac_agent_operation_total` | Counter | Total operations processed |
-| `mac_agent_error_total` | Counter | Total errors encountered |
-| `mac_agent_active_connections` | Gauge | Current active connections |
+| `mac_agent_operation_total`       | Counter   | Total operations processed     |
+| `mac_agent_error_total`           | Counter   | Total errors encountered       |
+| `mac_agent_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -415,6 +413,7 @@ Mac Agent emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/mac_agent/`:
+
 - `test_mac_agent.py` — Core unit tests
 - `test_mac_agent_integration.py` — Integration tests (if applicable)
 
@@ -461,6 +460,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

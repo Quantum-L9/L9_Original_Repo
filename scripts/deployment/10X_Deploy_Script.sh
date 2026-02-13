@@ -131,10 +131,10 @@ patch_env_vps_template_from_example() {
   local example_path="$repo_root/$ENV_EXAMPLE"
   local template_path="$repo_root/$ENV_VPS_TEMPLATE"
   [[ -f "$example_path" ]] || die "Missing $ENV_EXAMPLE at repo root."
-  
+
   local tmp_out
   tmp_out="$(mktemp)"
-  
+
   while IFS= read -r line; do
     if [[ "$line" =~ ^[[:space:]]*# ]] || [[ -z "$line" ]]; then
       echo "$line" >> "$tmp_out"
@@ -157,7 +157,7 @@ patch_env_vps_template_from_example() {
       echo "$line" >> "$tmp_out"
     fi
   done < "$example_path"
-  
+
   if [[ ! -f "$template_path" ]] || ! cmp -s "$tmp_out" "$template_path"; then
     echo " + Patched $ENV_VPS_TEMPLATE from $ENV_EXAMPLE"
     mv "$tmp_out" "$template_path"
@@ -172,23 +172,23 @@ sync_env_vps_to_server() {
   local repo_root="$1"
   local local_env="$repo_root/$ENV_VPS_LOCAL"
   local remote_env="$VPS_REPO/$REMOTE_ENV_FILE"
-  
+
   $SYNC_ENV || { echo " = Env sync disabled"; return 0; }
   [[ -f "$local_env" ]] || die "Missing $ENV_VPS_LOCAL at repo root. Create it with real values."
-  
+
   echo "[ENV] Syncing $ENV_VPS_LOCAL -> $VPS_HOST:$remote_env"
   local stamp
   stamp="$(date +%Y%m%d_%H%M%S)"
-  
+
   # Backup existing remote .env
   ssh $SSH_OPTS "$VPS_HOST" "cd '$VPS_REPO' && (test -f '$remote_env' && cp -a '$remote_env' '$remote_env.bak.$stamp' || true)"
-  
+
   if $DRY_RUN; then
     echo "DRY: streaming $local_env -> $VPS_HOST:$remote_env"
   else
     ssh $SSH_OPTS "$VPS_HOST" "cat > '$remote_env' && chmod 600 '$remote_env'" < "$local_env"
   fi
-  
+
   if ! $DRY_RUN; then
     local local_hash remote_hash
     local_hash="$(shasum -a 256 "$local_env" | awk '{print $1}')"
@@ -206,7 +206,7 @@ remote_git_hard_reset() {
 remote_rebuild_stack() {
   local build_opts=""
   $NO_CACHE && build_opts="--no-cache"
-  
+
   if [[ -n "$SERVICES" ]]; then
     # Selective rebuild
     echo "[VPS] Selective rebuild: $SERVICES (no-cache=$NO_CACHE)"
@@ -224,7 +224,7 @@ remote_rebuild_stack() {
     ssh $SSH_OPTS "$VPS_HOST" "cd '$VPS_REPO' && docker compose -f $COMPOSE_BASE -f $COMPOSE_PROD build $build_opts"
     ssh $SSH_OPTS "$VPS_HOST" "cd '$VPS_REPO' && docker compose -f $COMPOSE_BASE -f $COMPOSE_PROD up -d --force-recreate --remove-orphans"
   fi
-  
+
   if $PRUNE_DOCKER; then
     if [[ "$ALLOW_DOCKER_PRUNE" == "true" ]]; then
       echo "[VPS] Prune docker (no volumes) - L9_ALLOW_DOCKER_PRUNE=true"
@@ -241,32 +241,32 @@ remote_health() {
   echo "│ HEALTH VALIDATION (Deep MRI + Optional GOD MODE)                │"
   echo "└─────────────────────────────────────────────────────────────────┘"
   echo ""
-  
+
   # Wait for containers to stabilize
   echo "⏳ Waiting for services to initialize (15s)..."
   sleep 15
   echo ""
-  
+
   # Always run Deep MRI (fast operational health check)
   echo "═══════════════════════════════════════════════════════════════════"
   echo "PHASE 1: Deep MRI (scripts/deployment/deep_mri.sh)"
   echo "═══════════════════════════════════════════════════════════════════"
-  
+
   ssh $SSH_OPTS "$VPS_HOST" bash << 'DEEP_MRI'
     cd /opt/l9
-    
+
     # Verify deep_mri.sh exists
     if [ ! -f scripts/deployment/deep_mri.sh ]; then
       echo "❌ ERROR: scripts/deployment/deep_mri.sh not found"
       echo "Expected location: /opt/l9/scripts/deployment/deep_mri.sh"
       exit 1
     fi
-    
+
     # Make executable and run
     chmod +x scripts/deployment/deep_mri.sh
     ./scripts/deployment/deep_mri.sh
 DEEP_MRI
-  
+
   local mri_exit=$?
   if [ $mri_exit -eq 0 ]; then
     echo ""
@@ -275,7 +275,7 @@ DEEP_MRI
     echo ""
     echo "⚠️  Deep MRI completed with warnings (exit code: $mri_exit)"
   fi
-  
+
   # Conditionally run GOD MODE (comprehensive E2E validation)
   if $RUN_GODMODE; then
     echo ""
@@ -283,22 +283,22 @@ DEEP_MRI
     echo "PHASE 2: GOD MODE E2E (scripts/e2e_test_GODMODE.sh)"
     echo "═══════════════════════════════════════════════════════════════════"
     echo ""
-    
+
     ssh $SSH_OPTS "$VPS_HOST" bash << 'GODMODE'
       cd /opt/l9
-      
+
       # Verify e2e_test_GODMODE.sh exists
       if [ ! -f scripts/e2e_test_GODMODE.sh ]; then
         echo "❌ ERROR: scripts/e2e_test_GODMODE.sh not found"
         echo "Expected location: /opt/l9/scripts/e2e_test_GODMODE.sh"
         exit 1
       fi
-      
+
       # Make executable and run smoke test
       chmod +x scripts/e2e_test_GODMODE.sh
       ./scripts/e2e_test_GODMODE.sh smoke
 GODMODE
-    
+
     local godmode_exit=$?
     echo ""
     if [ $godmode_exit -eq 0 ]; then

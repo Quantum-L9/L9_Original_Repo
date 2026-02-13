@@ -16,6 +16,7 @@ _this_file = Path(__file__).resolve()
 PROJECT_ROOT = _this_file.parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from datetime import UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -144,7 +145,7 @@ class TestInterfaceModels:
             trace_id=uuid4(),
             subsystem="test",
             status=PipelineStatus.SUCCESS,
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
         )
 
         assert result.is_success is True

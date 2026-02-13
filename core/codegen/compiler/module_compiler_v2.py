@@ -61,7 +61,7 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 # Template 1: Agent Core (inherits from BaseAgent)
-TEMPLATE_AGENT_CORE = """\"\"\"  
+TEMPLATE_AGENT_CORE = """\"\"\"
 {{metadata.name}} - L9 Agent
 {{description_line}}
 
@@ -119,27 +119,27 @@ logger = structlog.get_logger(__name__)
 
 
 class {{class_name}}Agent(BaseAgent):
-    \"\"\"  
+    \"\"\"
     {{metadata.name}} - L9 Agent
-    
+
     {{metadata.description}}
-    
+
     **Agent Role**: {{agent_role}}
     **Tier**: {{tier}}
     **Escalation Path**: {{escalation_path}}
     \"\"\"
-    
+
     agent_role = AgentRole.{{agent_role_enum}}
     agent_name = \"{{module_id}}_agent\"
-    
+
     def __init__(
         self,
         agent_id: Optional[str] = None,
         config: Optional[AgentConfig] = None,
     ):
-        \"\"\"  
+        \"\"\"
         Initialize {{metadata.name}} agent.
-        
+
         Args:
             agent_id: Unique agent identifier (auto-generated if not provided)
             config: Agent configuration (uses defaults if not provided)
@@ -149,18 +149,18 @@ class {{class_name}}Agent(BaseAgent):
         {% if has_memory %}
         self.memory = MemoryClient()
         {% endif %}
-        
+
         logger.info(
             \"{{metadata.name}} initialized\",
             agent_id=self.agent_id,
             tier={{tier}},
             escalation_path=\"{{escalation_path}}\"
         )
-    
+
     def get_system_prompt(self) -> str:
-        \"\"\"  
+        \"\"\"
         Get the agent's system prompt.
-        
+
         Returns:
             System prompt string
         \"\"\"
@@ -177,20 +177,20 @@ Your responsibilities:
 
 Always respond with structured, actionable outputs.
 \"\"\"
-    
+
     @must_stay_async(\"callers use await\")
     async def run(
         self,
         task: dict[str, Any],
         context: Optional[dict[str, Any]] = None
     ) -> AgentResponse:
-        \"\"\"  
+        \"\"\"
         Execute the agent's primary function.
-        
+
         Args:
             task: Task specification with 'data' field
             context: Optional execution context
-        
+
         Returns:
             AgentResponse with PacketEnvelope result
         \"\"\"
@@ -199,14 +199,14 @@ Always respond with structured, actionable outputs.
             agent_id=self.agent_id,
             task_keys=list(task.keys())
         )
-        
+
         try:
             # Parse request
             request = {{class_name}}Request(**task)
-            
+
             # Execute logic
             result = await self._execute_logic(request, context)
-            
+
             # Create PacketEnvelope response
             packet = PacketEnvelope(
                 packet_type=\"{{packet_type}}\",
@@ -222,26 +222,26 @@ Always respond with structured, actionable outputs.
                     tool=\"{{module_id}}\"
                 )
             )
-            
+
             {% if has_memory %}
             # Write to memory substrate
             await self.memory.write_packet(packet)
             {% endif %}
-            
+
             logger.info(
                 \"{{metadata.name}} task completed\",
                 agent_id=self.agent_id,
                 packet_id=str(packet.packet_id),
                 success=True
             )
-            
+
             return AgentResponse(
                 agent_id=self.agent_id,
                 content=str(result),
                 structured_output=result,
                 success=True
             )
-            
+
         except Exception as e:
             logger.error(
                 \"{{metadata.name}} task failed\",
@@ -249,7 +249,7 @@ Always respond with structured, actionable outputs.
                 error=str(e),
                 exc_info=True
             )
-            
+
             # Return error response
             return AgentResponse(
                 agent_id=self.agent_id,
@@ -257,7 +257,7 @@ Always respond with structured, actionable outputs.
                 success=False,
                 error=str(e)
             )
-    
+
     @rate_limit(\"agent.{{module_id}}\")
     @async_retry(AsyncRetryConfig(max_retries=3, backoff_factor=2.0))
     async def _execute_logic(
@@ -265,28 +265,28 @@ Always respond with structured, actionable outputs.
         request: {{class_name}}Request,
         context: Optional[dict[str, Any]] = None
     ) -> dict[str, Any]:
-        \"\"\"  
+        \"\"\"
         Execute the core agent logic.
-        
+
         Args:
             request: Validated request model
             context: Optional execution context
-        
+
         Returns:
             Result dictionary
         \"\"\"
         # TODO: Implement agent-specific logic
-        
+
         {% if has_llm %}
         # Example: Call LLM
         from agents.base_agent import AgentMessage
-        
+
         messages = [
             AgentMessage(role=\"user\", content=request.data.get(\"query\", \"\"))
         ]
-        
+
         llm_response = await self.call_llm(messages)
-        
+
         return {
             \"result\": llm_response.content,
             \"tokens_used\": llm_response.tokens_used
@@ -301,7 +301,7 @@ Always respond with structured, actionable outputs.
 """
 
 # Template 2: Config (Pydantic Settings)
-TEMPLATE_CONFIG = """\"\"\"  
+TEMPLATE_CONFIG = """\"\"\"
 {{metadata.name}} - Configuration
 \"\"\"
 
@@ -312,21 +312,21 @@ from typing import Optional
 
 class {{class_name}}Config(BaseSettings):
     \"\"\"Configuration for {{metadata.name}}\"\"\"
-    
+
     # Module settings
     module_id: str = \"{{module_id}}\"
     module_version: str = \"{{metadata.version}}\"
-    
+
     # Environment-specific settings
     {{config_fields}}
-    
+
     class Config:
         env_prefix = \"{{env_prefix}}_\"
         case_sensitive = False
 """
 
 # Template 3: Models (Pydantic Request/Response)
-TEMPLATE_MODELS = """\"\"\"  
+TEMPLATE_MODELS = """\"\"\"
 {{metadata.name}} - Data Models
 \"\"\"
 
@@ -338,10 +338,10 @@ from uuid import UUID, uuid4
 
 class {{class_name}}Request(BaseModel):
     \"\"\"Request model for {{metadata.name}}\"\"\"
-    
+
     data: dict[str, Any] = Field(..., description=\"Request data payload\")
     metadata: Optional[dict[str, Any]] = Field(None, description=\"Optional metadata\")
-    
+
     class Config:
         frozen = False
 """
@@ -399,7 +399,7 @@ dependencies:
 """
 
 # Template 5: Tests
-TEMPLATE_TESTS = """\"\"\"  
+TEMPLATE_TESTS = """\"\"\"
 Tests for {{metadata.name}}
 \"\"\"
 
@@ -415,7 +415,7 @@ from {{module_path}}.models import {{class_name}}Request
 async def test_{{module_id}}_agent_initialization():
     \"\"\"Test agent initialization\"\"\"
     agent = {{class_name}}Agent()
-    
+
     assert agent.agent_name == \"{{module_id}}_agent\"
     assert agent.agent_id is not None
 
@@ -424,13 +424,13 @@ async def test_{{module_id}}_agent_initialization():
 async def test_{{module_id}}_agent_run_success():
     \"\"\"Test successful agent execution\"\"\"
     agent = {{class_name}}Agent()
-    
+
     task = {
         \"data\": {\"test\": \"value\"}
     }
-    
+
     response = await agent.run(task)
-    
+
     assert isinstance(response, AgentResponse)
     assert response.success is True
     assert response.agent_id == agent.agent_id
@@ -440,12 +440,12 @@ async def test_{{module_id}}_agent_run_success():
 async def test_{{module_id}}_agent_run_error():
     \"\"\"Test agent error handling\"\"\"
     agent = {{class_name}}Agent()
-    
+
     # Invalid task
     task = {}
-    
+
     response = await agent.run(task)
-    
+
     assert isinstance(response, AgentResponse)
     assert response.success is False
     assert response.error is not None
@@ -768,7 +768,7 @@ class ModuleCompilerV2:
         )
         class_name = self._to_class_name(module_id)
 
-        content = f'''"""  
+        content = f'''"""
 {metadata.get("name", "Module")} - L9 Agent
 """
 
@@ -797,9 +797,9 @@ __all__ = ["{class_name}Agent", "{class_name}Request", "{class_name}Config"]
 
 ## Generated by CodeGenAgent v2.0.0
 
-**Module ID**: `{module_id}`  
-**Version**: `{normalized.module_version}`  
-**Tier**: `{normalized.tier}`  
+**Module ID**: `{module_id}`
+**Version**: `{normalized.module_version}`
+**Tier**: `{normalized.tier}`
 **Escalation Path**: `{normalized.escalation_path}`
 
 ## Usage

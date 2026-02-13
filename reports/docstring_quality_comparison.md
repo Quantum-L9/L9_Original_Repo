@@ -7,15 +7,15 @@
 
 ## Executive Summary
 
-| Metric | Manus (Manual) | Script (LLM) |
-|--------|----------------|--------------|
-| **Overall Quality** | 92/100 | 85/100 |
-| **Context/Why** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Formatting** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **Args/Returns** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **Domain Knowledge** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Consistency** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Speed** | Hours | Minutes |
+| Metric               | Manus (Manual) | Script (LLM) |
+| -------------------- | -------------- | ------------ |
+| **Overall Quality**  | 92/100         | 85/100       |
+| **Context/Why**      | ⭐⭐⭐⭐⭐     | ⭐⭐⭐       |
+| **Formatting**       | ⭐⭐⭐⭐⭐     | ⭐⭐⭐⭐     |
+| **Args/Returns**     | ⭐⭐⭐⭐⭐     | ⭐⭐⭐⭐     |
+| **Domain Knowledge** | ⭐⭐⭐⭐⭐     | ⭐⭐⭐       |
+| **Consistency**      | ⭐⭐⭐⭐       | ⭐⭐⭐⭐⭐   |
+| **Speed**            | Hours          | Minutes      |
 
 **Verdict:** Manus produces higher-quality docstrings with better domain context, but the script is ~50x faster and produces acceptable quality (85/100) suitable for AI navigation.
 
@@ -26,6 +26,7 @@
 ### 1. Enum Documentation
 
 **Manus (ModelProvider in toth_engine.py):**
+
 ```python
 """Enumeration of supported language model providers.
 
@@ -40,19 +41,23 @@ Attributes:
     MOCK: Mock provider for testing without API calls.
 """
 ```
+
 **Score: 95/100** - Excellent context, explains WHY, proper Attributes section
 
 **Script (ReasoningMode in toth_engine.py):**
+
 ```python
 """Defines reasoning modes for the ToTh engine."""
 ```
+
 **Score: 70/100** - Functional but lacks Attributes section, minimal context
 
 ---
 
-### 2. __init__ Methods
+### 2. **init** Methods
 
-**Manus (QueryCache.__init__):**
+**Manus (QueryCache.**init**):**
+
 ```python
 """Initialize query cache.
 
@@ -63,11 +68,13 @@ Args:
     enabled: Whether caching is enabled (for testing)
 """
 ```
+
 **Score: 92/100** - Concise, clear, proper Google style
 
-**Script (CalibrationService.__init__):**
+**Script (CalibrationService.**init**):**
+
 ```python
-"""Initializes the CalibrationService with configuration and optional 
+"""Initializes the CalibrationService with configuration and optional
 substrate service for model output calibration and uncertainty decomposition.
 
 Args:
@@ -78,7 +85,9 @@ Raises:
     ValueError: If configuration parameters are invalid.
 """
 ```
+
 **Score: 82/100** - Good structure, but:
+
 - First line overly verbose
 - Raises section is speculative (not actually in code)
 - Occasional double blank lines
@@ -88,6 +97,7 @@ Raises:
 ### 3. Class Documentation
 
 **Manus (QueryCache class):**
+
 ```python
 """Query result caching with TTL and LRU strategies.
 
@@ -103,9 +113,11 @@ Usage:
         return await db.fetch_all("SELECT * FROM permissions WHERE user_id = $1", user_id)
 """
 ```
+
 **Score: 98/100** - Excellent with usage examples, explains WHEN to use each
 
 **Script (SemanticToolSearchAdapter class):**
+
 ```python
 """Adapter for semantic tool search using L9's pgvector backend.
 
@@ -114,6 +126,7 @@ Supports deferred tool loading to reduce context overhead:
 - Deferred: Remaining tools loaded on-demand via semantic search
 """
 ```
+
 **Score: 88/100** - Good description, lacks usage examples
 
 ---
@@ -121,6 +134,7 @@ Supports deferred tool loading to reduce context overhead:
 ### 4. Dataclass Documentation
 
 **Manus (ReasoningStep):**
+
 ```python
 """Individual step in a reasoning chain.
 
@@ -137,12 +151,15 @@ Attributes:
     timestamp: When this step was generated.
 """
 ```
+
 **Score: 96/100** - Full Attributes, clear purpose
 
 **Script (ApprovalRequest):**
+
 ```python
 """Request for Igor approval of high-risk operation"""
 ```
+
 **Score: 75/100** - Minimal, lacks Attributes section
 
 ---
@@ -150,6 +167,7 @@ Attributes:
 ## Quality Analysis
 
 ### Manus Strengths
+
 1. **Deep domain knowledge** - Understands L9 architecture
 2. **Explains WHY** - Not just what, but why it matters
 3. **Usage examples** - Shows how to use the code
@@ -157,16 +175,19 @@ Attributes:
 5. **Clean formatting** - Consistent spacing, no artifacts
 
 ### Manus Weaknesses
+
 1. **Time intensive** - ~2-3 minutes per file
 2. **Inconsistent coverage** - Some files skipped
 
 ### Script Strengths
+
 1. **Speed** - 488 docstrings in ~5 minutes
 2. **Consistency** - Same format everywhere
 3. **Good Args/Returns** - Usually correct
 4. **Syntax validation** - Ensures code still compiles
 
 ### Script Weaknesses
+
 1. **Generic context** - Doesn't understand domain
 2. **Speculative Raises** - Sometimes adds incorrect exceptions
 3. **Missing Attributes** - Doesn't document dataclass fields
@@ -178,17 +199,20 @@ Attributes:
 ## Recommendations
 
 ### For High-Value Code (Manus)
+
 - Core abstractions, public APIs, kernels
 - Complex algorithms with non-obvious behavior
 - Code that other developers will extend
 
 ### For Bulk Coverage (Script)
+
 - Internal utilities
 - Test files
 - Generated code
 - Simple dataclasses and enums
 
 ### Script Improvements Needed
+
 1. Add Attributes section for dataclasses/enums
 2. Remove speculative Raises sections
 3. Shorten first lines

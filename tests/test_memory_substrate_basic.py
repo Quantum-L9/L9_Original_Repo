@@ -14,7 +14,7 @@ pytest.skip(
     "Legacy memory substrate — memory.substrate_models not available.",
     allow_module_level=True,
 )
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from uuid import uuid4
 
 # =============================================================================
@@ -50,7 +50,7 @@ class TestPacketEnvelope:
 
         packet_id = uuid4()
         parent_id = uuid4()
-        timestamp = datetime.now(timezone.utc)
+        timestamp = datetime.now(UTC)
 
         packet = PacketEnvelope(
             packet_id=packet_id,
@@ -283,7 +283,7 @@ class TestDAGNodes:
                 "packet_id": str(uuid4()),
                 "packet_type": "event",
                 "payload": {"key": "value"},
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
             },
             "reasoning_block": None,
             "written_tables": [],
@@ -308,7 +308,7 @@ class TestDAGNodes:
                 "packet_id": str(uuid4()),
                 "packet_type": "event",
                 "payload": {"test": "data"},
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "metadata": {"agent": "test"},
             },
             "reasoning_block": {

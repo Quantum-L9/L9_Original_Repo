@@ -151,7 +151,7 @@ api/routes/factory.py::ValidateRequest - Request model for schema validation.
 api/routes/factory.py::ValidateResponse - Response model for schema validation.
 api/routes/gmp_learning.py::AnalyticsResponse - Represents the response data structure for GMP meta-learning
 api/routes/gmp_learning.py::AutonomyLevelResponse - Represents the user's current autonomy level, graduation sta
-api/routes/gmp_learning.py::GraduationStatusResponse - Represents the response data for a user's graduation status 
+api/routes/gmp_learning.py::GraduationStatusResponse - Represents the response data for a user's graduation status
 api/routes/gmp_learning.py::HeuristicsResponse - Represents the response structure for heuristics-related API
 api/routes/observability.py::CircuitBreakerStatus - Status of a circuit breaker.
 api/routes/observability.py::CircuitBreakersResponse - Response for circuit breakers endpoint.
@@ -377,7 +377,7 @@ codegen/dev_layer/tests/test_e2e_diff_generation.py::TestGovernanceEnforcement -
 codegen/dev_layer/tests/test_e2e_diff_generation.py::TestVerificationReport - Test verification report generation.
 codegen/scripts/generate_spec.py::PerplexityClient - Client for Perplexity API with retry logic.
 codegen/symbolic/analyzer.py::AnalysisResult - Result of analyzing a candidate.
-codegen/symbolic/analyzer.py::CandidateAnalyzer - Analyzes candidate code solutions for structural properties 
+codegen/symbolic/analyzer.py::CandidateAnalyzer - Analyzes candidate code solutions for structural properties
 codegen/symbolic/candidates.py::CandidateGenerator - Generates candidate code solutions using symbolic manipulati
 codegen/symbolic/pipeline.py::SymbolicCodegenPipeline - Orchestrates the complete symbolic code generation pipeline.
 codegen/symbolic/selector.py::CandidateSelector - Selects the best candidate from a list of verified candidate
@@ -511,7 +511,7 @@ core/bayesian/probabilistic_engine.py::Evidence - Single piece of evidence for p
 core/bayesian/probabilistic_engine.py::ProbabilisticAssessment - Complete assessment from probabilistic model
 core/bayesian/probabilistic_engine.py::RiskLevel - Risk classification levels
 core/bayesian/probabilistic_engine.py::SubjectiveLogic - Subjective logic decomposition (Trust/Disbelief/Uncertainty)
-core/bayesian/subjective_logic.py::SubjectiveLogicAdapter - Adapter between Bayesian probabilities and Subjective Logic 
+core/bayesian/subjective_logic.py::SubjectiveLogicAdapter - Adapter between Bayesian probabilities and Subjective Logic
 core/bayesian/uncertainty.py::BayesianUncertainty - Complete Bayesian uncertainty quantification.
 core/bayesian/uncertainty.py::DeepEnsemble - Deep ensemble for implicit Bayesian inference.
 core/bayesian/uncertainty.py::TestModel - Performs uncertainty modeling within the reasoning domain us
@@ -569,7 +569,7 @@ core/codegen/spec/spec_normalizer_v2.py::ModuleSpecModel - Full validated Module
 core/codegen/spec/spec_normalizer_v2.py::NormalizedSpec - Frozen, immutable normalized spec.
 core/codegen/spec/spec_normalizer_v2.py::SpecNormalizer - Stateless spec normalization service.
 core/codegen/spec/spec_normalizer_v2.py::SpecParseError - Raised when spec parsing fails (invalid YAML/JSON syntax)
-core/codegen/spec/spec_normalizer_v2.py::SpecValidationError - Raised when spec validation fails (missing required fields, 
+core/codegen/spec/spec_normalizer_v2.py::SpecValidationError - Raised when spec validation fails (missing required fields,
 core/codegen/spec/spec_normalizer_v2.py::SystemModel - Validated system section
 core/codegen/utilities.py::CodeValidator - 14-gate validation pipeline for generated code.
 core/codegen/utilities.py::DORABlock - DORA metadata block
@@ -594,7 +594,7 @@ core/coordination/agent_mediator.py::Message - Message structure for agent-to-ag
 core/coordination/agent_mediator.py::MessageDeliveryStatus - Track message delivery status.
 core/coordination/event_queue.py::Event - Event in the async coordination system
 core/coordination/event_queue.py::EventKind - Event types in the coordination system
-core/coordination/event_queue.py::EventQueue - Initializes an EventQueue for async agent coordination with 
+core/coordination/event_queue.py::EventQueue - Initializes an EventQueue for async agent coordination with
 core/coordination/event_queue.py::EventRouter - Initializes the EventRouter with an event queue for coordina
 core/di/container.py::BindingNotFoundError - Raised when no binding exists for requested type.
 core/di/container.py::CircularDependencyError - Raised when circular dependency is detected.
@@ -613,8 +613,8 @@ core/eos/schemas.py::ConditionType - Types of conditions for conditional verdict
 core/eos/schemas.py::Config - Config class for EOS Core Schemas that specifies Pydantic co
 core/eos/schemas.py::Config - Config class for EOS Core Schemas, specifying Pydantic confi
 core/eos/schemas.py::Config - Config class for EOS Core schemas, specifying Pydantic confi
-core/eos/schemas.py::Config - Config class for customizing Pydantic model behavior within 
-core/eos/schemas.py::Config - Represents configuration settings for the EOS Core schemas, 
+core/eos/schemas.py::Config - Config class for customizing Pydantic model behavior within
+core/eos/schemas.py::Config - Represents configuration settings for the EOS Core schemas,
 core/eos/schemas.py::DoctrineSource - Sources for executable doctrines
 core/eos/schemas.py::Enforceability - Enforceability levels.
 core/eos/schemas.py::Environment - Execution environments.
@@ -1194,7 +1194,7 @@ email_agent/router.py::GetRequest - Request model for getting email.
 email_agent/router.py::QueryRequest - Request model for email query.
 email_agent/router.py::ReplyRequest - Request model for replying to email.
 email_agent/router.py::SendRequest - Request model for sending email.
-graph_adapter/packet_node_adapter.py::PacketNodeAdapter - Wraps a node function, ensuring its input/output are logged 
+graph_adapter/packet_node_adapter.py::PacketNodeAdapter - Wraps a node function, ensuring its input/output are logged
 ir_engine/compile_meta_to_ir.py::DependencyEdge - A single dependency edge in the module graph.
 ir_engine/compile_meta_to_ir.py::GenerationTarget - A single file to be generated.
 ir_engine/compile_meta_to_ir.py::MetaToIRCompiler - Compiles MetaContract to ModuleIR.
@@ -1337,7 +1337,7 @@ mcp_memory/src/models.py::Config - Config class enforces strict validation.
 mcp_memory/src/models.py::Config - Validation model for arguments used in retrieving a sequence
 mcp_memory/src/models.py::Config - Validation model for arguments used in retrieving contextual
 mcp_memory/src/models.py::Config - Validation model for configuration settings in request/respo
-mcp_memory/src/models.py::Config - Validation model for query_temporal MCP tool arguments used 
+mcp_memory/src/models.py::Config - Validation model for query_temporal MCP tool arguments used
 mcp_memory/src/models.py::Config - Validation model for request arguments used in context injec
 mcp_memory/src/models.py::Config - Validation model for request parameters related to extractin
 mcp_memory/src/models.py::ContextInjectionRequest - Request for auto context injection before a task.
@@ -1417,7 +1417,7 @@ memory/context_builder.py::ContextSection - A section of context from a specific
 memory/context_builder.py::HierarchicalContextBuilder - Builds hierarchical context for agent prompts.
 memory/context_builder.py::MemoryTier - 4-tier hierarchical memory system.
 memory/cross_encoder_reranker.py::CrossEncoderConfig - Configuration for cross-encoder re-ranking.
-memory/cross_encoder_reranker.py::CrossEncoderReranker - Cross-encoder based neural re-ranker for improved retrieval 
+memory/cross_encoder_reranker.py::CrossEncoderReranker - Cross-encoder based neural re-ranker for improved retrieval
 memory/cross_encoder_reranker.py::RerankingResult - Result from cross-encoder re-ranking.
 memory/cypher_templates.py::CypherTemplate - A parameterized Cypher query template.
 memory/cypher_templates.py::CypherTemplateCategory - Categories for Cypher templates.
@@ -1630,7 +1630,7 @@ orchestration/plan_executor.py::ExecutorConfig - Configuration for plan executor
 orchestration/plan_executor.py::PlanExecutor - Executes finalized IR plans with memory integration.
 orchestration/plan_executor.py::StepResult - Result of executing a single step.
 orchestration/plan_executor.py::StepStatus - Status of a single step.
-orchestration/quantum_swarm_loader.py::QuantumSwarmLoader - Loads and executes quantum swarm capsules for parallel code 
+orchestration/quantum_swarm_loader.py::QuantumSwarmLoader - Loads and executes quantum swarm capsules for parallel code
 orchestration/quantum_swarm_loader.py::SwarmLoaderError - Exception raised when swarm loading fails.
 orchestration/task_router.py::CapabilityEnforcedRouter - TaskRouter with capability enforcement.
 orchestration/task_router.py::ExecutionTarget - Execution targets for routing.
@@ -1755,7 +1755,7 @@ runtime/gmp_worker.py::GMPWorker - Worker for processing GMP runs.
 runtime/introspection.py::MockAgent - Performs post-execution introspection and session management
 runtime/kernel_loader.py::KernelAwareAgent - Protocol for agents that can absorb kernels.
 runtime/kernel_loader.py::KernelStack - Lightweight context object for the 10-kernel stack.
-runtime/kernel_state.py::KernelState - Runtime representation of kernel system state (GODMODE Part 
+runtime/kernel_state.py::KernelState - Runtime representation of kernel system state (GODMODE Part
 runtime/local_api.py::LocalAPI - Safe local API for shell commands and file operations.
 runtime/mcp_client.py::MCPClient - MCP client for connecting to MCP servers.
 runtime/mcp_client.py::MCPServerProcess - Manages a single MCP server subprocess.
@@ -1823,7 +1823,7 @@ scripts/audit/resolve_dead_code_refs.py::ResolvedFinding - A finding after false
 scripts/audit/run_all.py::AuditOrchestrator - Orchestrate all audits with caching and parallel execution.
 scripts/audit/run_all.py::AuditResult - Result from single audit.
 scripts/audit/run_all.py::AuditRun - Complete audit run with all results.
-scripts/audit/run_all.py::AuditType - Represents different types of frontier-grade audits used in 
+scripts/audit/run_all.py::AuditType - Represents different types of frontier-grade audits used in
 scripts/audit/tier1/audit_capability_inventory.py::CapabilityMatrix - Capability with impact/risk/effort assessment.
 scripts/audit/tier1/audit_capability_inventory.py::CapabilityMethod - Discovered async method.
 scripts/audit/tier1/audit_capability_inventory.py::CapabilityReport - Complete capability inventory report.
@@ -2693,7 +2693,7 @@ tests/unit/test_di_container_audit.py::TransientService - No docstring
 tests/unit/test_dynamic_tool_discovery.py::TestAgentInstanceDynamicDiscovery - Tests for AgentInstance.prepare_dynamic_tools()
 tests/unit/test_dynamic_tool_discovery.py::TestCachedToolRegistryAsyncMethods - Tests for CachedToolRegistry async register_tool/unregister_
 tests/unit/test_dynamic_tool_discovery.py::TestDynamicDiscovery - Tests for core/tools/dynamic_discovery.py
-tests/unit/test_dynamic_tool_discovery.py::TestExecutorToolRegistryAsyncRegisterTool - Tests for ExecutorToolRegistry.register_tool async + GMP-79 
+tests/unit/test_dynamic_tool_discovery.py::TestExecutorToolRegistryAsyncRegisterTool - Tests for ExecutorToolRegistry.register_tool async + GMP-79
 tests/unit/test_dynamic_tool_discovery.py::TestInvalidateAllToolCaches - Tests for invalidate_all_tool_caches() (GMP-79).
 tests/unit/test_dynamic_tool_discovery.py::TestSettingsIntegration - Tests for config/settings.py dynamic discovery settings.
 tests/unit/test_execution_plan_snapshot.py::TestExecutionPlanSnapshot - Test ExecutionPlanSnapshot.
@@ -2866,7 +2866,7 @@ tools/codegen/text_to_code.py::ConceptSpec - Parsed concept specification.
 tools/codegen/text_to_code.py::GenerationResult - Result of code generation.
 tools/codegen/text_to_code.py::L9TextToCode - Main text-to-code generator.
 tools/mac_protocol.py::Config - Represents configuration schema details for the L9 Mac Proto
-tools/mac_protocol.py::Config - Represents configuration schema for L9 Mac Protocol reverse 
+tools/mac_protocol.py::Config - Represents configuration schema for L9 Mac Protocol reverse
 tools/mac_protocol.py::MacMessage - Mac protocol message schema.
 tools/mac_protocol.py::MacResponse - Mac protocol response schema.
 tools/superpack_reports/ast_scanner.py::ClassInfo - Information about a class.

@@ -199,12 +199,12 @@ test_suites:
     metadata:
       generated_by: "test-pipeline-v1"
       gap_analysis_date: "{date}"
-    
+
     fixtures:
       - name: "mock_{dependency}"
         scope: "function"
         generator: "monkeypatch"
-    
+
     unit_tests:
       - test_id: "test_{function}_happy_path"
         name: "Test {function} with valid inputs"
@@ -214,7 +214,7 @@ test_suites:
             condition: "Valid inputs provided"
             assertions:
               - type: "return_success"
-      
+
       - test_id: "test_{function}_error_handling"
         name: "Test {function} error cases"
         type: "unit"
@@ -400,7 +400,7 @@ pytest {generated_test_files} -v --tb=short
 ### Syntax Check
 {syntax_results}
 
-### Import Check  
+### Import Check
 {import_results}
 
 ### Test Execution

@@ -39,7 +39,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -554,7 +554,7 @@ Natural language:
                     raw_text=command.raw_text,
                     result=result.dict() if result else None,
                     error=error,
-                    timestamp=datetime.now(timezone.utc).isoformat(),
+                    timestamp=datetime.now(UTC).isoformat(),
                 )
             except Exception as e:
                 logger.warning("Failed to log command to audit", error=str(e))

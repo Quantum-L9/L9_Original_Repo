@@ -40,7 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any, TypedDict
 from uuid import uuid4
 
@@ -219,9 +219,7 @@ async def world_model_snapshot_node(
     try:
         # Generate description if not provided
         if description is None:
-            description = (
-                f"LangGraph snapshot at {datetime.now(timezone.utc).isoformat()}"
-            )
+            description = f"LangGraph snapshot at {datetime.now(UTC).isoformat()}"
 
         # Create snapshot
         snapshot = await world_model_service.create_snapshot(

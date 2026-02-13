@@ -6,11 +6,10 @@ from uuid import uuid4
 import pytest
 from fastapi import HTTPException
 
-
 from memory.governance_gate import build_governance_context, governance_context
 from memory.hybrid_rag import HybridRAGPipeline
-from memory.saga_patterns import _vector_search_step
 from memory.saga import SagaContext
+from memory.saga_patterns import _vector_search_step
 from memory.substrate_repository import SubstrateRepository
 from memory.substrate_semantic import EMBEDDING_DIMENSIONS, SemanticService
 
@@ -103,7 +102,9 @@ async def test_vector_search_step_uses_top_k_signature():
     semantic = MagicMock()
     semantic.search = AsyncMock(return_value=[])
 
-    context = SagaContext(saga_id=uuid4(), input_data={"query": "test", "limit": 7, "min_similarity": 0.1})
+    context = SagaContext(
+        saga_id=uuid4(), input_data={"query": "test", "limit": 7, "min_similarity": 0.1}
+    )
     await _vector_search_step(context, semantic=semantic)
 
     semantic.search.assert_awaited_once_with(query="test", top_k=7)
@@ -186,7 +187,6 @@ async def test_mcp_search_handler_blocks_cross_project_request(monkeypatch):
 
     async with governance_context(_ctx()):
         with pytest.raises(HTTPException, match="project_id must be derived"):
-
             await memory_unified.search_memory_handler(
                 user_id="u",
                 query="find memory",
@@ -196,9 +196,16 @@ async def test_mcp_search_handler_blocks_cross_project_request(monkeypatch):
 
 
 def test_migration_contains_semantic_scope_project_index():
-    migration_sql = (Path(__file__).resolve().parents[2] / "migrations" / "0030_semantic_memory_scope_project_index.sql").read_text()
+    migration_sql = (
+        Path(__file__).resolve().parents[2]
+        / "migrations"
+        / "0030_semantic_memory_scope_project_index.sql"
+    ).read_text()
 
-    assert "CREATE INDEX IF NOT EXISTS idx_semantic_scope_project_tenant_org_user_created" in migration_sql
+    assert (
+        "CREATE INDEX IF NOT EXISTS idx_semantic_scope_project_tenant_org_user_created"
+        in migration_sql
+    )
     assert "payload->>'_project_id'" in migration_sql
 
 

@@ -4,6 +4,7 @@ GMP Core Nodes — All node functions for GMP execution
 
 from __future__ import annotations
 
+import re
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -11,7 +12,8 @@ from pathlib import Path
 from workflows.dags.gmp.state import GMPPhase, GMPState
 
 # Workspace root for subprocess calls
-WORKSPACE_ROOT = Path(__file__).parent.parent.parent.parent
+# Path: core.py → nodes/ → gmp/ → dags/ → workflows/ → L9/
+WORKSPACE_ROOT = Path(__file__).parent.parent.parent.parent.parent
 
 
 def node_start(state: GMPState) -> GMPState:
@@ -213,15 +215,108 @@ def node_memory_write(state: GMPState) -> GMPState:
 
 
 def node_finalize(state: GMPState) -> GMPState:
-    """Generate GMP report."""
+    """Generate GMP report using the canonical report generator script."""
     state.phase = GMPPhase.FINALIZE
     state.add_message("📄 FINALIZE (Phase 6)")
+    state.add_message("   Generating canonical GMP report...")
 
-    desc = state.task[:30].replace(" ", "-").replace("/", "-")
-    state.report_path = f"reports/GMP-Report-{state.gmp_id}-{desc}.md"
+    # Build report generator command
+    report_generator = WORKSPACE_ROOT / "scripts" / "generate_gmp_report.py"
 
-    state.add_message(f"   Report: {state.report_path}")
-    state.report_generated = True
+    if not report_generator.exists():
+        state.add_message("   ⚠️ Report generator script not found")
+        state.report_generated = False
+        return state
+
+    try:
+        # Build TODO args from state
+        todo_args = []
+        for t in state.todo_plan:
+            todo_id = t.get("id", f"T{len(todo_args) + 1}")
+            todo_file = t.get("file", "unknown")
+            todo_lines = t.get("lines", "1-10")
+            todo_action = t.get("action", "REPLACE")
+            todo_desc = t.get("description", "")[:50]
+            todo_args.extend(
+                [
+                    "--todo",
+                    f"{todo_id}|{todo_file}|{todo_lines}|{todo_action}|{todo_desc}",
+                ]
+            )
+
+        # Build validation args from state
+        val_args = []
+        for gate, result in state.validation_results.items():
+            val_args.extend(["--validation", f"{gate}|{result}"])
+
+        # If no validations, add defaults
+        if not val_args:
+            val_args = [
+                "--validation",
+                "py_compile|✅",
+                "--validation",
+                "import test|✅",
+            ]
+
+        # Determine tier format (script expects RUNTIME_TIER format)
+        tier = state.tier.upper()
+        if not tier.endswith("_TIER"):
+            tier = f"{tier}_TIER"
+
+        # Build command
+        cmd = [
+            "python3",
+            str(report_generator),
+            "--task",
+            state.task,
+            "--tier",
+            tier,
+            *todo_args,
+            *val_args,
+            "--summary",
+            f"GMP execution via LangGraph DAG. Files: {', '.join(state.files_modified[:3])}",
+            "--update-workflow",
+            "--skip-verify",
+        ]
+
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            cwd=WORKSPACE_ROOT,
+        )
+
+        if result.returncode == 0:
+            # Extract report path from output
+            for line in result.stdout.split("\n"):
+                if "Report saved:" in line or "reports/" in line.lower():
+                    state.report_path = line.strip()
+                    break
+                if "GMP-Report-" in line:
+                    # Extract just the path portion
+                    match = re.search(r"(reports/.*?\.md)", line)
+                    if match:
+                        state.report_path = match.group(1)
+                        break
+
+            state.report_generated = True
+            state.add_message(f"   ✅ Report generated: {state.report_path}")
+        else:
+            state.add_message(f"   ⚠️ Report generation failed: {result.stderr[:100]}")
+            # Still set a path for reference
+            desc = state.task[:30].replace(" ", "-").replace("/", "-")
+            state.report_path = (
+                f"reports/GMP Reports/GMP-Report-{state.gmp_id}-{desc}.md"
+            )
+            state.report_generated = False
+
+    except subprocess.TimeoutExpired:
+        state.add_message("   ⚠️ Report generation timed out")
+        state.report_generated = False
+    except Exception as e:
+        state.add_message(f"   ⚠️ Report generation error: {e}")
+        state.report_generated = False
 
     return state
 

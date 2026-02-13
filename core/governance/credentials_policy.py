@@ -40,7 +40,7 @@ __dora_meta__ = {
 
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
@@ -346,7 +346,7 @@ class CredentialsPolicy:
         is_safe, violations = self.scan(content)
 
         return {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "is_safe": is_safe,
             "total_violations": len(violations),
             "critical_violations": sum(
@@ -447,7 +447,7 @@ class CredentialRecord:
     def days_since_rotation(self) -> int:
         """Days since last rotation (or creation if never rotated)."""
         reference_date = self.last_rotated or self.created_at
-        return (datetime.now(timezone.utc) - reference_date).days
+        return (datetime.now(UTC) - reference_date).days
 
     @property
     def days_until_due(self) -> int:
@@ -552,7 +552,7 @@ class CredentialRotationPolicy:
             credential_id=credential_id,
             credential_type=credential_type,
             name=name,
-            created_at=created_at or datetime.now(timezone.utc),
+            created_at=created_at or datetime.now(UTC),
             rotation_period_days=rotation_period_days,
             owner=owner,
             notes=notes,
@@ -595,7 +595,7 @@ class CredentialRotationPolicy:
             )
             return False
 
-        rotation_time = rotated_at or datetime.now(timezone.utc)
+        rotation_time = rotated_at or datetime.now(UTC)
         record = self._credentials[credential_id]
         old_rotated = record.last_rotated
         record.last_rotated = rotation_time
@@ -680,7 +680,7 @@ class CredentialRotationPolicy:
         is_compliant, non_compliant = self.check_compliance()
 
         return {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "total_credentials": len(credentials),
             "is_compliant": is_compliant,
             "status_breakdown": {
@@ -755,7 +755,7 @@ class CredentialRotationPolicy:
                 cid: cred.to_dict() for cid, cred in self._credentials.items()
             },
             "rotation_history": self._rotation_history,
-            "exported_at": datetime.now(timezone.utc).isoformat(),
+            "exported_at": datetime.now(UTC).isoformat(),
         }
 
     def import_state(self, state: dict[str, Any]) -> int:

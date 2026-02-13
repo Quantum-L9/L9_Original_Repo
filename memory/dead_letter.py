@@ -36,7 +36,7 @@ __dora_meta__ = {
 
 import json
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
@@ -112,7 +112,7 @@ class DeadLetterQueue:
                 type(error).__name__ if isinstance(error, Exception) else "string"
             ),
             "attempts": str(attempts),
-            "failed_at": datetime.now(timezone.utc).isoformat(),
+            "failed_at": datetime.now(UTC).isoformat(),
             "original_envelope": json.dumps(envelope),
         }
 

@@ -142,7 +142,9 @@ async def tool_call_wrapper(
             agent_id=agent_id,
             duration_ms=duration_ms,
             status="success" if success else "error",
-            error_type=type(error).__name__ if error and not isinstance(error, str) else None,
+            error_type=type(error).__name__
+            if error and not isinstance(error, str)
+            else None,
         )
 
     return result

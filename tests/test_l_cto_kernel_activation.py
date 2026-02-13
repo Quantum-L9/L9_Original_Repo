@@ -100,8 +100,11 @@ class TestLCTOKernelActivation:
 
         prompt = agent.get_system_prompt()
 
-        # Should indicate degraded mode
-        assert "degraded mode" in prompt.lower() or "await" in prompt.lower()
+        # GMP-LCTO-FIXES: Fallback prompt now includes personality and datetime
+        # Should indicate fallback mode and preserve L's identity
+        assert "fallback mode" in prompt.lower() or "kernels failed" in prompt.lower()
+        assert "L" in prompt, "Fallback should preserve L identity"
+        assert "Igor" in prompt or "CTO" in prompt, "Fallback should preserve role"
 
     def test_require_activation_fails_for_inactive(self):
         """Verify require_kernel_activation crashes for inactive agent."""

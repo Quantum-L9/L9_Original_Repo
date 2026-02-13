@@ -195,7 +195,9 @@ async def submit_task_result(task_id: str, payload: TaskResultRequest):
                     )
 
                     if payload.screenshot_path:
-                        message_parts.append(f"\n📸 Screenshot: {payload.screenshot_path}")
+                        message_parts.append(
+                            f"\n📸 Screenshot: {payload.screenshot_path}"
+                        )
 
                     message = "\n".join(message_parts)
                     await slack_client.post_message(channel=task.channel, text=message)

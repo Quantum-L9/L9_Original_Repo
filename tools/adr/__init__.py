@@ -4,7 +4,7 @@ L9 ADR (Architecture Decision Records) Tooling
 This package provides CLI tools for managing ADRs in the L9 repository.
 
 Usage:
-    python -m tools.adr new "Use Protocol Buffers for IPC"
+    python -m tools.adr new Use Protocol Buffers for IPC
     python -m tools.adr list
     python -m tools.adr show 0042
     python -m tools.adr validate
@@ -45,7 +45,7 @@ __dora_footer__ = {
     "dependencies": [],
     "tags": ["operations", "tools", "utility"],
     "keywords": ["python", "repository", "tools"],
-    "business_value": "This package provides CLI tools for managing ADRs in the L9 repository. python -m tools.adr new "Use Protocol Buffers for IPC" python -m tools.adr list python -m tools.adr show 0042 python -m tools.ad",
+    "business_value": "This package provides CLI tools for managing ADRs in the L9 repository. python -m tools.adr new Use Protocol Buffers for IPC python -m tools.adr list python -m tools.adr show 0042 python -m tools.ad",
     "last_modified": "2026-01-31T22:21:45Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

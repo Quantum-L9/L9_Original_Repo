@@ -30,7 +30,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -204,7 +204,7 @@ async def tool_graph_health(request: Request) -> dict:
         "neo4j_available": is_healthy,
         "impact": None if is_healthy else "No blast radius/dependency queries",
         "tools_executable": True,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 

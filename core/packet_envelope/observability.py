@@ -43,13 +43,14 @@ __dora_meta__ = {
 
 import asyncio
 import json
-import structlog
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from functools import wraps
 from typing import Any
+
+import structlog
 
 try:
     from opentelemetry import baggage, metrics, trace

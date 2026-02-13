@@ -59,15 +59,15 @@ Protocol definitions and abstract interfaces
 
 ### Inbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
+| Module        | Purpose          |
+| ------------- | ---------------- |
 | `all modules` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose |
-|--------|---------|
-| — | No outbound dependencies |
+| Module | Purpose                  |
+| ------ | ------------------------ |
+| —      | No outbound dependencies |
 
 ---
 
@@ -90,11 +90,11 @@ core/protocols/
 ├── validation_protocols.py
 ```
 
-| File | Purpose |
-|------|---------|
-| `__init__.py` | Core module (PROTECTED) |
-| `observability_protocols.py` | Span kind enumeration. |
-| `observability_protocols.py` | Span status enumeration. |
+| File                         | Purpose                                         |
+| ---------------------------- | ----------------------------------------------- |
+| `__init__.py`                | Core module (PROTECTED)                         |
+| `observability_protocols.py` | Span kind enumeration.                          |
+| `observability_protocols.py` | Span status enumeration.                        |
 | `observability_protocols.py` | Protocol for distributed tracing span emission. |
 
 ### Naming Conventions
@@ -200,25 +200,23 @@ class TraceContext:
 
 **Lines:** 219-267 in `observability_protocols.py`
 
-
 ---
 
 ## Data Models and Contracts
-
 
 ### Exported Symbols (`__all__`)
 
 `ActivatableAgent`, `AgentContext`, `AgentOrchestrator`, `AgentRegistry`, `AgentState`, `BackoffStrategy`, `CacheClient`, `ConnectionPoolProtocol`, `ConnectionProtocol`, `ConnectionState`
 
-*...and 52 more*
+_...and 52 more_
 
 ### Module Constants
 
-| Constant | Value | Line |
-|----------|-------|------|
-| `T` | `TypeVar('T')` | 44 |
-| `P` | `TypeVar('P')` | 45 |
-| `T` | `TypeVar('T', bound=Callable[..., Any])` | 534 |
+| Constant | Value                                    | Line |
+| -------- | ---------------------------------------- | ---- |
+| `T`      | `TypeVar('T')`                           | 44   |
+| `P`      | `TypeVar('P')`                           | 45   |
+| `T`      | `TypeVar('T', bound=Callable[..., Any])` | 534  |
 
 ### Key Schemas
 
@@ -283,9 +281,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Protocols feature flags
-L9_ENABLE_CORE_PROTOCOLS_TRACING: true  # Enable detailed tracing
-L9_ENABLE_CORE_PROTOCOLS_METRICS: true  # Enable Prometheus metrics
-L9_ENABLE_CORE_PROTOCOLS_AUDIT: true    # Enable audit logging
+L9_ENABLE_CORE_PROTOCOLS_TRACING: true # Enable detailed tracing
+L9_ENABLE_CORE_PROTOCOLS_METRICS: true # Enable Prometheus metrics
+L9_ENABLE_CORE_PROTOCOLS_AUDIT: true # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -343,7 +341,6 @@ Decorator for applying rate limiting to async functions.
 - **Async:** No
 - **Returns:** `Callable[[Callable[..., Coroutine[Any, Any, Any]]], Callable[..., Coroutine[Any, Any, Any]]]`
 
-
 ### Usage Example
 
 ```python
@@ -384,6 +381,7 @@ Core Protocols operations emit structured JSON logs:
 ```
 
 **Log Levels:**
+
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -391,12 +389,12 @@ Core Protocols operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric | Type | Description |
-|--------|------|-------------|
+| Metric                                 | Type      | Description                    |
+| -------------------------------------- | --------- | ------------------------------ |
 | `core_protocols_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_protocols_operation_total` | Counter | Total operations processed |
-| `core_protocols_error_total` | Counter | Total errors encountered |
-| `core_protocols_active_connections` | Gauge | Current active connections |
+| `core_protocols_operation_total`       | Counter   | Total operations processed     |
+| `core_protocols_error_total`           | Counter   | Total errors encountered       |
+| `core_protocols_active_connections`    | Gauge     | Current active connections     |
 
 ### Tracing
 
@@ -414,6 +412,7 @@ Core Protocols emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_protocols/`:
+
 - `test_core_protocols.py` — Core unit tests
 - `test_core_protocols_integration.py` — Integration tests (if applicable)
 
@@ -456,6 +455,7 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
+
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

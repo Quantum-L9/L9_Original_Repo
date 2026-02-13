@@ -40,6 +40,7 @@ __dora_meta__ = {
 import json
 import subprocess
 from dataclasses import asdict, dataclass
+from datetime import UTC
 from pathlib import Path
 
 import yaml
@@ -245,13 +246,13 @@ class QCDashboard:
         """Approve a concept."""
         notes = input("📝 Review notes (optional): ").strip()
 
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         review = ConceptReview(
             concept_id=concept["concept_id"],
             status="approved",
             reviewer_notes=notes,
-            reviewed_at=datetime.now(timezone.utc).isoformat() + "Z",
+            reviewed_at=datetime.now(UTC).isoformat() + "Z",
         )
 
         self._save_review(review)
@@ -269,13 +270,13 @@ class QCDashboard:
         """Reject a concept."""
         reason = input("❌ Rejection reason: ").strip()
 
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         review = ConceptReview(
             concept_id=concept["concept_id"],
             status="rejected",
             reviewer_notes=reason,
-            reviewed_at=datetime.now(timezone.utc).isoformat() + "Z",
+            reviewed_at=datetime.now(UTC).isoformat() + "Z",
         )
 
         self._save_review(review)
@@ -297,13 +298,13 @@ class QCDashboard:
         subprocess.call([editor, str(yaml_file)])
 
         # Mark as edited
-        from datetime import datetime, timezone
+        from datetime import datetime
 
         review = ConceptReview(
             concept_id=concept["concept_id"],
             status="edited",
             reviewer_notes="Manually edited YAML",
-            reviewed_at=datetime.now(timezone.utc).isoformat() + "Z",
+            reviewed_at=datetime.now(UTC).isoformat() + "Z",
         )
 
         self._save_review(review)
@@ -383,14 +384,14 @@ class QCDashboard:
         confirm = input("✅ Approve all? (y/n): ").strip().lower()
 
         if confirm == "y":
-            from datetime import datetime, timezone
+            from datetime import datetime
 
             for concept in high_conf:
                 review = ConceptReview(
                     concept_id=concept["concept_id"],
                     status="approved",
                     reviewer_notes=f"Batch approved (confidence >= {threshold})",
-                    reviewed_at=datetime.now(timezone.utc).isoformat() + "Z",
+                    reviewed_at=datetime.now(UTC).isoformat() + "Z",
                 )
                 self._save_review(review)
 
@@ -455,9 +456,9 @@ class QCDashboard:
         """Export summary report."""
         summary = "# QC Review Summary\n\n"
 
-        from datetime import datetime, timezone
+        from datetime import datetime
 
-        summary += f"**Generated:** {datetime.now(timezone.utc).isoformat()}Z\n\n"
+        summary += f"**Generated:** {datetime.now(UTC).isoformat()}Z\n\n"
 
         approved = [
             c

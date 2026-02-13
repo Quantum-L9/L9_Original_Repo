@@ -28,7 +28,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 
@@ -83,11 +83,11 @@ class MockRedis:
         if ex:
             from datetime import timedelta
 
-            self._expiry[key] = datetime.now(timezone.utc) + timedelta(seconds=ex)
+            self._expiry[key] = datetime.now(UTC) + timedelta(seconds=ex)
         elif px:
             from datetime import timedelta
 
-            self._expiry[key] = datetime.now(timezone.utc) + timedelta(milliseconds=px)
+            self._expiry[key] = datetime.now(UTC) + timedelta(milliseconds=px)
 
         return True
 
@@ -195,7 +195,7 @@ class MockRedis:
 
     def _check_expiry(self, key: str) -> None:
         """Check and remove expired keys."""
-        if key in self._expiry and datetime.now(timezone.utc) > self._expiry[key]:
+        if key in self._expiry and datetime.now(UTC) > self._expiry[key]:
             del self._data[key]
             del self._expiry[key]
 
@@ -229,7 +229,7 @@ class MockToolRegistry:
         self._tools[name] = {
             "handler": handler,
             "rate_limit": rate_limit,
-            "registered_at": datetime.now(timezone.utc).isoformat(),
+            "registered_at": datetime.now(UTC).isoformat(),
         }
 
     def get_tool(self, name: str) -> dict[str, Any] | None:

@@ -4,9 +4,7 @@
   "task": "Fix missing module: agents.cursor.extractors.base_extractor - cursor_action_extractor cannot import it",
   "started_at": "2026-02-02T18:33:49.164438",
   "current_step": "scope_lock",
-  "completed_steps": [
-    "memory_read"
-  ],
+  "completed_steps": ["memory_read"],
   "todo_plan": [],
   "changes_made": [],
   "validations": [],

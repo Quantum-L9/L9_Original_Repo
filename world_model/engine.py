@@ -58,7 +58,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
 
@@ -144,7 +144,7 @@ class WorldModelEngine:
         self._updater: WorldModelUpdater = WorldModelUpdater(self._registry)
         self._initialized: bool = False
         self._spec_paths: list[str] = []
-        self._created_at: datetime = datetime.now(timezone.utc)
+        self._created_at: datetime = datetime.now(UTC)
         self._version: int = 0
         self._lock: asyncio.Lock = asyncio.Lock()
 
@@ -709,7 +709,7 @@ class WorldModelEngine:
         """
         snapshot_data: dict[str, Any] = {
             "version": self._version,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "initialized": self._initialized,
         }
 

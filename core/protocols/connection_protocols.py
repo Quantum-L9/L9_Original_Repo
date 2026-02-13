@@ -32,7 +32,7 @@ import time
 from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Protocol
 
@@ -128,21 +128,21 @@ class PooledConnection:
 
     connection: ConnectionProtocol
     state: ConnectionState = ConnectionState.IDLE
-    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    last_used_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    last_used_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     use_count: int = 0
     error_count: int = 0
 
     def mark_active(self) -> None:
         """Mark this connection as active."""
         self.state = ConnectionState.ACTIVE
-        self.last_used_at = datetime.now(timezone.utc)
+        self.last_used_at = datetime.now(UTC)
         self.use_count += 1
 
     def mark_idle(self) -> None:
         """Mark this connection as idle."""
         self.state = ConnectionState.IDLE
-        self.last_used_at = datetime.now(timezone.utc)
+        self.last_used_at = datetime.now(UTC)
 
     def mark_error(self) -> None:
         """Mark this connection as having an error."""
@@ -151,11 +151,11 @@ class PooledConnection:
 
     def age_seconds(self) -> float:
         """Get the age of this connection in seconds."""
-        return (datetime.now(timezone.utc) - self.created_at).total_seconds()
+        return (datetime.now(UTC) - self.created_at).total_seconds()
 
     def idle_seconds(self) -> float:
         """Get the idle time of this connection in seconds."""
-        return (datetime.now(timezone.utc) - self.last_used_at).total_seconds()
+        return (datetime.now(UTC) - self.last_used_at).total_seconds()
 
 
 class StandardConnectionPool:
