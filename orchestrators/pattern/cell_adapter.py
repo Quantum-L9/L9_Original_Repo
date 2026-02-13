@@ -24,6 +24,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cell Adapter",
@@ -131,6 +133,7 @@ class CellAgentAdapter:
             model=model,
         )
 
+    @must_stay_async("callers use await")
     async def invoke(
         self,
         role: str,
@@ -216,6 +219,7 @@ class CellAgentAdapter:
             )
             raise
 
+    @must_stay_async("callers use await")
     async def _handle_special_role(
         self,
         role: str,
@@ -506,6 +510,7 @@ class DirectLLMAgent:
 
         logger.info("DirectLLMAgent initialized", model=model)
 
+    @must_stay_async("callers use await")
     async def invoke(
         self,
         role: str,

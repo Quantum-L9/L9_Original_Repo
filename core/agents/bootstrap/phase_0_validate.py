@@ -7,6 +7,8 @@ Purpose: Verify all prerequisites exist before starting initialization.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Phase 0 Validate",
@@ -40,6 +42,7 @@ if TYPE_CHECKING:
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def validate_agent_blueprint(
     agent_config: AgentConfig,
     substrate_service: MemorySubstrateService,

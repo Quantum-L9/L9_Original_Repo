@@ -20,6 +20,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.tools.semantic_discovery import (
     DynamicToolDiscoveryService,
     ToolContextFormatter,
@@ -272,6 +273,7 @@ class TestTokenBudget:
     """Tests for discover_tools_with_budget enforcement."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_budget_limits_results(self) -> None:
         """With a very small budget, only a subset of tools should be returned."""
         svc = DynamicToolDiscoveryService(

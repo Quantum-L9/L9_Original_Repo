@@ -28,6 +28,7 @@ from core.agents.selfreflection import (
     analyze_task_execution,
     detect_behavior_gaps,
 )
+from core.decorators import must_stay_async
 
 # =============================================================================
 # Fixtures
@@ -331,6 +332,7 @@ class TestGMPSpecGeneration:
         assert plan.estimated_impact in spec
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_proposal_to_gmp_spec(self):
         """Individual proposals should generate valid GMP specs."""
         gap = BehaviorGap(
@@ -401,6 +403,7 @@ class TestExecutorIntegration:
     """Tests for executor integration with self-reflection."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_executor_runs_self_reflection(self):
         """Executor should run self-reflection after task completion."""
         try:
@@ -413,6 +416,7 @@ class TestExecutorIntegration:
             pytest.skip("core.agents.executor not importable in test environment")
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_self_reflection_does_not_fail_task(self):
         """Self-reflection errors should not cause task failure."""
         # This is a design requirement - self-reflection is observational only

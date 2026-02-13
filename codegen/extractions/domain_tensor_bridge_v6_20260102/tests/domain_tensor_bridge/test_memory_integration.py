@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Tests for MemoryBridge - Redis/Postgres/Neo4j/HyperGraphDB behavior.
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
-from domain_tensor_bridge.memory_bridge import MemoryBridge, EpisodicEvent, Node
+import pytest
+
+from domain_tensor_bridge.memory_bridge import EpisodicEvent, MemoryBridge, Node
 
 
 @pytest.fixture

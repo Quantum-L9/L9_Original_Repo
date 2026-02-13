@@ -51,6 +51,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -90,12 +92,14 @@ class ReasoningEngine:
         self.reflective_auditor = reflective_auditor
         self._initialized = False
 
+    @must_stay_async("callers use await")
     async def initialize(self) -> None:
         """Initialize reasoning engine and sub-components."""
         logger.info("reasoning_engine_initializing")
         self._initialized = True
         logger.info("reasoning_engine_ready")
 
+    @must_stay_async("callers use await")
     async def execute_reasoning(
         self,
         context: dict[str, Any],
@@ -205,6 +209,7 @@ class ReasoningEngine:
             "cross_domain_insights": [],
         }
 
+    @must_stay_async("callers use await")
     async def _apply_symbolic(self, context: dict[str, Any]) -> dict[str, Any]:
         """Apply symbolic rule reasoning."""
         if self.symbolic_reasoner:
@@ -217,6 +222,7 @@ class ReasoningEngine:
             "rule_confidence": 0.85,
         }
 
+    @must_stay_async("callers use await")
     async def _apply_reflective(
         self, mode_outputs: list[dict[str, Any]]
     ) -> dict[str, Any]:

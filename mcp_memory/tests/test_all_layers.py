@@ -28,6 +28,8 @@ from typing import Any
 import pytest
 import structlog
 
+from core.decorators import must_stay_async
+
 # Add project root to path for imports
 sys.path.insert(
     0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -80,6 +82,7 @@ class TestRedisLayer:
         await client.disconnect()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_redis_connection(self, redis_client):
         """Test basic Redis connection."""
         assert redis_client.is_available(), "Redis should be available"
@@ -307,6 +310,7 @@ class TestNeo4jLayer:
         await client.disconnect()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_neo4j_connection(self, neo4j_client):
         """Test basic Neo4j connection."""
         assert neo4j_client.is_available(), "Neo4j should be available"

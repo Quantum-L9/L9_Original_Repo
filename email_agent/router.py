@@ -68,6 +68,7 @@ from pydantic import BaseModel
 
 from api.auth import verify_api_key
 from api.routes.registry import router_registry
+from core.decorators import must_stay_async
 from email_agent.config import VALID_ACCOUNTS
 
 logger = structlog.get_logger(__name__)
@@ -142,6 +143,7 @@ class ForwardRequest(BaseModel):
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def ingest_email_event(
     trace_id: str,
     action: str,
@@ -214,6 +216,7 @@ def validate_account(account: str) -> None:
 
 
 @router.post("/{account}/query")
+@must_stay_async("callers use await")
 async def query_emails(
     request: QueryRequest,
     account: str = Path(..., pattern="^(igor|l)$"),
@@ -287,6 +290,7 @@ async def query_emails(
 
 
 @router.post("/{account}/get")
+@must_stay_async("callers use await")
 async def get_email(
     request: GetRequest,
     account: str = Path(..., pattern="^(igor|l)$"),
@@ -458,6 +462,7 @@ async def draft_email(
 
 
 @router.post("/{account}/send")
+@must_stay_async("callers use await")
 async def send_email(
     request: SendRequest,
     account: str = Path(..., pattern="^(igor|l)$"),
@@ -635,6 +640,7 @@ async def send_email(
 
 
 @router.post("/{account}/reply")
+@must_stay_async("callers use await")
 async def reply_email(
     request: ReplyRequest,
     account: str = Path(..., pattern="^(igor|l)$"),
@@ -728,6 +734,7 @@ async def reply_email(
 
 
 @router.post("/{account}/forward")
+@must_stay_async("callers use await")
 async def forward_email(
     request: ForwardRequest,
     account: str = Path(..., pattern="^(igor|l)$"),

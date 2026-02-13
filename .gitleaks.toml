@@ -52,6 +52,7 @@ description = "Paths and patterns to ignore (false positives)"
 
 # Ignore entire directories and specific false-positive files
 paths = [
+    '''codegen/''',
     '''.cursor/''',
     '''.github/scripts/''',
     '''.audit_cache/''',

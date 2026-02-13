@@ -16,6 +16,7 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.governance_gate import build_governance_context, governance_context
 
 
@@ -43,6 +44,7 @@ def _make_mock_repository(insert_packet_side_effect=None):
     mock_repo.insert_memory_event = AsyncMock(return_value=uuid4())
 
     @asynccontextmanager
+    @must_stay_async("callers use await")
     async def _transaction(**kwargs):
         yield mock_repo
 
@@ -103,6 +105,7 @@ class TestTransactionalIngestion:
         assert "packet_store" not in result.written_tables or result.status == "error"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ingestion_best_effort_writes_outside_transaction(self, gov_ctx):
         """Verify embedding and lineage writes are outside transaction (best-effort)."""
         from core.schemas import PacketEnvelopeIn
@@ -132,6 +135,7 @@ class TestTransactionalIngestion:
         assert "agent_memory_events" in result.written_tables
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ingestion_embedding_failure_doesnt_block(self, gov_ctx):
         """Verify embedding failure doesn't block core writes."""
         from core.schemas import PacketEnvelopeIn

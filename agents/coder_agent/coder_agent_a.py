@@ -13,6 +13,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Coder Agent A",
@@ -90,6 +92,7 @@ class CoderAgentA(BaseAgent):
         """Get the system prompt."""
         return self._config.system_prompt_override or SYSTEM_PROMPT
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         task: dict[str, Any],
@@ -151,6 +154,7 @@ Provide implementation as JSON:
 
         return response
 
+    @must_stay_async("callers use await")
     async def implement_function(
         self,
         name: str,
@@ -191,6 +195,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def implement_class(
         self,
         name: str,
@@ -227,6 +232,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def refactor(
         self,
         code: str,
@@ -264,6 +270,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def fix_bug(
         self,
         code: str,
@@ -303,6 +310,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def add_feature(
         self,
         existing_code: str,

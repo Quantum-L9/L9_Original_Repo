@@ -19,6 +19,8 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 def _close_coroutine_mock(coro):
     """Mock for asyncio.create_task that properly closes the coroutine.
@@ -402,6 +404,7 @@ class TestIngestAuditPacket:
     """Tests for _ingest_audit_packet background task."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ingest_audit_packet_success(self):
         """Contract: Successful ingestion completes silently."""
         from core.schemas import PacketEnvelopeIn
@@ -430,6 +433,7 @@ class TestIngestAuditPacket:
             mock_ingest.assert_called_once()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ingest_audit_packet_handles_error(self):
         """Contract: Ingestion errors are logged but don't raise."""
         from core.schemas import PacketEnvelopeIn
@@ -455,6 +459,7 @@ class TestIngestAuditPacket:
             await _ingest_audit_packet(packet)
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ingest_audit_packet_logs_partial_failure(self):
         """Contract: Partial ingestion status is logged."""
         from core.schemas import PacketEnvelopeIn

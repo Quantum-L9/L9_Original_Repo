@@ -79,6 +79,7 @@ from orchestrators.memory.orchestrator import MemoryOrchestrator
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def memory_governance_context_dependency(
     _: bool = Depends(verify_api_key),
 ) -> AsyncGenerator[None, None]:
@@ -166,6 +167,7 @@ async def memory_test(
 
 
 @router.post("/packet", response_model=PacketResponse)
+@must_stay_async("callers use await")
 async def create_packet(
     http_request: Request,
     request: PacketRequest,
@@ -391,6 +393,7 @@ async def get_lineage(
 
 
 @router.post("/hybrid/search")
+@must_stay_async("callers use await")
 async def hybrid_search(
     http_request: Request,
     query: str = Query(..., min_length=1),
@@ -622,6 +625,7 @@ class CompactResponse(BaseModel):
 
 
 @router.post("/batch", response_model=BatchResponse)
+@must_stay_async("callers use await")
 async def batch_write(
     http_request: Request,
     request: BatchRequest,
@@ -1044,6 +1048,7 @@ class WarmResponse(BaseModel):
 
 
 @router.post("/warm", response_model=WarmResponse)
+@must_stay_async("callers use await")
 async def warm_memory_for_query(
     request: WarmRequest,
     req: Request,

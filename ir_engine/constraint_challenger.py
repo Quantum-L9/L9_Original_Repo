@@ -13,6 +13,8 @@ Uses LLM reasoning to challenge and improve constraint sets.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Constraint Challenger",
@@ -177,6 +179,7 @@ class ConstraintChallenger:
     # Main Challenge Flow
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def challenge(
         self,
         graph: IRGraph,
@@ -264,6 +267,7 @@ class ConstraintChallenger:
 
         return result
 
+    @must_stay_async("callers use await")
     async def _analyze_constraints(
         self,
         graph: IRGraph,

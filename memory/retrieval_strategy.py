@@ -17,6 +17,8 @@ Based on frontier AI lab patterns (Anthropic, OpenAI, DeepMind).
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Strategy-Based Retrieval",
@@ -353,6 +355,7 @@ class StrategyBasedRetriever:
     # Main Entry Point
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def retrieve(
         self,
         query: str,
@@ -518,6 +521,7 @@ class StrategyBasedRetriever:
             for f in facts[:max_results]
         ]
 
+    @must_stay_async("callers use await")
     async def _execute_temporal_recall(
         self,
         context: StrategyContext,
@@ -561,6 +565,7 @@ class StrategyBasedRetriever:
             for e in events
         ]
 
+    @must_stay_async("callers use await")
     async def _execute_association(
         self,
         context: StrategyContext,
@@ -635,6 +640,7 @@ class StrategyBasedRetriever:
 
         return results[:max_results]
 
+    @must_stay_async("callers use await")
     async def _execute_uncertainty_fill(
         self,
         context: StrategyContext,

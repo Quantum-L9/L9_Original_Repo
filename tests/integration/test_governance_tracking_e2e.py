@@ -23,6 +23,7 @@ from core.agents.selfreflection import (
     UserCorrectionPattern,
     analyze_task_execution,
 )
+from core.decorators import must_stay_async
 
 # =============================================================================
 # Fixtures
@@ -446,6 +447,7 @@ class TestGovernanceTrackingEndToEnd:
     """End-to-end test of the complete governance tracking flow."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_full_flow_both_patterns_fire(self, task, instance):
         """
         Test complete flow:
@@ -527,6 +529,7 @@ class TestGovernanceTrackingEndToEnd:
         assert len(reflection_result.recommendations) >= 2
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_no_patterns_fire_when_no_issues(self, task, instance):
         """Test that no patterns fire when there are no governance issues."""
         # Clean execution - no blocks, no corrections

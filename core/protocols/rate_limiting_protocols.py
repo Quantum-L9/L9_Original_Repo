@@ -41,6 +41,8 @@ from typing import Any, Protocol
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger()
 
 
@@ -226,6 +228,7 @@ class StandardRateLimiter:
             lambda: (0.0, time.monotonic())
         )
 
+    @must_stay_async("callers use await")
     async def acquire(self, key: str, amount: int = 1) -> bool:
         """Attempt to acquire tokens without waiting.
 
@@ -519,6 +522,7 @@ def rate_limited(
         """
 
         @wraps(func)
+        @must_stay_async("callers use await")
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             """Rate-limited function wrapper.
 

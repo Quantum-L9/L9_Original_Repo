@@ -19,6 +19,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # Test: Structured Command Parsing (T1)
 # ============================================================================
@@ -253,6 +255,7 @@ class TestConfirmationFlow:
     """Tests for confirmation flow in intent_extractor.py"""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_low_risk_no_confirmation(self):
         """Low-risk commands should not require confirmation."""
         from core.commands.intent_extractor import confirm_intent
@@ -285,6 +288,7 @@ class TestConfirmationFlow:
         assert result.confirmed_by == "system"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_high_risk_requires_confirmation(self):
         """High-risk commands should require confirmation."""
         from core.commands.intent_extractor import confirm_intent
@@ -565,6 +569,7 @@ def mock_agent_executor():
     """Mock agent executor for testing."""
     mock = AsyncMock()
 
+    @must_stay_async("callers use await")
     async def start_agent_task(task):
         from core.agents.schemas import ExecutionResult
 

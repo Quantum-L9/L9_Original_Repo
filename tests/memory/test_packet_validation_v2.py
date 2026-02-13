@@ -15,6 +15,7 @@ from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.schemas import VALID_DERIVE_TYPES, DeriveType, PacketEnvelopeIn
 from memory.validators.packet_validator import PacketValidationError, PacketValidator
 
@@ -248,6 +249,7 @@ class TestPacketTypeValidation:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_validator_callable_from_async_context():
     """Validator can be called from async functions without blocking."""
     packet = PacketEnvelopeIn(
@@ -261,6 +263,7 @@ async def test_validator_callable_from_async_context():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_validation_error_propagates_in_async():
     """PacketValidationError propagates correctly in async context."""
     packet = PacketEnvelopeIn(
@@ -276,6 +279,7 @@ async def test_validation_error_propagates_in_async():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_provenance_validation_in_async():
     """Provenance validation works in async context."""
     packet = PacketEnvelopeIn(

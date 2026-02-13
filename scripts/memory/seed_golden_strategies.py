@@ -40,6 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from core.decorators import must_stay_async
 import argparse
 import asyncio
 import sys
@@ -245,6 +246,7 @@ GOLDEN_STRATEGIES: list[dict[str, Any]] = [
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def seed_golden_strategies(
     neo4j_client: Any,
     force: bool = False,
@@ -377,6 +379,7 @@ async def _delete_strategy_by_name(neo4j_client: Any, name: str) -> None:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(
@@ -426,12 +429,12 @@ async def main():
                 logger.info("no strategies found.")
             else:
                 for s in strategies:
-                    logger.info("  {s['id']}: {s['name']}")
+                    logger.info(f"  {s['id']}: {s['name']}")
                     print(
                         f"    Kind: {s['task_kind']}, Score: {s['score']:.2f}, Usage: {s['usage']}"
                     )
-                    logger.info("    tags: {', '.join(s['tags'] or [])}")
-                    logger.info("output", value=)
+                    logger.info(f"    tags: {', '.join(s['tags'] or [])}")
+                    logger.info("output", value="")
             return
 
         if args.delete_all:

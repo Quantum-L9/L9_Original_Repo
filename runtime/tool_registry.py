@@ -84,12 +84,14 @@ def register_tool(
 
     Example:
         @register_tool(category="memory", priority=10)
+        @must_stay_async("callers use await")
         async def memory_search(query: str, **kwargs):
             # ... implementation ...
             return results
 
         # Or with explicit name
         @register_tool(name="custom_tool", category="custom")
+        @must_stay_async("callers use await")
         async def my_tool_function(**kwargs):
             return {"status": "ok"}
     """

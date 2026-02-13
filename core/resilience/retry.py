@@ -26,6 +26,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Async Retry Utility",
@@ -118,6 +120,7 @@ class AsyncRetryConfig:
 DEFAULT_RETRY_CONFIG = AsyncRetryConfig()
 
 
+@must_stay_async("callers use await")
 async def async_retry(
     coro_func: Callable[[], Any],
     *,

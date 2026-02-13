@@ -135,6 +135,7 @@ class Validator:
         result = await self.validate_tool(tool_id, arguments)
         return result.to_dict()
 
+    @must_stay_async("callers use await")
     async def validate_tool(
         self,
         tool_id: str,

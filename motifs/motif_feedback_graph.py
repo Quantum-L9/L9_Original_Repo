@@ -33,6 +33,8 @@ from uuid import uuid4
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -81,6 +83,7 @@ class MotifFeedbackGraph:
         self.logger = logger.bind(component="MotifFeedbackGraph")
         self.logger.info("MotifFeedbackGraph initialized")
 
+    @must_stay_async("callers use await")
     async def record_event(
         self,
         packet_id: str,
@@ -133,6 +136,7 @@ class MotifFeedbackGraph:
 
         return event
 
+    @must_stay_async("callers use await")
     async def record_transition(
         self,
         from_event_id: str,
@@ -166,6 +170,7 @@ class MotifFeedbackGraph:
             relation=relation,
         )
 
+    @must_stay_async("callers use await")
     async def get_trace_for_packet(self, packet_id: str) -> MotifTrace:
         """
         Return the motif trace for a given packet ID.
@@ -178,6 +183,7 @@ class MotifFeedbackGraph:
         """
         return self._traces.get(packet_id, MotifTrace(packet_id=packet_id))
 
+    @must_stay_async("callers use await")
     async def get_statistics(self) -> dict[str, Any]:
         """
         Aggregate statistics over motif events and transitions.

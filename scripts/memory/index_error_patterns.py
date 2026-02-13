@@ -51,6 +51,8 @@ from typing import Any
 import structlog
 from dotenv import load_dotenv
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -187,6 +189,7 @@ async def query_failure_packets(
         return []
 
 
+@must_stay_async("callers use await")
 async def index_error_patterns(
     failures: list[dict[str, Any]],
     substrate_service: Any,

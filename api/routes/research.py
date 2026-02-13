@@ -134,6 +134,7 @@ async def research_status(
 
 
 @router.post("/execute", response_model=ResearchExecuteResponse)
+@must_stay_async("callers use await")
 async def execute_research(
     request: ResearchExecuteRequest,
     authorization: str = Header(None),

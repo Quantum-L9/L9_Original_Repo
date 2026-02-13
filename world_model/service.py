@@ -18,6 +18,7 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -131,6 +132,7 @@ class WorldModelService:
             return entity.to_dict()
         return None
 
+    @must_stay_async("callers use await")
     async def list_entities(
         self,
         entity_type: str | None = None,
@@ -166,6 +168,7 @@ class WorldModelService:
         )
         return [e.to_dict() for e in entities]
 
+    @must_stay_async("callers use await")
     async def upsert_entity(
         self,
         entity_id: str,
@@ -234,6 +237,7 @@ class WorldModelService:
     # Insight Integration
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def update_from_insights(
         self,
         insights: list[dict[str, Any]],
@@ -381,6 +385,7 @@ class WorldModelService:
     # Snapshot Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def create_snapshot(
         self,
         description: str | None = None,
@@ -608,6 +613,7 @@ class WorldModelService:
     # Update History
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def list_updates(
         self,
         insight_type: str | None = None,

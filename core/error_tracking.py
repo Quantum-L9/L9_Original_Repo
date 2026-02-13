@@ -10,6 +10,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Error Causality Tracking",
@@ -45,6 +47,7 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def log_error_to_graph(
     error: Exception,
     context: dict[str, Any] | None = None,
@@ -161,6 +164,7 @@ async def get_error_chain(error_id: str) -> list[dict[str, Any]]:
         return []
 
 
+@must_stay_async("callers use await")
 async def get_errors_by_type(
     error_type: str,
     limit: int = 50,

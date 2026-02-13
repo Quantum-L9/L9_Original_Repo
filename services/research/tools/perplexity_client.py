@@ -207,6 +207,7 @@ class PerplexityClient:
             self._client = None
 
     @rate_limit("llm.perplexity")
+    @must_stay_async("callers use await")
     async def search(self, request: PerplexityRequest) -> PerplexityResponse:
         """
         Execute search with best practices enforced.

@@ -2,8 +2,11 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_dispatch_tool_call_rejects_unknown_args_before_executor_runs():
     from core.tools.base_registry import (
         ToolMetadata,

@@ -41,6 +41,8 @@ from pathlib import Path
 
 import structlog
 
+from core.decorators import must_stay_async
+
 # Ensure repo root is in path
 REPO_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(REPO_ROOT))
@@ -249,6 +251,7 @@ def test_entrypoints_exist() -> tuple[bool, str]:
     return True, ""
 
 
+@must_stay_async("callers use await")
 async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
     """Test that memory pipeline components can be instantiated."""
     try:
@@ -286,6 +289,7 @@ async def test_memory_pipeline_dry_run() -> tuple[bool, str]:
         return False, str(e)
 
 
+@must_stay_async("callers use await")
 async def test_world_model_instantiation() -> tuple[bool, str]:
     """Test that world model can be instantiated."""
     try:

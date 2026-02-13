@@ -11,6 +11,8 @@ GMP: kernel_boot_frontier_phase1
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Kernel Evolution Logging",
@@ -113,6 +115,7 @@ class KernelEvolutionEvent:
         }
 
 
+@must_stay_async("callers use await")
 async def log_kernel_evolution(
     event_type: str,
     agent_id: str,

@@ -36,6 +36,8 @@ import structlog
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -98,6 +100,7 @@ class InspectState(BaseModel):
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def classify_node(state: InspectState) -> dict[str, Any]:
     """Classify target into type and tier."""
     logger.info("classify_node", target=state.target)
@@ -135,6 +138,7 @@ async def classify_node(state: InspectState) -> dict[str, Any]:
     return {"component_type": component_type, "tier": tier}
 
 
+@must_stay_async("callers use await")
 async def orient_node(state: InspectState) -> dict[str, Any]:
     """30-second understanding of what this does."""
     logger.info("orient_node", target=state.target)
@@ -151,6 +155,7 @@ async def orient_node(state: InspectState) -> dict[str, Any]:
     }
 
 
+@must_stay_async("callers use await")
 async def structure_node(state: InspectState) -> dict[str, Any]:
     """Map structure and flow."""
     logger.info("structure_node", target=state.target)
@@ -162,6 +167,7 @@ async def structure_node(state: InspectState) -> dict[str, Any]:
     }
 
 
+@must_stay_async("callers use await")
 async def compliance_node(state: InspectState) -> dict[str, Any]:
     """Check L9 canon compliance."""
     logger.info("compliance_node", target=state.target)
@@ -188,6 +194,7 @@ async def compliance_node(state: InspectState) -> dict[str, Any]:
     }
 
 
+@must_stay_async("callers use await")
 async def impact_node(state: InspectState) -> dict[str, Any]:
     """Calculate impact score."""
     logger.info("impact_node", target=state.target)
@@ -221,6 +228,7 @@ async def impact_node(state: InspectState) -> dict[str, Any]:
     }
 
 
+@must_stay_async("callers use await")
 async def routing_node(state: InspectState) -> dict[str, Any]:
     """Decide next command."""
     logger.info("routing_node", health=state.health_score, impact=state.impact_level)
@@ -245,6 +253,7 @@ async def routing_node(state: InspectState) -> dict[str, Any]:
     return {"routing_decision": decision, "routing_rationale": rationale}
 
 
+@must_stay_async("callers use await")
 async def report_node(state: InspectState) -> dict[str, Any]:
     """Generate final report."""
     logger.info("report_node", decision=state.routing_decision)

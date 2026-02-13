@@ -30,7 +30,6 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional
 
 import structlog
 
@@ -77,7 +76,7 @@ class CandidateGenerator:
             ("trig_simplified", trigsimp),
         ]
 
-    def generate(self, spec: CodegenSpec) -> List[SymbolicCandidate]:
+    def generate(self, spec: CodegenSpec) -> list[SymbolicCandidate]:
         """
         Generate candidate solutions from a spec.
 
@@ -144,8 +143,8 @@ class CandidateGenerator:
     def _parse_expression(
         self,
         expr_str: str,
-        variables: List[str],
-    ) -> Optional[Expr]:
+        variables: list[str],
+    ) -> Expr | None:
         """Parse a string expression into a SymPy expression."""
         try:
             # Extract variable names (strip type annotations)

@@ -2,6 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from core.decorators import must_stay_async
 from services.tool_learning_engine import ToolLearningEngine
 
 
@@ -18,6 +19,7 @@ class DummyConnection:
         if self.on_execute:
             await self.on_execute(query, *args)
 
+    @must_stay_async("callers use await")
     async def fetch(self, query, *args):
         self.calls.append(("fetch", query, args))
         return self.rows
@@ -45,10 +47,12 @@ class DummyAcquireContext:
         self.on_execute = on_execute
         self.conn = None
 
+    @must_stay_async("callers use await")
     async def __aenter__(self):
         self.conn = DummyConnection(self.rows, self.on_execute)
         return self.conn
 
+    @must_stay_async("callers use await")
     async def __aexit__(self, exc_type, exc, tb):
         return False
 
@@ -64,6 +68,7 @@ async def test_daily_analysis_with_no_snapshots(monkeypatch):
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_daily_analysis_creates_alerts(monkeypatch):
     rows = [
         {

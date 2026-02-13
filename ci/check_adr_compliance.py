@@ -47,7 +47,6 @@ Exit codes:
 from __future__ import annotations
 
 import structlog
-from datetime import UTC
 
 # ============================================================================
 
@@ -96,8 +95,7 @@ SKIP_DIRS = {
     "codegen",
     ".dora",
     ".github",
-    "tests",  # Tests may legitimately test forbidden patterns
-    "codegen",
+    "tests",
 }
 
 # Files that are allowed to use forbidden patterns

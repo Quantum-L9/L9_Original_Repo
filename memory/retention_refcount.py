@@ -19,6 +19,8 @@ from typing import Optional
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -88,6 +90,7 @@ class ReferenceCountingService:
         self._refcount_cache: dict[str, PacketRefCount] = {}
         logger.info("ReferenceCountingService initialized")
 
+    @must_stay_async("callers use await")
     async def compute_refcount(
         self, packet_id: str, use_cache: bool = True
     ) -> PacketRefCount:
@@ -206,6 +209,7 @@ class ReferenceCountingService:
         except Exception as e:
             logger.error(f"Error marking packet {packet_id} as soft-expired: {e}")
 
+    @must_stay_async("callers use await")
     async def invalidate_cache(self, packet_id: str | None = None) -> None:
         """
         Invalidate cached reference counts.

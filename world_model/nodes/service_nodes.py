@@ -19,6 +19,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Service-Based LangGraph Nodes",
@@ -83,6 +85,7 @@ class WorldModelGraphState(TypedDict, total=False):
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def world_model_service_update_node(
     state: WorldModelGraphState,
     world_model_service=None,
@@ -177,6 +180,7 @@ async def world_model_service_update_node(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def world_model_snapshot_node(
     state: WorldModelGraphState,
     world_model_service=None,
@@ -249,6 +253,7 @@ async def world_model_snapshot_node(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def world_model_query_node(
     state: dict[str, Any],
     world_model_service=None,

@@ -19,6 +19,7 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -92,6 +93,7 @@ DATABASE_URL = os.getenv(
 _pool = None
 
 
+@must_stay_async("callers use await")
 async def get_pool(
     pool: asyncpg.Pool | None = None,
 ) -> asyncpg.Pool:
@@ -426,6 +428,7 @@ class WorldModelRepository:
                 return WorldModelEntityRow.from_row(row)
             return None
 
+    @must_stay_async("callers use await")
     async def list_entities(
         self,
         entity_type: str | None = None,
@@ -485,6 +488,7 @@ class WorldModelRepository:
             rows = await conn.fetch(query, *params)
             return [WorldModelEntityRow.from_row(row) for row in rows]
 
+    @must_stay_async("callers use await")
     async def upsert_entity(
         self,
         entity_id: str,
@@ -585,6 +589,7 @@ class WorldModelRepository:
     # Update Operations (Audit Log)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def record_update(
         self,
         insight_id: UUID | None,
@@ -654,6 +659,7 @@ class WorldModelRepository:
                 state_version_after=state_version_after,
             )
 
+    @must_stay_async("callers use await")
     async def list_updates(
         self,
         insight_type: str | None = None,
@@ -745,6 +751,7 @@ class WorldModelRepository:
     # Snapshot Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def save_snapshot(
         self,
         snapshot: dict[str, Any],

@@ -13,6 +13,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Seed Loader",
@@ -199,6 +201,7 @@ class SeedLoader:
     # Memory Substrate Integration
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def write_packet_to_substrate(
         self,
         packet: PacketEnvelope,
@@ -378,6 +381,7 @@ class SeedLoader:
     # Main Entry Points
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def load_file(
         self,
         path: str | Path,
@@ -412,6 +416,7 @@ class SeedLoader:
             "ingest_result": ingest_result.to_dict() if ingest_result else None,
         }
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         write_to_substrate: bool = True,
@@ -546,6 +551,7 @@ class SeedLoader:
     # Reflection Memory Loading (v2.0.0)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def load_reflection_memory_yaml(
         self,
         path: str | Path,
@@ -717,6 +723,7 @@ class SeedLoader:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_seed_loader(
     seed_dir: str | None = None,
     db_url: str | None = None,
@@ -796,6 +803,7 @@ if __name__ == "__main__":
     )
 
     # Run loader
+    @must_stay_async("callers use await")
     async def main():
         """
         Performs the main execution flow for loading seed YAML files into the memory substrate and updating the world model state.

@@ -117,6 +117,7 @@ class IntentExtractResponse(BaseModel):
 
 
 @router.post("/execute", response_model=CommandExecuteResponse)
+@must_stay_async("callers use await")
 async def execute_command(
     request: CommandExecuteRequest,
     req: Request,
@@ -347,6 +348,7 @@ async def parse_command_endpoint(
 
 
 @router.post("/intent")
+@must_stay_async("callers use await")
 async def extract_intent_endpoint(
     request: CommandExecuteRequest,
     _: bool = Depends(verify_api_key),
@@ -436,6 +438,7 @@ class ApprovalFeedbackResponse(BaseModel):
 
 
 @router.post("/governance/feedback", response_model=ApprovalFeedbackResponse)
+@must_stay_async("callers use await")
 async def record_approval_feedback(
     request: ApprovalFeedbackRequest,
     req: Request,

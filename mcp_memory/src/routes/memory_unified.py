@@ -12,6 +12,8 @@ MANDATORY: ALL WRITES ROUTE THROUGH MAIN L9 INGESTION PIPELINE.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Memory Unified",
@@ -105,6 +107,7 @@ def map_db_scope_to_mcp_scope(db_scope: str) -> str:
     return mapping.get(db_scope, "developer")
 
 
+@must_stay_async("callers use await")
 async def save_memory_handler(
     user_id: str,
     content: str,
@@ -202,6 +205,7 @@ async def save_memory_handler(
         ) from e
 
 
+@must_stay_async("callers use await")
 async def _save_via_main_pipeline(
     user_id: str,
     content: str,
@@ -328,6 +332,7 @@ async def _save_via_main_pipeline(
 # No direct DB fallback - ensures all memory flows through canonical pipeline
 
 
+@must_stay_async("callers use await")
 async def search_memory_handler(
     user_id: str,
     query: str,
@@ -540,6 +545,7 @@ def _get_caller_from_request(request: Request) -> CallerIdentity:
 
 
 @router.post("/save")
+@must_stay_async("callers use await")
 async def save_memory_route(
     req: dict[str, Any],
     request: Request,
@@ -605,6 +611,7 @@ async def save_memory_route(
 
 
 @router.post("/search")
+@must_stay_async("callers use await")
 async def search_memory_route(
     req: dict[str, Any],
     request: Request,
@@ -667,6 +674,7 @@ async def search_memory_route(
 
 
 @router.get("/stats")
+@must_stay_async("callers use await")
 async def get_memory_stats(
     user_id: str | None = Query(None), duration: str = Query("all")
 ) -> dict[str, Any]:
@@ -800,6 +808,7 @@ async def delete_expired_memories(dry_run: bool = True) -> dict[str, Any]:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def compound_similar_memories(
     user_id: str, threshold: float = 0.92
 ) -> dict[str, Any]:
@@ -940,6 +949,7 @@ async def compound_similar_memories(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
     """
     Apply importance decay to unused memories in unified substrate.
@@ -1027,6 +1037,7 @@ async def cleanup_task():
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def get_context_injection(
     task_description: str,
     user_id: str,
@@ -1131,6 +1142,7 @@ async def get_context_injection(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def extract_session_learnings(
     user_id: str,
     session_id: str,
@@ -1238,6 +1250,7 @@ async def extract_session_learnings(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def get_proactive_suggestions(
     current_context: str,
     user_id: str,
@@ -1324,6 +1337,7 @@ async def get_proactive_suggestions(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def query_temporal(
     user_id: str,
     since: str | None = None,
@@ -1482,6 +1496,7 @@ async def query_temporal(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def save_memory_with_confidence(
     user_id: str,
     content: str,

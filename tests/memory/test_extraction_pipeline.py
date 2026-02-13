@@ -13,6 +13,8 @@ import os
 
 import pytest
 
+from core.decorators import must_stay_async
+
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL")
 
 pytestmark = pytest.mark.skipif(
@@ -33,6 +35,7 @@ async def memory_substrate_service():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_extraction_pipeline_creates_facts(
     memory_substrate_service: MemorySubstrateService,
 ):
@@ -85,6 +88,7 @@ async def test_extraction_pipeline_creates_facts(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_extraction_pipeline_with_reasoning_block(
     memory_substrate_service: MemorySubstrateService,
 ):

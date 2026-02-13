@@ -47,9 +47,8 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 import httpx
 import yaml
@@ -440,7 +439,7 @@ def main():
             )
         )
 
-        logger.info(f"\n[+] Success! Spec ready for codegen pipeline:")
+        logger.info("\n[+] Success! Spec ready for codegen pipeline:")
         logger.info(f"    python -m agents.codegenagent generate {output_path}")
 
     except Exception as e:

@@ -12,6 +12,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 class TestAuditLogger:
     """Test audit logger functionality."""
@@ -167,6 +169,7 @@ class TestComplianceReporter:
         assert report.total_commands == 0  # No substrate, no data
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_generate_report_with_mock_data(self):
         """Test generating report with mock audit data."""
         from core.compliance.audit_reporter import ComplianceReporter
@@ -242,6 +245,7 @@ class TestComplianceReporter:
         assert report.total_memory_writes == 1
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_detect_unapproved_high_risk(self):
         """Test detection of unapproved high-risk tool calls."""
         from core.compliance.audit_reporter import ComplianceReporter
@@ -283,6 +287,7 @@ class TestComplianceReporter:
         assert report.violations[0]["tool_name"] == "gmprun"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_export_audit_log(self):
         """Test exporting audit log."""
         from core.compliance.audit_reporter import ComplianceReporter

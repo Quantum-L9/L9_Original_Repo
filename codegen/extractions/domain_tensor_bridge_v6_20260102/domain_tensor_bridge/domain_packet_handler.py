@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Domain Packet Handler
@@ -45,10 +44,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict
+from typing import Any
 
 import structlog
-
 from l9.core.schemas import PacketEnvelope, PacketKind
 
 logger = structlog.get_logger(__name__)
@@ -101,11 +99,11 @@ class DomainPacketHandler:
             metadata={"original_domain": domain, **getattr(packet, "metadata", {})},
         )
 
-    def _enrich_plastos_payload(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def _enrich_plastos_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Apply PlastOS-specific enrichments."""
         return {**payload, "domain_enriched": True, "domain": "plastos"}
 
-    def _enrich_mortgageos_payload(self, payload: Dict[str, Any]) -> Dict[str, Any]:
+    def _enrich_mortgageos_payload(self, payload: dict[str, Any]) -> dict[str, Any]:
         """Apply MortgageOS-specific enrichments."""
         return {**payload, "domain_enriched": True, "domain": "mortgageos"}
 

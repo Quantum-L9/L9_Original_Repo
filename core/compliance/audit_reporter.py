@@ -9,6 +9,8 @@ Version: 1.0.0 (GMP-21)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Audit Reporter",
@@ -139,6 +141,7 @@ class ComplianceReporter:
 
         return await self.generate_report(from_date, to_date)
 
+    @must_stay_async("callers use await")
     async def generate_report(
         self,
         from_date: datetime,
@@ -346,6 +349,7 @@ class ComplianceReporter:
         except (ValueError, AttributeError):
             return False
 
+    @must_stay_async("callers use await")
     async def export_audit_log(
         self,
         from_date: datetime,

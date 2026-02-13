@@ -48,6 +48,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -63,6 +65,7 @@ class CausalResult:
 class CausalReasoner:
     """Applies causal logic."""
 
+    @must_stay_async("callers use await")
     async def apply_causal_logic(self, context: dict[str, Any]) -> CausalResult:
         """Apply causal reasoning to context."""
         logger.info("applying_causal_logic")

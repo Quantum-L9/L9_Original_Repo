@@ -21,6 +21,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Central Orchestrator",
@@ -51,6 +53,7 @@ import structlog
 
 from agents.codegenagent.file_emitter import FileEmitter
 from agents.codegenagent.meta_loader import MetaLoader, MetaLoaderError
+from codegenagent.validation_self_corrector import ValidationSelfCorrector
 from ir_engine.compile_meta_to_ir import MetaToIRCompiler, ModuleIR
 from ir_engine.ir_to_python import IRToPythonCompiler
 from ir_engine.meta_ir import MetaContract, MetaContractValidationResult
@@ -196,6 +199,7 @@ class CodeGenAgent:
         )
         self._ir_compiler = MetaToIRCompiler(repo_root=str(self.repo_root))
         self._py_compiler = IRToPythonCompiler()
+        self._corrector = ValidationSelfCorrector()
 
         logger.info(
             "codegen_agent_initialized",
@@ -204,6 +208,7 @@ class CodeGenAgent:
             strict_validation=strict_validation,
         )
 
+    @must_stay_async("callers use await")
     async def generate_from_contract(
         self,
         contract: MetaContract,
@@ -236,6 +241,22 @@ class CodeGenAgent:
             # Step 2: Generate Python code
             logger.info("generating_python_code", module_id=ir.module_id)
             generated_code = self._py_compiler.compile(ir)
+
+            # Step 2.5: Self-Correction Loop
+            for path, content in list(generated_code.items()):
+                # Check for common issues
+                errors = []
+                if "__dora_meta__" not in content:
+                    errors.append("Missing __dora_meta__ block")
+                for pattern in ["TODO", "FIXME", "TBD"]:
+                    if pattern in content:
+                        errors.append(f"Forbidden pattern '{pattern}' found")
+
+                if errors:
+                    logger.info("attempting_self_correction", path=path, errors=errors)
+                    fixed_content = self._corrector.attempt_fix(path, content, errors)
+                    generated_code[path] = fixed_content
+
             result.generated_code = generated_code
 
             # Step 3: Emit files
@@ -274,6 +295,7 @@ class CodeGenAgent:
 
         return result
 
+    @must_stay_async("callers use await")
     async def generate_from_meta(
         self,
         meta_path: str,
@@ -325,6 +347,7 @@ class CodeGenAgent:
 
         return result
 
+    @must_stay_async("callers use await")
     async def preview(self, meta_path: str) -> DryRunResult:
         """
         Preview what would be generated without writing files.
@@ -376,6 +399,7 @@ class CodeGenAgent:
 
         return result
 
+    @must_stay_async("callers use await")
     async def generate_batch(
         self,
         pattern: str = "*.yaml",

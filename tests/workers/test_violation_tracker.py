@@ -14,6 +14,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
 from workers.violation_patterns import (
     ViolationMatch,
     ViolationPatterns,
@@ -120,6 +121,7 @@ class TestViolationTrackerProcess:
         assert response.escalation_triggered is False
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_process_detects_violations(self, mock_service):
         """Process returns violations when patterns match."""
         mock_service._pattern_matcher.process = AsyncMock(
@@ -151,6 +153,7 @@ class TestViolationTrackerProcess:
         assert response.violations[0].lesson_id == "lesson-013"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_process_increments_violation_count(self, mock_service):
         """Process increments violation count per lesson."""
         mock_service._pattern_matcher.process = AsyncMock(
@@ -181,6 +184,7 @@ class TestViolationTrackerProcess:
         assert mock_service.get_violation_count("lesson-test") == 2
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_process_triggers_escalation_at_threshold(self, mock_service):
         """Process triggers escalation after 3 violations."""
         mock_service._pattern_matcher.process = AsyncMock(

@@ -176,6 +176,7 @@ class RemediationEngine:
     # Main API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def process(
         self, request: RemediationEngineRequest
     ) -> RemediationEngineResponse:

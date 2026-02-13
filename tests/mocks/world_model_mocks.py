@@ -7,6 +7,8 @@ Mock implementations for world model testing.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "World Model Mocks",
@@ -90,6 +92,7 @@ class MockWorldModel:
         self.edges: list[MockEdge] = []
         self._initialized = True
 
+    @must_stay_async("callers use await")
     async def create_node(
         self,
         node_type: str,
@@ -116,6 +119,7 @@ class MockWorldModel:
         self.nodes[node_id] = node
         return node_id
 
+    @must_stay_async("callers use await")
     async def get_node(self, node_id: str) -> dict[str, Any] | None:
         """
         Get a node by ID.
@@ -138,6 +142,7 @@ class MockWorldModel:
             "updated_at": node.updated_at.isoformat(),
         }
 
+    @must_stay_async("callers use await")
     async def update_node(
         self,
         node_id: str,
@@ -161,6 +166,7 @@ class MockWorldModel:
         node.updated_at = datetime.now(UTC)
         return True
 
+    @must_stay_async("callers use await")
     async def delete_node(self, node_id: str) -> bool:
         """
         Delete a node and its edges.
@@ -184,6 +190,7 @@ class MockWorldModel:
 
         return True
 
+    @must_stay_async("callers use await")
     async def link(
         self,
         source_id: str,
@@ -219,6 +226,7 @@ class MockWorldModel:
         self.edges.append(edge)
         return edge_id
 
+    @must_stay_async("callers use await")
     async def unlink(
         self,
         source_id: str,
@@ -250,6 +258,7 @@ class MockWorldModel:
 
         return original_count - len(self.edges)
 
+    @must_stay_async("callers use await")
     async def get_edges(
         self,
         node_id: str,
@@ -290,6 +299,7 @@ class MockWorldModel:
 
         return result
 
+    @must_stay_async("callers use await")
     async def query(
         self,
         query_type: str,

@@ -113,6 +113,7 @@ async def get_legacy_relationships(driver) -> list[dict]:
         return await result.data()
 
 
+@must_stay_async("callers use await")
 async def migrate_relationship(
     driver,
     agent_id: str,
@@ -283,6 +284,7 @@ async def run_migration(dry_run: bool = False, delete_legacy: bool = False) -> d
         await driver.close()
 
 
+@must_stay_async("callers use await")
 async def main():
     """
     Performs the migration of legacy HAS_TOOL relationships to the unified CAN_EXECUTE relationship in Neo4j for schema unification.

@@ -8,6 +8,8 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
+
 pytestmark = pytest.mark.integration
 
 
@@ -17,10 +19,12 @@ class MockSubstrateService:
     def __init__(self):
         self.packets = []
 
+    @must_stay_async("callers use await")
     async def write_packet(self, packet):
         self.packets.append(packet)
         return {"packet_id": str(uuid4())}
 
+    @must_stay_async("callers use await")
     async def search_packets(self, **kwargs):
         return self.packets
 

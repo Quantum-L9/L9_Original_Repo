@@ -14,6 +14,7 @@ from uuid import uuid4
 import pytest
 
 from core.agents.schemas import AgentConfig, AgentTask, TaskKind
+from core.decorators import must_stay_async
 
 
 class TestDynamicDiscovery:
@@ -68,6 +69,7 @@ class TestDynamicDiscovery:
             assert "parameters" in tools[0]["function"]
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_discover_tools_respects_token_budget(
         self, mock_tool_embedding_results
     ):
@@ -112,6 +114,7 @@ class TestDynamicDiscovery:
         assert tools == []
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_is_dynamic_discovery_enabled_checks_settings(self):
         """Should check settings for feature flag."""
         with patch("core.tools.dynamic_discovery.get_integration_settings") as mock:
@@ -151,6 +154,7 @@ class TestAgentInstanceDynamicDiscovery:
         )
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_prepare_dynamic_tools_caches_discovered_tools(
         self, agent_config, agent_task
     ):
@@ -288,6 +292,7 @@ class TestInvalidateAllToolCaches:
     """Tests for invalidate_all_tool_caches() (GMP-79)."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_invalidate_all_tool_caches_deletes_matching_keys(self):
         """Should delete all keys matching l9:tool_cache:* pattern."""
         from core.tools.dynamic_discovery import invalidate_all_tool_caches

@@ -29,10 +29,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import yaml
 import logging  # noqa: ADR-0019
 from pathlib import Path
-from typing import Dict, Any, List, Tuple
+from typing import Any
+
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -48,13 +49,13 @@ class SchemaValidator:
         "compiled_at": str,
     }
 
-    def validate_artifact(self, artifact: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    def validate_artifact(self, artifact: dict[str, Any]) -> tuple[bool, list[str]]:
         """
         Validate artifact structure.
 
         Returns: (is_valid, [error messages])
         """
-        errors: List[str] = []
+        errors: list[str] = []
 
         # Check top-level keys
         if "metadata" not in artifact:
@@ -98,16 +99,16 @@ class SchemaValidator:
 class ComplianceAuditor:
     """Audit governance compliance."""
 
-    def __init__(self, governance_law: Dict[str, Any]):
+    def __init__(self, governance_law: dict[str, Any]):
         self.governance_law = governance_law
 
-    def audit_compliance(self, artifact: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    def audit_compliance(self, artifact: dict[str, Any]) -> tuple[bool, list[str]]:
         """
         Audit artifact against governance law.
 
         Returns: (is_compliant, [violation messages])
         """
-        violations: List[str] = []
+        violations: list[str] = []
 
         metadata = artifact.get("metadata", {})
         category = metadata.get("category", "unknown")
@@ -127,16 +128,16 @@ class ComplianceAuditor:
         return len(violations) == 0, violations
 
 
-def validate_yaml_file(filepath: Path) -> Tuple[bool, List[str]]:
+def validate_yaml_file(filepath: Path) -> tuple[bool, list[str]]:
     """
     Validate a YAML file for basic correctness.
 
     Returns: (is_valid, [error messages])
     """
-    errors: List[str] = []
+    errors: list[str] = []
 
     try:
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             yaml.safe_load(f)
     except yaml.YAMLError as e:
         errors.append(f"Invalid YAML: {e}")

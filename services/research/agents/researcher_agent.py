@@ -31,6 +31,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from services.research.agents.base_agent import BaseAgent
 from services.research.graph_state import Evidence, ResearchStep
 
@@ -79,6 +80,7 @@ class ResearcherAgent(BaseAgent):
         """Set the graph persistence service for persisting findings to Neo4j."""
         self._graph_persistence = persistence
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         step: ResearchStep,
@@ -197,6 +199,7 @@ class ResearcherAgent(BaseAgent):
 
         return None
 
+    @must_stay_async("callers use await")
     async def synthesize_evidence(
         self,
         evidence_list: list[Evidence],

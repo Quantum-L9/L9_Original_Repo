@@ -4,6 +4,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 @pytest.mark.asyncio
 async def test_search_respects_threshold():
@@ -24,6 +26,7 @@ async def test_search_respects_threshold():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_search_respects_top_k():
     """Search must limit results to top_k."""
     with patch("src.routes.memory.embed_text", new_callable=AsyncMock) as mock_embed:

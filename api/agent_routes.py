@@ -150,6 +150,7 @@ async def agent_status():
 
 
 @router.post("/task")
+@must_stay_async("callers use await")
 async def submit_task(
     payload: dict,
     _: bool = Depends(verify_api_key),
@@ -193,6 +194,7 @@ async def submit_task(
 
 
 @router.post("/execute", response_model=ExecuteTaskResponse)
+@must_stay_async("callers use await")
 async def execute_task(
     request: Request,
     body: ExecuteTaskRequest,
@@ -426,6 +428,7 @@ class SegmentPreviewResponse(BaseModel):
 
 
 @router.post("/segment", response_model=SegmentPreviewResponse)
+@must_stay_async("callers use await")
 async def segment_preview(
     body: SegmentPreviewRequest,
 ) -> SegmentPreviewResponse:

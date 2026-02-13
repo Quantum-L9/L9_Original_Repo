@@ -208,6 +208,7 @@ async def _ingest_audit_packet(packet: PacketEnvelopeIn) -> None:
         )
 
 
+@must_stay_async("callers use await")
 async def _write_to_audit_table(
     call_id: UUID,
     tool_id: str,

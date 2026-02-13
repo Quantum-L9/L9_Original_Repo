@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Tests for PacketRouter - routing by type and domain.
 """
 
-import pytest
 from unittest.mock import AsyncMock
 
-from domain_tensor_bridge.packet_router import PacketRouter, RoutingResult
+import pytest
 from l9.core.schemas import PacketEnvelope, PacketKind
+
+from domain_tensor_bridge.packet_router import PacketRouter
 
 
 @pytest.fixture

@@ -14,6 +14,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
 if str(project_root) not in sys.path:
@@ -50,6 +52,7 @@ def test_runtime_initialization():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_execute_reasoning_mock():
     """
     Contract: AIOSRuntime can execute reasoning with mocked LLM.

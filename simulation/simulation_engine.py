@@ -178,6 +178,7 @@ class SimulationEngine:
     # Main Simulation
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def simulate(
         self,
         graph_data: dict[str, Any],
@@ -247,6 +248,7 @@ class SimulationEngine:
 
         return run
 
+    @must_stay_async("callers use await")
     async def _emit_simulation_packet(self, run: SimulationRun) -> None:
         """
         Emit a PacketEnvelope to memory substrate with simulation results.
@@ -353,6 +355,7 @@ class SimulationEngine:
         )
         run.metrics.failed_steps = sum(1 for s in run.steps if s.status == "failed")
 
+    @must_stay_async("callers use await")
     async def _simulate_standard(
         self,
         run: SimulationRun,

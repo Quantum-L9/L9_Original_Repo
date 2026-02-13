@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Tensor Coordinator
@@ -46,7 +45,7 @@ __dora_meta__ = {
 
 import asyncio
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -58,9 +57,9 @@ class TensorResult:
     """Result from tensor layer."""
 
     entity_id: str
-    scores: Dict[str, float]
-    embeddings: List[float]
-    metadata: Dict[str, Any]
+    scores: dict[str, float]
+    embeddings: list[float]
+    metadata: dict[str, Any]
 
 
 class TensorCoordinator:
@@ -68,13 +67,13 @@ class TensorCoordinator:
 
     def __init__(
         self,
-        tensoraios_bridge: Optional[Any] = None,
+        tensoraios_bridge: Any | None = None,
         batch_size: int = 10,
     ):
         self.tensoraios = tensoraios_bridge
         self.batch_size = batch_size
 
-    async def coordinate_tensor_calls(self, entities: List[str]) -> List[TensorResult]:
+    async def coordinate_tensor_calls(self, entities: list[str]) -> list[TensorResult]:
         """Coordinate batched tensor calls for entities."""
         logger.info("coordinating_tensor_calls", entity_count=len(entities))
 
@@ -89,7 +88,7 @@ class TensorCoordinator:
         logger.info("tensor_coordination_complete", result_count=len(results))
         return results
 
-    async def _process_batch(self, entities: List[str]) -> List[TensorResult]:
+    async def _process_batch(self, entities: list[str]) -> list[TensorResult]:
         """Process a batch of entities."""
         tasks = [self._score_entity(entity) for entity in entities]
         return await asyncio.gather(*tasks)

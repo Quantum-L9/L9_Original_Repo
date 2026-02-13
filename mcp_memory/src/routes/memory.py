@@ -38,6 +38,7 @@ from typing import Any
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from core.decorators import must_stay_async
 from src.config import settings
 from src.db import execute, fetch_all, fetch_one
 from src.embeddings import embed_text
@@ -87,6 +88,7 @@ async def save_memory(req: SaveMemoryRequest) -> MemoryResponse:
     )
 
 
+@must_stay_async("callers use await")
 async def save_memory_handler(
     user_id: str,
     content: str,
@@ -219,6 +221,7 @@ async def search_memory(req: SearchMemoryRequest) -> SearchMemoryResponse:
     )
 
 
+@must_stay_async("callers use await")
 async def search_memory_handler(
     user_id: str,
     query: str,
@@ -333,6 +336,7 @@ async def search_memory_handler(
 
 
 @router.get("/stats", response_model=MemoryStatsResponse)
+@must_stay_async("callers use await")
 async def get_memory_stats(
     user_id: str | None = Query(None), duration: str = Query("all")
 ) -> MemoryStatsResponse:
@@ -597,6 +601,7 @@ async def cleanup_task():
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def get_context_injection(
     task_description: str,
     user_id: str,
@@ -793,6 +798,7 @@ async def extract_session_learnings(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def get_proactive_suggestions(
     current_context: str,
     user_id: str,
@@ -901,6 +907,7 @@ async def get_proactive_suggestions(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def query_temporal(
     user_id: str,
     since: str | None = None,
@@ -998,6 +1005,7 @@ async def query_temporal(
         raise HTTPException(status_code=500, detail=str(e)) from e
 
 
+@must_stay_async("callers use await")
 async def save_memory_with_confidence(
     user_id: str,
     content: str,

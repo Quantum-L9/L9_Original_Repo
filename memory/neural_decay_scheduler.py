@@ -20,6 +20,8 @@ Memories that are frequently accessed decay slower due to reinforcement.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Neural Decay Scheduler",
@@ -164,6 +166,7 @@ class NeuralDecayScheduler:
         # Clamp to valid range
         return max(0.0, min(1.0, salience))
 
+    @must_stay_async("callers use await")
     async def run_decay_pass(
         self,
         reference_time: datetime | None = None,
@@ -442,6 +445,7 @@ class NeuralDecayScheduler:
 
         return result
 
+    @must_stay_async("callers use await")
     async def get_decay_preview(
         self,
         packet_id: UUID | None = None,

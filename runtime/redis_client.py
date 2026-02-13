@@ -113,6 +113,7 @@ class RedisClient:
         self._client: aioredis.Redis | None = None
         self._available = False
 
+    @must_stay_async("callers use await")
     async def connect(self) -> bool:
         """
         Connect to Redis server.
@@ -186,6 +187,7 @@ class RedisClient:
     # Task Queue Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def enqueue_task(
         self,
         queue_name: str,
@@ -443,6 +445,7 @@ class RedisClient:
             )
             return []
 
+    @must_stay_async("callers use await")
     async def set_thread_context(
         self,
         thread_uuid: str,
@@ -479,6 +482,7 @@ class RedisClient:
             )
             return False
 
+    @must_stay_async("callers use await")
     async def append_thread_message(
         self,
         thread_uuid: str,
@@ -555,6 +559,7 @@ class RedisClient:
             logger.error(f"Redis get failed: {e}")
             return None
 
+    @must_stay_async("callers use await")
     async def set(
         self,
         key: str,
@@ -589,6 +594,7 @@ class RedisClient:
             logger.error(f"Redis set failed: {e}")
             return False
 
+    @must_stay_async("callers use await")
     async def setnx(
         self,
         key: str,
@@ -677,6 +683,7 @@ _redis_client: RedisClient | None = None
     lifecycle="startup",
     description="Redis cache/queue client for task queue and rate limiting",
 )
+@must_stay_async("callers use await")
 async def get_redis_client(
     client: RedisClient | None = None,
 ) -> RedisClient | None:

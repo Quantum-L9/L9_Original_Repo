@@ -15,6 +15,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Background Task Registry",
@@ -185,6 +187,7 @@ class BackgroundTaskRegistry:
         logger.info(f"One-shot task '{name}' registered")
         return True
 
+    @must_stay_async("callers use await")
     async def shutdown_all(self, timeout: float = 5.0) -> int:
         """
         Cancel all background tasks gracefully.

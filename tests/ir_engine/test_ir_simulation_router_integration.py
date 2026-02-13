@@ -33,6 +33,7 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from ir_engine.ir_schema import (
     ActionNode,
     ActionType,
@@ -544,6 +545,7 @@ class TestSimulationEdgeCases:
         assert result.score < 0.5  # Low score for incomplete graph
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_simulation_with_custom_timeout(
         self,
         validated_graph: IRGraph,

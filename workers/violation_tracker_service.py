@@ -222,6 +222,7 @@ class ViolationTrackerService:
     # Main API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def process(
         self, request: ViolationTrackerServiceRequest
     ) -> ViolationTrackerServiceResponse:
@@ -315,6 +316,7 @@ class ViolationTrackerService:
     # Internal Methods
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _process_violation(
         self,
         match: ViolationMatch,

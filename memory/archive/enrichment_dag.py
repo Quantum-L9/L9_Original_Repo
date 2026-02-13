@@ -47,6 +47,7 @@ from uuid import UUID
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.observability.circuit_breaker import CircuitBreaker, CircuitBreakerConfig
 from core.schemas import PacketEnvelope, PacketWriteResult
 
@@ -209,6 +210,7 @@ class EnrichmentDAG:
             },
         )
 
+    @must_stay_async("callers use await")
     async def run(self, envelope: PacketEnvelope) -> PacketWriteResult:
         """
         Run the full enrichment pipeline.
@@ -443,6 +445,7 @@ class EnrichmentDAG:
             write_tier_used="failed",
         )
 
+    @must_stay_async("callers use await")
     async def _run_tier_1(self, envelope: PacketEnvelope) -> EnrichmentResult:
         """
         Tier 1: Full enrichment pipeline.
@@ -710,6 +713,7 @@ class EnrichmentDAG:
                 error_message=str(e),
             )
 
+    @must_stay_async("callers use await")
     async def _extract_entities(self, envelope: PacketEnvelope) -> list[dict[str, Any]]:
         """
         Extract entities from packet payload.

@@ -41,6 +41,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
 from api.routes.registry import router_registry
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -126,6 +127,7 @@ class BridgeStatusResponse(BaseModel):
 
 
 @router.get("/health")
+@must_stay_async("callers use await")
 async def tensor_bridge_health() -> dict[str, Any]:
     """Check tensor bridge health status."""
     return {
@@ -141,6 +143,7 @@ async def tensor_bridge_health() -> dict[str, Any]:
 
 
 @router.get("/status")
+@must_stay_async("callers use await")
 async def get_bridge_status() -> BridgeStatusResponse:
     """Get detailed status of all tensor bridge components."""
     return BridgeStatusResponse(
@@ -163,6 +166,7 @@ async def get_bridge_status() -> BridgeStatusResponse:
 
 
 @router.post("/infer", response_model=TensorInferenceResponse)
+@must_stay_async("callers use await")
 async def tensor_inference(request: TensorInferenceRequest) -> TensorInferenceResponse:
     """
     Execute tensor inference operation.
@@ -221,6 +225,7 @@ async def tensor_inference(request: TensorInferenceRequest) -> TensorInferenceRe
 
 
 @router.post("/process-packet", response_model=DomainPacketResponse)
+@must_stay_async("callers use await")
 async def process_domain_packet(request: DomainPacketRequest) -> DomainPacketResponse:
     """
     Process a domain packet through the Domain Tensor Bridge.
@@ -309,6 +314,7 @@ async def process_domain_packet(request: DomainPacketRequest) -> DomainPacketRes
 
 
 @router.get("/reasoning-modes")
+@must_stay_async("callers use await")
 async def list_reasoning_modes() -> dict[str, Any]:
     """List available reasoning modes in the Domain Tensor Bridge."""
     return {
@@ -339,6 +345,7 @@ async def list_reasoning_modes() -> dict[str, Any]:
 
 
 @router.get("/eos/status")
+@must_stay_async("callers use await")
 async def eos_status() -> dict[str, Any]:
     """Get EOS (Epistemic Operating System) status."""
     try:

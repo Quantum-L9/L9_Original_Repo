@@ -25,6 +25,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 # =============================================================================
@@ -39,6 +41,7 @@ class WorldModelInterface:
         self._sdk = sdk
         self._service: Any | None = None
 
+    @must_stay_async("callers use await")
     async def _get_service(self) -> Any:
         """Lazy load world model service."""
         if self._service is None:
@@ -67,6 +70,7 @@ class GovernanceInterface:
         self._sdk = sdk
         self._service: Any | None = None
 
+    @must_stay_async("callers use await")
     async def check_approval(self, action: str) -> bool:
         """Check if action is approved for this agent."""
         logger.info("Checking approval", agent_id=self._sdk.agent_id, action=action)
@@ -90,6 +94,7 @@ class TaskQueueInterface:
     def __init__(self, sdk: L9SDK):
         self._sdk = sdk
 
+    @must_stay_async("callers use await")
     async def enqueue(self, task: str, payload: dict[str, Any] | None = None) -> str:
         """Enqueue a background task."""
         logger.info("Enqueue task", agent_id=self._sdk.agent_id, task=task)
@@ -102,10 +107,12 @@ class CheckpointsInterface:
     def __init__(self, sdk: L9SDK):
         self._sdk = sdk
 
+    @must_stay_async("callers use await")
     async def save(self, key: str, state: dict[str, Any]) -> None:
         """Save checkpoint state."""
         logger.info("Save checkpoint", agent_id=self._sdk.agent_id, key=key)
 
+    @must_stay_async("callers use await")
     async def load(self, key: str) -> dict[str, Any] | None:
         """Load checkpoint state."""
         logger.info("Load checkpoint", agent_id=self._sdk.agent_id, key=key)
@@ -118,6 +125,7 @@ class MCPInterface:
     def __init__(self, sdk: L9SDK):
         self._sdk = sdk
 
+    @must_stay_async("callers use await")
     async def call_tool(self, server: str, tool: str, **kwargs) -> Any:
         """Call an MCP tool."""
         logger.info(
@@ -132,6 +140,7 @@ class LearningInterface:
     def __init__(self, sdk: L9SDK):
         self._sdk = sdk
 
+    @must_stay_async("callers use await")
     async def record_feedback(self, outcome: str, score: float) -> None:
         """Record learning feedback."""
         logger.info(
@@ -145,6 +154,7 @@ class ComplianceInterface:
     def __init__(self, sdk: L9SDK):
         self._sdk = sdk
 
+    @must_stay_async("callers use await")
     async def log_audit(self, action: str, details: dict[str, Any]) -> None:
         """Log compliance audit entry."""
         logger.info("Audit log", agent_id=self._sdk.agent_id, action=action)
@@ -156,6 +166,7 @@ class ReasoningInterface:
     def __init__(self, sdk: L9SDK):
         self._sdk = sdk
 
+    @must_stay_async("callers use await")
     async def infer(self, hypothesis: str, evidence: list[str]) -> float:
         """Run inference on hypothesis given evidence."""
         logger.info(
@@ -329,6 +340,7 @@ class L9SDK:
         self._initialized = True
         logger.info("SDK initialization complete", agent_id=self.agent_id)
 
+    @must_stay_async("callers use await")
     async def run_task(
         self,
         task: str,
@@ -366,6 +378,7 @@ class L9SDK:
             )
         raise RuntimeError(f"Mediator not initialized for {self.agent_id}")
 
+    @must_stay_async("callers use await")
     async def send_message(
         self,
         to_agent: str,
@@ -419,6 +432,7 @@ class L9SDK:
             message_type=message_type,
         )
 
+    @must_stay_async("callers use await")
     async def execute_tool(self, tool_name: str, **kwargs) -> Any:
         """
         Execute a tool by name.
@@ -448,6 +462,7 @@ class L9SDK:
             tenant_id=self.tenant_id,  # Auto-injected
         )
 
+    @must_stay_async("callers use await")
     async def query_memory(self, query: str, limit: int = 10) -> list[dict[str, Any]]:
         """
         Query the memory substrate.
@@ -478,6 +493,7 @@ class L9SDK:
             limit=limit,
         )
 
+    @must_stay_async("callers use await")
     async def store_memory(
         self, content: str, metadata: dict[str, Any] | None = None
     ) -> str:

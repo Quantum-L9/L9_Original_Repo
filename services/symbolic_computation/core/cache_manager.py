@@ -97,6 +97,7 @@ class CacheManager:
             redis_enabled=redis_client is not None,
         )
 
+    @must_stay_async("callers use await")
     async def cache_expression(
         self,
         expr: str,
@@ -140,6 +141,7 @@ class CacheManager:
             )
             return False
 
+    @must_stay_async("callers use await")
     async def get_cached_result(
         self,
         expr: str,

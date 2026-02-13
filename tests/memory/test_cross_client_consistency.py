@@ -21,6 +21,8 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Shared Test Data
 # =============================================================================
@@ -40,6 +42,7 @@ class TestLReadsCursorMemories:
     """Test that L-CTO can read Cursor's developer-scoped memories."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_l_can_read_cursor_developer_scope(self):
         """L should see Cursor's developer-scoped memories."""
         # Simulate Cursor writing a memory
@@ -86,6 +89,7 @@ class TestLReadsCursorMemories:
             ), "L should see Cursor's content"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_l_can_read_cursor_global_scope(self):
         """L should see Cursor's global-scoped memories."""
         cursor_global_memory = {
@@ -115,6 +119,7 @@ class TestCursorReadsLMemories:
     """Test that Cursor can read L's global memories but NOT l-private."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cursor_can_read_l_global_scope(self):
         """Cursor should see L's global-scoped memories."""
         l_global_memory = {
@@ -146,6 +151,7 @@ class TestCursorReadsLMemories:
         assert results[0]["envelope"]["metadata"]["creator"] == "L-CTO"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cursor_cannot_read_l_private_scope(self):
         """Cursor MUST NOT see L's l-private scoped memories."""
         l_private_memory = {
@@ -205,6 +211,7 @@ class TestBidirectionalDeveloperScope:
     """Test that both L and C can read/write developer scope."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_developer_scope_shared_workspace(self):
         """Both L and C should be able to collaborate in developer scope."""
 
@@ -239,6 +246,7 @@ class TestBidirectionalDeveloperScope:
         assert len(l_view) == 2, "L should see both dev memories"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_metadata_creator_preserved_on_read(self):
         """Verify creator metadata is preserved when reading cross-client."""
 
@@ -336,6 +344,7 @@ class TestCrossClientIntegration:
     """Integration tests for full cross-client memory flow."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_full_cross_client_write_read_cycle(self):
         """Test complete write-read cycle between L and Cursor."""
 
@@ -361,6 +370,7 @@ class TestCrossClientIntegration:
         assert result["scope"] == "developer", "Scope should be preserved"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_shared_tenant_isolation_works(self):
         """Verify shared tenant doesn't leak to other tenants."""
 

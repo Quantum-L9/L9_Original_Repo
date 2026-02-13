@@ -273,6 +273,7 @@ async def validate_schema(body: ValidateRequest) -> ValidateResponse:
 
 
 @router.post("/extract", response_model=ExtractResponse)
+@must_stay_async("callers use await")
 async def extract_agent(body: ExtractRequest) -> ExtractResponse:
     """
     Extract agent code from a schema.
@@ -328,6 +329,7 @@ async def extract_agent(body: ExtractRequest) -> ExtractResponse:
 
 
 @router.post("/extract-file", response_model=ExtractResponse)
+@must_stay_async("callers use await")
 async def extract_agent_file(
     schema_file: UploadFile = File(..., description="YAML schema file"),
     output_dir: str = Form(

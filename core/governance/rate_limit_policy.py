@@ -13,6 +13,7 @@ Provides:
 Usage:
     # Decorator
     @rate_limit("llm.openai")
+    @must_stay_async("callers use await")
     async def call_openai(prompt: str):
         ...
 
@@ -29,6 +30,8 @@ Version: 1.0.0
 """
 
 from __future__ import annotations
+
+from core.decorators import must_stay_async
 
 # ============================================================================
 __dora_meta__ = {
@@ -265,6 +268,7 @@ class RateLimitPolicy:
 
         return bool(caller_id and caller_id in self._settings.exempted_caller_ids)
 
+    @must_stay_async("callers use await")
     async def check(
         self,
         policy_key: str,
@@ -327,6 +331,7 @@ class RateLimitPolicy:
             key=policy_key,
         )
 
+    @must_stay_async("callers use await")
     async def increment(
         self,
         policy_key: str,
@@ -380,10 +385,12 @@ class RateLimitPolicy:
 class _StubRateLimiter:
     """Stub rate limiter when real one isn't available."""
 
+    @must_stay_async("callers use await")
     async def get_usage(self, key: str) -> int:
         """Get current usage count (stub returns 0)."""
         return 0
 
+    @must_stay_async("callers use await")
     async def check_and_increment(self, key: str, limit: int) -> bool:
         """Check and increment rate limit (stub always allows)."""
         return True
@@ -407,10 +414,12 @@ def rate_limit(
 
     Usage:
         @rate_limit("llm.openai")
+        @must_stay_async("callers use await")
         async def call_openai(prompt: str):
             ...
 
         @rate_limit("memory.ingest", lambda packet: packet.source_id)
+        @must_stay_async("callers use await")
         async def ingest_packet(packet: PacketEnvelope):
             ...
     """
@@ -456,6 +465,7 @@ class RateLimitDep:
 
     Usage:
         @router.post("/ingest")
+        @must_stay_async("callers use await")
         async def ingest(
             request: Request,
             _: None = Depends(RateLimitDep("memory.ingest")),
@@ -481,6 +491,7 @@ class RateLimitDep:
         self._use_ip = use_ip
         self._use_caller_id = use_caller_id
 
+    @must_stay_async("callers use await")
     async def __call__(self, request: Request) -> None:
         """Execute rate limit check."""
         policy = RateLimitPolicy.get_instance()

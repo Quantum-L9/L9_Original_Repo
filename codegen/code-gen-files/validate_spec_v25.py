@@ -41,14 +41,13 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import sys
-import structlog
 import os
+import sys
 from pathlib import Path
 from typing import Any
 
+import structlog
 import yaml
-
 
 # =============================================================================
 # SCHEMA DEFINITION - v2.5 REQUIRED SECTIONS
@@ -517,7 +516,7 @@ def validate_spec(spec_path: str) -> ValidationResult:
 
     # Parse YAML
     try:
-        with open(spec_path, "r") as f:
+        with open(spec_path) as f:
             spec = yaml.safe_load(f)
     except yaml.YAMLError as e:
         result.add_error(f"YAML PARSE ERROR: {e}")
@@ -581,9 +580,8 @@ def main() -> int:
     if all_passed:
         logger.info("✅ ALL SPECS PASSED VALIDATION")
         return 0
-    else:
-        logger.error("❌ VALIDATION FAILED - See errors above")
-        return 1
+    logger.error("❌ VALIDATION FAILED - See errors above")
+    return 1
 
 
 if __name__ == "__main__":

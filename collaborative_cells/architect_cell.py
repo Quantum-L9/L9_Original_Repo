@@ -326,6 +326,7 @@ class ArchitectCell(BaseCell):
     # Architecture-Specific Methods
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def design(
         self,
         requirements: str,

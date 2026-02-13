@@ -13,6 +13,7 @@ from pathlib import Path
 
 import structlog
 
+from core.decorators import must_stay_async
 from workflows.state import StepResult, WorkflowState
 
 logger = structlog.get_logger(__name__)
@@ -30,6 +31,7 @@ async def _run_shell(cmd: str, cwd: str) -> tuple[int, str, str]:
     return proc.returncode or 0, stdout.decode(), stderr.decode()
 
 
+@must_stay_async("callers use await")
 async def deploy_files_node(state: WorkflowState) -> dict:
     """
     Copy extracted files to their target locations.

@@ -10,6 +10,8 @@ Updated to use MemorySubstrateService directly (removed SubstrateDagOrchestrator
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cursor Executor",
@@ -116,6 +118,7 @@ class CursorExecutor:
         self._approval_manager = approval_manager
         logger.info("CursorExecutor initialized")
 
+    @must_stay_async("callers use await")
     async def run_task(self, task: CursorTaskSpec) -> CursorResult:
         """
         Run a Cursor task through LangGraph.

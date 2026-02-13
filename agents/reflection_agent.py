@@ -13,6 +13,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Reflection Agent",
@@ -85,6 +87,7 @@ class ReflectionAgent(BaseAgent):
         """Get the system prompt."""
         return self._config.system_prompt_override or SYSTEM_PROMPT
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         task: dict[str, Any],
@@ -165,6 +168,7 @@ Provide deep reflection:
 
         return response
 
+    @must_stay_async("callers use await")
     async def analyze_failure(
         self,
         failure_context: dict[str, Any],
@@ -213,6 +217,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def compare_approaches(
         self,
         approach_a: dict[str, Any],
@@ -265,6 +270,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def extract_patterns(
         self,
         examples: list[dict[str, Any]],
@@ -307,6 +313,7 @@ Identify:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def generate_improvements(
         self,
         current_performance: dict[str, Any],
@@ -369,6 +376,7 @@ Provide:
     # Tool-callable methods (for L-CTO integration)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def reflection_agent_reflect(
         self,
         history: list[dict[str, Any]],

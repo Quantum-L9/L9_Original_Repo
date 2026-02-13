@@ -18,6 +18,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "EOS Ledger Writer",
@@ -107,6 +109,7 @@ class EOSLedgerWriter:
         canonical = json.dumps(content, sort_keys=True, default=str)
         return hashlib.sha256(canonical.encode()).hexdigest()
 
+    @must_stay_async("callers use await")
     async def write(self, entry: LedgerEntry) -> str | None:
         """
         Write a LedgerEntry to the immutable ledger.
@@ -182,6 +185,7 @@ class EOSLedgerWriter:
             )
             return None
 
+    @must_stay_async("callers use await")
     async def write_verdict_entry(
         self,
         verdict_id: str,
@@ -225,6 +229,7 @@ class EOSLedgerWriter:
 
         return await self.write(entry)
 
+    @must_stay_async("callers use await")
     async def write_action_entry(
         self,
         action_id: str,
@@ -266,6 +271,7 @@ class EOSLedgerWriter:
 
         return await self.write(entry)
 
+    @must_stay_async("callers use await")
     async def write_anomaly_entry(
         self,
         source_id: str,
@@ -309,6 +315,7 @@ class EOSLedgerWriter:
 
         return await self.write(entry)
 
+    @must_stay_async("callers use await")
     async def get_recent_entries(
         self,
         limit: int = 100,
@@ -362,6 +369,7 @@ class EOSLedgerWriter:
             )
             return []
 
+    @must_stay_async("callers use await")
     async def verify_chain_integrity(self) -> dict[str, Any]:
         """
         Verify the integrity of the ledger chain.

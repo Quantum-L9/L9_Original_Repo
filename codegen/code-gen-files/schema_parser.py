@@ -44,10 +44,10 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
+import structlog
 import yaml
 from pydantic import BaseModel, Field, field_validator
 
@@ -142,13 +142,11 @@ class GovernanceBlock(BaseModel):
         default="hybrid", description="Governance mode: hybrid|autonomous|supervised"
     )
     humanoverride: bool = Field(default=True, description="Allow human override")
-    complianceauditor: Optional[str] = Field(
+    complianceauditor: str | None = Field(
         None, description="Path to compliance auditor script"
     )
-    escalationpolicy: Optional[str] = Field(
-        None, description="When to escalate decisions"
-    )
-    performancereporting: Optional[str] = Field(
+    escalationpolicy: str | None = Field(None, description="When to escalate decisions")
+    performancereporting: str | None = Field(
         None, description="Path to performance dashboard"
     )
     auditscope: list[str] = Field(default_factory=list, description="What to audit")
@@ -175,15 +173,13 @@ class MemoryLayerConfig(BaseModel):
 
     storagetype: str = Field(..., description="Storage backend type")
     purpose: str = Field(..., description="What this layer stores")
-    keyspace: Optional[str] = Field(
-        None, description="Key pattern for Redis-like storage"
-    )
-    retention: Optional[str] = Field(None, description="Data retention policy")
-    indexby: Optional[list[str]] = Field(None, description="Index fields")
-    structure: Optional[list[dict[str, Any]]] = Field(
+    keyspace: str | None = Field(None, description="Key pattern for Redis-like storage")
+    retention: str | None = Field(None, description="Data retention policy")
+    indexby: list[str] | None = Field(None, description="Index fields")
+    structure: list[dict[str, Any]] | None = Field(
         None, description="Graph structure definition"
     )
-    schema_definition: Optional[list[dict[str, Any]]] = Field(
+    schema_definition: list[dict[str, Any]] | None = Field(
         None, alias="schema", description="Causal schema definition"
     )
 
@@ -192,7 +188,7 @@ class CrossAgentSharingConfig(BaseModel):
     """Cross-agent memory sharing configuration."""
 
     enabled: bool = Field(default=False)
-    layer: Optional[str] = Field(None, description="Sharing layer name")
+    layer: str | None = Field(None, description="Sharing layer name")
 
 
 class MemoryTopologyBlock(BaseModel):
@@ -207,12 +203,12 @@ class MemoryTopologyBlock(BaseModel):
     - longtermpersistence: Archive (S3)
     """
 
-    workingmemory: Optional[MemoryLayerConfig] = None
-    episodicmemory: Optional[MemoryLayerConfig] = None
-    semanticmemory: Optional[MemoryLayerConfig] = None
-    causalmemory: Optional[MemoryLayerConfig] = None
-    longtermpersistence: Optional[MemoryLayerConfig] = None
-    crossagentsharing: Optional[CrossAgentSharingConfig] = None
+    workingmemory: MemoryLayerConfig | None = None
+    episodicmemory: MemoryLayerConfig | None = None
+    semanticmemory: MemoryLayerConfig | None = None
+    causalmemory: MemoryLayerConfig | None = None
+    longtermpersistence: MemoryLayerConfig | None = None
+    crossagentsharing: CrossAgentSharingConfig | None = None
 
 
 # =============================================================================
@@ -244,7 +240,7 @@ class CommunicationStackBlock(BaseModel):
 
     input: list[str] = Field(default_factory=list, description="Input methods")
     output: list[str] = Field(default_factory=list, description="Output methods")
-    channels: Optional[ChannelConfig] = None
+    channels: ChannelConfig | None = None
 
 
 # =============================================================================
@@ -263,8 +259,8 @@ class ReasoningFeedbackConfig(BaseModel):
     """Reasoning feedback loop configuration."""
 
     policy: str = Field(default="reinforcement_reflection")
-    rewardfunction: Optional[str] = Field(None, description="How to measure success")
-    penaltyfunction: Optional[str] = Field(None, description="How to measure failure")
+    rewardfunction: str | None = Field(None, description="How to measure success")
+    penaltyfunction: str | None = Field(None, description="How to measure failure")
     retrainintervalhours: int = Field(
         default=168, description="Hours between retraining"
     )
@@ -293,9 +289,9 @@ class ReasoningEngineBlock(BaseModel):
     strategymodes: list[str] = Field(
         default_factory=list, description="Available reasoning strategies"
     )
-    temporalscope: Optional[str] = Field(None, description="Temporal context window")
-    knowledgefusionlayer: Optional[KnowledgeFusionConfig] = None
-    reasoningfeedbackloop: Optional[ReasoningFeedbackConfig] = None
+    temporalscope: str | None = Field(None, description="Temporal context window")
+    knowledgefusionlayer: KnowledgeFusionConfig | None = None
+    reasoningfeedbackloop: ReasoningFeedbackConfig | None = None
 
 
 # =============================================================================
@@ -338,7 +334,7 @@ class AutonomyProfileConfig(BaseModel):
     """Autonomy profile configuration."""
 
     mode: str = Field(default="controlled_autonomy")
-    tasklimit: Optional[str] = Field(None, description="Max parallel tasks")
+    tasklimit: str | None = Field(None, description="Max parallel tasks")
     decisionlatencymaxms: int = Field(default=1000, description="Max decision latency")
     escalationtriggers: list[str] = Field(default_factory=list)
 
@@ -363,7 +359,7 @@ class LearningSystemBlock(BaseModel):
     feedbackchannels: list[str] = Field(
         default_factory=list, description="Feedback sources"
     )
-    autonomyprofile: Optional[AutonomyProfileConfig] = None
+    autonomyprofile: AutonomyProfileConfig | None = None
 
 
 # =============================================================================
@@ -389,7 +385,7 @@ class WorldModelIntegrationBlock(BaseModel):
         default_factory=list, description="World model data sources"
     )
     updatefrequency: str = Field(default="realtime", description="How often to update")
-    contextwindow: Optional[str] = Field(None, description="Context window size")
+    contextwindow: str | None = Field(None, description="Context window size")
 
 
 # =============================================================================
@@ -428,7 +424,7 @@ class CursorInstructionsBlock(BaseModel):
     generatedocs: list[str] = Field(
         default_factory=list, description="Documentation to generate"
     )
-    postgeneration: Optional[dict[str, Any]] = Field(
+    postgeneration: dict[str, Any] | None = Field(
         None, description="Post-generation actions"
     )
 
@@ -444,7 +440,7 @@ class TelemetryConfig(BaseModel):
     metrics: bool = Field(default=True)
     tracing: bool = Field(default=True)
     logging: bool = Field(default=True)
-    dashboardpath: Optional[str] = Field(None)
+    dashboardpath: str | None = Field(None)
 
 
 class DeploymentBlock(BaseModel):
@@ -466,12 +462,10 @@ class DeploymentBlock(BaseModel):
     endpoints: list[str] = Field(
         default_factory=list, description="API endpoints to expose"
     )
-    healthcheck: Optional[str] = Field(None, description="Health check endpoint")
-    telemetry: Optional[TelemetryConfig] = None
+    healthcheck: str | None = Field(None, description="Health check endpoint")
+    telemetry: TelemetryConfig | None = None
     replicas: int = Field(default=1, description="Number of replicas")
-    resources: Optional[dict[str, Any]] = Field(
-        None, description="Resource requirements"
-    )
+    resources: dict[str, Any] | None = Field(None, description="Resource requirements")
 
 
 # =============================================================================
@@ -496,9 +490,9 @@ class MetadataBlock(BaseModel):
     """
 
     version: str = Field(default="1.0.0", description="Schema version")
-    created: Optional[str] = Field(None, description="Creation date")
-    updated: Optional[str] = Field(None, description="Last update date")
-    owner: Optional[str] = Field(None, description="Schema owner")
+    created: str | None = Field(None, description="Creation date")
+    updated: str | None = Field(None, description="Last update date")
+    owner: str | None = Field(None, description="Schema owner")
     status: str = Field(default="draft", description="Status: draft|review|production")
     tags: list[str] = Field(default_factory=list, description="Classification tags")
 
@@ -525,10 +519,10 @@ class AgentSchema(BaseModel):
     """
 
     # Required identity fields (parsed from YAML frontmatter or system block)
-    title: Optional[str] = Field(None, description="Schema title")
-    purpose: Optional[str] = Field(None, description="Agent purpose")
-    summary: Optional[str] = Field(None, description="Agent summary")
-    description: Optional[str] = Field(None, description="Detailed description")
+    title: str | None = Field(None, description="Schema title")
+    purpose: str | None = Field(None, description="Agent purpose")
+    summary: str | None = Field(None, description="Agent summary")
+    description: str | None = Field(None, description="Detailed description")
 
     # The 12 required blocks - ALL REQUIRED, NO DEFAULTS
     # v2.5: Missing sections = HARD FAIL
@@ -604,7 +598,7 @@ def parse_schema(source: str | Path | dict[str, Any]) -> AgentSchema:
     elif isinstance(source, Path):
         if not source.exists():
             raise FileNotFoundError(f"Schema file not found: {source}")
-        with open(source, "r") as f:
+        with open(source) as f:
             content = f.read()
         data = yaml.safe_load(content)
     elif isinstance(source, str):
@@ -618,7 +612,7 @@ def parse_schema(source: str | Path | dict[str, Any]) -> AgentSchema:
         if looks_like_path:
             path = Path(source)
             if path.exists():
-                with open(path, "r") as f:
+                with open(path) as f:
                     content = f.read()
                 data = yaml.safe_load(content)
             else:

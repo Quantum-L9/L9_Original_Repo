@@ -49,6 +49,8 @@ import asyncpg
 import httpx
 import structlog
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Configuration
 # =============================================================================
@@ -323,6 +325,7 @@ class PipelineTracer:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def verify_main_pipeline():
     """Run E2E verification of main pipeline integration."""
 

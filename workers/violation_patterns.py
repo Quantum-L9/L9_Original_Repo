@@ -260,6 +260,7 @@ class ViolationPatterns:
     # Main API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def process(
         self, request: ViolationPatternsRequest
     ) -> ViolationPatternsResponse:

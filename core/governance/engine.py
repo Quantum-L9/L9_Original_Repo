@@ -167,6 +167,7 @@ class GovernanceEngineService:
     # Public API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def evaluate(self, request: EvaluationRequest) -> EvaluationResult:
         """
         Evaluate an action against governance policies.
@@ -249,6 +250,7 @@ class GovernanceEngineService:
 
         return result
 
+    @must_stay_async("callers use await")
     async def evaluate_with_conflict_resolution(
         self, request: EvaluationRequest
     ) -> GovernanceDecision:
@@ -464,6 +466,7 @@ class GovernanceEngineService:
         """Calculate duration in milliseconds."""
         return int((datetime.now(UTC) - start_time).total_seconds() * 1000)
 
+    @must_stay_async("callers use await")
     async def _emit_trace(
         self,
         request: EvaluationRequest,

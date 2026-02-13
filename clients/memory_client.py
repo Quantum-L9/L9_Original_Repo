@@ -241,6 +241,7 @@ class MemoryClient:
     # API Methods
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def write_packet(
         self,
         packet_type: str,
@@ -309,6 +310,7 @@ class MemoryClient:
 
         return result
 
+    @must_stay_async("callers use await")
     async def semantic_search(
         self,
         query: str,
@@ -405,6 +407,7 @@ class MemoryClient:
     # Hybrid Search (v1.1.0+)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def hybrid_search(
         self,
         query: str,
@@ -512,6 +515,7 @@ class MemoryClient:
     # Facts & Insights (v1.1.0+)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def fetch_facts(
         self,
         subject: str | None = None,

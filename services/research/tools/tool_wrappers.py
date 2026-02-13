@@ -80,6 +80,7 @@ class PerplexityTool(BaseTool):
         """Initialize Perplexity tool."""
         self._client: PerplexityClient | None = None
 
+    @must_stay_async("callers use await")
     async def execute(self, args: dict[str, Any]) -> dict[str, Any]:
         """
         Execute Perplexity search.
@@ -160,6 +161,7 @@ class HTTPTool(BaseTool):
     Makes HTTP requests to external APIs.
     """
 
+    @must_stay_async("callers use await")
     async def execute(self, args: dict[str, Any]) -> dict[str, Any]:
         """
         Execute HTTP request.

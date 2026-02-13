@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pytest
 
+from core.decorators import must_stay_async
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -70,6 +72,7 @@ def test_enforce_packet_governance_rejects_client_metadata():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_ensure_governance_context_uses_env_fallback(monkeypatch):
     """Fallback context uses environment variables when no context set."""
     monkeypatch.setenv("L9_MEMORY_CALLER_ID", "system")

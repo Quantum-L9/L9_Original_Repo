@@ -12,6 +12,7 @@ import os
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.query_cache import QueryCache, reset_cache
 from memory.vector_search_config import VectorSearchConfig
 
@@ -24,6 +25,7 @@ class TestQueryCache:
         reset_cache()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ttl_cache_basic(self):
         """Test basic TTL caching."""
         cache = QueryCache()
@@ -52,6 +54,7 @@ class TestQueryCache:
         assert call_count == 2
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_lru_cache_basic(self):
         """Test basic LRU caching.
 
@@ -87,6 +90,7 @@ class TestQueryCache:
         assert call_count == 4
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cache_stats(self):
         """Test cache statistics."""
         cache = QueryCache()
@@ -107,6 +111,7 @@ class TestQueryCache:
         assert stats["ttl"]["hit_rate"] == 0.5
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cache_invalidation(self):
         """Test cache invalidation."""
         cache = QueryCache()
@@ -131,6 +136,7 @@ class TestQueryCache:
         assert call_count == 2
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cache_disabled(self):
         """Test caching can be disabled."""
         cache = QueryCache(enabled=False)
@@ -182,6 +188,7 @@ class TestCachingPerformance:
     """Test caching performance improvements."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cache_speedup(self):
         """Test that caching provides significant speedup."""
         import time
@@ -207,6 +214,7 @@ class TestCachingPerformance:
         assert cached_time < uncached_time / 10  # At least 10x faster
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_cache_memory_efficiency(self):
         """Test cache memory limits."""
         cache = QueryCache(lru_maxsize=10)
@@ -233,12 +241,14 @@ class TestVectorSearchIntegration:
     """Integration tests for vector search optimization."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_vector_search_with_optimization(self):
         """Test vector search with optimization applied."""
         # This test requires a real database connection
         pytest.skip("Requires database connection — placeholder for integration test")
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_vector_search_performance(self):
         """Test vector search performance improvement."""
         # This test requires a real database with data

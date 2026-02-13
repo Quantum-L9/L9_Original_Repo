@@ -49,6 +49,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -108,6 +110,7 @@ class EscalationHandler:
             return "compliance"
         return "igor"
 
+    @must_stay_async("callers use await")
     async def _escalate_to_anchor(self, anchor: str, trigger: EscalationTrigger) -> str:
         """Escalate to governance anchor."""
         logger.info("escalating_to_anchor", anchor=anchor)

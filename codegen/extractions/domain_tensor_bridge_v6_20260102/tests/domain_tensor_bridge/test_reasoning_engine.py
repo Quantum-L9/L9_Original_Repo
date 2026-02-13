@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Tests for ReasoningEngine - reasoning modes, confidence, and error paths.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from domain_tensor_bridge.reasoning_engine import ReasoningEngine, ReasoningResult
 

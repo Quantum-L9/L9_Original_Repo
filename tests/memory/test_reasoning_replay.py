@@ -12,6 +12,8 @@ import os
 
 import pytest
 
+from core.decorators import must_stay_async
+
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL")
 
 pytestmark = pytest.mark.skipif(
@@ -39,6 +41,7 @@ def reasoning_replay_pipeline(memory_substrate_service):
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_reasoning_replay_initialization(reasoning_replay_pipeline):
     """Test ReasoningReplayPipeline can be instantiated."""
     assert reasoning_replay_pipeline is not None

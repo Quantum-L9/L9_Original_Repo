@@ -22,6 +22,8 @@ Version: 2.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Cell Orchestrator",
@@ -292,6 +294,7 @@ class CellOrchestrator:
     # Direct Cell Execution (Glue Methods)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def run_architect_cell(
         self,
         ir_graph: Any,
@@ -341,6 +344,7 @@ class CellOrchestrator:
             "errors": result.errors,
         }
 
+    @must_stay_async("callers use await")
     async def run_coder_cell(
         self,
         plan: Any,
@@ -389,6 +393,7 @@ class CellOrchestrator:
             "errors": result.errors,
         }
 
+    @must_stay_async("callers use await")
     async def run_reviewer_cell(
         self,
         code: dict[str, str],
@@ -431,6 +436,7 @@ class CellOrchestrator:
             "errors": result.errors,
         }
 
+    @must_stay_async("callers use await")
     async def run_reflection_cell(
         self,
         history: list[dict[str, Any]],
@@ -726,6 +732,7 @@ class CellOrchestrator:
     # Workflow Execution
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def execute_workflow(
         self,
         workflow_id: UUID,
@@ -891,6 +898,7 @@ class CellOrchestrator:
     # Memory Integration
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _emit_cell_packet(
         self,
         cell_type: str,

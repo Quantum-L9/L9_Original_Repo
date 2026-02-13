@@ -19,6 +19,8 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 PROJECT_ROOT = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -151,6 +153,7 @@ def executor(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_tool_execution(
     executor: AgentExecutorService, mock_tool_registry: MockToolRegistry
 ):

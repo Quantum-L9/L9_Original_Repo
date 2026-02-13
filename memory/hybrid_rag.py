@@ -163,6 +163,7 @@ class EntityExtractor:
         self._use_llm = use_llm
         self._llm_client = llm_client
 
+    @must_stay_async("callers use await")
     async def extract_entities(
         self,
         text: str,
@@ -357,6 +358,7 @@ class GraphEnricher:
         """
         self._neo4j = neo4j_client
 
+    @must_stay_async("callers use await")
     async def enrich(
         self,
         entities: list[dict[str, Any]],
@@ -434,6 +436,7 @@ class GraphEnricher:
             relationship_count=len(relationship_paths),
         )
 
+    @must_stay_async("callers use await")
     async def _get_direct_neighbors(
         self,
         entity_type: str,
@@ -474,6 +477,7 @@ class GraphEnricher:
             logger.debug(f"Direct neighbor query failed: {e}")
             return []
 
+    @must_stay_async("callers use await")
     async def _get_extended_neighborhood(
         self,
         entity_type: str,
@@ -594,6 +598,7 @@ class HybridRAGPipeline:
 
         logger.info("HybridRAGPipeline initialized")
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,
@@ -844,6 +849,7 @@ async def get_hybrid_rag_pipeline(
     return _pipeline
 
 
+@must_stay_async("callers use await")
 async def hybrid_search(
     semantic_service: Any,
     neo4j_client: Any,

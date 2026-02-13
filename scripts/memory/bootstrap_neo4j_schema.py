@@ -35,6 +35,8 @@ Updated: 2026-01-06 (GMP-34: Added Kernel, GOVERNED_BY, GUARDED_BY, REPORTS_TO)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Bootstrap Neo4J Schema",
@@ -489,6 +491,7 @@ async def create_agent_collaborations(driver: AsyncDriver) -> dict:
     return stats
 
 
+@must_stay_async("callers use await")
 async def bootstrap_l_governance(driver: AsyncDriver) -> dict:
     """Bootstrap L agent's complete governance graph.
 

@@ -27,10 +27,10 @@ __dora_meta__ = {
 # ============================================================================
 
 import logging  # noqa: ADR-0019
-from typing import Dict, Any, Optional, List
-from enum import Enum
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class OperationContext:
     target_path: str
     user: str
     estimated_risk: str  # low, medium, high, critical
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -83,13 +83,13 @@ class EnforcementEngine:
     """Load and apply governance law."""
 
     def __init__(self):
-        self.constraints: Dict[str, Any] = {}
-        self.protocols: Dict[str, Any] = {}
-        self.policies: Dict[str, Any] = {}
+        self.constraints: dict[str, Any] = {}
+        self.protocols: dict[str, Any] = {}
+        self.policies: dict[str, Any] = {}
         self.escalation_count = 0
-        self.decision_log: List[GateDecisionRecord] = []
+        self.decision_log: list[GateDecisionRecord] = []
 
-    def load_law(self, law: Dict[str, Any]) -> None:
+    def load_law(self, law: dict[str, Any]) -> None:
         """Load compiled governance law."""
         self.constraints = law.get("constraints", {})
         self.protocols = law.get("protocols", {})
@@ -145,7 +145,7 @@ class EnforcementEngine:
             raise ConstraintViolation(
                 f"Operation {context.operation_type} blocked by governance law"
             )
-        elif decision == GateDecision.ESCALATE:
+        if decision == GateDecision.ESCALATE:
             self.escalation_count += 1
             self.audit_decision(
                 context, decision, f"Escalated to L (count: {self.escalation_count})"
@@ -157,10 +157,9 @@ class EnforcementEngine:
             raise EscalationRequired(
                 f"Operation {context.operation_type} requires L approval"
             )
-        else:
-            self.audit_decision(context, decision, "Operation allowed")
+        self.audit_decision(context, decision, "Operation allowed")
 
-    def _matches_scope(self, context: OperationContext, rule: Dict[str, Any]) -> bool:
+    def _matches_scope(self, context: OperationContext, rule: dict[str, Any]) -> bool:
         """Check if context matches rule scope."""
         scope = rule.get("scope", [])
         if not scope:
@@ -172,7 +171,7 @@ class EnforcementEngine:
         return False
 
     def _evaluate_policy(
-        self, context: OperationContext, policy: Dict[str, Any]
+        self, context: OperationContext, policy: dict[str, Any]
     ) -> GateDecision:
         """Evaluate a single policy rule."""
         condition = policy.get("if")
@@ -193,7 +192,7 @@ class EnforcementEngine:
     ) -> None:
         """Log governance decision for audit trail."""
         record = GateDecisionRecord(
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             operation_type=context.operation_type,
             decision=decision.value,
             risk_level=context.estimated_risk,
@@ -208,7 +207,7 @@ class EnforcementEngine:
 _engine = EnforcementEngine()
 
 
-def initialize_with_law(law: Dict[str, Any]) -> None:
+def initialize_with_law(law: dict[str, Any]) -> None:
     """Initialize global enforcement engine with law."""
     _engine.load_law(law)
 
@@ -221,7 +220,7 @@ def check_operation(context: OperationContext) -> None:
         raise
 
 
-def get_decision_log() -> List[GateDecisionRecord]:
+def get_decision_log() -> list[GateDecisionRecord]:
     """Get audit trail of all gate decisions."""
     return _engine.decision_log.copy()
 

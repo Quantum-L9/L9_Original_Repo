@@ -32,6 +32,8 @@ Author: Top Frontier AI Lab
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "DI Container",
@@ -645,6 +647,7 @@ class MemorySubstrateContainer:
             embedding_provider=config.get("embedding_provider_type", "openai"),
         )
 
+    @must_stay_async("callers use await")
     async def get_repository(self) -> Any:  # Returns SubstrateRepositoryProtocol
         """
         Get or create singleton repository instance.
@@ -680,6 +683,7 @@ class MemorySubstrateContainer:
 
         return self._repository
 
+    @must_stay_async("callers use await")
     async def get_embedding_provider(self) -> Any:  # Returns EmbeddingProviderProtocol
         """
         Get or create singleton embedding provider instance.

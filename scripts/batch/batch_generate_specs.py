@@ -52,6 +52,8 @@ from pathlib import Path
 
 import structlog
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -170,6 +172,7 @@ class TokenBucketLimiter:
         self.last_update = time.time()
         self._lock = asyncio.Lock()
 
+    @must_stay_async("callers use await")
     async def acquire(self) -> float:
         """Acquire a token, returning wait time if needed"""
         async with self._lock:
@@ -328,6 +331,7 @@ class BatchSpecGenerator:
         output_path.write_text(yaml_content)
         return output_path
 
+    @must_stay_async("callers use await")
     async def run(self, modules: list[tuple], dry_run: bool = False) -> dict:
         """Run batch generation"""
 
@@ -429,6 +433,7 @@ def parse_modules_file(path: Path) -> list[tuple]:
     return modules
 
 
+@must_stay_async("callers use await")
 async def main():
     """CLI entry point for batch module spec generation.
 

@@ -24,6 +24,8 @@ GMP: refactor-phase0-plan7
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # DORA HEADER META
 # ============================================================================
@@ -226,6 +228,7 @@ class ExecutionPlanSnapshotManager:
 
         logger.info("ExecutionPlanSnapshotManager initialized")
 
+    @must_stay_async("callers use await")
     async def create_snapshot(
         self,
         plan_id: str,
@@ -310,6 +313,7 @@ class ExecutionPlanSnapshotManager:
 
         return snapshot
 
+    @must_stay_async("callers use await")
     async def get_snapshot(self, snapshot_id: str) -> ExecutionPlanSnapshot | None:
         """
         Get snapshot by ID.
@@ -322,6 +326,7 @@ class ExecutionPlanSnapshotManager:
         """
         return self._snapshots.get(snapshot_id)
 
+    @must_stay_async("callers use await")
     async def get_snapshots_for_plan(
         self,
         plan_id: str,
@@ -463,6 +468,7 @@ class ExecutionPlanSnapshotManager:
 
         return analysis
 
+    @must_stay_async("callers use await")
     async def cleanup_old_snapshots(
         self,
         max_age_days: int = 30,

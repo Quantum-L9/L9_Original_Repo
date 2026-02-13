@@ -52,6 +52,8 @@ from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 # ============================================================================
@@ -273,6 +275,7 @@ class GMPMetaLearningEngine:
             await conn.run_sync(Base.metadata.create_all)
         logger.info("GMP learning tables created/verified")
 
+    @must_stay_async("callers use await")
     async def log_execution(self, result: GMPExecutionResult) -> bool:
         """
         Log a GMP execution result to the database.

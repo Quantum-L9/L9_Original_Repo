@@ -30,7 +30,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import structlog
 
@@ -119,9 +119,9 @@ class CandidateVerifier:
 
     def verify_all(
         self,
-        candidates: List[SymbolicCandidate],
+        candidates: list[SymbolicCandidate],
         spec: CodegenSpec,
-    ) -> List[VerificationResult]:
+    ) -> list[VerificationResult]:
         """Verify all candidates against a specification."""
         return [self.verify(c, spec) for c in candidates]
 
@@ -129,8 +129,8 @@ class CandidateVerifier:
         self,
         candidate_expr: Any,
         target_behavior: str,
-        variables: List[str],
-    ) -> Tuple[bool, Optional[str]]:
+        variables: list[str],
+    ) -> tuple[bool, str | None]:
         """Check if candidate is equivalent to target."""
         try:
             if candidate_expr is None:
@@ -150,14 +150,14 @@ class CandidateVerifier:
             return is_zero, None
 
         except Exception as e:
-            return False, f"Equivalence check failed: {str(e)}"
+            return False, f"Equivalence check failed: {e!s}"
 
     def _check_invariants(
         self,
         expr: Any,
-        invariants: List[str],
-        variables: List[str],
-    ) -> Dict[str, bool]:
+        invariants: list[str],
+        variables: list[str],
+    ) -> dict[str, bool]:
         """Check all invariants against the expression."""
         results = {}
 

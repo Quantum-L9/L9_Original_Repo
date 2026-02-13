@@ -12,6 +12,8 @@ Implements a produce-critique-revise loop:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Deliberation Cell",
@@ -207,6 +209,7 @@ class DeliberationCell:
     # Main Deliberation
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def deliberate(
         self,
         task: str,
@@ -309,6 +312,7 @@ class DeliberationCell:
 
         return result
 
+    @must_stay_async("callers use await")
     async def _run_producer(
         self,
         graph: IRGraph,
@@ -356,6 +360,7 @@ class DeliberationCell:
                 "reasoning": str(e),
             }
 
+    @must_stay_async("callers use await")
     async def _run_critic(
         self,
         graph: IRGraph,

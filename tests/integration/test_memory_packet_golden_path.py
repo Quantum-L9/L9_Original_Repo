@@ -14,6 +14,8 @@ import pytest
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
+from core.decorators import must_stay_async
+
 project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
@@ -24,6 +26,7 @@ importlib.invalidate_caches()
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_memory_packet_ingestion_golden_path(monkeypatch):
     """POST /api/v1/memory/packet returns PacketResponse on successful ingest."""
     tests_path = str(project_root / "tests")

@@ -9,6 +9,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Tests for ensure_bootstrap() startup guard
 # =============================================================================
@@ -18,6 +20,7 @@ class TestEnsureBootstrap:
     """Tests for the startup bootstrap guard."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_bootstrap_succeeds_when_key_exists(self):
         """ensure_bootstrap passes when bootstrap key exists in database."""
         from api.startup_guard import ensure_bootstrap
@@ -48,6 +51,7 @@ class TestEnsureBootstrap:
                 await ensure_bootstrap()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_bootstrap_fails_when_key_missing(self):
         """ensure_bootstrap raises RuntimeError when bootstrap key is missing."""
         from api.startup_guard import ensure_bootstrap
@@ -125,6 +129,7 @@ class TestLifespanBootstrapIntegration:
     """Tests for bootstrap verification in FastAPI lifespan."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_lifespan_calls_ensure_bootstrap(self):
         """Lifespan context manager calls ensure_bootstrap on startup."""
         # This test verifies the integration pattern - ensure_bootstrap is called

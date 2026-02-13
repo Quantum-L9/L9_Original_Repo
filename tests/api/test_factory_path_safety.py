@@ -7,6 +7,8 @@ from types import ModuleType
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+from core.decorators import must_stay_async
+
 
 class DummySchema:
     class system:
@@ -50,6 +52,7 @@ def _install_fake_research_factory(tmp_path: Path) -> None:
         def __init__(self, strict_validation: bool = False) -> None:
             self.strict_validation = strict_validation
 
+        @must_stay_async("callers use await")
         async def extract(
             self,
             *,

@@ -9,6 +9,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Mock Fixtures (matching existing test patterns)
 # =============================================================================
@@ -36,6 +38,7 @@ class MockSubstrateService:
         self.tool_registry = MagicMock()
         self.packets = []
 
+    @must_stay_async("callers use await")
     async def write_packet(self, packet):
         self.packets.append(packet)
 

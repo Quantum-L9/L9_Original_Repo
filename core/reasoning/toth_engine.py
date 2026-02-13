@@ -36,6 +36,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 try:  # pragma: no cover - import guard
     import aiohttp  # type: ignore
 
@@ -46,6 +48,7 @@ except ModuleNotFoundError:  # pragma: no cover - handled explicitly
     class _StubClientSession:  # pragma: no cover - runtime fallback
         """Runtime stub mimicking aiohttp.ClientSession"""
 
+        @must_stay_async("callers use await")
         async def __aenter__(self):
             """
             Performs asynchronous context management for the _StubClientSession, enabling resource handling in cloud API interactions.
@@ -74,6 +77,7 @@ except ModuleNotFoundError:  # pragma: no cover - handled explicitly
             """
             await self.close()
 
+        @must_stay_async("callers use await")
         async def close(self) -> None:
             """
             Performs cleanup of the stub client session without closing resources.
@@ -380,6 +384,7 @@ class CloudModelClient:
         self.session: aiohttp.ClientSession | None = None
         self.cache: dict[str, Any] = {}
 
+    @must_stay_async("callers use await")
     async def __aenter__(self) -> "CloudModelClient":
         """Enter async context and initialize HTTP session if needed.
 
@@ -412,6 +417,7 @@ class CloudModelClient:
         if self.session:
             await self.session.close()
 
+    @must_stay_async("callers use await")
     async def generate_response(
         self, prompt: str, reasoning_mode: ReasoningMode
     ) -> str:
@@ -493,6 +499,7 @@ class CloudModelClient:
             ModelProvider.ANTHROPIC,
         }
 
+    @must_stay_async("callers use await")
     async def _call_openai(self, prompt: str, reasoning_mode: ReasoningMode) -> str:
         """Call OpenAI API"""
         if not self.config.api_key:
@@ -533,6 +540,7 @@ class CloudModelClient:
             error_text = await response.text()
             raise Exception(f"OpenAI API error {response.status}: {error_text}")
 
+    @must_stay_async("callers use await")
     async def _call_anthropic(self, prompt: str, reasoning_mode: ReasoningMode) -> str:
         """Call Anthropic Claude API"""
         if not self.config.api_key:
@@ -955,6 +963,7 @@ class ProductionToThEngine:
         """Get recent reasoning history"""
         return self.reasoning_history[-limit:]
 
+    @must_stay_async("callers use await")
     async def validate_reasoning(self, result: ReasoningResult) -> dict[str, Any]:
         """Validate reasoning result quality"""
         validation = {
@@ -1044,6 +1053,7 @@ class L9ToThIntegration:
             "recommended_actions": self._extract_recommendations(result),
         }
 
+    @must_stay_async("callers use await")
     async def enhance_decision_making(
         self, decision_context: str, options: list[str]
     ) -> dict[str, Any]:
@@ -1158,6 +1168,7 @@ class L9ToThIntegration:
 
 
 # CLI Interface
+@must_stay_async("callers use await")
 async def main():
     """CLI interface for production ToTh engine"""
     import argparse

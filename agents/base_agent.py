@@ -225,6 +225,7 @@ class BaseAgent(ABC):
     # ==========================================================================
 
     @rate_limit("llm.openai")
+    @must_stay_async("callers use await")
     async def call_llm(
         self,
         messages: list[AgentMessage],
@@ -323,6 +324,7 @@ class BaseAgent(ABC):
                 duration_ms=duration_ms,
             )
 
+    @must_stay_async("callers use await")
     async def call_llm_json(
         self,
         prompt: str,

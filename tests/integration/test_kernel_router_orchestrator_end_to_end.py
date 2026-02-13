@@ -15,6 +15,8 @@ Everything runs with local mocks.
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Wiring layer (direct imports)
 from core.kernel_wiring.packet_protocol_wiring import (
     get_allowed_event_types,
@@ -43,6 +45,7 @@ def ws_mock():
     class MockWS:
         sent = []
 
+        @must_stay_async("callers use await")
         async def send_json(self, payload):
             self.sent.append(payload)
 

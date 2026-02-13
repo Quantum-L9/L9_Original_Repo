@@ -10,6 +10,8 @@ Version: 2.0.0 - KernelState + Introspection + Response Rendering
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "L-CTO Agent",
@@ -394,6 +396,7 @@ You are L. Operate as Igor's CTO."""
     # Task Execution
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         task: dict[str, Any],
@@ -482,6 +485,7 @@ You are L. Operate as Igor's CTO."""
         except Exception as e:
             logger.debug(f"l_cto.introspection: {e}")
 
+    @must_stay_async("callers use await")
     async def _emit_reasoning_packet(
         self,
         task: dict[str, Any],

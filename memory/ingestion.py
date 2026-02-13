@@ -175,6 +175,7 @@ class IngestionPipeline:
         """Enable or disable DAG enrichment (v2.1.0)."""
         self._enable_enrichment = enable
 
+    @must_stay_async("callers use await")
     async def ingest(
         self,
         packet_in: PacketEnvelopeIn,
@@ -408,6 +409,7 @@ class IngestionPipeline:
             warnings=warnings_list,
         )
 
+    @must_stay_async("callers use await")
     async def _trigger_critical_checkpoint(self, envelope: PacketEnvelope) -> None:
         """
         Trigger checkpoint for critical packet ingestion.
@@ -576,6 +578,7 @@ class IngestionPipeline:
             timestamp=envelope.timestamp,
         )
 
+    @must_stay_async("callers use await")
     async def _prepare_embedding(
         self, envelope: PacketEnvelope
     ) -> tuple[list[float], dict[str, Any], str | None] | None:
@@ -818,6 +821,7 @@ def init_ingestion_pipeline(
 
 
 @rate_limit("memory.ingest")
+@must_stay_async("callers use await")
 async def ingest_packet(
     packet_in: PacketEnvelopeIn,
     service: MemorySubstrateService | None = None,
@@ -885,6 +889,7 @@ async def ingest_packet(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def on_task_completion(
     task_id: str,
     task_type: str = "general",

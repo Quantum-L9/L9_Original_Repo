@@ -15,6 +15,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Tool Call Wrapper",
@@ -46,6 +48,7 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def tool_call_wrapper(
     tool_name: str,
     tool_func: Callable[..., Coroutine[Any, Any, Any]],
@@ -163,6 +166,7 @@ def wrap_tool_function(
 
     Usage:
         @wrap_tool_function("gmp_run", agent_id="L")
+        @must_stay_async("callers use await")
         async def gmp_run_tool(...):
             ...
     """

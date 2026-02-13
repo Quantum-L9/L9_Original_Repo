@@ -10,6 +10,8 @@ Minimal tests for:
 
 import pytest
 
+from core.decorators import must_stay_async
+
 pytest.skip(
     "Legacy memory substrate — memory.substrate_models not available.",
     allow_module_level=True,
@@ -299,6 +301,7 @@ class TestDAGNodes:
         assert len(result["reasoning_block"]["inference_steps"]) == 3
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_memory_write_node_no_repo(self):
         """Test memory write node without repository marks tables."""
         from memory.substrate_dag import memory_write_node

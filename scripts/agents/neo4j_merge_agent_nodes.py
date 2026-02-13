@@ -132,6 +132,7 @@ async def get_all_agents(driver) -> list[dict]:
         return await result.data()
 
 
+@must_stay_async("callers use await")
 async def merge_agent_nodes(
     driver,
     logical_id: str,
@@ -296,6 +297,7 @@ async def run_migration(dry_run: bool = False) -> dict:
         await driver.close()
 
 
+@must_stay_async("callers use await")
 async def main():
     """
     Performs the main execution for merging duplicate Agent nodes in Neo4j, supporting dry-run and verification options.

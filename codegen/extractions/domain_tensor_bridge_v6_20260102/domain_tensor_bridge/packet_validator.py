@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Packet Validator
@@ -46,10 +45,9 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
-
 from l9.core.schemas import PacketEnvelope, PacketKind
 
 logger = structlog.get_logger(__name__)
@@ -60,9 +58,9 @@ class ValidationResult:
     """Result of packet validation."""
 
     valid: bool
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class PacketValidator:
@@ -159,7 +157,7 @@ class PacketValidator:
             return kind in valid_kinds
         return False
 
-    def _validate_payload(self, payload: Any) -> Dict[str, List[str]]:
+    def _validate_payload(self, payload: Any) -> dict[str, list[str]]:
         """Validate payload structure and size."""
         errors = []
         warnings = []

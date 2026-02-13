@@ -24,6 +24,8 @@ GMP: refactor-phase0-plan4
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # DORA HEADER META
 # ============================================================================
@@ -209,6 +211,7 @@ class GovernanceHook(ABC):
         self.priority = priority
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def execute(self, context: HookContext) -> HookResult:
         """
         Execute hook logic.
@@ -253,6 +256,7 @@ class SchemaValidationHook(GovernanceHook):
             priority=HookPriority.HIGH,
         )
 
+    @must_stay_async("callers use await")
     async def execute(self, context: HookContext) -> HookResult:
         """Validate packet schema."""
         if not context.payload:
@@ -302,6 +306,7 @@ class ScopeAuthorizationHook(GovernanceHook):
         # Protected scopes that require special authorization
         self._protected_scopes = {"l-private", "kernel", "system"}
 
+    @must_stay_async("callers use await")
     async def execute(self, context: HookContext) -> HookResult:
         """Check scope authorization."""
         if not context.scope:
@@ -358,6 +363,7 @@ class AuditLoggingHook(GovernanceHook):
             priority=HookPriority.LOW,
         )
 
+    @must_stay_async("callers use await")
     async def execute(self, context: HookContext) -> HookResult:
         """Log operation for audit trail."""
         logger.info(
@@ -403,6 +409,7 @@ class RateLimitingHook(GovernanceHook):
         self._max_ops_per_minute = max_ops_per_minute
         self._rate_tracker: dict[str, list[datetime]] = {}
 
+    @must_stay_async("callers use await")
     async def execute(self, context: HookContext) -> HookResult:
         """Check rate limit for caller."""
         caller_id = context.caller_id
@@ -506,6 +513,7 @@ class GovernanceHookRegistry:
 
         return removed
 
+    @must_stay_async("callers use await")
     async def execute_hooks(
         self,
         hook_type: HookType,

@@ -18,6 +18,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "World Model Api",
@@ -247,6 +249,7 @@ async def get_entity(entity_id: str):
 
 
 @router.get("/entities", response_model=EntityListResponse)
+@must_stay_async("callers use await")
 async def list_entities(
     entity_type: str | None = Query(None, description="Filter by entity type"),
     min_confidence: float | None = Query(
@@ -333,6 +336,7 @@ async def create_snapshot(request: SnapshotRequest):
 
 
 @router.post("/restore", response_model=RestoreResponse)
+@must_stay_async("callers use await")
 async def restore_from_snapshot(request: RestoreRequest):
     """
     Restore world model state from a snapshot.

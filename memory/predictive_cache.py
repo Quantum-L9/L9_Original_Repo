@@ -192,6 +192,7 @@ class PredictiveCache:
             # Still mark as initialized to allow L1-only operation
             self._initialized = True
 
+    @must_stay_async("callers use await")
     async def warm_entity(self, entity_id: str) -> SubgraphEntry | None:
         """
         Warm a single entity into cache.
@@ -264,6 +265,7 @@ class PredictiveCache:
             )
             return None
 
+    @must_stay_async("callers use await")
     async def warm_entities(self, entity_ids: list[str]) -> list[SubgraphEntry]:
         """
         Warm multiple entities concurrently.
@@ -317,6 +319,7 @@ class PredictiveCache:
             )
             return []
 
+    @must_stay_async("callers use await")
     async def get_cached(self, entity_id: str) -> SubgraphEntry | None:
         """
         Retrieve cached entity subgraph data.
@@ -384,6 +387,7 @@ class PredictiveCache:
         """
         return self.metrics
 
+    @must_stay_async("callers use await")
     async def _fetch_subgraph(self, entity_id: str) -> SubgraphEntry | None:
         """
         Fetch subgraph data from Neo4j database.

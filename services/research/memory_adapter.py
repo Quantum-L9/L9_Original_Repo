@@ -47,6 +47,7 @@ from uuid import UUID, uuid4
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.schemas import (
     PacketConfidence,
     PacketEnvelope,
@@ -179,6 +180,7 @@ class ResearchMemoryAdapter:
     # Checkpoint Operations (uses graph_checkpoints table)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def save_checkpoint(
         self,
         state: ResearchGraphState,
@@ -240,6 +242,7 @@ class ResearchMemoryAdapter:
     # Memory Event Operations (uses agent_memory_events table)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def log_memory_event(
         self,
         agent_id: str,
@@ -275,6 +278,7 @@ class ResearchMemoryAdapter:
     # Reasoning Trace Operations (uses reasoning_traces table)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def save_reasoning_trace(
         self,
         agent_id: str,

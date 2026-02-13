@@ -36,11 +36,11 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
+import structlog
 import yaml
 from pydantic import BaseModel, Field
 
@@ -75,13 +75,11 @@ class WiringSpec(BaseModel):
 class MemoryBackendsConfig(BaseModel):
     """Shared memory backend configuration."""
 
-    redis: Optional[str] = Field(None, description="Redis connection string")
-    postgres: Optional[str] = Field(None, description="PostgreSQL connection string")
-    neo4j: Optional[str] = Field(None, description="Neo4j connection string")
-    hypergraph: Optional[str] = Field(
-        None, description="HypergraphDB connection string"
-    )
-    s3: Optional[str] = Field(None, description="S3 bucket URL")
+    redis: str | None = Field(None, description="Redis connection string")
+    postgres: str | None = Field(None, description="PostgreSQL connection string")
+    neo4j: str | None = Field(None, description="Neo4j connection string")
+    hypergraph: str | None = Field(None, description="HypergraphDB connection string")
+    s3: str | None = Field(None, description="S3 bucket URL")
 
 
 class GovernanceHarmonizationConfig(BaseModel):
@@ -109,11 +107,11 @@ class GlueConfig(BaseModel):
     """Complete glue layer configuration."""
 
     wirings: list[WiringSpec] = Field(default_factory=list, description="Agent wirings")
-    memory_harmonization: Optional[dict[str, Any]] = Field(
+    memory_harmonization: dict[str, Any] | None = Field(
         None, description="Memory config"
     )
-    governance_harmonization: Optional[GovernanceHarmonizationConfig] = None
-    communication_harmonization: Optional[CommunicationHarmonizationConfig] = None
+    governance_harmonization: GovernanceHarmonizationConfig | None = None
+    communication_harmonization: CommunicationHarmonizationConfig | None = None
 
     model_config = {"extra": "allow"}
 
@@ -129,17 +127,16 @@ class ImportSpec:
 
     module_path: str
     names: list[str] = field(default_factory=list)
-    alias: Optional[str] = None
+    alias: str | None = None
 
     def to_import_statement(self) -> str:
         """Generate Python import statement."""
         if self.names:
             names_str = ", ".join(self.names)
             return f"from {self.module_path} import {names_str}"
-        elif self.alias:
+        if self.alias:
             return f"import {self.module_path} as {self.alias}"
-        else:
-            return f"import {self.module_path}"
+        return f"import {self.module_path}"
 
 
 # =============================================================================
@@ -191,7 +188,7 @@ class DependencyGraph:
             return set()
         return self._nodes[agent].dependents.copy()
 
-    def has_circular_dependency(self) -> tuple[bool, Optional[list[str]]]:
+    def has_circular_dependency(self) -> tuple[bool, list[str] | None]:
         """
         Check for circular dependencies using DFS.
 
@@ -202,7 +199,7 @@ class DependencyGraph:
         rec_stack = set()
         path = []
 
-        def dfs(node: str) -> Optional[list[str]]:
+        def dfs(node: str) -> list[str] | None:
             visited.add(node)
             rec_stack.add(node)
             path.append(node)
@@ -356,7 +353,7 @@ class GlueResolver:
         if not path.exists():
             raise FileNotFoundError(f"Glue file not found: {path}")
 
-        with open(path, "r") as f:
+        with open(path) as f:
             content = f.read()
 
         return cls.from_yaml(content)
@@ -481,7 +478,7 @@ class GlueResolver:
 
         return subgraph.get_parallel_groups()
 
-    def check_circular_dependencies(self) -> tuple[bool, Optional[list[str]]]:
+    def check_circular_dependencies(self) -> tuple[bool, list[str] | None]:
         """
         Check for circular dependencies in the glue configuration.
 
@@ -544,7 +541,7 @@ def load_glue_config(filepath: str | Path) -> GlueConfig:
     if not path.exists():
         raise FileNotFoundError(f"Glue file not found: {path}")
 
-    with open(path, "r") as f:
+    with open(path) as f:
         data = yaml.safe_load(f)
 
     return GlueConfig.model_validate(data or {})

@@ -5,11 +5,8 @@ This is critical for GMP compliance: reproducible code generation.
 """
 
 import pytest
-import hashlib
-import json
-from pathlib import Path
-from dev_layer.modules.code_planning import CodePlanner, CodePlan
-from dev_layer.am_engine.compile import ArtifactCompiler, ArtifactClassifier
+from dev_layer.am_engine.compile import ArtifactClassifier, ArtifactCompiler
+from dev_layer.modules.code_planning import CodePlanner
 
 
 class TestCodePlanDeterminism:

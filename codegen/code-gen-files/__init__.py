@@ -33,49 +33,46 @@ Usage:
 Version: 1.0.0
 """
 
+from services.research_factory.extractor import (
+    ExtractionManifest,
+    ExtractionResult,
+    GeneratedFile,
+    UniversalExtractor,
+    create_extractor,
+    extract_agent,
+)
+from services.research_factory.glue_resolver import (
+    DependencyGraph,
+    GlueConfig,
+    GlueResolver,
+    ImportSpec,
+    WiringSpec,
+    create_empty_glue_config,
+    load_glue_config,
+)
 from services.research_factory.schema_parser import (
     AgentSchema,
-    SystemBlock,
-    IntegrationBlock,
-    GovernanceBlock,
-    MemoryTopologyBlock,
-    CommunicationStackBlock,
-    ReasoningEngineBlock,
     CollaborationNetworkBlock,
-    LearningSystemBlock,
-    WorldModelIntegrationBlock,
+    CommunicationStackBlock,
     CursorInstructionsBlock,
     DeploymentBlock,
+    GovernanceBlock,
+    IntegrationBlock,
+    LearningSystemBlock,
+    MemoryTopologyBlock,
     MetadataBlock,
+    ReasoningEngineBlock,
+    SystemBlock,
+    WorldModelIntegrationBlock,
     parse_schema,
 )
-
 from services.research_factory.schema_validator import (
     SchemaValidator,
-    ValidationResult,
     ValidationError,
+    ValidationResult,
     validate_schema,
     validate_schema_file,
     validate_schema_yaml,
-)
-
-from services.research_factory.glue_resolver import (
-    GlueResolver,
-    GlueConfig,
-    WiringSpec,
-    ImportSpec,
-    DependencyGraph,
-    load_glue_config,
-    create_empty_glue_config,
-)
-
-from services.research_factory.extractor import (
-    UniversalExtractor,
-    ExtractionResult,
-    ExtractionManifest,
-    GeneratedFile,
-    extract_agent,
-    create_extractor,
 )
 
 __all__ = [

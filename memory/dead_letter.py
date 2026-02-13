@@ -10,6 +10,8 @@ GMP-88: Core Resilience for SubstrateDagOrchestrator
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Dead Letter Queue",
@@ -84,6 +86,7 @@ class DeadLetterQueue:
         self._stream_key = stream_key
         logger.info("DeadLetterQueue initialized", stream_key=stream_key)
 
+    @must_stay_async("callers use await")
     async def enqueue(
         self,
         envelope: dict[str, Any],

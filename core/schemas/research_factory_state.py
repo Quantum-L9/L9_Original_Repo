@@ -82,6 +82,7 @@ class ResearchState(BaseModel):
     as the pipeline progresses.
 
     Usage:
+        @must_stay_async("callers use await")
         async def pass_1_plan_queries(state: ResearchState) -> ResearchState:
             ...
             return state.model_copy(update={"query_plan": new_plan, ...})

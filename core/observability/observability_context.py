@@ -33,6 +33,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 # =========================================================================
@@ -184,6 +186,7 @@ def set_trace_context_from_headers(headers: dict[str, str]) -> None:
 
 
 @asynccontextmanager
+@must_stay_async("callers use await")
 async def observability_context(
     operation: str,
     trace_id: str | None = None,
@@ -280,6 +283,7 @@ async def observability_context(
 
 
 @asynccontextmanager
+@must_stay_async("callers use await")
 async def span(
     name: str,
     **metadata: Any,

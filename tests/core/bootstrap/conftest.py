@@ -11,6 +11,8 @@ from __future__ import annotations
 # This MUST happen before any bootstrap modules are imported
 import importlib.util
 
+from core.decorators import must_stay_async
+
 # Force-load memory.graph_client into sys.modules
 # (fixes pytest import resolution for lazy imports inside bootstrap phases)
 try:
@@ -54,14 +56,17 @@ class MockNeo4jSession:
     def __init__(self):
         self.queries_run = []
 
+    @must_stay_async("callers use await")
     async def run(self, query: str, params: dict | None = None):
         """Record query and return mock result."""
         self.queries_run.append({"query": query, "params": params})
         return MockNeo4jResult()
 
+    @must_stay_async("callers use await")
     async def __aenter__(self):
         return self
 
+    @must_stay_async("callers use await")
     async def __aexit__(self, *args):
         pass
 
@@ -73,6 +78,7 @@ class MockNeo4jResult:
         self._records = records or []
         self._index = 0
 
+    @must_stay_async("callers use await")
     async def single(self):
         """Return single record or None."""
         if self._records:
@@ -82,6 +88,7 @@ class MockNeo4jResult:
     def __aiter__(self):
         return self
 
+    @must_stay_async("callers use await")
     async def __anext__(self):
         if self._index >= len(self._records):
             raise StopAsyncIteration
@@ -108,6 +115,7 @@ class MockSubstrateService:
         self.tool_registry = MagicMock()
         self.packets_written = []
 
+    @must_stay_async("callers use await")
     async def write_packet(self, packet: Any) -> None:
         """Record packet write."""
         self.packets_written.append(packet)
@@ -123,12 +131,15 @@ class MockPostgresPool:
 class MockPostgresConnection:
     """Mock asyncpg connection."""
 
+    @must_stay_async("callers use await")
     async def execute(self, query: str):
         return None
 
+    @must_stay_async("callers use await")
     async def __aenter__(self):
         return self
 
+    @must_stay_async("callers use await")
     async def __aexit__(self, *args):
         pass
 
@@ -160,6 +171,7 @@ def mock_neo4j_client():
 def mock_neo4j_none():
     """Fixture that returns None for Neo4j client (offline mode)."""
 
+    @must_stay_async("callers use await")
     async def _get_none():
         return None
 
@@ -172,12 +184,14 @@ def patch_neo4j_client(mock_neo4j_client):
     Patch get_neo4j_client to return mock client.
 
     Usage:
+        @must_stay_async("callers use await")
         async def test_something(patch_neo4j_client):
             with patch_neo4j_client:
                 # Neo4j calls will use mock
                 pass
     """
 
+    @must_stay_async("callers use await")
     async def _get_mock():
         return mock_neo4j_client
 
@@ -193,12 +207,14 @@ def patch_neo4j_offline():
     Patch get_neo4j_client to return None (offline mode).
 
     Usage:
+        @must_stay_async("callers use await")
         async def test_offline(patch_neo4j_offline):
             with patch_neo4j_offline:
                 # Neo4j will appear offline
                 pass
     """
 
+    @must_stay_async("callers use await")
     async def _get_none():
         return None
 

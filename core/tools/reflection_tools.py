@@ -11,6 +11,8 @@ GMP: wire_reflection_agent_yaml
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Reflection Tools",
@@ -47,6 +49,7 @@ logger = structlog.get_logger(__name__)
     priority=10,
     description="Execute reflection on execution history",
 )
+@must_stay_async("callers use await")
 async def reflection_agent_reflect_executor(
     history: list[dict[str, Any]],
     focus: str = "general",
@@ -85,6 +88,7 @@ async def reflection_agent_reflect_executor(
     priority=10,
     description="Deep failure root cause analysis",
 )
+@must_stay_async("callers use await")
 async def reflection_agent_analyze_failure_executor(
     failure_context: dict[str, Any],
     error: str,
@@ -123,6 +127,7 @@ async def reflection_agent_analyze_failure_executor(
     priority=10,
     description="Compare two approaches with scoring",
 )
+@must_stay_async("callers use await")
 async def reflection_agent_compare_approaches_executor(
     approach_a: dict[str, Any],
     approach_b: dict[str, Any],
@@ -160,6 +165,7 @@ async def reflection_agent_compare_approaches_executor(
     priority=10,
     description="Extract patterns from examples",
 )
+@must_stay_async("callers use await")
 async def reflection_agent_extract_patterns_executor(
     examples: list[dict[str, Any]],
 ) -> dict[str, Any]:
@@ -189,6 +195,7 @@ async def reflection_agent_extract_patterns_executor(
     priority=10,
     description="Generate improvement plan from current performance",
 )
+@must_stay_async("callers use await")
 async def reflection_agent_generate_improvements_executor(
     current_performance: dict[str, Any],
     goals: list[str],

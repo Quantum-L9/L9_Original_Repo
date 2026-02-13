@@ -61,6 +61,7 @@ class ResearchSwarmOrchestrator(IResearchSwarmOrchestrator):
         self._llm_client = llm_client
         logger.info("ResearchSwarmOrchestrator initialized")
 
+    @must_stay_async("callers use await")
     async def _spawn_research_agent(
         self,
         agent_id: str,
@@ -175,6 +176,7 @@ class ResearchSwarmOrchestrator(IResearchSwarmOrchestrator):
 
         return None
 
+    @must_stay_async("callers use await")
     async def execute(self, request: ResearchSwarmRequest) -> ResearchSwarmResponse:
         """
         Execute research_swarm orchestration.

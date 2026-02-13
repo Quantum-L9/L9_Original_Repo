@@ -39,6 +39,8 @@ from typing import Any
 import numpy as np
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -108,6 +110,7 @@ class AnomalyDetector:
         self._latency_std: float | None = None
         self._confidence_mean: float | None = None
 
+    @must_stay_async("callers use await")
     async def detect(
         self,
         request: Any,  # TensorRequest

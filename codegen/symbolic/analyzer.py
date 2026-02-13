@@ -31,7 +31,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 import structlog
 
@@ -61,11 +61,11 @@ class AnalysisResult:
     depth: int = 0
 
     # Issues found
-    issues: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    issues: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
     # Metadata
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class CandidateAnalyzer:
@@ -117,19 +117,19 @@ class CandidateAnalyzer:
 
         except Exception as e:
             result.is_valid = False
-            result.issues.append(f"Analysis error: {str(e)}")
+            result.issues.append(f"Analysis error: {e!s}")
             logger.warning("analysis_failed", error=str(e))
 
         return result
 
     def analyze_all(
         self,
-        candidates: List[SymbolicCandidate],
-    ) -> List[AnalysisResult]:
+        candidates: list[SymbolicCandidate],
+    ) -> list[AnalysisResult]:
         """Analyze all candidates."""
         return [self.analyze(c) for c in candidates]
 
-    def _get_variables(self, expr: Expr) -> Set[Symbol]:
+    def _get_variables(self, expr: Expr) -> set[Symbol]:
         """Get all free symbols in an expression."""
         try:
             return expr.free_symbols
@@ -176,7 +176,7 @@ class CandidateAnalyzer:
                 )
 
         except Exception as e:
-            result.warnings.append(f"Issue check failed: {str(e)}")
+            result.warnings.append(f"Issue check failed: {e!s}")
 
 
 # ============================================================================

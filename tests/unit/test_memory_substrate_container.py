@@ -13,6 +13,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.di.container import DIContainerError, MemorySubstrateContainer
 
 # ============================================================================
@@ -29,9 +30,11 @@ class MockSubstrateRepository:
         self.max_overflow = max_overflow
         self.connected = False
 
+    @must_stay_async("callers use await")
     async def connect(self) -> None:
         self.connected = True
 
+    @must_stay_async("callers use await")
     async def disconnect(self) -> None:
         self.connected = False
 
@@ -53,6 +56,7 @@ class MockEmbeddingProvider:
     def dimensions(self) -> int:
         return 1536
 
+    @must_stay_async("callers use await")
     async def embed_text(self, text: str) -> list[float]:
         return [0.1] * 1536
 

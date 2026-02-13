@@ -18,6 +18,8 @@ Based on frontier AI lab patterns (Anthropic, OpenAI, DeepMind).
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Active Memory Encoder",
@@ -382,6 +384,7 @@ class ActiveMemoryEncoder:
     # Main Entry Point
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def on_task_completion(
         self,
         outcome: TaskOutcome,

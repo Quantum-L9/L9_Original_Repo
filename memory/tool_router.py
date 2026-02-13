@@ -207,6 +207,7 @@ class ToolRouter:
 
         logger.info("ToolRouter initialized", cache_enabled=cache_embeddings)
 
+    @must_stay_async("callers use await")
     async def embed_tool(self, tool: Any) -> ToolEmbedding | None:
         """
         Embed a single tool definition.
@@ -326,6 +327,7 @@ class ToolRouter:
         except Exception as e:
             logger.error(f"Failed to store embedding for {tool.tool_name}: {e}")
 
+    @must_stay_async("callers use await")
     async def find_relevant_tools(
         self,
         query: str,
@@ -455,6 +457,7 @@ class ToolRouter:
             for score, tool in scored[:limit]
         ]
 
+    @must_stay_async("callers use await")
     async def _snapshot_cache(
         self,
     ) -> tuple[dict[str, ToolEmbedding], dict[str, list[float]], bool, int]:
@@ -652,6 +655,7 @@ async def init_tool_router(
     return router
 
 
+@must_stay_async("callers use await")
 async def find_tools(
     query: str,
     limit: int = 5,

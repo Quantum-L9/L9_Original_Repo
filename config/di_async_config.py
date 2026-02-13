@@ -25,6 +25,8 @@ Usage:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Di Async Config",
@@ -257,6 +259,7 @@ class AsyncDIContainer:
             logger.error(f"Failed to initialize async DI container: {e}")
             raise
 
+    @must_stay_async("callers use await")
     async def shutdown(self) -> None:
         """
         Shutdown all async resources gracefully.

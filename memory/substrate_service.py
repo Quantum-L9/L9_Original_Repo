@@ -40,7 +40,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -396,6 +396,45 @@ class MemorySubstrateService:
 
         return result
 
+    async def record_audit_failure(
+        self,
+        category: str,
+        error: str,
+        file_path: str | None = None,
+    ) -> PacketWriteResult:
+        """
+        Record an audit failure as a packet in the memory substrate.
+
+        Args:
+            category: Audit category
+            error: Error message
+            file_path: Optional file path being audited
+
+        Returns:
+            PacketWriteResult
+        """
+        from core.schemas import PacketEnvelopeIn
+
+        packet = PacketEnvelopeIn(
+            packet_type="audit_failure",
+            payload={
+                "category": category,
+                "error": error,
+                "file_path": file_path,
+                "timestamp": datetime.now(tz=UTC).isoformat(),
+            },
+            metadata={
+                "source": "perplexity_audit_agent",
+                "severity": "error",
+            },
+        )
+
+        # Use fallback context if none exists (for CLI tools)
+        from memory.governance_gate import ensure_governance_context
+
+        async with ensure_governance_context("record_audit_failure"):
+            return await self.write_packet(packet)
+
     async def get_packet(self, packet_id: str) -> dict[str, Any] | None:
         """
         Retrieve a packet by ID.
@@ -669,6 +708,31 @@ class MemorySubstrateService:
                 for h in filtered_hits
             ],
         )
+
+    async def find_similar_fixes(
+        self, category: str, adr_id: str | None = None
+    ) -> list[dict[str, Any]]:
+        """
+        Find similar past fixes in memory substrate for learning loop.
+
+        Args:
+            category: Audit category (security, reliability, etc.)
+            adr_id: Optional ADR ID to narrow search
+
+        Returns:
+            List of similar fix patterns
+        """
+        query = f"fix for {category}"
+        if adr_id:
+            query += f" violation {adr_id}"
+
+        search_req = SemanticSearchRequest(
+            query=query,
+            top_k=5,
+            min_score=0.7,
+        )
+        result = await self.semantic_search(search_req)
+        return [hit.payload for hit in result.hits]
 
     async def embed_text(
         self, text: str, payload: dict[str, Any], agent_id: str | None = None

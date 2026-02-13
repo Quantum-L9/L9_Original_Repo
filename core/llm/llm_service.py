@@ -13,6 +13,8 @@ GMP: GMP-116-llm-service-implementation
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "LLMService Implementations",
@@ -115,6 +117,7 @@ class OpenAILLMService:
             embedding_model=self._default_embedding_model,
         )
 
+    @must_stay_async("callers use await")
     async def _get_client(self) -> AsyncOpenAI:
         """Get or create AsyncOpenAI client (thread-safe)."""
         if self._client is None:
@@ -138,6 +141,7 @@ class OpenAILLMService:
             self._client = None
             logger.info("OpenAILLMService client closed")
 
+    @must_stay_async("callers use await")
     async def complete(
         self,
         prompt: str,
@@ -324,6 +328,7 @@ class MockLLMService:
 
         logger.info("MockLLMService initialized")
 
+    @must_stay_async("callers use await")
     async def complete(
         self,
         prompt: str,
@@ -335,6 +340,7 @@ class MockLLMService:
         """Return mock completion."""
         return f"{self._default_completion} (prompt_length={len(prompt)})"
 
+    @must_stay_async("callers use await")
     async def chat(
         self,
         messages: list[dict[str, str]],
@@ -346,6 +352,7 @@ class MockLLMService:
         """Return mock chat response."""
         return f"{self._default_completion} (messages={len(messages)})"
 
+    @must_stay_async("callers use await")
     async def embed(
         self,
         text: str,

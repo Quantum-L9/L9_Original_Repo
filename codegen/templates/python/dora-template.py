@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: {component_name}
@@ -50,20 +49,13 @@ __dora_meta__ = {
 # ============================================================================
 # STANDARD LIBRARY IMPORTS
 
-import asyncio
 import logging  # noqa: ADR-0019
-from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 # ============================================================================
 # THIRD-PARTY IMPORTS
-
-from pydantic import BaseModel, Field
-
 # ============================================================================
 # L9 FRAMEWORK IMPORTS
-
 from runtime.dora import l9_traced
 
 # ============================================================================
@@ -84,7 +76,7 @@ MODULE_VERSION = "1.0.0"
 
 
 @l9_traced(patterns=["{pattern_1}", "{pattern_2}"])
-async def example_function(param1: str, param2: int) -> Dict[str, Any]:
+async def example_function(param1: str, param2: int) -> dict[str, Any]:
     """
     Example function with DORA tracing.
 
@@ -135,9 +127,9 @@ __all__ = [
     "MODULE_ID",
     "MODULE_NAME",
     "MODULE_VERSION",
-    "example_function",
     "__footer_meta__",
     "__l9_trace__",
+    "example_function",
 ]
 
 # This is the L9_TRACE_TEMPLATE - 100% machine-managed

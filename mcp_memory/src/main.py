@@ -353,6 +353,7 @@ class CallerIdentity:
         return "l9-kernel" if self.is_l else "cursor"
 
 
+@must_stay_async("callers use await")
 async def verify_api_key(
     request: Request, authorization: str = Header(None)
 ) -> CallerIdentity:

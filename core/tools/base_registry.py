@@ -19,6 +19,8 @@ Production-ready features (v2.1.0):
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Base Registry",
@@ -327,6 +329,7 @@ class ToolRegistry:
         # Return default schema
         return {"type": "object", "properties": {}}
 
+    @must_stay_async("callers use await")
     async def execute_tool(
         self,
         tool_id: str,
@@ -619,6 +622,7 @@ async def recall_task_history(num_tasks: int = 10) -> list[dict]:
 
 
 @register_tool(category="routing", priority=10, description="tool_router_find tool")
+@must_stay_async("callers use await")
 async def tool_router_find(
     query: str,
     top_k: int = 5,
@@ -714,6 +718,7 @@ async def tool_router_find(
 
 
 @register_tool(category="saga", priority=10, description="saga_fetch_and_enrich tool")
+@must_stay_async("callers use await")
 async def saga_fetch_and_enrich(
     query: str,
     entity_types: list[str] | None = None,
@@ -847,6 +852,7 @@ async def saga_fetch_and_enrich(
 
 
 @register_tool(category="saga", priority=10, description="saga_enrich_entities tool")
+@must_stay_async("callers use await")
 async def saga_enrich_entities(
     entity_ids: list[str],
     relationship_types: list[str] | None = None,
@@ -951,6 +957,7 @@ async def saga_enrich_entities(
 @register_tool(
     category="saga", priority=10, description="saga_timeline_correlation tool"
 )
+@must_stay_async("callers use await")
 async def saga_timeline_correlation(
     start_entity_id: str,
     time_range_hours: int = 24,
@@ -1089,6 +1096,7 @@ async def saga_timeline_correlation(
 
 
 @register_tool(category="saga", priority=10, description="saga_execute_custom tool")
+@must_stay_async("callers use await")
 async def saga_execute_custom(
     steps: list[dict],
 ) -> dict:

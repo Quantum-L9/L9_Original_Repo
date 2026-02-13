@@ -192,6 +192,7 @@ async def get_pattern_config(
 
 
 @router.post("/execute", response_model=PatternExecuteResponse)
+@must_stay_async("callers use await")
 async def execute_pattern(
     request: PatternExecuteRequest,
     http_request: Request,
@@ -402,6 +403,7 @@ class MasterExecuteResponse(BaseModel):
 
 
 @router.post("/execute-all", response_model=MasterExecuteResponse)
+@must_stay_async("callers use await")
 async def execute_all_subsystems(
     request: MasterExecuteRequest,
     http_request: Request,

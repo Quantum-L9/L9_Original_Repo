@@ -26,19 +26,20 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+
 from symbolic_computation import SymbolicComputation
-from symbolic_computation.core import ExpressionEvaluator, CodeGenerator
+from symbolic_computation.core import CodeGenerator, ExpressionEvaluator
 from symbolic_computation.models import (
-    ComputationRequest,
-    CodeGenRequest,
     BackendType,
+    CodeGenRequest,
     CodeLanguage,
+    ComputationRequest,
 )
 from symbolic_computation.utils import (
-    validate_expression,
     extract_variables,
-    simplify_expression,
     optimize_expression,
+    simplify_expression,
+    validate_expression,
 )
 
 
@@ -54,7 +55,7 @@ async def example_basic_evaluation():
         expression="x**2 + 2*x + 1", variables={"x": 3.0}, backend="numpy"
     )
 
-    print(f"Expression: x**2 + 2*x + 1")  # noqa: ADR-0019
+    print("Expression: x**2 + 2*x + 1")  # noqa: ADR-0019
     print(f"Value at x=3: {result.result}")  # noqa: ADR-0019
     print(f"Execution time: {result.execution_time_ms:.2f}ms")  # noqa: ADR-0019
 
@@ -118,7 +119,7 @@ async def example_array_operations():
 
     result = await evaluator.evaluate(request)
 
-    print(f"x² for x = [1,2,3,4,5]:")  # noqa: ADR-0019
+    print("x² for x = [1,2,3,4,5]:")  # noqa: ADR-0019
     print(f"Result: {result.result}")  # noqa: ADR-0019
 
 
@@ -281,8 +282,7 @@ class MathAgent:
             # Store in agent's memory
             self.expression_cache[formula] = result
             return result.result
-        else:
-            raise ValueError(f"Evaluation failed: {result.error_message}")
+        raise ValueError(f"Evaluation failed: {result.error_message}")
 
     async def generate_optimized_code(self, formula: str, vars: list):
         """

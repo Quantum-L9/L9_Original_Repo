@@ -41,6 +41,8 @@ import json
 import sys
 from pathlib import Path
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
@@ -159,6 +161,7 @@ def create_agent(agent_type: str, model: str):
     return None  # PatternOrchestrator will use StubAgent
 
 
+@must_stay_async("callers use await")
 async def run_pattern(args: argparse.Namespace) -> dict:
     """Execute pattern with given arguments."""
     from orchestrators.pattern import PatternOrchestrator
@@ -233,9 +236,9 @@ def print_result(result: dict, as_json: bool):
         return
 
     # Human-readable output
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("pattern execution result")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     status_icon = "✅" if result["success"] else "❌"
     logger.info("\nstatus: status icon {result['status']}", status_icon=status_icon)
@@ -258,11 +261,14 @@ def print_result(result: dict, as_json: bool):
 
     if result["final_output"]:
         logger.info("\nfinal output:")
-        logger.info("output", value=json.dumps(result["final_output"], indent=2, default=str)[:500])
+        logger.info(
+            "output",
+            value=json.dumps(result["final_output"], indent=2, default=str)[:500],
+        )
         if len(json.dumps(result["final_output"])) > 500:
             logger.info("  ... (truncated)")
 
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
 
 
 def main():
@@ -293,7 +299,9 @@ def main():
     except Exception as e:
         logger.error(f"Execution failed: {e}", exc_info=True)
         if args.json:
-            logger.error("output", value=json.dumps({"success": False, "error": str(e)}))
+            logger.error(
+                "output", value=json.dumps({"success": False, "error": str(e)})
+            )
         else:
             logger.error("\n❌ error: e", e=e)
         sys.exit(1)

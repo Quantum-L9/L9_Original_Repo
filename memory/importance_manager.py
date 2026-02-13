@@ -13,6 +13,8 @@ Based on frontier AI lab patterns for adaptive memory management.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Importance Manager",
@@ -166,6 +168,7 @@ class ImportanceManager:
     # Access Tracking
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def track_access(
         self,
         fact_id: UUID,
@@ -230,6 +233,7 @@ class ImportanceManager:
     # Importance Elevation
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def elevate_importance(
         self,
         fact_id: UUID,
@@ -306,6 +310,7 @@ class ImportanceManager:
     # Importance Decay
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def decay_importance(
         self,
         batch_size: int = 1000,
@@ -417,6 +422,7 @@ class ImportanceManager:
     # Pruning
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def prune_low_importance(
         self,
         batch_size: int = 100,

@@ -20,14 +20,13 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import dataclasses
 import hashlib
 import os
 import re
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # -----------------------------
 # Config / defaults
@@ -198,7 +197,7 @@ def _to_yaml(obj: Any, indent: int = 0) -> str:
     return _yaml_escape(str(obj))
 
 
-def write_yaml(path: Path, data: Dict[str, Any]) -> None:
+def write_yaml(path: Path, data: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     content = _to_yaml(data, indent=0) + "\n"
     path.write_text(content, encoding="utf-8")
@@ -251,8 +250,8 @@ def should_scan_file(path: Path, max_bytes: int) -> bool:
     return False
 
 
-def iter_files(repo_root: Path, ignore_dirs: set[str]) -> List[Path]:
-    files: List[Path] = []
+def iter_files(repo_root: Path, ignore_dirs: set[str]) -> list[Path]:
+    files: list[Path] = []
     for root, dirs, filenames in os.walk(repo_root):
         root_p = Path(root)
         # prune ignored dirs
@@ -281,7 +280,7 @@ def now_iso() -> str:
 # -----------------------------
 
 
-def build_metadata(repo_root: Path, all_files: List[Path]) -> Dict[str, Any]:
+def build_metadata(repo_root: Path, all_files: list[Path]) -> dict[str, Any]:
     py_files = [p for p in all_files if p.suffix.lower() == ".py"]
     md_files = [p for p in all_files if p.suffix.lower() == ".md"]
     has_docker = any(
@@ -316,15 +315,15 @@ def build_metadata(repo_root: Path, all_files: List[Path]) -> Dict[str, Any]:
 
 
 def build_tree_map(
-    repo_root: Path, all_files: List[Path], depth: int
-) -> Dict[str, Any]:
+    repo_root: Path, all_files: list[Path], depth: int
+) -> dict[str, Any]:
     """
     Build a depth-limited nested dict of directories -> files (names only).
     This is NOT code export; just structure.
     """
-    tree: Dict[str, Any] = {}
+    tree: dict[str, Any] = {}
 
-    def insert(parts: List[str]) -> None:
+    def insert(parts: list[str]) -> None:
         node = tree
         for i, part in enumerate(parts):
             if i >= depth:
@@ -358,14 +357,14 @@ def build_tree_map(
 
 def scan_text_files(
     repo_root: Path,
-    files: List[Path],
+    files: list[Path],
     max_bytes: int,
     max_lines: int,
-) -> List[Tuple[str, List[str]]]:
+) -> list[tuple[str, list[str]]]:
     """
     Returns list of (relative_path, lines) for safe-to-scan text files.
     """
-    out: List[Tuple[str, List[str]]] = []
+    out: list[tuple[str, list[str]]] = []
     for p in files:
         if not should_scan_file(p, max_bytes):
             continue
@@ -380,8 +379,8 @@ def scan_text_files(
     return out
 
 
-def build_env_flags(scanned: List[Tuple[str, List[str]]]) -> Dict[str, Any]:
-    hits: Dict[str, Dict[str, Any]] = {}
+def build_env_flags(scanned: list[tuple[str, list[str]]]) -> dict[str, Any]:
+    hits: dict[str, dict[str, Any]] = {}
     for rpath, lines in scanned:
         joined = "\n".join(lines)
         for re_pat in (RE_OS_GETENV, RE_ENVIRON_GET, RE_ENV_BRACKET):
@@ -429,11 +428,11 @@ def build_env_flags(scanned: List[Tuple[str, List[str]]]) -> Dict[str, Any]:
     }
 
 
-def build_entrypoints(scanned: List[Tuple[str, List[str]]]) -> Dict[str, Any]:
-    entrypoints: List[Dict[str, Any]] = []
-    uvicorn_candidates: List[Dict[str, Any]] = []
-    fastapi_apps: List[Dict[str, Any]] = []
-    main_guards: List[str] = []
+def build_entrypoints(scanned: list[tuple[str, list[str]]]) -> dict[str, Any]:
+    entrypoints: list[dict[str, Any]] = []
+    uvicorn_candidates: list[dict[str, Any]] = []
+    fastapi_apps: list[dict[str, Any]] = []
+    main_guards: list[str] = []
 
     for rpath, lines in scanned:
         text = "\n".join(lines)
@@ -445,7 +444,7 @@ def build_entrypoints(scanned: List[Tuple[str, List[str]]]) -> Dict[str, Any]:
             uvicorn_candidates.append({"file": rpath, "match": m.group(0)})
 
     # Expand with common "run commands" in README-like files
-    run_cmds: List[Dict[str, Any]] = []
+    run_cmds: list[dict[str, Any]] = []
     for rpath, lines in scanned:
         if not (rpath.lower().endswith(".md") or "readme" in rpath.lower()):
             continue
@@ -453,8 +452,7 @@ def build_entrypoints(scanned: List[Tuple[str, List[str]]]) -> Dict[str, Any]:
             if (
                 "uvicorn " in ln
                 or "python -m " in ln
-                or "python " in ln
-                and "api." in ln
+                or ("python " in ln and "api." in ln)
             ):
                 run_cmds.append({"file": rpath, "line": ln.strip()})
 
@@ -469,8 +467,8 @@ def build_entrypoints(scanned: List[Tuple[str, List[str]]]) -> Dict[str, Any]:
     return {"entrypoints": entrypoints}
 
 
-def build_integrations(scanned: List[Tuple[str, List[str]]]) -> Dict[str, Any]:
-    found: Dict[str, Dict[str, Any]] = {}
+def build_integrations(scanned: list[tuple[str, list[str]]]) -> dict[str, Any]:
+    found: dict[str, dict[str, Any]] = {}
     for rpath, lines in scanned:
         text = "\n".join(lines)
         for name, patterns in INTEGRATION_PATTERNS.items():
@@ -503,7 +501,7 @@ def build_integrations(scanned: List[Tuple[str, List[str]]]) -> Dict[str, Any]:
     }
 
 
-def build_file_map(repo_root: Path, all_files: List[Path]) -> Dict[str, Any]:
+def build_file_map(repo_root: Path, all_files: list[Path]) -> dict[str, Any]:
     """
     File map = paths + lightweight role hints based on filename patterns.
     """
@@ -521,7 +519,7 @@ def build_file_map(repo_root: Path, all_files: List[Path]) -> Dict[str, Any]:
         (re.compile(r"requirements.*\.txt$"), "python_requirements"),
     ]
 
-    items: List[Dict[str, Any]] = []
+    items: list[dict[str, Any]] = []
     for p in all_files:
         rp = relpath(repo_root, p)
         # only map "interesting" files to keep it light
@@ -557,7 +555,7 @@ def build_file_map(repo_root: Path, all_files: List[Path]) -> Dict[str, Any]:
     }
 
 
-def build_deltas(repo_root: Path, all_files: List[Path]) -> Dict[str, Any]:
+def build_deltas(repo_root: Path, all_files: list[Path]) -> dict[str, Any]:
     """
     "Deltas" here = structural drift risks, not git diffs.
     Main: duplicate module trees (api/, memory/, world_model/ duplicated under l9/ etc.)
@@ -605,7 +603,7 @@ def build_deltas(repo_root: Path, all_files: List[Path]) -> Dict[str, Any]:
 
 
 def write_manifest(
-    out_dir: Path, produced: List[str], args: argparse.Namespace
+    out_dir: Path, produced: list[str], args: argparse.Namespace
 ) -> None:
     data = {
         "manifest": {
@@ -671,7 +669,7 @@ def main() -> int:
     ignore_dirs.update(args.ignore_dir)
 
     all_files = iter_files(repo_root, ignore_dirs)
-    produced: List[str] = []
+    produced: list[str] = []
 
     # Prepare scanned text lines ONCE (for the include-* features that need it)
     # (We scan only safe text-like files)

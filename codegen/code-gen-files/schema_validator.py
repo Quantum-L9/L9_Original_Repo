@@ -40,12 +40,12 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import structlog
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
+import structlog
 from services.research_factory.schema_parser import AgentSchema, parse_schema
 
 logger = structlog.get_logger(__name__)
@@ -62,7 +62,7 @@ class ValidationError:
 
     code: str
     message: str
-    path: Optional[str] = None
+    path: str | None = None
     severity: str = "error"  # error, warning, info
 
     def __str__(self) -> str:
@@ -77,14 +77,14 @@ class ValidationResult:
     valid: bool
     errors: list[ValidationError] = field(default_factory=list)
     warnings: list[ValidationError] = field(default_factory=list)
-    schema: Optional[AgentSchema] = None
+    schema: AgentSchema | None = None
 
-    def add_error(self, code: str, message: str, path: Optional[str] = None) -> None:
+    def add_error(self, code: str, message: str, path: str | None = None) -> None:
         """Add an error to the result."""
         self.errors.append(ValidationError(code, message, path, "error"))
         self.valid = False
 
-    def add_warning(self, code: str, message: str, path: Optional[str] = None) -> None:
+    def add_warning(self, code: str, message: str, path: str | None = None) -> None:
         """Add a warning to the result."""
         self.warnings.append(ValidationError(code, message, path, "warning"))
 

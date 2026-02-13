@@ -20,6 +20,8 @@ Reference:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Fastapi Lifespan Di Bootstrap",
@@ -54,6 +56,7 @@ _executor_composer: ExecutorComposer | None = None
 
 
 @asynccontextmanager
+@must_stay_async("callers use await")
 async def lifespan(app: FastAPI):
     """
     FastAPI lifespan: startup → yield → shutdown.
@@ -168,6 +171,7 @@ app = FastAPI(
 
 
 @app.get("/health")
+@must_stay_async("callers use await")
 async def health_check():
     """
     Health check endpoint.
@@ -193,6 +197,7 @@ async def health_check():
 
 
 @app.get("/executor/info")
+@must_stay_async("callers use await")
 async def get_executor_info():
     """
     Get executor configuration (debug endpoint).
@@ -229,6 +234,7 @@ async def get_executor_info():
 
 
 @app.get("/di/services")
+@must_stay_async("callers use await")
 async def list_di_services():
     """
     List all registered DI services (debug endpoint).

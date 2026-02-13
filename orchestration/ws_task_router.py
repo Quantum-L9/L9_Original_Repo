@@ -545,6 +545,7 @@ class LangGraphRouter:
             "task_envelope": None,
         }
 
+    @must_stay_async("callers use await")
     async def route(
         self, event: EventMessage, context: dict[str, Any]
     ) -> TaskEnvelope | None:

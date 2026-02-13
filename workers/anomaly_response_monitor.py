@@ -295,6 +295,7 @@ class AnomalyResponseMonitor:
             provider_fn: Async function that returns List[TelemetryEvent]
 
         Example:
+            @must_stay_async("callers use await")
             async def prometheus_provider() -> List[TelemetryEvent]:
                 # Query Prometheus for high error rates
                 return [TelemetryEvent(...)]
@@ -314,6 +315,7 @@ class AnomalyResponseMonitor:
     # Main API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def process(
         self, request: AnomalyResponseMonitorRequest
     ) -> AnomalyResponseMonitorResponse:
@@ -385,6 +387,7 @@ class AnomalyResponseMonitor:
     # Internal Methods
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _process_event(self, event: TelemetryEvent) -> ProcessedAnomaly | None:
         """
         Process a single telemetry event.

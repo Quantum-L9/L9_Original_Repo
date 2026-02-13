@@ -30,6 +30,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from services.research.agents.base_agent import BaseAgent
 from services.research.graph_state import Evidence
 
@@ -87,6 +88,7 @@ class CriticAgent(BaseAgent):
         super().__init__(agent_id=agent_id)
         self.approval_threshold = approval_threshold
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         query: str,
@@ -147,6 +149,7 @@ class CriticAgent(BaseAgent):
         logger.info(f"Critic score: {score:.2f}, approved: {approved}")
         return evaluation
 
+    @must_stay_async("callers use await")
     async def quick_check(
         self,
         query: str,

@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.substrate_repository import SubstrateRepository
 from memory.substrate_semantic import EmbeddingProvider, StubEmbeddingProvider
 from memory.substrate_service import MemorySubstrateService
@@ -89,6 +90,7 @@ async def test_set_session_scope(service: MemorySubstrateService) -> None:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_set_session_scope_with_exception(
     service: MemorySubstrateService,
 ) -> None:

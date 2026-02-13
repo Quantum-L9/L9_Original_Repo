@@ -299,6 +299,7 @@ async def reflection_agent_status(
 
 
 @router.post("/reflect", response_model=ReflectResponse)
+@must_stay_async("callers use await")
 async def reflect(
     request: ReflectRequest,
     authorization: str = Header(None),

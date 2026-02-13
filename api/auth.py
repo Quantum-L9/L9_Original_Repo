@@ -36,6 +36,8 @@ from dataclasses import dataclass
 
 from fastapi import Header, HTTPException, Request
 
+from core.decorators import must_stay_async
+
 # Rate limiting for auth
 from runtime.auth_rate_limiter import get_auth_rate_limiter
 
@@ -101,6 +103,7 @@ def verify_api_key(authorization: str = Header(None)) -> CallerIdentity:
     raise HTTPException(status_code=401, detail="Unauthorized")
 
 
+@must_stay_async("callers use await")
 async def verify_api_key_with_rate_limit(
     request: Request,
     authorization: str = Header(None),

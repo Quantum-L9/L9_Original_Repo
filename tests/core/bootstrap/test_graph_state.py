@@ -16,6 +16,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Test Schema Constants
 # =============================================================================
@@ -192,6 +194,7 @@ def test_agent_graph_state():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_agent_graph_loader_cache():
     """Test AgentGraphLoader caching behavior."""
     from core.agents.graph_state.agent_graph_loader import AgentGraphLoader
@@ -268,6 +271,7 @@ def test_hydrated_agent_context():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_graph_hydrator_tool_approval_check():
     """Test GraphHydrator.check_tool_approval()."""
     from core.agents.graph_state.agent_graph_loader import AgentGraphState, AgentTool

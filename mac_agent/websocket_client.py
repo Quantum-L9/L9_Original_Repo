@@ -261,6 +261,7 @@ class TaskExecutor:
         """Number of currently running tasks."""
         return len(self._running_tasks)
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         task_id: str,
@@ -417,6 +418,7 @@ class TaskExecutor:
             logger.error(f"Shell execution error: {e}")
             return {"status": "error", "error": str(e), "output": "", "exit_code": -1}
 
+    @must_stay_async("callers use await")
     async def _execute_browser(self, payload: dict[str, Any]) -> dict[str, Any]:
         """
         Execute browser automation via Playwright.
@@ -644,6 +646,7 @@ class MacAgentClient:
     # Public API
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def run(self) -> None:
         """
         Run the agent client with automatic reconnection.
@@ -1040,6 +1043,7 @@ class MacAgentClient:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def main():
     """Run the Mac Agent client."""
     # Configure logging

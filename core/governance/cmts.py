@@ -30,6 +30,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Code Mutation Tracking System",
@@ -154,6 +156,7 @@ class CMTSService:
         self._records: dict[str, MutationRecord] = {}
         logger.info("CMTSService initialized")
 
+    @must_stay_async("callers use await")
     async def start_mutation(
         self,
         subsystem: str,
@@ -202,6 +205,7 @@ class CMTSService:
 
         return record.tracking_id
 
+    @must_stay_async("callers use await")
     async def complete_mutation(
         self,
         tracking_id: str,
@@ -290,6 +294,7 @@ class CMTSService:
             error_message=error_message,
         )
 
+    @must_stay_async("callers use await")
     async def rollback_mutation(
         self,
         tracking_id: str,
@@ -321,6 +326,7 @@ class CMTSService:
 
         return record
 
+    @must_stay_async("callers use await")
     async def get_mutation(self, tracking_id: str) -> MutationRecord | None:
         """
         Get a mutation record by tracking ID.
@@ -333,6 +339,7 @@ class CMTSService:
         """
         return self._records.get(tracking_id)
 
+    @must_stay_async("callers use await")
     async def query_mutations(self, query: MutationQuery) -> list[MutationRecord]:
         """
         Query mutations with filters.
@@ -385,6 +392,7 @@ class CMTSService:
         query = MutationQuery(subsystem=subsystem, limit=limit)
         return await self.query_mutations(query)
 
+    @must_stay_async("callers use await")
     async def get_mutation_stats(
         self,
         subsystem: str | None = None,

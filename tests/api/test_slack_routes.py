@@ -6,12 +6,14 @@ from httpx import ASGITransport, AsyncClient
 
 from api.routes.slack import router as slack_router
 from api.slack_adapter import SlackRequestValidator
+from core.decorators import must_stay_async
 
 
 class FakeRateLimiter:
     def __init__(self) -> None:
         self.calls: list[tuple[str, int]] = []
 
+    @must_stay_async("callers use await")
     async def check_and_increment(self, rate_key: str, limit: int) -> bool:
         self.calls.append((rate_key, limit))
         return True
@@ -25,6 +27,7 @@ def _build_app(signing_secret: str) -> FastAPI:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_slack_events_ack_success_with_rate_limiter(
     monkeypatch,
     slack_signing_secret,
@@ -34,6 +37,7 @@ async def test_slack_events_ack_success_with_rate_limiter(
     app = _build_app(slack_signing_secret)
     app.state.rate_limiter = FakeRateLimiter()
 
+    @must_stay_async("callers use await")
     async def fake_handle_slack_events(**_kwargs):
         return {"ok": True}
 
@@ -72,6 +76,7 @@ async def test_slack_events_ack_success_with_rate_limiter(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_slack_events_failure_surfaces_to_slack(
     monkeypatch,
     slack_signing_secret,
@@ -80,6 +85,7 @@ async def test_slack_events_failure_surfaces_to_slack(
 ):
     app = _build_app(slack_signing_secret)
 
+    @must_stay_async("callers use await")
     async def fake_handle_slack_events(**_kwargs):
         raise RuntimeError("boom")
 

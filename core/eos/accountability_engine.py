@@ -36,6 +36,8 @@ from uuid import uuid4
 
 import structlog
 
+from core.decorators import must_stay_async
+
 from .schemas import (
     ActionEnvelope,
     Condition,
@@ -88,6 +90,7 @@ class AccountabilityEngine:
         self._verdict_cache: dict[str, Verdict] = {}
         self._evidence_store: dict[str, Evidence] = {}
 
+    @must_stay_async("callers use await")
     async def evaluate_action(
         self,
         action_envelope: ActionEnvelope,
@@ -206,6 +209,7 @@ class AccountabilityEngine:
         self.logger.debug("No signature verifier configured, allowing")
         return True
 
+    @must_stay_async("callers use await")
     async def _check_authority(
         self,
         action_envelope: ActionEnvelope,
@@ -246,6 +250,7 @@ class AccountabilityEngine:
 
         return violations
 
+    @must_stay_async("callers use await")
     async def _check_evidence(
         self,
         action_envelope: ActionEnvelope,
@@ -266,6 +271,7 @@ class AccountabilityEngine:
 
         return len(conditions) == 0, conditions
 
+    @must_stay_async("callers use await")
     async def _check_production_requirements(
         self,
         action_envelope: ActionEnvelope,
@@ -303,6 +309,7 @@ class AccountabilityEngine:
 
         return verdict
 
+    @must_stay_async("callers use await")
     async def _write_ledger_entry(
         self,
         action_envelope: ActionEnvelope,
@@ -338,15 +345,18 @@ class AccountabilityEngine:
 
         return None
 
+    @must_stay_async("callers use await")
     async def get_verdict(self, verdict_id: str) -> Verdict | None:
         """Retrieve a cached verdict by ID."""
         return self._verdict_cache.get(verdict_id)
 
+    @must_stay_async("callers use await")
     async def add_evidence(self, evidence: Evidence) -> str:
         """Add evidence to the store."""
         self._evidence_store[evidence.id] = evidence
         return evidence.id
 
+    @must_stay_async("callers use await")
     async def get_evidence(self, evidence_id: str) -> Evidence | None:
         """Retrieve evidence by ID."""
         return self._evidence_store.get(evidence_id)

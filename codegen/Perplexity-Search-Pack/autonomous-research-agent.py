@@ -28,9 +28,9 @@ __dora_meta__ = {
 import asyncio
 import json
 import os
-from typing import Any, Dict, List
-from datetime import datetime, timezone
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+from datetime import datetime
+from typing import Any
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -58,9 +58,9 @@ class ResearchResponse:
 
     variation_id: str
     raw_response: str
-    extracted_concepts: List[str]
-    code_snippets: List[str]
-    architectural_insights: List[str]
+    extracted_concepts: list[str]
+    code_snippets: list[str]
+    architectural_insights: list[str]
     timestamp: str
 
 
@@ -70,18 +70,18 @@ class SynthesisReport:
 
     timestamp: str
     total_variations: int
-    consensus_patterns: Dict[str, Any]
-    unique_insights: List[str]
-    recommended_architecture: Dict[str, Any]
-    implementation_roadmap: List[str]
-    confidence_scores: Dict[str, float]
+    consensus_patterns: dict[str, Any]
+    unique_insights: list[str]
+    recommended_architecture: dict[str, Any]
+    implementation_roadmap: list[str]
+    confidence_scores: dict[str, float]
 
 
 # ============================================================================
 # Prompt Variation Definitions
 # ============================================================================
 
-PROMPT_VARIATIONS: List[PromptVariation] = [
+PROMPT_VARIATIONS: list[PromptVariation] = [
     PromptVariation(
         id="v1_pragmatic",
         name="Implementation-First (Pragmatic)",
@@ -199,7 +199,7 @@ class ResponseProcessor:
     """Extracts structured insights from Perplexity responses"""
 
     @staticmethod
-    def extract_concepts(response: str) -> List[str]:
+    def extract_concepts(response: str) -> list[str]:
         """Extract key concepts using simple heuristics"""
         concepts = []
         lines = response.split("\n")
@@ -211,7 +211,7 @@ class ResponseProcessor:
         return concepts[:15]  # Top 15 concepts
 
     @staticmethod
-    def extract_code_snippets(response: str) -> List[str]:
+    def extract_code_snippets(response: str) -> list[str]:
         """Extract Python code blocks"""
         import re
 
@@ -220,7 +220,7 @@ class ResponseProcessor:
         return [match.strip() for match in matches if match.strip()]
 
     @staticmethod
-    def extract_architectural_insights(response: str) -> List[str]:
+    def extract_architectural_insights(response: str) -> list[str]:
         """Extract architectural recommendations"""
         insights = []
         lines = response.split("\n")
@@ -241,10 +241,10 @@ class ResponseProcessor:
 class SynthesisEngine:
     """Aggregates multi-prompt research findings"""
 
-    def __init__(self, responses: List[ResearchResponse]):
+    def __init__(self, responses: list[ResearchResponse]):
         self.responses = responses
 
-    def build_semantic_graph(self) -> Dict[str, List[str]]:
+    def build_semantic_graph(self) -> dict[str, list[str]]:
         """Build relationships between concepts across variations"""
         concept_map = {}
         for resp in self.responses:
@@ -257,7 +257,7 @@ class SynthesisEngine:
                 )
         return concept_map
 
-    def compute_consensus_patterns(self) -> Dict[str, Any]:
+    def compute_consensus_patterns(self) -> dict[str, Any]:
         """Find consensus across variations"""
         graph = self.build_semantic_graph()
         consensus = {}
@@ -270,7 +270,7 @@ class SynthesisEngine:
                 }
         return consensus
 
-    def extract_unique_insights(self) -> List[str]:
+    def extract_unique_insights(self) -> list[str]:
         """Find novel insights unique to fewer variations"""
         insights = []
         all_insights = []
@@ -597,7 +597,7 @@ class READMEGenerator:
     """Generates comprehensive README from synthesis"""
 
     @staticmethod
-    def generate(synthesis: SynthesisReport, code_snippets: List[str]) -> str:
+    def generate(synthesis: SynthesisReport, code_snippets: list[str]) -> str:
         """Generate production README"""
         return f'''# Hybrid Sparse-Neural Architecture with Multi-Modal Reasoning
 
@@ -743,7 +743,7 @@ async def main():
 
     # 3. Process responses
     print("\n[*] Processing responses...")  # noqa: ADR-0019
-    processed_responses: List[ResearchResponse] = []
+    processed_responses: list[ResearchResponse] = []
 
     for variation, response in zip(PROMPT_VARIATIONS, responses):
         if isinstance(response, Exception):

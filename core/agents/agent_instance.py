@@ -50,6 +50,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # DORA HEADER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================
@@ -382,6 +384,7 @@ class AgentInstance:
             )
         return definitions
 
+    @must_stay_async("callers use await")
     async def prepare_dynamic_tools(self) -> int:
         """
         Discover and cache relevant tools for this task using semantic search.

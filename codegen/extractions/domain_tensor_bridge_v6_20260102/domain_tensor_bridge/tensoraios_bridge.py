@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: TensorAIOS Bridge
@@ -44,10 +43,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import List, Optional
 
-import structlog
 import httpx
+import structlog
 
 logger = structlog.get_logger(__name__)
 
@@ -57,7 +55,7 @@ class TensorAIOSBridge:
 
     def __init__(self, tensor_url: str = ""):
         self.tensor_url = tensor_url
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     async def initialize(self) -> None:
         """Initialize HTTP client."""
@@ -77,7 +75,7 @@ class TensorAIOSBridge:
 
         return 0.82
 
-    async def get_embeddings(self, entity_ids: List[str]) -> List[List[float]]:  # noqa: ADR-0010 - callers use await
+    async def get_embeddings(self, entity_ids: list[str]) -> list[list[float]]:  # noqa: ADR-0010 - callers use await
         """Get embeddings for entities."""
         logger.debug("get_embeddings", count=len(entity_ids))
 

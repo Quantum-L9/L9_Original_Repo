@@ -31,6 +31,8 @@ from pathlib import Path
 
 import pytest
 
+from core.decorators import must_stay_async
+
 HARDCODED_MACOS_PATH = _re_module.compile(r"/Users/[a-zA-Z0-9_-]+")
 HARDCODED_LINUX_PATH = _re_module.compile(r"/home/[a-zA-Z0-9_-]+(?!/ubuntu)")
 HARDCODED_WINDOWS_PATH = _re_module.compile(r"C:\\Users\\[a-zA-Z0-9_-]+")
@@ -511,6 +513,7 @@ def test_no_sync_blocking_in_async(parsed_codebase):
     Severity: 🟠 HIGH
 
     Anti-pattern:
+        @must_stay_async("callers use await")
         async def fetch_data():
             time.sleep(1)  # ❌ Blocks event loop
             response = requests.get(url)  # ❌ Blocks event loop
@@ -602,11 +605,13 @@ def test_no_missing_async_context_managers(parsed_codebase):
     Severity: 🟡 MEDIUM
 
     Anti-pattern:
+        @must_stay_async("callers use await")
         async def fetch():
             with httpx.AsyncClient() as client:  # ❌ Should be 'async with'
                 ...
 
     Fix:
+        @must_stay_async("callers use await")
         async def fetch():
             async with httpx.AsyncClient() as client:  # ✅
                 ...

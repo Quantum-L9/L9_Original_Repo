@@ -435,6 +435,7 @@ class UnifiedController:
     # Main Entry Point
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def handle_request(
         self,
         text: str,
@@ -537,6 +538,7 @@ class UnifiedController:
     # Multi-Part Request Handling (Harvested from tokenizer pipeline)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def handle_multi_request(
         self,
         text: str,
@@ -863,6 +865,7 @@ class UnifiedController:
 
         self._record_phase_time("execute", phase_start)
 
+    @must_stay_async("callers use await")
     async def _phase_reflect(
         self,
         context: dict[str, Any],
@@ -928,6 +931,7 @@ class UnifiedController:
     # Self-Correction
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _attempt_self_correction(
         self,
         text: str,
@@ -1248,6 +1252,7 @@ def set_ws_orchestrator(orchestrator: WebSocketOrchestrator) -> None:
     )
 
 
+@must_stay_async("callers use await")
 async def dispatch_task_to_agent(
     agent_id: str,
     task_payload: dict[str, Any],
@@ -1303,6 +1308,7 @@ async def dispatch_task_to_agent(
     )
 
 
+@must_stay_async("callers use await")
 async def broadcast_task(
     task_payload: dict[str, Any],
     task_type: str = "broadcast",

@@ -6,6 +6,8 @@ Supports: py_compile, exists, grep, shell, import checks.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Validate",
@@ -51,6 +53,7 @@ async def _run_shell(cmd: str, cwd: str) -> tuple[int, str, str]:
     return proc.returncode or 0, stdout.decode(), stderr.decode()
 
 
+@must_stay_async("callers use await")
 async def validate_node(state: WorkflowState) -> dict:
     """
     Run validation checks on deployed files.

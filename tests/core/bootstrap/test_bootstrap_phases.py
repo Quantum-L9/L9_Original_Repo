@@ -15,6 +15,8 @@ from uuid import UUID
 import pytest
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -45,12 +47,15 @@ class MockAgentConfig:
 class MockPostgresConnection:
     """Mock postgres connection."""
 
+    @must_stay_async("callers use await")
     async def execute(self, query: str):
         return None
 
+    @must_stay_async("callers use await")
     async def __aenter__(self):
         return self
 
+    @must_stay_async("callers use await")
     async def __aexit__(self, *args):
         pass
 
@@ -70,6 +75,7 @@ class MockSubstrateService:
         self.tool_registry = MagicMock()
         self.packets = []
 
+    @must_stay_async("callers use await")
     async def write_packet(self, packet):
         self.packets.append(packet)
 
@@ -211,6 +217,7 @@ class TestPhase3BindKernels:
     """Tests for Phase 3: Bind Kernels"""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_bind_kernels_sets_bound_state(self):
         """Binding kernels updates instance state to BOUND."""
         from core.agents.bootstrap.phase_2_instantiate import BootstrapInstanceData
@@ -391,6 +398,7 @@ class TestBootstrapOrchestrator:
     """Tests for the bootstrap orchestrator"""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_orchestrator_import(self):
         """Orchestrator can be imported without errors."""
         from core.agents.bootstrap.orchestrator import AgentBootstrapOrchestrator
@@ -398,6 +406,7 @@ class TestBootstrapOrchestrator:
         assert AgentBootstrapOrchestrator is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_orchestrator_init(self):
         """Orchestrator can be instantiated."""
         from core.agents.bootstrap.orchestrator import AgentBootstrapOrchestrator

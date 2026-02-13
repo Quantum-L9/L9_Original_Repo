@@ -12,6 +12,8 @@ GMP-88: Core Resilience for SubstrateDagOrchestrator
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Substrate Dag Wrapper",
@@ -126,6 +128,7 @@ class SubstrateDagOrchestrator:
             max_retries=self._retry_policy.max_retries,
         )
 
+    @must_stay_async("callers use await")
     async def ingest_packet(
         self,
         envelope: PacketEnvelopeIn | PacketEnvelope,

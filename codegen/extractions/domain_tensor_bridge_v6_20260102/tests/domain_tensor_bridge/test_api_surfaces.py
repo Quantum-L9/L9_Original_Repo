@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Tests for API surfaces - process_packet and status endpoints.
 """
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from l9.core.schemas import PacketEnvelope, PacketKind
 
 from domain_tensor_bridge.agent_controller import AgentController
-from l9.core.schemas import PacketEnvelope, PacketKind
 
 
 @pytest.fixture

@@ -21,6 +21,8 @@ Created: 2026-01-05
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Agent Self Modify",
@@ -78,6 +80,7 @@ class AgentSelfModifyTool:
         self.neo4j = neo4j_driver
         self.substrate = substrate_service
 
+    @must_stay_async("callers use await")
     async def add_directive(
         self,
         agent_id: str,
@@ -177,6 +180,7 @@ class AgentSelfModifyTool:
                 "error": str(e),
             }
 
+    @must_stay_async("callers use await")
     async def update_responsibility(
         self,
         agent_id: str,
@@ -248,6 +252,7 @@ class AgentSelfModifyTool:
                 "error": str(e),
             }
 
+    @must_stay_async("callers use await")
     async def add_sop_step(
         self,
         agent_id: str,
@@ -324,6 +329,7 @@ class AgentSelfModifyTool:
                 "error": str(e),
             }
 
+    @must_stay_async("callers use await")
     async def _log_modification(
         self,
         agent_id: str,

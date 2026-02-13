@@ -1776,11 +1776,23 @@ def validate_noqa_not_in_string(file_path: Path) -> tuple[bool, list[int]]:
             double_count = before_noqa.count('"') - before_noqa.count('\\"')
             single_count = before_noqa.count("'") - before_noqa.count("\\'")
 
-            # Adjust for triple quotes
-            double_count -= before_noqa.count('"""') * 3
-            single_count -= before_noqa.count("'''") * 3
+            # Adjust for triple quotes - SKIP this check as it's flaky for multi-line strings
+            # double_count -= before_noqa.count('"""') * 3
+            # single_count -= before_noqa.count("'''") * 3
 
-            if double_count % 2 == 1 or single_count % 2 == 1:
+            # if double_count % 2 == 1 or single_count % 2 == 1:
+            #    bad_lines.append(i)
+
+            # Simple check: if odd number of quotes, likely inside string
+            # But ignore triple quotes for now to avoid false positives on closing lines
+            simple_double = before_noqa.replace('"""', "").count(
+                '"'
+            ) - before_noqa.count('\\"')
+            simple_single = before_noqa.replace("'''", "").count(
+                "'"
+            ) - before_noqa.count("\\'")
+
+            if simple_double % 2 == 1 or simple_single % 2 == 1:
                 bad_lines.append(i)
 
     return len(bad_lines) == 0, bad_lines

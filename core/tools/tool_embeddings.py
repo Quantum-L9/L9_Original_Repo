@@ -156,6 +156,7 @@ async def embed_tool_description(description: str) -> list[float] | None:
         raise
 
 
+@must_stay_async("callers use await")
 async def store_tool_embedding(
     tool_name: str,
     description: str,
@@ -214,6 +215,7 @@ async def store_tool_embedding(
         raise
 
 
+@must_stay_async("callers use await")
 async def find_relevant_tools(
     query: str,
     top_k: int = 5,
@@ -290,6 +292,7 @@ async def find_relevant_tools(
         raise
 
 
+@must_stay_async("callers use await")
 async def find_tools_keyword(
     query: str,
     top_k: int = 10,
@@ -358,6 +361,7 @@ async def find_tools_keyword(
         return []  # Graceful fallback
 
 
+@must_stay_async("callers use await")
 async def find_tools_hybrid(
     query: str,
     top_k: int = 5,
@@ -439,6 +443,7 @@ async def find_tools_hybrid(
     return results
 
 
+@must_stay_async("callers use await")
 async def sync_all_tool_embeddings(
     repository: SubstrateRepository | None = None,
 ) -> int:

@@ -17,6 +17,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Configuration Tests
 # =============================================================================
@@ -297,6 +299,7 @@ class TestInstrumentation:
     """Tests for trace decorators."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_trace_span_decorator(self):
         """Test that trace_span decorator wraps function correctly."""
         from core.observability.instrumentation import trace_span
@@ -320,6 +323,7 @@ class TestInstrumentation:
         ObservabilityService._instance = None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_trace_tool_call_decorator(self):
         """Test that trace_tool_call decorator works with required tool_name."""
         from core.observability.instrumentation import trace_span

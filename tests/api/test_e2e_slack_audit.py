@@ -26,6 +26,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -65,6 +67,7 @@ class AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_configuration() -> AuditResult:
     """Audit Slack configuration and environment variables."""
     result = AuditResult("Slack Configuration")
@@ -164,6 +167,7 @@ async def audit_slack_configuration() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_security() -> AuditResult:
     """Audit Slack security (signature verification)."""
     result = AuditResult("Slack Security")
@@ -263,6 +267,7 @@ async def audit_slack_security() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_routing() -> AuditResult:
     """Audit Slack message routing paths."""
     result = AuditResult("Slack Routing")
@@ -342,6 +347,7 @@ async def audit_slack_routing() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_memory_integration() -> AuditResult:
     """Audit Slack memory integration."""
     result = AuditResult("Slack Memory Integration")
@@ -413,6 +419,7 @@ async def audit_slack_memory_integration() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_telemetry() -> AuditResult:
     """Audit Slack telemetry and metrics."""
     result = AuditResult("Slack Telemetry")
@@ -496,6 +503,7 @@ async def audit_slack_telemetry() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_rate_limiting() -> AuditResult:
     """Audit Slack rate limiting configuration."""
     result = AuditResult("Slack Rate Limiting")
@@ -558,6 +566,7 @@ async def audit_slack_rate_limiting() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_e2e_flow() -> AuditResult:
     """Audit Slack E2E flow (simulated)."""
     result = AuditResult("Slack E2E Flow")
@@ -664,6 +673,7 @@ async def audit_slack_e2e_flow() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_full_audit() -> dict[str, Any]:
     """Run all audit checks."""
     print("\n" + "=" * 80)  # noqa: ADR-0019

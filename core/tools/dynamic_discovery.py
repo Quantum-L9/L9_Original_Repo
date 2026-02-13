@@ -31,6 +31,8 @@ Created: 2026-01-25
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Dynamic Tool Discovery Integration",
@@ -132,6 +134,7 @@ def _infer_task_type(task_payload: str) -> str:
     return "generic"
 
 
+@must_stay_async("callers use await")
 async def discover_tools_for_task(
     task_payload: str,
     top_k: int | None = None,
@@ -343,6 +346,7 @@ async def _format_and_filter_tools(
     return tools
 
 
+@must_stay_async("callers use await")
 async def _get_tool_schemas() -> dict[str, dict[str, Any]]:
     """
     Get tool input schemas from registry for full parameter definitions.
@@ -422,6 +426,7 @@ def _get_tool_cache_key(task_id: str) -> str:
     return f"l9:tool_cache:{task_id}"
 
 
+@must_stay_async("callers use await")
 async def _mcp_cache_call(
     tool_name: str, arguments: dict[str, Any]
 ) -> dict[str, Any] | None:
@@ -568,6 +573,7 @@ async def get_cached_tools(task_id: str) -> list[dict[str, Any]] | None:
         return None
 
 
+@must_stay_async("callers use await")
 async def cache_tools(task_id: str, tools: list[dict[str, Any]]) -> bool:
     """
     Cache discovered tools for multi-turn reuse.

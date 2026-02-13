@@ -525,6 +525,7 @@ async def audit_slack_telemetry() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def audit_slack_rate_limiting() -> AuditResult:
     """Audit Slack rate limiting configuration."""
     result = AuditResult("Slack Rate Limiting")
@@ -692,6 +693,7 @@ async def audit_slack_e2e_flow() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_full_audit() -> dict[str, Any]:
     """Run all audit checks."""
     print("\n" + "=" * 80)  # noqa: ADR-0019

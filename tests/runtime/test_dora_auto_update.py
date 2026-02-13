@@ -27,6 +27,7 @@ from pathlib import Path
 
 import pytest
 
+from core.decorators import must_stay_async
 from runtime.dora import (
     DoraTraceBlock,
     emit_executor_trace,
@@ -207,6 +208,7 @@ def test_l9_traced_decorator_explicit_no_update():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_l9_traced_async_function(temp_python_file):
     """Test @l9_traced with async function."""
 
@@ -369,6 +371,7 @@ def test_full_workflow_sync(temp_python_file):
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_full_workflow_async(temp_python_file):
     """Test full workflow with async function."""
 

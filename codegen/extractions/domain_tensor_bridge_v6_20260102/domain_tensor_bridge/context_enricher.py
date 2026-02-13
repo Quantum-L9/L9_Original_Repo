@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Context Enricher
@@ -45,11 +44,9 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
-import httpx
-
 from l9.core.schemas import PacketEnvelope
 
 logger = structlog.get_logger(__name__)
@@ -59,11 +56,11 @@ logger = structlog.get_logger(__name__)
 class EnrichedContext:
     """Enriched context for reasoning."""
 
-    original_payload: Dict[str, Any]
-    world_model_data: Dict[str, Any] = field(default_factory=dict)
-    episodic_context: List[Dict[str, Any]] = field(default_factory=list)
-    semantic_entities: List[Dict[str, Any]] = field(default_factory=list)
-    causal_factors: List[Dict[str, Any]] = field(default_factory=list)
+    original_payload: dict[str, Any]
+    world_model_data: dict[str, Any] = field(default_factory=dict)
+    episodic_context: list[dict[str, Any]] = field(default_factory=list)
+    semantic_entities: list[dict[str, Any]] = field(default_factory=list)
+    causal_factors: list[dict[str, Any]] = field(default_factory=list)
 
 
 class ContextEnricher:
@@ -71,8 +68,8 @@ class ContextEnricher:
 
     def __init__(
         self,
-        world_model_bridge: Optional[Any] = None,
-        memory_bridge: Optional[Any] = None,
+        world_model_bridge: Any | None = None,
+        memory_bridge: Any | None = None,
     ):
         self.world_model = world_model_bridge
         self.memory = memory_bridge

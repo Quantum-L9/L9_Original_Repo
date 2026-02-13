@@ -8,6 +8,8 @@ tailored for Cursor use cases.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Semantic Search",
@@ -61,6 +63,7 @@ class SearchHit(BaseModel):
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def semantic_search(
     query: str,
     agent_id: str,

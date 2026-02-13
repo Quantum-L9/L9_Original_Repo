@@ -33,6 +33,7 @@ import asyncio
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.di.container import DIContainer
 from core.protocols import (
     CacheService,
@@ -49,6 +50,7 @@ logger = structlog.get_logger()
 _container: DIContainer | None = None
 
 
+@must_stay_async("callers use await")
 async def bootstrap_di_container() -> DIContainer:
     """
     Bootstrap the DI container with all core services.
@@ -102,6 +104,7 @@ async def bootstrap_di_container() -> DIContainer:
     return container
 
 
+@must_stay_async("callers use await")
 async def _register_memory_services(container: DIContainer) -> None:
     """Register memory-related services."""
     try:
@@ -128,6 +131,7 @@ async def _register_memory_services(container: DIContainer) -> None:
         )
 
 
+@must_stay_async("callers use await")
 async def _register_llm_services(container: DIContainer) -> None:
     """Register LLM-related services."""
     try:
@@ -154,6 +158,7 @@ async def _register_llm_services(container: DIContainer) -> None:
         )
 
 
+@must_stay_async("callers use await")
 async def _register_tool_services(container: DIContainer) -> None:
     """Register tool-related services."""
     try:
@@ -180,6 +185,7 @@ async def _register_tool_services(container: DIContainer) -> None:
         )
 
 
+@must_stay_async("callers use await")
 async def _register_governance_services(container: DIContainer) -> None:
     """Register governance-related services."""
     try:
@@ -206,6 +212,7 @@ async def _register_governance_services(container: DIContainer) -> None:
         )
 
 
+@must_stay_async("callers use await")
 async def _register_world_model_services(container: DIContainer) -> None:
     """Register world model services."""
     try:
@@ -232,6 +239,7 @@ async def _register_world_model_services(container: DIContainer) -> None:
         )
 
 
+@must_stay_async("callers use await")
 async def _register_cache_services(container: DIContainer) -> None:
     """Register cache services."""
     try:
@@ -258,6 +266,7 @@ async def _register_cache_services(container: DIContainer) -> None:
         )
 
 
+@must_stay_async("callers use await")
 async def shutdown_di_container() -> None:
     """
     Shutdown the DI container and cleanup resources.

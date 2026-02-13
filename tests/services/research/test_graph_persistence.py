@@ -18,6 +18,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
+
 _spec = importlib.util.spec_from_file_location(
     "graph_persistence",
     Path(__file__).parent.parent.parent.parent
@@ -238,6 +240,7 @@ class TestResearchGraphPersistence:
     # =========================================================================
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_get_findings_by_type_success(
         self, persistence: ResearchGraphPersistence
     ):
@@ -289,6 +292,7 @@ class TestResearchGraphPersistence:
     # =========================================================================
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_persist_evidence_as_findings_batch(
         self, persistence: ResearchGraphPersistence
     ):
@@ -321,6 +325,7 @@ class TestResearchGraphPersistence:
         assert len(finding_ids) == 2
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_persist_evidence_classifies_types(
         self, persistence: ResearchGraphPersistence
     ):

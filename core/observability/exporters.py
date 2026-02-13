@@ -116,6 +116,7 @@ class SubstrateExporter(AsyncSpanExporter):
         if len(self._batch) >= self._batch_size:
             await self.flush()
 
+    @must_stay_async("callers use await")
     async def flush(self) -> None:
         """Flush accumulated spans to substrate."""
         if not self._batch:

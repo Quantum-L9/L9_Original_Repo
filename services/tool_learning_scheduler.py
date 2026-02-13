@@ -13,6 +13,8 @@ Call register_tool_learning_jobs() from your application's startup
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Scheduler Registration",
@@ -43,6 +45,7 @@ from memory.substrate_service import get_memory_substrate_service  # if availabl
 from services.tool_learning_engine import ToolLearningEngine
 
 
+@must_stay_async("callers use await")
 async def register_tool_learning_jobs(scheduler):
     """
     Performs registration of daily tool feedback learning jobs in the scheduler based on integration settings.

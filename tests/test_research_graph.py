@@ -7,6 +7,8 @@ Tests for the research graph and its components.
 
 import pytest
 
+from core.decorators import must_stay_async
+
 pytest.skip(
     "Legacy research graph — services.research not available.", allow_module_level=True
 )
@@ -99,6 +101,7 @@ class TestResearchGraph:
     @pytest.mark.asyncio
     @patch("services.research.research_graph.PlannerAgent")
     @patch("services.research.research_graph.get_memory_adapter")
+    @must_stay_async("callers use await")
     async def test_planning_node(
         self,
         mock_get_adapter,
@@ -138,6 +141,7 @@ class TestResearchGraph:
     @patch("services.research.research_graph.ResearcherAgent")
     @patch("services.research.research_graph.get_tool_registry")
     @patch("services.research.research_graph.get_memory_adapter")
+    @must_stay_async("callers use await")
     async def test_research_node(
         self,
         mock_get_adapter,
@@ -185,6 +189,7 @@ class TestResearchGraph:
     @pytest.mark.asyncio
     @patch("services.research.research_graph.CriticAgent")
     @patch("services.research.research_graph.get_memory_adapter")
+    @must_stay_async("callers use await")
     async def test_critic_node(
         self,
         mock_get_adapter,

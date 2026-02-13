@@ -261,6 +261,7 @@ class CursorMemorySearchNode:
         """
         self._gateway = memory_gateway
 
+    @must_stay_async("callers use await")
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute memory search node.
@@ -325,6 +326,7 @@ class CursorErrorRecoveryNode:
         """
         self._gateway = memory_gateway
 
+    @must_stay_async("callers use await")
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute error recovery node.
@@ -401,6 +403,7 @@ class CursorDecisionGateNode:
         """
         self._approval_gate = approval_gate
 
+    @must_stay_async("callers use await")
     async def __call__(self, state: CursorAgentState) -> CursorAgentState:
         """
         Execute decision gate node.

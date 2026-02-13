@@ -23,6 +23,8 @@ from typing import Dict, List, Optional
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -118,6 +120,7 @@ class ParallelConsolidationPipeline:
         self.phases[name] = phase
         logger.info(f"Registered consolidation phase: {name}")
 
+    @must_stay_async("callers use await")
     async def _can_execute_phase(self, phase: ConsolidationPhase) -> bool:
         """
         Check if a phase's dependencies are satisfied.
@@ -130,6 +133,7 @@ class ParallelConsolidationPipeline:
         """
         return all(dep in self._completed_phases for dep in phase.dependencies)
 
+    @must_stay_async("callers use await")
     async def _execute_phase(
         self, phase: ConsolidationPhase, agent_id: str, context: dict
     ) -> PhaseResult:
@@ -202,6 +206,7 @@ class ParallelConsolidationPipeline:
                 error=error_msg,
             )
 
+    @must_stay_async("callers use await")
     async def run_consolidation(
         self, agent_id: str, max_parallelism: int = 3
     ) -> dict[str, PhaseResult]:
@@ -307,6 +312,7 @@ class ParallelConsolidationPipeline:
 
 
 # Example usage and default phase registration
+@must_stay_async("callers use await")
 async def register_default_phases(pipeline: ParallelConsolidationPipeline):
     """
     Register the standard L9 consolidation phases.

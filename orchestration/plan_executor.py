@@ -303,6 +303,7 @@ class PlanExecutor:
     # Strategy Memory Integration (Phase 0)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def maybe_apply_strategy(
         self,
         task_id: str,
@@ -369,6 +370,7 @@ class PlanExecutor:
             logger.warning(f"Strategy retrieval failed: {e}")
             return None
 
+    @must_stay_async("callers use await")
     async def record_strategy_feedback(
         self,
         strategy_id: str,
@@ -427,6 +429,7 @@ class PlanExecutor:
         except Exception as e:
             logger.warning(f"Strategy feedback recording failed: {e}")
 
+    @must_stay_async("callers use await")
     async def _maybe_capture_strategy(
         self,
         plan: Any,
@@ -566,6 +569,7 @@ class PlanExecutor:
     # Main Execution
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         plan: Any,  # ExecutionPlan
@@ -681,6 +685,7 @@ class PlanExecutor:
 
         return result
 
+    @must_stay_async("callers use await")
     async def _execute_steps(
         self,
         plan: Any,
@@ -1074,6 +1079,7 @@ class PlanExecutor:
     # Memory Integration
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _emit_execution_start_packet(
         self,
         result: ExecutionResult,
@@ -1105,6 +1111,7 @@ class PlanExecutor:
         except Exception as e:
             logger.warning(f"Failed to emit execution start packet: {e}")
 
+    @must_stay_async("callers use await")
     async def _emit_step_packet(
         self,
         step_result: StepResult,
@@ -1139,6 +1146,7 @@ class PlanExecutor:
         except Exception as e:
             logger.warning(f"Failed to emit step packet: {e}")
 
+    @must_stay_async("callers use await")
     async def _emit_execution_complete_packet(
         self,
         result: ExecutionResult,
@@ -1176,6 +1184,7 @@ class PlanExecutor:
     # World Model Integration
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _update_world_model(
         self,
         result: ExecutionResult,

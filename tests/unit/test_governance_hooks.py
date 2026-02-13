@@ -20,6 +20,7 @@ Mutation Testing Target: 85%+ score
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.governance_hooks import (
     AuditLoggingHook,
     GovernanceHook,
@@ -332,6 +333,7 @@ class TestGovernanceHookRegistry:
         assert result.allowed is False
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_hooks_handles_errors(self):
         """Test execute_hooks handles hook errors."""
         registry = GovernanceHookRegistry()
@@ -391,6 +393,7 @@ class TestMutationTargets:
     """
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_hook_result_allowed_field(self):
         """Kill mutation: allowed = True -> allowed = False."""
         result_allow = HookResult.allow()
@@ -446,6 +449,7 @@ class TestMutationTargets:
             def __init__(self):
                 super().__init__("high", HookType.PRE_WRITE, HookPriority.HIGH)
 
+            @must_stay_async("callers use await")
             async def execute(self, ctx):
                 return HookResult.allow()
 
@@ -453,6 +457,7 @@ class TestMutationTargets:
             def __init__(self):
                 super().__init__("low", HookType.PRE_WRITE, HookPriority.LOW)
 
+            @must_stay_async("callers use await")
             async def execute(self, ctx):
                 return HookResult.allow()
 

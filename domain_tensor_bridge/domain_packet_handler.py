@@ -48,6 +48,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope, PacketKind
 
 logger = structlog.get_logger(__name__)
@@ -58,6 +59,7 @@ class DomainPacketHandler:
 
     SUPPORTED_DOMAINS = ["plastos", "mortgageos", "fintech", "healthcare"]
 
+    @must_stay_async("callers use await")
     async def handle_plastos_packet(self, packet: PacketEnvelope) -> PacketEnvelope:
         """Handle PlastOS domain packets."""
         logger.info("handling_plastos_packet", packet_id=getattr(packet, "id", ""))
@@ -71,6 +73,7 @@ class DomainPacketHandler:
             metadata={"original_domain": "plastos", **getattr(packet, "metadata", {})},
         )
 
+    @must_stay_async("callers use await")
     async def handle_mortgageos_packet(self, packet: PacketEnvelope) -> PacketEnvelope:
         """Handle MortgageOS domain packets."""
         logger.info("handling_mortgageos_packet", packet_id=getattr(packet, "id", ""))
@@ -87,6 +90,7 @@ class DomainPacketHandler:
             },
         )
 
+    @must_stay_async("callers use await")
     async def handle_generic_domain(
         self, packet: PacketEnvelope, domain: str
     ) -> PacketEnvelope:

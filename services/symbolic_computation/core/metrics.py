@@ -10,6 +10,8 @@ Version: 6.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Metrics",
@@ -101,6 +103,7 @@ class MetricsCollector:
             postgres_enabled=postgres_client is not None,
         )
 
+    @must_stay_async("callers use await")
     async def record_evaluation(
         self,
         expr: str,
@@ -156,6 +159,7 @@ class MetricsCollector:
             duration_ms=duration_ms,
         )
 
+    @must_stay_async("callers use await")
     async def record_compilation(
         self,
         expr: str,

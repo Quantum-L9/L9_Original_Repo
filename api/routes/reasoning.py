@@ -149,6 +149,7 @@ async def get_reasoning_modes(
 
 
 @router.post("/execute", response_model=ReasoningExecuteResponse)
+@must_stay_async("callers use await")
 async def execute_reasoning(
     request: ReasoningExecuteRequest,
     authorization: str = Header(None),

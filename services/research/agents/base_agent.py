@@ -85,6 +85,7 @@ class BaseAgent(ABC):
 
         logger.info(f"Initialized {self.__class__.__name__} with model={self.model}")
 
+    @must_stay_async("callers use await")
     async def call_llm(
         self,
         messages: list[dict[str, str]],

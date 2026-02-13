@@ -205,6 +205,7 @@ class RAGStrategy(ContextStrategy):
         self.top_k = top_k
         self.min_relevance = min_relevance
 
+    @must_stay_async("callers use await")
     async def assemble(
         self,
         conversation: list[dict[str, str]],

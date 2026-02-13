@@ -14,6 +14,7 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.observability.circuit_breaker import (
     CircuitBreaker,
     CircuitBreakerConfig,
@@ -357,6 +358,7 @@ class TestEdgeCases:
         assert envelope_arg == {"serialized": "data"}
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_default_retry_policy(self):
         """Default retry policy is used when none provided."""
         service = TestService()

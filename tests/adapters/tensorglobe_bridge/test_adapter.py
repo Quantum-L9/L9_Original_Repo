@@ -30,6 +30,7 @@ from adapters.tensorglobe_bridge.schemas import (
     TensorResponse,
     TensorResult,
 )
+from core.decorators import must_stay_async
 from core.eos.schemas import Verdict, VerdictDecision
 
 # =============================================================================
@@ -118,6 +119,7 @@ def valid_tensor_response():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_handle_tensor_request_happy_path(
     adapter,
     valid_tensor_request,
@@ -271,6 +273,7 @@ async def test_handle_tensor_request_invalid_schema(adapter, valid_tensor_reques
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_handle_tensor_request_critical_anomaly_suspends_provider(
     adapter, valid_tensor_request, valid_tensor_response, mock_accountability
 ):
@@ -305,6 +308,7 @@ async def test_handle_tensor_request_critical_anomaly_suspends_provider(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_handle_tensor_request_non_critical_anomaly_continues(
     adapter, valid_tensor_request, valid_tensor_response
 ):

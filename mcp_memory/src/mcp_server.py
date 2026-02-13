@@ -30,6 +30,7 @@ from typing import Any
 import structlog
 from pydantic import BaseModel, ValidationError
 
+from core.decorators import must_stay_async
 from src.config import settings
 
 logger = structlog.get_logger(__name__)
@@ -612,6 +613,7 @@ def get_mcp_tools() -> list[MCPTool]:
     ]
 
 
+@must_stay_async("callers use await")
 async def handle_tool_call(
     tool: MCPToolCall,
     user_id: str,

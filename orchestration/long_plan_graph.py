@@ -55,6 +55,7 @@ LLM_MODEL = os.getenv("L9_LLM_MODEL", "gpt-4o-mini")
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def generate_artifact_with_llm(
     artifact_type: str,
     goal: str,
@@ -282,6 +283,7 @@ class LongPlanState(TypedDict):
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def hydrate_memory_node(state: LongPlanState) -> LongPlanState:
     """
     Hydrate memory context from governance_meta and project_history.
@@ -348,6 +350,7 @@ async def hydrate_memory_node(state: LongPlanState) -> LongPlanState:
         }
 
 
+@must_stay_async("callers use await")
 async def gather_context_node(state: LongPlanState) -> LongPlanState:
     """
     Gather context using MCP tools (GitHub, Notion, Vercel).
@@ -428,6 +431,7 @@ async def gather_context_node(state: LongPlanState) -> LongPlanState:
         }
 
 
+@must_stay_async("callers use await")
 async def draft_work_node(state: LongPlanState) -> LongPlanState:
     """
     Draft work using L or a worker agent via existing LLM tool.
@@ -512,6 +516,7 @@ async def draft_work_node(state: LongPlanState) -> LongPlanState:
         }
 
 
+@must_stay_async("callers use await")
 async def prepare_changes_node(state: LongPlanState) -> LongPlanState:
     """
     Prepare changes using mac_agent.exec_task and/or gmp_run in pending mode only.
@@ -684,6 +689,7 @@ def build_long_plan_graph():
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def execute_long_plan(
     goal: str,
     constraints: list[str] | None = None,
@@ -778,6 +784,7 @@ async def execute_long_plan(
         }
 
 
+@must_stay_async("callers use await")
 async def simulate_long_plan(
     goal: str,
     constraints: list[str] | None = None,

@@ -24,6 +24,8 @@ GMP: refactor-phase0-plan6
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # DORA HEADER META
 # ============================================================================
@@ -198,6 +200,7 @@ class DeduplicationEngine:
             similarity_method=similarity_method.value,
         )
 
+    @must_stay_async("callers use await")
     async def deduplicate_packets(
         self,
         packets: list[dict[str, Any]],
@@ -302,6 +305,7 @@ class DeduplicationEngine:
         )
         return []
 
+    @must_stay_async("callers use await")
     async def _detect_exact_duplicates(
         self,
         packets: list[dict[str, Any]],
@@ -340,6 +344,7 @@ class DeduplicationEngine:
 
         return groups
 
+    @must_stay_async("callers use await")
     async def _detect_semantic_duplicates(
         self,
         packets: list[dict[str, Any]],
@@ -388,6 +393,7 @@ class DeduplicationEngine:
 
         return groups
 
+    @must_stay_async("callers use await")
     async def _detect_fuzzy_duplicates(
         self,
         packets: list[dict[str, Any]],
@@ -431,6 +437,7 @@ class DeduplicationEngine:
 
         return exact_groups + semantic_groups
 
+    @must_stay_async("callers use await")
     async def _merge_duplicate_group(
         self,
         group: DuplicateGroup,

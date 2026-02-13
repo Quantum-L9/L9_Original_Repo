@@ -14,6 +14,8 @@ from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # PHASE 2: OBSERVABILITY TESTS
 # ============================================================================
@@ -246,6 +248,7 @@ class TestPhase4Scalability:
     """Tests for Phase 4 scalability features"""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_batch_ingestion_success(self):
         """Test batch ingestion with valid packets"""
         from core.packet_envelope.scalability import (
@@ -294,6 +297,7 @@ class TestPhase4Scalability:
         assert result.failed_packets > 0 or len(result.errors) > 0
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_command_handler_ingest_packet(self):
         """Test command handler produces correct events"""
         from core.packet_envelope.scalability import (
@@ -451,6 +455,7 @@ class TestPhase5Governance:
             await engine.execute_erasure(request.request_id)
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_anonymization_strategies(self):
         """Test anonymization strategies"""
         from core.packet_envelope.governance import (

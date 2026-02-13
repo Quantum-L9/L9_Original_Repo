@@ -1,0 +1,95 @@
+[
+  {
+    "id": "REL-P001",
+    "category": "reliability",
+    "subcategory": "transaction_boundaries",
+    "severity": "P0",
+    "title": "Missing transaction boundaries around multi-node DAG operations",
+    "file": "memory/substrate_dag.py",
+    "line_start": 248,
+    "line_end": 248,
+    "description": "LangGraph DAG executes intake_node \u2192 reasoning_node \u2192 memory_write_node \u2192 graph_sync_node sequence without transaction boundaries. Partial failures after memory writes leave inconsistent state across Neo4j, semantic embeddings, and checkpoints (ADR-0028 violation).",
+    "impact": "Data inconsistency across memory layers on partial DAG failure. Orphaned Neo4j nodes, dangling embeddings, unlinked checkpoints. Production data corruption risk.",
+    "adr_violations": [
+      "ADR-0028"
+    ],
+    "fix_effort_hours": 8,
+    "blast_radius": [
+      "memory/substrate_dag.py",
+      "memory/substrate_service.py",
+      "memory/graph_client.py"
+    ],
+    "fix_strategy": "Wrap entire DAG execution in PacketEnvelope transaction context with rollback on any node failure. Use substrate_service.begin_transaction() / commit_transaction() around graph.invoke().",
+    "code_before": "result = await graph.ainvoke(input, config)",
+    "code_after": "async with substrate_service.begin_transaction(envelope):\n    result = await graph.ainvoke(input, config)\n    substrate_service.commit_transaction(result)",
+    "test_snippet": "async def test_dag_partial_failure_rollback():\n    envelope = PacketEnvelope(...)\n    with patch('memory_write_node', side_effect=Exception('boom')):\n        result = await dag.invoke({...})\n        assert not neo4j_client.has_orphans(envelope.packet_id)"
+  },
+  {
+    "id": "REL-P002",
+    "category": "reliability",
+    "subcategory": "race_conditions",
+    "severity": "P1",
+    "title": "PacketEnvelope.parent_ids access without length validation",
+    "file": "memory/substrate_dag.py",
+    "line_start": 85,
+    "line_end": 95,
+    "description": "L9 pattern violation: PacketEnvelope.parent_ids accessed in reasoning_node without len(parent_ids) <= MAX_HIERARCHY_DEPTH check. Deeply nested packets cause stack overflow or memory exhaustion.",
+    "impact": "DoS via deeply recursive packet hierarchies. Exhausts stack/memory during DAG processing. Blocks legitimate ingestion.",
+    "adr_violations": [],
+    "fix_effort_hours": 2,
+    "blast_radius": [
+      "memory/substrate_dag.py"
+    ],
+    "fix_strategy": "Add MAX_HIERARCHY_DEPTH=10 validation in intake_node before downstream processing.",
+    "code_before": "if envelope.parent_ids:",
+    "code_after": "if len(envelope.parent_ids or []) > MAX_HIERARCHY_DEPTH:\n    errors.append(f\"Hierarchy depth {len(envelope.parent_ids)} exceeds MAX_HIERARCHY_DEPTH\")\n    return state_with_error",
+    "test_snippet": "def test_parent_ids_depth_limit():\n    envelope = PacketEnvelope(parent_ids=[str(uuid4())] * 11)\n    state = await intake_node({...})\n    assert 'Hierarchy depth 11 exceeds' in state['errors']"
+  },
+  {
+    "id": "REL-P003",
+    "category": "reliability",
+    "subcategory": "error_recovery",
+    "severity": "P1",
+    "title": "Missing error recovery and state cleanup on DAG node failures",
+    "file": "memory/substrate_dag.py",
+    "line_start": 210,
+    "line_end": 230,
+    "description": "intake_node early returns on validation failure without cleanup or PacketEnvelope rejection logging (ADR-0009). Downstream nodes lack try/except with state rollback.",
+    "impact": "Silent failures drop packets without audit trail. No recovery path for transient errors. Violates PacketEnvelope audit requirements.",
+    "adr_violations": [
+      "ADR-0009"
+    ],
+    "fix_effort_hours": 4,
+    "blast_radius": [
+      "memory/substrate_dag.py"
+    ],
+    "fix_strategy": "Implement structured error handling with PacketEnvelope.rejected() state transition and cleanup callbacks.",
+    "code_before": "if errors:\n    return {**state, \"errors\": errors}",
+    "code_after": "if errors:\n    await PacketEnvelope.reject(envelope, errors, config)\n    logger.error(\"packet_rejected\", packet_id=envelope.packet_id, errors=errors)\n    return {**state, \"errors\": errors, \"should_rollback\": True}",
+    "test_snippet": "async def test_intake_validation_failure():\n    state = await intake_node({'envelope': {}})\n    assert state['errors']\n    mock_reject.assert_called()"
+  },
+  {
+    "id": "REL-P004",
+    "category": "reliability",
+    "subcategory": "dag_pipeline",
+    "severity": "P1",
+    "title": "Validation logic in intake_node violates ADR-0012",
+    "file": "memory/substrate_dag.py",
+    "line_start": 210,
+    "line_end": 230,
+    "description": "intake_node performs packet_type/payload validation. ADR-0012 mandates ALL validation occurs in intake_node ONLY. Duplicate validation elsewhere creates inconsistency.",
+    "impact": "Race between intake_node and substrate_service validation. Partial validation allows malformed packets downstream.",
+    "adr_violations": [
+      "ADR-0012"
+    ],
+    "fix_effort_hours": 3,
+    "blast_radius": [
+      "memory/substrate_dag.py",
+      "memory/substrate_service.py"
+    ],
+    "fix_strategy": "Move ALL validation to canonical intake_node. substrate_service calls validated intake_node exclusively.",
+    "code_before": "if not envelope.get(\"packet_type\"):",
+    "code_after": "# Validation moved to canonical validate_packet_schema() in intake_node\npacket = validate_packet_schema(envelope)",
+    "test_snippet": "def test_intake_node_is_canonical_validator():\n    from memory.substrate_service import validate_packet\n    assert validate_packet is intake_node.validate_packet"
+  }
+]

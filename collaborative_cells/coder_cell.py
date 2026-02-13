@@ -301,6 +301,7 @@ class CoderCell(BaseCell):
     # Coder-Specific Methods
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def implement(
         self,
         specification: str,
@@ -334,6 +335,7 @@ class CoderCell(BaseCell):
         result = await self.execute(task, context)
         return result.output or {}
 
+    @must_stay_async("callers use await")
     async def refactor(
         self,
         code: str,
@@ -364,6 +366,7 @@ class CoderCell(BaseCell):
         result = await self.execute(task, context)
         return result.output or {}
 
+    @must_stay_async("callers use await")
     async def fix_bug(
         self,
         code: str,

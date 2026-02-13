@@ -20,6 +20,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # =============================================================================
 # Test GraphToWorldModelSync Class
 # =============================================================================
@@ -254,6 +256,7 @@ async def test_sync_agent_when_disabled():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_sync_agent_success():
     """Test successful sync_agent call.
 
@@ -384,6 +387,7 @@ def test_feature_flag_from_env():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_upsert_to_world_model_integration():
     """Test that _upsert_to_world_model calls WorldModelService correctly."""
     from core.integration.graph_to_wm_sync import GraphToWorldModelSync
@@ -431,6 +435,7 @@ async def test_upsert_to_world_model_integration():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_upsert_handles_missing_wm_service():
     """Test graceful handling when WorldModelService not available."""
     from core.integration.graph_to_wm_sync import GraphToWorldModelSync

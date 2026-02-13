@@ -13,6 +13,7 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.substrate_repository_batch_helpers import BatchQueryHelpers
 
 TEST_DB_URL = os.getenv("TEST_DATABASE_URL")
@@ -41,6 +42,7 @@ async def substrate_repo():
 
 
 @pytest.fixture
+@must_stay_async("callers use await")
 async def batch_helpers(substrate_repo):
     """Provide BatchQueryHelpers instance"""
     return BatchQueryHelpers(substrate_repo)

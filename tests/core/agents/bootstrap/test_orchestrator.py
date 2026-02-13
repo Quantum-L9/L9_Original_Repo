@@ -18,6 +18,7 @@ from core.agents.bootstrap.orchestrator import (
     PhaseResult,
 )
 from core.agents.schemas import AgentConfig
+from core.decorators import must_stay_async
 
 
 @pytest.fixture
@@ -65,6 +66,7 @@ def sample_kernel_paths():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_orchestrator_all_phases_success(
     orchestrator, sample_config, sample_kernel_paths, mock_services
 ):
@@ -165,6 +167,7 @@ async def test_orchestrator_all_phases_success(
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_orchestrator_phase_failure_triggers_rollback(
     orchestrator, sample_config, sample_kernel_paths, mock_services
 ):

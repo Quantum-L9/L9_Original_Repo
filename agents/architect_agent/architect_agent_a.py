@@ -13,6 +13,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Architect Agent A",
@@ -84,6 +86,7 @@ class ArchitectAgentA(BaseAgent):
         """Get the system prompt."""
         return self._config.system_prompt_override or SYSTEM_PROMPT
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         task: dict[str, Any],
@@ -163,6 +166,7 @@ Provide your design as JSON with this structure:
 
         return response
 
+    @must_stay_async("callers use await")
     async def design_component(
         self,
         component_name: str,
@@ -218,6 +222,7 @@ Provide detailed component design as JSON:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def review_design(
         self,
         design: dict[str, Any],
@@ -261,6 +266,7 @@ Evaluate and provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def propose_alternatives(
         self,
         current_design: dict[str, Any],

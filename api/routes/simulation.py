@@ -133,6 +133,7 @@ def _get_engine():
 
 
 @router.post("/run", response_model=SimulationResponse)
+@must_stay_async("callers use await")
 async def run_simulation(
     request: SimulationRequest,
     _: bool = Depends(verify_api_key),

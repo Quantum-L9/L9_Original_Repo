@@ -12,6 +12,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "C Gmp Engine",
@@ -236,6 +238,7 @@ class CGMPEngine:
             "substitutions_applied": list(substitutions.keys()),
         }
 
+    @must_stay_async("callers use await")
     async def generate_from_meta(
         self,
         meta_path: str,

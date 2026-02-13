@@ -23,6 +23,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -97,6 +99,7 @@ class TestDAGNodeCoverage:
         assert 'graph.add_edge("checkpoint_node", END)' in source
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_substrate_dag_node_execution_flow(self):
         """Verify SubstrateDAG node execution without graph compilation."""
         from unittest.mock import AsyncMock, MagicMock
@@ -140,6 +143,7 @@ class TestDAGNodeCoverage:
         assert "agent_memory_events" in state["written_tables"]
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_dag_state_accumulates_through_nodes(self):
         """Verify state is properly accumulated through DAG nodes."""
         from core.schemas import PacketEnvelopeIn
@@ -262,6 +266,7 @@ class TestGMP42EmbeddingFilter:
         assert "semantic_memory" not in result_state.get("written_tables", [])
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_semantic_embed_node_embeds_valid_content(self):
         """Verify semantic_embed_node embeds valid content with service.
 
@@ -367,6 +372,7 @@ class TestDualPipelineArchitecture:
         assert 'graph.add_node("reasoning_node"' in source
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ingest_packet_canonical_entrypoint(self):
         """Verify ingest_packet is the canonical entrypoint."""
         # Should be an async function
@@ -442,6 +448,7 @@ class TestTransactionAtomicity:
         assert hasattr(IngestionPipeline, "_store_memory_event_with_connection")
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_transaction_rollback_on_packet_error(self):
         """Verify transaction rolls back if packet insert fails."""
         from core.schemas import PacketEnvelopeIn
@@ -453,9 +460,11 @@ class TestTransactionAtomicity:
 
         # Create async context manager that raises
         class FailingTransaction:
+            @must_stay_async("callers use await")
             async def __aenter__(self):
                 raise Exception("Simulated constraint violation")
 
+            @must_stay_async("callers use await")
             async def __aexit__(self, *args):
                 pass
 
@@ -731,6 +740,7 @@ class TestE2EIngestionFlow:
     """End-to-end ingestion flow tests."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_full_dag_execution_e2e(self):
         """Test full DAG node execution without graph compilation."""
         from unittest.mock import AsyncMock, MagicMock
@@ -790,6 +800,7 @@ class TestE2EIngestionFlow:
         assert state["reasoning_block"] is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_ingestion_pipeline_validation(self):
         """Test IngestionPipeline validation."""
         from core.schemas import PacketEnvelopeIn
@@ -820,6 +831,7 @@ class TestE2EIngestionFlow:
         assert result is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_critical_packet_checkpoint_trigger(self):
         """Test critical packets trigger checkpoints."""
         from memory.ingestion import IngestionPipeline

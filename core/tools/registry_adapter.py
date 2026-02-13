@@ -384,6 +384,7 @@ class ExecutorToolRegistry:
 
         return bindings
 
+    @must_stay_async("callers use await")
     async def get_relevant_tools(
         self,
         agent_id: str,
@@ -497,6 +498,7 @@ class ExecutorToolRegistry:
 
         return bindings
 
+    @must_stay_async("callers use await")
     async def dispatch_tool_call(
         self,
         tool_id: str,
@@ -892,6 +894,7 @@ class ExecutorToolRegistry:
                 duration_ms=duration_ms,
             )
 
+    @must_stay_async("callers use await")
     async def guarded_execute(
         self,
         agent: Any,
@@ -1948,6 +1951,7 @@ class ExecutorToolRegistry:
     # Registry Passthrough
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def register_tool(
         self,
         tool_id: str,
@@ -2827,6 +2831,7 @@ def _get_l_tool_schema_for_registry(tool_name: str):
     return schemas.get(tool_name)
 
 
+@must_stay_async("callers use await")
 async def register_l_tools() -> int:
     """
     Register all L-CTO tools in the tool registry with governance metadata.

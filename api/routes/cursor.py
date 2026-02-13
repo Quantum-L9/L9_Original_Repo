@@ -124,6 +124,7 @@ async def cursor_test(
 
 
 @router.post("/task", response_model=CursorTaskResponse)
+@must_stay_async("callers use await")
 async def cursor_task(
     request: CursorTaskRequest,
     http_request: Request,

@@ -22,6 +22,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -115,6 +117,7 @@ class TestRegisterMcpTool:
 
         # Register a native tool first
         @register_tool(name="memory_search", category="memory")
+        @must_stay_async("callers use await")
         async def memory_search(**kwargs):
             return {}
 

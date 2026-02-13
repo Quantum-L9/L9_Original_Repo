@@ -14,6 +14,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent.parent
 if str(project_root) not in sys.path:
@@ -54,6 +56,7 @@ def test_tool_definition_creation():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_register_tool_mock():
     """
     Contract: ToolGraph can register tools (mocked Neo4j).

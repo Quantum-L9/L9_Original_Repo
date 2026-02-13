@@ -122,6 +122,7 @@ class CursorMemoryGateway:
             project_ids=["cursor"],
         )
 
+    @must_stay_async("callers use await")
     async def write_decision(
         self,
         state: Any,  # CursorAgentState
@@ -170,6 +171,7 @@ class CursorMemoryGateway:
         logger.info("Decision written", packet_id=result.packet_id)
         return result.packet_id
 
+    @must_stay_async("callers use await")
     async def write_error(
         self,
         state: Any,  # CursorAgentState
@@ -291,6 +293,7 @@ class CursorMemoryGateway:
             # Return empty list on error (graceful degradation)
             return []
 
+    @must_stay_async("callers use await")
     async def write_checkpoint(
         self,
         thread_id: str,

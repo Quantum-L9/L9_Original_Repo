@@ -8,6 +8,8 @@ Provides async functions for all memory substrate operations.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Repository Layer",
@@ -138,6 +140,7 @@ class SubstrateRepository:
             logger.info("Database connection pool closed")
 
     @asynccontextmanager
+    @must_stay_async("callers use await")
     async def acquire(self) -> AsyncGenerator[asyncpg.Connection, None]:
         """Acquire a connection from the pool."""
         if self._pool is None:
@@ -146,6 +149,7 @@ class SubstrateRepository:
             yield conn
 
     @asynccontextmanager
+    @must_stay_async("callers use await")
     async def transaction(
         self,
         tenant_id: str | None = None,
@@ -197,6 +201,7 @@ class SubstrateRepository:
     # Packet Store Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def insert_packet(self, envelope: PacketEnvelope) -> UUID:
         """
         Insert a PacketEnvelope into packet_store.
@@ -260,6 +265,7 @@ class SubstrateRepository:
             )
             return envelope.packet_id
 
+    @must_stay_async("callers use await")
     async def _insert_packet_with_connection(
         self,
         conn: asyncpg.Connection,
@@ -368,6 +374,7 @@ class SubstrateRepository:
             )
             return bool(result)
 
+    @must_stay_async("callers use await")
     async def get_packets_batch(
         self,
         packet_ids: list[UUID],
@@ -413,6 +420,7 @@ class SubstrateRepository:
 
         return result
 
+    @must_stay_async("callers use await")
     async def search_packets_by_thread(
         self,
         thread_id: UUID,
@@ -473,6 +481,7 @@ class SubstrateRepository:
                 )
             return [self._row_to_packet_store(r) for r in rows]
 
+    @must_stay_async("callers use await")
     async def search_packets_by_type(
         self,
         packet_type: str,
@@ -799,6 +808,7 @@ class SubstrateRepository:
     # Knowledge Facts Operations (v2.1.0 - GMP-67 Unified Pipeline)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def insert_knowledge_fact(
         self,
         subject: str,
@@ -923,6 +933,7 @@ class SubstrateRepository:
             created_at=row["created_at"],
         )
 
+    @must_stay_async("callers use await")
     async def get_knowledge_facts(
         self,
         source_packet: UUID | None = None,
@@ -986,6 +997,7 @@ class SubstrateRepository:
     # Semantic Memory Operations (pgvector)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def insert_semantic_embedding(
         self,
         vector: list[float],
@@ -1019,6 +1031,7 @@ class SubstrateRepository:
             )
             return embedding_id
 
+    @must_stay_async("callers use await")
     async def _insert_semantic_embedding_with_connection(
         self,
         conn: asyncpg.Connection,
@@ -1064,6 +1077,7 @@ class SubstrateRepository:
         )
         logger.debug(f"Inserted semantic embedding {embedding_id} with scope={scope}")
 
+    @must_stay_async("callers use await")
     async def search_semantic_memory(
         self,
         query_embedding: list[float],
@@ -1182,6 +1196,7 @@ class SubstrateRepository:
     # Graph Checkpoint Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def save_checkpoint(
         self,
         agent_id: str,
@@ -1428,6 +1443,7 @@ class SubstrateRepository:
             )
             return log_id
 
+    @must_stay_async("callers use await")
     async def get_facts_by_subject(
         self,
         subject: str,
@@ -1682,6 +1698,7 @@ class SubstrateRepository:
     # Semantic Facts Operations (Migration 0018 - Memory Spec v3.1)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def insert_semantic_fact(
         self,
         fact_text: str,
@@ -1781,6 +1798,7 @@ class SubstrateRepository:
         logger.debug(f"Inserted semantic fact {fact_id}: {fact_text[:50]}...")
         return fact_id
 
+    @must_stay_async("callers use await")
     async def get_semantic_facts_by_subject(
         self,
         subject: str,
@@ -1910,6 +1928,7 @@ class SubstrateRepository:
             for r in rows
         ]
 
+    @must_stay_async("callers use await")
     async def update_fact_importance(
         self,
         fact_id: UUID,
@@ -1962,6 +1981,7 @@ class SubstrateRepository:
     # Episodic Events Operations (Migration 0019 - Memory Spec v3.1)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def insert_episodic_event(
         self,
         observation: str,
@@ -2039,6 +2059,7 @@ class SubstrateRepository:
         logger.debug(f"Inserted episodic event {event_id}: {observation[:50]}...")
         return event_id
 
+    @must_stay_async("callers use await")
     async def get_events_by_time_range(
         self,
         start_time: datetime,
@@ -2154,6 +2175,7 @@ class SubstrateRepository:
             for r in rows
         ]
 
+    @must_stay_async("callers use await")
     async def link_event_to_facts(
         self,
         event_id: UUID,
@@ -2337,6 +2359,7 @@ class SubstrateRepository:
     # Time-Travel Queries (Migration 0022)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_facts_as_of(
         self,
         point_in_time: datetime,
@@ -2389,6 +2412,7 @@ class SubstrateRepository:
 
         return [self._row_to_semantic_fact(r) for r in rows]
 
+    @must_stay_async("callers use await")
     async def get_fact_history(
         self,
         fact_text: str,
@@ -2432,6 +2456,7 @@ class SubstrateRepository:
 
         return [self._row_to_semantic_fact(r) for r in rows]
 
+    @must_stay_async("callers use await")
     async def supersede_fact(
         self,
         old_fact_id: UUID,

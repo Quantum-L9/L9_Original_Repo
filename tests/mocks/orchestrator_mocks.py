@@ -7,6 +7,8 @@ Mock implementations for orchestrator testing.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Orchestrator Mocks",
@@ -43,6 +45,7 @@ class MockRedis:
         self._data: dict[str, Any] = {}
         self._expiry: dict[str, datetime] = {}
 
+    @must_stay_async("callers use await")
     async def get(self, key: str) -> str | None:
         """
         Get a value by key.
@@ -59,6 +62,7 @@ class MockRedis:
             return str(value)
         return value
 
+    @must_stay_async("callers use await")
     async def set(
         self,
         key: str,
@@ -91,6 +95,7 @@ class MockRedis:
 
         return True
 
+    @must_stay_async("callers use await")
     async def delete(self, key: str) -> int:
         """
         Delete a key.
@@ -108,6 +113,7 @@ class MockRedis:
             return 1
         return 0
 
+    @must_stay_async("callers use await")
     async def incr(self, key: str) -> int:
         """
         Increment a key.
@@ -125,6 +131,7 @@ class MockRedis:
         self._data[key] = new_value
         return new_value
 
+    @must_stay_async("callers use await")
     async def decr(self, key: str) -> int:
         """
         Decrement a key.
@@ -142,6 +149,7 @@ class MockRedis:
         self._data[key] = new_value
         return new_value
 
+    @must_stay_async("callers use await")
     async def exists(self, key: str) -> bool:
         """
         Check if key exists.
@@ -155,6 +163,7 @@ class MockRedis:
         self._check_expiry(key)
         return key in self._data
 
+    @must_stay_async("callers use await")
     async def keys(self, pattern: str = "*") -> list[str]:
         """
         Get keys matching pattern.
@@ -176,6 +185,7 @@ class MockRedis:
 
         return [k for k in self._data if fnmatch.fnmatch(k, pattern)]
 
+    @must_stay_async("callers use await")
     async def hset(self, name: str, key: str, value: Any) -> int:
         """Set hash field."""
         if name not in self._data:
@@ -183,12 +193,14 @@ class MockRedis:
         self._data[name][key] = value
         return 1
 
+    @must_stay_async("callers use await")
     async def hget(self, name: str, key: str) -> str | None:
         """Get hash field."""
         if name not in self._data:
             return None
         return self._data[name].get(key)
 
+    @must_stay_async("callers use await")
     async def hgetall(self, name: str) -> dict[str, Any]:
         """Get all hash fields."""
         return self._data.get(name, {})
@@ -280,6 +292,7 @@ class MockToolRegistry:
         usage = await self.get_usage(tool_name)
         return usage < tool.get("rate_limit", 100)
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         tool_name: str,

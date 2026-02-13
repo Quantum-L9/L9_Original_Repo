@@ -8,6 +8,8 @@ Implements Decision 8 from design clarifications.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Graph Search Cache",
@@ -149,6 +151,7 @@ def _compute_ttl(ctx: GraphSearchContext, is_governance: bool = False) -> int:
     return max(ttl, 10)  # Minimum 10 seconds
 
 
+@must_stay_async("callers use await")
 async def cached_graph_search(
     query: str,
     params: dict[str, Any],

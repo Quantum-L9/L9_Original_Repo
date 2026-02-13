@@ -47,6 +47,8 @@ Source: Forked from PR #53, aligned with L9 singleton infrastructure
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Agent Mediator",
@@ -221,6 +223,7 @@ class AgentMediator:
             self.subscriptions[message_type].remove(handler)
             logger.debug(f"Unsubscribed from message type: {message_type}")
 
+    @must_stay_async("callers use await")
     async def send_message(
         self,
         from_agent: str,
@@ -277,6 +280,7 @@ class AgentMediator:
 
         return msg.id
 
+    @must_stay_async("callers use await")
     async def broadcast(
         self,
         from_agent: str,
@@ -320,6 +324,7 @@ class AgentMediator:
 
         return list(message_ids)
 
+    @must_stay_async("callers use await")
     async def acknowledge_message(self, message_id: str, agent_id: str) -> None:
         """
         Acknowledge receipt of a message.
@@ -435,6 +440,7 @@ class AgentMediator:
         """
         return self.delivery_status.get(message_id)
 
+    @must_stay_async("callers use await")
     async def close(self) -> None:
         """Cleanup mediator resources."""
         logger.info("Closing AgentMediator")
@@ -462,6 +468,7 @@ _mediator_instance: AgentMediator | None = None
     dependencies=[],
     description="Agent-to-agent message mediator for decoupled communication",
 )
+@must_stay_async("callers use await")
 async def get_agent_mediator() -> AgentMediator:
     """
     Get the singleton AgentMediator instance.

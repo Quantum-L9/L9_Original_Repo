@@ -30,6 +30,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Project root for file-system scans
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 
@@ -305,6 +307,7 @@ class TestExecutionPipeline:
     """Verify tools can be invoked through the execution chain."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_tool_search_e2e_with_mock(self):
         """Full E2E: call tool_search → get tool definitions back."""
         mock_tools = [
@@ -334,6 +337,7 @@ class TestExecutionPipeline:
             assert result["tools"][0]["function"]["name"] == "memory_search"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_tool_search_returns_openai_format(self):
         """Returned tools must be in OpenAI function-calling format."""
         mock_tools = [

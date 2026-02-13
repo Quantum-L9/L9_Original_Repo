@@ -9,6 +9,8 @@ Version: 6.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Code Generator",
@@ -99,6 +101,7 @@ class CodeGenerator:
             default_language=self.config.default_language,
         )
 
+    @must_stay_async("callers use await")
     async def generate_code(
         self,
         expr: str,

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Tests for AgentController - happy path packet dispatch and routing.
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
-from domain_tensor_bridge.agent_controller import AgentController, process_packet
+import pytest
 from l9.core.schemas import PacketEnvelope, PacketKind
+
+from domain_tensor_bridge.agent_controller import AgentController
 
 
 @pytest.fixture

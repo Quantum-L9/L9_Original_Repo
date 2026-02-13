@@ -14,6 +14,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
@@ -45,6 +47,7 @@ def test_client_initialization():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_write_packet_mock():
     """
     Contract: MemoryClient can write packets (mocked HTTP).
@@ -112,6 +115,7 @@ async def test_search_packets_mock():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_all_client_methods_mocked():
     """
     Contract: All 9 MemoryClient methods work with mocked HTTP.

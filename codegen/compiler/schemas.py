@@ -30,7 +30,7 @@ Validates the structure of generated YAML artifacts:
 - work_packets.yaml
 """
 
-from typing import Any, Dict
+from typing import Any
 
 # Expected schema structure for each artifact type
 ARTIFACT_SCHEMAS = {
@@ -41,7 +41,7 @@ ARTIFACT_SCHEMAS = {
 }
 
 
-def validate_schema(artifact_name: str, artifact: Dict[str, Any]) -> None:
+def validate_schema(artifact_name: str, artifact: dict[str, Any]) -> None:
     """
     Validate artifact structure against expected schema.
 

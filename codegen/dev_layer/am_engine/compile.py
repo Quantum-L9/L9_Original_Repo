@@ -32,17 +32,16 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import os
-import sys
-import yaml
 import hashlib
 import json
 import logging  # noqa: ADR-0019
-from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
-from dataclasses import dataclass, asdict, field
-from datetime import datetime, timezone
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from enum import Enum
+from pathlib import Path
+from typing import Any
+
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -67,8 +66,8 @@ class ClassificationResult:
 
     category: ArtifactCategory
     confidence: float  # 0.0 - 1.0
-    keywords_matched: List[str] = field(default_factory=list)
-    extracted_fields: Dict[str, Any] = field(default_factory=dict)
+    keywords_matched: list[str] = field(default_factory=list)
+    extracted_fields: dict[str, Any] = field(default_factory=dict)
 
 
 class ArtifactClassifier:
@@ -127,11 +126,11 @@ class ArtifactClassifier:
         Returns highest-scoring category based on keyword matches.
         """
         text_lower = text.lower()
-        scores: Dict[ArtifactCategory, Tuple[float, List[str]]] = {}
+        scores: dict[ArtifactCategory, tuple[float, list[str]]] = {}
 
         for category, hints in self.CLASSIFICATION_HINTS.items():
             score = 0.0
-            matched_keywords: List[str] = []
+            matched_keywords: list[str] = []
 
             # Keyword matching: +0.2 per keyword match
             for keyword in hints["keywords"]:
@@ -165,14 +164,14 @@ class ArtifactCompiler:
     def __init__(self, output_dir: Path):
         self.output_dir = Path(output_dir)
         self.classifier = ArtifactClassifier()
-        self.compiled_index: Dict[str, Dict[str, Any]] = {}
+        self.compiled_index: dict[str, dict[str, Any]] = {}
 
     def compile_artifact(
         self,
         artifact_text: str,
         source_path: str,
-        force_category: Optional[ArtifactCategory] = None,
-    ) -> Optional[Path]:
+        force_category: ArtifactCategory | None = None,
+    ) -> Path | None:
         """
         Compile a single artifact document into YAML.
 
@@ -213,7 +212,7 @@ class ArtifactCompiler:
                 "source_hash": source_hash,
                 "category": classification.category.value,
                 "confidence": float(classification.confidence),
-                "compiled_at": datetime.now(timezone.utc).isoformat(),
+                "compiled_at": datetime.now(UTC).isoformat(),
             },
             "extracted": classification.extracted_fields,
             "raw_text_excerpt": artifact_text[:500],  # Keep snippet for reference
@@ -251,8 +250,8 @@ class ArtifactCompiler:
     def compile_directory(
         self,
         input_dir: Path,
-        extensions: List[str] = None,
-    ) -> Dict[str, List[Path]]:
+        extensions: list[str] = None,
+    ) -> dict[str, list[Path]]:
         """
         Recursively compile all artifacts in a directory.
 
@@ -266,7 +265,7 @@ class ArtifactCompiler:
         if extensions is None:
             extensions = [".md", ".txt", ".yaml"]
 
-        results: Dict[str, List[Path]] = {cat.value: [] for cat in ArtifactCategory}
+        results: dict[str, list[Path]] = {cat.value: [] for cat in ArtifactCategory}
 
         input_dir = Path(input_dir)
         if not input_dir.exists():
@@ -276,7 +275,7 @@ class ArtifactCompiler:
         for ext in extensions:
             for artifact_file in input_dir.rglob(f"*{ext}"):
                 try:
-                    with open(artifact_file, "r", encoding="utf-8") as f:
+                    with open(artifact_file, encoding="utf-8") as f:
                         text = f.read()
 
                     output = self.compile_artifact(
@@ -304,7 +303,7 @@ class ArtifactCompiler:
         return results
 
 
-def load_canonical_yaml(category_dir: Path) -> Dict[str, Any]:
+def load_canonical_yaml(category_dir: Path) -> dict[str, Any]:
     """
     Load all canonical YAML from a category directory.
 
@@ -325,7 +324,7 @@ def load_canonical_yaml(category_dir: Path) -> Dict[str, Any]:
 
     for yaml_file in sorted(category_dir.glob("*.yaml")):
         try:
-            with open(yaml_file, "r") as f:
+            with open(yaml_file) as f:
                 data = yaml.safe_load(f)
             if data:
                 merged[yaml_file.stem] = data

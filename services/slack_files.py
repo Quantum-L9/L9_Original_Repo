@@ -44,6 +44,8 @@ from typing import Any
 import httpx
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 # Configuration
@@ -664,6 +666,7 @@ def process_slack_file(file_id: str, file_info: dict[str, Any]) -> dict[str, Any
     return artifact
 
 
+@must_stay_async("callers use await")
 async def get_file_info(file_id: str) -> dict[str, Any]:
     """
     Retrieve file metadata from Slack API using files.info (async).
@@ -706,6 +709,7 @@ async def get_file_info(file_id: str) -> dict[str, Any]:
         await http_client.aclose()
 
 
+@must_stay_async("callers use await")
 async def process_file_attachments(files: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Process multiple file attachments from a Slack message (async).

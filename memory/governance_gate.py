@@ -278,6 +278,7 @@ def _fallback_context() -> MemoryGovernanceContext:
 
 
 @asynccontextmanager
+@must_stay_async("callers use await")
 async def ensure_governance_context(
     operation: str,
 ) -> AsyncGenerator[MemoryGovernanceContext, None]:

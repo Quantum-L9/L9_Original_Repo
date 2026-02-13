@@ -39,6 +39,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
+from core.decorators import must_stay_async
+
 
 @dataclass(frozen=True)
 class SubstrateConfig:
@@ -72,6 +74,7 @@ class AbstractMemoryRepository(ABC):
     """Abstract repository for memory operations."""
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def save_memory(
         self,
         user_id: str,
@@ -84,6 +87,7 @@ class AbstractMemoryRepository(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def search_memory(
         self,
         user_id: str,
@@ -94,11 +98,13 @@ class AbstractMemoryRepository(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def delete_memory(self, user_id: str, memory_id: str) -> bool:
         """Delete memory. Returns True if deleted."""
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def apply_temporal_decay(
         self,
         user_id: str,
@@ -108,6 +114,7 @@ class AbstractMemoryRepository(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def get_stats(self, user_id: str) -> dict[str, Any]:
         """Get memory statistics."""
         pass
@@ -117,11 +124,13 @@ class SubstrateService(ABC):
     """Main interface for Memory Substrate."""
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def initialize(self, config: SubstrateConfig) -> None:
         """Initialize substrate."""
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def close(self) -> None:
         """Close connections."""
         pass
@@ -132,6 +141,7 @@ class SubstrateService(ABC):
         pass
 
     @abstractmethod
+    @must_stay_async("callers use await")
     async def health_check(self) -> bool:
         """Check if healthy."""
         pass

@@ -7,6 +7,8 @@ Purpose: Parse identity.yaml, hydrate agent's self-awareness (designation, role,
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Phase 4 Load Identity",
@@ -44,6 +46,7 @@ if TYPE_CHECKING:
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def load_identity_persona(
     instance: BootstrapInstanceData,
     substrate_service: MemorySubstrateService,
@@ -177,6 +180,7 @@ async def load_identity_persona(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def load_identity_persona_view(
     agent_id: str,
     identity_kernel: dict[str, Any],

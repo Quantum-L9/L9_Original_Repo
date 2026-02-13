@@ -129,6 +129,7 @@ class Evaluator:
             examples=len(examples),
         )
 
+    @must_stay_async("callers use await")
     async def run_eval(
         self,
         agent_id: str,

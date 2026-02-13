@@ -12,6 +12,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "GMP Tool Implementation",
@@ -42,6 +44,7 @@ from runtime.gmp_worker import store_pending_task
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def gmp_run_tool(
     gmp_markdown: str,
     repo_root: str,

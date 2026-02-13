@@ -122,6 +122,7 @@ async def tools_test(
 
 
 @router.post("/execute", response_model=ToolExecuteResponse)
+@must_stay_async("callers use await")
 async def execute_tool(
     request: ToolExecuteRequest,
     http_request: Request,

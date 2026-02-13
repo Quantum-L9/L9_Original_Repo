@@ -15,6 +15,8 @@ Strategies:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Consolidation Pipeline",
@@ -164,6 +166,7 @@ class ConsolidationPipeline:
         """Set or update repository reference."""
         self._repository = repository
 
+    @must_stay_async("callers use await")
     async def run_consolidation(
         self,
         batch_size: int = 1000,
@@ -232,6 +235,7 @@ class ConsolidationPipeline:
 
         return report
 
+    @must_stay_async("callers use await")
     async def _run_deduplication(
         self,
         batch_size: int,
@@ -349,6 +353,7 @@ class ConsolidationPipeline:
         logger.info("Deduplication complete", deduplicated_count=deduplicated)
         return deduplicated
 
+    @must_stay_async("callers use await")
     async def _resolve_duplicate_pair(
         self,
         conn: Any,
@@ -414,6 +419,7 @@ class ConsolidationPipeline:
         # If no timestamps, keep first by ID order
         return packet_id_1, packet_id_2
 
+    @must_stay_async("callers use await")
     async def _run_archival(
         self,
         batch_size: int,
@@ -466,6 +472,7 @@ class ConsolidationPipeline:
         logger.info("Archival complete", archived_count=archived)
         return archived
 
+    @must_stay_async("callers use await")
     async def _run_summarization(
         self,
         batch_size: int,
@@ -648,6 +655,7 @@ class ConsolidationPipeline:
 
         return " ".join(summary_parts)
 
+    @must_stay_async("callers use await")
     async def _run_ttl_expiration(
         self,
         batch_size: int,

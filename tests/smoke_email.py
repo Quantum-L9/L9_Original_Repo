@@ -47,6 +47,8 @@ from unittest.mock import MagicMock, patch
 
 import structlog
 
+from core.decorators import must_stay_async
+
 # Ensure repo root is in path
 REPO_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(REPO_ROOT))
@@ -102,6 +104,7 @@ class IngestTracker:
     def __init__(self):
         self.calls: list[dict[str, Any]] = []
 
+    @must_stay_async("callers use await")
     async def mock_ingest(self, packet_in):
         """Mock ingest_packet that records calls."""
         self.calls.append(
@@ -358,6 +361,7 @@ async def test_email_forward_ingestion():
         raise
 
 
+@must_stay_async("callers use await")
 async def test_ingestion_fail_loud():
     """Test that ingestion failure causes HTTP 500."""
     try:
@@ -390,6 +394,7 @@ async def test_ingestion_fail_loud():
         raise
 
 
+@must_stay_async("callers use await")
 async def run_all_tests():
     """Run all email smoke tests."""
     import logging

@@ -13,10 +13,12 @@ from datetime import datetime
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.retention_refcount import PacketRefCount, ReferenceCountingService
 
 
 @pytest.fixture
+@must_stay_async("callers use await")
 async def mock_repository():
     """Mock repository for testing."""
 
@@ -29,12 +31,15 @@ async def mock_repository():
         def acquire(self):
             return self
 
+        @must_stay_async("callers use await")
         async def __aenter__(self):
             return self
 
+        @must_stay_async("callers use await")
         async def __aexit__(self, *args):
             pass
 
+        @must_stay_async("callers use await")
         async def fetchval(self, query, *args):
             # Simulate database queries
             if "packet_store" in query and "parent_ids" in query:
@@ -62,6 +67,7 @@ async def mock_repository():
 
             return 0
 
+        @must_stay_async("callers use await")
         async def execute(self, query, *args):
             # Mock UPDATE for soft expiration
             pass

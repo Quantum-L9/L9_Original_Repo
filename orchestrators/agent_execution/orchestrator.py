@@ -38,6 +38,8 @@ from pathlib import Path
 import aiofiles
 import structlog
 
+from core.decorators import must_stay_async
+
 from .interface import (
     AgentExecutionRequest,
     AgentExecutionResponse,
@@ -95,6 +97,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
             self._post_result_async = None
             self._AutomationExecutor = None
 
+    @must_stay_async("callers use await")
     async def execute(self, request: AgentExecutionRequest) -> AgentExecutionResponse:
         """
         Execute a Mac Agent task.
@@ -171,6 +174,7 @@ class AgentExecutionOrchestrator(IAgentExecutionOrchestrator):
                 task_id=request.task_id,
             )
 
+    @must_stay_async("callers use await")
     async def poll_and_execute(self) -> None:
         """
         Main polling loop (file-based task system).

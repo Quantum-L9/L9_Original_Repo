@@ -15,6 +15,8 @@ Each tier has configurable compression ratios and LLM prompts.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Hierarchical Summarizer",
@@ -175,6 +177,7 @@ class HierarchicalSummarizer:
             tiers=list(self._tier_configs.keys()),
         )
 
+    @must_stay_async("callers use await")
     async def run_cascade(
         self,
         cutoff_time: datetime | None = None,
@@ -223,6 +226,7 @@ class HierarchicalSummarizer:
 
         return results
 
+    @must_stay_async("callers use await")
     async def _summarize_tier(
         self,
         tier: SummaryTier,
@@ -369,6 +373,7 @@ class HierarchicalSummarizer:
 
         return windows
 
+    @must_stay_async("callers use await")
     async def _generate_summary(
         self,
         tier: SummaryTier,

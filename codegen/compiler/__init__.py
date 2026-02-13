@@ -12,10 +12,10 @@ Usage:
     artifacts = compiler.compile(transcript_text)
 """
 
-from .transcript_compiler import TranscriptCompiler
 from .classifier import classify_claim
-from .validator_bridge import validate_outputs
 from .schemas import validate_schema
+from .transcript_compiler import TranscriptCompiler
+from .validator_bridge import validate_outputs
 
 __all__ = [
     "TranscriptCompiler",

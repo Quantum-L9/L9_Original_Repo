@@ -37,6 +37,7 @@ from pydantic import BaseModel
 
 from api.dependencies import get_substrate_service, verify_api_key
 from core.compliance.audit_reporter import ComplianceReporter
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -79,6 +80,7 @@ class AuditLogExportResponse(BaseModel):
 
 
 @router.get("/report/daily", response_model=ComplianceReportResponse)
+@must_stay_async("callers use await")
 async def get_daily_compliance_report(
     date: str | None = Query(
         None,
@@ -139,6 +141,7 @@ async def get_daily_compliance_report(
 
 
 @router.get("/report", response_model=ComplianceReportResponse)
+@must_stay_async("callers use await")
 async def get_compliance_report(
     from_date: str = Query(
         ...,
@@ -204,6 +207,7 @@ async def get_compliance_report(
 
 
 @router.get("/audit-log", response_model=AuditLogExportResponse)
+@must_stay_async("callers use await")
 async def export_audit_log(
     from_date: str = Query(
         ...,

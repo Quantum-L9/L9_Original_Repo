@@ -71,6 +71,7 @@ import structlog
 from api.slack_adapter import SlackRequestNormalizer
 from api.slack_client import SlackAPIClient, SlackClientError
 from config.settings import settings
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelopeIn, PacketMetadata, PacketProvenance
 from memory.substrate_service import MemorySubstrateService
 
@@ -95,6 +96,7 @@ try:
 except ImportError:
     _has_redis = False
 
+    @must_stay_async("callers use await")
     async def get_redis_client():
         return None
 
@@ -242,6 +244,7 @@ async def _clear_event_inflight(event_id: str) -> None:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def handle_slack_with_l_agent(
     app,
     text: str,
@@ -527,6 +530,7 @@ def _is_email_command(text: str) -> bool:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def _route_to_mac_task(
     text: str,
     channel_id: str,
@@ -588,6 +592,7 @@ async def _route_to_mac_task(
         return None
 
 
+@must_stay_async("callers use await")
 async def _route_to_email_task(
     text: str,
     channel_id: str,
@@ -653,6 +658,7 @@ async def _route_to_email_task(
         return None
 
 
+@must_stay_async("callers use await")
 async def handle_slack_events(
     request_body: bytes,
     payload: dict[str, Any],
@@ -1511,6 +1517,7 @@ async def handle_slack_events(
     return {"ok": True}
 
 
+@must_stay_async("callers use await")
 async def handle_slack_commands(
     payload: dict[str, Any],
     substrate_service: MemorySubstrateService,
@@ -1647,6 +1654,7 @@ async def handle_slack_commands(
 # Helper Functions
 
 
+@must_stay_async("callers use await")
 async def _check_duplicate(
     substrate_service: MemorySubstrateService,
     event_id: str,
@@ -1747,6 +1755,7 @@ async def _check_duplicate(
         return {"is_duplicate": False, "reason": "dedupe_check_failed"}
 
 
+@must_stay_async("callers use await")
 async def _cache_thread_message(
     thread_uuid: str,
     role: str,
@@ -1812,6 +1821,7 @@ async def _cache_thread_message(
         )
 
 
+@must_stay_async("callers use await")
 async def _retrieve_thread_context(
     substrate_service: MemorySubstrateService,
     thread_uuid: str,
@@ -1942,6 +1952,7 @@ async def _retrieve_semantic_hits(
         return {"results": [], "error": str(e)}
 
 
+@must_stay_async("callers use await")
 async def _index_slack_conversation(
     substrate_service: MemorySubstrateService,
     text: str,

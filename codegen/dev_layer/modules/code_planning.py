@@ -31,10 +31,10 @@ __dora_meta__ = {
 import hashlib
 import json
 import logging  # noqa: ADR-0019
-from dataclasses import dataclass, asdict, field
-from typing import Dict, Any, List, Optional
-from datetime import datetime, timezone
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
 from enum import Enum
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -56,10 +56,10 @@ class CodeChange:
     line_start: int
     line_end: int
     change_type: ChangeType
-    old_content: Optional[str] = None
-    new_content: Optional[str] = None
+    old_content: str | None = None
+    new_content: str | None = None
     rationale: str = ""
-    patterns_applied: List[str] = field(default_factory=list)
+    patterns_applied: list[str] = field(default_factory=list)
     confidence: float = 0.0
 
 
@@ -69,14 +69,12 @@ class CodePlan:
 
     plan_id: str
     intent: str
-    changes: List[CodeChange] = field(default_factory=list)
-    constraints_validated: List[str] = field(default_factory=list)
-    patterns_applied: List[str] = field(default_factory=list)
+    changes: list[CodeChange] = field(default_factory=list)
+    constraints_validated: list[str] = field(default_factory=list)
+    patterns_applied: list[str] = field(default_factory=list)
     estimated_risk: str = "medium"  # low, medium, high, critical
     deterministic_hash: str = ""  # Hash of plan for reproducibility
-    created_at: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
-    )
+    created_at: str = field(default_factory=lambda: datetime.now(UTC).isoformat())
 
     def compute_hash(self) -> str:
         """Compute deterministic hash of plan (for reproducibility)."""
@@ -98,16 +96,16 @@ class CodePlanner:
     Changes are *not* applied; only planned and reported.
     """
 
-    def __init__(self, governance_law: Dict[str, Any]):
+    def __init__(self, governance_law: dict[str, Any]):
         self.governance_law = governance_law
-        self.plans: Dict[str, CodePlan] = {}
+        self.plans: dict[str, CodePlan] = {}
 
     def plan_change(
         self,
         intent: str,
-        scope: List[str],
-        constraints: List[str],
-        patterns: List[str],
+        scope: list[str],
+        constraints: list[str],
+        patterns: list[str],
     ) -> CodePlan:
         """
         Generate a deterministic plan for code change.
@@ -123,7 +121,7 @@ class CodePlanner:
         """
 
         plan_id = self._generate_plan_id(intent, scope, constraints)
-        changes: List[CodeChange] = []
+        changes: list[CodeChange] = []
 
         logger.info(f"Planning changes for: {intent}")
         logger.info(f"  Scope: {scope}")
@@ -153,14 +151,14 @@ class CodePlanner:
         return plan
 
     def _generate_plan_id(
-        self, intent: str, scope: List[str], constraints: List[str]
+        self, intent: str, scope: list[str], constraints: list[str]
     ) -> str:
         """Generate deterministic plan ID from inputs."""
         content = f"{intent}:{','.join(scope)}:{','.join(constraints)}"
         # Use SHA256 for consistency (MD5 deprecated across codebase)
         return f"plan_{hashlib.sha256(content.encode()).hexdigest()[:8]}"
 
-    def _validate_constraints(self, constraints: List[str]) -> List[str]:
+    def _validate_constraints(self, constraints: list[str]) -> list[str]:
         """Validate constraints against governance law."""
         validated = []
         for constraint in constraints:
@@ -171,7 +169,7 @@ class CodePlanner:
                 logger.warning(f"Unknown constraint: {constraint}")
         return validated
 
-    def _assess_risk(self, intent: str, scope: List[str]) -> str:
+    def _assess_risk(self, intent: str, scope: list[str]) -> str:
         """Assess risk level of proposed changes."""
         scope_str = " ".join(scope).lower()
 
@@ -182,7 +180,7 @@ class CodePlanner:
         return "medium"
 
 
-def generate_diff(plan: CodePlan, current_files: Dict[str, str]) -> str:
+def generate_diff(plan: CodePlan, current_files: dict[str, str]) -> str:
     """
     Convert CodePlan into unified diff format.
 
@@ -241,11 +239,11 @@ class VerificationReport:
     plan_id: str
     tests_passed: bool
     constraints_satisfied: bool
-    rules_applied: List[str] = field(default_factory=list)
-    risks_identified: List[str] = field(default_factory=list)
+    rules_applied: list[str] = field(default_factory=list)
+    risks_identified: list[str] = field(default_factory=list)
     confidence_score: float = 0.0
     verification_timestamp: str = field(
-        default_factory=lambda: datetime.now(timezone.utc).isoformat()
+        default_factory=lambda: datetime.now(UTC).isoformat()
     )
 
     def to_json(self) -> str:

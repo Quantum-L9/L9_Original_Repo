@@ -22,6 +22,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # FIXTURES
 # ============================================================================
@@ -225,6 +227,7 @@ class TestToolSearchErrorHandling:
             assert "error" in result or "tools" in result
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_discovery_timeout_handled(self):
         """If discovery times out, tool_search must not hang indefinitely."""
 

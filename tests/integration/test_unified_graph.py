@@ -21,6 +21,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Ensure project root is on path
 project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
@@ -63,6 +65,7 @@ def test_get_agent_query_exported():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_ensure_agent_exists_method():
     """Test that ToolGraph has ensure_agent_exists method."""
     assert hasattr(ToolGraph, "ensure_agent_exists")
@@ -160,6 +163,7 @@ async def test_register_tool_without_agent_no_ensure():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_unified_agent_node_scenario():
     """
     Integration scenario: bootstrap_l_graph + register_tool = single Agent node.
@@ -173,11 +177,13 @@ async def test_unified_agent_node_scenario():
     created_nodes = {}
     created_rels = []
 
+    @must_stay_async("callers use await")
     async def mock_create_entity(entity_type, entity_id, properties):
         key = f"{entity_type}:{entity_id}"
         if key not in created_nodes:
             created_nodes[key] = {"type": entity_type, "id": entity_id, **properties}
 
+    @must_stay_async("callers use await")
     async def mock_create_relationship(
         from_type, from_id, to_type, to_id, rel_type, properties=None
     ):

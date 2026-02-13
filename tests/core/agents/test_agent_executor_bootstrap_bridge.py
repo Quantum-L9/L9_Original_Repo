@@ -14,6 +14,7 @@ from core.agents.bootstrap.models import IdentityView
 from core.agents.bootstrap.orchestrator import AgentBootstrapError
 from core.agents.executor import AgentExecutorService
 from core.agents.schemas import AgentConfig
+from core.decorators import must_stay_async
 
 
 @pytest.fixture
@@ -40,6 +41,7 @@ def executor(mock_executor_services):
 
 @pytest.mark.asyncio
 @pytest.mark.skip(reason="bootstrap_agent_from_query not yet implemented on executor")
+@must_stay_async("callers use await")
 async def test_bootstrap_agent_from_query_success(executor):
     """Test successful bootstrap from query."""
     with patch(

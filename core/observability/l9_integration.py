@@ -39,12 +39,15 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 from .instrumentation import trace_governance_check, trace_span, trace_tool_call
 from .models import SpanKind
 
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def instrument_agent_executor(executor_service: Any) -> None:
     """
     Wrap agent executor methods with observability decorators.
@@ -68,6 +71,7 @@ async def instrument_agent_executor(executor_service: Any) -> None:
 
     original_start_task = executor_service.start_agent_task
 
+    @must_stay_async("callers use await")
     async def traced_start_task(*args: Any, **kwargs: Any) -> Any:
         """Traced wrapper that initializes trace context for agent tasks."""
         from .service import ObservabilityService
@@ -91,6 +95,7 @@ async def instrument_agent_executor(executor_service: Any) -> None:
     logger.info("Instrumented agent executor (start_agent_task)")
 
 
+@must_stay_async("callers use await")
 async def instrument_tool_registry(tool_registry: Any) -> None:
     """
     Wrap tool registry methods with observability.
@@ -111,6 +116,7 @@ async def instrument_tool_registry(tool_registry: Any) -> None:
 
     original_dispatch = tool_registry.dispatch_tool_call
 
+    @must_stay_async("callers use await")
     async def traced_dispatch_tool_call(
         tool_id: str,
         arguments: dict[str, Any],
@@ -129,6 +135,7 @@ async def instrument_tool_registry(tool_registry: Any) -> None:
     logger.info("Instrumented tool registry (dispatch_tool_call)")
 
 
+@must_stay_async("callers use await")
 async def instrument_governance_engine(governance_engine: Any) -> None:
     """
     Wrap governance engine with observability.
@@ -149,6 +156,7 @@ async def instrument_governance_engine(governance_engine: Any) -> None:
 
     original_evaluate = governance_engine.evaluate
 
+    @must_stay_async("callers use await")
     async def traced_evaluate(request: Any) -> Any:
         """Traced wrapper for governance evaluate."""
         # Extract policy info from request for span naming
@@ -167,6 +175,7 @@ async def instrument_governance_engine(governance_engine: Any) -> None:
     logger.info("Instrumented governance engine (evaluate)")
 
 
+@must_stay_async("callers use await")
 async def instrument_memory_substrate(substrate_service: Any) -> None:
     """
     Wrap memory substrate with observability.
@@ -186,6 +195,7 @@ async def instrument_memory_substrate(substrate_service: Any) -> None:
     if hasattr(substrate_service, "write_packet"):
         original_write_packet = substrate_service.write_packet
 
+        @must_stay_async("callers use await")
         async def traced_write_packet(*args: Any, **kwargs: Any) -> Any:
             """Traced wrapper for write_packet."""
 
@@ -204,6 +214,7 @@ async def instrument_memory_substrate(substrate_service: Any) -> None:
     if hasattr(substrate_service, "semantic_search"):
         original_semantic_search = substrate_service.semantic_search
 
+        @must_stay_async("callers use await")
         async def traced_semantic_search(request: Any) -> Any:
             """Traced wrapper for semantic_search."""
 
@@ -222,6 +233,7 @@ async def instrument_memory_substrate(substrate_service: Any) -> None:
     if hasattr(substrate_service, "get_packet"):
         original_get_packet = substrate_service.get_packet
 
+        @must_stay_async("callers use await")
         async def traced_get_packet(packet_id: str) -> Any:
             """Traced wrapper for get_packet."""
 
@@ -240,6 +252,7 @@ async def instrument_memory_substrate(substrate_service: Any) -> None:
     if hasattr(substrate_service, "query_packets"):
         original_query_packets = substrate_service.query_packets
 
+        @must_stay_async("callers use await")
         async def traced_query_packets(*args: Any, **kwargs: Any) -> Any:
             """Traced wrapper for query_packets."""
 
@@ -260,6 +273,7 @@ async def instrument_memory_substrate(substrate_service: Any) -> None:
         logger.warning("instrument_memory_substrate: no instrumentable methods found")
 
 
+@must_stay_async("callers use await")
 async def instrument_aios_runtime(runtime_service: Any) -> None:
     """
     Wrap AIOS runtime with observability (if available).
@@ -275,6 +289,7 @@ async def instrument_aios_runtime(runtime_service: Any) -> None:
     if hasattr(runtime_service, "execute_reasoning"):
         original_execute_reasoning = runtime_service.execute_reasoning
 
+        @must_stay_async("callers use await")
         async def traced_execute_reasoning(*args: Any, **kwargs: Any) -> Any:
             """Traced wrapper for execute_reasoning."""
 

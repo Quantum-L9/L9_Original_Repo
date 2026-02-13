@@ -49,6 +49,8 @@ import aiofiles
 import httpx
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 SLACK_API_BASE = "https://slack.com/api"
@@ -92,6 +94,7 @@ class SlackAPIClient:
         self.bot_token = bot_token
         self.http_client = http_client
 
+    @must_stay_async("callers use await")
     async def post_message(
         self,
         channel: str,
@@ -180,6 +183,7 @@ class SlackAPIClient:
         except Exception as e:
             raise SlackClientError(f"HTTP error posting to Slack: {e}") from e
 
+    @must_stay_async("callers use await")
     async def upload_file(
         self,
         channel: str,
@@ -263,6 +267,7 @@ class SlackAPIClient:
         except Exception as e:
             raise SlackClientError(f"HTTP error uploading file to Slack: {e}") from e
 
+    @must_stay_async("callers use await")
     async def get_file_info(self, file_id: str) -> dict[str, Any]:
         """
         Get file metadata from Slack using files.info API.
@@ -327,6 +332,7 @@ class SlackAPIClient:
             ) from e
 
 
+@must_stay_async("callers use await")
 async def post_result_async(
     user: str,
     task: dict,

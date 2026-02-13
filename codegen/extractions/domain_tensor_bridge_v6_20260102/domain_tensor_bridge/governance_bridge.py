@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Governance Bridge
@@ -47,7 +46,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -73,10 +72,10 @@ class GovernanceResult:
 
     decision: GovernanceDecision
     approved: bool
-    reason: Optional[str] = None
-    escalation_level: Optional[EscalationLevel] = None
-    audit_id: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    reason: str | None = None
+    escalation_level: EscalationLevel | None = None
+    audit_id: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -85,7 +84,7 @@ class EscalationResult:
 
     escalated: bool
     anchor: str
-    response: Optional[str] = None
+    response: str | None = None
     timeout: bool = False
 
 
@@ -102,8 +101,8 @@ class GovernanceBridge:
 
     def __init__(
         self,
-        approval_service: Optional[ApprovalService] = None,
-        igor: Optional[Igor] = None,
+        approval_service: ApprovalService | None = None,
+        igor: Igor | None = None,
     ):
         self.approval_service = approval_service
         self.igor = igor
@@ -121,7 +120,7 @@ class GovernanceBridge:
 
     async def check_governance(
         self,
-        decision: Dict[str, Any],
+        decision: dict[str, Any],
     ) -> GovernanceResult:
         """
         Check decision against governance policy.
@@ -170,13 +169,13 @@ class GovernanceBridge:
             approved=True,
         )
 
-    async def check(self, result: Dict[str, Any]) -> GovernanceResult:
+    async def check(self, result: dict[str, Any]) -> GovernanceResult:
         """Alias for check_governance."""
         return await self.check_governance(result)
 
     async def escalate_to_anchor(
         self,
-        decision: Dict[str, Any],
+        decision: dict[str, Any],
         reason: str,
     ) -> EscalationResult:
         """
@@ -220,7 +219,7 @@ class GovernanceBridge:
             anchor="none",
         )
 
-    def _requires_escalation(self, decision: Dict[str, Any]) -> bool:
+    def _requires_escalation(self, decision: dict[str, Any]) -> bool:
         """Determine if decision requires escalation."""
         # Check confidence threshold
         confidence = decision.get("confidence", 1.0)
@@ -238,8 +237,8 @@ class GovernanceBridge:
 
     def _determine_escalation_level(
         self,
-        decision: Dict[str, Any],
-    ) -> Optional[EscalationLevel]:
+        decision: dict[str, Any],
+    ) -> EscalationLevel | None:
         """Determine appropriate escalation level."""
         if decision.get("critical", False):
             return EscalationLevel.IGOR
@@ -249,7 +248,7 @@ class GovernanceBridge:
 
         return EscalationLevel.STANDARD
 
-    async def _check_approval(self, decision: Dict[str, Any]) -> bool:
+    async def _check_approval(self, decision: dict[str, Any]) -> bool:
         """Check with approval service."""
         if not self.approval_service:
             return True
@@ -288,10 +287,10 @@ __footer_meta__ = {
 }
 
 __all__ = [
-    "GovernanceBridge",
-    "GovernanceResult",
-    "GovernanceDecision",
     "EscalationResult",
+    "GovernanceBridge",
+    "GovernanceDecision",
+    "GovernanceResult",
     "__footer_meta__",
     "__l9_trace__",
 ]

@@ -210,12 +210,14 @@ def register_singleton(
             description="Memory substrate repository",
             category="memory"
         )
+        @must_stay_async("callers use await")
         async def get_memory_substrate_repository():
             # ... implementation ...
             return repository
 
         # Optionally pair with a closer
         @register_singleton_closer("memory_substrate_repository")
+        @must_stay_async("callers use await")
         async def close_memory_substrate_repository():
             # ... cleanup ...
             pass
@@ -276,6 +278,7 @@ def register_singleton_closer(
 
     Example:
         @register_singleton_closer("redis_client")
+        @must_stay_async("callers use await")
         async def close_redis_client():
             # ... cleanup ...
             pass

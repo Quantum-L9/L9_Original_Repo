@@ -146,6 +146,7 @@ class PostgresIntrospector:
         """
         self._pool = pool
 
+    @must_stay_async("callers use await")
     async def get_tables(
         self,
         schema_name: str = "public",
@@ -208,6 +209,7 @@ class PostgresIntrospector:
             logger.debug(f"Found {len(results)} tables in schema {schema_name}")
             return results
 
+    @must_stay_async("callers use await")
     async def _get_columns(
         self,
         conn: Any,
@@ -261,6 +263,7 @@ class PostgresIntrospector:
             for row in rows
         ]
 
+    @must_stay_async("callers use await")
     async def get_indexes(self, schema_name: str = "public") -> list[IndexInfo]:
         """
         Get all indexes in a schema.
@@ -618,6 +621,7 @@ class SchemaIntrospector:
             neo4j_version=neo4j_version,
         )
 
+    @must_stay_async("callers use await")
     async def get_summary_for_context(
         self, schema_name: str = "public"
     ) -> dict[str, Any]:
@@ -707,6 +711,7 @@ async def get_schema_introspector(
 
     return _introspector
 
+
 __all__ = [
     "ColumnInfo",
     "IndexInfo",
@@ -769,4 +774,3 @@ __l9_trace__ = {
 # ============================================================================
 # END L9 DORA BLOCK
 # ============================================================================
-

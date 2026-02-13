@@ -30,7 +30,6 @@ Converts natural language claims into typed YAML artifacts:
 - work_packets.yaml - Actionable work items
 """
 
-from .emitters.lexer import extract_claims
 from .classifier import classify_claim
 from .emitters import (
     decisions,
@@ -38,6 +37,7 @@ from .emitters import (
     invariants,
     work_packets,
 )
+from .emitters.lexer import extract_claims
 from .validator_bridge import validate_outputs
 
 

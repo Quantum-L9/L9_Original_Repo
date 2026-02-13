@@ -16,6 +16,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "EOS Hypergraph Client",
@@ -83,6 +85,7 @@ class EOSHypergraphClient:
         """Check if hypergraph client is available."""
         return self._available and self._neo4j is not None
 
+    @must_stay_async("callers use await")
     async def check_violations(
         self,
         action_type: str,
@@ -216,6 +219,7 @@ class EOSHypergraphClient:
 
         return result
 
+    @must_stay_async("callers use await")
     async def get_agent_capabilities(
         self,
         agent_id: str,
@@ -277,6 +281,7 @@ class EOSHypergraphClient:
             )
             return []
 
+    @must_stay_async("callers use await")
     async def record_verdict(
         self,
         verdict_id: str,

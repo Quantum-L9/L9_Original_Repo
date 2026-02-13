@@ -24,6 +24,8 @@ Examples:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Ingest Chat Transcript",
@@ -275,6 +277,7 @@ def chunk_messages(
     return chunks
 
 
+@must_stay_async("callers use await")
 async def ingest_to_memory(
     transcript_path: str,
     messages: list[Message],

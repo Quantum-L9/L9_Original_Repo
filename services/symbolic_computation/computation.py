@@ -38,6 +38,8 @@ from sympy.utilities.autowrap import autowrap
 from sympy.utilities.codegen import codegen
 from sympy.utilities.lambdify import lambdify
 
+from core.decorators import must_stay_async
+
 from .exceptions import EvaluationError
 from .logger import get_logger
 from .models import (
@@ -118,6 +120,7 @@ class ExpressionEvaluator:
             "cache_misses": 0,
         }
 
+    @must_stay_async("callers use await")
     async def evaluate(self, request: ComputationRequest) -> ComputationResult:
         """
         Evaluate symbolic expression asynchronously.
@@ -203,6 +206,7 @@ class CodeGenerator:
         """Initialize code generator."""
         self._generated_count = 0
 
+    @must_stay_async("callers use await")
     async def generate(self, request: CodeGenRequest) -> CodeGenResult:
         """
         Generate code from symbolic expression.
@@ -326,6 +330,7 @@ class SymbolicComputation:
 
         logger.info("SymbolicComputation engine initialized")
 
+    @must_stay_async("callers use await")
     async def compute(
         self,
         expression: str,
@@ -352,6 +357,7 @@ class SymbolicComputation:
 
         return await self.evaluator.evaluate(request)
 
+    @must_stay_async("callers use await")
     async def generate_code(
         self,
         expression: str,

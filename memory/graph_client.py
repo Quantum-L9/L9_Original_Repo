@@ -113,6 +113,7 @@ class Neo4jClient:
         self._driver: AsyncDriver | None = None
         self._available = False
 
+    @must_stay_async("callers use await")
     async def connect(self) -> bool:
         """
         Connect to Neo4j server.
@@ -212,6 +213,7 @@ class Neo4jClient:
     # Entity Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def create_entity(
         self,
         entity_type: str,
@@ -251,6 +253,7 @@ class Neo4jClient:
             logger.error(f"Neo4j create_entity failed: {e}")
             return None
 
+    @must_stay_async("callers use await")
     async def get_entity(
         self,
         entity_type: str,
@@ -284,6 +287,7 @@ class Neo4jClient:
             logger.error(f"Neo4j get_entity failed: {e}")
             return None
 
+    @must_stay_async("callers use await")
     async def delete_entity(
         self,
         entity_type: str,
@@ -319,6 +323,7 @@ class Neo4jClient:
     # Spec v3.0 Required Methods - Entity Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def upsert_entity(
         self,
         name: str,
@@ -350,6 +355,7 @@ class Neo4jClient:
             properties=properties,
         )
 
+    @must_stay_async("callers use await")
     async def update_entity_attributes(
         self,
         name: str,
@@ -393,6 +399,7 @@ class Neo4jClient:
     # Relationship Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def create_relationship(
         self,
         from_type: str,
@@ -446,6 +453,7 @@ class Neo4jClient:
             logger.error(f"Neo4j create_relationship failed: {e}")
             return False
 
+    @must_stay_async("callers use await")
     async def get_relationships(
         self,
         entity_type: str,
@@ -498,6 +506,7 @@ class Neo4jClient:
     # Spec v3.0 Required Methods - Relationship & Traversal
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def upsert_relationship(
         self,
         src: str,
@@ -536,6 +545,7 @@ class Neo4jClient:
         )
         return rel if success else None
 
+    @must_stay_async("callers use await")
     async def traverse(
         self,
         source: str,
@@ -580,6 +590,7 @@ class Neo4jClient:
             logger.error(f"Neo4j traverse failed: {e}")
             return []
 
+    @must_stay_async("callers use await")
     async def find_path(
         self,
         source: str,
@@ -620,6 +631,7 @@ class Neo4jClient:
             logger.error(f"Neo4j find_path failed: {e}")
             return []
 
+    @must_stay_async("callers use await")
     async def get_neighbors(
         self,
         entity: str,
@@ -666,6 +678,7 @@ class Neo4jClient:
     # Event Timeline Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def create_event(
         self,
         event_id: str,
@@ -721,6 +734,7 @@ class Neo4jClient:
             logger.error(f"Neo4j create_event failed: {e}")
             return None
 
+    @must_stay_async("callers use await")
     async def get_event_timeline(
         self,
         start_time: str | None = None,
@@ -779,6 +793,7 @@ class Neo4jClient:
     # Spec v3.0 Required Methods - Event Timeline
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_temporal_events(
         self,
         entity: str,
@@ -829,6 +844,7 @@ class Neo4jClient:
             logger.error(f"Neo4j get_temporal_events failed: {e}")
             return []
 
+    @must_stay_async("callers use await")
     async def get_event_sequence(
         self,
         entity: str,
@@ -869,6 +885,7 @@ class Neo4jClient:
     # Query Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def run_query(
         self,
         query: str,
@@ -903,6 +920,7 @@ class Neo4jClient:
 _neo4j_client: Neo4jClient | None = None
 
 
+@must_stay_async("callers use await")
 async def init_neo4j_client(
     client: Neo4jClient | None = None,
 ) -> Neo4jClient | None:
@@ -936,6 +954,7 @@ async def init_neo4j_client(
     lifecycle="startup",
     description="Neo4j graph database client for knowledge graph operations",
 )
+@must_stay_async("callers use await")
 async def get_neo4j_client(
     client: Neo4jClient | None = None,
 ) -> Neo4jClient | None:

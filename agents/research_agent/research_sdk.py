@@ -42,6 +42,8 @@ from uuid import uuid4
 
 import structlog
 
+from core.decorators import must_stay_async
+
 log = structlog.get_logger(__name__)
 
 
@@ -50,6 +52,7 @@ log = structlog.get_logger(__name__)
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_research(
     query: str,
     user_id: str = "cursor_agent",
@@ -92,6 +95,7 @@ async def run_research(
     )
 
 
+@must_stay_async("callers use await")
 async def run_quick_research(
     query: str,
     model: str = "sonar-pro",

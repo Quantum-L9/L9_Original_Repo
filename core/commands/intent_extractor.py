@@ -10,6 +10,8 @@ Version: 1.0.0 (GMP-11)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Intent Extractor",
@@ -83,6 +85,7 @@ Respond with JSON only:
 Be conservative with confidence. If unclear, use confidence < 0.7."""
 
 
+@must_stay_async("callers use await")
 async def extract_intent(
     nlp_prompt: NLPPrompt,
     openai_client: AsyncOpenAI | None = None,
@@ -218,6 +221,7 @@ def extract_intent_sync(
         return _rule_based_intent(text, nlp_prompt.raw_text)
 
 
+@must_stay_async("callers use await")
 async def confirm_intent(
     intent: IntentModel,
     user_context: dict[str, Any],

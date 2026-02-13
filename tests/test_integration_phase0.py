@@ -13,6 +13,8 @@ from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 @pytest.mark.asyncio
 @pytest.mark.integration
@@ -47,6 +49,7 @@ async def test_retention_with_refcount_integration(mock_substrate, mock_reposito
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@must_stay_async("callers use await")
 async def test_governance_with_policy_conflicts(mock_governance_engine):
     """Test governance engine handles policy conflicts."""
     from core.governance.policy_engine import PolicyConflictResolver
@@ -81,6 +84,7 @@ async def test_governance_with_policy_conflicts(mock_governance_engine):
 
 @pytest.mark.asyncio
 @pytest.mark.integration
+@must_stay_async("callers use await")
 async def test_parallel_consolidation_pipeline(mock_substrate, mock_embedder):
     """Test parallel consolidation executes phases correctly."""
     from memory.consolidation.parallel_pipeline import ParallelConsolidationPipeline
@@ -229,6 +233,7 @@ def mock_substrate():
             self.packets = {}
             self.repository = None
 
+        @must_stay_async("callers use await")
         async def writepacket(self, **kwargs):
             packet_id = kwargs.get("packetid", f"pkt_{len(self.packets)}")
             self.packets[packet_id] = kwargs
@@ -245,17 +250,21 @@ def mock_cache():
         def __init__(self):
             self.data = {}
 
+        @must_stay_async("callers use await")
         async def get(self, key):
             return self.data.get(key)
 
+        @must_stay_async("callers use await")
         async def set(self, key, value):
             self.data[key] = value
 
+        @must_stay_async("callers use await")
         async def delete(self, *keys):
             for key in keys:
                 self.data.pop(key, None)
             return len(keys)
 
+        @must_stay_async("callers use await")
         async def keys(self, pattern):
             import fnmatch
 

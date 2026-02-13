@@ -32,6 +32,8 @@ from uuid import uuid4
 
 import structlog
 
+from core.decorators import must_stay_async
+
 from .motif_feedback_graph import MotifFeedbackGraph
 
 logger = structlog.get_logger(__name__)
@@ -115,6 +117,7 @@ class MultimodalPlanRanker:
             "analogical": 0.05,
         }
 
+    @must_stay_async("callers use await")
     async def rank_plans(
         self,
         packet_id: str,
@@ -189,6 +192,7 @@ class MultimodalPlanRanker:
 
         return ranked_plans
 
+    @must_stay_async("callers use await")
     async def _rank_single_plan(
         self,
         packet_id: str,
@@ -266,6 +270,7 @@ class MultimodalPlanRanker:
 
         return min(1.0, coverage)
 
+    @must_stay_async("callers use await")
     async def _assess_governance_risk(self, plan: PlanCandidate) -> float:
         """Assess governance risk of the plan."""
         risk = 0.0

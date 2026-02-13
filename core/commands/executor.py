@@ -79,6 +79,7 @@ class CommandExecutor:
         self._substrate = substrate_service
         self._audit = audit_logger
 
+    @must_stay_async("callers use await")
     async def execute_command(
         self,
         command: Command,
@@ -126,6 +127,7 @@ class CommandExecutor:
             await self._log_command(command, user_id, "failed", error=str(e))
             return error_result
 
+    @must_stay_async("callers use await")
     async def _route_command(
         self,
         command: Command,
@@ -154,6 +156,7 @@ class CommandExecutor:
 
         return await handler(command, user_id, context)
 
+    @must_stay_async("callers use await")
     async def _handle_propose_gmp(
         self,
         command: Command,
@@ -210,6 +213,7 @@ class CommandExecutor:
                 message=f"Failed to create GMP task: {e!s}",
             )
 
+    @must_stay_async("callers use await")
     async def _handle_analyze(
         self,
         command: Command,
@@ -291,6 +295,7 @@ class CommandExecutor:
             message="No substrate or agent executor available for analysis",
         )
 
+    @must_stay_async("callers use await")
     async def _handle_approve(
         self,
         command: Command,
@@ -355,6 +360,7 @@ class CommandExecutor:
             message="Approval manager not available",
         )
 
+    @must_stay_async("callers use await")
     async def _handle_rollback(
         self,
         command: Command,
@@ -487,6 +493,7 @@ Natural language:
             message=help_text.strip(),
         )
 
+    @must_stay_async("callers use await")
     async def _handle_query(
         self,
         command: Command,
@@ -560,6 +567,7 @@ Natural language:
                 logger.warning("Failed to log command to audit", error=str(e))
 
 
+@must_stay_async("callers use await")
 async def execute_command(
     command: Command,
     user_id: str,

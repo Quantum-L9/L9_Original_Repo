@@ -17,6 +17,8 @@ from datetime import datetime
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -136,6 +138,7 @@ class WorkingMemoryInvalidationHook:
 
         return affected_keys
 
+    @must_stay_async("callers use await")
     async def _invalidate_keys(self, keys: set[str]) -> int:
         """
         Invalidate cache keys from Redis.
@@ -219,6 +222,7 @@ class WorkingMemoryInvalidationHook:
             )
             logger.info("Subscribed to substrate.write events")
 
+    @must_stay_async("callers use await")
     async def stop(self) -> None:
         """Stop the invalidation hook."""
         self._running = False

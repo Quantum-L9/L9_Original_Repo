@@ -286,6 +286,7 @@ class ConversationGraphMemory:
         """Check if Neo4j is available."""
         return self._neo4j is not None and self._neo4j.is_available()
 
+    @must_stay_async("callers use await")
     async def store_message(
         self,
         content: str,
@@ -459,6 +460,7 @@ class ConversationGraphMemory:
 
         self._memory_fallback[session_key].append(message)
 
+    @must_stay_async("callers use await")
     async def store_conversation(
         self,
         messages: list[dict[str, Any]],
@@ -498,6 +500,7 @@ class ConversationGraphMemory:
         logger.info(f"Stored conversation with {len(stored)} messages")
         return stored
 
+    @must_stay_async("callers use await")
     async def query_user_history(
         self,
         user_id: str,
@@ -535,6 +538,7 @@ class ConversationGraphMemory:
 
         return context
 
+    @must_stay_async("callers use await")
     async def _query_history_neo4j(
         self,
         user_id: str,
@@ -649,6 +653,7 @@ class ConversationGraphMemory:
 
         return context
 
+    @must_stay_async("callers use await")
     async def get_conversation_context(
         self,
         session_id: UUID,
@@ -714,6 +719,7 @@ class ConversationGraphMemory:
 
         return context
 
+    @must_stay_async("callers use await")
     async def find_related_topics(
         self,
         topic: str,
@@ -757,6 +763,7 @@ class ConversationGraphMemory:
             logger.error(f"Related topics query failed: {e}")
             return []
 
+    @must_stay_async("callers use await")
     async def link_related_sessions(
         self,
         session_id_1: UUID,

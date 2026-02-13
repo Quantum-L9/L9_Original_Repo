@@ -369,6 +369,7 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
     # Internal Methods
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _retrieve_candidates(
         self,
         request: StrategyRetrievalRequest,
@@ -486,6 +487,7 @@ class Neo4jStrategyMemoryService(IStrategyMemoryService):
 
         return scored
 
+    @must_stay_async("callers use await")
     async def _compute_embedding_similarity(
         self,
         query_embedding: list[float],

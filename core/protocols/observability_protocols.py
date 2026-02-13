@@ -27,6 +27,8 @@ Author: Top Frontier AI Lab
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Observability Protocols",
@@ -334,6 +336,7 @@ class HealthChecker(Protocol):
     - RemoteHealthChecker: Remote service health checks
     """
 
+    @must_stay_async("callers use await")
     async def check_health(self) -> dict[str, Any]:
         """
         Check system health.
@@ -343,6 +346,7 @@ class HealthChecker(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def check_component(self, component_name: str) -> bool:
         """
         Check specific component health.
@@ -393,6 +397,7 @@ class ObservabilityService(Protocol):
         """Log an event."""
         ...
 
+    @must_stay_async("callers use await")
     async def health_check(self) -> dict[str, Any]:
         """Check service health."""
         ...

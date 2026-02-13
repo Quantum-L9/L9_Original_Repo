@@ -48,6 +48,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -65,6 +67,7 @@ class Analogy:
 class AnalogicalReasoner:
     """Finds cross-domain analogies."""
 
+    @must_stay_async("callers use await")
     async def find_analogies(self, context: dict[str, Any]) -> list[Analogy]:
         """Find analogies in context."""
         logger.info("finding_analogies")

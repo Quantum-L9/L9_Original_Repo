@@ -18,6 +18,8 @@ Changes v1.1.0:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Tool Dependency Graph",
@@ -595,6 +597,7 @@ def create_tool_definition(
     )
 
 
+@must_stay_async("callers use await")
 async def register_tool_with_metadata(
     name: str,
     description: str = "",

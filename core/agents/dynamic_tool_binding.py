@@ -30,6 +30,8 @@ Created: 2026-02-12
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Dynamic Tool Binding Integration",
@@ -109,6 +111,7 @@ def _get_meta_tool_definition() -> dict[str, Any]:
     }
 
 
+@must_stay_async("callers use await")
 async def bind_tools_to_agent(
     agent_id: str | None = None,
     task_id: str | None = None,
@@ -170,6 +173,7 @@ async def bind_tools_to_agent(
     return await get_dynamic_tool_bundle()
 
 
+@must_stay_async("callers use await")
 async def get_static_tool_bundle(
     agent_id: str | None = None,
     role: str | None = None,
@@ -605,6 +609,7 @@ _STATIC_FALLBACK_TOOLS: list[dict[str, Any]] = [
 ]
 
 
+@must_stay_async("callers use await")
 async def get_dynamic_tool_bundle() -> list[dict[str, Any]]:
     """
     Get meta-tool only for dynamic binding (new behavior).
@@ -727,6 +732,7 @@ async def refresh_agent_tools(
     return await bind_tools_to_agent(agent_id=agent_id, task_id=task_id)
 
 
+@must_stay_async("callers use await")
 async def get_tool_binding_status() -> dict[str, Any]:
     """
     Get the current tool binding status (async wrapper).

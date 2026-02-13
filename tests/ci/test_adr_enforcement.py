@@ -29,6 +29,8 @@ from pathlib import Path
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 # Configuration
 # ============================================================================
@@ -174,6 +176,7 @@ class ManualSingletonVisitor(ast.NodeVisitor):
 
     Correct L9 pattern:
         @register_singleton(category="core", lifecycle=SingletonLifecycle.LAZY, ...)
+        @must_stay_async("callers use await")
         async def get_config_manager() -> ConfigManager:
             ...
     """
@@ -249,6 +252,7 @@ def test_no_manual_singleton_implementation(parsed_codebase):
             lifecycle=SingletonLifecycle.LAZY,
             description="Configuration manager"
         )
+        @must_stay_async("callers use await")
         async def get_config_manager() -> ConfigManager:
             ...
     """
@@ -734,6 +738,7 @@ def test_missing_singleton_registration(parsed_codebase):
             lifecycle=SingletonLifecycle.LAZY,
             description="Cache manager singleton"
         )
+        @must_stay_async("callers use await")
         async def get_cache_manager() -> CacheManager:
             global _instance
             if _instance is None:

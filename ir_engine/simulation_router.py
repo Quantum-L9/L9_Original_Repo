@@ -13,6 +13,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Simulation Router",
@@ -189,6 +191,7 @@ class SimulationRouter:
     # Routing
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def route(self, request: SimulationRequest) -> SimulationResult:
         """
         Route a request to the simulation engine.
@@ -289,6 +292,7 @@ class SimulationRouter:
     # Multi-Candidate Operations
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def simulate_candidates(
         self,
         candidates: list[IRGraph],

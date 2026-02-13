@@ -12,6 +12,8 @@ Version: 1.0.0 (GMP-19)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Test Agent",
@@ -101,6 +103,7 @@ class TestAgent:
         self._generator = TestGenerator()
         self._executor = TestExecutor()
 
+    @must_stay_async("callers use await")
     async def validate_proposal(
         self,
         task_id: str,
@@ -291,6 +294,7 @@ from unittest.mock import Mock, AsyncMock, patch
             logger.warning(f"Failed to store test results: {e}")
 
 
+@must_stay_async("callers use await")
 async def spawn_test_agent(
     task_id: str,
     code_proposal: str,

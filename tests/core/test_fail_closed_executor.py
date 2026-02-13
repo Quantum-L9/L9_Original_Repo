@@ -19,6 +19,8 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 class TestExecutorFailClosed:
     """Tests for AgentExecutorService fail-closed behavior."""
@@ -50,6 +52,7 @@ class TestExecutorFailClosed:
             )
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_kernel_state_object_handling(self):
         """_get_kernel_aware_agent handles kernel_state as object with initialized attr."""
         from core.agents.executor import AgentExecutorService
@@ -77,6 +80,7 @@ class TestExecutorFailClosed:
         assert result is None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_kernel_state_none_returns_none(self):
         """_get_kernel_aware_agent returns None when kernel_state is None."""
         from core.agents.executor import AgentExecutorService
@@ -97,6 +101,7 @@ class TestExecutorFailClosed:
         assert result is None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_kernel_state_inactive_returns_none(self):
         """_get_kernel_aware_agent returns None when kernel_state != ACTIVE."""
         from core.agents.executor import AgentExecutorService

@@ -26,6 +26,7 @@ from core.agents.schemas import (
     ToolCallRequest,
     ToolCallResult,
 )
+from core.decorators import must_stay_async
 
 # =============================================================================
 # Fixtures
@@ -61,6 +62,7 @@ class MockToolRegistry:
             result={"data": "test"},
         )
 
+    @must_stay_async("callers use await")
     async def dispatch_tool_call(
         self,
         tool_id: str,
@@ -200,6 +202,7 @@ class TestGuardedExecute:
         assert "prohibited" in result.error.lower()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_guarded_execute_passes_context(
         self, mock_agent: MockKernelAwareAgent
     ) -> None:
@@ -498,6 +501,7 @@ class TestGovernanceEngineIntegration:
     """Tests for governance engine integration with guarded execution."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_guarded_execution_invokes_governance_engine(self) -> None:
         """guarded_execute should invoke governance engine when attached."""
         from uuid import uuid4
@@ -542,6 +546,7 @@ class TestGovernanceEngineIntegration:
         assert result.success is True
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_guarded_execution_denies_on_governance_deny(self) -> None:
         """guarded_execute should deny when governance engine denies."""
         from uuid import uuid4
@@ -578,6 +583,7 @@ class TestGovernanceEngineIntegration:
         assert "governance denied" in result.error.lower()
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_guarded_execution_continues_on_governance_error(self) -> None:
         """guarded_execute should continue if governance check fails."""
         from core.tools.registry_adapter import ExecutorToolRegistry
@@ -620,6 +626,7 @@ class TestAuditTrailEmission:
     """Tests for audit trail emission with kernel metadata."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_guarded_execution_emits_audit_with_kernel_metadata(
         self, mock_agent: MockKernelAwareAgent
     ) -> None:
@@ -668,6 +675,7 @@ class TestAuditTrailEmission:
             assert call_args.kwargs["success"] is True
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_guarded_execution_continues_on_audit_error(
         self, mock_agent: MockKernelAwareAgent
     ) -> None:
@@ -790,6 +798,7 @@ class TestExecutorKernelEnforcement:
     """Tests for executor fail-closed kernel enforcement."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_executor_blocks_when_kernel_agent_missing(self) -> None:
         """Executor should fail closed when guarded execution lacks kernel agent."""
         from core.agents.agent_instance import AgentInstance

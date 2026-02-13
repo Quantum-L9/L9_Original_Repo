@@ -23,6 +23,7 @@ Changelog:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -205,6 +206,7 @@ class RetrievalPipeline:
     # Semantic Search
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def semantic_search(
         self,
         query: str,
@@ -250,6 +252,7 @@ class RetrievalPipeline:
     # Keyword Search (Full-Text Search)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def keyword_search(
         self,
         query: str,
@@ -354,6 +357,7 @@ class RetrievalPipeline:
     # Hybrid Search
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def hybrid_search(
         self,
         query: str,
@@ -642,6 +646,7 @@ class RetrievalPipeline:
     # Thread Reconstruction
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def fetch_thread(
         self,
         thread_id: UUID,
@@ -703,6 +708,7 @@ class RetrievalPipeline:
     # Lineage Traversal
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def fetch_lineage(
         self,
         packet_id: UUID,
@@ -789,6 +795,7 @@ class RetrievalPipeline:
     # Knowledge Facts & Insights
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def fetch_facts(
         self,
         subject: str | None = None,
@@ -855,6 +862,7 @@ class RetrievalPipeline:
 
         return [f.model_dump(mode="json") for f in facts]
 
+    @must_stay_async("callers use await")
     async def fetch_insights(
         self,
         packet_id: UUID | None = None,
@@ -941,6 +949,7 @@ class RetrievalPipeline:
     # Replay Chain
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def replay_chain(
         self,
         start_packet_id: UUID,
@@ -1023,6 +1032,7 @@ class RetrievalPipeline:
     # Tier-Aware Retrieval (GMP-80-A5: Identity Tier)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_identity_context(
         self,
         max_facts: int = 20,
@@ -1080,6 +1090,7 @@ class RetrievalPipeline:
             lines.append(f"- {f.fact_text}")
         return "\n".join(lines)
 
+    @must_stay_async("callers use await")
     async def hierarchical_search(
         self,
         query: str,
@@ -1193,6 +1204,7 @@ class RetrievalPipeline:
     # Strategy-Based Retrieval (GMP-80-A6)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def strategy_search(
         self,
         query: str,
@@ -1297,6 +1309,7 @@ class RetrievalPipeline:
     # Unified Search Dispatcher
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,
@@ -1391,6 +1404,7 @@ class RetrievalPipeline:
     # Graph-Enriched Search
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def graph_enriched_search(
         self,
         query: str,
@@ -1511,6 +1525,7 @@ def init_retrieval_pipeline(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def get_governance_patterns(
     tool_name: str | None = None,
     task_type: str | None = None,

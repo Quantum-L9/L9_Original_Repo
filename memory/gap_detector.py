@@ -305,6 +305,7 @@ class GapDetector:
             )
             raise
 
+    @must_stay_async("callers use await")
     async def detect_all_gaps(
         self,
         mentioned_entities: list[str],

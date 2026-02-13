@@ -32,6 +32,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from core.decorators import must_stay_async
 import asyncio
 import statistics
 import time
@@ -56,13 +57,14 @@ class MockDatabase:
         return [{"id": i, "score": 0.9 - i * 0.1} for i in range(10)]
 
 
+@must_stay_async("callers use await")
 async def benchmark_query_caching():
     """Benchmark query caching performance."""
     from memory.query_cache import QueryCache
 
-    logger.info("=" * 70")
+    logger.info("=" * 70)
     logger.info("benchmark: query result caching")
-    logger.info("=" * 70")
+    logger.info("=" * 70)
 
     db = MockDatabase()
     cache = QueryCache()
@@ -198,6 +200,7 @@ async def benchmark_vector_search():
     }
 
 
+@must_stay_async("callers use await")
 async def benchmark_combined_impact():
     """Benchmark combined impact of both optimizations."""
     logger.info("\n" + "=" * 70")

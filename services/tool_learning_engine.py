@@ -12,6 +12,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Self-Improvement Engine",
@@ -135,6 +137,7 @@ class ToolLearningEngine:
             logger.error("Tool learning: load_health_snapshots failed", error=str(exc))
             return []
 
+    @must_stay_async("callers use await")
     async def _insert_alert(
         self,
         tool_name: str,

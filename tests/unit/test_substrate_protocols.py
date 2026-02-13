@@ -13,6 +13,8 @@ from uuid import UUID, uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Import protocols from relocated location (core/protocols/substrate_protocols.py)
 from core.protocols.substrate_protocols import (
     DAGProtocol,
@@ -32,21 +34,27 @@ class MockSubstrateRepository:
     def __init__(self):
         self.connected = False
 
+    @must_stay_async("callers use await")
     async def connect(self) -> None:
         self.connected = True
 
+    @must_stay_async("callers use await")
     async def disconnect(self) -> None:
         self.connected = False
 
+    @must_stay_async("callers use await")
     async def health_check(self) -> dict[str, Any]:
         return {"status": "healthy", "latency_ms": 5.0, "pool_size": 10}
 
+    @must_stay_async("callers use await")
     async def write_packet(self, envelope: Any) -> Any:
         return {"packet_id": uuid4(), "created_at": "2026-01-24T08:00:00Z"}
 
+    @must_stay_async("callers use await")
     async def get_packet(self, packet_id: UUID) -> Any | None:
         return {"packet_id": packet_id, "content": "test"}
 
+    @must_stay_async("callers use await")
     async def search_packets_by_thread(
         self,
         thread_id: UUID,
@@ -55,9 +63,11 @@ class MockSubstrateRepository:
     ) -> list[Any]:
         return [{"packet_id": uuid4(), "content": "test"}]
 
+    @must_stay_async("callers use await")
     async def acquire(self) -> Any:
         return self
 
+    @must_stay_async("callers use await")
     async def transaction(
         self,
         tenant_id: str,
@@ -75,9 +85,11 @@ class MockEmbeddingProvider:
     def dimensions(self) -> int:
         return 1536
 
+    @must_stay_async("callers use await")
     async def embed_text(self, text: str) -> list[float]:
         return [0.1] * 1536
 
+    @must_stay_async("callers use await")
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
         return [[0.1] * 1536 for _ in texts]
 
@@ -85,6 +97,7 @@ class MockEmbeddingProvider:
 class MockSemanticService:
     """Mock implementation of SemanticServiceProtocol."""
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,
@@ -96,6 +109,7 @@ class MockSemanticService:
             {"packet_id": uuid4(), "content": "result 2", "similarity_score": 0.90},
         ]
 
+    @must_stay_async("callers use await")
     async def embed_and_store(
         self,
         text: str,
@@ -108,6 +122,7 @@ class MockSemanticService:
 class MockDAG:
     """Mock implementation of DAGProtocol."""
 
+    @must_stay_async("callers use await")
     async def run(self, envelope: Any) -> Any:
         return {"packet_id": uuid4(), "status": "processed"}
 
@@ -204,6 +219,7 @@ async def test_dag_protocol_compliance():
 class IncompleteRepository:
     """Repository missing required methods."""
 
+    @must_stay_async("callers use await")
     async def connect(self) -> None:
         pass
 

@@ -396,6 +396,7 @@ def l9_traced[F: Callable[..., Any]](
                     update_dora_block_in_file(_source_file, trace)
 
         @functools.wraps(fn)
+        @must_stay_async("callers use await")
         async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             """
             Performs asynchronous execution with input binding and default application within the DORA runtime environment.

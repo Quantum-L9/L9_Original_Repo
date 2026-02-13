@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: {component_name}
@@ -48,32 +47,18 @@ __dora_meta__ = {
 # ============================================================================
 # STANDARD LIBRARY IMPORTS
 
-import asyncio
 import logging  # noqa: ADR-0019
-from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
+
+from l9.core.governance import Igor
 
 # ============================================================================
 # THIRD-PARTY IMPORTS
-
-from pydantic import BaseModel, Field
-
 # ============================================================================
 # L9 FRAMEWORK IMPORTS
-
-from l9.core.schemas import PacketEnvelope, PacketKind
-from l9.core.memory import MemoryManager, MemoryLayer
-from l9.core.governance import Igor, EscalationLevel
-from l9.core.tools import Tool, ToolDefinition
-from l9.core.utils import logger as l9_logger
-
 # ============================================================================
 # MODULE IMPORTS
-
 from . import config
-from . import models
-from . import exceptions
 
 # ============================================================================
 # LOGGER CONFIGURATION
@@ -105,7 +90,7 @@ FEATURE_FLAGS = {
 # ============================================================================
 # INITIALIZATION
 
-_igor_client: Optional[Igor] = None
+_igor_client: Igor | None = None
 _governance_enabled = config.GOVERNANCE_ENABLED
 
 
@@ -128,7 +113,7 @@ async def initialize_module():
             raise
 
 
-async def health_check() -> Dict[str, Any]:
+async def health_check() -> dict[str, Any]:
     """Perform module health check."""
     return {
         "ready": True,
@@ -141,7 +126,7 @@ async def health_check() -> Dict[str, Any]:
 # MAIN MODULE CONTENT
 
 
-async def example_function(param1: str) -> Dict[str, Any]:
+async def example_function(param1: str) -> dict[str, Any]:
     """
     Example public function.
 
@@ -195,11 +180,11 @@ __all__ = [
     "MODULE_ID",
     "MODULE_NAME",
     "MODULE_VERSION",
-    "initialize_module",
-    "health_check",
-    "example_function",
     "__footer_meta__",
     "__l9_trace__",
+    "example_function",
+    "health_check",
+    "initialize_module",
 ]
 
 # This is the L9_TRACE_TEMPLATE - 100% machine-managed

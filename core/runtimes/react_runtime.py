@@ -17,6 +17,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 __dora_meta__ = {
     "component_name": "ReAct Runtime",
     "module_version": "1.0.0",
@@ -104,6 +106,7 @@ class ReActRuntime:
             max_iterations=max_iterations,
         )
 
+    @must_stay_async("callers use await")
     async def execute_task(
         self,
         task: AgentTask,

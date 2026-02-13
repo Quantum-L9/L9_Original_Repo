@@ -30,6 +30,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.reasoning.toth_engine import (
     ProductionToThEngine,
     ReasoningMode,
@@ -108,6 +109,7 @@ class L9ToThAdapter:
 
         logger.info("L9 ToTh Adapter initialized")
 
+    @must_stay_async("callers use await")
     async def reason_with_context(
         self,
         query: str,
@@ -159,6 +161,7 @@ class L9ToThAdapter:
 
         return result
 
+    @must_stay_async("callers use await")
     async def multi_modal_reasoning_with_context(
         self, query: str, context: L9ReasoningContext
     ) -> dict[str, ReasoningResult]:
@@ -196,6 +199,7 @@ class L9ToThAdapter:
 
         return results
 
+    @must_stay_async("callers use await")
     async def board_reasoning(
         self, query: str, board_members: list[str], context: L9ReasoningContext
     ) -> dict[str, Any]:
@@ -249,6 +253,7 @@ class L9ToThAdapter:
         # Synthesize board decision
         return self._synthesize_board_decision(perspectives, query)
 
+    @must_stay_async("callers use await")
     async def ceo_reasoning(
         self, query: str, temporal_context: dict[str, str], context: L9ReasoningContext
     ) -> dict[str, Any]:
@@ -310,6 +315,7 @@ class L9ToThAdapter:
         # Synthesize CEO decision
         return self._synthesize_ceo_decision(temporal_reasoning, query)
 
+    @must_stay_async("callers use await")
     async def research_reasoning(
         self, hypothesis: str, evidence: list[str], context: L9ReasoningContext
     ) -> dict[str, Any]:
@@ -399,6 +405,7 @@ class L9ToThAdapter:
             ),
         }
 
+    @must_stay_async("callers use await")
     async def _enrich_query_with_memory(
         self, query: str, context: L9ReasoningContext
     ) -> str:
@@ -418,6 +425,7 @@ class L9ToThAdapter:
 
         return query
 
+    @must_stay_async("callers use await")
     async def _store_reasoning_in_memory(
         self, result: ReasoningResult, context: L9ReasoningContext
     ) -> None:
@@ -444,6 +452,7 @@ class L9ToThAdapter:
         except Exception as e:
             logger.error(f"Failed to store reasoning in memory: {e}")
 
+    @must_stay_async("callers use await")
     async def _update_world_model(
         self, result: ReasoningResult, context: L9ReasoningContext
     ) -> None:
@@ -458,6 +467,7 @@ class L9ToThAdapter:
         except Exception as e:
             logger.error(f"Failed to update world model: {e}")
 
+    @must_stay_async("callers use await")
     async def _check_governance_constraints(
         self, query: str, context: L9ReasoningContext
     ) -> None:

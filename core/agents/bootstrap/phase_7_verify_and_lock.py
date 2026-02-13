@@ -7,6 +7,8 @@ Purpose: Smoke test all systems, sign initialization hash, write audit trail, fl
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Phase 7 Verify And Lock",
@@ -43,6 +45,7 @@ if TYPE_CHECKING:
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def verify_and_lock(
     instance: BootstrapInstanceData,
     substrate_service: MemorySubstrateService,
@@ -220,6 +223,7 @@ async def verify_and_lock(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def verify_and_lock_view(
     agent_id: str,
     identity_view: Any,  # IdentityView from models

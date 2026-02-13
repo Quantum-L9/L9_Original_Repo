@@ -23,6 +23,8 @@ from typing import Optional
 import psutil
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -124,6 +126,7 @@ class AdaptiveBatcher:
             f"default={default_batch}"
         )
 
+    @must_stay_async("callers use await")
     async def get_system_metrics(self, db_pool=None) -> SystemMetrics:
         """
         Collect current system resource metrics.
@@ -238,6 +241,7 @@ class AdaptiveBatcher:
 
         return self.current_batch
 
+    @must_stay_async("callers use await")
     async def record_batch_result(
         self, batch_size: int, duration_ms: float, success: bool
     ) -> None:

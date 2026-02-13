@@ -72,6 +72,7 @@ from typing import Literal
 
 from langgraph.graph import END, START, StateGraph
 
+from core.decorators import must_stay_async
 from workflows.nodes import (
     deploy_files_node,
     extract_files_node,
@@ -183,6 +184,7 @@ def create_harvest_deploy_graph() -> StateGraph:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_harvest_deploy(
     source_document: str,
     harvest_directory: str,

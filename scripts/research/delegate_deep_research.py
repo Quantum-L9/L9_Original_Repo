@@ -50,6 +50,8 @@ from pathlib import Path
 
 import structlog
 
+from core.decorators import must_stay_async
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Load .env file
@@ -165,6 +167,7 @@ def extract_yaml_from_response(response: dict) -> str:
 # Orchestration
 
 
+@must_stay_async("callers use await")
 async def process_module(module_name: str, api_key: str, dry_run: bool = False) -> dict:
     """Process a single module."""
 
@@ -230,6 +233,7 @@ async def process_module(module_name: str, api_key: str, dry_run: bool = False) 
         return {"module": module_name, "error": str(e)}
 
 
+@must_stay_async("callers use await")
 async def main():
     """
     Performs asynchronous delegation of module specifications to Perplexity Deep Research with rate limiting.

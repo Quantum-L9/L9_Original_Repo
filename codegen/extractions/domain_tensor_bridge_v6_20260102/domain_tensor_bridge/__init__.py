@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Domain-Tensor Bridge
@@ -25,12 +24,12 @@ Extended Metadata:
 ================================================================================
 """
 
-from .agent_controller import process_packet, AgentController
-from .reasoning_engine import ReasoningEngine
+from .agent_controller import AgentController, process_packet
 from .decision_synthesizer import DecisionSynthesizer
-from .packet_router import PacketRouter
 from .governance_bridge import GovernanceBridge
 from .memory_bridge import MemoryBridge
+from .packet_router import PacketRouter
+from .reasoning_engine import ReasoningEngine
 
 __version__ = "6.0.0"
 
@@ -61,16 +60,16 @@ __footer_meta__ = {
 }
 
 __all__ = [
-    "process_packet",
     "AgentController",
-    "ReasoningEngine",
     "DecisionSynthesizer",
-    "PacketRouter",
     "GovernanceBridge",
     "MemoryBridge",
-    "__version__",
+    "PacketRouter",
+    "ReasoningEngine",
     "__footer_meta__",
     "__l9_trace__",
+    "__version__",
+    "process_packet",
 ]
 
 # ============================================================================

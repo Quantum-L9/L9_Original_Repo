@@ -48,6 +48,7 @@ logger = structlog.get_logger(__name__)
 DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("TEST_DATABASE_URL")
 
 
+@must_stay_async("callers use await")
 async def delete_trash_embeddings_from_sql():
     """Delete trash embeddings using the generated SQL."""
     if not DATABASE_URL:
@@ -153,10 +154,10 @@ async def reindex_content():
 
 async def main():
     """Main execution."""
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("cleanup and re-index execution")
-    logger.info("=" * 60")
-    logger.info("output", value=)
+    logger.info("=" * 60)
+    logger.info("output", value="")
 
     # Step 1: Generate SQL
     logger.info("step 1: generating deletion sql...")

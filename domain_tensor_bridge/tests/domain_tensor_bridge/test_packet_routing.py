@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope, PacketKind
 from domain_tensor_bridge.packet_router import PacketRouter
 
@@ -41,6 +42,7 @@ class TestRouteByType:
         assert handler_name == "REASONING"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_get_handler_for_type(self, router):
         """Test getting handler by type."""
         handler = AsyncMock()

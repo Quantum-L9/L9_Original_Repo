@@ -7,6 +7,7 @@ import asyncio
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.reasoning import (
     L9ReasoningContext,
     L9ToThAdapter,
@@ -35,6 +36,7 @@ class TestToThEngine:
         )
 
     @pytest.fixture
+    @must_stay_async("callers use await")
     async def toth_engine(self, mock_config):
         """Create ToTh engine instance"""
         return ProductionToThEngine(mock_config)
@@ -288,6 +290,7 @@ class TestL9ToThAdapter:
         assert isinstance(history[0], ReasoningResult)
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_performance_metrics(self, l9_adapter):
         """Test adapter performance metrics"""
         metrics = l9_adapter.get_performance_metrics()
@@ -306,10 +309,12 @@ class TestReasoningModes:
         return ToThConfig(model_provider=ModelProvider.MOCK)
 
     @pytest.fixture
+    @must_stay_async("callers use await")
     async def toth_engine(self, mock_config):
         return ProductionToThEngine(mock_config)
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_reasoning_mode_enum(self):
         """Test reasoning mode enum values"""
         assert ReasoningMode.ABDUCTIVE.value == "abductive"

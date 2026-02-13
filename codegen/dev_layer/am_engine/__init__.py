@@ -10,6 +10,6 @@ Always preserves provenance (source hashes).
 
 __version__ = "1.0.0"
 
-from dev_layer.am_engine import compile, validate, classify
+from dev_layer.am_engine import classify, compile, validate
 
-__all__ = ["compile", "validate", "classify"]
+__all__ = ["classify", "compile", "validate"]

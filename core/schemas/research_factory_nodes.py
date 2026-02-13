@@ -5,6 +5,7 @@ Generated from: research_factory_schema.yaml
 Implements the 5-pass structured research pipeline as LangGraph node functions.
 
 Each node follows the signature:
+    @must_stay_async("callers use await")
     async def pass_X(state: ResearchState) -> ResearchState
 
 The pipeline flow:

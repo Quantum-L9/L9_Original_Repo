@@ -15,6 +15,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Test UUIDs
 TEST_SESSION_ID = str(uuid.UUID("00000000-0000-0000-0000-000000000001"))
 TEST_AGENT_ID = "agent-456"
@@ -31,6 +33,7 @@ class MockSubstrateService:
         self._packets: dict[str, dict[str, Any]] = {}
         self._embeddings: list[dict[str, Any]] = []
 
+    @must_stay_async("callers use await")
     async def write_packet(self, packet_in: Any) -> MagicMock:
         """Mock write_packet."""
         result = MagicMock()
@@ -51,10 +54,12 @@ class MockSubstrateService:
 
         return result
 
+    @must_stay_async("callers use await")
     async def get_packet(self, packet_id: str) -> dict[str, Any] | None:
         """Mock get_packet."""
         return self._packets.get(packet_id)
 
+    @must_stay_async("callers use await")
     async def semantic_search(self, request: Any) -> MagicMock:
         """Mock semantic_search."""
         result = MagicMock()
@@ -120,6 +125,7 @@ class TestMemoryServiceAdapter:
         assert packet["thread_id"] == TEST_SESSION_ID
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_store_failure(self, mock_substrate):
         """Test store raises error on failure."""
         from memory.service_adapter import MemoryServiceAdapter

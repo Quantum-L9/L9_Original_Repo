@@ -25,6 +25,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.protocols.secrets_protocols import SecretsError
 
 logger = structlog.get_logger(__name__)
@@ -299,18 +300,22 @@ class AwsSecretsClient:
     # Async wrappers (for protocol compatibility)
     # -------------------------------------------------------------------------
 
+    @must_stay_async("callers use await")
     async def get_secret_async(self, key: str) -> str | None:
         """Async wrapper for get_secret."""
         return self.get_secret(key)
 
+    @must_stay_async("callers use await")
     async def set_secret_async(self, key: str, value: str) -> bool:
         """Async wrapper for set_secret."""
         return self.set_secret(key, value)
 
+    @must_stay_async("callers use await")
     async def delete_secret_async(self, key: str) -> bool:
         """Async wrapper for delete_secret."""
         return self.delete_secret(key)
 
+    @must_stay_async("callers use await")
     async def rotate_secret(self, key: str) -> bool:
         """
         Trigger secret rotation in AWS Secrets Manager.

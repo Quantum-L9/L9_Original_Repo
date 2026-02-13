@@ -40,6 +40,8 @@ from typing import (
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger()
 
 T = TypeVar("T")
@@ -111,6 +113,7 @@ class RetryProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def execute_with_retry(
         self,
         coro_func: Callable[..., Awaitable[T]],
@@ -133,6 +136,7 @@ class RetryProtocol(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def calculate_delay(self, attempt: int) -> float:
         """
         Calculate delay before next retry attempt.
@@ -182,6 +186,7 @@ class StandardRetryHandler:
         self.policy = policy
         self._attempt = 0
 
+    @must_stay_async("callers use await")
     async def execute_with_retry(
         self,
         coro_func: Callable[..., Awaitable[T]],
@@ -294,6 +299,7 @@ class StandardRetryHandler:
 
                 await asyncio.sleep(delay)
 
+    @must_stay_async("callers use await")
     async def calculate_delay(self, attempt: int) -> float:
         """
         Calculate delay before next retry using configured backoff strategy.

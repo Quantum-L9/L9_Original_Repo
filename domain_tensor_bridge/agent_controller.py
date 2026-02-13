@@ -51,6 +51,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope
 
 logger = structlog.get_logger(__name__)
@@ -93,6 +94,7 @@ class AgentController:
         self._initialized = True
         logger.info("agent_controller_ready")
 
+    @must_stay_async("callers use await")
     async def process_packet(self, packet: PacketEnvelope) -> PacketEnvelope:
         """
         Process incoming domain packet through full pipeline.

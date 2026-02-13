@@ -19,6 +19,8 @@ Based on frontier AI lab patterns (Anthropic, OpenAI, DeepMind).
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Identity Tier Service",
@@ -174,6 +176,7 @@ class IdentityTierService:
     # CRUD Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def create_identity_fact(
         self,
         fact_text: str,
@@ -250,6 +253,7 @@ class IdentityTierService:
 
         return fact_id
 
+    @must_stay_async("callers use await")
     async def get_identity_facts(
         self,
         category: IdentityFactCategory | None = None,
@@ -383,6 +387,7 @@ class IdentityTierService:
     # Context Injection
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def get_identity_context(
         self,
         categories: list[IdentityFactCategory] | None = None,
@@ -464,6 +469,7 @@ class IdentityTierService:
     # Bulk Operations
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def import_identity_facts(
         self,
         facts: list[dict[str, Any]],

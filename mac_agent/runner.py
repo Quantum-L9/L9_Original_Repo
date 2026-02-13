@@ -38,6 +38,8 @@ from pathlib import Path
 import aiofiles
 import structlog
 
+from core.decorators import must_stay_async
+
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
@@ -104,6 +106,7 @@ def execute_command(command: str) -> tuple[str, str]:
         return f"Execution error: {e!s}", "failed"
 
 
+@must_stay_async("callers use await")
 async def execute_steps(task: dict) -> dict:
     """
     Execute automation steps using Playwright.
@@ -150,6 +153,7 @@ def format_result(result: dict) -> str:
     return "\n".join(lines)
 
 
+@must_stay_async("callers use await")
 async def poll_and_execute():
     """Main polling loop (file-based task system)."""
     logger.info(

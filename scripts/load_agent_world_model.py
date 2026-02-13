@@ -20,6 +20,7 @@ Environment:
     NEO4J_PASSWORD: Neo4j password (required)
 """
 
+from core.decorators import must_stay_async
 import asyncio
 import os
 import sys
@@ -44,6 +45,7 @@ NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD")
 SEED_FILE = Path(__file__).parent.parent / "config" / "seeds" / "agent_world_model.yaml"
 
 
+@must_stay_async("callers use await")
 async def load_seed_data():
     """Load seed YAML file."""
     if not SEED_FILE.exists():
@@ -231,14 +233,14 @@ async def main():
     logger.info("=" * 60")
     logger.info("neo4j uri: neo4j uri", NEO4J_URI=NEO4J_URI)
     logger.info("seed file: seed file", SEED_FILE=SEED_FILE)
-    logger.info("output", value=)
+    logger.info("output", value="")
 
     # Load seed data
     logger.info("loading seed data...")
     data = await load_seed_data()
     logger.info("  ✓ loaded {len(data.get('entities', []))} entities")
     logger.info("  ✓ loaded {len(data.get('relations', []))} relations")
-    logger.info("output", value=)
+    logger.info("output", value="")
 
     # Connect to Neo4j
     logger.info("connecting to neo4j...")

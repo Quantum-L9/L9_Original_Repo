@@ -15,6 +15,8 @@ Created: 2026-01-21
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Memory Substrate Dead-Letter Queue",
@@ -138,6 +140,7 @@ class DeadLetterQueue:
         self._redis = redis_client
         logger.info("DeadLetterQueue initialized")
 
+    @must_stay_async("callers use await")
     async def push(
         self,
         packet: PacketEnvelopeIn,
@@ -281,6 +284,7 @@ class DeadLetterQueue:
             logger.error(f"Failed to acknowledge DLQ entry: {e}", exc_info=True)
             return False
 
+    @must_stay_async("callers use await")
     async def requeue(
         self,
         entry: DLQEntry,

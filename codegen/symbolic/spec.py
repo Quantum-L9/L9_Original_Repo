@@ -32,7 +32,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -64,10 +64,10 @@ class CodegenSpec:
 
     intent: CodegenIntent
     target_behavior: str
-    input_code: Optional[str] = None
-    invariants: List[str] = field(default_factory=list)
-    constraints: List[str] = field(default_factory=list)
-    variables: List[str] = field(default_factory=list)
+    input_code: str | None = None
+    invariants: list[str] = field(default_factory=list)
+    constraints: list[str] = field(default_factory=list)
+    variables: list[str] = field(default_factory=list)
 
     def __post_init__(self):
         """Validate and normalize the spec."""
@@ -86,7 +86,7 @@ class CodegenSpec:
             num_variables=len(self.variables),
         )
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "intent": self.intent.value,
@@ -103,9 +103,9 @@ class SymbolicCandidate:
     """A candidate code solution."""
 
     code: str
-    expression: Optional[Any] = None  # SymPy expression
+    expression: Any | None = None  # SymPy expression
     complexity_score: float = 0.0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -115,8 +115,8 @@ class VerificationResult:
     candidate: SymbolicCandidate
     is_equivalent: bool = False
     all_invariants_pass: bool = False
-    invariant_results: Dict[str, bool] = field(default_factory=dict)
-    error: Optional[str] = None
+    invariant_results: dict[str, bool] = field(default_factory=dict)
+    error: str | None = None
 
 
 @dataclass
@@ -124,11 +124,11 @@ class SymbolicCodegenPipelineResult:
     """Result of the full symbolic codegen pipeline."""
 
     success: bool
-    candidates: List[SymbolicCandidate] = field(default_factory=list)
-    verifications: List[VerificationResult] = field(default_factory=list)
-    selected_code: Optional[str] = None
-    selection_result: Dict[str, Any] = field(default_factory=dict)
-    errors: List[str] = field(default_factory=list)
+    candidates: list[SymbolicCandidate] = field(default_factory=list)
+    verifications: list[VerificationResult] = field(default_factory=list)
+    selected_code: str | None = None
+    selection_result: dict[str, Any] = field(default_factory=dict)
+    errors: list[str] = field(default_factory=list)
 
 
 # ============================================================================

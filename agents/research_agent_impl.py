@@ -269,6 +269,7 @@ class PerplexityClient:
         self._client: ProductionPerplexityClient | None = None
         self.log = logger.bind(client="perplexity_compat")
 
+    @must_stay_async("callers use await")
     async def _get_client(self) -> ProductionPerplexityClient:
         """Get or create the production client."""
         if self._client is None:
@@ -536,6 +537,7 @@ class ResearchAgent:
     # Layer 2: Fast Synthesis (Super-Prompt Pack)
     # ========================================================================
 
+    @must_stay_async("callers use await")
     async def synthesize(
         self,
         topic: str,
@@ -611,6 +613,7 @@ class ResearchAgent:
     # Layer 1: Deep Research (Deep Workflows)
     # ========================================================================
 
+    @must_stay_async("callers use await")
     async def discover(
         self,
         topic: str,
@@ -694,6 +697,7 @@ class ResearchAgent:
 
         return result
 
+    @must_stay_async("callers use await")
     async def _stage_landscape_mapping(
         self,
         topic: str,
@@ -725,6 +729,7 @@ Return structured report with:
             "themes": self.processor.extract_concepts(response),
         }
 
+    @must_stay_async("callers use await")
     async def _stage_deep_dive(
         self,
         topic: str,
@@ -851,6 +856,7 @@ Artifacts: {", ".join(result.artifacts.keys())}"""
     # Layer 3: Spec Generation
     # ========================================================================
 
+    @must_stay_async("callers use await")
     async def generate_spec(
         self,
         synthesis: SynthesisResult | None = None,
@@ -1035,6 +1041,7 @@ Output ONLY valid YAML, no explanations."""
     # End-to-End Pipeline
     # ========================================================================
 
+    @must_stay_async("callers use await")
     async def research_to_code(
         self,
         topic: str,
@@ -1096,6 +1103,7 @@ Output ONLY valid YAML, no explanations."""
 # ============================================================================
 
 
+@must_stay_async("callers use await")
 async def main():
     """CLI entry point."""
     import argparse

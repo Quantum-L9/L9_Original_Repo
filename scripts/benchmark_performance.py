@@ -31,6 +31,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from core.decorators import must_stay_async
 import asyncio
 import sys
 import time
@@ -85,6 +86,7 @@ async def benchmark_batch_insert():
         await repo.disconnect()
 
 
+@must_stay_async("callers use await")
 async def benchmark_kernel_loading():
     """Benchmark kernel loading with caching"""
     from pathlib import Path
@@ -121,17 +123,17 @@ async def benchmark_kernel_loading():
 async def main():
     """Run all benchmarks"""
     logger.info("🚀 l9 performance benchmark")
-    logger.info("=" * 60")
-    logger.info("output", value=)
+    logger.info("=" * 60)
+    logger.info("output", value="")
 
     # Benchmark 1: Batch insert
     logger.info("1. batch insert performance")
-    logger.info("-" * 60")
+    logger.info("-" * 60)
     try:
         await benchmark_batch_insert()
     except Exception as e:
         logger.error("❌ batch insert benchmark failed: e", e=e)
-    logger.info("output", value=)
+    logger.info("output", value="")
 
     # Benchmark 2: Kernel caching
     logger.info("2. kernel loading performance")

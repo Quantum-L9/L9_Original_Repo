@@ -4,22 +4,22 @@ End-to-end tests: Plan → Diff → Verification → Report
 Tests the full pipeline from intent to deployable diff.
 """
 
-import pytest
 import json
-from pathlib import Path
+
+import pytest
+from dev_layer.am_engine.compile import ArtifactCompiler
 from dev_layer.modules.code_planning import (
-    CodePlanner,
-    CodeChange,
     ChangeType,
+    CodeChange,
+    CodePlanner,
     VerificationReport,
     generate_diff,
 )
 from dev_layer.runtime.enforcement import (
     EnforcementEngine,
-    OperationContext,
     GateDecision,
+    OperationContext,
 )
-from dev_layer.am_engine.compile import ArtifactCompiler, ArtifactCategory
 
 
 class TestDiffGeneration:

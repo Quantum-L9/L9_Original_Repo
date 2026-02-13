@@ -13,6 +13,7 @@ All operations are async-safe and use logging (no print statements).
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -87,6 +88,7 @@ class HousekeepingEngine:
         """Return current housekeeping statistics."""
         return self._stats.copy()
 
+    @must_stay_async("callers use await")
     async def run_full_gc(self) -> dict[str, Any]:
         """
         Run full garbage collection cycle.
@@ -239,6 +241,7 @@ class HousekeepingEngine:
 
             return count
 
+    @must_stay_async("callers use await")
     async def cleanup_parentless_packets(
         self,
         max_age_hours: int = 72,

@@ -13,6 +13,8 @@ from pathlib import Path
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
@@ -49,6 +51,7 @@ def test_engine_initialization():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_run_simulation_basic():
     """
     Contract: Simulation engine can run basic simulations.

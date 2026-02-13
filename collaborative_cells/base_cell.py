@@ -261,6 +261,7 @@ class BaseCell(ABC):
     # Main Execution
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         task: dict[str, Any],

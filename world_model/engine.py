@@ -208,6 +208,7 @@ class WorldModelEngine:
             except Exception as e:
                 logger.warning(f"Could not load spec {path}: {e}")
 
+    @must_stay_async("callers use await")
     async def initialize_state(
         self,
         initial_state: dict[str, Any] | None = None,
@@ -275,6 +276,7 @@ class WorldModelEngine:
     # Core Operations (Async)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def update_from_packet(self, packet: dict[str, Any]) -> dict[str, Any]:
         """
         Update world model from a memory packet.
@@ -800,6 +802,7 @@ def get_world_model_engine() -> WorldModelEngine:
     return _engine
 
 
+@must_stay_async("callers use await")
 async def init_world_model_engine(
     spec_paths: list[str] | None = None,
     initial_state: dict[str, Any] | None = None,

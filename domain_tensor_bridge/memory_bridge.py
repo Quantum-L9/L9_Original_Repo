@@ -53,6 +53,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 # Expected imports from L9 memory
 from memory.substrate_service import MemorySubstrateService
 
@@ -139,6 +141,7 @@ class MemoryBridge:
         logger.warning("no_substrate_configured")
         return None
 
+    @must_stay_async("callers use await")
     async def set_working_memory(
         self,
         key: str,

@@ -23,6 +23,8 @@ Version: 1.2.1 (GMP-104: Architecture documentation)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Approval Manager",
@@ -109,6 +111,7 @@ class ApprovalManager:
         """Get list of high-risk tool IDs"""
         return list(HIGH_RISK_TOOLS.keys())
 
+    @must_stay_async("callers use await")
     async def request_approval(
         self,
         tool_id: str,
@@ -222,6 +225,7 @@ class ApprovalManager:
 
         return False
 
+    @must_stay_async("callers use await")
     async def grant_permanent_approval(
         self, tool_id: str, approved_by: str = "Igor"
     ) -> bool:
@@ -257,6 +261,7 @@ class ApprovalManager:
         logger.info(f"Permanent approval granted for tool {tool_id} by {approved_by}")
         return True
 
+    @must_stay_async("callers use await")
     async def approve_task(
         self,
         task_id: str,
@@ -313,6 +318,7 @@ class ApprovalManager:
         logger.info(f"Task {task_id} approved by Igor")
         return True
 
+    @must_stay_async("callers use await")
     async def reject_task(
         self,
         task_id: str,
@@ -470,6 +476,7 @@ class ApprovalManager:
 
         return "\n".join(parts)
 
+    @must_stay_async("callers use await")
     async def _write_governance_pattern(
         self,
         task_id: str,

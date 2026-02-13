@@ -16,6 +16,8 @@ Redis Working Memory:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Phase 2 Instantiate",
@@ -87,6 +89,7 @@ class BootstrapInstanceData:
     authority: str | None = None
 
 
+@must_stay_async("callers use await")
 async def instantiate_agent(
     config: AgentConfig,
     substrate_service: MemorySubstrateService,
@@ -160,6 +163,7 @@ async def instantiate_agent(
     return instance
 
 
+@must_stay_async("callers use await")
 async def _init_redis_working_memory(
     instance_id: str,
     agent_id: str,

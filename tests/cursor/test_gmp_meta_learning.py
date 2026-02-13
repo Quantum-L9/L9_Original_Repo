@@ -18,6 +18,7 @@ from agents.cursor.gmp_meta_learning import (
     GMPMetaLearningEngine,
     LearnedHeuristic,
 )
+from core.decorators import must_stay_async
 
 # ============================================================================
 # PYDANTIC MODEL TESTS
@@ -346,11 +347,13 @@ class TestEngineIntegration:
     """Integration tests requiring actual database (skipped by default)."""
 
     @pytest.mark.skip(reason="Requires PostgreSQL with asyncpg")
+    @must_stay_async("callers use await")
     async def test_full_flow(self):
         """Test complete flow: log → analyze → generate heuristics."""
         pass
 
     @pytest.mark.skip(reason="Requires PostgreSQL with asyncpg")
+    @must_stay_async("callers use await")
     async def test_graduation_flow(self):
         """Test logging 10 perfect executions triggers L2→L3 readiness."""
         pass

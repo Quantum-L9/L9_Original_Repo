@@ -2,6 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
+from core.decorators import must_stay_async
 from services.tool_feedback_service import ToolFeedbackEntry, ToolFeedbackService
 
 
@@ -11,6 +12,7 @@ class DummyConnection:
     def __init__(self, executed_list):
         self.executed = executed_list
 
+    @must_stay_async("callers use await")
     async def executemany(self, query, args):
         self.executed.append((query, args))
 
@@ -21,9 +23,11 @@ class DummyAcquireContext:
     def __init__(self, executed_list):
         self.executed = executed_list
 
+    @must_stay_async("callers use await")
     async def __aenter__(self):
         return DummyConnection(self.executed)
 
+    @must_stay_async("callers use await")
     async def __aexit__(self, exc_type, exc, tb):
         return False
 
@@ -40,6 +44,7 @@ class DummyPool:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_record_outcome_and_flush(monkeypatch):
     pool = DummyPool()
     substrate = SimpleNamespace(postgres_pool=pool)
@@ -87,9 +92,11 @@ class AsyncContextManager:
     def __init__(self, fetch_fn):
         self.fetch_fn = fetch_fn
 
+    @must_stay_async("callers use await")
     async def __aenter__(self):
         return self
 
+    @must_stay_async("callers use await")
     async def __aexit__(self, exc_type, exc, tb):
         return False
 
@@ -98,12 +105,14 @@ class AsyncContextManager:
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_get_success_rates_fallback(monkeypatch):
     pool = DummyPool()
     substrate = SimpleNamespace(postgres_pool=pool)
 
     service = ToolFeedbackService(substrate)
 
+    @must_stay_async("callers use await")
     async def fake_fetch(query, *args, **kwargs):
         return [
             {"tool_name": "memory_search", "success_rate": 0.9},

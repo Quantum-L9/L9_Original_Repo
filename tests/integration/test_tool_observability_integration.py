@@ -19,6 +19,8 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 class TestToolAuditMetricsIntegration:
     """Integration tests for tool audit + Prometheus metrics."""
@@ -248,6 +250,7 @@ class TestObservabilityResilience:
             assert mock_create_task.call_count >= 1
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_high_volume_metrics_recording(self):
         """Contract: High volume of metric recordings doesn't cause issues."""
         from telemetry.memory_metrics import (
@@ -269,6 +272,7 @@ class TestObservabilityResilience:
         # Should complete without error
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_concurrent_metric_recording(self):
         """Contract: Concurrent metric recording is thread-safe."""
         from telemetry.memory_metrics import (
@@ -352,6 +356,7 @@ class TestPacketStructure:
     """Tests for tool audit packet structure."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_packet_has_required_fields(self):
         """Contract: Tool audit packet contains all required fields."""
         from memory.tool_audit import log_tool_invocation
@@ -386,6 +391,7 @@ class TestPacketStructure:
             assert captured_coro is not None
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_packet_type_is_tool_audit(self):
         """Contract: Packet type is set to 'tool_audit'."""
         from memory.substrate_models import MemorySegment
@@ -394,6 +400,7 @@ class TestPacketStructure:
         assert MemorySegment.TOOL_AUDIT.value == "tool_audit"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_packet_has_ttl(self):
         """Contract: Tool audit packets have TTL set."""
         from memory.tool_audit import TOOL_AUDIT_TTL_HOURS
@@ -401,6 +408,7 @@ class TestPacketStructure:
         assert TOOL_AUDIT_TTL_HOURS == 24  # 24 hours
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_packet_tags_include_tool_info(self):
         """Contract: Packet tags include tool_id, agent_id, and status."""
         # Tags are created in the format:

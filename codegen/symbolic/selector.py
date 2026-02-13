@@ -30,7 +30,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import structlog
 
@@ -55,8 +55,8 @@ class CandidateSelector:
 
     def select(
         self,
-        verifications: List[VerificationResult],
-    ) -> Tuple[Optional[SymbolicCandidate], Dict[str, Any]]:
+        verifications: list[VerificationResult],
+    ) -> tuple[SymbolicCandidate | None, dict[str, Any]]:
         """
         Select the best candidate from verified results.
 

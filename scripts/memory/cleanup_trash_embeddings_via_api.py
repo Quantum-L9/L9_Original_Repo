@@ -41,6 +41,8 @@ import httpx
 import structlog
 from dotenv import load_dotenv
 
+from core.decorators import must_stay_async
+
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -84,6 +86,7 @@ def is_trash_embedding(payload: dict) -> bool:
     return len(text) < 20
 
 
+@must_stay_async("callers use await")
 async def find_trash_embeddings_via_search(
     dry_run: bool = False,
     verbose: bool = False,
@@ -174,11 +177,11 @@ async def main(dry_run: bool = False, verbose: bool = False):
         logger.error(f"Failed: {result['error']}")
         return
 
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("trash embeddings detection (via api)")
-    logger.info("=" * 60")
-    logger.info("  embeddings checked: {result['checked']}")
-    logger.info("  trash embeddings found: {result['trash_found']}")
+    logger.info("=" * 60)
+    logger.info(f"  embeddings checked: {result['checked']}")
+    logger.info(f"  trash embeddings found: {result['trash_found']}")
 
     if dry_run:
         logger.info("\n  ⚠️  dry run - sample trash ids:")
@@ -187,7 +190,9 @@ async def main(dry_run: bool = False, verbose: bool = False):
         logger.info("\n  run without --dry-run to get full list for deletion")
     else:
         logger.info("\n  found {len(result.get('trash_ids', []))} trash embedding ids")
-        logger.info("  note: use cleanup_trash_embeddings.py with database_url for deletion")
+        logger.info(
+            "  note: use cleanup_trash_embeddings.py with database_url for deletion"
+        )
 
     logger.info("=" * 60 + "\n")
 

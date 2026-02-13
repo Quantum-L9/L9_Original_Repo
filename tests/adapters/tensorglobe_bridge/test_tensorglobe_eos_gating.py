@@ -11,6 +11,7 @@ from adapters.tensorglobe_bridge.schemas import (
     TensorOperation,
     TensorRequest,
 )
+from core.decorators import must_stay_async
 from core.eos.schemas import Verdict, VerdictDecision
 
 
@@ -53,6 +54,7 @@ def sample_request():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_eos_gate_allow(adapter, sample_request, mock_accountability):
     """Test that EOS ALLOW permits tensor call"""
 

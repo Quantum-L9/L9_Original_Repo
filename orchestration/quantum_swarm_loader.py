@@ -12,6 +12,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Quantum Swarm Loader",
@@ -87,6 +89,7 @@ class QuantumSwarmLoader:
             max_parallel=max_parallel,
         )
 
+    @must_stay_async("callers use await")
     async def load_quantum_swarm(
         self,
         capsule_path: str,

@@ -13,6 +13,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Semantic Compiler",
@@ -150,6 +152,7 @@ class SemanticCompiler:
     # Main Compilation
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def compile(
         self,
         text: str,
@@ -211,6 +214,7 @@ class SemanticCompiler:
 
         return graph
 
+    @must_stay_async("callers use await")
     async def _extract_semantic_structure(
         self,
         text: str,

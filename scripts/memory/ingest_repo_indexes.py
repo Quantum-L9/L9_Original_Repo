@@ -36,6 +36,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from core.decorators import must_stay_async
 import argparse
 import asyncio
 import hashlib
@@ -178,6 +179,7 @@ def chunk_index_file(
     return chunks
 
 
+@must_stay_async("callers use await")
 async def ingest_index(
     filename: str,
     kind: str,
@@ -255,6 +257,7 @@ async def ingest_index(
     return 1
 
 
+@must_stay_async("callers use await")
 async def main():
     parser = argparse.ArgumentParser(description="Ingest repo indexes to L9 memory")
     parser.add_argument(
@@ -272,7 +275,7 @@ async def main():
     args = parser.parse_args()
 
     logger.info("🧠 l9 repo index ingestion")
-    logger.info("=" * 50")
+    logger.info("=" * 50)
 
     if args.dry_run:
         logger.info("🔍 dry run mode - no changes will be made\n")

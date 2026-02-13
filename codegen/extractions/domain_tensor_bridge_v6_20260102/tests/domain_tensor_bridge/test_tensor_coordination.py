@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Tests for TensorCoordinator - batching and timeout handling.
 """
 
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
 
 from domain_tensor_bridge.tensor_coordinator import TensorCoordinator, TensorResult
 

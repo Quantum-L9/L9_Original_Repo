@@ -52,6 +52,8 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
+
 try:
     from opentelemetry import baggage, metrics, trace
     from opentelemetry.baggage.propagation import W3CBaggagePropagator
@@ -221,6 +223,7 @@ class PacketEnvelopeObservability:
 
         Usage:
             @obs.trace_operation("ingest_packet")
+            @must_stay_async("callers use await")
             async def ingest(packet):
                 ...
         """

@@ -43,6 +43,8 @@ import sys
 
 import structlog
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 
 logger = structlog.get_logger(__name__)
@@ -52,6 +54,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from neo4j import AsyncGraphDatabase
 
 
+@must_stay_async("callers use await")
 async def main():
     """
     Performs the main execution flow for bootstrapping L's agent graph in Neo4j, including environment setup and database initialization.

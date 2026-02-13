@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Packet Formatter
@@ -45,10 +44,9 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from typing import Any, Dict
+from typing import Any
 
 import structlog
-
 from l9.core.schemas import PacketEnvelope, PacketKind
 
 logger = structlog.get_logger(__name__)
@@ -57,14 +55,14 @@ logger = structlog.get_logger(__name__)
 class PacketFormatter:
     """Formats response packets for domains."""
 
-    def format_for_domain(self, result: Dict[str, Any], domain: str) -> PacketEnvelope:
+    def format_for_domain(self, result: dict[str, Any], domain: str) -> PacketEnvelope:
         """Format result for specific domain."""
         logger.debug("formatting_for_domain", domain=domain)
 
         formatter = getattr(self, f"_format_{domain}", self._format_generic)
         return formatter(result)
 
-    def _format_generic(self, result: Dict[str, Any]) -> PacketEnvelope:
+    def _format_generic(self, result: dict[str, Any]) -> PacketEnvelope:
         """Generic format."""
         return PacketEnvelope(
             source_id="domain_tensor_bridge",
@@ -73,7 +71,7 @@ class PacketFormatter:
             metadata={},
         )
 
-    def _format_plastos(self, result: Dict[str, Any]) -> PacketEnvelope:
+    def _format_plastos(self, result: dict[str, Any]) -> PacketEnvelope:
         """PlastOS-specific format."""
         return PacketEnvelope(
             source_id="domain_tensor_bridge",
@@ -82,7 +80,7 @@ class PacketFormatter:
             metadata={"domain": "plastos"},
         )
 
-    def _format_mortgageos(self, result: Dict[str, Any]) -> PacketEnvelope:
+    def _format_mortgageos(self, result: dict[str, Any]) -> PacketEnvelope:
         """MortgageOS-specific format."""
         return PacketEnvelope(
             source_id="domain_tensor_bridge",

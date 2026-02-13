@@ -19,6 +19,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.schemas import SemanticSearchRequest
 from memory.substrate_service import MemorySubstrateService
 
@@ -50,6 +51,7 @@ class WorkingMemoryAdapter:
     # High-level API
     # ---------------------------------------------------------------------
 
+    @must_stay_async("callers use await")
     async def build_world_model_context(
         self,
         *,
@@ -122,6 +124,7 @@ class WorkingMemoryAdapter:
 
         return world_model_context
 
+    @must_stay_async("callers use await")
     async def semantic_recall_for_intent(
         self,
         *,

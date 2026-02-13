@@ -25,6 +25,8 @@ from uuid import uuid4
 import pytest
 import structlog
 
+from core.decorators import must_stay_async
+
 pytestmark = pytest.mark.skipif(
     not os.getenv("TEST_DATABASE_URL"),
     reason="Requires TEST_DATABASE_URL (e2e audit test — set to a reachable PostgreSQL URL)",
@@ -695,6 +697,7 @@ async def audit_e2e_flow() -> AuditResult:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def run_full_audit() -> dict[str, Any]:
     """Run all audit checks."""
     print("\n" + "=" * 80)  # noqa: ADR-0019

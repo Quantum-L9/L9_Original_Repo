@@ -32,6 +32,7 @@ from typing import Any
 
 import structlog
 
+from core.decorators import must_stay_async
 from memory.consolidation import ConsolidationPipeline
 
 logger = structlog.get_logger(__name__)
@@ -83,6 +84,7 @@ class Housekeeping:
             return await self.compact()
         return await self.health_check()
 
+    @must_stay_async("callers use await")
     async def garbage_collect(
         self,
         threshold_days: int = 30,
@@ -390,6 +392,7 @@ class Housekeeping:
             "timestamp": datetime.now(UTC).isoformat(),
         }
 
+    @must_stay_async("callers use await")
     async def run_consolidation(
         self,
         dry_run: bool = False,

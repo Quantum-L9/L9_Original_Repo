@@ -349,6 +349,7 @@ class SagaExecutor:
 
         logger.info("SagaExecutor initialized")
 
+    @must_stay_async("callers use await")
     async def execute(
         self,
         saga: Saga,
@@ -455,6 +456,7 @@ class SagaExecutor:
 
         return result
 
+    @must_stay_async("callers use await")
     async def _execute_step(
         self,
         step: SagaStep,

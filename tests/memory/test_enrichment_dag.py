@@ -23,6 +23,7 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.enrichment_dag import (
     EnrichmentConfig,
     EnrichmentDAG,
@@ -381,6 +382,7 @@ class TestCircuitBreaker:
     """Test circuit breaker behavior."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_circuit_breaker_opens_after_failures(
         self, mock_repository, mock_semantic_service, sample_envelope
     ):
@@ -450,6 +452,7 @@ class TestDeadLetterQueue:
     """Test Dead-Letter Queue handling."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_dlq_push_on_all_tiers_failed(
         self, mock_repository, mock_semantic_service, sample_envelope, default_config
     ):

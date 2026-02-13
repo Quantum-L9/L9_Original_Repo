@@ -12,6 +12,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Git Tool Implementation",
@@ -46,6 +48,7 @@ logger = structlog.get_logger(__name__)
 GIT_QUEUE = TaskQueue(queue_name="l9:git_commits", use_redis=True)
 
 
+@must_stay_async("callers use await")
 async def git_commit_tool(
     message: str,
     repo_root: str,

@@ -51,6 +51,8 @@ import httpx
 import structlog
 from dotenv import load_dotenv
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -167,6 +169,7 @@ async def execute_cypher(query: str, parameters: dict | None = None) -> dict[str
     )
 
 
+@must_stay_async("callers use await")
 async def index_tool_usage_to_neo4j(
     tool_stats: list[dict[str, Any]],
     dry_run: bool = False,

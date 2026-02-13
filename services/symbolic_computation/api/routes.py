@@ -174,6 +174,7 @@ class ValidateRequest(BaseModel):
 
 
 @router.post("/evaluate", response_model=ComputationResult)
+@must_stay_async("callers use await")
 async def evaluate_expression(
     request: EvaluateRequest,
     evaluator: ExpressionEvaluator = Depends(get_evaluator),
@@ -220,6 +221,7 @@ async def evaluate_expression(
 
 
 @router.post("/generate_code", response_model=CodeGenResult)
+@must_stay_async("callers use await")
 async def generate_code(
     request: CodeGenRequest,
     generator: CodeGenerator = Depends(get_generator),

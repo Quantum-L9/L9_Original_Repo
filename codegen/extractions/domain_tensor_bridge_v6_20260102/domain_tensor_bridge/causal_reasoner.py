@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Causal Reasoner
@@ -44,8 +43,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from dataclasses import dataclass
+from typing import Any
 
 import structlog
 
@@ -56,15 +55,15 @@ logger = structlog.get_logger(__name__)
 class CausalResult:
     """Result of causal reasoning."""
 
-    causal_chain: List[Dict[str, Any]]
-    intervention_points: List[str]
+    causal_chain: list[dict[str, Any]]
+    intervention_points: list[str]
     causal_confidence: float
 
 
 class CausalReasoner:
     """Applies causal logic."""
 
-    async def apply_causal_logic(self, context: Dict[str, Any]) -> CausalResult:
+    async def apply_causal_logic(self, context: dict[str, Any]) -> CausalResult:
         """Apply causal reasoning to context."""
         logger.info("applying_causal_logic")
 
@@ -78,11 +77,11 @@ class CausalReasoner:
             causal_confidence=0.78,
         )
 
-    def _build_causal_chain(self, factors: List[Any]) -> List[Dict[str, Any]]:
+    def _build_causal_chain(self, factors: list[Any]) -> list[dict[str, Any]]:
         """Build causal chain from factors."""
         return [{"factor": str(f), "effect": "downstream"} for f in factors]
 
-    def _identify_interventions(self, chain: List[Dict[str, Any]]) -> List[str]:
+    def _identify_interventions(self, chain: list[dict[str, Any]]) -> list[str]:
         """Identify intervention points in chain."""
         return [c["factor"] for c in chain[:2]]
 

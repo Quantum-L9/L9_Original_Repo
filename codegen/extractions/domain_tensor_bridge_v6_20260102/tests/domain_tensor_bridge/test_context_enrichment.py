@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Tests for ContextEnricher - world model query and context building.
 """
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from l9.core.schemas import PacketEnvelope, PacketKind
 
 from domain_tensor_bridge.context_enricher import ContextEnricher, EnrichedContext
-from domain_tensor_bridge.world_model_bridge import CausalFactor
 from domain_tensor_bridge.memory_bridge import EpisodicEvent
-from l9.core.schemas import PacketEnvelope, PacketKind
+from domain_tensor_bridge.world_model_bridge import CausalFactor
 
 
 @pytest.fixture

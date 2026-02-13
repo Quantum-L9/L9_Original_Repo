@@ -21,6 +21,8 @@ Created: 2026-01-06
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Load Gmp Reports To Graph",
@@ -299,6 +301,7 @@ async def create_gmp_schema(driver: AsyncDriver) -> int:
     return created
 
 
+@must_stay_async("callers use await")
 async def load_gmp_reports(driver: AsyncDriver) -> dict:
     """Load all GMP reports from reports/ directory into Neo4j.
 

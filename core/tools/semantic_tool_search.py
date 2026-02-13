@@ -15,6 +15,8 @@ Uses pgvector for semantic search via tool_embeddings.py.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Semantic Tool Search",
@@ -141,6 +143,7 @@ class SemanticToolSearchAdapter:
 
         return tools_list
 
+    @must_stay_async("callers use await")
     async def search_tools(
         self,
         query: str,

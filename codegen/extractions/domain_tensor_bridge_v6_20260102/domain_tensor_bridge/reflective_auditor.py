@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Reflective Auditor
@@ -45,7 +44,7 @@ __dora_meta__ = {
 # ============================================================================
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any
 
 import structlog
 
@@ -57,15 +56,15 @@ class AuditResult:
     """Result of reflective audit."""
 
     audit_passed: bool
-    issues_found: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    suggestions: List[str] = field(default_factory=list)
+    issues_found: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+    suggestions: list[str] = field(default_factory=list)
 
 
 class ReflectiveAuditor:
     """Self-critiques reasoning outputs."""
 
-    def audit_reasoning(self, decision: Dict[str, Any]) -> AuditResult:
+    def audit_reasoning(self, decision: dict[str, Any]) -> AuditResult:
         """Audit decision for issues."""
         logger.info("auditing_reasoning")
 
@@ -121,7 +120,7 @@ __footer_meta__ = {
     "dependencies": ["structlog"],
 }
 
-__all__ = ["ReflectiveAuditor", "AuditResult", "__footer_meta__", "__l9_trace__"]
+__all__ = ["AuditResult", "ReflectiveAuditor", "__footer_meta__", "__l9_trace__"]
 
 __l9_trace__ = {
     "trace_id": "",

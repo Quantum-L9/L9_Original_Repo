@@ -225,6 +225,7 @@ class ToolAuditService:
             except Exception as e:
                 logger.error("Auto-flush error", error=str(e))
 
+    @must_stay_async("callers use await")
     async def get_tool_metrics(
         self,
         agent_id: str | None = None,

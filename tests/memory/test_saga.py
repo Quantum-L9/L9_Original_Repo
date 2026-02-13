@@ -9,6 +9,7 @@ from uuid import UUID
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.saga import (
     DatabaseType,
     SagaBuilder,
@@ -93,9 +94,11 @@ class TestSagaBuilder:
     def test_build_simple_saga(self):
         """Test building a simple saga."""
 
+        @must_stay_async("callers use await")
         async def step1(context, **kwargs):
             return {"result": "step1"}
 
+        @must_stay_async("callers use await")
         async def step2(context, **kwargs):
             return {"result": "step2"}
 
@@ -124,6 +127,7 @@ class TestSagaBuilder:
     def test_custom_output_builder(self):
         """Test saga with custom output builder."""
 
+        @must_stay_async("callers use await")
         async def step1(context, **kwargs):
             return [1, 2, 3]
 
@@ -148,9 +152,11 @@ class TestSagaExecutor:
     """Test SagaExecutor functionality."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_simple_saga(self):
         """Test executing a simple saga."""
 
+        @must_stay_async("callers use await")
         async def step1(context, **kwargs):
             return {"value": 1}
 
@@ -174,17 +180,21 @@ class TestSagaExecutor:
         assert len(result.step_results) == 2
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_with_failing_required_step(self):
         """Test saga with failing required step triggers compensation."""
 
+        @must_stay_async("callers use await")
         async def step1(context, **kwargs):
             return {"value": 1}
 
+        @must_stay_async("callers use await")
         async def step2_fail(context, **kwargs):
             raise ValueError("Intentional failure")
 
         compensated = []
 
+        @must_stay_async("callers use await")
         async def compensate_step1(context, **kwargs):
             compensated.append("step1")
 
@@ -214,12 +224,15 @@ class TestSagaExecutor:
         assert "step1" in compensated
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_with_failing_optional_step(self):
         """Test saga continues when optional step fails."""
 
+        @must_stay_async("callers use await")
         async def step1(context, **kwargs):
             return {"value": 1}
 
+        @must_stay_async("callers use await")
         async def step2_fail(context, **kwargs):
             raise ValueError("Intentional failure")
 
@@ -247,12 +260,15 @@ class TestSagaExecutor:
         assert result.steps_failed == 1
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_with_condition(self):
         """Test step with condition function."""
 
+        @must_stay_async("callers use await")
         async def step1(context, **kwargs):
             return {"should_run_step2": False}
 
+        @must_stay_async("callers use await")
         async def step2(context, **kwargs):
             return {"ran": True}
 
@@ -280,6 +296,7 @@ class TestSagaExecutor:
         assert result.steps_skipped == 1
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_execute_with_input_data(self):
         """Test saga receives input data."""
 

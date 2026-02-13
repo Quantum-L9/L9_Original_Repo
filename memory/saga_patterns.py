@@ -240,6 +240,7 @@ async def _extract_entities_step(
     return unique_entities
 
 
+@must_stay_async("callers use await")
 async def _graph_enrich_step(
     context: SagaContext,
     neo4j: Any = None,
@@ -354,6 +355,7 @@ async def _assemble_result_step(
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def _fetch_events_step(
     context: SagaContext,
     neo4j: Any = None,
@@ -422,6 +424,7 @@ async def _fetch_events_step(
         return []
 
 
+@must_stay_async("callers use await")
 async def _trace_causal_chain_step(
     context: SagaContext,
     neo4j: Any = None,
@@ -530,6 +533,7 @@ def create_entity_enrichment_saga() -> Saga:
     Input: {"entity_ids": ["id1", "id2"], "entity_type": "User"}
     """
 
+    @must_stay_async("callers use await")
     async def lookup_entities(context: SagaContext, neo4j: Any = None, **kwargs):
         """
         Performs entity lookup within a saga context using Neo4j; returns a list of entities or an empty list if Neo4j is unavailable.
@@ -657,6 +661,7 @@ class SagaPatterns:
             "timeline_correlation": create_timeline_correlation_saga(),
         }
 
+    @must_stay_async("callers use await")
     async def fetch_and_enrich(
         self,
         query: str,
@@ -770,6 +775,7 @@ async def get_saga_patterns(
     return _patterns
 
 
+@must_stay_async("callers use await")
 async def fetch_and_enrich(
     query: str,
     postgres_pool: Any | None = None,

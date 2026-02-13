@@ -11,6 +11,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Long Plan Tool Implementation",
@@ -47,6 +49,7 @@ from runtime.tool_call_wrapper import tool_call_wrapper
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def long_plan_execute_tool(
     goal: str,
     constraints: list[str] | None = None,
@@ -103,6 +106,7 @@ async def long_plan_execute_tool(
         }
 
 
+@must_stay_async("callers use await")
 async def long_plan_simulate_tool(
     goal: str,
     constraints: list[str] | None = None,
@@ -150,6 +154,7 @@ async def long_plan_simulate_tool(
         }
 
 
+@must_stay_async("callers use await")
 async def execute_long_plan_tasks(plan_id: str, repo_root: str) -> dict[str, Any]:
     """
     Execute tasks from a completed long plan.

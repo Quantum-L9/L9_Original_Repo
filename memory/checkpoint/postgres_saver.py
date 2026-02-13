@@ -85,6 +85,7 @@ class L9PostgresSaver(BaseCheckpointSaver):
         """Get repository instance."""
         return self._repository
 
+    @must_stay_async("callers use await")
     async def put(
         self,
         config: dict[str, Any],
@@ -150,6 +151,7 @@ class L9PostgresSaver(BaseCheckpointSaver):
 
         return {"checkpoint_id": str(checkpoint_id)}
 
+    @must_stay_async("callers use await")
     async def get(
         self,
         config: dict[str, Any],
@@ -288,6 +290,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
             base_retry_delay=base_retry_delay,
         )
 
+    @must_stay_async("callers use await")
     async def _execute_with_retry(
         self,
         operation_name: str,
@@ -348,6 +351,7 @@ class L9RetryablePostgresSaver(L9PostgresSaver):
         )
         raise last_exception  # type: ignore[misc]
 
+    @must_stay_async("callers use await")
     async def put(
         self,
         config: dict[str, Any],

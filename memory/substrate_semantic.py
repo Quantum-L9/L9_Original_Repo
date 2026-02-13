@@ -170,6 +170,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
             f"Embedding request failed after {self._max_retries} retries: {last_error}"
         ) from last_error
 
+    @must_stay_async("callers use await")
     async def embed_text(self, text: str) -> list[float]:
         """Generate embedding using OpenAI API with retry logic."""
         client = self._get_client()
@@ -185,6 +186,7 @@ class OpenAIEmbeddingProvider(EmbeddingProvider):
 
         return await self._with_retries(_embed, operation="embed_text")
 
+    @must_stay_async("callers use await")
     async def embed_batch(self, texts: list[str]) -> list[list[float]]:
         """Generate embeddings for batch of texts with retry logic."""
         client = self._get_client()
@@ -297,6 +299,7 @@ class SemanticService:
         self._provider = embedding_provider
         self._repository = repository
 
+    @must_stay_async("callers use await")
     async def embed_and_store(
         self,
         text: str,
@@ -390,6 +393,7 @@ class SemanticService:
         }
         return vector, enriched_payload, agent_id
 
+    @must_stay_async("callers use await")
     async def search(
         self,
         query: str,
@@ -426,6 +430,7 @@ class SemanticService:
         logger.debug(f"Found {len(hits)} results")
         return [hit.model_dump() for hit in hits]
 
+    @must_stay_async("callers use await")
     async def batch_embed_and_store(
         self,
         items: list[dict[str, Any]],
@@ -482,6 +487,7 @@ class SemanticService:
     # Spec v3.0 Required Methods (memory_spec_v3.0.yaml compliance)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def store_embedding(
         self,
         vector: list[float],
@@ -554,6 +560,7 @@ class SemanticService:
         logger.debug(f"Recalled {len(results)} similar embeddings")
         return results
 
+    @must_stay_async("callers use await")
     async def batch_store_embeddings(
         self,
         embeddings: list[dict[str, Any]],
@@ -585,6 +592,7 @@ class SemanticService:
         logger.debug(f"Batch stored {len(embedding_ids)} embeddings")
         return embedding_ids
 
+    @must_stay_async("callers use await")
     async def hybrid_search(
         self,
         query: str,
@@ -737,6 +745,7 @@ def create_embedding_provider(
 
 
 # Convenience function for direct use
+@must_stay_async("callers use await")
 async def embed_text(
     text: str,
     provider: EmbeddingProvider | None = None,

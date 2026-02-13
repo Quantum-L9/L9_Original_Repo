@@ -110,6 +110,7 @@ async def get_slack_validator(request: Request) -> SlackRequestValidator:
 
 
 @router.get("/health")
+@must_stay_async("callers use await")
 async def slack_health(request: Request) -> dict[str, Any]:
     """
     Slack integration health check.
@@ -128,6 +129,7 @@ async def slack_health(request: Request) -> dict[str, Any]:
 
 
 @router.post("/events")
+@must_stay_async("callers use await")
 async def slack_events(
     request: Request,
     validator: SlackRequestValidator = Depends(get_slack_validator),
@@ -331,6 +333,7 @@ async def slack_events(
 
 
 @router.post("/commands")
+@must_stay_async("callers use await")
 async def slack_commands(
     request: Request,
     validator: SlackRequestValidator = Depends(get_slack_validator),

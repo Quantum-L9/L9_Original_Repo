@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Reasoning Engine
@@ -45,9 +44,8 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import asyncio
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import structlog
 
@@ -58,11 +56,11 @@ logger = structlog.get_logger(__name__)
 class ReasoningResult:
     """Result from reasoning execution."""
 
-    decision: Dict[str, Any]
+    decision: dict[str, Any]
     confidence: float
-    reasoning_trace: List[Dict[str, Any]]
-    modes_applied: List[str]
-    warnings: List[str]
+    reasoning_trace: list[dict[str, Any]]
+    modes_applied: list[str]
+    warnings: list[str]
 
 
 class ReasoningEngine:
@@ -79,10 +77,10 @@ class ReasoningEngine:
 
     def __init__(
         self,
-        symbolic_reasoner: Optional[Any] = None,
-        causal_reasoner: Optional[Any] = None,
-        analogical_reasoner: Optional[Any] = None,
-        reflective_auditor: Optional[Any] = None,
+        symbolic_reasoner: Any | None = None,
+        causal_reasoner: Any | None = None,
+        analogical_reasoner: Any | None = None,
+        reflective_auditor: Any | None = None,
     ):
         self.symbolic_reasoner = symbolic_reasoner
         self.causal_reasoner = causal_reasoner
@@ -98,8 +96,8 @@ class ReasoningEngine:
 
     async def execute_reasoning(
         self,
-        context: Dict[str, Any],
-        modes: Optional[List[str]] = None,
+        context: dict[str, Any],
+        modes: list[str] | None = None,
     ) -> ReasoningResult:
         """
         Execute reasoning with specified modes.
@@ -159,7 +157,7 @@ class ReasoningEngine:
             warnings=warnings,
         )
 
-    async def apply_causal_reasoning(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def apply_causal_reasoning(self, context: dict[str, Any]) -> dict[str, Any]:
         """
         Apply world model causal logic.
 
@@ -182,8 +180,8 @@ class ReasoningEngine:
         }
 
     async def apply_analogical_reasoning(
-        self, context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, context: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Apply cross-domain pattern matching.
 
@@ -205,7 +203,7 @@ class ReasoningEngine:
             "cross_domain_insights": [],
         }
 
-    async def _apply_symbolic(self, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _apply_symbolic(self, context: dict[str, Any]) -> dict[str, Any]:
         """Apply symbolic rule reasoning."""
         if self.symbolic_reasoner:
             return self.symbolic_reasoner.apply_domain_rules(
@@ -218,8 +216,8 @@ class ReasoningEngine:
         }
 
     async def _apply_reflective(
-        self, mode_outputs: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, mode_outputs: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Apply reflective self-critique."""
         if self.reflective_auditor:
             return self.reflective_auditor.audit_reasoning({"outputs": mode_outputs})
@@ -231,8 +229,8 @@ class ReasoningEngine:
         }
 
     def _synthesize_decision(
-        self, mode_outputs: List[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, mode_outputs: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Synthesize decision from multiple reasoning outputs."""
         return {
             "action": "proceed",
@@ -240,7 +238,7 @@ class ReasoningEngine:
             "synthesized": True,
         }
 
-    def _calculate_confidence(self, mode_outputs: List[Dict[str, Any]]) -> float:
+    def _calculate_confidence(self, mode_outputs: list[dict[str, Any]]) -> float:
         """Calculate overall confidence from mode outputs."""
         confidences = []
         for output in mode_outputs:

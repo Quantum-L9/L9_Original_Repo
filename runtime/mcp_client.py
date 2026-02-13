@@ -14,6 +14,7 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
 from core.singleton_auto_registry import register_singleton
 
 # ============================================================================
@@ -186,6 +187,7 @@ class MCPServerProcess:
                 "MCP response reader error", server_id=self.server_id, error=str(e)
             )
 
+    @must_stay_async("callers use await")
     async def send_request(
         self,
         method: str,
@@ -503,6 +505,7 @@ class MCPClient:
 
             return tools
 
+    @must_stay_async("callers use await")
     async def call_tool(
         self,
         server_id: str,
@@ -589,6 +592,7 @@ class MCPClient:
                 "result": None,
             }
 
+    @must_stay_async("callers use await")
     async def _call_http_tool(
         self,
         server_id: str,

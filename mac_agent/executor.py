@@ -167,6 +167,7 @@ class AutomationExecutor:
         except Exception as e:
             logger.error(f"Error during cleanup: {e}")
 
+    @must_stay_async("callers use await")
     async def _take_screenshot(self, task_id: str, suffix: str = "") -> str | None:
         """
         Take screenshot and save to task-specific directory.
@@ -207,6 +208,7 @@ class AutomationExecutor:
         except Exception:
             return False
 
+    @must_stay_async("callers use await")
     async def _execute_with_retry(
         self, step: dict[str, Any], step_num: int, task_id: str, max_retries: int = 2
     ) -> dict[str, Any]:
@@ -448,6 +450,7 @@ class AutomationExecutor:
             "screenshot": screenshot_path,
         }
 
+    @must_stay_async("callers use await")
     async def run_steps(
         self,
         steps: list[dict[str, Any]],

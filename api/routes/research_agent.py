@@ -276,6 +276,7 @@ async def synthesize(
 
 
 @router.post("/discover", response_model=DiscoverResponse)
+@must_stay_async("callers use await")
 async def discover(
     request: DiscoverRequest,
     authorization: str = Header(None),
@@ -332,6 +333,7 @@ async def discover(
 
 
 @router.post("/generate-spec", response_model=GenerateSpecResponse)
+@must_stay_async("callers use await")
 async def generate_spec(
     request: GenerateSpecRequest,
     authorization: str = Header(None),
@@ -381,6 +383,7 @@ async def generate_spec(
 
 
 @router.post("/research-to-code", response_model=ResearchToCodeResponse)
+@must_stay_async("callers use await")
 async def research_to_code(
     request: ResearchToCodeRequest,
     authorization: str = Header(None),

@@ -5,6 +5,7 @@ import asyncio
 import yaml
 
 from agents.l_cto import LCTOAgent
+from core.decorators import must_stay_async
 from runtime.kernel_loader import KernelLoader
 
 
@@ -44,6 +45,7 @@ async def test_kernel_absorption():
     print("✅ Kernel absorption successful")
 
 
+@must_stay_async("callers use await")
 async def test_tool_registry():
     """Verify tools match governance tiers"""
     with open("config/agents/L-CTO-Agent.yaml") as f:

@@ -34,6 +34,7 @@ from uuid import UUID
 
 import structlog
 
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope, SemanticHit
 from memory.query_cache import get_cache
 from memory.substrate_models import (
@@ -87,6 +88,7 @@ class CachedSubstrateRepository:
         """Get cache instance for decorators."""
         return self.cache
 
+    @must_stay_async("callers use await")
     async def get_packet(self, packet_id: UUID) -> PacketStoreRow | None:
         """
         Get packet by ID (LRU cached - immutable data).
@@ -105,6 +107,7 @@ class CachedSubstrateRepository:
 
         return await _get_packet_cached(packet_id)
 
+    @must_stay_async("callers use await")
     async def get_checkpoint(self, agent_id: str) -> GraphCheckpointRow | None:
         """
         Get agent checkpoint (TTL cached - changes periodically).
@@ -123,6 +126,7 @@ class CachedSubstrateRepository:
 
         return await _get_checkpoint_cached(agent_id)
 
+    @must_stay_async("callers use await")
     async def get_memory_events(
         self,
         agent_id: str,
@@ -148,6 +152,7 @@ class CachedSubstrateRepository:
 
         return await _get_memory_events_cached(agent_id, limit, offset)
 
+    @must_stay_async("callers use await")
     async def get_knowledge_facts(
         self,
         limit: int = 100,

@@ -15,6 +15,7 @@ from src.routes.memory_unified import (
     save_memory_handler,
 )
 
+from core.decorators import must_stay_async
 from core.schemas import PacketWriteResult
 
 # =============================================================================
@@ -23,6 +24,7 @@ from core.schemas import PacketWriteResult
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_save_memory_uses_main_pipeline_when_service_available():
     """Test that save_memory_handler uses main pipeline when substrate_service is provided."""
 
@@ -75,6 +77,7 @@ async def test_save_memory_uses_main_pipeline_when_service_available():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_save_memory_falls_back_to_direct_db_when_service_unavailable():
     """Test that save_memory_handler falls back to direct DB when substrate_service is None."""
 
@@ -310,6 +313,7 @@ async def test_save_via_direct_db_still_works():
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_mcp_tool_call_passes_substrate_service():
     """Test that handle_tool_call passes substrate_service to save_memory_handler."""
 

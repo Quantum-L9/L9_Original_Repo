@@ -7,6 +7,8 @@ Purpose: Load tool definitions, register in Neo4j, create tool→governance mapp
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Phase 5 Bind Tools",
@@ -56,6 +58,7 @@ class ToolDefinition:
     is_destructive: bool = False
 
 
+@must_stay_async("callers use await")
 async def get_agent_capabilities(agent_id: str) -> list[ToolDefinition]:
     """
     Get tool definitions available to this agent.

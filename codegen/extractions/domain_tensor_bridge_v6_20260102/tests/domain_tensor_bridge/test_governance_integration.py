@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Tests for GovernanceBridge - escalation triggers, overrides, audit logging.
 """
 
+from unittest.mock import AsyncMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 
 from domain_tensor_bridge.governance_bridge import (
     GovernanceBridge,
-    GovernanceResult,
     GovernanceDecision,
-    EscalationResult,
 )
 
 

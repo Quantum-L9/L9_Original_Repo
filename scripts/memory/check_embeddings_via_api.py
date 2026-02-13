@@ -31,6 +31,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+from core.decorators import must_stay_async
 import asyncio
 import os
 import sys
@@ -51,6 +52,7 @@ VPS_URL = os.getenv("VPS_MEMORY_URL", "https://157.180.73.53:9001")
 API_KEY = os.getenv("L9_EXECUTOR_API_KEY")
 
 
+@must_stay_async("callers use await")
 async def check_embeddings_via_search(limit: int = 20):
     """Check embeddings by doing semantic searches and inspecting results."""
     if not API_KEY:
@@ -71,9 +73,9 @@ async def check_embeddings_via_search(limit: int = 20):
         "decision",
     ]
 
-    logger.info("\n" + "=" * 60")
+    logger.info("\n" + "=" * 60)
     logger.info("checking embeddings via semantic search")
-    logger.info("=" * 60")
+    logger.info("=" * 60)
 
     async with httpx.AsyncClient(verify=False, timeout=30.0) as client:
         for query in test_queries:

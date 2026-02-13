@@ -198,6 +198,7 @@ class VPSRepoGraphLoader:
 
         logger.info("Indexes created/verified")
 
+    @must_stay_async("callers use await")
     async def load_file_metrics(self):
         """Load file metrics as File nodes."""
         logger.info("Loading file metrics...")
@@ -254,6 +255,7 @@ class VPSRepoGraphLoader:
 
         logger.info(f"Files loaded: {self.stats['files']:,}")
 
+    @must_stay_async("callers use await")
     async def load_class_definitions(self):
         """Load class definitions."""
         logger.info("Loading class definitions...")
@@ -330,6 +332,7 @@ class VPSRepoGraphLoader:
 
         logger.info(f"Classes loaded: {self.stats['classes']:,}")
 
+    @must_stay_async("callers use await")
     async def load_inheritance_graph(self):
         """Load inheritance relationships."""
         logger.info("Loading inheritance graph...")
@@ -375,6 +378,7 @@ class VPSRepoGraphLoader:
 
         logger.info(f"EXTENDS relationships: {self.stats['extends']:,}")
 
+    @must_stay_async("callers use await")
     async def load_route_handlers(self):
         """Load route handlers."""
         logger.info("Loading route handlers...")
@@ -596,23 +600,24 @@ USAGE: At session start, this summary provides instant repo context.
 
     def print_summary(self):
         """Print loading summary."""
-        logger.info("\n" + "=" * 60")
+        logger.info("\n" + "=" * 60)
         logger.info("l9 repo graph - vps neo4j load summary")
-        logger.info("=" * 60")
-        logger.info("  files:           {self.stats['files']:,}")
-        logger.info("  classes:         {self.stats['classes']:,}")
-        logger.info("  functions:       {self.stats['functions']:,}")
-        logger.info("  methods:         {self.stats['methods']:,}")
-        logger.info("  routes:          {self.stats['routes']:,}")
-        logger.info("  pydantic models: {self.stats['pydantic_models']:,}")
-        logger.info("-" * 60")
-        logger.info("  extends rels:    {self.stats['extends']:,}")
-        logger.info("  has_method rels: {self.stats['has_method']:,}")
-        logger.info("  handled_by rels: {self.stats['handled_by']:,}")
-        logger.info("  queries:         {self.stats['queries_executed']:,}")
-        logger.info("=" * 60")
+        logger.info("=" * 60)
+        logger.info(f"  files:           {self.stats['files']:,}")
+        logger.info(f"  classes:         {self.stats['classes']:,}")
+        logger.info(f"  functions:       {self.stats['functions']:,}")
+        logger.info(f"  methods:         {self.stats['methods']:,}")
+        logger.info(f"  routes:          {self.stats['routes']:,}")
+        logger.info(f"  pydantic models: {self.stats['pydantic_models']:,}")
+        logger.info("-" * 60)
+        logger.info(f"  extends rels:    {self.stats['extends']:,}")
+        logger.info(f"  has_method rels: {self.stats['has_method']:,}")
+        logger.info(f"  handled_by rels: {self.stats['handled_by']:,}")
+        logger.info(f"  queries:         {self.stats['queries_executed']:,}")
+        logger.info("=" * 60)
 
 
+@must_stay_async("callers use await")
 async def main():
     """
     Loads repository index files into VPS Neo4j via HTTP API for graph data management.

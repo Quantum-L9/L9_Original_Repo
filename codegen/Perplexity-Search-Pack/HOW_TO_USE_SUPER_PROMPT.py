@@ -180,8 +180,8 @@ def call_perplexity_api(prompt, api_key):
 # ============================================================================
 # STEP 4: EXTRACT AND SAVE GENERATED FILES
 
-import re
 import os
+import re
 
 
 def extract_python_files(response_text):

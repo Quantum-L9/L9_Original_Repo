@@ -14,6 +14,8 @@ Note: Redis is mandatory; missing Redis blocks async execution.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Task Queue",
@@ -59,6 +61,7 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
+@must_stay_async("callers use await")
 async def dispatch_task_immediate(task: QueuedTask) -> str:
     """
     Execute a task immediately without queueing.
@@ -237,6 +240,7 @@ class TaskQueue:
             raise RuntimeError("TaskQueue: Redis unavailable; execution blocked")
         return True
 
+    @must_stay_async("callers use await")
     async def enqueue(
         self,
         name: str,

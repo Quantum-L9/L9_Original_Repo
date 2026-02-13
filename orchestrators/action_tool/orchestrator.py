@@ -96,6 +96,7 @@ class ActionToolOrchestrator(IActionToolOrchestrator):
                 return None
         return self._registry
 
+    @must_stay_async("callers use await")
     async def execute(self, request: ActionToolRequest) -> ActionToolResponse:
         """
         Execute tool with validation and retry logic.

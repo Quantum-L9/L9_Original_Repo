@@ -16,6 +16,7 @@ from uuid import uuid4
 
 import pytest
 
+from core.decorators import must_stay_async
 from core.schemas import PacketEnvelope, PacketEnvelopeIn, PacketWriteResult
 from memory.governance_gate import governance_context
 from memory.substrate_models import EnrichmentResult, KnowledgeFact
@@ -274,6 +275,7 @@ class TestEnrichmentTimeout:
     """Test enrichment timeout handling."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_enrichment_timeout_logs_and_continues(
         self, mock_repository, mock_semantic_service, sample_packet_in, gov_ctx
     ):
@@ -462,6 +464,7 @@ class TestMCPTieredFallback:
     """Test MCP tiered fallback behavior."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_mcp_returns_enrichment_fields_on_success(self, gov_ctx):
         """MCP response includes enrichment fields when pipeline succeeds."""
         from mcp_memory.src.routes.memory_unified import save_memory_handler
@@ -494,6 +497,7 @@ class TestMCPTieredFallback:
         assert result["tier_used"] == "full"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_mcp_returns_200_on_enrichment_failure(self, gov_ctx):
         """Enrichment failure = 200 with enrichment_status='failed'."""
         from mcp_memory.src.routes.memory_unified import save_memory_handler
@@ -538,6 +542,7 @@ class TestIntegrationWithRealDAG:
 
     @pytest.mark.skip(reason="Requires database connection")
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_real_dag_enrichment_extracts_facts(self):
         """Real DAG enrichment extracts facts from packet."""
         # This would test with a real SubstrateDAG instance

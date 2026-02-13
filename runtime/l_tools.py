@@ -56,6 +56,7 @@ logger = structlog.get_logger(__name__)
 # Note: memory_search is registered in core/tools/memory_tools.py
 
 
+@must_stay_async("callers use await")
 async def memory_search(
     query: str,
     segment: str = "all",
@@ -105,6 +106,7 @@ async def memory_search(
 
 
 # Note: memory_write is registered in core/tools/memory_tools.py
+@must_stay_async("callers use await")
 async def memory_write(
     packet: dict[str, Any],
     segment: str,
@@ -399,6 +401,7 @@ async def memory_get_facts(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def memory_write_insight(
     insight: str,
     category: str,
@@ -475,6 +478,7 @@ async def memory_embed_text(
 # MEMORY CLIENT API (Batch 2 - GMP-31)
 
 
+@must_stay_async("callers use await")
 async def memory_hybrid_search(
     query: str,
     top_k: int = 10,
@@ -519,6 +523,7 @@ async def memory_hybrid_search(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def memory_fetch_lineage(
     packet_id: str,
     direction: str = "ancestors",
@@ -594,6 +599,7 @@ async def memory_fetch_thread(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def memory_fetch_facts_api(
     subject: str | None = None,
     predicate: str | None = None,
@@ -634,6 +640,7 @@ async def memory_fetch_facts_api(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def memory_fetch_insights(
     packet_id: str | None = None,
     insight_type: str | None = None,
@@ -702,6 +709,7 @@ async def memory_gc_stats(
 # GOVERNANCE TOOLS (High-Risk: Requires Igor Approval)
 
 
+@must_stay_async("callers use await")
 async def gmp_run(
     gmp_id: str,
     params: dict[str, Any] | None = None,
@@ -756,6 +764,7 @@ async def gmp_run(
 # VERSION CONTROL TOOLS (High-Risk: Requires Igor Approval)
 
 
+@must_stay_async("callers use await")
 async def git_commit(
     message: str,
     files: list[str] | None = None,
@@ -810,6 +819,7 @@ async def git_commit(
 # EXECUTION TOOLS (High-Risk: Requires Igor Approval)
 
 
+@must_stay_async("callers use await")
 async def mac_agent_exec_task(
     command: str,
     timeout: int = 30,
@@ -888,6 +898,7 @@ async def mcp_list_servers(**kwargs: Any) -> dict[str, Any]:
 
 
 # Note: mcp_list_tools is registered in core/tools/registry_adapter.py
+@must_stay_async("callers use await")
 async def mcp_list_tools(
     server_id: str,
     **kwargs: Any,
@@ -930,6 +941,7 @@ async def mcp_list_tools(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def mcp_call_tool(
     server_id: str,
     tool_name: str,
@@ -997,6 +1009,7 @@ async def mcp_call_tool(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
     """
     Discover all MCP tools from all servers and register them in Neo4j.
@@ -1096,6 +1109,7 @@ async def mcp_discover_and_register(**kwargs: Any) -> dict[str, Any]:
 # MCP SERVER CONTROL TOOLS (GMP-32 Batch 6)
 
 
+@must_stay_async("callers use await")
 async def mcp_start_server(
     server_id: str,
     **kwargs: Any,
@@ -1131,6 +1145,7 @@ async def mcp_start_server(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def mcp_stop_server(
     server_id: str,
     **kwargs: Any,
@@ -1224,6 +1239,7 @@ async def redis_get_rate_limit(
 
 
 # Note: redis_set_rate_limit is registered in core/tools/registry_adapter.py
+@must_stay_async("callers use await")
 async def redis_set_rate_limit(
     key: str,
     count: int,
@@ -1917,6 +1933,7 @@ async def llm_chat(
 # SIMULATION TOOLS
 
 
+@must_stay_async("callers use await")
 async def simulation_execute(
     graph_data: dict[str, Any],
     scenario_params: dict[str, Any] | None = None,
@@ -1980,6 +1997,7 @@ async def simulation_execute(
 # WORLD MODEL TOOLS
 
 
+@must_stay_async("callers use await")
 async def world_model_query(
     query_type: str,
     params: dict[str, Any] | None = None,
@@ -2037,6 +2055,7 @@ async def world_model_query(
 # NEO4J GRAPH TOOLS
 
 
+@must_stay_async("callers use await")
 async def neo4j_query(
     cypher: str,
     params: dict[str, Any] | None = None,
@@ -2129,6 +2148,7 @@ async def redis_get(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def redis_set(
     key: str,
     value: str,
@@ -2241,6 +2261,7 @@ async def redis_delete(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def redis_enqueue_task(
     queue_name: str,
     task_data: dict[str, Any],
@@ -2361,6 +2382,7 @@ async def redis_get_task_context(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def redis_set_task_context(
     task_id: str,
     context: dict[str, Any],
@@ -2633,6 +2655,7 @@ async def world_model_get_entity(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def world_model_list_entities(
     entity_type: str | None = None,
     min_confidence: float | None = None,

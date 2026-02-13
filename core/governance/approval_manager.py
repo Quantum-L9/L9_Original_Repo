@@ -185,6 +185,7 @@ class ApprovalManager:
         """
         return tool_id in self.HIGH_RISK_TOOLS
 
+    @must_stay_async("callers use await")
     async def request_approval(
         self,
         tool_id: str,
@@ -317,6 +318,7 @@ class ApprovalManager:
 
         return None
 
+    @must_stay_async("callers use await")
     async def approve(
         self,
         request_id: str,
@@ -374,6 +376,7 @@ class ApprovalManager:
 
         return decision
 
+    @must_stay_async("callers use await")
     async def _create_approval_checkpoint(
         self,
         request: ApprovalRequest,

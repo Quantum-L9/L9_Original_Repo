@@ -32,6 +32,8 @@ from typing import Any, TypeVar
 
 import structlog
 
+from core.decorators import must_stay_async
+
 from .models import (
     GovernanceCheckSpan,
     LLMGenerationSpan,
@@ -58,6 +60,7 @@ def trace_span(
 
     Usage:
         @trace_span("my_operation")
+        @must_stay_async("callers use await")
         async def my_func():
             ...
     """
@@ -146,6 +149,7 @@ def trace_llm_call(
 
     Usage:
         @trace_llm_call(model="gpt-4")
+        @must_stay_async("callers use await")
         async def generate_response(prompt: str) -> str:
             ...
     """
@@ -234,6 +238,7 @@ def trace_tool_call(
 
     Usage:
         @trace_tool_call("web_search")
+        @must_stay_async("callers use await")
         async def search(query: str) -> str:
             ...
     """
@@ -328,6 +333,7 @@ def trace_governance_check(
 
     Usage:
         @trace_governance_check("allow_external_tools")
+        @must_stay_async("callers use await")
         async def check_policy(action: str) -> bool:
             ...
     """

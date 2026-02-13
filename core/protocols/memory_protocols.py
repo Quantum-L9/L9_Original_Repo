@@ -28,6 +28,8 @@ Author: Top Frontier AI Lab
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Memory Protocols",
@@ -71,6 +73,7 @@ class CacheClient(Protocol):
     - DistributedCacheClient: Multi-node cache cluster
     """
 
+    @must_stay_async("callers use await")
     async def get(self, key: str) -> str | None:
         """
         Get value by key.
@@ -83,6 +86,7 @@ class CacheClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def set(self, key: str, value: str, ttl: int | None = None) -> bool:
         """
         Set key-value pair with optional TTL.
@@ -97,6 +101,7 @@ class CacheClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def delete(self, key: str) -> bool:
         """
         Delete key from cache.
@@ -109,6 +114,7 @@ class CacheClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def exists(self, key: str) -> bool:
         """
         Check if key exists.
@@ -121,6 +127,7 @@ class CacheClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def expire(self, key: str, ttl: int) -> bool:
         """
         Set expiration on existing key.
@@ -134,6 +141,7 @@ class CacheClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def close(self) -> None:
         """Close cache client connection."""
         ...
@@ -153,6 +161,7 @@ class GraphClient(Protocol):
     - RemoteGraphClient: Remote graph database
     """
 
+    @must_stay_async("callers use await")
     async def execute_query(
         self, query: str, parameters: dict[str, Any] | None = None
     ) -> list[dict[str, Any]]:
@@ -168,6 +177,7 @@ class GraphClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def create_node(self, labels: list[str], properties: dict[str, Any]) -> str:
         """
         Create a node with labels and properties.
@@ -181,6 +191,7 @@ class GraphClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def create_relationship(
         self,
         from_node_id: str,
@@ -202,6 +213,7 @@ class GraphClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def get_node(self, node_id: str) -> dict[str, Any] | None:
         """
         Get node by ID.
@@ -214,6 +226,7 @@ class GraphClient(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def close(self) -> None:
         """Close graph client connection."""
         ...
@@ -233,6 +246,7 @@ class VectorStore(Protocol):
     - MockVectorStore: In-memory vectors for testing
     """
 
+    @must_stay_async("callers use await")
     async def upsert_embedding(
         self,
         id: str,
@@ -249,6 +263,7 @@ class VectorStore(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def search_similar(
         self, query_embedding: list[float], top_k: int = 10, threshold: float = 0.7
     ) -> list[dict[str, Any]]:
@@ -265,6 +280,7 @@ class VectorStore(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def delete_embedding(self, id: str) -> bool:
         """
         Delete embedding by ID.
@@ -277,6 +293,7 @@ class VectorStore(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def close(self) -> None:
         """Close vector store connection."""
         ...
@@ -296,6 +313,7 @@ class MemoryRepository(Protocol):
     - ReadOnlyRepository: Read-only memory access
     """
 
+    @must_stay_async("callers use await")
     async def store_memory(
         self,
         content: str,
@@ -315,6 +333,7 @@ class MemoryRepository(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def retrieve_memory(self, memory_id: str) -> dict[str, Any] | None:
         """
         Retrieve memory by ID.
@@ -327,6 +346,7 @@ class MemoryRepository(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def search_memories(
         self,
         query: str,
@@ -346,6 +366,7 @@ class MemoryRepository(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def delete_memory(self, memory_id: str) -> bool:
         """
         Delete memory by ID.
@@ -373,6 +394,7 @@ class IngestionPipeline(Protocol):
     - StreamingIngestionPipeline: Real-time streaming ingestion
     """
 
+    @must_stay_async("callers use await")
     async def ingest(self, content: str, metadata: dict[str, Any] | None = None) -> str:
         """
         Ingest content into memory system.
@@ -386,6 +408,7 @@ class IngestionPipeline(Protocol):
         """
         ...
 
+    @must_stay_async("callers use await")
     async def batch_ingest(self, items: list[dict[str, Any]]) -> list[str]:
         """
         Ingest multiple items in batch.
@@ -425,6 +448,7 @@ class RetrievalStrategy(Protocol):
     - CachedRetrievalStrategy: With caching layer
     """
 
+    @must_stay_async("callers use await")
     async def retrieve(
         self,
         query: str,

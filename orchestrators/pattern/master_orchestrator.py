@@ -19,6 +19,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Master Architecture Orchestrator",
@@ -174,6 +176,7 @@ class MasterOrchestrator:
         """Get configuration for a specific subsystem."""
         return self._master_config.subsystems.get(name)
 
+    @must_stay_async("callers use await")
     async def execute_all(
         self,
         user_prompts: list[str] | None = None,
@@ -321,6 +324,7 @@ class MasterOrchestrator:
             errors=errors,
         )
 
+    @must_stay_async("callers use await")
     async def _execute_subsystem(
         self,
         subsystem_name: str,
@@ -379,6 +383,7 @@ class MasterOrchestrator:
             )
             return {"status": "failure", "error": str(e)}
 
+    @must_stay_async("callers use await")
     async def execute_subsystem(
         self,
         subsystem_name: str,

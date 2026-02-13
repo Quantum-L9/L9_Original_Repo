@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 Module: Escalation Handler
@@ -46,7 +45,7 @@ __dora_meta__ = {
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 
@@ -68,7 +67,7 @@ class EscalationTrigger:
 
     trigger_type: EscalationTriggerType
     decision_id: str
-    context: Dict[str, Any]
+    context: dict[str, Any]
     reason: str
 
 
@@ -78,7 +77,7 @@ class EscalationResult:
 
     escalated: bool
     anchor: str
-    response: Optional[str] = None
+    response: str | None = None
     approved: bool = False
 
 
@@ -137,8 +136,8 @@ __footer_meta__ = {
 
 __all__ = [
     "EscalationHandler",
-    "EscalationTrigger",
     "EscalationResult",
+    "EscalationTrigger",
     "EscalationTriggerType",
     "__footer_meta__",
     "__l9_trace__",

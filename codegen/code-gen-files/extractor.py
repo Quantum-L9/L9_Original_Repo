@@ -39,23 +39,22 @@ __dora_meta__ = {
 # ============================================================================
 
 import json
-import structlog
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
+import structlog
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-
-from services.research_factory.schema_parser import AgentSchema, parse_schema
-from services.research_factory.schema_validator import (
-    SchemaValidator,
-    ValidationResult,
-)
 from services.research_factory.glue_resolver import (
     GlueConfig,
     GlueResolver,
     create_empty_glue_config,
+)
+from services.research_factory.schema_parser import AgentSchema, parse_schema
+from services.research_factory.schema_validator import (
+    SchemaValidator,
+    ValidationResult,
 )
 
 logger = structlog.get_logger(__name__)
@@ -117,9 +116,9 @@ class ExtractionResult:
     """Result of the extraction process."""
 
     success: bool
-    schema: Optional[AgentSchema] = None
-    validation: Optional[ValidationResult] = None
-    manifest: Optional[ExtractionManifest] = None
+    schema: AgentSchema | None = None
+    validation: ValidationResult | None = None
+    manifest: ExtractionManifest | None = None
     generated_files: list[GeneratedFile] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
@@ -172,8 +171,8 @@ class UniversalExtractor:
 
     def __init__(
         self,
-        templates_dir: Optional[Path] = None,
-        validator: Optional[SchemaValidator] = None,
+        templates_dir: Path | None = None,
+        validator: SchemaValidator | None = None,
         strict_validation: bool = False,
     ):
         """
@@ -224,7 +223,7 @@ class UniversalExtractor:
         self,
         schema: AgentSchema | str | Path | dict[str, Any],
         output_dir: str | Path,
-        glue: Optional[GlueConfig | str | Path] = None,
+        glue: GlueConfig | str | Path | None = None,
         overwrite: bool = False,
         dry_run: bool = False,
     ) -> ExtractionResult:
@@ -241,7 +240,7 @@ class UniversalExtractor:
         Returns:
             ExtractionResult with generated files or errors
         """
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
         result = ExtractionResult(success=True)
 
         try:
@@ -316,7 +315,7 @@ class UniversalExtractor:
 
         # Calculate duration
         result.duration_ms = int(
-            (datetime.now(timezone.utc) - start_time).total_seconds() * 1000
+            (datetime.now(UTC) - start_time).total_seconds() * 1000
         )
 
         logger.info(
@@ -359,7 +358,7 @@ class UniversalExtractor:
         self,
         schema: AgentSchema | str | Path | dict[str, Any],
         result: ExtractionResult,
-    ) -> Optional[AgentSchema]:
+    ) -> AgentSchema | None:
         """Parse schema, adding errors to result on failure."""
         try:
             return self._parse_schema_raw(schema)
@@ -378,7 +377,7 @@ class UniversalExtractor:
 
     def _parse_glue(
         self,
-        glue: Optional[GlueConfig | str | Path],
+        glue: GlueConfig | str | Path | None,
     ) -> GlueConfig:
         """Parse glue configuration."""
         if glue is None:
@@ -414,7 +413,7 @@ class UniversalExtractor:
             "schema": schema,
             "glue": glue,
             "output_dir": str(output_dir),
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
         }
 
         # Generate controller.py
@@ -592,7 +591,7 @@ __all__ = ["{class_name}"]
             agent_id=schema.get_agent_id(),
             agent_name=schema.system.name,
             schema_version=schema.metadata.version,
-            extracted_at=datetime.now(timezone.utc),
+            extracted_at=datetime.now(UTC),
             output_dir=str(output_dir),
             files=[str(f.path) for f in generated_files],
             total_lines=total_lines,
@@ -611,7 +610,7 @@ __all__ = ["{class_name}"]
                 templates.append(f.name)
         return sorted(templates)
 
-    def get_template_content(self, template_name: str) -> Optional[str]:
+    def get_template_content(self, template_name: str) -> str | None:
         """Get content of a template."""
         template_path = self._templates_dir / template_name
         if template_path.exists():
@@ -627,7 +626,7 @@ __all__ = ["{class_name}"]
 async def extract_agent(
     schema_path: str | Path,
     output_dir: str | Path,
-    glue_path: Optional[str | Path] = None,
+    glue_path: str | Path | None = None,
     overwrite: bool = False,
     dry_run: bool = False,
 ) -> ExtractionResult:
@@ -655,7 +654,7 @@ async def extract_agent(
 
 
 def create_extractor(
-    templates_dir: Optional[Path] = None,
+    templates_dir: Path | None = None,
     strict: bool = False,
 ) -> UniversalExtractor:
     """

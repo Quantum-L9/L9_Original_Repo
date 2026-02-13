@@ -10,6 +10,8 @@ GMP: GMP-WIRE-VC-EQ
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Evaluation",
@@ -106,6 +108,7 @@ class CompareBaselineResponse(BaseModel):
 
 
 @router.get("/sets", response_model=list[EvalSetInfo])
+@must_stay_async("callers use await")
 async def list_eval_sets(request: Request) -> list[EvalSetInfo]:
     """
     List all available evaluation sets.
@@ -131,6 +134,7 @@ async def list_eval_sets(request: Request) -> list[EvalSetInfo]:
 
 
 @router.post("/run", response_model=EvalResultResponse)
+@must_stay_async("callers use await")
 async def run_evaluation(
     request: Request,
     body: RunEvalRequest,
@@ -197,6 +201,7 @@ async def run_evaluation(
 
 
 @router.post("/compare", response_model=CompareBaselineResponse)
+@must_stay_async("callers use await")
 async def compare_to_baseline(
     request: Request,
     body: RunEvalRequest,
@@ -255,6 +260,7 @@ async def compare_to_baseline(
 
 
 @router.get("/health")
+@must_stay_async("callers use await")
 async def eval_health(request: Request) -> dict[str, Any]:
     """
     Check evaluator health status.

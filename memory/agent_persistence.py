@@ -15,6 +15,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Agent Persistence Service",
@@ -144,6 +146,7 @@ class AgentPersistenceService:
         """Set or update repository reference."""
         self._repository = repository
 
+    @must_stay_async("callers use await")
     async def create_checkpoint(
         self,
         agent_id: str,
@@ -218,6 +221,7 @@ class AgentPersistenceService:
 
             return checkpoint_id
 
+    @must_stay_async("callers use await")
     async def restore_checkpoint(
         self,
         agent_id: str,
@@ -304,6 +308,7 @@ class AgentPersistenceService:
 
             return state_clean
 
+    @must_stay_async("callers use await")
     async def list_checkpoints(
         self,
         agent_id: str,
@@ -350,6 +355,7 @@ class AgentPersistenceService:
         logger.info("Listed checkpoints", agent_id=agent_id, count=len(checkpoints))
         return checkpoints
 
+    @must_stay_async("callers use await")
     async def delete_old_checkpoints(
         self,
         agent_id: str,
@@ -466,6 +472,7 @@ class AgentPersistenceService:
         # In production, might need to restore UUIDs, datetimes, etc.
         return state
 
+    @must_stay_async("callers use await")
     async def validate_checkpoint_integrity(
         self,
         checkpoint_id: UUID,
@@ -567,6 +574,7 @@ class AgentPersistenceService:
     # Audit Trail (PacketEnvelope Emission)
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def _emit_checkpoint_packet(
         self,
         event_type: str,

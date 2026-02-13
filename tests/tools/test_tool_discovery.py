@@ -13,6 +13,8 @@ import importlib
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 class TestToolDiscoveryIntegration:
     """Integration tests for tool discovery system."""
@@ -133,6 +135,7 @@ class TestToolRegistryIntegration:
     """
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_tools_discoverable_via_registry(self):
         """Tools should be discoverable via tool registry."""
         from core.tools.base_registry import get_tool_registry

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ================================================================================
 DORA PROTOCOL COMPLIANT PYTHON MODULE HEADER
@@ -128,35 +127,24 @@ __metadata__ = {
 # STANDARD LIBRARY IMPORTS
 # ============================================================================
 
-import asyncio
 import logging  # noqa: ADR-0019
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from datetime import UTC, datetime
+from typing import Any
 
-# ============================================================================
-# THIRD-PARTY IMPORTS
-# ============================================================================
-
-from pydantic import BaseModel, Field, validator
+from l9.core.governance import Igor
+from l9.core.memory import MemoryManager
 
 # ============================================================================
 # L9 FRAMEWORK IMPORTS
 # ============================================================================
-
-from l9.core.schemas import PacketEnvelope, PacketKind
-from l9.core.memory import MemoryManager, MemoryLayer
-from l9.core.governance import Igor, EscalationLevel
-from l9.core.tools import Tool, ToolDefinition
-from l9.core.utils import logger as l9_logger
-
+# ============================================================================
+# THIRD-PARTY IMPORTS
+# ============================================================================
 # ============================================================================
 # MODULE IMPORTS
 # ============================================================================
-
-from . import config
-from . import models
-from . import exceptions
+from . import config, exceptions
 
 # ============================================================================
 # LOGGER CONFIGURATION
@@ -209,11 +197,11 @@ class ModuleMetadata:
     module_id: str = MODULE_ID
     module_name: str = MODULE_NAME
     module_version: str = MODULE_VERSION
-    created_at: datetime = datetime.now(timezone.utc)
+    created_at: datetime = datetime.now(UTC)
     execution_mode: str = "realtime"
     governance_level: str = "high"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "module_id": self.module_id,
             "module_name": self.module_name,
@@ -227,7 +215,7 @@ class ModuleMetadata:
 # ============================================================================
 
 _module_metadata = ModuleMetadata()
-_igor_client: Optional[Igor] = None
+_igor_client: Igor | None = None
 _governance_enabled = config.GOVERNANCE_ENABLED
 
 
@@ -251,12 +239,12 @@ async def initialize_module():
             from l9.governance import get_igor_client
 
             _igor_client = await get_igor_client()
-            logger.info(f"✓ Governance bridge wired (Igor accessible)")
+            logger.info("✓ Governance bridge wired (Igor accessible)")
 
         # Initialize memory manager
         memory_manager = MemoryManager()
         await memory_manager.connect()
-        logger.info(f"✓ Memory layers initialized")
+        logger.info("✓ Memory layers initialized")
 
         # Perform health checks
         health = await health_check()
@@ -273,7 +261,7 @@ async def initialize_module():
             raise
 
 
-async def health_check() -> Dict[str, Any]:
+async def health_check() -> dict[str, Any]:
     """
     Perform module health check.
 
@@ -296,7 +284,7 @@ async def health_check() -> Dict[str, Any]:
             errors.append("Neo4j unavailable")
 
     except Exception as e:
-        errors.append(f"Health check error: {str(e)}")
+        errors.append(f"Health check error: {e!s}")
 
     return {
         "ready": len(errors) == 0,
@@ -312,7 +300,7 @@ async def health_check() -> Dict[str, Any]:
 
 
 async def _check_governance(
-    action: str, risk_level: str = "medium", context: Optional[Dict[str, Any]] = None
+    action: str, risk_level: str = "medium", context: dict[str, Any] | None = None
 ) -> bool:
     """
     Check if operation is approved by governance system.
@@ -332,7 +320,7 @@ async def _check_governance(
         return True
 
     if not _igor_client:
-        logger.warning(f"Governance check requested but Igor unavailable")
+        logger.warning("Governance check requested but Igor unavailable")
         return True  # Graceful degradation
 
     decision = await _igor_client.check_governance(
@@ -366,7 +354,7 @@ async def _check_governance(
 async def example_public_function(
     param1: str,
     param2: int,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Brief description of what this function does.
 
@@ -449,9 +437,9 @@ __all__ = [
     "MODULE_ID",
     "MODULE_NAME",
     "MODULE_VERSION",
-    "initialize_module",
-    "health_check",
     "example_public_function",
+    "health_check",
+    "initialize_module",
     # Add your public functions/classes here
 ]
 

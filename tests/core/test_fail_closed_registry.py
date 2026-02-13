@@ -18,6 +18,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
+
 
 class TestRegistryAdapterFailClosed:
     """Tests for ExecutorToolRegistry fail-closed behavior."""
@@ -67,6 +69,7 @@ class TestRegistryAdapterFailClosed:
             )
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_get_relevant_tools_raises_on_semantic_failure(self):
         """get_relevant_tools raises RuntimeError on semantic retrieval failure."""
         from core.tools import tool_embeddings
@@ -96,6 +99,7 @@ class TestRegistryAdapterFailClosed:
             tool_embeddings.find_relevant_tools = original_func
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_guarded_execute_returns_failure_on_governance_error(self):
         """guarded_execute returns ToolCallResult failure on governance check error."""
         from core.agents.schemas import ToolCallResult
@@ -135,6 +139,7 @@ class TestRegistryAdapterFailClosed:
         assert "Governance check failed" in result.error
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_guarded_execute_approval_import_error_is_handled(self):
         """guarded_execute handles ApprovalManager import failures gracefully.
 

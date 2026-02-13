@@ -40,6 +40,8 @@ from uuid import UUID
 
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -266,6 +268,7 @@ class BatchQueryHelpers:
 
             return updated_count
 
+    @must_stay_async("callers use await")
     async def add_tags_batch(
         self, packet_ids: list[UUID], tags: list[str], tenant_id: str | None = None
     ) -> int:
@@ -306,6 +309,7 @@ class BatchQueryHelpers:
 
             return updated_count
 
+    @must_stay_async("callers use await")
     async def remove_tags_batch(
         self, packet_ids: list[UUID], tags: list[str], tenant_id: str | None = None
     ) -> int:
@@ -351,6 +355,7 @@ class BatchQueryHelpers:
 
             return updated_count
 
+    @must_stay_async("callers use await")
     async def get_packets_by_thread_batch(
         self, thread_ids: list[str], tenant_id: str | None = None, limit: int = 1000
     ) -> dict[str, list[dict[str, Any]]]:
@@ -399,6 +404,7 @@ class BatchQueryHelpers:
 
             return packets_by_thread
 
+    @must_stay_async("callers use await")
     async def archive_packets_batch(
         self, packet_ids: list[UUID], tenant_id: str | None = None
     ) -> int:

@@ -33,6 +33,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from api.routes.registry import router_registry
+from core.decorators import must_stay_async
 from orchestrators.agent_execution.task_queue import (
     complete_task,  # Legacy API for backward compatibility
     get_next_task,
@@ -100,6 +101,7 @@ def get_next_mac_task():
 
 
 @router.post("/tasks/{task_id}/result")
+@must_stay_async("callers use await")
 async def submit_task_result(task_id: str, payload: TaskResultRequest):
     """
     Submit the result of a Mac task execution (file-based system).

@@ -99,6 +99,7 @@ class AuditLogger:
             )
         )
 
+    @must_stay_async("callers use await")
     async def log(
         self,
         tool_name: str,

@@ -32,6 +32,8 @@ Version: 2.0.0 (full ingestor implementation per README_RUNTIMES.md)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Knowledge Ingestor",
@@ -299,6 +301,7 @@ class KnowledgeIngestor:
         self._world_model_service = service
         logger.info("WorldModelService attached to KnowledgeIngestor for DB sync")
 
+    @must_stay_async("callers use await")
     async def sync_to_db(
         self,
         tenant_id: str | None = None,

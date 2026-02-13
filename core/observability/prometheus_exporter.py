@@ -172,7 +172,62 @@ class ObservabilityPrometheusExporter:
             buckets=(100, 500, 1000, 2000, 4000, 8000, 16000, 32000, 128000),
         )
 
+        # Tech Debt Metrics
+        self.tech_debt_findings_total = Counter(
+            "l9_tech_debt_findings_total",
+            "Total number of tech debt findings detected",
+            ["severity", "category"],
+        )
+
+        self.tech_debt_fixes_applied_total = Counter(
+            "l9_tech_debt_fixes_applied_total",
+            "Total number of tech debt fixes applied",
+            ["category", "method"],  # method: manual, cga, auto
+        )
+
+        self.noqa_debt_lines_total = Gauge(
+            "l9_noqa_debt_lines_total",
+            "Total number of # noqa: ADR lines in codebase",
+            ["adr_id"],
+        )
+
+        self.codegen_validation_pass_rate = Gauge(
+            "l9_codegen_validation_pass_rate",
+            "CodeGenAgent validation pass rate (0.0-1.0)",
+        )
+
         logger.info("Observability Prometheus exporter initialized")
+
+    def record_tech_debt_finding(self, severity: str, category: str) -> None:
+        """Record a tech debt finding."""
+        if not self.enabled:
+            return
+        try:
+            self.tech_debt_findings_total.labels(
+                severity=severity, category=category
+            ).inc()
+        except Exception as e:
+            logger.warning(f"Failed to record tech debt finding: {e}")
+
+    def record_tech_debt_fix(self, category: str, method: str) -> None:
+        """Record a tech debt fix."""
+        if not self.enabled:
+            return
+        try:
+            self.tech_debt_fixes_applied_total.labels(
+                category=category, method=method
+            ).inc()
+        except Exception as e:
+            logger.warning(f"Failed to record tech debt fix: {e}")
+
+    def update_noqa_debt(self, adr_id: str, count: int) -> None:
+        """Update noqa debt count for a specific ADR."""
+        if not self.enabled:
+            return
+        try:
+            self.noqa_debt_lines_total.labels(adr_id=adr_id).set(count)
+        except Exception as e:
+            logger.warning(f"Failed to update noqa debt: {e}")
 
     def record_span(
         self,

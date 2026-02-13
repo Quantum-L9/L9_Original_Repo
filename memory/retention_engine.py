@@ -155,6 +155,7 @@ class RetentionEngine:
         self._refcount_service = refcount_service
         logger.info("Retention refcount service updated")
 
+    @must_stay_async("callers use await")
     async def run_cleanup(self, agent_id: str) -> RetentionResult:
         """
         Run retention cleanup for a specific agent.
@@ -248,6 +249,7 @@ class RetentionEngine:
                 error=str(e),
             )
 
+    @must_stay_async("callers use await")
     async def _run_refcount_aware_cleanup(
         self,
         agent_id: str,

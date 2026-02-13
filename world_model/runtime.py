@@ -231,6 +231,7 @@ class MemorySubstratePacketSource(PacketSource):
                 "(tenant_id, org_id, user_id)."
             )
 
+    @must_stay_async("callers use await")
     async def fetch_packets(
         self,
         packet_types: frozenset[str] | None = None,
@@ -477,6 +478,7 @@ class WorldModelRuntime:
     # Seed Library Loading
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def load_seed_library(
         self,
         seed_dir: str | None = None,
@@ -749,6 +751,7 @@ class WorldModelRuntime:
     # Building
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def build_from_specs(
         self,
         specs: list[dict[str, Any]],
@@ -858,6 +861,7 @@ class WorldModelRuntime:
     # Update from Packet
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def update_from_packet(
         self,
         packet: dict[str, Any],
@@ -1197,6 +1201,7 @@ class WorldModelRuntime:
     # Simulation
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def simulate(
         self,
         variant: SimulationVariant | dict[str, Any],
@@ -1506,6 +1511,7 @@ class WorldModelRuntime:
     # Updates (Basic)
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def apply_update(
         self,
         update_type: str,
@@ -1763,6 +1769,7 @@ class WorldModelRuntime:
     # Event Loop API
     # ==========================================================================
 
+    @must_stay_async("callers use await")
     async def run_once(self) -> dict[str, Any]:
         """
         Execute a single iteration of the runtime loop.
@@ -1841,6 +1848,7 @@ class WorldModelRuntime:
             "duration_ms": duration_ms,
         }
 
+    @must_stay_async("callers use await")
     async def run_forever(
         self,
         on_iteration: Callable[[dict[str, Any]], None] | None = None,
@@ -1922,6 +1930,7 @@ class WorldModelRuntime:
                 f"{self._packets_processed_total} packets processed"
             )
 
+    @must_stay_async("callers use await")
     async def stop(self, timeout: float | None = None) -> None:
         """
         Stop the runtime loop gracefully.
@@ -1982,6 +1991,7 @@ class WorldModelRuntime:
 # =============================================================================
 
 
+@must_stay_async("callers use await")
 async def create_runtime_with_substrate(
     substrate_service: MemorySubstrateService,
     engine: WorldModelEngine | None = None,

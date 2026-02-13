@@ -49,6 +49,7 @@ from core.calibration.schemas import (
     SimpleCalibrationResult,
     SimpleGateResult,
 )
+from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
 
@@ -56,6 +57,7 @@ logger = structlog.get_logger(__name__)
 class SubstrateServiceProtocol(Protocol):
     """Protocol for memory substrate (optional, for audit trails)."""
 
+    @must_stay_async("callers use await")
     async def emit_packet(self, packet_type: str, payload: dict[str, Any]) -> None:
         """Emit packet to memory substrate."""
         ...
@@ -88,6 +90,7 @@ class CalibrationService:
             config.decomposition_method,
         )
 
+    @must_stay_async("callers use await")
     async def calibrate(self, req: CalibrateRequest) -> CalibrationResult:
         """Calibrate model outputs and compute uncertainty."""
         logger.info(
@@ -206,6 +209,7 @@ class CalibrationService:
         # nosemgrep: l9-float-requires-try-except (numpy clip always numeric)
         return float(np.clip(improvement, 0.0, 1.0))
 
+    @must_stay_async("callers use await")
     async def calibrate_simple(
         self, confidence: float, task_id: str | None = None
     ) -> SimpleCalibrationResult:
@@ -265,6 +269,7 @@ class CalibrationService:
                 reason="Calibration failed, using raw confidence",
             )
 
+    @must_stay_async("callers use await")
     async def shutdown(self) -> None:
         """
         Initializes GatingPolicyService with configuration and optional substrate service for evaluating gating decisions based on confidence and uncertainty.
@@ -294,6 +299,7 @@ class GatingPolicyService:
         self.substrate = substrate_service
         logger.info("gating_service.init: enabled=%s", config.enabled)
 
+    @must_stay_async("callers use await")
     async def evaluate(self, req: GateRequest) -> GateResult:
         """Evaluate gating policy and return decision."""
         logger.info(
@@ -402,6 +408,7 @@ class GatingPolicyService:
             logger.error("gating.error: %s", e, exc_info=True)
             raise
 
+    @must_stay_async("callers use await")
     async def evaluate_simple(
         self,
         confidence: float,
@@ -472,6 +479,7 @@ class GatingPolicyService:
                 action=GatingAction.PROCEED,
             )
 
+    @must_stay_async("callers use await")
     async def shutdown(self) -> None:
         """Cleanup."""
         return

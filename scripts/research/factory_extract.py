@@ -63,6 +63,8 @@ from pathlib import Path
 
 import structlog
 
+from core.decorators import must_stay_async
+
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
@@ -140,6 +142,7 @@ def print_extraction_result(result, verbose: bool = False):
     logger.info(f"\n  Duration: {result.duration_ms}ms")
 
 
+@must_stay_async("callers use await")
 async def main():
     """
     Extracts production code from YAML agent schemas within the L9 Research Factory CLI.

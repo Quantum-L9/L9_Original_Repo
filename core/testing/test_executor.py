@@ -10,6 +10,8 @@ Version: 1.0.0 (GMP-19)
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Test Executor",
@@ -127,6 +129,7 @@ class TestExecutor:
         self._timeout = timeout_seconds
         self._coverage = coverage_enabled
 
+    @must_stay_async("callers use await")
     async def run_tests(
         self,
         test_code: str,
@@ -186,6 +189,7 @@ def mock_substrate():
 
         return results
 
+    @must_stay_async("callers use await")
     async def _run_pytest(
         self,
         working_dir: Path,

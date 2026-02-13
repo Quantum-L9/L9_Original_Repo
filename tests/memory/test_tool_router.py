@@ -8,6 +8,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from core.decorators import must_stay_async
 from memory.tool_router import (
     ToolEmbedding,
     ToolMatch,
@@ -228,6 +229,7 @@ class TestToolRouter:
         assert result1.embedding_id == result2.embedding_id
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_text_match_fallback(self):
         """Test text matching when no embeddings available."""
         router = ToolRouter()

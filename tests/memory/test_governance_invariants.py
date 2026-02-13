@@ -20,6 +20,8 @@ import sys
 
 import pytest
 
+from core.decorators import must_stay_async
+
 # Add mcp_memory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "mcp_memory"))
 
@@ -203,6 +205,7 @@ class TestProjectIsolation:
     """Invariant 3: Project isolation enforced at SQL level."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_search_respects_project_id(self, l_auth):
         """Search results MUST be filtered by project_id."""
         # This test validates that the project_id filter is applied
@@ -242,6 +245,7 @@ class TestCallerIdentityEnforcement:
     """Invariant 4: Caller identity derived from token, not request body."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_request_body_creator_ignored(self, l_auth):
         """Creator/source in request body MUST be ignored, use token identity."""
         from mcp_memory.src.config import settings
@@ -295,6 +299,7 @@ class TestMandatoryAuditLogging:
         from mcp_memory.src.audit import AuditLogger
 
         # Create an execute function that always fails
+        @must_stay_async("callers use await")
         async def failing_execute(*args):
             raise Exception("DB unavailable")
 
@@ -333,6 +338,7 @@ class TestMandatoryAuditLogging:
         # Reset to ensure clean state
         reset_audit_logger()
 
+        @must_stay_async("callers use await")
         async def dummy_execute(*args):
             pass
 

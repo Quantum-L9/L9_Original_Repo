@@ -13,6 +13,8 @@ Responsibilities:
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "QA Agent",
@@ -85,6 +87,7 @@ class QAAgent(BaseAgent):
         """Get the system prompt."""
         return self._config.system_prompt_override or SYSTEM_PROMPT
 
+    @must_stay_async("callers use await")
     async def run(
         self,
         task: dict[str, Any],
@@ -167,6 +170,7 @@ Provide comprehensive QA assessment:
 
         return response
 
+    @must_stay_async("callers use await")
     async def create_test_plan(
         self,
         feature: str,
@@ -219,6 +223,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def review_test_results(
         self,
         test_output: str,
@@ -270,6 +275,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def regression_analysis(
         self,
         old_code: str,
@@ -326,6 +332,7 @@ Provide:
 
         return await self.call_llm_json(prompt)
 
+    @must_stay_async("callers use await")
     async def assess_production_readiness(
         self,
         code: dict[str, str],

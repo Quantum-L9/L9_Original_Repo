@@ -13,6 +13,8 @@ ingestion-time extraction (substrate_dag) and query-time extraction
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 __dora_meta__ = {
     "component_name": "Unified Entity Extraction Service",
     "module_version": "1.0.0",
@@ -95,6 +97,7 @@ class EntityExtractionService:
         self._use_llm = use_llm
         self._llm_client = llm_client
 
+    @must_stay_async("callers use await")
     async def extract(
         self,
         text: str | None = None,

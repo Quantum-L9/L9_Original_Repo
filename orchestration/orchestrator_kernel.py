@@ -408,6 +408,7 @@ class OrchestratorKernel:
     # Main Pipeline
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def run_pipeline(
         self,
         task: str,
@@ -753,6 +754,7 @@ class OrchestratorKernel:
             "artifacts": artifacts,
         }
 
+    @must_stay_async("callers use await")
     async def _phase_reflect(
         self,
         result: IRPipelineResult,
@@ -870,6 +872,7 @@ class OrchestratorKernel:
 
         return chain
 
+    @must_stay_async("callers use await")
     async def execute_chain(self, chain_id: UUID) -> ExecutionChain:
         """
         Execute a chain to completion.

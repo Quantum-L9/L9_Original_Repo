@@ -9,6 +9,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from core.agents.idempotency_store import IdempotencyStore
+from core.decorators import must_stay_async
 from core.schemas.packet_envelope import PacketEnvelope, PacketProvenance
 
 
@@ -99,6 +100,7 @@ async def test_idempotency_get_execution_record(mock_substrate, sample_packet):
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_idempotency_key_computation(mock_substrate, sample_packet):
     """Test deterministic idempotency key generation."""
     substrate, _ = mock_substrate
@@ -116,6 +118,7 @@ async def test_idempotency_key_computation(mock_substrate, sample_packet):
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_idempotency_different_packets_different_keys(
     mock_substrate, sample_packet
 ):

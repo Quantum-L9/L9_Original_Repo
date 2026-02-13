@@ -974,6 +974,7 @@ async def store_insights_node(
     }
 
 
+@must_stay_async("callers use await")
 async def world_model_trigger_node(
     state: SubstrateGraphState, config: RunnableConfig = None
 ) -> SubstrateGraphState:
@@ -1242,6 +1243,7 @@ class SubstrateDAG:
         self._graph = build_substrate_graph()
         self._enrichment_graph = build_enrichment_graph()
 
+    @must_stay_async("callers use await")
     async def run(self, envelope: PacketEnvelope) -> PacketWriteResult:
         """
         Run the substrate DAG using native LangGraph execution.
@@ -1328,6 +1330,7 @@ class SubstrateDAG:
             status="ok",
         )
 
+    @must_stay_async("callers use await")
     async def enrich(
         self,
         envelope: PacketEnvelope,

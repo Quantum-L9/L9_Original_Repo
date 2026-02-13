@@ -75,6 +75,7 @@ class MemoryStateManager:
         """Returns the agent's unique identifier used in the state management system."""
         return self._agent_id
 
+    @must_stay_async("callers use await")
     async def append_event(
         self,
         packet_type: str,
@@ -201,6 +202,7 @@ class MemoryStateManager:
     # Spec v3.0 Required Methods - Long-term Flags
     # =========================================================================
 
+    @must_stay_async("callers use await")
     async def set_flag(
         self,
         flag_name: str,
@@ -295,6 +297,7 @@ class MemoryStateManager:
             f"Contradiction recorded: {subject}.{predicate} has {len(conflicting_objects)} conflicting values"
         )
 
+    @must_stay_async("callers use await")
     async def get_contradiction_count(self, subject: str, predicate: str) -> int:
         """
         Get contradiction count for a subject-predicate pair.
@@ -323,6 +326,7 @@ class MemoryStateManager:
             if f.predicate == predicate
         )
 
+    @must_stay_async("callers use await")
     async def resolve_contradiction(
         self,
         fact_id: UUID,
@@ -352,6 +356,7 @@ class MemoryStateManager:
         else:
             logger.warning(f"Failed to resolve contradiction: fact {fact_id} not found")
 
+    @must_stay_async("callers use await")
     async def get_active_facts(
         self,
         subject: str,

@@ -10,6 +10,8 @@ Uses existing ApprovalManager infrastructure.
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Approval Gate",
@@ -149,6 +151,7 @@ def is_high_impact_decision(decision: dict[str, Any]) -> bool:
     return confidence < 0.7
 
 
+@must_stay_async("callers use await")
 async def escalate_to_igor(
     decision_packet: PacketEnvelope | None,
     approval_manager: ApprovalManager,

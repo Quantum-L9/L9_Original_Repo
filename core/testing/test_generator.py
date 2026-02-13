@@ -808,6 +808,7 @@ def test_module_import():
         dep_name = dependency.split(".")[-1]
         return f'''
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_integration_with_{dep_name}():
     """Test integration with {dependency}."""
     # TODO(GMP-114): Test interaction between module and {dependency}

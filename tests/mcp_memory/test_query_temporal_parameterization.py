@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pytest
 
+from core.decorators import must_stay_async
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
@@ -27,6 +29,7 @@ from memory.governance_gate import (
 
 
 @pytest.mark.asyncio
+@must_stay_async("callers use await")
 async def test_query_temporal_uses_parameterized_kinds(monkeypatch) -> None:
     captured = {}
 

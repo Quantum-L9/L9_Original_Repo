@@ -34,6 +34,8 @@ from pathlib import Path
 import asyncpg
 import structlog
 
+from core.decorators import must_stay_async
+
 logger = structlog.get_logger(__name__)
 
 
@@ -200,6 +202,7 @@ class MigrationRunner:
 _runner: MigrationRunner | None = None
 
 
+@must_stay_async("callers use await")
 async def run_migrations(database_url: str | None = None) -> dict[str, any]:
     """
     Run all pending migrations.

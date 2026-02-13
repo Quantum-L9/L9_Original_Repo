@@ -10,6 +10,8 @@ Covers:
 
 import pytest
 
+from core.decorators import must_stay_async
+
 pytest.skip(
     "world_model.repository not available in test environment.", allow_module_level=True
 )
@@ -24,6 +26,7 @@ class FakeConnection:
         self.fetch_calls = []
         self.execute_calls = []
 
+    @must_stay_async("callers use await")
     async def fetchrow(self, query: str, *args):
         self.fetchrow_calls.append((query, args))
         # Minimal fake row structure: dict-like with expected keys
@@ -35,6 +38,7 @@ class FakeConnection:
             "updated_at": "2025-01-01T00:00:00Z",
         }
 
+    @must_stay_async("callers use await")
     async def fetch(self, query: str, *args):
         self.fetch_calls.append((query, args))
         return [
@@ -47,13 +51,16 @@ class FakeConnection:
             }
         ]
 
+    @must_stay_async("callers use await")
     async def execute(self, query: str, *args):
         self.execute_calls.append((query, args))
         return "DELETE 1"
 
+    @must_stay_async("callers use await")
     async def __aenter__(self):
         return self
 
+    @must_stay_async("callers use await")
     async def __aexit__(self, exc_type, exc, tb):
         return False
 
@@ -63,16 +70,19 @@ class FakePool:
         self.conn = FakeConnection()
         self.acquire_calls = 0
 
+    @must_stay_async("callers use await")
     async def acquire(self):
         self.acquire_calls += 1
         return self.conn
 
+    @must_stay_async("callers use await")
     async def close(self):
         pass
 
 
 @pytest.mark.asyncio
 class TestWorldModelRepositoryBasic:
+    @must_stay_async("callers use await")
     async def test_upsert_entity_uses_pool_and_fetchrow(self, monkeypatch):
         fake_pool = FakePool()
 
@@ -93,6 +103,7 @@ class TestWorldModelRepositoryBasic:
         assert fake_pool.conn.fetchrow_calls, "fetchrow should be called"
         assert row["entity_id"] == "entity-123"
 
+    @must_stay_async("callers use await")
     async def test_delete_entity_returns_bool(self, monkeypatch):
         fake_pool = FakePool()
 
@@ -108,6 +119,7 @@ class TestWorldModelRepositoryBasic:
         assert deleted is True
         assert fake_pool.conn.execute_calls, "execute should be called"
 
+    @must_stay_async("callers use await")
     async def test_list_entities_uses_fetch(self, monkeypatch):
         fake_pool = FakePool()
 
