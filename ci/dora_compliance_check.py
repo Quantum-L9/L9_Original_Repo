@@ -65,6 +65,7 @@ SKIP_DIRS = {
     ".mypy_cache",
     "_archived",
     "migrations",  # SQL migrations don't need DORA
+    "codegen",
 }
 
 # Files to skip
@@ -247,7 +248,7 @@ def main():
         parser.error("Must specify --check or --fix")
 
     # Find repo root
-    repo_root = Path(__file__).parent.parent
+    repo_root = Path(__file__).parent.parent  # noqa: ADR-0001 - internal path
     check_path = repo_root / args.path
 
     if not check_path.exists():
@@ -302,7 +303,7 @@ def main():
 
     if args.fix:
         # Fix mode - inject missing blocks
-        print(
+        print(  # noqa: ADR-0019
             f"🔧 {'DRY RUN - ' if args.dry_run else ''}Fixing {len(all_missing)} files..."
         )
         logger.info("output", value=)

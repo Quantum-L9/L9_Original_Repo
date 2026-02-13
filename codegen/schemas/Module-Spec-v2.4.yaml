@@ -1,0 +1,498 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Module-Spec-V2.4"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:22Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "Module-Spec-v2.4"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
+# L9 UNIVERSAL MODULE SPEC — v2.4.0 (OPERATIONAL / ENTERPRISE GRADE)
+# ============================================================================
+# Purpose: Define WHAT to build — a single spec is sufficient to:
+#   - Determine runtime placement
+#   - Determine startup order
+#   - Determine service dependencies
+#   - Determine failure blast radius
+#   - Determine observability requirements
+#   - Determine test obligations
+#   - Generate docker-compose wiring
+#   - Generate runtime + smoke tests
+#
+# After this version, no runtime decisions may be inferred by humans or generators.
+#
+# Audience: User fills → P consumes → C wires → Runtime executes
+# Part of Trio: [Spec] → [P-Prompt] → [C-Prompt]
+#
+# Changelog v2.4.0:
+#   - Added OWNERSHIP (enterprise hygiene)
+#   - Added RUNTIME_WIRING (keystone — startup order, dependencies, blocking)
+#   - Enhanced OBSERVABILITY (logs, metrics, traces intent)
+#   - Enhanced ERROR_POLICY with escalation
+#   - Operationalized DEPENDENCIES with endpoints
+#   - Enforced 14 canonical section order
+#   - Schema validation now derives docker-compose, tests, startup order
+#
+# Prior versions: v2.1 (base), v2.2 (invariants), v2.3 (surface, packets, boot)
+# ============================================================================
+
+# Schema version for validation gating
+schema_version: "2.4"
+
+# ============================================================================
+# SECTION 1: METADATA (REQUIRED)
+# ============================================================================
+metadata:
+  # REQUIRED — Unique identifier (lowercase, snake_case)
+  module_id: "{{module_id}}"
+  
+  # REQUIRED — Human-readable name (display only)
+  name: "{{Module Name}}"
+  
+  # REQUIRED — Module tier classification (0-7)
+  tier: "{{0 | 1 | 2 | 3 | 4 | 5 | 6 | 7}}"
+  
+  # REQUIRED — One-line description
+  description: "{{Brief description of what this module does}}"
+  
+  # Fixed values
+  system: "L9"
+  language: "python"
+  runtime: "python>=3.11"
+
+# ============================================================================
+# SECTION 2: OWNERSHIP (REQUIRED — v2.4 NEW)
+# ============================================================================
+# v2.4: Enterprise hygiene. Used for ops, on-call, and incident escalation.
+# No free-text teams allowed.
+# ============================================================================
+ownership:
+  # REQUIRED — Team responsible (constrained values)
+  team: "{{core | infra | integrations | security | observability}}"
+  
+  # REQUIRED — Primary contact role
+  primary_contact: "{{role_name}}"
+
+# ============================================================================
+# SECTION 3: RUNTIME WIRING (REQUIRED — v2.4 KEYSTONE)
+# ============================================================================
+# v2.4: This is the SINGLE SOURCE OF TRUTH for:
+#   - docker-compose ordering
+#   - startup health checks
+#   - boot-failure tests
+# No defaults. No inference.
+# ============================================================================
+runtime_wiring:
+  # REQUIRED — Which service does this module run in?
+  service: "{{api | worker | scheduler | memory}}"
+  
+  # REQUIRED — When does this module start relative to others?
+  startup_phase: "{{early | normal | late}}"
+  
+  # REQUIRED — What services must be running before this module starts?
+  # Must reference resolvable runtime services
+  depends_on:
+    - "{{postgres | redis | memory.service | ...}}"
+  
+  # REQUIRED — Does missing dependency cause hard boot failure?
+  blocks_startup_on_failure: "{{true | false}}"
+
+# ============================================================================
+# SECTION 4: EXTERNAL SURFACE (REQUIRED)
+# ============================================================================
+external_surface:
+  exposes_http_endpoint: "{{true | false}}"
+  exposes_webhook: "{{true | false}}"
+  exposes_tool: "{{true | false}}"
+  callable_from:
+    - "{{external | internal}}"
+
+# ============================================================================
+# SECTION 5: DEPENDENCIES (REQUIRED — v2.4 OPERATIONALIZED)
+# ============================================================================
+# v2.4: No vague "calls X". Endpoint or tool_id MUST be declared.
+# ============================================================================
+dependencies:
+  # REQUIRED — Which tiers this module may call
+  allowed_tiers:
+    - 0
+    - 1
+    - 2
+  
+  # REQUIRED — Explicit outbound calls with interface + endpoint
+  outbound_calls:
+    - module: "memory.service"
+      interface: "{{http | tool}}"
+      endpoint: "/memory/ingest"
+    
+    - module: "aios.runtime"
+      interface: "http"
+      endpoint: "/chat"
+
+# ============================================================================
+# SECTION 6: PACKET CONTRACT (REQUIRED)
+# ============================================================================
+# Runtime MUST block undeclared packet writes.
+# Tests MUST validate declared packets only.
+# ============================================================================
+packet_contract:
+  # REQUIRED — All packet types this module can emit
+  emits:
+    - "{{module}}.in"
+    - "{{module}}.out"
+    - "{{module}}.error"
+  
+  # REQUIRED — Metadata fields MANDATORY on every packet
+  requires_metadata:
+    - "task_id"
+    - "thread_uuid"
+    - "source"
+    - "tool_id"
+
+# ============================================================================
+# SECTION 7: IDEMPOTENCY (REQUIRED — NO INFERENCE)
+# ============================================================================
+idempotency:
+  pattern: "{{event_id | composite_key | substrate_lookup}}"
+  source: "{{platform_event_id | webhook_header | computed_hash}}"
+  durability: "{{in_memory | substrate}}"
+
+# ============================================================================
+# SECTION 8: ERROR POLICY (REQUIRED — v2.4 ENHANCED)
+# ============================================================================
+# v2.4: Added escalation. Silent failure is FORBIDDEN.
+# ============================================================================
+error_policy:
+  # REQUIRED — Default error handling strategy
+  default: "{{fail_fast | best_effort}}"
+  
+  # REQUIRED — Retry configuration
+  retries:
+    enabled: "{{true | false}}"
+    max_attempts: "{{0 | 1 | 3}}"
+  
+  # REQUIRED — Escalation behavior (v2.4 new)
+  escalation:
+    emit_error_packet: "{{true | false}}"
+    mark_task_failed: "{{true | false}}"
+    alert: "{{none | log | metric}}"
+  
+  # Error categories
+  invalid_signature:
+    status: 401
+    action: "Reject immediately"
+    log: "signature_invalid"
+  
+  stale_timestamp:
+    status: 401
+    action: "Reject immediately"
+    log: "timestamp_stale"
+  
+  aios_failure:
+    status: 200
+    action: "Log error, return ok"
+    log: "aios_call_failed"
+  
+  side_effect_failure:
+    status: 200
+    action: "Log error, return ok"
+    log: "reply_failed"
+  
+  storage_failure:
+    status: 200
+    action: "Log error, continue"
+    log: "packet_storage_failed"
+
+# ============================================================================
+# SECTION 9: OBSERVABILITY (REQUIRED — v2.4 ENHANCED)
+# ============================================================================
+# v2.4: Intent declaration. Generators may NOT omit declared signals.
+# ============================================================================
+observability:
+  
+  # REQUIRED — Logging intent
+  logs:
+    enabled: true
+    level: "{{info | debug}}"
+  
+  # REQUIRED — Metrics intent
+  metrics:
+    enabled: true
+    counters:
+      - "{{module}}_requests_total"
+      - "{{module}}_errors_total"
+    histograms:
+      - "{{module}}_latency_seconds"
+  
+  # REQUIRED — Tracing intent
+  traces:
+    enabled: "{{true | false}}"
+
+# ============================================================================
+# SECTION 10: RUNTIME TOUCHPOINTS (REQUIRED)
+# ============================================================================
+runtime_touchpoints:
+  touches_db: "{{true | false}}"
+  touches_tools: "{{true | false}}"
+  touches_external_network: "{{true | false}}"
+  affects_boot: "{{true | false}}"
+
+# ============================================================================
+# SECTION 11: TEST SCOPE (REQUIRED)
+# ============================================================================
+# Enforced validation rules:
+# - If external_surface.exposes_http_endpoint == true → docker_smoke: true
+# - If runtime_wiring.service != api → integration: true
+# - If startup_phase == early → boot-failure test REQUIRED
+# ============================================================================
+test_scope:
+  unit: true
+  integration: "{{true | false}}"
+  docker_smoke: "{{true | false}}"
+
+# ============================================================================
+# SECTION 12: ACCEPTANCE (REQUIRED)
+# ============================================================================
+acceptance:
+  
+  positive:
+    - id: "AP-1"
+      description: "Valid request processed successfully"
+      test: "test_valid_request_processes"
+    
+    - id: "AP-2"
+      description: "Signature verification blocks invalid requests"
+      test: "test_invalid_signature_returns_401"
+    
+    - id: "AP-3"
+      description: "Packets are stored with correct metadata"
+      test: "test_packet_stored_correctly"
+    
+    - id: "AP-4"
+      description: "Thread UUID is deterministic"
+      test: "test_thread_uuid_deterministic"
+    
+    - id: "AP-5"
+      description: "Duplicate events are idempotent"
+      test: "test_duplicate_event_skipped"
+    
+    - id: "AP-6"
+      description: "AIOS response is forwarded"
+      test: "test_aios_response_forwarded"
+  
+  # REQUIRED — At least ONE negative case
+  negative:
+    - id: "AN-1"
+      description: "Unknown tool_id causes hard failure"
+      expected_behavior: "Request rejected before execution"
+      test: "test_unknown_tool_id_rejected"
+    
+    - id: "AN-2"
+      description: "Malformed packet blocked at ingress"
+      expected_behavior: "400 Bad Request with structured error"
+      test: "test_malformed_packet_rejected"
+
+# ============================================================================
+# SECTION 13: GLOBAL INVARIANTS ACKNOWLEDGEMENT (REQUIRED)
+# ============================================================================
+# All values MUST be true. Any deviation invalidates spec.
+# ============================================================================
+global_invariants_ack:
+  emits_packet_on_ingress: true
+  tool_calls_traceable: true
+  unknown_tool_id_hard_fail: true
+  malformed_packet_blocked: true
+  missing_env_fails_boot: true
+
+# ============================================================================
+# SECTION 14: SPEC CONFIDENCE (REQUIRED)
+# ============================================================================
+spec_confidence:
+  level: "{{high | medium | low}}"
+  basis:
+    - "{{Existing code present | Spec-only, no implementation yet}}"
+    - "{{Tested in production | Untested design}}"
+
+# ============================================================================
+# SECTION 15: FILE MANIFEST (REQUIRED)
+# ============================================================================
+repo:
+  root_path: "/Users/ib-mac/Projects/L9"
+  
+  allowed_new_files:
+    - "api/{{module}}_adapter.py"
+    - "api/{{module}}_client.py"  # IF: external API calls
+    - "api/routes/{{module}}.py"
+    - "memory/{{module}}_ingest.py"  # IF: custom packet logic
+    - "tests/test_{{module}}_adapter.py"
+    - "tests/test_{{module}}_ingest.py"  # IF: ingest file created
+    - "tests/test_{{module}}_smoke.py"  # IF: docker_smoke == true
+    - "docs/{{module}}.md"
+  
+  allowed_modified_files:
+    - "api/server.py"
+
+# ============================================================================
+# SECTION 16: INTERFACES (REQUIRED)
+# ============================================================================
+interfaces:
+  
+  inbound:
+    - name: "{{route_name}}"
+      method: "POST"
+      route: "/{{module}}/{{action}}"
+      headers:
+        - "X-{{Module}}-Signature"
+        - "X-{{Module}}-Timestamp"
+      payload_type: "JSON"
+      auth: "{{hmac-sha256 | bearer | api_key | none}}"
+  
+  outbound:
+    - name: "aios_chat"
+      endpoint: "/chat"
+      method: "POST"
+      timeout_seconds: 30
+      retry: false
+    
+    - name: "{{external_service}}"
+      endpoint: "{{external_api_url}}"
+      method: "POST"
+      timeout_seconds: 10
+      retry: true
+
+# ============================================================================
+# SECTION 17: ENVIRONMENT VARIABLES (REQUIRED)
+# ============================================================================
+environment:
+  required:
+    - name: "{{MODULE}}_SIGNING_SECRET"
+      description: "Secret for HMAC signature verification"
+    
+    - name: "{{MODULE}}_API_TOKEN"
+      description: "Token for external API calls"
+  
+  optional:
+    - name: "AIOS_BASE_URL"
+      description: "AIOS endpoint"
+      default: "http://localhost:8000"
+
+# ============================================================================
+# SECTION 18: ORCHESTRATION FLOW (REQUIRED)
+# ============================================================================
+orchestration:
+  
+  validation:
+    - "Verify signature (HMAC-SHA256)"
+    - "Check timestamp freshness (< 5 minutes)"
+    - "Parse and normalize payload"
+  
+  context_reads:
+    - method: "substrate_service.search_packets"
+      filter: "thread_uuid match"
+      purpose: "Get conversation history"
+  
+  aios_calls:
+    - endpoint: "/chat"
+      input: "message + context"
+      output: "response_text"
+  
+  side_effects:
+    - action: "Reply to external service"
+      service: "{{module}}_client.post_message"
+    
+    - action: "Store inbound packet"
+      service: "substrate_service.write_packet"
+      packet_type: "{{module}}.in"
+    
+    - action: "Store outbound packet"
+      service: "substrate_service.write_packet"
+      packet_type: "{{module}}.out"
+
+# ============================================================================
+# SECTION 19: BOOT IMPACT (REQUIRED)
+# ============================================================================
+boot_impact:
+  level: "{{none | soft | hard}}"
+  reason: "{{Explanation of boot impact}}"
+
+# ============================================================================
+# SECTION 20: MANDATORY STANDARDS (REQUIRED)
+# ============================================================================
+standards:
+  
+  identity:
+    canonical_identifier: "tool_id"
+  
+  logging:
+    library: "structlog"
+    forbidden: ["logging", "print"]
+  
+  http_client:
+    library: "httpx"
+    forbidden: ["aiohttp", "requests"]
+
+# ============================================================================
+# SECTION 21: GOALS & NON-GOALS (REQUIRED)
+# ============================================================================
+goals:
+  - "{{Primary goal}}"
+  - "{{Secondary goal}}"
+
+non_goals:
+  - "{{What this module does NOT do}}"
+  # LOCKED:
+  - "No new database tables"
+  - "No new migrations"
+  - "No parallel memory/logging/config systems"
+
+# ============================================================================
+# SECTION 22: NOTES FOR P
+# ============================================================================
+notes_for_perplexity:
+  - "Use REPO_CONTEXT_PACK imports exactly"
+  - "Use PacketEnvelopeIn for all packets"
+  - "Use UUIDv5 for thread_id (not uuid4)"
+  - "All handlers accept injected services (no singletons)"
+  - "Validate emitted packets against packet_contract.emits"
+  - "Include all packet_contract.requires_metadata on every packet"
+  - "Generate docker smoke test if external_surface.exposes_http_endpoint"
+  - "Generate boot-failure test if boot_impact.level == hard"
+  - "Generate startup dependency test if runtime_wiring.blocks_startup_on_failure"
+  # v2.4 additions:
+  - "Extract runtime_wiring for docker-compose generation"
+  - "Extract observability for instrumentation"
+  - "Extract ownership for incident routing"
+  - "Validate depends_on against runtime manifest"
+
+# ============================================================================
+# FORBIDDEN (SCHEMA-LEVEL)
+# ============================================================================
+# The schema MUST NOT allow:
+# - "if applicable"
+# - optional runtime wiring
+# - inferred dependencies
+# - undeclared packet emission
+# - implicit boot behavior
+# - silent failure
+#
+# Validation must fail loudly.
+# ============================================================================
+
+# ============================================================================
+# END OF MODULE SPEC v2.4.0 (OPERATIONAL / ENTERPRISE GRADE)
+# ============================================================================
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["api-config", "code-generation", "configuration", "database-config", "foundation", "prompt", "redis-config", "schema"]
+# keywords: ["dependencies", "error_policy", "external_surface", "idempotency", "metadata", "module"]
+# last_modified: "2026-01-06T16:58:22Z"
+# ============================================================================

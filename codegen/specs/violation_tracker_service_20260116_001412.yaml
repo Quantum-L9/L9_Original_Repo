@@ -1,0 +1,312 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Violation Tracker Service 20260116 001412"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-16T00:14:12Z"
+# updated_at: "2026-01-16T00:33:35Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "violation_tracker_service_20260116_001412"
+# type: "service"
+# status: "active"
+# ============================================================================
+
+metadata:
+  module_id: "violation_tracker_service"
+  name: "Violation Tracker Service"
+  tier: "7"
+  description: "Tracks lesson violations with pattern detection, local audit logging, and MCP Memory sync for cross-session persistence"
+  system: "L9"
+  language: "python"
+  runtime: "python>=3.11"
+
+ownership:
+  team: "observability"
+  primary_contact: "observability_lead"
+
+runtime_wiring:
+  service: "worker"
+  startup_phase: "normal"
+  depends_on:
+    - "postgres"
+    - "redis"
+    - "memory.service"
+  blocks_startup_on_failure: false
+
+runtime_contract:
+  runtime_class: "workers.violation_tracker_service.ViolationTrackerService"
+  execution_model: "async"
+  initialization: "eager"
+  singleton: true
+
+external_surface:
+  exposes_http_endpoint: false
+  exposes_webhook: false
+  exposes_tool: true
+  callable_from:
+    - "internal"
+
+dependency_contract:
+  inbound:
+    - module: "lesson_service"
+      interface: "tool"
+    - module: "feedback_loop"
+      interface: "direct"
+  outbound:
+    - module: "memory.service"
+      interface: "http"
+      endpoint: "/memory/ingest"
+    - module: "notification_service"
+      interface: "tool"
+      endpoint: "/notify/escalation"
+
+dependencies:
+  allowed_tiers:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+  outbound_calls:
+    - module: "memory.service"
+      interface: "http"
+      endpoint: "/memory/ingest"
+    - module: "notification_service"
+      interface: "tool"
+      endpoint: "/notify/escalation"
+
+packet_contract:
+  emits:
+    - "violation_tracker.in"
+    - "violation_tracker.out"
+    - "violation_tracker.error"
+  requires_metadata:
+    - "task_id"
+    - "thread_uuid"
+    - "source"
+    - "lesson_id"
+    - "user_id"
+
+packet_expectations:
+  on_success:
+    emit: "violation_tracker.out"
+    contains:
+      - "violation_count"
+      - "escalation_status"
+      - "metadata"
+  on_error:
+    emit: "violation_tracker.error"
+    contains:
+      - "error_code"
+      - "error_message"
+      - "lesson_id"
+  durability: "substrate"
+
+idempotency:
+  pattern: "composite_key"
+  source: "lesson_id+user_id+timestamp"
+  durability: "substrate"
+
+error_policy:
+  default: "best_effort"
+  retries:
+    enabled: true
+    max_attempts: 3
+    backoff_ms: 1000
+  escalation:
+    emit_error_packet: true
+    mark_task_failed: false
+    alert: "metric"
+
+observability:
+  logs:
+    enabled: true
+    level: "info"
+    include_request_id: true
+  metrics:
+    enabled: true
+    counters:
+      - "violation_tracker_requests_total"
+      - "violation_tracker_errors_total"
+      - "violation_escalations_total"
+    histograms:
+      - "violation_tracker_latency_seconds"
+      - "pattern_match_duration_seconds"
+  traces:
+    enabled: true
+    sample_rate: 0.5
+
+runtime_touchpoints:
+  touches_db: true
+  touches_tools: true
+  touches_external_network: false
+  affects_boot: false
+
+tier_expectations:
+  tier_0_available: true
+  tier_1_available: true
+  tier_2_available: true
+  tier_3_available: true
+
+test_scope:
+  unit: true
+  integration: true
+  docker_smoke: false
+  boot_failure: false
+
+acceptance:
+  positive:
+    - id: "AP-1"
+      description: "Detects violation matching loaded pattern"
+      test: "test_violation_pattern_detected"
+    - id: "AP-2"
+      description: "Logs violation to violations.jsonl and audit_log.jsonl"
+      test: "test_violation_logging"
+    - id: "AP-3"
+      description: "Syncs violation to MCP Memory substrate"
+      test: "test_mcp_memory_sync"
+    - id: "AP-4"
+      description: "Calculates violation statistics correctly"
+      test: "test_violation_statistics"
+  negative:
+    - id: "AN-1"
+      description: "No violation detected for non-matching pattern"
+      expected_behavior: "Returns no violation, logs clean event"
+      test: "test_no_violation_detected"
+    - id: "AN-2"
+      description: "Escalation triggered after 3+ violations"
+      expected_behavior: "Triggers escalation notification"
+      test: "test_escalation_threshold"
+    - id: "AN-3"
+      description: "Missing config file fails gracefully"
+      expected_behavior: "Logs error, uses empty patterns"
+      test: "test_missing_config_graceful"
+
+global_invariants_ack:
+  emits_packet_on_ingress: true
+  tool_calls_traceable: true
+  unknown_tool_id_hard_fail: true
+  malformed_packet_blocked: true
+  missing_env_fails_boot: true
+
+spec_confidence:
+  level: "high"
+  basis:
+    - "Clear requirements mapping to L9 patterns"
+    - "Standard observability/monitoring service pattern"
+    - "JSONL logging + substrate sync well-established"
+
+repo:
+  root_path: "/Users/ib-mac/Projects/L9"
+  allowed_new_files:
+    - "workers/violation_tracker_service.py"
+    - "workers/violation_patterns.py"
+    - "tests/test_violation_tracker_service.py"
+    - "tests/test_violation_tracker_smoke.py"
+    - "docs/violation_tracker.md"
+  allowed_modified_files:
+    - "workers/server.py"
+
+interfaces:
+  inbound:
+    - name: "track_violation"
+      method: "POST"
+      route: "/violation_tracker/track"
+      headers:
+        - "X-Request-ID"
+      payload_type: "JSON"
+      auth: "internal"
+  outbound:
+    - name: "memory_ingest"
+      endpoint: "/memory/ingest"
+      method: "POST"
+      timeout_seconds: 10
+      retry: true
+    - name: "escalation_notify"
+      endpoint: "/notify/escalation"
+      method: "POST"
+      timeout_seconds: 5
+      retry: false
+
+environment:
+  required:
+    - name: "FEEDBACK_LOOP_CONFIG_PATH"
+      description: "Path to feedback_loop_config.yaml"
+  optional:
+    - name: "VIOLATIONS_LOG_PATH"
+      description: "Path for violations.jsonl"
+      default: "./logs/violations.jsonl"
+    - name: "AUDIT_LOG_PATH"
+      description: "Path for audit_log.jsonl"
+      default: "./logs/audit_log.jsonl"
+
+orchestration:
+  validation:
+    - "Load violation patterns from feedback_loop_config.yaml"
+    - "Validate lesson_id and user_id presence"
+    - "Check pattern matching against event data"
+  context_reads:
+    - method: "substrate_service.search_packets"
+      filter: "lesson_id+user_id match"
+      purpose: "Get violation history for repeat detection"
+  aios_calls:
+    - endpoint: "/chat"
+      input: "violation statistics summary"
+      output: "effectiveness analysis"
+  side_effects:
+    - action: "Append violation to violations.jsonl"
+      service: "file_logger.append_violation"
+      packet_type: "violation_tracker.in"
+    - action: "Sync to MCP Memory substrate"
+      service: "memory_service.ingest_packet"
+      packet_type: "violation_tracker.in"
+    - action: "Trigger escalation notification"
+      service: "notification_service.escalate"
+      packet_type: "violation_tracker.out"
+
+boot_impact:
+  level: "soft"
+  reason: "Eager initialization loads config file, but doesn't block boot"
+
+standards:
+  identity:
+    canonical_identifier: "lesson_id"
+  logging:
+    library: "structlog"
+    forbidden: ["logging", "print"]
+  http_client:
+    library: "httpx"
+    forbidden: ["aiohttp", "requests"]
+
+goals:
+  - "Detect lesson violations using configurable patterns"
+  - "Maintain cross-session violation history via MCP Memory"
+  - "Provide violation statistics and effectiveness metrics"
+  - "Escalate repeated violations (3+ times)"
+
+non_goals:
+  - "Real-time violation prevention (separate enforcement module)"
+  - "Complex ML pattern detection (config-based regex/patterns only)"
+  - "No new database tables"
+  - "No new migrations"
+  - "No parallel memory/logging/config systems"
+
+notes_for_codegen:
+  - "Use PacketEnvelopeIn for all packets"
+  - "Load patterns using safe YAML loader (ruamel.yaml)"
+  - "Implement JSONL atomic append with file rotation"
+  - "Use UUIDv5 for violation tracking IDs"
+  - "All handlers accept injected services (memory_service, logger)"
+  - "Validate emitted packets against packet_contract.emits"
+  - "Cache loaded patterns in Redis for 5 minutes"
+  - "Generate unit tests for pattern matching edge cases"
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["code-generation", "configuration", "database-config", "foundation", "model-config", "redis-config", "service", "tool-config"]
+# keywords: ["001412", "20260116", "dependencies", "dependency_contract", "external_surface", "idempotency"]
+# last_modified: "2026-01-16T00:33:35Z"
+# ============================================================================

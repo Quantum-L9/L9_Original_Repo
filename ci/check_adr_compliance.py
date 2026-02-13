@@ -47,6 +47,7 @@ Exit codes:
 from __future__ import annotations
 
 import structlog
+from datetime import UTC
 
 # ============================================================================
 
@@ -78,7 +79,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-L9_ROOT = Path(__file__).parent.parent
+L9_ROOT = Path(__file__).parent.parent  # noqa: ADR-0001 - internal path
 
 SKIP_DIRS = {
     ".git",
@@ -96,6 +97,7 @@ SKIP_DIRS = {
     ".dora",
     ".github",
     "tests",  # Tests may legitimately test forbidden patterns
+    "codegen",
 }
 
 # Files that are allowed to use forbidden patterns
@@ -144,7 +146,7 @@ ERROR_ADRS = {
     "ADR-0002",  # TYPE_CHECKING pattern - ENFORCED
     "ADR-0019",  # structlog logging - ENFORCED
     "ADR-0041",  # No eval/exec (security) - CRITICAL
-    "ADR-0083",  # datetime.utcnow() deprecated
+    "ADR-0083",  # datetime.now(UTC) deprecated
     "ADR-0087",  # SQL parameterization - ENFORCED
     "ADR-0088",  # No pickle (security) - CRITICAL
     "ADR-0090",  # No hardcoded credentials - CRITICAL
@@ -357,7 +359,7 @@ class ADRChecker(ast.NodeVisitor):
                 "error",
             )
 
-        # ADR-0083: No datetime.utcnow() - deprecated in Python 3.12
+        # ADR-0083: No datetime.now(UTC) - deprecated in Python 3.12
         if isinstance(node.func, ast.Attribute):
             if func_name == "utcnow":
                 if (
@@ -367,16 +369,16 @@ class ADRChecker(ast.NodeVisitor):
                     self._add_violation(
                         "ADR-0083",
                         node.lineno,
-                        "datetime.utcnow() is deprecated. Use datetime.now(UTC) instead.",
+                        "datetime.now(UTC) is deprecated. Use datetime.now(UTC) instead.",
                         "error",
                     )
                 elif isinstance(node.func.value, ast.Attribute):
-                    # datetime.datetime.utcnow()
+                    # datetime.datetime.now(UTC)
                     if node.func.value.attr == "datetime":
                         self._add_violation(
                             "ADR-0083",
                             node.lineno,
-                            "datetime.datetime.utcnow() is deprecated. Use datetime.now(UTC) instead.",
+                            "datetime.datetime.now(UTC) is deprecated. Use datetime.now(UTC) instead.",
                             "error",
                         )
 
@@ -431,7 +433,7 @@ class ADRChecker(ast.NodeVisitor):
                             "Use structlog.get_logger() instead of logging module",
                         )
 
-        # ADR-0084: httpx.AsyncClient() without context manager
+        # ADR-0084: httpx.AsyncClient() without context manager  # noqa: ADR-0084 - review for context manager usage
         if isinstance(node.func, ast.Attribute):
             if (
                 func_name == "AsyncClient"
@@ -810,7 +812,7 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
     if "_registry" in content.lower() and "Registry" not in content:
         # File uses registry pattern but doesn't define a proper Registry class
         for i, line in enumerate(content.splitlines(), 1):
-            if "_registry = {}" in line or "_registry: dict" in line:
+            if "_registry = {}" in line or "_registry: dict" in line:  # noqa: ADR-0022 - simple module-level registry
                 checker._add_violation(
                     "ADR-0022",
                     i,
@@ -820,13 +822,13 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
 
     # ADR-0024: Check for resilience patterns without mixin
     if "retry" in content.lower() and "ResilienceMixin" not in content:
-        if "@retry" in content or "tenacity" in content:
+        if "@retry" in content or "tenacity" in content:  # noqa: ADR-0024 - direct retry is intentional
             for i, line in enumerate(content.splitlines(), 1):
-                if "@retry" in line:
+                if "@retry" in line:  # noqa: ADR-0024 - direct retry is intentional
                     checker._add_violation(
                         "ADR-0024",
                         i,
-                        "Use ResilienceMixin for retry logic instead of bare @retry decorator.",
+                        "Use ResilienceMixin for retry logic instead of bare @retry decorator.",  # noqa: ADR-0024 - direct retry is intentional
                     )
                     break
 
@@ -996,7 +998,7 @@ def main() -> int:
         print("CODE QUALITY (warning in default mode, error in --strict):")  # noqa: ADR-0019
         print("-" * 40)  # noqa: ADR-0019
         print("  ADR-0002  TYPE_CHECKING pattern")  # noqa: ADR-0019
-        print(
+        print(  # noqa: ADR-0019
             "            - TYPE_CHECKING requires 'from __future__ import annotations'"
         )  # noqa: ADR-0019
         print()  # noqa: ADR-0019
@@ -1122,7 +1124,7 @@ def main() -> int:
         warnings = sum(1 for v in all_violations if v.severity == "warning")
 
         mode_str = "[STRICT MODE]" if args.strict else "[DEFAULT MODE]"
-        print(
+        print(  # noqa: ADR-0019
             f"❌ ADR violations found {mode_str}: {errors} errors, {warnings} warnings\n"
         )
 

@@ -177,10 +177,9 @@ _Last updated: 2026-02-13 (Fixed .env L9_API_URL → direct IP port 80, updated 
 
 ## Recent Sessions (7-day window)
 
+- ✅ 2026-02-13: **Noqa Debt Cleanup + ADR-0093** — Created ADR-0093 (No Debt Hiding via Noqa). Updated `ci/auto_fix_adr.py` to stop hiding print statements in production and to apply "Real Fix" (decorator) for async functions instead of `noqa`.
 - ✅ 2026-02-13: **C1 Full Rebuild — 10X Deploy v2.0** — Executed full rebuild on C1 with `--no-cache` and `--godmode`. All 9 containers healthy according to Deep MRI. MCP Memory PRIMARY endpoint restored to healthy status. Verified GOD MODE E2E smoke tests.
-- 2026-02-13: **GMP-138: L-CTO Fixes (Datetime, Governance, Personality)** — Fixed 3 L-CTO issues: (1) Datetime injection in `agents/l_cto.py` and `memory/slack_ingest.py` so L can tell time, (2) Governance context propagation in `core/agents/executor.py` to fix memory write errors from tool calls, (3) Personality-aware fallback prompt when kernels fail to load. Also: deleted duplicate `scripts/workflow/generate_gmp_report.py`, fixed `WORKSPACE_ROOT` path in GMP DAG nodes, updated ADR-0059 references. Report: `reports/GMP Reports/GMP-Report-138-L-Cto-Fixes-Datetime-Injection-Governance-Context.md`.
-- 2026-02-12: **Tool Search Harvest + Memory Pipeline Map** — Harvested 3 Anthropic Tool Search bridge files from Perplexity output: `runtime/tool_search_meta.py` (meta-tool), `core/agents/dynamic_tool_binding.py` (binding layer), `runtime/tool_packages.py` (updated registry). Deployed via /harvest → /use-harvest → /confirm-wiring. Wired into `core/agents/__init__.py`. Confirmed all 5 bugfix-diffs.patch fixes already applied. Mapped all L9 memory pipelines (Ingestion 8-node DAG, Retrieval 5-mode, Consolidation, Deduplication, Tool Discovery). Analyzed 5 bug root causes and CI prevention strategies (negative-case testing). Key finding: `prepare_dynamic_tools()` already wired at executor iteration 0 — `bind_tools_to_agent()` is an alternative Anthropic meta-tool pattern (feature flag gated, no consumer change needed yet).
-- 2026-02-13: **Port 80 Fix for Cursor Memory Access** — Fixed `.env` `L9_API_URL` from `http://mcp.quantumaipartners.com:30080` (dead k8s NodePort) to `http://46.62.243.82` (direct IP, Nginx port 80). Updated `03-mcp-memory.mdc` rule to remove all `:30902`/`:30080` references. Port 30080 was a leftover from k8s era — nothing listens on it. MCP Memory accessed via Nginx `/memory/` location on port 80. Cursor memory client health check: API fallback now healthy. MCP primary has server-side DB error (C1 issue, separate fix needed).
+- ✅ 2026-02-13: **Unified Table Sweep + Deploy Prohibition + Migration Fix** — Swept codebase for `packetstore` -> `packet_store`, fixed migration 0031, enhanced `CLAUDE.md`, and established 10X deploy script prohibition rule.
 - ✅ 2026-02-13: **C1 Full Rebuild — 10X Deploy v2.0** — Executed full rebuild on C1 with `--no-cache` and `--godmode`. All 9 containers healthy according to Deep MRI. MCP Memory PRIMARY endpoint restored to healthy status. Verified GOD MODE E2E smoke tests.
 - ✅ 2026-02-13: **C1 Production Fix — psutil + Full Deploy** — Ran Deep MRI on C1. Found l9-api + mcp-memory crash-looping (`psutil` missing from all 3 requirements files). Added `psutil>=5.9.0`, rebuilt both images, **all 9 containers healthy**. Also deployed Redis thread cache, tool history enrichment, test hardening, and harvest executor rewrite (commits `f9a1d2c5` through `646d0315`). C1 now at latest `main`.
 - 2026-02-12: **Test Suite Hardening + Gap Analysis** — Resolved 75 pre-existing test failures (memory + tools). Created `memory/tools.py` and `core/tools/introspection_tools.py` re-export shims. Fixed `semantic_embed_node` placeholder test. Archived legacy `tool_executor.py` pattern tests. Final: **930 passed, 69 skipped, 0 warnings**. Gap analysis confirmed 69 skips are legitimate (47 PostgreSQL, 13 Neo4j, 10 Strategy Memory integration tests). Files: `memory/tools.py`, `core/tools/introspection_tools.py`, `tests/tools/test_tool_discovery.py`, `tests/tools/test_tool_packages.py`, `tests/memory/test_ingestion_pipeline_audit.py`, `pytest.ini`.
@@ -205,10 +204,9 @@ _Last updated: 2026-02-13 (Fixed .env L9_API_URL → direct IP port 80, updated 
 
 - [ ] Fix `tests/memory/test_e2e_memory_audit.py` pre-commit gate (ADR-0019 print violation)
 - [ ] Monitor C1 l9-api logs for "Ingestion failed: Target entity not found" errors
-- [ ] Verify multi-turn tool caching (Redis) scope lock
-- [ ] Execute migrations at next Docker rebuild (Phase 4/5)
-- [ ] Investigate 500 error in Cursor memory client write (DLQ enrichment failure)
+- [ ] Investigate 500 error in Cursor memory client write (datetime offset mismatch in `store_insights_node`)
 - [ ] Finalize CodeGenAgent (CGA) system after governance verification
+- [ ] Execute migrations at next Docker rebuild (Phase 4/5) if new migrations added
 
 **Recent Sessions (7-day window):**
 

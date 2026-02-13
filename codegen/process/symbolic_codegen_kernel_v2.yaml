@@ -1,0 +1,269 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Symbolic Codegen Kernel V2"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-15T22:59:03Z"
+# updated_at: "2026-01-15T22:59:03Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "symbolic_codegen_kernel_v2"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# SYMBOLIC_CODEGEN_KERNEL.v2
+# L9 Symbolic Code Synthesis & Verification Kernel
+#
+# Purpose: Govern CodeGenAgent's use of SymPy-based symbolic reasoning
+#          to analyze, verify, transform, and generate L9 code.
+#
+# Integrates with:
+# - codegen.symbolic (5-stage pipeline)
+# - core.symbolic_computation (SymPy service)
+# - agents.codegenagent.CodeGenAgent
+#
+# Version: 2.0.0
+# Created: 2026-01-16
+
+kernel:
+  id: symbolic.codegen.kernel.v2
+  priority: critical
+  scope:
+    - code_generation
+    - code_transformation
+    - symbolic_verification
+    - sympy_service_v6
+
+intent:
+  primary_goal: >
+    Use SymPy-based symbolic reasoning to analyze, verify, transform,
+    and generate L9 code that interacts with the SymPy Symbolic
+    Computation Service v6.0, in a provable and test-bound way.
+  secondary_goals:
+    - reduce logical bugs in symbolic_computation core and callers
+    - enforce equivalence during refactors of ExpressionEvaluator/CodeGenerator
+    - ensure generated code respects service schemas and governance rules
+    - prevent hallucinated logic in CodeGenAgent expansions
+
+# ============================================================
+# CORE PRINCIPLES (BOUND TO REAL ARTIFACTS)
+# ============================================================
+principles:
+  symbolic_truth_before_code: >
+    For any change that affects core symbolic service modules
+    (core/symbolic_computation/), symbolic reasoning MUST precede
+    code emission.
+  
+  schema_first: >
+    All requests/results MUST be expressed through the Pydantic models
+    defined in core.symbolic_computation.models
+    (ComputationRequest, CodeGenRequest, ComputationResult, CodeGenResult).
+  
+  test_bound: >
+    Any change to symbolic_computation core MUST add/extend tests in
+    tests/ to assert symbolic and numeric invariants.
+  
+  deterministic_generation: >
+    CodeGenAgent expansions MUST be reproducible (same inputs → same outputs).
+  
+  minimal_diff_bias: >
+    Refactors of symbolic_computation core SHOULD prefer minimal AST/line
+    diffs unless the spec explicitly calls for structural change.
+  
+  kernel_governed_execution: >
+    Changes that violate this kernel MUST be rejected at audit level.
+
+# ============================================================
+# SYMBOLIC CONTRACT (MATCHING SYMPY SERVICE)
+# ============================================================
+symbolic_contract:
+
+  allowed_engine:
+    name: sympy
+    version: ">=1.12"
+
+  allowed_utilities:
+    - sympy.utilities.lambdify.lambdify
+    - sympy.utilities.autowrap.autowrap
+    - sympy.utilities.codegen.codegen
+    - sympy.simplify.simplify
+    - sympy.simplify.cse
+
+  allowed_operations:
+    - simplify
+    - expand
+    - factor
+    - diff
+    - integrate
+    - solve
+    - Matrix
+    - Eq
+    - cse
+    - sympify
+
+  forbidden_operations:
+    - eval
+    - exec
+    - compile
+    - globals
+    - locals
+    - __import__
+    - open
+    - system
+    - dynamic_code_execution
+
+  parsing_rules:
+    require:
+      - explicit Symbol/Function declaration when building expressions
+    forbid:
+      - raw_string_execution
+      - user_injected_functions not whitelisted
+
+  execution_rules:
+    require:
+      - pure_functions_only in ExpressionEvaluator/CodeGenerator
+      - bounded_complexity aligned with max_expression_length
+      - deterministic_output for same (expr, variables, backend)
+    forbid:
+      - side_effects outside configured paths
+      - direct I/O in symbolic processing
+      - mutation of global state outside configured cache
+
+# ============================================================
+# CODEGEN + VERIFICATION PIPELINE (5-STAGE)
+# ============================================================
+pipeline:
+
+  stage_1_spec:
+    description: >
+      Every symbolic codegen task MUST start with a CodegenSpec
+      (codegen.symbolic.spec.CodegenSpec).
+    require:
+      - intent (generate | refactor | optimize | verify)
+      - target_behavior
+      - input_code (for refactor/optimize/verify)
+      - invariants (optional but encouraged)
+      - variables
+
+  stage_2_candidates:
+    description: >
+      Use SymbolicCandidateGenerator to produce multiple
+      symbolic representations of the target logic.
+    outputs:
+      - canonical_form
+      - simplified_form
+      - expanded_form
+      - factored_form
+
+  stage_3_analysis:
+    description: >
+      Use SymbolicAnalyzer to perform deep analysis with SymPy.
+    outputs:
+      - complexity_score
+      - free_symbols
+      - derivatives (for optimization analysis)
+      - critical_points
+
+  stage_4_verification:
+    description: >
+      Use EquivalenceVerifier to prove transformations preserve meaning.
+    require:
+      - symbolic equivalence check: simplify(original - candidate) == 0
+      - if inconclusive: numeric spot-checks on sampled points
+      - invariant preservation validation
+    on_failure:
+      - produce minimal counterexample inputs
+      - abort codegen
+
+  stage_5_selection:
+    description: >
+      Use CodeSelector to choose best candidate from verified options.
+    criteria:
+      - simplicity (lower complexity score)
+      - readability
+      - performance (fewer operations)
+    output:
+      - selected_code
+      - selection_rationale
+
+# ============================================================
+# SCHEMA ENFORCEMENT (BOUND TO MODELS)
+# ============================================================
+schemas:
+  require:
+    - codegen.symbolic.spec.CodegenSpec for pipeline input
+    - codegen.symbolic.pipeline.SymbolicCodegenPipelineResult for output
+    - core.symbolic_computation.models.ComputationRequest for evaluation
+    - core.symbolic_computation.models.CodeGenResult for codegen
+  forbid:
+    - untyped_dicts for request/response
+    - implicit contracts for variables/backend/language
+  validation:
+    - all models MUST validate under Pydantic v2
+
+# ============================================================
+# INTEGRATION WITH CODEGEN AGENT
+# ============================================================
+integration:
+
+  codegen_agent:
+    method: generate_with_symbolic_verification
+    required:
+      - attach this kernel when using symbolic verification
+      - enforce_pipeline_order (stages 1-5)
+      - refuse_codegen_if_verification_fails
+
+  symbolic_pipeline:
+    module: codegen.symbolic.pipeline.SymbolicCodegenPipeline
+    role: orchestrator for 5-stage symbolic synthesis
+
+  sympy_service:
+    module: core.symbolic_computation
+    role: high-performance expression evaluation and code generation
+
+# ============================================================
+# FAILURE HANDLING
+# ============================================================
+failure_policy:
+  on_symbolic_failure:
+    - stop_codegen
+    - emit_counterexample (variables, expected vs actual)
+    - log_failure_artifact via structured logging
+  
+  on_schema_validation_failure:
+    - abort task
+    - emit detailed model validation errors
+  
+  on_test_failure:
+    - rollback_changes
+    - report_violation in audit log
+
+# ============================================================
+# ENFORCEMENT (STATIC + RUNTIME)
+# ============================================================
+enforcement:
+
+  static_checks:
+    - AST_scan_for_forbidden_calls in generated/modified files
+    - schema_validation against Pydantic models
+    - import_policy: SymPy utilities imports MUST match allowed_utilities list
+
+  runtime_guards:
+    - timeout on all symbolic evaluations
+    - memory_limit aligned with service deployment config
+    - governance_checks for dangerous functions or excessive length
+
+  violation_response:
+    - halt_generation
+    - require_human_or_spec_fix
+    - mark evidence report as violation detected
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "code-generation", "configuration", "foundation", "kernel", "model-config", "pipeline", "schema"]
+# keywords: ["codegen", "enforcement", "failure_policy", "integration", "intent", "kernel"]
+# last_modified: "2026-01-15T22:59:03Z"
+# ============================================================================

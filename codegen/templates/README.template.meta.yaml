@@ -1,0 +1,347 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Readme.Template.Meta"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-18T01:13:10Z"
+# updated_at: "2026-01-18T03:36:29Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "README.template.meta"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# component_name: "Readme.Template.Meta"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-18T01:13:10Z"
+# updated_at: "2026-01-18T01:13:10Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "README.template.meta"
+# type: "utility"
+# status: "active"
+
+# ============================================================================
+# README Template Meta (Contract-Compliant)
+# ============================================================================
+# Template for generating README files with DORA compliance
+# Uses meta.yaml pattern for structured documentation generation
+
+version: "1.0.0"
+type: "documentation_template"
+output_format: "markdown"
+
+# ============================================================================
+# README TYPES
+# ============================================================================
+readme_types:
+  root:
+    description: "Main project README"
+    location: "/README.md"
+    sections:
+      - overview
+      - architecture
+      - quick_start
+      - configuration
+      - api_reference
+      - testing
+      - deployment
+      - ai_collaboration
+      - dora_block
+
+  subsystem:
+    description: "Subsystem/module README"
+    location: "{module}/README.md"
+    sections:
+      - overview
+      - responsibilities
+      - api_surface
+      - data_models
+      - usage_examples
+      - testing
+      - ai_rules
+      - dora_block
+
+  component:
+    description: "Component-level README"
+    location: "{module}/{component}/README.md"
+    sections:
+      - purpose
+      - interface
+      - configuration
+      - examples
+      - dora_block
+
+# ============================================================================
+# SECTION TEMPLATES
+# ============================================================================
+sections:
+  overview:
+    title: "Overview"
+    required: true
+    template: |
+      ## Overview
+
+      **{component_name}** is a {type} in the {domain} domain.
+
+      **Purpose:** {purpose}
+
+      **Layer:** {layer}
+      **Governance Level:** {governance_level}
+
+  responsibilities:
+    title: "Responsibilities & Boundaries"
+    required: true
+    template: |
+      ## Responsibilities & Boundaries
+
+      ### This Module Owns
+      {owns_list}
+
+      ### This Module Does NOT Own
+      {does_not_own_list}
+
+      ### Dependencies
+      {dependencies_list}
+
+  api_surface:
+    title: "API Surface"
+    required: false
+    template: |
+      ## API Surface
+
+      ### Public Functions
+      {public_functions}
+
+      ### Public Classes
+      {public_classes}
+
+  data_models:
+    title: "Data Models"
+    required: false
+    template: |
+      ## Data Models
+
+      {data_models_list}
+
+  usage_examples:
+    title: "Usage Examples"
+    required: false
+    template: |
+      ## Usage Examples
+
+      ```python
+      {example_code}
+      ```
+
+  testing:
+    title: "Testing"
+    required: false
+    template: |
+      ## Testing
+
+      ```bash
+      pytest {test_path} -v
+      ```
+
+  ai_rules:
+    title: "AI Usage Rules"
+    required: true
+    template: |
+      ## AI Usage Rules
+
+      ### ✅ Allowed Scope
+      {allowed_scope}
+
+      ### ⚠️ Restricted Scope (Requires Review)
+      {restricted_scope}
+
+      ### ❌ Forbidden Scope
+      {forbidden_scope}
+
+  ai_collaboration:
+    title: "Working with AI on This Repo"
+    required: true
+    for_types: ["root"]
+    template: |
+      ## Working with AI on This Repo
+
+      This repository uses the **DORA Protocol** for governance metadata.
+
+      ### AI Collaboration Rules
+
+      #### ✅ Allowed
+      - Application logic in service files
+      - Unit tests in tests/ directory
+      - Documentation updates
+
+      #### ⚠️ Restricted (Requires Review)
+      - Feature flags
+      - Schema changes
+      - API contract changes
+
+      #### ❌ Forbidden (Auto-Rejected)
+      - Kernel files
+      - Security-critical code
+      - Credentials and secrets
+
+      ### DORA Block Requirement
+      All generated files must have valid DORA blocks:
+      - Header Meta (TOP) - 14 mandatory fields
+      - Footer Meta (BOTTOM) - Extended metadata
+      - Trace Block (VERY END) - Runtime execution trace
+
+  dora_block:
+    title: "L9 DORA BLOCK"
+    required: true
+    auto_generate: true
+    template: |
+      ---
+
+      ## DORA HEADER META
+
+      > Auto-generated - Do not edit manually.
+
+      | Field | Value |
+      |-------|-------|
+      | **Component ID** | {component_id} |
+      | **Component Name** | {component_name} |
+      | **Module Version** | {module_version} |
+      | **Created At** | {created_at} |
+      | **Created By** | {created_by} |
+      | **Layer** | {layer} |
+      | **Domain** | {domain} |
+      | **Type** | {type} |
+      | **Status** | {status} |
+      | **Governance Level** | {governance_level} |
+      | **Compliance Required** | {compliance_required} |
+      | **Audit Trail** | {audit_trail} |
+      | **Purpose** | {purpose} |
+      | **Dependencies** | {dependencies} |
+
+      ---
+
+      ## DORA FOOTER META
+
+      | Field | Value |
+      |-------|-------|
+      | **Security Classification** | {security_classification} |
+      | **Execution Mode** | {execution_mode} |
+      | **Last Modified** | {last_modified} |
+      | **Modified By** | {modified_by} |
+
+      ---
+
+      ## L9 DORA BLOCK
+
+      > Runtime trace - auto-updated on execution.
+
+      | Field | Value |
+      |-------|-------|
+      | **Trace ID** | {trace_id} |
+      | **Task** | {task} |
+      | **Timestamp** | {timestamp} |
+      | **Patterns Used** | {patterns_used} |
+
+      ---
+
+# ============================================================================
+# METADATA DEFAULTS
+# ============================================================================
+defaults:
+  module_version: "1.0.0"
+  status: "active"
+  compliance_required: true
+  audit_trail: true
+  security_classification: "internal"
+  execution_mode: "on-demand"
+  created_by: "L9_Codegen_Engine"
+
+# ============================================================================
+# GENERATION RULES
+# ============================================================================
+generation:
+  auto_sections:
+    - dora_block  # Always auto-generate DORA block
+
+  required_metadata:
+    - component_id
+    - component_name
+    - layer
+    - domain
+    - type
+    - purpose
+
+  validation:
+    - "All required sections must be present"
+    - "DORA block must be at end of file"
+    - "All metadata fields must be populated"
+
+# ============================================================================
+# EXAMPLES
+# ============================================================================
+examples:
+  subsystem_readme:
+    metadata:
+      component_id: "MEM-LEAR-001"
+      component_name: "Memory Substrate"
+      layer: "learning"
+      domain: "memory_substrate"
+      type: "service"
+      purpose: "Provides persistent memory storage and retrieval for agents"
+      governance_level: "critical"
+
+    sections:
+      overview: |
+        ## Overview
+
+        **Memory Substrate** is a service in the memory_substrate domain.
+
+        **Purpose:** Provides persistent memory storage and retrieval for agents
+
+        **Layer:** learning
+        **Governance Level:** critical
+
+      responsibilities: |
+        ## Responsibilities & Boundaries
+
+        ### This Module Owns
+        - PacketEnvelope ingestion and storage
+        - Semantic embedding generation
+        - Memory retrieval and search
+
+        ### This Module Does NOT Own
+        - Agent execution logic
+        - Tool dispatch
+        - API routing
+
+      ai_rules: |
+        ## AI Usage Rules
+
+        ### ✅ Allowed Scope
+        - Memory retrieval algorithms
+        - Embedding optimizations
+        - Query builders
+
+        ### ⚠️ Restricted Scope
+        - Schema changes
+        - Ingestion pipeline modifications
+
+        ### ❌ Forbidden Scope
+        - Direct database access patterns
+        - Credential handling
+
+# ============================================================================
+# END README TEMPLATE META
+# ============================================================================
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "configuration", "database-config", "foundation", "kernel", "model-config"]
+# keywords: ["defaults", "examples", "generation", "output_format", "readme.template.meta", "readme_types"]
+# last_modified: "2026-01-18T03:36:29Z"
+# ============================================================================

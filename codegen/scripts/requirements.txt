@@ -1,0 +1,12 @@
+# L9 Codegen Scripts Dependencies
+
+# HTTP client
+httpx>=0.25.0
+
+# YAML parsing
+pyyaml>=6.0
+
+# Retry logic
+tenacity>=8.2.0
+
+

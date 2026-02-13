@@ -1,0 +1,159 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Module Registry"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2025-12-20T15:08:40Z"
+# updated_at: "2026-01-17T23:47:56Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "MODULE_REGISTRY"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
+# L9 MODULE REGISTRY — Source of Truth for Module Identity + Tier
+# ============================================================================
+# 
+# This file defines ALL modules with their:
+#   - module_id (snake_case, unique)
+#   - tier (0-7, determines load order and allowed dependencies)
+#   - scope (1-line description)
+#
+# C must reference this BEFORE any Perplexity query.
+# P never decides tier. C injects it.
+#
+# ============================================================================
+
+modules:
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # TIER 0: Core Infrastructure (loads first, NO L9 dependencies)
+  # ─────────────────────────────────────────────────────────────────────────
+  
+  - module_id: config_loader
+    tier: 0
+    scope: "Environment and YAML configuration management with Pydantic validation"
+    status: spec_complete
+  
+  - module_id: structlog_setup
+    tier: 0
+    scope: "Structured logging initialization with JSON/console output"
+    status: pending
+  
+  # ─────────────────────────────────────────────────────────────────────────
+  # TIER 1: Core Services (depends on Tier 0 only)
+  # ─────────────────────────────────────────────────────────────────────────
+  
+  - module_id: packet_protocol
+    tier: 1
+    scope: "PacketEnvelope protocol for inter-module communication"
+    status: pending
+  
+  - module_id: memory_substrate
+    tier: 1
+    scope: "PostgreSQL + pgvector memory layer with semantic search"
+    status: existing
+  
+  # ─────────────────────────────────────────────────────────────────────────
+  # TIER 2: Adapters (depends on Tier 0-1)
+  # ─────────────────────────────────────────────────────────────────────────
+  
+  - module_id: slack_webhook_adapter
+    tier: 2
+    scope: "ARCHIVED - Use api/routes/slack.py + memory/slack_ingest.py"
+    status: archived  # 2026-01-08: Never deployed, archived to _archived/codegen_slack_adapter/
+  
+  - module_id: http_client
+    tier: 2
+    scope: "Shared httpx client with connection pooling"
+    status: pending
+  
+  - module_id: perplexity_client
+    tier: 2
+    scope: "Perplexity API client with best practices codified"
+    status: complete
+  
+  - module_id: symbolic_codegen
+    tier: 2
+    scope: "SymPy-based symbolic code synthesis and verification pipeline"
+    kernel: symbolic.codegen.kernel.v2
+    status: complete
+    paths:
+      - codegen/symbolic/
+      - core/symbolic_computation/
+  
+  # ─────────────────────────────────────────────────────────────────────────
+  # TIER 3: Routes (depends on Tier 0-2)
+  # ─────────────────────────────────────────────────────────────────────────
+  
+  - module_id: health_routes
+    tier: 3
+    scope: "Health, readiness, and metrics endpoints for K8s probes"
+    status: pending
+  
+  - module_id: chat_routes
+    tier: 3
+    scope: "Chat API endpoints for conversation"
+    status: existing
+  
+  - module_id: research_routes
+    tier: 3
+    scope: "Research API endpoints"
+    status: existing
+  
+  # ─────────────────────────────────────────────────────────────────────────
+  # TIER 4: Agents (depends on Tier 0-3)
+  # ─────────────────────────────────────────────────────────────────────────
+  
+  - module_id: planner_agent
+    tier: 4
+    scope: "Decomposes research goals into ordered steps"
+    status: existing
+  
+  - module_id: researcher_agent
+    tier: 4
+    scope: "Gathers evidence via tools (Perplexity, HTTP)"
+    status: existing
+  
+  - module_id: critic_agent
+    tier: 4
+    scope: "Evaluates research quality and requests retries"
+    status: existing
+  
+  # ─────────────────────────────────────────────────────────────────────────
+  # TIER 5: Orchestration (depends on Tier 0-4)
+  # ─────────────────────────────────────────────────────────────────────────
+  
+  - module_id: research_graph
+    tier: 5
+    scope: "LangGraph DAG for multi-agent research orchestration"
+    status: existing
+  
+  # ─────────────────────────────────────────────────────────────────────────
+  # TIER 6: Services (depends on Tier 0-5)
+  # ─────────────────────────────────────────────────────────────────────────
+  
+  - module_id: research_service
+    tier: 6
+    scope: "Research department service layer"
+    status: existing
+  
+  # ─────────────────────────────────────────────────────────────────────────
+  # TIER 7: Application (depends on all)
+  # ─────────────────────────────────────────────────────────────────────────
+  
+  - module_id: api_server
+    tier: 7
+    scope: "FastAPI application entry point"
+    status: existing
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "configuration", "foundation", "kernel", "pipeline", "tool-config"]
+# keywords: ["module", "modules", "registry"]
+# last_modified: "2026-01-17T23:47:56Z"
+# ============================================================================

@@ -1,0 +1,281 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Canonical Template - Persistent Memory Engine"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-18T00:38:45Z"
+# updated_at: "2026-01-18T00:38:47Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "Canonical Template - Persistent Memory Engine"
+# type: "engine"
+# status: "active"
+# ============================================================================
+
+# ============================================================
+# MEMORY-YAML v2.0 — L9 Persistent Memory Engine
+# ============================================================
+# PURPOSE:
+#   Canonical, production-grade memory architecture for a
+#   persistent agent (no session handoffs).
+#   Designed to ingest large historical transcript corpora,
+#   extract normalized memory primitives, and serve fast,
+#   queryable context for reasoning and multi-agent routing.
+#
+# DESIGN AXIOMS:
+#   - Persistent agent (no session memory blobs)
+#   - Idempotent ingestion (replay-safe)
+#   - Separation of concerns:
+#       extraction ≠ storage ≠ retrieval ≠ reasoning
+#   - MAP-first (Memory-Aligned Primitives only)
+#   - Storage-backed truth (Postgres + Neo4j)
+#
+# VERSION: 2.0.0
+# STATUS: CANONICAL
+# ============================================================
+
+schema_metadata:
+  name: "memory-yaml"
+  version: "2.0.0"
+  scope: "persistent_agent"
+  handoff_model: "none"
+  compatibility:
+    - L9
+    - Cursor
+    - FastAPI
+    - Supabase/Postgres
+    - Neo4j
+  principles:
+    - deterministic
+    - replayable
+    - query-first
+    - agent-centric
+
+# ============================================================
+# MEMORY-ALIGNED PRIMITIVES (MAP)
+# ============================================================
+memory_primitives:
+  decision:
+    required: [actor, action, context, occurred_at]
+    optional: [rationale, constraints, confidence, source]
+  fact:
+    required: [subject, predicate, object]
+    optional: [valid_from, valid_until, confidence, source]
+  preference:
+    required: [owner, preference]
+    optional: [strength, confidence, source]
+  belief:
+    required: [owner, belief]
+    optional: [confidence, source]
+  task:
+    required: [description, status]
+    optional: [owner, due_at, source]
+  insight:
+    required: [summary]
+    optional: [salience_score, source]
+
+normalization_rules:
+  - "All extracted data MUST map to a MAP primitive"
+  - "No free-form insight objects allowed"
+  - "All primitives carry provenance"
+
+# ============================================================
+# STORAGE LAYERS
+# ============================================================
+storage_layers:
+  relational:
+    engine: "Postgres + pgvector"
+    responsibilities:
+      - message_log
+      - embeddings
+      - user_facts
+      - temporal validity
+    guarantees:
+      - transactional writes
+      - temporal queries
+      - fast recent-context
+  graph:
+    engine: "Neo4j"
+    responsibilities:
+      - entities
+      - relationships
+      - events
+      - decision chains
+    guarantees:
+      - structural traversal
+      - relationship semantics
+  optional_hypergraph:
+    engine: "Neo4j::HyperEvent"
+    status: "roadmap"
+    responsibilities:
+      - n-ary decisions
+      - multi-party constraints
+
+# ============================================================
+# INGESTION ENGINE
+# ============================================================
+ingestion_engine:
+  mode: "batch + streaming"
+  replay_safe: true
+  source_roots:
+    - "~/Dropbox/chat-transcripts"
+  file_types:
+    - ".md"
+    - ".txt"
+    - ".json"
+    - ".pdf"
+  ignore_patterns:
+    - ".DS_Store"
+    - "*.log"
+    - "__MACOSX"
+  steps:
+    - load_transcript
+    - normalize_messages
+    - write_postgres_messages
+    - async_embed
+    - extract_primitives
+    - upsert_facts
+    - sync_graph
+  idempotency:
+    key: "content_hash + source_path + offset"
+    behavior: "skip_if_exists"
+
+# ============================================================
+# EXTRACTION LAYER (PLUG-IN MODEL)
+# ============================================================
+extraction_layer:
+  engines:
+    - name: "cognitive_insight_extractor_v3"
+      role: "primitive_extraction"
+    - name: "entity_extractor"
+      role: "entity_linking"
+    - name: "contradiction_detector"
+      role: "fact_conflict_flagging"
+  output_contract:
+    format: "MAP_only"
+    strict: true
+    rejection_policy: "discard_nonconforming_output"
+
+# ============================================================
+# EMBEDDING STRATEGY
+# ============================================================
+embedding:
+  targets:
+    - summaries
+    - decisions
+    - insights
+  excluded:
+    - raw_messages
+  lifecycle:
+    compute: "async"
+    stale_on:
+      - schema_change
+      - fact_update
+      - model_upgrade
+    prune_policy:
+      ttl_days: 180
+  models:
+    default: "text-embedding-3-small"
+    alternatives:
+      - "bge-small"
+      - "bge-large"
+
+# ============================================================
+# QUERY PATTERNS (FIRST-CLASS)
+# ============================================================
+query_patterns:
+  recent_context:
+    source: "Postgres"
+    sla_ms: 50
+  semantic_recall:
+    source: "pgvector"
+    sla_ms: 200
+  structural_context:
+    source: "Neo4j"
+    sla_ms: 300
+  decision_timeline:
+    source: "Neo4j"
+    sla_ms: 500
+  contradiction_scan:
+    source: "Postgres"
+    sla_ms: 100
+
+# ============================================================
+# MEMORY BUNDLE API
+# ============================================================
+memory_bundle:
+  inputs:
+    - user_id
+    - query
+    - entity_filters
+    - time_range
+  outputs:
+    recent_messages: true
+    semantic_hits: true
+    graph_context: true
+    facts: true
+  guarantees:
+    max_latency_ms: 1000
+    deterministic: true
+
+# ============================================================
+# AGENT INTEGRATION (L / L9)
+# ============================================================
+agent_integration:
+  persistent_agent: true
+  reasoning_loop:
+    pre_reason:
+      - get_memory_bundle
+    post_reason:
+      - extract_primitives
+      - update_memory
+  multi_agent_routing:
+    isolation: "task-scoped"
+    shared_memory: true
+
+# ============================================================
+# GOVERNANCE & SAFETY
+# ============================================================
+governance:
+  provenance_required: true
+  confidence_required: false
+  deletion_policy:
+    gdpr: true
+    ttl_days: 180
+  failure_modes:
+    graph_down: "fallback_to_postgres"
+    embedding_timeout: "skip_semantic"
+
+# ============================================================
+# ROADMAP (EXPLICITLY DEFERRED)
+# ============================================================
+roadmap:
+  - hypergraph_layer
+  - automated schema migration
+  - learned memory routing
+  - long-term belief decay models
+
+# ============================================================
+# DEVIL’S ADVOCATE (COMMENTARY)
+# ============================================================
+# RISK:
+#   Overconfidence in extractors may pollute memory.
+# MITIGATION:
+#   Enforce MAP-only + confidence + provenance.
+# RISK:
+#   Graph growth without pruning.
+# MITIGATION:
+#   TTL + event summarization.
+#
+# ============================================================
+# END MEMORY-YAML v2.0
+# ============================================================
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "engine", "foundation", "model-config", "schema"]
+# keywords: ["agent_integration", "canonical", "embedding", "engine", "extraction_layer", "ingestion_engine"]
+# last_modified: "2026-01-18T00:38:47Z"
+# ============================================================================

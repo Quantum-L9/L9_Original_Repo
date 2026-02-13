@@ -1,0 +1,165 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Canonical Template - Module Spec"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-18T00:36:16Z"
+# updated_at: "2026-01-18T00:36:41Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "Canonical Template - module spec"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# Canonical Template 2 — Module Spec YAML (SPEC)
+module_spec:
+  id: "{{module_id}}"
+  name: "{{module_name}}"
+  system: "L9"
+  owner: "Boss"
+  language: "python"
+  runtime: "python>=3.11"
+
+  purpose: "{{purpose_one_liner}}"
+
+  goals:
+    - "{{goal_1}}"
+    - "{{goal_2}}"
+
+  non_goals:
+    - "{{non_goal_1}}"
+    - "No new schema/migrations"
+    - "No duplicate stacks (db/models/logger/exceptions/config)"
+
+  repo_bindings:
+    root_path: "{{repo_root_path}}"
+    must_import_and_use:
+      {{must_import_and_use_list_yaml}}
+    must_not_create:
+      - "parallel database layer"
+      - "parallel models layer"
+      - "parallel logger/exceptions layer"
+      - "parallel config system"
+    allowed_new_files_only:
+      {{allowed_new_files_only_yaml}}
+    allowed_modified_files:
+      {{allowed_modified_files_yaml}}
+
+  schema_truth:
+    tables:
+      {{schema_truth_tables_yaml}}
+    notes: "{{schema_notes}}"
+
+  interfaces:
+    inbound:
+      {{inbound_interfaces_yaml}}
+    outbound:
+      {{outbound_interfaces_yaml}}
+
+  orchestration:
+    context_reads:
+      {{context_reads_yaml}}
+    aios_calls:
+      - name: "chat"
+        endpoint: "/chat"
+        timeout_seconds: {{aios_chat_timeout}}
+      - name: "embeddings_optional"
+        endpoint: "/memory/embeddings"
+        enabled: {{embeddings_enabled}}
+    persistence_writes:
+      {{persistence_writes_yaml}}
+
+  policies:
+    auth_and_verification:
+      {{auth_policy_yaml}}
+    idempotency:
+      enabled: {{idempotency_enabled}}
+      primary_key: "{{dedupe_primary}}"
+      fallback_key: "{{dedupe_fallback}}"
+      on_duplicate: "{{dedupe_behavior}}"
+    error_policy:
+      invalid_auth_or_signature: "{{policy_invalid_auth}}"
+      upstream_aios_failure: "{{policy_aios_failure}}"
+      side_effect_failure: "{{policy_side_effect_fail}}"
+
+  acceptance_criteria:
+    required:
+      {{acceptance_required_yaml}}
+    forbidden:
+      - "introduces new tables"
+      - "duplicates memory substrate code"
+      - "adds unrelated scaffolding"
+
+  tests:
+    scope:
+      {{tests_scope_yaml}}
+    must_not_require:
+      - "real external APIs"
+      - "real production DB"
+
+  observability:
+    required_logs:
+      {{required_logs_yaml}}
+    metrics:
+      {{metrics_yaml}}
+
+Canonical Template 3 — Cursor GMP (Wire-in + Finish + Track Changes)
+cursor_gmp:
+  id: "{{gmp_id}}"
+  objective: >
+    Wire the module into the existing L9 repo with minimal diffs, honoring repo bindings,
+    and ensuring every changed file is tracked and test-verified.
+
+  invariants:
+    - "No new schema/migrations"
+    - "Do not modify shared substrate/services unless SPEC explicitly allows"
+    - "All changes must be enumerated and git-tracked"
+    - "Minimal diff; no refactors unless required to pass gates"
+
+  file_plan:
+    add:
+      {{files_to_add_yaml}}
+    modify_if_needed:
+      {{files_to_modify_yaml}}
+    forbidden:
+      {{forbidden_files_yaml}}
+
+  wiring_steps:
+    {{wiring_steps_yaml}}
+
+  verification_gates:
+    commands:
+      {{verify_commands_yaml}}
+    required_checks:
+      - "imports resolve"
+      - "routes/entrypoints reachable"
+      - "unit tests pass"
+      - "idempotency works (if enabled)"
+      - "persistence writes hit correct existing tables"
+
+  git_discipline:
+    required_outputs:
+      - "git status --porcelain"
+      - "git diff --stat"
+      - "list_of_files_added"
+      - "list_of_files_modified"
+      - "tests_run + results"
+    commit_message_template: "{{commit_message_template}}"
+
+  integration_notes:
+    aios:
+      - "Use existing AIOS helpers if present; otherwise implement thin wrapper local to module files."
+    memory:
+      - "Adapter bends to existing memory APIs; do not reshape memory layer."
+    rollback:
+      - "If gates fail, revert to last green commit and re-apply minimal patch."
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["api-config", "code-generation", "configuration", "database-config", "foundation", "model-config", "schema", "utility"]
+# keywords: ["canonical", "module", "spec", "template"]
+# last_modified: "2026-01-18T00:36:41Z"
+# ============================================================================

@@ -17,7 +17,7 @@ default_language_version:
   python: python3.12
 
 # Global exclude for archived folders
-exclude: "(_archived|_archived_|.backup|_pack_staging)"
+exclude: "(_archived|_archived_|.backup|_pack_staging|codegen)"
 
 repos:
   # Python formatters

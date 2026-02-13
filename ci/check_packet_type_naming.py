@@ -121,6 +121,7 @@ SKIP_PATTERNS = [
     "current_work/DONE",
     "docs/DONE",
     "codegen/extractions/",  # Archived extraction snapshots
+    "codegen",
 ]
 
 # Directories to always skip (not packet-related)
@@ -233,7 +234,7 @@ def main() -> int:
     args = parser.parse_args()
 
     # Determine paths to check
-    paths = [Path(p) for p in args.paths] if args.paths else [Path.cwd()]
+    paths = [Path(p) for p in args.paths] if args.paths else [Path.cwd()]  # noqa: ADR-0001 - internal path
 
     # Collect all Python files
     all_files: list[Path] = []

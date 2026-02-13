@@ -1,0 +1,442 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Meta.Dependency.Integration (1)"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-02T00:55:21Z"
+# updated_at: "2026-01-15T15:41:34Z"
+# layer: "operations"
+# domain: "current_work"
+# file_name: "meta.dependency.integration (1)"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ============================================================================
+# L9 CODEGEN SYSTEM - META DEPENDENCY & INTEGRATION TEMPLATE
+# ============================================================================
+# Storage: /codegen/templates/meta/meta.dependency.integration.yaml
+#
+# Purpose:
+#   Define how extracted agents wire together. Build the dependency graph,
+#   integration test specs, and cross-agent communication contracts.
+#
+# ============================================================================
+
+---
+
+system: L9 Codegen Meta Dependency & Integration
+title: Multi-Agent Dependency Graph & Integration v6.0
+version: 6.0.0
+created: 2025-12-12
+
+purpose: |-
+  Map dependencies between agents. Define integration test specs.
+  Ensure cross-agent communication works via PacketEnvelope, event streams,
+  and shared memory layers.
+
+---
+
+## DEPENDENCY GRAPH BUILDER
+
+dependency_graph:
+  
+  description: |-
+    At runtime, instantiate this from schema.input.schemas[].depends_on
+    Build a directed acyclic graph (DAG) where:
+      Node = Agent
+      Edge = "depends_on" relationship
+    
+    Topological sort gives extraction order.
+    Cycles = ERROR (must resolve before extraction).
+  
+  algorithms:
+    topological_sort:
+      input: DAG of agents
+      algorithm: Kahn's algorithm
+      output: extraction_order (each agent depends on none after it)
+    
+    circular_dependency_detection:
+      input: DAG of agents
+      algorithm: DFS cycle detection
+      output: list of cycles (if any) => FAIL extraction
+  
+  graph_visualization: |-
+    For TensorAIOS ecosystem example:
+    
+    TensorAIOS ──────┐
+      ↑              ├──> Main Agent ──┐
+      │              │                 ├──> [Domains]
+      └──────────────┤                 │
+                     └──> PlastOS Adapter
+    
+    TensorAIOS ──────────> Trainer ──> [Model Repository]
+    
+    TensorAIOS ──────────> Auditor ──> [Governance Reports]
+    
+    Dependencies (hardcoded in schema):
+    - Main depends_on: [TensorAIOS, packetprotocol, governance]
+    - PlastOS Adapter depends_on: [Main, TensorAIOS]
+    - Trainer depends_on: [TensorAIOS, taskscheduler]
+    - Auditor depends_on: [TensorAIOS, Main, policy_engine]
+
+---
+
+## INTEGRATION TEST SPECIFICATIONS
+
+integration_tests:
+  
+  description: |-
+    For each pair of agents (A -> B), define integration test.
+    Verify: A can call B, B returns results, both log correctly.
+  
+  test_template:
+    test_name: "Integration test: [Agent A] -> [Agent B]"
+    agents_involved: [agent_a_id, agent_b_id]
+    
+    test_steps:
+      1_setup: |-
+        Initialize Agent A and Agent B in same process (or via API)
+        Verify both online and ready
+      
+      2_agent_a_calls_agent_b: |-
+        Agent A sends request to Agent B
+        Expectation: Request formatted correctly for Agent B API
+      
+      3_agent_b_processes: |-
+        Agent B receives, validates, processes request
+        Expectation: Correct business logic executed
+      
+      4_agent_b_returns_result: |-
+        Agent B formats result and returns to Agent A
+        Expectation: Result matches Agent A expected schema
+      
+      5_agent_a_processes_result: |-
+        Agent A receives, validates, uses result
+        Expectation: A can use result for next step
+      
+      6_logging_and_tracing: |-
+        Verify: Both agents logged decision
+        Verify: Trace IDs match across logs
+        Verify: Causal chain recorded
+      
+      7_memory_sync: |-
+        Verify: A's episodic memory updated with result
+        Verify: B's episodic memory updated with decision
+        Verify: Semantic graph updated (Neo4j)
+        Verify: Causal chain updated (HyperGraphDB)
+    
+    assertions:
+      - assertion: "Request formatted correctly"
+        pass_condition: "Agent B accepts request without schema error"
+      
+      - assertion: "Response contains required fields"
+        pass_condition: "Response JSON has all required keys + valid types"
+      
+      - assertion: "Both agents logged decision"
+        pass_condition: "Grep logs for both agent traces with matching trace ID"
+      
+      - assertion: "Memory backends updated"
+        pass_condition: "Query Postgres + Neo4j, confirm updates recorded"
+      
+      - assertion: "No circular imports"
+        pass_condition: "Import both agents in same script, no cycle errors"
+    
+    failure_modes:
+      - failure: "Agent B unavailable"
+        expected_behavior: "Agent A timeout, escalation to governance"
+      
+      - failure: "Response schema doesn't match"
+        expected_behavior: "Agent A validates, rejects response, logs error"
+      
+      - failure: "Memory backend write fails"
+        expected_behavior: "Agents log error, escalate to governance"
+
+---
+
+## COMMUNICATION CONTRACTS
+
+communication_contracts:
+  
+  description: |-
+    Define how agents communicate. Ensure schema compatibility.
+  
+  packetenvelope_contract:
+    protocol: PacketEnvelope (L9 native)
+    usage: All domain agent <-> Main Agent communication
+    
+    schema_example: |-
+      {
+        "packet_id": "uuid",
+        "source_agent": "plastos",
+        "destination_agent": "main",
+        "timestamp": "2025-12-12T12:00:00Z",
+        "payload": {
+          "transaction_data": {...},
+          "context": {...}
+        },
+        "metadata": {
+          "trace_id": "uuid",
+          "priority": "normal",
+          "governance_flags": [...]
+        }
+      }
+    
+    validation:
+      - All required fields present
+      - Timestamp format ISO8601
+      - Source/destination are registered agents
+      - Payload matches expected schema
+      - Trace ID valid UUID
+      - Governance flags valid enum values
+    
+    error_handling:
+      - Schema invalid => reject with 400 Bad Request
+      - Required field missing => reject with 400
+      - Unknown agent => reject with 404
+      - Governance flag violation => escalate before processing
+
+  event_stream_contract:
+    protocol: Event stream (cognition_bus)
+    usage: Agent broadcasts decision completed, async listeners subscribe
+    
+    event_example: |-
+      {
+        "event_type": "decision_completed",
+        "agent": "tensoraios",
+        "timestamp": "2025-12-12T12:00:00Z",
+        "event_data": {
+          "decision_id": "uuid",
+          "confidence": 0.95,
+          "result": {...}
+        },
+        "trace_id": "uuid"
+      }
+    
+    subscribers:
+      - Auditor (all agents)
+      - Trainer (adapters)
+      - Monitoring dashboard
+      - Governance escalation handler
+
+  rest_grpc_contract:
+    protocol: REST/gRPC
+    usage: External integrations, monitoring queries
+    
+    endpoints_example: |-
+      GET  /agent/v6/status
+      POST /agent/v6/process
+      GET  /agent/v6/decision_log
+    
+    authentication:
+      - Signed JWT tokens
+      - Role-based access control
+      - Rate limiting per API key
+
+---
+
+## SHARED MEMORY CONTRACTS
+
+shared_memory_contracts:
+  
+  description: |-
+    Agents read/write to shared memory layers.
+    Ensure consistent schemas across agents.
+  
+  episodic_memory_contract:
+    backend: PostgreSQL + pgvector
+    table_structure: |-
+      table: decision_logs
+      columns:
+        - decision_id (UUID, primary key)
+        - agent_id (string)
+        - timestamp (datetime)
+        - decision_data (JSONB)
+        - confidence_score (float)
+        - trace_id (UUID)
+        - governance_status (enum)
+    
+    write_contract:
+      who_writes: All agents after making decision
+      what_fields_required: [decision_id, agent_id, decision_data, trace_id]
+      validation: All fields non-null, types match schema
+    
+    read_contract:
+      who_reads: Auditor, monitoring, compliance
+      read_permissions: Signed token + role "auditor" or "monitor"
+
+  semantic_memory_contract:
+    backend: Neo4j AuraDB
+    graph_structure: |-
+      node_types:
+        - domain_entity (buyer, supplier, borrower, etc.)
+        - agent_decision (represents a decision)
+        - governance_policy
+      
+      edge_types:
+        - MATCHES (tensor prediction)
+        - INFLUENCES (causal factor influence)
+        - ESCALATED_TO (governance escalation)
+    
+    write_contract:
+      who_writes: All agents update entity embeddings and relationships
+      what_updates: Add nodes/edges after decisions
+      consistency: No duplicate nodes, merge identical entities
+    
+    read_contract:
+      who_reads: Context enricher (queries graph for patterns)
+      query_example: "Find similar buyers to this one (embeddings)"
+
+  causal_memory_contract:
+    backend: HyperGraphDB
+    hypergraph_structure: |-
+      Hyperedges represent causal influences.
+      Why did Agent A decide X?
+        - Causal factor 1 influenced decision
+        - Causal factor 2 influenced decision
+        - Governance constraint 3 influenced decision
+    
+    write_contract:
+      who_writes: All agents after making decision
+      what_to_record: Causal chain (factors, influences, weights)
+    
+    read_contract:
+      who_reads: Auditor (explain decisions), reflective reasoner
+
+  archive_contract:
+    backend: S3 durable archive
+    structure: |-
+      s3://bucket/tensoraios_ecosystem/
+        ├── tensoraios/
+        │   ├── models/
+        │   ├── training_logs/
+        │   └── archives/
+        ├── main_agent/
+        │   └── decision_archives/
+        └── ...
+    
+    write_contract:
+      who_writes: All agents + trainer
+      frequency: Daily batches + immediate on decision >= criticality threshold
+      retention: Indefinite (compliance)
+
+---
+
+## GOVERNANCE INTEGRATION
+
+governance_integration:
+  
+  escalation_contract:
+    when_to_escalate: |-
+      - Decision confidence < threshold AND criticality high
+      - Governance rule violated
+      - Anomaly detected
+      - Human override requested
+    
+    how_to_escalate: |-
+      Call: governance_bridge.escalate(decision_id, reason, severity)
+      Message sent to: Igor, Oversight Council, Compliance Officer
+      Wait for: governance_override or approval_within_timeout
+    
+    what_to_log: |-
+      - Original decision
+      - Escalation reason
+      - Who escalated
+      - Governance response
+      - Human override (if any)
+  
+  audit_contract:
+    audit_frequency: Continuous (event-driven)
+    audit_scope: Every decision made by every agent
+    audit_output: Immutable decision + governance flag log
+    
+    compliance_checks:
+      - Policy violations: Any?
+      - Bias detected: Anomaly score > threshold?
+      - Data quality: Inputs valid?
+      - Drift detected: Model accuracy dropped?
+
+---
+
+## CROSS-AGENT TESTING MATRIX
+
+cross_agent_testing_matrix:
+  
+  description: |-
+    For N agents, create N*(N-1) integration tests.
+    This matrix ensures all integration points tested.
+  
+  matrix_template: |-
+    Agent A (Caller) -> Agent B (Callee) -> Test outcome
+    
+    Example for 5 TensorAIOS agents:
+    
+    TensorAIOS -> Main Agent              [test_tensoraios_main_integration]
+    Main -> PlastOS Adapter               [test_main_plastos_integration]
+    Main -> Trainer                       [test_main_trainer_integration]
+    Trainer -> TensorAIOS (update models) [test_trainer_tensoraios_integration]
+    Auditor -> Main (observe)             [test_auditor_main_integration]
+    Auditor -> TensorAIOS (observe)       [test_auditor_tensoraios_integration]
+    ...
+  
+  test_coverage_requirement: |-
+    ALL edges in dependency graph must have integration test.
+    No untested communication path allowed.
+    Requirement: >= 90% of possible integrations tested.
+
+---
+
+## ORCHESTRATION WIRING
+
+orchestration_wiring:
+  
+  description: |-
+    After all agents extracted, wire them together in /codegen/extractions/
+    folder with generated unified config file.
+  
+  unified_config_generation: |-
+    1. Collect all agent configs (config_manager.py from each agent)
+    2. Merge shared_configuration (from meta.codegen.schema.yaml)
+    3. Build API endpoint registry
+    4. Generate: L9/tensoraios_ecosystem_config.yaml
+    5. All agents read from this file at startup
+  
+  api_endpoint_registry: |-
+    File: L9/tensoraios_ecosystem_config.yaml
+    Contains:
+      tensoraios:
+        endpoints: [/tensoraios/v6/score, /tensoraios/v6/embeddings, ...]
+        base_url: http://l9-tensoraios:8000
+      
+      main_agent:
+        endpoints: [/mainagent/v6/packet, /mainagent/v6/register_domain, ...]
+        base_url: http://l9-mainagent:8001
+      
+      plastos_adapter:
+        endpoints: [/plastos_adapter/v6/translate, ...]
+        base_url: http://l9-plastos-adapter:8002
+      
+      ...
+  
+  startup_orchestration: |-
+    1. All agents read unified_config
+    2. All agents initialize memory backends (from config)
+    3. All agents wire governance bridges (from config)
+    4. All agents register their endpoints in API registry
+    5. Health checks verify all agents online
+    6. Integration tests run (verify all communication paths)
+    7. Monitoring dashboards populated
+    8. Ready for traffic
+
+---
+
+end_of_dependency_integration_template
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "current-work", "model-config", "operations", "schema", "utility"]
+# keywords: ["(1)", "meta.dependency.integration"]
+# last_modified: "2026-01-15T15:41:34Z"
+# ============================================================================

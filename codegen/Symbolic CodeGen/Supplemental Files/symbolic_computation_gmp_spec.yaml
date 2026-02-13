@@ -1,0 +1,407 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Symbolic Computation Gmp Spec"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-02T02:33:25Z"
+# updated_at: "2026-01-15T15:48:34Z"
+# layer: "operations"
+# domain: "current_work"
+# file_name: "symbolic_computation_gmp_spec"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+gmp_spec:
+  version: 1.0.0
+  spec_name: symbolic_computation_service_extraction
+  target_system: L9.symbolic_computation
+  
+  metadata:
+    created: 2026-01-02T01:20:00Z
+    created_by: System Architect
+    status: ready_for_execution
+    confidence_level: 100%
+    
+  input_files_locked:
+    meta_templates:
+      - meta.codegen.schema.yaml
+      - meta.extraction.sequence.yaml
+      - meta.validation.checklist.yaml
+      - meta.dependency.integration.yaml
+    
+    instance_files:
+      - sympy_schema_v6.yaml
+      - sympy_locked_todo_plan.txt
+      - sympy_extraction_glue.yaml
+    
+    verification: all_files_present_and_valid
+  
+  execution_model:
+    phases: [0, 1, 2, 3, 4, 5, 6]
+    sequential: true
+    parallel_after_phase: null
+    timeout_per_phase_minutes: 60
+    total_estimated_time_hours: 2
+    
+  constraints:
+    governance:
+      l9_enable_strict_mode: true
+      l9_enable_governance_enforcement: true
+      l9_enable_memory_substrate_validation: true
+      l9_enable_dependency_validation: true
+      l9_enable_test_generation: true
+      l9_enable_extraction_phases: true
+      l9_enable_evidence_reporting: true
+    
+    code_generation:
+      zero_todos_policy: strict
+      code_comment_density: minimum_10_percent
+      docstring_coverage: 100_percent_public_apis
+      type_hint_coverage: 100_percent_public_apis
+    
+    memory_substrate:
+      redis_required: true
+      postgres_required: true
+      neo4j_required: true
+      hypergraphdb_optional: true
+    
+    governance_bridges:
+      igor_escalation_required: true
+      governance_logging_required: true
+      approval_workflows_enforced: true
+  
+  expected_outputs:
+    code:
+      python_modules: 14
+      total_lines_of_code: 1547
+      test_coverage_minimum: 85
+      test_pass_rate_minimum: 95
+    
+    documentation:
+      readme: 1
+      architecture_doc: 1
+      api_spec: 1
+      performance_guide: 1
+      integration_guide: 1
+      total_documentation_files: 5
+    
+    tests:
+      unit_test_files: 2
+      integration_test_files: 2
+      test_total_count: 115
+      total_test_files: 4
+    
+    manifests:
+      service_manifest: 1
+      docker_compose_fragment: 1
+      kubernetes_manifest_optional: false
+      total_manifest_files: 2
+    
+    evidence_report:
+      required: true
+      sections: 10
+      format: markdown
+      signature_required: true
+      includes_phase_sign_offs: true
+  
+  quality_gates:
+    phase_0:
+      gate_name: Research and Lock
+      requirements:
+        - all_input_files_present
+        - schema_integrity_verified
+        - no_circular_dependencies
+        - todo_plan_locked
+      failure_policy: stop_execution
+      estimated_duration_minutes: 15
+    
+    phase_1:
+      gate_name: Baseline Confirmation
+      requirements:
+        - target_directory_accessible
+        - redis_backend_reachable
+        - postgres_backend_reachable
+        - neo4j_backend_reachable
+        - igor_governance_accessible
+        - compliance_anchor_accessible
+      failure_policy: stop_execution
+      estimated_duration_minutes: 5
+    
+    phase_2:
+      gate_name: Implementation
+      requirements:
+        - all_14_modules_generated
+        - all_imports_correct
+        - all_function_signatures_match_schema
+        - zero_todos_in_code
+        - feature_flags_applied
+        - governance_bridges_wired
+      failure_policy: stop_execution
+      estimated_duration_minutes: 30
+    
+    phase_3:
+      gate_name: Enforcement
+      requirements:
+        - input_validation_added
+        - audit_logging_added
+        - governance_checks_added
+        - rate_limiting_configured
+        - error_handling_complete
+      failure_policy: stop_execution
+      estimated_duration_minutes: 10
+    
+    phase_4:
+      gate_name: Validation and Testing
+      requirements:
+        - test_count_ge_115
+        - test_pass_rate_ge_95_percent
+        - code_coverage_ge_85_percent
+        - integration_tests_passing
+        - performance_benchmarks_acceptable
+      failure_policy: stop_execution
+      estimated_duration_minutes: 15
+    
+    phase_5:
+      gate_name: Recursive Verification
+      requirements:
+        - generated_code_matches_schema
+        - no_scope_drift_detected
+        - governance_links_intact
+        - memory_contracts_honored
+        - all_dependencies_wired
+      failure_policy: stop_execution
+      estimated_duration_minutes: 20
+    
+    phase_6:
+      gate_name: Finalization
+      requirements:
+        - evidence_report_complete_10_sections
+        - all_phase_sign_offs_present
+        - deployment_manifest_generated
+        - final_declaration_signed
+        - zero_critical_issues
+      failure_policy: stop_execution
+      estimated_duration_minutes: 30
+  
+  governance_requirements:
+    approval_chain:
+      primary: Igor
+      oversight: Compliance
+      escalation_conditions:
+        - dangerous_function_detected
+        - governance_enforcement_bypassed
+        - memory_constraint_violated
+        - dependency_cycle_detected
+    
+    audit_trail:
+      required: true
+      backend: Postgres
+      table_name: sympy_decision_logs
+      immutable: true
+      s3_backup_required: true
+    
+    decision_logging:
+      every_tool_execution: true
+      every_approval_decision: true
+      every_governance_check: true
+      retention_days: 730
+  
+  feature_flags:
+    L9_ENABLE_STRICT_MODE: true
+    L9_ENABLE_GOVERNANCE_ENFORCEMENT: true
+    L9_ENABLE_MEMORY_SUBSTRATE_VALIDATION: true
+    L9_ENABLE_DEPENDENCY_VALIDATION: true
+    L9_ENABLE_TEST_GENERATION: true
+    L9_ENABLE_EXTRACTION_PHASES: true
+    L9_ENABLE_EVIDENCE_REPORTING: true
+    L9_ENABLE_PERFORMANCE_TRACKING: true
+    L9_ENABLE_AUDIT_LOGGING: true
+  
+  evidence_report_sections:
+    section_1:
+      name: Schema Input Summary
+      description: Overview of input schemas and configuration
+      must_include:
+        - schema_file_names
+        - schema_integrity_status
+        - input_parameter_count
+        - key_constraints
+    
+    section_2:
+      name: Locked TODO Plan
+      description: The deterministic TODO plan that was locked in Phase 0
+      must_include:
+        - all_34_todos
+        - block_descriptions_t1_t8
+        - todo_count_breakdown
+        - plan_approval_status
+    
+    section_3:
+      name: Phase 0 Research
+      description: Ground truth verification and dependency analysis
+      must_include:
+        - meta_files_loaded_count
+        - schema_files_validated_count
+        - circular_dependencies_found
+        - critical_paths_identified
+    
+    section_4:
+      name: Phase 1 Baseline
+      description: Verification that all targets are accessible
+      must_include:
+        - targets_checked_count
+        - dependencies_verified_count
+        - failures_encountered
+        - baseline_sign_off_status
+    
+    section_5:
+      name: Phase 2 Implementation
+      description: Code generation execution and results
+      must_include:
+        - modules_generated_count
+        - lines_of_code_generated
+        - files_created_count
+        - todos_in_code_found
+        - feature_flags_applied_count
+    
+    section_6:
+      name: Phase 3 Enforcement
+      description: Safety layers and governance integration
+      must_include:
+        - input_validation_coverage
+        - governance_checks_added_count
+        - audit_logging_lines_added
+        - error_handling_patterns_count
+    
+    section_7:
+      name: Phase 4 Validation
+      description: Testing and quality metrics
+      must_include:
+        - total_tests_run
+        - tests_passed_count
+        - tests_failed_count
+        - code_coverage_percent
+        - integration_tests_status
+    
+    section_8:
+      name: Phase 5 Recursive Verification
+      description: Drift detection and invariant verification
+      must_include:
+        - files_compared_count
+        - drift_issues_found
+        - governance_integrity_verified
+        - memory_contract_compliance
+    
+    section_9:
+      name: Governance Compliance
+      description: Governance decisions and escalations
+      must_include:
+        - escalations_triggered_count
+        - approvals_obtained_count
+        - dangerous_patterns_found
+        - audit_trail_entries
+    
+    section_10:
+      name: Final Declaration
+      description: Signed confirmation that all phases complete
+      must_include:
+        - "SIGNATURE: All phases (0-6) complete. No assumptions. No drift."
+        - signed_by_agent_name
+        - signed_timestamp
+        - all_gates_passed
+        - ready_for_production_statement
+
+  production_readiness:
+    deployment_steps:
+      - docker_compose_integration
+      - environment_configuration
+      - health_check_validation
+      - zero_downtime_deployment_ready: true
+    
+    observability:
+      structured_logging_enabled: true
+      metrics_collection_enabled: true
+      distributed_tracing_enabled: true
+      dashboards_configured: false
+    
+    backup_and_recovery:
+      postgres_backup_required: true
+      code_backup_required: true
+      config_backup_required: true
+      recovery_procedure_documented: false
+  
+  execution_instructions:
+    step_1_prepare: |
+      Load all 4 meta files (YAML templates that are the source of truth for all patterns)
+      Verify they match the versions in attachments
+    
+    step_2_load_instance: |
+      Load sympy_schema_v6.yaml (what to generate)
+      Load sympy_locked_todo_plan.txt (sequence of work)
+      Load sympy_extraction_glue.yaml (code generation rules)
+      Verify all TODOs are unlocked and ready
+    
+    step_3_initialize_phase_0: |
+      Establish ground truth by reading all meta files
+      Cross-reference instance files against meta templates
+      Build dependency graph from schemas
+      Verify no circular dependencies
+      Confirm all targets exist and are writable
+    
+    step_4_execute_phases_1_6: |
+      Execute sequentially: Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6
+      After each phase, verify gate before proceeding
+      Collect evidence as specified in evidence_report_sections
+      Record all sign-offs in evidence report
+    
+    step_5_generate_evidence: |
+      Generate 10-section evidence report (required)
+      Populate all must_include fields per section
+      Sign final declaration with agent name and timestamp
+      Verify all gates marked [x] with evidence
+  
+  success_criteria:
+    all_required: true
+    must_meet:
+      - all_6_phases_executed_successfully
+      - evidence_report_10_sections_complete
+      - code_coverage_gte_85_percent
+      - test_pass_rate_gte_95_percent
+      - zero_scope_drift_detected
+      - governance_chains_intact
+      - final_declaration_signed
+      - ready_for_production_confirmed
+
+  failure_scenarios:
+    if_phase_fails:
+      action: STOP
+      escalation: Igor
+      preserve_artifacts: true
+      preserve_evidence: true
+      report_format: failure_analysis_report
+    
+    if_gate_fails:
+      action: STOP
+      fix_required: true
+      re_run_allowed: true
+      previous_phases_preserved: true
+    
+    if_governance_blocks:
+      action: ESCALATE_TO_IGOR
+      wait_for_approval: true
+      timeout_minutes: 60
+      fallback_action: STOP_EXECUTION
+
+status: READY_FOR_EXECUTION
+ready_for_cursor: true
+ready_for_automation: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "configuration", "current-work", "model-config", "operations", "redis-config", "schema"]
+# keywords: ["computation", "gmp", "gmp_spec", "ready_for_automation", "ready_for_cursor", "spec"]
+# last_modified: "2026-01-15T15:48:34Z"
+# ============================================================================

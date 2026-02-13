@@ -1,0 +1,51 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Spec Graph Decay Confidence Provenance V20251229 205131"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-08T21:23:59Z"
+# updated_at: "2026-01-15T15:55:23Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "SPEC_graph_decay_confidence_provenance_v20251229_205131"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+```yaml
+# 🟩 ExecAssistOS / Emma — Graph Decay + Confidence Weighting + Provenance (Spec)
+# type: emma_graph_decay_confidence_provenance_spec
+# version: 1.0.0
+# status: draft_ready_for_codegen
+# generated_utc: {20251229_205131}
+# owner: Igor (Boss)
+# scope: Habit/Rhythm Graph + Continuity Graph + Stakeholder Graph
+
+type: emma_graph_decay_confidence_provenance_spec
+version: "1.0.0"
+status: "draft_ready_for_codegen"
+yaml_location: "execassistos/emma/graph/decay_confidence_provenance.meta.yaml"
+
+banner:
+  title: "Graph Decay + Confidence Weighting + Provenance"
+  tagline: "Keep graphs accurate over time; prevent wrong learning; make updates auditable."
+  principle: "Graphs are probabilistic — edges and nodes must decay unless reinforced with evidence."
+
+applies_to_graphs:
+  - "Habit & Rhythm Graph"
+  - "Conversation Continuity Graph"
+  - "Stakeholder Preference Graph"
+  - "Workflow Similarity / Approval Inheritance Graph"
+  - "WorldModel hypergraph (when used by Emma)"
+
+
+```
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["code-generation", "foundation", "model-config", "utility", "workflow"]
+# keywords: ["205131", "confidence", "decay", "graph", "provenance", "spec"]
+# last_modified: "2026-01-15T15:55:23Z"
+# ============================================================================

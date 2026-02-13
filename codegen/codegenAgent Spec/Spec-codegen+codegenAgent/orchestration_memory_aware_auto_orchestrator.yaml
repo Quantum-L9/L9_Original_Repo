@@ -1,0 +1,49 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Orchestration Memory Aware Auto Orchestrator"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:23Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "orchestration_memory_aware_auto_orchestrator"
+# type: "controller"
+# status: "active"
+# ============================================================================
+
+# =============================================
+# Memory-Aware Auto-Orchestrator
+# =============================================
+
+filename: orchestration/memory_aware_auto_orchestrator.py
+type: orchestration_runtime
+language: python
+
+description: |
+  Dynamically rebuilds orchestrator DAGs based on real-time memory insights,
+  previous task outcomes, and current agent status.
+
+wiring:
+  inputs:
+    - semantic_memory.yaml
+    - orchestrator_registry.yaml
+  emits:
+    - dag_patch.yaml
+    - execution_plan.yaml
+
+code: |
+  def rebuild_orchestrator():
+      import yaml
+      memory = yaml.safe_load(open("semantic_memory.yaml"))
+      new_dag = {"nodes": [m["topic"] for m in memory["nodes"]]}
+      yaml.dump(new_dag, open("dag_patch.yaml", "w"))
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "code-generation", "controller", "foundation"]
+# keywords: ["auto", "aware", "code", "description", "filename", "language"]
+# last_modified: "2026-01-06T16:58:23Z"
+# ============================================================================

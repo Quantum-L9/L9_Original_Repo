@@ -1,0 +1,131 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Spec Workflow Similarity Approval Inheritance V20251229 205131"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-08T21:24:18Z"
+# updated_at: "2026-01-15T15:55:23Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "SPEC_workflow_similarity_approval_inheritance_v20251229_205131"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+```yaml
+# 🟩 ExecAssistOS / Emma — Workflow Similarity + Approval Inheritance Engine (Spec)
+# type: emma_workflow_similarity_autonomy_inheritance_spec
+# version: 1.0.0
+# status: draft_ready_for_codegen
+# generated_utc: {20251229_205131}
+# owner: Igor (Boss)
+# scope: ExecAssistOS Emma on L9
+# depends_on: PacketEnvelope, Memory Substrate, GraphService/Hypergraph, Consent Engine, DAG Template Registry
+
+type: emma_workflow_similarity_autonomy_inheritance_spec
+version: "1.0.0"
+status: "draft_ready_for_codegen"
+yaml_location: "execassistos/emma/engines/workflow_similarity_inheritance.meta.yaml"
+
+banner:
+  title: "Workflow Similarity + Approval Inheritance Engine"
+  tagline: "Reuse approved automation safely, deterministically, and cheaply."
+  principle: "If a task is fundamentally the same as an already-approved workflow, inherit autonomy instead of re-planning."
+
+purpose:
+  primary: >
+    Reduce friction and cost by reusing previously-approved workflow DAG templates.
+    Detect similarity between new tasks and existing approved workflows, inherit
+    approvals/autonomy, and only request permission when a material difference exists.
+  secondary:
+    - "Prevent wrong learning: reuse proven playbooks rather than re-inventing."
+    - "Improve quality: reuse tested sequences and validated tool usage."
+    - "Increase speed: avoid full planning and repeated tool reasoning."
+    - "Compound autonomy: approvals unlock broader classes of tasks via similarity."
+  non_goals:
+    - "No autonomous escalation past enterprise policy ceilings."
+    - "No silent execution of high-risk actions without explicit approval."
+    - "No learning from unverified outcomes (must pass eval + evidence checks)."
+
+core_concepts:
+  workflow_template:
+    definition: "A deterministic DAG template representing an executable workflow."
+    stored_as: "pack artifacts (playbook.yaml + dag_template.yaml) in Template Registry"
+    must_include:
+      - "workflow_signature"
+      - "tool_signature"
+      - "risk_signature"
+      - "input_schema"
+      - "output_schema"
+      - "context_requirements"
+      - "governance_metadata"
+      - "approval_requirements"
+  similarity:
+    definition: "A measurable match between an incoming task and an existing workflow template."
+    outputs:
+      - "similarity_score (0.0–1.0)"
+      - "match_type (exact|near|partial|none)"
+      - "diff_summary"
+      - "risk_delta"
+      - "required_approvals_delta"
+  approval_inheritance:
+    definition: >
+      A mechanism to reuse a prior approval when the new task matches an approved template
+      above a threshold and risk signature is within allowed deltas.
+    constraints:
+      - "Must be backed by provenance and audit logs"
+      - "Must respect tenant/org autonomy ceiling"
+      - "Must emit an approval_inheritance packet before execution"
+
+engine_contract:
+  engine_id: "workflow_similarity_inheritance"
+  module_paths:
+    interface: "execassistos/emma/engines/workflow_similarity/interface.py"
+    implementation: "execassistos/emma/engines/workflow_similarity/engine.py"
+    fingerprinting: "execassistos/emma/engines/workflow_similarity/fingerprinting.py"
+    resolver: "execassistos/emma/engines/workflow_similarity/resolver.py"
+    evaluator: "execassistos/emma/engines/workflow_similarity/evaluator.py"
+    policy: "execassistos/emma/engines/workflow_similarity/policy.py"
+  runtime:
+    orchestrator: "action_tool + meta + memory (L9 orchestrators)"
+    called_by:
+      - "AgentExecutorService (pre-plan hook)"
+      - "Memory Orchestrator (strategy selection)"
+      - "Meta Orchestrator (confidence gating)"
+      - "Evidence Router (context completion)"
+  i_o:
+    inputs:
+      - name: "task_packet"
+        type: "PacketEnvelope"
+        description: "Incoming user/client directive as PacketEnvelope."
+      - name: "principal"
+        type: "PrincipalContext"
+        description: "Tenant/user/org identity + entitlements + autonomy ceiling."
+      - name: "candidate_templates"
+        type: "list[WorkflowTemplateRecord]"
+        description: "Pulled from Template Registry (globally + tenant-scoped)."
+      - name: "context_bundle"
+        type: "EvidenceBundle"
+        description: "Optional: evidence router output (emails/docs/calendar) for task grounding."
+    outputs:
+      - name: "inheritance_decision"
+        type: "WorkflowInheritanceDecision"
+        description: "Deterministic verdict: inherit|ask|reject with audit trail."
+      - name: "resolved_dag"
+        type: "DagTemplateInstance | None"
+        description: "If inherited or patched, the executable DAG instance."
+      - name: "approval_request"
+        type: "ApprovalRequest | None"
+        description: "If permission is needed, structured request with diff and risk."
+
+
+```
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "code-generation", "foundation", "schema", "tool-config", "utility", "workflow"]
+# keywords: ["205131", "approval", "inheritance", "similarity", "spec", "v20251229"]
+# last_modified: "2026-01-15T15:55:23Z"
+# ============================================================================

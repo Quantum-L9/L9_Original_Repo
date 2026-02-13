@@ -11,7 +11,7 @@ This script automatically fixes 23 ADRs:
 
 SECURITY ADRs (transform code):
 - ADR-0001: Path safety → add noqa for internal paths
-- ADR-0083: datetime.utcnow() → datetime.now(UTC)
+- ADR-0083: datetime.now(UTC) → datetime.now(UTC)
 - ADR-0087: f-string SQL → add noqa for safe cases (table/column interpolation)
 - ADR-0088: Pickle usage → add noqa for test fixtures
 - ADR-0090: Hardcoded credentials → add noqa for placeholder values
@@ -25,7 +25,7 @@ CODE QUALITY ADRs (transform or add noqa):
 - ADR-0016: TypedDict/Pydantic → add noqa for conversion utilities
 - ADR-0019: print() → add noqa for CLI tools
 - ADR-0022: Registry pattern → add noqa for simple registries
-- ADR-0024: Resilience mixin → add noqa for direct @retry
+- ADR-0024: Resilience mixin → add noqa for direct @retry  # noqa: ADR-0024 - direct retry is intentional
 - ADR-0025: FastAPI Depends → add noqa for simple routes
 - ADR-0027: LRU cache → add maxsize=128
 - ADR-0031: WebSocket pattern → add noqa for orchestrator handling
@@ -62,6 +62,7 @@ SKIP_DIRS = {
     "current_work",
     ".cursor",
     "private",  # Private specs may have special formatting
+    "codegen",
 }
 
 # Directories where print() is ALLOWED (CLI tools, scripts, tests)
@@ -136,6 +137,9 @@ def is_protected(path: Path) -> bool:
 
 def find_python_files(root: Path) -> list[Path]:
     """Find all Python files, excluding skip directories."""
+    if root.is_file():
+        return [root] if root.suffix == ".py" else []
+
     files = []
     for path in root.rglob("*.py"):
         if not should_skip_dir(path):
@@ -177,8 +181,8 @@ def fix_print_statements(
 
     is_cli = is_cli_file(file_path)
 
-    if is_cli or safe_mode:
-        # Add noqa comments to print statements
+    if is_cli:
+        # Add noqa comments to print statements ONLY for CLI files
         lines = content.split("\n")
         new_lines = []
         modified = False
@@ -189,13 +193,13 @@ def fix_print_statements(
                 # Handle multi-line print - only add noqa to opening line
                 if line.rstrip().endswith(")"):
                     # Single line print
-                    new_line = f"{line}  # noqa: ADR-0019"
+                    new_line = f"{line}  # noqa: ADR-0019 - CLI tool"
                 elif line.rstrip().endswith("("):
                     # Multi-line print opening
-                    new_line = f"{line}  # noqa: ADR-0019"
+                    new_line = f"{line}  # noqa: ADR-0019 - CLI tool"
                 else:
                     # Print with args on same line but continues
-                    new_line = f"{line}  # noqa: ADR-0019"
+                    new_line = f"{line}  # noqa: ADR-0019 - CLI tool"
                 new_lines.append(new_line)
                 modified = True
             else:
@@ -210,10 +214,10 @@ def fix_print_statements(
             print(f"  Added noqa: {file_path}")  # noqa: ADR-0019
             return True
     else:
-        # Non-CLI file in safe_mode=False: convert to structlog
-        # This is the dangerous path that caused issues - now disabled by default
-        # Only runs if explicitly requested AND not a CLI file
-        pass  # Disabled - too risky without more sophisticated AST parsing
+        # Non-CLI file: Do NOT add noqa.
+        # ADR-0093 prohibits hiding debt.
+        # User must manually convert to structlog.
+        pass
 
     return False
 
@@ -429,7 +433,12 @@ def fix_type_checking_imports(file_path: Path, dry_run: bool = False) -> bool:
             break
 
         # Insert the future import
-        new_lines = [*lines[:insert_pos], "from __future__ import annotations", "", *lines[insert_pos:]]
+        new_lines = [
+            *lines[:insert_pos],
+            "from __future__ import annotations",
+            "",
+            *lines[insert_pos:],
+        ]
         new_content = "\n".join(new_lines)
 
     if dry_run:
@@ -502,13 +511,13 @@ def fix_bare_except(
 
 
 # =============================================================================
-# FIX 6: datetime.utcnow() → datetime.now(UTC) (ADR-0083)
+# FIX 6: datetime.now(UTC) → datetime.now(UTC) (ADR-0083)
 # =============================================================================
 
 
 def fix_utcnow(file_path: Path, dry_run: bool = False) -> bool:
     """
-    Convert datetime.utcnow() to datetime.now(UTC).
+    Convert datetime.now(UTC) to datetime.now(UTC).
     Also ensures 'from datetime import UTC' is imported.
     """
     if is_protected(file_path):
@@ -530,7 +539,7 @@ def fix_utcnow(file_path: Path, dry_run: bool = False) -> bool:
     # Replace utcnow() with now(UTC)
     for line in lines:
         if "utcnow()" in line and "# noqa" not in line:
-            # Replace datetime.utcnow() or datetime.datetime.utcnow()
+            # Replace datetime.now(UTC) or datetime.datetime.now(UTC)
             new_line = re.sub(
                 r"datetime\.datetime\.utcnow\(\)", "datetime.datetime.now(UTC)", line
             )
@@ -588,7 +597,7 @@ def fix_httpx_async_client(
     file_path: Path, dry_run: bool = False, safe_mode: bool = True
 ) -> bool:
     """
-    Add noqa comment to httpx.AsyncClient() calls that may be valid.
+    Add noqa comment to httpx.AsyncClient() calls that may be valid.  # noqa: ADR-0084 - review for context manager usage
 
     In safe_mode (default): Only add noqa comments
     This is always safe mode because transforming to async with is complex.
@@ -602,7 +611,7 @@ def fix_httpx_async_client(
         return False
 
     # Check if httpx.AsyncClient is used
-    if "httpx.AsyncClient()" not in content:
+    if "httpx.AsyncClient()" not in content:  # noqa: ADR-0084 - review for context manager usage
         return False
 
     lines = content.split("\n")
@@ -759,10 +768,9 @@ def fix_must_stay_async(
     file_path: Path, dry_run: bool = False, safe_mode: bool = True
 ) -> bool:
     """
-    Add noqa comment to async functions without await that may be intentional.
+    Add @must_stay_async decorator to async functions without await.
 
-    In safe_mode (default): Only add noqa comments
-    Full fix would require adding decorator which needs import.
+    ADR-0093: Do NOT add noqa. Add the actual decorator.
     """
     if is_protected(file_path):
         return False
@@ -773,44 +781,86 @@ def fix_must_stay_async(
         return False
 
     # Simple heuristic: async def get_* or create_* without await
-    pattern = re.compile(r"^\s*async\s+def\s+(get_|create_|build_)\w+", re.MULTILINE)
-    if not pattern.search(content):
-        return False
+    # Expanded to catch more cases
+    pattern = re.compile(r"^(\s*)async\s+def\s+(\w+)", re.MULTILINE)
 
-    # Check if must_stay_async is already imported
-    if "must_stay_async" in content:
+    if not pattern.search(content):
         return False
 
     lines = content.split("\n")
     new_lines = []
     modified = False
+    needs_import = False
 
-    for i, line in enumerate(lines):
-        if pattern.match(line) and "# noqa" not in line:
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        match = pattern.match(line)
+
+        if match and "# noqa" not in line and "@must_stay_async" not in lines[i - 1]:
+            indent = match.group(1)
+            func_name = match.group(2)
+
             # Check if next few lines have await
             has_await = False
-            for j in range(i + 1, min(i + 10, len(lines))):
-                if lines[j].strip().startswith("async def "):
+            # Look ahead up to 20 lines or until next def
+            for j in range(i + 1, min(i + 20, len(lines))):
+                if lines[j].strip().startswith("def ") or lines[j].strip().startswith(
+                    "async def "
+                ):
                     break
                 if "await " in lines[j]:
                     has_await = True
                     break
 
             if not has_await:
-                new_line = f"{line}  # noqa: ADR-0010 - callers use await"
-                new_lines.append(new_line)
+                # Add decorator
+                new_lines.append(f'{indent}@must_stay_async("callers use await")')
+                new_lines.append(line)
                 modified = True
+                needs_import = True
+                i += 1
                 continue
 
         new_lines.append(line)
+        i += 1
 
     if modified:
+        # Add import if needed
+        if (
+            needs_import
+            and "from core.decorators import must_stay_async" not in content
+        ):
+            # Find insertion point for import
+            insert_idx = 0
+
+            # 1. Look for last 'from __future__' import (MUST be first)
+            last_future_idx = -1
+            for idx, line in enumerate(new_lines):
+                if line.strip().startswith("from __future__"):
+                    last_future_idx = idx
+
+            if last_future_idx != -1:
+                insert_idx = last_future_idx + 1
+            else:
+                # 2. If no future imports, look for first regular import
+                # We want to insert before other imports, but after module docstring
+                # Finding end of docstring is hard on modified lines, so we'll just
+                # find the first import and insert before it.
+                for idx, line in enumerate(new_lines):
+                    stripped = line.strip()
+                    if stripped.startswith("import ") or stripped.startswith("from "):
+                        insert_idx = idx
+                        break
+
+            new_lines.insert(insert_idx, "from core.decorators import must_stay_async")
+
         new_content = "\n".join(new_lines)
         if dry_run:
-            print(f"  Would add must_stay_async noqa: {file_path}")  # noqa: ADR-0019
+            print(f"  Would add @must_stay_async: {file_path}")  # noqa: ADR-0019
             return True
         file_path.write_text(new_content)
-        print(f"  Added must_stay_async noqa: {file_path}")  # noqa: ADR-0019
+        print(f"  Added @must_stay_async: {file_path}")  # noqa: ADR-0019
         return True
 
     return False
@@ -821,7 +871,7 @@ def fix_must_stay_async(
 # =============================================================================
 
 
-DORA_TEMPLATE = """__dora_meta__ = {
+DORA_TEMPLATE = """__dora_meta__ = {{
     "component_name": "{component_name}",
     "module_version": "1.0.0",
     "created_by": "Auto-fix ADR-0014",
@@ -832,13 +882,13 @@ DORA_TEMPLATE = """__dora_meta__ = {
     "module_name": "{module_name}",
     "type": "module",
     "status": "active",
-    "integrates_with": {
+    "integrates_with": {{
         "api_endpoints": [],
         "datasources": [],
         "memory_layers": [],
         "imported_by": [],
-    },
-}
+    }},
+}}
 """
 
 
@@ -1094,7 +1144,7 @@ def fix_lru_cache_maxsize(
     Fix @lru_cache without maxsize by adding maxsize=128.
 
     Transforms:
-        @lru_cache
+        @lru_cache(maxsize=128)
         def foo(): ...
     To:
         @lru_cache(maxsize=128)
@@ -1344,7 +1394,7 @@ def fix_registry_pattern(
     except (UnicodeDecodeError, OSError):
         return False
 
-    if "_registry = {}" not in content and "_registry: dict" not in content:
+    if "_registry = {}" not in content and "_registry: dict" not in content:  # noqa: ADR-0022 - simple module-level registry
         return False
 
     lines = content.split("\n")
@@ -1353,7 +1403,7 @@ def fix_registry_pattern(
 
     for line in lines:
         if (
-            "_registry = {}" in line or "_registry: dict" in line
+            "_registry = {}" in line or "_registry: dict" in line  # noqa: ADR-0022 - simple module-level registry
         ) and "# noqa" not in line:
             new_lines.append(f"{line}  # noqa: ADR-0022 - simple module-level registry")
             modified = True
@@ -1381,7 +1431,7 @@ def fix_resilience_mixin(
     file_path: Path, dry_run: bool = False, safe_mode: bool = True
 ) -> bool:
     """
-    Add noqa comment to @retry decorators that may be intentional.
+    Add noqa comment to @retry decorators that may be intentional.  # noqa: ADR-0024 - direct retry is intentional
     """
     if is_protected(file_path):
         return False
@@ -1391,7 +1441,7 @@ def fix_resilience_mixin(
     except (UnicodeDecodeError, OSError):
         return False
 
-    if "@retry" not in content:
+    if "@retry" not in content:  # noqa: ADR-0024 - direct retry is intentional
         return False
 
     lines = content.split("\n")
@@ -1799,13 +1849,13 @@ Supported ADRs (23 total):
     ADR-0016  TypedDict/Pydantic (add noqa for converters)
     ADR-0019  print() statements (add noqa for CLI tools)
     ADR-0022  Registry pattern (add noqa for simple registries)
-    ADR-0024  Resilience mixin (add noqa for direct @retry)
+    ADR-0024  Resilience mixin (add noqa for direct @retry)  # noqa: ADR-0024 - direct retry is intentional
     ADR-0025  FastAPI Depends (add noqa for simple routes)
     ADR-0027  LRU cache maxsize (add maxsize=128)
     ADR-0031  WebSocket pattern (add noqa for orchestrator handling)
     ADR-0032  Neo4j Cypher (add noqa for label interpolation)
     ADR-0055  Bare except (convert to Exception or add noqa)
-    ADR-0083  datetime.utcnow() (convert to now(UTC))
+    ADR-0083  datetime.now(UTC) (convert to now(UTC))
     ADR-0084  httpx.AsyncClient (add noqa for valid patterns)
     ADR-0085  Singleton pattern (add noqa for startup-only)
     ADR-0086  Type conversion (add noqa for validated input)
@@ -1833,7 +1883,7 @@ Supported ADRs (23 total):
     parser.add_argument(
         "--fix-utcnow",
         action="store_true",
-        help="Fix datetime.utcnow() → now(UTC) (ADR-0083)",
+        help="Fix datetime.now(UTC) → now(UTC) (ADR-0083)",
     )
     parser.add_argument(
         "--fix-sql", action="store_true", help="Fix f-string SQL (ADR-0087)"
@@ -2145,7 +2195,7 @@ Supported ADRs (23 total):
             print("   You can revert changes with: git checkout -- <file>")  # noqa: ADR-0019
             sys.exit(1)
         else:
-            print(
+            print(  # noqa: ADR-0019
                 "  ✅ All modified files pass validation (syntax OK, no noqa-in-string)"
             )  # noqa: ADR-0019
 

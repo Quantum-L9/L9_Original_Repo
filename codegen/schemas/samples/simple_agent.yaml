@@ -1,0 +1,123 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Simple Agent"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:22Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "simple_agent"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# Simple Agent Schema v6.0
+# ========================
+#
+# A minimal agent schema demonstrating the required structure.
+# Use this as a starting template for new agents.
+#
+# Version: 6.0.0
+
+---
+title: Simple Echo Agent
+purpose: Echo back user messages with optional transformation.
+summary: A minimal agent that demonstrates basic agent structure.
+
+system:
+  system: L9 Simple Echo Agent
+  module: echo
+  name: SimpleEchoAgent
+  role: >
+    Simple echo agent that receives messages and echoes them back.
+    Demonstrates the minimal required schema structure for the
+    Research Factory extraction pipeline.
+  rootpath: L9/agents/simple_echo
+
+integration:
+  connectto:
+    - L9/core
+    - L9/memory
+  shareddomains:
+    - Echo
+
+governance:
+  anchors:
+    - Igor
+  mode: autonomous
+  humanoverride: false
+  escalationpolicy: >
+    No escalation required - fully autonomous operation.
+  auditscope:
+    - message_processing
+
+memorytopology:
+  workingmemory:
+    storagetype: redis_cluster
+    purpose: Cache for active message state. TTL=60s
+    keyspace: echoagent:working:*
+
+communicationstack:
+  input:
+    - structuredapi
+  output:
+    - structuredapi
+  channels:
+    api: true
+
+reasoningengine:
+  framework: direct_response
+  model: gpt-3.5-turbo
+  strategymodes:
+    - echo
+
+collaborationnetwork:
+  collaborators: []
+  protocol: PacketEnvelope
+
+learningsystem:
+  architecture: none
+  modules: []
+  feedbackchannels: []
+
+worldmodelintegration:
+  enabled: false
+  sources: []
+
+cursorinstructions:
+  createifmissing:
+    - L9/agents/simple_echo
+  generatefiles:
+    - controller.py
+    - __init__.py
+  generatedocs:
+    - README.md
+
+deployment:
+  runtime: python_3.11_async
+  endpoints:
+    - /agent/echo/process
+    - /agent/echo/status
+  healthcheck: /agent/echo/health
+  replicas: 1
+
+metadata:
+  version: "6.0.0"
+  created: "2025-01-15"
+  updated: "2025-01-15"
+  status: production
+  owner: L9 System
+  tags:
+    - simple
+    - echo
+    - minimal
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "foundation", "model-config", "pipeline", "redis-config", "schema"]
+# keywords: ["agent", "collaborationnetwork", "communicationstack", "governance", "integration", "memorytopology"]
+# last_modified: "2026-01-06T16:58:22Z"
+# ============================================================================

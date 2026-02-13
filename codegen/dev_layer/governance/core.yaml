@@ -1,0 +1,244 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Core"
+# module_version: "1.0.0"
+# created_by: "L9_Codegen_Engine"
+# created_at: "2026-01-15T22:06:47Z"
+# updated_at: "2026-01-15T22:06:47Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "core"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# L9 CODE ENGINEERING GOVERNANCE CONSTITUTION
+# Immutable law that cannot be changed by agents
+# Authority: L (CTO)
+# Version: 1.0.0
+
+version: "1.0.0"
+authority:
+  final_decision_maker: "L"
+  approval_required_for:
+    - governance_changes
+    - architecture_changes
+    - dependency_adds
+  escalation_threshold: 0.85
+
+# ============================================================================
+# HARD CONSTRAINTS (Blocking Rules)
+# ============================================================================
+
+constraints:
+  
+  C-FILES-001:
+    id: "C-FILES-001"
+    rule: "Files must be edited, never recreated"
+    scope:
+      - "code_generation"
+      - "module_updates"
+    blocking: true
+    severity: "critical"
+    violation_signal: "full_file_write"
+    remediation: "use_unified_diff_format"
+  
+  C-TESTS-001:
+    id: "C-TESTS-001"
+    rule: "Tests are required for all public interfaces"
+    scope:
+      - "api_changes"
+      - "public_functions"
+    blocking: false
+    severity: "high"
+    violation_signal: "public_code_without_tests"
+    remediation: "generate_test_scaffold"
+  
+  C-AUDIT-001:
+    id: "C-AUDIT-001"
+    rule: "All changes must be auditable"
+    scope: ["*"]
+    blocking: true
+    severity: "critical"
+    violation_signal: "missing_audit_trail"
+    remediation: "ensure_audit_logging"
+  
+  C-IDEMPOTENT-001:
+    id: "C-IDEMPOTENT-001"
+    rule: "All compilation must be idempotent"
+    scope: ["artifact_compilation"]
+    blocking: true
+    severity: "critical"
+    violation_signal: "duplicate_outputs"
+    remediation: "use_hash_based_dedup"
+
+# ============================================================================
+# PROTOCOLS (Required Sequences)
+# ============================================================================
+
+protocols:
+  
+  P-CODE-001:
+    id: "P-CODE-001"
+    name: "Code Change Protocol"
+    description: "Required sequence for code generation and application"
+    steps:
+      - "load_governance_law"
+      - "plan_changes"
+      - "verify_constraints"
+      - "generate_diffs"
+      - "generate_report"
+      - "apply_diffs"
+      - "run_tests"
+      - "audit_log"
+    enforcement: "mandatory"
+
+# ============================================================================
+# GOVERNANCE RULES
+# ============================================================================
+
+governance:
+  
+  # Diff reporting
+  diff_requirements:
+    format: "unified_patch"
+    must_include:
+      - "file_paths"
+      - "line_numbers"
+      - "additions_and_deletions"
+    must_not_include:
+      - "full_files"
+      - "unrelated_changes"
+  
+  # Report requirements
+  report_requirements:
+    required_fields:
+      - "intent"
+      - "changes_made"
+      - "patterns_applied"
+      - "constraints_checked"
+      - "risks_identified"
+      - "test_results"
+      - "confidence_score"
+    confidence_threshold: 0.85
+  
+  # Escalation rules
+  escalation_triggers:
+    - "confidence < 0.85"
+    - "critical_risk_detected"
+    - "pattern_ambiguity"
+    - "constraint_violation"
+  
+  # Override policy
+  overrides:
+    allowed: false
+    explanation: "No agent may override governance law"
+
+# ============================================================================
+# PATTERNS (Approved Structures)
+# ============================================================================
+
+patterns:
+  
+  mvc:
+    name: "Model-View-Controller"
+    applicability:
+      - "user_facing_features"
+      - "clear_separation_needed"
+    constraints:
+      - "models_do_not_reference_views"
+      - "views_are_pure_presentation"
+      - "controllers_orchestrate_only"
+  
+  cqrs:
+    name: "Command Query Responsibility Segregation"
+    applicability:
+      - "complex_business_logic"
+      - "read_write_asymmetry"
+    constraints:
+      - "commands_modify_state"
+      - "queries_do_not_modify"
+      - "events_recorded"
+  
+  hexagonal:
+    name: "Hexagonal Architecture"
+    applicability:
+      - "multi_domain_systems"
+      - "high_testability_required"
+    constraints:
+      - "domain_is_pure"
+      - "ports_define_boundaries"
+      - "adapters_are_substitutable"
+
+# ============================================================================
+# HEURISTICS (Enforced Judgment)
+# ============================================================================
+
+heuristics:
+  
+  H-EXCEPT-001:
+    rule: "Never swallow exceptions"
+    severity: "critical"
+    violation_signals:
+      - "empty_except_block"
+      - "except_Exception_with_no_action"
+    auto_remediation: "add_structured_logging_and_rethrow"
+  
+  H-IDEMPOTENT-001:
+    rule: "Operations must be idempotent where possible"
+    severity: "high"
+    violation_signals:
+      - "state_mutation_without_checks"
+      - "duplicate_calls_fail"
+    auto_remediation: "add_exists_check_or_skip_logic"
+  
+  H-CONFIG-001:
+    rule: "Configuration must be external, not hardcoded"
+    severity: "high"
+    violation_signals:
+      - "hardcoded_values"
+      - "environment_specific_strings"
+    auto_remediation: "extract_to_config_file"
+
+# ============================================================================
+# CATEGORIES (Valid Artifact Types)
+# ============================================================================
+
+categories:
+  constraints:
+    description: "Hard rules that block operations"
+  protocols:
+    description: "Required execution sequences"
+  policies:
+    description: "Conditional decision rules"
+  patterns:
+    description: "Architectural patterns"
+  heuristics:
+    description: "Engineering judgment rules"
+  interfaces:
+    description: "API and contract specs"
+  world_model:
+    description: "System topology and entities"
+  reflection_rules:
+    description: "Learning and improvement rules"
+  codegen:
+    description: "Code generation rules"
+
+# ============================================================================
+# DEFAULTS
+# ============================================================================
+
+defaults:
+  min_confidence: 0.5
+  log_level: "INFO"
+  idempotent: true
+  audit_enabled: true
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "configuration", "foundation", "model-config", "utility"]
+# keywords: ["authority", "categories", "constraints", "core", "defaults", "governance"]
+# last_modified: "2026-01-15T22:06:47Z"
+# ============================================================================

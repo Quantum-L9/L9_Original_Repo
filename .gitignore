@@ -117,14 +117,14 @@ docs/12-19-25/generated/specs/config_loader.yaml
 .Trash/
 
 # CodeGen extractions (generated output)
-codegen/extractions/
+
 
 # Python packaging artifacts
 *.egg-info/
 
 # CodeGen folder (specs, schemas, templates - not production)
 # Use /codegen/ to match ONLY root-level, not nested dirs like core/codegen/
-/codegen/
+
 .tmp.driveupload/
 tests/agents/codegenagent/
 tests/codegen/email_agent/private_auth/

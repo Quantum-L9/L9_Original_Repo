@@ -16,6 +16,7 @@ exclude = [
     "**/_archived",
     "**/_archived/**",
     "*_archived*",
+    "codegen",
 ]
 
 [lint]

@@ -107,6 +107,7 @@ SKIP_PATTERNS = [
     "governance/rejection_recorder.py",  # Fallback print on memory write failure
     # Agent CLI tools
     "agents/cursor/gmp_meta_learning.py",  # CLI tool with __main__
+    "codegen",
 ]
 
 

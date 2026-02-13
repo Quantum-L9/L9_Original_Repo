@@ -1,0 +1,51 @@
+# ============================================================================
+# DORA META - AUTO-GENERATED
+# ============================================================================
+# component_name: "Agents Codegen Agent Readme"
+# module_version: "1.0.0"
+# created_by: "Igor Beylin"
+# created_at: "2026-01-02T15:15:57Z"
+# updated_at: "2026-01-06T16:58:23Z"
+# layer: "foundation"
+# domain: "code_generation"
+# file_name: "agents_codegen_agent_README"
+# type: "utility"
+# status: "active"
+# ============================================================================
+
+# ===============================
+# CodeGenAgent System Overview
+# ===============================
+
+filename: agents/codegen_agent/README.md
+type: documentation
+language: markdown
+
+description: |
+  Describes CodeGenAgent design, orchestration flow, module structure, API interface.
+
+wiring:
+  describes:
+    - meta expansion
+    - validation
+    - generation
+    - rollback
+    - telemetry
+
+code: |
+  ## CodeGenAgent (L9)
+
+  CodeGenAgent transforms meta.yaml contracts into fully functioning code modules.
+  It integrates pipeline validation, cursor-friendly expansion (CGMP), emission, rollback, and monitoring.
+
+  ### Modules:
+  - `meta_loader.py`: Reads meta.yaml
+  - `c_gmp_engine.py`: Extracts and expands
+
+# ============================================================================
+# DORA FOOTER - AUTO-GENERATED
+# ============================================================================
+# tags: ["agent-config", "api-config", "code-generation", "foundation", "pipeline", "utility"]
+# keywords: ["agent", "agents", "code", "codegen", "description", "filename"]
+# last_modified: "2026-01-06T16:58:23Z"
+# ============================================================================
