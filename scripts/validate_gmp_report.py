@@ -54,10 +54,14 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+import structlog
 
 # ============================================================================
 # Configuration
 # ============================================================================
+
+
+logger = structlog.get_logger(__name__)
 
 REPO_ROOT = Path(os.getenv("L9_REPO_ROOT", "/Users/ib-mac/Projects/L9"))
 REPORTS_DIR = REPO_ROOT / "reports"
@@ -722,12 +726,12 @@ class GMPReportValidator:
 def print_result(result: ValidationResult, verbose: bool = False):
     """Print validation result to console."""
     status_icon = "✅" if result.valid else "❌"
-    print(f"\n{status_icon} {result.filepath}")
+    logger.info("\nstatus icon {result.filepath}", status_icon=status_icon)
 
     if result.gmp_id:
         task_str = (result.task or "")[:50]
         task_ellipsis = "..." if len(result.task or "") > 50 else ""
-        print(f"   ID: {result.gmp_id} | Task: {task_str}{task_ellipsis}")
+        logger.info("   id: {result.gmp id} | task: task strtask ellipsis", task_str=task_str, task_ellipsis=task_ellipsis)
         time_str = f" | Time: {result.time}" if result.time else ""
         print(
             f"   Tier: {result.tier} | Date: {result.date}{time_str} | Status: {result.status}"
@@ -738,23 +742,23 @@ def print_result(result: ValidationResult, verbose: bool = False):
     )
 
     if result.errors:
-        print(f"\n   🔴 ERRORS ({len(result.errors)}):")
+        logger.error("\n   🔴 errors ({len(result.errors)}):")
         for e in result.errors:
             line_info = f" (L{e.line})" if e.line else ""
-            print(f"      [{e.section}]{line_info}: {e.message}")
+            logger.info("      [{e.section}]line info: {e.message}", line_info=line_info)
 
     if result.warnings:
-        print(f"\n   🟡 WARNINGS ({len(result.warnings)}):")
+        logger.warning("\n   🟡 warnings ({len(result.warnings)}):")
         for w in result.warnings:
             line_info = f" (L{w.line})" if w.line else ""
-            print(f"      [{w.section}]{line_info}: {w.message}")
+            logger.info("      [{w.section}]line info: {w.message}", line_info=line_info)
 
     if verbose and result.info:
-        print(f"\n   ℹ️ INFO ({len(result.info)}):")
+        logger.info("\n   ℹ️ info ({len(result.info)}):")
         for i in result.info:
-            print(f"      [{i.section}]: {i.message}")
+            logger.info("      [{i.section}]: {i.message}")
 
-    print()
+    logger.info("output", value=)
 
 
 def main():
@@ -792,7 +796,7 @@ def main():
         sys.exit(1)
 
     if not files:
-        print("No files to validate")
+        logger.info("no files to validate")
         sys.exit(1)
 
     # Validate
@@ -812,7 +816,7 @@ def main():
             "invalid_count": sum(1 for r in results if not r.valid),
             "results": [r.to_dict() for r in results],
         }
-        print(json.dumps(output, indent=2))
+        logger.info("output", value=json.dumps(output, indent=2))
     else:
         if not args.quiet:
             for result in results:
@@ -824,15 +828,15 @@ def main():
         total_errors = sum(len(r.errors) for r in results)
         total_warnings = sum(len(r.warnings) for r in results)
 
-        print("=" * 60)
-        print(f"SUMMARY: {valid_count}/{len(results)} valid")
-        print(f"         {total_errors} errors, {total_warnings} warnings")
+        logger.info("=" * 60")
+        logger.info("summary: valid count/{len(results)} valid", valid_count=valid_count)
+        logger.error("         total errors errors, total warnings warnings", total_errors=total_errors, total_warnings=total_warnings)
 
         if invalid_count > 0:
-            print("\n❌ INVALID REPORTS:")
+            logger.info("\n❌ invalid reports:")
             for r in results:
                 if not r.valid:
-                    print(f"   - {r.filepath}")
+                    logger.info("   - {r.filepath}")
 
     # Exit code
     sys.exit(0 if all(r.valid for r in results) else 1)

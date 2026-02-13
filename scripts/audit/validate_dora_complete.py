@@ -42,12 +42,16 @@ import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+import structlog
 
 # ============================================================================
 # CONTRACT DEFINITIONS
 # ============================================================================
 
 # 14 mandatory fields for Header Meta
+
+logger = structlog.get_logger(__name__)
+
 MANDATORY_FIELDS = [
     "component_id",
     "component_name",
@@ -390,7 +394,7 @@ class DoraCompleteValidator:
 
     def validate_all(self, files: list[str]) -> None:
         """Validate all files."""
-        print(f"🔍 Validating {len(files)} files...")
+        logger.info("🔍 validating {len(files)} files...")
 
         for file_path in files:
             self.validate_python_file(file_path)
@@ -444,7 +448,7 @@ class DoraCompleteValidator:
         if output_path:
             with open(output_path, "w") as f:
                 json.dump(report, f, indent=2)
-            print(f"\n📄 Report saved to: {output_path}")
+            logger.info("\n📄 report saved to: output path", output_path=output_path)
 
         return report
 
@@ -462,35 +466,35 @@ class DoraCompleteValidator:
             and not r.has_legacy
         ]
 
-        print("\n📊 VALIDATION SUMMARY")
-        print("=" * 80)
-        print(f"Total files: {len(self.results)}")
-        print(f"✅ Compliant: {len(compliant)}")
-        print(f"❌ Non-compliant: {len(non_compliant)}")
-        print(f"⚠️  Legacy blocks: {len(legacy)}")
-        print(f"📭 Missing all blocks: {len(missing_all)}")
+        logger.info("\n📊 validation summary")
+        logger.info("=" * 80")
+        logger.info("total files: {len(self.results)}")
+        logger.info("✅ compliant: {len(compliant)}")
+        logger.info("❌ non-compliant: {len(non_compliant)}")
+        logger.info("⚠️  legacy blocks: {len(legacy)}")
+        logger.info("📭 missing all blocks: {len(missing_all)}")
 
         if self.results:
             rate = len(compliant) / len(self.results) * 100
-            print(f"\n📈 Compliance rate: {rate:.1f}%")
+            logger.info("\n📈 compliance rate: {rate:.1f}%")
 
             if rate < 100:
-                print("\n🎯 Target: 100%")
-                print(f"📝 Files needing attention: {len(non_compliant)}")
+                logger.info("\n🎯 target: 100%")
+                logger.info("📝 files needing attention: {len(non_compliant)}")
 
         # Show block coverage
         has_header = len([r for r in self.results if r.has_header])
         has_footer = len([r for r in self.results if r.has_footer])
         has_trace = len([r for r in self.results if r.has_trace])
 
-        print("\n📦 BLOCK COVERAGE")
-        print(f"   Header Meta (__dora_meta__): {has_header}/{len(self.results)}")
-        print(f"   Footer Meta (__dora_footer__): {has_footer}/{len(self.results)}")
-        print(f"   Trace Block (__l9_trace__): {has_trace}/{len(self.results)}")
+        logger.info("\n📦 block coverage")
+        logger.info("   header meta (  dora meta  ): has header/{len(self.results)}", has_header=has_header)
+        logger.info("   footer meta (  dora footer  ): has footer/{len(self.results)}", has_footer=has_footer)
+        logger.info("   trace block (  l9 trace  ): has trace/{len(self.results)}", has_trace=has_trace)
 
         # Show sample non-compliant files
         if non_compliant and len(non_compliant) <= 10:
-            print("\n❌ NON-COMPLIANT FILES:")
+            logger.info("\n❌ non-compliant files:")
             for r in non_compliant[:10]:
                 issues = []
                 if not r.has_header:
@@ -505,8 +509,8 @@ class DoraCompleteValidator:
                     issues.append(f"missing fields: {r.missing_header_fields}")
                 if r.invalid_values:
                     issues.append("invalid values")
-                print(f"   • {r.file_path}")
-                print(f"     Issues: {', '.join(issues)}")
+                logger.info("   • {r.file_path}")
+                logger.info("     issues: {', '.join(issues)}")
 
 
 # ============================================================================
@@ -544,7 +548,7 @@ def main():
     files = validator.scan_repository(single_file=args.file)
 
     if not files:
-        print("❌ No files found to validate")
+        logger.info("❌ no files found to validate")
         sys.exit(1)
 
     validator.validate_all(files)
@@ -559,9 +563,9 @@ def main():
                 f"\n❌ CI FAILURE: {len(validator.results) - compliant} non-compliant files"
             )
             sys.exit(1)
-        print("\n✅ CI PASS: All files compliant")
+        logger.info("\n✅ ci pass: all files compliant")
 
-    print("\n✅ Validation complete!")
+    logger.info("\n✅ validation complete!")
 
 
 if __name__ == "__main__":

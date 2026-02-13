@@ -596,21 +596,21 @@ USAGE: At session start, this summary provides instant repo context.
 
     def print_summary(self):
         """Print loading summary."""
-        print("\n" + "=" * 60)
-        print("L9 REPO GRAPH - VPS NEO4J LOAD SUMMARY")
-        print("=" * 60)
-        print(f"  Files:           {self.stats['files']:,}")
-        print(f"  Classes:         {self.stats['classes']:,}")
-        print(f"  Functions:       {self.stats['functions']:,}")
-        print(f"  Methods:         {self.stats['methods']:,}")
-        print(f"  Routes:          {self.stats['routes']:,}")
-        print(f"  Pydantic Models: {self.stats['pydantic_models']:,}")
-        print("-" * 60)
-        print(f"  EXTENDS rels:    {self.stats['extends']:,}")
-        print(f"  HAS_METHOD rels: {self.stats['has_method']:,}")
-        print(f"  HANDLED_BY rels: {self.stats['handled_by']:,}")
-        print(f"  Queries:         {self.stats['queries_executed']:,}")
-        print("=" * 60)
+        logger.info("\n" + "=" * 60")
+        logger.info("l9 repo graph - vps neo4j load summary")
+        logger.info("=" * 60")
+        logger.info("  files:           {self.stats['files']:,}")
+        logger.info("  classes:         {self.stats['classes']:,}")
+        logger.info("  functions:       {self.stats['functions']:,}")
+        logger.info("  methods:         {self.stats['methods']:,}")
+        logger.info("  routes:          {self.stats['routes']:,}")
+        logger.info("  pydantic models: {self.stats['pydantic_models']:,}")
+        logger.info("-" * 60")
+        logger.info("  extends rels:    {self.stats['extends']:,}")
+        logger.info("  has_method rels: {self.stats['has_method']:,}")
+        logger.info("  handled_by rels: {self.stats['handled_by']:,}")
+        logger.info("  queries:         {self.stats['queries_executed']:,}")
+        logger.info("=" * 60")
 
 
 async def main():

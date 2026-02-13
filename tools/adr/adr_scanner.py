@@ -4,7 +4,12 @@ Thin wrapper around ADREnforcementValidator for CI and CLI use.
 
 from __future__ import annotations
 
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Adr Scanner",
     "module_version": "1.0.0",
@@ -62,7 +67,7 @@ def main() -> int:
     validator = ADREnforcementValidator(repo_root=Path.cwd())
     report = validator.scan_repo()
     data = report.to_dict()
-    print(json.dumps(data, indent=2))
+    logger.info("output", value=json.dumps(data, indent=2))
 
     if args.output:
         out = Path(args.output)

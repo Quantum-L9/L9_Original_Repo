@@ -577,8 +577,8 @@ def main():
     markdown_file = REPO_ROOT / args.markdown
 
     if not input_file.exists():
-        print(f"Error: Input file not found: {input_file}")
-        print("Run Phase 2 first: python scripts/audit/resolve_dead_code_refs.py")
+        logger.error("error: input file not found: input file", input_file=input_file)
+        logger.info("run phase 2 first: python scripts/audit/resolve_dead_code_refs.py")
         return 1
 
     result = categorize_dead_code(
@@ -591,19 +591,19 @@ def main():
     generate_markdown_report(result, markdown_file)
 
     # Print summary
-    print("\n" + "=" * 60)
-    print("DEAD CODE AUDIT - PHASE 3 CATEGORIZATION")
-    print("=" * 60)
-    print(f"Total findings: {result.total_findings}")
-    print(f"\n🔴 HIGH risk: {len(result.high_risk)}")
-    print(f"🟡 MEDIUM risk: {len(result.medium_risk)}")
-    print(f"🟢 LOW risk: {len(result.low_risk)}")
-    print(f"\n✅ Auto-fixable: {result.auto_fixable_count}")
-    print(f"👀 Manual review: {result.manual_review_count}")
+    logger.info("\n" + "=" * 60")
+    logger.info("dead code audit - phase 3 categorization")
+    logger.info("=" * 60")
+    logger.info("total findings: {result.total_findings}")
+    logger.info("\n🔴 high risk: {len(result.high_risk)}")
+    logger.info("🟡 medium risk: {len(result.medium_risk)}")
+    logger.info("🟢 low risk: {len(result.low_risk)}")
+    logger.info("\n✅ auto-fixable: {result.auto_fixable_count}")
+    logger.info("👀 manual review: {result.manual_review_count}")
 
-    print(f"\nJSON output: {output_file}")
-    print(f"Markdown report: {markdown_file}")
-    print("=" * 60)
+    logger.info("\njson output: output file", output_file=output_file)
+    logger.info("markdown report: markdown file", markdown_file=markdown_file)
+    logger.info("=" * 60")
 
     return 0
 

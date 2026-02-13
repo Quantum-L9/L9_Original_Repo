@@ -37,10 +37,14 @@ import re
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+import structlog
 
 # ============================================================================
 # MIGRATION ENGINE
 
+
+
+logger = structlog.get_logger(__name__)
 
 class DoraLegacyMigrator:
     """Migrates legacy __dora_block__ to three-block format."""
@@ -61,7 +65,7 @@ class DoraLegacyMigrator:
 
     def scan_for_legacy(self) -> None:
         """Find all files with legacy __dora_block__."""
-        print(f"🔍 Scanning for legacy DORA blocks in: {self.repo_path}")
+        logger.info("🔍 scanning for legacy dora blocks in: {self.repo_path}")
 
         for py_file in self.repo_path.rglob("*.py"):
             skip_dirs = [
@@ -84,7 +88,7 @@ class DoraLegacyMigrator:
             except Exception:
                 continue
 
-        print(f"✅ Found {len(self.legacy_files)} files with legacy __dora_block__")
+        logger.info("✅ found {len(self.legacy_files)} files with legacy __dora_block__")
 
     def _extract_legacy_block(self, content: str) -> dict | None:
         """Extract legacy __dora_block__ data from file content."""
@@ -107,7 +111,7 @@ class DoraLegacyMigrator:
 
             return ast.literal_eval(dict_str)
         except Exception as e:
-            print(f"⚠️  Could not parse legacy block: {e}")
+            logger.info("⚠️  could not parse legacy block: e", e=e)
             return None
 
     def _remove_legacy_block(self, content: str) -> str:
@@ -196,7 +200,7 @@ class DoraLegacyMigrator:
             # Extract legacy data
             legacy_data = self._extract_legacy_block(content)
             if not legacy_data:
-                print(f"⚠️  Could not extract legacy data from {file_path}")
+                logger.info("⚠️  could not extract legacy data from file path", file_path=file_path)
                 return False
 
             # Remove legacy block
@@ -217,20 +221,20 @@ class DoraLegacyMigrator:
             if not dry_run:
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
-                print(f"✅ Migrated {file_path}")
+                logger.info("✅ migrated file path", file_path=file_path)
             else:
-                print(f"🔍 [DRY RUN] Would migrate {file_path}")
+                logger.info("🔍 [dry run] would migrate file path", file_path=file_path)
 
             return True
 
         except Exception as e:
-            print(f"❌ Error migrating {file_path}: {e}")
+            logger.error("❌ error migrating file path: e", file_path=file_path, e=e)
             return False
 
     def migrate_all(self, dry_run: bool = True) -> dict:
         """Migrate all legacy files."""
-        print(f"\n{'🔍 DRY RUN MODE' if dry_run else '🚀 EXECUTION MODE'}")
-        print("=" * 80)
+        logger.info("\n{'🔍 dry run mode' if dry_run else '🚀 execution mode'}")
+        logger.info("=" * 80")
 
         results = {
             "total_legacy": len(self.legacy_files),
@@ -255,12 +259,12 @@ class DoraLegacyMigrator:
         with open(output_path, "w") as f:
             json.dump(results, f, indent=2)
 
-        print("\n📊 MIGRATION REPORT")
-        print("=" * 80)
-        print(f"Total legacy files: {results['total_legacy']}")
-        print(f"✅ Successfully migrated: {results['migrated']}")
-        print(f"❌ Failed: {results['failed']}")
-        print(f"\n📄 Full report saved to: {output_path}")
+        logger.info("\n📊 migration report")
+        logger.info("=" * 80")
+        logger.info("total legacy files: {results['total_legacy']}")
+        logger.info("✅ successfully migrated: {results['migrated']}")
+        logger.error("❌ failed: {results['failed']}")
+        logger.info("\n📄 full report saved to: output path", output_path=output_path)
 
 
 # ============================================================================
@@ -282,7 +286,7 @@ class DoraMultiFormatMigrator:
 
     def scan_for_legacy(self) -> None:
         """Find files with legacy DORA format."""
-        print("🔍 Scanning for legacy multi-format DORA blocks...")
+        logger.info("🔍 scanning for legacy multi-format dora blocks...")
 
         # Check YAML files
         for yaml_file in self.repo_path.rglob("*.yaml"):
@@ -399,14 +403,14 @@ l9_trace:
             if not dry_run:
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
-                print(f"✅ Migrated {file_path}")
+                logger.info("✅ migrated file path", file_path=file_path)
             else:
-                print(f"🔍 [DRY RUN] Would migrate {file_path}")
+                logger.info("🔍 [dry run] would migrate file path", file_path=file_path)
 
             return True
 
         except Exception as e:
-            print(f"❌ Error migrating {file_path}: {e}")
+            logger.error("❌ error migrating file path: e", file_path=file_path, e=e)
             return False
 
     def migrate_all(self, dry_run: bool = True) -> dict:
@@ -457,12 +461,12 @@ def main():
     args = parser.parse_args()
 
     if not args.dry_run and not args.execute:
-        print("❌ Error: Must specify either --dry-run or --execute")
+        logger.error("❌ error: must specify either --dry-run or --execute")
         sys.exit(1)
 
     # Migrate Python files
-    print("\n📦 PYTHON FILE MIGRATION")
-    print("=" * 80)
+    logger.info("\n📦 python file migration")
+    logger.info("=" * 80")
     py_migrator = DoraLegacyMigrator(args.repo)
     py_migrator.scan_for_legacy()
 
@@ -470,12 +474,12 @@ def main():
         py_results = py_migrator.migrate_all(dry_run=args.dry_run)
         py_migrator.generate_report(py_results, f"python_{args.report}")
     else:
-        print("✅ No legacy Python files found")
+        logger.info("✅ no legacy python files found")
 
     # Migrate multi-format files
     if not args.python_only:
-        print("\n📦 MULTI-FORMAT FILE MIGRATION")
-        print("=" * 80)
+        logger.info("\n📦 multi-format file migration")
+        logger.info("=" * 80")
         mf_migrator = DoraMultiFormatMigrator(args.repo)
         mf_migrator.scan_for_legacy()
 
@@ -485,7 +489,7 @@ def main():
                 f"\n📊 Multi-format: {mf_results['migrated']} migrated, {mf_results['failed']} failed"
             )
 
-    print("\n✅ DORA legacy migration complete!")
+    logger.info("\n✅ dora legacy migration complete!")
 
 
 if __name__ == "__main__":

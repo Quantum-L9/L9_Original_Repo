@@ -58,6 +58,10 @@ import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+import structlog
+
+
+logger = structlog.get_logger(__name__)
 
 REPO_ROOT = Path(__file__).parent.parent.parent
 REPORTS_DIR = REPO_ROOT / "reports"
@@ -161,26 +165,26 @@ def format_file_info(filepath: Path) -> str:
 def list_files(files: list[Path]) -> None:
     """Display files that would be affected."""
     if not files:
-        print("No audit report files found to clean up.")
+        logger.info("no audit report files found to clean up.")
         return
 
-    print(f"\n📋 Found {len(files)} audit report files:\n")
-    print(f"{'Filename':50} {'Size':>10}  {'Modified':16}  {'Age'}")
-    print("-" * 90)
+    logger.info("\n📋 found {len(files)} audit report files:\n")
+    logger.info("{'filename':50} {'size':>10}  {'modified':16}  {'age'}")
+    logger.info("-" * 90")
 
     total_size = 0
     for f in files:
-        print(format_file_info(f))
+        logger.info("output", value=format_file_info(f))
         total_size += f.stat().st_size
 
-    print("-" * 90)
-    print(f"Total: {len(files)} files, {total_size / 1024:.1f} KB")
+    logger.info("-" * 90")
+    logger.info("total: {len(files)} files, {total_size / 1024:.1f} kb")
 
 
 def archive_files(files: list[Path], dry_run: bool = False) -> int:
     """Move files to _archived/ directory."""
     if not files:
-        print("No files to archive.")
+        logger.info("no files to archive.")
         return 0
 
     if not dry_run:
@@ -190,7 +194,7 @@ def archive_files(files: list[Path], dry_run: bool = False) -> int:
     for f in files:
         dest = ARCHIVE_DIR / f.name
         if dry_run:
-            print(f"  Would archive: {f.name}")
+            logger.info("  would archive: {f.name}")
         else:
             # Handle name collision
             if dest.exists():
@@ -202,7 +206,7 @@ def archive_files(files: list[Path], dry_run: bool = False) -> int:
                     counter += 1
 
             shutil.move(str(f), str(dest))
-            print(f"  ✅ Archived: {f.name} → _archived/")
+            logger.info("  ✅ archived: {f.name} → _archived/")
             archived += 1
 
     return archived
@@ -211,16 +215,16 @@ def archive_files(files: list[Path], dry_run: bool = False) -> int:
 def delete_files(files: list[Path], dry_run: bool = False) -> int:
     """Permanently delete files."""
     if not files:
-        print("No files to delete.")
+        logger.info("no files to delete.")
         return 0
 
     deleted = 0
     for f in files:
         if dry_run:
-            print(f"  Would delete: {f.name}")
+            logger.info("  would delete: {f.name}")
         else:
             f.unlink()
-            print(f"  🗑️  Deleted: {f.name}")
+            logger.info("  🗑️  deleted: {f.name}")
             deleted += 1
 
     return deleted
@@ -287,7 +291,7 @@ Examples:
 
     if args.action == "list":
         list_files(all_files)
-        print(f"\nProtected files (never deleted): {KEEP_FILES}")
+        logger.info("\nprotected files (never deleted): keep files", KEEP_FILES=KEEP_FILES)
         return 0
 
     # Filter by age if specified
@@ -298,17 +302,17 @@ Examples:
     files_to_process = all_files[args.keep :] if args.keep > 0 else all_files
 
     if not files_to_process:
-        print(f"No files to {args.action}. Keeping {args.keep} most recent.")
+        logger.info("no files to {args.action}. keeping {args.keep} most recent.")
         return 0
 
     # Show what will be affected
-    print(f"\n{'DRY RUN - ' if args.dry_run else ''}Files to {args.action}:")
-    print("-" * 50)
+    logger.info("\n{'dry run - ' if args.dry_run else ''}files to {args.action}:")
+    logger.info("-" * 50")
     for f in files_to_process:
-        print(f"  {f.name}")
-    print("-" * 50)
-    print(f"Total: {len(files_to_process)} files")
-    print(f"Keeping: {min(args.keep, len(all_files))} most recent files")
+        logger.info("  {f.name}")
+    logger.info("-" * 50")
+    logger.info("total: {len(files_to_process)} files")
+    logger.info("keeping: {min(args.keep, len(all_files))} most recent files")
 
     # Confirm unless --force or --dry-run
     if not args.force and not args.dry_run:
@@ -316,18 +320,18 @@ Examples:
             f"\n⚠️  {args.action.upper()} these {len(files_to_process)} files? [y/N]: "
         )
         if confirm.lower() != "y":
-            print("Cancelled.")
+            logger.info("cancelled.")
             return 1
 
     # Execute action
     if args.action == "archive":
         count = archive_files(files_to_process, args.dry_run)
         if not args.dry_run:
-            print(f"\n✅ Archived {count} files to reports/_archived/")
+            logger.info("\n✅ archived count files to reports/ archived/", count=count)
     elif args.action == "delete":
         count = delete_files(files_to_process, args.dry_run)
         if not args.dry_run:
-            print(f"\n✅ Deleted {count} files")
+            logger.info("\n✅ deleted count files", count=count)
 
     return 0
 

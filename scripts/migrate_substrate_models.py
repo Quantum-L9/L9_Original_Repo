@@ -31,8 +31,12 @@ __dora_meta__ = {
 import re
 import sys
 from pathlib import Path
+import structlog
 
 # Symbols that moved from memory.substrate_models to core.schemas.packet_envelope_v2
+
+logger = structlog.get_logger(__name__)
+
 V2_SYMBOLS = {
     "PacketEnvelope",
     "PacketEnvelopeIn",
@@ -153,7 +157,7 @@ def generate_new_imports(symbols: list[str]) -> str:
             legacy_imports.append(sym)
         else:
             # Unknown symbol - keep in legacy for safety
-            print(f"  ⚠ Unknown symbol '{sym}' - keeping in substrate_models")
+            logger.info("  ⚠ unknown symbol 'sym' - keeping in substrate models", sym=sym)
             legacy_imports.append(sym)
 
     lines = []
@@ -232,11 +236,11 @@ def main():
     print(
         f"{'DRY RUN - ' if dry_run else ''}Migrating from memory.substrate_models to core.schemas.packet_envelope_v2"
     )
-    print(f"Project root: {root}")
-    print("=" * 80)
+    logger.info("project root: root", root=root)
+    logger.info("=" * 80")
 
     files = find_files_to_migrate(root)
-    print(f"Found {len(files)} files to migrate\n")
+    logger.info("found {len(files)} files to migrate\n")
 
     changed = 0
     skipped = 0
@@ -247,27 +251,27 @@ def main():
             was_changed, msg = migrate_file(path, dry_run)
             if was_changed:
                 changed += 1
-                print(f"✓ {msg}")
+                logger.info("✓ msg", msg=msg)
             else:
                 skipped += 1
-                print(f"- {msg}")
+                logger.info("- msg", msg=msg)
         except Exception as e:
             errors.append((path, str(e)))
-            print(f"✗ Error processing {path}: {e}")
+            logger.error("✗ error processing path: e", path=path, e=e)
 
-    print("\n" + "=" * 80)
-    print("Summary:")
-    print(f"  Files {'would be ' if dry_run else ''}changed: {changed}")
-    print(f"  Files skipped (no v2 symbols): {skipped}")
+    logger.info("\n" + "=" * 80")
+    logger.info("summary:")
+    logger.info("  files {'would be ' if dry run else ''}changed: changed", changed=changed)
+    logger.info("  files skipped (no v2 symbols): skipped", skipped=skipped)
     if errors:
-        print(f"  Errors: {len(errors)}")
+        logger.error("  errors: {len(errors)}")
         for path, err in errors:
-            print(f"    - {path}: {err}")
+            logger.info("    - path: err", path=path, err=err)
 
     if dry_run and changed > 0:
-        print("\n🔸 Run without --dry-run to apply changes")
+        logger.info("\n🔸 run without --dry-run to apply changes")
     elif not dry_run and changed > 0:
-        print("\n✅ Migration complete! Run py_compile and tests to verify.")
+        logger.info("\n✅ migration complete! run py_compile and tests to verify.")
 
 
 if __name__ == "__main__":

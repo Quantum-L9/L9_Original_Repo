@@ -36,7 +36,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import logging
 import sys
 from pathlib import Path
 
@@ -346,13 +345,13 @@ def main():
     success = results.summary()
 
     if success:
-        print("\n" + "=" * 60)
-        print("ALL SMOKE TESTS PASSED")
-        print("=" * 60)
+        print("\n" + "=" * 60)  # noqa: ADR-0019
+        print("ALL SMOKE TESTS PASSED")  # noqa: ADR-0019
+        print("=" * 60)  # noqa: ADR-0019
         return 0
-    print("\n" + "=" * 60)
-    print("SMOKE TESTS FAILED - SEE ERRORS ABOVE")
-    print("=" * 60)
+    print("\n" + "=" * 60)  # noqa: ADR-0019
+    print("SMOKE TESTS FAILED - SEE ERRORS ABOVE")  # noqa: ADR-0019
+    print("=" * 60)  # noqa: ADR-0019
     return 1
 
 

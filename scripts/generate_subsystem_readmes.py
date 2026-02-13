@@ -55,6 +55,10 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+import structlog
+
+
+logger = structlog.get_logger(__name__)
 
 try:
     import yaml
@@ -62,7 +66,7 @@ try:
     YAML_AVAILABLE = True
 except ImportError:
     YAML_AVAILABLE = False
-    print("WARNING: PyYAML not installed. Install with: pip install pyyaml")
+    logger.warning("warning: pyyaml not installed. install with: pip install pyyaml")
 
 # ============================================================================
 # Configuration
@@ -130,12 +134,12 @@ def load_config(repo_root: Path) -> dict[str, Any]:
     """Load subsystem configuration from YAML."""
     config_file = repo_root / CONFIG_PATH
     if not config_file.exists():
-        print(f"ERROR: Config file not found: {config_file}")
-        print("Create it or use --path for ad-hoc generation.")
+        logger.error("error: config file not found: config file", config_file=config_file)
+        logger.info("create it or use --path for ad-hoc generation.")
         sys.exit(1)
 
     if not YAML_AVAILABLE:
-        print("ERROR: PyYAML required to load config. Install with: pip install pyyaml")
+        logger.error("error: pyyaml required to load config. install with: pip install pyyaml")
         sys.exit(1)
 
     with open(config_file) as f:
@@ -184,7 +188,7 @@ try:
     AST_SCANNER_AVAILABLE = True
 except ImportError as e:
     AST_SCANNER_AVAILABLE = False
-    print(f"WARNING: ast_scanner module not available ({e}), using fallback extraction")
+    logger.warning("warning: ast scanner module not available (e), using fallback extraction", e=e)
 
 
 @dataclass
@@ -386,7 +390,7 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
                         all_imports.append(node.module)
 
             except Exception as e:
-                print(f"WARNING: Could not parse {py_file}: {e}")
+                logger.warning("warning: could not parse py file: e", py_file=py_file, e=e)
 
     facts.imports = sorted(set(all_imports))
     facts.exports = sorted(set(all_exports))
@@ -1179,9 +1183,9 @@ def list_subsystems(config: dict[str, Any]) -> None:
             by_tier[tier] = []
         by_tier[tier].append((key, sub_config))
 
-    print("\n📋 Configured Subsystems\n")
-    print(f"{'Key':<25} {'Path':<35} {'Title'}")
-    print("-" * 90)
+    logger.info("\n📋 configured subsystems\n")
+    logger.info("{'key':<25} {'path':<35} {'title'}")
+    logger.info("-" * 90")
 
     for tier in [
         "core",
@@ -1193,15 +1197,15 @@ def list_subsystems(config: dict[str, Any]) -> None:
     ]:
         if tier not in by_tier:
             continue
-        print(f"\n[{tier.upper()}]")
+        logger.info("\n[{tier.upper()}]")
         for key, sub_config in sorted(by_tier[tier]):
             last_updated = sub_config.get("last_updated", "never")
             if last_updated is None:
                 last_updated = "never"
-            print(f"  {key:<23} {sub_config['path']:<35} {sub_config['title']}")
+            logger.info("  {key:<23} {sub_config['path']:<35} {sub_config['title']}")
 
     total = sum(len(v) for v in by_tier.values())
-    print(f"\n✅ Total: {total} subsystems configured")
+    logger.info("\n✅ total: total subsystems configured", total=total)
 
 
 def main():
@@ -1272,7 +1276,7 @@ def main():
             f"⏰ Time: {verified_time.strftime('%Y-%m-%d %H:%M:%S UTC')} (verification skipped)"
         )
     else:
-        print("⏰ Verifying system time...")
+        logger.info("⏰ verifying system time...")
         verified_time, time_verified, time_source = verify_system_time()
         if time_verified:
             print(
@@ -1283,15 +1287,15 @@ def main():
                 f"   ⚠️  Time NOT verified: {verified_time.strftime('%Y-%m-%d %H:%M:%S UTC')} ({time_source})"
             )
             if not args.dry_run:
-                print("   Use --skip-time-verify to proceed with unverified time")
+                logger.info("   use --skip-time-verify to proceed with unverified time")
                 try:
                     response = input("   Continue anyway? [y/N]: ").strip().lower()
                     if response != "y":
-                        print("   Aborted.")
+                        logger.info("   aborted.")
                         return 1
                 except EOFError:
                     # Non-interactive mode, proceed anyway
-                    print("   (Non-interactive mode, proceeding with unverified time)")
+                    logger.info("   (non-interactive mode, proceeding with unverified time)")
                     pass
 
     # =========================================================================
@@ -1307,22 +1311,22 @@ def main():
 
     # Validate mode
     if args.validate:
-        print("🔍 Validating config...")
+        logger.info("🔍 validating config...")
         all_errors = []
         for key, sub_config in config.get("subsystems", {}).items():
             errors = validate_subsystem_config(key, sub_config)
             all_errors.extend(errors)
         if all_errors:
-            print("❌ Validation errors:")
+            logger.error("❌ validation errors:")
             for err in all_errors:
-                print(err)
+                logger.info("output", value=err)
             return 1
         print(
             f"✅ Config valid! {len(config.get('subsystems', {}))} subsystems defined."
         )
         return 0
 
-    print("🔍 Generating subsystem READMEs from code facts...")
+    logger.info("🔍 generating subsystem readmes from code facts...")
 
     # Build list of (name, config) tuples to process
     to_process = []
@@ -1339,9 +1343,9 @@ def main():
     elif args.subsystem:
         # Specific subsystem from config
         if args.subsystem not in subsystems:
-            print(f"ERROR: Unknown subsystem '{args.subsystem}'")
-            print(f"Available: {', '.join(sorted(subsystems.keys()))}")
-            print("Or use --path for arbitrary directories")
+            logger.error("error: unknown subsystem '{args.subsystem}'")
+            logger.info("available: {', '.join(sorted(subsystems.keys()))}")
+            logger.info("or use --path for arbitrary directories")
             return 1
         to_process.append((args.subsystem, subsystems[args.subsystem]))
     elif args.tier:
@@ -1352,16 +1356,16 @@ def main():
             if sub_config.get("tier") == args.tier:
                 to_process.append((key, sub_config))
         if not to_process:
-            print(f"No subsystems found in tier '{args.tier}'")
+            logger.info("no subsystems found in tier '{args.tier}'")
             return 1
-        print(f"📂 Processing {len(to_process)} subsystems in tier '{args.tier}'")
+        logger.info("📂 processing {len(to_process)} subsystems in tier '{args.tier}'")
     else:
         # All subsystems
         for key, sub_config in subsystems.items():
             if sub_config.get("skip", False):
                 continue
             to_process.append((key, sub_config))
-        print(f"📂 Processing all {len(to_process)} subsystems")
+        logger.info("📂 processing all {len(to_process)} subsystems")
 
     generated_count = 0
     skipped_count = 0
@@ -1373,11 +1377,11 @@ def main():
         # Verify path exists
         full_path = repo_root / subsystem_path
         if not full_path.exists():
-            print(f"⚠️  Path not found: {full_path}")
+            logger.info("⚠️  path not found: full path", full_path=full_path)
             skipped_count += 1
             continue
 
-        print(f"\n📝 Processing {subsystem_name} ({subsystem_path})...")
+        logger.info("\n📝 processing subsystem name (subsystem path)...", subsystem_name=subsystem_name, subsystem_path=subsystem_path)
 
         # Extract facts
         facts = extract_subsystem_facts(repo_root, subsystem_path)
@@ -1396,18 +1400,18 @@ def main():
         readme_path = repo_root / subsystem_path / "README.md"
 
         if args.dry_run:
-            print(f"\n--- {readme_path} ---")
-            print(readme_content[:1000] + "\n...\n")
+            logger.info("\n--- readme path ---", readme_path=readme_path)
+            logger.info("output", value=readme_content[:1000] + "\n...\n")
         else:
             # Backup existing
             if args.backup:
                 backup = backup_existing_readme(readme_path)
                 if backup:
-                    print(f"   📦 Backed up to {backup.name}")
+                    logger.info("   📦 backed up to {backup.name}")
 
             readme_path.parent.mkdir(parents=True, exist_ok=True)
             readme_path.write_text(readme_content)
-            print(f"   ✅ Generated {readme_path}")
+            logger.info("   ✅ generated readme path", readme_path=readme_path)
             generated_count += 1
 
             # Update last_updated in config
@@ -1421,12 +1425,12 @@ def main():
     if config_updated and not args.dry_run:
         config["config_updated"] = verified_time.strftime("%Y-%m-%dT%H:%M:%SZ")
         save_config(repo_root, config)
-        print("\n📝 Updated config with last_updated timestamps")
+        logger.info("\n📝 updated config with last_updated timestamps")
 
-    print("\n✨ README generation complete!")
+    logger.info("\n✨ readme generation complete!")
     if not args.dry_run:
-        print(f"   Generated: {generated_count}")
-        print(f"   Skipped:   {skipped_count}")
+        logger.info("   generated: generated count", generated_count=generated_count)
+        logger.info("   skipped:   skipped count", skipped_count=skipped_count)
     return 0
 
 

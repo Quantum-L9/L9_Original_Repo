@@ -34,8 +34,12 @@ import json
 import os
 import ssl
 import urllib.request
+import structlog
 
 # SSL context for self-signed cert
+
+logger = structlog.get_logger(__name__)
+
 ssl_context = ssl.create_default_context()
 ssl_context.check_hostname = False
 ssl_context.verify_mode = ssl.CERT_NONE
@@ -74,18 +78,18 @@ def main():
     Raises:
         Exception: If any errors occur during diagnostic steps.
     """
-    print("=" * 60)
-    print("MEMORY SEARCH DIAGNOSTIC")
-    print("=" * 60)
+    logger.info("=" * 60")
+    logger.info("memory search diagnostic")
+    logger.info("=" * 60")
 
     # Step 1: Check stats
-    print("\n1. MEMORY STATS:")
+    logger.info("\n1. memory stats:")
     stats = mcp_call("get_memory_stats", {})
-    print(json.dumps(stats, indent=2))
+    logger.info("output", value=json.dumps(stats, indent=2))
 
     # Step 2: Write a unique test memory
     test_content = "DIAG_TEST_12345_UNIQUE_MARKER"
-    print(f"\n2. WRITING TEST MEMORY: {test_content}")
+    logger.info("\n2. writing test memory: test content", test_content=test_content)
     write_result = mcp_call(
         "save_memory",
         {
@@ -97,24 +101,24 @@ def main():
             "importance": 1.0,
         },
     )
-    print("Write result:")
-    print(json.dumps(write_result, indent=2))
+    logger.info("write result:")
+    logger.info("output", value=json.dumps(write_result, indent=2))
 
     if "error" in write_result:
-        print("\n❌ Write failed - cannot continue diagnostic")
+        logger.error("\n❌ write failed - cannot continue diagnostic")
         return
 
     packet_id = write_result.get("packet_id")
     written_tables = write_result.get("written_tables", [])
-    print(f"\n   packet_id: {packet_id}")
-    print(f"   written_tables: {written_tables}")
-    print(f"   semantic_memory written: {'semantic_memory' in written_tables}")
+    logger.info("\n   packet id: packet id", packet_id=packet_id)
+    logger.info("   written tables: written tables", written_tables=written_tables)
+    logger.info("   semantic_memory written: {'semantic_memory' in written_tables}")
 
     # Step 3: Search for it with various thresholds
-    print("\n3. SEARCHING FOR TEST MEMORY:")
+    logger.info("\n3. searching for test memory:")
 
     for threshold in [0.0, 0.3, 0.5, 0.7]:
-        print(f"\n   Threshold: {threshold}")
+        logger.info("\n   threshold: threshold", threshold=threshold)
         search_result = mcp_call(
             "search_memory",
             {
@@ -126,51 +130,51 @@ def main():
             },
         )
         results = search_result.get("results", [])
-        print(f"   Results count: {len(results)}")
+        logger.info("   results count: {len(results)}")
         if results:
             for r in results[:3]:
                 print(
                     f"   - {r.get('content', '')[:50]}... (similarity: {r.get('similarity', 'N/A')})"
                 )
         else:
-            print("   (no results)")
+            logger.info("   (no results)")
 
     # Step 4: Check stats after write
-    print("\n4. STATS AFTER WRITE:")
+    logger.info("\n4. stats after write:")
     stats_after = mcp_call("get_memory_stats", {})
-    print(json.dumps(stats_after, indent=2))
+    logger.info("output", value=json.dumps(stats_after, indent=2))
 
     # Step 5: Summary
-    print("\n" + "=" * 60)
-    print("DIAGNOSIS SUMMARY")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60")
+    logger.info("diagnosis summary")
+    logger.info("=" * 60")
 
     stats_total_before = stats.get("total_count", 0) if isinstance(stats, dict) else 0
     stats_total_after = (
         stats_after.get("total_count", 0) if isinstance(stats_after, dict) else 0
     )
 
-    print(f"Stats total before write: {stats_total_before}")
-    print(f"Stats total after write: {stats_total_after}")
-    print(f"Stats increased: {stats_total_after > stats_total_before}")
-    print(f"semantic_memory in written_tables: {'semantic_memory' in written_tables}")
+    logger.info("stats total before write: stats total before", stats_total_before=stats_total_before)
+    logger.info("stats total after write: stats total after", stats_total_after=stats_total_after)
+    logger.info("stats increased: {stats_total_after > stats_total_before}")
+    logger.info("semantic_memory in written_tables: {'semantic_memory' in written_tables}")
     print(
         f"Search found results: {len(search_result.get('results', [])) > 0 if isinstance(search_result, dict) else False}"
     )
 
     if "semantic_memory" in written_tables and stats_total_after == stats_total_before:
-        print("\n⚠️  ISSUE: semantic_memory written but stats didn't increase")
+        logger.info("\n⚠️  issue: semantic_memory written but stats didn't increase")
         print(
             "   Possible cause: Stats query filters by packet_type LIKE 'memory_write_%'"
         )
-        print("   But writes use packet_type 'memory.{kind}' (e.g., 'memory.note')")
-        print("   FIX: Update stats query OR update write packet_type format")
+        logger.info("   but writes use packet_type 'memory.{kind}' (e.g., 'memory.note')")
+        logger.info("   fix: update stats query or update write packet_type format")
 
 
 if __name__ == "__main__":
     if not L9_EXECUTOR_API_KEY:
-        print("ERROR: L9_EXECUTOR_API_KEY not set")
-        print("Run: export L9_EXECUTOR_API_KEY=your_key")
+        logger.error("error: l9_executor_api_key not set")
+        logger.info("run: export l9_executor_api_key=your_key")
     else:
         main()
 

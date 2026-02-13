@@ -15,8 +15,12 @@ import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+import structlog
 
 # Add project root to path
+
+logger = structlog.get_logger(__name__)
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from tools.superpack_reports.ast_scanner import (
@@ -270,7 +274,7 @@ def generate_docstring_ast_only(ctx: EnrichedContext) -> str:
     elif ctx.name.startswith("delete") or ctx.name.startswith("remove"):
         lines.append(f"Remove {subject}.")
     elif ctx.name.startswith("update"):
-        lines.append(f"Update {subject}.")
+        lines.append(f"Update {subject}.")  # noqa: ADR-0087 - table name interpolation
     else:
         lines.append(f"{action_verb.capitalize()} {subject}.")
 
@@ -554,14 +558,14 @@ def run_ab_test(
         # Extract enriched context
         ctx = extract_enriched_context(filepath, func_name, class_name)
         if not ctx:
-            print("  ⚠️  Could not extract context")
+            logger.info("  ⚠️  could not extract context")
             continue
 
         # Generate both versions
-        print("  🔧 Generating AST-only docstring...")
+        logger.info("  🔧 generating ast-only docstring...")
         docstring_ast = generate_docstring_ast_only(ctx)
 
-        print("  🤖 Generating AST+LLM docstring...")
+        logger.info("  🤖 generating ast+llm docstring...")
         docstring_llm = generate_docstring_ast_llm(ctx)
 
         results.append(
@@ -580,31 +584,31 @@ def run_ab_test(
 def print_results(results: list[ABTestResult]) -> None:
     """Print A/B test results side by side."""
 
-    print("\n" + "=" * 100)
-    print("A/B TEST RESULTS: AST-Only vs AST+LLM")
-    print("=" * 100)
+    logger.info("\n" + "=" * 100")
+    logger.info("a/b test results: ast-only vs ast+llm")
+    logger.info("=" * 100")
 
     for i, r in enumerate(results, 1):
-        print(f"\n{'─' * 100}")
-        print(f"TEST {i}: {r.filepath}::{r.class_name or ''}.{r.name}")
-        print(f"{'─' * 100}")
+        logger.info("\n{'─' * 100}")
+        logger.info("test i: {r.filepath}::{r.class name or ''}.{r.name}", i=i)
+        logger.info("{'─' * 100}")
 
-        print("\n📋 OPTION A (AST-Only):\n")
+        logger.info("\n📋 option a (ast-only):\n")
         for line in r.docstring_ast.split("\n"):
-            print(f"    {line}")
+            logger.info("    line", line=line)
 
-        print("\n🤖 OPTION B (AST+LLM):\n")
+        logger.info("\n🤖 option b (ast+llm):\n")
         for line in r.docstring_llm.split("\n"):
-            print(f"    {line}")
+            logger.info("    line", line=line)
 
-    print("\n" + "=" * 100)
-    print("SUMMARY")
-    print("=" * 100)
-    print(f"\nTotal tests: {len(results)}")
-    print("\nKey observations:")
-    print("  - AST-only: Consistent, fast, predictable, but sometimes generic")
-    print("  - AST+LLM:  Context-aware, natural language, but slower and costs tokens")
-    print("\n📊 Rate each pair 1-10 to determine if LLM adds value!")
+    logger.info("\n" + "=" * 100")
+    logger.info("summary")
+    logger.info("=" * 100")
+    logger.info("\ntotal tests: {len(results)}")
+    logger.info("\nkey observations:")
+    logger.info("  - ast-only: consistent, fast, predictable, but sometimes generic")
+    logger.info("  - ast+llm:  context-aware, natural language, but slower and costs tokens")
+    logger.info("\n📊 rate each pair 1-10 to determine if llm adds value!")
 
 
 def find_test_targets(
@@ -660,13 +664,13 @@ def main() -> int:
 
     repo_root = Path(__file__).parent.parent.parent
 
-    print("🔬 DOCSTRING A/B TEST: AST-Only vs AST+LLM")
-    print("=" * 60)
+    logger.info("🔬 docstring a/b test: ast-only vs ast+llm")
+    logger.info("=" * 60")
 
     # Find test targets
-    print("\n📍 Finding test targets...")
+    logger.info("\n📍 finding test targets...")
     targets = find_test_targets(repo_root, limit=10)
-    print(f"   Found {len(targets)} functions missing docstrings")
+    logger.info("   found {len(targets)} functions missing docstrings")
 
     # Run A/B test
     results = run_ab_test(targets, limit=10)

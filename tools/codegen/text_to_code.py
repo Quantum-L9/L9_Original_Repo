@@ -41,7 +41,10 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+import structlog
 import yaml
+
+logger = structlog.get_logger(__name__)
 
 
 @dataclass
@@ -174,11 +177,16 @@ class L9TextToCode:
         # Save prompt for reference
         (module_dir / "generation_prompt.txt").write_text(prompt)
 
-        print(f"📝 Generation prompt saved to: {module_dir}/generation_prompt.txt")
-        print("⚠️  Manual step required:")
-        print("   1. Copy the prompt to Claude/Cursor")
-        print(f"   2. Save generated files to: {module_dir}/")
-        print(f"   3. Run: python {sys.argv[0]} compile {module_dir}")
+        logger.info(
+            "📝 generation prompt saved to: module dir/generation prompt.txt",
+            module_dir=module_dir,
+        )
+        logger.info("⚠️  manual step required:")
+        logger.info("   1. copy the prompt to claude/cursor")
+        logger.info("   2. save generated files to: module dir/", module_dir=module_dir)
+        logger.info(
+            "   3. run: python {sys.argv[0]} compile module dir", module_dir=module_dir
+        )
 
         return GenerationResult(
             module_path=module_dir,
@@ -254,7 +262,7 @@ Output all files with their full paths and complete code.
             List of generated governance files
         """
         if not self.compiler_path:
-            print("⚠️  Compiler not found, skipping governance extraction")
+            logger.info("⚠️  compiler not found, skipping governance extraction")
             return []
 
         governance_dir = module_dir / "governance"
@@ -278,11 +286,11 @@ Output all files with their full paths and complete code.
                 # List generated files
                 governance_files = list(governance_dir.rglob("*.yaml"))
                 return [str(f.relative_to(module_dir)) for f in governance_files]
-            print(f"⚠️  Compiler error: {result.stderr}")
+            logger.error("⚠️  compiler error: {result.stderr}")
             return []
 
         except Exception as e:
-            print(f"⚠️  Compilation failed: {e}")
+            logger.error("⚠️  compilation failed: e", e=e)
             return []
 
     def generate_from_file(self, concept_file: Path) -> GenerationResult:
@@ -295,12 +303,12 @@ Output all files with their full paths and complete code.
         Returns:
             Generation result
         """
-        print("🚀 L9 Text-to-Code Generator")
-        print(f"📄 Reading concept: {concept_file}")
+        logger.info("🚀 l9 text-to-code generator")
+        logger.info("📄 reading concept: concept file", concept_file=concept_file)
 
         # Parse concept
         concept = self.parse_concept(concept_file)
-        print(f"✅ Parsed concept: {concept.name} v{concept.version}")
+        logger.info("✅ parsed concept: {concept.name} v{concept.version}")
 
         # Generate code
         return self.generate_code(concept)
@@ -337,17 +345,17 @@ def main():
         generator = L9TextToCode(output_dir=args.output)
         result = generator.generate_from_file(args.concept_file)
 
-        print("\n✨ Generation complete!")
-        print(f"📁 Module directory: {result.module_path}")
+        logger.info("\n✨ generation complete!")
+        logger.info("📁 module directory: {result.module_path}")
 
     elif args.command == "compile":
         generator = L9TextToCode()
         artifacts = generator.compile_governance(args.module_dir)
 
-        print("\n✨ Compilation complete!")
-        print(f"📋 Governance artifacts: {len(artifacts)}")
+        logger.info("\n✨ compilation complete!")
+        logger.info("📋 governance artifacts: {len(artifacts)}")
         for artifact in artifacts:
-            print(f"   - {artifact}")
+            logger.info("   - artifact", artifact=artifact)
 
     else:
         parser.print_help()

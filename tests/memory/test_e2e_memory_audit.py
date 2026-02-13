@@ -18,12 +18,17 @@ Run with: pytest tests/memory/test_e2e_memory_audit.py -v
 import asyncio
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import uuid4
 
 import pytest
 import structlog
+
+pytestmark = pytest.mark.skipif(
+    not os.getenv("TEST_DATABASE_URL"),
+    reason="Requires TEST_DATABASE_URL (e2e audit test — set to a reachable PostgreSQL URL)",
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -216,7 +221,7 @@ async def audit_neo4j() -> AuditResult:
             entity_type="AuditTest",
             entity_id=test_entity_id,
             properties={
-                "created_at": datetime.now(timezone.utc).isoformat(),
+                "created_at": datetime.now(UTC).isoformat(),
                 "audit": True,
             },
         )
@@ -246,7 +251,7 @@ async def audit_neo4j() -> AuditResult:
         await neo4j.create_event(
             event_id=event_id,
             event_type="audit_test",
-            timestamp=datetime.now(timezone.utc).isoformat(),
+            timestamp=datetime.now(UTC).isoformat(),
             properties={"test": True},
         )
         rel_result = await neo4j.create_relationship(
@@ -414,7 +419,7 @@ async def audit_ingestion_pipeline() -> AuditResult:
             packet_type="e2e_audit_test",
             payload={
                 "audit_id": str(uuid4()),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "message": "E2E memory audit test packet",
                 "text": "This is semantic content for embedding",
             },
@@ -692,11 +697,10 @@ async def audit_e2e_flow() -> AuditResult:
 
 async def run_full_audit() -> dict[str, Any]:
     """Run all audit checks."""
-    print("\n" + "=" * 80)
-    print("L9 MEMORY E2E AUDIT")
-    print(f"Timestamp: {datetime.now(timezone.utc).isoformat()}")
-    print("=" * 80 + "\n")
-
+    print("\n" + "=" * 80)  # noqa: ADR-0019
+    print("L9 MEMORY E2E AUDIT")  # noqa: ADR-0019
+    print(f"Timestamp: {datetime.now(UTC).isoformat()}")  # noqa: ADR-0019
+    print("=" * 80 + "\n")  # noqa: ADR-0019
     results = {}
 
     # Run all audits
@@ -710,7 +714,7 @@ async def run_full_audit() -> dict[str, Any]:
     ]
 
     for name, audit_func in audits:
-        print(f"\n--- {name} Audit ---")
+        print(f"\n--- {name} Audit ---")  # noqa: ADR-0019
         result = await audit_func()
         results[name] = result
 
@@ -720,42 +724,35 @@ async def run_full_audit() -> dict[str, Any]:
             "PASSED_WITH_WARNINGS": "⚠️",
             "FAILED": "❌",
         }.get(result.status, "❓")
-        print(f"Status: {status_icon} {result.status}")
-
+        print(f"Status: {status_icon} {result.status}")  # noqa: ADR-0019
         for check in result.checks:
             icon = "✓" if check["passed"] else "✗"
-            print(f"  {icon} {check['name']}: {check['details']}")
-
+            print(f"  {icon} {check['name']}: {check['details']}")  # noqa: ADR-0019
         if result.warnings:
-            print("  Warnings:")
+            print("  Warnings:")  # noqa: ADR-0019
             for w in result.warnings:
-                print(f"    ⚠️ {w}")
-
+                print(f"    ⚠️ {w}")  # noqa: ADR-0019
         if result.recommendations:
-            print("  Recommendations:")
+            print("  Recommendations:")  # noqa: ADR-0019
             for r in result.recommendations:
-                print(f"    💡 {r}")
-
+                print(f"    💡 {r}")  # noqa: ADR-0019
     # Summary
-    print("\n" + "=" * 80)
-    print("AUDIT SUMMARY")
-    print("=" * 80)
-
+    print("\n" + "=" * 80)  # noqa: ADR-0019
+    print("AUDIT SUMMARY")  # noqa: ADR-0019
+    print("=" * 80)  # noqa: ADR-0019
     passed = sum(1 for r in results.values() if r.status == "PASSED")
     warnings = sum(1 for r in results.values() if r.status == "PASSED_WITH_WARNINGS")
     failed = sum(1 for r in results.values() if r.status == "FAILED")
 
-    print(f"✅ Passed: {passed}")
-    print(f"⚠️ Passed with warnings: {warnings}")
-    print(f"❌ Failed: {failed}")
-    print(f"Total: {len(results)}")
-
+    print(f"✅ Passed: {passed}")  # noqa: ADR-0019
+    print(f"⚠️ Passed with warnings: {warnings}")  # noqa: ADR-0019
+    print(f"❌ Failed: {failed}")  # noqa: ADR-0019
+    print(f"Total: {len(results)}")  # noqa: ADR-0019
     overall = "PASSED" if failed == 0 else "FAILED"
-    print(f"\nOverall Status: {overall}")
-    print("=" * 80 + "\n")
-
+    print(f"\nOverall Status: {overall}")  # noqa: ADR-0019
+    print("=" * 80 + "\n")  # noqa: ADR-0019
     return {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "overall_status": overall,
         "summary": {
             "passed": passed,
@@ -870,7 +867,7 @@ async def main():
     # Initialize service first
     database_url = os.getenv("MEMORY_DSN") or os.getenv("DATABASE_URL")
     if not database_url:
-        print("ERROR: MEMORY_DSN or DATABASE_URL not set")
+        print("ERROR: MEMORY_DSN or DATABASE_URL not set")  # noqa: ADR-0019
         sys.exit(1)
 
     from memory.substrate_service import init_service

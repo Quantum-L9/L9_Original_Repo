@@ -41,8 +41,12 @@ import sys
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+import structlog
 
 # Add repo root to path
+
+logger = structlog.get_logger(__name__)
+
 REPO_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
@@ -448,35 +452,35 @@ def auto_fix_mismatches(mismatches: list[SignatureMismatch]) -> int:
 
             Path(filepath).write_text(content)
         except Exception as e:
-            print(f"Failed to fix {filepath}: {e}")
+            logger.error("failed to fix filepath: e", filepath=filepath, e=e)
 
     return fixed
 
 
 def print_report(result: AuditResult) -> None:
     """Print audit report to stdout."""
-    print("=" * 70)
-    print("L9 API SIGNATURE MISMATCH AUDIT v1.0")
-    print("=" * 70)
-    print(f"Files scanned: {result.total_files_scanned}")
-    print(f"Mismatches found: {result.total_mismatches}")
-    print(f"  Critical: {result.critical_count}")
-    print(f"  High: {result.high_count}")
-    print(f"  Medium: {result.medium_count}")
-    print(f"  Low: {result.low_count}")
+    logger.info("=" * 70")
+    logger.info("l9 api signature mismatch audit v1.0")
+    logger.info("=" * 70")
+    logger.info("files scanned: {result.total_files_scanned}")
+    logger.info("mismatches found: {result.total_mismatches}")
+    logger.info("  critical: {result.critical_count}")
+    logger.info("  high: {result.high_count}")
+    logger.info("  medium: {result.medium_count}")
+    logger.info("  low: {result.low_count}")
 
     if result.fixed_count:
-        print(f"Auto-fixed: {result.fixed_count}")
+        logger.info("auto-fixed: {result.fixed_count}")
 
     if result.errors:
-        print(f"\nErrors: {len(result.errors)}")
+        logger.error("\nerrors: {len(result.errors)}")
         for err in result.errors[:5]:
-            print(f"  - {err}")
+            logger.info("  - err", err=err)
 
     if result.mismatches:
-        print("\n" + "-" * 70)
-        print("FINDINGS:")
-        print("-" * 70)
+        logger.info("\n" + "-" * 70")
+        logger.info("findings:")
+        logger.info("-" * 70")
 
         for m in sorted(
             result.mismatches, key=lambda x: (x.severity.value, x.filepath, x.line)
@@ -491,14 +495,14 @@ def print_report(result: AuditResult) -> None:
             print(
                 f"\n{severity_icon} [{m.severity.value.upper()}] {m.filepath}:{m.line}"
             )
-            print(f"   Function: {m.function_name}")
-            print(f"   Issue: {m.issue}")
+            logger.info("   function: {m.function_name}")
+            logger.info("   issue: {m.issue}")
             if m.fix_suggestion:
-                print(f"   Fix: {m.fix_suggestion}")
+                logger.info("   fix: {m.fix_suggestion}")
     else:
-        print("\n✅ No API signature mismatches found!")
+        logger.info("\n✅ no api signature mismatches found!")
 
-    print("\n" + "=" * 70)
+    logger.info("\n" + "=" * 70")
 
 
 def main():
@@ -518,7 +522,7 @@ def main():
         import json
         from dataclasses import asdict
 
-        print(json.dumps(asdict(result), indent=2, default=str))
+        logger.info("output", value=json.dumps(asdict(result), indent=2, default=str))
     elif args.quiet:
         print(
             f"Mismatches: {result.total_mismatches} (Critical: {result.critical_count}, High: {result.high_count})"

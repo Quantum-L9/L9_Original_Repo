@@ -530,12 +530,12 @@ def main():
     )
 
     # Summary
-    print(f"\n{'DRY RUN: ' if args.dry_run else ''}Ingestion Summary")
-    print(f"{'=' * 40}")
-    print(f"Conversation ID: {conversation_id}")
-    print(f"Messages:        {msg_count}")
-    print(f"Chunks:          {chunk_count}")
-    print(f"Source:          {transcript_path}")
+    logger.info("\n{'dry run: ' if args.dry_run else ''}ingestion summary")
+    logger.info("{'=' * 40}")
+    logger.info("conversation id: conversation id", conversation_id=conversation_id)
+    logger.info("messages:        msg count", msg_count=msg_count)
+    logger.info("chunks:          chunk count", chunk_count=chunk_count)
+    logger.info("source:          transcript path", transcript_path=transcript_path)
 
 
 if __name__ == "__main__":

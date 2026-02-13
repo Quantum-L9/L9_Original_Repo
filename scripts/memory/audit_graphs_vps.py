@@ -41,8 +41,12 @@ from typing import Any
 
 import aiofiles
 import httpx
+import structlog
 
 # Add project root to path
+
+logger = structlog.get_logger(__name__)
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from dotenv import load_dotenv
@@ -54,7 +58,7 @@ VPS_URL = os.getenv("VPS_MEMORY_URL", "https://157.180.73.53:9001")
 API_KEY = os.getenv("L9_EXECUTOR_API_KEY")
 
 if not API_KEY:
-    print("ERROR: L9_EXECUTOR_API_KEY not set in environment")
+    logger.error("error: l9_executor_api_key not set in environment")
     sys.exit(1)
 
 
@@ -87,13 +91,13 @@ async def api_request(method: str, endpoint: str, **kwargs) -> dict[str, Any]:
 
 async def audit_memory_stats() -> dict[str, Any]:
     """Get memory system stats."""
-    print("📊 Fetching memory stats...")
+    logger.info("📊 fetching memory stats...")
     return await api_request("GET", "/api/v1/memory/stats")
 
 
 async def audit_packets(limit: int = 10) -> dict[str, Any]:
     """Audit packet store via semantic search."""
-    print("📦 Auditing packets...")
+    logger.info("📦 auditing packets...")
 
     # Get sample packets via search
     result = await api_request(
@@ -114,7 +118,7 @@ async def audit_packets(limit: int = 10) -> dict[str, Any]:
 
 async def audit_facts(limit: int = 20) -> dict[str, Any]:
     """Audit knowledge facts."""
-    print("📚 Auditing knowledge facts...")
+    logger.info("📚 auditing knowledge facts...")
 
     result = await api_request("GET", "/api/v1/memory/facts", params={"limit": limit})
 
@@ -141,12 +145,12 @@ async def audit_facts(limit: int = 20) -> dict[str, Any]:
 
 async def audit_neo4j_via_api() -> dict[str, Any]:
     """Query Neo4j via graph API endpoint."""
-    print("🕸️  Querying Neo4j via API...")
+    logger.info("🕸️  querying neo4j via api...")
 
     results = {}
 
     # 1. Overall node stats
-    print("   Getting node counts...")
+    logger.info("   getting node counts...")
     node_stats = await api_request(
         "POST",
         "/api/v1/memory/graph/query",
@@ -162,7 +166,7 @@ async def audit_neo4j_via_api() -> dict[str, Any]:
         results["node_stats_error"] = node_stats.get("error", "Query failed")
 
     # 2. Relationship stats
-    print("   Getting relationship counts...")
+    logger.info("   getting relationship counts...")
     rel_stats = await api_request(
         "POST",
         "/api/v1/memory/graph/query",
@@ -178,7 +182,7 @@ async def audit_neo4j_via_api() -> dict[str, Any]:
         results["relationship_stats_error"] = rel_stats.get("error", "Query failed")
 
     # 3. Agent state graph
-    print("   Getting agent state...")
+    logger.info("   getting agent state...")
     agent_state = await api_request(
         "POST",
         "/api/v1/memory/graph/query",
@@ -208,7 +212,7 @@ async def audit_neo4j_via_api() -> dict[str, Any]:
         results["agent_state_error"] = agent_state.get("error", "Query failed")
 
     # 4. Event timeline stats
-    print("   Getting event stats...")
+    logger.info("   getting event stats...")
     event_stats = await api_request(
         "POST",
         "/api/v1/memory/graph/query",
@@ -253,7 +257,7 @@ async def audit_neo4j_via_api() -> dict[str, Any]:
         results["events_error"] = event_stats.get("error", "Query failed")
 
     # 5. Repo structure graph
-    print("   Getting repo structure...")
+    logger.info("   getting repo structure...")
     repo_stats = await api_request(
         "POST",
         "/api/v1/memory/graph/query",
@@ -278,12 +282,12 @@ async def audit_neo4j_via_api() -> dict[str, Any]:
 
 async def run_audit() -> dict[str, Any]:
     """Run full audit."""
-    print("=" * 80)
-    print("L9 GRAPH AUDIT - VPS API")
-    print("=" * 80)
-    print(f"VPS URL: {VPS_URL}")
-    print(f"Timestamp: {datetime.now().isoformat()}")
-    print()
+    logger.info("=" * 80")
+    logger.info("l9 graph audit - vps api")
+    logger.info("=" * 80")
+    logger.info("vps url: vps url", VPS_URL=VPS_URL)
+    logger.info("timestamp: {datetime.now().isoformat()}")
+    logger.info("output", value=)
 
     results = {
         "timestamp": datetime.now().isoformat(),
@@ -315,119 +319,119 @@ async def run_audit() -> dict[str, Any]:
 
 def print_report(results: dict[str, Any]):
     """Print formatted report."""
-    print("\n" + "=" * 80)
-    print("AUDIT REPORT")
-    print("=" * 80)
+    logger.info("\n" + "=" * 80")
+    logger.info("audit report")
+    logger.info("=" * 80")
 
     # Memory Stats
     stats = results.get("memory_stats", {})
     if "error" not in stats:
-        print("\n📊 MEMORY STATS:")
-        print(f"   Status:            {stats.get('status', 'unknown')}")
-        print(f"   Total Packets:     {stats.get('packets', 0):,}")
-        print(f"   Total Embeddings:  {stats.get('embeddings', 0):,}")
-        print(f"   Total Facts:       {stats.get('facts', 0):,}")
+        logger.info("\n📊 memory stats:")
+        logger.info("   status:            {stats.get('status', 'unknown')}")
+        logger.info("   total packets:     {stats.get('packets', 0):,}")
+        logger.info("   total embeddings:  {stats.get('embeddings', 0):,}")
+        logger.info("   total facts:       {stats.get('facts', 0):,}")
 
         health = stats.get("health", {})
         if health:
-            print(f"\n   Health Status:     {health.get('status', 'unknown')}")
+            logger.info("\n   health status:     {health.get('status', 'unknown')}")
             components = health.get("components", {})
             if components:
-                print("   Components:")
+                logger.info("   components:")
                 for comp_name, comp_data in components.items():
-                    print(f"      {comp_name}: {comp_data.get('status', 'unknown')}")
+                    logger.info("      comp name: {comp data.get('status', 'unknown')}", comp_name=comp_name)
 
     # Packets
     packets = results.get("packets", {})
     if "error" not in packets:
-        print("\n📦 PACKETS:")
-        print(f"   Sample Retrieved:  {packets.get('total_found', 0)}")
+        logger.info("\n📦 packets:")
+        logger.info("   sample retrieved:  {packets.get('total_found', 0)}")
         sample = packets.get("sample_packets", [])
         if sample:
-            print(f"   Sample Count:      {len(sample)}")
+            logger.info("   sample count:      {len(sample)}")
             # Show packet types
             types = {}
             for p in sample:
                 ptype = p.get("packet_type", "unknown")
                 types[ptype] = types.get(ptype, 0) + 1
-            print("   Sample Types:")
+            logger.info("   sample types:")
             for ptype, count in types.items():
-                print(f"      {ptype}: {count}")
+                logger.info("      ptype: count", ptype=ptype, count=count)
 
     # Facts
     facts = results.get("facts", {})
     if "error" not in facts:
-        print("\n📚 KNOWLEDGE FACTS:")
-        print(f"   Total Facts:       {facts.get('total_facts', 0):,}")
+        logger.info("\n📚 knowledge facts:")
+        logger.info("   total facts:       {facts.get('total_facts', 0):,}")
 
         top_preds = facts.get("top_predicates", [])
         if top_preds:
-            print("   Top Predicates:")
+            logger.info("   top predicates:")
             for pred, count in top_preds[:5]:
-                print(f"      {pred}: {count}")
+                logger.info("      pred: count", pred=pred, count=count)
 
         top_subjs = facts.get("top_subjects", [])
         if top_subjs:
-            print("   Top Subjects:")
+            logger.info("   top subjects:")
             for subj, count in top_subjs[:5]:
-                print(f"      {subj}: {count}")
+                logger.info("      subj: count", subj=subj, count=count)
 
     # Neo4j
     neo4j = results.get("neo4j", {})
     if "error" not in neo4j:
-        print("\n🕸️  NEO4J KNOWLEDGE GRAPH:")
+        logger.info("\n🕸️  neo4j knowledge graph:")
 
         node_stats = neo4j.get("node_stats", [])
         if node_stats:
-            print("   Node Types:")
+            logger.info("   node types:")
             for item in node_stats[:15]:
                 label = item.get("label") or "Unknown"
                 count = item.get("count", 0)
-                print(f"      {label}: {count:,}")
+                logger.info("      label: {count:,}", label=label)
 
         rel_stats = neo4j.get("relationship_stats", [])
         if rel_stats:
-            print("\n   Relationship Types:")
+            logger.info("\n   relationship types:")
             for item in rel_stats[:15]:
                 rel_type = item.get("rel_type") or "Unknown"
                 count = item.get("count", 0)
-                print(f"      {rel_type}: {count:,}")
+                logger.info("      rel type: {count:,}", rel_type=rel_type)
 
         agent_state = neo4j.get("agent_state", [])
         if agent_state:
-            print("\n🤖 AGENT STATE GRAPH:")
+            logger.info("\n🤖 agent state graph:")
             for agent in agent_state:
                 agent_id = agent.get("agent_id", "Unknown")
-                print(f"   {agent_id}:")
-                print(f"      Designation:     {agent.get('designation', 'N/A')}")
-                print(f"      Responsibilities: {agent.get('responsibilities', 0)}")
-                print(f"      Directives:       {agent.get('directives', 0)}")
-                print(f"      SOPs:             {agent.get('sops', 0)}")
-                print(f"      Tools:            {agent.get('tools', 0)}")
-                print(f"      Supervisor:       {agent.get('supervisor', 'None')}")
+                logger.info("   agent id:", agent_id=agent_id)
+                logger.info("      designation:     {agent.get('designation', 'n/a')}")
+                logger.info("      responsibilities: {agent.get('responsibilities', 0)}")
+                logger.info("      directives:       {agent.get('directives', 0)}")
+                logger.info("      sops:             {agent.get('sops', 0)}")
+                logger.info("      tools:            {agent.get('tools', 0)}")
+                logger.info("      supervisor:       {agent.get('supervisor', 'none')}")
 
         events = neo4j.get("events", {})
         if events:
             stats = events.get("stats", {})
             if stats:
-                print("\n📅 EVENT TIMELINE:")
-                print(f"   Total Events:      {stats.get('total_events', 0):,}")
-                print(f"   Event Types:       {stats.get('event_types', 0)}")
-                print(f"   Earliest:          {stats.get('earliest_event', 'N/A')}")
-                print(f"   Latest:             {stats.get('latest_event', 'N/A')}")
+                logger.info("\n📅 event timeline:")
+                logger.info("   total events:      {stats.get('total_events', 0):,}")
+                logger.info("   event types:       {stats.get('event_types', 0)}")
+                logger.info("   earliest:          {stats.get('earliest_event', 'n/a')}")
+                logger.info("   latest:             {stats.get('latest_event', 'n/a')}")
 
         repo = neo4j.get("repo_structure", [])
         if repo:
-            print("\n📁 REPO STRUCTURE GRAPH:")
+            logger.info("\n📁 repo structure graph:")
             for item in repo[:10]:
                 node_type = item.get("type") or "Unknown"
                 count = item.get("count", 0)
-                print(f"   {node_type}: {count:,}")
+                logger.info("   node type: {count:,}", node_type=node_type)
     elif "error" in neo4j:
-        print("\n🕸️  NEO4J:")
-        print(f"   Error: {neo4j.get('error', 'Unknown error')}")
+        logger.info("\n🕸️  neo4j:")
+        logger.error("   error: {neo4j.get('error', 'unknown error')}")
 
-    print("\n" + "=" * 80)
+    logger.info("\n" + "=" * 80")
 
 
 async def main():
@@ -445,10 +449,10 @@ async def main():
         output_file.parent.mkdir(parents=True, exist_ok=True)
         async with aiofiles.open(output_file, "w") as f:
             await f.write(json.dumps(results, indent=2, default=str))
-        print(f"\n📄 Full report saved to: {output_file}")
+        logger.info("\n📄 full report saved to: output file", output_file=output_file)
 
     except Exception as e:
-        print(f"ERROR: {e}", file=sys.stderr)
+        logger.error("error: e", e=e)
         import traceback
 
         traceback.print_exc()

@@ -833,28 +833,28 @@ async def main():
 
     # Analyze patterns
     stats = await engine.analyze_execution_patterns()
-    print(f"Pattern Analysis: {stats}")
+    logger.info("pattern analysis: stats", stats=stats)
 
     # Generate heuristics
     heuristics = await engine.generate_heuristics()
-    print(f"Generated {len(heuristics)} heuristics")
+    logger.info("generated {len(heuristics)} heuristics")
 
     # Get active heuristics for next GMP
     active = await engine.get_active_heuristics()
-    print(f"Active heuristics: {len(active)}")
+    logger.info("active heuristics: {len(active)}")
 
     # Update autonomy metrics
     metrics = await engine.update_autonomy_metrics(result)
-    print(f"Updated metrics: {metrics}")
+    logger.info("updated metrics: metrics", metrics=metrics)
 
     # Check autonomy level
     controller = AutonomyController(engine)
     level = await controller.get_current_autonomy_level()
-    print(f"Current autonomy level: {level}")
+    logger.info("current autonomy level: level", level=level)
 
     # Check if can graduate
     can_grad, reason = await controller.can_graduate_to_next_level()
-    print(f"Can graduate: {can_grad} ({reason})")
+    logger.info("can graduate: can grad (reason)", can_grad=can_grad, reason=reason)
 
 
 if __name__ == "__main__":

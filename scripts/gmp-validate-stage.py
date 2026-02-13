@@ -37,7 +37,11 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+import structlog
 
+
+
+logger = structlog.get_logger(__name__)
 
 @dataclass
 class ValidationResult:
@@ -92,9 +96,9 @@ class GMPStageValidator:
 
     def validate_all(self) -> bool:
         """Run all validation checks."""
-        print(f"🔍 Validating Stage {self.stage_id}...")
-        print(f"📄 Report: {self.report_path}")
-        print(f"⚙️  Config: {self.config_path}\n")
+        logger.info("🔍 validating stage {self.stage_id}...")
+        logger.info("📄 report: {self.report_path}")
+        logger.info("⚙️  config: {self.config_path}\n")
 
         self.validate_report_structure()
         self.validate_todo_hash_integrity()
@@ -294,30 +298,30 @@ class GMPStageValidator:
 
     def print_results(self) -> bool:
         """Print validation results and return overall pass/fail."""
-        print("\n" + "=" * 80)
-        print(f"📊 STAGE {self.stage_id} VALIDATION RESULTS")
-        print("=" * 80 + "\n")
+        logger.info("\n" + "=" * 80")
+        logger.info("📊 stage {self.stage_id} validation results")
+        logger.info("=" * 80 + "\n")
 
         passed_count = sum(1 for r in self.results if r.passed)
         total_count = len(self.results)
 
         for result in self.results:
             status = "✅" if result.passed else "❌"
-            print(f"{status} {result.check_name}")
+            logger.info("status {result.check name}", status=status)
             if not result.passed:
-                print(f"   Expected: {result.expected}")
-                print(f"   Actual: {result.actual}")
+                logger.info("   expected: {result.expected}")
+                logger.info("   actual: {result.actual}")
                 if result.error_message:
-                    print(f"   Error: {result.error_message}")
-            print()
+                    logger.error("   error: {result.error_message}")
+            logger.info("output", value=)
 
-        print("=" * 80)
-        print(f"TOTAL: {passed_count}/{total_count} checks passed")
+        logger.info("=" * 80")
+        logger.info("total: passed count/total count checks passed", passed_count=passed_count, total_count=total_count)
 
         if passed_count == total_count:
-            print("✅ STAGE VALIDATION: PASSED")
+            logger.info("✅ stage validation: passed")
             return True
-        print("❌ STAGE VALIDATION: FAILED")
+        logger.error("❌ stage validation: failed")
         return False
 
 

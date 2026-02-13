@@ -29,8 +29,12 @@ Version: 1.1.0
 """
 
 from __future__ import annotations
+import structlog
 
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Fix Untyped Decorators",
     "module_version": "1.1.0",
@@ -131,7 +135,7 @@ def scan_for_untyped_decorators(
             content = py_file.read_text(encoding="utf-8")
             tree = ast.parse(content, filename=str(py_file))
         except (SyntaxError, UnicodeDecodeError) as e:
-            print(f"  Warning: Could not parse {py_file}: {e}")
+            logger.warning("  warning: could not parse py file: e", py_file=py_file, e=e)
             continue
 
         file_issues = analyze_file_decorators(tree, py_file, content)
@@ -430,7 +434,7 @@ def apply_fixes(fixes: list[DecoratorFix], dry_run: bool = True) -> int:
             if fix.old_code in content:
                 content = content.replace(fix.old_code, fix.new_code, 1)
                 applied += 1
-                print(f"  {'[DRY-RUN] ' if dry_run else ''}Fixed: {fix.description}")
+                logger.info("  {'[dry-run] ' if dry_run else ''}fixed: {fix.description}")
                 print(
                     f"    File: {fix.file_path}:{file_fixes[0].old_code.split(chr(10))[0]}"
                 )
@@ -456,7 +460,7 @@ def apply_fixes(fixes: list[DecoratorFix], dry_run: bool = True) -> int:
                         content,
                         count=1,
                     )
-                    print(f"    Added imports: {', '.join(missing)}")
+                    logger.info("    added imports: {', '.join(missing)}")
                 else:
                     # Add new import line after __future__
                     import_line = f"from typing import {', '.join(sorted(missing))}\n"
@@ -469,12 +473,12 @@ def apply_fixes(fixes: list[DecoratorFix], dry_run: bool = True) -> int:
                         )
                     else:
                         content = import_line + content
-                    print(f"    Added import: from typing import {', '.join(missing)}")
+                    logger.info("    added import: from typing import {', '.join(missing)}")
 
             # Add ParamSpec/TypeVar definitions if needed
             if "Callable[P, R]" in content and "P = ParamSpec" not in content:
                 content = add_paramspec_definitions(content)
-                print("    Added P = ParamSpec('P') and R = TypeVar('R') definitions")
+                logger.info("    added p = paramspec('p') and r = typevar('r') definitions")
 
         if not dry_run and content != original_content:
             file_path.write_text(content, encoding="utf-8")
@@ -555,42 +559,42 @@ def main():
 
     args = parser.parse_args()
 
-    print("Untyped Decorator Fixer v1.1")
-    print("=" * 40)
-    print(f"Root path: {args.path}")
-    print()
+    logger.info("untyped decorator fixer v1.1")
+    logger.info("=" * 40")
+    logger.info("root path: {args.path}")
+    logger.info("output", value=)
 
     if args.command == "scan":
-        print("Scanning for untyped decorators...")
+        logger.info("scanning for untyped decorators...")
         single_file = args.file.resolve() if args.file else None
         issues = scan_for_untyped_decorators(args.path, single_file=single_file)
 
         if not issues:
-            print("\n✅ No untyped decorator issues found!")
+            logger.info("\n✅ no untyped decorator issues found!")
             return 0
 
-        print(f"\n⚠️  Found {len(issues)} potential untyped decorator(s):\n")
+        logger.info("\n⚠️  found {len(issues)} potential untyped decorator(s):\n")
 
         for issue in issues:
-            print(f"  {issue.file_path}:{issue.line_number}")
-            print(f"    Function: {issue.decorator_name}")
-            print(f"    Issue: {issue.issue_type}")
-            print(f"    Strategy: {issue.fix_strategy}")
-            print(f"    Signature: {issue.current_signature[:60]}...")
-            print()
+            logger.info("  {issue.file_path}:{issue.line_number}")
+            logger.info("    function: {issue.decorator_name}")
+            logger.info("    issue: {issue.issue_type}")
+            logger.info("    strategy: {issue.fix_strategy}")
+            logger.info("    signature: {issue.current_signature[:60]}...")
+            logger.info("output", value=)
 
         return len(issues)
 
     if args.command == "fix":
-        print("Scanning for untyped decorators...")
+        logger.info("scanning for untyped decorators...")
         single_file = args.file.resolve() if args.file else None
         issues = scan_for_untyped_decorators(args.path, single_file=single_file)
 
         if not issues:
-            print("\n✅ No untyped decorator issues found!")
+            logger.info("\n✅ no untyped decorator issues found!")
             return 0
 
-        print(f"\nGenerating fixes for {len(issues)} issue(s)...")
+        logger.info("\ngenerating fixes for {len(issues)} issue(s)...")
 
         all_fixes = []
         for issue in issues:
@@ -601,8 +605,8 @@ def main():
                 all_fixes.append(fix)
 
         if not all_fixes:
-            print("\n⚠️  No automatic fixes could be generated.")
-            print("Manual intervention may be required.")
+            logger.info("\n⚠️  no automatic fixes could be generated.")
+            logger.info("manual intervention may be required.")
             return 1
 
         dry_run = args.dry_run or args.file is None
@@ -612,36 +616,36 @@ def main():
             )
             dry_run = True
 
-        print(f"\nApplying {len(all_fixes)} fix(es)...")
+        logger.info("\napplying {len(all_fixes)} fix(es)...")
         applied = apply_fixes(all_fixes, dry_run=dry_run)
 
         if dry_run:
-            print(f"\n[DRY-RUN] Would apply {applied} fix(es)")
-            print("Run with --file <path> to apply changes to a specific file.")
+            logger.info("\n[dry-run] would apply applied fix(es)", applied=applied)
+            logger.info("run with --file <path> to apply changes to a specific file.")
         else:
-            print(f"\n✅ Applied {applied} fix(es)")
+            logger.info("\n✅ applied applied fix(es)", applied=applied)
 
         return 0
 
     if args.command == "verify":
-        print("Running mypy with --disallow-untyped-decorators...")
+        logger.info("running mypy with --disallow-untyped-decorators...")
         files = [args.file.resolve()] if args.file else None
         error_count, output = run_mypy_check(args.path, files)
 
         if error_count == 0:
-            print("\n✅ No untyped-decorator errors found!")
+            logger.error("\n✅ no untyped-decorator errors found!")
             return 0
         if error_count < 0:
-            print(f"\n⚠️  {output}")
+            logger.info("\n⚠️  output", output=output)
             return 1
 
-        print(f"\n⚠️  Found {error_count} untyped-decorator error(s)")
+        logger.error("\n⚠️  found error count untyped-decorator error(s)", error_count=error_count)
 
         if args.verbose:
-            print("\nDetailed errors:")
+            logger.error("\ndetailed errors:")
             for line in output.splitlines():
                 if "untyped-decorator" in line:
-                    print(f"  {line}")
+                    logger.info("  line", line=line)
 
         return error_count
     return None

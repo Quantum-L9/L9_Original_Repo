@@ -45,7 +45,11 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+import structlog
 
+
+
+logger = structlog.get_logger(__name__)
 
 class N1DetectorVisitor(ast.NodeVisitor):
     """AST visitor to detect N+1 query patterns"""
@@ -168,10 +172,10 @@ def check_file_ast(filepath: Path) -> list[tuple[int, str, str]]:
 
         return visitor.issues
     except SyntaxError as e:
-        print(f"⚠️  Syntax error in {filepath}: {e}", file=sys.stderr)
+        logger.error("⚠️  syntax error in filepath: e", filepath=filepath, e=e)
         return []
     except Exception as e:
-        print(f"⚠️  Error analyzing {filepath}: {e}", file=sys.stderr)
+        logger.error("⚠️  error analyzing filepath: e", filepath=filepath, e=e)
         return []
 
 
@@ -225,7 +229,7 @@ def check_file_regex(filepath: Path) -> list[tuple[int, str, str]]:
                 )
 
     except Exception as e:
-        print(f"⚠️  Error analyzing {filepath}: {e}", file=sys.stderr)
+        logger.error("⚠️  error analyzing filepath: e", filepath=filepath, e=e)
 
     return issues
 
@@ -249,7 +253,7 @@ def get_changed_files() -> list[Path]:
 
         return files
     except subprocess.CalledProcessError:
-        print("⚠️  Not a git repository or git not available", file=sys.stderr)
+        logger.error("⚠️  not a git repository or git not available")
         return []
 
 
@@ -325,21 +329,21 @@ def main():
     else:
         files = get_changed_files()
         if not files:
-            print("ℹ️  No changed Python files to check")
+            logger.info("ℹ️  no changed python files to check")
             return 0
 
     if not files:
-        print("ℹ️  No files to check")
+        logger.info("ℹ️  no files to check")
         return 0
 
-    print(f"🔍 Checking {len(files)} file(s) for N+1 query patterns...\n")
+    logger.info("🔍 checking {len(files)} file(s) for n+1 query patterns...\n")
 
     total_issues = 0
     files_with_issues = 0
 
     for filepath in files:
         if not filepath.exists():
-            print(f"⚠️  File not found: {filepath}", file=sys.stderr)
+            logger.error("⚠️  file not found: filepath", filepath=filepath)
             continue
 
         # Run detection
@@ -361,29 +365,29 @@ def main():
             files_with_issues += 1
             total_issues += len(issues)
 
-            print(f"⚠️  {filepath}")
+            logger.info("⚠️  filepath", filepath=filepath)
             for line, _issue_type, description in sorted(issues):
-                print(f"    Line {line}: {description}")
-            print()
+                logger.info("    line line: description", line=line, description=description)
+            logger.info("output", value=)
 
     # Summary
     if total_issues > 0:
         print(
             f"❌ Found {total_issues} potential N+1 pattern(s) in {files_with_issues} file(s)"
         )
-        print()
-        print("💡 Tips:")
-        print("   - Use ANY() operator for batch queries: WHERE id = ANY($1)")
-        print("   - Use executemany() for batch inserts")
-        print("   - Fetch related data with JOINs or separate batch queries")
-        print("   - See docs/DATABASE_BEST_PRACTICES.md for examples")
+        logger.info("output", value=)
+        logger.info("💡 tips:")
+        logger.info("   - use any() operator for batch queries: where id = any($1)")
+        logger.info("   - use executemany() for batch inserts")
+        logger.info("   - fetch related data with joins or separate batch queries")
+        logger.info("   - see docs/database_best_practices.md for examples")
 
         if args.strict:
             return 1
-        print()
-        print("ℹ️  Run with --strict to fail CI on N+1 patterns")
+        logger.info("output", value=)
+        logger.error("ℹ️  run with --strict to fail ci on n+1 patterns")
         return 0
-    print("✅ No N+1 query patterns detected")
+    logger.info("✅ no n+1 query patterns detected")
     return 0
 
 
@@ -391,10 +395,10 @@ if __name__ == "__main__":
     try:
         sys.exit(main())
     except KeyboardInterrupt:
-        print("\n⚠️  Interrupted by user", file=sys.stderr)
+        logger.error("\n⚠️  interrupted by user")
         sys.exit(2)
     except Exception as e:
-        print(f"❌ Error: {e}", file=sys.stderr)
+        logger.error("❌ error: e", e=e)
         sys.exit(2)
 
 # ============================================================================

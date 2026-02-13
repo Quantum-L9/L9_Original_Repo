@@ -31,7 +31,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import structlog
 import yaml
+
+logger = structlog.get_logger(__name__)
 
 try:
     import jsonschema
@@ -472,9 +475,9 @@ class TestTemplateEngine:
         elif config.mode == "write":
             if not config.force_write:
                 # Prompt user
-                print(f"\n📝 Generated {len(result.test_files)} test file(s):")
+                logger.info("\n📝 generated {len(result.test_files)} test file(s):")
                 for filepath in result.test_files:
-                    print(f"  • {filepath}")
+                    logger.info("  • filepath", filepath=filepath)
 
                 response = input("\nWrite changes? (y/n): ").strip().lower()
                 if response != "y":
@@ -499,10 +502,10 @@ class TestTemplateEngine:
 
                     # Compute unified diff
                     diff = self._compute_diff(old_code, code, str(filepath))
-                    print(diff)
+                    logger.info("output", value=diff)
                 else:
-                    print(f"[NEW FILE] {filepath}")
-                    print(code)
+                    logger.info("[new file] filepath", filepath=filepath)
+                    logger.info("output", value=code)
 
         elif config.mode == "dry-run":
             log.info("Mode=dry-run: spec validation passed")
@@ -632,12 +635,12 @@ def main():
         result = engine.generate(config)
 
         if not result.success:
-            print("❌ Generation failed:")
+            logger.error("❌ generation failed:")
             for error in result.errors:
-                print(f"  • {error}")
+                logger.error("  • error", error=error)
             sys.exit(1)
 
-        print(f"✓ Generated {len(result.test_files)} test file(s)")
+        logger.info("✓ generated {len(result.test_files)} test file(s)")
 
     elif args.spec_glob:
         import glob
@@ -656,7 +659,7 @@ def main():
             result = engine.generate(config)
 
             if not result.success:
-                print(f"❌ {spec_file}: {result.errors}")
+                logger.error("❌ spec file: {result.errors}", spec_file=spec_file)
                 sys.exit(1)
 
     else:

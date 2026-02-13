@@ -26,8 +26,12 @@ import sys
 from pathlib import Path
 
 import yaml
+import structlog
 
 # Add project root to path
+
+logger = structlog.get_logger(__name__)
+
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from neo4j import AsyncGraphDatabase
@@ -43,7 +47,7 @@ SEED_FILE = Path(__file__).parent.parent / "config" / "seeds" / "agent_world_mod
 async def load_seed_data():
     """Load seed YAML file."""
     if not SEED_FILE.exists():
-        print(f"ERROR: Seed file not found: {SEED_FILE}")
+        logger.error("error: seed file not found: seed file", SEED_FILE=SEED_FILE)
         sys.exit(1)
 
     with open(SEED_FILE) as f:
@@ -66,7 +70,7 @@ async def create_entities(tx, entities: list):
         RETURN e
         """
         await tx.run(query, id=entity_id, name=name, properties=properties)
-        print(f"  ✓ Created {entity_type}: {name} ({entity_id})")
+        logger.info("  ✓ created entity type: name (entity id)", entity_type=entity_type, name=name, entity_id=entity_id)
 
 
 async def create_relations(tx, relations: list):
@@ -90,9 +94,9 @@ async def create_relations(tx, relations: list):
         )
         record = await result.single()
         if record:
-            print(f"  ✓ Created {from_id} -[{rel_type}]-> {to_id}")
+            logger.info("  ✓ created from id -[rel type]-> to id", from_id=from_id, rel_type=rel_type, to_id=to_id)
         else:
-            print(f"  ⚠ Could not create {from_id} -[{rel_type}]-> {to_id}")
+            logger.info("  ⚠ could not create from id -[rel type]-> to id", from_id=from_id, rel_type=rel_type, to_id=to_id)
 
 
 async def create_tool_capabilities(tx, tool_caps: dict):
@@ -117,7 +121,7 @@ async def create_tool_capabilities(tx, tool_caps: dict):
                 description=tool.get("description", ""),
                 requires_approval=tool.get("requires_approval", True),
             )
-            print(f"  ✓ {agent_id} CAN_EXECUTE {tool['tool']} (HIGH RISK)")
+            logger.info("  ✓ agent id can execute {tool['tool']} (high risk)", agent_id=agent_id)
 
         # Standard tools
         for tool in caps.get("standard", []):
@@ -137,7 +141,7 @@ async def create_tool_capabilities(tx, tool_caps: dict):
                 tool_name=tool["tool"],
                 description=tool.get("description", ""),
             )
-            print(f"  ✓ {agent_id} CAN_EXECUTE {tool['tool']}")
+            logger.info("  ✓ agent id can execute {tool['tool']}", agent_id=agent_id)
 
 
 async def create_sops(tx, sops: list):
@@ -159,7 +163,7 @@ async def create_sops(tx, sops: list):
             steps=sop["steps"],
             owner=sop["owner"],
         )
-        print(f"  ✓ Created SOP: {sop['name']}")
+        logger.info("  ✓ created sop: {sop['name']}")
 
 
 async def create_directives(tx, directives: list):
@@ -179,7 +183,7 @@ async def create_directives(tx, directives: list):
             rule=directive["rule"],
             enforced_by=directive["enforced_by"],
         )
-        print(f"  ✓ Created Directive: {directive['id']} ({directive['priority']})")
+        logger.info("  ✓ created directive: {directive['id']} ({directive['priority']})")
 
     # Link directives to L-CTO
     query = """
@@ -212,77 +216,77 @@ async def create_responsibilities(tx, responsibilities: dict):
                 scope=resp["scope"],
                 agent_id=agent_id,
             )
-            print(f"  ✓ Created Responsibility: {resp['name']}")
+            logger.info("  ✓ created responsibility: {resp['name']}")
 
 
 async def main():
     """Main entry point."""
     if not NEO4J_PASSWORD:
-        print("ERROR: NEO4J_PASSWORD environment variable required")
-        print("Usage: NEO4J_PASSWORD=xxx python scripts/load_agent_world_model.py")
+        logger.error("error: neo4j_password environment variable required")
+        logger.info("usage: neo4j_password=xxx python scripts/load_agent_world_model.py")
         sys.exit(1)
 
-    print("=" * 60)
-    print("L9 Agent World Model Loader")
-    print("=" * 60)
-    print(f"Neo4j URI: {NEO4J_URI}")
-    print(f"Seed file: {SEED_FILE}")
-    print()
+    logger.info("=" * 60")
+    logger.info("l9 agent world model loader")
+    logger.info("=" * 60")
+    logger.info("neo4j uri: neo4j uri", NEO4J_URI=NEO4J_URI)
+    logger.info("seed file: seed file", SEED_FILE=SEED_FILE)
+    logger.info("output", value=)
 
     # Load seed data
-    print("Loading seed data...")
+    logger.info("loading seed data...")
     data = await load_seed_data()
-    print(f"  ✓ Loaded {len(data.get('entities', []))} entities")
-    print(f"  ✓ Loaded {len(data.get('relations', []))} relations")
-    print()
+    logger.info("  ✓ loaded {len(data.get('entities', []))} entities")
+    logger.info("  ✓ loaded {len(data.get('relations', []))} relations")
+    logger.info("output", value=)
 
     # Connect to Neo4j
-    print("Connecting to Neo4j...")
+    logger.info("connecting to neo4j...")
     driver = AsyncGraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 
     try:
         async with driver.session() as session:
             # Create entities
-            print("\nCreating entities...")
+            logger.info("\ncreating entities...")
             await session.execute_write(create_entities, data.get("entities", []))
 
             # Create relations
-            print("\nCreating relations...")
+            logger.info("\ncreating relations...")
             await session.execute_write(create_relations, data.get("relations", []))
 
             # Create tool capabilities
             if "tool_capabilities" in data:
-                print("\nCreating tool capabilities...")
+                logger.info("\ncreating tool capabilities...")
                 await session.execute_write(
                     create_tool_capabilities, data["tool_capabilities"]
                 )
 
             # Create SOPs
             if "sops" in data:
-                print("\nCreating SOPs...")
+                logger.info("\ncreating sops...")
                 await session.execute_write(create_sops, data["sops"])
 
             # Create directives
             if "directives" in data:
-                print("\nCreating directives...")
+                logger.info("\ncreating directives...")
                 await session.execute_write(create_directives, data["directives"])
 
             # Create responsibilities
             if "responsibilities" in data:
-                print("\nCreating responsibilities...")
+                logger.info("\ncreating responsibilities...")
                 await session.execute_write(
                     create_responsibilities, data["responsibilities"]
                 )
 
-        print("\n" + "=" * 60)
-        print("✓ Agent World Model loaded successfully!")
-        print("=" * 60)
+        logger.info("\n" + "=" * 60")
+        logger.info("✓ agent world model loaded successfully!")
+        logger.info("=" * 60")
 
         # Print summary query
-        print("\nVerification queries:")
-        print("  MATCH (n) RETURN labels(n)[0] as type, count(*) as count")
-        print("  MATCH ()-[r]->() RETURN type(r) as type, count(*) as count")
-        print("  MATCH (l:Agent {id: 'l-cto'})-[r]->(n) RETURN type(r), n.name")
+        logger.info("\nverification queries:")
+        logger.info("  match (n) return labels(n)[0] as type, count(*) as count")
+        logger.info("  match ()-[r]->() return type(r) as type, count(*) as count")
+        logger.info("  match (l:agent {id: 'l-cto'})-[r]->(n) return type(r), n.name")
 
     finally:
         await driver.close()

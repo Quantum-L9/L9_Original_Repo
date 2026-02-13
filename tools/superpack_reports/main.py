@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Main",
     "module_version": "1.0.0",
@@ -55,10 +60,10 @@ def generate_all_superpacks(layout: SuperpackLayout | None = None) -> None:
     }
 
     for name, fn in generators.items():
-        print(f"[superpack_reports] generating {name}...")
+        logger.info("[superpack reports] generating name...", name=name)
         fn(layout)
 
-    print("[superpack_reports] done.")
+    logger.info("[superpack_reports] done.")
 
 
 def main() -> None:

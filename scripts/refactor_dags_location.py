@@ -20,7 +20,12 @@ import argparse
 import shutil
 from pathlib import Path
 
+import structlog
+
 # Project root
+
+logger = structlog.get_logger(__name__)
+
 PROJECT_ROOT = Path(__file__).parent.parent
 
 # Source and destination
@@ -96,32 +101,34 @@ def main():
     args = parser.parse_args()
 
     if not args.dry_run and not args.execute:
-        print("ERROR: Must specify --dry-run or --execute")
-        print("Run with --dry-run first to preview changes")
+        logger.error("error: must specify --dry-run or --execute")
+        logger.info("run with --dry-run first to preview changes")
         return 1
 
     dry_run = args.dry_run
     mode = "DRY RUN" if dry_run else "EXECUTING"
 
-    print(f"\n{'=' * 60}")
-    print(f"DAG Location Refactor - {mode}")
-    print(f"{'=' * 60}")
-    print(f"\nSource: {SRC_DIR}")
-    print(f"Destination: {DST_DIR}")
+    logger.info("\n{'=' * 60}")
+    logger.info("dag location refactor - mode", mode=mode)
+    logger.info("{'=' * 60}")
+    logger.info("\nsource: src dir", SRC_DIR=SRC_DIR)
+    logger.info("destination: dst dir", DST_DIR=DST_DIR)
 
     # Check source exists
     if not SRC_DIR.exists():
-        print(f"\nERROR: Source directory does not exist: {SRC_DIR}")
+        logger.error(
+            "\nerror: source directory does not exist: src dir", SRC_DIR=SRC_DIR
+        )
         return 1
 
     # List files to move
     dag_files = list(SRC_DIR.glob("*.py"))
-    print(f"\n📁 Files to move ({len(dag_files)}):")
+    logger.info("\n📁 files to move ({len(dag_files)}):")
     for f in dag_files:
-        print(f"  - {f.name}")
+        logger.info("  - {f.name}")
 
     # Find all files needing updates
-    print("\n🔍 Scanning for files with references...")
+    logger.info("\n🔍 scanning for files with references...")
     all_files_to_update = set()
 
     for pattern, _ in REPLACEMENTS:
@@ -137,90 +144,90 @@ def main():
         if SRC_DIR not in f.parents and f.parent != SRC_DIR
     }
 
-    print(f"\n📝 Files to update ({len(all_files_to_update)}):")
+    logger.info("\n📝 files to update ({len(all_files_to_update)}):")
     for f in sorted(all_files_to_update):
-        print(f"  - {f.relative_to(PROJECT_ROOT)}")
+        logger.info("  - {f.relative_to(project_root)}")
 
     # Phase 1: Create destination directory
-    print(f"\n{'=' * 60}")
-    print("PHASE 1: Create destination directory")
-    print(f"{'=' * 60}")
+    logger.info("\n{'=' * 60}")
+    logger.info("phase 1: create destination directory")
+    logger.info("{'=' * 60}")
 
     if DST_DIR.exists():
-        print(f"  ⚠️  Destination already exists: {DST_DIR}")
+        logger.info("  ⚠️  destination already exists: dst dir", DST_DIR=DST_DIR)
     else:
-        print(f"  Creating: {DST_DIR}")
+        logger.info("  creating: dst dir", DST_DIR=DST_DIR)
         if not dry_run:
             DST_DIR.mkdir(parents=True, exist_ok=True)
 
     # Phase 2: Move files
-    print(f"\n{'=' * 60}")
-    print("PHASE 2: Move DAG files")
-    print(f"{'=' * 60}")
+    logger.info("\n{'=' * 60}")
+    logger.info("phase 2: move dag files")
+    logger.info("{'=' * 60}")
 
     for src_file in dag_files:
         dst_file = DST_DIR / src_file.name
-        print(f"  {src_file.name} → {dst_file.relative_to(PROJECT_ROOT)}")
+        logger.info("  {src_file.name} → {dst_file.relative_to(project_root)}")
         if not dry_run:
             shutil.copy2(src_file, dst_file)
 
     # Phase 3: Update content in moved files
-    print(f"\n{'=' * 60}")
-    print("PHASE 3: Update imports in moved files")
-    print(f"{'=' * 60}")
+    logger.info("\n{'=' * 60}")
+    logger.info("phase 3: update imports in moved files")
+    logger.info("{'=' * 60}")
 
     for src_file in dag_files:
         dst_file = DST_DIR / src_file.name
         target = dst_file if not dry_run else src_file
         changed, changes = update_file_content(target, dry_run)
         if changed:
-            print(f"\n  {src_file.name}:")
+            logger.info("\n  {src_file.name}:")
             for c in changes:
-                print(c)
+                logger.info("output", value=c)
 
     # Phase 4: Update other files
-    print(f"\n{'=' * 60}")
-    print("PHASE 4: Update references in other files")
-    print(f"{'=' * 60}")
+    logger.info("\n{'=' * 60}")
+    logger.info("phase 4: update references in other files")
+    logger.info("{'=' * 60}")
 
     for filepath in sorted(all_files_to_update):
         changed, changes = update_file_content(filepath, dry_run)
         if changed:
-            print(f"\n  {filepath.relative_to(PROJECT_ROOT)}:")
+            logger.info("\n  {filepath.relative_to(project_root)}:")
             for c in changes:
-                print(c)
+                logger.info("output", value=c)
 
     # Phase 5: Remove old directory (only if execute)
-    print(f"\n{'=' * 60}")
-    print("PHASE 5: Cleanup old directory")
-    print(f"{'=' * 60}")
+    logger.info("\n{'=' * 60}")
+    logger.info("phase 5: cleanup old directory")
+    logger.info("{'=' * 60}")
 
     if dry_run:
-        print(f"  Would remove: {SRC_DIR}")
+        logger.info("  would remove: src dir", SRC_DIR=SRC_DIR)
     else:
-        print(f"  Removing: {SRC_DIR}")
+        logger.info("  removing: src dir", SRC_DIR=SRC_DIR)
         # Don't actually remove yet - keep for safety
         print(
             "  ⚠️  Old directory preserved for safety. Remove manually after verification:"
         )
-        print(f"     rm -rf {SRC_DIR}")
+        logger.info("     rm -rf src dir", SRC_DIR=SRC_DIR)
 
     # Summary
-    print(f"\n{'=' * 60}")
-    print("SUMMARY")
-    print(f"{'=' * 60}")
-    print(f"  Files moved: {len(dag_files)}")
-    print(f"  Files updated: {len(all_files_to_update)}")
+    logger.info("\n{'=' * 60}")
+    logger.info("summary")
+    logger.info("{'=' * 60}")
+    logger.info("  files moved: {len(dag_files)}")
+    logger.info("  files updated: {len(all_files_to_update)}")
 
     if dry_run:
-        print("\n✅ DRY RUN COMPLETE - No changes made")
-        print("   Run with --execute to apply changes")
+        logger.info("\n✅ dry run complete - no changes made")
+        logger.info("   run with --execute to apply changes")
     else:
-        print("\n✅ REFACTOR COMPLETE")
+        logger.info("\n✅ refactor complete")
         print(
             '   Verify with: python -c "from workflows.dags import INSPECT_DAG; print(INSPECT_DAG.id)"'
         )
-        print(f"   Then remove old: rm -rf {SRC_DIR}")
+        logger.info("   then remove old: rm -rf src dir", SRC_DIR=SRC_DIR)
 
     return 0
 

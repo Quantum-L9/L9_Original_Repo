@@ -26,7 +26,12 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Gmp Executor",
     "module_version": "1.0.0",
@@ -483,7 +488,7 @@ test_path = Path('{REPO_ROOT / test_file}')
 test_path.parent.mkdir(parents=True, exist_ok=True)
 test_path.write_text(tests)
 
-print(f'Generated {{len(tests.splitlines())}} lines')
+logger.info("generated {{len(tests.splitlines())}} lines")
 "'''
                 code, stdout, stderr = self._run_shell(cmd)
                 if code == 0:

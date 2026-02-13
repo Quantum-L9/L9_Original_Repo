@@ -103,9 +103,14 @@ import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
+import structlog
+
 # =============================================================================
 # Schema Version (PacketEnvelope v2.0.0)
 # =============================================================================
+
+
+logger = structlog.get_logger(__name__)
 
 SCHEMA_VERSION = "2.0.0"
 SUPPORTED_VERSIONS = ["1.0.0", "1.0.1", "1.1.0", "1.1.1", "2.0.0"]
@@ -272,7 +277,7 @@ def cmd_stats():
             "duration": "all",
         },
     )
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_health():
@@ -352,7 +357,7 @@ def cmd_health():
             "❌ Both MCP and API unhealthy - no memory operations available"
         )
 
-    print(json.dumps(results, indent=2))
+    logger.info("output", value=json.dumps(results, indent=2))
 
 
 def cmd_search(
@@ -454,7 +459,7 @@ def cmd_write(content: str, kind: str = "note", thread_id: str | None = None):
     result["_session_id"] = session_id
     result["_schema_version"] = SCHEMA_VERSION
 
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_session():
@@ -519,7 +524,7 @@ def cmd_mcp_test():
         }
         results["overall"] = "failed"
         results["message"] = f"❌ MCP WRITE FAILED: {write_result.get('error')}"
-        print(json.dumps(results, indent=2))
+        logger.info("output", value=json.dumps(results, indent=2))
         return
     results["steps"]["write"] = {
         "status": "success",
@@ -574,7 +579,7 @@ def cmd_mcp_test():
                 "⚠️ MCP WRITE OK but test packet not found in search (may need indexing time)"
             )
 
-    print(json.dumps(results, indent=2))
+    logger.info("output", value=json.dumps(results, indent=2))
 
 
 def cmd_session_close():
@@ -645,7 +650,7 @@ def cmd_session_close():
         "memory_id": result.get("memory_id"),
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_session_resume(task_description: str | None = None):
@@ -744,7 +749,7 @@ def cmd_session_resume(task_description: str | None = None):
         "message": f"🔄 Session resumed. Loaded {len(session_context)} context items, {len(preferences)} preferences, {len(lessons)} lessons.",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_resume_for(task: str):
@@ -868,7 +873,7 @@ def cmd_warn(task_description: str):
         "message": f"🛡️ Found {len(warnings)} relevant warnings/lessons for: {task_description}",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_inject(task_description: str | None = None, layers: str = "all"):
@@ -1000,7 +1005,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
         "message": f"🧠 Injected {total_items} context items across 5 layers",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_temporal(query: str, since: str = "24h", until: str | None = None):
@@ -1043,7 +1048,7 @@ def cmd_temporal(query: str, since: str = "24h", until: str | None = None):
         "message": f"🕐 Found {len(memories)} results for '{query}' in {since} window",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_fix_error(error_message: str):
@@ -1124,7 +1129,7 @@ def cmd_fix_error(error_message: str):
         "message": f"🔍 Found {len(fixes)} potential fixes for: {error_message[:50]}...",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_suggest(context: str | None = None):
@@ -1186,7 +1191,7 @@ def cmd_suggest(context: str | None = None):
         "message": f"💡 Generated {len(suggestions)} suggestions",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_dedupe_check(content: str):
@@ -1242,7 +1247,7 @@ def cmd_dedupe_check(content: str):
         "message": f"{'⚠️ Duplicate detected' if is_duplicate else '✅ Content is unique'}",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_session_diff():
@@ -1309,7 +1314,7 @@ def cmd_session_diff():
         "message": f"📊 Session diff: {len(new_topics)} new topics, {len(continued_topics)} continued",
     }
 
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 # =============================================================================
@@ -1321,7 +1326,7 @@ def cmd_session_diff():
 def cmd_graph_health():
     """Check Neo4j graph health via REST API (FALLBACK - no MCP tool)."""
     result = api_request("GET", "/api/v1/memory/graph/health")
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_graph_context(domain: str, limit: int = 10):
@@ -1332,7 +1337,7 @@ def cmd_graph_context(domain: str, limit: int = 10):
            python cursor_memory_client.py graph-context agents --limit 20
     """
     result = api_request("GET", f"/api/v1/memory/graph/context/{domain}?limit={limit}")
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_graph_query(query: str, params: str | None = None):
@@ -1347,11 +1352,13 @@ def cmd_graph_query(query: str, params: str | None = None):
         try:
             data["parameters"] = json.loads(params)
         except json.JSONDecodeError:
-            print(json.dumps({"error": f"Invalid JSON params: {params}"}))
+            logger.error(
+                "output", value=json.dumps({"error": f"Invalid JSON params: {params}"})
+            )
             return
 
     result = api_request("POST", "/api/v1/memory/graph/query", data)
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_graph_entity(entity_type: str, entity_id: str):
@@ -1363,7 +1370,7 @@ def cmd_graph_entity(entity_type: str, entity_id: str):
     result = api_request(
         "GET", f"/api/v1/memory/graph/entity/{entity_type}/{entity_id}"
     )
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_graph_relationships(entity_type: str, entity_id: str, direction: str = "both"):
@@ -1377,7 +1384,7 @@ def cmd_graph_relationships(entity_type: str, entity_id: str, direction: str = "
         "GET",
         f"/api/v1/memory/graph/relationships/{entity_type}/{entity_id}?direction={direction}",
     )
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 # =============================================================================
@@ -1389,7 +1396,7 @@ def cmd_graph_relationships(entity_type: str, entity_id: str, direction: str = "
 def cmd_cache_health():
     """Check Redis cache health via REST API (FALLBACK - no MCP tool)."""
     result = api_request("GET", "/api/v1/memory/cache/health")
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_cache_get(key: str):
@@ -1399,7 +1406,7 @@ def cmd_cache_get(key: str):
     Usage: python cursor_memory_client.py cache-get mykey
     """
     result = api_request("GET", f"/api/v1/memory/cache/get/{key}")
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_cache_set(key: str, value: str, ttl: int | None = None):
@@ -1414,7 +1421,7 @@ def cmd_cache_set(key: str, value: str, ttl: int | None = None):
         data["ttl"] = ttl
 
     result = api_request("POST", "/api/v1/memory/cache/set", data)
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_cache_session_context(session_id: str | None = None):
@@ -1428,7 +1435,7 @@ def cmd_cache_session_context(session_id: str | None = None):
     result = api_request("GET", f"/api/v1/memory/cache/session/context/{sid}")
 
     output = {"session_id": sid, "from_cache": True, **result}
-    print(json.dumps(output, indent=2))
+    logger.info("output", value=json.dumps(output, indent=2))
 
 
 def cmd_cache_set_session_context(context_json: str):
@@ -1442,7 +1449,9 @@ def cmd_cache_set_session_context(context_json: str):
     try:
         context = json.loads(context_json)
     except json.JSONDecodeError:
-        print(json.dumps({"error": f"Invalid JSON: {context_json}"}))
+        logger.error(
+            "output", value=json.dumps({"error": f"Invalid JSON: {context_json}"})
+        )
         return
 
     data = {
@@ -1452,7 +1461,7 @@ def cmd_cache_set_session_context(context_json: str):
     }
 
     result = api_request("POST", "/api/v1/memory/cache/session/context", data)
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 def cmd_cache_list_sessions():
@@ -1462,7 +1471,7 @@ def cmd_cache_list_sessions():
     Usage: python cursor_memory_client.py cache-sessions
     """
     result = api_request("GET", "/api/v1/memory/cache/session/list")
-    print(json.dumps(result, indent=2))
+    logger.info("output", value=json.dumps(result, indent=2))
 
 
 # =============================================================================

@@ -119,25 +119,25 @@ async def delete_trash_embeddings():
 
 async def main():
     """Main function."""
-    print("\n" + "=" * 60)
-    print("DELETE TRASH EMBEDDINGS")
-    print("=" * 60)
-    print()
+    logger.info("\n" + "=" * 60")
+    logger.info("delete trash embeddings")
+    logger.info("=" * 60")
+    logger.info("output", value=)
 
     success = await delete_trash_embeddings()
 
     if success:
-        print("\n✅ Trash embeddings deleted successfully")
-        print("\nNext: Run re-indexing scripts to populate with high-value content")
+        logger.info("\n✅ trash embeddings deleted successfully")
+        logger.info("\nnext: run re-indexing scripts to populate with high-value content")
     else:
-        print("\n❌ Deletion failed - check logs above")
-        print("\nAlternative: Run SQL manually:")
-        print("  psql -d l9_memory -f /tmp/delete_trash.sql")
+        logger.error("\n❌ deletion failed - check logs above")
+        logger.info("\nalternative: run sql manually:")
+        logger.info("  psql -d l9_memory -f /tmp/delete_trash.sql")
         print(
             "  Or via Docker: docker exec -i l9-postgres psql -U l9_user -d l9_memory < /tmp/delete_trash.sql"
         )
 
-    print("=" * 60 + "\n")
+    logger.info("=" * 60 + "\n")
 
 
 if __name__ == "__main__":

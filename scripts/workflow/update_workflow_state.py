@@ -16,6 +16,10 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+import structlog
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "module_id": "scripts.workflow.update_workflow_state",
     "stability": "stable",
@@ -41,7 +45,9 @@ def read_workflow_state() -> str:
 def write_workflow_state(content: str) -> None:
     """Write updated content to workflow_state.md."""
     WORKFLOW_STATE_PATH.write_text(content)
-    print(f"✅ Updated: {WORKFLOW_STATE_PATH}")
+    logger.info(
+        "✅ updated: workflow state path", WORKFLOW_STATE_PATH=WORKFLOW_STATE_PATH
+    )
 
 
 def inject_recent_change(content: str, entry: str) -> str:
@@ -52,7 +58,7 @@ def inject_recent_change(content: str, entry: str) -> str:
     marker = "## Recent Changes (digest)"
 
     if marker not in content:
-        print(f"⚠️  Section '{marker}' not found")
+        logger.info("⚠️  section 'marker' not found", marker=marker)
         return content
 
     # Find position after marker and after "Full history:" line
@@ -88,7 +94,7 @@ def inject_next_steps_pr(
     marker = "## Next Steps (Current Session)"
 
     if marker not in content:
-        print(f"⚠️  Section '{marker}' not found")
+        logger.info("⚠️  section 'marker' not found", marker=marker)
         return content
 
     get_current_date()
@@ -138,7 +144,7 @@ def inject_recent_session(content: str, entry: str) -> str:
     marker = "**Recent Sessions (7-day window):**"
 
     if marker not in content:
-        print(f"⚠️  Section '{marker}' not found")
+        logger.info("⚠️  section 'marker' not found", marker=marker)
         return content
 
     marker_pos = content.find(marker)
@@ -192,7 +198,7 @@ def cmd_pr_start(args):
     content = inject_recent_session(content, session_entry)
 
     write_workflow_state(content)
-    print(f"📝 PR #{args.pr} analysis entry added to workflow_state.md")
+    logger.info("📝 pr #{args.pr} analysis entry added to workflow_state.md")
 
 
 def cmd_pr_complete(args):
@@ -211,7 +217,7 @@ def cmd_pr_complete(args):
     content = mark_session_complete(content, args.pr)
 
     write_workflow_state(content)
-    print(f"✅ PR #{args.pr} marked complete in workflow_state.md")
+    logger.info("✅ pr #{args.pr} marked complete in workflow_state.md")
 
 
 def cmd_gmp_start(args):
@@ -223,7 +229,7 @@ def cmd_gmp_start(args):
     content = inject_recent_change(content, change_entry)
 
     write_workflow_state(content)
-    print(f"📝 GMP-{args.gmp} start entry added")
+    logger.info("📝 gmp-{args.gmp} start entry added")
 
 
 def cmd_gmp_complete(args):
@@ -236,7 +242,7 @@ def cmd_gmp_complete(args):
     content = inject_recent_change(content, change_entry)
 
     write_workflow_state(content)
-    print(f"✅ GMP-{args.gmp} completion entry added")
+    logger.info("✅ gmp-{args.gmp} completion entry added")
 
 
 def main():

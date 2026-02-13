@@ -468,28 +468,28 @@ Start by creating the directory structure and implementing the first component.
         Returns:
             Generation result with file paths
         """
-        print("🚀 L9 Spec Generator (L → CA Pipeline)")
-        print(f"📄 Reading concept: {concept_file}")
+        logger.info("🚀 l9 spec generator (l → ca pipeline)")
+        logger.info("📄 reading concept: concept file", concept_file=concept_file)
 
         # Parse concept
         concept = self.parse_concept(concept_file)
-        print(f"✅ Parsed concept: {concept.name} v{concept.version}")
+        logger.info("✅ parsed concept: {concept.name} v{concept.version}")
 
         # Generate PLAN spec
         plan = self.generate_plan_spec(concept, project_id)
-        print(f"✅ Generated PLAN spec: {plan.plan_id}")
+        logger.info("✅ generated plan spec: {plan.plan_id}")
 
         # Save PLAN spec
         plan_file = self.output_dir / f"{plan.plan_id}.yaml"
         with open(plan_file, "w") as f:
             yaml.dump(asdict(plan), f, default_flow_style=False, sort_keys=False)
-        print(f"📝 Saved PLAN spec: {plan_file}")
+        logger.info("📝 saved plan spec: plan file", plan_file=plan_file)
 
         # Generate Cursor prompt
         cursor_prompt = self.generate_cursor_prompt(plan, concept)
         prompt_file = self.output_dir / f"{plan.plan_id}_cursor_prompt.md"
         prompt_file.write_text(cursor_prompt)
-        print(f"📝 Saved Cursor prompt: {prompt_file}")
+        logger.info("📝 saved cursor prompt: prompt file", prompt_file=prompt_file)
 
         return {
             "plan_file": str(plan_file),
@@ -523,14 +523,14 @@ def main():
     generator = L9SpecGenerator(output_dir=args.output)
     result = generator.generate_from_file(args.concept_file, args.project_id)
 
-    print("\n✨ Generation complete!")
-    print(f"📋 PLAN spec: {result['plan_file']}")
-    print(f"📄 Cursor prompt: {result['prompt_file']}")
-    print("\n🎯 Next steps:")
-    print(f"1. Review the PLAN spec: {result['plan_file']}")
-    print(f"2. Open Cursor and load: {result['prompt_file']}")
-    print("3. CA will implement the code")
-    print("4. DevLayer will validate and generate reports")
+    logger.info("\n✨ generation complete!")
+    logger.info("📋 plan spec: {result['plan_file']}")
+    logger.info("📄 cursor prompt: {result['prompt_file']}")
+    logger.info("\n🎯 next steps:")
+    logger.info("1. review the plan spec: {result['plan_file']}")
+    logger.info("2. open cursor and load: {result['prompt_file']}")
+    logger.info("3. ca will implement the code")
+    logger.info("4. devlayer will validate and generate reports")
 
 
 if __name__ == "__main__":

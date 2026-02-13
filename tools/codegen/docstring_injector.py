@@ -1302,16 +1302,16 @@ def main() -> int:
 
     # Report
     report = injector.generate_report()
-    print(report)
+    logger.info("output", value=report)
 
     # Validation step - verify quality of injected docstrings
     if args.apply and injector.results:
-        print("\n" + "=" * 70)
-        print("VALIDATION: Checking quality of injected docstrings")
-        print("=" * 70)
+        logger.info("\n" + "=" * 70")
+        logger.info("validation: checking quality of injected docstrings")
+        logger.info("=" * 70")
 
         validation_results = validate_injected_docstrings(injector.results, repo_root)
-        print(validation_results)
+        logger.info("output", value=validation_results)
 
     return 0
 

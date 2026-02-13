@@ -49,8 +49,12 @@ import argparse
 import subprocess
 import sys
 from pathlib import Path
+import structlog
 
 # Directories to skip
+
+logger = structlog.get_logger(__name__)
+
 SKIP_DIRS = {
     "__pycache__",
     ".git",
@@ -171,7 +175,7 @@ def fix_file(file_path: Path, repo_root: Path, dry_run: bool = False) -> bool:
     ]
 
     if dry_run:
-        print(f"  Would run: {' '.join(cmd)}")
+        logger.info("  would run: {' '.join(cmd)}")
         return True
 
     try:
@@ -184,11 +188,11 @@ def fix_file(file_path: Path, repo_root: Path, dry_run: bool = False) -> bool:
 
         if result.returncode == 0:
             return True
-        print(f"  Error fixing {relative_path}: {result.stderr}")
+        logger.error("  error fixing relative path: {result.stderr}", relative_path=relative_path)
         return False
 
     except Exception as e:
-        print(f"  Exception fixing {relative_path}: {e}")
+        logger.info("  exception fixing relative path: e", relative_path=relative_path, e=e)
         return False
 
 
@@ -247,15 +251,15 @@ def main():
     check_path = repo_root / args.path
 
     if not check_path.exists():
-        print(f"❌ Path not found: {check_path}")
+        logger.info("❌ path not found: check path", check_path=check_path)
         sys.exit(2)
 
     # Modify skip patterns if including tests
     if args.include_tests:
         SKIP_PATTERNS.clear()
 
-    print(f"🔍 Scanning {check_path}...")
-    print()
+    logger.info("🔍 scanning check path...", check_path=check_path)
+    logger.info("output", value=)
 
     # Check compliance
     missing_header, missing_footer, missing_trace = check_compliance(check_path)
@@ -264,22 +268,22 @@ def main():
     all_missing = set(missing_header) | set(missing_footer) | set(missing_trace)
 
     if not all_missing:
-        print("✅ All files have complete DORA blocks!")
+        logger.info("✅ all files have complete dora blocks!")
         sys.exit(0)
 
     # Report findings
-    print("📊 DORA Compliance Report")
-    print(f"{'=' * 60}")
-    print(f"  Files scanned: {len(scan_files(check_path, ['.py', '.yaml', '.yml']))}")
-    print(f"  Missing header: {len(missing_header)}")
-    print(f"  Missing footer: {len(missing_footer)}")
-    print(f"  Missing trace:  {len(missing_trace)}")
-    print(f"  Total non-compliant: {len(all_missing)}")
-    print()
+    logger.info("📊 dora compliance report")
+    logger.info("{'=' * 60}")
+    logger.info("  files scanned: {len(scan_files(check_path, ['.py', '.yaml', '.yml']))}")
+    logger.info("  missing header: {len(missing_header)}")
+    logger.info("  missing footer: {len(missing_footer)}")
+    logger.info("  missing trace:  {len(missing_trace)}")
+    logger.info("  total non-compliant: {len(all_missing)}")
+    logger.info("output", value=)
 
     if args.check:
         # Check mode - report and exit with error
-        print("❌ Non-compliant files:")
+        logger.info("❌ non-compliant files:")
         for file_path in sorted(all_missing):
             relative = file_path.relative_to(repo_root)
             blocks = check_dora_blocks(file_path)
@@ -290,10 +294,10 @@ def main():
                 missing.append("footer")
             if not blocks["trace"]:
                 missing.append("trace")
-            print(f"  {relative} (missing: {', '.join(missing)})")
+            logger.info("  relative (missing: {', '.join(missing)})", relative=relative)
 
-        print()
-        print("💡 Run with --fix to auto-inject DORA blocks")
+        logger.info("output", value=)
+        logger.info("💡 run with --fix to auto-inject dora blocks")
         sys.exit(1)
 
     if args.fix:
@@ -301,35 +305,35 @@ def main():
         print(
             f"🔧 {'DRY RUN - ' if args.dry_run else ''}Fixing {len(all_missing)} files..."
         )
-        print()
+        logger.info("output", value=)
 
         fixed = 0
         failed = 0
 
         for file_path in sorted(all_missing):
             relative = file_path.relative_to(repo_root)
-            print(f"  Fixing {relative}...")
+            logger.info("  fixing relative...", relative=relative)
 
             if fix_file(file_path, repo_root, dry_run=args.dry_run):
                 fixed += 1
             else:
                 failed += 1
 
-        print()
-        print("📊 Fix Summary")
-        print(f"{'=' * 60}")
-        print(f"  Fixed: {fixed}")
-        print(f"  Failed: {failed}")
+        logger.info("output", value=)
+        logger.info("📊 fix summary")
+        logger.info("{'=' * 60}")
+        logger.info("  fixed: fixed", fixed=fixed)
+        logger.error("  failed: failed", failed=failed)
 
         if failed > 0:
             sys.exit(2)
 
         if args.dry_run:
-            print()
-            print("💡 Run without --dry-run to apply fixes")
+            logger.info("output", value=)
+            logger.info("💡 run without --dry-run to apply fixes")
         else:
-            print()
-            print("✅ All files fixed!")
+            logger.info("output", value=)
+            logger.info("✅ all files fixed!")
 
 
 if __name__ == "__main__":

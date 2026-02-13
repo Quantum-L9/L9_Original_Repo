@@ -19,8 +19,12 @@ ADR: ADR-0091 (Definition of Done)
 """
 
 from __future__ import annotations
+import structlog
 
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Check Definition Of Done",
     "module_version": "1.0.0",
@@ -233,42 +237,42 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    print("=" * 70)
-    print("  DEFINITION OF DONE CHECK (ADR-0091)")
-    print("=" * 70)
-    print()
+    logger.info("=" * 70")
+    logger.info("  definition of done check (adr-0091)")
+    logger.info("=" * 70")
+    logger.info("output", value=)
 
     # Get diff
     diff_lines = get_diff_lines(args.base_ref)
-    print(f"Checking {len(diff_lines)} added/modified lines...")
-    print()
+    logger.info("checking {len(diff_lines)} added/modified lines...")
+    logger.info("output", value=)
 
     exit_code = 0
 
     # Check incomplete markers
     violations = check_incomplete_markers(diff_lines)
     if violations:
-        print(f"❌ INCOMPLETE MARKERS: Found {len(violations)} violation(s):\n")
+        logger.info("❌ incomplete markers: found {len(violations)} violation(s):\n")
         for v in violations:
-            print(f"  {v}\n")
+            logger.info("  v\n", v=v)
         exit_code = 1
 
     # Check auth/healthcheck consistency
     warnings = check_auth_healthcheck_consistency(diff_lines)
     if warnings:
-        print("⚠️ AUTH/HEALTHCHECK WARNINGS:\n")
+        logger.warning("⚠️ auth/healthcheck warnings:\n")
         for w in warnings:
-            print(f"  {w}\n")
+            logger.info("  w\n", w=w)
         if args.strict:
             exit_code = 1
 
     # Summary
     if exit_code == 0:
-        print("✅ PASSED: Definition of Done criteria met")
+        logger.info("✅ passed: definition of done criteria met")
     else:
-        print("\n" + "=" * 70)
-        print("DEFINITION OF DONE REQUIREMENTS (ADR-0091)")
-        print("=" * 70)
+        logger.info("\n" + "=" * 70")
+        logger.info("definition of done requirements (adr-0091)")
+        logger.info("=" * 70")
         print("""
 Before merging, ensure:
 

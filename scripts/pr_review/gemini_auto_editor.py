@@ -31,6 +31,9 @@ import subprocess
 from typing import Any
 
 import requests
+import structlog
+
+logger = structlog.get_logger(__name__)
 
 PROTECTED_FILES = {
     "api/websocket_orchestrator.py",
@@ -147,8 +150,8 @@ Return ONLY valid JSON.
         )
 
         if response.status_code != 200:
-            print(f"❌ Gemini API error: {response.status_code}")
-            print(response.text)
+            logger.error("❌ gemini api error: {response.status_code}")
+            logger.info("output", value=response.text)
             return {"improvements": [], "summary": "API call failed"}
 
         result = response.json()
@@ -163,7 +166,7 @@ Return ONLY valid JSON.
 
             return json.loads(text)
         except Exception as e:
-            print(f"❌ Failed to parse Gemini response: {e}")
+            logger.error("❌ failed to parse gemini response: e", e=e)
             return {"improvements": [], "summary": "Parse error"}
 
     def apply_improvements(self, improvements: list[dict]) -> int:
@@ -174,11 +177,11 @@ Return ONLY valid JSON.
             filepath = imp["file"]
 
             if self.is_protected_file(filepath):
-                print(f"⚠️  Skipping protected file: {filepath}")
+                logger.info("⚠️  skipping protected file: filepath", filepath=filepath)
                 continue
 
             if not os.path.exists(filepath):
-                print(f"⚠️  File not found: {filepath}")
+                logger.info("⚠️  file not found: filepath", filepath=filepath)
                 continue
 
             try:
@@ -194,29 +197,37 @@ Return ONLY valid JSON.
                     with open(filepath, "w", encoding="utf-8") as f:
                         f.write(content)
 
-                    print(f"✅ Applied improvement to: {filepath}")
-                    print(f"   Reason: {imp.get('reason', 'No reason provided')}")
+                    logger.info(
+                        "✅ applied improvement to: filepath", filepath=filepath
+                    )
+                    logger.info("   reason: {imp.get('reason', 'no reason provided')}")
                     applied += 1
                 else:
-                    print(f"⚠️  Original code not found in: {filepath}")
+                    logger.info(
+                        "⚠️  original code not found in: filepath", filepath=filepath
+                    )
 
             except Exception as e:
-                print(f"❌ Failed to apply improvement to {filepath}: {e}")
+                logger.error(
+                    "❌ failed to apply improvement to filepath: e",
+                    filepath=filepath,
+                    e=e,
+                )
 
         return applied
 
     def run(self):
         """Main execution"""
-        print("🤖 Starting Gemini Auto-Editor...")
+        logger.info("🤖 starting gemini auto-editor...")
 
         diff = self.get_pr_diff()
         files = self.get_changed_files()
 
         if not diff:
-            print("✅ No changes detected")
+            logger.info("✅ no changes detected")
             return
 
-        print(f"📁 Processing {len(files)} files...")
+        logger.info("📁 processing {len(files)} files...")
 
         # Get improvements from Gemini
         result = self.call_gemini_api(diff, files)
@@ -225,11 +236,14 @@ Return ONLY valid JSON.
         improvements = result.get("improvements", [])
         if improvements:
             applied = self.apply_improvements(improvements)
-            print(f"\n✅ Applied {applied}/{len(improvements)} Gemini improvements")
+            logger.info(
+                "\n✅ applied applied/{len(improvements)} gemini improvements",
+                applied=applied,
+            )
         else:
-            print("✅ No improvements suggested (code already meets standards)")
+            logger.info("✅ no improvements suggested (code already meets standards)")
 
-        print(f"\n📊 Summary: {result.get('summary', 'No summary')}")
+        logger.info("\n📊 summary: {result.get('summary', 'no summary')}")
 
 
 if __name__ == "__main__":

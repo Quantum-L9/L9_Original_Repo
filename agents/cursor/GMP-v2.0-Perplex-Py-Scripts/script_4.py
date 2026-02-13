@@ -1,4 +1,9 @@
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Script 4",
     "module_version": "1.0.0",
@@ -569,10 +574,10 @@ All references validated against uploaded L9 repository files.
 **END OF GMP v2.0 DELIVERY PACKAGE**
 """
 
-print(output)
-print("\n" + "=" * 79)
-print("✅ GMP v2.0 PRODUCTION-READY CURSOR GOD-MODE PROMPT PACKET DELIVERED")
-print("=" * 79)
+logger.info("output", value=output)
+logger.info("separator", value="\n" + "=" * 79)
+logger.info("✅ gmp v2.0 production-ready cursor god-mode prompt packet delivered")
+logger.info("separator", value="=" * 79)
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

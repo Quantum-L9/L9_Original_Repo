@@ -421,56 +421,56 @@ async def main():
         if args.list:
             # List existing strategies
             strategies = await list_strategies(neo4j)
-            print("\n=== Existing Strategies ===\n")
+            logger.info("\n=== existing strategies ===\n")
             if not strategies:
-                print("No strategies found.")
+                logger.info("no strategies found.")
             else:
                 for s in strategies:
-                    print(f"  {s['id']}: {s['name']}")
+                    logger.info("  {s['id']}: {s['name']}")
                     print(
                         f"    Kind: {s['task_kind']}, Score: {s['score']:.2f}, Usage: {s['usage']}"
                     )
-                    print(f"    Tags: {', '.join(s['tags'] or [])}")
-                    print()
+                    logger.info("    tags: {', '.join(s['tags'] or [])}")
+                    logger.info("output", value=)
             return
 
         if args.delete_all:
             # Confirm deletion
             confirm = input("Are you sure you want to delete ALL strategies? [y/N] ")
             if confirm.lower() != "y":
-                print("Cancelled.")
+                logger.info("cancelled.")
                 return
 
             deleted = await delete_all_strategies(neo4j)
-            print(f"Deleted {deleted} strategies.")
+            logger.info("deleted deleted strategies.", deleted=deleted)
             return
 
         if args.dry_run:
             # Show what would be seeded
-            print("\n=== Dry Run: Golden Strategies to Seed ===\n")
+            logger.info("\n=== dry run: golden strategies to seed ===\n")
             for strategy in GOLDEN_STRATEGIES:
-                print(f"  - {strategy['name']}")
-                print(f"    Kind: {strategy['task_kind']}")
-                print(f"    Tags: {', '.join(strategy['tags'])}")
-                print(f"    Description: {strategy['description'][:60]}...")
-                print()
-            print(f"Total: {len(GOLDEN_STRATEGIES)} strategies")
+                logger.info("  - {strategy['name']}")
+                logger.info("    kind: {strategy['task_kind']}")
+                logger.info("    tags: {', '.join(strategy['tags'])}")
+                logger.info("    description: {strategy['description'][:60]}...")
+                logger.info("output", value=)
+            logger.info("total: {len(golden_strategies)} strategies")
             return
 
         # Seed golden strategies
-        print("\n=== Seeding Golden Strategies ===\n")
+        logger.info("\n=== seeding golden strategies ===\n")
         results = await seed_golden_strategies(neo4j, force=args.force)
 
-        print("\nResults:")
-        print(f"  Created: {results['created']}")
-        print(f"  Skipped: {results['skipped']}")
-        print(f"  Errors: {results['errors']}")
-        print(f"  Total: {results['total']}")
+        logger.info("\nresults:")
+        logger.info("  created: {results['created']}")
+        logger.info("  skipped: {results['skipped']}")
+        logger.error("  errors: {results['errors']}")
+        logger.info("  total: {results['total']}")
 
         if results["strategy_ids"]:
-            print("\nNew Strategy IDs:")
+            logger.info("\nnew strategy ids:")
             for sid in results["strategy_ids"]:
-                print(f"  - {sid}")
+                logger.info("  - sid", sid=sid)
 
     finally:
         # Close Neo4j connection

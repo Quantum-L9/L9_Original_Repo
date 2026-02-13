@@ -61,6 +61,10 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+import structlog
+
+logger = structlog.get_logger(__name__)
+
 try:
     import yaml
 
@@ -457,7 +461,7 @@ def extract_subsystem_facts(repo_root: Path, subsystem_path: str) -> SubsystemFa
                                 facts.constants.append((target.id, value, rel_path))
 
         except Exception as e:
-            print(f"WARNING: Could not parse {py_file}: {e}", file=sys.stderr)
+            logger.error("warning: could not parse py file: e", py_file=py_file, e=e)
 
     # Deduplicate imports
     facts.imports = sorted(set(facts.imports))
@@ -823,7 +827,7 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
     # Verify path exists
     full_path = repo_root / path
     if not full_path.exists():
-        print(f"ERROR: Path not found: {full_path}", file=sys.stderr)
+        logger.error("error: path not found: full path", full_path=full_path)
         return 1
 
     # Phase 1: Check if README.md already exists at target
@@ -844,22 +848,22 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
                 file=sys.stderr,
             )
 
-    print(f"🔍 Extracting facts from {path}...", file=sys.stderr)
+    logger.error("🔍 extracting facts from path...", path=path)
 
     # Extract facts
     facts = extract_subsystem_facts(repo_root, path)
     facts.has_existing_readme = existing_readme.exists()
 
     if args.verbose:
-        print(f"   Files: {len(facts.files)}", file=sys.stderr)
-        print(f"   Classes: {len(facts.classes)}", file=sys.stderr)
-        print(f"   Functions: {len(facts.functions)}", file=sys.stderr)
-        print(f"   Pydantic Models: {len(facts.pydantic_models)}", file=sys.stderr)
-        print(f"   Routes: {len(facts.routes)}", file=sys.stderr)
-        print(f"   Imports: {len(facts.imports)}", file=sys.stderr)
+        logger.error("   files: {len(facts.files)}")
+        logger.error("   classes: {len(facts.classes)}")
+        logger.error("   functions: {len(facts.functions)}")
+        logger.error("   pydantic models: {len(facts.pydantic_models)}")
+        logger.error("   routes: {len(facts.routes)}")
+        logger.error("   imports: {len(facts.imports)}")
         # Phase 1 enhancements
-        print(f"   Exports (__all__): {len(facts.exports)}", file=sys.stderr)
-        print(f"   DORA Meta: {'✅' if facts.dora_meta else '❌'}", file=sys.stderr)
+        logger.error("   exports (__all__): {len(facts.exports)}")
+        logger.error("   dora meta: {'✅' if facts.dora_meta else '❌'}")
         print(
             f"   Limits: max_classes={args.max_classes}, max_functions={args.max_functions}",
             file=sys.stderr,
@@ -879,15 +883,15 @@ SOP: Research results go to agents/cursor/perplexity_research_results/
         output_path = Path(args.output)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(superprompt)
-        print(f"✅ Superprompt written to {output_path}", file=sys.stderr)
+        logger.error("✅ superprompt written to output path", output_path=output_path)
     else:
-        print(superprompt)
+        logger.info("output", value=superprompt)
 
-    print("\n📋 Next steps:", file=sys.stderr)
-    print("   1. Copy the superprompt above", file=sys.stderr)
-    print("   2. Paste into Perplexity", file=sys.stderr)
-    print("   3. Validate output against extracted facts", file=sys.stderr)
-    print(f"   4. Save to {path}/README.md", file=sys.stderr)
+    logger.error("\n📋 next steps:")
+    logger.error("   1. copy the superprompt above")
+    logger.error("   2. paste into perplexity")
+    logger.error("   3. validate output against extracted facts")
+    logger.error("   4. save to path/readme.md", path=path)
 
     return 0
 

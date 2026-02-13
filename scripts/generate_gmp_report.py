@@ -57,10 +57,14 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
+import structlog
 
 # ============================================================================
 # Configuration
 # ============================================================================
+
+
+logger = structlog.get_logger(__name__)
 
 REPO_ROOT = Path(os.getenv("L9_REPO_ROOT", "/Users/ib-mac/Projects/L9"))
 REPORTS_DIR = REPO_ROOT / "reports" / "GMP Reports"
@@ -415,7 +419,7 @@ class GMPReportGenerator:
             return True
 
         except Exception as e:
-            print(f"Warning: Could not update workflow_state.md: {e}", file=sys.stderr)
+            logger.error("warning: could not update workflow state.md: e", e=e)
             return False
 
 
@@ -470,30 +474,30 @@ def parse_validation(s: str) -> ValidationResult:
 
 def interactive_mode() -> GMPReportData:
     """Interactive mode to collect GMP data."""
-    print("\n=== GMP Report Generator (Interactive Mode) ===\n")
+    logger.info("\n=== gmp report generator (interactive mode) ===\n")
 
     data = GMPReportData(task="", tier="")
 
     # Task
     data.task = input("Task description: ").strip()
     if not data.task:
-        print("Error: Task is required")
+        logger.error("error: task is required")
         sys.exit(1)
 
     # Tier
-    print(f"\nValid tiers: {', '.join(VALID_TIERS)}")
+    logger.info("\nvalid tiers: {', '.join(valid_tiers)}")
     data.tier = input("Tier [RUNTIME_TIER]: ").strip().upper() or "RUNTIME_TIER"
     if data.tier not in VALID_TIERS:
-        print(f"Warning: Invalid tier '{data.tier}', using RUNTIME_TIER")
+        logger.warning("warning: invalid tier '{data.tier}', using runtime_tier")
         data.tier = "RUNTIME_TIER"
 
     # Summary (optional)
     data.summary = input("\nSummary (optional, max 200 chars): ").strip()
 
     # TODOs
-    print("\n--- TODO Items (enter empty line to finish) ---")
-    print("Format: T#|file|lines|action|description")
-    print("Example: T1|memory/checkpoint.py|45-60|REPLACE|Add retry logic")
+    logger.info("\n--- todo items (enter empty line to finish) ---")
+    logger.info("format: t#|file|lines|action|description")
+    logger.info("example: t1|memory/checkpoint.py|45-60|replace|add retry logic")
 
     todo_num = 1
     while True:
@@ -506,11 +510,11 @@ def interactive_mode() -> GMPReportData:
             data.todos.append(parse_todo(todo_str))
             todo_num += 1
         except ValueError as e:
-            print(f"  Error: {e}")
+            logger.error("  error: e", e=e)
 
     # Changes (default to TODOs if not specified)
-    print("\n--- Changes (enter empty to use TODOs, or specify) ---")
-    print("Format: file|lines|action|description")
+    logger.info("\n--- changes (enter empty to use todos, or specify) ---")
+    logger.info("format: file|lines|action|description")
 
     while True:
         change_str = input("Change: ").strip()
@@ -519,7 +523,7 @@ def interactive_mode() -> GMPReportData:
         try:
             data.changes.append(parse_change(change_str))
         except ValueError as e:
-            print(f"  Error: {e}")
+            logger.error("  error: e", e=e)
 
     # If no changes specified, derive from TODOs
     if not data.changes and data.todos:
@@ -528,9 +532,9 @@ def interactive_mode() -> GMPReportData:
         ]
 
     # Validations
-    print("\n--- Validation Results (enter empty to use defaults) ---")
-    print("Format: gate|result or gate|result|details")
-    print("Example: unit tests|✅|24 passed")
+    logger.info("\n--- validation results (enter empty to use defaults) ---")
+    logger.info("format: gate|result or gate|result|details")
+    logger.info("example: unit tests|✅|24 passed")
 
     while True:
         val_str = input("Validation: ").strip()
@@ -539,7 +543,7 @@ def interactive_mode() -> GMPReportData:
         try:
             data.validations.append(parse_validation(val_str))
         except ValueError as e:
-            print(f"  Error: {e}")
+            logger.error("  error: e", e=e)
 
     return data
 
@@ -599,7 +603,7 @@ def run_verification(filepath: Path, quiet: bool = False) -> bool:
 
     if not validator_script.exists():
         if not quiet:
-            print("   ⚠️ Validator script not found, skipping verification")
+            logger.info("   ⚠️ validator script not found, skipping verification")
         return True
 
     # Wait for filesystem to sync (prevents race condition)
@@ -616,23 +620,23 @@ def run_verification(filepath: Path, quiet: bool = False) -> bool:
 
         if result.returncode == 0:
             if not quiet:
-                print("   ✅ Verification: PASSED")
+                logger.info("   ✅ verification: passed")
             return True
         if not quiet:
-            print("   ❌ Verification: FAILED")
+            logger.error("   ❌ verification: failed")
             # Show errors from validator output
             for line in result.stdout.split("\n"):
                 if "ERROR" in line or "🔴" in line:
-                    print(f"      {line.strip()}")
+                    logger.info("      {line.strip()}")
         return False
 
     except subprocess.TimeoutExpired:
         if not quiet:
-            print("   ⚠️ Verification: Timeout")
+            logger.info("   ⚠️ verification: timeout")
         return False
     except Exception as e:
         if not quiet:
-            print(f"   ⚠️ Verification error: {e}")
+            logger.error("   ⚠️ verification error: e", e=e)
         return False
 
 
@@ -715,15 +719,15 @@ def main():
     generator = GMPReportGenerator()
 
     if args.dry_run:
-        print("\n" + "=" * 60)
-        print("DRY RUN - Report would be:")
-        print("=" * 60 + "\n")
-        print(generator.generate_report(data))
+        logger.info("\n" + "=" * 60")
+        logger.info("dry run - report would be:")
+        logger.info("=" * 60 + "\n")
+        logger.info("output", value=generator.generate_report(data))
     else:
         filepath = generator.save_report(data)
-        print(f"\n✅ Report saved: {filepath}")
-        print(f"   GMP ID: GMP-{data.gmp_id:03d}")
-        print(f"   Status: {data.status}")
+        logger.info("\n✅ report saved: filepath", filepath=filepath)
+        logger.info("   gmp id: gmp-{data.gmp_id:03d}")
+        logger.info("   status: {data.status}")
 
         # Automatic verification (unless skipped)
         if not args.skip_verify:
@@ -735,12 +739,12 @@ def main():
 
         if args.update_workflow:
             if generator.update_workflow_state(data, filepath):
-                print("   workflow_state.md: Updated")
+                logger.info("   workflow_state.md: updated")
             else:
-                print("   workflow_state.md: Failed to update")
+                logger.error("   workflow_state.md: failed to update")
 
         # Final output
-        print(f"\n📋 Report path: {filepath}")
+        logger.info("\n📋 report path: filepath", filepath=filepath)
 
 
 if __name__ == "__main__":

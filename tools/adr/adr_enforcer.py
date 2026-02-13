@@ -1524,7 +1524,7 @@ def main() -> int:
             return 1
 
         as_dict = report.to_dict()
-        print(json.dumps(as_dict, indent=2))
+        logger.info("output", value=json.dumps(as_dict, indent=2))
 
         if args.output:
             Path(args.output).write_text(

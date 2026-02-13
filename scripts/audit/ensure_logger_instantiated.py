@@ -430,21 +430,21 @@ def main():
                 for r in files_needing_fix
             ],
         }
-        print(json.dumps(output, indent=2))
+        logger.info("output", value=json.dumps(output, indent=2))
     else:
-        print(f"\n{'=' * 60}")
-        print("Logger Instantiation Audit")
-        print(f"{'=' * 60}")
-        print(f"\nScanned: {len(results)} files with module-level logger usage")
-        print(f"OK:      {len(files_ok)} files (logger properly instantiated)")
-        print(f"Missing: {len(files_needing_fix)} files (need logger instantiation)\n")
-        print("Note: Files using only self.logger are excluded (instance loggers).\n")
+        logger.info("\n{'=' * 60}")
+        logger.info("logger instantiation audit")
+        logger.info("{'=' * 60}")
+        logger.info("\nscanned: {len(results)} files with module-level logger usage")
+        logger.info("ok:      {len(files_ok)} files (logger properly instantiated)")
+        logger.info("missing: {len(files_needing_fix)} files (need logger instantiation)\n")
+        logger.info("note: files using only self.logger are excluded (instance loggers).\n")
 
         # Verbose output - show all OK files
         if args.verbose and files_ok:
-            print(f"{'=' * 60}")
-            print("Files with proper logger instantiation:")
-            print(f"{'=' * 60}\n")
+            logger.info("{'=' * 60}")
+            logger.info("files with proper logger instantiation:")
+            logger.info("{'=' * 60}\n")
             for analysis in sorted(files_ok, key=lambda x: str(x.path)):
                 rel_path = (
                     analysis.path.relative_to(args.path)
@@ -452,13 +452,13 @@ def main():
                     or args.path == analysis.path.parent
                     else analysis.path
                 )
-                print(f"  {rel_path}")
-            print()
+                logger.info("  rel path", rel_path=rel_path)
+            logger.info("output", value=)
 
         if files_needing_fix:
-            print(f"{'=' * 60}")
-            print("Files missing logger instantiation:")
-            print(f"{'=' * 60}\n")
+            logger.info("{'=' * 60}")
+            logger.info("files missing logger instantiation:")
+            logger.info("{'=' * 60}\n")
 
             for analysis in files_needing_fix:
                 rel_path = (
@@ -467,9 +467,9 @@ def main():
                     or args.path == analysis.path.parent
                     else analysis.path
                 )
-                print(f"  {rel_path}")
-                print(f"    Has structlog import: {analysis.has_structlog_import}")
-                print(f"    Has logging import:   {analysis.has_logging_import}")
+                logger.info("  rel path", rel_path=rel_path)
+                logger.info("    has structlog import: {analysis.has_structlog_import}")
+                logger.info("    has logging import:   {analysis.has_logging_import}")
                 print(
                     f"    Also uses self.logger: {analysis.has_instance_logger_usage}"
                 )
@@ -481,14 +481,14 @@ def main():
                         f"      Line {ln}: {content[:60]}{'...' if len(content) > 60 else ''}"
                     )
                 if len(analysis.logger_usages) > 3:
-                    print(f"      ... and {len(analysis.logger_usages) - 3} more")
-                print()
+                    logger.info("      ... and {len(analysis.logger_usages) - 3} more")
+                logger.info("output", value=)
 
     # Fix files if requested
     if args.fix and files_needing_fix:
-        print(f"\n{'=' * 60}")
-        print("Fixing files...")
-        print(f"{'=' * 60}\n")
+        logger.info("\n{'=' * 60}")
+        logger.info("fixing files...")
+        logger.info("{'=' * 60}\n")
 
         fixed = 0
         failed = 0
@@ -501,13 +501,13 @@ def main():
                     or args.path == analysis.path.parent
                     else analysis.path
                 )
-                print(f"  Fixed: {rel_path}")
+                logger.info("  fixed: rel path", rel_path=rel_path)
                 fixed += 1
             else:
-                print(f"  FAILED: {analysis.path}")
+                logger.error("  failed: {analysis.path}")
                 failed += 1
 
-        print(f"\nFixed: {fixed}, Failed: {failed}")
+        logger.error("\nfixed: fixed, failed: failed", fixed=fixed, failed=failed)
 
     # Exit code
     if files_needing_fix and not args.fix:

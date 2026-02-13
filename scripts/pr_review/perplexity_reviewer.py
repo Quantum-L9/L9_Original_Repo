@@ -31,6 +31,10 @@ import subprocess
 from typing import Any
 
 import requests
+import structlog
+
+
+logger = structlog.get_logger(__name__)
 
 PROTECTED_FILES = {
     "api/websocket_orchestrator.py",
@@ -142,7 +146,7 @@ Return ONLY valid JSON.
         )
 
         if response.status_code != 200:
-            print(f"❌ Perplexity API error: {response.status_code}")
+            logger.error("❌ perplexity api error: {response.status_code}")
             return {"security_findings": [], "summary": "API error"}
 
         result = response.json()
@@ -167,7 +171,7 @@ Return ONLY valid JSON.
             filepath = fix["file"]
 
             if any(pf in filepath for pf in PROTECTED_FILES):
-                print(f"⚠️  Skipping protected file: {filepath}")
+                logger.info("⚠️  skipping protected file: filepath", filepath=filepath)
                 continue
 
             try:
@@ -180,11 +184,11 @@ Return ONLY valid JSON.
                     with open(filepath, "w", encoding="utf-8") as f:
                         f.write(content)
 
-                    print(f"✅ Applied fix to: {filepath}")
-                    print(f"   Reason: {fix['reason']}")
+                    logger.info("✅ applied fix to: filepath", filepath=filepath)
+                    logger.info("   reason: {fix['reason']}")
                     applied += 1
             except Exception as e:
-                print(f"❌ Failed: {e}")
+                logger.error("❌ failed: e", e=e)
 
         return applied
 
@@ -222,19 +226,19 @@ Return ONLY valid JSON.
 
     def run(self):
         """Main execution"""
-        print("🔍 Starting Perplexity Deep Audit...")
+        logger.info("🔍 starting perplexity deep audit...")
 
         diff = self.get_pr_diff()
 
         if not diff:
-            print("✅ No changes to audit")
+            logger.info("✅ no changes to audit")
             return
 
         cmd = f"git diff --name-only {os.getenv('BASE_SHA')}...{os.getenv('HEAD_SHA')}"
         result = subprocess.run(cmd.split(), capture_output=True, text=True)
         files = [f.strip() for f in result.stdout.split("\n") if f.strip()]
 
-        print(f"📁 Auditing {len(files)} files...")
+        logger.info("📁 auditing {len(files)} files...")
 
         # Run comprehensive audit
         audit = self.audit_with_perplexity(diff, files)
@@ -243,7 +247,7 @@ Return ONLY valid JSON.
         fixes = audit.get("auto_fixes", [])
         if fixes:
             applied = self.apply_auto_fixes(fixes)
-            print(f"\n✅ Applied {applied}/{len(fixes)} security/performance fixes")
+            logger.info("\n✅ applied applied/{len(fixes)} security/performance fixes", applied=applied)
 
         # Generate report
         report = self.generate_audit_report(audit)
@@ -251,8 +255,8 @@ Return ONLY valid JSON.
         with open("/tmp/perplexity_audit.md", "w") as f:
             f.write(report)
 
-        print("\n" + report)
-        print("\n✅ Audit complete")
+        logger.info("\n" + report")
+        logger.info("\n✅ audit complete")
 
 
 if __name__ == "__main__":

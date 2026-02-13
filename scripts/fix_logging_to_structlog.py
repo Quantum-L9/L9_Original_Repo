@@ -11,6 +11,9 @@ Replaces:
 from __future__ import annotations
 
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Fix Logging To Structlog",
     "module_version": "1.0.0",
@@ -140,36 +143,36 @@ def main():
     for rel_path in FILES_TO_FIX:
         if rel_path in SKIP_FILES:
             if args.verbose:
-                print(f"⏭️  {rel_path}: Skipped (exception)")
+                logger.info("⏭️  rel path: skipped (exception)", rel_path=rel_path)
             continue
 
         filepath = L9_ROOT / rel_path
         if not filepath.exists():
             if args.verbose:
-                print(f"⏭️  {rel_path}: File not found")
+                logger.info("⏭️  rel path: file not found", rel_path=rel_path)
             continue
 
         was_modified, reason = fix_file(filepath, dry_run=args.dry_run)
 
         if was_modified:
             fixed.append((rel_path, reason))
-            print(f"✅ {rel_path}")
+            logger.info("✅ rel path", rel_path=rel_path)
         elif "Error" in reason:
             errors.append((rel_path, reason))
-            print(f"❌ {rel_path}: {reason}")
+            logger.info("❌ rel path: reason", rel_path=rel_path, reason=reason)
         elif args.verbose:
             skipped.append((rel_path, reason))
-            print(f"⏭️  {rel_path}: {reason}")
+            logger.info("⏭️  rel path: reason", rel_path=rel_path, reason=reason)
 
-    print(f"\n{'=' * 60}")
-    print(f"SUMMARY {'(DRY RUN)' if args.dry_run else ''}")
-    print(f"{'=' * 60}")
-    print(f"Fixed:   {len(fixed)} files")
-    print(f"Skipped: {len(skipped)} files")
-    print(f"Errors:  {len(errors)} files")
+    logger.info("\n{'=' * 60}")
+    logger.info("summary {'(dry run)' if args.dry_run else ''}")
+    logger.info("{'=' * 60}")
+    logger.info("fixed:   {len(fixed)} files")
+    logger.info("skipped: {len(skipped)} files")
+    logger.error("errors:  {len(errors)} files")
 
     if fixed and not args.dry_run:
-        print(f"\n✅ {len(fixed)} files updated to use structlog.")
+        logger.info("\n✅ {len(fixed)} files updated to use structlog.")
     elif fixed and args.dry_run:
         print(
             f"\n🔍 {len(fixed)} files would be updated. Run without --dry-run to apply."

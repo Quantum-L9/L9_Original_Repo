@@ -26,8 +26,12 @@ Exit codes:
 """
 
 from __future__ import annotations
+import structlog
 
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Check Adr Compliance",
     "module_version": "1.0.0",
@@ -604,59 +608,59 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.list:
-        print("=" * 70)
-        print("L9 ADR COMPLIANCE CHECKER")
-        print("=" * 70)
-        print()
-        print("SECURITY (Always Error - Blocks CI):")
-        print("-" * 40)
-        print("  ADR-0041  Unsafe eval() Remediation")
-        print("            - No eval(), exec(), __import__()")
-        print("            - Use ast.literal_eval() for safe parsing")
-        print()
-        print("  ADR-0083  Datetime UTC Standard")
-        print("            - No datetime.utcnow() (deprecated Python 3.12)")
-        print("            - Use datetime.now(UTC) instead")
-        print()
-        print("  ADR-0087  SQL Parameterization")
-        print("            - No f-string SQL queries (injection risk)")
-        print("            - Use parameterized queries: $1, :param")
-        print()
-        print("  ADR-0088  No Pickle Serialization")
-        print("            - No pickle.loads() or pickle.load()")
-        print("            - Use json.loads() or msgpack instead")
-        print()
-        print("CODE QUALITY (Warning in default mode, Error in --strict):")
-        print("-" * 40)
-        print("  ADR-0002  TYPE_CHECKING Pattern")
+        logger.info("=" * 70")
+        logger.info("l9 adr compliance checker")
+        logger.info("=" * 70")
+        logger.info("output", value=)
+        logger.error("security (always error - blocks ci):")
+        logger.info("-" * 40")
+        logger.info("  adr-0041  unsafe eval() remediation")
+        logger.info("            - no eval(), exec(), __import__()")
+        logger.info("            - use ast.literal_eval() for safe parsing")
+        logger.info("output", value=)
+        logger.info("  adr-0083  datetime utc standard")
+        logger.info("            - no datetime.utcnow() (deprecated python 3.12)")
+        logger.info("            - use datetime.now(utc) instead")
+        logger.info("output", value=)
+        logger.info("  adr-0087  sql parameterization")
+        logger.info("            - no f-string sql queries (injection risk)")
+        logger.info("            - use parameterized queries: $1, :param")
+        logger.info("output", value=)
+        logger.info("  adr-0088  no pickle serialization")
+        logger.info("            - no pickle.loads() or pickle.load()")
+        logger.info("            - use json.loads() or msgpack instead")
+        logger.info("output", value=)
+        logger.error("code quality (warning in default mode, error in --strict):")
+        logger.info("-" * 40")
+        logger.info("  adr-0002  type_checking pattern")
         print(
             "            - TYPE_CHECKING requires 'from __future__ import annotations'"
         )
-        print()
-        print("  ADR-0019  structlog Logging Standard")
-        print("            - No print() in production code")
-        print("            - No stdlib logging module")
-        print()
-        print("  ADR-0023  Error Packet Pattern")
-        print("            - No silent 'except: pass'")
-        print()
-        print("  ADR-0026  Protocol-Based Abstractions")
-        print("            - Use typing.Protocol, not abc.ABC")
-        print()
-        print("  ADR-0027  LRU Cache Pattern")
-        print("            - @lru_cache must have explicit maxsize")
-        print()
-        print("  ADR-0033  Async Context Manager Pattern")
-        print("            - @asynccontextmanager must have try/finally")
-        print()
-        print("  ADR-0055  Fail-Loudly Policy")
-        print("            - No bare 'except:' (catches KeyboardInterrupt)")
-        print()
-        print("=" * 70)
-        print("MODES:")
-        print("  --errors-only  Show only errors (security violations)")
-        print("  --strict       All violations are errors (full enforcement)")
-        print("=" * 70)
+        logger.info("output", value=)
+        logger.info("  adr-0019  structlog logging standard")
+        logger.info("            - no print() in production code")
+        logger.info("            - no stdlib logging module")
+        logger.info("output", value=)
+        logger.error("  adr-0023  error packet pattern")
+        logger.info("            - no silent 'except: pass")
+        logger.info("output", value=)
+        logger.info("  adr-0026  protocol-based abstractions")
+        logger.info("            - use typing.protocol, not abc.abc")
+        logger.info("output", value=)
+        logger.info("  adr-0027  lru cache pattern")
+        logger.info("            - @lru_cache must have explicit maxsize")
+        logger.info("output", value=)
+        logger.info("  adr-0033  async context manager pattern")
+        logger.info("            - @asynccontextmanager must have try/finally")
+        logger.info("output", value=)
+        logger.error("  adr-0055  fail-loudly policy")
+        logger.info("            - no bare 'except:' (catches keyboardinterrupt)")
+        logger.info("output", value=)
+        logger.info("=" * 70")
+        logger.info("modes:")
+        logger.error("  --errors-only  show only errors (security violations)")
+        logger.error("  --strict       all violations are errors (full enforcement)")
+        logger.info("=" * 70")
         return 0
 
     if args.files:
@@ -701,7 +705,7 @@ def main() -> int:
                 for v in all_violations
             ],
         }
-        print(json.dumps(output, indent=2))
+        logger.info("output", value=json.dumps(output, indent=2))
         errors = output["errors"]
         return 1 if errors > 0 else 0
 
@@ -729,7 +733,7 @@ def main() -> int:
                 if not args.strict
                 else f"{len(violations)}E"
             )
-            print(f"=== {adr} ({status}) ===\n")
+            logger.info("=== adr (status) ===\n", adr=adr, status=status)
             for v in violations[:10]:
                 rel = (
                     v.file.relative_to(L9_ROOT)
@@ -737,16 +741,16 @@ def main() -> int:
                     else v.file
                 )
                 severity_icon = "❌" if v.severity == "error" else "⚠️"
-                print(f"  {severity_icon} {rel}:{v.line}")
-                print(f"     {v.message}\n")
+                logger.info("  severity icon rel:{v.line}", severity_icon=severity_icon, rel=rel)
+                logger.info("     {v.message}\n")
             if len(violations) > 10:
-                print(f"  ... and {len(violations) - 10} more\n")
+                logger.info("  ... and {len(violations) - 10} more\n")
 
         return 1 if errors > 0 else 0
 
     if args.verbose:
         mode_str = "[STRICT]" if args.strict else "[DEFAULT]"
-        print(f"✅ {mode_str} Checked {len(files)} files - no ADR violations")
+        logger.info("✅ mode str checked {len(files)} files - no adr violations", mode_str=mode_str)
 
     return 0
 

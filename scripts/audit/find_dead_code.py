@@ -2244,13 +2244,13 @@ def print_findings_by_confidence_tier(findings: list[DeadCodeFinding]) -> None:
     low = [f for f in findings if f.confidence < 0.70]
 
     if high:
-        print(f"\n🔴 HIGH CONFIDENCE ({len(high)} findings) — Almost certainly issues:")
+        logger.info("\n🔴 high confidence ({len(high)} findings) — almost certainly issues:")
         for f in high[:10]:
             print(
                 f"  [{f.confidence:.0%}] {f.symbol} ({f.symbol_type}) @ {f.file}:{f.line}"
             )
         if len(high) > 10:
-            print(f"  ... and {len(high) - 10} more")
+            logger.info("  ... and {len(high) - 10} more")
 
     if medium:
         print(
@@ -2261,16 +2261,16 @@ def print_findings_by_confidence_tier(findings: list[DeadCodeFinding]) -> None:
                 f"  [{f.confidence:.0%}] {f.symbol} ({f.symbol_type}) @ {f.file}:{f.line}"
             )
         if len(medium) > 10:
-            print(f"  ... and {len(medium) - 10} more")
+            logger.info("  ... and {len(medium) - 10} more")
 
     if low:
-        print(f"\n🟢 LOW CONFIDENCE ({len(low)} findings) — Possible false positives:")
+        logger.info("\n🟢 low confidence ({len(low)} findings) — possible false positives:")
         for f in low[:5]:
             print(
                 f"  [{f.confidence:.0%}] {f.symbol} ({f.symbol_type}) @ {f.file}:{f.line}"
             )
         if len(low) > 5:
-            print(f"  ... and {len(low) - 5} more")
+            logger.info("  ... and {len(low) - 5} more")
 
 
 # =============================================================================
@@ -2391,34 +2391,34 @@ Examples:
         output_file.write_text(json.dumps(result.to_dict(), indent=2))
 
     # Print summary
-    print("\n" + "=" * 70)
+    logger.info("\n" + "=" * 70")
     if args.wiring_only:
-        print("L9 WIRING INTEGRITY AUDIT")
+        logger.info("l9 wiring integrity audit")
     else:
-        print("L9 DEAD CODE & WIRING INTEGRITY AUDIT")
-    print("=" * 70)
-    print(f"Files scanned: {result.total_files_scanned}")
-    print(f"Total findings: {len(result.findings)}")
+        logger.info("l9 dead code & wiring integrity audit")
+    logger.info("=" * 70")
+    logger.info("files scanned: {result.total_files_scanned}")
+    logger.info("total findings: {len(result.findings)}")
     if not args.wiring_only:
-        print(f"Dataclass fields analyzed: {len(result.dataclass_fields)}")
+        logger.info("dataclass fields analyzed: {len(result.dataclass_fields)}")
 
     # Breakdown by type
     by_type: dict[str, int] = {}
     for finding in result.findings:
         by_type[finding.symbol_type] = by_type.get(finding.symbol_type, 0) + 1
 
-    print("\n📊 Findings by type:")
+    logger.info("\n📊 findings by type:")
     for symbol_type, count in sorted(by_type.items(), key=lambda x: -x[1]):
-        print(f"  {symbol_type}: {count}")
+        logger.info("  symbol type: count", symbol_type=symbol_type, count=count)
 
     # Breakdown by source
     by_source: dict[str, int] = {}
     for finding in result.findings:
         by_source[finding.source] = by_source.get(finding.source, 0) + 1
 
-    print("\n📦 Findings by source:")
+    logger.info("\n📦 findings by source:")
     for source, count in sorted(by_source.items(), key=lambda x: -x[1]):
-        print(f"  {source}: {count}")
+        logger.info("  source: count", source=source, count=count)
 
     # L9-specific wiring breakdown
     l9_types = [
@@ -2429,24 +2429,24 @@ Examples:
     ]
     l9_findings = [f for f in result.findings if f.symbol_type in l9_types]
     if l9_findings:
-        print(f"\n🎯 L9-SPECIFIC WIRING ISSUES: {len(l9_findings)}")
+        logger.info("\n🎯 l9-specific wiring issues: {len(l9_findings)}")
         for t in l9_types:
             count = len([f for f in l9_findings if f.symbol_type == t])
             if count > 0:
-                print(f"  {t}: {count}")
+                logger.info("  t: count", t=t, count=count)
 
     # Confidence tier breakdown
     print_findings_by_confidence_tier(result.findings)
 
     if result.errors:
-        print(f"\n❌ Errors: {len(result.errors)}")
+        logger.error("\n❌ errors: {len(result.errors)}")
         for err in result.errors[:3]:
-            print(f"  - {err}")
+            logger.info("  - err", err=err)
 
-    print(f"\n📄 Output: {output_file}")
+    logger.info("\n📄 output: output file", output_file=output_file)
     if args.format == "sarif":
-        print("   (SARIF format - import into GitHub Code Scanning or VS Code)")
-    print("=" * 70)
+        logger.info("   (sarif format - import into github code scanning or vs code)")
+    logger.info("=" * 70")
 
     return 0 if not result.errors else 1
 

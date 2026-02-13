@@ -43,8 +43,12 @@ Lesson: Agent modified docker-compose.prod.yml without permission, breaking trus
 """
 
 from __future__ import annotations
+import structlog
 
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Check Protected Files",
     "module_version": "1.0.0",
@@ -209,19 +213,19 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    print("=" * 70)
-    print("  PROTECTED FILES MODIFICATION CHECK")
-    print("=" * 70)
-    print()
+    logger.info("=" * 70")
+    logger.info("  protected files modification check")
+    logger.info("=" * 70")
+    logger.info("output", value=)
 
     # Get changes and commit message
     changes = get_changed_files(args.base_ref)
     commit_msg = get_commit_message()
 
     if args.verbose:
-        print(f"Checking {len(changes)} changed file(s)...")
-        print(f"Protected files: {len(PROTECTED_FILES)}")
-        print()
+        logger.info("checking {len(changes)} changed file(s)...")
+        logger.info("protected files: {len(protected_files)}")
+        logger.info("output", value=)
 
     # Check for violations
     violations = check_protected_files(changes, commit_msg)
@@ -231,11 +235,11 @@ def main() -> int:
             f"❌ FAILED: {len(violations)} protected file(s) modified without approval:\n"
         )
         for v in violations:
-            print(v)
+            logger.info("output", value=v)
 
-        print("\n" + "=" * 70)
-        print("PROTECTED FILES REQUIRE HUMAN-IN-LOOP (HIL) APPROVAL")
-        print("=" * 70)
+        logger.info("\n" + "=" * 70")
+        logger.info("protected files require human-in-loop (hil) approval")
+        logger.info("=" * 70")
         print("""
 These files are critical infrastructure. Unauthorized changes can break
 production deployment and waste hours of debugging.
@@ -258,9 +262,9 @@ TO FIX:
 PROTECTED FILES LIST:
 """)
         for pf in PROTECTED_FILES:
-            print(f"  - {pf}")
+            logger.info("  - pf", pf=pf)
 
-        print()
+        logger.info("output", value=)
         return 1
 
     # Check if any protected files were touched (even with approval)
@@ -272,13 +276,13 @@ PROTECTED FILES LIST:
                 break
 
     if approved_changes:
-        print("✅ PASSED: Protected file changes are approved")
-        print("   Approval marker found in commit message")
-        print("   Changed protected files:")
+        logger.info("✅ passed: protected file changes are approved")
+        logger.info("   approval marker found in commit message")
+        logger.info("   changed protected files:")
         for f in approved_changes:
-            print(f"     - {f}")
+            logger.info("     - f", f=f)
     else:
-        print("✅ PASSED: No protected files modified")
+        logger.info("✅ passed: no protected files modified")
 
     return 0
 

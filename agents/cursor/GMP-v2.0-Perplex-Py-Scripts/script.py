@@ -22,7 +22,12 @@ __dora_meta__ = {
 import json
 from datetime import datetime
 
+import structlog
+
 # GMP v2.0 Meta-Configuration
+
+logger = structlog.get_logger(__name__)
+
 gmp_version = "2.0.0"
 release_date = datetime.now().isoformat()
 
@@ -61,9 +66,9 @@ dora_template_v2 = {
     },
 }
 
-print("=== GMP v2.0 DORA BLOCK TEMPLATE ===\n")
-print(json.dumps(dora_template_v2, indent=2))
-print("\n" + "=" * 60)
+logger.info("=== gmp v2.0 dora block template ===\n")
+logger.info("output", value=json.dumps(dora_template_v2, indent=2))
+logger.info("separator", value="\n" + "=" * 60)
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

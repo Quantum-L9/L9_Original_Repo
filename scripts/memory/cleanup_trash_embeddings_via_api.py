@@ -174,22 +174,22 @@ async def main(dry_run: bool = False, verbose: bool = False):
         logger.error(f"Failed: {result['error']}")
         return
 
-    print("\n" + "=" * 60)
-    print("TRASH EMBEDDINGS DETECTION (via API)")
-    print("=" * 60)
-    print(f"  Embeddings checked: {result['checked']}")
-    print(f"  Trash embeddings found: {result['trash_found']}")
+    logger.info("\n" + "=" * 60")
+    logger.info("trash embeddings detection (via api)")
+    logger.info("=" * 60")
+    logger.info("  embeddings checked: {result['checked']}")
+    logger.info("  trash embeddings found: {result['trash_found']}")
 
     if dry_run:
-        print("\n  ⚠️  DRY RUN - Sample trash IDs:")
+        logger.info("\n  ⚠️  dry run - sample trash ids:")
         for eid in result.get("trash_ids", [])[:10]:
-            print(f"    - {eid}")
-        print("\n  Run without --dry-run to get full list for deletion")
+            logger.info("    - eid", eid=eid)
+        logger.info("\n  run without --dry-run to get full list for deletion")
     else:
-        print(f"\n  Found {len(result.get('trash_ids', []))} trash embedding IDs")
-        print("  Note: Use cleanup_trash_embeddings.py with DATABASE_URL for deletion")
+        logger.info("\n  found {len(result.get('trash_ids', []))} trash embedding ids")
+        logger.info("  note: use cleanup_trash_embeddings.py with database_url for deletion")
 
-    print("=" * 60 + "\n")
+    logger.info("=" * 60 + "\n")
 
 
 if __name__ == "__main__":

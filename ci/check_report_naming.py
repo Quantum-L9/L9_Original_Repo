@@ -29,8 +29,12 @@ Created: 2026-01-31
 """
 
 from __future__ import annotations
+import structlog
 
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Check Report Naming",
     "module_version": "1.0.0",
@@ -148,24 +152,24 @@ def main() -> int:
 
     reports_dir = args.base_path / "reports"
 
-    print("=" * 60)
-    print("  GMP REPORT NAMING CHECK")
-    print("=" * 60)
-    print()
-    print(f"Checking: {reports_dir}")
-    print()
+    logger.info("=" * 60")
+    logger.info("  gmp report naming check")
+    logger.info("=" * 60")
+    logger.info("output", value=)
+    logger.info("checking: reports dir", reports_dir=reports_dir)
+    logger.info("output", value=)
 
     violations = check_reports_dir(reports_dir)
 
     if violations:
-        print(f"❌ FAILED: Found {len(violations)} naming violation(s):\n")
+        logger.error("❌ failed: found {len(violations)} naming violation(s):\n")
         for v in violations:
-            print(v)
-            print()
+            logger.info("output", value=v)
+            logger.info("output", value=)
 
-        print("=" * 60)
-        print("CORRECT FORMAT:")
-        print("=" * 60)
+        logger.info("=" * 60")
+        logger.info("correct format:")
+        logger.info("=" * 60")
         print("""
     GMP-Report-XXX-Description-Here.md
 
@@ -181,8 +185,8 @@ Wrong formats:
 """)
         return 1
 
-    print("✅ PASSED: All GMP report names follow correct convention")
-    print("   Format: GMP-Report-XXX-Description.md")
+    logger.info("✅ passed: all gmp report names follow correct convention")
+    logger.info("   format: gmp-report-xxx-description.md")
     return 0
 
 

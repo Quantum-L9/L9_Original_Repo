@@ -41,10 +41,14 @@ import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+import structlog
 
 # ============================================================================
 # DATA MODELS
 
+
+
+logger = structlog.get_logger(__name__)
 
 @dataclass
 class HeaderMeta:
@@ -152,7 +156,7 @@ class DoraMultiFormatInjector:
 
     def scan_repository(self, file_types: list[str]) -> None:
         """Scan repository for specified file types."""
-        print(f"🔍 Scanning repository for: {', '.join(file_types)}")
+        logger.info("🔍 scanning repository for: {', '.join(file_types)}")
 
         for file_type in file_types:
             pattern = f"*.{file_type}"
@@ -183,7 +187,7 @@ class DoraMultiFormatInjector:
 
                 self.files_to_process[str(file_path)] = file_type
 
-        print(f"✅ Found {len(self.files_to_process)} files to process")
+        logger.info("✅ found {len(self.files_to_process)} files to process")
 
     def _generate_component_id(self, file_path: str, layer: str) -> str:
         """Generate unique component ID."""
@@ -592,7 +596,7 @@ l9_trace:
             existing = self._check_existing_blocks(file_path, "yaml")
 
             if existing["legacy"]:
-                print(f"⚠️  {file_path} has legacy l9_dora - needs migration")
+                logger.info("⚠️  file path has legacy l9 dora - needs migration", file_path=file_path)
                 return results
 
             with open(file_path, encoding="utf-8") as f:
@@ -625,17 +629,17 @@ l9_trace:
                 if not dry_run:
                     with open(file_path, "w", encoding="utf-8") as f:
                         f.write(content)
-                    print(f"✅ Injected DORA blocks into {file_path}")
+                    logger.info("✅ injected dora blocks into file path", file_path=file_path)
                 else:
                     injected = [k for k, v in results.items() if v]
-                    print(f"🔍 [DRY RUN] Would inject {injected} into {file_path}")
+                    logger.info("🔍 [dry run] would inject injected into file path", injected=injected, file_path=file_path)
             else:
-                print(f"⏭️  Skipping {file_path} (all blocks exist)")
+                logger.info("⏭️  skipping file path (all blocks exist)", file_path=file_path)
 
             return results
 
         except Exception as e:
-            print(f"❌ Error processing {file_path}: {e}")
+            logger.error("❌ error processing file path: e", file_path=file_path, e=e)
             return results
 
     def inject_json(
@@ -653,7 +657,7 @@ l9_trace:
             existing = self._check_existing_blocks(file_path, "json")
 
             if all([existing["header"], existing["footer"], existing["trace"]]):
-                print(f"⏭️  Skipping {file_path} (all blocks exist)")
+                logger.info("⏭️  skipping file path (all blocks exist)", file_path=file_path)
                 return results
 
             with open(file_path, encoding="utf-8") as f:
@@ -672,15 +676,15 @@ l9_trace:
                 if not dry_run:
                     with open(file_path, "w", encoding="utf-8") as f:
                         json.dump(data, f, indent=2)
-                    print(f"✅ Injected DORA blocks into {file_path}")
+                    logger.info("✅ injected dora blocks into file path", file_path=file_path)
                 else:
                     injected = [k for k, v in results.items() if v]
-                    print(f"🔍 [DRY RUN] Would inject {injected} into {file_path}")
+                    logger.info("🔍 [dry run] would inject injected into file path", injected=injected, file_path=file_path)
 
             return results
 
         except Exception as e:
-            print(f"❌ Error processing {file_path}: {e}")
+            logger.error("❌ error processing file path: e", file_path=file_path, e=e)
             return results
 
     def inject_markdown(
@@ -698,7 +702,7 @@ l9_trace:
             existing = self._check_existing_blocks(file_path, "md")
 
             if existing["legacy"]:
-                print(f"⚠️  {file_path} has legacy DORA block - needs migration")
+                logger.info("⚠️  file path has legacy dora block - needs migration", file_path=file_path)
                 return results
 
             with open(file_path, encoding="utf-8") as f:
@@ -737,23 +741,23 @@ l9_trace:
                 if not dry_run:
                     with open(file_path, "w", encoding="utf-8") as f:
                         f.write(content)
-                    print(f"✅ Injected DORA blocks into {file_path}")
+                    logger.info("✅ injected dora blocks into file path", file_path=file_path)
                 else:
                     injected = [k for k, v in results.items() if v]
-                    print(f"🔍 [DRY RUN] Would inject {injected} into {file_path}")
+                    logger.info("🔍 [dry run] would inject injected into file path", injected=injected, file_path=file_path)
             else:
-                print(f"⏭️  Skipping {file_path} (all blocks exist)")
+                logger.info("⏭️  skipping file path (all blocks exist)", file_path=file_path)
 
             return results
 
         except Exception as e:
-            print(f"❌ Error processing {file_path}: {e}")
+            logger.error("❌ error processing file path: e", file_path=file_path, e=e)
             return results
 
     def process_all_files(self, dry_run: bool = True) -> dict:
         """Process all files and inject DORA blocks."""
-        print(f"\n{'🔍 DRY RUN MODE' if dry_run else '🚀 EXECUTION MODE'}")
-        print("=" * 80)
+        logger.info("\n{'🔍 dry run mode' if dry_run else '🚀 execution mode'}")
+        logger.info("=" * 80")
 
         results = {
             "total_files": len(self.files_to_process),
@@ -810,19 +814,19 @@ l9_trace:
         with open(output_path, "w") as f:
             json.dump(results, f, indent=2)
 
-        print("\n📊 INJECTION REPORT")
-        print("=" * 80)
-        print(f"Total files processed: {results['total_files']}")
-        print(f"✅ Header Meta injected: {results['header_injected']}")
-        print(f"✅ Footer Meta injected: {results['footer_injected']}")
-        print(f"✅ Trace Block injected: {results['trace_injected']}")
+        logger.info("\n📊 injection report")
+        logger.info("=" * 80")
+        logger.info("total files processed: {results['total_files']}")
+        logger.info("✅ header meta injected: {results['header_injected']}")
+        logger.info("✅ footer meta injected: {results['footer_injected']}")
+        logger.info("✅ trace block injected: {results['trace_injected']}")
         print(
             f"   - YAML: {results['by_type'].get('yaml', 0) + results['by_type'].get('yml', 0)}"
         )
-        print(f"   - JSON: {results['by_type'].get('json', 0)}")
-        print(f"   - Markdown: {results['by_type'].get('md', 0)}")
-        print(f"⏭️  Skipped: {results['skipped']}")
-        print(f"\n📄 Full report saved to: {output_path}")
+        logger.info("   - json: {results['by_type'].get('json', 0)}")
+        logger.info("   - markdown: {results['by_type'].get('md', 0)}")
+        logger.info("⏭️  skipped: {results['skipped']}")
+        logger.info("\n📄 full report saved to: output path", output_path=output_path)
 
 
 # ============================================================================
@@ -856,11 +860,11 @@ def main():
     args = parser.parse_args()
 
     if not args.dry_run and not args.execute:
-        print("❌ Error: Must specify either --dry-run or --execute")
+        logger.error("❌ error: must specify either --dry-run or --execute")
         sys.exit(1)
 
     if args.dry_run and args.execute:
-        print("❌ Error: Cannot specify both --dry-run and --execute")
+        logger.error("❌ error: cannot specify both --dry-run and --execute")
         sys.exit(1)
 
     file_types = [t.strip() for t in args.types.split(",")]
@@ -869,13 +873,13 @@ def main():
     injector.scan_repository(file_types)
 
     if not injector.files_to_process:
-        print("❌ No files found to process")
+        logger.info("❌ no files found to process")
         sys.exit(1)
 
     results = injector.process_all_files(dry_run=args.dry_run)
     injector.generate_report(results, args.report)
 
-    print("\n✅ DORA multi-format complete injection finished!")
+    logger.info("\n✅ dora multi-format complete injection finished!")
 
 
 if __name__ == "__main__":

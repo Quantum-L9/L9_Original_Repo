@@ -32,6 +32,10 @@ __dora_meta__ = {
 import re
 from pathlib import Path
 
+import structlog
+
+logger = structlog.get_logger(__name__)
+
 L9_ROOT = Path(__file__).parent.parent
 
 # Patterns to match and fix
@@ -163,7 +167,7 @@ def main():
     print(
         f"{'[DRY RUN] ' if args.dry_run else ''}Scanning L9 codebase for timezone import fixes..."
     )
-    print(f"Root: {L9_ROOT}\n")
+    logger.info("root: l9 root\n", L9_ROOT=L9_ROOT)
 
     fixed = []
     skipped = []
@@ -180,25 +184,25 @@ def main():
 
         if was_modified:
             fixed.append((rel_path, reason))
-            print(f"✅ {rel_path}")
+            logger.info("✅ rel path", rel_path=rel_path)
         elif "Error" in reason:
             errors.append((rel_path, reason))
-            print(f"❌ {rel_path}: {reason}")
+            logger.info("❌ rel path: reason", rel_path=rel_path, reason=reason)
         elif args.verbose:
             skipped.append((rel_path, reason))
-            print(f"⏭️  {rel_path}: {reason}")
+            logger.info("⏭️  rel path: reason", rel_path=rel_path, reason=reason)
 
     # Summary
-    print(f"\n{'=' * 60}")
-    print(f"SUMMARY {'(DRY RUN)' if args.dry_run else ''}")
-    print(f"{'=' * 60}")
-    print(f"Fixed:   {len(fixed)} files")
-    print(f"Skipped: {len(skipped)} files")
-    print(f"Errors:  {len(errors)} files")
+    logger.info("\n{'=' * 60}")
+    logger.info("summary {'(dry run)' if args.dry_run else ''}")
+    logger.info("{'=' * 60}")
+    logger.info("fixed:   {len(fixed)} files")
+    logger.info("skipped: {len(skipped)} files")
+    logger.error("errors:  {len(errors)} files")
 
     if fixed and not args.dry_run:
-        print(f"\n✅ {len(fixed)} files have been updated with timezone import.")
-        print("Run tests to verify: pytest tests/ -x")
+        logger.info("\n✅ {len(fixed)} files have been updated with timezone import.")
+        logger.info("run tests to verify: pytest tests/ -x")
     elif fixed and args.dry_run:
         print(
             f"\n🔍 {len(fixed)} files would be updated. Run without --dry-run to apply."

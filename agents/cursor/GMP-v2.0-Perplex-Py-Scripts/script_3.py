@@ -1,4 +1,9 @@
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Script 3",
     "module_version": "1.0.0",
@@ -935,10 +940,10 @@ For full file contents, request individual files by name.
 **END OF DELIVERY PACKAGE**
 """
 
-print(delivery_package)
-print("\n" + "=" * 70)
-print("✅ GMP v2.0 PRODUCTION-READY DELIVERY PACKAGE COMPLETE")
-print("=" * 70)
+logger.info("output", value=delivery_package)
+logger.info("separator", value="\n" + "=" * 70)
+logger.info("✅ gmp v2.0 production-ready delivery package complete")
+logger.info("separator", value="=" * 70)
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

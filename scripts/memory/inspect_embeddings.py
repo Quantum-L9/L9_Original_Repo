@@ -233,48 +233,48 @@ async def main(limit: int = 50, agent_id: str | None = None, sample: bool = Fals
         return
 
     # Print summary
-    print("\n" + "=" * 60)
-    print("SEMANTIC MEMORY EMBEDDINGS INSPECTION")
-    print("=" * 60)
-    print(f"\nTotal Embeddings: {result['total_embeddings']:,}")
+    logger.info("\n" + "=" * 60")
+    logger.info("semantic memory embeddings inspection")
+    logger.info("=" * 60")
+    logger.info("\ntotal embeddings: {result['total_embeddings']:,}")
 
-    print("\nEmbeddings by Agent:")
+    logger.info("\nembeddings by agent:")
     for agent, count in sorted(
         result["agent_counts"].items(), key=lambda x: x[1], reverse=True
     ):
-        print(f"  {agent or '(null)':20} {count:>8,}")
+        logger.info("  {agent or '(null)':20} {count:>8,}")
 
-    print(f"\nPayload Types (sample of {result['sample_size']}):")
+    logger.info("\npayload types (sample of {result['sample_size']}):")
     for ptype, count in sorted(
         result["payload_types"].items(), key=lambda x: x[1], reverse=True
     ):
-        print(f"  {ptype:30} {count:>5}")
+        logger.info("  ptype {count:>5}", ptype=ptype)
 
-    print("\nText Length Statistics:")
+    logger.info("\ntext length statistics:")
     stats = result["text_length_stats"]
-    print(f"  Min:  {stats['min']:>6} chars")
-    print(f"  Max:  {stats['max']:>6} chars")
-    print(f"  Avg:  {stats['avg']:>6.1f} chars")
+    logger.info("  min:  {stats['min']:>6} chars")
+    logger.info("  max:  {stats['max']:>6} chars")
+    logger.info("  avg:  {stats['avg']:>6.1f} chars")
 
-    print("\nSuspicious Patterns Detected:")
+    logger.info("\nsuspicious patterns detected:")
     for pattern, count in result["suspicious_patterns"].items():
         if count > 0:
-            print(f"  {pattern:20} {count:>5}")
+            logger.info("  pattern {count:>5}", pattern=pattern)
 
-    print("\n" + "-" * 60)
-    print("SAMPLE PAYLOADS (first 20):")
-    print("-" * 60)
+    logger.info("\n" + "-" * 60")
+    logger.info("sample payloads (first 20):")
+    logger.info("-" * 60")
     for i, payload in enumerate(result["sample_payloads"][:20], 1):
-        print(f"\n[{i}] Embedding: {payload['embedding_id'][:8]}...")
-        print(f"    Agent: {payload['agent_id']}")
-        print(f"    Type: {payload['payload_type']}")
-        print(f"    Text Length: {payload['text_length']} chars")
-        print(f"    Created: {payload['created_at']}")
-        print(f"    Preview: {payload['text_preview'][:150]}")
+        logger.info("\n[i] embedding: {payload['embedding id'][:8]}...", i=i)
+        logger.info("    agent: {payload['agent_id']}")
+        logger.info("    type: {payload['payload_type']}")
+        logger.info("    text length: {payload['text_length']} chars")
+        logger.info("    created: {payload['created_at']}")
+        logger.info("    preview: {payload['text_preview'][:150]}")
         if payload["text_length"] > 0 and payload["text_length"] < 200:
-            print(f"    Full Text: {payload['text_preview']}")
+            logger.info("    full text: {payload['text_preview']}")
 
-    print("\n" + "=" * 60)
+    logger.info("\n" + "=" * 60")
 
 
 if __name__ == "__main__":

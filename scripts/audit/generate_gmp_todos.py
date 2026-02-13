@@ -573,8 +573,8 @@ def main():
         output_file = REPO_ROOT / f"reports/GMP_Report_{args.gmp_id}.md"
 
     if not input_file.exists():
-        print(f"Error: Input file not found: {input_file}")
-        print("Run Phase 3 first: python scripts/audit/categorize_dead_code.py")
+        logger.error("error: input file not found: input file", input_file=input_file)
+        logger.info("run phase 3 first: python scripts/audit/categorize_dead_code.py")
         return 1
 
     report = auto_fix_dead_code(
@@ -586,24 +586,24 @@ def main():
     )
 
     # Print summary
-    print("\n" + "=" * 60)
-    print("DEAD CODE AUDIT - AUTO-FIX COMPLETE")
-    print("=" * 60)
-    print(f"GMP ID: {report.gmp_id}")
-    print(f"Mode: {'DRY RUN' if args.dry_run else 'LIVE FIX'}")
-    print(f"\n✅ Auto-fixed: {len(report.fixes)}")
-    print(f"⏭️  Skipped (false positives): {len(report.skipped)}")
-    print(f"👀 Manual review needed: {len(report.manual_review)}")
+    logger.info("\n" + "=" * 60")
+    logger.info("dead code audit - auto-fix complete")
+    logger.info("=" * 60")
+    logger.info("gmp id: {report.gmp_id}")
+    logger.info("mode: {'dry run' if args.dry_run else 'live fix'}")
+    logger.info("\n✅ auto-fixed: {len(report.fixes)}")
+    logger.info("⏭️  skipped (false positives): {len(report.skipped)}")
+    logger.info("👀 manual review needed: {len(report.manual_review)}")
 
     if report.files_modified:
-        print(f"\n📁 Files modified: {len(report.files_modified)}")
+        logger.info("\n📁 files modified: {len(report.files_modified)}")
         for f in report.files_modified[:10]:
-            print(f"   - {f}")
+            logger.info("   - f", f=f)
         if len(report.files_modified) > 10:
-            print(f"   ... and {len(report.files_modified) - 10} more")
+            logger.info("   ... and {len(report.files_modified) - 10} more")
 
-    print(f"\n📄 GMP Report: {output_file}")
-    print("=" * 60)
+    logger.info("\n📄 gmp report: output file", output_file=output_file)
+    logger.info("=" * 60")
 
     return 0
 

@@ -260,25 +260,25 @@ async def main(dry_run: bool = False, verbose: bool = False):
         return
 
     # Print summary
-    print("\n" + "=" * 60)
-    print("TRASH EMBEDDINGS CLEANUP SUMMARY")
-    print("=" * 60)
-    print(f"  Total embeddings scanned: {result['total_scanned']:,}")
-    print(f"  Trash embeddings found: {result['trash_found']:,}")
+    logger.info("\n" + "=" * 60")
+    logger.info("trash embeddings cleanup summary")
+    logger.info("=" * 60")
+    logger.info("  total embeddings scanned: {result['total_scanned']:,}")
+    logger.info("  trash embeddings found: {result['trash_found']:,}")
 
     if result.get("reason_counts"):
-        print("\n  Breakdown by reason:")
+        logger.info("\n  breakdown by reason:")
         for reason, count in sorted(
             result["reason_counts"].items(), key=lambda x: x[1], reverse=True
         ):
-            print(f"    {reason:20} {count:>6}")
+            logger.info("    reason {count:>6}", reason=reason)
 
     if dry_run:
-        print("\n  ⚠️  DRY RUN - No embeddings deleted")
+        logger.info("\n  ⚠️  dry run - no embeddings deleted")
     else:
-        print(f"\n  ✅ Deleted: {result.get('deleted', 0):,} embeddings")
+        logger.info("\n  ✅ deleted: {result.get('deleted', 0):,} embeddings")
 
-    print("=" * 60 + "\n")
+    logger.info("=" * 60 + "\n")
 
 
 if __name__ == "__main__":

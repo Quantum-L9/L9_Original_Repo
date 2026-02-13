@@ -7,10 +7,13 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
+import structlog
 from langgraph.checkpoint.memory import MemorySaver
 
 from workflows.dags.gmp.graph import build_gmp_graph
 from workflows.dags.gmp.state import GMPState
+
+logger = structlog.get_logger(__name__)
 
 
 class GMPLangGraphExecutor:
@@ -90,18 +93,18 @@ def main():
     executor = GMPLangGraphExecutor()
 
     if args.mermaid:
-        print(executor.get_mermaid())
+        logger.info("output", value=executor.get_mermaid())
         return
 
     if args.status:
         state = executor.get_state(args.status)
         if state:
-            print(f"Phase: {state.phase}")
-            print(f"Task: {state.task}")
+            logger.info("phase: {state.phase}")
+            logger.info("task: {state.task}")
             for msg in state.messages[-10:]:
-                print(msg)
+                logger.info("output", value=msg)
         else:
-            print(f"No state found for thread: {args.status}")
+            logger.info("no state found for thread: {args.status}")
         return
 
     if not args.task and not args.resume:
@@ -119,7 +122,7 @@ def main():
         else getattr(state, "messages", [])
     )
     for msg in messages:
-        print(msg)
+        logger.info("output", value=msg)
 
     phase = (
         state.get("phase", "unknown")
@@ -131,10 +134,10 @@ def main():
         if isinstance(state, dict)
         else getattr(state, "gmp_id", "")
     )
-    print(f"\nGMP ID: {gmp_id}")
-    print(f"Phase: {phase}")
-    print(f"Thread ID: gmp-{datetime.now().strftime('%Y%m%d%H%M%S')}")
-    print("Use --resume <thread_id> to continue")
+    logger.info("\ngmp id: gmp id", gmp_id=gmp_id)
+    logger.info("phase: phase", phase=phase)
+    logger.info("thread id: gmp-{datetime.now().strftime('%y%m%d%h%m%s')}")
+    logger.info("use --resume <thread_id> to continue")
 
 
 if __name__ == "__main__":

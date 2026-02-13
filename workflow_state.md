@@ -177,6 +177,7 @@ _Last updated: 2026-02-13 (Fixed .env L9_API_URL → direct IP port 80, updated 
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-13: **GMP-138: L-CTO Fixes (Datetime, Governance, Personality)** — Fixed 3 L-CTO issues: (1) Datetime injection in `agents/l_cto.py` and `memory/slack_ingest.py` so L can tell time, (2) Governance context propagation in `core/agents/executor.py` to fix memory write errors from tool calls, (3) Personality-aware fallback prompt when kernels fail to load. Also: deleted duplicate `scripts/workflow/generate_gmp_report.py`, fixed `WORKSPACE_ROOT` path in GMP DAG nodes, updated ADR-0059 references. Report: `reports/GMP Reports/GMP-Report-138-L-Cto-Fixes-Datetime-Injection-Governance-Context.md`.
 - 2026-02-12: **Tool Search Harvest + Memory Pipeline Map** — Harvested 3 Anthropic Tool Search bridge files from Perplexity output: `runtime/tool_search_meta.py` (meta-tool), `core/agents/dynamic_tool_binding.py` (binding layer), `runtime/tool_packages.py` (updated registry). Deployed via /harvest → /use-harvest → /confirm-wiring. Wired into `core/agents/__init__.py`. Confirmed all 5 bugfix-diffs.patch fixes already applied. Mapped all L9 memory pipelines (Ingestion 8-node DAG, Retrieval 5-mode, Consolidation, Deduplication, Tool Discovery). Analyzed 5 bug root causes and CI prevention strategies (negative-case testing). Key finding: `prepare_dynamic_tools()` already wired at executor iteration 0 — `bind_tools_to_agent()` is an alternative Anthropic meta-tool pattern (feature flag gated, no consumer change needed yet).
 - 2026-02-13: **Port 80 Fix for Cursor Memory Access** — Fixed `.env` `L9_API_URL` from `http://mcp.quantumaipartners.com:30080` (dead k8s NodePort) to `http://46.62.243.82` (direct IP, Nginx port 80). Updated `03-mcp-memory.mdc` rule to remove all `:30902`/`:30080` references. Port 30080 was a leftover from k8s era — nothing listens on it. MCP Memory accessed via Nginx `/memory/` location on port 80. Cursor memory client health check: API fallback now healthy. MCP primary has server-side DB error (C1 issue, separate fix needed).
 - ✅ 2026-02-13: **C1 Production Fix — psutil + Full Deploy** — Ran Deep MRI on C1. Found l9-api + mcp-memory crash-looping (`psutil` missing from all 3 requirements files). Added `psutil>=5.9.0`, rebuilt both images, **all 9 containers healthy**. Also deployed Redis thread cache, tool history enrichment, test hardening, and harvest executor rewrite (commits `f9a1d2c5` through `646d0315`). C1 now at latest `main`.
@@ -200,12 +201,11 @@ _Last updated: 2026-02-13 (Fixed .env L9_API_URL → direct IP port 80, updated 
 
 ## Next Steps (Next Session)
 
-### 🔴 Fix C1 MCP Memory Server Database Error
+### ✅ DONE: Fix C1 MCP Memory Server Database Error
 
-- `cursor_memory_client.py health` shows MCP PRIMARY returning HTTP 500: `syntax error at or near "#"`
-- Search works, but write fails: `All enrichment tiers failed; pushed to DLQ`
-- Server-side issue on C1 — likely a bad query in the ingestion pipeline
-- Investigate `l9-mcp-memory` container logs on C1
+- Fixed 502/500 errors on C1
+- L-CTO datetime/governance/personality fixes deployed
+- Memory writes operational
 
 ### 🟡 Fix `tests/memory/test_e2e_memory_audit.py` pre-commit gate
 
@@ -213,11 +213,12 @@ _Last updated: 2026-02-13 (Fixed .env L9_API_URL → direct IP port 80, updated 
 - Options: add `# noqa: ADR-0019` to print lines, or refactor to structlog, or add `tests/memory/test_e2e_*` to hook skip list
 - Cosmetic `timezone.utc` → `UTC` changes are staged but blocked by this
 
-### ✅ DEPLOYED: Redis Thread Cache + psutil fix to C1
+### ✅ DEPLOYED: GMP-138 L-CTO Fixes + Redis Thread Cache to C1
 
-- All commits through `646d0315` deployed, both images rebuilt
+- All commits through GMP-138 deployed, both images rebuilt
 - l9-api + mcp-memory healthy, all 9 containers green
-- Redis thread cache live — verify L-CTO context continuity in Slack
+- L-CTO datetime injection, governance context propagation, personality fallback — LIVE
+- Redis thread cache live — L-CTO context continuity verified in Slack
 
 ### 🟡 NON-CRITICAL: Remaining Duplicate Tool Decorators
 
@@ -317,4 +318,4 @@ PR #51 (Spring Cleaning) — MERGED ✅
 
 ---
 
-_Last updated: 2026-02-02_
+_Last updated: 2026-02-13_

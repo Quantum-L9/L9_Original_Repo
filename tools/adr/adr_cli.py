@@ -13,8 +13,12 @@ Usage:
 """
 
 from __future__ import annotations
+import structlog
 
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Command-line interface for managing Architecture Decision Records",
     "module_version": "1.0.0",
@@ -79,12 +83,12 @@ def cmd_new(args: argparse.Namespace) -> int:
         tier=args.tier or "t2",
     )
 
-    print(f"Created: {adr_file}")
-    print("\nNext steps:")
-    print(f"1. Edit {adr_file} and fill in all sections")
-    print("2. Run 'python -m tools.adr validate' to check the ADR")
-    print("3. Run 'python -m tools.adr reindex' to update the index")
-    print("4. Submit a PR with the new ADR")
+    logger.info("created: adr file", adr_file=adr_file)
+    logger.info("\nnext steps:")
+    logger.info("1. edit adr file and fill in all sections", adr_file=adr_file)
+    logger.info("2. run 'python -m tools.adr validate' to check the adr")
+    logger.info("3. run 'python -m tools.adr reindex' to update the index")
+    logger.info("4. submit a pr with the new adr")
 
     return 0
 
@@ -107,10 +111,10 @@ def cmd_list(args: argparse.Namespace) -> int:
         adrs = [adr for adr in adrs if adr["tier"] == args.tier]
 
     if not adrs:
-        print("No ADRs found.")
+        logger.info("no adrs found.")
         return 0
 
-    print(f"Found {len(adrs)} ADR(s):\n")
+    logger.info("found {len(adrs)} adr(s):\n")
     for adr in adrs:
         status_emoji = {
             "proposed": "🟡",
@@ -125,12 +129,12 @@ def cmd_list(args: argparse.Namespace) -> int:
             "t3": "🔴",
         }.get(adr["tier"], "❓")
 
-        print(f"{status_emoji} {tier_emoji} ADR-{adr['id']}: {adr['title']}")
+        logger.info("status emoji tier emoji adr-{adr['id']}: {adr['title']}", status_emoji=status_emoji, tier_emoji=tier_emoji)
         print(
             f"   Status: {adr['status']} | Category: {adr['category']} | Tier: {adr['tier'].upper()}"
         )
-        print(f"   Author: {adr['author']} | Date: {adr['date']}")
-        print()
+        logger.info("   author: {adr['author']} | date: {adr['date']}")
+        logger.info("output", value=)
 
     return 0
 
@@ -143,7 +147,7 @@ def cmd_show(args: argparse.Namespace) -> int:
     # Find ADR file
     adr_files = list(adr_dir.glob(f"{adr_id}-*.md"))
     if not adr_files:
-        print(f"Error: ADR-{adr_id} not found.")
+        logger.error("error: adr-adr id not found.", adr_id=adr_id)
         return 1
 
     adr_file = adr_files[0]
@@ -152,7 +156,7 @@ def cmd_show(args: argparse.Namespace) -> int:
     with open(adr_file) as f:
         content = f.read()
 
-    print(content)
+    logger.info("output", value=content)
     return 0
 
 
@@ -171,7 +175,7 @@ def cmd_update_status(args: argparse.Namespace) -> int:
     adr_dir = get_adr_dir()
     adr_files = list(adr_dir.glob(f"{adr_id}-*.md"))
     if not adr_files:
-        print(f"Error: ADR-{adr_id} not found.")
+        logger.error("error: adr-adr id not found.", adr_id=adr_id)
         return 1
 
     adr_file = adr_files[0]
@@ -189,17 +193,17 @@ def cmd_update_status(args: argparse.Namespace) -> int:
             break
 
     if not updated:
-        print(f"Error: Could not find status line in {adr_file}")
+        logger.error("error: could not find status line in adr file", adr_file=adr_file)
         return 1
 
     # Write updated content
     with open(adr_file, "w") as f:
         f.writelines(lines)
 
-    print(f"Updated ADR-{adr_id} status to '{new_status}'")
-    print("\nNext steps:")
-    print("1. Run 'python -m tools.adr reindex' to update the index")
-    print("2. Submit a PR with the status change")
+    logger.info("updated adr-adr id status to 'new status'", adr_id=adr_id, new_status=new_status)
+    logger.info("\nnext steps:")
+    logger.info("1. run 'python -m tools.adr reindex' to update the index")
+    logger.info("2. submit a pr with the status change")
 
     return 0
 
@@ -212,7 +216,7 @@ def cmd_deprecate(args: argparse.Namespace) -> int:
     adr_dir = get_adr_dir()
     adr_files = list(adr_dir.glob(f"{adr_id}-*.md"))
     if not adr_files:
-        print(f"Error: ADR-{adr_id} not found.")
+        logger.error("error: adr-adr id not found.", adr_id=adr_id)
         return 1
 
     adr_file = adr_files[0]
@@ -236,13 +240,13 @@ def cmd_deprecate(args: argparse.Namespace) -> int:
         f.writelines(lines)
 
     status = "superseded" if superseded_by else "deprecated"
-    print(f"Marked ADR-{adr_id} as {status}")
+    logger.info("marked adr-adr id as status", adr_id=adr_id, status=status)
     if superseded_by:
-        print(f"Superseded by: ADR-{superseded_by.zfill(4)}")
+        logger.info("superseded by: adr-{superseded_by.zfill(4)}")
 
-    print("\nNext steps:")
-    print("1. Run 'python -m tools.adr reindex' to update the index")
-    print("2. Submit a PR with the deprecation")
+    logger.info("\nnext steps:")
+    logger.info("1. run 'python -m tools.adr reindex' to update the index")
+    logger.info("2. submit a pr with the deprecation")
 
     return 0
 
@@ -262,17 +266,17 @@ def cmd_search(args: argparse.Namespace) -> int:
             matches.append(adr)
 
     if not matches:
-        print(f"No ADRs found matching '{query}'")
+        logger.info("no adrs found matching 'query'", query=query)
         return 0
 
-    print(f"Found {len(matches)} ADR(s) matching '{query}':\n")
+    logger.info("found {len(matches)} adr(s) matching 'query':\n", query=query)
     for adr in matches:
-        print(f"ADR-{adr['id']}: {adr['title']}")
+        logger.info("adr-{adr['id']}: {adr['title']}")
         print(
             f"   Status: {adr['status']} | Category: {adr['category']} | Tier: {adr['tier'].upper()}"
         )
-        print(f"   Tags: {', '.join(adr.get('tags', []))}")
-        print()
+        logger.info("   tags: {', '.join(adr.get('tags', []))}")
+        logger.info("output", value=)
 
     return 0
 
@@ -283,20 +287,20 @@ def cmd_validate(args: argparse.Namespace) -> int:
     results = validate_all_adrs(adr_dir)
 
     if not results:
-        print("No ADRs found to validate.")
+        logger.info("no adrs found to validate.")
         return 0
 
     errors = 0
     for adr_file, issues in results.items():
         if issues:
-            print(f"❌ {adr_file.name}: {len(issues)} issue(s)")
+            logger.info("❌ {adr_file.name}: {len(issues)} issue(s)")
             for issue in issues:
-                print(f"   - {issue}")
+                logger.info("   - issue", issue=issue)
             errors += 1
         else:
-            print(f"✅ {adr_file.name}: Valid")
+            logger.info("✅ {adr_file.name}: valid")
 
-    print(f"\nValidation complete: {len(results) - errors}/{len(results)} ADRs valid")
+    logger.error("\nvalidation complete: {len(results) - errors}/{len(results)} adrs valid")
 
     return 1 if errors > 0 else 0
 
@@ -312,8 +316,8 @@ def cmd_reindex(args: argparse.Namespace) -> int:
         json.dump(index, f, indent=2)
 
     adr_count = len(index.get("adrs", []))
-    print(f"Indexed {adr_count} ADR(s)")
-    print(f"Index saved to: {index_path}")
+    logger.info("indexed adr count adr(s)", adr_count=adr_count)
+    logger.info("index saved to: index path", index_path=index_path)
 
     return 0
 

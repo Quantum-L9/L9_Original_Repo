@@ -33,6 +33,10 @@ import sys
 
 import httpx
 from dotenv import load_dotenv
+import structlog
+
+
+logger = structlog.get_logger(__name__)
 
 load_dotenv()
 
@@ -40,7 +44,7 @@ VPS_URL = os.getenv("VPS_MEMORY_URL", "https://157.180.73.53:9001")
 API_KEY = os.getenv("L9_EXECUTOR_API_KEY")
 
 if not API_KEY:
-    print("ERROR: L9_EXECUTOR_API_KEY not set")
+    logger.error("error: l9_executor_api_key not set")
     sys.exit(1)
 
 
@@ -57,9 +61,9 @@ async def test_all_graphs():
         # =====================================================================
         # 1. PostgreSQL Packet Store
         # =====================================================================
-        print("=" * 80)
-        print("1. POSTGRESQL PACKET STORE")
-        print("=" * 80)
+        logger.info("=" * 80")
+        logger.info("1. postgresql packet store")
+        logger.info("=" * 80")
         try:
             r = await client.get(f"{VPS_URL}/api/v1/memory/stats", headers=headers)
             if r.status_code == 200:
@@ -71,22 +75,22 @@ async def test_all_graphs():
                     "facts": data.get("facts", 0),
                     "health": data.get("health", {}).get("status", "unknown"),
                 }
-                print(f"✅ Packets: {results['packet_store']['packets']:,}")
-                print(f"✅ Embeddings: {results['packet_store']['embeddings']:,}")
-                print(f"✅ Facts: {results['packet_store']['facts']:,}")
-                print(f"✅ Health: {results['packet_store']['health']}")
+                logger.info("✅ packets: {results['packet_store']['packets']:,}")
+                logger.info("✅ embeddings: {results['packet_store']['embeddings']:,}")
+                logger.info("✅ facts: {results['packet_store']['facts']:,}")
+                logger.info("✅ health: {results['packet_store']['health']}")
             else:
                 results["packet_store"] = {"status": f"❌ HTTP {r.status_code}"}
         except Exception as e:
             results["packet_store"] = {"status": f"❌ ERROR: {e}"}
-            print(f"❌ Error: {e}")
+            logger.error("❌ error: e", e=e)
 
         # =====================================================================
         # 2. Semantic Memory (pgvector)
         # =====================================================================
-        print("\n" + "=" * 80)
-        print("2. SEMANTIC MEMORY (pgvector)")
-        print("=" * 80)
+        logger.info("\n" + "=" * 80")
+        logger.info("2. semantic memory (pgvector)")
+        logger.info("=" * 80")
         try:
             r = await client.post(
                 f"{VPS_URL}/api/v1/memory/semantic/search",
@@ -101,7 +105,7 @@ async def test_all_graphs():
                     "results_count": len(results_list),
                     "sample_scores": [r.get("score", 0) for r in results_list[:3]],
                 }
-                print(f"✅ Retrieved {len(results_list)} results")
+                logger.info("✅ retrieved {len(results_list)} results")
                 if results_list:
                     print(
                         f"✅ Sample scores: {results['semantic_memory']['sample_scores']}"
@@ -110,14 +114,14 @@ async def test_all_graphs():
                 results["semantic_memory"] = {"status": f"❌ HTTP {r.status_code}"}
         except Exception as e:
             results["semantic_memory"] = {"status": f"❌ ERROR: {e}"}
-            print(f"❌ Error: {e}")
+            logger.error("❌ error: e", e=e)
 
         # =====================================================================
         # 3. Knowledge Facts
         # =====================================================================
-        print("\n" + "=" * 80)
-        print("3. KNOWLEDGE FACTS")
-        print("=" * 80)
+        logger.info("\n" + "=" * 80")
+        logger.info("3. knowledge facts")
+        logger.info("=" * 80")
         try:
             r = await client.get(
                 f"{VPS_URL}/api/v1/memory/facts", headers=headers, params={"limit": 10}
@@ -131,23 +135,23 @@ async def test_all_graphs():
                     "sample_count": len(facts),
                     "sample_facts": facts[:3] if facts else [],
                 }
-                print(f"✅ Total facts: {results['knowledge_facts']['count']}")
-                print(f"✅ Sample retrieved: {len(facts)}")
+                logger.info("✅ total facts: {results['knowledge_facts']['count']}")
+                logger.info("✅ sample retrieved: {len(facts)}")
                 if facts:
                     f = facts[0]
-                    print(f"✅ Example: {f.get('subject')} -> {f.get('predicate')}")
+                    logger.info("✅ example: {f.get('subject')} -> {f.get('predicate')}")
             else:
                 results["knowledge_facts"] = {"status": f"❌ HTTP {r.status_code}"}
         except Exception as e:
             results["knowledge_facts"] = {"status": f"❌ ERROR: {e}"}
-            print(f"❌ Error: {e}")
+            logger.error("❌ error: e", e=e)
 
         # =====================================================================
         # 4. Neo4j Knowledge Graph
         # =====================================================================
-        print("\n" + "=" * 80)
-        print("4. NEO4J KNOWLEDGE GRAPH")
-        print("=" * 80)
+        logger.info("\n" + "=" * 80")
+        logger.info("4. neo4j knowledge graph")
+        logger.info("=" * 80")
         try:
             r = await client.post(
                 f"{VPS_URL}/api/v1/memory/graph/query",
@@ -166,9 +170,9 @@ async def test_all_graphs():
                         "node_types": {n.get("label"): n.get("count") for n in nodes},
                         "total_node_types": len(nodes),
                     }
-                    print(f"✅ Node types: {len(nodes)}")
+                    logger.info("✅ node types: {len(nodes)}")
                     for node in nodes[:5]:
-                        print(f"   - {node.get('label')}: {node.get('count'):,}")
+                        logger.info("   - {node.get('label')}: {node.get('count'):,}")
                 else:
                     results["neo4j_knowledge"] = {
                         "status": f"❌ Query failed: {data.get('error')}"
@@ -177,14 +181,14 @@ async def test_all_graphs():
                 results["neo4j_knowledge"] = {"status": f"❌ HTTP {r.status_code}"}
         except Exception as e:
             results["neo4j_knowledge"] = {"status": f"❌ ERROR: {e}"}
-            print(f"❌ Error: {e}")
+            logger.error("❌ error: e", e=e)
 
         # =====================================================================
         # 5. Agent State Graph
         # =====================================================================
-        print("\n" + "=" * 80)
-        print("5. AGENT STATE GRAPH")
-        print("=" * 80)
+        logger.info("\n" + "=" * 80")
+        logger.info("5. agent state graph")
+        logger.info("=" * 80")
         try:
             r = await client.post(
                 f"{VPS_URL}/api/v1/memory/graph/query",
@@ -214,7 +218,7 @@ async def test_all_graphs():
                         "agent_count": len(agents),
                         "agents": agents,
                     }
-                    print(f"✅ Agents: {len(agents)}")
+                    logger.info("✅ agents: {len(agents)}")
                     for agent in agents[:5]:
                         print(
                             f"   - {agent.get('agent_id')}: {agent.get('designation', 'N/A')}"
@@ -227,14 +231,14 @@ async def test_all_graphs():
                 results["agent_state"] = {"status": f"❌ HTTP {r.status_code}"}
         except Exception as e:
             results["agent_state"] = {"status": f"❌ ERROR: {e}"}
-            print(f"❌ Error: {e}")
+            logger.error("❌ error: e", e=e)
 
         # =====================================================================
         # 6. Event Timeline
         # =====================================================================
-        print("\n" + "=" * 80)
-        print("6. EVENT TIMELINE")
-        print("=" * 80)
+        logger.info("\n" + "=" * 80")
+        logger.info("6. event timeline")
+        logger.info("=" * 80")
         try:
             r = await client.post(
                 f"{VPS_URL}/api/v1/memory/graph/query",
@@ -264,7 +268,7 @@ async def test_all_graphs():
                     print(
                         f"✅ Total events: {results['event_timeline']['total_events']}"
                     )
-                    print(f"✅ Event types: {results['event_timeline']['event_types']}")
+                    logger.info("✅ event types: {results['event_timeline']['event_types']}")
                 else:
                     results["event_timeline"] = {
                         "status": f"❌ Query failed: {data.get('error')}"
@@ -273,14 +277,14 @@ async def test_all_graphs():
                 results["event_timeline"] = {"status": f"❌ HTTP {r.status_code}"}
         except Exception as e:
             results["event_timeline"] = {"status": f"❌ ERROR: {e}"}
-            print(f"❌ Error: {e}")
+            logger.error("❌ error: e", e=e)
 
         # =====================================================================
         # 7. Repo Structure Graph
         # =====================================================================
-        print("\n" + "=" * 80)
-        print("7. REPO STRUCTURE GRAPH")
-        print("=" * 80)
+        logger.info("\n" + "=" * 80")
+        logger.info("7. repo structure graph")
+        logger.info("=" * 80")
         try:
             r = await client.post(
                 f"{VPS_URL}/api/v1/memory/graph/query",
@@ -310,7 +314,7 @@ async def test_all_graphs():
                         f"✅ Total repo nodes: {results['repo_structure']['total_nodes']}"
                     )
                     for node in repo_nodes[:5]:
-                        print(f"   - {node.get('type')}: {node.get('count'):,}")
+                        logger.info("   - {node.get('type')}: {node.get('count'):,}")
                 else:
                     results["repo_structure"] = {
                         "status": f"❌ Query failed: {data.get('error')}"
@@ -319,14 +323,14 @@ async def test_all_graphs():
                 results["repo_structure"] = {"status": f"❌ HTTP {r.status_code}"}
         except Exception as e:
             results["repo_structure"] = {"status": f"❌ ERROR: {e}"}
-            print(f"❌ Error: {e}")
+            logger.error("❌ error: e", e=e)
 
         # =====================================================================
         # 8. World Model
         # =====================================================================
-        print("\n" + "=" * 80)
-        print("8. WORLD MODEL")
-        print("=" * 80)
+        logger.info("\n" + "=" * 80")
+        logger.info("8. world model")
+        logger.info("=" * 80")
         try:
             # Try health check first
             r = await client.get(f"{VPS_URL}/world-model/health", headers=headers)
@@ -338,9 +342,9 @@ async def test_all_graphs():
                     "state_version": data.get("state_version", 0),
                     "entity_count": data.get("entity_count", 0),
                 }
-                print(f"✅ Health: {results['world_model']['health']}")
-                print(f"✅ State version: {results['world_model']['state_version']}")
-                print(f"✅ Entity count: {results['world_model']['entity_count']}")
+                logger.info("✅ health: {results['world_model']['health']}")
+                logger.info("✅ state version: {results['world_model']['state_version']}")
+                logger.info("✅ entity count: {results['world_model']['entity_count']}")
 
                 # Try listing entities
                 r2 = await client.get(
@@ -352,24 +356,24 @@ async def test_all_graphs():
                     entities_data = r2.json()
                     entities = entities_data.get("entities", [])
                     results["world_model"]["sample_entities"] = len(entities)
-                    print(f"✅ Sample entities retrieved: {len(entities)}")
+                    logger.info("✅ sample entities retrieved: {len(entities)}")
             elif r.status_code == 404:
                 results["world_model"] = {
                     "status": "⚠️ NOT AVAILABLE (endpoint not found)"
                 }
-                print("⚠️ World Model API not available (endpoint not found)")
+                logger.info("⚠️ world model api not available (endpoint not found)")
             else:
                 results["world_model"] = {"status": f"❌ HTTP {r.status_code}"}
         except Exception as e:
             results["world_model"] = {"status": f"❌ ERROR: {e}"}
-            print(f"❌ Error: {e}")
+            logger.error("❌ error: e", e=e)
 
         # =====================================================================
         # SUMMARY
         # =====================================================================
-        print("\n" + "=" * 80)
-        print("SUMMARY - GRAPH ACCESSIBILITY")
-        print("=" * 80)
+        logger.info("\n" + "=" * 80")
+        logger.info("summary - graph accessibility")
+        logger.info("=" * 80")
 
         accessible = sum(
             1 for r in results.values() if r.get("status", "").startswith("✅")
@@ -382,9 +386,9 @@ async def test_all_graphs():
                 f"{'✅' if status.startswith('✅') else '❌' if status.startswith('❌') else '⚠️'} {name.upper().replace('_', ' ')}: {status}"
             )
 
-        print("\n" + "=" * 80)
-        print(f"ACCESSIBLE: {accessible}/{total} graphs")
-        print("=" * 80)
+        logger.info("\n" + "=" * 80")
+        logger.info("accessible: accessible/total graphs", accessible=accessible, total=total)
+        logger.info("=" * 80")
 
         return results
 

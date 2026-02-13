@@ -177,8 +177,8 @@ async def main(dry_run: bool = False, verbose: bool = False):
         result = await find_trash_embeddings_via_search(
             dry_run=dry_run, verbose=verbose
         )
-        print(f"\nFound {result.get('trash_found', 0)} trash embeddings via API")
-        print("Note: Direct DB access needed for deletion. Set DATABASE_URL in .env")
+        logger.info("\nfound {result.get('trash_found', 0)} trash embeddings via api")
+        logger.info("note: direct db access needed for deletion. set database_url in .env")
         return
 
     logger.info("Deleting trash embeddings", dry_run=dry_run)
@@ -190,20 +190,20 @@ async def main(dry_run: bool = False, verbose: bool = False):
         logger.error(f"Failed: {result['error']}")
         return
 
-    print("\n" + "=" * 60)
-    print("TRASH EMBEDDINGS DELETION")
-    print("=" * 60)
-    print(f"  Total embeddings: {result['total']:,}")
-    print(f"  Trash found: {result['trash_found']:,}")
+    logger.info("\n" + "=" * 60")
+    logger.info("trash embeddings deletion")
+    logger.info("=" * 60")
+    logger.info("  total embeddings: {result['total']:,}")
+    logger.info("  trash found: {result['trash_found']:,}")
 
     if dry_run:
-        print("\n  ⚠️  DRY RUN - Would delete:")
+        logger.info("\n  ⚠️  dry run - would delete:")
         for eid in result.get("trash_ids", [])[:10]:
-            print(f"    - {eid}")
+            logger.info("    - eid", eid=eid)
     else:
-        print(f"  ✅ Deleted: {result.get('deleted', 0):,} embeddings")
+        logger.info("  ✅ deleted: {result.get('deleted', 0):,} embeddings")
 
-    print("=" * 60 + "\n")
+    logger.info("=" * 60 + "\n")
 
 
 if __name__ == "__main__":

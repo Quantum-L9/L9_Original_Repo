@@ -2786,18 +2786,22 @@ def main():
     )
 
     # Print summary table to stdout for human readability
-    print(f"\n{'=' * 60}")
-    print("  REPO INDEX GENERATION COMPLETE")
-    print(f"{'=' * 60}")
-    print(f"  Repo:    {REPO_NAME}")
-    print(f"  Output:  {REPO_INDEX_DIR}")
-    print(f"  Files:   {len(results)} ({success_count} OK, {fail_count} failed)")
-    print(f"  Total:   {total_size:,} bytes")
-    print(f"{'=' * 60}")
+    logger.info("\n{'=' * 60}")
+    logger.info("  repo index generation complete")
+    logger.info("{'=' * 60}")
+    logger.info("  repo:    repo name", REPO_NAME=REPO_NAME)
+    logger.info("  output:  repo index dir", REPO_INDEX_DIR=REPO_INDEX_DIR)
+    logger.error(
+        "  files:   {len(results)} (success count ok, fail count failed)",
+        success_count=success_count,
+        fail_count=fail_count,
+    )
+    logger.info("  total:   {total_size:,} bytes")
+    logger.info("{'=' * 60}")
     for filename, size in sorted(results.items()):
         status = "OK" if size > 0 else "FAIL"
-        print(f"  [{status:>4}] {filename:35} {size:>10,} bytes")
-    print(f"{'=' * 60}\n")
+        logger.info("  [{status:>4}] filename {size:>10,} bytes", filename=filename)
+    logger.info("{'=' * 60}\n")
 
     # Phase 2: Ingest to Memory (pgvector)
     logger.info("\n" + "=" * 60)

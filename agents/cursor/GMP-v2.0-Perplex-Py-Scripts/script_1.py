@@ -1,4 +1,9 @@
+import structlog
+
 # ============================================================================
+
+logger = structlog.get_logger(__name__)
+
 __dora_meta__ = {
     "component_name": "Script 1",
     "module_version": "1.0.0",
@@ -77,13 +82,13 @@ MIGRATION POLICY:
 - Deprecation: Min 2 minor versions before removal
 """
 
-print(versioning_strategy)
-print("\n" + "=" * 60)
-print("GMP v2.0 FILE MANIFEST:")
-print("=" * 60)
+logger.info("output", value=versioning_strategy)
+logger.info("separator", value="\n" + "=" * 60)
+logger.info("gmp v2.0 file manifest:")
+logger.info("separator", value="=" * 60)
 for filename, description in gmp_v2_files.items():
-    print(f"✓ {filename}")
-    print(f"  {description}\n")
+    logger.info("✓ filename", filename=filename)
+    logger.info("  description\n", description=description)
 # ============================================================================
 # DORA FOOTER META - AUTO-GENERATED - DO NOT EDIT MANUALLY
 # ============================================================================

@@ -44,7 +44,11 @@ from datetime import UTC
 from pathlib import Path
 
 import yaml
+import structlog
 
+
+
+logger = structlog.get_logger(__name__)
 
 @dataclass
 class ConceptReview:
@@ -138,21 +142,21 @@ class QCDashboard:
             elif choice == "6":
                 self._export_summary()
             elif choice == "q":
-                print("\n👋 Goodbye!")
+                logger.info("\n👋 goodbye!")
                 break
             else:
-                print("❌ Invalid option")
+                logger.info("❌ invalid option")
                 input("Press Enter to continue...")
 
     def _clear_screen(self):
         """Clear the terminal screen."""
-        print("\033[2J\033[H", end="")
+        logger.info("\033[2j\033[h", end=")
 
     def _show_header(self):
         """Show dashboard header."""
-        print("=" * 80)
-        print(" " * 25 + "L9 QC DASHBOARD")
-        print("=" * 80)
+        logger.info("=" * 80")
+        logger.info(" " * 25 + "l9 qc dashboard")
+        logger.info("=" * 80")
 
     def _show_stats(self):
         """Show concept statistics."""
@@ -161,22 +165,22 @@ class QCDashboard:
         rejected = sum(1 for r in self.reviews.values() if r.status == "rejected")
         pending = total - approved - rejected
 
-        print("\n📊 Concept Statistics:")
-        print(f"   Total: {total}")
-        print(f"   ✅ Approved: {approved}")
-        print(f"   ❌ Rejected: {rejected}")
-        print(f"   ⏳ Pending: {pending}")
+        logger.info("\n📊 concept statistics:")
+        logger.info("   total: total", total=total)
+        logger.info("   ✅ approved: approved", approved=approved)
+        logger.info("   ❌ rejected: rejected", rejected=rejected)
+        logger.info("   ⏳ pending: pending", pending=pending)
 
     def _show_menu(self):
         """Show main menu."""
-        print("\n📋 Menu:")
-        print("   1. Review concepts")
-        print("   2. Show approved concepts")
-        print("   3. Show rejected concepts")
-        print("   4. Batch approve high-confidence concepts")
-        print("   5. Generate PLAN specs for approved concepts")
-        print("   6. Export summary report")
-        print("   q. Quit")
+        logger.info("\n📋 menu:")
+        logger.info("   1. review concepts")
+        logger.info("   2. show approved concepts")
+        logger.info("   3. show rejected concepts")
+        logger.info("   4. batch approve high-confidence concepts")
+        logger.info("   5. generate plan specs for approved concepts")
+        logger.info("   6. export summary report")
+        logger.info("   q. quit")
 
     def _review_concepts(self):
         """Review concepts interactively."""
@@ -188,23 +192,23 @@ class QCDashboard:
         ]
 
         if not pending_concepts:
-            print("\n✅ No pending concepts to review!")
+            logger.info("\n✅ no pending concepts to review!")
             input("Press Enter to continue...")
             return
 
         for i, concept in enumerate(pending_concepts):
             self._clear_screen()
-            print(f"\n📄 Reviewing Concept {i + 1}/{len(pending_concepts)}")
-            print("=" * 80)
+            logger.info("\n📄 reviewing concept {i + 1}/{len(pending_concepts)}")
+            logger.info("=" * 80")
 
             self._show_concept(concept)
 
-            print("\n🎯 Actions:")
-            print("   a - Approve")
-            print("   r - Reject")
-            print("   e - Edit YAML")
-            print("   s - Skip")
-            print("   q - Back to menu")
+            logger.info("\n🎯 actions:")
+            logger.info("   a - approve")
+            logger.info("   r - reject")
+            logger.info("   e - edit yaml")
+            logger.info("   s - skip")
+            logger.info("   q - back to menu")
 
             action = input("\n👉 Action: ").strip().lower()
 
@@ -221,12 +225,12 @@ class QCDashboard:
 
     def _show_concept(self, concept: dict):
         """Display concept details."""
-        print(f"\n📌 Concept: {concept['concept_name']}")
-        print(f"📁 Source: {Path(concept['source_file']).name}")
-        print(f"🏷️  Category: {concept['category']}")
-        print(f"📊 Confidence: {concept['confidence']:.2f}")
-        print("\n📝 Description:")
-        print(f"   {concept['description']}")
+        logger.info("\n📌 concept: {concept['concept_name']}")
+        logger.info("📁 source: {path(concept['source_file']).name}")
+        logger.info("🏷️  category: {concept['category']}")
+        logger.info("📊 confidence: {concept['confidence']:.2f}")
+        logger.info("\n📝 description:")
+        logger.info("   {concept['description']}")
 
         # Show YAML spec
         yaml_file = self.yaml_dir / f"{concept['concept_name']}.yaml"
@@ -234,13 +238,13 @@ class QCDashboard:
             with open(yaml_file) as f:
                 yaml_data = yaml.safe_load(f)
 
-            print("\n📄 Generated YAML:")
-            print(f"   Name: {yaml_data.get('CONCEPT_NAME')}")
-            print(f"   Version: {yaml_data.get('VERSION')}")
-            print(f"   One-sentence: {yaml_data.get('ONE_SENTENCE', '')[:100]}...")
+            logger.info("\n📄 generated yaml:")
+            logger.info("   name: {yaml_data.get('concept_name')}")
+            logger.info("   version: {yaml_data.get('version')}")
+            logger.info("   one-sentence: {yaml_data.get('one_sentence', '')[:100]}...")
 
             if yaml_data.get("ARCHITECTURE", {}).get("components"):
-                print(f"   Components: {len(yaml_data['ARCHITECTURE']['components'])}")
+                logger.info("   components: {len(yaml_data['architecture']['components'])}")
 
     def _approve_concept(self, concept: dict):
         """Approve a concept."""
@@ -263,7 +267,7 @@ class QCDashboard:
             approved_file = self.approved_dir / yaml_file.name
             approved_file.write_text(yaml_file.read_text())
 
-        print("\n✅ Concept approved!")
+        logger.info("\n✅ concept approved!")
         input("Press Enter to continue...")
 
     def _reject_concept(self, concept: dict):
@@ -281,7 +285,7 @@ class QCDashboard:
 
         self._save_review(review)
 
-        print("\n❌ Concept rejected!")
+        logger.info("\n❌ concept rejected!")
         input("Press Enter to continue...")
 
     def _edit_concept(self, concept: dict):
@@ -289,7 +293,7 @@ class QCDashboard:
         yaml_file = self.yaml_dir / f"{concept['concept_name']}.yaml"
 
         if not yaml_file.exists():
-            print("❌ YAML file not found!")
+            logger.info("❌ yaml file not found!")
             input("Press Enter to continue...")
             return
 
@@ -309,7 +313,7 @@ class QCDashboard:
 
         self._save_review(review)
 
-        print("\n✏️  Concept edited!")
+        logger.info("\n✏️  concept edited!")
         input("Press Enter to continue...")
 
     def _show_approved(self):
@@ -324,19 +328,19 @@ class QCDashboard:
         ]
 
         self._clear_screen()
-        print("\n✅ Approved Concepts")
-        print("=" * 80)
+        logger.info("\n✅ approved concepts")
+        logger.info("=" * 80")
 
         if not approved:
-            print("\nNo approved concepts yet.")
+            logger.info("\nno approved concepts yet.")
         else:
-            print("\n| # | Concept | Category | Confidence |")
-            print("|---|---------|----------|------------|")
+            logger.info("\n| # | concept | category | confidence |")
+            logger.info("|---|---------|----------|------------|")
             for i, concept in enumerate(approved, 1):
                 name = concept["concept_name"][:30]
                 cat = concept["category"]
                 conf = concept["confidence"]
-                print(f"| {i} | {name} | {cat} | {conf:.2f} |")
+                logger.info("| i | name | cat | {conf:.2f} |", i=i, name=name, cat=cat)
 
         input("\nPress Enter to continue...")
 
@@ -352,16 +356,16 @@ class QCDashboard:
         ]
 
         self._clear_screen()
-        print("\n❌ Rejected Concepts")
-        print("=" * 80)
+        logger.info("\n❌ rejected concepts")
+        logger.info("=" * 80")
 
         if not rejected:
-            print("\nNo rejected concepts yet.")
+            logger.info("\nno rejected concepts yet.")
         else:
             for i, concept in enumerate(rejected, 1):
                 review = self.reviews[concept["concept_id"]]
-                print(f"\n{i}. {concept['concept_name']}")
-                print(f"   Reason: {review.reviewer_notes}")
+                logger.info("\ni. {concept['concept name']}", i=i)
+                logger.info("   reason: {review.reviewer_notes}")
 
         input("\nPress Enter to continue...")
 
@@ -376,11 +380,11 @@ class QCDashboard:
         ]
 
         if not high_conf:
-            print(f"\n❌ No concepts with confidence >= {threshold}")
+            logger.info("\n❌ no concepts with confidence >= threshold", threshold=threshold)
             input("Press Enter to continue...")
             return
 
-        print(f"\n📋 Found {len(high_conf)} concepts with confidence >= {threshold}")
+        logger.info("\n📋 found {len(high conf)} concepts with confidence >= threshold", threshold=threshold)
         confirm = input("✅ Approve all? (y/n): ").strip().lower()
 
         if confirm == "y":
@@ -401,9 +405,9 @@ class QCDashboard:
                     approved_file = self.approved_dir / yaml_file.name
                     approved_file.write_text(yaml_file.read_text())
 
-            print(f"\n✅ Approved {len(high_conf)} concepts!")
+            logger.info("\n✅ approved {len(high_conf)} concepts!")
         else:
-            print("\n❌ Batch approval cancelled")
+            logger.info("\n❌ batch approval cancelled")
 
         input("Press Enter to continue...")
 
@@ -419,15 +423,15 @@ class QCDashboard:
         ]
 
         if not approved:
-            print("\n❌ No approved concepts to generate PLAN specs for!")
+            logger.info("\n❌ no approved concepts to generate plan specs for!")
             input("Press Enter to continue...")
             return
 
-        print(f"\n📋 Found {len(approved)} approved concepts")
+        logger.info("\n📋 found {len(approved)} approved concepts")
         confirm = input("🚀 Generate PLAN specs for all? (y/n): ").strip().lower()
 
         if confirm != "y":
-            print("\n❌ Cancelled")
+            logger.info("\n❌ cancelled")
             input("Press Enter to continue...")
             return
 
@@ -443,13 +447,13 @@ class QCDashboard:
             yaml_file = self.approved_dir / f"{concept['concept_name']}.yaml"
             if yaml_file.exists():
                 try:
-                    print(f"  Generating PLAN for: {concept['concept_name']}...")
+                    logger.info("  generating plan for: {concept['concept_name']}...")
                     generator.generate_from_file(yaml_file)
                 except Exception as e:
-                    print(f"    ❌ Error: {e}")
+                    logger.error("    ❌ error: e", e=e)
 
-        print("\n✅ PLAN specs generated!")
-        print(f"📁 Location: {self.harvested_dir / 'plan_specs'}")
+        logger.info("\n✅ plan specs generated!")
+        logger.info("📁 location: {self.harvested_dir / 'plan_specs'}")
         input("Press Enter to continue...")
 
     def _export_summary(self):
@@ -492,7 +496,7 @@ class QCDashboard:
         summary_file = self.harvested_dir / "QC_SUMMARY.md"
         summary_file.write_text(summary)
 
-        print(f"\n✅ Summary exported to: {summary_file}")
+        logger.info("\n✅ summary exported to: summary file", summary_file=summary_file)
         input("Press Enter to continue...")
 
 

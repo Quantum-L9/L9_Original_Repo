@@ -45,7 +45,11 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 from typing import Any
+import structlog
 
+
+
+logger = structlog.get_logger(__name__)
 
 class Language(Enum):
     """
@@ -97,7 +101,7 @@ class RefactoringBootstrap:
     def _validate_project(self):
         """Verify project structure is valid"""
         if not self.project_root.exists():
-            print(f"❌ Project root does not exist: {self.project_root}")
+            logger.info("❌ project root does not exist: {self.project_root}")
             sys.exit(1)
 
         # Check for common project markers
@@ -111,22 +115,22 @@ class RefactoringBootstrap:
         )
 
         if not has_git:
-            print("⚠️  Warning: Not a Git repository. Initialize with: git init")
+            logger.warning("⚠️  warning: not a git repository. initialize with: git init")
 
         if not has_package and self.language != Language.MIXED:
-            print(f"⚠️  Warning: No project manifest found for {self.language.value}")
+            logger.warning("⚠️  warning: no project manifest found for {self.language.value}")
 
     def _create_directories(self):
         """Create configuration and report directories"""
         self.reports_dir.mkdir(exist_ok=True)
         self.config_dir.mkdir(exist_ok=True)
-        print(f"✓ Created directories: {self.reports_dir}, {self.config_dir}")
+        logger.info("✓ created directories: {self.reports_dir}, {self.config_dir}")
 
     def bootstrap(self):
         """Execute complete bootstrap sequence"""
-        print("\n" + "=" * 70)
-        print(" 🚀 AI-ENABLED REFACTORING BOOTSTRAP SUITE")
-        print("=" * 70)
+        logger.info("\n" + "=" * 70")
+        logger.info(" 🚀 ai-enabled refactoring bootstrap suite")
+        logger.info("=" * 70")
 
         self.setup_static_analysis()
         self.generate_baseline_metrics()
@@ -135,19 +139,19 @@ class RefactoringBootstrap:
         self.setup_pre_commit_hooks()
         self.generate_ai_workflow_config()
 
-        print("\n" + "=" * 70)
-        print(" ✅ BOOTSTRAP COMPLETE")
-        print("=" * 70)
-        print("\nNext steps:")
-        print("  1. Review refactoring backlog: cat .refactor-reports/backlog.json")
-        print("  2. Install pre-commit: pre-commit install")
-        print("  3. Configure AI assistants in .refactor-config/ai-workflow.yaml")
-        print("  4. Run test validation: pytest tests/ -v")
-        print("\n")
+        logger.info("\n" + "=" * 70")
+        logger.info(" ✅ bootstrap complete")
+        logger.info("=" * 70")
+        logger.info("\nnext steps:")
+        logger.info("  1. review refactoring backlog: cat .refactor-reports/backlog.json")
+        logger.info("  2. install pre-commit: pre-commit install")
+        logger.info("  3. configure ai assistants in .refactor-config/ai-workflow.yaml")
+        logger.info("  4. run test validation: pytest tests/ -v")
+        logger.info("\n")
 
     def setup_static_analysis(self):
         """Deploy language-specific static analysis tools"""
-        print("\n📊 Setting up static analysis toolchain...")
+        logger.info("\n📊 setting up static analysis toolchain...")
 
         if self.language in (Language.PYTHON, Language.MIXED):
             self._setup_python_analysis()
@@ -160,7 +164,7 @@ class RefactoringBootstrap:
 
     def _setup_python_analysis(self):
         """Configure Python linters and type checkers"""
-        print("  • Configuring Python analysis (Ruff, mypy, Bandit, Radon)...")
+        logger.info("  • configuring python analysis (ruff, mypy, bandit, radon)...")
 
         # Write pyproject.toml configuration
         pyproject_config = """
@@ -197,7 +201,7 @@ exclude_dirs = ["tests", ".venv"]
 """
         config_path = self.config_dir / "pyproject.toml"
         config_path.write_text(pyproject_config)
-        print(f"    ✓ Created {config_path}")
+        logger.info("    ✓ created config path", config_path=config_path)
 
         # Create requirements for refactoring tools
         requirements = """ruff==0.6.8
@@ -214,7 +218,7 @@ isort==5.13.2
 """
         req_path = self.config_dir / "requirements-refactor.txt"
         req_path.write_text(requirements)
-        print(f"    ✓ Created {req_path}")
+        logger.info("    ✓ created req path", req_path=req_path)
         print(
             "    → Install with: pip install -r .refactor-config/requirements-refactor.txt"
         )
@@ -251,7 +255,7 @@ isort==5.13.2
 }"""
         eslint_path = self.config_dir / ".eslintrc.json"
         eslint_path.write_text(eslint_config)
-        print(f"    ✓ Created {eslint_path}")
+        logger.info("    ✓ created eslint path", eslint_path=eslint_path)
 
         prettier_config = """{
   "trailingComma": "es5",
@@ -262,7 +266,7 @@ isort==5.13.2
 }"""
         prettier_path = self.config_dir / ".prettierrc"
         prettier_path.write_text(prettier_config)
-        print(f"    ✓ Created {prettier_path}")
+        logger.info("    ✓ created prettier path", prettier_path=prettier_path)
 
         package_json = """{
   "devDependencies": {
@@ -279,14 +283,14 @@ isort==5.13.2
 }"""
         package_path = self.config_dir / "package-refactor.json"
         package_path.write_text(package_json)
-        print(f"    ✓ Created {package_path}")
+        logger.info("    ✓ created package path", package_path=package_path)
         print(
             "    → Install with: npm install --save-dev $(cat .refactor-config/package-refactor.json | jq -r '.devDependencies | keys[]')"
         )
 
     def _setup_java_analysis(self):
         """Configure Java static analysis"""
-        print("  • Configuring Java analysis (SpotBugs, PMD, Checkstyle)...")
+        logger.info("  • configuring java analysis (spotbugs, pmd, checkstyle)...")
 
         maven_config = """<!-- Add to pom.xml <plugins> section -->
   <plugin>
@@ -307,11 +311,11 @@ isort==5.13.2
 """
         maven_path = self.config_dir / "pom-snippet.xml"
         maven_path.write_text(maven_config)
-        print(f"    ✓ Created {maven_path}")
+        logger.info("    ✓ created maven path", maven_path=maven_path)
 
     def generate_baseline_metrics(self):
         """Capture current codebase metrics"""
-        print("\n📈 Generating baseline metrics...")
+        logger.info("\n📈 generating baseline metrics...")
 
         baseline = {
             "project": str(self.project_root),
@@ -328,7 +332,7 @@ isort==5.13.2
 
         baseline_path = self.reports_dir / "baseline.json"
         baseline_path.write_text(json.dumps(baseline, indent=2))
-        print(f"  ✓ Baseline report: {baseline_path}")
+        logger.info("  ✓ baseline report: baseline path", baseline_path=baseline_path)
 
     def _analyze_python(self) -> dict[str, Any]:
         """Analyze Python codebase"""
@@ -375,7 +379,7 @@ isort==5.13.2
 
     def create_refactoring_backlog(self):
         """Generate prioritized refactoring candidates"""
-        print("\n📋 Creating refactoring backlog...")
+        logger.info("\n📋 creating refactoring backlog...")
 
         backlog = {
             "generated": __import__("datetime").datetime.now().isoformat(),
@@ -432,13 +436,13 @@ isort==5.13.2
 
         backlog_path = self.reports_dir / "backlog.json"
         backlog_path.write_text(json.dumps(backlog, indent=2))
-        print(f"  ✓ Refactoring backlog: {backlog_path}")
-        print(f"    Total opportunities: {len(backlog['refactoring_opportunities'])}")
-        print(f"    Estimated effort: {backlog['estimated_total_effort_hours']} hours")
+        logger.info("  ✓ refactoring backlog: backlog path", backlog_path=backlog_path)
+        logger.info("    total opportunities: {len(backlog['refactoring_opportunities'])}")
+        logger.info("    estimated effort: {backlog['estimated_total_effort_hours']} hours")
 
     def setup_ci_validation(self):
         """Create CI/CD validation pipeline"""
-        print("\n🔄 Setting up CI/CD validation gates...")
+        logger.info("\n🔄 setting up ci/cd validation gates...")
 
         github_actions_yaml = """name: Refactoring Validation
 
@@ -488,11 +492,11 @@ jobs:
         )
         ci_path.parent.mkdir(parents=True, exist_ok=True)
         ci_path.write_text(github_actions_yaml)
-        print(f"  ✓ GitHub Actions workflow: {ci_path}")
+        logger.info("  ✓ github actions workflow: ci path", ci_path=ci_path)
 
     def setup_pre_commit_hooks(self):
         """Configure pre-commit hooks for automatic checks"""
-        print("\n🪝 Setting up pre-commit hooks...")
+        logger.info("\n🪝 setting up pre-commit hooks...")
 
         pre_commit_config = """repos:
   # Python formatters
@@ -546,12 +550,12 @@ jobs:
 
         pre_commit_path = self.project_root / ".pre-commit-config.yaml"
         pre_commit_path.write_text(pre_commit_config)
-        print(f"  ✓ Pre-commit config: {pre_commit_path}")
-        print("    → Install hooks with: pre-commit install")
+        logger.info("  ✓ pre-commit config: pre commit path", pre_commit_path=pre_commit_path)
+        logger.info("    → install hooks with: pre-commit install")
 
     def generate_ai_workflow_config(self):
         """Create AI-assisted refactoring workflow configuration"""
-        print("\n🤖 Generating AI workflow configuration...")
+        logger.info("\n🤖 generating ai workflow configuration...")
 
         ai_workflow = """# AI-Assisted Refactoring Workflow Configuration
 # Version: 1.0.0
@@ -637,7 +641,7 @@ quarterly_review:
 
         ai_config_path = self.config_dir / "ai-workflow.yaml"
         ai_config_path.write_text(ai_workflow)
-        print(f"  ✓ AI workflow config: {ai_config_path}")
+        logger.info("  ✓ ai workflow config: ai config path", ai_config_path=ai_config_path)
 
         # Generate quick-start guide
         quickstart = """# AI-Enabled Refactoring Quick Start Guide
@@ -719,7 +723,7 @@ quarterly_review:
 
         quickstart_path = self.config_dir / "QUICKSTART.md"
         quickstart_path.write_text(quickstart)
-        print(f"  ✓ Quick-start guide: {quickstart_path}")
+        logger.info("  ✓ quick-start guide: quickstart path", quickstart_path=quickstart_path)
 
 
 def main():
@@ -754,7 +758,7 @@ def main():
     try:
         language = Language[args.language.upper()]
     except KeyError:
-        print(f"❌ Invalid language: {args.language}")
+        logger.info("❌ invalid language: {args.language}")
         sys.exit(1)
 
     bootstrap = RefactoringBootstrap(

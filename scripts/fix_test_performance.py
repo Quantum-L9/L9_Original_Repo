@@ -37,8 +37,12 @@ __dora_meta__ = {
 import re
 import sys
 from pathlib import Path
+import structlog
 
 # Files that scan codebase and need optimization
+
+logger = structlog.get_logger(__name__)
+
 TEST_FILES_TO_FIX = [
     "tests/ci/test_adr_enforcement.py",
     "tests/ci/test_anti_patterns.py",
@@ -59,7 +63,7 @@ PATTERNS_TO_PRECOMPILE = [
 def check_file_exists(path: Path) -> bool:
     """Check if file exists."""
     if not path.exists():
-        print(f"⚠️  Skipping (not found): {path}")
+        logger.info("⚠️  skipping (not found): path", path=path)
         return False
     return True
 
@@ -183,11 +187,11 @@ def fix_file(path: Path, dry_run: bool = False) -> bool:
     content = add_usage_comment(content)
 
     if content == original:
-        print(f"✓ No changes needed: {path}")
+        logger.info("✓ no changes needed: path", path=path)
         return False
 
     if dry_run:
-        print(f"🔍 Would fix: {path}")
+        logger.info("🔍 would fix: path", path=path)
         # Show diff summary
         original_lines = original.count("\n")
         new_lines = content.count("\n")
@@ -197,21 +201,21 @@ def fix_file(path: Path, dry_run: bool = False) -> bool:
         return True
 
     path.write_text(content)
-    print(f"✅ Fixed: {path}")
+    logger.info("✅ fixed: path", path=path)
     return True
 
 
 def main():
     """Run the performance fixer."""
-    print("=" * 60)
-    print("L9 Test Performance Fixer")
-    print("=" * 60)
+    logger.info("=" * 60")
+    logger.info("l9 test performance fixer")
+    logger.info("=" * 60")
 
     dry_run = "--dry-run" in sys.argv
     if dry_run:
-        print("Mode: DRY RUN (no changes will be made)\n")
+        logger.info("mode: dry run (no changes will be made)\n")
     else:
-        print("Mode: LIVE (files will be modified)\n")
+        logger.info("mode: live (files will be modified)\n")
 
     repo_root = Path(__file__).parent.parent
     fixed_count = 0
@@ -221,17 +225,17 @@ def main():
         if fix_file(full_path, dry_run=dry_run):
             fixed_count += 1
 
-    print("\n" + "=" * 60)
+    logger.info("\n" + "=" * 60")
     print(
         f"Summary: {fixed_count}/{len(TEST_FILES_TO_FIX)} files {'would be ' if dry_run else ''}fixed"
     )
-    print("=" * 60)
+    logger.info("=" * 60")
 
     if dry_run:
-        print("\nRun without --dry-run to apply changes.")
+        logger.info("\nrun without --dry-run to apply changes.")
     else:
-        print("\n✅ Done! Run pytest to verify changes work correctly.")
-        print("   pytest tests/ci/ -v --tb=short")
+        logger.info("\n✅ done! run pytest to verify changes work correctly.")
+        logger.info("   pytest tests/ci/ -v --tb=short")
 
 
 if __name__ == "__main__":

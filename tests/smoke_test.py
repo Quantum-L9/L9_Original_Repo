@@ -36,7 +36,6 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import logging
 import sys
 from pathlib import Path
 

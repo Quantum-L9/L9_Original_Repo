@@ -603,8 +603,8 @@ def main():
     output_file = REPO_ROOT / args.output
 
     if not input_file.exists():
-        print(f"Error: Input file not found: {input_file}")
-        print("Run Phase 1 first: python scripts/audit/find_dead_code.py")
+        logger.error("error: input file not found: input file", input_file=input_file)
+        logger.info("run phase 1 first: python scripts/audit/find_dead_code.py")
         return 1
 
     result = resolve_dead_code_refs(
@@ -614,12 +614,12 @@ def main():
     )
 
     # Print summary
-    print("\n" + "=" * 60)
-    print("DEAD CODE AUDIT - PHASE 2 RESOLUTION")
-    print("=" * 60)
-    print(f"Input findings: {result.total_input_findings}")
-    print(f"False positives eliminated: {result.false_positives_eliminated}")
-    print(f"Remaining findings: {result.remaining_findings}")
+    logger.info("\n" + "=" * 60")
+    logger.info("dead code audit - phase 2 resolution")
+    logger.info("=" * 60")
+    logger.info("input findings: {result.total_input_findings}")
+    logger.info("false positives eliminated: {result.false_positives_eliminated}")
+    logger.info("remaining findings: {result.remaining_findings}")
 
     # Breakdown by false positive reason
     fp_reasons: dict[str, int] = {}
@@ -629,12 +629,12 @@ def main():
             fp_reasons[reason] = fp_reasons.get(reason, 0) + 1
 
     if fp_reasons:
-        print("\nFalse positives by reason:")
+        logger.info("\nfalse positives by reason:")
         for reason, count in sorted(fp_reasons.items(), key=lambda x: -x[1]):
-            print(f"  {reason}: {count}")
+            logger.info("  reason: count", reason=reason, count=count)
 
-    print(f"\nOutput: {output_file}")
-    print("=" * 60)
+    logger.info("\noutput: output file", output_file=output_file)
+    logger.info("=" * 60")
 
     return 0
 
