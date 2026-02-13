@@ -248,7 +248,7 @@ async def handle_slack_with_l_agent(
     channel_id: str,
     user_id: str,
     context: dict[str, Any] | None = None,
-) -> tuple[str, str]:
+) -> tuple[str, str, list | None]:
     """
     Route a Slack message through the L-CTO agent via AgentExecutorService.
 
@@ -266,9 +266,10 @@ async def handle_slack_with_l_agent(
                  from DAG-stored packets for conversation continuity
 
     Returns:
-        Tuple of (reply_text, status) where:
+        Tuple of (reply_text, status, tool_calls) where:
         - reply_text: The agent's response formatted for Slack
         - status: One of "completed", "duplicate", "failed", "error"
+        - tool_calls: List of tool call dicts from execution, or None
     """
     try:
         # Import here to avoid circular imports
@@ -345,22 +346,33 @@ async def handle_slack_with_l_agent(
             logger.info(
                 "handle_slack_with_l_agent: duplicate task: %s", str(result.task_id)
             )
-            return ("This message has already been processed.", "duplicate")
+            return ("This message has already been processed.", "duplicate", None)
 
         # Handle ExecutionResult
         if isinstance(result, ExecutionResult):
             reply = result.result or result.error or "No response from agent."
-            return (reply, result.status)
+            # Extract tool calls for thread context caching
+            tool_calls_summary = None
+            if result.tool_calls:
+                tool_calls_summary = [
+                    {
+                        "tool_id": tc.tool_id,
+                        "success": tc.success,
+                        "duration_ms": tc.duration_ms,
+                    }
+                    for tc in result.tool_calls
+                ]
+            return (reply, result.status, tool_calls_summary)
 
         # Fallback (should not happen)
         logger.warning(
             "handle_slack_with_l_agent: unexpected result type: %s", type(result)
         )
-        return ("Unexpected result format.", "error")
+        return ("Unexpected result format.", "error", None)
 
     except Exception as e:
         logger.exception("handle_slack_with_l_agent: error: %s", str(e))
-        return (f"Error processing message: {e!s}", "error")
+        return (f"Error processing message: {e!s}", "error", None)
 
 
 # =============================================================================
@@ -1046,6 +1058,9 @@ async def handle_slack_events(
                 segmenter = get_segmenter()
                 segment_result = segmenter.segment(text)
 
+                # Collect tool_calls across all segments for cache enrichment
+                all_tool_calls: list[dict] | None = None
+
                 if segment_result.segment_count > 1:
                     # Multi-part: process each segment
                     logger.info(
@@ -1055,8 +1070,13 @@ async def handle_slack_events(
                     )
 
                     replies: list[tuple[str, str]] = []
+                    all_tool_calls = []
                     for i, segment in enumerate(segment_result.segments):
-                        segment_reply, segment_status = await handle_slack_with_l_agent(
+                        (
+                            segment_reply,
+                            segment_status,
+                            segment_tools,
+                        ) = await handle_slack_with_l_agent(
                             app=app,
                             text=segment,
                             thread_uuid=str(thread_uuid),
@@ -1071,6 +1091,8 @@ async def handle_slack_events(
                             },
                         )
                         replies.append((segment_reply, segment_status))
+                        if segment_tools:
+                            all_tool_calls.extend(segment_tools)
 
                     # Combine replies for multi-part response
                     successful = [r for r, s in replies if s == "completed"]
@@ -1093,9 +1115,12 @@ async def handle_slack_events(
                             else "All tasks processed."
                         )
                         status = "completed"
+
+                    if not all_tool_calls:
+                        all_tool_calls = None
                 else:
                     # Single task: standard handling
-                    reply, status = await handle_slack_with_l_agent(
+                    reply, status, all_tool_calls = await handle_slack_with_l_agent(
                         app=app,
                         text=text,
                         thread_uuid=str(thread_uuid),
@@ -1133,6 +1158,7 @@ async def handle_slack_events(
                     text=reply,
                     user_id="l-cto",
                     event_id=event_id,
+                    tool_calls=all_tool_calls,
                 )
 
                 # Store outbound packet for L-CTO response
@@ -1725,6 +1751,7 @@ async def _cache_thread_message(
     text: str,
     user_id: str,
     event_id: str | None = None,
+    tool_calls: list[dict] | None = None,
 ) -> None:
     """
     Cache a single message into the Redis thread context.
@@ -1739,6 +1766,7 @@ async def _cache_thread_message(
         text: Message text content
         user_id: Slack user ID or agent ID
         event_id: Optional Slack event ID for tracing
+        tool_calls: Optional list of tool call summaries (for assistant messages)
     """
     if not _has_redis:
         return
@@ -1748,13 +1776,17 @@ async def _cache_thread_message(
         if redis_client is None or not redis_client.is_available():
             return
 
-        message = {
+        message: dict[str, Any] = {
             "role": role,
             "text": text,
             "user_id": user_id,
             "event_id": event_id,
             "ts": current_time(),
         }
+
+        # Include tool usage history for assistant messages
+        if tool_calls:
+            message["tool_calls"] = tool_calls
 
         result = await redis_client.append_thread_message(
             thread_uuid=thread_uuid,
