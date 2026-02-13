@@ -150,7 +150,8 @@ jobs:
           fi
 
           # API keys (64-char hex strings assigned to KEY/API variables)
-          FOUND=$(grep -rE '(API_KEY|api_key|L9_API_KEY).*"[a-f0-9]{64}"' --include="*.py" --include="*.md" --include="*.sh" . \
+          # Includes .yaml/.yml to catch kernel config secrets (GMP-CI-2026-02)
+          FOUND=$(grep -rE '(API_KEY|api_key|L9_API_KEY).*"[a-f0-9]{64}"' --include="*.py" --include="*.md" --include="*.sh" --include="*.yaml" --include="*.yml" . \
             | grep -v ".venv" | grep -v ".git/" | grep -v '\.env' \
             | grep -v 'YOUR_' | grep -v '❌' | grep -v 'checksum' | grep -v 'hash' \
             || true)
@@ -300,6 +301,22 @@ jobs:
           fi
 
           echo "✅ TYPE_CHECKING pattern correct"
+
+      - name: ADR drift detection (auto_fix_adr dry-run)
+        run: |
+          echo "🔄 Checking for unfixed ADR violations (drift detection)..."
+          # Run auto-fixer in dry-run mode — if it finds fixable violations,
+          # that means code was committed without running the fixer
+          OUTPUT=$(python3 ci/auto_fix_adr.py --all --dry-run 2>&1 || true)
+          WOULD_FIX=$(echo "$OUTPUT" | grep -c "Would" || true)
+          if [ "$WOULD_FIX" -gt 0 ]; then
+            echo "⚠️  ADR drift detected: $WOULD_FIX files have auto-fixable violations"
+            echo "$OUTPUT" | grep "Would"
+            echo ""
+            echo "Fix: Run 'python3 ci/auto_fix_adr.py --all' locally before committing"
+          else
+            echo "✅ No ADR drift detected"
+          fi
 
       - name: Check GMP report naming convention
         run: |

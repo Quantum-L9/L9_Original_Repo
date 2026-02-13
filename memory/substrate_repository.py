@@ -439,6 +439,7 @@ class SubstrateRepository:
             if packet_type:
                 filter_clause, filter_params, _ = build_scope_project_filter(
                     ctx, param_idx=5, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -456,6 +457,7 @@ class SubstrateRepository:
             else:
                 filter_clause, filter_params, _ = build_scope_project_filter(
                     ctx, param_idx=4, table_alias="packet_store"
+                )
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store

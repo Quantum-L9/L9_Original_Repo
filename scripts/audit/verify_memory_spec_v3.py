@@ -405,11 +405,11 @@ def run_verification(
 ) -> bool:
     """Run all verification checks."""
     if not quiet:
-        logger.info("=" * 60")
+        logger.info("=" * 60)
         logger.info("memory spec v3.0 verification")
-        logger.info("=" * 60")
-        logger.info("spec file: {spec_file.relative_to(repo_root)}")
-        logger.info("output", value=)
+        logger.info("=" * 60)
+        logger.info("spec file", path=str(spec_file.relative_to(repo_root)))
+        logger.info("output")
 
     spec = load_spec()
     all_passed = True
@@ -427,7 +427,7 @@ def run_verification(
             logger.info("    - issue", issue=issue)
         all_passed = False
     if not quiet:
-        logger.info("output", value=)
+        logger.info("output")
 
     # Check 2: Required modules
     if not quiet:
@@ -442,7 +442,7 @@ def run_verification(
             logger.info("    - issue", issue=issue)
         all_passed = False
     if not quiet:
-        logger.info("output", value=)
+        logger.info("output")
 
     # Check 3: Required methods
     if not quiet:
@@ -457,7 +457,7 @@ def run_verification(
             logger.info("    - issue", issue=issue)
         # Don't fail on missing methods - spec may be aspirational
     if not quiet:
-        logger.info("output", value=)
+        logger.info("output")
 
     # Check 4: Feature flags
     if not quiet:
@@ -465,7 +465,7 @@ def run_verification(
     passed, issues = check_feature_flags(spec, verbose)
     if not quiet:
         logger.info("  ℹ️  info - feature flag check complete")
-        logger.info("output", value=)
+        logger.info("output")
 
     # Check 5: Contracts
     if not quiet:
@@ -479,18 +479,18 @@ def run_verification(
         for issue in issues:
             logger.info("    - issue", issue=issue)
     if not quiet:
-        logger.info("output", value=)
+        logger.info("output")
 
     # Summary
     if not quiet:
-        logger.info("=" * 60")
+        logger.info("=" * 60)
         if all_passed:
             logger.info("✅ verification passed")
             logger.info("   memory_spec_v3.0.yaml is the sole active spec")
         else:
             logger.error("❌ verification failed")
             logger.info("   see issues above")
-        logger.info("=" * 60")
+        logger.info("=" * 60)
 
     return all_passed
 
