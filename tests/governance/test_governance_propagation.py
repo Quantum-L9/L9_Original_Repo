@@ -14,12 +14,13 @@ Created: 2026-02-12
 """
 
 from __future__ import annotations
-from core.decorators import must_stay_async
 
 import asyncio
 from contextvars import copy_context
 
 import pytest
+
+from core.decorators import must_stay_async
 
 # ============================================================================
 __dora_meta__ = {
@@ -101,6 +102,7 @@ class TestGovernanceContextPropagation:
             role="platform_admin",
             project_id="test-project",
             allowed_scopes=["memory"],
+            scope="memory",
         )
 
         token = gov_ctx.set(ctx)
@@ -132,6 +134,7 @@ class TestGovernanceContextPropagation:
             role="platform_admin",
             project_id="test-project",
             allowed_scopes=["memory"],
+            scope="memory",
         )
 
         token = gov_ctx.set(ctx)

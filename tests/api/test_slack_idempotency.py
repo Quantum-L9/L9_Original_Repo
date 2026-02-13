@@ -11,11 +11,12 @@ Created: 2026-02-12
 """
 
 from __future__ import annotations
-from core.decorators import must_stay_async
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
+from core.decorators import must_stay_async
 
 # ============================================================================
 __dora_meta__ = {
@@ -88,13 +89,22 @@ class TestSlackEventDeduplication:
         redis_mock.get = mock_redis_get
         redis_mock.set = mock_redis_set
 
+        substrate_mock = MagicMock()
+        substrate_mock.write_packet = AsyncMock(return_value=MagicMock(packet_id="123"))
+
         with patch(
             "memory.slack_ingest.get_redis_client",
             AsyncMock(return_value=redis_mock),
         ):
             for _ in range(3):
                 try:
-                    await handle_slack_events(event, slack_client=slack_client)
+                    await handle_slack_events(
+                        request_body=b"",
+                        payload=event,
+                        substrate_service=substrate_mock,
+                        slack_client=slack_client,
+                        aios_base_url="http://mock",
+                    )
                 except Exception:
                     pass
 
@@ -119,6 +129,9 @@ class TestSlackEventDeduplication:
         slack_client = MagicMock()
         slack_client.post_message = AsyncMock(return_value={"ok": True})
 
+        substrate_mock = MagicMock()
+        substrate_mock.write_packet = AsyncMock(return_value=MagicMock(packet_id="123"))
+
         seen_keys: set = set()
         redis_mock = AsyncMock()
 
@@ -140,7 +153,13 @@ class TestSlackEventDeduplication:
         ):
             for event in [event_a, event_b]:
                 try:
-                    await handle_slack_events(event, slack_client=slack_client)
+                    await handle_slack_events(
+                        request_body=b"",
+                        payload=event,
+                        substrate_service=substrate_mock,
+                        slack_client=slack_client,
+                        aios_base_url="http://mock",
+                    )
                 except Exception:
                     pass
 
