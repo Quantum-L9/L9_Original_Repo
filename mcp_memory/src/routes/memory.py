@@ -136,7 +136,8 @@ async def save_memory_handler(
             expires_at = None
 
         if duration in ["short", "medium"]:
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: {table} is from internal logic, user values parameterized  # noqa: ADR-0087
+            query = f"""
             INSERT INTO {table} (user_id, kind, content, embedding, importance, metadata, expires_at)
             VALUES ($1, $2, $3, $4::vector, $5, $6, $7)
             RETURNING id, user_id, kind, content, importance, created_at;
@@ -290,7 +291,8 @@ async def search_memory_handler(
             )
             params.extend([query_embedding, threshold, top_k])
 
-            query_sql = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: cols, table, where, scope_clause, kind_clause are internal SQL  # noqa: ADR-0087
+            query_sql = f"""
             SELECT {cols}, 1 - (embedding <-> ${param_idx}::vector) as similarity
             FROM {table}
             WHERE user_id = $1 {where} {scope_clause} {kind_clause}
@@ -935,7 +937,8 @@ async def query_temporal(
 
         if operation == "changes":
             # Get all memories created or updated in the period
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
+            query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at, updated_at
             FROM memory.long_term
             WHERE {where_clause}
@@ -950,8 +953,8 @@ async def query_temporal(
             updated_count = len(memories) - created_count
 
         elif operation == "timeline":
-            # Get timeline of memory creation
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
+            query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at
             FROM memory.long_term
             WHERE {where_clause}
@@ -962,8 +965,8 @@ async def query_temporal(
             updated_count = 0
 
         else:  # diff
-            # Get memories with differences (updated != created)
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: where_clause from internal logic, user values parameterized  # noqa: ADR-0087
+            query = f"""
             SELECT id, user_id, kind, content, importance, tags, created_at, updated_at
             FROM memory.long_term
             WHERE {where_clause} AND updated_at > created_at

@@ -675,7 +675,6 @@ class RetrievalPipeline:
         async with self._repository.acquire() as conn:
             order_clause = "ASC" if order == "asc" else "DESC"
 
-            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             rows = await conn.fetch(
                 f"""
                 SELECT * FROM packet_store
@@ -683,7 +682,7 @@ class RetrievalPipeline:
                 {filter_clause}
                 ORDER BY timestamp {order_clause}
                 LIMIT $2
-                """,
+                """,  # noqa: ADR-0087
                 thread_id,
                 limit,
                 *filter_params,
@@ -767,13 +766,12 @@ class RetrievalPipeline:
             else:
                 # Traverse down to children (with scope filter)
                 async with self._repository.acquire() as conn:
-                    # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     rows = await conn.fetch(
                         f"""
                         SELECT packet_id FROM packet_store
                         WHERE $1 = ANY(parent_ids)
                         {filter_clause}
-                        """,
+                        """,  # noqa: ADR-0087
                         current_id,
                         *filter_params,
                     )
@@ -830,7 +828,6 @@ class RetrievalPipeline:
         else:
             # Fetch recent facts (with scope filter via JOIN)
             async with self._repository.acquire() as conn:
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
                     f"""
                     SELECT knowledge_facts.*
@@ -839,7 +836,7 @@ class RetrievalPipeline:
                     WHERE TRUE {filter_clause}
                     ORDER BY knowledge_facts.created_at DESC
                     LIMIT $1
-                    """,
+                    """,  # noqa: ADR-0087
                     limit,
                     *filter_params,
                 )
@@ -888,7 +885,6 @@ class RetrievalPipeline:
 
         async with self._repository.acquire() as conn:
             if packet_id:
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -897,13 +893,12 @@ class RetrievalPipeline:
                     {filter_clause}
                     ORDER BY timestamp DESC
                     LIMIT $2
-                    """,
+                    """,  # noqa: ADR-0087
                     str(packet_id),
                     limit,
                     *filter_params,
                 )
             elif insight_type:
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -912,7 +907,7 @@ class RetrievalPipeline:
                     {filter_clause}
                     ORDER BY timestamp DESC
                     LIMIT $2
-                    """,
+                    """,  # noqa: ADR-0087
                     insight_type,
                     limit,
                     *filter_params,
@@ -921,7 +916,6 @@ class RetrievalPipeline:
                 filter_clause_2, filter_params_2, _ = build_scope_project_filter(
                     ctx, param_idx=2, table_alias="packet_store"
                 )
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -929,7 +923,7 @@ class RetrievalPipeline:
                     {filter_clause_2}
                     ORDER BY timestamp DESC
                     LIMIT $1
-                    """,
+                    """,  # noqa: ADR-0087
                     limit,
                     *filter_params_2,
                 )
@@ -1358,30 +1352,40 @@ class RetrievalPipeline:
         # entity_lookup, reasoning_trace, temporal, exploratory, factual, default
         if query_type == "factual":
             return await self.keyword_search(
-                query=query, top_k=limit,
+                query=query,
+                top_k=limit,
             )
-        elif query_type == "entity_lookup":
+        if query_type == "entity_lookup":
             return await self.graph_enriched_search(
-                query=query, agent_id=agent_id, limit=limit,
-                min_similarity=min_similarity, scope=scope,
+                query=query,
+                agent_id=agent_id,
+                limit=limit,
+                min_similarity=min_similarity,
+                scope=scope,
             )
-        elif query_type == "temporal":
+        if query_type == "temporal":
             return await self.hierarchical_search(
-                query=query, max_per_tier=limit,
+                query=query,
+                max_per_tier=limit,
             )
-        elif query_type == "reasoning_trace":
+        if query_type == "reasoning_trace":
             return await self.strategy_search(
-                query=query, max_results=limit,
+                query=query,
+                max_results=limit,
             )
-        elif query_type == "exploratory":
+        if query_type == "exploratory":
             return await self.semantic_search(
-                query=query, agent_id=agent_id, top_k=limit,
+                query=query,
+                agent_id=agent_id,
+                top_k=limit,
             )
-        else:  # "default" or unknown
-            return await self.hybrid_search(
-                query=query, agent_id=agent_id, top_k=limit,
-                min_score=min_similarity,
-            )
+        # "default" or unknown
+        return await self.hybrid_search(
+            query=query,
+            agent_id=agent_id,
+            top_k=limit,
+            min_score=min_similarity,
+        )
 
     # =========================================================================
     # Graph-Enriched Search
@@ -1421,7 +1425,9 @@ class RetrievalPipeline:
                 "graph_enriched_search: Neo4j unavailable, falling back to semantic",
             )
             return await self.semantic_search(
-                query=query, agent_id=agent_id, top_k=limit,
+                query=query,
+                agent_id=agent_id,
+                top_k=limit,
             )
 
         pipeline = HybridRAGPipeline(

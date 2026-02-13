@@ -74,15 +74,20 @@
 
 ## Test Status
 
-**Last Run**: 2026-01-15 (GMP-85 Memory Test Audit)
+**Last Run**: 2026-02-12 (Test Suite Hardening + Gap Analysis)
 
-- `tests/memory/` (full suite): **414 passed**, 21 failed, 6 skipped, 42 errors (DB required)
-- **Total Bootstrap**: **86 passed**, 3 skipped
+- `tests/memory/` + `tests/tools/` + `tests/e2e/`: **930 passed**, 69 skipped, 0 warnings
+- **Skips breakdown**: 47 PostgreSQL, 13 Neo4j, 10 Strategy Memory (all legitimate integration tests)
 
 ---
 
 ## Recent Changes (digest)
 
+- [2026-02-12] **Tool Search Harvest + Wiring Audit** — Harvested 3 Anthropic Tool Search bridge files: `runtime/tool_search_meta.py` (CREATE), `core/agents/dynamic_tool_binding.py` (CREATE), `runtime/tool_packages.py` (REPLACE). Wired exports into `core/agents/__init__.py`. Confirmed 5 bugfix-diffs.patch fixes already applied. Verified `tool_search` meta-tool auto-registers at boot via `discover_tools("runtime")` in `api/server.py` lifespan. `bind_tools_to_agent()` deployed but no consumer yet (existing `prepare_dynamic_tools()` handles same job differently). Files: `runtime/tool_search_meta.py`, `core/agents/dynamic_tool_binding.py`, `runtime/tool_packages.py`, `core/agents/__init__.py`.
+- [2026-02-13] **Port 80 Fix for Cursor Memory Access** — `.env` had `L9_API_URL=http://mcp.quantumaipartners.com:30080` (dead k8s NodePort, nothing listens). Changed to `http://46.62.243.82` (direct IP, Nginx port 80). Updated `.cursor/rules/03-mcp-memory.mdc` to remove all `:30902`/`:30080` references — MCP Memory is accessed via `/memory/` on port 80. Key lesson: port 80 is for **external clients** (Cursor); internal Docker services use their own ports. Deploy scripts, k8s manifests, and internal configs are correct as-is.
+- [2026-02-13] **C1 Production Fix: psutil Missing Dependency** — Both `l9-api` and `mcp-memory` containers crash-looping due to `ModuleNotFoundError: No module named 'psutil'`. Import chain: `memory/__init__.py` → `consolidation` → `adaptive_batching.py` → `import psutil`. Added `psutil>=5.9.0` to all 3 requirements files (`requirements.txt`, `requirements-docker.txt`, `requirements-mcp-memory.txt`). Rebuilt both images with `--no-cache`. **Result: 9/9 containers healthy.** Commits: `8e2af3bd`, `4ec380ee`, `646d0315`.
+- [2026-02-12] **Redis Thread Cache + Tool History** — Implemented Redis-first Slack thread context cache to fix L-CTO losing conversation context (race condition with async Postgres ingestion). `_retrieve_thread_context()` checks Redis first, falls back to Postgres. `_cache_thread_message()` writes inbound/outbound messages synchronously. Follow-up: enriched cache with tool usage history — `handle_slack_with_l_agent()` now returns `(reply, status, tool_calls)` so assistant messages include `tool_calls` field. Harvested `format_task_message()`, `format_list_message()`, `build_approval_blocks()` into `api/slack_client.py`. Marked `memory/slack_ingest.py` status → active. Commits: `f9a1d2c5`, `afea6257`.
+- [2026-02-12] **Test Hardening + Memory Tools + Harvest Executor** — Hardened 20+ memory/tool tests (mock isolation, async fixes, assertions). Added `tests/memory/conftest.py` shared fixtures, `memory/tools.py`, `core/tools/introspection_tools.py`. Rewrote `workflows/harvest_executor.py` with robust error handling. Fixed `memory/agent_persistence.py` and `substrate_service.py` edge cases. Commit: `f4630d6a`.
 - [2026-02-12] **Tool Test Hardening + 5 Production Bug Fixes** — Ran 136 tests across 7 test files, found 12 failures exposing 5 production bugs. Fixed all 5, aligned with bugfix-diffs.patch. Bugs: (1) `runtime/tool_registry.py` tag filtering returned all tools — now uses `AutoRegistry.get_metadata()`. (2) `core/tools/tool_audit.py` flush lost entries on DB failure — atomic swap + inner-catch pattern. (3) `core/tools/sanitizer.py` validation order wrong — `max_total_bytes` first, report ALL violations. (4-5) `registry_cache.py` + `semantic_discovery.py` unpatchable imports — module-level proxy functions. Tests: 136/136 pass.
 - [2026-02-12] **Memory Pipeline Unification (SuperPack Phases 1.5–4.2)** — Completed remaining SuperPack phases:
   - **Phase 1.5**: Caller migration verified — all 8 production callers already use `ingest_packet()` (no changes needed)
@@ -100,7 +105,7 @@
 - [2026-01-31] **Docstring Injector Enhancement + Bulk Injection** — Fixed multi-line signature detection, reverse-order processing, AST-enriched context. **488 docstrings injected**, 0 remaining. Quality: 85-93/100. Report: `reports/docstring_quality_comparison.md`
 - [2026-01-29] **Session Housekeeping** — Verified wiring tasks complete, fixed Pydantic v2 validators, synced state files, installed sympy/pydantic locally.
 - [2026-01-28] **GMP-126: Tool Embeddings Wiring Fix (Tool RAG)** — Fixed critical wiring failure in Tool RAG pipeline. Root cause: init_repository() was never called during API lifespan, making get_repository() single
-Full history: `reports/Workflow_State_Archive_2026-01-08.md`
+  Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 - [2026-01-28] **✅ GMP-78 CRITICAL FIX** — Tool embeddings wiring repaired. Root cause: `init_repository()` was never called during API lifespan, so `get_repository()` singleton was unavailable. Fixed by adding `init_repository(database_url)` after `init_service()` in server.py lifespan. Result: 116/116 tools synced, Tool RAG operational.
 - [2026-01-28] **Accumulated changes deployed** — 315 files committed including new bayesian/calibration/learning modules.
@@ -140,10 +145,10 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 **VIOLATION:** Agent added 1,068 `# noqa` comments to hide ADR violations instead of fixing them.
 
-| ADR | Issue | Count | Risk |
-|-----|-------|-------|------|
-| ADR-0087 | f-string SQL | 122 | 🔴 SQL INJECTION |
-| ADR-0019 | print()/logging | 946 | 🟡 Inconsistent logs |
+| ADR      | Issue           | Count | Risk                 |
+| -------- | --------------- | ----- | -------------------- |
+| ADR-0087 | f-string SQL    | 122   | 🔴 SQL INJECTION     |
+| ADR-0019 | print()/logging | 946   | 🟡 Inconsistent logs |
 
 **Status:** UNRESOLVED — See `reports/VIOLATION-2026-01-31-noqa-debt.md`
 **Required:** Actual code fixes, not noqa comments
@@ -155,7 +160,7 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 - **🚨 EXECUTE MIGRATIONS at next Docker rebuild!!!** (PostgreSQL + Neo4j via deploy script Phase 4/5)
 - **✅ VPS DEPLOYED**: 2026-01-15 commit `960b2de7` (106 files, governance hardening + RLS)
 - VPS IP: 157.180.73.53, User: admin, L9 dir: /opt/l9
-- **C1 (PRIMARY)**: 46.62.243.82 — PostgreSQL :30432, Neo4j :30474, MCP :30902
+- **C1 (PRIMARY)**: 46.62.243.82 — PostgreSQL :30432, Neo4j :30474, MCP via Nginx port 80 `/memory/`
 - **C1 Backup**: `scripts/backup/backup_c1_memory.sh` — cron `0 */12 * * *` (every 12h)
 - **Domain**: `l9.quantumaipartners.com` (Cloudflare proxied)
 - **Ports**: 8000=l9-api (unified)
@@ -168,10 +173,15 @@ Full history: `reports/Workflow_State_Archive_2026-01-08.md`
 
 ---
 
-_Last updated: 2026-02-12 (Tool Test Hardening — 5 production bugs fixed, 136/136 tests pass)_
+_Last updated: 2026-02-13 (Fixed .env L9_API_URL → direct IP port 80, updated 03-mcp-memory.mdc rule)_
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-12: **Tool Search Harvest + Memory Pipeline Map** — Harvested 3 Anthropic Tool Search bridge files from Perplexity output: `runtime/tool_search_meta.py` (meta-tool), `core/agents/dynamic_tool_binding.py` (binding layer), `runtime/tool_packages.py` (updated registry). Deployed via /harvest → /use-harvest → /confirm-wiring. Wired into `core/agents/__init__.py`. Confirmed all 5 bugfix-diffs.patch fixes already applied. Mapped all L9 memory pipelines (Ingestion 8-node DAG, Retrieval 5-mode, Consolidation, Deduplication, Tool Discovery). Analyzed 5 bug root causes and CI prevention strategies (negative-case testing). Key finding: `prepare_dynamic_tools()` already wired at executor iteration 0 — `bind_tools_to_agent()` is an alternative Anthropic meta-tool pattern (feature flag gated, no consumer change needed yet).
+- 2026-02-13: **Port 80 Fix for Cursor Memory Access** — Fixed `.env` `L9_API_URL` from `http://mcp.quantumaipartners.com:30080` (dead k8s NodePort) to `http://46.62.243.82` (direct IP, Nginx port 80). Updated `03-mcp-memory.mdc` rule to remove all `:30902`/`:30080` references. Port 30080 was a leftover from k8s era — nothing listens on it. MCP Memory accessed via Nginx `/memory/` location on port 80. Cursor memory client health check: API fallback now healthy. MCP primary has server-side DB error (C1 issue, separate fix needed).
+- ✅ 2026-02-13: **C1 Production Fix — psutil + Full Deploy** — Ran Deep MRI on C1. Found l9-api + mcp-memory crash-looping (`psutil` missing from all 3 requirements files). Added `psutil>=5.9.0`, rebuilt both images, **all 9 containers healthy**. Also deployed Redis thread cache, tool history enrichment, test hardening, and harvest executor rewrite (commits `f9a1d2c5` through `646d0315`). C1 now at latest `main`.
+- 2026-02-12: **Test Suite Hardening + Gap Analysis** — Resolved 75 pre-existing test failures (memory + tools). Created `memory/tools.py` and `core/tools/introspection_tools.py` re-export shims. Fixed `semantic_embed_node` placeholder test. Archived legacy `tool_executor.py` pattern tests. Final: **930 passed, 69 skipped, 0 warnings**. Gap analysis confirmed 69 skips are legitimate (47 PostgreSQL, 13 Neo4j, 10 Strategy Memory integration tests). Files: `memory/tools.py`, `core/tools/introspection_tools.py`, `tests/tools/test_tool_discovery.py`, `tests/tools/test_tool_packages.py`, `tests/memory/test_ingestion_pipeline_audit.py`, `pytest.ini`.
+- 2026-02-12: **Redis Thread Cache + Tool History + Test Hardening** — Implemented Redis-first Slack thread context cache (3 new methods in `redis_client.py`, Redis-first retrieval in `slack_ingest.py`). Enriched cache with tool usage history (`handle_slack_with_l_agent` returns tool_calls). Harvested Slack Block Kit helpers into `api/slack_client.py`. Hardened 20+ tests, added `memory/tools.py`, `core/tools/introspection_tools.py`, rewrote `harvest_executor.py`. 4 commits pushed. Files: `runtime/redis_client.py`, `memory/slack_ingest.py`, `api/slack_client.py`, `workflows/harvest_executor.py`, 20+ test files.
 - 2026-02-12: **Tool Test Hardening + Bug Fixes** — Ran 136 tests (7 files), found 12 failures exposing 5 production bugs. Fixed all 5 with patch alignment. Files: `runtime/tool_registry.py`, `core/tools/tool_audit.py`, `core/tools/sanitizer.py`, `core/tools/registry_cache.py`, `core/tools/semantic_discovery.py`, `tests/tools/test_tool_sanitizer.py`. 136/136 pass.
 - 2026-02-12: **Memory Pipeline Unification — Full SuperPack Execution** — Phases 1.5–4.2 complete. Archived `enrichment_dag.py` + `insight_extraction.py` to `memory/archive/`. Deprecated `IngestionPipeline` class (2.0.0). Wired `get_packets_batch()` into retrieval N+1 loops. Wired `EntityExtractionService` into `extract_insights_node`. 666 memory tests pass, 71 DAG tests pass, 0 new failures. Files: `memory/archive/`, `memory/ingestion.py`, `memory/retrieval.py`, `memory/substrate_dag.py`, `memory/substrate_repository.py`, `memory/__init__.py`.
 - ✅ 2026-02-02: **C1 Deployment Plan Implementation + Linter Fixes** — Implemented remaining fix from deployment plan (Neo4j retry: 5→10 retries, 3.0→5.0s delay). Fixed 7 linter errors in api/server.py (added `_has_factory`, `_has_commands` declarations; added `# type: ignore` for dynamic imports). Verified Fixes 1,3,4 were already applied. All 4 deployment blockers resolved.
@@ -188,19 +198,35 @@ _Last updated: 2026-02-12 (Tool Test Hardening — 5 production bugs fixed, 136/
 - ✅ 2026-01-31: **ADR Enforcement Cleanup** — Fixed ADR-0087 checker (was flagging log messages), removed 150 false positive noqa comments, documented 33 SAFE SQL patterns with explanations, added Lesson #37 to repeated-mistakes.md
 - ✅ 2026-01-31: Docstring injector enhancement — 488 docstrings, quality comparison report
 
-## Next Steps (Current Session)
+## Next Steps (Next Session)
 
-### 🟢 Commit & Push Tool Bug Fixes
-- 5 production bug fixes + 1 test fixture fix ready to commit
-- Files: `runtime/tool_registry.py`, `core/tools/tool_audit.py`, `core/tools/sanitizer.py`, `core/tools/registry_cache.py`, `core/tools/semantic_discovery.py`, `tests/tools/test_tool_sanitizer.py`
-- All 136 tests pass
+### 🔴 Fix C1 MCP Memory Server Database Error
+
+- `cursor_memory_client.py health` shows MCP PRIMARY returning HTTP 500: `syntax error at or near "#"`
+- Search works, but write fails: `All enrichment tiers failed; pushed to DLQ`
+- Server-side issue on C1 — likely a bad query in the ingestion pipeline
+- Investigate `l9-mcp-memory` container logs on C1
+
+### 🟡 Fix `tests/memory/test_e2e_memory_audit.py` pre-commit gate
+
+- Pre-existing `print()` calls in CLI runner function trigger ADR-0019 gate
+- Options: add `# noqa: ADR-0019` to print lines, or refactor to structlog, or add `tests/memory/test_e2e_*` to hook skip list
+- Cosmetic `timezone.utc` → `UTC` changes are staged but blocked by this
+
+### ✅ DEPLOYED: Redis Thread Cache + psutil fix to C1
+
+- All commits through `646d0315` deployed, both images rebuilt
+- l9-api + mcp-memory healthy, all 9 containers green
+- Redis thread cache live — verify L-CTO context continuity in Slack
 
 ### 🟡 NON-CRITICAL: Remaining Duplicate Tool Decorators
+
 - ~60 `@register_tool` decorators in `runtime/l_tools.py` are duplicates of `registry_adapter.py`
 - **Impact:** Startup warnings only, API works fine
 - **Fix:** Remove all decorators from l_tools.py OR make registration idempotent in `core/auto_registry.py`
 
 ### 🚨 EXECUTE migrations at next Docker rebuild!!!
+
 - Run deploy script **without** `--skip-migrations` so Phase 4 (PostgreSQL) and Phase 5 (Neo4j) run.
 - Path: `deploy/k8s/c1/scripts/c1-deploy-update.sh`.
 
@@ -219,10 +245,10 @@ _Last updated: 2026-02-12 (Tool Test Hardening — 5 production bugs fixed, 136/
 
 ### ✅ POST-MERGE WIRING: Complete
 
-| Task                     | File                             | Status      |
-| ------------------------ | -------------------------------- | ----------- |
-| Wire DeduplicationEngine | `memory/consolidation.py`        | ✅ COMPLETE |
-| Wire RegistryCache       | `core/tools/registry_adapter.py` | ✅ COMPLETE |
+| Task                       | File                                      | Status      |
+| -------------------------- | ----------------------------------------- | ----------- |
+| Wire DeduplicationEngine   | `memory/consolidation.py`                 | ✅ COMPLETE |
+| Wire RegistryCache         | `core/tools/registry_adapter.py`          | ✅ COMPLETE |
 | Fix Pydantic v2 validators | `services/symbolic_computation/models.py` | ✅ COMPLETE |
 
 ### 🔵 CLOSED: PR Analysis (No Longer Active)

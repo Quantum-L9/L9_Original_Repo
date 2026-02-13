@@ -692,7 +692,8 @@ async def get_memory_stats(
         avg_importance = 0.0
 
         if duration in ["all", "short"]:
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: user_filter is internal SQL clause, user values parameterized  # noqa: ADR-0087
+            query = f"""
             SELECT COUNT(*) as cnt
             FROM packet_store
             WHERE packet_type LIKE 'memory.%'
@@ -705,7 +706,8 @@ async def get_memory_stats(
             short_count = r["cnt"] if r else 0
 
         if duration in ["all", "medium"]:
-            query = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: user_filter is internal SQL clause, user values parameterized  # noqa: ADR-0087
+            query = f"""
             SELECT COUNT(*) as cnt
             FROM packet_store
             WHERE packet_type LIKE 'memory.%'
@@ -963,7 +965,8 @@ async def apply_importance_decay(dry_run: bool = True) -> dict[str, Any]:
 
         if not dry_run and affected > 0:
             # Apply decay: importance *= decay_factor^(days_since_access)
-            await execute(f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+            # SAFE: decay_factor is a float from config, not user input  # noqa: ADR-0087
+            await execute(f"""
                 UPDATE packet_store
                 SET importance_score = importance_score * POWER(
                     {decay_factor},

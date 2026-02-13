@@ -75,7 +75,6 @@ from memory.governance_gate import (
     build_scope_project_filter,
     require_governance_context,
 )
-from memory.substrate_semantic import EMBEDDING_DIMENSIONS
 from memory.substrate_models import (
     AgentMemoryEventRow,
     EpisodicEventRow,
@@ -86,6 +85,7 @@ from memory.substrate_models import (
     SemanticFactRow,
     StructuredReasoningBlock,
 )
+from memory.substrate_semantic import EMBEDDING_DIMENSIONS
 
 logger = structlog.get_logger(__name__)
 
@@ -439,8 +439,6 @@ class SubstrateRepository:
             if packet_type:
                 filter_clause, filter_params, _ = build_scope_project_filter(
                     ctx, param_idx=5, table_alias="packet_store"
-                )  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -448,7 +446,7 @@ class SubstrateRepository:
                     {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $3 OFFSET $4
-                    """,
+                    """,  # noqa: ADR-0087
                     thread_id,
                     packet_type,
                     limit,
@@ -458,8 +456,6 @@ class SubstrateRepository:
             else:
                 filter_clause, filter_params, _ = build_scope_project_filter(
                     ctx, param_idx=4, table_alias="packet_store"
-                )  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 rows = await conn.fetch(
                     f"""
                     SELECT * FROM packet_store
@@ -467,7 +463,7 @@ class SubstrateRepository:
                     {filter_clause}
                     ORDER BY timestamp ASC
                     LIMIT $2 OFFSET $3
-                    """,
+                    """,  # noqa: ADR-0087
                     thread_id,
                     limit,
                     offset,
@@ -523,7 +519,6 @@ class SubstrateRepository:
 
             params.append(limit)
 
-            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             query = f"""
                 SELECT * FROM packet_store
                 WHERE {" AND ".join(conditions)}
@@ -606,7 +601,7 @@ class SubstrateRepository:
                 """
                 INSERT INTO agent_memory_events (event_id, agent_id, timestamp, packet_id, event_type, content)
                 VALUES ($1, $2, $3, $4, $5, $6)
-                """,
+                """,  # noqa: ADR-0087
                 event_id,
                 agent_id,
                 timestamp or datetime.now(UTC),
@@ -960,7 +955,6 @@ class SubstrateRepository:
 
             params.append(limit)
 
-            # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
             query = f"""
                 SELECT * FROM knowledge_facts
                 WHERE {" AND ".join(conditions)}
@@ -1051,7 +1045,7 @@ class SubstrateRepository:
                 embedding_id, agent_id, vector, payload, created_at, scope, tenant_id, org_id, user_id
             )
             VALUES ($1, $2, $3::vector, $4, $5, $6, $7::uuid, $8::uuid, $9::uuid)
-            """,
+            """,  # noqa: ADR-0087
             embedding_id,
             agent_id,
             vector_str,

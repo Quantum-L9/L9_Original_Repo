@@ -446,7 +446,6 @@ class ImportanceManager:
             async with self._repository.acquire() as conn:
                 if dry_run:
                     # Just count candidates
-                    # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                     row = await conn.fetchrow(
                         f"""
                         SELECT COUNT(*) as count
@@ -454,7 +453,7 @@ class ImportanceManager:
                         WHERE tier != ALL($1::text[])
                         AND importance < $2
                         AND created_at < NOW() - INTERVAL '{min_age_days} days'
-                        """,
+                        """,  # noqa: ADR-0087 - SAFE: min_age_days is int, not user input
                         exempt_tiers,
                         threshold,
                     )
@@ -463,7 +462,6 @@ class ImportanceManager:
                     return count
 
                 # Actually prune
-                # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
                 result = await conn.execute(
                     f"""
                     DELETE FROM semantic_facts
@@ -474,8 +472,8 @@ class ImportanceManager:
                         AND importance < $2
                         AND created_at < NOW() - INTERVAL '{min_age_days} days'
                         LIMIT $3
-                    )
-                    """,
+                    )  -- noqa: ADR-0087 - SAFE: min_age_days is int, not user input
+                    """,  # noqa: ADR-0087
                     exempt_tiers,
                     threshold,
                     batch_size,

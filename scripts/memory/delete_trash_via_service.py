@@ -93,7 +93,7 @@ async def delete_trash_embeddings():
                 placeholders = ",".join([f"${j + 1}" for j in range(len(batch))])
 
                 result = await conn.execute(
-                    f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+                    f"""
                     DELETE FROM semantic_memory
                     WHERE embedding_id::text IN ({placeholders})
                     """,

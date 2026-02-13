@@ -393,7 +393,7 @@ def load_lessons() -> list[Lesson]:
 
 def load_todos(session_id: str) -> list[TodoItem]:
     """Load TODO items for a session."""
-    sql = f"""  # noqa: ADR-0087 - SAFE: interpolates internal SQL clause, user values parameterized
+    sql = f"""
         SELECT envelope->'payload'->'todos' as todos
         FROM packet_store
         WHERE packet_type = 'SESSION_TODO'

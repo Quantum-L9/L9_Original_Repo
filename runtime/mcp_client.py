@@ -73,18 +73,6 @@ class MCPServerProcess:
         command: list[str],
         env: dict[str, str] | None = None,
     ):
-        """
-        Initializes an MCPServerProcess to manage a single MCP server subprocess with JSON-RPC communication.
-
-        Args:
-            server_id: Unique identifier for the MCP server instance.
-            command: Command and arguments to start the MCP server process.
-            env: Optional environment variables for the subprocess.
-
-        Raises:
-            FileNotFoundError: If the command executable is not found.
-            PermissionError: If there are permission issues starting the process.
-        """
         self.server_id = server_id
         self.command = command
         self.env = env or {}
@@ -192,7 +180,7 @@ class MCPServerProcess:
                     )
 
         except asyncio.CancelledError:
-            pass  # Expected during graceful shutdown - no action needed
+            pass
         except Exception as e:
             logger.error(
                 "MCP response reader error", server_id=self.server_id, error=str(e)
@@ -264,13 +252,6 @@ class ToolMeta:
         description: str = "",
         input_schema: dict[str, Any] | None = None,
     ):
-        """
-        Initializes ToolMeta with name, description, and optional input schema for MCP tool metadata.
-        Args:
-            name: The name identifying the MCP tool.
-            description: A brief description of the tool.
-            input_schema: Optional schema defining expected input parameters.
-        """
         self.name = name
         self.description = description
         self.input_schema = input_schema or {}
@@ -382,17 +363,15 @@ class MCPClient:
         logger.info("Memory MCP server configured")
 
         # ========================================================================
-        # L9 Memory MCP
+        # L9 Memory MCP (Active as of 2026-01-09)
         # ========================================================================
-        # MCP server URL configured via environment variables:
-        #   - L9_MCP_URL: Full MCP endpoint (default: http://mcp.quantumaipartners.com:30902)
-        #   - L9_API_URL: Full API endpoint (default: http://mcp.quantumaipartners.com:30080)
-        #
+        # MCP server is live at https://l9.quantumaipartners.com/mcp
         # Uses unified substrate (packet_store + memory_embeddings)
         # All memory operations go through MCP tools (save_memory, search_memory, etc.)
         # See: mcp_memory/README.md for details
         #
         # Cursor integration:
+        #   - mcp.json configured with l9-memory server (SSE connection)
         #   - cursor_memory_client.py uses MCP tools via /mcp/call endpoint
         #   - /mem command uses MCP exclusively
         # ========================================================================

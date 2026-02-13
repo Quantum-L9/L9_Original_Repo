@@ -162,21 +162,27 @@ class ADRChecker(ast.NodeVisitor):
         self._lines = content.splitlines()
 
     def _has_noqa(self, lineno: int, adr: str) -> bool:
-        """Check if line has # noqa: ADR-XXXX comment."""
+        """Check if line or preceding comment line has # noqa: ADR-XXXX.
+
+        Also checks the line immediately above, because multi-line f-strings
+        (f\""\"...\""\" ) cannot have inline comments on the opening line without
+        the comment becoming part of the string content.  Placing the noqa on
+        a comment line directly above is the accepted pattern.
+        """
         if lineno < 1 or lineno > len(self._lines):
             return False
-        line = self._lines[lineno - 1]
-        # Check for:
-        # - # noqa: ADR-0026
-        # - # noqa: ADR-0019, ADR-0026 (comma-separated)
-        # - # noqa: all
-        if "# noqa: all" in line:
-            return True
-        if f"# noqa: {adr}" in line:
-            return True
-        # Handle comma-separated: # noqa: ADR-0019
-        if f", {adr}" in line and "# noqa:" in line:
-            return True
+        # Check the flagged line AND the line above it
+        lines_to_check = [self._lines[lineno - 1]]
+        if lineno >= 2:
+            lines_to_check.append(self._lines[lineno - 2])
+        for line in lines_to_check:
+            if "# noqa: all" in line:
+                return True
+            if f"# noqa: {adr}" in line:
+                return True
+            # Handle comma-separated: # noqa: ADR-0019, ADR-0087
+            if f", {adr}" in line and "# noqa:" in line:
+                return True
         return False
 
     def _is_allowed(self, category: str) -> bool:
