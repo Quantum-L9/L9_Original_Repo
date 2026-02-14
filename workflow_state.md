@@ -194,6 +194,7 @@ _Last updated: 2026-02-14 (end-session)_
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-14: Memory pipeline enhancements (pipeline_router, importance_recipe, intake_leverage, ranking_extensions, retrieval_multiquery, query_rewriter, chunk_view, procedural_synthesis, llm_memory_ops). Component wiring audit tooling (audit_package_exports, audit_package_wiring, triage_dead_code, component_audit_dag). Foresight observe cycle. SDK-First ADR-0102 wiring. Repo index refresh (34 indexes). GMP-141/142/143 CI consolidation. 3 commits pushed to main.
 - 2026-02-14: ADR-0102 SDK-First: wired all 17 interfaces (P0 Memory+Graph+Cache, P0 WorldModel expanded, P1 Research+Commands+Email, P2 Evaluation+Factory+Simulation, P2 Learning+Reasoning expanded). ADR-0101 DAG executors via SDK. GMP LangGraph executor: autonomous nodes, Redis checkpointing. GMP SessionDAG revised. 16 files, +2808/-550 lines.
 - 2026-02-14: Foresight observe cycle (periodic Observe): integrated OpenClaw-style trigger into foresight_engine.py (observe(), run_observe_cycle(), FORESIGHT_OK, HIGHEST_LEVERAGE_QUESTION). Renamed heartbeat→observe_cycle. Intake rating: use importance_score at task-intake; migration 0034 documents it (no new columns).
 - 2026-02-13: Built try-run validator (tools/validation/try_run.py), added make try-run + make validate-external-code Makefile targets, converted /confirm-wiring to DAG-enforced command (confirm_wiring_dag.py with try-run as Phase 2), updated slash command to minimal trigger v2.0
@@ -238,11 +239,16 @@ _Last updated: 2026-02-14 (end-session)_
 
 ## Next Steps (Next Session)
 
-- [ ] Wire `WorkingMemoryAdapter` → `PipelineRouter` (see `current_work/02-14-2026/Wire WorkingMemoryAdapter → PipelineRouter.md`)
+- [x] Wire `WorkingMemoryAdapter` → `PipelineRouter` (E1, feature-flagged) ✅
+- [x] Wire `ImportanceManager` → `ImportanceRecipe` (E3, feature-flagged) ✅
+- [x] Wire `MultiFactorRanker` → Extended Ranking Fields (E4) ✅
+- [x] Wire `ActiveMemoryEncoder` → `ImportanceRecipe` (E5, feature-flagged) ✅
+- [x] B5: LLM-refined importance calibration config placeholder ✅
 - [ ] Wire `L9MemoryAdapter` for Cursor → L9 memory integration (see `current_work/02-14-2026/L9_memory_adapter.md`)
 - [ ] Run `python3 agents/cursor/ingest_lessons.py --live` to write 53 lessons to MCP memory (dry-run verified)
 - [ ] Execute migration 0032 + 0034 on C1 during next Docker rebuild and capture health proof
-- [ ] Fix `scripts/benchmark_caching_and_vector.py` — 25 issues; use `make try-run` to verify
+- [ ] Enable `ENABLE_PIPELINE_ROUTER=true` + `ENABLE_IMPORTANCE_RECIPE=true` on C1 after migration verification
+- [ ] Remove deprecated enrichment DAG fields from memory pipeline (tech debt in TODO.md)
 
 **Recent Sessions (7-day window):**
 
