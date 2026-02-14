@@ -21,10 +21,10 @@ Based on: DAG-Harvest-1.md transcript analysis
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Gmp Execution Dag",
-    "module_version": "1.0.0",
+    "module_version": "2.0.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-31T20:27:26Z",
-    "updated_at": "2026-01-31T22:27:11Z",
+    "updated_at": "2026-02-14T12:00:00Z",
     "layer": "operations",
     "domain": "workflows",
     "module_name": "gmp_execution_dag",
@@ -55,25 +55,27 @@ from workflows.session.registry import register_session_dag
 GMP_EXECUTION_DAG = SessionDAG(
     id="gmp-execution-v1",
     name="GMP Execution Workflow (Enforced)",
-    version="1.0.0",
+    version="2.0.0",
     description="""
 Governance Managed Process execution with ENFORCED step ordering.
 
 MANDATORY STEPS (cannot be skipped):
-1. 🧠 Memory Read — Search for context, preferences, lessons BEFORE implementation
+1. Memory Read — Search for context, preferences, lessons BEFORE implementation
 2. Scope Lock — Define TODO plan with explicit file budget
 3. User Confirm — Wait for explicit CONFIRM before executing
 4. Baseline — Verify files exist and assumptions hold
-5. Implement — Execute TODO plan (harvest or semantic change)
-6. Validate — py_compile, tests, lint must pass
-7. 🧠 Memory Write — Save learnings, patterns, errors BEFORE finalize
-8. Finalize — Generate report, optionally commit
+5. Implement — Execute TODO plan (surgical edits only)
+6. Validate — py_compile, imports, lint, tests must pass
+7. Memory Write — Save learnings BEFORE finalize
+8. Finalize — Generate report via script, validate, update workflow_state
 
 CRITICAL RULES:
 - Memory operations are NOT OPTIONAL
 - Validation failures STOP execution
 - Scope drift is NOT ALLOWED
 - All changes must map 1:1 to TODO plan
+- Use StrReplace for edits, not sed/awk
+- Use Read tool for file inspection, not cat/head/tail
 """,
     tags=["gmp", "enforced", "memory", "governance", "no-skip"],
     nodes=[
@@ -83,48 +85,59 @@ CRITICAL RULES:
             name="Start GMP",
             node_type=NodeType.START,
             description="Entry point for GMP execution",
-            action="Begin GMP workflow. Extract task description and tier from user input.",
+            action="""Begin GMP workflow.
+
+1. Extract task description from user input
+2. Classify tier: KERNEL | RUNTIME | INFRA | UX
+3. Read governance reference: agents/cursor/governance-reference.md
+4. Read workflow_state.md for current phase and context
+
+Tier classification:
+- KERNEL_TIER: kernels, executor, websocket orchestrator, memory substrate core
+- RUNTIME_TIER: task queue, Redis client, tool registry, agents
+- INFRA_TIER: docker-compose, deploy scripts, k8s, helm
+- UX_TIER: frontend, docs, glue scripts""",
         ),
         # === PHASE 0: MEMORY READ (MANDATORY) ===
         SessionNode(
             id="memory_read",
-            name="🧠 Memory Read (MANDATORY)",
+            name="Memory Read (MANDATORY)",
             node_type=NodeType.TRANSFORM,
             description="Search L9 memory for context BEFORE any implementation",
             action="""MANDATORY: Search memory for relevant context.
 
-Execute these commands:
+Extract 2-3 keyword phrases from the task, then run:
 
 ```bash
-# 1. Search for related work and patterns
-python3 agents/cursor/cursor_memory_client.py search "{task_keywords}"
+# 1. Search for related work (use actual task keywords)
+python3 agents/cursor/cursor_memory_client.py search "keyword phrase from task"
 
-# 2. Search for lessons and errors to avoid
-python3 agents/cursor/cursor_memory_client.py search "lessons errors {component}"
+# 2. Search for lessons and errors in the target area
+python3 agents/cursor/cursor_memory_client.py search "lessons errors <component name>"
 
-# 3. Search for domain patterns
-python3 agents/cursor/cursor_memory_client.py search "{domain} patterns"
+# 3. Search for preferences relevant to this domain
+python3 agents/cursor/cursor_memory_client.py search "preferences <domain>"
 ```
 
-Output format:
+Present results as:
 
-## 🧠 MEMORY CONTEXT INJECTED
+## MEMORY CONTEXT INJECTED
 
 ### Related Work Found
-- [list prior GMPs or related tasks]
-
-### Relevant Patterns
-- [patterns from memory that apply]
+- [list prior GMPs or related tasks from search results]
 
 ### Lessons to Apply
-- [lessons/errors to avoid]
+- [lessons/errors to avoid from search results]
 
-📍 Proceeding with scope lock...
+### Preferences
+- [any user preferences found]
 
-⚠️ THIS STEP CANNOT BE SKIPPED
-If memory is unavailable, note the failure but continue with explicit acknowledgment.""",
+If memory server is unavailable, log the failure explicitly:
+"Memory unavailable — proceeding without context injection."
+
+THIS STEP CANNOT BE SKIPPED.""",
             validation="Memory search executed (results or explicit failure logged)",
-            outputs=["memory_context", "related_work", "lessons", "patterns"],
+            outputs=["memory_context", "related_work", "lessons"],
         ),
         # === PHASE 0: SCOPE LOCK ===
         SessionNode(
@@ -132,55 +145,62 @@ If memory is unavailable, note the failure but continue with explicit acknowledg
             name="Scope Lock (Phase 0)",
             node_type=NodeType.ANALYZE,
             description="Define TODO plan with explicit file budget",
-            action="""Create locked scope definition:
+            action="""Create locked scope definition.
+
+Read each file in scope BEFORE defining line ranges.
 
 ## GMP SCOPE LOCK
 
-GMP ID: GMP-XXX
 Tier: KERNEL | RUNTIME | INFRA | UX
 
 ### TODO PLAN (LOCKED)
 | T# | File | Lines | Action | Description |
 |----|------|-------|--------|-------------|
-| T1 | path/file.py | 10-50 | Insert/Replace/Delete | What changes |
+| T1 | path/to/file.py | 10-50 | Insert/Replace/Delete | What changes |
+| T2 | path/to/other.py | 1-5 | Insert | Add import |
 
 ### FILE BUDGET
-- MAY: [files in TODO only]
-- MAY NOT: [everything else]
+- MAY modify: [only files listed in TODO]
+- MAY NOT modify: [everything else — explicit list of nearby files NOT to touch]
 
 ### MEMORY CONTEXT APPLIED
-- Patterns: {from memory_read}
-- Lessons: {from memory_read}
-- Related work: {from memory_read}
+- Applied lessons: [from memory_read step]
+- Applied patterns: [from memory_read step]
+- Related prior work: [from memory_read step]
 
-⏸️ Awaiting explicit CONFIRM""",
-            outputs=["todo_plan", "file_budget", "gmp_id", "tier"],
+### PROTECTED FILE CHECK
+If any TODO file is protected, note approval requirement:
+- core/agents/executor.py → KERNEL approval required
+- runtime/websocket_orchestrator.py → KERNEL approval required
+- memory/substrate_service.py → KERNEL approval required
+- docker-compose.yml → INFRA approval required
+- runtime/kernel_loader.py → KERNEL approval required
+
+Present scope and WAIT for user confirmation.""",
+            outputs=["todo_plan", "file_budget", "tier"],
         ),
         SessionNode(
             id="gate_scope",
             name="Scope Confirmation Gate",
             node_type=NodeType.GATE,
             description="User must explicitly confirm scope before execution",
-            action="""## SCOPE LOCK COMPLETE
+            action="""Present scope summary and wait for user decision.
 
-### TODO Plan Summary
-{todo_plan_summary}
+## SCOPE LOCK COMPLETE
+
+### TODO Plan: {count} items across {count} files
+[summary table]
 
 ### File Budget
-- MAY modify: {may_files}
-- MAY NOT modify: {may_not_files}
+- MAY modify: [list]
+- MAY NOT modify: [list]
 
-### Memory Context Applied
-- ✅ Related work checked
-- ✅ Patterns applied
-- ✅ Lessons incorporated
+### Memory Context: Applied
 
-⏸️ **AWAITING:** Type "CONFIRM" to proceed with implementation
-
-Options:
-- CONFIRM: Proceed with implementation
-- ABORT: Cancel GMP
-- MODIFY: Request scope changes""",
+AWAITING user response:
+- **CONFIRM** — Proceed with implementation
+- **MODIFY** — Request scope changes (return to scope_lock)
+- **ABORT** — Cancel GMP""",
             gate_type=GateType.USER_CONFIRM,
         ),
         # === PHASE 1: BASELINE ===
@@ -189,32 +209,27 @@ Options:
             name="Baseline Verification (Phase 1)",
             node_type=NodeType.VALIDATE,
             description="Verify files exist and assumptions hold",
-            action="""Verify baseline conditions:
+            action="""Verify baseline conditions for every file in TODO plan.
 
-1. Check all files in TODO exist:
-   ```bash
-   ls -la {files_in_todo}
-   ```
+For each file in TODO:
 
-2. Verify line ranges are correct:
-   ```bash
-   wc -l {files_in_todo}
-   sed -n '{start},{end}p' {file}
-   ```
+1. **File exists:** Use Read tool to open the file
+2. **Line ranges valid:** Verify the lines referenced in TODO actually contain
+   the code you expect to modify (read the specific line range)
+3. **Content matches:** Confirm the code at those lines is what you plan to change
 
-3. Verify imports resolve:
-   ```bash
-   python3 -c "from {module} import *"
-   ```
+For Python files, also verify:
+```bash
+python3 -m py_compile path/to/file.py
+```
 
-4. Check for protected files:
-   - runtime/websocket_orchestrator.py → KERNEL approval required
-   - core/agents/executor.py → KERNEL approval required
-   - memory/substrate_service.py → KERNEL approval required
-   - docker-compose.yml → INFRA approval required
+If ANY baseline check fails:
+- STOP immediately
+- Report which file/lines failed and why
+- Return to scope_lock to revise the TODO plan
 
-Any failure → STOP → Return to Phase 0""",
-            validation="All files exist, line ranges valid, imports resolve",
+Do NOT proceed to implementation with invalid baselines.""",
+            validation="All files exist, line ranges valid, content matches expectations",
         ),
         # === PHASE 2-3: IMPLEMENT ===
         SessionNode(
@@ -222,29 +237,36 @@ Any failure → STOP → Return to Phase 0""",
             name="Implementation (Phase 2-3)",
             node_type=NodeType.TRANSFORM,
             description="Execute TODO plan — no scope drift allowed",
-            action="""Execute each TODO item in order:
+            action="""Execute each TODO item in order using SURGICAL EDITS.
 
 For each T# in TODO plan:
-1. Read the target file
-2. Apply the change (Insert/Replace/Delete)
-3. Verify the change was applied correctly
+1. Read the target file (Read tool)
+2. Apply the change using StrReplace tool (search_replace)
+3. Verify the edit was applied correctly (Read tool again)
 
-### ALLOWED ACTIONS
-- Insert: Add new code at specified location
-- Replace: Change existing code at specified lines
-- Delete: Remove code at specified lines
-- Copy: Copy harvested file to target (for /use-harvest)
+### TOOL USAGE
+- StrReplace: For modifying existing code (Insert/Replace/Delete)
+- Write: ONLY for creating new files that don't exist yet
+- Read: To verify changes after each edit
 
-### FORBIDDEN ACTIONS
+### FORBIDDEN
 - Reformatting code not in TODO
 - Renaming variables not in TODO
-- "While I'm here" cleanup
+- "While I'm here" cleanup of adjacent code
 - ANY change not explicitly in TODO plan
+- Using sed/awk for edits (use StrReplace)
+- Rewriting entire files (use surgical StrReplace)
 
-### CRITICAL RULES
-- Use sed/cp for harvested code — NO manual rewriting
-- All edits must map 1:1 to TODO items
-- If additional changes needed → STOP → request scope expansion""",
+### SCOPE DRIFT CHECK
+After all TODO items are complete, verify:
+- Every change maps 1:1 to a TODO item
+- No extra files were modified
+- No extra lines were changed
+
+If additional changes are needed beyond TODO:
+- STOP
+- Propose scope expansion to user
+- Wait for approval before proceeding""",
             outputs=["changes_made", "files_modified"],
         ),
         # === PHASE 4: VALIDATE ===
@@ -253,160 +275,170 @@ For each T# in TODO plan:
             name="Validation (Phase 4)",
             node_type=NodeType.VALIDATE,
             description="All validation must pass before proceeding",
-            action="""Run validation suite:
+            action="""Run validation suite on ALL modified files.
 
-1. **Syntax check:**
-   ```bash
-   python3 -m py_compile {all_modified_files}
-   ```
+### Step 1: Syntax check
+```bash
+python3 -m py_compile path/to/each/modified/file.py
+```
 
-2. **Import check:**
-   ```bash
-   python3 -c "from {module} import *"
-   ```
+### Step 2: Import check
+```bash
+python3 -c "from module.path import *"
+```
+(for each modified module)
 
-3. **Lint check (if applicable):**
-   ```bash
-   ruff check {modified_files} --select=E,F
-   ```
+### Step 3: Lint check
+```bash
+ruff check path/to/modified/files --select=E,F
+```
 
-4. **Test run (if tests exist):**
-   ```bash
-   pytest tests/{relevant_tests} -v
-   ```
+### Step 4: Run validation script (if files_modified > 0)
+```bash
+python3 scripts/gmp-validate-stage.py --files path/to/file1.py path/to/file2.py --json
+```
+
+### Step 5: Run relevant tests (if they exist)
+```bash
+python3 -m pytest tests/path/to/relevant_tests.py -v
+```
 
 ### FAILURE HANDLING
 - ANY validation failure → STOP
-- Do NOT patch forward
-- Return failure with evidence
-- Do NOT proceed to memory write if validation fails""",
-            validation="py_compile ✅, imports ✅, lint ✅, tests ✅",
+- Do NOT patch forward or add # noqa
+- Fix the actual issue, then re-run validation
+- Do NOT proceed to memory write if validation fails
+
+Present results as a clear pass/fail table.""",
+            validation="py_compile pass, imports pass, lint pass, tests pass",
         ),
         SessionNode(
             id="gate_validation",
             name="Validation Gate",
             node_type=NodeType.GATE,
             description="Validation must pass before memory write",
-            action="""## VALIDATION RESULTS
+            action="""Present validation results and wait for user decision.
 
-### Syntax Check
-{syntax_results}
+## VALIDATION RESULTS
 
-### Import Check
-{import_results}
+| Check | Status | Detail |
+|-------|--------|--------|
+| py_compile | pass/FAIL | ... |
+| imports | pass/FAIL | ... |
+| lint | pass/FAIL | ... |
+| gmp-validate-stage | pass/FAIL | ... |
+| tests | pass/FAIL/skipped | ... |
 
-### Lint Check
-{lint_results}
+**Overall:** PASS or FAIL
 
-### Test Results
-{test_results}
+If FAIL → Do NOT proceed. Fix issues and re-validate.
 
-**Overall Status:** {PASS/FAIL}
-
-If FAIL:
-- Do NOT proceed to memory write
-- Fix issues and re-validate
-
-If PASS:
-- ⏸️ **AWAITING:** "CONTINUE" to write to memory and finalize""",
+AWAITING user response:
+- **CONTINUE** — Proceed to memory write and finalize
+- **FIX** — Return to implement to fix issues
+- **ABORT** — Cancel GMP""",
             gate_type=GateType.USER_CONFIRM,
         ),
-        # === PHASE 5.5: MEMORY WRITE (MANDATORY) ===
+        # === PHASE 5: MEMORY WRITE (MANDATORY) ===
         SessionNode(
             id="memory_write",
-            name="🧠 Memory Write (MANDATORY)",
+            name="Memory Write (MANDATORY)",
             node_type=NodeType.TRANSFORM,
             description="Save learnings to memory BEFORE finalization",
             action="""MANDATORY: Write learnings to L9 memory.
 
-Execute these commands:
-
+### Step 1: Write GMP summary (ALWAYS)
 ```bash
-# 1. Write GMP summary
-python3 agents/cursor/cursor_memory_client.py write \\
-  "GMP-XXX: {summary_of_changes}. Tags: gmp, {component}" --kind lesson
-
-# 2. Write patterns discovered (if any)
-python3 agents/cursor/cursor_memory_client.py write \\
-  "{pattern_description}. Tags: {domain}, pattern" --kind pattern
-
-# 3. Write errors/fixes encountered (if any)
-python3 agents/cursor/cursor_memory_client.py write \\
-  "{error_and_fix}. Tags: error, {component}" --kind lesson
+python3 agents/cursor/cursor_memory_client.py write \
+  "GMP: <brief summary of what was done>. Files: <list>. Tier: <tier>" \
+  --kind lesson
 ```
 
-Output format:
+### Step 2: Write insights discovered (if any new patterns found)
+```bash
+python3 agents/cursor/cursor_memory_client.py write \
+  "INSIGHT: <what was learned>. Context: <domain>" \
+  --kind insight
+```
 
-## 🧠 MEMORY WRITTEN
+### Step 3: Write error fixes (if errors were encountered and fixed)
+```bash
+python3 agents/cursor/cursor_memory_client.py write \
+  "ERROR FIX: <error description> -> <fix applied>. Component: <name>" \
+  --kind error
+```
 
-- ✅ GMP summary saved: "{summary}"
-- ✅ Patterns saved: {count} (if any)
-- ✅ Lessons saved: {count} (if any)
+Valid --kind values: note, preference, lesson, insight, error
 
-📍 Proceeding to finalize...
+Present results:
 
-⚠️ THIS STEP CANNOT BE SKIPPED
-If memory write fails, log the failure but continue with explicit acknowledgment.""",
+## MEMORY WRITTEN
+- GMP summary: saved / failed
+- Insights: {count} saved (if any)
+- Error fixes: {count} saved (if any)
+
+If memory write fails, log the failure explicitly but continue.
+THIS STEP CANNOT BE SKIPPED.""",
             validation="Memory write executed (success or explicit failure logged)",
-            outputs=["memory_written", "lessons_saved", "patterns_saved"],
+            outputs=["memory_written", "lessons_saved"],
         ),
         # === PHASE 6: FINALIZE ===
         SessionNode(
             id="finalize",
             name="Finalize (Phase 6)",
             node_type=NodeType.TRANSFORM,
-            description="Generate GMP report using the report generator script",
-            action="""Generate the GMP report using the CANONICAL REPORT GENERATOR:
+            description="Generate report, validate it, update workflow_state",
+            action="""Three-step finalization using canonical scripts.
 
+### Step 1: Generate GMP report
 ```bash
-# MANDATORY: Use the report generator script
-python3 scripts/generate_gmp_report.py \\
-  --task "{task_description}" \\
-  --tier {TIER}_TIER \\
-  --todo "T1|{file}|{lines}|{action}|{description}" \\
-  --validation "py_compile|✅" \\
-  --validation "imports|✅" \\
-  --summary "{brief_summary}" \\
+python3 scripts/generate_gmp_report.py \
+  --task "<task description>" \
+  --tier <TIER>_TIER \
+  --todo "T1|path/file.py|10-50|Replace|Description" \
+  --todo "T2|path/other.py|1-5|Insert|Description" \
+  --validation "py_compile|pass" \
+  --validation "imports|pass" \
+  --validation "lint|pass" \
+  --summary "<one-line summary of changes>" \
   --update-workflow
 ```
 
-The script will:
-1. Auto-detect the next GMP ID (e.g., GMP-129)
-2. Generate canonical report: `reports/GMP Reports/GMP-Report-{ID}-{Description}.md`
-3. Follow `gmp-report-contract.yaml` format
-4. Update `workflow_state.md` if --update-workflow passed
-5. Run automatic verification
+The script auto-detects the next GMP ID and writes to:
+`reports/GMP Reports/GMP-Report-{ID}-{Description}.md`
 
-⚠️ DO NOT create inline reports — USE THE SCRIPT!
+### Step 2: Validate the generated report
+```bash
+python3 scripts/validate_gmp_report.py "reports/GMP Reports/GMP-Report-{ID}-{Description}.md"
+```
 
-After running, output:
+### Step 3: Confirm workflow_state.md was updated
+Read workflow_state.md and verify the new GMP appears in Recent Changes.
 
-## GMP REPORT GENERATED
+DO NOT create reports manually — ALWAYS use the script.
 
-- 📄 Report: `reports/GMP Reports/GMP-Report-{ID}-{Description}.md`
-- ✅ Verification: PASSED
-- ✅ workflow_state.md: Updated
-
-### /ynp
-- YES: Commit all changes
-- NO: Exit without commit
-- PROCEED: Different action""",
-            outputs=["report", "report_path"],
+Present results:
+- Report: `reports/GMP Reports/GMP-Report-{ID}-{Description}.md`
+- Validation: PASSED / FAILED
+- workflow_state.md: Updated / Failed""",
+            outputs=["report_path", "report_generated"],
         ),
         SessionNode(
             id="gate_commit",
             name="Commit Gate",
             node_type=NodeType.GATE,
             description="User decides whether to commit",
-            action="""## Ready to Commit?
+            action="""Present commit summary and wait for user decision.
 
-**Changes staged:** {count} files
+## Ready to Commit?
 
-### /ynp
+**Files changed:** {list of modified files}
+**Report:** {report path}
 
-**Y**es: Commit with generated message
-**N**o: Exit without committing
-**P**roceed: Different action (specify)""",
+AWAITING user response (/ynp):
+- **YES** — Commit all changes with GMP message
+- **NO** — Exit without committing (changes remain unstaged)
+- **PROCEED** — Different action (user specifies)""",
             gate_type=GateType.USER_CONFIRM,
         ),
         SessionNode(
@@ -414,23 +446,35 @@ After running, output:
             name="Commit Changes",
             node_type=NodeType.COMMIT,
             description="Git commit if user approves",
-            action="""git add {files}
+            action="""Stage and commit changes.
 
+```bash
+git add <all modified files> <report file>
+```
+
+Commit message format (use HEREDOC):
+```bash
 git commit -m "$(cat <<'EOF'
-{commit_message}
+<type>(<scope>): <summary>
 
-GMP-XXX: {summary}
+GMP-{ID}: <task description>
 
 Files modified:
-{files_list}
+- path/to/file1.py
+- path/to/file2.py
 
-Memory operations:
-- Read: ✅ Context injected
-- Write: ✅ Lessons saved
+Report: reports/GMP Reports/GMP-Report-{ID}-{Description}.md
 EOF
 )"
+```
 
-git log -1 --oneline""",
+Then verify:
+```bash
+git log -1 --oneline
+git status
+```
+
+Do NOT push unless user explicitly asks.""",
             outputs=["commit_hash"],
         ),
         # === EXIT ===
@@ -451,6 +495,9 @@ git log -1 --oneline""",
         SessionEdge("scope_lock", "gate_scope"),
         # Gate decisions
         SessionEdge("gate_scope", "baseline", condition="confirm", label="Confirmed"),
+        SessionEdge(
+            "gate_scope", "scope_lock", condition="modify", label="Modify Scope"
+        ),
         SessionEdge("gate_scope", "end", condition="abort", label="Abort"),
         # Baseline -> Implement
         SessionEdge("baseline", "implement"),

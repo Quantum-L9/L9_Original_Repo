@@ -12,9 +12,8 @@ from workflows.dags.gmp.nodes.core import (
     node_memory_write,
     node_scope_lock,
     node_start,
-    node_user_confirm_scope,
-    node_user_confirm_validation,
     node_validate,
+    route_after_validation,
 )
 
 __all__ = [
@@ -27,7 +26,6 @@ __all__ = [
     "node_memory_write",
     "node_scope_lock",
     "node_start",
-    "node_user_confirm_scope",
-    "node_user_confirm_validation",
     "node_validate",
+    "route_after_validation",
 ]

@@ -106,6 +106,8 @@ graph TD
 - [0026](./0026-protocol-based-abstractions.md) - Protocol-Based Abstractions
 - [0052](./0052-di-dip-foundation.md) - DI/DIP Foundation
 - [0085](./0085-thread-safe-singletons.md) - Thread-Safe Singleton Pattern
+- [0101](./0101-dag-executors-via-sdk-not-per-service-routes.md) - DAG Executors via SDK, Not Per-Service Routes
+- [0102](./0102-sdk-first-external-interface.md) - SDK-First External Interface (Reduce Exposed Surface)
 
 ---
 
