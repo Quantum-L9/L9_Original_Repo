@@ -45,6 +45,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
+import os
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Any
@@ -54,6 +55,8 @@ import structlog
 
 if TYPE_CHECKING:
     from memory.consolidation import ConsolidationPipeline
+    from memory.importance_recipe import ImportanceInputs
+    from memory.importance_recipe import ImportanceUpdate as RecipeUpdate
     from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
@@ -305,7 +308,17 @@ class LearningExtractor:
         learning: ExtractedLearning,
         outcome: TaskOutcome,
     ) -> float:
-        """Compute importance score for a learning."""
+        """Compute importance score for a learning.
+
+        When ENABLE_IMPORTANCE_RECIPE=true (Phase 2 wiring E5), delegates to
+        ImportanceRecipe.compute_importance() for the canonical shared formula.
+        When OFF, uses the original inline heuristic — zero regression.
+        """
+        # --- Phase 2 wiring E5: ImportanceRecipe delegation (feature-flagged) ---
+        if os.environ.get("ENABLE_IMPORTANCE_RECIPE", "false").lower() == "true":
+            return self._compute_importance_via_recipe(learning, outcome)
+
+        # --- Original path (unchanged) ---
         base_importance = 0.5
 
         # Boost for high-impact tasks
@@ -324,6 +337,42 @@ class LearningExtractor:
             base_importance += 0.1
 
         return max(0.0, min(1.0, base_importance))
+
+    def _compute_importance_via_recipe(
+        self,
+        learning: ExtractedLearning,
+        outcome: TaskOutcome,
+    ) -> float:
+        """Compute importance via ImportanceRecipe (Phase 2 wiring E5).
+
+        Deferred import to avoid circular imports (ADR-0002).
+        Falls back to inline heuristic on error.
+        """
+        from memory.importance_recipe import ImportanceInputs, compute_importance
+
+        try:
+            inputs = ImportanceInputs(
+                segment=learning.tier,
+                success_signal_count=1 if outcome.success else 0,
+                has_reflection=learning.learning_type == "correction",
+            )
+            result = compute_importance(inputs)
+            return result.raw_importance
+        except Exception:
+            logger.warning(
+                "importance_recipe_fallback_in_encoder",
+                exc_info=True,
+            )
+            # Fall back to inline heuristic
+            base_importance = 0.5
+            base_importance += outcome.impact_score * 0.2
+            if outcome.user_satisfaction:
+                base_importance += (outcome.user_satisfaction - 0.5) * 0.2
+            if learning.learning_type == "correction":
+                base_importance += 0.15
+            if learning.learning_type == "preference":
+                base_importance += 0.1
+            return max(0.0, min(1.0, base_importance))
 
 
 # =============================================================================

@@ -148,14 +148,11 @@ from world_model.world_model_service import (
 )
 
 __all__ = [
-    "CausalEdge",
-    "CausalGraph",
     "CausalLink",
     # Causal Mapper (v2.0.0+)
     "CausalMapper",
     "CausalNode",
     "CausalPath",
-    "CausalQuery",
     "CausalQueryResult",
     "CausalRelationType",
     "CausalStrength",
@@ -166,13 +163,9 @@ __all__ = [
     "HeuristicMatch",
     # Interfaces
     "IWorldModelEngine",
-    "IWorldModelState",
-    "IWorldModelUpdater",
     "Improvement",
-    "IngestResult",
     "IngestorConfig",
     # Knowledge Ingestor (v2.0.0+)
-    "KnowledgeIngestor",
     "MemorySubstratePacketSource",
     "NormalizedHeuristic",
     "NormalizedPattern",
@@ -180,31 +173,19 @@ __all__ = [
     "PacketSource",
     "Pattern",
     "PatternMatch",
-    "QueryContext",
-    "QueryEngine",
     "QueryPattern",
     "Reflection",
     # Reflection Memory (v2.0.0+)
-    "ReflectionMemory",
-    "ReflectionPriority",
-    "ReflectionType",
-    "Relation",
     "RuntimeConfig",
     "RuntimeMode",
     "RuntimeStats",
     "SimulationVariant",
-    "SourceType",
     "TaskReflection",
     "UpdateRecord",
     "WorldContext",
     # Core
     "WorldModelEngine",
     "WorldModelEntityRow",
-    "WorldModelGraphState",
-    "WorldModelLoader",
-    "WorldModelNodeState",
-    "WorldModelRegistry",
-    # Repository
     "WorldModelRepository",
     # Runtime (v2.0.0+)
     "WorldModelRuntime",
@@ -213,21 +194,13 @@ __all__ = [
     # Service API (v2.0.0+)
     "WorldModelServiceAPI",
     "WorldModelSnapshotRow",
-    "WorldModelState",
     "WorldModelUpdateRow",
-    "WorldModelUpdater",
-    "get_world_model_engine",
-    "get_world_model_repository",
     "get_world_model_service",
     "get_world_model_service_api",
     "init_world_model_engine",
     "reset_world_model_engine",
     "reset_world_model_service_api",
     # LangGraph Nodes
-    "update_world_model_node",
-    "world_model_query_node",
-    "world_model_service_update_node",
-    "world_model_snapshot_node",
 ]
 
 __version__ = "2.0.0"

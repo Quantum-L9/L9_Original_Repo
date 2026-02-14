@@ -2,8 +2,8 @@
 # Tree
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:22 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -56,8 +56,6 @@ L9/
 ├── sonar-project.properties
 ├── workflow_state.md
 ├── z-test.md
-├── zz.md
-├── zzz.md
 ├── .backup/
 │   ├── bootstrap-7phase/
 │   │   ├── orchestrator.py
@@ -256,6 +254,7 @@ L9/
 │   │   ├── cursor_workflow_kernel.yaml
 │   │   ├── gmp_meta_learning.py
 │   │   ├── governance-reference.md
+│   │   ├── ingest_lessons.py
 │   │   ├── GMP-v2.0-Perplex-Py-Scripts/
 │   │   │   ├── script.py
 │   │   │   ├── script_1.py
@@ -265,7 +264,6 @@ L9/
 │   │   ├── docs/
 │   │   │   ├── CURSOR-L9-INTEGRATION.md
 │   │   │   ├── CURSOR-MEMORY-CLIENT.md
-│   │   │   ├── MCP-MEMORY-CAPSULE.md
 │   │   │   ├── PRODUCTION-SPEED-PACK.md
 │   │   ├── extractors/
 │   │   │   ├── __init__.py
@@ -386,7 +384,6 @@ L9/
 │   ├── check_no_deprecated_services.py
 │   ├── check_noqa_placement.py
 │   ├── check_packet_type_naming.py
-│   ├── check_protected_files.py
 │   ├── check_report_naming.py
 │   ├── check_schema_deprecation.py
 │   ├── check_substrate_api.py
@@ -397,7 +394,6 @@ L9/
 │   ├── lint_forbidden_imports.py
 │   ├── run_ci_gates.sh
 │   ├── validate_codegen.py
-│   ├── validate_dora_blocks.py
 │   ├── validate_spec_v25.py
 │   └── ai_guardrails/
 │       ├── __init__.py
@@ -831,6 +827,7 @@ L9/
 │   ├── README.md
 │   ├── __init__.py
 │   ├── auto_registry.py
+│   ├── config_constants.py
 │   ├── decorators.py
 │   ├── error_tracking.py
 │   ├── event_type_registry.py
@@ -1262,7 +1259,9 @@ L9/
 │   ├── CI_WORKFLOW_CHANGES.md
 │   ├── CODE-MAP.yaml
 │   ├── CURSOR-RUNBOOK.md
+│   ├── CURSOR_REDIS_SESSION_CONTEXT.md
 │   ├── DATABASE_BEST_PRACTICES.md
+│   ├── DIFF_TIMELINE_SAGA_VS_TIMELINE_SERVICE.md
 │   ├── DI_ASYNC_MIGRATION_PLAN.md
 │   ├── GOD-MODE-ORCHESTRATOR.md
 │   ├── GRACEFUL_DEGRADATION_VS_FAIL_LOUDLY.md
@@ -1270,7 +1269,10 @@ L9/
 │   ├── L9-Vision.md
 │   ├── MCP-MEMORY-CAPSULE.md
 │   ├── MEMORY_PIPELINE_MAP.md
+│   ├── MEMORY_REPO_FACTS.md
+│   ├── MEMORY_RETRIEVAL_AND_ALLIES_CALL_GRAPH.md
 │   ├── README-GMP-PHASE0-IMPLEMENTATION.md
+│   ├── TAGS_FOR_MEMORY.md
 │   ├── TOOLS-Explained.md
 │   ├── VISUAL STRUCTURE - substrate_graph.md
 │   ├── WIRING-Explained.md
@@ -1588,6 +1590,7 @@ L9/
 │   ├── 0030_semantic_memory_scope_project_index.sql
 │   ├── 0031_add_refcount_columns.sql
 │   ├── 0032_fix_timestamp_timezones.sql
+│   ├── 0033_add_cursor_scope.sql
 │   ├── 20260125_tool_feedback_learning.sql
 │   ├── README.md
 │   ├── SCHEMA_DIAGRAM.txt
@@ -1727,6 +1730,7 @@ L9/
 │   ├── DI_BOOTSTRAP_GUIDE.md
 │   ├── Docker Infra.md
 │   ├── GIT-HOOKS.md
+│   ├── HEALTH.md
 │   ├── L9-Classes.md
 │   ├── L9-KERNEL-REFERENCE.md
 │   ├── MANIFEST.md
@@ -1840,8 +1844,14 @@ L9/
 │   │   ├── 0095-unsafe-eval-remediation.md
 │   │   ├── 0096-security-rate-limiting-architecture.md
 │   │   ├── 0097-governance-authority-superpack.md
+│   │   ├── 0098-single-source-of-truth-for-config-defaults.md
+│   │   ├── 0099-dry-config-constants-enforcement.md
+│   │   ├── 0100-slash-commands-dag-only-no-cli-executors.md
 │   │   ├── README.md
 │   │   ├── architecture_decisions.md
+│   ├── bug_patterns/
+│   │   ├── PATTERN_001_config_drift.md
+│   │   ├── PATTERN_002_external_code_generation.md
 │   ├── diagrams/
 │   │   ├── 01-memory-substrate.mmd
 │   │   ├── 01-memory-substrate.png
@@ -1879,6 +1889,9 @@ L9/
 │   ├── .index_hashes.json
 │   ├── GMP-Report-132-DB-Code-Fixes.md
 │   ├── GMP-Report-132-Neo4j-Unavailable-Fix.md
+│   ├── GMP-Report-141-Bug-Classification-Knowledge-Capture.md
+│   ├── GMP-Report-142-DRY-Config-Migration-Detector-Refinement.md
+│   ├── GMP-Report-143-Consolidate-CI-Validators.md
 │   ├── GMP-Report-ADR-0083-GLOBAL-SWEEP.md
 │   ├── GMP-Report-NOQA-CLEANUP.md
 │   ├── GMP-Report-REBUILD-2026-02-13.md
@@ -1964,6 +1977,8 @@ L9/
 │   │   ├── phase2_final.json
 │   │   ├── post_cleanup_audit.json
 │   │   ├── test_dead_code.json
+│   ├── bug_detection/
+│   │   ├── config_mismatches.md
 │   ├── perplexity_audit/
 │   │   ├── audit_20260213_035046.json
 │   │   ├── audit_20260213_035046.md
@@ -2078,6 +2093,7 @@ L9/
 │   ├── run_pattern.py
 │   ├── setup-docker-env.sh
 │   ├── setup_gmail_accounts.py
+│   ├── update_workflow_state.py
 │   ├── validate_gmp_report.py
 │   ├── agents/
 │   │   ├── neo4j_merge_agent_nodes.py
@@ -2460,6 +2476,9 @@ L9/
 │   │   ├── __init__.py
 │   │   ├── test_email_router.py
 │   │   ├── test_email_triage.py
+│   ├── generated/
+│   │   ├── test_adr_0006_properties.py
+│   │   ├── test_adr_0019_properties.py
 │   ├── governance/
 │   │   ├── test_governance_propagation.py
 │   │   ├── test_rejection_recorder.py
@@ -2737,6 +2756,11 @@ L9/
 │   │   ├── main.py
 │   │   ├── pydantic_models_report.py
 │   │   ├── route_handlers_report.py
+│   ├── bug_detection/
+│   │   ├── __init__.py
+│   │   ├── find_config_mismatches.py
+│   ├── code_index/
+│   │   ├── build_semantic_index.py
 │   ├── codegen/
 │   │   ├── __init__.py
 │   │   ├── doc_compiler.py
@@ -2747,18 +2771,30 @@ L9/
 │   │   ├── spec_generator.py
 │   │   ├── test_generator.py
 │   │   ├── text_to_code.py
-│   └── superpack_reports/
+│   ├── health_dashboard/
+│   │   ├── generate_dashboard.py
+│   ├── spec_validator/
+│   │   ├── diff_spec_code.py
+│   ├── superpack_reports/
+│   │   ├── __init__.py
+│   │   ├── api_report.py
+│   │   ├── ast_scanner.py
+│   │   ├── config.py
+│   │   ├── filesystem.py
+│   │   ├── governance_report.py
+│   │   ├── index_report.py
+│   │   ├── main.py
+│   │   ├── memory_report.py
+│   │   ├── tools_report.py
+│   │   ├── workers_report.py
+│   ├── test_gen/
+│   │   ├── adr_property_tests.py
+│   ├── type_coverage/
+│   │   ├── track_mypy_progress.py
+│   └── validation/
 │       ├── __init__.py
-│       ├── api_report.py
-│       ├── ast_scanner.py
-│       ├── config.py
-│       ├── filesystem.py
-│       ├── governance_report.py
-│       ├── index_report.py
-│       ├── main.py
-│       ├── memory_report.py
-│       ├── tools_report.py
-│       ├── workers_report.py
+│       ├── try_run.py
+│       ├── validate_external_code.py
 ├── workers/
 │   ├── README.md
 │   ├── __init__.py
@@ -2789,6 +2825,7 @@ L9/
 │   │   ├── DAG-Harvest-6-MAKE DAGS.md
 │   ├── dags/
 │   │   ├── __init__.py
+│   │   ├── confirm_wiring_dag.py
 │   │   ├── dag_authoring_dag.py
 │   │   ├── gmp_execution_dag.py
 │   │   ├── gmp_langgraph_executor.py

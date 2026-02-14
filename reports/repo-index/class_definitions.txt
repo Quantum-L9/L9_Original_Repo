@@ -2,8 +2,8 @@
 # Class Definitions
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:22 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -1458,6 +1458,7 @@ mcp_memory/src/models.py::CacheGetArgs - Validation model for cache_get MCP tool
 mcp_memory/src/models.py::CacheGetSessionContextArgs - Validation model for cache_get_session_context MCP tool argu
 mcp_memory/src/models.py::CacheKeysArgs - Validation model for cache_keys MCP tool arguments.
 mcp_memory/src/models.py::CacheSetArgs - Validation model for cache_set MCP tool arguments.
+mcp_memory/src/models.py::CacheSetSessionContextArgs - Validation model for cache_set_session_context MCP tool argu
 mcp_memory/src/models.py::CompoundMemoriesArgs - Validation model for compound_memories MCP tool arguments.
 mcp_memory/src/models.py::CompoundResult - Response model for memory compounding operations.
 mcp_memory/src/models.py::Config - Config class defines configuration settings for request/resp
@@ -1477,6 +1478,7 @@ mcp_memory/src/models.py::Config - Config class enforces strict configuration se
 mcp_memory/src/models.py::Config - Config class enforces strict validation rules for request/re
 mcp_memory/src/models.py::Config - Config class enforces strict validation.
 mcp_memory/src/models.py::Config - Config class enforces strict validation.
+mcp_memory/src/models.py::Config - No docstring
 mcp_memory/src/models.py::Config - Validation model for arguments used in retrieving a sequence
 mcp_memory/src/models.py::Config - Validation model for arguments used in retrieving contextual
 mcp_memory/src/models.py::Config - Validation model for configuration settings in request/respo
@@ -1982,6 +1984,7 @@ scripts/batch/batch_generate_specs.py::BatchConfig - Batch processing configurat
 scripts/batch/batch_generate_specs.py::BatchSpecGenerator - Orchestrates batch spec generation
 scripts/batch/batch_generate_specs.py::PerplexityBatchClient - Async Perplexity client with rate limiting and retry
 scripts/batch/batch_generate_specs.py::TokenBucketLimiter - Token bucket rate limiter for API calls
+scripts/benchmark_caching_and_vector.py::MockDatabase - Mock database for benchmarking.
 scripts/cga_spec_generator.py::CGASpecGenerator - Generates CGA YAML specs from audit findings.
 scripts/extract_code_facts.py::CodeFactExtractor - Extract code facts using Python AST.
 scripts/generate_gmp_report.py::ChangeItem - A change made during implementation.
@@ -1996,6 +1999,8 @@ scripts/generate_readme_superprompt.py::FunctionInfo - Enhanced function informa
 scripts/generate_readme_superprompt.py::RouteInfo - API route information.
 scripts/generate_readme_superprompt.py::SubsystemFacts - All extracted facts from a subsystem.
 scripts/generate_readme_superprompt.py::TypeInfo - Type annotation information.
+scripts/gmp-validate-stage.py::Check - Single validation check result.
+scripts/gmp-validate-stage.py::StageResult - Aggregate validation result.
 scripts/memory/ingest_chat_transcript.py::Chunk - Chunk of messages for embedding.
 scripts/memory/ingest_chat_transcript.py::Message - Parsed chat message.
 scripts/memory/load_indexes_to_neo4j.py::MCPRepoGraphLoader - Loads repository indexes via MCP HTTP proxy.
@@ -2348,6 +2353,9 @@ tests/email_agent/test_email_router.py::TestConfig - Config module tests.
 tests/email_agent/test_email_router.py::TestEndpoints - Test each endpoint's basic functionality.
 tests/email_agent/test_email_router.py::TestMemoryIngestion - Pre/post events ingested to memory.
 tests/email_agent/test_email_router.py::TestRequestValidation - Request model validation.
+tests/generated/test_adr_0006_properties.py::TestADR0006PacketEnvelopeUsage - Property tests for PacketEnvelope audit trail compliance.
+tests/generated/test_adr_0019_properties.py::TestADR0019Regressions - Regression tests for known ADR-0019 violations.
+tests/generated/test_adr_0019_properties.py::TestADR0019StructlogEnforcement - Property tests ensuring ADR-0019 compliance.
 tests/governance/test_governance_propagation.py::TestGovernanceContextPropagation - Governance ContextVar must propagate across async task bound
 tests/integration/test_api_agent_integration.py::TestAPIAgentIntegration - Test API to Agent Executor integration.
 tests/integration/test_api_memory_integration.py::TestAPIMemoryIntegration - Test API to Memory Substrate integration.
@@ -3033,6 +3041,9 @@ tools/adr/adr_enforcer.py::Violation - Represents a single ADR violation.
 tools/architecture_reports/async_function_map_report.py::AsyncCallVisitor - AST visitor that collects awaited function calls.
 tools/architecture_reports/config.py::RepoLayout - Represents the layout configuration of a repository, includi
 tools/architecture_reports/file_metrics_report.py::FileMetrics - Calculates and stores code metrics for a source file, includ
+tools/bug_detection/find_config_mismatches.py::ConfigMismatch - Represents a configuration inconsistency.
+tools/code_index/build_semantic_index.py::CodeExtractor - AST visitor to extract functions and classes.
+tools/code_index/build_semantic_index.py::CodeSymbol - Represents a function or class in the codebase.
 tools/codegen/doc_compiler.py::ArtifactExtractor - Base class for extracting structured data from documents.
 tools/codegen/doc_compiler.py::ConstraintExtractor - Extracts constraint definitions from documents.
 tools/codegen/doc_compiler.py::DocumentClassifier - Classifies documents based on schema hints.
@@ -3071,10 +3082,12 @@ tools/codegen/test_generator.py::UnitTestSpec - Single unit test specification.
 tools/codegen/text_to_code.py::ConceptSpec - Parsed concept specification.
 tools/codegen/text_to_code.py::GenerationResult - Result of code generation.
 tools/codegen/text_to_code.py::L9TextToCode - Main text-to-code generator.
+tools/health_dashboard/generate_dashboard.py::HealthMetric - Single health metric.
 tools/mac_protocol.py::Config - Represents configuration schema details for the L9 Mac Proto
 tools/mac_protocol.py::Config - Represents configuration schema for L9 Mac Protocol reverse 
 tools/mac_protocol.py::MacMessage - Mac protocol message schema.
 tools/mac_protocol.py::MacResponse - Mac protocol response schema.
+tools/spec_validator/diff_spec_code.py::Discrepancy - Represents a mismatch between spec and code.
 tools/superpack_reports/ast_scanner.py::ClassInfo - Information about a class.
 tools/superpack_reports/ast_scanner.py::ConstantInfo - Information about a module-level constant (UPPER_CASE assign
 tools/superpack_reports/ast_scanner.py::FunctionInfo - Information about a function.
@@ -3082,6 +3095,8 @@ tools/superpack_reports/ast_scanner.py::GlobalVarInfo - Information about a modu
 tools/superpack_reports/ast_scanner.py::MethodInfo - Information about a class method.
 tools/superpack_reports/ast_scanner.py::ModuleInfo - Information about a Python module.
 tools/superpack_reports/config.py::SuperpackLayout - Configuration for superpack generation.
+tools/type_coverage/track_mypy_progress.py::ModuleCoverage - Type coverage data for a single module.
+tools/validation/validate_external_code.py::ValidationIssue - Single validation issue found in external code.
 workers/anomaly_classifier.py::AnomalyClassifier - Anomaly Classifier Service.
 workers/anomaly_classifier.py::AnomalyClassifierRequest - Input request for AnomalyClassifier.
 workers/anomaly_classifier.py::AnomalyClassifierResponse - Output response from AnomalyClassifier.

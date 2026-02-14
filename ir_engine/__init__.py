@@ -112,7 +112,6 @@ __all__ = [
     "EnvironmentSpec",
     "ErrorPolicy",
     "ExternalSurface",
-    "GenerationTarget",
     "GlobalInvariantsAck",
     "IRGenerator",
     "IRGraph",
@@ -128,7 +127,6 @@ __all__ = [
     "InterfacesSpec",
     # MetaContract (Module-Spec v2.4)
     "MetaContract",
-    "MetaContractValidationError",
     "MetaContractValidationResult",
     # IR Compiler
     "MetaToIRCompiler",

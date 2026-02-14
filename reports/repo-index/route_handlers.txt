@@ -2,8 +2,8 @@
 # Route Handlers
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:22 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -22,6 +22,7 @@ GET / → root() @ mcp_memory/src/main.py
 GET /_echo → echo() @ api/server.py
 GET /agent/health → agent_health() @ api/vps_executor.py
 GET /agent/{agent_id}/capabilities → get_agent_capabilities() @ api/routes/worldmodel.py
+GET /agent/{agent_id}/timeline → get_agent_timeline() @ api/memory/router.py
 GET /analytics → get_analytics() @ api/routes/gmp_learning.py
 GET /api/health → health() @ local_dashboard/app.py
 GET /approvals/summary → get_approvals_summary() @ api/routes/worldmodel.py
@@ -237,4 +238,4 @@ WEBSOCKET /lws → l_ws() @ api/server.py
 WEBSOCKET /ws → inject_trace_into_packet() @ api/middleware/websocket_tracing.py
 WEBSOCKET /ws/agent → agent_ws_endpoint() @ api/server.py
 
-# Total: 224 route handlers
+# Total: 225 route handlers

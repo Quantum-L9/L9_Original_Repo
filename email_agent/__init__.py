@@ -34,8 +34,6 @@ from email_agent.triage import run_daily_digest, summarize_inbox
 
 __all__ = [
     "GmailClient",
-    "create_flow",
-    "exchange_code_for_tokens",
     "execute_email_task",
     "load_client_secrets",
     "load_tokens",

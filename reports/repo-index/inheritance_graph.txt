@@ -2,8 +2,8 @@
 # Inheritance Graph
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:22 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -138,6 +138,7 @@ CacheMetrics::BaseModel @ memory/warming_models.py
 CacheResponse::BaseModel @ api/memory/cache.py
 CacheSetArgs::BaseModel @ mcp_memory/src/models.py
 CacheSetRequest::BaseModel @ api/memory/cache.py
+CacheSetSessionContextArgs::BaseModel @ mcp_memory/src/models.py
 CacheStrategy::str,Enum @ core/tools/registry_cache.py
 CalibrateRequest::BaseModel @ core/calibration/schemas.py
 CalibrationConfig::BaseModel @ core/calibration/schemas.py
@@ -170,6 +171,7 @@ CircuitOpenError::Exception @ core/observability/circuit_breaker.py
 CircularDependencyError::DIContainerError @ core/di/container.py
 ClassificationResult::BaseModel @ workers/anomaly_classifier.py
 CodeExtractor::BaseExtractor @ memory/extractor/code_extractor.py
+CodeExtractor::NodeVisitor @ tools/code_index/build_semantic_index.py
 CodeGenGatekeeperAgent::BaseAgent @ core/codegen/gatekeeper/codegen_gatekeeper.py
 CodeGenGatekeeperAgent::BaseAgent @ core/codegen/gatekeeper/codegen_gatekeeper_v2.py
 CodeGenOutput::BaseModel @ core/codegen/gatekeeper/codegen_gatekeeper.py
@@ -1095,4 +1097,4 @@ WorldModelResponse::BaseModel @ orchestrators/world_model/interface.py
 WorldModelState::IWorldModelState @ world_model/_pack_staging/state.py
 WorldModelUpdater::IWorldModelUpdater @ world_model/_pack_staging/updater.py
 
-# Total: 1082 classes with inheritance
+# Total: 1084 classes with inheritance

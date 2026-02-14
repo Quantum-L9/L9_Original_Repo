@@ -40,6 +40,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import math
+import os
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timezone
 from typing import TYPE_CHECKING, Any
@@ -48,6 +49,8 @@ from uuid import UUID
 import structlog
 
 if TYPE_CHECKING:
+    from memory.importance_recipe import ImportanceInputs
+    from memory.importance_recipe import ImportanceUpdate as RecipeUpdate
     from memory.substrate_repository import SubstrateRepository
 
 logger = structlog.get_logger(__name__)
@@ -357,12 +360,23 @@ class ImportanceManager:
                     old_importance = row["importance"]
                     last_accessed = row["last_accessed"]
 
-                    # Calculate decay
-                    new_importance = self._calculate_decay(
-                        old_importance,
-                        last_accessed,
-                        now,
-                    )
+                    # Calculate decay — Phase 2 wiring E3: ImportanceRecipe (feature-flagged)
+                    if (
+                        os.environ.get("ENABLE_IMPORTANCE_RECIPE", "false").lower()
+                        == "true"
+                    ):
+                        new_importance = self._calculate_decay_via_recipe(
+                            old_importance,
+                            last_accessed,
+                            now,
+                            row,
+                        )
+                    else:
+                        new_importance = self._calculate_decay(
+                            old_importance,
+                            last_accessed,
+                            now,
+                        )
 
                     # Skip if no significant change
                     if abs(new_importance - old_importance) < 0.01:
@@ -417,6 +431,44 @@ class ImportanceManager:
 
         # Apply floor
         return max(self._config.decay_floor, decayed)
+
+    def _calculate_decay_via_recipe(
+        self,
+        importance: float,
+        last_accessed: datetime | None,
+        now: datetime,
+        row: Any,
+    ) -> float:
+        """Calculate importance using ImportanceRecipe (Phase 2 wiring E3).
+
+        Deferred import to avoid circular imports (ADR-0002).
+        Falls back to inline formula on error.
+        """
+        from memory.importance_recipe import ImportanceInputs, compute_importance
+
+        if last_accessed is None:
+            age_hours = 30.0 * 24.0
+        else:
+            age_hours = (now - last_accessed).total_seconds() / 3600.0
+
+        try:
+            inputs = ImportanceInputs(
+                segment=row.get("tier", "general")
+                if hasattr(row, "get")
+                else "general",
+                access_count=int(
+                    row.get("access_count", 0) if hasattr(row, "get") else 0
+                ),
+                last_access_age_hours=age_hours,
+            )
+            result = compute_importance(inputs)
+            return max(self._config.decay_floor, result.raw_importance)
+        except Exception:
+            logger.warning(
+                "importance_recipe_fallback",
+                exc_info=True,
+            )
+            return self._calculate_decay(importance, last_accessed, now)
 
     # =========================================================================
     # Pruning

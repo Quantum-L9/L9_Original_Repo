@@ -36,21 +36,22 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from core.decorators import must_stay_async
 import argparse
 import asyncio
 import hashlib
 import json
 import sys
 from pathlib import Path
-import structlog
 
-# Add project root to path
-
-logger = structlog.get_logger(__name__)
-
+# Add project root to path BEFORE importing core modules
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+
+import structlog
+
+from core.decorators import must_stay_async
+
+logger = structlog.get_logger(__name__)
 
 INDEX_DIR = PROJECT_ROOT / "reports" / "repo-index"
 HASH_CACHE_FILE = PROJECT_ROOT / "reports" / ".index_hashes.json"
@@ -201,7 +202,11 @@ async def ingest_index(
     summary = f"L9 Repo Index: {filename}\n{description}\nTotal entries: {total_lines}"
 
     if verbose:
-        logger.info("  📄 filename: total lines lines", filename=filename, total_lines=total_lines)
+        logger.info(
+            "  📄 filename: total lines lines",
+            filename=filename,
+            total_lines=total_lines,
+        )
 
     if dry_run:
         logger.info("  [dry run] would ingest filename", filename=filename)
@@ -228,7 +233,9 @@ async def ingest_index(
     )
 
     if result.returncode != 0:
-        logger.error("  ❌ failed to write filename: {result.stderr}", filename=filename)
+        logger.error(
+            "  ❌ failed to write filename: {result.stderr}", filename=filename
+        )
         return 0
 
     # For large files, also chunk and store key sections
@@ -297,7 +304,10 @@ async def main():
             if f.name not in priority_names:
                 indexes_to_process.append((f.name, "index", f"L9 index: {f.name}"))
 
-    logger.info("📁 processing {len(indexes to process)} index files from index dir\n", INDEX_DIR=INDEX_DIR)
+    logger.info(
+        "📁 processing {len(indexes to process)} index files from index dir\n",
+        INDEX_DIR=INDEX_DIR,
+    )
 
     success_count = 0
     skipped_count = 0
@@ -332,8 +342,7 @@ async def main():
     if not args.dry_run:
         save_hash_cache(new_hash_cache)
 
-    logger.info("output", value=)
-    logger.info("=" * 50")
+    logger.info("=" * 50)
     total = len(indexes_to_process)
     print(
         f"✅ Ingested: {success_count} | Skipped (unchanged): {skipped_count} | Total: {total}"
@@ -341,7 +350,9 @@ async def main():
 
     if not args.dry_run:
         logger.info("\n📍 indexes now available in l9 memory for semantic search")
-        logger.info("   use: python3 agents/cursor/cursor_memory_client.py search 'class x")
+        logger.info(
+            "   use: python3 agents/cursor/cursor_memory_client.py search 'class x'"
+        )
 
 
 if __name__ == "__main__":

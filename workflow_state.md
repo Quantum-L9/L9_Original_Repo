@@ -83,6 +83,8 @@
 
 ## Recent Changes (digest)
 
+- [2026-02-14] **Foresight observe cycle + intake importance_score** — Integrated periodic Observe into `core/l_agent_runtime/foresight_engine.py`: `observe()`, `run_observe_cycle()`, `FORESIGHT_OK`, `HIGHEST_LEVERAGE_QUESTION`, `observe_checklist_path`. Renamed heartbeat→observe_cycle (L9-aligned). Intake rating: use existing `importance_score` at task-intake; `migrations/0034_intake_leverage_rating.sql` documents it (comment only). Repository reads `metadata.importance` or `metadata.importance_score`.
+- [2026-02-14] **GMP-141: Integration test — create temp file**. Report: `GMP-Report-141-Integration-Test-Create-Temp-File.md`
 - [2026-02-13] [Phase 0-6] **GMP-142: DRY Config Constants Migration + Detector Refinement** — Migrated all remaining hardcoded scope lists and defaults to `core/config_constants.py` across 8 production files (30+ replacements). Added `MCP_WRITE_SCOPES`, `MCP_SEARCH_SCOPES` constants. DRY'd 21 occurrences in `cursor_memory_client.py` into `_DEFAULT_SCOPES`. Refined `find_config_mismatches.py` detector: excluded tests/scripts/docstrings/canonical source, removed false-positive `scope` parameter tracking. Created ADR-0099 (DRY Enforcement). `make bug-detect` now exits 0 with 0 issues. Report: `reports/GMP-Report-142-DRY-Config-Migration-Detector-Refinement.md`.
 - [2026-02-13] [Phase 0-6] **GMP-141: Bug Classification & Knowledge Capture** — Created 4 reusable assets from BUG-001 through BUG-004 post-mortem: `core/config_constants.py` (centralized defaults), `readme/adr/0098-single-source-of-truth-for-config-defaults.md` (ADR), `tools/bug_detection/find_config_mismatches.py` (automated detector), `readme/bug_patterns/PATTERN_001_config_drift.md` (pattern doc). Wired 3 mcp_memory files to import from config_constants. Added `make bug-detect` Makefile target. Detector found 6 remaining issues (1 critical, 5 high) in broader codebase. Report: `reports/GMP-Report-141-Bug-Classification-Knowledge-Capture.md`.
 - [2026-02-13] **GMP-140: ADR-0094 tool registry primary pipeline unification: enforce practical rule and execute 3-step migration plan** — GMP execution via LangGraph DAG. Files:
@@ -192,6 +194,8 @@ _Last updated: 2026-02-14 (end-session)_
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-14: ADR-0102 SDK-First: wired all 17 interfaces (P0 Memory+Graph+Cache, P0 WorldModel expanded, P1 Research+Commands+Email, P2 Evaluation+Factory+Simulation, P2 Learning+Reasoning expanded). ADR-0101 DAG executors via SDK. GMP LangGraph executor: autonomous nodes, Redis checkpointing. GMP SessionDAG revised. 16 files, +2808/-550 lines.
+- 2026-02-14: Foresight observe cycle (periodic Observe): integrated OpenClaw-style trigger into foresight_engine.py (observe(), run_observe_cycle(), FORESIGHT_OK, HIGHEST_LEVERAGE_QUESTION). Renamed heartbeat→observe_cycle. Intake rating: use importance_score at task-intake; migration 0034 documents it (no new columns).
 - 2026-02-13: Built try-run validator (tools/validation/try_run.py), added make try-run + make validate-external-code Makefile targets, converted /confirm-wiring to DAG-enforced command (confirm_wiring_dag.py with try-run as Phase 2), updated slash command to minimal trigger v2.0
 - 2026-02-13: Redis session context: doc CURSOR_REDIS_SESSION_CONTEXT.md updated (resume vs /start-session, auto-save at milestones). /end-session executed with handoff.
 - 2026-02-13: **/end-session** — GMP-141 (Bug Classification), GMP-142 (DRY Config Migration), GMP DAG pipeline overhaul (6 scripts wired into node_validate + node_finalize). Created ADR-0098, ADR-0099. New scripts: `update_workflow_state.py`, rewrote `gmp-validate-stage.py`. `make bug-detect` = 0 issues.
@@ -234,14 +238,23 @@ _Last updated: 2026-02-14 (end-session)_
 
 ## Next Steps (Next Session)
 
-- [ ] Fix `scripts/benchmark_caching_and_vector.py` — 25 issues (syntax errors, missing f-prefixes, ADR violations); use `make try-run` to verify
+- [ ] Wire `WorkingMemoryAdapter` → `PipelineRouter` (see `current_work/02-14-2026/Wire WorkingMemoryAdapter → PipelineRouter.md`)
+- [ ] Wire `L9MemoryAdapter` for Cursor → L9 memory integration (see `current_work/02-14-2026/L9_memory_adapter.md`)
 - [ ] Run `python3 agents/cursor/ingest_lessons.py --live` to write 53 lessons to MCP memory (dry-run verified)
-- [ ] Fix compiler + harvester for import: replace ~66 `print()` with structlog, fix 4 bare excepts, delete duplicate spec_generator
-- [ ] Stage and commit all changes (try-run tool, confirm-wiring DAG, Makefile targets)
-- [ ] Execute migration 0032 on C1 during next Docker rebuild and capture health proof
+- [ ] Execute migration 0032 + 0034 on C1 during next Docker rebuild and capture health proof
+- [ ] Fix `scripts/benchmark_caching_and_vector.py` — 25 issues; use `make try-run` to verify
 
 **Recent Sessions (7-day window):**
 
+- 2026-02-14: **ADR-0102 SDK-First Interface Wiring** — 17 interfaces wired into L9SDK:
+  - P0: MemoryInterface (+graph +cache), WorldModelInterface expanded (8 new methods)
+  - P1: ResearchInterface, CommandsInterface, EmailInterface
+  - P2: EvaluationInterface, FactoryInterface, SimulationInterface
+  - P2 expanded: LearningInterface (12 methods), ReasoningInterface (5 methods)
+  - ADR-0101 (DAG executors via SDK), ADR-0102 (SDK-First External Interface)
+  - GMP LangGraph executor: autonomous nodes, Redis checkpointing, no user gates
+  - GMP SessionDAG revised for Cursor-agent execution
+  - 16 files, +2808/-550 lines committed
 - 2026-02-14: **Cursor Agent Enforcement Upgrade** — 7 plan items completed:
   - Security: Removed hardcoded Neo4j password from `cursor_neo4j_query.py`, added getenv-default detection to pre-commit hook + `ci/check_adr_compliance.py`
   - Created `agents/cursor/ingest_lessons.py` — dry-run parsed 53 lessons (4 ultra-critical, 16 critical)

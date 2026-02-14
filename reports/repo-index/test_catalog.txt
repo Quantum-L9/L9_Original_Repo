@@ -2,8 +2,8 @@
 # Test Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:22 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -196,6 +196,11 @@
 
 - `tests/email_agent/test_email_router.py` (24 tests)
 - `tests/email_agent/test_email_triage.py` (2 tests)
+
+### tests/generated/
+
+- `tests/generated/test_adr_0006_properties.py` (2 tests)
+- `tests/generated/test_adr_0019_properties.py` (7 tests)
 
 ### tests/governance/
 
@@ -443,8 +448,8 @@
 
 ## Summary
 
-- **Total test files**: 320
-- **Total test functions**: 3666
+- **Total test files**: 322
+- **Total test functions**: 3675
 
 ## Running Tests
 

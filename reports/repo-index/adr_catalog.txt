@@ -2,14 +2,14 @@
 # Adr Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:23 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 Architecture Decision Record (ADR) Catalog
-# Generated: 2026-02-13
-# Total: 94 ADRs
+# Generated: 2026-02-14
+# Total: 97 ADRs
 #
 # Format: ADR_NUMBER | STATUS | TITLE | PATH
 # ============================================================================
@@ -113,6 +113,9 @@
 0095 | Unknown | Unsafe eval() Remediation | readme/adr/0095-unsafe-eval-remediation.md
 0096 | Unknown | Security & Rate Limiting Architecture | readme/adr/0096-security-rate-limiting-architecture.md
 0097 | Unknown | Unknown | readme/adr/0097-governance-authority-superpack.md
+0098 | Unknown | Unknown | readme/adr/0098-single-source-of-truth-for-config-defaults.md
+0099 | Unknown | Unknown | readme/adr/0099-dry-config-constants-enforcement.md
+0100 | Unknown | Unknown | readme/adr/0100-slash-commands-dag-only-no-cli-executors.md
 
 # ============================================================================
 # AI QUICK REFERENCE - KEY DO NOT's
@@ -133,3 +136,5 @@
 # Do NOT proceed to Phase 5 (ADR-0081)
 # do NOT need try/except: (ADR-0086)
 # Do not rename factory functions to PascalCase (ADR-0094)
+# Do not create CLI executor scripts for slash commands (ADR-0100)
+# Do NOT create** standalone Python executor scripts (e (ADR-0100)

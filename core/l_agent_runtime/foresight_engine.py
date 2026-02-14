@@ -12,15 +12,25 @@ Enables agents to:
 - Score confidence for each prediction
 - Execute only if confidence >= threshold
 
+Observe cycle (periodic Observe):
+- Periodic Observe stage: gather context (optional checklist file, e.g. OBSERVE_CHECKLIST.md).
+- Decision framing: "What is the single highest-leverage task that has the
+  highest ROI and biggest impact saving the most time for my user?"
+- run_observe_cycle() returns either a ForesightDecision or FORESIGHT_OK ack.
+
 Version: 1.0.0
 Author: Manus AI
 Created: 2025-12-20
 """
 
+from __future__ import annotations
+
+import os
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Foresight Engine",
-    "module_version": "1.0.0",
+    "module_version": "1.1.0",
     "created_by": "Igor Beylin",
     "created_at": "2026-01-25T17:47:23Z",
     "updated_at": "2026-01-31T22:21:48Z",
@@ -42,10 +52,18 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC
 from enum import Enum
+from pathlib import Path
 
 import structlog
 
 logger = structlog.get_logger(__name__)
+
+# Decision prompt for observe cycle / highest-leverage mode. Drives candidate
+# generation and selection toward ROI and time-saved for the user.
+HIGHEST_LEVERAGE_QUESTION = (
+    "What is the single highest-leverage task I can perform next that will "
+    "have the highest ROI and biggest impact saving the most time for my user?"
+)
 
 
 class DecisionMode(Enum):
@@ -67,6 +85,22 @@ class CandidateAction:
     novelty_factor: float = 0.5
     alignment_score: float = 0.5
     risk_level: float = 0.0
+    # Observe cycle / leverage: higher = better ROI, more time saved for user
+    leverage_score: float = 0.0
+    estimated_time_saved_minutes: float | None = None
+    roi_estimate: float | None = None
+
+
+# Ack sent when observe cycle finds nothing above threshold (suppress delivery).
+FORESIGHT_OK = "FORESIGHT_OK"
+
+
+@dataclass
+class ForesightCycleResult:
+    """Result of a periodic Observe cycle (Observe → Decide → Act or ack)."""
+
+    ack: str | None = None  # FORESIGHT_OK when nothing meets the bar
+    decision: ForesightDecision | None = None  # set when something to do
 
 
 @dataclass
@@ -78,6 +112,19 @@ class ForesightDecision:
     confidence: float
     candidates: list[CandidateAction]
     reason: str
+
+
+def _sort_candidates_by_leverage_then_confidence(
+    evaluated: list[CandidateAction],
+) -> list[CandidateAction]:
+    """Sort by leverage_score desc, then confidence desc. Used in observe cycle / ROI mode."""
+    return sorted(
+        evaluated,
+        key=lambda x: (
+            -(x.leverage_score if x.leverage_score else 0),
+            -(x.confidence),
+        ),
+    )
 
 
 class ForesightEngine:
@@ -111,6 +158,104 @@ class ForesightEngine:
     def confidence_threshold(self) -> float:
         """Get current confidence threshold from state."""
         return self.state.confidence_threshold
+
+    def observe(
+        self,
+        context_source: dict | None = None,
+        observe_checklist_path: str | None = None,
+        use_leverage_question: bool = True,
+    ) -> dict:
+        """
+        Observe stage: gather context for the foresight loop (periodic Observe).
+
+        Optionally reads a checklist file (e.g. OBSERVE_CHECKLIST.md) and
+        injects the highest-leverage decision question so candidate generation
+        can focus on ROI and time-saved for the user.
+
+        Args:
+            context_source: Initial context (workspace, inbox, calendar, etc.)
+            observe_checklist_path: Path to checklist file (e.g. "OBSERVE_CHECKLIST.md")
+            use_leverage_question: If True, set context["foresight_question"]
+
+        Returns:
+            Enriched context dict for generate_candidates / decide_and_act
+        """
+        from datetime import datetime
+
+        ctx = dict(context_source or {})
+        ctx.setdefault("observe_timestamp", datetime.now(UTC).isoformat())
+        ctx.setdefault("mode", "observe_cycle")
+
+        if observe_checklist_path:
+            path = Path(observe_checklist_path)
+            if path.exists():
+                try:
+                    ctx["checklist_content"] = path.read_text()
+                    ctx["checklist_path"] = str(path)
+                except OSError as e:
+                    logger.warning(
+                        "foresight_observe_checklist_read_failed",
+                        path=observe_checklist_path,
+                        error=str(e),
+                    )
+            else:
+                ctx["checklist_content"] = ""
+                ctx["checklist_path"] = str(path)
+
+        if use_leverage_question:
+            ctx["foresight_question"] = HIGHEST_LEVERAGE_QUESTION
+
+        return ctx
+
+    def run_observe_cycle(
+        self,
+        context_source: dict | None = None,
+        observe_checklist_path: str | None = None,
+        min_leverage_to_act: float = 0.0,
+        min_confidence_to_act: float | None = None,
+    ) -> ForesightCycleResult:
+        """
+        Run one periodic Observe cycle: Observe → (Predict → Decide) → Act or ack.
+
+        Triggers the Observe stage (with optional checklist file), then runs
+        decide_and_act with the highest-leverage question. If no candidates
+        or best candidate is below thresholds, returns FORESIGHT_OK so the
+        caller can suppress delivery.
+
+        Args:
+            context_source: Input for observe()
+            observe_checklist_path: e.g. "OBSERVE_CHECKLIST.md"
+            min_leverage_to_act: Only execute/propose if best leverage >= this
+            min_confidence_to_act: Override confidence threshold for this run
+
+        Returns:
+            ForesightCycleResult with either decision or ack=FORESIGHT_OK
+        """
+        context = self.observe(
+            context_source=context_source,
+            observe_checklist_path=observe_checklist_path,
+            use_leverage_question=True,
+        )
+        decision = self.decide_and_act(context)
+
+        if decision.mode == DecisionMode.ESCALATE and not decision.candidates:
+            return ForesightCycleResult(ack=FORESIGHT_OK)
+
+        best = decision.candidates[0] if decision.candidates else None
+        if not best:
+            return ForesightCycleResult(ack=FORESIGHT_OK)
+
+        threshold = (
+            min_confidence_to_act
+            if min_confidence_to_act is not None
+            else self.confidence_threshold
+        )
+        if best.confidence < threshold:
+            return ForesightCycleResult(ack=FORESIGHT_OK)
+        if min_leverage_to_act > 0 and (best.leverage_score or 0) < min_leverage_to_act:
+            return ForesightCycleResult(ack=FORESIGHT_OK)
+
+        return ForesightCycleResult(decision=decision)
 
     def decide_and_act(self, context: dict) -> ForesightDecision:
         """
@@ -199,13 +344,62 @@ class ForesightEngine:
         Returns:
             List of CandidateAction objects, sorted by confidence (descending)
         """
+        # DTB: Enrich context with causal chain analysis (feature-flagged)
+        causal_factors: list[str] = []
+        if os.getenv("L9_ENABLE_DTB", "false").lower() == "true":
+            try:
+                import asyncio
+
+                from domain_tensor_bridge.causal_reasoner import CausalReasoner
+
+                reasoner = CausalReasoner()
+                causal_ctx = {
+                    "causal_factors": [
+                        c.get("action_type", c.get("name", str(c))) for c in candidates
+                    ],
+                }
+                # Run the async causal logic in a sync context
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # Already inside an event loop — schedule as task
+                    import concurrent.futures
+
+                    with concurrent.futures.ThreadPoolExecutor() as pool:
+                        result = pool.submit(
+                            asyncio.run, reasoner.apply_causal_logic(causal_ctx)
+                        ).result(timeout=5)
+                else:
+                    result = asyncio.run(reasoner.apply_causal_logic(causal_ctx))
+                causal_factors = result.intervention_points
+                logger.info(
+                    "foresight.dtb.causal_analysis",
+                    chain_length=len(result.causal_chain),
+                    interventions=causal_factors,
+                    confidence=result.causal_confidence,
+                )
+            except ImportError:
+                pass  # DTB not installed
+            except Exception as e:
+                logger.debug("foresight.dtb.causal_failed", error=str(e))
+
         evaluated = []
 
         for action in candidates:
             # Simulate outcome and calculate confidence
             confidence = self.simulate_action(context, action)
 
-            # Create candidate action object
+            # DTB: Boost confidence for actions identified as causal intervention points.
+            # Boost scales with the action's importance_score (from ImportanceManager)
+            # rather than a flat 10%.  Range: 5% (low importance) to 25% (high importance).
+            action_name = action.get("action_type", action.get("name", ""))
+            if causal_factors and action_name in causal_factors:
+                importance = action.get(
+                    "importance_score", action.get("leverage_score", 0.5)
+                )
+                boost_pct = 0.05 + 0.20 * importance  # 5%-25% based on importance
+                confidence = min(1.0, confidence * (1.0 + boost_pct))
+
+            # Create candidate action object (include leverage/ROI when present)
             candidate = CandidateAction(
                 action=action,
                 confidence=confidence,
@@ -214,12 +408,16 @@ class ForesightEngine:
                 novelty_factor=action.get("novelty_factor", 0.5),
                 alignment_score=action.get("alignment_score", 0.5),
                 risk_level=action.get("risk_level", 0.0),
+                leverage_score=action.get("leverage_score", 0.0),
+                estimated_time_saved_minutes=action.get("estimated_time_saved_minutes"),
+                roi_estimate=action.get("roi_estimate"),
             )
             evaluated.append(candidate)
 
-        # Sort by confidence (descending)
+        # Sort: in leverage mode use leverage then confidence; else confidence only
+        if any(c.leverage_score for c in evaluated):
+            return _sort_candidates_by_leverage_then_confidence(evaluated)
         evaluated.sort(key=lambda x: x.confidence, reverse=True)
-
         return evaluated
 
     def simulate_action(self, context: dict, action: dict) -> float:
@@ -306,8 +504,12 @@ __dora_footer__ = {
         "confidence",
         "decide",
         "decision",
+        "leverage",
+        "observe_cycle",
+        "observe",
+        "ROI",
     ],
-    "business_value": "Implements the Foresight Engine pattern for anticipatory agent behavior.",
+    "business_value": "Implements the Foresight Engine pattern for anticipatory agent behavior. Observe cycle: periodic Observe (optional checklist), highest-leverage decision framing, FORESIGHT_OK ack.",
     "last_modified": "2026-01-31T22:21:48Z",
     "modified_by": "L9_Codegen_Engine",
     "change_summary": "Initial generation with DORA compliance",

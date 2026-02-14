@@ -1,0 +1,13 @@
+# Package Export Audit: ir_engine
+
+- `__all__` count: 52
+- Names bound by imports: 52
+- Names imported from ir_engine.* submodules: 52
+
+## 1. In __all__ but NOT bound by any import (broken re-export)
+
+None
+
+## 2. Imported from this package's submodules but NOT in __all__ (missing re-export)
+
+None

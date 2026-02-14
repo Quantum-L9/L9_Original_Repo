@@ -2,8 +2,8 @@
 # Function Signatures
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:22 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -75,6 +75,8 @@
 .github/scripts/generate-ai-collab-report.py::main() - 
 .github/scripts/generate-ai-collab-report.py::pattern_match(path, pattern) - Simple glob-style pattern matching.
 .github/scripts/validate-protected-files.py::get_changed_files() - Get files changed in current PR (assumes
+.github/scripts/validate-protected-files.py::get_commit_message() - Get the HEAD commit message for approval
+.github/scripts/validate-protected-files.py::has_approval_marker(commit_msg) - Check if commit message contains an appr
 .github/scripts/validate-protected-files.py::main() - 
 .github/scripts/validate-protected-files.py::validate_protected_files() - Check that protected files were not modi
 .github/scripts/validate-readme-sections.py::load_config() - Load subsystem configuration from YAML.
@@ -445,7 +447,7 @@ agents/cursor/cursor_memory_client.py::cmd_stats() - Get memory stats via MCP.
 agents/cursor/cursor_memory_client.py::cmd_suggest(context) - Proactive Suggestion Engine - pattern-ba
 agents/cursor/cursor_memory_client.py::cmd_temporal(query, since, until) - Temporal Context Windowing - time-scoped
 agents/cursor/cursor_memory_client.py::cmd_warn(task_description) - Proactive Anti-Pattern Warning - surface
-agents/cursor/cursor_memory_client.py::cmd_write(content, kind, thread_id) - Write to memory via MCP using PacketEnve
+agents/cursor/cursor_memory_client.py::cmd_write(content, kind, thread_id, scope, tags) - Write to memory via MCP using PacketEnve
 agents/cursor/cursor_memory_client.py::compute_content_hash(payload) - Compute SHA-256 content hash for PacketE
 agents/cursor/cursor_memory_client.py::get_daily_session_id() - Generate deterministic session UUID base
 agents/cursor/cursor_memory_client.py::main() - Performs main execution flow for Cursor 
@@ -530,6 +532,10 @@ agents/cursor/gmp_meta_learning.py::async graduate_to_next_level(self) - Attempt
 agents/cursor/gmp_meta_learning.py::async log_execution(self, result) - Log a GMP execution result to the databa
 agents/cursor/gmp_meta_learning.py::async main() - Example demonstrating GMP v2.0 learning 
 agents/cursor/gmp_meta_learning.py::async update_autonomy_metrics(self, execution) - Update autonomy graduation metrics after
+agents/cursor/ingest_lessons.py::_classify_severity(marker) - 
+agents/cursor/ingest_lessons.py::main() - 
+agents/cursor/ingest_lessons.py::parse_lessons(path) - Parse repeated-mistakes.md into structur
+agents/cursor/ingest_lessons.py::write_lesson_to_mcp(lesson) - Write a single lesson to MCP memory via 
 agents/cursor/integrations/cursor_executor.py::__init__(self, langgraph_app, memory_gateway, substrate_service, checkpoint_manager, approval_manager) - Initialize Cursor executor.
 agents/cursor/integrations/cursor_executor.py::async resume_thread(self, thread_id) - Resume a thread from last checkpoint.
 agents/cursor/integrations/cursor_executor.py::async run_task(self, task) - Run a Cursor task through LangGraph.
@@ -701,6 +707,7 @@ api/memory/router.py::_saga_result_to_response(result) - Convert SagaResult to S
 api/memory/router.py::async batch_write(http_request, request, authorization, _, orchestrator) - Batch write multiple packets via MemoryO
 api/memory/router.py::async compact_storage(authorization, _, orchestrator) - Compact/optimize memory storage via Memo
 api/memory/router.py::async create_packet(http_request, request, authorization, _) - Ingest a packet into memory substrate.
+api/memory/router.py::async get_agent_timeline(agent_id, event_type, limit, authorization, _, timeline_service) - Get recent memory events for an agent (P
 api/memory/router.py::async get_facts(subject, predicate, source_packet, limit, authorization, _) - Query knowledge facts.
 api/memory/router.py::async get_gc_stats(authorization, _) - Get garbage collection statistics.
 api/memory/router.py::async get_insights(packet_id, insight_type, limit, authorization, _) - Query extracted insights.
@@ -1061,6 +1068,14 @@ ci/check_tool_naming.py::main() - Performs CI check to enforce OpenAI tool
 ci/check_tool_naming.py::should_skip(path) - Check if file should be skipped.
 ci/check_tool_wiring.py::check_tool_wiring() - Check tool wiring consistency across the
 ci/check_tool_wiring.py::main() - Main entry point.
+ci/dora_compliance_check.py::check_compliance(root_path) - Check all files for DORA compliance.
+ci/dora_compliance_check.py::check_dora_blocks(file_path) - Check which DORA blocks exist in a file.
+ci/dora_compliance_check.py::extract_dora_meta(file_path) - Extract __dora_meta__ dict from a Python
+ci/dora_compliance_check.py::fix_file(file_path, repo_root, dry_run) - Fix a single file using the injection sc
+ci/dora_compliance_check.py::main() - Performs DORA compliance checks on Pytho
+ci/dora_compliance_check.py::scan_files(root_path, extensions) - Scan for files with given extensions.
+ci/dora_compliance_check.py::should_skip_file(file_path) - Check if file should be skipped.
+ci/dora_compliance_check.py::validate_dora_fields(meta) - Validate __dora_meta__ field values agai
 ci/lint_forbidden_imports.py::__init__(self, file_path) - Initialize lint result for a file.
 ci/lint_forbidden_imports.py::add_error(self, line_num, pattern, message) - Add a lint error to the result.
 ci/lint_forbidden_imports.py::convert_print_to_logger(line, lines, line_idx, indent) - Convert a print() statement to logger ca
@@ -1086,17 +1101,6 @@ ci/validate_codegen.py::validate_forbidden_patterns(file_path, content, result) 
 ci/validate_codegen.py::validate_packet_metadata(spec, file_path, content, result) - Validate that packet metadata is include
 ci/validate_codegen.py::validate_test_presence(spec, generated_files, result) - Validate that required tests exist.
 ci/validate_codegen.py::validate_tool_id_usage(file_path, content, result) - Validate that tool_id is used correctly.
-ci/validate_dora_blocks.py::check_unique_component_id(component_id, registry) - Check if component_id is globally unique
-ci/validate_dora_blocks.py::extract_dora_block(file_path) - Extract DORA block from file based on fi
-ci/validate_dora_blocks.py::extract_dora_block_from_json(content) - Extract DORA block from JSON file.
-ci/validate_dora_blocks.py::extract_dora_block_from_markdown(content) - Extract DORA block from Markdown file (Y
-ci/validate_dora_blocks.py::extract_dora_block_from_python(content) - Extract DORA block from Python file.
-ci/validate_dora_blocks.py::extract_dora_block_from_yaml(content) - Extract DORA block from YAML file.
-ci/validate_dora_blocks.py::main() - Validates DORA blocks within generated f
-ci/validate_dora_blocks.py::validate_directory(directory) - Validate all files in directory.
-ci/validate_dora_blocks.py::validate_dora_block(dora_block, file_path) - Validate entire DORA block.
-ci/validate_dora_blocks.py::validate_dora_field(field_name, field_value) - Validate a single DORA field against pat
-ci/validate_dora_blocks.py::validate_file(file_path, registry) - Validate a single file.
 ci/validate_spec_v25.py::__init__(self, spec_path) - Initializes ValidationResult with the pa
 ci/validate_spec_v25.py::_get_schema_version(self) - Get schema version from spec file.
 ci/validate_spec_v25.py::_is_placeholder(value) - Check if value is a template placeholder
@@ -2398,6 +2402,9 @@ core/compliance/audit_reporter.py::async export_audit_log(self, from_date, to_da
 core/compliance/audit_reporter.py::async generate_daily_report(self, date) - Generate a compliance report for a speci
 core/compliance/audit_reporter.py::async generate_report(self, from_date, to_date) - Generate a compliance report for a date 
 core/compliance/audit_reporter.py::to_dict(self) - Convert to dictionary for serialization.
+core/config_constants.py::get_allowed_scopes_for_caller(caller_id) - Return the allowed scopes for a given ca
+core/config_constants.py::get_default_project_id() - Get the default project ID from environm
+core/config_constants.py::get_default_scope_for_caller(caller_id) - Return the default scope for a given cal
 core/coordination/agent_mediator.py::__init__(self) - Initialize the mediator.
 core/coordination/agent_mediator.py::async _deliver_message(self, agent_id, message) - Deliver a message to an agent.
 core/coordination/agent_mediator.py::async _deliver_queued_messages(self, agent_id) - Deliver all queued messages to an agent.
@@ -5231,7 +5238,7 @@ memory/retrieval.py::async hybrid_search(self, query, top_k, filters, agent_id, 
 memory/retrieval.py::async keyword_search(self, query, top_k, packet_type) - Perform full-text search using PostgreSQ
 memory/retrieval.py::async replay_chain(self, start_packet_id, end_packet_id, include_reasoning) - Reconstruct the event/action chain betwe
 memory/retrieval.py::async search(self, query, agent_id, limit, min_similarity, scope, force_mode) - Unified search dispatcher with automatic
-memory/retrieval.py::async semantic_search(self, query, top_k, agent_id) - Perform semantic search using vector sim
+memory/retrieval.py::async semantic_search(self, query, top_k, agent_id, tags, tag_boost_factor) - Perform semantic search using vector sim
 memory/retrieval.py::async strategy_search(self, query, context, max_results, use_ranking) - Execute strategy-based retrieval.
 memory/retrieval.py::get_retrieval_pipeline() - Get or create the retrieval pipeline sin
 memory/retrieval.py::init_retrieval_pipeline(repository, semantic_service) - Initialize the retrieval pipeline with d
@@ -5461,7 +5468,7 @@ memory/substrate_repository.py::async list_checkpoints(self, agent_id, limit) - 
 memory/substrate_repository.py::async save_checkpoint(self, agent_id, graph_state, reason) - Save a graph checkpoint.
 memory/substrate_repository.py::async search_packets_by_thread(self, thread_id, packet_type, limit, offset) - Search for packets by thread ID.
 memory/substrate_repository.py::async search_packets_by_type(self, packet_type, agent_id, limit, since) - Search for packets by type.
-memory/substrate_repository.py::async search_semantic_memory(self, query_embedding, top_k, agent_id) - Search semantic memory using cosine simi
+memory/substrate_repository.py::async search_semantic_memory(self, query_embedding, top_k, agent_id, tags_include, tags_boost, tag_boost_factor) - Search semantic memory using cosine simi
 memory/substrate_repository.py::async supersede_fact(self, old_fact_id, new_fact_text, reason) - Mark a fact as superseded and create a n
 memory/substrate_repository.py::async transaction(self, tenant_id, org_id, user_id, role) - Acquire a connection and start a transac
 memory/substrate_repository.py::async update_fact_importance(self, fact_id, new_importance, touch_access) - Update importance score for a semantic f
@@ -5517,7 +5524,7 @@ memory/substrate_semantic.py::async generate_embedding(self, text, payload, agen
 memory/substrate_semantic.py::async hybrid_search(self, query, filters, top_k) - Hybrid search combining semantic similar
 memory/substrate_semantic.py::async recall_similar(self, query_vector, top_k, embedding_type) - Recall similar embeddings by vector simi
 memory/substrate_semantic.py::async rerank_by_relevance(self, hits, context) - Rerank search hits by relevance to conte
-memory/substrate_semantic.py::async search(self, query, top_k, agent_id) - Search semantic memory for similar conte
+memory/substrate_semantic.py::async search(self, query, top_k, agent_id, tags_include, tags_boost, tag_boost_factor) - Search semantic memory for similar conte
 memory/substrate_semantic.py::async store_embedding(self, vector, metadata, embedding_type) - Store a pre-computed embedding vector wi
 memory/substrate_semantic.py::create_embedding_provider(provider_type, model, dimensions, api_key) - Factory function to create embedding pro
 memory/substrate_semantic.py::dimensions(self) - Return the embedding dimensions.
@@ -6608,6 +6615,13 @@ scripts/batch/batch_generate_specs.py::async run(self, modules, dry_run) - Run b
 scripts/batch/batch_generate_specs.py::async wait_for_token(self) - Wait until a token is available
 scripts/batch/batch_generate_specs.py::parse_modules_file(path) - Parse modules file (format: module_name 
 scripts/batch/batch_generate_specs.py::save_spec(self, module_name, content) - Extract and save YAML spec from response
+scripts/benchmark_caching_and_vector.py::async benchmark_combined_impact() - Benchmark combined impact of both optimi
+scripts/benchmark_caching_and_vector.py::async benchmark_query_caching() - Benchmark query caching performance.
+scripts/benchmark_caching_and_vector.py::async benchmark_vector_search() - Benchmark vector search optimization.
+scripts/benchmark_caching_and_vector.py::async cached_query() - Performs an asynchronous cached database
+scripts/benchmark_caching_and_vector.py::async main() - Run all benchmarks.
+scripts/benchmark_caching_and_vector.py::async slow_query(self, delay) - Simulate slow database query.
+scripts/benchmark_caching_and_vector.py::async vector_search(self, vector, delay) - Simulate vector search.
 scripts/cga_spec_generator.py::__init__(self, patch_dir) - 
 scripts/cga_spec_generator.py::_clean_code_block(self, block) - Clean up code blocks from LLM artifacts.
 scripts/cga_spec_generator.py::_map_category_to_patch_type(self, category) - Map audit category to CGA patch type.
@@ -6665,6 +6679,13 @@ scripts/generate_readme_superprompt.py::format_route_info(route) - Format route 
 scripts/generate_readme_superprompt.py::generate_superprompt(facts, title, config, max_classes, max_functions) - Generate the superprompt with embedded f
 scripts/generate_readme_superprompt.py::main() - Generates a README superprompt for Perpl
 scripts/generate_readme_superprompt.py::total_lines(self) - Estimate total lines.
+scripts/gmp-validate-stage.py::main() - 
+scripts/gmp-validate-stage.py::passed(self) - 
+scripts/gmp-validate-stage.py::summary(self) - 
+scripts/gmp-validate-stage.py::to_dict(self) - 
+scripts/gmp-validate-stage.py::validate_imports(files) - Verify each file can be imported without
+scripts/gmp-validate-stage.py::validate_report(report_path) - Check report has required sections.
+scripts/gmp-validate-stage.py::validate_syntax(files) - Check syntax via ci.check_syntax (GMP-14
 scripts/memory/bootstrap_neo4j_schema.py::async bootstrap_l_governance(driver) - Bootstrap L agent's complete governance 
 scripts/memory/bootstrap_neo4j_schema.py::async create_agent_collaborations(driver) - Create COLLABORATES_WITH relationships b
 scripts/memory/bootstrap_neo4j_schema.py::async create_agent_hierarchy(driver) - Create agent hierarchy relationships (RE
@@ -6708,6 +6729,13 @@ scripts/memory/ingest_chat_transcript.py::generate_deterministic_id(identifier) 
 scripts/memory/ingest_chat_transcript.py::main() - CLI entrypoint.
 scripts/memory/ingest_chat_transcript.py::parse_transcript(content) - Parse chat transcript into messages.
 scripts/memory/ingest_chat_transcript.py::sha256(s) - Generate SHA256 hash of string.
+scripts/memory/ingest_repo_indexes.py::async ingest_index(filename, kind, description, dry_run, verbose) - Ingest a single index file to memory.
+scripts/memory/ingest_repo_indexes.py::async main() - 
+scripts/memory/ingest_repo_indexes.py::chunk_index_file(content, filename, max_chunk_size) - Chunk an index file into memory-sized pi
+scripts/memory/ingest_repo_indexes.py::compute_file_hash(filepath) - Compute MD5 hash of file content.
+scripts/memory/ingest_repo_indexes.py::has_file_changed(filepath, hash_cache) - Check if file has changed since last ing
+scripts/memory/ingest_repo_indexes.py::load_hash_cache() - Load cached file hashes to detect change
+scripts/memory/ingest_repo_indexes.py::save_hash_cache(cache) - Save file hashes for change detection.
 scripts/memory/load_gmp_reports_to_graph.py::async create_gmp_nodes(driver, reports) - Create GMP nodes in Neo4j.
 scripts/memory/load_gmp_reports_to_graph.py::async create_gmp_schema(driver) - Create GMP-related constraints and index
 scripts/memory/load_gmp_reports_to_graph.py::async load_gmp_reports(driver) - Load all GMP reports from reports/ direc
@@ -6819,6 +6847,11 @@ scripts/run_pattern.py::create_agent(agent_type, model) - Create agent based on 
 scripts/run_pattern.py::main() - Main entry point.
 scripts/run_pattern.py::parse_args() - Parse command line arguments.
 scripts/run_pattern.py::print_result(result, as_json) - Print execution result.
+scripts/update_workflow_state.py::build_entry(gmp_id, task, summary, files, report_path) - Build a single workflow_state entry line
+scripts/update_workflow_state.py::extract_from_report(report_path) - Extract GMP metadata from a generated re
+scripts/update_workflow_state.py::main() - 
+scripts/update_workflow_state.py::update(entry) - Insert entry into workflow_state.md afte
+scripts/workflow/update_workflow_state.py::cmd_end_session(args) - Handle /end-session — add session entry 
 scripts/workflow/update_workflow_state.py::cmd_gmp_complete(args) - Handle /gmp command completion.
 scripts/workflow/update_workflow_state.py::cmd_gmp_start(args) - Handle /gmp command start.
 scripts/workflow/update_workflow_state.py::cmd_pr_complete(args) - Handle /pr command completion — update e
@@ -8343,6 +8376,21 @@ tests/email_agent/test_email_router.py::test_valid_api_key_passes_auth(self, cli
 tests/email_agent/test_email_router.py::test_wrong_api_key_returns_401(self, client, endpoint) - Request with wrong API key returns 401.
 tests/email_agent/test_email_triage.py::test_priority_assignment() - Contract: Priority classification functi
 tests/email_agent/test_email_triage.py::test_triage_classification() - Contract: Triage functions can be called
+tests/generated/test_adr_0006_properties.py::setup(self) - Setup test fixtures.
+tests/generated/test_adr_0006_properties.py::test_all_kernels_use_packet_envelope(self) - Property: All kernel files must use Pack
+tests/generated/test_adr_0006_properties.py::test_packet_envelope_metadata_keys(self, key) - Property test: PacketEnvelope should han
+tests/generated/test_adr_0019_properties.py::_get_production_files(repo_root) - Get production Python files, excluding n
+tests/generated/test_adr_0019_properties.py::_is_excluded(path) - Check if path should be excluded from sc
+tests/generated/test_adr_0019_properties.py::_is_print_allowed(rel_path) - Check if print() is allowed in this file
+tests/generated/test_adr_0019_properties.py::_line_has_noqa(content, lineno) - Check if a specific line has # noqa: ADR
+tests/generated/test_adr_0019_properties.py::setup(self) - Setup test fixtures.
+tests/generated/test_adr_0019_properties.py::test_ci_check_adr_compliance_uses_structlog(self) - Regression: CI compliance checker must u
+tests/generated/test_adr_0019_properties.py::test_code_samples_no_print(self, code_sample) - Fuzz test: Random code samples should no
+tests/generated/test_adr_0019_properties.py::test_log_context_binding(self, context_key) - Property test: Structlog context binding
+tests/generated/test_adr_0019_properties.py::test_no_print_statements_in_production(self) - Property: No print() calls in production
+tests/generated/test_adr_0019_properties.py::test_no_printlogger_usage(self) - Regression: PrintLogger was removed per 
+tests/generated/test_adr_0019_properties.py::test_no_stdlib_logging_imports(self) - Property: No imports from stdlib logging
+tests/generated/test_adr_0019_properties.py::test_structlog_logger_pattern(self) - Property: Verify structlog.get_logger() 
 tests/governance/test_governance_propagation.py::async inner_task() - 
 tests/governance/test_governance_propagation.py::async test_context_lost_in_thread_pool(self) - ContextVar does NOT propagate into run_i
 tests/governance/test_governance_propagation.py::async test_context_propagates_via_copy_context(self) - Using copy_context().run() DOES propagat
@@ -11664,6 +11712,25 @@ tools/architecture_reports/pydantic_models_report.py::_is_pydantic_base(base) - 
 tools/architecture_reports/pydantic_models_report.py::_module_from_path(layout, path) - Returns the module name derived from a f
 tools/architecture_reports/pydantic_models_report.py::generate_pydantic_models(layout) - Generate pydantic_models.txt listing Bas
 tools/architecture_reports/route_handlers_report.py::generate_route_handlers(layout) - Generate route_handlers.txt mapping HTTP
+tools/bug_detection/find_config_mismatches.py::_should_skip_file(file_path, repo_root) - Check if a file should be skipped during
+tools/bug_detection/find_config_mismatches.py::detect_default_value_mismatches(repo_root) - Detect parameters with inconsistent defa
+tools/bug_detection/find_config_mismatches.py::detect_hardcoded_scope_lists_in_repo(repo_root) - Detect hardcoded scope list literals tha
+tools/bug_detection/find_config_mismatches.py::detect_project_id_env_patterns(repo_root) - Detect inconsistent os.getenv('L9_PROJEC
+tools/bug_detection/find_config_mismatches.py::extract_default_values(file_path) - Extract function parameter defaults from
+tools/bug_detection/find_config_mismatches.py::extract_hardcoded_scope_lists(file_path) - Extract hardcoded multi-element scope li
+tools/bug_detection/find_config_mismatches.py::generate_report(mismatches, output_path) - Generate mismatch report as markdown.
+tools/bug_detection/find_config_mismatches.py::main() - CLI entry point.
+tools/code_index/build_semantic_index.py::__init__(self, file_path, repo_root) - 
+tools/code_index/build_semantic_index.py::_extract_adr_tags(self, docstring) - Extract ADR references from docstring.
+tools/code_index/build_semantic_index.py::_get_body_preview(self, node) - Get first 5 lines of function/class body
+tools/code_index/build_semantic_index.py::_has_test_coverage(self, name) - Check if tests exist for this symbol.
+tools/code_index/build_semantic_index.py::build_faiss_index(symbols, client) - Build FAISS index from code symbols.
+tools/code_index/build_semantic_index.py::extract_symbols_from_file(file_path, repo_root) - Parse Python file and extract code symbo
+tools/code_index/build_semantic_index.py::generate_embedding(text, client) - Generate embedding for text using OpenAI
+tools/code_index/build_semantic_index.py::main() - CLI entry point.
+tools/code_index/build_semantic_index.py::save_index(index, metadata, output_dir) - Save FAISS index and metadata to disk.
+tools/code_index/build_semantic_index.py::visit_ClassDef(self, node) - Extract class definition.
+tools/code_index/build_semantic_index.py::visit_FunctionDef(self, node) - Extract function/method definition.
 tools/codegen/doc_compiler.py::__init__(self) - Initialize compiler with schemas and ext
 tools/codegen/doc_compiler.py::__init__(self, schemas) - Initialize classifier with schema defini
 tools/codegen/doc_compiler.py::_calculate_confidence(self, data, schema) - Calculate extraction confidence based on
@@ -11831,12 +11898,26 @@ tools/export_repo_indexes.py::main() - Generate index files and export them.
 tools/export_repo_indexes.py::walk_all_files() - Walk repo yielding (fpath, rel_path, is_
 tools/export_repo_indexes.py::walk_dir(path, prefix, max_depth, current_depth, rel_path_prefix) - Performs a recursive directory traversal
 tools/export_repo_indexes.py::walk_python_files() - Walk repo yielding (fpath, rel_path) for
+tools/health_dashboard/generate_dashboard.py::calculate_adr_compliance_metric(repo_root) - Calculate ADR compliance health metric.
+tools/health_dashboard/generate_dashboard.py::calculate_spec_drift_metric(repo_root) - Calculate spec-code drift metric.
+tools/health_dashboard/generate_dashboard.py::calculate_type_coverage_metric(repo_root) - Calculate type coverage health metric.
+tools/health_dashboard/generate_dashboard.py::generate_badge_url(metric) - Generate shields.io badge URL for metric
+tools/health_dashboard/generate_dashboard.py::generate_dashboard_markdown(metrics, repo_root) - Generate Markdown dashboard.
+tools/health_dashboard/generate_dashboard.py::load_json_report(path) - Load JSON report file safely.
+tools/health_dashboard/generate_dashboard.py::main() - CLI entry point.
 tools/l9_cli.py::cli() - L9 CLI Tool for security and code qualit
 tools/l9_cli.py::manage_debt(path) - Analyze and report on technical debt mar
 tools/l9_cli.py::scan_quality(path) - Run code quality and complexity checks.
 tools/l9_cli.py::scan_secrets(path) - Scan codebase for hardcoded secrets.
 tools/mac_protocol.py::create_mac_response(success, output, error, exit_code, timestamp) - Create Mac protocol response dict.
 tools/mac_protocol.py::parse_mac_message(data) - Parse and validate Mac protocol message.
+tools/spec_validator/diff_spec_code.py::check_adr_compliance(spec, module_path) - Check if code follows ADRs specified in 
+tools/spec_validator/diff_spec_code.py::compare_signatures(spec, actual_sigs, module_path) - Compare spec signatures against actual c
+tools/spec_validator/diff_spec_code.py::extract_function_signatures(module_path) - Extract function signatures from Python 
+tools/spec_validator/diff_spec_code.py::generate_diff_report(discrepancies, output_path) - Generate JSON diff report.
+tools/spec_validator/diff_spec_code.py::load_module_spec(spec_path) - Load Module-Spec YAML file.
+tools/spec_validator/diff_spec_code.py::main() - CLI entry point.
+tools/spec_validator/diff_spec_code.py::validate_spec_file(spec_path, repo_root) - Validate a single Module-Spec file again
 tools/superpack_reports/api_report.py::generate_api_route_inventory(layout) - Generate api_route_inventory.txt from AS
 tools/superpack_reports/api_report.py::generate_api_superpack(layout) - Generate api_clients_superpack.md from A
 tools/superpack_reports/ast_scanner.py::_base_name(base) - Extract base class name from AST node.
@@ -11865,6 +11946,34 @@ tools/superpack_reports/tools_report.py::generate_tools_inventory(layout) - Gene
 tools/superpack_reports/tools_report.py::generate_tools_superpack(layout) - Generate tools_superpack.md from AST sca
 tools/superpack_reports/workers_report.py::generate_orchestration_superpack(layout) - Generate orchestration_superpack.md from
 tools/superpack_reports/workers_report.py::generate_worker_inventory(layout) - Generate worker_inventory.txt from AST s
+tools/test_gen/adr_property_tests.py::emit_test_file(adr_num, test_code, output_dir) - Write generated test file to disk.
+tools/test_gen/adr_property_tests.py::generate_packet_envelope_tests(adr_num, rules) - Generate property tests for ADR-0006 (Pa
+tools/test_gen/adr_property_tests.py::generate_structlog_tests(adr_num, rules) - Generate property tests for ADR-0019 (st
+tools/test_gen/adr_property_tests.py::load_adr_schema(adr_file) - Load ADR YAML schema.
+tools/test_gen/adr_property_tests.py::main() - CLI entry point.
+tools/type_coverage/track_mypy_progress.py::analyze_imports(repo_root) - Count how many files import each module.
+tools/type_coverage/track_mypy_progress.py::calculate_coverage_tier(error_count) - Map error count to coverage tier.
+tools/type_coverage/track_mypy_progress.py::calculate_import_priority(imported_by_count) - Calculate module priority based on impor
+tools/type_coverage/track_mypy_progress.py::detect_auto_fixable_errors(errors) - Check if errors are likely auto-fixable.
+tools/type_coverage/track_mypy_progress.py::generate_coverage_json(modules, output_path) - Write coverage report to JSON.
+tools/type_coverage/track_mypy_progress.py::generate_roadmap_markdown(modules, output_path) - Generate Markdown roadmap document.
+tools/type_coverage/track_mypy_progress.py::main() - CLI entry point.
+tools/type_coverage/track_mypy_progress.py::run_mypy_on_module(module_path) - Run mypy on a single module and extract 
+tools/type_coverage/track_mypy_progress.py::update_precommit_config(clean_modules, precommit_path) - Update .pre-commit-config.yaml with list
+tools/validation/try_run.py::_build_env(repo_root) - Build environment with PYTHONPATH set to
+tools/validation/try_run.py::_truncate(text, max_chars) - Truncate text with ellipsis indicator.
+tools/validation/try_run.py::check_import(file_path, repo_root) - Try to import the file as a module in a 
+tools/validation/try_run.py::check_run(file_path, repo_root, timeout) - Run the file in a subprocess and report 
+tools/validation/try_run.py::check_syntax(file_path) - Check if file has valid Python syntax.
+tools/validation/try_run.py::main() - CLI entry point.
+tools/validation/validate_external_code.py::_module_exists(module_name, repo_root) - Check if a module exists in L9 repo or i
+tools/validation/validate_external_code.py::_suggest_correct_import(wrong_import, repo_root) - Suggest correct import based on known co
+tools/validation/validate_external_code.py::extract_python_code_blocks(markdown_path) - Extract Python code blocks from Markdown
+tools/validation/validate_external_code.py::generate_report(issues, output_path) - Generate validation report.
+tools/validation/validate_external_code.py::main() - CLI entry point.
+tools/validation/validate_external_code.py::validate_adr_compliance(code) - Check for ADR violations in code.
+tools/validation/validate_external_code.py::validate_config_values(code, repo_root) - Check for hardcoded config values that s
+tools/validation/validate_external_code.py::validate_imports(code, repo_root) - Check if all imports in code resolve to 
 workers/anomaly_classifier.py::__init__(self, custom_rules) - Initialize the classifier with optional 
 workers/anomaly_classifier.py::_calc_duration(self, start_time) - Calculate duration in milliseconds.
 workers/anomaly_classifier.py::_flatten_to_text(self, data, prefix) - Flatten dict to searchable text string.
@@ -11939,7 +12048,7 @@ workflows/dags/gmp/graph.py::build_gmp_graph() - Build the GMP execution graph u
 workflows/dags/gmp/nodes/core.py::node_aborted(state) - Handle abort.
 workflows/dags/gmp/nodes/core.py::node_baseline(state) - Verify baseline conditions.
 workflows/dags/gmp/nodes/core.py::node_end(state) - End GMP execution.
-workflows/dags/gmp/nodes/core.py::node_finalize(state) - Generate GMP report using the canonical 
+workflows/dags/gmp/nodes/core.py::node_finalize(state) - Phase 6: generate report → validate repo
 workflows/dags/gmp/nodes/core.py::node_implement(state) - Execute TODO plan.
 workflows/dags/gmp/nodes/core.py::node_memory_read(state) - 🧠 MANDATORY: Read from L9 memory.
 workflows/dags/gmp/nodes/core.py::node_memory_write(state) - 🧠 MANDATORY: Write learnings to memory.
@@ -11947,20 +12056,22 @@ workflows/dags/gmp/nodes/core.py::node_scope_lock(state) - Define TODO plan and 
 workflows/dags/gmp/nodes/core.py::node_start(state) - Initialize GMP execution.
 workflows/dags/gmp/nodes/core.py::node_user_confirm_scope(state) - Gate: User confirms scope.
 workflows/dags/gmp/nodes/core.py::node_user_confirm_validation(state) - Gate: User confirms validation results.
-workflows/dags/gmp/nodes/core.py::node_validate(state) - Run validation suite.
+workflows/dags/gmp/nodes/core.py::node_validate(state) - Run validation suite via gmp-validate-st
 workflows/dags/gmp/routing.py::route_after_scope_confirm(state) - Route after scope confirmation.
 workflows/dags/gmp/routing.py::route_after_validation_confirm(state) - Route after validation confirmation.
 workflows/dags/gmp/state.py::add_message(self, msg) - Add a message to the log.
 workflows/dags/gmp_execution_dag.py::get_gmp_execution_dag() - Get the GMP execution DAG.
 workflows/dags/harvest_deploy_dag.py::get_harvest_deploy_dag() - Get the harvest-deploy DAG.
-workflows/dags/inspect_dag.py::async classify_node(state) - Classify target into type and tier.
-workflows/dags/inspect_dag.py::async compliance_node(state) - Check L9 canon compliance.
+workflows/dags/inspect_dag.py::_issue_to_dict(issue) - Convert ValidationIssue to serializable 
+workflows/dags/inspect_dag.py::_run_validators_on_code(code) - Run all validators from validate_externa
+workflows/dags/inspect_dag.py::async classify_node(state) - Classify target into type and tier. Dete
+workflows/dags/inspect_dag.py::async compliance_node(state) - Check L9 canon compliance using real val
 workflows/dags/inspect_dag.py::async impact_node(state) - Calculate impact score.
 workflows/dags/inspect_dag.py::async orient_node(state) - 30-second understanding of what this doe
 workflows/dags/inspect_dag.py::async report_node(state) - Generate final report.
 workflows/dags/inspect_dag.py::async routing_node(state) - Decide next command.
 workflows/dags/inspect_dag.py::async run_inspect(target) - Execute inspect graph on target.
-workflows/dags/inspect_dag.py::async structure_node(state) - Map structure and flow.
+workflows/dags/inspect_dag.py::async structure_node(state) - Map structure: parse AST for classes, fu
 workflows/dags/inspect_dag.py::build_inspect_graph() - Build and compile the inspect graph.
 workflows/dags/readme_pipeline_dag.py::register() - Register the README pipeline DAG.
 workflows/dags/refactoring_dag.py::get_refactoring_dag() - Get the refactoring DAG.

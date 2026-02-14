@@ -2,8 +2,8 @@
 # Architecture
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:22 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -188,8 +188,10 @@ tests/world_model/ - World Model Tests
 tools/ - 
 tools/adr/ - 
 tools/architecture_reports/ - No module docstring
+tools/bug_detection/ - Bug detection tools for L9 codebase.
 tools/codegen/ - 
 tools/superpack_reports/ - No module docstring
+tools/validation/ - L9 Validation Tools — External code validation before integr
 workers/ - 
 workflows/ - 
 workflows/dags/ - 

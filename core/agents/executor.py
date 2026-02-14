@@ -1811,6 +1811,40 @@ class AgentExecutorService:
                 )
                 # Don't block - let prepare_dynamic_tools() handle tool discovery later
 
+        # DTB: Cross-domain analogical reasoning (feature-flagged)
+        if os.getenv("L9_ENABLE_DTB", "false").lower() == "true" and user_message:
+            try:
+                from domain_tensor_bridge.analogical_reasoner import AnalogicalReasoner
+
+                dtb_reasoner = AnalogicalReasoner()
+                dtb_context = {
+                    "domain": instance.task.agent_id,
+                    "query": user_message,
+                    "task_type": instance.task.payload.get("task_type", "general"),
+                }
+                analogies = await dtb_reasoner.find_analogies(dtb_context)
+                if analogies:
+                    analogy_hints = "; ".join(
+                        f"{a.source_domain}->{a.target_domain}: {a.pattern} ({a.confidence:.0%})"
+                        for a in analogies
+                    )
+                    instance.add_system_context(
+                        f"[DTB cross-domain insights] {analogy_hints}"
+                    )
+                    logger.info(
+                        "agent.executor.dtb.analogies_found",
+                        task_id=str(instance.task.id),
+                        analogy_count=len(analogies),
+                    )
+            except ImportError:
+                pass  # DTB not installed — skip silently
+            except Exception as e:
+                logger.debug(
+                    "agent.executor.dtb.analogies_failed",
+                    task_id=str(instance.task.id),
+                    error=str(e),
+                )
+
         # Transition to reasoning
         instance.transition_to(ExecutorState.REASONING)
 

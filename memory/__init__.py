@@ -76,6 +76,9 @@ from memory.checkpoint_metrics import get_metrics as get_checkpoint_metrics
 # Checkpoint Validator (GMP-PERSIST: Integrity validation)
 from memory.checkpoint_validator import CheckpointValidator, SchemaVersion
 
+# Memory Pipeline v1 (Phase 1: DeepMind-style pipeline router)
+from memory.chunk_view import Chunk, ChunkConfig, ChunkView
+
 # Consolidation Pipeline (GMP-85 + Stage 2)
 from memory.consolidation import ConsolidationPipeline, ConsolidationReport
 
@@ -167,6 +170,11 @@ from memory.importance_manager import (
     get_importance_manager,
     init_importance_manager,
 )
+from memory.importance_recipe import (
+    ImportanceInputs,
+    compute_importance,
+)
+from memory.importance_recipe import ImportanceUpdate as ImportanceRecipeUpdate
 
 # Task Completion Hook (GMP-80-A7) + deprecated IngestionPipeline re-exports
 # DEPRECATED: IngestionPipeline, get_ingestion_pipeline, init_ingestion_pipeline
@@ -185,6 +193,12 @@ from memory.insight_extraction import (
     get_insight_pipeline,  # deprecated 2.0.0
     init_insight_pipeline,  # deprecated 2.0.0
 )
+from memory.llm_memory_ops import (
+    ConsolidateResult,
+    DistillResult,
+    LLMMemoryOps,
+    SummarizeResult,
+)
 from memory.neo4j_strategy_memory import (
     Neo4jStrategyMemoryService,
     StrategyMemoryConfig,
@@ -193,7 +207,27 @@ from memory.neo4j_strategy_memory import (
 
 # Neural Decay Scheduler (Stage 2: SUPER-PROMPT)
 from memory.neural_decay_scheduler import DecayConfig, DecayResult, NeuralDecayScheduler
+from memory.pipeline_router import (
+    CallerContext,
+    ContextSection,
+    LLMConfig,
+    MemoryTier,
+    PipelineRouter,
+    RouterResult,
+    TierRetrievalConfig,
+)
 from memory.predictive_cache import PredictiveCache
+from memory.procedural_synthesis import (
+    HeuristicCandidate,
+    ProceduralSynthesizer,
+    SynthesisReport,
+)
+from memory.query_rewriter import QueryRewriter, RewriteResult
+from memory.ranking_extensions import (
+    ExtendedRankingItem,
+    ExtendedWeights,
+    rank_extended,
+)
 
 # Retention Engine (GMP-74: Checkpoint lifecycle management)
 from memory.retention_engine import RetentionEngine, RetentionPolicy, RetentionResult
@@ -204,6 +238,11 @@ from memory.retrieval import (
     RetrievalPipeline,
     get_retrieval_pipeline,
     init_retrieval_pipeline,
+)
+from memory.retrieval_multiquery import (
+    MultiQueryResult,
+    ProvenancedHit,
+    retrieve_multiquery,
 )
 
 # Cross-DB Saga Pattern (GMP-56)
@@ -265,6 +304,7 @@ from memory.tool_router import (
     get_tool_router,
     init_tool_router,
 )
+from memory.vector_search_config import VectorSearchConfig, get_vector_config
 
 # Stage 5: Predictive Memory Warming (GMP-STAGE5)
 from memory.warming_models import (
@@ -334,8 +374,12 @@ __all__ = [
     "AttentionConfig",
     "AuditReport",
     "CacheMetrics",
+    "CallerContext",
     "CheckpointMetrics",
-    "CheckpointValidator",
+    "Chunk",
+    "ChunkConfig",
+    "ChunkView",
+    "ConsolidateResult",
     "ConsolidationPipeline",
     "ConsolidationReport",
     "ConversationContext",
@@ -346,6 +390,10 @@ __all__ = [
     "DatabaseType",
     "DecayConfig",
     "DecayResult",
+    "DeduplicationEngine",
+    "DeduplicationEngineReport",
+    "DistillResult",
+    "DuplicateGroup",
     "EncodingResult",
     "EnrichmentConfig",
     "EnrichmentDAG",
@@ -353,30 +401,38 @@ __all__ = [
     "EnrichmentStatus",
     "EnrichmentStrategy",
     "EnrichmentTier",
+    "ExtendedRankingItem",
+    "ExtendedWeights",
     "ExtractedInsight",
     "ExtractedLearning",
     "GapDetector",
     "GapSeverity",
     "GraphMessage",
     "GraphSession",
+    "HeuristicCandidate",
     "HierarchicalSummarizer",
     "HousekeepingEngine",
     "HybridRAGPipeline",
     "HybridSearchResult",
     "IStrategyMemoryService",
     "ImportanceConfig",
+    "ImportanceInputs",
     "ImportanceManager",
+    "ImportanceRecipeUpdate",
     "ImportanceUpdate",
     "IngestionPipeline",
-    "InsightExtractionPipeline",
     "KnowledgeFact",
     "KnowledgeFactRow",
-    "KnowledgeGap",
+    "LLMConfig",
+    "LLMMemoryOps",
     "LearningExtractor",
     "MemoryContext",
     "MemoryGovernanceContext",
+    "MemoryTier",
     "MemoryWarmingService",
+    "MergeStrategy",
     "MessageRole",
+    "MultiQueryResult",
     "Neo4jIntrospector",
     "Neo4jStrategyMemoryService",
     "NeuralDecayScheduler",
@@ -384,15 +440,21 @@ __all__ = [
     "PacketEnvelopeIn",
     "PacketRefCount",
     "PacketWriteResult",
+    "PipelineRouter",
     "PostgresIntrospector",
     "PredictiveCache",
     "PredictiveCacheConfig",
+    "ProceduralSynthesizer",
+    "ProvenancedHit",
+    "QueryRewriter",
     "ReasoningPhase",
     "ReferenceCountingService",
     "RetentionEngine",
     "RetentionPolicy",
     "RetentionResult",
     "RetrievalPipeline",
+    "RewriteResult",
+    "RouterResult",
     "Saga",
     "SagaBuilder",
     "SagaContext",
@@ -407,6 +469,7 @@ __all__ = [
     "SemanticHit",
     "SemanticSearchRequest",
     "SemanticSearchResult",
+    "SimilarityMethod",
     "StrategyCandidate",
     "StrategyFeedback",
     "StrategyMemoryConfig",
@@ -416,18 +479,23 @@ __all__ = [
     "SubgraphEntry",
     "SubstrateAlignmentChecker",
     "SubstrateState",
+    "SummarizeResult",
     "SummaryConfig",
     "SummaryResult",
     "SummaryTier",
+    "SynthesisReport",
     "TaskOutcome",
     "ThinkingOutput",
+    "TierRetrievalConfig",
     "ToolEmbedding",
     "ToolMatch",
     "ToolRouter",
     "ToolSearchResult",
     "TopicExtractor",
+    "VectorSearchConfig",
     "build_governance_context",
     "build_scope_project_filter",
+    "compute_importance",
     "create_entity_enrichment_saga",
     "create_fetch_and_enrich_saga",
     "create_neo4j_strategy_memory",
@@ -447,10 +515,7 @@ __all__ = [
     "get_hybrid_rag_pipeline",
     "get_importance_manager",
     "get_ingestion_pipeline",
-    "get_insight_pipeline",
     "get_retrieval_pipeline",
-    "get_saga_executor",
-    "get_saga_patterns",
     "get_schema_introspector",
     "get_template_library",
     "get_tool_router",
@@ -461,7 +526,6 @@ __all__ = [
     "init_housekeeping_engine",
     "init_importance_manager",
     "init_ingestion_pipeline",
-    "init_insight_pipeline",
     "init_retrieval_pipeline",
     "init_tool_router",
     "normalize_payload",
@@ -469,8 +533,10 @@ __all__ = [
     "on_task_completion",
     "prepare_packet_for_ingest",
     "query_history",
+    "rank_extended",
     "redact_pii",
     "require_governance_context",
+    "retrieve_multiquery",
     "store_message",
 ]
 

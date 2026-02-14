@@ -335,6 +335,42 @@ class GovernanceEngineService:
                 },
             )
 
+        # DTB: Reflective audit of governance decision (feature-flagged)
+        if os.getenv("L9_ENABLE_DTB", "false").lower() == "true":
+            try:
+                from domain_tensor_bridge.reflective_auditor import ReflectiveAuditor
+
+                auditor = ReflectiveAuditor()
+                audit_input = {
+                    "action": request.action,
+                    "confidence": 1.0 if not governance_decision.has_conflict else 0.6,
+                    "reasoning_trace": [
+                        {"policy": pr.policy_name, "decision": pr.decision.value}
+                        for pr in policy_results
+                    ],
+                    "subject": request.subject,
+                    "resource": request.resource,
+                }
+                audit_result = auditor.audit_reasoning(audit_input)
+                if not audit_result.audit_passed:
+                    logger.warning(
+                        "governance.engine.dtb_audit_issues",
+                        issues=audit_result.issues_found,
+                        warnings=audit_result.warnings,
+                    )
+                    # Attach audit warnings to governance decision metadata
+                    if hasattr(governance_decision, "metadata"):
+                        governance_decision.metadata["dtb_audit"] = {
+                            "passed": audit_result.audit_passed,
+                            "issues": audit_result.issues_found,
+                            "warnings": audit_result.warnings,
+                            "suggestions": audit_result.suggestions,
+                        }
+            except ImportError:
+                pass  # DTB not installed
+            except Exception as e:
+                logger.debug("governance.engine.dtb_audit_failed", error=str(e))
+
         logger.info(
             "governance.engine.conflict_resolution: subject=%s, action=%s, decision=%s, conflict=%s, policies_evaluated=%d",
             request.subject,

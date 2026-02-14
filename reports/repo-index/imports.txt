@@ -2,8 +2,8 @@
 # Imports
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:22 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -231,6 +231,7 @@
   chat
 # ci
   ci.auto_fix_adr
+  ci.check_syntax
 # click
   click
 # clients
@@ -310,6 +311,7 @@
   core.compliance.audit_log
   core.compliance.audit_reporter
   core.config
+  core.config_constants
   core.decorators
   core.di.container
   core.eos
@@ -458,6 +460,8 @@
   email_agent.triage
 # enum
   enum
+# faiss
+  faiss
 # fastapi
   fastapi
   fastapi.responses
@@ -478,6 +482,8 @@
   http.server
 # httpx
   httpx
+# hypothesis
+  hypothesis
 # importlib
   importlib
   importlib.util
@@ -821,6 +827,7 @@
   tools.adr.adr_validator
   tools.codegen.test_generator
   tools.superpack_reports.ast_scanner
+  tools.validation.validate_external_code
 # torch
   torch
   torch.nn
@@ -857,6 +864,7 @@
 # workflows
   workflows
   workflows.dags
+  workflows.dags.confirm_wiring_dag
   workflows.dags.dag_authoring_dag
   workflows.dags.gmp
   workflows.dags.gmp.executor

@@ -76,6 +76,10 @@ from pydantic import BaseModel
 
 import api.agent_routes as agent_routes
 import api.db as db
+import api.os_routes
+import api.webhook_mac_agent
+import api.webhook_twilio
+import api.world_model_api
 from api.auth import verify_api_key
 
 # Router Auto-Registration (Phase 2 Auto-Wiring)

@@ -112,7 +112,6 @@ from orchestration.ws_task_router import RouterConfig, WSTaskRouter, route_event
 
 __all__ = [
     # Cell Orchestrator
-    "CellOrchestrator",
     "CellStep",
     "CellWorkflow",
     "ChainStatus",
@@ -130,14 +129,10 @@ __all__ = [
     "IRPipelineResult",
     # Input Segmenter (multi-part directive support)
     "InputSegmenter",
-    "KernelConfig",
     "KernelState",
     # Orchestrator Kernel
-    "OrchestratorKernel",
-    # Plan Executor
     "PlanExecutor",
     "RouterConfig",
-    "RoutingDecision",
     "SegmentResult",
     "SegmenterConfig",
     "StepResult",
@@ -148,7 +143,6 @@ __all__ = [
     "TaskRouter",
     "TaskType",
     # Unified Controller (Main Façade)
-    "UnifiedController",
     "WSTaskRouter",
     "WorkflowResult",
     "WorkflowStatus",

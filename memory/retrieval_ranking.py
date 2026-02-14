@@ -68,8 +68,12 @@ class RankingWeights:
     frequency: float = 0.15  # How often retrieved
     uncertainty: float = 0.10  # Agent uncertainty factor
 
+    # Extended weights (Phase 2 wiring E4) — only active when fields are present
+    importance_weight: float = 0.15  # ImportanceManager-managed score blend
+    salience_weight: float = 0.10  # NeuralDecayScheduler salience blend
+
     def __post_init__(self):
-        """Validate weights sum to approximately 1.0."""
+        """Validate base weights sum to approximately 1.0."""
         total = (
             self.similarity
             + self.recency
@@ -88,6 +92,8 @@ class RankingWeights:
             "importance": self.importance,
             "frequency": self.frequency,
             "uncertainty": self.uncertainty,
+            "importance_weight": self.importance_weight,
+            "salience_weight": self.salience_weight,
         }
 
 
@@ -157,6 +163,11 @@ class RankingItem:
     recency_score: float = 0.0  # Computed from timestamp
     frequency_score: float = 0.0  # Computed from access_count
     uncertainty_score: float = 0.0  # Based on agent need
+
+    # Extended ranking fields (Phase 2 wiring E4)
+    # Both default to None for backward compatibility — existing callers unaffected
+    importance_score: float | None = None  # ImportanceManager-managed score
+    decayed_salience: float | None = None  # NeuralDecayScheduler salience
 
     # Final score
     final_score: float = 0.0
@@ -383,16 +394,40 @@ class MultiFactorRanker:
     def _compute_final_score(self, item: RankingItem) -> float:
         """
         Compute final weighted score from all factors.
+
+        When importance_score and/or decayed_salience are present on the item
+        (Phase 2 wiring E4), they are blended into the final score using
+        importance_weight and salience_weight. The existing base score is
+        scaled down proportionally so the total remains in [0, 1].
+
+        When the extended fields are None, the formula is mathematically
+        identical to the original — zero regression.
         """
         w = self._weights
 
-        score = (
+        base_score = (
             w.similarity * item.similarity_score
             + w.recency * item.recency_score
             + w.importance * item.importance
             + w.frequency * item.frequency_score
             + w.uncertainty * item.uncertainty_score
         )
+
+        # Phase 2 wiring E4: blend extended fields when present
+        iw = w.importance_weight if item.importance_score is not None else 0.0
+        sw = w.salience_weight if item.decayed_salience is not None else 0.0
+        extended_total = iw + sw
+
+        if extended_total > 0.0:
+            # Scale base down to make room for extended signals
+            scale = 1.0 - extended_total
+            score = (
+                base_score * scale
+                + (item.importance_score or 0.0) * iw
+                + (item.decayed_salience or 0.0) * sw
+            )
+        else:
+            score = base_score
 
         return max(0.0, min(1.0, score))
 

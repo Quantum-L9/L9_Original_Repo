@@ -32,15 +32,19 @@ __dora_meta__ = {
     },
 }
 
+import os
 from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta, timezone
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
 from core.decorators import must_stay_async
 from core.schemas import SemanticSearchRequest
 from memory.substrate_service import MemorySubstrateService
+
+if TYPE_CHECKING:
+    from memory.pipeline_router import CallerContext, PipelineRouter
 
 logger = structlog.get_logger(__name__)
 
@@ -156,8 +160,19 @@ class WorkingMemoryAdapter:
 
         This lets AGENT_WORKING_MEMORY pull back semantically relevant
         memories tied to the current intent, without embedding directly.
-        """
 
+        When ENABLE_PIPELINE_ROUTER=true, delegates to PipelineRouter.query()
+        for multi-tier retrieval with optional query rewriting (Phase 2 wiring E1).
+        """
+        # --- Phase 2 wiring E1: PipelineRouter delegation (feature-flagged) ---
+        if os.environ.get("ENABLE_PIPELINE_ROUTER", "false").lower() == "true":
+            return await self._semantic_recall_via_pipeline(
+                agent_id=agent_id,
+                query=query,
+                top_k=top_k,
+            )
+
+        # --- Original path (unchanged) ---
         request = SemanticSearchRequest(
             query=query,
             top_k=top_k,
@@ -183,3 +198,58 @@ class WorkingMemoryAdapter:
             recalled.append(payload)
 
         return recalled
+
+    async def _semantic_recall_via_pipeline(
+        self,
+        *,
+        agent_id: str,
+        query: str,
+        top_k: int = 8,
+    ) -> list[dict[str, Any]]:
+        """Delegate semantic recall to PipelineRouter (Phase 2 wiring E1).
+
+        Imports are deferred to avoid circular imports (ADR-0002).
+        """
+        from memory.pipeline_router import CallerContext, PipelineRouter
+
+        logger.info(
+            "working_memory_adapter.semantic_recall_via_pipeline",
+            agent_id=agent_id,
+            query=query[:80],
+        )
+
+        try:
+            router = PipelineRouter(
+                ingestion=self._substrate,
+                retrieval=self._substrate,
+            )
+            caller = CallerContext(agent_id=agent_id)
+            result = await router.query(query, caller=caller)
+
+            # Normalize RouterResult sections into flat dicts
+            recalled: list[dict[str, Any]] = []
+            for section in getattr(result, "sections", []):
+                for chunk in getattr(section, "chunks", []):
+                    recalled.append(
+                        {
+                            "content": getattr(chunk, "content", ""),
+                            "score": getattr(chunk, "score", 0.0),
+                            "source": "pipeline_router",
+                        }
+                    )
+
+            logger.debug(
+                "working_memory_adapter.pipeline_recall_complete",
+                agent_id=agent_id,
+                hit_count=len(recalled),
+            )
+            return recalled[:top_k]
+
+        except Exception:
+            logger.error(
+                "working_memory_adapter.pipeline_recall_failed",
+                agent_id=agent_id,
+                exc_info=True,
+            )
+            # Fail loud per ADR-0055 — don't silently fall back
+            raise

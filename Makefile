@@ -298,5 +298,30 @@ ifndef FILE
 endif
 	@$(PYTHON) tools/validation/try_run.py $(FILE) $(MODE) $(if $(TIMEOUT),--timeout $(TIMEOUT))
 
+audit-exports:  ## Audit package __all__ vs imports (e.g. make audit-exports PACKAGE=memory)
+	@$(PYTHON) tools/validation/audit_package_exports.py $(or $(PACKAGE),memory)
+
+audit-all:  ## Audit ALL packages for export consistency → reports/audits/
+	@$(PYTHON) tools/validation/audit_package_exports.py --all --report-dir reports/audits/ --consolidated reports/audits/CONSOLIDATED_AUDIT.md
+
+audit-wiring:  ## Audit file wiring + API instantiation (e.g. make audit-wiring PACKAGE=memory)
+	@$(PYTHON) tools/validation/audit_package_wiring.py $(or $(PACKAGE),memory)
+
+audit-wiring-all:  ## Audit ALL packages for wiring + API → reports/audits/
+	@$(PYTHON) tools/validation/audit_package_wiring.py --all --report-dir reports/audits/
+
+audit-full:  ## Run ALL audit levels (A + B + C) across ALL packages
+	@echo "=== Level A: Export Consistency ==="
+	@$(PYTHON) tools/validation/audit_package_exports.py --all --report-dir reports/audits/ --consolidated reports/audits/CONSOLIDATED_AUDIT.md
+	@echo ""
+	@echo "=== Levels B + C: Wiring + API Instantiation ==="
+	@$(PYTHON) tools/validation/audit_package_wiring.py --all --report-dir reports/audits/
+
+triage:  ## Triage dead code for a package (e.g. make triage PACKAGE=memory)
+	@$(PYTHON) tools/validation/triage_dead_code.py $(or $(PACKAGE),memory) --report reports/audits/$(or $(PACKAGE),memory)_triage.md
+
+triage-all:  ## Triage dead code across ALL packages → reports/audits/TRIAGE_REPORT.md
+	@$(PYTHON) tools/validation/triage_dead_code.py --all --report-dir reports/audits/ --report reports/audits/TRIAGE_REPORT.md
+
 cursor-start:
 	@./scripts/cursor-start-session

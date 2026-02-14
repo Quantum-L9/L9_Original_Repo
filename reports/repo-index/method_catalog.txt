@@ -2,8 +2,8 @@
 # Method Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:22 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -1113,9 +1113,15 @@ CloudModelClient::async _call_anthropic(prompt, reasoning_mode) @ core/reasoning
 CloudModelClient::async _call_mock(prompt, reasoning_mode) @ core/reasoning/toth_engine.py
 CloudModelClient::async _call_openai(prompt, reasoning_mode) @ core/reasoning/toth_engine.py
 CloudModelClient::async generate_response(prompt, reasoning_mode) @ core/reasoning/toth_engine.py
+CodeExtractor::__init__(file_path, repo_root) @ tools/code_index/build_semantic_index.py
+CodeExtractor::_extract_adr_tags(docstring) @ tools/code_index/build_semantic_index.py
+CodeExtractor::_get_body_preview(node) @ tools/code_index/build_semantic_index.py
+CodeExtractor::_has_test_coverage(name) @ tools/code_index/build_semantic_index.py
 CodeExtractor::extract(input_path, output_root) @ memory/extractor/code_extractor.py
 CodeExtractor::extract_code_content(lines, start_idx, pattern_type) @ memory/extractor/code_extractor.py
 CodeExtractor::find_code_blocks(content) @ memory/extractor/code_extractor.py
+CodeExtractor::visit_ClassDef(node) @ tools/code_index/build_semantic_index.py
+CodeExtractor::visit_FunctionDef(node) @ tools/code_index/build_semantic_index.py
 CodeFactExtractor::__init__(repo_root) @ scripts/extract_code_facts.py
 CodeFactExtractor::extract_class_info(filepath, class_name) @ scripts/extract_code_facts.py
 CodeFactExtractor::extract_function_signature(node) @ scripts/extract_code_facts.py
@@ -3211,6 +3217,8 @@ MockCacheClient::__init__() @ tests/unit/di/test_container.py
 MockCacheClient::get(key) @ tests/unit/di/test_container.py
 MockCacheClient::set(key, value) @ tests/unit/di/test_container.py
 MockDAG::async run(envelope) @ tests/unit/test_substrate_protocols.py
+MockDatabase::async slow_query(delay) @ scripts/benchmark_caching_and_vector.py
+MockDatabase::async vector_search(vector, delay) @ scripts/benchmark_caching_and_vector.py
 MockEmbeddingProvider::__init__(provider_type, model, api_key) @ tests/unit/test_memory_substrate_container.py
 MockEmbeddingProvider::async embed_batch(texts) @ tests/unit/test_substrate_protocols.py
 MockEmbeddingProvider::async embed_text(text) @ tests/unit/test_memory_substrate_container.py
@@ -4417,7 +4425,7 @@ RetrievalPipeline::async hybrid_search(query, top_k, filters, agent_id, min_scor
 RetrievalPipeline::async keyword_search(query, top_k, packet_type) @ memory/retrieval.py
 RetrievalPipeline::async replay_chain(start_packet_id, end_packet_id, include_reasoning) @ memory/retrieval.py
 RetrievalPipeline::async search(query, agent_id, limit, min_similarity, scope, force_mode) @ memory/retrieval.py
-RetrievalPipeline::async semantic_search(query, top_k, agent_id) @ memory/retrieval.py
+RetrievalPipeline::async semantic_search(query, top_k, agent_id, tags, tag_boost_factor) @ memory/retrieval.py
 RetrievalPipeline::async strategy_search(query, context, max_results, use_ranking) @ memory/retrieval.py
 RetrievalPipeline::set_repository(repository) @ memory/retrieval.py
 RetrievalPipeline::set_semantic_service(service) @ memory/retrieval.py
@@ -4622,7 +4630,7 @@ SemanticService::async generate_embedding(text, payload, agent_id) @ memory/subs
 SemanticService::async hybrid_search(query, filters, top_k) @ memory/substrate_semantic.py
 SemanticService::async recall_similar(query_vector, top_k, embedding_type) @ memory/substrate_semantic.py
 SemanticService::async rerank_by_relevance(hits, context) @ memory/substrate_semantic.py
-SemanticService::async search(query, top_k, agent_id) @ memory/substrate_semantic.py
+SemanticService::async search(query, top_k, agent_id, tags_include, tags_boost, tag_boost_factor) @ memory/substrate_semantic.py
 SemanticService::async store_embedding(vector, metadata, embedding_type) @ memory/substrate_semantic.py
 SemanticServiceProtocol::async embed_and_store(text, payload, agent_id) @ core/protocols/substrate_protocols.py
 SemanticServiceProtocol::async search(query, top_k, agent_id) @ core/protocols/substrate_protocols.py
@@ -4762,6 +4770,9 @@ SpecNormalizer::async normalize_from_json(json_content) @ core/codegen/spec/spec
 SpecNormalizer::async normalize_from_yaml(yaml_content) @ core/codegen/spec/spec_normalizer_v2.py
 SpecPatcher::_set_nested(data, path, value) @ runtime/superprompt_emitter.py
 SpecPatcher::apply_patches(spec, patches) @ runtime/superprompt_emitter.py
+StageResult::passed() @ scripts/gmp-validate-stage.py
+StageResult::summary() @ scripts/gmp-validate-stage.py
+StageResult::to_dict() @ scripts/gmp-validate-stage.py
 StandardConnectionPool::__init__(create_connection, max_size, min_size, health_check_interval, connection_max_age, connection_max_idle, acquire_timeout) @ core/protocols/connection_protocols.py
 StandardConnectionPool::_find_connection(connection) @ core/protocols/connection_protocols.py
 StandardConnectionPool::async _acquire_internal() @ core/protocols/connection_protocols.py
@@ -4944,7 +4955,7 @@ SubstrateRepository::async list_checkpoints(agent_id, limit) @ memory/substrate_
 SubstrateRepository::async save_checkpoint(agent_id, graph_state, reason) @ memory/substrate_repository.py
 SubstrateRepository::async search_packets_by_thread(thread_id, packet_type, limit, offset) @ memory/substrate_repository.py
 SubstrateRepository::async search_packets_by_type(packet_type, agent_id, limit, since) @ memory/substrate_repository.py
-SubstrateRepository::async search_semantic_memory(query_embedding, top_k, agent_id) @ memory/substrate_repository.py
+SubstrateRepository::async search_semantic_memory(query_embedding, top_k, agent_id, tags_include, tags_boost, tag_boost_factor) @ memory/substrate_repository.py
 SubstrateRepository::async supersede_fact(old_fact_id, new_fact_text, reason) @ memory/substrate_repository.py
 SubstrateRepository::async transaction(tenant_id, org_id, user_id, role) @ memory/substrate_repository.py
 SubstrateRepository::async update_fact_importance(fact_id, new_importance, touch_access) @ memory/substrate_repository.py
@@ -5113,6 +5124,17 @@ TensorMotifLinker::create_motif_from_tensor(tensor_result, motif_type, source_co
 TensorMotifLinker::extract_motifs(packet) @ motifs/tensor_motif_linker.py
 TensorRequest::compute_canonical() @ adapters/tensorglobe_bridge/schemas.py
 TensorResponse::to_evidence_object(request) @ adapters/tensorglobe_bridge/schemas.py
+TestADR0006PacketEnvelopeUsage::setup() @ tests/generated/test_adr_0006_properties.py
+TestADR0006PacketEnvelopeUsage::test_all_kernels_use_packet_envelope() @ tests/generated/test_adr_0006_properties.py
+TestADR0006PacketEnvelopeUsage::test_packet_envelope_metadata_keys(key) @ tests/generated/test_adr_0006_properties.py
+TestADR0019Regressions::test_ci_check_adr_compliance_uses_structlog() @ tests/generated/test_adr_0019_properties.py
+TestADR0019Regressions::test_no_printlogger_usage() @ tests/generated/test_adr_0019_properties.py
+TestADR0019StructlogEnforcement::setup() @ tests/generated/test_adr_0019_properties.py
+TestADR0019StructlogEnforcement::test_code_samples_no_print(code_sample) @ tests/generated/test_adr_0019_properties.py
+TestADR0019StructlogEnforcement::test_log_context_binding(context_key) @ tests/generated/test_adr_0019_properties.py
+TestADR0019StructlogEnforcement::test_no_print_statements_in_production() @ tests/generated/test_adr_0019_properties.py
+TestADR0019StructlogEnforcement::test_no_stdlib_logging_imports() @ tests/generated/test_adr_0019_properties.py
+TestADR0019StructlogEnforcement::test_structlog_logger_pattern() @ tests/generated/test_adr_0019_properties.py
 TestAICollaborationScopes::test_allowed_and_forbidden_do_not_overlap(readme_config) @ tests/test_code_facts_extraction.py
 TestAICollaborationScopes::test_allowed_patterns_are_lists(readme_config) @ tests/test_code_facts_extraction.py
 TestAICollaborationScopes::test_forbidden_scopes_are_lists(readme_config) @ tests/test_code_facts_extraction.py
@@ -8727,4 +8749,4 @@ _StubClientSession::post() @ core/reasoning/toth_engine.py
 _StubRateLimiter::async check_and_increment(key, limit) @ core/governance/rate_limit_policy.py
 _StubRateLimiter::async get_usage(key) @ core/governance/rate_limit_policy.py
 
-# Total: 8714 class methods
+# Total: 8736 class methods

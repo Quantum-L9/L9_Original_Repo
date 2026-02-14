@@ -221,8 +221,10 @@ class SubstrateRepository:
         session_id = metadata_dict.get("session_id")
         scope = metadata_dict.get("scope", "shared")
         trace_id = metadata_dict.get("trace_id")
-        # importance_score: prefer metadata, fallback to confidence.score
-        importance_score = metadata_dict.get("importance")
+        # importance_score: prefer metadata (intake/leverage rating), fallback to confidence.score
+        importance_score = metadata_dict.get("importance") or metadata_dict.get(
+            "importance_score"
+        )
         if importance_score is None and envelope.confidence:
             importance_score = envelope.confidence.score
 
@@ -282,7 +284,6 @@ class SubstrateRepository:
         importance_score,
     ) -> None:
         """Helper method to insert packet using provided connection."""
-        """Helper method to insert packet using provided connection."""
         # GMP-C1-GOVERNANCE: Pass dict directly to asyncpg.
         # The JSONB codec (line 57) will serialize it. DO NOT json.dumps() here
         # as that causes double-serialization and breaks JSON path constraints.
@@ -330,7 +331,10 @@ class SubstrateRepository:
             importance_score,
         )
         logger.debug(
-            f"Inserted packet {envelope.packet_id} with thread_id={thread_id}, parent_ids={parent_ids}, importance={importance_score}"
+            "Inserted packet with thread_id, importance",
+            packet_id=str(envelope.packet_id),
+            thread_id=thread_id,
+            importance=importance_score,
         )
 
     async def get_packet(self, packet_id: UUID) -> PacketStoreRow | None:
@@ -541,7 +545,7 @@ class SubstrateRepository:
             return [self._row_to_packet_store(r) for r in rows]
 
     def _row_to_packet_store(self, row: Any) -> PacketStoreRow:
-        """Convert a database row to PacketStoreRow (all 22 columns from migrations 0001, 0002, 0008)."""
+        """Convert a database row to PacketStoreRow (migrations 0001, 0002, 0008)."""
         return PacketStoreRow(
             # Core fields (migration 0001)
             packet_id=row["packet_id"],

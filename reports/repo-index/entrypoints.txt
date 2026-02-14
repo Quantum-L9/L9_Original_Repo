@@ -2,8 +2,8 @@
 # Entrypoints
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:22 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -34,6 +34,9 @@ agents/cursor/cursor_neo4j_query.py
   Type: Script
   Has __main__ block: Yes
 agents/cursor/gmp_meta_learning.py
+  Type: Script
+  Has __main__ block: Yes
+agents/cursor/ingest_lessons.py
   Type: Script
   Has __main__ block: Yes
 agents/cursor/scripts/cursor_check_mistakes.py
@@ -119,9 +122,6 @@ ci/check_noqa_placement.py
 ci/check_packet_type_naming.py
   Type: Script
   Has __main__ block: Yes
-ci/check_protected_files.py
-  Type: Script
-  Has __main__ block: Yes
 ci/check_report_naming.py
   Type: Script
   Has __main__ block: Yes
@@ -147,9 +147,6 @@ ci/lint_forbidden_imports.py
   Type: Script
   Has __main__ block: Yes
 ci/validate_codegen.py
-  Type: Script
-  Has __main__ block: Yes
-ci/validate_dora_blocks.py
   Type: Script
   Has __main__ block: Yes
 ci/validate_spec_v25.py
@@ -504,6 +501,9 @@ scripts/run_pattern.py
 scripts/setup_gmail_accounts.py
   Type: Script
   Has __main__ block: Yes
+scripts/update_workflow_state.py
+  Type: Script
+  Has __main__ block: Yes
 scripts/validate_gmp_report.py
   Type: Script
   Has __main__ block: Yes
@@ -543,6 +543,12 @@ tools/adr/docstring_injector.py
 tools/architecture_reports/main.py
   Type: Script
   Has __main__ block: Yes
+tools/bug_detection/find_config_mismatches.py
+  Type: Script
+  Has __main__ block: Yes
+tools/code_index/build_semantic_index.py
+  Type: Script
+  Has __main__ block: Yes
 tools/codegen/doc_compiler.py
   Type: Script
   Has __main__ block: Yes
@@ -564,10 +570,25 @@ tools/codegen/text_to_code.py
 tools/export_repo_indexes.py
   Type: Script
   Has __main__ block: Yes
+tools/health_dashboard/generate_dashboard.py
+  Type: Script
+  Has __main__ block: Yes
 tools/l9_cli.py
   Type: Script
   Has __main__ block: Yes
+tools/spec_validator/diff_spec_code.py
+  Type: Script
+  Has __main__ block: Yes
 tools/superpack_reports/main.py
+  Type: Script
+  Has __main__ block: Yes
+tools/type_coverage/track_mypy_progress.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/try_run.py
+  Type: Script
+  Has __main__ block: Yes
+tools/validation/validate_external_code.py
   Type: Script
   Has __main__ block: Yes
 workflows/dags/gmp/executor.py

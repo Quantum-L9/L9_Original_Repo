@@ -2,8 +2,8 @@
 # Decorator Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:23 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -22,7 +22,7 @@
 | `@classmethod` | 62 | agents/codegenagent/cursor_context_sync_engine.py, agents/codegenagent/cursor_sync.py, codegen/code-gen-files/glue_resolver.py |
 | `@command(...)` | 6 | core/codegen/cli.py, tools/l9_cli.py |
 | `@contextmanager` | 9 | core/agents/bootstrap/bootstrap_metrics.py, core/security/path_safety.py, memory/checkpoint_metrics.py |
-| `@dataclass` | 553 | .backup/mcp-tools-20260131/semantic_tool_search.py, adapters/tensorglobe_bridge/anomaly_guard.py, agents/base_agent.py |
+| `@dataclass` | 561 | .backup/mcp-tools-20260131/semantic_tool_search.py, adapters/tensorglobe_bridge/anomaly_guard.py, agents/base_agent.py |
 | `@dataclass(...)` | 21 | api/auth.py, core/codegen/spec/spec_normalizer_v2.py, core/moduleregistry.py |
 | `@delete(...)` | 3 | api/memory/cache.py, api/memory/graph.py, api/routes/reflection_agent.py |
 | `@dict(...)` | 16 | tests/api/test_agent_auth.py, tests/api/test_websocket_auth.py, tests/unit/test_di_runtime_config.py |
@@ -30,8 +30,9 @@
 | `@field_validator(...)` | 10 | codegen/code-gen-files/schema_parser.py, core/calibration/schemas.py, core/kernels/schemas.py |
 | `@filterwarnings(...)` | 1 | tests/memory/test_unified_pipeline.py |
 | `@fixture` | 384 | codegen/Symbolic CodeGen/Supplemental Files/test_symbolic_computation.py, codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_api_surfaces.py, codegen/extractions/domain_tensor_bridge_v6_20260102/tests/domain_tensor_bridge/test_bridge_controller.py |
-| `@fixture(...)` | 17 | tests/collaborative_cells/test_cell_registry.py, tests/conftest.py, tests/core/governance/test_policy_registry.py |
-| `@get(...)` | 116 | api/agent_routes.py, api/memory/cache.py, api/memory/graph.py |
+| `@fixture(...)` | 19 | tests/collaborative_cells/test_cell_registry.py, tests/conftest.py, tests/core/governance/test_policy_registry.py |
+| `@get(...)` | 117 | api/agent_routes.py, api/memory/cache.py, api/memory/graph.py |
+| `@given(...)` | 3 | tests/generated/test_adr_0006_properties.py, tests/generated/test_adr_0019_properties.py |
 | `@group(...)` | 2 | core/codegen/cli.py, tools/l9_cli.py |
 | `@integration` | 14 | tests/cursor/test_gmp_meta_learning.py, tests/memory/test_query_cache_and_vector.py, tests/runtime/test_slack_tools.py |
 | `@l9_traced(...)` | 8 | codegen/templates/python/dora-template.py, tests/runtime/test_dora_auto_update.py |
@@ -40,13 +41,13 @@
 | `@lru(...)` | 4 | memory/substrate_repository_cached.py, tests/memory/test_query_cache_and_vector.py |
 | `@lru_cache(...)` | 26 | .backup/mcp-tools-20260131/mcp_client.py, api/routes/upgrades.py, codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_core.py |
 | `@model_validator(...)` | 4 | core/models/l9_base_model.py, core/observability/config.py, ir_engine/meta_ir.py |
-| `@must_stay_async(...)` | 1934 | SDK/SDK.py, adapters/tensorglobe_bridge/adapter.py, adapters/tensorglobe_bridge/anomaly_guard.py |
+| `@must_stay_async(...)` | 1956 | SDK/SDK.py, adapters/tensorglobe_bridge/adapter.py, adapters/tensorglobe_bridge/anomaly_guard.py |
 | `@on_event(...)` | 3 | api/server.py, api/server_memory.py |
 | `@option(...)` | 10 | core/codegen/cli.py, tools/l9_cli.py |
 | `@parametrize(...)` | 11 | tests/ci/test_ci_gate_regressions.py, tests/core/security/test_path_safety.py, tests/docker/test_env_validation.py |
 | `@patch(...)` | 16 | tests/core/kernel_wiring/test_master_wiring.py, tests/test_research_graph.py, tests/unit/test_executor_composer.py |
 | `@post(...)` | 98 | api/agent_routes.py, api/memory/cache.py, api/memory/graph.py |
-| `@property` | 167 | .backup/mcp-tools-20260131/mcp_client.py, SDK/SDK.py, agents/base_agent.py |
+| `@property` | 169 | .backup/mcp-tools-20260131/mcp_client.py, SDK/SDK.py, agents/base_agent.py |
 | `@rate_limit(...)` | 4 | agents/base_agent.py, core/codegen/gatekeeper/codegen_gatekeeper_v2.py, memory/ingestion.py |
 | `@recurrence_memo(...)` | 2 | codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_utils.py, services/symbolic_computation/utils.py |
 | `@register(...)` | 4 | core/schemas/schema_registry.py |
@@ -57,6 +58,7 @@
 | `@retry(...)` | 2 | codegen/Perplexity-Search-Pack/autonomous-research-agent.py, codegen/scripts/generate_spec.py |
 | `@runtime_checkable` | 38 | core/protocols/agent_protocols.py, core/protocols/error_handling_protocols.py, core/protocols/kernel_protocols.py |
 | `@setter` | 3 | core/l_agent_runtime/agent_state.py |
+| `@settings(...)` | 3 | tests/generated/test_adr_0006_properties.py, tests/generated/test_adr_0019_properties.py |
 | `@skip(...)` | 12 | tests/core/agents/test_agent_executor_bootstrap_bridge.py, tests/cursor/test_gmp_meta_learning.py, tests/integration/test_graph_state_integration.py |
 | `@skipif(...)` | 17 | tests/core/agents/codegenagent/test_symbolic_verification.py, tests/memory/test_checkpoint_metrics_pool.py, tests/memory/test_governance_invariants.py |
 | `@slow` | 2 | tests/memory/test_strategy_memory_integration.py, tests/memory/test_unified_pipeline.py |
@@ -68,11 +70,11 @@
 | `@trace_tool_call(...)` | 1 | core/observability/l9_integration.py |
 | `@traced` | 8 | tests/unit/test_instrumentation_decorators.py |
 | `@traced(...)` | 3 | tests/unit/test_instrumentation_decorators.py |
-| `@ttl(...)` | 7 | memory/substrate_repository_cached.py, tests/memory/test_query_cache_and_vector.py |
+| `@ttl(...)` | 8 | memory/substrate_repository_cached.py, scripts/benchmark_caching_and_vector.py, tests/memory/test_query_cache_and_vector.py |
 | `@validator(...)` | 2 | codegen/Symbolic CodeGen/Supplemental Files/symbolic_computation_models.py |
 | `@version_option(...)` | 1 | core/codegen/cli.py |
 | `@websocket(...)` | 2 | api/server.py |
 | `@with_source_location` | 3 | tests/unit/test_instrumentation_decorators.py |
 | `@wraps(...)` | 27 | core/governance/rate_limit_policy.py, core/instrumentation/decorators.py, core/observability/instrumentation.py |
 
-# Total: 60 unique decorators
+# Total: 62 unique decorators

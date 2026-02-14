@@ -2,8 +2,8 @@
 # Async Function Map
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-13 21:23 UTC
-# Branch:    main (58f7d020)
+# Generated: 2026-02-14 01:27 UTC
+# Branch:    main (cd9f1632)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -728,6 +728,9 @@ async batch_helpers(substrate_repo) @ tests/memory/test_batch_helpers.py
 async batch_ingest(items) @ core/protocols/memory_protocols.py
 async batch_store_embeddings(embeddings) @ memory/substrate_semantic.py
 async batch_write(http_request, request, authorization, _, orchestrator) @ api/memory/router.py
+async benchmark_combined_impact() @ scripts/benchmark_caching_and_vector.py
+async benchmark_query_caching() @ scripts/benchmark_caching_and_vector.py
+async benchmark_vector_search() @ scripts/benchmark_caching_and_vector.py
 async bind_kernels_to_agent(instance, kernels, substrate_service) @ core/agents/bootstrap/phase_3_bind_kernels.py
 async bind_tools_and_capabilities(instance, substrate_service) @ core/agents/bootstrap/phase_5_bind_tools.py
 async bind_tools_to_agent(agent_id, agent_role, task_description, registry) @ core/agents/dynamic_tool_binding.py
@@ -757,6 +760,7 @@ async cache_keys(pattern, authorization, _) @ api/memory/cache.py
 async cache_set(request, authorization, _) @ api/memory/cache.py
 async cache_tools(task_id, tools) @ core/tools/dynamic_discovery.py
 async cached_graph_search(query, params, ctx, redis_client, neo4j_client) @ memory/graph_search_cache.py
+async cached_query() @ scripts/benchmark_caching_and_vector.py
 async calculate_delay(attempt) @ core/protocols/retry_protocols.py
 async calculate_delay(attempt) @ core/protocols/retry_protocols.py
 async calibrate(req) @ core/calibration/service.py
@@ -1405,6 +1409,7 @@ async get_agent_capabilities(agent_name) @ core/worldmodel/service.py
 async get_agent_flags() @ memory/state_manager.py
 async get_agent_mediator() @ core/coordination/agent_mediator.py
 async get_agent_status(agent_id) @ core/protocols/agent_protocols.py
+async get_agent_timeline(agent_id, event_type, limit, authorization, _, timeline_service) @ api/memory/router.py
 async get_agent_tools(agent_id, task_description) @ core/agents/dynamic_tool_binding.py
 async get_all_agents(driver) @ scripts/agents/neo4j_merge_agent_nodes.py
 async get_all_tools() @ core/tools/tool_graph.py
@@ -1790,6 +1795,7 @@ async ingest(packet_in, embed, generate_tags) @ memory/ingestion.py
 async ingest_batch(packets) @ memory/ingestion.py
 async ingest_batch(request) @ core/packet_envelope/scalability.py
 async ingest_email_event(trace_id, action, phase, payload, error) @ email_agent/router.py
+async ingest_index(filename, kind, description, dry_run, verbose) @ scripts/memory/ingest_repo_indexes.py
 async ingest_packet(envelope, idempotency_key) @ memory/substrate_dag_wrapper.py
 async ingest_packet(packet) @ tests/core/eos/test_eos_clients.py
 async ingest_packet(packet_in, service) @ memory/ingestion.py
@@ -1987,8 +1993,10 @@ async main() @ scripts/agents/run_bootstrap_l_graph.py
 async main() @ scripts/audit/tier1/audit_code_integrity.py
 async main() @ scripts/audit/tier1/audit_infrastructure_health.py
 async main() @ scripts/batch/batch_generate_specs.py
+async main() @ scripts/benchmark_caching_and_vector.py
 async main() @ scripts/memory/bootstrap_neo4j_schema.py
 async main() @ scripts/memory/generate_delete_sql.py
+async main() @ scripts/memory/ingest_repo_indexes.py
 async main() @ scripts/memory/load_gmp_reports_to_graph.py
 async main() @ scripts/memory/load_indexes_to_neo4j_vps.py
 async main() @ scripts/memory/migrate_kernels_to_graph.py
@@ -2526,8 +2534,8 @@ async search(query, agent_id, limit, min_similarity, scope, force_mode) @ memory
 async search(query, limit, min_similarity, strategy, enrich_top_n) @ memory/hybrid_rag.py
 async search(query, top_k) @ tests/mocks/memory_mocks.py
 async search(query, top_k, agent_id) @ core/protocols/substrate_protocols.py
-async search(query, top_k, agent_id) @ memory/substrate_semantic.py
 async search(query, top_k, agent_id) @ tests/unit/test_substrate_protocols.py
+async search(query, top_k, agent_id, tags_include, tags_boost, tag_boost_factor) @ memory/substrate_semantic.py
 async search(request) @ services/research/tools/perplexity_client.py
 async search_memories(query, memory_type, top_k) @ core/protocols/memory_protocols.py
 async search_memory() @ tests/core/observability/test_observability_integration.py
@@ -2551,7 +2559,7 @@ async search_packets_by_type(packet_type, agent_id, limit) @ memory/substrate_se
 async search_packets_by_type(packet_type, agent_id, limit) @ tests/core/bootstrap/test_executor.py
 async search_packets_by_type(packet_type, agent_id, limit, since) @ memory/substrate_repository.py
 async search_packets_by_type(packet_type, limit) @ tests/core/eos/test_eos_clients.py
-async search_semantic_memory(query_embedding, top_k, agent_id) @ memory/substrate_repository.py
+async search_semantic_memory(query_embedding, top_k, agent_id, tags_include, tags_boost, tag_boost_factor) @ memory/substrate_repository.py
 async search_semantic_memory(query_vector, limit, agent_id) @ memory/substrate_repository_cached.py
 async search_similar(query_embedding, top_k, threshold) @ core/protocols/memory_protocols.py
 async search_tools(query, top_k, min_similarity) @ .backup/mcp-tools-20260131/semantic_tool_search.py
@@ -2566,7 +2574,7 @@ async semantic_recall_for_intent() @ memory/working_memory_adapter.py
 async semantic_search(http_request, request, authorization, _) @ api/memory/router.py
 async semantic_search(query, agent_id, project_id, top_k, substrate_service) @ memory/semantic_search.py
 async semantic_search(query, top_k, agent_id) @ clients/memory_client.py
-async semantic_search(query, top_k, agent_id) @ memory/retrieval.py
+async semantic_search(query, top_k, agent_id, tags, tag_boost_factor) @ memory/retrieval.py
 async semantic_search(request) @ memory/substrate_service.py
 async semantic_search(request) @ tests/unit/test_service_adapters.py
 async send_email(request, account, _) @ email_agent/router.py
@@ -2644,6 +2652,7 @@ async slack_send(channel, text, thread_ts) @ runtime/l_tools.py
 async slow_discovery() @ tests/tools/test_tool_search_meta.py
 async slow_enrich() @ tests/memory/test_unified_pipeline.py
 async slow_operation(x) @ tests/memory/test_query_cache_and_vector.py
+async slow_query(delay) @ scripts/benchmark_caching_and_vector.py
 async smoke_test() @ memory/smoke_test.py
 async smoke_test_semantic_memory() @ memory/index_syncer.py
 async snapshot(description, created_by) @ clients/world_model_client.py
@@ -4223,6 +4232,7 @@ async validate_upgrade(upgrade) @ orchestrators/evolution/interface.py
 async validate_upgrade(upgrade) @ orchestrators/evolution/orchestrator.py
 async validate_upgrade_deployment() @ api/routes/upgrades.py
 async validation_exception_handler(request, exc) @ mcp_memory/src/main.py
+async vector_search(vector, delay) @ scripts/benchmark_caching_and_vector.py
 async verify_and_lock(instance, substrate_service, kernels) @ .backup/bootstrap-7phase/phase_7_verify_and_lock.py
 async verify_and_lock(instance, substrate_service, kernels) @ core/agents/bootstrap/phase_7_verify_and_lock.py
 async verify_and_lock_view(agent_id, identity_view, kernels, tools, governance_gates, init_signature) @ core/agents/bootstrap/phase_7_verify_and_lock.py
@@ -4300,4 +4310,4 @@ async write_verdict_entry(verdict_id, action_id, decision, agent_id, risk_class,
 async writepacket() @ tests/test_integration_phase0.py
 async writer() @ tests/tools/test_tool_audit_flush.py
 
-# Total: 4287 async functions
+# Total: 4297 async functions

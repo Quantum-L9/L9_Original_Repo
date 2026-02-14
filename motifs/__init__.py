@@ -46,7 +46,6 @@ __all__ = [
     "PlanCandidate",
     "RankedPlan",
     # Core classes
-    "MotifFeedbackGraph",
     "MultimodalPlanRanker",
     "TensorMotifLinker",
 ]

@@ -91,6 +91,14 @@ class MemoryBridge:
     - Episodic Memory (Postgres): Event logs, packet history
     - Semantic Graph (Neo4j): Entity relationships, knowledge
     - Causal Graph (HyperGraphDB): Causal reasoning, interventions
+
+    **Integration note:** For L9 production use, instantiate via
+    ``L9MemoryAdapter`` (``domain_tensor_bridge.l9_memory_adapter``)
+    which maps this interface to real L9 services (MemorySubstrateService,
+    WorkingMemoryService, Neo4jClient).  Passing a raw
+    ``MemorySubstrateService`` here will NOT work because this class
+    calls methods (``redis_get``, ``query_events``, ``cypher_query``)
+    that do not exist on that service.
     """
 
     def __init__(

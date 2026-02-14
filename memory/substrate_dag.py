@@ -48,6 +48,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
+import os
 from datetime import UTC, datetime, timezone
 from typing import Any, TypedDict
 from uuid import UUID, uuid4
@@ -57,7 +58,7 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, StateGraph
 
 from core.decorators import must_stay_async
-from core.schemas import PacketEnvelope, PacketWriteResult
+from core.schemas import PacketEnvelope, PacketMetadata, PacketWriteResult
 from memory.graph_client import get_neo4j_client
 from memory.substrate_models import (
     EnrichmentResult,
@@ -877,12 +878,13 @@ async def store_insights_node(
     """
     Store extracted insights and facts to database (v2.1.0 - GMP-67).
 
-    Persists:
-    - KnowledgeFacts to knowledge_facts table via UPSERT (idempotent)
-    - Insights as specialized packets (future)
+    Persists two distinct data types to their correct tables:
+    - **Facts** → knowledge_facts table via UPSERT (SPO triples, idempotent)
+    - **Insights** → packet_store table as insight packets (native shape preserved)
 
-    Uses repository.insert_knowledge_fact() which performs ON CONFLICT UPSERT,
-    ensuring same packet enriched multiple times doesn't create duplicate facts.
+    Facts use subject/predicate/object structure for graph queries.
+    Insights keep their native schema (type, content, entities, confidence)
+    and are stored as packets with packet_type matching the insight type.
     """
     from uuid import UUID
 
@@ -894,7 +896,7 @@ async def store_insights_node(
     errors = list(state.get("errors", []))
     written_tables = list(state.get("written_tables", []))
 
-    # Get packet_id from envelope for linking facts to source packet
+    # Get packet_id from envelope for linking facts/insights to source packet
     envelope = state.get("envelope", {})
     packet_id_raw = envelope.get("packet_id")
     # Handle both UUID object and string cases
@@ -914,8 +916,10 @@ async def store_insights_node(
         logger.warning("store_insights_node: No repository, skipping persistence")
         return state
 
+    # -----------------------------------------------------------------
+    # 1. Store facts → knowledge_facts table (SPO triples)
+    # -----------------------------------------------------------------
     try:
-        # Store facts via UPSERT (idempotent)
         facts_inserted = 0
         for fact in facts:
             # Handle both dict and KnowledgeFact objects
@@ -964,12 +968,68 @@ async def store_insights_node(
         if facts_inserted > 0:
             written_tables.append("knowledge_facts")
             logger.debug(
-                f"store_insights_node: Upserted {facts_inserted} facts for packet {packet_id}"
+                "store_insights_node.facts_stored",
+                count=facts_inserted,
+                source_packet=str(packet_id),
             )
 
     except Exception as e:
-        logger.error(f"store_insights_node: Failed to store: {e}")
-        errors.append(f"store_insights_node error: {e!s}")
+        logger.error("store_insights_node.facts_failed", error=str(e))
+        errors.append(f"store_insights_node facts error: {e!s}")
+
+    # -----------------------------------------------------------------
+    # 2. Store insights → packet_store as insight packets (native shape)
+    #    Each insight becomes its own packet, linked to the source packet
+    #    via metadata.source_packet_id. This preserves the insight's native
+    #    schema (type, content, entities, domains, patterns, confidence)
+    #    without forcing it into SPO triple format.
+    # -----------------------------------------------------------------
+    try:
+        insights_inserted = 0
+        for insight in insights:
+            if isinstance(insight, dict):
+                insight_type = insight.get("type", "insight")
+                confidence = insight.get("confidence", 0.7)
+                payload = dict(insight)  # preserve full native shape
+            else:
+                # ExtractedInsight model
+                insight_type = getattr(insight, "insight_type", "insight")
+                confidence = getattr(insight, "confidence", 0.7)
+                payload = {
+                    "insight_type": insight_type,
+                    "content": getattr(insight, "content", ""),
+                    "entities": getattr(insight, "entities", []),
+                    "confidence": confidence,
+                    "trigger_world_model": getattr(
+                        insight, "trigger_world_model", False
+                    ),
+                }
+
+            # Build a proper PacketEnvelope for the insight
+            insight_envelope = PacketEnvelope(
+                packet_type=insight_type,
+                payload=payload,
+                metadata=PacketMetadata(
+                    schema_version="1.1.0",
+                    agent="store_insights_node",
+                    source_packet_id=str(packet_id) if packet_id else None,
+                ),
+            )
+
+            await repository.insert_packet(insight_envelope)
+            insights_inserted += 1
+
+        if insights_inserted > 0:
+            written_tables.append("packet_store")
+            logger.debug(
+                "store_insights_node.insights_stored",
+                count=insights_inserted,
+                source_packet=str(packet_id),
+            )
+
+    except Exception as e:
+        logger.error("store_insights_node.insights_failed", error=str(e))
+        errors.append(f"store_insights_node insights error: {e!s}")
 
     return {
         **state,
@@ -1128,6 +1188,72 @@ def route_after_memory_write(state: SubstrateGraphState) -> str:
 
 
 # =============================================================================
+# DTB: Analogical Enrichment Node (feature-flagged via L9_ENABLE_DTB_MEMORY)
+# =============================================================================
+
+_DTB_MEMORY_ENABLED = os.getenv("L9_ENABLE_DTB_MEMORY", "false").lower() == "true"
+
+
+async def analogical_enrichment_node(
+    state: SubstrateGraphState, config: RunnableConfig = None
+) -> SubstrateGraphState:
+    """
+    Optional DTB node: find cross-domain analogies for the incoming packet.
+
+    Stores any discovered analogies as additional insights in the state.
+    This node is additive only — it never modifies the original packet.
+    Failures are non-fatal and logged.
+    """
+    if not _DTB_MEMORY_ENABLED:
+        return state
+
+    try:
+        from domain_tensor_bridge.analogical_reasoner import AnalogicalReasoner
+
+        envelope = state.get("envelope", {})
+        packet_type = envelope.get("packet_type", "unknown")
+        payload = envelope.get("payload", "")
+
+        reasoner = AnalogicalReasoner()
+        context = {
+            "domain": packet_type,
+            "content": payload[:500]
+            if isinstance(payload, str)
+            else str(payload)[:500],
+        }
+        analogies = await reasoner.find_analogies(context)
+
+        if analogies:
+            # Store analogies as insights (their native shape).
+            # store_insights_node persists these as packet_type="analogical_insight"
+            # packets in packet_store — NOT as knowledge_facts SPO triples.
+            existing_insights = list(state.get("insights", []))
+            for a in analogies:
+                existing_insights.append(
+                    {
+                        "type": "analogical_insight",
+                        "source_domain": a.source_domain,
+                        "target_domain": a.target_domain,
+                        "pattern": a.pattern,
+                        "confidence": a.confidence,
+                    }
+                )
+            state["insights"] = existing_insights
+
+            logger.info(
+                "substrate_dag.dtb_analogical_enrichment",
+                packet_type=packet_type,
+                analogies_found=len(analogies),
+            )
+    except ImportError:
+        pass  # DTB not installed
+    except Exception as e:
+        logger.debug("substrate_dag.dtb_analogical_enrichment_failed", error=str(e))
+
+    return state
+
+
+# =============================================================================
 # Graph Builder
 # =============================================================================
 
@@ -1153,6 +1279,8 @@ def build_substrate_graph() -> StateGraph:
 
     # Add nodes
     graph.add_node("intake_node", intake_node)
+    if _DTB_MEMORY_ENABLED:
+        graph.add_node("analogical_enrichment_node", analogical_enrichment_node)
     graph.add_node("reasoning_node", reasoning_node)
     graph.add_node("memory_write_node", memory_write_node)
     graph.add_node("graph_sync_node", graph_sync_node)  # GMP-NEO4J-DAG: Neo4j sync
@@ -1164,7 +1292,11 @@ def build_substrate_graph() -> StateGraph:
 
     # Linear edges (entry through memory_write, then graph_sync)
     graph.set_entry_point("intake_node")
-    graph.add_edge("intake_node", "reasoning_node")
+    if _DTB_MEMORY_ENABLED:
+        graph.add_edge("intake_node", "analogical_enrichment_node")
+        graph.add_edge("analogical_enrichment_node", "reasoning_node")
+    else:
+        graph.add_edge("intake_node", "reasoning_node")
     graph.add_edge("reasoning_node", "memory_write_node")
     graph.add_edge("memory_write_node", "graph_sync_node")  # GMP-NEO4J-DAG: Neo4j sync
 
