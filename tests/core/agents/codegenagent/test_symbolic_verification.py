@@ -315,6 +315,7 @@ class TestGracefulDegradation:
     @pytest.mark.skipif(
         not CODEGEN_AGENT_AVAILABLE, reason="CodeGenAgent not importable"
     )
+    @must_stay_async("callers use await")
     async def test_graceful_error_on_exception(self, codegen_agent):
         """
         Contract: Returns graceful error on internal exceptions.
@@ -384,6 +385,7 @@ class TestSymbolicVerificationMocked:
                     assert result.invariants_verified is True
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_failed_verification(
         self, codegen_agent, mock_failed_pipeline_result
     ):
@@ -416,6 +418,7 @@ class TestSymbolicVerificationMocked:
                     assert "Invalid expression" in result.error
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_invariants_passed_to_pipeline(
         self, codegen_agent, mock_pipeline_result
     ):
@@ -452,6 +455,7 @@ class TestSymbolicVerificationMocked:
                     assert call_kwargs["variables"] == ["x", "y"]
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_selection_rationale_captured(
         self, codegen_agent, mock_pipeline_result
     ):
@@ -550,6 +554,7 @@ class TestIntentValidation:
     """Tests for intent parameter validation."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_valid_intents(self, codegen_agent, mock_pipeline_result):
         """
         Contract: All valid intents are accepted.
@@ -647,6 +652,7 @@ class TestLogging:
     """Tests for structured logging."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_logs_verification_started(self, codegen_agent, mock_pipeline_result):
         """
         Contract: Logs are emitted when verification starts.
@@ -677,6 +683,7 @@ class TestLogging:
                         assert mock_logger.info.called
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_logs_error_on_failure(self, codegen_agent):
         """
         Contract: Errors are logged when verification fails.

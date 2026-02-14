@@ -7,6 +7,25 @@ to enable isolated testing of bootstrap phases without external services.
 
 from __future__ import annotations
 
+__dora_meta__ = {
+    "component_name": "Conftest",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.998150+00:00",
+    "updated_at": "2026-02-13T23:37:34.998150+00:00",
+    "layer": "core",
+    "domain": "core",
+    "module_name": "tests.core.bootstrap.conftest",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
 # Pre-import memory.graph_client to ensure it's available for lazy imports
 # This MUST happen before any bootstrap modules are imported
 import importlib.util

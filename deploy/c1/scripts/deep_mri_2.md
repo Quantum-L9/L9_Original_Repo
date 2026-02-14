@@ -66,8 +66,7 @@ docker exec l9-l9-api-1 sh -lc '
 python - <<PY
 import core.tools.dynamic_discovery as d
 print("has discover_tools_for_task:", hasattr(d, "discover_tools_for_task"))
-print("has discover_tools_for_agent:", hasattr(d, "discover_tools_for_agent"))
-print("has get_tool_binding_mode:", hasattr(d, "get_tool_binding_mode"))
+print("has is_dynamic_discovery_enabled:", hasattr(d, "is_dynamic_discovery_enabled"))
 PY
 ' || true
 
@@ -97,10 +96,8 @@ docker exec l9-l9-api-1 sh -lc 'python -V; uname -a' || true
 
 echo
 echo "===== 10) One-line diagnosis hint ====="
-if grep -qi "cannot import name 'discover_tools_for_agent'" /tmp/l9-api-last400.log; then
-  echo "LIKELY ROOT CAUSE: stale import in dynamic tool binding path (discover_tools_for_agent)."
-elif grep -qi "cannot import name 'get_tool_binding_mode'" /tmp/l9-api-last400.log; then
-  echo "LIKELY ROOT CAUSE: stale import in dynamic tool binding path (get_tool_binding_mode)."
+if grep -qi "cannot import name" /tmp/l9-api-last400.log; then
+  echo "LIKELY ROOT CAUSE: stale/missing import — check traceback above for exact symbol."
 elif grep -qi "Agent Executor required for Slack routing" /tmp/l9-api-last400.log; then
   echo "LIKELY ROOT CAUSE: executor init failed, then startup guard aborts due to Slack routing requirement."
 else

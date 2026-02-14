@@ -1083,17 +1083,27 @@ class SubstrateRepository:
         query_embedding: list[float],
         top_k: int = 10,
         agent_id: str | None = None,
+        tags_include: list[str] | None = None,
+        tags_boost: list[str] | None = None,
+        tag_boost_factor: float = 1.15,
     ) -> list[SemanticHit]:
         """
         Search semantic memory using cosine similarity.
+
+        Optionally filter by tags (require at least one match) and/or boost
+        scores when hit tags overlap tags_boost. Uses packet_store.tags via
+        JOIN when tag options are set.
 
         Args:
             query_embedding: Query vector
             top_k: Number of results to return
             agent_id: Optional filter by agent
+            tags_include: If set, only return rows whose packet has at least one of these tags
+            tags_boost: If set, multiply score by tag_boost_factor when hit has any of these tags
+            tag_boost_factor: Multiplier for tag-based boost (default 1.15)
 
         Returns:
-            List of SemanticHit with embedding_id, score, payload
+            List of SemanticHit with embedding_id, score, payload (payload may include _tags)
         """
         if len(query_embedding) != EMBEDDING_DIMENSIONS:
             raise ValueError(
@@ -1101,14 +1111,73 @@ class SubstrateRepository:
             )
         ctx = require_governance_context("repository.search_semantic_memory")
 
+        use_tag_join = bool(tags_include or tags_boost)
+        fetch_k = top_k * 2 if tags_boost else top_k  # over-fetch for boost re-sort
+
         async with self.acquire() as conn:
-            # Apply vector search optimization
             config = get_vector_config()
             await config.apply(conn)
 
             vector_str = f"[{','.join(str(v) for v in query_embedding)}]"
 
-            if agent_id:
+            if use_tag_join:
+                # JOIN packet_store to get tags for filter/boost; payload may already have "tags" from DAG
+                idx = 8
+                tag_filter = (
+                    " AND ps.tags && $" + str(idx) + "::text[]" if tags_include else ""
+                )
+                if tags_include:
+                    idx += 1
+                agent_clause = (
+                    " AND (sm.agent_id = $" + str(idx) + ")" if agent_id else ""
+                )
+                sel = (
+                    """
+                    SELECT
+                        sm.embedding_id,
+                        sm.payload,
+                        1 - (sm.vector <=> $1::vector) as score,
+                        ps.tags as packet_tags
+                    FROM semantic_memory sm
+                    LEFT JOIN packet_store ps ON ps.packet_id = (sm.payload->>'packet_id')::uuid
+                    WHERE
+                        sm.scope = ANY($2)
+                        AND sm.payload->>'_project_id' = $3
+                        AND (
+                            sm.tenant_id IS NULL
+                            OR sm.tenant_id = $4::uuid
+                        )
+                        AND (
+                            sm.org_id IS NULL
+                            OR sm.org_id = $5::uuid
+                        )
+                        AND (
+                            sm.user_id IS NULL
+                            OR sm.user_id = $6::uuid
+                        )
+                """
+                    + tag_filter
+                    + agent_clause
+                    + """
+                    ORDER BY sm.vector <=> $1::vector
+                    LIMIT $7
+                """
+                )
+                params = [
+                    vector_str,
+                    list(ctx.allowed_scopes),
+                    ctx.project_id,
+                    ctx.tenant_id,
+                    ctx.org_id,
+                    ctx.user_id,
+                    fetch_k,
+                ]
+                if tags_include:
+                    params.append(tags_include)
+                if agent_id:
+                    params.append(agent_id)
+                rows = await conn.fetch(sel, *params)
+            elif agent_id:
                 rows = await conn.fetch(
                     """
                     SELECT
@@ -1179,18 +1248,46 @@ class SubstrateRepository:
                     top_k,
                 )
 
-            return [
-                SemanticHit(
-                    embedding_id=r["embedding_id"],
-                    score=float(r["score"]),
-                    payload=(
-                        json.loads(r["payload"])
-                        if isinstance(r["payload"], str)
-                        else r["payload"]
-                    ),
+            hits: list[SemanticHit] = []
+            for r in rows:
+                payload = (
+                    json.loads(r["payload"])
+                    if isinstance(r["payload"], str)
+                    else dict(r["payload"])
                 )
-                for r in rows
-            ]
+                if use_tag_join and "packet_tags" in r and r["packet_tags"] is not None:
+                    payload["_tags"] = list(r["packet_tags"])
+                elif use_tag_join and payload.get("tags") is not None:
+                    payload["_tags"] = payload["tags"]
+                score = float(r["score"])
+                hits.append(
+                    SemanticHit(
+                        embedding_id=r["embedding_id"],
+                        score=score,
+                        payload=payload,
+                    )
+                )
+
+            if tags_boost and hits:
+                boosted = []
+                for h in hits:
+                    hit_tags = h.payload.get("_tags") or h.payload.get("tags") or []
+                    if any(t in hit_tags for t in tags_boost):
+                        boosted.append(
+                            SemanticHit(
+                                embedding_id=h.embedding_id,
+                                score=min(1.0, h.score * tag_boost_factor),
+                                payload=h.payload,
+                            )
+                        )
+                    else:
+                        boosted.append(h)
+                boosted.sort(key=lambda x: x.score, reverse=True)
+                hits = boosted[:top_k]
+            elif use_tag_join and len(hits) > top_k:
+                hits = hits[:top_k]
+
+            return hits
 
     # =========================================================================
     # Graph Checkpoint Operations

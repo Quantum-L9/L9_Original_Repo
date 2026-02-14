@@ -8,6 +8,25 @@ Provides:
 
 from __future__ import annotations
 
+__dora_meta__ = {
+    "component_name": "Conftest",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.997318+00:00",
+    "updated_at": "2026-02-13T23:37:34.997318+00:00",
+    "layer": "core",
+    "domain": "memory",
+    "module_name": "tests.memory.conftest",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
 import pytest
 
 from memory.governance_gate import build_governance_context, governance_context

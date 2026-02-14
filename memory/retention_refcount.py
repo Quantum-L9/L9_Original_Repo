@@ -13,6 +13,26 @@ Usage:
     is_safe = await refcount_service.is_safe_to_delete("packet_123")
 """
 
+__dora_meta__ = {
+    "component_name": "Retention Refcount",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.982943+00:00",
+    "updated_at": "2026-02-13T23:37:34.982943+00:00",
+    "layer": "core",
+    "domain": "memory",
+    "module_name": "memory.retention_refcount",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
+
 import asyncio
 from dataclasses import dataclass
 from typing import Optional

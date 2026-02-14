@@ -31,6 +31,7 @@ __dora_meta__ = {
             "GET /packet/{packet_id}",
             "GET /thread/{thread_id}",
             "GET /lineage/{packet_id}",
+            "GET /agent/{agent_id}/timeline",
             "POST /hybrid/search",
             "GET /facts",
             "GET /insights",
@@ -52,6 +53,7 @@ __dora_meta__ = {
 import json
 import os
 from collections.abc import AsyncGenerator
+from typing import Any
 from uuid import UUID
 
 import structlog
@@ -59,6 +61,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from api.auth import verify_api_key
+from api.dependencies import get_timeline_service
 from api.routes.registry import router_registry
 from core.decorators import must_stay_async
 from core.observability import (
@@ -390,6 +393,39 @@ async def get_lineage(
     except Exception as e:
         logger.error(f"Get lineage failed: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Get lineage failed: {e!s}") from e
+
+
+@router.get("/agent/{agent_id}/timeline")
+async def get_agent_timeline(
+    agent_id: str,
+    event_type: str | None = Query(None),
+    limit: int = Query(100, ge=1, le=1000),
+    authorization: str = Header(None),
+    _: bool = Depends(verify_api_key),
+    timeline_service: Any | None = Depends(get_timeline_service),
+):
+    """
+    Get recent memory events for an agent (PostgreSQL agent_memory_events).
+
+    Returns events newest-first. For causal chain analysis use POST /saga/correlate-timeline (Neo4j).
+    """
+    if timeline_service is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Timeline service not available.",
+        )
+    try:
+        events = await timeline_service.get_timeline_json(
+            agent_id=agent_id,
+            event_type=event_type,
+            limit=limit,
+        )
+        return {"agent_id": agent_id, "events": events, "count": len(events)}
+    except Exception as e:
+        logger.error(f"Get agent timeline failed: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500, detail=f"Get agent timeline failed: {e!s}"
+        ) from e
 
 
 @router.post("/hybrid/search")

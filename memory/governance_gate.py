@@ -59,6 +59,7 @@ import structlog
 import yaml
 
 from config.rls_config import get_rls_config
+from core.config_constants import ALLOWED_SCOPES_CURSOR, ALLOWED_SCOPES_L
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -103,16 +104,16 @@ def _load_memory_scope_policies() -> dict[str, dict[str, Any]]:
                 error=str(e),
             )
 
-    # Fallback to hardcoded defaults if not loaded
+    # Fallback to config_constants if policy file not loaded (ADR-0098)
     if not _SCOPE_ACCESS_MATRIX:
         _SCOPE_ACCESS_MATRIX = {
-            "L": {"allowed_scopes": ["developer", "global", "l-private"]},
+            "L": {"allowed_scopes": ALLOWED_SCOPES_L},
             "C": {
-                "allowed_scopes": ["developer", "global"],
+                "allowed_scopes": ALLOWED_SCOPES_CURSOR,
                 "denied_scopes": ["l-private"],
             },
             "default": {
-                "allowed_scopes": ["developer", "global"],
+                "allowed_scopes": ALLOWED_SCOPES_CURSOR,
                 "denied_scopes": ["l-private"],
             },
         }

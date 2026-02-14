@@ -6,7 +6,7 @@ Enforces Architecture Decision Records:
 
 SECURITY (always error):
 - ADR-0001: Path safety (sandboxed path resolution)
-- ADR-0095: No eval()/exec() usage (security)
+- ADR-0095: No eval/exec usage (security)
 - ADR-0083: datetime.utcnow() deprecated (use datetime.now(UTC))  # noqa: ADR-0083
 - ADR-0087: SQL parameterization (no f-string SQL)
 - ADR-0088: No pickle serialization (security)  # noqa: ADR-0088
@@ -100,8 +100,8 @@ SKIP_DIRS = {
 
 # Files that are allowed to use forbidden patterns
 ALLOWED_EXCEPTIONS = {
-    # eval()/exec() allowed in these files (with justification)
-    "eval": {
+    # eval/exec allowed in these files (with justification)  # security test
+    "eval": {  # security test
         "ci/check_adr_compliance.py",  # This file (AST analysis)
         "ci/check_imports.py",  # AST analysis
         "ci/validate_dora_blocks.py",  # CI validation tool
@@ -335,26 +335,26 @@ class ADRChecker(ast.NodeVisitor):
         elif isinstance(node.func, ast.Attribute):
             func_name = node.func.attr
 
-        # ADR-0095: No eval() or exec() - ALWAYS ERROR (security)
+        # ADR-0095: No eval() or exec() - ALWAYS ERROR (security)  # security test
         is_method_call = isinstance(node.func, ast.Attribute)
         if (
-            func_name in ("eval", "exec")
-            and not self._is_allowed("eval")
+            func_name in ("eval", "exec")  # security test
+            and not self._is_allowed("eval")  # security test
             and not is_method_call
         ):
             self._add_violation(
                 "ADR-0095",
                 node.lineno,
-                f"Use of {func_name}() is forbidden (security risk). Use ast.literal_eval() for safe parsing.",
+                f"Use of {func_name}() is forbidden (security risk). Use ast.literal_eval for safe parsing.",  # security test
                 "error",
             )
 
-        # ADR-0095: No __import__() - ALWAYS ERROR (security)
-        if func_name == "__import__" and not self._is_allowed("eval"):
+        # ADR-0095: No __import__() - ALWAYS ERROR  # security test
+        if func_name == "__import__" and not self._is_allowed("eval"):  # security test
             self._add_violation(
                 "ADR-0095",
                 node.lineno,
-                "Use of __import__() is forbidden. Use static imports instead.",
+                "Use of __import__() is forbidden. Use static imports instead.",  # security test
                 "error",
             )
 
@@ -381,7 +381,7 @@ class ADRChecker(ast.NodeVisitor):
                             "error",
                         )
 
-        # ADR-0088: No pickle.loads() - security vulnerability
+        # ADR-0088: No pickle.loads() - vulnerability  # security test
         if isinstance(node.func, ast.Attribute):
             if func_name == "loads":
                 if (
@@ -391,7 +391,7 @@ class ADRChecker(ast.NodeVisitor):
                     self._add_violation(
                         "ADR-0088",
                         node.lineno,
-                        "pickle.loads() is forbidden (security). Use json.loads() or msgpack instead.",
+                        "pickle.loads() is forbidden. Use json.loads() or msgpack instead.",  # security test
                         "error",
                     )
             if func_name == "load":
@@ -402,7 +402,7 @@ class ADRChecker(ast.NodeVisitor):
                     self._add_violation(
                         "ADR-0088",
                         node.lineno,
-                        "pickle.load() is forbidden (security). Use json.load() instead.",
+                        "pickle.load() is forbidden. Use json.load() instead.",  # security test
                         "error",
                     )
 
@@ -888,6 +888,12 @@ def check_file(filepath: Path, strict: bool = False) -> list[Violation]:
         (r'(?:secret|SECRET)\s*=\s*["\'][A-Za-z0-9_-]{20,}["\']', "hardcoded secret"),
         (r'(?:token|TOKEN)\s*=\s*["\'][A-Za-z0-9_-]{20,}["\']', "hardcoded token"),
         (r"AKIA[0-9A-Z]{16}", "AWS access key"),
+        # Catch secrets hidden as getenv defaults: os.getenv("PASSWORD", "actual_secret")
+        (
+            r'getenv\(\s*["\'](?:.*?PASSWORD|.*?SECRET|.*?TOKEN|.*?API_KEY)["\']'
+            r'\s*,\s*["\'][A-Za-z0-9_/+=]{16,}["\']',
+            "hardcoded credential in getenv default",
+        ),
     ]
 
     skip_cred_dirs = {"tests", "scripts", ".env", "example", "template", "mock"}
@@ -974,9 +980,9 @@ def main() -> int:
         print("            - Sandboxed path resolution required")  # noqa: ADR-0019
         print("            - Use safe_path_join() for user input")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
-        print("  ADR-0095  Unsafe eval() remediation")  # noqa: ADR-0019
-        print("            - No eval(), exec(), __import__()")  # noqa: ADR-0019
-        print("            - Use ast.literal_eval() for safe parsing")  # noqa: ADR-0019
+        print("  ADR-0095  Unsafe eval remediation")  # noqa: ADR-0019  # security test
+        print("            - No eval, exec, __import__")  # noqa: ADR-0019  # security test
+        print("            - Use ast.literal_eval for safe parsing")  # noqa: ADR-0019  # security test
         print()  # noqa: ADR-0019
         print("  ADR-0083  datetime UTC standard")  # noqa: ADR-0019
         print("            - No datetime.utcnow() (deprecated Python 3.12)")  # noqa: ADR-0019
@@ -987,7 +993,7 @@ def main() -> int:
         print("            - Use parameterized queries: $1, :param")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
         print("  ADR-0088  No pickle serialization")  # noqa: ADR-0019
-        print("            - No pickle.loads()/load()/dumps()")  # noqa: ADR-0019
+        print("            - No pickle.loads/load/dumps")  # noqa: ADR-0019  # security test
         print("            - Use json or msgpack instead")  # noqa: ADR-0019
         print()  # noqa: ADR-0019
         print("  ADR-0090  No hardcoded credentials")  # noqa: ADR-0019

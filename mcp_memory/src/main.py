@@ -38,6 +38,11 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from config.rls_config import get_rls_config
+from core.config_constants import (
+    get_allowed_scopes_for_caller,
+    get_default_project_id,
+    get_default_scope_for_caller,
+)
 from core.decorators import must_stay_async
 from memory.governance_gate import build_governance_context, governance_context
 from src.config import settings
@@ -502,21 +507,16 @@ async def call_tool(request: Request, caller: CallerIdentity = Depends(verify_ap
 
         # GMP-C1-GOVERNANCE: Build governance context from CallerIdentity + RLS config
         # This MUST be set before any DB operations that call require_governance_context()
+        # ADR-0098: All defaults from core.config_constants (single source of truth)
         rls = get_rls_config()
-        scope = os.getenv("L9_MEMORY_SCOPE", "developer")
-        project_id = os.getenv("L9_PROJECT_ID", "l9-default")
-
-        # L gets all scopes, C gets developer + global only (no l-private)
-        allowed_scopes = (
-            ["developer", "global", "l-private"]
-            if caller.is_l
-            else ["developer", "global"]
-        )
+        project_id = get_default_project_id()
+        allowed_scopes = get_allowed_scopes_for_caller(caller.caller_id)
+        caller_scope = get_default_scope_for_caller(caller.caller_id)
 
         ctx = build_governance_context(
             caller_id=caller.caller_id,
             role="end_user",
-            scope=scope,
+            scope=caller_scope,
             project_id=project_id,
             allowed_scopes=allowed_scopes,
             tenant_id=rls.tenant_uuid,

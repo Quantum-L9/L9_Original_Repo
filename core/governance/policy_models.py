@@ -8,6 +8,26 @@ Defines:
 - GovernanceDecision dataclass
 """
 
+__dora_meta__ = {
+    "component_name": "Policy Models",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.989099+00:00",
+    "updated_at": "2026-02-13T23:37:34.989099+00:00",
+    "layer": "core",
+    "domain": "governance",
+    "module_name": "core.governance.policy_models",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
+
 from dataclasses import dataclass
 from enum import Enum, IntEnum
 

@@ -11,7 +11,7 @@
 #   make rollback      - Rollback to previous version
 # =============================================================================
 
-.PHONY: help dev test smoke lint deploy rollback logs clean ci-validate ci-spec ci-code docker-setup docker-env-check docker-up docker-up-prod docker-build-prod docker-down docker-logs docker-clean architecture-reports
+.PHONY: help dev test smoke lint deploy rollback logs clean ci-validate ci-spec ci-code docker-setup docker-env-check docker-up docker-up-prod docker-build-prod docker-down docker-logs docker-clean architecture-reports bug-detect validate-external-code try-run
 
 # Configuration
 VPS_HOST := 157.180.73.53
@@ -77,6 +77,14 @@ help:
 	@echo ""
 	@echo "$(YELLOW)Reports:$(NC)"
 	@echo "  make architecture-reports  Generate all architecture reports"
+	@echo ""
+	@echo "$(YELLOW)Validation:$(NC)"
+	@echo "  make validate-external-code FILE=doc.md        Validate external AI code in markdown"
+	@echo "  make validate-external-code FILE=\"--snippet 'code'\"  Validate a single snippet"
+	@echo "  make try-run FILE=scripts/foo.py               Try-run a Python file (syntax+import+exec)"
+	@echo "  make try-run FILE=scripts/foo.py MODE=--syntax-only   Syntax check only"
+	@echo "  make try-run FILE=scripts/foo.py MODE=--import-only   Import check only"
+	@echo "  make bug-detect                                Scan for config mismatches"
 	@echo ""
 	@echo "$(YELLOW)Utilities:$(NC)"
 	@echo "  make clean         Clean Python cache and build artifacts"
@@ -259,6 +267,36 @@ architecture-reports:
 # =============================================================================
 # Cursor
 # =============================================================================
+
+# =============================================================================
+# Bug Detection
+# =============================================================================
+
+bug-detect:
+	@echo "$(GREEN)Scanning for configuration mismatches...$(NC)"
+	@$(PYTHON) tools/bug_detection/find_config_mismatches.py
+	@echo "$(GREEN)✅ Report: reports/bug_detection/config_mismatches.md$(NC)"
+
+validate-external-code:  ## Validate external AI-generated code before integration
+ifndef FILE
+	@echo "$(YELLOW)Usage:$(NC)"
+	@echo "  make validate-external-code FILE=path/to/doc.md"
+	@echo "  make validate-external-code FILE=\"--snippet 'from memory.foo import bar'\""
+	@exit 1
+endif
+	@echo "$(GREEN)Validating external code against L9 repo...$(NC)"
+	@$(PYTHON) tools/validation/validate_external_code.py $(FILE)
+
+try-run:  ## Try-run a Python file: syntax + import + execute
+ifndef FILE
+	@echo "$(YELLOW)Usage:$(NC)"
+	@echo "  make try-run FILE=scripts/foo.py"
+	@echo "  make try-run FILE=scripts/foo.py MODE=--syntax-only"
+	@echo "  make try-run FILE=scripts/foo.py MODE=--import-only"
+	@echo "  make try-run FILE=scripts/foo.py TIMEOUT=30"
+	@exit 1
+endif
+	@$(PYTHON) tools/validation/try_run.py $(FILE) $(MODE) $(if $(TIMEOUT),--timeout $(TIMEOUT))
 
 cursor-start:
 	@./scripts/cursor-start-session

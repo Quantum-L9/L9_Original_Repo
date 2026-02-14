@@ -8,6 +8,9 @@
 venv/
 .envrc
 
+# Hypothesis test artifacts
+.hypothesis/
+
 # Python cache / build artifacts
 __pycache__/
 *.pyc

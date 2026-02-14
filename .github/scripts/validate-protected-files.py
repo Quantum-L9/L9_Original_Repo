@@ -8,6 +8,16 @@ Protected files can only be modified by:
   - Igor (Boss): Any file (but audit trail required)
 
 This runs on every PR and blocks changes to protected surfaces.
+
+Approval bypass: Include one of the following markers in the commit message
+to allow protected file changes:
+  HIL_APPROVED: <reason>
+  IGOR_APPROVED: <reason>
+  PROTECTED_FILE_CHANGE: <reason>
+
+GMP-143: Consolidated from ci/check_protected_files.py (deleted) into this
+single canonical script. Protected file list sourced from
+core.governance.protected_files_policy (config/policies/protected_files.yaml).
 """
 
 # ============================================================================
@@ -50,6 +60,13 @@ PROTECTED_BY_LCTO = get_lcto_controlled_files()
 SUBSYSTEM_PROTECTED = get_subsystem_protected_files()
 ALL_PROTECTED = get_all_protected_files()
 
+# GMP-143: Approval markers (merged from ci/check_protected_files.py)
+APPROVAL_MARKERS = [
+    "HIL_APPROVED:",
+    "IGOR_APPROVED:",
+    "PROTECTED_FILE_CHANGE:",
+]
+
 
 def get_changed_files() -> set[str]:
     """Get files changed in current PR (assumes git environment)."""
@@ -69,31 +86,60 @@ def get_changed_files() -> set[str]:
         return set()
 
 
+def get_commit_message() -> str:
+    """Get the HEAD commit message for approval marker check."""
+    try:
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%B"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout
+    except subprocess.CalledProcessError:
+        return ""
+
+
+def has_approval_marker(commit_msg: str) -> bool:
+    """Check if commit message contains an approval marker."""
+    return any(marker in commit_msg for marker in APPROVAL_MARKERS)
+
+
 def validate_protected_files() -> bool:
-    """Check that protected files were not modified."""
+    """Check that protected files were not modified without approval."""
     changed = get_changed_files()
     violations = changed & ALL_PROTECTED
 
-    if violations:
-        print("❌ PROTECTED FILES MODIFIED:")  # noqa: ADR-0019
+    if not violations:
+        print("✅ No protected files modified")  # noqa: ADR-0019
+        return True
+
+    # GMP-143: Check for approval bypass in commit message
+    commit_msg = get_commit_message()
+    if has_approval_marker(commit_msg):
+        print("✅ Protected file changes are APPROVED via commit message marker")  # noqa: ADR-0019
         for f in sorted(violations):
-            subsystem = None
-            for sub, files in SUBSYSTEM_PROTECTED.items():
-                if f in files:
-                    subsystem = f"(Subsystem: {sub})"
-                    break
+            print(f"   - {f}")  # noqa: ADR-0019
+        return True
 
-            lcto = " (LCTO-controlled)" if f in PROTECTED_BY_LCTO else ""
-            print(f"   - {f}{lcto}{subsystem or ''}")  # noqa: ADR-0019
+    # No approval — report violations
+    print("❌ PROTECTED FILES MODIFIED WITHOUT APPROVAL:")  # noqa: ADR-0019
+    for f in sorted(violations):
+        subsystem = None
+        for sub, files in SUBSYSTEM_PROTECTED.items():
+            if f in files:
+                subsystem = f"(Subsystem: {sub})"
+                break
 
-        print("\n📋 To modify protected files, you must:")  # noqa: ADR-0019
-        print("   1. Get approval from L (CTO)")  # noqa: ADR-0019
-        print("   2. Open an issue documenting the change")  # noqa: ADR-0019
-        print("   3. Include risk assessment and rollback plan")  # noqa: ADR-0019
-        return False
+        lcto = " (LCTO-controlled)" if f in PROTECTED_BY_LCTO else ""
+        print(f"   - {f}{lcto}{subsystem or ''}")  # noqa: ADR-0019
 
-    print("✅ No protected files modified")  # noqa: ADR-0019
-    return True
+    print("\n📋 To modify protected files, you must either:")  # noqa: ADR-0019
+    print("   1. Get approval from L (CTO) and add to commit message:")  # noqa: ADR-0019
+    print("      HIL_APPROVED: <reason for change>")  # noqa: ADR-0019
+    print("   2. Or revert the change:")  # noqa: ADR-0019
+    print("      git checkout origin/main -- <protected_file>")  # noqa: ADR-0019
+    return False
 
 
 def main():

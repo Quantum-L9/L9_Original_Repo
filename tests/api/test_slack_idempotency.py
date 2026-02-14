@@ -83,6 +83,7 @@ class TestSlackEventDeduplication:
                 return b"1"
             return None
 
+        @must_stay_async("callers use await")
         async def mock_redis_setnx(key, value, **kwargs):
             nonlocal call_count
             if call_count > 0:
@@ -180,12 +181,14 @@ class TestSlackEventDeduplication:
             # For this test, we assume no inflight collision for different keys
             return None
 
+        @must_stay_async("callers use await")
         async def mock_redis_setnx(key, value, **kwargs):
             if key in seen_keys:
                 return False
             seen_keys.add(key)
             return True
 
+        @must_stay_async("callers use await")
         async def mock_redis_delete(key):
             if key in seen_keys:
                 seen_keys.remove(key)
@@ -239,6 +242,7 @@ class TestSlackRedisUnavailable:
     """When Redis is down, the handler must still process (fail-open)."""
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_processes_when_redis_unavailable(self):
         """Handler must not silently drop events when Redis is unreachable."""
         try:
@@ -302,6 +306,7 @@ class TestSlackRedisUnavailable:
         assert processed, "Event was silently dropped when Redis was unavailable"
 
     @pytest.mark.asyncio
+    @must_stay_async("callers use await")
     async def test_redis_exception_does_not_crash_handler(self):
         """If Redis raises an exception, handler must catch and proceed."""
         try:

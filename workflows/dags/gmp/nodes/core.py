@@ -125,42 +125,70 @@ def node_implement(state: GMPState) -> GMPState:
 
 
 def node_validate(state: GMPState) -> GMPState:
-    """Run validation suite."""
+    """Run validation suite via gmp-validate-stage.py script."""
     state.phase = GMPPhase.VALIDATE
     state.add_message("✅ VALIDATION (Phase 4)")
 
-    results = {}
-    all_passed = True
+    validator_script = WORKSPACE_ROOT / "scripts" / "gmp-validate-stage.py"
 
-    for file_path in state.files_modified:
-        if file_path.endswith(".py"):
-            try:
-                result = subprocess.run(
-                    ["python3", "-m", "py_compile", file_path],
-                    capture_output=True,
-                    text=True,
-                    timeout=30,
-                    cwd=WORKSPACE_ROOT,
-                )
-                if result.returncode == 0:
-                    results[f"syntax:{file_path}"] = "✅"
-                else:
-                    results[f"syntax:{file_path}"] = f"❌ {result.stderr[:50]}"
-                    all_passed = False
-            except Exception as e:
-                results[f"syntax:{file_path}"] = f"❌ {e}"
-                all_passed = False
+    if not state.files_modified:
+        state.add_message("   ⚠️ No files to validate")
+        state.validation_passed = True
+        return state
 
-    state.validation_results = results
-    state.validation_passed = all_passed
+    try:
+        cmd = [
+            "python3",
+            str(validator_script),
+            "--files",
+            *state.files_modified,
+            "--json",
+        ]
 
-    for check, result in results.items():
-        state.add_message(f"   {check}: {result}")
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            cwd=WORKSPACE_ROOT,
+        )
 
-    if all_passed:
-        state.add_message("   ✅ All validation passed")
-    else:
-        state.add_message("   ❌ Validation failed")
+        # Parse JSON output from validator
+        import json
+
+        try:
+            validation_data = json.loads(result.stdout)
+            all_passed = validation_data.get("passed", False)
+
+            for check in validation_data.get("checks", []):
+                name = check["name"]
+                icon = "✅" if check["passed"] else "❌"
+                detail = f" — {check['detail']}" if check.get("detail") else ""
+                state.validation_results[name] = f"{icon}{detail}"
+                state.add_message(f"   {name}: {icon}{detail}")
+
+            state.validation_passed = all_passed
+            state.add_message(
+                f"   {'✅ All validation passed' if all_passed else '❌ Validation failed'}"
+            )
+            state.add_message(f"   Summary: {validation_data.get('summary', '')}")
+
+        except json.JSONDecodeError:
+            # Fallback: use exit code
+            state.validation_passed = result.returncode == 0
+            state.validation_results["gmp-validate-stage"] = (
+                "✅" if result.returncode == 0 else f"❌ exit={result.returncode}"
+            )
+            state.add_message(f"   gmp-validate-stage: exit {result.returncode}")
+            if result.stderr:
+                state.add_message(f"   stderr: {result.stderr[:200]}")
+
+    except subprocess.TimeoutExpired:
+        state.add_message("   ⚠️ Validation timed out")
+        state.validation_passed = False
+    except Exception as e:
+        state.add_message(f"   ⚠️ Validation error: {e}")
+        state.validation_passed = False
 
     return state
 
@@ -215,55 +243,45 @@ def node_memory_write(state: GMPState) -> GMPState:
 
 
 def node_finalize(state: GMPState) -> GMPState:
-    """Generate GMP report using the canonical report generator script."""
+    """Phase 6: generate report → validate report → update workflow_state."""
     state.phase = GMPPhase.FINALIZE
     state.add_message("📄 FINALIZE (Phase 6)")
-    state.add_message("   Generating canonical GMP report...")
 
-    # Build report generator command
-    report_generator = WORKSPACE_ROOT / "scripts" / "generate_gmp_report.py"
+    scripts = WORKSPACE_ROOT / "scripts"
+    report_generator = scripts / "generate_gmp_report.py"
+    report_validator = scripts / "validate_gmp_report.py"
+    workflow_updater = scripts / "update_workflow_state.py"
+
+    # ── Step 1: Generate report ──────────────────────────────────────────
+    state.add_message("   [1/3] Generating GMP report...")
 
     if not report_generator.exists():
-        state.add_message("   ⚠️ Report generator script not found")
+        state.add_message("   ⚠️ generate_gmp_report.py not found")
         state.report_generated = False
         return state
 
     try:
-        # Build TODO args from state
+        # Build TODO args
         todo_args = []
         for t in state.todo_plan:
-            todo_id = t.get("id", f"T{len(todo_args) + 1}")
-            todo_file = t.get("file", "unknown")
-            todo_lines = t.get("lines", "1-10")
-            todo_action = t.get("action", "REPLACE")
-            todo_desc = t.get("description", "")[:50]
-            todo_args.extend(
-                [
-                    "--todo",
-                    f"{todo_id}|{todo_file}|{todo_lines}|{todo_action}|{todo_desc}",
-                ]
-            )
+            tid = t.get("id", f"T{len(todo_args) + 1}")
+            tfile = t.get("file", "unknown")
+            tlines = t.get("lines", "1-10")
+            taction = t.get("action", "REPLACE")
+            tdesc = t.get("description", "")[:50]
+            todo_args.extend(["--todo", f"{tid}|{tfile}|{tlines}|{taction}|{tdesc}"])
 
-        # Build validation args from state
+        # Build validation args
         val_args = []
         for gate, result in state.validation_results.items():
             val_args.extend(["--validation", f"{gate}|{result}"])
-
-        # If no validations, add defaults
         if not val_args:
-            val_args = [
-                "--validation",
-                "py_compile|✅",
-                "--validation",
-                "import test|✅",
-            ]
+            val_args = ["--validation", "py_compile|✅", "--validation", "import|✅"]
 
-        # Determine tier format (script expects RUNTIME_TIER format)
         tier = state.tier.upper()
         if not tier.endswith("_TIER"):
             tier = f"{tier}_TIER"
 
-        # Build command
         cmd = [
             "python3",
             str(report_generator),
@@ -275,11 +293,10 @@ def node_finalize(state: GMPState) -> GMPState:
             *val_args,
             "--summary",
             f"GMP execution via LangGraph DAG. Files: {', '.join(state.files_modified[:3])}",
-            "--update-workflow",
             "--skip-verify",
         ]
 
-        result = subprocess.run(
+        gen_result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
@@ -287,36 +304,87 @@ def node_finalize(state: GMPState) -> GMPState:
             cwd=WORKSPACE_ROOT,
         )
 
-        if result.returncode == 0:
+        if gen_result.returncode == 0:
             # Extract report path from output
-            for line in result.stdout.split("\n"):
-                if "Report saved:" in line or "reports/" in line.lower():
-                    state.report_path = line.strip()
+            for line in gen_result.stdout.splitlines():
+                match = re.search(r"(reports/.*?\.md)", line)
+                if match:
+                    state.report_path = match.group(1)
                     break
-                if "GMP-Report-" in line:
-                    # Extract just the path portion
-                    match = re.search(r"(reports/.*?\.md)", line)
-                    if match:
-                        state.report_path = match.group(1)
-                        break
-
             state.report_generated = True
-            state.add_message(f"   ✅ Report generated: {state.report_path}")
+            state.add_message(f"   ✅ Report: {state.report_path}")
         else:
-            state.add_message(f"   ⚠️ Report generation failed: {result.stderr[:100]}")
-            # Still set a path for reference
+            state.add_message(
+                f"   ❌ Report generation failed: {gen_result.stderr[:120]}"
+            )
             desc = state.task[:30].replace(" ", "-").replace("/", "-")
             state.report_path = (
                 f"reports/GMP Reports/GMP-Report-{state.gmp_id}-{desc}.md"
             )
             state.report_generated = False
 
-    except subprocess.TimeoutExpired:
-        state.add_message("   ⚠️ Report generation timed out")
+    except (subprocess.TimeoutExpired, Exception) as e:
+        state.add_message(f"   ❌ Report generation error: {e}")
         state.report_generated = False
-    except Exception as e:
-        state.add_message(f"   ⚠️ Report generation error: {e}")
-        state.report_generated = False
+
+    # ── Step 2: Validate report ──────────────────────────────────────────
+    if state.report_generated and state.report_path:
+        state.add_message("   [2/3] Validating report...")
+        report_file = WORKSPACE_ROOT / state.report_path
+
+        if report_validator.exists() and report_file.exists():
+            try:
+                val_result = subprocess.run(
+                    ["python3", str(report_validator), str(report_file)],
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                    cwd=WORKSPACE_ROOT,
+                )
+                if val_result.returncode == 0:
+                    state.add_message("   ✅ Report validation passed")
+                else:
+                    state.add_message(
+                        f"   ⚠️ Report has issues: {val_result.stdout[:150]}"
+                    )
+            except Exception as e:
+                state.add_message(f"   ⚠️ Report validation error: {e}")
+        else:
+            state.add_message("   ⚠️ Skipped (validator or report not found)")
+    else:
+        state.add_message("   [2/3] Skipped (no report generated)")
+
+    # ── Step 3: Update workflow_state.md ─────────────────────────────────
+    if state.report_generated and state.report_path:
+        state.add_message("   [3/3] Updating workflow_state.md...")
+        report_file = WORKSPACE_ROOT / state.report_path
+
+        if workflow_updater.exists() and report_file.exists():
+            try:
+                ws_result = subprocess.run(
+                    [
+                        "python3",
+                        str(workflow_updater),
+                        "--from-report",
+                        str(report_file),
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                    cwd=WORKSPACE_ROOT,
+                )
+                if ws_result.returncode == 0:
+                    state.add_message("   ✅ workflow_state.md updated")
+                else:
+                    state.add_message(
+                        f"   ⚠️ workflow_state update failed: {ws_result.stderr[:100]}"
+                    )
+            except Exception as e:
+                state.add_message(f"   ⚠️ workflow_state error: {e}")
+        else:
+            state.add_message("   ⚠️ Skipped (updater or report not found)")
+    else:
+        state.add_message("   [3/3] Skipped (no report)")
 
     return state
 

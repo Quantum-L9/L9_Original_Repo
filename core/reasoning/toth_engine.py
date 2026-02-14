@@ -26,7 +26,7 @@ __dora_meta__ = {
 # ============================================================================
 
 import asyncio
-import logging
+import logging  # noqa: ADR-0019 — stdlib logging used alongside structlog for basicConfig
 import os
 import sys
 import time

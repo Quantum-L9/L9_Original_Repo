@@ -32,16 +32,18 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-from core.decorators import must_stay_async
 import asyncio
 import statistics
 import time
+
 import structlog
 
+from core.decorators import must_stay_async
 
 # Mock implementations for benchmarking without database
 
 logger = structlog.get_logger(__name__)
+
 
 class MockDatabase:
     """Mock database for benchmarking."""
@@ -138,9 +140,9 @@ async def benchmark_query_caching():
 
 async def benchmark_vector_search():
     """Benchmark vector search optimization."""
-    logger.info("\n" + "=" * 70")
+    logger.info("\n" + "=" * 70)
     logger.info("benchmark: vector search optimization")
-    logger.info("=" * 70")
+    logger.info("=" * 70)
 
     db = MockDatabase()
 
@@ -203,9 +205,9 @@ async def benchmark_vector_search():
 @must_stay_async("callers use await")
 async def benchmark_combined_impact():
     """Benchmark combined impact of both optimizations."""
-    logger.info("\n" + "=" * 70")
+    logger.info("\n" + "=" * 70)
     logger.info("benchmark: combined impact")
-    logger.info("=" * 70")
+    logger.info("=" * 70)
 
     # Simulate realistic workload
     logger.info("\n1. realistic workload (100 operations)...")
@@ -220,7 +222,10 @@ async def benchmark_combined_impact():
         + 30 * 200  # Vector searches (200ms each, unoptimized)
         + 20 * 10  # Uncached queries (10ms each)
     )
-    logger.info("   total time: time beforems = {time before / 1000:.2f}s", time_before=time_before)
+    logger.info(
+        "   total time: time beforems = {time before / 1000:.2f}s",
+        time_before=time_before,
+    )
 
     # After optimization
     logger.info("\n3. after optimization:")
@@ -229,7 +234,9 @@ async def benchmark_combined_impact():
         + 30 * 40  # Vector searches (40ms each, optimized)
         + 20 * 10  # Uncached queries (10ms each, unchanged)
     )
-    logger.info("   total time: time afterms = {time after / 1000:.2f}s", time_after=time_after)
+    logger.info(
+        "   total time: time afterms = {time after / 1000:.2f}s", time_after=time_after
+    )
 
     # Calculate improvement
     speedup = time_before / time_after if time_after > 0 else 0
@@ -252,10 +259,10 @@ async def benchmark_combined_impact():
 
 async def main():
     """Run all benchmarks."""
-    logger.info("\n" + "=" * 70")
+    logger.info("\n" + "=" * 70)
     logger.info("l9 performance optimization benchmarks")
     logger.info("query caching + vector search optimization")
-    logger.info("=" * 70")
+    logger.info("=" * 70)
 
     # Run benchmarks
     caching_results = await benchmark_query_caching()
@@ -263,9 +270,9 @@ async def main():
     combined_results = await benchmark_combined_impact()
 
     # Summary
-    logger.info("\n" + "=" * 70")
+    logger.info("\n" + "=" * 70)
     logger.info("summary")
-    logger.info("=" * 70")
+    logger.info("=" * 70)
 
     logger.info("\n✅ query caching:")
     logger.info("   - {caching_results['speedup']:.1f}x faster")
@@ -284,15 +291,15 @@ async def main():
         f"   - Realistic workload: {combined_results['before'] / 1000:.2f}s → {combined_results['after'] / 1000:.2f}s"
     )
 
-    logger.info("\n" + "=" * 70")
+    logger.info("\n" + "=" * 70)
     logger.info("🎉 benchmarks complete!")
-    logger.info("=" * 70")
+    logger.info("=" * 70)
     logger.info("\nnext steps:")
     logger.info("1. review pr and merge changes")
     logger.info("2. run migration: 0020_optimize_vector_search.sql")
     logger.info("3. monitor production metrics")
     logger.info("4. adjust cache sizes based on usage patterns")
-    logger.info("output", value=)
+    logger.info("")
 
 
 if __name__ == "__main__":

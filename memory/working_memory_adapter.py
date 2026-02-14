@@ -13,6 +13,25 @@ Scope: helper utilities only; no side effects beyond substrate queries.
 
 from __future__ import annotations
 
+__dora_meta__ = {
+    "component_name": "Working Memory Adapter",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.979871+00:00",
+    "updated_at": "2026-02-13T23:37:34.979871+00:00",
+    "layer": "core",
+    "domain": "memory",
+    "module_name": "memory.working_memory_adapter",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
 from collections.abc import Iterable
 from datetime import UTC, datetime, timedelta, timezone
 from typing import Any

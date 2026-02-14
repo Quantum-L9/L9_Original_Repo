@@ -13,6 +13,26 @@ Outputs:
 NOTE: The transcript uses '''yaml (triple single quotes) as delimiters.
 """
 
+__dora_meta__ = {
+    "component_name": "Extract Yaml Specs",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.991085+00:00",
+    "updated_at": "2026-02-13T23:37:34.991085+00:00",
+    "layer": "core",
+    "domain": "agents",
+    "module_name": "core.agents.codegenagent.extract_yaml_specs",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
+
 import os
 import re
 from pathlib import Path

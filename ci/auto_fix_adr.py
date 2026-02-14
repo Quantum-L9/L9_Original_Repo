@@ -3,40 +3,33 @@
 Auto-fix common ADR violations.
 
 Usage:
-    python3 ci/auto_fix_adr.py [--dry-run] [--all]
-    python3 ci/auto_fix_adr.py --safe  # Only add noqa comments, never transform code
-    python3 ci/auto_fix_adr.py --fix-<adr> # Fix specific ADR
+    python3 ci/auto_fix_adr.py --transform-only --dry-run  # RECOMMENDED: preview real fixes
+    python3 ci/auto_fix_adr.py --transform-only             # RECOMMENDED: apply real fixes
+    python3 ci/auto_fix_adr.py --all --dry-run               # Preview ALL fixes (incl. noqa)
+    python3 ci/auto_fix_adr.py --fix-<adr>                   # Fix specific ADR
 
-This script automatically fixes 23 ADRs:
+MODES:
+    --transform-only  RECOMMENDED. Only runs fixes that TRANSFORM code.
+                      Never adds # noqa comments. This is the safe default.
+    --all             Runs ALL fixes including noqa additions. Use with caution.
+                      Adding noqa hides violations — it does NOT fix them.
+    --safe            Only add noqa comments, never transform code. (DISCOURAGED)
 
-SECURITY ADRs (transform code):
-- ADR-0001: Path safety → add noqa for internal paths
-- ADR-0083: datetime.now(UTC) → datetime.now(UTC)
-- ADR-0087: f-string SQL → add noqa for safe cases (table/column interpolation)
-- ADR-0088: Pickle usage → add noqa for test fixtures
-- ADR-0090: Hardcoded credentials → add noqa for placeholder values
-
-CODE QUALITY ADRs (transform or add noqa):
+REAL CODE TRANSFORMS (--transform-only runs these):
 - ADR-0002: TYPE_CHECKING → add 'from __future__ import annotations'
-- ADR-0006: PacketEnvelope → add noqa for utility modules
-- ADR-0009: Circuit breaker → add noqa for internal service calls
-- ADR-0010: @must_stay_async → add noqa for intentional async without await
+- ADR-0010: @must_stay_async → add decorator to async-without-await functions
 - ADR-0014: DORA metadata → add __dora_meta__ block to production modules
-- ADR-0016: TypedDict/Pydantic → add noqa for conversion utilities
-- ADR-0019: print() → add noqa for CLI tools
-- ADR-0022: Registry pattern → add noqa for simple registries
-- ADR-0024: Resilience mixin → add noqa for direct @retry  # noqa: ADR-0024 - direct retry is intentional
-- ADR-0025: FastAPI Depends → add noqa for simple routes
-- ADR-0027: LRU cache → add maxsize=128
-- ADR-0031: WebSocket pattern → add noqa for orchestrator handling
-- ADR-0032: Neo4j Cypher → add noqa for label interpolation
-- ADR-0055: Bare except → convert to 'except Exception' or add noqa
-- ADR-0084: httpx.AsyncClient → add noqa for valid patterns
-- ADR-0085: Singleton pattern → add noqa for startup-only singletons
-- ADR-0086: Type conversion → add noqa for validated input
+- ADR-0027: LRU cache → add maxsize=128 to bare @lru_cache
+- ADR-0055: Bare except → convert 'except:' to 'except Exception:'
+- ADR-0083: datetime.now(UTC) → datetime.now(UTC) + add UTC import
+- ADR-0083: Missing timezone import → add 'from datetime import timezone'
+
+NOQA ADDITIONS (--all only, NOT recommended):
+- ADR-0001, 0006, 0009, 0016, 0019, 0022, 0024, 0025, 0031, 0032,
+  0084, 0085, 0086, 0087, 0088, 0090
+  These add '# noqa: ADR-XXXX' comments which HIDE violations, not fix them.
 
 Run with --dry-run to see what would be changed without modifying files.
-Run with --safe to only add noqa comments (never transforms code).
 """
 
 from __future__ import annotations
@@ -967,7 +960,7 @@ def fix_missing_dora(file_path: Path, dry_run: bool = False) -> bool:
         module_name=module_name,
     )
 
-    # Find insertion point (after docstring)
+    # Find insertion point (after docstring AND after from __future__ imports)
     lines = content.split("\n")
     insert_pos = 0
 
@@ -987,13 +980,27 @@ def fix_missing_dora(file_path: Path, dry_run: bool = False) -> bool:
                     in_docstring = True
             elif stripped.startswith("#"):
                 insert_pos = i + 1
+            elif stripped.startswith("from __future__"):
+                # CRITICAL: __future__ imports MUST come before __dora_meta__
+                insert_pos = i + 1
             elif stripped:
-                # First non-comment, non-docstring line
+                # First non-comment, non-docstring, non-future line
                 break
         else:
             if docstring_char in stripped:
                 in_docstring = False
                 insert_pos = i + 1
+
+    # Also skip past any from __future__ that appears right after docstring
+    while insert_pos < len(lines):
+        stripped = lines[insert_pos].strip()
+        if stripped.startswith("from __future__"):
+            insert_pos += 1
+        elif stripped == "":
+            # Skip blank lines between docstring/future and code
+            insert_pos += 1
+        else:
+            break
 
     # Insert DORA block
     new_lines = [*lines[:insert_pos], "", dora_block, "", *lines[insert_pos:]]
@@ -1839,41 +1846,49 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-    # See what would be changed
-    python3 ci/auto_fix_adr.py --all --dry-run
+    # RECOMMENDED: Preview real code transforms only
+    python3 ci/auto_fix_adr.py --transform-only --dry-run
 
-    # Safe mode: only add noqa comments, never transform code
-    python3 ci/auto_fix_adr.py --all --safe
+    # RECOMMENDED: Apply real code transforms
+    python3 ci/auto_fix_adr.py --transform-only
 
     # Fix specific ADR
     python3 ci/auto_fix_adr.py --fix-timezone
+    python3 ci/auto_fix_adr.py --fix-utcnow
+    python3 ci/auto_fix_adr.py --fix-bare-except
 
     # Fix specific path
-    python3 ci/auto_fix_adr.py --all --path core/
+    python3 ci/auto_fix_adr.py --transform-only --path core/
 
-Supported ADRs (23 total):
-    ADR-0001  Path safety (add noqa for internal paths)
-    ADR-0002  TYPE_CHECKING imports (add future annotations)
-    ADR-0006  PacketEnvelope (add noqa for utility modules)
-    ADR-0009  Circuit breaker (add noqa for internal calls)
-    ADR-0010  @must_stay_async (add noqa for intentional async)
-    ADR-0014  DORA metadata (add __dora_meta__ block)
-    ADR-0016  TypedDict/Pydantic (add noqa for converters)
-    ADR-0019  print() statements (add noqa for CLI tools)
-    ADR-0022  Registry pattern (add noqa for simple registries)
-    ADR-0024  Resilience mixin (add noqa for direct @retry)  # noqa: ADR-0024 - direct retry is intentional
-    ADR-0025  FastAPI Depends (add noqa for simple routes)
-    ADR-0027  LRU cache maxsize (add maxsize=128)
-    ADR-0031  WebSocket pattern (add noqa for orchestrator handling)
-    ADR-0032  Neo4j Cypher (add noqa for label interpolation)
-    ADR-0055  Bare except (convert to Exception or add noqa)
-    ADR-0083  datetime.now(UTC) (convert to now(UTC))
-    ADR-0084  httpx.AsyncClient (add noqa for valid patterns)
-    ADR-0085  Singleton pattern (add noqa for startup-only)
-    ADR-0086  Type conversion (add noqa for validated input)
-    ADR-0087  f-string SQL (add noqa for table/column names)
-    ADR-0088  Pickle usage (add noqa for test fixtures)
-    ADR-0090  Hardcoded credentials (add noqa for placeholders)
+    # NOT RECOMMENDED: Run all fixes including noqa additions
+    python3 ci/auto_fix_adr.py --all --dry-run
+
+REAL CODE TRANSFORMS (7 fixers — safe to run):
+    ADR-0002  TYPE_CHECKING → add 'from __future__ import annotations'
+    ADR-0010  @must_stay_async → add decorator to async-without-await
+    ADR-0014  DORA metadata → add __dora_meta__ block
+    ADR-0027  LRU cache → add maxsize=128
+    ADR-0055  Bare except → convert to 'except Exception:'
+    ADR-0083  datetime.now(UTC) → datetime.now(UTC)
+    ADR-0083  Missing timezone import → add timezone to import
+
+NOQA ADDITIONS (16 fixers — use --all, NOT recommended):
+    ADR-0001  Path safety (noqa)
+    ADR-0006  PacketEnvelope (noqa)
+    ADR-0009  Circuit breaker (noqa)
+    ADR-0016  TypedDict/Pydantic (noqa)
+    ADR-0019  print() statements (noqa)
+    ADR-0022  Registry pattern (noqa)
+    ADR-0024  Resilience mixin (noqa)
+    ADR-0025  FastAPI Depends (noqa)
+    ADR-0031  WebSocket pattern (noqa)
+    ADR-0032  Neo4j Cypher (noqa)
+    ADR-0084  httpx.AsyncClient (noqa)
+    ADR-0085  Singleton pattern (noqa)
+    ADR-0086  Type conversion (noqa)
+    ADR-0087  f-string SQL (noqa)
+    ADR-0088  Pickle usage (noqa)
+    ADR-0090  Hardcoded credentials (noqa)
         """,
     )
     parser.add_argument(
@@ -1987,7 +2002,16 @@ Supported ADRs (23 total):
         action="store_true",
         help="Fix TypedDict/Pydantic (ADR-0016)",
     )
-    parser.add_argument("--all", action="store_true", help="Run all fixes")
+    parser.add_argument(
+        "--all", action="store_true", help="Run all fixes (includes noqa additions)"
+    )
+    parser.add_argument(
+        "--transform-only",
+        action="store_true",
+        help="RECOMMENDED: Only run fixes that TRANSFORM code (no noqa additions). "
+        "Transforms: utcnow→now(UTC), bare except→Exception, lru_cache maxsize, "
+        "future annotations, @must_stay_async, DORA metadata, timezone imports.",
+    )
     parser.add_argument("--path", type=str, default=".", help="Root path to scan")
 
     args = parser.parse_args()
@@ -2018,11 +2042,27 @@ Supported ADRs (23 total):
         args.fix_neo4j,
         args.fix_typeddict,
         args.all,
+        args.transform_only,
     ]
 
     if not any(fix_options):
         parser.print_help()
         sys.exit(1)
+
+    # --transform-only: enable ONLY the 7 real code transformers
+    if args.transform_only:
+        print(
+            "🔧 TRANSFORM-ONLY mode: Only running real code fixes (no noqa additions)\n"
+        )  # noqa: ADR-0019
+        args.fix_utcnow = True
+        args.fix_timezone = True
+        args.fix_type_checking = True
+        args.fix_bare_except = True
+        args.fix_lru_cache = True
+        args.fix_must_stay_async = True
+        args.fix_dora = True
+        # Explicitly ensure noqa-only fixers are NOT enabled
+        # (they only run if --all or their specific flag is set)
 
     root = Path(args.path)
     files = find_python_files(root)
@@ -2032,6 +2072,11 @@ Supported ADRs (23 total):
         print("(dry run - no files will be modified)\n")  # noqa: ADR-0019
     if args.safe:
         print("(safe mode - only adding noqa comments)\n")  # noqa: ADR-0019
+    if args.all and not args.transform_only:
+        print(  # noqa: ADR-0019
+            "⚠️  WARNING: --all includes noqa additions which HIDE violations.\n"
+            "   Consider using --transform-only instead for real fixes.\n"
+        )
 
     total_fixed = 0
     modified_files: set[Path] = set()  # Track all modified files for validation

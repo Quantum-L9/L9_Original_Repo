@@ -30,6 +30,13 @@ from typing import Any
 import structlog
 from pydantic import BaseModel, ValidationError
 
+from core.config_constants import (
+    DEFAULT_SEARCH_SCOPES,
+    MCP_SEARCH_SCOPES,
+    MCP_WRITE_SCOPES,
+    get_allowed_scopes_for_caller,
+    get_default_project_id,
+)
 from core.decorators import must_stay_async
 from src.config import settings
 
@@ -90,7 +97,7 @@ def get_mcp_tools() -> list[MCPTool]:
                     },
                     "scope": {
                         "type": "string",
-                        "enum": ["developer", "l-private", "global"],
+                        "enum": MCP_WRITE_SCOPES,  # ADR-0098
                     },
                     "duration": {"type": "string", "enum": ["short", "medium", "long"]},
                     "user_id": {"type": "string"},
@@ -144,7 +151,7 @@ def get_mcp_tools() -> list[MCPTool]:
                         "type": "array",
                         "items": {
                             "type": "string",
-                            "enum": ["developer", "l-private", "global"],
+                            "enum": MCP_SEARCH_SCOPES,  # ADR-0098
                         },
                     },
                     "kinds": {"type": "array", "items": {"type": "string"}},
@@ -340,7 +347,7 @@ def get_mcp_tools() -> list[MCPTool]:
                     },
                     "scope": {
                         "type": "string",
-                        "enum": ["developer", "l-private", "global"],
+                        "enum": MCP_WRITE_SCOPES,  # ADR-0098
                     },
                     "duration": {"type": "string", "enum": ["short", "medium", "long"]},
                     "user_id": {"type": "string"},
@@ -570,7 +577,7 @@ def get_mcp_tools() -> list[MCPTool]:
         ),
         MCPTool(
             name="cache_get_session_context",
-            description="Get Cursor session context from Redis cache. Returns fast-access session state.",
+            description="Get session context from Redis cache for this agent (Cursor, L, etc.). Returns fast-access session state. Key is namespaced by caller so each agent has its own context.",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -580,6 +587,28 @@ def get_mcp_tools() -> list[MCPTool]:
                     },
                 },
                 "required": [],
+            },
+        ),
+        MCPTool(
+            name="cache_set_session_context",
+            description="Store session context in Redis cache for this agent (any L9 agent: Cursor, L, Mac, etc.). Use at session end or milestones so the agent can resume without amnesia. Key is namespaced by caller.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "session_id": {
+                        "type": "string",
+                        "description": "Session ID (defaults to daily session if not provided)",
+                    },
+                    "context": {
+                        "type": "object",
+                        "description": "Context dict: summary, files_touched, current_task, decisions, next_steps",
+                    },
+                    "ttl": {
+                        "type": "integer",
+                        "description": "Time-to-live in seconds (default 86400 = 24h)",
+                    },
+                },
+                "required": ["context"],
             },
         ),
         MCPTool(
@@ -644,6 +673,7 @@ async def handle_tool_call(
         CacheGetSessionContextArgs,
         CacheKeysArgs,
         CacheSetArgs,
+        CacheSetSessionContextArgs,
         CompoundMemoriesArgs,
         DeleteExpiredMemoriesArgs,
         ExtractSessionLearningsArgs,
@@ -668,9 +698,9 @@ async def handle_tool_call(
     creator = caller.creator if caller else "unknown"
     source = caller.source if caller else "unknown"
 
-    # GMP-JSONB-GOV-FIX: Get project_id from env var (not hardcoded)
-    # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9
-    project_id = os.getenv("L9_PROJECT_ID", "l9")
+    # ADR-0098: project_id from centralized config_constants (single source of truth)
+    # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9-default
+    project_id = get_default_project_id()
 
     # Track execution time for audit
     start_time = time.time()
@@ -728,6 +758,8 @@ async def handle_tool_call(
             validated_args = CacheSetArgs(**tool.arguments)
         elif tool.name == "cache_get_session_context":
             validated_args = CacheGetSessionContextArgs(**tool.arguments)
+        elif tool.name == "cache_set_session_context":
+            validated_args = CacheSetSessionContextArgs(**tool.arguments)
         elif tool.name == "cache_delete":
             validated_args = CacheDeleteArgs(**tool.arguments)
         elif tool.name == "cache_keys":
@@ -770,7 +802,8 @@ async def handle_tool_call(
             from src.routes.memory_unified import search_memory_handler
 
             # Use validated_args (already validated by Pydantic above)
-            requested_scopes = validated_args.scopes or ["developer", "global"]
+            # ADR-0098: scope defaults from config_constants
+            requested_scopes = validated_args.scopes or DEFAULT_SEARCH_SCOPES
 
             # Enforce: Cursor CANNOT see l-private scope (filter it out)
             if caller_id == "C" and "l-private" in requested_scopes:
@@ -838,8 +871,10 @@ async def handle_tool_call(
         elif tool.name == "get_context":
             from src.routes.memory_unified import get_context_injection
 
-            # Cursor gets filtered scopes (no l-private), L gets all
-            allowed_scopes = ["developer", "global"] if caller_id == "C" else None
+            # ADR-0098: scope filtering from config_constants
+            allowed_scopes = (
+                get_allowed_scopes_for_caller(caller_id) if caller_id == "C" else None
+            )
 
             result = await get_context_injection(
                 task_description=validated_args.task_description,
@@ -873,8 +908,10 @@ async def handle_tool_call(
         elif tool.name == "get_proactive_suggestions":
             from src.routes.memory_unified import get_proactive_suggestions
 
-            # Cursor gets filtered scopes (no l-private), L gets all
-            allowed_scopes = ["developer", "global"] if caller_id == "C" else None
+            # ADR-0098: scope filtering from config_constants
+            allowed_scopes = (
+                get_allowed_scopes_for_caller(caller_id) if caller_id == "C" else None
+            )
 
             result = await get_proactive_suggestions(
                 current_context=validated_args.current_context,
@@ -896,8 +933,10 @@ async def handle_tool_call(
             from src.routes.memory_unified import query_temporal
 
             # GOVERNANCE: Cursor CANNOT see l-private via temporal queries
-            # Scope filtering enforced at SQL level using = ANY($N)
-            allowed_scopes = ["developer", "global"] if caller_id == "C" else None
+            # ADR-0098: scope filtering from config_constants
+            allowed_scopes = (
+                get_allowed_scopes_for_caller(caller_id) if caller_id == "C" else None
+            )
 
             result = await query_temporal(
                 user_id=user_id,
@@ -1222,18 +1261,16 @@ async def handle_tool_call(
                     # Generate daily session ID if not provided
                     session_id = validated_args.session_id
                     if not session_id:
-                        # Use same logic as cursor_memory_client.py
-                        CURSOR_SESSION_NAMESPACE = uuid.UUID(
+                        L9_SESSION_NAMESPACE = uuid.UUID(
                             "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
                         )
                         today = datetime.now(UTC).strftime("%Y-%m-%d")
                         session_id = str(
-                            uuid.uuid5(
-                                CURSOR_SESSION_NAMESPACE, f"cursor-session-{today}"
-                            )
+                            uuid.uuid5(L9_SESSION_NAMESPACE, f"l9-session-{today}")
                         )
 
-                    key = f"cursor:session:{session_id}:context"
+                    # Namespace by caller (C, L, etc.) so all agents have separate context
+                    key = f"l9:session:{caller_id}:{session_id}:context"
                     value = await client.get(key)
 
                     if value is None:
@@ -1249,6 +1286,43 @@ async def handle_tool_call(
                             "data": context,
                             "session_id": session_id,
                         }
+            except ImportError:
+                result = {"error": "Redis client not configured", "available": False}
+            except Exception as e:
+                result = {"error": str(e), "available": False}
+
+        elif tool.name == "cache_set_session_context":
+            try:
+                import json as json_lib
+                import uuid
+                from datetime import datetime, timezone
+
+                from api.memory.cache import get_redis
+
+                client = await get_redis()
+                if client is None or not client.is_available():
+                    result = {"error": "Redis not available", "available": False}
+                else:
+                    L9_SESSION_NAMESPACE = uuid.UUID(
+                        "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+                    )
+                    session_id = validated_args.session_id
+                    if not session_id:
+                        today = datetime.now(UTC).strftime("%Y-%m-%d")
+                        session_id = str(
+                            uuid.uuid5(L9_SESSION_NAMESPACE, f"l9-session-{today}")
+                        )
+                    # Namespace by caller so all agents (Cursor, L, etc.) have separate context
+                    key = f"l9:session:{caller_id}:{session_id}:context"
+                    value = json_lib.dumps(validated_args.context)
+                    ttl = validated_args.ttl
+                    await client.set(key, value, ttl=ttl)
+                    result = {
+                        "success": True,
+                        "session_id": session_id,
+                        "key": key,
+                        "ttl": ttl,
+                    }
             except ImportError:
                 result = {"error": "Redis client not configured", "available": False}
             except Exception as e:

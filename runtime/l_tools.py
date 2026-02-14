@@ -1442,6 +1442,7 @@ async def memory_health_check(**kwargs: Any) -> dict[str, Any]:
 # TOOL GRAPH ANALYSIS TOOLS (GMP-32 Batch 9)
 
 
+@must_stay_async("callers use await")
 async def tools_get_api_dependents(
     api_name: str,
     **kwargs: Any,
@@ -1475,6 +1476,7 @@ async def tools_get_api_dependents(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def tools_get_dependencies(
     tool_name: str,
     **kwargs: Any,
@@ -1507,6 +1509,7 @@ async def tools_get_dependencies(
         return {"error": str(e), "status": "error"}
 
 
+@must_stay_async("callers use await")
 async def tools_get_blast_radius(
     api_name: str,
     **kwargs: Any,

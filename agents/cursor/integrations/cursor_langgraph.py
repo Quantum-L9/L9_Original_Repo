@@ -45,6 +45,7 @@ import structlog
 from langgraph.graph import END, START, StateGraph
 from pydantic import BaseModel, Field
 
+from core.config_constants import DEFAULT_SEARCH_SCOPES
 from core.decorators import must_stay_async
 
 logger = structlog.get_logger(__name__)
@@ -281,10 +282,10 @@ class CursorMemorySearchNode:
             return state
 
         try:
-            # Search memory (scope: developer, global)
+            # ADR-0098: search scopes from config_constants
             hits = await self._gateway.search_memory(
                 query=query,
-                scope=["developer", "global"],
+                scope=DEFAULT_SEARCH_SCOPES,
                 project_id=state.project_id or "default",
                 limit=10,
             )
@@ -358,7 +359,7 @@ class CursorErrorRecoveryNode:
                 query = f"fix {error_type} {error_msg[:50]}"
                 hits = await self._gateway.search_memory(
                     query=query,
-                    scope=["developer", "global"],
+                    scope=DEFAULT_SEARCH_SCOPES,
                     project_id=state.project_id or "default",
                     limit=5,
                 )

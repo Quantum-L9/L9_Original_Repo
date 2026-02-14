@@ -115,6 +115,11 @@ logger = structlog.get_logger(__name__)
 SCHEMA_VERSION = "2.0.0"
 SUPPORTED_VERSIONS = ["1.0.0", "1.0.1", "1.1.0", "1.1.1", "2.0.0"]
 
+# ADR-0098: DRY — Cursor default scopes defined once, used everywhere.
+# Canonical source: core.config_constants.ALLOWED_SCOPES_CURSOR
+# Duplicated here because this client runs standalone (outside L9 sys.path).
+_DEFAULT_SCOPES: list[str] = ["cursor", "developer", "global"]
+
 # =============================================================================
 # Session UUID - Date-based (same for entire day)
 # =============================================================================
@@ -378,9 +383,10 @@ def cmd_search(
             "query": query,
             "user_id": "l9-shared",  # Shared user_id for L + C
             "scopes": [
+                "cursor",
                 "developer",
                 "global",
-            ],  # Cursor can read developer + global (not l-private)
+            ],  # Cursor reads cursor + developer + global (not l-private)
             "top_k": limit * 2,  # Fetch extra for filtering
             "threshold": min_confidence,
             "duration": "all",
@@ -418,14 +424,28 @@ def cmd_search(
     )
 
 
-def cmd_write(content: str, kind: str = "note", thread_id: str | None = None):
+def cmd_write(
+    content: str,
+    kind: str = "note",
+    thread_id: str | None = None,
+    scope: str = "cursor",
+    tags: list[str] | None = None,
+):
     """
     Write to memory via MCP using PacketEnvelope v2.0 schema.
 
     Uses daily session UUID if no thread_id provided.
+    Cursor IDE writes default to scope='cursor' per RLS design (ADR-0005).
+
+    Agents MUST add tags and keywords to every memory write for best retrieval.
+    Pass domain/topic/keyword tags (e.g. ["lesson", "cursor", "structlog", "error_handling"]).
+    If tags are omitted, a single kind-based tag is used as fallback.
     """
     # Use daily session ID if not explicitly provided
     session_id = thread_id or get_daily_session_id()
+
+    # Require tags for retrieval quality: use caller tags or fallback to kind
+    tag_list = list(tags) if tags else [f"kind:{kind}"]
 
     # Map kind to MCP duration (default: long for durability)
     kind_to_duration = {
@@ -438,9 +458,6 @@ def cmd_write(content: str, kind: str = "note", thread_id: str | None = None):
     }
     duration = kind_to_duration.get(kind, "long")
 
-    # Map kind to MCP scope (Cursor writes to developer scope only)
-    scope = "developer"  # Cursor cannot write to l-private
-
     # Call MCP save_memory tool
     result = mcp_call_tool(
         "save_memory",
@@ -450,7 +467,7 @@ def cmd_write(content: str, kind: str = "note", thread_id: str | None = None):
             "scope": scope,
             "duration": duration,
             "user_id": "l9-shared",  # Shared user_id for L + C
-            "tags": [],  # Optional tags
+            "tags": tag_list,
             "importance": 1.0,  # Default importance
         },
     )
@@ -508,7 +525,7 @@ def cmd_mcp_test():
         {
             "content": test_content,
             "kind": "note",
-            "scope": "developer",
+            "scope": "cursor",
             "duration": "short",  # Short-lived test packet
             "user_id": "l9-shared",
             "tags": ["mcp_test", test_id],
@@ -539,7 +556,7 @@ def cmd_mcp_test():
         {
             "query": test_id,  # Search by unique test ID
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 5,
             "threshold": 0.0,
             "duration": "all",
@@ -600,7 +617,7 @@ def cmd_session_close():
         {
             "query": f"session {today}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 50,
             "threshold": 0.0,
             "duration": "all",
@@ -631,7 +648,7 @@ def cmd_session_close():
         {
             "content": summary,
             "kind": "context",  # Session anchor is context
-            "scope": "developer",
+            "scope": "cursor",
             "duration": "long",  # Session anchors persist
             "user_id": "l9-shared",
             "tags": ["session_anchor", f"session_{today}"],
@@ -672,7 +689,7 @@ def cmd_session_resume(task_description: str | None = None):
         {
             "query": query,
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 5,
             "threshold": 0.0,
             "duration": "all",
@@ -703,7 +720,7 @@ def cmd_session_resume(task_description: str | None = None):
         {
             "query": "Igor preferences patterns",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["preference"],
             "top_k": 3,
             "threshold": 0.0,
@@ -723,7 +740,7 @@ def cmd_session_resume(task_description: str | None = None):
         {
             "query": "lessons errors cursor",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["lesson"],
             "top_k": 3,
             "threshold": 0.0,
@@ -777,7 +794,7 @@ def cmd_warn(task_description: str):
         {
             "query": f"error mistake {task_description}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["error", "lesson"],
             "top_k": 5,
             "threshold": 0.0,
@@ -791,7 +808,7 @@ def cmd_warn(task_description: str):
         {
             "query": f"lesson warning {task_description}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["lesson"],
             "top_k": 5,
             "threshold": 0.0,
@@ -805,7 +822,7 @@ def cmd_warn(task_description: str):
         {
             "query": f"violation critical {task_description}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 3,
             "threshold": 0.0,
             "duration": "all",
@@ -904,7 +921,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
         {
             "query": "Igor preferences patterns coding style",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["preference"],
             "top_k": 5,
             "threshold": 0.0,
@@ -922,7 +939,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
         {
             "query": f"lessons errors cursor {task_description or ''}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["lesson"],
             "top_k": 5,
             "threshold": 0.0,
@@ -941,7 +958,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
             {
                 "query": task_description,
                 "user_id": "l9-shared",
-                "scopes": ["developer", "global"],
+                "scopes": _DEFAULT_SCOPES,
                 "top_k": 5,
                 "threshold": 0.0,
                 "duration": "all",
@@ -959,7 +976,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
         {
             "query": f"session {today} recent work",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 3,
             "threshold": 0.0,
             "duration": "all",
@@ -977,7 +994,7 @@ def cmd_inject(task_description: str | None = None, layers: str = "all"):
             {
                 "query": f"error mistake warning {task_description}",
                 "user_id": "l9-shared",
-                "scopes": ["developer", "global"],
+                "scopes": _DEFAULT_SCOPES,
                 "kinds": ["error", "lesson"],
                 "top_k": 3,
                 "threshold": 0.0,
@@ -1031,7 +1048,7 @@ def cmd_temporal(query: str, since: str = "24h", until: str | None = None):
         {
             "query": f"{query} {time_desc}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 15,
             "threshold": 0.0,
             "duration": "all",
@@ -1066,7 +1083,7 @@ def cmd_fix_error(error_message: str):
         {
             "query": f"error fix solution {error_message}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["error", "lesson"],
             "top_k": 10,
             "threshold": 0.0,
@@ -1080,7 +1097,7 @@ def cmd_fix_error(error_message: str):
         {
             "query": f"lesson {error_message}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "kinds": ["lesson"],
             "top_k": 5,
             "threshold": 0.0,
@@ -1148,7 +1165,7 @@ def cmd_suggest(context: str | None = None):
             {
                 "query": f"pattern workflow next step {context}",
                 "user_id": "l9-shared",
-                "scopes": ["developer", "global"],
+                "scopes": _DEFAULT_SCOPES,
                 "top_k": 10,
                 "threshold": 0.0,
                 "duration": "all",
@@ -1161,7 +1178,7 @@ def cmd_suggest(context: str | None = None):
             {
                 "query": "recent session TODO next step workflow",
                 "user_id": "l9-shared",
-                "scopes": ["developer", "global"],
+                "scopes": _DEFAULT_SCOPES,
                 "top_k": 10,
                 "threshold": 0.0,
                 "duration": "all",
@@ -1209,7 +1226,7 @@ def cmd_dedupe_check(content: str):
         {
             "query": content,
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 5,
             "threshold": 0.5,  # High similarity threshold
             "duration": "all",
@@ -1266,7 +1283,7 @@ def cmd_session_diff():
         {
             "query": f"session {today}",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 20,
             "threshold": 0.0,
             "duration": "all",
@@ -1279,7 +1296,7 @@ def cmd_session_diff():
         {
             "query": "session_anchor previous session",
             "user_id": "l9-shared",
-            "scopes": ["developer", "global"],
+            "scopes": _DEFAULT_SCOPES,
             "top_k": 10,
             "threshold": 0.0,
             "duration": "all",
@@ -1540,6 +1557,16 @@ def main():
         default=None,
         help="Override thread UUID (default: daily session ID)",
     )
+    write_parser.add_argument(
+        "--scope",
+        default="cursor",
+        help="Memory scope (cursor, developer, global). Default: cursor",
+    )
+    write_parser.add_argument(
+        "--tags",
+        default="",
+        help="Comma-separated tags and keywords (required for best retrieval; e.g. lesson,cursor,structlog)",
+    )
 
     # session-close
     subparsers.add_parser(
@@ -1685,7 +1712,10 @@ def main():
     elif args.command == "search":
         cmd_search(args.query, args.limit, args.min_confidence, args.sort)
     elif args.command == "write":
-        cmd_write(args.content, args.kind, args.thread)
+        tags_list = [t.strip() for t in (args.tags or "").split(",") if t.strip()]
+        cmd_write(
+            args.content, args.kind, args.thread, args.scope, tags=tags_list or None
+        )
     elif args.command == "session-close":
         cmd_session_close()
     elif args.command == "session-resume":

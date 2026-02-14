@@ -7,8 +7,9 @@ Usage:
     python scripts/workflow/update_workflow_state.py pr-complete --pr 50 --gmp 115 --adopted 5 --skipped 3 --realigned 2
     python scripts/workflow/update_workflow_state.py gmp-start --gmp 115 --title "PR #50 Analysis"
     python scripts/workflow/update_workflow_state.py gmp-complete --gmp 115 --status pass
+    python scripts/workflow/update_workflow_state.py end-session --summary "Brief summary of work done"
 
-Part of /pr and /gmp slash command automation.
+Part of /pr, /gmp, and /end-session slash command automation.
 """
 
 import argparse
@@ -140,9 +141,27 @@ def inject_recent_session(content: str, entry: str) -> str:
     """
     Inject an entry into 'Recent Sessions (7-day window)'.
     Entries are added at the TOP (newest first).
+    Tries main section "## Recent Sessions (7-day window)" first, then legacy "**Recent Sessions (7-day window):**".
     """
-    marker = "**Recent Sessions (7-day window):**"
+    # Primary: main section heading (workflow_state.md canonical format)
+    marker_primary = "## Recent Sessions (7-day window)"
+    if marker_primary in content:
+        marker_pos = content.find(marker_primary)
+        after = content[marker_pos + len(marker_primary) :]
+        lines = after.split("\n")
+        insert_idx = None
+        for i, line in enumerate(lines):
+            if line.strip().startswith("- "):
+                insert_idx = i
+                break
+        if insert_idx is None:
+            insert_idx = 1
+        lines.insert(insert_idx, entry)
+        new_after = "\n".join(lines)
+        return content[: marker_pos + len(marker_primary)] + new_after
 
+    # Legacy: bold marker
+    marker = "**Recent Sessions (7-day window):**"
     if marker not in content:
         logger.info("⚠️  section 'marker' not found", marker=marker)
         return content
@@ -245,6 +264,17 @@ def cmd_gmp_complete(args):
     logger.info("✅ gmp-{args.gmp} completion entry added")
 
 
+def cmd_end_session(args):
+    """Handle /end-session — add session entry to Recent Sessions (7-day window)."""
+    content = read_workflow_state()
+    date = get_current_date()
+
+    entry = f"- {date}: {args.summary}"
+    content = inject_recent_session(content, entry)
+    write_workflow_state(content)
+    logger.info("📝 end-session entry added to workflow_state.md")
+
+
 def main():
     """
     Performs command-line argument parsing for the Workflow State Updater tool, setting up subcommands and options for managing workflow states.
@@ -282,6 +312,16 @@ def main():
         "--status", choices=["pass", "fail"], default="pass", help="GMP status"
     )
 
+    # end-session command (used by /end-session slash command)
+    end_session = subparsers.add_parser(
+        "end-session", help="Add session close entry to Recent Sessions (7-day window)"
+    )
+    end_session.add_argument(
+        "--summary",
+        required=True,
+        help="Brief summary of work done (e.g. 'Executed /end-session; workflow_state + memory write.')",
+    )
+
     args = parser.parse_args()
 
     if args.command == "pr-start":
@@ -292,6 +332,8 @@ def main():
         cmd_gmp_start(args)
     elif args.command == "gmp-complete":
         cmd_gmp_complete(args)
+    elif args.command == "end-session":
+        cmd_end_session(args)
     else:
         parser.print_help()
 

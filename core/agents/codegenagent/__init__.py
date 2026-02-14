@@ -21,6 +21,26 @@ Features:
 Version: 2.0.0
 """
 
+__dora_meta__ = {
+    "component_name": "  Init  ",
+    "module_version": "1.0.0",
+    "created_by": "Auto-fix ADR-0014",
+    "created_at": "2026-02-13T23:37:34.990692+00:00",
+    "updated_at": "2026-02-13T23:37:34.990692+00:00",
+    "layer": "core",
+    "domain": "agents",
+    "module_name": "core.agents.codegenagent.__init__",
+    "type": "module",
+    "status": "active",
+    "integrates_with": {
+        "api_endpoints": [],
+        "datasources": [],
+        "memory_layers": [],
+        "imported_by": [],
+    },
+}
+
+
 from .c_gmp_engine import CGMPEngine, CGMPEngineError
 from .codegen_agent import (
     BatchResult,

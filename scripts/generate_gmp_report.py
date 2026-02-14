@@ -739,10 +739,28 @@ def main():
                 )
 
         if args.update_workflow:
-            if generator.update_workflow_state(data, filepath):
+            # Delegate to standalone update_workflow_state.py script
+            import subprocess as _sp
+
+            _result = _sp.run(
+                [
+                    sys.executable,
+                    str(REPO_ROOT / "scripts" / "update_workflow_state.py"),
+                    "--from-report",
+                    str(filepath),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                cwd=str(REPO_ROOT),
+            )
+            if _result.returncode == 0:
                 logger.info("   workflow_state.md: updated")
             else:
-                logger.error("   workflow_state.md: failed to update")
+                logger.error(
+                    "   workflow_state.md: failed to update",
+                    stderr=_result.stderr[:200],
+                )
 
         # Final output
         logger.info("\n📋 report path: filepath", filepath=filepath)

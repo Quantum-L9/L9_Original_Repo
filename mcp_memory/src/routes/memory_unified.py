@@ -54,6 +54,13 @@ if TYPE_CHECKING:
 import asyncio
 
 from config.rls_config import get_rls_config
+from core.config_constants import (
+    ALLOWED_SCOPES_L,
+    DEFAULT_SEARCH_SCOPES,
+    get_allowed_scopes_for_caller,
+    get_default_project_id,
+    get_default_scope_for_caller,
+)
 from memory.governance_gate import (
     build_governance_context,
     governance_context,
@@ -88,6 +95,7 @@ def map_mcp_scope_to_db_scope(mcp_scope: str) -> str:
         "developer": "developer",  # Developer collaboration (L + Cursor)
         "l-private": "l-private",  # L's private operations (L only)
         "global": "global",  # Cross-project shared knowledge
+        "cursor": "cursor",  # Cursor IDE private scope (ADR-0005)
     }
     return mapping.get(mcp_scope, "developer")  # Default to developer
 
@@ -102,6 +110,7 @@ def map_db_scope_to_mcp_scope(db_scope: str) -> str:
         "developer": "developer",
         "l-private": "l-private",
         "global": "global",
+        "cursor": "cursor",  # Cursor IDE scope (ADR-0005)
         "shared": "developer",  # Legacy fallback
     }
     return mapping.get(db_scope, "developer")
@@ -151,7 +160,7 @@ async def save_memory_handler(
     """
     # GMP-68: Governance enforcement
     ctx = require_governance_context("mcp_memory.save_memory")
-    if scope != ctx.scope:
+    if scope not in ctx.allowed_scopes:
         raise HTTPException(
             status_code=403, detail=f"Scope '{scope}' not authorized for this context"
         )
@@ -355,10 +364,9 @@ async def search_memory_handler(
     memories from the specified project_id. Uses COALESCE for backward compatibility
     with legacy packets that don't have project_id set (defaults to 'l9').
     """
-    # GMP-JSONB-GOV-FIX: Default project_id from env var if not explicitly provided
-    # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9
+    # ADR-0098: project_id from centralized config_constants (single source of truth)
     if project_id is None:
-        project_id = os.getenv("L9_PROJECT_ID", "l9")
+        project_id = get_default_project_id()
 
     ctx = require_governance_context("mcp_memory.search_memory")
     if project_id != ctx.project_id:
@@ -382,8 +390,9 @@ async def search_memory_handler(
 
         # Map MCP scopes to DB scopes
         # Also include 'shared' for backward compatibility with legacy data
+        # ADR-0098: scope defaults from config_constants
         requested_scopes = [
-            map_mcp_scope_to_db_scope(s) for s in (scopes or ["developer", "global"])
+            map_mcp_scope_to_db_scope(s) for s in (scopes or DEFAULT_SEARCH_SCOPES)
         ]
         deduped_scopes = list(dict.fromkeys(requested_scopes))
         allowed_scopes = set(ctx.allowed_scopes)
@@ -566,22 +575,16 @@ async def save_memory_route(
             detail="Cursor cannot write to l-private scope. Only L-CTO can write private memories.",
         )
 
-    # GMP-70: Build and set governance context for RLS-enabled memory operations
+    # GMP-70 + ADR-0098: Governance context from centralized config_constants
     rls = get_rls_config()
-    scope = os.getenv("L9_MEMORY_SCOPE", "developer")
-    project_id = os.getenv("L9_PROJECT_ID", "l9-default")
-
-    # L gets all scopes, C gets developer + global only (no l-private)
-    allowed_scopes = (
-        ["developer", "global", "l-private"]
-        if caller.caller_id == "L"
-        else ["developer", "global"]
-    )
+    project_id = get_default_project_id()
+    allowed_scopes = get_allowed_scopes_for_caller(caller.caller_id)
+    caller_scope = get_default_scope_for_caller(caller.caller_id)
 
     gov_ctx = build_governance_context(
         caller_id=caller.caller_id,
         role="end_user",
-        scope=scope,
+        scope=caller_scope,
         project_id=project_id,
         allowed_scopes=allowed_scopes,
         tenant_id=rls.tenant_uuid,
@@ -623,28 +626,22 @@ async def search_memory_route(
     """
     caller = _get_caller_from_request(request)
 
-    # Filter scopes based on caller - Cursor cannot see l-private
-    requested_scopes = req.get("scopes", ["developer", "global"])
+    # ADR-0098: scope defaults from config_constants
+    requested_scopes = req.get("scopes", DEFAULT_SEARCH_SCOPES)
     if caller.caller_id == "C":
         # Remove l-private from requested scopes for Cursor
         requested_scopes = [s for s in requested_scopes if s != "l-private"]
 
-    # GMP-70: Build and set governance context for RLS-enabled memory operations
+    # GMP-70 + ADR-0098: Governance context from centralized config_constants
     rls = get_rls_config()
-    scope = os.getenv("L9_MEMORY_SCOPE", "developer")
-    project_id = os.getenv("L9_PROJECT_ID", "l9-default")
-
-    # L gets all scopes, C gets developer + global only (no l-private)
-    allowed_scopes = (
-        ["developer", "global", "l-private"]
-        if caller.caller_id == "L"
-        else ["developer", "global"]
-    )
+    project_id = get_default_project_id()
+    allowed_scopes = get_allowed_scopes_for_caller(caller.caller_id)
+    caller_scope = get_default_scope_for_caller(caller.caller_id)
 
     gov_ctx = build_governance_context(
         caller_id=caller.caller_id,
         role="end_user",
-        scope=scope,
+        scope=caller_scope,
         project_id=project_id,
         allowed_scopes=allowed_scopes,
         tenant_id=rls.tenant_uuid,
@@ -1061,10 +1058,8 @@ async def get_context_injection(
     """
     start_time = time.time()
 
-    # Default scopes if not restricted
-    search_scopes = (
-        allowed_scopes if allowed_scopes else ["developer", "global", "l-private"]
-    )
+    # Default scopes if not restricted (ADR-0098)
+    search_scopes = allowed_scopes if allowed_scopes else ALLOWED_SCOPES_L
 
     try:
         # 1. Get semantically relevant memories
@@ -1266,10 +1261,8 @@ async def get_proactive_suggestions(
     """
     start_time = time.time()
 
-    # Default scopes if not restricted
-    search_scopes = (
-        allowed_scopes if allowed_scopes else ["developer", "global", "l-private"]
-    )
+    # Default scopes if not restricted (ADR-0098)
+    search_scopes = allowed_scopes if allowed_scopes else ALLOWED_SCOPES_L
 
     try:
         suggestions = []

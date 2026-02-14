@@ -437,7 +437,7 @@ def write_kernel_activation(session_id: str, kernel_id: str) -> bool:
         {
             "content": content,
             "kind": "kernel_activation",
-            "scope": "developer",  # Cursor writes to developer scope
+            "scope": "cursor",  # Cursor writes to cursor scope (ADR-0005, migration 0033)
             "duration": "long",
             "tags": ["cursor", "kernel", session_id],
             "importance": 1.0,
@@ -474,7 +474,7 @@ def write_lesson(
         {
             "content": lesson_content,
             "kind": "lesson",
-            "scope": "developer",  # Cursor writes to developer scope
+            "scope": "cursor",  # Cursor writes to cursor scope (ADR-0005, migration 0033)
             "duration": "long",
             "tags": ["cursor", "lesson", severity.lower()] + (tags or []),
             "importance": 0.9,
@@ -516,7 +516,7 @@ def write_session_todos(session_id: str, todos: list[TodoItem]) -> bool:
         {
             "content": todo_content,
             "kind": "session_todo",
-            "scope": "developer",  # Cursor writes to developer scope
+            "scope": "cursor",  # Cursor writes to cursor scope (ADR-0005, migration 0033)
             "duration": "medium",  # TODOs are session-scoped
             "tags": ["cursor", "todo", session_id],
             "importance": 0.9,

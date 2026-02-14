@@ -34,6 +34,8 @@ import structlog
 from fastapi import APIRouter, Header, HTTPException, Request
 from pydantic import ValidationError
 
+from core.config_constants import ALLOWED_SCOPES_CURSOR, ALLOWED_SCOPES_L
+
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
@@ -172,10 +174,11 @@ async def call_tool(request: Request, authorization: str = Header(None)):
         if _has_governance:
             # Determine allowed scopes based on caller
             # L can access all scopes, Cursor cannot access l-private
+            # ADR-0098: scope whitelists from config_constants
             if caller.caller_id == "L":
-                allowed_scopes = ["developer", "global", "l-private"]
+                allowed_scopes = ALLOWED_SCOPES_L
             else:
-                allowed_scopes = ["developer", "global"]
+                allowed_scopes = ALLOWED_SCOPES_CURSOR
 
             # Get scope from tool args or default to developer
             requested_scope = tool_args.get("scope", "developer")

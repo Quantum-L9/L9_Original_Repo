@@ -13,6 +13,8 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+from core.decorators import must_stay_async
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Dynamic Tool Binding",
@@ -65,6 +67,7 @@ def _extract_tool_name(tool_def: dict) -> str | None:
     return None
 
 
+@must_stay_async("callers use await")
 async def bind_tools_to_agent(
     agent_id: str,
     agent_role: str,
@@ -121,6 +124,7 @@ async def bind_tools_to_agent(
     return registry.list_tool_names()
 
 
+@must_stay_async("callers use await")
 async def cache_discovered_tools(
     agent_id: str,
     task_id: str,
@@ -242,6 +246,7 @@ async def refresh_agent_tools(
     )
 
 
+@must_stay_async("callers use await")
 async def get_tool_binding_status() -> dict[str, Any]:
     """
     Get the current tool binding status (async wrapper).

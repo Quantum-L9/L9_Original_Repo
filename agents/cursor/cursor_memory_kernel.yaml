@@ -51,22 +51,22 @@ init:
 # C1 SERVER CONNECTION (BINDING - Updated 2026-01-31)
 # ============================================================================
 connection:
-  # CRITICAL: Use direct IP to bypass Cloudflare (blocks Python user-agent)
-  primary_endpoint: "http://46.62.243.82/memory"
-  domain_endpoint: "http://l9.quantumaipartners.com/memory" # BLOCKED by Cloudflare for Python
+  # DIRECT to MCP memory server — no nginx, no Caddy, no proxy
+  primary_endpoint: "http://46.62.243.82:9002"
+  # nginx path still works but direct is faster and simpler:
+  nginx_endpoint: "http://46.62.243.82/memory"  # Alternative via nginx
 
   # API Key for Cursor IDE (caller_id: "C")
   # Key loaded from environment variable — NEVER hardcode secrets (ADR-0090)
   api_key_env: "MCP_API_KEY_C"
 
-  # nginx routing: /memory/* -> strips prefix -> l9-mcp-memory:9002/*
   mcp_call_path: "/mcp/call"
   health_path: "/health"
 
   env_setup: |
     # Load API key from .env — NEVER hardcode secrets (ADR-0090)
     export MCP_API_KEY_C="${MCP_API_KEY_C}"
-    export MCP_URL="http://46.62.243.82/memory"
+    export MCP_URL="http://46.62.243.82:9002"
 
 # ============================================================================
 # RLS (Row-Level Security) CONFIGURATION (BINDING)
@@ -80,13 +80,19 @@ rls:
   org_uuid: "14910cef-fea1-51d7-9a28-05579e6c0c18"
   user_uuid: "2f00c090-3816-51a0-806c-34d32522a070"
 
-  # Caller identity determines scope access
+  # Caller identity determines scope access (updated 2026-02-13, migration 0033)
   caller_identities:
     C: # Cursor IDE
-      allowed_scopes: [developer, global]
+      default_scope: cursor
+      allowed_scopes: [cursor, developer, global]
       cannot_access: [l-private]
     L: # L-CTO kernel
-      allowed_scopes: [developer, global, l-private]
+      default_scope: developer
+      allowed_scopes: [developer, global, l-private, cursor]
+    emma: # Emma Executive Assistant (future)
+      default_scope: agent
+      allowed_scopes: [agent, developer, global]
+      cannot_access: [l-private, cursor]
 
 # ============================================================================
 # GOVERNANCE CONTEXT (BINDING)
@@ -107,7 +113,8 @@ governance:
   # Scope enforcement
   scope_filtering:
     cursor_cannot_see: l-private
-    default_scopes: [developer, global]
+    cursor_default_write_scope: cursor
+    cursor_search_scopes: [cursor, developer, global]
 
 # ============================================================================
 # PACKETENVELOPE v2.0 SCHEMA (BINDING)
@@ -129,7 +136,7 @@ packet_schema:
   payload_structure:
     content: "string" # The actual memory content
     kind: "string" # preference, lesson, error, insight, note, context
-    scope: "string" # developer, global, l-private
+    scope: "string" # cursor, developer, global, agent, l-private
     duration: "string" # short (24h), medium (30d), long (permanent)
     tags: ["list"] # Optional L9 hierarchical tags
     importance: 0.0-1.0
@@ -141,7 +148,7 @@ memory_stack:
   primary:
     name: mcp_memory
     description: "PacketStore + pgvector on C1 via MCP tools"
-    endpoint: "http://46.62.243.82/memory/mcp/call"
+    endpoint: "http://46.62.243.82:9002/mcp/call"
     use_for:
       - persistent_lessons
       - preferences
@@ -225,29 +232,35 @@ session:
 # MEMORY WRITE RULES (BINDING)
 # ============================================================================
 write_rules:
+  # Agent MUST add tags and keywords to every memory write (best retrieval).
+  # Use --tags "tag1,tag2,keyword3" when calling cursor_memory_client.py write.
+  require_tags_and_keywords: true
+  min_tags_per_write: 2
+  tags_guidance: "Include domain, topic, or keywords (e.g. lesson,cursor,structlog,error_handling)."
+
   always_write:
     - kind: preference
       trigger: "User corrects agent behavior"
       duration: long
-      scope: developer
+      scope: cursor
       example: "Igor prefers surgical edits, not full file rewrites"
 
     - kind: lesson
       trigger: "Mistake made and corrected"
       duration: long
-      scope: developer
+      scope: cursor
       example: "Always check MCP health before assuming memory operations work"
 
     - kind: error
       trigger: "Error pattern discovered with fix"
       duration: medium
-      scope: developer
+      scope: cursor
       example: "ConnectionRefused on port 5432 → check docker-compose postgres"
 
     - kind: insight
       trigger: "Strategic decision with rationale"
       duration: long
-      scope: developer
+      scope: cursor
       example: "Chose async over sync for tool dispatch due to IO patterns"
 
   never_write:
@@ -266,6 +279,8 @@ write_rules:
 # ============================================================================
 # MEMORY READ PATTERNS (BINDING)
 # ============================================================================
+# Query quality: use 5–15 word, specific queries with 2–3 domain/key terms.
+# See docs/MEMORY_REPO_FACTS.md §9. Avoid single-word or generic queries.
 read_patterns:
   session_start:
     queries:
@@ -423,7 +438,7 @@ search_optimization:
   default_params:
     limit: 10
     min_confidence: 0.0
-    scopes: [developer, global]
+    scopes: [cursor, developer, global]
 
   confidence_filtering:
     high_confidence_threshold: 0.7

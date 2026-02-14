@@ -95,6 +95,11 @@ graph TD
 - [0034](./0034-agent-capability-scoping.md) - Agent Capability Scoping
 - [0078](./0078-explicit-approval-destructive-ops.md) - Explicit Approval for Destructive Ops
 - [0090](./0090-no-hardcoded-credentials-in-rules.md) - No Hardcoded Credentials
+- [0100](./0100-slash-commands-dag-only-no-cli-executors.md) - Slash Commands DAG-Only, No CLI Executors
+
+### ⚙️ Configuration & Defaults
+- [0098](./0098-single-source-of-truth-for-config-defaults.md) - Single Source of Truth for Config Defaults
+- [0099](./0099-dry-config-constants-enforcement.md) - DRY Enforcement for Configuration Constants
 
 ### 🏗️ Architecture & DI
 - [0004](./0004-singleton-auto-registry.md) - Singleton Auto-Registry
@@ -130,7 +135,7 @@ All ADRs MUST follow the structure defined in `config/schemas/adr_schema.yaml`:
 
 ## ➕ Creating New ADRs
 
-1. Use next sequential number: `0098-short-title.md`. (Duplicate ADR numbers 0041, 0043, and 0066 were resolved by renumbering the second of each pair to 0095, 0096, 0097.)
+1. Use next sequential number: `0101-short-title.md`. (Duplicate ADR numbers 0041, 0043, and 0066 were resolved by renumbering the second of each pair to 0095, 0096, 0097.)
 2. Follow the AI-Optimized format.
 3. Update this README and `reports/repo-index/adr_catalog.txt`.
 4. Run `make ci-validate` to ensure schema compliance.

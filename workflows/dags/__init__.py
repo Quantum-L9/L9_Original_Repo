@@ -36,6 +36,7 @@ __dora_meta__ = {
 # ============================================================================
 
 # Legacy DAGs (dataclass-based documentation)
+from workflows.dags.confirm_wiring_dag import CONFIRM_WIRING_DAG
 from workflows.dags.dag_authoring_dag import DAG_AUTHORING_DAG
 from workflows.dags.gmp_execution_dag import GMP_EXECUTION_DAG
 from workflows.dags.harvest_deploy_dag import HARVEST_DEPLOY_DAG
@@ -60,6 +61,7 @@ __all__ = [
     "build_inspect_graph",
     "run_inspect",
     # Legacy (to be migrated)
+    "CONFIRM_WIRING_DAG",
     "DAG_AUTHORING_DAG",
     "GMP_EXECUTION_DAG",
     "HARVEST_DEPLOY_DAG",

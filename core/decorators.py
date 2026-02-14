@@ -4,6 +4,8 @@ Core decorators for L9 codebase.
 Provides reusable decorators for marking code patterns and intentions.
 """
 
+from __future__ import annotations
+
 # ============================================================================
 __dora_meta__ = {
     "component_name": "Decorators",

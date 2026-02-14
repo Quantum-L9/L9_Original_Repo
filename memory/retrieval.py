@@ -212,14 +212,21 @@ class RetrievalPipeline:
         query: str,
         top_k: int = 10,
         agent_id: str | None = None,
+        tags: list[str] | None = None,
+        tag_boost_factor: float = 1.15,
     ) -> SemanticSearchResult:
         """
         Perform semantic search using vector similarity.
+
+        When tags are provided, results are filtered to memories with at least
+        one matching tag and scores are boosted for tag matches (increased accuracy).
 
         Args:
             query: Natural language search query
             top_k: Number of results to return
             agent_id: Optional agent filter
+            tags: Optional list of tags to filter and boost by (uses packet_store + payload tags)
+            tag_boost_factor: Score multiplier when hit tags match (default 1.15)
 
         Returns:
             SemanticSearchResult with hits
@@ -230,10 +237,16 @@ class RetrievalPipeline:
             logger.warning("Semantic service not configured")
             return SemanticSearchResult(query=query, hits=[])
 
+        tags_include = tags
+        tags_boost = tags
+
         hits = await self._semantic_service.search(
             query=query,
             top_k=top_k,
             agent_id=agent_id,
+            tags_include=tags_include,
+            tags_boost=tags_boost,
+            tag_boost_factor=tag_boost_factor,
         )
 
         return SemanticSearchResult(
@@ -399,10 +412,15 @@ class RetrievalPipeline:
         # Step 1: Parallel retrieval - Semantic + Keyword search
         import asyncio
 
+        tag_list: list[str] | None = None
+        if filters.get("tags"):
+            t = filters["tags"]
+            tag_list = t if isinstance(t, list) else [t]
         semantic_task = self.semantic_search(
             query=query,
             top_k=top_k * 2,  # Get more to allow filtering
             agent_id=agent_id,
+            tags=tag_list,
         )
         keyword_task = self.keyword_search(
             query=query,

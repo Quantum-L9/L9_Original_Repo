@@ -399,14 +399,22 @@ class SemanticService:
         query: str,
         top_k: int = 10,
         agent_id: str | None = None,
+        tags_include: list[str] | None = None,
+        tags_boost: list[str] | None = None,
+        tag_boost_factor: float = 1.15,
     ) -> list[dict[str, Any]]:
         """
         Search semantic memory for similar content.
+
+        Optionally filter and/or boost by tags for increased retrieval accuracy.
 
         Args:
             query: Natural language query
             top_k: Number of results
             agent_id: Optional filter by agent
+            tags_include: Only return memories whose packet has at least one of these tags
+            tags_boost: Boost score when hit has any of these tags (multiply by tag_boost_factor)
+            tag_boost_factor: Score multiplier for tag matches (default 1.15)
 
         Returns:
             List of hits with embedding_id, score, payload
@@ -420,11 +428,14 @@ class SemanticService:
                 f"Query embedding dimension mismatch: expected {EMBEDDING_DIMENSIONS}, got {len(query_vector)}"
             )
 
-        # Search database
+        # Search database (repository applies tag filter and boost)
         hits = await self._repository.search_semantic_memory(
             query_embedding=query_vector,
             top_k=top_k,
             agent_id=agent_id,
+            tags_include=tags_include,
+            tags_boost=tags_boost,
+            tag_boost_factor=tag_boost_factor,
         )
 
         logger.debug(f"Found {len(hits)} results")

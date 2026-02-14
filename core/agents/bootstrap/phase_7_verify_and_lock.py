@@ -36,6 +36,8 @@ from typing import TYPE_CHECKING, Any
 
 import structlog
 
+from core.config_constants import DEFAULT_SEARCH_SCOPES
+
 if TYPE_CHECKING:
     from memory.substrate_service import MemorySubstrateService
 
@@ -162,7 +164,7 @@ async def verify_and_lock(
                 role="system",
                 scope="developer",
                 project_id="l9-bootstrap",
-                allowed_scopes=["developer", "global"],
+                allowed_scopes=DEFAULT_SEARCH_SCOPES,  # ADR-0098
                 tenant_id=rls_config.tenant_uuid,
                 org_id=rls_config.org_uuid,
                 user_id=rls_config.user_uuid,

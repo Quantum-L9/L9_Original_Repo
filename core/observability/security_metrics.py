@@ -30,7 +30,7 @@ __dora_meta__ = {
 }
 # ============================================================================
 
-import logging
+import logging  # noqa: ADR-0019 — configures stdlib log level for structlog interop
 from dataclasses import dataclass
 from datetime import UTC, datetime, timezone
 from enum import Enum

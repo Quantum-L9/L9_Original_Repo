@@ -603,12 +603,16 @@ async def semantic_embed_node(
             else "shared"
         )
 
+        # Include tags in payload for tag-aware retrieval (filter/boost)
+        envelope_tags = envelope.get("tags") or []
+
         embedding_id = await semantic_service.embed_and_store(
             text=text_to_embed,
             payload={
                 "packet_id": envelope.get("packet_id"),
                 "packet_type": envelope.get("packet_type", ""),
                 "source_payload": payload,
+                "tags": envelope_tags,
             },
             agent_id=agent_id,
             scope=scope,

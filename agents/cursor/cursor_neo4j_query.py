@@ -71,7 +71,9 @@ USE_LOCAL = "--local" in sys.argv or "-l" in sys.argv
 
 NEO4J_URL = os.getenv("NEO4J_URL", LOCAL_NEO4J_URL if USE_LOCAL else VPS_NEO4J_URL)
 NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
-NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "FVmgaD1diPcz41zRbYLLP0UzyGvAi4E")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "")
+if not NEO4J_PASSWORD:
+    logger.warning("NEO4J_PASSWORD env var not set — Neo4j queries will fail")
 
 
 def query_neo4j(cypher: str) -> dict:
