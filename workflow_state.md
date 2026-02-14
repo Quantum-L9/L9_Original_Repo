@@ -83,6 +83,7 @@
 
 ## Recent Changes (digest)
 
+- [2026-02-14] **README tooling fixes** — Fixed `scripts/generate_subsystem_readmes.py` SyntaxError (line 1188 typographic quote). Fixed `scripts/generate_readme_superprompt.py` log levels (progress/success: error→info). Clarified superprompt vs subsystem README generation; 64 READMEs = all configured subsystems with existing paths (3 paths missing: core/facade, codegenagent, dev).
 - [2026-02-14] **Foresight observe cycle + intake importance_score** — Integrated periodic Observe into `core/l_agent_runtime/foresight_engine.py`: `observe()`, `run_observe_cycle()`, `FORESIGHT_OK`, `HIGHEST_LEVERAGE_QUESTION`, `observe_checklist_path`. Renamed heartbeat→observe_cycle (L9-aligned). Intake rating: use existing `importance_score` at task-intake; `migrations/0034_intake_leverage_rating.sql` documents it (comment only). Repository reads `metadata.importance` or `metadata.importance_score`.
 - [2026-02-14] **GMP-141: Integration test — create temp file**. Report: `GMP-Report-141-Integration-Test-Create-Temp-File.md`
 - [2026-02-13] [Phase 0-6] **GMP-142: DRY Config Constants Migration + Detector Refinement** — Migrated all remaining hardcoded scope lists and defaults to `core/config_constants.py` across 8 production files (30+ replacements). Added `MCP_WRITE_SCOPES`, `MCP_SEARCH_SCOPES` constants. DRY'd 21 occurrences in `cursor_memory_client.py` into `_DEFAULT_SCOPES`. Refined `find_config_mismatches.py` detector: excluded tests/scripts/docstrings/canonical source, removed false-positive `scope` parameter tracking. Created ADR-0099 (DRY Enforcement). `make bug-detect` now exits 0 with 0 issues. Report: `reports/GMP-Report-142-DRY-Config-Migration-Detector-Refinement.md`.
@@ -194,6 +195,8 @@ _Last updated: 2026-02-14 (end-session)_
 
 ## Recent Sessions (7-day window)
 
+- 2026-02-14: **Transcript Distiller Pipeline** — Built offline text-to-memory pipeline (`transcript_distiller.py`): reads transcripts/ADRs/READMEs/GMP reports → ChunkView → LLM distill (gpt-4o-mini) → classify (lesson|insight|pattern|error|note) → ingest_packet() (facts→knowledge_facts, insights→packet_store). Added --since/--until date filters, JSON+TXT completion reports. Fixed `export_chats.sh` for new agent-transcript format. Fixed `learning_to_mcp_bridge.py` (MCP URL→C1, paths via $HOME). Made LLM models configurable via env vars (L9_DISTILLER_MODEL, L9_EPISODIC_MODEL, etc.). Fixed MEMORY_PIPELINE_MAP.md (removed :9002 direct port refs). Set up launchd cron at 5am daily. Tested: 23 Feb-13 transcripts, 101 ADRs, 10 GMP reports discoverable. LLM dry-run verified (10 facts + 5 insights from single ADR).
+- 2026-02-14: README tooling: fixed generate_subsystem_readmes.py syntax (line 1188 quote), fixed generate_readme_superprompt.py log levels (error→info). Clarified superprompt vs subsystem READMEs; 64 READMEs = all configured subsystems with existing paths.
 - 2026-02-14: Memory pipeline enhancements (pipeline_router, importance_recipe, intake_leverage, ranking_extensions, retrieval_multiquery, query_rewriter, chunk_view, procedural_synthesis, llm_memory_ops). Component wiring audit tooling (audit_package_exports, audit_package_wiring, triage_dead_code, component_audit_dag). Foresight observe cycle. SDK-First ADR-0102 wiring. Repo index refresh (34 indexes). GMP-141/142/143 CI consolidation. 3 commits pushed to main.
 - 2026-02-14: ADR-0102 SDK-First: wired all 17 interfaces (P0 Memory+Graph+Cache, P0 WorldModel expanded, P1 Research+Commands+Email, P2 Evaluation+Factory+Simulation, P2 Learning+Reasoning expanded). ADR-0101 DAG executors via SDK. GMP LangGraph executor: autonomous nodes, Redis checkpointing. GMP SessionDAG revised. 16 files, +2808/-550 lines.
 - 2026-02-14: Foresight observe cycle (periodic Observe): integrated OpenClaw-style trigger into foresight_engine.py (observe(), run_observe_cycle(), FORESIGHT_OK, HIGHEST_LEVERAGE_QUESTION). Renamed heartbeat→observe_cycle. Intake rating: use importance_score at task-intake; migration 0034 documents it (no new columns).
@@ -244,11 +247,11 @@ _Last updated: 2026-02-14 (end-session)_
 - [x] Wire `MultiFactorRanker` → Extended Ranking Fields (E4) ✅
 - [x] Wire `ActiveMemoryEncoder` → `ImportanceRecipe` (E5, feature-flagged) ✅
 - [x] B5: LLM-refined importance calibration config placeholder ✅
+- [ ] Review distiller 5am cron results (check `$HOME/Dropbox/Cursor Governance/GlobalCommands/ops/logs/distiller_reports/`)
+- [ ] Run distiller on ADRs + GMP reports (`--source adrs`, `--source reports`) to seed knowledge graph
 - [ ] Wire `L9MemoryAdapter` for Cursor → L9 memory integration (see `current_work/02-14-2026/L9_memory_adapter.md`)
 - [ ] Run `python3 agents/cursor/ingest_lessons.py --live` to write 53 lessons to MCP memory (dry-run verified)
 - [ ] Execute migration 0032 + 0034 on C1 during next Docker rebuild and capture health proof
-- [ ] Enable `ENABLE_PIPELINE_ROUTER=true` + `ENABLE_IMPORTANCE_RECIPE=true` on C1 after migration verification
-- [ ] Remove deprecated enrichment DAG fields from memory pipeline (tech debt in TODO.md)
 
 **Recent Sessions (7-day window):**
 
