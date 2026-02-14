@@ -11,6 +11,7 @@ ADR compliance: structlog-only, timezone-aware, builtin generics, explicit zip.
 from __future__ import annotations
 
 import asyncio
+import os
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timezone
 from typing import Any, Protocol
@@ -83,12 +84,12 @@ class ConsolidateResult:
 
 
 # ---------------------------------------------------------------------------
-# Model constants (locked per Phase 1 plan)
+# Model constants — configurable via env vars, defaults to Phase 1 plan
 # ---------------------------------------------------------------------------
 
-EPISODIC_MODEL = "claude-3-5-sonnet-20241022"
-SEMANTIC_MODEL = "claude-3-5-sonnet-20241022"
-PROCEDURAL_MODEL = "claude-3-5-opus-20240229"
+EPISODIC_MODEL = os.environ.get("L9_EPISODIC_MODEL", "claude-3-5-sonnet-20241022")
+SEMANTIC_MODEL = os.environ.get("L9_SEMANTIC_MODEL", "claude-3-5-sonnet-20241022")
+PROCEDURAL_MODEL = os.environ.get("L9_PROCEDURAL_MODEL", "claude-3-5-opus-20240229")
 
 
 # ---------------------------------------------------------------------------
