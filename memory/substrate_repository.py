@@ -399,14 +399,20 @@ class SubstrateRepository:
         if not packet_ids:
             return {}
 
-        query = """
+        ctx = require_governance_context("repository.get_packets_batch")
+        filter_clause, filter_params, _ = build_scope_project_filter(
+            ctx, param_idx=2, table_alias="packet_store"
+        )
+
+        query = f"""
             SELECT *
             FROM packet_store
             WHERE packet_id = ANY($1::uuid[])
+            {filter_clause}
         """
 
         async with self.acquire() as conn:
-            rows = await conn.fetch(query, packet_ids)
+            rows = await conn.fetch(query, packet_ids, *filter_params)
 
         result: dict[UUID, PacketStoreRow] = {}
         for row in rows:

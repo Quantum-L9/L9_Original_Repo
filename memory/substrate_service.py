@@ -429,11 +429,8 @@ class MemorySubstrateService:
             },
         )
 
-        # Use fallback context if none exists (for CLI tools)
-        from memory.governance_gate import ensure_governance_context
-
-        async with ensure_governance_context("record_audit_failure"):
-            return await self.write_packet(packet)
+        self._require_rls_context("record_audit_failure")
+        return await self.write_packet(packet)
 
     async def get_packet(self, packet_id: str) -> dict[str, Any] | None:
         """
@@ -527,18 +524,18 @@ class MemorySubstrateService:
             List of packet envelopes as dicts
         """
         try:
-            async with ensure_governance_context("search_packets_by_type") as ctx:
-                await self.set_session_scope(
-                    ctx.tenant_id,
-                    ctx.org_id,
-                    ctx.user_id,
-                    ctx.role,
-                )
-                rows = await self._repository.search_packets_by_type(
-                    packet_type=packet_type,
-                    agent_id=agent_id,
-                    limit=limit,
-                )
+            ctx = self._require_rls_context("search_packets_by_type")
+            await self.set_session_scope(
+                ctx.tenant_id,
+                ctx.org_id,
+                ctx.user_id,
+                ctx.role,
+            )
+            rows = await self._repository.search_packets_by_type(
+                packet_type=packet_type,
+                agent_id=agent_id,
+                limit=limit,
+            )
             results = [row.envelope for row in rows]
 
             # Record Prometheus metrics for search
@@ -586,6 +583,14 @@ class MemorySubstrateService:
         """
         try:
             ctx = self._require_rls_context("query_packets")
+            if tenant_id and tenant_id != ctx.tenant_id:
+                raise RuntimeError("tenant_id must be derived server-side")
+            if org_id and org_id != ctx.org_id:
+                raise RuntimeError("org_id must be derived server-side")
+            if user_id and user_id != ctx.user_id:
+                raise RuntimeError("user_id must be derived server-side")
+            if role != "end_user" and role != ctx.role:
+                raise RuntimeError("role must be derived server-side")
             await self.set_session_scope(
                 ctx.tenant_id,
                 ctx.org_id,
@@ -748,11 +753,12 @@ class MemorySubstrateService:
         Returns:
             embedding_id
         """
-        self._require_rls_context("embed_text")
+        ctx = self._require_rls_context("embed_text")
         return await self._semantic_service.embed_and_store(
             text=text,
             payload=payload,
             agent_id=agent_id,
+            scope=ctx.scope,
         )
 
     # =========================================================================

@@ -171,48 +171,45 @@ async def call_tool(request: Request, authorization: str = Header(None)):
 
         # GMP-68: Build governance context from caller identity
         # This MUST be set before any memory operations
-        if _has_governance:
-            # Determine allowed scopes based on caller
-            # L can access all scopes, Cursor cannot access l-private
-            # ADR-0098: scope whitelists from config_constants
-            if caller.caller_id == "L":
-                allowed_scopes = ALLOWED_SCOPES_L
-            else:
-                allowed_scopes = ALLOWED_SCOPES_CURSOR
-
-            # Get scope from tool args or default to developer
-            requested_scope = tool_args.get("scope", "developer")
-            if requested_scope not in allowed_scopes:
-                requested_scope = "developer"
-
-            # Get RLS config for tenant/org/user UUIDs
-            rls_config = get_rls_config()
-
-            # GMP-JSONB-GOV-FIX: Get project_id from env var (not hardcoded)
-            # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9
-            gov_ctx = build_governance_context(
-                caller_id=caller.caller_id,
-                role="admin" if caller.caller_id == "L" else "developer",
-                scope=requested_scope,
-                project_id=os.getenv("L9_PROJECT_ID", "l9"),
-                allowed_scopes=allowed_scopes,
-                tenant_id=rls_config.tenant_uuid,
-                org_id=rls_config.org_uuid,
-                user_id=rls_config.user_uuid,
-                creator=caller.creator,
-                source=caller.source,
+        if not _has_governance:
+            raise HTTPException(
+                status_code=503,
+                detail="Governance gate unavailable; MCP tool execution disabled",
             )
 
-            async with governance_context(gov_ctx):
-                result = await handle_tool_call(
-                    tool_call, user_id, caller, substrate_service
-                )
+        # Determine allowed scopes based on caller
+        # L can access all scopes, Cursor cannot access l-private
+        # ADR-0098: scope whitelists from config_constants
+        if caller.caller_id == "L":
+            allowed_scopes = ALLOWED_SCOPES_L
         else:
-            # Governance not available - call without context (will fail on VPS)
-            logger.warning("Governance gate not available - MCP call may fail")
-            result = await handle_tool_call(
-                tool_call, user_id, caller, substrate_service
-            )
+            allowed_scopes = ALLOWED_SCOPES_CURSOR
+
+        # Get scope from tool args or default to developer
+        requested_scope = tool_args.get("scope", "developer")
+        if requested_scope not in allowed_scopes:
+            requested_scope = "developer"
+
+        # Get RLS config for tenant/org/user UUIDs
+        rls_config = get_rls_config()
+
+        # GMP-JSONB-GOV-FIX: Get project_id from env var (not hardcoded)
+        # On C1: L9_PROJECT_ID=l9-c1, locally defaults to l9
+        gov_ctx = build_governance_context(
+            caller_id=caller.caller_id,
+            role="admin" if caller.caller_id == "L" else "developer",
+            scope=requested_scope,
+            project_id=os.getenv("L9_PROJECT_ID", "l9"),
+            allowed_scopes=allowed_scopes,
+            tenant_id=rls_config.tenant_uuid,
+            org_id=rls_config.org_uuid,
+            user_id=rls_config.user_uuid,
+            creator=caller.creator,
+            source=caller.source,
+        )
+
+        async with governance_context(gov_ctx):
+            result = await handle_tool_call(tool_call, user_id, caller, substrate_service)
 
         return {"status": "success", "result": result, "caller": caller.caller_id}
     except ValueError as e:
@@ -221,6 +218,8 @@ async def call_tool(request: Request, authorization: str = Header(None)):
         raise HTTPException(
             status_code=422, detail=f"Validation error: {e.errors()}"
         ) from e
+    except HTTPException:
+        raise
     except Exception as e:
         logger.exception("Tool call error")
         raise HTTPException(status_code=500, detail=str(e)) from e
