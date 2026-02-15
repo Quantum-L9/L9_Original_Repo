@@ -44,7 +44,7 @@ from typing import TYPE_CHECKING, Any
 import structlog
 from pydantic import ValidationError
 
-from core.schemas import VALID_DERIVE_TYPES, PacketEnvelopeIn
+from core.schemas import SUPPORTED_VERSIONS, VALID_DERIVE_TYPES, PacketEnvelopeIn
 from memory.audit_utils import detect_injection_markers, detect_pii_types
 
 if TYPE_CHECKING:
@@ -186,6 +186,34 @@ class PacketValidator:
 
         # Provenance validation (v2.0.0 fields)
         PacketValidator._validate_provenance(packet_in)
+
+        # Protocol version validation (if metadata schema_version provided)
+        PacketValidator._validate_schema_version(packet_in)
+
+    @staticmethod
+    def _validate_schema_version(packet_in: PacketEnvelopeIn) -> None:
+        """Validate metadata.schema_version if present."""
+        metadata = packet_in.metadata
+        if metadata is None:
+            return
+        if not isinstance(metadata, dict):
+            raise PacketValidationError(
+                "metadata must be an object",
+                field="metadata",
+                value=type(metadata).__name__,
+                error_code="INVALID_METADATA_TYPE",
+            )
+
+        schema_version = metadata.get("schema_version")
+        if schema_version is None:
+            return
+        if schema_version not in SUPPORTED_VERSIONS:
+            raise PacketValidationError(
+                f"Unsupported schema_version '{schema_version}'. Supported: {SUPPORTED_VERSIONS}",
+                field="metadata.schema_version",
+                value=schema_version,
+                error_code="UNSUPPORTED_SCHEMA_VERSION",
+            )
 
     @staticmethod
     def _validate_provenance(packet_in: PacketEnvelopeIn) -> None:

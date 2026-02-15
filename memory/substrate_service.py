@@ -301,7 +301,7 @@ class MemorySubstrateService:
 
         # Validate packet before processing (canonical chokepoint)
         try:
-            PacketValidator.validate(packet_in, strict=False)
+            PacketValidator.validate(packet_in, strict=True)
         except PacketValidationError as e:
             logger.error(
                 "packet_validation_failed",

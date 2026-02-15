@@ -412,6 +412,8 @@ class PacketEnvelopeIn(BaseModel):
     tags: list[str] | None = Field(None)
     ttl: datetime | None = Field(None)
 
+    model_config = {"extra": "forbid"}
+
     def to_envelope(self) -> PacketEnvelope:
         """Convert input to full PacketEnvelope with defaults."""
         return PacketEnvelope(

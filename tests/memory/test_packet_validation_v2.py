@@ -243,6 +243,42 @@ class TestPacketTypeValidation:
         assert exc_info.value.error_code == "INVALID_PACKET_TYPE"
 
 
+class TestSchemaVersionValidation:
+    """Test metadata.schema_version protocol validation."""
+
+    def test_supported_schema_version_accepted(self):
+        packet = PacketEnvelopeIn(
+            packet_type="event",
+            payload={"test": "data"},
+            metadata={"schema_version": "2.0.0"},
+        )
+        PacketValidator.validate(packet)
+
+    def test_unsupported_schema_version_rejected(self):
+        packet = PacketEnvelopeIn(
+            packet_type="event",
+            payload={"test": "data"},
+            metadata={"schema_version": "9.9.9"},
+        )
+        with pytest.raises(PacketValidationError) as exc_info:
+            PacketValidator.validate(packet)
+
+        assert exc_info.value.field == "metadata.schema_version"
+        assert exc_info.value.error_code == "UNSUPPORTED_SCHEMA_VERSION"
+
+
+class TestPacketEnvelopeInStrictFields:
+    """PacketEnvelopeIn should reject unknown top-level fields."""
+
+    def test_unknown_top_level_field_rejected(self):
+        with pytest.raises(Exception):
+            PacketEnvelopeIn(
+                packet_type="event",
+                payload={"test": "data"},
+                unexpected_field="nope",
+            )
+
+
 # =============================================================================
 # Async Context Tests
 # =============================================================================

@@ -313,7 +313,7 @@ class SemanticService:
         text: str,
         payload: dict[str, Any],
         agent_id: str | None = None,
-        scope: str = "cursor",  # RLS scope: developer, global, cursor, l-private, agent
+        scope: str | None = None,  # RLS scope for row-level security
     ) -> str:
         """
         Generate embedding for text and store in semantic_memory.
@@ -322,7 +322,7 @@ class SemanticService:
             text: Text to embed
             payload: Metadata payload to store with embedding
             agent_id: Optional agent identifier
-            scope: RLS scope ('developer', 'global', 'shared', 'l-private')
+            scope: RLS scope (derived from governance context if omitted)
 
         Returns:
             embedding_id as string
@@ -394,6 +394,10 @@ class SemanticService:
                 text_preview=text[:100],
             )
             raise RuntimeError("Embedding generation returned null/empty vector")
+        if len(vector) != EMBEDDING_DIMENSIONS:
+            raise RuntimeError(
+                f"Embedding dimension mismatch: expected {EMBEDDING_DIMENSIONS}, got {len(vector)}"
+            )
 
         enriched_payload = {
             **payload,
@@ -486,6 +490,10 @@ class SemanticService:
                 raise RuntimeError(
                     f"Embedding generation returned null/empty vector for item {idx}"
                 )
+            if len(vector) != EMBEDDING_DIMENSIONS:
+                raise RuntimeError(
+                    f"Embedding dimension mismatch at item {idx}: expected {EMBEDDING_DIMENSIONS}, got {len(vector)}"
+                )
 
         embedding_ids = []
         for item, vector in zip(items, vectors, strict=False):
@@ -529,6 +537,11 @@ class SemanticService:
         Returns:
             embedding_id as string (UUID)
         """
+        if len(vector) != EMBEDDING_DIMENSIONS:
+            raise RuntimeError(
+                f"Embedding dimension mismatch: expected {EMBEDDING_DIMENSIONS}, got {len(vector)}"
+            )
+
         enriched_payload = {
             **metadata,
             "_embedding_type": embedding_type,

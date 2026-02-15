@@ -1016,7 +1016,7 @@ class SubstrateRepository:
         vector: list[float],
         payload: dict[str, Any],
         agent_id: str | None = None,
-        scope: str = "cursor",  # RLS scope: 'developer', 'global', 'cursor', 'l-private', 'agent'
+        scope: str | None = None,  # RLS scope from governance context unless explicit
     ) -> UUID:
         """
         Insert a semantic embedding into semantic_memory.
@@ -1025,7 +1025,7 @@ class SubstrateRepository:
             vector: Embedding vector (1536 dimensions for text-embedding-3-large)
             payload: JSON payload associated with this embedding
             agent_id: Optional agent identifier
-            scope: RLS scope for row-level security (default: 'shared')
+            scope: RLS scope for row-level security (required or derived from governance context)
 
         Returns:
             embedding_id of the inserted record
@@ -1052,7 +1052,7 @@ class SubstrateRepository:
         vector: list[float],
         payload: dict[str, Any],
         agent_id: str | None,
-        scope: str = "cursor",  # Default to valid DB scope
+        scope: str | None = None,
     ) -> None:
         """Helper to insert semantic embedding using provided connection.
 
@@ -1065,6 +1065,14 @@ class SubstrateRepository:
             )
 
         ctx = require_governance_context("repository.insert_semantic_embedding")
+        resolved_scope = scope or ctx.scope
+        if not resolved_scope:
+            raise RuntimeError("scope is required for semantic embedding writes")
+        if resolved_scope not in ctx.allowed_scopes:
+            raise RuntimeError(
+                f"scope '{resolved_scope}' not allowed for caller '{ctx.caller_id}'"
+            )
+
         vector_str = f"[{','.join(str(v) for v in vector)}]"
         # MEMORY_BYPASS_ALLOWED: Legacy semantic_memory path - pending migration to packet_store
         await conn.execute(
@@ -1080,15 +1088,15 @@ class SubstrateRepository:
             {
                 **payload,
                 "_project_id": ctx.project_id,
-                "_scope": scope,
+                "_scope": resolved_scope,
             },  # asyncpg handles dict -> jsonb automatically (don't double-encode)
             datetime.now(UTC),
-            scope,
+            resolved_scope,
             ctx.tenant_id,
             ctx.org_id,
             ctx.user_id,
         )
-        logger.debug(f"Inserted semantic embedding {embedding_id} with scope={scope}")
+        logger.debug(f"Inserted semantic embedding {embedding_id} with scope={resolved_scope}")
 
     @must_stay_async("callers use await")
     async def search_semantic_memory(

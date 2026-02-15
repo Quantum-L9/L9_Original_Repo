@@ -206,6 +206,18 @@ class IngestionPipeline:
         ctx = require_governance_context("ingestion.ingest")
         packet_in = enforce_packet_governance(packet_in, ctx)
 
+        logger.warning(
+            "IngestionPipeline.ingest is deprecated; delegating to canonical ingest_packet() when service is initialized"
+        )
+        try:
+            return await ingest_packet(packet_in)
+        except RuntimeError as exc:
+            if "Memory system not initialized" not in str(exc):
+                raise
+            logger.warning(
+                "Memory service not initialized; using legacy IngestionPipeline compatibility path"
+            )
+
         logger.info(f"Ingesting packet: type={packet_in.packet_type}")
 
         should_embed = embed if embed is not None else self._auto_embed
@@ -278,11 +290,12 @@ class IngestionPipeline:
                     if embedding_payload:
                         vector, payload, agent_id = embedding_payload
                         # Extract scope from envelope metadata for RLS
-                        scope = (
-                            (envelope.metadata or {}).get("db_scope")
-                            or (envelope.metadata or {}).get("scope")
-                            or "cursor"  # Default to valid DB scope
+                        metadata_dict = (
+                            envelope.metadata.model_dump()
+                            if envelope.metadata is not None
+                            else {}
                         )
+                        scope = metadata_dict.get("db_scope") or metadata_dict.get("scope")
                         await self._repository.insert_semantic_embedding(
                             vector=vector,
                             payload=payload,
@@ -488,7 +501,7 @@ class IngestionPipeline:
 
         # Use centralized PacketValidator for remaining checks
         try:
-            PacketValidator.validate(packet)
+            PacketValidator.validate(packet, strict=True)
         except PacketValidationError as exc:
             errors.append(str(exc))
 
