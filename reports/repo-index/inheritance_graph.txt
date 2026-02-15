@@ -2,8 +2,8 @@
 # Inheritance Graph
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -243,6 +243,7 @@ ConstraintType::str,Enum @ ir_engine/ir_schema.py
 ConstraintViolation::Exception @ codegen/dev_layer/runtime/enforcement.py
 ContentMode::Enum @ core/packet_envelope/standardization.py
 ContextAssemblySpan::Span @ core/observability/models.py
+ContextBuilderService::Protocol @ memory/pipeline_router.py
 ContextInjectionRequest::BaseModel @ mcp_memory/src/models.py
 ContextInjectionResponse::BaseModel @ mcp_memory/src/models.py
 ContextRead::BaseModel @ ir_engine/meta_ir.py
@@ -479,9 +480,11 @@ IdentityKernelData::FlexibleModel @ core/kernels/schemas.py
 IdentityStandard::BaseModel @ ir_engine/meta_ir.py
 Impact::str,Enum @ scripts/audit/tier1/audit_capability_inventory.py
 ImportGraphBuilder::NodeVisitor @ tests/ci/test_structural_invariants.py
+ImportanceService::Protocol @ memory/pipeline_router.py
 InboundInterface::BaseModel @ ir_engine/meta_ir.py
 InfrastructureType::str,Enum @ core/worldmodel/l9_schema.py
 IngestionPipeline::Protocol @ core/protocols/memory_protocols.py
+IngestionService::Protocol @ memory/pipeline_router.py
 InjectionSeverity::str,Enum @ core/agents/prompt_defense.py
 InlineImportVisitor::NodeVisitor @ tests/ci/test_inline_import_enforcement.py
 InputField::BaseModel @ orchestrators/pattern/interface.py
@@ -491,6 +494,7 @@ InsightsRequest::BaseModel @ api/world_model_api.py
 InsightsResponse::BaseModel @ api/world_model_api.py
 InsightsResult::BaseModel @ clients/world_model_client.py
 InspectState::BaseModel @ workflows/dags/inspect_dag.py
+IntakeTier::str,Enum @ memory/intake_leverage.py
 IntegrationBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 IntegrationModel::BaseModel @ core/codegen/spec/spec_normalizer_v2.py
 IntegrationResult::BaseModel @ core/schemas/research_factory_models.py
@@ -536,6 +540,7 @@ L9Agent::BaseModel @ core/worldmodel/l9_schema.py
 L9BaseModel::BaseModel @ core/models/l9_base_model.py
 L9ExternalSystem::BaseModel @ core/worldmodel/l9_schema.py
 L9Infrastructure::BaseModel @ core/worldmodel/l9_schema.py
+L9MemoryAdapter::MemoryBridge @ domain_tensor_bridge/l9_memory_adapter.py
 L9MemorySegment::BaseModel @ core/worldmodel/l9_schema.py
 L9PostgresSaver::BaseCheckpointSaver @ memory/checkpoint/postgres_saver.py
 L9Relationship::BaseModel @ core/worldmodel/l9_schema.py
@@ -547,6 +552,8 @@ LCTOAgent::BaseAgent @ agents/l_cto.py
 LChatRequest::BaseModel @ api/server.py
 LChatResponse::BaseModel @ api/server.py
 LImprovementLoopConfig::BaseModel @ orchestrators/pattern/interface.py
+LLMClient::Protocol @ memory/llm_memory_ops.py
+LLMClient::Protocol @ memory/query_rewriter.py
 LLMGenerationSpan::Span @ core/observability/models.py
 LLMService::Protocol @ core/protocols/service_protocols.py
 LearnedHeuristic::BaseModel @ agents/cursor/gmp_meta_learning.py
@@ -597,6 +604,7 @@ MemorySubstratePacketSource::PacketSource @ world_model/runtime.py
 MemorySubstrateSettings::BaseSettings @ config/memory_substrate_settings.py
 MemoryTier::Enum @ core/memory/virtual_context.py
 MemoryTier::str,Enum @ memory/context_builder.py
+MemoryTier::str,Enum @ memory/pipeline_router.py
 MemoryTopologyBlock::BaseModel @ codegen/code-gen-files/schema_parser.py
 MemoryWriteInput::BaseModel @ core/schemas/l_tools.py
 MergeStrategy::str,Enum @ memory/deduplication.py
@@ -728,6 +736,7 @@ Query::BaseModel @ core/schemas/research_factory_models.py
 QueryPlan::BaseModel @ core/schemas/research_factory_models.py
 QueryRequest::BaseModel @ api/memory/graph.py
 QueryRequest::BaseModel @ email_agent/router.py
+QueryRewriteService::Protocol @ memory/pipeline_router.py
 QueryTemporalArgs::BaseModel @ mcp_memory/src/models.py
 RAGRetrievalSpan::Span @ core/observability/models.py
 RAGStrategy::ContextStrategy @ core/observability/context_strategies.py
@@ -802,6 +811,7 @@ RestoreResponse::BaseModel @ api/world_model_api.py
 RestoreResult::BaseModel @ clients/world_model_client.py
 RetentionPolicy::Enum @ core/packet_envelope/governance.py
 RetrievalBatch::BaseModel @ core/schemas/research_factory_models.py
+RetrievalService::Protocol @ memory/pipeline_router.py
 RetrievalSource::str,Enum @ agents/cursor/cursor_retrieval_kernel.py
 RetrievalStrategy::Protocol @ core/protocols/memory_protocols.py
 RetrievalStrategy::str,Enum @ memory/retrieval_strategy.py
@@ -814,6 +824,7 @@ RiskClass::str,Enum @ core/eos/schemas.py
 RiskLevel::Enum @ core/bayesian/probabilistic_engine.py
 RiskLevel::str,Enum @ core/commands/schemas.py
 RiskModel::BaseModel @ orchestrators/pattern/interface.py
+RoleWeight::float,Enum @ memory/intake_leverage.py
 RollbackHookError::Exception @ agents/codegenagent/rollback_hook.py
 RotationStatus::Enum @ core/governance/credentials_policy.py
 RouterState::TypedDict @ orchestration/ws_task_router.py
@@ -889,6 +900,7 @@ SimulationMetricsResponse::BaseModel @ api/routes/simulation.py
 SimulationMode::str,Enum @ simulation/simulation_engine.py
 SimulationRequest::BaseModel @ api/routes/simulation.py
 SimulationResponse::BaseModel @ api/routes/simulation.py
+SingleQueryRetriever::Protocol @ memory/retrieval_multiquery.py
 SingletonLifecycle::str,Enum @ core/singleton_registry.py
 SlackClientError::Exception @ api/slack_client.py
 SlackSignatureVerificationError::Exception @ api/slack_adapter.py
@@ -1097,4 +1109,4 @@ WorldModelResponse::BaseModel @ orchestrators/world_model/interface.py
 WorldModelState::IWorldModelState @ world_model/_pack_staging/state.py
 WorldModelUpdater::IWorldModelUpdater @ world_model/_pack_staging/updater.py
 
-# Total: 1084 classes with inheritance
+# Total: 1096 classes with inheritance

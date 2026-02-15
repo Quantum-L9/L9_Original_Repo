@@ -85,8 +85,47 @@ jobs:
           ./ci/run_ci_gates.sh --all || true
 
   # ===========================================================================
+  # JOB 1B: LINT-TYPECHECK-TEST — Required status check for branch protection
+  # ===========================================================================
+  # Use this job as a required status check so: make lint && make typecheck && make test-fast
+  # must pass before merge. Enforces code quality and fast tests on every PR.
+  lint-typecheck-test:
+    name: Lint, typecheck, test-fast
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Lint (ruff)
+        run: |
+          ruff check . --output-format=concise
+          ruff format --check .
+
+      - name: Typecheck (mypy)
+        run: |
+          mypy api/ core/ memory/ --ignore-missing-imports
+
+      - name: Test (fast)
+        run: |
+          pytest tests/ -v --tb=short -m "not slow"
+
+  # ===========================================================================
   # JOB 1A: ADR-COMPLIANCE — Architecture Decision Records Enforcement
   # ===========================================================================
+  # Missing __dora_meta__ / meta blocks violate ADR-0014 and fail this job.
+  # Require this job in branch protection to block merges without DORA headers.
   adr-compliance:
     name: ADR Compliance
     runs-on: ubuntu-latest

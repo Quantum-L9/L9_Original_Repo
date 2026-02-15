@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Test utilities, fixtures, and mocks
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -81,12 +81,12 @@ core/testing/
 ├── test_generator.py
 ```
 
-| File                | Purpose                                            |
-| ------------------- | -------------------------------------------------- |
-| `__init__.py`       | Core module (PROTECTED)                            |
-| `test_generator.py` | Generates tests from code proposals.               |
-| `test_agent.py`     | Result of test agent execution.                    |
-| `test_agent.py`     | Agent that generates and executes tests for code p |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `test_generator.py` | Generates tests from code proposals using AST anal |
+| `test_agent.py` | Result of test agent execution. |
+| `test_agent.py` | Agent that generates and executes tests for code p |
 
 ### Naming Conventions
 
@@ -103,25 +103,25 @@ core/testing/
 
 ```python
 class TestGenerator:
-    """Generates tests from code proposals."""
+    """Generates tests from code proposals using AST analysis + LLM."""
 
     # Key methods:
 
     def __init__(self, ...): ...
 
+    def _create_llm_client(self, ...) -> Any: ...
+
+    def _load_l9_context(self, ...) -> str: ...
+
     def generate_unit_tests(self, ...) -> list[str]: ...
 
-    def generate_integration_tests(self, ...) -> list[str]: ...
-
-    def _generate_function_tests(self, ...) -> list[str]: ...
-
-    def _generate_class_tests(self, ...) -> list[str]: ...
+    def _extract_ast_info(self, ...) -> dict[str, Any]: ...
 
 ```
 
-**Public Methods:** `__init__`, `generate_unit_tests`, `generate_integration_tests`, `_generate_function_tests`, `_generate_class_tests`
+**Public Methods:** `__init__`, `_create_llm_client`, `_load_l9_context`, `generate_unit_tests`, `_extract_ast_info`
 
-**Lines:** 46-279 in `test_generator.py`
+**Lines:** 223-835 in `test_generator.py`
 
 ### `test_agent.py` — TestAgentResult
 
@@ -137,7 +137,7 @@ class TestAgentResult:
 
 **Public Methods:** `to_dict`
 
-**Lines:** 50-82 in `test_agent.py`
+**Lines:** 52-84 in `test_agent.py`
 
 ### `test_agent.py` — TestAgent
 
@@ -161,7 +161,7 @@ class TestAgent:
 
 **Public Methods:** `__init__`, `validate_proposal`, `_build_test_file`, `_generate_recommendations`, `_store_results`
 
-**Lines:** 85-291 in `test_agent.py`
+**Lines:** 87-294 in `test_agent.py`
 
 ### `test_executor.py` — TestResult
 
@@ -173,7 +173,7 @@ class TestResult:
 
 ```
 
-**Lines:** 53-60 in `test_executor.py`
+**Lines:** 55-62 in `test_executor.py`
 
 ### `test_executor.py` — TestResults
 
@@ -189,22 +189,35 @@ class TestResults:
 
 **Public Methods:** `to_dict`
 
-**Lines:** 64-101 in `test_executor.py`
+**Lines:** 66-103 in `test_executor.py`
+
 
 ---
 
 ## Data Models and Contracts
 
+
 ### Exported Symbols (`__all__`)
 
-`TestAgent`, `TestAgentResult`, `TestExecutor`, `TestGenerator`, `TestResult`, `TestResults`, `generate_integration_tests`, `generate_unit_tests`, `run_tests_in_sandbox`, `spawn_test_agent`
+`MODEL_PRESETS`, `TestAgent`, `TestAgentResult`, `TestExecutor`, `TestGenerator`, `TestResult`, `TestResults`, `generate_integration_tests`, `generate_test_file`, `generate_unit_tests`
+
+*...and 2 more*
+
+### Module Constants
+
+| Constant | Value | Line |
+|----------|-------|------|
+| `TEST_GENERATION_SYSTEM_PROMPT` | `'You are an expert Python test engineer ...` | 63 |
+| `UNIT_TEST_PROMPT_TEMPLATE` | `"Generate comprehensive unit tests for t...` | 125 |
+| `INTEGRATION_TEST_PROMPT_TEMPLATE` | `'Generate integration tests for module i...` | 176 |
+| `MODEL_PRESETS` | `{'fast': {'model': 'gpt-4.1-mini', 'desc...` | 201 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreTestingRequest(BaseModel):
     """Request model for core_testing operations."""
@@ -263,9 +276,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Testing feature flags
-L9_ENABLE_CORE_TESTING_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_TESTING_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_TESTING_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_TESTING_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_TESTING_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_TESTING_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -292,27 +305,35 @@ CORE_TESTING_ENABLED=true
 
 ### Public Functions
 
-#### `def generate_unit_tests(code_proposal, module_name) -> list[str]`
+#### `def generate_unit_tests(code_proposal, module_name, use_llm) -> list[str]`
 
 Convenience function to generate unit tests.
 
-- **File:** `test_generator.py:282`
+- **File:** `test_generator.py:838`
 - **Async:** No
 - **Returns:** `list[str]`
 
-#### `def generate_integration_tests(code_proposal, dependencies, module_name) -> list[str]`
+#### `def generate_integration_tests(code_proposal, dependencies, module_name, use_llm) -> list[str]`
 
 Convenience function to generate integration tests.
 
-- **File:** `test_generator.py:299`
+- **File:** `test_generator.py:858`
 - **Async:** No
 - **Returns:** `list[str]`
+
+#### `def generate_test_file(code_proposal, module_name, dependencies, use_llm, preset) -> str`
+
+Generate a complete test file for a module.
+
+- **File:** `test_generator.py:882`
+- **Async:** No
+- **Returns:** `str`
 
 #### `async def spawn_test_agent(task_id, code_proposal, substrate_service, dependencies) -> TestAgentResult`
 
 Spawn a test agent to validate a code proposal.
 
-- **File:** `test_agent.py:294`
+- **File:** `test_agent.py:298`
 - **Async:** Yes
 - **Returns:** `TestAgentResult`
 
@@ -320,9 +341,10 @@ Spawn a test agent to validate a code proposal.
 
 Convenience function to run tests in sandbox.
 
-- **File:** `test_executor.py:306`
+- **File:** `test_executor.py:311`
 - **Async:** Yes
 - **Returns:** `TestResults`
+
 
 ### Usage Example
 
@@ -353,7 +375,7 @@ Core Testing operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.testing",
   "message": "Operation completed",
@@ -364,7 +386,6 @@ Core Testing operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -372,12 +393,12 @@ Core Testing operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                               | Type      | Description                    |
-| ------------------------------------ | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_testing_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_testing_operation_total`       | Counter   | Total operations processed     |
-| `core_testing_error_total`           | Counter   | Total errors encountered       |
-| `core_testing_active_connections`    | Gauge     | Current active connections     |
+| `core_testing_operation_total` | Counter | Total operations processed |
+| `core_testing_error_total` | Counter | Total errors encountered |
+| `core_testing_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -395,7 +416,6 @@ Core Testing emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_testing/`:
-
 - `test_core_testing.py` — Core unit tests
 - `test_core_testing_integration.py` — Integration tests (if applicable)
 
@@ -438,7 +458,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

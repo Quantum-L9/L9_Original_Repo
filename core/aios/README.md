@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ AI Operating System core abstractions
 
 ### Inbound Dependencies
 
-| Module         | Purpose          |
-| -------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/agents/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -79,10 +79,10 @@ core/aios/
 ├── runtime.py
 ```
 
-| File          | Purpose                           |
-| ------------- | --------------------------------- |
-| `__init__.py` | Core module (PROTECTED)           |
-| `runtime.py`  | AIOS Runtime for agent reasoning. |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `runtime.py` | AIOS Runtime for agent reasoning. |
 
 ### Naming Conventions
 
@@ -105,23 +105,25 @@ class AIOSRuntime:
 
     def __init__(self, ...): ...
 
+    async def close(self, ...) -> None: ...
+
     def model(self, ...) -> str: ...
 
     def temperature(self, ...) -> float: ...
 
     def _get_client(self, ...) -> AsyncOpenAI: ...
 
-    async def execute_reasoning(self, ...) -> AIOSResult: ...
-
 ```
 
-**Public Methods:** `__init__`, `model`, `temperature`, `_get_client`, `execute_reasoning`
+**Public Methods:** `__init__`, `close`, `model`, `temperature`, `_get_client`
 
-**Lines:** 96-375 in `runtime.py`
+**Lines:** 98-385 in `runtime.py`
+
 
 ---
 
 ## Data Models and Contracts
+
 
 ### Exported Symbols (`__all__`)
 
@@ -129,16 +131,16 @@ class AIOSRuntime:
 
 ### Module Constants
 
-| Constant                | Value                                         | Line |
-| ----------------------- | --------------------------------------------- | ---- |
-| `DEFAULT_SYSTEM_PROMPT` | `"You are L, an AI assistant operating wi...` | 67   |
+| Constant | Value | Line |
+|----------|-------|------|
+| `DEFAULT_SYSTEM_PROMPT` | `"You are L, an AI assistant operating wi...` | 69 |
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreAiosRequest(BaseModel):
     """Request model for core_aios operations."""
@@ -197,9 +199,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Aios feature flags
-L9_ENABLE_CORE_AIOS_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_AIOS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_AIOS_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_AIOS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_AIOS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_AIOS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -230,9 +232,10 @@ CORE_AIOS_ENABLED=true
 
 Factory function to create an AIOS runtime.
 
-- **File:** `runtime.py:383`
+- **File:** `runtime.py:393`
 - **Async:** No
 - **Returns:** `AIOSRuntime`
+
 
 ### Usage Example
 
@@ -263,7 +266,7 @@ Core Aios operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.aios",
   "message": "Operation completed",
@@ -274,7 +277,6 @@ Core Aios operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -282,12 +284,12 @@ Core Aios operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                            | Type      | Description                    |
-| --------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_aios_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_aios_operation_total`       | Counter   | Total operations processed     |
-| `core_aios_error_total`           | Counter   | Total errors encountered       |
-| `core_aios_active_connections`    | Gauge     | Current active connections     |
+| `core_aios_operation_total` | Counter | Total operations processed |
+| `core_aios_error_total` | Counter | Total errors encountered |
+| `core_aios_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -305,7 +307,6 @@ Core Aios emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_aios/`:
-
 - `test_core_aios.py` — Core unit tests
 - `test_core_aios_integration.py` — Integration tests (if applicable)
 
@@ -348,7 +349,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

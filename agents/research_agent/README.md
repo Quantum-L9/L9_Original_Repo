@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Autonomous research agent with web search and analysis capabilities
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                        | Purpose             |
-| ----------------------------- | ------------------- |
-| `services/research/`          | Required dependency |
+| Module | Purpose |
+|--------|---------|
+| `services/research/` | Required dependency |
 | `memory/substrate_service.py` | Required dependency |
 
 ---
@@ -77,11 +77,11 @@ Autonomous research agent with web search and analysis capabilities
 ```
 agents/research_agent/
 ├── __init__.py
-├── research_facade.py
+├── research_sdk.py
 ```
 
-| File          | Purpose                 |
-| ------------- | ----------------------- |
+| File | Purpose |
+|------|---------|
 | `__init__.py` | Core module (PROTECTED) |
 
 ### Naming Conventions
@@ -101,18 +101,19 @@ See source files for component details.
 
 ## Data Models and Contracts
 
+
 ### Exported Symbols (`__all__`)
 
 `Evidence`, `ResearchGraphRuntime`, `ResearchGraphState`, `ResearchMemoryAdapter`, `ResearchStep`, `build_research_graph`, `create_initial_state`, `extract_facts`, `generate_superprompt`, `get_memory_adapter`
 
-_...and 6 more_
+*...and 6 more*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class AgentsResearchRequest(BaseModel):
     """Request model for agents_research operations."""
@@ -170,9 +171,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Agents_Research feature flags
-L9_ENABLE_AGENTS_RESEARCH_TRACING: true # Enable detailed tracing
-L9_ENABLE_AGENTS_RESEARCH_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_AGENTS_RESEARCH_AUDIT: true # Enable audit logging
+L9_ENABLE_AGENTS_RESEARCH_TRACING: true  # Enable detailed tracing
+L9_ENABLE_AGENTS_RESEARCH_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_AGENTS_RESEARCH_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -203,7 +204,7 @@ AGENTS_RESEARCH_ENABLED=true
 
 Run a research query through the full LangGraph pipeline.
 
-- **File:** `research_facade.py:32`
+- **File:** `research_sdk.py:56`
 - **Async:** Yes
 - **Returns:** `dict[str, Any]`
 
@@ -211,7 +212,7 @@ Run a research query through the full LangGraph pipeline.
 
 Run a quick Perplexity query without the full pipeline.
 
-- **File:** `research_facade.py:74`
+- **File:** `research_sdk.py:99`
 - **Async:** Yes
 - **Returns:** `str`
 
@@ -219,7 +220,7 @@ Run a quick Perplexity query without the full pipeline.
 
 Generate a superprompt for Perplexity by extracting facts from code.
 
-- **File:** `research_facade.py:121`
+- **File:** `research_sdk.py:146`
 - **Async:** No
 - **Returns:** `str`
 
@@ -227,7 +228,7 @@ Generate a superprompt for Perplexity by extracting facts from code.
 
 Extract code facts from a module using AST parsing.
 
-- **File:** `research_facade.py:184`
+- **File:** `research_sdk.py:209`
 - **Async:** No
 - **Returns:** `dict[str, Any]`
 
@@ -235,9 +236,10 @@ Extract code facts from a module using AST parsing.
 
 Save Perplexity output to the research results folder.
 
-- **File:** `research_facade.py:277`
+- **File:** `research_sdk.py:302`
 - **Async:** No
 - **Returns:** `Path`
+
 
 ### Usage Example
 
@@ -268,7 +270,7 @@ Agents Research operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "agents.research_agent",
   "message": "Operation completed",
@@ -279,7 +281,6 @@ Agents Research operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -287,12 +288,12 @@ Agents Research operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                  | Type      | Description                    |
-| --------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `agents_research_operation_duration_ms` | Histogram | Operation latency distribution |
-| `agents_research_operation_total`       | Counter   | Total operations processed     |
-| `agents_research_error_total`           | Counter   | Total errors encountered       |
-| `agents_research_active_connections`    | Gauge     | Current active connections     |
+| `agents_research_operation_total` | Counter | Total operations processed |
+| `agents_research_error_total` | Counter | Total errors encountered |
+| `agents_research_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -310,7 +311,6 @@ Agents Research emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/agents_research_agent/`:
-
 - `test_agents_research.py` — Core unit tests
 - `test_agents_research_integration.py` — Integration tests (if applicable)
 
@@ -354,7 +354,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

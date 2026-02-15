@@ -2,8 +2,8 @@
 # Function Signatures
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -92,39 +92,145 @@ SDK/SDK.py::__init__(self, sdk) -
 SDK/SDK.py::__init__(self, sdk) - 
 SDK/SDK.py::__init__(self, sdk) - 
 SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::__init__(self, sdk) - 
+SDK/SDK.py::_ctx(self) - Common tenant/agent context kwargs.
+SDK/SDK.py::_get_client(self, account) - 
+SDK/SDK.py::_get_engine(self) - 
+SDK/SDK.py::_get_extractor(self) - 
+SDK/SDK.py::async _get_agent(self) - 
+SDK/SDK.py::async _get_client(self) - 
+SDK/SDK.py::async _get_client(self) - 
+SDK/SDK.py::async _get_evaluator(self) - 
+SDK/SDK.py::async _get_executor(self) - 
+SDK/SDK.py::async _get_executor(self, dag_id) - Lazy-load a DAG executor by ID.
+SDK/SDK.py::async _get_learning_engine(self) - 
+SDK/SDK.py::async _get_orchestrator(self) - 
+SDK/SDK.py::async _get_reflection(self) - 
+SDK/SDK.py::async _get_search_pipeline(self) - 
 SDK/SDK.py::async _get_service(self) - Lazy load world model service.
+SDK/SDK.py::async _get_substrate(self) - 
+SDK/SDK.py::async analyze_failure(self, failure_context, error, stack_trace) - Analyze a failure and extract lessons.
 SDK/SDK.py::async broadcast(self, message, message_type) - Broadcast a message to all agents.
 SDK/SDK.py::async call_tool(self, server, tool) - Call an MCP tool.
 SDK/SDK.py::async check_approval(self, action) - Check if action is approved for this age
+SDK/SDK.py::async clear_lessons(self) - Clear all lessons learned.
 SDK/SDK.py::async close_l9_facade() - Close the global SDK instance.
+SDK/SDK.py::async compare_approaches(self, approach_a, approach_b, criteria) - Compare two approaches.
+SDK/SDK.py::async compare_to_baseline(self, eval_set_name, agent_id, version) - Run evaluation and compare to baseline.
+SDK/SDK.py::async create_entity(self, entity_type, entity_id, properties) - Create an entity in the knowledge graph.
+SDK/SDK.py::async create_relationship(self, from_type, from_id, to_type, to_id, rel_type, properties) - Create a relationship between entities.
+SDK/SDK.py::async create_snapshot(self, description) - Create a world model snapshot.
+SDK/SDK.py::async delete(self, key) - Delete a key from cache.
+SDK/SDK.py::async delete_entity(self, entity_id) - Delete an entity.
+SDK/SDK.py::async delete_entity(self, entity_type, entity_id) - Delete an entity from the knowledge grap
+SDK/SDK.py::async discover(self, topic, domain, stages) - Discover information on a topic.
+SDK/SDK.py::async draft(self, account, to, subject, body) - Create an email draft.
 SDK/SDK.py::async enqueue(self, task, payload) - Enqueue a background task.
+SDK/SDK.py::async execute(self, command_text, context) - Execute an @L command.
+SDK/SDK.py::async execute(self, mode, hypothesis, evidence, context) - Execute a reasoning request through the 
 SDK/SDK.py::async execute_tool(self, tool_name) - Execute a tool by name.
 SDK/SDK.py::async execute_tool(tool_name) - Convenience function to execute a tool v
+SDK/SDK.py::async extract(self, schema_yaml, output_dir, overwrite, dry_run) - Extract agent code from a schema.
+SDK/SDK.py::async extract_patterns(self, examples) - Extract patterns from examples.
+SDK/SDK.py::async forward(self, account, msg_id, to, body) - Forward an email.
+SDK/SDK.py::async generate_improvements(self, current_performance, goals) - Generate improvement suggestions.
+SDK/SDK.py::async generate_spec(self, topic, description) - Generate a specification from research.
+SDK/SDK.py::async get(self, account, msg_id) - Get a single email by ID.
+SDK/SDK.py::async get(self, key) - Get a value from cache.
+SDK/SDK.py::async get_analytics(self) - Get GMP execution analytics.
+SDK/SDK.py::async get_autonomy_level(self) - Get current GMP autonomy level.
 SDK/SDK.py::async get_entity(self, entity_id) - Get entity state from world model.
+SDK/SDK.py::async get_entity(self, entity_type, entity_id) - Get an entity from the knowledge graph.
+SDK/SDK.py::async get_facts(self, subject, predicate, limit) - Get knowledge facts.
+SDK/SDK.py::async get_heuristics(self) - Get active GMP heuristics.
+SDK/SDK.py::async get_insights(self, packet_id, insight_type, limit) - Get insights.
 SDK/SDK.py::async get_l9_facade(agent_id, tenant_id) - Get or create an SDK instance.
-SDK/SDK.py::async infer(self, hypothesis, evidence) - Run inference on hypothesis given eviden
+SDK/SDK.py::async get_lessons_learned(self) - Get all lessons learned.
+SDK/SDK.py::async get_modes(self) - List available reasoning modes.
+SDK/SDK.py::async get_packet(self, packet_id) - Get a packet by ID.
+SDK/SDK.py::async get_rate_limit(self, key) - Get current rate limit counter.
+SDK/SDK.py::async get_relationships(self, entity_type, entity_id, rel_type, direction) - Get relationships for an entity.
+SDK/SDK.py::async get_run(self, run_id) - Get a simulation run by ID.
+SDK/SDK.py::async get_runs_for_graph(self, graph_id) - Get all simulation runs for a graph.
+SDK/SDK.py::async get_session_context(self, session_id) - Get session context from cache.
+SDK/SDK.py::async get_state(self, dag_id, thread_id) - Get execution state for a thread.
+SDK/SDK.py::async get_task_context(self, task_id) - Get task context from cache.
+SDK/SDK.py::async get_template(self, template_name) - Get content of a specific template.
+SDK/SDK.py::async get_thread(self, thread_id, limit) - Get all packets in a thread.
+SDK/SDK.py::async hybrid_search(self, query, top_k, filters) - Hybrid search (semantic + keyword + RRF 
+SDK/SDK.py::async increment_rate_limit(self, key, ttl) - Increment rate limit counter.
+SDK/SDK.py::async infer(self, hypothesis, evidence) - Run inference on hypothesis (legacy comp
+SDK/SDK.py::async ingest(self, content, kind, metadata) - Ingest a packet into memory.
 SDK/SDK.py::async initialize(self, memory_enabled, tool_registry_enabled, mediator_enabled) - Initialize L9 subsystems for this agent.
+SDK/SDK.py::async keys(self, pattern) - List keys matching a pattern.
+SDK/SDK.py::async list_dags(self) - List available DAG executor IDs.
+SDK/SDK.py::async list_entities(self, entity_type, limit, offset) - List entities, optionally filtered by ty
+SDK/SDK.py::async list_eval_sets(self) - List available evaluation sets.
+SDK/SDK.py::async list_snapshots(self, limit) - List available snapshots.
+SDK/SDK.py::async list_templates(self) - List available extraction templates.
+SDK/SDK.py::async list_updates(self, insight_type, min_confidence, limit) - List recent world model updates.
 SDK/SDK.py::async load(self, key) - Load checkpoint state.
 SDK/SDK.py::async log_audit(self, action, details) - Log compliance audit entry.
+SDK/SDK.py::async log_execution(self, result) - Log a GMP execution result.
+SDK/SDK.py::async process_domain_packet(self, packet) - Process a domain packet through tensor b
+SDK/SDK.py::async query(self, account, query_str, limit) - Query emails.
 SDK/SDK.py::async query_memory(query, limit) - Convenience function to query memory via
 SDK/SDK.py::async query_memory(self, query, limit) - Query the memory substrate.
-SDK/SDK.py::async record_feedback(self, outcome, score) - Record learning feedback.
+SDK/SDK.py::async record_feedback(self, outcome, score) - Record learning feedback (legacy compat)
+SDK/SDK.py::async reflect(self, history, focus, goals) - Run a reflection cycle.
+SDK/SDK.py::async reply(self, account, msg_id, body) - Reply to an email.
+SDK/SDK.py::async research_to_code(self, topic, mode, domain) - End-to-end: research a topic and generat
+SDK/SDK.py::async restore_snapshot(self, snapshot_id) - Restore world model from a snapshot.
+SDK/SDK.py::async resume_dag(self, dag_id, thread_id, updates) - Resume a DAG execution from checkpoint.
+SDK/SDK.py::async run(self, eval_set_name, agent_id, version) - Run an evaluation set against an agent.
+SDK/SDK.py::async run(self, graph_data, scenario_params, mode) - Execute a simulation on an IR graph.
+SDK/SDK.py::async run_dag(self, dag_id) - Run a registered DAG executor end-to-end
+SDK/SDK.py::async run_query(self, cypher, parameters) - Run a raw Cypher query.
 SDK/SDK.py::async run_task(self, task, context, timeout_seconds) - Run a task with this agent's context.
 SDK/SDK.py::async run_task(task) - Convenience function to run a task via g
 SDK/SDK.py::async save(self, key, state) - Save checkpoint state.
+SDK/SDK.py::async search(self, query, limit, min_similarity) - Unified search with auto query classific
+SDK/SDK.py::async semantic_search(self, query, top_k, tags) - Semantic vector search.
+SDK/SDK.py::async send(self, account, to, subject, body) - Send an email.
 SDK/SDK.py::async send_message(self, to_agent, message, message_type) - Send a message to another agent.
+SDK/SDK.py::async set(self, key, value, ttl) - Set a value in cache with optional TTL.
+SDK/SDK.py::async set_session_context(self, session_id, context, ttl) - Set session context in cache.
+SDK/SDK.py::async set_task_context(self, task_id, context, ttl) - Set task context in cache.
 SDK/SDK.py::async shutdown(self) - Gracefully shutdown this SDK instance.
 SDK/SDK.py::async store_memory(self, content, metadata) - Store a memory entry for this agent.
+SDK/SDK.py::async synthesize(self, topic, context) - Synthesize research on a topic.
+SDK/SDK.py::async tensor_inference(self, input_data, mode) - Run tensor bridge inference.
+SDK/SDK.py::async upsert_entity(self, entity_id, attributes, entity_type, confidence) - Create or update an entity.
+SDK/SDK.py::async validate_schema(self, schema_yaml, strict) - Validate a schema without extracting.
+SDK/SDK.py::cache(self) - Cache sub-interface (Redis).
 SDK/SDK.py::checkpoints(self) - P1: Checkpoints interface.
+SDK/SDK.py::commands(self) - P1: Command execution interface.
 SDK/SDK.py::compliance(self) - P2: Compliance interface.
+SDK/SDK.py::email(self) - P1: Email agent interface.
+SDK/SDK.py::evaluation(self) - P2: Evaluation interface.
+SDK/SDK.py::factory(self) - P2: Research Factory interface.
 SDK/SDK.py::governance(self) - P0: Governance interface.
+SDK/SDK.py::graph(self) - Knowledge graph sub-interface (Neo4j).
 SDK/SDK.py::learning(self) - P2: Learning interface.
 SDK/SDK.py::list_tools(self) - List all available tools.
 SDK/SDK.py::mcp(self) - P1: MCP interface.
+SDK/SDK.py::memory(self) - P0: Memory stack (search, ingest, graph,
 SDK/SDK.py::observability(self) - P0: Observability interface.
 SDK/SDK.py::reasoning(self) - P2: Reasoning interface.
+SDK/SDK.py::research(self) - P1: Research agent interface.
+SDK/SDK.py::simulation(self) - P2: Simulation interface.
 SDK/SDK.py::tasks(self) - P1: Task Queue interface.
 SDK/SDK.py::trace(self, event) - Emit a trace event.
+SDK/SDK.py::workflows(self) - P1: DAG workflow executors (ADR-0101).
 SDK/SDK.py::world_model(self) - P0: World Model interface.
 adapters/tensorglobe_bridge/adapter.py::__init__(self, accountability_engine, substrate_service, boundary_enforcer, tensorglobe_endpoint, tensorglobe_auth_key) - 
 adapters/tensorglobe_bridge/adapter.py::_validate_request_schema(self, request) - Validate request against schema
@@ -2917,11 +3023,14 @@ core/l_agent_runtime/agent_state.py::trust_index(self, value) - Set trust index 
 core/l_agent_runtime/agent_state.py::value_alignment_vector(self) - Get value alignment vector.
 core/l_agent_runtime/foresight_engine.py::__init__(self, state_manager, memory_manager, action_registry, candidate_generator, outcome_simulator) - Initialize foresight engine.
 core/l_agent_runtime/foresight_engine.py::_get_timestamp(self) - Get current timestamp.
+core/l_agent_runtime/foresight_engine.py::_sort_candidates_by_leverage_then_confidence(evaluated) - Sort by leverage_score desc, then confid
 core/l_agent_runtime/foresight_engine.py::confidence_threshold(self) - Get current confidence threshold from st
 core/l_agent_runtime/foresight_engine.py::decide_and_act(self, context) - Main foresight loop: Observe → Predict →
 core/l_agent_runtime/foresight_engine.py::evaluate_candidates(self, context, candidates) - Evaluate and score each candidate.
 core/l_agent_runtime/foresight_engine.py::execute_action(self, action, confidence) - Execute action and record expectation fo
 core/l_agent_runtime/foresight_engine.py::generate_candidates(self, context) - Generate candidate actions from context.
+core/l_agent_runtime/foresight_engine.py::observe(self, context_source, observe_checklist_path, use_leverage_question) - Observe stage: gather context for the fo
+core/l_agent_runtime/foresight_engine.py::run_observe_cycle(self, context_source, observe_checklist_path, min_leverage_to_act, min_confidence_to_act) - Run one periodic Observe cycle: Observe 
 core/l_agent_runtime/foresight_engine.py::simulate_action(self, context, action) - Simulate action outcome and calculate co
 core/l_agent_runtime/memory_adapter.py::__init__(self, memory_manager) - Initialize memory adapter.
 core/l_agent_runtime/memory_adapter.py::_detect_simple_patterns(self) - Detect simple patterns from action cache
@@ -4106,6 +4215,14 @@ domain_tensor_bridge/governance_bridge.py::async check(self, result) - Alias for
 domain_tensor_bridge/governance_bridge.py::async check_governance(self, decision) - Check decision against governance policy
 domain_tensor_bridge/governance_bridge.py::async escalate_to_anchor(self, decision, reason) - Escalate decision to governance anchor (
 domain_tensor_bridge/governance_bridge.py::async initialize(self) - Initialize governance connections.
+domain_tensor_bridge/l9_memory_adapter.py::__init__(self, substrate_service, working_memory_service, neo4j_client) - 
+domain_tensor_bridge/l9_memory_adapter.py::async get_working_memory(self, key) - 
+domain_tensor_bridge/l9_memory_adapter.py::async initialize(self) - Mark adapter as ready.  Underlying servi
+domain_tensor_bridge/l9_memory_adapter.py::async query_causal_graph(self, entity_id, depth) - HyperGraphDB is not implemented in L9.  
+domain_tensor_bridge/l9_memory_adapter.py::async query_episodic_memory(self, filters) - 
+domain_tensor_bridge/l9_memory_adapter.py::async query_semantic_graph(self, query) - 
+domain_tensor_bridge/l9_memory_adapter.py::async set_working_memory(self, key, value, ttl_seconds) - 
+domain_tensor_bridge/l9_memory_adapter.py::async store_episodic_event(self, event) - 
 domain_tensor_bridge/memory_bridge.py::__init__(self, substrate_service) - 
 domain_tensor_bridge/memory_bridge.py::async get_working_memory(self, key) - Get value from working memory (Redis).
 domain_tensor_bridge/memory_bridge.py::async initialize(self) - Initialize memory connections.
@@ -4685,6 +4802,7 @@ memory/active_encoder.py::__init__(self) - Initialize learning extractor.
 memory/active_encoder.py::__init__(self, repository, learning_extractor, consolidation_pipeline) - Initialize ActiveMemoryEncoder.
 memory/active_encoder.py::_classify_learning(self, text, outcome) - Classify a learning by type.
 memory/active_encoder.py::_compute_importance(self, learning, outcome) - Compute importance score for a learning.
+memory/active_encoder.py::_compute_importance_via_recipe(self, learning, outcome) - Compute importance via ImportanceRecipe 
 memory/active_encoder.py::_extract_implicit_learnings(self, outcome) - Extract implicit learnings from outcome 
 memory/active_encoder.py::async _check_consolidation(self, result) - Check if consolidation should be trigger
 memory/active_encoder.py::async _create_episode(self, outcome, result) - Create episodic record for the task.
@@ -4808,6 +4926,10 @@ memory/checkpoint_validator.py::generate_checksum(self, state) - Generate SHA-25
 memory/checkpoint_validator.py::get_schema_version(self, state) - Detect schema version of checkpoint stat
 memory/checkpoint_validator.py::strip_metadata_for_restore(self, state) - Remove all internal metadata fields befo
 memory/checkpoint_validator.py::validate_checksum(self, state) - Validate checksum of a restored checkpoi
+memory/chunk_view.py::__init__(self) - 
+memory/chunk_view.py::chunk_payloads(self, payloads) - Chunk a batch of retrieved payloads.
+memory/chunk_view.py::chunk_text(self, text) - Split text into overlapping chunks.
+memory/chunk_view.py::compute_id(content, source_packet_id, offset) - Content-addressed chunk ID using SHA-256
 memory/consolidation.py::__init__(self) - Initializes a ConsolidationReport instan
 memory/consolidation.py::__init__(self, repository, dry_run, dedup_engine) - Initialize consolidation pipeline.
 memory/consolidation.py::_extract_summary(self, text, max_length) - Extract summary from text using simple s
@@ -5091,6 +5213,7 @@ memory/identity_tier.py::init_identity_tier_service(repository) - Initialize the
 memory/identity_tier.py::set_repository(self, repository) - Set or update the repository reference.
 memory/importance_manager.py::__init__(self, repository, config) - Initialize ImportanceManager.
 memory/importance_manager.py::_calculate_decay(self, importance, last_accessed, now) - Calculate decayed importance using expon
+memory/importance_manager.py::_calculate_decay_via_recipe(self, importance, last_accessed, now, row) - Calculate importance using ImportanceRec
 memory/importance_manager.py::async decay_importance(self, batch_size) - Apply importance decay to facts that hav
 memory/importance_manager.py::async elevate_importance(self, fact_id, increment, reason) - Elevate importance of a fact.
 memory/importance_manager.py::async get_importance_stats(self) - Get statistics about importance distribu
@@ -5099,6 +5222,10 @@ memory/importance_manager.py::async track_access(self, fact_id, access_type, con
 memory/importance_manager.py::get_importance_manager() - Get or create the ImportanceManager sing
 memory/importance_manager.py::init_importance_manager(repository, config) - Initialize the ImportanceManager with de
 memory/importance_manager.py::set_repository(self, repository) - Set or update repository reference.
+memory/importance_recipe.py::access_boost(access_count, last_access_age_hours) - Compute access-based boost.
+memory/importance_recipe.py::compute_importance(inputs) - Compute deterministic importance score f
+memory/importance_recipe.py::outcome_boost(success_signal_count, has_reflection) - Compute outcome-based boost with explici
+memory/importance_recipe.py::tier_weight(segment) - Get base weight for a memory segment/tie
 memory/index_syncer.py::__init__(self, repository) - Performs runtime checks to verify Postgr
 memory/index_syncer.py::async run_all_checks(self) - Run all available checks and return over
 memory/index_syncer.py::async smoke_test_semantic_memory(self) - Run a minimal read on semantic_memory to
@@ -5126,6 +5253,17 @@ memory/ingestion.py::set_dag(self, dag) - Set or update the DAG reference for en
 memory/ingestion.py::set_enable_enrichment(self, enable) - Enable or disable DAG enrichment (v2.1.0
 memory/ingestion.py::set_repository(self, repository) - Set or update the repository reference.
 memory/ingestion.py::set_semantic_service(self, service) - Set or update the semantic service refer
+memory/intake_leverage.py::_extract_metadata_float(row, key) - Extract a float value from envelope.meta
+memory/intake_leverage.py::async fetch_highest_leverage_tasks(pool, query) - Fetch highest-leverage candidate tasks f
+memory/intake_leverage.py::score_intake_leverage(scorer, role, tier, recent_access_count, roi_estimate, estimated_time_saved_minutes) - Compute intake leverage fields for Packe
+memory/llm_memory_ops.py::__init__(self) - 
+memory/llm_memory_ops.py::_parse_consolidate(raw) - 
+memory/llm_memory_ops.py::_parse_distill(raw) - 
+memory/llm_memory_ops.py::_parse_summarize(raw) - 
+memory/llm_memory_ops.py::async complete(self, prompt) - 
+memory/llm_memory_ops.py::async episodic_summarize(self, episodes) - Summarize episodic memory traces into a 
+memory/llm_memory_ops.py::async procedural_consolidate(self, traces) - Consolidate reasoning traces into heuris
+memory/llm_memory_ops.py::async semantic_distill(self, content) - Extract structured facts and insights fr
 memory/migration_runner.py::__init__(self, database_url, migrations_dir) - Initialize migration runner.
 memory/migration_runner.py::async _init_json_codecs(conn) - Initialize connection with JSON codec fo
 memory/migration_runner.py::async connect(self) - Initialize connection pool.
@@ -5163,6 +5301,15 @@ memory/packet_serializer.py::envelope_from_json(payload) - Load a PacketEnvelope
 memory/packet_serializer.py::envelope_to_dict(envelope) - Convert a PacketEnvelope to a JSON-seria
 memory/packet_serializer.py::envelope_to_json(envelope) - Dump a PacketEnvelope to a JSON string.
 memory/packet_serializer.py::packet_in_from_dict(data) - Construct a PacketEnvelopeIn from a dict
+memory/pipeline_router.py::__init__(self) - 
+memory/pipeline_router.py::async build(self, sections) - 
+memory/pipeline_router.py::async build_context(self, sections) - Delegate to HierarchicalContextBuilder i
+memory/pipeline_router.py::async ingest(self, envelope) - 
+memory/pipeline_router.py::async ingest(self, envelope) - Ingest a PacketEnvelope via the existing
+memory/pipeline_router.py::async query(self, query) - Run tier-blended retrieval with optional
+memory/pipeline_router.py::async rewrite(self, query) - 
+memory/pipeline_router.py::async search(self, query, top_k) - 
+memory/pipeline_router.py::async update_importance(self, packet_id, delta, reason) - 
 memory/predictive_cache.py::__init__(self, config, graph_client) - Initialize the predictive cache.
 memory/predictive_cache.py::async _fetch_subgraph(self, entity_id) - Fetch subgraph data from Neo4j database.
 memory/predictive_cache.py::async _get_from_redis(self, entity_id) - Get entry from Redis, refresh TTL on hit
@@ -5174,6 +5321,8 @@ memory/predictive_cache.py::async shutdown(self) - Shutdown cache resources.
 memory/predictive_cache.py::async warm_entities(self, entity_ids) - Warm multiple entities concurrently.
 memory/predictive_cache.py::async warm_entity(self, entity_id) - Warm a single entity into cache.
 memory/predictive_cache.py::get_metrics(self) - Get current cache performance metrics.
+memory/procedural_synthesis.py::__init__(self) - 
+memory/procedural_synthesis.py::async synthesize(self, traces) - Run procedural consolidation over traces
 memory/query_cache.py::__init__(self, ttl_maxsize, ttl_default, lru_maxsize, enabled) - Initialize query cache.
 memory/query_cache.py::_make_cache_key(self, func_name, args, kwargs) - Generate cache key from function name an
 memory/query_cache.py::async wrapper() - Performs asynchronous caching of databas
@@ -5191,6 +5340,15 @@ memory/query_classifier.py::classify_query(self, query) - Classify a query into 
 memory/query_classifier.py::determine_retrieval_strategy(self, query, context) - Determine the optimal retrieval strategy
 memory/query_classifier.py::get_query_classifier() - Get singleton QueryClassifier instance. 
 memory/query_classifier.py::get_weight_overrides(self, pattern) - Get weight overrides for a query pattern
+memory/query_rewriter.py::__init__(self) - 
+memory/query_rewriter.py::_parse_response(raw) - Parse structured LLM output into Rewrite
+memory/query_rewriter.py::async complete(self, prompt) - 
+memory/query_rewriter.py::async rewrite(self, query) - Rewrite and expand a query. Falls back t
+memory/ranking_extensions.py::compute_extended_score(item, weights) - Compute a blended ranking score with opt
+memory/ranking_extensions.py::default() - Backward-compatible weights (no importan
+memory/ranking_extensions.py::rank_extended(items, weights) - Rank items using extended scoring. Retur
+memory/ranking_extensions.py::salience_heavy() - Weights emphasizing decayed salience.
+memory/ranking_extensions.py::with_importance() - Weights that include importance scoring.
 memory/reasoning_replay.py::__init__(self, chain_id, start_packet_id, packets, depth, is_complete) - Initializes a ReasoningChain object repr
 memory/reasoning_replay.py::__init__(self, repository) - Initialize reasoning replay pipeline.
 memory/reasoning_replay.py::async detect_orphaned_packets(self, agent_id) - Detect orphaned packets (packets with br
@@ -5245,8 +5403,10 @@ memory/retrieval.py::init_retrieval_pipeline(repository, semantic_service) - Ini
 memory/retrieval.py::reciprocal_rank_fusion(rankings, k) - Combine multiple rankings using Reciproc
 memory/retrieval.py::set_repository(self, repository) - Set or update the repository reference.
 memory/retrieval.py::set_semantic_service(self, service) - Set or update the semantic service refer
+memory/retrieval_multiquery.py::async retrieve_multiquery(retriever, queries) - Execute multiple queries against a singl
+memory/retrieval_multiquery.py::async search(self, query, top_k) - 
 memory/retrieval_ranking.py::__init__(self, weights, recency_half_life_days, frequency_scale) - Initialize MultiFactorRanker.
-memory/retrieval_ranking.py::__post_init__(self) - Validate weights sum to approximately 1.
+memory/retrieval_ranking.py::__post_init__(self) - Validate base weights sum to approximate
 memory/retrieval_ranking.py::_compute_final_score(self, item) - Compute final weighted score from all fa
 memory/retrieval_ranking.py::_compute_frequency_score(self, access_count) - Compute frequency score using logarithmi
 memory/retrieval_ranking.py::_compute_recency_score(self, timestamp, reference_time) - Compute recency score using exponential 
@@ -5402,6 +5562,7 @@ memory/substrate_dag.py::_default_state() - Create default state.
 memory/substrate_dag.py::_extract_text_for_routing(envelope) - Extract text content from envelope for r
 memory/substrate_dag.py::_get_config_dependency(config, key, default) - Safely extract a configurable dependency
 memory/substrate_dag.py::_should_skip_embedding(text) - Check if text matches known low-value pa
+memory/substrate_dag.py::async analogical_enrichment_node(state, config) - Optional DTB node: find cross-domain ana
 memory/substrate_dag.py::async checkpoint_node(state, config) - Checkpoint node: saves graph state for r
 memory/substrate_dag.py::async enrich(self, envelope, preload_state) - Run ENRICHMENT ONLY pipeline using nativ
 memory/substrate_dag.py::async extract_insights_node(state, config) - Extract insights, facts, and entities fr
@@ -5621,6 +5782,7 @@ memory/warming_service.py::async warm_for_query(self, query, mentioned_entities,
 memory/warming_service.py::get_service_metrics(self) - Get comprehensive service-level metrics.
 memory/warming_service.py::set_entity_graph(self, entity_graph) - Update the entity graph used for gap det
 memory/working_memory_adapter.py::__init__(self, substrate) - 
+memory/working_memory_adapter.py::async _semantic_recall_via_pipeline(self) - Delegate semantic recall to PipelineRout
 memory/working_memory_adapter.py::async build_world_model_context(self) - Assemble a world-model aware context sna
 memory/working_memory_adapter.py::async semantic_recall_for_intent(self) - Run agent-scoped semantic search to supp
 memory_cache/invalidation_hook.py::__init__(self, cache_service, event_bus) - Initialize the invalidation hook.
@@ -6679,6 +6841,16 @@ scripts/generate_readme_superprompt.py::format_route_info(route) - Format route 
 scripts/generate_readme_superprompt.py::generate_superprompt(facts, title, config, max_classes, max_functions) - Generate the superprompt with embedded f
 scripts/generate_readme_superprompt.py::main() - Generates a README superprompt for Perpl
 scripts/generate_readme_superprompt.py::total_lines(self) - Estimate total lines.
+scripts/generate_subsystem_readmes.py::auto_config_from_path(path, defaults) - Generate a config dict from an arbitrary
+scripts/generate_subsystem_readmes.py::backup_existing_readme(readme_path) - Backup existing README if it exists. Ret
+scripts/generate_subsystem_readmes.py::extract_subsystem_facts(repo_root, subsystem_path) - Extract code facts from a subsystem usin
+scripts/generate_subsystem_readmes.py::generate_readme(subsystem_name, config, facts, verified_time, time_verification_source, defaults) - Generate README content from template an
+scripts/generate_subsystem_readmes.py::list_subsystems(config) - List all configured subsystems.
+scripts/generate_subsystem_readmes.py::load_config(repo_root) - Load subsystem configuration from YAML.
+scripts/generate_subsystem_readmes.py::main() - Generate subsystem READMEs from code fac
+scripts/generate_subsystem_readmes.py::save_config(repo_root, config) - Save config back to YAML (for updating l
+scripts/generate_subsystem_readmes.py::validate_subsystem_config(key, config) - Validate a single subsystem config, retu
+scripts/generate_subsystem_readmes.py::verify_system_time() - Verify system time against external sour
 scripts/gmp-validate-stage.py::main() - 
 scripts/gmp-validate-stage.py::passed(self) - 
 scripts/gmp-validate-stage.py::summary(self) - 
@@ -9272,6 +9444,29 @@ tests/memory/test_hybrid_rag.py::async test_search_with_vector_results(self) - T
 tests/memory/test_hybrid_rag.py::test_strategies_exist(self) - Verify all strategies are defined.
 tests/memory/test_hybrid_rag.py::test_vector_hit_creation(self) - Test creating a VectorHit.
 tests/memory/test_hybrid_rag.py::test_vector_hit_with_entities(self) - Test VectorHit with extracted entities.
+tests/memory/test_importance_recipe.py::test_boost_capped_at_1_5(self) - 
+tests/memory/test_importance_recipe.py::test_boost_capped_at_2(self) - 
+tests/memory/test_importance_recipe.py::test_case_insensitive(self) - 
+tests/memory/test_importance_recipe.py::test_computed_at_is_timezone_aware(self) - 
+tests/memory/test_importance_recipe.py::test_many_accesses_increase_boost(self) - 
+tests/memory/test_importance_recipe.py::test_no_signals_gives_base(self) - 
+tests/memory/test_importance_recipe.py::test_old_access_decreases_boost(self) - 
+tests/memory/test_importance_recipe.py::test_procedural_higher_than_episodic(self) - 
+tests/memory/test_importance_recipe.py::test_procedural_highest(self) - 
+tests/memory/test_importance_recipe.py::test_raw_importance_in_range(self) - 
+tests/memory/test_importance_recipe.py::test_reflection_adds_boost(self) - 
+tests/memory/test_importance_recipe.py::test_returns_importance_update(self) - 
+tests/memory/test_importance_recipe.py::test_success_signals_increase_boost(self) - 
+tests/memory/test_importance_recipe.py::test_unknown_segment_gets_default(self) - 
+tests/memory/test_importance_recipe.py::test_zero_access_gives_base(self) - 
+tests/memory/test_importance_recipe_wiring.py::async test_flag_off_uses_inline_formula(self) - Flag OFF → original _calculate_decay use
+tests/memory/test_importance_recipe_wiring.py::async test_flag_on_would_use_recipe_path(self) - Flag ON → _calculate_decay_via_recipe me
+tests/memory/test_importance_recipe_wiring.py::extractor(self) - 
+tests/memory/test_importance_recipe_wiring.py::test_correction_learning_boosts_importance_inline(self, extractor) - Inline heuristic: correction type applie
+tests/memory/test_importance_recipe_wiring.py::test_default_flag_is_off(self) - No env var → default OFF.
+tests/memory/test_importance_recipe_wiring.py::test_flag_off_uses_inline_heuristic(self, extractor) - Flag OFF → original inline heuristic.
+tests/memory/test_importance_recipe_wiring.py::test_flag_on_delegates_to_recipe(self, extractor) - Flag ON → ImportanceRecipe.compute_impor
+tests/memory/test_importance_recipe_wiring.py::test_recipe_path_fallback_on_error(self, extractor) - Recipe path falls back to inline heurist
 tests/memory/test_ingestion_audit.py::test_clean_text_no_markers(self) - Clean text should not be flagged.
 tests/memory/test_ingestion_audit.py::test_detect_api_key(self) - API keys should be detected.
 tests/memory/test_ingestion_audit.py::test_detect_email(self) - Email addresses should be detected.
@@ -9436,6 +9631,29 @@ tests/memory/test_pipeline_alignment_fixes.py::async test_search_semantic_memory
 tests/memory/test_pipeline_alignment_fixes.py::async test_semantic_service_requires_explicit_provider() - 
 tests/memory/test_pipeline_alignment_fixes.py::async test_vector_search_step_uses_top_k_signature() - 
 tests/memory/test_pipeline_alignment_fixes.py::test_migration_contains_semantic_scope_project_index() - 
+tests/memory/test_pipeline_router.py::async test_all_three_tiers_queried(self, mock_ingestion, mock_retrieval) - 
+tests/memory/test_pipeline_router.py::async test_build_context_with_builder(self, mock_ingestion, mock_retrieval) - 
+tests/memory/test_pipeline_router.py::async test_build_context_without_builder(self, mock_ingestion, mock_retrieval) - 
+tests/memory/test_pipeline_router.py::async test_ingest_delegates_to_ingestion_service(self, mock_ingestion, mock_retrieval) - 
+tests/memory/test_pipeline_router.py::async test_ingest_propagates_caller_context(self, mock_ingestion, mock_retrieval) - 
+tests/memory/test_pipeline_router.py::async test_query_passes_expansions_to_retrieval(self, mock_ingestion, mock_retrieval, mock_rewriter) - 
+tests/memory/test_pipeline_router.py::async test_query_succeeds_when_rewriter_fails(self, mock_ingestion, mock_retrieval) - 
+tests/memory/test_pipeline_router.py::async test_query_uses_rewritten_query(self, mock_ingestion, mock_retrieval, mock_rewriter) - 
+tests/memory/test_pipeline_router.py::async test_sections_have_correct_tier_labels(self, mock_ingestion, mock_retrieval) - 
+tests/memory/test_pipeline_router.py::mock_importance() - 
+tests/memory/test_pipeline_router.py::mock_ingestion() - 
+tests/memory/test_pipeline_router.py::mock_retrieval() - 
+tests/memory/test_pipeline_router.py::mock_rewriter() - 
+tests/memory/test_pipeline_router.py::test_constructs_with_required_only(self, mock_ingestion, mock_retrieval) - 
+tests/memory/test_pipeline_router.py::test_requires_ingestion(self, mock_retrieval) - 
+tests/memory/test_pipeline_router.py::test_requires_retrieval(self, mock_ingestion) - 
+tests/memory/test_pipeline_router_wiring.py::adapter(self, mock_substrate) - 
+tests/memory/test_pipeline_router_wiring.py::async test_flag_off_is_default(self, adapter, mock_substrate) - No env var set → default is OFF, origina
+tests/memory/test_pipeline_router_wiring.py::async test_flag_off_uses_original_path(self, adapter, mock_substrate) - Flag OFF → substrate.semantic_search cal
+tests/memory/test_pipeline_router_wiring.py::async test_flag_on_delegates_to_pipeline_method(self, adapter, mock_substrate) - Flag ON → _semantic_recall_via_pipeline 
+tests/memory/test_pipeline_router_wiring.py::async test_original_path_normalizes_hits(self, adapter, mock_substrate) - Original path normalizes hits into plain
+tests/memory/test_pipeline_router_wiring.py::async test_pipeline_method_exists(self, adapter) - Verify _semantic_recall_via_pipeline met
+tests/memory/test_pipeline_router_wiring.py::mock_substrate(self) - Mock MemorySubstrateService with semanti
 tests/memory/test_predictive_warming.py::async test_detect_all_gaps_combines_results(self, detector, sample_entity_graph) - Test that detect_all_gaps combines entit
 tests/memory/test_predictive_warming.py::async test_detect_entity_gaps_empty_mentions_returns_empty(self, detector, sample_entity_graph) - Test that empty mentions returns no gaps
 tests/memory/test_predictive_warming.py::async test_detect_entity_gaps_finds_missing_entities(self, detector, sample_entity_graph) - Test that missing entities are detected 
@@ -9498,6 +9716,15 @@ tests/memory/test_query_classifier.py::test_get_weight_overrides_reasoning_trace
 tests/memory/test_query_classifier.py::test_get_weight_overrides_temporal(self) - Test weight overrides for temporal patte
 tests/memory/test_query_classifier.py::test_get_weight_overrides_unknown_pattern(self) - Test weight overrides fallback for unkno
 tests/memory/test_query_classifier.py::test_singleton_pattern(self) - Test get_query_classifier returns single
+tests/memory/test_ranking_extensions.py::test_default_preset(self) - 
+tests/memory/test_ranking_extensions.py::test_default_weights_ignore_importance(self) - 
+tests/memory/test_ranking_extensions.py::test_default_weights_ignore_salience(self) - 
+tests/memory/test_ranking_extensions.py::test_importance_changes_score(self) - 
+tests/memory/test_ranking_extensions.py::test_none_importance_treated_as_absent(self) - 
+tests/memory/test_ranking_extensions.py::test_rank_extended_orders_by_importance(self) - 
+tests/memory/test_ranking_extensions.py::test_salience_heavy_prefers_high_salience(self) - 
+tests/memory/test_ranking_extensions.py::test_salience_heavy_preset(self) - 
+tests/memory/test_ranking_extensions.py::test_with_importance_preset(self) - 
 tests/memory/test_reasoning_replay.py::async memory_substrate_service() - Provide a memory substrate service for t
 tests/memory/test_reasoning_replay.py::async test_detect_orphaned_packets_no_orphans(reasoning_replay_pipeline, memory_substrate_service) - Test detect_orphaned_packets returns emp
 tests/memory/test_reasoning_replay.py::async test_detect_orphaned_packets_returns_list(reasoning_replay_pipeline) - Test detect_orphaned_packets returns lis
@@ -10446,6 +10673,28 @@ tests/test_imports.py::test_optional_module_imports(self, module_name) - Optiona
 tests/test_imports.py::test_routers_have_router(self) - Router modules must have 'router' attrib
 tests/test_imports.py::test_server_has_app(self) - api.server must have 'app' attribute (Fa
 tests/test_imports.py::test_server_memory_has_app(self) - api.server_memory must have 'app' attrib
+tests/test_intake_leverage.py::test_access_count_boost(self) - 
+tests/test_intake_leverage.py::test_clamped_to_unit_interval(self) - 
+tests/test_intake_leverage.py::test_custom_scorer(self) - 
+tests/test_intake_leverage.py::test_defaults(self) - 
+tests/test_intake_leverage.py::test_defaults_user_general(self) - 
+tests/test_intake_leverage.py::test_episodic_value(self) - 
+tests/test_intake_leverage.py::test_frozen(self) - 
+tests/test_intake_leverage.py::test_has_importance_filter(self) - 
+tests/test_intake_leverage.py::test_identity_value(self) - 
+tests/test_intake_leverage.py::test_importance_filter(self) - 
+tests/test_intake_leverage.py::test_importance_ordering(self) - 
+tests/test_intake_leverage.py::test_importance_score(self) - 
+tests/test_intake_leverage.py::test_ordering(self) - 
+tests/test_intake_leverage.py::test_roi_passthrough(self) - 
+tests/test_intake_leverage.py::test_selects_importance(self) - 
+tests/test_intake_leverage.py::test_system_highest(self) - 
+tests/test_intake_leverage.py::test_system_identity_max(self) - 
+tests/test_intake_leverage.py::test_tool_lowest(self) - 
+tests/test_intake_leverage.py::test_tool_session_min(self) - 
+tests/test_intake_leverage.py::test_unknown_role_fallback(self) - 
+tests/test_intake_leverage.py::test_unknown_tier_fallback(self) - 
+tests/test_intake_leverage.py::test_user_mid(self) - 
 tests/test_integration_phase0.py::__init__(self) - 
 tests/test_integration_phase0.py::__init__(self) - 
 tests/test_integration_phase0.py::__init__(self) - 
@@ -11960,6 +12209,49 @@ tools/type_coverage/track_mypy_progress.py::generate_roadmap_markdown(modules, o
 tools/type_coverage/track_mypy_progress.py::main() - CLI entry point.
 tools/type_coverage/track_mypy_progress.py::run_mypy_on_module(module_path) - Run mypy on a single module and extract 
 tools/type_coverage/track_mypy_progress.py::update_precommit_config(clean_modules, precommit_path) - Update .pre-commit-config.yaml with list
+tools/validation/audit_package_exports.py::audit_package(package_name, repo_root) - Run export consistency audit for a top-l
+tools/validation/audit_package_exports.py::discover_auditable_packages(repo_root) - Discover all top-level packages and clas
+tools/validation/audit_package_exports.py::extract_all_names_ast(tree) - Extract __all__ list literal via AST.
+tools/validation/audit_package_exports.py::extract_import_bound_names_ast(tree, package_dot) - Extract names bound by imports via AST.
+tools/validation/audit_package_exports.py::find_repo_root() - Resolve repo root (directory containing 
+tools/validation/audit_package_exports.py::format_consolidated_report(all_results) - Produce a consolidated markdown report a
+tools/validation/audit_package_exports.py::format_report(data) - Produce a human-readable report.
+tools/validation/audit_package_exports.py::main() - 
+tools/validation/audit_package_wiring.py::audit_level_b(package_name, repo_root) - Check each .py file for consumers, tests
+tools/validation/audit_package_wiring.py::audit_level_c(package_name, repo_root) - Check public API symbols for actual usag
+tools/validation/audit_package_wiring.py::discover_packages(repo_root) - Discover all top-level Python packages.
+tools/validation/audit_package_wiring.py::extract_all_names(init_path) - Extract __all__ names via AST.
+tools/validation/audit_package_wiring.py::extract_public_names_from_module(filepath) - Extract public class/function names from
+tools/validation/audit_package_wiring.py::find_repo_root() - 
+tools/validation/audit_package_wiring.py::format_consolidated(all_results) - 
+tools/validation/audit_package_wiring.py::format_full_report(package, b_data, c_data) - 
+tools/validation/audit_package_wiring.py::format_level_b_report(data) - 
+tools/validation/audit_package_wiring.py::format_level_c_report(data) - 
+tools/validation/audit_package_wiring.py::main() - 
+tools/validation/audit_package_wiring.py::rg_count(pattern, repo_root) - Run rg --count and return total match co
+tools/validation/audit_package_wiring.py::rg_files(pattern, repo_root) - Run rg -l and return list of matching fi
+tools/validation/fix_internal_only_exports.py::discover_packages(repo_root) - 
+tools/validation/fix_internal_only_exports.py::extract_all_names(init_path) - 
+tools/validation/fix_internal_only_exports.py::find_internal_only_symbols(package, repo_root) - Find symbols that are in __all__ but onl
+tools/validation/fix_internal_only_exports.py::find_repo_root() - 
+tools/validation/fix_internal_only_exports.py::main() - 
+tools/validation/fix_internal_only_exports.py::remove_from_all(init_path, symbols_to_remove, dry_run) - Remove specific symbols from __all__ in 
+tools/validation/fix_internal_only_exports.py::rg_count_in(pattern, search_dir) - 
+tools/validation/fix_internal_only_exports.py::rg_count_outside(pattern, repo_root, exclude_pkg) - 
+tools/validation/triage_dead_code.py::classify_file(filepath, package, repo_root, now) - Classify a single orphan file.
+tools/validation/triage_dead_code.py::classify_symbol(symbol, package, repo_root) - Classify a single symbol into a triage c
+tools/validation/triage_dead_code.py::discover_packages(repo_root) - 
+tools/validation/triage_dead_code.py::extract_all_names(init_path) - Extract __all__ names via AST.
+tools/validation/triage_dead_code.py::extract_public_names(filepath) - Extract public class/function names from
+tools/validation/triage_dead_code.py::find_repo_root() - 
+tools/validation/triage_dead_code.py::format_consolidated(all_results) - 
+tools/validation/triage_dead_code.py::format_package_report(data) - 
+tools/validation/triage_dead_code.py::git_creation_date(filepath, repo_root) - Get the date a file was first committed.
+tools/validation/triage_dead_code.py::git_last_meaningful_date(filepath, repo_root) - Get the last commit date that wasn't a b
+tools/validation/triage_dead_code.py::main() - 
+tools/validation/triage_dead_code.py::rg_count_in(pattern, search_dir) - Count files matching pattern within a di
+tools/validation/triage_dead_code.py::rg_count_outside(pattern, repo_root, exclude_pkg) - Count files matching pattern OUTSIDE a p
+tools/validation/triage_dead_code.py::triage_package(package, repo_root) - Run full triage on a package.
 tools/validation/try_run.py::_build_env(repo_root) - Build environment with PYTHONPATH set to
 tools/validation/try_run.py::_truncate(text, max_chars) - Truncate text with ellipsis indicator.
 tools/validation/try_run.py::check_import(file_path, repo_root) - Try to import the file as a module in a 
@@ -12037,29 +12329,32 @@ workers/violation_tracker_service.py::create_violation_tracker_service(pattern_m
 workers/violation_tracker_service.py::get_all_violation_counts(self) - Get all violation counts.
 workers/violation_tracker_service.py::get_violation_count(self, lesson_id) - Get current violation count for a lesson
 workers/violation_tracker_service.py::reset_violation_count(self, lesson_id) - Reset violation count for a lesson (afte
+workflows/dags/component_audit_dag.py::register() - Register the component audit DAG.
 workflows/dags/dag_authoring_dag.py::register() - Register the DAG authoring DAG.
-workflows/dags/gmp/executor.py::__init__(self) - Initialize the executor.
+workflows/dags/gmp/executor.py::__init__(self) - Initialize the executor with graph and c
+workflows/dags/gmp/executor.py::_build_checkpointer() - Build the best available checkpointer.
 workflows/dags/gmp/executor.py::get_mermaid(self) - Get Mermaid diagram of the graph.
 workflows/dags/gmp/executor.py::get_state(self, thread_id) - Get current state for a thread.
-workflows/dags/gmp/executor.py::main() - CLI entry point.
-workflows/dags/gmp/executor.py::resume(self, thread_id, updates) - Resume execution with user input.
-workflows/dags/gmp/executor.py::run(self, task, tier, thread_id) - Run the GMP workflow.
+workflows/dags/gmp/executor.py::main() - CLI entry point for direct execution.
+workflows/dags/gmp/executor.py::resume(self, thread_id, updates) - Resume execution from a checkpoint.
+workflows/dags/gmp/executor.py::run(self, task, tier, agent_id, tenant_id, thread_id, todo_plan, file_budget_may) - Run the GMP workflow end-to-end.
 workflows/dags/gmp/graph.py::build_gmp_graph() - Build the GMP execution graph using Lang
+workflows/dags/gmp/nodes/core.py::async _memory_search(query, agent_id) - Search memory via retrieval service. Fal
+workflows/dags/gmp/nodes/core.py::async _memory_write(content, kind) - Write to memory via ingestion service. F
 workflows/dags/gmp/nodes/core.py::node_aborted(state) - Handle abort.
-workflows/dags/gmp/nodes/core.py::node_baseline(state) - Verify baseline conditions.
+workflows/dags/gmp/nodes/core.py::node_baseline(state) - Verify baseline conditions — all files e
 workflows/dags/gmp/nodes/core.py::node_end(state) - End GMP execution.
-workflows/dags/gmp/nodes/core.py::node_finalize(state) - Phase 6: generate report → validate repo
-workflows/dags/gmp/nodes/core.py::node_implement(state) - Execute TODO plan.
-workflows/dags/gmp/nodes/core.py::node_memory_read(state) - 🧠 MANDATORY: Read from L9 memory.
-workflows/dags/gmp/nodes/core.py::node_memory_write(state) - 🧠 MANDATORY: Write learnings to memory.
-workflows/dags/gmp/nodes/core.py::node_scope_lock(state) - Define TODO plan and file budget.
+workflows/dags/gmp/nodes/core.py::node_finalize(state) - Phase 6: generate report -> validate rep
+workflows/dags/gmp/nodes/core.py::node_implement(state) - Execute TODO plan items.
+workflows/dags/gmp/nodes/core.py::node_memory_read(state) - MANDATORY: Read from L9 memory for conte
+workflows/dags/gmp/nodes/core.py::node_memory_write(state) - MANDATORY: Write learnings to L9 memory 
+workflows/dags/gmp/nodes/core.py::node_scope_lock(state) - Validate the provided TODO plan and file
 workflows/dags/gmp/nodes/core.py::node_start(state) - Initialize GMP execution.
-workflows/dags/gmp/nodes/core.py::node_user_confirm_scope(state) - Gate: User confirms scope.
-workflows/dags/gmp/nodes/core.py::node_user_confirm_validation(state) - Gate: User confirms validation results.
-workflows/dags/gmp/nodes/core.py::node_validate(state) - Run validation suite via gmp-validate-st
-workflows/dags/gmp/routing.py::route_after_scope_confirm(state) - Route after scope confirmation.
-workflows/dags/gmp/routing.py::route_after_validation_confirm(state) - Route after validation confirmation.
-workflows/dags/gmp/state.py::add_message(self, msg) - Add a message to the log.
+workflows/dags/gmp/nodes/core.py::node_validate(state) - Run validation suite on all modified fil
+workflows/dags/gmp/nodes/core.py::route_after_validation(state) - Auto-route after validation — no user ga
+workflows/dags/gmp/routing.py::route_after_scope_lock(state) - Route after scope lock.
+workflows/dags/gmp/routing.py::route_after_validation(state) - Route after validation.
+workflows/dags/gmp/state.py::add_message(self, msg) - Add a timestamped message to the log.
 workflows/dags/gmp_execution_dag.py::get_gmp_execution_dag() - Get the GMP execution DAG.
 workflows/dags/harvest_deploy_dag.py::get_harvest_deploy_dag() - Get the harvest-deploy DAG.
 workflows/dags/inspect_dag.py::_issue_to_dict(issue) - Convert ValidationIssue to serializable 

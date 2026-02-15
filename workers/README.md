@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Background job workers for async processing
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module                  | Purpose             |
-| ----------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `runtime/task_queue.py` | Required dependency |
 
 ---
@@ -83,11 +83,11 @@ workers/
 ├── violation_tracker_service.py
 ```
 
-| File                    | Purpose                           |
-| ----------------------- | --------------------------------- |
-| `__init__.py`           | Core module (PROTECTED)           |
-| `anomaly_classifier.py` | Anomaly severity levels.          |
-| `anomaly_classifier.py` | Types of anomalies detected.      |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `anomaly_classifier.py` | Anomaly severity levels. |
+| `anomaly_classifier.py` | Types of anomalies detected. |
 | `anomaly_classifier.py` | A rule for classifying anomalies. |
 
 ### Naming Conventions
@@ -161,6 +161,7 @@ class ClassificationResult:
 
 **Lines:** 114-123 in `anomaly_classifier.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -175,29 +176,29 @@ The following data models define the contracts for this subsystem:
 
 `AnomalyClassifier`, `AnomalyClassifierRequest`, `AnomalyClassifierResponse`, `AnomalyResponseMonitor`, `AnomalyResponseMonitorRequest`, `AnomalyResponseMonitorResponse`, `AnomalySeverity`, `AnomalyType`, `ClassificationResult`, `ClassificationRule`
 
-_...and 26 more_
+*...and 26 more*
 
 ### Module Constants
 
-| Constant           | Value                                         | Line |
-| ------------------ | --------------------------------------------- | ---- |
-| `MODULE_ID`        | `'anomaly_classifier'`                        | 56   |
-| `MODULE_NAME`      | `'Anomaly Classifier'`                        | 57   |
-| `MODULE_ID`        | `'violation_patterns'`                        | 55   |
-| `MODULE_NAME`      | `'Violation Patterns'`                        | 56   |
-| `DEFAULT_PATTERNS` | `[ViolationPattern(pattern='Library/Appli...` | 84   |
-| `MODULE_ID`        | `'remediation_engine'`                        | 55   |
-| `MODULE_NAME`      | `'Remediation Engine'`                        | 56   |
-| `MODULE_ID`        | `'violation_tracker_service'`                 | 69   |
+| Constant | Value | Line |
+|----------|-------|------|
+| `MODULE_ID` | `'anomaly_classifier'` | 56 |
+| `MODULE_NAME` | `'Anomaly Classifier'` | 57 |
+| `MODULE_ID` | `'violation_patterns'` | 55 |
+| `MODULE_NAME` | `'Violation Patterns'` | 56 |
+| `DEFAULT_PATTERNS` | `[ViolationPattern(pattern='Library/Appli...` | 84 |
+| `MODULE_ID` | `'remediation_engine'` | 55 |
+| `MODULE_NAME` | `'Remediation Engine'` | 56 |
+| `MODULE_ID` | `'violation_tracker_service'` | 69 |
 
-_...and 7 more constants_
+*...and 7 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class WorkersRequest(BaseModel):
     """Request model for workers operations."""
@@ -255,9 +256,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Workers feature flags
-L9_ENABLE_WORKERS_TRACING: true # Enable detailed tracing
-L9_ENABLE_WORKERS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_WORKERS_AUDIT: true # Enable audit logging
+L9_ENABLE_WORKERS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_WORKERS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_WORKERS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -288,7 +289,7 @@ WORKERS_ENABLED=true
 
 Factory function to create AnomalyClassifier.
 
-- **File:** `anomaly_classifier.py:420`
+- **File:** `anomaly_classifier.py:421`
 - **Async:** No
 - **Returns:** `AnomalyClassifier`
 
@@ -296,7 +297,7 @@ Factory function to create AnomalyClassifier.
 
 Factory function to create ViolationPatterns.
 
-- **File:** `violation_patterns.py:444`
+- **File:** `violation_patterns.py:445`
 - **Async:** No
 - **Returns:** `ViolationPatterns`
 
@@ -304,7 +305,7 @@ Factory function to create ViolationPatterns.
 
 Factory function to create RemediationEngine.
 
-- **File:** `remediation_engine.py:480`
+- **File:** `remediation_engine.py:481`
 - **Async:** No
 - **Returns:** `RemediationEngine`
 
@@ -312,7 +313,7 @@ Factory function to create RemediationEngine.
 
 Factory function to create ViolationTrackerService.
 
-- **File:** `violation_tracker_service.py:563`
+- **File:** `violation_tracker_service.py:565`
 - **Async:** No
 - **Returns:** `ViolationTrackerService`
 
@@ -320,9 +321,10 @@ Factory function to create ViolationTrackerService.
 
 Factory function to create AnomalyResponseMonitor.
 
-- **File:** `anomaly_response_monitor.py:538`
+- **File:** `anomaly_response_monitor.py:541`
 - **Async:** No
 - **Returns:** `AnomalyResponseMonitor`
+
 
 ### Usage Example
 
@@ -353,7 +355,7 @@ Workers operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "workers",
   "message": "Operation completed",
@@ -364,7 +366,6 @@ Workers operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -372,12 +373,12 @@ Workers operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                          | Type      | Description                    |
-| ------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `workers_operation_duration_ms` | Histogram | Operation latency distribution |
-| `workers_operation_total`       | Counter   | Total operations processed     |
-| `workers_error_total`           | Counter   | Total errors encountered       |
-| `workers_active_connections`    | Gauge     | Current active connections     |
+| `workers_operation_total` | Counter | Total operations processed |
+| `workers_error_total` | Counter | Total errors encountered |
+| `workers_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -395,7 +396,6 @@ Workers emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/workers/`:
-
 - `test_workers.py` — Core unit tests
 - `test_workers_integration.py` — Integration tests (if applicable)
 
@@ -438,7 +438,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

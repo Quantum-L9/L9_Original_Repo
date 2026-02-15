@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Intermediate representation compiler and semantic compilation
 
 ### Inbound Dependencies
 
-| Module           | Purpose          |
-| ---------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `orchestrators/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -90,14 +90,14 @@ ir_engine/
 ├── simulation_router.py
 ```
 
-| File                   | Purpose                           |
-| ---------------------- | --------------------------------- |
-| `ir_generator.py`      | Core module (PROTECTED)           |
-| `semantic_compiler.py` | Core module (PROTECTED)           |
-| `__init__.py`          | Core module (PROTECTED)           |
-| `meta_ir.py`           | Module tier classification (0-7). |
-| `meta_ir.py`           | Team responsible for the module.  |
-| `meta_ir.py`           | Which service the module runs in. |
+| File | Purpose |
+|------|---------|
+| `ir_generator.py` | Core module (PROTECTED) |
+| `semantic_compiler.py` | Core module (PROTECTED) |
+| `__init__.py` | Core module (PROTECTED) |
+| `meta_ir.py` | Module tier classification (0-7). |
+| `meta_ir.py` | Team responsible for the module. |
+| `meta_ir.py` | Which service the module runs in. |
 
 ### Naming Conventions
 
@@ -170,6 +170,7 @@ class CallableFrom:
 
 **Lines:** 117-121 in `meta_ir.py`
 
+
 ---
 
 ## Data Models and Contracts
@@ -184,29 +185,29 @@ The following data models define the contracts for this subsystem:
 
 `AcceptanceSpec`, `ActionNode`, `BootImpact`, `ConstraintChallenger`, `ConstraintNode`, `DeliberationCell`, `DependencyEdge`, `DependencySpec`, `EnvironmentSpec`, `ErrorPolicy`
 
-_...and 42 more_
+*...and 40 more*
 
 ### Module Constants
 
-| Constant                   | Value                                         | Line |
-| -------------------------- | --------------------------------------------- | ---- |
-| `FORBIDDEN_PATTERNS`       | `['if applicable', 'when needed', 'as req...` | 64   |
-| `REQUIRED_SECTIONS`        | `['metadata', 'ownership', 'runtime_wirin...` | 81   |
-| `INTENT_EXTRACTION_PROMPT` | `'You are an intent extraction system. An...` | 71   |
-| `PRODUCER_PROMPT`          | `'You are IR Producer Agent. Your role is...` | 99   |
-| `CRITIC_PROMPT`            | `'You are IR Critic Agent. Your role is t...` | 130  |
-| `CHALLENGE_PROMPT`         | `'You are a constraint analysis expert. R...` | 53   |
-| `ADAPTER_TEMPLATE`         | `'"""\n{{ module_name }} Adapter\n{{ \'=\...` | 77   |
-| `ROUTE_TEMPLATE`           | `'"""\n{{ module_name }} Routes\n{{ \'=\'...` | 161  |
+| Constant | Value | Line |
+|----------|-------|------|
+| `FORBIDDEN_PATTERNS` | `['if applicable', 'when needed', 'as req...` | 64 |
+| `REQUIRED_SECTIONS` | `['metadata', 'ownership', 'runtime_wirin...` | 81 |
+| `INTENT_EXTRACTION_PROMPT` | `'You are an intent extraction system. An...` | 73 |
+| `PRODUCER_PROMPT` | `'You are IR Producer Agent. Your role is...` | 102 |
+| `CRITIC_PROMPT` | `'You are IR Critic Agent. Your role is t...` | 133 |
+| `CHALLENGE_PROMPT` | `'You are a constraint analysis expert. R...` | 55 |
+| `ADAPTER_TEMPLATE` | `'"""\n{{ module_name }} Adapter\n{{ \'=\...` | 77 |
+| `ROUTE_TEMPLATE` | `'"""\n{{ module_name }} Routes\n{{ \'=\'...` | 161 |
 
-_...and 5 more constants_
+*...and 5 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class IrEngineRequest(BaseModel):
     """Request model for ir_engine operations."""
@@ -265,9 +266,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Ir_Engine feature flags
-L9_ENABLE_IR_ENGINE_TRACING: true # Enable detailed tracing
-L9_ENABLE_IR_ENGINE_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_IR_ENGINE_AUDIT: true # Enable audit logging
+L9_ENABLE_IR_ENGINE_TRACING: true  # Enable detailed tracing
+L9_ENABLE_IR_ENGINE_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_IR_ENGINE_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -298,7 +299,7 @@ IR_ENGINE_ENABLED=true
 
 Validate a YAML schema file.
 
-- **File:** `schema_validator.py:400`
+- **File:** `schema_validator.py:407`
 - **Async:** No
 - **Returns:** `MetaContractValidationResult`
 
@@ -306,7 +307,7 @@ Validate a YAML schema file.
 
 Validate and parse a YAML schema file.
 
-- **File:** `schema_validator.py:417`
+- **File:** `schema_validator.py:424`
 - **Async:** No
 - **Returns:** `MetaContract`
 
@@ -330,9 +331,10 @@ Compile a MetaContract to IR.
 
 Compile ModuleIR to Python source files.
 
-- **File:** `ir_to_python.py:952`
+- **File:** `ir_to_python.py:959`
 - **Async:** No
 - **Returns:** `dict[str, str]`
+
 
 ### Usage Example
 
@@ -363,7 +365,7 @@ Ir Engine operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "ir_engine",
   "message": "Operation completed",
@@ -374,7 +376,6 @@ Ir Engine operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -382,12 +383,12 @@ Ir Engine operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                            | Type      | Description                    |
-| --------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `ir_engine_operation_duration_ms` | Histogram | Operation latency distribution |
-| `ir_engine_operation_total`       | Counter   | Total operations processed     |
-| `ir_engine_error_total`           | Counter   | Total errors encountered       |
-| `ir_engine_active_connections`    | Gauge     | Current active connections     |
+| `ir_engine_operation_total` | Counter | Total operations processed |
+| `ir_engine_error_total` | Counter | Total errors encountered |
+| `ir_engine_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -405,7 +406,6 @@ Ir Engine emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/ir_engine/`:
-
 - `test_ir_engine.py` — Core unit tests
 - `test_ir_engine_integration.py` — Integration tests (if applicable)
 
@@ -455,7 +455,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

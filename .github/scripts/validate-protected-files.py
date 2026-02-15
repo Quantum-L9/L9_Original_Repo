@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-Validate that protected files (LCTO-controlled surfaces) are not modified.
+Validate that protected files are not modified without approval.
 
-Protected files can only be modified by:
-  - L (CTO): websocket_orchestrator.py, kernel_loader.py, docker-compose.yml
-  - Cursor (IDE): Non-protected files only
-  - Igor (Boss): Any file (but audit trail required)
+Protected files include LCTO-owned paths, subsystem-owned paths, and patterns
+(Dockerfile, .github/workflows/*.yml, runtime/*, Makefile, etc.). L (CTO) must
+follow the same protected-file policy as everyone else—no exemption.
 
 This runs on every PR and blocks changes to protected surfaces.
 
@@ -54,6 +53,7 @@ from core.governance.protected_files_policy import (
     get_all_protected_files,
     get_lcto_controlled_files,
     get_subsystem_protected_files,
+    is_protected,
 )
 
 PROTECTED_BY_LCTO = get_lcto_controlled_files()
@@ -108,7 +108,7 @@ def has_approval_marker(commit_msg: str) -> bool:
 def validate_protected_files() -> bool:
     """Check that protected files were not modified without approval."""
     changed = get_changed_files()
-    violations = changed & ALL_PROTECTED
+    violations = {f for f in changed if is_protected(f)}
 
     if not violations:
         print("✅ No protected files modified")  # noqa: ADR-0019

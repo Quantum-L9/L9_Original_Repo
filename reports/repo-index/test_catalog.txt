@@ -2,8 +2,8 @@
 # Test Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -62,6 +62,7 @@
 - `tests/test_ci_configuration.py` (20 tests)
 - `tests/test_code_facts_extraction.py` (22 tests)
 - `tests/test_imports.py` (7 tests)
+- `tests/test_intake_leverage.py` (22 tests)
 - `tests/test_integration_phase0.py` (6 tests)
 - `tests/test_l_cto_kernel_activation.py` (12 tests)
 - `tests/test_memory_adapter.py` (12 tests)
@@ -283,6 +284,8 @@
 - `tests/memory/test_graph_memory.py` (24 tests)
 - `tests/memory/test_hierarchical_consolidation.py` (29 tests)
 - `tests/memory/test_hybrid_rag.py` (19 tests)
+- `tests/memory/test_importance_recipe.py` (15 tests)
+- `tests/memory/test_importance_recipe_wiring.py` (7 tests)
 - `tests/memory/test_ingestion_audit.py` (16 tests)
 - `tests/memory/test_ingestion_pipeline_audit.py` (50 tests)
 - `tests/memory/test_ingestion_transaction.py` (4 tests)
@@ -294,10 +297,13 @@
 - `tests/memory/test_packet_envelope_immutability.py` (14 tests)
 - `tests/memory/test_packet_validation_v2.py` (23 tests)
 - `tests/memory/test_pipeline_alignment_fixes.py` (11 tests)
+- `tests/memory/test_pipeline_router.py` (12 tests)
+- `tests/memory/test_pipeline_router_wiring.py` (5 tests)
 - `tests/memory/test_predictive_warming.py` (17 tests)
 - `tests/memory/test_pruning.py` (5 tests)
 - `tests/memory/test_query_cache_and_vector.py` (12 tests)
 - `tests/memory/test_query_classifier.py` (15 tests)
+- `tests/memory/test_ranking_extensions.py` (9 tests)
 - `tests/memory/test_reasoning_replay.py` (12 tests)
 - `tests/memory/test_retrieval_audit.py` (12 tests)
 - `tests/memory/test_rls_isolation.py` (5 tests)
@@ -448,8 +454,8 @@
 
 ## Summary
 
-- **Total test files**: 322
-- **Total test functions**: 3675
+- **Total test files**: 328
+- **Total test functions**: 3745
 
 ## Running Tests
 

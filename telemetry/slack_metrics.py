@@ -152,6 +152,24 @@ if PROMETHEUS_AVAILABLE:
         ["team_id"],
     )
 
+    # Thread context cache (GMP-SLACK-THREAD-CACHE, PR #108)
+    SLACK_THREAD_CACHE_HITS = Counter(
+        "l9_slack_thread_cache_hits_total",
+        "Slack thread context cache hits (Redis)",
+    )
+    SLACK_THREAD_CACHE_MISSES = Counter(
+        "l9_slack_thread_cache_misses_total",
+        "Slack thread context cache misses (fallback to Postgres)",
+    )
+    SLACK_THREAD_CACHE_APPENDS = Counter(
+        "l9_slack_thread_cache_appends_total",
+        "Slack thread context cache appends (write-ahead/write-through)",
+    )
+    SLACK_THREAD_CACHE_INVALIDATIONS = Counter(
+        "l9_slack_thread_cache_invalidations_total",
+        "Slack thread context cache explicit invalidations",
+    )
+
 # =============================================================================
 # Recording Functions
 # =============================================================================
@@ -321,6 +339,46 @@ def set_active_threads(count: int) -> None:
         SLACK_ACTIVE_THREADS.set(count)
     except Exception as e:
         logger.warning("Failed to set active threads gauge", error=str(e))
+
+
+def record_thread_cache_hit() -> None:
+    """Record a Slack thread context cache hit (Redis)."""
+    if not PROMETHEUS_AVAILABLE:
+        return
+    try:
+        SLACK_THREAD_CACHE_HITS.inc()
+    except Exception as e:
+        logger.warning("Failed to record thread cache hit", error=str(e))
+
+
+def record_thread_cache_miss() -> None:
+    """Record a Slack thread context cache miss (fallback to Postgres)."""
+    if not PROMETHEUS_AVAILABLE:
+        return
+    try:
+        SLACK_THREAD_CACHE_MISSES.inc()
+    except Exception as e:
+        logger.warning("Failed to record thread cache miss", error=str(e))
+
+
+def record_thread_cache_append() -> None:
+    """Record a Slack thread context cache append (write-ahead/write-through)."""
+    if not PROMETHEUS_AVAILABLE:
+        return
+    try:
+        SLACK_THREAD_CACHE_APPENDS.inc()
+    except Exception as e:
+        logger.warning("Failed to record thread cache append", error=str(e))
+
+
+def record_thread_cache_invalidation() -> None:
+    """Record an explicit Slack thread context cache invalidation."""
+    if not PROMETHEUS_AVAILABLE:
+        return
+    try:
+        SLACK_THREAD_CACHE_INVALIDATIONS.inc()
+    except Exception as e:
+        logger.warning("Failed to record thread cache invalidation", error=str(e))
 
 
 # =============================================================================

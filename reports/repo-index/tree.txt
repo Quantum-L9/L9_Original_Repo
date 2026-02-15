@@ -2,8 +2,8 @@
 # Tree
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -255,6 +255,7 @@ L9/
 │   │   ├── gmp_meta_learning.py
 │   │   ├── governance-reference.md
 │   │   ├── ingest_lessons.py
+│   │   ├── superprompt.md
 │   │   ├── GMP-v2.0-Perplex-Py-Scripts/
 │   │   │   ├── script.py
 │   │   │   ├── script_1.py
@@ -771,6 +772,7 @@ L9/
 │   ├── di_config.py
 │   ├── di_runtime_config.py
 │   ├── di_runtime_config.yaml
+│   ├── importance_calibration.yaml
 │   ├── kernel_discovery.yaml
 │   ├── mcp_servers.yaml
 │   ├── memory_substrate_settings.py
@@ -1297,6 +1299,7 @@ L9/
 │   ├── embedding_processor.py
 │   ├── escalation_handler.py
 │   ├── governance_bridge.py
+│   ├── l9_memory_adapter.py
 │   ├── memory_bridge.py
 │   ├── packet_formatter.py
 │   ├── packet_router.py
@@ -1404,6 +1407,7 @@ L9/
 │   ├── .gitignore
 │   ├── MEMORY_FORMAT.md
 │   ├── QUICK_REFERENCE.md
+│   ├── README.md
 │   ├── bootstrap.sh
 │   ├── src/
 │   │   ├── __init__.py
@@ -1459,6 +1463,7 @@ L9/
 │   ├── checkpoint_manager.py
 │   ├── checkpoint_metrics.py
 │   ├── checkpoint_validator.py
+│   ├── chunk_view.py
 │   ├── consolidation.py
 │   ├── context_builder.py
 │   ├── cross_encoder_reranker.py
@@ -1482,21 +1487,29 @@ L9/
 │   ├── hybrid_rag.py
 │   ├── identity_tier.py
 │   ├── importance_manager.py
+│   ├── importance_recipe.py
 │   ├── index_syncer.py
 │   ├── ingestion.py
 │   ├── insight_extraction.py
+│   ├── intake_leverage.py
+│   ├── llm_memory_ops.py
 │   ├── memory_spec_v3.0.yaml
 │   ├── migration_runner.py
 │   ├── neo4j_strategy_memory.py
 │   ├── neural_decay_scheduler.py
 │   ├── packet_serializer.py
+│   ├── pipeline_router.py
 │   ├── predictive_cache.py
+│   ├── procedural_synthesis.py
 │   ├── query_cache.py
 │   ├── query_classifier.py
+│   ├── query_rewriter.py
+│   ├── ranking_extensions.py
 │   ├── reasoning_replay.py
 │   ├── retention_engine.py
 │   ├── retention_refcount.py
 │   ├── retrieval.py
+│   ├── retrieval_multiquery.py
 │   ├── retrieval_ranking.py
 │   ├── retrieval_strategy.py
 │   ├── saga.py
@@ -1591,6 +1604,7 @@ L9/
 │   ├── 0031_add_refcount_columns.sql
 │   ├── 0032_fix_timestamp_timezones.sql
 │   ├── 0033_add_cursor_scope.sql
+│   ├── 0034_intake_leverage_rating.sql
 │   ├── 20260125_tool_feedback_learning.sql
 │   ├── README.md
 │   ├── SCHEMA_DIAGRAM.txt
@@ -1847,6 +1861,8 @@ L9/
 │   │   ├── 0098-single-source-of-truth-for-config-defaults.md
 │   │   ├── 0099-dry-config-constants-enforcement.md
 │   │   ├── 0100-slash-commands-dag-only-no-cli-executors.md
+│   │   ├── 0101-dag-executors-via-sdk-not-per-service-routes.md
+│   │   ├── 0102-sdk-first-external-interface.md
 │   │   ├── README.md
 │   │   ├── architecture_decisions.md
 │   ├── bug_patterns/
@@ -1887,6 +1903,7 @@ L9/
 │       ├── dora-block-enforcement-contract.md
 ├── reports/
 │   ├── .index_hashes.json
+│   ├── COMPONENT_WIRING_AUDIT_GUIDE.md
 │   ├── GMP-Report-132-DB-Code-Fixes.md
 │   ├── GMP-Report-132-Neo4j-Unavailable-Fix.md
 │   ├── GMP-Report-141-Bug-Classification-Knowledge-Capture.md
@@ -1900,6 +1917,7 @@ L9/
 │   ├── VIOLATION-2026-01-31-noqa-debt.md
 │   ├── WIRE-Report-DuplicatePacketDetection-20260123.md
 │   ├── docstring_quality_comparison.md
+│   ├── memory_export_audit.md
 │   ├── noqa_debt_report.md
 │   ├── architecture/
 │   │   ├── api_route_inventory.txt
@@ -1977,6 +1995,95 @@ L9/
 │   │   ├── phase2_final.json
 │   │   ├── post_cleanup_audit.json
 │   │   ├── test_dead_code.json
+│   ├── audits/
+│   │   ├── CONSOLIDATED_AUDIT.md
+│   │   ├── CONSOLIDATED_WIRING_AUDIT.md
+│   │   ├── SDK_export_audit.md
+│   │   ├── SDK_triage.md
+│   │   ├── SDK_wiring_audit.md
+│   │   ├── adapters_export_audit.md
+│   │   ├── adapters_triage.md
+│   │   ├── agents_export_audit.md
+│   │   ├── agents_triage.md
+│   │   ├── agents_wiring_audit.md
+│   │   ├── api_export_audit.md
+│   │   ├── api_triage.md
+│   │   ├── api_wiring_audit.md
+│   │   ├── bootstrap_triage.md
+│   │   ├── bootstrap_wiring_audit.md
+│   │   ├── ci_export_audit.md
+│   │   ├── ci_wiring_audit.md
+│   │   ├── clients_export_audit.md
+│   │   ├── clients_triage.md
+│   │   ├── clients_wiring_audit.md
+│   │   ├── collaborative_cells_export_audit.md
+│   │   ├── collaborative_cells_triage.md
+│   │   ├── collaborative_cells_wiring_audit.md
+│   │   ├── config_export_audit.md
+│   │   ├── config_triage.md
+│   │   ├── config_wiring_audit.md
+│   │   ├── core_export_audit.md
+│   │   ├── core_triage.md
+│   │   ├── core_wiring_audit.md
+│   │   ├── domain_tensor_bridge_export_audit.md
+│   │   ├── domain_tensor_bridge_triage.md
+│   │   ├── domain_tensor_bridge_wiring_audit.md
+│   │   ├── email_agent_export_audit.md
+│   │   ├── email_agent_triage.md
+│   │   ├── email_agent_wiring_audit.md
+│   │   ├── governance_export_audit.md
+│   │   ├── governance_triage.md
+│   │   ├── governance_wiring_audit.md
+│   │   ├── graph_adapter_export_audit.md
+│   │   ├── graph_adapter_triage.md
+│   │   ├── graph_adapter_wiring_audit.md
+│   │   ├── ir_engine_export_audit.md
+│   │   ├── ir_engine_triage.md
+│   │   ├── ir_engine_wiring_audit.md
+│   │   ├── mac_agent_export_audit.md
+│   │   ├── mac_agent_triage.md
+│   │   ├── mac_agent_wiring_audit.md
+│   │   ├── memory_cache_export_audit.md
+│   │   ├── memory_cache_triage.md
+│   │   ├── memory_cache_wiring_audit.md
+│   │   ├── memory_export_audit.md
+│   │   ├── memory_triage.md
+│   │   ├── memory_wiring_audit.md
+│   │   ├── motifs_export_audit.md
+│   │   ├── motifs_triage.md
+│   │   ├── motifs_wiring_audit.md
+│   │   ├── orchestration_export_audit.md
+│   │   ├── orchestration_triage.md
+│   │   ├── orchestration_wiring_audit.md
+│   │   ├── orchestrators_export_audit.md
+│   │   ├── orchestrators_triage.md
+│   │   ├── orchestrators_wiring_audit.md
+│   │   ├── private_triage.md
+│   │   ├── runtime_export_audit.md
+│   │   ├── runtime_triage.md
+│   │   ├── runtime_wiring_audit.md
+│   │   ├── scripts_export_audit.md
+│   │   ├── scripts_wiring_audit.md
+│   │   ├── services_export_audit.md
+│   │   ├── services_triage.md
+│   │   ├── services_wiring_audit.md
+│   │   ├── simulation_export_audit.md
+│   │   ├── simulation_triage.md
+│   │   ├── simulation_wiring_audit.md
+│   │   ├── telemetry_triage.md
+│   │   ├── telemetry_wiring_audit.md
+│   │   ├── tests_export_audit.md
+│   │   ├── tests_wiring_audit.md
+│   │   ├── tools_wiring_audit.md
+│   │   ├── workers_export_audit.md
+│   │   ├── workers_triage.md
+│   │   ├── workers_wiring_audit.md
+│   │   ├── workflows_export_audit.md
+│   │   ├── workflows_triage.md
+│   │   ├── workflows_wiring_audit.md
+│   │   ├── world_model_export_audit.md
+│   │   ├── world_model_triage.md
+│   │   ├── world_model_wiring_audit.md
 │   ├── bug_detection/
 │   │   ├── config_mismatches.md
 │   ├── perplexity_audit/
@@ -2323,6 +2430,7 @@ L9/
 │   ├── test_ci_configuration.py
 │   ├── test_code_facts_extraction.py
 │   ├── test_imports.py
+│   ├── test_intake_leverage.py
 │   ├── test_integration_phase0.py
 │   ├── test_l_cto_kernel_activation.py
 │   ├── test_memory_adapter.py
@@ -2555,6 +2663,8 @@ L9/
 │   │   ├── test_graph_memory.py
 │   │   ├── test_hierarchical_consolidation.py
 │   │   ├── test_hybrid_rag.py
+│   │   ├── test_importance_recipe.py
+│   │   ├── test_importance_recipe_wiring.py
 │   │   ├── test_ingestion_audit.py
 │   │   ├── test_ingestion_pipeline_audit.py
 │   │   ├── test_ingestion_transaction.py
@@ -2566,10 +2676,13 @@ L9/
 │   │   ├── test_packet_envelope_immutability.py
 │   │   ├── test_packet_validation_v2.py
 │   │   ├── test_pipeline_alignment_fixes.py
+│   │   ├── test_pipeline_router.py
+│   │   ├── test_pipeline_router_wiring.py
 │   │   ├── test_predictive_warming.py
 │   │   ├── test_pruning.py
 │   │   ├── test_query_cache_and_vector.py
 │   │   ├── test_query_classifier.py
+│   │   ├── test_ranking_extensions.py
 │   │   ├── test_reasoning_replay.py
 │   │   ├── test_retrieval_audit.py
 │   │   ├── test_rls_isolation.py
@@ -2793,6 +2906,10 @@ L9/
 │   │   ├── track_mypy_progress.py
 │   └── validation/
 │       ├── __init__.py
+│       ├── audit_package_exports.py
+│       ├── audit_package_wiring.py
+│       ├── fix_internal_only_exports.py
+│       ├── triage_dead_code.py
 │       ├── try_run.py
 │       ├── validate_external_code.py
 ├── workers/
@@ -2825,6 +2942,7 @@ L9/
 │   │   ├── DAG-Harvest-6-MAKE DAGS.md
 │   ├── dags/
 │   │   ├── __init__.py
+│   │   ├── component_audit_dag.py
 │   │   ├── confirm_wiring_dag.py
 │   │   ├── dag_authoring_dag.py
 │   │   ├── gmp_execution_dag.py
@@ -2837,6 +2955,7 @@ L9/
 │   │   ├── test_pipeline_dag.py
 │   │   ├── wire_dag.py
 │   │   └── gmp/
+│   │       ├── README.md
 │   │       ├── __init__.py
 │   │       ├── executor.py
 │   │       ├── graph.py

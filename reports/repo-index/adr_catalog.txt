@@ -2,14 +2,14 @@
 # Adr Catalog
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
 # L9 Architecture Decision Record (ADR) Catalog
 # Generated: 2026-02-14
-# Total: 97 ADRs
+# Total: 99 ADRs
 #
 # Format: ADR_NUMBER | STATUS | TITLE | PATH
 # ============================================================================
@@ -116,6 +116,8 @@
 0098 | Unknown | Unknown | readme/adr/0098-single-source-of-truth-for-config-defaults.md
 0099 | Unknown | Unknown | readme/adr/0099-dry-config-constants-enforcement.md
 0100 | Unknown | Unknown | readme/adr/0100-slash-commands-dag-only-no-cli-executors.md
+0101 | Unknown | Unknown | readme/adr/0101-dag-executors-via-sdk-not-per-service-routes.md
+0102 | Unknown | Unknown | readme/adr/0102-sdk-first-external-interface.md
 
 # ============================================================================
 # AI QUICK REFERENCE - KEY DO NOT's

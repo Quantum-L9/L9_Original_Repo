@@ -2,8 +2,8 @@
 # Class Definitions
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -19,15 +19,25 @@
 .backup/mcp-tools-20260131/semantic_tool_search.py::ToolSearchOptimizer - Optimize tool availability based on usage patterns.
 .backup/mcp-tools-20260131/semantic_tool_search.py::ToolSearchResult - Result from semantic tool search.
 SDK/SDK.py::CheckpointsInterface - Interface to L9 Checkpoints - state persistence (P1).
+SDK/SDK.py::CommandsInterface - P1: Interface to L9 command execution.
 SDK/SDK.py::ComplianceInterface - Interface to L9 Compliance - audit and regulatory (P2).
+SDK/SDK.py::EmailInterface - P1: Interface to L9 email agent.
+SDK/SDK.py::EvaluationInterface - P2: Interface to L9 agent evaluation.
+SDK/SDK.py::FactoryInterface - P2: Interface to L9 Research Factory.
 SDK/SDK.py::GovernanceInterface - Interface to L9 Governance - approvals and permissions (P0).
 SDK/SDK.py::L9SDK - Per-agent SDK for L9 AIOS.
-SDK/SDK.py::LearningInterface - Interface to L9 Learning - feedback and adaptation (P2).
+SDK/SDK.py::LearningInterface - P2: Interface to L9 Learning — reflection agent + GMP meta-l
 SDK/SDK.py::MCPInterface - Interface to MCP tools and resources (P1).
+SDK/SDK.py::MemoryCacheInterface - P0: Interface to L9 cache layer (Redis).
+SDK/SDK.py::MemoryGraphInterface - P0: Interface to L9 knowledge graph (Neo4j).
+SDK/SDK.py::MemoryInterface - P0: Interface to L9 memory subsystem (ADR-0102).
 SDK/SDK.py::ObservabilityInterface - Interface to L9 Observability - tracing and metrics (P0).
-SDK/SDK.py::ReasoningInterface - Interface to L9 Reasoning - Bayesian and causal inference (P
+SDK/SDK.py::ReasoningInterface - P2: Interface to L9 Reasoning — orchestrator + tensor bridge
+SDK/SDK.py::ResearchInterface - P1: Interface to L9 research agent.
+SDK/SDK.py::SimulationInterface - P2: Interface to L9 simulation engine.
 SDK/SDK.py::TaskQueueInterface - Interface to L9 Task Queue - background jobs (P1).
-SDK/SDK.py::WorldModelInterface - Interface to L9 World Model - entity state and beliefs.
+SDK/SDK.py::WorkflowsInterface - P1: Interface to L9 DAG workflow executors (ADR-0101).
+SDK/SDK.py::WorldModelInterface - P0: Interface to L9 World Model — entity state, beliefs, sna
 adapters/tensorglobe_bridge/adapter.py::TensorGlobeBridgeAdapter - L9 External Cognitive Accelerator.
 adapters/tensorglobe_bridge/anomaly_guard.py::AnomalyDetector - Statistical anomaly detection for TensorGlobe responses.
 adapters/tensorglobe_bridge/anomaly_guard.py::AnomalySeverity - Anomaly severity levels
@@ -881,6 +891,7 @@ core/l_agent_runtime/agent_state.py::AgentStateManager - Manages agent state wit
 core/l_agent_runtime/agent_state.py::ProactivityLevel - Agent proactivity levels.
 core/l_agent_runtime/foresight_engine.py::CandidateAction - A candidate action with predicted outcome.
 core/l_agent_runtime/foresight_engine.py::DecisionMode - Decision modes for the foresight engine.
+core/l_agent_runtime/foresight_engine.py::ForesightCycleResult - Result of a periodic Observe cycle (Observe → Decide → Act o
 core/l_agent_runtime/foresight_engine.py::ForesightDecision - Result of foresight decision-making.
 core/l_agent_runtime/foresight_engine.py::ForesightEngine - Implements the Foresight Engine pattern.
 core/l_agent_runtime/memory_adapter.py::MemoryAdapter - Adapter to connect governance to existing memory substrate.
@@ -1287,6 +1298,7 @@ domain_tensor_bridge/governance_bridge.py::EscalationResult - Result of escalati
 domain_tensor_bridge/governance_bridge.py::GovernanceBridge - Bridge to L9 governance layer.
 domain_tensor_bridge/governance_bridge.py::GovernanceDecision - Governance check outcomes.
 domain_tensor_bridge/governance_bridge.py::GovernanceResult - Result of governance check.
+domain_tensor_bridge/l9_memory_adapter.py::L9MemoryAdapter - Concrete adapter wiring DTB's MemoryBridge to L9 services.
 domain_tensor_bridge/memory_bridge.py::EpisodicEvent - Event from episodic memory.
 domain_tensor_bridge/memory_bridge.py::MemoryBridge - Unified interface to L9 memory layers.
 domain_tensor_bridge/memory_bridge.py::Node - Node from semantic graph.
@@ -1561,6 +1573,9 @@ memory/checkpoint_metrics.py::Gauge - Stub Gauge class for when prometheus_clien
 memory/checkpoint_metrics.py::Histogram - Stub Histogram class for when prometheus_client is not insta
 memory/checkpoint_validator.py::CheckpointValidator - Cryptographic validator for checkpoint integrity.
 memory/checkpoint_validator.py::SchemaVersion - Checkpoint schema versions for backward compatibility.
+memory/chunk_view.py::Chunk - A single content-addressed chunk derived from a memory paylo
+memory/chunk_view.py::ChunkConfig - Configuration for the chunking algorithm.
+memory/chunk_view.py::ChunkView - Virtual chunking layer — deterministic, rule-based in Phase 
 memory/consolidation.py::ConsolidationPipeline - Memory consolidation pipeline.
 memory/consolidation.py::ConsolidationReport - Consolidation execution report.
 memory/consolidation/adaptive_batching.py::AdaptiveBatcher - Dynamically adjusts batch sizes for consolidation operations
@@ -1645,17 +1660,49 @@ memory/importance_manager.py::AccessRecord - Record of a fact access event.
 memory/importance_manager.py::ImportanceConfig - Configuration for importance management.
 memory/importance_manager.py::ImportanceManager - Manages dynamic importance scores for memory facts.
 memory/importance_manager.py::ImportanceUpdate - Result of an importance update operation.
+memory/importance_recipe.py::ImportanceInputs - All inputs required to compute importance score.
+memory/importance_recipe.py::ImportanceUpdate - Output compatible with ImportanceManager update API.
 memory/index_syncer.py::IndexSyncer - Lightweight index/extension checker.
 memory/ingestion.py::IngestionPipeline - PacketEnvelope ingestion pipeline.
+memory/intake_leverage.py::IntakeLeverageQuery - Parameters for querying highest-leverage tasks.
+memory/intake_leverage.py::IntakeLeverageScorer - Computes importance_score at task intake.
+memory/intake_leverage.py::IntakeTier - Memory tier for intake scoring.
+memory/intake_leverage.py::LeverageCandidate - A candidate task surfaced by importance score for the observ
+memory/intake_leverage.py::RoleWeight - Weight contribution of message role to intake leverage score
+memory/llm_memory_ops.py::ConsolidateResult - Procedural consolidation output.
+memory/llm_memory_ops.py::DistillResult - Semantic distillation output.
+memory/llm_memory_ops.py::LLMClient - Generic async LLM completion interface.
+memory/llm_memory_ops.py::LLMMemoryOps - Encapsulates the three LLM operations used by the memory pip
+memory/llm_memory_ops.py::SummarizeResult - Episodic summarization output.
 memory/migration_runner.py::MigrationRunner - Runs database migrations automatically and idempotently.
 memory/neo4j_strategy_memory.py::Neo4jStrategyMemoryService - Production Neo4j-backed Strategy Memory Service.
 memory/neo4j_strategy_memory.py::StrategyMemoryConfig - Configuration for Neo4j Strategy Memory Service.
 memory/neural_decay_scheduler.py::DecayConfig - Configuration for neural decay calculation.
 memory/neural_decay_scheduler.py::DecayResult - Result of a decay calculation run.
 memory/neural_decay_scheduler.py::NeuralDecayScheduler - Neural decay scheduler for memory importance adjustment.
+memory/pipeline_router.py::CallerContext - Caller identity passed through the router for governance sco
+memory/pipeline_router.py::ContextBuilderService - Protocol matching HierarchicalContextBuilder.build(...).
+memory/pipeline_router.py::ContextSection - A single assembled context section from a memory tier.
+memory/pipeline_router.py::ImportanceService - Protocol matching ImportanceManager update API.
+memory/pipeline_router.py::IngestionService - Protocol matching IngestionPipeline.ingest(...).
+memory/pipeline_router.py::LLMConfig - LLM model + budget constraints for router operations.
+memory/pipeline_router.py::MemoryTier - Memory retrieval tiers.
+memory/pipeline_router.py::PipelineRouter - Orchestrates memory ingest + query across tiers with LLM enr
+memory/pipeline_router.py::QueryRewriteService - Protocol matching QueryRewriter.rewrite(...).
+memory/pipeline_router.py::RetrievalService - Protocol matching RetrievalPipeline public API.
+memory/pipeline_router.py::RouterResult - Aggregated result from a router query operation.
+memory/pipeline_router.py::TierRetrievalConfig - Per-tier retrieval knobs.
 memory/predictive_cache.py::PredictiveCache - Redis-backed predictive cache for knowledge graph entities.
+memory/procedural_synthesis.py::HeuristicCandidate - A single heuristic candidate extracted from traces.
+memory/procedural_synthesis.py::ProceduralSynthesizer - Research-grade procedural synthesis from reasoning traces.
+memory/procedural_synthesis.py::SynthesisReport - Full synthesis report with candidates + narrative.
 memory/query_cache.py::QueryCache - Query result caching with TTL and LRU strategies.
 memory/query_classifier.py::QueryClassifier - Classifies queries into retrieval patterns for adaptive weig
+memory/query_rewriter.py::LLMClient - Protocol for LLM completion calls.
+memory/query_rewriter.py::QueryRewriter - Rewrites and expands queries via LLM with deterministic fall
+memory/query_rewriter.py::RewriteResult - Output of a query rewrite operation.
+memory/ranking_extensions.py::ExtendedRankingItem - A ranking item with optional importance and salience fields.
+memory/ranking_extensions.py::ExtendedWeights - Weighting factors including importance and salience.
 memory/reasoning_replay.py::ReasoningChain - Represents a reconstructed reasoning chain.
 memory/reasoning_replay.py::ReasoningReplayPipeline - Reasoning replay pipeline for decision chain reconstruction.
 memory/retention_engine.py::RetentionEngine - Checkpoint retention and cleanup engine.
@@ -1664,6 +1711,9 @@ memory/retention_engine.py::RetentionResult - Result of a retention cleanup oper
 memory/retention_refcount.py::PacketRefCount - Reference count tracking for a single packet.
 memory/retention_refcount.py::ReferenceCountingService - Computes and caches reference counts for packets to enable s
 memory/retrieval.py::RetrievalPipeline - Memory retrieval pipeline with hybrid search capabilities.
+memory/retrieval_multiquery.py::MultiQueryResult - Merged, deduplicated results from multiple query variants.
+memory/retrieval_multiquery.py::ProvenancedHit - A retrieval hit with provenance tracking.
+memory/retrieval_multiquery.py::SingleQueryRetriever - Protocol matching existing RetrievalPipeline.search(...).
 memory/retrieval_ranking.py::MultiFactorRanker - Ranks retrieval results using multiple factors.
 memory/retrieval_ranking.py::RankingItem - An item to be ranked with all factor scores.
 memory/retrieval_ranking.py::RankingWeights - Configurable weights for multi-factor ranking.
@@ -1999,6 +2049,9 @@ scripts/generate_readme_superprompt.py::FunctionInfo - Enhanced function informa
 scripts/generate_readme_superprompt.py::RouteInfo - API route information.
 scripts/generate_readme_superprompt.py::SubsystemFacts - All extracted facts from a subsystem.
 scripts/generate_readme_superprompt.py::TypeInfo - Type annotation information.
+scripts/generate_subsystem_readmes.py::ClassInfo - Class information for README generation.
+scripts/generate_subsystem_readmes.py::FunctionInfo - Function information for README generation.
+scripts/generate_subsystem_readmes.py::SubsystemFacts - Aggregated facts about a subsystem.
 scripts/gmp-validate-stage.py::Check - Single validation check result.
 scripts/gmp-validate-stage.py::StageResult - Aggregate validation result.
 scripts/memory/ingest_chat_transcript.py::Chunk - Chunk of messages for embedding.
@@ -2541,6 +2594,12 @@ tests/memory/test_hybrid_rag.py::TestEntityExtractor - Test EntityExtractor func
 tests/memory/test_hybrid_rag.py::TestGraphEnricher - Test GraphEnricher functionality.
 tests/memory/test_hybrid_rag.py::TestHybridRAGPipeline - Test HybridRAGPipeline functionality.
 tests/memory/test_hybrid_rag.py::TestVectorHit - Test VectorHit dataclass.
+tests/memory/test_importance_recipe.py::TestAccessBoost - No docstring
+tests/memory/test_importance_recipe.py::TestComputeImportance - No docstring
+tests/memory/test_importance_recipe.py::TestOutcomeBoost - No docstring
+tests/memory/test_importance_recipe.py::TestTierWeight - No docstring
+tests/memory/test_importance_recipe_wiring.py::TestActiveEncoderRecipeWiring - Feature flag controls delegation to ImportanceRecipe in _com
+tests/memory/test_importance_recipe_wiring.py::TestImportanceManagerRecipeWiring - Feature flag controls delegation to ImportanceRecipe in deca
 tests/memory/test_ingestion_audit.py::TestInjectionDetection - Tests for injection marker detection.
 tests/memory/test_ingestion_audit.py::TestNormalization - Tests for text normalization functions.
 tests/memory/test_ingestion_audit.py::TestPIIDetection - Tests for PII detection and redaction.
@@ -2571,6 +2630,14 @@ tests/memory/test_packet_validation_v2.py::TestPacketTypeValidation - Test packe
 tests/memory/test_packet_validation_v2.py::TestPacketValidationErrorTyped - Test the typed PacketValidationError exception.
 tests/memory/test_packet_validation_v2.py::TestProvenanceValidation - Test provenance field validation (v2.0.0 fields).
 tests/memory/test_packet_validation_v2.py::TestTTLValidation - Test TTL validation.
+tests/memory/test_pipeline_router.py::MockHit - No docstring
+tests/memory/test_pipeline_router.py::TestPipelineRouterBuildContext - No docstring
+tests/memory/test_pipeline_router.py::TestPipelineRouterConstruction - No docstring
+tests/memory/test_pipeline_router.py::TestPipelineRouterIngest - No docstring
+tests/memory/test_pipeline_router.py::TestPipelineRouterQueryRewriteFailure - No docstring
+tests/memory/test_pipeline_router.py::TestPipelineRouterQueryWithRewrite - No docstring
+tests/memory/test_pipeline_router.py::TestPipelineRouterTierBlending - No docstring
+tests/memory/test_pipeline_router_wiring.py::TestWorkingMemoryAdapterPipelineWiring - Feature flag controls delegation to PipelineRouter.
 tests/memory/test_predictive_warming.py::TestGapDetector - Tests for GapDetector class.
 tests/memory/test_predictive_warming.py::TestMemoryWarmingService - Tests for MemoryWarmingService class.
 tests/memory/test_predictive_warming.py::TestPredictiveCache - Tests for PredictiveCache class.
@@ -2580,6 +2647,11 @@ tests/memory/test_query_cache_and_vector.py::TestQueryCache - Test query caching
 tests/memory/test_query_cache_and_vector.py::TestVectorSearchConfig - Test vector search configuration.
 tests/memory/test_query_cache_and_vector.py::TestVectorSearchIntegration - Integration tests for vector search optimization.
 tests/memory/test_query_classifier.py::TestQueryClassifier - Tests for QueryClassifier pattern classification.
+tests/memory/test_ranking_extensions.py::TestImportanceWeightedRanking - No docstring
+tests/memory/test_ranking_extensions.py::TestNoneFieldHandling - No docstring
+tests/memory/test_ranking_extensions.py::TestRankingBackwardCompatibility - No docstring
+tests/memory/test_ranking_extensions.py::TestSalienceWeightedRanking - No docstring
+tests/memory/test_ranking_extensions.py::TestWeightPresets - No docstring
 tests/memory/test_retrieval_audit.py::TestReciprocalRankFusion - Tests for reciprocal rank fusion algorithm.
 tests/memory/test_retrieval_audit.py::TestTemporalDecay - Tests for temporal decay function.
 tests/memory/test_rls_isolation.py::TestRLSIsolation - Tests for tenant isolation via RLS.
@@ -2768,6 +2840,12 @@ tests/test_imports.py::TestMemoryImports - Verify memory system modules can be i
 tests/test_imports.py::TestModuleAttributes - Verify expected attributes exist on modules.
 tests/test_imports.py::TestNoCircularImports - Detect circular import issues.
 tests/test_imports.py::TestOptionalImports - Verify optional modules import when present.
+tests/test_intake_leverage.py::TestIntakeLeverageQuery - IntakeLeverageQuery filters by importance_score.
+tests/test_intake_leverage.py::TestIntakeTier - IntakeTier aligns with NeuralDecayScheduler tier modifiers.
+tests/test_intake_leverage.py::TestLeverageCandidate - LeverageCandidate uses importance_score.
+tests/test_intake_leverage.py::TestLeverageQuerySQL - SQL template uses importance_score.
+tests/test_intake_leverage.py::TestRoleWeights - RoleWeight enum values match ImportanceManager elevation sem
+tests/test_intake_leverage.py::TestScoreIntakeLeverage - score_intake_leverage() computes correct weighted scores.
 tests/test_integration_phase0.py::MockCache - No docstring
 tests/test_integration_phase0.py::MockRedis - No docstring
 tests/test_integration_phase0.py::MockSubstrate - No docstring

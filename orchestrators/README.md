@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,16 +59,16 @@ Domain-specific orchestration patterns for agents, memory, reasoning, and world 
 
 ### Inbound Dependencies
 
-| Module        | Purpose          |
-| ------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `api/routes/` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module                                | Purpose             |
-| ------------------------------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `orchestration/unified_controller.py` | Required dependency |
-| `core/agents/executor.py`             | Required dependency |
+| `core/agents/executor.py` | Required dependency |
 
 ---
 
@@ -94,12 +94,12 @@ orchestrators/
 └── ... (26 more files)
 ```
 
-| File           | Purpose                                            |
-| -------------- | -------------------------------------------------- |
-| `__init__.py`  | Core module (PROTECTED)                            |
-| `ws_bridge.py` | Phase 3: Configuration for the WS bridge.          |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `ws_bridge.py` | Phase 3: Configuration for the WS bridge. |
 | `ws_bridge.py` | Phase 3: Extensible event router with handler regi |
-| `validator.py` | Result of tool validation.                         |
+| `validator.py` | Result of tool validation. |
 
 ### Naming Conventions
 
@@ -126,7 +126,7 @@ class WSBridgeConfig:
 
 **Public Methods:** `__init__`
 
-**Lines:** 233-253 in `ws_bridge.py`
+**Lines:** 236-264 in `ws_bridge.py`
 
 ### `ws_bridge.py` — WSEventRouter
 
@@ -146,7 +146,7 @@ class WSEventRouter:
 
 **Public Methods:** `__init__`, `register_handler`, `route`
 
-**Lines:** 256-278 in `ws_bridge.py`
+**Lines:** 267-299 in `ws_bridge.py`
 
 ### `validator.py` — ValidationResult
 
@@ -164,7 +164,7 @@ class ValidationResult:
 
 **Public Methods:** `__init__`, `to_dict`
 
-**Lines:** 50-77 in `validator.py`
+**Lines:** 50-89 in `validator.py`
 
 ### `validator.py` — Validator
 
@@ -188,7 +188,7 @@ class Validator:
 
 **Public Methods:** `__init__`, `_get_registry`, `process`, `validate_tool`, `_assess_safety_level`
 
-**Lines:** 80-248 in `validator.py`
+**Lines:** 92-261 in `validator.py`
 
 ### `interface.py` — ToolSafetyLevel
 
@@ -201,6 +201,7 @@ class ToolSafetyLevel:
 ```
 
 **Lines:** 37-42 in `interface.py`
+
 
 ---
 
@@ -216,29 +217,29 @@ The following data models define the contracts for this subsystem:
 
 `ActionToolOrchestrator`, `ActionToolRequest`, `ActionToolResponse`, `AdapterNode`, `AgentExecutionOrchestrator`, `AgentExecutionRequest`, `AgentExecutionResponse`, `ApplyEngine`, `Blueprint`, `BlueprintAdapter`
 
-_...and 63 more_
+*...and 63 more*
 
 ### Module Constants
 
-| Constant                  | Value                                         | Line |
-| ------------------------- | --------------------------------------------- | ---- |
-| `HIGH_RISK_TOOLS`         | `get_high_risk_tools()`                       | 45   |
-| `IGOR_APPROVAL_REQUIRED`  | `get_igor_approval_tools()`                   | 46   |
-| `SAFE_TOOLS`              | `get_safe_tools()`                            | 47   |
-| `DEFAULT_MAX_RETRIES`     | `3`                                           | 50   |
-| `INITIAL_BACKOFF_SECONDS` | `1.0`                                         | 51   |
-| `MAX_BACKOFF_SECONDS`     | `30.0`                                        | 52   |
-| `BACKOFF_MULTIPLIER`      | `2.0`                                         | 53   |
-| `TASKS_DIR`               | `Path(os.path.expanduser('~/.l9/mac_tasks...` | 69   |
+| Constant | Value | Line |
+|----------|-------|------|
+| `HIGH_RISK_TOOLS` | `get_high_risk_tools()` | 45 |
+| `IGOR_APPROVAL_REQUIRED` | `get_igor_approval_tools()` | 46 |
+| `SAFE_TOOLS` | `get_safe_tools()` | 47 |
+| `DEFAULT_MAX_RETRIES` | `3` | 50 |
+| `INITIAL_BACKOFF_SECONDS` | `1.0` | 51 |
+| `MAX_BACKOFF_SECONDS` | `30.0` | 52 |
+| `BACKOFF_MULTIPLIER` | `2.0` | 53 |
+| `TASKS_DIR` | `Path(os.path.expanduser('~/.l9/mac_tasks...` | 69 |
 
-_...and 2 more constants_
+*...and 2 more constants*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class OrchestratorsRequest(BaseModel):
     """Request model for orchestrators operations."""
@@ -296,9 +297,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Orchestrators feature flags
-L9_ENABLE_ORCHESTRATORS_TRACING: true # Enable detailed tracing
-L9_ENABLE_ORCHESTRATORS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_ORCHESTRATORS_AUDIT: true # Enable audit logging
+L9_ENABLE_ORCHESTRATORS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_ORCHESTRATORS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_ORCHESTRATORS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -336,7 +337,7 @@ Decorator to register an orchestrator class for auto-discovery.
 
 Automatically discover all orchestrators in the specified package.
 
-- **File:** `orchestrator_registry.py:117`
+- **File:** `orchestrator_registry.py:127`
 - **Async:** No
 - **Returns:** `int`
 
@@ -344,7 +345,7 @@ Automatically discover all orchestrators in the specified package.
 
 Get all registered orchestrator classes as a dictionary.
 
-- **File:** `orchestrator_registry.py:133`
+- **File:** `orchestrator_registry.py:143`
 - **Async:** No
 - **Returns:** `dict[str, type]`
 
@@ -352,7 +353,7 @@ Get all registered orchestrator classes as a dictionary.
 
 Get all orchestrator classes in a specific domain.
 
-- **File:** `orchestrator_registry.py:160`
+- **File:** `orchestrator_registry.py:170`
 - **Async:** No
 - **Returns:** `dict[str, type]`
 
@@ -360,9 +361,10 @@ Get all orchestrator classes in a specific domain.
 
 Get all orchestrator classes in a specific category.
 
-- **File:** `orchestrator_registry.py:185`
+- **File:** `orchestrator_registry.py:195`
 - **Async:** No
 - **Returns:** `dict[str, type]`
+
 
 ### Usage Example
 
@@ -393,7 +395,7 @@ Orchestrators operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "orchestrators",
   "message": "Operation completed",
@@ -404,7 +406,6 @@ Orchestrators operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -412,12 +413,12 @@ Orchestrators operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                | Type      | Description                    |
-| ------------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `orchestrators_operation_duration_ms` | Histogram | Operation latency distribution |
-| `orchestrators_operation_total`       | Counter   | Total operations processed     |
-| `orchestrators_error_total`           | Counter   | Total errors encountered       |
-| `orchestrators_active_connections`    | Gauge     | Current active connections     |
+| `orchestrators_operation_total` | Counter | Total operations processed |
+| `orchestrators_error_total` | Counter | Total errors encountered |
+| `orchestrators_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -435,7 +436,6 @@ Orchestrators emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/orchestrators/`:
-
 - `test_orchestrators.py` — Core unit tests
 - `test_orchestrators_integration.py` — Integration tests (if applicable)
 
@@ -482,7 +482,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

@@ -19,18 +19,19 @@
 # GMP-104: Consolidates PROTECTED_BY_LCTO and SUBSYSTEM_PROTECTED from
 # .github/scripts/validate-protected-files.py into declarative policy.
 #
-# Protected files can only be modified by:
-#   - L (CTO): LCTO-controlled surfaces
-#   - Igor (Boss): Any file (with audit trail)
+# Protected files require approval per approval_requirements below.
+# L (CTO) must follow the same protected-file policy as everyone else—no exemption.
+#   - Igor (Boss): Any file with audit trail
+#   - L (CTO): Designated owner for listed surfaces; L still requires approval/process
 #   - Cursor (IDE): Non-protected files only
 id: protected_files
-version: "1.0"
+version: "1.1"
 protected_files:
   # ==========================================================================
-  # LCTO-CONTROLLED FILES
+  # LCTO-OWNED FILES (flat list)
   # ==========================================================================
-  # Core infrastructure that L (CTO) controls directly.
-  # Changes require explicit L approval and architectural review.
+  # Core infrastructure owned by L (CTO). Changes require approval and review.
+  # L is not exempt: L must follow the same protected-file policy as everyone else.
   lcto_controlled:
     - path: runtime/websocket_orchestrator.py
       reason: "Real-time communication core"
@@ -81,11 +82,35 @@ protected_files:
         - core/tools/__init__.py
 
   # ==========================================================================
+  # PROTECTED PATTERNS (fnmatch-style; apply to all including L)
+  # ==========================================================================
+  protected_patterns:
+    - pattern: "Dockerfile"
+      reason: "Root container image"
+    - pattern: "Dockerfile.*"
+      reason: "Variant container images"
+    - pattern: ".github/workflows/*.yml"
+      reason: "CI pipeline definitions"
+    - pattern: ".github/scripts/*.py"
+      reason: "CI and governance scripts"
+    - pattern: "requirements*.txt"
+      reason: "Python dependency lockfiles"
+    - pattern: "pyproject.toml"
+      reason: "Project and tool config"
+    - pattern: "Makefile"
+      reason: "Build and task entrypoints"
+    - pattern: "runtime/*"
+      reason: "Runtime core (kernel, WS, Redis, etc.)"
+    - pattern: "scripts/deployment/*"
+      reason: "Deploy and release scripts"
+
+  # ==========================================================================
   # APPROVAL REQUIREMENTS
   # ==========================================================================
   approval_requirements:
+    # Applies to everyone including L (CTO). No one is exempt.
     lcto_controlled:
-      - Get approval from L (CTO)
+      - Get approval per process (L is owner but must follow same policy)
       - Open an issue documenting the change
       - Include risk assessment and rollback plan
 
@@ -93,6 +118,9 @@ protected_files:
       - Get approval from subsystem owner
       - Include test coverage for changes
       - Document API changes if any
+
+    patterns:
+      - Same as lcto_controlled; patterns cover Dockerfile, CI, runtime/*, etc.
 # ============================================================================
 # DORA FOOTER - AUTO-GENERATED
 # ============================================================================

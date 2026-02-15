@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,14 +59,14 @@ Kernel configuration and wiring utilities
 
 ### Inbound Dependencies
 
-| Module                     | Purpose          |
-| -------------------------- | ---------------- |
+| Module | Purpose |
+|--------|---------|
 | `runtime/kernel_loader.py` | Uses this module |
 
 ### Outbound Dependencies
 
-| Module          | Purpose             |
-| --------------- | ------------------- |
+| Module | Purpose |
+|--------|---------|
 | `core/kernels/` | Required dependency |
 
 ---
@@ -88,8 +88,8 @@ core/kernel_wiring/
 ├── worldmodel_wiring.py
 ```
 
-| File          | Purpose                 |
-| ------------- | ----------------------- |
+| File | Purpose |
+|------|---------|
 | `__init__.py` | Core module (PROTECTED) |
 
 ### Naming Conventions
@@ -109,18 +109,19 @@ See source files for component details.
 
 ## Data Models and Contracts
 
+
 ### Exported Symbols (`__all__`)
 
 `apply_identity_to_response`, `get_active_mode`, `get_allowed_event_types`, `get_allowed_transitions`, `get_default_channel`, `get_dev_policies`, `get_execution_state_machine`, `get_identity_profile`, `get_memory_layers_config`, `get_output_verbosity`
 
-_...and 8 more_
+*...and 8 more*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreKernelWiringRequest(BaseModel):
     """Request model for core_kernel_wiring operations."""
@@ -178,9 +179,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Kernel_Wiring feature flags
-L9_ENABLE_CORE_KERNEL_WIRING_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_KERNEL_WIRING_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_KERNEL_WIRING_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_KERNEL_WIRING_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_KERNEL_WIRING_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_KERNEL_WIRING_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -209,7 +210,7 @@ CORE_KERNEL_WIRING_ENABLED=true
 
 #### `def get_output_verbosity() -> str`
 
-No description
+Returns the current output verbosity setting from behavioral rules, defaulting to "minimal" if not specified.
 
 - **File:** `behavioral_wiring.py:41`
 - **Async:** No
@@ -217,15 +218,15 @@ No description
 
 #### `def is_topic_blocked(topic) -> bool`
 
-No description
+Checks if a given topic is listed as prohibited in behavioral kernel rules.
 
-- **File:** `behavioral_wiring.py:49`
+- **File:** `behavioral_wiring.py:50`
 - **Async:** No
 - **Returns:** `bool`
 
 #### `def get_packet_protocol() -> dict`
 
-No description
+Returns the packet protocol configuration from the kernel registry used in WebSocket task routing and event streaming.
 
 - **File:** `packet_protocol_wiring.py:41`
 - **Async:** No
@@ -233,19 +234,20 @@ No description
 
 #### `def get_allowed_event_types() -> list`
 
-No description
+Returns a list of allowed event types based on packet protocol rules from kernel configurations.
 
-- **File:** `packet_protocol_wiring.py:45`
+- **File:** `packet_protocol_wiring.py:46`
 - **Async:** No
 - **Returns:** `list`
 
 #### `def get_default_channel() -> str`
 
-No description
+Returns the default communication channel for packet protocol routing in the WebSocket task router.
 
-- **File:** `packet_protocol_wiring.py:52`
+- **File:** `packet_protocol_wiring.py:54`
 - **Async:** No
 - **Returns:** `str`
+
 
 ### Usage Example
 
@@ -276,7 +278,7 @@ Core Kernel Wiring operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.kernel_wiring",
   "message": "Operation completed",
@@ -287,7 +289,6 @@ Core Kernel Wiring operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -295,12 +296,12 @@ Core Kernel Wiring operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                                     | Type      | Description                    |
-| ------------------------------------------ | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_kernel_wiring_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_kernel_wiring_operation_total`       | Counter   | Total operations processed     |
-| `core_kernel_wiring_error_total`           | Counter   | Total errors encountered       |
-| `core_kernel_wiring_active_connections`    | Gauge     | Current active connections     |
+| `core_kernel_wiring_operation_total` | Counter | Total operations processed |
+| `core_kernel_wiring_error_total` | Counter | Total errors encountered |
+| `core_kernel_wiring_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -318,7 +319,6 @@ Core Kernel Wiring emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_kernel_wiring/`:
-
 - `test_core_kernel_wiring.py` — Core unit tests
 - `test_core_kernel_wiring_integration.py` — Integration tests (if applicable)
 
@@ -361,7 +361,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change

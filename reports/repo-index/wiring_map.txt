@@ -2,8 +2,8 @@
 # Wiring Map
 # ================================================================
 # Repo:      L9
-# Generated: 2026-02-14 01:27 UTC
-# Branch:    main (cd9f1632)
+# Generated: 2026-02-14 09:16 UTC
+# Branch:    main (4644dd28)
 # Generator: export_repo_indexes.py v3.0.0
 # ================================================================
 
@@ -54,9 +54,10 @@ uvicorn api.server:app → FastAPI lifespan() → router auto-wiring
 | `/research/swarm` | research-swarm | api/routes/research.py |
 | `/tensor-bridge` | tensor-bridge, domain-tensor-bridge | api/routes/tensor_bridge.py |
 | `/tools` | tools | api/tools/router.py |
+| `/twilio` | twilio | api/webhook_twilio.py |
 | `/workers` | workers | api/routes/workers.py |
 
-# Total: 33 auto-registered routers
+# Total: 34 auto-registered routers
 
 ## PERSISTENCE LAYER
 

@@ -2,10 +2,10 @@
 dora:
   version: "1.0"
   type: subsystem_readme
-  generated: "2026-01-29 03:05:45 UTC"
+  generated: "2026-02-14 08:25:39 UTC"
   generator: scripts/generate_subsystem_readmes.py
   config: config/subsystems/readme_config.yaml
-  time_verified: "system clock (verification skipped)"
+  time_verified: "worldtimeapi.org (drift: 1.5s)"
   auto_generated: true
 ---
 
@@ -59,15 +59,15 @@ Execution Operating System components
 
 ### Inbound Dependencies
 
-| Module | Purpose                 |
-| ------ | ----------------------- |
-| —      | No inbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No inbound dependencies |
 
 ### Outbound Dependencies
 
-| Module | Purpose                  |
-| ------ | ------------------------ |
-| —      | No outbound dependencies |
+| Module | Purpose |
+|--------|---------|
+| — | No outbound dependencies |
 
 ---
 
@@ -82,11 +82,11 @@ core/eos/
 ├── schemas.py
 ```
 
-| File                       | Purpose                                            |
-| -------------------------- | -------------------------------------------------- |
-| `__init__.py`              | Core module (PROTECTED)                            |
-| `hypergraph_client.py`     | EOS-specific hypergraph client for accountability  |
-| `ledger_writer.py`         | Immutable ledger writer for EOS accountability eve |
+| File | Purpose |
+|------|---------|
+| `__init__.py` | Core module (PROTECTED) |
+| `hypergraph_client.py` | EOS-specific hypergraph client for accountability  |
+| `ledger_writer.py` | Immutable ledger writer for EOS accountability eve |
 | `accountability_engine.py` | L9 Accountability Engine — Runtime enforcement gat |
 
 ### Naming Conventions
@@ -122,7 +122,7 @@ class EOSHypergraphClient:
 
 **Public Methods:** `__init__`, `available`, `check_violations`, `get_agent_capabilities`, `get_active_prohibitions`
 
-**Lines:** 46-345 in `hypergraph_client.py`
+**Lines:** 49-351 in `hypergraph_client.py`
 
 ### `ledger_writer.py` — EOSLedgerWriter
 
@@ -146,7 +146,7 @@ class EOSLedgerWriter:
 
 **Public Methods:** `__init__`, `available`, `_compute_hash`, `write`, `write_verdict_entry`
 
-**Lines:** 53-414 in `ledger_writer.py`
+**Lines:** 55-422 in `ledger_writer.py`
 
 ### `accountability_engine.py` — AccountabilityEngine
 
@@ -170,48 +170,50 @@ class AccountabilityEngine:
 
 **Public Methods:** `__init__`, `evaluate_action`, `_verify_signature`, `_check_authority`, `_check_constraints`
 
-**Lines:** 32-330 in `accountability_engine.py`
+**Lines:** 56-362 in `accountability_engine.py`
 
 ### `schemas.py` — EpistemicObjectType
 
 ```python
 class EpistemicObjectType:
-    """Types of epistemic objects"""
+    """Types of epistemic objects."""
 
     # Key methods:
 
 ```
 
-**Lines:** 18-27 in `schemas.py`
+**Lines:** 46-59 in `schemas.py`
 
 ### `schemas.py` — Enforceability
 
 ```python
 class Enforceability:
-    """Enforceability levels"""
+    """Enforceability levels."""
 
     # Key methods:
 
 ```
 
-**Lines:** 30-35 in `schemas.py`
+**Lines:** 62-71 in `schemas.py`
+
 
 ---
 
 ## Data Models and Contracts
 
+
 ### Exported Symbols (`__all__`)
 
 `AccountabilityEngine`, `ActionEnvelope`, `ActionType`, `AuthorityLevel`, `Condition`, `ConditionType`, `DoctrineSource`, `EOSHypergraphClient`, `EOSLedgerWriter`, `Enforceability`
 
-_...and 13 more_
+*...and 13 more*
 
 ### Key Schemas
 
 ```python
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 class CoreEosRequest(BaseModel):
     """Request model for core_eos operations."""
@@ -270,9 +272,9 @@ No background tasks. Operations are request-driven.
 
 ```yaml
 # Core_Eos feature flags
-L9_ENABLE_CORE_EOS_TRACING: true # Enable detailed tracing
-L9_ENABLE_CORE_EOS_METRICS: true # Enable Prometheus metrics
-L9_ENABLE_CORE_EOS_AUDIT: true # Enable audit logging
+L9_ENABLE_CORE_EOS_TRACING: true  # Enable detailed tracing
+L9_ENABLE_CORE_EOS_METRICS: true  # Enable Prometheus metrics
+L9_ENABLE_CORE_EOS_AUDIT: true    # Enable audit logging
 ```
 
 ### Tuning Parameters
@@ -303,7 +305,7 @@ CORE_EOS_ENABLED=true
 
 Factory function to create EOSHypergraphClient with Neo4j.
 
-- **File:** `hypergraph_client.py:353`
+- **File:** `hypergraph_client.py:359`
 - **Async:** Yes
 - **Returns:** `EOSHypergraphClient`
 
@@ -311,9 +313,10 @@ Factory function to create EOSHypergraphClient with Neo4j.
 
 Factory function to create EOSLedgerWriter with SubstrateService.
 
-- **File:** `ledger_writer.py:422`
+- **File:** `ledger_writer.py:430`
 - **Async:** Yes
 - **Returns:** `EOSLedgerWriter`
+
 
 ### Usage Example
 
@@ -344,7 +347,7 @@ Core Eos operations emit structured JSON logs:
 
 ```json
 {
-  "timestamp": "2026-01-29T03:05:45Z",
+  "timestamp": "2026-02-14T08:25:39Z",
   "level": "INFO",
   "module": "core.eos",
   "message": "Operation completed",
@@ -355,7 +358,6 @@ Core Eos operations emit structured JSON logs:
 ```
 
 **Log Levels:**
-
 - `DEBUG` — Detailed execution steps (off in production)
 - `INFO` — Lifecycle events, successful operations
 - `WARNING` — Timeouts, resource warnings, recoverable errors
@@ -363,12 +365,12 @@ Core Eos operations emit structured JSON logs:
 
 ### Metrics
 
-| Metric                           | Type      | Description                    |
-| -------------------------------- | --------- | ------------------------------ |
+| Metric | Type | Description |
+|--------|------|-------------|
 | `core_eos_operation_duration_ms` | Histogram | Operation latency distribution |
-| `core_eos_operation_total`       | Counter   | Total operations processed     |
-| `core_eos_error_total`           | Counter   | Total errors encountered       |
-| `core_eos_active_connections`    | Gauge     | Current active connections     |
+| `core_eos_operation_total` | Counter | Total operations processed |
+| `core_eos_error_total` | Counter | Total errors encountered |
+| `core_eos_active_connections` | Gauge | Current active connections |
 
 ### Tracing
 
@@ -386,7 +388,6 @@ Core Eos emits OpenTelemetry spans:
 ### Unit Tests
 
 Located in `tests/core_eos/`:
-
 - `test_core_eos.py` — Core unit tests
 - `test_core_eos_integration.py` — Integration tests (if applicable)
 
@@ -429,7 +430,6 @@ Located in `tests/integration/`:
 ### Change Policy
 
 All changes proposed by AI tools must:
-
 1. Be scoped PRs with clear commit messages
 2. Include tests (unit + integration where applicable)
 3. Update documentation if APIs change
